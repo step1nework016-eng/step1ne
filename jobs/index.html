@@ -28,10 +28,25 @@ a:hover{color:#8a6531;}
 .wrap{max-width:900px;margin:0 auto;padding:0 24px;}
 h2{font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;color:#1c1f26;margin:0 0 16px;}
 
-/* 產業分類篩選 */
-.cats{display:flex;flex-wrap:wrap;gap:9px;margin:0 0 26px;}
-.cat{font-size:14px;font-weight:600;color:#6b6e77;background:#fff;border:1px solid #e6dfd1;padding:9px 16px;border-radius:999px;cursor:pointer;min-height:40px;display:inline-flex;align-items:center;}
-.cat.is-active{background:#1c1f26;border-color:#1c1f26;color:#fff;}
+/* 搜尋與篩選 */
+.filters{background:#fff;border:1px solid #e6dfd1;border-radius:18px;padding:20px 22px;margin:0 0 16px;}
+.search-box{position:relative;margin-bottom:20px;}
+.search-box input{width:100%;font-family:inherit;font-size:16px;color:#23262d;background:#faf7f1;border:1px solid #e6dfd1;border-radius:12px;padding:14px 44px 14px 16px;min-height:52px;}
+.search-box input:focus{outline:2px solid rgba(166,124,61,0.5);outline-offset:1px;border-color:#a67c3d;}
+.search-box input::-webkit-search-cancel-button{display:none;}
+.search-box button{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:36px;height:36px;border:none;background:transparent;color:#8a8d95;font-size:22px;cursor:pointer;border-radius:50%;display:none;}
+.search-box.has-value button{display:block;}
+.filter-group{margin-bottom:16px;}
+.filter-group:last-child{margin-bottom:0;}
+.filter-group.is-hidden{display:none;}
+.filter-label{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;color:#a67c3d;text-transform:uppercase;margin-bottom:10px;}
+.chips{display:flex;flex-wrap:wrap;gap:9px;}
+.chip{font-family:inherit;font-size:14px;font-weight:600;color:#6b6e77;background:#faf7f1;border:1px solid #e6dfd1;padding:9px 16px;border-radius:999px;cursor:pointer;min-height:44px;display:inline-flex;align-items:center;}
+.chip:hover{border-color:rgba(166,124,61,0.5);}
+.chip.is-active{background:#1c1f26;border-color:#1c1f26;color:#fff;}
+.result-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 18px;padding:0 4px;font-size:14px;color:#8a8d95;}
+.result-bar button{font-family:inherit;font-size:13.5px;color:#a67c3d;background:none;border:none;cursor:pointer;padding:8px 4px;min-height:40px;text-decoration:underline;}
+.result-bar button.is-hidden{visibility:hidden;}
 
 /* 職缺卡 */
 .jobs{display:flex;flex-direction:column;gap:14px;}
@@ -63,10 +78,17 @@ h2{font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;color:#1c1f2
 <body>
 
 <header style="position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:rgba(244,241,234,0.9);border-bottom:1px solid #e6dfd1;">
-  <div class="wrap" style="display:flex;align-items:center;justify-content:space-between;height:68px;">
+  <div class="wrap" style="display:flex;align-items:center;justify-content:space-between;gap:20px;height:68px;max-width:1180px;">
     <a href="/" style="display:flex;align-items:center;gap:12px;color:#23262d;">
       <img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問" style="height:38px;width:auto;">
     </a>
+    <div class="s1ne-hide-m step1ne-desktop-nav" style="display:flex;align-items:center;gap:26px;font-size:14.5px;color:#4a4d55;">
+      <a href="/#enterprise" style="color:#4a4d55;">企業服務</a>
+      <a href="/jobs/" style="color:#4a4d55;">職缺專區</a>
+      <a href="/articles/work-with-headhunters/" style="color:#4a4d55;">企業獵才指南</a>
+      <a href="/#talent" style="color:#4a4d55;">人才・求職者</a>
+      <a href="/#about" style="color:#4a4d55;">關於我們</a>
+    </div>
     <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" class="s1ne-hide-m" style="background:linear-gradient(135deg,#c9a049,#a67c3d);color:#fff;font-weight:700;font-size:13.5px;padding:9px 18px;border-radius:999px;white-space:nowrap;">LINE 洽詢</a>
     <button type="button" class="s1ne-show-m" onclick="document.getElementById('s1ne-mmenu').classList.toggle('is-open')" aria-label="開啟選單" style="align-items:center;justify-content:center;width:40px;height:40px;border:1px solid #e6dfd1;border-radius:10px;background:#fff;flex-shrink:0;">
       <span style="display:block;width:18px;height:2px;background:#23262d;box-shadow:0 6px 0 #23262d,0 -6px 0 #23262d;"></span>
@@ -95,19 +117,33 @@ h2{font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;color:#1c1f2
 
   <section style="padding:28px 0 64px;">
     <div class="wrap">
-      <div class="cats" id="cats">
-        <button type="button" class="cat is-active" data-cat="all">全部職缺</button>
-        <button type="button" class="cat" data-cat="semiconductor">半導體・電子</button>
-        <button type="button" class="cat" data-cat="construction">營建・工程</button>
-        <button type="button" class="cat" data-cat="it">資訊・軟體</button>
-        <button type="button" class="cat" data-cat="finance">財務・會計</button>
-        <button type="button" class="cat" data-cat="operations">營運・供應鏈</button>
-        <button type="button" class="cat" data-cat="overseas">海外職缺</button>
+      <div class="filters">
+        <div class="search-box">
+          <input type="search" id="q" placeholder="搜尋職稱、地點或關鍵字…" aria-label="搜尋職缺" autocomplete="off">
+          <button type="button" id="qclear" aria-label="清除搜尋">×</button>
+        </div>
+
+        <div class="filter-group">
+          <div class="filter-label">職缺類型</div>
+          <div class="chips" id="tracks">
+            <button type="button" class="chip is-active" data-track="all">全部</button>
+            <button type="button" class="chip" data-track="senior">中高階職缺</button>
+            <button type="button" class="chip" data-track="general">一般職缺</button>
+            <button type="button" class="chip" data-track="dispatch">派遣職缺</button>
+          </div>
+        </div>
+
+        <div class="filter-group" id="catgroup">
+          <div class="filter-label">產業領域</div>
+          <div class="chips" id="cats"></div>
+        </div>
       </div>
+
+      <div class="result-bar"><span id="count"></span><button type="button" id="reset">清除全部條件</button></div>
 
       <div class="jobs" id="jobs">
         <!-- 新增職缺：複製一個 <a class="job"> 區塊，改 data-cat 與內容即可 -->
-        <a class="job" href="/jobs/finance-controller-overseas/" data-cat="finance overseas">
+        <a class="job" href="/jobs/finance-controller-overseas/" data-track="senior" data-cat="finance overseas">
           <div class="job-industry">財務會計・製造業</div>
           <h2 class="job-title">財務主管 Finance Controller（柬埔寨外派）</h2>
           <div class="job-meta">
@@ -121,7 +157,7 @@ h2{font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;color:#1c1f2
           <span class="job-more">查看職缺詳情 →</span>
         </a>
 
-        <a class="job" href="/jobs/group-it-head/" data-cat="it">
+        <a class="job" href="/jobs/group-it-head/" data-track="senior" data-cat="it">
           <div class="job-industry">資訊管理・製造業</div>
           <h2 class="job-title">集團資訊主管 Group IT Head</h2>
           <div class="job-meta">
@@ -135,7 +171,7 @@ h2{font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;color:#1c1f2
           <span class="job-more">查看職缺詳情 →</span>
         </a>
 
-        <a class="job" href="/jobs/business-operations-manager/" data-cat="operations">
+        <a class="job" href="/jobs/business-operations-manager/" data-track="senior" data-cat="operations">
           <div class="job-industry">營運管理・供應鏈</div>
           <h2 class="job-title">營運發展主管 Business Operations Manager</h2>
           <div class="job-meta">
@@ -149,7 +185,7 @@ h2{font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;color:#1c1f2
           <span class="job-more">查看職缺詳情 →</span>
         </a>
 
-        <a class="job" href="/jobs/bim-engineer/" data-cat="construction semiconductor">
+        <a class="job" href="/jobs/bim-engineer/" data-track="dispatch" data-cat="construction semiconductor">
           <div class="job-industry">營建工程・半導體建廠</div>
           <h2 class="job-title">BIM 工程師（建廠專案）</h2>
           <div class="job-meta">
@@ -176,18 +212,82 @@ h2{font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;color:#1c1f2
 </footer>
 
 <script>
-document.getElementById('cats').addEventListener('click', function(e){
-  var btn = e.target.closest('.cat');
-  if(!btn) return;
-  this.querySelectorAll('.cat').forEach(function(b){ b.classList.toggle('is-active', b===btn); });
-  var cat = btn.dataset.cat, shown = 0;
-  document.querySelectorAll('#jobs .job').forEach(function(j){
-    var match = cat === 'all' || (j.dataset.cat || '').split(' ').indexOf(cat) > -1;
-    j.style.display = match ? 'block' : 'none';
-    if(match) shown++;
+(function(){
+  var CAT_LABEL = {
+    finance:'財務・會計', it:'資訊・軟體', operations:'營運・供應鏈',
+    construction:'營建・工程', semiconductor:'半導體・電子', overseas:'海外外派'
+  };
+  var jobs   = [].slice.call(document.querySelectorAll('#jobs .job'));
+  var qInput = document.getElementById('q');
+  var qBox   = qInput.parentNode;
+  var tracks = document.getElementById('tracks');
+  var cats   = document.getElementById('cats');
+  var catGrp = document.getElementById('catgroup');
+  var countEl= document.getElementById('count');
+  var resetEl= document.getElementById('reset');
+  var state  = { track:'all', cat:'all', q:'' };
+
+  jobs.forEach(function(j){ j._text = (j.textContent||'').toLowerCase(); });
+
+  // 依目前大分類，重建「產業領域」選項；選「全部」時不顯示這一層
+  function buildCats(){
+    if(state.track === 'all'){ catGrp.classList.add('is-hidden'); state.cat='all'; return; }
+    catGrp.classList.remove('is-hidden');
+    var seen = [];
+    jobs.forEach(function(j){
+      if(j.dataset.track !== state.track) return;
+      (j.dataset.cat||'').split(' ').filter(Boolean).forEach(function(c){
+        if(seen.indexOf(c) === -1) seen.push(c);
+      });
+    });
+    var html = '<button type="button" class="chip'+(state.cat==='all'?' is-active':'')+'" data-cat="all">全部</button>';
+    seen.forEach(function(c){
+      html += '<button type="button" class="chip'+(state.cat===c?' is-active':'')+'" data-cat="'+c+'">'+(CAT_LABEL[c]||c)+'</button>';
+    });
+    cats.innerHTML = html;
+  }
+
+  function apply(){
+    var shown = 0;
+    jobs.forEach(function(j){
+      var okTrack = state.track === 'all' || j.dataset.track === state.track;
+      var okCat   = state.cat === 'all' || (j.dataset.cat||'').split(' ').indexOf(state.cat) > -1;
+      var okQ     = !state.q || j._text.indexOf(state.q) > -1;
+      var show    = okTrack && okCat && okQ;
+      j.style.display = show ? 'block' : 'none';
+      if(show) shown++;
+    });
+    document.getElementById('empty').style.display = shown ? 'none' : 'block';
+    countEl.textContent = shown === jobs.length ? ('共 ' + jobs.length + ' 個職缺') : ('符合條件：' + shown + ' / ' + jobs.length + ' 個職缺');
+    var filtering = state.track!=='all' || state.cat!=='all' || !!state.q;
+    resetEl.classList.toggle('is-hidden', !filtering);
+    qBox.classList.toggle('has-value', !!state.q);
+  }
+
+  tracks.addEventListener('click', function(e){
+    var b = e.target.closest('.chip'); if(!b) return;
+    state.track = b.dataset.track; state.cat = 'all';
+    [].forEach.call(this.querySelectorAll('.chip'), function(x){ x.classList.toggle('is-active', x===b); });
+    buildCats(); apply();
   });
-  document.getElementById('empty').style.display = shown ? 'none' : 'block';
-});
+
+  cats.addEventListener('click', function(e){
+    var b = e.target.closest('.chip'); if(!b) return;
+    state.cat = b.dataset.cat;
+    [].forEach.call(this.querySelectorAll('.chip'), function(x){ x.classList.toggle('is-active', x===b); });
+    apply();
+  });
+
+  qInput.addEventListener('input', function(){ state.q = this.value.trim().toLowerCase(); apply(); });
+  document.getElementById('qclear').addEventListener('click', function(){ qInput.value=''; state.q=''; qInput.focus(); apply(); });
+  resetEl.addEventListener('click', function(){
+    state = { track:'all', cat:'all', q:'' }; qInput.value='';
+    [].forEach.call(tracks.querySelectorAll('.chip'), function(x){ x.classList.toggle('is-active', x.dataset.track==='all'); });
+    buildCats(); apply();
+  });
+
+  buildCats(); apply();
+})();
 </script>
 
 </body>
