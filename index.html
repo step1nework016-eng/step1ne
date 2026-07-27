@@ -87,6 +87,12 @@ details[open] summary .faq-icon{transform:rotate(45deg);}
 .s1ne-mobile-menu.is-open{display:flex;}
 .s1ne-mobile-menu a{padding:12px 0;color:#4a4d55;font-size:15px;border-bottom:1px solid #e6dfd1;}
 .s1ne-mobile-menu a:last-child{border-bottom:none;}
+/* 品牌 Banner：桌機完整顯示 4:1，手機改用裁切避免變成無法辨識的細條 */
+.s1ne-banner{line-height:0;background:#dfe9f2;}
+.s1ne-banner img{width:100%;height:auto;display:block;}
+@media (max-width:760px){
+  .s1ne-banner img{height:150px;object-fit:cover;object-position:left center;}
+}
 [data-reveal]{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1);}
 [data-reveal].is-visible{opacity:1;transform:none;}
 </style>
@@ -130,6 +136,11 @@ details[open] summary .faq-icon{transform:rotate(45deg);}
   </header>
 
   <a id="top"></a>
+  <!-- ═══ 品牌 Banner ═══ -->
+  <div class="s1ne-banner">
+    <img src="assets/hero-banner.webp" alt="Step1ne 德仁管理顧問｜IT人才專家・高階獵才平台" width="1584" height="396" fetchpriority="high">
+  </div>
+
   <!-- ═══ HERO：雙受眾對等分流 ═══ -->
   <section style="position:relative;max-width:1240px;margin:0 auto;padding:clamp(56px,8vw,104px) 28px clamp(40px,5vw,64px);">
     <div style="position:absolute;inset:0;pointer-events:none;overflow:hidden;">
