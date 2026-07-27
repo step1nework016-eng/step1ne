@@ -54,10 +54,10 @@ p{color:#3a3d44;font-size:15.5px;margin:0 0 16px;}
 ul{padding-left:22px;color:#3a3d44;font-size:15.5px;}
 li{margin-bottom:8px;}
 .tbl-wrap{overflow-x:auto;margin:16px 0 8px;}
-table{width:100%;border-collapse:collapse;font-size:14.5px;background:#fff;min-width:420px;}
+table{width:100%;border-collapse:collapse;font-size:14.5px;background:#fff;min-width:560px;}
 th,td{border:1px solid #e6dfd1;padding:11px 13px;text-align:left;vertical-align:top;}
 th{background:#faf7f1;font-weight:700;white-space:nowrap;}
-td strong{color:#8a5a1a;}
+td strong{color:#8a5a1a;white-space:nowrap;}
 .note{font-size:13.5px;color:#8a8d95;margin:0 0 24px;}
 .callout{background:#fff;border:1px solid #e6dfd1;border-radius:14px;padding:20px 22px;margin:0 0 16px;}
 .insight{background:#fdfaf3;border:1px solid rgba(166,124,61,0.35);border-radius:14px;padding:20px 22px;margin:24px 0;}
@@ -73,6 +73,19 @@ td strong{color:#8a5a1a;}
 .s1ne-mobile-menu.is-open{display:flex;}
 .s1ne-mobile-menu a{padding:10px 0;color:#4a4d55;font-size:15px;border-bottom:1px solid #e6dfd1;min-height:44px;display:flex;align-items:center;}
 .s1ne-mobile-menu a:last-child{border-bottom:none;}
+
+/* 表格：桌機正常表格；手機自動改成卡片式堆疊，避免多欄被壓爛 */
+@media (max-width:640px){
+  .tbl-wrap{overflow-x:visible;}
+  .tbl-wrap table{min-width:0;display:block;background:transparent;}
+  .tbl-wrap thead{display:none;}
+  .tbl-wrap tbody{display:block;}
+  .tbl-wrap tr{display:block;background:#fff;border:1px solid #e6dfd1;border-radius:14px;margin-bottom:12px;overflow:hidden;}
+  .tbl-wrap td{display:block;border:none;border-bottom:1px solid #f2ede3;padding:12px 16px;}
+  .tbl-wrap tr td:last-child{border-bottom:none;}
+  .tbl-wrap td::before{content:attr(data-label);display:block;font-size:11.5px;font-weight:700;letter-spacing:0.5px;color:#a67c3d;margin-bottom:4px;}
+  .tbl-wrap td:empty{display:none;}
+}
 </style>
 </head>
 <body>
@@ -114,11 +127,11 @@ td strong{color:#8a5a1a;}
       <table>
         <thead><tr><th>級距</th><th>常見職稱</th><th>年資</th><th>月薪帶</th><th>實際在做什麼</th></tr></thead>
         <tbody>
-          <tr><td><strong>Lv1</strong></td><td>BIM 建模師／繪圖員</td><td>0–2 年</td><td><strong>35–45K</strong></td><td>單一構件建模（LOD 100–300），不帶人。工具以 Revit 基礎＋AutoCAD 為主</td></tr>
-          <tr><td><strong>Lv2</strong></td><td>BIM 工程師</td><td>2–4 年</td><td><strong>38–60K</strong><br>中位 48–55K</td><td>主導單一專業（機電／建築／結構）模型，開始出衝突檢測報告。需 Revit 進階＋Navisworks 基礎</td></tr>
-          <tr><td><strong>Lv3</strong></td><td>BIM 協調師</td><td>4–6 年</td><td><strong>50–70K</strong></td><td>跨專業整合協調、制定 LOD 標準、帶 1–2 人、主持衝突檢測會議。需 BIM 360／ACC 協作經驗</td></tr>
-          <tr><td><strong>Lv4</strong></td><td>BIM Lead／資深協調師</td><td>6–9 年</td><td><strong>50–70K 以上</strong></td><td>撰寫全案 BEP、業主／設計／營造三方溝通窗口、帶 3–5 人。多加 Dynamo 自動化、鋼構案需 Tekla</td></tr>
-          <tr><td><strong>Lv5–6</strong></td><td>BIM 經理／VDC 總監</td><td>9 年以上</td><td><strong>年薪 90–120 萬</strong></td><td>部門管理、制定公司層級 BIM 標準</td></tr>
+          <tr><td data-label="級距"><strong>Lv1</strong></td><td data-label="常見職稱">BIM 建模師／繪圖員</td><td data-label="年資">0–2 年</td><td data-label="月薪帶"><strong>35–45K</strong></td><td data-label="實際在做什麼">單一構件建模（LOD 100–300），不帶人。工具以 Revit 基礎＋AutoCAD 為主</td></tr>
+          <tr><td data-label="級距"><strong>Lv2</strong></td><td data-label="常見職稱">BIM 工程師</td><td data-label="年資">2–4 年</td><td data-label="月薪帶"><strong>38–60K</strong><br>中位 48–55K</td><td data-label="實際在做什麼">主導單一專業（機電／建築／結構）模型，開始出衝突檢測報告。需 Revit 進階＋Navisworks 基礎</td></tr>
+          <tr><td data-label="級距"><strong>Lv3</strong></td><td data-label="常見職稱">BIM 協調師</td><td data-label="年資">4–6 年</td><td data-label="月薪帶"><strong>50–70K</strong></td><td data-label="實際在做什麼">跨專業整合協調、制定 LOD 標準、帶 1–2 人、主持衝突檢測會議。需 BIM 360／ACC 協作經驗</td></tr>
+          <tr><td data-label="級距"><strong>Lv4</strong></td><td data-label="常見職稱">BIM Lead／資深協調師</td><td data-label="年資">6–9 年</td><td data-label="月薪帶"><strong>50–70K 以上</strong></td><td data-label="實際在做什麼">撰寫全案 BEP、業主／設計／營造三方溝通窗口、帶 3–5 人。多加 Dynamo 自動化、鋼構案需 Tekla</td></tr>
+          <tr><td data-label="級距"><strong>Lv5–6</strong></td><td data-label="常見職稱">BIM 經理／VDC 總監</td><td data-label="年資">9 年以上</td><td data-label="月薪帶"><strong>年薪 90–120 萬</strong></td><td data-label="實際在做什麼">部門管理、制定公司層級 BIM 標準</td></tr>
         </tbody>
       </table>
     </div>
@@ -210,6 +223,7 @@ td strong{color:#8a5a1a;}
       <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;background:#06c755;color:#fff;font-weight:700;font-size:16px;padding:15px 32px;border-radius:999px;">加入LINE官方帳號諮詢</a>
       <p style="margin:18px 0 0;font-size:14.5px;"><a href="/jobs/bim-engineer/">查看 BIM 工程師職缺詳情 →</a></p>
     </div>
+  <p style="margin-top:32px;font-size:14.5px;color:#8a8d95;">延伸閱讀：<a href="/articles/what-is-bim-engineer/">BIM 工程師是什麼？跟繪圖員差在哪？</a></p>
   </article>
 </main>
 
