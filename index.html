@@ -93,6 +93,12 @@ details[open] summary .faq-icon{transform:rotate(45deg);}
 @media (max-width:760px){
   .s1ne-banner img{height:150px;object-fit:cover;object-position:left center;}
 }
+/* 手機：頁尾連結加大觸控區至 44px（原本僅21px，低於行動裝置可用性建議） */
+@media (max-width:760px){
+  .s1ne-flinks{gap:0 !important;}
+  .s1ne-flinks a{display:inline-flex;align-items:center;min-height:44px;}
+  footer a{min-height:44px;display:inline-flex;align-items:center;}
+}
 [data-reveal]{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1);}
 [data-reveal].is-visible{opacity:1;transform:none;}
 </style>
@@ -452,7 +458,7 @@ details[open] summary .faq-icon{transform:rotate(45deg);}
       <div style="min-width:200px;">
         <div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;margin-bottom:10px;color:#23262d;">Step<span style="color:#a67c3d;">1</span>ne</div>
         <p style="color:#7a7d85;font-size:13.5px;max-width:300px;margin:0 0 16px;">德仁管理顧問有限公司 · AI 精準媒合 × 高階獵頭</p>
-        <div style="display:flex;gap:14px;">
+        <div class="s1ne-flinks" style="display:flex;gap:14px;flex-wrap:wrap;">
           <a href="https://www.104.com.tw/company/1a2x6blikz" target="_blank" rel="noopener" style="color:#7a7d85;font-size:13px;">104</a>
           <a href="https://www.facebook.com/Step1ne" target="_blank" rel="noopener" style="color:#7a7d85;font-size:13px;">Facebook</a>
           <a href="https://www.instagram.com/step1ne_tw/" target="_blank" rel="noopener" style="color:#7a7d85;font-size:13px;">Instagram</a>
@@ -461,7 +467,7 @@ details[open] summary .faq-icon{transform:rotate(45deg);}
       </div>
       <div>
         <div style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;color:#a67c3d;text-transform:uppercase;margin-bottom:16px;">企業服務</div>
-        <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="s1ne-flinks" style="display:flex;flex-direction:column;gap:10px;">
           <a href="#enterprise" style="color:#6b6e77;font-size:14px;">高階獵頭</a>
           <a href="#enterprise" style="color:#6b6e77;font-size:14px;">正職招募</a>
           <a href="#enterprise" style="color:#6b6e77;font-size:14px;">人力派遣</a>
@@ -470,7 +476,7 @@ details[open] summary .faq-icon{transform:rotate(45deg);}
       </div>
       <div>
         <div style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;color:#a67c3d;text-transform:uppercase;margin-bottom:16px;">人才專區</div>
-        <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="s1ne-flinks" style="display:flex;flex-direction:column;gap:10px;">
           <a href="/jobs/bim-engineer/" style="color:#6b6e77;font-size:14px;">BIM工程師職缺</a>
           <a href="#talent" style="color:#6b6e77;font-size:14px;">全民獵才 App</a>
           <a href="#talent" style="color:#6b6e77;font-size:14px;">AI 求職工具</a>
