@@ -80,7 +80,13 @@ details[open] summary .faq-icon{transform:rotate(45deg);}
   .s1ne-hide-m{display:none !important;}
   .s1ne-lineapp-grid{grid-template-columns:1fr !important;}
   .s1ne-footer-grid{grid-template-columns:1fr !important;gap:28px !important;}
+  .s1ne-show-m{display:flex !important;}
 }
+.s1ne-show-m{display:none;}
+.s1ne-mobile-menu{display:none;flex-direction:column;padding:8px 28px 20px;border-top:1px solid #e6dfd1;background:rgba(244,241,234,0.98);}
+.s1ne-mobile-menu.is-open{display:flex;}
+.s1ne-mobile-menu a{padding:12px 0;color:#4a4d55;font-size:15px;border-bottom:1px solid #e6dfd1;}
+.s1ne-mobile-menu a:last-child{border-bottom:none;}
 [data-reveal]{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1);}
 [data-reveal].is-visible{opacity:1;transform:none;}
 </style>
@@ -104,10 +110,23 @@ details[open] summary .faq-icon{transform:rotate(45deg);}
         <a href="#about" style="color:#4a4d55;">關於我們</a>
         <a href="#faq" style="color:#4a4d55;">常見問題</a>
       </div>
-      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#c9a049,#a67c3d);color:#fff;font-weight:700;font-size:14px;padding:11px 20px;border-radius:999px;white-space:nowrap;box-shadow:0 6px 20px rgba(166,124,61,0.28);">
+      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" class="s1ne-hide-m" style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#c9a049,#a67c3d);color:#fff;font-weight:700;font-size:14px;padding:11px 20px;border-radius:999px;white-space:nowrap;box-shadow:0 6px 20px rgba(166,124,61,0.28);">
         <span style="width:7px;height:7px;border-radius:50%;background:#fff;"></span>LINE 洽詢
       </a>
+      <button type="button" class="s1ne-show-m" onclick="document.getElementById('s1ne-mmenu').classList.toggle('is-open')" aria-label="開啟選單" style="align-items:center;justify-content:center;width:40px;height:40px;border:1px solid #e6dfd1;border-radius:10px;background:#fff;">
+        <span style="display:block;width:18px;height:2px;background:#23262d;box-shadow:0 6px 0 #23262d,0 -6px 0 #23262d;"></span>
+      </button>
     </nav>
+    <div id="s1ne-mmenu" class="s1ne-mobile-menu">
+      <a href="#enterprise">企業服務</a>
+      <a href="/jobs/bim-engineer/">職缺</a>
+      <a href="/articles/work-with-headhunters/">企業獵才指南</a>
+      <a href="#talent">人才・求職者</a>
+      <a href="#ai">AI 媒合</a>
+      <a href="#about">關於我們</a>
+      <a href="#faq">常見問題</a>
+      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="color:#a67c3d;font-weight:700;">LINE 洽詢 →</a>
+    </div>
   </header>
 
   <a id="top"></a>
