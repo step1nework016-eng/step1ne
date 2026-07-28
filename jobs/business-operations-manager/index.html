@@ -68,8 +68,8 @@ document.addEventListener('click', function (e) {
       "@type": "Place",
       "address": {
         "@type": "PostalAddress",
-        "addressLocality": "台北市",
-        "addressCountry": "TW"
+        "addressCountry": "TW",
+        "addressRegion": "台北市"
       }
     }
   ],
@@ -84,9 +84,13 @@ document.addEventListener('click', function (e) {
     }
   },
   "jobBenefits": "績效獎金、海外出差補助",
-  "experienceRequirements": "8年以上營運管理、供應鏈或國際業務相關經驗，並具製造業背景",
+  "experienceRequirements": {
+    "@type": "OccupationalExperienceRequirements",
+    "monthsOfExperience": 96
+  },
   "occupationalCategory": "營運管理／Business Operations",
-  "industry": "製造業／營運管理"
+  "industry": "製造業／營運管理",
+  "qualifications": "8年以上營運管理、供應鏈或國際業務相關經驗，並具製造業背景"
 }
 </script>
 

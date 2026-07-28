@@ -68,7 +68,6 @@ document.addEventListener('click', function (e) {
       "@type": "Place",
       "address": {
         "@type": "PostalAddress",
-        "addressLocality": "台灣",
         "addressCountry": "TW"
       }
     }
@@ -84,9 +83,13 @@ document.addEventListener('click', function (e) {
     }
   },
   "jobBenefits": "依資歷面議，視集團管理經驗、ERP能力及資訊治理經驗彈性調整",
-  "experienceRequirements": "5年以上集團型或多據點IT管理經驗，並具鼎新T100 ERP實務經驗",
+  "experienceRequirements": {
+    "@type": "OccupationalExperienceRequirements",
+    "monthsOfExperience": 60
+  },
   "occupationalCategory": "資訊主管／IT Director",
-  "industry": "製造業／資訊管理"
+  "industry": "製造業／資訊管理",
+  "qualifications": "5年以上集團型或多據點IT管理經驗，並具鼎新T100 ERP實務經驗"
 }
 </script>
 
