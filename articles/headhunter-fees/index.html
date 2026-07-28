@@ -2,6 +2,25 @@
 <html lang="zh-Hant-TW">
 <head>
 <meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href*="lin.ee"]');
+  if (!a) return;
+  gtag('event', 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60)
+  });
+});
+</script>
+
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>獵頭公司收費怎麼算？費率、保底費與談判重點｜Step1ne</title>
 <meta name="description" content="台灣獵頭收費約年薪20%-30%，但報價單看不到的四件事才決定總金額：年薪定義、保底費、保固條件、人選歸屬。獵頭顧問說明哪些真的可以談。">

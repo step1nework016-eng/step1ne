@@ -2,6 +2,25 @@
 <html lang="zh-Hant-TW">
 <head>
 <meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href*="lin.ee"]');
+  if (!a) return;
+  gtag('event', 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60)
+  });
+});
+</script>
+
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>東南亞外派工作怎麼分辨真假？詐騙公式與查證五步驟｜Step1ne</title>
 <meta name="description" content="柬埔寨求職詐騙2026年仍持續發生。這篇拆解詐騙的五個共同特徵、出發前必做的查證五步驟、絕對不能答應的三件事，以及合法外派實際長什麼樣、值不值得。">

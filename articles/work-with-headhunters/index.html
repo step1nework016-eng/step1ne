@@ -2,6 +2,25 @@
 <html lang="zh-Hant-TW">
 <head>
 <meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href*="lin.ee"]');
+  if (!a) return;
+  gtag('event', 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60)
+  });
+});
+</script>
+
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>台灣企業怎麼跟獵頭合作？合作管道、收費方式一次搞懂｜Step1ne</title>
 <meta name="description" content="台灣獵頭公司怎麼選？獵頭收費怎麼算？這篇整理企業與獵頭合作的管道、收費模式與挑選重點，幫你判斷什麼時候該找獵頭、怎麼跟獵頭談合作。">

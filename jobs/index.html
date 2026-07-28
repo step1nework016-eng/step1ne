@@ -2,6 +2,25 @@
 <html lang="zh-Hant-TW">
 <head>
 <meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href*="lin.ee"]');
+  if (!a) return;
+  gtag('event', 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60)
+  });
+});
+</script>
+
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>職缺專區｜高階獵才・工程・海外職缺一覽｜Step1ne 德仁管理顧問</title>
 <meta name="description" content="Step1ne 職缺專區，涵蓋高階主管、財務、資訊、營運供應鏈、營建工程與海外外派職缺，年薪百萬職缺持續更新。由專業獵頭顧問保密協助媒合。">
