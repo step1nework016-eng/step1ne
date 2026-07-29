@@ -422,32 +422,55 @@ h2{font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;color:#1c1f2
 </html>
 
 <script>
-// 熱門職缺：從頁面上實際存在的職缺卡隨機抽三個。
-// 不另外維護一份清單——職缺一下架這裡就會自動跟著少，不會留幽靈卡片。
+// 熱門職缺：中高階／正職／派遣各抽一個。
+// 純隨機的話常常三張都是同一類，看的人會以為這裡只有那種職缺。
 (function () {
   const box = document.getElementById('hotJobs');
   if (!box) return;
-  const all = [...document.querySelectorAll('#jobs a[href^="/jobs/"]')]
-    .map(a => ({
-      href: a.getAttribute('href'),
-      title: (a.querySelector('h3,strong,b')?.textContent || a.textContent).trim().split('\n')[0].slice(0, 40),
-      meta: (a.textContent.match(/(台北|新北|桃園|台中|台南|高雄|苗栗|新竹|花蓮|柬埔寨)[^\s|｜]{0,6}/) || [''])[0],
-    }))
-    .filter(j => j.title);
-  if (!all.length) { box.closest('section').style.display = 'none'; return; }
+
+  // 分類沿用篩選器既有的 data-track，不另外定義一套，
+  // 否則篩選器改了分類這裡就會對不上。
+  const TRACKS = [
+    { key: 'senior',   label: '中高階', color: '#a67c3d', bg: 'rgba(166,124,61,.12)' },
+    { key: 'general',  label: '正職',   color: '#3f6ea8', bg: 'rgba(63,110,168,.12)' },
+    { key: 'dispatch', label: '派遣',   color: '#4a8f6d', bg: 'rgba(74,143,109,.12)' },
+  ];
+
+  const cards = [...document.querySelectorAll('#jobs a.job')].map((a) => ({
+    href: a.getAttribute('href'),
+    track: a.dataset.track || '',
+    title: (a.querySelector('.job-title')?.textContent || '').trim(),
+    industry: (a.querySelector('.job-industry')?.textContent || '').trim(),
+    salary: (a.querySelector('.salary')?.textContent || '').trim(),
+  })).filter((j) => j.title);
+
+  if (!cards.length) { box.closest('section').style.display = 'none'; return; }
+
+  const pick1 = (k) => {
+    const pool = cards.filter((j) => j.track === k);
+    return pool.length ? pool[Math.floor(Math.random() * pool.length)] : null;
+  };
 
   function draw() {
-    const pool = all.slice();
-    const pick = [];
-    while (pick.length < Math.min(3, all.length) && pool.length) {
-      pick.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
+    let list = TRACKS.map((t) => ({ t, j: pick1(t.key) })).filter((x) => x.j);
+    // 某一類目前沒有職缺時，用其他類補滿三張，而不是留空格
+    if (list.length < 3) {
+      const used = new Set(list.map((x) => x.j.href));
+      for (const j of cards) {
+        if (list.length >= 3) break;
+        if (used.has(j.href)) continue;
+        const t = TRACKS.find((x) => x.key === j.track) || { label: '職缺', color: '#8a8d95', bg: 'rgba(138,141,149,.12)' };
+        list.push({ t, j }); used.add(j.href);
+      }
     }
-    box.innerHTML = pick.map(j => `
+    box.innerHTML = list.map(({ t, j }) => `
       <a href="${j.href}" style="display:block;padding:16px 18px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;text-decoration:none;color:inherit;">
-        <div style="font-weight:700;font-size:15.5px;line-height:1.5;">${j.title}</div>
-        ${j.meta ? `<div style="font-size:13px;color:#8a8d95;margin-top:6px;">${j.meta}</div>` : ''}
+        <span style="display:inline-block;font-size:12px;font-weight:700;color:${t.color};background:${t.bg};padding:3px 10px;border-radius:999px;">${t.label}</span>
+        <div style="font-weight:700;font-size:15.5px;line-height:1.5;margin-top:9px;">${j.title}</div>
+        <div style="font-size:13px;color:#8a8d95;margin-top:6px;">${[j.industry, j.salary].filter(Boolean).join('　')}</div>
       </a>`).join('');
   }
+
   draw();
   document.getElementById('hotShuffle')?.addEventListener('click', draw);
 })();
