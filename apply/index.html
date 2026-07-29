@@ -178,7 +178,6 @@ const q = new URLSearchParams(location.search);
 // 職缺從網址帶進來：/apply/?job=bim-engineer&title=BIM%20工程師
 const JOB = q.get('job') || '';
 const TITLE = q.get('title') || '';
-document.getElementById('jobName').textContent = TITLE || JOB || '職缺';
 if (TITLE) document.title = `應徵 ${TITLE}｜Step1ne`;
 
 // 進度條：填了幾成。看得到進度的表單完成率比較高。
