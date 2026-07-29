@@ -32,6 +32,11 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--ac);
   box-shadow:0 0 0 3px rgba(47,95,216,.12)}
 input::placeholder,textarea::placeholder{color:#a9b3c1}
 textarea{resize:vertical;min-height:76px}
+.areas{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:8px;margin:2px 0 0;}
+.areas label{display:flex;align-items:center;gap:9px;background:#fff;border:1px solid #dfe3e8;border-radius:10px;
+  padding:11px 13px;font-size:14.5px;font-weight:400;cursor:pointer;margin:0;min-height:46px;}
+.areas label:has(input:checked){border-color:#2f6fed;background:#f3f7ff;font-weight:600;}
+.areas input{width:17px;height:17px;flex:0 0 auto;accent-color:#2f6fed;margin:0;}
 .hint{font-size:11.5px;color:var(--tx3);margin-top:5px;line-height:1.55}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media(max-width:520px){.two{grid-template-columns:1fr}}
@@ -109,14 +114,27 @@ button:disabled{opacity:.45;cursor:not-allowed}
           <input name="available_date" placeholder="例：9/1 或 需一個月">
         </div>
       </div>
-      <label>工作地點</label>
-      <select name="location_ok">
+      <label>可接受的工作地區<span style="font-weight:400;color:#8a8d95;">（可複選）</span></label>
+      <div class="areas" id="areas">
+        <label><input type="checkbox" name="area" value="台北市・新北市"><span>台北市・新北市</span></label>
+        <label><input type="checkbox" name="area" value="基隆・宜蘭"><span>基隆・宜蘭</span></label>
+        <label><input type="checkbox" name="area" value="桃園・新竹"><span>桃園・新竹</span></label>
+        <label><input type="checkbox" name="area" value="苗栗・台中・彰化"><span>苗栗・台中・彰化</span></label>
+        <label><input type="checkbox" name="area" value="雲林・嘉義・台南"><span>雲林・嘉義・台南</span></label>
+        <label><input type="checkbox" name="area" value="高雄・屏東"><span>高雄・屏東</span></label>
+        <label><input type="checkbox" name="area" value="花蓮・台東"><span>花蓮・台東</span></label>
+        <label><input type="checkbox" name="area" value="離島"><span>離島</span></label>
+        <label><input type="checkbox" name="area" value="海外外派"><span>海外外派</span></label>
+      </div>
+      <label style="margin-top:14px;">住宿與通勤</label>
+      <select name="stay_need">
         <option value="">請選擇</option>
-        <option>可接受，無問題</option>
-        <option>可接受，需要通勤補助或宿舍</option>
+        <option>可通勤，不需要宿舍</option>
+        <option>需要宿舍</option>
+        <option>需要通勤補助</option>
         <option>想先了解細節再決定</option>
       </select>
-      <div class="hint">這三題先問，面談時就不會再重複問一次。</div>
+      <div class="hint">這幾題先問，面談時就不會再重複問一次。</div>
     </fieldset>
 
     <fieldset>
@@ -188,7 +206,9 @@ function prog() {
     .filter(e => e.type !== 'file' && e.type !== 'checkbox');
   const filled = fields.filter(e => e.value.trim()).length;
   const c = document.getElementById('consent').checked ? 1 : 0;
-  bar.style.width = Math.round((filled + c) / (fields.length + 1) * 100) + '%';
+  // 地區是一整組 checkbox，算成一題：勾了任何一個就算填完
+  const a = f.querySelector('input[name=area]:checked') ? 1 : 0;
+  bar.style.width = Math.round((filled + c + a) / (fields.length + 2) * 100) + '%';
 }
 f.addEventListener('input', prog);
 f.addEventListener('change', prog);
@@ -252,7 +272,12 @@ f.addEventListener('submit', async (e) => {
       mode, remind_at: mode === 'later' ? (fd.get('remind_at') || null) : null,
       name: fd.get('name'), email: fd.get('email'), phone: fd.get('phone'),
       expected_salary: fd.get('expected_salary'), available_date: fd.get('available_date'),
-      location_ok: fd.get('location_ok'), resume_url: fd.get('resume_url'),
+      // 複選的地區合成一欄，後端與報告都是照原本的 location_ok 在讀
+      location_ok: [
+        fd.getAll('area').join('、'),
+        fd.get('stay_need') || '',
+      ].filter(Boolean).join('　｜　') || null,
+      resume_url: fd.get('resume_url'),
       note: fd.get('note'),
       consent: true,
       utm_source: q.get('utm_source'), utm_medium: q.get('utm_medium'),
