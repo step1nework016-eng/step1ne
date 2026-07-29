@@ -50,6 +50,27 @@ button:disabled{opacity:.45;cursor:not-allowed}
 .done{text-align:center;padding:40px 0}
 .done h2{font-size:20px;margin:0 0 10px}
 .done p{color:var(--tx2);font-size:14px;margin:0 0 8px}
+.cal{border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--soft)}
+.calhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.calhead span{font-size:14px;font-weight:600}
+.calhead button{width:32px;height:32px;padding:0;margin:0;background:#fff;color:var(--tx2);
+  border:1px solid var(--line);border-radius:8px;font-size:17px;line-height:1;cursor:pointer}
+.calhead button:disabled{opacity:.3;cursor:not-allowed}
+.calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+#wk div{text-align:center;font-size:11px;color:var(--tx3);padding:4px 0}
+.day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:8px;
+  font-size:14px;border:1px solid transparent;background:#fff;color:var(--tx);cursor:pointer}
+.day.off{background:transparent;color:#c3cad4;cursor:default;border-color:transparent}
+.day.has{border-color:var(--line);font-weight:600}
+.day.has::after{content:'';width:4px;height:4px;border-radius:50%;background:var(--ac);
+  position:absolute;transform:translateY(13px)}
+.day{position:relative}
+.day.sel{background:var(--ac);color:#fff;border-color:var(--ac)}
+.day.sel::after{background:#fff}
+.times{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px;margin-top:12px}
+.times button{margin:0;padding:11px 4px;font-size:14px;font-weight:500;background:#fff;
+  color:var(--tx);border:1px solid var(--line);border-radius:8px}
+.times button.sel{background:var(--ac);color:#fff;border-color:var(--ac)}
 .calbtn{display:inline-block;margin-top:16px;background:var(--ac);color:#fff;
   text-decoration:none;padding:12px 22px;border-radius:9px;font-size:14px;font-weight:600}
 </style>
@@ -117,9 +138,18 @@ button:disabled{opacity:.45;cursor:not-allowed}
 
     <fieldset>
       <legend>預約初談時段</legend>
-      <label>選一個方便的時間</label>
-      <select name="slot_start" id="slot"><option value="">載入中⋯</option></select>
-      <div class="hint">線上進行，約 15 分鐘。不方便先選也可以，顧問會另外跟您約。</div>
+      <div class="cal" id="cal">
+        <div class="calhead">
+          <button type="button" id="prevM" aria-label="上個月">‹</button>
+          <span id="ym">載入中</span>
+          <button type="button" id="nextM" aria-label="下個月">›</button>
+        </div>
+        <div class="calgrid" id="wk"></div>
+        <div class="calgrid" id="days"></div>
+      </div>
+      <div id="times" class="times"></div>
+      <input type="hidden" name="slot_start" id="slot">
+      <div class="hint" id="calhint">線上進行，約 15 分鐘。不選也可以送出，顧問會另外跟您約。</div>
     </fieldset>
 
     <label class="consent">
@@ -170,21 +200,88 @@ function prog() {
 f.addEventListener('input', prog);
 f.addEventListener('change', prog);
 
-// 時段：只取未來、且未被預約的。從 API 拿，避免前端自己算出已滿的格子。
+// 時段：從 API 拿（已排除被預約走的），用日曆呈現。
+// 下拉選單在手機上要捲很久，而且看不出哪幾天有空——日曆一眼就知道。
+let SLOTS = [], byDay = {}, curMonth = null, selDay = null;
+const W = ['日','一','二','三','四','五','六'];
+
+function buildCal() {
+  const wk = document.getElementById('wk');
+  wk.innerHTML = W.map(d => `<div>${d}</div>`).join('');
+  render();
+}
+
+function render() {
+  const [y, m] = curMonth;
+  document.getElementById('ym').textContent = `${y} 年 ${m + 1} 月`;
+  const first = new Date(y, m, 1);
+  const days = new Date(y, m + 1, 0).getDate();
+  const grid = document.getElementById('days');
+  grid.innerHTML = '';
+  for (let i = 0; i < first.getDay(); i++) {
+    grid.insertAdjacentHTML('beforeend', '<div class="day off"></div>');
+  }
+  for (let d = 1; d <= days; d++) {
+    const key = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const has = byDay[key];
+    const cls = 'day' + (has ? ' has' : ' off') + (selDay === key ? ' sel' : '');
+    grid.insertAdjacentHTML('beforeend',
+      `<div class="${cls}" ${has ? `data-d="${key}"` : ''}>${d}</div>`);
+  }
+  // 只能往前看有時段的月份，避免使用者翻到空白的月份以為壞了
+  const months = [...new Set(Object.keys(byDay).map(k => k.slice(0, 7)))].sort();
+  const cur = `${y}-${String(m + 1).padStart(2, '0')}`;
+  document.getElementById('prevM').disabled = cur <= months[0];
+  document.getElementById('nextM').disabled = cur >= months[months.length - 1];
+}
+
+function pickDay(key) {
+  selDay = key;
+  render();
+  const box = document.getElementById('times');
+  box.innerHTML = (byDay[key] || []).map(v =>
+    `<button type="button" data-t="${v}">${v.slice(11, 16)}</button>`).join('');
+  document.getElementById('slot').value = '';
+  document.getElementById('calhint').textContent = '選一個時段。不選也可以送出，顧問會另外跟您約。';
+}
+
+document.getElementById('cal').addEventListener('click', (e) => {
+  const d = e.target.closest('.day[data-d]');
+  if (d) pickDay(d.dataset.d);
+});
+document.getElementById('times').addEventListener('click', (e) => {
+  const b = e.target.closest('button[data-t]');
+  if (!b) return;
+  document.querySelectorAll('#times button').forEach(x => x.classList.remove('sel'));
+  b.classList.add('sel');
+  document.getElementById('slot').value = b.dataset.t;
+  prog();
+});
+document.getElementById('prevM').addEventListener('click', () => {
+  curMonth = curMonth[1] === 0 ? [curMonth[0] - 1, 11] : [curMonth[0], curMonth[1] - 1];
+  render();
+});
+document.getElementById('nextM').addEventListener('click', () => {
+  curMonth = curMonth[1] === 11 ? [curMonth[0] + 1, 0] : [curMonth[0], curMonth[1] + 1];
+  render();
+});
+
 fetch(`${API}/slots`).then(r => r.json()).then(d => {
-  const s = document.getElementById('slot');
-  s.innerHTML = '<option value="">不預約，請顧問與我聯繫</option>';
-  const W = ['日','一','二','三','四','五','六'];
-  (d.slots || []).slice(0, 40).forEach(v => {
-    const dt = new Date(v.replace(' ', 'T'));
-    const o = document.createElement('option');
-    o.value = v;
-    o.textContent = `${v.slice(5,10).replace('-','/')}（週${W[dt.getDay()]}）${v.slice(11,16)}`;
-    s.appendChild(o);
-  });
+  SLOTS = d.slots || [];
+  byDay = {};
+  SLOTS.forEach(v => (byDay[v.slice(0, 10)] = byDay[v.slice(0, 10)] || []).push(v));
+  const days = Object.keys(byDay).sort();
+  if (!days.length) {
+    document.getElementById('cal').innerHTML =
+      '<p style="margin:0;font-size:13px;color:var(--tx3)">目前沒有開放時段，送出後由顧問與您聯繫。</p>';
+    return;
+  }
+  const [y, m] = days[0].split('-').map(Number);
+  curMonth = [y, m - 1];
+  buildCal();
 }).catch(() => {
-  document.getElementById('slot').innerHTML =
-    '<option value="">時段載入失敗，送出後由顧問與您聯繫</option>';
+  document.getElementById('cal').innerHTML =
+    '<p style="margin:0;font-size:13px;color:var(--tx3)">時段載入失敗，送出後由顧問與您聯繫。</p>';
 });
 
 const readB64 = (file) => new Promise((res, rej) => {
