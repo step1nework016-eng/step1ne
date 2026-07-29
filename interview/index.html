@@ -44,8 +44,9 @@ header .who span{display:block;font-size:12.5px;color:#8a8d95;overflow:hidden;te
 .stamp{font-family:'Space Mono',monospace;font-size:10.5px;color:#b3b5bb;margin:-8px 0 14px;}
 .stamp.me{text-align:right;}
 
-.typing{display:flex;gap:5px;align-items:center;padding:14px 18px;}
-.typing i{width:7px;height:7px;border-radius:50%;background:#c9c4b8;animation:b 1.2s infinite;}
+.typing{display:flex;gap:7px;align-items:center;padding:14px 18px;color:#8a8d95;font-size:13.5px;}
+.typing b{font-weight:500;}
+.typing i{width:6px;height:6px;border-radius:50%;background:#c9c4b8;animation:b 1.2s infinite;}
 .typing i:nth-child(2){animation-delay:.18s;} .typing i:nth-child(3){animation-delay:.36s;}
 @keyframes b{0%,60%,100%{opacity:.3;transform:translateY(0);}30%{opacity:1;transform:translateY(-3px);}}
 
@@ -92,7 +93,7 @@ footer{
 
 <div id="hint" class="firsthint" hidden>
   <div class="spin"></div>
-  <p>阿財正在看您的履歷與應徵資料，大約需要一分鐘…</p>
+  <p>阿財正在看您的履歷與應徵資料<br>大約需要半分鐘…</p>
 </div>
 <div id="log" hidden></div>
 
@@ -160,7 +161,8 @@ function typing(on) {
   if (on && !t) {
     t = document.createElement('div');
     t.id = 't-ind'; t.className = 'typing';
-    t.innerHTML = '<i></i><i></i><i></i>';
+    // 純三個點看起來像「正在打字」，但實際上是在想——講清楚比較不會焦躁
+    t.innerHTML = '<b>阿財思考中</b><i></i><i></i><i></i>';
     $('log').appendChild(t);
     $('log').scrollTop = $('log').scrollHeight;
   } else if (!on && t) { t.remove(); }
