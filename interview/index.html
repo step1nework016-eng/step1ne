@@ -32,6 +32,10 @@ header .who{min-width:0;}
 header .who b{display:block;font-size:14.5px;line-height:1.3;}
 header .who span{display:block;font-size:12.5px;color:#8a8d95;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 
+.firsthint{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:40px 30px;text-align:center;}
+.firsthint p{color:#8a8d95;font-size:14.5px;margin:0;max-width:280px;line-height:1.8;}
+.spin{width:26px;height:26px;border:2.5px solid #eee7db;border-top-color:#a67c3d;border-radius:50%;animation:sp .9s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg);}}
 #log{flex:1 1 auto;overflow-y:auto;padding:20px 18px 8px;-webkit-overflow-scrolling:touch;}
 .msg{max-width:min(78%,540px);margin:0 0 14px;padding:12px 16px;border-radius:18px;font-size:15.5px;white-space:pre-wrap;word-break:break-word;}
 .msg.ai{background:#f6f2ea;border:1px solid #eee7db;border-bottom-left-radius:6px;}
@@ -80,6 +84,10 @@ footer{
   </div>
 </header>
 
+<div id="hint" class="firsthint" hidden>
+  <div class="spin"></div>
+  <p>阿財正在看您的履歷與應徵資料，大約需要一分鐘…</p>
+</div>
 <div id="log" hidden></div>
 
 <footer id="bar" hidden>
@@ -116,6 +124,7 @@ function atBottom() {
 }
 
 function add(m) {
+  if (!$('hint').hidden) { $('hint').hidden = true; $('log').hidden = false; }
   var stick = atBottom();
   var mine = m.role === 'candidate';
   var d = document.createElement('div');
@@ -165,6 +174,8 @@ async function boot() {
 
   $('boot').hidden = true;
   ['top', 'log', 'bar'].forEach(function (i) { $(i).hidden = false; });
+  // 開場最久（要讀履歷、職缺、產出第一句），空白畫面會讓人以為壞掉
+  if (!(d.messages || []).length) { $('log').hidden = true; $('hint').hidden = false; }
   $('sub').textContent = (d.name ? d.name + '　' : '') + (d.job_title || '');
 
   (d.messages || []).forEach(add);
@@ -181,7 +192,7 @@ async function boot() {
     }).catch(function () {});
   }
 
-  polling = setInterval(poll, 3000);
+  polling = setInterval(poll, 2000);
   poll();
 }
 
