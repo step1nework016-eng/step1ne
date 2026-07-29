@@ -39,6 +39,10 @@ input:focus,select:focus{border-color:#a67c3d;box-shadow:0 0 0 3px rgba(166,124,
 .b-forward{background:#dff2e3;color:#1f6b34;}
 .b-more{background:#e6eefb;color:#24528f;}
 .b-no{background:#f2e6e6;color:#8a3333;}
+.b-active{background:#e3f0e6;color:#1f6b34;}
+.b-notstart{background:#f0efec;color:#6b6e77;}
+.b-done{background:#e9e9ef;color:#3d4250;}
+.b-norep{background:#fdeeda;color:#9a5a12;}
 
 dialog{border:0;border-radius:18px;padding:0;max-width:900px;width:calc(100% - 32px);max-height:88vh;box-shadow:0 20px 60px rgba(0,0,0,.22);}
 dialog::backdrop{background:rgba(20,18,14,.42);}
@@ -98,6 +102,7 @@ details.tr summary::-webkit-details-marker{display:none;}
       <button class="tab" data-s="forwarded" type="button">已轉客戶</button>
       <button class="tab" data-s="need_more" type="button">需補問</button>
       <button class="tab" data-s="rejected" type="button">不推薦</button>
+      <button class="tab" data-s="__all_sessions" type="button">所有面談紀錄</button>
     </div>
     <div id="list"></div>
     <div class="pager">
@@ -147,7 +152,75 @@ function esc(s) {
   });
 }
 
+var IST = {
+  not_started: { t: '未開始', c: 'b-notstart' },
+  active: { t: '進行中', c: 'b-active' },
+  done: { t: '已結束', c: 'b-done' },
+};
+
+async function loadSessions() {
+  var qs = new URLSearchParams({ limit: LIMIT, offset: offset });
+  if ($('q').value.trim()) qs.set('q', $('q').value.trim());
+  var d;
+  try { d = await api('/admin/sessions?' + qs); }
+  catch (e) { return gate(e.message); }
+  if (!d.ok) return;
+
+  total = d.total;
+  $('tot').textContent = total + ' 筆應徵';
+  $('list').innerHTML = d.sessions.length ? '' : '<div class="empty">目前沒有應徵紀錄。</div>';
+
+  d.sessions.forEach(function (r) {
+    var st = IST[r.interview_state] || { t: r.interview_state || '—', c: 'b-notstart' };
+    // 有對話卻沒報告的最需要有人看一眼——那通常代表收尾或產報告出了問題
+    var orphan = r.turns > 0 && !r.report_id;
+    var el = document.createElement('div');
+    el.className = 'row';
+    el.innerHTML =
+      '<h3>' + esc(r.name) + '　<span class="badge ' + st.c + '">' + st.t + '</span>' +
+      (orphan ? '　<span class="badge b-norep">有對話・無報告</span>' : '') + '</h3>' +
+      '<div class="meta"><span>' + esc(r.job_title || r.job_slug) + '</span>' +
+      '<span>' + esc((r.created_at || '').slice(0, 16)) + '</span>' +
+      '<span>' + (r.turns || 0) + ' 則對話</span>' +
+      (r.email ? '<span>' + esc(r.email) + '</span>' : '') +
+      (r.phone ? '<span>' + esc(r.phone) + '</span>' : '') + '</div>';
+    el.addEventListener('click', function () { openSession(r); });
+    $('list').appendChild(el);
+  });
+
+  $('prev').disabled = offset === 0;
+  $('next').disabled = offset + LIMIT >= total;
+}
+
+async function openSession(row) {
+  cur = null;
+  $('dname').textContent = row.name;
+  $('dmeta').textContent = (row.job_title || row.job_slug) + '　' + (row.email || '') + '　' + (row.phone || '');
+  $('drep').textContent = '載入中…';
+  $('dtr').innerHTML = '';
+  $('acts').innerHTML = '';
+  $('dlg').showModal();
+
+  var d = await api('/admin/session/' + encodeURIComponent(row.id));
+  if (!d.ok) { $('drep').textContent = '讀取失敗'; return; }
+
+  $('drep').textContent = d.report
+    ? d.report.content_md
+    : (row.turns ? '（這場面談還沒有報告——可能還在進行中，或收尾時出錯。逐字稿在下方。）'
+                 : '（這位應徵者還沒開始面談。）');
+
+  $('dtr').innerHTML = (d.transcript || [])
+    .filter(function (m) { return m.content !== '（候選人已進入面談室）'; })
+    .map(function (m) {
+      var me = m.role === 'candidate';
+      return '<p class="turn ' + (me ? 'me' : '') + '"><b>' + (me ? '候選人' : '阿財') + '</b>　' +
+        '<span style="color:#b3b5bb;font-size:12px;">' + esc((m.created_at || '').slice(11, 16)) + '</span><br>' +
+        esc(m.content).replace(/\n/g, '<br>') + '</p>';
+    }).join('') || '<p class="turn">（沒有逐字稿）</p>';
+}
+
 async function load() {
+  if (state === '__all_sessions') return loadSessions();
   var qs = new URLSearchParams({ state: state, limit: LIMIT, offset: offset });
   if ($('q').value.trim()) qs.set('q', $('q').value.trim());
   if ($('job').value) qs.set('job', $('job').value);
