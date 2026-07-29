@@ -274,6 +274,13 @@ f.addEventListener('submit', async (e) => {
     const d = await r.json();
     if (!d.ok) throw new Error(d.error || '送出失敗');
 
+    // 選「現在開始」的人正處在最有意願的一刻，中間多插一個畫面就會流失。
+    // 拿到 token 就直接進面談室，不要讓他再點一次。
+    if (mode === 'now' && d.chat_token) {
+      location.href = '/interview/?t=' + encodeURIComponent(d.chat_token);
+      return;
+    }
+
     document.getElementById('form-view').style.display = 'none';
     document.getElementById('done-view').style.display = 'block';
     document.getElementById('doneSlot').textContent = mode === 'now'
