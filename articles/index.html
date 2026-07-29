@@ -72,6 +72,21 @@ h2{font-family:'Noto Serif TC',serif;font-size:23px;font-weight:700;color:#1c1f2
 .s1ne-mobile-menu.is-open{display:flex;}
 .s1ne-mobile-menu a{padding:10px 0;color:#4a4d55;font-size:15px;border-bottom:1px solid #e6dfd1;min-height:44px;display:flex;align-items:center;}
 .s1ne-mobile-menu a:last-child{border-bottom:none;}
+
+/* 搜尋與分類篩選 */
+.filterbar{display:flex;flex-direction:column;gap:12px;}
+.srch{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #e6dfd1;border-radius:999px;padding:12px 18px;}
+.srch span{font-size:15px;opacity:.55;}
+.srch input{flex:1;border:0;outline:0;background:transparent;font:inherit;font-size:15.5px;color:#23262d;min-width:0;}
+.srch input::placeholder{color:#a9aab1;}
+.srch:focus-within{border-color:#a67c3d;box-shadow:0 0 0 3px rgba(166,124,61,.12);}
+.chips{display:flex;flex-wrap:wrap;gap:8px;}
+.chip{font:inherit;font-size:13.5px;font-weight:600;color:#4a4d55;background:#fff;border:1px solid #e6dfd1;border-radius:999px;padding:8px 15px;cursor:pointer;min-height:38px;}
+.chip:hover{border-color:#a67c3d;color:#8a5a1a;}
+.chip.is-on{background:#f3e2c2;border-color:#d9bd85;color:#7a4e12;}
+.cnt{font-size:13.5px;color:#8a8d95;margin:14px 0 0;min-height:20px;}
+.empty{font-size:15.5px;color:#3a3d44;background:#fff;border:1px solid #e6dfd1;border-radius:14px;padding:20px 22px;margin:16px 0 0;}
+@media (max-width:640px){ .chips{overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px;-webkit-overflow-scrolling:touch;} .chip{flex:0 0 auto;} }
 </style>
 </head>
 <body>
@@ -84,6 +99,8 @@ h2{font-family:'Noto Serif TC',serif;font-size:23px;font-weight:700;color:#1c1f2
     <div class="s1ne-hide-m" style="display:flex;align-items:center;gap:28px;font-size:15px;color:#4a4d55;">
       <a href="/jobs/" style="color:#4a4d55;">職缺專區</a>
       <a href="/articles/" style="color:#1c1f26;font-weight:600;">獵才專欄</a>
+      <a href="/talent/" style="color:#4a4d55;">全民獵才</a>
+      <a href="/talent/ai-tools/" style="color:#4a4d55;">AI求職工具</a>
     </div>
     <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" class="s1ne-hide-m" style="background:linear-gradient(135deg,#c9a049,#a67c3d);color:#fff;font-weight:700;font-size:13.5px;padding:9px 18px;border-radius:999px;white-space:nowrap;">LINE 洽詢</a>
     <button type="button" class="s1ne-show-m" onclick="document.getElementById('s1ne-mmenu').classList.toggle('is-open')" aria-label="開啟選單" style="align-items:center;justify-content:center;width:40px;height:40px;border:1px solid #e6dfd1;border-radius:10px;background:#fff;flex-shrink:0;">
@@ -94,6 +111,8 @@ h2{font-family:'Noto Serif TC',serif;font-size:23px;font-weight:700;color:#1c1f2
     <a href="/">首頁</a>
     <a href="/jobs/">職缺專區</a>
     <a href="/articles/">獵才專欄</a>
+    <a href="/talent/">全民獵才</a>
+    <a href="/talent/ai-tools/">AI求職工具</a>
     <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="color:#a67c3d;font-weight:700;">LINE 洽詢 →</a>
   </div>
 </header>
@@ -107,97 +126,118 @@ h2{font-family:'Noto Serif TC',serif;font-size:23px;font-weight:700;color:#1c1f2
     </div>
   </section>
 
+
+  <section style="padding:22px 0 0;">
+    <div class="wrap">
+      <div class="filterbar">
+        <label class="srch">
+          <span aria-hidden="true">🔍</span>
+          <input id="q" type="search" placeholder="搜尋文章：薪水、派遣、獵頭、直播…" autocomplete="off" aria-label="搜尋文章">
+        </label>
+        <div class="chips" role="group" aria-label="文章分類">
+          <button type="button" class="chip is-on" data-g="all">全部</button>
+          <button type="button" class="chip" data-g="pay">薪資與報酬</button>
+          <button type="button" class="chip" data-g="career">職涯發展</button>
+          <button type="button" class="chip" data-g="law">法規與權益</button>
+          <button type="button" class="chip" data-g="hh">獵頭合作</button>
+          <button type="button" class="chip" data-g="biz">企業經營</button>
+        </div>
+      </div>
+      <p id="cnt" class="cnt"></p>
+      <p id="empty" class="empty" hidden>找不到符合的文章。換個關鍵字，或按「全部」看所有文章。</p>
+    </div>
+  </section>
   <section style="padding:36px 0 16px;">
     <div class="wrap">
       <div class="sec-label">For Talent</div>
       <h2>求職者指南</h2>
       <p style="color:#8a8d95;font-size:14.5px;margin:0;">薪資行情、職涯路徑、轉職準備</p>
       <div class="arts">
-        <a class="art" href="/articles/admin-assistant-salary/">
+        <a class="art" data-group="pay" href="/articles/admin-assistant-salary/">
           <span class="art-tag">薪資行情</span>
           <h3>行政助理薪水：為什麼同樣是助理，差一萬？</h3>
           <p>平均月薪 32,975，但實際 28K 到 50K 都有。差距來自產業、職務含金量與負責範圍。</p>
           <span class="more">閱讀文章 →</span>
         </a>
-        <a class="art" href="/articles/admin-career-path/">
+        <a class="art" data-group="career" href="/articles/admin-career-path/">
           <span class="art-tag">職涯路徑</span>
           <h3>行政助理有職涯嗎？五條實際走得通的路</h3>
           <p>行政的天花板不在能力，在於「你負責的事有沒有名字」。人資、PM、採購等五條路徑。</p>
           <span class="more">閱讀文章 →</span>
         </a>
-        <a class="art" href="/articles/executive-job-search/">
+        <a class="art" data-group="career" href="/articles/executive-job-search/">
           <span class="art-tag">高階職涯</span>
           <h3>年薪百萬的主管職，為什麼求職網站上看不到？</h3>
           <p>高階職缺不公開，不是神祕，是公開的成本太高。主管職履歷、面試重心與怎麼讓獵頭找到你。</p>
           <span class="more">閱讀文章 →</span>
         </a>
-        <a class="art" href="/articles/streamer-revenue-split/">
+        <a class="art" data-group="pay" href="/articles/streamer-revenue-split/">
           <span class="art-tag">收入結構</span>
           <h3>觀眾刷 1000 元，主播實際拿到多少？</h3>
           <p>中間有三層：平台抽成、公會分潤、稅。算一次給你看，並附簽約前該問清楚的五個數字。</p>
           <span class="more">閱讀文章 →</span>
         </a>
-        <a class="art" href="/articles/streamer-contract-employment-status/">
+        <a class="art" data-group="law" href="/articles/streamer-contract-employment-status/">
           <span class="art-tag">勞動法規</span>
           <h3>直播主簽的是承攬還是僱傭？合約寫什麼不算數</h3>
           <p>勞動部以三種從屬性實質認定，並公布 25 項檢核表。逐條對照你的合約，看你有沒有勞基法保障。</p>
           <span class="more">閱讀文章 →</span>
         </a>
-        <a class="art" href="/articles/douyin-live-payout-taiwan/">
+        <a class="art" data-group="law" href="/articles/douyin-live-payout-taiwan/">
           <span class="art-tag">風險判斷</span>
           <h3>台灣人在大陸抖音直播，錢到底領不領得到？</h3>
           <p>領得到，但不能直接進台灣帳戶——外匯管制卡在最後一站。附簽約前必問的五件事。</p>
           <span class="more">閱讀文章 →</span>
         </a>
-        <a class="art" href="/articles/overseas-job-safety/">
+        <a class="art" data-group="law" href="/articles/overseas-job-safety/">
           <span class="art-tag">海外求職</span>
           <h3>東南亞外派工作，怎麼分辨真假？</h3>
           <p>柬埔寨詐騙 2026 年仍在發生。詐騙的五個共同特徵、查證五步驟，以及合法外派實際長什麼樣。</p>
           <span class="more">閱讀文章 →</span>
         </a>
-        <a class="art" href="/articles/software-engineer-salary/">
+        <a class="art" data-group="pay" href="/articles/software-engineer-salary/">
           <span class="art-tag">薪資行情</span>
           <h3>軟體工程師薪水：為什麼同樣年資，產業不同差兩萬？</h3>
           <p>前端 47,700、後端 45,000–65,000、遊戲開發 32,000–38,000。差距主要來自產業而非技術棧。</p>
           <span class="more">閱讀文章 →</span>
         </a>
-        <a class="art" href="/articles/devops-career/">
+        <a class="art" data-group="career" href="/articles/devops-career/">
           <span class="art-tag">職涯發展</span>
           <h3>維運工程師的職涯：跟開發比，差在哪？</h3>
           <p>四種維運型態的天花板差很多，關鍵在你是處理事件的人、還是設計系統讓事件不發生的人。</p>
           <span class="more">閱讀文章 →</span>
         </a>
-        <a class="art" href="/articles/customer-service-salary/">
+        <a class="art" data-group="pay" href="/articles/customer-service-salary/">
           <span class="art-tag">薪資行情</span>
           <h3>客服薪水行情：產業、班別、津貼怎麼影響實拿？</h3>
           <p>平均約 33,000 元，但金融客服中位數可達 39,700。換產業的效益，其實遠大於換班別。</p>
           <span class="more">閱讀文章 →</span>
         </a>
-        <a class="art" href="/articles/customer-service-reality/">
+        <a class="art" data-group="career" href="/articles/customer-service-reality/">
           <span class="art-tag">職務認識</span>
           <h3>客服工作的真實樣貌：四種客服差在哪？</h3>
           <p>遊戲、金流、品牌、技術支援客服的工作內容與壓力來源完全不同，以及應徵前必問的五件事。</p>
           <span class="more">閱讀文章 →</span>
         </a>
-        <a class="art" href="/articles/headhunter-contacted-you/">
+        <a class="art" data-group="hh" href="/articles/headhunter-contacted-you/">
           <span class="art-tag">獵頭應對</span>
           <h3>獵頭找上你，該怎麼回應？</h3>
           <p>先查證真假、回覆前該問哪五題、履歷保密怎麼要求，以及為什麼就算不想換工作也建議回一句話。</p>
           <span class="more">閱讀文章 →</span>
         </a>
-        <a class="art" href="/articles/what-is-bim-engineer/">
+        <a class="art" data-group="career" href="/articles/what-is-bim-engineer/">
           <span class="art-tag">職務認識</span>
           <h3>BIM 工程師是什麼？跟繪圖員差在哪？</h3>
           <p>實際工作內容、與 CAD 繪圖員的五個差別、LOD 等級的意義，以及同一個職稱底下為什麼有五種完全不同的工作。</p>
           <span class="more">閱讀文章 →</span>
         </a>
-        <a class="art" href="/articles/bim-career-change/">
+        <a class="art" data-group="career" href="/articles/bim-career-change/">
           <span class="art-tag">轉職入行</span>
           <h3>沒有相關科系，可以轉職 BIM 工程師嗎？</h3>
           <p>企業實際在看的三件事、要學哪些軟體、政府補助怎麼用，以及非本科履歷最常被刷掉的三個原因。</p>
           <span class="more">閱讀文章 →</span>
         </a>
-        <a class="art" href="/articles/bim-engineer-salary/">
+        <a class="art" data-group="pay" href="/articles/bim-engineer-salary/">
           <span class="art-tag">薪資行情</span>
           <h3>BIM工程師薪水行情：從無經驗到資深，數字怎麼跳？</h3>
           <p>拆解 Lv1 建模師到 Lv6 VDC 總監六個職級的月薪帶，以及最多人卡住的 Lv2→Lv3 分水嶺該怎麼過。</p>
@@ -213,37 +253,37 @@ h2{font-family:'Noto Serif TC',serif;font-size:23px;font-weight:700;color:#1c1f2
       <h2>企業獵才指南</h2>
       <p style="color:#8a8d95;font-size:14.5px;margin:0;">委託流程、收費模式、合作評估</p>
       <div class="arts">
-        <a class="art" href="/articles/headhunter-fees/">
+        <a class="art" data-group="pay" href="/articles/headhunter-fees/">
           <span class="art-tag">收費談判</span>
           <h3>獵頭公司收費怎麼算？費率之外，你更該談的四件事</h3>
           <p>三種收費模式的風險差異，以及年薪定義、保底費、保固條件、人選歸屬這四個決定總金額的隱藏變數。</p>
           <span class="more">閱讀文章 →</span>
         </a>
-        <a class="art" href="/articles/dispatch-legal-risks/">
+        <a class="art" data-group="law" href="/articles/dispatch-legal-risks/">
           <span class="art-tag">法規合規</span>
           <h3>企業用派遣最容易踩的法律地雷：勞基法 17-1 條</h3>
           <p>「先面試、後轉掛」違法，罰 9–45 萬並公布公司名稱與負責人姓名，勞工還能要求直接聘僱。附企業自我檢核五題。</p>
           <span class="more">閱讀文章 →</span>
         </a>
-        <a class="art" href="/articles/how-to-choose-headhunter/">
+        <a class="art" data-group="hh" href="/articles/how-to-choose-headhunter/">
           <span class="art-tag">選擇評估</span>
           <h3>怎麼挑台灣獵頭公司？7 個可以實際驗證的判斷標準</h3>
           <p>從合法許可證查證、產業專精度、人才觸及方式到收費與保固條件，附可以直接拿去問的句子，以及三個常見踩雷情況。</p>
           <span class="more">閱讀文章 →</span>
         </a>
-        <a class="art" href="/articles/business-plan-writing/">
+        <a class="art" data-group="biz" href="/articles/business-plan-writing/">
           <span class="art-tag">計畫書撰寫</span>
           <h3>商業計畫書怎麼寫？最容易被扣分的那一章</h3>
           <p>架構是標準的，拉開差距的是「團隊與人力」——審查會逐項核對工時與經歷，抄不來。</p>
           <span class="more">閱讀文章 →</span>
         </a>
-        <a class="art" href="/articles/executive-hiring-guide/">
+        <a class="art" data-group="hh" href="/articles/executive-hiring-guide/">
           <span class="art-tag">高階招募</span>
           <h3>高階職缺開了半年還找不到人？</h3>
           <p>八成不是市場沒人，是流程在勸退人。JD寫法、薪資帶、決策節奏等五個卡點與解法。</p>
           <span class="more">閱讀文章 →</span>
         </a>
-        <a class="art" href="/articles/work-with-headhunters/">
+        <a class="art" data-group="hh" href="/articles/work-with-headhunters/">
           <span class="art-tag">合作指南</span>
           <h3>台灣企業怎麼跟獵頭合作？合作管道、收費方式一次搞懂</h3>
           <p>什麼時候該找獵頭而不是只發人力銀行、收費怎麼算、怎麼挑選合法且適合的獵頭公司。</p>
@@ -266,5 +306,48 @@ h2{font-family:'Noto Serif TC',serif;font-size:23px;font-weight:700;color:#1c1f2
   </div>
 </footer>
 
+
+<script>
+// 專欄篩選：純前端，文章不多所以不需要索引；改版新增卡片只要帶 data-group 就會被吃到。
+(function () {
+  var q = document.getElementById('q');
+  var cards = [].slice.call(document.querySelectorAll('.art'));
+  var chips = [].slice.call(document.querySelectorAll('.chip'));
+  var cnt = document.getElementById('cnt');
+  var empty = document.getElementById('empty');
+  var group = 'all';
+
+  // 先把每張卡的可搜尋文字算好，之後每次輸入就不用重讀 DOM
+  cards.forEach(function (c) { c._t = (c.textContent || '').toLowerCase(); });
+
+  function apply() {
+    var kw = (q.value || '').trim().toLowerCase();
+    var shown = 0;
+    cards.forEach(function (c) {
+      var ok = (group === 'all' || c.dataset.group === group) && (!kw || c._t.indexOf(kw) > -1);
+      c.hidden = !ok;
+      if (ok) shown++;
+    });
+    // 整段都被篩掉時連標題一起收起來，不然會留下空的區塊標題
+    document.querySelectorAll('.arts').forEach(function (grid) {
+      var any = [].slice.call(grid.querySelectorAll('.art')).some(function (c) { return !c.hidden; });
+      var sec = grid.closest('section');
+      if (sec) sec.hidden = !any;
+    });
+    empty.hidden = shown > 0;
+    cnt.textContent = (kw || group !== 'all') ? shown + ' 篇符合' : '';
+  }
+
+  q.addEventListener('input', apply);
+  chips.forEach(function (b) {
+    b.addEventListener('click', function () {
+      chips.forEach(function (x) { x.classList.toggle('is-on', x === b); });
+      group = b.dataset.g;
+      apply();
+    });
+  });
+  apply();
+})();
+</script>
 </body>
 </html>
