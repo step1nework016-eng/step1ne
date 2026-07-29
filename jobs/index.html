@@ -133,7 +133,17 @@ h2{font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;color:#1c1f2
       <div style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:2px;color:#a67c3d;text-transform:uppercase;margin-bottom:14px;">Jobs</div>
       <h1 style="font-family:'Noto Serif TC',serif;font-weight:700;font-size:clamp(28px,4.5vw,40px);line-height:1.3;margin:0 0 16px;color:#1c1f26;">職缺專區</h1>
       <p style="font-size:16.5px;color:#3a3d44;margin:0 0 8px;">Step1ne 目前開放中的職缺，包含<strong>高階獵才</strong>（年薪百萬等級的主管與專業職，保密進行）與<strong>人力派遣</strong>兩種，涵蓋財務、資訊、營運供應鏈、營建工程與海外外派等領域。每個職缺都由專業顧問接洽，在職者可保密初談，從應徵、面試到到職全程協助。</p>
-      <p style="font-size:14.5px;color:#8a8d95;margin:0;">沒看到適合的職缺？<a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">加入 LINE 留下履歷</a>，有適合機會顧問會主動通知你。</p>
+      <p style="font-size:14.5px;color:#8a8d95;margin:0;">沒看到適合的職缺？<a href="/apply/?utm_source=website&utm_medium=jobs_index&utm_campaign=general">填寫應徵表單留下履歷</a>，有適合機會顧問會主動通知你。</p>
+    </div>
+  </section>
+
+  <section style="padding:8px 0 0;">
+    <div class="wrap">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
+        <h2 style="margin:0;font-size:20px;">熱門職缺</h2>
+        <button type="button" id="hotShuffle" style="background:none;border:1px solid #e6dfd1;border-radius:999px;padding:6px 14px;font-size:13px;color:#8a8d95;cursor:pointer;font-family:inherit;">換一批</button>
+      </div>
+      <div id="hotJobs" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;"></div>
     </div>
   </section>
 
@@ -410,3 +420,35 @@ h2{font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;color:#1c1f2
 
 </body>
 </html>
+
+<script>
+// 熱門職缺：從頁面上實際存在的職缺卡隨機抽三個。
+// 不另外維護一份清單——職缺一下架這裡就會自動跟著少，不會留幽靈卡片。
+(function () {
+  const box = document.getElementById('hotJobs');
+  if (!box) return;
+  const all = [...document.querySelectorAll('#jobs a[href^="/jobs/"]')]
+    .map(a => ({
+      href: a.getAttribute('href'),
+      title: (a.querySelector('h3,strong,b')?.textContent || a.textContent).trim().split('\n')[0].slice(0, 40),
+      meta: (a.textContent.match(/(台北|新北|桃園|台中|台南|高雄|苗栗|新竹|花蓮|柬埔寨)[^\s|｜]{0,6}/) || [''])[0],
+    }))
+    .filter(j => j.title);
+  if (!all.length) { box.closest('section').style.display = 'none'; return; }
+
+  function draw() {
+    const pool = all.slice();
+    const pick = [];
+    while (pick.length < Math.min(3, all.length) && pool.length) {
+      pick.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
+    }
+    box.innerHTML = pick.map(j => `
+      <a href="${j.href}" style="display:block;padding:16px 18px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;text-decoration:none;color:inherit;">
+        <div style="font-weight:700;font-size:15.5px;line-height:1.5;">${j.title}</div>
+        ${j.meta ? `<div style="font-size:13px;color:#8a8d95;margin-top:6px;">${j.meta}</div>` : ''}
+      </a>`).join('');
+  }
+  draw();
+  document.getElementById('hotShuffle')?.addEventListener('click', draw);
+})();
+</script>

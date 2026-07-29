@@ -143,7 +143,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
       <div id="laterBox" style="display:none">
         <label>提醒我的時間</label>
         <input type="datetime-local" name="remind_at" id="remindAt">
-        <div class="hint">會用 Email 提醒，週末與深夜都可以——這段不需要顧問在場。</div>
+        <div class="hint">到時候顧問會與您聯繫。週末與深夜都可以選——這段不需要顧問在場。</div>
       </div>
     </fieldset>
 
@@ -277,8 +277,8 @@ f.addEventListener('submit', async (e) => {
     document.getElementById('form-view').style.display = 'none';
     document.getElementById('done-view').style.display = 'block';
     document.getElementById('doneSlot').textContent = mode === 'now'
-      ? '面談連結會立刻寄到您的信箱。'
-      : `我們會在 ${(fd.get('remind_at') || '').replace('T', ' ')} 提醒您回來完成面談。`;
+      ? '顧問會盡快與您聯繫，安排面談。'
+      : `已記下您希望的時間 ${(fd.get('remind_at') || '').replace('T', ' ')}，屆時顧問會與您聯繫。`;
     scrollTo(0, 0);
   } catch (err) {
     msg.className = 'msg err';
