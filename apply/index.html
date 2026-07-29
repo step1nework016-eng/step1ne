@@ -50,27 +50,14 @@ button:disabled{opacity:.45;cursor:not-allowed}
 .done{text-align:center;padding:40px 0}
 .done h2{font-size:20px;margin:0 0 10px}
 .done p{color:var(--tx2);font-size:14px;margin:0 0 8px}
-.cal{border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--soft)}
-.calhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.calhead span{font-size:14px;font-weight:600}
-.calhead button{width:32px;height:32px;padding:0;margin:0;background:#fff;color:var(--tx2);
-  border:1px solid var(--line);border-radius:8px;font-size:17px;line-height:1;cursor:pointer}
-.calhead button:disabled{opacity:.3;cursor:not-allowed}
-.calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
-#wk div{text-align:center;font-size:11px;color:var(--tx3);padding:4px 0}
-.day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:8px;
-  font-size:14px;border:1px solid transparent;background:#fff;color:var(--tx);cursor:pointer}
-.day.off{background:transparent;color:#c3cad4;cursor:default;border-color:transparent}
-.day.has{border-color:var(--line);font-weight:600}
-.day.has::after{content:'';width:4px;height:4px;border-radius:50%;background:var(--ac);
-  position:absolute;transform:translateY(13px)}
-.day{position:relative}
-.day.sel{background:var(--ac);color:#fff;border-color:var(--ac)}
-.day.sel::after{background:#fff}
-.times{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px;margin-top:12px}
-.times button{margin:0;padding:11px 4px;font-size:14px;font-weight:500;background:#fff;
-  color:var(--tx);border:1px solid var(--line);border-radius:8px}
-.times button.sel{background:var(--ac);color:#fff;border-color:var(--ac)}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:520px){.modes{grid-template-columns:1fr}}
+.mode{display:flex;gap:10px;align-items:flex-start;margin:0;padding:13px;
+  border:1px solid var(--line);border-radius:10px;cursor:pointer;background:#fff}
+.mode:has(input:checked){border-color:var(--ac);background:#f4f7ff}
+.mode input{width:18px;height:18px;flex:0 0 auto;margin-top:2px}
+.mode b{display:block;font-size:14px;color:var(--tx);font-weight:600}
+.mode i{display:block;font-style:normal;font-size:11.5px;color:var(--tx3);margin-top:2px}
 .calbtn{display:inline-block;margin-top:16px;background:var(--ac);color:#fff;
   text-decoration:none;padding:12px 22px;border-radius:9px;font-size:14px;font-weight:600}
 </style>
@@ -82,11 +69,18 @@ button:disabled{opacity:.45;cursor:not-allowed}
 
 <div class="wrap">
 <div id="form-view">
-  <h1>應徵 <span class="job" id="jobName">職缺</span></h1>
-  <p class="lead">填完約 2 分鐘。送出後顧問會與您聯繫，安排線上初步面談。</p>
+  <h1>應徵職缺</h1>
+  <p class="lead">填完約 2 分鐘，接著做一段線上初步面談。我們會依您的條件推薦適合的機會。</p>
   <div class="prog"><i id="bar"></i></div>
 
   <form id="f">
+    <fieldset>
+      <legend>應徵職缺</legend>
+      <label>想應徵哪一個 <span class="req">*</span></label>
+      <select name="job_slug" id="jobSel" required><option value="">載入中⋯</option></select>
+      <div class="hint">不確定的話選「請顧問幫我評估」，我們會依您的背景推薦。</div>
+    </fieldset>
+
     <fieldset>
       <legend>基本資料</legend>
       <label>姓名 <span class="req">*</span></label>
@@ -137,19 +131,20 @@ button:disabled{opacity:.45;cursor:not-allowed}
     </fieldset>
 
     <fieldset>
-      <legend>預約初談時段</legend>
-      <div class="cal" id="cal">
-        <div class="calhead">
-          <button type="button" id="prevM" aria-label="上個月">‹</button>
-          <span id="ym">載入中</span>
-          <button type="button" id="nextM" aria-label="下個月">›</button>
-        </div>
-        <div class="calgrid" id="wk"></div>
-        <div class="calgrid" id="days"></div>
+      <legend>初步面談</legend>
+      <p class="hint" style="margin:0 0 10px">
+        線上文字對談，約 15 分鐘，由 AI 進行。顧問會看完整內容再與您聯繫。</p>
+      <div class="modes">
+        <label class="mode"><input type="radio" name="mode" value="now" checked>
+          <span><b>現在就開始</b><i>送出後直接進入，最快</i></span></label>
+        <label class="mode"><input type="radio" name="mode" value="later">
+          <span><b>晚點再做</b><i>選一個時間，我們提醒您</i></span></label>
       </div>
-      <div id="times" class="times"></div>
-      <input type="hidden" name="slot_start" id="slot">
-      <div class="hint" id="calhint">線上進行，約 15 分鐘。不選也可以送出，顧問會另外跟您約。</div>
+      <div id="laterBox" style="display:none">
+        <label>提醒我的時間</label>
+        <input type="datetime-local" name="remind_at" id="remindAt">
+        <div class="hint">會用 Email 提醒，週末與深夜都可以——這段不需要顧問在場。</div>
+      </div>
     </fieldset>
 
     <label class="consent">
@@ -173,7 +168,6 @@ button:disabled{opacity:.45;cursor:not-allowed}
   <h2>收到了</h2>
   <p id="doneSlot"></p>
   <p>我們會在 1–2 個工作天內與您聯繫。</p>
-  <a id="gcal" class="calbtn" target="_blank" rel="noopener" style="display:none">加入 Google 行事曆</a>
   <p style="margin-top:22px"><a href="/jobs/" style="color:var(--ac)">看其他職缺</a></p>
 </div>
 </div>
@@ -200,88 +194,39 @@ function prog() {
 f.addEventListener('input', prog);
 f.addEventListener('change', prog);
 
-// 時段：從 API 拿（已排除被預約走的），用日曆呈現。
-// 下拉選單在手機上要捲很久，而且看不出哪幾天有空——日曆一眼就知道。
-let SLOTS = [], byDay = {}, curMonth = null, selDay = null;
-const W = ['日','一','二','三','四','五','六'];
-
-function buildCal() {
-  const wk = document.getElementById('wk');
-  wk.innerHTML = W.map(d => `<div>${d}</div>`).join('');
-  render();
-}
-
-function render() {
-  const [y, m] = curMonth;
-  document.getElementById('ym').textContent = `${y} 年 ${m + 1} 月`;
-  const first = new Date(y, m, 1);
-  const days = new Date(y, m + 1, 0).getDate();
-  const grid = document.getElementById('days');
-  grid.innerHTML = '';
-  for (let i = 0; i < first.getDay(); i++) {
-    grid.insertAdjacentHTML('beforeend', '<div class="day off"></div>');
-  }
-  for (let d = 1; d <= days; d++) {
-    const key = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-    const has = byDay[key];
-    const cls = 'day' + (has ? ' has' : ' off') + (selDay === key ? ' sel' : '');
-    grid.insertAdjacentHTML('beforeend',
-      `<div class="${cls}" ${has ? `data-d="${key}"` : ''}>${d}</div>`);
-  }
-  // 只能往前看有時段的月份，避免使用者翻到空白的月份以為壞了
-  const months = [...new Set(Object.keys(byDay).map(k => k.slice(0, 7)))].sort();
-  const cur = `${y}-${String(m + 1).padStart(2, '0')}`;
-  document.getElementById('prevM').disabled = cur <= months[0];
-  document.getElementById('nextM').disabled = cur >= months[months.length - 1];
-}
-
-function pickDay(key) {
-  selDay = key;
-  render();
-  const box = document.getElementById('times');
-  box.innerHTML = (byDay[key] || []).map(v =>
-    `<button type="button" data-t="${v}">${v.slice(11, 16)}</button>`).join('');
-  document.getElementById('slot').value = '';
-  document.getElementById('calhint').textContent = '選一個時段。不選也可以送出，顧問會另外跟您約。';
-}
-
-document.getElementById('cal').addEventListener('click', (e) => {
-  const d = e.target.closest('.day[data-d]');
-  if (d) pickDay(d.dataset.d);
-});
-document.getElementById('times').addEventListener('click', (e) => {
-  const b = e.target.closest('button[data-t]');
-  if (!b) return;
-  document.querySelectorAll('#times button').forEach(x => x.classList.remove('sel'));
-  b.classList.add('sel');
-  document.getElementById('slot').value = b.dataset.t;
+// 職缺清單：從 jobs.json 帶，跟線上實際刊登的職缺同步。
+// 寫死在 HTML 裡的話，職缺一下架這裡就會有幽靈選項。
+fetch('/apply/jobs.json').then(r => r.json()).then(list => {
+  const sel = document.getElementById('jobSel');
+  sel.innerHTML = '<option value="">請選擇</option>';
+  list.forEach(j => {
+    const o = document.createElement('option');
+    o.value = j.slug; o.dataset.title = j.title;
+    o.textContent = j.loc ? `${j.title}（${j.loc}）` : j.title;
+    sel.appendChild(o);
+  });
+  const other = document.createElement('option');
+  other.value = 'unspecified'; other.dataset.title = '請顧問幫我評估';
+  other.textContent = '不確定，請顧問幫我評估';
+  sel.appendChild(other);
+  if (JOB) sel.value = JOB;          // 從職缺頁進來時預選，但仍可改
   prog();
-});
-document.getElementById('prevM').addEventListener('click', () => {
-  curMonth = curMonth[1] === 0 ? [curMonth[0] - 1, 11] : [curMonth[0], curMonth[1] - 1];
-  render();
-});
-document.getElementById('nextM').addEventListener('click', () => {
-  curMonth = curMonth[1] === 11 ? [curMonth[0] + 1, 0] : [curMonth[0], curMonth[1] + 1];
-  render();
+}).catch(() => {
+  document.getElementById('jobSel').innerHTML =
+    '<option value="unspecified">請顧問幫我評估</option>';
 });
 
-fetch(`${API}/slots`).then(r => r.json()).then(d => {
-  SLOTS = d.slots || [];
-  byDay = {};
-  SLOTS.forEach(v => (byDay[v.slice(0, 10)] = byDay[v.slice(0, 10)] || []).push(v));
-  const days = Object.keys(byDay).sort();
-  if (!days.length) {
-    document.getElementById('cal').innerHTML =
-      '<p style="margin:0;font-size:13px;color:var(--tx3)">目前沒有開放時段，送出後由顧問與您聯繫。</p>';
-    return;
-  }
-  const [y, m] = days[0].split('-').map(Number);
-  curMonth = [y, m - 1];
-  buildCal();
-}).catch(() => {
-  document.getElementById('cal').innerHTML =
-    '<p style="margin:0;font-size:13px;color:var(--tx3)">時段載入失敗，送出後由顧問與您聯繫。</p>';
+document.querySelectorAll('input[name=mode]').forEach((r) => {
+  r.addEventListener('change', () => {
+    const later = document.querySelector('input[name=mode]:checked').value === 'later';
+    document.getElementById('laterBox').style.display = later ? 'block' : 'none';
+    const at = document.getElementById('remindAt');
+    if (later && !at.value) {
+      // 預設明天同一時間，讓使用者微調而不是從頭選
+      const d = new Date(Date.now() + 86400e3 - new Date().getTimezoneOffset() * 60000);
+      at.value = d.toISOString().slice(0, 16);
+    }
+  });
 });
 
 const readB64 = (file) => new Promise((res, rej) => {
@@ -300,12 +245,16 @@ f.addEventListener('submit', async (e) => {
 
   try {
     const fd = new FormData(f);
+    const jobSel = document.getElementById('jobSel');
+    const mode = document.querySelector('input[name=mode]:checked').value;
     const body = {
-      job_slug: JOB || 'unspecified', job_title: TITLE || null,
+      job_slug: fd.get('job_slug') || 'unspecified',
+      job_title: jobSel.selectedOptions[0]?.dataset.title || null,
+      mode, remind_at: mode === 'later' ? (fd.get('remind_at') || null) : null,
       name: fd.get('name'), email: fd.get('email'), phone: fd.get('phone'),
       expected_salary: fd.get('expected_salary'), available_date: fd.get('available_date'),
       location_ok: fd.get('location_ok'), resume_url: fd.get('resume_url'),
-      note: fd.get('note'), slot_start: fd.get('slot_start') || null,
+      note: fd.get('note'),
       consent: true,
       utm_source: q.get('utm_source'), utm_medium: q.get('utm_medium'),
       utm_campaign: q.get('utm_campaign'), referrer: document.referrer || null,
@@ -328,25 +277,9 @@ f.addEventListener('submit', async (e) => {
 
     document.getElementById('form-view').style.display = 'none';
     document.getElementById('done-view').style.display = 'block';
-    document.getElementById('doneSlot').textContent = d.booked
-      ? `已為您保留 ${d.booked.slice(5,16).replace('-','/')} 的時段。`
-      : '顧問會與您聯繫安排時間。';
-    if (d.booked) {
-      // Google 行事曆的「新增活動」範本網址：純連結，不需要任何授權流程
-      const st = new Date(d.booked.replace(' ', 'T') + '+08:00');
-      const en = new Date(st.getTime() + 30 * 60000);
-      const z = (x) => x.toISOString().replace(/[-:]|\.\d{3}/g, '');
-      const g = new URL('https://calendar.google.com/calendar/render');
-      g.searchParams.set('action', 'TEMPLATE');
-      g.searchParams.set('text', `Step1ne 初步面談 — ${TITLE || JOB}`);
-      g.searchParams.set('dates', `${z(st)}/${z(en)}`);
-      g.searchParams.set('details',
-        '線上初步面談，約 15 分鐘。\n面談連結會在面談前以 Email 通知。\n\nStep1ne 德仁管理顧問');
-      g.searchParams.set('ctz', 'Asia/Taipei');
-      const btn = document.getElementById('gcal');
-      btn.href = g.toString();
-      btn.style.display = 'inline-block';
-    }
+    document.getElementById('doneSlot').textContent = mode === 'now'
+      ? '面談連結會立刻寄到您的信箱。'
+      : `我們會在 ${(fd.get('remind_at') || '').replace('T', ' ')} 提醒您回來完成面談。`;
     scrollTo(0, 0);
   } catch (err) {
     msg.className = 'msg err';
