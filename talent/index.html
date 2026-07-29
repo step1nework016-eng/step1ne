@@ -22,7 +22,7 @@ document.addEventListener('click', function (e) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>全民獵才：推薦職缺給朋友，媒合成功到職最高拿3萬5獎金｜Step1ne LINE 小程式</title>
 <meta name="description" content="全民獵才是 Step1ne 推出的 LINE 小程式，免下載安裝，加好友即可把職缺推薦給朋友，媒合成功並到職後最高可領 NT$35,000 獎金。人脈獎金、推薦獎金、職缺流程獎金三種都能拿，不必是專業獵頭。">
-<meta name="keywords" content="全民獵才,推薦職缺 獎金,介紹朋友工作 有錢嗎,推薦人才 獎金,LINE小程式找工作,分潤獎金,人脈獎金,職缺流程獎金">
+<meta name="keywords" content="全民獵才,推薦職缺 獎金,介紹朋友工作 有錢嗎,推薦人才 獎金,LINE小程式找工作,分潤獎金,人脈獎金,職缺流程獎金,求職獎金">
 <meta name="robots" content="index,follow">
 <link rel="canonical" href="https://step1ne.com/talent/">
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
@@ -74,6 +74,11 @@ p{color:#3a3d44;font-size:15.5px;margin:0 0 16px;}
 ul,ol{padding-left:22px;color:#3a3d44;font-size:15.5px;}
 li{margin-bottom:8px;}
 .s1ne-todo{display:inline-block;font-size:12.5px;color:#a06a1f;background:#fbeecd;border:1px solid #e6c789;border-radius:999px;padding:3px 10px;margin-left:6px;vertical-align:middle;}
+.s1ne-table-wrap{overflow-x:auto;margin:16px 0 8px;}
+table{width:100%;border-collapse:collapse;font-size:14px;min-width:420px;}
+th,td{border:1px solid #e6dfd1;padding:9px 12px;text-align:left;}
+th{background:#faf7f1;font-weight:700;}
+td strong{color:#a06a1f;}
 @media (max-width:760px){
   footer a{min-height:44px;display:inline-flex;align-items:center;}
 }
@@ -99,6 +104,7 @@ li{margin-bottom:8px;}
       <a href="/jobs/" style="color:#4a4d55;">職缺專區</a>
       <a href="/articles/" style="color:#4a4d55;">獵才專欄</a>
       <a href="/talent/" style="color:#4a4d55;">全民獵才</a>
+      <a href="/talent/ai-tools/" style="color:#4a4d55;">AI求職工具</a>
     </div>
     <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" class="s1ne-hide-m" style="background:linear-gradient(135deg,#c9a049,#a67c3d);color:#fff;font-weight:700;font-size:13.5px;padding:9px 18px;border-radius:999px;">LINE 洽詢</a>
     <button type="button" class="s1ne-show-m" onclick="document.getElementById('s1ne-mmenu').classList.toggle('is-open')" aria-label="開啟選單" style="align-items:center;justify-content:center;width:40px;height:40px;border:1px solid #e6dfd1;border-radius:10px;background:#fff;flex-shrink:0;">
@@ -110,6 +116,7 @@ li{margin-bottom:8px;}
     <a href="/jobs/">職缺專區</a>
     <a href="/articles/">獵才專欄</a>
     <a href="/talent/">全民獵才</a>
+    <a href="/talent/ai-tools/">AI求職工具</a>
     <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="color:#a67c3d;font-weight:700;">LINE 洽詢 →</a>
   </div>
 </header>
@@ -122,7 +129,7 @@ li{margin-bottom:8px;}
       <strong>直接答案：</strong>全民獵才是掛在 Step1ne LINE 官方帳號上的免費小程式（LINE Mini App），加好友即可開啟，免下載、免安裝。把適合的職缺分享給朋友，媒合成功並到職、且在職滿保證期後，最高可領取 NT$35,000 獎金，獎金分人脈獎金、推薦獎金、職缺流程獎金三種。不必是專業獵頭，任何人都能用。
     </p>
 
-    <div class="s1ne-video-wrap" onclick="s1nePlayVideo(this)" role="button" tabindex="0" aria-label="播放全民獵才介紹影片" onkeydown="if(event.key==='Enter')s1nePlayVideo(this)" style="position:relative;max-width:480px;margin:0 auto 8px;border-radius:16px;overflow:hidden;cursor:pointer;box-shadow:0 14px 40px rgba(40,35,25,0.12);background:#000;">
+    <div class="s1ne-video-wrap" onclick="s1nePlayVideo(this,'w4WDL1Q3Ci4','全民獵才介紹影片：身邊有人在找工作嗎？分潤獎金')" role="button" tabindex="0" aria-label="播放全民獵才介紹影片" onkeydown="if(event.key==='Enter')s1nePlayVideo(this,'w4WDL1Q3Ci4','全民獵才介紹影片：身邊有人在找工作嗎？分潤獎金')" style="position:relative;max-width:480px;margin:0 auto 8px;border-radius:16px;overflow:hidden;cursor:pointer;box-shadow:0 14px 40px rgba(40,35,25,0.12);background:#000;">
       <img src="https://i.ytimg.com/vi/w4WDL1Q3Ci4/hqdefault.jpg" alt="全民獵才介紹影片：身邊有人在找工作嗎？分潤獎金" style="width:100%;display:block;aspect-ratio:16/9;object-fit:cover;" loading="lazy">
       <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
         <span style="width:64px;height:64px;border-radius:50%;background:rgba(0,0,0,0.65);display:flex;align-items:center;justify-content:center;">
@@ -132,8 +139,8 @@ li{margin-bottom:8px;}
     </div>
     <p style="text-align:center;font-size:13px;color:#8a8d95;margin:0 0 8px;">身邊有人在找工作嗎？｜全民獵才分潤獎金介紹</p>
     <script>
-    function s1nePlayVideo(el){
-      el.outerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/w4WDL1Q3Ci4?autoplay=1&rel=0" style="width:100%;max-width:480px;aspect-ratio:16/9;border:0;display:block;margin:0 auto;border-radius:16px;" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen title="全民獵才介紹影片：身邊有人在找工作嗎？分潤獎金"></iframe>';
+    function s1nePlayVideo(el,videoId,title){
+      el.outerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/'+videoId+'?autoplay=1&rel=0" style="width:100%;max-width:480px;aspect-ratio:16/9;border:0;display:block;margin:0 auto;border-radius:16px;" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen title="'+title+'"></iframe>';
     }
     </script>
 
@@ -147,13 +154,40 @@ li{margin-bottom:8px;}
       <li><strong>推薦獎金</strong>：你直接推薦的朋友順利入職，即可獲得，推薦越多人拿到獎金的機會越高。</li>
       <li><strong>職缺流程獎金</strong>：同一個職缺若有多人分別推薦不同候選人，最後由錄取者那條推薦線領取。</li>
     </ul>
+    <p>而且拿獎金的不是只有推薦人——你推薦的朋友本人應徵成功、順利到職後，他自己通常也能領一筆「求職獎金」，不是只有你這個推薦人賺，是雙方都有錢拿。</p>
+
+    <h2>職缺頁面的獎金級距長什麼樣子？（實際範例）</h2>
+    <p>每個職缺頁都有一個「查看獎金區間」按鈕，點開會列出這個職缺對應的獎金明細，金額隨職缺的薪資高低分級計算，不是全站統一數字。以下是一個實際職缺範例（運維開發工程師・彈性遠端，年薪 100-200 萬）截圖呈現的獎金表，僅供了解級距結構，實際數字以你要推薦的那個職缺頁面顯示為準：</p>
+    <div class="s1ne-table-wrap">
+      <table>
+        <tr><th>項目</th><th>金額</th></tr>
+        <tr><td>通過內部面試者之推薦人</td><td><strong>12,500-25,000 元</strong></td></tr>
+        <tr><td>通過企業面試者之推薦人</td><td><strong>12,500-25,000 元</strong></td></tr>
+        <tr><td>報到獎金</td><td><strong>5,000-10,000 元</strong></td></tr>
+        <tr><td>報到者主推薦人</td><td><strong>12,500-25,000 元</strong></td></tr>
+        <tr><td>報到者主推薦人 Bonus</td><td><strong>2,500-5,000 元</strong></td></tr>
+        <tr><td>報到者主推薦人上級們</td><td><strong>5,000-10,000 元</strong></td></tr>
+      </table>
+    </div>
+    <p>可以看到獎金會依「候選人走到哪個階段」分次發放（通過面試、報到），而且推薦人上面的上線（也就是你朋友圈的上層）也能分到一筆，這跟人脈獎金的邏輯是同一件事。</p>
+
+    <div class="s1ne-video-wrap" onclick="s1nePlayVideo(this,'snsaJoATEGI','全民獵才操作示範：分享職缺拿回饋')" role="button" tabindex="0" aria-label="播放分享職缺操作示範影片" onkeydown="if(event.key==='Enter')s1nePlayVideo(this,'snsaJoATEGI','全民獵才操作示範：分享職缺拿回饋')" style="position:relative;max-width:280px;margin:0 auto 8px;border-radius:16px;overflow:hidden;cursor:pointer;box-shadow:0 14px 40px rgba(40,35,25,0.12);background:#000;">
+      <img src="https://i.ytimg.com/vi/snsaJoATEGI/hqdefault.jpg" alt="全民獵才操作示範：分享職缺拿回饋" style="width:100%;display:block;aspect-ratio:9/16;object-fit:cover;" loading="lazy">
+      <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
+        <span style="width:56px;height:56px;border-radius:50%;background:rgba(0,0,0,0.65);display:flex;align-items:center;justify-content:center;">
+          <span style="width:0;height:0;border-top:10px solid transparent;border-bottom:10px solid transparent;border-left:16px solid #fff;margin-left:3px;"></span>
+        </span>
+      </span>
+    </div>
+    <p style="text-align:center;font-size:13px;color:#8a8d95;margin:0 0 8px;">操作示範：如何分享職缺、查看獎金區間</p>
 
     <h2>全民獵才的「朋友圈」是什麼？怎麼建立？</h2>
-    <p>朋友圈是全民獵才計算人脈獎金的範圍，建立方式分兩步：</p>
+    <p>朋友圈在全民獵才小程式裡對應的是「人脈變現」頁面，會即時顯示三個數字：連結點擊次數、好友註冊次數、分潤次數。建立方式分兩步：</p>
     <ol>
-      <li><strong>第一步・創建：</strong>在全民獵才小程式中點擊「開始邀請」，產生你自己的專屬邀請連結。</li>
+      <li><strong>第一步・創建：</strong>在「人脈變現」頁面點擊「開始邀請」，產生你自己的專屬邀請連結。</li>
       <li><strong>第二步・擴建：</strong>用你的專屬連結加入的人，之後他邀請的朋友也會自動算進你的朋友圈——是會往下擴散的多層關係，不是只算你直接邀請的那一層。</li>
     </ol>
+    <p>觸發人脈獎金的條件很明確：當你朋友圈裡的人自己也成功推薦別人到職、拿到「推薦獎金」時，你才會同步拿到「人脈獎金」——不是朋友圈裡有人隨便應徵上就有錢，而是你的下線立了功，你也雨露均沾。</p>
     <p>兩個使用上要注意的地方：邀請朋友時務必使用「自己的」專屬連結，對方才算進你的朋友圈；另外，你邀請的 A 與 B 不會因此自動成為彼此的好友，但兩人都算在你的朋友圈裡（是以你為中心往外擴散，不是朋友圈成員互相連通）。</p>
 
     <h2>介紹朋友工作，多久才能拿到獎金？<span class="s1ne-todo">天數確認中</span></h2>
@@ -173,7 +207,7 @@ li{margin-bottom:8px;}
     </ol>
 
     <h2>全民獵才跟一般找工作 App 有什麼不同？</h2>
-    <p>全民獵才不是要另外下載的獨立 App，而是直接掛在 LINE 官方帳號上的小程式，加好友就能用，手機不用多裝一個 App。它的核心也不是「自己求職」，而是「幫朋友找到工作、自己拿獎金」——你不必是求職者本人，也能透過推薦職缺參與媒合並獲得回饋。</p>
+    <p>全民獵才不是要另外下載的獨立 App，而是直接掛在 LINE 官方帳號上的小程式，加好友就能用，手機不用多裝一個 App。它的核心也不是「自己求職」，而是「幫朋友找到工作、自己拿獎金」——你不必是求職者本人，也能透過推薦職缺參與媒合並獲得回饋。同一個 LINE 官方帳號裡也有另一組「<a href="/talent/ai-tools/">AI求職工具</a>」，是給求職者本人用手機做履歷、練面試自我介紹的工具，兩者可以一起用。</p>
 
     <div style="margin-top:48px;text-align:center;padding:36px 28px;border-radius:20px;background:linear-gradient(150deg,rgba(166,124,61,0.12),rgba(96,128,180,0.06));border:1px solid rgba(166,124,61,0.3);">
       <h2 style="margin-top:0;">加 LINE 好友，開啟全民獵才</h2>
