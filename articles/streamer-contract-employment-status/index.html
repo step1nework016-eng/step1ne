@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href*="lin.ee"]');
+  if (!a) return;
+  gtag('event', 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60)
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>直播主簽的是承攬還是僱傭？合約寫什麼不算數，勞動部看的是這 25 項｜Step1ne</title>
+<meta name="description" content="合約標題寫「承攬」不代表就是承攬。勞動部「勞動契約認定指導原則」以人格、經濟、組織三種從屬性實質認定，並公布25項檢核表。本文逐條對照直播主常見合約條款，說明認定成僱傭差在哪、經紀約為何常被認定為委任，以及違約金過高時民法252條的酌減規定。">
+<meta name="keywords" content="直播主 承攬 僱傭,直播主 勞健保,直播經紀約 違約金,勞動契約認定指導原則,從屬性 檢核表,直播主 勞基法,假承攬 真僱傭">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/articles/streamer-contract-employment-status/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Step1ne 德仁管理顧問">
+<meta property="og:title" content="直播主簽的是承攬還是僱傭？合約寫什麼不算數">
+<meta property="og:description" content="勞動部以三種從屬性實質認定，並公布 25 項檢核表。逐條對照你的合約，看你到底有沒有勞基法保障。">
+<meta property="og:url" content="https://step1ne.com/articles/streamer-contract-employment-status/">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://step1ne.com/assets/og-streamer-contract.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-streamer-contract.jpg">
+<meta name="theme-color" content="#f4f1ea">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Noto+Sans+TC:wght@300;400;500;700;900&family=Noto+Serif+TC:wght@500;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "直播主簽的是承攬還是僱傭？合約寫什麼不算數",
+  "description": "勞動部於2019年11月19日訂定「勞動契約認定指導原則」及「勞動契約從屬性判斷檢核表」，以人格從屬性、經濟從屬性、組織從屬性三項標準實質認定契約性質，不受契約形式或名稱拘束。本文逐條對照直播主經紀約的常見條款，並說明違約金過高時民法第252條的酌減規定。",
+  "datePublished": "2026-07-29",
+  "dateModified": "2026-07-29",
+  "inLanguage": "zh-TW",
+  "author": { "@type": "Organization", "name": "Step1ne 德仁管理顧問有限公司", "url": "https://step1ne.com/" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "德仁管理顧問有限公司（Step1ne）",
+    "logo": { "@type": "ImageObject", "url": "https://step1ne.com/assets/step1ne-logo.png" }
+  }
+}
+</script>
+
+<style>
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{font-family:'Noto Sans TC',system-ui,sans-serif;color:#23262d;background:#f4f1ea;-webkit-font-smoothing:antialiased;line-height:1.8;}
+a{color:#a67c3d;text-decoration:none;}
+a:hover{color:#8a6531;}
+details summary{cursor:pointer;list-style:none;}
+details summary::-webkit-details-marker{display:none;}
+details summary .faq-icon{transition:transform .3s ease;}
+details[open] summary .faq-icon{transform:rotate(45deg);}
+.wrap{max-width:760px;margin:0 auto;padding:0 24px;}
+h2{font-family:'Noto Serif TC',serif;font-size:24px;font-weight:700;color:#1c1f26;margin:44px 0 14px;line-height:1.4;}
+h3{font-size:17px;font-weight:700;color:#1c1f26;margin:26px 0 8px;}
+p{color:#3a3d44;font-size:15.5px;margin:0 0 16px;}
+ul,ol{padding-left:22px;color:#3a3d44;font-size:15.5px;}
+li{margin-bottom:8px;}
+.tbl-wrap{overflow-x:auto;margin:16px 0 8px;}
+table{width:100%;border-collapse:collapse;font-size:14.5px;background:#fff;min-width:560px;}
+th,td{border:1px solid #e6dfd1;padding:11px 13px;text-align:left;vertical-align:top;}
+th{background:#faf7f1;font-weight:700;white-space:nowrap;}
+td strong{color:#8a5a1a;}
+.note{font-size:13.5px;color:#8a8d95;margin:0 0 24px;}
+.callout{background:#fff;border:1px solid #e6dfd1;border-radius:14px;padding:20px 22px;margin:0 0 16px;}
+.insight{background:#fdfaf3;border:1px solid rgba(166,124,61,0.35);border-radius:14px;padding:20px 22px;margin:24px 0;}
+.insight .label{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;color:#a67c3d;text-transform:uppercase;margin-bottom:8px;}
+.insight p:last-child{margin-bottom:0;}
+.warn{background:#fff8f5;border:1px solid rgba(190,90,50,0.35);border-radius:14px;padding:20px 22px;margin:24px 0;}
+.warn .label{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;color:#b4552e;text-transform:uppercase;margin-bottom:8px;}
+.warn p:last-child{margin-bottom:0;}
+@media (max-width:760px){
+  .s1ne-hide-m{display:none !important;}
+  .s1ne-show-m{display:flex !important;}
+  footer a{min-height:44px;display:inline-flex;align-items:center;}
+}
+.s1ne-show-m{display:none;}
+.s1ne-mobile-menu{display:none;flex-direction:column;padding:4px 24px 16px;border-top:1px solid #e6dfd1;background:rgba(244,241,234,0.98);}
+.s1ne-mobile-menu.is-open{display:flex;}
+.s1ne-mobile-menu a{padding:10px 0;color:#4a4d55;font-size:15px;border-bottom:1px solid #e6dfd1;min-height:44px;display:flex;align-items:center;}
+.s1ne-mobile-menu a:last-child{border-bottom:none;}
+
+/* 表格：桌機正常表格；手機自動改成卡片式堆疊，避免多欄被壓爛 */
+@media (max-width:640px){
+  .tbl-wrap{overflow-x:visible;}
+  .tbl-wrap table{min-width:0;display:block;background:transparent;}
+  .tbl-wrap thead{display:none;}
+  .tbl-wrap tbody{display:block;}
+  .tbl-wrap tr{display:block;background:#fff;border:1px solid #e6dfd1;border-radius:14px;margin-bottom:12px;overflow:hidden;}
+  .tbl-wrap td{display:block;border:none;border-bottom:1px solid #f2ede3;padding:12px 16px;}
+  .tbl-wrap tr td:last-child{border-bottom:none;}
+  .tbl-wrap td::before{content:attr(data-label);display:block;font-size:11.5px;font-weight:700;letter-spacing:0.5px;color:#a67c3d;margin-bottom:4px;}
+  .tbl-wrap td:empty{display:none;}
+}
+</style>
+</head>
+<body>
+
+<header style="position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:rgba(244,241,234,0.9);border-bottom:1px solid #e6dfd1;">
+  <div class="wrap" style="display:flex;align-items:center;justify-content:space-between;gap:20px;height:68px;max-width:1180px;">
+    <a href="/" style="display:flex;align-items:center;gap:12px;color:#23262d;">
+      <img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問" style="height:38px;width:auto;">
+    </a>
+    <div class="s1ne-hide-m" style="display:flex;align-items:center;gap:28px;font-size:15px;color:#4a4d55;">
+      <a href="/jobs/" style="color:#4a4d55;">職缺專區</a>
+      <a href="/articles/" style="color:#4a4d55;">獵才專欄</a>
+    </div>
+    <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" class="s1ne-hide-m" style="background:linear-gradient(135deg,#c9a049,#a67c3d);color:#fff;font-weight:700;font-size:13.5px;padding:9px 18px;border-radius:999px;white-space:nowrap;">LINE 洽詢</a>
+    <button type="button" class="s1ne-show-m" onclick="document.getElementById('s1ne-mmenu').classList.toggle('is-open')" aria-label="開啟選單" style="align-items:center;justify-content:center;width:40px;height:40px;border:1px solid #e6dfd1;border-radius:10px;background:#fff;flex-shrink:0;">
+      <span style="display:block;width:18px;height:2px;background:#23262d;box-shadow:0 6px 0 #23262d,0 -6px 0 #23262d;"></span>
+    </button>
+  </div>
+  <div id="s1ne-mmenu" class="s1ne-mobile-menu" onclick="if(event.target.closest('a'))this.classList.remove('is-open')">
+    <a href="/">首頁</a>
+    <a href="/jobs/">職缺專區</a>
+    <a href="/articles/">獵才專欄</a>
+    <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="color:#a67c3d;font-weight:700;">LINE 洽詢 →</a>
+  </div>
+</header>
+
+<main>
+  <article class="wrap" style="padding:40px 24px 24px;">
+    <div style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:2px;color:#a67c3d;text-transform:uppercase;margin-bottom:16px;">求職者指南・勞動法規</div>
+    <h1 style="font-family:'Noto Serif TC',serif;font-weight:700;font-size:clamp(26px,4vw,38px);line-height:1.35;margin:0 0 20px;color:#1c1f26;">直播主簽的是承攬還是僱傭？合約上寫什麼，其實不算數</h1>
+
+    <p style="font-size:17px;color:#3a3d44;background:#fff;border:1px solid #e6dfd1;border-radius:14px;padding:20px 22px;">
+      <strong>直接答案：</strong>合約標題寫「承攬契約」「合作協議」<strong>不代表它就是承攬</strong>。依勞動部訂定的《勞動契約認定指導原則》，是不是勞動契約要看<strong>實質的從屬性</strong>，「不受契約形式或名稱拘束」。判斷標準有三項——人格從屬性、經濟從屬性、組織從屬性，勞動部並公布了 25 項檢核表逐條對照。所以真正該做的不是看合約叫什麼名字，而是拿檢核表逐條比對你實際的工作方式。
+    </p>
+
+    <h2>為什麼合約寫什麼不算數？</h2>
+
+    <p>勞動部在 2019 年 11 月 19 日訂定《勞動契約認定指導原則》與《勞動契約從屬性判斷檢核表》，用意就是處理「假承攬、真僱傭」這件事。</p>
+
+    <p>核心原則只有一句：<strong>應就個案事實及整體契約內容，依從屬性程度綜合判斷，不受契約形式或名稱拘束。</strong></p>
+
+    <p>換句話說，公司把合約取名叫「承攬」，但實際上規定你幾點開播、播多久、播什麼、不能同時去別的平台、還要接受考核——那從屬性就在那裡，名字不會改變事實。</p>
+
+    <div class="insight">
+      <div class="label">為什麼這件事對直播主特別重要</div>
+      <p>因為直播的工作型態<strong>剛好落在灰色地帶</strong>。看起來很自由（在家、自己決定內容），但合約常常又寫滿了時數要求、獨家條款與考核標準。這種「形式上自由、實質上被綁」的組合，正是從屬性爭議最常發生的地方。</p>
+    </div>
+
+    <h2>人格從屬性：8 個要素</h2>
+
+    <p>這一組看的是「你受不受指揮監督」。</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>要素</th><th>對照直播主常見條款</th></tr></thead>
+        <tbody>
+          <tr><td data-label="要素"><strong>工作時間受指揮監督</strong></td><td data-label="對照">合約規定每月最低開播時數、固定時段</td></tr>
+          <tr><td data-label="要素"><strong>提供勞務方法受指揮監督</strong></td><td data-label="對照">規定直播內容、talk 方式、要不要露臉、禁播事項</td></tr>
+          <tr><td data-label="要素"><strong>工作地點受指揮監督</strong></td><td data-label="對照">要求到公司的直播間開播</td></tr>
+          <tr><td data-label="要素"><strong>不能拒絕指派的工作</strong></td><td data-label="對照">被指派活動、PK、聯播不能推</td></tr>
+          <tr><td data-label="要素"><strong>接受事業單位的考核</strong></td><td data-label="對照">流水、時數、粉絲成長列入考核並影響分潤</td></tr>
+          <tr><td data-label="要素"><strong>須遵守服務紀律</strong></td><td data-label="對照">請假要報備、遲到早退有罰則</td></tr>
+          <tr><td data-label="要素"><strong>須親自提供勞務</strong></td><td data-label="對照">不能找人代播</td></tr>
+          <tr><td data-label="要素"><strong>不得以自己名義提供勞務</strong></td><td data-label="對照">帳號歸屬公司、以公會名義經營</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>經濟從屬性：5 個要素</h2>
+
+    <p>這一組看的是「風險由誰扛」。</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>要素</th><th>對照直播主常見條款</th></tr></thead>
+        <tbody>
+          <tr><td data-label="要素"><strong>不論工作成果都領得到報酬</strong></td><td data-label="對照">有保底、底薪</td></tr>
+          <tr><td data-label="要素"><strong>不負擔營業風險</strong></td><td data-label="對照">虧損由公司承擔，主播不需補貼</td></tr>
+          <tr><td data-label="要素"><strong>不需自備工具設備</strong></td><td data-label="對照">公司提供直播間、設備、網路</td></tr>
+          <tr><td data-label="要素"><strong>報酬標準由事業單位設定</strong></td><td data-label="對照">分潤比例由公司單方決定、可調整</td></tr>
+          <tr><td data-label="要素"><strong>不得對第三人提供勞務</strong></td><td data-label="對照"><strong>獨家條款——不得在其他平台開播</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="note">組織從屬性則看你是否被納入公司的組織體系、與其他人分工協作完成工作。</p>
+
+    <div class="warn">
+      <div class="label">不是勾越多就一定是僱傭</div>
+      <p>檢核表是<strong>綜合判斷</strong>，不是計分表。勾三項不代表三分之一僱傭，最終仍要看整體從屬性的程度，而且是<strong>個案認定</strong>。這份表的用途是讓你知道爭點在哪、該保留哪些證據，不是讓你自己下結論。</p>
+    </div>
+
+    <h2>認定成僱傭，差在哪？</h2>
+
+    <p>差很多。這也是為什麼公司通常希望它是承攬。</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>項目</th><th>認定為僱傭（適用勞基法）</th><th>認定為承攬／委任</th></tr></thead>
+        <tbody>
+          <tr><td data-label="項目">勞保、就保</td><td data-label="僱傭">雇主須依法投保</td><td data-label="承攬">自行透過職業工會加保</td></tr>
+          <tr><td data-label="項目">健保</td><td data-label="僱傭">雇主為投保單位並負擔部分保費</td><td data-label="承攬">自行處理</td></tr>
+          <tr><td data-label="項目">勞退新制 6%</td><td data-label="僱傭">雇主須按月提繳</td><td data-label="承攬">無</td></tr>
+          <tr><td data-label="項目">特休、加班費</td><td data-label="僱傭">有</td><td data-label="承攬">無</td></tr>
+          <tr><td data-label="項目">資遣費、預告期</td><td data-label="僱傭">有</td><td data-label="承攬">無</td></tr>
+          <tr><td data-label="項目">職災補償</td><td data-label="僱傭">雇主須負補償責任</td><td data-label="承攬">依民法主張，舉證困難得多</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>但經紀約常被認定為「委任」，那又是另一回事</h2>
+
+    <p>這裡有個很多人搞混的地方：<strong>承攬、僱傭之外還有第三種——委任。</strong></p>
+
+    <p>藝人經紀合約在司法實務上，常被認定為委任契約或具委任性質的契約。這個定性有一個對主播相當重要的效果：依民法第 549 條，<strong>委任契約當事人的任何一方，得隨時終止契約</strong>。也就是說，當信賴關係已經不存在時，未必非得撐完約期不可。</p>
+
+    <p>但要注意——<strong>「可以終止」不等於「不用賠」。</strong>於不利於他方之時期終止契約者，仍可能須負損害賠償責任。這是兩件事，不要混為一談。</p>
+
+    <h2>違約金開一百萬，法院會全額准嗎？</h2>
+
+    <p>不一定。依<strong>民法第 252 條</strong>，約定的違約金額過高者，法院得減至相當之數額——即使當初雙方確實簽了字。</p>
+
+    <p>法院在判斷是否過高時，通常會綜合考量：債權人實際受到的損害、違約情節、以及對方是否已經取得部分履約的利益。所以合約上的天價數字是<strong>談判與嚇阻的工具</strong>，未必等於最後要付的金額。</p>
+
+    <div class="insight">
+      <div class="label">實務上的意義</div>
+      <p>看到違約金 100 萬就嚇到不敢動，是很多人被困住的原因。<strong>知道有酌減這條，至少你在談解約的時候不是完全沒有籌碼。</strong>但真的走到訴訟要花時間與費用，實際怎麼處理請找律師評估——這裡只是讓你知道那個數字不是絕對的。</p>
+    </div>
+
+    <h2>沒有雇主，勞健保怎麼辦？</h2>
+
+    <p>若確實是承攬或自營型態、沒有雇主，可以透過<strong>職業工會</strong>加保勞保與健保。目前已有以網路自媒體工作者為對象的職業工會，提供直播主、帶貨主加保的管道，涵蓋老年、傷病、失能給付與醫療保障。</p>
+
+    <p>這條路的重點是<strong>不要空著</strong>。直播是有職業傷害風險的工作（作息、久坐、嗓子、心理壓力），沒有任何保險的狀態下出事，損失全部自己承擔。</p>
+
+    <h2>該保留哪些證據？</h2>
+
+    <p>不管你打不打算爭，這些東西現在就該存好。事後要補幾乎不可能。</p>
+
+    <ul>
+      <li><strong>合約本身</strong>，包含所有補充協議與後來的修改</li>
+      <li><strong>排班或時數要求的訊息紀錄</strong>——群組公告、通知、催促開播的對話</li>
+      <li><strong>考核與罰則的紀錄</strong>——扣款通知、績效表</li>
+      <li><strong>分潤結算單</strong>，每一期都留</li>
+      <li><strong>指派工作的紀錄</strong>——被要求參加活動、PK、聯播的通知</li>
+    </ul>
+
+    <p>這幾類東西正好對應到從屬性的判斷要素。<strong>爭議發生時，有紀錄的一方比較好講話。</strong></p>
+
+    <h2>常見問題</h2>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-top:20px;">
+      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
+        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
+          <span>合約標題寫「承攬」，就一定是承攬嗎？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
+        </summary>
+        <p style="margin:0;padding:0 20px 18px;">不是。依勞動部《勞動契約認定指導原則》，是否為勞動契約應就個案事實及整體契約內容，依從屬性程度綜合判斷，<strong>不受契約形式或名稱拘束</strong>。實際上若受指揮監督工作時間、方法與地點，不能拒絕指派、須接受考核、不得對第三人提供勞務，這些都是從屬性的要素。</p>
+      </details>
+      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
+        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
+          <span>直播主可以保勞保嗎？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
+        </summary>
+        <p style="margin:0;padding:0 20px 18px;">可以。若被認定為僱傭關係，雇主須依法為你投保；若確實是承攬或自營、沒有雇主，可透過職業工會加入勞保與健保，取得老年、傷病、失能給付與醫療保障。已有以網路自媒體工作者為對象的職業工會提供這個管道。</p>
+      </details>
+      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
+        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
+          <span>經紀約簽了就不能提前解約嗎？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
+        </summary>
+        <p style="margin:0;padding:0 20px 18px;">不一定。藝人經紀合約在實務上常被認定為委任契約或具委任性質，依民法第 549 條，當事人任一方得隨時終止契約。但要注意「可以終止」不等於「不用賠」——於不利於他方之時期終止者，仍可能須負損害賠償責任。個案結果差異大，建議先諮詢律師。</p>
+      </details>
+      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
+        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
+          <span>合約上的違約金太高，一定要照付嗎？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
+        </summary>
+        <p style="margin:0;padding:0 20px 18px;">依民法第 252 條，約定之違約金額過高者，法院得減至相當之數額，即使雙方原先已經合意。法院通常會參酌債權人實際所受損害、違約情節，以及對方已取得的部分履約利益來認定。實際能減到多少屬個案判斷，需要由律師評估。</p>
+      </details>
+      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
+        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
+          <span>簽約前最該確認哪一條？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
+        </summary>
+        <p style="margin:0;padding:0 20px 18px;">獨家條款與最低時數這兩條。前者對應「不得對第三人提供勞務」，後者對應「工作時間受指揮監督」，兩條都是從屬性判斷的核心要素，也是實務上最常引發爭議的地方。另外要確認分潤比例、結算日與匯款方式是否白紙黑字寫明。</p>
+      </details>
+    </div>
+
+    <div style="margin-top:48px;text-align:center;padding:36px 28px;border-radius:20px;background:linear-gradient(150deg,rgba(166,124,61,0.12),rgba(96,128,180,0.06));border:1px solid rgba(166,124,61,0.3);">
+      <h2 style="margin-top:0;">拿到合約，不確定哪幾條要注意？</h2>
+      <p style="margin-bottom:22px;">加 LINE 直接問。我們天天在看僱傭與派遣的合約條款，哪幾條該再談、哪幾條是常見的坑，可以先講給你聽。</p>
+      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;background:#06c755;color:#fff;font-weight:700;font-size:16px;padding:15px 32px;border-radius:999px;">加入LINE官方帳號諮詢</a>
+    </div>
+
+    <p style="margin-top:32px;font-size:14.5px;color:#8a8d95;">延伸閱讀：<a href="/articles/douyin-live-payout-taiwan/">台灣人在大陸抖音直播，錢到底領不領得到？</a>｜<a href="/articles/dispatch-legal-risks/">企業用派遣最容易踩的法律地雷</a></p>
+
+    <p style="margin-top:24px;font-size:13px;color:#9a9da5;line-height:1.7;">
+      本文整理自勞動部《勞動契約認定指導原則》、《勞動契約從屬性判斷檢核表》（2019 年 11 月 19 日訂定）及民法相關規定，僅供一般性參考，不構成法律意見。從屬性認定屬個案判斷，法規亦可能修正，具體案件請諮詢律師或洽勞工主管機關。
+    </p>
+  </article>
+</main>
+
+<footer style="border-top:1px solid #e6dfd1;background:#eee9de;padding:28px 0;">
+  <div class="wrap" style="text-align:center;color:#9a9da5;font-size:13px;max-width:800px;">
+    <a href="/jobs/" style="color:#a67c3d;">職缺專區</a>　|　<a href="/" style="color:#a67c3d;">Step1ne 首頁</a>　|　© 2026 德仁管理顧問有限公司 Step1ne
+  </div>
+</footer>
+
+</body>
+</html>
