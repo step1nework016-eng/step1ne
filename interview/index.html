@@ -116,6 +116,9 @@ footer{
 var API = 'https://step1ne-recruit-api.aiagentg888.workers.dev';
 var T = new URLSearchParams(location.search).get('t') || '';
 var lastId = 0, polling = null, waiting = false, ended = false;
+// 送出時會先在本地顯示一顆泡泡（不然按了沒反應很怪），但那則稍後也會從
+// 伺服器輪詢回來。沒有這個清單的話，同一句話會出現兩次。
+var optimistic = [];
 
 var $ = function (id) { return document.getElementById(id); };
 
@@ -136,7 +139,7 @@ function atBottom() {
   return l.scrollHeight - l.scrollTop - l.clientHeight < 80;
 }
 
-function add(m) {
+function add(m, fromServer) {
   if (!$('hint').hidden) { $('hint').hidden = true; $('log').hidden = false; }
   var stick = atBottom();
   var mine = m.role === 'candidate';
@@ -148,7 +151,7 @@ function add(m) {
   s.className = 'stamp' + (mine ? ' me' : '');
   s.textContent = (m.created_at || '').slice(11, 16);
   $('log').appendChild(s);
-  if (m.id > lastId) lastId = m.id;
+  if (fromServer && m.id > lastId) lastId = m.id;
   if (stick) $('log').scrollTop = $('log').scrollHeight;
 }
 
@@ -202,6 +205,7 @@ async function boot() {
   // 讓候選人先講話的話，多數人會愣在那裡不知道要打什麼。
   if (!(d.messages || []).length) {
     waiting = true; typing(true);
+    optimistic.push('（候選人已進入面談室）');
     fetch(API + '/chat/' + encodeURIComponent(T) + '/send', {
       method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ text: '（候選人已進入面談室）' }),
@@ -218,13 +222,19 @@ async function poll() {
     var r = await fetch(API + '/chat/' + encodeURIComponent(T) + '/poll?after=' + lastId);
     var d = await r.json();
     if (!d.ok) return;
-    var got = (d.messages || []).filter(function (m) { return m.role !== 'candidate' || m.id > lastId; });
+    var got = d.messages || [];
     if (got.length) {
       typing(false);
       got.forEach(function (m) {
+        if (m.id > lastId) lastId = m.id;
         // 開場那句是給後端用的暗號，不要顯示給候選人看
-        if (m.role === 'candidate' && m.content === '（候選人已進入面談室）') { if (m.id > lastId) lastId = m.id; return; }
-        add(m);
+        if (m.role === 'candidate' && m.content === '（候選人已進入面談室）') return;
+        // 本地已經顯示過的那一則，不要再畫一次
+        if (m.role === 'candidate') {
+          var k = optimistic.indexOf(m.content);
+          if (k > -1) { optimistic.splice(k, 1); return; }
+        }
+        add(m, true);
       });
       if (got.some(function (m) { return m.role === 'assistant'; })) { waiting = false; }
     }
@@ -240,7 +250,9 @@ async function send() {
   sending = true; $('go').disabled = true;
   setTimeout(function () { sending = false; $('go').disabled = ended; }, 600);
   $('say').value = ''; $('say').style.height = 'auto';
-  add({ id: 0, role: 'candidate', content: v, created_at: new Date().toTimeString().slice(0, 5).padStart(16, ' ') });
+  optimistic.push(v);
+  add({ id: 0, role: 'candidate', content: v,
+        created_at: '           ' + new Date().toTimeString().slice(0, 5) });
   waiting = true; typing(true);
   try {
     var r = await fetch(API + '/chat/' + encodeURIComponent(T) + '/send', {
