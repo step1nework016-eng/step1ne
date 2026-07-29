@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href*="lin.ee"]');
+  if (!a) return;
+  gtag('event', 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60)
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>觀眾刷 1000 元，主播實拿多少？直播抽成與音浪換算算一次給你看｜Step1ne</title>
+<meta name="description" content="觀眾花的錢到你手上要經過三層：平台抽成、公會分潤、稅。抖音音浪與人民幣是10:1，個人主播與簽約主播的分成不同；台灣平台的比例則多半不公開。本文拆解三層結構、實際算一次，並列出簽約前該問清楚的五個數字。">
+<meta name="keywords" content="直播抽成 比例,音浪 換算,抖音 音浪 多少錢,直播主 分潤,17LIVE 抽成,斗內 抽成,直播主 實拿">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/articles/streamer-revenue-split/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Step1ne 德仁管理顧問">
+<meta property="og:title" content="觀眾刷 1000 元，主播實拿多少？">
+<meta property="og:description" content="中間有三層：平台、公會、稅。算一次給你看，並附上簽約前該問清楚的五個數字。">
+<meta property="og:url" content="https://step1ne.com/articles/streamer-revenue-split/">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://step1ne.com/assets/og-streamer-revenue-split.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-streamer-revenue-split.jpg">
+<meta name="theme-color" content="#f4f1ea">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Noto+Sans+TC:wght@300;400;500;700;900&family=Noto+Serif+TC:wght@500;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "觀眾刷 1000 元，主播實拿多少？直播抽成與音浪換算",
+  "description": "直播打賞從觀眾到主播要經過平台抽成、公會分潤與稅三層。抖音音浪與人民幣兌換比例為10:1；個人主播與簽約主播的分成比例不同，台灣平台則多半不公開分潤比例。本文說明計算結構、實際試算一次，並列出簽約前應確認的五個數字。",
+  "datePublished": "2026-07-29",
+  "dateModified": "2026-07-29",
+  "inLanguage": "zh-TW",
+  "author": { "@type": "Organization", "name": "Step1ne 德仁管理顧問有限公司", "url": "https://step1ne.com/" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "德仁管理顧問有限公司（Step1ne）",
+    "logo": { "@type": "ImageObject", "url": "https://step1ne.com/assets/step1ne-logo.png" }
+  }
+}
+</script>
+
+<style>
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{font-family:'Noto Sans TC',system-ui,sans-serif;color:#23262d;background:#f4f1ea;-webkit-font-smoothing:antialiased;line-height:1.8;}
+a{color:#a67c3d;text-decoration:none;}
+a:hover{color:#8a6531;}
+details summary{cursor:pointer;list-style:none;}
+details summary::-webkit-details-marker{display:none;}
+details summary .faq-icon{transition:transform .3s ease;}
+details[open] summary .faq-icon{transform:rotate(45deg);}
+.wrap{max-width:760px;margin:0 auto;padding:0 24px;}
+h2{font-family:'Noto Serif TC',serif;font-size:24px;font-weight:700;color:#1c1f26;margin:44px 0 14px;line-height:1.4;}
+h3{font-size:17px;font-weight:700;color:#1c1f26;margin:26px 0 8px;}
+p{color:#3a3d44;font-size:15.5px;margin:0 0 16px;}
+ul,ol{padding-left:22px;color:#3a3d44;font-size:15.5px;}
+li{margin-bottom:8px;}
+.tbl-wrap{overflow-x:auto;margin:16px 0 8px;}
+table{width:100%;border-collapse:collapse;font-size:14.5px;background:#fff;min-width:560px;}
+th,td{border:1px solid #e6dfd1;padding:11px 13px;text-align:left;vertical-align:top;}
+th{background:#faf7f1;font-weight:700;white-space:nowrap;}
+td strong{color:#8a5a1a;}
+.note{font-size:13.5px;color:#8a8d95;margin:0 0 24px;}
+.callout{background:#fff;border:1px solid #e6dfd1;border-radius:14px;padding:20px 22px;margin:0 0 16px;}
+.insight{background:#fdfaf3;border:1px solid rgba(166,124,61,0.35);border-radius:14px;padding:20px 22px;margin:24px 0;}
+.insight .label{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;color:#a67c3d;text-transform:uppercase;margin-bottom:8px;}
+.insight p:last-child{margin-bottom:0;}
+.warn{background:#fff8f5;border:1px solid rgba(190,90,50,0.35);border-radius:14px;padding:20px 22px;margin:24px 0;}
+.warn .label{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;color:#b4552e;text-transform:uppercase;margin-bottom:8px;}
+.warn p:last-child{margin-bottom:0;}
+.calc{background:#fff;border:1px solid #e6dfd1;border-radius:14px;padding:22px;margin:20px 0;font-size:15.5px;}
+.calc .row{display:flex;justify-content:space-between;gap:16px;padding:9px 0;border-bottom:1px dashed #eae3d5;color:#3a3d44;}
+.calc .row:last-child{border-bottom:none;padding-top:14px;font-weight:700;color:#1c1f26;font-size:17px;}
+.calc .row span:last-child{font-family:'Space Mono',monospace;white-space:nowrap;}
+@media (max-width:760px){
+  .s1ne-hide-m{display:none !important;}
+  .s1ne-show-m{display:flex !important;}
+  footer a{min-height:44px;display:inline-flex;align-items:center;}
+}
+.s1ne-show-m{display:none;}
+.s1ne-mobile-menu{display:none;flex-direction:column;padding:4px 24px 16px;border-top:1px solid #e6dfd1;background:rgba(244,241,234,0.98);}
+.s1ne-mobile-menu.is-open{display:flex;}
+.s1ne-mobile-menu a{padding:10px 0;color:#4a4d55;font-size:15px;border-bottom:1px solid #e6dfd1;min-height:44px;display:flex;align-items:center;}
+.s1ne-mobile-menu a:last-child{border-bottom:none;}
+
+/* 表格：桌機正常表格；手機自動改成卡片式堆疊，避免多欄被壓爛 */
+@media (max-width:640px){
+  .tbl-wrap{overflow-x:visible;}
+  .tbl-wrap table{min-width:0;display:block;background:transparent;}
+  .tbl-wrap thead{display:none;}
+  .tbl-wrap tbody{display:block;}
+  .tbl-wrap tr{display:block;background:#fff;border:1px solid #e6dfd1;border-radius:14px;margin-bottom:12px;overflow:hidden;}
+  .tbl-wrap td{display:block;border:none;border-bottom:1px solid #f2ede3;padding:12px 16px;}
+  .tbl-wrap tr td:last-child{border-bottom:none;}
+  .tbl-wrap td::before{content:attr(data-label);display:block;font-size:11.5px;font-weight:700;letter-spacing:0.5px;color:#a67c3d;margin-bottom:4px;}
+  .tbl-wrap td:empty{display:none;}
+}
+</style>
+</head>
+<body>
+
+<header style="position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:rgba(244,241,234,0.9);border-bottom:1px solid #e6dfd1;">
+  <div class="wrap" style="display:flex;align-items:center;justify-content:space-between;gap:20px;height:68px;max-width:1180px;">
+    <a href="/" style="display:flex;align-items:center;gap:12px;color:#23262d;">
+      <img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問" style="height:38px;width:auto;">
+    </a>
+    <div class="s1ne-hide-m" style="display:flex;align-items:center;gap:28px;font-size:15px;color:#4a4d55;">
+      <a href="/jobs/" style="color:#4a4d55;">職缺專區</a>
+      <a href="/articles/" style="color:#4a4d55;">獵才專欄</a>
+    </div>
+    <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" class="s1ne-hide-m" style="background:linear-gradient(135deg,#c9a049,#a67c3d);color:#fff;font-weight:700;font-size:13.5px;padding:9px 18px;border-radius:999px;white-space:nowrap;">LINE 洽詢</a>
+    <button type="button" class="s1ne-show-m" onclick="document.getElementById('s1ne-mmenu').classList.toggle('is-open')" aria-label="開啟選單" style="align-items:center;justify-content:center;width:40px;height:40px;border:1px solid #e6dfd1;border-radius:10px;background:#fff;flex-shrink:0;">
+      <span style="display:block;width:18px;height:2px;background:#23262d;box-shadow:0 6px 0 #23262d,0 -6px 0 #23262d;"></span>
+    </button>
+  </div>
+  <div id="s1ne-mmenu" class="s1ne-mobile-menu" onclick="if(event.target.closest('a'))this.classList.remove('is-open')">
+    <a href="/">首頁</a>
+    <a href="/jobs/">職缺專區</a>
+    <a href="/articles/">獵才專欄</a>
+    <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="color:#a67c3d;font-weight:700;">LINE 洽詢 →</a>
+  </div>
+</header>
+
+<main>
+  <article class="wrap" style="padding:40px 24px 24px;">
+    <div style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:2px;color:#a67c3d;text-transform:uppercase;margin-bottom:16px;">求職者指南・收入結構</div>
+    <h1 style="font-family:'Noto Serif TC',serif;font-weight:700;font-size:clamp(26px,4vw,38px);line-height:1.35;margin:0 0 20px;color:#1c1f26;">觀眾刷 1000 元，主播實際拿到多少？</h1>
+
+    <p style="font-size:17px;color:#3a3d44;background:#fff;border:1px solid #e6dfd1;border-radius:14px;padding:20px 22px;">
+      <strong>直接答案：</strong>比多數人想的少很多，因為中間有<strong>三層</strong>——平台先抽、公會再抽、最後還有稅。以抖音為例，音浪與人民幣的兌換比例是 <strong>10:1</strong>（1 元＝10 音浪），公開資料中常見的說法是個人主播約可分得禮物價值的三成、加入公會者約四到五成，但公會還會從中再抽一手。台灣的平台則<strong>多半不公開分潤比例</strong>。所以真正的答案不在網路上，而在你那份合約的數字裡。
+    </p>
+
+    <h2>錢從觀眾到你手上，要過三關</h2>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>關卡</th><th>被抽走什麼</th><th>誰決定</th></tr></thead>
+        <tbody>
+          <tr><td data-label="關卡"><strong>1. 平台</strong></td><td data-label="抽什麼">觀眾儲值金額的一大部分</td><td data-label="誰決定">平台單方訂定，會調整</td></tr>
+          <tr><td data-label="關卡"><strong>2. 公會／經紀</strong></td><td data-label="抽什麼">從你分到的那份再抽一次</td><td data-label="誰決定"><strong>你的合約</strong></td></tr>
+          <tr><td data-label="關卡"><strong>3. 稅</strong></td><td data-label="抽什麼">就源扣繳或事後申報</td><td data-label="誰決定">稅法，依所得類別而定</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>多數人只算了第一關，或只聽公會說「我們給你五成」——但那個五成是<strong>從哪一個基數算的五成</strong>，才是重點。</p>
+
+    <div class="insight">
+      <div class="label">最容易被誤導的一句話</div>
+      <p>「我們分潤五成」聽起來很好。但如果那是「平台結算給公會之後，再分你五成」，而平台本身已經抽掉一半——那你實際拿到的是觀眾儲值金額的<strong>約四分之一</strong>，不是一半。<strong>問清楚基數，比問比例重要。</strong></p>
+    </div>
+
+    <h2>抖音的換算：1 元＝10 音浪</h2>
+
+    <p>抖音的虛擬單位叫「音浪」，與人民幣的兌換比例是 <strong>10:1</strong>——1 元人民幣等於 10 音浪，換句話說 1 音浪等於 0.1 元。所以 10000 音浪對應到 1000 元人民幣的儲值金額。</p>
+
+    <p>但那是<strong>觀眾花的錢</strong>，不是你拿到的錢。公開資料中常見的分成說法是：</p>
+
+    <ul>
+      <li><strong>個人主播</strong>：約可分得禮物價值的三成</li>
+      <li><strong>簽約主播或加入公會者</strong>：約四到五成，但<strong>公會會再從中抽成</strong></li>
+    </ul>
+
+    <p class="note">以上為公開資料整理，平台實際比例會依活動、等級與合約條件浮動，且不定期調整。請以你的合約與平台後台實際結算為準。</p>
+
+    <h2>算一次給你看</h2>
+
+    <p>假設觀眾在你的直播間刷了 <strong>1000 元人民幣</strong>（＝10000 音浪），你是簽了公會的主播，合約寫「平台結算後與公會五五分」：</p>
+
+    <div class="calc">
+      <div class="row"><span>觀眾儲值</span><span>1000 元</span></div>
+      <div class="row"><span>平台抽成後結算（以五成計）</span><span>500 元</span></div>
+      <div class="row"><span>公會再抽五成</span><span>−250 元</span></div>
+      <div class="row"><span>你的稅前所得</span><span>250 元</span></div>
+      <div class="row"><span>實際到手（約占觀眾花費）</span><span>25%</span></div>
+    </div>
+
+    <p>觀眾以為自己送了 1000 元給你。<strong>你實際拿到的大約是四分之一，稅還沒算。</strong></p>
+
+    <p>這不是在指控誰不對——平台要營運、公會要導流，抽成本身合理。問題只在於<strong>很多人簽約時沒把這三層算清楚</strong>，於是對收入的預期從一開始就錯了。</p>
+
+    <div class="warn">
+      <div class="label">數字會變</div>
+      <p>上面是示範算法，不是宣稱各平台現行的固定比例。<strong>平台的抽成、換算率與活動加成都會調整</strong>，公會的分潤也各家不同。看到有人給你一張「各平台抽成一覽表」而且不標日期與出處，那張表大概率已經過期。</p>
+    </div>
+
+    <h2>台灣的平台呢？多半不公開</h2>
+
+    <p>這是台灣主播最常卡住的地方：<strong>國內主要直播平台的分潤比例通常不對外公開</strong>，市場上的了解是平台抽成普遍偏高，創作者實際到手的比例相對有限。</p>
+
+    <p>公開報導中出現過的具體數字之一，是媒體訪查提到某位主播月播約 30 小時、收到約 3 萬元的打賞，實際分得約四成。這類個案數字可以當參考，但<strong>不能當成通則</strong>——分潤比例會依主播等級、合約版本與平台當期活動而不同。</p>
+
+    <p>另外要留意的是，平台有時會推出<strong>期間限定的高分潤或保底合約</strong>作為招募方案。過去就有平台推出過將月分潤自四成提高到五成五的專案。這類條件通常有期間、時數或流水門檻，<strong>看到高比例先問清楚附帶條件與適用期間</strong>。</p>
+
+    <h2>為什麼「保底」看起來高，實拿卻不一定</h2>
+
+    <p>保底幾乎都附條件。常見的三種寫法：</p>
+
+    <ul>
+      <li><strong>時數門檻</strong>——每月要播滿一定時數才算數，差一小時就整月不計</li>
+      <li><strong>流水門檻</strong>——要達到一定打賞金額才給保底，或保底與分潤「取其高」而非相加</li>
+      <li><strong>期間限制</strong>——只在前三個月或前半年適用</li>
+    </ul>
+
+    <p><strong>「取其高」這三個字要特別看。</strong>保底 3 萬、分潤算出來 2 萬，取其高是給你 3 萬，不是 5 萬。很多人是簽完之後第一次結算才發現這件事。</p>
+
+    <h2>簽約前該問清楚的五個數字</h2>
+
+    <ol>
+      <li><strong>分潤比例的基數是什麼？</strong>是觀眾儲值金額，還是平台結算給公會之後的金額？這一題答案不同，實拿可以差一倍。</li>
+      <li><strong>平台端的抽成大約多少？</strong>公會通常知道。答不出來或不願說的，本身就是資訊。</li>
+      <li><strong>保底的條件是什麼？</strong>時數、流水、期間，以及「取其高」還是「可累加」。</li>
+      <li><strong>結算日與撥款日各是哪一天？</strong>還有匯款方式與手續費由誰負擔。</li>
+      <li><strong>比例調整需不需要你同意？</strong>合約若寫「甲方得視營運狀況調整分潤比例」，等於現在談的數字隨時可能變。</li>
+    </ol>
+
+    <div class="insight">
+      <div class="label">一個實用做法</div>
+      <p>把這五題用文字訊息傳過去，請對方文字回覆。<strong>願意白紙黑字回答的，才值得繼續談。</strong>而且那份對話紀錄之後真的有爭議時，會是有用的證據。</p>
+    </div>
+
+    <h2>常見問題</h2>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-top:20px;">
+      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
+        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
+          <span>1 音浪等於多少錢？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
+        </summary>
+        <p style="margin:0;padding:0 20px 18px;">抖音的音浪與人民幣兌換比例為 10:1，即 1 元人民幣等於 10 音浪、1 音浪等於 0.1 元人民幣，10000 音浪對應 1000 元人民幣。但這是<strong>觀眾儲值的金額</strong>，主播實際分得的比例另計，還要再扣除公會分潤與稅。</p>
+      </details>
+      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
+        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
+          <span>觀眾刷 1000 元，主播實際拿到多少？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
+        </summary>
+        <p style="margin:0;padding:0 20px 18px;">要看三層：平台抽成、公會分潤與稅。若平台抽五成、公會再抽五成，主播稅前約拿到觀眾儲值金額的四分之一。實際比例依平台、合約版本與主播等級而不同，且會調整，應以你的合約與後台結算為準。</p>
+      </details>
+      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
+        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
+          <span>台灣直播平台的抽成比例是多少？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
+        </summary>
+        <p style="margin:0;padding:0 20px 18px;">國內主要平台的分潤比例通常不對外公開，市場了解是平台抽成偏高，創作者到手比例有限。媒體報導中出現過主播實際分得約四成的個案，但那不能當成通則——比例會依主播等級、合約版本與平台當期活動而不同。</p>
+      </details>
+      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
+        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
+          <span>公會說分潤五成，是好條件嗎？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
+        </summary>
+        <p style="margin:0;padding:0 20px 18px;">要先問「五成的基數是什麼」。若是觀眾儲值金額的五成，那很好；若是平台結算給公會之後再分你五成，而平台已經抽掉一半，你實拿只有觀眾花費的約四分之一。同樣一句「分潤五成」，兩種意思差一倍。</p>
+      </details>
+      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
+        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
+          <span>保底薪資是真的嗎？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
+        </summary>
+        <p style="margin:0;padding:0 20px 18px;">通常是真的，但幾乎都附條件——最低開播時數、流水門檻、適用期間，而且多半是保底與分潤「取其高」而非相加。保底 3 萬、分潤 2 萬，取其高是拿 3 萬不是 5 萬。簽約前務必把這三個條件問清楚並確認寫在合約裡。</p>
+      </details>
+    </div>
+
+    <div style="margin-top:48px;text-align:center;padding:36px 28px;border-radius:20px;background:linear-gradient(150deg,rgba(166,124,61,0.12),rgba(96,128,180,0.06));border:1px solid rgba(166,124,61,0.3);">
+      <h2 style="margin-top:0;">分潤條件看不懂，可以先問問</h2>
+      <p style="margin-bottom:22px;">合約上的比例、基數與保底條件哪裡有坑，加 LINE 直接問。我們天天在看報酬結構與合約條款，幫你把該問的地方指出來。</p>
+      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;background:#06c755;color:#fff;font-weight:700;font-size:16px;padding:15px 32px;border-radius:999px;">加入LINE官方帳號諮詢</a>
+    </div>
+
+    <p style="margin-top:32px;font-size:14.5px;color:#8a8d95;">延伸閱讀：<a href="/articles/streamer-contract-employment-status/">直播主簽的是承攬還是僱傭？合約寫什麼不算數</a>｜<a href="/articles/douyin-live-payout-taiwan/">台灣人在大陸抖音直播，錢到底領不領得到？</a></p>
+
+    <p style="margin-top:24px;font-size:13px;color:#9a9da5;line-height:1.7;">
+      本文數據整理自平台公開說明與公開報導，資料整理時間為 2026 年 7 月。各平台的抽成比例、兌換率與活動條件均會調整，公會分潤亦依個別合約而異，實際數字請以你的合約與平台後台結算為準。本文僅供一般性參考，不構成法律、稅務或投資建議。
+    </p>
+  </article>
+</main>
+
+<footer style="border-top:1px solid #e6dfd1;background:#eee9de;padding:28px 0;">
+  <div class="wrap" style="text-align:center;color:#9a9da5;font-size:13px;max-width:800px;">
+    <a href="/jobs/" style="color:#a67c3d;">職缺專區</a>　|　<a href="/" style="color:#a67c3d;">Step1ne 首頁</a>　|　© 2026 德仁管理顧問有限公司 Step1ne
+  </div>
+</footer>
+
+</body>
+</html>
