@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>初篩報告｜Step1ne 顧問後台</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<meta name="theme-color" content="#ffffff">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{font-family:'Noto Sans TC',system-ui,sans-serif;color:#23262d;background:#fbfaf7;line-height:1.7;}
+a{color:#a67c3d;text-decoration:none;}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px;}
+
+header{background:#fff;border-bottom:1px solid #eee7db;padding:14px 0;position:sticky;top:0;z-index:20;}
+header .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;}
+header img{height:30px;}
+header b{font-size:15px;}
+.mut{color:#8a8d95;font-size:13px;}
+
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:22px 0 6px;}
+input[type=search],select{font:inherit;font-size:15px;border:1px solid #e0d9cb;border-radius:10px;padding:9px 13px;background:#fff;outline:0;min-height:40px;}
+input[type=search]{flex:1;min-width:200px;}
+input:focus,select:focus{border-color:#a67c3d;box-shadow:0 0 0 3px rgba(166,124,61,.12);}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 16px;}
+.tab{font:inherit;font-size:13.5px;font-weight:600;border:1px solid #e0d9cb;background:#fff;color:#4a4d55;border-radius:999px;padding:7px 14px;cursor:pointer;min-height:36px;}
+.tab.on{background:#f3e2c2;border-color:#d9bd85;color:#7a4e12;}
+
+.row{background:#fff;border:1px solid #eee7db;border-radius:14px;padding:16px 18px;margin-bottom:10px;cursor:pointer;}
+.row:hover{border-color:#d9bd85;}
+.row h3{margin:0 0 4px;font-size:16.5px;}
+.row .meta{font-size:13px;color:#8a8d95;display:flex;flex-wrap:wrap;gap:12px;}
+.row .prev{font-size:13.5px;color:#5a5d64;margin:8px 0 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.badge{display:inline-block;font-size:11.5px;font-weight:700;border-radius:999px;padding:3px 10px;}
+.b-undecided{background:#fdf0d8;color:#8a5a1a;}
+.b-forward{background:#dff2e3;color:#1f6b34;}
+.b-more{background:#e6eefb;color:#24528f;}
+.b-no{background:#f2e6e6;color:#8a3333;}
+
+dialog{border:0;border-radius:18px;padding:0;max-width:900px;width:calc(100% - 32px);max-height:88vh;box-shadow:0 20px 60px rgba(0,0,0,.22);}
+dialog::backdrop{background:rgba(20,18,14,.42);}
+.dhead{position:sticky;top:0;background:#fff;border-bottom:1px solid #eee7db;padding:16px 22px;display:flex;justify-content:space-between;gap:14px;align-items:flex-start;}
+.dbody{padding:20px 22px 26px;overflow-y:auto;max-height:calc(88vh - 66px);}
+.dhead button{border:0;background:#f2efe8;border-radius:10px;width:34px;height:34px;font-size:17px;cursor:pointer;}
+pre.rep{white-space:pre-wrap;word-break:break-word;font:inherit;font-size:14.5px;background:#fbfaf7;border:1px solid #eee7db;border-radius:12px;padding:18px;margin:0 0 20px;}
+.acts{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 20px;}
+.act{font:inherit;font-size:14px;font-weight:600;border:1px solid #e0d9cb;background:#fff;border-radius:10px;padding:10px 16px;cursor:pointer;min-height:42px;}
+.act:hover{border-color:#a67c3d;}
+.act.on{background:#23262d;color:#fff;border-color:#23262d;}
+details.tr{border:1px solid #eee7db;border-radius:12px;background:#fff;padding:0;}
+details.tr summary{padding:13px 18px;cursor:pointer;font-weight:600;font-size:14.5px;list-style:none;}
+details.tr summary::-webkit-details-marker{display:none;}
+.turn{padding:0 18px 12px;font-size:14.5px;}
+.turn b{color:#8a5a1a;}
+.turn.me b{color:#3a5f8a;}
+
+.pager{display:flex;gap:10px;justify-content:center;margin:20px 0 40px;}
+.pager button{font:inherit;border:1px solid #e0d9cb;background:#fff;border-radius:10px;padding:9px 18px;cursor:pointer;min-height:42px;}
+.pager button:disabled{opacity:.4;cursor:default;}
+.gate{max-width:420px;margin:16vh auto;background:#fff;border:1px solid #eee7db;border-radius:16px;padding:26px;}
+.gate input{width:100%;margin:10px 0 14px;}
+.gate button{width:100%;font:inherit;font-size:15px;font-weight:700;background:#a67c3d;color:#fff;border:0;border-radius:10px;padding:12px;cursor:pointer;min-height:46px;}
+.empty{background:#fff;border:1px solid #eee7db;border-radius:14px;padding:26px;text-align:center;color:#5a5d64;}
+</style>
+</head>
+<body>
+
+<div id="gate" class="gate" hidden>
+  <b>顧問後台</b>
+  <p class="mut" style="margin:6px 0 0;">需要存取權杖。這組權杖等同密碼，不要外傳。</p>
+  <input id="tok" type="password" placeholder="ADMIN_TOKEN" autocomplete="off">
+  <button id="enter" type="button">進入</button>
+  <p id="gerr" class="mut" style="color:#b4552e;margin:12px 0 0;" hidden></p>
+</div>
+
+<div id="app" hidden>
+  <header>
+    <div class="wrap">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <img src="/assets/step1ne-logo.png" alt="Step1ne">
+        <b>初篩報告</b>
+      </div>
+      <div class="mut"><span id="tot">—</span>　<a href="#" id="out">登出</a></div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="bar">
+      <input id="q" type="search" placeholder="搜尋姓名、Email，或報告內文…" autocomplete="off">
+      <select id="job"><option value="">全部職缺</option></select>
+    </div>
+    <div class="tabs">
+      <button class="tab on" data-s="undecided" type="button">待處置</button>
+      <button class="tab" data-s="" type="button">全部</button>
+      <button class="tab" data-s="forwarded" type="button">已轉客戶</button>
+      <button class="tab" data-s="need_more" type="button">需補問</button>
+      <button class="tab" data-s="rejected" type="button">不推薦</button>
+    </div>
+    <div id="list"></div>
+    <div class="pager">
+      <button id="prev" type="button">← 上一頁</button>
+      <button id="next" type="button">下一頁 →</button>
+    </div>
+  </div>
+</div>
+
+<dialog id="dlg">
+  <div class="dhead">
+    <div><b id="dname">—</b><div class="mut" id="dmeta">—</div></div>
+    <button id="dx" type="button" aria-label="關閉">✕</button>
+  </div>
+  <div class="dbody">
+    <div class="acts" id="acts"></div>
+    <pre class="rep" id="drep">載入中…</pre>
+    <details class="tr"><summary>逐字稿</summary><div id="dtr" class="turn"></div></details>
+  </div>
+</dialog>
+
+<script>
+var API = 'https://step1ne-recruit-api.aiagentg888.workers.dev';
+var KEY = 's1ne_admin_tok';
+var tok = localStorage.getItem(KEY) || '';
+var state = 'undecided', offset = 0, LIMIT = 25, total = 0, cur = null;
+var $ = function (i) { return document.getElementById(i); };
+
+var LABEL = {
+  forwarded: { t: '已轉客戶', c: 'b-forward' },
+  need_more: { t: '需補問', c: 'b-more' },
+  rejected: { t: '不推薦', c: 'b-no' },
+};
+
+function api(path, opt) {
+  opt = opt || {};
+  opt.headers = Object.assign({ authorization: 'Bearer ' + tok }, opt.headers || {});
+  return fetch(API + path, opt).then(function (r) {
+    if (r.status === 401) { throw new Error('權杖不正確'); }
+    return r.json();
+  });
+}
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+  });
+}
+
+async function load() {
+  var qs = new URLSearchParams({ state: state, limit: LIMIT, offset: offset });
+  if ($('q').value.trim()) qs.set('q', $('q').value.trim());
+  if ($('job').value) qs.set('job', $('job').value);
+  var d;
+  try { d = await api('/admin/reports?' + qs); }
+  catch (e) { return gate(e.message); }
+  if (!d.ok) return;
+
+  total = d.total;
+  $('tot').textContent = total + ' 份報告';
+
+  if ($('job').options.length <= 1 && d.jobs.length) {
+    d.jobs.forEach(function (j) {
+      var o = document.createElement('option');
+      o.value = j.slug; o.textContent = j.title || j.slug;
+      $('job').appendChild(o);
+    });
+  }
+
+  $('list').innerHTML = d.reports.length ? '' :
+    '<div class="empty">' + (state === 'undecided'
+      ? '沒有待處置的報告。切到「全部」看歷史紀錄。'
+      : '沒有符合的報告。') + '</div>';
+
+  d.reports.forEach(function (r) {
+    var lab = LABEL[r.consultant_decision];
+    var el = document.createElement('div');
+    el.className = 'row';
+    el.innerHTML =
+      '<h3>' + esc(r.name) + '　<span class="badge ' + (lab ? lab.c : 'b-undecided') + '">' +
+      (lab ? lab.t : '待處置') + '</span></h3>' +
+      '<div class="meta"><span>' + esc(r.job_title || r.job_slug) + '</span>' +
+      '<span>' + esc((r.created_at || '').slice(0, 16)) + '</span>' +
+      '<span>' + (r.turns || 0) + ' 則對話</span>' +
+      (r.expected_salary ? '<span>期望 ' + esc(r.expected_salary) + '</span>' : '') +
+      (r.available_date ? '<span>可到職 ' + esc(r.available_date) + '</span>' : '') + '</div>' +
+      '<p class="prev">' + esc((r.preview || '').replace(/\s+/g, ' ')) + '</p>';
+    el.addEventListener('click', function () { open(r); });
+    $('list').appendChild(el);
+  });
+
+  $('prev').disabled = offset === 0;
+  $('next').disabled = offset + LIMIT >= total;
+}
+
+async function open(row) {
+  cur = row;
+  $('dname').textContent = row.name;
+  $('dmeta').textContent = (row.job_title || row.job_slug) + '　' + (row.email || '') + '　' + (row.phone || '');
+  $('drep').textContent = '載入中…';
+  $('dtr').innerHTML = '';
+  drawActs(row.consultant_decision);
+  $('dlg').showModal();
+
+  var d = await api('/admin/report/' + encodeURIComponent(row.id));
+  if (!d.ok) { $('drep').textContent = '讀取失敗'; return; }
+  $('drep').textContent = d.report.content_md || '（沒有報告內容）';
+  $('dtr').innerHTML = (d.transcript || [])
+    .filter(function (m) { return m.content !== '（候選人已進入面談室）'; })
+    .map(function (m) {
+      var me = m.role === 'candidate';
+      return '<p class="turn ' + (me ? 'me' : '') + '"><b>' + (me ? '候選人' : '阿財') + '</b>：' +
+        esc(m.content).replace(/\n/g, '<br>') + '</p>';
+    }).join('') || '<p class="turn">（沒有逐字稿）</p>';
+}
+
+function drawActs(now) {
+  var opts = [
+    { k: 'forwarded', t: '轉給客戶', s: 'passed' },
+    { k: 'need_more', t: '需補問', s: 'reported' },
+    { k: 'rejected', t: '不推薦', s: 'rejected' },
+  ];
+  $('acts').innerHTML = '';
+  opts.forEach(function (o) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'act' + (now === o.k ? ' on' : '');
+    b.textContent = o.t;
+    b.addEventListener('click', function () { decide(o); });
+    $('acts').appendChild(b);
+  });
+  var n = document.createElement('span');
+  n.className = 'mut';
+  n.style.cssText = 'align-self:center;margin-left:6px;';
+  // 記下處置才有辦法回頭比對 AI 判準準不準，這是這個按鈕真正的用途
+  n.textContent = now ? '已處置' : '處置後才能回頭校正 AI 的判準';
+  $('acts').appendChild(n);
+}
+
+async function decide(o) {
+  if (!cur) return;
+  var d = await api('/admin/decide-report', {
+    method: 'POST', headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ id: cur.id, decision: o.k, app_id: cur.app_id, app_status: o.s }),
+  });
+  if (d.ok) { cur.consultant_decision = o.k; drawActs(o.k); load(); }
+}
+
+function gate(msg) {
+  $('app').hidden = true; $('gate').hidden = false;
+  if (msg) { $('gerr').hidden = false; $('gerr').textContent = msg; }
+}
+
+$('enter').addEventListener('click', function () {
+  tok = $('tok').value.trim();
+  if (!tok) return;
+  localStorage.setItem(KEY, tok);
+  $('gate').hidden = true; $('app').hidden = false;
+  offset = 0; load();
+});
+$('tok').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('enter').click(); });
+$('out').addEventListener('click', function (e) {
+  e.preventDefault(); localStorage.removeItem(KEY); tok = ''; gate('');
+});
+$('dx').addEventListener('click', function () { $('dlg').close(); });
+$('prev').addEventListener('click', function () { offset = Math.max(0, offset - LIMIT); load(); scrollTo(0, 0); });
+$('next').addEventListener('click', function () { offset += LIMIT; load(); scrollTo(0, 0); });
+$('job').addEventListener('change', function () { offset = 0; load(); });
+
+var t;
+$('q').addEventListener('input', function () {
+  // 每打一個字就查一次會把 D1 的讀取額度燒光，等他停手再查
+  clearTimeout(t); t = setTimeout(function () { offset = 0; load(); }, 350);
+});
+document.querySelectorAll('.tab').forEach(function (b) {
+  b.addEventListener('click', function () {
+    document.querySelectorAll('.tab').forEach(function (x) { x.classList.toggle('on', x === b); });
+    state = b.dataset.s; offset = 0; load();
+  });
+});
+
+if (tok) { $('app').hidden = false; load(); } else { gate(''); }
+</script>
+</body>
+</html>
