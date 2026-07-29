@@ -1,0 +1,231 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>應徵職缺｜Step1ne 德仁管理顧問</title>
+<meta name="description" content="填寫應徵資料並預約線上初步面談時段，我們的顧問會在收到後與您聯繫。">
+<meta name="robots" content="noindex">
+<link rel="icon" href="/assets/favicon.ico">
+<style>
+:root{--bg:#0d1117;--card:#161b22;--line:#2a3242;--tx:#e6edf5;--tx2:#93a4bd;--tx3:#657188;
+      --ac:#4a7dff;--ok:#3ecf8e;--wa:#e6b45a;--rd:#e06a6a;
+      --sans:-apple-system,"Noto Sans TC","PingFang TC",sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:var(--sans);
+     line-height:1.7;-webkit-text-size-adjust:100%}
+.wrap{max-width:640px;margin:0 auto;padding:28px 18px 64px}
+h1{font-size:23px;margin:0 0 6px;letter-spacing:-.01em}
+.job{color:var(--ac);font-weight:600}
+.lead{color:var(--tx2);font-size:13.5px;margin:0 0 22px}
+.prog{height:3px;background:var(--line);border-radius:2px;margin-bottom:24px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--ac);width:0;transition:width .3s}
+fieldset{border:1px solid var(--line);border-radius:12px;padding:18px 16px;margin:0 0 16px;
+         background:var(--card)}
+legend{font-size:12px;color:var(--tx3);padding:0 7px;font-weight:600;letter-spacing:.04em}
+label{display:block;font-size:13px;margin:14px 0 5px;color:var(--tx2)}
+label:first-of-type{margin-top:0}
+label .req{color:var(--rd)}
+input,select,textarea{width:100%;background:#0b0f16;border:1px solid var(--line);
+  border-radius:9px;padding:11px 12px;color:var(--tx);font-size:16px;font-family:inherit}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--ac)}
+textarea{resize:vertical;min-height:76px}
+.hint{font-size:11.5px;color:var(--tx3);margin-top:5px;line-height:1.55}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:520px){.two{grid-template-columns:1fr}}
+.consent{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;color:var(--tx2);
+         margin-top:6px;line-height:1.65}
+.consent input{width:18px;height:18px;flex:0 0 auto;margin-top:2px}
+details{margin-top:10px;font-size:12px;color:var(--tx3)}
+details p{margin:8px 0 0}
+button{width:100%;background:var(--ac);color:#fff;border:0;border-radius:10px;
+       padding:15px;font-size:16px;font-weight:600;cursor:pointer;margin-top:6px;font-family:inherit}
+button:disabled{opacity:.5;cursor:not-allowed}
+.msg{margin-top:14px;padding:13px 15px;border-radius:10px;font-size:13.5px;display:none;line-height:1.6}
+.msg.err{display:block;background:rgba(224,106,106,.1);border:1px solid rgba(224,106,106,.35);color:#f0a0a0}
+.msg.ok{display:block;background:rgba(62,207,142,.1);border:1px solid rgba(62,207,142,.35);color:#8fe3bd}
+.done{text-align:center;padding:40px 0}
+.done h2{font-size:20px;margin:0 0 10px}
+.done p{color:var(--tx2);font-size:14px;margin:0 0 8px}
+</style>
+
+<div class="wrap">
+<div id="form-view">
+  <h1>應徵 <span class="job" id="jobName">職缺</span></h1>
+  <p class="lead">填完約 2 分鐘。送出後顧問會與您聯繫，安排線上初步面談。</p>
+  <div class="prog"><i id="bar"></i></div>
+
+  <form id="f">
+    <fieldset>
+      <legend>基本資料</legend>
+      <label>姓名 <span class="req">*</span></label>
+      <input name="name" required autocomplete="name">
+      <div class="two">
+        <div>
+          <label>Email <span class="req">*</span></label>
+          <input name="email" type="email" required autocomplete="email" inputmode="email">
+        </div>
+        <div>
+          <label>手機</label>
+          <input name="phone" autocomplete="tel" inputmode="tel">
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>基本條件</legend>
+      <div class="two">
+        <div>
+          <label>期望待遇</label>
+          <input name="expected_salary" placeholder="例：月薪 55K，可談">
+        </div>
+        <div>
+          <label>最快可到職</label>
+          <input name="available_date" placeholder="例：9/1 或 需一個月">
+        </div>
+      </div>
+      <label>工作地點</label>
+      <select name="location_ok">
+        <option value="">請選擇</option>
+        <option>可接受，無問題</option>
+        <option>可接受，需要通勤補助或宿舍</option>
+        <option>想先了解細節再決定</option>
+      </select>
+      <div class="hint">這三題先問，面談時就不會再重複問一次。</div>
+    </fieldset>
+
+    <fieldset>
+      <legend>履歷</legend>
+      <label>上傳檔案（PDF／Word，600KB 以內）</label>
+      <input name="resume" type="file" accept=".pdf,.doc,.docx">
+      <label>或貼雲端連結</label>
+      <input name="resume_url" placeholder="Google Drive／Dropbox 連結">
+      <div class="hint">檔案較大請改用連結，並確認權限設為「知道連結的人可讀取」。</div>
+      <label>想補充的事</label>
+      <textarea name="note" placeholder="選填"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>預約初談時段</legend>
+      <label>選一個方便的時間</label>
+      <select name="slot_start" id="slot"><option value="">載入中⋯</option></select>
+      <div class="hint">線上進行，約 15 分鐘。不方便先選也可以，顧問會另外跟您約。</div>
+    </fieldset>
+
+    <label class="consent">
+      <input type="checkbox" id="consent" required>
+      <span>我同意 Step1ne（德仁管理顧問有限公司）為職缺媒合目的蒐集與處理上述資料。</span>
+    </label>
+    <details>
+      <summary>個資使用說明</summary>
+      <p><b>蒐集目的</b>：職缺媒合與後續聯繫。</p>
+      <p><b>使用範圍</b>：僅由 Step1ne 顧問查閱。提供給用人企業前會另外徵得您的同意。</p>
+      <p><b>初步面談由 AI 進行</b>，對話內容會保留供顧問評估參考。</p>
+      <p><b>保存與刪除</b>：保存至媒合流程結束後一年。您可隨時來信要求查閱或刪除。</p>
+    </details>
+
+    <button type="submit" id="btn">送出應徵</button>
+    <div class="msg" id="msg"></div>
+  </form>
+</div>
+
+<div id="done-view" style="display:none" class="done">
+  <h2>收到了</h2>
+  <p id="doneSlot"></p>
+  <p>我們會在 1–2 個工作天內與您聯繫。</p>
+  <p style="margin-top:20px"><a href="/jobs/" style="color:var(--ac)">看其他職缺</a></p>
+</div>
+</div>
+
+<script>
+const API = 'https://step1ne-recruit-api.aiagentg888.workers.dev';
+const q = new URLSearchParams(location.search);
+// 職缺從網址帶進來：/apply/?job=bim-engineer&title=BIM%20工程師
+const JOB = q.get('job') || '';
+const TITLE = q.get('title') || '';
+document.getElementById('jobName').textContent = TITLE || JOB || '職缺';
+if (TITLE) document.title = `應徵 ${TITLE}｜Step1ne`;
+
+// 進度條：填了幾成。看得到進度的表單完成率比較高。
+const f = document.getElementById('f');
+const bar = document.getElementById('bar');
+function prog() {
+  const fields = [...f.querySelectorAll('input,select,textarea')]
+    .filter(e => e.type !== 'file' && e.type !== 'checkbox');
+  const filled = fields.filter(e => e.value.trim()).length;
+  const c = document.getElementById('consent').checked ? 1 : 0;
+  bar.style.width = Math.round((filled + c) / (fields.length + 1) * 100) + '%';
+}
+f.addEventListener('input', prog);
+f.addEventListener('change', prog);
+
+// 時段：只取未來、且未被預約的。從 API 拿，避免前端自己算出已滿的格子。
+fetch(`${API}/slots`).then(r => r.json()).then(d => {
+  const s = document.getElementById('slot');
+  s.innerHTML = '<option value="">不預約，請顧問與我聯繫</option>';
+  const W = ['日','一','二','三','四','五','六'];
+  (d.slots || []).slice(0, 40).forEach(v => {
+    const dt = new Date(v.replace(' ', 'T'));
+    const o = document.createElement('option');
+    o.value = v;
+    o.textContent = `${v.slice(5,10).replace('-','/')}（週${W[dt.getDay()]}）${v.slice(11,16)}`;
+    s.appendChild(o);
+  });
+}).catch(() => {
+  document.getElementById('slot').innerHTML =
+    '<option value="">時段載入失敗，送出後由顧問與您聯繫</option>';
+});
+
+const readB64 = (file) => new Promise((res, rej) => {
+  const r = new FileReader();
+  r.onload = () => res(String(r.result).split(',')[1]);
+  r.onerror = rej;
+  r.readAsDataURL(file);
+});
+
+f.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('btn');
+  const msg = document.getElementById('msg');
+  msg.className = 'msg';
+  btn.disabled = true; btn.textContent = '送出中⋯';
+
+  try {
+    const fd = new FormData(f);
+    const body = {
+      job_slug: JOB || 'unspecified', job_title: TITLE || null,
+      name: fd.get('name'), email: fd.get('email'), phone: fd.get('phone'),
+      expected_salary: fd.get('expected_salary'), available_date: fd.get('available_date'),
+      location_ok: fd.get('location_ok'), resume_url: fd.get('resume_url'),
+      note: fd.get('note'), slot_start: fd.get('slot_start') || null,
+      consent: true,
+      utm_source: q.get('utm_source'), utm_medium: q.get('utm_medium'),
+      utm_campaign: q.get('utm_campaign'), referrer: document.referrer || null,
+    };
+    const file = fd.get('resume');
+    if (file && file.size) {
+      // 前端先擋一次，讓使用者立刻知道，而不是等送出後才被退回
+      if (file.size > 600 * 1024) throw new Error('履歷檔超過 600KB，請改用雲端連結欄位');
+      body.resume_b64 = await readB64(file);
+      body.resume_name = file.name;
+      body.resume_mime = file.type;
+    }
+
+    const r = await fetch(`${API}/apply`, {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.error || '送出失敗');
+
+    document.getElementById('form-view').style.display = 'none';
+    document.getElementById('done-view').style.display = 'block';
+    document.getElementById('doneSlot').textContent = d.booked
+      ? `已為您保留 ${d.booked.slice(5,16).replace('-','/')} 的時段。`
+      : '顧問會與您聯繫安排時間。';
+    scrollTo(0, 0);
+  } catch (err) {
+    msg.className = 'msg err';
+    msg.textContent = err.message || '送出失敗，請稍後再試';
+    btn.disabled = false; btn.textContent = '送出應徵';
+  }
+});
+prog();
+</script>
