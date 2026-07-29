@@ -217,9 +217,12 @@ async function poll() {
   } catch (e) { /* 網路瞬斷不用打擾候選人，下一輪會補回來 */ }
 }
 
+var sending = false;
 async function send() {
   var v = $('say').value.trim();
-  if (!v || ended) return;
+  if (!v || ended || sending) return;   // 連點兩下送出鍵也不會送兩次
+  sending = true; $('go').disabled = true;
+  setTimeout(function () { sending = false; $('go').disabled = ended; }, 600);
   $('say').value = ''; $('say').style.height = 'auto';
   add({ id: 0, role: 'candidate', content: v, created_at: new Date().toTimeString().slice(0, 5).padStart(16, ' ') });
   waiting = true; typing(true);
@@ -237,11 +240,17 @@ async function send() {
 }
 
 $('go').addEventListener('click', send);
+// 中文輸入法選字時按 Enter 也會觸發 keydown，不擋掉的話一句話會被送出兩次
+var composing = false;
+$('say').addEventListener('compositionstart', function () { composing = true; });
+$('say').addEventListener('compositionend', function () { composing = false; });
 $('say').addEventListener('keydown', function (e) {
   // 手機用送出鍵，桌機 Enter 直接送、Shift+Enter 換行
-  if (e.key === 'Enter' && !e.shiftKey && window.matchMedia('(min-width:760px)').matches) {
-    e.preventDefault(); send();
-  }
+  if (e.key !== 'Enter' || e.shiftKey) return;
+  if (composing || e.isComposing || e.keyCode === 229) return;   // 還在選字，不是要送出
+  if (!window.matchMedia('(min-width:760px)').matches) return;
+  e.preventDefault();
+  send();
 });
 $('say').addEventListener('input', function () {
   this.style.height = 'auto';
