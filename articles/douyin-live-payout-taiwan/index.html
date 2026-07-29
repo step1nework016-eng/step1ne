@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href*="lin.ee"]');
+  if (!a) return;
+  gtag('event', 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60)
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>台灣人在大陸抖音直播，錢領得到嗎？金流、公會與風險全解析｜Step1ne</title>
+<meta name="description" content="台灣人在大陸抖音直播的收入不能直接匯到台灣帳戶——外匯管制下平台只付到大陸帳戶或支付寶。完整拆解錢的流向、公會代收的風險點、簽約前必問的五件事，以及1508萬名主播裡95%月入不到2萬台幣的產業現實。">
+<meta name="keywords" content="大陸抖音直播 提現,抖音直播 台灣人,抖音分潤 匯到台灣,抖音公會 陷阱,台灣人 大陸抖音 賺錢,直播主 拿不到錢,抖音直播 收入">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/articles/douyin-live-payout-taiwan/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Step1ne 德仁管理顧問">
+<meta property="og:title" content="台灣人在大陸抖音直播，錢到底領不領得到？">
+<meta property="og:description" content="不是領不到，是不能直接進台灣帳戶。錢卡在哪一段、公會代收的風險在哪、簽約前該問什麼。">
+<meta property="og:url" content="https://step1ne.com/articles/douyin-live-payout-taiwan/">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://step1ne.com/assets/og-douyin-live-payout.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-douyin-live-payout.jpg">
+<meta name="theme-color" content="#f4f1ea">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Noto+Sans+TC:wght@300;400;500;700;900&family=Noto+Serif+TC:wght@500;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "台灣人在大陸抖音直播，錢到底領不領得到？",
+  "description": "台灣人在大陸抖音直播的收入受中國外匯管制限制，無法直接匯入台灣銀行帳戶，平台只能支付到大陸帳戶或綁定大陸卡的支付寶、微信餘額。本文拆解金流路徑、公會代收的風險點、簽約前應確認的五件事，並引用中央社與自由時報的產業數據說明真實收入分布。",
+  "datePublished": "2026-07-29",
+  "dateModified": "2026-07-29",
+  "inLanguage": "zh-TW",
+  "author": { "@type": "Organization", "name": "Step1ne 德仁管理顧問有限公司", "url": "https://step1ne.com/" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "德仁管理顧問有限公司（Step1ne）",
+    "logo": { "@type": "ImageObject", "url": "https://step1ne.com/assets/step1ne-logo.png" }
+  }
+}
+</script>
+
+<style>
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{font-family:'Noto Sans TC',system-ui,sans-serif;color:#23262d;background:#f4f1ea;-webkit-font-smoothing:antialiased;line-height:1.8;}
+a{color:#a67c3d;text-decoration:none;}
+a:hover{color:#8a6531;}
+details summary{cursor:pointer;list-style:none;}
+details summary::-webkit-details-marker{display:none;}
+details summary .faq-icon{transition:transform .3s ease;}
+details[open] summary .faq-icon{transform:rotate(45deg);}
+.wrap{max-width:760px;margin:0 auto;padding:0 24px;}
+h2{font-family:'Noto Serif TC',serif;font-size:24px;font-weight:700;color:#1c1f26;margin:44px 0 14px;line-height:1.4;}
+h3{font-size:17px;font-weight:700;color:#1c1f26;margin:26px 0 8px;}
+p{color:#3a3d44;font-size:15.5px;margin:0 0 16px;}
+ul,ol{padding-left:22px;color:#3a3d44;font-size:15.5px;}
+li{margin-bottom:8px;}
+.tbl-wrap{overflow-x:auto;margin:16px 0 8px;}
+table{width:100%;border-collapse:collapse;font-size:14.5px;background:#fff;min-width:560px;}
+th,td{border:1px solid #e6dfd1;padding:11px 13px;text-align:left;vertical-align:top;}
+th{background:#faf7f1;font-weight:700;white-space:nowrap;}
+td strong{color:#8a5a1a;}
+.note{font-size:13.5px;color:#8a8d95;margin:0 0 24px;}
+.callout{background:#fff;border:1px solid #e6dfd1;border-radius:14px;padding:20px 22px;margin:0 0 16px;}
+.insight{background:#fdfaf3;border:1px solid rgba(166,124,61,0.35);border-radius:14px;padding:20px 22px;margin:24px 0;}
+.insight .label{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;color:#a67c3d;text-transform:uppercase;margin-bottom:8px;}
+.insight p:last-child{margin-bottom:0;}
+.warn{background:#fff8f5;border:1px solid rgba(190,90,50,0.35);border-radius:14px;padding:20px 22px;margin:24px 0;}
+.warn .label{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;color:#b4552e;text-transform:uppercase;margin-bottom:8px;}
+.warn p:last-child{margin-bottom:0;}
+@media (max-width:760px){
+  .s1ne-hide-m{display:none !important;}
+  .s1ne-show-m{display:flex !important;}
+  footer a{min-height:44px;display:inline-flex;align-items:center;}
+}
+.s1ne-show-m{display:none;}
+.s1ne-mobile-menu{display:none;flex-direction:column;padding:4px 24px 16px;border-top:1px solid #e6dfd1;background:rgba(244,241,234,0.98);}
+.s1ne-mobile-menu.is-open{display:flex;}
+.s1ne-mobile-menu a{padding:10px 0;color:#4a4d55;font-size:15px;border-bottom:1px solid #e6dfd1;min-height:44px;display:flex;align-items:center;}
+.s1ne-mobile-menu a:last-child{border-bottom:none;}
+
+/* 表格：桌機正常表格；手機自動改成卡片式堆疊，避免多欄被壓爛 */
+@media (max-width:640px){
+  .tbl-wrap{overflow-x:visible;}
+  .tbl-wrap table{min-width:0;display:block;background:transparent;}
+  .tbl-wrap thead{display:none;}
+  .tbl-wrap tbody{display:block;}
+  .tbl-wrap tr{display:block;background:#fff;border:1px solid #e6dfd1;border-radius:14px;margin-bottom:12px;overflow:hidden;}
+  .tbl-wrap td{display:block;border:none;border-bottom:1px solid #f2ede3;padding:12px 16px;}
+  .tbl-wrap tr td:last-child{border-bottom:none;}
+  .tbl-wrap td::before{content:attr(data-label);display:block;font-size:11.5px;font-weight:700;letter-spacing:0.5px;color:#a67c3d;margin-bottom:4px;}
+  .tbl-wrap td:empty{display:none;}
+}
+</style>
+</head>
+<body>
+
+<header style="position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:rgba(244,241,234,0.9);border-bottom:1px solid #e6dfd1;">
+  <div class="wrap" style="display:flex;align-items:center;justify-content:space-between;gap:20px;height:68px;max-width:1180px;">
+    <a href="/" style="display:flex;align-items:center;gap:12px;color:#23262d;">
+      <img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問" style="height:38px;width:auto;">
+    </a>
+    <div class="s1ne-hide-m" style="display:flex;align-items:center;gap:28px;font-size:15px;color:#4a4d55;">
+      <a href="/jobs/" style="color:#4a4d55;">職缺專區</a>
+      <a href="/articles/" style="color:#4a4d55;">獵才專欄</a>
+    </div>
+    <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" class="s1ne-hide-m" style="background:linear-gradient(135deg,#c9a049,#a67c3d);color:#fff;font-weight:700;font-size:13.5px;padding:9px 18px;border-radius:999px;white-space:nowrap;">LINE 洽詢</a>
+    <button type="button" class="s1ne-show-m" onclick="document.getElementById('s1ne-mmenu').classList.toggle('is-open')" aria-label="開啟選單" style="align-items:center;justify-content:center;width:40px;height:40px;border:1px solid #e6dfd1;border-radius:10px;background:#fff;flex-shrink:0;">
+      <span style="display:block;width:18px;height:2px;background:#23262d;box-shadow:0 6px 0 #23262d,0 -6px 0 #23262d;"></span>
+    </button>
+  </div>
+  <div id="s1ne-mmenu" class="s1ne-mobile-menu" onclick="if(event.target.closest('a'))this.classList.remove('is-open')">
+    <a href="/">首頁</a>
+    <a href="/jobs/">職缺專區</a>
+    <a href="/articles/">獵才專欄</a>
+    <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="color:#a67c3d;font-weight:700;">LINE 洽詢 →</a>
+  </div>
+</header>
+
+<main>
+  <article class="wrap" style="padding:40px 24px 24px;">
+    <div style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:2px;color:#a67c3d;text-transform:uppercase;margin-bottom:16px;">求職者指南・產業觀察</div>
+    <h1 style="font-family:'Noto Serif TC',serif;font-weight:700;font-size:clamp(26px,4vw,38px);line-height:1.35;margin:0 0 20px;color:#1c1f26;">台灣人在大陸抖音直播，錢到底領不領得到？</h1>
+
+    <p style="font-size:17px;color:#3a3d44;background:#fff;border:1px solid #e6dfd1;border-radius:14px;padding:20px 22px;">
+      <strong>直接答案：</strong>領得到，但<strong>不能直接匯進台灣的銀行帳戶</strong>。中國實施外匯管制，境內平台的分潤只能付到中國境內的銀行帳戶，或綁定中國銀行卡的支付寶、微信支付餘額。也就是說，錢確實會結算給你，但它會停在中國境內的帳戶裡——你沒有那個帳戶，錢就在系統裡看得到、拿不出來。多數「播了拿不到錢」的爭議，卡的不是平台不給，而是這一段。
+    </p>
+
+    <h2>錢是怎麼走的？從觀眾打賞到你的帳戶</h2>
+
+    <p>先把路徑攤開。看不懂自己的錢停在哪一站，就沒辦法判斷是誰的問題。</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th>階段</th><th>發生什麼事</th><th>常見卡點</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td data-label="階段"><strong>1. 觀眾儲值</strong></td>
+            <td data-label="發生什麼事">觀眾用人民幣買平台的虛擬幣，在直播間送禮物</td>
+            <td data-label="常見卡點">—</td>
+          </tr>
+          <tr>
+            <td data-label="階段"><strong>2. 平台抽成</strong></td>
+            <td data-label="發生什麼事">禮物金額由平台先抽走一定比例，剩下換算成主播端的點數</td>
+            <td data-label="常見卡點">抽成比例與換算率由平台定，會調整</td>
+          </tr>
+          <tr>
+            <td data-label="階段"><strong>3. 公會分潤</strong></td>
+            <td data-label="發生什麼事">若你簽了公會，公會再抽一手，比例看合約</td>
+            <td data-label="常見卡點"><strong>合約沒寫清楚抽成與結算日</strong></td>
+          </tr>
+          <tr>
+            <td data-label="階段"><strong>4. 平台結算</strong></td>
+            <td data-label="發生什麼事">依平台週期把餘額結算出來</td>
+            <td data-label="常見卡點">需先完成實名認證，否則無法提現</td>
+          </tr>
+          <tr>
+            <td data-label="階段"><strong>5. 提領落地</strong></td>
+            <td data-label="發生什麼事">款項匯入<strong>中國境內</strong>銀行帳戶或支付寶／微信餘額</td>
+            <td data-label="常見卡點"><strong>這一站就是台灣人卡住的地方</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">各平台的抽成比例、換算率與結算週期不同且會調整，本文不列具體數字——看到有人跟你保證固定比例，請要求他把出處給你。</p>
+
+    <h2>為什麼不能直接匯到台灣的銀行？</h2>
+
+    <p>因為<strong>外匯管制</strong>，不是因為平台針對台灣人。</p>
+
+    <p>在中國境內營運的電商、廣告媒體與影音平台，款項必須在境內收付。受外匯管制限制，平台只能把錢轉到創作者的中國境內帳戶，或是綁定中國銀行卡的支付寶、微信錢包餘額，<strong>無法直接匯往台灣的帳戶</strong>。這條規則對所有在中國境內平台取得收入的人都一樣，直播分潤、廣告分潤、電商佣金都適用。</p>
+
+    <div class="insight">
+      <div class="label">重點</div>
+      <p>所以真正的問題不是「賺不賺得到」，而是<strong>「你有沒有辦法把錢從中國境內領出來」</strong>。這件事應該在你開播之前就確認，不是等到帳上有數字了才開始想辦法。</p>
+    </div>
+
+    <h2>那要有中國的帳戶才行嗎？</h2>
+
+    <p>是。要走到最後一站，你需要一個<strong>中國境內的銀行帳戶</strong>，或是能綁定中國銀行卡的支付寶／微信支付。</p>
+
+    <p>身分文件方面近年有放寬：抖音已開放非中國大陸的證件做實名認證，台胞證、台灣護照與部分境外永久居留證件都在可選範圍內，綁定錢包銀行卡時也能匹配台灣護照。但<strong>「能做實名認證」跟「能開到銀行帳戶」是兩件事</strong>——開戶通常需要本人到中國的銀行臨櫃辦理，各家銀行與各地分行的實務要求不一致。</p>
+
+    <div class="warn">
+      <div class="label">別走這條路</div>
+      <p>網路上會看到「買人頭帳號」「借別人的證件認證」這類做法。<strong>不要。</strong>平台的二次人臉驗證會比對本人，證件與人對不上時帳號會被永久封停——屆時帳上的錢一併歸零，而且因為帳號不是你的名字，你連主張權利的立場都沒有。</p>
+    </div>
+
+    <h2>公會代收：最容易出事的一段</h2>
+
+    <p>很多台灣主播的實際情況是：<strong>錢先進公會的帳戶，公會再想辦法給你。</strong></p>
+
+    <p>這個安排本身不必然有問題——公會有中國境內的實體與帳戶，確實解得掉上面那道關卡。問題在於，這一刻起<strong>你的錢在別人手上，而你手上只有一份合約</strong>。合約寫得不清楚，或對方不認帳，你要在境外求償，實務上非常困難。</p>
+
+    <p>公開討論裡反覆出現的一種模式是：簽約初期公會會幫忙推流量，收入看得到；幾個月後流量支援停掉，收入跟著掉下來。這不必然是詐騙，但它說明一件事——<strong>你在簽約當下看到的收入水準，不能當成長期預期。</strong></p>
+
+    <h2>簽約前先確認這五件事</h2>
+
+    <ol>
+      <li><strong>錢從平台出來之後，第一站進誰的帳戶？</strong>是你的，還是公會的？這題答不清楚，後面都不用談。</li>
+      <li><strong>抽成比例、結算日、匯款方式，合約上有沒有白紙黑字？</strong>口頭承諾在跨境爭議裡幾乎沒有作用。</li>
+      <li><strong>約期多長、違約金多少、能不能提前解約？</strong>連同「達不到時數算不算違約」一起問。</li>
+      <li><strong>對方是什麼公司、在哪裡登記？</strong>台灣的公司可到經濟部商工登記公示資料查詢系統核對；查不到登記資料的一律當作高風險。</li>
+      <li><strong>所謂的保底或保證收入，條件是什麼？</strong>幾乎都附帶時數與流水門檻。把門檻問出來，再判斷做不做得到。</li>
+    </ol>
+
+    <div class="insight">
+      <div class="label">一個判斷原則</div>
+      <p>把上面五題傳給對方，願意逐條書面回覆的，才值得繼續談。<strong>閃避、要你「先開播再說」、或說「大家都是這樣做」的，直接停。</strong>正派的合作方不會怕這幾題，因為答案本來就該寫在合約裡。</p>
+    </div>
+
+    <h2>先看清楚：1508 萬人裡，95% 月入不到 2 萬台幣</h2>
+
+    <p>中國的直播產業規模確實遠大於台灣，但「規模大」不等於「好賺」。</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th>數據</th><th>數字</th></tr>
+        </thead>
+        <tbody>
+          <tr><td data-label="數據">以直播為主業的人數</td><td data-label="數字"><strong>1508 萬人</strong>（平均每 100 人就有 1 人）</td></tr>
+          <tr><td data-label="數據">月入不到 5000 人民幣者</td><td data-label="數字"><strong>95.2%</strong>（約合 2.24 萬台幣）</td></tr>
+          <tr><td data-label="數據">月入 10 萬人民幣以上者</td><td data-label="數字"><strong>0.4%</strong></td></tr>
+          <tr><td data-label="數據">學者評估溫飽有困難的比例</td><td data-label="數字"><strong>約 98%</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">資料來源：中央社、自由時報財經、中國時報引述之中國直播產業調查（2024）。</p>
+
+    <p>這組數字的意思不是「不要做」，而是：<strong>把它當成一份收入高度不穩定的工作來評估，不要當成翻身的捷徑。</strong>會拿「大陸市場多大、頭部主播多會賺」來說服你的人，通常不會同時給你看這一欄。</p>
+
+    <h2>稅要怎麼處理？</h2>
+
+    <p>兩邊都可能有申報義務：中國境內平台結算時可能已就源扣繳；而中華民國稅法對居住者的境外所得也有申報規定。</p>
+
+    <p><strong>這一段請直接問會計師，不要在網路上找答案。</strong>金額、身分別、停留天數都會影響結論，而且規定會變動。我們不提供稅務意見，也建議你對任何「幫你處理稅務」的口頭保證保持警覺。</p>
+
+    <h2>常見問題</h2>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-top:20px;">
+      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
+        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
+          <span>台灣人可以在大陸抖音直播嗎？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
+        </summary>
+        <p style="margin:0;padding:0 20px 18px;">可以。抖音已開放非中國大陸證件做實名認證，台胞證與台灣護照都在可選範圍內。真正的門檻不在能不能開播，而在收入結算之後能不能領出來——那需要中國境內的銀行帳戶或綁定中國銀行卡的支付寶、微信支付。</p>
+      </details>
+      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
+        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
+          <span>抖音的分潤可以直接匯到台灣的銀行帳戶嗎？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
+        </summary>
+        <p style="margin:0;padding:0 20px 18px;">不行。中國實施外匯管制，境內平台的款項必須在境內收付，只能匯入中國境內的銀行帳戶，或綁定中國銀行卡的支付寶、微信支付餘額，無法直接匯往台灣帳戶。這項限制適用於所有在中國境內平台取得的收入，不限於直播分潤。</p>
+      </details>
+      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
+        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
+          <span>公會說可以幫我把錢轉到台灣，可信嗎？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
+        </summary>
+        <p style="margin:0;padding:0 20px 18px;">要看合約怎麼寫，不能只聽口頭說明。關鍵在於錢從平台出來的第一站進誰的帳戶：若是進公會帳戶再轉給你，代表你的錢一度在對方手上，而跨境求償實務上非常困難。請要求把抽成比例、結算日、匯款方式與違約條款全部書面化，並先確認該公司的登記資料查得到。</p>
+      </details>
+      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
+        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
+          <span>用別人的證件或買帳號來認證會怎樣？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
+        </summary>
+        <p style="margin:0;padding:0 20px 18px;">帳號會有被永久封停的高度風險。平台的二次人臉驗證會比對本人與證件，對不上時帳號停用，帳上餘額一併無法取得。更麻煩的是帳號不在你名下，你連主張權利的立場都沒有。這是完全不值得冒的風險。</p>
+      </details>
+      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
+        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
+          <span>在大陸抖音直播真的能賺到錢嗎？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
+        </summary>
+        <p style="margin:0;padding:0 20px 18px;">少數人可以，多數人不行。依中國直播產業調查，1508 萬名以直播為主業者中，95.2% 月入不到 5000 人民幣（約 2.24 萬台幣），月入 10 萬人民幣以上者僅 0.4%。合理的評估方式是把它當成一份收入高度不穩定的工作，而不是短期翻身的途徑。</p>
+      </details>
+    </div>
+
+    <div style="margin-top:48px;text-align:center;padding:36px 28px;border-radius:20px;background:linear-gradient(150deg,rgba(166,124,61,0.12),rgba(96,128,180,0.06));border:1px solid rgba(166,124,61,0.3);">
+      <h2 style="margin-top:0;">合約看不懂，可以先問問</h2>
+      <p style="margin-bottom:22px;">拿到一份約、不確定對方是不是正派，或是想知道哪幾條該再問清楚——加 LINE 直接問，把該注意的地方講給你聽。</p>
+      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;background:#06c755;color:#fff;font-weight:700;font-size:16px;padding:15px 32px;border-radius:999px;">加入LINE官方帳號諮詢</a>
+    </div>
+
+    <p style="margin-top:32px;font-size:14.5px;color:#8a8d95;">延伸閱讀：<a href="/articles/overseas-job-safety/">海外工作機會怎麼判斷安全？</a>｜<a href="/articles/dispatch-legal-risks/">派遣工作的法律風險</a></p>
+
+    <p style="margin-top:24px;font-size:13px;color:#9a9da5;line-height:1.7;">
+      本文為產業資訊整理，不構成法律、稅務或投資建議。平台規則與相關法規會變動，個案情形請諮詢律師或會計師。
+    </p>
+  </article>
+</main>
+
+<footer style="border-top:1px solid #e6dfd1;background:#eee9de;padding:28px 0;">
+  <div class="wrap" style="text-align:center;color:#9a9da5;font-size:13px;max-width:800px;">
+    <a href="/jobs/" style="color:#a67c3d;">職缺專區</a>　|　<a href="/" style="color:#a67c3d;">Step1ne 首頁</a>　|　© 2026 德仁管理顧問有限公司 Step1ne
+  </div>
+</footer>
+
+</body>
+</html>
