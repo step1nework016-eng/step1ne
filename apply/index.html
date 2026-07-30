@@ -139,7 +139,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
 
     <fieldset>
       <legend>履歷</legend>
-      <label>上傳檔案（PDF／Word，600KB 以內）</label>
+      <label>上傳檔案（PDF／Word，1.4MB 以內）</label>
       <input name="resume" type="file" accept=".pdf,.doc,.docx">
       <label>或貼雲端連結</label>
       <input name="resume_url" placeholder="Google Drive／Dropbox 連結">
@@ -286,7 +286,7 @@ f.addEventListener('submit', async (e) => {
     const file = fd.get('resume');
     if (file && file.size) {
       // 前端先擋一次，讓使用者立刻知道，而不是等送出後才被退回
-      if (file.size > 600 * 1024) throw new Error('履歷檔超過 600KB，請改用雲端連結欄位');
+      if (file.size > 1400 * 1024) throw new Error('履歷檔超過 1.4MB，請改用下面的雲端連結欄位');
       body.resume_b64 = await readB64(file);
       body.resume_name = file.name;
       body.resume_mime = file.type;

@@ -155,7 +155,7 @@ button.primary:hover{background:#8a6531;}
         <div><label>可到職日</label><input id="a_date" placeholder="例：9/1 或 一個月"></div>
       </div>
 
-      <label>履歷檔（PDF／Word，600KB 以內）</label>
+      <label>履歷檔（PDF／Word，1.4MB 以內）</label>
       <input id="a_file" type="file" accept=".pdf,.doc,.docx">
       <p class="note">沒有檔案就貼雲端連結，或兩個都留空——但阿財就不能說「您的履歷我看過了」，會改成請對方口頭介紹。</p>
 
@@ -493,7 +493,7 @@ $('a_go').addEventListener('click', async function () {
     var f = $('a_file').files[0];
     if (f) {
       // 前端先擋，讓顧問立刻知道，而不是等送出後被退回
-      if (f.size > 600 * 1024) throw new Error('履歷檔超過 600KB，請改貼雲端連結');
+      if (f.size > 1400 * 1024) throw new Error('履歷檔超過 1.4MB，請改貼雲端連結（Google Drive／Dropbox），那樣沒有大小限制');
       body.resume_b64 = await readB64(f);
       body.resume_name = f.name;
       body.resume_mime = f.type;
