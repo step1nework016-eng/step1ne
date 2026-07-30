@@ -155,10 +155,9 @@ button.primary:hover{background:#8a6531;}
         <div><label>可到職日</label><input id="a_date" placeholder="例：9/1 或 一個月"></div>
       </div>
 
-      <label>履歷檔（PDF／Word，1.4MB 以內）</label>
+      <label>履歷檔（PDF／Word，8MB 以內）</label>
       <input id="a_file" type="file" accept=".pdf,.doc,.docx">
-      <p class="note">超過 1.4MB 的 PDF 會自動在瀏覽器抽出文字上傳（不保存檔案本體），所以大檔也可以直接選。<br>
-      兩個都留空也行——但阿財就不能說「您的履歷我看過了」，會改成請對方口頭介紹。</p>
+      <p class="note">兩個都留空也行——但阿財就不能說「您的履歷我看過了」，會改成請對方口頭介紹。</p>
 
       <label>或履歷雲端連結</label>
       <input id="a_url" placeholder="Google Drive／Dropbox 分享連結">
@@ -431,24 +430,6 @@ document.querySelectorAll('.tab').forEach(function (b) {
 // ── 新增候選人（顧問自己找到的人）──
 var jobsLoaded = false;
 
-// 用 pdf.js 在瀏覽器抽 PDF 文字。用動態 import 而不是 <script>——
-// 只有真的遇到大檔才會去載那 1MB 的函式庫，平常不拖慢後台開啟速度。
-// 實測：1.94MB 的 104 履歷抽完是 10.8KB，D1 的大小限制完全不再是問題。
-async function pdfText(file) {
-  // 用 ESM 動態載入，避免污染全域，也不用等整個後台都載完
-  var mod = await import('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/pdf.min.mjs');
-  mod.GlobalWorkerOptions.workerSrc =
-    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/pdf.worker.min.mjs';
-  var buf = await file.arrayBuffer();
-  var doc = await mod.getDocument({ data: buf }).promise;
-  var out = [];
-  for (var i = 1; i <= doc.numPages; i++) {
-    var page = await doc.getPage(i);
-    var tc = await page.getTextContent();
-    out.push(tc.items.map(function (x) { return x.str; }).join(' '));
-  }
-  return out.join('\n').replace(/[ \t]{2,}/g, ' ').trim();
-}
 
 function readB64(file) {
   return new Promise(function (res, rej) {
@@ -512,21 +493,14 @@ $('a_go').addEventListener('click', async function () {
     };
     var f = $('a_file').files[0];
     if (f) {
+      // 不用在瀏覽器抽文字——Worker 會把 base64 切塊存進 D1，8MB 以內都收。
+      // 試過 pdf.js，中文 PDF 的字型對應不完整，抽出來夾了大量空位元組、內容殘缺；
+      // 同一份檔案本機 pdftotext 抽卻是乾淨的。所以原檔完整存下來、交給本機抽才對。
+      if (f.size > 8 * 1024 * 1024) throw new Error('履歷檔超過 8MB，請改貼雲端連結');
+      btn.textContent = '上傳中…';
+      body.resume_b64 = await readB64(f);
       body.resume_name = f.name;
       body.resume_mime = f.type;
-      if (f.size <= 1400 * 1024) {
-        body.resume_b64 = await readB64(f);
-      } else if (/pdf$/i.test(f.name) || f.type === 'application/pdf') {
-        // 超過 D1 的大小限制就別上傳檔案本體了——整條流程需要的只有文字。
-        // 1.94MB 的 104 履歷抽完通常只剩幾 KB，而顧問電腦裡本來就有那份 PDF。
-        btn.textContent = '檔案較大，正在抽取文字…';
-        body.resume_text = await pdfText(f);
-        if (!body.resume_text.trim()) {
-          throw new Error('這份 PDF 抽不到文字（可能是掃描的影像檔）。請改貼雲端連結，或另存一份小於 1.4MB 的版本。');
-        }
-      } else {
-        throw new Error('Word 檔超過 1.4MB 沒辦法在瀏覽器抽文字。請另存成 PDF，或改貼雲端連結。');
-      }
     }
     if (body.send_mail && !body.email) throw new Error('要寄信就得填 Email');
 
@@ -539,10 +513,7 @@ $('a_go').addEventListener('click', async function () {
     $('aform').hidden = true; $('aok').hidden = false;
     $('a_link').textContent = d.url;
     $('a_extra').textContent =
-      (d.has_resume
-        ? (body.resume_text
-            ? '履歷文字已抽取並存檔（原始 PDF 超過大小限制沒有保存，你電腦裡那份請自己留著）。阿財面談前會讀過。'
-            : '履歷已上傳，阿財面談前會先讀過。')
+      (d.has_resume ? '履歷已上傳，阿財面談前會先讀過。'
         : '⚠️ 沒有履歷，阿財不會說「您的履歷我看過了」，會改成請對方口頭介紹。') +
       (d.mailed ? '　邀約信已寄出。' : (body.send_mail ? '　⚠️ 邀約信寄送失敗，請自行轉達連結。' : ''));
     if (state === '__all_sessions') load();
