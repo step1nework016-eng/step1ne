@@ -78,6 +78,10 @@ details.tr summary::-webkit-details-marker{display:none;}
 .flags p{margin:0 0 7px;font-size:14px;color:#5a3328;}
 .flags p:last-child{margin-bottom:0;}
 .flags time{font-family:'Space Mono',monospace;font-size:11.5px;color:#a97f70;margin-right:8px;}
+.fb{background:#f6f8fb;border:1px solid #d9e2ee;border-radius:12px;padding:14px 17px;margin:0 0 18px;}
+.fb b{font-size:13.5px;color:#24528f;}
+.fb .em{font-size:20px;margin-left:6px;vertical-align:-3px;}
+.fb p{margin:7px 0 0;font-size:14px;color:#3a4a5e;}
 button.primary{font:inherit;font-size:13.5px;font-weight:700;background:#a67c3d;color:#fff;border:0;border-radius:999px;padding:9px 16px;cursor:pointer;min-height:38px;white-space:nowrap;}
 button.primary:hover{background:#8a6531;}
 .frm label{display:block;font-size:13px;font-weight:700;color:#4a4d55;margin:16px 0 6px;}
@@ -202,6 +206,7 @@ button.primary:hover{background:#8a6531;}
     <button id="dx" type="button" aria-label="關閉">✕</button>
   </div>
   <div class="dbody">
+    <div id="dfb" class="fb" hidden></div>
     <div id="dflags" class="flags" hidden></div>
     <div id="dlink" class="linkbox" hidden>
       <b>面談連結</b>
@@ -311,6 +316,19 @@ async function openSession(row) {
 
   var d = await api('/admin/session/' + encodeURIComponent(row.id));
   if (!d.ok) { $('drep').textContent = '讀取失敗'; return; }
+
+  // 候選人自己給的體驗分數。這是唯一能回答「這套值不值得繼續」的訊號——
+  // 顧問覺得報告好，跟候選人願不願意做完，是兩件事。
+  if (d.feedback) {
+    var EM = { 1: '😞', 2: '😕', 3: '😐', 4: '🙂', 5: '😄' };
+    $('dfb').hidden = false;
+    $('dfb').innerHTML =
+      '<b>候選人給的體驗評分：' + d.feedback.rating + ' / 5</b>' +
+      '<span class="em">' + (EM[d.feedback.rating] || '') + '</span>' +
+      (d.feedback.comment ? '<p>「' + esc(d.feedback.comment) + '」</p>' : '');
+  } else {
+    $('dfb').hidden = true;
+  }
 
   // 候選人在面談中按過「回報問題」的話，一定要放在最上面——
   // 那是他當下就卡住的訊號，比報告內容急迫得多。
