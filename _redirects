@@ -24,7 +24,12 @@
 /JoinUs/        /#about       301
 /Promo          /             301
 /Promo/         /             301
-/StepOneAI/AICreator/*  /articles/    301
+# 2026-07-30 修正導向目標：這個網址 28 天有 37 曝光、4 點擊、排名 3.9，
+# 是整個網域表現最好的單一舊網址（查詢意圖是「求職信生成」）。
+# 原本導到 /articles/（文章列表）意圖對不上，Google 遲早判 soft 404 收回排名。
+# /talent/ai-tools/ 的標題就是「AI求職工具：手機打關鍵字生成履歷、練面試、寫離職信」，
+# 那才是對得上的頁面。
+/StepOneAI/AICreator/*  /talent/ai-tools/    301
 /StepOneAI      /#talent      301
 /StepOneAI/     /#talent      301
 
@@ -34,3 +39,20 @@
 /ContactUs/               /#contact      301
 /verify/                  /              301
 /verify                   /              301
+
+# 2026-07-30 修子網域導向鏈斷在 404。
+#
+# 2026-07-28 修 5xx 時，card.* 與 wap.* 設的是「保留路徑」導到主網域，
+# 但那些路徑在新站不存在，結果是 301 → 404：有人點進來看到錯誤頁。
+#
+# 在這裡接住比改 Cloudflare 規則好——子網域導過來之後是對主網域的全新請求，
+# _redirects 攔得到，而且路徑對應關係跟著程式碼進版控，之後看得出為什麼這樣設。
+#
+# wap.step1ne.com/aiTool/<n> → step1ne.com/aiTool/<n>：舊行動版的 AI 工具頁
+/aiTool/*                 /talent/ai-tools/   301
+/aiTool                   /talent/ai-tools/   301
+# card.step1ne.com/<顧問名> → step1ne.com/<顧問名>：舊的數位名片
+# ⚠️ 只能列已知有曝光的（GSC 實測只有 Jessie）。不能用 /* 通吃——
+#    那會把所有還沒建立的路徑都吃掉，包含之後新增的頁面。
+/Jessie                   /              301
+/Jessie/                  /              301
