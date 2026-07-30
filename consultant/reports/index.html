@@ -68,6 +68,21 @@ details.tr summary::-webkit-details-marker{display:none;}
 .gate input{width:100%;margin:10px 0 14px;}
 .gate button{width:100%;font:inherit;font-size:15px;font-weight:700;background:#a67c3d;color:#fff;border:0;border-radius:10px;padding:12px;cursor:pointer;min-height:46px;}
 .empty{background:#fff;border:1px solid #eee7db;border-radius:14px;padding:26px;text-align:center;color:#5a5d64;}
+button.primary{font:inherit;font-size:13.5px;font-weight:700;background:#a67c3d;color:#fff;border:0;border-radius:999px;padding:9px 16px;cursor:pointer;min-height:38px;white-space:nowrap;}
+button.primary:hover{background:#8a6531;}
+.frm label{display:block;font-size:13px;font-weight:700;color:#4a4d55;margin:16px 0 6px;}
+.frm input,.frm select,.frm textarea{width:100%;font:inherit;font-size:15px;border:1px solid #e0d9cb;border-radius:10px;padding:10px 13px;background:#fff;outline:0;}
+.frm input:focus,.frm select:focus,.frm textarea:focus{border-color:#a67c3d;box-shadow:0 0 0 3px rgba(166,124,61,.12);}
+.frm .two{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.frm .chk{display:flex;align-items:flex-start;gap:9px;margin:18px 0 0;font-size:14px;font-weight:400;color:#3a3d44;cursor:pointer;}
+.frm .chk input{width:17px;height:17px;flex:0 0 auto;margin:3px 0 0;accent-color:#a67c3d;}
+.frm .note{font-size:12.5px;color:#8a8d95;margin:5px 0 0;line-height:1.7;}
+.frm .go{width:100%;margin-top:22px;font-size:15.5px;padding:14px;border-radius:12px;}
+.res{background:#f4faf5;border:1px solid #bfe3c8;border-radius:12px;padding:18px;margin:4px 0 0;}
+.res b{display:block;margin-bottom:8px;}
+.res .link{background:#fff;border:1px solid #d7e6da;border-radius:9px;padding:11px 13px;font-size:13px;word-break:break-all;margin:0 0 12px;}
+.res button{font:inherit;font-size:14px;font-weight:700;background:#23262d;color:#fff;border:0;border-radius:9px;padding:11px 20px;cursor:pointer;min-height:42px;}
+.err{background:#fff5f3;border:1px solid #f0c9bd;border-radius:10px;padding:12px 14px;font-size:14px;color:#8a3a20;margin:14px 0 0;}
 </style>
 </head>
 <body>
@@ -87,7 +102,10 @@ details.tr summary::-webkit-details-marker{display:none;}
         <img src="/assets/step1ne-logo.png" alt="Step1ne">
         <b>初篩報告</b>
       </div>
-      <div class="mut"><span id="tot">—</span>　<a href="#" id="out">登出</a></div>
+      <div class="mut" style="display:flex;align-items:center;gap:14px;">
+        <button id="addbtn" type="button" class="primary">＋ 新增候選人</button>
+        <span id="tot">—</span><a href="#" id="out">登出</a>
+      </div>
     </div>
   </header>
 
@@ -111,6 +129,62 @@ details.tr summary::-webkit-details-marker{display:none;}
     </div>
   </div>
 </div>
+
+<dialog id="adlg">
+  <div class="dhead">
+    <div><b>新增候選人</b><div class="mut">顧問自己找到的人。建檔後拿連結，貼到 104 私訊或 LINE 給對方。</div></div>
+    <button id="ax" type="button" aria-label="關閉">✕</button>
+  </div>
+  <div class="dbody frm">
+    <div id="aform">
+      <label>應徵職缺 <span style="color:#b4552e;">*</span></label>
+      <select id="a_job"><option value="">載入中…</option></select>
+
+      <div class="two">
+        <div><label>姓名 <span style="color:#b4552e;">*</span></label><input id="a_name" placeholder="王大明"></div>
+        <div><label>從哪裡找到的</label><input id="a_channel" placeholder="104／LinkedIn／推薦"></div>
+      </div>
+
+      <div class="two">
+        <div><label>Email</label><input id="a_email" type="email" placeholder="選填"></div>
+        <div><label>電話</label><input id="a_phone" placeholder="選填"></div>
+      </div>
+
+      <div class="two">
+        <div><label>期望待遇</label><input id="a_salary" placeholder="例：50K"></div>
+        <div><label>可到職日</label><input id="a_date" placeholder="例：9/1 或 一個月"></div>
+      </div>
+
+      <label>履歷檔（PDF／Word，600KB 以內）</label>
+      <input id="a_file" type="file" accept=".pdf,.doc,.docx">
+      <p class="note">沒有檔案就貼雲端連結，或兩個都留空——但阿財就不能說「您的履歷我看過了」，會改成請對方口頭介紹。</p>
+
+      <label>或履歷雲端連結</label>
+      <input id="a_url" placeholder="Google Drive／Dropbox 分享連結">
+
+      <label>備註（只有顧問看得到）</label>
+      <textarea id="a_note" rows="2" placeholder="例：從 104 主動應徵，電話聊過對派遣沒問題"></textarea>
+
+      <label class="chk"><input id="a_mail" type="checkbox">
+        <span>順便寄一封邀約信給他<br>
+        <span class="note">多數情況建議不要——你自己貼到 104 私訊或 LINE，比一封陌生的系統信更容易被讀。</span></span>
+      </label>
+
+      <button id="a_go" type="button" class="primary go">建檔並取得面談連結</button>
+      <div id="a_err" class="err" hidden></div>
+    </div>
+
+    <div id="aok" hidden>
+      <div class="res">
+        <b>✅ 建檔完成</b>
+        <div class="link" id="a_link">—</div>
+        <button id="a_copy" type="button">複製連結</button>
+        <p class="note" id="a_extra" style="margin-top:12px;"></p>
+      </div>
+      <button id="a_again" type="button" class="primary go">再新增一位</button>
+    </div>
+  </div>
+</dialog>
 
 <dialog id="dlg">
   <div class="dhead">
@@ -349,6 +423,107 @@ document.querySelectorAll('.tab').forEach(function (b) {
   b.addEventListener('click', function () {
     document.querySelectorAll('.tab').forEach(function (x) { x.classList.toggle('on', x === b); });
     state = b.dataset.s; offset = 0; load();
+  });
+});
+
+
+// ── 新增候選人（顧問自己找到的人）──
+var jobsLoaded = false;
+
+function readB64(file) {
+  return new Promise(function (res, rej) {
+    var r = new FileReader();
+    r.onload = function () { res(String(r.result).split(',')[1]); };
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+async function fillJobs() {
+  if (jobsLoaded) return;
+  // 職缺清單直接讀官網表單用的那份，跟線上刊登的職缺同步，不會對不起來
+  try {
+    var r = await fetch('/apply/jobs.json');
+    var list = await r.json();
+    $('a_job').innerHTML = '<option value="">請選擇</option>' +
+      list.map(function (j) {
+        return '<option value="' + esc(j.slug) + '">' + esc(j.title) + '</option>';
+      }).join('');
+    jobsLoaded = true;
+  } catch (e) {
+    $('a_job').innerHTML = '<option value="">讀取職缺失敗，請手動重整</option>';
+  }
+}
+
+function resetAdd() {
+  ['a_name', 'a_channel', 'a_email', 'a_phone', 'a_salary', 'a_date', 'a_url', 'a_note']
+    .forEach(function (i) { $(i).value = ''; });
+  $('a_job').value = ''; $('a_file').value = ''; $('a_mail').checked = false;
+  $('a_err').hidden = true; $('aform').hidden = false; $('aok').hidden = true;
+}
+
+$('addbtn').addEventListener('click', function () {
+  resetAdd(); fillJobs(); $('adlg').showModal();
+});
+$('ax').addEventListener('click', function () { $('adlg').close(); });
+$('a_again').addEventListener('click', resetAdd);
+
+$('a_go').addEventListener('click', async function () {
+  var err = $('a_err');
+  err.hidden = true;
+  var name = $('a_name').value.trim(), job = $('a_job').value;
+  if (!name || !job) {
+    err.hidden = false; err.textContent = '姓名與職缺是必填的。';
+    return;
+  }
+  var btn = this;
+  btn.disabled = true; btn.textContent = '建檔中…';
+  try {
+    var body = {
+      name: name, job_slug: job,
+      channel: $('a_channel').value.trim() || null,
+      email: $('a_email').value.trim() || null,
+      phone: $('a_phone').value.trim() || null,
+      expected_salary: $('a_salary').value.trim() || null,
+      available_date: $('a_date').value.trim() || null,
+      resume_url: $('a_url').value.trim() || null,
+      note: $('a_note').value.trim() || null,
+      send_mail: $('a_mail').checked,
+    };
+    var f = $('a_file').files[0];
+    if (f) {
+      // 前端先擋，讓顧問立刻知道，而不是等送出後被退回
+      if (f.size > 600 * 1024) throw new Error('履歷檔超過 600KB，請改貼雲端連結');
+      body.resume_b64 = await readB64(f);
+      body.resume_name = f.name;
+      body.resume_mime = f.type;
+    }
+    if (body.send_mail && !body.email) throw new Error('要寄信就得填 Email');
+
+    var d = await api('/admin/create-candidate', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!d.ok) throw new Error(d.error || '建檔失敗');
+
+    $('aform').hidden = true; $('aok').hidden = false;
+    $('a_link').textContent = d.url;
+    $('a_extra').textContent =
+      (d.has_resume ? '履歷已上傳，阿財面談前會先讀過。' : '⚠️ 沒有履歷，阿財不會說「您的履歷我看過了」，會改成請對方口頭介紹。') +
+      (d.mailed ? '　邀約信已寄出。' : (body.send_mail ? '　⚠️ 邀約信寄送失敗，請自行轉達連結。' : ''));
+    if (state === '__all_sessions') load();
+  } catch (e) {
+    err.hidden = false; err.textContent = e.message || '建檔失敗';
+  } finally {
+    btn.disabled = false; btn.textContent = '建檔並取得面談連結';
+  }
+});
+
+$('a_copy').addEventListener('click', function () {
+  var b = this;
+  navigator.clipboard.writeText($('a_link').textContent).then(function () {
+    b.textContent = '已複製 ✓';
+    setTimeout(function () { b.textContent = '複製連結'; }, 1800);
   });
 });
 
