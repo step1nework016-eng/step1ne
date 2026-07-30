@@ -65,6 +65,17 @@ button:disabled{opacity:.45;cursor:not-allowed}
 .mode i{display:block;font-style:normal;font-size:11.5px;color:var(--tx3);margin-top:2px}
 .calbtn{display:inline-block;margin-top:16px;background:var(--ac);color:#fff;
   text-decoration:none;padding:12px 22px;border-radius:9px;font-size:14px;font-weight:600}
+
+.discgrp{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:0 0 8px}
+.discn{font-size:11px;color:var(--tx3);margin:0 0 6px;font-weight:600}
+.discrow{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;gap:8px;
+  padding:5px 0}
+.discrow + .discrow{border-top:1px dashed var(--line)}
+.discword{font-size:14px;color:var(--tx)}
+.discradio{display:flex;align-items:center;justify-content:center}
+.discradio input{width:19px;height:19px;margin:0;accent-color:var(--ac)}
+.disccap{display:flex;justify-content:space-between;font-size:10px;color:var(--tx3);
+  padding:0 0 2px;letter-spacing:.03em}
 </style>
 
 <header class="top">
@@ -149,6 +160,16 @@ button:disabled{opacity:.45;cursor:not-allowed}
     </fieldset>
 
     <fieldset>
+      <legend>工作風格小測驗</legend>
+      <p class="hint" style="margin:0 0 10px">
+        每組四個形容詞，選一個「最像你」、一個「最不像你」。約 2 分鐘，沒有標準答案。
+        這不影響能不能應徵，只是讓面談與後續安排更貼合您的風格。</p>
+      <div id="discBox"></div>
+      <div class="hint" id="discHint" style="display:none;color:var(--rd)">
+        還有題目沒選完——每組都要選一個最像、一個最不像。</div>
+    </fieldset>
+
+    <fieldset>
       <legend>初步面談</legend>
       <p class="hint" style="margin:0 0 10px">
         線上文字對談，約 15 分鐘，由 AI 進行。顧問會看完整內容再與您聯繫。</p>
@@ -198,17 +219,93 @@ const JOB = q.get('job') || '';
 const TITLE = q.get('title') || '';
 if (TITLE) document.title = `應徵 ${TITLE}｜Step1ne`;
 
+// ── 工作風格小測驗（DISC）──
+// 用詞是原創的，不是照抄任何商業量表；DISC 這套「強迫選擇」的計分方式
+// 是公開理論（Marston 1928），但具體題本抄別人的會有版權問題。
+// 20 組、每組四個形容詞各代表一個維度，選「最像」＋「最不像」——
+// 只算「最像」被選中的次數，「最不像」只是逼你真的做出取捨，不會用來算分。
+const DISC_BANK = {
+  D: ['果斷','強勢','直接','好勝','獨立','大膽','堅持己見','掌控全局','有衝勁','敢冒險',
+      '講求效率','意志堅定','主動出擊','不服輸','雷厲風行','敢做決定','目標導向','行動派','敢承擔','強硬'],
+  I: ['健談','樂觀','外向','熱情','風趣','擅長社交','有說服力','愛表達','活潑','隨興',
+      '愛交朋友','感染力強','樂於分享','直覺型','愛嘗新','氣氛製造者','鼓舞人心','善於誇獎','開朗','點子多'],
+  S: ['隨和','耐心','可靠','忠誠','溫和','善於傾聽','穩重','配合度高','重視和諧','務實',
+      '腳踏實地','體貼','不愛衝突','有耐性','按部就班','重感情','樂於助人','低調','包容','安於現狀'],
+  C: ['精確','謹慎','重邏輯','注重細節','有條理','客觀','講求品質','深思熟慮','一絲不苟','重視標準',
+      '喜歡分析','按規矩來','追根究柢','重視準確度','事先規劃','質疑求證','講究流程','內斂','專注','要求完美'],
+};
+const DISC_GROUPS = Array.from({ length: 20 }, (_, i) => {
+  const order = ['D', 'I', 'S', 'C'];
+  // 轉動排列順序，不要每組都固定同一個位置，避免位置偏誤
+  for (let k = 0; k < i % 4; k++) order.push(order.shift());
+  return order.map((L) => ({ L, w: DISC_BANK[L][i] }));
+});
+const discState = Array.from({ length: 20 }, () => ({ most: null, least: null }));
+
+function renderDisc() {
+  const box = document.getElementById('discBox');
+  box.innerHTML = DISC_GROUPS.map((grp, gi) => `
+    <div class="discgrp">
+      <p class="discn">第 ${gi + 1} 組</p>
+      <div class="disccap"><span>最像我</span><span>最不像我</span></div>
+      ${grp.map((item, wi) => `
+        <div class="discrow">
+          <span class="discradio"><input type="radio" name="most-${gi}" data-role="most" data-l="${item.L}" value="${wi}"></span>
+          <span class="discword">${item.w}</span>
+          <span class="discradio"><input type="radio" name="least-${gi}" data-role="least" data-l="${item.L}" value="${wi}"></span>
+        </div>`).join('')}
+    </div>`).join('');
+
+  box.addEventListener('change', (e) => {
+    const t = e.target;
+    if (t.name.indexOf('most-') !== 0 && t.name.indexOf('least-') !== 0) return;
+    const gi = Number(t.name.split('-')[1]);
+    const role = t.dataset.role;
+    discState[gi][role] = Number(t.value);
+    // 同一組裡最像跟最不像不能選同一個詞——選了就把另一邊清掉
+    const other = role === 'most' ? 'least' : 'most';
+    if (discState[gi][other] === discState[gi][role]) {
+      discState[gi][other] = null;
+      const el = box.querySelector(`input[name="${other}-${gi}"][value="${t.value}"]`);
+      if (el) el.checked = false;
+    }
+    prog();
+  });
+}
+renderDisc();
+
+function discComplete() {
+  return discState.every((g) => g.most !== null && g.least !== null);
+}
+function discFilledCount() {
+  return discState.filter((g) => g.most !== null && g.least !== null).length;
+}
+function discScores() {
+  const most = { D: 0, I: 0, S: 0, C: 0 };
+  discState.forEach((g, gi) => {
+    if (g.most === null) return;
+    most[DISC_GROUPS[gi][g.most].L]++;
+  });
+  const ranked = Object.entries(most).sort((a, b) => b[1] - a[1]);
+  const primary = ranked[0][1] - ranked[1][1] <= 2
+    ? ranked[0][0] + ranked[1][0]   // 前兩名分數接近就給雙碼
+    : ranked[0][0];
+  return { disc_d: most.D, disc_i: most.I, disc_s: most.S, disc_c: most.C, disc_primary: primary };
+}
+
 // 進度條：填了幾成。看得到進度的表單完成率比較高。
 const f = document.getElementById('f');
 const bar = document.getElementById('bar');
 function prog() {
   const fields = [...f.querySelectorAll('input,select,textarea')]
-    .filter(e => e.type !== 'file' && e.type !== 'checkbox');
+    .filter(e => e.type !== 'file' && e.type !== 'checkbox' && e.type !== 'radio');
   const filled = fields.filter(e => e.value.trim()).length;
   const c = document.getElementById('consent').checked ? 1 : 0;
   // 地區是一整組 checkbox，算成一題：勾了任何一個就算填完
   const a = f.querySelector('input[name=area]:checked') ? 1 : 0;
-  bar.style.width = Math.round((filled + c + a) / (fields.length + 2) * 100) + '%';
+  // 小測驗 20 組算成一整題，依完成比例算部分分數，而不是全有全無
+  const discFrac = discFilledCount() / 20;
+  bar.style.width = Math.round((filled + c + a + discFrac) / (fields.length + 3) * 100) + '%';
 }
 f.addEventListener('input', prog);
 f.addEventListener('change', prog);
@@ -260,6 +357,14 @@ f.addEventListener('submit', async (e) => {
   const btn = document.getElementById('btn');
   const msg = document.getElementById('msg');
   msg.className = 'msg';
+
+  if (!discComplete()) {
+    document.getElementById('discHint').style.display = 'block';
+    document.getElementById('discBox').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+  document.getElementById('discHint').style.display = 'none';
+
   btn.disabled = true; btn.textContent = '送出中⋯';
 
   try {
@@ -282,6 +387,7 @@ f.addEventListener('submit', async (e) => {
       consent: true,
       utm_source: q.get('utm_source'), utm_medium: q.get('utm_medium'),
       utm_campaign: q.get('utm_campaign'), referrer: document.referrer || null,
+      ...discScores(),
     };
     const file = fd.get('resume');
     if (file && file.size) {
