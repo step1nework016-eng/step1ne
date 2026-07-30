@@ -82,6 +82,10 @@ details.tr summary::-webkit-details-marker{display:none;}
 .fb b{font-size:13.5px;color:#24528f;}
 .fb .em{font-size:20px;margin-left:6px;vertical-align:-3px;}
 .fb p{margin:7px 0 0;font-size:14px;color:#3a4a5e;}
+.dlbar{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px;}
+.dlbar button{font:inherit;font-size:13.5px;font-weight:600;background:#fff;border:1px solid #e0d9cb;
+  border-radius:9px;padding:9px 15px;cursor:pointer;min-height:38px;color:#4a4d55;}
+.dlbar button:hover{border-color:#a67c3d;color:#8a5a1a;}
 button.primary{font:inherit;font-size:13.5px;font-weight:700;background:#a67c3d;color:#fff;border:0;border-radius:999px;padding:9px 16px;cursor:pointer;min-height:38px;white-space:nowrap;}
 button.primary:hover{background:#8a6531;}
 .frm label{display:block;font-size:13px;font-weight:700;color:#4a4d55;margin:16px 0 6px;}
@@ -214,6 +218,11 @@ button.primary:hover{background:#8a6531;}
       <button id="dlink_c" type="button">複製連結</button>
     </div>
     <div class="acts" id="acts"></div>
+    <div class="dlbar" id="dlbar" hidden>
+      <button id="dl_md" type="button">下載報告</button>
+      <button id="dl_tr" type="button">下載逐字稿</button>
+      <button id="dl_cp" type="button">複製報告</button>
+    </div>
     <pre class="rep" id="drep">載入中…</pre>
     <details class="tr" id="trbox" open>
       <summary>逐字稿　<span id="livetag" class="live" hidden>● 進行中，每 5 秒更新</span></summary>
@@ -304,8 +313,40 @@ function renderTranscript(list) {
     }).join('') || '<p class="turn">（還沒有對話）</p>';
 }
 
+// 把文字存成檔案。顧問要把報告轉給客戶，總不能叫他自己反白複製。
+function download(name, text) {
+  var blob = new Blob([text], { type: 'text/markdown;charset=utf-8' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 0);
+}
+
+// 檔名要能一眼看出是誰、什麼職缺、哪一天——顧問下載十份之後才不會分不清
+function safeName(row, kind) {
+  var d = (row.interview_ended_at || row.created_at || '').slice(0, 10) || 'undated';
+  return [String(row.name || '未命名').replace(/[\\/:*?"<>|]/g, ''),
+          String(row.job_slug || ''), kind, d].filter(Boolean).join('_') + '.md';
+}
+
+function transcriptText(row, list) {
+  return ['# 面談逐字稿', '',
+          `**候選人**：${row.name}`,
+          `**職缺**：${row.job_title || row.job_slug}`,
+          `**時間**：${row.interview_started_at || row.created_at || ''} – ${row.interview_ended_at || '未結束'}`,
+          '', '---', ''].concat(
+    (list || []).filter(function (m) { return m.content !== '（候選人已進入面談室）'; })
+      .map(function (m) {
+        return `### ${(m.created_at || '').slice(11, 16)}　${m.role === 'candidate' ? '候選人' : '阿財'}\n\n${m.content}\n`;
+      })).join('\n');
+}
+
+var curRow = null, curData = null;
+
 async function openSession(row) {
   cur = null;
+  curRow = row; curData = null;
   stopLive();
   $('dname').textContent = row.name;
   $('dmeta').textContent = (row.job_title || row.job_slug) + '　' + (row.email || '') + '　' + (row.phone || '');
@@ -358,6 +399,9 @@ async function openSession(row) {
         : (row.turns ? '（這場面談還沒有報告——可能收尾時出錯。逐字稿在下方。）'
                      : '（這位應徵者還沒開始面談。）'));
 
+  curData = d;
+  // 只有真的有東西可以下載才顯示那排按鈕
+  $('dlbar').hidden = !(d.report || (d.transcript || []).length);
   renderTranscript(d.transcript);
 
   // 進行中的面談讓顧問看得到即時進度。
@@ -500,6 +544,23 @@ $('out').addEventListener('click', function (e) {
 });
 $('dx').addEventListener('click', function () { stopLive(); $('dlg').close(); });
 $('dlg').addEventListener('close', stopLive);
+$('dl_md').addEventListener('click', function () {
+  if (!curData || !curData.report) return alert('這場面談還沒有報告');
+  download(safeName(curRow, '初篩報告'), curData.report.content_md);
+});
+$('dl_tr').addEventListener('click', function () {
+  if (!curData) return;
+  download(safeName(curRow, '逐字稿'), transcriptText(curRow, curData.transcript));
+});
+$('dl_cp').addEventListener('click', function () {
+  if (!curData || !curData.report) return alert('這場面談還沒有報告');
+  var b = this;
+  navigator.clipboard.writeText(curData.report.content_md).then(function () {
+    b.textContent = '已複製 ✓';
+    setTimeout(function () { b.textContent = '複製報告'; }, 1800);
+  });
+});
+
 $('dlink_c').addEventListener('click', function () {
   var b = this;
   navigator.clipboard.writeText($('dlink_u').textContent).then(function () {
