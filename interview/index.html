@@ -120,6 +120,12 @@ var lastId = 0, polling = null, waiting = false, ended = false;
 // 送出時會先在本地顯示一顆泡泡（不然按了沒反應很怪），但那則稍後也會從
 // 伺服器輪詢回來。沒有這個清單的話，同一句話會出現兩次。
 var optimistic = [];
+// 開場那句是給後端用的暗號，任何地方都不該顯示給候選人看。
+// 之前只在輪詢時過濾，重新整理走 boot() 那條路就漏出來了。
+var SENTINEL = '（候選人已進入面談室）';
+function realMsgs(list) {
+  return (list || []).filter(function (m) { return m.content !== SENTINEL; });
+}
 
 var $ = function (id) { return document.getElementById(id); };
 
@@ -195,23 +201,28 @@ async function boot() {
 
   $('boot').hidden = true;
   ['top', 'log', 'bar'].forEach(function (i) { $(i).hidden = false; });
-  // 開場最久（要讀履歷、職缺、產出第一句），空白畫面會讓人以為壞掉
-  if (!(d.messages || []).length) { $('log').hidden = true; $('hint').hidden = false; }
   $('sub').textContent = (d.name ? d.name + '　' : '') + (d.job_title || '');
 
-  (d.messages || []).forEach(add);
+  var real = realMsgs(d.messages);
+  // 用「真的訊息」來判斷要不要顯示載入畫面。拿原始陣列判斷的話，
+  // 只有暗號那一筆時會被當成「已經有對話」，載入提示與開場請求都不會出現。
+  if (!real.length) { $('log').hidden = true; $('hint').hidden = false; }
+  real.forEach(function (m) { add(m, true); });
 
   if (d.state === 'done') return setEnded();
 
   // 第一次進來、還沒有任何對話：先送一個空的開場請求，讓阿財主動開口。
   // 讓候選人先講話的話，多數人會愣在那裡不知道要打什麼。
-  if (!(d.messages || []).length) {
+  // 還沒有真的對話就送暗號讓阿財開口。重新整理時如果阿財還在想，
+  // 這裡不會重送（暗號已存在），但要把等待指示打開。
+  if (!real.length) {
     waiting = true; typing(true);
-    optimistic.push('（候選人已進入面談室）');
+    if (!(d.messages || []).length) { optimistic.push(SENTINEL);
     fetch(API + '/chat/' + encodeURIComponent(T) + '/send', {
       method: 'POST', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ text: '（候選人已進入面談室）' }),
+      body: JSON.stringify({ text: SENTINEL }),
     }).catch(function () {});
+    }
   }
 
   polling = setInterval(poll, 2000);
@@ -230,7 +241,7 @@ async function poll() {
       got.forEach(function (m) {
         if (m.id > lastId) lastId = m.id;
         // 開場那句是給後端用的暗號，不要顯示給候選人看
-        if (m.role === 'candidate' && m.content === '（候選人已進入面談室）') return;
+        if (m.content === SENTINEL) return;
         // 本地已經顯示過的那一則，不要再畫一次
         if (m.role === 'candidate') {
           var k = optimistic.indexOf(m.content);
