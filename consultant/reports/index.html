@@ -169,9 +169,14 @@ button.primary:hover{background:#8a6531;}
       </div>
 
       <div class="two">
-        <div><label>期望待遇</label><input id="a_salary" placeholder="例：50K"></div>
-        <div><label>可到職日</label><input id="a_date" placeholder="例：9/1 或 一個月"></div>
+        <div><label>期望待遇 <span style="color:#b4552e;">*</span></label>
+          <input id="a_salary" placeholder="例：50K　不確定就寫「面議」"></div>
+        <div><label>可到職日 <span style="color:#b4552e;">*</span></label>
+          <input id="a_date" placeholder="例：9/1、一個月、隨時"></div>
       </div>
+
+      <p class="note" style="margin:6px 0 0;">這兩欄留空的話，阿財要在面談中花兩個來回去問——
+      而一個來回大約三分鐘。你手上有的資訊先填，省的是面談時間。不確定就寫「面議」「待確認」。</p>
 
       <label>履歷檔（PDF／Word，8MB 以內）</label>
       <input id="a_file" type="file" accept=".pdf,.doc,.docx">
@@ -630,11 +635,17 @@ $('a_again').addEventListener('click', resetAdd);
 $('a_go').addEventListener('click', async function () {
   var err = $('a_err');
   err.hidden = true;
-  var name = $('a_name').value.trim(), job = $('a_job').value;
-  if (!name || !job) {
-    err.hidden = false; err.textContent = '姓名與職缺是必填的。';
+  var miss = [];
+  if (!$('a_name').value.trim()) miss.push('姓名');
+  if (!$('a_job').value) miss.push('應徵職缺');
+  if (!$('a_salary').value.trim()) miss.push('期望待遇');
+  if (!$('a_date').value.trim()) miss.push('可到職日');
+  if (miss.length) {
+    err.hidden = false;
+    err.textContent = '這幾欄要填：' + miss.join('、') + '（不確定就寫「面議」或「待確認」）';
     return;
   }
+  var name = $('a_name').value.trim(), job = $('a_job').value;
   var btn = this;
   btn.disabled = true; btn.textContent = '建檔中…';
   try {
