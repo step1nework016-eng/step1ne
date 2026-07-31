@@ -38,6 +38,9 @@ textarea{resize:vertical;min-height:76px}
 .areas label:has(input:checked){border-color:#2f6fed;background:#f3f7ff;font-weight:600;}
 .areas input{width:17px;height:17px;flex:0 0 auto;accent-color:#2f6fed;margin:0;}
 .hint{font-size:11.5px;color:var(--tx3);margin-top:5px;line-height:1.55}
+.notice{background:#f4f7ff;border:1px solid #d7e2fb;border-left:3px solid var(--ac);
+  border-radius:8px;padding:11px 14px;font-size:12.5px;color:#2c3a55;line-height:1.6;margin:0 0 14px}
+.notice b{color:var(--ac)}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media(max-width:520px){.two{grid-template-columns:1fr}}
 .consent{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;color:var(--tx2);
@@ -178,8 +181,12 @@ button:disabled{opacity:.45;cursor:not-allowed}
 
     <fieldset>
       <legend>初步面談</legend>
+      <div class="notice">
+        <b>這場面談等同與獵頭顧問的第一輪面試</b>，內容會直接影響是否轉給用人單位，
+        請找一個能專心作答的環境進行，避免邊處理其他事邊回覆。
+      </div>
       <p class="hint" style="margin:0 0 10px">
-        線上文字對談，約 15 分鐘，由 AI 進行。顧問會看完整內容再與您聯繫。
+        線上文字對談，約 30 到 40 分鐘，由 AI 進行。顧問會看完整內容再與您聯繫。
         部分職缺會先由顧問確認您的資料後才安排面談，若是這種情況，送出後會請您稍候，不會馬上進入面談室。</p>
       <div class="modes">
         <label class="mode"><input type="radio" name="mode" value="now" checked>
