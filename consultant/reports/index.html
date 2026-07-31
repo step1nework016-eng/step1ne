@@ -524,10 +524,18 @@ async function load() {
 
 async function open(row) {
   cur = row;
+  curRow = null; curData = null;
+  stopLive();
   $('dname').textContent = row.name;
   $('dmeta').textContent = (row.job_title || row.job_slug) + '　' + (row.email || '') + '　' + (row.phone || '');
   $('drep').textContent = '載入中…';
   $('dtr').innerHTML = '';
+  // 這條路徑（報告列表）沒有面談連結／體驗評分／回報問題可以顯示——
+  // 明確清掉，不然會殘留上一次從「全部應徵」那邊點開的舊資料
+  $('dlink').hidden = true;
+  $('dfb').hidden = true;
+  $('dflags').hidden = true;
+  $('livetag').hidden = true;
   drawActs(row.consultant_decision);
   $('dlg').showModal();
 
@@ -541,6 +549,30 @@ async function open(row) {
       return '<p class="turn ' + (me ? 'me' : '') + '"><b>' + (me ? '候選人' : '阿財') + '</b>：' +
         esc(m.content).replace(/\n/g, '<br>') + '</p>';
     }).join('') || '<p class="turn">（沒有逐字稿）</p>';
+
+  // 下載按鈕（dl_md/dl_html/dl_pdf/dl_tr/dl_cp）跟履歷按鈕都靠 curRow/curData——
+  // 這條路徑本來沒設，之前那幾顆按鈕在「報告」分頁其實是用「全部應徵」留下的舊資料在動，
+  // 點了會下載到別人的報告。
+  curRow = {
+    id: row.app_id, name: row.name, job_slug: row.job_slug, job_title: row.job_title,
+    interview_started_at: row.interview_started_at, interview_ended_at: row.interview_ended_at,
+    created_at: row.created_at,
+  };
+  curData = { report: d.report, transcript: d.transcript };
+  $('dlbar').hidden = !(d.report || (d.transcript || []).length);
+
+  $('resumebox').hidden = false;
+  $('resume_dl').hidden = true;
+  $('resume_link').hidden = true;
+  $('resume_none').hidden = true;
+  if (d.report && d.report.resume_file_id) {
+    $('resume_dl').hidden = false;
+  } else if (d.report && d.report.resume_url) {
+    $('resume_link').hidden = false;
+    $('resume_link').href = d.report.resume_url;
+  } else {
+    $('resume_none').hidden = false;
+  }
 }
 
 function drawActs(now) {
