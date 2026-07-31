@@ -222,9 +222,17 @@ button.primary:hover{background:#8a6531;}
       <div class="link" id="dlink_u">—</div>
       <button id="dlink_c" type="button">複製連結</button>
     </div>
+    <div id="resumebox" class="linkbox" hidden>
+      <b>履歷</b>
+      <button id="resume_dl" type="button" hidden>下載履歷檔</button>
+      <a id="resume_link" href="#" target="_blank" rel="noopener" hidden>開啟雲端連結</a>
+      <span id="resume_none" hidden>沒有履歷（阿財是請對方口頭介紹）</span>
+    </div>
     <div class="acts" id="acts"></div>
     <div class="dlbar" id="dlbar" hidden>
-      <button id="dl_md" type="button">下載報告</button>
+      <button id="dl_md" type="button">下載報告（.md）</button>
+      <button id="dl_html" type="button">下載報告（HTML）</button>
+      <button id="dl_pdf" type="button">下載報告（PDF）</button>
       <button id="dl_tr" type="button">下載逐字稿</button>
       <button id="dl_cp" type="button">複製報告</button>
     </div>
@@ -319,8 +327,8 @@ function renderTranscript(list) {
 }
 
 // 把文字存成檔案。顧問要把報告轉給客戶，總不能叫他自己反白複製。
-function download(name, text) {
-  var blob = new Blob([text], { type: 'text/markdown;charset=utf-8' });
+function download(name, text, mime) {
+  var blob = new Blob([text], { type: (mime || 'text/markdown') + ';charset=utf-8' });
   var a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = name;
@@ -329,10 +337,31 @@ function download(name, text) {
 }
 
 // 檔名要能一眼看出是誰、什麼職缺、哪一天——顧問下載十份之後才不會分不清
-function safeName(row, kind) {
+function safeName(row, kind, ext) {
   var d = (row.interview_ended_at || row.created_at || '').slice(0, 10) || 'undated';
   return [String(row.name || '未命名').replace(/[\\/:*?"<>|]/g, ''),
-          String(row.job_slug || ''), kind, d].filter(Boolean).join('_') + '.md';
+          String(row.job_slug || ''), kind, d].filter(Boolean).join('_') + '.' + (ext || 'md');
+}
+
+// 報告內文本來就是固定的純文字排版（縮排代表層級），不用做完整 markdown 解析，
+// 用 <pre> 保留原始排版最不會出錯——顧問要的是「看起來跟後台一樣」，不是漂亮的標題階層。
+function reportHtml(row, report) {
+  var title = esc(row.name) + ' → ' + esc(row.job_title || row.job_slug);
+  var meta = esc((row.interview_started_at || row.created_at || '').slice(0, 16)) +
+    ' – ' + esc((row.interview_ended_at || '未結束').slice(0, 16));
+  return '<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8">' +
+    '<title>初篩報告｜' + title + '</title><style>' +
+    'body{font-family:-apple-system,"PingFang TC",sans-serif;max-width:720px;margin:40px auto;' +
+    'padding:0 20px;color:#16202e;line-height:1.7}' +
+    'h1{font-size:19px;margin:0 0 4px}.meta{color:#7c8899;font-size:13px;margin-bottom:24px}' +
+    'pre{white-space:pre-wrap;font-family:inherit;font-size:14px;background:#f6f8fb;' +
+    'border:1px solid #dfe4ec;border-radius:10px;padding:18px 20px}' +
+    '@media print{pre{border:none;background:none;padding:0}}' +
+    '</style></head><body>' +
+    '<h1>初篩報告　' + title + '</h1>' +
+    '<div class="meta">Step1ne 德仁管理顧問　·　' + meta + '</div>' +
+    '<pre>' + esc(report.content_md || '') + '</pre>' +
+    '</body></html>';
 }
 
 function transcriptText(row, list) {
@@ -395,6 +424,21 @@ async function openSession(row) {
     $('dlink_u').textContent = d.interview_url;
   } else {
     $('dlink').hidden = true;
+  }
+
+  // 履歷：上傳的檔案走後端下載端點（要帶 ADMIN_TOKEN，不能用純連結），
+  // 貼的雲端連結本身就是公開網址，直接開新分頁就好，不用經過我們的伺服器。
+  $('resumebox').hidden = false;
+  $('resume_dl').hidden = true;
+  $('resume_link').hidden = true;
+  $('resume_none').hidden = true;
+  if (d.application && d.application.resume_file_id) {
+    $('resume_dl').hidden = false;
+  } else if (d.application && d.application.resume_url) {
+    $('resume_link').hidden = false;
+    $('resume_link').href = d.application.resume_url;
+  } else {
+    $('resume_none').hidden = false;
   }
 
   $('drep').textContent = d.report
@@ -553,6 +597,20 @@ $('dl_md').addEventListener('click', function () {
   if (!curData || !curData.report) return alert('這場面談還沒有報告');
   download(safeName(curRow, '初篩報告'), curData.report.content_md);
 });
+$('dl_html').addEventListener('click', function () {
+  if (!curData || !curData.report) return alert('這場面談還沒有報告');
+  download(safeName(curRow, '初篩報告', 'html'), reportHtml(curRow, curData.report), 'text/html');
+});
+$('dl_pdf').addEventListener('click', function () {
+  // 瀏覽器沒有內建「存成 PDF」的 API，開新視窗印出來、由使用者在列印對話框選
+  // 「另存為 PDF」是最不用額外套件、最不容易壞的做法。
+  if (!curData || !curData.report) return alert('這場面談還沒有報告');
+  var w = window.open('', '_blank');
+  if (!w) return alert('瀏覽器擋了跳出視窗，請允許彈出視窗後再試一次');
+  w.document.write(reportHtml(curRow, curData.report));
+  w.document.close();
+  w.addEventListener('load', function () { w.focus(); w.print(); });
+});
 $('dl_tr').addEventListener('click', function () {
   if (!curData) return;
   download(safeName(curRow, '逐字稿'), transcriptText(curRow, curData.transcript));
@@ -564,6 +622,31 @@ $('dl_cp').addEventListener('click', function () {
     b.textContent = '已複製 ✓';
     setTimeout(function () { b.textContent = '複製報告'; }, 1800);
   });
+});
+
+$('resume_dl').addEventListener('click', async function () {
+  if (!curRow) return;
+  var b = this;
+  b.disabled = true; b.textContent = '下載中…';
+  try {
+    var r = await fetch(API + '/admin/resume/' + encodeURIComponent(curRow.id),
+      { headers: { authorization: 'Bearer ' + tok } });
+    if (!r.ok) throw new Error('下載失敗（' + r.status + '）');
+    var blob = await r.blob();
+    // Content-Disposition 裡的檔名是後端存的原始檔名，比自己亂猜副檔名準
+    var cd = r.headers.get('content-disposition') || '';
+    var m = /filename="?([^"]+)"?/.exec(cd);
+    var name = m ? decodeURIComponent(m[1]) : safeName(curRow, '履歷', 'pdf');
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 0);
+  } catch (e) {
+    alert(e.message || '下載失敗');
+  } finally {
+    b.disabled = false; b.textContent = '下載履歷檔';
+  }
 });
 
 $('dlink_c').addEventListener('click', function () {
