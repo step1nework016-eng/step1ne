@@ -139,6 +139,7 @@ button.primary:hover{background:#8a6531;}
       <button class="tab" data-s="need_more" type="button">需補問</button>
       <button class="tab" data-s="rejected" type="button">不推薦</button>
       <button class="tab" data-s="__all_sessions" type="button">所有面談紀錄</button>
+      <button class="tab" data-s="__screening" type="button">待審核<span id="screen-badge" class="badge b-norep" style="margin-left:6px;" hidden>—</span></button>
     </div>
     <div id="list"></div>
     <div class="pager">
@@ -475,8 +476,127 @@ async function openSession(row) {
   }
 }
 
+// 推薦其他職缺要用的下拉選單，跟「新增候選人」共用同一份 jobs.json，
+// 不用另外維護一份職缺清單
+var screeningJobsCache = null;
+async function getJobsList() {
+  if (screeningJobsCache) return screeningJobsCache;
+  try {
+    var r = await fetch('/apply/jobs.json');
+    screeningJobsCache = await r.json();
+  } catch (e) { screeningJobsCache = []; }
+  return screeningJobsCache;
+}
+
+async function loadScreening() {
+  document.querySelector('.pager').style.display = 'none';
+  var d;
+  try { d = await api('/admin/screening'); }
+  catch (e) { return gate(e.message); }
+  if (!d.ok) return;
+
+  $('tot').textContent = d.pending.length + ' 筆待審核';
+  var badge = $('screen-badge');
+  if (d.pending.length) { badge.hidden = false; badge.textContent = d.pending.length; }
+  else badge.hidden = true;
+
+  if (!d.pending.length) {
+    $('list').innerHTML = '<div class="empty">目前沒有待審核的應徵——這些都是有客戶硬性條件的職缺才會出現在這裡。</div>';
+    return;
+  }
+
+  var jobs = await getJobsList();
+  var jobOptions = jobs.map(function (j) {
+    return '<option value="' + esc(j.slug) + '">' + esc(j.title) + '</option>';
+  }).join('');
+
+  $('list').innerHTML = d.pending.map(function (r) {
+    var discLine = r.disc_primary
+      ? 'DISC：' + esc(r.disc_primary) + '　(D' + r.disc_d + ' I' + r.disc_i + ' S' + r.disc_s + ' C' + r.disc_c + ')'
+      : 'DISC：未測';
+    var resumeLine = r.resume_file_id
+      ? '<a href="#" class="screen-resume-dl" data-id="' + esc(r.id) + '" style="color:#2f6fed;">下載履歷檔</a>'
+      : (r.resume_url ? '<a href="' + esc(r.resume_url) + '" target="_blank" rel="noopener">開啟履歷連結</a>' : '（無履歷）');
+    return '<div class="row" style="cursor:default;">' +
+      '<h3>' + esc(r.name) + '</h3>' +
+      '<div class="meta"><span>' + esc(r.job_title || r.job_slug) + '</span>' +
+      '<span>' + esc((r.created_at || '').slice(0, 16)) + '</span>' +
+      (r.email ? '<span>' + esc(r.email) + '</span>' : '') +
+      (r.expected_salary ? '<span>期望 ' + esc(r.expected_salary) + '</span>' : '') +
+      (r.available_date ? '<span>可到職 ' + esc(r.available_date) + '</span>' : '') + '</div>' +
+      '<div class="meta"><span>' + discLine + '</span><span>' + resumeLine + '</span></div>' +
+      (r.client_screen_conditions
+        ? '<div style="background:#fdf3ea;border:1px solid #f0d9bd;border-radius:8px;padding:10px 12px;margin:8px 0;font-size:13px;">' +
+          '<b>客戶硬性條件（系統不做判斷，由你評估）：</b><br>' + esc(r.client_screen_conditions) + '</div>'
+        : '') +
+      (r.note ? '<div class="mut" style="font-size:13px;margin:6px 0;">候選人備註：' + esc(r.note) + '</div>' : '') +
+      '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center;">' +
+        '<button type="button" class="screen-approve" data-id="' + esc(r.id) + '" style="background:#2f8f5b;color:#fff;border:0;border-radius:8px;padding:8px 16px;font-weight:700;cursor:pointer;">核准，安排面談</button>' +
+        '<button type="button" class="screen-decline" data-id="' + esc(r.id) + '" style="background:#b4552e;color:#fff;border:0;border-radius:8px;padding:8px 16px;font-weight:700;cursor:pointer;">婉拒</button>' +
+        '<select class="screen-redirect-job" data-id="' + esc(r.id) + '" style="border-radius:8px;padding:8px;border:1px solid #ddd;"><option value="">推薦其他職缺…</option>' + jobOptions + '</select>' +
+        '<button type="button" class="screen-redirect" data-id="' + esc(r.id) + '" style="background:#2f6fed;color:#fff;border:0;border-radius:8px;padding:8px 16px;font-weight:700;cursor:pointer;">送出推薦</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  document.querySelectorAll('.screen-resume-dl').forEach(function (a) {
+    a.addEventListener('click', async function (e) {
+      e.preventDefault();
+      var r = await fetch(API + '/admin/resume/' + encodeURIComponent(this.dataset.id),
+        { headers: { authorization: 'Bearer ' + tok } });
+      if (!r.ok) return alert('下載失敗');
+      var blob = await r.blob();
+      var cd = r.headers.get('content-disposition') || '';
+      var m = /filename="?([^"]+)"?/.exec(cd);
+      var name = m ? decodeURIComponent(m[1]) : 'resume.pdf';
+      var link = document.createElement('a');
+      link.href = URL.createObjectURL(blob); link.download = name;
+      document.body.appendChild(link); link.click();
+      setTimeout(function () { URL.revokeObjectURL(link.href); link.remove(); }, 0);
+    });
+  });
+  document.querySelectorAll('.screen-approve').forEach(function (b) {
+    b.addEventListener('click', async function () {
+      if (!confirm('核准後會立即寄面談連結給候選人，確定嗎？')) return;
+      this.disabled = true;
+      await api('/admin/screen-decide', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ application_id: this.dataset.id, decision: 'approved' }),
+      });
+      loadScreening();
+    });
+  });
+  document.querySelectorAll('.screen-decline').forEach(function (b) {
+    b.addEventListener('click', async function () {
+      if (!confirm('確定婉拒嗎？系統會在 3 小時後自動寄一封委婉通知信給候選人。')) return;
+      this.disabled = true;
+      await api('/admin/screen-decide', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ application_id: this.dataset.id, decision: 'declined' }),
+      });
+      loadScreening();
+    });
+  });
+  document.querySelectorAll('.screen-redirect').forEach(function (b) {
+    b.addEventListener('click', async function () {
+      var id = this.dataset.id;
+      var sel = document.querySelector('.screen-redirect-job[data-id="' + id + '"]');
+      if (!sel.value) return alert('請先選一個要推薦的職缺');
+      if (!confirm('會立即寄「' + sel.options[sel.selectedIndex].textContent + '」的應徵連結給候選人，確定嗎？')) return;
+      this.disabled = true;
+      await api('/admin/screen-decide', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ application_id: id, decision: 'redirect', redirect_job_slug: sel.value }),
+      });
+      loadScreening();
+    });
+  });
+}
+
 async function load() {
+  document.querySelector('.pager').style.display = '';
   if (state === '__all_sessions') return loadSessions();
+  if (state === '__screening') return loadScreening();
   var qs = new URLSearchParams({ state: state, limit: LIMIT, offset: offset });
   if ($('q').value.trim()) qs.set('q', $('q').value.trim());
   if ($('job').value) qs.set('job', $('job').value);

@@ -179,10 +179,11 @@ button:disabled{opacity:.45;cursor:not-allowed}
     <fieldset>
       <legend>初步面談</legend>
       <p class="hint" style="margin:0 0 10px">
-        線上文字對談，約 15 分鐘，由 AI 進行。顧問會看完整內容再與您聯繫。</p>
+        線上文字對談，約 15 分鐘，由 AI 進行。顧問會看完整內容再與您聯繫。
+        部分職缺會先由顧問確認您的資料後才安排面談，若是這種情況，送出後會請您稍候，不會馬上進入面談室。</p>
       <div class="modes">
         <label class="mode"><input type="radio" name="mode" value="now" checked>
-          <span><b>現在就開始</b><i>送出後直接進入，最快</i></span></label>
+          <span><b>現在就開始</b><i>多數職缺會直接進入面談</i></span></label>
         <label class="mode"><input type="radio" name="mode" value="later">
           <span><b>晚點再做</b><i>選一個時間，我們提醒您</i></span></label>
       </div>
@@ -421,9 +422,11 @@ f.addEventListener('submit', async (e) => {
 
     document.getElementById('form-view').style.display = 'none';
     document.getElementById('done-view').style.display = 'block';
-    document.getElementById('doneSlot').textContent = mode === 'now'
-      ? '顧問會盡快與您聯繫，安排面談。'
-      : `已記下您希望的時間 ${(fd.get('remind_at') || '').replace('T', ' ')}，屆時顧問會與您聯繫。`;
+    document.getElementById('doneSlot').textContent = d.needs_screening
+      ? '顧問會先評估您的資料，若適合這個機會，會再寄信安排線上面談。'
+      : mode === 'now'
+        ? '顧問會盡快與您聯繫，安排面談。'
+        : `已記下您希望的時間 ${(fd.get('remind_at') || '').replace('T', ' ')}，屆時顧問會與您聯繫。`;
     scrollTo(0, 0);
   } catch (err) {
     msg.className = 'msg err';
