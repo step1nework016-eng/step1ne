@@ -73,6 +73,16 @@ footer{
 .fin p{color:#8a8d95;font-size:14px;margin:0 auto 16px;max-width:340px;line-height:1.75;}
 .fin button{font:inherit;font-size:15px;font-weight:700;background:#23262d;color:#fff;border:0;border-radius:999px;padding:13px 34px;cursor:pointer;min-height:48px;}
 .fin a{display:block;margin-top:14px;font-size:14px;}
+/* 談完之後的 LINE CTA。用 LINE 綠當底色讓它跳出來，但不要比「關閉頁面」還搶——
+   這是邀請不是強迫，看完評分自然往下就會看到。 */
+.lineCta{margin:20px auto 4px;max-width:360px;background:#f2f9f3;border:1px solid #cfe7d3;
+ border-radius:14px;padding:16px 18px;}
+.lineCta b{font-size:15px;margin-bottom:5px;color:#1f4d2c;}
+.lineCta p{color:#5c7264;font-size:13px;margin:0 0 13px;line-height:1.7;max-width:none;}
+.lineCta a.lineBtn{display:inline-block;margin:0;background:#06c755;color:#fff;
+ font-size:15px;font-weight:700;border-radius:999px;padding:12px 28px;text-decoration:none;
+ min-height:46px;line-height:22px;}
+.lineCta a.lineBtn:hover{filter:brightness(.95);}
 dialog#rdlg{border:0;border-radius:18px;padding:0;max-width:420px;width:calc(100% - 36px);}
 dialog#rdlg::backdrop{background:rgba(20,18,14,.45);}
 .rhead{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid #eee7db;}
@@ -139,6 +149,17 @@ dialog#rdlg::backdrop{background:rgba(20,18,14,.45);}
       <button id="rsub" type="button" class="rsend">送出</button>
     </div>
     <p id="rthx" class="rq" hidden>謝謝您的回饋 🙏</p>
+  </div>
+
+  <!-- 2026-08-04 補。原本正常談完只有「謝謝」＋評分就沒了——
+       剛談完二十分鐘、對這個機會最有感覺的那一刻，沒給人任何可以做的事。
+       （中途離開那條路本來就有 LINE 連結，反而是談完的沒有。）
+       刻意寫「真人顧問」：他剛跟 AI 聊完，會想知道後面有沒有人。 -->
+  <div class="lineCta">
+    <b>想直接跟真人顧問聊？</b>
+    <p>加 LINE 找我們的獵頭顧問。問薪資行情、問這家公司實際狀況、
+       或想看看其他還沒公開的職缺，都可以直接問。</p>
+    <a class="lineBtn" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">加 LINE 找顧問</a>
   </div>
 
   <button id="closebtn" type="button">關閉頁面</button>
