@@ -383,7 +383,18 @@ async function openSession(row) {
   cur = null;
   curRow = row; curData = null;
   stopLive();
-  $('dname').textContent = row.name;
+  // 2026-08-05：Phoebe 遇到標題顯示 undefined、報告區「讀取失敗」，
+  // 但用管理員 token 直接打 API 都正常，重現不出來。
+  // 先把「是哪一筆、缺什麼」講出來，下次出錯就知道是資料問題還是權限問題。
+  if (!row || !row.id) {
+    $('dname').textContent = '這筆資料有問題';
+    $('dmeta').textContent = '點到的項目沒有 id，請截圖給工程確認（row=' +
+      JSON.stringify(row || null).slice(0, 120) + '）';
+    $('drep').textContent = '';
+    $('dlg').showModal();
+    return;
+  }
+  $('dname').textContent = row.name || '（這筆沒有姓名資料）';
   $('dmeta').textContent = (row.job_title || row.job_slug) + '　' + (row.email || '') + '　' + (row.phone || '');
   $('drep').textContent = '載入中…';
   $('dtr').innerHTML = '';
@@ -659,8 +670,21 @@ async function open(row) {
   drawActs(row.consultant_decision);
   $('dlg').showModal();
 
-  var d = await api('/admin/report/' + encodeURIComponent(row.id));
-  if (!d.ok) { $('drep').textContent = '讀取失敗'; return; }
+  var d;
+  try {
+    d = await api('/admin/report/' + encodeURIComponent(row.id));
+  } catch (e) {
+    // 權杖不對會走這條（api() 對 401 是 throw 不是回 ok:false）。
+    // 原本沒接，會變成畫面卡在「載入中…」，看起來像當掉。
+    $('drep').textContent = '讀不到報告：' + (e && e.message ? e.message : '連線失敗') +
+      '\n\n如果寫「權杖不正確」，右上角重新輸入 ADMIN_TOKEN 就好。';
+    return;
+  }
+  if (!d.ok) {
+    $('drep').textContent = '讀取失敗：' + (d.error || '伺服器沒說原因') +
+      '\n（報告 id：' + row.id + '）';
+    return;
+  }
   $('drep').textContent = d.report.content_md || '（沒有報告內容）';
   $('dtr').innerHTML = (d.transcript || [])
     .filter(function (m) { return m.content !== '（候選人已進入面談室）'; })
