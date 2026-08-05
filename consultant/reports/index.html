@@ -783,9 +783,19 @@ $('dl_pdf').addEventListener('click', function () {
   if (!curData || !curData.report) return alert('這場面談還沒有報告');
   var w = window.open('', '_blank');
   if (!w) return alert('瀏覽器擋了跳出視窗，請允許彈出視窗後再試一次');
-  w.document.write(reportHtml(curRow, curData.report));
+  // ⚠️ 不要用 w.addEventListener('load', ...) 叫 print()。
+  // 2026-08-05 Phoebe 回報「只有 PDF 下不了，其他都可以」——原因就是這個：
+  // document.write 寫進去的內容，load 事件多半在我們掛監聽之前就已經觸發完了，
+  // 那個 callback 永遠不會跑，所以視窗開了、內容也在，但列印對話框不會出現。
+  // 改成把 print 寫進頁面本身的 onload，由那份文件自己觸發，時序上不會錯過。
+  var html = reportHtml(curRow, curData.report);
+  html = html.replace('</body>',
+    '<scr' + 'ipt>window.onload=function(){window.focus();window.print();};</scr' + 'ipt></body>');
+  w.document.write(html);
   w.document.close();
-  w.addEventListener('load', function () { w.focus(); w.print(); });
+  // 保險：有些瀏覽器對 document.write 的頁面不觸發 onload，補一次直接呼叫。
+  // 印兩次不會怎樣（第二次對話框已經開著），印不出來才是問題。
+  setTimeout(function () { try { w.focus(); w.print(); } catch (e) {} }, 600);
 });
 $('dl_tr').addEventListener('click', function () {
   if (!curData) return;
