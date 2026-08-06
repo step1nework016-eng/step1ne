@@ -12,11 +12,17 @@ gtag('config', 'G-DNPMMRDEC0');
 // 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
 // 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
 document.addEventListener('click', function (e) {
-  var a = e.target.closest && e.target.closest('a[href*="lin.ee"]');
+  if (!e.target.closest) return;
+  // 2026-08-06：原本只抓 lin.ee。BIM 那群的下一步是「直接應徵」不是加 LINE，
+  // 不一起記的話，等於把那條路做出來卻量不到，實驗就白做了。
+  var a = e.target.closest('a[href*="lin.ee"], a[href^="/apply"]');
   if (!a) return;
-  gtag('event', 'line_cta_click', {
+  var isApply = (a.getAttribute('href') || '').indexOf('/apply') === 0;
+  gtag('event', isApply ? 'apply_click' : 'line_cta_click', {
     page_path: location.pathname,
-    link_text: (a.textContent || '').trim().slice(0, 60)
+    link_text: (a.textContent || '').trim().slice(0, 60),
+    // mid＝這次新加的文章中段；沒有標的就是原本頁首／頁尾那些
+    cta_slot: a.getAttribute('data-cta') || 'legacy'
   });
 });
 </script>
@@ -220,7 +226,7 @@ td strong{color:#8a5a1a;white-space:nowrap;}
       <li><strong>沒有處理「現場」這個疑慮</strong>——如果你過去的工作都在辦公室，主管會擔心你受不了廠區或工地。履歷或面試時主動說明你理解且能配合，這個疑慮就消失了</li>
     </ol>
 
-    <h2>常見問題</h2>
+    <aside data-exp="cta-mid-2026-08-06" style="margin:38px 0;padding:24px 26px;border-radius:16px;background:linear-gradient(150deg,rgba(166,124,61,0.10),rgba(96,128,180,0.05));border:1px solid rgba(166,124,61,0.28);"><p style="margin:0 0 8px;font-family:'Space Mono',monospace;font-size:11.5px;letter-spacing:.14em;color:#a67c3d;">STEP1NE 現正招募</p><h3 style="margin:0 0 10px;font-size:19px;line-height:1.4;">這個缺現在開著：科系不限，客戶從零教 Revit</h3><p style="margin:0 0 18px;font-size:15px;line-height:1.75;color:#4a4d55;">苗栗銅鑼／台中后里的大型建廠專案，<strong>派遣職缺</strong>，月薪 35,000–53,000 元、另有固定年終 2 個月，提供交通車與宿舍，滿 1–2 年表現良好可轉正。學歷需大學以上、科系不限；<strong>沒有 BIM 經驗可以投</strong>——客戶願意從頭訓練，這在市場上不常見。想先問清楚再決定也可以，不用先投履歷。</p><div style="display:flex;flex-wrap:wrap;gap:12px;"><a href="/apply/?job=bim-engineer" data-cta="mid-bim" style="display:inline-flex;align-items:center;gap:8px;background:#23262d;color:#fff;font-weight:700;font-size:15px;padding:13px 26px;border-radius:999px;">直接應徵 BIM 工程師</a><a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-bim" style="display:inline-flex;align-items:center;gap:8px;background:#06c755;color:#fff;font-weight:700;font-size:15px;padding:13px 26px;border-radius:999px;">加 LINE 先問清楚</a></div></aside><h2>常見問題</h2>
     <div style="display:flex;flex-direction:column;gap:12px;margin-top:20px;">
       <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
         <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">

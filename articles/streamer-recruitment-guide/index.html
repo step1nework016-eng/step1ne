@@ -12,11 +12,17 @@ gtag('config', 'G-DNPMMRDEC0');
 // 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
 // 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
 document.addEventListener('click', function (e) {
-  var a = e.target.closest && e.target.closest('a[href*="lin.ee"]');
+  if (!e.target.closest) return;
+  // 2026-08-06：原本只抓 lin.ee。BIM 那群的下一步是「直接應徵」不是加 LINE，
+  // 不一起記的話，等於把那條路做出來卻量不到，實驗就白做了。
+  var a = e.target.closest('a[href*="lin.ee"], a[href^="/apply"]');
   if (!a) return;
-  gtag('event', 'line_cta_click', {
+  var isApply = (a.getAttribute('href') || '').indexOf('/apply') === 0;
+  gtag('event', isApply ? 'apply_click' : 'line_cta_click', {
     page_path: location.pathname,
-    link_text: (a.textContent || '').trim().slice(0, 60)
+    link_text: (a.textContent || '').trim().slice(0, 60),
+    // mid＝這次新加的文章中段；沒有標的就是原本頁首／頁尾那些
+    cta_slot: a.getAttribute('data-cta') || 'legacy'
   });
 });
 </script>
@@ -364,7 +370,7 @@ td strong{color:#8a5a1a;}
       <p>如果你已經有正職，<strong>先不要辭職去做直播</strong>。用下班時間播三到六個月，看兩件事：一是你的觀眾數有沒有在長（不是絕對值，是趨勢），二是你自己有沒有在耗損。三個月後再決定要不要投入更多，這個順序的風險低很多。而且——<strong>手上還有正職的人，跟經紀公司談條件的底氣完全不一樣。</strong></p>
     </div>
 
-    <h2>常見問題</h2>
+    <aside data-exp="cta-mid-2026-08-06" style="margin:38px 0;padding:24px 26px;border-radius:16px;background:linear-gradient(150deg,rgba(166,124,61,0.10),rgba(96,128,180,0.05));border:1px solid rgba(166,124,61,0.28);"><p style="margin:0 0 8px;font-family:'Space Mono',monospace;font-size:11.5px;letter-spacing:.14em;color:#a67c3d;">看完還是不確定？</p><h3 style="margin:0 0 10px;font-size:19px;line-height:1.4;">合約、抽成、公會正不正派——可以直接問</h3><p style="margin:0 0 18px;font-size:15px;line-height:1.75;color:#4a4d55;">上面寫的是通則，但每一份約的條件都不一樣。你手上有實際的合約或報價，傳給我們看，我們會直接告訴你哪幾條要再問清楚、這個條件在市場上算不算合理。我們是獵頭公司，看合約是本業，問這個不用錢。</p><div style="display:flex;flex-wrap:wrap;gap:12px;"><a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-streamer" style="display:inline-flex;align-items:center;gap:8px;background:#06c755;color:#fff;font-weight:700;font-size:15px;padding:13px 26px;border-radius:999px;">加 LINE 問合約與抽成</a></div></aside><h2>常見問題</h2>
     <div style="display:flex;flex-direction:column;gap:12px;margin-top:20px;">
       <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
         <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
