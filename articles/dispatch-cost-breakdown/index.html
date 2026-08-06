@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  if (!e.target.closest) return;
+  // 2026-08-06：原本只抓 lin.ee。BIM 那群的下一步是「直接應徵」不是加 LINE，
+  // 不一起記的話，等於把那條路做出來卻量不到，實驗就白做了。
+  var a = e.target.closest('a[href*="lin.ee"], a[href^="/apply"]');
+  if (!a) return;
+  var isApply = (a.getAttribute('href') || '').indexOf('/apply') === 0;
+  gtag('event', isApply ? 'apply_click' : 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60),
+    // mid＝這次新加的文章中段；沒有標的就是原本頁首／頁尾那些
+    cta_slot: a.getAttribute('data-cta') || 'legacy'
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>人力派遣費用怎麼算？2026 管理費與成本結構完整拆解｜Step1ne</title>
+<meta name="description" content="派遣費用 = 員工薪資 + 法定雇主成本（約薪資 18%）+ 管理服務費。本文以 2026 最新勞健保費率實際試算，拆解月薪 3 萬到 5 萬的企業派遣總成本，並說明管理費的合理範圍與報價單判讀方式。">
+<meta name="keywords" content="人力派遣費用,派遣費用怎麼算,人力派遣管理費,派遣人力成本,派遣公司收費,派遣報價,人力派遣費用計算">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/articles/dispatch-cost-breakdown/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Step1ne 德仁管理顧問">
+<meta property="og:title" content="人力派遣費用怎麼算？管理費與成本結構完整拆解（2026）">
+<meta property="og:description" content="以 2026 最新費率實際試算月薪 3 萬到 5 萬的企業派遣總成本，拆解管理費的合理範圍與報價單判讀方式。">
+<meta property="og:url" content="https://step1ne.com/articles/dispatch-cost-breakdown/">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta name="theme-color" content="#f4f1ea">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Noto+Sans+TC:wght@300;400;500;700;900&family=Noto+Serif+TC:wght@500;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "人力派遣費用怎麼算？2026 管理費與成本結構完整拆解",
+  "description": "以 2026 年最新勞健保費率，實際試算月薪 3 萬到 5 萬的企業派遣總成本，拆解法定雇主成本與管理服務費的結構，並說明報價單的判讀方式。",
+  "datePublished": "2026-08-06",
+  "dateModified": "2026-08-06",
+  "inLanguage": "zh-TW",
+  "author": {
+    "@type": "Organization",
+    "name": "Step1ne 德仁管理顧問有限公司",
+    "url": "https://step1ne.com/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "德仁管理顧問有限公司（Step1ne）",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://step1ne.com/assets/step1ne-logo.png"
+    }
+  }
+}
+</script>
+
+<style>
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{font-family:'Noto Sans TC',system-ui,sans-serif;color:#23262d;background:#f4f1ea;-webkit-font-smoothing:antialiased;line-height:1.8;}
+a{color:#a67c3d;text-decoration:none;}
+a:hover{color:#8a6531;}
+details summary{cursor:pointer;list-style:none;}
+details summary::-webkit-details-marker{display:none;}
+details summary .faq-icon{transition:transform .3s ease;}
+details[open] summary .faq-icon{transform:rotate(45deg);}
+.wrap{max-width:760px;margin:0 auto;padding:0 24px;}
+h2{font-family:'Noto Serif TC',serif;font-size:24px;font-weight:700;color:#1c1f26;margin:44px 0 14px;line-height:1.4;}
+h3{font-size:17.5px;font-weight:700;color:#1c1f26;margin:28px 0 8px;}
+p{color:#3a3d44;font-size:15.5px;margin:0 0 16px;}
+ul,ol{padding-left:22px;color:#3a3d44;font-size:15.5px;}
+li{margin-bottom:8px;}
+.tbl-wrap{overflow-x:auto;margin:16px 0 8px;}
+table{width:100%;border-collapse:collapse;font-size:14.5px;background:#fff;min-width:560px;}
+th,td{border:1px solid #e6dfd1;padding:11px 13px;text-align:left;vertical-align:top;}
+th{background:#faf7f1;font-weight:700;white-space:nowrap;}
+td strong{color:#8a5a1a;}
+.note{font-size:13.5px;color:#8a8d95;margin:0 0 24px;}
+.callout{background:#fff;border:1px solid #e6dfd1;border-radius:14px;padding:20px 22px;margin:0 0 16px;}
+.insight{background:#fdfaf3;border:1px solid rgba(166,124,61,0.35);border-radius:14px;padding:20px 22px;margin:24px 0;}
+.insight .label{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;color:#a67c3d;text-transform:uppercase;margin-bottom:8px;}
+.insight p:last-child{margin-bottom:0;}
+.warn{background:#fdf4f2;border:1px solid rgba(180,90,70,0.35);border-radius:14px;padding:20px 22px;margin:24px 0;}
+.warn .label{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;color:#a8543c;text-transform:uppercase;margin-bottom:8px;}
+.warn p:last-child{margin-bottom:0;}
+.law{background:#fff;border-left:3px solid #8a8d95;padding:14px 18px;margin:0 0 16px;font-size:14.5px;color:#4a4d55;border-radius:0 10px 10px 0;}
+@media (max-width:760px){
+  .s1ne-hide-m{display:none !important;}
+  .s1ne-show-m{display:flex !important;}
+  footer a{min-height:44px;display:inline-flex;align-items:center;}
+}
+.s1ne-show-m{display:none;}
+.s1ne-mobile-menu{display:none;flex-direction:column;padding:4px 24px 16px;border-top:1px solid #e6dfd1;background:rgba(244,241,234,0.98);}
+.s1ne-mobile-menu.is-open{display:flex;}
+.s1ne-mobile-menu a{padding:10px 0;color:#4a4d55;font-size:15px;border-bottom:1px solid #e6dfd1;min-height:44px;display:flex;align-items:center;}
+.s1ne-mobile-menu a:last-child{border-bottom:none;}
+
+@media (max-width:640px){
+  .tbl-wrap{overflow-x:visible;}
+  .tbl-wrap table{min-width:0;display:block;background:transparent;}
+  .tbl-wrap thead{display:none;}
+  .tbl-wrap tbody{display:block;}
+  .tbl-wrap tr{display:block;background:#fff;border:1px solid #e6dfd1;border-radius:14px;margin-bottom:12px;overflow:hidden;}
+  .tbl-wrap td{display:block;border:none;border-bottom:1px solid #f2ede3;padding:12px 16px;}
+  .tbl-wrap tr td:last-child{border-bottom:none;}
+  .tbl-wrap td::before{content:attr(data-label);display:block;font-size:11.5px;font-weight:700;letter-spacing:0.5px;color:#a67c3d;margin-bottom:4px;}
+  .tbl-wrap td:empty{display:none;}
+}
+</style>
+</head>
+<body>
+
+<header style="position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:rgba(244,241,234,0.9);border-bottom:1px solid #e6dfd1;">
+  <div class="wrap" style="display:flex;align-items:center;justify-content:space-between;gap:20px;height:68px;max-width:1180px;">
+    <a href="/" style="display:flex;align-items:center;gap:12px;color:#23262d;">
+      <img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問" style="height:38px;width:auto;">
+    </a>
+    <div class="s1ne-hide-m" style="display:flex;align-items:center;gap:28px;font-size:15px;color:#4a4d55;">
+      <a href="/jobs/" style="color:#4a4d55;">職缺專區</a>
+      <a href="/articles/" style="color:#4a4d55;">獵才專欄</a>
+      <a href="/talent/" style="color:#4a4d55;">全民獵才</a>
+      <a href="/talent/ai-tools/" style="color:#4a4d55;">AI求職工具</a>
+    </div>
+    <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" class="s1ne-hide-m" style="background:#06c755;color:#fff;font-weight:700;font-size:13.5px;padding:9px 18px;border-radius:999px;white-space:nowrap;">LINE 洽詢</a>
+    <button type="button" class="s1ne-show-m" onclick="document.getElementById('s1ne-mmenu').classList.toggle('is-open')" aria-label="開啟選單" style="align-items:center;justify-content:center;width:40px;height:40px;border:1px solid #e6dfd1;border-radius:10px;background:#fff;flex-shrink:0;">
+      <span style="display:block;width:18px;height:2px;background:#23262d;box-shadow:0 6px 0 #23262d,0 -6px 0 #23262d;"></span>
+    </button>
+  </div>
+  <div id="s1ne-mmenu" class="s1ne-mobile-menu" onclick="if(event.target.closest('a'))this.classList.remove('is-open')">
+    <a href="/">首頁</a>
+    <a href="/jobs/">職缺專區</a>
+    <a href="/articles/">獵才專欄</a>
+    <a href="/talent/">全民獵才</a>
+    <a href="/talent/ai-tools/">AI求職工具</a>
+    <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="color:#a67c3d;font-weight:700;">LINE 洽詢 →</a>
+  </div>
+</header>
+
+<main>
+  <article class="wrap" style="padding:40px 24px 24px;">
+    <div style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:2px;color:#a67c3d;text-transform:uppercase;margin-bottom:16px;">企業獵才指南・派遣實務</div>
+    <h1 style="font-family:'Noto Serif TC',serif;font-weight:700;font-size:clamp(26px,4vw,38px);line-height:1.35;margin:0 0 20px;color:#1c1f26;">人力派遣費用怎麼算？管理費與成本結構完整拆解</h1>
+
+    <p style="font-size:17px;color:#3a3d44;background:#fff;border:1px solid #e6dfd1;border-radius:14px;padding:20px 22px;">
+      <strong>直接答案：</strong>企業用派遣的每月費用 = 員工薪資 + 法定雇主成本（約薪資的 18%）+ 管理服務費。以月薪 35,000 元、管理費 20% 為例，企業每月實際支付約 <strong>48,300 元</strong>。法定成本是固定的，真正影響報價差異的是管理費——那一項沒有法規標準，是市場行情。
+    </p>
+
+    <h2>派遣費用的三個組成部分</h2>
+    <p>派遣公司給企業的報價，拆開來只有三塊：</p>
+    <ol>
+      <li><strong>員工薪資</strong>——派遣員工實際領到的月薪，由企業與派遣公司議定</li>
+      <li><strong>法定雇主成本</strong>——勞保、健保、勞退、職災保險，法律規定雇主（派遣公司）必須負擔的部分</li>
+      <li><strong>管理服務費</strong>——派遣公司的服務費與利潤，涵蓋招募、薪資發放、勞健保管理、人事行政、合規處理等</li>
+    </ol>
+    <p>前兩項是透明的：薪資你自己定，法定成本有公式可以算。第三項才是各家派遣公司報價差異的來源。</p>
+
+    <h2>2026 年法定雇主成本怎麼算？</h2>
+    <p>以下是 2026 年（民國 115 年）適用的費率，每一項都會影響派遣報價：</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>項目</th><th>費率</th><th>雇主負擔比例</th><th>雇主實際負擔</th><th>法規依據</th></tr></thead>
+        <tbody>
+          <tr><td data-label="項目"><strong>勞保（含就保）</strong></td><td data-label="費率">12.5%</td><td data-label="雇主負擔比例">70%</td><td data-label="雇主實際負擔"><strong>薪資 × 8.75%</strong></td><td data-label="法規依據">勞工保險條例</td></tr>
+          <tr><td data-label="項目"><strong>健保</strong></td><td data-label="費率">5.17%</td><td data-label="雇主負擔比例">60%</td><td data-label="雇主實際負擔"><strong>薪資 × 3.10%</strong></td><td data-label="法規依據">全民健保法</td></tr>
+          <tr><td data-label="項目"><strong>勞退提撥</strong></td><td data-label="費率">6%（法定下限）</td><td data-label="雇主負擔比例">100%</td><td data-label="雇主實際負擔"><strong>薪資 × 6%</strong></td><td data-label="法規依據">勞退條例第 14 條</td></tr>
+          <tr><td data-label="項目"><strong>職災保險</strong></td><td data-label="費率">0.12%–0.96%</td><td data-label="雇主負擔比例">100%</td><td data-label="雇主實際負擔"><strong>薪資 × 0.12%–0.96%</strong></td><td data-label="法規依據">職災保險及保護法</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">勞保普通事故費率 11.5% + 就業保險 1% = 12.5%，自 2025 年 1 月起適用。健保費率 5.17% 自 2021 年凍漲至今。職災費率依行業別不同，辦公室類約 0.12%，製造業較高。健保雇主負擔欄位為僅計員工本人之比率，若員工有眷屬依附投保，雇主須另外負擔眷屬部分。</p>
+
+    <p><strong>合計：法定雇主成本約為員工月薪的 18%–19%。</strong>這個比例在不同薪資水準下幾乎不變，因為各項費率都是按薪資比例計算。</p>
+
+    <div class="law">
+      <strong>2026 年基本工資：</strong>月薪 29,500 元、時薪 196 元（自 115 年 1 月 1 日起適用）。派遣員工薪資不得低於此標準。<br>
+      <small>來源：勞動部 2026 年勞動新制公告</small>
+    </div>
+
+    <h2>月薪 3 萬到 5 萬，企業實際付多少？</h2>
+    <p>以下用三個常見薪資級距實際試算。法定成本用各項費率直接計算，管理費假設 20%（僅為試算用，實際費率依個案而異）：</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>項目</th><th>月薪 29,500<br>（基本工資）</th><th>月薪 35,000</th><th>月薪 50,000</th></tr></thead>
+        <tbody>
+          <tr><td data-label="項目"><strong>員工月薪</strong></td><td data-label="月薪 29,500">29,500</td><td data-label="月薪 35,000">35,000</td><td data-label="月薪 50,000">50,000</td></tr>
+          <tr><td data-label="項目">勞保雇主（8.75%）</td><td data-label="月薪 29,500">2,581</td><td data-label="月薪 35,000">3,063</td><td data-label="月薪 50,000">4,375</td></tr>
+          <tr><td data-label="項目">健保雇主（3.10%）</td><td data-label="月薪 29,500">915</td><td data-label="月薪 35,000">1,085</td><td data-label="月薪 50,000">1,550</td></tr>
+          <tr><td data-label="項目">勞退提撥（6%）</td><td data-label="月薪 29,500">1,770</td><td data-label="月薪 35,000">2,100</td><td data-label="月薪 50,000">3,000</td></tr>
+          <tr><td data-label="項目">職災保險（0.21%）</td><td data-label="月薪 29,500">62</td><td data-label="月薪 35,000">74</td><td data-label="月薪 50,000">105</td></tr>
+          <tr><td data-label="項目"><strong>法定成本小計</strong></td><td data-label="月薪 29,500"><strong>5,328</strong></td><td data-label="月薪 35,000"><strong>6,322</strong></td><td data-label="月薪 50,000"><strong>9,030</strong></td></tr>
+          <tr><td data-label="項目">管理服務費（20%）</td><td data-label="月薪 29,500">5,900</td><td data-label="月薪 35,000">7,000</td><td data-label="月薪 50,000">10,000</td></tr>
+          <tr><td data-label="項目"><strong>企業每月總支付</strong></td><td data-label="月薪 29,500"><strong>40,728</strong></td><td data-label="月薪 35,000"><strong>48,322</strong></td><td data-label="月薪 50,000"><strong>69,030</strong></td></tr>
+          <tr><td data-label="項目">相當於月薪的</td><td data-label="月薪 29,500">1.38 倍</td><td data-label="月薪 35,000">1.38 倍</td><td data-label="月薪 50,000">1.38 倍</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">試算說明：法定成本以 2026 年費率計算，職災費率取全行業平均 0.21%（行業別 0.14% + 上下班 0.07%），健保僅計員工本人、未含眷屬。管理費 20% 為試算用假設值，實際費率依職務類型、人數規模、派遣期間等因素由雙方議定。以上計算公式：勞保 = 月薪 × 12.5% × 70%；健保 = 月薪 × 5.17% × 60%；勞退 = 月薪 × 6%。</p>
+
+    <h2>派遣公司的管理費通常收多少？</h2>
+    <p>管理費沒有法規標準。台灣現行法律並未對國內人力派遣的服務費訂定上限或下限——這一點與外籍移工仲介不同（外籍移工仲介有「私立就業服務機構收費項目及金額標準」的法定上限）。國內派遣的管理費完全是市場行情，由企業與派遣公司議定。</p>
+
+    <p>影響管理費高低的因素：</p>
+    <ul>
+      <li><strong>職務類型</strong>——一般行政、倉管等替代性高的職務，管理費通常較低；技術性職務（IT、工程）或需要特定證照的，費率較高</li>
+      <li><strong>派遣人數</strong>——量大通常有議價空間</li>
+      <li><strong>派遣期間</strong>——長期穩定合作比短期急件費率低</li>
+      <li><strong>替換承諾</strong>——承諾幾天內補人、人選不適任免費替換等條件，會反映在費率上</li>
+      <li><strong>服務範圍</strong>——只做人力提供，還是含出勤管理、績效回報、勞資爭議處理等</li>
+    </ul>
+
+    <div class="insight">
+      <div class="label">派遣顧問觀察</div>
+      <p>很多企業拿到報價的第一反應是「管理費太高，我自己請人不用付這筆」。但管理費裡包含的不只是利潤——招募廣告費、面試篩選人力、每月薪資核算與發放、勞健保加退保作業、工安法規遵循、人員替換的緩衝成本，這些全部由派遣公司吸收。</p>
+      <p><strong>真正該比的不是「管理費幾%」，而是「加上這些隱藏成本之後，自己聘跟用派遣哪個划算」。</strong></p>
+    </div>
+
+    <h2>用派遣和自己聘人，成本差多少？</h2>
+    <p>單看帳面數字，自聘一定比派遣便宜——因為不用付管理費。但自聘有幾項帳面上看不到的成本：</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>成本項目</th><th>用派遣</th><th>自己聘</th></tr></thead>
+        <tbody>
+          <tr><td data-label="成本項目"><strong>員工薪資</strong></td><td data-label="用派遣">包在報價裡</td><td data-label="自己聘">自行支付</td></tr>
+          <tr><td data-label="成本項目"><strong>勞健保勞退</strong></td><td data-label="用派遣">派遣公司處理</td><td data-label="自己聘">自行投保、每月核算</td></tr>
+          <tr><td data-label="成本項目"><strong>招募成本</strong></td><td data-label="用派遣">無（派遣公司負責）</td><td data-label="自己聘">徵才廣告 + HR 篩選時間</td></tr>
+          <tr><td data-label="成本項目"><strong>離職成本</strong></td><td data-label="用派遣">派遣公司替換</td><td data-label="自己聘">資遣費 + 重新招募</td></tr>
+          <tr><td data-label="成本項目"><strong>人事行政</strong></td><td data-label="用派遣">派遣公司處理</td><td data-label="自己聘">出勤管理、請假、加班費計算</td></tr>
+          <tr><td data-label="成本項目"><strong>法規遵循風險</strong></td><td data-label="用派遣">派遣公司承擔</td><td data-label="自己聘">自行處理勞檢、勞資爭議</td></tr>
+          <tr><td data-label="成本項目"><strong>彈性</strong></td><td data-label="用派遣">合約到期不續即可</td><td data-label="自己聘">資遣需符合法定事由與程序</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>結論：短期需求（6 個月以內）、季節性人力、員額凍結但業務量增加、需要快速補人——這些情況用派遣通常比自聘划算。</strong>長期固定的核心職務，自聘的總成本則通常較低。</p>
+
+    <h2>派遣報價單上的數字怎麼看？</h2>
+    <p>拿到報價單時，確認這幾件事：</p>
+    <h3>應該清楚列出的項目</h3>
+    <ul>
+      <li>員工月薪金額</li>
+      <li>法定雇主成本（勞保、健保、勞退、職災）的計算方式</li>
+      <li>管理服務費的計算基準——是按薪資的百分比，還是固定金額</li>
+      <li>加班費、國定假日出勤的計算方式</li>
+      <li>合約期間與終止條件</li>
+    </ul>
+
+    <h3>需要追問的事</h3>
+    <ul>
+      <li><strong>管理費的計算基底</strong>——是只算底薪，還是含加班費一起抽？這會影響實際金額</li>
+      <li><strong>人員不適任的處理</strong>——幾天內替換？替換期間怎麼計費？</li>
+      <li><strong>人數增減的彈性</strong>——臨時要加人或減人，多久前要通知？有沒有違約金？</li>
+      <li><strong>派遣轉正職的條件</strong>——有些公司會收「轉正費」，金額與條件要事先談好</li>
+    </ul>
+
+    <div class="warn">
+      <div class="label">報價紅旗</div>
+      <p>如果報價低到不合理——例如管理費只收薪資的幾個百分點——要小心是不是從員工的法定權益上省下來的。常見手法是<strong>低報投保薪資</strong>（員工實際月薪 35,000 卻只用基本工資投保）或<strong>將勞退轉嫁給員工</strong>。這不但違法，出事時要派單位也有連帶責任。</p>
+      <p><small>依勞基法第 22-1 條，派遣公司積欠工資時，要派單位有補充給付責任。依第 63-1 條，職災補償由要派單位與派遣公司連帶負責。</small></p>
+    </div>
+
+    <h2>什麼情況適合用派遣？什麼情況不適合？</h2>
+    <h3>適合用派遣</h3>
+    <ul>
+      <li><strong>季節性或專案性需求</strong>——年終盤點、產線趕工、展覽活動，結束就不需要了</li>
+      <li><strong>員額凍結但業務量增加</strong>——正式名額核不下來，但活已經堆上來了</li>
+      <li><strong>快速補人</strong>——職位空了兩週以上的營運損失，往往比管理費高</li>
+      <li><strong>試用評估</strong>——先用派遣觀察 3–6 個月，確認適合再轉正職</li>
+    </ul>
+    <h3>不適合用派遣</h3>
+    <ul>
+      <li><strong>核心職務</strong>——需要長期培養專業知識或掌握機密的職位</li>
+      <li><strong>需要深度培訓的職位</strong>——訓練成本高，人走了又要重來</li>
+      <li><strong>長期固定的基層職務</strong>——超過一年以上的固定需求，自聘的總成本通常較低</li>
+    </ul>
+
+    <aside data-exp="cta-mid-2026-08-06" style="margin:38px 0;padding:24px 26px;border-radius:16px;background:linear-gradient(150deg,rgba(166,124,61,0.10),rgba(96,128,180,0.05));border:1px solid rgba(166,124,61,0.28);">
+      <p style="margin:0 0 8px;font-family:'Space Mono',monospace;font-size:11.5px;letter-spacing:.14em;color:#a67c3d;">企業 HR 請看這裡</p>
+      <h3 style="margin:0 0 10px;font-size:19px;line-height:1.4;">需要派遣報價？把職務內容告訴我們，直接算給你</h3>
+      <p style="margin:0 0 18px;font-size:15px;line-height:1.75;color:#4a4d55;">把職務類型、人數、預計起迄日講一下，我們會回覆含法定成本在內的完整報價拆解——不合適用派遣的情況也會直接說。報價不收費，不用先簽任何東西。</p>
+      <div style="display:flex;flex-wrap:wrap;gap:12px;">
+        <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-dispatch" style="display:inline-flex;align-items:center;gap:8px;background:#06c755;color:#fff;font-weight:700;font-size:15px;padding:13px 26px;border-radius:999px;">加 LINE 取得報價</a>
+      </div>
+    </aside>
+
+    <h2>派遣的法律架構：誰是雇主、誰負什麼責任？</h2>
+    <p>台灣目前沒有「派遣法」專法。2019 年立法院通過勞基法修正案，將派遣相關條文直接納入勞基法，主要規定分散在以下條文中：</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>法條</th><th>規定什麼</th><th>對企業的意義</th></tr></thead>
+        <tbody>
+          <tr><td data-label="法條"><strong>勞基法第 17-1 條</strong></td><td data-label="規定什麼">禁止要派單位面試指定派遣勞工；違反者勞工可要求直接成立勞動契約</td><td data-label="對企業的意義">面試派遣人員有法律風險，應由派遣公司推薦</td></tr>
+          <tr><td data-label="法條"><strong>勞基法第 22-1 條</strong></td><td data-label="規定什麼">派遣公司積欠工資時，要派單位有補充給付責任</td><td data-label="對企業的意義">選擇財務穩健的派遣公司很重要</td></tr>
+          <tr><td data-label="法條"><strong>勞基法第 63-1 條</strong></td><td data-label="規定什麼">派遣勞工發生職災，要派單位與派遣公司連帶負責</td><td data-label="對企業的意義">工作環境安全是企業自己的責任，不能全推給派遣公司</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">以上條文均於 108 年 5 月 20 日增訂公布。另有「勞動派遣權益指導原則」（勞動部行政指導，非強制法律）規範派遣契約應約定事項。</p>
+
+    <p><strong>簡單講：派遣員工的法定雇主是派遣公司</strong>，勞保健保勞退都由派遣公司辦理和負擔。但要派單位（用人企業）在工資補充給付和職災補償上有連帶責任——派遣公司出問題的時候，企業不能說「跟我無關」。</p>
+
+    <h2>常見問題</h2>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-top:20px;">
+      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
+        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
+          <span>派遣公司會從員工薪水裡扣管理費嗎？</span>
+          <span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
+        </summary>
+        <p style="margin:0;padding:0 20px 18px;">不應該。管理費是企業付給派遣公司的服務費，不是從員工薪資裡扣。員工的月薪就是報價單上寫的那個金額，全額支付。如果派遣公司從員工薪資裡扣除管理費或其他名目的費用，那是違反勞基法工資全額給付原則的。</p>
+      </details>
+      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
+        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
+          <span>派遣員工的勞健保是誰負責？</span>
+          <span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
+        </summary>
+        <p style="margin:0;padding:0 20px 18px;">派遣公司。派遣員工的法定雇主是派遣事業單位（派遣公司），勞保、健保、就業保險、職災保險的投保與雇主份額負擔，以及勞退金的提繳，全部由派遣公司辦理。依據：勞工保險條例第 6、10 條、全民健保法第 15 條、勞退條例第 14 條。</p>
+      </details>
+      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
+        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
+          <span>派遣轉正職需要付費嗎？</span>
+          <span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
+        </summary>
+        <p style="margin:0;padding:0 20px 18px;">看合約。多數派遣公司會在要派契約中約定「轉正費」或「買斷費」，金額常見為 1–2 個月月薪，或依服務期間遞減（例如派遣滿一年後轉正免收費）。這不是法律規定的，是商業條款，簽約前可以談。另外，如果企業違反勞基法第 17-1 條（面試指定派遣員工），派遣員工有權要求直接與企業成立勞動契約，不需要經過派遣公司同意。</p>
+      </details>
+      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
+        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
+          <span>派遣員工出了工安事故，責任歸誰？</span>
+          <span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
+        </summary>
+        <p style="margin:0;padding:0 20px 18px;">依勞基法第 63-1 條，要派單位應與派遣公司連帶負職業災害補償責任。另依職業安全衛生法第 25 條，要派單位對派遣勞工的職安衛事項應比照自僱勞工辦理。簡單說：工作環境的安全是企業的責任，不能因為是派遣員工就不管。</p>
+      </details>
+      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
+        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
+          <span>短期派遣和長期派遣費率一樣嗎？</span>
+          <span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
+        </summary>
+        <p style="margin:0;padding:0 20px 18px;">通常不一樣。短期（3 個月以內）因為招募成本攤不開、人員流動風險較高，管理費率通常比長期合作高。長期穩定的合作（一年以上、人數固定），派遣公司的管理成本可預期，費率有比較多的議價空間。</p>
+      </details>
+    </div>
+
+    <div style="margin-top:48px;text-align:center;padding:36px 28px;border-radius:20px;background:linear-gradient(150deg,rgba(166,124,61,0.12),rgba(96,128,180,0.06));border:1px solid rgba(166,124,61,0.3);">
+      <h2 style="margin-top:0;">需要一份具體的派遣報價？</h2>
+      <p style="margin-bottom:22px;">告訴我們職務內容、人數和預計期間，顧問會提供含法定成本拆解的完整報價——費用結構透明，不適合用派遣的情況也會直說。</p>
+      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;background:#06c755;color:#fff;font-weight:700;font-size:16px;padding:15px 32px;border-radius:999px;">加 LINE 與顧問談談</a>
+    </div>
+
+    <p style="margin-top:32px;font-size:14.5px;color:#8a8d95;">延伸閱讀：<a href="/articles/dispatch-legal-risks/">人力派遣的法律風險與注意事項</a>　·　<a href="/articles/headhunter-fees/">獵頭公司收費怎麼算？</a></p>
+  </article>
+</main>
+
+<footer style="border-top:1px solid #e6dfd1;background:#eee9de;padding:28px 0;">
+  <div class="wrap" style="text-align:center;color:#9a9da5;font-size:13px;max-width:800px;">
+    <a href="/articles/" style="color:#a67c3d;">獵才專欄</a>　|　<a href="/jobs/" style="color:#a67c3d;">職缺專區</a>　|　<a href="/" style="color:#a67c3d;">Step1ne 首頁</a>　|　© 2026 德仁管理顧問有限公司 Step1ne
+  </div>
+</footer>
+
+</body>
+</html>
