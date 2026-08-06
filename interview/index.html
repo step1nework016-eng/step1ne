@@ -206,6 +206,61 @@ dialog#rdlg::backdrop{background:rgba(20,18,14,.45);}
 <script>
 // 面談室。網址上的 token 就是憑證，不做登入——多一道註冊就少一半的人願意進來。
 var API = 'https://step1ne-recruit-api.aiagentg888.workers.dev';
+
+  /* ── 投入度追蹤（2026-08-06 加）──
+     顧問的原話：「就像我們打電話給他，但他在另一端不知道在幹嘛，有沒有認真很難判斷。」
+     逐字稿看得到「答得認不認真」（字數），看不到「人在不在」。這段補後者。
+
+     只記三件事，都不牽涉內容：切走幾次／離開多久／有沒有整段貼上。
+     ⚠️ 送的是**累計值**不是增量——重送、斷線重連都不會重複累加。
+     ⚠️ 這是給顧問判斷用的行為訊號，不做任何自動刷人。 */
+  var EG = { away_count: 0, away_seconds: 0, longest_away: 0,
+             paste_count: 0, paste_chars: 0, active_seconds: 0 };
+  var _hidAt = null, _lastTick = Date.now(), _egDirty = false;
+
+  setInterval(function () {                       // 前景時間，每秒累加
+    var now = Date.now();
+    if (!document.hidden) EG.active_seconds += Math.round((now - _lastTick) / 1000);
+    _lastTick = now;
+  }, 1000);
+
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) { _hidAt = Date.now(); }
+    else if (_hidAt) {
+      var away = Math.round((Date.now() - _hidAt) / 1000);
+      // 一秒以內不算——切輸入法、通知跳出來都會觸發，那不是分心
+      if (away >= 2) {
+        EG.away_count++; EG.away_seconds += away;
+        if (away > EG.longest_away) EG.longest_away = away;
+        _egDirty = true;
+      }
+      _hidAt = null;
+    }
+  });
+
+  document.addEventListener('paste', function (e) {
+    var t = (e.clipboardData || window.clipboardData);
+    var n = t ? String(t.getData('text') || '').length : 0;
+    if (n > 0) { EG.paste_count++; EG.paste_chars += n; _egDirty = true; }
+  }, true);
+
+  function egSend(useBeacon) {
+    if (!T) return;
+    var url = API + '/chat/' + encodeURIComponent(T) + '/focus';
+    var body = JSON.stringify(EG);
+    try {
+      if (useBeacon && navigator.sendBeacon) {
+        navigator.sendBeacon(url, new Blob([body], { type: 'application/json' }));
+      } else {
+        fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: body })
+          .catch(function () {});
+      }
+      _egDirty = false;
+    } catch (e) {}
+  }
+  setInterval(function () { if (_egDirty || EG.active_seconds) egSend(false); }, 60000);
+  window.addEventListener('pagehide', function () { egSend(true); });   // 關掉視窗那一刻也要送到
+
 var T = new URLSearchParams(location.search).get('t') || '';
 var lastId = 0, polling = null, waiting = false, ended = false;
 // 送出時會先在本地顯示一顆泡泡（不然按了沒反應很怪），但那則稍後也會從
