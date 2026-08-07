@@ -169,14 +169,16 @@ button:disabled{opacity:.45;cursor:not-allowed}
       <textarea name="note" placeholder="選填"></textarea>
     </fieldset>
 
-    <fieldset>
-      <legend>工作風格小測驗</legend>
+    <fieldset id="assessGate">
+      <legend>工作風格測驗</legend>
       <p class="hint" style="margin:0 0 10px">
-        每組四個形容詞，選一個「最像你」、一個「最不像你」。約 2 分鐘，沒有標準答案。
-        這不影響能不能應徵，只是讓面談與後續安排更貼合您的風格。</p>
-      <div id="discBox"></div>
-      <div class="hint" id="discHint" style="display:none;color:var(--rd)">
-        還有題目沒選完——每組都要選一個最像、一個最不像。</div>
+        送出前，還需要完成一份工作風格測驗（約 5–7 分鐘），做完會馬上給您一份個人報告。
+        <b>這是應徵的必要步驟</b>——上面的資料先幫您存著，測驗做完會自動回到這裡。</p>
+      <button type="button" id="toAssess" style="width:100%;background:#fff;color:var(--ac);
+        border:2px solid var(--ac);border-radius:10px;padding:14px;font-size:15.5px;
+        font-weight:600;cursor:pointer;font-family:inherit">開始工作風格測驗 →</button>
+      <div class="hint" id="assessDoneHint" style="display:none;color:#1e8e5a;margin-top:10px">
+        ✅ 測驗已完成，可以送出應徵了。</div>
     </fieldset>
 
     <fieldset>
@@ -185,20 +187,9 @@ button:disabled{opacity:.45;cursor:not-allowed}
         <b>這場面談等同與獵頭顧問的第一輪面試</b>，內容會直接影響是否轉給用人單位，
         請找一個能專心作答的環境進行，避免邊處理其他事邊回覆。
       </div>
-      <p class="hint" style="margin:0 0 10px">
-        線上文字對談，約 30 到 40 分鐘，由 AI 進行。顧問會看完整內容再與您聯繫。
-        部分職缺會先由顧問確認您的資料後才安排面談，若是這種情況，送出後會請您稍候，不會馬上進入面談室。</p>
-      <div class="modes">
-        <label class="mode"><input type="radio" name="mode" value="now" checked>
-          <span><b>現在就開始</b><i>多數職缺會直接進入面談</i></span></label>
-        <label class="mode"><input type="radio" name="mode" value="later">
-          <span><b>晚點再做</b><i>選一個時間，我們提醒您</i></span></label>
-      </div>
-      <div id="laterBox" style="display:none">
-        <label>提醒我的時間</label>
-        <input type="datetime-local" name="remind_at" id="remindAt">
-        <div class="hint">到時候顧問會與您聯繫。週末與深夜都可以選——這段不需要顧問在場。</div>
-      </div>
+      <p class="hint" style="margin:0">
+        線上文字對談，約 20 到 30 分鐘，由 AI 面談助理阿財進行。顧問會看完整內容再與您聯繫。
+        送出應徵後會依當下狀況直接安排面談，或請您選一個方便的時段——結果會在下一步顯示。</p>
     </fieldset>
 
     <label class="consent">
@@ -213,9 +204,19 @@ button:disabled{opacity:.45;cursor:not-allowed}
       <p><b>保存與刪除</b>：保存至媒合流程結束後一年。您可隨時來信要求查閱或刪除。</p>
     </details>
 
-    <button type="submit" id="btn">送出應徵</button>
+    <button type="submit" id="btn" disabled>先完成工作風格測驗</button>
     <div class="msg" id="msg"></div>
   </form>
+</div>
+
+<div id="assessed-view" style="display:none">
+  <h2 style="font-size:20px;margin:0 0 6px">您的工作風格報告</h2>
+  <p class="lead" style="margin:0 0 18px">測驗已完成，這是您的初步結果。確認沒問題就可以送出應徵。</p>
+  <div id="repBox"></div>
+  <button id="finalSend" style="width:100%;background:var(--ac);color:#fff;border:0;
+    border-radius:10px;padding:15px;font-size:16px;font-weight:600;cursor:pointer;
+    margin-top:18px;font-family:inherit">送出應徵</button>
+  <div class="msg" id="msg2"></div>
 </div>
 
 <div id="done-view" style="display:none" class="done">
@@ -234,80 +235,6 @@ const JOB = q.get('job') || '';
 const TITLE = q.get('title') || '';
 if (TITLE) document.title = `應徵 ${TITLE}｜Step1ne`;
 
-// ── 工作風格小測驗（DISC）──
-// 用詞是原創的，不是照抄任何商業量表；DISC 這套「強迫選擇」的計分方式
-// 是公開理論（Marston 1928），但具體題本抄別人的會有版權問題。
-// 20 組、每組四個形容詞各代表一個維度，選「最像」＋「最不像」——
-// 只算「最像」被選中的次數，「最不像」只是逼你真的做出取捨，不會用來算分。
-const DISC_BANK = {
-  D: ['果斷','強勢','直接','好勝','獨立','大膽','堅持己見','掌控全局','有衝勁','敢冒險',
-      '講求效率','意志堅定','主動出擊','不服輸','雷厲風行','敢做決定','目標導向','行動派','敢承擔','強硬'],
-  I: ['健談','樂觀','外向','熱情','風趣','擅長社交','有說服力','愛表達','活潑','隨興',
-      '愛交朋友','感染力強','樂於分享','直覺型','愛嘗新','氣氛製造者','鼓舞人心','善於誇獎','開朗','點子多'],
-  S: ['隨和','耐心','可靠','忠誠','溫和','善於傾聽','穩重','配合度高','重視和諧','務實',
-      '腳踏實地','體貼','不愛衝突','有耐性','按部就班','重感情','樂於助人','低調','包容','安於現狀'],
-  C: ['精確','謹慎','重邏輯','注重細節','有條理','客觀','講求品質','深思熟慮','一絲不苟','重視標準',
-      '喜歡分析','按規矩來','追根究柢','重視準確度','事先規劃','質疑求證','講究流程','內斂','專注','要求完美'],
-};
-const DISC_GROUPS = Array.from({ length: 20 }, (_, i) => {
-  const order = ['D', 'I', 'S', 'C'];
-  // 轉動排列順序，不要每組都固定同一個位置，避免位置偏誤
-  for (let k = 0; k < i % 4; k++) order.push(order.shift());
-  return order.map((L) => ({ L, w: DISC_BANK[L][i] }));
-});
-const discState = Array.from({ length: 20 }, () => ({ most: null, least: null }));
-
-function renderDisc() {
-  const box = document.getElementById('discBox');
-  box.innerHTML = DISC_GROUPS.map((grp, gi) => `
-    <div class="discgrp">
-      <p class="discn">第 ${gi + 1} 組</p>
-      <div class="disccap"><span>最像我</span><span>最不像我</span></div>
-      ${grp.map((item, wi) => `
-        <div class="discrow">
-          <span class="discradio"><input type="radio" name="most-${gi}" data-role="most" data-l="${item.L}" value="${wi}"></span>
-          <span class="discword">${item.w}</span>
-          <span class="discradio"><input type="radio" name="least-${gi}" data-role="least" data-l="${item.L}" value="${wi}"></span>
-        </div>`).join('')}
-    </div>`).join('');
-
-  box.addEventListener('change', (e) => {
-    const t = e.target;
-    if (t.name.indexOf('most-') !== 0 && t.name.indexOf('least-') !== 0) return;
-    const gi = Number(t.name.split('-')[1]);
-    const role = t.dataset.role;
-    discState[gi][role] = Number(t.value);
-    // 同一組裡最像跟最不像不能選同一個詞——選了就把另一邊清掉
-    const other = role === 'most' ? 'least' : 'most';
-    if (discState[gi][other] === discState[gi][role]) {
-      discState[gi][other] = null;
-      const el = box.querySelector(`input[name="${other}-${gi}"][value="${t.value}"]`);
-      if (el) el.checked = false;
-    }
-    prog();
-  });
-}
-renderDisc();
-
-function discComplete() {
-  return discState.every((g) => g.most !== null && g.least !== null);
-}
-function discFilledCount() {
-  return discState.filter((g) => g.most !== null && g.least !== null).length;
-}
-function discScores() {
-  const most = { D: 0, I: 0, S: 0, C: 0 };
-  discState.forEach((g, gi) => {
-    if (g.most === null) return;
-    most[DISC_GROUPS[gi][g.most].L]++;
-  });
-  const ranked = Object.entries(most).sort((a, b) => b[1] - a[1]);
-  const primary = ranked[0][1] - ranked[1][1] <= 2
-    ? ranked[0][0] + ranked[1][0]   // 前兩名分數接近就給雙碼
-    : ranked[0][0];
-  return { disc_d: most.D, disc_i: most.I, disc_s: most.S, disc_c: most.C, disc_primary: primary };
-}
-
 // 進度條：填了幾成。看得到進度的表單完成率比較高。
 const f = document.getElementById('f');
 const bar = document.getElementById('bar');
@@ -318,9 +245,7 @@ function prog() {
   const c = document.getElementById('consent').checked ? 1 : 0;
   // 地區是一整組 checkbox，算成一題：勾了任何一個就算填完
   const a = f.querySelector('input[name=area]:checked') ? 1 : 0;
-  // 小測驗 20 組算成一整題，依完成比例算部分分數，而不是全有全無
-  const discFrac = discFilledCount() / 20;
-  bar.style.width = Math.round((filled + c + a + discFrac) / (fields.length + 3) * 100) + '%';
+  bar.style.width = Math.round((filled + c + a) / (fields.length + 2) * 100) + '%';
 }
 f.addEventListener('input', prog);
 f.addEventListener('change', prog);
@@ -347,19 +272,6 @@ fetch('/apply/jobs.json').then(r => r.json()).then(list => {
     '<option value="unspecified">請顧問幫我評估</option>';
 });
 
-document.querySelectorAll('input[name=mode]').forEach((r) => {
-  r.addEventListener('change', () => {
-    const later = document.querySelector('input[name=mode]:checked').value === 'later';
-    document.getElementById('laterBox').style.display = later ? 'block' : 'none';
-    const at = document.getElementById('remindAt');
-    if (later && !at.value) {
-      // 預設明天同一時間，讓使用者微調而不是從頭選
-      const d = new Date(Date.now() + 86400e3 - new Date().getTimezoneOffset() * 60000);
-      at.value = d.toISOString().slice(0, 16);
-    }
-  });
-});
-
 const readB64 = (file) => new Promise((res, rej) => {
   const r = new FileReader();
   r.onload = () => res(String(r.result).split(',')[1]);
@@ -367,78 +279,150 @@ const readB64 = (file) => new Promise((res, rej) => {
   r.readAsDataURL(file);
 });
 
-f.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const btn = document.getElementById('btn');
+// ── 兩段式送出 ──
+// 2026-08-07 改的流程：像銀行申請表那樣，先把基本資料存起來（產生 token），
+// 跳到測驗頁；測驗做完**跳回這一頁**，看過報告才按「送出應徵」完成。
+//
+// 為什麼基本資料要在「開始測驗」那一步就先存，不是等測驗做完才一次送：
+// 1. 萬一他測驗做到一半關掉視窗，顧問還是看得到「有這個人來過」，
+//    不會整筆資料憑空消失，還能主動聯繫。
+// 2. 容量判斷是在**測驗交卷那一刻**才查的——填表當下算的到交卷時早就過期了，
+//    5–7 分鐘的測驗本身就是天然的時間差，能讓一部分人不用被排隊卡住。
+// 「送出應徵」那顆按鈕不會再查一次容量，那只是讓他看過結果再確認，
+// 真正的判斷已經在測驗交卷時做完了。
+async function buildBody() {
+  const fd = new FormData(f);
+  const jobSel = document.getElementById('jobSel');
+  const body = {
+    job_slug: fd.get('job_slug') || 'unspecified',
+    job_title: jobSel.selectedOptions[0]?.dataset.title || null,
+    name: fd.get('name'), email: fd.get('email'), phone: fd.get('phone'),
+    expected_salary: fd.get('expected_salary'), available_date: fd.get('available_date'),
+    location_ok: [
+      fd.getAll('area').join('、'),
+      fd.get('stay_need') || '',
+    ].filter(Boolean).join('　｜　') || null,
+    resume_url: fd.get('resume_url'),
+    note: fd.get('note'),
+    consent: true,
+    utm_source: q.get('utm_source'), utm_medium: q.get('utm_medium'),
+    utm_campaign: q.get('utm_campaign'), referrer: document.referrer || null,
+  };
+  const file = fd.get('resume');
+  if (file && file.size) {
+    if (file.size > 8 * 1024 * 1024) throw new Error('履歷檔超過 8MB，請改用下面的雲端連結欄位');
+    body.resume_b64 = await readB64(file);
+    body.resume_name = file.name;
+    body.resume_mime = file.type;
+  }
+  return body;
+}
+
+document.getElementById('toAssess').addEventListener('click', async () => {
+  const btn = document.getElementById('toAssess');
   const msg = document.getElementById('msg');
   msg.className = 'msg';
 
-  if (!discComplete()) {
-    document.getElementById('discHint').style.display = 'block';
-    document.getElementById('discBox').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  // 用原生驗證檢查必填欄位（name/email/job_slug 等），跟送出時的檢查是同一套
+  if (!f.reportValidity()) return;
+  if (!document.getElementById('consent').checked) {
+    msg.className = 'msg err';
+    msg.textContent = '請先勾選同意個資使用說明';
+    document.getElementById('consent').scrollIntoView({ behavior: 'smooth', block: 'center' });
     return;
   }
-  document.getElementById('discHint').style.display = 'none';
 
-  btn.disabled = true; btn.textContent = '送出中⋯';
-
+  btn.disabled = true; btn.textContent = '處理中⋯';
   try {
-    const fd = new FormData(f);
-    const jobSel = document.getElementById('jobSel');
-    const mode = document.querySelector('input[name=mode]:checked').value;
-    const body = {
-      job_slug: fd.get('job_slug') || 'unspecified',
-      job_title: jobSel.selectedOptions[0]?.dataset.title || null,
-      mode, remind_at: mode === 'later' ? (fd.get('remind_at') || null) : null,
-      name: fd.get('name'), email: fd.get('email'), phone: fd.get('phone'),
-      expected_salary: fd.get('expected_salary'), available_date: fd.get('available_date'),
-      // 複選的地區合成一欄，後端與報告都是照原本的 location_ok 在讀
-      location_ok: [
-        fd.getAll('area').join('、'),
-        fd.get('stay_need') || '',
-      ].filter(Boolean).join('　｜　') || null,
-      resume_url: fd.get('resume_url'),
-      note: fd.get('note'),
-      consent: true,
-      utm_source: q.get('utm_source'), utm_medium: q.get('utm_medium'),
-      utm_campaign: q.get('utm_campaign'), referrer: document.referrer || null,
-      ...discScores(),
-    };
-    const file = fd.get('resume');
-    if (file && file.size) {
-      // 前端先擋一次，讓使用者立刻知道，而不是等送出後才被退回
-      if (file.size > 8 * 1024 * 1024) throw new Error('履歷檔超過 8MB，請改用下面的雲端連結欄位');
-      body.resume_b64 = await readB64(file);
-      body.resume_name = file.name;
-      body.resume_mime = file.type;
-    }
-
+    const body = await buildBody();
     const r = await fetch(`${API}/apply`, {
       method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify(body),
     });
     const d = await r.json();
     if (!d.ok) throw new Error(d.error || '送出失敗');
+    if (!d.chat_token) throw new Error('系統沒有回傳面談連結，請聯繫我們');
 
-    // ⚠️ 2026-08-07 起，送出後一律先去做人格特質測驗，不再直接進面談室。
-    // 走哪一條路（立即／預約／等顧問核准）是在**測驗交卷那一刻**才算的——
-    // 因為面談室的容量是即時狀態，填表當下算的到交卷時早就過期了。
-    // 人正處在最有意願的一刻，所以直接導過去，不要讓他再點一次。
-    if (d.chat_token) {
-      location.href = '/assessment/?t=' + encodeURIComponent(d.chat_token);
-      return;
-    }
-
-    document.getElementById('form-view').style.display = 'none';
-    document.getElementById('done-view').style.display = 'block';
-    document.getElementById('doneSlot').textContent =
-      '我們已經收到您的資料，稍後會寄信給您，請留意信箱。';
-    scrollTo(0, 0);
+    // 存 token，回來時要用它去問「測驗做完了嗎」
+    sessionStorage.setItem('s1ne_token', d.chat_token);
+    location.href = '/assessment/?t=' + encodeURIComponent(d.chat_token) + '&back=1';
   } catch (err) {
     msg.className = 'msg err';
     msg.textContent = err.message || '送出失敗，請稍後再試';
-    btn.disabled = false; btn.textContent = '送出應徵';
+    btn.disabled = false; btn.textContent = '開始工作風格測驗 →';
   }
 });
+
+// ── 測驗做完跳回這一頁 ──
+// assessment 頁交卷成功後會把結果存進 sessionStorage，並帶 back=1 導回這裡。
+(function checkReturnedFromAssessment() {
+  const T = q.get('t') || sessionStorage.getItem('s1ne_token') || '';
+  if (q.get('back') !== '1' || !T) return;
+
+  const raw = sessionStorage.getItem('s1ne_assess_result_' + T);
+  if (!raw) return;   // 沒有結果代表不是正常跳轉回來的（例如直接改網址），維持表單畫面
+  let saved;
+  try { saved = JSON.parse(raw); } catch { return; }
+
+  document.getElementById('form-view').style.display = 'none';
+  document.getElementById('assessed-view').style.display = 'block';
+  renderAssessedReport(saved.scores, saved.result, T);
+  scrollTo(0, 0);
+})();
+
+// 跟 assessment/index.html 的 showReport() 是同一套講法，只是這裡不用再選時段
+// （選時段交給 finalSend 按鈕導去 /book/，避免同一套邏輯寫第三份）。
+function renderAssessedReport(s, r, token) {
+  const pct = x => Math.round(((x - 1) / 4) * 100);
+  const DESC = {
+    C: ['盡責性', '做事的條理與收尾習慣', '您偏好把事情安排好、按部就班完成，交辦的事不太會拖。', '您做事比較彈性、隨機應變，不太受既定流程綁住。'],
+    N: ['情緒穩定度', '壓力下的起伏', '您在壓力下大致維持得住，情緒不太容易被外在影響。', '您對周遭變化比較敏感，感受得深，也容易受影響。'],
+    O: ['開放性', '面對新事物的態度', '您對沒接觸過的東西感興趣，願意學新的做法。', '您偏好用熟悉、驗證過的方式做事，穩定勝於嘗鮮。'],
+    E: ['外向性', '與人互動的能量來源', '您在人群中自在，習慣主動開口與人建立關係。', '您偏好一對一或安靜的環境，先觀察再開口。'],
+    A: ['親和性', '與人協作的傾向', '您重視和諧、會顧慮別人的感受，容易被信任。', '您講求就事論事，比較直接，不太怕表達不同意見。'],
+  };
+  const line = (k, val) => {
+    const d = DESC[k], shown = k === 'N' ? 6 - val : val, hi = shown >= 3.2;
+    return `<div class="bar" style="margin:14px 0">
+      <div style="display:flex;justify-content:space-between;font-size:12.5px;color:var(--tx2);margin-bottom:5px">
+        <b style="color:var(--tx)">${d[0]}</b><span>${shown.toFixed(1)} / 5</span></div>
+      <div style="height:7px;background:#eef1f5;border-radius:4px;overflow:hidden">
+        <i style="display:block;height:100%;width:${pct(shown)}%;background:var(--ac);border-radius:4px"></i></div>
+      <div style="font-size:11.5px;color:var(--tx3);margin-top:5px">${d[1]}——${hi ? d[2] : d[3]}</div>
+    </div>`;
+  };
+  const gritTxt = s.grit.total >= 3.8 ? '您在長期目標上的續航力偏強，開始的事情傾向做完。'
+    : (s.grit.total <= 2.5 ? '您比較容易被新的機會或想法吸引，長期單一目標的持續投入是可以留意的地方。'
+      : '您在持續投入與保持彈性之間大致平衡。');
+
+  document.getElementById('repBox').innerHTML = `
+    ${['C', 'N', 'O', 'E', 'A'].map(k => line(k, s.b5[k])).join('')}
+    <div class="bar" style="margin:14px 0">
+      <div style="display:flex;justify-content:space-between;font-size:12.5px;color:var(--tx2);margin-bottom:5px">
+        <b style="color:var(--tx)">恆毅力</b><span>${s.grit.total.toFixed(1)} / 5</span></div>
+      <div style="height:7px;background:#eef1f5;border-radius:4px;overflow:hidden">
+        <i style="display:block;height:100%;width:${pct(s.grit.total)}%;background:var(--ac);border-radius:4px"></i></div>
+      <div style="font-size:11.5px;color:var(--tx3);margin-top:5px">面對長期目標與挫折的持續性——${gritTxt}</div>
+    </div>
+    <div class="notice" style="margin-top:14px">
+      ⚠️ 這份測驗採用公開學術題本改寫成中文職場情境，<b>不是標準化測驗，也沒有台灣常模</b>，
+      分數是相對描述而不是絕對評價，不會單獨用來決定錄取與否。
+    </div>
+    <div class="hint" style="margin-top:12px">
+      ${r.route === 'now' ? '目前面談室有空，送出後會直接帶您進入面談室。'
+        : r.route === 'book' ? `目前有 ${r.busy || ''} 位候選人正在面談中，送出後請選一個方便的時段。`
+        : '這個職缺需要顧問先看過您的資料，送出後請留意信箱通知。'}
+    </div>`;
+
+  document.getElementById('finalSend').onclick = () => {
+    if (r.route === 'now') location.href = '/interview/?t=' + encodeURIComponent(token);
+    else if (r.route === 'book') location.href = '/book/?t=' + encodeURIComponent(token);
+    else {
+      document.getElementById('assessed-view').innerHTML =
+        '<h2 style="font-size:20px">已收到您的應徵</h2>' +
+        '<p class="lead">顧問會先評估您的資料，若適合這個機會，會再寄信安排線上面談。</p>';
+    }
+  };
+}
 prog();
 </script>

@@ -262,6 +262,16 @@ async function submit(){
   }
   if(!r.ok){ msg.className='msg err'; msg.textContent=r.error||'送出失敗';
              sb.disabled=false; sb.textContent='再送出一次'; return; }
+
+  // 2026-08-07：從應徵申請表過來的（帶 back=1），交完卷要跳回申請表，
+  // 不在這頁顯示報告——結果先存 sessionStorage，申請表那邊自己讀。
+  // 直接用信件連結進來的（沒有 back=1，例如顧問核准信、舊連結）維持原本行為，
+  // 因為那種情況沒有「表單」可以跳回去。
+  if(new URLSearchParams(location.search).get('back')==='1'){
+    sessionStorage.setItem('s1ne_assess_result_'+T, JSON.stringify({scores,result:r}));
+    location.href='/apply/?t='+encodeURIComponent(T)+'&back=1';
+    return;
+  }
   showReport(scores,r);
 }
 
