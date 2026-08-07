@@ -420,20 +420,19 @@ f.addEventListener('submit', async (e) => {
     const d = await r.json();
     if (!d.ok) throw new Error(d.error || '送出失敗');
 
-    // 選「現在開始」的人正處在最有意願的一刻，中間多插一個畫面就會流失。
-    // 拿到 token 就直接進面談室，不要讓他再點一次。
-    if (mode === 'now' && d.chat_token) {
-      location.href = '/interview/?t=' + encodeURIComponent(d.chat_token);
+    // ⚠️ 2026-08-07 起，送出後一律先去做人格特質測驗，不再直接進面談室。
+    // 走哪一條路（立即／預約／等顧問核准）是在**測驗交卷那一刻**才算的——
+    // 因為面談室的容量是即時狀態，填表當下算的到交卷時早就過期了。
+    // 人正處在最有意願的一刻，所以直接導過去，不要讓他再點一次。
+    if (d.chat_token) {
+      location.href = '/assessment/?t=' + encodeURIComponent(d.chat_token);
       return;
     }
 
     document.getElementById('form-view').style.display = 'none';
     document.getElementById('done-view').style.display = 'block';
-    document.getElementById('doneSlot').textContent = d.needs_screening
-      ? '顧問會先評估您的資料，若適合這個機會，會再寄信安排線上面談。'
-      : mode === 'now'
-        ? '顧問會盡快與您聯繫，安排面談。'
-        : `已記下您希望的時間 ${(fd.get('remind_at') || '').replace('T', ' ')}，屆時顧問會與您聯繫。`;
+    document.getElementById('doneSlot').textContent =
+      '我們已經收到您的資料，稍後會寄信給您，請留意信箱。';
     scrollTo(0, 0);
   } catch (err) {
     msg.className = 'msg err';

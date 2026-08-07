@@ -1,0 +1,382 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>工作風格測驗｜Step1ne 德仁管理顧問</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/assets/favicon.ico">
+<style>
+:root{--bg:#ffffff;--card:#ffffff;--line:#dfe4ec;--tx:#16202e;--tx2:#4d5c72;--tx3:#7c8899;
+      --ac:#2f5fd8;--rd:#c0392b;--soft:#f6f8fb;--ok:#1e8e5a;
+      --sans:-apple-system,"Noto Sans TC","PingFang TC",sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:var(--sans);
+     line-height:1.7;-webkit-text-size-adjust:100%}
+.top{border-bottom:1px solid var(--line);padding:14px 18px;display:flex;align-items:center;gap:12px}
+.top img{height:34px;width:auto;display:block}
+.top .brand{font-size:13px;color:var(--tx3)}
+.wrap{max-width:640px;margin:0 auto;padding:26px 18px 64px}
+h1{font-size:23px;margin:0 0 6px}
+.lead{color:var(--tx2);font-size:13.5px;margin:0 0 20px}
+.prog{height:3px;background:var(--line);border-radius:2px;margin-bottom:6px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--ac);width:0;transition:width .3s}
+.progtxt{font-size:11.5px;color:var(--tx3);margin-bottom:20px}
+.sect{border:1px solid var(--line);border-radius:12px;padding:16px;margin:0 0 14px;background:var(--card)}
+.sect h2{font-size:14px;margin:0 0 4px}
+.sect .sh{font-size:11.5px;color:var(--tx3);margin:0 0 14px;line-height:1.55}
+.q{padding:13px 0;border-top:1px solid #eef1f5}
+.q:first-of-type{border-top:0;padding-top:0}
+.qt{font-size:14.5px;margin-bottom:9px;line-height:1.5}
+.scale{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.scale label{display:flex;flex-direction:column;align-items:center;gap:5px;padding:8px 2px;
+  border:1px solid var(--line);border-radius:9px;cursor:pointer;font-size:10.5px;
+  color:var(--tx3);text-align:center;line-height:1.3;min-height:60px;justify-content:center}
+.scale label:has(input:checked){border-color:var(--ac);background:#f3f7ff;color:var(--ac);font-weight:600}
+.scale input{width:15px;height:15px;accent-color:var(--ac);margin:0}
+.dg{padding:14px 0;border-top:1px solid #eef1f5}
+.dg:first-of-type{border-top:0;padding-top:0}
+.dgh{display:grid;grid-template-columns:1fr 52px 52px;gap:6px;font-size:10.5px;color:var(--tx3);
+     margin-bottom:6px;text-align:center}
+.dgh span:first-child{text-align:left}
+.dr{display:grid;grid-template-columns:1fr 52px 52px;gap:6px;align-items:center;padding:5px 0}
+.dr .w{font-size:14px}
+.dr .c{display:flex;justify-content:center}
+.dr input{width:17px;height:17px;accent-color:var(--ac);margin:0}
+button{width:100%;background:var(--ac);color:#fff;border:0;border-radius:10px;
+       padding:15px;font-size:16px;font-weight:600;cursor:pointer;margin-top:14px;font-family:inherit}
+button:disabled{opacity:.45;cursor:not-allowed}
+.msg{margin-top:14px;padding:13px 15px;border-radius:10px;font-size:13.5px;display:none;line-height:1.6}
+.msg.err{display:block;background:#fdecea;border:1px solid #f3c2bc;color:#a5312a}
+.msg.warn{display:block;background:#fff8e6;border:1px solid #f0dca8;color:#7a5a12}
+/* 報告 */
+.rep h2{font-size:19px;margin:0 0 4px}
+.bar{margin:14px 0}
+.bl{display:flex;justify-content:space-between;font-size:12.5px;color:var(--tx2);margin-bottom:5px}
+.bl b{font-weight:600;color:var(--tx)}
+.bt{height:7px;background:#eef1f5;border-radius:4px;overflow:hidden}
+.bt i{display:block;height:100%;background:var(--ac);border-radius:4px}
+.bd{font-size:11.5px;color:var(--tx3);margin-top:5px;line-height:1.55}
+.note{background:var(--soft);border:1px solid var(--line);border-radius:9px;
+      padding:12px 14px;font-size:11.5px;color:var(--tx2);line-height:1.65;margin-top:16px}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px;margin-top:10px}
+.slot{padding:10px 6px;border:1px solid var(--line);border-radius:9px;background:#fff;
+      font-size:13px;cursor:pointer;text-align:center;font-family:inherit;color:var(--tx);margin:0}
+.slot:hover{border-color:var(--ac)}
+.slot.on{border-color:var(--ac);background:#f3f7ff;color:var(--ac);font-weight:600}
+.slot small{display:block;font-size:10px;color:var(--tx3)}
+.dayh{font-size:12px;color:var(--tx3);margin:16px 0 2px;font-weight:600}
+.go{display:block;text-align:center;background:var(--ac);color:#fff;text-decoration:none;
+    padding:15px;border-radius:10px;font-size:16px;font-weight:600;margin-top:16px}
+</style>
+
+<div class="top">
+  <img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問">
+  <span class="brand">德仁管理顧問</span>
+</div>
+
+<div class="wrap">
+  <div id="app">載入中…</div>
+</div>
+
+<script>
+const API = 'https://step1ne-recruit-api.aiagentg888.workers.dev';
+const T = new URLSearchParams(location.search).get('t') || '';
+const started = Date.now();
+
+// ── 題本 ──
+// Big Five：Mini-IPIP 改寫（IPIP 為公共領域）。中文題目依構念改寫成職場情境，
+// 不是官方中文版，也沒有台灣常模——報告裡必須標明這件事。
+const BIG5 = [
+  ['在團體討論裡，我通常是帶頭發言的人','E',0],
+  ['我不太主動跟不熟的人攀談','E',1],
+  ['在聚會或活動場合，我會跟很多不同的人聊天','E',0],
+  ['我比較習慣待在旁邊看，不太站到前面','E',1],
+  ['別人心情不好時，我通常感覺得出來','A',0],
+  ['別人遇到的麻煩，我不太會放在心上','A',1],
+  ['我能體會別人的處境和感受','A',0],
+  ['老實說，我對別人的事情沒什麼興趣','A',1],
+  ['交辦的事情我會盡快處理掉，不喜歡拖','C',0],
+  ['東西用完我常忘記歸位','C',1],
+  ['我喜歡把事情安排得有條理','C',0],
+  ['我做事常常收尾收得不夠乾淨','C',1],
+  ['我的情緒起伏蠻大的','N',0],
+  ['大部分時候我都還算放鬆','N',1],
+  ['我容易因為一些事情就心煩','N',0],
+  ['我很少覺得低落','N',1],
+  ['我對新的做法和新的東西很有興趣','O',0],
+  ['我對比較抽象、理論性的東西沒興趣','O',1],
+  ['要我理解比較抽象的概念有點吃力','O',1],
+  ['我常想到一些別人沒想到的做法','O',0],
+];
+// Grit-S（Duckworth & Quinn 2009）改寫。前 4 題是興趣持續性（反向），後 4 題是努力持續性。
+const GRIT = [
+  ['新的想法或新專案出現時，我常常就把原本在做的事放掉了','interest',1],
+  ['我曾經對某件事很投入，但過一陣子就失去興趣','interest',1],
+  ['我常常訂了一個目標，後來又改成追別的目標','interest',1],
+  ['要花好幾個月才能完成的事，我很難一直保持專注','interest',1],
+  ['遇到挫折不太會讓我打退堂鼓','effort',0],
+  ['我是一個肯下功夫的人','effort',0],
+  ['只要是我開始做的事，我都會做完','effort',0],
+  ['我做事很勤奮','effort',0],
+];
+const LIKERT = ['非常<br>不同意','不太<br>同意','普通','還算<br>同意','非常<br>同意'];
+
+const DISC_BANK = {
+  D: ['果斷','強勢','直接','好勝','獨立','大膽','堅持己見','掌控全局','有衝勁','敢冒險',
+      '講求效率','意志堅定','主動出擊','不服輸','雷厲風行','敢做決定','目標導向','行動派','敢承擔','強硬'],
+  I: ['健談','樂觀','外向','熱情','風趣','擅長社交','有說服力','愛表達','活潑','隨興',
+      '愛交朋友','感染力強','樂於分享','直覺型','愛嘗新','氣氛製造者','鼓舞人心','善於誇獎','開朗','點子多'],
+  S: ['隨和','耐心','可靠','忠誠','溫和','善於傾聽','穩重','配合度高','重視和諧','務實',
+      '腳踏實地','體貼','不愛衝突','有耐性','按部就班','重感情','樂於助人','低調','包容','安於現狀'],
+  C: ['精確','謹慎','重邏輯','注重細節','有條理','客觀','講求品質','深思熟慮','一絲不苟','重視標準',
+      '喜歡分析','按規矩來','追根究柢','重視準確度','事先規劃','質疑求證','講究流程','內斂','專注','要求完美'],
+};
+const DISC_GROUPS = Array.from({length:20},(_,i)=>{
+  const order=['D','I','S','C'];
+  for(let k=0;k<i%4;k++) order.push(order.shift());
+  return order.map(L=>({L,w:DISC_BANK[L][i]}));
+});
+
+const ans = { b5:Array(20).fill(null), grit:Array(8).fill(null),
+              disc:Array.from({length:20},()=>({most:null,least:null})) };
+
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+async function boot(){
+  if(!T){ document.getElementById('app').innerHTML='<h1>連結無效</h1><p class="lead">請用我們寄給您的信件裡的連結進入。</p>'; return; }
+  let r;
+  try { r = await (await fetch(API+'/assessment/'+encodeURIComponent(T))).json(); }
+  catch { document.getElementById('app').innerHTML='<h1>連線失敗</h1><p class="lead">請稍後再試一次。</p>'; return; }
+  if(!r.ok){ document.getElementById('app').innerHTML='<h1>連結無效</h1><p class="lead">'+esc(r.error||'')+'</p>'; return; }
+  if(r.already_done){
+    document.getElementById('app').innerHTML =
+      '<h1>您已經完成測驗了</h1><p class="lead">如果還沒進行面談，請用信件裡的面談室連結進入。</p>'+
+      '<a class="go" href="/interview/?t='+encodeURIComponent(T)+'">進入面談室</a>';
+    return;
+  }
+  renderForm(r);
+}
+
+function renderForm(info){
+  const likert = (name,i,list)=>`<div class="scale">`+LIKERT.map((L,k)=>
+    `<label><input type="radio" name="${name}${i}" value="${k+1}"
+      onchange="pick('${name}',${i},${k+1})"><span>${L}</span></label>`).join('')+`</div>`;
+
+  document.getElementById('app').innerHTML = `
+    <h1>工作風格測驗</h1>
+    <p class="lead">${esc(info.name||'')} 您好，這是應徵「${esc(info.job_title||'')}」的最後一步。<br>
+      約 5–7 分鐘，做完會馬上給您一份個人的工作風格報告。<br>
+      <b>沒有標準答案，照直覺選就好</b>——想太久反而測不準。</p>
+    <div class="prog"><i id="pi"></i></div>
+    <div class="progtxt" id="pt">還沒開始</div>
+
+    <div class="sect">
+      <h2>第一部分　工作風格（20 題）</h2>
+      <p class="sh">請依照「平常的自己」作答，不是「工作時應該要有的樣子」。</p>
+      ${BIG5.map((q,i)=>`<div class="q"><div class="qt">${i+1}. ${esc(q[0])}</div>${likert('b5',i)}</div>`).join('')}
+    </div>
+
+    <div class="sect">
+      <h2>第二部分　做事的持續性（8 題）</h2>
+      <p class="sh">這部分想了解您面對長期目標與挫折時的習慣。</p>
+      ${GRIT.map((q,i)=>`<div class="q"><div class="qt">${i+1}. ${esc(q[0])}</div>${likert('grit',i)}</div>`).join('')}
+    </div>
+
+    <div class="sect">
+      <h2>第三部分　特質取捨（20 組）</h2>
+      <p class="sh">每一組四個形容詞，選一個<b>最像您</b>、一個<b>最不像您</b>。
+        四個都可能有點像，重點是逼您做出取捨。</p>
+      ${DISC_GROUPS.map((g,gi)=>`
+        <div class="dg">
+          <div class="dgh"><span>第 ${gi+1} 組</span><span>最像</span><span>最不像</span></div>
+          ${g.map((it,wi)=>`<div class="dr">
+            <span class="w">${esc(it.w)}</span>
+            <span class="c"><input type="radio" name="m${gi}" onchange="dpick(${gi},'most',${wi})"></span>
+            <span class="c"><input type="radio" name="l${gi}" onchange="dpick(${gi},'least',${wi})"></span>
+          </div>`).join('')}
+        </div>`).join('')}
+    </div>
+
+    <button id="sb" disabled onclick="submit()">還有題目沒作答</button>
+    <div class="msg" id="msg"></div>`;
+  tick();
+}
+
+function pick(kind,i,v){ ans[kind][i]=v; tick(); }
+function dpick(gi,which,wi){
+  const o=ans.disc[gi];
+  // 同一組不能把「最像」跟「最不像」選在同一個詞
+  const other = which==='most' ? 'least' : 'most';
+  if(o[other]===wi){ o[other]=null;
+    const nm=(other==='most'?'m':'l')+gi;
+    document.querySelectorAll('input[name="'+nm+'"]').forEach(x=>x.checked=false);
+  }
+  o[which]=wi; tick();
+}
+function tick(){
+  const a=ans.b5.filter(x=>x).length, b=ans.grit.filter(x=>x).length,
+        c=ans.disc.filter(d=>d.most!==null&&d.least!==null).length;
+  const total=20+8+20, done=a+b+c;
+  document.getElementById('pi').style.width=(done/total*100)+'%';
+  document.getElementById('pt').textContent=`已完成 ${done} / ${total} 題`;
+  const sb=document.getElementById('sb');
+  sb.disabled = done<total;
+  sb.textContent = done<total ? `還有 ${total-done} 題沒作答` : '送出，看我的報告';
+}
+
+// ── 計分（跟後端 assessment_items.js 同一套邏輯）──
+function scoreAll(){
+  const v=(x,rev)=>rev?6-x:x;
+  const g={O:[],C:[],E:[],A:[],N:[]};
+  BIG5.forEach((q,i)=>{ if(ans.b5[i]) g[q[1]].push(v(ans.b5[i],q[2])); });
+  const avg=a=>a.length?+(a.reduce((s,x)=>s+x,0)/a.length).toFixed(2):null;
+  const b5={O:avg(g.O),C:avg(g.C),E:avg(g.E),A:avg(g.A),N:avg(g.N)};
+  const gi=[],ge=[];
+  GRIT.forEach((q,i)=>{ if(ans.grit[i]) (q[1]==='interest'?gi:ge).push(v(ans.grit[i],q[2])); });
+  const grit={total:avg([...gi,...ge]),interest:avg(gi),effort:avg(ge)};
+  const disc={D:0,I:0,S:0,C:0};
+  ans.disc.forEach((p,gi2)=>{ if(p.most!==null){ const L=DISC_GROUPS[gi2][p.most].L; disc[L]++; } });
+  const primary=Object.entries(disc).sort((a,b)=>b[1]-a[1])[0][0];
+  // 作答品質：不是測謊，只是標記「這份資料可不可靠」
+  const flat=[...ans.b5,...ans.grit];
+  const uniq=new Set(flat).size;
+  const secs=Math.round((Date.now()-started)/1000);
+  let quality=null;
+  if(uniq===1) quality='straight_line';
+  else if(uniq<=2) quality='low_variance';
+  if(secs<60) quality=quality?quality+',too_fast':'too_fast';
+  return {scores:{b5,grit,disc,primary,quality},seconds:secs};
+}
+
+async function submit(){
+  const sb=document.getElementById('sb'), msg=document.getElementById('msg');
+  sb.disabled=true; sb.textContent='送出中…'; msg.className='msg';
+  const {scores,seconds}=scoreAll();
+  let r;
+  try{
+    r = await (await fetch(API+'/assessment/'+encodeURIComponent(T),{
+      method:'POST',headers:{'content-type':'application/json'},
+      body:JSON.stringify({scores,answers:ans,seconds})
+    })).json();
+  }catch{
+    msg.className='msg err'; msg.textContent='送出失敗，請檢查網路後再試一次。';
+    sb.disabled=false; sb.textContent='再送出一次'; return;
+  }
+  if(!r.ok){ msg.className='msg err'; msg.textContent=r.error||'送出失敗';
+             sb.disabled=false; sb.textContent='再送出一次'; return; }
+  showReport(scores,r);
+}
+
+// ── 候選人看的報告 ──
+// 只講工作風格，**不做適不適合這份工作的評價**——那是顧問的判斷，不是測驗的。
+const DESC = {
+  C:['盡責性','做事的條理與收尾習慣',
+     '您偏好把事情安排好、按部就班完成，交辦的事不太會拖。',
+     '您做事比較彈性、隨機應變，不太受既定流程綁住。'],
+  N:['情緒穩定度','壓力下的起伏',
+     '您在壓力下大致維持得住，情緒不太容易被外在影響。',
+     '您對周遭變化比較敏感，感受得深，也容易受影響。'],
+  O:['開放性','面對新事物的態度',
+     '您對沒接觸過的東西感興趣，願意學新的做法。',
+     '您偏好用熟悉、驗證過的方式做事，穩定勝於嘗鮮。'],
+  E:['外向性','與人互動的能量來源',
+     '您在人群中自在，習慣主動開口與人建立關係。',
+     '您偏好一對一或安靜的環境，先觀察再開口。'],
+  A:['親和性','與人協作的傾向',
+     '您重視和諧、會顧慮別人的感受，容易被信任。',
+     '您講求就事論事，比較直接，不太怕表達不同意見。'],
+};
+function showReport(s,r){
+  const pct=x=>Math.round(((x-1)/4)*100);
+  const line=(k,val)=>{
+    const d=DESC[k], hi=val>=3.2;
+    // 情緒穩定度要反過來講：b5_n 分數高＝起伏大，對候選人講「穩定度」比較好懂
+    const shown = k==='N' ? 6-val : val;
+    return `<div class="bar">
+      <div class="bl"><b>${d[0]}</b><span>${shown.toFixed(1)} / 5</span></div>
+      <div class="bt"><i style="width:${pct(shown)}%"></i></div>
+      <div class="bd">${d[1]}——${(k==='N'? (shown>=3.2) : hi) ? d[2] : d[3]}</div>
+    </div>`;
+  };
+  const gritTxt = s.grit.total>=3.8
+    ? '您在長期目標上的續航力偏強，開始的事情傾向做完。'
+    : (s.grit.total<=2.5
+      ? '您比較容易被新的機會或想法吸引，長期單一目標的持續投入是可以留意的地方。'
+      : '您在持續投入與保持彈性之間大致平衡。');
+
+  let next = '';
+  if(r.route==='now'){
+    next = `<div class="sect"><h2>接下來：現在就可以面談</h2>
+      <p class="sh">目前面談室有空，您可以直接進入。AI 面談助理阿財會跟您做初步了解，約 20–30 分鐘。</p>
+      <a class="go" href="/interview/?t=${encodeURIComponent(T)}">進入面談室</a></div>`;
+  } else if(r.route==='screening'){
+    next = `<div class="sect"><h2>接下來：顧問審閱中</h2>
+      <p class="sh">這個職缺客戶有指定的條件，需要我們的顧問先看過您的資料。
+      通過之後我們會寄信給您安排面談，請留意信箱。</p></div>`;
+  } else if(r.route==='book'){
+    next = `<div class="sect"><h2>接下來：預約面談時間</h2>
+      <p class="sh">目前有 ${r.busy} 位候選人正在面談中，為了不讓您久等，請先選一個方便的時段。
+      每個時段名額有限，額滿的不會顯示。</p>
+      <div id="slotbox"></div>
+      <div class="msg" id="bmsg"></div></div>`;
+  }
+
+  document.getElementById('app').innerHTML = `
+    <div class="rep">
+      <h2>您的工作風格報告</h2>
+      <p class="lead">這份報告只描述您的工作風格，<b>不是能力評價，也沒有好壞之分</b>。</p>
+      ${['C','N','O','E','A'].map(k=>line(k,s.b5[k])).join('')}
+      <div class="bar">
+        <div class="bl"><b>恆毅力</b><span>${s.grit.total.toFixed(1)} / 5</span></div>
+        <div class="bt"><i style="width:${pct(s.grit.total)}%"></i></div>
+        <div class="bd">面對長期目標與挫折的持續性——${gritTxt}</div>
+      </div>
+      <div class="note">
+        ⚠️ 這份測驗採用公開學術題本（IPIP、Grit-S）改寫成中文職場情境，
+        <b>不是標準化測驗，也沒有台灣常模</b>，分數是相對描述而不是絕對評價。
+        它只反映您填答當下的自我描述，不能預測您在特定工作上的表現，
+        也不會單獨用來決定錄取與否。<br>
+        您的作答會提供給負責這個案子的顧問參考。
+      </div>
+    </div>
+    ${next}`;
+
+  if(r.route==='book') renderSlots(r.slots||[]);
+}
+
+function renderSlots(slots){
+  const box=document.getElementById('slotbox');
+  if(!slots.length){ box.innerHTML='<p class="sh">目前沒有可預約的時段，我們會另外寄信跟您安排。</p>'; return; }
+  const byDay={};
+  slots.forEach(s=>{ const [d,t]=s.slot_at.split(' '); (byDay[d]=byDay[d]||[]).push({t,left:s.left,full:s.slot_at}); });
+  const W=['日','一','二','三','四','五','六'];
+  box.innerHTML = Object.entries(byDay).map(([d,list])=>{
+    const dt=new Date(d+'T00:00:00+08:00');
+    return `<div class="dayh">${d.slice(5)}（週${W[dt.getUTCDay()]}）</div>
+      <div class="slots">${list.map(x=>
+        `<button class="slot" onclick="book(this,'${x.full}')">${x.t}<small>剩 ${x.left} 位</small></button>`
+      ).join('')}</div>`;
+  }).join('');
+}
+
+async function book(btn,slot){
+  document.querySelectorAll('.slot').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  const msg=document.getElementById('bmsg');
+  msg.className='msg'; btn.disabled=true;
+  let r;
+  try{
+    r = await (await fetch(API+'/book',{method:'POST',headers:{'content-type':'application/json'},
+      body:JSON.stringify({token:T,slot_at:slot})})).json();
+  }catch{ msg.className='msg err'; msg.textContent='預約失敗，請再試一次。'; btn.disabled=false; return; }
+  if(!r.ok){
+    msg.className='msg warn'; msg.textContent=r.error||'預約失敗';
+    if(r.slots) renderSlots(r.slots);
+    return;
+  }
+  document.getElementById('slotbox').innerHTML =
+    `<p class="sh">已為您預約 <b>${esc(r.slot_at)}</b>。<br>
+     我們會在時間到之前寄信提醒您，屆時用信裡的連結進入面談室即可。</p>`;
+  msg.className='msg';
+}
+
+boot();
+</script>
