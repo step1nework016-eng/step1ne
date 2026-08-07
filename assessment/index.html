@@ -155,52 +155,90 @@ async function boot(){
   renderForm(r);
 }
 
-function renderForm(info){
-  const likert = (name,i,list)=>`<div class="scale">`+LIKERT.map((L,k)=>
-    `<label><input type="radio" name="${name}${i}" value="${k+1}"
-      onchange="pick('${name}',${i},${k+1})"><span>${L}</span></label>`).join('')+`</div>`;
+// ── 分批互動 ──
+// 2026-08-07 顧問指出：48 題全部攤在一頁會視覺疲乏、讓人懶得填，直接影響完成率。
+// 改成每頁最多 5 題、答完才能翻下一頁——三個部分（工作風格／持續性／特質取捨）
+// 分開分頁，不要跨部分混頁，不然使用者會搞不清楚自己在填哪一段。
+const PAGE_SIZE = 5;
+const SECTIONS = [
+  { key:'b5', title:'工作風格', hint:'請依照「平常的自己」作答，不是「工作時應該要有的樣子」。',
+    items: BIG5.map((_,i)=>({kind:'b5', i})) },
+  { key:'grit', title:'做事的持續性', hint:'這部分想了解您面對長期目標與挫折時的習慣。',
+    items: GRIT.map((_,i)=>({kind:'grit', i})) },
+  { key:'disc', title:'特質取捨', hint:'每一組四個形容詞，選一個最像您、一個最不像您。四個都可能有點像，重點是逼您做出取捨。',
+    items: DISC_GROUPS.map((_,i)=>({kind:'disc', i})) },
+];
+const PAGES = [];
+SECTIONS.forEach((sec, si) => {
+  for (let k=0; k<sec.items.length; k+=PAGE_SIZE) PAGES.push({ si, items: sec.items.slice(k, k+PAGE_SIZE) });
+});
+let curPage = 0;
 
+function itemDone(it){
+  if(it.kind==='disc'){ const o=ans.disc[it.i]; return o.most!==null && o.least!==null; }
+  return ans[it.kind][it.i] != null;
+}
+function totalDone(){
+  return ans.b5.filter(x=>x!=null).length + ans.grit.filter(x=>x!=null).length
+       + ans.disc.filter(d=>d.most!==null && d.least!==null).length;
+}
+
+function renderForm(info){
   document.getElementById('app').innerHTML = `
     <h1>工作風格測驗</h1>
     <p class="lead">${esc(info.name||'')} 您好，這是應徵「${esc(info.job_title||'')}」的最後一步。<br>
       約 5–7 分鐘，做完會馬上給您一份個人的工作風格報告。<br>
       <b>沒有標準答案，照直覺選就好</b>——想太久反而測不準。</p>
     <div class="prog"><i id="pi"></i></div>
-    <div class="progtxt" id="pt">還沒開始</div>
-
-    <div class="sect">
-      <h2>第一部分　工作風格（20 題）</h2>
-      <p class="sh">請依照「平常的自己」作答，不是「工作時應該要有的樣子」。</p>
-      ${BIG5.map((q,i)=>`<div class="q"><div class="qt">${i+1}. ${esc(q[0])}</div>${likert('b5',i)}</div>`).join('')}
+    <div class="progtxt" id="pt"></div>
+    <div id="pageBox"></div>
+    <div style="display:flex;gap:10px">
+      <button id="prevBtn" type="button" onclick="goPrev()"
+        style="background:#fff;color:var(--tx2);border:1px solid var(--line);flex:0 0 92px">上一步</button>
+      <button id="nextBtn" type="button" onclick="goNext()" style="flex:1">下一步</button>
     </div>
-
-    <div class="sect">
-      <h2>第二部分　做事的持續性（8 題）</h2>
-      <p class="sh">這部分想了解您面對長期目標與挫折時的習慣。</p>
-      ${GRIT.map((q,i)=>`<div class="q"><div class="qt">${i+1}. ${esc(q[0])}</div>${likert('grit',i)}</div>`).join('')}
-    </div>
-
-    <div class="sect">
-      <h2>第三部分　特質取捨（20 組）</h2>
-      <p class="sh">每一組四個形容詞，選一個<b>最像您</b>、一個<b>最不像您</b>。
-        四個都可能有點像，重點是逼您做出取捨。</p>
-      ${DISC_GROUPS.map((g,gi)=>`
-        <div class="dg">
-          <div class="dgh"><span>第 ${gi+1} 組</span><span>最像</span><span>最不像</span></div>
-          ${g.map((it,wi)=>`<div class="dr">
-            <span class="w">${esc(it.w)}</span>
-            <span class="c"><input type="radio" name="m${gi}" onchange="dpick(${gi},'most',${wi})"></span>
-            <span class="c"><input type="radio" name="l${gi}" onchange="dpick(${gi},'least',${wi})"></span>
-          </div>`).join('')}
-        </div>`).join('')}
-    </div>
-
-    <button id="sb" disabled onclick="submit()">還有題目沒作答</button>
     <div class="msg" id="msg"></div>`;
-  tick();
+  renderPage();
 }
 
-function pick(kind,i,v){ ans[kind][i]=v; tick(); }
+function likertHtml(kind,i){
+  const cur = ans[kind][i];
+  return `<div class="scale">`+LIKERT.map((L,k)=>
+    `<label><input type="radio" name="${kind}${i}" value="${k+1}" ${cur===k+1?'checked':''}
+      onchange="pick('${kind}',${i},${k+1})"><span>${L}</span></label>`).join('')+`</div>`;
+}
+function discHtml(gi){
+  const o=ans.disc[gi];
+  return `<div class="dg">
+    <div class="dgh"><span>第 ${gi+1} 組</span><span>最像</span><span>最不像</span></div>
+    ${DISC_GROUPS[gi].map((it,wi)=>`<div class="dr">
+      <span class="w">${esc(it.w)}</span>
+      <span class="c"><input type="radio" name="m${gi}" ${o.most===wi?'checked':''} onchange="dpick(${gi},'most',${wi})"></span>
+      <span class="c"><input type="radio" name="l${gi}" ${o.least===wi?'checked':''} onchange="dpick(${gi},'least',${wi})"></span>
+    </div>`).join('')}
+  </div>`;
+}
+
+function renderPage(){
+  const page = PAGES[curPage];
+  const sec = SECTIONS[page.si];
+  // 只在這個部分的第一頁顯示標題與說明，同一部分翻頁時不用重複講一樣的話
+  const isFirstOfSection = PAGES.findIndex(p=>p.si===page.si) === curPage;
+  const items = page.items.map(it=>{
+    if(it.kind==='disc') return discHtml(it.i);
+    const label = it.kind==='b5' ? BIG5[it.i][0] : GRIT[it.i][0];
+    return `<div class="q"><div class="qt">${esc(label)}</div>${likertHtml(it.kind,it.i)}</div>`;
+  }).join('');
+
+  document.getElementById('pageBox').innerHTML = `
+    <div class="sect">
+      ${isFirstOfSection ? `<h2>${sec.title}</h2><p class="sh">${esc(sec.hint)}</p>` : ''}
+      ${items}
+    </div>`;
+  updateNav();
+}
+
+function pick(kind,i,v){ ans[kind][i]=v; updateNav(); }
 function dpick(gi,which,wi){
   const o=ans.disc[gi];
   // 同一組不能把「最像」跟「最不像」選在同一個詞
@@ -209,17 +247,34 @@ function dpick(gi,which,wi){
     const nm=(other==='most'?'m':'l')+gi;
     document.querySelectorAll('input[name="'+nm+'"]').forEach(x=>x.checked=false);
   }
-  o[which]=wi; tick();
+  o[which]=wi; updateNav();
 }
-function tick(){
-  const a=ans.b5.filter(x=>x).length, b=ans.grit.filter(x=>x).length,
-        c=ans.disc.filter(d=>d.most!==null&&d.least!==null).length;
-  const total=20+8+20, done=a+b+c;
+
+function updateNav(){
+  const total = 48, done = totalDone();
   document.getElementById('pi').style.width=(done/total*100)+'%';
-  document.getElementById('pt').textContent=`已完成 ${done} / ${total} 題`;
-  const sb=document.getElementById('sb');
-  sb.disabled = done<total;
-  sb.textContent = done<total ? `還有 ${total-done} 題沒作答` : '送出，看我的報告';
+  document.getElementById('pt').textContent=`第 ${curPage+1} / ${PAGES.length} 頁　已完成 ${done} / ${total} 題`;
+
+  const page = PAGES[curPage];
+  const pageOk = page.items.every(itemDone);
+  const isLast = curPage === PAGES.length-1;
+  const nextBtn = document.getElementById('nextBtn');
+  nextBtn.disabled = !pageOk;
+  nextBtn.textContent = !pageOk ? '這頁還有題目沒作答' : (isLast ? '送出，看我的報告' : '下一步 →');
+
+  const prevBtn = document.getElementById('prevBtn');
+  prevBtn.disabled = curPage===0;
+  prevBtn.style.visibility = curPage===0 ? 'hidden' : 'visible';
+}
+
+function goNext(){
+  if(!PAGES[curPage].items.every(itemDone)) return;
+  if(curPage === PAGES.length-1){ submit(); return; }
+  curPage++; renderPage(); scrollTo(0,0);
+}
+function goPrev(){
+  if(curPage===0) return;
+  curPage--; renderPage(); scrollTo(0,0);
 }
 
 // ── 計分（跟後端 assessment_items.js 同一套邏輯）──
@@ -247,7 +302,8 @@ function scoreAll(){
 }
 
 async function submit(){
-  const sb=document.getElementById('sb'), msg=document.getElementById('msg');
+  const sb=document.getElementById('nextBtn'), msg=document.getElementById('msg');
+  document.getElementById('prevBtn').style.display='none';
   sb.disabled=true; sb.textContent='送出中…'; msg.className='msg';
   const {scores,seconds}=scoreAll();
   let r;

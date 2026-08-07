@@ -209,16 +209,6 @@ button:disabled{opacity:.45;cursor:not-allowed}
   </form>
 </div>
 
-<div id="assessed-view" style="display:none">
-  <h2 style="font-size:20px;margin:0 0 6px">您的工作風格報告</h2>
-  <p class="lead" style="margin:0 0 18px">測驗已完成，這是您的初步結果。確認沒問題就可以送出應徵。</p>
-  <div id="repBox"></div>
-  <button id="finalSend" style="width:100%;background:var(--ac);color:#fff;border:0;
-    border-radius:10px;padding:15px;font-size:16px;font-weight:600;cursor:pointer;
-    margin-top:18px;font-family:inherit">送出應徵</button>
-  <div class="msg" id="msg2"></div>
-</div>
-
 <div id="done-view" style="display:none" class="done">
   <h2>收到了</h2>
   <p id="doneSlot"></p>
@@ -265,7 +255,11 @@ fetch('/apply/jobs.json').then(r => r.json()).then(list => {
   other.value = 'unspecified'; other.dataset.title = '請顧問幫我評估';
   other.textContent = '不確定，請顧問幫我評估';
   sel.appendChild(other);
-  if (JOB) sel.value = JOB;          // 從職缺頁進來時預選，但仍可改
+  // 從測驗頁跳回來的話，職缺要選回他原本選的那個——優先權比網址帶的 JOB 高。
+  // ⚠️ 這裡才能設值：選單的 <option> 是這個 fetch 回來才動態產生的，
+  // 在這之前設 .value 會因為找不到對應 option 而silently 失敗。
+  if (RETURN_FORM_DATA && RETURN_FORM_DATA.job_slug) sel.value = RETURN_FORM_DATA.job_slug;
+  else if (JOB) sel.value = JOB;      // 從職缺頁進來時預選，但仍可改
   prog();
 }).catch(() => {
   document.getElementById('jobSel').innerHTML =
@@ -360,7 +354,20 @@ document.getElementById('toAssess').addEventListener('click', async () => {
     if (!d.ok) throw new Error(d.error || '送出失敗');
     if (!d.chat_token) throw new Error('系統沒有回傳面談連結，請聯繫我們');
 
-    // 存 token，回來時要用它去問「測驗做完了嗎」
+    // ⚠️ 2026-08-07 改：這裡要跳回的是「這份表單本身」讓他檢查資料，
+    // 不是另一個報告畫面——所以要把他剛剛打的每個欄位存起來，回來時才能還原。
+    // 檔案本身（File 物件）沒辦法存進 sessionStorage，只記檔名讓他看得到「已上傳」；
+    // 真正的檔案內容已經在這次 /apply 存進資料庫了，回來後不用重選。
+    const fd = new FormData(f);
+    const file = fd.get('resume');
+    sessionStorage.setItem('s1ne_form_' + d.chat_token, JSON.stringify({
+      job_slug: fd.get('job_slug'), name: fd.get('name'), email: fd.get('email'),
+      phone: fd.get('phone'), expected_salary: fd.get('expected_salary'),
+      available_date: fd.get('available_date'), areas: fd.getAll('area'),
+      stay_need: fd.get('stay_need'), resume_url: fd.get('resume_url'),
+      resume_name: (file && file.size) ? file.name : null,
+      note: fd.get('note'),
+    }));
     sessionStorage.setItem('s1ne_token', d.chat_token);
     location.href = '/assessment/?t=' + encodeURIComponent(d.chat_token) + '&back=1';
   } catch (err) {
@@ -370,26 +377,55 @@ document.getElementById('toAssess').addEventListener('click', async () => {
   }
 });
 
-// ── 測驗做完跳回這一頁 ──
-// assessment 頁交卷成功後會把結果存進 sessionStorage，並帶 back=1 導回這裡。
+// ── 測驗做完跳回這一頁：還原表單、讓他檢查，不是換一個畫面 ──
+let RETURN_TOKEN = null, RETURN_ROUTE = null, HAD_RESUME_BEFORE = false, RETURN_FORM_DATA = null;
+
 (function checkReturnedFromAssessment() {
   const T = q.get('t') || sessionStorage.getItem('s1ne_token') || '';
   if (q.get('back') !== '1' || !T) return;
 
-  const raw = sessionStorage.getItem('s1ne_assess_result_' + T);
-  if (!raw) return;   // 沒有結果代表不是正常跳轉回來的（例如直接改網址），維持表單畫面
-  let saved;
-  try { saved = JSON.parse(raw); } catch { return; }
+  const rawResult = sessionStorage.getItem('s1ne_assess_result_' + T);
+  const rawForm = sessionStorage.getItem('s1ne_form_' + T);
+  if (!rawResult || !rawForm) return;   // 不是正常跳轉回來的（例如直接改網址），維持空白表單
+  let saved, formData;
+  try { saved = JSON.parse(rawResult); formData = JSON.parse(rawForm); } catch { return; }
 
-  document.getElementById('form-view').style.display = 'none';
-  document.getElementById('assessed-view').style.display = 'block';
-  renderAssessedReport(saved.scores, saved.result, T);
+  RETURN_TOKEN = T;
+  RETURN_ROUTE = saved.result;
+  RETURN_FORM_DATA = formData;   // job_slug 要等 jobs.json 那個 fetch 把 <option> 生出來才能設，見下方
+  HAD_RESUME_BEFORE = !!(formData.resume_name || formData.resume_url);
+
+  // 把欄位值填回去，讓他真的看得到自己剛剛打的東西
+  f.name.value = formData.name || '';
+  f.email.value = formData.email || '';
+  f.phone.value = formData.phone || '';
+  f.expected_salary.value = formData.expected_salary || '';
+  f.available_date.value = formData.available_date || '';
+  f.querySelectorAll('input[name=area]').forEach(cb => {
+    cb.checked = (formData.areas || []).includes(cb.value);
+  });
+  f.stay_need.value = formData.stay_need || '';
+  f.resume_url.value = formData.resume_url || '';
+  f.note.value = formData.note || '';
+  document.getElementById('consent').checked = true;
+
+  if (formData.resume_name) {
+    const hint = document.createElement('div');
+    hint.className = 'hint'; hint.style.color = '#1e8e5a';
+    hint.textContent = `✅ 已上傳：${formData.resume_name}（不用重新選檔）`;
+    f.querySelector('input[name=resume]').insertAdjacentElement('afterend', hint);
+  }
+
+  renderReportIntoGate(saved.scores, saved.result);
+  document.getElementById('btn').disabled = false;
+  document.getElementById('btn').textContent = '送出應徵';
+  prog();
   scrollTo(0, 0);
 })();
 
-// 跟 assessment/index.html 的 showReport() 是同一套講法，只是這裡不用再選時段
-// （選時段交給 finalSend 按鈕導去 /book/，避免同一套邏輯寫第三份）。
-function renderAssessedReport(s, r, token) {
+// 報告直接注入「工作風格測驗」那個 fieldset 裡，取代開始按鈕——
+// 跟其餘欄位在同一份表單、同一個畫面，才能真的「一起檢查再送出」。
+function renderReportIntoGate(s, r) {
   const pct = x => Math.round(((x - 1) / 4) * 100);
   const DESC = {
     C: ['盡責性', '做事的條理與收尾習慣', '您偏好把事情安排好、按部就班完成，交辦的事不太會拖。', '您做事比較彈性、隨機應變，不太受既定流程綁住。'],
@@ -400,7 +436,7 @@ function renderAssessedReport(s, r, token) {
   };
   const line = (k, val) => {
     const d = DESC[k], shown = k === 'N' ? 6 - val : val, hi = shown >= 3.2;
-    return `<div class="bar" style="margin:14px 0">
+    return `<div style="margin:12px 0">
       <div style="display:flex;justify-content:space-between;font-size:12.5px;color:var(--tx2);margin-bottom:5px">
         <b style="color:var(--tx)">${d[0]}</b><span>${shown.toFixed(1)} / 5</span></div>
       <div style="height:7px;background:#eef1f5;border-radius:4px;overflow:hidden">
@@ -412,37 +448,76 @@ function renderAssessedReport(s, r, token) {
     : (s.grit.total <= 2.5 ? '您比較容易被新的機會或想法吸引，長期單一目標的持續投入是可以留意的地方。'
       : '您在持續投入與保持彈性之間大致平衡。');
 
-  document.getElementById('repBox').innerHTML = `
+  document.getElementById('assessGate').innerHTML = `
+    <legend>工作風格測驗 <span style="color:#1e8e5a">✅ 已完成</span></legend>
     ${['C', 'N', 'O', 'E', 'A'].map(k => line(k, s.b5[k])).join('')}
-    <div class="bar" style="margin:14px 0">
+    <div style="margin:12px 0">
       <div style="display:flex;justify-content:space-between;font-size:12.5px;color:var(--tx2);margin-bottom:5px">
         <b style="color:var(--tx)">恆毅力</b><span>${s.grit.total.toFixed(1)} / 5</span></div>
       <div style="height:7px;background:#eef1f5;border-radius:4px;overflow:hidden">
         <i style="display:block;height:100%;width:${pct(s.grit.total)}%;background:var(--ac);border-radius:4px"></i></div>
       <div style="font-size:11.5px;color:var(--tx3);margin-top:5px">面對長期目標與挫折的持續性——${gritTxt}</div>
     </div>
-    <div class="notice" style="margin-top:14px">
+    <div class="notice" style="margin-top:10px">
       ⚠️ 這份測驗採用公開學術題本改寫成中文職場情境，<b>不是標準化測驗，也沒有台灣常模</b>，
       分數是相對描述而不是絕對評價，不會單獨用來決定錄取與否。
     </div>
-    <div class="hint" style="margin-top:12px">
-      ${r.route === 'now' ? '目前面談室有空，送出後會直接帶您進入面談室。'
-        : r.route === 'book' ? `目前有 ${r.busy || ''} 位候選人正在面談中，送出後請選一個方便的時段。`
-        : '這個職缺需要顧問先看過您的資料，送出後請留意信箱通知。'}
+    <div class="hint" style="margin-top:10px">
+      ${r.route === 'now' ? '目前面談室有空，送出應徵後會直接帶您進入面談室。'
+        : r.route === 'book' ? `目前有 ${r.busy || ''} 位候選人正在面談中，送出應徵後請選一個方便的時段。`
+        : '這個職缺需要顧問先看過您的資料，送出應徵後請留意信箱通知。'}
     </div>`;
-
-  document.getElementById('finalSend').onclick = () => {
-    if (r.route === 'now') location.href = '/interview/?t=' + encodeURIComponent(token);
-    else if (r.route === 'book') location.href = '/book/?t=' + encodeURIComponent(token);
-    else {
-      // route === 'screening'：這個職缺要顧問先看過每一位應徵者，沒有下一頁可以跳，
-      // 這裡就是終點。原本漏加返回連結，卡在這頁的人只能關網頁——補上去。
-      document.getElementById('assessed-view').innerHTML =
-        '<h2 style="font-size:20px">已收到您的應徵</h2>' +
-        '<p class="lead">顧問會先評估您的資料，若適合這個機會，會再寄信安排線上面談。</p>' +
-        '<p style="margin-top:22px"><a href="/jobs/" style="color:var(--ac)">看其他職缺</a></p>';
-    }
-  };
 }
+
+// ── 真正的送出應徵：表單最下面那顆按鈕 ──
+// 這裡才是唯一會把「使用者這次可能改過的欄位」存回資料庫的地方。
+f.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!RETURN_TOKEN) return;   // 測驗還沒做完，按鈕本來就是 disabled，這裡是防呆
+  const msg = document.getElementById('msg');
+  const btn = document.getElementById('btn');
+  msg.className = 'msg';
+
+  if (!f.reportValidity()) return;
+  if (!f.querySelector('input[name=area]:checked')) {
+    msg.className = 'msg err'; msg.textContent = '請至少選一個可接受的工作地區';
+    document.getElementById('areas').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+  const file = f.querySelector('input[name=resume]');
+  const hasUrl = f.resume_url.value.trim();
+  // 回來這一趟檔案輸入框一定是空的（瀏覽器不會保留），有上傳過或現在補連結都算過
+  if (!(file.files.length > 0) && !hasUrl && !HAD_RESUME_BEFORE) {
+    msg.className = 'msg err'; msg.textContent = '請上傳履歷檔案，或貼上雲端連結（擇一即可）';
+    file.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  btn.disabled = true; btn.textContent = '送出中⋯';
+  try {
+    const body = await buildBody();
+    const r = await fetch(`${API}/apply/update/${encodeURIComponent(RETURN_TOKEN)}`, {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.error || '送出失敗');
+  } catch (err) {
+    msg.className = 'msg err'; msg.textContent = err.message || '送出失敗，請稍後再試';
+    btn.disabled = false; btn.textContent = '送出應徵';
+    return;
+  }
+
+  const route = RETURN_ROUTE || {};
+  if (route.route === 'now') { location.href = '/interview/?t=' + encodeURIComponent(RETURN_TOKEN); return; }
+  if (route.route === 'book') { location.href = '/book/?t=' + encodeURIComponent(RETURN_TOKEN); return; }
+  {
+    // route === 'screening'：這個職缺要顧問先看過每一位應徵者，沒有下一頁可以跳，這裡就是終點。
+    document.getElementById('form-view').innerHTML =
+      '<h2 style="font-size:20px">已收到您的應徵</h2>' +
+      '<p class="lead">顧問會先評估您的資料，若適合這個機會，會再寄信安排線上面談。</p>' +
+      '<p style="margin-top:22px"><a href="/jobs/" style="color:var(--ac)">看其他職缺</a></p>';
+  }
+});
 prog();
 </script>
