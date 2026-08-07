@@ -130,15 +130,15 @@ button:disabled{opacity:.45;cursor:not-allowed}
       </div>
       <label>可接受的工作地區 <span class="req">*</span><span style="font-weight:400;color:#8a8d95;">（可複選）</span></label>
       <div class="areas" id="areas">
-        <label><input type="checkbox" name="area" value="台北市・新北市" required><span>台北市・新北市</span></label>
-        <label><input type="checkbox" name="area" value="基隆・宜蘭" required><span>基隆・宜蘭</span></label>
-        <label><input type="checkbox" name="area" value="桃園・新竹" required><span>桃園・新竹</span></label>
-        <label><input type="checkbox" name="area" value="苗栗・台中・彰化" required><span>苗栗・台中・彰化</span></label>
-        <label><input type="checkbox" name="area" value="雲林・嘉義・台南" required><span>雲林・嘉義・台南</span></label>
-        <label><input type="checkbox" name="area" value="高雄・屏東" required><span>高雄・屏東</span></label>
-        <label><input type="checkbox" name="area" value="花蓮・台東" required><span>花蓮・台東</span></label>
-        <label><input type="checkbox" name="area" value="離島" required><span>離島</span></label>
-        <label><input type="checkbox" name="area" value="海外外派" required><span>海外外派</span></label>
+        <label><input type="checkbox" name="area" value="台北市・新北市"><span>台北市・新北市</span></label>
+        <label><input type="checkbox" name="area" value="基隆・宜蘭"><span>基隆・宜蘭</span></label>
+        <label><input type="checkbox" name="area" value="桃園・新竹"><span>桃園・新竹</span></label>
+        <label><input type="checkbox" name="area" value="苗栗・台中・彰化"><span>苗栗・台中・彰化</span></label>
+        <label><input type="checkbox" name="area" value="雲林・嘉義・台南"><span>雲林・嘉義・台南</span></label>
+        <label><input type="checkbox" name="area" value="高雄・屏東"><span>高雄・屏東</span></label>
+        <label><input type="checkbox" name="area" value="花蓮・台東"><span>花蓮・台東</span></label>
+        <label><input type="checkbox" name="area" value="離島"><span>離島</span></label>
+        <label><input type="checkbox" name="area" value="海外外派"><span>海外外派</span></label>
       </div>
       <label style="margin-top:14px;">住宿與通勤</label>
       <select name="stay_need">
@@ -323,8 +323,16 @@ document.getElementById('toAssess').addEventListener('click', async () => {
   const msg = document.getElementById('msg');
   msg.className = 'msg';
 
-  // 用原生驗證檢查必填欄位（name/email/job_slug、期望待遇、可到職、地區等），跟送出時的檢查是同一套
+  // 用原生驗證檢查必填欄位（name/email/job_slug、期望待遇、可到職等）
   if (!f.reportValidity()) return;
+  // 地區是「至少勾一個」，不是「全部都要勾」——checkbox 跟 radio 不一樣，
+  // 每個 checkbox 都加 required 的話瀏覽器會要求全部勾選，只能自己判斷。
+  if (!f.querySelector('input[name=area]:checked')) {
+    msg.className = 'msg err';
+    msg.textContent = '請至少選一個可接受的工作地區';
+    document.getElementById('areas').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
   // 履歷是「上傳檔案」跟「貼連結」擇一即可，HTML required 表達不出這種或關係，只能自己判斷
   const hasFile = f.querySelector('input[name=resume]').files.length > 0;
   const hasUrl = f.querySelector('input[name=resume_url]').value.trim();
