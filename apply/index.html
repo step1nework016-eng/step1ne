@@ -25,7 +25,7 @@ fieldset{border:1px solid var(--line);border-radius:12px;padding:18px 16px;margi
 legend{font-size:12px;color:var(--tx3);padding:0 7px;font-weight:600;letter-spacing:.04em}
 label{display:block;font-size:13px;margin:14px 0 5px;color:var(--tx2)}
 label:first-of-type{margin-top:0}
-label .req{color:var(--rd)}
+.req{color:var(--rd)}
 input,select,textarea{width:100%;background:#fff;border:1px solid var(--line);
   border-radius:9px;padding:11px 12px;color:var(--tx);font-size:16px;font-family:inherit}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--ac);
@@ -120,25 +120,25 @@ button:disabled{opacity:.45;cursor:not-allowed}
       <legend>基本條件</legend>
       <div class="two">
         <div>
-          <label>期望待遇</label>
-          <input name="expected_salary" placeholder="例：月薪 55K，可談">
+          <label>期望待遇 <span class="req">*</span></label>
+          <input name="expected_salary" required placeholder="例：月薪 55K，可談">
         </div>
         <div>
-          <label>最快可到職</label>
-          <input name="available_date" placeholder="例：9/1 或 需一個月">
+          <label>最快可到職 <span class="req">*</span></label>
+          <input name="available_date" required placeholder="例：9/1 或 需一個月">
         </div>
       </div>
-      <label>可接受的工作地區<span style="font-weight:400;color:#8a8d95;">（可複選）</span></label>
+      <label>可接受的工作地區 <span class="req">*</span><span style="font-weight:400;color:#8a8d95;">（可複選）</span></label>
       <div class="areas" id="areas">
-        <label><input type="checkbox" name="area" value="台北市・新北市"><span>台北市・新北市</span></label>
-        <label><input type="checkbox" name="area" value="基隆・宜蘭"><span>基隆・宜蘭</span></label>
-        <label><input type="checkbox" name="area" value="桃園・新竹"><span>桃園・新竹</span></label>
-        <label><input type="checkbox" name="area" value="苗栗・台中・彰化"><span>苗栗・台中・彰化</span></label>
-        <label><input type="checkbox" name="area" value="雲林・嘉義・台南"><span>雲林・嘉義・台南</span></label>
-        <label><input type="checkbox" name="area" value="高雄・屏東"><span>高雄・屏東</span></label>
-        <label><input type="checkbox" name="area" value="花蓮・台東"><span>花蓮・台東</span></label>
-        <label><input type="checkbox" name="area" value="離島"><span>離島</span></label>
-        <label><input type="checkbox" name="area" value="海外外派"><span>海外外派</span></label>
+        <label><input type="checkbox" name="area" value="台北市・新北市" required><span>台北市・新北市</span></label>
+        <label><input type="checkbox" name="area" value="基隆・宜蘭" required><span>基隆・宜蘭</span></label>
+        <label><input type="checkbox" name="area" value="桃園・新竹" required><span>桃園・新竹</span></label>
+        <label><input type="checkbox" name="area" value="苗栗・台中・彰化" required><span>苗栗・台中・彰化</span></label>
+        <label><input type="checkbox" name="area" value="雲林・嘉義・台南" required><span>雲林・嘉義・台南</span></label>
+        <label><input type="checkbox" name="area" value="高雄・屏東" required><span>高雄・屏東</span></label>
+        <label><input type="checkbox" name="area" value="花蓮・台東" required><span>花蓮・台東</span></label>
+        <label><input type="checkbox" name="area" value="離島" required><span>離島</span></label>
+        <label><input type="checkbox" name="area" value="海外外派" required><span>海外外派</span></label>
       </div>
       <label style="margin-top:14px;">住宿與通勤</label>
       <select name="stay_need">
@@ -152,7 +152,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
     </fieldset>
 
     <fieldset>
-      <legend>履歷</legend>
+      <legend>履歷 <span class="req">*</span></legend>
       <label>上傳檔案（PDF／Word，8MB 以內）</label>
       <input name="resume" type="file" accept=".pdf,.doc,.docx">
       <div class="hint">
@@ -163,14 +163,14 @@ button:disabled{opacity:.45;cursor:not-allowed}
       <input name="resume_url" placeholder="Google Drive／Dropbox 連結">
       <div class="hint">
         檔案較大請改用這個連結，並確認權限設為「知道連結的人可讀取」——
-        這裡是給履歷本身用的，不是拿來放其他附件。
+        這裡是給履歷本身用的，不是拿來放其他附件。上傳檔案跟貼連結<b>擇一即可</b>。
       </div>
       <label>想補充的事</label>
       <textarea name="note" placeholder="選填"></textarea>
     </fieldset>
 
     <fieldset id="assessGate">
-      <legend>工作風格測驗</legend>
+      <legend>工作風格測驗 <span class="req">*</span></legend>
       <p class="hint" style="margin:0 0 10px">
         送出前，還需要完成一份工作風格測驗（約 5–7 分鐘），做完會馬上給您一份個人報告。
         <b>這是應徵的必要步驟</b>——上面的資料先幫您存著，測驗做完會自動回到這裡。</p>
@@ -194,7 +194,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
 
     <label class="consent">
       <input type="checkbox" id="consent" required>
-      <span>我同意 Step1ne（德仁管理顧問有限公司）為職缺媒合目的蒐集與處理上述資料。</span>
+      <span>我同意 Step1ne（德仁管理顧問有限公司）為職缺媒合目的蒐集與處理上述資料。 <span class="req">*</span></span>
     </label>
     <details>
       <summary>個資使用說明</summary>
@@ -323,8 +323,17 @@ document.getElementById('toAssess').addEventListener('click', async () => {
   const msg = document.getElementById('msg');
   msg.className = 'msg';
 
-  // 用原生驗證檢查必填欄位（name/email/job_slug 等），跟送出時的檢查是同一套
+  // 用原生驗證檢查必填欄位（name/email/job_slug、期望待遇、可到職、地區等），跟送出時的檢查是同一套
   if (!f.reportValidity()) return;
+  // 履歷是「上傳檔案」跟「貼連結」擇一即可，HTML required 表達不出這種或關係，只能自己判斷
+  const hasFile = f.querySelector('input[name=resume]').files.length > 0;
+  const hasUrl = f.querySelector('input[name=resume_url]').value.trim();
+  if (!hasFile && !hasUrl) {
+    msg.className = 'msg err';
+    msg.textContent = '請上傳履歷檔案，或貼上雲端連結（擇一即可）';
+    f.querySelector('input[name=resume]').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
   if (!document.getElementById('consent').checked) {
     msg.className = 'msg err';
     msg.textContent = '請先勾選同意個資使用說明';
