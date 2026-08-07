@@ -420,6 +420,17 @@ async function send() {
     });
     var d = await r.json();
     if (!d.ok && r.status === 409) setEnded();
+    // 428＝還沒做測驗、429＝目前額滿要先預約。
+    // 這兩種都不是錯誤，是流程還沒到——直接把人帶到該去的那一頁，
+    // 不要丟一個看不懂的錯誤訊息給候選人。
+    if (!d.ok && (r.status === 428 || r.status === 429)) {
+      typing(false); waiting = false;
+      var to = d.assessment_url || d.book_url;
+      add({ id: 0, role: 'assistant',
+            content: (d.message || '這一步還沒完成') + '\n正在帶您過去…', created_at: '' });
+      if (to) setTimeout(function () { location.href = to; }, 1800);
+      return;
+    }
   } catch (e) {
     typing(false); waiting = false;
     add({ id: 0, role: 'assistant', content: '（訊息沒送出去，請確認網路後再試一次）', created_at: '' });

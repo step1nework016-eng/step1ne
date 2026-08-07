@@ -1,0 +1,102 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>預約面談時段｜Step1ne 德仁管理顧問</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/assets/favicon.ico">
+<style>
+:root{--bg:#ffffff;--line:#dfe4ec;--tx:#16202e;--tx2:#4d5c72;--tx3:#7c8899;
+      --ac:#2f5fd8;--soft:#f6f8fb;--sans:-apple-system,"Noto Sans TC","PingFang TC",sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:var(--sans);line-height:1.7}
+.top{border-bottom:1px solid var(--line);padding:14px 18px;display:flex;align-items:center;gap:12px}
+.top img{height:34px;width:auto;display:block}
+.top .brand{font-size:13px;color:var(--tx3)}
+.wrap{max-width:640px;margin:0 auto;padding:26px 18px 64px}
+h1{font-size:23px;margin:0 0 6px}
+.lead{color:var(--tx2);font-size:13.5px;margin:0 0 20px}
+.sect{border:1px solid var(--line);border-radius:12px;padding:16px;background:#fff}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px;margin-top:10px}
+.slot{padding:10px 6px;border:1px solid var(--line);border-radius:9px;background:#fff;
+      font-size:13px;cursor:pointer;text-align:center;font-family:inherit;color:var(--tx);margin:0}
+.slot:hover{border-color:var(--ac)}
+.slot.on{border-color:var(--ac);background:#f3f7ff;color:var(--ac);font-weight:600}
+.slot small{display:block;font-size:10px;color:var(--tx3)}
+.dayh{font-size:12px;color:var(--tx3);margin:16px 0 2px;font-weight:600}
+.msg{margin-top:14px;padding:13px 15px;border-radius:10px;font-size:13.5px;display:none;line-height:1.6}
+.msg.err{display:block;background:#fdecea;border:1px solid #f3c2bc;color:#a5312a}
+.msg.warn{display:block;background:#fff8e6;border:1px solid #f0dca8;color:#7a5a12}
+.go{display:block;text-align:center;background:var(--ac);color:#fff;text-decoration:none;
+    padding:15px;border-radius:10px;font-size:16px;font-weight:600;margin-top:16px}
+.note{background:var(--soft);border:1px solid var(--line);border-radius:9px;
+      padding:12px 14px;font-size:11.5px;color:var(--tx2);line-height:1.65;margin-top:14px}
+</style>
+
+<div class="top">
+  <img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問">
+  <span class="brand">德仁管理顧問</span>
+</div>
+<div class="wrap"><div id="app">載入中…</div></div>
+
+<script>
+const API = 'https://step1ne-recruit-api.aiagentg888.workers.dev';
+const T = new URLSearchParams(location.search).get('t') || '';
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+async function boot(){
+  const app = document.getElementById('app');
+  if(!T){ app.innerHTML='<h1>連結無效</h1><p class="lead">請用我們寄給您的信件裡的連結進入。</p>'; return; }
+  let info, sl;
+  try{
+    info = await (await fetch(API+'/assessment/'+encodeURIComponent(T))).json();
+    sl   = await (await fetch(API+'/slots')).json();
+  }catch{ app.innerHTML='<h1>連線失敗</h1><p class="lead">請稍後再試一次。</p>'; return; }
+  if(!info.ok){ app.innerHTML='<h1>連結無效</h1><p class="lead">'+esc(info.error||'')+'</p>'; return; }
+
+  app.innerHTML = `
+    <h1>預約面談時段</h1>
+    <p class="lead">${esc(info.name||'')} 您好，您應徵的「${esc(info.job_title||'')}」已經通過顧問評估。<br>
+      目前面談室有其他候選人正在進行中，請選一個方便的時段，我們會在時間到之前提醒您。</p>
+    <div class="sect">
+      <div id="slotbox"></div>
+      <div class="msg" id="bmsg"></div>
+    </div>
+    <div class="note">面談大約 20–30 分鐘，由 AI 面談助理阿財進行。
+      需要改時間的話，直接回覆我們寄給您的信就可以。</div>`;
+  renderSlots(sl.slots||[]);
+}
+
+function renderSlots(slots){
+  const box=document.getElementById('slotbox');
+  if(!slots.length){ box.innerHTML='<p class="lead">目前沒有可預約的時段，我們會另外寄信跟您安排。</p>'; return; }
+  const byDay={};
+  slots.forEach(s=>{ const [d,t]=s.slot_at.split(' '); (byDay[d]=byDay[d]||[]).push({t,left:s.left,full:s.slot_at}); });
+  const W=['日','一','二','三','四','五','六'];
+  box.innerHTML = Object.entries(byDay).map(([d,list])=>{
+    const dt=new Date(d+'T00:00:00+08:00');
+    return `<div class="dayh">${d.slice(5)}（週${W[dt.getUTCDay()]}）</div>
+      <div class="slots">${list.map(x=>
+        `<button class="slot" onclick="book(this,'${x.full}')">${x.t}<small>剩 ${x.left} 位</small></button>`
+      ).join('')}</div>`;
+  }).join('');
+}
+
+async function book(btn,slot){
+  document.querySelectorAll('.slot').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on'); btn.disabled=true;
+  const msg=document.getElementById('bmsg'); msg.className='msg';
+  let r;
+  try{
+    r = await (await fetch(API+'/book',{method:'POST',headers:{'content-type':'application/json'},
+      body:JSON.stringify({token:T,slot_at:slot})})).json();
+  }catch{ msg.className='msg err'; msg.textContent='預約失敗，請再試一次。'; btn.disabled=false; return; }
+  if(!r.ok){
+    msg.className='msg warn'; msg.textContent=r.error||'預約失敗';
+    if(r.slots) renderSlots(r.slots);
+    return;
+  }
+  document.getElementById('slotbox').innerHTML =
+    `<p class="lead">已為您預約 <b>${esc(r.slot_at)}</b>。<br>
+     我們會在時間到之前寄信提醒您，屆時用信裡的連結進入面談室即可。</p>`;
+}
+boot();
+</script>
