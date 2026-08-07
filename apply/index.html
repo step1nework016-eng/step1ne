@@ -435,9 +435,12 @@ function renderAssessedReport(s, r, token) {
     if (r.route === 'now') location.href = '/interview/?t=' + encodeURIComponent(token);
     else if (r.route === 'book') location.href = '/book/?t=' + encodeURIComponent(token);
     else {
+      // route === 'screening'：這個職缺要顧問先看過每一位應徵者，沒有下一頁可以跳，
+      // 這裡就是終點。原本漏加返回連結，卡在這頁的人只能關網頁——補上去。
       document.getElementById('assessed-view').innerHTML =
         '<h2 style="font-size:20px">已收到您的應徵</h2>' +
-        '<p class="lead">顧問會先評估您的資料，若適合這個機會，會再寄信安排線上面談。</p>';
+        '<p class="lead">顧問會先評估您的資料，若適合這個機會，會再寄信安排線上面談。</p>' +
+        '<p style="margin-top:22px"><a href="/jobs/" style="color:var(--ac)">看其他職缺</a></p>';
     }
   };
 }
