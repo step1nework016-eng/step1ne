@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>新增職缺｜Step1ne 顧問後台</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<meta name="theme-color" content="#ffffff">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* 顧問多半在手機上用，所有觸控目標 ≥44px，表單一律單欄 */
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{font-family:'Noto Sans TC',system-ui,sans-serif;color:#23262d;background:#fbfaf7;line-height:1.7;}
+a{color:#a67c3d;text-decoration:none;}
+.wrap{max-width:640px;margin:0 auto;padding:0 18px 60px;}
+header{background:#fff;border-bottom:1px solid #eee7db;padding:14px 0;position:sticky;top:0;z-index:20;}
+header .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-bottom:0;}
+header img{height:28px;}
+.mut{color:#8a8d95;font-size:13px;}
+
+h1{font-size:21px;margin:26px 0 6px;}
+.lead{font-size:14px;color:#5a5d64;margin:0 0 22px;}
+
+label{display:block;font-size:13.5px;font-weight:700;color:#4a4d55;margin:22px 0 7px;}
+label .req{color:#b4552e;}
+input,select,textarea{width:100%;font:inherit;font-size:16px;border:1px solid #e0d9cb;border-radius:11px;
+  padding:12px 14px;background:#fff;outline:0;min-height:46px;}
+textarea{min-height:170px;resize:vertical;line-height:1.75;}
+input:focus,select:focus,textarea:focus{border-color:#a67c3d;box-shadow:0 0 0 3px rgba(166,124,61,.12);}
+.hint{font-size:12.5px;color:#8a8d95;margin:6px 0 0;line-height:1.75;}
+.card{background:#fff;border:1px solid #eee7db;border-radius:16px;padding:4px 20px 22px;margin:0 0 16px;}
+.card h2{font-size:15.5px;margin:22px 0 2px;}
+.card h2 .n{display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;background:#f3e2c2;
+  color:#7a4e12;border-radius:50%;font-size:12.5px;margin-right:8px;vertical-align:1px;}
+
+.rule{background:#fbf7ef;border:1px solid #e6dfd1;border-radius:12px;padding:13px 15px;margin:10px 0 0;
+  font-size:13px;color:#5a4a30;line-height:1.8;}
+.rule b{color:#7a4e12;}
+.warn{background:#fff5f3;border-color:#f0c9bd;color:#8a3a20;}
+.warn b{color:#8a3a20;}
+
+.files{margin:8px 0 0;}
+.files li{font-size:13px;color:#4a4d55;margin:5px 0;list-style:none;background:#f7f5f0;border-radius:8px;
+  padding:8px 11px;display:flex;justify-content:space-between;gap:10px;}
+.files li button{border:0;background:transparent;color:#b4552e;font:inherit;font-size:13px;cursor:pointer;padding:0 4px;}
+
+button.go{width:100%;font:inherit;font-size:16px;font-weight:700;background:#a67c3d;color:#fff;border:0;
+  border-radius:12px;padding:15px;cursor:pointer;min-height:52px;margin-top:8px;}
+button.go:disabled{opacity:.5;cursor:default;}
+.gate{max-width:420px;margin:16vh auto;background:#fff;border:1px solid #eee7db;border-radius:16px;padding:26px;}
+.gate input{margin:10px 0 14px;}
+.gate button{width:100%;font:inherit;font-size:15px;font-weight:700;background:#a67c3d;color:#fff;border:0;
+  border-radius:10px;padding:13px;cursor:pointer;min-height:48px;}
+.err{background:#fff5f3;border:1px solid #f0c9bd;border-radius:11px;padding:13px 15px;font-size:14px;
+  color:#8a3a20;margin:16px 0 0;}
+.ok{background:#f4faf5;border:1px solid #bfe3c8;border-radius:14px;padding:20px;margin:16px 0 0;}
+.ok b{display:block;margin-bottom:8px;font-size:16px;}
+.ok p{margin:0 0 10px;font-size:14px;color:#33553c;}
+.ok code{background:#fff;border:1px solid #d7e6da;border-radius:6px;padding:2px 7px;font-size:12.5px;}
+</style>
+</head>
+<body>
+
+<div id="gate" class="gate" hidden>
+  <b>顧問後台</b>
+  <p class="mut" style="margin:6px 0 0;">需要存取權杖。這組權杖等同密碼，不要外傳。</p>
+  <input id="tok" type="password" placeholder="ADMIN_TOKEN" autocomplete="off">
+  <button id="enter" type="button">進入</button>
+  <p id="gerr" class="mut" style="color:#b4552e;margin:12px 0 0;" hidden></p>
+</div>
+
+<div id="app" hidden>
+  <header>
+    <div class="wrap">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <img src="/assets/step1ne-logo.png" alt="Step1ne">
+        <b style="font-size:15px;">新增職缺</b>
+      </div>
+      <div class="mut"><a href="/consultant/reports/">初篩報告</a>　<a href="#" id="out">登出</a></div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <h1>把職缺資料丟進來就好</h1>
+    <p class="lead">
+      PDF、一段文字、截圖、104 連結，有什麼給什麼，可以同時給好幾種。
+      送出後由 step1ne 總指揮擬 JD，擬完會發到 Telegram 群組，
+      <b>你按「核准發布」之後才會真的上網站</b>。你上傳的原始檔會完整保留，之後可以回頭查。
+    </p>
+
+    <div class="card">
+      <h2><span class="n">1</span>職缺資料</h2>
+
+      <label for="raw">文字敘述</label>
+      <textarea id="raw" placeholder="客戶用 LINE 給的、電話裡記的、Email 貼過來的都可以，原文丟進來就好，不用整理。"></textarea>
+      <p class="hint">不用先整理格式。原文越完整越好——整理是總指揮的事。</p>
+
+      <label for="url">職缺連結</label>
+      <input id="url" type="url" inputmode="url" placeholder="https://（104／1111／客戶官網／Google 文件）">
+
+      <label for="files">PDF 或圖片</label>
+      <input id="files" type="file" multiple accept=".pdf,image/*">
+      <p class="hint">可多選。單檔上限 8MB，超過的請改貼雲端連結。</p>
+      <ul id="flist" class="files"></ul>
+    </div>
+
+    <div class="card">
+      <h2><span class="n">2</span>這是哪一條服務線</h2>
+      <label for="sl">服務線 <span class="req">＊</span></label>
+      <select id="sl">
+        <option value="">請選擇</option>
+        <option value="dispatch">人力派遣</option>
+        <option value="permanent">正職代招</option>
+        <option value="executive">中高階獵才</option>
+      </select>
+      <p class="hint">判錯會讓高階人選覺得被當成派遣工，也會影響頁面標籤與應徵流程的寫法。</p>
+    </div>
+
+    <div class="card">
+      <h2><span class="n">3</span>這個客戶是什麼關係</h2>
+      <label for="cr">客戶對象 <span class="req">＊</span></label>
+      <select id="cr">
+        <option value="">請選擇</option>
+        <option value="signed">已簽約客戶</option>
+        <option value="unsigned">未簽約客戶</option>
+        <option value="private">朋友認識・私人協助</option>
+      </select>
+      <div id="relnote" class="rule" hidden></div>
+      <p class="hint">選好之後，具名與否、AI 揭露、報告掛不掛品牌會自動設定，你不用一個一個設。</p>
+
+      <label for="cname">客戶公司名（內部用）</label>
+      <input id="cname" type="text" placeholder="真實公司全名">
+      <p class="hint">
+        這一欄只進內部資料庫，給阿財面談時回答候選人「我在應徵哪一家」用。
+        <b>未簽約時它不會出現在職缺頁上</b>——填了也不會外流，反而是留白會讓阿財答不出來。
+      </p>
+
+      <label for="ccode">客戶代號（選填）</label>
+      <input id="ccode" type="text" placeholder="例：C07">
+      <p class="hint">同一個職稱有好幾個客戶時，內部靠這個分。絕不會出現在頁面、網址或給候選人的信裡。</p>
+    </div>
+
+    <div class="card">
+      <h2><span class="n">4</span>你要交代總指揮的事</h2>
+      <label for="note">補充</label>
+      <textarea id="note" style="min-height:110px;" placeholder="例：這個客戶很在意保密，公司名不要出現；薪資只公開總區間；急件，希望這週上。"></textarea>
+
+      <label for="by">送件人</label>
+      <input id="by" type="text" placeholder="你的名字">
+    </div>
+
+    <button id="go" class="go" type="button">送出，交給總指揮擬 JD</button>
+    <p class="hint" style="text-align:center;margin-top:12px;">送出不等於發布。沒有人按「核准發布」，網站不會有任何改動。</p>
+    <div id="err" class="err" hidden></div>
+    <div id="done" class="ok" hidden></div>
+  </div>
+</div>
+
+<script>
+var API = 'https://step1ne-recruit-api.aiagentg888.workers.dev';
+var KEY = 's1ne_admin_tok';
+var tok = localStorage.getItem(KEY) || '';
+var $ = function (i) { return document.getElementById(i); };
+var picked = [];   // {name, mime, kind, b64}
+
+// 客戶對象選完要當場把後果講清楚。顧問只選一個選項，
+// 但那個選項決定的是「客戶會不會被公開」與「報告掛不掛品牌」——
+// 選錯的代價不是版面難看，是客戶關係。
+var RELNOTE = {
+  signed: ['職缺頁<b>可以具名</b>寫出客戶公司名。初步面談由 AI 進行這件事會對客戶揭露。報告掛 Step1ne 品牌。', ''],
+  unsigned: ['⚠️ 尚未簽約，職缺頁<b>必須匿名</b>——公司名、集團名、官網、精確門牌都不會出現，一律改用產業描述。不對客戶揭露 AI 面談。報告掛 Step1ne 品牌。', 'warn'],
+  private: ['⚠️ 私人協助：履歷<b>具名</b>，但客戶版報告<b>完全不掛品牌</b>——沒有 logo、不寫「STEP1NE 人選推薦」只寫「人選推薦」、拿掉頁尾德仁管理顧問與統編。不對客戶揭露 AI 面談。', 'warn'],
+};
+
+function gate(msg) {
+  $('app').hidden = true; $('gate').hidden = false;
+  if (msg) { $('gerr').textContent = msg; $('gerr').hidden = false; }
+}
+function enter() {
+  tok = $('tok').value.trim();
+  if (!tok) return;
+  localStorage.setItem(KEY, tok);
+  $('gate').hidden = true; $('app').hidden = false;
+}
+$('enter').onclick = enter;
+$('tok').onkeydown = function (e) { if (e.key === 'Enter') enter(); };
+$('out').onclick = function (e) { e.preventDefault(); localStorage.removeItem(KEY); tok = ''; gate(''); };
+
+$('cr').onchange = function () {
+  var v = RELNOTE[this.value];
+  var box = $('relnote');
+  if (!v) { box.hidden = true; return; }
+  box.className = 'rule ' + v[1];
+  box.innerHTML = v[0];
+  box.hidden = false;
+};
+
+// 檔案讀成 base64。FileReader 給的是 data URL，逗號後面才是 base64 本體。
+function readB64(file) {
+  return new Promise(function (res, rej) {
+    var r = new FileReader();
+    r.onload = function () { res(String(r.result).split(',')[1] || ''); };
+    r.onerror = function () { rej(new Error('讀不到 ' + file.name)); };
+    r.readAsDataURL(file);
+  });
+}
+
+function renderFiles() {
+  $('flist').innerHTML = picked.map(function (f, i) {
+    return '<li><span>' + f.name.replace(/[<>&]/g, '') + '</span>' +
+           '<button type="button" data-i="' + i + '">移除</button></li>';
+  }).join('');
+  Array.prototype.forEach.call($('flist').querySelectorAll('button'), function (b) {
+    b.onclick = function () { picked.splice(Number(this.dataset.i), 1); renderFiles(); };
+  });
+}
+
+$('files').onchange = async function () {
+  for (var i = 0; i < this.files.length; i++) {
+    var f = this.files[i];
+    if (f.size > 8 * 1024 * 1024) {
+      show('「' + f.name + '」超過 8MB，請改貼雲端連結。');
+      continue;
+    }
+    picked.push({
+      name: f.name, mime: f.type || 'application/octet-stream',
+      kind: /pdf$/i.test(f.type) ? 'pdf' : (/^image\//.test(f.type) ? 'image' : 'other'),
+      b64: await readB64(f),
+    });
+  }
+  this.value = '';
+  renderFiles();
+};
+
+function show(m) { $('err').textContent = m; $('err').hidden = false; }
+
+$('go').onclick = async function () {
+  $('err').hidden = true; $('done').hidden = true;
+  var body = {
+    service_line: $('sl').value,
+    client_relation: $('cr').value,
+    client_name: $('cname').value.trim(),
+    client_code: $('ccode').value.trim(),
+    raw_text: $('raw').value.trim(),
+    source_url: $('url').value.trim(),
+    note: $('note').value.trim(),
+    submitted_by: $('by').value.trim(),
+    files: picked,
+  };
+  if (!body.service_line) return show('請選服務線。');
+  if (!body.client_relation) return show('請選客戶對象。這一項決定客戶會不會被公開，不能空著。');
+  if (!body.raw_text && !body.source_url && !picked.length) {
+    return show('至少要給一種資料：文字敘述、連結，或上傳檔案。');
+  }
+
+  this.disabled = true; this.textContent = '上傳中…';
+  try {
+    var r = await fetch(API + '/admin/job-intake', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: 'Bearer ' + tok },
+      body: JSON.stringify(body),
+    });
+    if (r.status === 401) { gate('權杖不正確'); return; }
+    var d = await r.json();
+    if (!d.ok) { show(d.error || '送出失敗'); return; }
+    $('done').innerHTML =
+      '<b>✅ 收到了</b>' +
+      '<p>收件單編號 <code>' + d.intake_id + '</code>，附件 ' + d.files + ' 個，原始檔已保留。</p>' +
+      '<p>接下來 step1ne 總指揮會擬 JD，擬完發到 Telegram 群組，附三顆按鈕：' +
+      '<b>核准發布／重寫／拒絕發布</b>。</p>' +
+      '<p>你按「核准發布」之前，網站不會有任何改動。</p>';
+    $('done').hidden = false;
+    $('raw').value = ''; $('url').value = ''; $('note').value = '';
+    picked = []; renderFiles();
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+  } catch (e) {
+    show('送出失敗：' + e.message);
+  } finally {
+    this.disabled = false; this.textContent = '送出，交給總指揮擬 JD';
+  }
+};
+
+if (tok) { $('app').hidden = false; } else { gate(''); }
+</script>
+</body>
+</html>
