@@ -281,6 +281,28 @@ function notice(title, body) {
   ['top', 'log', 'bar'].forEach(function (i) { $(i).hidden = true; });
 }
 
+// 流程還沒到（還沒做測驗、或現在額滿要先預約）時顯示的畫面。
+//
+// ⚠️ 2026-08-08 有位候選人就是死在這裡：原本的做法是在對話框插一行
+// 「正在帶您過去…」然後 1.8 秒後自動跳頁。他剛按完送出、眼睛還在自己那句話上，
+// 那行字閃過去他根本沒讀到，看到的是「我打了字、阿財沒回、畫面自己變成測驗」，
+// 於是回報「阿財沒有回應」就走了。
+//
+// 所以改成：整頁擋下來、字大、**不自動跳**，讓他自己按按鈕。
+// 慢一點沒關係，被誤會成當機才是真的流失。
+function gate(title, body, btnText, url) {
+  $('boot').hidden = false;
+  $('boot').innerHTML =
+    '<h1>' + esc(title) + '</h1><p>' + esc(body) + '</p>' +
+    '<p style="margin:22px 0 0;"><a href="' + url + '" ' +
+    'style="display:inline-block;background:#a67c3d;color:#fff;font-weight:700;font-size:15.5px;' +
+    'text-decoration:none;padding:14px 32px;border-radius:999px;min-height:48px;">' +
+    esc(btnText) + '</a></p>' +
+    '<p style="margin:16px 0 0;font-size:13px;color:#8a8d95;">' +
+    '這一步完成之後，回到這個連結就能開始面談。</p>';
+  ['top', 'log', 'bar'].forEach(function (i) { $(i).hidden = true; });
+}
+
 function esc(s) {
   return String(s).replace(/[&<>"]/g, function (c) {
     return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
@@ -421,14 +443,22 @@ async function send() {
     var d = await r.json();
     if (!d.ok && r.status === 409) setEnded();
     // 428＝還沒做測驗、429＝目前額滿要先預約。
-    // 這兩種都不是錯誤，是流程還沒到——直接把人帶到該去的那一頁，
-    // 不要丟一個看不懂的錯誤訊息給候選人。
+    // 這兩種都不是錯誤，是流程還沒到——但也**不要自動跳頁**，
+    // 原因寫在 gate() 上面那段註解裡（有人因此以為是當機而流失）。
     if (!d.ok && (r.status === 428 || r.status === 429)) {
       typing(false); waiting = false;
-      var to = d.assessment_url || d.book_url;
-      add({ id: 0, role: 'assistant',
-            content: (d.message || '這一步還沒完成') + '\n正在帶您過去…', created_at: '' });
-      if (to) setTimeout(function () { location.href = to; }, 1800);
+      clearInterval(polling);
+      if (r.status === 428) {
+        gate('先完成工作風格測驗',
+             '開始面談之前，還有一份工作風格測驗要請您完成，大約 5 到 7 分鐘。'
+             + '沒有標準答案，照直覺選就好，做完會馬上給您一份個人的工作風格報告。',
+             '開始測驗', d.assessment_url || '/assessment/?t=' + encodeURIComponent(T));
+      } else {
+        gate('目前面談室滿了，先選個時段',
+             d.message || '現在有其他候選人正在面談中。請選一個方便的時段，'
+             + '時間到之前我們會再寄信提醒您。',
+             '選擇面談時段', d.book_url || '/book/?t=' + encodeURIComponent(T));
+      }
       return;
     }
   } catch (e) {
