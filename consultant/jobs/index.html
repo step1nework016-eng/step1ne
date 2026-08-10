@@ -36,7 +36,11 @@ select{font:inherit;font-size:13.5px;padding:7px 9px;border:1px solid var(--line
 .msg{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:14px;padding:11px 20px;border-radius:999px;opacity:0;transition:opacity .2s;pointer-events:none}
 .msg.on{opacity:1}
 .msg.err{background:var(--bad)}
-@media(max-width:720px){th:nth-child(4),td:nth-child(4){display:none}}
+tr.sub th{padding-top:0;font-size:11.5px;font-weight:600;text-align:center}
+td.fn{text-align:center;font-variant-numeric:tabular-nums;font-size:14px;width:52px}
+td.fn.zero{color:#c9c4b8}
+td.fn.hi{font-weight:700;color:var(--gold)}
+@media(max-width:860px){th:nth-child(4),td:nth-child(4){display:none}}
 </style>
 
 <div id="gate" class="gate" hidden>
@@ -55,10 +59,14 @@ select{font:inherit;font-size:13.5px;padding:7px 9px;border:1px solid var(--line
   <main class="wrap">
     <div class="note">
       <b>客戶對象改了，三件事會一起變</b>：履歷具名或匿名、報告掛不掛 Step1ne 品牌、要不要揭露初談由 AI 進行。<br>
-      這些會直接影響已經在跑的面談與報告，<b>改完立即生效</b>，不用重新發布職缺。
+      這些會直接影響已經在跑的面談與報告，<b>改完立即生效</b>，不用重新發布職缺。<br>
+      右側漏斗看的是<b>有沒有往下走</b>——20 個應徵但 0 個送到客戶，比 3 個應徵送出 2 個還糟。
     </div>
     <table>
-      <thead><tr><th>職缺</th><th>服務線</th><th>客戶對象</th><th>連動結果</th><th>應徵</th></tr></thead>
+      <thead><tr><th>職缺</th><th>服務線</th><th>客戶對象</th><th>連動結果</th>
+        <th colspan="5" style="text-align:center">漏斗（人）</th></tr>
+        <tr class="sub"><th></th><th></th><th></th><th></th>
+        <th>應徵</th><th>談完</th><th>送客戶</th><th>客戶面試</th><th>到職</th></tr></thead>
       <tbody id="rows"><tr><td colspan="5" class="mut">載入中⋯</td></tr></tbody>
     </table>
   </main>
@@ -95,6 +103,15 @@ function sel(name, map, val, slug) {
   for (var k in map) s += '<option value="' + k + '"' + (k === val ? ' selected' : '') + '>' + map[k] + '</option>';
   return s + '</select>';
 }
+// 漏斗：0 用淡灰，有數字才凸顯——一整排 0 也是資訊（這個缺卡在哪一關）
+function n(v, hi) {
+  v = v || 0;
+  return '<td class="fn' + (v ? (hi ? ' hi' : '') : ' zero') + '">' + v + '</td>';
+}
+function funnel(j) {
+  return n(j.applicants) + n(j.interviewed) + n(j.submitted, true)
+       + n(j.client_iv, true) + n(j.onboard, true);
+}
 function render(jobs) {
   $('rows').innerHTML = jobs.map(function (j) {
     return '<tr class="' + (j.status === 'closed' ? 'closed' : '') + '">'
@@ -103,7 +120,7 @@ function render(jobs) {
       + '<td>' + sel('service_line', LINE, j.service_line, j.slug) + '</td>'
       + '<td>' + sel('client_relation', REL, j.client_relation, j.slug) + '</td>'
       + '<td class="eff" id="eff-' + j.slug + '">' + (EFFECT[j.client_relation] || '—') + '</td>'
-      + '<td class="mut">' + j.applicants + '</td></tr>';
+      + funnel(j) + '</tr>';
   }).join('');
 }
 document.addEventListener('change', function (e) {
