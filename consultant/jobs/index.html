@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="zh-Hant">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>職缺分類｜顧問後台</title>
+<link rel="icon" href="/assets/favicon.ico">
+<style>
+:root{--gold:#a67c3d;--ink:#23262d;--ink2:#4d5563;--ink3:#8a8d95;--line:#eee7db;--soft:#faf8f3;--bg:#f4f1ea;--ok:#2f8f5b;--bad:#c0392b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 -apple-system,"Noto Sans TC",sans-serif}
+.wrap{max-width:1000px;margin:0 auto;padding:0 16px}
+header{background:#fff;border-bottom:1px solid var(--line);padding:14px 0}
+header .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header img{height:26px}
+nav{margin-left:auto;display:flex;gap:8px}
+nav a{font-size:14px;text-decoration:none;color:var(--ink2);padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:#fff}
+nav a.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.gate{max-width:380px;margin:16vh auto;background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px}
+.gate input{width:100%;font:inherit;padding:11px 13px;border:1px solid var(--line);border-radius:10px;margin:12px 0}
+.gate button{width:100%;font:inherit;font-weight:700;background:var(--gold);color:#fff;border:0;border-radius:999px;padding:12px}
+.mut{color:var(--ink3);font-size:13px}
+main{padding:20px 0 60px}
+.note{background:#fff;border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:0 12px 12px 0;padding:13px 16px;font-size:13.5px;color:var(--ink2);margin-bottom:16px}
+.note b{color:var(--ink)}
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+th,td{padding:11px 12px;text-align:left;font-size:14px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{background:var(--soft);color:var(--ink3);font-size:12.5px;font-weight:700;letter-spacing:.04em;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.jb b{display:block}
+td.jb span{font-size:12px;color:var(--ink3)}
+select{font:inherit;font-size:13.5px;padding:7px 9px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);min-width:104px}
+.eff{font-size:11.5px;color:var(--ink3);line-height:1.6;white-space:nowrap}
+.eff b{color:var(--ink2);font-weight:600}
+.closed{opacity:.45}
+.msg{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:14px;padding:11px 20px;border-radius:999px;opacity:0;transition:opacity .2s;pointer-events:none}
+.msg.on{opacity:1}
+.msg.err{background:var(--bad)}
+@media(max-width:720px){th:nth-child(4),td:nth-child(4){display:none}}
+</style>
+
+<div id="gate" class="gate" hidden>
+  <b>顧問後台</b>
+  <p class="mut" style="margin:6px 0 0">需要存取權杖。這組權杖等同密碼，不要外傳。</p>
+  <input id="tok" type="password" placeholder="ADMIN_TOKEN" autocomplete="off">
+  <button id="enter" type="button">進入</button>
+  <p id="gerr" class="mut" style="color:#b4552e;margin:12px 0 0" hidden></p>
+</div>
+
+<div id="app" hidden>
+  <header><div class="wrap">
+    <img src="/assets/step1ne-logo.png" alt="Step1ne"><b>職缺分類</b>
+    <nav><a href="/consultant/reports/">初篩報告</a><a href="/consultant/jobs/" class="on">職缺分類</a></nav>
+  </div></header>
+  <main class="wrap">
+    <div class="note">
+      <b>客戶對象改了，三件事會一起變</b>：履歷具名或匿名、報告掛不掛 Step1ne 品牌、要不要揭露初談由 AI 進行。<br>
+      這些會直接影響已經在跑的面談與報告，<b>改完立即生效</b>，不用重新發布職缺。
+    </div>
+    <table>
+      <thead><tr><th>職缺</th><th>服務線</th><th>客戶對象</th><th>連動結果</th><th>應徵</th></tr></thead>
+      <tbody id="rows"><tr><td colspan="5" class="mut">載入中⋯</td></tr></tbody>
+    </table>
+  </main>
+</div>
+<div id="msg" class="msg"></div>
+
+<script>
+var API = 'https://step1ne-recruit-api.aiagentg888.workers.dev';
+var KEY = 's1ne_admin_tok';
+var tok = localStorage.getItem(KEY) || '';
+var $ = function (i) { return document.getElementById(i); };
+
+var LINE = { dispatch: '人力派遣', direct: '正職代招', executive: '中高階獵才' };
+var REL  = { signed: '已簽約客戶', unsigned: '未簽約客戶', private: '朋友私人協助' };
+// 客戶對象連動的結果，直接寫在畫面上讓顧問看得到自己改了什麼
+var EFFECT = {
+  signed:   '具名履歷・掛 Step1ne 品牌・揭露 AI 初談',
+  unsigned: '<b>匿名履歷</b>・掛 Step1ne 品牌・不揭露 AI',
+  private:  '具名履歷・<b>報告不掛任何品牌</b>・不揭露 AI',
+};
+
+function api(path, opt) {
+  opt = opt || {};
+  opt.headers = Object.assign({ authorization: 'Bearer ' + tok }, opt.headers || {});
+  return fetch(API + path, opt).then(function (r) { return r.json(); });
+}
+function toast(t, err) {
+  var m = $('msg'); m.textContent = t; m.className = 'msg on' + (err ? ' err' : '');
+  setTimeout(function () { m.className = 'msg'; }, err ? 4000 : 1800);
+}
+function sel(name, map, val, slug) {
+  var s = '<select data-slug="' + slug + '" data-field="' + name + '">';
+  if (!val) s += '<option value="">（未設定）</option>';
+  for (var k in map) s += '<option value="' + k + '"' + (k === val ? ' selected' : '') + '>' + map[k] + '</option>';
+  return s + '</select>';
+}
+function render(jobs) {
+  $('rows').innerHTML = jobs.map(function (j) {
+    return '<tr class="' + (j.status === 'closed' ? 'closed' : '') + '">'
+      + '<td class="jb"><b>' + (j.title || j.slug) + '</b><span>' + j.slug
+        + (j.status === 'closed' ? '　·　已關閉' : '') + '</span></td>'
+      + '<td>' + sel('service_line', LINE, j.service_line, j.slug) + '</td>'
+      + '<td>' + sel('client_relation', REL, j.client_relation, j.slug) + '</td>'
+      + '<td class="eff" id="eff-' + j.slug + '">' + (EFFECT[j.client_relation] || '—') + '</td>'
+      + '<td class="mut">' + j.applicants + '</td></tr>';
+  }).join('');
+}
+document.addEventListener('change', function (e) {
+  var s = e.target;
+  if (s.tagName !== 'SELECT' || !s.dataset.slug) return;
+  var body = {}; body[s.dataset.field] = s.value;
+  s.disabled = true;
+  api('/admin/jobs/' + encodeURIComponent(s.dataset.slug), {
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body),
+  }).then(function (d) {
+    s.disabled = false;
+    if (!d.ok) return toast(d.error || '存檔失敗', true);
+    if (s.dataset.field === 'client_relation') {
+      var cell = $('eff-' + s.dataset.slug);
+      if (cell) cell.innerHTML = EFFECT[s.value] || '—';
+    }
+    toast('已存檔');
+  }).catch(function () { s.disabled = false; toast('連不上伺服器', true); });
+});
+function load() {
+  api('/admin/jobs').then(function (d) {
+    if (!d.ok) { localStorage.removeItem(KEY); return boot(); }
+    $('gate').hidden = true; $('app').hidden = false; render(d.jobs || []);
+  }).catch(function () { $('rows').innerHTML = '<tr><td colspan="5" class="mut">讀取失敗</td></tr>'; });
+}
+function boot() {
+  if (tok) return load();
+  $('gate').hidden = false;
+  $('enter').onclick = function () {
+    tok = $('tok').value.trim();
+    if (!tok) return;
+    api('/admin/jobs').then(function (d) {
+      if (!d.ok) { $('gerr').hidden = false; $('gerr').textContent = '權杖不正確'; return; }
+      localStorage.setItem(KEY, tok); load();
+    });
+  };
+  $('tok').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('enter').click(); });
+}
+boot();
+</script>
