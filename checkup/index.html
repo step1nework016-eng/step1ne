@@ -1,0 +1,293 @@
+<meta charset="utf-8">
+<!-- GA4：放在 charset 之後（放前面中文有機率亂碼） -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}
+gtag('js',new Date());gtag('config','G-DNPMMRDEC0');</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 履歷健檢｜Step1ne 德仁管理顧問</title>
+<meta name="description" content="上傳履歷與作品集，由顧問視角告訴你：你現在被歸類成什麼、哪些地方讓你被低估、該補哪幾個數字。">
+<meta name="robots" content="noindex">
+<link rel="icon" href="/assets/favicon.ico">
+<style>
+:root{--bg:#ffffff;--card:#ffffff;--line:#dfe4ec;--tx:#16202e;--tx2:#4d5c72;--tx3:#7c8899;
+      --ac:#a67c3d;--rd:#c0392b;--soft:#faf8f3;
+      --sans:-apple-system,"Noto Sans TC","PingFang TC",sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:var(--sans);
+     line-height:1.7;-webkit-text-size-adjust:100%}
+.top{border-bottom:1px solid var(--line);padding:14px 18px;display:flex;align-items:center;gap:12px}
+.top img{height:34px;width:auto;display:block}
+.top .brand{font-size:13px;color:var(--tx3);letter-spacing:.02em}
+.wrap{max-width:640px;margin:0 auto;padding:26px 18px 64px}
+h1{font-size:23px;margin:0 0 6px;letter-spacing:-.01em}
+.lead{color:var(--tx2);font-size:13.5px;margin:0 0 18px}
+.what{background:var(--soft);border:1px solid #eee7db;border-left:3px solid var(--ac);
+  border-radius:9px;padding:13px 15px;font-size:13px;color:var(--tx2);margin:0 0 20px;line-height:1.75}
+.what b{color:var(--tx)}
+.what ul{margin:8px 0 0;padding-left:19px}
+.what li{margin:3px 0}
+.prog{height:3px;background:var(--line);border-radius:2px;margin-bottom:22px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--ac);width:0;transition:width .3s}
+fieldset{border:1px solid var(--line);border-radius:12px;padding:18px 16px;margin:0 0 16px;
+         background:var(--card)}
+legend{font-size:12px;color:var(--tx3);padding:0 7px;font-weight:600;letter-spacing:.04em}
+label{display:block;font-size:13px;margin:14px 0 5px;color:var(--tx2)}
+label:first-of-type{margin-top:0}
+.req{color:var(--rd)}
+input,select,textarea{width:100%;background:#fff;border:1px solid var(--line);
+  border-radius:9px;padding:11px 12px;color:var(--tx);font-size:16px;font-family:inherit}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--ac);
+  box-shadow:0 0 0 3px rgba(166,124,61,.14)}
+input::placeholder,textarea::placeholder{color:#a9b3c1}
+textarea{resize:vertical;min-height:76px}
+.hint{font-size:11.5px;color:var(--tx3);margin-top:5px;line-height:1.6}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:520px){.two{grid-template-columns:1fr}}
+.linkrow{display:grid;grid-template-columns:118px 1fr auto;gap:8px;align-items:center;margin-top:8px}
+@media(max-width:520px){.linkrow{grid-template-columns:98px 1fr auto;gap:6px}}
+.linkrow select,.linkrow input{margin:0}
+.linkrow button{width:38px;height:38px;padding:0;background:#fff;color:var(--tx3);
+  border:1px solid var(--line);border-radius:9px;font-size:19px;line-height:1;margin:0;cursor:pointer}
+.addlink{width:100%;background:#fff;color:var(--ac);border:1px dashed #d9c9a8;border-radius:9px;
+  padding:10px;font-size:13.5px;font-weight:600;margin-top:10px;cursor:pointer;font-family:inherit}
+.filenote{font-size:11.5px;color:#2f8f5b;margin-top:5px;display:none}
+.privacy{font-size:12px;color:var(--tx3);margin:14px 2px 0;line-height:1.7}
+.fee{font-size:12px;color:var(--tx3);margin:6px 2px 0}
+button{width:100%;background:var(--ac);color:#fff;border:0;border-radius:10px;
+       padding:15px;font-size:16px;font-weight:600;cursor:pointer;margin-top:14px;font-family:inherit}
+button:disabled{opacity:.45;cursor:not-allowed}
+.msg{margin-top:14px;padding:13px 15px;border-radius:10px;font-size:13.5px;display:none;line-height:1.6}
+.msg.err{display:block;background:#fdecea;border:1px solid #f3c2bc;color:#a5312a}
+.done{padding:34px 0}
+.done h2{font-size:20px;margin:0 0 10px}
+.done p{color:var(--tx2);font-size:14px;margin:0 0 10px}
+.done ol{color:var(--tx2);font-size:14px;padding-left:20px;margin:0 0 10px}
+.done li{margin:5px 0}
+</style>
+
+<header class="top">
+  <a href="/"><img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問"></a>
+  <span class="brand">德仁管理顧問</span>
+</header>
+
+<div class="wrap">
+<div id="form-view">
+  <h1>AI 履歷健檢</h1>
+  <p class="lead">用獵頭實際在看的角度讀你的履歷，告訴你哪裡被低估、該補哪幾個數字。</p>
+
+  <div class="what">
+    <b>你會拿到一份報告，內容包含：</b>
+    <ul>
+      <li>你現在會被歸類成什麼（多數獵頭第一眼的判斷）</li>
+      <li>履歷上最有力的三件事</li>
+      <li>讓你被低估的地方——用「現在寫的 vs 可以改成」對照</li>
+      <li>你的行情由什麼決定，以及你目前證明了幾項</li>
+      <li>建議方向與下一步</li>
+    </ul>
+  </div>
+
+  <div class="prog"><i id="bar"></i></div>
+
+  <form id="f">
+    <fieldset>
+      <legend>基本資料</legend>
+      <label>姓名 <span class="req">*</span></label>
+      <input name="name" required autocomplete="name">
+      <div class="two">
+        <div>
+          <label>Email <span class="req">*</span></label>
+          <input name="email" type="email" required autocomplete="email" inputmode="email">
+        </div>
+        <div>
+          <label>手機</label>
+          <input name="phone" autocomplete="tel" inputmode="tel">
+        </div>
+      </div>
+      <div class="two">
+        <div>
+          <label>目前職稱</label>
+          <input name="current_title" placeholder="選填，例：專案經理">
+        </div>
+        <div>
+          <label>目前產業</label>
+          <input name="current_industry" placeholder="選填，例：科技硬體">
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>履歷 <span class="req">*</span></legend>
+      <label>上傳履歷（PDF 或圖片，8MB 以內）</label>
+      <input name="resume" type="file" accept=".pdf,.doc,.docx,image/*">
+      <div class="filenote" id="resumeNote"></div>
+      <div class="hint">
+        沒有現成檔案的話，<b>LinkedIn</b>、<b>104</b> 或 <b>CakeResume</b> 都能把個人頁面
+        匯出成 PDF，存下來從這裡上傳即可。真的沒有檔案，就在下面貼連結。
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>作品集</legend>
+      <label>上傳作品集（PDF 或圖片，8MB 以內，可多選）</label>
+      <input name="portfolio" type="file" accept=".pdf,image/*" multiple>
+      <div class="filenote" id="portfolioNote"></div>
+      <div class="hint">作品集有做過的實際成果，很多時候比履歷更能證明你的價值。沒有可以留白。</div>
+    </fieldset>
+
+    <fieldset>
+      <legend>連結</legend>
+      <p class="hint" style="margin:0 0 4px">作品集網站、LinkedIn、個人網站都可以，要幾個就加幾個。</p>
+      <div id="links"></div>
+      <button type="button" class="addlink" id="addLink">＋ 再加一個連結</button>
+      <div class="hint">雲端連結（Google Drive／Dropbox）請設成「知道連結的人可讀取」，不然我們打不開。</div>
+    </fieldset>
+
+    <fieldset>
+      <legend>其他</legend>
+      <label>其他附件（推薦信、證照、專案報告⋯⋯）</label>
+      <input name="other" type="file" accept=".pdf,.doc,.docx,image/*" multiple>
+      <div class="filenote" id="otherNote"></div>
+      <label>你最想知道的是什麼</label>
+      <textarea name="note" placeholder="選填。例：想知道自己在市場上值多少、該往哪個方向走、履歷哪裡要改。"></textarea>
+    </fieldset>
+
+    <button type="submit" id="btn">送出健檢申請</button>
+    <p class="fee">這一版不收費。</p>
+    <p class="privacy">您的資料不會對外公開，僅供內部顧問查閱。</p>
+    <div class="msg" id="msg"></div>
+  </form>
+</div>
+
+<div id="done-view" style="display:none" class="done">
+  <h2>收到了</h2>
+  <p>您的履歷與附件都已經收到，接下來是這樣：</p>
+  <ol>
+    <li>顧問助理阿福會先讀完您的履歷與作品集。</li>
+    <li>會有一段簡短的對談——履歷上看不出來的幾件事（例如帶過幾個人、負責多少預算），要問過才寫得準。</li>
+    <li>然後給您一份健檢報告。</li>
+  </ol>
+  <p>後續會用您填的 Email 與您聯繫。</p>
+  <p style="margin-top:20px"><a href="/" style="color:var(--ac)">回首頁</a></p>
+</div>
+</div>
+
+<script>
+const API = 'https://step1ne-recruit-api.aiagentg888.workers.dev';
+const q = new URLSearchParams(location.search);
+const MAX = 8 * 1024 * 1024;
+
+const f = document.getElementById('f');
+const bar = document.getElementById('bar');
+function prog() {
+  const fields = [...f.querySelectorAll('input,textarea')].filter(e => e.type !== 'file');
+  const filled = fields.filter(e => e.value.trim()).length;
+  const hasFile = [...f.querySelectorAll('input[type=file]')].some(e => e.files.length);
+  bar.style.width = Math.round((filled + (hasFile ? 1 : 0)) / (fields.length + 1) * 100) + '%';
+}
+f.addEventListener('input', prog);
+f.addEventListener('change', prog);
+
+// ── 連結欄位：可多個 ──
+// 一開始只給一列。給三列空欄位看起來像「要填三個」，會讓人卻步。
+const linksBox = document.getElementById('links');
+function addLinkRow(label) {
+  const row = document.createElement('div');
+  row.className = 'linkrow';
+  row.innerHTML =
+    '<select class="lk-label">' +
+      ['作品集網站', 'LinkedIn', '個人網站', '其他'].map(o =>
+        `<option${o === label ? ' selected' : ''}>${o}</option>`).join('') +
+    '</select>' +
+    '<input class="lk-url" type="url" placeholder="https://" inputmode="url">' +
+    '<button type="button" title="移除">×</button>';
+  row.querySelector('button').addEventListener('click', () => {
+    row.remove();
+    if (!linksBox.children.length) addLinkRow('作品集網站');
+    prog();
+  });
+  linksBox.appendChild(row);
+}
+addLinkRow('作品集網站');
+document.getElementById('addLink').addEventListener('click', () => addLinkRow('其他'));
+
+// 選了檔案就講一聲，讓人看得到「真的有選到」
+function watchFile(input, noteId) {
+  const note = document.getElementById(noteId);
+  input.addEventListener('change', () => {
+    const names = [...input.files].map(x => x.name);
+    note.style.display = names.length ? 'block' : 'none';
+    note.textContent = names.length ? '已選擇：' + names.join('、') : '';
+  });
+}
+watchFile(f.resume, 'resumeNote');
+watchFile(f.portfolio, 'portfolioNote');
+watchFile(f.other, 'otherNote');
+
+const readB64 = (file) => new Promise((res, rej) => {
+  const r = new FileReader();
+  r.onload = () => res(String(r.result).split(',')[1]);
+  r.onerror = rej;
+  r.readAsDataURL(file);
+});
+
+async function collect(input, kind, out) {
+  for (const file of input.files) {
+    if (file.size > MAX) throw new Error(`「${file.name}」超過 8MB，請壓縮後再上傳，或改貼雲端連結`);
+    out.push({ kind, name: file.name, mime: file.type, b64: await readB64(file) });
+  }
+}
+
+f.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const msg = document.getElementById('msg');
+  const btn = document.getElementById('btn');
+  msg.className = 'msg';
+
+  if (!f.reportValidity()) return;
+
+  const links = [...linksBox.querySelectorAll('.linkrow')].map(r => ({
+    label: r.querySelector('.lk-label').value,
+    url: r.querySelector('.lk-url').value.trim(),
+  })).filter(l => l.url);
+
+  // 履歷是這份健檢的原料。沒有履歷也沒有任何連結，報告就做不出來——
+  // 與其收下來讓他等一份做不出來的東西，不如現在就講清楚。
+  if (!f.resume.files.length && !links.length) {
+    msg.className = 'msg err';
+    msg.textContent = '請上傳履歷檔案，或至少貼一個連結（作品集網站／LinkedIn／個人網站）';
+    f.resume.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  btn.disabled = true; btn.textContent = '上傳中⋯';
+  try {
+    const files = [];
+    await collect(f.resume, 'resume', files);
+    await collect(f.portfolio, 'portfolio', files);
+    await collect(f.other, 'other', files);
+
+    const r = await fetch(`${API}/checkup`, {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        name: f.name.value.trim(), email: f.email.value.trim(), phone: f.phone.value.trim(),
+        current_title: f.current_title.value.trim(),
+        current_industry: f.current_industry.value.trim(),
+        note: f.note.value.trim(),
+        files, links,
+        utm_source: q.get('utm_source'), utm_medium: q.get('utm_medium'),
+        utm_campaign: q.get('utm_campaign'), referrer: document.referrer || null,
+      }),
+    });
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.error || '送出失敗');
+    document.getElementById('form-view').style.display = 'none';
+    document.getElementById('done-view').style.display = 'block';
+    scrollTo(0, 0);
+  } catch (err) {
+    msg.className = 'msg err';
+    msg.textContent = err.message || '送出失敗，請稍後再試';
+    btn.disabled = false; btn.textContent = '送出健檢申請';
+  }
+});
+prog();
+</script>
