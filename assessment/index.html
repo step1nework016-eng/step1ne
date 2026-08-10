@@ -373,6 +373,13 @@ function showReport(s,r){
     next = `<div class="sect"><h2>接下來：現在就可以面談</h2>
       <p class="sh">目前面談室有空，您可以直接進入。AI 面談助理阿財會跟您做初步了解，約 20–30 分鐘。</p>
       <a class="go" href="/interview/?t=${encodeURIComponent(T)}">進入面談室</a></div>`;
+  } else if(r.route==='scheduled'){
+    const t=String(r.remind_at||'').slice(0,16).replace('-','/').replace('-','/');
+    next = `<div class="sect"><h2>接下來：${t} 的面談</h2>
+      <p class="sh">測驗已經收到了，謝謝您。<b>現在不用做任何事</b>——
+      面談時間到了我們會寄信提醒您，您再點信裡的連結進來就好。
+      這個連結您也可以先留著，時間到再打開：</p>
+      <a class="go" href="/interview/?t=${encodeURIComponent(T)}">面談室連結（時間到再進來）</a></div>`;
   } else if(r.route==='screening'){
     next = `<div class="sect"><h2>接下來：顧問審閱中</h2>
       <p class="sh">這個職缺客戶有指定的條件，需要我們的顧問先看過您的資料。
