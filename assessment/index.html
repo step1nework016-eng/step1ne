@@ -374,12 +374,18 @@ function showReport(s,r){
       <p class="sh">目前面談室有空，您可以直接進入。AI 面談助理阿財會跟您做初步了解，約 20–30 分鐘。</p>
       <a class="go" href="/interview/?t=${encodeURIComponent(T)}">進入面談室</a></div>`;
   } else if(r.route==='scheduled'){
-    const t=String(r.remind_at||'').slice(0,16).replace('-','/').replace('-','/');
-    next = `<div class="sect"><h2>接下來：${t} 的面談</h2>
-      <p class="sh">測驗已經收到了，謝謝您。<b>現在不用做任何事</b>——
-      面談時間到了我們會寄信提醒您，您再點信裡的連結進來就好。
-      這個連結您也可以先留著，時間到再打開：</p>
-      <a class="go" href="/interview/?t=${encodeURIComponent(T)}">面談室連結（時間到再進來）</a></div>`;
+    // ⚠️ 這裡刻意給主動的按鈕，不是「時間到再進來」的被動說明。
+    // 剛做完測驗的那一刻是他整段流程裡最投入的時候，叫他關掉視窗晚點再回來
+    // 就是把熱的人放涼——08-08 走掉的那位就是這樣。
+    // 想等到約定時間也可以，但那要是他自己選的，不是系統幫他決定的。
+    const t=String(r.remind_at||'').slice(0,16).replace(/-/g,'/');
+    next = `<div class="sect"><h2>接下來：初步面談</h2>
+      <p class="sh">測驗收到了，謝謝您。面談由 AI 面談助理「阿財」進行，約 20–30 分鐘，用打字的就可以。
+      <b>現在就可以開始</b>，不用等到 ${t}。</p>
+      <a class="go" href="/interview/?t=${encodeURIComponent(T)}">現在就開始面談</a>
+      <p class="sh" style="margin-top:14px;font-size:14px;color:#8a8d95;">
+      現在不方便的話也沒關係——我們會在 ${t} 之前寄一封提醒信給您，
+      裡面有同一個面談室連結，屆時再進來就好。</p></div>`;
   } else if(r.route==='screening'){
     next = `<div class="sect"><h2>接下來：顧問審閱中</h2>
       <p class="sh">這個職缺客戶有指定的條件，需要我們的顧問先看過您的資料。
