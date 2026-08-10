@@ -38,6 +38,16 @@ textarea{resize:vertical;min-height:76px}
 .areas label:has(input:checked){border-color:#2f6fed;background:#f3f7ff;font-weight:600;}
 .areas input{width:17px;height:17px;flex:0 0 auto;accent-color:#2f6fed;margin:0;}
 .hint{font-size:11.5px;color:var(--tx3);margin-top:5px;line-height:1.55}
+/* 選了職缺才出現的簡要說明 */
+#jobCard{margin-top:10px;background:var(--soft);border:1px solid var(--line);
+  border-left:3px solid var(--ac);border-radius:9px;padding:12px 14px}
+#jobCard .jt{font-weight:700;font-size:14.5px;margin:0 0 8px;color:var(--tx)}
+#jobCard dl{display:grid;grid-template-columns:auto 1fr;gap:5px 12px;margin:0;font-size:13px}
+#jobCard dt{color:var(--tx3);white-space:nowrap}
+#jobCard dd{margin:0;color:var(--tx2)}
+#jobCard .rq{margin:9px 0 0;font-size:12.5px;color:var(--tx2);line-height:1.7;
+  border-top:1px dashed var(--line);padding-top:8px}
+#jobCard a{font-size:12.5px;display:inline-block;margin-top:8px}
 .notice{background:#f4f7ff;border:1px solid #d7e2fb;border-left:3px solid var(--ac);
   border-radius:8px;padding:11px 14px;font-size:12.5px;color:#2c3a55;line-height:1.6;margin:0 0 14px}
 .notice b{color:var(--ac)}
@@ -97,6 +107,10 @@ button:disabled{opacity:.45;cursor:not-allowed}
       <legend>應徵職缺</legend>
       <label>想應徵哪一個 <span class="req">*</span></label>
       <select name="job_slug" id="jobSel" required><option value="">載入中⋯</option></select>
+      <!-- 選了職缺才展開的簡要說明。存在的理由：以前選完就只剩一片表單，
+           求職者沒辦法在填的過程中確認「我選的這個到底是什麼」——尤其從
+           廣告直接進來的人，根本沒看過職缺頁。 -->
+      <div id="jobCard" hidden></div>
       <div class="hint">不確定的話選「請顧問幫我評估」，我們會依您的背景推薦。</div>
     </fieldset>
 
@@ -260,6 +274,26 @@ fetch('/apply/jobs.json').then(r => r.json()).then(list => {
   // 在這之前設 .value 會因為找不到對應 option 而silently 失敗。
   if (RETURN_FORM_DATA && RETURN_FORM_DATA.job_slug) sel.value = RETURN_FORM_DATA.job_slug;
   else if (JOB) sel.value = JOB;      // 從職缺頁進來時預選，但仍可改
+
+  // 選了職缺就把重點攤開來。從廣告直接進來的人沒看過職缺頁，
+  // 不給他地點與待遇就要他交出履歷，等於要他盲填。
+  const card = document.getElementById('jobCard');
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  function showJob() {
+    const j = list.find((x) => x.slug === sel.value);
+    if (!j) { card.hidden = true; card.innerHTML = ''; return; }
+    const row = (k, v) => v ? `<dt>${k}</dt><dd>${esc(v)}</dd>` : '';
+    card.innerHTML =
+      `<p class="jt">${esc(j.title)}</p><dl>` +
+      row('工作地點', j.loc) + row('待遇', j.pay) +
+      row('聘僱型態', j.emp) + row('經驗要求', j.exp) + '</dl>' +
+      (j.req ? `<p class="rq">${esc(j.req)}</p>` : '') +
+      `<a href="/jobs/${encodeURIComponent(j.slug)}/" target="_blank" rel="noopener">看完整職缺說明 →</a>`;
+    card.hidden = false;
+  }
+  sel.addEventListener('change', showJob);
+  showJob();
   prog();
 }).catch(() => {
   document.getElementById('jobSel').innerHTML =
