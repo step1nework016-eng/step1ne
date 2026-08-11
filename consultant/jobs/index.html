@@ -72,6 +72,40 @@ td.fn.clk:hover{background:#fdf6e9}
 .pl a{font-size:13px;font-weight:600;text-decoration:none;border:1px solid var(--line);
  border-radius:999px;padding:7px 14px;color:var(--ink2);background:#fff}
 @media(max-width:860px){th:nth-child(4),td:nth-child(4){display:none}}
+
+/* 手機版：表格改卡片。原本 9 欄硬塞會橫向溢出，漏斗只看得到第一欄。 */
+@media(max-width:760px){
+  table{border:0;background:transparent}
+  thead{display:none}
+  tbody,tr,td{display:block;width:auto}
+  tr{background:#fff;border:1px solid var(--line);border-radius:14px;
+     padding:14px 15px;margin-bottom:11px}
+  td{border:0;padding:0}
+  td.jb{margin-bottom:11px}
+  td.jb b{font-size:15.5px;line-height:1.5}
+  td.jb span{font-size:11.5px;word-break:break-all}
+  /* 兩個下拉並排 */
+  tr>td:nth-child(2),tr>td:nth-child(3){display:inline-block;width:calc(50% - 4px);vertical-align:top}
+  tr>td:nth-child(2){margin-right:6px}
+  tr>td select{width:100%}
+  td.eff{display:block !important;font-size:11.5px;color:var(--ink3);
+         margin-top:9px;padding-top:9px;border-top:1px dashed var(--line);white-space:normal}
+  /* 漏斗五格橫排，帶關卡名稱 */
+  td.fn{display:inline-block;width:calc(20% - 4px);text-align:center;margin-top:11px;
+        padding:7px 2px;background:var(--soft);border-radius:9px;font-size:15px;width:19%}
+  td.fn+td.fn{margin-left:1%}
+  td.fn::before{content:attr(data-lb);display:block;font-size:10px;font-weight:600;
+                color:var(--ink3);margin-bottom:2px;letter-spacing:0}
+  td.fn.zero{background:#f7f5f0}
+  td.fn.clk{text-decoration:none;border:1px solid #e8d5ab}
+  .bar{gap:8px}
+  .bar select{flex:1 1 calc(50% - 4px)}
+  .bar .ck{flex:1 1 100%}
+  .bar .cnt{margin-left:0}
+  .note{font-size:12.5px}
+  #modal{width:96vw;max-height:88vh}
+  .pc dl{grid-template-columns:auto 1fr}
+}
 </style>
 
 <div id="gate" class="gate" hidden>
@@ -156,11 +190,14 @@ function sel(name, map, val, slug) {
   return s + '</select>';
 }
 // 漏斗：0 用淡灰，有數字才凸顯——一整排 0 也是資訊（這個缺卡在哪一關）
+var STAGE_LB = { applicants:'應徵', screening:'初審', client_stage:'客戶面談',
+                 offered:'錄取', onboard:'到職' };
 function n(v, hi, cls, slug, stage) {
   v = v || 0;
   var c = v ? (cls ? ' ' + cls : (hi ? ' hi' : '')) : ' zero';
-  if (!v) return '<td class="fn' + c + '">0</td>';
-  return '<td class="fn' + c + ' clk" data-slug="' + slug + '" data-stage="' + stage + '">' + v + '</td>';
+  var lb = ' data-lb="' + STAGE_LB[stage] + '"';
+  if (!v) return '<td class="fn' + c + '"' + lb + '>0</td>';
+  return '<td class="fn' + c + ' clk"' + lb + ' data-slug="' + slug + '" data-stage="' + stage + '">' + v + '</td>';
 }
 function funnel(j) {
   // 初審用琥珀色標出來——那一關卡住代表人在等我們，不是在等客戶
@@ -194,6 +231,7 @@ function apply() {
 }
 function render(jobs) { ALL = jobs; apply(); }
 function paint(jobs) {
+  $('rows').innerHTML = jobs.map(function (j) {
     return '<tr class="' + (j.status === 'closed' ? 'closed' : '') + '">'
       + '<td class="jb"><b>' + (j.title || j.slug) + '</b><span>' + j.slug
         + (j.status === 'closed' ? '　·　已關閉' : '') + '</span></td>'
