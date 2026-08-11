@@ -283,13 +283,16 @@ var IST = {
 async function loadSessions() {
   var qs = new URLSearchParams({ limit: LIMIT, offset: offset });
   if ($('q').value.trim()) qs.set('q', $('q').value.trim());
+  // ⚠️ 2026-08-11：職缺下拉在「所有面談紀錄」沒反應，因為只有 load() 加了 job，
+  //    這條路徑漏了。後端 /admin/sessions 也同時補上收這個參數。
+  if ($('job').value) qs.set('job', $('job').value);
   var d;
   try { d = await api('/admin/sessions?' + qs); }
   catch (e) { return gate(e.message); }
   if (!d.ok) return;
 
   total = d.total;
-  $('tot').textContent = total + ' 筆應徵';
+  $('tot').textContent = total + ' 筆應徵' + ($('job').value ? '（已篩職缺）' : '');
   $('list').innerHTML = d.sessions.length ? '' : '<div class="empty">目前沒有應徵紀錄。</div>';
 
   d.sessions.forEach(function (r) {
