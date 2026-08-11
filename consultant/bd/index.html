@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>開發客戶｜Step1ne 顧問後台</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{font-family:'Noto Sans TC',system-ui,sans-serif;color:#23262d;background:#fbfaf7;line-height:1.7;}
+a{color:#a67c3d;text-decoration:none;}
+.wrap{max-width:680px;margin:0 auto;padding:0 18px 80px;}
+header{background:#fff;border-bottom:1px solid #eee7db;padding:14px 0;position:sticky;top:0;z-index:20;}
+header .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-bottom:0;}
+header img{height:28px;}
+.mut{color:#8a8d95;font-size:13px;}
+h1{font-size:21px;margin:26px 0 6px;}
+.lead{font-size:14px;color:#5a5d64;margin:0 0 20px;}
+.flow{background:#fff;border:1px solid #eee7db;border-radius:14px;padding:15px 17px;margin-bottom:18px;
+  font-size:13px;color:#5a5d64;line-height:1.95;}
+.flow b{color:#23262d;}
+.card{background:#fff;border:1px solid #eee7db;border-radius:16px;padding:6px 18px 22px;margin-bottom:16px;}
+label{display:block;font-size:13.5px;font-weight:700;color:#4a4d55;margin:20px 0 6px;}
+input,select,textarea{width:100%;font:inherit;font-size:16px;border:1px solid #e0d9cb;border-radius:11px;
+  padding:11px 13px;background:#fff;min-height:46px;}
+textarea{min-height:86px;resize:vertical;}
+.hint{font-size:12.5px;color:#8a8d95;margin:5px 0 0;line-height:1.7;}
+button.go{width:100%;font:inherit;font-size:16px;font-weight:700;background:#a67c3d;color:#fff;border:0;
+  border-radius:12px;padding:15px;cursor:pointer;margin-top:16px;}
+.pool{background:#fff;border:1px solid #eee7db;border-radius:14px;padding:14px 16px;margin-bottom:16px;}
+.pool h2{font-size:14.5px;margin:0 0 8px;}
+.pool table{width:100%;border-collapse:collapse;font-size:13px;}
+.pool td{padding:6px 0;border-bottom:1px solid #f2efe8;color:#4d5563;}
+.pool tr:last-child td{border-bottom:0;}
+.row{background:#fff;border:1px solid #eee7db;border-radius:13px;padding:12px 15px;margin-bottom:8px;}
+.row b{font-size:14.5px;}
+.pill{font-size:11.5px;font-weight:700;border-radius:999px;padding:3px 10px;margin-left:8px;}
+.p-new{background:#eef4fd;color:#2f5fd8;}.p-work{background:#fdf3e0;color:#8a5a1a;}
+.p-done{background:#eaf6ee;color:#2f6b41;}.p-fail{background:#fdecea;color:#a8392b;}
+.err{background:#fff5f3;border:1px solid #f0c9bd;border-radius:11px;padding:12px 14px;font-size:14px;color:#8c3b1e;margin-top:12px;}
+.ok{background:#f2f9f4;border:1px solid #cde3d3;border-radius:11px;padding:14px 16px;margin-top:12px;color:#2f6b41;font-size:14px;}
+.gate{max-width:400px;margin:16vh auto;background:#fff;border:1px solid #eee7db;border-radius:16px;padding:26px;}
+.gate button{width:100%;font:inherit;font-size:15px;font-weight:700;background:#a67c3d;color:#fff;border:0;border-radius:10px;padding:13px;cursor:pointer;margin-top:12px;}
+</style>
+</head>
+<body>
+
+<div id="gate" class="gate" hidden>
+  <b>顧問後台</b>
+  <input id="tok" type="password" placeholder="ADMIN_TOKEN" autocomplete="off" style="margin-top:12px;">
+  <button id="enter" type="button">進入</button>
+  <p id="gerr" class="mut" style="color:#b4552e;margin:12px 0 0;" hidden></p>
+</div>
+
+<div id="app" hidden>
+  <header>
+    <div class="wrap">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <img src="/assets/step1ne-logo.png" alt="Step1ne"><b style="font-size:15px;">開發客戶</b>
+      </div>
+      <div class="mut"><a href="/consultant/clients/">客戶名單</a>　<a href="/consultant/jobs/">職缺分類</a>　<a href="#" id="out">登出</a></div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <h1>你想開發做什麼職缺的客戶？</h1>
+    <p class="lead">講一句就好。剩下的系統做。</p>
+
+    <div class="flow">
+      你填 → <b>系統去人才庫撈得上用場的人</b>（面談過但還沒到職的都算）→
+      產匿名人選卡 → 挑目標公司 → <b>自動跳過我們的客戶與洽談中的公司</b> →
+      寫開發信 → 進群組給你按核准 → 寄出
+      <br><span style="color:#8a8d95;">配不上就不硬湊。寧可跟你說「庫裡沒有這種人」，也不寄不對題的信。</span>
+    </div>
+
+    <div class="pool">
+      <h2>目前人才庫</h2>
+      <div id="pool" class="mut">讀取中⋯</div>
+    </div>
+
+    <div class="card">
+      <label for="role">要開發做什麼職缺的客戶</label>
+      <input id="role" type="text" placeholder="例：MEP／廠務工程師、VIP 接待、財務主管">
+      <p class="hint">寫職能就好，不用寫公司。</p>
+
+      <label for="industry">想切哪個產業（選填）</label>
+      <input id="industry" type="text" placeholder="例：半導體廠務、機電統包、飯店旅宿">
+
+      <label for="region">地區（選填）</label>
+      <input id="region" type="text" placeholder="例：新竹、雙北、中部">
+
+      <label for="count">要幾家</label>
+      <select id="count">
+        <option value="6">6 家（建議）</option>
+        <option value="4">4 家</option>
+        <option value="8">8 家</option>
+      </select>
+
+      <label for="note">要交代的事（選填）</label>
+      <textarea id="note" placeholder="例：這批不要碰上市櫃；語氣保守一點；先探水溫不要直接推人"></textarea>
+
+      <label for="by">你是誰</label>
+      <input id="by" type="text" placeholder="你的名字">
+
+      <button id="go" class="go" type="button">送出，讓系統去配對</button>
+      <div id="err" class="err" hidden></div>
+      <div id="done" class="ok" hidden></div>
+    </div>
+
+    <h2 style="font-size:15px;margin:26px 0 10px;">最近的開發需求</h2>
+    <div id="list" class="mut">讀取中⋯</div>
+  </div>
+</div>
+
+<script>
+var API = 'https://step1ne-recruit-api.aiagentg888.workers.dev';
+var KEY = 's1ne_admin_tok';
+var tok = localStorage.getItem(KEY) || '';
+var $ = function (i) { return document.getElementById(i); };
+var ST = { new: ['排隊中', 'p-new'], working: ['配對中', 'p-work'],
+           done: ['已送審', 'p-done'], failed: ['沒出信', 'p-fail'] };
+
+function gate(m) { $('app').hidden = true; $('gate').hidden = false; if (m) { $('gerr').textContent = m; $('gerr').hidden = false; } }
+function enter() { tok = $('tok').value.trim(); if (!tok) return; localStorage.setItem(KEY, tok); $('gate').hidden = true; $('app').hidden = false; boot(); }
+$('enter').onclick = enter;
+$('tok').onkeydown = function (e) { if (e.key === 'Enter') enter(); };
+$('out').onclick = function (e) { e.preventDefault(); localStorage.removeItem(KEY); tok = ''; gate(''); };
+
+function api(path, opt) {
+  opt = opt || {};
+  opt.headers = Object.assign({ authorization: 'Bearer ' + tok }, opt.headers || {});
+  return fetch(API + path, opt).then(function (r) {
+    if (r.status === 401) { gate('權杖不正確'); throw new Error('unauthorized'); }
+    return r.json();
+  });
+}
+function esc(s) { return String(s == null ? '' : s).replace(/[<>&]/g, function (c) { return { '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]; }); }
+
+function loadPool() {
+  api('/admin/talent-pool').then(function (d) {
+    if (!d.ok) return;
+    var rows = d.rows || [];
+    if (!rows.length) { $('pool').textContent = '人才庫是空的。'; return; }
+    // 依應徵過的職缺分組，顧問一眼看得出「庫裡是什麼樣的人」
+    var by = {};
+    rows.forEach(function (r) { var k = r.job_title || '未指定'; by[k] = (by[k] || 0) + 1; });
+    var used = rows.filter(function (r) { return r.used; }).length;
+    $('pool').innerHTML = '<table>' + Object.keys(by).map(function (k) {
+      return '<tr><td>' + esc(k) + '</td><td style="text-align:right;color:#8a8d95;">' + by[k] + ' 人</td></tr>';
+    }).join('') + '</table>'
+      + '<p class="hint" style="margin-top:9px;">共 ' + rows.length + ' 人可用（面談過、還沒到職）'
+      + (used ? '，其中 ' + used + ' 人已用於開發' : '') + '。到職的人會自動退出人才庫。</p>';
+  }).catch(function () { $('pool').textContent = '讀不到。'; });
+}
+
+function loadList() {
+  api('/admin/bd-requests').then(function (d) {
+    if (!d.ok) return;
+    var rows = d.rows || [];
+    if (!rows.length) { $('list').textContent = '還沒有開發需求。'; return; }
+    $('list').innerHTML = rows.map(function (r) {
+      var s = ST[r.status] || [r.status, 'p-new'];
+      return '<div class="row"><b>' + esc(r.role_family) + '</b>'
+        + '<span class="pill ' + s[1] + '">' + s[0] + '</span>'
+        + '<div class="mut">' + r.created_at + '　·　' + esc(r.submitted_by || '未填')
+        + (r.letters ? '　·　' + r.letters + ' 封信' : '') + '</div>'
+        + (r.result_note ? '<div class="mut" style="color:#7a5a22;">' + esc(r.result_note) + '</div>' : '')
+        + '</div>';
+    }).join('');
+  }).catch(function () { $('list').textContent = '讀不到。'; });
+}
+
+$('go').onclick = function () {
+  $('err').hidden = true; $('done').hidden = true;
+  var body = {
+    role_family: $('role').value.trim(), industry: $('industry').value.trim(),
+    region: $('region').value.trim(), target_count: Number($('count').value),
+    note: $('note').value.trim(), submitted_by: $('by').value.trim(),
+  };
+  if (!body.role_family) { $('err').textContent = '至少要說你想開發做什麼職缺的客戶。'; $('err').hidden = false; return; }
+  this.disabled = true; this.textContent = '送出中⋯';
+  api('/admin/bd-request', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) })
+    .then(function (d) {
+      if (!d.ok) { $('err').textContent = d.error || '送出失敗'; $('err').hidden = false; return; }
+      $('done').innerHTML = '<b>✅ 收到了</b><br>系統會去人才庫配對、挑公司、寫信，'
+        + '完成後發到群組讓你按核准。<br>如果庫裡沒有配得上的人，它會直接跟你說，不會硬湊。';
+      $('done').hidden = false;
+      ['role', 'industry', 'region', 'note'].forEach(function (i) { $(i).value = ''; });
+      loadList();
+    })
+    .catch(function (e) { if (e.message !== 'unauthorized') { $('err').textContent = '連線中斷。⚠️ 需求可能已經送出，看下面清單有沒有出現再決定要不要重送。'; $('err').hidden = false; loadList(); } })
+    .finally(function () { $('go').disabled = false; $('go').textContent = '送出，讓系統去配對'; });
+};
+
+function boot() { loadPool(); loadList(); }
+if (tok) { $('app').hidden = false; boot(); } else { gate(''); }
+</script>
+</body>
+</html>
