@@ -156,6 +156,12 @@ button.go:disabled{opacity:.5;cursor:default;}
     <div id="err" class="err" hidden></div>
     <div id="done" class="ok" hidden></div>
   </div>
+
+  <div class="card">
+    <h2><span class="n">·</span>最近的收件單</h2>
+    <p class="hint">送出後如果畫面出錯，先看這裡——單子有出現就代表已經收到了，不用重送。</p>
+    <div id="recent" class="mut" style="font-size:13px;margin-top:12px;">讀取中⋯</div>
+  </div>
 </div>
 
 <script>
@@ -274,15 +280,46 @@ $('go').onclick = async function () {
     $('done').hidden = false;
     $('raw').value = ''; $('url').value = ''; $('note').value = '';
     picked = []; renderFiles();
+    loadRecent();
     window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
   } catch (e) {
-    show('送出失敗：' + e.message);
+    // 「Failed to fetch」＝瀏覽器沒收到回應，不代表伺服器沒收到資料。
+    // 2026-08-11 PH 就是看到這句，但單子其實已經進去了。
+    // 直接叫他重送會產生重複收件單，所以這裡改成先去看清單。
+    show('連線中斷，沒收到伺服器的回應。⚠️ 資料有可能已經送出了——'
+       + '請先看下面「最近的收件單」，有出現就不用重送。'
+       + '（就算不小心重送，15 分鐘內同樣內容會自動當成同一張單。）');
+    loadRecent();
   } finally {
     this.disabled = false; this.textContent = '送出，交給總指揮擬 JD';
   }
 };
 
-if (tok) { $('app').hidden = false; } else { gate(''); }
+var ST = { new: '排隊中', drafting: '總指揮擬 JD 中', drafted: '等你在群組按核准',
+           rewrite: '退回重寫', approved: '已核准，等發布', published: '已發布',
+           rejected: '已拒絕' };
+
+function loadRecent() {
+  fetch(API + '/admin/job-intakes', { headers: { authorization: 'Bearer ' + tok } })
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (!d.ok) { $('recent').textContent = '讀不到清單。'; return; }
+      var rows = (d.rows || []).slice(0, 6);
+      if (!rows.length) { $('recent').textContent = '目前沒有收件單。'; return; }
+      $('recent').innerHTML = rows.map(function (r) {
+        var t = (r.raw_preview || '').split('\n')[0].slice(0, 34) || r.published_slug || '（無標題）';
+        return '<div style="padding:9px 0;border-top:1px solid #f0ece4;">'
+          + '<b style="color:#23262d;">' + t.replace(/[<>&]/g, '') + '</b>'
+          + '<div style="color:#8a8d95;margin-top:3px;">' + r.created_at
+          + '　·　' + (r.submitted_by || '未填')
+          + '　·　<span style="color:#a67c3d;font-weight:700;">'
+          + (ST[r.status] || r.status) + '</span></div></div>';
+      }).join('');
+    })
+    .catch(function () { $('recent').textContent = '讀不到清單（網路問題）。'; });
+}
+
+if (tok) { $('app').hidden = false; loadRecent(); } else { gate(''); }
 </script>
 </body>
 </html>
