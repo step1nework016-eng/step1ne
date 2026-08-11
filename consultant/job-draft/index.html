@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>改擬稿｜Step1ne 顧問後台</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<meta name="theme-color" content="#ffffff">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{font-family:'Noto Sans TC',system-ui,sans-serif;color:#23262d;background:#fbfaf7;line-height:1.7;}
+a{color:#a67c3d;text-decoration:none;}
+.wrap{max-width:680px;margin:0 auto;padding:0 18px 80px;}
+header{background:#fff;border-bottom:1px solid #eee7db;padding:14px 0;position:sticky;top:0;z-index:20;}
+header .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-bottom:0;}
+header img{height:28px;}
+.mut{color:#8a8d95;font-size:13px;}
+h1{font-size:21px;margin:26px 0 6px;}
+.lead{font-size:14px;color:#5a5d64;margin:0 0 22px;}
+.card{background:#fff;border:1px solid #eee7db;border-radius:16px;padding:18px 18px 22px;margin-bottom:16px;}
+.card h2{font-size:15.5px;margin:0 0 4px;}
+label{display:block;font-size:13.5px;font-weight:700;color:#4a4d55;margin:20px 0 7px;}
+label:first-of-type{margin-top:8px;}
+input,textarea{width:100%;font:inherit;font-size:16px;border:1px solid #e0d9cb;border-radius:11px;
+  padding:12px 14px;background:#fff;color:#23262d;}
+textarea{min-height:96px;resize:vertical;line-height:1.75;}
+.hint{font-size:12.5px;color:#8a8d95;margin:6px 0 0;line-height:1.7;}
+button.go{width:100%;font:inherit;font-size:16px;font-weight:700;background:#a67c3d;color:#fff;border:0;
+  border-radius:13px;padding:16px;cursor:pointer;margin-top:8px;}
+button.alt{background:#fff;color:#23262d;border:1px solid #d9d2c4;}
+button:disabled{opacity:.55;}
+.err{background:#fff5f3;border:1px solid #f0c9bd;border-radius:11px;padding:13px 15px;font-size:14px;
+  color:#8c3b1e;margin-top:14px;}
+.ok{background:#f2f9f4;border:1px solid #cde3d3;border-radius:11px;padding:15px 17px;margin-top:14px;color:#2f6b41;font-size:14px;}
+.gate{max-width:380px;margin:70px auto;}
+.gate button{width:100%;font:inherit;font-size:15px;font-weight:700;background:#a67c3d;color:#fff;border:0;
+  border-radius:12px;padding:14px;cursor:pointer;margin-top:12px;}
+.pick{display:block;width:100%;text-align:left;background:#fff;border:1px solid #eee7db;border-radius:13px;
+  padding:14px 16px;margin-bottom:10px;cursor:pointer;font:inherit;}
+.pick b{display:block;font-size:15px;color:#23262d;}
+.pick span{font-size:12.5px;color:#8a8d95;}
+.tag{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:3px 11px;
+  background:#f3e2c2;color:#7a4e12;margin-left:8px;}
+.flag{background:#fffaf3;border:1px solid #ecd9b4;border-radius:12px;padding:13px 15px;font-size:13.5px;
+  color:#7a5a22;margin-top:12px;line-height:1.8;}
+.flag b{color:#8c3b1e;}
+.faq{border-top:1px solid #f0ece4;padding-top:14px;margin-top:6px;}
+.back{font-size:14px;}
+</style>
+</head>
+<body>
+
+<div id="gate" class="gate wrap" hidden>
+  <h1>顧問後台</h1>
+  <input id="tok" type="password" placeholder="請貼上權杖" autocomplete="off">
+  <button id="enter">進入</button>
+  <div id="gerr" class="err" hidden></div>
+</div>
+
+<div id="app" hidden>
+  <header>
+    <div class="wrap">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <img src="/assets/step1ne-logo.png" alt="Step1ne">
+        <b style="font-size:15px;">改擬稿</b>
+      </div>
+      <div class="mut"><a href="/consultant/jobs/" style="font-size:14px;padding:7px 14px;border-radius:999px;color:#4d5563;background:#fff;border:1px solid #eee7db;">職缺分類</a><a href="/consultant/job-intake/" style="font-size:14px;padding:7px 14px;border-radius:999px;color:#4d5563;background:#fff;border:1px solid #eee7db;">＋ 新增職缺</a>　<a href="#" id="out">登出</a></div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <!-- 清單 -->
+    <div id="listView">
+      <h1>要改哪一個職缺？</h1>
+      <p class="lead">總指揮擬好、還沒發布的職缺都在這裡。改完仍然要按「核准發布」才會上網站。</p>
+      <div id="list" class="mut">讀取中⋯</div>
+    </div>
+
+    <!-- 編輯 -->
+    <div id="editView" hidden>
+      <p style="margin:22px 0 0;"><a href="#" id="back" class="back">← 回清單</a></p>
+      <h1 id="etitle" style="margin-top:8px;">—</h1>
+      <p class="lead" id="emeta"></p>
+
+      <div id="flags"></div>
+
+      <div class="card">
+        <h2>直接改欄位</h2>
+        <p class="hint">只改你要動的，其他留著不用管。存檔不會發布，狀態還是「待核准」。</p>
+        <div id="fields"></div>
+      </div>
+
+      <div class="card">
+        <h2>或者，交代總指揮去改</h2>
+        <p class="hint">欄位太多懶得一格一格改、或是要它整段重寫，就在這裡講一句話。
+        例：「薪資那段拿掉，改寫成面議」「FAQ 第 3 題語氣太硬，改軟一點」。</p>
+        <label for="note">要它改什麼</label>
+        <textarea id="note" placeholder="用講話的方式寫就好"></textarea>
+        <label for="by">你是誰</label>
+        <input id="by" type="text" placeholder="你的名字">
+      </div>
+
+      <button id="save" class="go" type="button">存檔（我自己改好了）</button>
+      <button id="ai" class="go alt" type="button">交給總指揮重擬</button>
+      <div id="err" class="err" hidden></div>
+      <div id="done" class="ok" hidden></div>
+    </div>
+  </div>
+</div>
+
+<script>
+var API = 'https://step1ne-recruit-api.aiagentg888.workers.dev';
+var KEY = 's1ne_admin_tok';
+var tok = localStorage.getItem(KEY) || '';
+var $ = function (i) { return document.getElementById(i); };
+var cur = null;      // 目前這張收件單的 draft
+
+var ST = { new:'排隊中', drafting:'總指揮擬 JD 中', pending:'等你決定',
+           rewrite:'退回重寫中', approved:'已核准，等發布', published:'已發布', rejected:'已拒絕' };
+
+// 顧問看得懂的欄位名。沒列到的欄位不給改——那些是客戶對象連動出來的，
+// 從這裡改等於繞過規則，後果是客戶隱私外洩。
+var FIELDS = [
+  ['title',       '職缺名稱',       'line'],
+  ['subtitle',    '副標',           'line'],
+  ['locations',   '工作地點',       'list'],
+  ['employment',  '僱傭型態',       'line'],
+  ['salary_min',  '薪資下限',       'line'],
+  ['salary_max',  '薪資上限',       'line'],
+  ['intro',       '職缺介紹',       'text'],
+  ['duties',      '工作內容',       'list'],
+  ['must',        '必要條件',       'list'],
+  ['plus',        '加分條件',       'list'],
+  ['why',         '為什麼值得看',   'list'],
+  ['benefits',    '福利',           'list'],
+  ['card_desc',   '職缺卡描述',     'text'],
+  ['description', 'SEO 描述',       'text'],
+];
+
+function gate(msg) {
+  $('app').hidden = true; $('gate').hidden = false;
+  if (msg) { $('gerr').textContent = msg; $('gerr').hidden = false; }
+}
+function enter() {
+  tok = $('tok').value.trim();
+  if (!tok) return;
+  localStorage.setItem(KEY, tok);
+  $('gate').hidden = true; $('app').hidden = false; loadList();
+}
+$('enter').onclick = enter;
+$('tok').onkeydown = function (e) { if (e.key === 'Enter') enter(); };
+$('out').onclick = function (e) { e.preventDefault(); localStorage.removeItem(KEY); tok = ''; gate(''); };
+
+function api(path, opt) {
+  opt = opt || {};
+  opt.headers = Object.assign({ authorization: 'Bearer ' + tok }, opt.headers || {});
+  return fetch(API + path, opt).then(function (r) {
+    if (r.status === 401) { gate('權杖不正確'); throw new Error('unauthorized'); }
+    return r.json();
+  });
+}
+
+function loadList() {
+  api('/admin/job-intakes').then(function (d) {
+    if (!d.ok) { $('list').textContent = '讀不到清單。'; return; }
+    // 已發布／已拒絕的不給改——那不是改擬稿的事
+    var rows = (d.rows || []).filter(function (r) {
+      return ['pending', 'rewrite', 'approved', 'drafting', 'new'].indexOf(r.status) >= 0;
+    });
+    if (!rows.length) { $('list').textContent = '目前沒有待處理的擬稿。'; return; }
+    $('list').innerHTML = rows.map(function (r) {
+      var t = (r.raw_preview || '').split('\n')[0].slice(0, 30) || r.published_slug || '（無標題）';
+      var editable = ['pending', 'rewrite', 'approved'].indexOf(r.status) >= 0;
+      return '<button class="pick" data-id="' + r.id + '"' + (editable ? '' : ' disabled') + '>'
+        + '<b>' + t.replace(/[<>&]/g, '') + '<span class="tag">' + (ST[r.status] || r.status) + '</span></b>'
+        + '<span>' + r.created_at + '　·　' + (r.submitted_by || '未填') + '</span></button>';
+    }).join('');
+    Array.prototype.forEach.call($('list').querySelectorAll('.pick'), function (b) {
+      b.onclick = function () { openDraft(this.dataset.id); };
+    });
+  }).catch(function () { $('list').textContent = '讀不到清單（網路問題）。'; });
+}
+
+function val(v, kind) {
+  if (v === null || v === undefined) return '';
+  if (kind === 'list') return Array.isArray(v) ? v.join('\n') : String(v);
+  return String(v);
+}
+function parse(s, kind) {
+  s = String(s == null ? '' : s).trim();
+  if (kind === 'list') {
+    return s ? s.split('\n').map(function (x) { return x.trim(); }).filter(Boolean) : [];
+  }
+  return s;
+}
+
+function openDraft(id) {
+  api('/admin/job-draft/' + encodeURIComponent(id)).then(function (d) {
+    if (!d.ok) { alert(d.error || '讀不到'); return; }
+    cur = { id: id, draft: d.draft || {}, intake: d.intake, orig: {} };
+    $('listView').hidden = true; $('editView').hidden = false;
+    $('done').hidden = true; $('err').hidden = true;
+    $('etitle').textContent = cur.draft.title || '（還沒有標題）';
+    $('emeta').textContent = '收件單 ' + id.slice(0, 8) + '　·　狀態：'
+      + (ST[d.intake.status] || d.intake.status)
+      + '　·　送件人 ' + (d.intake.submitted_by || '未填');
+
+    // 過濾器攔到什麼，直接寫在上面——顧問要判斷的就是這幾句該不該留
+    var f = d.filters || {};
+    var out = f.output_hits || [], miss = f.missing || [];
+    var h = '';
+    if (out.length) {
+      h += '<div class="flag"><b>⛔ 這 ' + out.length + ' 處不改掉就不能發布</b><br>'
+        + out.map(function (x) {
+            return '・' + String(x.context || x.matched || '').replace(/[<>&]/g, '').slice(0, 90)
+                 + '<br>　<span class="mut">' + String(x.fix || '').replace(/[<>&]/g, '') + '</span>';
+          }).join('<br>') + '</div>';
+    }
+    if (miss.length) {
+      h += '<div class="flag">❓ <b>待你確認</b>：' + miss.join('、')
+         + '<br><span class="mut">補進下面欄位就會出現在頁面上；不補的話頁面上不會寫。</span></div>';
+    }
+    $('flags').innerHTML = h;
+
+    $('fields').innerHTML = FIELDS.map(function (f) {
+      var v = val(cur.draft[f[0]], f[2]);
+      cur.orig[f[0]] = v;
+      var hint = f[2] === 'list' ? '<p class="hint">一行一項。</p>' : '';
+      var el = (f[2] === 'line')
+        ? '<input id="f_' + f[0] + '" type="text" value="' + v.replace(/"/g, '&quot;') + '">'
+        : '<textarea id="f_' + f[0] + '"' + (f[2] === 'list' ? ' style="min-height:120px"' : '') + '>'
+          + v.replace(/[<>&]/g, function (c) { return { '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]; })
+          + '</textarea>';
+      return '<label for="f_' + f[0] + '">' + f[1] + '</label>' + el + hint;
+    }).join('');
+
+    // FAQ 一題一格，不然一大塊 JSON 沒人改得動
+    var faq = Array.isArray(cur.draft.faq) ? cur.draft.faq : [];
+    if (faq.length) {
+      $('fields').innerHTML += '<div class="faq"><label style="margin-top:0">常見問答</label>'
+        + faq.map(function (qa, i) {
+            var q = Array.isArray(qa) ? qa[0] : (qa && qa.q) || '';
+            var a = Array.isArray(qa) ? qa[1] : (qa && qa.a) || '';
+            return '<p class="hint" style="margin:14px 0 6px;color:#4a4d55;font-weight:700">Q' + (i + 1)
+              + '　' + String(q).replace(/[<>&]/g, '') + '</p>'
+              + '<textarea id="faq_' + i + '">'
+              + String(a).replace(/[<>&]/g, function (c) { return { '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]; })
+              + '</textarea>';
+          }).join('') + '</div>';
+    }
+    window.scrollTo({ top: 0 });
+  });
+}
+
+$('back').onclick = function (e) { e.preventDefault(); $('editView').hidden = true; $('listView').hidden = false; loadList(); };
+
+function collect() {
+  var fields = {};
+  FIELDS.forEach(function (f) {
+    var el = $('f_' + f[0]);
+    if (!el) return;
+    if (el.value === cur.orig[f[0]]) return;   // 沒動的不送，避免蓋掉別人剛改的
+    fields[f[0]] = parse(el.value, f[2]);
+  });
+  var faq = Array.isArray(cur.draft.faq) ? cur.draft.faq.slice() : [];
+  var faqChanged = false;
+  faq.forEach(function (qa, i) {
+    var el = $('faq_' + i);
+    if (!el) return;
+    var oldA = Array.isArray(qa) ? qa[1] : (qa && qa.a) || '';
+    if (el.value === String(oldA)) return;
+    faqChanged = true;
+    if (Array.isArray(qa)) faq[i] = [qa[0], el.value];
+    else faq[i] = Object.assign({}, qa, { a: el.value });
+  });
+  if (faqChanged) fields.faq = faq;
+  return fields;
+}
+
+function submit(mode) {
+  var fields = collect();
+  var note = $('note').value.trim();
+  if (mode === 'save' && !Object.keys(fields).length) {
+    return show('你沒有改任何欄位。如果是要它整段重寫，寫一句話按下面那顆。');
+  }
+  if (mode === 'ai' && !note) {
+    return show('要交給總指揮的話，請寫一句話說要改什麼——不然它重擬出來多半還是一樣。');
+  }
+  $('err').hidden = true; $('done').hidden = true;
+  $('save').disabled = true; $('ai').disabled = true;
+  api('/admin/job-draft/' + encodeURIComponent(cur.id) + '/patch', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ mode: mode, fields: fields, note: note, edited_by: $('by').value.trim() }),
+  }).then(function (d) {
+    if (!d.ok) return show(d.error || '存檔失敗');
+    $('done').innerHTML = (mode === 'ai')
+      ? '<b>✏️ 交出去了</b><br>總指揮會照著重擬，擬完再送一次審核到群組。網站目前沒有任何改動。'
+      : '<b>✅ 存好了</b><br>改了 ' + (d.changed || []).length + ' 個欄位，狀態仍是「等你決定」。'
+        + '<br>要上線的話，去群組按「核准發布」。';
+    $('done').hidden = false;
+    if (mode === 'save') openDraft(cur.id);      // 重讀，讓過濾器結果跟著更新
+  }).catch(function (e) {
+    if (e.message !== 'unauthorized') show('連線中斷，沒收到回應。⚠️ 改動可能已經存進去了，回清單重開這張單看看再決定要不要重存。');
+  }).finally(function () { $('save').disabled = false; $('ai').disabled = false; });
+}
+function show(m) { $('err').textContent = m; $('err').hidden = false; window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }
+
+$('save').onclick = function () { submit('save'); };
+$('ai').onclick = function () { submit('ai'); };
+
+if (tok) { $('app').hidden = false; loadList(); } else { gate(''); }
+</script>
+</body>
+</html>
