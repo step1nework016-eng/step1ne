@@ -40,6 +40,7 @@ tr.sub th{padding-top:0;font-size:11.5px;font-weight:600;text-align:center}
 td.fn{text-align:center;font-variant-numeric:tabular-nums;font-size:14px;width:52px}
 td.fn.zero{color:#c9c4b8}
 td.fn.hi{font-weight:700;color:var(--gold)}
+td.fn.wait{font-weight:700;color:#c98a1e}
 @media(max-width:860px){th:nth-child(4),td:nth-child(4){display:none}}
 </style>
 
@@ -60,13 +61,18 @@ td.fn.hi{font-weight:700;color:var(--gold)}
     <div class="note">
       <b>客戶對象改了，三件事會一起變</b>：履歷具名或匿名、報告掛不掛 Step1ne 品牌、要不要揭露初談由 AI 進行。<br>
       這些會直接影響已經在跑的面談與報告，<b>改完立即生效</b>，不用重新發布職缺。<br>
-      右側漏斗看的是<b>有沒有往下走</b>——20 個應徵但 0 個送到客戶，比 3 個應徵送出 2 個還糟。
+      右側漏斗看的是<b>有沒有往下走</b>——20 個應徵但 0 個送到客戶，比 3 個應徵送出 2 個還糟。<br>
+      <b style="color:#c98a1e">「初審」那欄有數字＝那些人在等我們決定</b>，不是在等客戶。滑過標題可以看每一關的定義。
     </div>
     <table>
       <thead><tr><th>職缺</th><th>服務線</th><th>客戶對象</th><th>連動結果</th>
         <th colspan="5" style="text-align:center">漏斗（人）</th></tr>
         <tr class="sub"><th></th><th></th><th></th><th></th>
-        <th>應徵</th><th>談完</th><th>送客戶</th><th>客戶面試</th><th>到職</th></tr></thead>
+        <th title="填完申請表送出的人">應徵</th>
+        <th title="阿財談完、報告已產出，但顧問還沒決定要不要送客戶。卡在這關＝人在等我們">初審</th>
+        <th title="從顧問把履歷送給客戶起算，客戶不論面試幾關都算在這一關">客戶面談</th>
+        <th title="客戶決定要了、還沒到職（談 offer、辦離職、等報到都在這）">錄取</th>
+        <th title="真的上工了，這一關才算成案">到職</th></tr></thead>
       <tbody id="rows"><tr><td colspan="5" class="mut">載入中⋯</td></tr></tbody>
     </table>
   </main>
@@ -104,13 +110,15 @@ function sel(name, map, val, slug) {
   return s + '</select>';
 }
 // 漏斗：0 用淡灰，有數字才凸顯——一整排 0 也是資訊（這個缺卡在哪一關）
-function n(v, hi) {
+function n(v, hi, cls) {
   v = v || 0;
-  return '<td class="fn' + (v ? (hi ? ' hi' : '') : ' zero') + '">' + v + '</td>';
+  var c = v ? (cls ? ' ' + cls : (hi ? ' hi' : '')) : ' zero';
+  return '<td class="fn' + c + '">' + v + '</td>';
 }
 function funnel(j) {
-  return n(j.applicants) + n(j.interviewed) + n(j.submitted, true)
-       + n(j.client_iv, true) + n(j.onboard, true);
+  // 初審用琥珀色標出來——那一關卡住代表人在等我們，不是在等客戶
+  return n(j.applicants) + n(j.screening, false, 'wait')
+       + n(j.client_stage, true) + n(j.offered, true) + n(j.onboard, true);
 }
 function render(jobs) {
   $('rows').innerHTML = jobs.map(function (j) {
