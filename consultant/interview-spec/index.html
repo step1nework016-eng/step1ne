@@ -1,0 +1,288 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>阿財結構式面談規格｜Step1ne 顧問後台</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<style>
+:root{--gold:#a67c3d;--gold2:#c9a049;--ink:#23262d;--ink2:#4d5563;--ink3:#8a8d95;
+ --line:#eee7db;--soft:#faf8f3;--bg:#f4f1ea;--bad:#c0392b;--ok:#2f8f5b;--blue:#2f5fd8}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+ font:15px/1.75 -apple-system,"Noto Sans TC","PingFang TC",sans-serif;padding:26px 14px 70px}
+.wrap{max-width:1000px;margin:0 auto}
+h1{font-size:25px;margin:0 0 6px}
+.sub{color:var(--ink3);font-size:14px;margin:0 0 24px}
+h2{font-size:18px;margin:36px 0 12px;display:flex;align-items:center;gap:10px}
+h2 i{font-style:normal;width:27px;height:27px;border-radius:9px;display:grid;place-items:center;
+ font-size:13px;font-weight:800;color:#fff;background:var(--gold);flex:none}
+h3{font-size:15px;margin:22px 0 9px}
+.card{background:#fff;border:1px solid var(--line);border-radius:15px;padding:18px 20px;margin-bottom:14px}
+.card p,.card li{font-size:13.5px;color:var(--ink2);line-height:1.85}
+.mut{color:var(--ink3)}
+.note{background:var(--soft);border-left:3px solid var(--gold);border-radius:0 10px 10px 0;
+ padding:12px 15px;font-size:13px;color:var(--ink2);margin-top:12px;line-height:1.85}
+.note b{color:var(--ink)}
+.bad{background:#fff5f3;border-left-color:var(--bad)}
+.bad b{color:var(--bad)}
+.ok{background:#f2f9f4;border-left-color:var(--ok)}
+.ok b{color:#2f6b41}
+
+table{width:100%;border-collapse:collapse;font-size:13.5px;background:#fff;
+ border:1px solid var(--line);border-radius:13px;overflow:hidden;margin-bottom:6px}
+th{background:var(--soft);text-align:left;padding:10px 13px;font-size:12.5px;color:var(--gold);font-weight:700}
+td{padding:11px 13px;border-top:1px solid #f4f0e8;color:var(--ink2);vertical-align:top}
+td b,th b{color:var(--ink)}
+td code{background:var(--soft);border-radius:5px;padding:1px 6px;font-size:12px;color:#7a5a22}
+.num{font-weight:800;color:var(--ink);text-align:center;white-space:nowrap}
+
+/* 佔比條 */
+.bar{display:flex;height:34px;border-radius:9px;overflow:hidden;margin:14px 0 8px;
+ border:1px solid var(--line)}
+.bar div{display:grid;place-items:center;font-size:11.5px;font-weight:700;color:#fff;
+ text-align:center;line-height:1.25;padding:0 4px}
+.c0{background:#b9b2a4}.c1{background:#a67c3d}.c2{background:#c9a049}
+.c3{background:#8a6b3a}.c4{background:#5f7f6a}.c5{background:#8f9aa8}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12.5px;color:var(--ink2);margin-bottom:6px}
+.legend span b{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:860px){.g2{grid-template-columns:1fr}}
+.q{background:var(--soft);border-radius:9px;padding:10px 13px;font-size:13px;margin:5px 0;color:var(--ink2)}
+.q.no{background:#fff5f3;color:#8c3b1e}
+.q.yes{background:#f2f9f4;color:#2f6b41}
+.stat{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:6px 0 14px}
+.stat div{background:var(--ink);color:#fff;border-radius:13px;padding:16px 12px;text-align:center}
+.stat b{display:block;font-size:30px;line-height:1.1;color:var(--gold2)}
+.stat span{font-size:12px;color:#b9bec8;display:block;margin-top:4px}
+@media(max-width:700px){.stat{grid-template-columns:1fr 1fr}}
+</style>
+<div class="wrap">
+<p style="font-size:13px;margin:0 0 18px;">
+  <a href="/consultant/reports/" style="color:#a67c3d;text-decoration:none">← 初篩報告</a>　
+  <a href="/consultant/jobs/" style="color:#a67c3d;text-decoration:none">職缺分類</a>　
+  <a href="/consultant/bd/" style="color:#a67c3d;text-decoration:none">開發客戶</a>
+</p>
+<h1>阿財結構式面談：題數佔比與外語驗證</h1>
+<p class="sub">2026-08-11　佔比之後要調就改 <code>SKILL.md</code> 的「結構式面談」那一段。</p>
+
+<!-- 預算 -->
+<h2><i>1</i>先看預算：一場只有 9 題</h2>
+<p class="sub" style="margin:-4px 0 10px">抓 10 場已完成面談的真實紀錄算出來的，不是估計。</p>
+<div class="stat">
+  <div><b>9.5</b><span>阿財提問（中位數）</span></div>
+  <div><b>7.7</b><span>人選回覆次數</span></div>
+  <div><b>31</b><span>分鐘（中位數）</span></div>
+  <div><b>13–113</b><span>人選單次回覆字數</span></div>
+</div>
+<div class="note bad">
+  <b>九題就是全部。</b>四個面向要驗，一個面向平均只分得到兩題多，還要扣掉硬條件確認與收尾。<br>
+  所以問一題履歷上寫過的東西＝<b>丟掉 11% 的預算</b>。呂書帆那場前兩題都是履歷上有的——
+  他等於是<b>到第三題才開始被面談</b>，然後在中途說「問的都有履歷上面寫過的問題很沒效率」。
+</div>
+
+<!-- 基層佔比 -->
+<h2><i>2</i>佔比：一般職缺（10 題）</h2>
+<div class="bar">
+  <div class="c0" style="flex:1">硬條件<br>10%</div>
+  <div class="c1" style="flex:2">① 技能<br>20%</div>
+  <div class="c2" style="flex:2">② 經驗<br>20%</div>
+  <div class="c3" style="flex:2">③ 實際探查<br>20%</div>
+  <div class="c4" style="flex:2">④ 人格特質<br>20%</div>
+  <div class="c5" style="flex:1">換他問<br>10%</div>
+</div>
+<table>
+  <tr><th style="width:56px">題數</th><th style="width:150px">面向</th><th>這一段要拿到什麼</th></tr>
+  <tr><td class="num">1</td><td><b>硬條件確認</b></td>
+    <td>只問履歷與表單「沒填」或「兩邊衝突」的。都齊全就 <b>0 題</b>，省下來給後面用</td></tr>
+  <tr><td class="num">2</td><td><b>① 技能確認</b></td>
+    <td>他列的技能<b>實際做到哪一層</b>。不是會不會，是做到什麼程度</td></tr>
+  <tr><td class="num">2</td><td><b>② 經驗：具體在做什麼</b></td>
+    <td>那個職稱<b>每天實際在做的事</b>。同一個職稱在不同公司差很多</td></tr>
+  <tr><td class="num">2</td><td><b>③ 這段時間的實際探查</b></td>
+    <td>進去時什麼樣、離開時什麼樣、他改變了哪一段。含空窗與離職原因</td></tr>
+  <tr><td class="num">2</td><td><b>④ 人格特質驗收</b></td>
+    <td><b>全部附掛在 ①②③ 的回答上追問</b>，不獨立出題</td></tr>
+  <tr><td class="num">1</td><td><b>換他問</b></td>
+    <td>他問什麼，透露他在意什麼</td></tr>
+</table>
+
+<!-- 中高階佔比 -->
+<h2><i>3</i>佔比：中高階（5 題）</h2>
+<div class="bar">
+  <div class="c3" style="flex:2">③ 實際探查<br>40%</div>
+  <div class="c4" style="flex:1">④ 特質<br>20%</div>
+  <div class="c1" style="flex:1">最大落差<br>20%</div>
+  <div class="c2" style="flex:1">薪資・時程<br>20%</div>
+</div>
+<table>
+  <tr><th style="width:56px">題數</th><th style="width:150px">面向</th><th>為什麼這樣分</th></tr>
+  <tr><td class="num">0</td><td><b>①② 技能與經驗</b></td>
+    <td><b>履歷已經寫了。</b>中高階的履歷比基層完整得多，問了就是那句「很沒效率」</td></tr>
+  <tr><td class="num">2</td><td><b>③ 實際探查</b></td>
+    <td>履歷寫「負責再生專案」，但沒寫「接手時最爛的是哪一塊、他改變了什麼」</td></tr>
+  <tr><td class="num">1</td><td><b>④ 人格特質</b></td>
+    <td>附掛在 ③ 的回答上：「這個決定是你拍板還是上面交代的？」</td></tr>
+  <tr><td class="num">1</td><td><b>最大落差</b></td>
+    <td>履歷跟這個缺對不上的那一點（例：管理職 → 不帶人的特助）</td></tr>
+  <tr><td class="num">1</td><td><b>薪資結構與決策時程</b></td>
+    <td>中高階不談這兩件等於沒談。基層看表單就好，中高階的結構複雜得多</td></tr>
+</table>
+<div class="note">
+  中高階的硬條件（地點、工作型態、待命）<b>用確認語氣一次帶過，不佔題數</b>：<br>
+  「這個缺要台日兩地往返、彈性工時，也有一定程度待命——這樣的型態您可以嗎？」
+</div>
+<div class="note bad">
+  <b>判準是「職級」，不是「服務線」。</b>派遣也會有中高階（派遣的廠長、專案總監）。
+  用服務線判斷的話，那種缺會被當成基層跑 30 分鐘標準流程。<br>
+  職級在 <code>/consultant/jobs</code> 那一頁自己調：基層／一般／<b>中高階</b>。
+</div>
+
+<!-- 四面向問法 -->
+<h2><i>4</i>四個面向要問到什麼層次</h2>
+<div class="g2">
+  <div class="card">
+    <h3>① 技能確認</h3>
+    <div class="q no">❌ 「您會不會寫 SOP？」</div>
+    <div class="q yes">✅ 「那份 SOP 你寫了幾條？誰在用？有人不照做的時候怎麼處理？」</div>
+    <p class="mut" style="font-size:12.5px">「會不會」的答案永遠是會。要問的是做到哪一層。</p>
+  </div>
+  <div class="card">
+    <h3>② 經驗：具體在做什麼</h3>
+    <div class="q no">❌ 「您主要負責哪些事？」</div>
+    <div class="q yes">✅ 「宿泊支配人這個職稱，你每天早上進辦公室第一件事是什麼？」</div>
+    <p class="mut" style="font-size:12.5px">同一個職稱，在不同公司可以是排班發薪，也可以是重整整間旅館。</p>
+  </div>
+  <div class="card">
+    <h3>③ 這段時間的實際探查</h3>
+    <div class="q no">❌ 「這段做了多久？」（履歷上有）</div>
+    <div class="q yes">✅ 「你接手的時候現場最爛的是哪一塊？離開時變成什麼樣？」</div>
+    <p class="mut" style="font-size:12.5px">年資長不等於做得深。要問的是這段時間裡發生了什麼變化。</p>
+  </div>
+  <div class="card">
+    <h3>④ 人格特質驗收</h3>
+    <div class="q no">❌ 「您覺得自己是什麼樣的人？」「您的優缺點？」</div>
+    <div class="q yes">✅ 「那個做不來的員工，你最後怎麼處理？」</div>
+    <p class="mut" style="font-size:12.5px">從他講的事反推，不要另外問性格題——那種題目每個人都背過答案。</p>
+  </div>
+</div>
+<table style="margin-top:6px">
+  <tr><th style="width:170px">想驗的特質</th><th>從哪種回答切進去</th></tr>
+  <tr><td><b>主導 vs 配合</b></td><td>「這個決定是你自己拍板，還是上面交代的？」</td></tr>
+  <tr><td><b>對人 vs 對事</b></td><td>「那個做不來的員工，你最後怎麼處理？」</td></tr>
+  <tr><td><b>穩定 vs 求變</b></td><td>「當時有更輕鬆的做法嗎？為什麼沒選？」</td></tr>
+  <tr><td><b>細節 vs 大局</b></td><td>「這件事你自己盯到什麼程度？」</td></tr>
+</table>
+<div class="note">
+  <b>驗的是「跟這個職缺吻不吻合」，不是「這個人好不好」。</b>
+  主管特助要配合與細節，旅館再生要主導與抗壓——同一個人在 A 缺是優勢，在 B 缺是風險。
+  報告要寫的是這句，不是貼一個 DISC 標籤。
+</div>
+
+<!-- 省題規則 -->
+<h2><i>5</i>三條省題規則</h2>
+<table>
+  <tr><th style="width:40px">#</th><th style="width:230px">規則</th><th>為什麼</th></tr>
+  <tr><td class="num">1</td><td><b>一則訊息只問一個問題</b></td>
+    <td>兩個問題塞同一則，人選只會答其中一個，另一個等於白問</td></tr>
+  <tr><td class="num">2</td><td><b>問之前先確認履歷上有沒有</b></td>
+    <td>有就換題。要確認的話用確認語氣，<b>不佔提問額度</b>：「您表單填 9/15 可到職，這個還準嗎？」</td></tr>
+  <tr><td class="num">3</td><td><b>追問「為什麼這樣做」不另計一題</b></td>
+    <td>接在他剛講的事上面，成本最低、收穫最大——④ 幾乎全靠它</td></tr>
+</table>
+<div class="note bad">
+  <b>預算用完就收尾。</b>問到第 8 題還沒拿到 ③ 或 ④，放掉剩下的直接收。
+  報告寫「未問到」比硬拖到第 15 題好——失去耐性的人選，後面回答的品質也不能用了。
+</div>
+
+<!-- 外語 -->
+<h2><i>6</i>外語驗證：哪些職缺會做、怎麼做</h2>
+<p class="sub" style="margin:-4px 0 10px">掃過全部 22 個職缺，<b>5 個</b>有語言要求。</p>
+<table>
+  <tr><th>職缺</th><th style="width:74px">職級</th><th style="width:70px">語言</th><th>JD 原文</th></tr>
+  <tr><td><b>主管特助（台日兩地）</b></td><td>中高階</td><td><b>日文</b>／英文</td>
+    <td>日文須達 JLPT N1 或 N2 程度，可進行<b>會議即時溝通</b>與商務文件處理</td></tr>
+  <tr><td><b>營運發展主管</b></td><td>中高階</td><td>英文</td>
+    <td>英文具<b>商務溝通能力（必要）</b></td></tr>
+  <tr><td><b>集團資訊主管</b></td><td>中高階</td><td>英文</td>
+    <td>英文中等以上｜<b>可與海外據點進行會議</b>及日常溝通</td></tr>
+  <tr><td><b>財務主管（柬埔寨外派）</b></td><td>中高階</td><td>英文</td>
+    <td>當地溝通可透過翻譯，<b>英文或中文流利即可</b></td></tr>
+  <tr><td><b>品牌社群影音編輯</b></td><td>一般</td><td>英文</td>
+    <td>英文聽說讀寫中等</td></tr>
+</table>
+<div class="note">
+  觸發條件寫在 <code>SKILL.md</code>：<code>must_skills</code>／<code>client_screen_conditions</code>／JD
+  出現任何語言要求就做。<b>不限日文</b>——英文、韓文、越南語、粵語都一樣。
+  新職缺只要 JD 寫了語言，自動就會跑，不用另外設定。
+</div>
+
+<h3>怎麼驗（佔 1 題，不額外加預算）</h3>
+<table>
+  <tr><th style="width:40px">#</th><th style="width:170px">步驟</th><th>做法與理由</th></tr>
+  <tr><td class="num">1</td><td><b>先講清楚要切換</b></td>
+    <td>「這個職缺日方會直接用日文開會，我們接下來用日文聊兩句可以嗎？不用緊張，就一般對話。」<br>
+      <span class="mut">突襲會讓人緊張，測到的是反應不是能力</span></td></tr>
+  <tr><td class="num">2</td><td><b>問他剛剛用中文講過的同一件事</b></td>
+    <td>日：「旅館の再生プロジェクトで、一番苦労したのはどの部分でしたか。」<br>
+      英：“Walk me through how you handled the vendor issue you just mentioned.”<br>
+      <span class="mut">⚠️ 一定要問講過的事——這樣才比對得出「同一件事用外語講，細節有沒有掉」。
+      換新題目的話，答得差你分不清是語言不行還是那件事他本來就不熟</span></td></tr>
+  <tr><td class="num">3</td><td><b>用該語言再追問一句</b></td>
+    <td>一來一往才叫對談。單問單答只證明他<b>看得懂</b>，不代表能開會</td></tr>
+  <tr><td class="num">4</td><td><b>切回中文並說明</b></td>
+    <td>「謝謝，日文的部分沒問題，我這邊記錄下來。接下來我們回中文。」</td></tr>
+</table>
+<div class="note bad">
+  <b>證照不能代替這一段。</b>JLPT N1、多益 900 測的是讀跟聽，這個缺要的是當場對話。<br>
+  呂書帆那場就是最好的例子：他的自我 PR 寫「JLPT N1 相当」，但證照欄實際登記的是
+  <b>2018 年 N2</b>——履歷自己內部就對不上，而這個缺的硬條件寫「N1 或 N2」。
+</div>
+
+<h3>報告要怎麼寫</h3>
+<div class="card" style="background:var(--soft)">
+<pre style="margin:0;white-space:pre-wrap;font:13px/1.9 ui-monospace,monospace;color:var(--ink2)">外語驗證（日文）
+  測法：用日文問「旅館再生專案最困難的部分與解法」，一問一追問
+  回應：能即時回覆、句子完整、用了「リニューアル」「運営体制」等業界用語，
+        中文講過的細節在日文版本裡都在，沒有掉
+  判斷：可即時對談（符合 JD 的「會議即時溝通」要求）
+  ⚠️ 這是文字對談的結果，口說與聽力仍建議日方面談確認</pre>
+</div>
+<div class="note bad">
+  <b>不准寫「日文流利」「英文良好」這種形容詞</b>，要寫測法／回應／判斷三件事。<br>
+  <b>最後那句每次都要寫</b>——我們測的是文字不是口說，把文字表現當口說能力交給客戶，
+  出錯的是顧問的信用。<br>
+  他拒絕用外語對談或答得吃力，一樣照實寫、不准修飾；但也<b>不准直接判定不通過</b>，
+  寫「需顧問／客戶端確認」——錄取判斷不是這裡做的。
+</div>
+
+<!-- 今天改了什麼 -->
+<h2><i>7</i>今天改了什麼（2026-08-11）</h2>
+<table>
+  <tr><th style="width:150px">改動</th><th>起因</th><th style="width:110px">影響</th></tr>
+  <tr><td><b>履歷讀得到時，開場不准說「請您介紹一下經歷」</b></td>
+    <td>呂書帆中途說「問的都有履歷上面寫過的問題很沒效率」。Phase 0 寫「履歷寫過的不准再問」，
+      Phase 1 卻寫「請他自我介紹」——兩條打架，而實際跑的是後者</td>
+    <td>改成先複述履歷事實證明看過，第一題直接是追問</td></tr>
+  <tr><td><b>加「不准問清單」</b></td>
+    <td>同上。公司／職稱／年月、自我 PR 寫的職能、團隊規模、語言證照、表單填過的</td>
+    <td>Phase 0 抄完履歷就標成禁止提問</td></tr>
+  <tr><td><b>九題預算與四面向佔比</b></td>
+    <td>實測 10 場算出中位數 9.5 題</td><td>就是本頁 §2 §3</td></tr>
+  <tr><td><b>中高階短版</b></td>
+    <td>阿財對一位九年資歷、N1、帶過團隊的人選跑了跟基層一樣的流程</td>
+    <td>10 分鐘、最多 5 題、不要測驗、他嫌沒效率就立刻收不准挽留</td></tr>
+  <tr><td><b>職級欄位獨立於服務線</b></td>
+    <td>顧問指出<b>派遣也會有中高階</b></td>
+    <td>新增 <code>seniority</code>，在 /consultant/jobs 可調</td></tr>
+  <tr><td><b>外語驗證</b></td>
+    <td>主管特助最關鍵的硬條件（日文會議即時溝通）整場一題都沒驗</td>
+    <td>本頁 §6，通用於所有語言</td></tr>
+  <tr><td><b>🚨 報告漏送履歷全文</b></td>
+    <td>報告寫「無履歷檔案可交叉核對」、工作經歷全標「時間未提及」——
+      但日文履歷書 2012 字、七段職歷每段都有年月，對談時阿財讀得到。
+      對談與報告是兩次獨立呼叫，各組各的 prompt，報告那支漏了履歷，<b>而且不會報錯</b></td>
+    <td>修好後重產同一份報告：七段年月全出來、總年資 13 年 10 個月、
+      並抓到「自我 PR 寫 N1 相当、證照欄實際是 N2」的內部矛盾</td></tr>
+</table>
+
+</div>
