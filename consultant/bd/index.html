@@ -110,6 +110,10 @@ button.go{width:100%;font:inherit;font-size:16px;font-weight:700;background:#a67
       <div id="done" class="ok" hidden></div>
     </div>
 
+    <h2 style="font-size:15px;margin:26px 0 10px;">待補窗口</h2>
+    <p class="hint" style="margin:0 0 12px;">這幾封查不到收件信箱，<b>在群組按核准也寄不出去</b>。補上就能寄。</p>
+    <div id="need" class="mut">讀取中⋯</div>
+
     <h2 style="font-size:15px;margin:26px 0 10px;">最近的開發需求</h2>
     <div id="list" class="mut">讀取中⋯</div>
   </div>
@@ -195,7 +199,45 @@ $('go').onclick = function () {
     .finally(function () { $('go').disabled = false; $('go').textContent = '送出，讓系統去配對'; });
 };
 
-function boot() { loadPool(); loadList(); }
+// 待補窗口：agent 查不到 email 的那幾封。
+// 不做這個的話，顧問在群組按核准會拿到「這封還沒有收件人 email」然後卡住，
+// 而且他沒有任何地方可以補。
+function loadNeed() {
+  api('/admin/bd').then(function (d) {
+    if (!d.ok) return;
+    var rows = (d.rows || []).filter(function (r) {
+      return r.status === 'pending' && !r.contact_email;
+    });
+    if (!rows.length) { $('need').textContent = '沒有待補的窗口。'; return; }
+    $('need').innerHTML = rows.map(function (r) {
+      return '<div class="row" data-id="' + r.id + '">'
+        + '<b>' + esc(r.company) + '</b>'
+        + '<div class="mut">' + esc(r.job_title || '（無職缺錨點）') + '</div>'
+        + '<input type="email" inputmode="email" placeholder="人資／招募窗口 email" '
+        + 'style="margin-top:8px;" class="mail">'
+        + '<button class="go" type="button" style="margin-top:8px;padding:11px;font-size:14px;">存起來</button>'
+        + '<div class="mut done" hidden style="color:#2f6b41;margin-top:6px;">✅ 存好了，去群組按核准就會寄出</div>'
+        + '</div>';
+    }).join('');
+    Array.prototype.forEach.call($('need').querySelectorAll('.row'), function (box) {
+      box.querySelector('button').onclick = function () {
+        var v = box.querySelector('.mail').value.trim();
+        if (!v || v.indexOf('@') < 0) { alert('請填一個看起來像 email 的東西'); return; }
+        this.disabled = true;
+        api('/admin/bd/' + encodeURIComponent(box.dataset.id) + '/patch', {
+          method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ contact_email: v }),
+        }).then(function (d) {
+          if (!d.ok) { alert(d.error || '存檔失敗'); box.querySelector('button').disabled = false; return; }
+          box.querySelector('.done').hidden = false;
+          box.querySelector('button').textContent = '已存';
+        });
+      };
+    });
+  }).catch(function () { $('need').textContent = '讀不到。'; });
+}
+
+function boot() { loadPool(); loadList(); loadNeed(); }
 if (tok) { $('app').hidden = false; boot(); } else { gate(''); }
 </script>
 </body>
