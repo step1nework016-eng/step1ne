@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="zh-Hant">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>LINE 查詢進度綁定｜顧問後台</title>
+<link rel="icon" href="/assets/favicon.ico">
+<style>
+:root{--gold:#a67c3d;--ink:#23262d;--ink2:#4d5563;--ink3:#8a8d95;--line:#eee7db;--soft:#faf8f3;--bg:#f4f1ea;--ok:#2f8f5b;--bad:#c0392b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 -apple-system,"Noto Sans TC",sans-serif}
+.wrap{max-width:960px;margin:0 auto;padding:0 16px}
+header{background:#fff;border-bottom:1px solid var(--line);padding:14px 0}
+header .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header img{height:26px}
+nav{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+nav a{font-size:14px;text-decoration:none;color:var(--ink2);padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:#fff}
+nav a.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.gate{max-width:380px;margin:16vh auto;background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px}
+.gate input{width:100%;font:inherit;padding:11px 13px;border:1px solid var(--line);border-radius:10px;margin:12px 0}
+.gate button{width:100%;font:inherit;font-weight:700;background:var(--gold);color:#fff;border:0;border-radius:999px;padding:12px}
+.mut{color:var(--ink3);font-size:13px}
+main{padding:20px 0 60px}
+.note{background:#fff;border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:0 12px 12px 0;padding:13px 16px;font-size:13.5px;color:var(--ink2);margin-bottom:16px}
+.note b{color:var(--ink)}
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+th,td{padding:11px 12px;text-align:left;font-size:14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--soft);color:var(--ink3);font-size:12.5px;font-weight:700;letter-spacing:.04em;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.jobs a{display:block;font-size:13px;color:var(--ink2);text-decoration:none}
+td.jobs a:hover{text-decoration:underline}
+.pill{font-size:11.5px;font-weight:700;border-radius:999px;padding:2px 9px;display:inline-block}
+.pill.bound{background:#e7f4ec;color:var(--ok)}
+.pill.pending{background:#fdf6e9;color:#c98a1e}
+.uid{font-size:11px;color:var(--ink3);word-break:break-all}
+.cnt{font-size:12.5px;color:var(--ink3);margin-bottom:12px}
+</style>
+
+<div id="gate" class="gate" hidden>
+  <b>顧問後台</b>
+  <p class="mut" style="margin:6px 0 0">需要存取權杖。這組權杖等同密碼，不要外傳。</p>
+  <input id="tok" type="password" placeholder="ADMIN_TOKEN" autocomplete="off">
+  <button id="enter" type="button">進入</button>
+  <p id="gerr" class="mut" style="color:#b4552e;margin:12px 0 0" hidden></p>
+</div>
+
+<div id="app" hidden>
+  <header><div class="wrap">
+    <img src="/assets/step1ne-logo.png" alt="Step1ne"><b>LINE 查詢進度綁定</b>
+    <nav>
+      <a href="/consultant/reports/">初篩報告</a>
+      <a href="/consultant/jobs/">職缺分類</a>
+      <a href="/consultant/job-intake/">＋ 新增職缺</a>
+      <a href="/consultant/job-draft/">改擬稿</a>
+      <a href="/consultant/bd/">開發客戶</a>
+      <a href="/consultant/line-bindings/" class="on">LINE 綁定</a>
+    </nav>
+  </div></header>
+  <main class="wrap">
+    <div class="note">
+      候選人在 LINE 官方帳號（全民獵才）按「追蹤面試進度」或打字送出觸發文字後，
+      系統會請他留手機號碼，比對到 <b>applications</b> 的應徵紀錄就會綁定，
+      之後他再查詢會直接回覆目前狀態，不用再問一次。<br>
+      這頁列出<b>所有已經跟系統對過話的 LINE 帳號</b>——包含還在等他回手機號碼、
+      或手機號碼比對不到任何紀錄的人（<span class="pill pending">等手機號碼</span>），
+      方便你知道誰用過這個功能、卡在哪一步。
+    </div>
+    <div class="cnt" id="cnt"></div>
+    <table>
+      <thead><tr>
+        <th>候選人</th><th>手機</th><th>狀態</th><th>對應應徵紀錄</th><th>建立時間</th><th>綁定時間</th>
+      </tr></thead>
+      <tbody id="rows"><tr><td colspan="6" class="mut">載入中⋯</td></tr></tbody>
+    </table>
+  </main>
+</div>
+<div id="msg" class="mut" style="position:fixed;left:50%;bottom:26px;transform:translateX(-50%)"></div>
+
+<script>
+var API = 'https://step1ne-recruit-api.aiagentg888.workers.dev';
+var KEY = 's1ne_admin_tok';
+var tok = localStorage.getItem(KEY) || '';
+var $ = function (i) { return document.getElementById(i); };
+
+function esc(s) { return String(s == null ? '' : s).replace(/[<>&]/g, function (c) { return { '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]; }); }
+
+function api(path) {
+  return fetch(API + path, { headers: { authorization: 'Bearer ' + tok } }).then(function (r) { return r.json(); });
+}
+
+function row(b) {
+  var pill = b.state === 'bound'
+    ? '<span class="pill bound">已綁定</span>'
+    : '<span class="pill pending">等手機號碼／查無紀錄</span>';
+  var apps = (b.applications || []).map(function (a) {
+    return '<a href="/consultant/jobs/" title="' + esc(a.id) + '">' + esc(a.job_title || a.job_slug) + '</a>';
+  }).join('') || '<span class="mut">—</span>';
+  return '<tr>'
+    + '<td>' + (b.candidate_name ? esc(b.candidate_name) : '<span class="mut">尚未比對到姓名</span>')
+      + '<div class="uid">' + esc(b.line_user_id) + '</div></td>'
+    + '<td>' + (b.phone ? esc(b.phone) : '<span class="mut">—</span>') + '</td>'
+    + '<td>' + pill + '</td>'
+    + '<td class="jobs">' + apps + '</td>'
+    + '<td>' + esc(b.created_at || '') + '</td>'
+    + '<td>' + (b.bound_at ? esc(b.bound_at) : '<span class="mut">—</span>') + '</td>'
+    + '</tr>';
+}
+
+function load() {
+  api('/admin/line-bindings').then(function (d) {
+    if (!d.ok) { localStorage.removeItem(KEY); return boot(); }
+    $('gate').hidden = true; $('app').hidden = false;
+    var rows = d.bindings || [];
+    $('cnt').textContent = rows.length + ' 筆';
+    $('rows').innerHTML = rows.map(row).join('')
+      || '<tr><td colspan="6" class="mut" style="text-align:center;padding:26px">還沒有人用過這個功能</td></tr>';
+  }).catch(function () { $('rows').innerHTML = '<tr><td colspan="6" class="mut">讀取失敗</td></tr>'; });
+}
+function boot() {
+  if (tok) return load();
+  $('gate').hidden = false;
+  $('enter').onclick = function () {
+    tok = $('tok').value.trim();
+    if (!tok) return;
+    api('/admin/line-bindings').then(function (d) {
+      if (!d.ok) { $('gerr').hidden = false; $('gerr').textContent = '權杖不正確'; return; }
+      localStorage.setItem(KEY, tok); load();
+    });
+  };
+  $('tok').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('enter').click(); });
+}
+boot();
+</script>
+</html>
