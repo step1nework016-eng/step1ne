@@ -19,6 +19,14 @@ header{background:#fff;border-bottom:1px solid #eee7db;padding:14px 0;position:s
 header .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;}
 header img{height:30px;}
 header b{font-size:15px;}
+/* ⚠️ 2026-08-12 修：手機寬度下這排（logo+標題、新增候選人按鈕、報告數、登出）
+   擠在同一行不夠寬，flex item 沒有 min-width 會被壓到 CJK 逐字換行、看起來
+   東倒西歪。改成窄螢幕直接讓 .wrap 允許換行、右側那組獨立成一行。 */
+@media (max-width:640px){
+  header .wrap{flex-wrap:wrap;row-gap:10px;}
+  header .wrap>div:first-child{flex:0 0 auto;}
+  header .mut{flex:1 1 100%;justify-content:flex-start;flex-wrap:wrap;row-gap:8px;}
+}
 .mut{color:#8a8d95;font-size:13px;}
 
 .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:22px 0 6px;}
