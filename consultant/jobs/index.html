@@ -64,7 +64,7 @@ td.fn.clk:hover{background:#fdf6e9}
 .lhd input{flex:1;font:inherit;font-size:13px;padding:6px 11px;border:1px solid var(--line);
  border-radius:8px;background:#fff}
 #lst{max-height:62vh;overflow:auto}
-.lr{display:grid;grid-template-columns:1fr auto;grid-template-areas:"a c" "b c";
+.lr{display:grid;grid-template-columns:1fr auto;grid-template-areas:"a c" "b c" "n n";
  gap:2px 12px;padding:10px 18px;border-bottom:1px solid var(--line);align-items:center}
 .lr:last-child{border-bottom:0}
 .lr:hover{background:var(--soft)}
@@ -76,6 +76,8 @@ td.fn.clk:hover{background:#fdf6e9}
 .l1 .dc{font-size:11px;color:var(--ok);white-space:nowrap}
 .l1 .dc.no{color:#c98a1e;font-weight:700}
 .l2{grid-area:b;font-size:12px;color:var(--ink3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.l3{grid-area:n;font-size:12px;color:#7a5a22;background:var(--soft);border-radius:7px;
+ padding:5px 9px;margin-top:2px;white-space:normal}
 .la{grid-area:c;display:flex;gap:6px;white-space:nowrap}
 .la a{font-size:12px;font-weight:600;text-decoration:none;border:1px solid var(--line);
  border-radius:8px;padding:5px 10px;color:var(--ink2);background:#fff}
@@ -186,6 +188,11 @@ var EFFECT = {
   unsigned: '<b>匿名履歷</b>・掛 Step1ne 品牌・不揭露 AI',
   private:  '具名履歷・<b>報告不掛任何品牌</b>・不揭露 AI',
 };
+
+// 這個檔案原本沒有任何跳脫函式——其他欄位（姓名、期望待遇）都是系統
+// 產生的固定格式，風險低。但 handled_note 是顧問在群組裡的自由文字，
+// 直接塞進 innerHTML 會被 < > & 打斷版面，所以這裡另外補一個。
+function esc(s) { return String(s == null ? '' : s).replace(/[<>&]/g, function (c) { return { '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]; }); }
 
 function api(path, opt) {
   opt = opt || {};
@@ -334,12 +341,15 @@ document.addEventListener('click', function (e) {
         ? '<span class="warn">' + p.days_in + ' 天</span>' : '<span class="d">' + p.days_in + ' 天</span>';
       var meta = [p.expected_salary, p.available_date ? '可到職 ' + p.available_date : '',
                   (p.msgs || 0) + ' 則'].filter(Boolean).join('・');
+      // 顧問在「顧問人選回報區」講的最新一句進度（applications.handled_note）。
+      // 2026-08-12 加：之前這欄位有寫但沒地方看，顧問講了等於白講。
+      var note = p.handled_note ? '<div class="l3">📌 ' + esc(p.handled_note) + '</div>' : '';
       return '<div class="lr" data-n="' + (p.name || '') + '">'
         + '<div class="l1"><b>' + (p.name || '—') + '</b>' + wait
         + (p.decision ? '<span class="dc">' + (DEC[p.decision] || p.decision) + '</span>'
                       : '<span class="dc no">未處置</span>') + '</div>'
         + '<div class="l2">' + meta + '</div>'
-        + '<div class="la">' + a.join('') + '</div></div>';
+        + '<div class="la">' + a.join('') + '</div>' + note + '</div>';
     }).join('');
     $('mbody').innerHTML = head + '<div id="lst">' + rows + '</div>';
     var pq = document.getElementById('pq');

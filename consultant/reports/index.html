@@ -636,19 +636,33 @@ async function load() {
       ? '沒有待處置的報告。切到「全部」看歷史紀錄。'
       : '沒有符合的報告。') + '</div>';
 
+  // 顧問在群組回報進度後（consultant_reports → placements），
+  // 這個 stage 代碼跟後端漏斗查詢用的是同一套，只在畫面上轉成中文。
+  var PIPE_LABEL = { SUBMITTED: '已送件', INTERVIEWING: '客戶面談',
+                     OFFER_ACCEPTED: '錄取', GUARANTEE: '到職・保證期',
+                     CLOSED_LOST: '結案', CLOSED_WON: '結案（成功）' };
   d.reports.forEach(function (r) {
     var lab = LABEL[r.consultant_decision];
+    var pipe = PIPE_LABEL[r.pipeline_stage];
     var el = document.createElement('div');
     el.className = 'row';
     el.innerHTML =
       '<h3>' + esc(r.name) + '　<span class="badge ' + (lab ? lab.c : 'b-undecided') + '">' +
-      (lab ? lab.t : '待處置') + '</span></h3>' +
+      (lab ? lab.t : '待處置') + '</span>' +
+      (pipe ? '<span class="badge" style="background:#eef4fd;color:#2f5fd8;">' + esc(pipe) + '</span>' : '') +
+      '</h3>' +
       '<div class="meta"><span>' + esc(r.job_title || r.job_slug) + '</span>' +
       '<span>' + esc((r.created_at || '').slice(0, 16)) + '</span>' +
       '<span>' + (r.turns || 0) + ' 則對話</span>' +
       (r.expected_salary ? '<span>期望 ' + esc(r.expected_salary) + '</span>' : '') +
       (r.available_date ? '<span>可到職 ' + esc(r.available_date) + '</span>' : '') + '</div>' +
-      '<p class="prev">' + esc((r.preview || '').replace(/\s+/g, ' ')) + '</p>';
+      '<p class="prev">' + esc((r.preview || '').replace(/\s+/g, ' ')) + '</p>' +
+      // 顧問在「顧問人選回報區」講的最新一句進度，寫進 applications.handled_note。
+      // 這是 2026-08-12 加的入口——之前這個欄位沒有畫面顯示，顧問講了也等於白講。
+      (r.handled_note
+        ? '<p class="mut" style="font-size:12.5px;background:#faf8f3;border-radius:8px;padding:7px 10px;margin:6px 0 0;">' +
+          '📌 顧問跟進：' + esc(r.handled_note) + '</p>'
+        : '');
     el.addEventListener('click', function () { open(r); });
     $('list').appendChild(el);
   });
