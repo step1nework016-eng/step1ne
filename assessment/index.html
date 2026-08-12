@@ -370,9 +370,22 @@ function showReport(s,r){
 
   let next = '';
   if(r.route==='now'){
-    next = `<div class="sect"><h2>接下來：現在就可以面談</h2>
-      <p class="sh">目前面談室有空，您可以直接進入。AI 面談助理阿財會跟您做初步了解，約 20–30 分鐘。</p>
-      <a class="go" href="/interview/?t=${encodeURIComponent(T)}">進入面談室</a></div>`;
+    // ⚠️ 兩條路都要給。2026-08-11 Jacky 反應「測驗做完怎麼沒有可以選直接開始或預約」——
+    //    原本這裡只有「進入面談室」一顆按鈕。**面談室有空 ≠ 他現在方便**：
+    //    他可能在上班、在通勤、手邊有事。沒有第二條路的人只會把視窗關掉，
+    //    而關掉的人多半不會再回來（08-08 走掉那位就是類似的情況）。
+    next = `<div class="sect"><h2>接下來：初步面談</h2>
+      <p class="sh">測驗收到了，謝謝您。面談由 AI 面談助理「阿財」進行，約 20–30 分鐘，用打字的就可以。
+      目前面談室有空，<b>現在就能開始</b>；現在不方便的話也可以先約時間。</p>
+      <a class="go" href="/interview/?t=${encodeURIComponent(T)}">現在就開始面談</a>
+      <p class="sh" style="margin-top:16px;">
+        <a href="#" id="wantbook" style="color:#a67c3d;font-size:15px;">現在不方便，我要先約時間 →</a>
+      </p>
+      <div id="bookbox" hidden>
+        <p class="sh" style="margin-top:6px;">選一個方便的時段，時間到之前我們會寄信提醒您。</p>
+        <div id="slotbox"></div>
+        <div class="msg" id="bmsg"></div>
+      </div></div>`;
   } else if(r.route==='scheduled'){
     // ⚠️ 這裡刻意給主動的按鈕，不是「時間到再進來」的被動說明。
     // 剛做完測驗的那一刻是他整段流程裡最投入的時候，叫他關掉視窗晚點再回來
@@ -419,6 +432,18 @@ function showReport(s,r){
     ${next}`;
 
   if(r.route==='book') renderSlots(r.slots||[]);
+  // 「現在不方便」是點開才展開的——預設就攤開一整排時段，
+  // 會把「現在就開始」那顆主要按鈕的份量稀釋掉。
+  if(r.route==='now'){
+    const link=document.getElementById('wantbook');
+    if(link) link.onclick=function(e){
+      e.preventDefault();
+      const box=document.getElementById('bookbox');
+      box.hidden=false; link.style.display='none';
+      renderSlots(r.slots||[]);
+      box.scrollIntoView({behavior:'smooth',block:'nearest'});
+    };
+  }
 }
 
 function renderSlots(slots){
