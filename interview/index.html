@@ -114,7 +114,7 @@ dialog#rdlg::backdrop{background:rgba(20,18,14,.45);}
 
 /* 語音回覆：外語驗證用。文字擋不住翻譯，一段錄音同時測口說與即時性 */
 #mic{flex:none;width:44px;height:44px;border-radius:50%;border:1px solid #e0d9cb;background:#fff;
-  font-size:19px;line-height:1;cursor:pointer;color:#4d5563;padding:0;}
+  cursor:pointer;color:#4d5563;padding:0;display:grid;place-items:center;}
 #mic[data-rec="1"]{background:#c0392b;border-color:#c0392b;color:#fff;animation:pulse 1.2s infinite;}
 #mic:disabled{opacity:.4;cursor:default;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
@@ -211,7 +211,11 @@ dialog#rdlg::backdrop{background:rgba(20,18,14,.45);}
 <footer id="bar" hidden>
   <div class="rec" id="recbar">🔴 錄音中　<b id="rectime">0:00</b>　<span style="font-size:12.5px">最長 60 秒</span><button id="recstop" type="button">停止並送出</button></div>
   <div class="bar">
-    <button id="mic" type="button" aria-label="語音回覆" title="用語音回覆">🎙</button>
+    <!-- ⚠️ 用 SVG 不用 emoji。2026-08-12 上線後發現 🎙（U+1F399）在按鈕上畫不出來——
+     按鈕不繼承 body 字體，回退到 Arial，而 Arial 沒有這個字符，變成一顆空圓圈。
+     這個 emoji 本來覆蓋率就差（需要變體選擇符），候選人手機上一樣會空白。
+     SVG 不依賴任何字體，而且跟著 currentColor 走，錄音中變白色也自動對。 -->
+    <button id="mic" type="button" aria-label="語音回覆" title="用語音回覆"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10v1a7 7 0 0 0 14 0v-1"/><path d="M12 18v4"/></svg></button>
     <textarea id="say" rows="1" placeholder="輸入訊息…" autocomplete="off"></textarea>
     <button id="go" type="button" aria-label="送出">↑</button>
   </div>
