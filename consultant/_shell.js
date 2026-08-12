@@ -34,7 +34,8 @@
     { href: '/consultant/bd/',             label: '開發客戶', icon: 'target', primary: true  },
     { href: '/consultant/job-intake/',     label: '新增職缺', icon: 'plus',   primary: false },
     { href: '/consultant/job-draft/',      label: '改擬稿',   icon: 'pencil', primary: false },
-    { href: '/consultant/interview-spec/', label: '面談規格', icon: 'clip',   primary: false }
+    { href: '/consultant/interview-spec/', label: '面談規格', icon: 'clip',   primary: false },
+    { href: '/consultant/line-bindings/',  label: 'LINE 進度綁定', icon: 'clip', primary: false }
   ];
 
   var ICONS = {
@@ -45,7 +46,8 @@
     plus:   '<circle cx="10" cy="10" r="7.3"/><path d="M10 6.6v6.8M6.6 10h6.8"/>',
     pencil: '<path d="M12.6 3.4l3 3-8.9 8.9-3.6.6.6-3.6 8.9-8.9z"/><path d="M10.8 5.2l3 3"/>',
     clip:   '<path d="M6.2 4h7.6a1 1 0 0 1 1 1v11.2a1 1 0 0 1-1 1H6.2a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/><path d="M7.7 2.8h4.6a.6.6 0 0 1 .6.6v1.2a.6.6 0 0 1-.6.6H7.7a.6.6 0 0 1-.6-.6V3.4a.6.6 0 0 1 .6-.6z" fill="#fff"/><path d="M7 9h6M7 11.6h6M7 14.2h4" />',
-    more:   '<circle cx="4.5" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="10" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="15.5" cy="10" r="1.3" fill="currentColor" stroke="none"/>'
+    more:   '<circle cx="4.5" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="10" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="15.5" cy="10" r="1.3" fill="currentColor" stroke="none"/>',
+    collapse: '<rect x="2.5" y="3.5" width="15" height="13" rx="2"/><path d="M8 3.5v13"/><path d="M5.6 8.2l-1.6 1.8 1.6 1.8" />'
   };
 
   function svg(name) {
@@ -68,10 +70,20 @@
     /* sidebar */
     '#s1shell-sidebar{display:none;position:fixed;top:0;left:0;bottom:0;width:212px;z-index:30;' +
       'background:#fff;border-right:1px solid #eee7db;flex-direction:column;overflow-y:auto}' +
-    '#s1shell-sidebar .s1-brand{display:flex;align-items:center;gap:10px;padding:18px 18px 16px;' +
+    '#s1shell-sidebar .s1-brand{display:flex;align-items:center;gap:10px;padding:18px 10px 16px 18px;' +
       'border-bottom:1px solid #eee7db;margin-bottom:8px}' +
     '#s1shell-sidebar .s1-brand img{height:24px;flex:none}' +
-    '#s1shell-sidebar .s1-brand b{font-size:13px;color:#8a8d95;font-weight:600;letter-spacing:.02em}' +
+    '#s1shell-sidebar .s1-brand b{font-size:13px;color:#8a8d95;font-weight:600;letter-spacing:.02em;flex:1}' +
+    '#s1shell-collapse-btn{flex:none;width:28px;height:28px;border:0;background:#f2efe8;border-radius:8px;' +
+      'display:flex;align-items:center;justify-content:center;cursor:pointer;color:#4d5563}' +
+    '#s1shell-collapse-btn:hover{background:#eee7db}' +
+    '#s1shell-reopen-btn{display:none;position:fixed;top:16px;left:16px;z-index:31;width:36px;height:36px;' +
+      'border:1px solid #eee7db;background:#fff;border-radius:10px;align-items:center;justify-content:center;' +
+      'cursor:pointer;color:#4d5563;box-shadow:0 2px 10px rgba(35,38,45,.08)}' +
+    '#s1shell-reopen-btn:hover{background:#faf8f3}' +
+    'html.s1shell-sb-collapsed #s1shell-sidebar{display:none!important}' +
+    'html.s1shell-sb-collapsed body{padding-left:0!important}' +
+    '@media(min-width:1024px){html.s1shell-authed.s1shell-sb-collapsed #s1shell-reopen-btn{display:flex}}' +
     '#s1shell-sidebar nav{padding:0 10px;display:flex;flex-direction:column;gap:2px}' +
     '#s1shell-sidebar nav a{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;' +
       'color:#4d5563;font-size:14px;font-weight:500;min-height:40px}' +
@@ -134,7 +146,8 @@
     var el = document.createElement('div');
     el.id = 's1shell-sidebar';
     var html = '<div class="s1-brand"><img src="/assets/step1ne-logo.png" alt="Step1ne">' +
-      '<b>顧問後台</b></div><nav>';
+      '<b>顧問後台</b><button type="button" id="s1shell-collapse-btn" title="隱藏側邊欄" aria-label="隱藏側邊欄">' +
+      svg('collapse') + '</button></div><nav>';
     PAGES.forEach(function (p) {
       html += '<a href="' + p.href + '"' + (isActive(p.href) ? ' class="on"' : '') + '>' +
         svg(p.icon) + '<span>' + p.label + '</span></a>';
@@ -199,6 +212,33 @@
     }
   }
 
+  var COLLAPSE_KEY = 's1shell-sidebar-collapsed';
+
+  function wireCollapse(sidebar) {
+    var reopenBtn = document.createElement('button');
+    reopenBtn.type = 'button';
+    reopenBtn.id = 's1shell-reopen-btn';
+    reopenBtn.title = '顯示側邊欄';
+    reopenBtn.setAttribute('aria-label', '顯示側邊欄');
+    reopenBtn.innerHTML = svg('collapse');
+    document.body.appendChild(reopenBtn);
+
+    function setCollapsed(collapsed) {
+      document.documentElement.classList.toggle('s1shell-sb-collapsed', collapsed);
+      try { localStorage.setItem(COLLAPSE_KEY, collapsed ? '1' : '0'); } catch (e) {}
+    }
+
+    // 側邊欄只在桌面寬度才有意義，手機/平板本來就是 bottom tab，
+    // 這個狀態只影響 ≥1024px 的版面，記住的值跨分頁/整個網域共用。
+    var saved = false;
+    try { saved = localStorage.getItem(COLLAPSE_KEY) === '1'; } catch (e) {}
+    if (saved) setCollapsed(true);
+
+    var collapseBtn = sidebar.querySelector('#s1shell-collapse-btn');
+    if (collapseBtn) collapseBtn.addEventListener('click', function () { setCollapsed(true); });
+    reopenBtn.addEventListener('click', function () { setCollapsed(false); });
+  }
+
   function init() {
     injectStyle();
 
@@ -218,6 +258,7 @@
     var moreBtn = tabbar.querySelector('#s1shell-more-btn');
     if (moreBtn) wireMoreSheet(more.backdrop, more.sheet, moreBtn);
 
+    wireCollapse(sidebar);
     syncAuthState();
   }
 
