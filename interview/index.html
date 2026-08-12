@@ -652,10 +652,12 @@ var composing = false;
 $('say').addEventListener('compositionstart', function () { composing = true; });
 $('say').addEventListener('compositionend', function () { composing = false; });
 $('say').addEventListener('keydown', function (e) {
-  // 手機用送出鍵，桌機 Enter 直接送、Shift+Enter 換行
-  if (e.key !== 'Enter' || e.shiftKey) return;
+  // ⚠️ 2026-08-12 改過：原本桌機按 Enter 就直接送出，Jacky 反應「打到一半常常
+  // 不小心按到 Enter 就送出去了」——那是因為多數人打字打到一句中間會習慣性
+  // 按 Enter 換行/停頓，跟這裡的「送出」快捷鍵衝突。改成要 Cmd/Ctrl+Enter
+  // 才送出，單純 Enter 一律當作換行（跟手機上的行為一致），不會誤送。
+  if (e.key !== 'Enter' || !(e.metaKey || e.ctrlKey)) return;
   if (composing || e.isComposing || e.keyCode === 229) return;   // 還在選字，不是要送出
-  if (!window.matchMedia('(min-width:760px)').matches) return;
   e.preventDefault();
   send();
 });

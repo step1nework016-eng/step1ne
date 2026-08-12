@@ -322,8 +322,18 @@ async function send() {
 }
 
 $('go').addEventListener('click', send);
+// ⚠️ 2026-08-12 比照 /interview/ 改過：原本純 Enter 就送出，打字打到一半
+// 常常不小心按到 Enter 就送出去了。改成要 Cmd/Ctrl+Enter 才送出，
+// 單純 Enter 一律換行；同時補上中文輸入法選字保護（原本沒有，選字時
+// 按 Enter 會被誤判成送出，導致一句話送兩次）。
+var composing = false;
+$('say').addEventListener('compositionstart', function () { composing = true; });
+$('say').addEventListener('compositionend', function () { composing = false; });
 $('say').addEventListener('keydown', function (e) {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+  if (e.key !== 'Enter' || !(e.metaKey || e.ctrlKey)) return;
+  if (composing || e.isComposing || e.keyCode === 229) return;
+  e.preventDefault();
+  send();
 });
 $('say').addEventListener('input', function () {
   this.style.height = 'auto';
