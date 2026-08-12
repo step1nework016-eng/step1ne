@@ -109,6 +109,7 @@ footer{
   <b>健檢對談已完成</b>
   <p id="finNote">您的健檢報告正在整理中，完成後會由顧問跟您聯繫。</p>
   <a id="reportLink" class="btn report" href="#" target="_blank" rel="noopener" hidden>查看健檢報告</a>
+  <a id="reportPdfLink" class="btn report" href="#" hidden style="margin-top:8px">下載 PDF 帶走</a>
 
   <div class="lineCta">
     <b>想直接跟真人顧問聊？</b>
@@ -125,7 +126,7 @@ footer{
     <textarea id="say" rows="1" placeholder="輸入訊息…" autocomplete="off"></textarea>
     <button id="go" type="button" aria-label="送出">↑</button>
   </div>
-  <p class="hint">這是 AI 履歷健檢助理，對話內容僅供產出您的健檢報告使用，不會對外公開。</p>
+  <p class="hint">Enter 換行，按右邊箭頭（或 ⌘/Ctrl+Enter）送出。這是 AI 履歷健檢助理，對話內容僅供產出您的健檢報告使用，不會對外公開。</p>
 </footer>
 
 <script>
@@ -195,10 +196,13 @@ function setEnded(reportReady) {
   $('bar').hidden = true;
   $('fin').hidden = false;
   if (reportReady) {
-    $('finNote').textContent = '謝謝您撥時間對談。報告已經產出，點下面按鈕可以直接看。';
+    $('finNote').textContent = '謝謝您撥時間對談。報告已經產出，點下面按鈕可以直接看，或下載 PDF 帶走。';
     var a = $('reportLink');
     a.hidden = false;
     a.href = API + '/checkup-chat/' + encodeURIComponent(T) + '/report';
+    var p = $('reportPdfLink');
+    p.hidden = false;
+    p.href = API + '/checkup-chat/' + encodeURIComponent(T) + '/report.pdf';
   } else {
     // 報告通常在對談結束後幾分鐘內就會好（要等一次模型呼叫＋排版），
     // 這裡每 15 秒問一次要不要顯示連結，不用整頁重新整理。
@@ -213,10 +217,13 @@ async function pollReport() {
     var d = await r.json();
     if (d.ok && d.report_ready) {
       clearInterval(reportPollTimer);
-      $('finNote').textContent = '報告已經產出，點下面按鈕可以直接看。';
+      $('finNote').textContent = '報告已經產出，點下面按鈕可以直接看，或下載 PDF 帶走。';
       var a = $('reportLink');
       a.hidden = false;
       a.href = API + '/checkup-chat/' + encodeURIComponent(T) + '/report';
+      var p = $('reportPdfLink');
+      p.hidden = false;
+      p.href = API + '/checkup-chat/' + encodeURIComponent(T) + '/report.pdf';
     }
   } catch (e) { /* 下一輪再試 */ }
 }
