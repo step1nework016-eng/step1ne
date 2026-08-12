@@ -89,6 +89,15 @@ button:disabled{opacity:.45;cursor:not-allowed}
 .discradio input{width:19px;height:19px;margin:0;accent-color:var(--ac)}
 .disccap{display:flex;justify-content:space-between;font-size:10px;color:var(--tx3);
   padding:0 0 2px;letter-spacing:.03em}
+/* 2026-08-12 補的：測驗做完「現在就開始面談／先約時間」畫面用，跟 /book/ 同一套樣式 */
+.go{display:block;text-align:center;background:var(--ac);color:#fff;text-decoration:none;
+  padding:15px;border-radius:10px;font-size:16px;font-weight:600;margin-top:16px}
+.dayh{font-size:12px;color:var(--tx3);margin:16px 0 2px;font-weight:600}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px;margin-top:10px}
+.slot{padding:10px 6px;border:1px solid var(--line);border-radius:9px;background:#fff;
+  font-size:13px;cursor:pointer;text-align:center;font-family:inherit;color:var(--tx);margin:0}
+.slot.on{border-color:var(--ac);background:#f3f7ff;color:var(--ac);font-weight:600}
+.slot:disabled{opacity:.6;cursor:default}
 </style>
 
 <header class="top">
@@ -497,7 +506,7 @@ function renderReportIntoGate(s, r) {
       分數是相對描述而不是絕對評價，不會單獨用來決定錄取與否。
     </div>
     <div class="hint" style="margin-top:10px">
-      ${r.route === 'now' ? '目前面談室有空，送出應徵後會直接帶您進入面談室。'
+      ${r.route === 'now' ? '目前面談室有空，送出應徵後可以馬上開始，也可以先約時間。'
         : r.route === 'book' ? `目前有 ${r.busy || ''} 位候選人正在面談中，送出應徵後請選一個方便的時段。`
         : '這個職缺需要顧問先看過您的資料，送出應徵後請留意信箱通知。'}
     </div>`;
@@ -543,7 +552,12 @@ f.addEventListener('submit', async (e) => {
   }
 
   const route = RETURN_ROUTE || {};
-  if (route.route === 'now') { location.href = '/interview/?t=' + encodeURIComponent(RETURN_TOKEN); return; }
+  // ⚠️ 2026-08-12：這裡原本 route==='now' 是無條件直接導去面談室，
+  //    沒有給「先約時間」的選項——早上先把這個邏輯加在 /assessment/ 自己的結果頁，
+  //    但真實流程是「/apply/ → /assessment/（交卷後不show結果，直接跳回）→ /apply/
+  //    使用者在這裡按下最後的『送出應徵』才是真正決定進面談室還是約時間的地方」，
+  //    所以那次的修改是死碼，從來沒有真的生效過。這裡才是要接的地方。
+  if (route.route === 'now') { showNowOrBook(route); return; }
   if (route.route === 'book') { location.href = '/book/?t=' + encodeURIComponent(RETURN_TOKEN); return; }
   {
     // route === 'screening'：這個職缺要顧問先看過每一位應徵者，沒有下一頁可以跳，這裡就是終點。
@@ -553,5 +567,74 @@ f.addEventListener('submit', async (e) => {
       '<p style="margin-top:22px"><a href="/jobs/" style="color:var(--ac)">看其他職缺</a></p>';
   }
 });
+
+// 面談室有空時給兩條路：現在就開始，或先約時間。
+// 「有空」不等於「他現在方便」——他可能在上班、在通勤，沒有第二條路的人
+// 只會把視窗關掉，而關掉的人多半不會再回來（08-08 走掉那位就是類似情況）。
+function showNowOrBook(route) {
+  document.getElementById('form-view').innerHTML = `
+    <h2 style="font-size:20px">已收到您的應徵</h2>
+    <p class="lead">目前面談室有空，您可以現在就開始，或先約一個方便的時段。</p>
+    <a class="go" href="/interview/?t=${encodeURIComponent(RETURN_TOKEN)}"
+       style="display:block;text-align:center;text-decoration:none;font-weight:700;
+              background:var(--ac);color:#fff;border-radius:12px;padding:15px;margin-top:18px;">
+      現在就開始面談
+    </a>
+    <p style="margin:16px 0 0;text-align:center;">
+      <a href="#" id="wantbook" style="color:var(--ac);font-size:15px;">現在不方便，我要先約時間 →</a>
+    </p>
+    <div id="bookbox" hidden style="margin-top:14px;">
+      <p class="lead">選一個方便的時段，時間到之前我們會寄信提醒您。</p>
+      <div id="slotbox"></div>
+      <div class="msg" id="bmsg"></div>
+    </div>`;
+  document.getElementById('wantbook').onclick = (e) => {
+    e.preventDefault();
+    document.getElementById('bookbox').hidden = false;
+    e.target.style.display = 'none';
+    renderApplySlots(route.slots || []);
+    document.getElementById('bookbox').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  };
+  scrollTo(0, 0);
+}
+
+// 跟 /book/index.html 同一套邏輯，這裡是把它內嵌在應徵表單的結果畫面裡。
+function renderApplySlots(slots) {
+  const box = document.getElementById('slotbox');
+  if (!slots.length) { box.innerHTML = '<p class="lead">目前沒有可預約的時段，我們會另外寄信跟您安排。</p>'; return; }
+  const byDay = {};
+  slots.forEach((s) => { const [d, t] = s.slot_at.split(' '); (byDay[d] = byDay[d] || []).push({ t, left: s.left, full: s.slot_at }); });
+  const W = ['日', '一', '二', '三', '四', '五', '六'];
+  box.innerHTML = Object.entries(byDay).map(([d, list]) => {
+    const dt = new Date(d + 'T00:00:00+08:00');
+    return `<div class="dayh">${d.slice(5)}（週${W[dt.getUTCDay()]}）</div>
+      <div class="slots">${list.map((x) =>
+        `<button type="button" class="slot" data-slot="${x.full}">${x.t}<small>剩 ${x.left} 位</small></button>`
+      ).join('')}</div>`;
+  }).join('');
+  box.querySelectorAll('.slot').forEach((btn) => {
+    btn.addEventListener('click', () => bookApplySlot(btn, btn.dataset.slot));
+  });
+}
+
+async function bookApplySlot(btn, slot) {
+  document.querySelectorAll('#slotbox .slot').forEach((b) => b.classList.remove('on'));
+  btn.classList.add('on'); btn.disabled = true;
+  const msg = document.getElementById('bmsg'); msg.className = 'msg';
+  let r;
+  try {
+    r = await (await fetch(`${API}/book`, {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ token: RETURN_TOKEN, slot_at: slot }),
+    })).json();
+  } catch { msg.className = 'msg err'; msg.textContent = '預約失敗，請再試一次。'; btn.disabled = false; return; }
+  if (!r.ok) {
+    msg.className = 'msg err'; msg.textContent = r.error || '預約失敗';
+    if (r.slots) renderApplySlots(r.slots);
+    return;
+  }
+  document.getElementById('bookbox').innerHTML =
+    `<p class="lead">已為您預約 <b>${slot}</b>。<br>我們會在時間到之前寄信提醒您，屆時用信裡的連結進入面談室即可。</p>`;
+}
 prog();
 </script>
