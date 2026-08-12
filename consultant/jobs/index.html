@@ -336,7 +336,14 @@ document.addEventListener('click', function (e) {
       if (p.resume_file_id) a.push('<a href="' + API + '/admin/resume/' + p.id + '?t=' + encodeURIComponent(tok) + '" target="_blank" title="下載履歷">履歷</a>');
       else if (p.resume_url) a.push('<a href="' + p.resume_url + '" target="_blank" rel="noopener" title="開啟履歷連結">履歷↗</a>');
       if (p.report_id) a.push('<a href="' + API + '/admin/report/' + p.report_id + '?t=' + encodeURIComponent(tok) + '" target="_blank" title="面談報告">報告</a>');
-      a.push('<a href="/consultant/reports/?id=' + encodeURIComponent(p.id) + '" target="_blank" title="逐字稿與處置" class="go">處置</a>');
+      // ⚠️ 要傳報告 id（p.report_id），不是應徵 id（p.id）。
+      //    2026-08-12 這裡原本傳的是應徵 id，但 /consultant/reports/ 的深連結
+      //    是拿 id 去比對 reports.id——傳錯 id 對不到任何一筆，
+      //    頁面就套用預設的「待處置」清單，看起來像連結失效、跳到別的頁面。
+      //    還沒產出報告（面談還沒做完）的人沒有東西可以處置，不給這顆按鈕。
+      if (p.report_id) {
+        a.push('<a href="/consultant/reports/?id=' + encodeURIComponent(p.report_id) + '" target="_blank" title="逐字稿與處置" class="go">處置</a>');
+      }
       var wait = (stage === 'screening' && p.days_in >= 2)
         ? '<span class="warn">' + p.days_in + ' 天</span>' : '<span class="d">' + p.days_in + ' 天</span>';
       var meta = [p.expected_salary, p.available_date ? '可到職 ' + p.available_date : '',

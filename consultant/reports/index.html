@@ -988,7 +988,24 @@ $('a_copy').addEventListener('click', function () {
   });
 });
 
-if (tok) { $('app').hidden = false; load(); } else { gate(''); }
+// ── 從職缺分類頁的漏斗彈窗點「處置」進來的深連結 ──
+// 2026-08-12 加：原本這個頁面完全不看網址上的 ?id=，
+// 所以從漏斗點進來永遠只套用預設的「待處置」清單，
+// 已經處置過、或篩選條件對不上的人選看起來就像連結失效、跳到別的頁面。
+async function openById(id) {
+  try {
+    var d = await api('/admin/reports?' + new URLSearchParams({ id: id }));
+    if (d.ok && d.reports && d.reports.length) { open(d.reports[0]); return; }
+  } catch (e) { /* 走到下面統一顯示找不到 */ }
+  alert('找不到這份報告（id：' + id + '），可能已被刪除或連結有誤。');
+}
+
+if (tok) {
+  $('app').hidden = false;
+  load();   // 背景照常載入清單，深連結關掉後不會看到空白頁
+  var deepId = new URLSearchParams(location.search).get('id');
+  if (deepId) openById(deepId);
+} else { gate(''); }
 </script>
 </body>
 </html>
