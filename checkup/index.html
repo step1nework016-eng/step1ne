@@ -280,6 +280,12 @@ f.addEventListener('submit', async (e) => {
     });
     const d = await r.json();
     if (!d.ok) throw new Error(d.error || '送出失敗');
+    // 送出成功就直接帶去對談室——阿福幾秒內就會讀完履歷開口，
+    // 不用讓人等一封信。萬一舊版 API 沒回 chat_token，退回原本的靜態完成頁。
+    if (d.chat_token) {
+      location.href = '/checkup-chat/?t=' + encodeURIComponent(d.chat_token);
+      return;
+    }
     document.getElementById('form-view').style.display = 'none';
     document.getElementById('done-view').style.display = 'block';
     scrollTo(0, 0);

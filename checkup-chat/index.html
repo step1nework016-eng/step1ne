@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI 履歷健檢對談｜Step1ne 德仁管理顧問</title>
+<!-- 健檢對談室不需要被搜尋引擎收錄，網址本身就是憑證（跟 /interview/ 同樣的做法） -->
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta name="theme-color" content="#ffffff">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* 這份跟 /interview/ 是各自獨立的檔案（阿福跟阿財是兩個人格，見
+   memory/project_resume_checkup.md「跟阿財完全分開」），樣式刻意沿用同一套
+   視覺語言（同一個品牌），但不 import、不共用同一支檔案。 */
+*{box-sizing:border-box;}
+[hidden]{display:none !important;}
+html,body{margin:0;padding:0;height:100%;}
+body{
+  font-family:'Noto Sans TC',system-ui,sans-serif;color:#23262d;background:#fff;
+  -webkit-font-smoothing:antialiased;line-height:1.75;
+  display:flex;flex-direction:column;height:100dvh;overflow:hidden;
+}
+a{color:#a67c3d;}
+
+header{
+  flex:0 0 auto;display:flex;align-items:center;gap:12px;
+  padding:12px 18px;border-bottom:1px solid #eee7db;background:#fff;
+  padding-top:calc(12px + env(safe-area-inset-top));
+}
+header img{height:30px;width:auto;}
+header .who{min-width:0;}
+header .who b{display:block;font-size:14.5px;line-height:1.3;}
+header .who span{display:block;font-size:12.5px;color:#8a8d95;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+.firsthint{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:40px 30px;text-align:center;}
+.firsthint p{color:#8a8d95;font-size:14.5px;margin:0;max-width:280px;line-height:1.8;}
+.spin{width:26px;height:26px;border:2.5px solid #eee7db;border-top-color:#a67c3d;border-radius:50%;animation:sp .9s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg);}}
+#log{flex:1 1 auto;overflow-y:auto;padding:20px 18px 8px;-webkit-overflow-scrolling:touch;}
+.msg{max-width:min(78%,540px);margin:0 0 14px;padding:12px 16px;border-radius:18px;font-size:15.5px;white-space:pre-wrap;word-break:break-word;}
+.msg.ai{background:#f6f2ea;border:1px solid #eee7db;border-bottom-left-radius:6px;}
+.msg.me{background:#23262d;color:#fff;margin-left:auto;border-bottom-right-radius:6px;}
+.stamp{font-family:'Space Mono',monospace;font-size:10.5px;color:#b3b5bb;margin:-8px 0 14px;}
+.stamp.me{text-align:right;}
+
+.typing{display:flex;gap:7px;align-items:center;padding:14px 18px;color:#8a8d95;font-size:13.5px;}
+.typing b{font-weight:500;}
+.typing i{width:6px;height:6px;border-radius:50%;background:#c9c4b8;animation:b 1.2s infinite;}
+.typing i:nth-child(2){animation-delay:.18s;} .typing i:nth-child(3){animation-delay:.36s;}
+@keyframes b{0%,60%,100%{opacity:.3;transform:translateY(0);}30%{opacity:1;transform:translateY(-3px);}}
+
+footer{
+  flex:0 0 auto;border-top:1px solid #eee7db;background:#fff;
+  padding:12px 14px calc(12px + env(safe-area-inset-bottom));
+}
+.bar{display:flex;gap:10px;align-items:flex-end;}
+#say{
+  flex:1;border:1px solid #e0d9cb;border-radius:22px;padding:11px 16px;
+  font:inherit;font-size:16px;resize:none;max-height:130px;line-height:1.6;outline:0;background:#fff;
+}
+#say:focus{border-color:#a67c3d;box-shadow:0 0 0 3px rgba(166,124,61,.12);}
+#go{
+  flex:0 0 auto;width:46px;height:46px;border:0;border-radius:50%;
+  background:#a67c3d;color:#fff;font-size:19px;cursor:pointer;
+}
+#go:disabled{background:#dcd6c9;cursor:default;}
+.hint{font-size:11.5px;color:#a9aab1;margin:8px 4px 0;text-align:center;}
+
+.fin{flex:0 0 auto;border-top:1px solid #eee7db;background:#fbfaf7;padding:22px 20px calc(22px + env(safe-area-inset-bottom));text-align:center;overflow-y:auto;}
+.fin b{display:block;font-size:16px;margin-bottom:6px;}
+.fin p{color:#8a8d95;font-size:14px;margin:0 auto 16px;max-width:340px;line-height:1.75;}
+.fin button,.fin a.btn{font:inherit;font-size:15px;font-weight:700;background:#23262d;color:#fff;border:0;
+  border-radius:999px;padding:13px 34px;cursor:pointer;min-height:48px;text-decoration:none;display:inline-block;}
+.fin a.report{background:#a67c3d;}
+.fin .closebtn{display:block;margin:14px auto 0;background:transparent;color:#8a8d95;font-weight:500;padding:8px;}
+.lineCta{margin:20px auto 4px;max-width:360px;background:#f2f9f3;border:1px solid #cfe7d3;border-radius:14px;padding:16px 18px;}
+.lineCta b{font-size:15px;margin-bottom:5px;color:#1f4d2c;}
+.lineCta p{color:#5c7264;font-size:13px;margin:0 0 13px;line-height:1.7;max-width:none;}
+.lineCta a.lineBtn{display:inline-block;margin:0;background:#06c755;color:#fff;font-size:15px;font-weight:700;
+  border-radius:999px;padding:12px 28px;text-decoration:none;min-height:46px;line-height:22px;}
+.notice{max-width:560px;margin:14vh auto;padding:0 26px;text-align:center;}
+.notice h1{font-size:20px;margin:0 0 12px;}
+.notice p{color:#5a5d64;font-size:15.5px;margin:0 0 10px;}
+</style>
+</head>
+<body>
+
+<div id="boot" class="notice"><p>載入中…</p></div>
+
+<header id="top" hidden>
+  <img src="/assets/step1ne-logo.png" alt="Step1ne">
+  <div class="who">
+    <b>阿福・AI 履歷健檢助理</b>
+    <span id="sub">—</span>
+  </div>
+</header>
+
+<div id="hint" class="firsthint" hidden>
+  <div class="spin"></div>
+  <p>阿福正在讀您的履歷與附件<br>大約需要幾十秒…</p>
+</div>
+<div id="log" hidden></div>
+
+<div id="fin" class="fin" hidden>
+  <b>健檢對談已完成</b>
+  <p id="finNote">您的健檢報告正在整理中，完成後會由顧問跟您聯繫。</p>
+  <a id="reportLink" class="btn report" href="#" target="_blank" rel="noopener" hidden>查看健檢報告</a>
+
+  <div class="lineCta">
+    <b>想直接跟真人顧問聊？</b>
+    <p>加 LINE 找我們的獵頭顧問，問問這份報告裡沒展開的部分，
+       或聊聊接下來要往哪個方向找機會。</p>
+    <a class="lineBtn" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">加 LINE 找顧問</a>
+  </div>
+
+  <button id="closebtn" type="button" class="closebtn">關閉頁面</button>
+</div>
+
+<footer id="bar" hidden>
+  <div class="bar">
+    <textarea id="say" rows="1" placeholder="輸入訊息…" autocomplete="off"></textarea>
+    <button id="go" type="button" aria-label="送出">↑</button>
+  </div>
+  <p class="hint">這是 AI 履歷健檢助理，對話內容僅供產出您的健檢報告使用，不會對外公開。</p>
+</footer>
+
+<script>
+// 對談室。網址上的 token 就是憑證，不做登入。
+// 跟 /interview/ 完全獨立的一份程式碼，讀的是 /checkup-chat/ 系列端點，
+// 不共用 /chat/ 那組（阿財），也不共用同一支檔案。
+var API = 'https://step1ne-recruit-api.aiagentg888.workers.dev';
+var T = new URLSearchParams(location.search).get('t') || '';
+var lastId = 0, polling = null, waiting = false, ended = false, reportPollTimer = null;
+var optimistic = [];
+// 開場那句是給後端用的暗號，觸發阿福主動開口，不該顯示給本人看。
+var SENTINEL = '（本人已進入健檢對談室）';
+function realMsgs(list) {
+  return (list || []).filter(function (m) { return m.content !== SENTINEL; });
+}
+
+var $ = function (id) { return document.getElementById(id); };
+
+function notice(title, body) {
+  $('boot').hidden = false;
+  $('boot').innerHTML = '<h1>' + title + '</h1><p>' + body + '</p>';
+  ['top', 'log', 'bar'].forEach(function (i) { $(i).hidden = true; });
+}
+
+function esc(s) {
+  return String(s).replace(/[&<>"]/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+  });
+}
+
+function atBottom() {
+  var l = $('log');
+  return l.scrollHeight - l.scrollTop - l.clientHeight < 80;
+}
+
+function add(m, fromServer) {
+  if (!$('hint').hidden) { $('hint').hidden = true; $('log').hidden = false; }
+  var stick = atBottom();
+  var mine = m.role === 'user';
+  var d = document.createElement('div');
+  d.className = 'msg ' + (mine ? 'me' : 'ai');
+  d.textContent = m.content;
+  $('log').appendChild(d);
+  var s = document.createElement('div');
+  s.className = 'stamp' + (mine ? ' me' : '');
+  s.textContent = (m.created_at || '').slice(11, 16);
+  $('log').appendChild(s);
+  if (fromServer && m.id > lastId) lastId = m.id;
+  if (stick) $('log').scrollTop = $('log').scrollHeight;
+}
+
+function typing(on) {
+  var t = $('t-ind');
+  if (on && !t) {
+    t = document.createElement('div');
+    t.id = 't-ind'; t.className = 'typing';
+    t.innerHTML = '<b>阿福整理中</b><i></i><i></i><i></i>';
+    $('log').appendChild(t);
+    $('log').scrollTop = $('log').scrollHeight;
+  } else if (!on && t) { t.remove(); }
+}
+
+function setEnded(reportReady) {
+  if (ended) return;
+  ended = true; waiting = false; typing(false);
+  clearInterval(polling);
+  $('bar').hidden = true;
+  $('fin').hidden = false;
+  if (reportReady) {
+    $('finNote').textContent = '謝謝您撥時間對談。報告已經產出，點下面按鈕可以直接看。';
+    var a = $('reportLink');
+    a.hidden = false;
+    a.href = API + '/checkup-chat/' + encodeURIComponent(T) + '/report';
+  } else {
+    // 報告通常在對談結束後幾分鐘內就會好（要等一次模型呼叫＋排版），
+    // 這裡每 15 秒問一次要不要顯示連結，不用整頁重新整理。
+    reportPollTimer = setInterval(pollReport, 15000);
+  }
+  $('log').scrollTop = $('log').scrollHeight;
+}
+
+async function pollReport() {
+  try {
+    var r = await fetch(API + '/checkup-chat/' + encodeURIComponent(T));
+    var d = await r.json();
+    if (d.ok && d.report_ready) {
+      clearInterval(reportPollTimer);
+      $('finNote').textContent = '報告已經產出，點下面按鈕可以直接看。';
+      var a = $('reportLink');
+      a.hidden = false;
+      a.href = API + '/checkup-chat/' + encodeURIComponent(T) + '/report';
+    }
+  } catch (e) { /* 下一輪再試 */ }
+}
+
+async function boot() {
+  if (T.length < 32) {
+    return notice('連結不完整', '請從健檢申請完成後的頁面，或我們寄給您的連結進入。');
+  }
+  var r, d;
+  try {
+    r = await fetch(API + '/checkup-chat/' + encodeURIComponent(T));
+    d = await r.json();
+  } catch (e) {
+    return notice('連不上伺服器', '請確認網路後重新整理，或稍後再試。');
+  }
+  if (!d.ok) {
+    return notice('找不到這場健檢對談', '連結可能已失效。請與顧問聯繫，或重新填寫健檢申請表。');
+  }
+
+  $('boot').hidden = true;
+  ['top', 'log', 'bar'].forEach(function (i) { $(i).hidden = false; });
+  $('sub').textContent = d.name ? d.name + ' 的履歷健檢' : '履歷健檢';
+
+  if (d.state === 'done') return setEnded(d.report_ready);
+
+  // 履歷還沒解析完：checkup_parse.py 通常幾秒到一分鐘內就會跑到。
+  // 這裡先顯示等待畫面，每 5 秒重新檢查一次，好了才進對談。
+  if (!d.resume_ready) {
+    $('log').hidden = true; $('hint').hidden = false;
+    $('hint').querySelector('p').innerHTML = '阿福正在讀您的履歷與附件<br>大約需要幾十秒…';
+    setTimeout(boot, 5000);
+    return;
+  }
+
+  var real = realMsgs(d.messages);
+  if (!real.length) { $('log').hidden = true; $('hint').hidden = false;
+    $('hint').querySelector('p').innerHTML = '阿福正在準備開場白…'; }
+  real.forEach(function (m) { add(m, true); });
+
+  // 第一次進來、還沒有任何對話：送一個暗號讓阿福主動開口。
+  if (!real.length) {
+    waiting = true; typing(true);
+    if (!(d.messages || []).length) {
+      optimistic.push(SENTINEL);
+      fetch(API + '/checkup-chat/' + encodeURIComponent(T) + '/send', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ text: SENTINEL }),
+      }).catch(function () {});
+    }
+  }
+
+  polling = setInterval(poll, 2500);
+  poll();
+}
+
+async function poll() {
+  if (ended) return;
+  try {
+    var r = await fetch(API + '/checkup-chat/' + encodeURIComponent(T) + '/poll?after=' + lastId);
+    var d = await r.json();
+    if (!d.ok) return;
+    var got = d.messages || [];
+    if (got.length) {
+      typing(false);
+      got.forEach(function (m) {
+        if (m.id > lastId) lastId = m.id;
+        if (m.content === SENTINEL) return;
+        if (m.role === 'user') {
+          var k = optimistic.indexOf(m.content);
+          if (k > -1) { optimistic.splice(k, 1); return; }
+        }
+        add(m, true);
+      });
+      if (got.some(function (m) { return m.role === 'afu'; })) { waiting = false; }
+    }
+    if (waiting) typing(true);
+    if (d.state === 'done') setEnded(d.report_ready);
+  } catch (e) { /* 網路瞬斷不用打擾使用者，下一輪會補回來 */ }
+}
+
+var sending = false;
+async function send() {
+  var v = $('say').value.trim();
+  if (!v || ended || sending) return;
+  sending = true; $('go').disabled = true;
+  setTimeout(function () { sending = false; $('go').disabled = ended; }, 600);
+  $('say').value = ''; $('say').style.height = 'auto';
+  optimistic.push(v);
+  add({ id: 0, role: 'user', content: v,
+        created_at: '           ' + new Date().toTimeString().slice(0, 5) });
+  waiting = true; typing(true);
+  try {
+    var r = await fetch(API + '/checkup-chat/' + encodeURIComponent(T) + '/send', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ text: v }),
+    });
+    var d = await r.json();
+    if (!d.ok && r.status === 409) setEnded(false);
+  } catch (e) {
+    typing(false); waiting = false;
+    add({ id: 0, role: 'afu', content: '（訊息沒送出去，請確認網路後再試一次）', created_at: '' });
+  }
+}
+
+$('go').addEventListener('click', send);
+$('say').addEventListener('keydown', function (e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+});
+$('say').addEventListener('input', function () {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 130) + 'px';
+});
+$('closebtn').addEventListener('click', function () {
+  window.close();
+  // 有些瀏覽器不讓 script 關掉不是自己開的分頁，關不掉就導回首頁
+  setTimeout(function () { location.href = '/'; }, 300);
+});
+
+boot();
+</script>
+</body>
+</html>
