@@ -239,6 +239,19 @@ button.primary:hover{background:#8a6531;}
       <span id="resume_none" hidden>沒有履歷（阿財是請對方口頭介紹）</span>
     </div>
     <div class="acts" id="acts"></div>
+    <details id="apptbox" style="margin:10px 0;border:1px solid #eee7db;border-radius:10px;padding:10px 14px;">
+      <summary style="cursor:pointer;font-weight:700;">📅 安排面談時間（讓人選自己挑）</summary>
+      <p class="mut" style="font-size:12.5px;margin:8px 0;">
+        填幾個候選時段，送出後如果這位人選有綁過 LINE 會自動推播給他選；沒綁過的話請自己把下面產生的連結傳給他。
+      </p>
+      <div id="apptrows"></div>
+      <button type="button" id="apptaddrow" style="margin:6px 0;background:#fff;border:1px solid #eee7db;border-radius:8px;padding:6px 12px;cursor:pointer;">＋ 加一個時段</button>
+      <div>
+        <textarea id="apptnote" rows="2" placeholder="給人選看的備註（選填，例如面試地點、聯絡窗口）" style="width:100%;font:inherit;border:1px solid #eee7db;border-radius:8px;padding:8px;margin-top:6px;"></textarea>
+      </div>
+      <button type="button" id="apptsubmit" style="margin-top:8px;background:#2f6fed;color:#fff;border:0;border-radius:8px;padding:8px 16px;font-weight:700;cursor:pointer;">送出安排</button>
+      <div id="apptresult" class="mut" style="font-size:12.5px;margin-top:8px;"></div>
+    </details>
     <div class="dlbar" id="dlbar" hidden>
       <button id="dl_md" type="button">下載報告（.md）</button>
       <button id="dl_html" type="button">下載報告（HTML）</button>
@@ -807,6 +820,61 @@ async function decide(o) {
   });
   if (d.ok) { cur.consultant_decision = o.k; drawActs(o.k); load(); }
 }
+
+// ── 安排面談時間（讓人選自己挑）──
+function apptRowHtml() {
+  return '<div class="apptrow" style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap;">' +
+    '<input type="date" class="appt-date" style="border:1px solid #eee7db;border-radius:8px;padding:6px;">' +
+    '<input type="time" class="appt-time" style="border:1px solid #eee7db;border-radius:8px;padding:6px;">' +
+    '<select class="appt-fmt" style="border:1px solid #eee7db;border-radius:8px;padding:6px;">' +
+      '<option value="現場面談">現場面談</option><option value="視訊面談">視訊面談</option><option value="電話面談">電話面談</option>' +
+    '</select>' +
+    '<button type="button" class="appt-rm" style="background:#fff;border:1px solid #eee7db;border-radius:8px;padding:4px 10px;cursor:pointer;color:#b4552e;">移除</button>' +
+  '</div>';
+}
+function apptAddRow() {
+  var wrap = document.createElement('div');
+  wrap.innerHTML = apptRowHtml();
+  var row = wrap.firstChild;
+  row.querySelector('.appt-rm').addEventListener('click', function () { row.remove(); });
+  $('apptrows').appendChild(row);
+}
+$('apptaddrow').addEventListener('click', apptAddRow);
+$('dlg').addEventListener('close', function () {
+  // 每次關掉詳情視窗就清空表單，下次開別的人選才不會殘留上一位的時段
+  $('apptrows').innerHTML = ''; $('apptnote').value = ''; $('apptresult').textContent = '';
+  apptAddRow(); apptAddRow();
+});
+apptAddRow(); apptAddRow();   // 預設先給兩列，省得每次都要按「加一個時段」
+
+$('apptsubmit').addEventListener('click', async function () {
+  if (!cur || !cur.app_id) return alert('這筆報告沒有對應的應徵紀錄，無法安排');
+  var slots = [];
+  document.querySelectorAll('#apptrows .apptrow').forEach(function (row) {
+    var d = row.querySelector('.appt-date').value;
+    var t = row.querySelector('.appt-time').value;
+    var f = row.querySelector('.appt-fmt').value;
+    if (d && t) slots.push({ slot_at: d + ' ' + t, format: f });
+  });
+  if (!slots.length) return alert('至少要填一個完整的日期＋時間');
+  this.disabled = true; this.textContent = '送出中…';
+  try {
+    var d2 = await api('/admin/appointment', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ application_id: cur.app_id, slots: slots, note: $('apptnote').value.trim() }),
+    });
+    if (d2.ok) {
+      $('apptresult').innerHTML = '✅ 已安排，連結：<a href="' + d2.url + '" target="_blank">' + d2.url + '</a>　' +
+        '<button type="button" onclick="navigator.clipboard.writeText(\'' + d2.url + '\')" style="margin-left:6px;">複製</button>';
+    } else {
+      $('apptresult').textContent = '❌ 失敗：' + (d2.error || '伺服器沒說原因');
+    }
+  } catch (e) {
+    $('apptresult').textContent = '❌ 失敗：' + (e && e.message ? e.message : '連線失敗');
+  } finally {
+    this.disabled = false; this.textContent = '送出安排';
+  }
+});
 
 function gate(msg) {
   $('app').hidden = true; $('gate').hidden = false;
