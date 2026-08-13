@@ -272,7 +272,10 @@ function paint(jobs) {
       + '<td><input type="text" data-slug="' + j.slug + '" data-field="interview_language" '
         + 'value="' + esc(j.interview_language || '') + '" placeholder="留空＝不用" '
         + 'style="width:70px;font:inherit;padding:4px 6px;border:1px solid #ddd;border-radius:6px"></td>'
-      + '<td class="eff" id="eff-' + j.slug + '">' + (EFFECT[j.client_relation] || '—') + '</td>'
+      + '<td class="eff" id="eff-' + j.slug + '">' + (EFFECT[j.client_relation] || '—')
+        + '<br><button type="button" class="prepnote-btn" data-slug="' + j.slug + '" '
+        + 'style="margin-top:4px;font-size:11px;background:#fff;border:1px solid #eee7db;border-radius:6px;padding:2px 7px;cursor:pointer;color:#4d5563;">'
+        + (j.onboarding_prep_note ? '📝 已填報到準備' : '📝 填報到準備') + '</button></td>'
       + funnel(j) + '</tr>';
   }).join('') || '<tr><td colspan="12" class="mut" style="text-align:center;padding:26px">沒有符合的職缺</td></tr>';
 }
@@ -297,6 +300,30 @@ document.addEventListener('change', function (e) {
     toast('已存檔');
   }).catch(function () { s.disabled = false; toast('連不上伺服器', true); });
 });
+
+// 2026-08-13 加：報到前準備事項——到職關懷排程要用，同企業同職缺通常可以沿用，
+// 用 prompt() 編輯就好，不用為了一個低頻欄位在表格裡多開一整欄。
+document.addEventListener('click', function (e) {
+  var btn = e.target.closest && e.target.closest('.prepnote-btn');
+  if (!btn) return;
+  var slug = btn.dataset.slug;
+  var job = ALL.filter(function (j) { return j.slug === slug; })[0];
+  var cur = (job && job.onboarding_prep_note) || '';
+  var next = prompt('報到前準備事項（候選人到職前一週或三天內會收到這段文字，例如要帶的證件、報到地點）：', cur);
+  if (next === null) return;   // 按取消
+  btn.disabled = true;
+  api('/admin/jobs/' + encodeURIComponent(slug), {
+    method: 'POST', headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ onboarding_prep_note: next }),
+  }).then(function (d) {
+    btn.disabled = false;
+    if (!d.ok) return toast(d.error || '存檔失敗', true);
+    if (job) job.onboarding_prep_note = next.trim();
+    btn.textContent = next.trim() ? '📝 已填報到準備' : '📝 填報到準備';
+    toast('已存檔');
+  }).catch(function () { btn.disabled = false; toast('連不上伺服器', true); });
+});
+
 function load() {
   api('/admin/jobs').then(function (d) {
     if (!d.ok) { localStorage.removeItem(KEY); return boot(); }
