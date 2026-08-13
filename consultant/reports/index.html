@@ -58,6 +58,17 @@ dialog::backdrop{background:rgba(20,18,14,.42);}
 .dbody{padding:20px 22px 26px;overflow-y:auto;max-height:calc(88vh - 66px);}
 .dhead button{border:0;background:#f2efe8;border-radius:10px;width:34px;height:34px;font-size:17px;cursor:pointer;}
 pre.rep{white-space:pre-wrap;word-break:break-word;font:inherit;font-size:14.5px;background:#fbfaf7;border:1px solid #eee7db;border-radius:12px;padding:18px;margin:0 0 20px;}
+.stagebar{background:#fbf7ef;border:1px solid #e6dfd1;border-radius:12px;padding:14px 16px 10px;margin:0 0 18px;overflow-x:auto;}
+.stagebar .steps{display:flex;align-items:flex-start;min-width:max-content;}
+.stagebar .step{display:flex;flex-direction:column;align-items:center;flex:none;width:66px;position:relative;}
+.stagebar .dot{width:22px;height:22px;border-radius:50%;background:#eee7db;color:#8a8d95;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;z-index:1;}
+.stagebar .step.done .dot{background:#2f8f5b;color:#fff;}
+.stagebar .step.now .dot{background:#2f6fed;color:#fff;box-shadow:0 0 0 4px #eaf1ff;}
+.stagebar .lb{font-size:9.5px;color:#8a8d95;margin-top:5px;text-align:center;line-height:1.3;}
+.stagebar .step.done .lb,.stagebar .step.now .lb{color:#23262d;font-weight:600;}
+.stagebar .ln{position:absolute;top:11px;left:50%;width:100%;height:2px;background:#eee7db;z-index:0;}
+.stagebar .step.done .ln{background:#2f8f5b;}
+.stagebar .step:first-child .ln{display:none;}
 .acts{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 20px;}
 .act{font:inherit;font-size:14px;font-weight:600;border:1px solid #e0d9cb;background:#fff;border-radius:10px;padding:10px 16px;cursor:pointer;min-height:42px;}
 .act:hover{border-color:#a67c3d;}
@@ -225,6 +236,7 @@ button.primary:hover{background:#8a6531;}
     <button id="dx" type="button" aria-label="關閉">✕</button>
   </div>
   <div class="dbody">
+    <div id="stagebar" class="stagebar" hidden></div>
     <div id="dfb" class="fb" hidden></div>
     <div id="dflags" class="flags" hidden></div>
     <div id="dlink" class="linkbox" hidden>
@@ -716,6 +728,7 @@ async function open(row) {
   $('dfb').hidden = true;
   $('dflags').hidden = true;
   $('livetag').hidden = true;
+  $('stagebar').hidden = true;
   drawActs(row.consultant_decision);
   $('dlg').showModal();
   apptAutofill();
@@ -736,6 +749,7 @@ async function open(row) {
     return;
   }
   $('drep').textContent = d.report.content_md || '（沒有報告內容）';
+  renderStageBar(row, d);
   $('dtr').innerHTML = (d.transcript || [])
     .filter(function (m) { return m.content !== '（候選人已進入面談室）'; })
     .map(function (m) {
@@ -830,6 +844,44 @@ async function decide(o) {
     body: JSON.stringify({ id: cur.id, decision: o.k, app_id: cur.app_id, app_status: o.s }),
   });
   if (d.ok) { cur.consultant_decision = o.k; drawActs(o.k); load(); }
+}
+
+// 2026-08-13 加：階段列——顧問一打開這個人選的詳情就知道他卡在哪一關，
+// 不用自己從逐字稿跟報告狀態拼湊。第二到第四階段只有真的排過才會出現，
+// 用不到的職缺（多數只到第一或第二階段）不會硬留著空格。
+function renderStageBar(row, d) {
+  var bar = $('stagebar');
+  var appts = d.appointments || [];
+  var placement = d.placement;
+  var report = d.report;
+
+  var steps = [
+    { lb: '阿財初審', ok: !!(row.interview_started_at || report) },
+    { lb: '顧問確認', ok: !!(report && report.consultant_decision) },
+  ];
+  var s1 = appts.filter(function (x) { return x.stage === 1; }).slice(-1)[0];
+  steps.push({ lb: '第一階段', ok: !!(s1 && s1.status === 'confirmed') });
+  var STAGE_LB = { 2: '第二階段', 3: '第三階段', 4: '第四階段' };
+  [2, 3, 4].forEach(function (stg) {
+    var a = appts.filter(function (x) { return x.stage === stg; }).slice(-1)[0];
+    if (a) steps.push({ lb: STAGE_LB[stg], ok: a.status === 'confirmed' });
+  });
+  steps.push({ lb: '錄取', ok: !!(placement && ['OFFER_ACCEPTED', 'GUARANTEE'].indexOf(placement.stage) >= 0) });
+  steps.push({ lb: '報到', ok: !!(placement && placement.stage === 'GUARANTEE' && placement.onboard_date) });
+  var careLog = [];
+  try { careLog = JSON.parse((placement && placement.candidate_care_log) || '[]'); } catch (e) { careLog = []; }
+  steps.push({ lb: '到職關懷', ok: careLog.length > 0 });
+
+  var lastOkIdx = -1;
+  steps.forEach(function (s, i) { if (s.ok) lastOkIdx = i; });
+  if (lastOkIdx < 0) { bar.hidden = true; return; }
+
+  bar.innerHTML = '<div class="steps">' + steps.map(function (s, i) {
+    var cls = i < lastOkIdx ? 'done' : (i === lastOkIdx ? 'now' : '');
+    var mark = cls === 'done' ? '✓' : '';
+    return '<div class="step ' + cls + '"><div class="ln"></div><div class="dot">' + mark + '</div><div class="lb">' + esc(s.lb) + '</div></div>';
+  }).join('') + '</div>';
+  bar.hidden = false;
 }
 
 // ── 安排面談時間（讓人選自己挑）──
