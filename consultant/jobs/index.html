@@ -154,9 +154,11 @@ td.fn.clk:hover{background:#fdf6e9}
       <span class="cnt" id="cnt"></span>
     </div>
     <table>
-      <thead><tr><th>職缺</th><th>服務線</th><th>客戶對象</th><th title="決定阿財怎麼面：中高階走 10 分鐘短版、最多 5 題">職級</th><th>連動結果</th>
+      <thead><tr><th>職缺</th><th>服務線</th><th>客戶對象</th><th title="決定阿財怎麼面：中高階走 20-30 分鐘、沒有題數上限">職級</th>
+        <th title="留空＝這個職缺不用驗外語。填了（例：日文）＝阿財開場就會預告、面談中會用這個語言驗證，跟就服法無關，是硬條件">外語驗證</th>
+        <th>連動結果</th>
         <th colspan="6" style="text-align:center">漏斗（人）</th></tr>
-        <tr class="sub"><th></th><th></th><th></th><th></th><th></th>
+        <tr class="sub"><th></th><th></th><th></th><th></th><th></th><th></th>
         <th title="填完申請表送出的人">應徵</th>
         <th title="阿財談完、報告已產出，但顧問還沒決定要不要送客戶。卡在這關＝人在等我們">初審</th>
         <th title="從顧問把履歷送給客戶起算，客戶不論面試幾關都算在這一關">客戶面談</th>
@@ -185,7 +187,8 @@ var $ = function (i) { return document.getElementById(i); };
 var LINE = { dispatch: '人力派遣', direct: '正職代招', executive: '中高階獵才' };
 var REL  = { signed: '已簽約客戶', unsigned: '未簽約客戶', private: '朋友私人協助' };
 // 職級跟服務線是兩件事——派遣也會有中高階（派遣的廠長、專案總監）。
-// 這一欄決定阿財怎麼面：senior 走 10 分鐘短版最多 5 題，其餘走標準流程。
+// 這一欄決定阿財怎麼面：senior 走 20-30 分鐘、沒有題數上限，其餘走標準流程。
+// （2026-08-13 修：這裡原本寫「10 分鐘最多 5 題」，SKILL.md 早就改了，這裡沒跟著改）
 var SEN  = { junior: '基層', mid: '一般', senior: '中高階' };
 // 客戶對象連動的結果，直接寫在畫面上讓顧問看得到自己改了什麼
 var EFFECT = {
@@ -266,9 +269,12 @@ function paint(jobs) {
       + '<td>' + sel('service_line', LINE, j.service_line, j.slug) + '</td>'
       + '<td>' + sel('client_relation', REL, j.client_relation, j.slug) + '</td>'
       + '<td>' + sel('seniority', SEN, j.seniority, j.slug) + '</td>'
+      + '<td><input type="text" data-slug="' + j.slug + '" data-field="interview_language" '
+        + 'value="' + esc(j.interview_language || '') + '" placeholder="留空＝不用" '
+        + 'style="width:70px;font:inherit;padding:4px 6px;border:1px solid #ddd;border-radius:6px"></td>'
       + '<td class="eff" id="eff-' + j.slug + '">' + (EFFECT[j.client_relation] || '—') + '</td>'
       + funnel(j) + '</tr>';
-  }).join('') || '<tr><td colspan="11" class="mut" style="text-align:center;padding:26px">沒有符合的職缺</td></tr>';
+  }).join('') || '<tr><td colspan="12" class="mut" style="text-align:center;padding:26px">沒有符合的職缺</td></tr>';
 }
 ['q','fl','fr','fa'].forEach(function (id) {
   document.addEventListener('input', function (e) { if (e.target.id === id) apply(); });
@@ -276,7 +282,7 @@ function paint(jobs) {
 });
 document.addEventListener('change', function (e) {
   var s = e.target;
-  if (s.tagName !== 'SELECT' || !s.dataset.slug) return;
+  if ((s.tagName !== 'SELECT' && s.tagName !== 'INPUT') || !s.dataset.slug) return;
   var body = {}; body[s.dataset.field] = s.value;
   s.disabled = true;
   api('/admin/jobs/' + encodeURIComponent(s.dataset.slug), {
