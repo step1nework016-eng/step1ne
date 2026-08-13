@@ -427,9 +427,14 @@ function transcriptText(row, list) {
 var curRow = null, curData = null;
 
 async function openSession(row) {
-  cur = null;
+  // 2026-08-13 修：這裡原本把 cur 設成 null，害「安排面談時間」「重新開啟面談室」
+  // 「標記錄取」這些靠 cur.app_id 判斷的按鈕，從「全部應徵」這條路徑打開時
+  // 全部失效（會跳「找不到對應的應徵紀錄」）——這條路徑本來就是同一筆應徵，
+  // row.id 就是 application_id，直接帶進 cur 就好，不要設 null。
+  cur = { app_id: row.id, job_slug: row.job_slug, name: row.name };
   curRow = row; curData = null;
   stopLive();
+  $('stagebar').hidden = true;
   // 2026-08-05：Phoebe 遇到標題顯示 undefined、報告區「讀取失敗」，
   // 但用管理員 token 直接打 API 都正常，重現不出來。
   // 先把「是哪一筆、缺什麼」講出來，下次出錯就知道是資料問題還是權限問題。
@@ -447,9 +452,17 @@ async function openSession(row) {
   $('dtr').innerHTML = '';
   $('acts').innerHTML = '';
   $('dlg').showModal();
+  apptAutofill();
 
   var d = await api('/admin/session/' + encodeURIComponent(row.id));
   if (!d.ok) { $('drep').textContent = '讀取失敗'; return; }
+  // 2026-08-13 加：這條路徑原本完全沒有處置按鈕跟階段列，
+  // 顧問從「全部應徵」點進來看到的東西比「初篩報告」列表少一截。
+  // decide() 要用 cur.id（報告 id）才能寫 reports.consultant_decision，
+  // 這裡的 row 只有 application id，讀到 d.report 之後要補上去。
+  if (d.report) cur.id = d.report.id;
+  drawActs(d.report ? d.report.consultant_decision : null);
+  renderStageBar(row, d);
 
   // 候選人自己給的體驗分數。這是唯一能回答「這套值不值得繼續」的訊號——
   // 顧問覺得報告好，跟候選人願不願意做完，是兩件事。
