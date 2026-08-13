@@ -835,6 +835,32 @@ function drawActs(now) {
     }
   });
   $('acts').appendChild(reopenBtn);
+
+  // 2026-08-13 加：標記錄取——按下去直接寫 placements 並推 LINE 錄取卡給候選人，
+  // 不用再打字到 Telegram 群組讓總指揮解析。
+  var offerBtn = document.createElement('button');
+  offerBtn.type = 'button';
+  offerBtn.className = 'act';
+  offerBtn.style.cssText = 'background:#1f8f5f;color:#fff;border-color:#1f8f5f;';
+  offerBtn.textContent = '🎉 標記錄取';
+  offerBtn.addEventListener('click', async function () {
+    if (!cur || !cur.app_id) return alert('這筆報告沒有對應的應徵紀錄，無法標記');
+    if (!confirm('確定要標記「' + (cur.name || '這位候選人') + '」錄取嗎？會立即推播恭喜卡給他的 LINE。')) return;
+    this.disabled = true; this.textContent = '處理中…';
+    try {
+      var d = await api('/admin/mark-offer', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ application_id: cur.app_id }),
+      });
+      if (d.ok) { alert('已標記錄取，LINE 卡片已推播（如果他有綁定的話）。'); load(); }
+      else alert('失敗：' + (d.error || '伺服器沒說原因'));
+    } catch (e) {
+      alert('失敗：' + (e && e.message ? e.message : '連線失敗'));
+    } finally {
+      this.disabled = false; this.textContent = '🎉 標記錄取';
+    }
+  });
+  $('acts').appendChild(offerBtn);
 }
 
 async function decide(o) {
