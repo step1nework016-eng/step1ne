@@ -244,10 +244,20 @@ button.primary:hover{background:#8a6531;}
       <p class="mut" style="font-size:12.5px;margin:8px 0;">
         填幾個候選時段，送出後如果這位人選有綁過 LINE 會自動推播給他選；沒綁過的話請自己把下面產生的連結傳給他。
       </p>
+      <label style="display:block;font-size:12.5px;color:#8a8d95;margin:8px 0 3px;">階段</label>
+      <select id="apptstage" style="border:1px solid #eee7db;border-radius:8px;padding:6px;font:inherit;">
+        <option value="1">第一階段</option><option value="2">第二階段</option>
+        <option value="3">第三階段</option><option value="4">第四階段</option>
+      </select>
       <div id="apptrows"></div>
       <button type="button" id="apptaddrow" style="margin:6px 0;background:#fff;border:1px solid #eee7db;border-radius:8px;padding:6px 12px;cursor:pointer;">＋ 加一個時段</button>
+      <label style="display:block;font-size:12.5px;color:#8a8d95;margin:10px 0 3px;">面談對象（選填，例如「王經理・用人主管」）</label>
+      <input id="apptinterviewer" style="width:100%;font:inherit;border:1px solid #eee7db;border-radius:8px;padding:8px;">
+      <label style="display:block;font-size:12.5px;color:#8a8d95;margin:10px 0 3px;">面談地點（現場面談才需要）</label>
+      <input id="apptlocation" style="width:100%;font:inherit;border:1px solid #eee7db;border-radius:8px;padding:8px;">
+      <div id="apptfill" class="mut" style="font-size:11.5px;margin-top:4px;"></div>
       <div>
-        <textarea id="apptnote" rows="2" placeholder="給人選看的備註（選填，例如面試地點、聯絡窗口）" style="width:100%;font:inherit;border:1px solid #eee7db;border-radius:8px;padding:8px;margin-top:6px;"></textarea>
+        <textarea id="apptnote" rows="2" placeholder="給人選看的備註（選填，例如攜帶物品、聯絡窗口）" style="width:100%;font:inherit;border:1px solid #eee7db;border-radius:8px;padding:8px;margin-top:10px;"></textarea>
       </div>
       <button type="button" id="apptsubmit" style="margin-top:8px;background:#2f6fed;color:#fff;border:0;border-radius:8px;padding:8px 16px;font-weight:700;cursor:pointer;">送出安排</button>
       <div id="apptresult" class="mut" style="font-size:12.5px;margin-top:8px;"></div>
@@ -708,6 +718,7 @@ async function open(row) {
   $('livetag').hidden = true;
   drawActs(row.consultant_decision);
   $('dlg').showModal();
+  apptAutofill();
 
   var d;
   try {
@@ -850,9 +861,28 @@ $('apptaddrow').addEventListener('click', apptAddRow);
 $('dlg').addEventListener('close', function () {
   // 每次關掉詳情視窗就清空表單，下次開別的人選才不會殘留上一位的時段
   $('apptrows').innerHTML = ''; $('apptnote').value = ''; $('apptresult').textContent = '';
+  $('apptinterviewer').value = ''; $('apptlocation').value = ''; $('apptfill').textContent = '';
+  $('apptstage').value = '1';
   apptAddRow(); apptAddRow();
 });
 apptAddRow(); apptAddRow();   // 預設先給兩列，省得每次都要按「加一個時段」
+
+// 2026-08-13 加：同一間公司（同職缺）、同一個階段，面談對象跟地點通常會重複。
+// 選階段的時候順便去查上次填過的值，帶進來讓顧問確認一下或改掉，不用每次空白重打。
+// ⚠️ 只在欄位還是空的時候才自動帶入，避免蓋掉顧問已經手動打好的內容。
+async function apptAutofill() {
+  if (!cur || !cur.job_slug) return;
+  var stage = $('apptstage').value;
+  try {
+    var d = await api('/admin/appointment/last?' + new URLSearchParams({ job_slug: cur.job_slug, stage: stage }));
+    if (!d.ok) return;
+    var filled = [];
+    if (d.interviewer && !$('apptinterviewer').value) { $('apptinterviewer').value = d.interviewer; filled.push('面談對象'); }
+    if (d.location && !$('apptlocation').value) { $('apptlocation').value = d.location; filled.push('面談地點'); }
+    $('apptfill').textContent = filled.length ? '↑ 已帶入上次同階段填過的內容，麻煩確認一下還適用' : '';
+  } catch { /* 自動帶入失敗不影響手動填寫 */ }
+}
+$('apptstage').addEventListener('change', apptAutofill);
 
 $('apptsubmit').addEventListener('click', async function () {
   if (!cur || !cur.app_id) return alert('這筆報告沒有對應的應徵紀錄，無法安排');
@@ -869,7 +899,11 @@ $('apptsubmit').addEventListener('click', async function () {
   try {
     var d2 = await api('/admin/appointment', {
       method: 'POST', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ application_id: cur.app_id, slots: slots, note: $('apptnote').value.trim() }),
+      body: JSON.stringify({
+        application_id: cur.app_id, slots: slots, note: $('apptnote').value.trim(),
+        stage: Number($('apptstage').value), interviewer: $('apptinterviewer').value.trim(),
+        location: $('apptlocation').value.trim(),
+      }),
     });
     if (d2.ok) {
       $('apptresult').innerHTML = '✅ 已安排，連結：<a href="' + d2.url + '" target="_blank">' + d2.url + '</a>　' +
