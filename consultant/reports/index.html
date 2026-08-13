@@ -52,7 +52,12 @@ input:focus,select:focus{border-color:#a67c3d;box-shadow:0 0 0 3px rgba(166,124,
 .b-done{background:#e9e9ef;color:#3d4250;}
 .b-norep{background:#fdeeda;color:#9a5a12;}
 
-dialog{border:0;border-radius:18px;padding:0;max-width:900px;width:calc(100% - 32px);max-height:88vh;box-shadow:0 20px 60px rgba(0,0,0,.22);display:flex;flex-direction:column;}
+dialog{border:0;border-radius:18px;padding:0;max-width:900px;width:calc(100% - 32px);max-height:88vh;box-shadow:0 20px 60px rgba(0,0,0,.22);}
+/* ⚠️ display:flex 一定要掛在 [open] 底下，不能寫在裸的 dialog 選擇器上——
+   author CSS 的優先權比瀏覽器內建的 UA stylesheet 高，裸 dialog{display:flex}
+   會蓋掉瀏覽器預設「沒有 open 屬性就 display:none」的規則，導致 close() 之後
+   dialog 從 modal 退回一般文件流但仍然被強制顯示，卡在畫面上關不掉。 */
+dialog[open]{display:flex;flex-direction:column;}
 dialog::backdrop{background:rgba(20,18,14,.42);}
 .dhead{background:#fff;border-bottom:1px solid #eee7db;padding:16px 22px;display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex:none;}
 .dbody{padding:20px 22px 26px;overflow-y:auto;flex:1;min-height:0;}
