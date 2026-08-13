@@ -52,11 +52,16 @@ input:focus,select:focus{border-color:#a67c3d;box-shadow:0 0 0 3px rgba(166,124,
 .b-done{background:#e9e9ef;color:#3d4250;}
 .b-norep{background:#fdeeda;color:#9a5a12;}
 
-dialog{border:0;border-radius:18px;padding:0;max-width:900px;width:calc(100% - 32px);max-height:88vh;box-shadow:0 20px 60px rgba(0,0,0,.22);}
+dialog{border:0;border-radius:18px;padding:0;max-width:900px;width:calc(100% - 32px);max-height:88vh;box-shadow:0 20px 60px rgba(0,0,0,.22);display:flex;flex-direction:column;}
 dialog::backdrop{background:rgba(20,18,14,.42);}
-.dhead{position:sticky;top:0;background:#fff;border-bottom:1px solid #eee7db;padding:16px 22px;display:flex;justify-content:space-between;gap:14px;align-items:flex-start;}
-.dbody{padding:20px 22px 26px;overflow-y:auto;max-height:calc(88vh - 66px);}
+.dhead{background:#fff;border-bottom:1px solid #eee7db;padding:16px 22px;display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex:none;}
+.dbody{padding:20px 22px 26px;overflow-y:auto;flex:1;min-height:0;}
 .dhead button{border:0;background:#f2efe8;border-radius:10px;width:34px;height:34px;font-size:17px;cursor:pointer;}
+.dtabs{display:flex;gap:4px;padding:10px 22px 0;background:#fff;border-bottom:1px solid #eee7db;flex:none;overflow-x:auto;}
+.dtab{font:inherit;font-size:13.5px;font-weight:600;border:1px solid transparent;background:none;color:#8a8d95;border-radius:9px 9px 0 0;padding:9px 15px;cursor:pointer;white-space:nowrap;}
+.dtab:hover{color:#4a4d55;}
+.dtab.on{color:#8a5a1a;background:#fbf7ef;border-color:#e6dfd1;border-bottom-color:#fbf7ef;position:relative;top:1px;}
+.dtabpanel{}
 pre.rep{white-space:pre-wrap;word-break:break-word;font:inherit;font-size:14.5px;background:#fbfaf7;border:1px solid #eee7db;border-radius:12px;padding:18px;margin:0 0 20px;}
 .stagebar{background:#fbf7ef;border:1px solid #e6dfd1;border-radius:12px;padding:14px 16px 10px;margin:0 0 18px;overflow-x:auto;}
 .stagebar .steps{display:flex;align-items:flex-start;min-width:max-content;}
@@ -240,25 +245,44 @@ button.primary:hover{background:#8a6531;}
     <div><b id="dname">—</b><div class="mut" id="dmeta">—</div></div>
     <button id="dx" type="button" aria-label="關閉">✕</button>
   </div>
+  <div class="dtabs">
+    <button type="button" class="dtab on" data-tab="overview">總覽</button>
+    <button type="button" class="dtab" data-tab="report">報告</button>
+    <button type="button" class="dtab" data-tab="schedule">安排面談</button>
+    <button type="button" class="dtab" data-tab="transcript">逐字稿</button>
+  </div>
   <div class="dbody">
-    <div id="stagebar" class="stagebar" hidden></div>
-    <div id="dfb" class="fb" hidden></div>
-    <div id="dflags" class="flags" hidden></div>
-    <div id="dlink" class="linkbox" hidden>
-      <b>面談連結</b>
-      <div class="link" id="dlink_u">—</div>
-      <button id="dlink_c" type="button">複製連結</button>
+    <div class="dtabpanel" data-tabpanel="overview">
+      <div id="stagebar" class="stagebar" hidden></div>
+      <div id="dfb" class="fb" hidden></div>
+      <div id="dflags" class="flags" hidden></div>
+      <div id="dlink" class="linkbox" hidden>
+        <b>面談連結</b>
+        <div class="link" id="dlink_u">—</div>
+        <button id="dlink_c" type="button">複製連結</button>
+      </div>
+      <div id="resumebox" class="linkbox" hidden>
+        <b>履歷</b>
+        <button id="resume_dl" type="button" hidden>下載履歷檔</button>
+        <a id="resume_link" href="#" target="_blank" rel="noopener" hidden>開啟雲端連結</a>
+        <span id="resume_none" hidden>沒有履歷（阿財是請對方口頭介紹）</span>
+      </div>
+      <div class="acts" id="acts"></div>
     </div>
-    <div id="resumebox" class="linkbox" hidden>
-      <b>履歷</b>
-      <button id="resume_dl" type="button" hidden>下載履歷檔</button>
-      <a id="resume_link" href="#" target="_blank" rel="noopener" hidden>開啟雲端連結</a>
-      <span id="resume_none" hidden>沒有履歷（阿財是請對方口頭介紹）</span>
+
+    <div class="dtabpanel" data-tabpanel="report" hidden>
+      <div class="dlbar" id="dlbar" hidden>
+        <button id="dl_md" type="button">下載報告（.md）</button>
+        <button id="dl_html" type="button">下載報告（HTML）</button>
+        <button id="dl_pdf" type="button">下載報告（PDF）</button>
+        <button id="dl_tr" type="button">下載逐字稿</button>
+        <button id="dl_cp" type="button">複製報告</button>
+      </div>
+      <pre class="rep" id="drep">載入中…</pre>
     </div>
-    <div class="acts" id="acts"></div>
-    <details id="apptbox" style="margin:10px 0;border:1px solid #eee7db;border-radius:10px;padding:10px 14px;">
-      <summary style="cursor:pointer;font-weight:700;">📅 安排面談時間（讓人選自己挑）</summary>
-      <p class="mut" style="font-size:12.5px;margin:8px 0;">
+
+    <div class="dtabpanel" data-tabpanel="schedule" hidden>
+      <p class="mut" style="font-size:12.5px;margin:0 0 12px;">
         填幾個候選時段，送出後如果這位人選有綁過 LINE 會自動推播給他選；沒綁過的話請自己把下面產生的連結傳給他。
       </p>
       <label style="display:block;font-size:12.5px;color:#8a8d95;margin:8px 0 3px;">階段</label>
@@ -278,19 +302,12 @@ button.primary:hover{background:#8a6531;}
       </div>
       <button type="button" id="apptsubmit" style="margin-top:8px;background:#2f6fed;color:#fff;border:0;border-radius:8px;padding:8px 16px;font-weight:700;cursor:pointer;">送出安排</button>
       <div id="apptresult" class="mut" style="font-size:12.5px;margin-top:8px;"></div>
-    </details>
-    <div class="dlbar" id="dlbar" hidden>
-      <button id="dl_md" type="button">下載報告（.md）</button>
-      <button id="dl_html" type="button">下載報告（HTML）</button>
-      <button id="dl_pdf" type="button">下載報告（PDF）</button>
-      <button id="dl_tr" type="button">下載逐字稿</button>
-      <button id="dl_cp" type="button">複製報告</button>
     </div>
-    <pre class="rep" id="drep">載入中…</pre>
-    <details class="tr" id="trbox" open>
-      <summary>逐字稿　<span id="livetag" class="live" hidden>● 進行中，每 5 秒更新</span></summary>
+
+    <div class="dtabpanel" data-tabpanel="transcript" hidden>
+      <div style="font-weight:700;margin-bottom:10px;">逐字稿　<span id="livetag" class="live" hidden>● 進行中，每 5 秒更新</span></div>
       <div id="dtr" class="turn"></div>
-    </details>
+    </div>
   </div>
 </dialog>
 
@@ -300,6 +317,20 @@ var KEY = 's1ne_admin_tok';
 var tok = localStorage.getItem(KEY) || '';
 var state = 'undecided', offset = 0, LIMIT = 25, total = 0, cur = null;
 var $ = function (i) { return document.getElementById(i); };
+
+// 2026-08-13 加：彈窗資訊太多擠成一長串，改成分頁——總覽／報告／安排面談／逐字稿。
+// 每次開一個新的人選都要重置回「總覽」，不然會殘留上一位看到一半的分頁。
+function showDialogTab(name) {
+  document.querySelectorAll('.dtab').forEach(function (b) {
+    b.classList.toggle('on', b.dataset.tab === name);
+  });
+  document.querySelectorAll('.dtabpanel').forEach(function (p) {
+    p.hidden = p.dataset.tabpanel !== name;
+  });
+}
+document.querySelectorAll('.dtab').forEach(function (b) {
+  b.addEventListener('click', function () { showDialogTab(this.dataset.tab); });
+});
 
 var LABEL = {
   forwarded: { t: '已轉客戶', c: 'b-forward' },
@@ -450,7 +481,8 @@ async function openSession(row) {
     $('dmeta').textContent = '點到的項目沒有 id，請截圖給工程確認（row=' +
       JSON.stringify(row || null).slice(0, 120) + '）';
     $('drep').textContent = '';
-    $('dlg').showModal();
+    showDialogTab('overview');
+  $('dlg').showModal();
     return;
   }
   $('dname').textContent = row.name || '（這筆沒有姓名資料）';
@@ -458,6 +490,7 @@ async function openSession(row) {
   $('drep').textContent = '載入中…';
   $('dtr').innerHTML = '';
   $('acts').innerHTML = '';
+  showDialogTab('overview');
   $('dlg').showModal();
   apptAutofill();
 
@@ -751,6 +784,7 @@ async function open(row) {
   $('livetag').hidden = true;
   $('stagebar').hidden = true;
   drawActs(row.consultant_decision);
+  showDialogTab('overview');
   $('dlg').showModal();
   apptAutofill();
 
