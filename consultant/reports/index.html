@@ -915,7 +915,11 @@ function stageLabelOf(key) {
 function renderStageBar(row, d) {
   var bar = $('stagebar');
   var info = d.stage;
-  if (!info || info.effective_index < 0) { bar.hidden = true; return; }
+  if (!info) { bar.hidden = true; return; }
+  // ⚠️ 2026-08-13 修：原本 effective_index < 0（完全還沒有任何自動進度，例如
+  // 應徵單填了但還沒開始面談）就整個階段列連同下面的手動指定下拉都不顯示——
+  // 等於顧問想從零開始手動指定某個候選人的階段時，畫面上完全沒有入口可以按。
+  // 一定要秀出來，圓點可以是全灰（都還沒開始），但下拉選單要在。
 
   var dotsHtml = '<div class="steps">' + info.steps.map(function (s) {
     var cls = s.done ? 'done' : (s.now ? 'now' : '');
