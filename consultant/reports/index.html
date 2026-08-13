@@ -10,7 +10,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;}
-html,body{margin:0;padding:0;}
+/* touch-action:manipulation 關掉手機上的「連點兩下放大」手勢，但保留正常滾動跟
+   雙指縮放——不是 user-scalable=no 那種整頁鎖死縮放的做法，那個對弱視使用者不友善。 */
+html,body{margin:0;padding:0;touch-action:manipulation;}
 body{font-family:'Noto Sans TC',system-ui,sans-serif;color:#23262d;background:#fbfaf7;line-height:1.7;}
 a{color:#a67c3d;text-decoration:none;}
 .wrap{max-width:1180px;margin:0 auto;padding:0 20px;}
@@ -53,6 +55,10 @@ input:focus,select:focus{border-color:#a67c3d;box-shadow:0 0 0 3px rgba(166,124,
 .b-norep{background:#fdeeda;color:#9a5a12;}
 
 dialog{border:0;border-radius:18px;padding:0;max-width:900px;width:calc(100% - 32px);max-height:88vh;box-shadow:0 20px 60px rgba(0,0,0,.22);}
+/* dvh 用瀏覽器目前實際看得到的視窗高度算，比 vh 準——手機瀏覽器網址列收合/展開時
+   vh 常常量到「假設網址列不見」的高度，導致彈窗實際比想像中矮，內容被裁掉一截。
+   有支援 dvh 的瀏覽器才套用，沒支援的維持上面的 vh 當備援。 */
+@supports (height:100dvh){ dialog{max-height:90dvh;} }
 /* ⚠️ display:flex 一定要掛在 [open] 底下，不能寫在裸的 dialog 選擇器上——
    author CSS 的優先權比瀏覽器內建的 UA stylesheet 高，裸 dialog{display:flex}
    會蓋掉瀏覽器預設「沒有 open 屬性就 display:none」的規則，導致 close() 之後
@@ -60,7 +66,7 @@ dialog{border:0;border-radius:18px;padding:0;max-width:900px;width:calc(100% - 3
 dialog[open]{display:flex;flex-direction:column;}
 dialog::backdrop{background:rgba(20,18,14,.42);}
 .dhead{background:#fff;border-bottom:1px solid #eee7db;padding:16px 22px;display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex:none;}
-.dbody{padding:20px 22px 26px;overflow-y:auto;flex:1;min-height:0;}
+.dbody{padding:20px 22px 26px;overflow-y:auto;flex:1;min-height:0;-webkit-overflow-scrolling:touch;}
 .dhead button{border:0;background:#f2efe8;border-radius:10px;width:34px;height:34px;font-size:17px;cursor:pointer;}
 .dtabs{display:flex;gap:4px;padding:10px 22px 0;background:#fff;border-bottom:1px solid #eee7db;flex:none;overflow-x:auto;}
 .dtab{font:inherit;font-size:13.5px;font-weight:600;border:1px solid transparent;background:none;color:#8a8d95;border-radius:9px 9px 0 0;padding:9px 15px;cursor:pointer;white-space:nowrap;}
@@ -79,6 +85,25 @@ pre.rep{white-space:pre-wrap;word-break:break-word;font:inherit;font-size:14.5px
 .stagebar .ln{position:absolute;top:11px;left:50%;width:100%;height:2px;background:#eee7db;z-index:0;}
 .stagebar .step.done .ln{background:#2f8f5b;}
 .stagebar .step:first-child .ln{display:none;}
+/* 2026-08-13 加：手機上彈窗塞太多東西——縮小留白/字級/按鈕，讓能看到的資訊變多，
+   不然過去在窄螢幕上會整排擠爆或內容被彈窗自己的圓角邊界裁掉一截。 */
+@media (max-width:480px){
+  dialog{width:calc(100% - 16px);max-width:none;border-radius:14px;}
+  .dhead{padding:12px 14px;}
+  .dhead b{font-size:15px;}
+  .dtabs{padding:8px 14px 0;gap:2px;}
+  .dtab{padding:8px 10px;font-size:12.5px;}
+  .dbody{padding:14px 14px 18px;}
+  .acts{gap:6px;margin-bottom:14px;}
+  .act{padding:8px 12px;font-size:13px;min-height:36px;}
+  .stagebar{padding:12px 12px 8px;}
+  .stagebar .step{width:52px;}
+  .stagebar .lb{font-size:8.5px;}
+  .stagebar-manual select,.stagebar-manual button{font-size:12px;padding:5px 9px;}
+  .dlbar{gap:6px;}
+  .dlbar button{padding:7px 11px;font-size:12.5px;}
+  .frm .two{grid-template-columns:1fr;}
+}
 .stagebar-manual{margin-top:12px;padding-top:10px;border-top:1px dashed #e6dfd1;font-size:12.5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
 .stagebar-manual select{font:inherit;font-size:12.5px;border:1px solid #e0d9cb;border-radius:8px;padding:5px 7px;background:#fff;}
 .stagebar-manual button{font:inherit;font-size:12.5px;border:1px solid #e0d9cb;border-radius:8px;padding:5px 11px;cursor:pointer;background:#fff;min-height:30px;}
@@ -865,6 +890,34 @@ function drawActs(now) {
   n.textContent = now ? '已處置' : '處置後才能回頭校正 AI 的判準';
   $('acts').appendChild(n);
 
+  // 2026-08-13 加：轉給客戶／需補問／不推薦按錯了，之前只能找工程手動改資料庫
+  // （徐振倫那次就是這樣）。現在可以直接在這裡清掉，回到「未處置」重新選。
+  if (now) {
+    var clearBtn = document.createElement('button');
+    clearBtn.type = 'button';
+    clearBtn.className = 'act';
+    clearBtn.style.cssText = 'color:#b4552e;';
+    clearBtn.textContent = '清除處置';
+    clearBtn.addEventListener('click', async function () {
+      if (!cur || !cur.id) return alert('這筆沒有報告 id，無法清除');
+      if (!confirm('確定要把目前的處置清掉，回到「未處置」嗎？')) return;
+      this.disabled = true; this.textContent = '處理中…';
+      try {
+        var d = await api('/admin/clear-decision', {
+          method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ id: cur.id }),
+        });
+        if (d.ok) { cur.consultant_decision = null; drawActs(null); load(); }
+        else alert('失敗：' + (d.error || '伺服器沒說原因'));
+      } catch (e) {
+        alert('失敗：' + (e && e.message ? e.message : '連線失敗'));
+      } finally {
+        this.disabled = false; this.textContent = '清除處置';
+      }
+    });
+    $('acts').appendChild(clearBtn);
+  }
+
   // ⚠️ 2026-08-13 加。原本面談室卡住／逾時／候選人被系統問題中斷後，
   // 只能回頭找工程端手動改資料庫才能讓連結重新可用——徐先生那次就是
   // 這樣卡住的。現在顧問自己在這裡按一下就能重開，不用等人。
@@ -921,6 +974,39 @@ function drawActs(now) {
     }
   });
   $('acts').appendChild(offerBtn);
+
+  // 2026-08-13 加：結案不續——跟「標記錄取」對稱的動作。之前 CLOSED_LOST 只能靠
+  // 顧問在 Telegram「顧問人選回報區」打字讓 report_tick.py 解析寫入，網頁後台
+  // 完全沒有入口。reason 是寫給候選人看的委婉說法，會直接組進他收到的 LINE 訊息。
+  var closeBtn = document.createElement('button');
+  closeBtn.type = 'button';
+  closeBtn.className = 'act';
+  closeBtn.style.cssText = 'background:#8a3a20;color:#fff;border-color:#8a3a20;';
+  closeBtn.textContent = '❌ 標記結案不續';
+  closeBtn.addEventListener('click', async function () {
+    if (!cur || !cur.app_id) return alert('這筆報告沒有對應的應徵紀錄，無法標記');
+    var reason = prompt(
+      '用人單位為什麼沒有繼續往下走？這句話會直接組進通知候選人的 LINE 訊息——' +
+      '站在候選人角度寫、別出現「客戶」、別提內部細節（薪資談判、跟其他人選比較等）。可以留空：',
+      ''
+    );
+    if (reason === null) return;
+    if (!confirm('確定要標記「' + (cur.name || '這位候選人') + '」結案不續嗎？會立即推播委婉的通知給他的 LINE。')) return;
+    this.disabled = true; this.textContent = '處理中…';
+    try {
+      var d = await api('/admin/mark-closed', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ application_id: cur.app_id, reason: reason }),
+      });
+      if (d.ok) { alert('已標記結案不續，LINE 通知已推播（如果他有綁定的話）。'); load(); }
+      else alert('失敗：' + (d.error || '伺服器沒說原因'));
+    } catch (e) {
+      alert('失敗：' + (e && e.message ? e.message : '連線失敗'));
+    } finally {
+      this.disabled = false; this.textContent = '❌ 標記結案不續';
+    }
+  });
+  $('acts').appendChild(closeBtn);
 }
 
 async function decide(o) {
