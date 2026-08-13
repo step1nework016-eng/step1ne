@@ -411,6 +411,28 @@ async function boot() {
     fetch(API + '/chat/' + encodeURIComponent(T) + '/send', {
       method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ text: SENTINEL }),
+    }).then(function (r) {
+      return r.json().then(function (d2) { return { r: r, d: d2 }; });
+    }).then(function (res) {
+      // ⚠️ 2026-08-13 補：這支開場暗號原本完全沒檢查回應狀態，只要撞到
+      // 428（還沒做測驗）或 429（面談室額滿）就是無限轉圈圈的「阿財思考中」，
+      // 候選人畫面上什麼提示都沒有——跟 send() 早就有的處理方式不一致，
+      // 補成一樣的邏輯（見下面 send() 裡幾乎一樣的區塊）。
+      if (!res.d.ok && (res.r.status === 428 || res.r.status === 429)) {
+        typing(false); waiting = false;
+        clearInterval(polling);
+        if (res.r.status === 428) {
+          gate('先完成工作風格測驗',
+               '開始面談之前，還有一份工作風格測驗要請您完成，大約 5 到 7 分鐘。'
+               + '沒有標準答案，照直覺選就好，做完會馬上給您一份個人的工作風格報告。',
+               '開始測驗', res.d.assessment_url || '/assessment/?t=' + encodeURIComponent(T));
+        } else {
+          gate('目前面談室滿了，先選個時段',
+               res.d.message || '現在有其他候選人正在面談中。請選一個方便的時段，'
+               + '時間到之前我們會再寄信提醒您。',
+               '選擇面談時段', res.d.book_url || '/book/?t=' + encodeURIComponent(T));
+        }
+      }
     }).catch(function () {});
     }
   }
