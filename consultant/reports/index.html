@@ -69,6 +69,11 @@ pre.rep{white-space:pre-wrap;word-break:break-word;font:inherit;font-size:14.5px
 .stagebar .ln{position:absolute;top:11px;left:50%;width:100%;height:2px;background:#eee7db;z-index:0;}
 .stagebar .step.done .ln{background:#2f8f5b;}
 .stagebar .step:first-child .ln{display:none;}
+.stagebar-manual{margin-top:12px;padding-top:10px;border-top:1px dashed #e6dfd1;font-size:12.5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.stagebar-manual select{font:inherit;font-size:12.5px;border:1px solid #e0d9cb;border-radius:8px;padding:5px 7px;background:#fff;}
+.stagebar-manual button{font:inherit;font-size:12.5px;border:1px solid #e0d9cb;border-radius:8px;padding:5px 11px;cursor:pointer;background:#fff;min-height:30px;}
+.stagebar-manual button:hover{border-color:#a67c3d;}
+.stagebar-manual .warn{color:#8a5a1a;}
 .acts{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 20px;}
 .act{font:inherit;font-size:14px;font-weight:600;border:1px solid #e0d9cb;background:#fff;border-radius:10px;padding:10px 16px;cursor:pointer;min-height:42px;}
 .act:hover{border-color:#a67c3d;}
@@ -425,8 +430,10 @@ function transcriptText(row, list) {
 }
 
 var curRow = null, curData = null;
+var reopenFn = null, reopenRow = null;   // 手動指定階段送出後，用這兩個重新載入同一個人選的詳情
 
 async function openSession(row) {
+  reopenFn = openSession; reopenRow = row;
   // 2026-08-13 修：這裡原本把 cur 設成 null，害「安排面談時間」「重新開啟面談室」
   // 「標記錄取」這些靠 cur.app_id 判斷的按鈕，從「全部應徵」這條路徑打開時
   // 全部失效（會跳「找不到對應的應徵紀錄」）——這條路徑本來就是同一筆應徵，
@@ -728,6 +735,7 @@ async function load() {
 }
 
 async function open(row) {
+  reopenFn = open; reopenRow = row;
   cur = row;
   curRow = null; curData = null;
   stopLive();
@@ -886,41 +894,77 @@ async function decide(o) {
 }
 
 // 2026-08-13 加：階段列——顧問一打開這個人選的詳情就知道他卡在哪一關，
-// 不用自己從逐字稿跟報告狀態拼湊。第二到第四階段只有真的排過才會出現，
+// 不用自己從逐字稿跟報告狀態拼湊。第二到第四階段只有真的排過（或手動指定到那一關）才會出現，
 // 用不到的職缺（多數只到第一或第二階段）不會硬留著空格。
+//
+// 2026-08-13 再改：判斷邏輯搬到後端 resolveStage()，這裡只負責畫圖——
+// 後台跟候選人 LINE 查進度共用同一套判斷，兩邊才不會兜不起來（見 index.js 的註解）。
+// 同時加「顧問手動指定」的下拉：跟自動判斷並存，取兩者中較後面的那個（高水位規則），
+// 一旦自動資料追上或超過，畫面自然由自動接手，不用顧問自己記得清除。
+var STAGE_OPTS = [
+  { key: 'screening', lb: '阿財初審' }, { key: 'confirm', lb: '顧問確認' },
+  { key: 'stage1', lb: '第一階段' }, { key: 'stage2', lb: '第二階段' },
+  { key: 'stage3', lb: '第三階段' }, { key: 'stage4', lb: '第四階段' },
+  { key: 'offer', lb: '錄取' }, { key: 'onboard', lb: '報到' }, { key: 'care', lb: '到職關懷' },
+];
+function stageLabelOf(key) {
+  var f = STAGE_OPTS.filter(function (o) { return o.key === key; })[0];
+  return f ? f.lb : key;
+}
+
 function renderStageBar(row, d) {
   var bar = $('stagebar');
-  var appts = d.appointments || [];
-  var placement = d.placement;
-  var report = d.report;
+  var info = d.stage;
+  if (!info || info.effective_index < 0) { bar.hidden = true; return; }
 
-  var steps = [
-    { lb: '阿財初審', ok: !!(row.interview_started_at || report) },
-    { lb: '顧問確認', ok: !!(report && report.consultant_decision) },
-  ];
-  var s1 = appts.filter(function (x) { return x.stage === 1; }).slice(-1)[0];
-  steps.push({ lb: '第一階段', ok: !!(s1 && s1.status === 'confirmed') });
-  var STAGE_LB = { 2: '第二階段', 3: '第三階段', 4: '第四階段' };
-  [2, 3, 4].forEach(function (stg) {
-    var a = appts.filter(function (x) { return x.stage === stg; }).slice(-1)[0];
-    if (a) steps.push({ lb: STAGE_LB[stg], ok: a.status === 'confirmed' });
-  });
-  steps.push({ lb: '錄取', ok: !!(placement && ['OFFER_ACCEPTED', 'GUARANTEE'].indexOf(placement.stage) >= 0) });
-  steps.push({ lb: '報到', ok: !!(placement && placement.stage === 'GUARANTEE' && placement.onboard_date) });
-  var careLog = [];
-  try { careLog = JSON.parse((placement && placement.candidate_care_log) || '[]'); } catch (e) { careLog = []; }
-  steps.push({ lb: '到職關懷', ok: careLog.length > 0 });
-
-  var lastOkIdx = -1;
-  steps.forEach(function (s, i) { if (s.ok) lastOkIdx = i; });
-  if (lastOkIdx < 0) { bar.hidden = true; return; }
-
-  bar.innerHTML = '<div class="steps">' + steps.map(function (s, i) {
-    var cls = i < lastOkIdx ? 'done' : (i === lastOkIdx ? 'now' : '');
-    var mark = cls === 'done' ? '✓' : '';
+  var dotsHtml = '<div class="steps">' + info.steps.map(function (s) {
+    var cls = s.done ? 'done' : (s.now ? 'now' : '');
+    var mark = s.done ? '✓' : '';
     return '<div class="step ' + cls + '"><div class="ln"></div><div class="dot">' + mark + '</div><div class="lb">' + esc(s.lb) + '</div></div>';
   }).join('') + '</div>';
+
+  var manualHtml = '<div class="stagebar-manual">' +
+    (info.manual_active
+      ? '<span class="warn">⚠️ 目前顯示是顧問手動指定的「' + esc(stageLabelOf(info.manual_stage)) + '」，系統資料還沒追上，追上後會自動切回。</span>'
+      : '') +
+    '<select id="manualStageSel">' +
+      '<option value="">— 手動指定階段 —</option>' +
+      STAGE_OPTS.map(function (o) {
+        return '<option value="' + o.key + '"' + (info.manual_stage === o.key ? ' selected' : '') + '>' + o.lb + '</option>';
+      }).join('') +
+    '</select>' +
+    '<button type="button" id="manualStageGo">套用</button>' +
+    (info.manual_stage ? '<button type="button" id="manualStageClear">清除手動指定</button>' : '') +
+  '</div>';
+
+  bar.innerHTML = dotsHtml + manualHtml;
   bar.hidden = false;
+
+  $('manualStageGo').addEventListener('click', function () {
+    var sel = $('manualStageSel').value;
+    if (!sel) return alert('請先選一個階段');
+    setManualStage(sel, this);
+  });
+  var clearBtn = document.getElementById('manualStageClear');
+  if (clearBtn) clearBtn.addEventListener('click', function () { setManualStage('', this); });
+}
+
+async function setManualStage(stageKey, btn) {
+  if (!cur || !cur.app_id) return alert('這筆報告沒有對應的應徵紀錄，無法指定');
+  var oldText = btn.textContent;
+  btn.disabled = true; btn.textContent = '處理中…';
+  try {
+    var d = await api('/admin/set-manual-stage', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ application_id: cur.app_id, stage: stageKey || null }),
+    });
+    if (!d.ok) { alert('失敗：' + (d.error || '伺服器沒說原因')); return; }
+    if (reopenFn && reopenRow) await reopenFn(reopenRow);   // 重新載入這個人選的詳情，階段列跟著更新
+  } catch (e) {
+    alert('失敗：' + (e && e.message ? e.message : '連線失敗'));
+  } finally {
+    btn.disabled = false; btn.textContent = oldText;
+  }
 }
 
 // ── 安排面談時間（讓人選自己挑）──
