@@ -55,10 +55,12 @@ input:focus,select:focus{border-color:#a67c3d;box-shadow:0 0 0 3px rgba(166,124,
 .b-norep{background:#fdeeda;color:#9a5a12;}
 
 dialog{border:0;border-radius:18px;padding:0;max-width:900px;width:calc(100% - 32px);max-height:88vh;box-shadow:0 20px 60px rgba(0,0,0,.22);}
-/* dvh 用瀏覽器目前實際看得到的視窗高度算，比 vh 準——手機瀏覽器網址列收合/展開時
-   vh 常常量到「假設網址列不見」的高度，導致彈窗實際比想像中矮，內容被裁掉一截。
-   有支援 dvh 的瀏覽器才套用，沒支援的維持上面的 vh 當備援。 */
-@supports (height:100dvh){ dialog{max-height:90dvh;} }
+/* ⚠️ 2026-08-13 再修：vh／dvh 在手機上量出來的高度不可靠（尤其網址列收合/展開、
+   橫向持機時），量出來的值可能比實際看得到的畫面還高，導致 dbody 分不到高度、
+   整塊內容區塌成 0，滑再多下都看不到任何東西——不只是「裁掉一截」，是整塊消失。
+   改用 JS 量 window.innerHeight（實測數字，不是 CSS 單位猜的）寫進 --app-vh，
+   dialog 的高度上限一律照這個算，vh 只當 JS 還沒跑之前的備援值。 */
+dialog{max-height:min(88vh, calc(var(--app-vh, 800px) * 0.88));}
 /* ⚠️ display:flex 一定要掛在 [open] 底下，不能寫在裸的 dialog 選擇器上——
    author CSS 的優先權比瀏覽器內建的 UA stylesheet 高，裸 dialog{display:flex}
    會蓋掉瀏覽器預設「沒有 open 屬性就 display:none」的規則，導致 close() 之後
@@ -66,7 +68,10 @@ dialog{border:0;border-radius:18px;padding:0;max-width:900px;width:calc(100% - 3
 dialog[open]{display:flex;flex-direction:column;}
 dialog::backdrop{background:rgba(20,18,14,.42);}
 .dhead{background:#fff;border-bottom:1px solid #eee7db;padding:16px 22px;display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex:none;}
-.dbody{padding:20px 22px 26px;overflow-y:auto;flex:1;min-height:0;-webkit-overflow-scrolling:touch;}
+/* min-height 給一個實際的下限（不是 0）——一般情況下跟 min-height:0 效果一樣都能
+   正常滾動，但如果 --app-vh 算錯導致外層 dialog 被壓得太矮，這裡至少保底不會塌成 0
+   （寧可讓內容溢出圓角邊界看得到，也不要整塊消失讓人以為畫面壞了）。 */
+.dbody{padding:20px 22px 26px;overflow-y:auto;flex:1;min-height:200px;-webkit-overflow-scrolling:touch;}
 .dhead button{border:0;background:#f2efe8;border-radius:10px;width:34px;height:34px;font-size:17px;cursor:pointer;}
 .dtabs{display:flex;gap:4px;padding:10px 22px 0;background:#fff;border-bottom:1px solid #eee7db;flex:none;overflow-x:auto;}
 .dtab{font:inherit;font-size:13.5px;font-weight:600;border:1px solid transparent;background:none;color:#8a8d95;border-radius:9px 9px 0 0;padding:9px 15px;cursor:pointer;white-space:nowrap;}
@@ -348,6 +353,17 @@ var tok = localStorage.getItem(KEY) || '';
 var state = 'undecided', offset = 0, LIMIT = 25, total = 0, cur = null;
 var $ = function (i) { return document.getElementById(i); };
 
+// 2026-08-13 加：手機上 CSS 的 vh／dvh 量出來的高度不可靠（網址列收合/展開、
+// 橫向持機時特別明顯），用 JS 量 window.innerHeight 這個實測數字寫進 --app-vh，
+// dialog 的高度上限改用這個算，不要再猜 CSS 單位。resize/orientationchange 時
+// 重算，開彈窗前也強制重算一次（保險，怕開窗那瞬間網址列狀態剛好在變化）。
+function syncAppVh() {
+  document.documentElement.style.setProperty('--app-vh', window.innerHeight + 'px');
+}
+syncAppVh();
+window.addEventListener('resize', syncAppVh);
+window.addEventListener('orientationchange', syncAppVh);
+
 // 2026-08-13 加：彈窗資訊太多擠成一長串，改成分頁——總覽／報告／安排面談／逐字稿。
 // 每次開一個新的人選都要重置回「總覽」，不然會殘留上一位看到一半的分頁。
 function showDialogTab(name) {
@@ -512,6 +528,7 @@ async function openSession(row) {
       JSON.stringify(row || null).slice(0, 120) + '）';
     $('drep').textContent = '';
     showDialogTab('overview');
+  syncAppVh();
   $('dlg').showModal();
     return;
   }
@@ -521,6 +538,7 @@ async function openSession(row) {
   $('dtr').innerHTML = '';
   $('acts').innerHTML = '';
   showDialogTab('overview');
+  syncAppVh();
   $('dlg').showModal();
   apptAutofill();
 
@@ -815,6 +833,7 @@ async function open(row) {
   $('stagebar').hidden = true;
   drawActs(row.consultant_decision);
   showDialogTab('overview');
+  syncAppVh();
   $('dlg').showModal();
   apptAutofill();
 
