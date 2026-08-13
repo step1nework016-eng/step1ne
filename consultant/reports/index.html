@@ -823,12 +823,14 @@ async function decide(o) {
 
 // ── 安排面談時間（讓人選自己挑）──
 function apptRowHtml() {
-  return '<div class="apptrow" style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap;">' +
+  return '<div class="apptrow" style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap;align-items:center;">' +
     '<input type="date" class="appt-date" style="border:1px solid #eee7db;border-radius:8px;padding:6px;">' +
     '<input type="time" class="appt-time" style="border:1px solid #eee7db;border-radius:8px;padding:6px;">' +
     '<select class="appt-fmt" style="border:1px solid #eee7db;border-radius:8px;padding:6px;">' +
       '<option value="現場面談">現場面談</option><option value="視訊面談">視訊面談</option><option value="電話面談">電話面談</option>' +
     '</select>' +
+    '<input type="url" class="appt-url" placeholder="視訊連結（選視訊面談才需要）" hidden ' +
+      'style="border:1px solid #eee7db;border-radius:8px;padding:6px;flex:1 1 200px;min-width:160px;">' +
     '<button type="button" class="appt-rm" style="background:#fff;border:1px solid #eee7db;border-radius:8px;padding:4px 10px;cursor:pointer;color:#b4552e;">移除</button>' +
   '</div>';
 }
@@ -837,6 +839,11 @@ function apptAddRow() {
   wrap.innerHTML = apptRowHtml();
   var row = wrap.firstChild;
   row.querySelector('.appt-rm').addEventListener('click', function () { row.remove(); });
+  // 視訊連結欄位只在選「視訊面談」時才需要，其他格式不用讓顧問看到多餘欄位
+  var fmtSel = row.querySelector('.appt-fmt'), urlInp = row.querySelector('.appt-url');
+  function syncUrlVisibility() { urlInp.hidden = fmtSel.value !== '視訊面談'; }
+  fmtSel.addEventListener('change', syncUrlVisibility);
+  syncUrlVisibility();
   $('apptrows').appendChild(row);
 }
 $('apptaddrow').addEventListener('click', apptAddRow);
@@ -854,7 +861,8 @@ $('apptsubmit').addEventListener('click', async function () {
     var d = row.querySelector('.appt-date').value;
     var t = row.querySelector('.appt-time').value;
     var f = row.querySelector('.appt-fmt').value;
-    if (d && t) slots.push({ slot_at: d + ' ' + t, format: f });
+    var u = row.querySelector('.appt-url').value.trim();
+    if (d && t) slots.push(u ? { slot_at: d + ' ' + t, format: f, meeting_url: u } : { slot_at: d + ' ' + t, format: f });
   });
   if (!slots.length) return alert('至少要填一個完整的日期＋時間');
   this.disabled = true; this.textContent = '送出中…';

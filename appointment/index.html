@@ -65,10 +65,14 @@ async function boot(){
   if(!info.ok){ app.innerHTML='<h1>連結無效</h1><p class="lead">'+esc(info.error||'')+'</p>'; return; }
 
   if(info.status === 'confirmed'){
+    // 視訊連結存在原本的 slots 裡（每個時段各自的），已確認的話要從裡面撈出對應那筆
+    const confirmedSlot = (info.slots||[]).find(s => s.slot_at === info.confirmed_slot);
+    const mu = confirmedSlot && confirmedSlot.meeting_url;
     app.innerHTML = `
       <h1>面談時間已確認</h1>
       <p class="lead">${esc(info.name||'')} 您好，您的面談時間如下：</p>
-      <div class="sect"><b>${esc(fmtWhen(info.confirmed_slot))}</b></div>
+      <div class="sect"><b>${esc(fmtWhen(info.confirmed_slot))}</b>
+        ${mu ? `<div class="fmt" style="margin-top:8px"><a href="${esc(mu)}" target="_blank" rel="noopener">📹 點此加入視訊面談</a></div>` : ''}</div>
       <div class="note">如需調整，請直接聯繫您的顧問。</div>`;
     return;
   }
@@ -92,7 +96,7 @@ function renderOptions(slots){
     <div class="opt" data-i="${i}" onclick="selectOpt(${i})">
       <div>
         <div class="when">${esc(fmtWhen(s.slot_at))}</div>
-        ${s.format ? `<div class="fmt">${esc(s.format)}</div>` : ''}
+        ${s.format ? `<div class="fmt">${esc(s.format)}${s.meeting_url ? '　📹 視訊連結（選定後提供）' : ''}</div>` : ''}
       </div>
       <div class="pick"></div>
     </div>`).join('');
@@ -127,6 +131,7 @@ async function submit(){
   document.getElementById('app').innerHTML = `
     <h1>已確認！</h1>
     <p class="lead">面談時間：<b>${esc(fmtWhen(picked.slot_at))}</b></p>
+    ${picked.meeting_url ? `<div class="sect"><a href="${esc(picked.meeting_url)}" target="_blank" rel="noopener">📹 點此加入視訊面談</a></div>` : ''}
     <div class="note">顧問已經收到通知，會再跟您確認細節。</div>`;
 }
 boot();
