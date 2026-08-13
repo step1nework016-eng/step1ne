@@ -766,6 +766,37 @@ function drawActs(now) {
   // 記下處置才有辦法回頭比對 AI 判準準不準，這是這個按鈕真正的用途
   n.textContent = now ? '已處置' : '處置後才能回頭校正 AI 的判準';
   $('acts').appendChild(n);
+
+  // ⚠️ 2026-08-13 加。原本面談室卡住／逾時／候選人被系統問題中斷後，
+  // 只能回頭找工程端手動改資料庫才能讓連結重新可用——徐先生那次就是
+  // 這樣卡住的。現在顧問自己在這裡按一下就能重開，不用等人。
+  var reopenBtn = document.createElement('button');
+  reopenBtn.type = 'button';
+  reopenBtn.className = 'act';
+  reopenBtn.style.cssText = 'margin-left:auto;background:#2f6fed;color:#fff;border-color:#2f6fed;';
+  reopenBtn.textContent = '↻ 重新開啟面談室';
+  reopenBtn.addEventListener('click', async function () {
+    if (!cur || !cur.app_id) return alert('這筆報告沒有對應的應徵紀錄，無法重開');
+    var days = prompt('要保留幾天讓候選人回來繼續？（不確定他何時方便就填長一點，例如 30）', '30');
+    if (days === null) return;
+    this.disabled = true; this.textContent = '重開中…';
+    try {
+      var d = await api('/admin/reopen-interview', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ id: cur.app_id, hold_days: Number(days) || 30 }),
+      });
+      if (d.ok) {
+        alert('面談室已重新開啟，保留到 ' + d.hold_until + '。同一組連結（/interview/?t=…）現在就能用。');
+      } else {
+        alert('重開失敗：' + (d.error || '伺服器沒說原因'));
+      }
+    } catch (e) {
+      alert('重開失敗：' + (e && e.message ? e.message : '連線失敗'));
+    } finally {
+      this.disabled = false; this.textContent = '↻ 重新開啟面談室';
+    }
+  });
+  $('acts').appendChild(reopenBtn);
 }
 
 async function decide(o) {
