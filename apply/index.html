@@ -421,7 +421,7 @@ document.getElementById('toAssess').addEventListener('click', async () => {
 });
 
 // ── 測驗做完跳回這一頁：還原表單、讓他檢查，不是換一個畫面 ──
-let RETURN_TOKEN = null, RETURN_ROUTE = null, HAD_RESUME_BEFORE = false, RETURN_FORM_DATA = null;
+let RETURN_TOKEN = null, HAD_RESUME_BEFORE = false, RETURN_FORM_DATA = null;
 
 (function checkReturnedFromAssessment() {
   const T = q.get('t') || sessionStorage.getItem('s1ne_token') || '';
@@ -434,7 +434,6 @@ let RETURN_TOKEN = null, RETURN_ROUTE = null, HAD_RESUME_BEFORE = false, RETURN_
   try { saved = JSON.parse(rawResult); formData = JSON.parse(rawForm); } catch { return; }
 
   RETURN_TOKEN = T;
-  RETURN_ROUTE = saved.result;
   RETURN_FORM_DATA = formData;   // job_slug 要等 jobs.json 那個 fetch 把 <option> 生出來才能設，見下方
   HAD_RESUME_BEFORE = !!(formData.resume_name || formData.resume_url);
 
@@ -537,13 +536,14 @@ f.addEventListener('submit', async (e) => {
   }
 
   btn.disabled = true; btn.textContent = '送出中⋯';
+  let d;
   try {
     const body = await buildBody();
     const r = await fetch(`${API}/apply/update/${encodeURIComponent(RETURN_TOKEN)}`, {
       method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify(body),
     });
-    const d = await r.json();
+    d = await r.json();
     if (!d.ok) throw new Error(d.error || '送出失敗');
   } catch (err) {
     msg.className = 'msg err'; msg.textContent = err.message || '送出失敗，請稍後再試';
@@ -551,12 +551,16 @@ f.addEventListener('submit', async (e) => {
     return;
   }
 
-  const route = RETURN_ROUTE || {};
   // ⚠️ 2026-08-12：這裡原本 route==='now' 是無條件直接導去面談室，
   //    沒有給「先約時間」的選項——早上先把這個邏輯加在 /assessment/ 自己的結果頁，
   //    但真實流程是「/apply/ → /assessment/（交卷後不show結果，直接跳回）→ /apply/
   //    使用者在這裡按下最後的『送出應徵』才是真正決定進面談室還是約時間的地方」，
   //    所以那次的修改是死碼，從來沒有真的生效過。這裡才是要接的地方。
+  //
+  // ⚠️ 2026-08-13 再改：這裡原本用 RETURN_ROUTE（測驗交卷那一刻存的舊結果），
+  //    填表審核資料這段期間房間可能早就滿了或空出來了。改用 d——這是剛剛
+  //    /apply/update/ 這支 API 用「這一刻」重新判斷出來的結果，不是舊快取。
+  const route = d || {};
   if (route.route === 'now') { showNowOrBook(route); return; }
   if (route.route === 'book') { location.href = '/book/?t=' + encodeURIComponent(RETURN_TOKEN); return; }
   {
