@@ -60,19 +60,21 @@ td.jobs a:hover{text-decoration:underline}
   <main class="wrap">
     <div class="note">
       候選人在 LINE 官方帳號（全民獵才）按「追蹤面試進度」或打字送出觸發文字後，
-      系統會請他留手機號碼，比對到 <b>applications</b> 的應徵紀錄就會綁定，
-      之後他再查詢會直接回覆目前狀態，不用再問一次。<br>
-      這頁列出<b>所有已經跟系統對過話的 LINE 帳號</b>——包含還在等他回手機號碼、
-      或手機號碼比對不到任何紀錄的人（<span class="pill pending">等手機號碼</span>），
+      系統會請他一次留姓名、信箱、手機號碼三項，三項都跟 <b>applications</b> 的
+      應徵紀錄對得上才會綁定（2026-08-13 起改成三項交叉比對，避免手機號碼
+      打錯一碼或借用家人號碼應徵時認錯人）。綁定成功後永久有效，
+      之後他再查詢會直接回覆目前狀態，不用再重新驗證一次。<br>
+      這頁列出<b>所有已經跟系統對過話的 LINE 帳號</b>——包含還在等他回資料、
+      或三項比對不到任何紀錄的人（<span class="pill pending">等驗證</span>），
       方便你知道誰用過這個功能、卡在哪一步。
     </div>
     <div class="cnt" id="cnt"></div>
     <div style="overflow-x:auto">
-    <table style="min-width:640px">
+    <table style="min-width:720px">
       <thead><tr>
-        <th>候選人</th><th>手機</th><th>狀態</th><th>對應應徵紀錄</th><th>建立時間</th><th>綁定時間</th>
+        <th>候選人</th><th>手機</th><th>信箱</th><th>狀態</th><th>對應應徵紀錄</th><th>建立時間</th><th>綁定時間</th>
       </tr></thead>
-      <tbody id="rows"><tr><td colspan="6" class="mut">載入中⋯</td></tr></tbody>
+      <tbody id="rows"><tr><td colspan="7" class="mut">載入中⋯</td></tr></tbody>
     </table>
     </div>
   </main>
@@ -94,7 +96,7 @@ function api(path) {
 function row(b) {
   var pill = b.state === 'bound'
     ? '<span class="pill bound">已綁定</span>'
-    : '<span class="pill pending">等手機號碼／查無紀錄</span>';
+    : '<span class="pill pending">等驗證資料／查無紀錄</span>';
   var apps = (b.applications || []).map(function (a) {
     return '<a href="/consultant/jobs/" title="' + esc(a.id) + '">' + esc(a.job_title || a.job_slug) + '</a>';
   }).join('') || '<span class="mut">—</span>';
@@ -102,6 +104,7 @@ function row(b) {
     + '<td>' + (b.candidate_name ? esc(b.candidate_name) : '<span class="mut">尚未比對到姓名</span>')
       + '<div class="uid">' + esc(b.line_user_id) + '</div></td>'
     + '<td>' + (b.phone ? esc(b.phone) : '<span class="mut">—</span>') + '</td>'
+    + '<td>' + (b.email ? esc(b.email) : '<span class="mut">—</span>') + '</td>'
     + '<td>' + pill + '</td>'
     + '<td class="jobs">' + apps + '</td>'
     + '<td>' + esc(b.created_at || '') + '</td>'
@@ -116,8 +119,8 @@ function load() {
     var rows = d.bindings || [];
     $('cnt').textContent = rows.length + ' 筆';
     $('rows').innerHTML = rows.map(row).join('')
-      || '<tr><td colspan="6" class="mut" style="text-align:center;padding:26px">還沒有人用過這個功能</td></tr>';
-  }).catch(function () { $('rows').innerHTML = '<tr><td colspan="6" class="mut">讀取失敗</td></tr>'; });
+      || '<tr><td colspan="7" class="mut" style="text-align:center;padding:26px">還沒有人用過這個功能</td></tr>';
+  }).catch(function () { $('rows').innerHTML = '<tr><td colspan="7" class="mut">讀取失敗</td></tr>'; });
 }
 function boot() {
   if (tok) return load();
