@@ -281,10 +281,12 @@ f.addEventListener('submit', async (e) => {
     });
     const d = await r.json();
     if (!d.ok) throw new Error(d.error || '送出失敗');
-    // 送出成功就直接帶去對談室——阿福幾秒內就會讀完履歷開口，
-    // 不用讓人等一封信。萬一舊版 API 沒回 chat_token，退回原本的靜態完成頁。
+    // 2026-08-14 加：送出成功先帶去工作風格測驗（必填），做完那邊會自動
+    // 帶進對談室——不要先進對談室才發現要被彈去測驗，等於在申請流程裡
+    // 繞了一圈才到，體驗跟阿財那邊「填表→測驗→回來」的順序對不上。
+    // 萬一舊版 API 沒回 chat_token，退回原本的靜態完成頁。
     if (d.chat_token) {
-      location.href = '/checkup-chat/?t=' + encodeURIComponent(d.chat_token);
+      location.href = '/checkup-assessment/?t=' + encodeURIComponent(d.chat_token);
       return;
     }
     document.getElementById('form-view').style.display = 'none';
