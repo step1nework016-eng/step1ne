@@ -108,6 +108,14 @@ pre.rep{white-space:pre-wrap;word-break:break-word;font:inherit;font-size:14.5px
 .stagebar-manual button{font:inherit;font-size:12.5px;border:1px solid #e0d9cb;border-radius:8px;padding:5px 11px;cursor:pointer;background:#fff;min-height:30px;}
 .stagebar-manual button:hover{border-color:#a67c3d;}
 .stagebar-manual .warn{color:#8a5a1a;}
+/* 2026-08-14 加：結案不續要在階段列上明顯看得到，不能跟一般 9 階段的灰點
+   混在一起看不出來——顧問點開人選時要一眼就知道這筆已經結束，不用另外
+   去猜階段列停在哪一步是不是代表結案了。橘色跟 LINE 通知卡片同一組色碼。 */
+.stagebar-closed{background:#fdece0;border:1px solid #f0c9a8;border-radius:9px;
+  padding:10px 14px;margin-bottom:12px;font-size:13px;color:#8a3a20;}
+.stagebar-closed b{display:block;font-size:13.5px;color:#a3450f;margin-bottom:3px;}
+.stagebar-closed.internal{background:#f0efec;border-color:#dcdad4;color:#4a4d55;}
+.stagebar-closed.internal b{color:#3a3d44;}
 .acts{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 20px;}
 .act{font:inherit;font-size:14px;font-weight:600;border:1px solid #e0d9cb;background:#fff;border-radius:10px;padding:10px 16px;cursor:pointer;min-height:42px;}
 .act:hover{border-color:#a67c3d;}
@@ -302,44 +310,61 @@ button.primary:hover{background:#8a6531;}
 
 <!-- 2026-08-14 加：原本用瀏覽器內建 prompt() 問「用人單位為什麼沒有繼續往下走」，
      樣子醜、也看不到打的這段話最後會變成什麼樣子送到候選人手上。改成跟其他彈窗
-     一樣的自訂 dialog，右邊即時預覽候選人會收到的 LINE 卡片長相——套用跟後端
-     deriveApplicationProgress() CLOSED_LOST 分支完全一樣的組字規則（客戶→用人單位、
-     去掉句尾標點再補句號），顧問打字的同時就能看到最終會送出去的文字，不用等推播
-     出去才知道寫得順不順。 -->
+     一樣的自訂 dialog，即時預覽候選人會收到的 LINE 卡片長相。
+     ⚠️ 2026-08-14 再改：原本只讓顧問填「中間那句話」、前後固定模板組起來——
+     Jacky 反應以為是整段文案都能改。改成 textarea 直接放完整訊息，顧問想怎麼寫
+     都可以，唯一保留的保護是送出前自動把「客戶」換成「用人單位」。
+     ⚠️ 又加：不是每次結案都要驚動候選人——用人單位可能只是暫時不錄取、
+     談別的合作方向，這種不算「拒絕候選人」，不該發委婉道歉卡片給他。
+     加一個「同時通知候選人」開關，關掉的話這筆只做內部結案記錄
+     （stage 存 CLOSED_INTERNAL，不是 CLOSED_LOST），候選人自己查進度也不會看到
+     任何結案訊息——就當這件事沒發生過，資料留著給顧問自己參考。 -->
 <dialog id="closeDlg">
   <div class="dhead">
     <div><b>❌ 標記結案不續</b><div class="mut" id="c_who">—</div></div>
     <button id="cx" type="button" aria-label="關閉">✕</button>
   </div>
   <div class="dbody frm">
-    <label>用人單位為什麼沒有繼續往下走？（選填）</label>
-    <!-- 2026-08-14 加：三個委婉說法快選——顧問不用每次重新想怎麼講才不傷人，
-         點一下就套用，還是可以再手動修改。第一顆（用人單位有給具體原因）
-         不直接塞制式句子，因為每次原因都不一樣，塞了反而容易忘記改、
-         把「請填寫」這種提示字眼直接寄給候選人——改成清空欄位＋換
-         placeholder 提示，欄位是空的，不會不小心把提示文字送出去。 -->
-    <div class="qrbar">
-      <button type="button" class="qr" data-qr="custom">用人單位有給具體原因</button>
-      <button type="button" class="qr" data-qr="mismatch">職缺條件不符（不點名細節）</button>
-      <button type="button" class="qr" data-qr="thanks">條件尚未符合，感謝應徵</button>
-    </div>
-    <textarea id="c_reason" rows="3" placeholder="可以留空——留空的話只會顯示制式的委婉說法"></textarea>
-    <p class="note">這句話會直接組進通知候選人的 LINE 訊息——站在候選人角度寫、別出現「客戶」（會自動換成「用人單位」）、別提內部細節（薪資談判、跟其他人選比較等）。</p>
+    <label class="chk" style="margin:0 0 4px;">
+      <input type="checkbox" id="c_notify" checked>
+      <span>同時通知候選人（送出委婉的 LINE 訊息）<br>
+      <span class="note">取消勾選＝只做內部結案記錄，候選人不會收到任何通知，自己查進度也看不出這筆已結案。適用於「用人單位暫時不錄取、可能談合作或其他方向」這種不算拒絕候選人的情況。</span></span>
+    </label>
 
-    <label style="margin-top:22px;">👀 候選人會收到的通知卡片預覽</label>
-    <div class="linecard">
-      <div class="lc-head">
-        <div class="lc-tag">📪 結案通知</div>
-        <div class="lc-title" id="c_prev_title">職缺名稱</div>
+    <div id="c_notifyBox">
+      <label style="margin-top:18px;">給候選人的完整訊息（可直接編輯全部內容）</label>
+      <!-- 2026-08-14 加：三個委婉說法快選——顧問不用每次重新想怎麼講才不傷人，
+           點一下套用整段文字，還是可以再手動修改。custom（用人單位有給具體原因）
+           套用帶方括號提示的模板，送出前會檢查方括號有沒有被換掉，避免忘記改
+           就把提示字眼直接寄給候選人。 -->
+      <div class="qrbar">
+        <button type="button" class="qr" data-qr="custom">用人單位有給具體原因</button>
+        <button type="button" class="qr" data-qr="mismatch">職缺條件不符（不點名細節）</button>
+        <button type="button" class="qr" data-qr="thanks">條件尚未符合，感謝應徵</button>
       </div>
-      <div class="lc-body">
-        <div class="lc-name" id="c_prev_name">👤 候選人 您好</div>
-        <div class="lc-msg" id="c_prev_msg">—</div>
+      <textarea id="c_reason" rows="4"></textarea>
+      <p class="note">這是會直接送給候選人的完整 LINE 訊息內容——站在候選人角度寫、別出現「客戶」（送出前會自動換成「用人單位」）、別提內部細節（薪資談判、跟其他人選比較等）。</p>
+
+      <label style="margin-top:22px;">👀 候選人會收到的通知卡片預覽</label>
+      <div class="linecard">
+        <div class="lc-head">
+          <div class="lc-tag">📪 結案通知</div>
+          <div class="lc-title" id="c_prev_title">職缺名稱</div>
+        </div>
+        <div class="lc-body">
+          <div class="lc-name" id="c_prev_name">👤 候選人 您好</div>
+          <div class="lc-msg" id="c_prev_msg">—</div>
+        </div>
+        <div class="lc-foot">
+          <div class="lc-btn">查看職缺頁</div>
+          <div class="lc-btn sec">聯繫顧問</div>
+        </div>
       </div>
-      <div class="lc-foot">
-        <div class="lc-btn">查看職缺頁</div>
-        <div class="lc-btn sec">聯繫顧問</div>
-      </div>
+    </div>
+
+    <div id="c_internalBox" hidden>
+      <label style="margin-top:18px;">內部備註（選填，只有顧問看得到）</label>
+      <textarea id="c_internalNote" rows="3" placeholder="例：用人單位暫時不開這個缺了，改談派遣合作方案"></textarea>
     </div>
 
     <button id="c_go" type="button" class="primary go">確定標記結案不續，立即通知候選人</button>
@@ -866,7 +891,8 @@ async function load() {
   // 這個 stage 代碼跟後端漏斗查詢用的是同一套，只在畫面上轉成中文。
   var PIPE_LABEL = { SUBMITTED: '已送件', INTERVIEWING: '客戶面談',
                      OFFER_ACCEPTED: '錄取', GUARANTEE: '到職・保證期',
-                     CLOSED_LOST: '結案', CLOSED_WON: '結案（成功）' };
+                     CLOSED_LOST: '結案', CLOSED_WON: '結案（成功）',
+                     CLOSED_INTERNAL: '內部結案' };
   d.reports.forEach(function (r) {
     var lab = LABEL[r.consultant_decision];
     var pipe = PIPE_LABEL[r.pipeline_stage];
@@ -1089,45 +1115,62 @@ function drawActs(now) {
   $('bigacts').appendChild(closeBtn);
 }
 
-// 跟後端 deriveApplicationProgress() 的 CLOSED_LOST 分支用完全一樣的組字規則，
-// 顧問打字時看到的預覽才會等於候選人最後真的收到的文字，不是「差不多」。
-function closeMsgPreview(reason) {
-  var raw = String(reason || '').trim();
-  var safe = raw.replace(/客戶/g, '用人單位').replace(/[。！]+$/, '');
-  return '這個職缺這次很可惜沒有繼續往下走，很抱歉沒有帶來好消息。'
-    + (safe ? safe + '。' : '')
-    + '您的資料會留著，未來有更合適的職缺會再與您聯繫，也歡迎透過選單直接找顧問聊聊。';
+// ⚠️ 2026-08-14 改：textarea 現在放的是完整訊息（不再是塞進固定模板中間的
+// 片段），這裡只做送出前的安全替換（客戶→用人單位），跟後端
+// deriveApplicationProgress() CLOSED_LOST 分支的規則一致，顧問看到的預覽
+// 才會等於候選人最後真的收到的文字。沒填的話用完整版的制式委婉說法當保底。
+var CLOSE_DEFAULT_MSG = '這個職缺這次很可惜沒有繼續往下走，很抱歉沒有帶來好消息。'
+  + '您的資料會留著，未來有更合適的職缺會再與您聯繫，也歡迎透過選單直接找顧問聊聊。';
+function closeMsgPreview(fullText) {
+  var raw = String(fullText || '').trim();
+  return (raw || CLOSE_DEFAULT_MSG).replace(/客戶/g, '用人單位');
 }
 function updateClosePreview() {
   $('c_prev_msg').textContent = closeMsgPreview($('c_reason').value);
 }
 
-// 2026-08-14 加：三個委婉說法快選，點一下套用，還是可以再手動改。
-// custom（用人單位有給具體原因）不塞制式句子——原因每次都不一樣，塞了反而
-// 容易忘記改、把佔位提示字眼直接寄給候選人；改成清空欄位＋換 placeholder，
-// 欄位本身是空的，就算忘記編輯也頂多送出制式委婉說法，不會外洩內部提示文字。
-var QR_TEXT = {
-  mismatch: '這個職缺在條件搭配上，跟目前釋出的需求還有一些落差',
-  thanks: '審閱後，目前的條件跟這個職缺的需求還有一些落差，先跟您說聲謝謝',
+// 2026-08-14 加：三個委婉說法快選，套用的是整段完整訊息，還是可以再手動改。
+// custom（用人單位有給具體原因）套用帶方括號提示的模板，送出前會檢查方括號
+// 有沒有被換掉（見 c_go 那段），避免忘記改就把提示字眼直接寄給候選人。
+var QR_FULL_MSG = {
+  custom: '這個職缺這次很可惜沒有繼續往下走，很抱歉沒有帶來好消息。'
+    + '【請簡短說明用人單位的考量，一樣要委婉、別提內部細節（薪資談判、跟其他人選比較等）】。'
+    + '您的資料會留著，未來有更合適的職缺會再與您聯繫，也歡迎透過選單直接找顧問聊聊。',
+  mismatch: '這個職缺這次很可惜沒有繼續往下走，很抱歉沒有帶來好消息。'
+    + '這個職缺在條件搭配上，跟目前釋出的需求還有一些落差。'
+    + '您的資料會留著，未來有更合適的職缺會再與您聯繫，也歡迎透過選單直接找顧問聊聊。',
+  thanks: '這個職缺這次很可惜沒有繼續往下走，很抱歉沒有帶來好消息。'
+    + '審閱後，目前的條件跟這個職缺的需求還有一些落差，先跟您說聲謝謝。'
+    + '您的資料會留著，未來有更合適的職缺會再與您聯繫，也歡迎透過選單直接找顧問聊聊。',
 };
-var QR_PLACEHOLDER_DEFAULT = '可以留空——留空的話只會顯示制式的委婉說法';
-var QR_PLACEHOLDER_CUSTOM = '請簡短說明用人單位的考量——一樣會自動用委婉方式呈現，別出現「客戶」、別提內部細節';
 document.querySelectorAll('.qr').forEach(function (btn) {
   btn.addEventListener('click', function () {
     document.querySelectorAll('.qr').forEach(function (b) { b.classList.remove('on'); });
     btn.classList.add('on');
     var kind = btn.dataset.qr;
-    if (kind === 'custom') {
-      $('c_reason').value = '';
-      $('c_reason').placeholder = QR_PLACEHOLDER_CUSTOM;
-    } else {
-      $('c_reason').value = QR_TEXT[kind] || '';
-      $('c_reason').placeholder = QR_PLACEHOLDER_DEFAULT;
-    }
+    var ta = $('c_reason');
+    ta.value = QR_FULL_MSG[kind] || CLOSE_DEFAULT_MSG;
     updateClosePreview();
-    $('c_reason').focus();
+    // custom 模板裡的方括號提示直接選取起來，顧問打字就能覆蓋掉，不用自己選字刪除
+    var start = ta.value.indexOf('【'), end = ta.value.indexOf('】');
+    if (kind === 'custom' && start >= 0 && end > start) {
+      ta.focus(); ta.setSelectionRange(start, end + 1);
+    } else {
+      ta.focus();
+    }
   });
 });
+
+// 2026-08-14 加：「同時通知候選人」開關——關掉的話這筆結案只做內部記錄
+// （stage 存 CLOSED_INTERNAL），不寄任何 LINE 訊息，候選人自己查進度也看不出來。
+// 適用「用人單位暫時不錄取、談別的合作方向」這種不算拒絕候選人的情況。
+function syncNotifyMode() {
+  var on = $('c_notify').checked;
+  $('c_notifyBox').hidden = !on;
+  $('c_internalBox').hidden = on;
+  $('c_go').textContent = on ? '確定標記結案不續，立即通知候選人' : '確定標記結案（不通知候選人）';
+}
+$('c_notify').addEventListener('change', syncNotifyMode);
 
 function openCloseDlg() {
   var name = cur.name || '這位候選人';
@@ -1135,8 +1178,10 @@ function openCloseDlg() {
   $('c_who').textContent = name + '　' + jobTitle;
   $('c_prev_title').textContent = jobTitle;
   $('c_prev_name').textContent = '👤 ' + name + ' 您好';
-  $('c_reason').value = '';
-  $('c_reason').placeholder = QR_PLACEHOLDER_DEFAULT;
+  $('c_reason').value = CLOSE_DEFAULT_MSG;
+  $('c_internalNote').value = '';
+  $('c_notify').checked = true;
+  syncNotifyMode();
   document.querySelectorAll('.qr').forEach(function (b) { b.classList.remove('on'); });
   updateClosePreview();
   $('c_err').hidden = true;
@@ -1147,20 +1192,30 @@ $('c_reason').addEventListener('input', updateClosePreview);
 $('cx').addEventListener('click', function () { $('closeDlg').close(); });
 $('c_go').addEventListener('click', async function () {
   if (!cur || !cur.app_id) return;
-  var reason = $('c_reason').value;
+  var notify = $('c_notify').checked;
+  var reason = notify ? $('c_reason').value : $('c_internalNote').value;
+  if (notify && /[【】]/.test(reason)) {
+    $('c_err').hidden = false;
+    $('c_err').textContent = '訊息裡還有方括號提示文字沒有換掉，麻煩先填上實際內容再送出。';
+    return;
+  }
+  var oldText = this.textContent;
   this.disabled = true; this.textContent = '處理中…';
   $('c_err').hidden = true;
   try {
     var d = await api('/admin/mark-closed', {
       method: 'POST', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ application_id: cur.app_id, reason: reason }),
+      body: JSON.stringify({ application_id: cur.app_id, reason: reason, notify: notify }),
     });
-    if (d.ok) { $('closeDlg').close(); alert('已標記結案不續，LINE 通知已推播（如果他有綁定的話）。'); load(); }
-    else { $('c_err').hidden = false; $('c_err').textContent = '失敗：' + (d.error || '伺服器沒說原因'); }
+    if (d.ok) {
+      $('closeDlg').close();
+      alert(notify ? '已標記結案不續，LINE 通知已推播（如果他有綁定的話）。' : '已標記內部結案，候選人不會收到任何通知。');
+      load();
+    } else { $('c_err').hidden = false; $('c_err').textContent = '失敗：' + (d.error || '伺服器沒說原因'); }
   } catch (e) {
     $('c_err').hidden = false; $('c_err').textContent = '失敗：' + (e && e.message ? e.message : '連線失敗');
   } finally {
-    this.disabled = false; this.textContent = '確定標記結案不續，立即通知候選人';
+    this.disabled = false; this.textContent = oldText;
   }
 });
 
@@ -1201,7 +1256,30 @@ function renderStageBar(row, d) {
   // 等於顧問想從零開始手動指定某個候選人的階段時，畫面上完全沒有入口可以按。
   // 一定要秀出來，圓點可以是全灰（都還沒開始），但下拉選單要在。
 
-  var dotsHtml = '<div class="steps">' + info.steps.map(function (s) {
+  // 2026-08-14 加：結案不續要在階段列最上面明顯標出來——單靠 9 階段的灰點
+  // 看不出「這筆已經結束」，顧問點開人選要一眼就知道，也要看得到當初是
+  // 為什麼結案（close_reason 是「❌ 標記結案不續」彈窗填的委婉說法，
+  // 這裡直接顯示給顧問看內部原始版本，跟候選人收到的那句委婉版不是同一件事——
+  // 候選人版有經過客戶→用人單位置換，這裡是顧問自己填的原始文字，本來就沒有
+  // 那個問題）。
+  // 2026-08-14 加：CLOSED_INTERNAL 是「同時通知候選人」關掉時存的 stage——
+  // 不算拒絕候選人（例如用人單位暫時不錄取、談別的合作方向），候選人自己查
+  // 進度完全看不到，但顧問後台一樣要能看到內部記錄，用不同顏色/文字跟
+  // 「已結案不續」（有通知候選人）區分開。
+  var stageUp = d.placement ? String(d.placement.stage || '').toUpperCase() : '';
+  var closed = stageUp === 'CLOSED_LOST';
+  var closedInternal = stageUp === 'CLOSED_INTERNAL';
+  var closedHtml = closed
+    ? '<div class="stagebar-closed"><b>❌ 已結案不續（已通知候選人）</b>' +
+      (d.placement.close_reason ? esc(d.placement.close_reason) : '（沒有填寫原因，候選人收到的是制式委婉說法）') +
+      '</div>'
+    : closedInternal
+    ? '<div class="stagebar-closed internal"><b>🔒 內部結案（未通知候選人）</b>' +
+      (d.placement.close_reason ? esc(d.placement.close_reason) : '（沒有填寫備註）') +
+      '</div>'
+    : '';
+
+  var dotsHtml = closedHtml + '<div class="steps">' + info.steps.map(function (s) {
     var cls = s.done ? 'done' : (s.now ? 'now' : '');
     var mark = s.done ? '✓' : '';
     return '<div class="step ' + cls + '"><div class="ln"></div><div class="dot">' + mark + '</div><div class="lb">' + esc(s.lb) + '</div></div>';

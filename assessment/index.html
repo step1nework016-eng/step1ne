@@ -308,9 +308,14 @@ async function submit(){
   const {scores,seconds}=scoreAll();
   let r;
   try{
+    // ⚠️ 2026-08-14 加 back 旗標：帶 back=1 進來的（從 /apply/ 過來，交完卷會跳
+    // 回 /apply/ 再走一次「送出應徵」）不要在這裡讓後端判斷路線＋寄信——
+    // 真正的決定點是 /apply/update/:token，這裡如果也判斷+寄信，會跟那邊
+    // 重複寄出兩封不同的信。見 src/index.js /assessment/:token POST 的註解。
+    const backFlag = new URLSearchParams(location.search).get('back')==='1';
     r = await (await fetch(API+'/assessment/'+encodeURIComponent(T),{
       method:'POST',headers:{'content-type':'application/json'},
-      body:JSON.stringify({scores,answers:ans,seconds})
+      body:JSON.stringify({scores,answers:ans,seconds,back:backFlag})
     })).json();
   }catch{
     msg.className='msg err'; msg.textContent='送出失敗，請檢查網路後再試一次。';
