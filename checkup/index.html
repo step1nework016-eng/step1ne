@@ -344,12 +344,105 @@ let RETURN_TOKEN = null;
 })();
 
 // 真正的「送出健檢申請」：資料在第一步就已經存進資料庫了，這裡不用再打一次
-// API，單純是本人確認過、決定要正式開始的動作，直接進對談室。
-f.addEventListener('submit', (e) => {
+// /checkup，但要打 /checkup/update/:token 用「這一刻」重新判斷容量——
+// 跟阿財 /apply/update/:token 同一個位置、同一個理由：填表跟做測驗這段
+// 期間房間可能已經滿了或空出來，不能沿用測驗交卷那一刻的舊結果。
+f.addEventListener('submit', async (e) => {
   e.preventDefault();
   if (!RETURN_TOKEN) return; // 還沒做完測驗，按鈕本來就是 disabled，這裡是防呆
-  location.href = '/checkup-chat/?t=' + encodeURIComponent(RETURN_TOKEN);
+  const msg = document.getElementById('msg');
+  const btn = document.getElementById('btn');
+  msg.className = 'msg'; btn.disabled = true; btn.textContent = '送出中⋯';
+
+  let d;
+  try {
+    d = await (await fetch(API + '/checkup/update/' + encodeURIComponent(RETURN_TOKEN), {
+      method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}',
+    })).json();
+  } catch {
+    msg.className = 'msg err'; msg.textContent = '送出失敗，請稍後再試';
+    btn.disabled = false; btn.textContent = '送出健檢申請'; return;
+  }
+  if (!d.ok) {
+    msg.className = 'msg err'; msg.textContent = d.error || '送出失敗';
+    btn.disabled = false; btn.textContent = '送出健檢申請'; return;
+  }
+
+  if (d.route === 'now') { showNowOrBook(d); return; }
+  if (d.route === 'book') { location.href = '/checkup-book/?t=' + encodeURIComponent(RETURN_TOKEN); return; }
+  if (d.route === 'scheduled') {
+    document.getElementById('f').outerHTML =
+      '<h2 style="font-size:20px">已經有一個預約中的時段</h2>' +
+      '<p class="lead">時間到之前我們會寄信提醒您，用信裡的連結進入對談室即可。</p>';
+  }
 });
+
+// 對談室有空時給兩條路：現在就開始，或先約時間——理由跟阿財那邊一樣，
+// 「有空」不等於「他現在方便」，只給一顆按鈕的話不方便的人會直接關掉不回來。
+function showNowOrBook(route) {
+  document.getElementById('f').outerHTML = `
+    <h2 style="font-size:20px">已收到您的健檢申請</h2>
+    <p class="lead">目前對談室有空，您可以現在就開始，或先約一個方便的時段。</p>
+    <a class="go" href="/checkup-chat/?t=${encodeURIComponent(RETURN_TOKEN)}"
+       style="display:block;text-align:center;text-decoration:none;font-weight:700;
+              background:var(--ac);color:#fff;border-radius:12px;padding:15px;margin-top:18px;">
+      現在就開始健檢對談
+    </a>
+    <p style="margin:16px 0 0;text-align:center;">
+      <a href="#" id="wantbook" style="color:var(--ac);font-size:15px;">現在不方便，我要先約時間 →</a>
+    </p>
+    <div id="bookbox" hidden style="margin-top:14px;">
+      <p class="lead">選一個方便的時段，時間到之前我們會寄信提醒您。</p>
+      <div id="slotbox"></div>
+      <div class="msg" id="bmsg"></div>
+    </div>`;
+  document.getElementById('wantbook').onclick = (e) => {
+    e.preventDefault();
+    document.getElementById('bookbox').hidden = false;
+    e.target.style.display = 'none';
+    renderCheckupSlots(route.slots || []);
+    document.getElementById('bookbox').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  };
+  scrollTo(0, 0);
+}
+
+function renderCheckupSlots(slots) {
+  const box = document.getElementById('slotbox');
+  if (!slots.length) { box.innerHTML = '<p class="lead">目前沒有可預約的時段，我們會另外寄信跟您安排。</p>'; return; }
+  const byDay = {};
+  slots.forEach((s) => { const [d, t] = s.slot_at.split(' '); (byDay[d] = byDay[d] || []).push({ t, left: s.left, full: s.slot_at }); });
+  const W = ['日', '一', '二', '三', '四', '五', '六'];
+  box.innerHTML = Object.entries(byDay).map(([d, list]) => {
+    const [yy, mm, ddNum] = d.split('-').map(Number);
+    const wd = W[new Date(Date.UTC(yy, mm - 1, ddNum)).getUTCDay()];
+    return `<div style="font-size:12px;color:#8a8d95;margin:16px 0 2px;font-weight:600">${d.slice(5)}（週${wd}）</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px">${list.map((x) =>
+        `<button type="button" class="slot-btn" data-slot="${x.full}" style="padding:10px 6px;border:1px solid var(--line);border-radius:9px;background:#fff;font-size:13px;cursor:pointer;text-align:center;font-family:inherit;color:var(--tx);margin:0">${x.t}<small style="display:block;font-size:10px;color:#8a8d95">剩 ${x.left} 位</small></button>`
+      ).join('')}</div>`;
+  }).join('');
+  box.querySelectorAll('.slot-btn').forEach((b) => b.addEventListener('click', () => bookCheckupSlot(b, b.dataset.slot)));
+}
+
+async function bookCheckupSlot(btn, slot) {
+  document.querySelectorAll('.slot-btn').forEach((b) => b.style.borderColor = '');
+  btn.style.borderColor = 'var(--ac)'; btn.disabled = true;
+  const msg = document.getElementById('bmsg'); msg.className = 'msg';
+  let r;
+  try {
+    r = await (await fetch(API + '/checkup-book', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ token: RETURN_TOKEN, slot_at: slot }),
+    })).json();
+  } catch { msg.className = 'msg err'; msg.textContent = '預約失敗，請再試一次。'; btn.disabled = false; return; }
+  if (!r.ok) {
+    msg.className = 'msg err'; msg.textContent = r.error || '預約失敗';
+    if (r.slots) renderCheckupSlots(r.slots);
+    return;
+  }
+  document.getElementById('slotbox').innerHTML =
+    `<p class="lead">已為您預約 <b>${r.slot_at}</b>。<br>我們會在時間到之前寄信提醒您，屆時用信裡的連結進入對談室即可。</p>`;
+  msg.className = 'msg';
+}
 
 prog();
 </script>
