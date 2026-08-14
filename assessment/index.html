@@ -379,8 +379,8 @@ function showReport(s,r){
     //    原本這裡只有「進入面談室」一顆按鈕。**面談室有空 ≠ 他現在方便**：
     //    他可能在上班、在通勤、手邊有事。沒有第二條路的人只會把視窗關掉，
     //    而關掉的人多半不會再回來（08-08 走掉那位就是類似的情況）。
-    next = `<div class="sect"><h2>接下來：初步面談</h2>
-      <p class="sh">測驗收到了，謝謝您。面談由 AI 面談助理「阿財」進行，約 20–30 分鐘，用打字的就可以。
+    next = `<div class="sect"><h2>接下來：面談</h2>
+      <p class="sh">測驗收到了，謝謝您。面談由 AI 面談顧問「阿財」進行，即為正式面談，約 20–30 分鐘，用打字的就可以。
       目前面談室有空，<b>現在就能開始</b>；現在不方便的話也可以先約時間。</p>
       <a class="go" href="/interview/?t=${encodeURIComponent(T)}">現在就開始面談</a>
       <p class="sh" style="margin-top:16px;">
@@ -397,8 +397,8 @@ function showReport(s,r){
     // 就是把熱的人放涼——08-08 走掉的那位就是這樣。
     // 想等到約定時間也可以，但那要是他自己選的，不是系統幫他決定的。
     const t=String(r.remind_at||'').slice(0,16).replace(/-/g,'/');
-    next = `<div class="sect"><h2>接下來：初步面談</h2>
-      <p class="sh">測驗收到了，謝謝您。面談由 AI 面談助理「阿財」進行，約 20–30 分鐘，用打字的就可以。
+    next = `<div class="sect"><h2>接下來：面談</h2>
+      <p class="sh">測驗收到了，謝謝您。面談由 AI 面談顧問「阿財」進行，即為正式面談，約 20–30 分鐘，用打字的就可以。
       <b>現在就可以開始</b>，不用等到 ${t}。</p>
       <a class="go" href="/interview/?t=${encodeURIComponent(T)}">現在就開始面談</a>
       <p class="sh" style="margin-top:14px;font-size:14px;color:#8a8d95;">
