@@ -291,6 +291,8 @@ async function boot() {
   real.forEach(function (m) { add(m, true); });
 
   // 第一次進來、還沒有任何對話：送一個暗號讓阿福主動開口。
+  // ⚠️ 2026-08-14 加：一律要先做完工作風格測驗——這裡一定要接住 428，
+  // 不然沒做測驗的人會卡在「阿福正在準備開場白…」永遠沒下文。
   if (!real.length) {
     waiting = true; typing(true);
     if (!(d.messages || []).length) {
@@ -298,6 +300,10 @@ async function boot() {
       fetch(API + '/checkup-chat/' + encodeURIComponent(T) + '/send', {
         method: 'POST', headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ text: SENTINEL }),
+      }).then(function (r) {
+        if (r.status === 428) {
+          location.href = '/checkup-assessment/?t=' + encodeURIComponent(T);
+        }
       }).catch(function () {});
     }
   }
@@ -349,6 +355,7 @@ async function send() {
     });
     var d = await r.json();
     if (!d.ok && r.status === 409) setEnded(false);
+    if (!d.ok && r.status === 428) location.href = '/checkup-assessment/?t=' + encodeURIComponent(T);
   } catch (e) {
     typing(false); waiting = false;
     add({ id: 0, role: 'afu', content: '（訊息沒送出去，請確認網路後再試一次）', created_at: '' });

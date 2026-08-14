@@ -1,0 +1,298 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>工作風格測驗｜Step1ne AI 履歷健檢</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/assets/favicon.ico">
+<style>
+:root{--bg:#ffffff;--card:#ffffff;--line:#dfe4ec;--tx:#16202e;--tx2:#4d5c72;--tx3:#7c8899;
+      --ac:#2f5fd8;--rd:#c0392b;--soft:#f6f8fb;--ok:#1e8e5a;
+      --sans:-apple-system,"Noto Sans TC","PingFang TC",sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:var(--sans);
+     line-height:1.7;-webkit-text-size-adjust:100%}
+.top{border-bottom:1px solid var(--line);padding:14px 18px;display:flex;align-items:center;gap:12px}
+.top img{height:34px;width:auto;display:block}
+.top .brand{font-size:13px;color:var(--tx3)}
+.wrap{max-width:640px;margin:0 auto;padding:26px 18px 64px}
+h1{font-size:23px;margin:0 0 6px}
+.lead{color:var(--tx2);font-size:13.5px;margin:0 0 20px}
+.prog{height:3px;background:var(--line);border-radius:2px;margin-bottom:6px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--ac);width:0;transition:width .3s}
+.progtxt{font-size:11.5px;color:var(--tx3);margin-bottom:20px}
+.sect{border:1px solid var(--line);border-radius:12px;padding:16px;margin:0 0 14px;background:var(--card)}
+.sect h2{font-size:14px;margin:0 0 4px}
+.sect .sh{font-size:11.5px;color:var(--tx3);margin:0 0 14px;line-height:1.55}
+.q{padding:13px 0;border-top:1px solid #eef1f5}
+.q:first-of-type{border-top:0;padding-top:0}
+.qt{font-size:14.5px;margin-bottom:9px;line-height:1.5}
+.scale{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.scale label{display:flex;flex-direction:column;align-items:center;gap:5px;padding:8px 2px;
+  border:1px solid var(--line);border-radius:9px;cursor:pointer;font-size:10.5px;
+  color:var(--tx3);text-align:center;line-height:1.3;min-height:60px;justify-content:center}
+.scale label:has(input:checked){border-color:var(--ac);background:#f3f7ff;color:var(--ac);font-weight:600}
+.scale input{width:15px;height:15px;accent-color:var(--ac);margin:0}
+.dg{padding:14px 0;border-top:1px solid #eef1f5}
+.dg:first-of-type{border-top:0;padding-top:0}
+.dgh{display:grid;grid-template-columns:1fr 52px 52px;gap:6px;font-size:10.5px;color:var(--tx3);
+     margin-bottom:6px;text-align:center}
+.dgh span:first-child{text-align:left}
+.dr{display:grid;grid-template-columns:1fr 52px 52px;gap:6px;align-items:center;padding:5px 0}
+.dr .w{font-size:14px}
+.dr .c{display:flex;justify-content:center}
+.dr input{width:17px;height:17px;accent-color:var(--ac);margin:0}
+button{width:100%;background:var(--ac);color:#fff;border:0;border-radius:10px;
+       padding:15px;font-size:16px;font-weight:600;cursor:pointer;margin-top:14px;font-family:inherit}
+button:disabled{opacity:.45;cursor:not-allowed}
+.msg{margin-top:14px;padding:13px 15px;border-radius:10px;font-size:13.5px;display:none;line-height:1.6}
+.msg.err{display:block;background:#fdecea;border:1px solid #f3c2bc;color:#a5312a}
+.go{display:block;text-align:center;background:var(--ac);color:#fff;text-decoration:none;
+    padding:15px;border-radius:10px;font-size:16px;font-weight:600;margin-top:16px}
+</style>
+
+<div class="top">
+  <img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問">
+  <span class="brand">德仁管理顧問</span>
+</div>
+
+<div class="wrap">
+  <div id="app">載入中…</div>
+</div>
+
+<script>
+// 跟 /assessment/（阿財）是同一份題本、同一套計分邏輯，但完全獨立的檔案——
+// 阿福這邊必填、沒有中高階免測驗的例外，交完卷直接進健檢對談室，
+// 不像阿財那邊還要走容量分流、預約時段那些邏輯，所以不共用同一支檔案。
+const API = 'https://step1ne-recruit-api.aiagentg888.workers.dev';
+const T = new URLSearchParams(location.search).get('t') || '';
+const started = Date.now();
+
+const BIG5 = [
+  ['在團體討論裡，我通常是帶頭發言的人','E',0],
+  ['我不太主動跟不熟的人攀談','E',1],
+  ['在聚會或活動場合，我會跟很多不同的人聊天','E',0],
+  ['我比較習慣待在旁邊看，不太站到前面','E',1],
+  ['別人心情不好時，我通常感覺得出來','A',0],
+  ['別人遇到的麻煩，我不太會放在心上','A',1],
+  ['我能體會別人的處境和感受','A',0],
+  ['老實說，我對別人的事情沒什麼興趣','A',1],
+  ['交辦的事情我會盡快處理掉，不喜歡拖','C',0],
+  ['東西用完我常忘記歸位','C',1],
+  ['我喜歡把事情安排得有條理','C',0],
+  ['我做事常常收尾收得不夠乾淨','C',1],
+  ['我的情緒起伏蠻大的','N',0],
+  ['大部分時候我都還算放鬆','N',1],
+  ['我容易因為一些事情就心煩','N',0],
+  ['我很少覺得低落','N',1],
+  ['我對新的做法和新的東西很有興趣','O',0],
+  ['我對比較抽象、理論性的東西沒興趣','O',1],
+  ['要我理解比較抽象的概念有點吃力','O',1],
+  ['我常想到一些別人沒想到的做法','O',0],
+];
+const GRIT = [
+  ['新的想法或新專案出現時，我常常就把原本在做的事放掉了','interest',1],
+  ['我曾經對某件事很投入，但過一陣子就失去興趣','interest',1],
+  ['我常常訂了一個目標，後來又改成追別的目標','interest',1],
+  ['要花好幾個月才能完成的事，我很難一直保持專注','interest',1],
+  ['遇到挫折不太會讓我打退堂鼓','effort',0],
+  ['我是一個肯下功夫的人','effort',0],
+  ['只要是我開始做的事，我都會做完','effort',0],
+  ['我做事很勤奮','effort',0],
+];
+const LIKERT = ['非常<br>不同意','不太<br>同意','普通','還算<br>同意','非常<br>同意'];
+
+const DISC_BANK = {
+  D: ['果斷','強勢','直接','好勝','獨立','大膽','堅持己見','掌控全局','有衝勁','敢冒險',
+      '講求效率','意志堅定','主動出擊','不服輸','雷厲風行','敢做決定','目標導向','行動派','敢承擔','強硬'],
+  I: ['健談','樂觀','外向','熱情','風趣','擅長社交','有說服力','愛表達','活潑','隨興',
+      '愛交朋友','感染力強','樂於分享','直覺型','愛嘗新','氣氛製造者','鼓舞人心','善於誇獎','開朗','點子多'],
+  S: ['隨和','耐心','可靠','忠誠','溫和','善於傾聽','穩重','配合度高','重視和諧','務實',
+      '腳踏實地','體貼','不愛衝突','有耐性','按部就班','重感情','樂於助人','低調','包容','安於現狀'],
+  C: ['精確','謹慎','重邏輯','注重細節','有條理','客觀','講求品質','深思熟慮','一絲不苟','重視標準',
+      '喜歡分析','按規矩來','追根究柢','重視準確度','事先規劃','質疑求證','講究流程','內斂','專注','要求完美'],
+};
+const DISC_GROUPS = Array.from({length:20},(_,i)=>{
+  const order=['D','I','S','C'];
+  for(let k=0;k<i%4;k++) order.push(order.shift());
+  return order.map(L=>({L,w:DISC_BANK[L][i]}));
+});
+
+const ans = { b5:Array(20).fill(null), grit:Array(8).fill(null),
+              disc:Array.from({length:20},()=>({most:null,least:null})) };
+
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+async function boot(){
+  if(!T){ document.getElementById('app').innerHTML='<h1>連結無效</h1><p class="lead">請用健檢申請頁或信件裡的連結進入。</p>'; return; }
+  let r;
+  try { r = await (await fetch(API+'/checkup-assessment/'+encodeURIComponent(T))).json(); }
+  catch { document.getElementById('app').innerHTML='<h1>連線失敗</h1><p class="lead">請稍後再試一次。</p>'; return; }
+  if(!r.ok){ document.getElementById('app').innerHTML='<h1>連結無效</h1><p class="lead">'+esc(r.error||'')+'</p>'; return; }
+  if(r.already_done){
+    document.getElementById('app').innerHTML =
+      '<h1>您已經完成測驗了</h1><p class="lead">請回到健檢對談室繼續。</p>'+
+      '<a class="go" href="/checkup-chat/?t='+encodeURIComponent(T)+'">回到健檢對談室</a>';
+    return;
+  }
+  renderForm(r);
+}
+
+const PAGE_SIZE = 5;
+const SECTIONS = [
+  { key:'b5', title:'工作風格', hint:'請依照「平常的自己」作答，不是「工作時應該要有的樣子」。',
+    items: BIG5.map((_,i)=>({kind:'b5', i})) },
+  { key:'grit', title:'做事的持續性', hint:'這部分想了解您面對長期目標與挫折時的習慣。',
+    items: GRIT.map((_,i)=>({kind:'grit', i})) },
+  { key:'disc', title:'特質取捨', hint:'每一組四個形容詞，選一個最像您、一個最不像您。四個都可能有點像，重點是逼您做出取捨。',
+    items: DISC_GROUPS.map((_,i)=>({kind:'disc', i})) },
+];
+const PAGES = [];
+SECTIONS.forEach((sec, si) => {
+  for (let k=0; k<sec.items.length; k+=PAGE_SIZE) PAGES.push({ si, items: sec.items.slice(k, k+PAGE_SIZE) });
+});
+let curPage = 0;
+
+function itemDone(it){
+  if(it.kind==='disc'){ const o=ans.disc[it.i]; return o.most!==null && o.least!==null; }
+  return ans[it.kind][it.i] != null;
+}
+function totalDone(){
+  return ans.b5.filter(x=>x!=null).length + ans.grit.filter(x=>x!=null).length
+       + ans.disc.filter(d=>d.most!==null && d.least!==null).length;
+}
+
+function renderForm(info){
+  document.getElementById('app').innerHTML = `
+    <h1>工作風格測驗</h1>
+    <p class="lead">${esc(info.name||'')} 您好，這是履歷健檢對談前的最後一步。<br>
+      約 5–7 分鐘，做完就會進入跟阿福的對談室。<br>
+      <b>沒有標準答案，照直覺選就好</b>——想太久反而測不準。</p>
+    <div class="prog"><i id="pi"></i></div>
+    <div class="progtxt" id="pt"></div>
+    <div id="pageBox"></div>
+    <div style="display:flex;gap:10px">
+      <button id="prevBtn" type="button" onclick="goPrev()"
+        style="background:#fff;color:var(--tx2);border:1px solid var(--line);flex:0 0 92px">上一步</button>
+      <button id="nextBtn" type="button" onclick="goNext()" style="flex:1">下一步</button>
+    </div>
+    <div class="msg" id="msg"></div>`;
+  renderPage();
+}
+
+function likertHtml(kind,i){
+  const cur = ans[kind][i];
+  return `<div class="scale">`+LIKERT.map((L,k)=>
+    `<label><input type="radio" name="${kind}${i}" value="${k+1}" ${cur===k+1?'checked':''}
+      onchange="pick('${kind}',${i},${k+1})"><span>${L}</span></label>`).join('')+`</div>`;
+}
+function discHtml(gi){
+  const o=ans.disc[gi];
+  return `<div class="dg">
+    <div class="dgh"><span>第 ${gi+1} 組</span><span>最像</span><span>最不像</span></div>
+    ${DISC_GROUPS[gi].map((it,wi)=>`<div class="dr">
+      <span class="w">${esc(it.w)}</span>
+      <span class="c"><input type="radio" name="m${gi}" ${o.most===wi?'checked':''} onchange="dpick(${gi},'most',${wi})"></span>
+      <span class="c"><input type="radio" name="l${gi}" ${o.least===wi?'checked':''} onchange="dpick(${gi},'least',${wi})"></span>
+    </div>`).join('')}
+  </div>`;
+}
+
+function renderPage(){
+  const page = PAGES[curPage];
+  const sec = SECTIONS[page.si];
+  const isFirstOfSection = PAGES.findIndex(p=>p.si===page.si) === curPage;
+  const items = page.items.map(it=>{
+    if(it.kind==='disc') return discHtml(it.i);
+    const label = it.kind==='b5' ? BIG5[it.i][0] : GRIT[it.i][0];
+    return `<div class="q"><div class="qt">${esc(label)}</div>${likertHtml(it.kind,it.i)}</div>`;
+  }).join('');
+
+  document.getElementById('pageBox').innerHTML = `
+    <div class="sect">
+      ${isFirstOfSection ? `<h2>${sec.title}</h2><p class="sh">${esc(sec.hint)}</p>` : ''}
+      ${items}
+    </div>`;
+  updateNav();
+}
+
+function pick(kind,i,v){ ans[kind][i]=v; updateNav(); }
+function dpick(gi,which,wi){
+  const o=ans.disc[gi];
+  const other = which==='most' ? 'least' : 'most';
+  if(o[other]===wi){ o[other]=null;
+    const nm=(other==='most'?'m':'l')+gi;
+    document.querySelectorAll('input[name="'+nm+'"]').forEach(x=>x.checked=false);
+  }
+  o[which]=wi; updateNav();
+}
+
+function updateNav(){
+  const total = 48, done = totalDone();
+  document.getElementById('pi').style.width=(done/total*100)+'%';
+  document.getElementById('pt').textContent=`第 ${curPage+1} / ${PAGES.length} 頁　已完成 ${done} / ${total} 題`;
+
+  const page = PAGES[curPage];
+  const pageOk = page.items.every(itemDone);
+  const isLast = curPage === PAGES.length-1;
+  const nextBtn = document.getElementById('nextBtn');
+  nextBtn.disabled = !pageOk;
+  nextBtn.textContent = !pageOk ? '這頁還有題目沒作答' : (isLast ? '送出，進入對談室' : '下一步 →');
+
+  const prevBtn = document.getElementById('prevBtn');
+  prevBtn.disabled = curPage===0;
+  prevBtn.style.visibility = curPage===0 ? 'hidden' : 'visible';
+}
+
+function goNext(){
+  if(!PAGES[curPage].items.every(itemDone)) return;
+  if(curPage === PAGES.length-1){ submit(); return; }
+  curPage++; renderPage(); scrollTo(0,0);
+}
+function goPrev(){
+  if(curPage===0) return;
+  curPage--; renderPage(); scrollTo(0,0);
+}
+
+function scoreAll(){
+  const v=(x,rev)=>rev?6-x:x;
+  const g={O:[],C:[],E:[],A:[],N:[]};
+  BIG5.forEach((q,i)=>{ if(ans.b5[i]) g[q[1]].push(v(ans.b5[i],q[2])); });
+  const avg=a=>a.length?+(a.reduce((s,x)=>s+x,0)/a.length).toFixed(2):null;
+  const b5={O:avg(g.O),C:avg(g.C),E:avg(g.E),A:avg(g.A),N:avg(g.N)};
+  const gi=[],ge=[];
+  GRIT.forEach((q,i)=>{ if(ans.grit[i]) (q[1]==='interest'?gi:ge).push(v(ans.grit[i],q[2])); });
+  const grit={total:avg([...gi,...ge]),interest:avg(gi),effort:avg(ge)};
+  const disc={D:0,I:0,S:0,C:0};
+  ans.disc.forEach((p,gi2)=>{ if(p.most!==null){ const L=DISC_GROUPS[gi2][p.most].L; disc[L]++; } });
+  const primary=Object.entries(disc).sort((a,b)=>b[1]-a[1])[0][0];
+  const flat=[...ans.b5,...ans.grit];
+  const uniq=new Set(flat).size;
+  const secs=Math.round((Date.now()-started)/1000);
+  let quality=null;
+  if(uniq===1) quality='straight_line';
+  else if(uniq<=2) quality='low_variance';
+  if(secs<60) quality=quality?quality+',too_fast':'too_fast';
+  return {scores:{b5,grit,disc,primary,quality},seconds:secs};
+}
+
+async function submit(){
+  const sb=document.getElementById('nextBtn'), msg=document.getElementById('msg');
+  document.getElementById('prevBtn').style.display='none';
+  sb.disabled=true; sb.textContent='送出中…'; msg.className='msg';
+  const {scores,seconds}=scoreAll();
+  let r;
+  try{
+    r = await (await fetch(API+'/checkup-assessment/'+encodeURIComponent(T),{
+      method:'POST',headers:{'content-type':'application/json'},
+      body:JSON.stringify({scores,answers:ans,seconds})
+    })).json();
+  }catch{
+    msg.className='msg err'; msg.textContent='送出失敗，請檢查網路後再試一次。';
+    sb.disabled=false; sb.textContent='再送出一次'; return;
+  }
+  if(!r.ok){ msg.className='msg err'; msg.textContent=r.error||'送出失敗';
+             sb.disabled=false; sb.textContent='再送出一次'; return; }
+  location.href='/checkup-chat/?t='+encodeURIComponent(T);
+}
+
+boot();
+</script>
