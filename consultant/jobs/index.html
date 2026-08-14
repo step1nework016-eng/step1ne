@@ -265,7 +265,10 @@ function paint(jobs) {
   $('rows').innerHTML = jobs.map(function (j) {
     return '<tr class="' + (j.status === 'closed' ? 'closed' : '') + '">'
       + '<td class="jb"><b>' + (j.title || j.slug) + '</b><span>' + j.slug
-        + (j.status === 'closed' ? '　·　已關閉' : '') + '</span></td>'
+        + (j.status === 'closed' ? '　·　已關閉' : '') + '</span>'
+        + '<br><button type="button" class="socpost-btn" data-slug="' + j.slug + '" '
+        + 'style="margin-top:4px;font-size:11px;background:#fff;border:1px solid #eee7db;border-radius:6px;padding:2px 7px;cursor:pointer;color:#4d5563;">'
+        + '📱 產生社群貼文</button></td>'
       + '<td>' + sel('service_line', LINE, j.service_line, j.slug) + '</td>'
       + '<td>' + sel('client_relation', REL, j.client_relation, j.slug) + '</td>'
       + '<td>' + sel('seniority', SEN, j.seniority, j.slug) + '</td>'
@@ -322,6 +325,24 @@ document.addEventListener('click', function (e) {
     btn.textContent = next.trim() ? '📝 已填報到準備' : '📝 填報到準備';
     toast('已存檔');
   }).catch(function () { btn.disabled = false; toast('連不上伺服器', true); });
+});
+
+// 2026-08-14 加：顧問自己指定「這個職缺現在就要」產社群貼文，不用等
+// social_post_agent.py 排程掃到。這裡只負責跟 Worker 說「請把這個職缺
+// 標成待產出」，真正產草稿是本機腳本每 15 分鐘掃一次撿去做，所以按下去
+// 不會馬上看到結果，要等 Telegram「社群發文審核」那個主題跳出來。
+document.addEventListener('click', function (e) {
+  var btn = e.target.closest && e.target.closest('.socpost-btn');
+  if (!btn) return;
+  btn.disabled = true; btn.textContent = '已排入⋯';
+  api('/admin/social-post-request', {
+    method: 'POST', headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ slug: btn.dataset.slug }),
+  }).then(function (d) {
+    if (!d.ok) { btn.disabled = false; btn.textContent = '📱 產生社群貼文'; return toast(d.error || '排入失敗', true); }
+    btn.textContent = '✅ 已排入，等 Telegram';
+    toast('已排入，最多等 15 分鐘會出現在 Telegram「社群發文審核」');
+  }).catch(function () { btn.disabled = false; btn.textContent = '📱 產生社群貼文'; toast('連不上伺服器', true); });
 });
 
 function load() {
