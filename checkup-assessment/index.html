@@ -128,9 +128,11 @@ async function boot(){
   catch { document.getElementById('app').innerHTML='<h1>連線失敗</h1><p class="lead">請稍後再試一次。</p>'; return; }
   if(!r.ok){ document.getElementById('app').innerHTML='<h1>連結無效</h1><p class="lead">'+esc(r.error||'')+'</p>'; return; }
   if(r.already_done){
+    const back = new URLSearchParams(location.search).get('back')==='1';
+    const nextUrl = back ? '/checkup/?t='+encodeURIComponent(T)+'&back=1' : '/checkup-chat/?t='+encodeURIComponent(T);
     document.getElementById('app').innerHTML =
-      '<h1>您已經完成測驗了</h1><p class="lead">請回到健檢對談室繼續。</p>'+
-      '<a class="go" href="/checkup-chat/?t='+encodeURIComponent(T)+'">回到健檢對談室</a>';
+      '<h1>您已經完成測驗了</h1><p class="lead">'+(back?'請回到健檢申請表確認送出。':'請回到健檢對談室繼續。')+'</p>'+
+      '<a class="go" href="'+nextUrl+'">'+(back?'回到健檢申請表':'回到健檢對談室')+'</a>';
     return;
   }
   renderForm(r);
@@ -291,6 +293,13 @@ async function submit(){
   }
   if(!r.ok){ msg.className='msg err'; msg.textContent=r.error||'送出失敗';
              sb.disabled=false; sb.textContent='再送出一次'; return; }
+  // back=1：從 /checkup/ 送出健檢申請那一步過來的，跳回那張表讓本人確認
+  // 資料再按「送出健檢申請」。沒有 back=1（例如從對談室被 428 導過來
+  // 補做測驗的），直接進對談室即可，沒有表單可以跳回去。
+  if(new URLSearchParams(location.search).get('back')==='1'){
+    location.href='/checkup/?t='+encodeURIComponent(T)+'&back=1';
+    return;
+  }
   location.href='/checkup-chat/?t='+encodeURIComponent(T);
 }
 

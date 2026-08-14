@@ -152,7 +152,13 @@ button:disabled{opacity:.45;cursor:not-allowed}
       <textarea name="note" placeholder="選填。例：想知道自己在市場上值多少、該往哪個方向走、履歷哪裡要改。"></textarea>
     </fieldset>
 
-    <button type="submit" id="btn">送出健檢申請</button>
+    <fieldset id="assessGate">
+      <legend>工作風格測驗 <span class="req">*</span></legend>
+      <p class="hint" style="margin:0">約 5–7 分鐘，送出前要先完成——按下面的按鈕開始。</p>
+      <button type="button" id="assessBtn" style="margin-top:10px">開始工作風格測驗 →</button>
+    </fieldset>
+
+    <button type="submit" id="btn" disabled>請先完成上面的工作風格測驗</button>
     <p class="fee">這一版不收費。</p>
     <p class="privacy">您的資料不會對外公開，僅供內部顧問查閱。</p>
     <div class="msg" id="msg"></div>
@@ -238,10 +244,14 @@ async function collect(input, kind, out) {
   }
 }
 
-f.addEventListener('submit', async (e) => {
-  e.preventDefault();
+// 2026-08-14 改：跟阿財 /apply/ 一樣的順序——測驗是「送出健檢申請」之前
+// 的一個步驟，不是送出之後才補做。第一次點「開始工作風格測驗」時其實就已經
+// 把履歷等資料送進後端建檔（拿到 chat_token），因為履歷檔案沒辦法帶著繞一圈
+// 又原封不動地回來；真正決定「這場健檢正式開始」的是回來之後按的
+// 「送出健檢申請」，那一步不用再打一次 API，只是導去對談室。
+async function submitInitial() {
   const msg = document.getElementById('msg');
-  const btn = document.getElementById('btn');
+  const btn = document.getElementById('assessBtn');
   msg.className = 'msg';
 
   if (!f.reportValidity()) return;
@@ -281,22 +291,65 @@ f.addEventListener('submit', async (e) => {
     });
     const d = await r.json();
     if (!d.ok) throw new Error(d.error || '送出失敗');
-    // 2026-08-14 加：送出成功先帶去工作風格測驗（必填），做完那邊會自動
-    // 帶進對談室——不要先進對談室才發現要被彈去測驗，等於在申請流程裡
-    // 繞了一圈才到，體驗跟阿財那邊「填表→測驗→回來」的順序對不上。
-    // 萬一舊版 API 沒回 chat_token，退回原本的靜態完成頁。
-    if (d.chat_token) {
-      location.href = '/checkup-assessment/?t=' + encodeURIComponent(d.chat_token);
-      return;
-    }
-    document.getElementById('form-view').style.display = 'none';
-    document.getElementById('done-view').style.display = 'block';
-    scrollTo(0, 0);
+    if (!d.chat_token) throw new Error('系統沒有回傳健檢連結，請聯繫我們');
+
+    // 檔案物件存不進 sessionStorage，只記檔名讓回來時看得到「已上傳」；
+    // 真正的檔案內容這次已經存進資料庫了，回來後不用重選。
+    sessionStorage.setItem('s1ne_checkup_form_' + d.chat_token, JSON.stringify({
+      name: f.name.value.trim(), email: f.email.value.trim(), phone: f.phone.value.trim(),
+      current_title: f.current_title.value.trim(), current_industry: f.current_industry.value.trim(),
+      note: f.note.value.trim(), resume_name: f.resume.files[0] ? f.resume.files[0].name : null,
+    }));
+    sessionStorage.setItem('s1ne_checkup_token', d.chat_token);
+    location.href = '/checkup-assessment/?t=' + encodeURIComponent(d.chat_token) + '&back=1';
   } catch (err) {
     msg.className = 'msg err';
     msg.textContent = err.message || '送出失敗，請稍後再試';
-    btn.disabled = false; btn.textContent = '送出健檢申請';
+    btn.disabled = false; btn.textContent = '開始工作風格測驗 →';
   }
+}
+document.getElementById('assessBtn').addEventListener('click', submitInitial);
+
+// ── 測驗做完跳回這一頁：顯示已完成、把送出按鈕打開 ──
+let RETURN_TOKEN = null;
+(function checkReturnedFromAssessment() {
+  const T = q.get('t') || sessionStorage.getItem('s1ne_checkup_token') || '';
+  if (q.get('back') !== '1' || !T) return;
+  const rawForm = sessionStorage.getItem('s1ne_checkup_form_' + T);
+  if (!rawForm) return; // 不是正常跳轉回來的（例如直接改網址），維持空白表單
+
+  let formData;
+  try { formData = JSON.parse(rawForm); } catch { return; }
+  RETURN_TOKEN = T;
+
+  f.name.value = formData.name || '';
+  f.email.value = formData.email || '';
+  f.phone.value = formData.phone || '';
+  f.current_title.value = formData.current_title || '';
+  f.current_industry.value = formData.current_industry || '';
+  f.note.value = formData.note || '';
+  if (formData.resume_name) {
+    document.getElementById('resumeNote').style.display = 'block';
+    document.getElementById('resumeNote').textContent = '✅ 已上傳：' + formData.resume_name + '（不用重新選檔）';
+  }
+
+  document.getElementById('assessGate').innerHTML =
+    '<legend>工作風格測驗 <span style="color:#2f8f5b">✅ 已完成</span></legend>' +
+    '<p class="hint" style="margin:0">謝謝您完成測驗，確認上面的資料沒問題後就可以送出。</p>';
+
+  const btn = document.getElementById('btn');
+  btn.disabled = false; btn.textContent = '送出健檢申請';
+  prog();
+  scrollTo(0, 0);
+})();
+
+// 真正的「送出健檢申請」：資料在第一步就已經存進資料庫了，這裡不用再打一次
+// API，單純是本人確認過、決定要正式開始的動作，直接進對談室。
+f.addEventListener('submit', (e) => {
+  e.preventDefault();
+  if (!RETURN_TOKEN) return; // 還沒做完測驗，按鈕本來就是 disabled，這裡是防呆
+  location.href = '/checkup-chat/?t=' + encodeURIComponent(RETURN_TOKEN);
 });
+
 prog();
 </script>
