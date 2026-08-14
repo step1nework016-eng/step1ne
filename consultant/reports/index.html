@@ -186,6 +186,10 @@ button.primary:hover{background:#8a6531;}
 .linecard .lc-foot{padding:10px 12px;display:flex;flex-direction:column;gap:8px;}
 .linecard .lc-btn{background:#c2560c;color:#fff;text-align:center;border-radius:8px;padding:9px;font-size:13px;font-weight:600;}
 .linecard .lc-btn.sec{background:#f2efe8;color:#4a4d55;}
+.qrbar{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 0;}
+.qr{font:inherit;font-size:12.5px;font-weight:600;border:1px solid #e0d9cb;background:#fff;color:#4a4d55;border-radius:999px;padding:7px 13px;cursor:pointer;}
+.qr:hover{border-color:#a67c3d;color:#a67c3d;}
+.qr.on{background:#f3e2c2;border-color:#d9bd85;color:#7a4e12;}
 </style>
 </head>
 <body>
@@ -309,6 +313,16 @@ button.primary:hover{background:#8a6531;}
   </div>
   <div class="dbody frm">
     <label>用人單位為什麼沒有繼續往下走？（選填）</label>
+    <!-- 2026-08-14 加：三個委婉說法快選——顧問不用每次重新想怎麼講才不傷人，
+         點一下就套用，還是可以再手動修改。第一顆（用人單位有給具體原因）
+         不直接塞制式句子，因為每次原因都不一樣，塞了反而容易忘記改、
+         把「請填寫」這種提示字眼直接寄給候選人——改成清空欄位＋換
+         placeholder 提示，欄位是空的，不會不小心把提示文字送出去。 -->
+    <div class="qrbar">
+      <button type="button" class="qr" data-qr="custom">用人單位有給具體原因</button>
+      <button type="button" class="qr" data-qr="mismatch">職缺條件不符（不點名細節）</button>
+      <button type="button" class="qr" data-qr="thanks">條件尚未符合，感謝應徵</button>
+    </div>
     <textarea id="c_reason" rows="3" placeholder="可以留空——留空的話只會顯示制式的委婉說法"></textarea>
     <p class="note">這句話會直接組進通知候選人的 LINE 訊息——站在候選人角度寫、別出現「客戶」（會自動換成「用人單位」）、別提內部細節（薪資談判、跟其他人選比較等）。</p>
 
@@ -1084,6 +1098,36 @@ function closeMsgPreview(reason) {
     + (safe ? safe + '。' : '')
     + '您的資料會留著，未來有更合適的職缺會再與您聯繫，也歡迎透過選單直接找顧問聊聊。';
 }
+function updateClosePreview() {
+  $('c_prev_msg').textContent = closeMsgPreview($('c_reason').value);
+}
+
+// 2026-08-14 加：三個委婉說法快選，點一下套用，還是可以再手動改。
+// custom（用人單位有給具體原因）不塞制式句子——原因每次都不一樣，塞了反而
+// 容易忘記改、把佔位提示字眼直接寄給候選人；改成清空欄位＋換 placeholder，
+// 欄位本身是空的，就算忘記編輯也頂多送出制式委婉說法，不會外洩內部提示文字。
+var QR_TEXT = {
+  mismatch: '這個職缺在條件搭配上，跟目前釋出的需求還有一些落差',
+  thanks: '審閱後，目前的條件跟這個職缺的需求還有一些落差，先跟您說聲謝謝',
+};
+var QR_PLACEHOLDER_DEFAULT = '可以留空——留空的話只會顯示制式的委婉說法';
+var QR_PLACEHOLDER_CUSTOM = '請簡短說明用人單位的考量——一樣會自動用委婉方式呈現，別出現「客戶」、別提內部細節';
+document.querySelectorAll('.qr').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    document.querySelectorAll('.qr').forEach(function (b) { b.classList.remove('on'); });
+    btn.classList.add('on');
+    var kind = btn.dataset.qr;
+    if (kind === 'custom') {
+      $('c_reason').value = '';
+      $('c_reason').placeholder = QR_PLACEHOLDER_CUSTOM;
+    } else {
+      $('c_reason').value = QR_TEXT[kind] || '';
+      $('c_reason').placeholder = QR_PLACEHOLDER_DEFAULT;
+    }
+    updateClosePreview();
+    $('c_reason').focus();
+  });
+});
 
 function openCloseDlg() {
   var name = cur.name || '這位候選人';
@@ -1092,14 +1136,14 @@ function openCloseDlg() {
   $('c_prev_title').textContent = jobTitle;
   $('c_prev_name').textContent = '👤 ' + name + ' 您好';
   $('c_reason').value = '';
-  $('c_prev_msg').textContent = closeMsgPreview('');
+  $('c_reason').placeholder = QR_PLACEHOLDER_DEFAULT;
+  document.querySelectorAll('.qr').forEach(function (b) { b.classList.remove('on'); });
+  updateClosePreview();
   $('c_err').hidden = true;
   $('closeDlg').showModal();
   $('c_reason').focus();
 }
-$('c_reason').addEventListener('input', function () {
-  $('c_prev_msg').textContent = closeMsgPreview(this.value);
-});
+$('c_reason').addEventListener('input', updateClosePreview);
 $('cx').addEventListener('click', function () { $('closeDlg').close(); });
 $('c_go').addEventListener('click', async function () {
   if (!cur || !cur.app_id) return;
