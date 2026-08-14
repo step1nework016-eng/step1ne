@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Token 用量｜Step1ne 顧問後台</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<meta name="theme-color" content="#ffffff">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;touch-action:manipulation;}
+body{font-family:'Noto Sans TC',system-ui,sans-serif;color:#23262d;background:#fbfaf7;line-height:1.7;}
+a{color:#a67c3d;text-decoration:none;}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px;}
+
+header{background:#fff;border-bottom:1px solid #eee7db;padding:14px 0;position:sticky;top:0;z-index:20;}
+header .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;row-gap:10px;}
+header img{height:30px;}
+header b{font-size:15px;}
+.mut{color:#8a8d95;font-size:13px;}
+
+.gate{max-width:420px;margin:16vh auto;background:#fff;border:1px solid #eee7db;border-radius:16px;padding:26px;}
+.gate input{width:100%;margin:10px 0 14px;font:inherit;font-size:15px;border:1px solid #e0d9cb;border-radius:10px;padding:9px 13px;}
+.gate button{width:100%;font:inherit;font-size:15px;font-weight:700;background:#a67c3d;color:#fff;border:0;border-radius:10px;padding:12px;cursor:pointer;min-height:46px;}
+button.primary{font:inherit;font-size:13.5px;font-weight:700;background:#a67c3d;color:#fff;border:0;border-radius:999px;padding:9px 16px;cursor:pointer;min-height:38px;white-space:nowrap;}
+
+/* ── 儀表板本體：ADHD 友善——大數字在最上面，重點先講，細節收在下面。 ── */
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:24px 0 8px;}
+@media (max-width:800px){.cards{grid-template-columns:repeat(2,1fr);}}
+.card{background:#fff;border:1px solid #eee7db;border-radius:16px;padding:20px;}
+.card .lb{font-size:12.5px;color:#8a8d95;margin-bottom:8px;}
+.card .num{font-size:30px;font-weight:800;color:#23262d;font-family:'Space Mono',monospace;}
+.card .sub{font-size:11.5px;color:#a3a6ad;margin-top:4px;}
+.card.hi .num{color:#a67c3d;}
+
+.note{background:#faf8f3;border:1px solid #eee7db;border-radius:10px;padding:10px 14px;font-size:12px;color:#8a8d95;margin:14px 0 26px;}
+
+.sect{background:#fff;border:1px solid #eee7db;border-radius:16px;padding:20px;margin-bottom:20px;}
+.sect h2{font-size:15px;margin:0 0 14px;}
+.typebar{display:flex;gap:0;border-radius:10px;overflow:hidden;height:34px;margin-bottom:10px;}
+.typebar div{display:flex;align-items:center;justify-content:center;color:#fff;font-size:11.5px;font-weight:700;white-space:nowrap;overflow:hidden;}
+.typerows{display:flex;flex-direction:column;gap:8px;font-size:13.5px;}
+.typerows .r{display:flex;justify-content:space-between;gap:10px;}
+.typerows .k{display:flex;align-items:center;gap:8px;color:#4a4d55;}
+.typerows .dot{width:10px;height:10px;border-radius:3px;flex:none;}
+.typerows .v{font-family:'Space Mono',monospace;color:#23262d;}
+
+table.recent{width:100%;border-collapse:collapse;font-size:13px;}
+table.recent th{text-align:left;color:#8a8d95;font-weight:600;font-size:11.5px;padding:6px 8px;border-bottom:1px solid #eee7db;}
+table.recent td{padding:8px;border-bottom:1px solid #f3efe6;}
+table.recent td.num{font-family:'Space Mono',monospace;text-align:right;}
+.empty{color:#8a8d95;font-size:13.5px;text-align:center;padding:30px 0;}
+</style>
+</head>
+<body>
+
+<div id="gate" class="gate" hidden>
+  <b>顧問後台</b>
+  <p class="mut" style="margin:6px 0 0;">需要存取權杖。這組權杖等同密碼，不要外傳。</p>
+  <input id="tok" type="password" placeholder="ADMIN_TOKEN" autocomplete="off">
+  <button id="enter" type="button">進入</button>
+  <p id="gerr" class="mut" style="color:#b4552e;margin:12px 0 0;" hidden></p>
+</div>
+
+<div id="app" hidden>
+  <header>
+    <div class="wrap">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <img src="/assets/step1ne-logo.png" alt="Step1ne">
+        <b>Token 用量</b>
+      </div>
+      <nav style="display:flex;gap:8px;flex-wrap:wrap;"><a href="/consultant/reports/" style="font-size:14px;text-decoration:none;padding:7px 14px;border-radius:999px;color:#4d5563;background:#fff;border:1px solid #eee7db;">初篩報告</a><a href="/consultant/jobs/" style="font-size:14px;text-decoration:none;padding:7px 14px;border-radius:999px;color:#4d5563;background:#fff;border:1px solid #eee7db;">職缺分類</a><a href="/consultant/token-usage/" style="font-size:14px;text-decoration:none;padding:7px 14px;border-radius:999px;color:#fff;background:#23262d;border:1px solid #23262d;">Token 用量</a></nav>
+      <div class="mut" style="display:flex;align-items:center;gap:14px;">
+        <a href="#" id="out">登出</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap" style="padding-top:22px;padding-bottom:60px;">
+    <div id="loading" class="empty">載入中…</div>
+    <div id="content" hidden>
+
+      <div class="cards">
+        <div class="card hi">
+          <div class="lb">累計花費（美金）</div>
+          <div class="num" id="c_total">—</div>
+          <div class="sub" id="c_total_sub">—</div>
+        </div>
+        <div class="card">
+          <div class="lb">場均花費</div>
+          <div class="num" id="c_avg_cost">—</div>
+          <div class="sub">美金／場</div>
+        </div>
+        <div class="card">
+          <div class="lb">面談場數</div>
+          <div class="num" id="c_n">—</div>
+          <div class="sub">有記錄到 token 的場次</div>
+        </div>
+        <div class="card">
+          <div class="lb">場均 token</div>
+          <div class="num" id="c_avg_tok">—</div>
+          <div class="sub">input + output</div>
+        </div>
+      </div>
+
+      <div class="note">
+        費率＝Sonnet 5 目前優惠價（input $2、output $10，每百萬 token，優惠到 2026-08-31），
+        cache 讀寫依實際比例折算。是「目前定價」估算，不是精確對帳的帳單金額。
+      </div>
+
+      <div class="sect">
+        <h2>花在哪裡</h2>
+        <div class="typebar" id="typebar"></div>
+        <div class="typerows" id="typerows"></div>
+      </div>
+
+      <div class="sect">
+        <h2>最近幾場</h2>
+        <table class="recent">
+          <thead><tr><th>候選人</th><th>職缺</th><th style="text-align:right">Token</th><th style="text-align:right">花費</th></tr></thead>
+          <tbody id="recentBody"></tbody>
+        </table>
+        <div id="recentEmpty" class="empty" hidden>還沒有記錄——面談完成後才會累積資料。</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+var API = 'https://step1ne-recruit-api.aiagentg888.workers.dev';
+var KEY = 's1ne_admin_tok';
+var tok = localStorage.getItem(KEY) || '';
+var $ = function (i) { return document.getElementById(i); };
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+  });
+}
+function api(path) {
+  return fetch(API + path, { headers: { authorization: 'Bearer ' + tok } }).then(function (r) {
+    if (r.status === 401) throw new Error('權杖不正確');
+    return r.json();
+  });
+}
+function gate(msg) {
+  $('app').hidden = true; $('gate').hidden = false;
+  if (msg) { $('gerr').hidden = false; $('gerr').textContent = msg; }
+}
+function fmtUsd(n) { return '$' + (n || 0).toFixed(2); }
+function fmtTok(n) {
+  n = Math.round(n || 0);
+  return n >= 1000 ? (n / 1000).toFixed(1) + 'K' : String(n);
+}
+
+// call_type 中文標籤＋顏色——跟後端 token_usage.call_type 的值對應。
+var TYPE_LB = { talk: '對話', report: '報告', report_json: '報告轉JSON' };
+var TYPE_COLOR = { talk: '#a67c3d', report: '#2f6fed', report_json: '#8a8d95' };
+
+async function load() {
+  $('loading').hidden = false; $('content').hidden = true;
+  var d;
+  try { d = await api('/admin/token-usage'); }
+  catch (e) { return gate(e.message); }
+  if (!d.ok) return;
+
+  $('loading').hidden = true; $('content').hidden = false;
+
+  $('c_total').textContent = fmtUsd(d.total_cost_usd);
+  $('c_total_sub').textContent = d.total_interviews + ' 場累計';
+  $('c_avg_cost').textContent = fmtUsd(d.avg_cost_usd);
+  $('c_n').textContent = d.total_interviews;
+  $('c_avg_tok').textContent = fmtTok(d.avg_input_tokens + d.avg_output_tokens);
+
+  // 花在哪裡：talk／report／report_json 各佔多少錢，一條疊色長條 + 底下數字。
+  var types = (d.by_call_type || []).slice().sort(function (a, b) { return (b.cost_usd || 0) - (a.cost_usd || 0); });
+  var totalTypeCost = types.reduce(function (s, t) { return s + (t.cost_usd || 0); }, 0) || 1;
+  $('typebar').innerHTML = types.map(function (t) {
+    var pct = Math.max(2, (t.cost_usd || 0) / totalTypeCost * 100);
+    return '<div style="width:' + pct.toFixed(1) + '%;background:' + (TYPE_COLOR[t.call_type] || '#ccc') + '">' + Math.round(pct) + '%</div>';
+  }).join('');
+  $('typerows').innerHTML = types.map(function (t) {
+    return '<div class="r"><span class="k"><span class="dot" style="background:' + (TYPE_COLOR[t.call_type] || '#ccc') + '"></span>'
+      + esc(TYPE_LB[t.call_type] || t.call_type) + '（' + t.calls + ' 次）</span>'
+      + '<span class="v">' + fmtUsd(t.cost_usd) + '　·　' + fmtTok((t.input_tokens || 0) + (t.output_tokens || 0)) + ' tok</span></div>';
+  }).join('');
+
+  // 最近幾場
+  var recent = d.recent || [];
+  $('recentEmpty').hidden = !!recent.length;
+  $('recentBody').innerHTML = recent.map(function (r) {
+    return '<tr><td>' + esc(r.name) + '</td><td class="mut">' + esc(r.job_title) + '</td>'
+      + '<td class="num">' + fmtTok(r.input_tokens + r.output_tokens) + '</td>'
+      + '<td class="num">' + fmtUsd(r.cost_usd) + '</td></tr>';
+  }).join('');
+}
+
+$('enter').addEventListener('click', function () {
+  tok = $('tok').value.trim();
+  if (!tok) return;
+  localStorage.setItem(KEY, tok);
+  $('gate').hidden = true; $('app').hidden = false;
+  load();
+});
+$('tok').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('enter').click(); });
+$('out').addEventListener('click', function (e) {
+  e.preventDefault(); localStorage.removeItem(KEY); tok = ''; gate('');
+});
+
+if (tok) { $('app').hidden = false; load(); } else { gate(''); }
+</script>
+<script defer src="/consultant/_shell.js"></script>
+</body>
+</html>
