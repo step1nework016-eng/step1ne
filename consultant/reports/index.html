@@ -171,6 +171,21 @@ button.primary:hover{background:#8a6531;}
 .res .link{background:#fff;border:1px solid #d7e6da;border-radius:9px;padding:11px 13px;font-size:13px;word-break:break-all;margin:0 0 12px;}
 .res button{font:inherit;font-size:14px;font-weight:700;background:#23262d;color:#fff;border:0;border-radius:9px;padding:11px 20px;cursor:pointer;min-height:42px;}
 .err{background:#fff5f3;border:1px solid #f0c9bd;border-radius:10px;padding:12px 14px;font-size:14px;color:#8a3a20;margin:14px 0 0;}
+/* 2026-08-14 加：標記結案不續彈窗裡的即時預覽卡——顏色跟排版直接照抄後端
+   progressFlexBubble() 送給候選人的真實 LINE Flex 卡片，不是隨便配色，
+   顧問看到的預覽才會是「這張卡真的長這樣」而不是「差不多長這樣」。 */
+.linecard{margin-top:8px;border-radius:14px;overflow:hidden;border:1px solid #e6dfd1;max-width:320px;font-family:'Noto Sans TC',system-ui,sans-serif;}
+/* 結案不續用橘色（跟 progressFlexBubble() 的 prog.closed 分支同一組色碼），
+   跟一般進度更新的藍色卡區分開——這個彈窗只會用在結案不續，固定套橘色即可。 */
+.linecard .lc-head{background:#a3450f;padding:14px 16px;}
+.linecard .lc-tag{color:#ffd7b0;font-size:11px;font-weight:700;}
+.linecard .lc-title{color:#fff;font-size:16px;font-weight:700;margin-top:4px;word-break:break-word;}
+.linecard .lc-body{background:#fff;padding:14px 16px;}
+.linecard .lc-name{color:#8993a8;font-size:12.5px;}
+.linecard .lc-msg{color:#16202e;font-size:14px;margin-top:10px;line-height:1.65;word-break:break-word;white-space:pre-wrap;}
+.linecard .lc-foot{padding:10px 12px;display:flex;flex-direction:column;gap:8px;}
+.linecard .lc-btn{background:#c2560c;color:#fff;text-align:center;border-radius:8px;padding:9px;font-size:13px;font-weight:600;}
+.linecard .lc-btn.sec{background:#f2efe8;color:#4a4d55;}
 </style>
 </head>
 <body>
@@ -278,6 +293,43 @@ button.primary:hover{background:#8a6531;}
       </div>
       <button id="a_again" type="button" class="primary go">再新增一位</button>
     </div>
+  </div>
+</dialog>
+
+<!-- 2026-08-14 加：原本用瀏覽器內建 prompt() 問「用人單位為什麼沒有繼續往下走」，
+     樣子醜、也看不到打的這段話最後會變成什麼樣子送到候選人手上。改成跟其他彈窗
+     一樣的自訂 dialog，右邊即時預覽候選人會收到的 LINE 卡片長相——套用跟後端
+     deriveApplicationProgress() CLOSED_LOST 分支完全一樣的組字規則（客戶→用人單位、
+     去掉句尾標點再補句號），顧問打字的同時就能看到最終會送出去的文字，不用等推播
+     出去才知道寫得順不順。 -->
+<dialog id="closeDlg">
+  <div class="dhead">
+    <div><b>❌ 標記結案不續</b><div class="mut" id="c_who">—</div></div>
+    <button id="cx" type="button" aria-label="關閉">✕</button>
+  </div>
+  <div class="dbody frm">
+    <label>用人單位為什麼沒有繼續往下走？（選填）</label>
+    <textarea id="c_reason" rows="3" placeholder="可以留空——留空的話只會顯示制式的委婉說法"></textarea>
+    <p class="note">這句話會直接組進通知候選人的 LINE 訊息——站在候選人角度寫、別出現「客戶」（會自動換成「用人單位」）、別提內部細節（薪資談判、跟其他人選比較等）。</p>
+
+    <label style="margin-top:22px;">👀 候選人會收到的通知卡片預覽</label>
+    <div class="linecard">
+      <div class="lc-head">
+        <div class="lc-tag">📪 結案通知</div>
+        <div class="lc-title" id="c_prev_title">職缺名稱</div>
+      </div>
+      <div class="lc-body">
+        <div class="lc-name" id="c_prev_name">👤 候選人 您好</div>
+        <div class="lc-msg" id="c_prev_msg">—</div>
+      </div>
+      <div class="lc-foot">
+        <div class="lc-btn">查看職缺頁</div>
+        <div class="lc-btn sec">聯繫顧問</div>
+      </div>
+    </div>
+
+    <button id="c_go" type="button" class="primary go">確定標記結案不續，立即通知候選人</button>
+    <div id="c_err" class="err" hidden></div>
   </div>
 </dialog>
 
@@ -1016,31 +1068,57 @@ function drawActs(now) {
   closeBtn.type = 'button';
   closeBtn.style.background = '#8a3a20';
   closeBtn.textContent = '❌ 標記結案不續';
-  closeBtn.addEventListener('click', async function () {
+  closeBtn.addEventListener('click', function () {
     if (!cur || !cur.app_id) return alert('這筆報告沒有對應的應徵紀錄，無法標記');
-    var reason = prompt(
-      '用人單位為什麼沒有繼續往下走？這句話會直接組進通知候選人的 LINE 訊息——' +
-      '站在候選人角度寫、別出現「客戶」、別提內部細節（薪資談判、跟其他人選比較等）。可以留空：',
-      ''
-    );
-    if (reason === null) return;
-    if (!confirm('確定要標記「' + (cur.name || '這位候選人') + '」結案不續嗎？會立即推播委婉的通知給他的 LINE。')) return;
-    this.disabled = true; this.textContent = '處理中…';
-    try {
-      var d = await api('/admin/mark-closed', {
-        method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ application_id: cur.app_id, reason: reason }),
-      });
-      if (d.ok) { alert('已標記結案不續，LINE 通知已推播（如果他有綁定的話）。'); load(); }
-      else alert('失敗：' + (d.error || '伺服器沒說原因'));
-    } catch (e) {
-      alert('失敗：' + (e && e.message ? e.message : '連線失敗'));
-    } finally {
-      this.disabled = false; this.textContent = '❌ 標記結案不續';
-    }
+    openCloseDlg();
   });
   $('bigacts').appendChild(closeBtn);
 }
+
+// 跟後端 deriveApplicationProgress() 的 CLOSED_LOST 分支用完全一樣的組字規則，
+// 顧問打字時看到的預覽才會等於候選人最後真的收到的文字，不是「差不多」。
+function closeMsgPreview(reason) {
+  var raw = String(reason || '').trim();
+  var safe = raw.replace(/客戶/g, '用人單位').replace(/[。！]+$/, '');
+  return '這個職缺這次很可惜沒有繼續往下走，很抱歉沒有帶來好消息。'
+    + (safe ? safe + '。' : '')
+    + '您的資料會留著，未來有更合適的職缺會再與您聯繫，也歡迎透過選單直接找顧問聊聊。';
+}
+
+function openCloseDlg() {
+  var name = cur.name || '這位候選人';
+  var jobTitle = cur.job_title || cur.job_slug || '這個職缺';
+  $('c_who').textContent = name + '　' + jobTitle;
+  $('c_prev_title').textContent = jobTitle;
+  $('c_prev_name').textContent = '👤 ' + name + ' 您好';
+  $('c_reason').value = '';
+  $('c_prev_msg').textContent = closeMsgPreview('');
+  $('c_err').hidden = true;
+  $('closeDlg').showModal();
+  $('c_reason').focus();
+}
+$('c_reason').addEventListener('input', function () {
+  $('c_prev_msg').textContent = closeMsgPreview(this.value);
+});
+$('cx').addEventListener('click', function () { $('closeDlg').close(); });
+$('c_go').addEventListener('click', async function () {
+  if (!cur || !cur.app_id) return;
+  var reason = $('c_reason').value;
+  this.disabled = true; this.textContent = '處理中…';
+  $('c_err').hidden = true;
+  try {
+    var d = await api('/admin/mark-closed', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ application_id: cur.app_id, reason: reason }),
+    });
+    if (d.ok) { $('closeDlg').close(); alert('已標記結案不續，LINE 通知已推播（如果他有綁定的話）。'); load(); }
+    else { $('c_err').hidden = false; $('c_err').textContent = '失敗：' + (d.error || '伺服器沒說原因'); }
+  } catch (e) {
+    $('c_err').hidden = false; $('c_err').textContent = '失敗：' + (e && e.message ? e.message : '連線失敗');
+  } finally {
+    this.disabled = false; this.textContent = '確定標記結案不續，立即通知候選人';
+  }
+});
 
 async function decide(o) {
   if (!cur) return;
