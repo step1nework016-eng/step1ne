@@ -348,7 +348,7 @@ button.primary:hover{background:#8a6531;}
       <label style="margin-top:22px;">👀 候選人會收到的通知卡片預覽</label>
       <div class="linecard">
         <div class="lc-head">
-          <div class="lc-tag">📪 結案通知</div>
+          <div class="lc-tag">📋 面談進度通知</div>
           <div class="lc-title" id="c_prev_title">職缺名稱</div>
         </div>
         <div class="lc-body">
@@ -1118,15 +1118,20 @@ function drawActs(now) {
 // ⚠️ 2026-08-14 改：textarea 現在放的是完整訊息（不再是塞進固定模板中間的
 // 片段），這裡只做送出前的安全替換（客戶→用人單位），跟後端
 // deriveApplicationProgress() CLOSED_LOST 分支的規則一致，顧問看到的預覽
-// 才會等於候選人最後真的收到的文字。沒填的話用完整版的制式委婉說法當保底。
+// 才會等於候選人最後真的收到的文字。
+// ⚠️ 2026-08-14 再改：預覽原本清空欄位還是會顯示制式說法當保底，Jacky 反應
+// 「清空應該要是空白才對」——顧問可能想整段自己重新擬定，預覽該老實反映
+// 「現在欄位裡真正打了什麼」，不要偷偷補文字造成「看到的」跟「打的」對不起來。
+// 制式說法只留在後端當防呆保底（真的送出空白時才用），前端這裡改成：
+// 空白就是空白，送出前另外擋（見 c_go），不會真的把空白送出去。
 var CLOSE_DEFAULT_MSG = '這個職缺這次很可惜沒有繼續往下走，很抱歉沒有帶來好消息。'
   + '您的資料會留著，未來有更合適的職缺會再與您聯繫，也歡迎透過選單直接找顧問聊聊。';
 function closeMsgPreview(fullText) {
-  var raw = String(fullText || '').trim();
-  return (raw || CLOSE_DEFAULT_MSG).replace(/客戶/g, '用人單位');
+  return String(fullText || '').trim().replace(/客戶/g, '用人單位');
 }
 function updateClosePreview() {
-  $('c_prev_msg').textContent = closeMsgPreview($('c_reason').value);
+  var text = closeMsgPreview($('c_reason').value);
+  $('c_prev_msg').textContent = text || '（欄位是空的，還沒有內容可以預覽）';
 }
 
 // 2026-08-14 加：三個委婉說法快選，套用的是整段完整訊息，還是可以再手動改。
@@ -1194,6 +1199,13 @@ $('c_go').addEventListener('click', async function () {
   if (!cur || !cur.app_id) return;
   var notify = $('c_notify').checked;
   var reason = notify ? $('c_reason').value : $('c_internalNote').value;
+  // 通知模式下訊息不能是空的——預覽現在會老實顯示空白，不會偷偷補制式說法，
+  // 所以要在這裡擋，不然真的會送出一則空白 LINE 訊息給候選人。
+  if (notify && !reason.trim()) {
+    $('c_err').hidden = false;
+    $('c_err').textContent = '訊息是空的，請填寫內容或點上面的快選按鈕。';
+    return;
+  }
   if (notify && /[【】]/.test(reason)) {
     $('c_err').hidden = false;
     $('c_err').textContent = '訊息裡還有方括號提示文字沒有換掉，麻煩先填上實際內容再送出。';
