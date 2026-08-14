@@ -37,7 +37,8 @@
     { href: '/consultant/interview-spec/', label: '面談規格', icon: 'clip',   primary: false },
     { href: '/consultant/checkups/',       label: '阿福健檢', icon: 'pulse',  primary: false },
     { href: '/consultant/line-bindings/',  label: 'LINE 進度綁定', icon: 'clip', primary: false },
-    { href: '/consultant/token-usage/',    label: 'Token 用量', icon: 'chart', primary: false }
+    { href: '/consultant/token-usage/',    label: 'Token 用量', icon: 'chart', primary: false },
+    { href: '/consultant/social-post/',    label: '一鍵發文', icon: 'send',   primary: false }
   ];
 
   var ICONS = {
@@ -51,7 +52,8 @@
     more:   '<circle cx="4.5" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="10" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="15.5" cy="10" r="1.3" fill="currentColor" stroke="none"/>',
     collapse: '<rect x="2.5" y="3.5" width="15" height="13" rx="2"/><path d="M8 3.5v13"/><path d="M5.6 8.2l-1.6 1.8 1.6 1.8" />',
     pulse: '<path d="M2 10.5h3.2l1.6-4 2.6 8 1.8-6.5 1.4 2.5H18" />',
-    chart: '<rect x="3" y="10.5" width="3" height="6.5" rx=".5"/><rect x="8.5" y="6" width="3" height="11" rx=".5"/><rect x="14" y="3" width="3" height="14" rx=".5"/>'
+    chart: '<rect x="3" y="10.5" width="3" height="6.5" rx=".5"/><rect x="8.5" y="6" width="3" height="11" rx=".5"/><rect x="14" y="3" width="3" height="14" rx=".5"/>',
+    send: '<path d="M3 10l14-7-4 14-3-5-5-2z" stroke-linejoin="round"/>'
   };
 
   function svg(name) {

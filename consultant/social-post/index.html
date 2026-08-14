@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="zh-Hant">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>一鍵發文｜顧問後台</title>
+<link rel="icon" href="/assets/favicon.ico">
+<style>
+:root{--gold:#a67c3d;--ink:#23262d;--ink2:#4d5563;--ink3:#8a8d95;--line:#eee7db;--soft:#faf8f3;--bg:#f4f1ea;--ok:#2f8f5b;--bad:#c0392b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 -apple-system,"Noto Sans TC",sans-serif}
+.wrap{max-width:640px;margin:0 auto;padding:0 16px}
+header{background:#fff;border-bottom:1px solid var(--line);padding:14px 0}
+header .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header img{height:26px}
+nav{margin-left:auto;display:flex;gap:8px}
+nav a{font-size:14px;text-decoration:none;color:var(--ink2);padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:#fff}
+nav a.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.gate{max-width:380px;margin:16vh auto;background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px}
+.gate input{width:100%;font:inherit;padding:11px 13px;border:1px solid var(--line);border-radius:10px;margin:12px 0}
+.gate button{width:100%;font:inherit;font-weight:700;background:var(--gold);color:#fff;border:0;border-radius:999px;padding:12px}
+.mut{color:var(--ink3);font-size:13px}
+main{padding:24px 0 60px}
+.card{background:#fff;border:1px solid var(--line);border-radius:15px;padding:20px 22px;margin-bottom:14px}
+label{display:block;font-size:13px;color:var(--ink2);margin:0 0 6px;font-weight:600}
+select,input[type=search]{width:100%;font:inherit;font-size:15px;padding:11px 13px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);margin-bottom:16px}
+button.go{width:100%;font:inherit;font-weight:700;font-size:15.5px;background:var(--gold);color:#fff;border:0;border-radius:999px;padding:13px;cursor:pointer}
+button.go:disabled{opacity:.5;cursor:not-allowed}
+.note{background:var(--soft);border-left:3px solid var(--gold);border-radius:0 10px 10px 0;padding:12px 15px;font-size:13px;color:var(--ink2);margin-bottom:16px;line-height:1.7}
+.msg{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:14px;padding:11px 20px;border-radius:999px;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap}
+.msg.on{opacity:1}
+.msg.err{background:var(--bad)}
+</style>
+
+<div id="gate" class="gate" hidden>
+  <b>顧問後台</b>
+  <p class="mut" style="margin:6px 0 0">需要存取權杖。這組權杖等同密碼，不要外傳。</p>
+  <input id="tok" type="password" placeholder="ADMIN_TOKEN" autocomplete="off">
+  <button id="enter" type="button">進入</button>
+  <p id="gerr" class="mut" style="color:#b4552e;margin:12px 0 0" hidden></p>
+</div>
+
+<div id="app" hidden>
+  <header><div class="wrap">
+    <img src="/assets/step1ne-logo.png" alt="Step1ne"><b>一鍵發文</b>
+    <nav><a href="/consultant/reports/">初篩報告</a><a href="/consultant/jobs/">職缺分類</a><a href="/consultant/social-post/" class="on">一鍵發文</a></nav>
+  </div></header>
+  <main class="wrap">
+    <div class="note">
+      選職缺、選帳號，按下去會排入產稿——本機的腳本每 2 分鐘掃一次，抓到就會用 claude
+      產一則貼文草稿，推到 Telegram「社群發文審核」給你看，<b>你在那邊按確認發布才會真的貼出去</b>，
+      這裡按下去不會直接發文。
+    </div>
+    <div class="card">
+      <label>選擇職缺</label>
+      <input id="q" type="search" placeholder="輸入職缺名稱或代號搜尋…" autocomplete="off">
+      <select id="job"><option value="">載入中…</option></select>
+      <label>選擇發文帳號</label>
+      <select id="account"><option value="">載入中…</option></select>
+      <button id="go" class="go" type="button" disabled>排入產稿</button>
+    </div>
+  </main>
+</div>
+<div id="msg" class="msg"></div>
+
+<script>
+var API = 'https://step1ne-recruit-api.aiagentg888.workers.dev';
+var KEY = 's1ne_admin_tok';
+var tok = localStorage.getItem(KEY) || '';
+var $ = function (i) { return document.getElementById(i); };
+var ALL_JOBS = [];
+
+function api(path, opt) {
+  opt = opt || {};
+  opt.headers = Object.assign({ authorization: 'Bearer ' + tok }, opt.headers || {});
+  return fetch(API + path, opt).then(function (r) { return r.json(); });
+}
+function toast(t, err) {
+  var m = $('msg'); m.textContent = t; m.className = 'msg on' + (err ? ' err' : '');
+  setTimeout(function () { m.className = 'msg'; }, err ? 4000 : 2200);
+}
+
+function paintJobs(list) {
+  var sel = $('job');
+  var cur = sel.value;
+  sel.innerHTML = '<option value="">請選擇職缺</option>' + list.map(function (j) {
+    return '<option value="' + j.slug + '">' + (j.title || j.slug) + (j.status === 'closed' ? '（已關閉）' : '') + '</option>';
+  }).join('');
+  if (cur) sel.value = cur;
+  updateGoState();
+}
+function filterJobs() {
+  var q = ($('q').value || '').trim().toLowerCase();
+  if (!q) return paintJobs(ALL_JOBS);
+  paintJobs(ALL_JOBS.filter(function (j) {
+    return ((j.title || '') + ' ' + j.slug).toLowerCase().indexOf(q) >= 0;
+  }));
+}
+$('q').addEventListener('input', filterJobs);
+
+function updateGoState() {
+  $('go').disabled = !($('job').value && $('account').value);
+}
+$('job').addEventListener('change', updateGoState);
+$('account').addEventListener('change', updateGoState);
+
+$('go').addEventListener('click', function () {
+  var btn = $('go');
+  btn.disabled = true; btn.textContent = '排入中⋯';
+  api('/admin/social-post-request', {
+    method: 'POST', headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ slug: $('job').value, account_id: Number($('account').value) }),
+  }).then(function (d) {
+    if (!d.ok) { btn.disabled = false; btn.textContent = '排入產稿'; return toast(d.error || '排入失敗', true); }
+    btn.textContent = '✅ 已排入，等 Telegram';
+    toast('已排入，最多等 2 分鐘會出現在 Telegram「社群發文審核」');
+    setTimeout(function () { btn.disabled = false; btn.textContent = '排入產稿'; updateGoState(); }, 3000);
+  }).catch(function () { btn.disabled = false; btn.textContent = '排入產稿'; toast('連不上伺服器', true); });
+});
+
+function load() {
+  Promise.all([api('/admin/jobs'), api('/admin/social-accounts')]).then(function (r) {
+    var jd = r[0], ad = r[1];
+    if (!jd.ok) { localStorage.removeItem(KEY); return boot(); }
+    $('gate').hidden = true; $('app').hidden = false;
+    ALL_JOBS = (jd.jobs || []).filter(function (j) { return j.status !== 'closed'; });
+    paintJobs(ALL_JOBS);
+    var accs = ad.accounts || [];
+    $('account').innerHTML = accs.length
+      ? accs.map(function (a) { return '<option value="' + a.id + '">' + a.label + '（' + a.platform + '）</option>'; }).join('')
+      : '<option value="">目前沒有可用的發文帳號</option>';
+    updateGoState();
+  }).catch(function () { $('job').innerHTML = '<option value="">讀取失敗</option>'; });
+}
+function boot() {
+  if (tok) return load();
+  $('gate').hidden = false;
+  $('enter').onclick = function () {
+    tok = $('tok').value.trim();
+    if (!tok) return;
+    api('/admin/jobs').then(function (d) {
+      if (!d.ok) { $('gerr').hidden = false; $('gerr').textContent = '權杖不正確'; return; }
+      localStorage.setItem(KEY, tok); load();
+    });
+  };
+  $('tok').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('enter').click(); });
+}
+boot();
+</script>
+<script defer src="/consultant/_shell.js"></script>
+</html>
