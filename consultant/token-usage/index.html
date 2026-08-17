@@ -150,7 +150,7 @@ function gate(msg) {
   $('app').hidden = true; $('gate').hidden = false;
   if (msg) { $('gerr').hidden = false; $('gerr').textContent = msg; }
 }
-function fmtUsd(n) { return '$' + (n || 0).toFixed(2); }
+function fmtUsd(n) { return 'US$' + (n || 0).toFixed(2); }
 function fmtTok(n) {
   n = Math.round(n || 0);
   return n >= 1000 ? (n / 1000).toFixed(1) + 'K' : String(n);
