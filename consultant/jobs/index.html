@@ -268,7 +268,11 @@ function paint(jobs) {
         + (j.status === 'closed' ? '　·　已關閉' : '') + '</span>'
         + '<br><button type="button" class="socpost-btn" data-slug="' + j.slug + '" '
         + 'style="margin-top:4px;font-size:11px;background:#fff;border:1px solid #eee7db;border-radius:6px;padding:2px 7px;cursor:pointer;color:#4d5563;">'
-        + '📱 產生社群貼文</button></td>'
+        + '📱 產生社群貼文</button> '
+        + '<button type="button" class="statustoggle-btn" data-slug="' + j.slug + '" '
+        + 'data-cur="' + (j.status || 'open') + '" style="margin-top:4px;font-size:11px;border-radius:6px;padding:2px 7px;cursor:pointer;'
+        + (j.status === 'closed' ? 'background:#2f8f5b;border:1px solid #2f8f5b;color:#fff;' : 'background:#fff;border:1px solid #eee7db;color:#b4552e;') + '">'
+        + (j.status === 'closed' ? '🔓 重新開放' : '🔒 關閉職缺') + '</button></td>'
       + '<td>' + sel('service_line', LINE, j.service_line, j.slug) + '</td>'
       + '<td>' + sel('client_relation', REL, j.client_relation, j.slug) + '</td>'
       + '<td>' + sel('seniority', SEN, j.seniority, j.slug) + '</td>'
@@ -324,6 +328,28 @@ document.addEventListener('click', function (e) {
     if (job) job.onboarding_prep_note = next.trim();
     btn.textContent = next.trim() ? '📝 已填報到準備' : '📝 填報到準備';
     toast('已存檔');
+  }).catch(function () { btn.disabled = false; toast('連不上伺服器', true); });
+});
+
+// 2026-08-17 加：開關職缺——關掉之後網站跟應徵表單會即時擋掉新應徵，
+// 阿財不會再面談新的人，已經在談的候選人不受影響；隨時可以再打開。
+document.addEventListener('click', function (e) {
+  var btn = e.target.closest && e.target.closest('.statustoggle-btn');
+  if (!btn) return;
+  var slug = btn.dataset.slug;
+  var next = btn.dataset.cur === 'closed' ? 'open' : 'closed';
+  if (next === 'closed' && !confirm('確定要關閉「' + slug + '」嗎？關閉後網站跟應徵表單會馬上擋掉新應徵，已經在談的候選人不受影響，之後可以隨時重新開放。')) return;
+  btn.disabled = true;
+  api('/admin/jobs/' + encodeURIComponent(slug), {
+    method: 'POST', headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ status: next }),
+  }).then(function (d) {
+    btn.disabled = false;
+    if (!d.ok) return toast(d.error || '存檔失敗', true);
+    var job = ALL.filter(function (j) { return j.slug === slug; })[0];
+    if (job) job.status = next;
+    toast(next === 'closed' ? '已關閉，新應徵會被擋掉' : '已重新開放');
+    apply();
   }).catch(function () { btn.disabled = false; toast('連不上伺服器', true); });
 });
 

@@ -359,12 +359,27 @@ h2{font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;color:#1c1f2
 </footer>
 
 <script>
-(function(){
+(async function(){
   var CAT_LABEL = {
     finance:'財務・會計', it:'資訊・軟體', operations:'營運・供應鏈',
     construction:'營建・工程', semiconductor:'半導體・電子', overseas:'海外外派', service:'客服・行政',
     hospitality:'餐旅・接待'
   };
+  // 2026-08-17 加：顧問在後台把職缺關掉是即時的，但這個列表頁是純靜態
+  // HTML——關掉之後要馬上從網站上消失，不能等改完 HTML 重新部署才生效，
+  // 所以先問一下後端「現在哪些是關的」，把對應卡片從 DOM 拿掉，
+  // 再讓下面既有的篩選邏輯照正常流程跑，數字才會算對。
+  try {
+    var closedResp = await fetch('https://step1ne-recruit-api.aiagentg888.workers.dev/jobs-closed').then(function (r) { return r.json(); });
+    var closedSet = new Set((closedResp && closedResp.closed) || []);
+    if (closedSet.size) {
+      [].slice.call(document.querySelectorAll('#jobs .job')).forEach(function (el) {
+        var m = (el.getAttribute('href') || '').match(/\/jobs\/([^/]+)\/?$/);
+        if (m && closedSet.has(m[1])) el.remove();
+      });
+    }
+  } catch (e) { /* 查不到就照舊全部顯示，不能讓這支失敗擋住整個職缺頁 */ }
+
   var jobs   = [].slice.call(document.querySelectorAll('#jobs .job'));
   var qInput = document.getElementById('q');
   var qBox   = qInput.parentNode;

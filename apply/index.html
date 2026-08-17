@@ -211,7 +211,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
         請找一個能專心作答的環境進行，避免邊處理其他事邊回覆。
       </div>
       <p class="hint" style="margin:0">
-        線上文字面談，約 20 到 30 分鐘，由 AI 面談顧問阿財進行，即為正式面談。真人顧問會評估面談報告後再與您聯繫。
+        線上文字面談，約 20 到 30 分鐘，由 AI 面談顧問阿財進行，即為正式面談。獵頭顧問會依面談狀況評估，決定是否推薦給用人單位面試，並與您聯繫後續安排。
         送出應徵後會依當下狀況直接安排面談，或請您選一個方便的時段——結果會在下一步顯示。</p>
     </fieldset>
 
@@ -265,7 +265,15 @@ f.addEventListener('change', prog);
 
 // 職缺清單：從 jobs.json 帶，跟線上實際刊登的職缺同步。
 // 寫死在 HTML 裡的話，職缺一下架這裡就會有幽靈選項。
-fetch('/apply/jobs.json').then(r => r.json()).then(list => {
+// 2026-08-17 加：同時問一下後端「哪些職缺被顧問關掉了」——顧問在後台按
+// 關閉是即時生效的，這裡不能只看 jobs.json（那份是手動維護、不會自動同步
+// 開關狀態），不然選單還會讓人選到已經找到人、不開放應徵的職缺。
+Promise.all([
+  fetch('/apply/jobs.json').then(r => r.json()),
+  fetch(API + '/jobs-closed').then(r => r.json()).catch(() => ({ closed: [] })),
+]).then(([listAll, closedResp]) => {
+  const closedSet = new Set((closedResp && closedResp.closed) || []);
+  const list = listAll.filter(j => !closedSet.has(j.slug));
   const sel = document.getElementById('jobSel');
   sel.innerHTML = '<option value="">請選擇</option>';
   list.forEach(j => {
