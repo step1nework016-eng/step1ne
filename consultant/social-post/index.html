@@ -30,6 +30,16 @@ button.go:disabled{opacity:.5;cursor:not-allowed}
 .msg{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:14px;padding:11px 20px;border-radius:999px;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap}
 .msg.on{opacity:1}
 .msg.err{background:var(--bad)}
+.qrow{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid var(--line)}
+.qrow:last-child{border-bottom:none}
+.qrow .t{font-weight:600;font-size:14px}
+.qrow .m{color:var(--ink3);font-size:12.5px;margin-top:2px}
+.badge{font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap}
+.badge.wait{background:#f3e2c2;color:#8a5a1a}
+.badge.draft{background:#eef4fd;color:#2f5fd8}
+.badge.posted{background:#e3f3ea;color:var(--ok)}
+.badge.skip{background:#f3e6e2;color:var(--bad)}
+.badge.posting{background:#eee;color:var(--ink2)}
 </style>
 
 <div id="gate" class="gate" hidden>
@@ -58,6 +68,10 @@ button.go:disabled{opacity:.5;cursor:not-allowed}
       <label>選擇發文帳號</label>
       <select id="account"><option value="">載入中…</option></select>
       <button id="go" class="go" type="button" disabled>排入產稿</button>
+    </div>
+    <div class="card">
+      <label style="margin-bottom:2px">排隊列表<span class="mut" style="font-weight:400"> ・每 8 秒自動更新</span></label>
+      <div id="queue" class="mut">載入中…</div>
     </div>
   </main>
 </div>
@@ -114,9 +128,38 @@ $('go').addEventListener('click', function () {
     if (!d.ok) { btn.disabled = false; btn.textContent = '排入產稿'; return toast(d.error || '排入失敗', true); }
     btn.textContent = '✅ 已排入，等 Telegram';
     toast('已排入，最多等 2 分鐘會出現在 Telegram「社群發文審核」');
+    loadQueue();
     setTimeout(function () { btn.disabled = false; btn.textContent = '排入產稿'; updateGoState(); }, 3000);
   }).catch(function () { btn.disabled = false; btn.textContent = '排入產稿'; toast('連不上伺服器', true); });
 });
+
+// 狀態徽章——跟 jobs.social_post_status 的實際值一一對應，
+// null 但有指定帳號＝已排入、還沒被排程掃到。
+var Q_BADGE = {
+  null:     { c: 'wait',    t: '⏳ 已排入，等產稿' },
+  drafted:  { c: 'draft',   t: '📝 草稿已送審，等你按確認' },
+  posting:  { c: 'posting', t: '🔄 發文中' },
+  posted:   { c: 'posted',  t: '✅ 已發布' },
+  skipped:  { c: 'skip',    t: '❌ 已標記不發' },
+  approved: { c: 'posting', t: '✅ 已核准（尚未串金鑰）' },
+};
+var queueTimer = null;
+function loadQueue() {
+  api('/admin/social-post-queue').then(function (d) {
+    if (!d.ok) return;
+    var rows = d.queue || [];
+    $('queue').innerHTML = rows.length ? rows.map(function (r) {
+      var b = Q_BADGE[r.social_post_status === null ? 'null' : r.social_post_status] || { c: 'wait', t: r.social_post_status || '—' };
+      return '<div class="qrow">'
+        + '<div><div class="t">' + (r.title || r.slug) + '</div>'
+        + '<div class="m">' + (r.account_label || '（未指定帳號）')
+        + (r.social_post_at ? '　·　' + r.social_post_at.slice(0, 16) : '')
+        + (r.social_post_url ? '　·　<a href="' + r.social_post_url + '" target="_blank" rel="noopener">查看貼文</a>' : '')
+        + '</div></div>'
+        + '<span class="badge ' + b.c + '">' + b.t + '</span></div>';
+    }).join('') : '<div class="mut" style="padding:6px 0">目前沒有排入中的職缺。</div>';
+  }).catch(function () {});
+}
 
 function load() {
   Promise.all([api('/admin/jobs'), api('/admin/social-accounts')]).then(function (r) {
@@ -130,6 +173,8 @@ function load() {
       ? accs.map(function (a) { return '<option value="' + a.id + '">' + a.label + '（' + a.platform + '）</option>'; }).join('')
       : '<option value="">目前沒有可用的發文帳號</option>';
     updateGoState();
+    loadQueue();
+    if (!queueTimer) queueTimer = setInterval(loadQueue, 8000);
   }).catch(function () { $('job').innerHTML = '<option value="">讀取失敗</option>'; });
 }
 function boot() {
