@@ -626,6 +626,11 @@ async function openSession(row) {
   curRow = row; curData = null;
   stopLive();
   $('stagebar').hidden = true;
+  // ⚠️ 2026-08-17 修：curData 這裡先清空，但下載按鈕列（dlbar）原本要等
+  // fetch 回來才會重新決定要不要隱藏——如果使用者在這個空窗期點下載，
+  // curData 是 null，會直接把整頁噴壞（Cannot read properties of null）。
+  // 資料還沒回來之前，先把下載按鈕收起來，不給點。
+  $('dlbar').hidden = true;
   // 2026-08-05：Phoebe 遇到標題顯示 undefined、報告區「讀取失敗」，
   // 但用管理員 token 直接打 API 都正常，重現不出來。
   // 先把「是哪一筆、缺什麼」講出來，下次出錯就知道是資料問題還是權限問題。
@@ -928,6 +933,8 @@ async function open(row) {
   cur = row;
   curRow = null; curData = null;
   stopLive();
+  // 同一個空窗期問題——資料還沒回來之前，先把下載按鈕收起來，見 openSession() 的說明。
+  $('dlbar').hidden = true;
   $('dname').textContent = row.name;
   $('dmeta').textContent = (row.job_title || row.job_slug) + '　' + (row.email || '') + '　' + (row.phone || '');
   $('drep').textContent = '載入中…';
