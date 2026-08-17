@@ -91,7 +91,7 @@ table.recent td.num{font-family:'Space Mono',monospace;text-align:right;}
         <div class="card">
           <div class="lb">場均花費</div>
           <div class="num" id="c_avg_cost">—</div>
-          <div class="sub">美金／場</div>
+          <div class="sub" id="c_avg_cost_sub">美金／場</div>
         </div>
         <div class="card">
           <div class="lb">面談場數</div>
@@ -150,7 +150,19 @@ function gate(msg) {
   $('app').hidden = true; $('gate').hidden = false;
   if (msg) { $('gerr').hidden = false; $('gerr').textContent = msg; }
 }
+// 匯率：開頁時抓一次即時匯率（免費、不用金鑰的公開 API），抓不到就退回
+// 一個大概值，不會讓頁面壞掉，只是換算會不夠精確——旁邊有標「約」字提醒。
+var TWD_RATE = 32.3;
+var TWD_RATE_LIVE = false;
+function fetchTwdRate() {
+  return fetch('https://open.er-api.com/v6/latest/USD').then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (d && d.rates && d.rates.TWD) { TWD_RATE = d.rates.TWD; TWD_RATE_LIVE = true; }
+    }).catch(function () {});
+}
 function fmtUsd(n) { return 'US$' + (n || 0).toFixed(2); }
+function fmtTwd(n) { return (TWD_RATE_LIVE ? '≈' : '約') + 'NT$' + Math.round((n || 0) * TWD_RATE).toLocaleString(); }
+function fmtUsdTwd(n) { return fmtUsd(n) + '　<span class="mut" style="font-size:.85em">(' + fmtTwd(n) + ')</span>'; }
 function fmtTok(n) {
   n = Math.round(n || 0);
   return n >= 1000 ? (n / 1000).toFixed(1) + 'K' : String(n);
@@ -163,15 +175,19 @@ var TYPE_COLOR = { talk: '#a67c3d', report: '#2f6fed', report_json: '#8a8d95' };
 async function load() {
   $('loading').hidden = false; $('content').hidden = true;
   var d;
-  try { d = await api('/admin/token-usage'); }
+  try {
+    var pair = await Promise.all([api('/admin/token-usage'), fetchTwdRate()]);
+    d = pair[0];
+  }
   catch (e) { return gate(e.message); }
   if (!d.ok) return;
 
   $('loading').hidden = true; $('content').hidden = false;
 
   $('c_total').textContent = fmtUsd(d.total_cost_usd);
-  $('c_total_sub').textContent = d.total_interviews + ' 場累計';
+  $('c_total_sub').textContent = d.total_interviews + ' 場累計　·　' + fmtTwd(d.total_cost_usd);
   $('c_avg_cost').textContent = fmtUsd(d.avg_cost_usd);
+  $('c_avg_cost_sub').textContent = '美金／場　·　' + fmtTwd(d.avg_cost_usd);
   $('c_n').textContent = d.total_interviews;
   $('c_avg_tok').textContent = fmtTok(d.avg_input_tokens + d.avg_output_tokens);
 
@@ -185,7 +201,7 @@ async function load() {
   $('typerows').innerHTML = types.map(function (t) {
     return '<div class="r"><span class="k"><span class="dot" style="background:' + (TYPE_COLOR[t.call_type] || '#ccc') + '"></span>'
       + esc(TYPE_LB[t.call_type] || t.call_type) + '（' + t.calls + ' 次）</span>'
-      + '<span class="v">' + fmtUsd(t.cost_usd) + '　·　' + fmtTok((t.input_tokens || 0) + (t.output_tokens || 0)) + ' tok</span></div>';
+      + '<span class="v">' + fmtUsdTwd(t.cost_usd) + '　·　' + fmtTok((t.input_tokens || 0) + (t.output_tokens || 0)) + ' tok</span></div>';
   }).join('');
 
   // 最近幾場
@@ -194,7 +210,7 @@ async function load() {
   $('recentBody').innerHTML = recent.map(function (r) {
     return '<tr><td>' + esc(r.name) + '</td><td class="mut">' + esc(r.job_title) + '</td>'
       + '<td class="num">' + fmtTok(r.input_tokens + r.output_tokens) + '</td>'
-      + '<td class="num">' + fmtUsd(r.cost_usd) + '</td></tr>';
+      + '<td class="num">' + fmtUsdTwd(r.cost_usd) + '</td></tr>';
   }).join('');
 }
 
