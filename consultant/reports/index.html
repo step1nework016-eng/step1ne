@@ -1260,6 +1260,9 @@ var STAGE_OPTS = [
   { key: 'stage1', lb: '第一階段' }, { key: 'stage2', lb: '第二階段' },
   { key: 'stage3', lb: '第三階段' }, { key: 'stage4', lb: '第四階段' },
   { key: 'offer', lb: '錄取' }, { key: 'onboard', lb: '報到' }, { key: 'care', lb: '到職關懷' },
+  // 2026-08-18 加：備選是平行狀態不是進度往前跳，選了不會動進度條的圓點，
+  // 只會換候選人查進度時看到的文字（見 index.js deriveApplicationProgress）。
+  { key: 'backup', lb: '備選' },
 ];
 function stageLabelOf(key) {
   var f = STAGE_OPTS.filter(function (o) { return o.key === key; })[0];
@@ -1297,8 +1300,13 @@ function renderStageBar(row, d) {
       (d.placement.close_reason ? esc(d.placement.close_reason) : '（沒有填寫備註）') +
       '</div>'
     : '';
+  // 2026-08-18 加：備選是平行狀態，進度條的圓點不會顯示它，這裡另外標一行
+  // 提醒——不然顧問看畫面只看得到下拉選單選了「備選」，容易漏看。
+  var backupHtml = (info.manual_stage === 'backup')
+    ? '<div class="stagebar-closed internal"><b>🅱️ 目前標記為備選</b>候選人查進度時會看到「用人單位優先安排了其他人選」的說法。</div>'
+    : '';
 
-  var dotsHtml = closedHtml + '<div class="steps">' + info.steps.map(function (s) {
+  var dotsHtml = closedHtml + backupHtml + '<div class="steps">' + info.steps.map(function (s) {
     var cls = s.done ? 'done' : (s.now ? 'now' : '');
     var mark = s.done ? '✓' : '';
     return '<div class="step ' + cls + '"><div class="ln"></div><div class="dot">' + mark + '</div><div class="lb">' + esc(s.lb) + '</div></div>';
