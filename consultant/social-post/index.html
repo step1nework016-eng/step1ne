@@ -40,6 +40,9 @@ button.go:disabled{opacity:.5;cursor:not-allowed}
 .badge.posted{background:#e3f3ea;color:var(--ok)}
 .badge.skip{background:#f3e6e2;color:var(--bad)}
 .badge.posting{background:#eee;color:var(--ink2)}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px}
+.tab{font:inherit;font-size:13px;font-weight:600;color:var(--ink2);background:var(--soft);border:1px solid var(--line);padding:6px 14px;border-radius:999px;cursor:pointer}
+.tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
 </style>
 
 <div id="gate" class="gate" hidden>
@@ -71,6 +74,7 @@ button.go:disabled{opacity:.5;cursor:not-allowed}
     </div>
     <div class="card">
       <label style="margin-bottom:2px">排隊列表<span class="mut" style="font-weight:400"> ・每 8 秒自動更新</span></label>
+      <div id="tabs" class="tabs"></div>
       <div id="queue" class="mut">載入中…</div>
     </div>
   </main>
@@ -144,20 +148,49 @@ var Q_BADGE = {
   approved: { c: 'posting', t: '✅ 已核准（尚未串金鑰）' },
 };
 var queueTimer = null;
+var ALL_QUEUE = [];
+var CUR_TAB = '全部';
+
+function paintTabs() {
+  var names = ['全部'];
+  ALL_QUEUE.forEach(function (r) {
+    var n = r.account_label || '（未指定帳號）';
+    if (names.indexOf(n) === -1) names.push(n);
+  });
+  if (names.indexOf(CUR_TAB) === -1) CUR_TAB = '全部';
+  $('tabs').innerHTML = names.map(function (n) {
+    return '<button type="button" class="tab' + (n === CUR_TAB ? ' on' : '') + '" data-name="' + n.replace(/"/g, '&quot;') + '">' + n + '</button>';
+  }).join('');
+}
+$('tabs').addEventListener('click', function (e) {
+  var btn = e.target.closest('.tab');
+  if (!btn) return;
+  CUR_TAB = btn.dataset.name;
+  paintQueue();
+});
+
+function paintQueue() {
+  paintTabs();
+  var rows = CUR_TAB === '全部' ? ALL_QUEUE : ALL_QUEUE.filter(function (r) {
+    return (r.account_label || '（未指定帳號）') === CUR_TAB;
+  });
+  $('queue').innerHTML = rows.length ? rows.map(function (r) {
+    var b = Q_BADGE[r.social_post_status === null ? 'null' : r.social_post_status] || { c: 'wait', t: r.social_post_status || '—' };
+    return '<div class="qrow">'
+      + '<div><div class="t">' + (r.title || r.slug) + '</div>'
+      + '<div class="m">' + (r.account_label || '（未指定帳號）')
+      + (r.social_post_at ? '　·　' + r.social_post_at.slice(0, 16) : '')
+      + (r.social_post_url ? '　·　<a href="' + r.social_post_url + '" target="_blank" rel="noopener">查看貼文</a>' : '')
+      + '</div></div>'
+      + '<span class="badge ' + b.c + '">' + b.t + '</span></div>';
+  }).join('') : '<div class="mut" style="padding:6px 0">目前沒有排入中的職缺。</div>';
+}
+
 function loadQueue() {
   api('/admin/social-post-queue').then(function (d) {
     if (!d.ok) return;
-    var rows = d.queue || [];
-    $('queue').innerHTML = rows.length ? rows.map(function (r) {
-      var b = Q_BADGE[r.social_post_status === null ? 'null' : r.social_post_status] || { c: 'wait', t: r.social_post_status || '—' };
-      return '<div class="qrow">'
-        + '<div><div class="t">' + (r.title || r.slug) + '</div>'
-        + '<div class="m">' + (r.account_label || '（未指定帳號）')
-        + (r.social_post_at ? '　·　' + r.social_post_at.slice(0, 16) : '')
-        + (r.social_post_url ? '　·　<a href="' + r.social_post_url + '" target="_blank" rel="noopener">查看貼文</a>' : '')
-        + '</div></div>'
-        + '<span class="badge ' + b.c + '">' + b.t + '</span></div>';
-    }).join('') : '<div class="mut" style="padding:6px 0">目前沒有排入中的職缺。</div>';
+    ALL_QUEUE = d.queue || [];
+    paintQueue();
   }).catch(function () {});
 }
 
