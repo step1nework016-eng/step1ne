@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="zh-Hant">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>職缺題庫｜顧問後台</title>
+<link rel="icon" href="/assets/favicon.ico">
+<style>
+:root{--gold:#a67c3d;--ink:#23262d;--ink2:#4d5563;--ink3:#8a8d95;--line:#eee7db;--soft:#faf8f3;--bg:#f4f1ea;--ok:#2f8f5b;--bad:#c0392b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 -apple-system,"Noto Sans TC",sans-serif}
+.wrap{max-width:720px;margin:0 auto;padding:0 16px}
+header{background:#fff;border-bottom:1px solid var(--line);padding:14px 0}
+header .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header img{height:26px}
+nav{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+nav a{font-size:14px;text-decoration:none;color:var(--ink2);padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:#fff}
+nav a.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.gate{max-width:380px;margin:16vh auto;background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px}
+.gate input{width:100%;font:inherit;padding:11px 13px;border:1px solid var(--line);border-radius:10px;margin:12px 0}
+.gate button{width:100%;font:inherit;font-weight:700;background:var(--gold);color:#fff;border:0;border-radius:999px;padding:12px}
+.mut{color:var(--ink3);font-size:13px}
+main{padding:24px 0 60px}
+.card{background:#fff;border:1px solid var(--line);border-radius:15px;padding:18px 20px;margin-bottom:12px}
+.note{background:var(--soft);border-left:3px solid var(--gold);border-radius:0 10px 10px 0;padding:12px 15px;font-size:13px;color:var(--ink2);margin-bottom:16px;line-height:1.7}
+.stats{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.stat{flex:1 1 100px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.stat .n{font-size:21px;font-weight:800;color:var(--gold)}
+.stat .l{font-size:12px;color:var(--ink3)}
+details{background:#fff;border:1px solid var(--line);border-radius:14px;margin-bottom:10px}
+details[open]{border-color:var(--gold)}
+summary{cursor:pointer;padding:14px 18px;list-style:none;display:flex;flex-wrap:wrap;align-items:baseline;gap:8px}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"▸";color:var(--gold);font-weight:700;margin-right:2px}
+details[open] summary::before{content:"▾"}
+.ttl{font-weight:700;font-size:14.5px}
+.dm{font-size:12.5px;color:var(--gold);font-weight:600}
+.cnt{font-size:12px;color:var(--ink3);margin-left:auto}
+.body{padding:0 18px 16px}
+.pill{display:inline-block;background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:1px 9px;font-size:11.5px;margin:2px 3px 0 0}
+.hot{background:#e3f3ea;border-color:#bfe0cd;color:var(--ok);font-weight:700}
+.q{border-top:1px solid var(--line);padding:11px 0}
+.head{font-size:13.5px;font-weight:600}
+.k{display:inline-block;color:#fff;border-radius:9px;padding:1px 8px;font-size:10.5px;font-weight:700;margin-right:6px}
+.why{font-size:12px;color:var(--ink3);margin:3px 0 6px}
+.sig{font-size:12px;padding:5px 9px;border-radius:6px;margin-top:4px}
+.good{background:#e9f5ee;color:#14512f}
+.bad{background:#fdecea;color:#7d241c}
+.fu{font-size:12px;color:#8a6100;background:#fff6e0;padding:5px 9px;border-radius:6px;margin-top:4px}
+.srcs{margin-top:14px;font-size:11.5px;color:var(--ink3);word-break:break-all;border-top:1px solid var(--line);padding-top:10px}
+.srcs a{color:var(--gold)}
+code{background:var(--soft);padding:2px 6px;border-radius:5px;font-size:12.5px}
+</style>
+
+<div id="gate" class="gate" hidden>
+  <b>顧問後台</b>
+  <p class="mut" style="margin:6px 0 0">需要存取權杖。這組權杖等同密碼，不要外傳。</p>
+  <input id="tok" type="password" placeholder="ADMIN_TOKEN" autocomplete="off">
+  <button id="enter" type="button">進入</button>
+  <p id="gerr" class="mut" style="color:#b4552e;margin:12px 0 0" hidden></p>
+</div>
+
+<div id="app" hidden>
+  <header><div class="wrap">
+    <img src="/assets/step1ne-logo.png" alt="Step1ne"><b>職缺題庫</b>
+    <nav>
+      <a href="/consultant/reports/">初篩報告</a>
+      <a href="/consultant/jobs/">職缺分類</a>
+      <a href="/consultant/social-post/">顧問社群</a>
+      <a href="/consultant/expertise/" class="on">職缺題庫</a>
+    </nav>
+  </div></header>
+  <main class="wrap">
+    <div class="note">
+      這是<b>阿財面談時會問的專業題目</b>。每個職缺各建一次，來源是該職務的專業內容與網路上的真實面試心得，
+      不是從 JD 字面推想的。<br>
+      每一題都附「真做過的人會提到什麼」與「沒做過的人會怎麼含糊帶過」——那是給阿財判斷要不要追問用的。
+      <b>阿財不會判斷答案專不專業</b>，它只負責問對問題、記下原話、標出含糊處。
+    </div>
+    <div class="stats" id="stats"></div>
+    <div id="list" class="mut">載入中…</div>
+    <div class="card" id="missing" hidden>
+      <b style="font-size:14px">還沒有題庫的職缺</b>
+      <div class="mut" style="margin:6px 0 8px">這些職缺目前沒有專業題庫，面談會少掉專業那一段。</div>
+      <div id="missinglist"></div>
+      <div class="mut" style="margin-top:10px">要補建：在後端主機執行
+        <code>python3 build_expertise.py &lt;職缺代號&gt;</code>（會上網查資料，約 3 分鐘）</div>
+    </div>
+  </main>
+</div>
+
+<script>
+var API='https://step1ne-recruit-api.aiagentg888.workers.dev';
+var KEY='s1ne_admin_tok';
+var tok=localStorage.getItem(KEY)||'';
+var $=function(i){return document.getElementById(i)};
+function api(path,opt){opt=opt||{};opt.headers=Object.assign({authorization:'Bearer '+tok},opt.headers||{});
+  return fetch(API+path,opt).then(function(r){return r.json()})}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+var KC={'經驗':'#23262d','情境':'#8a6100','技術':'#2f8f5b','外語':'#c0392b'};
+
+function render(d){
+  var banks=d.banks||[], miss=d.missing||[];
+  var tq=0,ts=0,hot=0;
+  banks.forEach(function(b){
+    b._q=JSON.parse(b.questions_json||'[]');
+    b._t=JSON.parse(b.topics_json||'[]');
+    b._s=JSON.parse(b.sources_json||'[]');
+    tq+=b._q.length; ts+=b._s.length; if(b.cands)hot++;
+  });
+  $('stats').innerHTML=
+    '<div class="stat"><div class="n">'+banks.length+'</div><div class="l">職缺題庫</div></div>'+
+    '<div class="stat"><div class="n">'+tq+'</div><div class="l">專業題目</div></div>'+
+    '<div class="stat"><div class="n">'+ts+'</div><div class="l">查過的來源</div></div>'+
+    '<div class="stat"><div class="n">'+hot+'</div><div class="l">有人選在跑</div></div>';
+
+  $('list').innerHTML=banks.map(function(b){
+    var qs=b._q.map(function(q,i){
+      var gs=(q.good_signs||[]).join('；'), rf=(q.red_flags||[]).join('；');
+      return '<div class="q"><div class="head"><span class="k" style="background:'+(KC[q.kind]||'#8a8d95')+'">'
+        +esc(q.kind||'經驗')+'</span>'+(i+1)+'. '+esc(q.q)+'</div>'
+        +'<div class="why">'+esc(q.topic||'')+'｜想確認：'+esc(q.why||'')+'</div>'
+        +(gs?'<div class="sig good">✅ 真做過會提到：'+esc(gs)+'</div>':'')
+        +(rf?'<div class="sig bad">⚠️ 含糊的訊號：'+esc(rf)+'</div>':'')
+        +(q.followup?'<div class="fu">↳ 含糊就追問：'+esc(q.followup)+'</div>':'')
+        +'</div>';
+    }).join('');
+    return '<details><summary><span class="ttl">'+esc(b.title||b.job_slug)+'</span>'
+      +'<span class="dm">'+esc(b.domain||'')+'</span>'
+      +'<span class="cnt">'+b._q.length+' 題 · '+b._s.length+' 個來源</span>'
+      +(b.cands?'<span class="pill hot">'+b.cands+' 位人選</span>':'')
+      +'</summary><div class="body">'
+      +'<div>'+b._t.map(function(t){return '<span class="pill">'+esc(t.name||'')+'</span>'}).join('')+'</div>'
+      +qs
+      +'<div class="srcs"><b>實際查過的來源</b><br>'
+      + b._s.map(function(u){return '<a href="'+esc(u)+'" target="_blank" rel="noopener">'+esc(u)+'</a>'}).join('<br>')
+      +'</div><div class="mut" style="margin-top:8px">建立於 '+esc((b.built_at||'').slice(0,16))
+      +'　·　代號 <code>'+esc(b.job_slug)+'</code></div></div></details>';
+  }).join('')||'<div class="mut">還沒有任何題庫。</div>';
+
+  if(miss.length){
+    $('missing').hidden=false;
+    $('missinglist').innerHTML=miss.map(function(m){
+      return '<span class="pill">'+esc(m.title||m.slug)+'</span>'}).join('');
+  }
+}
+
+function load(){
+  $('gate').hidden=true; $('app').hidden=false;
+  api('/admin/expertise').then(function(d){
+    if(!d.ok){$('list').innerHTML='<div class="mut">讀取失敗</div>';return}
+    render(d);
+  }).catch(function(){$('list').innerHTML='<div class="mut">連線失敗</div>'});
+}
+
+function boot(){
+  if(tok) return load();
+  $('gate').hidden=false;
+  $('enter').onclick=function(){
+    tok=$('tok').value.trim(); if(!tok) return;
+    api('/admin/expertise').then(function(d){
+      if(!d.ok){$('gerr').hidden=false;$('gerr').textContent='權杖不正確';return}
+      localStorage.setItem(KEY,tok); load();
+    });
+  };
+  $('tok').addEventListener('keydown',function(e){if(e.key==='Enter')$('enter').click()});
+}
+boot();
+</script>
+<script defer src="/consultant/_shell.js"></script>
+</html>
