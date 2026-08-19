@@ -346,7 +346,7 @@ h2{font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;color:#1c1f2
           <span class="job-more">查看職缺詳情 →</span>
         </a>
 
-        <a class="job" href="/jobs/bim-engineer/" data-track="dispatch" data-cat="construction semiconductor">
+        <a class="job" href="/jobs/bim-engineer/" data-track="dispatch" data-cat="construction semiconductor" data-pin="dispatch">
           <div class="job-industry">營建工程・半導體建廠</div>
           <h2 class="job-title">BIM 工程師<span class="card-sub">無經驗可・派遣</span></h2>
           <div class="job-meta">
@@ -424,6 +424,8 @@ h2{font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;color:#1c1f2
     cats.innerHTML = html;
   }
 
+  var ORDER = jobs.slice();   // 原始順序，切回「全部」時要還原
+
   function apply(){
     var shown = 0;
     jobs.forEach(function(j){
@@ -434,6 +436,22 @@ h2{font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;color:#1c1f2
       j.style.display = show ? 'block' : 'none';
       if(show) shown++;
     });
+    // 置頂：卡片上標了 data-pin="<分類>"，選到該分類時就排到最前面。
+    // 用 DOM 順序而不是排序陣列——這一頁的職缺是靜態寫在 HTML 裡的，
+    // 沒有渲染流程可以插手。切回「全部」時要還原，不然置頂會黏著不放。
+    var list = jobs[0] && jobs[0].parentNode;
+    if (list) {
+      if (state.track !== 'all') {
+        jobs.forEach(function (j) {
+          if (j.dataset.pin === state.track && j.style.display !== 'none') {
+            list.insertBefore(j, list.firstChild);
+          }
+        });
+      } else {
+        // 還原成原本的順序（載入時記下來的）
+        ORDER.forEach(function (j) { list.appendChild(j); });
+      }
+    }
     document.getElementById('empty').style.display = shown ? 'none' : 'block';
     countEl.textContent = shown === jobs.length ? ('共 ' + jobs.length + ' 個職缺') : ('符合條件：' + shown + ' / ' + jobs.length + ' 個職缺');
     var filtering = state.track!=='all' || state.cat!=='all' || !!state.q;
