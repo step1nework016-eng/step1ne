@@ -92,6 +92,11 @@ button.go:disabled{opacity:.5;cursor:not-allowed}
         發布後 3 天內每 6 小時自動更新一次，之後就不再抓——觸及幾乎都發生在前 48 小時。
       </div>
       <div class="card"><div id="bystaff" class="mut">載入中…</div></div>
+      <div class="card">
+        <label style="margin-bottom:2px">每一則貼文</label>
+        <div id="stattabs" class="tabs"></div>
+        <div id="postlist" class="mut">載入中…</div>
+      </div>
     </div>
 
     <div id="pane-board" hidden>
@@ -285,12 +290,52 @@ function measured() {
 }
 function nm(r) { return r.account_label || '（未指定帳號）'; }
 
+var STAT_TAB = '全部';
+
+// 逐則明細。彙總表回答「誰的平均比較好」，這裡回答「是哪一則帶起來的」——
+// 平均值會把一則爆量的貼文攤平掉，看不出那則到底寫了什麼。
+function paintPostList() {
+  var rows = measured().slice().sort(function (a, b) {
+    return (b.posted_at || '').localeCompare(a.posted_at || '');
+  });
+  var names = ['全部'];
+  rows.forEach(function (r) { if (names.indexOf(nm(r)) < 0) names.push(nm(r)); });
+  if (names.indexOf(STAT_TAB) < 0) STAT_TAB = '全部';
+  $('stattabs').innerHTML = names.map(function (n) {
+    return '<button type="button" class="tab' + (n === STAT_TAB ? ' on' : '') + '" data-n="'
+      + n.replace(/"/g, '&quot;') + '">' + n + '</button>';
+  }).join('');
+
+  var list = STAT_TAB === '全部' ? rows : rows.filter(function (r) { return nm(r) === STAT_TAB; });
+  $('postlist').innerHTML = list.length ? list.map(function (r) {
+    var rate = r.views ? ((r.clicks || 0) / r.views * 100).toFixed(2) + '%' : '—';
+    return '<div class="qrow" style="align-items:flex-start">'
+      + '<div style="flex:1">'
+      +   '<div class="t">' + (r.title || r.slug) + '</div>'
+      +   '<div class="m">' + nm(r) + '　·　' + r.posted_at.slice(5, 16)
+      +     (r.social_post_url
+              ? '　·　<a href="' + r.social_post_url + '" target="_blank" rel="noopener">查看貼文</a>' : '')
+      +   '</div>'
+      + '</div>'
+      + '<div style="text-align:right;white-space:nowrap;font-size:12.5px">'
+      +   '<div><b style="font-size:15px">' + r.views + '</b> 瀏覽</div>'
+      +   '<div class="m">♥' + (r.likes || 0) + ' 💬' + (r.replies || 0)
+      +     '　🔗' + (r.clicks || 0) + '（' + rate + '）</div>'
+      + '</div></div>';
+  }).join('') : '<div class="mut" style="padding:6px 0">這位顧問還沒有抓到成效的貼文。</div>';
+}
+$('stattabs').addEventListener('click', function (e) {
+  var b = e.target.closest('.tab'); if (!b) return;
+  STAT_TAB = b.dataset.n; paintPostList();
+});
+
 function paintStats() {
   var rows = measured();
   if (!rows.length) {
     $('bystaff').innerHTML = '<div class="mut">還沒有抓到成效的貼文。貼文發布後最多 6 小時內會有數字。</div>';
     $('byhour').innerHTML = $('bystaff').innerHTML;
     $('funnel').innerHTML = $('bystaff').innerHTML;
+    $('postlist').innerHTML = $('bystaff').innerHTML;
     return;
   }
   // ── 依顧問 ──
@@ -343,6 +388,8 @@ function paintStats() {
       + '不要拿來排發文時間。每個時段各累積 5 則以上再看才準。</div>';
 
   // ── 漏斗 ──
+  paintPostList();
+
   var tv = rows.reduce(function (x, r) { return x + (r.views || 0); }, 0);
   var tc = rows.reduce(function (x, r) { return x + (r.clicks || 0); }, 0);
   $('funnel').innerHTML =
