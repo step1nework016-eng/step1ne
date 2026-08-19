@@ -169,6 +169,16 @@ $('tabs').addEventListener('click', function (e) {
   paintQueue();
 });
 
+// 發文成效。數字全部來自 Threads 官方 API（views／likes／replies），
+// 由後端排程在發布後 3 天內每 6 小時抓一次；還沒抓到就先不顯示，
+// 不要用 0 頂替——0 次瀏覽跟「還沒統計」是兩件事，顧問會看錯。
+function metricsHtml(r) {
+  if (!r.posted_at || r.views === null || r.views === undefined) return '';
+  return '<div class="m" style="margin-top:2px">'
+    + '👁 ' + r.views + '　♥ ' + (r.likes || 0) + '　💬 ' + (r.replies || 0)
+    + '</div>';
+}
+
 function paintQueue() {
   paintTabs();
   var rows = CUR_TAB === '全部' ? ALL_QUEUE : ALL_QUEUE.filter(function (r) {
@@ -179,9 +189,12 @@ function paintQueue() {
     return '<div class="qrow">'
       + '<div><div class="t">' + (r.title || r.slug) + '</div>'
       + '<div class="m">' + (r.account_label || '（未指定帳號）')
-      + (r.social_post_at ? '　·　' + r.social_post_at.slice(0, 16) : '')
+      // 已經發出去的就顯示「真正貼出去的時間」，還沒發的才顯示排隊時間——
+      // 這兩個時間常常差好幾小時（草稿產好等顧問審），混在一起看會誤判成效。
+      + (r.posted_at ? '　·　發布 ' + r.posted_at.slice(5, 16)
+                     : (r.social_post_at ? '　·　排入 ' + r.social_post_at.slice(5, 16) : ''))
       + (r.social_post_url ? '　·　<a href="' + r.social_post_url + '" target="_blank" rel="noopener">查看貼文</a>' : '')
-      + '</div></div>'
+      + '</div>' + metricsHtml(r) + '</div>'
       + '<span class="badge ' + b.c + '">' + b.t + '</span></div>';
   }).join('') : '<div class="mut" style="padding:6px 0">目前沒有排入中的職缺。</div>';
 }
