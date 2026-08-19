@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="zh-Hant">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>招募總覽｜顧問後台</title>
+<link rel="icon" href="/assets/favicon.ico">
+<style>
+:root{--gold:#a67c3d;--ink:#23262d;--ink2:#4d5563;--ink3:#8a8d95;--line:#eee7db;--soft:#faf8f3;--bg:#f4f1ea;--ok:#2f8f5b;--bad:#c0392b;--warn:#8a6100}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 -apple-system,"Noto Sans TC",sans-serif}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px}
+header{background:#fff;border-bottom:1px solid var(--line);padding:14px 0}
+header .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header img{height:26px}
+nav{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+nav a{font-size:14px;text-decoration:none;color:var(--ink2);padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:#fff}
+nav a.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.gate{max-width:380px;margin:16vh auto;background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px}
+.gate input{width:100%;font:inherit;padding:11px 13px;border:1px solid var(--line);border-radius:10px;margin:12px 0}
+.gate button{width:100%;font:inherit;font-weight:700;background:var(--gold);color:#fff;border:0;border-radius:999px;padding:12px}
+.mut{color:var(--ink3);font-size:13px}
+main{padding:22px 0 60px}
+.card{background:#fff;border:1px solid var(--line);border-radius:15px;padding:18px 20px;margin-bottom:14px}
+.card h2{font-size:15px;margin:0 0 4px}
+.card .sub{font-size:12.5px;color:var(--ink3);margin-bottom:12px}
+.kpis{display:flex;flex-wrap:wrap;gap:10px}
+.kpi{flex:1 1 120px;background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.kpi .n{font-size:26px;font-weight:800;line-height:1.2;font-variant-numeric:tabular-nums}
+.kpi .l{font-size:12px;color:var(--ink3)}
+.kpi.act{background:#fdecea;border-color:#f3c9c2}
+.kpi.act .n{color:var(--bad)}
+.kpi.warn{background:#fff6e0;border-color:#f0d48a}
+.kpi.warn .n{color:var(--warn)}
+.fn{display:flex;flex-direction:column;gap:6px}
+.fnrow{display:flex;align-items:center;gap:10px}
+.fnrow .lb{width:96px;font-size:13px;flex:none}
+.fnrow .bar{height:26px;background:var(--gold);border-radius:6px;min-width:3px}
+.fnrow .bar.g{background:#d9c7a6}
+.fnrow .vn{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
+.fnrow .pc{font-size:12px;color:var(--ink3)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{border-bottom:1px solid var(--line);padding:7px 6px;text-align:left}
+th{color:var(--ink3);font-weight:600;font-size:12px}
+td.n{text-align:right;font-variant-numeric:tabular-nums}
+.pill{display:inline-block;background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:1px 9px;font-size:11.5px}
+.pill.red{background:#fdecea;border-color:#f3c9c2;color:var(--bad);font-weight:700}
+.empty{background:var(--soft);border-left:3px solid var(--gold);border-radius:0 10px 10px 0;padding:12px 15px;font-size:13px;color:var(--ink2)}
+a.q{color:var(--gold);text-decoration:none}
+</style>
+
+<div id="gate" class="gate" hidden>
+  <b>顧問後台</b>
+  <p class="mut" style="margin:6px 0 0">需要存取權杖。這組權杖等同密碼，不要外傳。</p>
+  <input id="tok" type="password" placeholder="ADMIN_TOKEN" autocomplete="off">
+  <button id="enter" type="button">進入</button>
+  <p id="gerr" class="mut" style="color:#b4552e;margin:12px 0 0" hidden></p>
+</div>
+
+<div id="app" hidden>
+  <header><div class="wrap">
+    <img src="/assets/step1ne-logo.png" alt="Step1ne"><b>招募總覽</b>
+    <nav>
+      <a href="/consultant/overview/" class="on">總覽</a>
+      <a href="/consultant/reports/">初篩報告</a>
+      <a href="/consultant/jobs/">職缺分類</a>
+      <a href="/consultant/expertise/">職缺題庫</a>
+      <a href="/consultant/social-post/">顧問社群</a>
+    </nav>
+  </div></header>
+  <main class="wrap">
+    <div class="card">
+      <h2>現在手上有多少事</h2>
+      <div class="sub">紅色的是等你動手的，點數字看名單</div>
+      <div class="kpis" id="kpis">載入中…</div>
+    </div>
+
+    <div class="card">
+      <h2>漏斗卡在哪</h2>
+      <div class="sub">依顧問實際記錄的進度事件統計，不是系統狀態</div>
+      <div class="fn" id="funnel">載入中…</div>
+    </div>
+
+    <div class="card">
+      <h2>阿財準不準</h2>
+      <div class="sub">這一段是拿去跟客戶證明「AI 沒把人看錯」的依據</div>
+      <div id="acc">載入中…</div>
+    </div>
+
+    <div class="card">
+      <h2>各職缺進度</h2>
+      <div id="byjob">載入中…</div>
+    </div>
+
+    <div class="card" id="todocard" hidden>
+      <h2>等你按判斷的人選</h2>
+      <div class="sub">面談報告已產出，但你還沒告訴系統你同不同意。按一下就能累積上面那個準確率</div>
+      <div id="todo"></div>
+    </div>
+  </main>
+</div>
+
+<script>
+var API='https://step1ne-recruit-api.aiagentg888.workers.dev';
+var KEY='s1ne_admin_tok';
+var tok=localStorage.getItem(KEY)||'';
+var $=function(i){return document.getElementById(i)};
+function api(p,o){o=o||{};o.headers=Object.assign({authorization:'Bearer '+tok},o.headers||{});
+  return fetch(API+p,o).then(function(r){return r.json()})}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+
+function render(d){
+  var n=d.now||{};
+  $('kpis').innerHTML=
+    kpi(n.need_call,'等你按判斷','act')+
+    kpi(n.lang_missing,'外語沒驗到',n.lang_missing?'act':'')+
+    kpi(n.waiting,'等著進面談',n.waiting?'warn':'')+
+    kpi(n.new7,'本週新進','')+
+    kpi(n.cands,'候選人總數','')+
+    kpi(n.jobs_open,'在辦職缺','');
+
+  // 漏斗
+  var order=[['applied','收到應徵'],['screened','初篩完成'],['interviewed','完成面談'],
+             ['consultant_review','顧問覆核'],['submitted','送客戶']];
+  var map={}; (d.funnel||[]).forEach(function(f){map[f.stage]=f.n});
+  var top=Math.max.apply(null,order.map(function(o){return map[o[0]]||0}).concat([1]));
+  $('funnel').innerHTML=order.map(function(o,i){
+    var v=map[o[0]]||0, prev=i?(map[order[i-1][0]]||0):0;
+    var pc=i&&prev?Math.round(v/prev*100)+'% 通過':'';
+    return '<div class="fnrow"><span class="lb">'+o[1]+'</span>'
+      +'<span class="bar'+(v?'':' g')+'" style="width:'+Math.max(3,v/top*300)+'px"></span>'
+      +'<span class="vn">'+v+'</span><span class="pc">'+pc+'</span></div>';
+  }).join('')
+  +'<div class="mut" style="margin-top:8px">⚠️ 這是顧問手動記錄的進度事件。沒記的階段不會出現在這裡——'
+  +'數字比實際低通常代表沒記，不是真的卡住。</div>';
+
+  // 準確率
+  var vs=d.verdicts||[];
+  if(!vs.length){
+    $('acc').innerHTML='<div class="empty">還沒有資料。'
+      +'面談報告推到 Telegram 時按「✅ 我也會推 / ✋ 我不推 / 🤔 還要再看」，'
+      +'累積十次左右就會出現「阿財判值得轉的人，你實際推了幾成」——'
+      +'那是對外賣 AI 招募時客戶唯一會信的數字。</div>';
+  }else{
+    var tot=vs.reduce(function(a,b){return a+b.n},0);
+    var yes=(vs.find(function(x){return x.k==='會推'})||{n:0}).n;
+    $('acc').innerHTML='<div class="kpis">'
+      +kpi(Math.round(yes/tot*100)+'%','阿財判值得轉、你實際會推','')
+      +kpi(tot,'已回填的判斷','')+'</div>'
+      +'<div class="mut" style="margin-top:8px">'
+      +vs.map(function(x){return esc(x.k)+' '+x.n+' 位'}).join('　·　')+'</div>';
+  }
+
+  // 各職缺
+  $('byjob').innerHTML='<table><tr><th>職缺</th><th class="n">應徵</th><th class="n">已面談</th><th class="n">待判斷</th></tr>'
+    +(d.byJob||[]).map(function(j){
+      return '<tr><td>'+esc(j.title||j.job_slug)+'</td><td class="n">'+j.n+'</td>'
+        +'<td class="n">'+j.done+'</td><td class="n">'
+        +(j.need_call?'<span class="pill red">'+j.need_call+'</span>':'—')+'</td></tr>';
+    }).join('')+'</table>';
+
+  // 待辦名單
+  if((d.todo||[]).length){
+    $('todocard').hidden=false;
+    $('todo').innerHTML='<table><tr><th>人選</th><th>職缺</th><th>面談結束</th></tr>'
+      +d.todo.map(function(t){
+        return '<tr><td>'+esc(t.name)+'</td><td>'+esc(t.title||t.job_slug)+'</td>'
+          +'<td class="mut">'+esc((t.interview_ended_at||'').slice(5,16))+'</td></tr>';
+      }).join('')+'</table>';
+  }
+}
+function kpi(v,l,cls){return '<div class="kpi '+(cls||'')+'"><div class="n">'+v+'</div><div class="l">'+l+'</div></div>'}
+
+function load(){
+  $('gate').hidden=true;$('app').hidden=false;
+  api('/admin/overview').then(function(d){
+    if(!d.ok){$('kpis').innerHTML='<div class="mut">讀取失敗</div>';return}
+    render(d);
+  }).catch(function(){$('kpis').innerHTML='<div class="mut">連線失敗</div>'});
+}
+function boot(){
+  if(tok) return load();
+  $('gate').hidden=false;
+  $('enter').onclick=function(){
+    tok=$('tok').value.trim(); if(!tok) return;
+    api('/admin/overview').then(function(d){
+      if(!d.ok){$('gerr').hidden=false;$('gerr').textContent='權杖不正確';return}
+      localStorage.setItem(KEY,tok);load();
+    });
+  };
+  $('tok').addEventListener('keydown',function(e){if(e.key==='Enter')$('enter').click()});
+}
+boot();
+</script>
+<script defer src="/consultant/_shell.js"></script>
+</html>
