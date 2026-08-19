@@ -1230,6 +1230,12 @@ $('c_go').addEventListener('click', async function () {
       $('closeDlg').close();
       alert(notify ? '已標記結案不續，LINE 通知已推播（如果他有綁定的話）。' : '已標記內部結案，候選人不會收到任何通知。');
       load();
+    } else if (d.error === 'law5_blocked') {
+      // 就服法紅線被擋。這裡要把後端的完整說明整段顯示出來——只寫「失敗」的話，
+      // 顧問不知道是哪個字有問題，會反覆試到放棄或改成更含糊的說法。
+      $('c_err').hidden = false;
+      $('c_err').style.whiteSpace = 'pre-wrap';
+      $('c_err').textContent = '🚨 這則訊息不能送出\n\n' + (d.message || '');
     } else { $('c_err').hidden = false; $('c_err').textContent = '失敗：' + (d.error || '伺服器沒說原因'); }
   } catch (e) {
     $('c_err').hidden = false; $('c_err').textContent = '失敗：' + (e && e.message ? e.message : '連線失敗');
