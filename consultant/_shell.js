@@ -28,6 +28,9 @@
   window.__s1shellLoaded = true;
 
   var PAGES = [
+    // 2026-08-19 加：總覽放第一個——顧問打開後台第一眼要看到的是
+    // 「等你動手的有幾件」，不是職缺列表。
+    { href: '/consultant/overview/',       label: '招募總覽', icon: 'chart',  primary: true  },
     { href: '/consultant/jobs/',           label: '職缺分類', icon: 'funnel', primary: true  },
     { href: '/consultant/reports/',        label: '初篩報告', icon: 'doc',    primary: true  },
     { href: '/consultant/clients/',        label: '客戶名單', icon: 'people', primary: true  },
@@ -38,7 +41,10 @@
     { href: '/consultant/checkups/',       label: '阿福健檢', icon: 'pulse',  primary: false },
     { href: '/consultant/line-bindings/',  label: 'LINE 進度綁定', icon: 'clip', primary: false },
     { href: '/consultant/token-usage/',    label: 'Token 用量', icon: 'chart', primary: false },
-    { href: '/consultant/social-post/',    label: '一鍵發文', icon: 'send',   primary: false }
+    { href: '/consultant/expertise/',      label: '職缺題庫', icon: 'clip',   primary: false },
+    // 頁面 2026-08-19 已改名「顧問社群」（裡面分三個分頁：一鍵發文／發文數據／
+    // 成效儀表板），選單一起改，不然點進去標題對不上。
+    { href: '/consultant/social-post/',    label: '顧問社群', icon: 'send',   primary: false }
   ];
 
   var ICONS = {
