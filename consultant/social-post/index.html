@@ -3,7 +3,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>一鍵發文｜顧問後台</title>
+<title>顧問社群｜顧問後台</title>
 <link rel="icon" href="/assets/favicon.ico">
 <style>
 :root{--gold:#a67c3d;--ink:#23262d;--ink2:#4d5563;--ink3:#8a8d95;--line:#eee7db;--soft:#faf8f3;--bg:#f4f1ea;--ok:#2f8f5b;--bad:#c0392b}
@@ -55,10 +55,17 @@ button.go:disabled{opacity:.5;cursor:not-allowed}
 
 <div id="app" hidden>
   <header><div class="wrap">
-    <img src="/assets/step1ne-logo.png" alt="Step1ne"><b>一鍵發文</b>
-    <nav><a href="/consultant/reports/">初篩報告</a><a href="/consultant/jobs/">職缺分類</a><a href="/consultant/social-post/" class="on">一鍵發文</a></nav>
+    <img src="/assets/step1ne-logo.png" alt="Step1ne"><b>顧問社群</b>
+    <nav><a href="/consultant/reports/">初篩報告</a><a href="/consultant/jobs/">職缺分類</a><a href="/consultant/social-post/" class="on">顧問社群</a></nav>
   </div></header>
   <main class="wrap">
+    <div id="maintabs" class="tabs" style="margin-bottom:16px">
+      <button type="button" class="tab on" data-pane="pane-post">一鍵發文</button>
+      <button type="button" class="tab" data-pane="pane-stats">發文數據</button>
+      <button type="button" class="tab" data-pane="pane-board">成效儀表板</button>
+    </div>
+
+    <div id="pane-post">
     <div class="note">
       選職缺、選帳號，按下去會排入產稿——本機的腳本每 2 分鐘掃一次，抓到就會用 claude
       產一則貼文草稿，推到 Telegram「社群發文審核」給你看，<b>你在那邊按確認發布才會真的貼出去</b>，
@@ -76,6 +83,30 @@ button.go:disabled{opacity:.5;cursor:not-allowed}
       <label style="margin-bottom:2px">排隊列表<span class="mut" style="font-weight:400"> ・每 8 秒自動更新</span></label>
       <div id="tabs" class="tabs"></div>
       <div id="queue" class="mut">載入中…</div>
+    </div>
+    </div><!-- /pane-post -->
+
+    <div id="pane-stats" hidden>
+      <div class="note">
+        每位顧問的發文成效。數字全部來自 Threads 官方 API（瀏覽／讚／留言），
+        發布後 3 天內每 6 小時自動更新一次，之後就不再抓——觸及幾乎都發生在前 48 小時。
+      </div>
+      <div class="card"><div id="bystaff" class="mut">載入中…</div></div>
+    </div>
+
+    <div id="pane-board" hidden>
+      <div class="note">
+        這一頁要回答的是「<b>哪一種發文真的帶來人</b>」——不是誰的瀏覽數高，
+        而是誰帶進了 LINE 好友與主動應徵。
+      </div>
+      <div class="card">
+        <label style="margin-bottom:6px">發文時段 vs 觸及</label>
+        <div id="byhour" class="mut">載入中…</div>
+      </div>
+      <div class="card">
+        <label style="margin-bottom:6px">從發文走到應徵</label>
+        <div id="funnel" class="mut">載入中…</div>
+      </div>
     </div>
   </main>
 </div>
@@ -199,11 +230,101 @@ function paintQueue() {
   }).join('') : '<div class="mut" style="padding:6px 0">目前沒有排入中的職缺。</div>';
 }
 
+// ── 主分頁切換 ──
+$('maintabs').addEventListener('click', function (e) {
+  var b = e.target.closest('.tab'); if (!b) return;
+  [].forEach.call($('maintabs').children, function (x) { x.classList.toggle('on', x === b); });
+  ['pane-post', 'pane-stats', 'pane-board'].forEach(function (id) {
+    $(id).hidden = (id !== b.dataset.pane);
+  });
+  if (b.dataset.pane !== 'pane-post') paintStats();
+});
+
+// 只算已經發布、而且成效抓回來了的貼文。還沒抓到的不能當 0 —— 那會把
+// 剛發的貼文算成「沒人看」，平均值整個被拉低。
+function measured() {
+  return ALL_QUEUE.filter(function (r) {
+    return r.posted_at && r.views !== null && r.views !== undefined;
+  });
+}
+function nm(r) { return r.account_label || '（未指定帳號）'; }
+
+function paintStats() {
+  var rows = measured();
+  if (!rows.length) {
+    $('bystaff').innerHTML = '<div class="mut">還沒有抓到成效的貼文。貼文發布後最多 6 小時內會有數字。</div>';
+    $('byhour').innerHTML = $('bystaff').innerHTML;
+    $('funnel').innerHTML = $('bystaff').innerHTML;
+    return;
+  }
+  // ── 依顧問 ──
+  var by = {};
+  rows.forEach(function (r) {
+    var k = nm(r);
+    by[k] = by[k] || { n: 0, v: 0, l: 0, c: 0, best: 0 };
+    by[k].n++; by[k].v += r.views || 0; by[k].l += r.likes || 0;
+    by[k].c += r.replies || 0; by[k].best = Math.max(by[k].best, r.views || 0);
+  });
+  var names = Object.keys(by).sort(function (a, b) { return by[b].v / by[b].n - by[a].v / by[a].n; });
+  $('bystaff').innerHTML =
+    '<table style="width:100%;border-collapse:collapse;font-size:13px">'
+    + '<tr style="text-align:left;color:var(--ink2)"><th style="padding:6px 4px">顧問</th>'
+    + '<th style="text-align:right">則數</th><th style="text-align:right">平均瀏覽</th>'
+    + '<th style="text-align:right">最高</th><th style="text-align:right">互動</th></tr>'
+    + names.map(function (n) {
+        var d = by[n];
+        return '<tr style="border-top:1px solid var(--line)">'
+          + '<td style="padding:6px 4px">' + n + '</td>'
+          + '<td style="text-align:right">' + d.n + '</td>'
+          + '<td style="text-align:right;font-weight:700">' + Math.round(d.v / d.n) + '</td>'
+          + '<td style="text-align:right">' + d.best + '</td>'
+          + '<td style="text-align:right">♥' + d.l + ' 💬' + d.c + '</td></tr>';
+      }).join('')
+    + '</table>'
+    + '<div class="mut" style="margin-top:8px">依平均瀏覽排序。則數少於 3 的先不要下結論——'
+      + '同一個職缺換不同帳號發，觸及差距可能來自帳號本身的追蹤數，不是貼文寫得好不好。</div>';
+
+  // ── 依時段 ──
+  var slot = { '06-11 早上': [], '11-14 中午': [], '14-18 下午': [], '18-22 晚上': [], '22-06 深夜': [] };
+  rows.forEach(function (r) {
+    var h = parseInt(r.posted_at.slice(11, 13), 10);
+    var k = h < 6 ? '22-06 深夜' : h < 11 ? '06-11 早上' : h < 14 ? '11-14 中午'
+          : h < 18 ? '14-18 下午' : h < 22 ? '18-22 晚上' : '22-06 深夜';
+    slot[k].push(r.views || 0);
+  });
+  $('byhour').innerHTML = Object.keys(slot).map(function (k) {
+      var a = slot[k];
+      if (!a.length) return '<div style="padding:4px 0;color:var(--ink2)">' + k + '　—　尚無資料</div>';
+      var avg = Math.round(a.reduce(function (x, y) { return x + y; }, 0) / a.length);
+      return '<div style="padding:4px 0">' + k + '　<b>' + avg + '</b> 次平均瀏覽'
+        + '<span class="mut">（' + a.length + ' 則）</span></div>';
+    }).join('')
+    + '<div class="mut" style="margin-top:8px">⚠️ 目前樣本還太少，這張表先當「開始累積了」看，'
+      + '不要拿來排發文時間。每個時段各累積 5 則以上再看才準。</div>';
+
+  // ── 漏斗 ──
+  var tv = rows.reduce(function (x, r) { return x + (r.views || 0); }, 0);
+  $('funnel').innerHTML =
+    '<div style="font-size:13px;line-height:2">'
+    + '已發布貼文　<b>' + rows.length + '</b> 則<br>'
+    + '總觸及　<b>' + tv + '</b> 次<br>'
+    + '加入 LINE　<span class="mut">尚無法歸因</span><br>'
+    + '主動應徵　<span class="mut">尚無法歸因</span>'
+    + '</div>'
+    + '<div class="mut" style="margin-top:10px">'
+    + '⚠️ 後面兩項現在算不出來：貼文結尾的 LINE 連結雖然每位顧問各不相同，'
+    + '但候選人加入之後，系統收到的通知裡不帶「他是從哪個連結進來的」，'
+    + '所以只知道有人加、不知道是誰帶進來的。<br>'
+    + '要補這一段，作法是把貼文結尾改成我們自己的轉址網址（記錄點擊後再轉去 LINE），'
+    + '那樣點擊與後續應徵就能歸到人。這件事還沒做。</div>';
+}
+
 function loadQueue() {
   api('/admin/social-post-queue').then(function (d) {
     if (!d.ok) return;
     ALL_QUEUE = d.queue || [];
     paintQueue();
+    if (!$('pane-stats').hidden || !$('pane-board').hidden) paintStats();
   }).catch(function () {});
 }
 
