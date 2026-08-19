@@ -50,6 +50,16 @@ details[open] summary::before{content:"▾"}
 .srcs{margin-top:14px;font-size:11.5px;color:var(--ink3);word-break:break-all;border-top:1px solid var(--line);padding-top:10px}
 .srcs a{color:var(--gold)}
 code{background:var(--soft);padding:2px 6px;border-radius:5px;font-size:12.5px}
+.btn{font:inherit;font-size:13px;font-weight:600;border-radius:999px;padding:6px 14px;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink2)}
+.btn.p{background:var(--gold);color:#fff;border-color:var(--gold)}
+.btn.d{color:var(--bad);border-color:#f0d4cf}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0 4px}
+.ed{border-top:1px solid var(--line);padding:12px 0}
+.ed label{font-size:12px;color:var(--ink3);margin:8px 0 3px;font-weight:600}
+.ed textarea,.ed input,.ed select{width:100%;font:inherit;font-size:13.5px;padding:8px 10px;
+ border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);resize:vertical}
+.ed textarea{min-height:44px}
+.edited{background:#fff6e0;color:#8a6100;border:1px solid #f0d48a;border-radius:999px;padding:1px 9px;font-size:11.5px;font-weight:700}
 </style>
 
 <div id="gate" class="gate" hidden>
@@ -104,6 +114,7 @@ function render(d){
   var banks=d.banks||[], miss=d.missing||[];
   var tq=0,ts=0,hot=0;
   banks.forEach(function(b){
+    BANKS[b.job_slug]=b;
     b._q=JSON.parse(b.questions_json||'[]');
     b._t=JSON.parse(b.topics_json||'[]');
     b._s=JSON.parse(b.sources_json||'[]');
@@ -130,8 +141,13 @@ function render(d){
       +'<span class="dm">'+esc(b.domain||'')+'</span>'
       +'<span class="cnt">'+b._q.length+' 題 · '+b._s.length+' 個來源</span>'
       +(b.cands?'<span class="pill hot">'+b.cands+' 位人選</span>':'')
+      +(b.edited_by?'<span class="edited">'+esc(b.edited_by)+' 改過</span>':'')
       +'</summary><div class="body">'
       +'<div>'+b._t.map(function(t){return '<span class="pill">'+esc(t.name||'')+'</span>'}).join('')+'</div>'
+      +'<div class="bar"><button class="btn p" onclick="edit(\''+esc(b.job_slug)+'\')">✏️ 編輯這份題庫</button>'
+      +(b.can_restore?'<button class="btn d" onclick="restore(\''+esc(b.job_slug)+'\')">↺ 還原成機器原本產的版本</button>':'')
+      +'</div>'
+      +'<div id="ed-'+esc(b.job_slug)+'"></div>'
       +qs
       +'<div class="srcs"><b>實際查過的來源</b><br>'
       + b._s.map(function(u){return '<a href="'+esc(u)+'" target="_blank" rel="noopener">'+esc(u)+'</a>'}).join('<br>')
@@ -144,6 +160,70 @@ function render(d){
     $('missinglist').innerHTML=miss.map(function(m){
       return '<span class="pill">'+esc(m.title||m.slug)+'</span>'}).join('');
   }
+}
+
+var BANKS={};
+
+// 編輯介面。刻意做成「整份一起改、一次存檔」而不是每題各自存——
+// 顧問通常是看完整份才知道要調哪幾題，逐題存會一直被打斷。
+function edit(slug){
+  var b=BANKS[slug]; if(!b) return;
+  var box=$('ed-'+slug);
+  if(box.dataset.on==='1'){ box.innerHTML=''; box.dataset.on=''; return; }
+  box.dataset.on='1';
+  box.innerHTML=b._q.map(function(q,i){return qform(q,i)}).join('')
+    +'<div class="bar"><button class="btn" onclick="addq(\''+slug+'\')">＋ 新增一題</button>'
+    +'<button class="btn p" onclick="save(\''+slug+'\')">儲存</button>'
+    +'<button class="btn" onclick="edit(\''+slug+'\')">取消</button>'
+    +'<span class="mut">改完會通知 Telegram，阿財下一場面談就用新的</span></div>';
+}
+function qform(q,i){
+  var K=['經驗','情境','技術','外語'];
+  return '<div class="ed" data-q="1">'
+   +'<div class="bar" style="margin:0 0 4px"><b style="font-size:13px">第 '+(i+1)+' 題</b>'
+   +'<button class="btn d" style="margin-left:auto" onclick="this.closest(\'[data-q]\').remove()">刪除</button></div>'
+   +'<label>題目（阿財會用自己的話問，這裡寫重點就好）</label><textarea data-f="q">'+esc(q.q||'')+'</textarea>'
+   +'<label>考點</label><input data-f="topic" value="'+esc(q.topic||'')+'">'
+   +'<label>想確認什麼</label><input data-f="why" value="'+esc(q.why||'')+'">'
+   +'<label>類型</label><select data-f="kind">'
+   + K.map(function(k){return '<option'+(q.kind===k?' selected':'')+'>'+k+'</option>'}).join('')+'</select>'
+   +'<label>真做過的人會提到（一行一個）</label><textarea data-f="good">'+esc((q.good_signs||[]).join('\n'))+'</textarea>'
+   +'<label>含糊的訊號（一行一個）</label><textarea data-f="red">'+esc((q.red_flags||[]).join('\n'))+'</textarea>'
+   +'<label>含糊就追問</label><textarea data-f="followup">'+esc(q.followup||'')+'</textarea>'
+   +'</div>';
+}
+function addq(slug){
+  var box=$('ed-'+slug);
+  var n=box.querySelectorAll('[data-q]').length;
+  var d=document.createElement('div');
+  d.innerHTML=qform({kind:'經驗'},n);
+  box.insertBefore(d.firstChild, box.querySelector('.bar:last-of-type'));
+}
+function save(slug){
+  var box=$('ed-'+slug);
+  var qs=[].slice.call(box.querySelectorAll('[data-q]')).map(function(el){
+    var g=function(f){var x=el.querySelector('[data-f="'+f+'"]');return x?x.value.trim():''};
+    return {q:g('q'),topic:g('topic'),why:g('why'),kind:g('kind'),followup:g('followup'),
+      good_signs:g('good').split('\n').map(function(x){return x.trim()}).filter(Boolean),
+      red_flags:g('red').split('\n').map(function(x){return x.trim()}).filter(Boolean)};
+  }).filter(function(q){return q.q});
+  if(!qs.length){alert('至少要留一題');return}
+  var who=localStorage.getItem('s1ne_editor')||'';
+  if(!who){who=(prompt('你是誰？（會記在修改紀錄裡）')||'').trim(); if(who)localStorage.setItem('s1ne_editor',who)}
+  api('/admin/expertise/save',{method:'POST',headers:{'content-type':'application/json'},
+    body:JSON.stringify({job_slug:slug,questions:qs,editor:who})}).then(function(d){
+      if(!d.ok){alert('儲存失敗：'+(d.error||''));return}
+      alert('已儲存，'+d.n+' 題');
+      load();
+    }).catch(function(){alert('連線失敗')});
+}
+function restore(slug){
+  if(!confirm('要把這份題庫還原成機器原本產的版本嗎？你改的內容會消失。')) return;
+  api('/admin/expertise/restore',{method:'POST',headers:{'content-type':'application/json'},
+    body:JSON.stringify({job_slug:slug})}).then(function(d){
+      if(!d.ok){alert('還原失敗：'+(d.error||''));return}
+      load();
+    });
 }
 
 function load(){
