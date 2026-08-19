@@ -31,6 +31,7 @@
     // 2026-08-19 加：總覽放第一個——顧問打開後台第一眼要看到的是
     // 「等你動手的有幾件」，不是職缺列表。
     { href: '/consultant/overview/',       label: '招募總覽', icon: 'chart',  primary: true  },
+    { href: '/consultant/sourced/',        label: '人才池',   icon: 'people', primary: true  },
     { href: '/consultant/jobs/',           label: '職缺分類', icon: 'funnel', primary: true  },
     { href: '/consultant/reports/',        label: '初篩報告', icon: 'doc',    primary: true  },
     { href: '/consultant/clients/',        label: '客戶名單', icon: 'people', primary: true  },

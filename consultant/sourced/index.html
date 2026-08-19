@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="zh-Hant">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>人才池｜顧問後台</title>
+<link rel="icon" href="/assets/favicon.ico">
+<style>
+:root{--gold:#a67c3d;--ink:#23262d;--ink2:#4d5563;--ink3:#8a8d95;--line:#eee7db;--soft:#faf8f3;--bg:#f4f1ea;--ok:#2f8f5b;--bad:#c0392b;--warn:#8a6100}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 -apple-system,"Noto Sans TC",sans-serif}
+.wrap{max-width:820px;margin:0 auto;padding:0 16px}
+header{background:#fff;border-bottom:1px solid var(--line);padding:14px 0}
+header .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header img{height:26px}
+nav{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+nav a{font-size:14px;text-decoration:none;color:var(--ink2);padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:#fff}
+nav a.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.gate{max-width:380px;margin:16vh auto;background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px}
+.gate input{width:100%;font:inherit;padding:11px 13px;border:1px solid var(--line);border-radius:10px;margin:12px 0}
+.gate button{width:100%;font:inherit;font-weight:700;background:var(--gold);color:#fff;border:0;border-radius:999px;padding:12px}
+.mut{color:var(--ink3);font-size:13px}
+main{padding:22px 0 60px}
+.note{background:var(--soft);border-left:3px solid var(--gold);border-radius:0 10px 10px 0;padding:12px 15px;font-size:13px;color:var(--ink2);margin-bottom:14px;line-height:1.7}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.tab{font:inherit;font-size:13px;font-weight:600;color:var(--ink2);background:#fff;border:1px solid var(--line);padding:6px 14px;border-radius:999px;cursor:pointer}
+.tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.c{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:10px}
+.c .top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.c .nm{font-weight:700;font-size:15px}
+.c .hl{font-size:13px;color:var(--ink2)}
+.c .meta{font-size:12.5px;color:var(--ink3);margin-top:2px}
+.c .sk{font-size:12px;color:var(--ink2);margin-top:6px}
+.sc{margin-left:auto;font-size:12px;font-weight:700;background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:1px 10px}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.btn{font:inherit;font-size:13px;font-weight:600;border-radius:999px;padding:6px 14px;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink2)}
+.btn.p{background:var(--gold);color:#fff;border-color:var(--gold)}
+.btn.d{color:var(--bad);border-color:#f0d4cf}
+a.lk{color:var(--gold);text-decoration:none;font-size:12.5px}
+.empty{background:#fff;border:1px dashed var(--line);border-radius:14px;padding:26px;text-align:center;color:var(--ink3)}
+</style>
+
+<div id="gate" class="gate" hidden>
+  <b>顧問後台</b>
+  <p class="mut" style="margin:6px 0 0">需要存取權杖。這組權杖等同密碼，不要外傳。</p>
+  <input id="tok" type="password" placeholder="ADMIN_TOKEN" autocomplete="off">
+  <button id="enter" type="button">進入</button>
+  <p id="gerr" class="mut" style="color:#b4552e;margin:12px 0 0" hidden></p>
+</div>
+
+<div id="app" hidden>
+  <header><div class="wrap">
+    <img src="/assets/step1ne-logo.png" alt="Step1ne"><b>人才池</b>
+    <nav>
+      <a href="/consultant/overview/">總覽</a>
+      <a href="/consultant/sourced/" class="on">人才池</a>
+      <a href="/consultant/reports/">初篩報告</a>
+      <a href="/consultant/jobs/">職缺分類</a>
+    </nav>
+  </div></header>
+  <main class="wrap">
+    <div class="note">
+      這裡是<b>主動開發爬回來的人</b>，不是應徵者——他們沒有投履歷、也還沒同意個資利用，
+      所以跟正式應徵者分開放，不會混進漏斗統計。<br>
+      流程是：<b>挑出值得談的 → 顧問接觸 → 對方有意願 → 才轉成應徵者發面談連結</b>。
+      ⚠️ 沒有回覆意願之前，不要把人轉成應徵者。
+    </div>
+    <div class="tabs" id="tabs"></div>
+    <div id="list" class="mut">載入中…</div>
+  </main>
+</div>
+
+<script>
+var API='https://step1ne-recruit-api.aiagentg888.workers.dev';
+var KEY='s1ne_admin_tok';
+var tok=localStorage.getItem(KEY)||'';
+var $=function(i){return document.getElementById(i)};
+var ST='new';
+function api(p,o){o=o||{};o.headers=Object.assign({authorization:'Bearer '+tok},o.headers||{});
+  return fetch(API+p,o).then(function(r){return r.json()})}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+var LB={new:'待挑選',shortlisted:'已挑出',contacted:'已接觸',replied:'有回覆',
+        rejected:'不合適',converted:'已轉應徵者',all:'全部'};
+
+function render(d){
+  var cnt={}; (d.counts||[]).forEach(function(c){cnt[c.status]=c.n});
+  $('tabs').innerHTML=['new','shortlisted','contacted','replied','converted','rejected','all']
+    .map(function(k){
+      var n=k==='all'?Object.keys(cnt).reduce(function(a,b){return a+cnt[b]},0):(cnt[k]||0);
+      return '<button class="tab'+(k===ST?' on':'')+'" data-s="'+k+'">'+LB[k]+' '+n+'</button>';
+    }).join('');
+  var rows=d.rows||[];
+  if(!rows.length){$('list').innerHTML='<div class="empty">這一區目前沒有人。<br>'
+    +'<span class="mut">爬蟲跑完會自動把人送進「待挑選」。</span></div>';return}
+  $('list').innerHTML=rows.map(function(r){
+    var links=[];
+    if(r.linkedin_url)links.push('<a class="lk" href="'+esc(r.linkedin_url)+'" target="_blank" rel="noopener">LinkedIn</a>');
+    if(r.github_url)links.push('<a class="lk" href="'+esc(r.github_url)+'" target="_blank" rel="noopener">GitHub</a>');
+    if(r.source_url&&!links.length)links.push('<a class="lk" href="'+esc(r.source_url)+'" target="_blank" rel="noopener">來源</a>');
+    return '<div class="c"><div class="top"><span class="nm">'+esc(r.name||'（無姓名）')+'</span>'
+      +'<span class="hl">'+esc(r.headline||'')+'</span>'
+      +(r.score!=null?'<span class="sc">'+esc(r.grade||'')+' '+r.score+'</span>':'')+'</div>'
+      +'<div class="meta">'+[esc(r.company),esc(r.location),esc(r.source)].filter(Boolean).join('　·　')
+      +(links.length?'　·　'+links.join('　'):'')+'</div>'
+      +(r.skills?'<div class="sk">'+esc(r.skills)+'</div>':'')
+      +'<div class="acts">'
+      +(r.status!=='shortlisted'?'<button class="btn p" onclick="mv(\''+r.id+'\',\'shortlisted\')">挑出來</button>':'')
+      +(r.status!=='contacted'?'<button class="btn" onclick="mv(\''+r.id+'\',\'contacted\')">已接觸</button>':'')
+      +(r.status!=='replied'?'<button class="btn" onclick="mv(\''+r.id+'\',\'replied\')">他有回覆</button>':'')
+      +'<button class="btn d" onclick="mv(\''+r.id+'\',\'rejected\')">不合適</button>'
+      +'</div></div>';
+  }).join('');
+}
+function mv(id,st){
+  api('/admin/sourced/status',{method:'POST',headers:{'content-type':'application/json'},
+    body:JSON.stringify({id:id,status:st})}).then(function(d){
+      if(!d.ok){alert('更新失敗');return} load();
+    });
+}
+$('tabs').addEventListener('click',function(e){
+  var b=e.target.closest('.tab'); if(!b)return; ST=b.dataset.s; load();
+});
+function load(){
+  $('gate').hidden=true;$('app').hidden=false;
+  api('/admin/sourced?status='+ST).then(function(d){
+    if(!d.ok){$('list').innerHTML='<div class="mut">讀取失敗</div>';return} render(d);
+  }).catch(function(){$('list').innerHTML='<div class="mut">連線失敗</div>'});
+}
+function boot(){
+  if(tok)return load();
+  $('gate').hidden=false;
+  $('enter').onclick=function(){
+    tok=$('tok').value.trim(); if(!tok)return;
+    api('/admin/sourced').then(function(d){
+      if(!d.ok){$('gerr').hidden=false;$('gerr').textContent='權杖不正確';return}
+      localStorage.setItem(KEY,tok);load();
+    });
+  };
+  $('tok').addEventListener('keydown',function(e){if(e.key==='Enter')$('enter').click()});
+}
+boot();
+</script>
+<script defer src="/consultant/_shell.js"></script>
+</html>
