@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="zh-Hant">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>幫你配職缺｜Step1ne 全民獵才</title>
+<meta name="description" content="說說你的經歷與想找的工作，我們從實際在招的職缺裡告訴你哪個適合、為什麼適合、還缺什麼。">
+<link rel="icon" href="/assets/favicon.ico">
+<style>
+:root{--gold:#a67c3d;--ink:#23262d;--ink2:#4d5563;--ink3:#8a8d95;--line:#eee7db;--soft:#faf8f3;--bg:#f4f1ea;--ok:#2f8f5b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.75 -apple-system,"Noto Sans TC",sans-serif}
+.wrap{max-width:640px;margin:0 auto;padding:0 18px}
+header{background:#fff;border-bottom:1px solid var(--line);padding:14px 0}
+header .wrap{display:flex;align-items:center;gap:10px}
+header img{height:26px}
+header a{margin-left:auto;font-size:14px;color:var(--ink2);text-decoration:none}
+main{padding:30px 0 70px}
+h1{font-size:25px;line-height:1.45;margin:0 0 10px}
+.lead{color:var(--ink2);font-size:15px;margin:0 0 22px}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px}
+textarea{width:100%;font:inherit;font-size:15.5px;line-height:1.7;padding:13px 15px;border:1px solid var(--line);
+ border-radius:12px;background:#fff;color:var(--ink);min-height:150px;resize:vertical}
+textarea:focus{outline:2px solid rgba(166,124,61,.45);outline-offset:1px;border-color:var(--gold)}
+.hint{font-size:13px;color:var(--ink3);margin:8px 0 14px}
+button.go{width:100%;font:inherit;font-weight:700;font-size:16px;background:var(--gold);color:#fff;border:0;
+ border-radius:999px;padding:14px;cursor:pointer;min-height:52px}
+button.go:disabled{opacity:.5;cursor:not-allowed}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0 0}
+.chip{font:inherit;font-size:13px;color:var(--ink2);background:var(--soft);border:1px solid var(--line);
+ padding:6px 12px;border-radius:999px;cursor:pointer}
+#out{margin-top:22px}
+.status{background:#fff;border:1px dashed var(--line);border-radius:14px;padding:18px;text-align:center;color:var(--ink2);font-size:14.5px}
+.dots::after{content:'';animation:d 1.4s infinite}
+@keyframes d{0%{content:''}33%{content:'・'}66%{content:'・・'}100%{content:'・・・'}}
+.job{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin-bottom:12px}
+.job h3{margin:0 0 4px;font-size:17px}
+.job .meta{font-size:13px;color:var(--ink3);margin-bottom:10px}
+.job .fit{font-size:14.5px;margin:0 0 8px}
+.job .gap{font-size:13.5px;color:#8a6100;background:#fff6e0;border-radius:8px;padding:8px 11px;margin:0 0 12px}
+.job a.apply{display:inline-block;background:var(--ink);color:#fff;text-decoration:none;font-size:14px;
+ font-weight:600;padding:9px 18px;border-radius:999px}
+.note{background:var(--soft);border-left:3px solid var(--gold);border-radius:0 12px 12px 0;padding:12px 15px;
+ font-size:14px;color:var(--ink2);margin-bottom:14px}
+.up{font-size:12.5px;color:var(--ok);margin-bottom:10px}
+.contact{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin-top:14px}
+.contact input{width:100%;font:inherit;padding:11px 13px;border:1px solid var(--line);border-radius:10px;margin:10px 0}
+.contact button{width:100%;font:inherit;font-weight:700;background:var(--ink);color:#fff;border:0;border-radius:999px;padding:12px;cursor:pointer}
+footer{border-top:1px solid var(--line);padding:18px 0;font-size:12.5px;color:var(--ink3);background:#fff}
+</style>
+
+<header><div class="wrap">
+  <img src="/assets/step1ne-logo.png" alt="Step1ne">
+  <a href="/jobs/">看所有職缺 →</a>
+</div></header>
+
+<main class="wrap">
+  <h1>不確定哪個職缺適合你？<br>說說你的情況，我們幫你看。</h1>
+  <p class="lead">
+    我們手上正在招的職缺，不是每個都會出現在你搜尋的關鍵字裡。
+    講一下你的經歷跟想找什麼樣的工作，顧問這邊會直接告訴你哪個對得上、還缺什麼。
+  </p>
+
+  <div class="card">
+    <textarea id="t" placeholder="例如：我做過三年 BIM，會 Revit 跟 AutoCAD，想找苗栗附近的工作，月薪希望五萬以上。&#10;&#10;或者：我在餐飲業做了五年，帶過六個人的班，想轉內勤但不知道能做什麼。"></textarea>
+    <div class="hint">說得越具體，配得越準。可以直接貼履歷的一段。</div>
+    <button id="go" class="go" type="button">幫我看看</button>
+    <div class="chips">
+      <button class="chip" data-t="我做過三年 BIM，會 Revit 跟 AutoCAD，想找苗栗附近的工作">BIM／工程</button>
+      <button class="chip" data-t="我是護理師，在診所待過兩年，想找台北內湖的工作">護理</button>
+      <button class="chip" data-t="我想在家直播，沒有經驗，希望月收入三萬以上">直播</button>
+      <button class="chip" data-t="我有財務會計經驗兩年，想找台北的工作，月薪四萬左右">財會</button>
+    </div>
+  </div>
+
+  <div id="out"></div>
+</main>
+
+<footer><div class="wrap">
+  Step1ne 德仁管理顧問　·　這裡列出的都是我們實際在招的職缺，不是廣告。
+</div></footer>
+
+<script>
+var API='https://step1ne-recruit-api.aiagentg888.workers.dev';
+var $=function(i){return document.getElementById(i)};
+var MID=null,POLL=null,PRE=null;
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+
+document.querySelectorAll('.chip').forEach(function(b){
+  b.onclick=function(){ $('t').value=b.dataset.t; $('t').focus(); };
+});
+
+function card(j,fit,gap){
+  return '<div class="job"><h3>'+esc(j.title)+'</h3>'
+    +'<div class="meta">'+[esc(j.locations),esc(j.company||''),esc(j.salary_note||'')]
+        .filter(Boolean).join('　·　')+'</div>'
+    +'<p class="fit">'+esc(fit)+'</p>'
+    +(gap?'<div class="gap">⚠️ '+esc(gap)+'</div>':'')
+    +'<a class="apply" href="'+esc(j.url)+'">看這個職缺 →</a></div>';
+}
+
+function renderPre(d){
+  PRE=d;
+  if(!d.jobs.length){ $('out').innerHTML='<div class="note">'+esc(d.note)+'</div>'+contactBox(); return }
+  $('out').innerHTML='<div class="status dots">正在幫你細看這 '+d.jobs.length+' 個職缺</div>'
+    + d.jobs.map(function(j){
+        // 規則版的理由只是暫時墊著，等模型回來會整段換掉——
+        // 所以這裡刻意不顯示那些關鍵字，只給職缺本身，避免出現「望月收」那種怪句子
+        return card(j,'正在為你判斷這個職缺合不合適…','');
+      }).join('');
+}
+
+function renderFinal(res){
+  if(POLL){clearInterval(POLL);POLL=null}
+  var byslug={}; (PRE&&PRE.jobs||[]).forEach(function(j){byslug[j.slug]=j});
+  var list=(res.jobs||[]).map(function(x){
+    var j=byslug[x.slug]; if(!j) return '';
+    return card(j,x.fit,x.gap);
+  }).join('');
+  $('out').innerHTML=(res.note?'<div class="note">'+esc(res.note)+'</div>':'')
+    + (list||'') + contactBox();
+}
+
+function contactBox(){
+  return '<div class="contact"><b>想讓顧問直接幫你留意？</b>'
+    +'<div style="font-size:13.5px;color:#8a8d95;margin-top:4px">'
+    +'留一個聯絡方式，有合適的機會我們主動通知你，不會拿去做別的事。</div>'
+    +'<input id="ct" placeholder="LINE ID／Email／手機，擇一即可">'
+    +'<button type="button" onclick="sendContact()">留給顧問</button>'
+    +'<div id="ctok" style="font-size:13px;color:#2f8f5b;margin-top:8px" hidden>已收到，我們會主動聯繫你 🙌</div></div>';
+}
+function sendContact(){
+  var v=($('ct').value||'').trim(); if(!v||!MID) return;
+  fetch(API+'/match/contact',{method:'POST',headers:{'content-type':'application/json'},
+    body:JSON.stringify({id:MID,contact:v})}).then(function(){
+      $('ctok').hidden=false; $('ct').value='';
+    });
+}
+
+$('go').onclick=function(){
+  var t=($('t').value||'').trim();
+  if(t.length<8){ alert('再多說一點，我們才配得準'); return }
+  $('go').disabled=true; $('go').textContent='比對中…';
+  $('out').innerHTML='<div class="status dots">正在比對我們手上的職缺</div>';
+  fetch(API+'/match',{method:'POST',headers:{'content-type':'application/json'},
+    body:JSON.stringify({text:t})})
+    .then(function(r){return r.json()})
+    .then(function(d){
+      $('go').disabled=false; $('go').textContent='重新配一次';
+      if(!d.ok){ $('out').innerHTML='<div class="note">'+esc(d.error||'出了點狀況，請再試一次')+'</div>'; return }
+      MID=d.id; renderPre(d);
+      if(!d.jobs.length) return;
+      var n=0;
+      POLL=setInterval(function(){
+        n++;
+        if(n>20){ // 兩分鐘還沒好就放棄等，至少讓他看得到職缺本身
+          clearInterval(POLL);POLL=null;
+          $('out').innerHTML=PRE.jobs.map(function(j){
+            return card(j,'這個職缺跟你提到的條件有對到，點進去看完整內容。','');
+          }).join('')+contactBox();
+          return;
+        }
+        fetch(API+'/match/'+MID).then(function(r){return r.json()}).then(function(x){
+          if(x.ok&&x.stage==='done'&&x.result) renderFinal(x.result);
+          else if(x.ok&&x.stage==='failed'){ clearInterval(POLL);POLL=null;
+            $('out').innerHTML=PRE.jobs.map(function(j){
+              return card(j,'這個職缺跟你提到的條件有對到，點進去看完整內容。','');
+            }).join('')+contactBox(); }
+        }).catch(function(){});
+      },5000);
+    })
+    .catch(function(){
+      $('go').disabled=false; $('go').textContent='幫我看看';
+      $('out').innerHTML='<div class="note">連線出了點狀況，請再試一次。</div>';
+    });
+};
+</script>
+</html>
