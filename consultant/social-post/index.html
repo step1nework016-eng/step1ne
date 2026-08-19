@@ -209,8 +209,11 @@ $('tabs').addEventListener('click', function (e) {
 // 不要用 0 頂替——0 次瀏覽跟「還沒統計」是兩件事，顧問會看錯。
 function metricsHtml(r) {
   if (!r.posted_at || r.views === null || r.views === undefined) return '';
+  // 點擊＝有人真的按了貼文結尾的窗口連結。這比瀏覽數重要得多：
+  // 瀏覽只代表滑過去，點擊代表他想聯絡我們。
+  var clk = r.clicks ? '　🔗 ' + r.clicks + ' 點擊' : '';
   return '<div class="m" style="margin-top:2px">'
-    + '👁 ' + r.views + '　♥ ' + (r.likes || 0) + '　💬 ' + (r.replies || 0)
+    + '👁 ' + r.views + '　♥ ' + (r.likes || 0) + '　💬 ' + (r.replies || 0) + clk
     + '</div>';
 }
 
@@ -294,16 +297,18 @@ function paintStats() {
   var by = {};
   rows.forEach(function (r) {
     var k = nm(r);
-    by[k] = by[k] || { n: 0, v: 0, l: 0, c: 0, best: 0 };
+    by[k] = by[k] || { n: 0, v: 0, l: 0, c: 0, best: 0, k2: 0 };
     by[k].n++; by[k].v += r.views || 0; by[k].l += r.likes || 0;
     by[k].c += r.replies || 0; by[k].best = Math.max(by[k].best, r.views || 0);
+    by[k].k2 += r.clicks || 0;
   });
   var names = Object.keys(by).sort(function (a, b) { return by[b].v / by[b].n - by[a].v / by[a].n; });
   $('bystaff').innerHTML =
     '<table style="width:100%;border-collapse:collapse;font-size:13px">'
     + '<tr style="text-align:left;color:var(--ink2)"><th style="padding:6px 4px">顧問</th>'
     + '<th style="text-align:right">則數</th><th style="text-align:right">平均瀏覽</th>'
-    + '<th style="text-align:right">最高</th><th style="text-align:right">互動</th></tr>'
+    + '<th style="text-align:right">最高</th><th style="text-align:right">互動</th>'
+    + '<th style="text-align:right">點擊</th><th style="text-align:right">點擊率</th></tr>'
     + names.map(function (n) {
         var d = by[n];
         return '<tr style="border-top:1px solid var(--line)">'
@@ -311,7 +316,9 @@ function paintStats() {
           + '<td style="text-align:right">' + d.n + '</td>'
           + '<td style="text-align:right;font-weight:700">' + Math.round(d.v / d.n) + '</td>'
           + '<td style="text-align:right">' + d.best + '</td>'
-          + '<td style="text-align:right">♥' + d.l + ' 💬' + d.c + '</td></tr>';
+          + '<td style="text-align:right">♥' + d.l + ' 💬' + d.c + '</td>'
+          + '<td style="text-align:right;font-weight:700">' + d.k2 + '</td>'
+          + '<td style="text-align:right">' + (d.v ? (d.k2 / d.v * 100).toFixed(2) + '%' : '—') + '</td></tr>';
       }).join('')
     + '</table>'
     + '<div class="mut" style="margin-top:8px">依平均瀏覽排序。則數少於 3 的先不要下結論——'
@@ -337,19 +344,20 @@ function paintStats() {
 
   // ── 漏斗 ──
   var tv = rows.reduce(function (x, r) { return x + (r.views || 0); }, 0);
+  var tc = rows.reduce(function (x, r) { return x + (r.clicks || 0); }, 0);
   $('funnel').innerHTML =
     '<div style="font-size:13px;line-height:2">'
     + '已發布貼文　<b>' + rows.length + '</b> 則<br>'
     + '總觸及　<b>' + tv + '</b> 次<br>'
-    + '加入 LINE　<span class="mut">總量見上方，分顧問尚無法歸因</span><br>'
-    + '主動應徵　<span class="mut">尚無法歸因</span>'
+    + '點擊窗口連結　<b>' + tc + '</b> 次<br>'
+    + '加入 LINE　<span class="mut">總量見上方（LINE 不提供分來源數字）</span>'
     + '</div>'
     + '<div class="mut" style="margin-top:10px">'
-    + '⚠️ 後面兩項現在算不出來：貼文結尾的 LINE 連結雖然每位顧問各不相同，'
-    + '但候選人加入之後，系統收到的通知裡不帶「他是從哪個連結進來的」，'
-    + '所以只知道有人加、不知道是誰帶進來的。<br>'
-    + '要補這一段，作法是把貼文結尾改成我們自己的轉址網址（記錄點擊後再轉去 LINE），'
-    + '那樣點擊與後續應徵就能歸到人。這件事還沒做。</div>';
+    + (tc ? '點擊已經歸得到「哪位顧問的哪則貼文」，可以直接比較誰的貼文真的把人帶進來。'
+          : '⚠️ 目前還是 0 次——轉址是 2026-08-19 才上線的，'
+            + '<b>在那之前發的貼文結尾是舊的 LINE 連結，永遠不會有點擊數</b>。'
+            + '之後新發的貼文才算得到。')
+    + '</div>';
 }
 
 function loadQueue() {
