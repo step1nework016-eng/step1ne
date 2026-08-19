@@ -104,6 +104,10 @@ button.go:disabled{opacity:.5;cursor:not-allowed}
         <div id="byhour" class="mut">載入中…</div>
       </div>
       <div class="card">
+        <label style="margin-bottom:6px">LINE 官方帳號（全民獵才）</label>
+        <div id="lineins" class="mut">載入中…</div>
+      </div>
+      <div class="card">
         <label style="margin-bottom:6px">從發文走到應徵</label>
         <div id="funnel" class="mut">載入中…</div>
       </div>
@@ -230,6 +234,34 @@ function paintQueue() {
   }).join('') : '<div class="mut" style="padding:6px 0">目前沒有排入中的職缺。</div>';
 }
 
+var LINE_INS = null;
+// LINE 的數字只有「總量」——API 沒有「哪個顧問的連結帶來幾個人」這個維度。
+// 想知道那個要嘛登入 LINE 後台手動看，要嘛把貼文結尾換成自家轉址網址。
+function loadLine() {
+  api('/admin/line-insight').then(function (d) {
+    LINE_INS = d; paintLine();
+  }).catch(function () {});
+}
+function paintLine() {
+  var el = $('lineins'); if (!el) return;
+  var d = LINE_INS;
+  if (!d || !d.ok) { el.innerHTML = '<span class="mut">LINE 數字讀取失敗</span>'; return; }
+  if (!d.ready) { el.innerHTML = '<span class="mut">' + (d.note || 'LINE 統計尚未結算') + '</span>'; return; }
+  var blockPct = d.followers ? Math.round(d.blocks / d.followers * 100) : 0;
+  el.innerHTML =
+    '<div style="display:flex;gap:22px;flex-wrap:wrap;font-size:13px">'
+    + '<div><div style="font-size:24px;font-weight:800">' + d.reachable + '</div>'
+      + '<div class="mut">現在推得到的人</div></div>'
+    + '<div><div style="font-size:24px;font-weight:800">' + d.followers + '</div>'
+      + '<div class="mut">累積加入</div></div>'
+    + '<div><div style="font-size:24px;font-weight:800">' + d.blocks + '</div>'
+      + '<div class="mut">已封鎖（' + blockPct + '%）</div></div>'
+    + '</div>'
+    + '<div class="mut" style="margin-top:8px">統計日 ' + d.date.slice(4, 6) + '/' + d.date.slice(6, 8)
+    + '（LINE 隔天才結算）。<b>這是總量，不分顧問</b>——LINE 沒有提供「哪個加入連結帶來幾人」的介面，'
+    + '四位顧問的連結雖然各自不同，那個數字只有 LINE 後台看得到。</div>';
+}
+
 // ── 主分頁切換 ──
 $('maintabs').addEventListener('click', function (e) {
   var b = e.target.closest('.tab'); if (!b) return;
@@ -238,6 +270,7 @@ $('maintabs').addEventListener('click', function (e) {
     $(id).hidden = (id !== b.dataset.pane);
   });
   if (b.dataset.pane !== 'pane-post') paintStats();
+  if (b.dataset.pane === 'pane-board' && !LINE_INS) loadLine();
 });
 
 // 只算已經發布、而且成效抓回來了的貼文。還沒抓到的不能當 0 —— 那會把
@@ -308,7 +341,7 @@ function paintStats() {
     '<div style="font-size:13px;line-height:2">'
     + '已發布貼文　<b>' + rows.length + '</b> 則<br>'
     + '總觸及　<b>' + tv + '</b> 次<br>'
-    + '加入 LINE　<span class="mut">尚無法歸因</span><br>'
+    + '加入 LINE　<span class="mut">總量見上方，分顧問尚無法歸因</span><br>'
     + '主動應徵　<span class="mut">尚無法歸因</span>'
     + '</div>'
     + '<div class="mut" style="margin-top:10px">'
