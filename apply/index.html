@@ -188,6 +188,19 @@ button:disabled{opacity:.45;cursor:not-allowed}
         檔案較大請改用這個連結，並確認權限設為「知道連結的人可讀取」——
         這裡是給履歷本身用的，不是拿來放其他附件。上傳檔案跟貼連結<b>擇一即可</b>。
       </div>
+      <div id="socialBox" hidden>
+        <label>社群平台連結 <span style="color:#c0392b">*</span></label>
+        <div class="hint" style="margin-top:0">
+          這個職缺需要看你目前的社群經營狀況，<b>至少填一個就好</b>，
+          有經營多個平台可以都填。沒有公開帳號的話，填你平常會用的那一個也可以。
+        </div>
+        <input name="social_instagram" placeholder="Instagram（網址或 @帳號）">
+        <input name="social_tiktok" placeholder="TikTok">
+        <input name="social_facebook" placeholder="Facebook">
+        <input name="social_threads" placeholder="Threads">
+        <input name="social_youtube" placeholder="YouTube">
+        <input name="social_other" placeholder="其他平台（小紅書、Twitch…）">
+      </div>
       <label>想補充的事</label>
       <textarea name="note" placeholder="選填"></textarea>
     </fieldset>
@@ -309,7 +322,20 @@ Promise.all([
       `<a href="/jobs/${encodeURIComponent(j.slug)}/" target="_blank" rel="noopener">看完整職缺說明 →</a>`;
     card.hidden = false;
   }
-  sel.addEventListener('change', showJob);
+  // 哪些職缺要收社群連結，由後台設定決定（/jobs-social），不寫死在這裡。
+  // 抓不到就當作不需要——寧可少問一題，也不要因為 API 掛掉讓人送不出表單。
+  let SOCIAL_SLUGS = [];
+  fetch(API + '/jobs-social').then(r => r.json()).then(d => {
+    if (d && d.ok) { SOCIAL_SLUGS = d.slugs || []; toggleSocial(); }
+  }).catch(() => {});
+
+  function toggleSocial() {
+    const box = document.getElementById('socialBox');
+    if (!box) return;
+    box.hidden = !SOCIAL_SLUGS.includes(sel.value);
+  }
+
+  sel.addEventListener('change', () => { showJob(); toggleSocial(); });
   showJob();
   prog();
 }).catch(() => {
@@ -349,6 +375,15 @@ async function buildBody() {
     ].filter(Boolean).join('　｜　') || null,
     resume_url: fd.get('resume_url'),
     note: fd.get('note'),
+    // 六個平台各自一格，有填的才送——後端只要求至少一個
+    social_links: (() => {
+      const o = {};
+      for (const k of ['instagram', 'tiktok', 'facebook', 'threads', 'youtube', 'other']) {
+        const v = (fd.get('social_' + k) || '').trim();
+        if (v) o[k] = v;
+      }
+      return Object.keys(o).length ? o : null;
+    })(),
     consent: true,
     utm_source: q.get('utm_source'), utm_medium: q.get('utm_medium'),
     utm_campaign: q.get('utm_campaign'), referrer: document.referrer || null,
@@ -402,7 +437,10 @@ document.getElementById('toAssess').addEventListener('click', async () => {
       body: JSON.stringify(body),
     });
     const d = await r.json();
-    if (!d.ok) throw new Error(d.error || '送出失敗');
+    if (!d.ok) throw new Error(
+      // 後端擋下時會附中文說明（例如社群連結至少要填一個），
+      // 直接丟 error 代碼出去人看不懂
+      d.message || d.error || '送出失敗');
     if (!d.chat_token) throw new Error('系統沒有回傳面談連結，請聯繫我們');
 
     // ⚠️ 2026-08-07 改：這裡要跳回的是「這份表單本身」讓他檢查資料，
@@ -552,7 +590,10 @@ f.addEventListener('submit', async (e) => {
       body: JSON.stringify(body),
     });
     d = await r.json();
-    if (!d.ok) throw new Error(d.error || '送出失敗');
+    if (!d.ok) throw new Error(
+      // 後端擋下時會附中文說明（例如社群連結至少要填一個），
+      // 直接丟 error 代碼出去人看不懂
+      d.message || d.error || '送出失敗');
   } catch (err) {
     msg.className = 'msg err'; msg.textContent = err.message || '送出失敗，請稍後再試';
     btn.disabled = false; btn.textContent = '送出應徵';
