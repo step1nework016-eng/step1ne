@@ -500,6 +500,19 @@ function api(path, opt) {
   });
 }
 
+// 應徵表單填的社群平台連結。存的是 JSON（可能有多個平台），
+// 壞掉或沒填就整段不顯示——不要在顧問畫面上留一個空欄位讓人猜。
+function socialLine(r) {
+  if (!r.social_links) return '';
+  let o;
+  try { o = JSON.parse(r.social_links); } catch { return ''; }
+  const NAME = { instagram: 'IG', tiktok: 'TikTok', facebook: 'FB',
+                 threads: 'Threads', youtube: 'YouTube', other: '其他' };
+  const links = Object.keys(o).filter((k) => o[k]).map((k) =>
+    '<a href="' + esc(o[k]) + '" target="_blank" rel="noopener">' + (NAME[k] || k) + '</a>');
+  return links.length ? '<span>社群 ' + links.join('・') + '</span>' : '';
+}
+
 function esc(s) {
   return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
     return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
@@ -795,7 +808,13 @@ async function loadScreening() {
       (r.email ? '<span>' + esc(r.email) + '</span>' : '') +
       (r.expected_salary ? '<span>期望 ' + esc(r.expected_salary) + '</span>' : '') +
       (r.available_date ? '<span>可到職 ' + esc(r.available_date) + '</span>' : '') + '</div>' +
-      '<div class="meta"><span>' + discLine + '</span><span>' + resumeLine + '</span></div>' +
+      '<div class="meta"><span>' + discLine + '</span><span>' + resumeLine + '</span>' +
+      // 2026-08-20 加：候選人在應徵表單填的東西，顧問要看得到。
+      // 社群連結對直播主這類職缺就是最主要的判斷依據，收了卻沒人看得到等於白收。
+      // ⚠️ 阿財看不到 IG 的內容（沒有瀏覽器、平台也擋外部抓取），
+      //    所以這一段是給人看的——顧問點進去自己判斷，不是拿給阿財問。
+      (r.location_ok ? '<span>可接受 ' + esc(r.location_ok) + '</span>' : '') +
+      socialLine(r) + '</div>' +
       (r.client_screen_conditions
         ? '<div style="background:#fdf3ea;border:1px solid #f0d9bd;border-radius:8px;padding:10px 12px;margin:8px 0;font-size:13px;">' +
           '<b>客戶硬性條件（系統不做判斷，由你評估）：</b><br>' + esc(r.client_screen_conditions) + '</div>'
