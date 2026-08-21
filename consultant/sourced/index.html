@@ -38,6 +38,9 @@ main{padding:22px 0 60px}
 .btn.d{color:var(--bad);border-color:#f0d4cf}
 a.lk{color:var(--gold);text-decoration:none;font-size:12.5px}
 .empty{background:#fff;border:1px dashed var(--line);border-radius:14px;padding:26px;text-align:center;color:var(--ink3)}
+.rmask{position:fixed;inset:0;background:rgba(20,22,26,.55);display:flex;align-items:center;justify-content:center;z-index:99;padding:20px;}
+.rcard{background:#fff;border-radius:16px;padding:20px 22px;max-width:360px;width:100%;}
+.rbtn{display:block;width:100%;text-align:left;margin-bottom:8px;}
 </style>
 
 <div id="gate" class="gate" hidden>
@@ -112,10 +115,34 @@ function render(d){
       +'</div></div>';
   }).join('');
 }
+// 標記不合適時要選原因。用固定選項不是自由輸入——
+// 這份資料是要累積起來看出「該調整什麼」的，
+// 自由文字寫法太散（地點太遠／通勤問題／在南部其實同一件事），統計不出東西。
+var REJECT_REASONS=['地點不行','資歷差太多','職類根本不對','找不到聯絡方式','已有工作或沒意願','其他'];
 function mv(id,st){
+  if(st==='rejected'){ askReason(id); return; }
+  send(id,st,null);
+}
+function askReason(id){
+  var box=$('reasonBox');
+  box.innerHTML='<div class="rmask"><div class="rcard">'
+    +'<h3 style="margin:0 0 4px;font-size:16px;">為什麼不合適？</h3>'
+    +'<p style="margin:0 0 12px;color:#6b6e77;font-size:13px;">'
+    +'選一個就好。累積幾筆之後，系統會依這些原因調整下一次要怎麼找人。</p>'
+    +REJECT_REASONS.map(function(r){
+        return '<button class="btn rbtn" data-r="'+r+'">'+r+'</button>';}).join('')
+    +'<div style="margin-top:12px;"><button class="btn" id="rCancel">取消</button></div>'
+    +'</div></div>';
+  box.style.display='block';
+  box.querySelectorAll('.rbtn').forEach(function(b){
+    b.onclick=function(){ box.style.display='none'; send(id,'rejected',b.dataset.r); };
+  });
+  $('rCancel').onclick=function(){ box.style.display='none'; };
+}
+function send(id,st,reason){
   api('/admin/sourced/status',{method:'POST',headers:{'content-type':'application/json'},
-    body:JSON.stringify({id:id,status:st})}).then(function(d){
-      if(!d.ok){alert('更新失敗');return} load();
+    body:JSON.stringify({id:id,status:st,reason:reason})}).then(function(d){
+      if(!d.ok){alert(d.error||'更新失敗');return} load();
     });
 }
 $('tabs').addEventListener('click',function(e){
