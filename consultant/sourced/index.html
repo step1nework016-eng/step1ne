@@ -41,8 +41,11 @@ a.lk{color:var(--gold);text-decoration:none;font-size:12.5px}
 .rmask{position:fixed;inset:0;background:rgba(20,22,26,.55);display:flex;align-items:center;justify-content:center;z-index:99;padding:20px;}
 .rcard{background:#fff;border-radius:16px;padding:20px 22px;max-width:360px;width:100%;}
 .rbtn{display:block;width:100%;text-align:left;margin-bottom:8px;}
-.sbar{display:flex;gap:8px;margin-bottom:12px}
-.sbar input{flex:1;font:inherit;font-size:14px;padding:9px 13px;border:1px solid var(--line);border-radius:999px;background:#fff}
+.sbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.sbar input[type=search]{flex:1 1 220px;min-width:180px;font:inherit;font-size:14px;padding:9px 15px;border:1px solid var(--line);border-radius:999px;background:#fff}
+.sbar select{font:inherit;font-size:13.5px;padding:9px 30px 9px 14px;border:1px solid var(--line);border-radius:999px;background:#fff url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238a8d95' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 13px center;appearance:none;color:var(--ink);cursor:pointer;max-width:190px}
+.sbar .ck{display:flex;align-items:center;gap:6px;font-size:13.5px;color:var(--ink2);background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 15px;cursor:pointer}
+.sbar .ck input{margin:0;accent-color:var(--gold)}
 .pager{display:flex;gap:8px;justify-content:center;margin-top:14px}
 .cat{font-size:12.5px}
 .gs{font-size:11px;color:var(--warn);margin-left:5px}
@@ -76,11 +79,11 @@ a.lk{color:var(--gold);text-decoration:none;font-size:12.5px}
     <div class="tabs" id="tabs"></div>
     <div class="sbar">
       <input id="q" type="search" placeholder="搜尋姓名、職稱、公司、技能…" autocomplete="off">
-      <button class="btn p" id="go">搜尋</button>
+      <select id="cats" aria-label="職類"></select>
+      <select id="srcs" aria-label="來源"></select>
+      <label class="ck"><input type="checkbox" id="hasmail"> 有 email</label>
       <button class="btn" id="clr">清除</button>
     </div>
-    <div class="tabs" id="cats"></div>
-    <div class="tabs" id="filters"></div>
     <div id="cnt" class="mut" style="margin-bottom:8px"></div>
     <div id="list" class="mut">載入中…</div>
     <div id="pager" class="pager"></div>
@@ -100,18 +103,20 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){
 var LB={new:'待挑選',shortlisted:'已挑出',contacted:'已接觸',replied:'有回覆',
         rejected:'不合適',converted:'已轉應徵者',all:'全部'};
 
-function chip(label,n,on,attr){
-  return '<button class="tab cat'+(on?' on':'')+'" '+attr+'>'+esc(label)+(n!=null?' '+n:'')+'</button>';
+function opts(list,cur,allLabel){
+  return '<option value=""'+(cur?'':' selected')+'>'+allLabel+'</option>'
+    + list.map(function(c){
+        return '<option value="'+esc(c.k)+'"'+(cur===c.k?' selected':'')+'>'
+          +esc(c.k)+'（'+c.n+'）</option>';
+      }).join('');
 }
 function render(d){
   var cnt={}; (d.counts||[]).forEach(function(c){cnt[c.status]=c.n});
-  // 分類（用他自己的職稱／技能判斷；沒寫的用「當初為哪個職缺撈的」回推，卡片上會標「推測」）
-  $('cats').innerHTML = chip('全部類別',null,!CAT,'data-c=""')
-    + (d.cats||[]).map(function(c){return chip(c.k,c.n,CAT===c.k,'data-c="'+esc(c.k)+'"')}).join('');
-  $('filters').innerHTML = chip('不限來源',null,!SRC,'data-s2=""')
-    + (d.srcs||[]).map(function(c){return chip(c.k,c.n,SRC===c.k,'data-s2="'+esc(c.k)+'"')}).join('')
-    + chip('有 email',null,HAS==='email','data-h="email"')
-    + chip('有 LinkedIn',null,HAS==='linkedin','data-h="linkedin"');
+  // 分類是用他自己的職稱／技能判斷；完全沒寫的人用「當初為哪個職缺撈的」回推，
+  // 那種卡片上會標「推測」——因為那是我們在找什麼，不是他會什麼。
+  $('cats').innerHTML = opts(d.cats||[], CAT, '所有職類');
+  $('srcs').innerHTML = opts(d.srcs||[], SRC, '所有來源');
+  $('hasmail').checked = HAS==='email';
   var tot=d.total||0, size=d.size||60, pg=d.page||0;
   $('cnt').textContent = tot ? ('符合 '+tot+' 位，顯示第 '+(pg*size+1)+'–'+Math.min(tot,(pg+1)*size)+' 位') : '';
   var pages=Math.ceil(tot/size);
@@ -186,17 +191,18 @@ function send(id,st,reason){
 $('tabs').addEventListener('click',function(e){
   var b=e.target.closest('.tab'); if(!b)return; ST=b.dataset.s; PAGE=0; load();
 });
-$('cats').addEventListener('click',function(e){
-  var b=e.target.closest('.tab'); if(!b)return; CAT=b.dataset.c||''; PAGE=0; load();
+$('cats').onchange=function(){CAT=this.value;PAGE=0;load()};
+$('srcs').onchange=function(){SRC=this.value;PAGE=0;load()};
+$('hasmail').onchange=function(){HAS=this.checked?'email':'';PAGE=0;load()};
+// 邊打邊找，但等他停下來再送——每一個字都打一次 API，3,456 筆會卡
+var t=null;
+$('q').addEventListener('input',function(){
+  clearTimeout(t); var v=this.value.trim();
+  t=setTimeout(function(){ Q=v; PAGE=0; load(); }, 350);
 });
-$('filters').addEventListener('click',function(e){
-  var b=e.target.closest('.tab'); if(!b)return;
-  if(b.dataset.h!=null){ HAS = (HAS===b.dataset.h?'':b.dataset.h); }
-  else { SRC=b.dataset.s2||''; }
-  PAGE=0; load();
+$('q').addEventListener('keydown',function(e){
+  if(e.key==='Enter'){clearTimeout(t);Q=this.value.trim();PAGE=0;load()}
 });
-$('go').onclick=function(){Q=$('q').value.trim();PAGE=0;load()};
-$('q').addEventListener('keydown',function(e){if(e.key==='Enter')$('go').click()});
 $('clr').onclick=function(){Q='';CAT='';SRC='';HAS='';PAGE=0;$('q').value='';load()};
 function load(){
   $('gate').hidden=true;$('app').hidden=false;
