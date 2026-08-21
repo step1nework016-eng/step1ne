@@ -1455,8 +1455,22 @@ $('apptsubmit').addEventListener('click', async function () {
       }),
     });
     if (d2.ok) {
-      $('apptresult').innerHTML = '✅ 已安排，連結：<a href="' + d2.url + '" target="_blank">' + d2.url + '</a>　' +
-        '<button type="button" onclick="navigator.clipboard.writeText(\'' + d2.url + '\')" style="margin-left:6px;">複製</button>';
+      var copyBtn = '<button type="button" onclick="navigator.clipboard.writeText(\'' + d2.url + '\')" style="margin-left:6px;">複製連結</button>';
+      // ⚠️ 2026-08-21 事故：孙悦沒綁 LINE，卡片靜默沒送出，這裡卻顯示「已安排」，
+      //    顧問以為發了、人選什麼都沒收到，兩邊都在等。
+      //    現在一定要講清楚「有沒有真的送到他手上」。
+      if (d2.notified) {
+        $('apptresult').innerHTML = '✅ 已安排，<b>面談卡片已送到他的 LINE</b>　' + copyBtn;
+      } else {
+        var why = d2.notify_reason === 'push_failed'
+          ? 'LINE 推播失敗' : '這位人選<b>還沒有綁定 LINE</b>';
+        $('apptresult').innerHTML =
+          '<div style="background:#fff6e0;border:1px solid #f0d48a;border-radius:10px;padding:11px 13px;line-height:1.7">'
+          + '⚠️ 時段已經存好了，但<b>沒有送到人選手上</b>（' + why + '）。<br>'
+          + '請你自己把這個連結傳給他：<br>'
+          + '<a href="' + d2.url + '" target="_blank">' + d2.url + '</a>' + copyBtn
+          + '</div>';
+      }
     } else {
       $('apptresult').textContent = '❌ 失敗：' + (d2.error || '伺服器沒說原因');
     }
