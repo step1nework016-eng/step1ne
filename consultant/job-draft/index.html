@@ -49,6 +49,10 @@ button:disabled{opacity:.55;}
 .flag b{color:#8c3b1e;}
 .faq{border-top:1px solid #f0ece4;padding-top:14px;margin-top:6px;}
 .back{font-size:14px;}
+.row{display:flex;gap:8px;align-items:stretch;margin-bottom:10px}
+.row .pick{flex:1;margin-bottom:0}
+.del{flex:none;border:1px solid #f0d4cf;background:#fff;color:#c0392b;border-radius:12px;padding:0 16px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.del:hover{background:#fdecea}
 </style>
 </head>
 <body>
@@ -174,12 +178,30 @@ function loadList() {
     $('list').innerHTML = rows.map(function (r) {
       var t = (r.raw_preview || '').split('\n')[0].slice(0, 30) || r.published_slug || '（無標題）';
       var editable = ['pending', 'rewrite', 'approved'].indexOf(r.status) >= 0;
-      return '<button class="pick" data-id="' + r.id + '"' + (editable ? '' : ' disabled') + '>'
+      // 2026-08-21 加刪除鈕：沒填完就中斷的空白單會一直留在清單裡，
+      // 顧問每次進來都要先分辨哪些是真的要處理的。已發布的不給刪（見後端）。
+      return '<div class="row">'
+        + '<button class="pick" data-id="' + r.id + '"' + (editable ? '' : ' disabled') + '>'
         + '<b>' + t.replace(/[<>&]/g, '') + '<span class="tag">' + (ST[r.status] || r.status) + '</span></b>'
-        + '<span>' + r.created_at + '　·　' + (r.submitted_by || '未填') + '</span></button>';
+        + '<span>' + r.created_at + '　·　' + (r.submitted_by || '未填') + '</span></button>'
+        + (r.published_slug ? '' :
+           '<button class="del" data-id="' + r.id + '" data-t="' + t.replace(/["<>&]/g, '') + '" title="刪除這張收件單">刪除</button>')
+        + '</div>';
     }).join('');
     Array.prototype.forEach.call($('list').querySelectorAll('.pick'), function (b) {
       b.onclick = function () { openDraft(this.dataset.id); };
+    });
+    Array.prototype.forEach.call($('list').querySelectorAll('.del'), function (b) {
+      b.onclick = function () {
+        var id = this.dataset.id, t = this.dataset.t;
+        // 刪掉就沒了，所以一定要問一次，而且要把刪的是哪一張唸出來
+        if (!confirm('確定要刪掉這張收件單嗎？\n\n「' + t + '」\n\n刪掉之後就找不回來了。')) return;
+        api('/admin/job-draft/' + encodeURIComponent(id) + '/delete', { method: 'POST' })
+          .then(function (d) {
+            if (!d.ok) { alert(d.error || '刪不掉'); return; }
+            loadList();
+          }).catch(function () { alert('刪不掉（網路問題）'); });
+      };
     });
   }).catch(function () { $('list').textContent = '讀不到清單（網路問題）。'; });
 }
