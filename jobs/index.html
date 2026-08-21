@@ -506,6 +506,10 @@ h2{font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;color:#1c1f2
   const cards = [...document.querySelectorAll('#jobs a.job')].map((a) => ({
     href: a.getAttribute('href'),
     track: a.dataset.track || '',
+    // 2026-08-21 加：卡片標了 data-pin="<分類>" 就固定佔住熱門職缺那一格，不參加隨機。
+    // 篩選器早就在讀這個屬性了（第 439 行），但這裡沒讀——所以 BIM 標了 data-pin
+    // 卻還是抽到後端工程師。要換成別的職缺，把 data-pin 搬到那張卡上就好。
+    pin: a.dataset.pin || '',
     title: (a.querySelector('.job-title')?.textContent || '').trim(),
     industry: (a.querySelector('.job-industry')?.textContent || '').trim(),
     salary: (a.querySelector('.salary')?.textContent || '').trim(),
@@ -515,7 +519,9 @@ h2{font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;color:#1c1f2
 
   const pick1 = (k) => {
     const pool = cards.filter((j) => j.track === k);
-    return pool.length ? pool[Math.floor(Math.random() * pool.length)] : null;
+    if (!pool.length) return null;
+    const pinned = pool.find((j) => j.pin === k);
+    return pinned || pool[Math.floor(Math.random() * pool.length)];
   };
 
   function draw() {
