@@ -198,6 +198,8 @@ button.primary:hover{background:#8a6531;}
 .qr{font:inherit;font-size:12.5px;font-weight:600;border:1px solid #e0d9cb;background:#fff;color:#4a4d55;border-radius:999px;padding:7px 13px;cursor:pointer;}
 .qr:hover{border-color:#a67c3d;color:#a67c3d;}
 .qr.on{background:#f3e2c2;border-color:#d9bd85;color:#7a4e12;}
+.umask{position:fixed;inset:0;background:rgba(20,22,26,.6);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;}
+.ucard{background:#fff;border-radius:16px;padding:22px 24px;max-width:520px;width:100%;max-height:88vh;overflow:auto;}
 </style>
 </head>
 <body>
@@ -1462,14 +1464,11 @@ $('apptsubmit').addEventListener('click', async function () {
       if (d2.notified) {
         $('apptresult').innerHTML = '✅ 已安排，<b>面談卡片已送到他的 LINE</b>　' + copyBtn;
       } else {
-        var why = d2.notify_reason === 'push_failed'
-          ? 'LINE 推播失敗' : '這位人選<b>還沒有綁定 LINE</b>';
         $('apptresult').innerHTML =
           '<div style="background:#fff6e0;border:1px solid #f0d48a;border-radius:10px;padding:11px 13px;line-height:1.7">'
-          + '⚠️ 時段已經存好了，但<b>沒有送到人選手上</b>（' + why + '）。<br>'
-          + '請你自己把這個連結傳給他：<br>'
-          + '<a href="' + d2.url + '" target="_blank">' + d2.url + '</a>' + copyBtn
+          + '⚠️ 時段已存好，但<b>沒有送到人選手上</b>。詳情看剛才跳出的視窗。'
           + '</div>';
+        showUnbound(d2, cur, copyBtn);
       }
     } else {
       $('apptresult').textContent = '❌ 失敗：' + (d2.error || '伺服器沒說原因');
@@ -1719,6 +1718,59 @@ if (tok) {
   if (deepId) openById(deepId);
 } else { gate(''); }
 </script>
-<script defer src="/consultant/_shell.js"></script>
+<script defer src="/consultant/_shell.js">
+// ── 人選沒綁 LINE 時的提醒視窗 ──
+// 2026-08-21 Jacky 要求。事故背景：顧問幫孙悦排了當天 15:00 的面談，
+// 畫面顯示成功，但她沒綁 LINE、卡片靜默沒送出，兩邊都在等，
+// 距離面談只剩不到三小時才被發現。
+// 光是把錯誤訊息顯示出來還不夠——顧問還是要自己想「那我該傳什麼給他」，
+// 那一步的摩擦就是訊息最後沒被傳出去的原因。所以直接把話寫好讓他複製。
+function showUnbound(d2, cur, copyBtn) {
+  var name = (cur && cur.name) || '您好';
+  var why = d2.notify_reason === 'push_failed'
+    ? 'LINE 推播失敗（他綁過，但這次沒送成功）'
+    : '這位人選還沒有綁定「追蹤面試進度」';
+  // 給人選看的文字，套三條規則：不用「客戶」、不要拿「顧問／我們」當主詞、
+  // 不外流內部資訊。
+  var msg =
+    name + ' 您好，面談時間已經安排好了 🙌\n\n' +
+    '請點下面的連結選擇方便的時段：\n' + d2.url + '\n\n' +
+    '另外建議加入官方帳號綁定「追蹤面試進度」，之後每一步的進度都會直接通知您，' +
+    '不用自己來問：\n' +
+    '1. 加入好友 https://lin.ee/XcSWPzM\n' +
+    '2. 點下方選單的「追蹤面試進度」\n' +
+    '3. 依序輸入姓名、應徵時留的信箱、手機號碼（三項都要跟應徵表單一致才能核對身分）\n\n' +
+    '綁定只需要做一次，之後都不用再輸入。';
+  var box = document.getElementById('unboundBox');
+  if (!box) { box = document.createElement('div'); box.id = 'unboundBox'; document.body.appendChild(box); }
+  box.innerHTML =
+    '<div class="umask"><div class="ucard">'
+    + '<h3 style="margin:0 0 6px;font-size:17px;">⚠️ 這個人選收不到面談通知</h3>'
+    + '<p style="margin:0 0 12px;color:#4d5563;font-size:13.5px;line-height:1.7">'
+    + '原因：<b>' + why + '</b>。<br>'
+    + '時段已經存好了，但系統沒有辦法主動通知他——<b>請你自己把下面這段傳給他</b>，'
+    + '並順便請他完成綁定，以後就不用每次都手動傳。</p>'
+    + '<textarea id="umsg" readonly style="width:100%;height:210px;font:inherit;font-size:13px;'
+    + 'line-height:1.7;border:1px solid #eee7db;border-radius:10px;padding:11px;background:#faf8f3;">'
+    + msg.replace(/</g, '&lt;') + '</textarea>'
+    + '<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">'
+    + '<button type="button" id="ucopy" style="background:#a67c3d;color:#fff;border:0;border-radius:999px;'
+    + 'padding:9px 18px;font-weight:700;cursor:pointer;">複製整段訊息</button>'
+    + '<button type="button" id="ucopylink" style="background:#fff;border:1px solid #eee7db;border-radius:999px;'
+    + 'padding:9px 18px;cursor:pointer;">只複製連結</button>'
+    + '<button type="button" id="uclose" style="margin-left:auto;background:#fff;border:1px solid #eee7db;'
+    + 'border-radius:999px;padding:9px 18px;cursor:pointer;">關閉</button>'
+    + '</div></div></div>';
+  box.style.display = 'block';
+  document.getElementById('ucopy').onclick = function () {
+    navigator.clipboard.writeText(msg); this.textContent = '✅ 已複製';
+  };
+  document.getElementById('ucopylink').onclick = function () {
+    navigator.clipboard.writeText(d2.url); this.textContent = '✅ 已複製';
+  };
+  document.getElementById('uclose').onclick = function () { box.style.display = 'none'; };
+}
+
+</script>
 </body>
 </html>
