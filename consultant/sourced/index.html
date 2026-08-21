@@ -41,6 +41,11 @@ a.lk{color:var(--gold);text-decoration:none;font-size:12.5px}
 .rmask{position:fixed;inset:0;background:rgba(20,22,26,.55);display:flex;align-items:center;justify-content:center;z-index:99;padding:20px;}
 .rcard{background:#fff;border-radius:16px;padding:20px 22px;max-width:360px;width:100%;}
 .rbtn{display:block;width:100%;text-align:left;margin-bottom:8px;}
+.sbar{display:flex;gap:8px;margin-bottom:12px}
+.sbar input{flex:1;font:inherit;font-size:14px;padding:9px 13px;border:1px solid var(--line);border-radius:999px;background:#fff}
+.pager{display:flex;gap:8px;justify-content:center;margin-top:14px}
+.cat{font-size:12.5px}
+.gs{font-size:11px;color:var(--warn);margin-left:5px}
 </style>
 
 <div id="gate" class="gate" hidden>
@@ -69,7 +74,16 @@ a.lk{color:var(--gold);text-decoration:none;font-size:12.5px}
       ⚠️ 沒有回覆意願之前，不要把人轉成應徵者。
     </div>
     <div class="tabs" id="tabs"></div>
+    <div class="sbar">
+      <input id="q" type="search" placeholder="搜尋姓名、職稱、公司、技能…" autocomplete="off">
+      <button class="btn p" id="go">搜尋</button>
+      <button class="btn" id="clr">清除</button>
+    </div>
+    <div class="tabs" id="cats"></div>
+    <div class="tabs" id="filters"></div>
+    <div id="cnt" class="mut" style="margin-bottom:8px"></div>
     <div id="list" class="mut">載入中…</div>
+    <div id="pager" class="pager"></div>
   </main>
 </div>
 
@@ -78,7 +92,7 @@ var API='https://step1ne-recruit-api.aiagentg888.workers.dev';
 var KEY='s1ne_admin_tok';
 var tok=localStorage.getItem(KEY)||'';
 var $=function(i){return document.getElementById(i)};
-var ST='new';
+var ST='new', Q='', CAT='', SRC='', HAS='', PAGE=0;
 function api(p,o){o=o||{};o.headers=Object.assign({authorization:'Bearer '+tok},o.headers||{});
   return fetch(API+p,o).then(function(r){return r.json()})}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){
@@ -86,24 +100,48 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){
 var LB={new:'待挑選',shortlisted:'已挑出',contacted:'已接觸',replied:'有回覆',
         rejected:'不合適',converted:'已轉應徵者',all:'全部'};
 
+function chip(label,n,on,attr){
+  return '<button class="tab cat'+(on?' on':'')+'" '+attr+'>'+esc(label)+(n!=null?' '+n:'')+'</button>';
+}
 function render(d){
   var cnt={}; (d.counts||[]).forEach(function(c){cnt[c.status]=c.n});
+  // 分類（用他自己的職稱／技能判斷；沒寫的用「當初為哪個職缺撈的」回推，卡片上會標「推測」）
+  $('cats').innerHTML = chip('全部類別',null,!CAT,'data-c=""')
+    + (d.cats||[]).map(function(c){return chip(c.k,c.n,CAT===c.k,'data-c="'+esc(c.k)+'"')}).join('');
+  $('filters').innerHTML = chip('不限來源',null,!SRC,'data-s2=""')
+    + (d.srcs||[]).map(function(c){return chip(c.k,c.n,SRC===c.k,'data-s2="'+esc(c.k)+'"')}).join('')
+    + chip('有 email',null,HAS==='email','data-h="email"')
+    + chip('有 LinkedIn',null,HAS==='linkedin','data-h="linkedin"');
+  var tot=d.total||0, size=d.size||60, pg=d.page||0;
+  $('cnt').textContent = tot ? ('符合 '+tot+' 位，顯示第 '+(pg*size+1)+'–'+Math.min(tot,(pg+1)*size)+' 位') : '';
+  var pages=Math.ceil(tot/size);
+  $('pager').innerHTML = pages>1
+    ? '<button class="btn" id="prev"'+(pg<=0?' disabled':'')+'>← 上一頁</button>'
+      +'<span class="mut" style="align-self:center">第 '+(pg+1)+' / '+pages+' 頁</span>'
+      +'<button class="btn" id="next"'+(pg>=pages-1?' disabled':'')+'>下一頁 →</button>'
+    : '';
+  if($('prev'))$('prev').onclick=function(){PAGE--;load()};
+  if($('next'))$('next').onclick=function(){PAGE++;load()};
   $('tabs').innerHTML=['new','shortlisted','contacted','replied','converted','rejected','all']
     .map(function(k){
       var n=k==='all'?Object.keys(cnt).reduce(function(a,b){return a+cnt[b]},0):(cnt[k]||0);
       return '<button class="tab'+(k===ST?' on':'')+'" data-s="'+k+'">'+LB[k]+' '+n+'</button>';
     }).join('');
   var rows=d.rows||[];
-  if(!rows.length){$('list').innerHTML='<div class="empty">這一區目前沒有人。<br>'
-    +'<span class="mut">爬蟲跑完會自動把人送進「待挑選」。</span></div>';return}
+  if(!rows.length){$('list').innerHTML='<div class="empty">'
+    +((Q||CAT||SRC||HAS)?'沒有符合這些條件的人。<br><span class="mut">換個關鍵字，或按「清除」看全部。</span>'
+      :'這一區目前沒有人。<br><span class="mut">爬蟲跑完會自動把人送進「待挑選」。</span>')
+    +'</div>';$('pager').innerHTML='';return}
   $('list').innerHTML=rows.map(function(r){
     var links=[];
     if(r.linkedin_url)links.push('<a class="lk" href="'+esc(r.linkedin_url)+'" target="_blank" rel="noopener">LinkedIn</a>');
     if(r.github_url)links.push('<a class="lk" href="'+esc(r.github_url)+'" target="_blank" rel="noopener">GitHub</a>');
     if(r.source_url&&!links.length)links.push('<a class="lk" href="'+esc(r.source_url)+'" target="_blank" rel="noopener">來源</a>');
+    var catTag = r.category
+      ? '<span class="sc">'+esc(r.category)
+        +(r.cat_src==='searched'?'<span class="gs">推測</span>':'')+'</span>' : '';
     return '<div class="c"><div class="top"><span class="nm">'+esc(r.name||'（無姓名）')+'</span>'
-      +'<span class="hl">'+esc(r.headline||'')+'</span>'
-      +(r.score!=null?'<span class="sc">'+esc(r.grade||'')+' '+r.score+'</span>':'')+'</div>'
+      +'<span class="hl">'+esc(r.headline||'')+'</span>'+catTag+'</div>'
       +'<div class="meta">'+[esc(r.company),esc(r.location),esc(r.source)].filter(Boolean).join('　·　')
       +(links.length?'　·　'+links.join('　'):'')+'</div>'
       +(r.skills?'<div class="sk">'+esc(r.skills)+'</div>':'')
@@ -146,11 +184,29 @@ function send(id,st,reason){
     });
 }
 $('tabs').addEventListener('click',function(e){
-  var b=e.target.closest('.tab'); if(!b)return; ST=b.dataset.s; load();
+  var b=e.target.closest('.tab'); if(!b)return; ST=b.dataset.s; PAGE=0; load();
 });
+$('cats').addEventListener('click',function(e){
+  var b=e.target.closest('.tab'); if(!b)return; CAT=b.dataset.c||''; PAGE=0; load();
+});
+$('filters').addEventListener('click',function(e){
+  var b=e.target.closest('.tab'); if(!b)return;
+  if(b.dataset.h!=null){ HAS = (HAS===b.dataset.h?'':b.dataset.h); }
+  else { SRC=b.dataset.s2||''; }
+  PAGE=0; load();
+});
+$('go').onclick=function(){Q=$('q').value.trim();PAGE=0;load()};
+$('q').addEventListener('keydown',function(e){if(e.key==='Enter')$('go').click()});
+$('clr').onclick=function(){Q='';CAT='';SRC='';HAS='';PAGE=0;$('q').value='';load()};
 function load(){
   $('gate').hidden=true;$('app').hidden=false;
-  api('/admin/sourced?status='+ST).then(function(d){
+  var qs='/admin/sourced?status='+encodeURIComponent(ST)
+    +'&page='+PAGE
+    +(Q?'&q='+encodeURIComponent(Q):'')
+    +(CAT?'&cat='+encodeURIComponent(CAT):'')
+    +(SRC?'&source='+encodeURIComponent(SRC):'')
+    +(HAS?'&has='+encodeURIComponent(HAS):'');
+  api(qs).then(function(d){
     if(!d.ok){$('list').innerHTML='<div class="mut">讀取失敗</div>';return} render(d);
   }).catch(function(){$('list').innerHTML='<div class="mut">連線失敗</div>'});
 }
