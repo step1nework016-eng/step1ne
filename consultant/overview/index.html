@@ -140,16 +140,23 @@ function render(d){
   if(!vs.length){
     $('acc').innerHTML='<div class="empty">還沒有資料。'
       +'面談報告推到 Telegram 時按「✅ 我也會推 / ✋ 我不推 / 🤔 還要再看」，'
+      +'或到 <a href="/consultant/kpi/" style="color:var(--gold)">阿財準不準</a> 補填之前的人選，'
       +'累積十次左右就會出現「阿財判值得轉的人，你實際推了幾成」——'
       +'那是對外賣 AI 招募時客戶唯一會信的數字。</div>';
   }else{
     var tot=vs.reduce(function(a,b){return a+b.n},0);
     var yes=(vs.find(function(x){return x.k==='會推'})||{n:0}).n;
+    // ⚠️ 2026-08-21 改：樣本不到 5 筆不給百分比。
+    // 之前只有 1 位被回填，這裡就顯示「100%」——一個樣本的百分比不是統計，
+    // 而這個數字是要拿去跟客戶說「AI 沒把人看錯」的，講錯一次就回不來。
     $('acc').innerHTML='<div class="kpis">'
-      +kpi(Math.round(yes/tot*100)+'%','阿財判值得轉、你實際會推','')
+      +(tot>=5
+         ? kpi(Math.round(yes/tot*100)+'%','阿財判值得轉、你實際會推','')
+         : kpi('還不能算','回填滿 5 位才會顯示準確率','warn'))
       +kpi(tot,'已回填的判斷','')+'</div>'
       +'<div class="mut" style="margin-top:8px">'
-      +vs.map(function(x){return esc(x.k)+' '+x.n+' 位'}).join('　·　')+'</div>';
+      +vs.map(function(x){return esc(x.k)+' '+x.n+' 位'}).join('　·　')
+      +'　·　<a href="/consultant/kpi/" style="color:var(--gold)">去補填之前的人選 →</a></div>';
   }
 
   // 各職缺
