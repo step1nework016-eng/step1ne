@@ -38,6 +38,9 @@
     //  那三個按鈕能按，訊息被蓋掉就沒第二次機會——25 份報告只有 1 位被回填。
     { href: '/consultant/kpi/',            label: '阿財準不準', icon: 'chart', primary: true  },
     { href: '/consultant/clients/',        label: '客戶名單', icon: 'people', primary: true  },
+    // 2026-08-25 加：跟「客戶名單」（陌生開發黑名單）是完全不同的東西——
+    // 這裡是每家真實合作客戶的用人需求表入口（公司資訊＋掛的職缺＋補件連結）。
+    { href: '/consultant/client-info/',    label: '客戶資訊', icon: 'doc',    primary: true  },
     { href: '/consultant/bd/',             label: '開發客戶', icon: 'target', primary: true  },
     { href: '/consultant/job-intake/',     label: '新增職缺', icon: 'plus',   primary: false },
     { href: '/consultant/job-draft/',      label: '改擬稿',   icon: 'pencil', primary: false },

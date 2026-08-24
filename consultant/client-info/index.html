@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="zh-Hant">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>客戶資訊｜顧問後台</title>
+<link rel="icon" href="/assets/favicon.ico">
+<style>
+:root{--gold:#a67c3d;--ink:#23262d;--ink2:#4d5563;--ink3:#8a8d95;--line:#eee7db;--soft:#faf8f3;--bg:#f4f1ea;--ok:#2f8f5b;--bad:#c0392b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 -apple-system,"Noto Sans TC",sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:0 16px}
+header{background:#fff;border-bottom:1px solid var(--line);padding:14px 0}
+header .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header img{height:26px}
+nav{margin-left:auto;display:flex;gap:8px}
+nav a{font-size:14px;text-decoration:none;color:var(--ink2);padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:#fff}
+nav a.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.gate{max-width:380px;margin:16vh auto;background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px}
+.gate input{width:100%;font:inherit;padding:11px 13px;border:1px solid var(--line);border-radius:10px;margin:12px 0}
+.gate button{width:100%;font:inherit;font-weight:700;background:var(--gold);color:#fff;border:0;border-radius:999px;padding:12px}
+.mut{color:var(--ink3);font-size:13px}
+main{padding:20px 0 60px}
+.note{background:#fff;border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:0 12px 12px 0;padding:13px 16px;font-size:13.5px;color:var(--ink2);margin-bottom:16px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:16px}
+.card h2{font-size:15px;margin:0 0 12px}
+.grid{display:grid;grid-template-columns:1fr;gap:10px}
+.co{background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 15px;display:flex;justify-content:space-between;align-items:center;gap:12px;cursor:pointer}
+.co:hover{border-color:var(--gold)}
+.co b{font-size:14.5px;display:block}
+.co .sub{font-size:12.5px;color:var(--ink3);margin-top:2px}
+.co .cnt{font-size:12.5px;color:var(--ink3);white-space:nowrap}
+input,textarea{width:100%;font:inherit;font-size:14px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}
+label{display:block;font-size:13px;font-weight:600;color:var(--ink2);margin:12px 0 5px}
+button.go{font:inherit;font-weight:700;background:var(--gold);color:#fff;border:0;border-radius:999px;padding:10px 20px;cursor:pointer;margin-top:14px}
+button.sec{font:inherit;font-size:13px;background:#fff;color:var(--ink2);border:1px solid var(--line);border-radius:999px;padding:7px 14px;cursor:pointer}
+#mask{position:fixed;inset:0;background:rgba(35,38,45,.45);z-index:40}
+#modal{position:fixed;z-index:41;left:50%;top:50%;transform:translate(-50%,-50%);width:min(600px,94vw);max-height:86vh;overflow:auto;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.mhd{display:flex;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;border-radius:16px 16px 0 0}
+.mhd b{font-size:16px;flex:1}
+.mhd button{border:0;background:transparent;font-size:20px;color:var(--ink3);cursor:pointer}
+#mbody{padding:16px 18px 22px}
+.linkbox{background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13px;word-break:break-all;display:flex;gap:8px;align-items:center}
+.linkbox span{flex:1}
+.joblist{margin-top:6px}
+.jrow{padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px;display:flex;justify-content:space-between;gap:10px}
+.jrow:last-child{border-bottom:0}
+.jrow .st{font-size:11.5px;color:var(--ink3)}
+.err{background:#fdecea;color:#a8392b;border-radius:10px;padding:10px 13px;font-size:13.5px;margin-top:10px}
+.state{max-width:420px;margin:14vh auto;text-align:center;color:var(--ink2)}
+</style>
+
+<div id="gate" class="gate" hidden>
+  <b>顧問後台</b>
+  <p class="mut" style="margin:6px 0 0">需要存取權杖。這組權杖等同密碼，不要外傳。</p>
+  <input id="tok" type="password" placeholder="ADMIN_TOKEN" autocomplete="off">
+  <button id="enter" type="button">進入</button>
+  <p id="gerr" class="mut" style="color:#b4552e;margin:12px 0 0" hidden></p>
+</div>
+
+<div id="app" hidden>
+  <header><div class="wrap">
+    <img src="/assets/step1ne-logo.png" alt="Step1ne"><b>客戶資訊</b>
+    <nav><a href="/consultant/overview/">總覽</a><a href="/consultant/jobs/">職缺分類</a><a href="/consultant/client-info/" class="on">客戶資訊</a><a href="#" id="out">登出</a></nav>
+  </div></header>
+  <main class="wrap">
+    <div class="note">
+      每家公司對應一個<b>用人需求表入口網址</b>，點公司卡片可以看聯絡資訊、複製連結、看底下掛了哪些職缺。
+      連結不會過期，要收回舊連結的存取權，在彈窗裡按「重新產生連結」即可。
+    </div>
+
+    <div class="card">
+      <h2>新增公司</h2>
+      <label for="name">公司名稱</label>
+      <input id="name" type="text" placeholder="正式全名">
+      <label for="email">聯絡信箱（選填，之後寄補件連結用）</label>
+      <input id="email" type="text" placeholder="hr@company.com">
+      <button id="save" class="go" type="button">建立入口</button>
+      <div id="err" class="err" hidden></div>
+    </div>
+
+    <div id="list" class="grid"></div>
+  </main>
+</div>
+
+<div id="mask" hidden></div>
+<div id="modal" role="dialog" aria-modal="true" hidden>
+  <div class="mhd"><b id="mt">—</b><button id="mx" aria-label="關閉">×</button></div>
+  <div id="mbody"></div>
+</div>
+
+<script>
+var API = 'https://step1ne-recruit-api.aiagentg888.workers.dev';
+var KEY = 's1ne_admin_tok';
+var tok = localStorage.getItem(KEY) || '';
+var $ = function (i) { return document.getElementById(i); };
+
+function esc(s) { return String(s == null ? '' : s).replace(/[<>&]/g, function (c) { return { '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]; }); }
+
+function gate(m) { $('app').hidden = true; $('gate').hidden = false; if (m) { $('gerr').textContent = m; $('gerr').hidden = false; } }
+function enter() { tok = $('tok').value.trim(); if (!tok) return; localStorage.setItem(KEY, tok); $('gate').hidden = true; $('app').hidden = false; load(); }
+$('enter').onclick = enter;
+$('tok').onkeydown = function (e) { if (e.key === 'Enter') enter(); };
+$('out').onclick = function (e) { e.preventDefault(); localStorage.removeItem(KEY); tok = ''; gate(''); };
+
+function api(path, opt) {
+  opt = opt || {};
+  opt.headers = Object.assign({ authorization: 'Bearer ' + tok }, opt.headers || {});
+  return fetch(API + path, opt).then(function (r) {
+    if (r.status === 401) { gate('權杖不正確'); throw new Error('unauthorized'); }
+    return r.json();
+  });
+}
+
+function closeModal() { $('mask').hidden = true; $('modal').hidden = true; }
+$('mx').onclick = closeModal;
+$('mask').onclick = closeModal;
+
+function openCompany(id) {
+  $('mt').textContent = '讀取中…';
+  $('mbody').innerHTML = '';
+  $('mask').hidden = false; $('modal').hidden = false;
+  api('/admin/portal/companies/' + encodeURIComponent(id)).then(function (d) {
+    if (!d.ok) { $('mt').textContent = '讀取失敗'; $('mbody').innerHTML = '<div class="err">' + esc(d.error || '') + '</div>'; return; }
+    var c = d.company;
+    var url = 'https://step1ne.com/portal/?t=' + c.portal_token;
+    $('mt').textContent = c.display_name;
+    var jobsHtml = (d.jobs || []).length
+      ? d.jobs.map(function (j) {
+          return '<div class="jrow"><span>' + esc(j.title || j.slug) + '</span><span class="st">' + esc(j.status || '') + '</span></div>';
+        }).join('')
+      : '<p class="mut">還沒有職缺掛在這個入口。</p>';
+    $('mbody').innerHTML =
+      '<label>聯絡信箱</label><div class="linkbox"><span>' + esc(c.contact_email || '（未填）') + '</span></div>'
+      + '<label>用人需求表連結</label>'
+      + '<div class="linkbox"><span id="purl">' + esc(url) + '</span><button class="sec" id="cp">複製</button></div>'
+      + '<label>已掛職缺（' + (d.jobs || []).length + '）</label>'
+      + '<div class="joblist">' + jobsHtml + '</div>'
+      + '<button class="sec" id="regen" style="margin-top:16px">重新產生連結（舊連結會失效）</button>';
+    $('cp').onclick = function () {
+      navigator.clipboard.writeText(url).then(function () { $('cp').textContent = '已複製'; setTimeout(function () { $('cp').textContent = '複製'; }, 1500); });
+    };
+    $('regen').onclick = function () {
+      if (!confirm('確定要重新產生連結嗎？舊的連結會馬上失效。')) return;
+      api('/admin/portal/companies/regen-token', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: c.id }) })
+        .then(function (r) { if (r.ok) openCompany(c.id); else alert(r.error || '失敗'); });
+    };
+  }).catch(function () {});
+}
+
+function load() {
+  api('/admin/portal/companies').then(function (d) {
+    if (!d.ok) return;
+    var rows = d.companies || [];
+    $('list').innerHTML = rows.length ? rows.map(function (c) {
+      return '<div class="co" data-id="' + esc(c.id) + '">'
+        + '<div><b>' + esc(c.display_name) + '</b><div class="sub">' + esc(c.contact_email || '未填聯絡信箱') + '</div></div>'
+        + '<div class="cnt">' + c.job_count + ' 個職缺</div></div>';
+    }).join('') : '<p class="mut">還沒有任何公司入口，用上面的表單建立第一個。</p>';
+    Array.prototype.forEach.call($('list').querySelectorAll('.co'), function (el) {
+      el.onclick = function () { openCompany(this.dataset.id); };
+    });
+  });
+}
+
+$('save').onclick = function () {
+  $('err').hidden = true;
+  var name = $('name').value.trim();
+  if (!name) { $('err').textContent = '請填公司名稱。'; $('err').hidden = false; return; }
+  this.disabled = true;
+  api('/admin/portal/companies', {
+    method: 'POST', headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ displayName: name, contactEmail: $('email').value.trim() }),
+  }).then(function (d) {
+    if (!d.ok) { $('err').textContent = d.error || '建立失敗'; $('err').hidden = false; return; }
+    $('name').value = ''; $('email').value = '';
+    load();
+    openCompany(d.id);
+  }).catch(function (e) { if (e.message !== 'unauthorized') { $('err').textContent = '連線失敗'; $('err').hidden = false; } })
+    .finally(function () { $('save').disabled = false; });
+};
+
+if (tok) { $('app').hidden = false; load(); } else { gate(''); }
+</script>
+<script defer src="/consultant/_shell.js"></script>
+</html>
