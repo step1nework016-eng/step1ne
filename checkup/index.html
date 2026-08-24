@@ -368,6 +368,16 @@ f.addEventListener('submit', async (e) => {
     btn.disabled = false; btn.textContent = '送出健檢申請'; return;
   }
 
+  // 額外多告訴 GA4 一次「健檢申請送出成功」，不影響上面已經存進資料庫的邏輯——
+  // 只是讓第一步（submitInitial）就抓到的 UTM／來源資料，同時也進得了 GA4 報表。
+  try {
+    gtag('event', 'form_submit', {
+      form_name: 'checkup',
+      utm_source: q.get('utm_source'), utm_medium: q.get('utm_medium'),
+      utm_campaign: q.get('utm_campaign'),
+    });
+  } catch (e) { /* GA4 掛了也不能擋住健檢流程 */ }
+
   if (d.route === 'now') { showNowOrBook(d); return; }
   if (d.route === 'book') { location.href = '/checkup-book/?t=' + encodeURIComponent(RETURN_TOKEN); return; }
   if (d.route === 'scheduled') {

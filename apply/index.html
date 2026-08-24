@@ -619,6 +619,17 @@ f.addEventListener('submit', async (e) => {
     return;
   }
 
+  // 額外多告訴 GA4 一次「應徵表單送出成功」，不影響上面已經存進資料庫的邏輯——
+  // 只是讓這批本來就有抓到的 UTM／來源資料，同時也進得了 GA4 報表。
+  try {
+    gtag('event', 'form_submit', {
+      form_name: 'apply',
+      job_slug: (new FormData(f)).get('job_slug') || 'unspecified',
+      utm_source: q.get('utm_source'), utm_medium: q.get('utm_medium'),
+      utm_campaign: q.get('utm_campaign'),
+    });
+  } catch (e) { /* GA4 掛了也不能擋住應徵流程 */ }
+
   // ⚠️ 2026-08-12：這裡原本 route==='now' 是無條件直接導去面談室，
   //    沒有給「先約時間」的選項——早上先把這個邏輯加在 /assessment/ 自己的結果頁，
   //    但真實流程是「/apply/ → /assessment/（交卷後不show結果，直接跳回）→ /apply/
