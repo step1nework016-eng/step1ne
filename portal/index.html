@@ -52,6 +52,15 @@ button:disabled{opacity:.5;cursor:default}
 .back{background:transparent;color:var(--ink2);font-weight:600;padding:6px 0;margin-bottom:14px;
  border:0;cursor:pointer;font-size:13.5px}
 .back:hover{color:var(--gold)}
+#mask{position:fixed;inset:0;background:rgba(35,38,45,.45);z-index:40}
+#savedModal{position:fixed;z-index:41;left:50%;top:50%;transform:translate(-50%,-50%);
+ width:min(360px,90vw);background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.25);
+ padding:28px 24px;text-align:center}
+#savedModal .ico{font-size:34px;color:var(--ok);margin-bottom:10px}
+#savedModal h3{margin:0 0 8px;font-size:17px}
+#savedModal p{margin:0 0 20px;font-size:13.5px;color:var(--ink2)}
+#savedModal .row{display:flex;gap:8px;justify-content:center}
+#savedModal button.sec{background:#fff;color:var(--ink2);border:1px solid var(--line)}
 </style>
 
 <header><div class="wrap"><b>STEP1NE 用人需求表</b><span id="coname"></span></div></header>
@@ -77,6 +86,17 @@ button:disabled{opacity:.5;cursor:default}
     </div>
   </div>
 </main>
+
+<div id="mask" hidden></div>
+<div id="savedModal" hidden>
+  <div class="ico">✓</div>
+  <h3>已儲存</h3>
+  <p>這個職缺的內容已經更新，顧問也會收到通知。</p>
+  <div class="row">
+    <button class="sec" id="savedStay">繼續編輯</button>
+    <button id="savedBack">返回主選單</button>
+  </div>
+</div>
 
 <script>
 const API = 'https://step1ne-recruit-api.aiagentg888.workers.dev';
@@ -211,7 +231,6 @@ function renderJob(job, fields){
     <table>${rows}</table>
     <div class="savebar">
       <button data-slug="${esc(job.slug)}">儲存這個職缺</button>
-      <span class="saved">已儲存</span>
     </div>`;
   div.querySelector('button').addEventListener('click', (e) => saveJob(job.slug, div, e.target));
   return div;
@@ -229,9 +248,6 @@ async function saveJob(slug, jobEl, btn){
     });
     const data = await res.json();
     if (!data.ok){ alert(data.error || '儲存失敗'); btn.disabled = false; return; }
-    const saved = jobEl.querySelector('.saved');
-    saved.classList.add('on');
-    setTimeout(() => saved.classList.remove('on'), 2000);
     // 補上「待補」狀態即時更新，同時同步回 PORTAL_DATA，回清單時已填數才會是新的
     const jobRecord = PORTAL_DATA.jobs.find(j => j.slug === slug);
     jobEl.querySelectorAll('[data-k]').forEach(el => {
@@ -239,11 +255,29 @@ async function saveJob(slug, jobEl, btn){
       td.innerHTML = el.value ? '<span class="pill ok">已填</span>' : '<span class="pill warn">待補</span>';
       if (jobRecord) jobRecord[el.dataset.k] = el.value;
     });
+    showSavedModal();
   }catch{
     alert('連線失敗，請稍後再試');
   }
   btn.disabled = false;
 }
+
+function showSavedModal(){
+  document.getElementById('mask').hidden = false;
+  document.getElementById('savedModal').hidden = false;
+}
+function hideSavedModal(){
+  document.getElementById('mask').hidden = true;
+  document.getElementById('savedModal').hidden = true;
+}
+document.getElementById('mask').addEventListener('click', hideSavedModal);
+document.getElementById('savedStay').addEventListener('click', hideSavedModal);
+document.getElementById('savedBack').addEventListener('click', () => {
+  hideSavedModal();
+  renderPicklist();
+  document.getElementById('jobView').hidden = true;
+  document.getElementById('pickView').hidden = false;
+});
 
 load();
 </script>
