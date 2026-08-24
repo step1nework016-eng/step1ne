@@ -83,6 +83,8 @@ const API = 'https://step1ne-recruit-api.aiagentg888.workers.dev';
 const token = new URLSearchParams(location.search).get('t') || '';
 
 const LABELS = {
+  client_name:'公司名稱', client_screen_conditions:'用人條件補充說明', faq_notes:'常見問題／FAQ說明',
+  salary_note:'薪資補充說明',
   title:'職缺名稱', client_intro:'公司簡介', hiring_manager:'用人主管',
   years_min:'最低年資要求', must_skills:'必要技能',
   salary_min:'薪資下限', salary_max:'薪資上限', salary_unit:'薪資單位',
@@ -193,7 +195,7 @@ function renderJob(job, fields){
     const has = val !== '';
     const isLong = ['main_duties','required_conditions','benefits_detail','salary_tier_table',
       'overtime_detail','salary_structure_note','dispatch_to_permanent_policy','contract_terms_note',
-      'client_intro'].includes(key);
+      'client_intro','client_screen_conditions','faq_notes','salary_note'].includes(key);
     const tag = isLong ? 'textarea' : 'input type="text"';
     const closeTag = isLong ? 'textarea' : 'input';
     return `<tr>
