@@ -64,7 +64,26 @@ document.addEventListener('click', function (e) {
   function go(url) {
     if (done) return;
     done = true;
-    location.replace(url || FALLBACK);
+    var target = url || FALLBACK;
+    var redirected = false;
+    function doRedirect() {
+      if (redirected) return;
+      redirected = true;
+      location.replace(target);
+    }
+    // 額外多記一筆「轉址去哪、帶了哪些參數」進 GA4，跟後端那套第一方歸因並存、互不取代。
+    // 用 event_callback 讓轉址等這個事件送出（或最多等 200ms），
+    // 但無論 gtag 有沒有正常回應，200ms 後都一定會強制轉址——這一頁絕對不能把人卡住。
+    try {
+      gtag('event', 'line_redirect', {
+        consultant: c || null,
+        job: j || null,
+        target_url: target,
+        event_callback: doRedirect,
+        event_timeout: 200
+      });
+    } catch (e) { /* GA4 掛了不能擋轉址 */ }
+    setTimeout(doRedirect, 200);
   }
   // 保險絲：2 秒內沒轉走就直接送去 LINE，並露出手動按鈕
   setTimeout(function () {
