@@ -47,7 +47,13 @@ button.sec{font:inherit;font-size:13px;background:#fff;color:var(--ink2);border:
 .jrow:last-child{border-bottom:0}
 .jrow .st{font-size:11.5px;color:var(--ink3)}
 .err{background:#fdecea;color:#a8392b;border-radius:10px;padding:10px 13px;font-size:13.5px;margin-top:10px}
+.ok2{background:#e3f3e9;color:var(--ok);border-radius:10px;padding:10px 13px;font-size:13.5px;margin-top:10px}
 .state{max-width:420px;margin:14vh auto;text-align:center;color:var(--ink2)}
+.pending{font-size:11px;font-weight:700;background:#fdf1de;color:#c98a1e;border-radius:999px;padding:2px 8px;margin-left:6px}
+.jrow .act{display:flex;gap:6px}
+.jrow .act button{font-size:11.5px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:#fff;cursor:pointer}
+.jrow .act button.appr{color:var(--ok);border-color:var(--ok)}
+.jrow .act button.rej{color:var(--bad);border-color:var(--bad)}
 </style>
 
 <div id="gate" class="gate" hidden>
@@ -124,19 +130,40 @@ function openCompany(id) {
     if (!d.ok) { $('mt').textContent = '讀取失敗'; $('mbody').innerHTML = '<div class="err">' + esc(d.error || '') + '</div>'; return; }
     var c = d.company;
     var url = 'https://step1ne.com/portal/?t=' + c.portal_token;
+    var jobs = d.jobs || [];
+    var pending = jobs.filter(function (j) { return j.status === 'pending_review'; });
+    var linked = jobs.filter(function (j) { return j.status !== 'pending_review'; });
     $('mt').textContent = c.display_name;
-    var jobsHtml = (d.jobs || []).length
-      ? d.jobs.map(function (j) {
+
+    var pendingHtml = pending.length
+      ? pending.map(function (j) {
+          return '<div class="jrow"><span>' + esc(j.title || j.slug) + '<span class="pending">待審核</span></span>'
+            + '<span class="act">'
+            + '<button class="appr" data-slug="' + esc(j.slug) + '">核准</button>'
+            + '<button class="rej" data-slug="' + esc(j.slug) + '">拒絕</button>'
+            + '</span></div>';
+        }).join('')
+      : '';
+    var jobsHtml = linked.length
+      ? linked.map(function (j) {
           return '<div class="jrow"><span>' + esc(j.title || j.slug) + '</span><span class="st">' + esc(j.status || '') + '</span></div>';
         }).join('')
       : '<p class="mut">還沒有職缺掛在這個入口。</p>';
+
     $('mbody').innerHTML =
-      '<label>聯絡信箱</label><div class="linkbox"><span>' + esc(c.contact_email || '（未填）') + '</span></div>'
-      + '<label>用人需求表連結</label>'
+      '<label>聯絡人稱呼</label><input id="ename" type="text" value="' + esc(c.contact_name || '') + '" placeholder="例：林小姐">'
+      + '<label>聯絡信箱</label><input id="eemail" type="text" value="' + esc(c.contact_email || '') + '" placeholder="hr@company.com">'
+      + '<button class="sec" id="esave" style="margin-top:8px">儲存聯絡資訊</button>'
+      + '<div id="eerr" class="err" hidden></div><div id="eok" class="ok2" hidden></div>'
+      + '<label style="margin-top:18px">用人需求表連結</label>'
       + '<div class="linkbox"><span id="purl">' + esc(url) + '</span><button class="sec" id="cp">複製</button></div>'
-      + '<label>已掛職缺（' + (d.jobs || []).length + '）</label>'
-      + '<div class="joblist">' + jobsHtml + '</div>'
-      + '<button class="sec" id="regen" style="margin-top:16px">重新產生連結（舊連結會失效）</button>';
+      + '<p class="mut" style="margin:8px 0 0">' + (c.last_emailed_at ? '上次寄送：' + esc(c.last_emailed_at) : '還沒寄過信') + '</p>'
+      + '<button id="sendmail" style="margin-top:10px">一鍵寄送邀請信</button>'
+      + '<button class="sec" id="regen" style="margin-top:10px;margin-left:8px">重新產生連結</button>'
+      + (pending.length ? '<label style="margin-top:18px">待審核職缺（' + pending.length + '）</label><div class="joblist">' + pendingHtml + '</div>' : '')
+      + '<label style="margin-top:18px">已掛職缺（' + linked.length + '）</label>'
+      + '<div class="joblist">' + jobsHtml + '</div>';
+
     $('cp').onclick = function () {
       navigator.clipboard.writeText(url).then(function () { $('cp').textContent = '已複製'; setTimeout(function () { $('cp').textContent = '複製'; }, 1500); });
     };
@@ -145,6 +172,39 @@ function openCompany(id) {
       api('/admin/portal/companies/regen-token', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: c.id }) })
         .then(function (r) { if (r.ok) openCompany(c.id); else alert(r.error || '失敗'); });
     };
+    $('esave').onclick = function () {
+      $('eerr').hidden = true; $('eok').hidden = true;
+      this.disabled = true;
+      api('/admin/portal/companies/update', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ id: c.id, contactName: $('ename').value.trim(), contactEmail: $('eemail').value.trim() }),
+      }).then(function (r) {
+        if (!r.ok) { $('eerr').textContent = r.error || '儲存失敗'; $('eerr').hidden = false; return; }
+        $('eok').textContent = '已儲存'; $('eok').hidden = false;
+        load();
+      }).finally(function () { $('esave').disabled = false; });
+    };
+    $('sendmail').onclick = function () {
+      if (!c.contact_email && !$('eemail').value.trim()) { alert('請先填聯絡信箱'); return; }
+      if (!confirm('確定要寄送用人需求表連結給 ' + (c.contact_email || $('eemail').value.trim()) + ' 嗎？')) return;
+      this.disabled = true;
+      api('/admin/portal/companies/send-email', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: c.id }) })
+        .then(function (r) { if (r.ok) { alert('已寄出'); openCompany(c.id); } else alert(r.error || '寄送失敗'); })
+        .finally(function () { $('sendmail').disabled = false; });
+    };
+    Array.prototype.forEach.call($('mbody').querySelectorAll('.appr'), function (b) {
+      b.onclick = function () {
+        api('/admin/portal/pending-jobs/approve', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ slug: this.dataset.slug }) })
+          .then(function (r) { if (r.ok) openCompany(c.id); else alert(r.error || '失敗'); }.bind(this));
+      };
+    });
+    Array.prototype.forEach.call($('mbody').querySelectorAll('.rej'), function (b) {
+      b.onclick = function () {
+        if (!confirm('確定要拒絕這個職缺？會直接刪除，客戶要重新送一次。')) return;
+        api('/admin/portal/pending-jobs/reject', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ slug: this.dataset.slug }) })
+          .then(function (r) { if (r.ok) openCompany(c.id); else alert(r.error || '失敗'); }.bind(this));
+      };
+    });
   }).catch(function () {});
 }
 
@@ -154,7 +214,8 @@ function load() {
     var rows = d.companies || [];
     $('list').innerHTML = rows.length ? rows.map(function (c) {
       return '<div class="co" data-id="' + esc(c.id) + '">'
-        + '<div><b>' + esc(c.display_name) + '</b><div class="sub">' + esc(c.contact_email || '未填聯絡信箱') + '</div></div>'
+        + '<div><b>' + esc(c.display_name) + (c.pending_count > 0 ? '<span class="pending">' + c.pending_count + ' 待審核</span>' : '') + '</b>'
+        + '<div class="sub">' + esc(c.contact_email || '未填聯絡信箱') + '</div></div>'
         + '<div class="cnt">' + c.job_count + ' 個職缺</div></div>';
     }).join('') : '<p class="mut">還沒有任何公司入口，用上面的表單建立第一個。</p>';
     Array.prototype.forEach.call($('list').querySelectorAll('.co'), function (el) {

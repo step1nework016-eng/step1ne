@@ -77,6 +77,17 @@ button:disabled{opacity:.5;cursor:default}
           <option value="incomplete">尚有欄位待補</option>
           <option value="complete">已全部填寫</option>
         </select>
+        <button class="sec" id="newJobBtn" type="button">＋ 新增職缺</button>
+      </div>
+      <div id="newJobBox" hidden style="background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:14px">
+        <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px">新職缺名稱</label>
+        <input type="text" id="newJobTitle" placeholder="例如：業務專員">
+        <p style="font-size:12.5px;color:var(--ink3);margin:8px 0 0">送出後會先由顧問確認這個職缺，核准前不會出現在正式清單，也還不能編輯內容。</p>
+        <div style="margin-top:10px;display:flex;gap:8px">
+          <button id="newJobSubmit" type="button">送出</button>
+          <button class="sec" id="newJobCancel" type="button">取消</button>
+        </div>
+        <div id="newJobErr" class="err2" hidden style="color:var(--bad);font-size:13px;margin-top:8px"></div>
       </div>
       <div id="picklist" class="picklist"></div>
     </div>
@@ -178,6 +189,13 @@ function renderPicklist(){
   if (!rows.length){ listEl.innerHTML = '<div class="state">找不到符合條件的職缺。</div>'; return; }
 
   listEl.innerHTML = rows.map(job => {
+    const pending = job.status === 'pending_review';
+    if (pending){
+      return `<div class="pick" data-slug="${esc(job.slug)}" data-pending="1" style="opacity:.7">
+        <b>${esc(job.title || job.slug)}</b>
+        <span class="cnt" style="color:#c98a1e;font-weight:700">審核中</span>
+      </div>`;
+    }
     const filled = jobFilled(job, fields);
     return `<div class="pick" data-slug="${esc(job.slug)}">
       <b>${esc(job.title || job.slug)}</b>
@@ -185,9 +203,44 @@ function renderPicklist(){
     </div>`;
   }).join('');
   listEl.querySelectorAll('.pick').forEach(el => {
-    el.addEventListener('click', () => openJob(el.dataset.slug));
+    el.addEventListener('click', () => {
+      if (el.dataset.pending) { alert('這個職缺還在等顧問確認，核准後才能編輯內容。'); return; }
+      openJob(el.dataset.slug);
+    });
   });
 }
+
+document.getElementById('newJobBtn').addEventListener('click', () => {
+  document.getElementById('newJobBox').hidden = false;
+  document.getElementById('newJobTitle').focus();
+});
+document.getElementById('newJobCancel').addEventListener('click', () => {
+  document.getElementById('newJobBox').hidden = true;
+  document.getElementById('newJobTitle').value = '';
+});
+document.getElementById('newJobSubmit').addEventListener('click', async () => {
+  const title = document.getElementById('newJobTitle').value.trim();
+  const errEl = document.getElementById('newJobErr');
+  errEl.hidden = true;
+  if (!title){ errEl.textContent = '請填職缺名稱'; errEl.hidden = false; return; }
+  const btn = document.getElementById('newJobSubmit');
+  btn.disabled = true;
+  try{
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}`, {
+      method: 'POST', headers: {'content-type':'application/json'}, body: JSON.stringify({ title }),
+    });
+    const data = await res.json();
+    if (!data.ok){ errEl.textContent = data.error || '送出失敗'; errEl.hidden = false; btn.disabled = false; return; }
+    document.getElementById('newJobBox').hidden = true;
+    document.getElementById('newJobTitle').value = '';
+    PORTAL_DATA.jobs.push({ slug: data.slug, title, status: 'pending_review' });
+    renderPicklist();
+    alert('已送出，等待顧問確認後就會出現在職缺清單中可以填寫。');
+  }catch{
+    errEl.textContent = '連線失敗，請稍後再試'; errEl.hidden = false;
+  }
+  btn.disabled = false;
+});
 
 document.getElementById('q').addEventListener('input', renderPicklist);
 document.getElementById('fl').addEventListener('change', renderPicklist);
