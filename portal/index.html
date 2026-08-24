@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="zh-Hant">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>用人需求表｜STEP1NE</title>
+<link rel="icon" href="/assets/favicon.ico">
+<style>
+:root{--gold:#a67c3d;--ink:#23262d;--ink2:#4d5563;--ink3:#8a8d95;--line:#eee7db;--soft:#faf8f3;--bg:#f4f1ea;--ok:#2f8f5b;--bad:#c0392b;--warn:#c98a1e}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 -apple-system,"Noto Sans TC",sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:0 16px}
+header{background:#fff;border-bottom:1px solid var(--line);padding:16px 0}
+header .wrap{display:flex;align-items:center;gap:10px}
+header b{font-size:16px}
+header span{color:var(--ink3);font-size:13px}
+main{padding:24px 0 80px}
+.state{max-width:420px;margin:16vh auto;text-align:center;color:var(--ink2)}
+.job{background:#fff;border:1px solid var(--line);border-radius:14px;margin-bottom:20px;overflow:hidden}
+.job > h2{margin:0;padding:16px 18px;font-size:16px;border-bottom:1px solid var(--line);background:var(--soft);
+ display:flex;align-items:center;gap:10px}
+.job > h2 .cnt{margin-left:auto;font-size:12.5px;color:var(--ink3);font-weight:400}
+table{width:100%;border-collapse:collapse}
+td{padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top;font-size:14px}
+tr:last-child td{border-bottom:0}
+td.lb{width:170px;color:var(--ink2);font-weight:600;white-space:nowrap;padding-top:13px}
+td.vv{width:100%}
+td.st{width:70px;text-align:right;padding-top:13px}
+textarea,input[type=text]{width:100%;font:inherit;font-size:13.5px;padding:8px 10px;border:1px solid var(--line);
+ border-radius:8px;background:#fff;resize:vertical;min-height:38px}
+textarea{min-height:56px}
+.pill{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px}
+.pill.ok{background:#e3f3e9;color:var(--ok)}
+.pill.warn{background:#fdf1de;color:var(--warn)}
+.savebar{padding:14px 18px;display:flex;align-items:center;gap:12px;background:var(--soft);border-top:1px solid var(--line)}
+button{font:inherit;font-weight:700;background:var(--gold);color:#fff;border:0;border-radius:999px;padding:10px 22px;cursor:pointer}
+button:disabled{opacity:.5;cursor:default}
+.savebar .saved{font-size:13px;color:var(--ok);opacity:0;transition:opacity .2s}
+.savebar .saved.on{opacity:1}
+.note{background:#fff;border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:0 12px 12px 0;
+ padding:13px 16px;font-size:13.5px;color:var(--ink2);margin-bottom:20px}
+</style>
+
+<header><div class="wrap"><b>STEP1NE 用人需求表</b><span id="coname"></span></div></header>
+
+<main class="wrap">
+  <div id="loading" class="state">讀取中…</div>
+  <div id="content" hidden>
+    <div class="note">黃色標籤代表這格還沒有資料，麻煩您補上；已經有內容的欄位可以直接修改。改完記得按每個職缺底下的「儲存」。</div>
+    <div id="jobs"></div>
+  </div>
+</main>
+
+<script>
+const API = 'https://step1ne-recruit-api.aiagentg888.workers.dev';
+const token = new URLSearchParams(location.search).get('t') || '';
+
+const LABELS = {
+  title:'職缺名稱', client_intro:'公司簡介', hiring_manager:'用人主管',
+  years_min:'最低年資要求', must_skills:'必要技能',
+  salary_min:'薪資下限', salary_max:'薪資上限', salary_unit:'薪資單位',
+  locations:'工作地點', employment:'聘僱型態', onboard_by:'希望到職日',
+  team_size:'團隊人數與組成', interview_rounds:'面試次數', interview_who:'面試官', has_test:'是否有測驗',
+  client_contact_name:'聯絡窗口', client_contact_phone:'聯絡電話',
+  headcount:'需求人數', work_mode:'辦公型態',
+  work_hours:'上班時間', leave_policy:'休假方式', employment_period:'工作期間', overtime_policy:'加班情形',
+  hiring_reason:'招募原因', urgency:'急迫程度',
+  main_duties:'主要工作職責', reports_to:'直接匯報對象', leads_team:'是否帶團隊',
+  education_level:'學歷要求', required_conditions:'必備條件', language_requirement:'語言能力',
+  nice_to_have_skills:'加分技能／經驗', preferred_background:'偏好背景', personality_traits:'期望人格特質',
+  salary_tier_table:'薪資分級表（進階，如不熟悉建議留給顧問填）', salary_structure_note:'薪資結構說明',
+  benefits_detail:'福利與津貼', dispatch_to_permanent_policy:'派遣／轉正條件', off_limits_note:'同業限制',
+  dispatch_client:'實際要派單位／進駐專案', department:'所屬部門／團隊',
+  work_environment_ratio:'工作環境現場比重', attendance_method:'出勤紀錄方式',
+  interview_process:'面試流程與關卡', dispatch_range:'專案調派範圍',
+  contract_terms_note:'保密／競業／最低服務年限', overtime_detail:'加班細項（進階，如不熟悉建議留給顧問填）',
+  onboarding_prep_note:'錄取後前置作業',
+};
+
+function esc(s){return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+async function load(){
+  if (!token){ document.getElementById('loading').textContent = '這個連結不完整，請跟顧問確認。'; return; }
+  let data;
+  try{
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}`);
+    data = await res.json();
+  }catch{
+    document.getElementById('loading').textContent = '連線失敗，請稍後再試。';
+    return;
+  }
+  if (!data.ok){
+    document.getElementById('loading').textContent = data.error || '連結無效，請聯繫顧問重新發送。';
+    return;
+  }
+  document.getElementById('coname').textContent = data.company.displayName;
+  document.getElementById('loading').hidden = true;
+  document.getElementById('content').hidden = false;
+
+  const jobsEl = document.getElementById('jobs');
+  if (!data.jobs.length){
+    jobsEl.innerHTML = '<div class="state">目前還沒有職缺掛在這個入口，請聯繫顧問。</div>';
+    return;
+  }
+  for (const job of data.jobs) jobsEl.appendChild(renderJob(job, data.fields));
+}
+
+function renderJob(job, fields){
+  const filled = fields.filter(k => job[k] !== null && job[k] !== '').length;
+  const div = document.createElement('div');
+  div.className = 'job';
+  const rows = fields.map(key => {
+    const val = job[key] ?? '';
+    const has = val !== '';
+    const isLong = ['main_duties','required_conditions','benefits_detail','salary_tier_table',
+      'overtime_detail','salary_structure_note','dispatch_to_permanent_policy','contract_terms_note',
+      'client_intro'].includes(key);
+    const tag = isLong ? 'textarea' : 'input type="text"';
+    const closeTag = isLong ? 'textarea' : 'input';
+    return `<tr>
+      <td class="lb">${esc(LABELS[key] || key)}</td>
+      <td class="vv">${isLong
+        ? `<textarea data-k="${key}">${esc(val)}</textarea>`
+        : `<input type="text" data-k="${key}" value="${esc(val)}">`}</td>
+      <td class="st">${has ? '<span class="pill ok">已填</span>' : '<span class="pill warn">待補</span>'}</td>
+    </tr>`;
+  }).join('');
+  div.innerHTML = `
+    <h2>${esc(job.title || job.slug)}<span class="cnt">已填 ${filled} / ${fields.length}</span></h2>
+    <table>${rows}</table>
+    <div class="savebar">
+      <button data-slug="${esc(job.slug)}">儲存這個職缺</button>
+      <span class="saved">已儲存</span>
+    </div>`;
+  div.querySelector('button').addEventListener('click', (e) => saveJob(job.slug, div, e.target));
+  return div;
+}
+
+async function saveJob(slug, jobEl, btn){
+  btn.disabled = true;
+  const payload = {};
+  jobEl.querySelectorAll('[data-k]').forEach(el => { payload[el.dataset.k] = el.value; });
+  try{
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/jobs/${encodeURIComponent(slug)}`, {
+      method: 'PUT',
+      headers: {'content-type':'application/json'},
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!data.ok){ alert(data.error || '儲存失敗'); btn.disabled = false; return; }
+    const saved = jobEl.querySelector('.saved');
+    saved.classList.add('on');
+    setTimeout(() => saved.classList.remove('on'), 2000);
+    // 補上「待補」狀態即時更新
+    jobEl.querySelectorAll('[data-k]').forEach(el => {
+      const td = el.closest('tr').querySelector('.st');
+      td.innerHTML = el.value ? '<span class="pill ok">已填</span>' : '<span class="pill warn">待補</span>';
+    });
+  }catch{
+    alert('連線失敗，請稍後再試');
+  }
+  btn.disabled = false;
+}
+
+load();
+</script>
+</html>
