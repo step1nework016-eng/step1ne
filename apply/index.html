@@ -5,6 +5,13 @@ window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', 'G-DNPMMRDEC0');
+// 職缺頁「立即應徵」按鈕連到這裡時會帶 ?job=xxx&utm_source=...，
+// 與其去改每一個職缺頁掛 onclick（以後新增職缺又要重做一次），
+// 直接在落地頁這裡把 job 參數獨立記一個事件，一次涵蓋所有職缺頁。
+(function () {
+  var jobSlug = new URLSearchParams(location.search).get('job');
+  if (jobSlug) gtag('event', 'job_apply_landing', { job_slug: jobSlug });
+})();
 // 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
 // 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
 document.addEventListener('click', function (e) {
