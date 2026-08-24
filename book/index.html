@@ -309,6 +309,10 @@ async function book(btn,slot){
     if(r.slots) renderCalendar(r.slots);
     return;
   }
+  // 額外多告訴 GA4 一次「預約時段成功」，不影響上面已經存進資料庫的邏輯。
+  try{
+    gtag('event', 'appointment_submit', { form_name: 'book', slot_at: r.slot_at });
+  }catch(e){ /* GA4 掛了也不能擋住預約流程 */ }
   document.getElementById('monthbox').style.display='none';
   document.getElementById('weekbox').style.display='none';
   document.getElementById('datebox').style.display='none';

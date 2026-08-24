@@ -153,6 +153,10 @@ async function submit(){
     msg.className='msg err'; msg.textContent=r.error||'送出失敗';
     btn.disabled=false; btn.textContent='確認這個時段'; return;
   }
+  // 額外多告訴 GA4 一次「預約面談成功」，不影響上面已經存進資料庫的邏輯。
+  try{
+    gtag('event', 'appointment_submit', { form_name: 'appointment', slot_at: picked.slot_at });
+  }catch(e){ /* GA4 掛了也不能擋住預約流程 */ }
   document.getElementById('app').innerHTML = `
     <h1>已確認！</h1>
     <p class="lead">面談時間：<b>${esc(fmtWhen(picked.slot_at))}</b></p>
