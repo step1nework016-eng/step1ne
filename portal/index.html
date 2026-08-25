@@ -57,6 +57,9 @@ button.sec{background:#fff;color:var(--ink2);border:1px solid var(--line)}
 [data-k].imported{border-color:var(--gold)!important;background:#fdf6e9}
 .note{background:#fff;border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:0 12px 12px 0;
  padding:13px 16px;font-size:13.5px;color:var(--ink2);margin-bottom:20px}
+.hire-box{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+ background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:13.5px;color:var(--ink2)}
+.hire-box button{padding:7px 16px;font-size:13px}
 .bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
 .bar input[type=search]{flex:1 1 220px;font:inherit;font-size:14px;padding:9px 13px;border:1px solid var(--line);
  border-radius:10px;background:#fff}
@@ -78,11 +81,26 @@ button.sec{background:#fff;color:var(--ink2);border:1px solid var(--line)}
 .cand .row1{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
 .cand b{font-size:15px}
 .cand .meta{font-size:12.5px;color:var(--ink3)}
-.cand .row2{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
-.cand .stage-now{font-size:13px;font-weight:700;color:var(--gold)}
+.cand .row2{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap}
 .cand select{font:inherit;font-size:13.5px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:#fff}
 .cand button{padding:7px 16px;font-size:13px}
 .cand .upd-msg{font-size:12.5px;color:var(--ok);margin-left:4px}
+.cand .add-round{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap;padding-top:12px;border-top:1px solid var(--line)}
+.cand .add-round input[type=text]{width:160px;font:inherit;font-size:13.5px;padding:7px 10px;border:1px solid var(--line);border-radius:8px}
+.cand .add-round .hint{font-size:12px;color:var(--ink3);width:100%}
+/* 進度條（跟顧問後台階段條同一套畫法） */
+.steps{display:flex;overflow-x:auto;gap:0;padding:4px 0}
+.step{position:relative;flex:1 0 auto;min-width:78px;text-align:center;padding-top:16px}
+.step .ln{position:absolute;top:7px;left:-50%;width:100%;height:2px;background:var(--line);z-index:0}
+.step:first-child .ln{display:none}
+.step.done .ln{background:var(--gold)}
+.step .dot{position:relative;z-index:1;width:16px;height:16px;margin:0 auto;border-radius:999px;background:#fff;
+ border:2px solid var(--line);font-size:9px;line-height:12px;color:#fff}
+.step.done .dot{background:var(--gold);border-color:var(--gold)}
+.step.now .dot{border-color:var(--gold);box-shadow:0 0 0 3px #fdf1de}
+.step .lb{font-size:11px;color:var(--ink3);margin-top:6px;line-height:1.4}
+.step.now .lb{color:var(--ink);font-weight:700}
+.step.done .lb{color:var(--ink2)}
 #mask{position:fixed;inset:0;background:rgba(35,38,45,.45);z-index:40}
 #savedModal{position:fixed;z-index:41;left:50%;top:50%;transform:translate(-50%,-50%);
  width:min(360px,90vw);background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.25);
@@ -318,6 +336,7 @@ function renderJob(job, fields){
   div.innerHTML = `
     <h2>${esc(job.title || job.slug)}<span class="cnt">已填 ${filled} / ${fields.length}</span></h2>
     ${renderImportBox(job.slug)}
+    ${renderHireStateBox(job)}
     <table>${rows}</table>
     <div class="savebar">
       <button data-slug="${esc(job.slug)}" class="save-btn">儲存這個職缺</button>
@@ -326,7 +345,68 @@ function renderJob(job, fields){
   div.querySelector('.save-btn').addEventListener('click', (e) => saveJob(job.slug, div, e.target));
   div.querySelector('.submit-btn').addEventListener('click', (e) => submitJob(job.slug, div, e.target));
   wireImportBox(div, job.slug);
+  wireHireStateBox(div, job.slug);
   return div;
+}
+
+// ── 結束招募／重新招募 ──
+function renderHireStateBox(job){
+  if (job.status === 'open'){
+    return `<div class="hire-box">
+      <span>這個職缺目前招募中。</span>
+      <button type="button" class="sec close-hire-btn">✓ 已找到人・結束招募</button>
+    </div>`;
+  }
+  if (job.status === 'closed' && job.closed_by === 'client'){
+    return `<div class="hire-box">
+      <span>你已標記這個職缺「結束招募」${job.closed_reason ? '（原因：' + esc(job.closed_reason) + '）' : ''}，公開頁面已隱藏、暫不安排新面試。</span>
+      <button type="button" class="reopen-btn">重新招募</button>
+    </div>`;
+  }
+  if (job.status === 'closed' && job.closed_by === 'consultant'){
+    return `<div class="hire-box"><span>這個職缺目前由顧問關閉中，如需重新開放請聯繫顧問。</span></div>`;
+  }
+  return '';
+}
+function wireHireStateBox(jobEl, slug){
+  const closeBtn = jobEl.querySelector('.close-hire-btn');
+  if (closeBtn) closeBtn.addEventListener('click', () => closeHire(slug, jobEl));
+  const reopenBtn = jobEl.querySelector('.reopen-btn');
+  if (reopenBtn) reopenBtn.addEventListener('click', () => reopenHire(slug, jobEl));
+}
+async function closeHire(slug, jobEl){
+  const reason = prompt('請簡單說明結束招募的原因（例如：已透過其他管道找到人選）');
+  if (reason === null) return;
+  if (!reason.trim()){ alert('請填寫原因'); return; }
+  try{
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/jobs/${encodeURIComponent(slug)}/close-hire`, {
+      method: 'POST', headers: {'content-type':'application/json'}, body: JSON.stringify({ reason: reason.trim() }),
+    });
+    const data = await res.json();
+    if (!data.ok){ alert(data.error || '送出失敗'); return; }
+    const jobRecord = PORTAL_DATA.jobs.find(j => j.slug === slug);
+    if (jobRecord){ jobRecord.status = 'closed'; jobRecord.closed_by = 'client'; jobRecord.closed_reason = reason.trim(); }
+    openJob(slug);
+  }catch{
+    alert('連線失敗，請稍後再試');
+  }
+}
+async function reopenHire(slug, jobEl){
+  const reason = prompt('請簡單說明重新招募的原因');
+  if (reason === null) return;
+  if (!reason.trim()){ alert('請填寫原因'); return; }
+  try{
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/jobs/${encodeURIComponent(slug)}/reopen`, {
+      method: 'POST', headers: {'content-type':'application/json'}, body: JSON.stringify({ reason: reason.trim() }),
+    });
+    const data = await res.json();
+    if (!data.ok){ alert(data.error || '送出失敗'); return; }
+    const jobRecord = PORTAL_DATA.jobs.find(j => j.slug === slug);
+    if (jobRecord){ jobRecord.status = 'open'; jobRecord.closed_by = null; jobRecord.closed_reason = null; }
+    openJob(slug);
+  }catch{
+    alert('連線失敗，請稍後再試');
+  }
 }
 
 // ── 一鍵匯入 ──
@@ -562,32 +642,75 @@ async function loadCandidates(){
 function renderCandidates(list){
   const listEl = document.getElementById('candList');
   if (!list.length){ listEl.innerHTML = '<div class="state">目前還沒有推薦給你們的人選。</div>'; return; }
-  listEl.innerHTML = list.map(c => `
-    <div class="cand" data-app="${esc(c.application_id)}">
+  listEl.innerHTML = list.map(c => {
+    const dotsHtml = `<div class="steps">${c.steps.map(s => {
+      const cls = s.done ? 'done' : (s.now ? 'now' : '');
+      const mark = s.done ? '✓' : '';
+      return `<div class="step ${cls}"><div class="ln"></div><div class="dot">${mark}</div><div class="lb">${esc(s.lb)}</div></div>`;
+    }).join('')}</div>`;
+    const roundsFull = c.interview_rounds_used >= 4;
+    const addRoundHtml = roundsFull ? '' : `
+      <div class="add-round">
+        <select class="round-type">
+          ${Object.entries(c.interview_round_types).map(([k, lb]) => `<option value="${esc(k)}">${esc(lb)}</option>`).join('')}
+        </select>
+        <input type="text" class="round-note" placeholder="備註是哪個層級（選填）">
+        <button type="button" class="round-add">新增下一輪面試</button>
+        <span class="upd-msg round-msg"></span>
+        <span class="hint">選這一輪是人資面談還是用人單位主管面談，送出後會依序記成「第一階段」「第二階段」……</span>
+      </div>`;
+    const offerBackupHtml = `
+      <div class="row2">
+        <select class="stage-pick">
+          ${c.editable_stages.map(s => `<option value="${esc(s.key)}">${esc(s.lb)}</option>`).join('')}
+        </select>
+        <button type="button" class="stage-upd">更新為此狀態</button>
+        <span class="upd-msg stage-msg"></span>
+      </div>`;
+    return `<div class="cand" data-app="${esc(c.application_id)}">
       <div class="row1">
         <b>${esc(c.candidate_name)}</b>
         <span class="meta">${esc(c.job_title || c.job_slug)} · 推送日 ${esc((c.forwarded_at || '').slice(0, 10))}</span>
       </div>
-      <div class="row2">
-        <span class="stage-now">目前：${esc(c.current_stage ? c.current_stage.lb : '尚未開始')}</span>
-        <select class="stage-pick">
-          ${c.editable_stages.map(s => `<option value="${esc(s.key)}">${esc(s.lb)}</option>`).join('')}
-        </select>
-        <button type="button" class="stage-upd">更新</button>
-        <span class="upd-msg"></span>
-      </div>
-    </div>
-  `).join('');
+      ${dotsHtml}
+      ${addRoundHtml}
+      ${offerBackupHtml}
+    </div>`;
+  }).join('');
   listEl.querySelectorAll('.cand').forEach(el => {
+    const addBtn = el.querySelector('.round-add');
+    if (addBtn) addBtn.addEventListener('click', () => addInterviewRound(el));
     el.querySelector('.stage-upd').addEventListener('click', () => updateCandidateStage(el));
   });
+}
+
+async function addInterviewRound(candEl){
+  const appId = candEl.dataset.app;
+  const interviewType = candEl.querySelector('.round-type').value;
+  const detailNote = candEl.querySelector('.round-note').value.trim();
+  const btn = candEl.querySelector('.round-add');
+  const msgEl = candEl.querySelector('.round-msg');
+  btn.disabled = true;
+  msgEl.textContent = '';
+  try{
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(appId)}/add-interview-round`, {
+      method: 'POST', headers: {'content-type':'application/json'},
+      body: JSON.stringify({ interview_type: interviewType, detail_note: detailNote || undefined }),
+    });
+    const data = await res.json();
+    if (!data.ok){ msgEl.style.color = 'var(--bad)'; msgEl.textContent = data.error || '新增失敗'; btn.disabled = false; return; }
+    msgEl.style.color = 'var(--ok)'; msgEl.textContent = '已新增';
+    loadCandidates();
+  }catch{
+    msgEl.style.color = 'var(--bad)'; msgEl.textContent = '連線失敗，請稍後再試'; btn.disabled = false;
+  }
 }
 
 async function updateCandidateStage(candEl){
   const appId = candEl.dataset.app;
   const stage = candEl.querySelector('.stage-pick').value;
   const btn = candEl.querySelector('.stage-upd');
-  const msgEl = candEl.querySelector('.upd-msg');
+  const msgEl = candEl.querySelector('.stage-msg');
   btn.disabled = true;
   msgEl.textContent = '';
   try{
@@ -596,10 +719,9 @@ async function updateCandidateStage(candEl){
     });
     const data = await res.json();
     if (!data.ok){ msgEl.style.color = 'var(--bad)'; msgEl.textContent = data.error || '更新失敗'; btn.disabled = false; return; }
-    const lb = candEl.querySelector(`.stage-pick option[value="${stage}"]`).textContent;
-    candEl.querySelector('.stage-now').textContent = `目前：${lb}`;
     msgEl.style.color = 'var(--ok)';
     msgEl.textContent = '已更新';
+    loadCandidates();
   }catch{
     msgEl.style.color = 'var(--bad)'; msgEl.textContent = '連線失敗，請稍後再試';
   }
