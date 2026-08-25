@@ -27,34 +27,40 @@
   if (window.__s1shellLoaded) return;
   window.__s1shellLoaded = true;
 
+  // 2026-08-25 分組：15 個頁面攤成一整條清單找不到東西——依「顧問實際在
+  // 想什麼」分四組：人才漏斗本身、客戶與商機、職缺怎麼設定、其他工具。
+  // primary/mobile 的 bottom tab 邏輯不受分組影響，一樣看 primary 欄位。
   var PAGES = [
     // 2026-08-19 加：總覽放第一個——顧問打開後台第一眼要看到的是
     // 「等你動手的有幾件」，不是職缺列表。
-    { href: '/consultant/overview/',       label: '招募總覽', icon: 'chart',  primary: true  },
-    { href: '/consultant/sourced/',        label: '人才池',   icon: 'people', primary: true  },
-    { href: '/consultant/jobs/',           label: '職缺分類', icon: 'funnel', primary: true  },
-    { href: '/consultant/reports/',        label: '初篩報告', icon: 'doc',    primary: true  },
-    // 2026-08-25 加：enterprise.step1ne.com 招募形式評估工具的企業客戶提交紀錄——
-    // 跟候選人應徵是兩件事，這裡是「有人想委託」的商機線索，不是人才漏斗。
-    { href: '/consultant/hiring-assessments/', label: '招募形式評估', icon: 'target', primary: false },
+    { href: '/consultant/overview/',       label: '招募總覽', icon: 'chart',  primary: true,  group: '招募流程' },
+    { href: '/consultant/sourced/',        label: '人才池',   icon: 'people', primary: true,  group: '招募流程' },
+    { href: '/consultant/jobs/',           label: '職缺分類', icon: 'funnel', primary: true,  group: '招募流程' },
+    { href: '/consultant/reports/',        label: '初篩報告', icon: 'doc',    primary: true,  group: '招募流程' },
     // 2026-08-21 加：顧問補填「這個人我會不會推」。原本只有報告推到 TG 當下
     //  那三個按鈕能按，訊息被蓋掉就沒第二次機會——25 份報告只有 1 位被回填。
-    { href: '/consultant/kpi/',            label: '阿財準不準', icon: 'chart', primary: true  },
-    { href: '/consultant/clients/',        label: '客戶名單', icon: 'people', primary: true  },
+    { href: '/consultant/kpi/',            label: '阿財準不準', icon: 'chart', primary: true, group: '招募流程' },
+
+    { href: '/consultant/clients/',        label: '客戶名單', icon: 'people', primary: true,  group: '客戶與商機' },
     // 2026-08-25 加：跟「客戶名單」（陌生開發黑名單）是完全不同的東西——
     // 這裡是每家真實合作客戶的用人需求表入口（公司資訊＋掛的職缺＋補件連結）。
-    { href: '/consultant/client-info/',    label: '客戶資訊', icon: 'doc',    primary: true  },
-    { href: '/consultant/bd/',             label: '開發客戶', icon: 'target', primary: true  },
-    { href: '/consultant/job-intake/',     label: '新增職缺', icon: 'plus',   primary: false },
-    { href: '/consultant/job-draft/',      label: '改擬稿',   icon: 'pencil', primary: false },
-    { href: '/consultant/interview-spec/', label: '面談規格', icon: 'clip',   primary: false },
-    { href: '/consultant/checkups/',       label: '阿福健檢', icon: 'pulse',  primary: false },
-    { href: '/consultant/line-bindings/',  label: 'LINE 進度綁定', icon: 'clip', primary: false },
-    { href: '/consultant/token-usage/',    label: 'Token 用量', icon: 'chart', primary: false },
-    { href: '/consultant/expertise/',      label: '職缺題庫', icon: 'clip',   primary: false },
+    { href: '/consultant/client-info/',    label: '客戶資訊', icon: 'doc',    primary: true,  group: '客戶與商機' },
+    { href: '/consultant/bd/',             label: '開發客戶', icon: 'target', primary: true,  group: '客戶與商機' },
+    // 2026-08-25 加：enterprise.step1ne.com 招募形式評估工具的企業客戶提交紀錄——
+    // 跟候選人應徵是兩件事，這裡是「有人想委託」的商機線索，不是人才漏斗。
+    { href: '/consultant/hiring-assessments/', label: '招募形式評估', icon: 'target', primary: false, group: '客戶與商機' },
+
+    { href: '/consultant/job-intake/',     label: '新增職缺', icon: 'plus',   primary: false, group: '職缺設定' },
+    { href: '/consultant/job-draft/',      label: '改擬稿',   icon: 'pencil', primary: false, group: '職缺設定' },
+    { href: '/consultant/interview-spec/', label: '面談規格', icon: 'clip',   primary: false, group: '職缺設定' },
+    { href: '/consultant/expertise/',      label: '職缺題庫', icon: 'clip',   primary: false, group: '職缺設定' },
+
+    { href: '/consultant/checkups/',       label: '阿福健檢', icon: 'pulse',  primary: false, group: '其他工具' },
+    { href: '/consultant/line-bindings/',  label: 'LINE 進度綁定', icon: 'clip', primary: false, group: '其他工具' },
+    { href: '/consultant/token-usage/',    label: 'Token 用量', icon: 'chart', primary: false, group: '其他工具' },
     // 頁面 2026-08-19 已改名「顧問社群」（裡面分三個分頁：一鍵發文／發文數據／
     // 成效儀表板），選單一起改，不然點進去標題對不上。
-    { href: '/consultant/social-post/',    label: '顧問社群', icon: 'send',   primary: false }
+    { href: '/consultant/social-post/',    label: '顧問社群', icon: 'send',   primary: false, group: '其他工具' }
   ];
 
   var ICONS = {
@@ -106,7 +112,9 @@
     'html.s1shell-sb-collapsed #s1shell-sidebar{display:none!important}' +
     'html.s1shell-sb-collapsed body{padding-left:0!important}' +
     '@media(min-width:1024px){html.s1shell-authed.s1shell-sb-collapsed #s1shell-reopen-btn{display:flex}}' +
-    '#s1shell-sidebar nav{padding:0 10px;display:flex;flex-direction:column;gap:2px}' +
+    '#s1shell-sidebar nav{padding:0 10px 12px;display:flex;flex-direction:column;gap:2px}' +
+    '#s1shell-sidebar .s1-group-label{padding:6px 12px 4px;font-size:11px;font-weight:700;' +
+      'letter-spacing:.06em;color:#b3ac9c;text-transform:uppercase}' +
     '#s1shell-sidebar nav a{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;' +
       'color:#4d5563;font-size:14px;font-weight:500;min-height:40px}' +
     '#s1shell-sidebar nav a svg{color:#8a8d95;flex:none}' +
@@ -170,7 +178,12 @@
     var html = '<div class="s1-brand"><img src="/assets/step1ne-logo.png" alt="Step1ne">' +
       '<b>顧問後台</b><button type="button" id="s1shell-collapse-btn" title="隱藏側邊欄" aria-label="隱藏側邊欄">' +
       svg('collapse') + '</button></div><nav>';
+    var lastGroup = null;
     PAGES.forEach(function (p) {
+      if (p.group && p.group !== lastGroup) {
+        html += '<div class="s1-group-label"' + (lastGroup ? ' style="margin-top:14px"' : '') + '>' + p.group + '</div>';
+        lastGroup = p.group;
+      }
       html += '<a href="' + p.href + '"' + (isActive(p.href) ? ' class="on"' : '') + '>' +
         svg(p.icon) + '<span>' + p.label + '</span></a>';
     });
