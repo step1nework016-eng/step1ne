@@ -81,8 +81,8 @@ select.st[data-cur="closed"]{color:var(--ink3)}
       <span class="cnt" id="cnt"></span>
     </div>
     <table>
-      <thead><tr><th>提交時間</th><th>公司／職稱</th><th>薪資範圍</th><th>建議形式</th><th>狀態</th></tr></thead>
-      <tbody id="rows"><tr><td colspan="5" class="mut">載入中⋯</td></tr></tbody>
+      <thead><tr><th>提交時間</th><th>公司／職稱</th><th>信箱</th><th>薪資範圍</th><th>建議形式</th><th>狀態</th></tr></thead>
+      <tbody id="rows"><tr><td colspan="6" class="mut">載入中⋯</td></tr></tbody>
     </table>
   </main>
 </div>
@@ -131,6 +131,7 @@ function paint(rows) {
     return '<tr>'
       + '<td class="dt">' + esc(fmtDate(r.created_at)) + '</td>'
       + '<td class="jb"><b>' + esc(r.job_title) + '</b><span>' + esc(r.company_name) + '　·　' + esc(r.industry) + '</span></td>'
+      + '<td>' + (r.email ? '<a href="mailto:' + esc(r.email) + '">' + esc(r.email) + '</a>' : '<span class="mut">—</span>') + '</td>'
       + '<td>' + esc(r.salary_text) + '</td>'
       + '<td class="mode">' + esc(r.mode_label) + '</td>'
       + '<td><select class="st" data-id="' + esc(r.id) + '" data-cur="' + r.status + '">'
@@ -138,7 +139,7 @@ function paint(rows) {
           return '<option value="' + k + '"' + (k === r.status ? ' selected' : '') + '>' + STATUS_LABEL[k] + '</option>';
         }).join('')
       + '</select></td></tr>';
-  }).join('') || '<tr><td colspan="5" class="mut" style="text-align:center;padding:26px">目前沒有符合的提交紀錄</td></tr>';
+  }).join('') || '<tr><td colspan="6" class="mut" style="text-align:center;padding:26px">目前沒有符合的提交紀錄</td></tr>';
 }
 
 document.addEventListener('change', function (e) {
