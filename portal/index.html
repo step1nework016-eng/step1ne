@@ -253,10 +253,22 @@ function renderPicklist(){
         <span class="cnt" style="color:#c98a1e;font-weight:700">審核中</span>
       </div>`;
     }
+    // 2026-08-25 加：職缺清單這裡原本完全看不出目前是招募中還是已結束——
+    // 點進去才看得到結束招募／重新招募按鈕，客戶不點進去根本不知道有這個功能。
+    // 清單就要看得到狀態，不用先猜哪個職缺可能被關掉了才點進去確認。
+    let statusBadge = '<span class="cnt" style="color:var(--ok)">● 招募中</span>';
+    if (job.status === 'closed'){
+      statusBadge = job.closed_by === 'client'
+        ? '<span class="cnt" style="color:#c98a1e;font-weight:700">已結束招募（可重新開啟）</span>'
+        : '<span class="cnt" style="color:var(--ink3)">顧問已關閉</span>';
+    }
     const filled = jobFilled(job, fields);
     return `<div class="pick" data-slug="${esc(job.slug)}">
       <b>${esc(job.title || job.slug)}</b>
-      <span class="cnt">已填 ${filled} / ${fields.length}</span>
+      <span class="cnt" style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
+        ${statusBadge}
+        <span style="font-size:11.5px;color:var(--ink3)">已填 ${filled} / ${fields.length}</span>
+      </span>
     </div>`;
   }).join('');
   listEl.querySelectorAll('.pick').forEach(el => {
