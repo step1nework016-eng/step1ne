@@ -289,28 +289,15 @@ details[open] summary .faq-icon{transform:rotate(45deg);}
       </div>
 
       <!-- ═══ 招募形式快速評估工具 CTA ═══
-           2026-08-25 加：三種招募形式擺出來了，但企業客戶自己不一定分得清楚
-           該選哪一種——這張卡直接把「還沒想清楚」的人接到 enterprise.step1ne.com，
-           1 分鐘填完拿到建議，不用先打電話問。 -->
+           2026-08-25 加，同日改：不再放直連按鈕跳過留信箱，一律導去
+           /hiring-assessment/ 專屬頁面留 Email 才拿得到連結——名單才留得住。 -->
       <div data-reveal style="margin-top:20px;padding:30px 32px;border-radius:18px;background:linear-gradient(120deg,#173b63,#0f2540);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:20px;">
-        <div style="max-width:560px;">
+        <div style="max-width:640px;">
           <div style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:2px;color:#7fc4ec;text-transform:uppercase;margin-bottom:10px;">Free Tool</div>
           <h3 style="font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;margin:0 0 8px;color:#fff;">不確定該選哪一種招募形式？</h3>
-          <p style="color:#c7d9e8;font-size:14.5px;margin:0;">填職稱與薪資、回答 3 個問題，1 分鐘拿到建議結果，可直接列印或另存 PDF。</p>
+          <p style="color:#c7d9e8;font-size:14.5px;margin:0;">留下 Email，我們立即寄送評估工具連結，1 分鐘拿到建議結果，可直接列印或另存 PDF。</p>
         </div>
-        <div style="flex:0 0 300px;max-width:100%;">
-          <a href="https://enterprise.step1ne.com/?utm_source=step1ne&amp;utm_medium=website&amp;utm_campaign=hiring_mode_cta" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:#fff;color:#173b63;font-weight:700;font-size:15px;padding:13px 20px;border-radius:999px;white-space:nowrap;box-sizing:border-box;">免費評估 →</a>
-          <div style="display:flex;align-items:center;gap:10px;margin:16px 0;">
-            <span style="flex:1;height:1px;background:rgba(255,255,255,0.18);"></span>
-            <span style="color:rgba(255,255,255,0.55);font-size:11.5px;">或留 Email 收連結</span>
-            <span style="flex:1;height:1px;background:rgba(255,255,255,0.18);"></span>
-          </div>
-          <form class="s1ne-lead-form" data-source="home_hero_cta" style="display:flex;gap:8px;">
-            <input type="email" required placeholder="您的 Email" style="min-width:0;flex:1;padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,0.35);background:rgba(255,255,255,0.08);color:#fff;font-size:13.5px;box-sizing:border-box;">
-            <button type="submit" style="flex-shrink:0;background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.35);color:#fff;font-weight:700;font-size:13.5px;padding:10px 18px;border-radius:999px;cursor:pointer;">寄給我</button>
-          </form>
-          <p class="s1ne-lead-msg" style="margin:8px 0 0;font-size:12px;color:#7fc4ec;min-height:1em;text-align:center;"></p>
-        </div>
+        <a href="/hiring-assessment/" style="flex-shrink:0;display:inline-flex;align-items:center;gap:8px;background:#fff;color:#173b63;font-weight:700;font-size:15px;padding:13px 26px;border-radius:999px;white-space:nowrap;">免費評估 →</a>
       </div>
 
       <div data-reveal style="margin-top:44px;">
@@ -629,34 +616,6 @@ if ('IntersectionObserver' in window) {
 } else {
   document.querySelectorAll('[data-reveal]').forEach(function(el){ el.classList.add('is-visible'); });
 }
-</script>
-
-<script>
-// 留信箱→自動寄招募形式評估工具連結。跟旁邊的「免費評估」直連按鈕是兩條路：
-// 這條給還沒準備好現在就填表、但願意留信箱之後再看的人。
-document.querySelectorAll('.s1ne-lead-form').forEach(function (form) {
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    var input = form.querySelector('input[type=email]');
-    var btn = form.querySelector('button');
-    var msg = form.parentElement.querySelector('.s1ne-lead-msg');
-    var email = (input.value || '').trim();
-    if (!email) return;
-    btn.disabled = true; btn.textContent = '寄送中…';
-    fetch('https://step1ne-recruit-api.aiagentg888.workers.dev/assessment/lead-email', {
-      method: 'POST', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ email: email, source: form.dataset.source || 'website' }),
-    }).then(function (r) { return r.json(); }).then(function (d) {
-      btn.disabled = false; btn.textContent = '寄給我';
-      if (!d.ok) { if (msg) { msg.textContent = d.error || '寄送失敗，請稍後再試'; msg.style.color = '#ffb4a2'; } return; }
-      input.value = '';
-      if (msg) { msg.textContent = '已寄出，請查收信箱（含垃圾郵件匣）'; msg.style.color = '#7fc4ec'; }
-    }).catch(function () {
-      btn.disabled = false; btn.textContent = '寄給我';
-      if (msg) { msg.textContent = '連不上伺服器，請稍後再試'; msg.style.color = '#ffb4a2'; }
-    });
-  });
-});
 </script>
 </body>
 </html>

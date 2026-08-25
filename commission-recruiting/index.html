@@ -206,19 +206,7 @@ details[open] .faq-icon{transform:rotate(45deg);}
         <h3 style="font-family:'Noto Serif TC',serif;font-size:19px;font-weight:700;margin:0 0 6px;color:#fff;">不確定這三種該選哪一種？</h3>
         <p style="color:#c7d9e8;font-size:14px;margin:0;">填職稱與薪資、回答 3 個問題，1 分鐘拿到建議結果。</p>
       </div>
-      <div style="flex:0 0 280px;max-width:100%;">
-        <a href="https://enterprise.step1ne.com/?utm_source=step1ne&amp;utm_medium=website&amp;utm_campaign=hiring_mode_cta" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:#fff;color:#173b63;font-weight:700;font-size:14.5px;padding:11px 18px;border-radius:999px;white-space:nowrap;box-sizing:border-box;">免費評估 →</a>
-        <div style="display:flex;align-items:center;gap:8px;margin:14px 0;">
-          <span style="flex:1;height:1px;background:rgba(255,255,255,0.18);"></span>
-          <span style="color:rgba(255,255,255,0.55);font-size:11px;">或留 Email 收連結</span>
-          <span style="flex:1;height:1px;background:rgba(255,255,255,0.18);"></span>
-        </div>
-        <form class="s1ne-lead-form" data-source="commission_recruiting_cta" style="display:flex;gap:8px;">
-          <input type="email" required placeholder="您的 Email" style="min-width:0;flex:1;padding:9px 13px;border-radius:999px;border:1px solid rgba(255,255,255,0.35);background:rgba(255,255,255,0.08);color:#fff;font-size:13px;box-sizing:border-box;">
-          <button type="submit" style="flex-shrink:0;background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.35);color:#fff;font-weight:700;font-size:13px;padding:9px 16px;border-radius:999px;cursor:pointer;">寄給我</button>
-        </form>
-        <p class="s1ne-lead-msg" style="margin:8px 0 0;font-size:12px;color:#7fc4ec;min-height:1em;text-align:center;"></p>
-      </div>
+      <a href="/hiring-assessment/" style="flex-shrink:0;display:inline-flex;align-items:center;gap:8px;background:#fff;color:#173b63;font-weight:700;font-size:14.5px;padding:11px 22px;border-radius:999px;white-space:nowrap;">免費評估 →</a>
     </div>
 
     <h2>委託招募的流程</h2>
@@ -285,30 +273,5 @@ details[open] .faq-icon{transform:rotate(45deg);}
   </div>
 </footer>
 
-<script>
-document.querySelectorAll('.s1ne-lead-form').forEach(function (form) {
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    var input = form.querySelector('input[type=email]');
-    var btn = form.querySelector('button');
-    var msg = form.parentElement.querySelector('.s1ne-lead-msg');
-    var email = (input.value || '').trim();
-    if (!email) return;
-    btn.disabled = true; btn.textContent = '寄送中…';
-    fetch('https://step1ne-recruit-api.aiagentg888.workers.dev/assessment/lead-email', {
-      method: 'POST', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ email: email, source: form.dataset.source || 'website' }),
-    }).then(function (r) { return r.json(); }).then(function (d) {
-      btn.disabled = false; btn.textContent = '寄給我';
-      if (!d.ok) { if (msg) { msg.textContent = d.error || '寄送失敗，請稍後再試'; msg.style.color = '#ffb4a2'; } return; }
-      input.value = '';
-      if (msg) { msg.textContent = '已寄出，請查收信箱（含垃圾郵件匣）'; msg.style.color = '#7fc4ec'; }
-    }).catch(function () {
-      btn.disabled = false; btn.textContent = '寄給我';
-      if (msg) { msg.textContent = '連不上伺服器，請稍後再試'; msg.style.color = '#ffb4a2'; }
-    });
-  });
-});
-</script>
 </body>
 </html>
