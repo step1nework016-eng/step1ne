@@ -73,7 +73,11 @@ dialog::backdrop{background:rgba(20,18,14,.42);}
 .dtab.on{color:#8a5a1a;background:#fbf7ef;border-color:#e6dfd1;border-bottom-color:#fbf7ef;position:relative;top:1px;}
 .dtabpanel{}
 pre.rep{white-space:pre-wrap;word-break:break-word;font:inherit;font-size:14.5px;background:#fbfaf7;border:1px solid #eee7db;border-radius:12px;padding:18px;margin:0 0 20px;}
-.stagebar{background:#fbf7ef;border:1px solid #e6dfd1;border-radius:12px;padding:14px 16px 10px;margin:0 0 18px;overflow-x:auto;}
+/* 2026-08-25 改：外層卡片背景搬到 .stage-unit（階段條＋轉給客戶合併成同一張卡），
+   .stagebar 本身不再自己有背景/邊框/下邊界，靠外層統一。 */
+.stage-unit{background:#fbf7ef;border:1px solid #e6dfd1;border-radius:12px;padding:14px 16px 14px;margin:0 0 18px;}
+.stagebar{overflow-x:auto;}
+.stagebar[hidden]{display:none;}
 .stagebar .steps{display:flex;align-items:flex-start;min-width:max-content;}
 .stagebar .step{display:flex;flex-direction:column;align-items:center;flex:none;width:66px;position:relative;}
 .stagebar .dot{width:22px;height:22px;border-radius:50%;background:#eee7db;color:#8a8d95;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;z-index:1;}
@@ -116,7 +120,7 @@ pre.rep{white-space:pre-wrap;word-break:break-word;font:inherit;font-size:14.5px
 .stagebar-closed b{display:block;font-size:13.5px;color:#a3450f;margin-bottom:3px;}
 .stagebar-closed.internal{background:#f0efec;border-color:#dcdad4;color:#4a4d55;}
 .stagebar-closed.internal b{color:#3a3d44;}
-.acts{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 20px;}
+.acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;padding-top:10px;border-top:1px dashed #e6dfd1;}
 .act{font:inherit;font-size:14px;font-weight:600;border:1px solid #e0d9cb;background:#fff;border-radius:10px;padding:10px 16px;cursor:pointer;min-height:42px;}
 .act:hover{border-color:#a67c3d;}
 .act.on{background:#23262d;color:#fff;border-color:#23262d;}
@@ -387,7 +391,15 @@ button.primary:hover{background:#8a6531;}
   </div>
   <div class="dbody">
     <div class="dtabpanel" data-tabpanel="overview">
-      <div id="stagebar" class="stagebar" hidden></div>
+      <!-- 2026-08-25 改：階段條＋轉給客戶／需補問／不推薦合併成同一個卡片。
+           之前這兩個是分開的（履歷區隔在中間），顧問容易誤以為在階段條上
+           手動指定階段就等於推薦給客戶了——實際上只有「轉給客戶」會讓人選
+           同步出現在客戶的「人選進度」頁面，階段條的手動指定下拉不會。
+           合成同一個視覺卡片，讓這整套「往前推進」的動作看起來是同一套系統。 -->
+      <div id="stageUnit" class="stage-unit">
+        <div id="stagebar" class="stagebar" hidden></div>
+        <div class="acts" id="acts"></div>
+      </div>
       <div id="dfb" class="fb" hidden></div>
       <div id="dflags" class="flags" hidden></div>
       <div id="dlink" class="linkbox" hidden>
@@ -401,7 +413,6 @@ button.primary:hover{background:#8a6531;}
         <a id="resume_link" href="#" target="_blank" rel="noopener" hidden>開啟雲端連結</a>
         <span id="resume_none" hidden>沒有履歷（阿財是請對方口頭介紹）</span>
       </div>
-      <div class="acts" id="acts"></div>
       <div class="bigacts" id="bigacts"></div>
     </div>
 
@@ -1031,6 +1042,13 @@ function drawActs(now) {
   ];
   $('acts').innerHTML = '';
   $('bigacts').innerHTML = '';
+  // 2026-08-25 加：跟上面階段條合併成同一張卡片後，這裡加個小標題——
+  // 讓顧問一眼看出「往下走」跟「推薦給客戶」是同一套流程的下一步，
+  // 不是兩件無關的事。
+  var head = document.createElement('div');
+  head.style.cssText = 'width:100%;font-size:12.5px;font-weight:700;color:#8a5a1a;margin-bottom:2px;';
+  head.textContent = '推薦處置（按下才會同步到客戶「人選進度」頁面）';
+  $('acts').appendChild(head);
   opts.forEach(function (o) {
     var b = document.createElement('button');
     b.type = 'button';
@@ -1045,15 +1063,6 @@ function drawActs(now) {
   // 記下處置才有辦法回頭比對 AI 判準準不準，這是這個按鈕真正的用途
   n.textContent = now ? '已處置' : '處置後才能回頭校正 AI 的判準';
   $('acts').appendChild(n);
-
-  // 2026-08-25 加：這顆按鈕才是真正讓人選同步出現在客戶「人選進度」頁面的
-  // 開關（上面階段列的手動指定下拉不是——選了任何階段，客戶那邊都看不到，
-  // 除非按這顆）。之前沒有這行提示，容易誤以為手動指定階段就等於推薦給客戶。
-  var syncHint = document.createElement('div');
-  syncHint.className = 'mut';
-  syncHint.style.cssText = 'width:100%;margin-top:4px;font-size:12px;';
-  syncHint.textContent = '⚠️ 「轉給客戶」是唯一會讓這位人選出現在客戶「人選進度」頁面的動作，上面階段列的手動指定下拉不會。';
-  $('acts').appendChild(syncHint);
 
   // 2026-08-13 加：轉給客戶／需補問／不推薦按錯了，之前只能找工程手動改資料庫
   // （徐振倫那次就是這樣）。現在可以直接在這裡清掉，回到「未處置」重新選。
