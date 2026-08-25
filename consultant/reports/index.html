@@ -121,6 +121,17 @@ pre.rep{white-space:pre-wrap;word-break:break-word;font:inherit;font-size:14.5px
 .stagebar-closed.internal{background:#f0efec;border-color:#dcdad4;color:#4a4d55;}
 .stagebar-closed.internal b{color:#3a3d44;}
 .acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;padding-top:10px;border-top:1px dashed #e6dfd1;}
+/* 2026-08-25 加：一個人選可以同時推薦給好幾家客戶——這裡明確列出「已經推薦給誰」，
+   不用再靠猜 job.company_id。跟上面的「推薦處置」同一張卡片，同一套邏輯延伸。 */
+.forward-panel{margin-top:12px;padding-top:10px;border-top:1px dashed #e6dfd1;font-size:12.5px;}
+.forward-panel .fp-title{font-weight:700;color:#8a5a1a;margin-bottom:6px;}
+.forward-panel .fp-list{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.forward-panel .fp-chip{background:#fff;border:1px solid #e0d9cb;border-radius:999px;padding:4px 12px;font-size:12px;color:#4d5563;}
+.forward-panel .fp-add{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.forward-panel select{font:inherit;font-size:12.5px;border:1px solid #e0d9cb;border-radius:8px;padding:5px 7px;background:#fff;}
+.forward-panel button{font:inherit;font-size:12.5px;border:1px solid #e0d9cb;border-radius:8px;padding:5px 11px;cursor:pointer;background:#fff;min-height:30px;}
+.forward-panel button:hover{border-color:#a67c3d;}
+.forward-panel .fp-msg{font-size:12px;margin-left:4px;}
 .act{font:inherit;font-size:14px;font-weight:600;border:1px solid #e0d9cb;background:#fff;border-radius:10px;padding:10px 16px;cursor:pointer;min-height:42px;}
 .act:hover{border-color:#a67c3d;}
 .act.on{background:#23262d;color:#fff;border-color:#23262d;}
@@ -399,6 +410,7 @@ button.primary:hover{background:#8a6531;}
       <div id="stageUnit" class="stage-unit">
         <div id="stagebar" class="stagebar" hidden></div>
         <div class="acts" id="acts"></div>
+        <div id="forwardPanel" class="forward-panel" hidden></div>
       </div>
       <div id="dfb" class="fb" hidden></div>
       <div id="dflags" class="flags" hidden></div>
@@ -689,6 +701,7 @@ async function openSession(row) {
   if (d.report) cur.id = d.report.id;
   drawActs(d.report ? d.report.consultant_decision : null);
   renderStageBar(row, d);
+  renderForwardPanel(cur.app_id, d.report && d.report.consultant_decision === 'forwarded');
 
   // 候選人自己給的體驗分數。這是唯一能回答「這套值不值得繼續」的訊號——
   // 顧問覺得報告好，跟候選人願不願意做完，是兩件事。
@@ -1001,6 +1014,7 @@ async function open(row) {
   }
   $('drep').textContent = d.report.content_md || '（沒有報告內容）';
   renderStageBar(row, d);
+  renderForwardPanel(row.app_id, row.consultant_decision === 'forwarded');
   $('dtr').innerHTML = (d.transcript || [])
     .filter(function (m) { return m.content !== '（候選人已進入面談室）'; })
     .map(function (m) {
@@ -1081,7 +1095,7 @@ function drawActs(now) {
           method: 'POST', headers: { 'content-type': 'application/json' },
           body: JSON.stringify({ id: cur.id }),
         });
-        if (d.ok) { cur.consultant_decision = null; drawActs(null); load(); }
+        if (d.ok) { cur.consultant_decision = null; drawActs(null); renderForwardPanel(cur.app_id, false); load(); }
         else alert('失敗：' + (d.error || '伺服器沒說原因'));
       } catch (e) {
         alert('失敗：' + (e && e.message ? e.message : '連線失敗'));
@@ -1159,6 +1173,71 @@ function drawActs(now) {
     openCloseDlg();
   });
   $('bigacts').appendChild(closeBtn);
+}
+
+var FORWARD_COMPANIES_CACHE = null;
+async function loadForwardCompanies() {
+  if (FORWARD_COMPANIES_CACHE) return FORWARD_COMPANIES_CACHE;
+  try {
+    var d = await api('/admin/portal/companies');
+    FORWARD_COMPANIES_CACHE = (d.ok ? d.companies : []) || [];
+  } catch (e) { FORWARD_COMPANIES_CACHE = []; }
+  return FORWARD_COMPANIES_CACHE;
+}
+
+// 2026-08-25 加：一個人選可以同時推薦給好幾家客戶（同一份人才拿去 pitch 多家
+// 相似職缺是正常的獵頭作法）——這裡列出目前明確推薦給了誰，並且能追加推薦給
+// 「原本應徵的那家」以外的客戶。跟上面「推薦處置」同一張卡片，同一個入口。
+async function renderForwardPanel(appId, decided) {
+  var panel = $('forwardPanel');
+  if (!appId) { panel.hidden = true; return; }
+  panel.hidden = false;
+  panel.innerHTML = '<div class="fp-title">已推薦給的客戶</div><div class="fp-list">載入中…</div>';
+
+  var [fwd, companies] = await Promise.all([
+    api('/admin/candidate-forwards/' + encodeURIComponent(appId)).catch(function () { return { ok: false }; }),
+    loadForwardCompanies(),
+  ]);
+  var list = (fwd.ok ? fwd.forwards : []) || [];
+  var listHtml = list.length
+    ? list.map(function (f) { return '<span class="fp-chip">' + esc(f.display_name) + '（' + esc((f.forwarded_at || '').slice(0, 10)) + '）</span>'; }).join('')
+    : '<span class="fp-chip" style="opacity:.6">還沒有明確推薦給任何客戶</span>';
+
+  var forwardedIds = list.map(function (f) { return f.company_id; });
+  var pickOpts = companies.filter(function (c) { return forwardedIds.indexOf(c.id) === -1; })
+    .map(function (c) { return '<option value="' + esc(c.id) + '">' + esc(c.display_name) + '</option>'; }).join('');
+
+  panel.innerHTML =
+    '<div class="fp-title">已推薦給的客戶</div>' +
+    '<div class="fp-list">' + listHtml + '</div>' +
+    (decided
+      ? '<div class="fp-add">' +
+          (pickOpts
+            ? '<select id="fpSel">' + pickOpts + '</select>' +
+              '<button type="button" id="fpAdd">追加推薦給這家</button>' +
+              '<span class="fp-msg" id="fpMsg"></span>'
+            : '<span class="mut">已經推薦給全部客戶了</span>') +
+        '</div>'
+      : '<div class="mut">先按上面「轉給客戶」處置後，才能追加推薦給其他客戶。</div>');
+
+  var addBtn = document.getElementById('fpAdd');
+  if (addBtn) {
+    addBtn.addEventListener('click', async function () {
+      var companyId = document.getElementById('fpSel').value;
+      var msg = document.getElementById('fpMsg');
+      addBtn.disabled = true; msg.textContent = '';
+      try {
+        var d = await api('/admin/forward-candidate', {
+          method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ application_id: appId, company_id: companyId }),
+        });
+        if (!d.ok) { msg.style.color = '#c0392b'; msg.textContent = d.error || '失敗'; addBtn.disabled = false; return; }
+        renderForwardPanel(appId, decided);
+      } catch (e) {
+        msg.style.color = '#c0392b'; msg.textContent = '連線失敗'; addBtn.disabled = false;
+      }
+    });
+  }
 }
 
 // ⚠️ 2026-08-14 改：textarea 現在放的是完整訊息（不再是塞進固定模板中間的
@@ -1289,7 +1368,7 @@ async function decide(o) {
     method: 'POST', headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ id: cur.id, decision: o.k, app_id: cur.app_id, app_status: o.s }),
   });
-  if (d.ok) { cur.consultant_decision = o.k; drawActs(o.k); load(); }
+  if (d.ok) { cur.consultant_decision = o.k; drawActs(o.k); renderForwardPanel(cur.app_id, o.k === 'forwarded'); load(); }
 }
 
 // 2026-08-13 加：階段列——顧問一打開這個人選的詳情就知道他卡在哪一關，
