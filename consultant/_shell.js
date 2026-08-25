@@ -6,9 +6,10 @@
  * 加一行：
  *   <script defer src="/consultant/_shell.js"></script>
  * 就會套用：
- *   - 桌面（≥1024px）：左側固定 sidebar
- *   - 手機／平板（<1024px）：底部固定 tab bar（常用 4 頁）＋「更多」
- *     收合剩下的頁面
+ *   - 桌面（≥1024px）：左側固定 sidebar，依分類（招募流程／客戶與商機／
+ *     職缺設定／其他工具）分組列出
+ *   - 手機／平板（<1024px）：底部固定 tab bar，跟桌面同一套四個分類，
+ *     點分類跳出該分類底下的頁面選單（不是攤平常用頁面＋更多）
  *
  * 這支檔案只會「新增」DOM（一個 fixed 定位的殼），不會刪除或修改
  * 頁面原本的任何元素。原本每頁 header 裡手刻的那排導覽連結
@@ -29,7 +30,12 @@
 
   // 2026-08-25 分組：15 個頁面攤成一整條清單找不到東西——依「顧問實際在
   // 想什麼」分四組：人才漏斗本身、客戶與商機、職缺怎麼設定、其他工具。
-  // primary/mobile 的 bottom tab 邏輯不受分組影響，一樣看 primary 欄位。
+  // 手機版 bottom tab 也是照這四組來（每組一顆按鈕，點了跳出該組的頁面
+  // 選單），不再是「幾個常用頁面攤平＋更多」——分組多了之後 primary 頁面
+  // 一次塞了 8 個，手機下排擠成一整排小圖示反而更難點。
+  var GROUP_ORDER = ['招募流程', '客戶與商機', '職缺設定', '其他工具'];
+  var GROUP_ICON = { '招募流程': 'funnel', '客戶與商機': 'target', '職缺設定': 'pencil', '其他工具': 'more' };
+
   var PAGES = [
     // 2026-08-19 加：總覽放第一個——顧問打開後台第一眼要看到的是
     // 「等你動手的有幾件」，不是職缺列表。
@@ -192,43 +198,62 @@
     return el;
   }
 
+  function groupOf(href) {
+    var p = PAGES.filter(function (x) { return x.href === href; })[0];
+    return p ? p.group : null;
+  }
+  var ACTIVE_GROUP = groupOf(HERE);
+
   function buildTabbar() {
     var el = document.createElement('div');
     el.id = 's1shell-tabbar';
-    var primary = PAGES.filter(function (p) { return p.primary; });
-    var overflow = PAGES.filter(function (p) { return !p.primary; });
-    var overflowActive = overflow.some(function (p) { return isActive(p.href); });
     var html = '<div class="s1-row">';
-    primary.forEach(function (p) {
-      html += '<a href="' + p.href + '"' + (isActive(p.href) ? ' class="on"' : '') + '>' +
-        svg(p.icon) + '<span>' + p.label + '</span></a>';
+    GROUP_ORDER.forEach(function (g) {
+      html += '<button type="button" class="s1-group-btn" data-group="' + g + '">' +
+        svg(GROUP_ICON[g]) + '<span>' + g + '</span></button>';
     });
-    html += '<button type="button" id="s1shell-more-btn"' + (overflowActive ? ' class="on"' : '') + '>' +
-      svg('more') + '<span>更多</span></button>';
     html += '</div>';
     el.innerHTML = html;
+    // class="on" 上面用字串接容易被自己蓋掉（button 已經有 class="s1-group-btn"），
+    // 送出 DOM 之後另外補 active 樣式，兩個 class 都要留著。
+    if (ACTIVE_GROUP) {
+      var btn = el.querySelector('[data-group="' + ACTIVE_GROUP + '"]');
+      if (btn) btn.classList.add('on');
+    }
     return el;
   }
 
+  // 底部彈出的頁面選單——現在是「點一個分類，選裡面的頁面」，不是攤平的
+  // 「常用＋更多」。同一份 sheet DOM 重複利用，內容依點的是哪一組重繪。
   function buildMoreSheet() {
-    var overflow = PAGES.filter(function (p) { return !p.primary; });
     var backdrop = document.createElement('div');
     backdrop.id = 's1shell-more-backdrop';
     var sheet = document.createElement('div');
     sheet.id = 's1shell-more-sheet';
-    var html = '<div class="s1-hd"><span>更多頁面</span><button type="button" id="s1shell-more-close" aria-label="關閉">×</button></div>';
-    overflow.forEach(function (p) {
-      html += '<a href="' + p.href + '"' + (isActive(p.href) ? ' style="color:#a67c3d"' : '') + '>' +
-        svg(p.icon) + '<span>' + p.label + '</span></a>';
-    });
-    sheet.innerHTML = html;
+    sheet.innerHTML = '<div class="s1-hd"><span id="s1shell-sheet-title">選擇頁面</span>' +
+      '<button type="button" id="s1shell-more-close" aria-label="關閉">×</button></div>' +
+      '<div id="s1shell-sheet-body"></div>';
     return { backdrop: backdrop, sheet: sheet };
   }
 
-  function wireMoreSheet(backdrop, sheet, btn) {
-    function open() { backdrop.className = 'on'; sheet.className = 'on'; }
+  function fillGroupSheet(sheet, group) {
+    sheet.querySelector('#s1shell-sheet-title').textContent = group;
+    var pages = PAGES.filter(function (p) { return p.group === group; });
+    sheet.querySelector('#s1shell-sheet-body').innerHTML = pages.map(function (p) {
+      return '<a href="' + p.href + '"' + (isActive(p.href) ? ' style="color:#a67c3d;font-weight:700"' : '') + '>' +
+        svg(p.icon) + '<span>' + p.label + '</span></a>';
+    }).join('');
+  }
+
+  function wireMoreSheet(backdrop, sheet, tabbar) {
+    function open(group) {
+      fillGroupSheet(sheet, group);
+      backdrop.className = 'on'; sheet.className = 'on';
+    }
     function close() { backdrop.className = ''; sheet.className = ''; }
-    btn.addEventListener('click', function (e) { e.stopPropagation(); open(); });
+    tabbar.querySelectorAll('.s1-group-btn').forEach(function (btn) {
+      btn.addEventListener('click', function (e) { e.stopPropagation(); open(btn.dataset.group); });
+    });
     backdrop.addEventListener('click', close);
     var closeBtn = sheet.querySelector('#s1shell-more-close');
     if (closeBtn) closeBtn.addEventListener('click', close);
@@ -290,8 +315,7 @@
     root.appendChild(more.sheet);
     document.body.appendChild(root);
 
-    var moreBtn = tabbar.querySelector('#s1shell-more-btn');
-    if (moreBtn) wireMoreSheet(more.backdrop, more.sheet, moreBtn);
+    wireMoreSheet(more.backdrop, more.sheet, tabbar);
 
     wireCollapse(sidebar);
     syncAuthState();
