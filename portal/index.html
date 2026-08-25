@@ -257,10 +257,16 @@ function renderPicklist(){
     // 點進去才看得到結束招募／重新招募按鈕，客戶不點進去根本不知道有這個功能。
     // 清單就要看得到狀態，不用先猜哪個職缺可能被關掉了才點進去確認。
     let statusBadge = '<span class="cnt" style="color:var(--ok)">● 招募中</span>';
+    let hireBtn = job.status === 'open'
+      ? `<button type="button" class="sec hire-toggle-btn" data-slug="${esc(job.slug)}" data-action="close" style="padding:4px 10px;font-size:11.5px;margin-top:4px">結束招募</button>`
+      : '';
     if (job.status === 'closed'){
       statusBadge = job.closed_by === 'client'
         ? '<span class="cnt" style="color:#c98a1e;font-weight:700">已結束招募（可重新開啟）</span>'
         : '<span class="cnt" style="color:var(--ink3)">顧問已關閉</span>';
+      if (job.closed_by === 'client'){
+        hireBtn = `<button type="button" class="sec hire-toggle-btn" data-slug="${esc(job.slug)}" data-action="reopen" style="padding:4px 10px;font-size:11.5px;margin-top:4px">重新招募</button>`;
+      }
     }
     const filled = jobFilled(job, fields);
     return `<div class="pick" data-slug="${esc(job.slug)}">
@@ -268,13 +274,25 @@ function renderPicklist(){
       <span class="cnt" style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
         ${statusBadge}
         <span style="font-size:11.5px;color:var(--ink3)">已填 ${filled} / ${fields.length}</span>
+        ${hireBtn}
       </span>
     </div>`;
   }).join('');
   listEl.querySelectorAll('.pick').forEach(el => {
-    el.addEventListener('click', () => {
+    el.addEventListener('click', (e) => {
+      if (e.target.closest('.hire-toggle-btn')) return; // 結束招募／重新招募按鈕自己處理，不要連帶打開職缺
       if (el.dataset.pending) { alert('這個職缺還在等顧問確認，核准後才能編輯內容。'); return; }
       openJob(el.dataset.slug);
+    });
+  });
+  // 2026-08-25 加：結束招募／重新招募直接在清單上就能按，不用先點進職缺才看得到——
+  // 客戶之前就是因為這個按鈕藏在職缺內頁，才會覺得「怎麼都沒有」。
+  listEl.querySelectorAll('.hire-toggle-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const slug = btn.dataset.slug;
+      if (btn.dataset.action === 'close') closeHire(slug, renderPicklist);
+      else reopenHire(slug, renderPicklist);
     });
   });
 }
@@ -382,11 +400,11 @@ function renderHireStateBox(job){
 }
 function wireHireStateBox(jobEl, slug){
   const closeBtn = jobEl.querySelector('.close-hire-btn');
-  if (closeBtn) closeBtn.addEventListener('click', () => closeHire(slug, jobEl));
+  if (closeBtn) closeBtn.addEventListener('click', () => closeHire(slug, () => openJob(slug)));
   const reopenBtn = jobEl.querySelector('.reopen-btn');
-  if (reopenBtn) reopenBtn.addEventListener('click', () => reopenHire(slug, jobEl));
+  if (reopenBtn) reopenBtn.addEventListener('click', () => reopenHire(slug, () => openJob(slug)));
 }
-async function closeHire(slug, jobEl){
+async function closeHire(slug, refreshFn){
   const reason = prompt('請簡單說明結束招募的原因（例如：已透過其他管道找到人選）');
   if (reason === null) return;
   if (!reason.trim()){ alert('請填寫原因'); return; }
@@ -398,12 +416,12 @@ async function closeHire(slug, jobEl){
     if (!data.ok){ alert(data.error || '送出失敗'); return; }
     const jobRecord = PORTAL_DATA.jobs.find(j => j.slug === slug);
     if (jobRecord){ jobRecord.status = 'closed'; jobRecord.closed_by = 'client'; jobRecord.closed_reason = reason.trim(); }
-    openJob(slug);
+    (refreshFn || (() => openJob(slug)))();
   }catch{
     alert('連線失敗，請稍後再試');
   }
 }
-async function reopenHire(slug, jobEl){
+async function reopenHire(slug, refreshFn){
   const reason = prompt('請簡單說明重新招募的原因');
   if (reason === null) return;
   if (!reason.trim()){ alert('請填寫原因'); return; }
@@ -415,7 +433,7 @@ async function reopenHire(slug, jobEl){
     if (!data.ok){ alert(data.error || '送出失敗'); return; }
     const jobRecord = PORTAL_DATA.jobs.find(j => j.slug === slug);
     if (jobRecord){ jobRecord.status = 'open'; jobRecord.closed_by = null; jobRecord.closed_reason = null; }
-    openJob(slug);
+    (refreshFn || (() => openJob(slug)))();
   }catch{
     alert('連線失敗，請稍後再試');
   }
