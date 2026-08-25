@@ -70,6 +70,19 @@ button.sec{background:#fff;color:var(--ink2);border:1px solid var(--line)}
 .back{background:transparent;color:var(--ink2);font-weight:600;padding:6px 0;margin-bottom:14px;
  border:0;cursor:pointer;font-size:13.5px}
 .back:hover{color:var(--gold)}
+.toptabs{display:flex;gap:8px;margin-bottom:18px}
+.toptab{font:inherit;font-size:14px;font-weight:700;background:#fff;color:var(--ink2);
+ border:1px solid var(--line);border-radius:999px;padding:9px 18px;cursor:pointer}
+.toptab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.cand{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.cand .row1{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.cand b{font-size:15px}
+.cand .meta{font-size:12.5px;color:var(--ink3)}
+.cand .row2{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
+.cand .stage-now{font-size:13px;font-weight:700;color:var(--gold)}
+.cand select{font:inherit;font-size:13.5px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:#fff}
+.cand button{padding:7px 16px;font-size:13px}
+.cand .upd-msg{font-size:12.5px;color:var(--ok);margin-left:4px}
 #mask{position:fixed;inset:0;background:rgba(35,38,45,.45);z-index:40}
 #savedModal{position:fixed;z-index:41;left:50%;top:50%;transform:translate(-50%,-50%);
  width:min(360px,90vw);background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.25);
@@ -86,6 +99,14 @@ button.sec{background:#fff;color:var(--ink2);border:1px solid var(--line)}
 <main class="wrap">
   <div id="loading" class="state">讀取中…</div>
   <div id="content" hidden>
+    <div class="toptabs">
+      <button type="button" class="toptab on" id="tabJobs">用人需求表</button>
+      <button type="button" class="toptab" id="tabCandidates">人選進度</button>
+    </div>
+    <div id="candidatesView" hidden>
+      <div class="note">這裡列出顧問已經推薦給你們的人選。點選下拉選單回報這位人選目前在你們這邊面試到哪一關，更新後我們後台也會同步看到。</div>
+      <div id="candList"></div>
+    </div>
     <div id="pickView">
       <div class="note">請先從下面選一個職缺開始填寫。黃色標籤代表這格還有資料還沒補上。</div>
       <div class="bar">
@@ -509,6 +530,81 @@ document.getElementById('savedBack').addEventListener('click', () => {
   document.getElementById('jobView').hidden = true;
   document.getElementById('pickView').hidden = false;
 });
+
+// ── 人選進度分頁 ──
+let CANDIDATES_LOADED = false;
+
+function showTopView(view){
+  document.getElementById('tabJobs').classList.toggle('on', view === 'jobs');
+  document.getElementById('tabCandidates').classList.toggle('on', view === 'candidates');
+  document.getElementById('candidatesView').hidden = view !== 'candidates';
+  document.getElementById('pickView').hidden = view !== 'jobs';
+  document.getElementById('jobView').hidden = true;
+  if (view === 'candidates' && !CANDIDATES_LOADED) loadCandidates();
+}
+document.getElementById('tabJobs').addEventListener('click', () => showTopView('jobs'));
+document.getElementById('tabCandidates').addEventListener('click', () => showTopView('candidates'));
+
+async function loadCandidates(){
+  const listEl = document.getElementById('candList');
+  listEl.innerHTML = '<div class="state">讀取中…</div>';
+  try{
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates`);
+    const data = await res.json();
+    if (!data.ok){ listEl.innerHTML = `<div class="state">${esc(data.error || '讀取失敗')}</div>`; return; }
+    CANDIDATES_LOADED = true;
+    renderCandidates(data.candidates || []);
+  }catch{
+    listEl.innerHTML = '<div class="state">連線失敗，請稍後再試。</div>';
+  }
+}
+
+function renderCandidates(list){
+  const listEl = document.getElementById('candList');
+  if (!list.length){ listEl.innerHTML = '<div class="state">目前還沒有推薦給你們的人選。</div>'; return; }
+  listEl.innerHTML = list.map(c => `
+    <div class="cand" data-app="${esc(c.application_id)}">
+      <div class="row1">
+        <b>${esc(c.candidate_name)}</b>
+        <span class="meta">${esc(c.job_title || c.job_slug)} · 推送日 ${esc((c.forwarded_at || '').slice(0, 10))}</span>
+      </div>
+      <div class="row2">
+        <span class="stage-now">目前：${esc(c.current_stage ? c.current_stage.lb : '尚未開始')}</span>
+        <select class="stage-pick">
+          ${c.editable_stages.map(s => `<option value="${esc(s.key)}">${esc(s.lb)}</option>`).join('')}
+        </select>
+        <button type="button" class="stage-upd">更新</button>
+        <span class="upd-msg"></span>
+      </div>
+    </div>
+  `).join('');
+  listEl.querySelectorAll('.cand').forEach(el => {
+    el.querySelector('.stage-upd').addEventListener('click', () => updateCandidateStage(el));
+  });
+}
+
+async function updateCandidateStage(candEl){
+  const appId = candEl.dataset.app;
+  const stage = candEl.querySelector('.stage-pick').value;
+  const btn = candEl.querySelector('.stage-upd');
+  const msgEl = candEl.querySelector('.upd-msg');
+  btn.disabled = true;
+  msgEl.textContent = '';
+  try{
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(appId)}/stage`, {
+      method: 'POST', headers: {'content-type':'application/json'}, body: JSON.stringify({ stage }),
+    });
+    const data = await res.json();
+    if (!data.ok){ msgEl.style.color = 'var(--bad)'; msgEl.textContent = data.error || '更新失敗'; btn.disabled = false; return; }
+    const lb = candEl.querySelector(`.stage-pick option[value="${stage}"]`).textContent;
+    candEl.querySelector('.stage-now').textContent = `目前：${lb}`;
+    msgEl.style.color = 'var(--ok)';
+    msgEl.textContent = '已更新';
+  }catch{
+    msgEl.style.color = 'var(--bad)'; msgEl.textContent = '連線失敗，請稍後再試';
+  }
+  btn.disabled = false;
+}
 
 load();
 </script>
