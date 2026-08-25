@@ -1046,6 +1046,15 @@ function drawActs(now) {
   n.textContent = now ? '已處置' : '處置後才能回頭校正 AI 的判準';
   $('acts').appendChild(n);
 
+  // 2026-08-25 加：這顆按鈕才是真正讓人選同步出現在客戶「人選進度」頁面的
+  // 開關（上面階段列的手動指定下拉不是——選了任何階段，客戶那邊都看不到，
+  // 除非按這顆）。之前沒有這行提示，容易誤以為手動指定階段就等於推薦給客戶。
+  var syncHint = document.createElement('div');
+  syncHint.className = 'mut';
+  syncHint.style.cssText = 'width:100%;margin-top:4px;font-size:12px;';
+  syncHint.textContent = '⚠️ 「轉給客戶」是唯一會讓這位人選出現在客戶「人選進度」頁面的動作，上面階段列的手動指定下拉不會。';
+  $('acts').appendChild(syncHint);
+
   // 2026-08-13 加：轉給客戶／需補問／不推薦按錯了，之前只能找工程手動改資料庫
   // （徐振倫那次就是這樣）。現在可以直接在這裡清掉，回到「未處置」重新選。
   if (now) {
@@ -1282,8 +1291,13 @@ async function decide(o) {
 // 後台跟候選人 LINE 查進度共用同一套判斷，兩邊才不會兜不起來（見 index.js 的註解）。
 // 同時加「顧問手動指定」的下拉：跟自動判斷並存，取兩者中較後面的那個（高水位規則），
 // 一旦自動資料追上或超過，畫面自然由自動接手，不用顧問自己記得清除。
+// ⚠️ 2026-08-25 拿掉「阿財初審」「顧問確認」這兩個選項——這兩關是純自動判斷
+// （面談做完、顧問下處置就自動算過關，見 index.js resolveStage()），手動選這兩個
+// 選項不會讓任何東西「同步」出去：真正讓人選出現在客戶「人選進度」頁面的，
+// 是下面「轉給客戶」按鈕（會設 consultant_decision='forwarded'），不是這個下拉選單。
+// 之前這裡留著這兩個選項會讓人誤以為選了就等於推薦給客戶，選了但沒按「轉給客戶」，
+// 畫面上看起來像同步了、其實客戶那邊完全看不到——保留只給實際要手動介入的關卡。
 var STAGE_OPTS = [
-  { key: 'screening', lb: '阿財初審' }, { key: 'confirm', lb: '顧問確認' },
   { key: 'stage1', lb: '第一階段' }, { key: 'stage2', lb: '第二階段' },
   { key: 'stage3', lb: '第三階段' }, { key: 'stage4', lb: '第四階段' },
   { key: 'offer', lb: '錄取' }, { key: 'onboard', lb: '報到' }, { key: 'care', lb: '到職關懷' },
@@ -1291,9 +1305,12 @@ var STAGE_OPTS = [
   // 只會換候選人查進度時看到的文字（見 index.js deriveApplicationProgress）。
   { key: 'backup', lb: '備選' },
 ];
+// stageLabelOf() 仍然要能認得 screening／confirm——資料庫舊資料或系統自動判斷
+// 出來的階段列圓點還是會用到這兩個 key 的中文名稱，只是拿掉手動下拉的選項而已。
+var STAGE_LABELS_ALL = { screening: '阿財初審', confirm: '顧問確認' };
+STAGE_OPTS.forEach(function (o) { STAGE_LABELS_ALL[o.key] = o.lb; });
 function stageLabelOf(key) {
-  var f = STAGE_OPTS.filter(function (o) { return o.key === key; })[0];
-  return f ? f.lb : key;
+  return STAGE_LABELS_ALL[key] || key;
 }
 
 function renderStageBar(row, d) {
