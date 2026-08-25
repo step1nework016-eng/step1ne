@@ -249,7 +249,7 @@ function filtered() {
     if (fa && !((j.applicants || 0) + (j.screening || 0) + (j.client_stage || 0)
                 + (j.offered || 0) + (j.onboard || 0))) return false;
     if (!q) return true;
-    var hay = [j.title, j.slug, j.client_code, LINE[j.service_line], REL[j.client_relation]]
+    var hay = [j.title, j.slug, j.client_code, j.company_display_name, LINE[j.service_line], REL[j.client_relation]]
       .filter(Boolean).join(' ').toLowerCase();
     return hay.indexOf(q) >= 0;
   });
@@ -264,7 +264,9 @@ function render(jobs) { ALL = jobs; apply(); }
 function paint(jobs) {
   $('rows').innerHTML = jobs.map(function (j) {
     return '<tr class="' + (j.status === 'closed' ? 'closed' : '') + '">'
-      + '<td class="jb"><b>' + (j.title || j.slug) + '</b><span>' + j.slug
+      + '<td class="jb"><b>' + (j.title || j.slug) + '</b>'
+        + (j.company_display_name ? '<span style="color:#a67c3d;font-weight:600;display:block;">' + esc(j.company_display_name) + '</span>' : '')
+        + '<span>' + j.slug
         + (j.status === 'closed' ? '　·　已關閉' : '') + '</span>'
         + '<br><button type="button" class="socpost-btn" data-slug="' + j.slug + '" '
         + 'style="margin-top:4px;font-size:11px;background:#fff;border:1px solid #eee7db;border-radius:6px;padding:2px 7px;cursor:pointer;color:#4d5563;">'
