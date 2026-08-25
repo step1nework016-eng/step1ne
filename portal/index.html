@@ -260,13 +260,13 @@ function renderPicklist(){
     let hireBtn = job.status === 'open'
       ? `<button type="button" class="sec hire-toggle-btn" data-slug="${esc(job.slug)}" data-action="close" style="padding:4px 10px;font-size:11.5px;margin-top:4px">結束招募</button>`
       : '';
+    // 2026-08-25 改：不管是客戶自己關的還是顧問關的，都給「重新招募」按鈕——
+    // 兩種情況都要讓客戶能自己重啟。
     if (job.status === 'closed'){
       statusBadge = job.closed_by === 'client'
         ? '<span class="cnt" style="color:#c98a1e;font-weight:700">已結束招募（可重新開啟）</span>'
-        : '<span class="cnt" style="color:var(--ink3)">顧問已關閉</span>';
-      if (job.closed_by === 'client'){
-        hireBtn = `<button type="button" class="sec hire-toggle-btn" data-slug="${esc(job.slug)}" data-action="reopen" style="padding:4px 10px;font-size:11.5px;margin-top:4px">重新招募</button>`;
-      }
+        : '<span class="cnt" style="color:#c98a1e;font-weight:700">顧問已關閉（可重新開啟）</span>';
+      hireBtn = `<button type="button" class="sec hire-toggle-btn" data-slug="${esc(job.slug)}" data-action="reopen" style="padding:4px 10px;font-size:11.5px;margin-top:4px">重新招募</button>`;
     }
     const filled = jobFilled(job, fields);
     return `<div class="pick" data-slug="${esc(job.slug)}">
@@ -387,14 +387,14 @@ function renderHireStateBox(job){
       <button type="button" class="sec close-hire-btn">✓ 已找到人・結束招募</button>
     </div>`;
   }
-  if (job.status === 'closed' && job.closed_by === 'client'){
+  // 2026-08-25 改：不管是客戶自己按「結束招募」關的，還是顧問後台關的，
+  // 都給客戶「重新招募」按鈕——兩種情況都要讓客戶能自己重啟。
+  if (job.status === 'closed'){
+    const byLabel = job.closed_by === 'client' ? '你' : '顧問';
     return `<div class="hire-box">
-      <span>你已標記這個職缺「結束招募」${job.closed_reason ? '（原因：' + esc(job.closed_reason) + '）' : ''}，公開頁面已隱藏、暫不安排新面試。</span>
+      <span>${byLabel}已標記這個職缺「結束招募」${job.closed_reason ? '（原因：' + esc(job.closed_reason) + '）' : ''}，公開頁面已隱藏、暫不安排新面試。</span>
       <button type="button" class="reopen-btn">重新招募</button>
     </div>`;
-  }
-  if (job.status === 'closed' && job.closed_by === 'consultant'){
-    return `<div class="hire-box"><span>這個職缺目前由顧問關閉中，如需重新開放請聯繫顧問。</span></div>`;
   }
   return '';
 }
