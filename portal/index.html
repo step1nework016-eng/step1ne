@@ -32,11 +32,29 @@ textarea{min-height:56px}
 .pill{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px}
 .pill.ok{background:#e3f3e9;color:var(--ok)}
 .pill.warn{background:#fdf1de;color:var(--warn)}
-.savebar{padding:14px 18px;display:flex;align-items:center;gap:12px;background:var(--soft);border-top:1px solid var(--line)}
+.savebar{padding:14px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--soft);border-top:1px solid var(--line)}
 button{font:inherit;font-weight:700;background:var(--gold);color:#fff;border:0;border-radius:999px;padding:10px 22px;cursor:pointer}
 button:disabled{opacity:.5;cursor:default}
+button.sec{background:#fff;color:var(--ink2);border:1px solid var(--line)}
 .savebar .saved{font-size:13px;color:var(--ok);opacity:0;transition:opacity .2s}
 .savebar .saved.on{opacity:1}
+/* 一鍵匯入 */
+.import-box{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:20px}
+.import-box h3{margin:0 0 4px;font-size:15px}
+.import-box p.hint{margin:0 0 12px;font-size:13px;color:var(--ink3)}
+.import-tabs{display:flex;gap:6px;margin-bottom:12px}
+.import-tab{font:inherit;font-size:13px;font-weight:600;background:#fff;color:var(--ink2);
+ border:1px solid var(--line);border-radius:999px;padding:6px 14px;cursor:pointer}
+.import-tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.import-pane{display:none}
+.import-pane.on{display:block}
+.import-pane input[type=file]{width:100%;font-size:13.5px}
+.import-pane input[type=text],.import-pane textarea{width:100%;font:inherit;font-size:13.5px;
+ padding:9px 11px;border:1px solid var(--line);border-radius:8px}
+.import-pane textarea{min-height:100px}
+.import-status{margin-top:10px;font-size:13px;color:var(--ink2)}
+.import-status.err{color:var(--bad)}
+[data-k].imported{border-color:var(--gold)!important;background:#fdf6e9}
 .note{background:#fff;border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:0 12px 12px 0;
  padding:13px 16px;font-size:13.5px;color:var(--ink2);margin-bottom:20px}
 .bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
@@ -82,7 +100,7 @@ button:disabled{opacity:.5;cursor:default}
       <div id="newJobBox" hidden style="background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:14px">
         <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px">新職缺名稱</label>
         <input type="text" id="newJobTitle" placeholder="例如：業務專員">
-        <p style="font-size:12.5px;color:var(--ink3);margin:8px 0 0">送出後會先由顧問確認這個職缺，核准前不會出現在正式清單，也還不能編輯內容。</p>
+        <p style="font-size:12.5px;color:var(--ink3);margin:8px 0 0">建立後直接開始填寫，填完再送出審核——顧問看到的會是完整內容。</p>
         <div style="margin-top:10px;display:flex;gap:8px">
           <button id="newJobSubmit" type="button">送出</button>
           <button class="sec" id="newJobCancel" type="button">取消</button>
@@ -233,9 +251,8 @@ document.getElementById('newJobSubmit').addEventListener('click', async () => {
     if (!data.ok){ errEl.textContent = data.error || '送出失敗'; errEl.hidden = false; btn.disabled = false; return; }
     document.getElementById('newJobBox').hidden = true;
     document.getElementById('newJobTitle').value = '';
-    PORTAL_DATA.jobs.push({ slug: data.slug, title, status: 'pending_review' });
-    renderPicklist();
-    alert('已送出，等待顧問確認後就會出現在職缺清單中可以填寫。');
+    PORTAL_DATA.jobs.push({ slug: data.slug, title, status: 'client_draft' });
+    openJob(data.slug);
   }catch{
     errEl.textContent = '連線失敗，請稍後再試'; errEl.hidden = false;
   }
@@ -269,8 +286,6 @@ function renderJob(job, fields){
     const isLong = ['main_duties','required_conditions','benefits_detail','salary_tier_table',
       'overtime_detail','salary_structure_note','dispatch_to_permanent_policy','contract_terms_note',
       'client_intro','client_screen_conditions','faq_notes','salary_note'].includes(key);
-    const tag = isLong ? 'textarea' : 'input type="text"';
-    const closeTag = isLong ? 'textarea' : 'input';
     return `<tr>
       <td class="lb">${esc(LABELS[key] || key)}</td>
       <td class="vv">${isLong
@@ -281,12 +296,175 @@ function renderJob(job, fields){
   }).join('');
   div.innerHTML = `
     <h2>${esc(job.title || job.slug)}<span class="cnt">已填 ${filled} / ${fields.length}</span></h2>
+    ${renderImportBox(job.slug)}
     <table>${rows}</table>
     <div class="savebar">
-      <button data-slug="${esc(job.slug)}">儲存這個職缺</button>
+      <button data-slug="${esc(job.slug)}" class="save-btn">儲存這個職缺</button>
+      <button data-slug="${esc(job.slug)}" class="sec submit-btn" type="button">填完了，送出審核 →</button>
     </div>`;
-  div.querySelector('button').addEventListener('click', (e) => saveJob(job.slug, div, e.target));
+  div.querySelector('.save-btn').addEventListener('click', (e) => saveJob(job.slug, div, e.target));
+  div.querySelector('.submit-btn').addEventListener('click', (e) => submitJob(job.slug, div, e.target));
+  wireImportBox(div, job.slug);
   return div;
+}
+
+// ── 一鍵匯入 ──
+// 三種來源共用同一套流程：POST 建立匯入紀錄 → 輪詢直到本機排程解析完成
+// → 把解析出來的值填進表單對應欄位並反白，讓客戶自己確認/修改，
+// 不會解析完就自動蓋掉客戶可能已經手動填過的內容而不讓人發現。
+function renderImportBox(slug){
+  return `
+    <div class="import-box" data-slug="${esc(slug)}">
+      <h3>一鍵匯入（選填）</h3>
+      <p class="hint">有現成的 JD 檔案或連結嗎？上傳或貼上，AI 會自動幫你把內容對應填進下面的表單——填完記得檢查一下對不對。</p>
+      <div class="import-tabs">
+        <button type="button" class="import-tab on" data-pane="file">上傳檔案</button>
+        <button type="button" class="import-tab" data-pane="url">貼連結</button>
+        <button type="button" class="import-tab" data-pane="text">貼文字</button>
+      </div>
+      <div class="import-pane on" data-pane="file">
+        <input type="file" class="import-file" multiple accept=".pdf,.docx,.doc,.xlsx,.xls,.txt,.rtf">
+        <p class="hint" style="margin:8px 0 0">支援 PDF／Word／Excel，單檔 8MB 以內。</p>
+      </div>
+      <div class="import-pane" data-pane="url">
+        <input type="text" class="import-url" placeholder="貼職缺頁網址，或 Google Docs／Sheets 連結（需設為「知道連結的人可檢視」）">
+      </div>
+      <div class="import-pane" data-pane="text">
+        <textarea class="import-text" placeholder="把 JD 內容直接貼在這裡"></textarea>
+      </div>
+      <div style="margin-top:12px">
+        <button type="button" class="import-submit sec">開始匯入</button>
+      </div>
+      <div class="import-status" hidden></div>
+    </div>`;
+}
+
+function wireImportBox(rootEl, slug){
+  const box = rootEl.querySelector('.import-box');
+  box.querySelectorAll('.import-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      box.querySelectorAll('.import-tab').forEach(t => t.classList.remove('on'));
+      box.querySelectorAll('.import-pane').forEach(p => p.classList.remove('on'));
+      tab.classList.add('on');
+      box.querySelector(`.import-pane[data-pane="${tab.dataset.pane}"]`).classList.add('on');
+    });
+  });
+  box.querySelector('.import-submit').addEventListener('click', () => startImport(rootEl, box, slug));
+}
+
+function fileToBase64(file){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result).split(',')[1] || '');
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function startImport(rootEl, box, slug){
+  const statusEl = box.querySelector('.import-status');
+  const btn = box.querySelector('.import-submit');
+  const activePane = box.querySelector('.import-tab.on').dataset.pane;
+  statusEl.hidden = false; statusEl.className = 'import-status'; statusEl.textContent = '';
+  let payload = null;
+
+  if (activePane === 'file'){
+    const input = box.querySelector('.import-file');
+    const files = Array.from(input.files || []);
+    if (!files.length){ statusEl.className = 'import-status err'; statusEl.textContent = '請先選擇檔案'; return; }
+    const tooBig = files.find(f => f.size > 8 * 1024 * 1024);
+    if (tooBig){ statusEl.className = 'import-status err';
+      statusEl.textContent = `「${tooBig.name}」超過 8MB，請改貼雲端連結或分成多個檔案`; return; }
+    btn.disabled = true; statusEl.textContent = '讀取檔案中…';
+    const encoded = await Promise.all(files.map(async f => ({ b64: await fileToBase64(f), name: f.name, mime: f.type })));
+    payload = { sourceType: 'file', files: encoded };
+  } else if (activePane === 'url'){
+    const url = box.querySelector('.import-url').value.trim();
+    if (!url){ statusEl.className = 'import-status err'; statusEl.textContent = '請貼上連結'; return; }
+    payload = { sourceType: 'url', url };
+  } else {
+    const text = box.querySelector('.import-text').value.trim();
+    if (!text){ statusEl.className = 'import-status err'; statusEl.textContent = '請貼上文字內容'; return; }
+    payload = { sourceType: 'text', text };
+  }
+
+  btn.disabled = true;
+  statusEl.textContent = '匯入中，AI 正在讀取內容（通常 1-2 分鐘，可以先做別的事，等一下回來看）…';
+  try{
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/jobs/${encodeURIComponent(slug)}/import`, {
+      method: 'POST', headers: {'content-type':'application/json'}, body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!data.ok){ statusEl.className = 'import-status err'; statusEl.textContent = data.error || '匯入失敗'; btn.disabled = false; return; }
+    pollImport(rootEl, box, slug, data.importId, statusEl, btn);
+  }catch{
+    statusEl.className = 'import-status err'; statusEl.textContent = '連線失敗，請稍後再試'; btn.disabled = false;
+  }
+}
+
+async function pollImport(rootEl, box, slug, importId, statusEl, btn, attempt){
+  attempt = attempt || 0;
+  if (attempt > 40){ // 本機排程每 2 分鐘跑一次，等超過 6 分鐘就請客戶自己重整
+    statusEl.className = 'import-status err';
+    statusEl.textContent = '處理時間比預期久，稍後重新整理頁面看看，或改用「貼文字」試試。';
+    btn.disabled = false;
+    return;
+  }
+  try{
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/imports/${encodeURIComponent(importId)}`);
+    const data = await res.json();
+    if (!data.ok){ statusEl.className = 'import-status err'; statusEl.textContent = data.error || '查詢失敗'; btn.disabled = false; return; }
+    if (data.status === 'parsed'){
+      applyImportToForm(rootEl, data.parsed || {});
+      const n = Object.keys(data.parsed || {}).length;
+      statusEl.className = 'import-status';
+      statusEl.textContent = n
+        ? `已匯入 ${n} 個欄位（下面金色框起來的），檢查沒問題後記得按「儲存這個職缺」。`
+        : '沒有解析出可用的欄位，麻煩手動填寫。';
+      btn.disabled = false;
+      return;
+    }
+    if (data.status === 'failed'){
+      statusEl.className = 'import-status err';
+      statusEl.textContent = data.errorNote || '匯入解析失敗，請改手動填寫';
+      btn.disabled = false;
+      return;
+    }
+    setTimeout(() => pollImport(rootEl, box, slug, importId, statusEl, btn, attempt + 1), 9000);
+  }catch{
+    setTimeout(() => pollImport(rootEl, box, slug, importId, statusEl, btn, attempt + 1), 9000);
+  }
+}
+
+function applyImportToForm(rootEl, parsed){
+  Object.keys(parsed).forEach(key => {
+    const el = rootEl.querySelector(`[data-k="${key}"]`);
+    if (!el) return;
+    el.value = parsed[key];
+    el.classList.add('imported');
+    const td = el.closest('tr');
+    if (td) td.querySelector('.st').innerHTML = '<span class="pill ok">已填</span>';
+  });
+}
+
+async function submitJob(slug, jobEl, btn){
+  if (!confirm('確定要送出審核嗎？送出後這個職缺會鎖住，要等顧問核准或退回才能再修改。')) return;
+  btn.disabled = true;
+  try{
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/jobs/${encodeURIComponent(slug)}/submit`, {
+      method: 'POST', headers: {'content-type':'application/json'},
+    });
+    const data = await res.json();
+    if (!data.ok){ alert(data.error || '送出失敗'); btn.disabled = false; return; }
+    const jobRecord = PORTAL_DATA.jobs.find(j => j.slug === slug);
+    if (jobRecord) jobRecord.status = 'pending_review';
+    alert('已送出審核，顧問確認後會通知你。');
+    document.getElementById('jobView').hidden = true;
+    document.getElementById('pickView').hidden = false;
+    renderPicklist();
+  }catch{
+    alert('連線失敗，請稍後再試'); btn.disabled = false;
+  }
 }
 
 async function saveJob(slug, jobEl, btn){

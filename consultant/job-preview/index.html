@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="zh-Hant">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>職缺預覽｜顧問後台</title>
+<link rel="icon" href="/assets/favicon.ico">
+<style>
+:root{--gold:#a67c3d;--ink:#23262d;--ink2:#4d5563;--ink3:#8a8d95;--line:#eee7db;--soft:#faf8f3;--bg:#f4f1ea;
+ --ok:#2f8f5b;--bad:#c0392b;--warn:#c98a1e;--navy:#173b63;--navy2:#0f2540}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 -apple-system,"Noto Sans TC",sans-serif}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px}
+header{background:#fff;border-bottom:1px solid var(--line);padding:14px 0}
+header .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header img{height:26px}
+a{color:var(--gold)}
+.gate{max-width:380px;margin:16vh auto;background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px}
+.gate input{width:100%;font:inherit;padding:11px 13px;border:1px solid var(--line);border-radius:10px;margin:12px 0}
+.gate button{width:100%;font:inherit;font-weight:700;background:var(--gold);color:#fff;border:0;border-radius:999px;padding:12px}
+.mut{color:var(--ink3);font-size:13px}
+main{padding:20px 0 70px}
+
+/* 電洽速覽卡：最重要的資訊，一眼看到 */
+.quickcard{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border-radius:18px;
+ padding:24px 26px;margin-bottom:18px}
+.quickcard .badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.06em;
+ background:rgba(255,255,255,.16);padding:3px 11px;border-radius:999px;margin-bottom:10px}
+.quickcard h1{margin:0 0 4px;font-size:24px;font-family:inherit}
+.quickcard .co{margin:0 0 16px;font-size:14px;color:#c7d9e8}
+.quickgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.quickgrid .qi{background:rgba(255,255,255,.08);border-radius:10px;padding:10px 12px}
+.quickgrid .qi .k{font-size:11px;color:#c7d9e8;margin-bottom:2px}
+.quickgrid .qi .v{font-size:15px;font-weight:700}
+
+.sec{background:#fff;border:1px solid var(--line);border-radius:14px;margin-bottom:14px;overflow:hidden}
+.sec h2{margin:0;padding:13px 18px;font-size:14px;background:var(--soft);border-bottom:1px solid var(--line);color:var(--navy)}
+.sec .body{padding:4px 18px}
+.row{display:grid;grid-template-columns:150px 1fr;gap:14px;padding:11px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.row .k{color:var(--ink3);font-size:13px;font-weight:600;padding-top:1px}
+.row .v{font-size:14.5px;white-space:pre-wrap;word-break:break-word}
+.row .v:empty::before,.row .v.empty::before{content:'—';color:#c9c4b8}
+@media(max-width:600px){.row{grid-template-columns:1fr;gap:2px}}
+
+.internal{border:1px solid #f0d4cf;background:#fdf3f1;border-radius:14px;padding:16px 18px;margin-bottom:14px}
+.internal h2{margin:0 0 4px;font-size:14px;color:var(--bad);display:flex;align-items:center;gap:6px}
+.internal .warn{font-size:12px;color:var(--bad);font-weight:700;margin-bottom:10px}
+.internal .row{border-bottom-color:#f0d4cf}
+
+.faqcard{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:10px;background:#fff}
+.faqcard b{display:block;font-size:13.5px;color:var(--navy);margin-bottom:4px}
+.faqcard p{margin:0;font-size:14px;white-space:pre-wrap}
+
+.state{max-width:420px;margin:16vh auto;text-align:center;color:var(--ink2)}
+</style>
+
+<div id="gate" class="gate" hidden>
+  <b>顧問後台</b>
+  <p class="mut" style="margin:6px 0 0">需要存取權杖。這組權杖等同密碼，不要外傳。</p>
+  <input id="tok" type="password" placeholder="ADMIN_TOKEN" autocomplete="off">
+  <button id="enter" type="button">進入</button>
+  <p id="gerr" class="mut" style="color:#b4552e;margin:12px 0 0" hidden></p>
+</div>
+
+<div id="app" hidden>
+  <header><div class="wrap">
+    <img src="/assets/step1ne-logo.png" alt="Step1ne">
+    <b>職缺預覽</b>
+    <span class="mut" style="margin-left:auto"><a href="/consultant/client-info/">← 回客戶資訊</a></span>
+  </div></header>
+  <main class="wrap">
+    <div id="content"><div class="state">載入中…</div></div>
+  </main>
+</div>
+
+<script>
+const API = 'https://step1ne-recruit-api.aiagentg888.workers.dev';
+const KEY = 's1ne_admin_tok';
+let tok = localStorage.getItem(KEY) || '';
+const $ = (i) => document.getElementById(i);
+const slug = new URLSearchParams(location.search).get('slug') || '';
+
+function esc(s){ return String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function api(path, opt){
+  opt = opt || {};
+  opt.headers = Object.assign({ authorization: 'Bearer ' + tok }, opt.headers || {});
+  return fetch(API + path, opt).then(r => r.json());
+}
+
+const STATUS_LABEL = {
+  client_draft: '客戶填寫中', pending_review: '待審核',
+  draft: '已核准／待正式上架', open: '已上線', closed: '已結案',
+};
+
+function fmtSalary(job){
+  if (!job.salary_min && !job.salary_max) return '';
+  const unit = job.salary_unit === 'YEAR' ? '年薪' : '月薪';
+  const fmt = (n) => Number(n).toLocaleString('zh-TW');
+  if (job.salary_min && job.salary_max) return `${unit} ${fmt(job.salary_min)}–${fmt(job.salary_max)} 元`;
+  return `${unit} ${fmt(job.salary_min || job.salary_max)} 元起`;
+}
+
+function row(label, val, opts){
+  opts = opts || {};
+  const cls = (val === null || val === undefined || val === '') ? ' empty' : '';
+  const shown = opts.raw ? val : esc(val);
+  return `<div class="row"><div class="k">${esc(label)}</div><div class="v${cls}">${shown || ''}</div></div>`;
+}
+
+function section(title, rowsHtml){
+  return `<div class="sec"><h2>${esc(title)}</h2><div class="body">${rowsHtml}</div></div>`;
+}
+
+function render(job){
+  const title = job.title || job.slug;
+  const salary = fmtSalary(job);
+  document.title = `${title}｜職缺預覽`;
+
+  const quick = `
+    <div class="quickcard">
+      <span class="badge">${esc(STATUS_LABEL[job.status] || job.status || '')}</span>
+      <h1>${esc(title)}</h1>
+      <p class="co">${esc(job.client_name || '（未填公司名稱）')}</p>
+      <div class="quickgrid">
+        <div class="qi"><div class="k">薪資</div><div class="v">${esc(salary || '未填')}</div></div>
+        <div class="qi"><div class="k">地點</div><div class="v">${esc(job.locations || '未填')}</div></div>
+        <div class="qi"><div class="k">工時</div><div class="v">${esc(job.work_hours || '未填')}</div></div>
+        <div class="qi"><div class="k">需求人數</div><div class="v">${esc(job.headcount || '未填')}</div></div>
+        <div class="qi"><div class="k">聘僱型態</div><div class="v">${esc(job.employment || '未填')}</div></div>
+        <div class="qi"><div class="k">到職日</div><div class="v">${esc(job.onboard_by || '未填')}</div></div>
+      </div>
+    </div>`;
+
+  const basic = section('基本資料',
+    row('公司簡介', job.client_intro) +
+    row('用人主管', job.hiring_manager) +
+    row('所屬部門／團隊', job.department) +
+    row('實際要派單位／進駐專案', job.dispatch_client) +
+    row('辦公型態', job.work_mode) +
+    row('聯絡窗口', job.client_contact_name) +
+    row('聯絡電話', job.client_contact_phone));
+
+  const timeCond = section('工時與條件',
+    row('上班時間', job.work_hours) +
+    row('休假方式', job.leave_policy) +
+    row('工作期間', job.employment_period) +
+    row('加班情形', job.overtime_policy) +
+    row('工作環境現場比重', job.work_environment_ratio) +
+    row('出勤紀錄方式', job.attendance_method));
+
+  const duties = section('工作內容',
+    row('主要工作職責', job.main_duties) +
+    row('直接匯報對象', job.reports_to) +
+    row('是否帶團隊', job.leads_team) +
+    row('團隊人數與組成', job.team_size) +
+    row('招募原因', job.hiring_reason) +
+    row('急迫程度', job.urgency));
+
+  const required = section('必要條件（硬條件）',
+    row('學歷要求', job.education_level) +
+    row('最低年資要求', job.years_min) +
+    row('必要技能', job.must_skills) +
+    row('必備條件', job.required_conditions) +
+    row('語言能力', job.language_requirement));
+
+  const niceToHave = section('加分條件',
+    row('加分技能／經驗', job.nice_to_have_skills) +
+    row('偏好背景', job.preferred_background) +
+    row('期望人格特質', job.personality_traits));
+
+  const payBenefit = section('薪資福利',
+    row('薪資補充說明', job.salary_note) +
+    row('薪資結構說明', job.salary_structure_note) +
+    row('福利與津貼', job.benefits_detail) +
+    row('派遣／轉正條件', job.dispatch_to_permanent_policy));
+
+  const process = section('面試與到職流程',
+    row('面試次數', job.interview_rounds) +
+    row('面試官', job.interview_who) +
+    row('是否有測驗', job.has_test) +
+    row('面試流程與關卡', job.interview_process) +
+    row('專案調派範圍', job.dispatch_range) +
+    row('保密／競業／最低服務年限', job.contract_terms_note) +
+    row('錄取後前置作業', job.onboarding_prep_note));
+
+  let faqHtml = '';
+  if (job.faq_notes) {
+    faqHtml = `<div class="sec"><h2>客戶提供的 FAQ（可以直接照著跟人選講）</h2>
+      <div class="body" style="padding:14px 18px"><div class="faqcard"><p>${esc(job.faq_notes)}</p></div></div></div>`;
+  }
+
+  let internalHtml = '';
+  if (job.client_screen_conditions || job.off_limits_note) {
+    internalHtml = `<div class="internal">
+      <h2>⚠️ 內部限定</h2>
+      <p class="warn">以下內容絕對不能對人選講，只能自己判斷用</p>
+      ${job.client_screen_conditions ? row('用人條件補充說明', job.client_screen_conditions) : ''}
+      ${job.off_limits_note ? row('同業限制', job.off_limits_note) : ''}
+    </div>`;
+  }
+
+  $('content').innerHTML = quick + basic + timeCond + duties + required + niceToHave
+    + payBenefit + process + faqHtml + internalHtml;
+}
+
+function load(){
+  $('gate').hidden = true; $('app').hidden = false;
+  if (!slug) { $('content').innerHTML = '<div class="state">網址缺少職缺代號（?slug=...）</div>'; return; }
+  api(`/admin/jobs/${encodeURIComponent(slug)}/full`).then(d => {
+    if (!d.ok) { $('content').innerHTML = `<div class="state">${esc(d.error || '讀取失敗')}</div>`; return; }
+    render(d.job);
+  }).catch(() => { $('content').innerHTML = '<div class="state">連線失敗</div>'; });
+}
+function boot(){
+  if (tok) return load();
+  $('gate').hidden = false;
+  $('enter').onclick = () => {
+    tok = $('tok').value.trim(); if (!tok) return;
+    api(`/admin/jobs/${encodeURIComponent(slug || 'x')}/full`).then(d => {
+      if (!d.ok && d.error === 'unauthorized') { $('gerr').hidden = false; $('gerr').textContent = '權杖不正確'; return; }
+      localStorage.setItem(KEY, tok); load();
+    });
+  };
+  $('tok').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('enter').click(); });
+}
+boot();
+</script>
+<script defer src="/consultant/_shell.js"></script>
+</html>

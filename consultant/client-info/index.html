@@ -139,6 +139,8 @@ function openCompany(id) {
       ? pending.map(function (j) {
           return '<div class="jrow"><span>' + esc(j.title || j.slug) + '<span class="pending">待審核</span></span>'
             + '<span class="act">'
+            + '<a class="sec" style="font-size:12.5px;padding:5px 10px;border-radius:8px;border:1px solid #eee7db;text-decoration:none;color:#4d5563" '
+            + 'href="/consultant/job-preview/?slug=' + encodeURIComponent(j.slug) + '" target="_blank">預覽</a>'
             + '<button class="appr" data-slug="' + esc(j.slug) + '">核准</button>'
             + '<button class="rej" data-slug="' + esc(j.slug) + '">拒絕</button>'
             + '</span></div>';
@@ -146,7 +148,10 @@ function openCompany(id) {
       : '';
     var jobsHtml = linked.length
       ? linked.map(function (j) {
-          return '<div class="jrow"><span>' + esc(j.title || j.slug) + '</span><span class="st">' + esc(j.status || '') + '</span></div>';
+          return '<div class="jrow"><span>' + esc(j.title || j.slug) + '</span><span class="act">'
+            + '<a class="sec" style="font-size:12.5px;padding:5px 10px;border-radius:8px;border:1px solid #eee7db;text-decoration:none;color:#4d5563" '
+            + 'href="/consultant/job-preview/?slug=' + encodeURIComponent(j.slug) + '" target="_blank">預覽</a>'
+            + '<span class="st">' + esc(j.status || '') + '</span></span></div>';
         }).join('')
       : '<p class="mut">還沒有職缺掛在這個入口。</p>';
 
@@ -200,7 +205,7 @@ function openCompany(id) {
     });
     Array.prototype.forEach.call($('mbody').querySelectorAll('.rej'), function (b) {
       b.onclick = function () {
-        if (!confirm('確定要拒絕這個職缺？會直接刪除，客戶要重新送一次。')) return;
+        if (!confirm('確定要拒絕這個職缺？會退回給客戶改，不會刪掉他已經填的內容。')) return;
         api('/admin/portal/pending-jobs/reject', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ slug: this.dataset.slug }) })
           .then(function (r) { if (r.ok) openCompany(c.id); else alert(r.error || '失敗'); }.bind(this));
       };
