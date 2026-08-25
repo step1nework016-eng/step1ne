@@ -34,6 +34,9 @@
     { href: '/consultant/sourced/',        label: '人才池',   icon: 'people', primary: true  },
     { href: '/consultant/jobs/',           label: '職缺分類', icon: 'funnel', primary: true  },
     { href: '/consultant/reports/',        label: '初篩報告', icon: 'doc',    primary: true  },
+    // 2026-08-25 加：enterprise.step1ne.com 招募形式評估工具的企業客戶提交紀錄——
+    // 跟候選人應徵是兩件事，這裡是「有人想委託」的商機線索，不是人才漏斗。
+    { href: '/consultant/hiring-assessments/', label: '招募形式評估', icon: 'target', primary: false },
     // 2026-08-21 加：顧問補填「這個人我會不會推」。原本只有報告推到 TG 當下
     //  那三個按鈕能按，訊息被蓋掉就沒第二次機會——25 份報告只有 1 位被回填。
     { href: '/consultant/kpi/',            label: '阿財準不準', icon: 'chart', primary: true  },

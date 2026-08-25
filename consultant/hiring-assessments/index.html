@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="zh-Hant">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>招募形式評估｜顧問後台</title>
+<link rel="icon" href="/assets/favicon.ico">
+<style>
+:root{--gold:#a67c3d;--ink:#23262d;--ink2:#4d5563;--ink3:#8a8d95;--line:#eee7db;--soft:#faf8f3;--bg:#f4f1ea;--ok:#2f8f5b;--bad:#c0392b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 -apple-system,"Noto Sans TC",sans-serif}
+.wrap{max-width:1000px;margin:0 auto;padding:0 16px}
+header{background:#fff;border-bottom:1px solid var(--line);padding:14px 0}
+header .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header img{height:26px}
+nav{margin-left:auto;display:flex;gap:8px}
+nav a{font-size:14px;text-decoration:none;color:var(--ink2);padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:#fff}
+nav a.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.gate{max-width:380px;margin:16vh auto;background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px}
+.gate input{width:100%;font:inherit;padding:11px 13px;border:1px solid var(--line);border-radius:10px;margin:12px 0}
+.gate button{width:100%;font:inherit;font-weight:700;background:var(--gold);color:#fff;border:0;border-radius:999px;padding:12px}
+.mut{color:var(--ink3);font-size:13px}
+main{padding:20px 0 60px}
+.note{background:#fff;border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:0 12px 12px 0;padding:13px 16px;font-size:13.5px;color:var(--ink2);margin-bottom:16px}
+.note b{color:var(--ink)}
+.bar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.bar select{font:inherit;font-size:13.5px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.bar .cnt{font-size:12.5px;color:var(--ink3);margin-left:auto}
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+th,td{padding:11px 12px;text-align:left;font-size:14px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{background:var(--soft);color:var(--ink3);font-size:12.5px;font-weight:700;letter-spacing:.04em;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.jb b{display:block;font-size:14.5px}
+td.jb span{font-size:12px;color:var(--ink3)}
+td.mode{font-weight:700;color:var(--gold)}
+select.st{font:inherit;font-size:13px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:#fff}
+select.st[data-cur="new"]{color:#986417;border-color:#e8d5ab;background:#fdf6e9}
+select.st[data-cur="contacted"]{color:#24528f;border-color:#c9dbf0;background:#eef4fb}
+select.st[data-cur="closed"]{color:var(--ink3)}
+.msg{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:14px;padding:11px 20px;border-radius:999px;opacity:0;transition:opacity .2s;pointer-events:none}
+.msg.on{opacity:1}
+.msg.err{background:var(--bad)}
+
+@media(max-width:760px){
+  table{border:0;background:transparent}
+  thead{display:none}
+  tbody,tr,td{display:block;width:auto}
+  tr{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 15px;margin-bottom:11px}
+  td{border:0;padding:0}
+  td.jb{margin-bottom:8px}
+  td+td{margin-top:8px}
+  td.dt{color:var(--ink3);font-size:12px}
+}
+</style>
+
+<div id="gate" class="gate" hidden>
+  <b>顧問後台</b>
+  <p class="mut" style="margin:6px 0 0">需要存取權杖。這組權杖等同密碼，不要外傳。</p>
+  <input id="tok" type="password" placeholder="ADMIN_TOKEN" autocomplete="off">
+  <button id="enter" type="button">進入</button>
+  <p id="gerr" class="mut" style="color:#b4552e;margin:12px 0 0" hidden></p>
+</div>
+
+<div id="app" hidden>
+  <header><div class="wrap">
+    <img src="/assets/step1ne-logo.png" alt="Step1ne"><b>招募形式評估</b>
+    <nav><a href="/consultant/overview/">總覽</a><a href="/consultant/reports/">初篩報告</a><a href="/consultant/jobs/">職缺分類</a><a href="/consultant/hiring-assessments/" class="on">招募形式評估</a><a href="/consultant/bd/">開發客戶</a></nav>
+  </div></header>
+  <main class="wrap">
+    <div class="note">
+      這裡是<b>enterprise.step1ne.com</b>（招募形式快速評估工具）的企業客戶提交紀錄——
+      不是候選人應徵，是<b>企業客戶自己填的用人需求</b>，代表有人正在考慮委託。<br>
+      <b style="color:#8a5a1a">狀態是「新提交」的代表還沒人聯繫</b>，建議看到就儘快跟進，別讓熱線索冷掉。
+    </div>
+    <div class="bar">
+      <select id="fs"><option value="">全部狀態</option>
+        <option value="new">新提交</option><option value="contacted">已聯繫</option><option value="closed">已結案</option></select>
+      <select id="fm"><option value="">全部形式</option>
+        <option value="人力派遣">人力派遣</option><option value="專案約聘">專案約聘</option>
+        <option value="中高階獵才">中高階獵才</option><option value="正職代招">正職代招</option></select>
+      <span class="cnt" id="cnt"></span>
+    </div>
+    <table>
+      <thead><tr><th>提交時間</th><th>公司／職稱</th><th>薪資範圍</th><th>建議形式</th><th>狀態</th></tr></thead>
+      <tbody id="rows"><tr><td colspan="5" class="mut">載入中⋯</td></tr></tbody>
+    </table>
+  </main>
+</div>
+<div id="msg" class="msg"></div>
+
+<script>
+var API = 'https://step1ne-recruit-api.aiagentg888.workers.dev';
+var KEY = 's1ne_admin_tok';
+var tok = localStorage.getItem(KEY) || '';
+var $ = function (i) { return document.getElementById(i); };
+
+function esc(s) { return String(s == null ? '' : s).replace(/[<>&]/g, function (c) { return { '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]; }); }
+
+function api(path, opt) {
+  opt = opt || {};
+  opt.headers = Object.assign({ authorization: 'Bearer ' + tok }, opt.headers || {});
+  return fetch(API + path, opt).then(function (r) { return r.json(); });
+}
+function toast(t, err) {
+  var m = $('msg'); m.textContent = t; m.className = 'msg on' + (err ? ' err' : '');
+  setTimeout(function () { m.className = 'msg'; }, err ? 4000 : 1800);
+}
+
+var STATUS_LABEL = { new: '新提交', contacted: '已聯繫', closed: '已結案' };
+var ALL = [];
+
+function filtered() {
+  var fs = $('fs').value, fm = $('fm').value;
+  return ALL.filter(function (s) {
+    if (fs && s.status !== fs) return false;
+    if (fm && s.mode_label !== fm) return false;
+    return true;
+  });
+}
+function apply() {
+  var rows = filtered();
+  $('cnt').textContent = rows.length === ALL.length ? ALL.length + ' 筆' : rows.length + ' / ' + ALL.length + ' 筆';
+  paint(rows);
+}
+function fmtDate(s) {
+  // created_at 存的是台北時間字串，直接顯示，不要再做時區轉換
+  return (s || '').replace('T', ' ').slice(0, 16);
+}
+function paint(rows) {
+  $('rows').innerHTML = rows.map(function (r) {
+    return '<tr>'
+      + '<td class="dt">' + esc(fmtDate(r.created_at)) + '</td>'
+      + '<td class="jb"><b>' + esc(r.job_title) + '</b><span>' + esc(r.company_name) + '　·　' + esc(r.industry) + '</span></td>'
+      + '<td>' + esc(r.salary_text) + '</td>'
+      + '<td class="mode">' + esc(r.mode_label) + '</td>'
+      + '<td><select class="st" data-id="' + esc(r.id) + '" data-cur="' + r.status + '">'
+      + ['new', 'contacted', 'closed'].map(function (k) {
+          return '<option value="' + k + '"' + (k === r.status ? ' selected' : '') + '>' + STATUS_LABEL[k] + '</option>';
+        }).join('')
+      + '</select></td></tr>';
+  }).join('') || '<tr><td colspan="5" class="mut" style="text-align:center;padding:26px">目前沒有符合的提交紀錄</td></tr>';
+}
+
+document.addEventListener('change', function (e) {
+  var s = e.target;
+  if (!s.classList || !s.classList.contains('st')) return;
+  var id = s.dataset.id, next = s.value;
+  s.disabled = true;
+  api('/assessment/submissions/' + encodeURIComponent(id), {
+    method: 'PATCH', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ status: next }),
+  }).then(function (d) {
+    s.disabled = false;
+    if (!d.ok) return toast(d.error || '存檔失敗', true);
+    s.dataset.cur = next;
+    var row = ALL.filter(function (r) { return r.id === id; })[0];
+    if (row) row.status = next;
+    toast('已更新狀態');
+  }).catch(function () { s.disabled = false; toast('連不上伺服器', true); });
+});
+
+['fs', 'fm'].forEach(function (id) {
+  document.addEventListener('change', function (e) { if (e.target.id === id) apply(); });
+});
+
+function load() {
+  api('/assessment/submissions').then(function (d) {
+    if (!d.ok) { localStorage.removeItem(KEY); return boot(); }
+    $('gate').hidden = true; $('app').hidden = false;
+    ALL = d.submissions || []; apply();
+  }).catch(function () { $('rows').innerHTML = '<tr><td colspan="5" class="mut">讀取失敗</td></tr>'; });
+}
+function boot() {
+  if (tok) return load();
+  $('gate').hidden = false;
+  $('enter').onclick = function () {
+    tok = $('tok').value.trim();
+    if (!tok) return;
+    api('/assessment/submissions').then(function (d) {
+      if (!d.ok) { $('gerr').hidden = false; $('gerr').textContent = '權杖不正確'; return; }
+      localStorage.setItem(KEY, tok); load();
+    });
+  };
+  $('tok').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('enter').click(); });
+}
+boot();
+</script>
+<script defer src="/consultant/_shell.js"></script>
