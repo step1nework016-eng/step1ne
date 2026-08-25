@@ -170,6 +170,11 @@ button.sec{background:#fff;color:var(--ink2);border:1px solid var(--line)}
 const API = 'https://step1ne-recruit-api.aiagentg888.workers.dev';
 const token = new URLSearchParams(location.search).get('t') || '';
 
+// 跟 consultant/job-preview/index.html 的 EMP_LABEL 保持同一份對照——
+// 值存英文代碼（跟資料庫、阿財共用的既有慣例一致），畫面一律顯示中文。
+const EMPLOYMENT_OPTIONS = { FULL_TIME: '正職', PART_TIME: '兼職', TEMPORARY: '臨時／派遣',
+  CONTRACTOR: '承攬／約聘', INTERN: '實習' };
+
 const LABELS = {
   client_name:'公司名稱', client_screen_conditions:'用人條件補充說明', faq_notes:'常見問題／FAQ說明',
   salary_note:'薪資補充說明',
@@ -355,11 +360,25 @@ function renderJob(job, fields){
     const isLong = ['main_duties','required_conditions','benefits_detail','salary_tier_table',
       'overtime_detail','salary_structure_note','dispatch_to_permanent_policy','contract_terms_note',
       'client_intro','client_screen_conditions','faq_notes','salary_note'].includes(key);
+    // 2026-08-25 加：聘僱型態原本是自由文字輸入，客戶會直接打進英文代碼
+    // （或看到資料庫裡存的 FULL_TIME 這種代碼字串），跟顧問後台/職缺預覽頁
+    // 用的翻譯表（EMP_LABEL）兜不起來。改成下拉選單，選項固定、中文顯示，
+    // 值還是存英文代碼——跟其他地方讀這個欄位的邏輯保持一致，不用另外改。
+    let fieldHtml;
+    if (key === 'employment'){
+      fieldHtml = `<select data-k="${key}">
+        <option value="">— 請選擇 —</option>
+        ${Object.entries(EMPLOYMENT_OPTIONS).map(([k, lb]) =>
+          `<option value="${k}"${val === k ? ' selected' : ''}>${esc(lb)}</option>`).join('')}
+      </select>`;
+    } else if (isLong){
+      fieldHtml = `<textarea data-k="${key}">${esc(val)}</textarea>`;
+    } else {
+      fieldHtml = `<input type="text" data-k="${key}" value="${esc(val)}">`;
+    }
     return `<tr>
       <td class="lb">${esc(LABELS[key] || key)}</td>
-      <td class="vv">${isLong
-        ? `<textarea data-k="${key}">${esc(val)}</textarea>`
-        : `<input type="text" data-k="${key}" value="${esc(val)}">`}</td>
+      <td class="vv">${fieldHtml}</td>
       <td class="st">${has ? '<span class="pill ok">已填</span>' : '<span class="pill warn">待補</span>'}</td>
     </tr>`;
   }).join('');
