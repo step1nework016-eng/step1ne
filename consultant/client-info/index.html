@@ -146,12 +146,21 @@ function openCompany(id) {
             + '</span></div>';
         }).join('')
       : '';
+    // client_draft 常常讓顧問誤以為「客戶新增了但系統壞了，怎麼沒有核准按鈕」——
+    // 其實是客戶還沒按「送出審核」，職缺還在他自己手上改。狀態文字講清楚，
+    // 不要只丟英文代碼在畫面上。
+    var STATUS_LABEL = {
+      client_draft: '客戶填寫中（尚未送審，不會出現核准按鈕）',
+      draft: '已核准，等正式上架',
+      open: '已上線', closed: '已結案',
+    };
     var jobsHtml = linked.length
       ? linked.map(function (j) {
+          var stLabel = STATUS_LABEL[j.status] || j.status || '';
           return '<div class="jrow"><span>' + esc(j.title || j.slug) + '</span><span class="act">'
             + '<a class="sec" style="font-size:12.5px;padding:5px 10px;border-radius:8px;border:1px solid #eee7db;text-decoration:none;color:#4d5563" '
             + 'href="/consultant/job-preview/?slug=' + encodeURIComponent(j.slug) + '" target="_blank">預覽</a>'
-            + '<span class="st">' + esc(j.status || '') + '</span></span></div>';
+            + '<span class="st">' + esc(stLabel) + '</span></span></div>';
         }).join('')
       : '<p class="mut">還沒有職缺掛在這個入口。</p>';
 
