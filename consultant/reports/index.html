@@ -1205,7 +1205,7 @@ async function renderForwardPanel(appId, decided) {
   ]);
   var list = (fwd.ok ? fwd.forwards : []) || [];
   // 2026-08-26 改：每一家客戶的面試進度是各自獨立的——同一位人選在律准談到
-  // 第二關、在宏昌可能還沒約。這裡一家一行顯示各自走到哪，不再只列公司名。
+  // 第二關、在弘昌可能還沒約。這裡一家一行顯示各自走到哪，不再只列公司名。
   var listHtml = list.length
     ? '<div style="display:flex;flex-direction:column;gap:4px;">' + list.map(function (f) {
         return '<div style="display:flex;align-items:center;gap:8px;font-size:12.5px;">'
@@ -1505,7 +1505,7 @@ function renderStageBar(row, d) {
   wire();
 
   // 2026-08-26 加：同一位人選推給好幾家客戶時，每一家的面試進度是各自獨立的
-  // （律准談到第二關、宏昌還沒約），一條總進度條表達不出來。有推薦紀錄就
+  // （律准談到第二關、弘昌還沒約），一條總進度條表達不出來。有推薦紀錄就
   // 改成一家一條，各自可以獨立調整。
   var appId = (cur && cur.app_id) || row.app_id || row.id;
   if (!appId) return;
