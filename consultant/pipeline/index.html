@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="zh-Hant">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>我的案子｜顧問後台</title>
+<link rel="icon" href="/assets/favicon.ico">
+<style>
+:root{--gold:#a67c3d;--ink:#23262d;--ink2:#4d5563;--ink3:#8a8d95;--line:#eee7db;--soft:#faf8f3;--bg:#f4f1ea;--ok:#2f8f5b;--bad:#c0392b;--warn:#8a6100}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 -apple-system,"Noto Sans TC",sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:0 16px}
+header{background:#fff;border-bottom:1px solid var(--line);padding:14px 0}
+header .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header img{height:26px}
+nav{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+nav a{font-size:14px;text-decoration:none;color:var(--ink2);padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:#fff}
+nav a.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.gate{max-width:380px;margin:16vh auto;background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px}
+.gate input{width:100%;font:inherit;padding:11px 13px;border:1px solid var(--line);border-radius:10px;margin:12px 0}
+.gate button{width:100%;font:inherit;font-weight:700;background:var(--gold);color:#fff;border:0;border-radius:999px;padding:12px}
+.mut{color:var(--ink3);font-size:13px}
+main{padding:22px 0 80px}
+.who{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.who select{font:inherit;font-size:15px;font-weight:700;padding:9px 34px 9px 15px;border:1px solid var(--line);border-radius:999px;background:#fff url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238a8d95' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 14px center;appearance:none;color:var(--ink);cursor:pointer}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.tab{position:relative;font:inherit;font-size:13.5px;font-weight:600;color:var(--ink2);background:#fff;border:1px solid var(--line);padding:7px 15px;border-radius:999px;cursor:pointer;display:flex;align-items:center;gap:7px}
+.tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.tab .n{font-variant-numeric:tabular-nums;opacity:.72}
+.tab .fl{background:var(--bad);color:#fff;border-radius:999px;font-size:11px;font-weight:700;padding:0 6px;line-height:16px;min-width:16px;text-align:center}
+.tab.on .fl{background:#fff;color:var(--bad)}
+.c{background:#fff;border:1px solid var(--line);border-left:3px solid transparent;border-radius:12px;padding:13px 15px;margin-bottom:9px}
+.c.stale{border-left-color:var(--bad);background:#fffdfc}
+.c .top{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
+.c .nm{font-weight:700;font-size:15px}
+.c .hl{font-size:13px;color:var(--ink2)}
+.c .meta{font-size:12.5px;color:var(--ink3);margin-top:3px}
+.c .con{font-size:12.5px;color:var(--ink2);margin-top:5px;font-variant-numeric:tabular-nums}
+.c .con a{color:var(--gold);text-decoration:none}
+.age{margin-left:auto;font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:1px 10px;color:var(--ink2);white-space:nowrap}
+.age.hot{background:#fdecea;border-color:#f3cdc7;color:var(--bad)}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px;align-items:center}
+.acts select{font:inherit;font-size:12.5px;padding:5px 26px 5px 11px;border:1px solid var(--line);border-radius:999px;background:#fff;appearance:none;cursor:pointer;color:var(--ink2)}
+a.lk{color:var(--gold);text-decoration:none;font-size:12.5px;font-weight:600}
+.empty{background:#fff;border:1px dashed var(--line);border-radius:14px;padding:30px;text-align:center;color:var(--ink3)}
+.note{background:var(--soft);border-left:3px solid var(--gold);border-radius:0 10px 10px 0;padding:12px 15px;font-size:13px;color:var(--ink2);margin-bottom:14px;line-height:1.7}
+.mg{margin-top:22px;border-top:1px solid var(--line);padding-top:14px}
+.mg summary{cursor:pointer;font-size:13.5px;font-weight:600;color:var(--ink2)}
+.mg .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.mg input{font:inherit;font-size:14px;padding:8px 13px;border:1px solid var(--line);border-radius:10px;flex:1 1 160px}
+.btn{font:inherit;font-size:13px;font-weight:600;border-radius:999px;padding:6px 15px;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink2)}
+.btn.p{background:var(--gold);color:#fff;border-color:var(--gold)}
+.clist{font-size:13px;color:var(--ink2);margin-top:10px}
+.clist div{display:flex;gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid var(--line)}
+.clist .off{opacity:.5}
+</style>
+
+<div id="gate" class="gate" hidden>
+  <b>顧問後台</b>
+  <p class="mut" style="margin:6px 0 0">需要存取權杖。這組權杖等同密碼，不要外傳。</p>
+  <input id="tok" type="password" placeholder="ADMIN_TOKEN" autocomplete="off">
+  <button id="enter" type="button">進入</button>
+  <p id="gerr" class="mut" style="color:#b4552e;margin:12px 0 0" hidden></p>
+</div>
+
+<div id="app" hidden>
+  <header><div class="wrap">
+    <img src="/assets/step1ne-logo.png" alt="Step1ne"><b>我的案子</b>
+    <nav>
+      <a href="/consultant/overview/">總覽</a>
+      <a href="/consultant/pipeline/" class="on">我的案子</a>
+      <a href="/consultant/sourced/">人才池</a>
+      <a href="/consultant/reports/">初篩報告</a>
+    </nav>
+  </div></header>
+  <main class="wrap">
+    <div class="note">
+      這張表照「<b>球現在在誰手上</b>」分，不是照資料表分。
+      左邊紅線＝<b>卡太久了</b>（各關的天數門檻不一樣，游標移到天數上會顯示）。
+      同一個人被推到兩家客戶，就是兩件事、各算一列。
+    </div>
+    <div class="who">
+      <select id="owner" aria-label="顧問"></select>
+      <span id="sum" class="mut"></span>
+    </div>
+    <div class="tabs" id="tabs"></div>
+    <div id="list" class="mut">載入中…</div>
+
+    <details class="mg">
+      <summary>顧問名單設定</summary>
+      <div class="clist" id="clist"></div>
+      <div class="row">
+        <input id="newc" placeholder="新顧問名字" autocomplete="off">
+        <button class="btn p" id="addc" type="button">新增顧問</button>
+      </div>
+      <p class="mut" style="margin:8px 0 0">
+        顧問只能停用、不能刪除——離職後他經手過的人選紀錄還是要查得到。
+      </p>
+    </details>
+  </main>
+</div>
+
+<script>
+var API='https://step1ne-recruit-api.aiagentg888.workers.dev';
+var KEY='s1ne_admin_tok';
+var tok=localStorage.getItem(KEY)||'';
+var $=function(i){return document.getElementById(i)};
+function api(p,o){o=o||{};o.headers=Object.assign({authorization:'Bearer '+tok},o.headers||{});
+  return fetch(API+p,o).then(function(r){return r.json()})}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+
+// 分頁名稱刻意用顧問講話的方式寫，不用系統詞（不是 sourced / placement）——
+// 這頁的目的是「早上打開就知道今天先做哪一件」。
+var TABS=[
+  {k:'to_contact',   lb:'要我接觸', kind:'sourced',     hint:'找到人了，還沒發第一封信'},
+  {k:'waiting_reply',lb:'等對方回', kind:'sourced',     hint:'信發了，人還沒回'},
+  {k:'to_review',    lb:'等我看報告',kind:'application',hint:'阿財談完了，還沒決定推不推'},
+  {k:'client_side',  lb:'客戶手上', kind:'placement',   hint:'已送件，等客戶安排／回覆'},
+  {k:'closing',      lb:'快成交',   kind:'placement',   hint:'錄取到報到之間'},
+  {k:'done',         lb:'已收尾',   kind:'placement',   hint:'成交或結案，只供回頭查'}
+];
+var DATA=null, CUR='to_review', OWNER=localStorage.getItem('s1ne_pipe_owner')||'all', CONS=[];
+
+function ownerSel(cur,kind,id){
+  var o='<option value="">未指派</option>';
+  CONS.forEach(function(c){ if(!c.is_active&&c.id!==cur)return;
+    o+='<option value="'+esc(c.id)+'"'+(cur===c.id?' selected':'')+'>'+esc(c.display_name)+'</option>'; });
+  return '<select data-kind="'+kind+'" data-id="'+esc(id)+'" class="ow">'+o+'</select>';
+}
+
+function card(r,tab){
+  var th=(DATA.thresholds||{})[tab.k];
+  var age=r.age_days==null?'':(r.age_days+' 天');
+  var hot=r.stale?' hot':'';
+  var title=th?('卡 '+r.age_days+' 天，這一關超過 '+th+' 天就該動'):'';
+  var sub=[];
+  if(r.headline)sub.push(esc(r.headline));
+  if(r.company)sub.push(esc(r.company));
+  if(r.job_title||r.job_slug)sub.push(esc(r.job_title||r.job_slug));
+  if(r.client_company||r.client_name)sub.push('→ '+esc(r.client_company||r.client_name));
+  var con=[];
+  if(r.email)con.push('<a href="mailto:'+esc(r.email)+'">'+esc(r.email)+'</a>');
+  if(r.phone)con.push('<a href="tel:'+esc(r.phone)+'">'+esc(r.phone)+'</a>');
+  var lk='';
+  if(tab.kind==='sourced')     lk='<a class="lk" href="/consultant/sourced/">在人才池開啟</a>';
+  if(tab.kind==='application') lk='<a class="lk" href="/consultant/reports/">看初篩報告</a>';
+  if(tab.kind==='placement')   lk='<a class="lk" href="/consultant/reports/">開人選進度</a>';
+  return '<div class="c'+(r.stale?' stale':'')+'">'
+    +'<div class="top"><span class="nm">'+esc(r.name||'（未填姓名）')+'</span>'
+    + (r.grade?'<span class="hl">'+esc(r.grade)+'</span>':'')
+    + (age?'<span class="age'+hot+'" title="'+esc(title)+'">'+age+'</span>':'')
+    +'</div>'
+    + (sub.length?'<div class="meta">'+sub.join('・')+'</div>':'')
+    + (con.length?'<div class="con">'+con.join('　')+'</div>':'')
+    +'<div class="acts">'+ownerSel(r.owner,tab.kind,r.id)+lk+'</div>'
+    +'</div>';
+}
+
+function renderTabs(){
+  $('tabs').innerHTML=TABS.map(function(t){
+    var n=(DATA.counts||{})[t.k]||0, s=(DATA.stale||{})[t.k]||0;
+    return '<button class="tab'+(CUR===t.k?' on':'')+'" data-k="'+t.k+'" title="'+esc(t.hint)+'">'
+      +esc(t.lb)+'<span class="n">'+n+'</span>'
+      +(s?'<span class="fl">'+s+'</span>':'')+'</button>';
+  }).join('');
+  Array.prototype.forEach.call($('tabs').children,function(b){
+    b.onclick=function(){CUR=b.dataset.k;renderTabs();renderList()};
+  });
+}
+
+function renderList(){
+  var tab=TABS.filter(function(t){return t.k===CUR})[0];
+  var rows=(DATA.tabs||{})[CUR]||[];
+  if(!rows.length){
+    $('list').innerHTML='<div class="empty">這一關目前沒有案子。<br><span class="mut">'+esc(tab.hint)+'</span></div>';
+    return;
+  }
+  $('list').innerHTML=rows.map(function(r){return card(r,tab)}).join('');
+  Array.prototype.forEach.call($('list').querySelectorAll('select.ow'),function(s){
+    s.onchange=function(){
+      var prev=s.dataset.prev||'';
+      s.disabled=true;
+      api('/admin/set-owner',{method:'POST',headers:{'content-type':'application/json'},
+        body:JSON.stringify({kind:s.dataset.kind,id:s.dataset.id,owner:s.value||null})})
+      .then(function(d){ s.disabled=false;
+        if(!d.ok){alert(d.error||'指派失敗');s.value=prev;return}
+        // 指派給別人之後，這一列就不該再留在「我的」畫面上——重載才不會誤導
+        if(OWNER!=='all')load();
+      }).catch(function(){s.disabled=false;alert('連線失敗')});
+    };
+    s.dataset.prev=s.value;
+  });
+}
+
+function renderSum(){
+  var c=DATA.counts||{}, s=DATA.stale||{};
+  var act=(c.to_contact||0)+(c.waiting_reply||0)+(c.to_review||0)+(c.client_side||0)+(c.closing||0);
+  var fl=(s.to_contact||0)+(s.waiting_reply||0)+(s.to_review||0)+(s.client_side||0)+(s.closing||0);
+  $('sum').innerHTML='進行中 <b>'+act+'</b> 件'+(fl?'，其中 <b style="color:#c0392b">'+fl+'</b> 件卡太久':'');
+}
+
+function renderConsultants(){
+  $('owner').innerHTML='<option value="all">全部顧問</option>'
+    + CONS.filter(function(c){return c.is_active}).map(function(c){
+        return '<option value="'+esc(c.id)+'">'+esc(c.display_name)+'</option>'}).join('')
+    + '<option value="unassigned">未指派</option>';
+  $('owner').value=OWNER;
+  $('clist').innerHTML=CONS.map(function(c){
+    return '<div class="'+(c.is_active?'':'off')+'"><b>'+esc(c.display_name)+'</b>'
+      +'<span class="mut">'+esc(c.id)+'</span>'
+      +'<button class="btn" style="margin-left:auto" data-t="'+esc(c.id)+'" data-a="'+(c.is_active?0:1)+'" data-n="'+esc(c.display_name)+'">'
+      +(c.is_active?'停用':'重新啟用')+'</button></div>';
+  }).join('');
+  Array.prototype.forEach.call($('clist').querySelectorAll('button'),function(b){
+    b.onclick=function(){
+      api('/admin/consultants',{method:'POST',headers:{'content-type':'application/json'},
+        body:JSON.stringify({id:b.dataset.t,display_name:b.dataset.n,is_active:Number(b.dataset.a)})})
+      .then(function(d){ if(!d.ok)return alert(d.error||'失敗'); loadConsultants(); });
+    };
+  });
+}
+
+function loadConsultants(){
+  return api('/admin/consultants').then(function(d){
+    if(!d.ok)return; CONS=d.consultants||[]; renderConsultants();
+  });
+}
+
+function load(){
+  $('gate').hidden=true;$('app').hidden=false;
+  return api('/admin/pipeline?owner='+encodeURIComponent(OWNER)).then(function(d){
+    if(!d.ok){$('list').innerHTML='<div class="mut">讀取失敗</div>';return}
+    DATA=d; renderTabs(); renderSum(); renderList();
+  }).catch(function(){$('list').innerHTML='<div class="mut">連線失敗</div>'});
+}
+
+$('owner').onchange=function(){OWNER=this.value;localStorage.setItem('s1ne_pipe_owner',OWNER);load()};
+$('addc').onclick=function(){
+  var n=$('newc').value.trim(); if(!n)return;
+  api('/admin/consultants',{method:'POST',headers:{'content-type':'application/json'},
+    body:JSON.stringify({display_name:n})})
+  .then(function(d){ if(!d.ok)return alert(d.error||'失敗'); $('newc').value=''; loadConsultants(); });
+};
+$('newc').addEventListener('keydown',function(e){if(e.key==='Enter')$('addc').click()});
+
+function boot(){
+  if(tok){loadConsultants().then(load);return}
+  $('gate').hidden=false;
+  $('enter').onclick=function(){
+    tok=$('tok').value.trim(); if(!tok)return;
+    api('/admin/consultants').then(function(d){
+      if(!d.ok){$('gerr').hidden=false;$('gerr').textContent='權杖不正確';return}
+      localStorage.setItem(KEY,tok); CONS=d.consultants||[]; renderConsultants(); load();
+    });
+  };
+  $('tok').addEventListener('keydown',function(e){if(e.key==='Enter')$('enter').click()});
+}
+boot();
+</script>
+<script defer src="/consultant/_shell.js"></script>
+</html>

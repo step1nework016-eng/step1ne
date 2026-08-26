@@ -40,6 +40,9 @@
     // 2026-08-19 加：總覽放第一個——顧問打開後台第一眼要看到的是
     // 「等你動手的有幾件」，不是職缺列表。
     { href: '/consultant/overview/',       label: '招募總覽', icon: 'chart',  primary: true,  group: '招募流程' },
+    // 2026-08-26 加：依顧問分的個人 pipeline。總覽是「全公司現在怎樣」，
+    // 這裡是「我手上這幾件，哪一件卡住了」——同一批資料、不同問題。
+    { href: '/consultant/pipeline/',       label: '我的案子', icon: 'people', primary: true,  group: '招募流程' },
     { href: '/consultant/sourced/',        label: '人才池',   icon: 'people', primary: true,  group: '招募流程' },
     { href: '/consultant/jobs/',           label: '職缺分類', icon: 'funnel', primary: true,  group: '招募流程' },
     { href: '/consultant/reports/',        label: '初篩報告', icon: 'doc',    primary: true,  group: '招募流程' },
