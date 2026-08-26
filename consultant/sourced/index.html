@@ -308,6 +308,48 @@ $('q').addEventListener('keydown',function(e){
   if(e.key==='Enter'){clearTimeout(t);Q=this.value.trim();PAGE=0;load()}
 });
 $('clr').onclick=function(){Q='';CAT='';SRC='';HAS='';JOB='';PAGE=0;$('q').value='';load()};
+
+// ── 批次指派 ──
+$('selall').onchange=function(){
+  var on=this.checked;
+  Array.prototype.forEach.call($('list').querySelectorAll('.pick'),function(cb){
+    cb.checked=on; SEL[cb.dataset.id]=on; cb.closest('.c').classList.toggle('sel',on);
+  });
+  renderBulk();
+};
+$('bulkclr').onclick=function(){
+  SEL={}; $('selall').checked=false;
+  Array.prototype.forEach.call($('list').querySelectorAll('.pick'),function(cb){
+    cb.checked=false; cb.closest('.c').classList.remove('sel');
+  });
+  renderBulk();
+};
+$('bulkgo').onclick=function(){
+  var ow=$('bulkow').value||null;
+  var who=ow?$('bulkow').selectedOptions[0].textContent:'未指派（取消指派）';
+  var body;
+  if(SEL.__ALL__){
+    // 條件模式：把畫面上看到的筆數一起送過去，後端對不上就整批不做——
+    // 顧問看到 55、實際改到 3,500 這種錯，事後要一筆一筆比對才救得回來。
+    if(!confirm('要把「符合目前條件的全部 '+TOTAL+' 位」指派給 '+who+' 嗎？\n\n這包含沒顯示在這一頁的人。'))return;
+    body={owner:ow, filter:curFilter(), expect:TOTAL};
+  }else{
+    var ids=selIds();
+    if(!ids.length)return alert('先勾選要指派的人');
+    if(ids.length>20 && !confirm('要把勾選的 '+ids.length+' 位指派給 '+who+' 嗎？'))return;
+    body={owner:ow, ids:ids};
+  }
+  $('bulkgo').disabled=true;
+  api('/admin/sourced/assign-owner',{method:'POST',headers:{'content-type':'application/json'},
+    body:JSON.stringify(body)})
+  .then(function(d){
+    $('bulkgo').disabled=false;
+    if(!d.ok)return alert(d.error||'指派失敗');
+    SEL={}; $('selall').checked=false;
+    alert('已指派 '+d.changed+' 位給 '+who);
+    load();
+  }).catch(function(){$('bulkgo').disabled=false;alert('連線失敗')});
+};
 function load(){
   $('gate').hidden=true;$('app').hidden=false;
   var qs='/admin/sourced?status='+encodeURIComponent(ST)
@@ -321,14 +363,18 @@ function load(){
     if(!d.ok){$('list').innerHTML='<div class="mut">讀取失敗</div>';return} render(d);
   }).catch(function(){$('list').innerHTML='<div class="mut">連線失敗</div>'});
 }
+function loadCons(){
+  return api('/admin/consultants').then(function(d){ if(d.ok)CONS=d.consultants||[]; })
+    .catch(function(){});
+}
 function boot(){
-  if(tok)return load();
+  if(tok)return loadCons().then(load);
   $('gate').hidden=false;
   $('enter').onclick=function(){
     tok=$('tok').value.trim(); if(!tok)return;
     api('/admin/sourced').then(function(d){
       if(!d.ok){$('gerr').hidden=false;$('gerr').textContent='權杖不正確';return}
-      localStorage.setItem(KEY,tok);load();
+      localStorage.setItem(KEY,tok);loadCons().then(load);
     });
   };
   $('tok').addEventListener('keydown',function(e){if(e.key==='Enter')$('enter').click()});
