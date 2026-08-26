@@ -31,6 +31,9 @@ main{padding:22px 0 60px}
 .c .hl{font-size:13px;color:var(--ink2)}
 .c .meta{font-size:12.5px;color:var(--ink3);margin-top:2px}
 .c .sk{font-size:12px;color:var(--ink2);margin-top:6px}
+.c .ct{font-size:12.5px;margin-top:6px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;font-variant-numeric:tabular-nums}
+.c .ct .nomail{color:var(--ink3)}
+.c .ct .ow{color:var(--ink2);background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:1px 9px;font-size:11.5px}
 .sc{margin-left:auto;font-size:12px;font-weight:700;background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:1px 10px}
 .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .btn{font:inherit;font-size:13px;font-weight:600;border-radius:999px;padding:6px 14px;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink2)}
@@ -150,6 +153,17 @@ function render(d){
       +'<div class="meta">'+[esc(r.company),esc(r.location),esc(r.source)].filter(Boolean).join('　·　')
       +(links.length?'　·　'+links.join('　'):'')+'</div>'
       +(r.skills?'<div class="sk">'+esc(r.skills)+'</div>':'')
+      // 2026-08-26 加：聯絡方式原本查得到卻不顯示——顧問要接觸一個人
+      // 得另外開來源網址自己找，等於這一欄存了等於沒存（3,506 人裡有
+      // 307 人是有 email 的）。沒有 email 的直接標明白，才不會有人
+      // 對著一列想半天要怎麼聯絡。這個池子沒有電話欄位，爬回來的公開
+      // 資料本來就不會有電話。
+      +'<div class="ct">'
+      +(r.email
+        ? '<a class="lk" href="mailto:'+esc(r.email)+'">'+esc(r.email)+'</a>'
+        : '<span class="nomail">沒有 email，只能從上面的來源連結聯絡</span>')
+      +(r.owner?'<span class="ow">負責：'+esc(r.owner)+'</span>':'')
+      +'</div>'
       +'<div class="acts">'
       +(r.status!=='shortlisted'?'<button class="btn p" onclick="mv(\''+r.id+'\',\'shortlisted\')">挑出來</button>':'')
       +(r.status!=='contacted'?'<button class="btn" onclick="mv(\''+r.id+'\',\'contacted\')">已接觸</button>':'')
