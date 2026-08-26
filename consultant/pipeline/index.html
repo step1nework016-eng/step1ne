@@ -238,9 +238,12 @@ function drawerHtml(d){
   var con=[];
   if(a.email)con.push('<a href="mailto:'+esc(a.email)+'">'+esc(a.email)+'</a>');
   if(a.phone)con.push('<a href="tel:'+esc(a.phone)+'">'+esc(a.phone)+'</a>');
+  // 檔案存在 D1 裡、要帶權杖才拿得到，所以不能直接 <a href>——
+  // 權杖進網址會留在瀏覽器紀錄裡，而這是履歷（個資）。改成點了才用
+  // fetch 帶 header 取回，轉成 blob 下載。
   var res='';
   if(a.resume_url)res='<a href="'+esc(a.resume_url)+'" target="_blank" rel="noopener">開啟履歷連結</a>';
-  else if(a.resume_file_id)res='<a href="'+API+'/file/'+esc(a.resume_file_id)+'" target="_blank" rel="noopener">下載履歷檔</a>';
+  else if(a.resume_file_id)res='<a href="#" id="dlres" data-f="'+esc(a.resume_file_id)+'">下載履歷檔</a>';
 
   h+='<div class="sec"><h4>聯絡與應徵</h4><dl class="kv">'
     +kvRow('聯絡',con.join('　'))
@@ -307,6 +310,26 @@ function openCard(kind,id,name){
     var m=$('rptmore');
     if(m)m.onclick=function(){var e=$('rpt');e.classList.toggle('open');
       m.textContent=e.classList.contains('open')?'收合 ▴':'展開全文 ▾'};
+    var dl=$('dlres');
+    if(dl)dl.onclick=function(ev){
+      ev.preventDefault();
+      var t=dl.textContent; dl.textContent='下載中…';
+      fetch(API+'/admin/file/'+encodeURIComponent(dl.dataset.f),
+            {headers:{authorization:'Bearer '+tok}})
+      .then(function(rs){
+        if(!rs.ok)throw new Error(rs.status===404?'這個檔案不在系統裡（可能已被清掉）':'下載失敗');
+        var fn='resume';
+        var cd=rs.headers.get('content-disposition')||'';
+        var mt=cd.match(/filename\*=UTF-8''([^;]+)/);
+        if(mt)try{fn=decodeURIComponent(mt[1])}catch(e){}
+        return rs.blob().then(function(b){
+          var u=URL.createObjectURL(b), el=document.createElement('a');
+          el.href=u; el.download=fn; document.body.appendChild(el); el.click();
+          el.remove(); setTimeout(function(){URL.revokeObjectURL(u)},2000);
+          dl.textContent=t;
+        });
+      }).catch(function(e){dl.textContent=t;alert(e.message||'下載失敗')});
+    };
   }).catch(function(){$('dbody').innerHTML='<p class="mut">連線失敗</p>'});
 }
 
