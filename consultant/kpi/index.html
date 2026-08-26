@@ -44,6 +44,7 @@ main{padding:22px 0 60px}
 .msb{font:inherit;font-size:12.5px;font-weight:600;border-radius:999px;padding:4px 13px;
      cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink2)}
 .msb.on{background:#e8f5ee;border-color:#bfe0cd;color:var(--ok)}
+.msb.on.bad{background:#fdecea;border-color:#f3cdc7;color:var(--bad)}
 .done{margin-left:auto;font-size:12.5px;font-weight:700;background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:2px 11px}
 a.lk{color:var(--gold);text-decoration:none;font-size:12.5px}
 .empty{background:#fff;border:1px dashed var(--line);border-radius:14px;padding:26px;text-align:center;color:var(--ink3)}
@@ -76,7 +77,9 @@ a.lk{color:var(--gold);text-decoration:none;font-size:12.5px}
       「還沒回填」＝那份報告在報告頁還沒被處置過，這裡按了就等於在報告頁按過了。<br>
       下面每張卡片的<b>「實際走到」</b>兩顆按鈕，記的是這個人選後來真的有沒有進面試、有沒有錄取——
       按下去<b>直接動進度條</b>（顧問後台、客戶入口、候選人查進度三邊會一起跳），不是另外存一份。
-      再按一次是取消。已經有資料的會自動打勾，不用重按。
+      再按一次是取消。已經有資料的會自動打勾，不用重按。<br>
+      <b>「沒面試」要明確按</b>——沒按不等於沒面試，只是「還不知道」。上面的比率只算已經有答案的人，
+      不然還在等客戶回覆的會被當成失敗，數字每多推一個人就往下掉一次。
     </div>
     <div class="kpi" id="kpi"></div>
     <div class="tabs" id="tabs"></div>
@@ -104,16 +107,18 @@ function render(){
     : '<b>'+s.rate+'%</b><span>阿財判值得轉、你實際推薦給客戶</span>';
   // 「顧問推了」只是第一層。真正證明阿財看對人的是後面兩層：客戶願意約面試、
   // 客戶真的要。三個數字的分母都是「阿財說值得轉」的那些，一路往下看漏在哪一關。
+  // 分母是「已經有答案的」＝進了面試 ＋ 明確標沒面試。還在等客戶回覆的
+  // 不算進去——不然每多推一個人比率就往下掉一次。
   var lvl = function (v, cnt, lb) {
     return v == null
-      ? '<div class="k"><b style="font-size:17px;color:#8a6100">'+cnt+' 人</b><span>'+lb+'（樣本不足 5 筆，先不算比例）</span></div>'
-      : '<div class="k"><b>'+v+'%</b><span>'+lb+'（'+cnt+' 人）</span></div>';
+      ? '<div class="k"><b style="font-size:17px;color:#8a6100">'+cnt+' 人</b><span>'+lb+'（有答案的還不到 5 筆，先不算比例）</span></div>'
+      : '<div class="k"><b>'+v+'%</b><span>'+lb+'（'+cnt+'／'+(s.settled||0)+'）</span></div>';
   };
   $('kpi').innerHTML =
      '<div class="k">'+rateHtml+'</div>'
     +lvl(s.interviewRate, s.gotInterview||0, '阿財判值得轉、實際進到面試')
     +lvl(s.offerRate, s.gotOffer||0, '阿財判值得轉、實際錄取')
-    +'<div class="k"><b>'+(s.pending||0)+'</b><span>還沒回填</span></div>'
+    +'<div class="k"><b>'+(s.unknown||0)+'</b><span>還不知道有沒有進面試（要按下面的按鈕才算得出比率）</span></div>'
     +'<div class="k"><b>'+(s.total||0)+'</b><span>談完總數</span></div>';
 
   $('tabs').innerHTML=[['pending','還沒回填 '+(s.pending||0)],['done','已回填 '+(s.done||0)],['all','全部 '+(s.total||0)]]
@@ -146,8 +151,11 @@ function render(){
       +'<div class="ms">'
       +'<span class="mslb">實際走到：</span>'
       +MILESTONES.map(function(m){
-          var on = !!r[m[2]];
-          return '<button class="msb'+(on?' on':'')+'"'
+          // 沒面試那顆：已經走到面試之後就不該再標，直接讓它不能按
+          var on = m[0]==='no_interview' ? !!r.no_interview_at && !r.reached_interview : !!r[m[2]];
+          var dead = m[0]==='no_interview' && !!r.reached_interview;
+          return '<button class="msb'+(on?' on'+(m[3]?' '+m[3]:''):'')+'"'
+            + (dead?' disabled style="opacity:.3" title="進度已經在面試之後了"':'')
             + ' onclick="setms(\''+r.id+'\',\''+m[0]+'\','+(on?'1':'0')+')">'
             + (on?'✓ ':'') + m[1] + '</button>';
         }).join('')
@@ -156,8 +164,11 @@ function render(){
 }
 // [送出的值, 按鈕文字, API 回傳的欄位]
 var MILESTONES = [
-  ['interview', '有進面試', 'reached_interview'],
-  ['offer',     '有錄取',   'reached_offer'],
+  ['interview',    '有進面試', 'reached_interview', ''],
+  ['offer',        '有錄取',   'reached_offer',     ''],
+  // 「沒面試」是明確的否定，不是「還沒填」。少了它，準確率的分母會一直混著
+  // 還在等客戶回覆的人——每多推一個人比率就往下掉一次，那個數字不能用。
+  ['no_interview', '沒面試',   'no_interview_at',   'bad'],
 ];
 // 按了會直接動進度條（stage1 / offer）。已經比這一關更前面的不會被往回拖——
 // 早就錄取的人按「有進面試」，維持在錄取。再按一次是取消，做法是清掉手動
