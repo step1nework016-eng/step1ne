@@ -120,12 +120,12 @@ table.recent td.num{font-family:'Space Mono',monospace;text-align:right;}
       </div>
 
       <div class="sect">
-        <h2>最近幾場</h2>
+        <h2>最近花在哪</h2>
         <table class="recent">
-          <thead><tr><th>候選人</th><th>職缺</th><th style="text-align:right">Token</th><th style="text-align:right">花費</th></tr></thead>
+          <thead><tr><th>項目</th><th>對象</th><th style="text-align:right">Token</th><th style="text-align:right">花費</th></tr></thead>
           <tbody id="recentBody"></tbody>
         </table>
-        <div id="recentEmpty" class="empty" hidden>還沒有記錄——面談完成後才會累積資料。</div>
+        <div id="recentEmpty" class="empty" hidden>還沒有記錄。</div>
       </div>
 
     </div>
@@ -212,11 +212,16 @@ async function load() {
       + '<span class="v">' + fmtUsdTwd(t.cost_usd) + '　·　' + fmtTok((t.input_tokens || 0) + (t.output_tokens || 0)) + ' tok</span></div>';
   }).join('');
 
-  // 最近幾場
+  // 最近花在哪。
+  // ⚠️ 這張表不是只有面談——token_usage 的鍵除了候選人，還有職缺文案修正、
+  // 建題庫、配對、履歷解析等等。原本一律當成候選人去查名字，查不到就印
+  // 「（已刪除）」，整頁看起來像資料被砍光。現在由後端標 is_candidate，
+  // 前端照實顯示是人還是系統作業。
   var recent = d.recent || [];
   $('recentEmpty').hidden = !!recent.length;
   $('recentBody').innerHTML = recent.map(function (r) {
-    return '<tr><td>' + esc(r.name) + '</td><td class="mut">' + esc(r.job_title) + '</td>'
+    var who = r.is_candidate ? '👤 ' + esc(r.name) : '<span class="mut">⚙️ ' + esc(r.name) + '</span>';
+    return '<tr><td>' + who + '</td><td class="mut">' + esc(r.job_title) + '</td>'
       + '<td class="num">' + fmtTok(r.input_tokens + r.output_tokens) + '</td>'
       + '<td class="num">' + fmtUsdTwd(r.cost_usd) + '</td></tr>';
   }).join('');
