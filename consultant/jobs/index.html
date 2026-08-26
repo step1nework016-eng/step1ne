@@ -388,18 +388,76 @@ document.addEventListener('click', function (e) {
 // social_post_agent.py 排程掃到。這裡只負責跟 Worker 說「請把這個職缺
 // 標成待產出」，真正產草稿是本機腳本每 15 分鐘掃一次撿去做，所以按下去
 // 不會馬上看到結果，要等 Telegram「社群發文審核」那個主題跳出來。
+// 2026-08-26 加：選發文帳號。後端一直都支援 account_id（不同顧問各自的
+// Threads／LinkedIn 帳號存在 social_accounts，發文時用對應的金鑰），
+// 但這顆按鈕沒接上去，直接送出＝不知道要用誰的身分發。改成先選帳號。
+var SOCIAL_ACCOUNTS = null;
+function loadSocialAccounts() {
+  if (SOCIAL_ACCOUNTS) return Promise.resolve(SOCIAL_ACCOUNTS);
+  return api('/admin/social-accounts').then(function (d) {
+    SOCIAL_ACCOUNTS = (d.ok ? d.accounts : []) || [];
+    return SOCIAL_ACCOUNTS;
+  }).catch(function () { SOCIAL_ACCOUNTS = []; return SOCIAL_ACCOUNTS; });
+}
+
+var PLATFORM_LB = { threads: 'Threads', linkedin: 'LinkedIn', line_community: 'LINE 社群' };
+
+function askSocialAccount(slug, jobTitle) {
+  return loadSocialAccounts().then(function (accs) {
+    if (!accs.length) return null;
+    var box = document.createElement('div');
+    box.id = 'socMask';
+    box.style.cssText = 'position:fixed;inset:0;background:rgba(35,38,45,.45);z-index:60;'
+      + 'display:flex;align-items:center;justify-content:center;padding:16px;';
+    box.innerHTML = '<div style="background:#fff;border-radius:16px;width:min(420px,94vw);'
+      + 'box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden;">'
+      + '<div style="padding:16px 18px;border-bottom:1px solid var(--line);">'
+      + '<b style="font-size:15px;">用誰的帳號發？</b>'
+      + '<div class="mut" style="margin-top:2px;">' + esc(jobTitle || slug) + '</div></div>'
+      + '<div style="padding:14px 18px;display:flex;flex-direction:column;gap:8px;max-height:52vh;overflow:auto;">'
+      + accs.map(function (a) {
+          return '<button type="button" class="socacc" data-id="' + a.id + '" '
+            + 'style="text-align:left;font:inherit;font-size:14px;background:#fff;'
+            + 'border:1px solid var(--line);border-radius:10px;padding:10px 13px;cursor:pointer;">'
+            + '<b>' + esc(a.label) + '</b>'
+            + '<span class="mut" style="margin-left:8px;">' + esc(PLATFORM_LB[a.platform] || a.platform) + '</span>'
+            + '</button>';
+        }).join('')
+      + '</div>'
+      + '<div style="padding:12px 18px;border-top:1px solid var(--line);text-align:right;">'
+      + '<button type="button" id="socCancel" style="font:inherit;font-size:13.5px;background:#f2efe8;'
+      + 'border:0;border-radius:9px;padding:8px 16px;cursor:pointer;">取消</button></div></div>';
+    document.body.appendChild(box);
+    return new Promise(function (resolve) {
+      box.addEventListener('click', function (ev) {
+        var a = ev.target.closest && ev.target.closest('.socacc');
+        if (a) { box.remove(); return resolve(Number(a.dataset.id)); }
+        if (ev.target.id === 'socCancel' || ev.target === box) { box.remove(); return resolve(undefined); }
+      });
+    });
+  });
+}
+
 document.addEventListener('click', function (e) {
   var btn = e.target.closest && e.target.closest('.socpost-btn');
   if (!btn) return;
-  btn.disabled = true; btn.textContent = '已排入⋯';
-  api('/admin/social-post-request', {
-    method: 'POST', headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ slug: btn.dataset.slug }),
-  }).then(function (d) {
-    if (!d.ok) { btn.disabled = false; btn.textContent = '📱 產生社群貼文'; return toast(d.error || '排入失敗', true); }
-    btn.textContent = '✅ 已排入，等 Telegram';
-    toast('已排入，最多等 15 分鐘會出現在 Telegram「社群發文審核」');
-  }).catch(function () { btn.disabled = false; btn.textContent = '📱 產生社群貼文'; toast('連不上伺服器', true); });
+  var slug = btn.dataset.slug;
+  var jobTitle = (btn.closest('tr') && btn.closest('tr').querySelector('td.jb b'))
+    ? btn.closest('tr').querySelector('td.jb b').textContent : slug;
+  askSocialAccount(slug, jobTitle).then(function (accountId) {
+    if (accountId === undefined) return;   // 使用者按取消
+    btn.disabled = true; btn.textContent = '已排入⋯';
+    var body = { slug: slug };
+    if (accountId) body.account_id = accountId;
+    return api('/admin/social-post-request', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+    }).then(function (d) {
+      if (!d.ok) { btn.disabled = false; btn.textContent = '📱 產生社群貼文'; return toast(d.error || '排入失敗', true); }
+      btn.textContent = '✅ 已排入，等 Telegram';
+      toast('已排入，最多等 15 分鐘會出現在 Telegram「社群發文審核」');
+    }).catch(function () { btn.disabled = false; btn.textContent = '📱 產生社群貼文'; toast('連不上伺服器', true); });
+  });
 });
 
 function load() {
