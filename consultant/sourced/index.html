@@ -162,7 +162,8 @@ function render(d){
       +(r.email
         ? '<a class="lk" href="mailto:'+esc(r.email)+'">'+esc(r.email)+'</a>'
         : '<span class="nomail">沒有 email，只能從上面的來源連結聯絡</span>')
-      +(r.owner?'<span class="ow">負責：'+esc(r.owner)+'</span>':'')
+      // 顯示 owner_name（顧問看得懂的名字），不是 owner（系統代號 phoebe/jacky）
+      +(r.owner?'<span class="ow">負責：'+esc(r.owner_name||r.owner)+'</span>':'')
       +'</div>'
       +'<div class="acts">'
       +(r.status!=='shortlisted'?'<button class="btn p" onclick="mv(\''+r.id+'\',\'shortlisted\')">挑出來</button>':'')
