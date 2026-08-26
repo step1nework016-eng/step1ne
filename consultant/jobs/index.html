@@ -32,7 +32,13 @@ td.jb span{font-size:12px;color:var(--ink3)}
 select{font:inherit;font-size:13.5px;padding:7px 9px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);min-width:104px}
 .eff{font-size:11.5px;color:var(--ink3);line-height:1.6;white-space:nowrap}
 .eff b{color:var(--ink2);font-weight:600}
+/* 已關閉的職缺整列淡化，一眼看出它不在招募中。
+   ⚠️ 2026-08-26 修：原本連「🔓 重新開放」按鈕也一起淡掉，看起來像不能按的
+   停用按鈕（實際上可以按，只是看不出來）。按鈕與狀態文字排除在淡化之外。 */
 .closed{opacity:.45}
+tr.closed .statustoggle-btn,
+tr.closed td.jb span{opacity:1}
+tr.closed .statustoggle-btn{font-weight:700;box-shadow:0 0 0 1px rgba(47,143,91,.35)}
 .msg{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:14px;padding:11px 20px;border-radius:999px;opacity:0;transition:opacity .2s;pointer-events:none}
 .msg.on{opacity:1}
 .msg.err{background:var(--bad)}
