@@ -1457,46 +1457,83 @@ function renderStageBar(row, d) {
     ? '<div class="stagebar-closed internal"><b>🅱️ 目前標記為備選</b>候選人查進度時會看到「用人單位優先安排了其他人選」的說法。</div>'
     : '';
 
-  var dotsHtml = closedHtml + backupHtml + '<div class="steps">' + info.steps.map(function (s) {
-    var cls = s.done ? 'done' : (s.now ? 'now' : '');
-    var mark = s.done ? '✓' : '';
-    return '<div class="step ' + cls + '"><div class="ln"></div><div class="dot">' + mark + '</div><div class="lb">' + esc(s.lb) + '</div></div>';
-  }).join('') + '</div>';
+  // 一組進度條（圓點＋手動指定下拉）。companyId 有值就是某一家客戶的進度，
+  // 沒有就是「還沒推給任何客戶」時的整體進度。
+  function oneBar(stInfo, companyId, companyName) {
+    var sfx = companyId ? '_' + companyId : '';
+    var dots = '<div class="steps">' + stInfo.steps.map(function (s) {
+      var cls = s.done ? 'done' : (s.now ? 'now' : '');
+      return '<div class="step ' + cls + '"><div class="ln"></div><div class="dot">' + (s.done ? '✓' : '') + '</div>'
+        + '<div class="lb">' + esc(s.lb) + '</div></div>';
+    }).join('') + '</div>';
+    var head = companyName
+      ? '<div style="font-size:12.5px;font-weight:700;color:#a67c3d;margin-bottom:6px;">' + esc(companyName) + '</div>'
+      : '';
+    var manual = '<div class="stagebar-manual">'
+      + (stInfo.manual_active
+          ? '<span class="warn">⚠️ 目前顯示是顧問手動指定的「' + esc(stageLabelOf(stInfo.manual_stage)) + '」，系統資料還沒追上，追上後會自動切回。</span>'
+          : '')
+      + '<select id="manualStageSel' + sfx + '">'
+        + '<option value="">— 手動指定階段 —</option>'
+        + STAGE_OPTS.map(function (o) {
+            return '<option value="' + o.key + '"' + (stInfo.manual_stage === o.key ? ' selected' : '') + '>' + o.lb + '</option>';
+          }).join('')
+      + '</select>'
+      + '<button type="button" class="manualStageGo" data-sfx="' + sfx + '" data-company="' + esc(companyId || '') + '">套用</button>'
+      + (stInfo.manual_stage ? '<button type="button" class="manualStageClear" data-sfx="' + sfx + '" data-company="' + esc(companyId || '') + '">清除手動指定</button>' : '')
+      + '</div>';
+    return head + dots + manual;
+  }
 
-  var manualHtml = '<div class="stagebar-manual">' +
-    (info.manual_active
-      ? '<span class="warn">⚠️ 目前顯示是顧問手動指定的「' + esc(stageLabelOf(info.manual_stage)) + '」，系統資料還沒追上，追上後會自動切回。</span>'
-      : '') +
-    '<select id="manualStageSel">' +
-      '<option value="">— 手動指定階段 —</option>' +
-      STAGE_OPTS.map(function (o) {
-        return '<option value="' + o.key + '"' + (info.manual_stage === o.key ? ' selected' : '') + '>' + o.lb + '</option>';
-      }).join('') +
-    '</select>' +
-    '<button type="button" id="manualStageGo">套用</button>' +
-    (info.manual_stage ? '<button type="button" id="manualStageClear">清除手動指定</button>' : '') +
-  '</div>';
+  function wire() {
+    bar.querySelectorAll('.manualStageGo').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var sel = document.getElementById('manualStageSel' + (btn.dataset.sfx || '')).value;
+        if (!sel) return alert('請先選一個階段');
+        setManualStage(sel, btn, btn.dataset.company || null);
+      });
+    });
+    bar.querySelectorAll('.manualStageClear').forEach(function (btn) {
+      btn.addEventListener('click', function () { setManualStage('', btn, btn.dataset.company || null); });
+    });
+  }
 
-  bar.innerHTML = dotsHtml + manualHtml;
+  // 先畫整體那條（推薦給客戶之前的階段就只有這條），畫完馬上顯示；
+  // 再去問「推給了哪幾家」，有的話換成一家一條。
+  bar.innerHTML = closedHtml + backupHtml + oneBar(info, null, null);
   bar.hidden = false;
+  wire();
 
-  $('manualStageGo').addEventListener('click', function () {
-    var sel = $('manualStageSel').value;
-    if (!sel) return alert('請先選一個階段');
-    setManualStage(sel, this);
-  });
-  var clearBtn = document.getElementById('manualStageClear');
-  if (clearBtn) clearBtn.addEventListener('click', function () { setManualStage('', this); });
+  // 2026-08-26 加：同一位人選推給好幾家客戶時，每一家的面試進度是各自獨立的
+  // （律准談到第二關、宏昌還沒約），一條總進度條表達不出來。有推薦紀錄就
+  // 改成一家一條，各自可以獨立調整。
+  var appId = (cur && cur.app_id) || row.app_id || row.id;
+  if (!appId) return;
+  api('/admin/candidate-forwards/' + encodeURIComponent(appId)).then(function (fd) {
+    var fl = (fd && fd.ok && fd.forwards) || [];
+    if (!fl.length) return;   // 還沒推給任何客戶，維持整體那一條
+    bar.innerHTML = closedHtml + backupHtml
+      + fl.map(function (f) {
+          return '<div style="padding:10px 0;border-top:1px dashed #e6dfd1;">'
+            + oneBar({ steps: f.steps, manual_stage: f.manual_stage, manual_active: f.manual_active },
+                     f.company_id, f.display_name)
+            + '</div>';
+        }).join('');
+    wire();
+  }).catch(function () { /* 查不到就維持整體那一條，不擋畫面 */ });
 }
 
-async function setManualStage(stageKey, btn) {
+// companyId 有值＝只調整那一家客戶的進度（同一位人選推給好幾家時各自獨立）；
+// 沒有＝調整整體進度（還沒推給任何客戶的階段）。
+async function setManualStage(stageKey, btn, companyId) {
   if (!cur || !cur.app_id) return alert('這筆報告沒有對應的應徵紀錄，無法指定');
   var oldText = btn.textContent;
   btn.disabled = true; btn.textContent = '處理中…';
   try {
     var d = await api('/admin/set-manual-stage', {
       method: 'POST', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ application_id: cur.app_id, stage: stageKey || null }),
+      body: JSON.stringify({ application_id: cur.app_id, stage: stageKey || null,
+                             company_id: companyId || null }),
     });
     if (!d.ok) { alert('失敗：' + (d.error || '伺服器沒說原因')); return; }
     if (reopenFn && reopenRow) await reopenFn(reopenRow);   // 重新載入這個人選的詳情，階段列跟著更新
