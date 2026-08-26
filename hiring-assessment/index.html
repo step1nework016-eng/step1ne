@@ -265,7 +265,7 @@ document.getElementById('leadForm').addEventListener('submit', function (e) {
   var msg = document.getElementById('formMsg');
   if (!email) return;
   btn.disabled = true; btn.textContent = '寄送中…';
-  fetch('https://step1ne-recruit-api.aiagentg888.workers.dev/assessment/lead-email', {
+  fetch('https://step1ne-recruit-api.aiagentg888.workers.dev/hiring-mode/lead-email', {
     method: 'POST', headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ email: email, companyName: company, source: 'hiring_assessment_landing' }),
   }).then(function (r) { return r.json(); }).then(function (d) {

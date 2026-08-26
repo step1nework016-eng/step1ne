@@ -147,7 +147,7 @@ document.addEventListener('change', function (e) {
   if (!s.classList || !s.classList.contains('st')) return;
   var id = s.dataset.id, next = s.value;
   s.disabled = true;
-  api('/assessment/submissions/' + encodeURIComponent(id), {
+  api('/hiring-mode/submissions/' + encodeURIComponent(id), {
     method: 'PATCH', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ status: next }),
   }).then(function (d) {
     s.disabled = false;
@@ -164,7 +164,7 @@ document.addEventListener('change', function (e) {
 });
 
 function load() {
-  api('/assessment/submissions').then(function (d) {
+  api('/hiring-mode/submissions').then(function (d) {
     if (!d.ok) { localStorage.removeItem(KEY); return boot(); }
     $('gate').hidden = true; $('app').hidden = false;
     ALL = d.submissions || []; apply();
@@ -176,7 +176,7 @@ function boot() {
   $('enter').onclick = function () {
     tok = $('tok').value.trim();
     if (!tok) return;
-    api('/assessment/submissions').then(function (d) {
+    api('/hiring-mode/submissions').then(function (d) {
       if (!d.ok) { $('gerr').hidden = false; $('gerr').textContent = '權杖不正確'; return; }
       localStorage.setItem(KEY, tok); load();
     });
