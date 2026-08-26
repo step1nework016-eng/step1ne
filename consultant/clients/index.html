@@ -1,229 +1,38 @@
-<!DOCTYPE html>
-<html lang="zh-Hant-TW">
-<head>
+<!doctype html>
+<html lang="zh-Hant">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>客戶名單｜Step1ne 顧問後台</title>
 <meta name="robots" content="noindex,nofollow">
-<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<title>客戶名單（已併入客戶資訊）｜顧問後台</title>
+<link rel="icon" href="/assets/favicon.ico">
+<!--
+  2026-08-26 這一頁併進「客戶資訊」了。
+
+  原因：這一頁（開發之前要跳過誰）跟「客戶資訊」讀寫的是**同一張**
+  client_companies——同一家公司的關係、別名、不能碰的原因分兩個畫面
+  維護，結果就是改了一邊、另一邊還是舊的。合併之後只剩一個地方會動。
+
+  ⚠️ 這個檔案不要直接刪：舊書籤、舊分頁、Telegram 訊息裡都還有這個
+  網址，直接 404 只會讓人以為系統壞了。留一頁說明並自動帶過去。
+-->
 <style>
-*{box-sizing:border-box;}
-html,body{margin:0;padding:0;}
-body{font-family:'Noto Sans TC',system-ui,sans-serif;color:#23262d;background:#fbfaf7;line-height:1.7;}
-a{color:#a67c3d;text-decoration:none;}
-.wrap{max-width:760px;margin:0 auto;padding:0 18px 80px;}
-header{background:#fff;border-bottom:1px solid #eee7db;padding:14px 0;position:sticky;top:0;z-index:20;}
-header .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-bottom:0;}
-header img{height:28px;}
-.mut{color:#8a8d95;font-size:13px;}
-h1{font-size:21px;margin:26px 0 6px;}
-.lead{font-size:14px;color:#5a5d64;margin:0 0 20px;}
-.why{background:#fff5f3;border:1px solid #f0c9bd;border-radius:13px;padding:14px 16px;font-size:13.5px;
-  color:#8c3b1e;line-height:1.85;margin-bottom:20px;}
-.why b{display:block;margin-bottom:5px;}
-.card{background:#fff;border:1px solid #eee7db;border-radius:16px;padding:18px 18px 22px;margin-bottom:16px;}
-.card h2{font-size:15.5px;margin:0 0 10px;}
-label{display:block;font-size:13.5px;font-weight:700;color:#4a4d55;margin:16px 0 6px;}
-input,select,textarea{width:100%;font:inherit;font-size:16px;border:1px solid #e0d9cb;border-radius:11px;
-  padding:11px 13px;background:#fff;min-height:44px;}
-textarea{min-height:74px;resize:vertical;}
-.hint{font-size:12.5px;color:#8a8d95;margin:5px 0 0;line-height:1.7;}
-button.go{width:100%;font:inherit;font-size:16px;font-weight:700;background:#a67c3d;color:#fff;border:0;
-  border-radius:12px;padding:14px;cursor:pointer;margin-top:14px;}
-.grp{margin:24px 0 8px;font-size:13px;font-weight:700;letter-spacing:.04em;}
-.row{background:#fff;border:1px solid #eee7db;border-radius:13px;padding:12px 15px;margin-bottom:8px;
-  display:flex;justify-content:space-between;gap:12px;align-items:flex-start;}
-.row b{font-size:15px;}
-.row .sub{font-size:12.5px;color:#8a8d95;}
-.row .why2{font-size:12.5px;color:#8c3b1e;margin-top:3px;}
-.pill{font-size:11.5px;font-weight:700;border-radius:999px;padding:3px 10px;white-space:nowrap;}
-.p-block{background:#fdecea;color:#a8392b;}
-.p-warn{background:#fdf3e0;color:#8a5a1a;}
-.p-ok{background:#eef4fd;color:#2f5fd8;}
-.del{border:0;background:transparent;color:#b4552e;font:inherit;font-size:12.5px;cursor:pointer;padding:0;}
-.err{background:#fff5f3;border:1px solid #f0c9bd;border-radius:11px;padding:12px 14px;font-size:14px;
-  color:#8c3b1e;margin-top:12px;}
-.ok{background:#f2f9f4;border:1px solid #cde3d3;border-radius:11px;padding:13px 15px;margin-top:12px;
-  color:#2f6b41;font-size:14px;}
-.gate{max-width:400px;margin:16vh auto;background:#fff;border:1px solid #eee7db;border-radius:16px;padding:26px;}
-.gate button{width:100%;font:inherit;font-size:15px;font-weight:700;background:#a67c3d;color:#fff;border:0;
-  border-radius:10px;padding:13px;cursor:pointer;margin-top:12px;}
+body{margin:0;background:#f4f1ea;color:#23262d;font:15px/1.8 -apple-system,"Noto Sans TC",sans-serif;
+     display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px}
+.card{background:#fff;border:1px solid #eee7db;border-radius:16px;padding:28px 30px;max-width:440px}
+h1{font-size:19px;margin:0 0 10px}
+p{margin:0 0 14px;color:#4d5563;font-size:14px}
+a.go{display:inline-block;background:#a67c3d;color:#fff;text-decoration:none;font-weight:700;
+     border-radius:999px;padding:11px 22px;font-size:14px}
+.mut{color:#8a8d95;font-size:13px}
 </style>
-</head>
-<body>
-
-<div id="gate" class="gate" hidden>
-  <b>顧問後台</b>
-  <input id="tok" type="password" placeholder="ADMIN_TOKEN" autocomplete="off" style="margin-top:12px;">
-  <button id="enter" type="button">進入</button>
-  <p id="gerr" class="mut" style="color:#b4552e;margin:12px 0 0;" hidden></p>
+<div class="card">
+  <h1>「客戶名單」已經併進「客戶資訊」</h1>
+  <p>這兩頁本來就是同一份資料的兩個畫面——公司的<b>關係</b>、<b>別名</b>、
+     <b>不能碰的原因</b>現在都在「客戶資訊」裡，跟聯絡人、用人需求表連結、
+     掛了哪些職缺放在一起。</p>
+  <p>分兩個地方維護只會有一邊是舊的，所以收成一個。</p>
+  <p><a class="go" href="/consultant/client-info/">前往客戶資訊</a></p>
+  <p class="mut">3 秒後自動帶你過去。</p>
 </div>
-
-<div id="app" hidden>
-  <header>
-    <div class="wrap">
-      <div style="display:flex;align-items:center;gap:12px;">
-        <img src="/assets/step1ne-logo.png" alt="Step1ne">
-        <b style="font-size:15px;">客戶名單</b>
-      </div>
-      <div class="mut"><a href="/consultant/jobs/">職缺分類</a>　<a href="/consultant/job-draft/">改擬稿</a>　<a href="/consultant/bd/" style="font-size:14px;text-decoration:none;padding:7px 14px;border-radius:999px;color:#fff;background:#a67c3d;border:1px solid #a67c3d;">開發客戶</a>　<a href="/consultant/interview-spec/" style="font-size:14px;text-decoration:none;padding:7px 14px;border-radius:999px;color:#4d5563;background:#fff;border:1px solid #eee7db;">面談規格</a>　<a href="#" id="out">登出</a></div>
-    </div>
-  </header>
-
-  <div class="wrap">
-    <h1>開發之前要跳過誰</h1>
-    <p class="lead">反向開發（用人選去敲新客戶）在寄信之前，會拿目標公司來比對這張名單。名單上的公司會被<b>整家移除</b>。</p>
-
-    <div class="why">
-      <b>為什麼要有這張表</b>
-      在這之前系統裡只有「已經有職缺頁的客戶」，所以 AI 查不到這三種——結果出過兩次事：
-      提議去敲台灣美光（那是律准的終端客戶），以及提議去敲帆宣（顧問正在談簽約）。
-      <b style="margin-top:8px;">名單漏了誰，AI 就會去敲誰。</b>
-    </div>
-
-    <div class="card">
-      <h2>新增／更新</h2>
-      <label for="name">公司名稱</label>
-      <input id="name" type="text" placeholder="正式全名">
-
-      <label for="aliases">別名／簡稱（一行一個）</label>
-      <textarea id="aliases" placeholder="帆宣&#10;帆宣系統&#10;MIC"></textarea>
-      <p class="hint">很重要。AI 寫「帆宣」而名單上只有全名的話就比對不到。英文名、母集團名都填進來。</p>
-
-      <label for="relation">關係</label>
-      <select id="relation">
-        <option value="">請選擇</option>
-        <option value="signed">已簽約客戶 — 不開發</option>
-        <option value="negotiating">洽談中 — 不開發</option>
-        <option value="end_client">客戶的終端客戶 — 絕對不開發</option>
-        <option value="blocked">禁止接觸 — 不開發</option>
-        <option value="past">曾合作 — 可開發，但要認人</option>
-        <option value="prospect">已開發過 — 可再敲，先看上次回覆</option>
-      </select>
-
-      <div id="viaBox" hidden>
-        <label for="via">是透過哪一家接觸到的</label>
-        <input id="via" type="text" placeholder="例：律准科技">
-        <p class="hint">一定要填。不寫的話日後沒人知道為什麼不能碰，就會有人把它刪掉。</p>
-      </div>
-
-      <label for="reason">原因（選填）</label>
-      <input id="reason" type="text" placeholder="例：顧問正在談簽約中">
-
-      <label for="owner">負責顧問（選填）</label>
-      <input id="owner" type="text" placeholder="你的名字">
-
-      <button id="save" class="go" type="button">存進名單</button>
-      <div id="err" class="err" hidden></div>
-      <div id="done" class="ok" hidden></div>
-    </div>
-
-    <div id="list"></div>
-  </div>
-</div>
-
-<script>
-var API = 'https://step1ne-recruit-api.aiagentg888.workers.dev';
-var KEY = 's1ne_admin_tok';
-var tok = localStorage.getItem(KEY) || '';
-var $ = function (i) { return document.getElementById(i); };
-
-var REL = {
-  end_client:  ['客戶的終端客戶', 'p-block', '絕對不開發'],
-  negotiating: ['洽談中',         'p-block', '不開發'],
-  signed:      ['已簽約',         'p-block', '不開發'],
-  blocked:     ['禁止接觸',       'p-block', '不開發'],
-  past:        ['曾合作',         'p-warn',  '可開發，要認人'],
-  prospect:    ['已開發過',       'p-ok',    '可再敲'],
-};
-var GRP = [
-  ['end_client',  '⛔ 絕對不能碰（客戶的終端客戶）'],
-  ['negotiating', '⛔ 洽談中'],
-  ['signed',      '⛔ 已簽約客戶'],
-  ['blocked',     '⛔ 禁止接觸'],
-  ['past',        '⚠️ 曾合作'],
-  ['prospect',    '· 已開發過'],
-];
-
-function gate(m) { $('app').hidden = true; $('gate').hidden = false; if (m) { $('gerr').textContent = m; $('gerr').hidden = false; } }
-function enter() { tok = $('tok').value.trim(); if (!tok) return; localStorage.setItem(KEY, tok); $('gate').hidden = true; $('app').hidden = false; load(); }
-$('enter').onclick = enter;
-$('tok').onkeydown = function (e) { if (e.key === 'Enter') enter(); };
-$('out').onclick = function (e) { e.preventDefault(); localStorage.removeItem(KEY); tok = ''; gate(''); };
-
-function api(path, opt) {
-  opt = opt || {};
-  opt.headers = Object.assign({ authorization: 'Bearer ' + tok }, opt.headers || {});
-  return fetch(API + path, opt).then(function (r) {
-    if (r.status === 401) { gate('權杖不正確'); throw new Error('unauthorized'); }
-    return r.json();
-  });
-}
-
-$('relation').onchange = function () { $('viaBox').hidden = this.value !== 'end_client'; };
-
-function esc(s) { return String(s == null ? '' : s).replace(/[<>&]/g, function (c) { return { '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]; }); }
-
-function load() {
-  api('/admin/clients').then(function (d) {
-    if (!d.ok) return;
-    var rows = d.rows || [];
-    var html = '';
-    GRP.forEach(function (g) {
-      var rs = rows.filter(function (r) { return r.relation === g[0]; });
-      if (!rs.length) return;
-      html += '<p class="grp">' + g[1] + '（' + rs.length + '）</p>';
-      html += rs.map(function (r) {
-        var meta = REL[r.relation] || [r.relation, 'p-ok', ''];
-        var al = (r.aliases || '').split('\n').filter(Boolean).join('、');
-        return '<div class="row"><div>'
-          + '<b>' + esc(r.name) + '</b>'
-          + (al ? '<div class="sub">別名：' + esc(al) + '</div>' : '<div class="sub" style="color:#b4552e;">⚠️ 沒填別名，AI 寫簡稱時可能比對不到</div>')
-          + (r.via_client ? '<div class="why2">透過 ' + esc(r.via_client) + ' 接觸到的</div>' : '')
-          + (r.blocked_reason ? '<div class="why2">' + esc(r.blocked_reason) + '</div>' : '')
-          + '</div><div style="text-align:right;">'
-          + '<span class="pill ' + meta[1] + '">' + meta[0] + '</span>'
-          + '<div style="margin-top:8px;"><button class="del" data-id="' + r.id + '" data-name="' + esc(r.name) + '">移除</button></div>'
-          + '</div></div>';
-      }).join('');
-    });
-    $('list').innerHTML = html || '<p class="mut">名單是空的。⚠️ 這代表反向開發完全沒有防護。</p>';
-    Array.prototype.forEach.call($('list').querySelectorAll('.del'), function (b) {
-      b.onclick = function () {
-        if (!confirm('把「' + this.dataset.name + '」從名單移除？移除後反向開發就可以敲這家了。')) return;
-        api('/admin/clients', { method: 'POST', headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ id: this.dataset.id, delete: true }) }).then(load);
-      };
-    });
-  });
-}
-
-$('save').onclick = function () {
-  $('err').hidden = true; $('done').hidden = true;
-  var body = {
-    name: $('name').value.trim(), aliases: $('aliases').value.trim(),
-    relation: $('relation').value, via_client: $('via').value.trim(),
-    blocked_reason: $('reason').value.trim(), owner: $('owner').value.trim(),
-  };
-  if (!body.name) { $('err').textContent = '請填公司名稱。'; $('err').hidden = false; return; }
-  if (!body.relation) { $('err').textContent = '請選關係。'; $('err').hidden = false; return; }
-  this.disabled = true;
-  api('/admin/clients', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) })
-    .then(function (d) {
-      if (!d.ok) { $('err').textContent = d.error || '存檔失敗'; $('err').hidden = false; return; }
-      $('done').textContent = '✅ 已存進名單。反向開發下次挑公司時就會跳過。';
-      $('done').hidden = false;
-      ['name', 'aliases', 'via', 'reason'].forEach(function (i) { $(i).value = ''; });
-      $('relation').value = ''; $('viaBox').hidden = true;
-      load();
-    })
-    .catch(function (e) { if (e.message !== 'unauthorized') { $('err').textContent = '連線失敗'; $('err').hidden = false; } })
-    .finally(function () { $('save').disabled = false; });
-};
-
-if (tok) { $('app').hidden = false; load(); } else { gate(''); }
-</script>
-<script defer src="/consultant/_shell.js"></script>
-</body>
+<script>setTimeout(function(){location.replace('/consultant/client-info/')},3000);</script>
 </html>

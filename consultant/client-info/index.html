@@ -122,6 +122,16 @@ function closeModal() { $('mask').hidden = true; $('modal').hidden = true; }
 $('mx').onclick = closeModal;
 $('mask').onclick = closeModal;
 
+var REL_OPTS = [
+  ['', '（未分類）'],
+  ['signed', '已簽約客戶'],
+  ['negotiating', '洽談中（不可當開發對象）'],
+  ['end_client', '客戶的終端客戶（碰了等於跟自己客戶搶案）'],
+  ['private', '朋友介紹／私人關係'],
+  ['past', '過去合作過'],
+  ['prospect', '潛在客戶（可以開發）'],
+  ['blocked', '不要碰'],
+];
 function openCompany(id) {
   $('mt').textContent = '讀取中…';
   $('mbody').innerHTML = '';
@@ -171,6 +181,8 @@ function openCompany(id) {
     // client_draft 常常讓顧問誤以為「客戶新增了但系統壞了，怎麼沒有核准按鈕」——
     // 其實是客戶還沒按「送出審核」，職缺還在他自己手上改。狀態文字講清楚，
     // 不要只丟英文代碼在畫面上。
+    // 關係怎麼定義，決定了開發客戶時系統會不會把這家跳過。
+    // 文字寫成顧問看得懂的說法，不是資料庫代碼。
     var STATUS_LABEL = {
       client_draft: '客戶填寫中（尚未送審，不會出現核准按鈕）',
       draft: '已核准，等正式上架',
@@ -189,7 +201,20 @@ function openCompany(id) {
     $('mbody').innerHTML =
       '<label>聯絡人稱呼</label><input id="ename" type="text" value="' + esc(c.contact_name || '') + '" placeholder="例：林小姐">'
       + '<label>聯絡信箱</label><input id="eemail" type="text" value="' + esc(c.contact_email || '') + '" placeholder="hr@company.com">'
-      + '<button class="sec" id="esave" style="margin-top:8px">儲存聯絡資訊</button>'
+      // 2026-08-26 從「客戶名單」那一頁搬過來。兩頁讀寫的本來就是同一張
+      // client_companies，分兩個地方維護只會有一邊是舊的。這幾欄決定
+      // 「開發客戶時要不要跳過這家」，跟聯絡資訊放在一起才看得到全貌。
+      + '<label style="margin-top:18px">關係</label><select id="erel">'
+      + REL_OPTS.map(function (o2) {
+          return '<option value="' + o2[0] + '"' + ((c.relation || '') === o2[0] ? ' selected' : '') + '>' + o2[1] + '</option>';
+        }).join('') + '</select>'
+      + '<label>別名／簡稱（一行一個，開發時用來比對是不是同一家）</label>'
+      + '<textarea id="ealias" rows="2" placeholder="帆宣&#10;帆宣系統&#10;MIC">' + esc(c.aliases || '') + '</textarea>'
+      + '<label>原因／備註（不能碰的話一定要寫，開發名單會照這個跳過）</label>'
+      + '<input id="erelnote" type="text" value="' + esc(c.relation_note || '') + '" placeholder="例：顧問正在談簽約中，不可以當開發對象">'
+      + '<label>是透過哪一家接觸到的（終端客戶才要填）</label>'
+      + '<input id="evia" type="text" value="' + esc(c.via_client || '') + '" placeholder="例：律准科技">'
+      + '<button class="sec" id="esave" style="margin-top:8px">儲存</button>'
       + '<div id="eerr" class="err" hidden></div><div id="eok" class="ok2" hidden></div>'
       + '<label style="margin-top:18px">用人需求表連結</label>'
       + '<div class="linkbox"><span id="purl">' + esc(url) + '</span><button class="sec" id="cp">複製</button></div>'
@@ -213,7 +238,10 @@ function openCompany(id) {
       this.disabled = true;
       api('/admin/portal/companies/update', {
         method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ id: c.id, contactName: $('ename').value.trim(), contactEmail: $('eemail').value.trim() }),
+        body: JSON.stringify({ id: c.id,
+          contactName: $('ename').value.trim(), contactEmail: $('eemail').value.trim(),
+          relation: $('erel').value, aliases: $('ealias').value.trim(),
+          relationNote: $('erelnote').value.trim(), viaClient: $('evia').value.trim() }),
       }).then(function (r) {
         if (!r.ok) { $('eerr').textContent = r.error || '儲存失敗'; $('eerr').hidden = false; return; }
         $('eok').textContent = '已儲存'; $('eok').hidden = false;

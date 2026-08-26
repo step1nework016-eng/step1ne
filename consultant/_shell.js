@@ -50,7 +50,9 @@
     //  那三個按鈕能按，訊息被蓋掉就沒第二次機會——25 份報告只有 1 位被回填。
     { href: '/consultant/kpi/',            label: '阿財準不準', icon: 'chart', primary: true, group: '招募流程' },
 
-    { href: '/consultant/clients/',        label: '客戶名單', icon: 'people', primary: true,  group: '客戶與商機' },
+    // 2026-08-26 拿掉「客戶名單」：跟「客戶資訊」讀寫同一張 client_companies，
+    // 分兩個畫面維護只會有一邊是舊的。關係／別名／不能碰的原因已併進客戶資訊，
+    // /consultant/clients/ 留一頁導向（舊書籤還在用）。
     // 2026-08-25 加：跟「客戶名單」（陌生開發黑名單）是完全不同的東西——
     // 這裡是每家真實合作客戶的用人需求表入口（公司資訊＋掛的職缺＋補件連結）。
     { href: '/consultant/client-info/',    label: '客戶資訊', icon: 'doc',    primary: true,  group: '客戶與商機' },
