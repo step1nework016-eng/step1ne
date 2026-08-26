@@ -27,8 +27,14 @@ table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(-
 th,td{padding:11px 12px;text-align:left;font-size:14px;border-bottom:1px solid var(--line);vertical-align:middle}
 th{background:var(--soft);color:var(--ink3);font-size:12.5px;font-weight:700;letter-spacing:.04em;white-space:nowrap}
 tr:last-child td{border-bottom:0}
-td.jb b{display:block}
-td.jb span{font-size:12px;color:var(--ink3)}
+/* ⚠️ 2026-08-26 修版面：這張表有 12 欄（6 個設定欄＋6 個漏斗欄），原本擠在
+   1000px 的容器裡，職缺名稱被壓到一行只放得下一個字、按鈕也被迫直向堆疊。
+   這一頁是資料表不是文章，容器放寬到 1400px，並給每一欄合理的最小寬度。 */
+td.jb{min-width:230px}
+td.jb b{display:block;font-size:14.5px;line-height:1.45}
+td.jb span{font-size:12px;color:var(--ink3);word-break:break-all}
+td.jb .btns{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+td.jb .btns button{margin-top:0!important;white-space:nowrap}
 select{font:inherit;font-size:13.5px;padding:7px 9px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);min-width:104px}
 .eff{font-size:11.5px;color:var(--ink3);line-height:1.6;white-space:nowrap}
 .eff b{color:var(--ink2);font-weight:600}
@@ -90,6 +96,19 @@ td.fn.clk:hover{background:#fdf6e9}
  border-radius:8px;padding:5px 10px;color:var(--ink2);background:#fff}
 .la a.go{background:var(--gold);border-color:var(--gold);color:#fff}
 @media(max-width:860px){th:nth-child(4),td:nth-child(4){display:none}}
+
+/* 這一頁是 12 欄的資料表，不是文章——容器放寬，讓每一欄有合理寬度。
+   其他頁面的 .wrap 不受影響（這段只在這個檔案裡）。 */
+@media(min-width:1100px){
+  main.wrap{max-width:1400px}
+  td.jb{min-width:250px}
+  .eff{white-space:normal;min-width:150px}
+}
+/* 螢幕再小一點時表格可以橫向捲，不要硬擠到破版 */
+@media(min-width:761px) and (max-width:1099px){
+  .tablewrap{overflow-x:auto}
+  table{min-width:1040px}
+}
 
 /* 手機版：表格改卡片。原本 9 欄硬塞會橫向溢出，漏斗只看得到第一欄。 */
 @media(max-width:760px){
@@ -159,6 +178,7 @@ td.fn.clk:hover{background:#fdf6e9}
       <label class="ck"><input type="checkbox" id="fa"> 只看有人在跑的</label>
       <span class="cnt" id="cnt"></span>
     </div>
+    <div class="tablewrap">
     <table>
       <thead><tr><th>職缺</th><th>服務線</th><th>客戶對象</th><th title="決定阿財怎麼面：中高階走 20-30 分鐘、沒有題數上限">職級</th>
         <th title="留空＝這個職缺不用驗外語。填了（例：日文）＝阿財開場就會預告、面談中會用這個語言驗證，跟就服法無關，是硬條件">外語驗證</th>
@@ -175,6 +195,7 @@ td.fn.clk:hover{background:#fdf6e9}
         <th title="送出去之後客戶不要或人選拒絕，案子停在這裡不會再動">結案</th></tr></thead>
       <tbody id="rows"><tr><td colspan="5" class="mut">載入中⋯</td></tr></tbody>
     </table>
+    </div>
   </main>
 </div>
 <div id="msg" class="msg"></div>
@@ -274,13 +295,15 @@ function paint(jobs) {
         + (j.company_display_name ? '<span style="color:#a67c3d;font-weight:600;display:block;">' + esc(j.company_display_name) + '</span>' : '')
         + '<span>' + j.slug
         + (j.status === 'closed' ? '　·　已關閉' : '') + '</span>'
-        + '<br><button type="button" class="socpost-btn" data-slug="' + j.slug + '" '
-        + 'style="margin-top:4px;font-size:11px;background:#fff;border:1px solid #eee7db;border-radius:6px;padding:2px 7px;cursor:pointer;color:#4d5563;">'
-        + '📱 產生社群貼文</button> '
+        + '<div class="btns">'
+        + '<button type="button" class="socpost-btn" data-slug="' + j.slug + '" '
+        + 'style="font-size:11px;background:#fff;border:1px solid #eee7db;border-radius:6px;padding:3px 8px;cursor:pointer;color:#4d5563;">'
+        + '📱 產生社群貼文</button>'
         + '<button type="button" class="statustoggle-btn" data-slug="' + j.slug + '" '
-        + 'data-cur="' + (j.status || 'open') + '" style="margin-top:4px;font-size:11px;border-radius:6px;padding:2px 7px;cursor:pointer;'
+        + 'data-cur="' + (j.status || 'open') + '" style="font-size:11px;border-radius:6px;padding:3px 8px;cursor:pointer;'
         + (j.status === 'closed' ? 'background:#2f8f5b;border:1px solid #2f8f5b;color:#fff;' : 'background:#fff;border:1px solid #eee7db;color:#b4552e;') + '">'
-        + (j.status === 'closed' ? '🔓 重新開放' : '🔒 關閉職缺') + '</button></td>'
+        + (j.status === 'closed' ? '🔓 重新開放' : '🔒 關閉職缺') + '</button>'
+        + '</div></td>'
       + '<td>' + sel('service_line', LINE, j.service_line, j.slug) + '</td>'
       + '<td>' + sel('client_relation', REL, j.client_relation, j.slug) + '</td>'
       + '<td>' + sel('seniority', SEN, j.seniority, j.slug) + '</td>'
