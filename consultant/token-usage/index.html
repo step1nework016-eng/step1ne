@@ -47,6 +47,12 @@ button.primary{font:inherit;font-size:13.5px;font-weight:700;background:#a67c3d;
 .typerows .dot{width:10px;height:10px;border-radius:3px;flex:none;}
 .typerows .v{font-family:'Space Mono',monospace;color:#23262d;}
 
+.rtabs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px;}
+.rtabs button{font:inherit;font-size:12.5px;font-weight:600;color:#4d5563;background:#fff;
+  border:1px solid #eee7db;padding:6px 14px;border-radius:999px;cursor:pointer;
+  display:flex;align-items:center;gap:7px;}
+.rtabs button.on{background:#23262d;color:#fff;border-color:#23262d;}
+.rtabs button .n{opacity:.7;font-variant-numeric:tabular-nums;}
 table.recent{width:100%;border-collapse:collapse;font-size:13px;}
 table.recent th{text-align:left;color:#8a8d95;font-weight:600;font-size:11.5px;padding:6px 8px;border-bottom:1px solid #eee7db;}
 table.recent td{padding:8px;border-bottom:1px solid #f3efe6;}
@@ -121,6 +127,7 @@ table.recent td.num{font-family:'Space Mono',monospace;text-align:right;}
 
       <div class="sect">
         <h2>最近花在哪</h2>
+        <div class="rtabs" id="rtabs"></div>
         <table class="recent">
           <thead><tr><th>項目</th><th>對象</th><th style="text-align:right">Token</th><th style="text-align:right">花費</th></tr></thead>
           <tbody id="recentBody"></tbody>
@@ -217,9 +224,38 @@ async function load() {
   // 建題庫、配對、履歷解析等等。原本一律當成候選人去查名字，查不到就印
   // 「（已刪除）」，整頁看起來像資料被砍光。現在由後端標 is_candidate，
   // 前端照實顯示是人還是系統作業。
-  var recent = d.recent || [];
-  $('recentEmpty').hidden = !!recent.length;
-  $('recentBody').innerHTML = recent.map(function (r) {
+  // 分三組看，因為這三件事的成本性質不一樣：面談是每個候選人的變動成本、
+  // 健檢是另一條產品線、其他是一次性的維護工。混在一起算平均沒有意義。
+  RECENT = d.recent || [];
+  renderRecent();
+}
+
+var RECENT = [], RTAB = 'interview';
+var RGROUPS = [
+  ['interview', '阿財面談'],
+  ['checkup',   '阿福健檢'],
+  ['ops',       '其他工作事項'],
+];
+function renderRecent() {
+  var tabs = RGROUPS.map(function (g) {
+    var rows = RECENT.filter(function (r) { return r.group === g[0]; });
+    var cost = rows.reduce(function (a, r) { return a + (r.cost_usd || 0); }, 0);
+    return '<button data-g="' + g[0] + '"' + (RTAB === g[0] ? ' class="on"' : '') + '>'
+      + g[1] + '<span class="n">' + rows.length + ' 筆・' + fmtUsdTwd(cost) + '</span></button>';
+  }).join('');
+  $('rtabs').innerHTML = tabs;
+  Array.prototype.forEach.call($('rtabs').children, function (b) {
+    b.onclick = function () { RTAB = b.dataset.g; renderRecent(); };
+  });
+
+  var list = RECENT.filter(function (r) { return r.group === RTAB; }).slice(0, 20);
+  $('recentEmpty').hidden = !!list.length;
+  if (!list.length) {
+    $('recentEmpty').textContent = RTAB === 'checkup'
+      ? '阿福健檢還沒有花費記錄。（2026-08-26 之前阿福完全沒有記帳，所以只看得到那天之後的。）'
+      : '這一組還沒有記錄。';
+  }
+  $('recentBody').innerHTML = list.map(function (r) {
     var who = r.is_candidate ? '👤 ' + esc(r.name) : '<span class="mut">⚙️ ' + esc(r.name) + '</span>';
     return '<tr><td>' + who + '</td><td class="mut">' + esc(r.job_title) + '</td>'
       + '<td class="num">' + fmtTok(r.input_tokens + r.output_tokens) + '</td>'
