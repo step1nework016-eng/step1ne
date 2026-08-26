@@ -1175,14 +1175,18 @@ function drawActs(now) {
   $('bigacts').appendChild(closeBtn);
 }
 
-var FORWARD_COMPANIES_CACHE = null;
-async function loadForwardCompanies() {
-  if (FORWARD_COMPANIES_CACHE) return FORWARD_COMPANIES_CACHE;
+var FORWARD_COMPANIES_CACHE = {};
+async function loadForwardCompanies(forJob) {
+  // 帶 for_job 的話，後端會標出「也有開這個職缺的客戶」（relevant=true），
+  // 這幾家排在最前面方便快選；其餘客戶照樣列出來——同一位人選可能適合
+  // 別家的類似職缺，不該因為職缺沒對上就選不到。
+  var key = forJob || '__all__';
+  if (FORWARD_COMPANIES_CACHE[key]) return FORWARD_COMPANIES_CACHE[key];
   try {
-    var d = await api('/admin/portal/companies');
-    FORWARD_COMPANIES_CACHE = (d.ok ? d.companies : []) || [];
-  } catch (e) { FORWARD_COMPANIES_CACHE = []; }
-  return FORWARD_COMPANIES_CACHE;
+    var d = await api('/admin/portal/companies' + (forJob ? '?for_job=' + encodeURIComponent(forJob) : ''));
+    FORWARD_COMPANIES_CACHE[key] = (d.ok ? d.companies : []) || [];
+  } catch (e) { FORWARD_COMPANIES_CACHE[key] = []; }
+  return FORWARD_COMPANIES_CACHE[key];
 }
 
 // 2026-08-25 加：一個人選可以同時推薦給好幾家客戶（同一份人才拿去 pitch 多家
@@ -1194,18 +1198,32 @@ async function renderForwardPanel(appId, decided) {
   panel.hidden = false;
   panel.innerHTML = '<div class="fp-title">已推薦給的客戶</div><div class="fp-list">載入中…</div>';
 
+  var jobSlug = (cur && cur.job_slug) || '';
   var [fwd, companies] = await Promise.all([
     api('/admin/candidate-forwards/' + encodeURIComponent(appId)).catch(function () { return { ok: false }; }),
-    loadForwardCompanies(),
+    loadForwardCompanies(jobSlug),
   ]);
   var list = (fwd.ok ? fwd.forwards : []) || [];
+  // 2026-08-26 改：每一家客戶的面試進度是各自獨立的——同一位人選在律准談到
+  // 第二關、在宏昌可能還沒約。這裡一家一行顯示各自走到哪，不再只列公司名。
   var listHtml = list.length
-    ? list.map(function (f) { return '<span class="fp-chip">' + esc(f.display_name) + '（' + esc((f.forwarded_at || '').slice(0, 10)) + '）</span>'; }).join('')
+    ? '<div style="display:flex;flex-direction:column;gap:4px;">' + list.map(function (f) {
+        return '<div style="display:flex;align-items:center;gap:8px;font-size:12.5px;">'
+          + '<b style="min-width:0;flex:1;">' + esc(f.display_name) + '</b>'
+          + '<span style="font-weight:700;color:#a67c3d;white-space:nowrap;">' + esc(f.stage_label || '—') + '</span>'
+          + '<span class="mut" style="white-space:nowrap;">' + esc((f.forwarded_at || '').slice(0, 10)) + ' 推薦</span>'
+          + '</div>';
+      }).join('') + '</div>'
     : '<span class="fp-chip" style="opacity:.6">還沒有明確推薦給任何客戶</span>';
 
   var forwardedIds = list.map(function (f) { return f.company_id; });
-  var pickOpts = companies.filter(function (c) { return forwardedIds.indexOf(c.id) === -1; })
-    .map(function (c) { return '<option value="' + esc(c.id) + '">' + esc(c.display_name) + '</option>'; }).join('');
+  var pickable = companies.filter(function (c) { return forwardedIds.indexOf(c.id) === -1; });
+  // 有開同名職缺的客戶排最前面，並標記出來
+  pickable.sort(function (a, b) { return (b.relevant ? 1 : 0) - (a.relevant ? 1 : 0); });
+  var pickOpts = pickable.map(function (c) {
+    return '<option value="' + esc(c.id) + '">' + (c.relevant ? '★ ' : '') + esc(c.display_name) + '</option>';
+  }).join('');
+  var hasRelevant = pickable.some(function (c) { return c.relevant; });
 
   panel.innerHTML =
     '<div class="fp-title">已推薦給的客戶</div>' +
@@ -1215,7 +1233,8 @@ async function renderForwardPanel(appId, decided) {
           (pickOpts
             ? '<select id="fpSel">' + pickOpts + '</select>' +
               '<button type="button" id="fpAdd">追加推薦給這家</button>' +
-              '<span class="fp-msg" id="fpMsg"></span>'
+              '<span class="fp-msg" id="fpMsg"></span>' +
+              (hasRelevant ? '<div class="mut" style="width:100%;font-size:11.5px;margin-top:4px;">★ 是也有開這個職缺的客戶；清單裡其他客戶一樣可以選。</div>' : '')
             : '<span class="mut">已經推薦給全部客戶了</span>') +
         '</div>'
       : '<div class="mut">先按上面「轉給客戶」處置後，才能追加推薦給其他客戶。</div>');
