@@ -82,6 +82,7 @@ a.lk{color:var(--gold);text-decoration:none;font-size:12.5px}
     <div class="tabs" id="tabs"></div>
     <div class="sbar">
       <input id="q" type="search" placeholder="搜尋姓名、職稱、公司、技能…" autocomplete="off">
+      <select id="jobs" aria-label="職缺"></select>
       <select id="cats" aria-label="職類"></select>
       <select id="srcs" aria-label="來源"></select>
       <label class="ck"><input type="checkbox" id="hasmail"> 有 email</label>
@@ -98,7 +99,7 @@ var API='https://step1ne-recruit-api.aiagentg888.workers.dev';
 var KEY='s1ne_admin_tok';
 var tok=localStorage.getItem(KEY)||'';
 var $=function(i){return document.getElementById(i)};
-var ST='new', Q='', CAT='', SRC='', HAS='', PAGE=0;
+var ST='new', Q='', CAT='', SRC='', HAS='', JOB='', PAGE=0;
 function api(p,o){o=o||{};o.headers=Object.assign({authorization:'Bearer '+tok},o.headers||{});
   return fetch(API+p,o).then(function(r){return r.json()})}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){
@@ -106,6 +107,13 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){
 var LB={new:'待挑選',shortlisted:'已挑出',contacted:'已接觸',replied:'有回覆',
         rejected:'不合適',converted:'已轉應徵者',all:'全部'};
 
+function jobOpts(list,cur){
+  return '<option value=""'+(cur?'':' selected')+'>所有職缺</option>'
+    + (list||[]).map(function(j){
+        return '<option value="'+esc(j.slug)+'"'+(cur===j.slug?' selected':'')+'>'
+          +esc(j.title||j.slug)+'（'+j.n+'）</option>';
+      }).join('');
+}
 function opts(list,cur,allLabel){
   return '<option value=""'+(cur?'':' selected')+'>'+allLabel+'</option>'
     + list.map(function(c){
@@ -117,6 +125,7 @@ function render(d){
   var cnt={}; (d.counts||[]).forEach(function(c){cnt[c.status]=c.n});
   // 分類是用他自己的職稱／技能判斷；完全沒寫的人用「當初為哪個職缺撈的」回推，
   // 那種卡片上會標「推測」——因為那是我們在找什麼，不是他會什麼。
+  $('jobs').innerHTML = jobOpts(d.jobs||[], JOB);
   $('cats').innerHTML = opts(d.cats||[], CAT, '所有職類');
   $('srcs').innerHTML = opts(d.srcs||[], SRC, '所有來源');
   $('hasmail').checked = HAS==='email';
@@ -206,6 +215,7 @@ function send(id,st,reason){
 $('tabs').addEventListener('click',function(e){
   var b=e.target.closest('.tab'); if(!b)return; ST=b.dataset.s; PAGE=0; load();
 });
+$('jobs').onchange=function(){JOB=this.value;PAGE=0;load()};
 $('cats').onchange=function(){CAT=this.value;PAGE=0;load()};
 $('srcs').onchange=function(){SRC=this.value;PAGE=0;load()};
 $('hasmail').onchange=function(){HAS=this.checked?'email':'';PAGE=0;load()};
@@ -218,7 +228,7 @@ $('q').addEventListener('input',function(){
 $('q').addEventListener('keydown',function(e){
   if(e.key==='Enter'){clearTimeout(t);Q=this.value.trim();PAGE=0;load()}
 });
-$('clr').onclick=function(){Q='';CAT='';SRC='';HAS='';PAGE=0;$('q').value='';load()};
+$('clr').onclick=function(){Q='';CAT='';SRC='';HAS='';JOB='';PAGE=0;$('q').value='';load()};
 function load(){
   $('gate').hidden=true;$('app').hidden=false;
   var qs='/admin/sourced?status='+encodeURIComponent(ST)
@@ -226,7 +236,8 @@ function load(){
     +(Q?'&q='+encodeURIComponent(Q):'')
     +(CAT?'&cat='+encodeURIComponent(CAT):'')
     +(SRC?'&source='+encodeURIComponent(SRC):'')
-    +(HAS?'&has='+encodeURIComponent(HAS):'');
+    +(HAS?'&has='+encodeURIComponent(HAS):'')
+    +(JOB?'&job='+encodeURIComponent(JOB):'');
   api(qs).then(function(d){
     if(!d.ok){$('list').innerHTML='<div class="mut">讀取失敗</div>';return} render(d);
   }).catch(function(){$('list').innerHTML='<div class="mut">連線失敗</div>'});
