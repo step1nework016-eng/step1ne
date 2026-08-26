@@ -44,6 +44,9 @@
     // 這裡是「我手上這幾件，哪一件卡住了」——同一批資料、不同問題。
     { href: '/consultant/pipeline/',       label: '我的案子', icon: 'people', primary: true,  group: '招募流程' },
     { href: '/consultant/sourced/',        label: '人才池',   icon: 'people', primary: true,  group: '招募流程' },
+    // 2026-08-26 加：為了某個職缺接觸了誰（學校系所、人選、介紹人）。
+    // 跟「開發客戶」方向相反——那邊是把人選推銷給企業，這邊是找人選的管道。
+    { href: '/consultant/outreach/',       label: '接觸紀錄', icon: 'target', primary: false, group: '招募流程' },
     { href: '/consultant/jobs/',           label: '職缺分類', icon: 'funnel', primary: true,  group: '招募流程' },
     { href: '/consultant/reports/',        label: '初篩報告', icon: 'doc',    primary: true,  group: '招募流程' },
     // 2026-08-21 加：顧問補填「這個人我會不會推」。原本只有報告推到 TG 當下

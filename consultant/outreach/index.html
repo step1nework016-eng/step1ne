@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="zh-Hant">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>接觸紀錄｜顧問後台</title>
+<link rel="icon" href="/assets/favicon.ico">
+<style>
+:root{--gold:#a67c3d;--ink:#23262d;--ink2:#4d5563;--ink3:#8a8d95;--line:#eee7db;--soft:#faf8f3;--bg:#f4f1ea;--ok:#2f8f5b;--bad:#c0392b;--warn:#8a6100}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 -apple-system,"Noto Sans TC",sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:0 16px}
+header{background:#fff;border-bottom:1px solid var(--line);padding:14px 0}
+header .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header img{height:26px}
+nav{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+nav a{font-size:14px;text-decoration:none;color:var(--ink2);padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:#fff}
+nav a.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.gate{max-width:380px;margin:16vh auto;background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px}
+.gate input{width:100%;font:inherit;padding:11px 13px;border:1px solid var(--line);border-radius:10px;margin:12px 0}
+.gate button{width:100%;font:inherit;font-weight:700;background:var(--gold);color:#fff;border:0;border-radius:999px;padding:12px}
+.mut{color:var(--ink3);font-size:13px}
+main{padding:22px 0 70px}
+.note{background:var(--soft);border-left:3px solid var(--gold);border-radius:0 10px 10px 0;padding:12px 15px;font-size:13px;color:var(--ink2);margin-bottom:14px;line-height:1.7}
+.kpi{display:grid;gap:10px;grid-template-columns:repeat(2,1fr);margin-bottom:14px}
+@media(min-width:640px){.kpi{grid-template-columns:repeat(4,1fr)}}
+.k{background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 15px}
+.k b{display:block;font-size:22px;font-variant-numeric:tabular-nums;line-height:1.3}
+.k span{font-size:12px;color:var(--ink3);line-height:1.5;display:block;margin-top:2px}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.tab{font:inherit;font-size:13px;font-weight:600;color:var(--ink2);background:#fff;border:1px solid var(--line);padding:6px 14px;border-radius:999px;cursor:pointer}
+.tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.grp{margin-bottom:8px;font-size:12.5px;color:var(--ink3);font-weight:700;letter-spacing:.05em;margin-top:18px}
+.c{background:#fff;border:1px solid var(--line);border-left:3px solid transparent;border-radius:12px;padding:12px 15px;margin-bottom:8px}
+.c.replied{border-left-color:var(--ok)}
+.c.declined{border-left-color:var(--bad)}
+.c.stale{border-left-color:var(--warn)}
+.c .top{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
+.c .nm{font-weight:700;font-size:14.5px}
+.c .co{font-size:13px;color:var(--ink2)}
+.c .meta{font-size:12.5px;color:var(--ink3);margin-top:3px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.c .meta a{color:var(--gold);text-decoration:none}
+.days{margin-left:auto;font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:1px 10px;white-space:nowrap;color:var(--ink2)}
+.days.hot{background:#fbf1de;border-color:#efdcb6;color:var(--warn)}
+.acts{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+.btn{font:inherit;font-size:12.5px;font-weight:600;border-radius:999px;padding:5px 13px;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink2)}
+.btn.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn.ok.on{background:#e8f5ee;color:var(--ok);border-color:#bfe0cd}
+.btn.bad.on{background:#fdecea;color:var(--bad);border-color:#f3cdc7}
+.empty{background:#fff;border:1px dashed var(--line);border-radius:14px;padding:28px;text-align:center;color:var(--ink3)}
+</style>
+
+<div id="gate" class="gate" hidden>
+  <b>顧問後台</b>
+  <p class="mut" style="margin:6px 0 0">需要存取權杖。這組權杖等同密碼，不要外傳。</p>
+  <input id="tok" type="password" placeholder="ADMIN_TOKEN" autocomplete="off">
+  <button id="enter" type="button">進入</button>
+  <p id="gerr" class="mut" style="color:#b4552e;margin:12px 0 0" hidden></p>
+</div>
+
+<div id="app" hidden>
+  <header><div class="wrap">
+    <img src="/assets/step1ne-logo.png" alt="Step1ne"><b>接觸紀錄</b>
+    <nav>
+      <a href="/consultant/pipeline/">我的案子</a>
+      <a href="/consultant/outreach/" class="on">接觸紀錄</a>
+      <a href="/consultant/sourced/">人才池</a>
+      <a href="/consultant/bd/">開發客戶</a>
+    </nav>
+  </div></header>
+  <main class="wrap">
+    <div class="note">
+      這裡記的是「<b>為了某個職缺去接觸了誰</b>」——學校系所、人選、介紹人都算。
+      跟「開發客戶」是相反方向的兩件事（那邊是把人選推銷給企業），不要混。<br>
+      對方回了就按一下，這樣才算得出回覆率。<b>樣本不到 100 封不顯示回覆率</b>——
+      10 封的 0% 跟 10 封的 20% 都不能拿來下結論。
+    </div>
+    <div class="kpi" id="kpi"></div>
+    <div class="tabs" id="tabs"></div>
+    <div id="list" class="mut">載入中…</div>
+  </main>
+</div>
+
+<script>
+var API='https://step1ne-recruit-api.aiagentg888.workers.dev';
+var KEY='s1ne_admin_tok';
+var tok=localStorage.getItem(KEY)||'';
+var $=function(i){return document.getElementById(i)};
+function api(p,o){o=o||{};o.headers=Object.assign({authorization:'Bearer '+tok},o.headers||{});
+  return fetch(API+p,o).then(function(r){return r.json()})}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+
+var TYPES=[['','全部'],['school','學校系所'],['candidate','人選'],['intro','介紹人'],['client','企業']];
+// 沒有「已讀不回」這個選項是刻意的——那是推測，不是事實。
+// 只有對方真的做了什麼（回了／婉拒／約到了）才有按鈕，其餘一律留在「等回覆」，
+// 由天數自己說話。
+var OUTCOMES=[
+  {k:'replied',  lb:'有回覆', cls:'ok'},
+  {k:'meeting',  lb:'約到了', cls:'ok'},
+  {k:'declined', lb:'明確婉拒', cls:'bad'},
+  {k:'no_reply', lb:'放棄追', cls:''},
+];
+var OUT_LB={sent:'等回覆',replied:'有回覆',meeting:'約到了',declined:'婉拒',no_reply:'放棄追'};
+var TYPE_LB={school:'學校系所',candidate:'人選',intro:'介紹人',client:'企業'};
+var T='', DATA=null;
+var STALE=10;   // 系所信箱通常一到兩週內會回，10 天沒動就該補一封或換窗口
+
+function days(s){
+  if(!s)return null;
+  var d=new Date(String(s).replace(' ','T'));
+  if(isNaN(d))return null;
+  return Math.floor((new Date(Date.now()+8*3600*1000)-d)/86400000);
+}
+
+function render(){
+  var s=DATA.stats||{}, rows=DATA.rows||[];
+  $('kpi').innerHTML=
+     '<div class="k"><b>'+(s.total||0)+'</b><span>已寄出</span></div>'
+    +'<div class="k"><b style="color:#2f8f5b">'+(s.replied||0)+'</b><span>有回覆</span></div>'
+    +'<div class="k"><b>'+(s.waiting||0)+'</b><span>還在等</span></div>'
+    +'<div class="k">'+(s.reply_rate==null
+        ? '<b style="font-size:17px;color:#8a6100">還不能算</b><span>樣本要滿 100 封才顯示回覆率（目前 '+(s.total||0)+'）</span>'
+        : '<b>'+s.reply_rate+'%</b><span>回覆率</span>')+'</div>';
+
+  $('tabs').innerHTML=TYPES.map(function(t){
+    var n=t[0]?rows.filter(function(r){return r.target_type===t[0]}).length:rows.length;
+    return '<button class="tab'+(T===t[0]?' on':'')+'" data-t="'+t[0]+'">'+t[1]+' '+n+'</button>';
+  }).join('');
+  Array.prototype.forEach.call($('tabs').children,function(b){
+    b.onclick=function(){T=b.dataset.t;render()};
+  });
+
+  var show=T?rows.filter(function(r){return r.target_type===T}):rows;
+  if(!show.length){$('list').innerHTML='<div class="empty">這一類還沒有紀錄。</div>';return}
+
+  // 照「同一個職缺、同一天寄的」分批看——一批的回覆率才有意義，
+  // 全部混在一起看不出是哪一批的信寫得好。
+  var groups={}, order=[];
+  show.forEach(function(r){
+    var k=(r.job_title||r.job_slug||'未指定職缺')+' ・ '+String(r.sent_at||'').slice(0,10);
+    if(!groups[k]){groups[k]=[];order.push(k)}
+    groups[k].push(r);
+  });
+
+  $('list').innerHTML=order.map(function(k){
+    var g=groups[k];
+    var rep=g.filter(function(r){return r.outcome==='replied'||r.outcome==='meeting'}).length;
+    return '<div class="grp">'+esc(k)+'　·　'+g.length+' 封，回 '+rep+' 封</div>'
+      + g.map(function(r){
+          var d=days(r.sent_at);
+          var stale=r.outcome==='sent'&&d!=null&&d>=STALE;
+          var cls=r.outcome==='replied'||r.outcome==='meeting'?'replied'
+                 :(r.outcome==='declined'?'declined':(stale?'stale':''));
+          return '<div class="c '+cls+'">'
+            +'<div class="top"><span class="nm">'+esc(r.company||'')+'</span>'
+            +'<span class="co">'+esc(r.target_name||'')+'</span>'
+            +(r.region?'<span class="mut">'+esc(r.region)+'</span>':'')
+            +(d!=null?'<span class="days'+(stale?' hot':'')+'">'+d+' 天'+(r.outcome!=='sent'?'・'+esc(OUT_LB[r.outcome]||r.outcome):'')+'</span>':'')
+            +'</div>'
+            +'<div class="meta">'
+            +(r.contact_email?'<a href="mailto:'+esc(r.contact_email)+'">'+esc(r.contact_email)+'</a>':'')
+            +(r.ext_id?'　寄送編號 '+esc(r.ext_id):'')
+            +(r.sent_by?'　寄件人 '+esc(r.sent_by):'')
+            +'</div>'
+            +'<div class="acts">'+OUTCOMES.map(function(o){
+                return '<button class="btn '+o.cls+(r.outcome===o.k?' on':'')+'"'
+                  +' data-i="'+r.id+'" data-o="'+o.k+'">'+o.lb+'</button>';
+              }).join('')+'</div>'
+            +'</div>';
+        }).join('');
+  }).join('');
+
+  Array.prototype.forEach.call($('list').querySelectorAll('.acts .btn'),function(b){
+    b.onclick=function(){
+      // 再按一次目前的狀態＝取消，退回「等回覆」
+      var cur=b.classList.contains('on');
+      b.disabled=true;
+      api('/admin/outreach/outcome',{method:'POST',headers:{'content-type':'application/json'},
+        body:JSON.stringify({id:Number(b.dataset.i), outcome:cur?'sent':b.dataset.o})})
+      .then(function(d){ b.disabled=false; if(!d.ok)return alert(d.error||'失敗'); load(); })
+      .catch(function(){b.disabled=false;alert('連線失敗')});
+    };
+  });
+}
+
+function load(){
+  $('gate').hidden=true;$('app').hidden=false;
+  api('/admin/outreach').then(function(d){
+    if(!d.ok){$('list').innerHTML='<div class="mut">讀取失敗</div>';return}
+    DATA=d; render();
+  }).catch(function(){$('list').innerHTML='<div class="mut">連線失敗</div>'});
+}
+function boot(){
+  if(tok)return load();
+  $('gate').hidden=false;
+  $('enter').onclick=function(){
+    tok=$('tok').value.trim(); if(!tok)return;
+    api('/admin/outreach').then(function(d){
+      if(!d.ok){$('gerr').hidden=false;$('gerr').textContent='權杖不正確';return}
+      localStorage.setItem(KEY,tok); DATA=d; render();
+    });
+  };
+  $('tok').addEventListener('keydown',function(e){if(e.key==='Enter')$('enter').click()});
+}
+boot();
+</script>
+<script defer src="/consultant/_shell.js"></script>
+</html>
