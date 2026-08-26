@@ -53,6 +53,40 @@ a.lk{color:var(--gold);text-decoration:none;font-size:12.5px;font-weight:600}
 .clist{font-size:13px;color:var(--ink2);margin-top:10px}
 .clist div{display:flex;gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid var(--line)}
 .clist .off{opacity:.5}
+
+/* 點開卡片後的人選檔案。做成從右邊滑出的抽屜而不是跳頁——
+   這一頁的用途是一件一件掃過去，跳走就等於中斷。 */
+.c{cursor:pointer}
+.c:hover{border-color:#dcd2bf}
+.dmask{position:fixed;inset:0;background:rgba(20,22,26,.5);z-index:80;display:flex;justify-content:flex-end}
+.dwrap{background:var(--bg);width:min(560px,100%);height:100%;overflow-y:auto;box-shadow:-8px 0 32px rgba(0,0,0,.12)}
+.dhead{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:14px 20px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;z-index:2}
+.dhead .nm{font-size:19px;font-weight:700}
+.dhead .x{margin-left:auto;font:inherit;font-size:22px;line-height:1;background:none;border:0;cursor:pointer;color:var(--ink3);padding:0 4px}
+.dbody{padding:16px 20px 60px}
+.sec{background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 16px;margin-bottom:11px}
+.sec h4{margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--ink3)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:13.5px}
+.kv dt{color:var(--ink3);white-space:nowrap}
+.kv dd{margin:0;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.kv a{color:var(--gold);text-decoration:none}
+.bar{display:flex;align-items:flex-start;margin:4px 0 2px;overflow-x:auto;padding-bottom:4px}
+.stp{flex:1 1 0;min-width:56px;text-align:center;position:relative}
+.dot{width:11px;height:11px;border-radius:50%;background:#e4ddcf;margin:0 auto 5px;position:relative;z-index:1}
+.stp.done .dot{background:var(--ok)}
+.stp.now .dot{background:var(--gold);box-shadow:0 0 0 4px rgba(166,124,61,.18)}
+.stp:not(:first-child):before{content:"";position:absolute;left:-50%;top:5px;width:100%;height:1px;background:#e4ddcf}
+.stp.done:before,.stp.now:before{background:var(--ok)}
+.stp .lb{font-size:11px;line-height:1.35;color:var(--ink3)}
+.stp.now .lb{color:var(--gold);font-weight:700}
+.stp.done .lb{color:var(--ink2)}
+.rpt{font-size:13.5px;line-height:1.8;white-space:pre-wrap;overflow-wrap:anywhere;max-height:420px;overflow-y:auto;border-top:1px solid var(--line);padding-top:10px;margin-top:2px}
+.rpt.open{max-height:none}
+.more{font:inherit;font-size:12.5px;font-weight:600;color:var(--gold);background:none;border:0;cursor:pointer;padding:6px 0 0}
+.pill{display:inline-block;font-size:11.5px;font-weight:700;border-radius:999px;padding:1px 9px;border:1px solid var(--line);background:var(--soft);color:var(--ink2)}
+.pill.ok{background:#e8f5ee;border-color:#bfe0cd;color:var(--ok)}
+.pill.warn{background:#fdf3e0;border-color:#efdcb6;color:var(--warn)}
+.pill.bad{background:#fdecea;border-color:#f3cdc7;color:var(--bad)}
 </style>
 
 <div id="gate" class="gate" hidden>
@@ -85,6 +119,7 @@ a.lk{color:var(--gold);text-decoration:none;font-size:12.5px;font-weight:600}
     </div>
     <div class="tabs" id="tabs"></div>
     <div id="list" class="mut">載入中…</div>
+    <div id="drawer"></div>
 
     <details class="mg">
       <summary>顧問名單設定</summary>
@@ -142,11 +177,10 @@ function card(r,tab){
   var con=[];
   if(r.email)con.push('<a href="mailto:'+esc(r.email)+'">'+esc(r.email)+'</a>');
   if(r.phone)con.push('<a href="tel:'+esc(r.phone)+'">'+esc(r.phone)+'</a>');
-  var lk='';
-  if(tab.kind==='sourced')     lk='<a class="lk" href="/consultant/sourced/">在人才池開啟</a>';
-  if(tab.kind==='application') lk='<a class="lk" href="/consultant/reports/">看初篩報告</a>';
-  if(tab.kind==='placement')   lk='<a class="lk" href="/consultant/reports/">開人選進度</a>';
-  return '<div class="c'+(r.stale?' stale':'')+'">'
+  // 2026-08-26 拿掉「跳去初篩報告頁」那類連結——整張卡片點下去就直接
+  // 在這頁開檔案（含報告全文）。換頁會打斷「一件一件掃過去」這件事。
+  var lk='<span class="lk">點卡片看完整資料 →</span>';
+  return '<div class="c'+(r.stale?' stale':'')+'" data-kind="'+tab.kind+'" data-id="'+esc(r.id)+'" data-nm="'+esc(r.name||'')+'">'
     +'<div class="top"><span class="nm">'+esc(r.name||'（未填姓名）')+'</span>'
     + (r.grade?'<span class="hl">'+esc(r.grade)+'</span>':'')
     + (age?'<span class="age'+hot+'" title="'+esc(title)+'">'+age+'</span>':'')
@@ -155,6 +189,125 @@ function card(r,tab){
     + (con.length?'<div class="con">'+con.join('　')+'</div>':'')
     +'<div class="acts">'+ownerSel(r.owner,tab.kind,r.id)+lk+'</div>'
     +'</div>';
+}
+
+// ─── 點卡片打開的人選檔案 ───────────────────────────────
+// 顧問點下去要看到的是「這個人是誰、談過什麼、現在卡在哪」，
+// 而不是被丟去另一頁再找一次。初篩報告全文直接顯示在這裡。
+function esc2(s){return esc(s)}
+function kvRow(k,v){return v?'<dt>'+esc(k)+'</dt><dd>'+v+'</dd>':''}
+function fmtDate(s){return s?esc(String(s).slice(0,16)):''}
+
+function bar(steps){
+  return '<div class="bar">'+steps.map(function(s){
+    return '<div class="stp'+(s.now?' now':(s.done?' done':''))+'">'
+      +'<div class="dot"></div><div class="lb">'+esc(s.lb)+'</div></div>';
+  }).join('')+'</div>';
+}
+
+var DEC={forwarded:['已推薦給客戶','ok'],need_more:['需補問','warn'],rejected:['顧問婉拒','bad']};
+
+function drawerHtml(d){
+  if(d.kind==='sourced'){
+    var s=d.sourced||{};
+    var links=[];
+    if(s.linkedin_url)links.push('<a href="'+esc(s.linkedin_url)+'" target="_blank" rel="noopener">LinkedIn</a>');
+    if(s.github_url)links.push('<a href="'+esc(s.github_url)+'" target="_blank" rel="noopener">GitHub</a>');
+    if(s.source_url)links.push('<a href="'+esc(s.source_url)+'" target="_blank" rel="noopener">來源頁</a>');
+    return '<div class="sec"><h4>聯絡與來源</h4><dl class="kv">'
+      +kvRow('Email',s.email?'<a href="mailto:'+esc(s.email)+'">'+esc(s.email)+'</a>':'<span class="mut">沒有 email，只能從來源頁聯絡</span>')
+      +kvRow('現職',esc(s.headline||''))+kvRow('公司',esc(s.company||''))
+      +kvRow('地點',esc(s.location||''))+kvRow('來源',esc(s.source||''))
+      +kvRow('連結',links.join('　'))
+      +kvRow('負責顧問',esc(s.owner_name||s.owner||''))
+      +'</dl></div>'
+      +(s.skills?'<div class="sec"><h4>技能</h4><div style="font-size:13.5px">'+esc(s.skills)+'</div></div>':'')
+      +(s.bio?'<div class="sec"><h4>簡介</h4><div class="rpt" style="border:0;margin:0;padding:0">'+esc(s.bio)+'</div></div>':'')
+      +(s.note?'<div class="sec"><h4>備註</h4><div style="font-size:13.5px">'+esc(s.note)+'</div></div>':'')
+      +'<p class="mut">這是主動開發爬回來的公開資料，不是應徵者——他還沒投履歷、也還沒同意個資利用。'
+      +'公開檔案沒有電話這一欄，要電話得等對方回覆再問。</p>';
+  }
+  var a=d.application, r=d.report, h='';
+  if(!a){
+    var p0=(d.placements||[])[0]||{};
+    return '<div class="sec"><h4>送件紀錄</h4><dl class="kv">'
+      +kvRow('職缺',esc(p0.job_title||p0.job_slug||''))+kvRow('客戶',esc(p0.client_name||''))
+      +kvRow('狀態',esc(p0.stage||''))+kvRow('備註',esc(p0.note||''))+'</dl></div>'
+      +'<p class="mut">這位人選沒有阿財的面談紀錄（顧問自己找的），所以沒有初篩報告。</p>';
+  }
+  var con=[];
+  if(a.email)con.push('<a href="mailto:'+esc(a.email)+'">'+esc(a.email)+'</a>');
+  if(a.phone)con.push('<a href="tel:'+esc(a.phone)+'">'+esc(a.phone)+'</a>');
+  var res='';
+  if(a.resume_url)res='<a href="'+esc(a.resume_url)+'" target="_blank" rel="noopener">開啟履歷連結</a>';
+  else if(a.resume_file_id)res='<a href="'+API+'/file/'+esc(a.resume_file_id)+'" target="_blank" rel="noopener">下載履歷檔</a>';
+
+  h+='<div class="sec"><h4>聯絡與應徵</h4><dl class="kv">'
+    +kvRow('聯絡',con.join('　'))
+    +kvRow('應徵職缺',esc(a.job_full_title||a.job_title||a.job_slug||''))
+    +kvRow('期望待遇',esc(a.expected_salary||''))
+    +kvRow('可到職',esc(a.available_date||''))
+    +kvRow('地點',esc(a.location_ok||''))
+    +kvRow('履歷',res)
+    +kvRow('負責顧問',esc(a.owner_name||a.owner||''))
+    +kvRow('應徵時間',fmtDate(a.created_at))
+    +'</dl></div>';
+
+  // 面談狀況。電訪產的報告 interview_mode 會是 consultant_call，
+  // 這裡要標出來——顧問得知道這份報告是阿財談的還是自己談的。
+  var mode = a.interview_mode==='consultant_call' ? '顧問電訪' : 'AI 阿財面談';
+  h+='<div class="sec"><h4>面談</h4><dl class="kv">'
+    +kvRow('形式',esc(mode))
+    +kvRow('狀態',esc({done:'已完成',paused:'暫停（人選可回來續談）',not_started:'還沒開始',
+                       in_progress:'進行中',superseded:'已被較新的一筆取代'}[a.interview_state]||a.interview_state||''))
+    +kvRow('結束時間',fmtDate(a.interview_ended_at))
+    +kvRow('DISC',a.disc_primary?esc(a.disc_primary)+'（D'+(a.disc_d||0)+' I'+(a.disc_i||0)+' S'+(a.disc_s||0)+' C'+(a.disc_c||0)+'）':'')
+    +'</dl></div>';
+
+  (d.stages||[]).forEach(function(s){
+    h+='<div class="sec"><h4>'+esc(s.company_name||'客戶')+'　目前：'+esc(s.label||'—')
+      +(s.manual_active?'　<span class="pill warn">顧問手動指定</span>':'')+'</h4>'
+      +bar(s.steps||[])+'</div>';
+  });
+  if(!(d.stages||[]).length && (d.placements||[]).length){
+    h+='<div class="sec"><h4>送件紀錄</h4>'+(d.placements||[]).map(function(p){
+      return '<dl class="kv">'+kvRow('客戶',esc(p.client_name||''))+kvRow('狀態',esc(p.stage||''))
+        +kvRow('備註',esc(p.note||''))+'</dl>'}).join('<hr style="border:0;border-top:1px solid #eee7db;margin:8px 0">')
+      +'</div>';
+  }
+
+  if(r&&r.content_md){
+    var dec=DEC[r.consultant_decision]||null;
+    h+='<div class="sec"><h4>初篩報告　'+fmtDate(r.created_at)
+      +(dec?'　<span class="pill '+dec[1]+'">'+dec[0]+'</span>':'　<span class="pill">還沒決定推不推</span>')
+      +'</h4><div class="rpt" id="rpt">'+esc(r.content_md)+'</div>'
+      +'<button class="more" id="rptmore" type="button">展開全文 ▾</button></div>';
+  }else{
+    h+='<div class="sec"><h4>初篩報告</h4><p class="mut" style="margin:0">還沒有報告。'
+      +(a.interview_state==='not_started'?'這位人選還沒跟阿財面談——如果是顧問自己電訪過的，把電訪內容交給系統就能產出同格式的報告。':'')
+      +'</p></div>';
+  }
+  return h;
+}
+
+function openCard(kind,id,name){
+  var dw=$('drawer');
+  dw.innerHTML='<div class="dmask"><div class="dwrap">'
+    +'<div class="dhead"><span class="nm">'+esc(name||'')+'</span><button class="x" type="button">×</button></div>'
+    +'<div class="dbody" id="dbody"><p class="mut">載入中…</p></div></div></div>';
+  function close(){dw.innerHTML=''}
+  dw.querySelector('.x').onclick=close;
+  dw.querySelector('.dmask').onclick=function(e){if(e.target===this)close()};
+  document.addEventListener('keydown',function k(e){
+    if(e.key==='Escape'){close();document.removeEventListener('keydown',k)}});
+  api('/admin/pipeline/detail?kind='+encodeURIComponent(kind)+'&id='+encodeURIComponent(id))
+  .then(function(d){
+    if(!d.ok){$('dbody').innerHTML='<p class="mut">讀不到這筆資料：'+esc(d.error||'')+'</p>';return}
+    $('dbody').innerHTML=drawerHtml(d);
+    var m=$('rptmore');
+    if(m)m.onclick=function(){var e=$('rpt');e.classList.toggle('open');
+      m.textContent=e.classList.contains('open')?'收合 ▴':'展開全文 ▾'};
+  }).catch(function(){$('dbody').innerHTML='<p class="mut">連線失敗</p>'});
 }
 
 function renderTabs(){
@@ -177,6 +330,13 @@ function renderList(){
     return;
   }
   $('list').innerHTML=rows.map(function(r){return card(r,tab)}).join('');
+  Array.prototype.forEach.call($('list').querySelectorAll('.c'),function(el){
+    el.onclick=function(e){
+      // 卡片上的下拉、連結要照常運作，不要被「點卡片開檔案」吃掉
+      if(e.target.closest('select,a,button'))return;
+      openCard(el.dataset.kind,el.dataset.id,el.dataset.nm);
+    };
+  });
   Array.prototype.forEach.call($('list').querySelectorAll('select.ow'),function(s){
     s.onchange=function(){
       var prev=s.dataset.prev||'';
