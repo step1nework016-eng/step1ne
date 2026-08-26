@@ -52,6 +52,20 @@ a.lk{color:var(--gold);text-decoration:none;font-size:12.5px}
 .pager{display:flex;gap:8px;justify-content:center;margin-top:14px}
 .cat{font-size:12.5px}
 .gs{font-size:11px;color:var(--warn);margin-left:5px}
+.bulk{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:#fff;border:1px solid var(--line);
+  border-radius:12px;padding:9px 13px;margin-bottom:10px}
+.bulk select{font:inherit;font-size:13px;padding:6px 26px 6px 12px;border:1px solid var(--line);
+  border-radius:999px;background:#fff;appearance:none;cursor:pointer;color:var(--ink)}
+.bulk .ck{display:flex;align-items:center;gap:6px;font-size:13.5px;color:var(--ink2);cursor:pointer}
+.bulk .ck input{margin:0;accent-color:var(--gold)}
+.bulk .allbtn{font:inherit;font-size:12.5px;font-weight:600;color:var(--gold);background:none;border:0;
+  cursor:pointer;text-decoration:underline;padding:0}
+.c{position:relative}
+.c.sel{border-color:var(--gold);background:#fffdf7}
+.pick{position:absolute;top:14px;right:15px;width:18px;height:18px;margin:0;accent-color:var(--gold);cursor:pointer}
+.c .top{padding-right:28px}
+.ow{font:inherit;font-size:12.5px;padding:4px 24px 4px 11px;border:1px solid var(--line);border-radius:999px;
+  background:#fff;appearance:none;cursor:pointer;color:var(--ink2)}
 </style>
 
 <div id="gate" class="gate" hidden>
@@ -89,6 +103,14 @@ a.lk{color:var(--gold);text-decoration:none;font-size:12.5px}
       <button class="btn" id="clr">清除</button>
     </div>
     <div id="cnt" class="mut" style="margin-bottom:8px"></div>
+    <!-- 批次指派。池子 3,500 人、一頁 60 筆，一個一個下拉指派是不可能的事。 -->
+    <div class="bulk" id="bulk">
+      <label class="ck"><input type="checkbox" id="selall"> 選這一頁</label>
+      <span id="selinfo" class="mut"></span>
+      <select id="bulkow" aria-label="指派給"></select>
+      <button class="btn p" id="bulkgo" type="button">指派</button>
+      <button class="btn" id="bulkclr" type="button" hidden>取消選取</button>
+    </div>
     <div id="list" class="mut">載入中…</div>
     <div id="pager" class="pager"></div>
   </main>
@@ -100,6 +122,19 @@ var KEY='s1ne_admin_tok';
 var tok=localStorage.getItem(KEY)||'';
 var $=function(i){return document.getElementById(i)};
 var ST='new', Q='', CAT='', SRC='', HAS='', JOB='', PAGE=0;
+var CONS=[], SEL={}, TOTAL=0;
+// 目前的篩選條件——批次「指派全部」時要原封不動送回後端，
+// 後端用一模一樣的 WHERE 去改。畫面說 55 人、實際改 3,500 人這種事不能發生。
+function curFilter(){return {status:ST,q:Q,cat:CAT,source:SRC,has:HAS,job:JOB}}
+function selIds(){return Object.keys(SEL).filter(function(k){return SEL[k]})}
+function ownerOpts(cur,cls){
+  return '<select class="'+(cls||'ow')+'">'
+    +'<option value="">未指派</option>'
+    + CONS.filter(function(c){return c.is_active||c.id===cur}).map(function(c){
+        return '<option value="'+esc(c.id)+'"'+(cur===c.id?' selected':'')+'>'+esc(c.display_name)+'</option>';
+      }).join('')
+    +'</select>';
+}
 function api(p,o){o=o||{};o.headers=Object.assign({authorization:'Bearer '+tok},o.headers||{});
   return fetch(API+p,o).then(function(r){return r.json()})}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){
@@ -149,6 +184,8 @@ function render(d){
     +((Q||CAT||SRC||HAS)?'沒有符合這些條件的人。<br><span class="mut">換個關鍵字，或按「清除」看全部。</span>'
       :'這一區目前沒有人。<br><span class="mut">爬蟲跑完會自動把人送進「待挑選」。</span>')
     +'</div>';$('pager').innerHTML='';return}
+  TOTAL=tot;
+  renderBulk();
   $('list').innerHTML=rows.map(function(r){
     var links=[];
     if(r.linkedin_url)links.push('<a class="lk" href="'+esc(r.linkedin_url)+'" target="_blank" rel="noopener">LinkedIn</a>');
@@ -157,7 +194,9 @@ function render(d){
     var catTag = r.category
       ? '<span class="sc">'+esc(r.category)
         +(r.cat_src==='searched'?'<span class="gs">推測</span>':'')+'</span>' : '';
-    return '<div class="c"><div class="top"><span class="nm">'+esc(r.name||'（無姓名）')+'</span>'
+    return '<div class="c'+(SEL[r.id]?' sel':'')+'" data-id="'+esc(r.id)+'">'
+      +'<input type="checkbox" class="pick" data-id="'+esc(r.id)+'"'+(SEL[r.id]?' checked':'')+' aria-label="選取">'
+      +'<div class="top"><span class="nm">'+esc(r.name||'（無姓名）')+'</span>'
       +'<span class="hl">'+esc(r.headline||'')+'</span>'+catTag+'</div>'
       +'<div class="meta">'+[esc(r.company),esc(r.location),esc(r.source)].filter(Boolean).join('　·　')
       +(links.length?'　·　'+links.join('　'):'')+'</div>'
@@ -172,7 +211,8 @@ function render(d){
         ? '<a class="lk" href="mailto:'+esc(r.email)+'">'+esc(r.email)+'</a>'
         : '<span class="nomail">沒有 email，只能從上面的來源連結聯絡</span>')
       // 顯示 owner_name（顧問看得懂的名字），不是 owner（系統代號 phoebe/jacky）
-      +(r.owner?'<span class="ow">負責：'+esc(r.owner_name||r.owner)+'</span>':'')
+      // 個別指派：直接在卡片上換人，不用先勾選再走批次
+      +'<span data-ow="'+esc(r.id)+'">'+ownerOpts(r.owner||'')+'</span>'
       +'</div>'
       +'<div class="acts">'
       +(r.status!=='shortlisted'?'<button class="btn p" onclick="mv(\''+r.id+'\',\'shortlisted\')">挑出來</button>':'')
@@ -181,7 +221,46 @@ function render(d){
       +'<button class="btn d" onclick="mv(\''+r.id+'\',\'rejected\')">不合適</button>'
       +'</div></div>';
   }).join('');
+  bindRows();
 }
+
+function bindRows(){
+  Array.prototype.forEach.call($('list').querySelectorAll('.pick'),function(cb){
+    cb.onchange=function(){
+      SEL[cb.dataset.id]=cb.checked;
+      cb.closest('.c').classList.toggle('sel',cb.checked);
+      renderBulk();
+    };
+  });
+  Array.prototype.forEach.call($('list').querySelectorAll('[data-ow] select'),function(sel){
+    var id=sel.parentNode.dataset.ow, prev=sel.value;
+    sel.onchange=function(){
+      sel.disabled=true;
+      api('/admin/sourced/assign-owner',{method:'POST',headers:{'content-type':'application/json'},
+        body:JSON.stringify({owner:sel.value||null, ids:[id]})})
+      .then(function(d){ sel.disabled=false;
+        if(!d.ok){alert(d.error||'指派失敗');sel.value=prev;return}
+        prev=sel.value;
+      }).catch(function(){sel.disabled=false;sel.value=prev;alert('連線失敗')});
+    };
+  });
+}
+
+function renderBulk(){
+  var n=selIds().length;
+  $('bulkow').innerHTML='<option value="">未指派（取消）</option>'
+    + CONS.filter(function(c){return c.is_active}).map(function(c){
+        return '<option value="'+esc(c.id)+'">'+esc(c.display_name)+'</option>'}).join('');
+  $('bulkclr').hidden = n===0;
+  $('selinfo').innerHTML = n
+    ? '已選 <b>'+n+'</b> 位'
+      + (n<TOTAL ? '　<button class="allbtn" id="selfilter">改成指派符合條件的全部 '+TOTAL+' 位</button>' : '')
+    : '勾選要指派的人，或直接用每張卡片右下角的下拉指派。';
+  var sf=$('selfilter');
+  if(sf)sf.onclick=function(){ SEL={__ALL__:true}; renderBulk(); $('selinfo').innerHTML=
+    '已選 <b>符合目前條件的全部 '+TOTAL+' 位</b>　<span class="mut">（含沒顯示在這一頁的）</span>'; };
+}
+
 // 標記不合適時要選原因。用固定選項不是自由輸入——
 // 這份資料是要累積起來看出「該調整什麼」的，
 // 自由文字寫法太散（地點太遠／通勤問題／在南部其實同一件事），統計不出東西。
