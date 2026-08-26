@@ -38,6 +38,12 @@ main{padding:22px 0 60px}
 .btn{font:inherit;font-size:13px;font-weight:600;border-radius:999px;padding:6px 14px;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink2)}
 .btn.p{background:var(--gold);color:#fff;border-color:var(--gold)}
 .btn.d{color:var(--bad);border-color:#f0d4cf}
+.ms{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:9px;
+    padding-top:9px;border-top:1px dashed var(--line)}
+.mslb{font-size:12px;color:var(--ink3)}
+.msb{font:inherit;font-size:12.5px;font-weight:600;border-radius:999px;padding:4px 13px;
+     cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink2)}
+.msb.on{background:#e8f5ee;border-color:#bfe0cd;color:var(--ok)}
 .done{margin-left:auto;font-size:12.5px;font-weight:700;background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:2px 11px}
 a.lk{color:var(--gold);text-decoration:none;font-size:12.5px}
 .empty{background:#fff;border:1px dashed var(--line);border-radius:14px;padding:26px;text-align:center;color:var(--ink3)}
@@ -67,7 +73,10 @@ a.lk{color:var(--gold);text-decoration:none;font-size:12.5px}
       這裡看的是「阿財說值得面談」跟「你最後真的推薦給客戶」對不對得起來——
       跟你在<b>初篩報告</b>頁按的推薦給客戶／需補問／婉拒是<b>同一筆資料</b>，不是另外再問一次。<br>
       已經在報告頁處置過、或案子已經結案不續的，這裡會直接顯示結果，不會重複要你按。<br>
-      「還沒回填」＝那份報告在報告頁還沒被處置過，這裡按了就等於在報告頁按過了。
+      「還沒回填」＝那份報告在報告頁還沒被處置過，這裡按了就等於在報告頁按過了。<br>
+      下面每張卡片的<b>「實際走到」</b>兩顆按鈕，記的是這個人選後來真的有沒有進面試、有沒有錄取——
+      按下去<b>直接動進度條</b>（顧問後台、客戶入口、候選人查進度三邊會一起跳），不是另外存一份。
+      再按一次是取消。已經有資料的會自動打勾，不用重按。
     </div>
     <div class="kpi" id="kpi"></div>
     <div class="tabs" id="tabs"></div>
@@ -93,9 +102,17 @@ function render(){
   var rateHtml = s.rate==null
     ? '<b style="font-size:17px;color:#8a6100">還不能算</b><span>阿財判值得轉的案子要滿 5 筆才會顯示準確率（目前 '+(s.aiWorthInterview||0)+' 筆）</span>'
     : '<b>'+s.rate+'%</b><span>阿財判值得轉、你實際推薦給客戶</span>';
+  // 「顧問推了」只是第一層。真正證明阿財看對人的是後面兩層：客戶願意約面試、
+  // 客戶真的要。三個數字的分母都是「阿財說值得轉」的那些，一路往下看漏在哪一關。
+  var lvl = function (v, cnt, lb) {
+    return v == null
+      ? '<div class="k"><b style="font-size:17px;color:#8a6100">'+cnt+' 人</b><span>'+lb+'（樣本不足 5 筆，先不算比例）</span></div>'
+      : '<div class="k"><b>'+v+'%</b><span>'+lb+'（'+cnt+' 人）</span></div>';
+  };
   $('kpi').innerHTML =
      '<div class="k">'+rateHtml+'</div>'
-    +'<div class="k"><b>'+(s.done||0)+'</b><span>已回填</span></div>'
+    +lvl(s.interviewRate, s.gotInterview||0, '阿財判值得轉、實際進到面試')
+    +lvl(s.offerRate, s.gotOffer||0, '阿財判值得轉、實際錄取')
     +'<div class="k"><b>'+(s.pending||0)+'</b><span>還沒回填</span></div>'
     +'<div class="k"><b>'+(s.total||0)+'</b><span>談完總數</span></div>';
 
@@ -123,8 +140,37 @@ function render(){
             +(on?' disabled style="opacity:.45"':'')
             +' onclick="setv(\''+r.report_id+'\',\''+v+'\')">'+v+'</button>';
         }).join('')
+      +'</div>'
+      // 里程碑：這個人選後來實際走到哪。按下去寫的是**進度條**同一份資料，
+      // 所以顧問後台、客戶入口、候選人 LINE 三邊會一起往前跳。
+      +'<div class="ms">'
+      +'<span class="mslb">實際走到：</span>'
+      +MILESTONES.map(function(m){
+          var on = !!r[m[2]];
+          return '<button class="msb'+(on?' on':'')+'"'
+            + ' onclick="setms(\''+r.id+'\',\''+m[0]+'\','+(on?'1':'0')+')">'
+            + (on?'✓ ':'') + m[1] + '</button>';
+        }).join('')
       +'</div></div>';
   }).join('');
+}
+// [送出的值, 按鈕文字, API 回傳的欄位]
+var MILESTONES = [
+  ['interview', '有進面試', 'reached_interview'],
+  ['offer',     '有錄取',   'reached_offer'],
+];
+// 按了會直接動進度條（stage1 / offer）。已經比這一關更前面的不會被往回拖——
+// 早就錄取的人按「有進面試」，維持在錄取。再按一次是取消，做法是清掉手動
+// 指定、讓進度退回系統自己算的位置，不是往回設一個更早的階段
+//（那會變成客戶那邊看到進度倒退，以為出事了）。
+function setms(appId, milestone, on){
+  api('/admin/kpi/milestone',{method:'POST',headers:{'content-type':'application/json'},
+    body:JSON.stringify({applicationId:appId, milestone:milestone, undo:!!on})})
+  .then(function(d){
+    if(!d.ok){alert(d.error||'更新失敗');return}
+    if(d.skipped){alert(d.skipped);}
+    load();
+  });
 }
 function setv(reportId,v){
   api('/admin/kpi/set',{method:'POST',headers:{'content-type':'application/json'},
