@@ -206,6 +206,21 @@ function bar(steps){
 }
 
 var DEC={forwarded:['已推薦給客戶','ok'],need_more:['需補問','warn'],rejected:['顧問婉拒','bad']};
+// 跟「初篩報告」頁同一組動作、同一支端點——這頁按了等於在那頁按過了，
+// 不是另外一套流程。app_status 也要跟著送，不然人選的狀態會停在舊值。
+var DECIDE_OPTS=[
+  {k:'forwarded', lb:'推薦給客戶', s:'passed',   cls:'p'},
+  {k:'need_more', lb:'需補問',     s:'reported', cls:''},
+  {k:'rejected',  lb:'婉拒',       s:'rejected', cls:'d'},
+];
+// 手動指定進度用的選項。screening／confirm 不給選——那是推薦給客戶之前的
+// 內部流程，由系統自己判斷，顧問手動往回設只會讓客戶那邊看到進度倒退。
+var STAGE_OPTS=[
+  {key:'stage1',lb:'第一階段'},{key:'stage2',lb:'第二階段'},
+  {key:'stage3',lb:'第三階段'},{key:'stage4',lb:'第四階段'},
+  {key:'offer',lb:'錄取'},{key:'onboard',lb:'報到'},{key:'care',lb:'到職關懷'},
+  {key:'backup',lb:'備選'},
+];
 
 function drawerHtml(d){
   if(d.kind==='sourced'){
@@ -267,10 +282,20 @@ function drawerHtml(d){
     +kvRow('DISC',a.disc_primary?esc(a.disc_primary)+'（D'+(a.disc_d||0)+' I'+(a.disc_i||0)+' S'+(a.disc_s||0)+' C'+(a.disc_c||0)+'）':'')
     +'</dl></div>';
 
-  (d.stages||[]).forEach(function(s){
+  (d.stages||[]).forEach(function(s,i){
     h+='<div class="sec"><h4>'+esc(s.company_name||'客戶')+'　目前：'+esc(s.label||'—')
       +(s.manual_active?'　<span class="pill warn">顧問手動指定</span>':'')+'</h4>'
-      +bar(s.steps||[])+'</div>';
+      +bar(s.steps||[])
+      // 一家一組控制項。同一位人選推兩家時，兩家的進度是各自獨立的——
+      // 共用一個下拉會讓 A 家談到第二關把 B 家也一起推過去。
+      +'<div class="acts" style="margin-top:10px">'
+      +'<select class="stgsel" data-c="'+esc(s.company_id||'')+'" data-a="'+esc(a.id)+'">'
+      +'<option value="">改成…</option>'
+      +STAGE_OPTS.map(function(o3){return '<option value="'+o3.key+'">'+o3.lb+'</option>'}).join('')
+      +'</select>'
+      +'<button class="btn stggo" data-i="'+i+'">套用</button>'
+      +(s.manual_active?'<button class="btn stgclr" data-c="'+esc(s.company_id||'')+'" data-a="'+esc(a.id)+'">清除手動指定</button>':'')
+      +'</div></div>';
   });
   if(!(d.stages||[]).length && (d.placements||[]).length){
     h+='<div class="sec"><h4>送件紀錄</h4>'+(d.placements||[]).map(function(p){
@@ -283,7 +308,18 @@ function drawerHtml(d){
     var dec=DEC[r.consultant_decision]||null;
     h+='<div class="sec"><h4>初篩報告　'+fmtDate(r.created_at)
       +(dec?'　<span class="pill '+dec[1]+'">'+dec[0]+'</span>':'　<span class="pill">還沒決定推不推</span>')
-      +'</h4><div class="rpt" id="rpt">'+esc(r.content_md)+'</div>'
+      +'</h4>'
+      // 決定推不推。跟「初篩報告」頁按的是同一筆資料，不會有兩份對不上的紀錄。
+      +'<div class="acts" style="margin-bottom:10px">'
+      +DECIDE_OPTS.map(function(o4){
+          var on=r.consultant_decision===o4.k;
+          return '<button class="btn'+(o4.cls?' '+o4.cls:'')+' decbtn"'
+            +' data-k="'+o4.k+'" data-s="'+o4.s+'" data-r="'+esc(r.id)+'" data-a="'+esc(a.id)+'"'
+            +(on?' disabled style="opacity:.45"':'')+'>'+o4.lb+'</button>';
+        }).join('')
+      +(r.consultant_decision?'<button class="btn clrdec" data-r="'+esc(r.id)+'">清除決定</button>':'')
+      +'</div>'
+      +'<div class="rpt" id="rpt">'+esc(r.content_md)+'</div>'
       +'<button class="more" id="rptmore" type="button">展開全文 ▾</button></div>';
   }else{
     h+='<div class="sec"><h4>初篩報告</h4><p class="mut" style="margin:0">還沒有報告。'
@@ -310,6 +346,53 @@ function openCard(kind,id,name){
     var m=$('rptmore');
     if(m)m.onclick=function(){var e=$('rpt');e.classList.toggle('open');
       m.textContent=e.classList.contains('open')?'收合 ▴':'展開全文 ▾'};
+    // ── 進度調整（一家一組）──
+    Array.prototype.forEach.call($('dbody').querySelectorAll('.stggo'),function(b){
+      b.onclick=function(){
+        var sel=$('dbody').querySelectorAll('.stgsel')[Number(b.dataset.i)];
+        if(!sel||!sel.value)return alert('先選一個階段');
+        b.disabled=true;
+        api('/admin/set-manual-stage',{method:'POST',headers:{'content-type':'application/json'},
+          body:JSON.stringify({application_id:sel.dataset.a, stage:sel.value,
+                               company_id:sel.dataset.c||null, by:'consultant:pipeline'})})
+        .then(function(r){ b.disabled=false;
+          if(!r.ok)return alert(r.error||'更新失敗');
+          openCard(kind,id,name); load();   // 抽屜跟後面的列表都要跟著更新
+        }).catch(function(){b.disabled=false;alert('連線失敗')});
+      };
+    });
+    Array.prototype.forEach.call($('dbody').querySelectorAll('.stgclr'),function(b){
+      b.onclick=function(){
+        if(!confirm('清除手動指定？進度會退回系統自己算出來的位置。'))return;
+        api('/admin/set-manual-stage',{method:'POST',headers:{'content-type':'application/json'},
+          body:JSON.stringify({application_id:b.dataset.a, stage:null,
+                               company_id:b.dataset.c||null, by:'consultant:pipeline'})})
+        .then(function(r){ if(!r.ok)return alert(r.error||'失敗'); openCard(kind,id,name); load(); });
+      };
+    });
+
+    // ── 初篩決定（跟報告頁同一支端點、同一筆資料）──
+    Array.prototype.forEach.call($('dbody').querySelectorAll('.decbtn'),function(b){
+      b.onclick=function(){
+        b.disabled=true;
+        api('/admin/decide-report',{method:'POST',headers:{'content-type':'application/json'},
+          body:JSON.stringify({id:b.dataset.r, decision:b.dataset.k,
+                               app_id:b.dataset.a, app_status:b.dataset.s})})
+        .then(function(r){ b.disabled=false;
+          if(!r.ok)return alert(r.error||'更新失敗');
+          openCard(kind,id,name); load();
+        }).catch(function(){b.disabled=false;alert('連線失敗')});
+      };
+    });
+    Array.prototype.forEach.call($('dbody').querySelectorAll('.clrdec'),function(b){
+      b.onclick=function(){
+        if(!confirm('清除這筆決定？會回到「還沒決定推不推」。'))return;
+        api('/admin/clear-decision',{method:'POST',headers:{'content-type':'application/json'},
+          body:JSON.stringify({id:b.dataset.r})})
+        .then(function(r){ if(!r.ok)return alert(r.error||'失敗'); openCard(kind,id,name); load(); });
+      };
+    });
+
     var dl=$('dlres');
     if(dl)dl.onclick=function(ev){
       ev.preventDefault();
