@@ -35,6 +35,7 @@ main{padding:22px 0 70px}
 .c.replied{border-left-color:var(--ok)}
 .c.declined{border-left-color:var(--bad)}
 .c.stale{border-left-color:var(--warn)}
+.c.todo{border-left-color:var(--gold);background:var(--soft)}
 .c .top{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
 .c .nm{font-weight:700;font-size:14.5px}
 .c .co{font-size:13px;color:var(--ink2)}
@@ -96,12 +97,13 @@ var TYPES=[['','全部'],['school','學校系所'],['candidate','人選'],['intr
 // 只有對方真的做了什麼（回了／婉拒／約到了）才有按鈕，其餘一律留在「等回覆」，
 // 由天數自己說話。
 var OUTCOMES=[
+  {k:'sent',     lb:'已聯絡', cls:''},
   {k:'replied',  lb:'有回覆', cls:'ok'},
   {k:'meeting',  lb:'約到了', cls:'ok'},
   {k:'declined', lb:'明確婉拒', cls:'bad'},
   {k:'no_reply', lb:'放棄追', cls:''},
 ];
-var OUT_LB={sent:'等回覆',replied:'有回覆',meeting:'約到了',declined:'婉拒',no_reply:'放棄追'};
+var OUT_LB={todo:'還沒接觸',sent:'等回覆',replied:'有回覆',meeting:'約到了',declined:'婉拒',no_reply:'放棄追'};
 var TYPE_LB={school:'學校系所',candidate:'人選',intro:'介紹人',client:'企業'};
 var T='', DATA=null;
 var STALE=10;   // 系所信箱通常一到兩週內會回，10 天沒動就該補一封或換窗口
@@ -151,7 +153,7 @@ function render(){
           var d=days(r.sent_at);
           var stale=r.outcome==='sent'&&d!=null&&d>=STALE;
           var cls=r.outcome==='replied'||r.outcome==='meeting'?'replied'
-                 :(r.outcome==='declined'?'declined':(stale?'stale':''));
+                 :(r.outcome==='declined'?'declined':(r.outcome==='todo'?'todo':(stale?'stale':'')));
           return '<div class="c '+cls+'">'
             +'<div class="top"><span class="nm">'+esc(r.company||'')+'</span>'
             +'<span class="co">'+esc(r.target_name||'')+'</span>'
