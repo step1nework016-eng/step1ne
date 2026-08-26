@@ -78,8 +78,10 @@ a.lk{color:var(--gold);text-decoration:none;font-size:12.5px}
       下面每張卡片的<b>「實際走到」</b>兩顆按鈕，記的是這個人選後來真的有沒有進面試、有沒有錄取——
       按下去<b>直接動進度條</b>（顧問後台、客戶入口、候選人查進度三邊會一起跳），不是另外存一份。
       再按一次是取消。已經有資料的會自動打勾，不用重按。<br>
-      <b>「沒面試」要明確按</b>——沒按不等於沒面試，只是「還不知道」。上面的比率只算已經有答案的人，
-      不然還在等客戶回覆的會被當成失敗，數字每多推一個人就往下掉一次。
+      <b>「推了，客戶沒約」要明確按</b>——沒按不等於沒面試，只是「還不知道」。上面的比率只算已經有答案的人，
+      不然還在等客戶回覆的會被當成失敗，數字每多推一個人就往下掉一次。<br>
+      你標<b>不推</b>的人系統會自動當成沒面試，不用再按一次；但兩者分開統計——
+      <b>你不推</b>＝阿財看錯人，<b>推了客戶沒約</b>＝阿財跟你都看錯，或客戶條件跟當初講的不一樣。
     </div>
     <div class="kpi" id="kpi"></div>
     <div class="tabs" id="tabs"></div>
@@ -119,6 +121,8 @@ function render(){
     +lvl(s.interviewRate, s.gotInterview||0, '阿財判值得轉、實際進到面試')
     +lvl(s.offerRate, s.gotOffer||0, '阿財判值得轉、實際錄取')
     +'<div class="k"><b>'+(s.unknown||0)+'</b><span>還不知道有沒有進面試（要按下面的按鈕才算得出比率）</span></div>'
+    +'<div class="k"><b>'+(s.rejectedByUs||0)+' ／ '+(s.clientNoShow||0)+'</b>'
+    +'<span>沒進面試的原因：你不推 ／ 推了但客戶沒約</span></div>'
     +'<div class="k"><b>'+(s.total||0)+'</b><span>談完總數</span></div>';
 
   $('tabs').innerHTML=[['pending','還沒回填 '+(s.pending||0)],['done','已回填 '+(s.done||0)],['all','全部 '+(s.total||0)]]
@@ -150,15 +154,19 @@ function render(){
       // 所以顧問後台、客戶入口、候選人 LINE 三邊會一起往前跳。
       +'<div class="ms">'
       +'<span class="mslb">實際走到：</span>'
-      +MILESTONES.map(function(m){
-          // 沒面試那顆：已經走到面試之後就不該再標，直接讓它不能按
-          var on = m[0]==='no_interview' ? !!r.no_interview_at && !r.reached_interview : !!r[m[2]];
-          var dead = m[0]==='no_interview' && !!r.reached_interview;
-          return '<button class="msb'+(on?' on'+(m[3]?' '+m[3]:''):'')+'"'
-            + (dead?' disabled style="opacity:.3" title="進度已經在面試之後了"':'')
-            + ' onclick="setms(\''+r.id+'\',\''+m[0]+'\','+(on?'1':'0')+')">'
-            + (on?'✓ ':'') + m[1] + '</button>';
-        }).join('')
+      // 你自己標「不推」的人，本來就不會有面試——不用再叫你手動按一次。
+      // 直接顯示成已定案，不給按鈕（省得每個不推的人都要多按一下）。
+      +(r.verdict==='不推' && !r.reached_interview
+        ? '<span class="msb on bad" style="cursor:default">✓ 你不推，所以沒面試</span>'
+        : MILESTONES.map(function(m){
+            // 「推了，客戶沒約」：已經走到面試之後就不該再標，直接不能按
+            var on = m[0]==='no_interview' ? !!r.no_interview_at && !r.reached_interview : !!r[m[2]];
+            var dead = m[0]==='no_interview' && !!r.reached_interview;
+            return '<button class="msb'+(on?' on'+(m[3]?' '+m[3]:''):'')+'"'
+              + (dead?' disabled style="opacity:.3" title="進度已經在面試之後了"':'')
+              + ' onclick="setms(\''+r.id+'\',\''+m[0]+'\','+(on?'1':'0')+')">'
+              + (on?'✓ ':'') + m[1] + '</button>';
+          }).join(''))
       +'</div></div>';
   }).join('');
 }
@@ -168,7 +176,7 @@ var MILESTONES = [
   ['offer',        '有錄取',   'reached_offer',     ''],
   // 「沒面試」是明確的否定，不是「還沒填」。少了它，準確率的分母會一直混著
   // 還在等客戶回覆的人——每多推一個人比率就往下掉一次，那個數字不能用。
-  ['no_interview', '沒面試',   'no_interview_at',   'bad'],
+  ['no_interview', '推了，客戶沒約', 'no_interview_at', 'bad'],
 ];
 // 按了會直接動進度條（stage1 / offer）。已經比這一關更前面的不會被往回拖——
 // 早就錄取的人按「有進面試」，維持在錄取。再按一次是取消，做法是清掉手動
