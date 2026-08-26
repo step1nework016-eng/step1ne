@@ -211,8 +211,10 @@ button:disabled{opacity:.45;cursor:not-allowed}
       <label>或貼雲端連結</label>
       <input name="resume_url" placeholder="Google Drive／Dropbox 連結">
       <div class="hint">
-        檔案較大請改用這個連結，並確認權限設為「知道連結的人可讀取」——
-        這裡是給履歷本身用的，不是拿來放其他附件。上傳檔案跟貼連結<b>擇一即可</b>。
+        檔案較大再用這個，並確認權限設為「知道連結的人可讀取」。
+        <b style="color:#b4552e;">要貼「檔案」的分享連結，不能貼資料夾連結</b>
+        （網址裡有 <code>/folders/</code> 的就是資料夾，系統讀不到裡面的履歷）。
+        上傳檔案跟貼連結<b>擇一即可</b>，能上傳檔案就盡量用上傳，最快也最準確。
       </div>
       <div id="socialBox" hidden>
         <label>社群平台連結 <span style="color:#c0392b">*</span></label>
@@ -445,6 +447,15 @@ document.getElementById('toAssess').addEventListener('click', async () => {
   if (!hasFile && !hasUrl) {
     msg.className = 'msg err';
     msg.textContent = '請上傳履歷檔案，或貼上雲端連結（擇一即可）';
+    f.querySelector('input[name=resume]').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+  // 2026-08-26 加：資料夾連結當場擋下來。廖若辰連貼三次 Google Drive 的
+  // /folders/ 連結，系統抓不到裡面的履歷檔，等到阿財要面談了才發警告給顧問，
+  // 那時候才回頭請人重傳已經來不及。這裡在送出當下就講清楚該怎麼改。
+  if (!hasFile && /drive\.google\.com\/drive\/folders\//i.test(hasUrl)) {
+    msg.className = 'msg err';
+    msg.textContent = '這是「資料夾」連結，系統讀不到裡面的履歷。請直接上傳 PDF 檔（最推薦），或改貼單一檔案的分享連結。';
     f.querySelector('input[name=resume]').scrollIntoView({ behavior: 'smooth', block: 'center' });
     return;
   }
