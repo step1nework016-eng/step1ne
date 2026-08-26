@@ -135,15 +135,37 @@ function openCompany(id) {
     var linked = jobs.filter(function (j) { return j.status !== 'pending_review'; });
     $('mt').textContent = c.display_name;
 
+    // 2026-08-26 加：客戶自己填的內容從沒經過禁刊過濾（Telegram 自建職缺那條路
+    // 才有 AI 擬稿時的過濾），這裡把後端即時掃出來的結果列出來——顧問點開待審核
+    // 清單就看得到「這份要改什麼才能刊」，不是盲目按核准。
+    var hitKindColor = { '年齡歧視': '#c0392b', '性別歧視': '#c0392b', '婚育歧視': '#c0392b',
+      '國籍歧視': '#c0392b', '容貌歧視': '#c0392b', '身心障礙歧視': '#c0392b', '委任客戶名稱': '#a3450f' };
+    function complianceHtml(hits) {
+      if (!hits || !hits.length) {
+        return '<div class="mut" style="font-size:12px;margin-top:6px;color:#2f8f5b">✅ 禁刊過濾：沒有命中</div>';
+      }
+      var rows = hits.map(function (h) {
+        var color = hitKindColor[h.kind] || '#c98a1e';
+        return '<div style="font-size:12px;margin-top:4px;padding:6px 10px;background:#fdf1de;border-radius:6px">'
+          + '<b style="color:' + color + '">🚫 ' + esc(h.kind) + '</b>：「' + esc(h.matched) + '」'
+          + '<div class="mut" style="margin-top:2px">' + esc(h.context) + '</div>'
+          + '<div class="mut" style="margin-top:2px">' + esc(h.why) + '</div>'
+          + '</div>';
+      }).join('');
+      return '<div style="margin-top:6px"><b style="font-size:12px;color:#c0392b">🚫 禁刊過濾擋下 ' + hits.length + ' 處，核准前請先確認</b>' + rows + '</div>';
+    }
     var pendingHtml = pending.length
       ? pending.map(function (j) {
-          return '<div class="jrow"><span>' + esc(j.title || j.slug) + '<span class="pending">待審核</span></span>'
+          return '<div class="jrow" style="flex-direction:column;align-items:stretch"><div style="display:flex;justify-content:space-between;align-items:center">'
+            + '<span>' + esc(j.title || j.slug) + '<span class="pending">待審核</span></span>'
             + '<span class="act">'
             + '<a class="sec" style="font-size:12.5px;padding:5px 10px;border-radius:8px;border:1px solid #eee7db;text-decoration:none;color:#4d5563" '
             + 'href="/consultant/job-preview/?slug=' + encodeURIComponent(j.slug) + '" target="_blank">預覽</a>'
             + '<button class="appr" data-slug="' + esc(j.slug) + '">核准</button>'
             + '<button class="rej" data-slug="' + esc(j.slug) + '">拒絕</button>'
-            + '</span></div>';
+            + '</span></div>'
+            + complianceHtml(j.compliance_hits)
+            + '</div>';
         }).join('')
       : '';
     // client_draft 常常讓顧問誤以為「客戶新增了但系統壞了，怎麼沒有核准按鈕」——
