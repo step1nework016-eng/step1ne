@@ -319,6 +319,14 @@ $('maintabs').addEventListener('click', function (e) {
 // 這一頁只回答一個問題：哪些格子是空的。不放成效、不放時間軸——
 // 那些在另外兩個分頁，混在一起就看不出重點了。
 var GAP = null;
+// ⚠️ 這一頁沒有 esc()（其他後台頁有，我照別頁的寫法用了才發現）。
+// 職缺標題與帳號名稱都是內部資料，但還是要跳脫——標題裡出現一個引號
+// 就會把整張表的 HTML 打斷，而那種錯很難查。
+function esc(x) {
+  return String(x == null ? '' : x).replace(/[&<>"]/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+  });
+}
 function shortLabel(l) {
   // 「EYLISE – LinkedIn」→「EYLISE」。平台已經用分組標了，欄位標題再重複一次
   // 會讓表格寬到要橫捲，而這張表的價值就在於一眼看完。
@@ -329,7 +337,12 @@ function loadGap() {
   api('/admin/social/coverage').then(function (d) {
     if (!d.ok) { $('gapgrid').textContent = '讀取失敗'; return; }
     GAP = d; paintGap();
-  }).catch(function () { $('gapgrid').textContent = '連線失敗'; });
+  }).catch(function (e) {
+    // 不要一律寫「連線失敗」——這次真正的原因是畫表的程式炸了（少一個函式），
+    // 但畫面上寫連線失敗，害我往網路的方向查。
+    console.error(e);
+    $('gapgrid').textContent = '讀不到：' + (e && e.message ? e.message : '連線失敗');
+  });
 }
 function paintGap() {
   var accs = GAP.accounts, grid = GAP.grid;
