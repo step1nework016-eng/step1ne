@@ -266,9 +266,10 @@ function drawerHtml(d){
     if(s.linkedin_url)links.push('<a href="'+esc(s.linkedin_url)+'" target="_blank" rel="noopener">LinkedIn</a>');
     if(s.github_url)links.push('<a href="'+esc(s.github_url)+'" target="_blank" rel="noopener">GitHub</a>');
     if(s.source_url)links.push('<a href="'+esc(s.source_url)+'" target="_blank" rel="noopener">來源頁</a>');
-    return // 可編輯欄位。爬回來的資料常常有錯或缺（公司名帶著括號註解、職稱是英文
-      // 原文、電話要打完才知道），以前沒有地方能改，錯的就一直躺在那裡。
-'<div class="sec" id="edsec"><h4>修正資料 <button class="more" id="edtog" type="button">編輯 ✎</button></h4>'
+    // 可編輯欄位放最前面。爬回來的資料常常有錯或缺（公司名帶著括號註解、
+    // 職稱是英文原文、電話要打完才知道），夾在中間顧問根本不知道有這功能。
+    // ⚠️ return 後面不可以換行——JS 會自動補分號變成 return; 回傳 undefined。
+    return '<div class="sec" id="edsec"><h4>修正資料 <button class="more" id="edtog" type="button">編輯 ✎</button></h4>'
       +'<div id="edbox" hidden>'
       +SRC_FIELDS.map(function(f){
           return '<label class="edl">'+f[1]+'</label>'
