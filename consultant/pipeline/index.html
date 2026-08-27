@@ -87,6 +87,12 @@ a.lk{color:var(--gold);text-decoration:none;font-size:12.5px;font-weight:600}
 .pill.ok{background:#e8f5ee;border-color:#bfe0cd;color:var(--ok)}
 .pill.warn{background:#fdf3e0;border-color:#efdcb6;color:var(--warn)}
 .pill.bad{background:#fdecea;border-color:#f3cdc7;color:var(--bad)}
+.edl{display:block;font-size:11.5px;color:var(--ink3);margin:9px 0 3px;font-weight:600}
+.edi{width:100%;font:inherit;font-size:13.5px;padding:7px 11px;border:1px solid var(--line);
+  border-radius:8px;background:#fff;color:var(--ink);resize:vertical}
+.edi:focus{outline:2px solid rgba(166,124,61,.35);outline-offset:1px;border-color:var(--gold)}
+.btn.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn.d{color:var(--bad);border-color:#f0d4cf}
 </style>
 
 <div id="gate" class="gate" hidden>
@@ -206,6 +212,34 @@ function bar(steps){
 }
 
 var DEC={forwarded:['已推薦給客戶','ok'],need_more:['需補問','warn'],rejected:['顧問婉拒','bad']};
+// 主動開發人選的狀態流。跟人才池頁用同一組值、同一支端點，不是另一套。
+var SRC_ACTS=[
+  {k:'shortlisted',lb:'挑出來',   cls:''},
+  {k:'contacted',  lb:'已接觸',   cls:'p'},
+  {k:'replied',    lb:'他有回覆', cls:''},
+  {k:'rejected',   lb:'不合適',   cls:'d'},
+];
+var SRC_LB={new:'待挑選',shortlisted:'已挑出',contacted:'已接觸',replied:'有回覆',
+            rejected:'不合適',converted:'已轉應徵者'};
+// 「不合適」一定要選原因。用固定選項不是自由輸入——這份資料是要累積起來
+// 看出「該調整什麼」的，自由文字寫法太散（地點太遠／通勤問題／在南部其實
+// 是同一件事），統計不出東西。跟人才池頁同一組。
+// 可以從卡片上直接改的欄位。刻意不含 raw_json／分數／等第／狀態／負責顧問——
+// 前三個是爬蟲與評分的產出，手改會讓「AI 判斷準不準」的統計失真；
+// 後兩個各自有專屬端點（婉拒必填原因、指派要驗顧問存在）。
+var SRC_FIELDS=[
+  ['name','姓名'],['headline','現職職稱'],['company','公司'],['location','地點'],
+  ['email','Email'],['linkedin_url','LinkedIn'],['skills','技能'],
+  ['note','備註（電話、聯絡結果、顧問補充都寫這裡）','area'],
+];
+// 應徵者開放的欄位比人才池窄——這是本人自己填的，顧問只該修正明顯的輸入錯誤，
+// 不是重寫他的申請。期望待遇與可到職有開放，因為電訪之後常有更新。
+var APP_FIELDS=[
+  ['name','姓名'],['email','Email'],['phone','電話'],
+  ['expected_salary','期望待遇'],['available_date','可到職'],['location_ok','地點'],
+  ['resume_url','履歷連結'],['note','備註','area'],
+];
+var SRC_REASONS=['地點不行','資歷差太多','職類根本不對','找不到聯絡方式','已有工作或沒意願','其他'];
 // 跟「初篩報告」頁同一組動作、同一支端點——這頁按了等於在那頁按過了，
 // 不是另外一套流程。app_status 也要跟著送，不然人選的狀態會停在舊值。
 var DECIDE_OPTS=[
@@ -239,6 +273,33 @@ function drawerHtml(d){
       +(s.skills?'<div class="sec"><h4>技能</h4><div style="font-size:13.5px">'+esc(s.skills)+'</div></div>':'')
       +(s.bio?'<div class="sec"><h4>簡介</h4><div class="rpt" style="border:0;margin:0;padding:0">'+esc(s.bio)+'</div></div>':'')
       +(s.note?'<div class="sec"><h4>備註</h4><div style="font-size:13.5px">'+esc(s.note)+'</div></div>':'')
+      // ⚠️ 2026-08-27 補：這裡本來完全沒有動作按鈕。顧問在「我的案子」點開一位
+      // 主動開發的人選，聯絡完之後沒有任何地方可以標「已接觸」——只能跑去
+      // 「人才池」頁再找一次同一個人。而這一頁的整個用途就是一件一件掃過去。
+      // 按的是跟人才池同一支端點（/admin/sourced/status），同一筆資料。
+      // 可編輯欄位。爬回來的資料常常有錯或缺（公司名帶著括號註解、職稱是英文
+      // 原文、電話要打完才知道），以前沒有地方能改，錯的就一直躺在那裡。
+      +'<div class="sec"><h4>修正資料 <button class="more" id="edtog" type="button">編輯 ✎</button></h4>'
+      +'<div id="edbox" hidden>'
+      +SRC_FIELDS.map(function(f){
+          return '<label class="edl">'+f[1]+'</label>'
+            +(f[2]==='area'
+              ? '<textarea class="edi" data-f="'+f[0]+'" rows="3">'+esc(s[f[0]]||'')+'</textarea>'
+              : '<input class="edi" data-f="'+f[0]+'" value="'+esc(s[f[0]]||'')+'">');
+        }).join('')
+      +'<div class="acts"><button class="btn p" id="edsave" type="button">儲存</button>'
+      +'<button class="btn" id="edcancel" type="button">取消</button>'
+      +'<span class="mut" id="edmsg"></span></div>'
+      +'</div></div>'
+      +'<div class="sec"><h4>下一步</h4><div class="acts">'
+      +SRC_ACTS.map(function(a){
+          var on = (s.status===a.k);
+          return '<button class="btn'+(a.cls?' '+a.cls:'')+(on?' on':'')+' srcact"'
+            +' data-i="'+esc(s.id)+'" data-k="'+a.k+'"'
+            +(on?' disabled style="opacity:.45"':'')+'>'+a.lb+'</button>';
+        }).join('')
+      +'</div><p class="mut" style="margin:8px 0 0">目前狀態：<b>'+esc(SRC_LB[s.status]||s.status||'')+'</b>'
+      +(s.contacted_at?'　（'+esc(String(s.contacted_at).slice(0,16))+' 接觸）':'')+'</p></div>'
       +'<p class="mut">這是主動開發爬回來的公開資料，不是應徵者——他還沒投履歷、也還沒同意個資利用。'
       +'公開檔案沒有電話這一欄，要電話得等對方回覆再問。</p>';
   }
@@ -260,7 +321,18 @@ function drawerHtml(d){
   if(a.resume_url)res='<a href="'+esc(a.resume_url)+'" target="_blank" rel="noopener">開啟履歷連結</a>';
   else if(a.resume_file_id)res='<a href="#" id="dlres" data-f="'+esc(a.resume_file_id)+'">下載履歷檔</a>';
 
-  h+='<div class="sec"><h4>聯絡與應徵</h4><dl class="kv">'
+  h+='<div class="sec"><h4>修正資料 <button class="more" id="edtog" type="button">編輯 ✎</button></h4>'
+    +'<div id="edbox" hidden>'
+    +APP_FIELDS.map(function(f){
+        return '<label class="edl">'+f[1]+'</label>'
+          +(f[2]==='area'
+            ? '<textarea class="edi" data-f="'+f[0]+'" rows="3">'+esc(a[f[0]]||'')+'</textarea>'
+            : '<input class="edi" data-f="'+f[0]+'" value="'+esc(a[f[0]]||'')+'">');
+      }).join('')
+    +'<div class="acts"><button class="btn p" id="edsave" type="button">儲存</button>'
+    +'<button class="btn" id="edcancel" type="button">取消</button>'
+    +'<span class="mut" id="edmsg"></span></div></div></div>';
+    h+='<div class="sec"><h4>聯絡與應徵</h4><dl class="kv">'
     +kvRow('聯絡',con.join('　'))
     +kvRow('應徵職缺',esc(a.job_full_title||a.job_title||a.job_slug||''))
     +kvRow('期望待遇',esc(a.expected_salary||''))
@@ -392,6 +464,62 @@ function openCard(kind,id,name){
         .then(function(r){ if(!r.ok)return alert(r.error||'失敗'); openCard(kind,id,name); load(); });
       };
     });
+
+    // ── 編輯欄位 ──
+    var tg=$('edtog');
+    if(tg)tg.onclick=function(){
+      var box=$('edbox'); box.hidden=!box.hidden;
+      tg.textContent = box.hidden ? '編輯 ✎' : '收起';
+    };
+    var cn=$('edcancel');
+    if(cn)cn.onclick=function(){ openCard(kind,id,name); };
+    var sv=$('edsave');
+    if(sv)sv.onclick=function(){
+      var body={id: (kind==='sourced' ? (d.sourced||{}).id : (d.application||{}).id)};
+      // 只送真的有改的欄位——整包送過去的話，兩個顧問同時開同一張卡片時，
+      // 後存的那個會把前一個的修改整批蓋掉。
+      var changed=0;
+      Array.prototype.forEach.call($('dbody').querySelectorAll('.edi'),function(el){
+        var f=el.dataset.f, cur=(d.sourced||d.application||{})[f];
+        if(String(el.value)!==String(cur==null?'':cur)){ body[f]=el.value; changed++; }
+      });
+      if(!changed){ $('edmsg').textContent='沒有改到東西'; return; }
+      sv.disabled=true; $('edmsg').textContent='儲存中…';
+      var url = kind==='sourced' ? '/admin/sourced/update' : '/admin/application/update';
+      api(url,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)})
+      .then(function(r){ sv.disabled=false;
+        if(!r.ok){ $('edmsg').textContent=r.error||'儲存失敗'; return; }
+        openCard(kind,id,body.name||name); load();
+      }).catch(function(){ sv.disabled=false; $('edmsg').textContent='連線失敗'; });
+    };
+
+    // ── 主動開發人選的狀態按鈕 ──
+    Array.prototype.forEach.call($('dbody').querySelectorAll('.srcact'),function(b){
+      b.onclick=function(){
+        var k=b.dataset.k;
+        if(k==='rejected'){
+          // 婉拒一定要選原因。固定選項不是自由輸入——這份資料是要累積起來
+          // 看出「該調整什麼」的，自由文字統計不出東西。
+          var msg='為什麼不合適？輸入編號：\n'
+            + SRC_REASONS.map(function(r,i){return (i+1)+'. '+r}).join('\n');
+          var pick=prompt(msg,'1');
+          if(pick===null)return;
+          var reason=SRC_REASONS[Number(pick)-1];
+          if(!reason)return alert('請輸入 1–'+SRC_REASONS.length);
+          return srcSet(b, k, reason);
+        }
+        srcSet(b, k, null);
+      };
+    });
+    function srcSet(b, status, reason){
+      b.disabled=true;
+      api('/admin/sourced/status',{method:'POST',headers:{'content-type':'application/json'},
+        body:JSON.stringify({id:b.dataset.i, status:status, reason:reason})})
+      .then(function(r){ b.disabled=false;
+        if(!r.ok)return alert(r.error||'更新失敗');
+        openCard(kind,id,name); load();
+      }).catch(function(){b.disabled=false;alert('連線失敗')});
+    }
 
     var dl=$('dlres');
     if(dl)dl.onclick=function(ev){
