@@ -62,7 +62,10 @@ a.lk{color:var(--gold);text-decoration:none;font-size:12.5px;font-weight:600}
 .dwrap{background:var(--bg);width:min(560px,100%);height:100%;overflow-y:auto;box-shadow:-8px 0 32px rgba(0,0,0,.12)}
 .dhead{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:14px 20px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;z-index:2}
 .dhead .nm{font-size:19px;font-weight:700}
-.dhead .x{margin-left:auto;font:inherit;font-size:22px;line-height:1;background:none;border:0;cursor:pointer;color:var(--ink3);padding:0 4px}
+.edbtn{margin-left:auto;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;
+  border:1px solid var(--line);background:var(--soft);color:var(--ink2);border-radius:999px;padding:4px 13px}
+.edbtn:hover{border-color:var(--gold);color:var(--gold)}
+.dhead .x{margin-left:8px;font:inherit;font-size:22px;line-height:1;background:none;border:0;cursor:pointer;color:var(--ink3);padding:0 4px}
 .dbody{padding:16px 20px 60px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 16px;margin-bottom:11px}
 .sec h4{margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--ink3)}
@@ -263,7 +266,21 @@ function drawerHtml(d){
     if(s.linkedin_url)links.push('<a href="'+esc(s.linkedin_url)+'" target="_blank" rel="noopener">LinkedIn</a>');
     if(s.github_url)links.push('<a href="'+esc(s.github_url)+'" target="_blank" rel="noopener">GitHub</a>');
     if(s.source_url)links.push('<a href="'+esc(s.source_url)+'" target="_blank" rel="noopener">來源頁</a>');
-    return '<div class="sec"><h4>聯絡與來源</h4><dl class="kv">'
+    return // 可編輯欄位。爬回來的資料常常有錯或缺（公司名帶著括號註解、職稱是英文
+      // 原文、電話要打完才知道），以前沒有地方能改，錯的就一直躺在那裡。
+'<div class="sec" id="edsec"><h4>修正資料 <button class="more" id="edtog" type="button">編輯 ✎</button></h4>'
+      +'<div id="edbox" hidden>'
+      +SRC_FIELDS.map(function(f){
+          return '<label class="edl">'+f[1]+'</label>'
+            +(f[2]==='area'
+              ? '<textarea class="edi" data-f="'+f[0]+'" rows="3">'+esc(s[f[0]]||'')+'</textarea>'
+              : '<input class="edi" data-f="'+f[0]+'" value="'+esc(s[f[0]]||'')+'">');
+        }).join('')
+      +'<div class="acts"><button class="btn p" id="edsave" type="button">儲存</button>'
+      +'<button class="btn" id="edcancel" type="button">取消</button>'
+      +'<span class="mut" id="edmsg"></span></div>'
+      +'</div></div>'
+      +'<div class="sec"><h4>聯絡與來源</h4><dl class="kv">'
       +kvRow('Email',s.email?'<a href="mailto:'+esc(s.email)+'">'+esc(s.email)+'</a>':'<span class="mut">沒有 email，只能從來源頁聯絡</span>')
       +kvRow('現職',esc(s.headline||''))+kvRow('公司',esc(s.company||''))
       +kvRow('地點',esc(s.location||''))+kvRow('來源',esc(s.source||''))
@@ -277,20 +294,6 @@ function drawerHtml(d){
       // 主動開發的人選，聯絡完之後沒有任何地方可以標「已接觸」——只能跑去
       // 「人才池」頁再找一次同一個人。而這一頁的整個用途就是一件一件掃過去。
       // 按的是跟人才池同一支端點（/admin/sourced/status），同一筆資料。
-      // 可編輯欄位。爬回來的資料常常有錯或缺（公司名帶著括號註解、職稱是英文
-      // 原文、電話要打完才知道），以前沒有地方能改，錯的就一直躺在那裡。
-      +'<div class="sec"><h4>修正資料 <button class="more" id="edtog" type="button">編輯 ✎</button></h4>'
-      +'<div id="edbox" hidden>'
-      +SRC_FIELDS.map(function(f){
-          return '<label class="edl">'+f[1]+'</label>'
-            +(f[2]==='area'
-              ? '<textarea class="edi" data-f="'+f[0]+'" rows="3">'+esc(s[f[0]]||'')+'</textarea>'
-              : '<input class="edi" data-f="'+f[0]+'" value="'+esc(s[f[0]]||'')+'">');
-        }).join('')
-      +'<div class="acts"><button class="btn p" id="edsave" type="button">儲存</button>'
-      +'<button class="btn" id="edcancel" type="button">取消</button>'
-      +'<span class="mut" id="edmsg"></span></div>'
-      +'</div></div>'
       +'<div class="sec"><h4>下一步</h4><div class="acts">'
       +SRC_ACTS.map(function(a){
           var on = (s.status===a.k);
@@ -321,7 +324,7 @@ function drawerHtml(d){
   if(a.resume_url)res='<a href="'+esc(a.resume_url)+'" target="_blank" rel="noopener">開啟履歷連結</a>';
   else if(a.resume_file_id)res='<a href="#" id="dlres" data-f="'+esc(a.resume_file_id)+'">下載履歷檔</a>';
 
-  h+='<div class="sec"><h4>修正資料 <button class="more" id="edtog" type="button">編輯 ✎</button></h4>'
+  h+='<div class="sec" id="edsec"><h4>修正資料 <button class="more" id="edtog" type="button">編輯 ✎</button></h4>'
     +'<div id="edbox" hidden>'
     +APP_FIELDS.map(function(f){
         return '<label class="edl">'+f[1]+'</label>'
@@ -404,7 +407,9 @@ function drawerHtml(d){
 function openCard(kind,id,name){
   var dw=$('drawer');
   dw.innerHTML='<div class="dmask"><div class="dwrap">'
-    +'<div class="dhead"><span class="nm">'+esc(name||'')+'</span><button class="x" type="button">×</button></div>'
+    +'<div class="dhead"><span class="nm">'+esc(name||'')+'</span>'
+    +'<button class="edbtn" id="edtop" type="button" hidden>✎ 編輯</button>'
+    +'<button class="x" type="button">×</button></div>'
     +'<div class="dbody" id="dbody"><p class="mut">載入中…</p></div></div></div>';
   function close(){dw.innerHTML=''}
   dw.querySelector('.x').onclick=close;
@@ -466,11 +471,21 @@ function openCard(kind,id,name){
     });
 
     // ── 編輯欄位 ──
+    function toggleEdit(open){
+      var box=$('edbox'), tg=$('edtog');
+      if(!box)return;
+      box.hidden = (open===undefined) ? !box.hidden : !open;
+      if(tg)tg.textContent = box.hidden ? '編輯 ✎' : '收起';
+      if(!box.hidden){
+        $('edsec').scrollIntoView({block:'start',behavior:'smooth'});
+        var f=box.querySelector('.edi'); if(f)setTimeout(function(){f.focus()},250);
+      }
+    }
     var tg=$('edtog');
-    if(tg)tg.onclick=function(){
-      var box=$('edbox'); box.hidden=!box.hidden;
-      tg.textContent = box.hidden ? '編輯 ✎' : '收起';
-    };
+    if(tg)tg.onclick=function(){ toggleEdit(); };
+    // 標頭那顆。標頭是 sticky 的，捲到哪裡都看得到——顧問想改東西不用先找到區塊。
+    var top=$('edtop');
+    if(top && $('edsec')){ top.hidden=false; top.onclick=function(){ toggleEdit(true); }; }
     var cn=$('edcancel');
     if(cn)cn.onclick=function(){ openCard(kind,id,name); };
     var sv=$('edsave');
