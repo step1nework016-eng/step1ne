@@ -69,6 +69,46 @@ table.gap td.stale{color:#c0392b}
 .renote{font:inherit;font-size:15px;line-height:1;width:26px;height:26px;border-radius:8px;cursor:pointer;
   border:1px solid transparent;background:none;color:inherit}
 .renote:hover{border-color:currentColor;background:#faf8f3}
+
+/* ── 排程行事曆 ── */
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.dow{font-size:11.5px;color:#8a8d95;text-align:center;font-weight:700;padding:4px 0;letter-spacing:.06em}
+.day{background:#fff;border:1px solid #eee7db;border-radius:10px;min-height:96px;padding:6px 7px;
+  cursor:pointer;display:flex;flex-direction:column;gap:3px}
+.day:hover{border-color:#a67c3d}
+.day.pad{background:transparent;border:0;cursor:default}
+.day.today{border-color:#a67c3d;box-shadow:0 0 0 2px rgba(166,124,61,.16)}
+.day .dn{font-size:12px;color:#8a8d95;font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:5px}
+.day.dup{border-color:#c0392b}.day.dup .dn{color:#c0392b;font-weight:700}
+.chip{font-size:10.5px;line-height:1.45;border-radius:5px;padding:2px 5px;background:#faf8f3;color:#4d5563;
+  border-left:2px solid #a67c3d;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip.th{border-left-color:#5a7d9a}.chip.li{border-left-color:#2f6ea8}
+.chip.dupc{background:#fdecea;color:#c0392b;border-left-color:#c0392b}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:#8a8d95;margin-top:12px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.mask{position:fixed;inset:0;background:rgba(20,22,26,.5);z-index:60;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:#f4f1ea;border-radius:16px;width:min(560px,100%);max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.22)}
+.mh{position:sticky;top:0;background:#fff;border-bottom:1px solid #eee7db;padding:14px 20px;display:flex;align-items:baseline;gap:10px;z-index:2}
+.mh b{font-size:18px}
+.mh .x{margin-left:auto;background:none;border:0;font-size:22px;cursor:pointer;color:#8a8d95}
+.mb{padding:16px 20px 24px}
+.sec{background:#fff;border:1px solid #eee7db;border-radius:12px;padding:13px 15px;margin-bottom:11px}
+.sec h4{margin:0 0 9px;font-size:11.5px;font-weight:700;letter-spacing:.07em;color:#8a8d95}
+.ent{display:flex;gap:9px;align-items:flex-start;padding:8px 0;border-bottom:1px solid #eee7db;font-size:13.5px}
+.ent:last-child{border-bottom:0}
+.ent .who{flex:none;width:96px;color:#4d5563;font-size:12.5px}
+.ent .jb{flex:1;line-height:1.5}
+.ent .st{flex:none;font-size:11px;font-weight:700;border-radius:999px;padding:1px 8px;background:#faf8f3;color:#4d5563}
+.ent .st.ok{background:#e8f5ee;color:#2f8f5b}
+.ent .st.pl{background:#fbf1de;color:#8a6100}
+.ent .del{flex:none;background:none;border:0;color:#8a8d95;cursor:pointer;font-size:15px}
+.alert{border-radius:9px;padding:10px 13px;font-size:13px;line-height:1.65;margin-top:10px}
+.alert.bad{background:#fdecea;color:#c0392b}
+.alert.warn{background:#fbf1de;color:#8a6100}
+.alert.ok{background:#e8f5ee;color:#2f8f5b}
+.row{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-top:11px}
+#pane-cal select{width:100%;font:inherit;font-size:13.5px;padding:8px 11px;border:1px solid #eee7db;border-radius:9px;background:#fff;color:#23262d}
+#pane-cal label{display:block;font-size:11.5px;color:#8a8d95;font-weight:600;margin:9px 0 3px}
 </style>
 
 <div id="gate" class="gate" hidden>
@@ -88,6 +128,7 @@ table.gap td.stale{color:#c0392b}
     <div id="maintabs" class="tabs" style="margin-bottom:16px">
       <button type="button" class="tab on" data-pane="pane-post">一鍵發文</button>
       <button type="button" class="tab" data-pane="pane-gap">還沒發哪些</button>
+      <button type="button" class="tab" data-pane="pane-cal">排程行事曆</button>
       <button type="button" class="tab" data-pane="pane-stats">發文數據</button>
       <button type="button" class="tab" data-pane="pane-board">成效儀表板</button>
     </div>
@@ -112,6 +153,30 @@ table.gap td.stale{color:#c0392b}
       <div id="queue" class="mut">載入中…</div>
     </div>
     </div><!-- /pane-post -->
+
+    <div id="pane-cal" hidden>
+      <div class="note">
+        點一天就能排「誰要發哪個職缺」。<b>同一個顧問、同一天、同一個職缺會被擋下來</b>；
+        不同顧問同一天發同一個職缺是正常的，不擋。<br>
+        排好的到那天早上會自動送去產稿、推 Telegram 給你按確認——<b>不會自己發文</b>。
+      </div>
+      <div class="kpi" id="ckpi"></div>
+      <div class="bar" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+        <button class="tab" id="cprev">← 上個月</button>
+        <b id="cmlabel" style="font-size:16px"></b>
+        <button class="tab" id="cnext">下個月 →</button>
+        <span style="margin-left:auto"></span>
+        <button class="tab" id="ctips" style="background:#a67c3d;color:#fff;border-color:#a67c3d">這個月哪些職缺沒排到？</button>
+      </div>
+      <div class="cal" id="ccal"></div>
+      <div class="legend">
+        <span><i style="background:#5a7d9a"></i>Threads</span>
+        <span><i style="background:#2f6ea8"></i>LinkedIn</span>
+        <span><i style="background:#c0392b"></i>同一個顧問重複發同職缺</span>
+        <span>點任何一天可以排程</span>
+      </div>
+      <div id="cmodal"></div>
+    </div>
 
     <div id="pane-gap" hidden>
       <div class="note">
@@ -311,9 +376,10 @@ function paintLine() {
 $('maintabs').addEventListener('click', function (e) {
   var b = e.target.closest('.tab'); if (!b) return;
   [].forEach.call($('maintabs').children, function (x) { x.classList.toggle('on', x === b); });
-  ['pane-post', 'pane-gap', 'pane-stats', 'pane-board'].forEach(function (id) {
+  ['pane-post', 'pane-cal', 'pane-gap', 'pane-stats', 'pane-board'].forEach(function (id) {
     $(id).hidden = (id !== b.dataset.pane);
   });
+  if (b.dataset.pane === 'pane-cal') loadCal();
   if (b.dataset.pane === 'pane-gap') loadGap();
   if (b.dataset.pane === 'pane-stats' || b.dataset.pane === 'pane-board') paintStats();
   if (b.dataset.pane === 'pane-board' && !LINE_INS) loadLine();
@@ -598,5 +664,333 @@ function boot() {
 }
 boot();
 </script>
-<script defer src="/consultant/_shell.js"></script>
+<script defer src="/consultant/_shell.js">
+
+// ── 發文排程行事曆 ──
+// 8 月實測有 16 組「同一個顧問、同一天、同一個職缺發兩次以上」，8/21 的 BIM
+// 四個帳號各自發了 3 則。沒有一個地方看得到「今天誰要發什麼」，各按各的才會撞。
+//
+// ⚠️ 只有一種情況會擋：同一個顧問、同一天、同一個職缺。
+//    不同顧問同一天發同一個職缺是正常操作（多個帳號一起推），不擋也不警告。
+var SEED = { accounts: [], jobs: [] };
+var EV = [];
+var CUR = new Date();
+CUR = new Date(CUR.getFullYear(), CUR.getMonth(), 1);
+var TODAY = new Date(Date.now() + 8*3600*1000).toISOString().slice(0,10);
+
+
+
+
+
+
+// 事件都放在同一個陣列：已發布的（真實紀錄）跟排程的（這頁排的）長一樣，
+// 只差在 status。這樣重複檢查一次寫完，不用分兩套。
+
+
+const short = (l) => String(l||'').split(/[-–—]/)[0].trim();
+const jobTitle = (slug) => (SEED.jobs.find(j=>j.slug===slug)||{}).title || slug;
+
+function dayKey(y,m,d){ return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
+function evOn(k){ return EV.filter(e=>e.d===k); }
+// 「重複」＝同一天、同一個職缺、**同一個顧問**發兩次以上。
+// ⚠️ 不同顧問同一天發同一個職缺是正常的（四個帳號一起推同一個缺），
+//    不算重複，也不標紅——第一版把它算進去，整個八月幾乎每天都紅，
+//    那種到處都在響的警告等於沒有警告。
+function dupKeys(k){
+  const c={}; evOn(k).forEach(e=>{const kk=e.slug+'|'+e.label; c[kk]=(c[kk]||0)+1});
+  return Object.keys(c).filter(x=>c[x]>1);
+}
+function isDup(k, e){ return dupKeys(k).includes(e.slug+'|'+e.label); }
+
+function renderCal(){
+  const y=CUR.getFullYear(), m=CUR.getMonth();
+  $('cmlabel').textContent = `${y} 年 ${m+1} 月`;
+  const first=new Date(y,m,1).getDay(), days=new Date(y,m+1,0).getDate();
+  let h = ['日','一','二','三','四','五','六'].map(d=>`<div class="dow">${d}</div>`).join('');
+  for(let i=0;i<first;i++) h+='<div class="day pad"></div>';
+  for(let d=1;d<=days;d++){
+    const k=dayKey(y,m,d), list=evOn(k), dups=dupKeys(k);
+    const chips = list.slice(0,3).map(e=>{
+      const bad = dups.includes(e.slug+'|'+e.label);
+      return `<div class="chip ${e.platform==='linkedin'?'li':'th'}${bad?' dupc':''}" title="${esc(short(e.label))}｜${esc(jobTitle(e.slug))}">${esc(short(e.label))}·${esc(jobTitle(e.slug)).slice(0,7)}</div>`;
+    }).join('');
+    h += `<div class="day${dups.length?' dup':''}${k===TODAY?' today':''}" data-k="${k}">
+      <div class="dn">${d}${dups.length?' ⚠️':''}${list.length?`<span style="margin-left:auto">${list.length}</span>`:''}</div>
+      ${chips}${list.length>3?`<div class="more">還有 ${list.length-3} 則…</div>`:''}</div>`;
+  }
+  $('ccal').innerHTML=h;
+  [...$('ccal').querySelectorAll('.day[data-k]')].forEach(el=>{
+    el.onclick=()=>openDay(el.dataset.k);
+  });
+  renderKpi();
+}
+
+function renderKpi(){
+  const y=CUR.getFullYear(), m=CUR.getMonth();
+  const inMonth = EV.filter(e=>e.d.startsWith(`${y}-${String(m+1).padStart(2,'0')}`));
+  const dupDays = [...new Set(inMonth.map(e=>e.d))].filter(k=>dupKeys(k).length);
+  const jobsPosted = new Set(inMonth.map(e=>e.slug));
+  $('ckpi').innerHTML =
+     `<div class="k"><b>${inMonth.length}</b><span>這個月排／發的則數</span></div>`
+    +`<div class="k"><b style="color:var(--bad)">${dupDays.length}</b><span>有人重複發同職缺的天數</span></div>`
+    +`<div class="k"><b>${jobsPosted.size}<span style="font-size:14px;color:var(--ink3)"> / ${SEED.jobs.length}</span></b><span>這個月有露出的職缺</span></div>`
+    +`<div class="k"><b>${SEED.jobs.length-jobsPosted.size}</b><span>整個月一次都沒發的職缺</span></div>`;
+}
+
+// 某一天要發某個職缺，該派誰？挑「這個月發最少」而且不違反規則的那一個。
+function bestAccFor(k, slug){
+  const mk = k.slice(0,7);
+  const cnt={}; SEED.accounts.forEach(a=>{cnt[a.label]=0});
+  EV.filter(e=>e.d.startsWith(mk)).forEach(e=>{ if(cnt[e.label]!==undefined) cnt[e.label]++; });
+  const d0=new Date(k);
+  return SEED.accounts.slice().sort((a,b)=>cnt[a.label]-cnt[b.label]).find(a=>{
+    if(evOn(k).some(e=>e.slug===slug && e.label===a.label)) return false;   // 硬規則：同人同天同缺
+    return !EV.some(e=>{                                                    // 軟規則：7 天內剛發過
+      if(e.slug!==slug||e.label!==a.label) return false;
+      return Math.abs((d0-new Date(e.d))/86400000)<=7;
+    });
+  }) || null;
+}
+
+// 這一天還沒排到的職缺。排序：這個月完全沒露出過的排最前面——
+// 顧問要補的優先順序就是這個，不是照字母。
+function paintSug(k){
+  const box=$('sugsec'); if(!box) return;
+  const mk=k.slice(0,7);
+  const onDay=new Set(evOn(k).map(e=>e.slug));
+  const monthCnt={}; SEED.jobs.forEach(j=>{monthCnt[j.slug]=0});
+  EV.filter(e=>e.d.startsWith(mk)).forEach(e=>{ if(monthCnt[e.slug]!==undefined) monthCnt[e.slug]++; });
+  const rest=SEED.jobs.filter(j=>!onDay.has(j.slug)).sort((a,b)=>monthCnt[a.slug]-monthCnt[b.slug]);
+  if(!rest.length){ box.innerHTML='<h4>這一天還沒排到的職缺</h4><p style="margin:0;color:var(--ink3);font-size:13.5px">全部職缺這一天都排到了。</p>'; return; }
+  const never=rest.filter(j=>!monthCnt[j.slug]).length;
+  box.innerHTML='<h4>這一天還沒排到的職缺（'+rest.length+'）</h4>'
+    + (never?'<p style="margin:-2px 0 8px;font-size:12.5px;color:var(--warn)">其中 <b>'+never+'</b> 個這個月一次都還沒發過，排在最前面。</p>':'')
+    + rest.slice(0,10).map(j=>{
+        const a=bestAccFor(k,j.slug), zero=!monthCnt[j.slug];
+        // 建議只是預選，不是決定——顧問常常有自己的理由（這個缺他熟、
+        // 那個帳號的受眾對）。所以給下拉讓他改，違反硬規則的那幾個
+        // 直接不能選，並在選項上寫清楚為什麼。
+        const opts = SEED.accounts.map(x=>{
+          const clash = evOn(k).some(e=>e.slug===j.slug && e.label===x.label);
+          const soon = !clash && EV.some(e=>{
+            if(e.slug!==j.slug||e.label!==x.label) return false;
+            return Math.abs((new Date(k)-new Date(e.d))/86400000)<=7;
+          });
+          const tag = clash ? '（今天已排過這個缺）' : (soon ? '（7 天內剛發過）' : (a&&x.label===a.label ? '（建議）' : ''));
+          return '<option value="'+x.id+'" data-l="'+esc(x.label)+'" data-p="'+x.platform+'"'
+               + (clash?' disabled':'') + (a&&x.label===a.label?' selected':'') + '>'
+               + esc(short(x.label))+' · '+(x.platform==='linkedin'?'LinkedIn':'Threads')+tag+'</option>';
+        }).join('');
+        return '<div class="ent">'
+          + '<span class="jb">'+(zero?'<b style="color:var(--warn)">◆</b> ':'')+esc(j.title)
+          + '<br><span style="font-size:11.5px;color:var(--ink3)">這個月發過 '+monthCnt[j.slug]+' 次</span>'
+          + '<div class="row" style="margin-top:6px">'
+          + '<select class="sugacc" data-s="'+esc(j.slug)+'" style="flex:1;min-width:170px">'+opts+'</select>'
+          + '<button class="btn sug" data-s="'+esc(j.slug)+'">排入</button></div>'
+          + '</span>'
+          + '</div>';
+      }).join('')
+    + (rest.length>10?'<p style="margin:8px 0 0;font-size:12.5px;color:var(--ink3)">還有 '+(rest.length-10)+' 個，用下面的「排一則新的」自己選。</p>':'');
+  [...box.querySelectorAll('.sug')].forEach(b=>{
+    b.onclick=()=>{
+      const sel=box.querySelector('.sugacc[data-s="'+b.dataset.s+'"]');
+      const o3=sel && sel.selectedOptions[0];
+      if(!o3||o3.disabled) return alert('這個帳號今天已經排過同一個職缺了，換一個人');
+      EV.push({d:k, slug:b.dataset.s, title:jobTitle(b.dataset.s), label:o3.dataset.l,
+               platform:o3.dataset.p, status:'planned', planned:true});
+      
+function loadCal(){
+  var mk = CUR.getFullYear() + '-' + String(CUR.getMonth()+1).padStart(2,'0');
+  return api('/admin/social/schedule?month=' + mk).then(function(d){
+    if(!d.ok){ $('ccal').innerHTML = '<p class="mut">讀取失敗</p>'; return; }
+    SEED = { accounts: d.accounts, jobs: d.jobs };
+    // 排好的（可以取消）跟已發的（不能動）放同一個陣列，重複檢查一次寫完。
+    EV = d.planned.map(function(p){
+          return {id:p.id, d:p.d, slug:p.job_slug, title:p.job_title, label:p.label,
+                  platform:p.platform, status:'planned', planned:true};
+        }).concat(d.actual.filter(function(a){return a.status!=='skipped'&&a.status!=='deleted'})
+        .map(function(a){
+          return {d:a.d, slug:a.job_slug, title:a.job_title, label:a.label,
+                  platform:a.platform, status:a.status, planned:false};
+        }));
+    renderCal();
+  });
+}
+loadCal(); openDay(k);
+    };
+  });
+}
+
+// ── 某一天的視窗 ──
+function openDay(k){
+  const list=evOn(k);
+  const rows = list.length ? list.map((e,i)=>`
+    <div class="ent">
+      <span class="who">${esc(short(e.label))}<br><span style="font-size:11px;color:var(--ink3)">${e.platform==='linkedin'?'LinkedIn':'Threads'}</span></span>
+      <span class="jb">${esc(jobTitle(e.slug))}${isDup(k,e)?' <b style="color:var(--bad)">⚠️ 同一個人重複發</b>':''}</span>
+      <span class="st ${e.planned?'pl':(e.status==='posted'?'ok':'')}">${e.planned?'已排程':(e.status==='posted'?'已發布':'草稿')}</span>
+      ${e.planned?`<button class="del" data-i="${EV.indexOf(e)}" title="移除">×</button>`:''}
+    </div>`).join('') : '<p class="mut" style="margin:0;color:var(--ink3);font-size:13.5px">這一天還沒有安排。</p>';
+
+  $('cmodal').innerHTML = `<div class="mask"><div class="modal">
+    <div class="mh"><b>${k}</b><span style="color:var(--ink3);font-size:13px">${['日','一','二','三','四','五','六'][new Date(k).getDay()]}</span><button class="x">×</button></div>
+    <div class="mb">
+      <div class="sec"><h4>這一天的安排（${list.length}）</h4>${rows}</div>
+      <div class="sec" id="sugsec"></div>
+      <div class="sec"><h4>排一則新的</h4>
+        <label>誰要發</label>
+        <select id="acc"><option value="">選帳號…</option>${SEED.accounts.map(a=>`<option value="${a.id}" data-p="${a.platform}" data-l="${esc(a.label)}">${esc(a.label)}</option>`).join('')}</select>
+        <label>發哪個職缺</label>
+        <select id="job"><option value="">選職缺…</option>${SEED.jobs.map(j=>`<option value="${j.slug}">${esc(j.title)}</option>`).join('')}</select>
+        <div id="chk"></div>
+        <div class="row"><button class="btn p" id="add">排入這一天</button></div>
+      </div>
+    </div></div></div>`;
+
+  paintSug(k);
+  const close=()=>{$('cmodal').innerHTML=''};
+  $('cmodal').querySelector('.x').onclick=close;
+  $('cmodal').querySelector('.mask').onclick=e=>{if(e.target.classList.contains('mask'))close()};
+  [...$('cmodal').querySelectorAll('.del')].forEach(b=>{
+    b.onclick=()=>{ EV.splice(Number(b.dataset.i),1); renderCal(); openDay(k); };
+  });
+  const check=()=>{
+    const a=$('acc'), j=$('job').value;
+    if(!a.value||!j){ $('chk').innerHTML=''; return; }
+    const label=a.selectedOptions[0].dataset.l;
+    const sameDaySameAcc = evOn(k).some(e=>e.slug===j && e.label===label);
+    const sameDayOther  = evOn(k).filter(e=>e.slug===j && e.label!==label);
+    // 7 天內發過同一個職缺（不分帳號）
+    // 只看「同一個顧問」7 天內有沒有發過。別人發過不影響我發——
+    // 那是不同的觀眾，不是同一條動態牆。
+    const d0=new Date(k); const recent = EV.filter(e=>{
+      if(e.slug!==j || e.label!==label) return false;
+      const dd=(d0-new Date(e.d))/86400000; return dd>0 && dd<=7;
+    });
+    let h='';
+    if(sameDaySameAcc) h+=`<div class="alert bad">🚫 <b>${esc(label)}</b> 這一天已經排過同一個職缺了，同一個人不能重複發。</div>`;
+    else {
+      // 不同顧問同一天發同一個職缺是正常的，只是講一聲讓他知道有人也在發，
+      // 不是警告。之前寫成警告，結果整個八月幾乎每天都在響。
+      if(sameDayOther.length) h+=`<div class="alert ok">✅ 可以排。<br><span style="opacity:.8">同一天 <b>${sameDayOther.map(e=>esc(short(e.label))).join('、')}</b> 也會發這個職缺——不同人發同一個缺沒問題。</span></div>`;
+      else h+=`<div class="alert ok">✅ 沒有衝突，可以排。</div>`;
+      if(recent.length) h+=`<div class="alert warn">📅 <b>${esc(label)}</b> 這邊看：這個職缺 7 天內剛發過（${recent.map(e=>e.d.slice(5)).join('、')}），間隔太近效果會遞減。</div>`;
+    }
+    $('chk').innerHTML=h;
+    $('add').disabled=sameDaySameAcc;
+    $('add').style.opacity=sameDaySameAcc?.45:1;
+  };
+  $('acc').onchange=check; $('job').onchange=check;
+  $('add').onclick=()=>{
+    const a=$('acc'), j=$('job').value;
+    if(!a.value||!j) return alert('帳號跟職缺都要選');
+    addSched(k, j, a.value, function(){ openDay(k); });
+  };
+}
+
+$('cprev').onclick=()=>{CUR=new Date(CUR.getFullYear(),CUR.getMonth()-1,1);renderCal()};
+$('cnext').onclick=()=>{CUR=new Date(CUR.getFullYear(),CUR.getMonth()+1,1);renderCal()};
+// ── 自動找一個空檔 ──
+// 規則（照重要性排）：
+//  ① 不能違反硬規則——同一個顧問、同一天、同一個職缺不能重複。
+//  ② 挑「這個月發最少」的帳號，讓四個人的量平均，不要都壓在同一個人身上。
+//  ③ 挑「那天排最少」的日子，不要一天塞十則、隔天空白。
+//  ④ 從明天開始找，不排到過去。
+function findSlot(slug, fromDate){
+  const start = fromDate || new Date(Math.max(Date.now(), new Date(TODAY).getTime()));
+  const monthKey = (d)=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+  // 帳號的量：這個月發了幾則
+  const cnt = {};
+  SEED.accounts.forEach(a=>{cnt[a.label]=0});
+  EV.filter(e=>e.d.startsWith(monthKey(CUR))).forEach(e=>{ if(cnt[e.label]!==undefined) cnt[e.label]++; });
+  const accs = SEED.accounts.slice().sort((a,b)=>cnt[a.label]-cnt[b.label]);
+
+  for(let i=1;i<=21;i++){
+    const d=new Date(start); d.setDate(d.getDate()+i);
+    const k=dayKey(d.getFullYear(),d.getMonth(),d.getDate());
+    const dayCount = evOn(k).length;
+    if(dayCount>=4) continue;                 // 一天最多 4 則，不要洗版
+    for(const a of accs){
+      // 硬規則：同一個顧問那天不能已經有這個職缺
+      if(evOn(k).some(e=>e.slug===slug && e.label===a.label)) continue;
+      // 軟規則：同一個顧問 7 天內剛發過同一個職缺就跳過，換人或換天
+      const tooSoon = EV.some(e=>{
+        if(e.slug!==slug||e.label!==a.label) return false;
+        const dd=Math.abs((d-new Date(e.d))/86400000); return dd<=7;
+      });
+      if(tooSoon) continue;
+      return {date:k, account:a};
+    }
+  }
+  return null;
+}
+
+function openMissing(){
+  const y=CUR.getFullYear(), m=String(CUR.getMonth()+1).padStart(2,'0');
+  const had=new Set(EV.filter(e=>e.d.startsWith(`${y}-${m}`)).map(e=>e.slug));
+  const miss=SEED.jobs.filter(j=>!had.has(j.slug));
+  $('cmodal').innerHTML=`<div class="mask"><div class="modal">
+    <div class="mh"><b>這個月一次都沒發的職缺</b><button class="x">×</button></div>
+    <div class="mb">
+      ${miss.length?`<div class="sec" style="display:flex;gap:9px;align-items:center;flex-wrap:wrap">
+        <span style="font-size:13.5px;color:var(--ink2)">一次把 ${miss.length} 個全部排進空檔</span>
+        <button class="btn p" id="allauto" style="margin-left:auto">全部自動排</button></div>`:''}
+      <div class="sec"><h4>${miss.length} 個</h4>
+      ${miss.length?miss.map(j=>`<div class="ent">
+          <span class="jb">${esc(j.title)}</span>
+          <button class="btn autoone" data-s="${esc(j.slug)}">自動排一則</button>
+        </div>`).join(''):'<p style="margin:0;color:var(--ink3)">全部都有發到 👍</p>'}
+      </div>
+      <p style="font-size:12.5px;color:var(--ink3);line-height:1.7;margin:0">
+        自動排的規則：從明天起找空檔 → 挑<b>這個月發最少</b>的帳號（讓四個人量平均）
+        → 挑<b>那天排最少</b>的日子（一天最多 4 則）→ 避開同一個人 7 天內剛發過的。<br>
+        排完還是可以點那一天自己調。
+      </p>
+    </div></div></div>`;
+  const close=()=>{$('cmodal').innerHTML=''};
+  $('cmodal').querySelector('.x').onclick=close;
+  $('cmodal').querySelector('.mask').onclick=e=>{if(e.target.classList.contains('mask'))close()};
+
+  const place=(slug)=>{
+    const slot=findSlot(slug);
+    if(!slot) return null;
+    // 樂觀更新：先畫上去，API 回來再以伺服器為準（loadCal 會重抓）
+    EV.push({d:slot.date, slug, title:jobTitle(slug), label:slot.account.label,
+             platform:slot.account.platform, status:'planned', planned:true});
+    api('/admin/social/schedule',{method:'POST',headers:{'content-type':'application/json'},
+      body:JSON.stringify({post_date:slot.date, job_slug:slug, account_id:slot.account.id})});
+    return slot;
+  };
+  [...$('cmodal').querySelectorAll('.autoone')].forEach(b=>{
+    b.onclick=()=>{
+      const slot=place(b.dataset.s);
+      if(!slot) return alert('三週內找不到合適的空檔，請自己挑一天排');
+      renderCal();
+      b.outerHTML=`<span class="st ok" style="flex:none">已排 ${slot.date.slice(5)} · ${esc(short(slot.account.label))}</span>`;
+    };
+  });
+  const aa=$('allauto');
+  if(aa)aa.onclick=()=>{
+    const done=[];
+    miss.forEach(j=>{ const slot=place(j.slug); if(slot) done.push(`${slot.date.slice(5)} ${short(slot.account.label)}｜${j.title}`); });
+    renderCal();
+    alert(`排好 ${done.length} 則：\n\n${done.join('\n')}\n\n可以關掉視窗看行事曆，或點任何一天調整。`);
+    openMissing();
+  };
+}
+$('ctips').onclick=openMissing;
+renderCal();
+
+
+// 排一則排程。硬規則由後端擋（資料庫有 UNIQUE），前端只負責把錯誤講清楚。
+function addSched(date, slug, accountId, after){
+  api('/admin/social/schedule',{method:'POST',headers:{'content-type':'application/json'},
+    body:JSON.stringify({post_date:date, job_slug:slug, account_id:Number(accountId)})})
+  .then(function(r){
+    if(!r.ok) return alert(r.error||'排程失敗');
+    loadCal().then(function(){ if(after) after(); });
+  }).catch(function(){ alert('連線失敗'); });
+}
+
+</script>
 </html>
