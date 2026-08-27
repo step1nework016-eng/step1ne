@@ -143,7 +143,6 @@ table.gap td.stale{color:#c0392b}
   <main class="wrap">
     <div id="maintabs" class="tabs" style="margin-bottom:16px">
       <button type="button" class="tab on" data-pane="pane-post">一鍵發文</button>
-      <button type="button" class="tab" data-pane="pane-gap">還沒發哪些</button>
       <button type="button" class="tab" data-pane="pane-cal">排程行事曆</button>
       <button type="button" class="tab" data-pane="pane-stats">發文數據</button>
       <button type="button" class="tab" data-pane="pane-board">成效儀表板</button>
@@ -182,7 +181,7 @@ table.gap td.stale{color:#c0392b}
         <b id="cmlabel" style="font-size:16px"></b>
         <button class="tab" id="cnext">下個月 →</button>
         <span style="margin-left:auto"></span>
-        <button class="tab" id="ctips" style="background:#a67c3d;color:#fff;border-color:#a67c3d">這個月哪些職缺沒排到？</button>
+        <button class="tab" id="ctips" style="background:#a67c3d;color:#fff;border-color:#a67c3d">還有哪些沒發？</button>
       </div>
       <div class="cal" id="ccal"></div>
       <div class="legend">
@@ -194,15 +193,11 @@ table.gap td.stale{color:#c0392b}
       <div id="cmodal"></div>
     </div>
 
-    <div id="pane-gap" hidden>
-      <div class="note">
-        一格＝一個職缺 × 一個帳號。<b>空白就是還沒發</b>，點空白格會直接幫你跳去
-        「一鍵發文」並選好職缺與帳號。<br>
-        只列還在招募的職缺；已結束招募的不列。
-      </div>
-      <div class="card"><div id="gapsum" class="mut">載入中…</div></div>
-      <div class="card"><div id="gapgrid" class="mut">載入中…</div></div>
-    </div>
+    <!-- 2026-08-27：「還沒發哪些」原本是獨立分頁，跟行事曆重複——行事曆已經
+         回答了「這個月哪些沒排到」。唯一不重複的是「每個帳號各差幾個」與
+         職缺×帳號的完整對照，所以整塊搬進行事曆那顆按鈕的彈窗裡。
+         這兩個容器留著給那個彈窗用，不再獨立顯示。 -->
+    <div id="pane-gap" hidden><div id="gapsum"></div><div id="gapgrid"></div></div>
 
     <div id="pane-stats" hidden>
       <div class="note">
@@ -392,11 +387,10 @@ function paintLine() {
 $('maintabs').addEventListener('click', function (e) {
   var b = e.target.closest('.tab'); if (!b) return;
   [].forEach.call($('maintabs').children, function (x) { x.classList.toggle('on', x === b); });
-  ['pane-post', 'pane-cal', 'pane-gap', 'pane-stats', 'pane-board'].forEach(function (id) {
+  ['pane-post', 'pane-cal', 'pane-stats', 'pane-board'].forEach(function (id) {
     $(id).hidden = (id !== b.dataset.pane);
   });
   if (b.dataset.pane === 'pane-cal') loadCal();
-  if (b.dataset.pane === 'pane-gap') loadGap();
   if (b.dataset.pane === 'pane-stats' || b.dataset.pane === 'pane-board') paintStats();
   if (b.dataset.pane === 'pane-board' && !LINE_INS) loadLine();
 });
@@ -946,8 +940,9 @@ function openMissing(){
   const had=new Set(EV.filter(e=>e.d.startsWith(`${y}-${m}`)).map(e=>e.slug));
   const miss=SEED.jobs.filter(j=>!had.has(j.slug));
   $('cmodal').innerHTML=`<div class="mask"><div class="modal">
-    <div class="mh"><b>這個月一次都沒發的職缺</b><button class="x">×</button></div>
+    <div class="mh"><b>還有哪些沒發</b><button class="x">×</button></div>
     <div class="mb">
+      <div class="sec"><h4>每個帳號還差幾個職缺沒發</h4><div id="cgapsum" class="mut">載入中…</div></div>
       ${miss.length?`<div class="sec" style="display:flex;gap:9px;align-items:center;flex-wrap:wrap">
         <span style="font-size:13.5px;color:var(--ink2)">一次把 ${miss.length} 個全部排進空檔</span>
         <button class="btn p" id="allauto" style="margin-left:auto">全部自動排</button></div>`:''}
@@ -963,6 +958,16 @@ function openMissing(){
         排完還是可以點那一天自己調。
       </p>
     </div></div></div>`;
+  // 「每個帳號各差幾個」是原本「還沒發哪些」那一頁唯一不跟行事曆重複的資訊，
+  // 把它搬進這個彈窗，那一頁就可以收掉了。
+  api('/admin/social/coverage').then(function(d){
+    var box=document.getElementById('cgapsum'); if(!box||!d.ok)return;
+    box.innerHTML='<div class="gapsum">'+d.gaps.map(function(g){
+      return '<div class="gs"><b>'+g.missing+'</b><span>'+esc(shortLabel(g.label))+'<br>'
+        +(g.platform==='linkedin'?'LinkedIn':'Threads')+' 還沒發</span></div>';
+    }).join('')+'</div>';
+  }).catch(function(){});
+
   const close=()=>{$('cmodal').innerHTML=''};
   $('cmodal').querySelector('.x').onclick=close;
   $('cmodal').querySelector('.mask').onclick=e=>{if(e.target.classList.contains('mask'))close()};
