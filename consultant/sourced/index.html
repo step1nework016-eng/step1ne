@@ -145,11 +145,11 @@ var LB={new:'待挑選',shortlisted:'已挑出',contacted:'已接觸',replied:'�
         rejected:'不合適',converted:'已轉應徵者',all:'全部'};
 // 招募分類的中文對照。原始值是 sourcing agent 寫進 recruitability_class 的英文常數，
 // 顧問看不懂也記不住，下拉一律顯示中文；資料庫的值不動。
-var LBRC={DIRECT_TARGET:'可直接接觸',
-          CONTACT_AFTER_CONFIRMATION:'待確認後接觸',
-          ADJACENT_TARGET:'相鄰領域',
-          REFERRAL_ONLY:'僅供轉介（不接觸本人）',
-          LONG_TERM_POOL:'長期人才池'};
+var LBRC={DIRECT_TARGET:'可以直接打',
+          CONTACT_AFTER_CONFIRMATION:'先問清楚再打',
+          ADJACENT_TARGET:'有點像但不完全',
+          REFERRAL_ONLY:'不要打，跟他要人',
+          LONG_TERM_POOL:'這次不用，之後再說'};
 
 function jobOpts(list,cur){
   return '<option value=""'+(cur?'':' selected')+'>所有職缺</option>'
