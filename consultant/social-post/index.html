@@ -65,6 +65,10 @@ table.gap td.no{padding:4px}
 .pick{font:inherit;font-size:14px;line-height:1;width:26px;height:26px;border-radius:8px;cursor:pointer;
   border:1px dashed #ddd3c0;background:#fff;color:#b9b2a5}
 .pick:hover{border-style:solid;border-color:#a67c3d;background:#f6efe2;color:#a67c3d}
+table.gap td.stale{color:#c0392b}
+.renote{font:inherit;font-size:15px;line-height:1;width:26px;height:26px;border-radius:8px;cursor:pointer;
+  border:1px solid transparent;background:none;color:inherit}
+.renote:hover{border-color:currentColor;background:#faf8f3}
 </style>
 
 <div id="gate" class="gate" hidden>
@@ -319,6 +323,9 @@ $('maintabs').addEventListener('click', function (e) {
 // 這一頁只回答一個問題：哪些格子是空的。不放成效、不放時間軸——
 // 那些在另外兩個分頁，混在一起就看不出重點了。
 var GAP = null;
+var STATE_LB = { blocked_compliance:'被禁刊過濾擋下', blocked:'被擋下', deleted:'已刪除',
+                 superseded:'被較新的一則取代', ready_manual:'等你手動貼到 LINE 社群',
+                 expired:'草稿過期，要重產', posting:'發布中', skipped:'決定不發' };
 // ⚠️ 這一頁沒有 esc()（其他後台頁有，我照別頁的寫法用了才發現）。
 // 職缺標題與帳號名稱都是內部資料，但還是要跳脫——標題裡出現一個引號
 // 就會把整張表的 HTML 打斷，而那種錯很難查。
@@ -366,15 +373,46 @@ function paintGap() {
     return '<tr><td class="jb">' + esc(r.title || r.slug) + '</td>'
       + r.cells.map(function (c, i) {
           if (c.state === 'posted') return '<td class="ok" title="' + esc(String(c.posted_at || '').slice(0, 16)) + ' 已發布">✓</td>';
-          if (c.state === 'drafted') return '<td class="dr" title="草稿已送審，等你在 Telegram 按確認">✎</td>';
-          if (c.state !== 'none') return '<td class="dr" title="' + esc(c.state) + '">·</td>';
+          if (c.state === 'drafted') {
+            // 草稿放太久，Telegram 那則早就被洗掉了，而且職缺內容可能已經改過
+            // （BIM 的薪資 8/27 改成面議，8/21 的草稿裡還寫著舊數字）。
+            // 點下去：新的就重推一則通知，舊的就退回重產。
+            var age = c.requested_at
+              ? Math.floor((Date.now() - Date.parse(String(c.requested_at).replace(' ', 'T') + '+08:00')) / 86400000)
+              : 0;
+            var old = age >= 3;
+            return '<td class="' + (old ? 'stale' : 'dr') + '">'
+              + '<button class="renote" data-q="' + c.queue_id + '" data-old="' + (old ? 1 : 0) + '"'
+              + ' title="' + (old ? age + ' 天前的草稿，點了會重新產一則新的' : '草稿等你確認，點了會重推一次 Telegram 通知')
+              + '">' + (old ? '↻' : '✎') + '</button></td>';
+          }
+          if (c.state !== 'none') return '<td class="dr" title="' + esc(STATE_LB[c.state] || c.state) + '">·</td>';
           return '<td class="no"><button class="pick" data-slug="' + esc(r.slug)
             + '" data-acc="' + accs[i].id + '" title="點一下去排這一則">＋</button></td>';
         }).join('') + '</tr>';
   }).join('');
   $('gapgrid').innerHTML = '<div class="gapwrap"><table class="gap">'
     + '<thead><tr><th class="jb">職缺</th>' + th + '</tr></thead><tbody>' + body + '</tbody></table></div>'
-    + '<p class="mut" style="margin:10px 0 0">✓ 已發布　✎ 草稿等你確認　＋ 還沒發（點了去排）</p>';
+    + '<p class="mut" style="margin:10px 0 0">'
+    + '✓ 已發布　✎ 草稿等你確認（點了重推 Telegram）　↻ 舊草稿，點了重產一則新的　'
+    + '＋ 還沒發（點了去排）　· 其他狀態（游標移上去看）</p>';
+
+  [].forEach.call($('gapgrid').querySelectorAll('.renote'), function (b) {
+    b.onclick = function () {
+      b.disabled = true; b.textContent = '…';
+      api('/admin/social/renotify', { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ id: Number(b.dataset.q) }) })
+      .then(function (r) {
+        b.disabled = false;
+        if (!r.ok) { b.textContent = '!'; alert(r.error || '失敗'); return; }
+        b.textContent = '✓';
+        alert(r.requeued
+          ? (r.reason + '。\n\n' + r.note)
+          : r.note);
+        GAP = null; loadGap();
+      }).catch(function () { b.disabled = false; b.textContent = '!'; alert('連線失敗'); });
+    };
+  });
 
   [].forEach.call($('gapgrid').querySelectorAll('.pick'), function (b) {
     b.onclick = function () {
