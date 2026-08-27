@@ -94,6 +94,9 @@ a.lk{color:var(--gold);text-decoration:none;font-size:12.5px;font-weight:600}
 .edi{width:100%;font:inherit;font-size:13.5px;padding:7px 11px;border:1px solid var(--line);
   border-radius:8px;background:#fff;color:var(--ink);resize:vertical}
 .edi:focus{outline:2px solid rgba(166,124,61,.35);outline-offset:1px;border-color:var(--gold)}
+.ntv{font-size:13.5px;line-height:1.8;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ink2)}
+#notesec{border-left:3px solid var(--gold)}
+#notesec h4{display:flex;align-items:center;gap:10px}
 .btn.on{background:var(--ink);color:#fff;border-color:var(--ink)}
 .btn.d{color:var(--bad);border-color:#f0d4cf}
 .btn .to{display:block;font-size:10.5px;font-weight:400;opacity:.62;margin-top:1px}
@@ -285,6 +288,21 @@ function dlFile(fid, el){
   }).catch(function(e){ el.textContent=t; alert(e.message||'下載失敗'); });
 }
 
+// 顧問備註。放在卡片最上面、預設就看得到——這是顧問自己寫給自己（跟同事）
+// 看的東西：打過電話講了什麼、對方什麼時候方便、要注意什麼。
+// 藏在「修正資料」的表單裡等於沒有，因為那要先按編輯才展開。
+function noteBlock(txt){
+  var t = String(txt || '').trim();
+  return '<div class="sec" id="notesec"><h4>顧問備註'
+    + '<button class="more" id="ntedit" type="button">' + (t ? '編輯 ✎' : '新增 ＋') + '</button></h4>'
+    + '<div id="ntview" class="ntv">' + (t ? esc(t) : '<span class="mut">還沒有備註。打過電話、聊過什麼、要注意什麼都寫這裡。</span>') + '</div>'
+    + '<div id="ntbox" hidden>'
+    + '<textarea class="edi" id="ntinput" rows="4" placeholder="例：8/27 電訪，願意談，但要先確認在台工作權。下週三前回覆。">' + esc(t) + '</textarea>'
+    + '<div class="acts"><button class="btn p" id="ntsave" type="button">儲存</button>'
+    + '<button class="btn" id="ntcancel" type="button">取消</button>'
+    + '<span class="mut" id="ntmsg"></span></div></div></div>';
+}
+
 function resumeBlock(s, linked){
   var rows='', has=false;
   if(s.resume_file_id){
@@ -326,7 +344,8 @@ function drawerHtml(d){
     // 可編輯欄位放最前面。爬回來的資料常常有錯或缺（公司名帶著括號註解、
     // 職稱是英文原文、電話要打完才知道），夾在中間顧問根本不知道有這功能。
     // ⚠️ return 後面不可以換行——JS 會自動補分號變成 return; 回傳 undefined。
-    return '<div class="sec" id="edsec"><h4>修正資料 <button class="more" id="edtog" type="button">編輯 ✎</button></h4>'
+    return noteBlock(s.note)
+      +'<div class="sec" id="edsec"><h4>修正資料 <button class="more" id="edtog" type="button">編輯 ✎</button></h4>'
       +'<div id="edbox" hidden>'
       +SRC_FIELDS.map(function(f){
           return '<label class="edl">'+f[1]+'</label>'
@@ -351,7 +370,6 @@ function drawerHtml(d){
       +'<div class="sec"><h4>履歷</h4>'+resumeBlock(s, d.linked)+'</div>'
       +(s.skills?'<div class="sec"><h4>技能</h4><div style="font-size:13.5px">'+esc(s.skills)+'</div></div>':'')
       +(s.bio?'<div class="sec"><h4>簡介</h4><div class="rpt" style="border:0;margin:0;padding:0">'+esc(s.bio)+'</div></div>':'')
-      +(s.note?'<div class="sec"><h4>備註</h4><div style="font-size:13.5px">'+esc(s.note)+'</div></div>':'')
       // ⚠️ 2026-08-27 補：這裡本來完全沒有動作按鈕。顧問在「我的案子」點開一位
       // 主動開發的人選，聯絡完之後沒有任何地方可以標「已接觸」——只能跑去
       // 「人才池」頁再找一次同一個人。而這一頁的整個用途就是一件一件掃過去。
@@ -420,6 +438,7 @@ function drawerHtml(d){
   if(a.resume_url)res='<a href="'+esc(a.resume_url)+'" target="_blank" rel="noopener">開啟履歷連結</a>';
   else if(a.resume_file_id)res='<a href="#" id="dlres" data-f="'+esc(a.resume_file_id)+'">下載履歷檔</a>';
 
+  h+=noteBlock(a.note);
   h+='<div class="sec" id="edsec"><h4>修正資料 <button class="more" id="edtog" type="button">編輯 ✎</button></h4>'
     +'<div id="edbox" hidden>'
     +APP_FIELDS.map(function(f){
@@ -565,6 +584,33 @@ function openCard(kind,id,name){
         .then(function(r){ if(!r.ok)return alert(r.error||'失敗'); openCard(kind,id,name); load(); });
       };
     });
+
+    // ── 顧問備註 ──
+    var ne=$('ntedit');
+    if(ne)ne.onclick=function(){
+      var box=$('ntbox'), v=$('ntview');
+      var open = box.hidden;
+      box.hidden = !open; v.hidden = open;
+      if(open){ var t=$('ntinput'); t.focus();
+        // 游標放到最後面，不要蓋掉既有內容——備註幾乎都是往下加一行
+        t.setSelectionRange(t.value.length, t.value.length); }
+    };
+    var nc=$('ntcancel');
+    if(nc)nc.onclick=function(){ $('ntbox').hidden=true; $('ntview').hidden=false; };
+    var ns=$('ntsave');
+    if(ns)ns.onclick=function(){
+      var val=$('ntinput').value;
+      var target = kind==='sourced' ? (d.sourced||{}) : (d.application||{});
+      if(!target.id){ $('ntmsg').textContent='這筆沒有可以存備註的對象'; return; }
+      ns.disabled=true; $('ntmsg').textContent='儲存中…';
+      var url = kind==='sourced' ? '/admin/sourced/update' : '/admin/application/update';
+      api(url,{method:'POST',headers:{'content-type':'application/json'},
+        body:JSON.stringify({id:target.id, note:val})})
+      .then(function(r){ ns.disabled=false;
+        if(!r.ok){ $('ntmsg').textContent=r.error||'儲存失敗'; return; }
+        openCard(kind,id,name);
+      }).catch(function(){ ns.disabled=false; $('ntmsg').textContent='連線失敗'; });
+    };
 
     // ── 編輯欄位 ──
     function toggleEdit(open){
