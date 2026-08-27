@@ -284,10 +284,73 @@ button:disabled{opacity:.45;cursor:not-allowed}
 <script>
 const API = 'https://step1ne-recruit-api.aiagentg888.workers.dev';
 const q = new URLSearchParams(location.search);
+// 顧問發出來的專屬邀請連結：/apply/?inv=<token>
+// 姓名、信箱、要應徵哪個職缺、履歷有沒有，全部由顧問先準備好，
+// 人選進來只剩測驗要填。每多要他做一件事就掉一批人，履歷又是最容易放棄的那一步。
+const INV = q.get('inv') || '';
+let INVITE = null;   // fetch 回來的邀請內容
 // 職缺從網址帶進來：/apply/?job=bim-engineer&title=BIM%20工程師
 const JOB = q.get('job') || '';
 const TITLE = q.get('title') || '';
 if (TITLE) document.title = `應徵 ${TITLE}｜Step1ne`;
+
+// 邀請連結：先把顧問準備好的資料抓回來，再讓下面的職缺選單套用。
+// ⚠️ 只在頁面最上方顯示一句「這是誰替你準備的」，不顯示任何內部判斷
+//    （分數、等第、評語）——那支端點也不回傳那些。
+if (INV) {
+  fetch(API + '/apply/invite/' + encodeURIComponent(INV))
+    .then(r => r.json())
+    .then(d => {
+      if (!d.ok) { showInviteErr(d.error || '這條連結已經失效，請聯繫你的顧問'); return; }
+      INVITE = d;
+      const f2 = document.getElementById('f');
+      if (d.name && !f2.name.value) f2.name.value = d.name;
+      if (d.email && !f2.email.value) f2.email.value = d.email;
+      const sel = document.getElementById('jobSel');
+      if (sel && sel.options.length > 1 && d.job_slug) { sel.value = d.job_slug; applyInvite(); }
+      prog();
+    })
+    .catch(() => showInviteErr('連結讀取失敗，請稍後再試或聯繫你的顧問'));
+}
+function showInviteErr(t) {
+  const box = document.createElement('div');
+  box.className = 'msg err';
+  box.style.margin = '0 0 16px';
+  box.textContent = t;
+  document.getElementById('f').prepend(box);
+}
+function applyInvite() {
+  if (!INVITE) return;
+  const f2 = document.getElementById('f');
+  const sel = document.getElementById('jobSel');
+  // 職缺是顧問指定的，鎖起來——人選改成別的缺，顧問準備的履歷與說法就對不上了。
+  if (sel && sel.value === INVITE.job_slug) {
+    sel.disabled = true;
+    const hid = document.createElement('input');
+    hid.type = 'hidden'; hid.name = 'job_slug'; hid.value = INVITE.job_slug;
+    sel.insertAdjacentElement('afterend', hid);
+  }
+  const banner = document.createElement('div');
+  banner.className = 'msg';
+  banner.style.cssText = 'margin:0 0 16px;background:#f6efe2;border:1px solid #e6dfd1;color:#5a4a2f';
+  banner.innerHTML = '這是顧問替你準備好的應徵連結——<b>' +
+    String(INVITE.job_title || '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])) +
+    '</b>' + (INVITE.has_resume ? '，履歷也已經幫你附上了。' : '。') +
+    '<br>確認一下基本資料，填完下一頁的測驗就能開始跟 AI 阿財面談。';
+  f2.prepend(banner);
+  // 顧問已經附好履歷的話，履歷欄位就不再是必填——這是整條流程最容易讓人
+  // 放棄的一步，能省就省。他想換一份新的還是可以自己傳。
+  if (INVITE.has_resume) {
+    const fi = f2.querySelector('input[name=resume]');
+    if (fi) {
+      const hint = document.createElement('p');
+      hint.className = 'hint';
+      hint.style.color = '#2f8f5b';
+      hint.textContent = '✅ 顧問已經幫你附上履歷了，不用重傳。要換一份新的才需要選檔。';
+      fi.insertAdjacentElement('afterend', hint);
+    }
+  }
+}
 
 // 進度條：填了幾成。看得到進度的表單完成率比較高。
 const f = document.getElementById('f');
@@ -331,7 +394,9 @@ Promise.all([
   // ⚠️ 這裡才能設值：選單的 <option> 是這個 fetch 回來才動態產生的，
   // 在這之前設 .value 會因為找不到對應 option 而silently 失敗。
   if (RETURN_FORM_DATA && RETURN_FORM_DATA.job_slug) sel.value = RETURN_FORM_DATA.job_slug;
+  else if (INVITE && INVITE.job_slug) sel.value = INVITE.job_slug;   // 顧問指定的，優先權比網址帶的高
   else if (JOB) sel.value = JOB;      // 從職缺頁進來時預選，但仍可改
+  if (INVITE) applyInvite();
 
   // 選了職缺就把重點攤開來。從廣告直接進來的人沒看過職缺頁，
   // 不給他地點與待遇就要他交出履歷，等於要他盲填。
@@ -402,6 +467,7 @@ async function buildBody() {
       fd.get('stay_need') || '',
     ].filter(Boolean).join('　｜　') || null,
     resume_url: fd.get('resume_url'),
+    invite_token: INV || null,
     note: fd.get('note'),
     // 六個平台各自一格，有填的才送——後端只要求至少一個
     social_links: (() => {
@@ -444,7 +510,9 @@ document.getElementById('toAssess').addEventListener('click', async () => {
   // 履歷是「上傳檔案」跟「貼連結」擇一即可，HTML required 表達不出這種或關係，只能自己判斷
   const hasFile = f.querySelector('input[name=resume]').files.length > 0;
   const hasUrl = f.querySelector('input[name=resume_url]').value.trim();
-  if (!hasFile && !hasUrl) {
+  // 顧問已經附好履歷的，不用再要一次
+  const hasInviteResume = !!(INVITE && INVITE.has_resume);
+  if (!hasFile && !hasUrl && !hasInviteResume) {
     msg.className = 'msg err';
     msg.textContent = '請上傳履歷檔案，或貼上雲端連結（擇一即可）';
     f.querySelector('input[name=resume]').scrollIntoView({ behavior: 'smooth', block: 'center' });

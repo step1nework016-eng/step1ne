@@ -351,6 +351,21 @@ function drawerHtml(d){
       // 主動開發的人選，聯絡完之後沒有任何地方可以標「已接觸」——只能跑去
       // 「人才池」頁再找一次同一個人。而這一頁的整個用途就是一件一件掃過去。
       // 按的是跟人才池同一支端點（/admin/sourced/status），同一筆資料。
+      // 產一條專屬連結給人選。他點進去，職缺跟履歷都已經在裡面，只剩測驗要填。
+      // 不叫他自己去官網投，是因為那樣他要重打基本資料、重傳履歷，
+      // 而且十之八九會投錯職缺（同名職缺不只一個）。每多一步就掉一批人。
+      +'<div class="sec"><h4>發應徵連結給他</h4>'
+      +(s.invite_token
+        ? '<dl class="kv">'
+          +kvRow('已產生','<span class="mut">'+esc(String(s.invite_at||'').slice(0,16))+'</span>')
+          +kvRow('職缺',esc(s.invite_job_slug||''))
+          +kvRow('連結','<span id="invurl" style="overflow-wrap:anywhere">https://step1ne.com/apply/?inv='+esc(s.invite_token)+'</span>')
+          +'</dl><div class="acts"><button class="btn p" id="invcopy" type="button">複製連結</button>'
+          +'<button class="btn" id="invnew" type="button">換一個職缺</button></div>'
+        : '<p class="mut" style="margin:0 0 9px">還沒產生。產生後把連結傳給他，他點進去只要填測驗就能跟阿財面談。</p>'
+          +'<div class="acts"><select id="invjob"><option value="">選一個職缺…</option></select>'
+          +'<button class="btn p" id="invgo" type="button">產生連結</button></div>')
+      +'</div>'
       +'<div class="sec"><h4>下一步</h4><div class="acts">'
       +SRC_ACTS.map(function(a){
           var on = (s.status===a.k);
@@ -613,6 +628,47 @@ function openCard(kind,id,name){
     Array.prototype.forEach.call($('dbody').querySelectorAll('.dlres2'),function(a){
       a.onclick=function(ev){ ev.preventDefault(); dlFile(a.dataset.f, a); };
     });
+
+    // ── 應徵連結 ──
+    var ij=$('invjob');
+    if(ij){
+      // 只列還開著的職缺——已結束招募的發出去，人選點進來會被擋，
+      // 那個體驗比沒收到連結還糟。
+      api('/admin/jobs').then(function(r){
+        if(!r.ok)return;
+        (r.jobs||[]).filter(function(j){return (j.status||'open')!=='closed' && j.status!=='client_draft' && j.status!=='pending_review'})
+          .forEach(function(j){
+            var o3=document.createElement('option');
+            o3.value=j.slug; o3.textContent=j.title||j.slug;
+            ij.appendChild(o3);
+          });
+      });
+    }
+    var ig=$('invgo');
+    if(ig)ig.onclick=function(){
+      if(!ij.value)return alert('先選一個職缺');
+      ig.disabled=true;
+      api('/admin/sourced/invite',{method:'POST',headers:{'content-type':'application/json'},
+        body:JSON.stringify({id:sid, job_slug:ij.value})})
+      .then(function(r){ ig.disabled=false;
+        if(!r.ok)return alert(r.error||'產生失敗');
+        openCard(kind,id,name);
+      }).catch(function(){ig.disabled=false;alert('連線失敗')});
+    };
+    var ic=$('invcopy');
+    if(ic)ic.onclick=function(){
+      navigator.clipboard.writeText($('invurl').textContent).then(function(){
+        ic.textContent='已複製'; setTimeout(function(){ic.textContent='複製連結'},1500);
+      });
+    };
+    var inw=$('invnew');
+    if(inw)inw.onclick=function(){
+      var slug=prompt('換成哪一個職缺？填職缺代碼（slug）：', (d.sourced||{}).invite_job_slug||'');
+      if(!slug)return;
+      api('/admin/sourced/invite',{method:'POST',headers:{'content-type':'application/json'},
+        body:JSON.stringify({id:sid, job_slug:slug.trim()})})
+      .then(function(r){ if(!r.ok)return alert(r.error||'失敗'); openCard(kind,id,name); });
+    };
 
     // ── 主動開發人選的狀態按鈕 ──
     Array.prototype.forEach.call($('dbody').querySelectorAll('.srcact'),function(b){
