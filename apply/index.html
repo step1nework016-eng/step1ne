@@ -91,6 +91,8 @@ button{width:100%;background:var(--ac);color:#fff;border:0;border-radius:10px;
 button:disabled{opacity:.45;cursor:not-allowed}
 .msg{margin-top:14px;padding:13px 15px;border-radius:10px;font-size:13.5px;display:none;line-height:1.6}
 .msg.err{display:block;background:#fdecea;border:1px solid #f3c2bc;color:#a5312a}
+.invite{display:block;margin:0 0 16px;padding:13px 15px;border-radius:10px;font-size:13.5px;line-height:1.7;
+  background:#f6efe2;border:1px solid #e6dfd1;color:#5a4a2f}
 .done{text-align:center;padding:40px 0}
 .done h2{font-size:20px;margin:0 0 10px}
 .done p{color:var(--tx2);font-size:14px;margin:0 0 8px}
@@ -331,8 +333,7 @@ function applyInvite() {
     sel.insertAdjacentElement('afterend', hid);
   }
   const banner = document.createElement('div');
-  banner.className = 'msg';
-  banner.style.cssText = 'margin:0 0 16px;background:#f6efe2;border:1px solid #e6dfd1;color:#5a4a2f';
+  banner.className = 'invite';
   banner.innerHTML = '這是顧問替你準備好的應徵連結——<b>' +
     String(INVITE.job_title || '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])) +
     '</b>' + (INVITE.has_resume ? '，履歷也已經幫你附上了。' : '。') +
