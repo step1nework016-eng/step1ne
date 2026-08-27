@@ -796,9 +796,14 @@ function paintSug(k){
       const sel=box.querySelector('.sugacc[data-s="'+b.dataset.s+'"]');
       const o3=sel && sel.selectedOptions[0];
       if(!o3||o3.disabled) return alert('這個帳號今天已經排過同一個職缺了，換一個人');
-      EV.push({d:k, slug:b.dataset.s, title:jobTitle(b.dataset.s), label:o3.dataset.l,
-               platform:o3.dataset.p, status:'planned', planned:true});
-      
+      addSched(k, b.dataset.s, o3.value, function(){ openDay(k); });
+    };
+  });
+}
+
+// 從後端載入這個月的排程與實際發文紀錄。
+// ⚠️ 每次切到這個分頁都重抓——顧問可能剛在別的分頁排了新的，
+// 或別人同時也在排，快取會讓兩邊看到不同的東西。
 function loadCal(){
   var mk = CUR.getFullYear() + '-' + String(CUR.getMonth()+1).padStart(2,'0');
   return api('/admin/social/schedule?month=' + mk).then(function(d){
@@ -814,10 +819,6 @@ function loadCal(){
                   platform:a.platform, status:a.status, planned:false};
         }));
     renderCal();
-  });
-}
-loadCal(); openDay(k);
-    };
   });
 }
 
@@ -979,7 +980,8 @@ function openMissing(){
   };
 }
 $('ctips').onclick=openMissing;
-renderCal();
+// 這裡不直接 renderCal()——分頁預設是隱藏的，而且資料要等 loadCal() 抓回來。
+// 切到「排程行事曆」那一刻才載入（見主分頁切換）。
 
 
 // 排一則排程。硬規則由後端擋（資料庫有 UNIQUE），前端只負責把錯誤講清楚。
