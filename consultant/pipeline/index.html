@@ -259,6 +259,58 @@ var STAGE_OPTS=[
   {key:'backup',lb:'備選'},
 ];
 
+// 履歷區塊。三個來源合在一起看：顧問上傳的檔、顧問記的連結（104／雲端）、
+// 以及他後來真的來應徵時自己傳的那一份。
+// 履歷檔存在 D1 裡、要帶權杖才拿得到，所以不能直接 <a href> ——
+// 權杖進網址會留在瀏覽器紀錄與 referer，而這是個資。
+function dlFile(fid, el){
+  var t=el.textContent; el.textContent='下載中…';
+  fetch(API+'/admin/file/'+encodeURIComponent(fid),{headers:{authorization:'Bearer '+tok}})
+  .then(function(rs){
+    if(!rs.ok)throw new Error(rs.status===404?'這個檔案不在系統裡（可能已被清掉）':'下載失敗');
+    var fn='resume', cd=rs.headers.get('content-disposition')||'';
+    var m=cd.match(/filename\*=UTF-8''([^;]+)/);
+    if(m)try{fn=decodeURIComponent(m[1])}catch(e){}
+    return rs.blob().then(function(bl){
+      var u=URL.createObjectURL(bl), a2=document.createElement('a');
+      a2.href=u; a2.download=fn; document.body.appendChild(a2); a2.click(); a2.remove();
+      setTimeout(function(){URL.revokeObjectURL(u)},2000);
+      el.textContent=t;
+    });
+  }).catch(function(e){ el.textContent=t; alert(e.message||'下載失敗'); });
+}
+
+function resumeBlock(s, linked){
+  var rows='', has=false;
+  if(s.resume_file_id){
+    has=true;
+    rows+=kvRow('顧問上傳','<a href="#" class="dlres2" data-f="'+esc(s.resume_file_id)+'">下載履歷檔</a>'
+      +(s.resume_at?'<span class="mut">　'+esc(String(s.resume_at).slice(0,10))+'</span>':''));
+  }
+  if(s.resume_url){
+    has=true;
+    var is104 = /104\./.test(s.resume_url);
+    rows+=kvRow(is104?'104 履歷':'履歷連結',
+      '<a href="'+esc(s.resume_url)+'" target="_blank" rel="noopener">開啟</a>'
+      +'<span class="mut">　連結可能會過期，建議另外存一份檔案</span>');
+  }
+  if(linked){
+    if(linked.resume_file_id){ has=true;
+      rows+=kvRow('本人應徵時傳的','<a href="#" class="dlres2" data-f="'+esc(linked.resume_file_id)+'">下載履歷檔</a>'); }
+    if(linked.resume_104_url){ has=true;
+      rows+=kvRow('104 履歷（本人提供）','<a href="'+esc(linked.resume_104_url)+'" target="_blank" rel="noopener">開啟</a>'); }
+    if(linked.resume_url){ has=true;
+      rows+=kvRow('履歷連結（本人提供）','<a href="'+esc(linked.resume_url)+'" target="_blank" rel="noopener">開啟</a>'); }
+  }
+  var up='<div class="acts" style="margin-top:'+(has?'10px':'0')+'">'
+    +'<button class="btn" id="upres" type="button">'+(has?'再上傳一份':'上傳履歷檔')+'</button>'
+    +'<button class="btn" id="upurl" type="button">貼 104／雲端連結</button>'
+    +'<input type="file" id="resfile" accept=".pdf,.doc,.docx" hidden></div>';
+  if(!has) return '<p class="mut" style="margin:0">還沒有履歷。顧問先拿到的話可以直接傳上來——'
+    + '之後他跟阿財面談時，阿財看得到的就是這一份。</p>'+up;
+  return '<dl class="kv">'+rows+'</dl>'+up;
+}
+
 function drawerHtml(d){
   if(d.kind==='sourced'){
     var s=d.sourced||{};
@@ -285,9 +337,13 @@ function drawerHtml(d){
       +kvRow('Email',s.email?'<a href="mailto:'+esc(s.email)+'">'+esc(s.email)+'</a>':'<span class="mut">沒有 email，只能從來源頁聯絡</span>')
       +kvRow('現職',esc(s.headline||''))+kvRow('公司',esc(s.company||''))
       +kvRow('地點',esc(s.location||''))+kvRow('來源',esc(s.source||''))
-      +kvRow('連結',links.join('　'))
+      +kvRow('可用管道',links.join('　'))
       +kvRow('負責顧問',esc(s.owner_name||s.owner||''))
       +'</dl></div>'
+      // 履歷。以檔案為主、連結為輔——104 與雲端連結會過期，檔案不會。
+      // 顧問先拿到履歷、對方還不是應徵者時，這裡就是它的落腳處；等他真的
+      // 來跟阿財面談，阿財看得到的也是這一份。
+      +'<div class="sec"><h4>履歷</h4>'+resumeBlock(s, d.linked)+'</div>'
       +(s.skills?'<div class="sec"><h4>技能</h4><div style="font-size:13.5px">'+esc(s.skills)+'</div></div>':'')
       +(s.bio?'<div class="sec"><h4>簡介</h4><div class="rpt" style="border:0;margin:0;padding:0">'+esc(s.bio)+'</div></div>':'')
       +(s.note?'<div class="sec"><h4>備註</h4><div style="font-size:13.5px">'+esc(s.note)+'</div></div>':'')
@@ -304,6 +360,18 @@ function drawerHtml(d){
         }).join('')
       +'</div><p class="mut" style="margin:8px 0 0">目前狀態：<b>'+esc(SRC_LB[s.status]||s.status||'')+'</b>'
       +(s.contacted_at?'　（'+esc(String(s.contacted_at).slice(0,16))+' 接觸）':'')+'</p></div>'
+      // 他後來變成應徵者了嗎。有的話直接顯示面談狀態與報告連結，
+      // 不用為了看同一個人的報告再跳去初篩報告頁找一次。
+      +(d.linked
+        ? '<div class="sec"><h4>已轉應徵者</h4><dl class="kv">'
+          +kvRow('應徵職缺',esc(d.linked.job_title||d.linked.job_slug||''))
+          +kvRow('面談狀態',esc({done:'已完成',paused:'暫停（可回來續談）',not_started:'還沒開始',
+                                 in_progress:'進行中'}[d.linked.interview_state]||d.linked.interview_state||''))
+          +kvRow('初篩報告',d.linked.report_id
+            ? '<a href="/consultant/reports/?id='+encodeURIComponent(d.linked.report_id)+'">看報告</a>'
+            : '<span class="mut">還沒有</span>')
+          +'</dl></div>'
+        : '')
       +'<p class="mut">這是主動開發爬回來的公開資料，不是應徵者——他還沒投履歷、也還沒同意個資利用。'
       +'公開檔案沒有電話這一欄，要電話得等對方回覆再問。</p>';
   }
@@ -508,6 +576,43 @@ function openCard(kind,id,name){
         openCard(kind,id,body.name||name); load();
       }).catch(function(){ sv.disabled=false; $('edmsg').textContent='連線失敗'; });
     };
+
+    // ── 履歷：上傳檔案 / 貼連結 / 下載 ──
+    var sid = (d.sourced||{}).id;
+    var fi=$('resfile'), ub=$('upres');
+    if(ub && fi){
+      ub.onclick=function(){ fi.click(); };
+      fi.onchange=function(){
+        var f=fi.files && fi.files[0]; if(!f)return;
+        // 5MB 以上先擋——D1 是切塊存的，太大的檔上傳會很慢而且常常中途失敗，
+        // 與其讓顧問等三分鐘再看到錯誤，不如當場說清楚。
+        if(f.size > 5*1024*1024) return alert('檔案超過 5MB，請先壓縮或改存連結');
+        ub.disabled=true; ub.textContent='上傳中…';
+        var rd=new FileReader();
+        rd.onload=function(){
+          var b64=String(rd.result).split(',')[1];
+          api('/admin/sourced/resume',{method:'POST',headers:{'content-type':'application/json'},
+            body:JSON.stringify({id:sid, pdf_b64:b64, filename:f.name, mime:f.type||'application/pdf'})})
+          .then(function(r){ ub.disabled=false;
+            if(!r.ok){ub.textContent='上傳履歷檔';return alert(r.error||'上傳失敗')}
+            openCard(kind,id,name);
+          }).catch(function(){ub.disabled=false;ub.textContent='上傳履歷檔';alert('連線失敗')});
+        };
+        rd.readAsDataURL(f);
+      };
+    }
+    var uu=$('upurl');
+    if(uu)uu.onclick=function(){
+      var cur=(d.sourced||{}).resume_url||'';
+      var v=prompt('貼上 104 履歷或雲端履歷的網址：\n（連結會過期，有檔案的話還是建議上傳檔案）', cur);
+      if(v===null)return;
+      api('/admin/sourced/resume',{method:'POST',headers:{'content-type':'application/json'},
+        body:JSON.stringify({id:sid, resume_url:v.trim()})})
+      .then(function(r){ if(!r.ok)return alert(r.error||'失敗'); openCard(kind,id,name); });
+    };
+    Array.prototype.forEach.call($('dbody').querySelectorAll('.dlres2'),function(a){
+      a.onclick=function(ev){ ev.preventDefault(); dlFile(a.dataset.f, a); };
+    });
 
     // ── 主動開發人選的狀態按鈕 ──
     Array.prototype.forEach.call($('dbody').querySelectorAll('.srcact'),function(b){
