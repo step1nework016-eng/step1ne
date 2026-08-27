@@ -72,25 +72,35 @@ table.gap td.stale{color:#c0392b}
 
 /* 這一頁本來沒有 .kpi/.k（那是別頁的樣式），不補的話四個數字會變成
    四行純文字，完全看不出是指標卡。 */
-#ckpi{display:grid;gap:9px;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));margin-bottom:14px}
-#ckpi .k{background:#fff;border:1px solid #eee7db;border-radius:11px;padding:11px 13px}
-#ckpi .k b{display:block;font-size:22px;font-variant-numeric:tabular-nums;line-height:1.25}
+#ckpi{display:grid;gap:7px;grid-template-columns:repeat(4,1fr);margin-bottom:12px}
+@media(max-width:560px){#ckpi{grid-template-columns:repeat(2,1fr)}}
+#ckpi .k{background:#fff;border:1px solid #eee7db;border-radius:9px;padding:8px 10px}
+#ckpi .k b{display:block;font-size:18px;font-variant-numeric:tabular-nums;line-height:1.25}
 #ckpi .k span{font-size:11.5px;color:#8a8d95;display:block;margin-top:2px;line-height:1.45}
 /* ── 排程行事曆 ── */
-.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
-.dow{font-size:11.5px;color:#8a8d95;text-align:center;font-weight:700;padding:4px 0;letter-spacing:.06em}
-.day{background:#fff;border:1px solid #eee7db;border-radius:10px;min-height:96px;padding:6px 7px;
-  cursor:pointer;display:flex;flex-direction:column;gap:3px}
+/* 密一點。第一版每格 96px 高、字 10.5px，七欄擺在 640px 的版面裡整片
+   撐得很開，跟後台其他頁的密度差太多——顧問要的是一眼掃完一個月。 */
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.dow{font-size:10.5px;color:#8a8d95;text-align:center;font-weight:700;padding:2px 0;letter-spacing:.04em}
+.day{background:#fff;border:1px solid #eee7db;border-radius:7px;min-height:58px;padding:3px 4px;
+  cursor:pointer;display:flex;flex-direction:column;gap:1px;overflow:hidden}
 .day:hover{border-color:#a67c3d}
-.day.pad{background:transparent;border:0;cursor:default}
+.day.pad{background:transparent;border:0;cursor:default;min-height:0}
 .day.today{border-color:#a67c3d;box-shadow:0 0 0 2px rgba(166,124,61,.16)}
-.day .dn{font-size:12px;color:#8a8d95;font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:5px}
+.day .dn{font-size:10.5px;color:#8a8d95;font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:3px;line-height:1.3}
 .day.dup{border-color:#c0392b}.day.dup .dn{color:#c0392b;font-weight:700}
-.chip{font-size:10.5px;line-height:1.45;border-radius:5px;padding:2px 5px;background:#faf8f3;color:#4d5563;
+.chip{font-size:9px;line-height:1.35;border-radius:3px;padding:1px 3px;background:#faf8f3;color:#4d5563;
   border-left:2px solid #a67c3d;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .chip.th{border-left-color:#5a7d9a}.chip.li{border-left-color:#2f6ea8}
 .chip.dupc{background:#fdecea;color:#c0392b;border-left-color:#c0392b}
-.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:#8a8d95;margin-top:12px}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11.5px;color:#8a8d95;margin-top:10px}
+.more{font-size:9px;color:#8a8d95;line-height:1.3}
+/* 手機：一格只放數字＋幾則，chip 收起來——七欄擠在手機上放不下文字 */
+@media(max-width:560px){
+  .day{min-height:46px}
+  .day .chip,.day .more{display:none}
+  .day .dn{font-size:11px}
+}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
 .mask{position:fixed;inset:0;background:rgba(20,22,26,.5);z-index:60;display:flex;align-items:center;justify-content:center;padding:20px}
 .modal{background:#f4f1ea;border-radius:16px;width:min(560px,100%);max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.22)}
@@ -715,13 +725,13 @@ function renderCal(){
   for(let i=0;i<first;i++) h+='<div class="day pad"></div>';
   for(let d=1;d<=days;d++){
     const k=dayKey(y,m,d), list=evOn(k), dups=dupKeys(k);
-    const chips = list.slice(0,3).map(e=>{
+    const chips = list.slice(0,2).map(e=>{
       const bad = dups.includes(e.slug+'|'+e.label);
-      return `<div class="chip ${e.platform==='linkedin'?'li':'th'}${bad?' dupc':''}" title="${esc(short(e.label))}｜${esc(jobTitle(e.slug))}">${esc(short(e.label))}·${esc(jobTitle(e.slug)).slice(0,7)}</div>`;
+      return `<div class="chip ${e.platform==='linkedin'?'li':'th'}${bad?' dupc':''}" title="${esc(short(e.label))}｜${esc(jobTitle(e.slug))}">${esc(short(e.label)).slice(0,6)}·${esc(jobTitle(e.slug)).slice(0,5)}</div>`;
     }).join('');
     h += `<div class="day${dups.length?' dup':''}${k===TODAY?' today':''}" data-k="${k}">
       <div class="dn">${d}${dups.length?' ⚠️':''}${list.length?`<span style="margin-left:auto">${list.length}</span>`:''}</div>
-      ${chips}${list.length>3?`<div class="more">還有 ${list.length-3} 則…</div>`:''}</div>`;
+      ${chips}${list.length>2?`<div class="more">+${list.length-2}</div>`:''}</div>`;
   }
   $('ccal').innerHTML=h;
   [...$('ccal').querySelectorAll('.day[data-k]')].forEach(el=>{
