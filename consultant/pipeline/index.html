@@ -240,15 +240,20 @@ var SRC_TAB={new:'要我接觸',shortlisted:'要我接觸',replied:'要我接觸
 // 後兩個各自有專屬端點（婉拒必填原因、指派要驗顧問存在）。
 var SRC_FIELDS=[
   ['name','姓名'],['headline','現職職稱'],['company','公司'],['location','地點'],
-  ['email','Email'],['linkedin_url','LinkedIn'],['skills','技能'],
-  ['note','備註（電話、聯絡結果、顧問補充都寫這裡）','area'],
+  ['email','Email'],
+  ['linkedin_url','LinkedIn'],['github_url','GitHub'],['source_url','來源頁'],
+  // 固定欄位永遠不夠用——Cake、104、個人網站、作品集、部落格都可能出現。
+  // 一行一個網址，前面可以加標籤（「個人網站：https://…」），沒加的話
+  // 系統會從網域自己認（cake.me → Cake 履歷）。
+  ['other_links','其他管道（一行一個網址，例：Cake、104、個人網站、作品集）','area'],
+  ['skills','技能'],
 ];
 // 應徵者開放的欄位比人才池窄——這是本人自己填的，顧問只該修正明顯的輸入錯誤，
 // 不是重寫他的申請。期望待遇與可到職有開放，因為電訪之後常有更新。
 var APP_FIELDS=[
   ['name','姓名'],['email','Email'],['phone','電話'],
   ['expected_salary','期望待遇'],['available_date','可到職'],['location_ok','地點'],
-  ['resume_url','履歷連結'],['note','備註','area'],
+  ['resume_url','履歷連結'],
 ];
 var SRC_REASONS=['地點不行','資歷差太多','職類根本不對','找不到聯絡方式','已有工作或沒意願','其他'];
 // 跟「初篩報告」頁同一組動作、同一支端點——這頁按了等於在那頁按過了，
@@ -291,6 +296,23 @@ function dlFile(fid, el){
 // 顧問備註。放在卡片最上面、預設就看得到——這是顧問自己寫給自己（跟同事）
 // 看的東西：打過電話講了什麼、對方什麼時候方便、要注意什麼。
 // 藏在「修正資料」的表單裡等於沒有，因為那要先按編輯才展開。
+// 管道連結。沒給標籤就從網域認一個看得懂的名字——顧問要的是
+// 「這是他的 Cake」而不是一長串網址。
+var CH_HOSTS=[
+  [/cake\.me/i,'Cake 履歷'],[/104\./i,'104'],[/1111\./i,'1111'],[/yourator/i,'Yourator'],
+  [/linkedin\./i,'LinkedIn'],[/github\./i,'GitHub'],[/facebook\.|fb\.com/i,'Facebook'],
+  [/instagram\./i,'Instagram'],[/threads\./i,'Threads'],[/medium\.|hackmd|ithome/i,'技術文章'],
+  [/behance|dribbble/i,'作品集'],[/youtube\.|youtu\.be/i,'YouTube'],
+];
+function chLink(url, label){
+  var lb=label;
+  if(!lb){
+    for(var i=0;i<CH_HOSTS.length;i++){ if(CH_HOSTS[i][0].test(url)){ lb=CH_HOSTS[i][1]; break; } }
+    if(!lb){ try{ lb=new URL(url).hostname.replace(/^www\./,''); }catch(e){ lb='連結'; } }
+  }
+  return '<a href="'+esc(url)+'" target="_blank" rel="noopener">'+esc(lb)+'</a>';
+}
+
 function noteBlock(txt){
   var t = String(txt || '').trim();
   return '<div class="sec" id="notesec"><h4>顧問備註'
@@ -338,9 +360,18 @@ function drawerHtml(d){
   if(d.kind==='sourced'){
     var s=d.sourced||{};
     var links=[];
-    if(s.linkedin_url)links.push('<a href="'+esc(s.linkedin_url)+'" target="_blank" rel="noopener">LinkedIn</a>');
-    if(s.github_url)links.push('<a href="'+esc(s.github_url)+'" target="_blank" rel="noopener">GitHub</a>');
-    if(s.source_url)links.push('<a href="'+esc(s.source_url)+'" target="_blank" rel="noopener">來源頁</a>');
+    if(s.linkedin_url)links.push(chLink(s.linkedin_url,'LinkedIn'));
+    if(s.github_url)links.push(chLink(s.github_url,'GitHub'));
+    if(s.source_url)links.push(chLink(s.source_url,'來源頁'));
+    // 自由欄位：一行一個。可以只貼網址（自動認名稱），也可以「標籤：網址」。
+    String(s.other_links||'').split('\n').forEach(function(ln){
+      ln=ln.trim(); if(!ln)return;
+      var i=ln.search(/https?:\/\//);
+      if(i<0)return;                                  // 沒有網址的那行跳過
+      var url=ln.slice(i).trim();
+      var lb=ln.slice(0,i).replace(/[：:\-–—\s]+$/,'').trim();
+      links.push(chLink(url, lb));
+    });
     // 可編輯欄位放最前面。爬回來的資料常常有錯或缺（公司名帶著括號註解、
     // 職稱是英文原文、電話要打完才知道），夾在中間顧問根本不知道有這功能。
     // ⚠️ return 後面不可以換行——JS 會自動補分號變成 return; 回傳 undefined。
