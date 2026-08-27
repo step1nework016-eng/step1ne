@@ -340,7 +340,10 @@ function shortLabel(l) {
   return String(l || '').split(/[-–—]/)[0].trim();
 }
 function loadGap() {
-  if (GAP) return paintGap();
+  // ⚠️ 不要快取。原本抓過一次就不再抓，導致頁面開著的時候上架了新職缺，
+  // 這張表不會多出那一列——而顧問正是為了「還有什麼沒發」才看這頁，
+  // 少一列就等於漏掉一個缺。查詢很輕，每次切過來就重抓。
+  if (!GAP) $('gapgrid').textContent = '載入中…';
   api('/admin/social/coverage').then(function (d) {
     if (!d.ok) { $('gapgrid').textContent = '讀取失敗'; return; }
     GAP = d; paintGap();
