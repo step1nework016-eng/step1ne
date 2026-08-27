@@ -663,8 +663,7 @@ function boot() {
   $('tok').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('enter').click(); });
 }
 boot();
-</script>
-<script defer src="/consultant/_shell.js">
+
 
 // ── 發文排程行事曆 ──
 // 8 月實測有 16 組「同一個顧問、同一天、同一個職缺發兩次以上」，8/21 的 BIM
@@ -994,5 +993,8 @@ function addSched(date, slug, accountId, after){
   }).catch(function(){ alert('連線失敗'); });
 }
 
+
+</script>
+<script defer src="/consultant/_shell.js">
 </script>
 </html>
