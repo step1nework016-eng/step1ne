@@ -143,12 +143,26 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){
   return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 var LB={new:'待挑選',shortlisted:'已挑出',contacted:'已接觸',replied:'有回覆',
         rejected:'不合適',converted:'已轉應徵者',all:'全部'};
+// 招募分類的中文對照。原始值是 sourcing agent 寫進 recruitability_class 的英文常數，
+// 顧問看不懂也記不住，下拉一律顯示中文；資料庫的值不動。
+var LBRC={DIRECT_TARGET:'可直接接觸',
+          CONTACT_AFTER_CONFIRMATION:'待確認後接觸',
+          ADJACENT_TARGET:'相鄰領域',
+          REFERRAL_ONLY:'僅供轉介（不接觸本人）',
+          LONG_TERM_POOL:'長期人才池'};
 
 function jobOpts(list,cur){
   return '<option value=""'+(cur?'':' selected')+'>所有職缺</option>'
     + (list||[]).map(function(j){
         return '<option value="'+esc(j.slug)+'"'+(cur===j.slug?' selected':'')+'>'
           +esc(j.title||j.slug)+'（'+j.n+'）</option>';
+      }).join('');
+}
+function rcOpts(list,cur){
+  return '<option value=""'+(cur?'':' selected')+'>所有招募分類</option>'
+    + (list||[]).map(function(c){
+        return '<option value="'+esc(c.k)+'"'+(cur===c.k?' selected':'')+'>'
+          +esc(LBRC[c.k]||c.k)+'（'+c.n+'）</option>';
       }).join('');
 }
 function gradeOpts(list,cur){
@@ -170,7 +184,7 @@ function render(d){
   // 分類是用他自己的職稱／技能判斷；完全沒寫的人用「當初為哪個職缺撈的」回推，
   // 那種卡片上會標「推測」——因為那是我們在找什麼，不是他會什麼。
   $('jobs').innerHTML = jobOpts(d.jobs||[], JOB);
-  $('rcs2').innerHTML = opts(d.rcs||[], RC, '所有招募分類');
+  $('rcs2').innerHTML = rcOpts(d.rcs||[], RC);
   $('grades').innerHTML = gradeOpts(d.grades||[], GRD);
   $('cats').innerHTML = opts(d.cats||[], CAT, '所有職類');
   $('srcs').innerHTML = opts(d.srcs||[], SRC, '所有來源');
@@ -205,10 +219,12 @@ function render(d){
     var catTag = r.category
       ? '<span class="sc">'+esc(r.category)
         +(r.cat_src==='searched'?'<span class="gs">推測</span>':'')+'</span>' : '';
+    var rcTag = r.recruitability_class
+      ? '<span class="sc">'+esc(LBRC[r.recruitability_class]||r.recruitability_class)+'</span>' : '';
     return '<div class="c'+(SEL[r.id]?' sel':'')+'" data-id="'+esc(r.id)+'">'
       +'<input type="checkbox" class="pick" data-id="'+esc(r.id)+'"'+(SEL[r.id]?' checked':'')+' aria-label="選取">'
       +'<div class="top"><span class="nm">'+esc(r.name||'（無姓名）')+'</span>'
-      +'<span class="hl">'+esc(r.headline||'')+'</span>'+catTag+'</div>'
+      +'<span class="hl">'+esc(r.headline||'')+'</span>'+catTag+rcTag+'</div>'
       +'<div class="meta">'+[esc(r.company),esc(r.location),esc(r.source)].filter(Boolean).join('　·　')
       +(links.length?'　·　'+links.join('　'):'')+'</div>'
       +(r.skills?'<div class="sk">'+esc(r.skills)+'</div>':'')
