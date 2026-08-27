@@ -47,6 +47,18 @@ a.lk{color:var(--gold);text-decoration:none;font-size:12.5px}
 .sbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
 .sbar input[type=search]{flex:1 1 220px;min-width:180px;font:inherit;font-size:14px;padding:9px 15px;border:1px solid var(--line);border-radius:999px;background:#fff}
 .sbar select{font:inherit;font-size:13.5px;padding:9px 30px 9px 14px;border:1px solid var(--line);border-radius:999px;background:#fff url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238a8d95' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 13px center;appearance:none;color:var(--ink);cursor:pointer;max-width:190px}
+/* 2026-08-27 篩選區改版：原本六個控制項平起平坐、選了值標籤就消失，
+   看到「AI獵頭顧問專員（99）」根本不知道那是「來源」。
+   改成「標籤＋選單」的膠囊，並依邏輯分兩層：先選範圍（哪個缺），再篩人。 */
+.f{display:inline-flex;align-items:center;background:#fff;border:1px solid var(--line);border-radius:999px;padding-left:13px}
+.f>b{font-size:12px;font-weight:500;color:var(--ink2);white-space:nowrap;letter-spacing:.02em}
+.f select{border:0;background-color:transparent;padding:8px 28px 8px 7px;max-width:200px;border-radius:999px}
+.f.wide select{max-width:290px}
+.f.on{border-color:var(--gold);background:#fffdf7}
+.f.on>b{color:var(--gold)}
+.f.on select{background-color:transparent}
+.fsep{width:1px;height:24px;background:var(--line);margin:0 4px;flex:0 0 auto}
+.fhint{font-size:12px;color:var(--ink2);align-self:center}
 .sbar .ck{display:flex;align-items:center;gap:6px;font-size:13.5px;color:var(--ink2);background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 15px;cursor:pointer}
 .sbar .ck input{margin:0;accent-color:var(--gold)}
 .pager{display:flex;gap:8px;justify-content:center;margin-top:14px}
@@ -96,13 +108,17 @@ a.lk{color:var(--gold);text-decoration:none;font-size:12.5px}
     <div class="tabs" id="tabs"></div>
     <div class="sbar">
       <input id="q" type="search" placeholder="搜尋姓名、職稱、公司、技能…" autocomplete="off">
-      <select id="jobs" aria-label="職缺"></select>
-      <select id="rcs2" aria-label="招募分類"></select>
-      <select id="grades" aria-label="等第"></select>
-      <select id="cats" aria-label="職類"></select>
-      <select id="srcs" aria-label="來源"></select>
+      <span class="f wide" id="f-job"><b>職缺</b><select id="jobs" aria-label="職缺"></select></span>
+    </div>
+    <div class="sbar">
+      <span class="f" id="f-rc"><b>要怎麼處理</b><select id="rcs2" aria-label="招募分類"></select></span>
+      <span class="f" id="f-grade"><b>等第</b><select id="grades" aria-label="等第"></select></span>
       <label class="ck"><input type="checkbox" id="hasmail"> 有 email</label>
+      <span class="fsep"></span>
+      <span class="f" id="f-cat"><b>職類</b><select id="cats" aria-label="職類"></select></span>
+      <span class="f" id="f-src"><b>來源</b><select id="srcs" aria-label="來源"></select></span>
       <button class="btn" id="clr">清除</button>
+      <span class="fhint" id="fhint"></span>
     </div>
     <div id="cnt" class="mut" style="margin-bottom:8px"></div>
     <!-- 批次指派。池子 3,500 人、一頁 60 筆，一個一個下拉指派是不可能的事。 -->
@@ -189,6 +205,13 @@ function render(d){
   $('cats').innerHTML = opts(d.cats||[], CAT, '所有職類');
   $('srcs').innerHTML = opts(d.srcs||[], SRC, '所有來源');
   $('hasmail').checked = HAS==='email';
+  // 有值的篩選器上金色，一眼看得出現在被什麼條件框住
+  [['f-job',JOB],['f-rc',RC],['f-grade',GRD],['f-cat',CAT],['f-src',SRC]].forEach(function(x){
+    var el=$(x[0]); if(el) el.className = 'f'+(x[0]==='f-job'?' wide':'')+(x[1]?' on':'');
+  });
+  var nOn=[JOB,RC,GRD,CAT,SRC,Q,HAS].filter(Boolean).length;
+  $('clr').disabled = !nOn;
+  $('fhint').textContent = nOn ? ('套用了 '+nOn+' 個條件') : '';
   var tot=d.total||0, size=d.size||60, pg=d.page||0;
   $('cnt').textContent = tot ? ('符合 '+tot+' 位，顯示第 '+(pg*size+1)+'–'+Math.min(tot,(pg+1)*size)+' 位') : '';
   var pages=Math.ceil(tot/size);
