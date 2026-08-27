@@ -240,7 +240,7 @@ var SRC_TAB={new:'要我接觸',shortlisted:'要我接觸',replied:'要我接觸
 // 後兩個各自有專屬端點（婉拒必填原因、指派要驗顧問存在）。
 var SRC_FIELDS=[
   ['name','姓名'],['headline','現職職稱'],['company','公司'],['location','地點'],
-  ['email','Email'],
+  ['email','Email'],['phone','電話'],
   ['linkedin_url','LinkedIn'],['github_url','GitHub'],['source_url','來源頁'],
   // 固定欄位永遠不夠用——Cake、104、個人網站、作品集、部落格都可能出現。
   // 一行一個網址，前面可以加標籤（「個人網站：https://…」），沒加的話
@@ -390,6 +390,9 @@ function drawerHtml(d){
       +'</div></div>'
       +'<div class="sec"><h4>聯絡與來源</h4><dl class="kv">'
       +kvRow('Email',s.email?'<a href="mailto:'+esc(s.email)+'">'+esc(s.email)+'</a>':'<span class="mut">沒有 email，只能從來源頁聯絡</span>')
+      // 爬回來的公開資料不會有電話，是顧問打完或對方回信之後才補上的。
+      // 之前只能寫進備註，那樣搜尋不到、也不能點擊撥號。
+      +kvRow('電話',s.phone?'<a href="tel:'+esc(s.phone)+'">'+esc(s.phone)+'</a>':'<span class="mut">還沒有（打完電話記得補上來）</span>')
       +kvRow('現職',esc(s.headline||''))+kvRow('公司',esc(s.company||''))
       +kvRow('地點',esc(s.location||''))+kvRow('來源',esc(s.source||''))
       +kvRow('可用管道',links.join('　'))

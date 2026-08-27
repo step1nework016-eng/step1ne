@@ -260,6 +260,7 @@ function render(d){
       +(r.email
         ? '<a class="lk" href="mailto:'+esc(r.email)+'">'+esc(r.email)+'</a>'
         : '<span class="nomail">沒有 email，只能從上面的來源連結聯絡</span>')
+      +(r.phone?'<a class="lk" href="tel:'+esc(r.phone)+'">'+esc(r.phone)+'</a>':'')
       // 顯示 owner_name（顧問看得懂的名字），不是 owner（系統代號 phoebe/jacky）
       // 個別指派：直接在卡片上換人，不用先勾選再走批次
       +'<span data-ow="'+esc(r.id)+'">'+ownerOpts(r.owner||'')+'</span>'
