@@ -70,6 +70,12 @@ table.gap td.stale{color:#c0392b}
   border:1px solid transparent;background:none;color:inherit}
 .renote:hover{border-color:currentColor;background:#faf8f3}
 
+/* 這一頁本來沒有 .kpi/.k（那是別頁的樣式），不補的話四個數字會變成
+   四行純文字，完全看不出是指標卡。 */
+#ckpi{display:grid;gap:9px;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));margin-bottom:14px}
+#ckpi .k{background:#fff;border:1px solid #eee7db;border-radius:11px;padding:11px 13px}
+#ckpi .k b{display:block;font-size:22px;font-variant-numeric:tabular-nums;line-height:1.25}
+#ckpi .k span{font-size:11.5px;color:#8a8d95;display:block;margin-top:2px;line-height:1.45}
 /* ── 排程行事曆 ── */
 .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
 .dow{font-size:11.5px;color:#8a8d95;text-align:center;font-weight:700;padding:4px 0;letter-spacing:.06em}
