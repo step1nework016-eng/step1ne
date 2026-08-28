@@ -683,6 +683,7 @@ boot();
 //    不同顧問同一天發同一個職缺是正常操作（多個帳號一起推），不擋也不警告。
 var SEED = { accounts: [], jobs: [] };
 var EV = [];
+var RECENT_IV = {};   // {job_slug: 14天內面談人數}
 var CUR = new Date();
 CUR = new Date(CUR.getFullYear(), CUR.getMonth(), 1);
 var TODAY = new Date(Date.now() + 8*3600*1000).toISOString().slice(0,10);
@@ -761,52 +762,81 @@ function bestAccFor(k, slug){
   }) || null;
 }
 
-// 這一天還沒排到的職缺。排序：這個月完全沒露出過的排最前面——
-// 顧問要補的優先順序就是這個，不是照字母。
+// 「先選顧問，再看他今天發了什麼、還沒發什麼」——顧問打開行事曆是為了
+// 檢查自己今天的量，不是為了幫全部人排班。之前的版本反過來，先列職缺、
+// 每個職缺自己選要派給誰，顧問要從 27 個職缺裡面大海撈針找自己的名字。
+const SUGACC_KEY='s1ne_cal_sugacc';
+
 function paintSug(k){
   const box=$('sugsec'); if(!box) return;
+  const cur = localStorage.getItem(SUGACC_KEY) || '';
+  const accOpts = SEED.accounts.map(x=>
+    '<option value="'+x.id+'"'+(String(x.id)===cur?' selected':'')+'>'
+    + esc(short(x.label))+' · '+(x.platform==='linkedin'?'LinkedIn':'Threads')+'</option>').join('');
+  box.innerHTML = '<h4>選顧問，看他今天發了什麼</h4>'
+    + '<select id="sugAcc"><option value="">選顧問（帳號）…</option>'+accOpts+'</select>'
+    + '<div id="sugBody" style="margin-top:11px"></div>';
+  const sel=$('sugAcc');
+  sel.onchange=()=>{ localStorage.setItem(SUGACC_KEY, sel.value); renderSugBody(k); };
+  if(cur && SEED.accounts.some(x=>String(x.id)===cur)) renderSugBody(k);
+  else $('sugBody').innerHTML='<p class="mut" style="margin:0;color:var(--ink3);font-size:13.5px">先選上面的顧問，才知道他今天發了什麼、還缺什麼。</p>';
+}
+
+function renderSugBody(k){
+  const body=$('sugBody'); if(!body) return;
+  const sel=$('sugAcc'); const accId=sel.value;
+  if(!accId){ body.innerHTML='<p class="mut" style="margin:0;color:var(--ink3);font-size:13.5px">先選上面的顧問，才知道他今天發了什麼、還缺什麼。</p>'; return; }
+  const acc=SEED.accounts.find(x=>String(x.id)===accId);
+  if(!acc){ body.innerHTML=''; return; }
   const mk=k.slice(0,7);
-  const onDay=new Set(evOn(k).map(e=>e.slug));
+  const mine = evOn(k).filter(e=>e.label===acc.label && e.platform===acc.platform);
+  const doneSlugs = new Set(mine.map(e=>e.slug));
   const monthCnt={}; SEED.jobs.forEach(j=>{monthCnt[j.slug]=0});
   EV.filter(e=>e.d.startsWith(mk)).forEach(e=>{ if(monthCnt[e.slug]!==undefined) monthCnt[e.slug]++; });
-  const rest=SEED.jobs.filter(j=>!onDay.has(j.slug)).sort((a,b)=>monthCnt[a.slug]-monthCnt[b.slug]);
-  if(!rest.length){ box.innerHTML='<h4>這一天還沒排到的職缺</h4><p style="margin:0;color:var(--ink3);font-size:13.5px">全部職缺這一天都排到了。</p>'; return; }
-  const never=rest.filter(j=>!monthCnt[j.slug]).length;
-  box.innerHTML='<h4>這一天還沒排到的職缺（'+rest.length+'）</h4>'
-    + (never?'<p style="margin:-2px 0 8px;font-size:12.5px;color:var(--warn)">其中 <b>'+never+'</b> 個這個月一次都還沒發過，排在最前面。</p>':'')
-    + rest.slice(0,10).map(j=>{
-        const a=bestAccFor(k,j.slug), zero=!monthCnt[j.slug];
-        // 建議只是預選，不是決定——顧問常常有自己的理由（這個缺他熟、
-        // 那個帳號的受眾對）。所以給下拉讓他改，違反硬規則的那幾個
-        // 直接不能選，並在選項上寫清楚為什麼。
-        const opts = SEED.accounts.map(x=>{
-          const clash = evOn(k).some(e=>e.slug===j.slug && e.label===x.label);
-          const soon = !clash && EV.some(e=>{
-            if(e.slug!==j.slug||e.label!==x.label) return false;
+  // 排序：近期有人選面談的排最前面（面談人數多的更前面），
+  // 沒有面談活動的才照「這個月發過幾次」排——冷門缺硬推也接不住人，
+  // 有人正在談，才是「現在發文有機會接住他」的訊號。
+  const todo = SEED.jobs.filter(j=>!doneSlugs.has(j.slug)).sort((a,b)=>{
+    const ia=RECENT_IV[a.slug]||0, ib=RECENT_IV[b.slug]||0;
+    if(ia!==ib) return ib-ia;
+    return monthCnt[a.slug]-monthCnt[b.slug];
+  });
+  const hot = todo.filter(j=>RECENT_IV[j.slug]).length;
+  const never = todo.filter(j=>!monthCnt[j.slug]).length;
+
+  let h = '<div style="font-size:12.5px;color:var(--ink3);font-weight:600;margin-bottom:6px">今天已發（'+mine.length+'）</div>';
+  h += mine.length
+    ? mine.map(e=>'<div class="ent" style="padding:6px 0"><span class="jb">'+esc(jobTitle(e.slug))+'</span>'
+        +'<span class="st '+(e.planned?'pl':(e.status==='posted'?'ok':''))+'">'+(e.planned?'已排程':(e.status==='posted'?'已發布':'草稿'))+'</span></div>').join('')
+    : '<p class="mut" style="margin:0 0 4px;font-size:13px">今天還沒發任何一個。</p>';
+
+  h += '<div style="font-size:12.5px;color:var(--ink3);font-weight:600;margin:14px 0 6px">還沒發（'+todo.length+'）</div>';
+  if(!todo.length){
+    h += '<p class="mut" style="margin:0;font-size:13px">全部職缺今天都幫他排過了。</p>';
+  } else {
+    h += (hot?'<p style="margin:-2px 0 8px;font-size:12.5px;color:var(--ok)">🔥 <b>'+hot+'</b> 個這 14 天內有人選在跟阿財面談，排最前面——現在發文接得住他。</p>':'')
+      + (never?'<p style="margin:-2px 0 8px;font-size:12.5px;color:var(--warn)">其中 <b>'+never+'</b> 個這個月他一次都還沒發過。</p>':'')
+      + todo.slice(0,12).map(j=>{
+          const zero=!monthCnt[j.slug];
+          const iv=RECENT_IV[j.slug]||0;
+          const soon = EV.some(e=>{
+            if(e.slug!==j.slug||e.label!==acc.label||e.platform!==acc.platform) return false;
             return Math.abs((new Date(k)-new Date(e.d))/86400000)<=7;
           });
-          const tag = clash ? '（今天已排過這個缺）' : (soon ? '（7 天內剛發過）' : (a&&x.label===a.label ? '（建議）' : ''));
-          return '<option value="'+x.id+'" data-l="'+esc(x.label)+'" data-p="'+x.platform+'"'
-               + (clash?' disabled':'') + (a&&x.label===a.label?' selected':'') + '>'
-               + esc(short(x.label))+' · '+(x.platform==='linkedin'?'LinkedIn':'Threads')+tag+'</option>';
-        }).join('');
-        return '<div class="ent">'
-          + '<span class="jb">'+(zero?'<b style="color:var(--warn)">◆</b> ':'')+esc(j.title)
-          + '<br><span style="font-size:11.5px;color:var(--ink3)">這個月發過 '+monthCnt[j.slug]+' 次</span>'
-          + '<div class="row" style="margin-top:6px">'
-          + '<select class="sugacc" data-s="'+esc(j.slug)+'" style="flex:1;min-width:170px">'+opts+'</select>'
-          + '<button class="btn sug" data-s="'+esc(j.slug)+'">排入</button></div>'
-          + '</span>'
-          + '</div>';
-      }).join('')
-    + (rest.length>10?'<p style="margin:8px 0 0;font-size:12.5px;color:var(--ink3)">還有 '+(rest.length-10)+' 個，用下面的「排一則新的」自己選。</p>':'');
-  [...box.querySelectorAll('.sug')].forEach(b=>{
-    b.onclick=()=>{
-      const sel=box.querySelector('.sugacc[data-s="'+b.dataset.s+'"]');
-      const o3=sel && sel.selectedOptions[0];
-      if(!o3||o3.disabled) return alert('這個帳號今天已經排過同一個職缺了，換一個人');
-      addSched(k, b.dataset.s, o3.value, function(){ openDay(k); });
-    };
+          return '<div class="ent">'
+            + '<span class="jb">'+(iv?'<b style="color:var(--ok)">🔥</b> ':(zero?'<b style="color:var(--warn)">◆</b> ':''))+esc(j.title)
+            + '<br><span style="font-size:11.5px;color:'+(iv?'var(--ok)':'var(--ink3)')+'">'
+            + (iv?'這 14 天有 '+iv+' 位人選在跟阿財面談・':'')
+            + '他這個月發過 '+monthCnt[j.slug]+' 次'
+            + (soon?'<span style="color:var(--warn)">・7 天內剛發過，間隔偏近</span>':'')+'</span></span>'
+            + '<button class="btn sug" data-s="'+esc(j.slug)+'" style="flex:none">補發</button>'
+            + '</div>';
+        }).join('')
+      + (todo.length>12?'<p style="margin:8px 0 0;font-size:12.5px;color:var(--ink3)">還有 '+(todo.length-12)+' 個，用下面的「排一則新的」自己選。</p>':'');
+  }
+  body.innerHTML=h;
+  [...body.querySelectorAll('.sug')].forEach(b=>{
+    b.onclick=()=>{ addSched(k, b.dataset.s, acc.id, function(){ openDay(k); }); };
   });
 }
 
@@ -818,6 +848,10 @@ function loadCal(){
   return api('/admin/social/schedule?month=' + mk).then(function(d){
     if(!d.ok){ $('ccal').innerHTML = '<p class="mut">讀取失敗</p>'; return; }
     SEED = { accounts: d.accounts, jobs: d.jobs };
+    // 近期（14 天內）有人選在跟阿財面談的職缺——這是「現在該推誰」的訊號，
+    // 比「這個月發過幾次」準：發過 0 次的缺，有可能就是本來就冷、硬推也沒用；
+    // 有人選正在談，才是「現在發文有機會接住他」的職缺。
+    RECENT_IV = d.recentInterviews || {};
     // 排好的（可以取消）跟已發的（不能動）放同一個陣列，重複檢查一次寫完。
     EV = d.planned.map(function(p){
           return {id:p.id, d:p.d, slug:p.job_slug, title:p.job_title, label:p.label,
