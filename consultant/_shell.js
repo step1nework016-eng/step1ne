@@ -47,7 +47,7 @@
     // 2026-08-26 加：為了某個職缺接觸了誰（學校系所、人選、介紹人）。
     // 跟「開發客戶」方向相反——那邊是把人選推銷給企業，這邊是找人選的管道。
     { href: '/consultant/outreach/',       label: '接觸紀錄', icon: 'target', primary: false, group: '招募流程' },
-    { href: '/consultant/jobs/',           label: '職缺分類', icon: 'funnel', primary: true,  group: '招募流程' },
+    { href: '/consultant/jobs/',           label: '招募職缺', icon: 'funnel', primary: true,  group: '招募流程' },
     { href: '/consultant/reports/',        label: '初篩報告', icon: 'doc',    primary: true,  group: '招募流程' },
     // 2026-08-21 加：顧問補填「這個人我會不會推」。原本只有報告推到 TG 當下
     //  那三個按鈕能按，訊息被蓋掉就沒第二次機會——25 份報告只有 1 位被回填。

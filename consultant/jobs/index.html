@@ -3,7 +3,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>職缺分類｜顧問後台</title>
+<title>招募職缺｜顧問後台</title>
 <link rel="icon" href="/assets/favicon.ico">
 <style>
 :root{--gold:#a67c3d;--ink:#23262d;--ink2:#4d5563;--ink3:#8a8d95;--line:#eee7db;--soft:#faf8f3;--bg:#f4f1ea;--ok:#2f8f5b;--bad:#c0392b}
@@ -157,8 +157,8 @@ td.fn.clk:hover{background:#fdf6e9}
 
 <div id="app" hidden>
   <header><div class="wrap">
-    <img src="/assets/step1ne-logo.png" alt="Step1ne"><b>職缺分類</b>
-    <nav><a href="/consultant/overview/">總覽</a><a href="/consultant/reports/">初篩報告</a><a href="/consultant/jobs/" class="on">職缺分類</a><a href="/consultant/expertise/">職缺題庫</a><a href="/consultant/job-intake/">＋ 新增職缺</a><a href="/consultant/job-draft/">改擬稿</a>　<a href="/consultant/bd/">開發客戶</a>　</nav>
+    <img src="/assets/step1ne-logo.png" alt="Step1ne"><b>招募職缺</b>
+    <nav><a href="/consultant/overview/">總覽</a><a href="/consultant/reports/">初篩報告</a><a href="/consultant/jobs/" class="on">招募職缺</a><a href="/consultant/expertise/">職缺題庫</a><a href="/consultant/job-intake/">＋ 新增職缺</a><a href="/consultant/job-draft/">改擬稿</a>　<a href="/consultant/bd/">開發客戶</a>　</nav>
   </div></header>
   <main class="wrap">
     <div class="note">
@@ -296,6 +296,9 @@ function paint(jobs) {
         + '<span>' + j.slug
         + (j.status === 'closed' ? '　·　已關閉' : '') + '</span>'
         + '<div class="btns">'
+        + '<button type="button" class="jd-btn" data-slug="' + j.slug + '" '
+        + 'style="font-size:11px;background:#fff;border:1px solid #a67c3d;border-radius:6px;padding:3px 8px;cursor:pointer;color:#a67c3d;font-weight:600;">'
+        + '📄 查看／編輯 JD</button>'
         + '<button type="button" class="socpost-btn" data-slug="' + j.slug + '" '
         + 'style="font-size:11px;background:#fff;border:1px solid #eee7db;border-radius:6px;padding:3px 8px;cursor:pointer;color:#4d5563;">'
         + '📱 產生社群貼文</button>'
@@ -544,6 +547,183 @@ document.addEventListener('click', function (e) {
       });
     };
   });
+});
+
+// ── 查看／編輯 JD 彈窗 ──────────────────────────────────────────
+// 職缺一發布之後，JD 對外文案在這之前完全沒有任何編輯管道——要改字只能
+// 直接改網站的靜態檔案。這裡是那個管道：存檔直接生效（本機背景腳本
+// 最多 15 分鐘內重新產生頁面並自動上線），交給 AI 重擬則一定要人看過
+// 確認才會套用，不會自動上線。
+var JD_FIELDS = [
+  ['title',       '職缺名稱',       'line'],
+  ['subtitle',    '副標',           'line'],
+  ['locations',   '工作地點',       'list'],
+  ['salary_min',  '薪資下限',       'line'],
+  ['salary_max',  '薪資上限',       'line'],
+  ['intro',       '職缺介紹',       'text'],
+  ['duties',      '工作內容',       'list'],
+  ['must',        '必要條件',       'list'],
+  ['plus',        '加分條件',       'list'],
+  ['why',         '為什麼值得看',   'list'],
+  ['benefits',    '福利',           'list'],
+  ['card_desc',   '職缺卡描述',     'text'],
+  ['description', 'SEO 描述',       'text'],
+];
+var JD_STYLE_INJECTED = false;
+function jdInjectStyle() {
+  if (JD_STYLE_INJECTED) return; JD_STYLE_INJECTED = true;
+  var css = '#jdwrap{padding:16px 18px}'
+    + '#jdwrap .jdtabs{display:flex;gap:8px;margin-bottom:14px}'
+    + '#jdwrap .jdtab{font:inherit;font-size:13px;font-weight:600;padding:7px 15px;border-radius:999px;'
+      + 'border:1px solid #eee7db;background:#fff;color:#4d5563;cursor:pointer}'
+    + '#jdwrap .jdtab.on{background:#23262d;color:#fff;border-color:#23262d}'
+    + '#jdwrap .jdrow{display:grid;grid-template-columns:110px 1fr;gap:4px 14px;padding:9px 0;border-bottom:1px solid #f0ece4;font-size:13.5px}'
+    + '#jdwrap .jdrow .k{color:#8a8d95;font-size:12.5px;font-weight:600;padding-top:1px}'
+    + '#jdwrap .jdrow .v{white-space:pre-wrap;word-break:break-word}'
+    + '#jdwrap .jdrow .v:empty::before{content:"—";color:#c9c4b8}'
+    + '#jdwrap label{display:block;font-size:12.5px;font-weight:700;color:#4a4d55;margin:14px 0 6px}'
+    + '#jdwrap label:first-child{margin-top:0}'
+    + '#jdwrap input,#jdwrap textarea{width:100%;font:inherit;font-size:14px;border:1px solid #e0d9cb;'
+      + 'border-radius:9px;padding:9px 11px;background:#fff;color:#23262d}'
+    + '#jdwrap textarea{min-height:64px;resize:vertical;line-height:1.6}'
+    + '#jdwrap .jdhint{font-size:12px;color:#8a8d95;margin:12px 0 8px;line-height:1.7}'
+    + '#jdwrap .jdflag{background:#fdf6e9;border:1px solid #e8d5ab;border-radius:10px;padding:10px 13px;'
+      + 'font-size:12.5px;color:#7a5a22;margin-bottom:14px;line-height:1.7}'
+    + '#jdwrap .jdflag.bad{background:#fdecea;border-color:#f3cdc7;color:#c0392b}'
+    + '#jdwrap .jdbtn{font:inherit;font-size:13.5px;font-weight:700;border-radius:10px;padding:10px 16px;'
+      + 'cursor:pointer;border:0;background:#a67c3d;color:#fff;margin-top:14px}'
+    + '#jdwrap .jdbtn.alt{background:#fff;color:#23262d;border:1px solid #d9d2c4}'
+    + '#jdwrap .jdmsg{font-size:12.5px;margin-top:8px}'
+    + '#jdwrap .jdmsg.err{color:#c0392b}'
+    + '#jdwrap .jdmsg.ok{color:#2f8f5b}'
+    + '#jdwrap .jdai{border-top:1px solid #eee7db;margin-top:20px;padding-top:16px}';
+  var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
+}
+
+function jdListVal(v) { return Array.isArray(v) ? v.join('\n') : String(v || ''); }
+function jdListParse(s) { s = String(s || '').trim(); return s ? s.split('\n').map(function (x) { return x.trim(); }).filter(Boolean) : []; }
+
+var JD_CUR = null;   // { slug, spec, orig: {} }
+
+function jdViewHtml(spec) {
+  return JD_FIELDS.map(function (f) {
+    var v = f[2] === 'list' ? (Array.isArray(spec[f[0]]) ? spec[f[0]].join('、') : (spec[f[0]] || '')) : (spec[f[0]] || '');
+    return '<div class="jdrow"><div class="k">' + esc(f[1]) + '</div><div class="v">' + esc(v) + '</div></div>';
+  }).join('');
+}
+
+function jdEditHtml(spec) {
+  return JD_FIELDS.map(function (f) {
+    var v = f[2] === 'list' ? jdListVal(spec[f[0]]) : String(spec[f[0]] || '');
+    var el = (f[2] === 'line')
+      ? '<input id="jdf_' + f[0] + '" type="text" value="' + esc(v) + '">'
+      : '<textarea id="jdf_' + f[0] + '"' + (f[2] === 'list' ? ' style="min-height:96px"' : '') + '>' + esc(v) + '</textarea>';
+    return '<label for="jdf_' + f[0] + '">' + esc(f[1]) + (f[2] === 'list' ? '（一行一項）' : '') + '</label>' + el;
+  }).join('')
+    + '<button type="button" class="jdbtn" id="jdSave">存檔（直接生效，最多 15 分鐘內上線）</button>'
+    + '<div class="jdmsg" id="jdSaveMsg"></div>'
+    + '<div class="jdai">'
+    + '<label for="jdAiNote">或者，交給 AI 重擬——寫一句話說要改什麼</label>'
+    + '<textarea id="jdAiNote" placeholder="例：「薪資那段拿掉，改寫成面議」「工作內容第 2 條語氣太硬，改軟一點」"></textarea>'
+    + '<button type="button" class="jdbtn alt" id="jdAiGo">交給 AI 重擬</button>'
+    + '<p class="jdhint">重擬結果一定要有人看過、確認沒問題才會套用上線，不會自動生效。</p>'
+    + '<div class="jdmsg" id="jdAiMsg"></div>'
+    + '</div>';
+}
+
+function jdRenderTab(tab) {
+  var wrap = document.getElementById('jdwrap'); if (!wrap) return;
+  Array.prototype.forEach.call(wrap.querySelectorAll('.jdtab'), function (b) {
+    b.classList.toggle('on', b.dataset.tab === tab);
+  });
+  var body = document.getElementById('jdTabBody');
+  body.innerHTML = tab === 'view' ? jdViewHtml(JD_CUR.spec) : jdEditHtml(JD_CUR.spec);
+  if (tab === 'edit') jdWireEdit();
+}
+
+function jdWireEdit() {
+  var save = document.getElementById('jdSave');
+  save.onclick = function () {
+    var fields = {}, changed = 0;
+    JD_FIELDS.forEach(function (f) {
+      var el = document.getElementById('jdf_' + f[0]); if (!el) return;
+      var val = f[2] === 'list' ? jdListParse(el.value) : el.value;
+      var cur = JD_CUR.spec[f[0]];
+      var same = f[2] === 'list'
+        ? JSON.stringify(cur || []) === JSON.stringify(val)
+        : String(cur || '') === String(val);
+      if (same) return;
+      fields[f[0]] = val; changed++;
+    });
+    var msg = document.getElementById('jdSaveMsg');
+    if (!changed) { msg.className = 'jdmsg err'; msg.textContent = '沒有改到東西'; return; }
+    save.disabled = true; msg.className = 'jdmsg'; msg.textContent = '儲存中…';
+    api('/admin/jobs/' + encodeURIComponent(JD_CUR.slug) + '/content', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ fields: fields }),
+    }).then(function (d) {
+      save.disabled = false;
+      if (!d.ok) { msg.className = 'jdmsg err'; msg.textContent = d.error || '儲存失敗'; return; }
+      msg.className = 'jdmsg ok'; msg.textContent = '已存檔，最多 15 分鐘內會重新產生頁面並自動上線。';
+      Object.assign(JD_CUR.spec, fields);
+      toast('JD 已存檔，稍後自動上線');
+    }).catch(function () { save.disabled = false; msg.className = 'jdmsg err'; msg.textContent = '連不上伺服器'; });
+  };
+  var ai = document.getElementById('jdAiGo');
+  ai.onclick = function () {
+    var note = document.getElementById('jdAiNote').value.trim();
+    var msg = document.getElementById('jdAiMsg');
+    if (!note) { msg.className = 'jdmsg err'; msg.textContent = '請先寫一句話說要改什麼'; return; }
+    ai.disabled = true; msg.className = 'jdmsg'; msg.textContent = '送出中…';
+    api('/admin/jobs/' + encodeURIComponent(JD_CUR.slug) + '/ai-request', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ note: note }),
+    }).then(function (d) {
+      ai.disabled = false;
+      if (!d.ok) { msg.className = 'jdmsg err'; msg.textContent = d.error || '送出失敗'; return; }
+      msg.className = 'jdmsg ok'; msg.textContent = '已送出，會有人看過重擬結果再套用。';
+      document.getElementById('jdAiNote').value = '';
+    }).catch(function () { ai.disabled = false; msg.className = 'jdmsg err'; msg.textContent = '連不上伺服器'; });
+  };
+}
+
+document.addEventListener('click', function (e) {
+  var btn = e.target.closest && e.target.closest('.jd-btn');
+  if (!btn) return;
+  jdInjectStyle();
+  var slug = btn.dataset.slug;
+  var job = (ALL.find(function (j) { return j.slug === slug; }) || {});
+  $('mt').textContent = (job.title || slug) + '　·　JD';
+  $('mbody').innerHTML = '<div id="jdwrap"><p class="mut">載入中⋯</p></div>';
+  $('mask').hidden = false; $('modal').hidden = false;
+  api('/admin/jobs/' + encodeURIComponent(slug) + '/content').then(function (d) {
+    if (!d.ok) { $('mbody').innerHTML = '<div id="jdwrap"><p class="mut">讀取失敗：' + esc(d.error || '') + '</p></div>'; return; }
+    JD_CUR = { slug: slug, spec: d.spec || {} };
+    var flags = '';
+    if (d.source === 'backfilled_from_intake') {
+      flags += '<div class="jdflag">這份內容是從當初的收件單抓來的底稿，還沒有人在這裡存過檔——存一次之後往後都會準。</div>';
+    } else if (d.source === 'none') {
+      flags += '<div class="jdflag bad">找不到任何舊資料，下面欄位是空的，請直接填。</div>';
+    }
+    if (d.pending) {
+      flags += '<div class="jdflag">⏳ 有一筆改動還在等本機腳本套用（最多 15 分鐘），這段時間看到的網站內容可能還是舊的。</div>';
+    }
+    if (d.regen_last_error) {
+      flags += '<div class="jdflag bad">⚠️ 上一次套用失敗：' + esc(d.regen_last_error).slice(0, 300) + '</div>';
+    }
+    if (d.ai_request) {
+      flags += '<div class="jdflag">🤖 有一筆交給 AI 重擬的請求還在等人處理（' + esc(String(d.ai_requested_at || '').slice(0, 16)) + '）：「' + esc(d.ai_request) + '」</div>';
+    }
+    $('mbody').innerHTML = '<div id="jdwrap">' + flags
+      + '<div class="jdtabs">'
+      + '<button type="button" class="jdtab on" data-tab="view">查看</button>'
+      + '<button type="button" class="jdtab" data-tab="edit">編輯</button>'
+      + '</div><div id="jdTabBody"></div></div>';
+    Array.prototype.forEach.call(document.querySelectorAll('#jdwrap .jdtab'), function (b) {
+      b.onclick = function () { jdRenderTab(b.dataset.tab); };
+    });
+    jdRenderTab('view');
+  }).catch(function () { $('mbody').innerHTML = '<div id="jdwrap"><p class="mut">連不上伺服器</p></div>'; });
 });
 </script>
 <script defer src="/consultant/_shell.js"></script>
