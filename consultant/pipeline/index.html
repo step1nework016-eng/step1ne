@@ -23,6 +23,10 @@ nav a.on{background:var(--ink);color:#fff;border-color:var(--ink)}
 main{padding:22px 0 80px}
 .who{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
 .who select{font:inherit;font-size:15px;font-weight:700;padding:9px 34px 9px 15px;border:1px solid var(--line);border-radius:999px;background:#fff url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238a8d95' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 14px center;appearance:none;color:var(--ink);cursor:pointer}
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.filters input[type=search]{font:inherit;font-size:13.5px;padding:8px 13px;border:1px solid var(--line);border-radius:999px;flex:1 1 180px;min-width:140px;background:#fff}
+.filters select{font:inherit;font-size:13px;padding:7px 30px 7px 13px;border:1px solid var(--line);border-radius:999px;background:#fff url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238a8d95' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 12px center;appearance:none;color:var(--ink2);cursor:pointer}
+.filters .fclr{font:inherit;font-size:12.5px;color:var(--ink3);background:none;border:0;cursor:pointer;text-decoration:underline;padding:4px 2px}
 .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
 .tab{position:relative;font:inherit;font-size:13.5px;font-weight:600;color:var(--ink2);background:#fff;border:1px solid var(--line);padding:7px 15px;border-radius:999px;cursor:pointer;display:flex;align-items:center;gap:7px}
 .tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
@@ -131,6 +135,13 @@ a.lk{color:var(--gold);text-decoration:none;font-size:12.5px;font-weight:600}
       <select id="owner" aria-label="顧問"></select>
       <span id="sum" class="mut"></span>
     </div>
+    <div class="filters">
+      <input type="search" id="fq" placeholder="搜尋人名…" autocomplete="off">
+      <select id="fgrade"><option value="">全部等第</option></select>
+      <select id="fjob"><option value="">全部職缺</option></select>
+      <select id="fclient"><option value="">全部客戶</option></select>
+      <button class="fclr" id="fclr" type="button" hidden>清除篩選</button>
+    </div>
     <div class="tabs" id="tabs"></div>
     <div id="list" class="mut">載入中…</div>
     <div id="drawer"></div>
@@ -170,6 +181,37 @@ var TABS=[
   {k:'done',         lb:'已收尾',   kind:'placement',   hint:'成交或結案，只供回頭查'}
 ];
 var DATA=null, CUR='to_review', OWNER=localStorage.getItem('s1ne_pipe_owner')||'all', CONS=[];
+var FQ='', FGRADE='', FJOB='', FCLIENT='';
+
+// 篩選用的下拉選項——從「全部分頁」的資料裡收集，不是只看目前這一關，
+// 不然切分頁選項會一直跳動，顧問剛選好的等第/職缺可能突然消失。
+function allRows(){
+  var out=[]; var tabs=DATA&&DATA.tabs||{};
+  Object.keys(tabs).forEach(function(k){ out=out.concat(tabs[k]||[]) });
+  return out;
+}
+function fillOptions(sel,vals,cur){
+  var seen={}, arr=[];
+  vals.forEach(function(v){ v=(v||'').trim(); if(v&&!seen[v]){seen[v]=1;arr.push(v)} });
+  arr.sort(function(a,b){return a.localeCompare(b,'zh-Hant')});
+  var el=$(sel), keep=el.querySelector('option[value=""]').outerHTML;
+  el.innerHTML=keep+arr.map(function(v){
+    return '<option value="'+esc(v)+'"'+(v===cur?' selected':'')+'>'+esc(v)+'</option>' }).join('');
+}
+function renderFilterOptions(){
+  var rows=allRows();
+  fillOptions('fgrade', rows.map(function(r){return r.grade}), FGRADE);
+  fillOptions('fjob', rows.map(function(r){return r.job_title||r.job_slug}), FJOB);
+  fillOptions('fclient', rows.map(function(r){return r.client_company||r.client_name}), FCLIENT);
+}
+function matchFilters(r){
+  if(FQ && (r.name||'').toLowerCase().indexOf(FQ)<0) return false;
+  if(FGRADE && r.grade!==FGRADE) return false;
+  if(FJOB && (r.job_title||r.job_slug)!==FJOB) return false;
+  if(FCLIENT && (r.client_company||r.client_name)!==FCLIENT) return false;
+  return true;
+}
+function anyFilterOn(){ return !!(FQ||FGRADE||FJOB||FCLIENT) }
 
 function ownerSel(cur,kind,id){
   var o='<option value="">未指派</option>';
@@ -827,9 +869,12 @@ function renderTabs(){
 
 function renderList(){
   var tab=TABS.filter(function(t){return t.k===CUR})[0];
-  var rows=(DATA.tabs||{})[CUR]||[];
+  var all=(DATA.tabs||{})[CUR]||[];
+  var rows=all.filter(matchFilters);
+  $('fclr').hidden=!anyFilterOn();
   if(!rows.length){
-    $('list').innerHTML='<div class="empty">這一關目前沒有案子。<br><span class="mut">'+esc(tab.hint)+'</span></div>';
+    var why = all.length ? '（'+all.length+' 件被篩選條件擋掉了）' : '';
+    $('list').innerHTML='<div class="empty">這一關目前沒有符合的案子。'+esc(why)+'<br><span class="mut">'+esc(tab.hint)+'</span></div>';
     return;
   }
   $('list').innerHTML=rows.map(function(r){return card(r,tab)}).join('');
@@ -894,11 +939,20 @@ function load(){
   $('gate').hidden=true;$('app').hidden=false;
   return api('/admin/pipeline?owner='+encodeURIComponent(OWNER)).then(function(d){
     if(!d.ok){$('list').innerHTML='<div class="mut">讀取失敗</div>';return}
-    DATA=d; renderTabs(); renderSum(); renderList();
+    DATA=d; renderTabs(); renderSum(); renderFilterOptions(); renderList();
   }).catch(function(){$('list').innerHTML='<div class="mut">連線失敗</div>'});
 }
 
 $('owner').onchange=function(){OWNER=this.value;localStorage.setItem('s1ne_pipe_owner',OWNER);load()};
+$('fq').addEventListener('input',function(){FQ=this.value.trim().toLowerCase();renderList()});
+$('fgrade').onchange=function(){FGRADE=this.value;renderList()};
+$('fjob').onchange=function(){FJOB=this.value;renderList()};
+$('fclient').onchange=function(){FCLIENT=this.value;renderList()};
+$('fclr').onclick=function(){
+  FQ='';FGRADE='';FJOB='';FCLIENT='';
+  $('fq').value='';$('fgrade').value='';$('fjob').value='';$('fclient').value='';
+  renderList();
+};
 $('addc').onclick=function(){
   var n=$('newc').value.trim(); if(!n)return;
   api('/admin/consultants',{method:'POST',headers:{'content-type':'application/json'},
