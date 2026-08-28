@@ -554,18 +554,24 @@ document.addEventListener('click', function (e) {
 // 直接改網站的靜態檔案。這裡是那個管道：存檔直接生效（本機背景腳本
 // 最多 15 分鐘內重新產生頁面並自動上線），交給 AI 重擬則一定要人看過
 // 確認才會套用，不會自動上線。
+// ⚠️ 這幾個欄位在網站上不是單純字串／陣列——duties 是「一組標題＋幾條項目」，
+// why 是「一組標題＋一段說明」，spec 是頁面最上面那張「職缺條件一覽」表格
+// （鍵值對）。用單純的一行一項存回去會讓重新產生頁面時炸掉（body_gen.py
+// 預期 duties 裡每一項是 {h,items}、why 每一項是 {h,p}），所以這三個
+// 各自有專屬的序列化／解析（jdKvVal/jdDutiesVal/jdWhyVal 那幾個函式）。
 var JD_FIELDS = [
   ['title',       '職缺名稱',       'line'],
   ['subtitle',    '副標',           'line'],
-  ['locations',   '工作地點',       'list'],
+  ['locations',   '工作地點（一行一項）', 'list'],
   ['salary_min',  '薪資下限',       'line'],
   ['salary_max',  '薪資上限',       'line'],
+  ['spec',        '職缺條件一覽（一行一項，格式：欄位名：內容）', 'kv'],
   ['intro',       '職缺介紹',       'text'],
-  ['duties',      '工作內容',       'list'],
-  ['must',        '必要條件',       'list'],
-  ['plus',        '加分條件',       'list'],
-  ['why',         '為什麼值得看',   'list'],
-  ['benefits',    '福利',           'list'],
+  ['duties',      '工作內容（用「## 標題」開新的一組；沒有分組就直接列項目）', 'duties'],
+  ['must',        '必要條件（一行一項）', 'list'],
+  ['plus',        '加分條件（一行一項）', 'list'],
+  ['why',         '為什麼值得看（第一行標題、下面接說明，項目之間空一行）', 'why'],
+  ['benefits',    '福利（一行一項）', 'list'],
   ['card_desc',   '職缺卡描述',     'text'],
   ['description', 'SEO 描述',       'text'],
 ];
@@ -603,22 +609,86 @@ function jdInjectStyle() {
 function jdListVal(v) { return Array.isArray(v) ? v.join('\n') : String(v || ''); }
 function jdListParse(s) { s = String(s || '').trim(); return s ? s.split('\n').map(function (x) { return x.trim(); }).filter(Boolean) : []; }
 
-var JD_CUR = null;   // { slug, spec, orig: {} }
+// spec：[[key,val], ...]（可能還有第3、4個欄位控制次要說明／反白，
+// 這裡編輯只動前兩欄，沒動過的話原本那些附加資訊不會被更動）。
+function jdKvVal(v) { return (Array.isArray(v) ? v : []).map(function (r) { return (r[0] || '') + '：' + (r[1] || ''); }).join('\n'); }
+function jdKvParse(s) {
+  return String(s || '').split('\n').map(function (line) {
+    line = line.trim(); if (!line) return null;
+    var i = line.indexOf('：'); if (i < 0) i = line.indexOf(':');
+    if (i < 0) return null;
+    return [line.slice(0, i).trim(), line.slice(i + 1).trim()];
+  }).filter(Boolean);
+}
+
+// duties：[{h,items:[...]}, ...]。空白行分組，「## 」開頭當標題，其餘當項目。
+function jdDutiesVal(v) {
+  return (Array.isArray(v) ? v : []).map(function (g) {
+    return (g.h ? '## ' + g.h + '\n' : '') + (g.items || []).join('\n');
+  }).join('\n\n');
+}
+function jdDutiesParse(s) {
+  return String(s || '').split(/\n\s*\n/).map(function (block) {
+    var lines = block.split('\n').map(function (x) { return x.trim(); }).filter(Boolean);
+    if (!lines.length) return null;
+    if (lines[0].indexOf('## ') === 0) return { h: lines[0].slice(3).trim(), items: lines.slice(1) };
+    return { h: '', items: lines };
+  }).filter(Boolean);
+}
+
+// why：[{h,p}, ...]。空白行分組，第一行標題、其餘合併當說明。
+function jdWhyVal(v) {
+  return (Array.isArray(v) ? v : []).map(function (w) { return (w.h || '') + '\n' + (w.p || ''); }).join('\n\n');
+}
+function jdWhyParse(s) {
+  return String(s || '').split(/\n\s*\n/).map(function (block) {
+    var lines = block.split('\n').map(function (x) { return x.trim(); }).filter(Boolean);
+    if (!lines.length) return null;
+    return { h: lines[0], p: lines.slice(1).join(' ') };
+  }).filter(Boolean);
+}
+
+function jdFieldVal(kind, v) {
+  if (kind === 'list') return jdListVal(v);
+  if (kind === 'kv') return jdKvVal(v);
+  if (kind === 'duties') return jdDutiesVal(v);
+  if (kind === 'why') return jdWhyVal(v);
+  return String(v || '');
+}
+function jdFieldParse(kind, s) {
+  if (kind === 'list') return jdListParse(s);
+  if (kind === 'kv') return jdKvParse(s);
+  if (kind === 'duties') return jdDutiesParse(s);
+  if (kind === 'why') return jdWhyParse(s);
+  return s;
+}
+
+var JD_CUR = null;   // { slug, spec, mismatched, extraSections }
 
 function jdViewHtml(spec) {
   return JD_FIELDS.map(function (f) {
-    var v = f[2] === 'list' ? (Array.isArray(spec[f[0]]) ? spec[f[0]].join('、') : (spec[f[0]] || '')) : (spec[f[0]] || '');
-    return '<div class="jdrow"><div class="k">' + esc(f[1]) + '</div><div class="v">' + esc(v) + '</div></div>';
+    var v = jdFieldVal(f[2], spec[f[0]]);
+    return '<div class="jdrow"><div class="k">' + esc(f[1].split('（')[0]) + '</div><div class="v">' + esc(v) + '</div></div>';
   }).join('');
 }
 
 function jdEditHtml(spec) {
-  return JD_FIELDS.map(function (f) {
-    var v = f[2] === 'list' ? jdListVal(spec[f[0]]) : String(spec[f[0]] || '');
+  var mismatchBox = '';
+  if (JD_CUR.mismatched) {
+    mismatchBox = '<div class="jdflag bad">'
+      + '⚠️ 這個職缺頁不是用標準樣板做的，多了：<b>' + esc(JD_CUR.extraSections.join('、')) + '</b>。'
+      + '存檔會用標準樣板整頁重新產生，<b>這些內容會不見</b>。'
+      + '<label style="display:flex;align-items:flex-start;gap:8px;margin-top:10px;font-weight:400">'
+      + '<input type="checkbox" id="jdMismatchAck" style="width:auto;margin-top:3px">'
+      + '<span>我知道，存檔後這些客製內容會被砍掉，仍要繼續</span></label></div>';
+  }
+  return mismatchBox + JD_FIELDS.map(function (f) {
+    var v = jdFieldVal(f[2], spec[f[0]]);
+    var isBig = f[2] === 'text' || f[2] === 'list' || f[2] === 'kv' || f[2] === 'duties' || f[2] === 'why';
     var el = (f[2] === 'line')
       ? '<input id="jdf_' + f[0] + '" type="text" value="' + esc(v) + '">'
-      : '<textarea id="jdf_' + f[0] + '"' + (f[2] === 'list' ? ' style="min-height:96px"' : '') + '>' + esc(v) + '</textarea>';
-    return '<label for="jdf_' + f[0] + '">' + esc(f[1]) + (f[2] === 'list' ? '（一行一項）' : '') + '</label>' + el;
+      : '<textarea id="jdf_' + f[0] + '"' + (isBig ? ' style="min-height:96px"' : '') + '>' + esc(v) + '</textarea>';
+    return '<label for="jdf_' + f[0] + '">' + esc(f[1]) + '</label>' + el;
   }).join('')
     + '<button type="button" class="jdbtn" id="jdSave">存檔（直接生效，最多 15 分鐘內上線）</button>'
     + '<div class="jdmsg" id="jdSaveMsg"></div>'
@@ -644,28 +714,36 @@ function jdRenderTab(tab) {
 function jdWireEdit() {
   var save = document.getElementById('jdSave');
   save.onclick = function () {
+    var msg = document.getElementById('jdSaveMsg');
+    var ack = document.getElementById('jdMismatchAck');
+    if (JD_CUR.mismatched && (!ack || !ack.checked)) {
+      msg.className = 'jdmsg err'; msg.textContent = '請先勾上面那個確認框，再存檔';
+      return;
+    }
     var fields = {}, changed = 0;
     JD_FIELDS.forEach(function (f) {
       var el = document.getElementById('jdf_' + f[0]); if (!el) return;
-      var val = f[2] === 'list' ? jdListParse(el.value) : el.value;
+      var val = jdFieldParse(f[2], el.value);
       var cur = JD_CUR.spec[f[0]];
-      var same = f[2] === 'list'
-        ? JSON.stringify(cur || []) === JSON.stringify(val)
-        : String(cur || '') === String(val);
+      var same = (f[2] === 'line' || f[2] === 'text')
+        ? String(cur || '') === String(val)
+        : JSON.stringify(cur || (f[2] === 'kv' || f[2] === 'duties' || f[2] === 'why' || f[2] === 'list' ? [] : '')) === JSON.stringify(val);
       if (same) return;
       fields[f[0]] = val; changed++;
     });
-    var msg = document.getElementById('jdSaveMsg');
     if (!changed) { msg.className = 'jdmsg err'; msg.textContent = '沒有改到東西'; return; }
     save.disabled = true; msg.className = 'jdmsg'; msg.textContent = '儲存中…';
+    var body = { fields: fields };
+    if (JD_CUR.mismatched) body.confirm_mismatch = true;
     api('/admin/jobs/' + encodeURIComponent(JD_CUR.slug) + '/content', {
       method: 'POST', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ fields: fields }),
+      body: JSON.stringify(body),
     }).then(function (d) {
       save.disabled = false;
-      if (!d.ok) { msg.className = 'jdmsg err'; msg.textContent = d.error || '儲存失敗'; return; }
+      if (!d.ok) { msg.className = 'jdmsg err'; msg.textContent = d.error || d.message || '儲存失敗'; return; }
       msg.className = 'jdmsg ok'; msg.textContent = '已存檔，最多 15 分鐘內會重新產生頁面並自動上線。';
       Object.assign(JD_CUR.spec, fields);
+      JD_CUR.mismatched = false;
       toast('JD 已存檔，稍後自動上線');
     }).catch(function () { save.disabled = false; msg.className = 'jdmsg err'; msg.textContent = '連不上伺服器'; });
   };
@@ -698,10 +776,12 @@ document.addEventListener('click', function (e) {
   $('mask').hidden = false; $('modal').hidden = false;
   api('/admin/jobs/' + encodeURIComponent(slug) + '/content').then(function (d) {
     if (!d.ok) { $('mbody').innerHTML = '<div id="jdwrap"><p class="mut">讀取失敗：' + esc(d.error || '') + '</p></div>'; return; }
-    JD_CUR = { slug: slug, spec: d.spec || {} };
+    JD_CUR = { slug: slug, spec: d.spec || {}, mismatched: !!d.mismatched, extraSections: d.extraSections || [] };
     var flags = '';
     if (d.source === 'backfilled_from_intake') {
       flags += '<div class="jdflag">這份內容是從當初的收件單抓來的底稿，還沒有人在這裡存過檔——存一次之後往後都會準。</div>';
+    } else if (d.source === 'scraped_live_page') {
+      flags += '<div class="jdflag">這份內容是直接從目前線上頁面掃出來的底稿（找不到收件單），細節可能跟原始格式有些落差，存檔前請對照「查看」分頁確認一次。</div>';
     } else if (d.source === 'none') {
       flags += '<div class="jdflag bad">找不到任何舊資料，下面欄位是空的，請直接填。</div>';
     }
@@ -713,6 +793,9 @@ document.addEventListener('click', function (e) {
     }
     if (d.ai_request) {
       flags += '<div class="jdflag">🤖 有一筆交給 AI 重擬的請求還在等人處理（' + esc(String(d.ai_requested_at || '').slice(0, 16)) + '）：「' + esc(d.ai_request) + '」</div>';
+    }
+    if (d.mismatched) {
+      flags += '<div class="jdflag bad">⚠️ 這頁不是標準樣板，有客製內容（' + esc(d.extraSections.join('、')) + '），去「編輯」分頁存檔前會再提醒一次。</div>';
     }
     $('mbody').innerHTML = '<div id="jdwrap">' + flags
       + '<div class="jdtabs">'
