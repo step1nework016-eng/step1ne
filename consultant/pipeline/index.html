@@ -1123,6 +1123,14 @@ $('newc').addEventListener('keydown',function(e){if(e.key==='Enter')$('addc').cl
 // 2026-08-31 補的：原本「手動新增應徵紀錄」只能從已存在的人選卡片裡面開，
 // 逼顧問要嘛先假造一筆人才池資料才能用。這裡直接讓顧問手key姓名/聯絡方式，
 // 呼叫同一支 /admin/pipeline/manual-forward，只是 source_kind 換成 'new'。
+function fileToB64(file){
+  return new Promise(function(resolve,reject){
+    var reader=new FileReader();
+    reader.onload=function(){ resolve(String(reader.result).split(',')[1]||''); };
+    reader.onerror=reject;
+    reader.readAsDataURL(file);
+  });
+}
 function newCandModalHtml(){
   return '<div class="dmask" id="ncMask"><div class="dwrap" style="width:min(480px,100%)">'
     + '<div class="dhead"><span class="nm">新增人選</span>'
@@ -1135,8 +1143,10 @@ function newCandModalHtml(){
     + '<label class="edl">送去哪個職缺 *</label><select class="edi" id="ncJob"><option value="">選一個職缺…</option></select>'
     + '<label class="edl">現在在第幾關（不確定可以先不填）</label>'
     + '<select class="edi" id="ncStage">'+MANUAL_STAGE_OPTS.map(function(o){return '<option value="'+o.key+'">'+o.lb+'</option>'}).join('')+'</select>'
-    + '<label class="edl">怎麼取得本人同意的（例：電話裡口頭同意、朋友介紹說他有意願）</label>'
-    + '<textarea class="edi" id="ncConsentNote" rows="2"></textarea>'
+    + '<label class="edl">履歷（選填）</label><input class="edi" id="ncResumeFile" type="file" accept=".pdf,.doc,.docx">'
+    + '<label class="edl">顧問跟他面談／電訪的內容（選填，填了 AI 會自動整理成初篩報告，格式跟阿財面談產出的一樣）</label>'
+    + '<textarea class="edi" id="ncCallNotes" rows="5" placeholder="條列、流水帳、錄音轉的逐字都可以。寫得越細報告越完整；沒問到的項目報告會標「未詢問」，不會自己編。"></textarea>'
+    + '<span class="mut" style="font-size:11.5px">報告不會馬上出來，系統會在幾分鐘內自動產生，到「初篩報告」頁查看。</span>'
     + '<label style="display:flex;align-items:flex-start;gap:8px;margin-top:10px;font-size:13px;color:var(--ink2)">'
     + '<input type="checkbox" id="ncConsentOk" style="width:auto;margin-top:3px">'
     + '<span>我確認已經取得本人同意，這筆資料可以提供給客戶</span></label>'
@@ -1161,22 +1171,31 @@ function openNewCandModal(){
   $('ncGo').onclick=function(){
     var msg=$('ncMsg'), btn=$('ncGo');
     var name=$('ncName').value.trim(), email=$('ncEmail').value.trim(), phone=$('ncPhone').value.trim();
+    var callNotes=$('ncCallNotes').value.trim();
     if(!name){ msg.textContent='請填姓名'; return; }
     if(!email && !phone){ msg.textContent='Email 跟電話至少填一個'; return; }
     if(!ncj.value){ msg.textContent='先選一個職缺'; return; }
     if(!$('ncConsentOk').checked){ msg.textContent='請先勾選確認已取得本人同意'; return; }
+    if(callNotes && callNotes.length<30){ msg.textContent='面談內容太短（少於30字）不夠產報告，麻煩多寫一點或先留空'; return; }
     btn.disabled=true; msg.textContent='處理中…';
-    api('/admin/pipeline/manual-forward',{method:'POST',headers:{'content-type':'application/json'},
-      body:JSON.stringify({
-        source_kind:'new', name:name, email:email, phone:phone, job_slug:ncj.value,
-        initial_stage: $('ncStage').value || null, by: OWNER,
-        consent_confirmed:true, consent_note:$('ncConsentNote').value,
-      })})
-    .then(function(r){ btn.disabled=false;
-      if(!r.ok){ msg.textContent=r.error||'新增失敗'; return; }
-      if(r.message) alert(r.message);
-      m.innerHTML=''; load();
-    }).catch(function(){ btn.disabled=false; msg.textContent='連線失敗'; });
+    var resumeFile=$('ncResumeFile').files[0];
+    (resumeFile?fileToB64(resumeFile):Promise.resolve(null)).then(function(b64){
+      api('/admin/pipeline/manual-forward',{method:'POST',headers:{'content-type':'application/json'},
+        body:JSON.stringify({
+          source_kind:'new', name:name, email:email, phone:phone, job_slug:ncj.value,
+          initial_stage: $('ncStage').value || null, by: OWNER,
+          consent_confirmed:true, call_notes: callNotes || undefined,
+          resume_b64: b64 || undefined,
+          resume_name: resumeFile ? resumeFile.name : undefined,
+          resume_mime: resumeFile ? resumeFile.type : undefined,
+        })})
+      .then(function(r){ btn.disabled=false;
+        if(!r.ok){ msg.textContent=r.error||'新增失敗'; return; }
+        if(r.message) alert(r.message);
+        if(r.report_queued) alert('已建立，面談內容會在幾分鐘內自動整理成初篩報告，到「初篩報告」頁查看。');
+        m.innerHTML=''; load();
+      }).catch(function(){ btn.disabled=false; msg.textContent='連線失敗'; });
+    }).catch(function(){ btn.disabled=false; msg.textContent='履歷檔案讀取失敗'; });
   };
 }
 $('newCandBtn').onclick=openNewCandModal;
