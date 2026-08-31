@@ -435,6 +435,7 @@ function drawerHtml(d){
       // 爬回來的公開資料不會有電話，是顧問打完或對方回信之後才補上的。
       // 之前只能寫進備註，那樣搜尋不到、也不能點擊撥號。
       +kvRow('電話',s.phone?'<a href="tel:'+esc(s.phone)+'">'+esc(s.phone)+'</a>':'<span class="mut">還沒有（打完電話記得補上來）</span>')
+      +kvRow('等第',esc(s.grade||''))
       +kvRow('現職',esc(s.headline||''))+kvRow('公司',esc(s.company||''))
       +kvRow('地點',esc(s.location||''))+kvRow('來源',esc(s.source||''))
       +kvRow('可用管道',links.join('　'))
@@ -493,6 +494,7 @@ function drawerHtml(d){
             : '<span class="mut">還沒有</span>')
           +'</dl></div>'
         : '')
+      +crossHistPlaceholder()
       +'<p class="mut">這是主動開發爬回來的公開資料，不是應徵者——他還沒投履歷、也還沒同意個資利用。'
       +'公開檔案沒有電話這一欄，要電話得等對方回覆再問。</p>';
   }
@@ -592,7 +594,35 @@ function drawerHtml(d){
       +(a.interview_state==='not_started'?'這位人選還沒跟阿財面談——如果是顧問自己電訪過的，把電訪內容交給系統就能產出同格式的報告。':'')
       +'</p></div>';
   }
+  h+=crossHistPlaceholder();
   return h;
+}
+
+// 這個人選在其他職缺／客戶的紀錄——同一個人隔幾週投別的職缺，
+// 系統開的是全新、互不相干的一筆，openCard() 之後另外打
+// /admin/pipeline/candidate-history 用 email／電話比對補上來。
+// ⚠️ 純內部參考：這段內容絕對不會、也不能出現在客戶 portal。
+function crossHistPlaceholder(){
+  return '<div class="sec" id="crosshist"><h4>這個人選在其他職缺的紀錄'
+    + '<span class="mut" style="font-weight:400;font-size:11.5px;display:block;margin-top:2px">'
+    + '僅供內部參考，不會出現在任何客戶看得到的地方</span></h4>'
+    + '<p class="mut" style="margin:0">載入中…</p></div>';
+}
+function crossHistHtml(rows){
+  if(!rows||!rows.length) return '<p class="mut" style="margin:0">目前只有這一筆，沒有查到其他職缺的紀錄。</p>';
+  var DEC2={forwarded:['已推薦','ok'],need_more:['需補問','warn'],rejected:['顧問婉拒','bad']};
+  return rows.map(function(r){
+    var dec = r.consultant_decision ? (DEC2[r.consultant_decision]||[r.consultant_decision,'']) : null;
+    return '<div style="padding:8px 0;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;align-items:flex-start">'
+      + '<span style="font-size:13.5px">'+esc(r.job_title||r.job_slug||'')
+      + '<br><span style="font-size:11.5px;color:var(--ink3)">'
+      + esc(String(r.applied_at||'').slice(0,10))+' 應徵'
+      + (r.company_name ? '　→　推薦給 '+esc(r.company_name) : '　尚未推薦')
+      + (r.forwarded_at ? '（'+esc(String(r.forwarded_at).slice(0,10))+'）' : '')
+      + '</span></span>'
+      + (r.stage_label ? '<span class="pill">'+esc(r.stage_label)+'</span>' : (dec ? '<span class="pill '+dec[1]+'">'+esc(dec[0])+'</span>' : ''))
+      + '</div>';
+  }).join('');
 }
 
 function openCard(kind,id,name){
@@ -611,6 +641,21 @@ function openCard(kind,id,name){
   .then(function(d){
     if(!d.ok){$('dbody').innerHTML='<p class="mut">讀不到這筆資料：'+esc(d.error||'')+'</p>';return}
     $('dbody').innerHTML=drawerHtml(d);
+    // 這個人選在其他職缺的紀錄——單獨打，不擋主要內容的載入。
+    var rec=d.sourced||d.application||{};
+    var histEl=$('crosshist');
+    if(histEl && (rec.email||rec.phone)){
+      var qs='exclude_application_id='+encodeURIComponent((d.application||{}).id||'')
+        +'&email='+encodeURIComponent(rec.email||'')+'&phone='+encodeURIComponent(rec.phone||'');
+      api('/admin/pipeline/candidate-history?'+qs).then(function(hd){
+        var el=$('crosshist'); if(!el)return;
+        el.innerHTML=el.querySelector('h4').outerHTML
+          + (hd.ok ? crossHistHtml(hd.history) : '<p class="mut" style="margin:0">讀取失敗</p>');
+      }).catch(function(){
+        var el=$('crosshist'); if(!el)return;
+        el.innerHTML=el.querySelector('h4').outerHTML+'<p class="mut" style="margin:0">連線失敗</p>';
+      });
+    }
     var m=$('rptmore');
     if(m)m.onclick=function(){var e=$('rpt');e.classList.toggle('open');
       m.textContent=e.classList.contains('open')?'收合 ▴':'展開全文 ▾'};
