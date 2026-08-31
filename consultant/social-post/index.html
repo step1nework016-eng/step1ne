@@ -648,7 +648,7 @@ function load() {
     var jd = r[0], ad = r[1];
     if (!jd.ok) { localStorage.removeItem(KEY); return boot(); }
     $('gate').hidden = true; $('app').hidden = false;
-    ALL_JOBS = (jd.jobs || []).filter(function (j) { return j.status !== 'closed'; });
+    ALL_JOBS = (jd.jobs || []).filter(function (j) { return j.status !== 'closed' && j.status !== 'client_draft' && j.status !== 'pending_review'; });
     paintJobs(ALL_JOBS);
     var accs = ad.accounts || [];
     $('account').innerHTML = accs.length
