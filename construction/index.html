@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href*="lin.ee"]');
+  if (!a) return;
+  gtag('event', 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60)
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>營造工程職缺與人才專欄｜BIM・工程設計・現場工程・職安｜Step1ne</title>
+<meta name="description" content="Step1ne 營造工程專欄：半導體與AI記憶體產業擴產帶動的營造工程人才需求，涵蓋BIM工程師、工程設計、現場工程、職業安全四大職涯方向。看職缺、看科普知識、看你適合哪一條路。">
+<meta name="keywords" content="BIM工程師,營造工程職缺,半導體建廠,工程設計工程師,職業安全衛生工程師,Revit,AutoCAD,高科技廠房工程,建廠人才">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/construction/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Step1ne 德仁管理顧問">
+<meta property="og:title" content="營造工程職缺與人才專欄｜Step1ne">
+<meta property="og:description" content="半導體與AI記憶體產業擴產帶動的營造工程人才需求：BIM工程師、工程設計、現場工程、職業安全，看職缺也看科普知識。">
+<meta property="og:url" content="https://step1ne.com/construction/">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://step1ne.com/assets/construction/hero-banner.jpg">
+<meta property="og:image:width" content="1672">
+<meta property="og:image:height" content="941">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/construction/hero-banner.jpg">
+<meta name="theme-color" content="#f4f1ea">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Noto+Sans+TC:wght@300;400;500;700;900&family=Noto+Serif+TC:wght@500;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "營造工程職缺與人才專欄",
+  "url": "https://step1ne.com/construction/",
+  "mainEntity": {
+    "@type": "ItemList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "url": "https://step1ne.com/jobs/bim-engineer-tongluo/" },
+      { "@type": "ListItem", "position": 2, "url": "https://step1ne.com/jobs/engineering-design-engineer-hsinchu/" },
+      { "@type": "ListItem", "position": 3, "url": "https://step1ne.com/jobs/semiconductor-site-engineer-hsinchu/" },
+      { "@type": "ListItem", "position": 4, "url": "https://step1ne.com/jobs/ehs-engineer-yunlin/" }
+    ]
+  }
+}
+</script>
+
+<style>
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{font-family:'Noto Sans TC',system-ui,sans-serif;color:#23262d;background:#f4f1ea;-webkit-font-smoothing:antialiased;line-height:1.7;}
+a{color:#a67c3d;text-decoration:none;}
+a:hover{color:#8a6531;}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px;}
+h2{font-family:'Noto Serif TC',serif;font-size:24px;font-weight:700;color:#1c1f26;margin:0 0 8px;}
+.eyebrow{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;color:#a67c3d;text-transform:uppercase;margin-bottom:8px;}
+.h1-sub{display:block;font-size:0.55em;font-weight:600;color:#6b6e77;margin-top:8px;letter-spacing:0;}
+
+/* 英雄區：真的文字（H1/CTA）疊在照片上——圖片裡的字 Google 讀不到，
+   也沒辦法點，所以標題跟按鈕一律另外用真的 HTML 寫，不是靠圖片本身。 */
+.hero{position:relative;border-radius:22px;overflow:hidden;margin:22px 0 0;
+  background:#0f2540;min-height:420px;display:flex;align-items:center;}
+.hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:78% center;}
+/* 圖片本身左側已經印了一段文字＋按鈕，不是可以點的真連結、Google 也讀不到——
+   這裡蓋一層「幾乎不透明」的漸層，把圖片裡的字完全蓋掉，只留右側人物照，
+   左側改放真正的 <h1>／可點的 <a>。淡出區間夠寬，兩邊才不會有明顯硬邊。 */
+.hero::after{content:'';position:absolute;inset:0;
+  background:linear-gradient(100deg,#0f2540 0%,#0f2540 46%,rgba(15,37,64,.97) 54%,rgba(15,37,64,.6) 66%,rgba(15,37,64,0) 82%);}
+.hero-in{position:relative;z-index:2;padding:44px 30px;max-width:600px;color:#fff;}
+.hero-in h1{font-family:'Noto Serif TC',serif;font-weight:700;font-size:clamp(26px,4vw,38px);line-height:1.35;margin:0 0 14px;}
+.hero-in p{font-size:15.5px;color:#dbe3ee;margin:0 0 22px;line-height:1.75;}
+.hero-cta{display:flex;flex-wrap:wrap;gap:12px;}
+.hero-cta a{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:15px;padding:13px 26px;border-radius:999px;}
+.hero-cta a.p{background:#fff;color:#0f2540;}
+.hero-cta a.s{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.4);}
+@media (max-width:640px){ .hero{min-height:0} .hero img{position:static;width:100%;height:auto;display:block}
+  .hero::after{display:none} .hero-in{max-width:none;background:#0f2540;padding:28px 22px} }
+
+.tag{display:inline-block;font-size:12.5px;font-weight:700;color:#8a5a1a;background:#f3e2c2;padding:5px 12px;border-radius:999px;}
+
+/* 我適合哪個工程職缺 */
+.fitgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px;}
+.fitcard{display:block;background:#fff;border:1px solid #e6dfd1;border-radius:14px;padding:18px 16px;color:#23262d;text-align:center;transition:border-color .2s,transform .2s;}
+.fitcard:hover{border-color:rgba(166,124,61,.55);transform:translateY(-2px);color:#23262d;}
+.fitcard .n{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;
+  background:#0f2540;color:#fff;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;margin-bottom:10px;}
+.fitcard b{display:block;font-size:15px;margin-bottom:5px;}
+.fitcard span{display:block;font-size:12px;color:#8a8d95;line-height:1.6;}
+@media (max-width:700px){ .fitgrid{grid-template-columns:repeat(2,1fr);} }
+
+/* 營造工程小知識 */
+.know{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:18px;}
+.know a.card{display:block;background:#fff;border:1px solid #e6dfd1;border-radius:16px;overflow:hidden;color:#23262d;transition:border-color .2s,transform .2s;}
+.know a.card:hover{border-color:rgba(166,124,61,.55);transform:translateY(-2px);color:#23262d;}
+.know a.card img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;}
+.know a.card .b{padding:16px 18px;}
+.know a.card h3{font-size:15.5px;font-weight:700;margin:0 0 6px;line-height:1.4;}
+.know a.card p{font-size:12.5px;color:#8a8d95;margin:0;}
+@media (max-width:760px){ .know{grid-template-columns:1fr;} }
+
+.jobs{display:flex;flex-direction:column;gap:14px;margin-top:18px;}
+.job{display:block;padding:24px;background:#fff;border:1px solid #e6dfd1;border-radius:16px;color:#23262d;transition:border-color .25s,box-shadow .25s,transform .25s;}
+.job:hover{border-color:rgba(166,124,61,0.55);box-shadow:0 12px 30px rgba(40,35,25,0.08);transform:translateY(-2px);color:#23262d;}
+.job-industry{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;color:#a67c3d;text-transform:uppercase;margin-bottom:8px;}
+.job-title{font-family:'Noto Serif TC',serif;font-size:21px;font-weight:700;margin:0 0 10px;color:#1c1f26;line-height:1.35;}
+.job-meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+.job-meta span{font-size:12.5px;color:#55585f;background:#f2ede3;padding:5px 11px;border-radius:999px;}
+.job-meta span.salary{color:#8a5a1a;background:#f3e2c2;font-weight:700;}
+.job-meta span.track{background:#1c1f26;color:#fff;font-weight:700;}
+.job-desc{color:#6b6e77;font-size:14.5px;margin:0 0 14px;}
+.job-more{color:#a67c3d;font-weight:600;font-size:14.5px;}
+
+section.blk{padding:44px 0 0;}
+
+@media (max-width:760px){
+  .s1ne-hide-m{display:none !important;}
+  .s1ne-show-m{display:flex !important;}
+  footer a{min-height:44px;display:inline-flex;align-items:center;}
+}
+.s1ne-show-m{display:none;}
+.s1ne-mobile-menu{display:none;flex-direction:column;padding:4px 24px 16px;border-top:1px solid #e6dfd1;background:rgba(244,241,234,0.98);}
+.s1ne-mobile-menu.is-open{display:flex;}
+.s1ne-mobile-menu a{padding:10px 0;color:#4a4d55;font-size:15px;border-bottom:1px solid #e6dfd1;min-height:44px;display:flex;align-items:center;}
+.s1ne-mobile-menu a:last-child{border-bottom:none;}
+</style>
+</head>
+<body>
+
+<header style="position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:rgba(244,241,234,0.9);border-bottom:1px solid #e6dfd1;">
+  <div class="wrap" style="display:flex;align-items:center;justify-content:space-between;gap:20px;height:68px;max-width:1180px;">
+    <a href="/" style="display:flex;align-items:center;gap:12px;color:#23262d;">
+      <img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問" style="height:38px;width:auto;">
+    </a>
+    <div class="s1ne-hide-m" style="display:flex;align-items:center;gap:26px;font-size:15px;color:#4a4d55;">
+      <a href="/construction/" style="color:#a67c3d;font-weight:700;">營造工程專欄</a>
+      <a href="/jobs/" style="color:#4a4d55;">職缺專區</a>
+      <a href="/articles/" style="color:#4a4d55;">獵才專欄</a>
+      <a href="/talent/" style="color:#4a4d55;">全民獵才</a>
+      <a href="/about/" style="color:#4a4d55;">關於我們</a>
+    </div>
+    <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" class="s1ne-hide-m" style="background:linear-gradient(135deg,#c9a049,#a67c3d);color:#fff;font-weight:700;font-size:13.5px;padding:9px 18px;border-radius:999px;white-space:nowrap;">LINE 洽詢</a>
+    <button type="button" class="s1ne-show-m" onclick="document.getElementById('s1ne-mmenu').classList.toggle('is-open')" aria-label="開啟選單" style="align-items:center;justify-content:center;width:40px;height:40px;border:1px solid #e6dfd1;border-radius:10px;background:#fff;flex-shrink:0;">
+      <span style="display:block;width:18px;height:2px;background:#23262d;box-shadow:0 6px 0 #23262d,0 -6px 0 #23262d;"></span>
+    </button>
+  </div>
+  <div id="s1ne-mmenu" class="s1ne-mobile-menu" onclick="if(event.target.closest('a'))this.classList.remove('is-open')">
+    <a href="/">首頁</a>
+    <a href="/construction/">營造工程專欄</a>
+    <a href="/jobs/">職缺專區</a>
+    <a href="/articles/">獵才專欄</a>
+    <a href="/talent/">全民獵才</a>
+    <a href="/about/">關於我們</a>
+    <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="color:#a67c3d;font-weight:700;">LINE 洽詢 →</a>
+  </div>
+</header><main>
+
+<section class="blk"><div class="wrap">
+<div class="hero">
+  <img src="/assets/construction/hero-banner.jpg" alt="Step1ne 營造工程團隊：BIM工程師、工程設計、現場工程與職業安全人員">
+  <div class="hero-in">
+    <div class="eyebrow" style="color:#f3e2c2">STEP1NE 營造工程專欄</div>
+    <h1>下一座高科技廠房，可能也有你參與的一部分</h1>
+    <p>半導體與 AI 記憶體產業正在擴產，BIM 建模、工程設計、現場工程、職業安全，四種角色都在找人。不確定自己適合哪一種？先看看職缺，或直接跟顧問聊聊。</p>
+    <div class="hero-cta">
+      <a class="p" href="#jobs">查看職缺 →</a>
+      <a class="s" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">LINE 洽詢</a>
+    </div>
+  </div>
+</div>
+</div></section>
+
+<section class="blk"><div class="wrap">
+<div class="eyebrow">職涯方向</div>
+<h2>我適合哪個工程職缺？</h2>
+<p style="color:#6b6e77;font-size:14.5px;margin:0">先看你的背景，再選適合的方向——BIM 完全無經驗也能從這裡入門。</p>
+<img src="/assets/construction/which-job-fits-you.jpg" alt="四種工程職缺方向：BIM工程師、工程設計、現場工程、職安工程師，各自適合的背景說明" style="width:100%;border-radius:16px;margin-top:18px;display:block">
+<div class="fitgrid">
+<a class="fitcard" href="/jobs/bim-engineer-tongluo/"><span class="n">01</span><b>BIM 工程師</b><span>無經驗可從這裡入門，想進半導體工程產業</span></a>
+<a class="fitcard" href="/jobs/engineering-design-engineer-hsinchu/"><span class="n">02</span><b>工程設計</b><span>熟悉 AutoCAD／Revit，看得懂工程圖說</span></a>
+<a class="fitcard" href="/jobs/semiconductor-site-engineer-hsinchu/"><span class="n">03</span><b>現場工程</b><span>有工程現場、施工協調、進度管理經驗</span></a>
+<a class="fitcard" href="/jobs/ehs-engineer-yunlin/"><span class="n">04</span><b>職安工程師</b><span>有職安衛背景、工地安全管理經驗或證照</span></a>
+</div>
+</div></section>
+
+<section class="blk"><div class="wrap">
+<div class="eyebrow">營造工程小知識</div>
+<h2>先懂這個產業，再決定要不要投</h2>
+<div class="know">
+<a class="card" href="/articles/what-is-bim-engineer/">
+  <img src="/assets/construction/what-is-bim.jpg" alt="BIM是什麼：電腦裡的BIM模型與實際施工現場的對照">
+  <div class="b"><h3>BIM 是什麼？跟繪圖員差在哪？</h3><p>先在電腦裡把問題找出來，再讓工程現場蓋得出來</p></div>
+</a>
+<a class="card" href="/articles/bim-career-change/">
+  <img src="/assets/construction/talent-map.jpg" alt="半導體建廠人才地圖：BIM建模、工程設計、現場工程、職業安全四種關鍵職涯方向">
+  <div class="b"><h3>沒有相關科系可以轉職 BIM 工程師嗎？</h3><p>從數位建模到工程落地，4 種關鍵職涯方向</p></div>
+</a>
+<a class="card" href="/articles/bim-engineer-salary/">
+  <div class="b" style="padding-top:24px"><h3>BIM 工程師薪水行情：無經驗到資深怎麼跳？</h3><p>從無經驗到資深，市場薪資帶大概怎麼分</p></div>
+</a>
+</div>
+</div></section>
+
+<section class="blk" id="jobs" style="padding-bottom:56px"><div class="wrap">
+<div class="eyebrow">現在開放中</div>
+<h2>目前開放的職缺</h2>
+<div class="jobs">
+<a class="job" href="/jobs/bim-engineer-tongluo/"> <div class="job-industry">營建工程・半導體建廠</div> <h2 class="job-title" style="margin:0 0 10px;font-size:21px">BIM 工程師</h2> <div class="job-meta"><span class="salary">月薪 4 萬以上</span><span class="track">正職僱用</span><span>苗栗銅鑼</span><span>無經驗可</span></div> <p class="job-desc">AI 記憶體產業擴產案的 BIM 需求，正職僱用，優先招募 10 名。無經驗可，公司安排完整培訓，現場有設計 PM 與設計工程師組成的團隊帶到可獨立作業。</p> <span class="job-more">查看職缺詳情 →</span> </a>
+<a class="job" href="/jobs/engineering-design-engineer-hsinchu/"> <div class="job-industry">營建工程・工程設計</div> <h2 class="job-title" style="margin:0 0 10px;font-size:21px">資深工程設計工程師</h2> <div class="job-meta"><span class="salary">月薪 4 萬以上面議</span><span class="track">正職僱用</span><span>新竹竹北</span><span>AutoCAD／Revit</span></div> <p class="job-desc">高科技廠房實驗室新建／擴建工程的電腦繪圖設計，負責高科技廠各系統工程圖說，目前駐點新竹竹北，需 3 年以上相關經驗。</p> <span class="job-more">查看職缺詳情 →</span> </a>
+<a class="job" href="/jobs/semiconductor-site-engineer-hsinchu/"> <div class="job-industry">營建工程・半導體廠房</div> <h2 class="job-title" style="margin:0 0 10px;font-size:21px">資深半導體專案現場工程師</h2> <div class="job-meta"><span class="salary">月薪 4 萬以上面議</span><span class="track">正職僱用</span><span>新竹竹北</span><span>全額供宿</span></div> <p class="job-desc">半導體廠房建案的現場工程管理，目前駐點新竹竹北，全額供宿，需相關現場管理經驗。</p> <span class="job-more">查看職缺詳情 →</span> </a>
+<a class="job" href="/jobs/ehs-engineer-yunlin/"> <div class="job-industry">營建工程・高科技廠房</div> <h2 class="job-title" style="margin:0 0 10px;font-size:21px">資深職業安全衛生工程師</h2> <div class="job-meta"><span class="salary">月薪 4 萬以上面議</span><span class="track">正職僱用</span><span>雲林虎尾</span><span>全額供宿</span></div> <p class="job-desc">工地現場的職業安全衛生管理，目前駐點雲林虎尾，全額供宿，需相關職安衛經驗或證照。</p> <span class="job-more">查看職缺詳情 →</span> </a>
+</div>
+
+<div style="margin-top:30px;text-align:center;padding:26px;background:#fff;border:1px solid #e6dfd1;border-radius:16px">
+<p style="color:#55585f;font-size:15px;margin:0 0 18px;">看到適合的職缺就直接點進去應徵，線上填寫約 2 分鐘。不確定哪個職缺適合自己，也可以先加 LINE 問清楚。</p>
+<a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;background:#a67c3d;
+color:#fff;font-weight:700;font-size:16px;padding:15px 34px;border-radius:999px;">加 LINE 問清楚再決定</a>
+</div>
+</div></section></main>
+
+<footer style="border-top:1px solid #e6dfd1;background:#eee9de;padding:28px 0;">
+  <div class="wrap" style="text-align:center;color:#9a9da5;font-size:13px;">
+    <a href="/jobs/" style="color:#a67c3d;">← 所有職缺</a>　|　<a href="/" style="color:#a67c3d;">Step1ne 首頁</a>　|　© 2026 德仁管理顧問有限公司 Step1ne
+  </div>
+</footer>
+
+</body>
+</html>
