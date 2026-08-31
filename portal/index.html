@@ -953,9 +953,8 @@ function renderTable(){
   // 而不是只塞一個「目前狀態」欄位——這樣才看得出走到哪、還剩哪幾關。
   const stageLbs = (list[0].steps || []).map(s => s.lb);
   el.innerHTML = `<div class="dash-table-wrap"><table class="dash-table">
-    <thead><tr><th>人選</th><th>LINE ID</th><th>推送日</th>${stageLbs.map(lb => `<th>${esc(lb)}</th>`).join('')}<th>目前狀態</th><th>操作</th></tr></thead>
+    <thead><tr><th>人選</th><th>LINE ID</th><th>推送日</th>${stageLbs.map(lb => `<th>${esc(lb)}</th>`).join('')}</tr></thead>
     <tbody>${list.map(c => {
-      const cur = currentStageOf(c);
       const stageCells = (c.steps || []).map(s => {
         if (s.now) return `<td><span class="dash-pill now">進行中</span></td>`;
         if (s.done) return `<td><span class="dash-pill done">已完成</span></td>`;
@@ -966,8 +965,6 @@ function renderTable(){
         <td>${esc(c.line_id_given || '尚未提供')}</td>
         <td>${esc((c.forwarded_at || '').slice(0, 10))}</td>
         ${stageCells}
-        <td><span class="dash-pill ${stagePillClass(cur)}">${esc(cur.lb)}</span></td>
-        <td><button type="button" class="sec cm-openbtn" data-app="${esc(c.application_id)}" style="padding:6px 12px;font-size:12px">查看</button></td>
       </tr>`;
     }).join('')}</tbody>
   </table></div>`;
