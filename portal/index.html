@@ -980,7 +980,7 @@ function renderTable(){
   // 每人不同），不是全公司共用一套固定欄位——所以欄位不能只抓某一位的 steps 當表頭，
   // 要取「所有人選 steps.key 的聯集」，再依 STAGE_ORDER 的順序排好；每一列用 key
   // 去對自己的 steps（不是用陣列位置對），沒有這個 key 就顯示「—」，不會錯位。
-  const KEY_ORDER = ['matched', 'screening', 'confirm', 'stage1', 'stage2', 'stage3', 'stage4', 'offer', 'onboard', 'care', 'backup'];
+  const KEY_ORDER = ['screening', 'confirm', 'matched', 'stage1', 'stage2', 'stage3', 'stage4', 'offer', 'onboard', 'care', 'backup'];
   const stageMap = new Map(); // key -> lb（取最先看到的 lb 當表頭文字）
   list.forEach(c => (c.steps || []).forEach(s => { if (!stageMap.has(s.key)) stageMap.set(s.key, s.lb); }));
   const stageKeys = [...stageMap.keys()].sort((a, b) => {
