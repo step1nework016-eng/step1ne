@@ -571,7 +571,19 @@ function drawerHtml(d){
       +'</select>'
       +'<button class="btn stggo" data-i="'+i+'">套用</button>'
       +(s.manual_active?'<button class="btn stgclr" data-c="'+esc(s.company_id||'')+'" data-a="'+esc(a.id)+'">清除手動指定</button>':'')
-      +'</div></div>';
+      +'</div>'
+      // LINE ID：顧問自己跟人選要來、手動填的，不是自動抓的——存到這家的
+      // candidate_forwards，客戶 portal 看得到。
+      +'<label class="edl" style="margin-top:14px">給'+esc(s.company_name||'客戶')+'的 LINE ID（顧問自己跟人選要來，手動填）</label>'
+      +'<input class="edi fwd-line" data-c="'+esc(s.company_id||'')+'" data-a="'+esc(a.id)+'" value="'+esc(s.line_id_given||'')+'" placeholder="例：abc1234">'
+      // 給客戶看的摘要：刻意跟「顧問備註」分開的欄位，底色不同、標題寫死警語，
+      // 避免顧問手滑把內部判斷寫進這裡。
+      +'<label class="edl" style="margin-top:10px;color:var(--warn)">給'+esc(s.company_name||'客戶')+'看的摘要（客戶看得到，不要寫內部判斷）</label>'
+      +'<textarea class="edi fwd-note" data-c="'+esc(s.company_id||'')+'" data-a="'+esc(a.id)+'" rows="3" '
+      +'style="background:#fdf6e9;border-color:#e8d5ab" placeholder="例：這位候選人溝通清楚，Revit操作熟練，可安排面試">'+esc(s.client_note||'')+'</textarea>'
+      +'<div class="acts" style="margin-top:8px"><button class="btn p fwd-save" data-c="'+esc(s.company_id||'')+'" data-a="'+esc(a.id)+'">存這家的 LINE ID／摘要</button>'
+      +'<span class="mut fwd-msg" data-c="'+esc(s.company_id||'')+'"></span></div>'
+      +'</div>';
   });
   if(!(d.stages||[]).length && (d.placements||[]).length){
     h+='<div class="sec"><h4>送件紀錄</h4>'+(d.placements||[]).map(function(p){
@@ -696,6 +708,24 @@ function openCard(kind,id,name){
         el.innerHTML=el.querySelector('h4').outerHTML+'<p class="mut" style="margin:0">連線失敗</p>';
       });
     }
+    // ── 每家客戶的 LINE ID／給客戶看摘要（一家一組，各自存各自的）──
+    Array.prototype.forEach.call($('dbody').querySelectorAll('.fwd-save'), function(b){
+      b.onclick = function(){
+        var c = b.dataset.c, appId = b.dataset.a;
+        var lineEl = $('dbody').querySelector('.fwd-line[data-c="'+c+'"]');
+        var noteEl = $('dbody').querySelector('.fwd-note[data-c="'+c+'"]');
+        var msg = $('dbody').querySelector('.fwd-msg[data-c="'+c+'"]');
+        b.disabled = true; msg.textContent = '儲存中…';
+        api('/admin/pipeline/forward-detail', {method:'POST', headers:{'content-type':'application/json'},
+          body: JSON.stringify({ application_id: appId, company_id: c,
+            line_id_given: lineEl.value, client_note: noteEl.value })})
+        .then(function(r){ b.disabled = false;
+          if(!r.ok){ msg.textContent = r.error || '儲存失敗'; return; }
+          msg.textContent = '已儲存';
+        }).catch(function(){ b.disabled = false; msg.textContent = '連線失敗'; });
+      };
+    });
+
     // ── 手動新增應徵紀錄 ──
     var afj=$('afJob');
     if(afj){

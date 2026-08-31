@@ -88,6 +88,14 @@ button.sec{background:#fff;color:var(--ink2);border:1px solid var(--line)}
 .cand .add-round{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap;padding-top:12px;border-top:1px solid var(--line)}
 .cand .add-round input[type=text]{width:160px;font:inherit;font-size:13.5px;padding:7px 10px;border:1px solid var(--line);border-radius:8px}
 .cand .add-round .hint{font-size:12px;color:var(--ink3);width:100%}
+.cand .info-row{display:flex;gap:8px;align-items:baseline;font-size:13px;margin-top:8px}
+.cand .info-row .k{color:var(--ink3);font-weight:600;flex:none}
+.cand .info-row .v.mut{color:var(--ink3)}
+.cand .client-note{background:var(--soft,#faf8f3);border-radius:9px;padding:10px 13px;margin-top:8px;font-size:13.5px}
+.cand .client-note .k{font-size:11.5px;font-weight:700;letter-spacing:.04em;color:var(--gold,#a67c3d);text-transform:uppercase;margin-bottom:4px}
+.cand .filebtn{font:inherit;font-size:13px;font-weight:600;color:var(--gold,#a67c3d);background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 14px;cursor:pointer;text-decoration:none}
+.cand .report-box{margin-top:10px}
+.cand .report-md{background:var(--soft,#faf8f3);border-radius:9px;padding:14px 16px;font-size:13.5px;line-height:1.8;white-space:pre-wrap;max-height:360px;overflow-y:auto}
 /* 進度條（跟顧問後台階段條同一套畫法） */
 .steps{display:flex;overflow-x:auto;gap:0;padding:4px 0}
 .step{position:relative;flex:1 0 auto;min-width:78px;text-align:center;padding-top:16px}
@@ -716,12 +724,28 @@ function renderCandidates(list){
         <button type="button" class="stage-upd">更新為此狀態</button>
         <span class="upd-msg stage-msg"></span>
       </div>`;
+    // LINE ID／給客戶看摘要／履歷／報告——都是顧問主動提供才會有內容，
+    // 沒有就明講「尚未提供」，不要留空白讓人以為是壞掉。
+    const lineHtml = c.line_id_given
+      ? `<div class="info-row"><span class="k">LINE ID</span><span class="v">${esc(c.line_id_given)}</span></div>`
+      : `<div class="info-row"><span class="k">LINE ID</span><span class="v mut">尚未提供</span></div>`;
+    const noteHtml = c.client_note
+      ? `<div class="client-note"><div class="k">顧問給你的說明</div><div class="v">${esc(c.client_note).replace(/\n/g, '<br>')}</div></div>`
+      : '';
+    const filesHtml = `<div class="row2">
+        ${c.has_resume ? `<a class="filebtn" href="${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(c.application_id)}/resume" target="_blank" rel="noopener">下載履歷 →</a>` : `<span class="mut" style="font-size:13px">履歷尚未提供</span>`}
+        ${c.has_client_report ? `<button type="button" class="filebtn report-view">查看初篩報告摘要 →</button>` : `<span class="mut" style="font-size:13px">報告摘要顧問還在準備</span>`}
+      </div>
+      <div class="report-box" hidden></div>`;
     return `<div class="cand" data-app="${esc(c.application_id)}">
       <div class="row1">
         <b>${esc(c.candidate_name)}</b>
         <span class="meta">${esc(c.job_title || c.job_slug)} · 推送日 ${esc((c.forwarded_at || '').slice(0, 10))}</span>
       </div>
+      ${lineHtml}
+      ${noteHtml}
       ${dotsHtml}
+      ${filesHtml}
       ${addRoundHtml}
       ${offerBackupHtml}
     </div>`;
@@ -730,7 +754,27 @@ function renderCandidates(list){
     const addBtn = el.querySelector('.round-add');
     if (addBtn) addBtn.addEventListener('click', () => addInterviewRound(el));
     el.querySelector('.stage-upd').addEventListener('click', () => updateCandidateStage(el));
+    const reportBtn = el.querySelector('.report-view');
+    if (reportBtn) reportBtn.addEventListener('click', () => toggleClientReport(el));
   });
+}
+
+async function toggleClientReport(candEl){
+  const box = candEl.querySelector('.report-box');
+  const btn = candEl.querySelector('.report-view');
+  if (!box.hidden){ box.hidden = true; btn.textContent = '查看初篩報告摘要 →'; return; }
+  const appId = candEl.dataset.app;
+  box.hidden = false;
+  box.innerHTML = '<div class="state">讀取中…</div>';
+  try{
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(appId)}/report`);
+    const data = await res.json();
+    if (!data.ok || !data.content_client_md){ box.innerHTML = '<div class="state">報告摘要顧問還在準備。</div>'; return; }
+    box.innerHTML = `<div class="report-md">${esc(data.content_client_md)}</div>`;
+    btn.textContent = '收合報告摘要';
+  }catch{
+    box.innerHTML = '<div class="state">連線失敗，請稍後再試。</div>';
+  }
 }
 
 async function addInterviewRound(candEl){
