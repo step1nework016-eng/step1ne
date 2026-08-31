@@ -1,0 +1,685 @@
+<!doctype html>
+<html lang="zh-Hant">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>招募儀表板預覽（Phase 1 示範資料）｜STEP1NE</title>
+<style>
+:root{
+  --gold:#a67c3d; --gold-soft:#fdf1de;
+  --ink:#23262d; --ink2:#4d5563; --ink3:#8a8d95;
+  --line:#eee7db; --soft:#faf8f3; --bg:#f4f1ea;
+  --ok:#2f8f5b; --ok-soft:#e3f3e9;
+  --bad:#c0392b;
+  --warn:#c98a1e; --warn-soft:#fdf1de;
+  --blue:#4d6fa8; --blue-soft:#eaf0f9;
+  --shadow:0 12px 30px rgba(35,38,45,.06);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 -apple-system,"Noto Sans TC",sans-serif}
+.app{max-width:1440px;margin:0 auto;padding:24px 20px 64px}
+
+/* 示範資料橫幅 */
+.demo-banner{background:var(--ink);color:#fff;text-align:center;font-size:12.5px;font-weight:700;
+ letter-spacing:.03em;padding:8px 12px}
+
+.header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin:20px 0 20px;flex-wrap:wrap}
+.header h1{margin:0 0 6px;font-size:24px}
+.header .sub{font-size:13px;color:var(--ink3)}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;align-items:center}
+.control{border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 12px;font:inherit;font-size:13.5px;color:var(--ink2)}
+button.control{cursor:pointer}
+
+/* 通知鈴鐺 */
+.notify-wrap{position:relative}
+.notify-btn{position:relative;width:42px;height:42px;flex-shrink:0;border:1px solid var(--line);background:#fff;border-radius:10px;cursor:pointer;color:var(--ink2);display:flex;align-items:center;justify-content:center}
+.notify-badge{position:absolute;right:-5px;top:-6px;min-width:19px;height:19px;padding:0 5px;border-radius:999px;background:var(--bad);color:#fff;font-size:11px;font-weight:800;display:none;align-items:center;justify-content:center;border:2px solid #fff}
+.notify-badge.show{display:flex}
+.notify-menu{position:absolute;right:0;top:50px;width:350px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 20px 50px rgba(35,30,15,.16);padding:8px;z-index:60;display:none}
+.notify-menu.show{display:block}
+.notify-title{padding:8px 9px 10px;font-weight:800;display:flex;justify-content:space-between;align-items:center;font-size:13.5px}
+.notify-item{padding:10px;border-radius:10px;cursor:pointer;border-top:1px solid var(--line)}
+.notify-item:hover{background:var(--soft)}
+.notify-item:first-of-type{border-top:0}
+.notify-item strong{display:block;font-size:13px;margin-bottom:3px}
+.notify-item span{font-size:12px;color:var(--ink3);line-height:1.5;display:block}
+.notify-empty{padding:22px 14px;text-align:center;color:var(--ink3);font-size:13px}
+.unread-dot{display:inline-flex;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:var(--bad);color:#fff;font-size:10px;font-weight:800;align-items:center;justify-content:center;margin-left:6px;vertical-align:middle}
+
+/* 手機版數字卡／漏斗圖 tab（桌機不顯示，兩者並排即可，不需切換） */
+.stats-tabs{display:none}
+
+/* 漏斗統計卡：auto-fit 讓欄數隨寬度自然縮放，不會在窄螢幕留下孤兒卡片 */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:10px;margin-bottom:18px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow)}
+.stat .label{font-size:12.5px;color:var(--ink3);margin-bottom:6px}
+.stat .value{font-size:26px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+.stat .desc{margin-top:7px;font-size:11.5px;color:var(--ink3)}
+
+.layout{display:grid;grid-template-columns:280px 1fr;gap:16px;align-items:start}
+.panel{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:16px}
+.panel h2{margin:0 0 6px;font-size:16px}
+.helper{font-size:12.5px;line-height:1.7;color:var(--ink3);margin-bottom:14px}
+.funnel-row{margin:10px 0}
+.funnel-head{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:6px}
+.bar{height:9px;border-radius:999px;overflow:hidden;background:var(--soft)}
+.bar span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--gold),#e0c592)}
+.alertbox{margin-top:16px;border:1px solid var(--line);background:var(--gold-soft);border-radius:12px;padding:12px}
+.alertbox strong{display:block;margin-bottom:6px;font-size:13px}
+.alertrow{display:flex;justify-content:space-between;padding:8px 0;font-size:12.5px;border-top:1px dashed #e7d2b0}
+.alertrow:first-of-type{border-top:none}
+
+.main-top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:var(--soft);color:var(--ink2);padding:9px 14px;border-radius:999px;cursor:pointer;font-weight:700;font-size:13px}
+.chip.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+.search-area{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.search{min-width:260px;border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 12px;font:inherit;font-size:13.5px}
+.view-switch{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+.view-btn{border:0;background:#fff;padding:9px 14px;cursor:pointer;font-weight:700;color:var(--ink2);font-size:13px}
+.view-btn.active{background:var(--ink);color:#fff}
+
+.table-scroller{position:relative}
+.table-wrap{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff;overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;min-width:960px}
+thead th{background:var(--soft);color:var(--ink2);font-size:13px;font-weight:800;padding:14px;text-align:left;white-space:nowrap}
+tbody td{padding:14px;border-top:1px solid var(--line);vertical-align:middle}
+tbody td:not(:first-child){white-space:nowrap}
+tbody tr{cursor:pointer}
+tbody tr:hover td{background:var(--soft)}
+.name{font-size:15px;font-weight:800;margin-bottom:4px}
+.role{font-size:12px;color:var(--ink3)}
+.status-pill{display:inline-block;border-radius:999px;padding:6px 11px;font-size:12px;font-weight:800;white-space:nowrap}
+.scroll-hint{display:none;font-size:11.5px;color:var(--ink3);text-align:center;padding:7px 0 9px}
+.scroll-fade{display:none;position:absolute;top:0;right:0;bottom:0;width:32px;pointer-events:none;
+ background:linear-gradient(90deg,rgba(255,255,255,0),#fff);border-radius:0 16px 16px 0}
+.orange{background:var(--warn-soft);color:var(--warn)}
+.green{background:var(--ok-soft);color:var(--ok)}
+.blue{background:var(--blue-soft);color:var(--blue)}
+.gray{background:#f1f1ef;color:#6c6c68}
+.action-btn{border:1px solid var(--line);background:var(--soft);color:var(--gold);border-radius:8px;padding:7px 11px;font-size:12px;font-weight:800;cursor:pointer}
+.message-preview{margin-top:8px;padding:8px 9px;border-radius:9px;background:var(--soft);color:var(--ink2);font-size:12px;line-height:1.5;display:flex;justify-content:space-between;gap:8px;align-items:center;max-width:320px}
+.message-preview .msg-text{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;min-width:0}
+.message-preview .msg-time{color:var(--ink3);white-space:nowrap;font-size:11px}
+
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.card{border:1px solid var(--line);background:#fff;border-radius:14px;padding:14px;cursor:pointer;transition:.15s ease}
+.card:hover{transform:translateY(-2px);box-shadow:0 10px 20px rgba(35,30,15,.08);border-color:var(--gold)}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.card-top>div:first-child{min-width:0}
+.card-top .status-pill{flex-shrink:0}
+.meta{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 12px;margin-top:12px}
+.meta .label{font-size:11px;color:var(--ink3);margin-bottom:2px}
+.meta .value{font-size:13px}
+.card-progress{display:flex;align-items:center;gap:5px;margin-top:14px}
+.card-progress .dot{width:9px;height:9px;border-radius:50%;background:var(--line)}
+.card-progress .dot.done{background:var(--gold)}
+.card-progress .line{flex:1;height:2px;background:var(--line)}
+.card-foot{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:10px;border-top:1px solid var(--line);font-size:12px;color:var(--ink3)}
+.click-hint{font-weight:800;color:var(--gold)}
+.hidden{display:none}
+.empty{padding:44px 22px;text-align:center;color:var(--ink3);border:1px dashed var(--line);border-radius:14px;background:#fff}
+
+/* modal */
+.overlay{position:fixed;inset:0;background:rgba(35,32,20,.4);backdrop-filter:blur(2px);display:none;align-items:center;justify-content:center;padding:20px;z-index:100}
+.overlay.show{display:flex}
+.modal{width:min(940px,96vw);max-height:92vh;overflow:auto;background:#fff;border-radius:20px;border:1px solid var(--line);box-shadow:0 30px 80px rgba(0,0,0,.22)}
+.modal-top{position:sticky;top:0;z-index:2;background:#fff;border-bottom:1px solid var(--line);padding:18px 20px 14px;display:flex;justify-content:space-between;gap:12px}
+.modal-title h3{margin:0 0 5px;font-size:22px}
+.close{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--soft);font-size:19px;cursor:pointer}
+.modal-body{padding:18px 20px 22px}
+
+/* 進度條 */
+.steps{display:flex;overflow-x:auto;gap:0;padding:10px 4px 4px;margin-bottom:20px}
+.step{position:relative;flex:1 0 auto;min-width:88px;text-align:center}
+.step .ln{position:absolute;top:15px;left:-50%;width:100%;height:3px;background:var(--line);z-index:0;border-radius:999px}
+.step:first-child .ln{display:none}
+.step.done .ln{background:linear-gradient(90deg,var(--gold),var(--gold))}
+.step .dot{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;width:30px;height:30px;
+ margin:0 auto 9px;border-radius:50%;background:#fff;border:2.5px solid var(--line);color:transparent;
+ font-size:14px;font-weight:900;line-height:1;transition:border-color .15s ease,background .15s ease,box-shadow .15s ease}
+.step.done .dot{background:var(--gold);border-color:var(--gold);color:#fff}
+.step.done .dot::after{content:'✓'}
+.step.now .dot{border-color:var(--gold);background:#fff;box-shadow:0 0 0 5px var(--gold-soft)}
+.step.now .dot::after{content:'';width:10px;height:10px;border-radius:50%;background:var(--gold)}
+.step .lb{font-size:11.5px;color:var(--ink3);margin-top:0;line-height:1.4;font-weight:600;letter-spacing:.01em}
+.step.now .lb{color:var(--gold);font-weight:800}
+.step.done .lb{color:var(--ink2);font-weight:700}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.section{border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+.section h4{margin:0 0 10px;font-size:14px}
+.info-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px 14px}
+.info-grid .label{font-size:11px;color:var(--ink3);margin-bottom:2px}
+.info-grid .value{font-size:13px;font-weight:600}
+.filebuttons{display:flex;gap:8px;flex-wrap:wrap}
+.fbtn{font:inherit;font-size:12.5px;font-weight:700;color:var(--gold);background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:8px 13px;cursor:pointer}
+.note{font-size:13px;line-height:1.8;color:var(--ink2)}
+.timeline{list-style:none;padding:0;margin:0}
+.timeline li{display:flex;gap:12px;margin:9px 0}
+.timeline .date{width:70px;flex:0 0 auto;color:var(--ink3);font-size:12.5px}
+.timeline .content{font-size:13px;line-height:1.6}
+.update-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.update-grid .full{grid-column:1/-1}
+.update-grid input,.update-grid select{width:100%;font:inherit;font-size:13.5px;border:1px solid var(--line);border-radius:10px;padding:9px 11px}
+.primary{border:0;background:var(--gold);color:#fff;font-weight:800;border-radius:999px;padding:10px 16px;cursor:pointer;font-size:13.5px}
+
+/* 顧問訊息串／模擬TG回覆 */
+.chat-section{grid-column:1/-1;border:1px solid var(--line);background:var(--soft)}
+.chat-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:10px}
+.chat-head h4{margin:0 0 4px}
+.chat-head .sub{font-size:12px;color:var(--ink3)}
+.tg-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:var(--blue-soft);color:var(--blue);font-size:11px;font-weight:800;white-space:nowrap}
+.chat-window{height:240px;overflow:auto;border:1px solid var(--line);background:#fff;border-radius:13px;padding:12px;display:flex;flex-direction:column;gap:9px}
+.msg{max-width:76%;padding:9px 11px;border-radius:13px;font-size:13px;line-height:1.6;box-shadow:0 2px 6px rgba(35,30,15,.04)}
+.msg .who{font-size:10px;font-weight:800;opacity:.65;margin-bottom:3px}
+.msg .mtime{font-size:10px;opacity:.55;text-align:right;margin-top:3px}
+.msg.client{align-self:flex-end;background:var(--gold-soft);border-bottom-right-radius:4px}
+.msg.consultant{align-self:flex-start;background:#fff;border:1px solid var(--line);border-bottom-left-radius:4px}
+.chat-compose{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:9px}
+.chat-compose textarea{resize:vertical;min-height:50px;max-height:120px;border:1px solid var(--line);border-radius:12px;padding:10px 11px;font:inherit;line-height:1.5}
+.chat-actions{display:flex;flex-direction:column;gap:6px}
+.chat-send{border:0;background:var(--gold);color:#fff;border-radius:10px;padding:9px 14px;font-weight:800;cursor:pointer;min-width:100px;font-size:13px}
+.chat-sim{border:1px solid #b9d0e6;background:var(--blue-soft);color:var(--blue);border-radius:10px;padding:8px 10px;font-weight:800;cursor:pointer;font-size:11px}
+.chat-hint{margin-top:7px;font-size:11px;color:var(--ink3);line-height:1.6}
+
+.toast{position:fixed;right:20px;bottom:20px;background:var(--ink);color:#fff;border-radius:10px;padding:11px 15px;display:none;z-index:200;box-shadow:0 10px 30px rgba(0,0,0,.18);font-size:13px}
+.toast.show{display:block}
+
+@media (max-width:1100px){ .layout{grid-template-columns:1fr} }
+@media (max-width:760px){
+  .cards{grid-template-columns:1fr}
+  .grid2{grid-template-columns:1fr}
+  .header{flex-direction:column;align-items:stretch}
+  .toolbar{width:100%}
+  .toolbar #weekSelect{flex:1 1 auto;min-width:0}
+  .toolbar button.control{flex:1 1 auto;white-space:nowrap}
+  .search{min-width:0;flex:1}
+  .search-area{width:100%}
+  .search-area .control{flex:1}
+  .notify-menu{position:fixed;left:14px;right:14px;top:76px;width:auto}
+  .chat-compose{grid-template-columns:1fr}
+  .chat-actions{flex-direction:row}
+  .msg{max-width:90%}
+  .scroll-hint{display:block}
+  .scroll-fade{display:block}
+  .view-switch{width:100%}
+  .view-btn{flex:1}
+  .step{min-width:64px}
+  .step .dot{width:24px;height:24px;font-size:12px}
+  .step .lb{font-size:10.5px}
+
+  .stats-tabs{display:flex;gap:8px;margin-bottom:12px}
+  .stats-tab{flex:1;border:1px solid var(--line);background:#fff;color:var(--ink2);font:inherit;font-size:13px;
+   font-weight:700;padding:10px;border-radius:10px;cursor:pointer}
+  .stats-tab.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .tab-hidden{display:none}
+}
+</style>
+
+<div class="demo-banner">Phase 1 本地 UI 驗證版 — 全部為示範資料，不連接真實資料庫／Telegram／任何 API</div>
+
+<div class="app">
+  <div class="header">
+    <div>
+      <h1>招募儀表板（示範）</h1>
+      <div class="sub">BIM 工程師｜苗栗銅鑼專案　・　用人單位檢視版（Phase 1 假資料）</div>
+    </div>
+    <div class="toolbar">
+      <select class="control" id="weekSelect">
+        <option>本週</option>
+        <option>上週</option>
+        <option>近 30 天</option>
+        <option>全部期間</option>
+      </select>
+      <button class="control" onclick="showToast('（示範）已模擬匯出本週報表')">匯出本週報表</button>
+      <div class="notify-wrap">
+        <button class="notify-btn" onclick="toggleNotifications(event)" title="顧問訊息通知">
+          <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="notify-badge" id="notifyBadge">0</span>
+        </button>
+        <div class="notify-menu" id="notifyMenu">
+          <div class="notify-title"><span>顧問訊息通知</span><small id="notifyCountText" style="color:var(--ink3)">0 則未讀</small></div>
+          <div id="notifyList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-tabs" id="statsTabs">
+    <button class="stats-tab active" onclick="setStatsTab('cards',event)">數字總覽</button>
+    <button class="stats-tab" onclick="setStatsTab('funnel',event)">漏斗圖表</button>
+  </div>
+
+  <section class="stats" id="stats"></section>
+
+  <div class="layout">
+    <aside class="panel">
+      <div id="funnelChart" class="tab-hidden">
+        <h2>招募漏斗</h2>
+        <div class="helper">先讓用人單位看清楚整體招募量，再看個別人選——不只是送件幾位，而是前端實際有多少人詢問、進面談、通過顧問審核。</div>
+        <div id="funnel"></div>
+      </div>
+      <div class="alertbox">
+        <strong>目前待處理</strong>
+        <div class="alertrow"><span>待弘昌確認</span><b>3 人</b></div>
+        <div class="alertrow"><span>待安排帆宣面談</span><b>2 人</b></div>
+        <div class="alertrow"><span>待補人事資料表</span><b>1 人</b></div>
+      </div>
+    </aside>
+
+    <main class="panel">
+      <div class="main-top">
+        <div class="chips" id="chips"></div>
+        <div class="search-area">
+          <div class="view-switch">
+            <button class="view-btn active" id="tableViewBtn" onclick="setView('table')">表格式</button>
+            <button class="view-btn" id="cardViewBtn" onclick="setView('card')">卡片式</button>
+          </div>
+          <input class="search" id="searchInput" placeholder="搜尋人選 / LINE ID / 關鍵字">
+          <select class="control" id="statusSelect">
+            <option value="">全部狀態</option>
+            <option>已詢問職缺</option>
+            <option>AI 面談中</option>
+            <option>顧問審核中</option>
+            <option>弘昌確認中</option>
+            <option>等待帆宣面談</option>
+            <option>錄取</option>
+            <option>報到</option>
+          </select>
+        </div>
+      </div>
+      <div id="tableView"></div>
+      <div id="cardView" class="hidden"></div>
+    </main>
+  </div>
+</div>
+
+<div class="overlay" id="overlay" onclick="closeOnOverlay(event)">
+  <div class="modal">
+    <div class="modal-top">
+      <div class="modal-title">
+        <h3 id="mName">人選姓名</h3>
+        <div class="sub" id="mSubtitle" style="font-size:13px;color:var(--ink3)"></div>
+      </div>
+      <button class="close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="steps" id="mProgress"></div>
+
+      <div class="section chat-section">
+        <div class="chat-head">
+          <div>
+            <h4>💬 與 STEP1NE 顧問討論此人選</h4>
+            <div class="sub">顧問會在 Telegram 回覆，同步顯示在這裡。</div>
+          </div>
+          <span class="tg-chip">✈ Telegram 串接（Phase 2）</span>
+        </div>
+        <div class="chat-window" id="chatWindow"></div>
+        <div class="chat-compose">
+          <textarea id="chatInput" placeholder="例如：這位人選最快何時可以面談？或請顧問協助確認到職時間…"></textarea>
+          <div class="chat-actions">
+            <button class="chat-send" onclick="sendClientMessage()">傳給顧問</button>
+            <button class="chat-sim" onclick="simulateTelegramReply()">示範：模擬 TG 回覆</button>
+          </div>
+        </div>
+        <div class="chat-hint">Phase 1 為示範，尚未真的連接 Telegram。</div>
+      </div>
+
+      <div class="grid2">
+        <div>
+          <div class="section">
+            <h4>基本資料</h4>
+            <div class="info-grid" id="mInfo"></div>
+          </div>
+          <div class="section">
+            <h4>履歷 / AI 初篩報告</h4>
+            <div class="filebuttons">
+              <button class="fbtn" onclick="showToast('（示範）履歷預覽')">👁 預覽履歷</button>
+              <button class="fbtn" onclick="showToast('（示範）履歷下載')">↓ 下載履歷</button>
+              <button class="fbtn" onclick="showToast('（示範）AI 初篩報告預覽')">👁 預覽 AI 初篩報告</button>
+              <button class="fbtn" onclick="showToast('（示範）AI 初篩報告下載')">↓ 下載 AI 初篩報告</button>
+            </div>
+          </div>
+          <div class="section">
+            <h4>顧問摘要</h4>
+            <div class="note" id="mSummary"></div>
+          </div>
+          <div class="section">
+            <h4>顧問備註</h4>
+            <div class="note" id="mNote"></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="section">
+            <h4>招募歷程</h4>
+            <ul class="timeline" id="mTimeline"></ul>
+          </div>
+          <div class="section">
+            <h4>用人單位更新進度</h4>
+            <div class="update-grid">
+              <select id="statusUpdate">
+                <option>弘昌確認中</option>
+                <option>等待帆宣面談</option>
+                <option>帆宣面談完成</option>
+                <option>錄取</option>
+                <option>報到</option>
+                <option>暫緩</option>
+              </select>
+              <input type="date" id="dateUpdate">
+              <input class="full" id="noteUpdate" placeholder="輸入用人單位備註">
+              <button class="primary full" onclick="updateCandidate()">更新此人選狀態</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const NOW = '08/31 16:20';
+
+const stages = ['職缺詢問','AI 面談','顧問通過','弘昌確認','帆宣面談','錄取','報到'];
+
+const candidates = [
+  {id:1,name:'（示範）吳O洋',role:'BIM 工程師 / Revit、AutoCAD',first:'08/26',
+   line:'abc_1122',years:'5 年 3 個月',revit:'熟練',cad:'熟練',
+   status:'等待帆宣面談',stage:4,statusClass:'orange',
+   summary:'具備 BIM 專案經驗，熟悉 Revit 建模與協調流程，對進度控管與跨團隊協作具良好經驗。',
+   note:'候選人對苗栗銅鑼專案有高度興趣，可配合兩週後到職。',
+   timeline:[['08/26','加入 LINE 詢問此職缺'],['08/27','完成 AI 面談'],['08/28','顧問審核通過'],
+     ['08/29','Step1ne 已傳弘昌'],['08/30','弘昌確認送件'],['08/31','已提供人事資料表與 LINE ID']]},
+  {id:2,name:'（示範）莊O璇',role:'BIM 工程師 / 建築背景轉職',first:'08/26',
+   line:'vivian_88',years:'2 年 8 個月',revit:'基礎',cad:'熟悉',
+   status:'弘昌確認中',stage:3,statusClass:'blue',
+   summary:'建築與繪圖背景完整，BIM 實務年資較短，但學習動機高，符合轉入培訓型職缺方向。',
+   note:'人選可接受銅鑼工作地點，希望工作內容以 BIM 繪圖為主。',
+   timeline:[['08/26','加入 LINE 詢問'],['08/26','完成 AI 面談'],['08/27','顧問審核通過'],['08/28','Step1ne 已傳弘昌']]},
+  {id:3,name:'（示範）陳O廷',role:'繪圖工程師 / 可轉 BIM',first:'08/28',
+   line:'peter_0316',years:'1 年 6 個月',revit:'接觸過',cad:'熟練',
+   status:'顧問審核中',stage:2,statusClass:'green',
+   summary:'AutoCAD 操作熟悉，具工程圖面經驗，正在評估轉 BIM 的意願與學習投入度。',
+   note:'顧問尚在補確認工作地點接受度與可到職時間。',
+   timeline:[['08/28','加入 LINE 詢問'],['08/29','完成 AI 面談']]},
+  {id:4,name:'（示範）林O翔',role:'新鮮人 / 土木相關科系',first:'08/29',
+   line:'rlx_0610',years:'0 年',revit:'學校接觸',cad:'基礎',
+   status:'AI 面談中',stage:1,statusClass:'gray',
+   summary:'土木相關科系新鮮人，對 BIM 工作有興趣，目前正在 AI 面談補齊轉職動機與基礎條件。',
+   note:'尚未完成 AI 初篩。',
+   timeline:[['08/29','加入 LINE 詢問'],['08/30','進入 AI 面談']]},
+  {id:5,name:'（示範）王O文',role:'顧問手動加入 / 尚未開始面談',first:'08/30',
+   line:'wyw_0921',years:'尚未確認',revit:'尚未確認',cad:'尚未確認',
+   status:'已詢問職缺',stage:0,statusClass:'gray',
+   summary:'目前僅由顧問手動加入名單，尚未進入 AI 面談。',
+   note:'此類人選仍計入「職缺詢問」數據，讓用人單位看見前端招募量（此欄不對客戶標示來源細節）。',
+   timeline:[['08/30','顧問加入名單']]},
+  {id:6,name:'（示範）黃O軒',role:'BIM 工程師 / MEP 經驗',first:'08/24',
+   line:'tz_huang',years:'3 年 2 個月',revit:'熟悉',cad:'熟悉',
+   status:'錄取',stage:5,statusClass:'green',
+   summary:'具 MEP BIM 實務經驗，與專案需求高度接近，已完成客戶面談。',
+   note:'已通知錄取，等待確認報到日。',
+   timeline:[['08/24','加入 LINE 詢問'],['08/24','完成 AI 面談'],['08/25','顧問審核通過'],
+     ['08/26','弘昌確認'],['08/28','帆宣面談完成'],['08/30','錄取']]},
+  {id:7,name:'（示範）賴O廷',role:'BIM 工程師 / 已完成報到',first:'08/22',
+   line:'kt_lai',years:'4 年 1 個月',revit:'熟悉',cad:'熟悉',
+   status:'報到',stage:6,statusClass:'green',
+   summary:'具土建 BIM 與現場協調經驗，已於本週完成報到。',
+   note:'可作為本職缺已成功媒合案例。',
+   timeline:[['08/22','加入 LINE 詢問'],['08/23','完成 AI 面談'],['08/23','顧問審核通過'],
+     ['08/24','弘昌確認'],['08/26','帆宣面談完成'],['08/27','錄取'],['08/30','報到']]}
+];
+
+const conversations = {
+  1:[{from:'client',text:'想請顧問再確認一下，最快可以安排哪一天帆宣面談？',time:'08/31 14:18'},
+     {from:'consultant',text:'收到，我會先跟人選確認時段，確認後直接回覆在這裡。',time:'08/31 14:26'}],
+  2:[{from:'consultant',text:'目前意願穩定，顧問端已完成補確認，等待弘昌確認是否進下一階段。',time:'08/31 13:52'}],
+  3:[],4:[],5:[],6:[],7:[]
+};
+const unreadMessages = {1:0,2:1,3:0,4:0,5:0,6:0,7:0};
+
+/* 職缺詢問這一格用「顧問手動加入」筆數頂替，Phase 2 有真實原始詢問量再換 */
+const statData = [
+  ['職缺詢問',28,'顧問手動加入的量（暫代，尚無原始詢問數據來源）'],
+  ['AI 面談',17,'已進入 AI 初步面談流程'],
+  ['顧問通過',10,'顧問確認可往下一階段'],
+  ['弘昌確認',6,'已送弘昌並確認進入流程'],
+  ['帆宣面談',3,'已安排或完成帆宣面談'],
+  ['錄取',2,'收到錄取結果'],
+  ['報到',1,'最終完成報到']
+];
+
+let activeFilter='全部', currentView='table', activeCandidate=null;
+
+function escapeHtml(str){ return String(str).replace(/[&<>'"]/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[s])); }
+function getUnread(id){ return unreadMessages[id]||0; }
+function getLastMessage(id){ const arr=conversations[id]||[]; return arr.length?arr[arr.length-1]:null; }
+function totalUnread(){ return Object.values(unreadMessages).reduce((a,b)=>a+b,0); }
+
+function updateNotificationUI(){
+  const total=totalUnread();
+  const badge=document.getElementById('notifyBadge');
+  const countText=document.getElementById('notifyCountText');
+  badge.textContent=total; badge.classList.toggle('show',total>0);
+  countText.textContent=`${total} 則未讀`;
+  const list=document.getElementById('notifyList');
+  const unread=candidates.filter(c=>getUnread(c.id)>0);
+  if(!unread.length){ list.innerHTML='<div class="notify-empty">目前沒有未讀的顧問訊息</div>'; return; }
+  list.innerHTML=unread.map(c=>{
+    const m=getLastMessage(c.id);
+    return `<div class="notify-item" onclick="openFromNotification(${c.id})"><strong>${c.name} <span class="unread-dot">${getUnread(c.id)}</span></strong><span>${m?escapeHtml(m.text):'有新的顧問訊息'}</span><span style="margin-top:4px">${m?m.time:''}</span></div>`;
+  }).join('');
+}
+function toggleNotifications(e){ if(e) e.stopPropagation(); document.getElementById('notifyMenu').classList.toggle('show'); }
+function openFromNotification(id){
+  unreadMessages[id]=0; updateNotificationUI();
+  document.getElementById('notifyMenu').classList.remove('show');
+  renderTable(); renderCards(); openModal(id);
+}
+
+function renderChat(){
+  if(!activeCandidate) return;
+  const box=document.getElementById('chatWindow');
+  const arr=conversations[activeCandidate.id]||[];
+  if(!arr.length){
+    box.innerHTML='<div style="margin:auto;color:var(--ink3);font-size:13px;text-align:center">目前還沒有討論訊息<br>可以直接從下方傳訊息給顧問。</div>';
+    return;
+  }
+  box.innerHTML=arr.map(m=>`<div class="msg ${m.from}"><div class="who">${m.from==='client'?'用人單位':'STEP1NE 顧問・Telegram 回覆'}</div><div>${escapeHtml(m.text)}</div><div class="mtime">${m.time}</div></div>`).join('');
+  box.scrollTop=box.scrollHeight;
+}
+function sendClientMessage(){
+  if(!activeCandidate) return;
+  const input=document.getElementById('chatInput');
+  const text=input.value.trim();
+  if(!text){ showToast('請先輸入要傳給顧問的訊息'); return; }
+  (conversations[activeCandidate.id] ||= []).push({from:'client',text,time:NOW});
+  input.value='';
+  renderChat(); renderTable(); renderCards();
+  showToast(`（示範）已模擬傳送給顧問 TG｜${activeCandidate.name}`);
+}
+function simulateTelegramReply(){
+  if(!activeCandidate) return;
+  const replies=[
+    '收到，我這邊會協助跟人選確認，確認後再回覆您。',
+    '已確認人選目前仍有意願，面談時段我正在協調中。',
+    '顧問這邊已收到，我會補確認到職日與面談時間，再同步給您。',
+    '已和人選聯繫完成，目前可繼續往下一階段安排。'
+  ];
+  const reply=replies[(conversations[activeCandidate.id]||[]).length % replies.length];
+  (conversations[activeCandidate.id] ||= []).push({from:'consultant',text:reply,time:NOW});
+  unreadMessages[activeCandidate.id]=(unreadMessages[activeCandidate.id]||0)+1;
+  renderChat(); updateNotificationUI(); renderTable(); renderCards();
+  showToast(`🔔（示範）顧問從 TG 回覆了 ${activeCandidate.name}`);
+}
+
+function renderStats(){
+  document.getElementById('stats').innerHTML = statData.map(item=>`
+    <div class="stat"><div class="label">${item[0]}</div><div class="value">${item[1]}</div><div class="desc">${item[2]}</div></div>
+  `).join('');
+}
+function renderFunnel(){
+  const max=statData[0][1];
+  document.getElementById('funnel').innerHTML = statData.map(item=>`
+    <div class="funnel-row">
+      <div class="funnel-head"><span>${item[0]}</span><strong>${item[1]}</strong></div>
+      <div class="bar"><span style="width:${Math.max(4,(item[1]/max)*100)}%"></span></div>
+    </div>
+  `).join('');
+}
+function renderChips(){
+  const chips=['全部','待我處理','弘昌確認中','帆宣面談','錄取','報到'];
+  const counts={'全部':28,'待我處理':4,'弘昌確認中':3,'帆宣面談':3,'錄取':2,'報到':1};
+  document.getElementById('chips').innerHTML = chips.map(c=>`
+    <button class="chip ${activeFilter===c?'active':''}" onclick="setFilter('${c}')">${c} ${counts[c]??''}</button>
+  `).join('');
+}
+function filteredCandidates(){
+  let arr=[...candidates];
+  const q=document.getElementById('searchInput').value.trim().toLowerCase();
+  const selectedStatus=document.getElementById('statusSelect').value;
+  if(activeFilter==='待我處理') arr=arr.filter(c=>['弘昌確認中','等待帆宣面談'].includes(c.status));
+  else if(activeFilter==='弘昌確認中') arr=arr.filter(c=>c.status==='弘昌確認中');
+  else if(activeFilter==='帆宣面談') arr=arr.filter(c=>c.status.includes('帆宣'));
+  else if(activeFilter==='錄取') arr=arr.filter(c=>c.status==='錄取');
+  else if(activeFilter==='報到') arr=arr.filter(c=>c.status==='報到');
+  if(selectedStatus) arr=arr.filter(c=>c.status===selectedStatus);
+  if(q) arr=arr.filter(c=>[c.name,c.line,c.status,c.role,c.first].join(' ').toLowerCase().includes(q));
+  return arr;
+}
+function renderTable(){
+  const list=filteredCandidates();
+  const root=document.getElementById('tableView');
+  if(!list.length){ root.innerHTML=`<div class="empty">目前沒有符合條件的人選</div>`; return; }
+  root.innerHTML = `
+    <div class="scroll-hint">◀ 左右滑動可看到完整欄位 ▶</div>
+    <div class="table-scroller">
+    <div class="table-wrap"><table>
+      <thead><tr><th>人選</th><th>首次聯繫</th><th>AI 面談</th><th>顧問審核</th><th>弘昌送件</th><th>帆宣面談</th><th>目前狀態</th><th>操作</th></tr></thead>
+      <tbody>${list.map(c=>`
+        <tr onclick="openModal(${c.id})">
+          <td>
+            <div class="name">${c.name}${getUnread(c.id)?`<span class="unread-dot">${getUnread(c.id)}</span>`:''}</div>
+            <div class="role">${c.role}</div>
+            ${getLastMessage(c.id)?`<div class="message-preview"><span class="msg-text">💬 ${escapeHtml(getLastMessage(c.id).text)}</span><span class="msg-time">${getLastMessage(c.id).time}</span></div>`:''}
+          </td>
+          <td>${c.first}</td>
+          <td>${c.stage>=1?'<span class="status-pill green">已完成</span>':'—'}</td>
+          <td>${c.stage>=2?'<span class="status-pill green">已通過</span>':(c.status==='顧問審核中'?'<span class="status-pill green">審核中</span>':'—')}</td>
+          <td>${c.stage>=3?'<span class="status-pill blue">已送件</span>':'—'}</td>
+          <td>${c.stage>=4?'<span class="status-pill orange">進行中</span>':'—'}</td>
+          <td><span class="status-pill ${c.statusClass}">${c.status}</span></td>
+          <td><button class="action-btn" onclick="event.stopPropagation();openModal(${c.id})">查看</button></td>
+        </tr>
+      `).join('')}</tbody>
+    </table></div>
+    <div class="scroll-fade"></div>
+    </div>`;
+}
+function renderCards(){
+  const list=filteredCandidates();
+  const root=document.getElementById('cardView');
+  if(!list.length){ root.innerHTML=`<div class="empty">目前沒有符合條件的人選</div>`; return; }
+  root.innerHTML = `
+    <div class="cards">${list.map(c=>`
+      <article class="card" onclick="openModal(${c.id})">
+        <div class="card-top">
+          <div>
+            <div class="name">${c.name}${getUnread(c.id)?`<span class="unread-dot">${getUnread(c.id)}</span>`:''}</div>
+            <div class="role">${c.role}</div>
+            ${getLastMessage(c.id)?`<div class="message-preview"><span class="msg-text">💬 ${escapeHtml(getLastMessage(c.id).text)}</span><span class="msg-time">${getLastMessage(c.id).time}</span></div>`:''}
+          </div>
+          <span class="status-pill ${c.statusClass}">${c.status}</span>
+        </div>
+        <div class="meta">
+          <div><div class="label">首次聯繫</div><div class="value">${c.first}</div></div>
+          <div><div class="label">LINE ID</div><div class="value">${c.line}</div></div>
+          <div><div class="label">工作年資</div><div class="value">${c.years}</div></div>
+          <div><div class="label">目前階段</div><div class="value">${stages[c.stage]}</div></div>
+        </div>
+        <div class="card-progress">${stages.map((_,i)=>`<span class="dot ${i<=c.stage?'done':''}"></span>${i<stages.length-1?'<span class="line"></span>':''}`).join('')}</div>
+        <div class="card-foot"><span>最後紀錄：${c.timeline[c.timeline.length-1][0]}</span><span class="click-hint">點擊查看完整人選卡片 →</span></div>
+      </article>
+    `).join('')}</div>`;
+}
+function setView(view){
+  currentView=view;
+  document.getElementById('tableViewBtn').classList.toggle('active',view==='table');
+  document.getElementById('cardViewBtn').classList.toggle('active',view==='card');
+  document.getElementById('tableView').classList.toggle('hidden',view!=='table');
+  document.getElementById('cardView').classList.toggle('hidden',view!=='card');
+}
+function setFilter(filter){ activeFilter=filter; renderChips(); renderTable(); renderCards(); }
+
+function setStatsTab(tab,e){
+  document.querySelectorAll('.stats-tab').forEach(b=>b.classList.remove('active'));
+  if(e) e.currentTarget.classList.add('active');
+  document.getElementById('stats').classList.toggle('tab-hidden', tab!=='cards');
+  document.getElementById('funnelChart').classList.toggle('tab-hidden', tab!=='funnel');
+}
+
+function openModal(id){
+  const c=candidates.find(x=>x.id===id);
+  activeCandidate=c;
+  document.getElementById('mName').textContent=c.name;
+  document.getElementById('mSubtitle').textContent=`${c.role}　/　目前狀態：${c.status}`;
+  const mProgress = document.getElementById('mProgress');
+  mProgress.innerHTML = stages.map((s,i)=>`
+    <div class="step ${i<c.stage?'done':''} ${i===c.stage?'done now':''}"><span class="ln"></span><span class="dot"></span><span class="lb">${s}</span></div>
+  `).join('');
+  const nowStep = mProgress.querySelector('.step.now');
+  if(nowStep) nowStep.scrollIntoView({inline:'center', block:'nearest'});
+  const info=[['首次聯繫',c.first],['LINE ID',c.line],['工作年資',c.years],['Revit',c.revit],['AutoCAD',c.cad],['目前狀態',c.status]];
+  document.getElementById('mInfo').innerHTML = info.map(item=>`<div><div class="label">${item[0]}</div><div class="value">${item[1]}</div></div>`).join('');
+  document.getElementById('mSummary').textContent=c.summary;
+  document.getElementById('mNote').textContent=c.note;
+  document.getElementById('mTimeline').innerHTML = c.timeline.map(item=>`<li><span class="date">${item[0]}</span><span class="content">${item[1]}</span></li>`).join('');
+  document.getElementById('statusUpdate').value = ['弘昌確認中','等待帆宣面談','帆宣面談完成','錄取','報到','暫緩'].includes(c.status) ? c.status : '弘昌確認中';
+  document.getElementById('noteUpdate').value='';
+  document.getElementById('chatInput').value='';
+  renderChat();
+  document.getElementById('overlay').classList.add('show');
+}
+function closeModal(){ document.getElementById('overlay').classList.remove('show'); }
+function closeOnOverlay(e){ if(e.target.id==='overlay') closeModal(); }
+
+function updateCandidate(){
+  if(!activeCandidate) return;
+  const newStatus=document.getElementById('statusUpdate').value;
+  const newNote=document.getElementById('noteUpdate').value.trim();
+  activeCandidate.status=newStatus;
+  if(newStatus==='弘昌確認中'){ activeCandidate.stage=3; activeCandidate.statusClass='blue'; }
+  if(newStatus==='等待帆宣面談'){ activeCandidate.stage=4; activeCandidate.statusClass='orange'; }
+  if(newStatus==='帆宣面談完成'){ activeCandidate.stage=4; activeCandidate.statusClass='orange'; }
+  if(newStatus==='錄取'){ activeCandidate.stage=5; activeCandidate.statusClass='green'; }
+  if(newStatus==='報到'){ activeCandidate.stage=6; activeCandidate.statusClass='green'; }
+  if(newStatus==='暫緩'){ activeCandidate.statusClass='gray'; }
+  activeCandidate.timeline.push(['08/31', `用人單位更新：${newStatus}${newNote?'｜'+newNote:''}`]);
+  closeModal(); renderTable(); renderCards();
+  showToast(`（示範）已模擬更新 ${activeCandidate.name} → ${newStatus}`);
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(window.toastTimer);
+  window.toastTimer=setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+document.getElementById('searchInput').addEventListener('input',()=>{ renderTable(); renderCards(); });
+document.getElementById('statusSelect').addEventListener('change',()=>{ renderTable(); renderCards(); });
+document.getElementById('weekSelect').addEventListener('change',e=>showToast(`（示範）已切換：${e.target.value}`));
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
+document.addEventListener('click',e=>{
+  const wrap=e.target.closest('.notify-wrap');
+  if(!wrap){ const menu=document.getElementById('notifyMenu'); if(menu) menu.classList.remove('show'); }
+});
+
+renderStats(); renderFunnel(); renderChips(); renderTable(); renderCards();
+setView(window.matchMedia('(max-width:760px)').matches ? 'card' : 'table');
+updateNotificationUI();
+</script>
+</html>
