@@ -97,17 +97,18 @@ button.sec{background:#fff;color:var(--ink2);border:1px solid var(--line)}
 .cand .report-box{margin-top:10px}
 .cand .report-md{background:var(--soft,#faf8f3);border-radius:9px;padding:14px 16px;font-size:13.5px;line-height:1.8;white-space:pre-wrap;max-height:360px;overflow-y:auto}
 /* 進度條（跟顧問後台階段條同一套畫法） */
-.steps{display:flex;overflow-x:auto;gap:0;padding:4px 0}
-.step{position:relative;flex:1 0 auto;min-width:78px;text-align:center;padding-top:16px}
-.step .ln{position:absolute;top:7px;left:-50%;width:100%;height:2px;background:var(--line);z-index:0}
+.steps{display:flex;overflow-x:auto;gap:0;padding:10px 4px 4px}
+.step{position:relative;flex:1 1 0;min-width:84px;text-align:center}
+.step .ln{position:absolute;top:15px;left:-50%;width:100%;height:3px;background:var(--line);z-index:0;border-radius:999px}
 .step:first-child .ln{display:none}
 .step.done .ln{background:var(--gold)}
-.step .dot{position:relative;z-index:1;width:16px;height:16px;margin:0 auto;border-radius:999px;background:#fff;
- border:2px solid var(--line);font-size:9px;line-height:12px;color:#fff}
+.step .dot{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;width:30px;height:30px;
+ margin:0 auto 9px;border-radius:50%;background:#fff;border:2.5px solid var(--line);font-size:13px;font-weight:900;color:#fff}
 .step.done .dot{background:var(--gold);border-color:var(--gold)}
-.step.now .dot{border-color:var(--gold);box-shadow:0 0 0 3px #fdf1de}
-.step .lb{font-size:11px;color:var(--ink3);margin-top:6px;line-height:1.4}
-.step.now .lb{color:var(--ink);font-weight:700}
+.step.now .dot{border-color:var(--gold);background:#fff;box-shadow:0 0 0 5px #fdf1de}
+.step .lb{font-size:11.5px;color:var(--ink3);margin-top:0;line-height:1.4;font-weight:600}
+.step.now .lb{color:var(--gold);font-weight:800}
+.step.done .lb{color:var(--ink2);font-weight:700}
 .step.done .lb{color:var(--ink2)}
 #mask{position:fixed;inset:0;background:rgba(35,38,45,.45);z-index:40}
 #savedModal{position:fixed;z-index:41;left:50%;top:50%;transform:translate(-50%,-50%);
