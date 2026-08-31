@@ -172,7 +172,7 @@ button.sec{background:#fff;color:var(--ink2);border:1px solid var(--line)}
 .dash-view-btn{border:0;background:#fff;padding:8px 13px;cursor:pointer;font-weight:700;color:var(--ink2);font-size:12.5px}
 .dash-view-btn.on{background:var(--ink);color:#fff}
 .dash-table-wrap{border:1px solid var(--line);border-radius:12px;overflow-x:auto}
-.dash-table{width:100%;border-collapse:collapse;min-width:1300px}
+.dash-table{width:100%;border-collapse:collapse;min-width:640px}
 .dash-table td:first-child,.dash-table td:first-child b{white-space:nowrap}
 .dash-table th{background:var(--soft);color:var(--ink2);font-size:12.5px;font-weight:800;padding:11px;text-align:left;white-space:nowrap}
 .dash-table td{padding:11px;border-top:1px solid var(--line);vertical-align:middle}
@@ -951,22 +951,21 @@ function renderTable(){
   const list = filteredCandidates();
   const el = document.getElementById('dashTableView');
   if (!list.length){ el.innerHTML = '<div class="dash-empty">目前沒有符合條件的人選</div>'; return; }
-  // 每個階段一欄（跟顧問後台階段條同一份 STAGE_ORDER，不是寫死的欄位名稱），
-  // 而不是只塞一個「目前狀態」欄位——這樣才看得出走到哪、還剩哪幾關。
-  const stageLbs = (list[0].steps || []).map(s => s.lb);
+  // 2026-08-31 修正：原本想比照 demo 做「每階段一欄」，但每位人選的 steps
+  // 是依他自己實際加過幾輪面試動態長出來的（interview_rounds_used 每人不同），
+  // 不是全公司共用一套固定七階段——用 list[0] 的 steps 當表頭，會跟其他人選
+  // 自己的 steps 對不上欄位，數字看起來對但其實是錯位的。改回單一狀態欄，
+  // 完整逐階段進度留在點開後的彈窗裡看（那裡只顯示這一位自己的 steps，不會
+  // 有跨人選對不齊的問題）。
   el.innerHTML = `<div class="dash-table-wrap"><table class="dash-table">
-    <thead><tr><th>人選</th><th>LINE ID</th><th>推送日</th>${stageLbs.map(lb => `<th>${esc(lb)}</th>`).join('')}</tr></thead>
+    <thead><tr><th>人選</th><th>LINE ID</th><th>推送日</th><th>目前狀態</th></tr></thead>
     <tbody>${list.map(c => {
-      const stageCells = (c.steps || []).map(s => {
-        if (s.now) return `<td><span class="dash-pill now">進行中</span></td>`;
-        if (s.done) return `<td><span class="dash-pill done">已完成</span></td>`;
-        return `<td>—</td>`;
-      }).join('');
+      const cur = currentStageOf(c);
       return `<tr data-app="${esc(c.application_id)}">
         <td><b>${esc(c.candidate_name)}</b><div style="font-size:12px;color:var(--ink3)">${esc(c.job_title || c.job_slug)}</div></td>
         <td>${esc(c.line_id_given || '尚未提供')}</td>
         <td>${esc((c.forwarded_at || '').slice(0, 10))}</td>
-        ${stageCells}
+        <td><span class="dash-pill ${stagePillClass(cur)}">${esc(cur.lb)}</span></td>
       </tr>`;
     }).join('')}</tbody>
   </table></div>`;
