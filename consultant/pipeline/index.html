@@ -562,6 +562,12 @@ function drawerHtml(d){
     h+='<div class="sec"><h4>'+esc(s.company_name||'客戶')+'　目前：'+esc(s.label||'—')
       +(s.manual_active?'　<span class="pill warn">顧問手動指定</span>':'')+'</h4>'
       +bar(s.steps||[])
+      // 客戶在 portal 更新階段時可以順手留的回饋（面談結束後的狀況、主管評語等）——
+      // 存在 candidate_forwards.manual_stage_note，2026-08-31 前只有寫入沒有任何
+      // 地方顯示，顧問完全看不到客戶寫了什麼；補上這塊唯讀顯示。
+      +(s.manual_stage_note?('<div class="sec" style="background:#fdf6e9;border-color:#e8d5ab;margin-top:10px">'
+        +'<div class="mut" style="font-weight:700;color:var(--warn);margin-bottom:4px">'+esc(s.company_name||'客戶')+'回填的面談回饋</div>'
+        +'<div style="white-space:pre-wrap">'+esc(s.manual_stage_note)+'</div></div>'):'')
       // 一家一組控制項。同一位人選推兩家時，兩家的進度是各自獨立的——
       // 共用一個下拉會讓 A 家談到第二關把 B 家也一起推過去。
       +'<div class="acts" style="margin-top:10px">'

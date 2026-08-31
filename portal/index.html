@@ -875,6 +875,13 @@ function currentStageOf(c){
   const steps = c.steps || [];
   return steps.find(s => s.now) || [...steps].reverse().find(s => s.done) || { lb: '尚未開始' };
 }
+// 卡片/表格的狀態標籤空間有限，顧問回填面試輪次時組出來的完整標籤
+// 「人資面談（高階主管）（第二階段）」太長會把版面撐壞——這種窄空間只需要
+// 「第幾階段面談」，完整內容還是留在彈窗的「目前狀態」文字裡看得到。
+function shortStageLabel(lb){
+  const m = String(lb || '').match(/第[一二三四]階段/);
+  return m ? `${m[0]}面談` : lb;
+}
 
 async function loadCandidates(){
   document.getElementById('dashTableView').innerHTML = '<div class="state">讀取中…</div>';
@@ -932,7 +939,7 @@ function renderChips(){
   const chips = ['全部', ...labels];
   document.getElementById('dashChips').innerHTML = chips.map(c => {
     const count = c === '全部' ? CAND_LIST.length : CAND_LIST.filter(x => currentStageOf(x).lb === c).length;
-    return `<button type="button" class="dash-chip ${CAND_FILTER === c ? 'on' : ''}" data-chip="${esc(c)}">${esc(c)} ${count}</button>`;
+    return `<button type="button" class="dash-chip ${CAND_FILTER === c ? 'on' : ''}" data-chip="${esc(c)}">${esc(shortStageLabel(c))} ${count}</button>`;
   }).join('');
   document.getElementById('dashChips').querySelectorAll('.dash-chip').forEach(btn => {
     btn.addEventListener('click', () => { CAND_FILTER = btn.dataset.chip; renderChips(); renderTable(); renderCards(); });
@@ -1009,7 +1016,7 @@ function renderCards(){
     return `<div class="dash-card cm-openbtn" data-app="${esc(c.application_id)}">
       <div class="dash-card-top">
         <div><b>${esc(c.candidate_name)}</b><div style="font-size:12px;color:var(--ink3)">${esc(c.job_title || c.job_slug)}</div></div>
-        <span class="dash-pill ${stagePillClass(cur)}">${esc(cur.lb)}</span>
+        <span class="dash-pill ${stagePillClass(cur)}">${esc(shortStageLabel(cur.lb))}</span>
       </div>
       <div class="dash-card-info">
         <div><div class="lb">首次聯繫</div><div class="vv">${esc((c.forwarded_at || '').slice(0, 10)) || '—'}</div></div>
@@ -1017,7 +1024,7 @@ function renderCards(){
       </div>
       <div class="dash-card-progress">${dotsHtml}</div>
       <div class="dash-card-foot">
-        <span>目前狀態：${esc(cur.lb)}</span>
+        <span>目前狀態：${esc(shortStageLabel(cur.lb))}</span>
         <span class="hint">點擊查看完整人選資料 →</span>
       </div>
     </div>`;
@@ -1072,10 +1079,13 @@ function openCandModal(appId){
       <span class="upd-msg" id="cmRoundMsg"></span>
       <span class="cm-hint">選這一輪是人資面談還是用人單位主管面談，送出後會依序記成「第一階段」「第二階段」……</span>
     </div>`}
-    <div class="cm-update-grid">
-      <select id="cmStagePick">${c.editable_stages.map(s => `<option value="${esc(s.key)}">${esc(s.lb)}</option>`).join('')}</select>
-      <button type="button" id="cmStageUpd">更新為此狀態</button>
-      <span class="upd-msg" id="cmStageMsg"></span>
+    <div class="cm-update-grid" style="flex-direction:column;align-items:stretch">
+      <textarea id="cmStageNote" placeholder="面談結束後的狀況、主管評語等回饋（選填，顧問會看到）" style="width:100%;min-height:60px;font:inherit;font-size:13px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;resize:vertical;box-sizing:border-box"></textarea>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px">
+        <select id="cmStagePick">${c.editable_stages.map(s => `<option value="${esc(s.key)}">${esc(s.lb)}</option>`).join('')}</select>
+        <button type="button" id="cmStageUpd">更新為此狀態</button>
+        <span class="upd-msg" id="cmStageMsg"></span>
+      </div>
     </div>`;
   const roundAddBtn = document.getElementById('cmRoundAdd');
   if (roundAddBtn) roundAddBtn.addEventListener('click', cmAddInterviewRound);
@@ -1220,13 +1230,14 @@ async function cmAddInterviewRound(){
 async function cmUpdateStage(){
   const appId = ACTIVE_APP;
   const stage = document.getElementById('cmStagePick').value;
+  const note = document.getElementById('cmStageNote').value.trim();
   const btn = document.getElementById('cmStageUpd');
   const msgEl = document.getElementById('cmStageMsg');
   btn.disabled = true;
   msgEl.textContent = '';
   try{
     const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(appId)}/stage`, {
-      method: 'POST', headers: {'content-type':'application/json'}, body: JSON.stringify({ stage }),
+      method: 'POST', headers: {'content-type':'application/json'}, body: JSON.stringify({ stage, note: note || undefined }),
     });
     const data = await res.json();
     if (!data.ok){ msgEl.style.color = 'var(--bad)'; msgEl.textContent = data.error || '更新失敗'; btn.disabled = false; return; }
