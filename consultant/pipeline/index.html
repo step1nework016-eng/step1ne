@@ -591,6 +591,13 @@ function drawerHtml(d){
       +'style="background:#fdf6e9;border-color:#e8d5ab" placeholder="例：這位候選人溝通清楚，Revit操作熟練，可安排面試">'+esc(s.client_note||'')+'</textarea>'
       +'<div class="acts" style="margin-top:8px"><button class="btn p fwd-save" data-c="'+esc(s.company_id||'')+'" data-a="'+esc(a.id)+'">存這家的 LINE ID／摘要</button>'
       +'<span class="mut fwd-msg" data-c="'+esc(s.company_id||'')+'"></span></div>'
+      // 主動傳訊息給用人單位——原本只有客戶先傳、顧問在 TG 回覆這一條路，
+      // 顧問想主動告知進度完全沒有入口。這裡直接寫進同一張訊息串，客戶的
+      // 通知鈴鐺會跳、TG 也會同步收到一則（不用開 TG 才能發）。
+      +'<label class="edl" style="margin-top:14px">主動傳訊息給'+esc(s.company_name||'客戶')+'（會出現在客戶 portal 的訊息串，也會同步發到 TG）</label>'
+      +'<textarea class="edi msg-client" data-c="'+esc(s.company_id||'')+'" data-a="'+esc(a.id)+'" rows="2" placeholder="例：這位候選人已確認可配合到職日，麻煩安排面試"></textarea>'
+      +'<div class="acts" style="margin-top:8px"><button class="btn p msg-client-send" data-c="'+esc(s.company_id||'')+'" data-a="'+esc(a.id)+'">傳送</button>'
+      +'<span class="mut msg-client-msg" data-c="'+esc(s.company_id||'')+'"></span></div>'
       +'</div>';
   });
   if(!(d.stages||[]).length && (d.placements||[]).length){
@@ -731,6 +738,24 @@ function openCard(kind,id,name){
         .then(function(r){ b.disabled = false;
           if(!r.ok){ msg.textContent = r.error || '儲存失敗'; return; }
           msg.textContent = '已儲存';
+        }).catch(function(){ b.disabled = false; msg.textContent = '連線失敗'; });
+      };
+    });
+    // ── 主動傳訊息給用人單位（一家一組）──
+    Array.prototype.forEach.call($('dbody').querySelectorAll('.msg-client-send'), function(b){
+      b.onclick = function(){
+        var c = b.dataset.c, appId = b.dataset.a;
+        var ta = $('dbody').querySelector('.msg-client[data-c="'+c+'"]');
+        var msg = $('dbody').querySelector('.msg-client-msg[data-c="'+c+'"]');
+        var content = ta.value.trim();
+        if(!content){ msg.textContent = '先輸入要傳的內容'; return; }
+        b.disabled = true; msg.textContent = '傳送中…';
+        api('/admin/pipeline/message-client', {method:'POST', headers:{'content-type':'application/json'},
+          body: JSON.stringify({ application_id: appId, company_id: c, content: content, by: OWNER })})
+        .then(function(r){ b.disabled = false;
+          if(!r.ok){ msg.textContent = r.error || '傳送失敗'; return; }
+          msg.style.color = 'var(--ok)'; msg.textContent = '已傳送';
+          ta.value = '';
         }).catch(function(){ b.disabled = false; msg.textContent = '連線失敗'; });
       };
     });
