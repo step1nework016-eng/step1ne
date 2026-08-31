@@ -614,8 +614,12 @@ function crossHistPlaceholder(){
   return '<div class="sec" id="crosshist"><h4>這個人選在其他職缺的紀錄'
     + '<span class="mut" style="font-weight:400;font-size:11.5px;display:block;margin-top:2px">'
     + '僅供內部參考，不會出現在任何客戶看得到的地方</span></h4>'
-    + '<p class="mut" style="margin:0">載入中…</p></div>';
+    + '<p class="mut" style="margin:0">載入中…</p></div>'
+    + manualForwardFormHtml();
 }
+// ⚠️ crossHistHtml() 的結果只會拿去換掉 #crosshist 裡面的內容（openCard()
+// 用 el.innerHTML=... 整塊替換）——新增紀錄的表單是另一個獨立的 .sec，
+// 不在 #crosshist 裡面，所以歷史清單重新整理時不會把表單一起洗掉。
 function crossHistHtml(rows){
   if(!rows||!rows.length) return '<p class="mut" style="margin:0">目前只有這一筆，沒有查到其他職缺的紀錄。</p>';
   var DEC2={forwarded:['已推薦','ok'],need_more:['需補問','warn'],rejected:['顧問婉拒','bad']};
@@ -631,6 +635,34 @@ function crossHistHtml(rows){
       + (r.stage_label ? '<span class="pill">'+esc(r.stage_label)+'</span>' : (dec ? '<span class="pill '+dec[1]+'">'+esc(dec[0])+'</span>' : ''))
       + '</div>';
   }).join('');
+}
+
+// 手動新增應徵紀錄——顧問常常自己直接把履歷送給客戶，那個人根本沒填過
+// 表單、沒跟阿財面談過，系統原本完全看不到。這裡補一個入口：不論人才池
+// 裡還沒轉應徵的人、還是已經應徵過別的職缺的人，都能手動記一筆「送去
+// 哪個職缺」，之後就能像正常應徵者一樣調整階段、客戶 portal 也看得到。
+// ⚠️ 人才池的人還沒同意個資利用，這裡強制打勾確認，不能無聲無息就送出去。
+var MANUAL_STAGE_OPTS=[
+  {key:'',lb:'不先設定（之後再調）'},
+  {key:'stage1',lb:'第一階段'},{key:'stage2',lb:'第二階段'},
+  {key:'stage3',lb:'第三階段'},{key:'stage4',lb:'第四階段'},
+  {key:'offer',lb:'錄取'},{key:'onboard',lb:'報到'},{key:'care',lb:'到職關懷'},
+  {key:'backup',lb:'備選'},
+];
+function manualForwardFormHtml(){
+  return '<div class="sec" id="addfwd"><h4>手動新增應徵紀錄'
+    + '<span class="mut" style="font-weight:400;font-size:11.5px;display:block;margin-top:2px">'
+    + '人選自己沒填過表單、沒跟阿財面談過，但你已經把他推薦給客戶了，就用這裡補一筆</span></h4>'
+    + '<label class="edl">送去哪個職缺</label><select class="edi" id="afJob"><option value="">選一個職缺…</option></select>'
+    + '<label class="edl">現在在第幾關（不確定可以先不填）</label>'
+    + '<select class="edi" id="afStage">'+MANUAL_STAGE_OPTS.map(function(o){return '<option value="'+o.key+'">'+o.lb+'</option>'}).join('')+'</select>'
+    + '<label class="edl">怎麼取得本人同意的（例：電話裡口頭同意、履歷是他自己傳來要投的）</label>'
+    + '<textarea class="edi" id="afConsentNote" rows="2"></textarea>'
+    + '<label style="display:flex;align-items:flex-start;gap:8px;margin-top:10px;font-size:13px;color:var(--ink2)">'
+    + '<input type="checkbox" id="afConsentOk" style="width:auto;margin-top:3px">'
+    + '<span>我確認已經取得本人同意，這筆資料可以提供給客戶</span></label>'
+    + '<div class="acts" style="margin-top:10px"><button class="btn p" id="afGo" type="button">新增這筆應徵紀錄</button>'
+    + '<span class="mut" id="afMsg"></span></div></div>';
 }
 
 function openCard(kind,id,name){
@@ -664,6 +696,38 @@ function openCard(kind,id,name){
         el.innerHTML=el.querySelector('h4').outerHTML+'<p class="mut" style="margin:0">連線失敗</p>';
       });
     }
+    // ── 手動新增應徵紀錄 ──
+    var afj=$('afJob');
+    if(afj){
+      api('/admin/jobs').then(function(r){
+        if(!r.ok)return;
+        (r.jobs||[]).filter(function(j){return (j.status||'open')!=='closed' && j.status!=='client_draft' && j.status!=='pending_review'})
+          .forEach(function(j){
+            var o5=document.createElement('option');
+            o5.value=j.slug; o5.textContent=j.title||j.slug;
+            afj.appendChild(o5);
+          });
+      });
+    }
+    var afg=$('afGo');
+    if(afg)afg.onclick=function(){
+      var msg=$('afMsg');
+      if(!afj.value){ msg.textContent='先選一個職缺'; return; }
+      if(!$('afConsentOk').checked){ msg.textContent='請先勾選確認已取得本人同意'; return; }
+      afg.disabled=true; msg.textContent='處理中…';
+      api('/admin/pipeline/manual-forward',{method:'POST',headers:{'content-type':'application/json'},
+        body:JSON.stringify({
+          source_kind: kind, source_id: id, job_slug: afj.value,
+          initial_stage: $('afStage').value || null,
+          consent_confirmed: true, consent_note: $('afConsentNote').value,
+        })})
+      .then(function(r){ afg.disabled=false;
+        if(!r.ok){ msg.textContent=r.error||'新增失敗'; return; }
+        if(r.message) alert(r.message);
+        openCard(kind,id,name); load();
+      }).catch(function(){ afg.disabled=false; msg.textContent='連線失敗'; });
+    };
+
     var m=$('rptmore');
     if(m)m.onclick=function(){var e=$('rpt');e.classList.toggle('open');
       m.textContent=e.classList.contains('open')?'收合 ▴':'展開全文 ▾'};
