@@ -355,14 +355,22 @@ function chLink(url, label){
   return '<a href="'+esc(url)+'" target="_blank" rel="noopener">'+esc(lb)+'</a>';
 }
 
+// 備註改成「只能加不能改」——原本是把整段舊文字放進 textarea 讓顧問自己編輯，
+// 結果只要手滑選字刪掉重打，先前的紀錄就整段消失，而且沒有任何人知道。
+// 改成每次都是「新增一則」，自動蓋日期時間戳記、疊加在舊紀錄後面，
+// 顧問看得到的永遠是完整歷史，沒有能刪掉過去的入口。
+function ntStamp(){
+  var d=new Date(), p=function(n){return String(n).padStart(2,'0')};
+  return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());
+}
 function noteBlock(txt){
   var t = String(txt || '').trim();
   return '<div class="sec" id="notesec"><h4>顧問備註'
-    + '<button class="more" id="ntedit" type="button">' + (t ? '編輯 ✎' : '新增 ＋') + '</button></h4>'
+    + '<button class="more" id="ntedit" type="button">新增一則 ＋</button></h4>'
     + '<div id="ntview" class="ntv">' + (t ? esc(t) : '<span class="mut">還沒有備註。打過電話、聊過什麼、要注意什麼都寫這裡。</span>') + '</div>'
     + '<div id="ntbox" hidden>'
-    + '<textarea class="edi" id="ntinput" rows="4" placeholder="例：8/27 電訪，願意談，但要先確認在台工作權。下週三前回覆。">' + esc(t) + '</textarea>'
-    + '<div class="acts"><button class="btn p" id="ntsave" type="button">儲存</button>'
+    + '<textarea class="edi" id="ntinput" rows="3" placeholder="例：電訪，願意談，但要先確認在台工作權。下週三前回覆。（會自動加上今天的日期時間，接在舊紀錄後面，不會蓋掉之前寫的）"></textarea>'
+    + '<div class="acts"><button class="btn p" id="ntsave" type="button">新增這則</button>'
     + '<button class="btn" id="ntcancel" type="button">取消</button>'
     + '<span class="mut" id="ntmsg"></span></div></div></div>';
 }
@@ -712,17 +720,20 @@ function openCard(kind,id,name){
       var box=$('ntbox'), v=$('ntview');
       var open = box.hidden;
       box.hidden = !open; v.hidden = open;
-      if(open){ var t=$('ntinput'); t.focus();
-        // 游標放到最後面，不要蓋掉既有內容——備註幾乎都是往下加一行
-        t.setSelectionRange(t.value.length, t.value.length); }
+      if(open){ $('ntinput').value=''; $('ntinput').focus(); }
     };
     var nc=$('ntcancel');
-    if(nc)nc.onclick=function(){ $('ntbox').hidden=true; $('ntview').hidden=false; };
+    if(nc)nc.onclick=function(){ $('ntinput').value=''; $('ntbox').hidden=true; $('ntview').hidden=false; };
     var ns=$('ntsave');
     if(ns)ns.onclick=function(){
-      var val=$('ntinput').value;
+      var add=$('ntinput').value.trim();
+      if(!add){ $('ntmsg').textContent='先寫點東西再新增'; return; }
       var target = kind==='sourced' ? (d.sourced||{}) : (d.application||{});
       if(!target.id){ $('ntmsg').textContent='這筆沒有可以存備註的對象'; return; }
+      // 永遠是「舊紀錄 + 新的一行」，不是拿新內容整段覆蓋——
+      // 這樣顧問手滑刪字也頂多刪到自己這次剛打的，刪不到過去的歷史。
+      var old=String(target.note||'').trim();
+      var val=(old?old+'\n':'')+'['+ntStamp()+'] '+add;
       ns.disabled=true; $('ntmsg').textContent='儲存中…';
       var url = kind==='sourced' ? '/admin/sourced/update' : '/admin/application/update';
       api(url,{method:'POST',headers:{'content-type':'application/json'},
