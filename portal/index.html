@@ -142,6 +142,67 @@ button.sec{background:#fff;color:var(--ink2);border:1px solid var(--line)}
 .chat-compose textarea{flex:1;min-height:38px;font:inherit;font-size:13px;padding:7px 9px;border:1px solid var(--line);border-radius:8px;resize:vertical}
 .chat-compose button{padding:7px 14px;font-size:12.5px}
 .unread-dot{display:inline-flex;min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:var(--bad);color:#fff;font-size:10px;font-weight:800;align-items:center;justify-content:center;margin-left:6px;vertical-align:middle}
+
+/* 人選進度儀表板 */
+.dash-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:16px}
+.dash-stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}
+.dash-stat .lb{font-size:12px;color:var(--ink3);margin-bottom:5px}
+.dash-stat .vv{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}
+.dash-layout{display:grid;grid-template-columns:240px 1fr;gap:14px;align-items:start}
+.dash-layout>*{min-width:0}
+@media(max-width:900px){.dash-layout{grid-template-columns:1fr}}
+.dash-panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px}
+.dash-helper{font-size:12px;color:var(--ink3);line-height:1.6;margin-bottom:12px}
+.dash-job-block{margin-bottom:14px}
+.dash-job-block:last-child{margin-bottom:0}
+.dash-job-block h4{margin:0 0 8px;font-size:13px;color:var(--ink2)}
+.dash-funnel-row{margin:8px 0}
+.dash-funnel-head{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px}
+.dash-bar{height:8px;border-radius:999px;background:var(--soft);overflow:hidden}
+.dash-bar span{display:block;height:100%;background:linear-gradient(90deg,var(--gold),#e0c592);border-radius:999px}
+.dash-main-top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.dash-chips{display:flex;flex-wrap:wrap;gap:7px}
+.dash-chip{border:1px solid var(--line);background:var(--soft);color:var(--ink2);padding:7px 12px;border-radius:999px;cursor:pointer;font-weight:700;font-size:12.5px}
+.dash-chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.dash-search-area{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.dash-search{min-width:200px;border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 11px;font:inherit;font-size:13px}
+.dash-view-switch{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+.dash-view-btn{border:0;background:#fff;padding:8px 13px;cursor:pointer;font-weight:700;color:var(--ink2);font-size:12.5px}
+.dash-view-btn.on{background:var(--ink);color:#fff}
+.dash-table-wrap{border:1px solid var(--line);border-radius:12px;overflow-x:auto}
+.dash-table{width:100%;border-collapse:collapse;min-width:640px}
+.dash-table th{background:var(--soft);color:var(--ink2);font-size:12.5px;font-weight:800;padding:11px;text-align:left;white-space:nowrap}
+.dash-table td{padding:11px;border-top:1px solid var(--line);vertical-align:middle}
+.dash-table td:not(:first-child){white-space:nowrap}
+.dash-table tr{cursor:pointer}
+.dash-table tr:hover td{background:var(--soft)}
+.dash-pill{display:inline-block;border-radius:999px;padding:5px 10px;font-size:11.5px;font-weight:800;white-space:nowrap;background:var(--soft);color:var(--gold)}
+.dash-pill.now{background:#fdf1de;color:var(--warn)}
+.dash-pill.done{background:#e3f3e9;color:var(--ok)}
+.dash-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.dash-card{border:1px solid var(--line);border-radius:12px;padding:12px;cursor:pointer;min-width:0}
+.dash-card:hover{border-color:var(--gold)}
+.dash-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.dash-card-top>div:first-child{min-width:0}
+.dash-card-meta{font-size:11.5px;color:var(--ink3);margin-top:8px}
+.dash-empty{padding:36px 16px;text-align:center;color:var(--ink3);border:1px dashed var(--line);border-radius:12px}
+/* 人選詳情彈窗 */
+#candModalMask{position:fixed;inset:0;background:rgba(35,32,20,.4);z-index:70;display:none;align-items:center;justify-content:center;padding:16px}
+#candModalMask.show{display:flex}
+.cand-modal{width:min(760px,96vw);max-height:92vh;overflow:auto;background:#fff;border-radius:18px;border:1px solid var(--line)}
+.cand-modal-top{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:16px 18px;display:flex;justify-content:space-between;gap:10px;z-index:2}
+.cand-modal-body{padding:16px 18px 20px}
+.cand-modal-close{width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:var(--soft);cursor:pointer;font-size:17px}
+.cm-section{border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+.cm-section h4{margin:0 0 10px;font-size:14px}
+.cm-info-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px 14px}
+.cm-info-grid .lb{font-size:11px;color:var(--ink3);margin-bottom:2px}
+.cm-info-grid .vv{font-size:13px;font-weight:600}
+.cm-fbtn{font:inherit;font-size:12.5px;font-weight:700;color:var(--gold);background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:8px 13px;cursor:pointer;text-decoration:none}
+.cm-update-grid{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.cm-update-grid select,.cm-update-grid input[type=text]{font:inherit;font-size:13px;padding:7px 9px;border:1px solid var(--line);border-radius:8px}
+.cm-update-grid button{padding:7px 14px;font-size:12.5px}
+.cm-hint{font-size:11.5px;color:var(--ink3);width:100%;margin-top:2px}
 </style>
 
 <header><div class="wrap" style="position:relative">
@@ -163,8 +224,28 @@ button.sec{background:#fff;color:var(--ink2);border:1px solid var(--line)}
       <button type="button" class="toptab" id="tabCandidates">人選進度</button>
     </div>
     <div id="candidatesView" hidden>
-      <div class="note">這裡列出顧問已經推薦給你們的人選。點選下拉選單回報這位人選目前在你們這邊面試到哪一關，更新後我們後台也會同步看到。</div>
-      <div id="candList"></div>
+      <section class="dash-stats" id="dashStats"></section>
+      <div class="dash-layout">
+        <aside class="dash-panel">
+          <h2 style="margin:0 0 6px;font-size:16px">招募漏斗</h2>
+          <div class="dash-helper">依職缺分別統計，顧問接觸中到已到職各階段的人數。</div>
+          <div id="dashFunnel"></div>
+        </aside>
+        <main class="dash-panel">
+          <div class="dash-main-top">
+            <div class="dash-chips" id="dashChips"></div>
+            <div class="dash-search-area">
+              <div class="dash-view-switch">
+                <button class="dash-view-btn on" id="dashTableBtn" type="button">表格式</button>
+                <button class="dash-view-btn" id="dashCardBtn" type="button">卡片式</button>
+              </div>
+              <input class="dash-search" id="dashSearch" placeholder="搜尋人選 / LINE ID">
+            </div>
+          </div>
+          <div id="dashTableView"></div>
+          <div id="dashCardView" hidden></div>
+        </main>
+      </div>
     </div>
     <div id="pickView">
       <div class="note">請先從下面選一個職缺開始填寫。黃色標籤代表這格還有資料還沒補上。</div>
@@ -204,6 +285,51 @@ button.sec{background:#fff;color:var(--ink2);border:1px solid var(--line)}
   <div class="row">
     <button class="sec" id="savedStay">繼續編輯</button>
     <button id="savedBack">返回主選單</button>
+  </div>
+</div>
+
+<div id="candModalMask">
+  <div class="cand-modal">
+    <div class="cand-modal-top">
+      <div>
+        <h3 id="cmName" style="margin:0 0 4px;font-size:20px"></h3>
+        <div id="cmSub" style="font-size:13px;color:var(--ink3)"></div>
+      </div>
+      <button type="button" class="cand-modal-close" id="cmClose">×</button>
+    </div>
+    <div class="cand-modal-body">
+      <div class="steps" id="cmSteps" style="margin-bottom:16px"></div>
+
+      <div class="chat-box" style="margin-top:0">
+        <h4 style="margin:0 0 8px;font-size:14px">💬 跟顧問討論這位人選</h4>
+        <div class="chat-window" id="cmChatWindow"></div>
+        <div class="chat-compose">
+          <textarea id="cmChatInput" placeholder="輸入要傳給顧問的訊息…"></textarea>
+          <button type="button" id="cmChatSend">送出</button>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px">
+        <div>
+          <div class="cm-section">
+            <h4>基本資料</h4>
+            <div class="cm-info-grid" id="cmInfo"></div>
+          </div>
+          <div class="cm-section">
+            <h4>履歷 / 初篩報告</h4>
+            <div style="display:flex;gap:8px;flex-wrap:wrap" id="cmFiles"></div>
+            <div class="report-box" id="cmReportBox" hidden style="margin-top:10px"></div>
+          </div>
+        </div>
+        <div>
+          <div class="cm-section" id="cmNoteBlock"></div>
+          <div class="cm-section">
+            <h4>更新進度</h4>
+            <div id="cmUpdateBox"></div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -701,8 +827,22 @@ document.getElementById('savedBack').addEventListener('click', () => {
   document.getElementById('pickView').hidden = false;
 });
 
-// ── 人選進度分頁 ──
+// ── 人選進度分頁：招募儀表板 ──
 let CANDIDATES_LOADED = false;
+let CAND_LIST = [];
+let CAND_VIEW = 'table';
+let CAND_FILTER = '全部';
+let ACTIVE_APP = null;
+let CHAT_POLL_TIMER = null;
+
+const FUNNEL_STAGES = [
+  ['shortlisted', '顧問接觸中'],
+  ['interviewed', '進入 AI 面談'],
+  ['passed_screening', '顧問審核通過'],
+  ['client_stage', '客戶面談中'],
+  ['offered', '已錄取'],
+  ['onboard', '已到職'],
+];
 
 function showTopView(view){
   document.getElementById('tabJobs').classList.toggle('on', view === 'jobs');
@@ -715,103 +855,205 @@ function showTopView(view){
 document.getElementById('tabJobs').addEventListener('click', () => showTopView('jobs'));
 document.getElementById('tabCandidates').addEventListener('click', () => showTopView('candidates'));
 
+function currentStageOf(c){
+  const steps = c.steps || [];
+  return steps.find(s => s.now) || [...steps].reverse().find(s => s.done) || { lb: '尚未開始' };
+}
+
 async function loadCandidates(){
-  const listEl = document.getElementById('candList');
-  listEl.innerHTML = '<div class="state">讀取中…</div>';
+  document.getElementById('dashTableView').innerHTML = '<div class="state">讀取中…</div>';
   try{
     const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates`);
     const data = await res.json();
-    if (!data.ok){ listEl.innerHTML = `<div class="state">${esc(data.error || '讀取失敗')}</div>`; return; }
+    if (!data.ok){ document.getElementById('dashTableView').innerHTML = `<div class="state">${esc(data.error || '讀取失敗')}</div>`; return; }
     CANDIDATES_LOADED = true;
-    renderCandidates(data.candidates || []);
+    CAND_LIST = data.candidates || [];
+    renderChips();
+    renderTable();
+    renderCards();
+    loadFunnels();
+    refreshNotifications();
   }catch{
-    listEl.innerHTML = '<div class="state">連線失敗，請稍後再試。</div>';
+    document.getElementById('dashTableView').innerHTML = '<div class="state">連線失敗，請稍後再試。</div>';
   }
 }
 
-function renderCandidates(list){
-  const listEl = document.getElementById('candList');
-  if (!list.length){ listEl.innerHTML = '<div class="state">目前還沒有推薦給你們的人選。</div>'; return; }
-  listEl.innerHTML = list.map(c => {
-    const dotsHtml = `<div class="steps">${c.steps.map(s => {
-      const cls = s.done ? 'done' : (s.now ? 'now' : '');
-      const mark = s.done ? '✓' : '';
-      return `<div class="step ${cls}"><div class="ln"></div><div class="dot">${mark}</div><div class="lb">${esc(s.lb)}</div></div>`;
-    }).join('')}</div>`;
-    const roundsFull = c.interview_rounds_used >= 4;
-    const addRoundHtml = roundsFull ? '' : `
-      <div class="add-round">
-        <select class="round-type">
-          ${Object.entries(c.interview_round_types).map(([k, lb]) => `<option value="${esc(k)}">${esc(lb)}</option>`).join('')}
-        </select>
-        <input type="text" class="round-note" placeholder="備註是哪個層級（選填）">
-        <button type="button" class="round-add">新增下一輪面試</button>
-        <span class="upd-msg round-msg"></span>
-        <span class="hint">選這一輪是人資面談還是用人單位主管面談，送出後會依序記成「第一階段」「第二階段」……</span>
-      </div>`;
-    const offerBackupHtml = `
-      <div class="row2">
-        <select class="stage-pick">
-          ${c.editable_stages.map(s => `<option value="${esc(s.key)}">${esc(s.lb)}</option>`).join('')}
-        </select>
-        <button type="button" class="stage-upd">更新為此狀態</button>
-        <span class="upd-msg stage-msg"></span>
-      </div>`;
-    // LINE ID／給客戶看摘要／履歷／報告——都是顧問主動提供才會有內容，
-    // 沒有就明講「尚未提供」，不要留空白讓人以為是壞掉。
-    const lineHtml = c.line_id_given
-      ? `<div class="info-row"><span class="k">LINE ID</span><span class="v">${esc(c.line_id_given)}</span></div>`
-      : `<div class="info-row"><span class="k">LINE ID</span><span class="v mut">尚未提供</span></div>`;
-    const noteHtml = c.client_note
-      ? `<div class="client-note"><div class="k">顧問給你的說明</div><div class="v">${esc(c.client_note).replace(/\n/g, '<br>')}</div></div>`
-      : '';
-    const filesHtml = `<div class="row2">
-        ${c.has_resume ? `<a class="filebtn" href="${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(c.application_id)}/resume" target="_blank" rel="noopener">下載履歷 →</a>` : `<span class="mut" style="font-size:13px">履歷尚未提供</span>`}
-        ${c.has_client_report ? `<button type="button" class="filebtn report-view">查看初篩報告摘要 →</button>` : `<span class="mut" style="font-size:13px">報告摘要顧問還在準備</span>`}
-        <button type="button" class="filebtn chat-toggle">💬 跟顧問討論這位人選<span class="unread-dot chat-unread-badge" hidden>0</span></button>
-      </div>
-      <div class="report-box" hidden></div>
-      <div class="chat-box" hidden>
-        <div class="chat-window"></div>
-        <div class="chat-compose">
-          <textarea placeholder="輸入要傳給顧問的訊息…"></textarea>
-          <button type="button" class="chat-send">送出</button>
-        </div>
-      </div>`;
-    return `<div class="cand" data-app="${esc(c.application_id)}">
-      <div class="row1">
-        <b>${esc(c.candidate_name)}</b>
-        <span class="meta">${esc(c.job_title || c.job_slug)} · 推送日 ${esc((c.forwarded_at || '').slice(0, 10))}</span>
-      </div>
-      ${lineHtml}
-      ${noteHtml}
-      ${dotsHtml}
-      ${filesHtml}
-      ${addRoundHtml}
-      ${offerBackupHtml}
-    </div>`;
+async function loadFunnels(){
+  const slugs = [...new Set(CAND_LIST.map(c => c.job_slug).filter(Boolean))];
+  const statsEl = document.getElementById('dashStats');
+  const funnelEl = document.getElementById('dashFunnel');
+  if (!slugs.length){ statsEl.innerHTML = ''; funnelEl.innerHTML = '<div class="dash-helper">目前還沒有人選，漏斗數字會在有推薦後出現。</div>'; return; }
+  const results = await Promise.all(slugs.map(async slug => {
+    try{
+      const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/jobs/${encodeURIComponent(slug)}/funnel`);
+      const data = await res.json();
+      const title = (CAND_LIST.find(c => c.job_slug === slug) || {}).job_title || slug;
+      return data.ok ? { slug, title, funnel: data.funnel } : null;
+    }catch{ return null; }
+  }));
+  const rows = results.filter(Boolean);
+  if (!rows.length){ statsEl.innerHTML = ''; funnelEl.innerHTML = ''; return; }
+
+  // 總覽數字卡：多個職缺就加總，單一職缺就直接顯示
+  const totals = {};
+  FUNNEL_STAGES.forEach(([k]) => { totals[k] = rows.reduce((sum, r) => sum + (r.funnel[k] || 0), 0); });
+  statsEl.innerHTML = FUNNEL_STAGES.map(([k, lb]) =>
+    `<div class="dash-stat"><div class="lb">${esc(lb)}</div><div class="vv">${totals[k]}</div></div>`).join('');
+
+  funnelEl.innerHTML = rows.map(r => {
+    const max = Math.max(1, ...FUNNEL_STAGES.map(([k]) => r.funnel[k] || 0));
+    const barsHtml = FUNNEL_STAGES.map(([k, lb]) => `
+      <div class="dash-funnel-row">
+        <div class="dash-funnel-head"><span>${esc(lb)}</span><strong>${r.funnel[k] || 0}</strong></div>
+        <div class="dash-bar"><span style="width:${Math.max(4, (r.funnel[k] || 0) / max * 100)}%"></span></div>
+      </div>`).join('');
+    return `<div class="dash-job-block">${rows.length > 1 ? `<h4>${esc(r.title)}</h4>` : ''}${barsHtml}</div>`;
   }).join('');
-  listEl.querySelectorAll('.cand').forEach(el => {
-    const addBtn = el.querySelector('.round-add');
-    if (addBtn) addBtn.addEventListener('click', () => addInterviewRound(el));
-    el.querySelector('.stage-upd').addEventListener('click', () => updateCandidateStage(el));
-    const reportBtn = el.querySelector('.report-view');
-    if (reportBtn) reportBtn.addEventListener('click', () => toggleClientReport(el));
-    el.querySelector('.chat-toggle').addEventListener('click', () => toggleChat(el));
-    el.querySelector('.chat-send').addEventListener('click', () => sendChatMessage(el));
-  });
-  refreshNotifications();
 }
 
-async function toggleClientReport(candEl){
-  const box = candEl.querySelector('.report-box');
-  const btn = candEl.querySelector('.report-view');
-  if (!box.hidden){ box.hidden = true; btn.textContent = '查看初篩報告摘要 →'; return; }
-  const appId = candEl.dataset.app;
+function renderChips(){
+  const labels = [...new Set(CAND_LIST.map(c => currentStageOf(c).lb))];
+  const chips = ['全部', ...labels];
+  document.getElementById('dashChips').innerHTML = chips.map(c => {
+    const count = c === '全部' ? CAND_LIST.length : CAND_LIST.filter(x => currentStageOf(x).lb === c).length;
+    return `<button type="button" class="dash-chip ${CAND_FILTER === c ? 'on' : ''}" data-chip="${esc(c)}">${esc(c)} ${count}</button>`;
+  }).join('');
+  document.getElementById('dashChips').querySelectorAll('.dash-chip').forEach(btn => {
+    btn.addEventListener('click', () => { CAND_FILTER = btn.dataset.chip; renderChips(); renderTable(); renderCards(); });
+  });
+}
+
+function filteredCandidates(){
+  const q = document.getElementById('dashSearch').value.trim().toLowerCase();
+  return CAND_LIST.filter(c => {
+    if (CAND_FILTER !== '全部' && currentStageOf(c).lb !== CAND_FILTER) return false;
+    if (q && !`${c.candidate_name} ${c.line_id_given || ''}`.toLowerCase().includes(q)) return false;
+    return true;
+  });
+}
+document.getElementById('dashSearch').addEventListener('input', () => { renderTable(); renderCards(); });
+document.getElementById('dashTableBtn').addEventListener('click', () => setCandView('table'));
+document.getElementById('dashCardBtn').addEventListener('click', () => setCandView('card'));
+function setCandView(v){
+  CAND_VIEW = v;
+  document.getElementById('dashTableBtn').classList.toggle('on', v === 'table');
+  document.getElementById('dashCardBtn').classList.toggle('on', v === 'card');
+  document.getElementById('dashTableView').hidden = v !== 'table';
+  document.getElementById('dashCardView').hidden = v !== 'card';
+}
+
+function stagePillClass(s){ return s.now ? 'now' : (s.done ? 'done' : ''); }
+
+function renderTable(){
+  const list = filteredCandidates();
+  const el = document.getElementById('dashTableView');
+  if (!list.length){ el.innerHTML = '<div class="dash-empty">目前沒有符合條件的人選</div>'; return; }
+  el.innerHTML = `<div class="dash-table-wrap"><table class="dash-table">
+    <thead><tr><th>人選</th><th>LINE ID</th><th>推送日</th><th>目前狀態</th><th>操作</th></tr></thead>
+    <tbody>${list.map(c => {
+      const cur = currentStageOf(c);
+      return `<tr data-app="${esc(c.application_id)}">
+        <td><b>${esc(c.candidate_name)}</b><div style="font-size:12px;color:var(--ink3)">${esc(c.job_title || c.job_slug)}</div></td>
+        <td>${esc(c.line_id_given || '尚未提供')}</td>
+        <td>${esc((c.forwarded_at || '').slice(0, 10))}</td>
+        <td><span class="dash-pill ${stagePillClass(cur)}">${esc(cur.lb)}</span></td>
+        <td><button type="button" class="sec cm-openbtn" data-app="${esc(c.application_id)}" style="padding:6px 12px;font-size:12px">查看</button></td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table></div>`;
+  wireOpenButtons(el);
+}
+
+function renderCards(){
+  const list = filteredCandidates();
+  const el = document.getElementById('dashCardView');
+  if (!list.length){ el.innerHTML = '<div class="dash-empty">目前沒有符合條件的人選</div>'; return; }
+  el.innerHTML = `<div class="dash-cards">${list.map(c => {
+    const cur = currentStageOf(c);
+    return `<div class="dash-card cm-openbtn" data-app="${esc(c.application_id)}">
+      <div class="dash-card-top">
+        <div><b>${esc(c.candidate_name)}</b><div style="font-size:12px;color:var(--ink3)">${esc(c.job_title || c.job_slug)}</div></div>
+        <span class="dash-pill ${stagePillClass(cur)}">${esc(cur.lb)}</span>
+      </div>
+      <div class="dash-card-meta">LINE ID：${esc(c.line_id_given || '尚未提供')} ・ 推送日 ${esc((c.forwarded_at || '').slice(0, 10))}</div>
+    </div>`;
+  }).join('')}</div>`;
+  wireOpenButtons(el);
+}
+
+function wireOpenButtons(root){
+  root.querySelectorAll('.cm-openbtn').forEach(el => {
+    el.addEventListener('click', (e) => { e.stopPropagation(); openCandModal(el.dataset.app); });
+  });
+}
+
+// ── 人選詳情彈窗 ──
+function openCandModal(appId){
+  const c = CAND_LIST.find(x => x.application_id === appId);
+  if (!c) return;
+  ACTIVE_APP = appId;
+  document.getElementById('cmName').textContent = c.candidate_name;
+  document.getElementById('cmSub').textContent = `${c.job_title || c.job_slug}　/　目前狀態：${currentStageOf(c).lb}`;
+  document.getElementById('cmSteps').innerHTML = (c.steps || []).map(s => `
+    <div class="step ${s.done ? 'done' : ''} ${s.now ? 'now' : ''}"><div class="ln"></div><div class="dot">${s.done ? '✓' : ''}</div><div class="lb">${esc(s.lb)}</div></div>
+  `).join('');
+  document.getElementById('cmInfo').innerHTML = [
+    ['LINE ID', c.line_id_given || '尚未提供'],
+    ['推送日', (c.forwarded_at || '').slice(0, 10) || '—'],
+    ['職缺', c.job_title || c.job_slug || '—'],
+    ['目前狀態', currentStageOf(c).lb],
+  ].map(([k, v]) => `<div><div class="lb">${esc(k)}</div><div class="vv">${esc(v)}</div></div>`).join('');
+  document.getElementById('cmNoteBlock').innerHTML = c.client_note
+    ? `<h4>顧問給你的說明</h4><div class="note" style="margin:0">${esc(c.client_note).replace(/\n/g, '<br>')}</div>`
+    : `<h4>顧問給你的說明</h4><div style="color:var(--ink3);font-size:13px">尚未提供</div>`;
+  document.getElementById('cmFiles').innerHTML = `
+    ${c.has_resume ? `<a class="cm-fbtn" href="${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(c.application_id)}/resume" target="_blank" rel="noopener">↓ 下載履歷</a>` : `<span style="font-size:13px;color:var(--ink3)">履歷尚未提供</span>`}
+    ${c.has_client_report ? `<button type="button" class="cm-fbtn" id="cmReportBtn">👁 查看初篩報告摘要</button>` : `<span style="font-size:13px;color:var(--ink3)">報告摘要顧問還在準備</span>`}
+  `;
+  const reportBtn = document.getElementById('cmReportBtn');
+  if (reportBtn) reportBtn.addEventListener('click', cmToggleReport);
+  document.getElementById('cmReportBox').hidden = true;
+
+  const roundsFull = c.interview_rounds_used >= 4;
+  document.getElementById('cmUpdateBox').innerHTML = `
+    ${roundsFull ? '' : `<div class="cm-update-grid" style="margin-bottom:10px">
+      <select id="cmRoundType">${Object.entries(c.interview_round_types).map(([k, lb]) => `<option value="${esc(k)}">${esc(lb)}</option>`).join('')}</select>
+      <input type="text" id="cmRoundNote" placeholder="備註是哪個層級（選填）">
+      <button type="button" id="cmRoundAdd">新增下一輪面試</button>
+      <span class="upd-msg" id="cmRoundMsg"></span>
+      <span class="cm-hint">選這一輪是人資面談還是用人單位主管面談，送出後會依序記成「第一階段」「第二階段」……</span>
+    </div>`}
+    <div class="cm-update-grid">
+      <select id="cmStagePick">${c.editable_stages.map(s => `<option value="${esc(s.key)}">${esc(s.lb)}</option>`).join('')}</select>
+      <button type="button" id="cmStageUpd">更新為此狀態</button>
+      <span class="upd-msg" id="cmStageMsg"></span>
+    </div>`;
+  const roundAddBtn = document.getElementById('cmRoundAdd');
+  if (roundAddBtn) roundAddBtn.addEventListener('click', cmAddInterviewRound);
+  document.getElementById('cmStageUpd').addEventListener('click', cmUpdateStage);
+
+  document.getElementById('candModalMask').classList.add('show');
+  cmLoadChat();
+  if (CHAT_POLL_TIMER) clearInterval(CHAT_POLL_TIMER);
+  CHAT_POLL_TIMER = setInterval(cmLoadChat, 6000);
+}
+function closeCandModal(){
+  document.getElementById('candModalMask').classList.remove('show');
+  if (CHAT_POLL_TIMER){ clearInterval(CHAT_POLL_TIMER); CHAT_POLL_TIMER = null; }
+  ACTIVE_APP = null;
+}
+document.getElementById('cmClose').addEventListener('click', closeCandModal);
+document.getElementById('candModalMask').addEventListener('click', (e) => { if (e.target.id === 'candModalMask') closeCandModal(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeCandModal(); });
+
+async function cmToggleReport(){
+  const box = document.getElementById('cmReportBox');
+  const btn = document.getElementById('cmReportBtn');
+  if (!box.hidden){ box.hidden = true; btn.textContent = '👁 查看初篩報告摘要'; return; }
   box.hidden = false;
   box.innerHTML = '<div class="state">讀取中…</div>';
   try{
-    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(appId)}/report`);
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(ACTIVE_APP)}/report`);
     const data = await res.json();
     if (!data.ok || !data.content_client_md){ box.innerHTML = '<div class="state">報告摘要顧問還在準備。</div>'; return; }
     box.innerHTML = `<div class="report-md">${esc(data.content_client_md)}</div>`;
@@ -821,70 +1063,44 @@ async function toggleClientReport(candEl){
   }
 }
 
-// ── 人選訊息串 ──
-let CHAT_POLL_TIMER = null;
-
-function esc2(s){ return esc(s); }
-
-async function toggleChat(candEl){
-  const box = candEl.querySelector('.chat-box');
-  const btn = candEl.querySelector('.chat-toggle');
-  if (!box.hidden){
-    box.hidden = true;
-    if (CHAT_POLL_TIMER){ clearInterval(CHAT_POLL_TIMER); CHAT_POLL_TIMER = null; }
-    return;
-  }
-  // 一次只開一個人選的訊息串，避免同時輪詢多個造成混亂
-  document.querySelectorAll('.chat-box').forEach(b => { if (b !== box) b.hidden = true; });
-  if (CHAT_POLL_TIMER){ clearInterval(CHAT_POLL_TIMER); CHAT_POLL_TIMER = null; }
-  box.hidden = false;
-  await loadChat(candEl);
-  const badge = btn.querySelector('.chat-unread-badge');
-  if (badge){ badge.hidden = true; badge.textContent = '0'; }
-  CHAT_POLL_TIMER = setInterval(() => loadChat(candEl), 6000);
-}
-
-async function loadChat(candEl){
-  const appId = candEl.dataset.app;
-  const win = candEl.querySelector('.chat-window');
+async function cmLoadChat(){
+  if (!ACTIVE_APP) return;
+  const win = document.getElementById('cmChatWindow');
   try{
-    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(appId)}/messages`);
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(ACTIVE_APP)}/messages`);
     const data = await res.json();
     if (!data.ok) return;
     const msgs = data.messages || [];
-    if (!msgs.length){
-      win.innerHTML = '<div class="state" style="margin:8px 0">還沒有訊息，直接在下面輸入傳給顧問。</div>';
-      return;
-    }
-    win.innerHTML = msgs.map(m => `<div class="chat-msg ${m.from_role === 'client' ? 'client' : 'consultant'}">
-      ${esc2(m.content)}<div class="t">${m.from_role === 'client' ? '你' : 'STEP1NE 顧問'}・${esc2((m.created_at || '').slice(5, 16))}</div>
-    </div>`).join('');
+    win.innerHTML = msgs.length
+      ? msgs.map(m => `<div class="chat-msg ${m.from_role === 'client' ? 'client' : 'consultant'}">
+          ${esc(m.content)}<div class="t">${m.from_role === 'client' ? '你' : 'STEP1NE 顧問'}・${esc((m.created_at || '').slice(5, 16))}</div>
+        </div>`).join('')
+      : '<div class="state" style="margin:8px 0">還沒有訊息，直接在下面輸入傳給顧問。</div>';
     win.scrollTop = win.scrollHeight;
+    refreshNotifications();
   }catch{
     // 輪詢失敗不用打斷使用者，下一輪再試
   }
 }
-
-async function sendChatMessage(candEl){
-  const appId = candEl.dataset.app;
-  const textarea = candEl.querySelector('.chat-compose textarea');
-  const btn = candEl.querySelector('.chat-send');
+document.getElementById('cmChatSend').addEventListener('click', async () => {
+  const textarea = document.getElementById('cmChatInput');
+  const btn = document.getElementById('cmChatSend');
   const content = textarea.value.trim();
-  if (!content) return;
+  if (!content || !ACTIVE_APP) return;
   btn.disabled = true;
   try{
-    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(appId)}/messages`, {
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(ACTIVE_APP)}/messages`, {
       method: 'POST', headers: {'content-type':'application/json'}, body: JSON.stringify({ content }),
     });
     const data = await res.json();
     if (!data.ok){ alert(data.error || '傳送失敗'); btn.disabled = false; return; }
     textarea.value = '';
-    await loadChat(candEl);
+    await cmLoadChat();
   }catch{
     alert('連線失敗，請稍後再試');
   }
   btn.disabled = false;
-}
+});
 
 // ── 通知鈴鐺：跨人選的未讀訊息角標 ──
 async function refreshNotifications(){
@@ -906,11 +1122,6 @@ async function refreshNotifications(){
     listEl.querySelectorAll('.notify-item').forEach(el => {
       el.addEventListener('click', () => openFromNotification(el.dataset.app));
     });
-    // 同步各人選卡片自己的未讀角標（如果目前在「人選進度」分頁）
-    items.forEach(it => {
-      const cand = document.querySelector(`.cand[data-app="${CSS.escape(it.application_id)}"] .chat-unread-badge`);
-      if (cand){ cand.hidden = false; cand.textContent = it.unread_count; }
-    });
   }catch{
     // 通知輪詢失敗不打斷使用
   }
@@ -925,22 +1136,21 @@ document.addEventListener('click', (e) => {
 function openFromNotification(appId){
   document.getElementById('notifyMenu').classList.remove('show');
   showTopView('candidates');
-  setTimeout(() => {
-    const cand = document.querySelector(`.cand[data-app="${CSS.escape(appId)}"]`);
-    if (!cand) return;
-    cand.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    toggleChat(cand);
-  }, CANDIDATES_LOADED ? 0 : 400);
+  const tryOpen = () => {
+    if (CAND_LIST.find(c => c.application_id === appId)) openCandModal(appId);
+    else setTimeout(tryOpen, 300);
+  };
+  tryOpen();
 }
 setInterval(refreshNotifications, 20000);
 refreshNotifications();
 
-async function addInterviewRound(candEl){
-  const appId = candEl.dataset.app;
-  const interviewType = candEl.querySelector('.round-type').value;
-  const detailNote = candEl.querySelector('.round-note').value.trim();
-  const btn = candEl.querySelector('.round-add');
-  const msgEl = candEl.querySelector('.round-msg');
+async function cmAddInterviewRound(){
+  const appId = ACTIVE_APP;
+  const interviewType = document.getElementById('cmRoundType').value;
+  const detailNote = document.getElementById('cmRoundNote').value.trim();
+  const btn = document.getElementById('cmRoundAdd');
+  const msgEl = document.getElementById('cmRoundMsg');
   btn.disabled = true;
   msgEl.textContent = '';
   try{
@@ -951,17 +1161,18 @@ async function addInterviewRound(candEl){
     const data = await res.json();
     if (!data.ok){ msgEl.style.color = 'var(--bad)'; msgEl.textContent = data.error || '新增失敗'; btn.disabled = false; return; }
     msgEl.style.color = 'var(--ok)'; msgEl.textContent = '已新增';
-    loadCandidates();
+    await loadCandidates();
+    if (ACTIVE_APP === appId) openCandModal(appId);
   }catch{
     msgEl.style.color = 'var(--bad)'; msgEl.textContent = '連線失敗，請稍後再試'; btn.disabled = false;
   }
 }
 
-async function updateCandidateStage(candEl){
-  const appId = candEl.dataset.app;
-  const stage = candEl.querySelector('.stage-pick').value;
-  const btn = candEl.querySelector('.stage-upd');
-  const msgEl = candEl.querySelector('.stage-msg');
+async function cmUpdateStage(){
+  const appId = ACTIVE_APP;
+  const stage = document.getElementById('cmStagePick').value;
+  const btn = document.getElementById('cmStageUpd');
+  const msgEl = document.getElementById('cmStageMsg');
   btn.disabled = true;
   msgEl.textContent = '';
   try{
@@ -972,7 +1183,8 @@ async function updateCandidateStage(candEl){
     if (!data.ok){ msgEl.style.color = 'var(--bad)'; msgEl.textContent = data.error || '更新失敗'; btn.disabled = false; return; }
     msgEl.style.color = 'var(--ok)';
     msgEl.textContent = '已更新';
-    loadCandidates();
+    await loadCandidates();
+    if (ACTIVE_APP === appId) openCandModal(appId);
   }catch{
     msgEl.style.color = 'var(--bad)'; msgEl.textContent = '連線失敗，請稍後再試';
   }
