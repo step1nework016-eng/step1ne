@@ -237,10 +237,10 @@ button.sec{background:#fff;color:var(--ink2);border:1px solid var(--line)}
   <div id="loading" class="state">讀取中…</div>
   <div id="content" hidden>
     <div class="toptabs">
-      <button type="button" class="toptab on" id="tabJobs">用人需求表</button>
-      <button type="button" class="toptab" id="tabCandidates">人選進度</button>
+      <button type="button" class="toptab on" id="tabCandidates">人選進度</button>
+      <button type="button" class="toptab" id="tabJobs">用人需求表</button>
     </div>
-    <div id="candidatesView" hidden>
+    <div id="candidatesView">
       <section class="dash-stats" id="dashStats"></section>
       <div class="dash-layout">
         <aside class="dash-panel">
@@ -264,7 +264,7 @@ button.sec{background:#fff;color:var(--ink2);border:1px solid var(--line)}
         </main>
       </div>
     </div>
-    <div id="pickView">
+    <div id="pickView" hidden>
       <div class="note">請先從下面選一個職缺開始填寫。黃色標籤代表這格還有資料還沒補上。</div>
       <div class="bar">
         <input type="search" id="q" placeholder="搜尋職缺名稱…">
@@ -409,9 +409,12 @@ async function load(){
   if (!data.jobs.length){
     document.getElementById('picklist').innerHTML = '<div class="state">目前還沒有職缺掛在這個入口，請聯繫顧問。</div>';
     document.querySelector('.bar').hidden = true;
-    return;
+  } else {
+    renderPicklist();
   }
-  renderPicklist();
+  // 用人單位進來第一眼要看到的是「人選進度」，不是內部填表用的「用人需求表」——
+  // 兩個分頁對調後，這裡改成預設就把人選資料載進來，不用等使用者自己點分頁。
+  loadCandidates();
 }
 
 function jobFilled(job, fields){
