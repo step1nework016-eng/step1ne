@@ -1122,7 +1122,7 @@ async function cmLoadChat(){
     const msgs = data.messages || [];
     win.innerHTML = msgs.length
       ? msgs.map(m => `<div class="chat-msg ${m.from_role === 'client' ? 'client' : 'consultant'}">
-          ${esc(m.content)}<div class="t">${m.from_role === 'client' ? '你' : 'STEP1NE 顧問'}・${esc((m.created_at || '').slice(5, 16))}</div>
+          ${esc(m.content)}<div class="t">${m.from_role === 'client' ? '你' : esc(m.from_name || 'STEP1NE 顧問')}・${esc((m.created_at || '').slice(5, 16))}</div>
         </div>`).join('')
       : '<div class="state" style="margin:8px 0">還沒有訊息，直接在下面輸入傳給顧問。</div>';
     win.scrollTop = win.scrollHeight;
