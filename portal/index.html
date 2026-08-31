@@ -10,6 +10,10 @@
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 -apple-system,"Noto Sans TC",sans-serif}
 .wrap{max-width:900px;margin:0 auto;padding:0 16px}
+/* 人選進度儀表板內容比較寬（漏斗+表格），不該被用人需求表那個 900px 窄版型鎖住——
+   跳出 .wrap 的寬度限制，改用自己的寬版容器。 */
+#candidatesView{max-width:1400px;width:100vw;margin-left:calc(50% - 50vw);margin-right:calc(50% - 50vw);padding:0 24px}
+@media(max-width:640px){#candidatesView{padding:0 12px}}
 header{background:#fff;border-bottom:1px solid var(--line);padding:16px 0}
 header .wrap{display:flex;align-items:center;gap:10px}
 header b{font-size:16px}
@@ -172,7 +176,7 @@ button.sec{background:#fff;color:var(--ink2);border:1px solid var(--line)}
 .dash-view-btn{border:0;background:#fff;padding:8px 13px;cursor:pointer;font-weight:700;color:var(--ink2);font-size:12.5px}
 .dash-view-btn.on{background:var(--ink);color:#fff}
 .dash-table-wrap{border:1px solid var(--line);border-radius:12px;overflow-x:auto}
-.dash-table{width:100%;border-collapse:collapse;min-width:640px}
+.dash-table{width:100%;border-collapse:collapse;min-width:960px}
 .dash-table td:first-child,.dash-table td:first-child b{white-space:nowrap}
 .dash-table th{background:var(--soft);color:var(--ink2);font-size:12.5px;font-weight:800;padding:11px;text-align:left;white-space:nowrap}
 .dash-table td{padding:11px;border-top:1px solid var(--line);vertical-align:middle}
@@ -188,6 +192,15 @@ button.sec{background:#fff;color:var(--ink2);border:1px solid var(--line)}
 .dash-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
 .dash-card-top>div:first-child{min-width:0}
 .dash-card-meta{font-size:11.5px;color:var(--ink3);margin-top:8px}
+.dash-card-info{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;margin-top:12px}
+.dash-card-info .lb{font-size:11px;color:var(--ink3);margin-bottom:2px}
+.dash-card-info .vv{font-size:13px}
+.dash-card-progress{display:flex;align-items:center;gap:5px;margin-top:14px}
+.dash-card-progress .dot{width:9px;height:9px;border-radius:50%;background:var(--line);flex-shrink:0}
+.dash-card-progress .dot.done{background:var(--gold)}
+.dash-card-progress .ln{flex:1;height:2px;background:var(--line)}
+.dash-card-foot{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:10px;border-top:1px solid var(--line);font-size:11.5px;color:var(--ink3)}
+.dash-card-foot .hint{font-weight:800;color:var(--gold)}
 .dash-empty{padding:36px 16px;text-align:center;color:var(--ink3);border:1px dashed var(--line);border-radius:12px}
 /* 人選詳情彈窗 */
 #candModalMask{position:fixed;inset:0;background:rgba(35,32,20,.4);z-index:70;display:none;align-items:center;justify-content:center;padding:16px}
@@ -951,21 +964,34 @@ function renderTable(){
   const list = filteredCandidates();
   const el = document.getElementById('dashTableView');
   if (!list.length){ el.innerHTML = '<div class="dash-empty">目前沒有符合條件的人選</div>'; return; }
-  // 2026-08-31 修正：原本想比照 demo 做「每階段一欄」，但每位人選的 steps
-  // 是依他自己實際加過幾輪面試動態長出來的（interview_rounds_used 每人不同），
-  // 不是全公司共用一套固定七階段——用 list[0] 的 steps 當表頭，會跟其他人選
-  // 自己的 steps 對不上欄位，數字看起來對但其實是錯位的。改回單一狀態欄，
-  // 完整逐階段進度留在點開後的彈窗裡看（那裡只顯示這一位自己的 steps，不會
-  // 有跨人選對不齊的問題）。
+  // 每個人選的 steps 是依他自己實際加過幾輪面試動態長出來的（interview_rounds_used
+  // 每人不同），不是全公司共用一套固定欄位——所以欄位不能只抓某一位的 steps 當表頭，
+  // 要取「所有人選 steps.key 的聯集」，再依 STAGE_ORDER 的順序排好；每一列用 key
+  // 去對自己的 steps（不是用陣列位置對），沒有這個 key 就顯示「—」，不會錯位。
+  const KEY_ORDER = ['matched', 'screening', 'confirm', 'stage1', 'stage2', 'stage3', 'stage4', 'offer', 'onboard', 'care', 'backup'];
+  const stageMap = new Map(); // key -> lb（取最先看到的 lb 當表頭文字）
+  list.forEach(c => (c.steps || []).forEach(s => { if (!stageMap.has(s.key)) stageMap.set(s.key, s.lb); }));
+  const stageKeys = [...stageMap.keys()].sort((a, b) => {
+    const ia = KEY_ORDER.indexOf(a), ib = KEY_ORDER.indexOf(b);
+    return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+  });
   el.innerHTML = `<div class="dash-table-wrap"><table class="dash-table">
-    <thead><tr><th>人選</th><th>LINE ID</th><th>推送日</th><th>目前狀態</th></tr></thead>
+    <thead><tr><th>人選</th><th>LINE ID</th><th>推送日</th>${stageKeys.map(k => `<th>${esc(stageMap.get(k))}</th>`).join('')}</tr></thead>
     <tbody>${list.map(c => {
-      const cur = currentStageOf(c);
+      const byKey = {};
+      (c.steps || []).forEach(s => { byKey[s.key] = s; });
+      const stageCells = stageKeys.map(k => {
+        const s = byKey[k];
+        if (!s) return `<td>—</td>`;
+        if (s.now) return `<td><span class="dash-pill now">進行中</span></td>`;
+        if (s.done) return `<td><span class="dash-pill done">已完成</span></td>`;
+        return `<td>—</td>`;
+      }).join('');
       return `<tr data-app="${esc(c.application_id)}">
         <td><b>${esc(c.candidate_name)}</b><div style="font-size:12px;color:var(--ink3)">${esc(c.job_title || c.job_slug)}</div></td>
         <td>${esc(c.line_id_given || '尚未提供')}</td>
         <td>${esc((c.forwarded_at || '').slice(0, 10))}</td>
-        <td><span class="dash-pill ${stagePillClass(cur)}">${esc(cur.lb)}</span></td>
+        ${stageCells}
       </tr>`;
     }).join('')}</tbody>
   </table></div>`;
@@ -978,12 +1004,22 @@ function renderCards(){
   if (!list.length){ el.innerHTML = '<div class="dash-empty">目前沒有符合條件的人選</div>'; return; }
   el.innerHTML = `<div class="dash-cards">${list.map(c => {
     const cur = currentStageOf(c);
+    const steps = c.steps || [];
+    const dotsHtml = steps.map((s, i) => `<span class="dot ${s.done ? 'done' : ''}"></span>${i < steps.length - 1 ? '<span class="ln"></span>' : ''}`).join('');
     return `<div class="dash-card cm-openbtn" data-app="${esc(c.application_id)}">
       <div class="dash-card-top">
         <div><b>${esc(c.candidate_name)}</b><div style="font-size:12px;color:var(--ink3)">${esc(c.job_title || c.job_slug)}</div></div>
         <span class="dash-pill ${stagePillClass(cur)}">${esc(cur.lb)}</span>
       </div>
-      <div class="dash-card-meta">LINE ID：${esc(c.line_id_given || '尚未提供')} ・ 推送日 ${esc((c.forwarded_at || '').slice(0, 10))}</div>
+      <div class="dash-card-info">
+        <div><div class="lb">首次聯繫</div><div class="vv">${esc((c.forwarded_at || '').slice(0, 10)) || '—'}</div></div>
+        <div><div class="lb">LINE ID</div><div class="vv">${esc(c.line_id_given || '尚未提供')}</div></div>
+      </div>
+      <div class="dash-card-progress">${dotsHtml}</div>
+      <div class="dash-card-foot">
+        <span>目前狀態：${esc(cur.lb)}</span>
+        <span class="hint">點擊查看完整人選資料 →</span>
+      </div>
     </div>`;
   }).join('')}</div>`;
   wireOpenButtons(el);
