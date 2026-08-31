@@ -134,6 +134,7 @@ a.lk{color:var(--gold);text-decoration:none;font-size:12.5px;font-weight:600}
     <div class="who">
       <select id="owner" aria-label="顧問"></select>
       <span id="sum" class="mut"></span>
+      <button class="btn p" id="newCandBtn" type="button" style="margin-left:auto">＋ 新增人選</button>
     </div>
     <div class="filters">
       <input type="search" id="fq" placeholder="搜尋人名…" autocomplete="off">
@@ -145,6 +146,7 @@ a.lk{color:var(--gold);text-decoration:none;font-size:12.5px;font-weight:600}
     <div class="tabs" id="tabs"></div>
     <div id="list" class="mut">載入中…</div>
     <div id="drawer"></div>
+    <div id="newCandModal"></div>
 
     <details class="mg">
       <summary>顧問名單設定</summary>
@@ -1116,6 +1118,68 @@ $('addc').onclick=function(){
   .then(function(d){ if(!d.ok)return alert(d.error||'失敗'); $('newc').value=''; loadConsultants(); });
 };
 $('newc').addEventListener('keydown',function(e){if(e.key==='Enter')$('addc').click()});
+
+// ── 新增全新人選（完全沒跟阿財面談過、人才池也沒有這個人）──
+// 2026-08-31 補的：原本「手動新增應徵紀錄」只能從已存在的人選卡片裡面開，
+// 逼顧問要嘛先假造一筆人才池資料才能用。這裡直接讓顧問手key姓名/聯絡方式，
+// 呼叫同一支 /admin/pipeline/manual-forward，只是 source_kind 換成 'new'。
+function newCandModalHtml(){
+  return '<div class="dmask" id="ncMask"><div class="dwrap" style="width:min(480px,100%)">'
+    + '<div class="dhead"><span class="nm">新增人選</span>'
+    + '<button class="edbtn" id="ncClose" type="button">✕ 關閉</button></div>'
+    + '<div style="padding:16px 20px">'
+    + '<p class="mut" style="margin:0 0 14px">這個人完全沒跟阿財面談過、人才池也沒有他——例如電訪或朋友介紹來的，直接在這裡建一筆。</p>'
+    + '<label class="edl">姓名 *</label><input class="edi" id="ncName">'
+    + '<label class="edl">Email（跟電話至少填一個）</label><input class="edi" id="ncEmail" type="email">'
+    + '<label class="edl">電話</label><input class="edi" id="ncPhone">'
+    + '<label class="edl">送去哪個職缺 *</label><select class="edi" id="ncJob"><option value="">選一個職缺…</option></select>'
+    + '<label class="edl">現在在第幾關（不確定可以先不填）</label>'
+    + '<select class="edi" id="ncStage">'+MANUAL_STAGE_OPTS.map(function(o){return '<option value="'+o.key+'">'+o.lb+'</option>'}).join('')+'</select>'
+    + '<label class="edl">怎麼取得本人同意的（例：電話裡口頭同意、朋友介紹說他有意願）</label>'
+    + '<textarea class="edi" id="ncConsentNote" rows="2"></textarea>'
+    + '<label style="display:flex;align-items:flex-start;gap:8px;margin-top:10px;font-size:13px;color:var(--ink2)">'
+    + '<input type="checkbox" id="ncConsentOk" style="width:auto;margin-top:3px">'
+    + '<span>我確認已經取得本人同意，這筆資料可以提供給客戶</span></label>'
+    + '<div class="acts" style="margin-top:14px"><button class="btn p" id="ncGo" type="button">新增這位人選</button>'
+    + '<span class="mut" id="ncMsg"></span></div>'
+    + '</div></div></div>';
+}
+function openNewCandModal(){
+  var m=$('newCandModal');
+  m.innerHTML=newCandModalHtml();
+  $('ncClose').onclick=function(){ m.innerHTML=''; };
+  var ncj=$('ncJob');
+  api('/admin/jobs').then(function(r){
+    if(!r.ok)return;
+    (r.jobs||[]).filter(function(j){return (j.status||'open')!=='closed' && j.status!=='client_draft' && j.status!=='pending_review'})
+      .forEach(function(j){
+        var o=document.createElement('option');
+        o.value=j.slug; o.textContent=j.title||j.slug;
+        ncj.appendChild(o);
+      });
+  });
+  $('ncGo').onclick=function(){
+    var msg=$('ncMsg'), btn=$('ncGo');
+    var name=$('ncName').value.trim(), email=$('ncEmail').value.trim(), phone=$('ncPhone').value.trim();
+    if(!name){ msg.textContent='請填姓名'; return; }
+    if(!email && !phone){ msg.textContent='Email 跟電話至少填一個'; return; }
+    if(!ncj.value){ msg.textContent='先選一個職缺'; return; }
+    if(!$('ncConsentOk').checked){ msg.textContent='請先勾選確認已取得本人同意'; return; }
+    btn.disabled=true; msg.textContent='處理中…';
+    api('/admin/pipeline/manual-forward',{method:'POST',headers:{'content-type':'application/json'},
+      body:JSON.stringify({
+        source_kind:'new', name:name, email:email, phone:phone, job_slug:ncj.value,
+        initial_stage: $('ncStage').value || null, by: OWNER,
+        consent_confirmed:true, consent_note:$('ncConsentNote').value,
+      })})
+    .then(function(r){ btn.disabled=false;
+      if(!r.ok){ msg.textContent=r.error||'新增失敗'; return; }
+      if(r.message) alert(r.message);
+      m.innerHTML=''; load();
+    }).catch(function(){ btn.disabled=false; msg.textContent='連線失敗'; });
+  };
+}
+$('newCandBtn').onclick=openNewCandModal;
 
 function boot(){
   if(tok){loadConsultants().then(load);return}
