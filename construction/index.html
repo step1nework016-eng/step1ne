@@ -90,8 +90,15 @@ h2{font-family:'Noto Serif TC',serif;font-size:24px;font-weight:700;color:#1c1f2
 .hero-cta a{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:15px;padding:13px 26px;border-radius:999px;}
 .hero-cta a.p{background:#fff;color:#0f2540;}
 .hero-cta a.s{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.4);}
-@media (max-width:640px){ .hero{min-height:0} .hero img{position:static;width:100%;height:auto;display:block}
-  .hero::after{display:none} .hero-in{max-width:none;background:#0f2540;padding:28px 22px} }
+/* 手機版窄螢幕不夠放左右並排，改成上下——但圖片本身還是有印死的標題／
+   按鈕文字，一樣要蓋掉，只是漸層方向從左右改成上下（上面文字、下面露出照片）。
+   ⚠️ 之前這裡直接把 .hero::after 關掉、圖片整張原樣塞進去，等於「真標題」
+   跟「圖片裡印死的假標題」疊在同一頁出現兩次——手機版點開才看得出來。 */
+@media (max-width:640px){
+  .hero{min-height:520px}
+  .hero img{object-position:82% center}
+  .hero::after{background:linear-gradient(180deg,#0f2540 0%,#0f2540 56%,rgba(15,37,64,.96) 66%,rgba(15,37,64,.55) 80%,rgba(15,37,64,0) 94%)}
+  .hero-in{max-width:none;padding:28px 22px} }
 
 .tag{display:inline-block;font-size:12.5px;font-weight:700;color:#8a5a1a;background:#f3e2c2;padding:5px 12px;border-radius:999px;}
 
