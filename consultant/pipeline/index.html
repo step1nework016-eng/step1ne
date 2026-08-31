@@ -1140,10 +1140,14 @@ function newCandModalHtml(){
     + '<label class="edl">姓名 *</label><input class="edi" id="ncName">'
     + '<label class="edl">Email（跟電話至少填一個）</label><input class="edi" id="ncEmail" type="email">'
     + '<label class="edl">電話</label><input class="edi" id="ncPhone">'
-    + '<label class="edl">送去哪個職缺 *</label><select class="edi" id="ncJob"><option value="">選一個職缺…</option></select>'
+    + '<label class="edl">哪個客戶 *</label><select class="edi" id="ncClient"><option value="">先選客戶…</option></select>'
+    + '<label class="edl">送去哪個職缺 *</label><select class="edi" id="ncJob" disabled><option value="">請先選客戶</option></select>'
     + '<label class="edl">現在在第幾關（不確定可以先不填）</label>'
     + '<select class="edi" id="ncStage">'+MANUAL_STAGE_OPTS.map(function(o){return '<option value="'+o.key+'">'+o.lb+'</option>'}).join('')+'</select>'
-    + '<label class="edl">履歷（選填）</label><input class="edi" id="ncResumeFile" type="file" accept=".pdf,.doc,.docx">'
+    + '<label class="edl">履歷（選填，可拖曳檔案到下面框框）</label>'
+    + '<div id="ncDropZone" style="border:2px dashed var(--line);border-radius:8px;padding:14px;text-align:center;cursor:pointer;transition:.15s">'
+    + '<input class="edi" id="ncResumeFile" type="file" accept=".pdf,.doc,.docx" style="display:none">'
+    + '<span id="ncDropLabel" class="mut">拖曳檔案到這裡，或點擊選擇檔案</span></div>'
     + '<label class="edl">顧問跟他面談／電訪的內容（選填，填了 AI 會自動整理成初篩報告，格式跟阿財面談產出的一樣）</label>'
     + '<textarea class="edi" id="ncCallNotes" rows="5" placeholder="條列、流水帳、錄音轉的逐字都可以。寫得越細報告越完整；沒問到的項目報告會標「未詢問」，不會自己編。"></textarea>'
     + '<span class="mut" style="font-size:11.5px">報告不會馬上出來，系統會在幾分鐘內自動產生，到「初篩報告」頁查看。</span>'
@@ -1158,15 +1162,53 @@ function openNewCandModal(){
   var m=$('newCandModal');
   m.innerHTML=newCandModalHtml();
   $('ncClose').onclick=function(){ m.innerHTML=''; };
-  var ncj=$('ncJob');
+  var ncj=$('ncJob'), ncc=$('ncClient'), ALL_JOBS_NC=[];
   api('/admin/jobs').then(function(r){
     if(!r.ok)return;
-    (r.jobs||[]).filter(function(j){return (j.status||'open')!=='closed' && j.status!=='client_draft' && j.status!=='pending_review'})
+    ALL_JOBS_NC=(r.jobs||[]).filter(function(j){return (j.status||'open')!=='closed' && j.status!=='client_draft' && j.status!=='pending_review'});
+    // 先選客戶再選職缺——同一個客戶常常開好幾個職缺，職缺標題也可能撞名
+    // （弘昌跟律準都開過「BIM 工程師」），先縮小範圍比較不會選錯。
+    var clients=[];
+    ALL_JOBS_NC.forEach(function(j){
+      var name=j.company_display_name||'（未綁定客戶）';
+      if(clients.indexOf(name)===-1) clients.push(name);
+    });
+    clients.sort();
+    clients.forEach(function(name){
+      var o=document.createElement('option');
+      o.value=name; o.textContent=name;
+      ncc.appendChild(o);
+    });
+  });
+  ncc.onchange=function(){
+    var picked=ncc.value;
+    ncj.innerHTML='<option value="">選一個職缺…</option>';
+    if(!picked){ ncj.disabled=true; ncj.innerHTML='<option value="">請先選客戶</option>'; return; }
+    ncj.disabled=false;
+    ALL_JOBS_NC.filter(function(j){ return (j.company_display_name||'（未綁定客戶）')===picked; })
       .forEach(function(j){
         var o=document.createElement('option');
         o.value=j.slug; o.textContent=j.title||j.slug;
         ncj.appendChild(o);
       });
+  };
+  // ── 履歷拖曳上傳 ──
+  var dz=$('ncDropZone'), fileInput=$('ncResumeFile'), dropLabel=$('ncDropLabel');
+  dz.onclick=function(){ fileInput.click(); };
+  fileInput.onchange=function(){
+    if(fileInput.files[0]) dropLabel.textContent='已選擇：'+fileInput.files[0].name;
+  };
+  ['dragenter','dragover'].forEach(function(evt){
+    dz.addEventListener(evt,function(e){ e.preventDefault(); e.stopPropagation(); dz.style.borderColor='var(--gold)'; dz.style.background='var(--soft)'; });
+  });
+  ['dragleave','drop'].forEach(function(evt){
+    dz.addEventListener(evt,function(e){ e.preventDefault(); e.stopPropagation(); dz.style.borderColor='var(--line)'; dz.style.background=''; });
+  });
+  dz.addEventListener('drop',function(e){
+    var f=e.dataTransfer.files[0];
+    if(!f) return;
+    var dt=new DataTransfer(); dt.items.add(f); fileInput.files=dt.files;
+    dropLabel.textContent='已選擇：'+f.name;
   });
   $('ncGo').onclick=function(){
     var msg=$('ncMsg'), btn=$('ncGo');
