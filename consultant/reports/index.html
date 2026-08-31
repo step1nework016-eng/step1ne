@@ -1212,6 +1212,8 @@ async function renderForwardPanel(appId, decided) {
           + '<b style="min-width:0;flex:1;">' + esc(f.display_name) + '</b>'
           + '<span style="font-weight:700;color:#a67c3d;white-space:nowrap;">' + esc(f.stage_label || '—') + '</span>'
           + '<span class="mut" style="white-space:nowrap;">' + esc((f.forwarded_at || '').slice(0, 10)) + ' 推薦</span>'
+          + '<button type="button" class="fp-unfwd" data-c="' + esc(f.company_id) + '" data-n="' + esc(f.display_name) + '" '
+          + 'style="border:1px solid #e0c9a0;background:#fff8ef;color:#a05a1e;border-radius:8px;padding:3px 8px;font-size:11px;cursor:pointer;white-space:nowrap">✕ 取消推薦</button>'
           + '</div>';
       }).join('') + '</div>'
     : '<span class="fp-chip" style="opacity:.6">還沒有明確推薦給任何客戶</span>';
@@ -1257,6 +1259,23 @@ async function renderForwardPanel(appId, decided) {
       }
     });
   }
+  // 誤按「追加推薦」給錯客戶時可以撤銷——只刪這筆連結，人選本身跟報告都不動。
+  panel.querySelectorAll('.fp-unfwd').forEach(function (btn) {
+    btn.addEventListener('click', async function () {
+      if (!confirm('確定要取消推薦給「' + btn.dataset.n + '」嗎？取消後這家客戶的 portal 就不會再看到這位人選。')) return;
+      btn.disabled = true; btn.textContent = '處理中…';
+      try {
+        var d = await api('/admin/pipeline/unforward-candidate', {
+          method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ application_id: appId, company_id: btn.dataset.c }),
+        });
+        if (!d.ok) { alert(d.error || '取消失敗'); btn.disabled = false; btn.textContent = '✕ 取消推薦'; return; }
+        renderForwardPanel(appId, decided);
+      } catch (e) {
+        alert('連線失敗'); btn.disabled = false; btn.textContent = '✕ 取消推薦';
+      }
+    });
+  });
 }
 
 // ⚠️ 2026-08-14 改：textarea 現在放的是完整訊息（不再是塞進固定模板中間的

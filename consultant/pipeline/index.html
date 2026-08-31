@@ -662,6 +662,7 @@ function crossHistHtml(rows){
 // 裡還沒轉應徵的人、還是已經應徵過別的職缺的人，都能手動記一筆「送去
 // 哪個職缺」，之後就能像正常應徵者一樣調整階段、客戶 portal 也看得到。
 // ⚠️ 人才池的人還沒同意個資利用，這裡強制打勾確認，不能無聲無息就送出去。
+var SOURCE_CHANNEL_OPTS=['不指定','朋友介紹','LinkedIn','104','1111','Threads','Facebook','Dcard','Step1ne官網','LINE OA','人才池/獵頭資料庫','其他'];
 var MANUAL_STAGE_OPTS=[
   {key:'',lb:'不先設定（之後再調）'},
   {key:'stage1',lb:'第一階段'},{key:'stage2',lb:'第二階段'},
@@ -1144,12 +1145,17 @@ function newCandModalHtml(){
     + '<label class="edl">送去哪個職缺 *</label><select class="edi" id="ncJob" disabled><option value="">請先選客戶</option></select>'
     + '<label class="edl">現在在第幾關（不確定可以先不填）</label>'
     + '<select class="edi" id="ncStage">'+MANUAL_STAGE_OPTS.map(function(o){return '<option value="'+o.key+'">'+o.lb+'</option>'}).join('')+'</select>'
+    + '<label class="edl">人選來源</label>'
+    + '<select class="edi" id="ncSource">'+SOURCE_CHANNEL_OPTS.map(function(o){return '<option value="'+o+'">'+o+'</option>'}).join('')+'</select>'
     + '<label class="edl">履歷（選填，可拖曳檔案到下面框框）</label>'
     + '<div id="ncDropZone" style="border:2px dashed var(--line);border-radius:8px;padding:14px;text-align:center;cursor:pointer;transition:.15s">'
     + '<input class="edi" id="ncResumeFile" type="file" accept=".pdf,.doc,.docx" style="display:none">'
     + '<span id="ncDropLabel" class="mut">拖曳檔案到這裡，或點擊選擇檔案</span></div>'
     + '<label class="edl">顧問跟他面談／電訪的內容（選填，填了 AI 會自動整理成初篩報告，格式跟阿財面談產出的一樣）</label>'
-    + '<textarea class="edi" id="ncCallNotes" rows="5" placeholder="條列、流水帳、錄音轉的逐字都可以。寫得越細報告越完整；沒問到的項目報告會標「未詢問」，不會自己編。"></textarea>'
+    + '<textarea class="edi" id="ncCallNotes" rows="5" placeholder="直接打字整理，或用下面上傳檔案（doc/txt/md/html/pdf/excel 都可以）。寫得越細報告越完整；沒問到的項目報告會標「未詢問」，不會自己編。"></textarea>'
+    + '<div id="ncNotesDropZone" style="border:2px dashed var(--line);border-radius:8px;padding:12px;text-align:center;cursor:pointer;transition:.15s;margin-top:8px">'
+    + '<input id="ncNotesFile" type="file" accept=".doc,.docx,.txt,.md,.html,.htm,.pdf,.xlsx,.xls" style="display:none">'
+    + '<span id="ncNotesDropLabel" class="mut">或拖曳面談紀錄檔案到這裡（doc/txt/md/html/pdf/excel）</span></div>'
     + '<span class="mut" style="font-size:11.5px">報告不會馬上出來，系統會在幾分鐘內自動產生，到「初篩報告」頁查看。</span>'
     + '<label style="display:flex;align-items:flex-start;gap:8px;margin-top:10px;font-size:13px;color:var(--ink2)">'
     + '<input type="checkbox" id="ncConsentOk" style="width:auto;margin-top:3px">'
@@ -1192,24 +1198,28 @@ function openNewCandModal(){
         ncj.appendChild(o);
       });
   };
-  // ── 履歷拖曳上傳 ──
-  var dz=$('ncDropZone'), fileInput=$('ncResumeFile'), dropLabel=$('ncDropLabel');
-  dz.onclick=function(){ fileInput.click(); };
-  fileInput.onchange=function(){
-    if(fileInput.files[0]) dropLabel.textContent='已選擇：'+fileInput.files[0].name;
-  };
-  ['dragenter','dragover'].forEach(function(evt){
-    dz.addEventListener(evt,function(e){ e.preventDefault(); e.stopPropagation(); dz.style.borderColor='var(--gold)'; dz.style.background='var(--soft)'; });
-  });
-  ['dragleave','drop'].forEach(function(evt){
-    dz.addEventListener(evt,function(e){ e.preventDefault(); e.stopPropagation(); dz.style.borderColor='var(--line)'; dz.style.background=''; });
-  });
-  dz.addEventListener('drop',function(e){
-    var f=e.dataTransfer.files[0];
-    if(!f) return;
-    var dt=new DataTransfer(); dt.items.add(f); fileInput.files=dt.files;
-    dropLabel.textContent='已選擇：'+f.name;
-  });
+  // ── 拖曳上傳（履歷／面談紀錄檔案共用同一套邏輯）──
+  function wireDropZone(dzId,fileId,labelId){
+    var dz=$(dzId), fileInput=$(fileId), dropLabel=$(labelId);
+    dz.onclick=function(){ fileInput.click(); };
+    fileInput.onchange=function(){
+      if(fileInput.files[0]) dropLabel.textContent='已選擇：'+fileInput.files[0].name;
+    };
+    ['dragenter','dragover'].forEach(function(evt){
+      dz.addEventListener(evt,function(e){ e.preventDefault(); e.stopPropagation(); dz.style.borderColor='var(--gold)'; dz.style.background='var(--soft)'; });
+    });
+    ['dragleave','drop'].forEach(function(evt){
+      dz.addEventListener(evt,function(e){ e.preventDefault(); e.stopPropagation(); dz.style.borderColor='var(--line)'; dz.style.background=''; });
+    });
+    dz.addEventListener('drop',function(e){
+      var f=e.dataTransfer.files[0];
+      if(!f) return;
+      var dt=new DataTransfer(); dt.items.add(f); fileInput.files=dt.files;
+      dropLabel.textContent='已選擇：'+f.name;
+    });
+  }
+  wireDropZone('ncDropZone','ncResumeFile','ncDropLabel');
+  wireDropZone('ncNotesDropZone','ncNotesFile','ncNotesDropLabel');
   $('ncGo').onclick=function(){
     var msg=$('ncMsg'), btn=$('ncGo');
     var name=$('ncName').value.trim(), email=$('ncEmail').value.trim(), phone=$('ncPhone').value.trim();
@@ -1221,15 +1231,24 @@ function openNewCandModal(){
     if(callNotes && callNotes.length<30){ msg.textContent='面談內容太短（少於30字）不夠產報告，麻煩多寫一點或先留空'; return; }
     btn.disabled=true; msg.textContent='處理中…';
     var resumeFile=$('ncResumeFile').files[0];
-    (resumeFile?fileToB64(resumeFile):Promise.resolve(null)).then(function(b64){
+    var notesFile=$('ncNotesFile').files[0];
+    Promise.all([
+      resumeFile?fileToB64(resumeFile):Promise.resolve(null),
+      notesFile?fileToB64(notesFile):Promise.resolve(null),
+    ]).then(function(res){
+      var b64=res[0], notesB64=res[1];
       api('/admin/pipeline/manual-forward',{method:'POST',headers:{'content-type':'application/json'},
         body:JSON.stringify({
           source_kind:'new', name:name, email:email, phone:phone, job_slug:ncj.value,
           initial_stage: $('ncStage').value || null, by: OWNER,
           consent_confirmed:true, call_notes: callNotes || undefined,
+          source_channel: ($('ncSource').value!=='不指定') ? $('ncSource').value : undefined,
           resume_b64: b64 || undefined,
           resume_name: resumeFile ? resumeFile.name : undefined,
           resume_mime: resumeFile ? resumeFile.type : undefined,
+          call_notes_file_b64: notesB64 || undefined,
+          call_notes_file_name: notesFile ? notesFile.name : undefined,
+          call_notes_file_mime: notesFile ? notesFile.type : undefined,
         })})
       .then(function(r){ btn.disabled=false;
         if(!r.ok){ msg.textContent=r.error||'新增失敗'; return; }
