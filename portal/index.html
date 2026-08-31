@@ -186,6 +186,7 @@ button.sec{background:#fff;color:var(--ink2);border:1px solid var(--line)}
 .dash-pill{display:inline-block;border-radius:999px;padding:5px 10px;font-size:11.5px;font-weight:800;white-space:nowrap;background:var(--soft);color:var(--gold)}
 .dash-pill.now{background:#fdf1de;color:var(--warn)}
 .dash-pill.done{background:#e3f3e9;color:var(--ok)}
+.dash-pill.rejected{background:#fbeaea;color:var(--bad)}
 .dash-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
 .dash-card{border:1px solid var(--line);border-radius:12px;padding:12px;cursor:pointer;min-width:0}
 .dash-card:hover{border-color:var(--gold)}
@@ -872,6 +873,7 @@ document.getElementById('tabJobs').addEventListener('click', () => showTopView('
 document.getElementById('tabCandidates').addEventListener('click', () => showTopView('candidates'));
 
 function currentStageOf(c){
+  if (c.client_rejected_at) return { key:'rejected', lb:'已婉拒' };
   const steps = c.steps || [];
   return steps.find(s => s.now) || [...steps].reverse().find(s => s.done) || { lb: '尚未開始' };
 }
@@ -965,7 +967,7 @@ function setCandView(v){
   document.getElementById('dashCardView').hidden = v !== 'card';
 }
 
-function stagePillClass(s){ return s.now ? 'now' : (s.done ? 'done' : ''); }
+function stagePillClass(s){ return s.key==='rejected' ? 'rejected' : s.now ? 'now' : (s.done ? 'done' : ''); }
 
 function renderTable(){
   const list = filteredCandidates();
@@ -1071,25 +1073,39 @@ function openCandModal(appId){
   document.getElementById('cmReportBox').hidden = true;
 
   const roundsFull = c.interview_rounds_used >= 4;
-  document.getElementById('cmUpdateBox').innerHTML = `
-    ${roundsFull ? '' : `<div class="cm-update-grid" style="margin-bottom:10px">
-      <select id="cmRoundType">${Object.entries(c.interview_round_types).map(([k, lb]) => `<option value="${esc(k)}">${esc(lb)}</option>`).join('')}</select>
-      <input type="text" id="cmRoundNote" placeholder="備註是哪個層級（選填）">
-      <button type="button" id="cmRoundAdd">新增下一輪面試</button>
-      <span class="upd-msg" id="cmRoundMsg"></span>
-      <span class="cm-hint">選這一輪是人資面談還是用人單位主管面談，送出後會依序記成「第一階段」「第二階段」……</span>
-    </div>`}
-    <div class="cm-update-grid" style="flex-direction:column;align-items:stretch">
-      <textarea id="cmStageNote" placeholder="面談結束後的狀況、主管評語等回饋（選填，顧問會看到）" style="width:100%;min-height:60px;font:inherit;font-size:13px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;resize:vertical;box-sizing:border-box"></textarea>
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px">
-        <select id="cmStagePick">${c.editable_stages.map(s => `<option value="${esc(s.key)}">${esc(s.lb)}</option>`).join('')}</select>
-        <button type="button" id="cmStageUpd">更新為此狀態</button>
-        <span class="upd-msg" id="cmStageMsg"></span>
+  if (c.client_rejected_at){
+    document.getElementById('cmUpdateBox').innerHTML = `
+      <div class="cm-update-grid" style="flex-direction:column;align-items:stretch;background:#fbeaea;border-radius:8px;padding:10px">
+        <b style="color:var(--bad);font-size:13px">已婉拒此人選</b>
+        <div style="font-size:13px;margin-top:4px">${esc(c.client_reject_reason || '')}</div>
+        <div class="mut" style="font-size:11.5px;margin-top:4px">${esc((c.client_rejected_at||'').slice(0,16))}</div>
+      </div>`;
+  } else {
+    document.getElementById('cmUpdateBox').innerHTML = `
+      ${roundsFull ? '' : `<div class="cm-update-grid" style="margin-bottom:10px">
+        <select id="cmRoundType">${Object.entries(c.interview_round_types).map(([k, lb]) => `<option value="${esc(k)}">${esc(lb)}</option>`).join('')}</select>
+        <input type="text" id="cmRoundNote" placeholder="備註是哪個層級（選填）">
+        <button type="button" id="cmRoundAdd">新增下一輪面試</button>
+        <span class="upd-msg" id="cmRoundMsg"></span>
+        <span class="cm-hint">選這一輪是人資面談還是用人單位主管面談，送出後會依序記成「第一階段」「第二階段」……</span>
+      </div>`}
+      <div class="cm-update-grid" style="flex-direction:column;align-items:stretch">
+        <textarea id="cmStageNote" placeholder="面談結束後的狀況、主管評語等回饋（選填，顧問會看到）" style="width:100%;min-height:60px;font:inherit;font-size:13px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;resize:vertical;box-sizing:border-box"></textarea>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px">
+          <select id="cmStagePick">${c.editable_stages.map(s => `<option value="${esc(s.key)}">${esc(s.lb)}</option>`).join('')}</select>
+          <button type="button" id="cmStageUpd">更新為此狀態</button>
+          <span class="upd-msg" id="cmStageMsg"></span>
+        </div>
       </div>
-    </div>`;
-  const roundAddBtn = document.getElementById('cmRoundAdd');
-  if (roundAddBtn) roundAddBtn.addEventListener('click', cmAddInterviewRound);
-  document.getElementById('cmStageUpd').addEventListener('click', cmUpdateStage);
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line)">
+        <button type="button" id="cmRejectBtn" class="sec" style="color:var(--bad);border-color:#e0b0b0">婉拒此人選</button>
+        <span class="upd-msg" id="cmRejectMsg"></span>
+      </div>`;
+    const roundAddBtn = document.getElementById('cmRoundAdd');
+    if (roundAddBtn) roundAddBtn.addEventListener('click', cmAddInterviewRound);
+    document.getElementById('cmStageUpd').addEventListener('click', cmUpdateStage);
+    document.getElementById('cmRejectBtn').addEventListener('click', cmRejectCandidate);
+  }
 
   document.getElementById('candModalMask').classList.add('show');
   cmLoadChat();
@@ -1249,6 +1265,28 @@ async function cmUpdateStage(){
     msgEl.style.color = 'var(--bad)'; msgEl.textContent = '連線失敗，請稍後再試';
   }
   btn.disabled = false;
+}
+
+async function cmRejectCandidate(){
+  const appId = ACTIVE_APP;
+  const msgEl = document.getElementById('cmRejectMsg');
+  const reason = prompt('請說明婉拒原因（顧問會看到，這會幫助我們調整後續推薦方向）');
+  if (reason === null) return;
+  if (!reason.trim()){ msgEl.style.color = 'var(--bad)'; msgEl.textContent = '請填寫原因'; return; }
+  if (!confirm('確定要婉拒這位人選嗎？')) return;
+  const btn = document.getElementById('cmRejectBtn');
+  btn.disabled = true; msgEl.textContent = '處理中…';
+  try{
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(appId)}/reject`, {
+      method: 'POST', headers: {'content-type':'application/json'}, body: JSON.stringify({ reason: reason.trim() }),
+    });
+    const data = await res.json();
+    if (!data.ok){ msgEl.style.color = 'var(--bad)'; msgEl.textContent = data.error || '送出失敗'; btn.disabled = false; return; }
+    await loadCandidates();
+    if (ACTIVE_APP === appId) openCandModal(appId);
+  }catch{
+    msgEl.style.color = 'var(--bad)'; msgEl.textContent = '連線失敗，請稍後再試'; btn.disabled = false;
+  }
 }
 
 load();
