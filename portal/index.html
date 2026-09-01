@@ -1127,7 +1127,7 @@ function renderTable(){
 
       const curInterview = currentInterviewStage(c);
       const interviewCell = rejected ? '—' : !advanced ? lockedCell : `<select class="dash-tbl-sel" data-app="${esc(c.application_id)}" data-role="interview">
-        <option value="" ${!curInterview ? 'selected' : ''} disabled>尚未開始</option>
+        <option value="" ${!curInterview ? 'selected' : ''} disabled>尚未決定</option>
         ${interviewStageOptsFor(c).map(([k, lb]) => `<option value="${k}" ${curInterview === k ? 'selected' : ''}>${esc(lb)}</option>`).join('')}
       </select>`;
 
