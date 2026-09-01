@@ -215,6 +215,7 @@ button.primary:hover{background:#8a6531;}
 .qr.on{background:#f3e2c2;border-color:#d9bd85;color:#7a4e12;}
 .umask{position:fixed;inset:0;background:rgba(20,22,26,.6);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;}
 .ucard{background:#fff;border-radius:16px;padding:22px 24px;max-width:520px;width:100%;max-height:88vh;overflow:auto;}
+@keyframes livepulse{0%,100%{opacity:1}50%{opacity:.35}}
 </style>
 </head>
 <body>
@@ -243,6 +244,7 @@ button.primary:hover{background:#8a6531;}
   </header>
 
   <div class="wrap">
+    <div id="liveBox" hidden></div>
     <div class="bar">
       <input id="q" type="search" placeholder="搜尋姓名、Email，或報告內文…" autocomplete="off">
       <select id="job"><option value="">全部職缺</option></select>
@@ -1665,12 +1667,48 @@ function gate(msg) {
   if (msg) { $('gerr').hidden = false; $('gerr').textContent = msg; }
 }
 
+// 2026-09-01 加：Jacky 看到有人正在跟阿財面談時想到的——「初篩報告」本來
+// 只有面談結束、報告產出後才看得到這個人，這裡補一塊「現在正在面談」，
+// 讓顧問一開這頁就先看到誰正在對話中，不用等結束。
+// 只讀 /admin/interviews/live（純 GET，不寫任何東西），30 秒刷一次——
+// 阿財一輪對話通常要 30 秒以上，太快只是白打 API。
+var livePanelTimer = null;
+function liveInterviewRowHtml(iv) {
+  var started = iv.interview_started_at ? String(iv.interview_started_at).slice(11, 16) : '—';
+  return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line,#eee7db)">' +
+    '<span style="width:8px;height:8px;border-radius:999px;background:#2f8f5b;flex:0 0 auto;animation:livepulse 1.4s ease-in-out infinite"></span>' +
+    '<b style="font-size:14px">' + esc(iv.name) + '</b>' +
+    '<span class="mut" style="font-size:12.5px">' + esc(iv.job_title || iv.job_slug || '') + '</span>' +
+    '<span class="mut" style="font-size:12.5px">' + esc(iv.owner_name || '未指派') + '</span>' +
+    '<span class="mut" style="font-size:12px;margin-left:auto">' + started + ' 開始</span>' +
+    '</div>';
+}
+async function refreshLivePanel() {
+  var box = $('liveBox');
+  if (!box) return;
+  var d;
+  try { d = await api('/admin/interviews/live'); } catch (e) { return; }
+  if (!d || !d.ok) return;
+  var list = d.interviews || [];
+  if (!list.length) { box.hidden = true; box.innerHTML = ''; return; }
+  box.hidden = false;
+  box.innerHTML = '<div style="background:#fff;border:1px solid var(--line,#eee7db);border-radius:14px;padding:14px 18px;margin-bottom:14px">' +
+    '<div style="font-size:12px;color:var(--ink3,#8a8d95);font-weight:700;letter-spacing:.04em;margin-bottom:6px">' +
+    '🟢 現在正在面談（' + list.length + '）</div>' +
+    list.map(liveInterviewRowHtml).join('') + '</div>';
+}
+function startLivePanel() {
+  refreshLivePanel();
+  if (livePanelTimer) clearInterval(livePanelTimer);
+  livePanelTimer = setInterval(refreshLivePanel, 30000);
+}
+
 $('enter').addEventListener('click', function () {
   tok = $('tok').value.trim();
   if (!tok) return;
   localStorage.setItem(KEY, tok);
   $('gate').hidden = true; $('app').hidden = false;
-  offset = 0; load();
+  offset = 0; load(); startLivePanel();
 });
 $('tok').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('enter').click(); });
 $('out').addEventListener('click', function (e) {
@@ -1894,6 +1932,7 @@ async function openById(id) {
 if (tok) {
   $('app').hidden = false;
   load();   // 背景照常載入清單，深連結關掉後不會看到空白頁
+  startLivePanel();
   var deepId = new URLSearchParams(location.search).get('id');
   if (deepId) openById(deepId);
 } else { gate(''); }
