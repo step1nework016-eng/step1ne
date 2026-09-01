@@ -462,11 +462,12 @@ function applyUniversalStage(c, appId, v, afterFn) {
       body: JSON.stringify({ application_id: appId, stage: v.slice(6), company_id: primaryPl ? primaryPl.company_id : null, by: '顧問' }) })
       .then(afterFn);
   } else if (v === 'closed') {
-    var reason = prompt('結案原因（會存內部記錄；若「同時通知候選人」，這段文字會直接送給候選人，不要出現性別/年齡/婚育等就服法禁止的字眼）：');
+    // 2026-09-01 改：Jacky 要求先移除「要不要順便通知候選人」這個彈窗——結案
+    // 一律只記內部（CLOSED_INTERNAL），不發婉拒通知，之後要重新開放通知再改。
+    var reason = prompt('結案原因（會存內部記錄）：');
     if (reason === null) { afterFn(); return; }
-    var notify = confirm('要同時發婉拒通知給候選人嗎？\n「確定」＝發通知（CLOSED_LOST）\n「取消」＝只記內部，不通知候選人（CLOSED_INTERNAL）');
     api('/admin/mark-closed', { method: 'POST', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ application_id: appId, notify: notify, reason: reason }) })
+      body: JSON.stringify({ application_id: appId, notify: false, reason: reason }) })
       .then(function (r) {
         if (!r.ok) { alert(r.message || r.error || '結案失敗'); afterFn(); return; }
         afterFn();
