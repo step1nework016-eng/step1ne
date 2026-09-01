@@ -972,42 +972,172 @@ function setCandView(v){
 
 function stagePillClass(s){ return s.key==='rejected' ? 'rejected' : s.now ? 'now' : (s.done ? 'done' : ''); }
 
+// 2026-09-01 改：原本表格欄位是「所有人選 steps.key 的聯集」動態長出來的，
+// 面試進度到哪就多長哪一格——Jacky 要的是固定 8 欄，而且「用人單位」以後
+// （面試階段／錄取／報到）三格直接在表格上用下拉選單操作，企業自己就能填，
+// 不用另外點開人選卡片。「顧問階段」維持唯讀（那是我們自己內部審核的紀錄，
+// 不是企業要填的東西）。
+const TABLE_COLS = [
+  ['confirm', '顧問階段'],
+  ['matched', '用人單位'],
+  ['interview', '面試階段'],
+  ['offer', '錄取'],
+  ['onboard', '報到'],
+];
+const INTERVIEW_STAGE_OPTS = [['stage1', '第一階段'], ['stage2', '第二階段'], ['stage3', '第三階段']];
+
+function stepOf(c, key){ return (c.steps || []).find(s => s.key === key) || null; }
+function currentInterviewStage(c){
+  // 面試階段欄位收斂 stage1~stage3 成一格——取目前「進行中」的那一關，
+  // 沒有進行中的就取已完成裡最後一關（表示上一輪已經過了、等下一輪安排）。
+  const steps = c.steps || [];
+  const now = steps.find(s => ['stage1', 'stage2', 'stage3'].includes(s.key) && s.now);
+  if (now) return now.key;
+  const done = [...steps].reverse().find(s => ['stage1', 'stage2', 'stage3'].includes(s.key) && s.done);
+  return done ? done.key : '';
+}
+
 function renderTable(){
   const list = filteredCandidates();
   const el = document.getElementById('dashTableView');
   if (!list.length){ el.innerHTML = '<div class="dash-empty">目前沒有符合條件的人選</div>'; return; }
-  // 每個人選的 steps 是依他自己實際加過幾輪面試動態長出來的（interview_rounds_used
-  // 每人不同），不是全公司共用一套固定欄位——所以欄位不能只抓某一位的 steps 當表頭，
-  // 要取「所有人選 steps.key 的聯集」，再依 STAGE_ORDER 的順序排好；每一列用 key
-  // 去對自己的 steps（不是用陣列位置對），沒有這個 key 就顯示「—」，不會錯位。
-  const KEY_ORDER = ['screening', 'confirm', 'matched', 'stage1', 'stage2', 'stage3', 'stage4', 'offer', 'onboard', 'care', 'backup'];
-  const stageMap = new Map(); // key -> lb（取最先看到的 lb 當表頭文字）
-  list.forEach(c => (c.steps || []).forEach(s => { if (!stageMap.has(s.key)) stageMap.set(s.key, s.lb); }));
-  const stageKeys = [...stageMap.keys()].sort((a, b) => {
-    const ia = KEY_ORDER.indexOf(a), ib = KEY_ORDER.indexOf(b);
-    return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
-  });
   el.innerHTML = `<div class="dash-table-wrap"><table class="dash-table">
-    <thead><tr><th>人選</th><th>LINE ID</th><th>推送日</th>${stageKeys.map(k => `<th>${esc(stageMap.get(k))}</th>`).join('')}</tr></thead>
+    <thead><tr><th>人選</th><th>LINE ID</th><th>推送日</th>${TABLE_COLS.map(([, lb]) => `<th>${esc(lb)}</th>`).join('')}</tr></thead>
     <tbody>${list.map(c => {
-      const byKey = {};
-      (c.steps || []).forEach(s => { byKey[s.key] = s; });
-      const stageCells = stageKeys.map(k => {
-        const s = byKey[k];
-        if (!s) return `<td>—</td>`;
-        if (s.now) return `<td><span class="dash-pill now">進行中</span></td>`;
-        if (s.done) return `<td><span class="dash-pill done">已完成</span></td>`;
-        return `<td>—</td>`;
-      }).join('');
+      const rejected = !!c.client_rejected_at;
+      const confirmS = stepOf(c, 'confirm');
+      const confirmCell = !confirmS ? '—' : confirmS.now ? '<span class="dash-pill now">進行中</span>' : confirmS.done ? '<span class="dash-pill done">已完成</span>' : '—';
+
+      const matchedS = stepOf(c, 'matched');
+      let matchedCell;
+      if (rejected) {
+        matchedCell = `<span class="dash-pill rejected" title="${esc(c.client_reject_reason || '')}">已婉拒</span>`;
+      } else {
+        matchedCell = `<select class="dash-tbl-sel" data-app="${esc(c.application_id)}" data-role="advance">
+          <option value="advance">推進</option>
+          <option value="decline">不推進</option>
+        </select>`;
+      }
+
+      const curInterview = currentInterviewStage(c);
+      const interviewCell = rejected ? '—' : `<select class="dash-tbl-sel" data-app="${esc(c.application_id)}" data-role="interview">
+        <option value="" ${!curInterview ? 'selected' : ''} disabled>尚未開始</option>
+        ${INTERVIEW_STAGE_OPTS.map(([k, lb]) => `<option value="${k}" ${curInterview === k ? 'selected' : ''}>${esc(lb)}</option>`).join('')}
+      </select>`;
+
+      const offerDone = !!(stepOf(c, 'offer') || {}).done;
+      const offerCell = rejected ? '—' : `<select class="dash-tbl-sel" data-app="${esc(c.application_id)}" data-role="offer">
+        <option value="" ${!offerDone ? 'selected' : ''} disabled>尚未決定</option>
+        <option value="offer" ${offerDone ? 'selected' : ''}>錄取</option>
+        <option value="decline">不錄取</option>
+      </select>`;
+
+      const onboardDone = !!(stepOf(c, 'onboard') || {}).done;
+      const onboardCell = rejected ? '—' : `<select class="dash-tbl-sel" data-app="${esc(c.application_id)}" data-role="onboard">
+        <option value="" ${!onboardDone ? 'selected' : ''} disabled>尚未決定</option>
+        <option value="onboard" ${onboardDone ? 'selected' : ''}>報到</option>
+        <option value="decline">不報到</option>
+      </select>`;
+
       return `<tr data-app="${esc(c.application_id)}">
         <td><b>${esc(c.candidate_name)}</b><div style="font-size:12px;color:var(--ink3)">${esc(c.job_title || c.job_slug)}</div></td>
         <td>${esc(c.line_id_given || '尚未提供')}</td>
         <td>${esc((c.forwarded_at || '').slice(0, 10))}</td>
-        ${stageCells}
+        <td>${confirmCell}</td>
+        <td>${matchedCell}</td>
+        <td>${interviewCell}</td>
+        <td>${offerCell}</td>
+        <td>${onboardCell}</td>
       </tr>`;
     }).join('')}</tbody>
   </table></div>`;
   wireOpenButtons(el);
+  wireTableSelects(el);
+}
+
+// 表格上的下拉選單是企業自己操作進度用的，不能點了反而順便打開人選彈窗
+// （彈窗裡也有一樣的操作，兩邊會互相蓋掉彼此還沒送出的選擇）。
+function wireTableSelects(root){
+  root.querySelectorAll('select.dash-tbl-sel').forEach(sel => {
+    sel.addEventListener('click', (e) => e.stopPropagation());
+    sel.addEventListener('change', (e) => {
+      e.stopPropagation();
+      tblHandleChange(sel.dataset.app, sel.dataset.role, sel.value, sel);
+    });
+  });
+}
+
+async function tblHandleChange(appId, role, value, sel){
+  const prevValue = [...sel.options].find(o => o.defaultSelected)?.value ?? '';
+  if (role === 'advance') {
+    if (value === 'advance') return; // 已經是預設狀態，不用送出
+    const reason = prompt('請說明不推進的原因（顧問會看到，這會幫助我們調整後續推薦方向）');
+    if (reason === null || !reason.trim()) { sel.value = prevValue; return; }
+    await tblReject(appId, reason.trim(), sel, prevValue);
+    return;
+  }
+  if (role === 'interview') {
+    if (!value) return;
+    const lb = (INTERVIEW_STAGE_OPTS.find(([k]) => k === value) || [])[1] || value;
+    if (!confirm(`確定要把這位人選的面試階段更新為「${lb}」嗎？`)) { sel.value = prevValue; return; }
+    await tblSetStage(appId, value, {}, sel, prevValue);
+    return;
+  }
+  if (role === 'offer') {
+    if (value === 'decline') {
+      const reason = prompt('請說明不錄取的原因（顧問會看到，這會幫助我們調整後續推薦方向）');
+      if (reason === null || !reason.trim()) { sel.value = prevValue; return; }
+      await tblReject(appId, reason.trim(), sel, prevValue);
+    } else if (value === 'offer') {
+      const note = prompt('錄取原因（選填，顧問會看到）') || '';
+      await tblSetStage(appId, 'offer', { note: note.trim() || undefined }, sel, prevValue);
+    }
+    return;
+  }
+  if (role === 'onboard') {
+    if (value === 'decline') {
+      const reason = prompt('請說明不報到的原因（顧問會看到，這會幫助我們調整後續推薦方向）');
+      if (reason === null || !reason.trim()) { sel.value = prevValue; return; }
+      await tblReject(appId, reason.trim(), sel, prevValue);
+    } else if (value === 'onboard') {
+      const today = new Date().toISOString().slice(0, 10);
+      const date = prompt('預計報到日期（格式 YYYY-MM-DD）', today);
+      if (date === null) { sel.value = prevValue; return; }
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date.trim())) { alert('日期格式不對，請用 YYYY-MM-DD'); sel.value = prevValue; return; }
+      await tblSetStage(appId, 'onboard', { onboard_date: date.trim() }, sel, prevValue);
+    }
+    return;
+  }
+}
+
+async function tblSetStage(appId, stage, extra, sel, prevValue){
+  try{
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(appId)}/stage`, {
+      method: 'POST', headers: {'content-type':'application/json'}, body: JSON.stringify({ stage, ...extra }),
+    });
+    const data = await res.json();
+    if (!data.ok){ alert(data.error || '更新失敗'); if (sel) sel.value = prevValue; return; }
+    await loadCandidates();
+    if (ACTIVE_APP === appId) openCandModal(appId);
+  }catch{
+    alert('連線失敗，請稍後再試');
+    if (sel) sel.value = prevValue;
+  }
+}
+
+async function tblReject(appId, reason, sel, prevValue){
+  try{
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(appId)}/reject`, {
+      method: 'POST', headers: {'content-type':'application/json'}, body: JSON.stringify({ reason }),
+    });
+    const data = await res.json();
+    if (!data.ok){ alert(data.error || '送出失敗'); if (sel) sel.value = prevValue; return; }
+    await loadCandidates();
+    if (ACTIVE_APP === appId) openCandModal(appId);
+  }catch{
+    alert('連線失敗，請稍後再試');
+    if (sel) sel.value = prevValue;
+  }
 }
 
 function renderCards(){
