@@ -1230,14 +1230,11 @@ function openCandModal(appId){
           <span class="upd-msg" id="cmStageMsg"></span>
         </div>
       </div>
-      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line)">
-        <button type="button" id="cmRejectBtn" class="sec" style="color:var(--bad);border-color:#e0b0b0">婉拒此人選</button>
-        <span class="upd-msg" id="cmRejectMsg"></span>
-      </div>`;
+      <p class="cm-hint" style="margin-top:10px">要婉拒這位人選，回到表格用「用人單位」那欄的下拉選單選「不推進」——跟這裡是同一個動作，統一在表格上做。</p>
+      `;
     const roundAddBtn = document.getElementById('cmRoundAdd');
     if (roundAddBtn) roundAddBtn.addEventListener('click', cmAddInterviewRound);
     document.getElementById('cmStageUpd').addEventListener('click', cmUpdateStage);
-    document.getElementById('cmRejectBtn').addEventListener('click', cmRejectCandidate);
   }
 
   document.getElementById('candModalMask').classList.add('show');
@@ -1398,28 +1395,6 @@ async function cmUpdateStage(){
     msgEl.style.color = 'var(--bad)'; msgEl.textContent = '連線失敗，請稍後再試';
   }
   btn.disabled = false;
-}
-
-async function cmRejectCandidate(){
-  const appId = ACTIVE_APP;
-  const msgEl = document.getElementById('cmRejectMsg');
-  const reason = prompt('請說明婉拒原因（顧問會看到，這會幫助我們調整後續推薦方向）');
-  if (reason === null) return;
-  if (!reason.trim()){ msgEl.style.color = 'var(--bad)'; msgEl.textContent = '請填寫原因'; return; }
-  if (!confirm('確定要婉拒這位人選嗎？')) return;
-  const btn = document.getElementById('cmRejectBtn');
-  btn.disabled = true; msgEl.textContent = '處理中…';
-  try{
-    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(appId)}/reject`, {
-      method: 'POST', headers: {'content-type':'application/json'}, body: JSON.stringify({ reason: reason.trim() }),
-    });
-    const data = await res.json();
-    if (!data.ok){ msgEl.style.color = 'var(--bad)'; msgEl.textContent = data.error || '送出失敗'; btn.disabled = false; return; }
-    await loadCandidates();
-    if (ACTIVE_APP === appId) openCandModal(appId);
-  }catch{
-    msgEl.style.color = 'var(--bad)'; msgEl.textContent = '連線失敗，請稍後再試'; btn.disabled = false;
-  }
 }
 
 load();

@@ -649,7 +649,16 @@ function openDrawer(appId, kind) {
             '⚠ 顧問不推薦（' + esc(pl.advisor_not_recommended_reason || '') + '）　' +
             '<button type="button" class="btn notrecClear" data-cid="' + esc(pl.company_id) + '" style="font-size:11.5px;padding:2px 8px;margin-left:4px">取消不推薦</button></div>'
         : '<button type="button" class="btn notrecSet" data-cid="' + esc(pl.company_id) + '" style="font-size:11.5px;padding:3px 10px;margin-top:6px;color:var(--bad)">標不推薦（這家客戶這個職缺）</button>';
-      return '<div style="margin-top:14px"><div style="font-weight:700;font-size:13px;margin-bottom:4px">' + esc(pl.client_name) + '</div>' + bar(pl, appId, i > 0) + nr + '</div>';
+      // 2026-09-01 加：client_rejected_at 資料早就接進來了，但沒有畫出來——
+      // 顧問看不到「用人單位已經婉拒」這件事，只能靠客戶端那句一次性 Telegram
+      // 通知，漏看就等於不知道。這裡補上顯示，跟顧問自己的「不推薦」用同一種
+      // 視覺語言，但清楚寫明是客戶婉拒的，不要讓兩者混在一起看不出差別。
+      var cr = pl.client_rejected_at
+        ? '<div class="notrec" style="margin-top:6px;padding:8px 10px;border-radius:8px;background:#fdf1ef;color:var(--bad);font-size:12.5px">' +
+            '❌ 用人單位婉拒（' + esc(pl.client_reject_reason || '') + '）　' +
+            '<span class="mut" style="font-size:11px">' + esc(String(pl.client_rejected_at).slice(0, 16)) + '</span></div>'
+        : '';
+      return '<div style="margin-top:14px"><div style="font-weight:700;font-size:13px;margin-bottom:4px">' + esc(pl.client_name) + '</div>' + bar(pl, appId, i > 0) + cr + nr + '</div>';
     }).join('') +
     (!c.placements || !c.placements.length ? '<p class="mut" style="margin-top:10px">這位人選還沒被推送給任何客戶——選上面的「已轉客戶」會直接推送。</p>' : '') +
     '</div>';
