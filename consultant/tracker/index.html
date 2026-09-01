@@ -345,10 +345,21 @@ function renderList() {
   });
 }
 
+// 萬用階段下拉——跟下面圓點點擊是同一件事的兩個入口，都是呼叫
+// /admin/set-manual-stage，選項就是這個 placement 自己的 steps（動態的，
+// 依這個人選實際加過幾輪面試而定），不是寫死一份全站共用的清單。
+function stageSelectHtml(pl, appId) {
+  var steps = pl.steps || [];
+  var cur = steps.find(function (s) { return s.now; });
+  return '<select class="edi stageSel" data-cid="' + (pl.company_id || '') + '" style="max-width:220px;display:inline-block;margin-bottom:8px">' +
+    steps.map(function (s) { return '<option value="' + s.key + '"' + (cur && cur.key === s.key ? ' selected' : '') + '>' + esc(s.lb) + '</option>'; }).join('') +
+    '</select>';
+}
 function bar(pl, appId) {
   var steps = pl.steps || [];
   if (!steps.length) return '<p class="mut" style="margin:0">還沒有進度資料。</p>';
-  return '<p class="mut" style="margin:0 0 6px">點圓點可以直接切換階段。</p>' +
+  return '<div>萬用階段：' + stageSelectHtml(pl, appId) + '</div>' +
+    '<p class="mut" style="margin:0 0 6px">或直接點圓點切換階段，跟上面下拉是同一份資料。</p>' +
     '<div class="bar">' + steps.map(function (s, i) {
       return '<div class="stp ' + (s.done ? 'done' : (s.now ? 'now' : '')) + '" data-key="' + s.key + '" data-cid="' + (pl.company_id || '') + '" data-app="' + appId + '">' +
         '<div class="dot"></div><div class="lb">' + esc(s.lb) + '</div></div>';
@@ -389,11 +400,50 @@ function openSourcedDrawer(c) {
     '</dl></div>' +
     '<div class="sec"><h4>下一步</h4><div class="acts">' +
     SRC_ACTS.map(function (a) { return '<button class="btn srcact" data-k="' + a.k + '" type="button">' + a.lb + '<span class="mut" style="display:block;font-size:10.5px">→ ' + a.to + '</span></button>'; }).join('') +
-    '</div></div></div>';
+    '</div></div>' +
+    '<div class="sec"><h4>發應徵連結給他</h4>' +
+    (c.invite_token
+      ? '<dl class="kv"><dt>已產生</dt><dd class="mut">' + esc(String(c.invite_at || '').slice(0, 16)) + '</dd>' +
+        '<dt>職缺</dt><dd>' + esc(c.invite_job_slug || '') + '</dd>' +
+        '<dt>連結</dt><dd id="invurl" style="overflow-wrap:anywhere">https://step1ne.com/apply/?inv=' + esc(c.invite_token) + '</dd></dl>' +
+        '<div class="acts"><button class="btn p" id="invcopy" type="button">複製連結</button>' +
+        '<button class="btn" id="invnew" type="button">換一個職缺</button></div>'
+      : '<p class="mut" style="margin:0 0 9px">還沒產生。產生後把連結傳給他，他點進去只要填測驗就能跟阿財面談。</p>' +
+        '<div class="acts"><select class="edi" id="invjob" style="max-width:220px"><option value="">選一個職缺…</option></select>' +
+        '<button class="btn p" id="invgo" type="button">產生連結</button></div>') +
+    '</div></div>';
   $('dwrap').innerHTML = html;
   $('dmask').classList.add('show');
   $('dclose').onclick = closeDrawer;
   wireOwnerAssign('sourced', c.sourced_id, function () { closeDrawer(); loadCards(); });
+  var ij = $('invjob');
+  if (ij) {
+    api('/admin/jobs').then(function (r) {
+      (r.results || r.jobs || []).filter(function (j) { return (j.status || 'open') !== 'closed' && j.status !== 'client_draft' && j.status !== 'pending_review'; })
+        .forEach(function (j) { var o = document.createElement('option'); o.value = j.slug; o.textContent = j.title || j.slug; ij.appendChild(o); });
+    });
+  }
+  var ig = $('invgo');
+  if (ig) ig.onclick = function () {
+    if (!ij.value) { alert('先選一個職缺'); return; }
+    ig.disabled = true;
+    api('/admin/sourced/invite', { method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ id: c.sourced_id, job_slug: ij.value }) })
+    .then(function (r) { ig.disabled = false; if (!r.ok) { alert(r.error || '產生失敗'); return; } closeDrawer(); loadCards(function () { openDrawer(c.sourced_id, 'sourced'); }); })
+    .catch(function () { ig.disabled = false; alert('連線失敗'); });
+  };
+  var ic = $('invcopy');
+  if (ic) ic.onclick = function () {
+    navigator.clipboard.writeText($('invurl').textContent).then(function () { ic.textContent = '已複製'; setTimeout(function () { ic.textContent = '複製連結'; }, 1500); });
+  };
+  var inw = $('invnew');
+  if (inw) inw.onclick = function () {
+    var slug = prompt('換成哪一個職缺？填職缺代碼（slug）：', c.invite_job_slug || '');
+    if (!slug) return;
+    api('/admin/sourced/invite', { method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ id: c.sourced_id, job_slug: slug.trim() }) })
+    .then(function (r) { if (!r.ok) { alert(r.error || '失敗'); return; } closeDrawer(); loadCards(function () { openDrawer(c.sourced_id, 'sourced'); }); });
+  };
   Array.prototype.forEach.call(document.querySelectorAll('.srcact'), function (b) {
     b.onclick = function () {
       var status = b.dataset.k, reason = null;
@@ -665,6 +715,13 @@ function wireDrawer(c, appId) {
       .then(function () { loadAndOpen(appId); });
     };
   });
+  Array.prototype.forEach.call(document.querySelectorAll('.stageSel'), function (sel) {
+    sel.onchange = function () {
+      api('/admin/set-manual-stage', { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ application_id: appId, stage: sel.value, company_id: sel.dataset.cid || null, by: '顧問' }) })
+      .then(function () { loadAndOpen(appId); });
+    };
+  });
   Array.prototype.forEach.call(document.querySelectorAll('.decbtn'), function (b) {
     b.onclick = function () {
       api('/admin/decide-report', { method: 'POST', headers: { 'content-type': 'application/json' },
@@ -751,6 +808,8 @@ function openNewCandModal() {
     '<label class="edl">電話</label><input class="edi" id="ncPhone">' +
     '<label class="edl">送去哪個職缺</label><select class="edi" id="ncJob"><option value="">載入中…</option></select>' +
     '<label class="edl">聯絡來源</label><select class="edi" id="ncSource">' + SOURCE_CHANNEL_OPTS.map(function (o) { return '<option>' + esc(o) + '</option>'; }).join('') + '</select>' +
+    '<label class="edl">履歷來源</label><select class="edi" id="ncResumeSource">' + RESUME_SOURCE_OPTS.map(function (o) { return '<option>' + esc(o) + '</option>'; }).join('') + '</select>' +
+    '<div id="ncResumeDz" style="border:1.5px dashed var(--line);border-radius:10px;padding:16px;text-align:center;font-size:12.5px;color:var(--ink3);cursor:pointer;margin-top:6px">拖曳履歷檔案到這裡，或點擊選擇檔案</div>' +
     '<label class="edl" style="margin-top:12px">電洽內容</label><textarea class="edi" id="ncCallText" rows="3" placeholder="這次接觸/電訪的重點"></textarea>' +
     '<label style="display:flex;align-items:flex-start;gap:8px;margin-top:12px;font-size:13px;color:var(--ink2)">' +
     '<input type="checkbox" id="ncConsent" style="width:auto;margin-top:3px"><span>我確認已經取得本人同意，這筆資料可以提供給客戶</span></label>' +
@@ -762,6 +821,12 @@ function openNewCandModal() {
     var jobs = (d.results || d.jobs || []).map(function (j) { return { slug: j.slug, title: (j.company_display_name ? j.company_display_name + ' - ' : '') + j.title }; });
     $('ncJob').innerHTML = '<option value="">選一個職缺…</option>' + jobs.map(function (j) { return '<option value="' + esc(j.slug) + '">' + esc(j.title) + '</option>'; }).join('');
   });
+  var ncResumeFile = null;
+  var ncDz = $('ncResumeDz');
+  ncDz.onclick = function () { var inp = document.createElement('input'); inp.type = 'file'; inp.onchange = function () { if (inp.files[0]) { ncResumeFile = inp.files[0]; ncDz.textContent = '已選擇：' + ncResumeFile.name; } }; inp.click(); };
+  ncDz.ondragover = function (e) { e.preventDefault(); ncDz.style.borderColor = 'var(--gold)'; };
+  ncDz.ondragleave = function () { ncDz.style.borderColor = 'var(--line)'; };
+  ncDz.ondrop = function (e) { e.preventDefault(); ncDz.style.borderColor = 'var(--line)'; if (e.dataTransfer.files[0]) { ncResumeFile = e.dataTransfer.files[0]; ncDz.textContent = '已選擇：' + ncResumeFile.name; } };
   $('ncGo').onclick = function () {
     var name = $('ncName').value.trim(), email = $('ncEmail').value.trim(), phone = $('ncPhone').value.trim();
     var msg = $('ncMsg');
@@ -770,14 +835,20 @@ function openNewCandModal() {
     if (!$('ncJob').value) { msg.textContent = '請選職缺'; return; }
     if (!$('ncConsent').checked) { msg.textContent = '請先確認已取得本人同意'; return; }
     msg.textContent = '建立中…';
-    api('/admin/pipeline/manual-forward', { method: 'POST', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ source_kind: 'new', name: name, email: email, phone: phone, job_slug: $('ncJob').value,
-        source_channel: $('ncSource').value, call_notes: $('ncCallText').value.trim(), consent_confirmed: true, by: '顧問' }) })
-    .then(function (r) {
-      if (!r.ok) { msg.textContent = r.error || '建立失敗'; return; }
-      closeNewCand();
-      loadCards(function () { openDrawer(r.application_id); });
-    }).catch(function () { msg.textContent = '連線失敗'; });
+    var submit = function (resumeB64, resumeName, resumeMime) {
+      api('/admin/pipeline/manual-forward', { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ source_kind: 'new', name: name, email: email, phone: phone, job_slug: $('ncJob').value,
+          source_channel: $('ncSource').value, resume_source: $('ncResumeSource').value,
+          resume_b64: resumeB64, resume_name: resumeName, resume_mime: resumeMime,
+          call_notes: $('ncCallText').value.trim(), consent_confirmed: true, by: '顧問' }) })
+      .then(function (r) {
+        if (!r.ok) { msg.textContent = r.error || '建立失敗'; return; }
+        closeNewCand();
+        loadCards(function () { openDrawer(r.application_id); });
+      }).catch(function () { msg.textContent = '連線失敗'; });
+    };
+    if (ncResumeFile) { var reader = new FileReader(); reader.onload = function () { submit(reader.result.split(',')[1], ncResumeFile.name, ncResumeFile.type); }; reader.readAsDataURL(ncResumeFile); }
+    else submit(null, null, null);
   };
 }
 function closeNewCand() { $('ncMask').classList.remove('show'); }
