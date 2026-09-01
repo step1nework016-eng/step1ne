@@ -1137,6 +1137,21 @@ function load() {
   $('gate').hidden = true; $('app').hidden = false;
   api('/admin/consultants').then(function (d) { renderOwnerSel(d.consultants || []); });
   loadCards();
+  startAutoRefresh();
+}
+// 2026-09-01 加：這頁本來只在打開當下抓一次資料，之後不會自己更新——
+// 客戶在用人需求表推進階段，顧問這邊除非手動重新整理，不然畫面看到的
+// 永遠是打開那一刻的舊快照（9/1 陳其寬、周丞恩兩次都撞到這個，看起來
+// 像「沒同步」，其實資料一直是對的，只是畫面沒重抓）。改成背景每 30 秒
+// 悄悄重抓一次——只在人選卡片抽屜沒開著的時候做，抽屜開著代表顧問正在
+// 看細節/打字，這時候被背景刷新打斷畫面體驗會很差，寧可晚 30 秒更新。
+var autoRefreshTimer = null;
+function startAutoRefresh() {
+  if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+  autoRefreshTimer = setInterval(function () {
+    if ($('dmask').classList.contains('show')) return;
+    loadCards();
+  }, 30000);
 }
 function boot() {
   if (tok) { load(); return; }

@@ -1025,14 +1025,20 @@ function renderTable(){
         ${INTERVIEW_STAGE_OPTS.map(([k, lb]) => `<option value="${k}" ${curInterview === k ? 'selected' : ''}>${esc(lb)}</option>`).join('')}
       </select>`;
 
-      const offerDone = !!(stepOf(c, 'offer') || {}).done;
+      // 2026-09-01 修：原本只看 .done（已經走過這關），沒看 .now（現在正卡在
+      // 這一關）——選了「錄取」之後，這關通常正好是 effective_index 本身
+      // （還沒有下一關把它蓋過去），.done 是 false、.now 才是 true，
+      // 下拉因此顯示回「尚未決定」，資料其實是對的，純粹是畫面判斷漏了一半。
+      const offerStep = stepOf(c, 'offer') || {};
+      const offerDone = !!(offerStep.done || offerStep.now);
       const offerCell = rejected ? '—' : `<select class="dash-tbl-sel" data-app="${esc(c.application_id)}" data-role="offer">
         <option value="" ${!offerDone ? 'selected' : ''} disabled>尚未決定</option>
         <option value="offer" ${offerDone ? 'selected' : ''}>錄取</option>
         <option value="decline">不錄取</option>
       </select>`;
 
-      const onboardDone = !!(stepOf(c, 'onboard') || {}).done;
+      const onboardStep = stepOf(c, 'onboard') || {};
+      const onboardDone = !!(onboardStep.done || onboardStep.now);
       const onboardCell = rejected ? '—' : `<select class="dash-tbl-sel" data-app="${esc(c.application_id)}" data-role="onboard">
         <option value="" ${!onboardDone ? 'selected' : ''} disabled>尚未決定</option>
         <option value="onboard" ${onboardDone ? 'selected' : ''}>報到</option>
