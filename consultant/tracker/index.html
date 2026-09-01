@@ -355,9 +355,8 @@ function renderList() {
   });
 }
 
-// 萬用階段下拉——跟下面圓點點擊是同一件事的兩個入口，都是呼叫
-// /admin/set-manual-stage，選項就是這個 placement 自己的 steps（動態的，
-// 依這個人選實際加過幾輪面試而定），不是寫死一份全站共用的清單。
+// 萬用階段下拉——每個 placement 自己一份簡版（只有這個客戶的進度階段），
+// 跟下面圓點點擊是同一件事的兩個入口，都是呼叫 /admin/set-manual-stage。
 function stageSelectHtml(pl, appId) {
   var steps = pl.steps || [];
   var cur = steps.find(function (s) { return s.now; });
@@ -365,15 +364,47 @@ function stageSelectHtml(pl, appId) {
     steps.map(function (s) { return '<option value="' + s.key + '"' + (cur && cur.key === s.key ? ' selected' : '') + '>' + esc(s.lb) + '</option>'; }).join('') +
     '</select>';
 }
-function bar(pl, appId) {
+function bar(pl, appId, showSel) {
   var steps = pl.steps || [];
   if (!steps.length) return '<p class="mut" style="margin:0">還沒有進度資料。</p>';
-  return '<div>萬用階段：' + stageSelectHtml(pl, appId) + '</div>' +
-    '<p class="mut" style="margin:0 0 6px">或直接點圓點切換階段，跟上面下拉是同一份資料。</p>' +
+  return (showSel === false ? '' : '<div>階段：' + stageSelectHtml(pl, appId) + '</div>') +
+    '<p class="mut" style="margin:0 0 6px">點圓點也能直接切換階段，跟上面下拉是同一份資料。</p>' +
     '<div class="bar">' + steps.map(function (s, i) {
       return '<div class="stp ' + (s.done ? 'done' : (s.now ? 'now' : '')) + '" data-key="' + s.key + '" data-cid="' + (pl.company_id || '') + '" data-app="' + appId + '">' +
         '<div class="dot"></div><div class="lb">' + esc(s.lb) + '</div></div>';
     }).join('') + '</div>';
+}
+
+// 萬用階段——這是 Jacky 在 Phase 1 demo 定案、正式版漏做的那顆：一個下拉
+// 涵蓋人選整個生命週期（已面談還沒決定／已決定推不推／客戶端各階段／
+// 已結案），對應到表格式的每一欄，不是只有「這個客戶目前卡在第幾關」。
+// 只涵蓋主要（第一個）客戶——多客戶推派的其他家，各自進度用上面每個
+// placement 自己的階段下拉調整，不會被這顆萬用選單誤動到。
+function universalStageOptionsHtml(c, primaryPl) {
+  var cur = 'to_review';
+  if (c.closed) cur = 'closed';
+  else if (c.decision === 'forwarded') cur = 'dec:forwarded';
+  else if (c.decision === 'need_more') cur = 'dec:need_more';
+  else if (c.decision === 'rejected') cur = 'dec:rejected';
+  else if (primaryPl) {
+    var now = (primaryPl.steps || []).find(function (s) { return s.now; });
+    if (now) cur = 'stage:' + now.key;
+  }
+  var groups = [
+    { grp: '已面談／電訪，還沒決定', opts: [{ k: 'to_review', lb: '等我決定' }] },
+    { grp: '已決定推不推', opts: [
+      { k: 'dec:forwarded', lb: '已轉客戶' }, { k: 'dec:need_more', lb: '需補問' }, { k: 'dec:rejected', lb: '不推薦' },
+    ] },
+  ];
+  if (primaryPl) {
+    groups.push({ grp: '客戶端流程（' + primaryPl.client_name + '）', opts: (primaryPl.steps || []).map(function (s) { return { k: 'stage:' + s.key, lb: s.lb }; }) });
+  }
+  groups.push({ grp: '結束', opts: [{ k: 'closed', lb: '已結案' }] });
+  return groups.map(function (g) {
+    return '<optgroup label="' + esc(g.grp) + '">' + g.opts.map(function (o) {
+      return '<option value="' + o.k + '"' + (o.k === cur ? ' selected' : '') + '>' + esc(o.lb) + '</option>';
+    }).join('') + '</optgroup>';
+  }).join('');
 }
 
 function reportDocHtml(c) {
@@ -488,11 +519,14 @@ function openDrawer(appId, kind) {
 
   // 目前進度：這個 application 底下每一家客戶各自的進度（placements），
   // 一家客戶一條進度條，各自獨立，改其中一家不影響另一家。
+  var primaryPl0 = (c.placements || [])[0] || null;
   html += '<div class="sec"><h4>目前進度</h4>' +
-    (c.placements || []).map(function (pl) {
-      return '<div style="margin-bottom:14px"><div style="font-weight:700;font-size:13px;margin-bottom:4px">' + esc(pl.client_name) + '</div>' + bar(pl, appId) + '</div>';
+    '<label class="edl" style="margin-top:0">萬用階段<span class="mut" style="font-weight:400">（涵蓋整個生命週期，對應表格式的每一欄）</span></label>' +
+    '<select class="edi universalStageSel" style="max-width:260px">' + universalStageOptionsHtml(c, primaryPl0) + '</select>' +
+    (c.placements || []).map(function (pl, i) {
+      return '<div style="margin-top:14px"><div style="font-weight:700;font-size:13px;margin-bottom:4px">' + esc(pl.client_name) + '</div>' + bar(pl, appId, i > 0) + '</div>';
     }).join('') +
-    (!c.placements || !c.placements.length ? '<p class="mut" style="margin:0">這位人選還沒被推送給任何客戶。</p>' : '') +
+    (!c.placements || !c.placements.length ? '<p class="mut" style="margin-top:10px">這位人選還沒被推送給任何客戶——選上面的「已轉客戶」會直接推送。</p>' : '') +
     '</div>';
 
   var primaryPl = (c.placements || [])[0] || null;
@@ -749,6 +783,40 @@ function wireDrawer(c, appId) {
       .then(function () { loadAndOpen(appId); });
     };
   });
+  // 萬用階段——一個下拉涵蓋整個生命週期，依選到的值分派到對應的既有端點，
+  // 不是另外發明一套新邏輯：等我決定＝清除報告決定、已轉客戶/需補問/不推薦＝
+  // decide-report、客戶端流程＝set-manual-stage（只動主要那家客戶）、
+  // 已結案＝mark-closed（一定要填理由，就服法紅線字眼會被擋下來）。
+  var usel = document.querySelector('.universalStageSel');
+  if (usel) usel.onchange = function () {
+    var v = usel.value;
+    var primaryPl = (c.placements || [])[0] || null;
+    if (v === 'to_review') {
+      if (!c.report_id) { loadAndOpen(appId); return; }
+      api('/admin/clear-decision', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: c.report_id }) })
+        .then(function () { loadAndOpen(appId); });
+    } else if (v.indexOf('dec:') === 0) {
+      var k = v.slice(4);
+      api('/admin/decide-report', { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ id: c.report_id, decision: k, app_id: appId,
+          app_status: k === 'forwarded' ? 'passed' : (k === 'rejected' ? 'rejected' : 'reported'), by: '顧問' }) })
+        .then(function () { loadAndOpen(appId); });
+    } else if (v.indexOf('stage:') === 0) {
+      api('/admin/set-manual-stage', { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ application_id: appId, stage: v.slice(6), company_id: primaryPl ? primaryPl.company_id : null, by: '顧問' }) })
+        .then(function () { loadAndOpen(appId); });
+    } else if (v === 'closed') {
+      var reason = prompt('結案原因（會存內部記錄；若「同時通知候選人」，這段文字會直接送給候選人，不要出現性別/年齡/婚育等就服法禁止的字眼）：');
+      if (reason === null) { loadAndOpen(appId); return; }
+      var notify = confirm('要同時發婉拒通知給候選人嗎？\n「確定」＝發通知（CLOSED_LOST）\n「取消」＝只記內部，不通知候選人（CLOSED_INTERNAL）');
+      api('/admin/mark-closed', { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ application_id: appId, notify: notify, reason: reason }) })
+        .then(function (r) {
+          if (!r.ok) { alert(r.message || r.error || '結案失敗'); loadAndOpen(appId); return; }
+          loadAndOpen(appId);
+        });
+    }
+  };
   var rm = $('rptmore');
   if (rm) rm.onclick = function () { var r = $('rpt'); r.classList.toggle('open'); rm.textContent = r.classList.contains('open') ? '收合 ▴' : '展開全文 ▾'; };
   var rv = $('rptview');
