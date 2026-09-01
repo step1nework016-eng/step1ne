@@ -777,6 +777,7 @@ async function openSession(row) {
     $('livetag').hidden = false;
     liveTimer = setInterval(async function () {
       if (!$('dlg').open) return stopLive();
+      if (document.hidden) return; // 分頁切到背景就不打，切回來下一輪自然補上
       try {
         var u = await api('/admin/session/' + encodeURIComponent(row.id));
         if (!u.ok) return;
@@ -1633,7 +1634,11 @@ async function refreshLivePanel() {
 function startLivePanel() {
   refreshLivePanel();
   if (livePanelTimer) clearInterval(livePanelTimer);
-  livePanelTimer = setInterval(refreshLivePanel, 30000);
+  // 2026-09-01 加：這頁是顧問常開著工作的頁面，30秒輪詢完全沒有分頁可見性
+  // 判斷，跟 tracker 頁同一種使用型態——就是那次把 D1 免費方案每日讀取
+  // 額度打到 2200 萬筆的同類問題之一，改成分頁不可見就不打。
+  livePanelTimer = setInterval(function () { if (!document.hidden) refreshLivePanel(); }, 30000);
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) refreshLivePanel(); });
 }
 
 function loadConsultants() {
