@@ -1120,8 +1120,13 @@ function renderOwnerSel(consultants) {
   sel.onchange = function () { state.owner = sel.value; safeSet('s1ne_pp_owner2', state.owner); loadCards(); };
 }
 
+// 2026-09-01 修：原本每次呼叫（包含背景 30 秒自動刷新）都會先把整個列表清空
+// 顯示「載入中…」，資料回來才重畫——結果變成畫面每 30 秒閃一次空白，顧問
+// 會以為系統壞了。改成只有「listWrap 目前還沒有真正內容」時才顯示載入中
+// （第一次打開頁面、或上次讀取失敗留下錯誤訊息時）；背景悄悄刷新時直接
+// 等資料回來才換畫面，中間不會有空白這一幕。
 function loadCards(cb) {
-  $('listWrap').innerHTML = '<div class="empty">載入中…</div>';
+  if (!CARDS.length) $('listWrap').innerHTML = '<div class="empty">載入中…</div>';
   api('/admin/pipeline/tracker?owner=' + encodeURIComponent(state.owner)).then(function (d) {
     if (!d.ok) { $('listWrap').innerHTML = '<div class="empty">讀取失敗：' + esc(d.error || '') + '</div>'; return; }
     CARDS = d.cards || [];
@@ -1130,7 +1135,7 @@ function loadCards(cb) {
     CARDS.forEach(function (c) { if (c.tab === 'screening') c.tab = 'to_review'; });
     renderStats(); renderTabs(); renderList();
     if (cb) cb();
-  }).catch(function () { $('listWrap').innerHTML = '<div class="empty">連線失敗</div>'; });
+  }).catch(function () { if (!CARDS.length) $('listWrap').innerHTML = '<div class="empty">連線失敗</div>'; });
 }
 
 function load() {
