@@ -49,6 +49,10 @@
     { href: '/consultant/outreach/',       label: '接觸紀錄', icon: 'target', primary: false, group: '招募流程' },
     { href: '/consultant/jobs/',           label: '招募職缺', icon: 'funnel', primary: true,  group: '招募流程' },
     { href: '/consultant/reports/',        label: '初篩報告', icon: 'doc',    primary: true,  group: '招募流程' },
+    // 2026-09-01 加：「初篩報告」＋「我的案子」合併後的正式版，一張卡＝一個人
+    // （姓名/信箱/電話任一相符就併成同一張），推去好幾家客戶各自獨立進度。
+    // 先跟上面兩個舊入口並存，Jacky 確認沒問題後才會拿掉舊的。
+    { href: '/consultant/tracker/',        label: '顧問人選追蹤（新）', icon: 'people', primary: true, group: '招募流程' },
     // 2026-08-21 加：顧問補填「這個人我會不會推」。原本只有報告推到 TG 當下
     //  那三個按鈕能按，訊息被蓋掉就沒第二次機會——25 份報告只有 1 位被回填。
     { href: '/consultant/kpi/',            label: '阿財準不準', icon: 'chart', primary: true, group: '招募流程' },
