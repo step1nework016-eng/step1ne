@@ -389,8 +389,17 @@ function renderList() {
         '<div class="dash-card-foot"><span>' + esc(c.source_channel || '') + '</span><span class="hint">點擊查看完整人選資料 →</span></div></div>';
     }).join('') + '</div>';
   }
+  // 2026-09-01 修：整列點擊會開抽屜，但表格列內嵌了可以直接操作的下拉選單
+  // （inlineStageSel）——點下拉選單本身也算「點了這一列」，選完一個選項
+  // 抽屜就跟著跳出來，多一次不必要的互動。原本只在下拉的 <td> 上擋
+  // click 冒泡，但選單開合時瀏覽器的事件時序不保證每次都攔得到。改成在
+  // 這裡直接判斷：只要點擊起點在互動元件（select/button/input/連結）裡面，
+  // 這一列就不開抽屜，交給那個元件自己處理，其餘空白處點擊照常開。
   Array.prototype.forEach.call(el.querySelectorAll('[data-id]'), function (row) {
-    row.onclick = function () { openDrawer(row.dataset.id, row.dataset.kind); };
+    row.onclick = function (e) {
+      if (e.target.closest('select, button, input, a, option')) return;
+      openDrawer(row.dataset.id, row.dataset.kind);
+    };
   });
 }
 
