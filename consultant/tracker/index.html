@@ -608,6 +608,13 @@ function openSourcedDrawer(c) {
     '<dt>來源</dt><dd>' + esc(c.source_channel || '—') + '</dd>' +
     '<dt>負責顧問</dt><dd>' + ownerAssignSelect(c.owner) + '</dd>' +
     '</dl></div>' +
+    '<div class="sec"><h4>電洽紀錄，轉為正式應徵<span class="subhint">顧問直接把電洽內容打進來，跳過連結自己填——會建立正式應徵紀錄，之後就能在「正式應徵」管道推薦給客戶。</span></h4>' +
+    '<label class="edl" style="margin-top:0">應徵職缺</label><select class="edi" id="convJob"><option value="">選一個職缺…</option></select>' +
+    '<label class="edl">電洽內容</label><textarea class="edi" id="convNotes" rows="4" placeholder="打字轉錄這次通話重點，或直接貼逐字稿"></textarea>' +
+    '<div id="convDz" style="border:1.5px dashed var(--line);border-radius:10px;padding:16px;text-align:center;font-size:12.5px;color:var(--ink3);cursor:pointer;margin-top:6px">或拖曳電洽紀錄檔案（doc/docx/txt/md/html/pdf/excel）</div>' +
+    '<div class="mut" id="convFileMsg" style="margin-top:4px"></div>' +
+    '<label class="edl" style="margin-top:10px;display:flex;align-items:center;gap:6px;font-weight:400"><input type="checkbox" id="convConsent" style="width:auto">已取得本人同意，可以建立應徵紀錄</label>' +
+    '<div class="acts"><button class="btn p" id="convGo" type="button">送出，轉為正式應徵</button><span class="mut" id="convMsg"></span></div></div>' +
     '<div class="sec"><h4>發應徵連結給他</h4>' +
     (c.invite_token
       ? '<dl class="kv"><dt>已產生</dt><dd class="mut">' + esc(String(c.invite_at || '').slice(0, 16)) + '</dd>' +
@@ -630,6 +637,43 @@ function openSourcedDrawer(c) {
         .forEach(function (j) { var o = document.createElement('option'); o.value = j.slug; o.textContent = j.title || j.slug; ij.appendChild(o); });
     });
   }
+  // 2026-09-01 加：主動開發的人選一直卡在人才庫，因為唯一的「下一步」是
+  // 生連結叫他自己填——顧問電洽完想直接把內容打進去、跳過連結，之前完全
+  // 沒有入口。呼叫跟 TG「電洽新增人選」同一支端點（source_kind:'sourced'），
+  // 送出後這個人選會多一筆正式應徵紀錄，落進「正式應徵」管道，不再卡在
+  // 主動開發裡出不來。
+  var cj = $('convJob');
+  if (cj) {
+    api('/admin/jobs').then(function (r) {
+      (r.results || r.jobs || []).filter(function (j) { return (j.status || 'open') !== 'closed' && j.status !== 'client_draft' && j.status !== 'pending_review'; })
+        .forEach(function (j) { var o = document.createElement('option'); o.value = j.slug; o.textContent = (j.company_display_name ? j.company_display_name + '・' : '') + (j.title || j.slug); cj.appendChild(o); });
+    });
+  }
+  var convFile = null;
+  var cdz2 = $('convDz');
+  if (cdz2) {
+    cdz2.onclick = function () { var inp = document.createElement('input'); inp.type = 'file'; inp.onchange = function () { if (inp.files[0]) { convFile = inp.files[0]; $('convFileMsg').textContent = '已選擇：' + convFile.name; } }; inp.click(); };
+    cdz2.ondragover = function (e) { e.preventDefault(); cdz2.style.borderColor = 'var(--gold)'; };
+    cdz2.ondragleave = function () { cdz2.style.borderColor = 'var(--line)'; };
+    cdz2.ondrop = function (e) { e.preventDefault(); cdz2.style.borderColor = 'var(--line)'; if (e.dataTransfer.files[0]) { convFile = e.dataTransfer.files[0]; $('convFileMsg').textContent = '已選擇：' + convFile.name; } };
+  }
+  var cg = $('convGo');
+  if (cg) cg.onclick = function () {
+    if (!cj.value) { $('convMsg').textContent = '請選一個職缺'; return; }
+    if (!$('convConsent').checked) { $('convMsg').textContent = '請先勾選已取得本人同意'; return; }
+    var text = $('convNotes').value.trim();
+    if (!text && !convFile) { $('convMsg').textContent = '請至少填電洽內容或附一個檔案'; return; }
+    cg.disabled = true;
+    var send = function (fileB64, fileName, fileMime) {
+      api('/admin/pipeline/manual-forward', { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ source_kind: 'sourced', source_id: c.sourced_id, job_slug: cj.value,
+          call_notes: text || undefined, call_notes_file_b64: fileB64, call_notes_file_name: fileName, call_notes_file_mime: fileMime,
+          consent_confirmed: true, by: '顧問' }) })
+      .then(function (r) { cg.disabled = false; if (!r.ok) { $('convMsg').textContent = r.error || '送出失敗'; return; } closeDrawer(); loadCards(); });
+    };
+    if (convFile) { var reader = new FileReader(); reader.onload = function () { send(reader.result.split(',')[1], convFile.name, convFile.type); }; reader.readAsDataURL(convFile); }
+    else send(null, null, null);
+  };
   var ig = $('invgo');
   if (ig) ig.onclick = function () {
     if (!ij.value) { alert('先選一個職缺'); return; }
