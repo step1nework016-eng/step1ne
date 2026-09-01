@@ -651,8 +651,16 @@ function load() {
     ALL_JOBS = (jd.jobs || []).filter(function (j) { return j.status !== 'closed' && j.status !== 'client_draft' && j.status !== 'pending_review'; });
     paintJobs(ALL_JOBS);
     var accs = ad.accounts || [];
+    // 2026-09-01 改：新顧問帳號剛加進來、還沒去開發者後台申請 access_token
+    // 時 is_active=0——原本這種帳號整個從清單消失，顧問以為系統忘了加。
+    // 改成照樣列出來，但不能選、標「（尚未設定）」，讓顧問社群這邊看得到
+    // 「已經排進來了，只是還不能發」。
     $('account').innerHTML = accs.length
-      ? accs.map(function (a) { return '<option value="' + a.id + '">' + a.label + '（' + a.platform + '）</option>'; }).join('')
+      ? accs.map(function (a) {
+          return a.is_active
+            ? '<option value="' + a.id + '">' + a.label + '（' + a.platform + '）</option>'
+            : '<option value="" disabled>' + a.label + '（' + a.platform + '・尚未設定）</option>';
+        }).join('')
       : '<option value="">目前沒有可用的發文帳號</option>';
     updateGoState();
     loadQueue();
