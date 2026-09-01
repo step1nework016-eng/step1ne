@@ -52,6 +52,10 @@ main{padding:22px 0 80px}
 .stat .v{font-size:26px;font-weight:800;font-variant-numeric:tabular-nums}
 .stat.hot .v{color:var(--bad)}
 
+.pipes{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+.pipe{font:inherit;font-weight:700;font-size:14px;text-align:left;border-radius:12px;padding:12px 18px;cursor:pointer;background:#fff;color:var(--ink2);border:1.5px solid var(--line)}
+.pipe.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.pipe .n{display:block;font-weight:400;font-size:11.5px;opacity:.72;margin-top:2px}
 .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
 .tab{position:relative;font:inherit;font-size:13.5px;font-weight:600;color:var(--ink2);background:#fff;border:1px solid var(--line);padding:7px 15px;border-radius:999px;cursor:pointer;display:flex;align-items:center;gap:7px}
 .tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
@@ -169,6 +173,7 @@ select.edi{appearance:none;background:#fff url("data:image/svg+xml;charset=utf8,
       <span class="mut" id="ownerHint"></span>
     </div>
     <div class="stats" id="stats"></div>
+    <div class="pipes" id="pipes"></div>
     <div class="tabs" id="tabs"></div>
     <select class="tabsSel" id="tabsSel" aria-label="篩選階段"></select>
     <div class="toolbar">
@@ -207,22 +212,39 @@ function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function
 function parseExtra(s) { try { return JSON.parse(s || '[]'); } catch (e) { return []; } }
 
 var DEC = { forwarded: { lb: '已轉客戶', cls: 'b-forward' }, need_more: { lb: '需補問', cls: 'b-more' }, rejected: { lb: '不推薦', cls: 'b-no' } };
-var TABS = [
-  { k: '', lb: '全部' },
-  { k: 'to_contact', lb: '待開發接觸' },
-  { k: 'waiting_reply', lb: '等對方回' },
-  { k: 'standby', lb: '預備區' },
-  // 2026-09-01 併：「待審核（硬性條件）」跟「等我決定」合併成一個 tab——
-  // 兩者互斥（一張卡只會落在其中一邊，見後端 tab 判斷邏輯），合併不會混資料。
-  // 「硬性條件檢查」跟「面談後決定」仍是不同性質的工作（客觀勾選 vs 主觀判斷），
-  // 保留的做法是在卡片上加徽章區分（見 hardGateBadge()），不是分頁。
-  { k: 'to_review', lb: '等我決定' },
-  { k: 'client_side', lb: '客戶面談階段' },
-  { k: 'closing', lb: '快成交' },
-  { k: 'done', lb: '已結案' },
+// 2026-09-01 全面改版：兩層式導覽——顧問先選管道（主動開發／正式應徵／候補池／
+// 全部人選），再選該管道底下的階段。原本 7 個分頁攤平在同一排，選項會不會出現
+// 都不一樣，Jacky 反映「每個tab能選的又不一樣，看了要先理解很久」；分成兩層後，
+// 同一時間只會看到同一種邏輯的分頁，不會混。
+//   主動開發：待開發接觸→等對方回（冷開發，還沒轉正式應徵）
+//   正式應徵：等人選填完→等我決定→客戶面談階段（自己應徵或顧問手動新增，統一
+//            共用；「等我決定」跟「待審核硬性條件」合併，用 hardGateBadge() 徽章
+//            區分，不獨立分頁——理由跟舊版一致）
+//   候補池：已結案＋預備區合併——人選本身沒有消失，只是目前沒有進行中的媒合，
+//          不分管道，兩邊的人選都可能落在這裡（沒有子分頁）
+// state.tab 還是原本那個「後端 tab 值」（fill/decide/client/to_contact/
+// waiting_reply/pool），filtered() 的篩選邏輯完全不用改，只有上面這層導覽UI改變。
+var PIPES = [
+  { k: 'sourced', lb: '主動開發', subs: [
+      { k: 'to_contact', lb: '待開發接觸' },
+      { k: 'waiting_reply', lb: '等對方回' },
+    ] },
+  { k: 'formal', lb: '正式應徵', subs: [
+      { k: 'fill', lb: '等人選填完' },
+      { k: 'decide', lb: '等我決定' },
+      { k: 'client', lb: '客戶面談階段' },
+    ] },
 ];
+var TABS = [{ k: '', lb: '全部' }]
+  .concat(PIPES[0].subs, PIPES[1].subs, [{ k: 'pool', lb: '候補池' }]);
 var CARDS = [];
-var state = { tab: '', view: 'table', q: '', owner: safeGet('s1ne_pp_owner2') || 'all' };
+var state = { pipe: 'all', tab: '', view: 'table', q: '', owner: safeGet('s1ne_pp_owner2') || 'all' };
+function pipeOf(tabKey) {
+  if (tabKey === '') return 'all';
+  if (tabKey === 'pool') return 'pool';
+  for (var i = 0; i < PIPES.length; i++) if (PIPES[i].subs.some(function (s) { return s.k === tabKey; })) return PIPES[i].k;
+  return 'all';
+}
 function safeGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
 function safeSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
 
@@ -307,15 +329,39 @@ function renderStats() {
       '<div class="lb">' + it[0] + '</div><div class="v">' + it[1] + '</div></div>';
   }).join('');
 }
+function pipeCount(pk) {
+  if (pk === 'all') return tabCount('');
+  if (pk === 'pool') return tabCount('pool');
+  var grp = PIPES.filter(function (p) { return p.k === pk; })[0];
+  return grp.subs.reduce(function (s, t) { return s + tabCount(t.k); }, 0);
+}
+function renderPipes() {
+  var groups = [{ k: 'all', lb: '全部人選' }, { k: 'sourced', lb: '主動開發' }, { k: 'formal', lb: '正式應徵' }, { k: 'pool', lb: '候補池' }];
+  $('pipes').innerHTML = groups.map(function (g) {
+    return '<button type="button" class="pipe' + (state.pipe === g.k ? ' on' : '') + '" data-k="' + g.k + '">' + g.lb + '<span class="n">' + pipeCount(g.k) + ' 人</span></button>';
+  }).join('');
+  Array.prototype.forEach.call($('pipes').querySelectorAll('.pipe'), function (b) {
+    b.onclick = function () {
+      state.pipe = b.dataset.k;
+      if (state.pipe === 'all') state.tab = '';
+      else if (state.pipe === 'pool') state.tab = 'pool';
+      else state.tab = PIPES.filter(function (p) { return p.k === state.pipe; })[0].subs[0].k;
+      renderPipes(); renderTabs(); renderList();
+    };
+  });
+}
 function renderTabs() {
-  $('tabs').innerHTML = TABS.map(function (t) {
+  var grp = PIPES.filter(function (p) { return p.k === state.pipe; })[0];
+  var subs = grp ? grp.subs : [];
+  if (!subs.length) { $('tabs').innerHTML = ''; $('tabsSel').innerHTML = ''; return; }
+  $('tabs').innerHTML = subs.map(function (t) {
     return '<button type="button" class="tab' + (state.tab === t.k ? ' on' : '') + '" data-k="' + t.k + '">' + t.lb + '<span class="n">' + tabCount(t.k) + '</span></button>';
   }).join('');
   Array.prototype.forEach.call($('tabs').querySelectorAll('.tab'), function (b) {
     b.onclick = function () { state.tab = b.dataset.k; renderTabs(); renderList(); };
   });
   var sel = $('tabsSel');
-  sel.innerHTML = TABS.map(function (t) { return '<option value="' + t.k + '"' + (state.tab === t.k ? ' selected' : '') + '>' + t.lb + '（' + tabCount(t.k) + '）</option>'; }).join('');
+  sel.innerHTML = subs.map(function (t) { return '<option value="' + t.k + '"' + (state.tab === t.k ? ' selected' : '') + '>' + t.lb + '（' + tabCount(t.k) + '）</option>'; }).join('');
   sel.onchange = function () { state.tab = sel.value; renderTabs(); renderList(); };
 }
 // 這幾個直欄要跟昨天定案的 Phase 1 demo 完全一樣：人選/目前應徵職缺/客戶/
@@ -1130,10 +1176,7 @@ function loadCards(cb) {
   api('/admin/pipeline/tracker?owner=' + encodeURIComponent(state.owner)).then(function (d) {
     if (!d.ok) { $('listWrap').innerHTML = '<div class="empty">讀取失敗：' + esc(d.error || '') + '</div>'; return; }
     CARDS = d.cards || [];
-    // 2026-09-01：screening 併進 to_review 這個 tab bucket——c.hard_gate 保留在卡片上，
-    // 徽章（hardGateBadge()）靠這個欄位區分，不是靠 tab 值區分。
-    CARDS.forEach(function (c) { if (c.tab === 'screening') c.tab = 'to_review'; });
-    renderStats(); renderTabs(); renderList();
+    renderStats(); renderPipes(); renderTabs(); renderList();
     if (cb) cb();
   }).catch(function () { if (!CARDS.length) $('listWrap').innerHTML = '<div class="empty">連線失敗</div>'; });
 }
