@@ -366,7 +366,8 @@ const LABELS = {
   years_min:'最低年資要求', must_skills:'必要技能',
   salary_min:'薪資下限', salary_max:'薪資上限', salary_unit:'薪資單位',
   locations:'工作地點', employment:'聘僱型態', onboard_by:'希望到職日',
-  team_size:'團隊人數與組成', interview_rounds:'面試次數', interview_who:'面試官', has_test:'是否有測驗',
+  team_size:'團隊人數與組成', interview_rounds:'面試次數', interview_stage_config:'面試輪數設定',
+  interview_who:'面試官', has_test:'是否有測驗',
   client_contact_name:'聯絡窗口', client_contact_phone:'聯絡電話',
   headcount:'需求人數', work_mode:'辦公型態',
   work_hours:'上班時間', leave_policy:'休假方式', employment_period:'工作期間', overtime_policy:'加班情形',
@@ -558,6 +559,20 @@ function renderJob(job, fields){
         ${Object.entries(EMPLOYMENT_OPTIONS).map(([k, lb]) =>
           `<option value="${k}"${val === k ? ' selected' : ''}>${esc(lb)}</option>`).join('')}
       </select>`;
+    } else if (key === 'interview_stage_config'){
+      // 2026-09-01 加：面試有幾輪是這個職缺的設定，不是每個候選人臨時決定——
+      // 第一階段每個職缺都有、不用勾；這裡只勾「除了第一階段還有沒有更多輪」，
+      // 「人選進度」表格的面試階段下拉、跟候選人自己查進度看到的進度條，
+      // 都直接照這裡設定的關數走，不用另外去候選人卡片上一輪一輪加。
+      let stages = [];
+      try { stages = JSON.parse(val || '[]'); } catch { stages = []; }
+      fieldHtml = `<div class="stage-config-box">
+        <div style="font-size:12.5px;color:var(--ink3);margin-bottom:6px">第一階段面談是每個職缺都有的基本關卡，不用勾選。如果這個職缺實際上還有更多輪面試，在這裡勾起來，「人選進度」表格的面試階段欄位才會出現對應的選項。</div>
+        <label style="margin-right:14px"><input type="checkbox" class="stage-chk" value="stage2"${stages.includes('stage2') ? ' checked' : ''}> 第二階段</label>
+        <label style="margin-right:14px"><input type="checkbox" class="stage-chk" value="stage3"${stages.includes('stage3') ? ' checked' : ''}> 第三階段</label>
+        <label><input type="checkbox" class="stage-chk" value="stage4"${stages.includes('stage4') ? ' checked' : ''}> 第四階段</label>
+        <input type="hidden" data-k="interview_stage_config" value='${esc(JSON.stringify(stages))}'>
+      </div>`;
     } else if (isLong){
       fieldHtml = `<textarea data-k="${key}">${esc(val)}</textarea>`;
     } else {
@@ -582,7 +597,28 @@ function renderJob(job, fields){
   div.querySelector('.submit-btn').addEventListener('click', (e) => submitJob(job.slug, div, e.target));
   wireImportBox(div, job.slug);
   wireHireStateBox(div, job.slug);
+  wireStageConfigBox(div);
   return div;
+}
+
+// 三個勾選框同步進隱藏欄位（saveJob() 靠 [data-k] 收值，這樣不用另外改它）。
+// 勾第三/四階段時自動連帶勾前面幾關——面試關卡是線性往前推進的，不可能只有
+// 第四階段卻沒有第二三階段，中間斷層會讓 resolveStage() 判斷錯亂。
+function wireStageConfigBox(root){
+  root.querySelectorAll('.stage-config-box').forEach(box => {
+    const hidden = box.querySelector('input[type=hidden]');
+    const order = ['stage2', 'stage3', 'stage4'];
+    const sync = () => {
+      const checked = Array.from(box.querySelectorAll('.stage-chk:checked')).map(c => c.value);
+      const maxIdx = Math.max(-1, ...checked.map(k => order.indexOf(k)));
+      const normalized = order.slice(0, maxIdx + 1);
+      box.querySelectorAll('.stage-chk').forEach(c => { c.checked = normalized.includes(c.value); });
+      hidden.value = JSON.stringify(normalized);
+      const td = hidden.closest('tr')?.querySelector('.st');
+      if (td) td.innerHTML = normalized.length ? '<span class="pill ok">已填</span>' : '<span class="pill warn">待補</span>';
+    };
+    box.querySelectorAll('.stage-chk').forEach(c => c.addEventListener('change', sync));
+  });
 }
 
 // ── 結束招募／重新招募 ──
@@ -984,16 +1020,23 @@ const TABLE_COLS = [
   ['offer', '錄取'],
   ['onboard', '報到'],
 ];
-const INTERVIEW_STAGE_OPTS = [['stage1', '第一階段'], ['stage2', '第二階段'], ['stage3', '第三階段']];
+const INTERVIEW_STAGE_KEYS = ['stage1', 'stage2', 'stage3', 'stage4'];
+// 2026-09-01 改：面試關數是「職缺」的設定（見用人需求表的「面試輪數設定」），
+// 不是這裡寫死的固定清單——後端 resolveStage() 已經只把這個職缺實際有設定
+// 的關卡放進 c.steps，這裡直接照 steps 帶出來就對了，不用另外猜或另外打
+// 一支 API 查職缺設定，兩邊資料來源永遠是同一份，不會兜不起來。
+function interviewStageOptsFor(c){
+  return (c.steps || []).filter(s => INTERVIEW_STAGE_KEYS.includes(s.key)).map(s => [s.key, s.lb]);
+}
 
 function stepOf(c, key){ return (c.steps || []).find(s => s.key === key) || null; }
 function currentInterviewStage(c){
-  // 面試階段欄位收斂 stage1~stage3 成一格——取目前「進行中」的那一關，
+  // 面試階段欄位收斂 stage1~stage4 成一格——取目前「進行中」的那一關，
   // 沒有進行中的就取已完成裡最後一關（表示上一輪已經過了、等下一輪安排）。
   const steps = c.steps || [];
-  const now = steps.find(s => ['stage1', 'stage2', 'stage3'].includes(s.key) && s.now);
+  const now = steps.find(s => INTERVIEW_STAGE_KEYS.includes(s.key) && s.now);
   if (now) return now.key;
-  const done = [...steps].reverse().find(s => ['stage1', 'stage2', 'stage3'].includes(s.key) && s.done);
+  const done = [...steps].reverse().find(s => INTERVIEW_STAGE_KEYS.includes(s.key) && s.done);
   return done ? done.key : '';
 }
 
@@ -1022,7 +1065,7 @@ function renderTable(){
       const curInterview = currentInterviewStage(c);
       const interviewCell = rejected ? '—' : `<select class="dash-tbl-sel" data-app="${esc(c.application_id)}" data-role="interview">
         <option value="" ${!curInterview ? 'selected' : ''} disabled>尚未開始</option>
-        ${INTERVIEW_STAGE_OPTS.map(([k, lb]) => `<option value="${k}" ${curInterview === k ? 'selected' : ''}>${esc(lb)}</option>`).join('')}
+        ${interviewStageOptsFor(c).map(([k, lb]) => `<option value="${k}" ${curInterview === k ? 'selected' : ''}>${esc(lb)}</option>`).join('')}
       </select>`;
 
       // 2026-09-01 修：原本只看 .done（已經走過這關），沒看 .now（現在正卡在
@@ -1084,7 +1127,7 @@ async function tblHandleChange(appId, role, value, sel){
   }
   if (role === 'interview') {
     if (!value) return;
-    const lb = (INTERVIEW_STAGE_OPTS.find(([k]) => k === value) || [])[1] || value;
+    const lb = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : value;
     if (!confirm(`確定要把這位人選的面試階段更新為「${lb}」嗎？`)) { sel.value = prevValue; return; }
     await tblSetStage(appId, value, {}, sel, prevValue);
     return;
@@ -1211,7 +1254,6 @@ function openCandModal(appId){
   if (reportBtn) reportBtn.addEventListener('click', cmToggleReport);
   document.getElementById('cmReportBox').hidden = true;
 
-  const roundsFull = c.interview_rounds_used >= 4;
   if (c.client_rejected_at){
     document.getElementById('cmUpdateBox').innerHTML = `
       <div class="cm-update-grid" style="flex-direction:column;align-items:stretch;background:#fbeaea;border-radius:8px;padding:10px">
@@ -1220,22 +1262,15 @@ function openCandModal(appId){
         <div class="mut" style="font-size:11.5px;margin-top:4px">${esc((c.client_rejected_at||'').slice(0,16))}</div>
       </div>`;
   } else {
+    // 2026-09-01 拿掉：「新增下一輪面試」整組控制項搬走了——面試有幾關是
+    // 這個職缺的設定（用人需求表的「面試輪數設定」），不是候選人卡片上
+    // 臨時決定的事，放在這裡容易誤按、又跟職缺設定各講各的兜不起來。
+    // cmStagePick／cmStageUpd 這組下拉本來跟表格的下拉寫的是同一個後端
+    // 動作，兩個介面都能設同一件事，一樣的理由拿掉。這裡只留純提示文字，
+    // 表格是唯一操作入口。
     document.getElementById('cmUpdateBox').innerHTML = `
-      ${roundsFull ? '' : `<div class="cm-update-grid" style="margin-bottom:10px">
-        <select id="cmRoundType">${Object.entries(c.interview_round_types).map(([k, lb]) => `<option value="${esc(k)}">${esc(lb)}</option>`).join('')}</select>
-        <input type="text" id="cmRoundNote" placeholder="備註是哪個層級（選填）">
-        <button type="button" id="cmRoundAdd">新增下一輪面試</button>
-        <span class="upd-msg" id="cmRoundMsg"></span>
-        <span class="cm-hint">選這一輪是人資面談還是用人單位主管面談，送出後會依序記成「第一階段」「第二階段」……</span>
-      </div>`}
-      <p class="cm-hint" style="margin-top:10px">要推進階段（第一階段／錄取／報到）或婉拒，回到表格用對應那欄的下拉選單——跟這裡是同一組資料，統一在表格上做，這裡不再重複一份。</p>
+      <p class="cm-hint">要推進階段（第一階段／錄取／報到）或婉拒，回到表格用對應那欄的下拉選單。這個職缺實際有幾階段面試，到「用人需求表」該職缺的「面試輪數設定」調整。</p>
       `;
-    // 2026-09-01 拿掉：cmStagePick／cmStageUpd 這組下拉本來跟表格的下拉
-    // 寫的是同一個後端動作，兩個介面都能設同一件事，容易誤觸/搞混
-    // （選了 A 卻好像變成 B）。只留表格當唯一入口，這裡改成純提示文字，
-    // 「新增下一輪面試」保留——那是表格做不到的（能指定人資/主管面談類型）。
-    const roundAddBtn = document.getElementById('cmRoundAdd');
-    if (roundAddBtn) roundAddBtn.addEventListener('click', cmAddInterviewRound);
   }
 
   document.getElementById('candModalMask').classList.add('show');
@@ -1350,30 +1385,6 @@ function openFromNotification(appId){
 }
 setInterval(refreshNotifications, 20000);
 refreshNotifications();
-
-async function cmAddInterviewRound(){
-  const appId = ACTIVE_APP;
-  const interviewType = document.getElementById('cmRoundType').value;
-  const detailNote = document.getElementById('cmRoundNote').value.trim();
-  const btn = document.getElementById('cmRoundAdd');
-  const msgEl = document.getElementById('cmRoundMsg');
-  btn.disabled = true;
-  msgEl.textContent = '';
-  try{
-    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(appId)}/add-interview-round`, {
-      method: 'POST', headers: {'content-type':'application/json'},
-      body: JSON.stringify({ interview_type: interviewType, detail_note: detailNote || undefined }),
-    });
-    const data = await res.json();
-    if (!data.ok){ msgEl.style.color = 'var(--bad)'; msgEl.textContent = data.error || '新增失敗'; btn.disabled = false; return; }
-    msgEl.style.color = 'var(--ok)'; msgEl.textContent = '已新增';
-    await loadCandidates();
-    if (ACTIVE_APP === appId) openCandModal(appId);
-  }catch{
-    msgEl.style.color = 'var(--bad)'; msgEl.textContent = '連線失敗，請稍後再試'; btn.disabled = false;
-  }
-}
-
 
 load();
 </script>
