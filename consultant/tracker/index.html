@@ -830,6 +830,15 @@ function openDrawer(appId, kind) {
     '<div class="acts"><button class="btn p" id="edsave" type="button">儲存</button>' +
     '<button class="btn" id="edcancel" type="button">取消</button><span class="mut" id="edMsg"></span></div></div></div>';
 
+  // 2026-09-01 加：讓「正式應徵」／「顧問履歷庫」的人選能重新跟阿財面談一次。
+  // 舊的 chat_token 一旦面談結束就永久鎖死，這裡是另外開一筆新的應徵紀錄、
+  // 產生全新 token（不動舊紀錄的報告/備註），顧問拿到連結後自己決定怎麼發
+  // （LINE／簡訊），不自動寄送。
+  html += '<div class="sec" id="resendSec"><h4>發應徵連結給他<span class="subhint">讓這位人選重新跟阿財面談一次，舊的報告跟紀錄不會被覆蓋。</span></h4>' +
+    '<div class="acts"><select class="edi" id="resendJob" style="max-width:260px"><option value="' + esc(c.job_slug || '') + '">沿用目前職缺：' + esc(c.job_title || c.job_slug || '') + '</option></select>' +
+    '<button class="btn p" id="resendGo" type="button">產生新的面談連結</button></div>' +
+    '<div id="resendResult" style="margin-top:8px"></div></div>';
+
   // 2026-09-01 加：顧問備註改成一條一條紀錄（type+content+時間），不是單一
   // 文字欄位——顧問自己選類型（評估／聯繫紀錄／客戶回饋／其他），累積成清單。
   // 資料非同步載入（notesBox 佔位），不擋主畫面先開出來。
@@ -929,6 +938,7 @@ var NOTE_TYPE_COLOR = {
   '客戶回饋': { bg: '#fdf1de', fg: '#8a6100' }, '其他': { bg: '#fdf1de', fg: '#8a6100' },
   '電洽紀錄': { bg: '#e3f0fd', fg: '#2a5f8a' }, '推薦紀錄': { bg: '#f1e8fb', fg: '#6a3fa0' },
   '客戶婉拒': { bg: '#fbeaea', fg: '#c0392b' },
+  '阿財面談': { bg: '#e3f3e9', fg: '#2f8f5b' },
 };
 function noteTypeBadge(t) {
   var c = NOTE_TYPE_COLOR[t] || { bg: '#eee7db', fg: 'var(--ink2)' };
@@ -1215,6 +1225,34 @@ function wireDrawer(c, appId) {
     api('/admin/forward-candidate', { method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ application_id: appId, company_id: cid, job_slug: jobSlug, by: '顧問' }) })
     .then(function (r) { if (!r.ok) { $('fwMsg').textContent = r.error || '失敗'; return; } loadAndOpen(appId); });
+  };
+
+  // 2026-09-01 加：發應徵連結給他——下拉選單預設「沿用目前職缺」，其餘選項
+  // 是全部開放中的職缺（含客戶名稱避免同名職缺混淆），顧問也可以換一個
+  // 職缺讓他重新面談。
+  var resendSel = $('resendJob');
+  (FORWARD_JOBS_CACHE ? Promise.resolve(FORWARD_JOBS_CACHE) : api('/admin/jobs').then(function (d) { FORWARD_JOBS_CACHE = (d.ok ? d.jobs : []) || []; return FORWARD_JOBS_CACHE; }))
+    .then(function (jobs) {
+      var open = (jobs || []).filter(function (j) { return j.status === 'open' && j.slug !== c.job_slug; });
+      resendSel.innerHTML += open.map(function (j) {
+        return '<option value="' + esc(j.slug) + '">' + esc((j.company_display_name ? j.company_display_name + '・' : '') + (j.title || j.slug)) + '</option>';
+      }).join('');
+    });
+  $('resendGo').onclick = function () {
+    var btn = $('resendGo');
+    btn.disabled = true;
+    api('/admin/application/' + encodeURIComponent(appId) + '/resend-interview-link', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ job_slug: resendSel.value, by: '顧問' }),
+    }).then(function (r) {
+      btn.disabled = false;
+      if (!r.ok) { $('resendResult').innerHTML = '<span class="mut" style="color:#c0392b">' + esc(r.error || '失敗') + '</span>'; return; }
+      $('resendResult').innerHTML = '<dl class="kv"><dt>連結</dt><dd id="resendUrl" style="overflow-wrap:anywhere">' + esc(r.url) + '</dd></dl>' +
+        '<div class="acts"><button class="btn p" id="resendCopy" type="button">複製連結</button></div>';
+      $('resendCopy').onclick = function () {
+        navigator.clipboard.writeText(r.url).then(function () { $('resendCopy').textContent = '已複製'; });
+      };
+    });
   };
 }
 
