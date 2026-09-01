@@ -939,7 +939,10 @@ document.getElementById('tabJobs').addEventListener('click', () => showTopView('
 document.getElementById('tabCandidates').addEventListener('click', () => showTopView('candidates'));
 
 function currentStageOf(c){
-  if (c.client_rejected_at) return { key:'rejected', lb:'已婉拒' };
+  // 2026-09-01 改：客戶端字眼統一用「不推進」，跟表格「用人單位」欄的下拉選項
+  // （推進／不推進）對齊——「婉拒」聽起來像另一套獨立動作，容易讓人以為
+  // 這是分頁跟下拉選單是兩件不同的事。
+  if (c.client_rejected_at) return { key:'rejected', lb:'不推進' };
   const steps = c.steps || [];
   return steps.find(s => s.now) || [...steps].reverse().find(s => s.done) || { lb: '尚未開始' };
 }
@@ -1081,9 +1084,13 @@ function renderTable(){
       const matchedS = stepOf(c, 'matched');
       let matchedCell;
       if (rejected) {
-        matchedCell = `<span class="dash-pill rejected" title="${esc(c.client_reject_reason || '')}">已婉拒</span>`;
+        matchedCell = `<span class="dash-pill rejected" title="${esc(c.client_reject_reason || '')}">不推進</span>`;
       } else {
+        // 2026-09-01 改：原本預設就選著「推進」，看起來像已經確認過的狀態，
+        // 其實只是預設值——改成一個不能選的「尚未決定」佔位選項，跟面試階段／
+        // 錄取／報到那三欄同一個邏輯，選了「推進」或「不推進」才算真的做了決定。
         matchedCell = `<select class="dash-tbl-sel" data-app="${esc(c.application_id)}" data-role="advance">
+          <option value="" selected disabled>尚未決定</option>
           <option value="advance">推進</option>
           <option value="decline">不推進</option>
         </select>`;
@@ -1153,9 +1160,10 @@ async function tblHandleChange(appId, role, value, sel){
     return;
   }
   if (role === 'interview') {
+    // 2026-09-01 拿掉 confirm() 彈窗——選面試階段是往前推進的低風險動作
+    // （後端本來就擋倒退），不需要多一層確認對話框；而且部分瀏覽器/嵌入
+    // 環境對 confirm() 支援不穩，選了卻沒反應最常見的原因就是這個。
     if (!value) return;
-    const lb = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : value;
-    if (!confirm(`確定要把這位人選的面試階段更新為「${lb}」嗎？`)) { sel.value = prevValue; return; }
     await tblSetStage(appId, value, {}, sel, prevValue);
     return;
   }
@@ -1284,7 +1292,7 @@ function openCandModal(appId){
   if (c.client_rejected_at){
     document.getElementById('cmUpdateBox').innerHTML = `
       <div class="cm-update-grid" style="flex-direction:column;align-items:stretch;background:#fbeaea;border-radius:8px;padding:10px">
-        <b style="color:var(--bad);font-size:13px">已婉拒此人選</b>
+        <b style="color:var(--bad);font-size:13px">已標記不推進此人選</b>
         <div style="font-size:13px;margin-top:4px">${esc(c.client_reject_reason || '')}</div>
         <div class="mut" style="font-size:11.5px;margin-top:4px">${esc((c.client_rejected_at||'').slice(0,16))}</div>
       </div>`;
@@ -1296,7 +1304,7 @@ function openCandModal(appId){
     // 動作，兩個介面都能設同一件事，一樣的理由拿掉。這裡只留純提示文字，
     // 表格是唯一操作入口。
     document.getElementById('cmUpdateBox').innerHTML = `
-      <p class="cm-hint">要推進階段（第一階段／錄取／報到）或婉拒，回到表格用對應那欄的下拉選單。這個職缺實際有幾階段面試，到「用人需求表」該職缺的「面試輪數設定」調整。</p>
+      <p class="cm-hint">要推進階段（第一階段／錄取／報到）或不推進，回到表格用對應那欄的下拉選單。這個職缺實際有幾階段面試，到「用人需求表」該職缺的「面試輪數設定」調整。</p>
       `;
   }
 
