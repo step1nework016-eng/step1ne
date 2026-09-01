@@ -190,6 +190,8 @@ select.edi{appearance:none;background:#fff url("data:image/svg+xml;charset=utf8,
 
 <div class="dmask" id="dmask"><div class="dwrap" id="dwrap"></div></div>
 <div class="dmask" id="ncMask"><div class="dwrap" id="ncWrap"></div></div>
+<div class="dmask" id="noteMask"><div class="dwrap" style="width:min(420px,100%)" id="noteWrap"></div></div>
+<div class="dmask" id="callMask"><div class="dwrap" style="width:min(460px,100%)" id="callWrap"></div></div>
 <div class="dmask" id="rptMask">
   <div class="dwrap" style="width:min(760px,100%)">
     <div class="dhead"><span class="nm">報告預覽</span><button class="x" id="rptMaskClose" type="button">×</button></div>
@@ -747,22 +749,26 @@ function openDrawer(appId, kind) {
       ? '<div id="resumeDz" style="border:1.5px dashed var(--line);border-radius:10px;padding:16px;text-align:center;font-size:12.5px;color:var(--ink3);cursor:pointer;margin-top:6px">拖曳履歷檔案到這裡，或點擊選擇檔案</div>'
       : '<p class="mut" style="margin:6px 0 0">已達 3 個檔案上限，要換檔案請先刪除其中一個。</p>') +
     '<div class="acts"><button class="btn p" id="edsave" type="button">儲存</button>' +
-    '<button class="btn" id="edcancel" type="button">取消</button><span class="mut" id="edMsg"></span></div></div>' +
-    '<label class="edl" style="margin-top:12px">顧問備註</label>' +
-    '<div class="ntv">' + (c.consultant_note ? esc(c.consultant_note) : '<span class="mut">尚未填寫</span>') + '</div></div>';
+    '<button class="btn" id="edcancel" type="button">取消</button><span class="mut" id="edMsg"></span></div></div></div>';
 
-  html += '<div class="sec"><h4>電洽內容<span class="subhint" style="margin:0">送出後幾秒內先出現下面的AI重點彙整；跟阿財面談同格式的正式初篩報告要等本機排程（約5分鐘，需要本機常駐程式在跑）處理完才會出現在上面「初篩」區塊</span></h4>' +
+  // 2026-09-01 加：顧問備註改成一條一條紀錄（type+content+時間），不是單一
+  // 文字欄位——顧問自己選類型（評估／聯繫紀錄／客戶回饋／其他），累積成清單。
+  // 資料非同步載入（notesBox 佔位），不擋主畫面先開出來。
+  html += '<div class="sec"><h4>顧問備註<button class="btn p" id="noteAddBtn" type="button" style="float:right;font-size:12.5px;padding:5px 12px">＋ 新增紀錄</button></h4>' +
+    '<div id="notesBox" class="mut">載入中…</div></div>';
+
+  // 2026-09-01 改：電洽內容原本的輸入框（文字＋拖曳上傳）直接佔在卡片上，
+  // 改成只顯示 AI 整理好的重點，輸入動作搬進「📞記錄新的通話」彈窗，
+  // 不會洗人選卡片的版面（見 openCallModal()）。
+  html += '<div class="sec"><h4>電洽內容<button class="btn p" id="callOpenBtn" type="button" style="float:right;font-size:12.5px;padding:5px 12px">📞 記錄新的通話</button></h4>' +
+    '<div class="subhint" style="margin:0 0 10px">只顯示AI整理好的重點，逐字稿／檔案在彈窗裡輸入，不會洗這裡的版面。</div>' +
     (c.call_summary_md
-      ? '<div style="border:1px solid var(--line);background:var(--soft);border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:13.5px;line-height:1.8">' +
+      ? '<div style="border:1px solid var(--line);background:var(--soft);border-radius:10px;padding:12px 14px;font-size:13.5px;line-height:1.8">' +
         String(c.call_summary_md).split('\n').map(function (line) {
           var m = line.match(/^#+\s*(.+)/);
           return m ? '<b style="color:var(--gold);display:block;margin-top:8px">' + esc(m[1]) + '</b>' : (line.trim() ? esc(line) + '<br>' : '');
         }).join('') + '</div>'
-      : '') +
-    '<textarea class="edi" id="callText" rows="3" placeholder="打字轉錄這次通話重點，或直接貼逐字稿"></textarea>' +
-    '<div id="callDz" style="border:1.5px dashed var(--line);border-radius:10px;padding:16px;text-align:center;font-size:12.5px;color:var(--ink3);cursor:pointer;margin-top:6px">或拖曳電洽紀錄檔案（doc/docx/txt/md/html/pdf/excel）</div>' +
-    '<div class="mut" id="callFileMsg" style="margin-top:4px"></div>' +
-    '<div class="acts"><button class="btn p" id="callGo" type="button">送出</button></div></div>';
+      : '<span class="mut">尚未記錄過通話</span>') + '</div>';
 
   if (c.hard_gate) {
     html += '<div class="sec" style="border-left:3px solid var(--warn)"><h4 style="color:var(--warn)">待審核（客戶硬性條件）</h4>' +
@@ -825,12 +831,75 @@ function openDrawer(appId, kind) {
 
   html += '<div class="sec"><h4>推派這位人選給其他客戶</h4>' +
     '<label class="edl">推去哪家客戶</label><select class="edi" id="fwCompany"><option value="">載入中…</option></select>' +
+    '<label class="edl">推去哪個職缺<span class="mut" style="font-weight:400">（送出即代表「顧問確認」，客戶那邊立刻看到這關已完成）</span></label>' +
+    '<select class="edi" id="fwJob"><option value="">先選客戶</option></select>' +
     '<div class="acts" style="margin-top:10px"><button class="btn p" id="fwGo" type="button">推薦</button><span class="mut" id="fwMsg"></span></div></div>';
+
+  // 2026-09-01 加：歷史聯繫紀錄與投遞紀錄——把顧問備註／電洽紀錄／推薦紀錄／
+  // 客戶婉拒兜在一起顯示的時間軸，非同步載入，有類型篩選（見 wireDrawer 的
+  // timeline 區塊）。
+  html += '<div class="sec"><h4>歷史聯繫紀錄與投遞紀錄</h4>' +
+    '<div id="tlFilters" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px"></div>' +
+    '<div id="timelineBox" class="mut">載入中…</div></div>';
 
   html += '</div>';
   $('dwrap').innerHTML = html;
   $('dmask').classList.add('show');
   wireDrawer(c, appId);
+  loadCardExtras(appId);
+}
+
+// 2026-09-01 加：③顧問備註清單、⑥歷史時間軸，都吃新端點 /admin/application/:id/card
+// 一次拿齊，非同步載入（不擋抽屜先開出來）。
+var NOTE_TYPE_COLOR = {
+  '評估': { bg: '#fdf1de', fg: '#8a6100' }, '聯繫紀錄': { bg: '#fdf1de', fg: '#8a6100' },
+  '客戶回饋': { bg: '#fdf1de', fg: '#8a6100' }, '其他': { bg: '#fdf1de', fg: '#8a6100' },
+  '電洽紀錄': { bg: '#e3f0fd', fg: '#2a5f8a' }, '推薦紀錄': { bg: '#f1e8fb', fg: '#6a3fa0' },
+  '客戶婉拒': { bg: '#fbeaea', fg: '#c0392b' },
+};
+function noteTypeBadge(t) {
+  var c = NOTE_TYPE_COLOR[t] || { bg: '#eee7db', fg: 'var(--ink2)' };
+  return '<span style="font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:999px;background:' + c.bg + ';color:' + c.fg + '">' + esc(t) + '</span>';
+}
+var TL_FILTER = null;
+function loadCardExtras(appId) {
+  TL_FILTER = null;
+  api('/admin/application/' + encodeURIComponent(appId) + '/card').then(function (d) {
+    if (!d.ok) return;
+    var notesBox = $('notesBox');
+    if (notesBox) {
+      notesBox.innerHTML = (d.notes || []).length
+        ? d.notes.map(function (n) {
+            return '<div style="border-left:2px solid var(--line);padding:2px 0 10px 12px;margin-bottom:2px">' +
+              '<div style="font-size:11.5px;color:var(--ink3);margin-bottom:2px">' + esc((n.created_at || '').slice(0, 16)) + '　' + noteTypeBadge(n.type) + '</div>' +
+              '<div style="font-size:13.5px;white-space:pre-wrap">' + esc(n.content) + '</div></div>';
+          }).join('')
+        : '<span class="mut">尚未填寫</span>';
+    }
+    var timeline = d.timeline || [];
+    var types = Array.from(new Set(timeline.map(function (t) { return t.type; })));
+    var flt = $('tlFilters');
+    if (flt) {
+      flt.innerHTML = '<span class="tlChip" data-t="" style="cursor:pointer;font-size:10.5px;font-weight:800;padding:3px 10px;border-radius:999px;background:var(--ink);color:#fff">全部</span>' +
+        types.map(function (t) { return '<span class="tlChip" data-t="' + esc(t) + '" style="cursor:pointer">' + noteTypeBadge(t) + '</span>'; }).join('');
+      Array.prototype.forEach.call(flt.querySelectorAll('.tlChip'), function (el) {
+        el.onclick = function () { TL_FILTER = el.dataset.t || null; renderTimelineBox(timeline); };
+      });
+    }
+    renderTimelineBox(timeline);
+  });
+}
+function renderTimelineBox(timeline) {
+  var box = $('timelineBox');
+  if (!box) return;
+  var rows = TL_FILTER ? timeline.filter(function (t) { return t.type === TL_FILTER; }) : timeline;
+  box.innerHTML = rows.length
+    ? rows.map(function (t) {
+        return '<div style="display:flex;gap:10px;font-size:12.5px;margin-bottom:9px;align-items:flex-start">' +
+          '<div style="color:var(--ink3);min-width:78px;padding-top:2px">' + esc((t.time || '').slice(0, 16)) + '</div>' +
+          '<div>' + noteTypeBadge(t.type) + '<div style="color:var(--ink2);margin-top:3px">' + esc(t.detail) + '</div></div></div>';
+      }).join('')
+    : '<span class="mut">還沒有紀錄</span>';
 }
 
 function resumeLinksHtml(c, extra) {
@@ -854,6 +923,7 @@ function resumeListHtml(c, extra) {
 var SOURCE_CHANNEL_OPTS = ['不指定', '朋友介紹', 'LinkedIn', '104', '1111', 'Threads', 'Facebook', 'Dcard', 'Step1ne官網', 'LINE OA', '人才池/獵頭資料庫', '其他'];
 var RESUME_SOURCE_OPTS = ['不指定', '104', '1111', 'LinkedIn', 'CakeResume', '自製履歷', '作品集'];
 var FORWARD_COMPANIES_CACHE = null;
+var FORWARD_JOBS_CACHE = null;
 
 function wireDrawer(c, appId) {
   $('dclose').onclick = closeDrawer;
@@ -923,24 +993,10 @@ function wireDrawer(c, appId) {
     dz.ondragleave = function () { dz.style.borderColor = 'var(--line)'; };
     dz.ondrop = function (e) { e.preventDefault(); dz.style.borderColor = 'var(--line)'; if (e.dataTransfer.files[0]) addFile(e.dataTransfer.files[0]); };
   }
-  var callFile = null;
-  var cdz = $('callDz');
-  if (cdz) {
-    cdz.onclick = function () { var inp = document.createElement('input'); inp.type = 'file'; inp.onchange = function () { if (inp.files[0]) { callFile = inp.files[0]; $('callFileMsg').textContent = '已選擇：' + callFile.name; } }; inp.click(); };
-    cdz.ondragover = function (e) { e.preventDefault(); cdz.style.borderColor = 'var(--gold)'; };
-    cdz.ondragleave = function () { cdz.style.borderColor = 'var(--line)'; };
-    cdz.ondrop = function (e) { e.preventDefault(); cdz.style.borderColor = 'var(--line)'; if (e.dataTransfer.files[0]) { callFile = e.dataTransfer.files[0]; $('callFileMsg').textContent = '已選擇：' + callFile.name; } };
-  }
-  $('callGo').onclick = function () {
-    var text = $('callText').value.trim();
-    var send = function (fileB64, fileName, fileMime) {
-      api('/admin/application/call-note', { method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ application_id: appId, text: text, file_b64: fileB64, file_name: fileName, file_mime: fileMime, by: '顧問' }) })
-      .then(function (r) { if (!r.ok) { $('callFileMsg').textContent = r.error || '送出失敗'; return; } alert('已送出，AI 排程處理完會自動產出報告。'); loadAndOpen(appId); });
-    };
-    if (callFile) { var reader = new FileReader(); reader.onload = function () { send(reader.result.split(',')[1], callFile.name, callFile.type); }; reader.readAsDataURL(callFile); }
-    else send(null, null, null);
-  };
+  var callBtn = $('callOpenBtn');
+  if (callBtn) callBtn.onclick = function () { openCallModal(appId); };
+  var noteBtn = $('noteAddBtn');
+  if (noteBtn) noteBtn.onclick = function () { openNoteModal(appId); };
   Array.prototype.forEach.call(document.querySelectorAll('.stp[data-key]'), function (b) {
     b.onclick = function () {
       api('/admin/set-manual-stage', { method: 'POST', headers: { 'content-type': 'application/json' },
@@ -1054,17 +1110,34 @@ function wireDrawer(c, appId) {
     };
   });
   var fwSel = $('fwCompany');
+  var fwJobSel = $('fwJob');
+  // 2026-09-01 加：職缺清單跟客戶清單各自快取，選了客戶才篩出「這家客戶開的
+  // 職缺」——一位人選現在可以推薦給不同客戶的不同職缺，各自記自己的
+  // job_slug（見 candidate_forwards.job_slug），不再共用 application 本身
+  // 那一個職缺。
+  var refreshFwJobs = function () {
+    var cid = fwSel.value;
+    if (!cid) { fwJobSel.innerHTML = '<option value="">先選客戶</option>'; return; }
+    (FORWARD_JOBS_CACHE ? Promise.resolve(FORWARD_JOBS_CACHE) : api('/admin/jobs').then(function (d) { FORWARD_JOBS_CACHE = (d.ok ? d.jobs : []) || []; return FORWARD_JOBS_CACHE; }))
+      .then(function (jobs) {
+        var pick = jobs.filter(function (j) { return j.company_id === cid && j.status !== 'closed' && j.status !== 'client_draft' && j.status !== 'pending_review'; });
+        fwJobSel.innerHTML = pick.length
+          ? pick.map(function (j) { return '<option value="' + esc(j.slug) + '">' + esc(j.title || j.slug) + '</option>'; }).join('')
+          : '<option value="">（這家客戶目前沒有開放中的職缺）</option>';
+      });
+  };
   (FORWARD_COMPANIES_CACHE ? Promise.resolve(FORWARD_COMPANIES_CACHE) : api('/admin/portal/companies').then(function (d) { FORWARD_COMPANIES_CACHE = (d.ok ? d.companies : []) || []; return FORWARD_COMPANIES_CACHE; }))
     .then(function (list) {
-      var already = (c.placements || []).map(function (p) { return p.company_id; });
-      var pick = list.filter(function (x) { return already.indexOf(x.id) === -1; });
-      fwSel.innerHTML = pick.length ? pick.map(function (x) { return '<option value="' + esc(x.id) + '">' + esc(x.display_name) + '</option>'; }).join('') : '<option value="">（沒有其他客戶可選）</option>';
+      fwSel.innerHTML = '<option value="">請選擇…</option>' + list.map(function (x) { return '<option value="' + esc(x.id) + '">' + esc(x.display_name) + '</option>'; }).join('');
+      fwSel.onchange = refreshFwJobs;
     });
   $('fwGo').onclick = function () {
     var cid = fwSel.value;
+    var jobSlug = fwJobSel.value;
     if (!cid) { $('fwMsg').textContent = '請選一家客戶'; return; }
+    if (!jobSlug) { $('fwMsg').textContent = '請選一個職缺'; return; }
     api('/admin/forward-candidate', { method: 'POST', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ application_id: appId, company_id: cid }) })
+      body: JSON.stringify({ application_id: appId, company_id: cid, job_slug: jobSlug, by: '顧問' }) })
     .then(function (r) { if (!r.ok) { $('fwMsg').textContent = r.error || '失敗'; return; } loadAndOpen(appId); });
   };
 }
@@ -1076,6 +1149,66 @@ function closeDrawer() { $('dmask').classList.remove('show'); }
 $('dmask').addEventListener('click', function (e) { if (e.target.id === 'dmask') closeDrawer(); });
 $('rptMaskClose').onclick = function () { $('rptMask').classList.remove('show'); };
 $('rptMask').addEventListener('click', function (e) { if (e.target.id === 'rptMask') $('rptMask').classList.remove('show'); });
+
+// 2026-09-01 加：④電洽內容的輸入動作搬進這個彈窗——不再佔在人選卡片上，
+// 卡片只留 AI 整理好的重點。submit 邏輯照舊呼叫既有的 /admin/application/call-note
+// （文字＋拖曳上傳都支援，同一套本機排程處理，跟 TG「電洽新增人選」共用管道）。
+function closeCallModal() { $('callMask').classList.remove('show'); }
+$('callMask').addEventListener('click', function (e) { if (e.target.id === 'callMask') closeCallModal(); });
+function openCallModal(appId) {
+  $('callWrap').innerHTML =
+    '<div class="dhead"><span class="nm">記錄新的通話</span><button class="x" id="callClose" type="button">×</button></div>' +
+    '<div class="dbody"><div class="sec">' +
+    '<div class="subhint" style="margin:0 0 10px">打字轉錄重點、直接貼逐字稿，或拖曳上傳錄音／文件——送出後AI會整理成重點，只有重點會顯示在人選卡片上。</div>' +
+    '<textarea class="edi" id="callText" rows="4" placeholder="打字轉錄這次通話重點，或直接貼逐字稿"></textarea>' +
+    '<div id="callDz" style="border:1.5px dashed var(--line);border-radius:10px;padding:16px;text-align:center;font-size:12.5px;color:var(--ink3);cursor:pointer;margin-top:8px">或拖曳電洽紀錄檔案（doc/docx/txt/md/html/pdf/excel）</div>' +
+    '<div class="mut" id="callFileMsg" style="margin-top:4px"></div>' +
+    '<div class="acts" style="margin-top:12px"><button class="btn p" id="callGo" type="button">送出，AI整理重點</button></div>' +
+    '</div></div>';
+  $('callClose').onclick = closeCallModal;
+  $('callMask').classList.add('show');
+  var callFile = null;
+  var cdz = $('callDz');
+  cdz.onclick = function () { var inp = document.createElement('input'); inp.type = 'file'; inp.onchange = function () { if (inp.files[0]) { callFile = inp.files[0]; $('callFileMsg').textContent = '已選擇：' + callFile.name; } }; inp.click(); };
+  cdz.ondragover = function (e) { e.preventDefault(); cdz.style.borderColor = 'var(--gold)'; };
+  cdz.ondragleave = function () { cdz.style.borderColor = 'var(--line)'; };
+  cdz.ondrop = function (e) { e.preventDefault(); cdz.style.borderColor = 'var(--line)'; if (e.dataTransfer.files[0]) { callFile = e.dataTransfer.files[0]; $('callFileMsg').textContent = '已選擇：' + callFile.name; } };
+  $('callGo').onclick = function () {
+    var text = $('callText').value.trim();
+    var send = function (fileB64, fileName, fileMime) {
+      api('/admin/application/call-note', { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ application_id: appId, text: text, file_b64: fileB64, file_name: fileName, file_mime: fileMime, by: '顧問' }) })
+      .then(function (r) { if (!r.ok) { $('callFileMsg').textContent = r.error || '送出失敗'; return; } closeCallModal(); loadAndOpen(appId); });
+    };
+    if (callFile) { var reader = new FileReader(); reader.onload = function () { send(reader.result.split(',')[1], callFile.name, callFile.type); }; reader.readAsDataURL(callFile); }
+    else send(null, null, null);
+  };
+}
+
+// 2026-09-01 加：③顧問備註「＋新增紀錄」——先選類型再寫內容，呼叫新端點
+// /admin/application/notes，累積成清單（不是覆蓋單一文字欄位）。
+var NOTE_TYPES = ['評估', '聯繫紀錄', '客戶回饋', '其他'];
+function closeNoteModal() { $('noteMask').classList.remove('show'); }
+$('noteMask').addEventListener('click', function (e) { if (e.target.id === 'noteMask') closeNoteModal(); });
+function openNoteModal(appId) {
+  $('noteWrap').innerHTML =
+    '<div class="dhead"><span class="nm">新增顧問備註</span><button class="x" id="noteClose" type="button">×</button></div>' +
+    '<div class="dbody"><div class="sec">' +
+    '<label class="edl" style="margin-top:0">紀錄類型</label>' +
+    '<select class="edi" id="noteType">' + NOTE_TYPES.map(function (t) { return '<option>' + esc(t) + '</option>'; }).join('') + '</select>' +
+    '<label class="edl">內容</label><textarea class="edi" id="noteContent" rows="4"></textarea>' +
+    '<div class="acts" style="margin-top:12px"><button class="btn p" id="noteGo" type="button">新增</button><span class="mut" id="noteMsg"></span></div>' +
+    '</div></div>';
+  $('noteClose').onclick = closeNoteModal;
+  $('noteMask').classList.add('show');
+  $('noteGo').onclick = function () {
+    var content = $('noteContent').value.trim();
+    if (!content) { $('noteMsg').textContent = '請填內容'; return; }
+    api('/admin/application/notes', { method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ application_id: appId, type: $('noteType').value, content: content, by: '顧問' }) })
+    .then(function (r) { if (!r.ok) { $('noteMsg').textContent = r.error || '失敗'; return; } closeNoteModal(); loadCardExtras(appId); });
+  };
+}
 
 // ── 新增人選 ──
 function openNewCandModal() {
