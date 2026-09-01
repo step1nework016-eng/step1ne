@@ -161,9 +161,8 @@ select.edi{appearance:none;background:#fff url("data:image/svg+xml;charset=utf8,
     <img src="/assets/step1ne-logo.png" alt="Step1ne"><b>顧問人選追蹤</b>
     <button id="tutBtn" type="button" style="font:inherit;font-weight:700;font-size:12.5px;background:#fff;color:var(--gold);border:1px solid var(--gold);border-radius:999px;padding:5px 14px;margin-left:10px;cursor:pointer">？使用教學</button>
     <nav>
-      <a href="/consultant/pipeline/">舊：我的案子</a>
-      <a href="/consultant/reports/">舊：初篩報告</a>
-      <a class="on" href="#">顧問人選追蹤（新）</a>
+      <a href="/consultant/reports/">阿財面談實況</a>
+      <a class="on" href="#">顧問人選追蹤</a>
     </nav>
   </div></header>
 
@@ -216,7 +215,7 @@ function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function
 function parseExtra(s) { try { return JSON.parse(s || '[]'); } catch (e) { return []; } }
 
 var DEC = { forwarded: { lb: '已轉客戶', cls: 'b-forward' }, need_more: { lb: '需補問', cls: 'b-more' }, rejected: { lb: '不推薦', cls: 'b-no' } };
-// 2026-09-01 全面改版：兩層式導覽——顧問先選管道（主動開發／正式應徵／候補池／
+// 2026-09-01 全面改版：兩層式導覽——顧問先選管道（主動開發／正式應徵／顧問履歷庫／
 // 全部人選），再選該管道底下的階段。原本 7 個分頁攤平在同一排，選項會不會出現
 // 都不一樣，Jacky 反映「每個tab能選的又不一樣，看了要先理解很久」；分成兩層後，
 // 同一時間只會看到同一種邏輯的分頁，不會混。
@@ -224,7 +223,7 @@ var DEC = { forwarded: { lb: '已轉客戶', cls: 'b-forward' }, need_more: { lb
 //   正式應徵：等人選填完→等我決定→客戶面談階段（自己應徵或顧問手動新增，統一
 //            共用；「等我決定」跟「待審核硬性條件」合併，用 hardGateBadge() 徽章
 //            區分，不獨立分頁——理由跟舊版一致）
-//   候補池：已結案＋預備區合併——人選本身沒有消失，只是目前沒有進行中的媒合，
+//   顧問履歷庫：已結案＋預備區合併——人選本身沒有消失，只是目前沒有進行中的媒合，
 //          不分管道，兩邊的人選都可能落在這裡（沒有子分頁）
 // state.tab 還是原本那個「後端 tab 值」（fill/decide/client/to_contact/
 // waiting_reply/pool），filtered() 的篩選邏輯完全不用改，只有上面這層導覽UI改變。
@@ -240,7 +239,7 @@ var PIPES = [
     ] },
 ];
 var TABS = [{ k: '', lb: '全部' }]
-  .concat(PIPES[0].subs, PIPES[1].subs, [{ k: 'pool', lb: '候補池' }]);
+  .concat(PIPES[0].subs, PIPES[1].subs, [{ k: 'pool', lb: '顧問履歷庫' }]);
 var CARDS = [];
 var state = { pipe: 'all', tab: '', view: 'table', q: '', owner: safeGet('s1ne_pp_owner2') || 'all' };
 function pipeOf(tabKey) {
@@ -340,7 +339,7 @@ function pipeCount(pk) {
   return grp.subs.reduce(function (s, t) { return s + tabCount(t.k); }, 0);
 }
 function renderPipes() {
-  var groups = [{ k: 'all', lb: '全部人選' }, { k: 'sourced', lb: '主動開發' }, { k: 'formal', lb: '正式應徵' }, { k: 'pool', lb: '候補池' }];
+  var groups = [{ k: 'all', lb: '全部人選' }, { k: 'sourced', lb: '主動開發' }, { k: 'formal', lb: '正式應徵' }, { k: 'pool', lb: '顧問履歷庫' }];
   $('pipes').innerHTML = groups.map(function (g) {
     return '<button type="button" class="pipe' + (state.pipe === g.k ? ' on' : '') + '" data-k="' + g.k + '">' + g.lb + '<span class="n">' + pipeCount(g.k) + ' 人</span></button>';
   }).join('');
@@ -783,7 +782,7 @@ function openDrawer(appId, kind) {
     '<select class="edi" id="fwJob"><option value="">先選客戶</option></select>' +
     '<div class="acts" style="margin-top:8px"><button class="btn p" id="fwGo" type="button">＋ 推薦給客戶／職缺</button><span class="mut" id="fwMsg"></span></div></div>' +
     '<div class="acts" style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px">' +
-    '<button class="btn d" id="markClosedBtn" type="button" style="font-size:12.5px">標記已結案（進候補池）</button></div>' +
+    '<button class="btn d" id="markClosedBtn" type="button" style="font-size:12.5px">標記已結案（進顧問履歷庫）</button></div>' +
     '</div>';
 
   var primaryPl = (c.placements || [])[0] || null;
@@ -1262,10 +1261,10 @@ function openCallModal(appId) {
 // DOM 位置（頁面內容是動態的，綁死位置容易因為資料狀態不同而失準）。
 var TUT_STEPS = [
   { h: '這個頁面在做什麼', b: '不管人選是自己應徵、顧問電洽新增，還是主動開發找到的，統一在這裡看到「現在卡在哪一關、下一步要做什麼」，不用開好幾個分頁比對。' },
-  { h: '① 先選管道', b: '最上面「全部人選／主動開發／正式應徵／候補池」四個大按鈕，決定你要看哪一種來源的人選。選了「主動開發」或「正式應徵」，下面才會出現該管道專屬的階段分頁。' },
+  { h: '① 先選管道', b: '最上面「全部人選／主動開發／正式應徵／顧問履歷庫」四個大按鈕，決定你要看哪一種來源的人選。選了「主動開發」或「正式應徵」，下面才會出現該管道專屬的階段分頁。' },
   { h: '主動開發管道', b: '「待開發接觸」→「等對方回」，這是還沒應徵、只是躺在人才庫的名單。電洽完想直接推進，打開人選卡片，用「電洽紀錄，轉為正式應徵」——選職缺、貼電洽內容或上傳檔案，送出就會建立正式應徵紀錄，落進「正式應徵」管道。' },
   { h: '正式應徵管道', b: '「等人選填完」（阿財面談還沒結束，球在人選身上）→「等我決定」（報告出爐，換你審閱）→「客戶面談階段」（已推薦給客戶，含快成交）。' },
-  { h: '候補池', b: '「已結案」跟「先留著（預備區）」合併在這裡——人選本身沒有消失，只是目前沒有進行中的媒合，未來有新職缺／新客戶適合，隨時可以重新推薦。' },
+  { h: '顧問履歷庫', b: '「已結案」跟「先留著（預備區）」合併在這裡——人選本身沒有消失，只是目前沒有進行中的媒合，未來有新職缺／新客戶適合，隨時可以重新推薦。' },
   { h: '人選卡片：目前進度', b: '打開卡片，最上面是自動狀態（阿財初審／顧問確認，不用手動設）；「推薦給客戶」清單可以同時推薦給不同客戶的不同職缺，各自獨立算進度；按「＋推薦給客戶／職缺」送出，客戶那邊立刻看到「顧問階段：已完成」。' },
   { h: '人選卡片：其他區塊', b: '顧問備註（一條一條紀錄，選類型再寫）、電洽內容（按📞記錄新的通話，彈窗輸入，卡片上只留AI整理的重點）、給推薦客戶的備註（每家客戶各自一格）、歷史聯繫紀錄與投遞紀錄（把上面全部兜成時間軸，可依類型篩選）。' },
 ];

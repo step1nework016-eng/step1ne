@@ -40,19 +40,23 @@
     // 2026-08-19 加：總覽放第一個——顧問打開後台第一眼要看到的是
     // 「等你動手的有幾件」，不是職缺列表。
     { href: '/consultant/overview/',       label: '招募總覽', icon: 'chart',  primary: true,  group: '招募流程' },
+    // 2026-09-01 加：「初篩報告」＋「我的案子」合併後的正式版，一張卡＝一個人
+    // （姓名/信箱/電話任一相符就併成同一張），推去好幾家客戶各自獨立進度。
+    // 放在總覽正下方——顧問看完「全公司現在怎樣」下一步就是進來處理，
+    // 不該埋在人才池／接觸紀錄／職缺這些設定型頁面後面才找得到。
+    { href: '/consultant/tracker/',        label: '顧問人選追蹤', icon: 'people', primary: true, group: '招募流程' },
     // 2026-08-26 加：依顧問分的個人 pipeline。總覽是「全公司現在怎樣」，
     // 這裡是「我手上這幾件，哪一件卡住了」——同一批資料、不同問題。
-    { href: '/consultant/pipeline/',       label: '我的案子', icon: 'people', primary: true,  group: '招募流程' },
+    // 2026-09-01 拿掉：「我的案子」被「顧問人選追蹤」正式取代（同一批資料，
+    // 統一在那邊看進度、做決定），繼續留著等於兩邊各講一套，容易讓顧問
+    // 對不上到底哪邊才是真的。/consultant/pipeline/ 頁面本身沒刪，只是拿掉
+    // 導覽入口，之後確認完全沒人再需要才考慮真的刪檔案。
     { href: '/consultant/sourced/',        label: '人才池',   icon: 'people', primary: true,  group: '招募流程' },
     // 2026-08-26 加：為了某個職缺接觸了誰（學校系所、人選、介紹人）。
     // 跟「開發客戶」方向相反——那邊是把人選推銷給企業，這邊是找人選的管道。
     { href: '/consultant/outreach/',       label: '接觸紀錄', icon: 'target', primary: false, group: '招募流程' },
     { href: '/consultant/jobs/',           label: '招募職缺', icon: 'funnel', primary: true,  group: '招募流程' },
-    { href: '/consultant/reports/',        label: '初篩報告', icon: 'doc',    primary: true,  group: '招募流程' },
-    // 2026-09-01 加：「初篩報告」＋「我的案子」合併後的正式版，一張卡＝一個人
-    // （姓名/信箱/電話任一相符就併成同一張），推去好幾家客戶各自獨立進度。
-    // 先跟上面兩個舊入口並存，Jacky 確認沒問題後才會拿掉舊的。
-    { href: '/consultant/tracker/',        label: '顧問人選追蹤（新）', icon: 'people', primary: true, group: '招募流程' },
+    { href: '/consultant/reports/',        label: '阿財面談實況', icon: 'doc',    primary: true,  group: '招募流程' },
     // 2026-08-21 加：顧問補填「這個人我會不會推」。原本只有報告推到 TG 當下
     //  那三個按鈕能按，訊息被蓋掉就沒第二次機會——25 份報告只有 1 位被回填。
     { href: '/consultant/kpi/',            label: '阿財準不準', icon: 'chart', primary: true, group: '招募流程' },
