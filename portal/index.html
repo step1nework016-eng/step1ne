@@ -1228,19 +1228,14 @@ function openCandModal(appId){
         <span class="upd-msg" id="cmRoundMsg"></span>
         <span class="cm-hint">選這一輪是人資面談還是用人單位主管面談，送出後會依序記成「第一階段」「第二階段」……</span>
       </div>`}
-      <div class="cm-update-grid" style="flex-direction:column;align-items:stretch">
-        <textarea id="cmStageNote" placeholder="面談結束後的狀況、主管評語等回饋（選填，顧問會看到）" style="width:100%;min-height:60px;font:inherit;font-size:13px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;resize:vertical;box-sizing:border-box"></textarea>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px">
-          <select id="cmStagePick">${c.editable_stages.map(s => `<option value="${esc(s.key)}">${esc(s.lb)}</option>`).join('')}</select>
-          <button type="button" id="cmStageUpd">更新為此狀態</button>
-          <span class="upd-msg" id="cmStageMsg"></span>
-        </div>
-      </div>
-      <p class="cm-hint" style="margin-top:10px">要婉拒這位人選，回到表格用「用人單位」那欄的下拉選單選「不推進」——跟這裡是同一個動作，統一在表格上做。</p>
+      <p class="cm-hint" style="margin-top:10px">要推進階段（第一階段／錄取／報到）或婉拒，回到表格用對應那欄的下拉選單——跟這裡是同一組資料，統一在表格上做，這裡不再重複一份。</p>
       `;
+    // 2026-09-01 拿掉：cmStagePick／cmStageUpd 這組下拉本來跟表格的下拉
+    // 寫的是同一個後端動作，兩個介面都能設同一件事，容易誤觸/搞混
+    // （選了 A 卻好像變成 B）。只留表格當唯一入口，這裡改成純提示文字，
+    // 「新增下一輪面試」保留——那是表格做不到的（能指定人資/主管面談類型）。
     const roundAddBtn = document.getElementById('cmRoundAdd');
     if (roundAddBtn) roundAddBtn.addEventListener('click', cmAddInterviewRound);
-    document.getElementById('cmStageUpd').addEventListener('click', cmUpdateStage);
   }
 
   document.getElementById('candModalMask').classList.add('show');
@@ -1379,29 +1374,6 @@ async function cmAddInterviewRound(){
   }
 }
 
-async function cmUpdateStage(){
-  const appId = ACTIVE_APP;
-  const stage = document.getElementById('cmStagePick').value;
-  const note = document.getElementById('cmStageNote').value.trim();
-  const btn = document.getElementById('cmStageUpd');
-  const msgEl = document.getElementById('cmStageMsg');
-  btn.disabled = true;
-  msgEl.textContent = '';
-  try{
-    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(appId)}/stage`, {
-      method: 'POST', headers: {'content-type':'application/json'}, body: JSON.stringify({ stage, note: note || undefined }),
-    });
-    const data = await res.json();
-    if (!data.ok){ msgEl.style.color = 'var(--bad)'; msgEl.textContent = data.error || '更新失敗'; btn.disabled = false; return; }
-    msgEl.style.color = 'var(--ok)';
-    msgEl.textContent = '已更新';
-    await loadCandidates();
-    if (ACTIVE_APP === appId) openCandModal(appId);
-  }catch{
-    msgEl.style.color = 'var(--bad)'; msgEl.textContent = '連線失敗，請稍後再試';
-  }
-  btn.disabled = false;
-}
 
 load();
 </script>
