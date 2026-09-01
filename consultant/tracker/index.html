@@ -662,7 +662,12 @@ function openSourcedDrawer(c) {
     if (!cj.value) { $('convMsg').textContent = '請選一個職缺'; return; }
     if (!$('convConsent').checked) { $('convMsg').textContent = '請先勾選已取得本人同意'; return; }
     var text = $('convNotes').value.trim();
-    if (!text && !convFile) { $('convMsg').textContent = '請至少填電洽內容或附一個檔案'; return; }
+    // 2026-09-01 改：原本要求一定要有電洽內容或檔案才能送出，Jacky 反映
+    // 「暫時沒有電洽內容就轉不了正式應徵」——後端其實不強制這個，是前端自己
+    // 卡太緊。放行：沒填電洽內容一樣能建立應徵紀錄，只是不會觸發AI產報告
+    // （沒有面談過/沒有電洽內容，本來就沒東西可以產報告），之後在人選卡片
+    // 用「📞記錄新的通話」補上就會觸發。
+    if (!text && !convFile && !confirm('目前沒有電洽內容，送出後不會產生初篩報告——之後要在人選卡片補上電洽內容才會產生。確定先建立應徵紀錄嗎？')) return;
     cg.disabled = true;
     var send = function (fileB64, fileName, fileMime) {
       api('/admin/pipeline/manual-forward', { method: 'POST', headers: { 'content-type': 'application/json' },
