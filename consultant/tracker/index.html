@@ -549,7 +549,7 @@ function openDrawer(appId, kind) {
   }
 
   if (c.report_md) {
-    html += '<div class="sec"><h4>初篩報告　' +
+    html += '<div class="sec"><h4>初篩　' +
       (c.decision && DEC[c.decision] ? '<span class="pill ' + (c.decision === 'forwarded' ? 'ok' : (c.decision === 'rejected' ? 'bad' : 'warn')) + '">' + DEC[c.decision].lb + '</span>' : '<span class="pill">還沒決定推不推</span>') +
       '</h4><div class="acts" style="margin-bottom:10px">' +
       '<button class="btn p decbtn" data-k="forwarded"' + (c.decision === 'forwarded' ? ' disabled style="opacity:.45"' : '') + '>推薦給客戶</button>' +
@@ -559,7 +559,9 @@ function openDrawer(appId, kind) {
       '<div class="acts"><button class="more" id="rptmore" type="button">展開全文 ▾</button>' +
       '<button class="btn p" id="rptview" type="button">👁 預覽報告</button>' +
       '<button class="btn" id="rptdl" type="button">下載報告（.md）</button>' +
-      '<button class="btn" id="rptpdf" type="button">下載報告（PDF）</button></div></div>';
+      '<button class="btn" id="rptpdf" type="button">下載報告（PDF）</button>' +
+      (c.report_id ? '<button class="btn" id="rpttrans" type="button">💬 阿財面談逐字稿</button>' : '') +
+      '</div><div id="transBox" hidden style="margin-top:10px;border-top:1px solid var(--line);padding-top:10px"></div></div>';
   }
 
   // 用人單位在客戶 portal 更新階段時可以順手留的回饋（面談結束後狀況、
@@ -755,6 +757,27 @@ function wireDrawer(c, appId) {
     var w = window.open('', '_blank');
     w.document.write(reportDocHtml(c) + '<script>window.onload=function(){window.print()}<\/script>');
     w.document.close();
+  };
+  // 面談逐字稿——Jacky 明確要求併進「初篩」這個區塊裡（本來獨立在舊版
+  // 「初篩報告」頁才看得到），現點現拉，不是每次開卡片都先載入，減少
+  // 沒必要的資料量。電訪產的報告沒有逐字稿（顧問打字整理，不是阿財問答），
+  // API 會回空陣列，畫面上直接講清楚，不要讓人以為是壞掉。
+  var rt = $('rpttrans');
+  if (rt) rt.onclick = function () {
+    var box = $('transBox');
+    if (!box.hidden) { box.hidden = true; return; }
+    box.hidden = false; box.innerHTML = '<p class="mut" style="margin:0">載入中…</p>';
+    api('/admin/report/' + encodeURIComponent(c.report_id)).then(function (r) {
+      if (!r.ok) { box.innerHTML = '<p class="mut" style="margin:0">讀取失敗</p>'; return; }
+      var msgs = r.transcript || [];
+      if (!msgs.length) { box.innerHTML = '<p class="mut" style="margin:0">這份是顧問電訪整理的報告，沒有阿財逐句問答的逐字稿。</p>'; return; }
+      box.innerHTML = msgs.map(function (m) {
+        var me = m.role === 'candidate';
+        return '<p style="margin:0 0 8px;font-size:13.5px"><b>' + (me ? '候選人' : '阿財') + '</b> ' +
+          '<span class="mut" style="font-size:11.5px">' + esc((m.created_at || '').slice(11, 16)) + '</span><br>' +
+          esc(m.content).replace(/\n/g, '<br>') + '</p>';
+      }).join('');
+    }).catch(function () { box.innerHTML = '<p class="mut" style="margin:0">連線失敗</p>'; });
   };
   Array.prototype.forEach.call(document.querySelectorAll('.fdSave'), function (b) {
     b.onclick = function () {
