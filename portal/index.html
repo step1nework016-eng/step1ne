@@ -1472,7 +1472,11 @@ function openFromNotification(appId){
   };
   tryOpen();
 }
-setInterval(refreshNotifications, 20000);
+// 2026-09-01 加：分頁不在前景時不打這支——20 秒一次、客戶開著這頁掛一整天
+// 是背景常態流量，跟顧問後台 tracker 頁同一批問題（見 D1 額度打滿那次的
+// 修復註解），沒必要在看不到的分頁還一直刷。
+setInterval(function () { if (!document.hidden) refreshNotifications(); }, 20000);
+document.addEventListener('visibilitychange', function () { if (!document.hidden) refreshNotifications(); });
 refreshNotifications();
 
 load();

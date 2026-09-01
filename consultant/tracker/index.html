@@ -193,6 +193,7 @@ select.edi{appearance:none;background:#fff url("data:image/svg+xml;charset=utf8,
 <div class="dmask" id="noteMask"><div class="dwrap" style="width:min(420px,100%)" id="noteWrap"></div></div>
 <div class="dmask" id="callMask"><div class="dwrap" style="width:min(460px,100%)" id="callWrap"></div></div>
 <div class="dmask" id="tutMask"><div class="dwrap" style="width:min(520px,100%)" id="tutWrap"></div></div>
+<div class="dmask" id="cfMask"><div class="dwrap" style="width:min(480px,100%)" id="cfWrap"></div></div>
 <div class="dmask" id="rptMask">
   <div class="dwrap" style="width:min(760px,100%)">
     <div class="dhead"><span class="nm">報告預覽</span><button class="x" id="rptMaskClose" type="button">×</button></div>
@@ -875,6 +876,7 @@ function openDrawer(appId, kind) {
       '<button class="btn p" id="rptview" type="button">👁 預覽報告</button>' +
       '<button class="btn" id="rptdl" type="button">下載報告（.md）</button>' +
       '<button class="btn" id="rptpdf" type="button">下載報告（PDF）</button>' +
+      '<button class="btn p" id="clientFormalBtn" type="button">📄 製作客戶版履歷</button>' +
       (c.report_id ? '<button class="btn" id="rpttrans" type="button">💬 阿財面談逐字稿</button>' : '') +
       '</div><div id="transBox" hidden style="margin-top:10px;border-top:1px solid var(--line);padding-top:10px"></div></div>';
   }
@@ -1145,6 +1147,8 @@ function wireDrawer(c, appId) {
     w.document.write(reportDocHtml(c) + '<script>window.onload=function(){window.print()}<\/script>');
     w.document.close();
   };
+  var cfb = $('clientFormalBtn');
+  if (cfb) cfb.onclick = function () { openClientFormalModal(appId); };
   // 面談逐字稿——Jacky 明確要求併進「初篩」這個區塊裡（本來獨立在舊版
   // 「初篩報告」頁才看得到），現點現拉，不是每次開卡片都先載入，減少
   // 沒必要的資料量。電訪產的報告沒有逐字稿（顧問打字整理，不是阿財問答），
@@ -1297,6 +1301,82 @@ function openCallModal(appId) {
     if (callFile) { var reader = new FileReader(); reader.onload = function () { send(reader.result.split(',')[1], callFile.name, callFile.type); }; reader.readAsDataURL(callFile); }
     else send(null, null, null);
   };
+}
+
+// 2026-09-01 加：製作客戶版履歷——表格＋大頭貼版，跟既有客戶portal的
+// client.html（黑底hero＋光譜圖）是完全不同的另一種輸出格式，兩者並存。
+// 「相關經驗」「交通工具」「現況」目前面談規格沒有收集，所以做成必填的
+// 手動輸入格，不要用其他欄位瞎猜著填——這是老闆看過落差後定案的做法。
+function closeClientFormalModal() { $('cfMask').classList.remove('show'); }
+$('cfMask').addEventListener('click', function (e) { if (e.target.id === 'cfMask') closeClientFormalModal(); });
+function openClientFormalModal(appId) {
+  $('cfWrap').innerHTML =
+    '<div class="dhead"><span class="nm">製作客戶版履歷</span><button class="x" id="cfClose" type="button">×</button></div>' +
+    '<div class="dbody"><div class="sec"><p class="mut" style="margin:0">載入中…</p></div></div>';
+  $('cfClose').onclick = closeClientFormalModal;
+  $('cfMask').classList.add('show');
+  api('/admin/application/' + encodeURIComponent(appId) + '/client-formal-prefill').then(function (pre) {
+    if (!pre.ok) {
+      $('cfWrap').innerHTML = '<div class="dhead"><span class="nm">製作客戶版履歷</span><button class="x" id="cfClose" type="button">×</button></div>' +
+        '<div class="dbody"><div class="sec"><p style="color:#c0392b;margin:0">' + esc(pre.error || '載入失敗') + '</p></div></div>';
+      $('cfClose').onclick = closeClientFormalModal;
+      return;
+    }
+    var known = [
+      ['姓名', pre.name + (pre.anonymous ? '（匿名版，客戶未簽約）' : '')],
+      ['職缺', pre.job_title], ['客戶', pre.client_name],
+      ['現居地', pre.residence], ['學歷', pre.education], ['出生年月', pre.age],
+      ['兵役', pre.military], ['語言', pre.languages],
+      ['期望待遇', pre.expected_salary], ['可到職', pre.available_date],
+    ].filter(function (r) { return r[1]; });
+    $('cfWrap').innerHTML =
+      '<div class="dhead"><span class="nm">製作客戶版履歷</span><button class="x" id="cfClose" type="button">×</button></div>' +
+      '<div class="dbody"><div class="sec">' +
+      '<div class="subhint" style="margin:0 0 10px">以下欄位已經自動帶出（已過濾內部判斷內容），下面三格面談沒有系統化收集，請手動補上再產生。</div>' +
+      '<dl class="kv">' + known.map(function (r) { return '<dt>' + esc(r[0]) + '</dt><dd>' + esc(r[1]) + '</dd>'; }).join('') + '</dl>' +
+      '<label class="edl" style="margin-top:10px">現況（必填）</label><textarea class="edi" id="cfState" rows="2" placeholder="例：待業中，最近一份工作為……"></textarea>' +
+      '<label class="edl">相關經驗（必填）</label><textarea class="edi" id="cfExp" rows="2" placeholder="例：無 Revit／BIM 實際操作經驗，電訪前已主動查詢資料了解職務內容"></textarea>' +
+      '<label class="edl">交通工具</label><input class="edi" id="cfTrans" placeholder="例：輕型機車、普通小型車駕照">' +
+      '<label class="edl" style="margin-top:10px;display:flex;align-items:center;gap:6px;font-weight:400"><input type="checkbox" id="cfWantPhoto" style="width:auto">要附上大頭貼</label>' +
+      '<div id="cfPhotoBox" hidden style="margin-top:6px"><input type="file" id="cfPhotoFile" accept="image/*"><div class="mut" id="cfPhotoMsg" style="margin-top:4px"></div></div>' +
+      '<div class="acts" style="margin-top:12px"><button class="btn p" id="cfGo" type="button">產生履歷</button><span class="mut" id="cfMsg"></span></div>' +
+      '</div></div>';
+    $('cfClose').onclick = closeClientFormalModal;
+    var wantPhoto = $('cfWantPhoto');
+    var photoBox = $('cfPhotoBox');
+    wantPhoto.onchange = function () { photoBox.hidden = !wantPhoto.checked; };
+    var photoDataUrl = null;
+    var pf = $('cfPhotoFile');
+    if (pf) pf.onchange = function () {
+      var f = pf.files[0];
+      if (!f) return;
+      var reader = new FileReader();
+      reader.onload = function () { photoDataUrl = reader.result; $('cfPhotoMsg').textContent = '已選擇：' + f.name; };
+      reader.readAsDataURL(f);
+    };
+    $('cfGo').onclick = function () {
+      var state = $('cfState').value.trim();
+      var exp = $('cfExp').value.trim();
+      if (!state || !exp) { $('cfMsg').textContent = '現況跟相關經驗是必填的'; return; }
+      if (wantPhoto.checked && !photoDataUrl) { $('cfMsg').textContent = '已勾選要附大頭貼，請先選擇檔案'; return; }
+      var btn = $('cfGo');
+      btn.disabled = true; $('cfMsg').textContent = '產生中…';
+      api('/admin/application/' + encodeURIComponent(appId) + '/client-formal-report', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          current_state: state, related_experience: exp, transportation: $('cfTrans').value.trim(),
+          photo_b64: wantPhoto.checked ? photoDataUrl : null,
+        }),
+      }).then(function (r) {
+        btn.disabled = false;
+        if (!r.ok) { $('cfMsg').textContent = r.error || '產生失敗'; return; }
+        var w = window.open('', '_blank');
+        w.document.write(r.html + '<script>window.onload=function(){window.print()}<\/script>');
+        w.document.close();
+        closeClientFormalModal();
+      });
+    };
+  });
 }
 
 // 2026-09-01 加：引導式教學——按了才開始教，不按不會自動跳出來。這頁改版
@@ -1473,13 +1553,23 @@ function load() {
 // 像「沒同步」，其實資料一直是對的，只是畫面沒重抓）。改成背景每 30 秒
 // 悄悄重抓一次——只在人選卡片抽屜沒開著的時候做，抽屜開著代表顧問正在
 // 看細節/打字，這時候被背景刷新打斷畫面體驗會很差，寧可晚 30 秒更新。
+// 2026-09-01 加：30 秒背景刷新沒管分頁到底看不看得到——顧問開著這頁切去
+// 別的分頁、甚至整個瀏覽器縮小到背景，還是照樣每 30 秒打一次後端，後端
+// 這支端點又是每次都要撈全部人選（見 /admin/pipeline/tracker 那邊的 N+1
+// 修復註解），這是今天把 D1 免費方案每日讀取額度打到 2200 萬筆的主因之一。
+// 改成用 document.visibilitychange 判斷分頁是否可見，看不到就完全不刷新
+// （不是刷新但不 render，是真的不打 API），切回來才立刻補刷一次。
 var autoRefreshTimer = null;
 function startAutoRefresh() {
   if (autoRefreshTimer) clearInterval(autoRefreshTimer);
   autoRefreshTimer = setInterval(function () {
+    if (document.hidden) return;
     if ($('dmask').classList.contains('show')) return;
     loadCards();
   }, 30000);
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden && !$('dmask').classList.contains('show')) loadCards();
+  });
 }
 function boot() {
   if (tok) { load(); return; }
