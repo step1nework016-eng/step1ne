@@ -537,7 +537,14 @@ function openDrawer(appId, kind) {
     '<label class="edl" style="margin-top:12px">顧問備註</label>' +
     '<div class="ntv">' + (c.consultant_note ? esc(c.consultant_note) : '<span class="mut">尚未填寫</span>') + '</div></div>';
 
-  html += '<div class="sec"><h4>電洽內容<span class="subhint" style="margin:0">貼上或上傳這次通話內容，會排入 AI 自動整理成跟阿財面談報告同格式的摘要（本機排程約 5 分鐘內處理，需要本機常駐程式在跑）</span></h4>' +
+  html += '<div class="sec"><h4>電洽內容<span class="subhint" style="margin:0">送出後幾秒內先出現下面的AI重點彙整；跟阿財面談同格式的正式初篩報告要等本機排程（約5分鐘，需要本機常駐程式在跑）處理完才會出現在上面「初篩」區塊</span></h4>' +
+    (c.call_summary_md
+      ? '<div style="border:1px solid var(--line);background:var(--soft);border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:13.5px;line-height:1.8">' +
+        String(c.call_summary_md).split('\n').map(function (line) {
+          var m = line.match(/^#+\s*(.+)/);
+          return m ? '<b style="color:var(--gold);display:block;margin-top:8px">' + esc(m[1]) + '</b>' : (line.trim() ? esc(line) + '<br>' : '');
+        }).join('') + '</div>'
+      : '') +
     '<textarea class="edi" id="callText" rows="3" placeholder="打字轉錄這次通話重點，或直接貼逐字稿"></textarea>' +
     '<div id="callDz" style="border:1.5px dashed var(--line);border-radius:10px;padding:16px;text-align:center;font-size:12.5px;color:var(--ink3);cursor:pointer;margin-top:6px">或拖曳電洽紀錄檔案（doc/docx/txt/md/html/pdf/excel）</div>' +
     '<div class="mut" id="callFileMsg" style="margin-top:4px"></div>' +
