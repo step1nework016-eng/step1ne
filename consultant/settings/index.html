@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="zh-Hant">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>設定｜顧問後台</title>
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<style>
+/* 沿用全站顧問後台既有視覺語言。這頁目前只有「顧問名單」一塊——原本埋在
+   「我的案子」頁面最下面一個折疊區塊，跟那頁本身的用途（追每天該做什麼）
+   沒關係，獨立出來放這裡。是全站共用的 consultants 表，改這裡任何地方
+   （含顧問人選追蹤、我的案子）的顧問下拉都會同步。之後有其他全站設定
+   項目也會加進這頁。 */
+:root{--gold:#a67c3d;--ink:#23262d;--ink2:#4d5563;--ink3:#8a8d95;--line:#eee7db;--soft:#faf8f3;--bg:#f4f1ea;--bad:#c0392b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 -apple-system,"Noto Sans TC",sans-serif}
+.wrap{max-width:640px;margin:0 auto;padding:0 16px}
+header{background:#fff;border-bottom:1px solid var(--line);padding:14px 0}
+header .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header img{height:26px}
+.gate{max-width:380px;margin:16vh auto;background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px}
+.gate input{width:100%;font:inherit;padding:11px 13px;border:1px solid var(--line);border-radius:10px;margin:12px 0}
+.gate button{width:100%;font:inherit;font-weight:700;background:var(--gold);color:#fff;border:0;border-radius:999px;padding:12px}
+.mut{color:var(--ink3);font-size:13px}
+main{padding:22px 0 80px}
+.sec{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:14px}
+.sec h3{margin:0 0 4px;font-size:15px}
+.sec p.hint{margin:0 0 14px;font-size:13px;color:var(--ink3);line-height:1.7}
+.clist{font-size:13px;color:var(--ink2)}
+.clist>div{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.clist>div:last-child{border-bottom:0}
+.clist .off{opacity:.5}
+.btn{font:inherit;font-size:13px;font-weight:600;border-radius:999px;padding:6px 15px;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink2)}
+.btn.p{background:var(--gold);color:#fff;border-color:var(--gold)}
+.row{display:flex;gap:8px;align-items:center;margin-top:12px}
+.row input{font:inherit;font-size:14px;padding:8px 13px;border:1px solid var(--line);border-radius:10px;flex:1 1 160px}
+</style>
+
+<div id="gate" class="gate" hidden>
+  <b>顧問後台</b>
+  <p class="mut" style="margin:6px 0 0">需要存取權杖。這組權杖等同密碼，不要外傳。</p>
+  <input id="tok" type="password" placeholder="ADMIN_TOKEN" autocomplete="off">
+  <button id="enter" type="button">進入</button>
+  <p id="gerr" class="mut" style="color:#b4552e;margin:12px 0 0" hidden></p>
+</div>
+
+<div id="app" hidden>
+  <header><div class="wrap"><img src="/assets/step1ne-logo.png" alt="Step1ne"><b>設定</b></div></header>
+  <main class="wrap">
+    <div class="sec">
+      <h3>顧問名單</h3>
+      <p class="hint">全站共用一份名單——這裡新增或停用，「顧問人選追蹤」「我的案子」的顧問下拉會立刻同步看到，不用兩邊分開維護。顧問只能停用、不能刪除，離職後他經手過的人選紀錄還是要查得到。</p>
+      <div class="clist" id="clist"></div>
+      <div class="row">
+        <input id="newc" placeholder="新顧問名字" autocomplete="off">
+        <button class="btn p" id="addc" type="button">新增顧問</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+var API = 'https://step1ne-recruit-api.aiagentg888.workers.dev';
+var KEY = 's1ne_admin_tok';
+var tok = localStorage.getItem(KEY) || '';
+var $ = function (i) { return document.getElementById(i); };
+function api(p, o) { o = o || {}; o.headers = Object.assign({ authorization: 'Bearer ' + tok }, o.headers || {}); return fetch(API + p, o).then(function (r) { return r.json(); }); }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+
+var CONS = [];
+function renderConsultants() {
+  $('clist').innerHTML = CONS.map(function (c) {
+    return '<div class="' + (c.is_active ? '' : 'off') + '"><b>' + esc(c.display_name) + '</b>' +
+      '<span class="mut">' + esc(c.id) + '</span>' +
+      '<button class="btn" style="margin-left:auto" data-t="' + esc(c.id) + '" data-a="' + (c.is_active ? 0 : 1) + '" data-n="' + esc(c.display_name) + '">' +
+      (c.is_active ? '停用' : '重新啟用') + '</button></div>';
+  }).join('');
+  Array.prototype.forEach.call($('clist').querySelectorAll('button'), function (b) {
+    b.onclick = function () {
+      api('/admin/consultants', { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ id: b.dataset.t, display_name: b.dataset.n, is_active: Number(b.dataset.a) }) })
+      .then(function (d) { if (!d.ok) { alert(d.error || '失敗'); return; } loadConsultants(); });
+    };
+  });
+}
+function loadConsultants() {
+  return api('/admin/consultants').then(function (d) {
+    if (!d.ok) { $('clist').innerHTML = '<div class="mut">讀取失敗</div>'; return; }
+    CONS = d.consultants || []; renderConsultants();
+  });
+}
+$('addc').onclick = function () {
+  var n = $('newc').value.trim(); if (!n) return;
+  api('/admin/consultants', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ display_name: n }) })
+  .then(function (d) { if (!d.ok) { alert(d.error || '失敗'); return; } $('newc').value = ''; loadConsultants(); });
+};
+$('newc').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('addc').click(); });
+
+function load() { $('gate').hidden = true; $('app').hidden = false; loadConsultants(); }
+function boot() {
+  if (tok) { load(); return; }
+  $('gate').hidden = false;
+  $('enter').onclick = function () {
+    tok = $('tok').value.trim(); if (!tok) return;
+    api('/admin/consultants').then(function (d) {
+      if (!d.ok) { $('gerr').hidden = false; $('gerr').textContent = '權杖不正確'; return; }
+      localStorage.setItem(KEY, tok); load();
+    });
+  };
+  $('tok').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('enter').click(); });
+}
+boot();
+</script>
+<script defer src="/consultant/_shell.js"></script>
+</html>

@@ -78,7 +78,12 @@
     { href: '/consultant/token-usage/',    label: 'Token 用量', icon: 'chart', primary: false, group: '其他工具' },
     // 頁面 2026-08-19 已改名「顧問社群」（裡面分三個分頁：一鍵發文／發文數據／
     // 成效儀表板），選單一起改，不然點進去標題對不上。
-    { href: '/consultant/social-post/',    label: '顧問社群', icon: 'send',   primary: false, group: '其他工具' }
+    { href: '/consultant/social-post/',    label: '顧問社群', icon: 'send',   primary: false, group: '其他工具' },
+    // 2026-09-01 加：原本「顧問名單設定」埋在「我的案子」頁面最下面一個
+    // <details> 折疊區塊，跟「我的案子」本身的用途（追每天該做什麼）沒關係，
+    // 獨立出來放「其他工具」——是全站共用的 consultants 表，改這裡任何地方
+    // 的顧問下拉（含顧問人選追蹤）都會同步看到。
+    { href: '/consultant/settings/',       label: '設定',     icon: 'pencil', primary: false, group: '其他工具' }
   ];
 
   var ICONS = {

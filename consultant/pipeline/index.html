@@ -148,7 +148,11 @@ a.lk{color:var(--gold);text-decoration:none;font-size:12.5px;font-weight:600}
     <div id="drawer"></div>
     <div id="newCandModal"></div>
 
-    <details class="mg">
+    <!-- 2026-09-01：顧問名單設定（新增/停用）搬到獨立的「設定」頁
+         （/consultant/settings/，其他工具分類），跟這頁本身「追每天該做
+         什麼」的用途沒關係。這裡只留一個連結，不重複維護兩份 UI。 -->
+    <p class="mut" style="margin-top:22px">要新增或停用顧問帳號，去<a href="/consultant/settings/" style="color:var(--gold)">設定</a>頁——同一份名單，這裡的顧問下拉也會同步。</p>
+    <details class="mg" hidden>
       <summary>顧問名單設定</summary>
       <div class="clist" id="clist"></div>
       <div class="row">
