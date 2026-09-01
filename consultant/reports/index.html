@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>初篩報告｜Step1ne 顧問後台</title>
+<title>阿財面談實況｜Step1ne 顧問後台</title>
 <meta name="robots" content="noindex,nofollow">
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
 <meta name="theme-color" content="#ffffff">
@@ -233,9 +233,9 @@ button.primary:hover{background:#8a6531;}
     <div class="wrap">
       <div style="display:flex;align-items:center;gap:12px;">
         <img src="/assets/step1ne-logo.png" alt="Step1ne">
-        <b>初篩報告</b>
+        <b>阿財面談實況</b>
       </div>
-        <nav style="display:flex;gap:8px;flex-wrap:wrap;"><a href="/consultant/overview/" style="font-size:14px;text-decoration:none;padding:7px 14px;border-radius:999px;color:#4d5563;background:#fff;border:1px solid #eee7db;">總覽</a><a href="/consultant/reports/" style="font-size:14px;text-decoration:none;padding:7px 14px;border-radius:999px;color:#fff;background:#23262d;border:1px solid #23262d;">初篩報告</a><a href="/consultant/jobs/" style="font-size:14px;text-decoration:none;padding:7px 14px;border-radius:999px;color:#4d5563;background:#fff;border:1px solid #eee7db;">招募職缺</a><a href="/consultant/expertise/" style="font-size:14px;text-decoration:none;padding:7px 14px;border-radius:999px;color:#4d5563;background:#fff;border:1px solid #eee7db;">職缺題庫</a><a href="/consultant/job-intake/" style="font-size:14px;text-decoration:none;padding:7px 14px;border-radius:999px;color:#4d5563;background:#fff;border:1px solid #eee7db;">＋ 新增職缺</a><a href="/consultant/job-draft/" style="font-size:14px;text-decoration:none;padding:7px 14px;border-radius:999px;color:#4d5563;background:#fff;border:1px solid #eee7db;">改擬稿</a><a href="/consultant/clients/" style="font-size:14px;text-decoration:none;padding:7px 14px;border-radius:999px;color:#4d5563;background:#fff;border:1px solid #eee7db;">客戶名單</a><a href="/consultant/token-usage/" style="font-size:14px;text-decoration:none;padding:7px 14px;border-radius:999px;color:#4d5563;background:#fff;border:1px solid #eee7db;">Token 用量</a></nav>
+        <nav style="display:flex;gap:8px;flex-wrap:wrap;"><a href="/consultant/overview/" style="font-size:14px;text-decoration:none;padding:7px 14px;border-radius:999px;color:#4d5563;background:#fff;border:1px solid #eee7db;">總覽</a><a href="/consultant/reports/" style="font-size:14px;text-decoration:none;padding:7px 14px;border-radius:999px;color:#fff;background:#23262d;border:1px solid #23262d;">阿財面談實況</a><a href="/consultant/jobs/" style="font-size:14px;text-decoration:none;padding:7px 14px;border-radius:999px;color:#4d5563;background:#fff;border:1px solid #eee7db;">招募職缺</a><a href="/consultant/expertise/" style="font-size:14px;text-decoration:none;padding:7px 14px;border-radius:999px;color:#4d5563;background:#fff;border:1px solid #eee7db;">職缺題庫</a><a href="/consultant/job-intake/" style="font-size:14px;text-decoration:none;padding:7px 14px;border-radius:999px;color:#4d5563;background:#fff;border:1px solid #eee7db;">＋ 新增職缺</a><a href="/consultant/job-draft/" style="font-size:14px;text-decoration:none;padding:7px 14px;border-radius:999px;color:#4d5563;background:#fff;border:1px solid #eee7db;">改擬稿</a><a href="/consultant/clients/" style="font-size:14px;text-decoration:none;padding:7px 14px;border-radius:999px;color:#4d5563;background:#fff;border:1px solid #eee7db;">客戶名單</a><a href="/consultant/token-usage/" style="font-size:14px;text-decoration:none;padding:7px 14px;border-radius:999px;color:#4d5563;background:#fff;border:1px solid #eee7db;">Token 用量</a></nav>
       <div class="mut" style="display:flex;align-items:center;gap:14px;">
         <button id="addbtn" type="button" class="primary">＋ 新增候選人</button>
         <span id="tot">—</span><a href="/consultant/bd/" style="font-size:14px;text-decoration:none;padding:7px 14px;border-radius:999px;color:#fff;background:#a67c3d;border:1px solid #a67c3d;">開發客戶</a>　<a href="/consultant/interview-spec/" style="font-size:14px;text-decoration:none;padding:7px 14px;border-radius:999px;color:#4d5563;background:#fff;border:1px solid #eee7db;">面談規格</a>　<a href="#" id="out">登出</a>
@@ -393,7 +393,9 @@ button.primary:hover{background:#8a6531;}
 
 <dialog id="dlg">
   <div class="dhead">
-    <div><b id="dname">—</b><div class="mut" id="dmeta">—</div></div>
+    <div><b id="dname">—</b><div class="mut" id="dmeta">—</div>
+      <div class="mut" id="downerRow" style="margin-top:4px;display:flex;align-items:center;gap:6px;font-size:12.5px;">負責顧問：<span id="downerSelWrap">—</span></div>
+    </div>
     <button id="dx" type="button" aria-label="關閉">✕</button>
   </div>
   <div class="dtabs">
@@ -627,7 +629,7 @@ function reportHtml(row, report) {
   var meta = esc((row.interview_started_at || row.created_at || '').slice(0, 16)) +
     ' – ' + esc((row.interview_ended_at || '未結束').slice(0, 16));
   return '<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8">' +
-    '<title>初篩報告｜' + title + '</title><style>' +
+    '<title>阿財面談實況｜' + title + '</title><style>' +
     'body{font-family:-apple-system,"PingFang TC",sans-serif;max-width:720px;margin:40px auto;' +
     'padding:0 20px;color:#16202e;line-height:1.7}' +
     'h1{font-size:19px;margin:0 0 4px}.meta{color:#7c8899;font-size:13px;margin-bottom:24px}' +
@@ -635,7 +637,7 @@ function reportHtml(row, report) {
     'border:1px solid #dfe4ec;border-radius:10px;padding:18px 20px}' +
     '@media print{pre{border:none;background:none;padding:0}}' +
     '</style></head><body>' +
-    '<h1>初篩報告　' + title + '</h1>' +
+    '<h1>阿財面談實況　' + title + '</h1>' +
     '<div class="meta">Step1ne 德仁管理顧問　·　' + meta + '</div>' +
     '<pre>' + esc(report.content_md || '') + '</pre>' +
     '</body></html>';
@@ -671,6 +673,7 @@ async function openSession(row) {
   // curData 是 null，會直接把整頁噴壞（Cannot read properties of null）。
   // 資料還沒回來之前，先把下載按鈕收起來，不給點。
   $('dlbar').hidden = true;
+  $('downerSelWrap').textContent = '—';
   // 2026-08-05：Phoebe 遇到標題顯示 undefined、報告區「讀取失敗」，
   // 但用管理員 token 直接打 API 都正常，重現不出來。
   // 先把「是哪一筆、缺什麼」講出來，下次出錯就知道是資料問題還是權限問題。
@@ -697,13 +700,15 @@ async function openSession(row) {
   var d = await api('/admin/session/' + encodeURIComponent(row.id));
   if (!d.ok) { $('drep').textContent = '讀取失敗'; return; }
   // 2026-08-13 加：這條路徑原本完全沒有處置按鈕跟階段列，
-  // 顧問從「全部應徵」點進來看到的東西比「初篩報告」列表少一截。
+  // 顧問從「全部應徵」點進來看到的東西比「阿財面談實況」列表少一截。
   // decide() 要用 cur.id（報告 id）才能寫 reports.consultant_decision，
   // 這裡的 row 只有 application id，讀到 d.report 之後要補上去。
   if (d.report) cur.id = d.report.id;
   drawActs(d.report ? d.report.consultant_decision : null);
   renderStageBar(row, d);
   renderForwardPanel(cur.app_id, d.report && d.report.consultant_decision === 'forwarded');
+  $('downerSelWrap').innerHTML = ownerAssignSelect(guessOwner(row, d));
+  wireOwnerAssign('application', cur.app_id, function () { openSession(row); });
 
   // 候選人自己給的體驗分數。這是唯一能回答「這套值不值得繼續」的訊號——
   // 顧問覺得報告好，跟候選人願不願意做完，是兩件事。
@@ -982,6 +987,7 @@ async function open(row) {
   stopLive();
   // 同一個空窗期問題——資料還沒回來之前，先把下載按鈕收起來，見 openSession() 的說明。
   $('dlbar').hidden = true;
+  $('downerSelWrap').textContent = '—';
   $('dname').textContent = row.name;
   $('dmeta').textContent = (row.job_title || row.job_slug) + '　' + (row.email || '') + '　' + (row.phone || '');
   $('drep').textContent = '載入中…';
@@ -1017,6 +1023,8 @@ async function open(row) {
   $('drep').textContent = d.report.content_md || '（沒有報告內容）';
   renderStageBar(row, d);
   renderForwardPanel(row.app_id, row.consultant_decision === 'forwarded');
+  $('downerSelWrap').innerHTML = ownerAssignSelect(guessOwner(row, d));
+  wireOwnerAssign('application', row.app_id, function () { open(row); });
   $('dtr').innerHTML = (d.transcript || [])
     .filter(function (m) { return m.content !== '（候選人已進入面談室）'; })
     .map(function (m) {
@@ -1050,63 +1058,13 @@ async function open(row) {
   }
 }
 
+// 2026-09-01 改：「推薦處置」（轉給客戶／需補問／不推薦／清除處置）整組拿掉，
+// 搬到「顧問人選追蹤」的「初篩」區塊統一處理——這裡（阿財面談實況）只留
+// 「重新開啟面談室」，人選進度改成唯讀，跟顧問人選追蹤／用人需求表共用同
+// 一份資料，不會有兩邊各自能改、看到的不一樣的羅生門。
 function drawActs(now) {
-  var opts = [
-    { k: 'forwarded', t: '轉給客戶', s: 'passed' },
-    { k: 'need_more', t: '需補問', s: 'reported' },
-    { k: 'rejected', t: '不推薦', s: 'rejected' },
-  ];
   $('acts').innerHTML = '';
   $('bigacts').innerHTML = '';
-  // 2026-08-25 加：跟上面階段條合併成同一張卡片後，這裡加個小標題——
-  // 讓顧問一眼看出「往下走」跟「推薦給客戶」是同一套流程的下一步，
-  // 不是兩件無關的事。
-  var head = document.createElement('div');
-  head.style.cssText = 'width:100%;font-size:12.5px;font-weight:700;color:#8a5a1a;margin-bottom:2px;';
-  head.textContent = '推薦處置（按下才會同步到客戶「人選進度」頁面）';
-  $('acts').appendChild(head);
-  opts.forEach(function (o) {
-    var b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'act' + (now === o.k ? ' on' : '');
-    b.textContent = o.t;
-    b.addEventListener('click', function () { decide(o); });
-    $('acts').appendChild(b);
-  });
-  var n = document.createElement('span');
-  n.className = 'mut';
-  n.style.cssText = 'align-self:center;margin-left:6px;';
-  // 記下處置才有辦法回頭比對 AI 判準準不準，這是這個按鈕真正的用途
-  n.textContent = now ? '已處置' : '處置後才能回頭校正 AI 的判準';
-  $('acts').appendChild(n);
-
-  // 2026-08-13 加：轉給客戶／需補問／不推薦按錯了，之前只能找工程手動改資料庫
-  // （徐振倫那次就是這樣）。現在可以直接在這裡清掉，回到「未處置」重新選。
-  if (now) {
-    var clearBtn = document.createElement('button');
-    clearBtn.type = 'button';
-    clearBtn.className = 'act';
-    clearBtn.style.cssText = 'color:#b4552e;';
-    clearBtn.textContent = '清除處置';
-    clearBtn.addEventListener('click', async function () {
-      if (!cur || !cur.id) return alert('這筆沒有報告 id，無法清除');
-      if (!confirm('確定要把目前的處置清掉，回到「未處置」嗎？')) return;
-      this.disabled = true; this.textContent = '處理中…';
-      try {
-        var d = await api('/admin/clear-decision', {
-          method: 'POST', headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ id: cur.id }),
-        });
-        if (d.ok) { cur.consultant_decision = null; drawActs(null); renderForwardPanel(cur.app_id, false); load(); }
-        else alert('失敗：' + (d.error || '伺服器沒說原因'));
-      } catch (e) {
-        alert('失敗：' + (e && e.message ? e.message : '連線失敗'));
-      } finally {
-        this.disabled = false; this.textContent = '清除處置';
-      }
-    });
-    $('acts').appendChild(clearBtn);
-  }
 
   // ⚠️ 2026-08-13 加。原本面談室卡住／逾時／候選人被系統問題中斷後，
   // 只能回頭找工程端手動改資料庫才能讓連結重新可用——徐先生那次就是
@@ -1138,43 +1096,11 @@ function drawActs(now) {
   });
   $('bigacts').appendChild(reopenBtn);
 
-  // 2026-08-13 加：標記錄取——按下去直接寫 placements 並推 LINE 錄取卡給候選人，
-  // 不用再打字到 Telegram 群組讓總指揮解析。
-  var offerBtn = document.createElement('button');
-  offerBtn.type = 'button';
-  offerBtn.style.background = '#1f8f5f';
-  offerBtn.textContent = '🎉 標記錄取';
-  offerBtn.addEventListener('click', async function () {
-    if (!cur || !cur.app_id) return alert('這筆報告沒有對應的應徵紀錄，無法標記');
-    if (!confirm('確定要標記「' + (cur.name || '這位候選人') + '」錄取嗎？會立即推播恭喜卡給他的 LINE。')) return;
-    this.disabled = true; this.textContent = '處理中…';
-    try {
-      var d = await api('/admin/mark-offer', {
-        method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ application_id: cur.app_id }),
-      });
-      if (d.ok) { alert('已標記錄取，LINE 卡片已推播（如果他有綁定的話）。'); load(); }
-      else alert('失敗：' + (d.error || '伺服器沒說原因'));
-    } catch (e) {
-      alert('失敗：' + (e && e.message ? e.message : '連線失敗'));
-    } finally {
-      this.disabled = false; this.textContent = '🎉 標記錄取';
-    }
-  });
-  $('bigacts').appendChild(offerBtn);
-
-  // 2026-08-13 加：結案不續——跟「標記錄取」對稱的動作。之前 CLOSED_LOST 只能靠
-  // 顧問在 Telegram「顧問人選回報區」打字讓 report_tick.py 解析寫入，網頁後台
-  // 完全沒有入口。reason 是寫給候選人看的委婉說法，會直接組進他收到的 LINE 訊息。
-  var closeBtn = document.createElement('button');
-  closeBtn.type = 'button';
-  closeBtn.style.background = '#8a3a20';
-  closeBtn.textContent = '❌ 標記結案不續';
-  closeBtn.addEventListener('click', function () {
-    if (!cur || !cur.app_id) return alert('這筆報告沒有對應的應徵紀錄，無法標記');
-    openCloseDlg();
-  });
-  $('bigacts').appendChild(closeBtn);
+  // 2026-09-01 拿掉：「標記錄取」「標記結案不續」搬到「顧問人選追蹤」統一處理
+  // （那邊有推薦給客戶各自的階段下拉、標記已結案按鈕）——這裡跟那邊各是一套
+  // 動作、各自能改同一份資料，正是 Jacky 抓到的「兩邊各講一套」羅生門，收斂
+  // 成單一入口。這頁（阿財面談實況）只留「重新開啟面談室」，那是唯一沒有
+  // 搬過去、只跟阿財面談本身有關的動作。
 }
 
 var FORWARD_COMPANIES_CACHE = {};
@@ -1441,14 +1367,44 @@ function stageLabelOf(key) {
   return STAGE_LABELS_ALL[key] || key;
 }
 
+// 2026-09-01 加：這個頁面之前完全沒有「指派負責顧問」的欄位——照抄
+// 「顧問人選追蹤」頁（consultant/tracker/index.html）的 ownerAssignSelect()／
+// wireOwnerAssign()，用同一個 /admin/set-owner 端點，讓兩邊看到的是同一份資料。
+var CONSULTANTS = [];
+function wireOwnerAssign(kind, id, reload) {
+  var sel = document.querySelector('#downerSelWrap .ownAssign');
+  if (!sel) return;
+  sel.onchange = function () {
+    sel.disabled = true;
+    api('/admin/set-owner', { method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ kind: kind, id: id, owner: sel.value || null }) })
+    .then(function (r) { sel.disabled = false; if (!r.ok) { alert(r.error || '指派失敗'); return; } reload(); })
+    .catch(function () { sel.disabled = false; alert('連線失敗'); });
+  };
+}
+function ownerAssignSelect(cur) {
+  var opts = '<option value="">未指派</option>' + CONSULTANTS
+    .filter(function (c) { return c.is_active || c.id === cur; })
+    .map(function (c) { return '<option value="' + esc(c.id) + '"' + (c.id === cur ? ' selected' : '') + '>' + esc(c.display_name) + '</option>'; }).join('');
+  return '<select class="edi ownAssign" style="max-width:180px;font-size:12.5px;padding:4px 7px;">' + opts + '</select>';
+}
+// 兩條進來的路徑（openSession 的 row／d.application，跟 open 的 report row）
+// 欄位長得不完全一樣，保守一點多試幾個常見欄位名，抓不到就顯示「未指派」，
+// 不會因為猜錯欄位名就整頁壞掉。
+function guessOwner(row, d) {
+  return (row && row.owner) || (d && d.application && (d.application.owner || d.application.owner_id)) ||
+    (d && d.report && d.report.owner) || null;
+}
+
 function renderStageBar(row, d) {
   var bar = $('stagebar');
   var info = d.stage;
   if (!info) { bar.hidden = true; return; }
   // ⚠️ 2026-08-13 修：原本 effective_index < 0（完全還沒有任何自動進度，例如
-  // 應徵單填了但還沒開始面談）就整個階段列連同下面的手動指定下拉都不顯示——
-  // 等於顧問想從零開始手動指定某個候選人的階段時，畫面上完全沒有入口可以按。
-  // 一定要秀出來，圓點可以是全灰（都還沒開始），但下拉選單要在。
+  // 應徵單填了但還沒開始面談）就整個階段列不顯示——
+  // 一定要秀出來，圓點可以是全灰（都還沒開始）。
+  // 2026-09-01 改：手動指定階段的下拉／套用／清除已經搬到「顧問人選追蹤」頁面
+  // 統一處理，這裡只保留唯讀的進度點顯示，避免兩邊都能改、資料兜不起來。
 
   // 2026-08-14 加：結案不續要在階段列最上面明顯標出來——單靠 9 階段的灰點
   // 看不出「這筆已經結束」，顧問點開人選要一眼就知道，也要看得到當初是
@@ -1490,40 +1446,18 @@ function renderStageBar(row, d) {
     var head = companyName
       ? '<div style="font-size:12.5px;font-weight:700;color:#a67c3d;margin-bottom:6px;">' + esc(companyName) + '</div>'
       : '';
-    var manual = '<div class="stagebar-manual">'
-      + (stInfo.manual_active
-          ? '<span class="warn">⚠️ 目前顯示是顧問手動指定的「' + esc(stageLabelOf(stInfo.manual_stage)) + '」，系統資料還沒追上，追上後會自動切回。</span>'
-          : '')
-      + '<select id="manualStageSel' + sfx + '">'
-        + '<option value="">— 手動指定階段 —</option>'
-        + STAGE_OPTS.map(function (o) {
-            return '<option value="' + o.key + '"' + (stInfo.manual_stage === o.key ? ' selected' : '') + '>' + o.lb + '</option>';
-          }).join('')
-      + '</select>'
-      + '<button type="button" class="manualStageGo" data-sfx="' + sfx + '" data-company="' + esc(companyId || '') + '">套用</button>'
-      + (stInfo.manual_stage ? '<button type="button" class="manualStageClear" data-sfx="' + sfx + '" data-company="' + esc(companyId || '') + '">清除手動指定</button>' : '')
-      + '</div>';
-    return head + dots + manual;
-  }
-
-  function wire() {
-    bar.querySelectorAll('.manualStageGo').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var sel = document.getElementById('manualStageSel' + (btn.dataset.sfx || '')).value;
-        if (!sel) return alert('請先選一個階段');
-        setManualStage(sel, btn, btn.dataset.company || null);
-      });
-    });
-    bar.querySelectorAll('.manualStageClear').forEach(function (btn) {
-      btn.addEventListener('click', function () { setManualStage('', btn, btn.dataset.company || null); });
-    });
+    // 2026-09-01 改：只保留唯讀顯示——手動指定階段的目前狀態還是要標出來
+    // （提醒顧問「系統資料還沒追上」），但下拉／套用／清除已搬到「顧問人選追蹤」頁面。
+    var manualNote = stInfo.manual_active
+      ? '<div class="stagebar-manual"><span class="warn">⚠️ 目前顯示是顧問手動指定的「' + esc(stageLabelOf(stInfo.manual_stage)) + '」，系統資料還沒追上，追上後會自動切回。到「顧問人選追蹤」頁面可以調整。</span></div>'
+      : '';
+    return head + dots + manualNote;
   }
 
   // 先畫整體那條（推薦給客戶之前的階段就只有這條），畫完馬上顯示；
   // 再去問「推給了哪幾家」，有的話換成一家一條。
   bar.innerHTML = closedHtml + backupHtml + oneBar(info, null, null);
   bar.hidden = false;
-  wire();
 
   // 2026-08-26 加：同一位人選推給好幾家客戶時，每一家的面試進度是各自獨立的
   // （律准談到第二關、弘昌還沒約），一條總進度條表達不出來。有推薦紀錄就
@@ -1540,7 +1474,6 @@ function renderStageBar(row, d) {
                      f.company_id, f.display_name)
             + '</div>';
         }).join('');
-    wire();
   }).catch(function () { /* 查不到就維持整體那一條，不擋畫面 */ });
 }
 
@@ -1703,12 +1636,15 @@ function startLivePanel() {
   livePanelTimer = setInterval(refreshLivePanel, 30000);
 }
 
+function loadConsultants() {
+  api('/admin/consultants').then(function (d) { CONSULTANTS = (d && d.consultants) || []; }).catch(function () {});
+}
 $('enter').addEventListener('click', function () {
   tok = $('tok').value.trim();
   if (!tok) return;
   localStorage.setItem(KEY, tok);
   $('gate').hidden = true; $('app').hidden = false;
-  offset = 0; load(); startLivePanel();
+  offset = 0; load(); startLivePanel(); loadConsultants();
 });
 $('tok').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('enter').click(); });
 $('out').addEventListener('click', function (e) {
@@ -1933,6 +1869,7 @@ if (tok) {
   $('app').hidden = false;
   load();   // 背景照常載入清單，深連結關掉後不會看到空白頁
   startLivePanel();
+  loadConsultants();
   var deepId = new URLSearchParams(location.search).get('id');
   if (deepId) openById(deepId);
 } else { gate(''); }
