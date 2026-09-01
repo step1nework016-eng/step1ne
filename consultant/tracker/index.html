@@ -64,7 +64,15 @@ main{padding:22px 0 80px}
 
 .tbl-wrap{overflow-x:auto;background:#fff;border:1px solid var(--line);border-radius:12px}
 table{width:100%;border-collapse:collapse;font-size:13.5px}
-th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap;max-width:200px;overflow:hidden;text-overflow:ellipsis}
+/* checkpoint 直欄內容只有 ✓／—／短字，不用跟人選/職缺欄一樣寬的留白，
+   9 個直欄疊起來才不會遠遠超出螢幕寬度、又完全沒有能看出來可以橫向捲動的
+   提示——這正是 Jacky 那次「表格式其他欄位整個消失」回報的真正原因：
+   表格真的比視窗寬，但看起來像斷尾，不像可以捲。 */
+th.narrow,td.narrow{padding:10px 8px;text-align:center;white-space:normal;max-width:78px}
+th.narrow{font-size:11px;line-height:1.3}
+.tbl-wrap{position:relative}
+.tbl-wrap:after{content:"";position:absolute;top:0;right:0;bottom:0;width:18px;pointer-events:none;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.9))}
 th{color:var(--ink3);font-size:12px;font-weight:600}
 tbody tr{cursor:pointer}
 tbody tr:hover{background:var(--soft)}
@@ -304,8 +312,8 @@ function renderList() {
   if (state.view === 'table') {
     el.innerHTML = '<div class="tbl-wrap"><table><thead><tr>' +
       '<th>人選</th><th>目前應徵職缺</th><th>客戶</th>' +
-      '<th>AI阿財面談完畢</th><th>顧問評估中</th><th>推送客戶</th>' +
-      '<th>目前在第幾階段</th><th>錄取</th><th>報到</th>' +
+      '<th class="narrow">AI阿財<br>面談完畢</th><th class="narrow">顧問<br>評估中</th><th class="narrow">推送<br>客戶</th>' +
+      '<th class="narrow">目前在<br>第幾階段</th><th class="narrow">錄取</th><th class="narrow">報到</th>' +
       '</tr></thead><tbody>' +
       list.map(function (c) {
         var mid = midStageCell(c), offer = checkpointCell(c, 'offer'), onboard = checkpointCell(c, 'onboard');
@@ -314,12 +322,12 @@ function renderList() {
             (c.dup_notice ? '<span class="dupflag" title="' + esc(c.dup_notice) + '">⚠</span>' : '') + '</span></td>' +
           '<td>' + esc(c.job_title) + '</td>' +
           '<td>' + esc(c.client_name) + '</td>' +
-          '<td class="stagecell ' + (c.ai_done ? 'done' : '') + '">' + (c.ai_done ? '✓' : '—') + '</td>' +
-          '<td class="stagecell ' + (c.evaluated ? 'done' : '') + '">' + (c.evaluated ? '✓' : '—') + '</td>' +
-          '<td class="stagecell ' + (c.pushed ? 'done' : '') + '">' + (c.pushed ? '✓' : '—') + '</td>' +
-          '<td class="stagecell ' + mid.cls + '">' + mid.text + '</td>' +
-          '<td class="stagecell ' + offer.cls + '">' + offer.text + '</td>' +
-          '<td class="stagecell ' + onboard.cls + '">' + onboard.text + '</td>' +
+          '<td class="stagecell narrow ' + (c.ai_done ? 'done' : '') + '">' + (c.ai_done ? '✓' : '—') + '</td>' +
+          '<td class="stagecell narrow ' + (c.evaluated ? 'done' : '') + '">' + (c.evaluated ? '✓' : '—') + '</td>' +
+          '<td class="stagecell narrow ' + (c.pushed ? 'done' : '') + '">' + (c.pushed ? '✓' : '—') + '</td>' +
+          '<td class="stagecell narrow ' + mid.cls + '">' + mid.text + '</td>' +
+          '<td class="stagecell narrow ' + offer.cls + '">' + offer.text + '</td>' +
+          '<td class="stagecell narrow ' + onboard.cls + '">' + onboard.text + '</td>' +
           '</tr>';
       }).join('') + '</tbody></table></div>';
   } else {
