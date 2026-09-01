@@ -1098,8 +1098,17 @@ function renderTable(){
     <thead><tr><th>人選</th><th>LINE ID</th><th>推送日</th>${TABLE_COLS.map(([, lb]) => `<th>${esc(lb)}</th>`).join('')}</tr></thead>
     <tbody>${list.map(c => {
       const rejected = !!c.client_rejected_at;
+      // 2026-09-01 修：跟 offer/onboard 同一種bug——原本只看 .now（現在卡在
+      // 這關），沒看 .done。顧問確認完（阿財面談結束/顧問下決定）之後，如果
+      // 還沒有更後面的動作（沒推薦客戶/沒面試進度），這一關正好停在
+      // effective_index 本身，.done 是 false、.now 才是 true，畫面因此顯示
+      // 「進行中」——但顧問確認這件事本身已經做完了，資料是對的，純粹是判斷
+      // 只看了一半（陳其寬案例撞到的：報告已推薦、面談已結束，這關卻顯示
+      // 進行中不是已完成）。改成 done || now 才算完成，跟 offerDone/onboardDone
+      // 用同一套邏輯。
       const confirmS = stepOf(c, 'confirm');
-      const confirmCell = !confirmS ? '—' : confirmS.now ? '<span class="dash-pill now">進行中</span>' : confirmS.done ? '<span class="dash-pill done">已完成</span>' : '—';
+      const confirmDone = !!(confirmS && (confirmS.done || confirmS.now));
+      const confirmCell = !confirmS ? '—' : confirmDone ? '<span class="dash-pill done">已完成</span>' : '<span class="dash-pill now">進行中</span>';
 
       const matchedS = stepOf(c, 'matched');
       // 2026-09-01 加：「用人單位」欄要先明確選過「推進」，後面三欄（面試階段／
