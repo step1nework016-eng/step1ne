@@ -289,12 +289,17 @@ function tabCount(k) {
 function ownerScoped() { return CARDS; } // owner 篩選已經在後端 API 做了，這裡不用再篩一次
 function filtered() {
   var q = state.q.trim().toLowerCase();
+  // ⚠️ 2026-09-01 修：q.replace(/\D/g,'') 對「陳其寬」這種完全沒有數字的搜尋字
+  // 會清成空字串，'' .indexOf('') 永遠 >= 0，導致電話比對這個 fallback 對任何
+  // 純文字搜尋都回傳 true——等於搜尋姓名/信箱完全沒作用（每一筆都「符合」）。
+  // 只有 q 本身真的含數字時才比對電話。
+  var qDigits = q.replace(/\D/g, '');
   return ownerScoped().filter(function (c) {
     if (state.tab && c.tab !== state.tab) return false;
     if (!q) return true;
     return (c.name || '').toLowerCase().indexOf(q) >= 0
       || (c.email || '').toLowerCase().indexOf(q) >= 0
-      || (c.phone || '').replace(/\D/g, '').indexOf(q.replace(/\D/g, '')) >= 0;
+      || (qDigits && (c.phone || '').replace(/\D/g, '').indexOf(qDigits) >= 0);
   });
 }
 
