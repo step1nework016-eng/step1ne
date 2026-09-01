@@ -211,9 +211,13 @@ var TABS = [
   { k: '', lb: '全部' },
   { k: 'to_contact', lb: '待開發接觸' },
   { k: 'waiting_reply', lb: '等對方回' },
-  { k: 'screening', lb: '待審核（硬性條件）' },
+  { k: 'standby', lb: '預備區' },
+  // 2026-09-01 併：「待審核（硬性條件）」跟「等我決定」合併成一個 tab——
+  // 兩者互斥（一張卡只會落在其中一邊，見後端 tab 判斷邏輯），合併不會混資料。
+  // 「硬性條件檢查」跟「面談後決定」仍是不同性質的工作（客觀勾選 vs 主觀判斷），
+  // 保留的做法是在卡片上加徽章區分（見 hardGateBadge()），不是分頁。
   { k: 'to_review', lb: '等我決定' },
-  { k: 'client_side', lb: '客戶手上' },
+  { k: 'client_side', lb: '客戶面談階段' },
   { k: 'closing', lb: '快成交' },
   { k: 'done', lb: '已結案' },
 ];
@@ -225,8 +229,26 @@ function safeSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
 // tab 是後端 /admin/pipeline/tracker 直接算好回傳的（含主動開發的
 // 待開發接觸／等對方回兩關），前端不再自己猜一套——這正是「初篩報告」跟
 // 「我的案子」原本各算各的才會兜不起來的老問題，這次只留一份算法。
+// 2026-09-01：sourced 卡片改看真正的 status，不是只看 tab——shortlisted 跟
+// replied 本來都落在同一個 tab（待開發接觸），畫面上完全看不出「對方回信了」
+// 這件事，選了「他回覆了」看起來像繞回原點。現在後端真的回傳 status 了，
+// 這裡對應到真正不同的徽章文字。
+var SRC_STATUS_LABEL = {
+  new: '待開發接觸', shortlisted: '待開發接觸', contacted: '等對方回',
+  replied: '已回覆待評估', standby: '預備區',
+};
+// 2026-09-01 加：screening 併進 to_review 之後，用這個徽章區分「硬性條件
+// 檢查」（客觀勾選，通常很快）跟「面談後決定」（要讀完報告的主觀判斷）——
+// 兩種工作性質不同，合併成一個 tab 後靠這個標籤讓顧問還是分得出來，
+// 不用另外分頁才能各自批次處理。
+function hardGateBadge(c) {
+  return c.hard_gate ? '<span class="badge b-undecided" style="margin-left:4px">硬性條件審核</span>' : '';
+}
 function stageLabelOf(c) {
-  if (c.kind === 'sourced') return { lb: c.tab === 'to_contact' ? '待開發接觸' : '等對方回', cls: 'b-notstart' };
+  if (c.kind === 'sourced') {
+    var lb = SRC_STATUS_LABEL[c.status] || (c.tab === 'to_contact' ? '待開發接觸' : '等對方回');
+    return { lb: lb, cls: c.status === 'replied' ? 'b-undecided' : (c.status === 'standby' ? 'b-notstart' : 'b-notstart') };
+  }
   if (c.closed) return { lb: '已結案', cls: 'b-no' };
   if (c.hard_gate) return { lb: '待審核', cls: 'b-undecided' };
   if (c.decision && DEC[c.decision]) return DEC[c.decision];
@@ -320,26 +342,43 @@ function renderList() {
   var el = $('listWrap');
   if (!list.length) { el.innerHTML = '<div class="empty">目前沒有符合條件的人選</div>'; return; }
   if (state.view === 'table') {
+    // 2026-09-01 加：「目前在第幾階段」這格現在是內嵌下拉，直接在表格列上改，
+    // 不用點進卡片——這是跟卡片裡的萬用階段下拉並存的第二種操作方式，
+    // 兩種都先做出來讓 Jacky 自己比，還沒定案要留哪個，見 applyUniversalStage()。
     el.innerHTML = '<div class="tbl-wrap"><table><thead><tr>' +
       '<th>人選</th><th>目前應徵職缺</th><th>客戶</th>' +
       '<th class="narrow">AI阿財<br>面談完畢</th><th class="narrow">顧問<br>評估中</th><th class="narrow">推送<br>客戶</th>' +
-      '<th class="narrow">目前在<br>第幾階段</th><th class="narrow">錄取</th><th class="narrow">報到</th>' +
+      '<th class="narrow">目前在第幾階段<br><span class="mut" style="font-weight:400">（可直接改）</span></th><th class="narrow">錄取</th><th class="narrow">報到</th>' +
       '</tr></thead><tbody>' +
       list.map(function (c) {
-        var mid = midStageCell(c), offer = checkpointCell(c, 'offer'), onboard = checkpointCell(c, 'onboard');
+        var offer = checkpointCell(c, 'offer'), onboard = checkpointCell(c, 'onboard');
+        var primaryPl = (c.placements || [])[0] || null;
+        var midHtml = c.kind === 'sourced'
+          ? '<span class="mut">—</span>'
+          : '<select class="edi inlineStageSel" data-id="' + cardIdOf(c) + '" style="font-size:12.5px;padding:5px 26px 5px 8px;max-width:150px">' +
+              universalStageOptionsHtml(c, primaryPl) + '</select>';
         return '<tr data-id="' + cardIdOf(c) + '" data-kind="' + c.kind + '">' +
           '<td><span class="nmwrap"><b>' + esc(c.name) + '</b>' +
-            (c.dup_notice ? '<span class="dupflag" title="' + esc(c.dup_notice) + '">⚠</span>' : '') + '</span></td>' +
+            (c.dup_notice ? '<span class="dupflag" title="' + esc(c.dup_notice) + '">⚠</span>' : '') +
+            hardGateBadge(c) + '</span></td>' +
           '<td>' + esc(c.job_title) + '</td>' +
           '<td>' + esc(c.client_name) + '</td>' +
           '<td class="stagecell narrow ' + (c.ai_done ? 'done' : '') + '">' + (c.ai_done ? '✓' : '—') + '</td>' +
           '<td class="stagecell narrow ' + (c.evaluated ? 'done' : '') + '">' + (c.evaluated ? '✓' : '—') + '</td>' +
           '<td class="stagecell narrow ' + (c.pushed ? 'done' : '') + '">' + (c.pushed ? '✓' : '—') + '</td>' +
-          '<td class="stagecell narrow ' + mid.cls + '">' + mid.text + '</td>' +
+          '<td class="stagecell narrow" onclick="event.stopPropagation()">' + midHtml + '</td>' +
           '<td class="stagecell narrow ' + offer.cls + '">' + offer.text + '</td>' +
           '<td class="stagecell narrow ' + onboard.cls + '">' + onboard.text + '</td>' +
           '</tr>';
       }).join('') + '</tbody></table></div>';
+    Array.prototype.forEach.call(el.querySelectorAll('.inlineStageSel'), function (sel) {
+      var row = list.find(function (c) { return String(cardIdOf(c)) === sel.dataset.id; });
+      if (!row) return;
+      sel.onchange = function () {
+        sel.disabled = true;
+        applyUniversalStage(row, row.application_id, sel.value, function () { loadCards(); });
+      };
+    });
   } else {
     el.innerHTML = '<div class="dash-cards">' + list.map(function (c) {
       var st = stageLabelOf(c);
@@ -380,6 +419,52 @@ function bar(pl, appId, showSel) {
 // 已結案），對應到表格式的每一欄，不是只有「這個客戶目前卡在第幾關」。
 // 只涵蓋主要（第一個）客戶——多客戶推派的其他家，各自進度用上面每個
 // placement 自己的階段下拉調整，不會被這顆萬用選單誤動到。
+// 2026-09-01 改：原本分組（已面談還沒決定／已決定推不推／客戶端流程／結束）
+// 是顧問內部視角，跟企業用人單位需求表（portal/index.html TABLE_COLS）看到的
+// 5 個欄位（顧問階段／用人單位／面試階段／錄取／報到）完全是兩套說法,
+// 顧問選的時候看不出來選了會讓企業那邊哪一格變什麼——這就是「一目瞭然」的缺口。
+// 改成直接照企業端欄位名稱分組，選項旁邊就是答案，不用自己在心裡對應。
+// ⚠️ 對應關係抄自 portal/index.html 的 TABLE_COLS／currentInterviewStage，
+// 那邊改了這裡也要跟著改，不要各自維護一份。
+var CLIENT_COL_OF_STAGE = {
+  confirm: '顧問階段', stage1: '面試階段', stage2: '面試階段', stage3: '面試階段',
+  offer: '錄取', onboard: '報到',
+};
+// stage4／screening／care／backup 目前 portal 端沒有對應欄位（面試階段只收
+// stage1~stage3，見 portal/index.html 的 INTERVIEW_STAGE_OPTS）——選了這些，
+// 企業用人單位需求表上不會有任何變化，顧問要知道這件事，不是被蒙在鼓裡。
+// 2026-09-01 抽出來的共用函式——抽屜裡的萬用階段下拉、跟表格列內嵌的萬用
+// 階段下拉，呼叫的是同一支。兩種介面顧問都在測，選哪個定案前先讓兩邊都能用，
+// 不要為了「先做一個」就把邏輯寫死在某一個介面裡，之後要拆會很痛。
+function applyUniversalStage(c, appId, v, afterFn) {
+  var primaryPl = (c.placements || [])[0] || null;
+  if (v === 'to_review') {
+    if (!c.report_id) { afterFn(); return; }
+    api('/admin/clear-decision', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: c.report_id }) })
+      .then(afterFn);
+  } else if (v.indexOf('dec:') === 0) {
+    var k = v.slice(4);
+    api('/admin/decide-report', { method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ id: c.report_id, decision: k, app_id: appId,
+        app_status: k === 'forwarded' ? 'passed' : (k === 'rejected' ? 'rejected' : 'reported'), by: '顧問' }) })
+      .then(afterFn);
+  } else if (v.indexOf('stage:') === 0) {
+    api('/admin/set-manual-stage', { method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ application_id: appId, stage: v.slice(6), company_id: primaryPl ? primaryPl.company_id : null, by: '顧問' }) })
+      .then(afterFn);
+  } else if (v === 'closed') {
+    var reason = prompt('結案原因（會存內部記錄；若「同時通知候選人」，這段文字會直接送給候選人，不要出現性別/年齡/婚育等就服法禁止的字眼）：');
+    if (reason === null) { afterFn(); return; }
+    var notify = confirm('要同時發婉拒通知給候選人嗎？\n「確定」＝發通知（CLOSED_LOST）\n「取消」＝只記內部，不通知候選人（CLOSED_INTERNAL）');
+    api('/admin/mark-closed', { method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ application_id: appId, notify: notify, reason: reason }) })
+      .then(function (r) {
+        if (!r.ok) { alert(r.message || r.error || '結案失敗'); afterFn(); return; }
+        afterFn();
+      });
+  }
+}
+
 function universalStageOptionsHtml(c, primaryPl) {
   var cur = 'to_review';
   if (c.closed) cur = 'closed';
@@ -390,16 +475,27 @@ function universalStageOptionsHtml(c, primaryPl) {
     var now = (primaryPl.steps || []).find(function (s) { return s.now; });
     if (now) cur = 'stage:' + now.key;
   }
-  var groups = [
-    { grp: '已面談／電訪，還沒決定', opts: [{ k: 'to_review', lb: '等我決定' }] },
-    { grp: '已決定推不推', opts: [
-      { k: 'dec:forwarded', lb: '已轉客戶' }, { k: 'dec:need_more', lb: '需補問' }, { k: 'dec:rejected', lb: '不推薦' },
-    ] },
-  ];
+  // 依「會反映到企業端哪一格」分組；找不到對應欄位的，全部歸進
+  // 「企業端看不到（內部用）」，不要讓顧問誤以為選了企業那邊就會動。
+  var byCol = {};   // 企業端欄位名 -> [{k,lb}]
+  var internal = [{ k: 'to_review', lb: '等我決定' }];
   if (primaryPl) {
-    groups.push({ grp: '客戶端流程（' + primaryPl.client_name + '）', opts: (primaryPl.steps || []).map(function (s) { return { k: 'stage:' + s.key, lb: s.lb }; }) });
+    (primaryPl.steps || []).forEach(function (s) {
+      var col = CLIENT_COL_OF_STAGE[s.key];
+      var opt = { k: 'stage:' + s.key, lb: s.lb };
+      if (col) { (byCol[col] = byCol[col] || []).push(opt); }
+      else { internal.push(opt); }
+    });
   }
-  groups.push({ grp: '結束', opts: [{ k: 'closed', lb: '已結案' }] });
+  internal.push({ k: 'dec:need_more', lb: '需補問' }, { k: 'dec:rejected', lb: '不推薦' }, { k: 'closed', lb: '已結案' });
+
+  var groups = [];
+  if (primaryPl) groups.push({ grp: '→ 企業端『用人單位』欄', opts: [{ k: 'dec:forwarded', lb: '已轉客戶（推進企業）' }] });
+  ['顧問階段', '面試階段', '錄取', '報到'].forEach(function (col) {
+    if (byCol[col]) groups.push({ grp: '→ 企業端『' + col + '』欄' + (primaryPl ? '（' + primaryPl.client_name + '）' : ''), opts: byCol[col] });
+  });
+  groups.push({ grp: '企業端看不到（內部用，選了不會反映到用人需求表）', opts: internal });
+
   return groups.map(function (g) {
     return '<optgroup label="' + esc(g.grp) + '">' + g.opts.map(function (o) {
       return '<option value="' + o.k + '"' + (o.k === cur ? ' selected' : '') + '>' + esc(o.lb) + '</option>';
@@ -417,20 +513,35 @@ function reportDocHtml(c) {
     '<pre>' + esc(c.report_md || '') + '</pre></body></html>';
 }
 
+// 2026-09-01 改：「他回覆了」原本 to 寫死跟「挑出來」同一個字（待開發接觸），
+// 選了看起來像繞回起點，其實後端 status 有真的往前走（contacted→replied），
+// 只是沒有自己的名字。現在給它獨立的名字，並加「先留著（預備區）」——
+// 談過、目前沒缺，不等於不合適，不該被迫在「不合適」跟「無限等對方回」二選一。
 var SRC_ACTS = [
   { k: 'shortlisted', lb: '挑出來', to: '待開發接觸' },
   { k: 'contacted', lb: '我聯絡了', to: '等對方回' },
-  { k: 'replied', lb: '他回覆了', to: '待開發接觸' },
+  { k: 'replied', lb: '他回覆了', to: '已回覆待評估' },
+  { k: 'standby', lb: '先留著', to: '預備區' },
   { k: 'rejected', lb: '不合適', to: '已收尾' },
 ];
 var SRC_REASONS = ['地點不行', '資歷差太多', '職類根本不對', '找不到聯絡方式', '已有工作或沒意願', '其他'];
 
 // 主動開發、還沒轉正式應徵的人選，資料形狀（sourced_candidates）跟一般
 // application 卡差很多，沒有報告/進度條/推派客戶這些概念，用簡化版抽屜。
+// 2026-09-01 改：跟 openDrawer()（已應徵的完整卡）統一結構——
+// 「目前進度」永遠是第一個 section（狀態在哪、下一步能做什麼），
+// 「基本資料」永遠第二，順序固定，顧問不管從哪個分頁點進來看到的
+// 都是同一套版面，不用每次重新適應「這張卡怎麼跟剛剛那張長得不一樣」。
+// 徽章改叫 stageLabelOf(c)，不要自己另外算一份（那正是 replied 顯示
+// 錯誤的原因——這裡本來繞過了 stageLabelOf，自己寫死 tab 三元判斷）。
 function openSourcedDrawer(c) {
+  var st = stageLabelOf(c);
   var html = '<div class="dhead"><span class="nm">' + esc(c.name) + '</span>' +
-    '<span class="badge b-notstart">' + (c.tab === 'to_contact' ? '待開發接觸' : '等對方回') + '</span>' +
+    '<span class="badge ' + st.cls + '">' + st.lb + '</span>' +
     '<button class="x" id="dclose" type="button">×</button></div><div class="dbody">' +
+    '<div class="sec"><h4>目前進度</h4><p class="mut" style="margin:0 0 10px">這位人選還在人才庫，尚未推送給任何客戶——選下面的動作決定下一步。</p><div class="acts">' +
+    SRC_ACTS.map(function (a) { return '<button class="btn srcact" data-k="' + a.k + '" type="button">' + a.lb + '<span class="mut" style="display:block;font-size:10.5px">→ ' + a.to + '</span></button>'; }).join('') +
+    '</div></div>' +
     '<div class="sec"><h4>基本資料</h4><dl class="kv">' +
     '<dt>姓名</dt><dd>' + esc(c.name) + '</dd>' +
     '<dt>Email</dt><dd>' + (c.email ? '<a href="mailto:' + esc(c.email) + '">' + esc(c.email) + '</a>' : '<span class="mut">沒有</span>') + '</dd>' +
@@ -439,9 +550,6 @@ function openSourcedDrawer(c) {
     '<dt>來源</dt><dd>' + esc(c.source_channel || '—') + '</dd>' +
     '<dt>負責顧問</dt><dd>' + ownerAssignSelect(c.owner) + '</dd>' +
     '</dl></div>' +
-    '<div class="sec"><h4>下一步</h4><div class="acts">' +
-    SRC_ACTS.map(function (a) { return '<button class="btn srcact" data-k="' + a.k + '" type="button">' + a.lb + '<span class="mut" style="display:block;font-size:10.5px">→ ' + a.to + '</span></button>'; }).join('') +
-    '</div></div>' +
     '<div class="sec"><h4>發應徵連結給他</h4>' +
     (c.invite_token
       ? '<dl class="kv"><dt>已產生</dt><dd class="mut">' + esc(String(c.invite_at || '').slice(0, 16)) + '</dd>' +
@@ -508,7 +616,7 @@ function openDrawer(appId, kind) {
   var st = stageLabelOf(c);
   var extra = parseExtra(c.resume_extra_files);
   var html = '<div class="dhead"><span class="nm">' + esc(c.name) + '</span>' +
-    '<span class="badge ' + st.cls + '">' + st.lb + '</span>' +
+    '<span class="badge ' + st.cls + '">' + st.lb + '</span>' + hardGateBadge(c) +
     '<button class="edbtn" id="edtog" type="button">編輯 ✎</button>' +
     '<button class="x" id="dclose" type="button">×</button></div><div class="dbody">';
 
@@ -524,7 +632,14 @@ function openDrawer(appId, kind) {
     '<label class="edl" style="margin-top:0">萬用階段<span class="mut" style="font-weight:400">（涵蓋整個生命週期，對應表格式的每一欄）</span></label>' +
     '<select class="edi universalStageSel" style="max-width:260px">' + universalStageOptionsHtml(c, primaryPl0) + '</select>' +
     (c.placements || []).map(function (pl, i) {
-      return '<div style="margin-top:14px"><div style="font-weight:700;font-size:13px;margin-bottom:4px">' + esc(pl.client_name) + '</div>' + bar(pl, appId, i > 0) + '</div>';
+      // 2026-09-01 加：每個 placement 自己的「顧問不推薦」——掛在這一組
+      // （人選＋這家客戶）底下，不是整個人選都不推薦，也不擋之後重新推薦。
+      var nr = pl.advisor_not_recommended_at
+        ? '<div class="notrec" style="margin-top:6px;padding:8px 10px;border-radius:8px;background:#fdf1ef;color:var(--bad);font-size:12.5px">' +
+            '⚠ 顧問不推薦（' + esc(pl.advisor_not_recommended_reason || '') + '）　' +
+            '<button type="button" class="btn notrecClear" data-cid="' + esc(pl.company_id) + '" style="font-size:11.5px;padding:2px 8px;margin-left:4px">取消不推薦</button></div>'
+        : '<button type="button" class="btn notrecSet" data-cid="' + esc(pl.company_id) + '" style="font-size:11.5px;padding:3px 10px;margin-top:6px;color:var(--bad)">標不推薦（這家客戶這個職缺）</button>';
+      return '<div style="margin-top:14px"><div style="font-weight:700;font-size:13px;margin-bottom:4px">' + esc(pl.client_name) + '</div>' + bar(pl, appId, i > 0) + nr + '</div>';
     }).join('') +
     (!c.placements || !c.placements.length ? '<p class="mut" style="margin-top:10px">這位人選還沒被推送給任何客戶——選上面的「已轉客戶」會直接推送。</p>' : '') +
     '</div>';
@@ -787,36 +902,26 @@ function wireDrawer(c, appId) {
   // 不是另外發明一套新邏輯：等我決定＝清除報告決定、已轉客戶/需補問/不推薦＝
   // decide-report、客戶端流程＝set-manual-stage（只動主要那家客戶）、
   // 已結案＝mark-closed（一定要填理由，就服法紅線字眼會被擋下來）。
+  // 2026-09-01：抽成 applyUniversalStage() 共用函式——抽屜裡的下拉跟表格列
+  // 內嵌的下拉現在是同一份邏輯，兩邊都在測、選哪個定案前不能各自為政。
   var usel = document.querySelector('.universalStageSel');
-  if (usel) usel.onchange = function () {
-    var v = usel.value;
-    var primaryPl = (c.placements || [])[0] || null;
-    if (v === 'to_review') {
-      if (!c.report_id) { loadAndOpen(appId); return; }
-      api('/admin/clear-decision', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: c.report_id }) })
-        .then(function () { loadAndOpen(appId); });
-    } else if (v.indexOf('dec:') === 0) {
-      var k = v.slice(4);
-      api('/admin/decide-report', { method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ id: c.report_id, decision: k, app_id: appId,
-          app_status: k === 'forwarded' ? 'passed' : (k === 'rejected' ? 'rejected' : 'reported'), by: '顧問' }) })
-        .then(function () { loadAndOpen(appId); });
-    } else if (v.indexOf('stage:') === 0) {
-      api('/admin/set-manual-stage', { method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ application_id: appId, stage: v.slice(6), company_id: primaryPl ? primaryPl.company_id : null, by: '顧問' }) })
-        .then(function () { loadAndOpen(appId); });
-    } else if (v === 'closed') {
-      var reason = prompt('結案原因（會存內部記錄；若「同時通知候選人」，這段文字會直接送給候選人，不要出現性別/年齡/婚育等就服法禁止的字眼）：');
-      if (reason === null) { loadAndOpen(appId); return; }
-      var notify = confirm('要同時發婉拒通知給候選人嗎？\n「確定」＝發通知（CLOSED_LOST）\n「取消」＝只記內部，不通知候選人（CLOSED_INTERNAL）');
-      api('/admin/mark-closed', { method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ application_id: appId, notify: notify, reason: reason }) })
-        .then(function (r) {
-          if (!r.ok) { alert(r.message || r.error || '結案失敗'); loadAndOpen(appId); return; }
-          loadAndOpen(appId);
-        });
-    }
-  };
+  if (usel) usel.onchange = function () { applyUniversalStage(c, appId, usel.value, function () { loadAndOpen(appId); }); };
+  Array.prototype.forEach.call(document.querySelectorAll('.notrecSet'), function (b) {
+    b.onclick = function () {
+      var reason = prompt('不推薦的原因（企業用人單位需求表會看到這段話，寫給對方看的措辭）：');
+      if (!reason || !reason.trim()) return;
+      api('/admin/pipeline/forward-decision', { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ application_id: appId, company_id: b.dataset.cid, not_recommended: true, reason: reason.trim() }) })
+        .then(function (r) { if (!r.ok) { alert(r.error || '失敗'); return; } loadAndOpen(appId); });
+    };
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.notrecClear'), function (b) {
+    b.onclick = function () {
+      api('/admin/pipeline/forward-decision', { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ application_id: appId, company_id: b.dataset.cid, not_recommended: false }) })
+        .then(function (r) { if (!r.ok) { alert(r.error || '失敗'); return; } loadAndOpen(appId); });
+    };
+  });
   var rm = $('rptmore');
   if (rm) rm.onclick = function () { var r = $('rpt'); r.classList.toggle('open'); rm.textContent = r.classList.contains('open') ? '收合 ▴' : '展開全文 ▾'; };
   var rv = $('rptview');
@@ -1001,6 +1106,9 @@ function loadCards(cb) {
   api('/admin/pipeline/tracker?owner=' + encodeURIComponent(state.owner)).then(function (d) {
     if (!d.ok) { $('listWrap').innerHTML = '<div class="empty">讀取失敗：' + esc(d.error || '') + '</div>'; return; }
     CARDS = d.cards || [];
+    // 2026-09-01：screening 併進 to_review 這個 tab bucket——c.hard_gate 保留在卡片上，
+    // 徽章（hardGateBadge()）靠這個欄位區分，不是靠 tab 值區分。
+    CARDS.forEach(function (c) { if (c.tab === 'screening') c.tab = 'to_review'; });
     renderStats(); renderTabs(); renderList();
     if (cb) cb();
   }).catch(function () { $('listWrap').innerHTML = '<div class="empty">連線失敗</div>'; });
