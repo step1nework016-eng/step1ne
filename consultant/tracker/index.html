@@ -1,0 +1,679 @@
+<!doctype html>
+<html lang="zh-Hant">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>顧問人選追蹤｜顧問後台</title>
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<style>
+/* 沿用 consultant/pipeline 既有視覺語言＋Phase 1 demo（consultant/pipeline-preview）
+   驗證過的版面，這是正式版，接真實 /admin/pipeline/tracker 等端點。 */
+:root{--gold:#a67c3d;--ink:#23262d;--ink2:#4d5563;--ink3:#8a8d95;--line:#eee7db;--soft:#faf8f3;--bg:#f4f1ea;--ok:#2f8f5b;--bad:#c0392b;--warn:#8a6100}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 -apple-system,"Noto Sans TC",sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+header{background:#fff;border-bottom:1px solid var(--line);padding:14px 0}
+header .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header img{height:26px}
+nav{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+nav a{font-size:14px;text-decoration:none;color:var(--ink2);padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:#fff}
+nav a.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.gate{max-width:380px;margin:16vh auto;background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px}
+.gate input{width:100%;font:inherit;padding:11px 13px;border:1px solid var(--line);border-radius:10px;margin:12px 0}
+.gate button{width:100%;font:inherit;font-weight:700;background:var(--gold);color:#fff;border:0;border-radius:999px;padding:12px}
+.mut{color:var(--ink3);font-size:13px}
+main{padding:22px 0 80px}
+
+.funnel-wrap{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px 16px 8px;margin-bottom:18px}
+.funnel-title{font-size:12px;color:var(--ink3);font-weight:700;letter-spacing:.06em;margin-bottom:14px}
+.funnel{max-width:520px;margin:0 auto}
+.funnel-seg{position:relative;height:52px;margin-bottom:2px}
+.funnel-seg .shape{position:absolute;inset:0;background:linear-gradient(180deg,var(--gold),#c99a4f)}
+.funnel-seg:nth-child(2) .shape{filter:brightness(.94)}
+.funnel-seg:nth-child(3) .shape{filter:brightness(.88)}
+.funnel-seg:nth-child(4) .shape{filter:brightness(.82)}
+.funnel-seg .txt{position:relative;z-index:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center}
+.funnel-seg .txt b{font-size:18px;font-variant-numeric:tabular-nums;line-height:1.1}
+.funnel-seg .txt span{font-size:11px;opacity:.92;margin-top:1px}
+
+.who{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.who select{font:inherit;font-size:15px;font-weight:700;padding:9px 34px 9px 15px;border:1px solid var(--line);border-radius:999px;background:#fff url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238a8d95' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 14px center;appearance:none;color:var(--ink);cursor:pointer}
+
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px}
+@media (max-width:900px){.stats{grid-template-columns:repeat(3,1fr)}}
+.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.stat .lb{font-size:12px;color:var(--ink3);margin-bottom:6px}
+.stat .v{font-size:26px;font-weight:800;font-variant-numeric:tabular-nums}
+.stat.hot .v{color:var(--bad)}
+
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.tab{position:relative;font:inherit;font-size:13.5px;font-weight:600;color:var(--ink2);background:#fff;border:1px solid var(--line);padding:7px 15px;border-radius:999px;cursor:pointer;display:flex;align-items:center;gap:7px}
+.tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.tab .n{font-variant-numeric:tabular-nums;opacity:.72}
+.tabsSel{display:none;width:100%;font:inherit;font-size:14px;font-weight:600;padding:10px 34px 10px 15px;border:1px solid var(--line);border-radius:999px;background:#fff url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238a8d95' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 14px center;appearance:none;color:var(--ink);cursor:pointer;margin-bottom:14px}
+@media (max-width:640px){.tabs{display:none}.tabsSel{display:block}}
+
+.toolbar{display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.toolbar input[type=search]{font:inherit;font-size:13.5px;padding:8px 13px;border:1px solid var(--line);border-radius:999px;flex:1 1 220px;min-width:160px;background:#fff}
+.viewsw{display:flex;gap:0;border:1px solid var(--line);border-radius:999px;overflow:hidden;margin-left:auto}
+.viewsw button{font:inherit;font-size:13px;font-weight:600;border:0;background:#fff;color:var(--ink2);padding:7px 16px;cursor:pointer}
+.viewsw button.on{background:var(--ink);color:#fff}
+.btn{font:inherit;font-size:13px;font-weight:600;border-radius:999px;padding:6px 15px;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink2)}
+.btn.p{background:var(--gold);color:#fff;border-color:var(--gold)}
+.btn.d{color:var(--bad);border-color:#f0d4cf}
+
+.tbl-wrap{overflow-x:auto;background:#fff;border:1px solid var(--line);border-radius:12px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--ink3);font-size:12px;font-weight:600}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--soft)}
+tbody tr:last-child td{border-bottom:0}
+.stagecell{text-align:center;color:var(--ink3);font-variant-numeric:tabular-nums}
+.stagecell.now{color:var(--gold);font-weight:700}
+.stagecell.done{color:var(--ok);font-weight:700}
+.nmwrap{display:inline-flex;align-items:center;gap:5px}
+.nmwrap .dupflag{color:var(--warn);cursor:help}
+.badge{display:inline-block;font-size:11.5px;font-weight:700;border-radius:999px;padding:3px 10px}
+.b-undecided{background:#fdf0d8;color:#8a5a1a}
+.b-forward{background:#dff2e3;color:#1f6b34}
+.b-more{background:#e6eefb;color:#24528f}
+.b-no{background:#f2e6e6;color:#8a3333}
+.b-notstart{background:#f0efec;color:#6b6e77}
+
+.dash-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.dash-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 15px;cursor:pointer;min-width:0}
+.dash-card:hover{border-color:var(--gold)}
+.dash-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.dash-card-meta{font-size:11.5px;color:var(--ink3);margin-top:8px}
+.dash-card-foot{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid var(--line);font-size:12px;color:var(--ink2)}
+.dash-card-foot .hint{color:var(--gold);font-weight:600}
+
+.empty{background:#fff;border:1px dashed var(--line);border-radius:14px;padding:30px;text-align:center;color:var(--ink3)}
+
+.dmask{position:fixed;inset:0;background:rgba(20,22,26,.5);z-index:80;display:none;justify-content:flex-end}
+.dmask.show{display:flex}
+.dwrap{background:var(--bg);width:min(640px,100%);height:100%;overflow-y:auto;box-shadow:-8px 0 32px rgba(0,0,0,.12)}
+.dhead{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:14px 20px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;z-index:2}
+.dhead .nm{font-size:19px;font-weight:700}
+.edbtn{margin-left:auto;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;border:1px solid var(--line);background:var(--soft);color:var(--ink2);border-radius:999px;padding:4px 13px}
+.dhead .x{margin-left:8px;font:inherit;font-size:22px;line-height:1;background:none;border:0;cursor:pointer;color:var(--ink3);padding:0 4px}
+.dbody{padding:16px 20px 60px}
+.sec{background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 16px;margin-bottom:11px}
+.sec h4{margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--ink3);display:flex;align-items:center;gap:10px}
+.sec .subhint{font-size:11.5px;color:var(--ink3);font-weight:400;letter-spacing:0;margin:-4px 0 8px;display:block}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:13.5px}
+.kv dt{color:var(--ink3);white-space:nowrap}
+.kv dd{margin:0;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.kv a{color:var(--gold);text-decoration:none}
+.bar{display:flex;align-items:flex-start;margin:4px 0 2px;overflow-x:auto;padding-bottom:4px}
+.stp{flex:1 1 0;min-width:56px;text-align:center;position:relative;cursor:pointer}
+.dot{width:11px;height:11px;border-radius:50%;background:#e4ddcf;margin:0 auto 5px;position:relative;z-index:1}
+.stp.done .dot{background:var(--ok)}
+.stp.now .dot{background:var(--gold);box-shadow:0 0 0 4px rgba(166,124,61,.18)}
+.stp:not(:first-child):before{content:"";position:absolute;left:-50%;top:5px;width:100%;height:1px;background:#e4ddcf}
+.stp.done:before,.stp.now:before{background:var(--ok)}
+.stp .lb{font-size:11px;line-height:1.35;color:var(--ink3)}
+.stp.now .lb{color:var(--gold);font-weight:700}
+.stp.done .lb{color:var(--ink2)}
+.rpt{font-size:13.5px;line-height:1.8;white-space:pre-wrap;overflow-wrap:anywhere;max-height:160px;overflow-y:auto;border-top:1px solid var(--line);padding-top:10px;margin-top:2px}
+.rpt.open{max-height:none}
+.more{font:inherit;font-size:12.5px;font-weight:600;color:var(--gold);background:none;border:0;cursor:pointer;padding:6px 0 0}
+.pill{display:inline-block;font-size:11.5px;font-weight:700;border-radius:999px;padding:1px 9px;border:1px solid var(--line);background:var(--soft);color:var(--ink2)}
+.pill.ok{background:#e8f5ee;border-color:#bfe0cd;color:var(--ok)}
+.pill.warn{background:#fdf3e0;border-color:#efdcb6;color:var(--warn)}
+.pill.bad{background:#fdecea;border-color:#f3cdc7;color:var(--bad)}
+.edl{display:block;font-size:11.5px;color:var(--ink3);margin:9px 0 3px;font-weight:600}
+.edi{width:100%;font:inherit;font-size:13.5px;padding:7px 11px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);resize:vertical}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px;align-items:center}
+select.edi{appearance:none;background:#fff url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238a8d95' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 12px center}
+.ntv{font-size:13.5px;line-height:1.8;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ink2)}
+</style>
+
+<div id="gate" class="gate" hidden>
+  <b>顧問後台</b>
+  <p class="mut" style="margin:6px 0 0">需要存取權杖。這組權杖等同密碼，不要外傳。</p>
+  <input id="tok" type="password" placeholder="ADMIN_TOKEN" autocomplete="off">
+  <button id="enter" type="button">進入</button>
+  <p id="gerr" class="mut" style="color:#b4552e;margin:12px 0 0" hidden></p>
+</div>
+
+<div id="app" hidden>
+  <header><div class="wrap">
+    <img src="/assets/step1ne-logo.png" alt="Step1ne"><b>顧問人選追蹤</b>
+    <nav>
+      <a href="/consultant/pipeline/">舊：我的案子</a>
+      <a href="/consultant/reports/">舊：初篩報告</a>
+      <a class="on" href="#">顧問人選追蹤（新）</a>
+    </nav>
+  </div></header>
+
+  <main class="wrap">
+    <div class="funnel-wrap" id="funnelWrap"></div>
+    <div class="who">
+      <select id="ownerSel" aria-label="顧問"></select>
+      <span class="mut" id="ownerHint"></span>
+    </div>
+    <div class="stats" id="stats"></div>
+    <div class="tabs" id="tabs"></div>
+    <select class="tabsSel" id="tabsSel" aria-label="篩選階段"></select>
+    <div class="toolbar">
+      <input type="search" id="q" placeholder="搜尋姓名／Email／電話">
+      <button class="btn p" id="ncOpen" type="button" style="white-space:nowrap">＋新增人選</button>
+      <div class="viewsw">
+        <button id="vTable" class="on" type="button">表格式</button>
+        <button id="vCard" type="button">卡片式</button>
+      </div>
+    </div>
+    <div id="listWrap"><div class="empty">載入中…</div></div>
+  </main>
+</div>
+
+<div class="dmask" id="dmask"><div class="dwrap" id="dwrap"></div></div>
+<div class="dmask" id="ncMask"><div class="dwrap" id="ncWrap"></div></div>
+<div class="dmask" id="rptMask">
+  <div class="dwrap" style="width:min(760px,100%)">
+    <div class="dhead"><span class="nm">報告預覽</span><button class="x" id="rptMaskClose" type="button">×</button></div>
+    <iframe id="rptFrame" style="width:100%;height:calc(100% - 53px);border:0"></iframe>
+  </div>
+</div>
+
+<script>
+var API = 'https://step1ne-recruit-api.aiagentg888.workers.dev';
+var KEY = 's1ne_admin_tok';
+var tok = localStorage.getItem(KEY) || '';
+var $ = function (i) { return document.getElementById(i); };
+function api(p, o) {
+  o = o || {}; o.headers = Object.assign({ authorization: 'Bearer ' + tok }, o.headers || {});
+  return fetch(API + p, o).then(function (r) { return r.json(); });
+}
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+  return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+}); }
+function parseExtra(s) { try { return JSON.parse(s || '[]'); } catch (e) { return []; } }
+
+var DEC = { forwarded: { lb: '已轉客戶', cls: 'b-forward' }, need_more: { lb: '需補問', cls: 'b-more' }, rejected: { lb: '不推薦', cls: 'b-no' } };
+var TABS = [
+  { k: '', lb: '全部' },
+  { k: 'screening', lb: '待審核（硬性條件）' },
+  { k: 'to_review', lb: '等我決定' },
+  { k: 'client_side', lb: '客戶手上' },
+  { k: 'closing', lb: '快成交' },
+  { k: 'done', lb: '已結案' },
+];
+var CARDS = [];
+var state = { tab: '', view: 'table', q: '', owner: safeGet('s1ne_pp_owner2') || 'all' };
+function safeGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function safeSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+
+// tab 是前端依卡片欄位推導出來的（後端 /admin/pipeline/tracker 只回傳原始
+// 布林值/decision/steps，不直接回傳分類），跟正式版 /admin/pipeline 板子
+// 的分類邏輯對齊，但這裡涵蓋的是「已經有 application」的人選——純粹還在
+// 人才池、還沒被顧問挑出來聯絡的人選（要我接觸／等對方回）這份清單暫時
+// 沒有涵蓋，那些人請繼續用舊版「我的案子」，這是這次上線先講清楚的範圍。
+function deriveTab(c) {
+  if (c.closed) return 'done';
+  if (c.hard_gate) return 'screening';
+  if (c.decision === 'rejected') return 'done';
+  if (!c.pushed) return 'to_review';
+  var steps = c.steps || [], idx = c.effective_index;
+  if (idx >= steps.length - 2) return 'closing';
+  return 'client_side';
+}
+function stageLabelOf(c) {
+  if (c.closed) return { lb: '已結案', cls: 'b-no' };
+  if (c.hard_gate) return { lb: '待審核', cls: 'b-undecided' };
+  if (c.decision && DEC[c.decision]) return DEC[c.decision];
+  var now = (c.steps || []).find(function (s) { return s.now; });
+  if (now) return { lb: now.lb, cls: 'b-forward' };
+  return { lb: '—', cls: 'b-notstart' };
+}
+function tabCount(k) {
+  var base = ownerScoped();
+  if (!k) return base.length;
+  return base.filter(function (c) { return deriveTab(c) === k; }).length;
+}
+function ownerScoped() { return CARDS; } // owner 篩選已經在後端 API 做了，這裡不用再篩一次
+function filtered() {
+  var q = state.q.trim().toLowerCase();
+  return ownerScoped().filter(function (c) {
+    if (state.tab && deriveTab(c) !== state.tab) return false;
+    if (!q) return true;
+    return (c.name || '').toLowerCase().indexOf(q) >= 0
+      || (c.email || '').toLowerCase().indexOf(q) >= 0
+      || (c.phone || '').replace(/\D/g, '').indexOf(q.replace(/\D/g, '')) >= 0;
+  });
+}
+
+function renderFunnel() {
+  var base = ownerScoped();
+  var stages = [
+    ['顧問接觸中', base.length],
+    ['AI阿財面談完畢', base.filter(function (c) { return c.ai_done; }).length],
+    ['顧問評估中', base.filter(function (c) { return c.evaluated; }).length],
+    ['已推送客戶', base.filter(function (c) { return c.pushed; }).length],
+    ['已錄取', base.filter(function (c) { return (c.steps || []).some(function (s) { return s.key === 'offer' && (s.done || s.now); }); }).length],
+    ['已到職', base.filter(function (c) { return (c.steps || []).some(function (s) { return s.key === 'onboard' && (s.done || s.now); }); }).length],
+  ];
+  var max = Math.max(1, stages[0][1]);
+  var ratios = stages.map(function (s) { return Math.max(0.22, s[1] / max); });
+  $('funnelWrap').innerHTML = '<div class="funnel-title">招募漏斗</div><div class="funnel">' +
+    stages.map(function (s, i) {
+      var topR = ratios[i], botR = i < stages.length - 1 ? ratios[i + 1] : ratios[i];
+      var topInset = (1 - topR) * 50, botInset = (1 - botR) * 50;
+      var pct = max ? Math.round(s[1] / max * 100) : 0;
+      return '<div class="funnel-seg"><div class="shape" style="clip-path:polygon(' +
+        topInset + '% 0,' + (100 - topInset) + '% 0,' + (100 - botInset) + '% 100%,' + botInset + '% 100%)"></div>' +
+        '<div class="txt"><b>' + s[1] + '</b><span>' + esc(s[0]) + (i > 0 ? '　·　' + pct + '%' : '') + '</span></div></div>';
+    }).join('') + '</div>';
+}
+function renderStats() {
+  renderFunnel();
+  var items = TABS.slice(1).map(function (t) { return [t.lb, tabCount(t.k)]; });
+  $('stats').innerHTML = items.map(function (it) {
+    return '<div class="stat' + (it[1] > 0 && (it[0] === '等我決定' || it[0] === '待審核（硬性條件）') ? ' hot' : '') + '">' +
+      '<div class="lb">' + it[0] + '</div><div class="v">' + it[1] + '</div></div>';
+  }).join('');
+}
+function renderTabs() {
+  $('tabs').innerHTML = TABS.map(function (t) {
+    return '<button type="button" class="tab' + (state.tab === t.k ? ' on' : '') + '" data-k="' + t.k + '">' + t.lb + '<span class="n">' + tabCount(t.k) + '</span></button>';
+  }).join('');
+  Array.prototype.forEach.call($('tabs').querySelectorAll('.tab'), function (b) {
+    b.onclick = function () { state.tab = b.dataset.k; renderTabs(); renderList(); };
+  });
+  var sel = $('tabsSel');
+  sel.innerHTML = TABS.map(function (t) { return '<option value="' + t.k + '"' + (state.tab === t.k ? ' selected' : '') + '>' + t.lb + '（' + tabCount(t.k) + '）</option>'; }).join('');
+  sel.onchange = function () { state.tab = sel.value; renderTabs(); renderList(); };
+}
+function renderList() {
+  var list = filtered();
+  var el = $('listWrap');
+  if (!list.length) { el.innerHTML = '<div class="empty">目前沒有符合條件的人選</div>'; return; }
+  if (state.view === 'table') {
+    el.innerHTML = '<div class="tbl-wrap"><table><thead><tr>' +
+      '<th>人選</th><th>目前應徵職缺</th><th>客戶</th>' +
+      '<th>AI阿財面談完畢</th><th>顧問評估中</th><th>推送客戶</th><th>目前狀態</th>' +
+      '</tr></thead><tbody>' +
+      list.map(function (c) {
+        var st = stageLabelOf(c);
+        return '<tr data-id="' + c.application_id + '">' +
+          '<td><span class="nmwrap"><b>' + esc(c.name) + '</b>' +
+            (c.dup_notice ? '<span class="dupflag" title="' + esc(c.dup_notice) + '">⚠</span>' : '') + '</span></td>' +
+          '<td>' + esc(c.job_title) + '</td>' +
+          '<td>' + esc(c.client_name) + '</td>' +
+          '<td class="stagecell ' + (c.ai_done ? 'done' : '') + '">' + (c.ai_done ? '✓' : '—') + '</td>' +
+          '<td class="stagecell ' + (c.evaluated ? 'done' : '') + '">' + (c.evaluated ? '✓' : '—') + '</td>' +
+          '<td class="stagecell ' + (c.pushed ? 'done' : '') + '">' + (c.pushed ? '✓' : '—') + '</td>' +
+          '<td><span class="badge ' + st.cls + '">' + st.lb + '</span></td>' +
+          '</tr>';
+      }).join('') + '</tbody></table></div>';
+  } else {
+    el.innerHTML = '<div class="dash-cards">' + list.map(function (c) {
+      var st = stageLabelOf(c);
+      return '<div class="dash-card" data-id="' + c.application_id + '">' +
+        '<div class="dash-card-top"><div><b>' + esc(c.name) + '</b><div style="font-size:12px;color:var(--ink3)">' + esc(c.job_title) + '</div></div>' +
+        '<span class="badge ' + st.cls + '">' + st.lb + '</span></div>' +
+        '<div class="dash-card-meta">' + esc(c.client_name) + '　·　' + esc(c.phone || c.email || '') + '</div>' +
+        '<div class="dash-card-foot"><span>' + esc(c.source_channel || '') + '</span><span class="hint">點擊查看完整人選資料 →</span></div></div>';
+    }).join('') + '</div>';
+  }
+  Array.prototype.forEach.call(el.querySelectorAll('[data-id]'), function (row) {
+    row.onclick = function () { openDrawer(row.dataset.id); };
+  });
+}
+
+function bar(pl, appId) {
+  var steps = pl.steps || [];
+  if (!steps.length) return '<p class="mut" style="margin:0">還沒有進度資料。</p>';
+  return '<p class="mut" style="margin:0 0 6px">點圓點可以直接切換階段。</p>' +
+    '<div class="bar">' + steps.map(function (s, i) {
+      return '<div class="stp ' + (s.done ? 'done' : (s.now ? 'now' : '')) + '" data-key="' + s.key + '" data-cid="' + (pl.company_id || '') + '" data-app="' + appId + '">' +
+        '<div class="dot"></div><div class="lb">' + esc(s.lb) + '</div></div>';
+    }).join('') + '</div>';
+}
+
+function reportDocHtml(c) {
+  var title = esc(c.name) + ' → ' + esc(c.job_title);
+  return '<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><title>初篩報告｜' + title + '</title><style>' +
+    'body{font-family:-apple-system,"PingFang TC",sans-serif;max-width:720px;margin:40px auto;padding:0 20px;color:#16202e;line-height:1.7}' +
+    'h1{font-size:19px;margin:0 0 4px}.meta{color:#7c8899;font-size:13px;margin-bottom:24px}' +
+    'pre{white-space:pre-wrap;font-family:inherit;font-size:14px;background:#f6f8fb;border:1px solid #dfe4ec;border-radius:10px;padding:18px 20px}' +
+    '</style></head><body><h1>初篩報告　' + title + '</h1><div class="meta">Step1ne 德仁管理顧問</div>' +
+    '<pre>' + esc(c.report_md || '') + '</pre></body></html>';
+}
+
+function openDrawer(appId) {
+  var c = CARDS.find(function (x) { return x.application_id === appId; });
+  if (!c) return;
+  var st = stageLabelOf(c);
+  var extra = parseExtra(c.resume_extra_files);
+  var html = '<div class="dhead"><span class="nm">' + esc(c.name) + '</span>' +
+    '<span class="badge ' + st.cls + '">' + st.lb + '</span>' +
+    '<button class="edbtn" id="edtog" type="button">編輯 ✎</button>' +
+    '<button class="x" id="dclose" type="button">×</button></div><div class="dbody">';
+
+  if (c.dup_notice) {
+    html += '<div class="sec" style="border-left:3px solid var(--warn);background:#fdf6e9">' +
+      '<h4 style="color:var(--warn)">⚠ 疑似同一人</h4><p style="margin:0;font-size:13px;color:var(--ink2)">' + esc(c.dup_notice) + '</p></div>';
+  }
+
+  // 目前進度：這個 application 底下每一家客戶各自的進度（placements），
+  // 一家客戶一條進度條，各自獨立，改其中一家不影響另一家。
+  html += '<div class="sec"><h4>目前進度</h4>' +
+    (c.placements || []).map(function (pl) {
+      return '<div style="margin-bottom:14px"><div style="font-weight:700;font-size:13px;margin-bottom:4px">' + esc(pl.client_name) + '</div>' + bar(pl, appId) + '</div>';
+    }).join('') +
+    (!c.placements || !c.placements.length ? '<p class="mut" style="margin:0">這位人選還沒被推送給任何客戶。</p>' : '') +
+    '</div>';
+
+  html += '<div class="sec" id="edsec"><h4>基本資料</h4><div id="viewbox"><dl class="kv">' +
+    '<dt>姓名</dt><dd>' + esc(c.name) + '</dd>' +
+    '<dt>Email</dt><dd><a href="mailto:' + esc(c.email) + '">' + esc(c.email) + '</a></dd>' +
+    '<dt>電話</dt><dd><a href="tel:' + esc(c.phone) + '">' + esc(c.phone) + '</a></dd>' +
+    '<dt>應徵職缺</dt><dd>' + esc(c.job_title) + '</dd>' +
+    '<dt>期望待遇</dt><dd>' + esc(c.expected_salary || '—') + '</dd>' +
+    '<dt>可到職</dt><dd>' + esc(c.available_date || '—') + '</dd>' +
+    '<dt>履歷</dt><dd>' + resumeLinksHtml(c, extra) + '</dd>' +
+    '<dt>聯絡來源</dt><dd>' + esc(c.source_channel || '—') + '</dd>' +
+    '<dt>負責顧問</dt><dd>' + esc(c.owner_name || '未指派') + '</dd>' +
+    '</dl></div><div id="edbox" hidden>' +
+    '<label class="edl">姓名</label><input class="edi" id="edName" value="' + esc(c.name) + '">' +
+    '<label class="edl">Email</label><input class="edi" id="edEmail" value="' + esc(c.email) + '">' +
+    '<label class="edl">電話</label><input class="edi" id="edPhone" value="' + esc(c.phone) + '">' +
+    '<label class="edl">期望待遇</label><input class="edi" id="edSalary" value="' + esc(c.expected_salary || '') + '">' +
+    '<label class="edl">可到職</label><input class="edi" id="edAvail" value="' + esc(c.available_date || '') + '">' +
+    '<label class="edl">聯絡來源</label><select class="edi" id="edSource">' +
+      SOURCE_CHANNEL_OPTS.map(function (o) { return '<option' + (o === c.source_channel ? ' selected' : '') + '>' + esc(o) + '</option>'; }).join('') +
+    '</select>' +
+    '<label class="edl">履歷（最多 3 份）</label>' + resumeListHtml(c, extra) +
+    (((extra.length + (c.resume_file_id ? 1 : 0)) < 3)
+      ? '<div id="resumeDz" style="border:1.5px dashed var(--line);border-radius:10px;padding:16px;text-align:center;font-size:12.5px;color:var(--ink3);cursor:pointer;margin-top:6px">拖曳履歷檔案到這裡，或點擊選擇檔案</div>'
+      : '<p class="mut" style="margin:6px 0 0">已達 3 個檔案上限，要換檔案請先刪除其中一個。</p>') +
+    '<div class="acts"><button class="btn p" id="edsave" type="button">儲存</button>' +
+    '<button class="btn" id="edcancel" type="button">取消</button><span class="mut" id="edMsg"></span></div></div>' +
+    '<label class="edl" style="margin-top:12px">顧問備註</label>' +
+    '<div class="ntv">' + (c.consultant_note ? esc(c.consultant_note) : '<span class="mut">尚未填寫</span>') + '</div></div>';
+
+  html += '<div class="sec"><h4>電洽內容<span class="subhint" style="margin:0">貼上或上傳這次通話內容，會排入 AI 自動整理成跟阿財面談報告同格式的摘要（本機排程約 5 分鐘內處理，需要本機常駐程式在跑）</span></h4>' +
+    '<textarea class="edi" id="callText" rows="3" placeholder="打字轉錄這次通話重點，或直接貼逐字稿"></textarea>' +
+    '<div id="callDz" style="border:1.5px dashed var(--line);border-radius:10px;padding:16px;text-align:center;font-size:12.5px;color:var(--ink3);cursor:pointer;margin-top:6px">或拖曳電洽紀錄檔案（doc/docx/txt/md/html/pdf/excel）</div>' +
+    '<div class="mut" id="callFileMsg" style="margin-top:4px"></div>' +
+    '<div class="acts"><button class="btn p" id="callGo" type="button">送出</button></div></div>';
+
+  if (c.hard_gate) {
+    html += '<div class="sec" style="border-left:3px solid var(--warn)"><h4 style="color:var(--warn)">待審核（客戶硬性條件）</h4>' +
+      '<p style="margin:0;font-size:13px">這位人選卡在客戶硬性條件審核，需要顧問人工核實後才會進入一般流程。</p></div>';
+  }
+
+  if (c.report_md) {
+    html += '<div class="sec"><h4>初篩報告　' +
+      (c.decision && DEC[c.decision] ? '<span class="pill ' + (c.decision === 'forwarded' ? 'ok' : (c.decision === 'rejected' ? 'bad' : 'warn')) + '">' + DEC[c.decision].lb + '</span>' : '<span class="pill">還沒決定推不推</span>') +
+      '</h4><div class="acts" style="margin-bottom:10px">' +
+      '<button class="btn p decbtn" data-k="forwarded"' + (c.decision === 'forwarded' ? ' disabled style="opacity:.45"' : '') + '>推薦給客戶</button>' +
+      '<button class="btn decbtn" data-k="need_more"' + (c.decision === 'need_more' ? ' disabled style="opacity:.45"' : '') + '>需補問</button>' +
+      '<button class="btn d decbtn" data-k="rejected"' + (c.decision === 'rejected' ? ' disabled style="opacity:.45"' : '') + '>婉拒</button>' +
+      '</div><div class="rpt" id="rpt">' + esc(c.report_md) + '</div>' +
+      '<div class="acts"><button class="more" id="rptmore" type="button">展開全文 ▾</button>' +
+      '<button class="btn p" id="rptview" type="button">👁 預覽報告</button></div></div>';
+  }
+
+  (c.placements || []).forEach(function (pl) {
+    html += '<div class="sec"><h4>' + esc(pl.client_name) + '</h4>' +
+      '<label class="edl">給客戶的 LINE ID</label><input class="edi fdLine" data-cid="' + pl.company_id + '" value="' + esc(pl.line_id_given || '') + '" placeholder="例：abc1234">' +
+      '<label class="edl" style="color:var(--warn)">給客戶看的摘要</label>' +
+      '<textarea class="edi fdNote" data-cid="' + pl.company_id + '" rows="3" style="background:#fdf6e9;border-color:#e8d5ab">' + esc(pl.client_note || '') + '</textarea>' +
+      '<div class="acts"><button class="btn p fdSave" data-cid="' + pl.company_id + '" type="button">存這家的資料</button>' +
+      '<button class="btn d unfwd" data-cid="' + pl.company_id + '" type="button">✕ 取消推薦這家</button>' +
+      '<span class="mut fdMsg" data-cid="' + pl.company_id + '"></span></div></div>';
+  });
+
+  html += '<div class="sec"><h4>推派這位人選給其他客戶</h4>' +
+    '<label class="edl">推去哪家客戶</label><select class="edi" id="fwCompany"><option value="">載入中…</option></select>' +
+    '<div class="acts" style="margin-top:10px"><button class="btn p" id="fwGo" type="button">推薦</button><span class="mut" id="fwMsg"></span></div></div>';
+
+  html += '</div>';
+  $('dwrap').innerHTML = html;
+  $('dmask').classList.add('show');
+  wireDrawer(c, appId);
+}
+
+function resumeLinksHtml(c, extra) {
+  var links = [];
+  if (c.resume_file_id) links.push('<a href="#" class="dlres" data-f="' + esc(c.resume_file_id) + '">下載</a>');
+  extra.forEach(function (f) { links.push('<a href="#" class="dlres" data-f="' + esc(f.file_id) + '">' + esc(f.filename) + '</a>'); });
+  return links.length ? links.join('　') : '<span class="mut">尚未提供</span>';
+}
+function resumeListHtml(c, extra) {
+  var rows = [];
+  if (c.resume_file_id) rows.push({ file_id: c.resume_file_id, filename: '主要履歷' });
+  extra.forEach(function (f) { rows.push(f); });
+  if (!rows.length) return '';
+  return '<div style="margin:6px 0">' + rows.map(function (f) {
+    return '<div style="display:flex;align-items:center;gap:8px;font-size:13px;padding:5px 0;border-bottom:1px solid var(--line)">' +
+      '<span style="flex:1;overflow-wrap:anywhere">' + esc(f.filename) + '</span>' +
+      '<button class="btn d resumeDel" type="button" data-f="' + esc(f.file_id) + '" style="padding:2px 10px;font-size:11.5px">刪除</button></div>';
+  }).join('') + '</div>';
+}
+
+var SOURCE_CHANNEL_OPTS = ['不指定', '朋友介紹', 'LinkedIn', '104', '1111', 'Threads', 'Facebook', 'Dcard', 'Step1ne官網', 'LINE OA', '人才池/獵頭資料庫', '其他'];
+var FORWARD_COMPANIES_CACHE = null;
+
+function wireDrawer(c, appId) {
+  $('dclose').onclick = closeDrawer;
+  $('edtog').onclick = function () {
+    var box = $('edbox'), vb = $('viewbox');
+    var open = box.hidden; box.hidden = !open; vb.hidden = open;
+    $('edtog').textContent = open ? '收起' : '編輯 ✎';
+  };
+  var cn = $('edcancel'); if (cn) cn.onclick = function () { openDrawer(appId); };
+  var sv = $('edsave');
+  if (sv) sv.onclick = function () {
+    sv.disabled = true; $('edMsg').textContent = '儲存中…';
+    api('/admin/application/update', { method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ id: appId, name: $('edName').value, email: $('edEmail').value, phone: $('edPhone').value,
+        expected_salary: $('edSalary').value, available_date: $('edAvail').value, source_channel: $('edSource').value }) })
+    .then(function (r) { sv.disabled = false; if (!r.ok) { $('edMsg').textContent = r.error || '儲存失敗'; return; } loadAndOpen(appId); })
+    .catch(function () { sv.disabled = false; $('edMsg').textContent = '連線失敗'; });
+  };
+  Array.prototype.forEach.call(document.querySelectorAll('.dlres'), function (a) {
+    a.onclick = function (ev) {
+      ev.preventDefault(); var t = a.textContent; a.textContent = '下載中…';
+      fetch(API + '/admin/file/' + encodeURIComponent(a.dataset.f), { headers: { authorization: 'Bearer ' + tok } })
+        .then(function (rs) { if (!rs.ok) throw new Error('下載失敗'); return rs.blob(); })
+        .then(function (b) { var u = URL.createObjectURL(b), el = document.createElement('a'); el.href = u; el.download = 'resume'; document.body.appendChild(el); el.click(); el.remove(); setTimeout(function () { URL.revokeObjectURL(u); }, 2000); a.textContent = t; })
+        .catch(function () { a.textContent = '下載失敗'; });
+    };
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.resumeDel'), function (b) {
+    b.onclick = function () {
+      if (!confirm('確定要移除這份履歷嗎？')) return;
+      api('/admin/application/resume/remove', { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ application_id: appId, file_id: b.dataset.f }) })
+      .then(function () { loadAndOpen(appId); });
+    };
+  });
+  var dz = $('resumeDz');
+  if (dz) {
+    var addFile = function (f) {
+      var reader = new FileReader();
+      reader.onload = function () {
+        var b64 = reader.result.split(',')[1];
+        api('/admin/application/resume/add', { method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ application_id: appId, b64: b64, name: f.name, mime: f.type }) })
+        .then(function (r) { if (!r.ok) alert(r.error || '上傳失敗'); loadAndOpen(appId); });
+      };
+      reader.readAsDataURL(f);
+    };
+    dz.onclick = function () { var inp = document.createElement('input'); inp.type = 'file'; inp.onchange = function () { if (inp.files[0]) addFile(inp.files[0]); }; inp.click(); };
+    dz.ondragover = function (e) { e.preventDefault(); dz.style.borderColor = 'var(--gold)'; };
+    dz.ondragleave = function () { dz.style.borderColor = 'var(--line)'; };
+    dz.ondrop = function (e) { e.preventDefault(); dz.style.borderColor = 'var(--line)'; if (e.dataTransfer.files[0]) addFile(e.dataTransfer.files[0]); };
+  }
+  var callFile = null;
+  var cdz = $('callDz');
+  if (cdz) {
+    cdz.onclick = function () { var inp = document.createElement('input'); inp.type = 'file'; inp.onchange = function () { if (inp.files[0]) { callFile = inp.files[0]; $('callFileMsg').textContent = '已選擇：' + callFile.name; } }; inp.click(); };
+    cdz.ondragover = function (e) { e.preventDefault(); cdz.style.borderColor = 'var(--gold)'; };
+    cdz.ondragleave = function () { cdz.style.borderColor = 'var(--line)'; };
+    cdz.ondrop = function (e) { e.preventDefault(); cdz.style.borderColor = 'var(--line)'; if (e.dataTransfer.files[0]) { callFile = e.dataTransfer.files[0]; $('callFileMsg').textContent = '已選擇：' + callFile.name; } };
+  }
+  $('callGo').onclick = function () {
+    var text = $('callText').value.trim();
+    var send = function (fileB64, fileName, fileMime) {
+      api('/admin/application/call-note', { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ application_id: appId, text: text, file_b64: fileB64, file_name: fileName, file_mime: fileMime, by: '顧問' }) })
+      .then(function (r) { if (!r.ok) { $('callFileMsg').textContent = r.error || '送出失敗'; return; } alert('已送出，AI 排程處理完會自動產出報告。'); loadAndOpen(appId); });
+    };
+    if (callFile) { var reader = new FileReader(); reader.onload = function () { send(reader.result.split(',')[1], callFile.name, callFile.type); }; reader.readAsDataURL(callFile); }
+    else send(null, null, null);
+  };
+  Array.prototype.forEach.call(document.querySelectorAll('.stp[data-key]'), function (b) {
+    b.onclick = function () {
+      api('/admin/set-manual-stage', { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ application_id: b.dataset.app, stage: b.dataset.key, company_id: b.dataset.cid || null, by: '顧問' }) })
+      .then(function () { loadAndOpen(appId); });
+    };
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.decbtn'), function (b) {
+    b.onclick = function () {
+      api('/admin/decide-report', { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ id: c.report_id, decision: b.dataset.k, app_id: appId,
+          app_status: b.dataset.k === 'forwarded' ? 'passed' : (b.dataset.k === 'rejected' ? 'rejected' : 'reported'), by: '顧問' }) })
+      .then(function () { loadAndOpen(appId); });
+    };
+  });
+  var rm = $('rptmore');
+  if (rm) rm.onclick = function () { var r = $('rpt'); r.classList.toggle('open'); rm.textContent = r.classList.contains('open') ? '收合 ▴' : '展開全文 ▾'; };
+  var rv = $('rptview');
+  if (rv) rv.onclick = function () { $('rptFrame').srcdoc = reportDocHtml(c); $('rptMask').classList.add('show'); };
+  Array.prototype.forEach.call(document.querySelectorAll('.fdSave'), function (b) {
+    b.onclick = function () {
+      var cid = b.dataset.cid;
+      var line = document.querySelector('.fdLine[data-cid="' + cid + '"]').value;
+      var note = document.querySelector('.fdNote[data-cid="' + cid + '"]').value;
+      var msg = document.querySelector('.fdMsg[data-cid="' + cid + '"]');
+      api('/admin/pipeline/forward-detail', { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ application_id: appId, company_id: cid, line_id_given: line, client_note: note }) })
+      .then(function (r) { msg.textContent = r.ok ? '已存' : (r.error || '失敗'); });
+    };
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.unfwd'), function (b) {
+    b.onclick = function () {
+      if (!confirm('確定要取消推薦這家客戶嗎？')) return;
+      api('/admin/pipeline/unforward-candidate', { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ application_id: appId, company_id: b.dataset.cid }) })
+      .then(function () { loadAndOpen(appId); });
+    };
+  });
+  var fwSel = $('fwCompany');
+  (FORWARD_COMPANIES_CACHE ? Promise.resolve(FORWARD_COMPANIES_CACHE) : api('/admin/portal/companies').then(function (d) { FORWARD_COMPANIES_CACHE = (d.ok ? d.companies : []) || []; return FORWARD_COMPANIES_CACHE; }))
+    .then(function (list) {
+      var already = (c.placements || []).map(function (p) { return p.company_id; });
+      var pick = list.filter(function (x) { return already.indexOf(x.id) === -1; });
+      fwSel.innerHTML = pick.length ? pick.map(function (x) { return '<option value="' + esc(x.id) + '">' + esc(x.display_name) + '</option>'; }).join('') : '<option value="">（沒有其他客戶可選）</option>';
+    });
+  $('fwGo').onclick = function () {
+    var cid = fwSel.value;
+    if (!cid) { $('fwMsg').textContent = '請選一家客戶'; return; }
+    api('/admin/forward-candidate', { method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ application_id: appId, company_id: cid }) })
+    .then(function (r) { if (!r.ok) { $('fwMsg').textContent = r.error || '失敗'; return; } loadAndOpen(appId); });
+  };
+}
+
+function loadAndOpen(appId) {
+  loadCards(function () { openDrawer(appId); });
+}
+function closeDrawer() { $('dmask').classList.remove('show'); }
+$('dmask').addEventListener('click', function (e) { if (e.target.id === 'dmask') closeDrawer(); });
+$('rptMaskClose').onclick = function () { $('rptMask').classList.remove('show'); };
+$('rptMask').addEventListener('click', function (e) { if (e.target.id === 'rptMask') $('rptMask').classList.remove('show'); });
+
+// ── 新增人選 ──
+function openNewCandModal() {
+  var html = '<div class="dhead"><span class="nm">＋新增人選</span><span class="mut">不是跟阿財面談進來的，顧問自己接觸的人選</span>' +
+    '<button class="x" id="ncClose" type="button">×</button></div><div class="dbody"><div class="sec">' +
+    '<label class="edl">姓名 *</label><input class="edi" id="ncName">' +
+    '<label class="edl">Email（Email／電話至少填一個）</label><input class="edi" id="ncEmail">' +
+    '<label class="edl">電話</label><input class="edi" id="ncPhone">' +
+    '<label class="edl">送去哪個職缺</label><select class="edi" id="ncJob"><option value="">載入中…</option></select>' +
+    '<label class="edl">聯絡來源</label><select class="edi" id="ncSource">' + SOURCE_CHANNEL_OPTS.map(function (o) { return '<option>' + esc(o) + '</option>'; }).join('') + '</select>' +
+    '<label class="edl" style="margin-top:12px">電洽內容</label><textarea class="edi" id="ncCallText" rows="3" placeholder="這次接觸/電訪的重點"></textarea>' +
+    '<label style="display:flex;align-items:flex-start;gap:8px;margin-top:12px;font-size:13px;color:var(--ink2)">' +
+    '<input type="checkbox" id="ncConsent" style="width:auto;margin-top:3px"><span>我確認已經取得本人同意，這筆資料可以提供給客戶</span></label>' +
+    '<div class="acts" style="margin-top:12px"><button class="btn p" id="ncGo" type="button">建立這筆人選卡片</button><span class="mut" id="ncMsg"></span></div></div></div>';
+  $('ncWrap').innerHTML = html;
+  $('ncMask').classList.add('show');
+  $('ncClose').onclick = closeNewCand;
+  api('/admin/jobs').then(function (d) {
+    var jobs = (d.results || d.jobs || []).map(function (j) { return { slug: j.slug, title: (j.company_display_name ? j.company_display_name + ' - ' : '') + j.title }; });
+    $('ncJob').innerHTML = '<option value="">選一個職缺…</option>' + jobs.map(function (j) { return '<option value="' + esc(j.slug) + '">' + esc(j.title) + '</option>'; }).join('');
+  });
+  $('ncGo').onclick = function () {
+    var name = $('ncName').value.trim(), email = $('ncEmail').value.trim(), phone = $('ncPhone').value.trim();
+    var msg = $('ncMsg');
+    if (!name) { msg.textContent = '請填姓名'; return; }
+    if (!email && !phone) { msg.textContent = '至少要填 Email 或電話其中一個'; return; }
+    if (!$('ncJob').value) { msg.textContent = '請選職缺'; return; }
+    if (!$('ncConsent').checked) { msg.textContent = '請先確認已取得本人同意'; return; }
+    msg.textContent = '建立中…';
+    api('/admin/pipeline/manual-forward', { method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ source_kind: 'new', name: name, email: email, phone: phone, job_slug: $('ncJob').value,
+        source_channel: $('ncSource').value, call_notes: $('ncCallText').value.trim(), consent_confirmed: true, by: '顧問' }) })
+    .then(function (r) {
+      if (!r.ok) { msg.textContent = r.error || '建立失敗'; return; }
+      closeNewCand();
+      loadCards(function () { openDrawer(r.application_id); });
+    }).catch(function () { msg.textContent = '連線失敗'; });
+  };
+}
+function closeNewCand() { $('ncMask').classList.remove('show'); }
+$('ncMask').addEventListener('click', function (e) { if (e.target.id === 'ncMask') closeNewCand(); });
+$('ncOpen').onclick = openNewCandModal;
+
+$('q').addEventListener('input', function (e) { state.q = e.target.value; renderList(); });
+$('vTable').onclick = function () { state.view = 'table'; $('vTable').classList.add('on'); $('vCard').classList.remove('on'); renderList(); };
+$('vCard').onclick = function () { state.view = 'card'; $('vCard').classList.add('on'); $('vTable').classList.remove('on'); renderList(); };
+
+function renderOwnerSel(consultants) {
+  var sel = $('ownerSel');
+  sel.innerHTML = '<option value="all">全部顧問</option>' +
+    consultants.filter(function (c) { return c.is_active; }).map(function (c) { return '<option value="' + esc(c.id) + '">' + esc(c.display_name) + '</option>'; }).join('') +
+    '<option value="unassigned">未指派</option>';
+  sel.value = state.owner;
+  $('ownerHint').textContent = state.owner === 'all' ? '目前看全部顧問的案子' : (state.owner === 'unassigned' ? '目前只看未指派顧問的案子' : '');
+  sel.onchange = function () { state.owner = sel.value; safeSet('s1ne_pp_owner2', state.owner); loadCards(); };
+}
+
+function loadCards(cb) {
+  $('listWrap').innerHTML = '<div class="empty">載入中…</div>';
+  api('/admin/pipeline/tracker?owner=' + encodeURIComponent(state.owner)).then(function (d) {
+    if (!d.ok) { $('listWrap').innerHTML = '<div class="empty">讀取失敗：' + esc(d.error || '') + '</div>'; return; }
+    CARDS = d.cards || [];
+    renderStats(); renderTabs(); renderList();
+    if (cb) cb();
+  }).catch(function () { $('listWrap').innerHTML = '<div class="empty">連線失敗</div>'; });
+}
+
+function load() {
+  $('gate').hidden = true; $('app').hidden = false;
+  api('/admin/consultants').then(function (d) { renderOwnerSel(d.consultants || []); });
+  loadCards();
+}
+function boot() {
+  if (tok) { load(); return; }
+  $('gate').hidden = false;
+  $('enter').onclick = function () {
+    tok = $('tok').value.trim(); if (!tok) return;
+    api('/admin/consultants').then(function (d) {
+      if (!d.ok) { $('gerr').hidden = false; $('gerr').textContent = '權杖不正確'; return; }
+      localStorage.setItem(KEY, tok); load();
+    });
+  };
+  $('tok').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('enter').click(); });
+}
+boot();
+</script>
+<script defer src="/consultant/_shell.js"></script>
+</html>
