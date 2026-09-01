@@ -377,7 +377,7 @@ function openSourcedDrawer(c) {
     '<dt>電話</dt><dd>' + (c.phone ? '<a href="tel:' + esc(c.phone) + '">' + esc(c.phone) + '</a>' : '<span class="mut">還沒有</span>') + '</dd>' +
     '<dt>現職</dt><dd>' + esc(c.job_title || '—') + '</dd>' +
     '<dt>來源</dt><dd>' + esc(c.source_channel || '—') + '</dd>' +
-    '<dt>負責顧問</dt><dd>' + esc(c.owner_name || '未指派') + '</dd>' +
+    '<dt>負責顧問</dt><dd>' + ownerAssignSelect(c.owner) + '</dd>' +
     '</dl></div>' +
     '<div class="sec"><h4>下一步</h4><div class="acts">' +
     SRC_ACTS.map(function (a) { return '<button class="btn srcact" data-k="' + a.k + '" type="button">' + a.lb + '<span class="mut" style="display:block;font-size:10.5px">→ ' + a.to + '</span></button>'; }).join('') +
@@ -385,6 +385,7 @@ function openSourcedDrawer(c) {
   $('dwrap').innerHTML = html;
   $('dmask').classList.add('show');
   $('dclose').onclick = closeDrawer;
+  wireOwnerAssign('sourced', c.sourced_id, function () { closeDrawer(); loadCards(); });
   Array.prototype.forEach.call(document.querySelectorAll('.srcact'), function (b) {
     b.onclick = function () {
       var status = b.dataset.k, reason = null;
@@ -440,7 +441,7 @@ function openDrawer(appId, kind) {
     '<dt>履歷</dt><dd>' + resumeLinksHtml(c, extra) + '</dd>' +
     '<dt>LINE ID</dt><dd>' + (primaryPl && primaryPl.line_id_given ? esc(primaryPl.line_id_given) : '<span class="mut">尚未提供（顧問跟人選要來後補上，用人單位會在這裡看到）</span>') + '</dd>' +
     '<dt>聯絡來源</dt><dd>' + esc(c.source_channel || '—') + '</dd>' +
-    '<dt>負責顧問</dt><dd>' + esc(c.owner_name || '未指派') + '</dd>' +
+    '<dt>負責顧問</dt><dd>' + ownerAssignSelect(c.owner) + '</dd>' +
     '</dl></div><div id="edbox" hidden>' +
     '<label class="edl">姓名</label><input class="edi" id="edName" value="' + esc(c.name) + '">' +
     '<label class="edl">Email</label><input class="edi" id="edEmail" value="' + esc(c.email) + '">' +
@@ -565,6 +566,7 @@ var FORWARD_COMPANIES_CACHE = null;
 
 function wireDrawer(c, appId) {
   $('dclose').onclick = closeDrawer;
+  wireOwnerAssign('application', appId, function () { loadAndOpen(appId); });
   $('edtog').onclick = function () {
     var box = $('edbox'), vb = $('viewbox');
     var open = box.hidden; box.hidden = !open; vb.hidden = open;
@@ -778,7 +780,26 @@ $('q').addEventListener('input', function (e) { state.q = e.target.value; render
 $('vTable').onclick = function () { state.view = 'table'; $('vTable').classList.add('on'); $('vCard').classList.remove('on'); renderList(); };
 $('vCard').onclick = function () { state.view = 'card'; $('vCard').classList.add('on'); $('vTable').classList.remove('on'); renderList(); };
 
+var CONSULTANTS = [];
+function wireOwnerAssign(kind, id, reload) {
+  var sel = document.querySelector('.ownAssign');
+  if (!sel) return;
+  sel.onchange = function () {
+    sel.disabled = true;
+    api('/admin/set-owner', { method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ kind: kind, id: id, owner: sel.value || null }) })
+    .then(function (r) { sel.disabled = false; if (!r.ok) { alert(r.error || '指派失敗'); return; } reload(); })
+    .catch(function () { sel.disabled = false; alert('連線失敗'); });
+  };
+}
+function ownerAssignSelect(cur) {
+  var opts = '<option value="">未指派</option>' + CONSULTANTS
+    .filter(function (c) { return c.is_active || c.id === cur; })
+    .map(function (c) { return '<option value="' + esc(c.id) + '"' + (c.id === cur ? ' selected' : '') + '>' + esc(c.display_name) + '</option>'; }).join('');
+  return '<select class="edi ownAssign" style="max-width:200px">' + opts + '</select>';
+}
 function renderOwnerSel(consultants) {
+  CONSULTANTS = consultants;
   var sel = $('ownerSel');
   sel.innerHTML = '<option value="all">全部顧問</option>' +
     consultants.filter(function (c) { return c.is_active; }).map(function (c) { return '<option value="' + esc(c.id) + '">' + esc(c.display_name) + '</option>'; }).join('') +
