@@ -74,6 +74,7 @@ button.sec{background:#fff;color:var(--ink2);border:1px solid var(--line)}
 .stage-config-opts{display:flex;gap:18px;flex-wrap:wrap;font-size:14px}
 .stage-config-opts label{display:flex;align-items:center;gap:6px;cursor:pointer}
 .stage-config-opts input[type=checkbox]{width:16px;height:16px;accent-color:var(--gold);cursor:pointer}
+.stage-config-opts input[type=checkbox]:disabled{cursor:default;opacity:.5}
 .bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
 .bar input[type=search]{flex:1 1 220px;font:inherit;font-size:14px;padding:9px 13px;border:1px solid var(--line);
  border-radius:10px;background:#fff}
@@ -574,24 +575,43 @@ function renderStageConfigBox(job){
   </div>`;
 }
 
-// 三個勾選框同步進隱藏欄位（saveJob() 靠 [data-k] 收值，這樣不用另外改它）。
+// 勾選就立刻存檔，不等使用者滑到表單最下面按「儲存這個職缺」——2026-09-01
+// 修：Jacky 勾完切走頁面又跳回去，是因為這格原本跟其他 52 個文字欄位一樣
+// 只更新畫面上的隱藏欄位，要按最下面的儲存鍵才真的送出。現在這格已經獨立
+// 成一個醒目卡片、長得像表格上「選了就生效」的下拉選單，使用者會預期勾了
+// 就算數——改成勾選當下直接呼叫 PUT，跟其他欄位的「先填、最後一次存」
+// 分開處理。
 // 勾第三/四階段時自動連帶勾前面幾關——面試關卡是線性往前推進的，不可能只有
 // 第四階段卻沒有第二三階段，中間斷層會讓 resolveStage() 判斷錯亂。
-function wireStageConfigBox(root){
+function wireStageConfigBox(root, slug){
   root.querySelectorAll('.stage-config-box').forEach(box => {
     const hidden = box.querySelector('input[type=hidden]');
     const summaryEl = box.querySelector('.stage-config-summary');
     const order = ['stage2', 'stage3', 'stage4'];
     const labelOf = { stage2: '第二階段', stage3: '第三階段', stage4: '第四階段' };
-    const sync = () => {
+    const sync = async () => {
       const checked = Array.from(box.querySelectorAll('.stage-chk:checked')).map(c => c.value);
       const maxIdx = Math.max(-1, ...checked.map(k => order.indexOf(k)));
       const normalized = order.slice(0, maxIdx + 1);
-      box.querySelectorAll('.stage-chk').forEach(c => { c.checked = normalized.includes(c.value); });
+      box.querySelectorAll('.stage-chk').forEach(c => { c.checked = normalized.includes(c.value); c.disabled = true; });
       hidden.value = JSON.stringify(normalized);
+      if (summaryEl) summaryEl.textContent = '儲存中…';
+      try{
+        const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/jobs/${encodeURIComponent(slug)}`, {
+          method: 'PUT', headers: {'content-type':'application/json'},
+          body: JSON.stringify({ interview_stage_config: hidden.value }),
+        });
+        const data = await res.json();
+        if (!data.ok){ alert(data.error || '儲存失敗，請重新勾選一次'); }
+        const jobRecord = PORTAL_DATA.jobs.find(j => j.slug === slug);
+        if (jobRecord) jobRecord.interview_stage_config = hidden.value;
+      }catch{
+        alert('連線失敗，請確認網路連線後重新勾選一次');
+      }
       if (summaryEl) summaryEl.textContent = normalized.length
         ? `目前設定：面試到「${labelOf[normalized[normalized.length - 1]]}」`
         : '目前設定：只有第一階段面談';
+      box.querySelectorAll('.stage-chk').forEach(c => { c.disabled = false; });
     };
     box.querySelectorAll('.stage-chk').forEach(c => c.addEventListener('change', sync));
   });
@@ -644,7 +664,7 @@ function renderJob(job, fields){
   div.querySelector('.submit-btn').addEventListener('click', (e) => submitJob(job.slug, div, e.target));
   wireImportBox(div, job.slug);
   wireHireStateBox(div, job.slug);
-  wireStageConfigBox(div);
+  wireStageConfigBox(div, job.slug);
   return div;
 }
 
