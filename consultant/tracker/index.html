@@ -732,12 +732,28 @@ function openDrawer(appId, kind) {
       '<h4 style="color:var(--warn)">⚠ 疑似同一人</h4><p style="margin:0;font-size:13px;color:var(--ink2)">' + esc(c.dup_notice) + '</p></div>';
   }
 
-  // 目前進度：這個 application 底下每一家客戶各自的進度（placements），
-  // 一家客戶一條進度條，各自獨立，改其中一家不影響另一家。
-  var primaryPl0 = (c.placements || [])[0] || null;
+  // 2026-09-01 全面改：原本這裡是一顆「萬用階段」下拉，把顧問內部狀態（等我
+  // 決定／需補問／不推薦／已結案）跟客戶端每一格（顧問階段／面試階段／錄取／
+  // 報到）全部塞進同一個分組選單，選項多達十幾個，顧問要先猜「選這個會讓
+  // 企業端哪一格變什麼」——這正是 Jacky 反映「資訊太多、沒有前後邏輯」的
+  // 源頭。改成三塊，跟示範用的 candidate_card_final.html 對齊：
+  //   1. 自動狀態（阿財初審／顧問確認）——唯讀，不用顧問手動設，跟客戶端portal
+  //      的判斷同一套邏輯（有面談結束或有報告決定就算完成）。
+  //   2. 推薦給客戶——每一筆各自一張卡（公司＋職缺＋這筆自己的階段下拉＋
+  //      移除），按「＋推薦給客戶／職缺」新增，送出當下客戶端立刻看到
+  //      「顧問階段：已完成」，不用另外操作。
+  //   3. 需補問／不推薦／已結案——原本混在萬用下拉裡的內部動作，改成小按鈕列
+  //      在最下面，需補問／不推薦本來就有「初篩」區塊的推薦/需補問/婉拒按鈕
+  //      可以用（見下面 report_md 區塊），這裡只留「標記已結案」這個萬用下拉
+  //      唯一沒有其他入口的動作。
+  var autoConfirmDone = !!c.decision;
+  var autoScreenDone = !!(c.ai_done || c.evaluated);
   html += '<div class="sec"><h4>目前進度</h4>' +
-    '<label class="edl" style="margin-top:0">萬用階段<span class="mut" style="font-weight:400">（涵蓋整個生命週期，對應表格式的每一欄）</span></label>' +
-    '<select class="edi universalStageSel" style="max-width:260px">' + universalStageOptionsHtml(c, primaryPl0) + '</select>' +
+    '<div style="display:flex;gap:16px;margin-bottom:14px;font-size:13px;color:var(--ink2)">' +
+    '<span>' + (autoScreenDone ? '✓' : '○') + ' 阿財初審' + (autoScreenDone ? '' : '（進行中）') + '</span>' +
+    '<span>' + (autoConfirmDone ? '✓' : '○') + ' 顧問確認' + (autoConfirmDone ? '' : '（等決定）') + '</span>' +
+    '</div>' +
+    '<div style="font-size:13px;font-weight:700;margin-bottom:8px">推薦給客戶</div>' +
     (c.placements || []).map(function (pl, i) {
       // 2026-09-01 加：每個 placement 自己的「顧問不推薦」——掛在這一組
       // （人選＋這家客戶）底下，不是整個人選都不推薦，也不擋之後重新推薦。
@@ -755,9 +771,17 @@ function openDrawer(appId, kind) {
             '❌ 用人單位婉拒（' + esc(pl.client_reject_reason || '') + '）　' +
             '<span class="mut" style="font-size:11px">' + esc(String(pl.client_rejected_at).slice(0, 16)) + '</span></div>'
         : '';
-      return '<div style="margin-top:14px"><div style="font-weight:700;font-size:13px;margin-bottom:4px">' + esc(pl.client_name) + '</div>' + bar(pl, appId, i > 0) + cr + nr + '</div>';
+      return '<div style="background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-top:10px">' +
+        '<div style="font-weight:700;font-size:13px;margin-bottom:4px">' + esc(pl.client_name) + '<span class="mut" style="font-weight:400;margin-left:8px">✓ 顧問確認</span></div>' +
+        bar(pl, appId, i > 0) + cr + nr + '</div>';
     }).join('') +
-    (!c.placements || !c.placements.length ? '<p class="mut" style="margin-top:10px">這位人選還沒被推送給任何客戶——選上面的「已轉客戶」會直接推送。</p>' : '') +
+    (!c.placements || !c.placements.length ? '<p class="mut" style="margin:10px 0">還沒推薦給任何客戶。</p>' : '') +
+    '<div style="margin-top:12px"><label class="edl" style="margin-top:0">推去哪家客戶</label><select class="edi" id="fwCompany"><option value="">載入中…</option></select>' +
+    '<label class="edl">推去哪個職缺<span class="mut" style="font-weight:400">（送出即代表「顧問確認」，客戶那邊立刻看到這關已完成）</span></label>' +
+    '<select class="edi" id="fwJob"><option value="">先選客戶</option></select>' +
+    '<div class="acts" style="margin-top:8px"><button class="btn p" id="fwGo" type="button">＋ 推薦給客戶／職缺</button><span class="mut" id="fwMsg"></span></div></div>' +
+    '<div class="acts" style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px">' +
+    '<button class="btn d" id="markClosedBtn" type="button" style="font-size:12.5px">標記已結案（進候補池）</button></div>' +
     '</div>';
 
   var primaryPl = (c.placements || [])[0] || null;
@@ -877,12 +901,6 @@ function openDrawer(appId, kind) {
             '<span class="mut">' + esc((x.created_at || '').slice(0, 10)) + '</span></div>';
         }).join('') + '</div>'
       : '<p class="mut" style="margin:0">沒有其他紀錄。</p>') + '</div>';
-
-  html += '<div class="sec"><h4>推派這位人選給其他客戶</h4>' +
-    '<label class="edl">推去哪家客戶</label><select class="edi" id="fwCompany"><option value="">載入中…</option></select>' +
-    '<label class="edl">推去哪個職缺<span class="mut" style="font-weight:400">（送出即代表「顧問確認」，客戶那邊立刻看到這關已完成）</span></label>' +
-    '<select class="edi" id="fwJob"><option value="">先選客戶</option></select>' +
-    '<div class="acts" style="margin-top:10px"><button class="btn p" id="fwGo" type="button">推薦</button><span class="mut" id="fwMsg"></span></div></div>';
 
   // 2026-09-01 加：歷史聯繫紀錄與投遞紀錄——把顧問備註／電洽紀錄／推薦紀錄／
   // 客戶婉拒兜在一起顯示的時間軸，非同步載入，有類型篩選（見 wireDrawer 的
@@ -1074,8 +1092,11 @@ function wireDrawer(c, appId) {
   // 已結案＝mark-closed（一定要填理由，就服法紅線字眼會被擋下來）。
   // 2026-09-01：抽成 applyUniversalStage() 共用函式——抽屜裡的下拉跟表格列
   // 內嵌的下拉現在是同一份邏輯，兩邊都在測、選哪個定案前不能各自為政。
-  var usel = document.querySelector('.universalStageSel');
-  if (usel) usel.onchange = function () { applyUniversalStage(c, appId, usel.value, function () { loadAndOpen(appId); }); };
+  // 2026-09-01 改：萬用階段那顆巨大分組下拉拿掉了，「已結案」是裡面唯一沒有
+  // 其他入口的動作（需補問／不推薦都還在「初篩」區塊的按鈕可以按），改成①
+  // 目前進度區塊最下面一顆小按鈕，邏輯照舊呼叫 applyUniversalStage。
+  var mcBtn = $('markClosedBtn');
+  if (mcBtn) mcBtn.onclick = function () { applyUniversalStage(c, appId, 'closed', function () { loadAndOpen(appId); }); };
   Array.prototype.forEach.call(document.querySelectorAll('.notrecSet'), function (b) {
     b.onclick = function () {
       var reason = prompt('不推薦的原因（企業用人單位需求表會看到這段話，寫給對方看的措辭）：');
