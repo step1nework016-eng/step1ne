@@ -64,6 +64,16 @@ button.sec{background:#fff;color:var(--ink2);border:1px solid var(--line)}
 .hire-box{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
  background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:13.5px;color:var(--ink2)}
 .hire-box button{padding:7px 16px;font-size:13px}
+/* 面試輪數設定——2026-09-01 從 53 個欄位的表格裡搬出來，獨立成職缺頁最上面
+   一個醒目卡片，跟其他純文字欄位在視覺上區分開，不用滑很久才找到。 */
+.stage-config-box{background:#fff;border:1.5px solid var(--gold);border-radius:12px;padding:14px 16px;margin-bottom:16px}
+.stage-config-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.stage-config-head b{font-size:14.5px}
+.stage-config-summary{font-size:12.5px;font-weight:700;color:var(--gold);background:#fbf2e2;border-radius:999px;padding:3px 11px}
+.stage-config-sub{font-size:12.5px;color:var(--ink3);margin-bottom:10px}
+.stage-config-opts{display:flex;gap:18px;flex-wrap:wrap;font-size:14px}
+.stage-config-opts label{display:flex;align-items:center;gap:6px;cursor:pointer}
+.stage-config-opts input[type=checkbox]{width:16px;height:16px;accent-color:var(--gold);cursor:pointer}
 .bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
 .bar input[type=search]{flex:1 1 220px;font:inherit;font-size:14px;padding:9px 13px;border:1px solid var(--line);
  border-radius:10px;background:#fff}
@@ -538,11 +548,61 @@ function openJob(slug){
   document.getElementById('jobView').hidden = false;
 }
 
+// 2026-09-01 改：面試輪數設定原本混在下面 53 個欄位的表格裡，長得跟其他
+// 純文字欄位一模一樣，Jacky 反映「不直覺，都是填寫文字的設定」——這是
+// 結構性設定（決定進度表格長什麼樣），不是職缺描述文字，理應一進來就
+// 看得到、跟其他欄位分開，不用往下滑好幾輪才找到。獨立成職缺頁最上面
+// 一個醒目區塊，不算進下面「已填 X/Y」那個純文字欄位的完成度統計。
+function renderStageConfigBox(job){
+  let stages = [];
+  try { stages = JSON.parse(job.interview_stage_config || '[]'); } catch { stages = []; }
+  const order = ['stage2', 'stage3', 'stage4'];
+  const labelOf = { stage2: '第二階段', stage3: '第三階段', stage4: '第四階段' };
+  const summary = stages.length
+    ? `目前設定：面試到「${labelOf[stages[stages.length - 1]]}」`
+    : '目前設定：只有第一階段面談';
+  return `<div class="stage-config-box">
+    <div class="stage-config-head">
+      <b>這個職缺有幾階段面試？</b>
+      <span class="stage-config-summary">${esc(summary)}</span>
+    </div>
+    <div class="stage-config-sub">第一階段面談是每個職缺都有的基本關卡，不用勾選。如果實際上還有更多輪面試，在這裡勾起來——「人選進度」表格的面試階段欄位才會出現對應的選項。</div>
+    <div class="stage-config-opts">
+      ${order.map(k => `<label><input type="checkbox" class="stage-chk" value="${k}"${stages.includes(k) ? ' checked' : ''}> ${labelOf[k]}</label>`).join('')}
+    </div>
+    <input type="hidden" data-k="interview_stage_config" value='${esc(JSON.stringify(stages))}'>
+  </div>`;
+}
+
+// 三個勾選框同步進隱藏欄位（saveJob() 靠 [data-k] 收值，這樣不用另外改它）。
+// 勾第三/四階段時自動連帶勾前面幾關——面試關卡是線性往前推進的，不可能只有
+// 第四階段卻沒有第二三階段，中間斷層會讓 resolveStage() 判斷錯亂。
+function wireStageConfigBox(root){
+  root.querySelectorAll('.stage-config-box').forEach(box => {
+    const hidden = box.querySelector('input[type=hidden]');
+    const summaryEl = box.querySelector('.stage-config-summary');
+    const order = ['stage2', 'stage3', 'stage4'];
+    const labelOf = { stage2: '第二階段', stage3: '第三階段', stage4: '第四階段' };
+    const sync = () => {
+      const checked = Array.from(box.querySelectorAll('.stage-chk:checked')).map(c => c.value);
+      const maxIdx = Math.max(-1, ...checked.map(k => order.indexOf(k)));
+      const normalized = order.slice(0, maxIdx + 1);
+      box.querySelectorAll('.stage-chk').forEach(c => { c.checked = normalized.includes(c.value); });
+      hidden.value = JSON.stringify(normalized);
+      if (summaryEl) summaryEl.textContent = normalized.length
+        ? `目前設定：面試到「${labelOf[normalized[normalized.length - 1]]}」`
+        : '目前設定：只有第一階段面談';
+    };
+    box.querySelectorAll('.stage-chk').forEach(c => c.addEventListener('change', sync));
+  });
+}
+
 function renderJob(job, fields){
-  const filled = fields.filter(k => job[k] !== null && job[k] !== '').length;
+  const tableFields = fields.filter(k => k !== 'interview_stage_config');
+  const filled = tableFields.filter(k => job[k] !== null && job[k] !== '').length;
   const div = document.createElement('div');
   div.className = 'job';
-  const rows = fields.map(key => {
+  const rows = tableFields.map(key => {
     const val = job[key] ?? '';
     const has = val !== '';
     const isLong = ['main_duties','required_conditions','benefits_detail','salary_tier_table',
@@ -559,20 +619,6 @@ function renderJob(job, fields){
         ${Object.entries(EMPLOYMENT_OPTIONS).map(([k, lb]) =>
           `<option value="${k}"${val === k ? ' selected' : ''}>${esc(lb)}</option>`).join('')}
       </select>`;
-    } else if (key === 'interview_stage_config'){
-      // 2026-09-01 加：面試有幾輪是這個職缺的設定，不是每個候選人臨時決定——
-      // 第一階段每個職缺都有、不用勾；這裡只勾「除了第一階段還有沒有更多輪」，
-      // 「人選進度」表格的面試階段下拉、跟候選人自己查進度看到的進度條，
-      // 都直接照這裡設定的關數走，不用另外去候選人卡片上一輪一輪加。
-      let stages = [];
-      try { stages = JSON.parse(val || '[]'); } catch { stages = []; }
-      fieldHtml = `<div class="stage-config-box">
-        <div style="font-size:12.5px;color:var(--ink3);margin-bottom:6px">第一階段面談是每個職缺都有的基本關卡，不用勾選。如果這個職缺實際上還有更多輪面試，在這裡勾起來，「人選進度」表格的面試階段欄位才會出現對應的選項。</div>
-        <label style="margin-right:14px"><input type="checkbox" class="stage-chk" value="stage2"${stages.includes('stage2') ? ' checked' : ''}> 第二階段</label>
-        <label style="margin-right:14px"><input type="checkbox" class="stage-chk" value="stage3"${stages.includes('stage3') ? ' checked' : ''}> 第三階段</label>
-        <label><input type="checkbox" class="stage-chk" value="stage4"${stages.includes('stage4') ? ' checked' : ''}> 第四階段</label>
-        <input type="hidden" data-k="interview_stage_config" value='${esc(JSON.stringify(stages))}'>
-      </div>`;
     } else if (isLong){
       fieldHtml = `<textarea data-k="${key}">${esc(val)}</textarea>`;
     } else {
@@ -585,7 +631,8 @@ function renderJob(job, fields){
     </tr>`;
   }).join('');
   div.innerHTML = `
-    <h2>${esc(job.title || job.slug)}<span class="cnt">已填 ${filled} / ${fields.length}</span></h2>
+    <h2>${esc(job.title || job.slug)}<span class="cnt">已填 ${filled} / ${tableFields.length}</span></h2>
+    ${renderStageConfigBox(job)}
     ${renderImportBox(job.slug)}
     ${renderHireStateBox(job)}
     <table>${rows}</table>
@@ -599,26 +646,6 @@ function renderJob(job, fields){
   wireHireStateBox(div, job.slug);
   wireStageConfigBox(div);
   return div;
-}
-
-// 三個勾選框同步進隱藏欄位（saveJob() 靠 [data-k] 收值，這樣不用另外改它）。
-// 勾第三/四階段時自動連帶勾前面幾關——面試關卡是線性往前推進的，不可能只有
-// 第四階段卻沒有第二三階段，中間斷層會讓 resolveStage() 判斷錯亂。
-function wireStageConfigBox(root){
-  root.querySelectorAll('.stage-config-box').forEach(box => {
-    const hidden = box.querySelector('input[type=hidden]');
-    const order = ['stage2', 'stage3', 'stage4'];
-    const sync = () => {
-      const checked = Array.from(box.querySelectorAll('.stage-chk:checked')).map(c => c.value);
-      const maxIdx = Math.max(-1, ...checked.map(k => order.indexOf(k)));
-      const normalized = order.slice(0, maxIdx + 1);
-      box.querySelectorAll('.stage-chk').forEach(c => { c.checked = normalized.includes(c.value); });
-      hidden.value = JSON.stringify(normalized);
-      const td = hidden.closest('tr')?.querySelector('.st');
-      if (td) td.innerHTML = normalized.length ? '<span class="pill ok">已填</span>' : '<span class="pill warn">待補</span>';
-    };
-    box.querySelectorAll('.stage-chk').forEach(c => c.addEventListener('change', sync));
-  });
 }
 
 // ── 結束招募／重新招募 ──
