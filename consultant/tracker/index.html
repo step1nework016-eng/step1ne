@@ -159,6 +159,7 @@ select.edi{appearance:none;background:#fff url("data:image/svg+xml;charset=utf8,
 <div id="app" hidden>
   <header><div class="wrap">
     <img src="/assets/step1ne-logo.png" alt="Step1ne"><b>顧問人選追蹤</b>
+    <button id="tutBtn" type="button" style="font:inherit;font-weight:700;font-size:12.5px;background:#fff;color:var(--gold);border:1px solid var(--gold);border-radius:999px;padding:5px 14px;margin-left:10px;cursor:pointer">？使用教學</button>
     <nav>
       <a href="/consultant/pipeline/">舊：我的案子</a>
       <a href="/consultant/reports/">舊：初篩報告</a>
@@ -192,6 +193,7 @@ select.edi{appearance:none;background:#fff url("data:image/svg+xml;charset=utf8,
 <div class="dmask" id="ncMask"><div class="dwrap" id="ncWrap"></div></div>
 <div class="dmask" id="noteMask"><div class="dwrap" style="width:min(420px,100%)" id="noteWrap"></div></div>
 <div class="dmask" id="callMask"><div class="dwrap" style="width:min(460px,100%)" id="callWrap"></div></div>
+<div class="dmask" id="tutMask"><div class="dwrap" style="width:min(520px,100%)" id="tutWrap"></div></div>
 <div class="dmask" id="rptMask">
   <div class="dwrap" style="width:min(760px,100%)">
     <div class="dhead"><span class="nm">報告預覽</span><button class="x" id="rptMaskClose" type="button">×</button></div>
@@ -1254,6 +1256,39 @@ function openCallModal(appId) {
     else send(null, null, null);
   };
 }
+
+// 2026-09-01 加：引導式教學——按了才開始教，不按不會自動跳出來。這頁改版
+// 幅度很大（兩層式分頁＋人選卡片六個區塊），純文字步驟走一遍，不綁定實際
+// DOM 位置（頁面內容是動態的，綁死位置容易因為資料狀態不同而失準）。
+var TUT_STEPS = [
+  { h: '這個頁面在做什麼', b: '不管人選是自己應徵、顧問電洽新增，還是主動開發找到的，統一在這裡看到「現在卡在哪一關、下一步要做什麼」，不用開好幾個分頁比對。' },
+  { h: '① 先選管道', b: '最上面「全部人選／主動開發／正式應徵／候補池」四個大按鈕，決定你要看哪一種來源的人選。選了「主動開發」或「正式應徵」，下面才會出現該管道專屬的階段分頁。' },
+  { h: '主動開發管道', b: '「待開發接觸」→「等對方回」，這是還沒應徵、只是躺在人才庫的名單。電洽完想直接推進，打開人選卡片，用「電洽紀錄，轉為正式應徵」——選職缺、貼電洽內容或上傳檔案，送出就會建立正式應徵紀錄，落進「正式應徵」管道。' },
+  { h: '正式應徵管道', b: '「等人選填完」（阿財面談還沒結束，球在人選身上）→「等我決定」（報告出爐，換你審閱）→「客戶面談階段」（已推薦給客戶，含快成交）。' },
+  { h: '候補池', b: '「已結案」跟「先留著（預備區）」合併在這裡——人選本身沒有消失，只是目前沒有進行中的媒合，未來有新職缺／新客戶適合，隨時可以重新推薦。' },
+  { h: '人選卡片：目前進度', b: '打開卡片，最上面是自動狀態（阿財初審／顧問確認，不用手動設）；「推薦給客戶」清單可以同時推薦給不同客戶的不同職缺，各自獨立算進度；按「＋推薦給客戶／職缺」送出，客戶那邊立刻看到「顧問階段：已完成」。' },
+  { h: '人選卡片：其他區塊', b: '顧問備註（一條一條紀錄，選類型再寫）、電洽內容（按📞記錄新的通話，彈窗輸入，卡片上只留AI整理的重點）、給推薦客戶的備註（每家客戶各自一格）、歷史聯繫紀錄與投遞紀錄（把上面全部兜成時間軸，可依類型篩選）。' },
+];
+var tutIdx = 0;
+function renderTut() {
+  var s = TUT_STEPS[tutIdx];
+  $('tutWrap').innerHTML =
+    '<div class="dhead"><span class="nm">使用教學（' + (tutIdx + 1) + '／' + TUT_STEPS.length + '）</span><button class="x" id="tutClose" type="button">×</button></div>' +
+    '<div class="dbody"><div class="sec">' +
+    '<h4 style="margin-top:0">' + esc(s.h) + '</h4>' +
+    '<p style="font-size:14px;line-height:1.9;color:var(--ink2)">' + esc(s.b) + '</p>' +
+    '</div><div class="acts" style="padding:0 20px 20px">' +
+    (tutIdx > 0 ? '<button class="btn" id="tutPrev" type="button">← 上一步</button>' : '') +
+    (tutIdx < TUT_STEPS.length - 1 ? '<button class="btn p" id="tutNext" type="button">下一步 →</button>' : '<button class="btn p" id="tutDone" type="button">完成</button>') +
+    '</div></div>';
+  $('tutClose').onclick = closeTutorial;
+  var pb = $('tutPrev'); if (pb) pb.onclick = function () { tutIdx--; renderTut(); };
+  var nb = $('tutNext'); if (nb) nb.onclick = function () { tutIdx++; renderTut(); };
+  var db = $('tutDone'); if (db) db.onclick = closeTutorial;
+}
+function closeTutorial() { $('tutMask').classList.remove('show'); }
+$('tutMask').addEventListener('click', function (e) { if (e.target.id === 'tutMask') closeTutorial(); });
+$('tutBtn').onclick = function () { tutIdx = 0; renderTut(); $('tutMask').classList.add('show'); };
 
 // 2026-09-01 加：③顧問備註「＋新增紀錄」——先選類型再寫內容，呼叫新端點
 // /admin/application/notes，累積成清單（不是覆蓋單一文字欄位）。
