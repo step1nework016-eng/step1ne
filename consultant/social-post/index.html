@@ -349,6 +349,7 @@ var Q_BADGE = {
 };
 var queueTimer = null;
 var ALL_QUEUE = [];
+var ALL_QUEUE_STATS = [];   // 成效儀表板專用，一次拉大量，不跟排隊列表共用小額度那份
 var CUR_TAB = '全部';
 
 function paintTabs() {
@@ -463,9 +464,21 @@ $('maintabs').addEventListener('click', function (e) {
     $(id).hidden = (id !== b.dataset.pane);
   });
   if (b.dataset.pane === 'pane-cal') loadCal();
-  if (b.dataset.pane === 'pane-board') paintStats();
+  if (b.dataset.pane === 'pane-board') loadStatsQueue();
   if (b.dataset.pane === 'pane-board' && !LINE_INS) loadLine();
 });
+// 成效儀表板要看的是「這位顧問到底發過多少文」，跟排隊列表要的「最近在
+// 跑什麼」是兩種資料量級，故意分開拉，不要共用小額度那份、也不要跟著
+// 8秒輪詢一起打——只在切進這個分頁時抓一次，抓過就不重複抓（跟下面
+// LINE_INS 的快取邏輯一致）。
+function loadStatsQueue() {
+  if (ALL_QUEUE_STATS.length) { paintStats(); return; }
+  api('/admin/social-post-queue?limit=300').then(function (d) {
+    if (!d.ok) return;
+    ALL_QUEUE_STATS = d.queue || [];
+    paintStats();
+  }).catch(function () {});
+}
 
 // ── 還沒發哪些 ──
 // 這一頁只回答一個問題：哪些格子是空的。不放成效、不放時間軸——
@@ -582,8 +595,13 @@ function paintGap() {
 
 // 只算已經發布、而且成效抓回來了的貼文。還沒抓到的不能當 0 —— 那會把
 // 剛發的貼文算成「沒人看」，平均值整個被拉低。
+// ⚠️ 2026-09-02 改：改讀 ALL_QUEUE_STATS，不要讀 ALL_QUEUE——後者是「排隊
+// 列表」用的，8秒輪詢一次，後端故意只給最近 30 筆（8個帳號一起搶，很快就
+// 洗掉），拿來算顧問排行／一週七天熱力圖會讓發文量大的顧問（Phoebe 真實
+// 案例）舊資料整個消失，熱力圖上明明真的發過文的日子變成空白，看起來像
+// 系統漏記錄，其實只是清單被洗掉、不是真的沒發文。
 function measured() {
-  return ALL_QUEUE.filter(function (r) {
+  return ALL_QUEUE_STATS.filter(function (r) {
     return r.posted_at && r.views !== null && r.views !== undefined;
   });
 }
