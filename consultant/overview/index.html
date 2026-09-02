@@ -131,8 +131,12 @@ function render(d){
     kpi(n.jobs_open,'在辦職缺','','📋');
 
   // 漏斗
-  var order=[['applied','收到應徵'],['screened','初篩完成'],['interviewed','完成面談'],
-             ['consultant_review','顧問覆核'],['submitted','送客戶']];
+  // 2026-09-02 改：舊的5關是讀 pipeline_events（死表，全站零寫入，卡在
+  // 8/6 沒動過），現在後端全部改成從 applications/reports/placements
+  // 即時算——這三張表是系統一直在寫的，不會再卡住，關卡也跟著改成
+  // 這三張表實際能算出來的6關。
+  var order=[['applied','收到應徵'],['interviewed','進入AI面談'],['consultant_review','顧問審核通過'],
+             ['client_stage','客戶面談中'],['offered','已錄取'],['onboard','已到職']];
   var map={}; (d.funnel||[]).forEach(function(f){map[f.stage]=f.n});
   var top=Math.max.apply(null,order.map(function(o){return map[o[0]]||0}).concat([1]));
   $('funnel').innerHTML=order.map(function(o,i){
@@ -143,8 +147,8 @@ function render(d){
       +'<span class="track"><span class="bar'+(v?'':' g')+'" style="width:'+pct+'%"></span></span>'
       +'<span class="vn">'+v+'</span><span class="pc">'+pc+'</span></div>';
   }).join('')
-  +'<div class="explain">👉 長條越短代表這一關流失越多人。⚠️ 這是顧問手動記錄的進度事件，'
-  +'沒記的階段不會出現在這裡——數字比實際低通常代表沒記，不是真的卡住。</div>';
+  +'<div class="explain">👉 長條越短代表這一關流失越多人。這幾個數字直接從系統即時算出來，'
+  +'不用顧問手動記錄，也不會卡住不動。</div>';
 
   // 準確率
   var vs=d.verdicts||[];
