@@ -164,6 +164,14 @@ table.gap td.stale{color:#c0392b}
 .fstep .flabel{flex:none;width:82px;font-size:11.5px;color:var(--ink2);font-weight:600;line-height:1.3}
 .fstep .fic{flex:none;font-size:17px}
 @media(max-width:380px){.fstep .flabel{width:64px;font-size:11px}}
+.wkcmp{display:flex;flex-direction:column;gap:10px}
+.wkcmprow{display:flex;align-items:center;gap:8px;background:var(--soft);border-radius:12px;padding:10px 12px}
+.wkcmprow .nm{flex:none;width:52px;font-size:12px;font-weight:700;color:var(--ink)}
+.wkcmprow .side{flex:1;text-align:center}
+.wkcmprow .side .lb{font-size:10.5px;color:var(--ink3)}
+.wkcmprow .side .vv{font-size:16px;font-weight:800;font-variant-numeric:tabular-nums;margin-top:1px}
+.wkcmprow .side .nn{font-size:10.5px;color:var(--ink3)}
+.wkcmprow .arrow{flex:none;font-size:18px;width:26px;text-align:center}
 .weekgrid{display:grid;gap:3px;align-items:stretch}
 .weekgrid .wh{font-size:10.5px;color:var(--ink3);text-align:center;font-weight:700;padding:2px 0}
 .weekgrid .wname{font-size:11px;color:var(--ink2);font-weight:600;display:flex;align-items:center;
@@ -254,6 +262,10 @@ table.gap td.stale{color:#c0392b}
       <div class="card">
         <label style="margin-bottom:6px">顧問排行</label>
         <div id="bystaff" class="mut">載入中…</div>
+      </div>
+      <div class="card">
+        <label style="margin-bottom:2px">本週 vs 上週<span class="mut" style="font-weight:400">（跟自己上禮拜比，不是跟其他顧問比）</span></label>
+        <div id="weekcompare" class="mut">載入中…</div>
       </div>
       <div class="card">
         <label style="margin-bottom:2px">每位顧問・一週七天成效<span class="mut" style="font-weight:400">（顏色越深＝那天平均瀏覽越高）</span></label>
@@ -657,6 +669,7 @@ function paintStats() {
   if (!rows.length) {
     $('bystaff').innerHTML = '<div class="mut">還沒有抓到成效的貼文。貼文發布後最多 6 小時內會有數字。</div>';
     $('byhour').innerHTML = $('bystaff').innerHTML;
+    $('weekcompare').innerHTML = $('bystaff').innerHTML;
     $('weekgrid').innerHTML = $('bystaff').innerHTML;
     $('funnel').innerHTML = $('bystaff').innerHTML;
     $('postlist').innerHTML = $('bystaff').innerHTML;
@@ -688,6 +701,53 @@ function paintStats() {
     }).join('') + '</div>'
     + '<div class="explain">📏 長條越長＝平均每則貼文被看到越多次。🏆是目前排第一的顧問。'
       + '則數少於3則的先別下結論——樣本太少，可能只是運氣。</div>';
+
+  // ── 本週 vs 上週 ──
+  // 2026-09-02 加：跟「每位顧問・一週七天」不同——那張是「不分哪一週，
+  // 所有歷史資料依星期幾取平均」，回答「固定哪天發比較有效」；這張是
+  // 「本週這幾天 vs 上禮拜同樣的這幾天」，回答「最近有沒有變好或變差」，
+  // 是自己跟自己比，不是跟其他顧問比。禮拜一算一週的開始（跟台灣習慣一致）。
+  (function () {
+    var today = new Date();
+    var dow0 = today.getDay(); // 0=週日..6=週六
+    var diffToMon = dow0 === 0 ? -6 : 1 - dow0;
+    var thisMonday = new Date(today.getFullYear(), today.getMonth(), today.getDate() + diffToMon);
+    var lastMonday = new Date(thisMonday); lastMonday.setDate(thisMonday.getDate() - 7);
+    function dkey(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+    var thisKey = dkey(thisMonday), lastKey = dkey(lastMonday);
+    var cmp = {}; // 顧問 -> {this:{n,v}, last:{n,v}}
+    rows.forEach(function (r) {
+      var k = nm(r);
+      var dateStr = r.posted_at.slice(0, 10); // YYYY-MM-DD，字典序比較跟日期先後一致
+      cmp[k] = cmp[k] || { thisWk: { n: 0, v: 0 }, lastWk: { n: 0, v: 0 } };
+      if (dateStr >= thisKey) { cmp[k].thisWk.n++; cmp[k].thisWk.v += r.views || 0; }
+      else if (dateStr >= lastKey && dateStr < thisKey) { cmp[k].lastWk.n++; cmp[k].lastWk.v += r.views || 0; }
+    });
+    var cmpNames = Object.keys(cmp).filter(function (n) { return cmp[n].thisWk.n || cmp[n].lastWk.n; })
+      .sort(function (a, b) { return names.indexOf(a) - names.indexOf(b); });
+    if (!cmpNames.length) {
+      $('weekcompare').innerHTML = '<div class="mut">這兩週還沒有發文紀錄。</div>';
+    } else {
+      $('weekcompare').innerHTML = '<div class="wkcmp">' + cmpNames.map(function (n) {
+        var c = cmp[n];
+        var lastAvg = c.lastWk.n ? Math.round(c.lastWk.v / c.lastWk.n) : null;
+        var thisAvg = c.thisWk.n ? Math.round(c.thisWk.v / c.thisWk.n) : null;
+        var arrow = '➡️';
+        if (lastAvg !== null && thisAvg !== null) {
+          arrow = thisAvg > lastAvg * 1.1 ? '📈' : thisAvg < lastAvg * 0.9 ? '📉' : '➡️';
+        } else if (thisAvg !== null && lastAvg === null) { arrow = '🆕'; }
+        return '<div class="wkcmprow">'
+          + '<span class="nm">' + n + '</span>'
+          + '<span class="side"><div class="lb">上週</div><div class="vv">' + (lastAvg === null ? '—' : lastAvg) + '</div>'
+            + '<div class="nn">' + c.lastWk.n + ' 則</div></span>'
+          + '<span class="arrow">' + arrow + '</span>'
+          + '<span class="side"><div class="lb">本週</div><div class="vv">' + (thisAvg === null ? '—' : thisAvg) + '</div>'
+            + '<div class="nn">' + c.thisWk.n + ' 則</div></span>'
+          + '</div>';
+      }).join('') + '</div>'
+      + '<div class="explain">📈變好／📉變差／➡️差不多／🆕上禮拜沒發文，這週才有——這格看的是「跟自己上禮拜比」，不是跟其他顧問比。</div>';
+    }
+  })();
 
   // ── 每位顧問・一週七天 ──
   // 2026-09-02 加：Jacky 要看「這個顧問是不是固定哪幾天發文比較有效」，
