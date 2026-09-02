@@ -135,7 +135,7 @@ table.gap td.stale{color:#c0392b}
 .barlist{display:flex;flex-direction:column;gap:12px}
 .barrow{display:flex;align-items:center;gap:6px}
 .barrow .ic{flex:none;width:20px;text-align:center;font-size:15px}
-.barrow .nm{flex:none;width:44px;font-size:12px;color:var(--ink2);font-weight:600;
+.barrow .nm{flex:none;width:56px;font-size:12px;color:var(--ink2);font-weight:600;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .barrow .track{flex:1;min-width:36px;background:#f1ece0;border-radius:999px;height:22px;position:relative;overflow:hidden}
 .barrow .fill{position:absolute;left:0;top:0;bottom:0;border-radius:999px;
@@ -403,11 +403,20 @@ function paintQueue() {
 }
 
 var LINE_INS = null;
+var LINE_WEEK_AGO = null;
 // LINE 的數字只有「總量」——API 沒有「哪個顧問的連結帶來幾個人」這個維度。
 // 想知道那個要嘛登入 LINE 後台手動看，要嘛把貼文結尾換成自家轉址網址。
+//
+// 2026-09-02 加：Jacky 要看「近期加了幾人、封鎖了幾人」，不是只有累積總量。
+// followers／blocks 兩個數字本身就是「從帳號建立以來的累積總數」（LINE 官方
+// 定義，只會增不會減）——不用另外找「事件記錄」，兩個時間點的累積數字
+// 直接相減，就是那段期間真的新增的量。抓「7天前」那組當基準點。
 function loadLine() {
-  api('/admin/line-insight').then(function (d) {
-    LINE_INS = d; paintLine();
+  Promise.all([
+    api('/admin/line-insight?days_ago=2'),
+    api('/admin/line-insight?days_ago=9'),
+  ]).then(function (r) {
+    LINE_INS = r[0]; LINE_WEEK_AGO = r[1]; paintLine();
   }).catch(function () {});
 }
 function paintLine() {
@@ -417,6 +426,19 @@ function paintLine() {
   if (!d.ready) { el.innerHTML = '<span class="mut">' + (d.note || 'LINE 統計尚未結算') + '</span>'; return; }
   var blockPct = d.followers ? Math.round(d.blocks / d.followers * 100) : 0;
   var blockWarn = blockPct >= 25;
+  var w = LINE_WEEK_AGO;
+  var weekHtml = '';
+  if (w && w.ok && w.ready) {
+    var newF = d.followers - w.followers;
+    var newB = d.blocks - w.blocks;
+    weekHtml = '<div class="statgrid" style="grid-template-columns:1fr 1fr;margin-top:10px">'
+      + '<div class="stattile good"><div class="ic">📈</div><div class="num">+' + newF + '</div>'
+        + '<div class="lb">最近7天新加的好友</div></div>'
+      + '<div class="stattile' + (newB > 0 ? ' warn' : '') + '"><div class="ic">' + (newB > 0 ? '🚫' : '✨') + '</div>'
+        + '<div class="num">+' + newB + '</div>'
+        + '<div class="lb">最近7天新封鎖我們的人</div></div>'
+      + '</div>';
+  }
   el.innerHTML =
     '<div class="statgrid">'
     + '<div class="stattile good"><div class="ic">📣</div><div class="num">' + d.reachable + '</div>'
@@ -427,6 +449,7 @@ function paintLine() {
       + '<div class="num">' + blockPct + '%</div>'
       + '<div class="lb">封鎖我們的人（' + d.blocks + ' 人）</div></div>'
     + '</div>'
+    + weekHtml
     + '<div class="explain">📅 統計日 ' + d.date.slice(4, 6) + '/' + d.date.slice(6, 8)
     + '（LINE 要隔一天才算好，所以看到的都是昨天以前的數字）。'
     + '<b>這三個數字是全部顧問加起來的總量</b>，LINE沒辦法告訴我們「這個人是被誰的貼文吸引來的」。</div>';
@@ -564,7 +587,13 @@ function measured() {
     return r.posted_at && r.views !== null && r.views !== undefined;
   });
 }
-function nm(r) { return r.account_label || '（未指定帳號）'; }
+// 2026-09-02 修：圖表欄位空間就那麼窄，「DR - Threads」「EYLISE - Threads」
+// 這種完整標籤放進固定寬度的名字欄一定會被切掉一半，變成「DR –...」
+// 「EYLI...」看不出是誰。跟行事曆／缺口表同一招，只取「－」前面顧問本名。
+function nm(r) {
+  var l = r.account_label || '（未指定帳號）';
+  return String(l).split(/[-–—]/)[0].trim() || l;
+}
 
 var STAT_TAB = '全部';
 
@@ -669,7 +698,7 @@ function paintStats() {
     $('weekgrid').innerHTML = '<div class="mut">還沒有資料。</div>';
   } else {
     $('weekgrid').innerHTML =
-      '<div class="weekgrid" style="grid-template-columns:minmax(34px,44px) repeat(7,1fr)">'
+      '<div class="weekgrid" style="grid-template-columns:minmax(40px,56px) repeat(7,1fr)">'
       + '<div class="wh"></div>' + WD_LABEL.map(function (w) { return '<div class="wh">' + w + '</div>'; }).join('')
       + weekNames.map(function (n) {
           return '<div class="wname">' + n + '</div>' + weekBy[n].map(function (c) {
