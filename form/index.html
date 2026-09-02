@@ -99,7 +99,10 @@ function renderForm(d){
       '<dt>人選</dt><dd>' + esc(d.candidate_name || '') + '</dd>' +
       '<dt>用人單位</dt><dd>' + esc(d.company_name || '') + (d.job_title ? '・' + esc(d.job_title) : '') + '</dd>' +
     '</dl>' +
-    '<div class="dz" id="dz"><p>把檔案拖到這裡，或 <span class="pick">點擊選擇檔案</span></p></div>' +
+    (d.has_template
+      ? '<p style="margin:0 0 16px"><a href="' + API + '/form/template?t=' + encodeURIComponent(T) + '" style="color:#a67c3d;font-weight:700;font-size:13.5px;text-decoration:none">↓ 下載空白表單（信件裡也有附檔）</a></p>'
+      : '') +
+    '<div class="dz" id="dz"><p>填寫完成後，把檔案拖到這裡，或 <span class="pick">點擊選擇檔案</span></p></div>' +
     '<input type="file" id="fileInput" hidden accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.heic">' +
     '<div id="fnameBox"></div>' +
     '<button class="go" id="goBtn" disabled>送出</button>' +
