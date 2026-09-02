@@ -1371,11 +1371,11 @@ function openClientFormalModal(appId, kind) {
     $('cfWrap').innerHTML =
       '<div class="dhead"><span class="nm">製作客戶版履歷</span><button class="x" id="cfClose" type="button">×</button></div>' +
       '<div class="dbody"><div class="sec">' +
-      '<div class="subhint" style="margin:0 0 10px">以下欄位已經自動帶出（已過濾內部判斷內容），下面三格面談沒有系統化收集，請手動補上再產生。</div>' +
+      '<div class="subhint" style="margin:0 0 10px">產生時AI會現場讀電洽逐字稿＋履歷全文，自動整理出核心條件對應／補充說明／我方建議，不用手動打——下面這幾格是選填，AI整理不出來或你想補充/修正才需要填。</div>' +
       companyPicker +
       '<dl class="kv" style="margin-top:8px">' + known.map(function (r) { return '<dt>' + esc(r[0]) + '</dt><dd>' + esc(r[1]) + '</dd>'; }).join('') + '</dl>' +
-      '<label class="edl" style="margin-top:10px">現況（必填）</label><textarea class="edi" id="cfState" rows="2" placeholder="例：待業中，最近一份工作為……"></textarea>' +
-      '<label class="edl">相關經驗（必填）</label><textarea class="edi" id="cfExp" rows="2" placeholder="例：無 Revit／BIM 實際操作經驗，電訪前已主動查詢資料了解職務內容"></textarea>' +
+      '<label class="edl" style="margin-top:10px">現況（選填，AI會從電洽/履歷自動整理）</label><textarea class="edi" id="cfState" rows="2" placeholder="留空讓AI自動整理，或手動補充/修正"></textarea>' +
+      '<label class="edl">相關經驗（選填，AI會從電洽/履歷自動整理）</label><textarea class="edi" id="cfExp" rows="2" placeholder="留空讓AI自動整理，或手動補充/修正"></textarea>' +
       '<label class="edl">交通工具</label><input class="edi" id="cfTrans" placeholder="例：輕型機車、普通小型車駕照">' +
       (kind === 'sourced'
         ? '<label class="edl">期望待遇</label><input class="edi" id="cfSalary" placeholder="例：40k（主動開發還沒面談，通常沒有這格資料，可留空）">' +
@@ -1403,10 +1403,11 @@ function openClientFormalModal(appId, kind) {
     $('cfGo').onclick = function () {
       var state = $('cfState').value.trim();
       var exp = $('cfExp').value.trim();
-      if (!state || !exp) { $('cfMsg').textContent = '現況跟相關經驗是必填的'; return; }
       if (wantPhoto.checked && !photoDataUrl) { $('cfMsg').textContent = '已勾選要附大頭貼，請先選擇檔案'; return; }
       var btn = $('cfGo');
-      btn.disabled = true; $('cfMsg').textContent = '產生中…';
+      // AI要現場讀電洽逐字稿+履歷全文再整理，比之前單純套模板慢，先講清楚
+      // 預期時間，不然顧問會以為卡住。
+      btn.disabled = true; $('cfMsg').textContent = 'AI正在整理電洽內容與履歷，約需10~20秒…';
       var body = {
         current_state: state, related_experience: exp, transportation: $('cfTrans').value.trim(),
         photo_b64: wantPhoto.checked ? photoDataUrl : null,
