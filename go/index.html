@@ -55,7 +55,7 @@ document.addEventListener('click', function (e) {
 // ⚠️ 這一頁絕對不能把人卡住：API 掛掉、網路慢、JS 出錯，都要照樣把人送到 LINE。
 //    統計掉一筆沒關係，把候選人擋在半路才是真的損失。
 (function () {
-  var API = 'https://step1ne-recruit-api.aiagentg888.workers.dev';
+  var API = 'https://step1ne-public-worker.aiagentg888.workers.dev';
   var FALLBACK = 'https://lin.ee/RR4nQqm';
   var q = new URLSearchParams(location.search);
   var c = q.get('c') || '', j = q.get('j') || '';

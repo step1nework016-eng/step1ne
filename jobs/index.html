@@ -391,7 +391,7 @@ h2{font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;color:#1c1f2
   // 所以先問一下後端「現在哪些是關的」，把對應卡片從 DOM 拿掉，
   // 再讓下面既有的篩選邏輯照正常流程跑，數字才會算對。
   try {
-    var closedResp = await fetch('https://step1ne-recruit-api.aiagentg888.workers.dev/jobs-closed').then(function (r) { return r.json(); });
+    var closedResp = await fetch('https://step1ne-public-worker.aiagentg888.workers.dev/jobs-closed').then(function (r) { return r.json(); });
     var closedSet = new Set((closedResp && closedResp.closed) || []);
     if (closedSet.size) {
       [].slice.call(document.querySelectorAll('#jobs .job')).forEach(function (el) {
