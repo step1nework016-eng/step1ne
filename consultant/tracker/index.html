@@ -801,15 +801,25 @@ function openDrawer(appId, kind) {
         : '';
       // 2026-09-02 加：這家客戶掛的客製表單（例：用人事資料表）填寫狀態。
       // 只有這個職缺真的掛了表單才會有東西，沒掛的職缺完全不會多這一塊。
+      // 2026-09-02 加：not_sent——這個職缺有掛表單，但這位人選＋這家客戶還
+      // 沒有觸發過（多半是表單功能上線「之前」就已經推薦出去的舊人選，
+      // 不會再有新的推薦動作可以自動掛上）。跟 pending（有觸發但卡在沒
+      // email）分開處理：not_sent 要用「立即寄送」（第一次觸發，帶
+      // job_form_id），pending/sent 用「重新寄送」（已經有一筆填寫紀錄，帶
+      // submission id）。
       var forms = (pl.forms || []).map(function (f) {
         var pill = f.status === 'submitted'
           ? '<span class="badge b-forward" style="font-size:11px">已完成</span>'
           : f.status === 'sent'
             ? '<span class="badge b-undecided" style="font-size:11px">已寄送・待填寫</span>'
-            : '<span class="badge b-notstart" style="font-size:11px">待補聯絡方式</span>';
+            : f.status === 'not_sent'
+              ? '<span class="badge b-notstart" style="font-size:11px">尚未寄送</span>'
+              : '<span class="badge b-notstart" style="font-size:11px">待補聯絡方式</span>';
         var action = f.status === 'submitted'
           ? ' <a href="#" class="dlform" data-id="' + esc(f.id) + '" style="font-size:12px;margin-left:6px">下載</a>'
-          : ' <button type="button" class="formResend" data-id="' + esc(f.id) + '" style="border:0;background:none;color:var(--gold);font-size:12px;cursor:pointer;margin-left:6px;text-decoration:underline">重新寄送</button>';
+          : f.status === 'not_sent'
+            ? ' <button type="button" class="formTrigger" data-jobform="' + esc(f.job_form_id) + '" data-cid="' + esc(pl.company_id) + '" style="border:0;background:none;color:var(--gold);font-size:12px;cursor:pointer;margin-left:6px;text-decoration:underline">立即寄送</button>'
+            : ' <button type="button" class="formResend" data-id="' + esc(f.id) + '" style="border:0;background:none;color:var(--gold);font-size:12px;cursor:pointer;margin-left:6px;text-decoration:underline">重新寄送</button>';
         return '<div style="margin-top:6px;font-size:12.5px">📋 ' + esc(f.form_name) + ' ' + pill + action + '</div>';
       }).join('');
       return '<div style="background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-top:10px">' +
@@ -1186,6 +1196,14 @@ function wireDrawer(c, appId) {
     b.onclick = function () {
       var t = b.textContent; b.textContent = '寄送中…'; b.disabled = true;
       api('/admin/candidate-form-submissions/' + encodeURIComponent(b.dataset.id) + '/resend', { method: 'POST' })
+        .then(function (r) { if (!r.ok) { alert(r.error || '寄送失敗'); b.textContent = t; b.disabled = false; return; } loadAndOpen(appId); });
+    };
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.formTrigger'), function (b) {
+    b.onclick = function () {
+      var t = b.textContent; b.textContent = '寄送中…'; b.disabled = true;
+      api('/admin/candidate-form-submissions/trigger', { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ application_id: appId, company_id: b.dataset.cid, job_form_id: b.dataset.jobform, by: tok }) })
         .then(function (r) { if (!r.ok) { alert(r.error || '寄送失敗'); b.textContent = t; b.disabled = false; return; } loadAndOpen(appId); });
     };
   });
