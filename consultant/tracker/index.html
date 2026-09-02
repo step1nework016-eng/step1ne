@@ -820,7 +820,14 @@ function openDrawer(appId, kind) {
           : f.status === 'not_sent'
             ? ' <button type="button" class="formTrigger" data-jobform="' + esc(f.job_form_id) + '" data-cid="' + esc(pl.company_id) + '" style="border:0;background:none;color:var(--gold);font-size:12px;cursor:pointer;margin-left:6px;text-decoration:underline">立即寄送</button>'
             : ' <button type="button" class="formResend" data-id="' + esc(f.id) + '" style="border:0;background:none;color:var(--gold);font-size:12px;cursor:pointer;margin-left:6px;text-decoration:underline">重新寄送</button>';
-        return '<div style="margin-top:6px;font-size:12.5px">📋 ' + esc(f.form_name) + ' ' + pill + action + '</div>';
+        // 2026-09-02 加：顧問代為上傳——人選是用系統外的管道（電話、LINE、
+        // 當面）就已經把填好的表單給顧問了，不用逼人選再走一次線上填寫，
+        // 顧問直接把手上的檔案傳進來，客戶端立刻能下載，效果跟人選自己上傳
+        // 一樣。任何還沒完成的狀態都可以用（not_sent／pending／sent 都算）。
+        var uploadAction = f.status === 'submitted' ? '' :
+          ' <label style="font-size:12px;margin-left:6px;color:var(--gold);cursor:pointer;text-decoration:underline">' +
+          '或直接上傳已完成的檔案<input type="file" class="formUpload" data-jobform="' + esc(f.job_form_id) + '" data-cid="' + esc(pl.company_id) + '" hidden></label>';
+        return '<div style="margin-top:6px;font-size:12.5px">📋 ' + esc(f.form_name) + ' ' + pill + action + uploadAction + '</div>';
       }).join('');
       return '<div style="background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-top:10px">' +
         '<div style="font-weight:700;font-size:13px;margin-bottom:4px">' + esc(pl.client_name) + '<span class="mut" style="font-weight:400;margin-left:8px">✓ 顧問確認</span></div>' +
@@ -1205,6 +1212,22 @@ function wireDrawer(c, appId) {
       api('/admin/candidate-form-submissions/trigger', { method: 'POST', headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ application_id: appId, company_id: b.dataset.cid, job_form_id: b.dataset.jobform, by: tok }) })
         .then(function (r) { if (!r.ok) { alert(r.error || '寄送失敗'); b.textContent = t; b.disabled = false; return; } loadAndOpen(appId); });
+    };
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.formUpload'), function (inp) {
+    inp.onchange = function () {
+      var f = inp.files[0]; if (!f) return;
+      var label = inp.closest('label'); var t = label.firstChild.textContent;
+      label.firstChild.textContent = '上傳中…';
+      var reader = new FileReader();
+      reader.onload = function () {
+        var b64 = reader.result.split(',')[1];
+        api('/admin/candidate-form-submissions/upload', { method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ application_id: appId, company_id: inp.dataset.cid, job_form_id: inp.dataset.jobform,
+            file_b64: b64, file_name: f.name, file_mime: f.type || 'application/octet-stream' }) })
+          .then(function (r) { if (!r.ok) { alert(r.error || '上傳失敗'); label.firstChild.textContent = t; return; } loadAndOpen(appId); });
+      };
+      reader.readAsDataURL(f);
     };
   });
   var rm = $('rptmore');
