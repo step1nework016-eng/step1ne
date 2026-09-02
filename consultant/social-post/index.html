@@ -6,7 +6,7 @@
 <title>顧問社群｜顧問後台</title>
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
 <style>
-:root{--gold:#a67c3d;--ink:#23262d;--ink2:#4d5563;--ink3:#8a8d95;--line:#eee7db;--soft:#faf8f3;--bg:#f4f1ea;--ok:#2f8f5b;--bad:#c0392b}
+:root{--gold:#a67c3d;--ink:#23262d;--ink2:#4d5563;--ink3:#8a8d95;--line:#eee7db;--soft:#faf8f3;--bg:#f4f1ea;--ok:#2f8f5b;--bad:#c0392b;--logo1:#2ea9df;--logo2:#167eb2}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 -apple-system,"Noto Sans TC",sans-serif}
 .wrap{max-width:640px;margin:0 auto;padding:0 16px}
@@ -139,8 +139,8 @@ table.gap td.stale{color:#c0392b}
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .barrow .track{flex:1;min-width:36px;background:#f1ece0;border-radius:999px;height:22px;position:relative;overflow:hidden}
 .barrow .fill{position:absolute;left:0;top:0;bottom:0;border-radius:999px;
-  background:linear-gradient(90deg,#c79a5c,var(--gold));transition:width .5s ease;min-width:10px}
-.barrow .fill.best{background:linear-gradient(90deg,#e0aa5f,#c0392b)}
+  background:linear-gradient(90deg,var(--logo1),var(--logo2));transition:width .5s ease;min-width:10px}
+.barrow .fill.best{background:linear-gradient(90deg,#e0aa5f,var(--gold))}
 .barrow .val{flex:none;width:52px;text-align:right;font-weight:800;font-variant-numeric:tabular-nums;
   font-size:13.5px;color:var(--ink)}
 .barrow .sub{flex:none;width:38px;text-align:right;font-size:10.5px;color:var(--ink3)}
@@ -158,7 +158,7 @@ table.gap td.stale{color:#c0392b}
 .stattile.good .num{color:var(--ok)}
 .funnelwrap{display:flex;flex-direction:column;gap:6px;padding:4px 0}
 .fstep{display:flex;align-items:center;gap:8px}
-.fstep .bar{height:40px;border-radius:10px;background:linear-gradient(90deg,#c79a5c,var(--gold));
+.fstep .bar{height:40px;border-radius:10px;background:linear-gradient(90deg,var(--logo1),var(--logo2));
   display:flex;align-items:center;justify-content:center;padding:0 10px;color:#fff;font-weight:800;font-size:15px;
   font-variant-numeric:tabular-nums;transition:width .5s ease;min-width:52px;box-sizing:border-box}
 .fstep .flabel{flex:none;width:82px;font-size:11.5px;color:var(--ink2);font-weight:600;line-height:1.3}
