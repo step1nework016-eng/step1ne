@@ -650,6 +650,12 @@ function openSourcedDrawer(c) {
     // 除了姓名/現職/現居地/技能，其餘欄位全部要顧問手動填——跟正式應徵那邊
     // 共用同一個彈窗(openClientFormalModal)，用 kind='sourced' 分流資料來源。
     '<div class="sec"><h4>客戶版履歷</h4>' +
+    (c.client_formal_report
+      ? '<div style="margin-bottom:6px;font-size:12.5px">📄 ' +
+        '<span class="badge b-forward" style="font-size:11px">已完成・' + esc(String(c.client_formal_report.generated_at).slice(0, 16)) + '</span> ' +
+        '<a href="#" class="cfrPreview" data-id="' + esc(c.client_formal_report.id) + '" style="font-size:12px;margin-left:4px">預覽</a> ' +
+        '<a href="#" class="cfrDownload" data-id="' + esc(c.client_formal_report.id) + '" style="font-size:12px;margin-left:4px">下載PDF</a></div>'
+      : '') +
     '<div class="acts"><button class="btn p" id="clientFormalBtn" type="button">📄 製作客戶版履歷</button></div></div>' +
     '</div>';
   $('dwrap').innerHTML = html;
@@ -740,6 +746,35 @@ function openSourcedDrawer(c) {
   });
   var cfb2 = $('clientFormalBtn');
   if (cfb2) cfb2.onclick = function () { openClientFormalModal(c.sourced_id, 'sourced'); };
+  wireClientFormalReportLinks();
+}
+
+// 2026-09-02 加：已存檔的客戶版履歷，預覽（開新分頁看）／下載PDF（開新
+// 分頁+自動跳列印視窗，跟原本產生當下的行為一致）共用同一支抓資料的邏輯，
+// 兩個按鈕只差要不要自動觸發列印。
+function wireClientFormalReportLinks() {
+  Array.prototype.forEach.call(document.querySelectorAll('.cfrPreview'), function (a) {
+    a.onclick = function (ev) {
+      ev.preventDefault();
+      api('/admin/client-formal-reports/' + encodeURIComponent(a.dataset.id)).then(function (r) {
+        if (!r.ok) { alert(r.error || '讀取失敗'); return; }
+        var w = window.open('', '_blank');
+        w.document.write(r.html);
+        w.document.close();
+      });
+    };
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.cfrDownload'), function (a) {
+    a.onclick = function (ev) {
+      ev.preventDefault();
+      api('/admin/client-formal-reports/' + encodeURIComponent(a.dataset.id)).then(function (r) {
+        if (!r.ok) { alert(r.error || '讀取失敗'); return; }
+        var w = window.open('', '_blank');
+        w.document.write(r.html + '<script>window.onload=function(){window.print()}<\/script>');
+        w.document.close();
+      });
+    };
+  });
 }
 
 function openDrawer(appId, kind) {
@@ -921,7 +956,17 @@ function openDrawer(appId, kind) {
   // 基本資料（現居地/學歷/期望待遇/可到職）本來就是資料庫欄位，不需要報告
   // 才能做；核心條件對應那段沒報告內容時模板本來就會自動略過，不會壞，
   // 所以獨立出來，不再綁報告存不存在。
+  // 2026-09-02 加：存檔狀態——每家客戶各自的最新一份，不用每次重新生成。
+  // 「製作客戶版履歷」按鈕還是留著（開彈窗可以重新產生／換公司），這裡只是
+  // 多顯示「已經做過的」讓顧問一眼看到，不用每次都得先點進去才知道有沒有。
+  var existingFormalReports = (c.placements || []).filter(function (pl) { return pl.client_formal_report; });
   html += '<div class="sec"><h4>客戶版履歷</h4>' +
+    existingFormalReports.map(function (pl) {
+      return '<div style="margin-bottom:6px;font-size:12.5px">📄 ' + esc(pl.client_name) + ' ' +
+        '<span class="badge b-forward" style="font-size:11px">已完成・' + esc(String(pl.client_formal_report.generated_at).slice(0, 16)) + '</span> ' +
+        '<a href="#" class="cfrPreview" data-id="' + esc(pl.client_formal_report.id) + '" style="font-size:12px;margin-left:4px">預覽</a> ' +
+        '<a href="#" class="cfrDownload" data-id="' + esc(pl.client_formal_report.id) + '" style="font-size:12px;margin-left:4px">下載PDF</a></div>';
+    }).join('') +
     '<div class="acts"><button class="btn p" id="clientFormalBtn" type="button">📄 製作客戶版履歷</button></div></div>';
 
   if (c.report_md) {
@@ -1248,6 +1293,7 @@ function wireDrawer(c, appId) {
   };
   var cfb = $('clientFormalBtn');
   if (cfb) cfb.onclick = function () { openClientFormalModal(appId); };
+  wireClientFormalReportLinks();
   // 面談逐字稿——Jacky 明確要求併進「初篩」這個區塊裡（本來獨立在舊版
   // 「初篩報告」頁才看得到），現點現拉，不是每次開卡片都先載入，減少
   // 沒必要的資料量。電訪產的報告沒有逐字稿（顧問打字整理，不是阿財問答），
@@ -1510,6 +1556,10 @@ function openClientFormalModal(appId, kind) {
         w.document.write(r.html + '<script>window.onload=function(){window.print()}<\/script>');
         w.document.close();
         closeClientFormalModal();
+        // 2026-09-02 加：產生完現在會存檔，卡片上要立刻看到「已完成」狀態，
+        // 不用顧問自己關掉再重開一次抽屜才會刷新。loadAndOpen() 只認得
+        // application_id，主動開發的卡片要帶 kind 才找得到，不能共用那支。
+        loadCards(function () { openDrawer(appId, kind); });
       });
     };
   };
