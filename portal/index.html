@@ -1129,9 +1129,17 @@ function renderTable(){
       // 只看了一半（陳其寬案例撞到的：報告已推薦、面談已結束，這關卻顯示
       // 進行中不是已完成）。改成 done || now 才算完成，跟 offerDone/onboardDone
       // 用同一套邏輯。
+      // 2026-09-02 改：Jacky 重新定義三態——阿財面談結束／顧問下「需補問」都還
+      // 是「進行中」；顧問下「推薦給客戶」才是「已完成」；顧問下「婉拒／不推薦」
+      // 是獨立第三態「不推進」。改成直接讀 decision 原始值判斷，不能再用
+      // done||now 那套（那套只代表「有沒有走到這一關」，只要走到就一律是
+      // now=true，不管 decision 是 forwarded／need_more／null 都一樣會是
+      // now=true——用 done||now 判斷會讓「需補問」也顯示已完成，違反新規格）。
       const confirmS = stepOf(c, 'confirm');
-      const confirmDone = !!(confirmS && (confirmS.done || confirmS.now));
-      const confirmCell = !confirmS ? '—' : confirmDone ? '<span class="dash-pill done">已完成</span>' : '<span class="dash-pill now">進行中</span>';
+      const confirmCell = !confirmS ? '—'
+        : confirmS.decision === 'forwarded' ? '<span class="dash-pill done">已完成</span>'
+        : confirmS.decision === 'rejected' ? '<span class="dash-pill" style="background:#fbeaea;color:#c0392b">不推進</span>'
+        : '<span class="dash-pill now">進行中</span>';
 
       const matchedS = stepOf(c, 'matched');
       // 2026-09-01 加：「用人單位」欄要先明確選過「推進」，後面三欄（面試階段／
