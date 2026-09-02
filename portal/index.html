@@ -473,18 +473,23 @@ function renderPicklist(){
       hireBtn = `<button type="button" class="sec hire-toggle-btn" data-slug="${esc(job.slug)}" data-action="reopen" style="padding:4px 10px;font-size:11.5px;margin-top:4px">重新招募</button>`;
     }
     const filled = jobFilled(job, fields);
+    // 2026-09-02 加：刪除職缺——只在清單上出現按鈕，實際准不准刪由後端判斷
+    // （已經有人應徵過就一律擋下來，不讓客戶自己刪，避免弄丟人選進度紀錄）。
+    // 前端不用先猜「這筆有沒有應徵紀錄」才要不要顯示按鈕，按了送出去讓後端
+    // 說清楚原因就好，這樣邏輯只有一份、不會前後端各自維護一套判斷標準。
     return `<div class="pick" data-slug="${esc(job.slug)}">
       <b>${esc(job.title || job.slug)}</b>
       <span class="cnt" style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
         ${statusBadge}
         <span style="font-size:11.5px;color:var(--ink3)">已填 ${filled} / ${fields.length}</span>
         ${hireBtn}
+        <button type="button" class="sec delete-job-btn" data-slug="${esc(job.slug)}" style="padding:4px 10px;font-size:11.5px;margin-top:4px;color:#c0392b;border-color:#c0392b">🗑 刪除職缺</button>
       </span>
     </div>`;
   }).join('');
   listEl.querySelectorAll('.pick').forEach(el => {
     el.addEventListener('click', (e) => {
-      if (e.target.closest('.hire-toggle-btn')) return; // 結束招募／重新招募按鈕自己處理，不要連帶打開職缺
+      if (e.target.closest('.hire-toggle-btn') || e.target.closest('.delete-job-btn')) return; // 這些按鈕自己處理，不要連帶打開職缺
       if (el.dataset.pending) { alert('這個職缺還在等顧問確認，核准後才能編輯內容。'); return; }
       openJob(el.dataset.slug);
     });
@@ -497,6 +502,24 @@ function renderPicklist(){
       const slug = btn.dataset.slug;
       if (btn.dataset.action === 'close') closeHire(slug, renderPicklist);
       else reopenHire(slug, renderPicklist);
+    });
+  });
+  listEl.querySelectorAll('.delete-job-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const slug = btn.dataset.slug;
+      const job = PORTAL_DATA.jobs.find(j => j.slug === slug);
+      if (!confirm(`確定要刪除「${(job && (job.title || job.slug)) || slug}」這個職缺嗎？如果已經有人應徵過會刪不掉，系統會告訴你原因。`)) return;
+      btn.disabled = true;
+      try{
+        const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/jobs/${encodeURIComponent(slug)}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (!data.ok){ alert(data.error || '刪除失敗'); btn.disabled = false; return; }
+        PORTAL_DATA.jobs = PORTAL_DATA.jobs.filter(j => j.slug !== slug);
+        renderPicklist();
+      }catch{
+        alert('連線失敗，請稍後再試'); btn.disabled = false;
+      }
     });
   });
 }
