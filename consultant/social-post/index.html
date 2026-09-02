@@ -164,6 +164,13 @@ table.gap td.stale{color:#c0392b}
 .fstep .flabel{flex:none;width:82px;font-size:11.5px;color:var(--ink2);font-weight:600;line-height:1.3}
 .fstep .fic{flex:none;font-size:17px}
 @media(max-width:380px){.fstep .flabel{width:64px;font-size:11px}}
+.weekgrid{display:grid;gap:3px;align-items:stretch}
+.weekgrid .wh{font-size:10.5px;color:var(--ink3);text-align:center;font-weight:700;padding:2px 0}
+.weekgrid .wname{font-size:11px;color:var(--ink2);font-weight:600;display:flex;align-items:center;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:2px}
+.weekgrid .wc{border-radius:6px;height:30px;display:flex;align-items:center;justify-content:center;
+  font-size:11.5px;font-weight:800;font-variant-numeric:tabular-nums}
+.weekgrid .wmut{color:var(--ink3);font-weight:400}
 .arrowdown{text-align:center;color:var(--ink3);font-size:13px;margin:-2px 0}
 </style>
 
@@ -184,7 +191,6 @@ table.gap td.stale{color:#c0392b}
     <div id="maintabs" class="tabs" style="margin-bottom:16px">
       <button type="button" class="tab on" data-pane="pane-post">一鍵發文</button>
       <button type="button" class="tab" data-pane="pane-cal">排程行事曆</button>
-      <button type="button" class="tab" data-pane="pane-stats">發文數據</button>
       <button type="button" class="tab" data-pane="pane-board">成效儀表板</button>
     </div>
 
@@ -239,23 +245,19 @@ table.gap td.stale{color:#c0392b}
          這兩個容器留著給那個彈窗用，不再獨立顯示。 -->
     <div id="pane-gap" hidden><div id="gapsum"></div><div id="gapgrid"></div></div>
 
-    <div id="pane-stats" hidden>
-      <div class="note">
-        每位顧問的發文成效。數字全部來自 Threads 官方 API（瀏覽／讚／留言），
-        發布後 3 天內每 6 小時自動更新一次，之後就不再抓——觸及幾乎都發生在前 48 小時。
-      </div>
-      <div class="card"><div id="bystaff" class="mut">載入中…</div></div>
-      <div class="card">
-        <label style="margin-bottom:2px">每一則貼文</label>
-        <div id="stattabs" class="tabs"></div>
-        <div id="postlist" class="mut">載入中…</div>
-      </div>
-    </div>
-
     <div id="pane-board" hidden>
       <div class="note">
         這一頁要回答的是「<b>哪一種發文真的帶來人</b>」——不是誰的瀏覽數高，
-        而是誰帶進了 LINE 好友與主動應徵。
+        而是誰帶進了 LINE 好友與主動應徵。數字全部來自 Threads 官方 API（瀏覽／讚／留言），
+        發布後 3 天內每 6 小時自動更新一次，之後就不再抓——觸及幾乎都發生在前 48 小時。
+      </div>
+      <div class="card">
+        <label style="margin-bottom:6px">顧問排行</label>
+        <div id="bystaff" class="mut">載入中…</div>
+      </div>
+      <div class="card">
+        <label style="margin-bottom:2px">每位顧問・一週七天成效<span class="mut" style="font-weight:400">（顏色越深＝那天平均瀏覽越高）</span></label>
+        <div id="weekgrid" class="mut">載入中…</div>
       </div>
       <div class="card">
         <label style="margin-bottom:6px">發文時段 vs 觸及</label>
@@ -268,6 +270,11 @@ table.gap td.stale{color:#c0392b}
       <div class="card">
         <label style="margin-bottom:6px">從發文走到應徵</label>
         <div id="funnel" class="mut">載入中…</div>
+      </div>
+      <div class="card">
+        <label style="margin-bottom:2px">每一則貼文</label>
+        <div id="stattabs" class="tabs"></div>
+        <div id="postlist" class="mut">載入中…</div>
       </div>
     </div>
   </main>
@@ -429,11 +436,11 @@ function paintLine() {
 $('maintabs').addEventListener('click', function (e) {
   var b = e.target.closest('.tab'); if (!b) return;
   [].forEach.call($('maintabs').children, function (x) { x.classList.toggle('on', x === b); });
-  ['pane-post', 'pane-cal', 'pane-stats', 'pane-board'].forEach(function (id) {
+  ['pane-post', 'pane-cal', 'pane-board'].forEach(function (id) {
     $(id).hidden = (id !== b.dataset.pane);
   });
   if (b.dataset.pane === 'pane-cal') loadCal();
-  if (b.dataset.pane === 'pane-stats' || b.dataset.pane === 'pane-board') paintStats();
+  if (b.dataset.pane === 'pane-board') paintStats();
   if (b.dataset.pane === 'pane-board' && !LINE_INS) loadLine();
 });
 
@@ -603,6 +610,7 @@ function paintStats() {
   if (!rows.length) {
     $('bystaff').innerHTML = '<div class="mut">還沒有抓到成效的貼文。貼文發布後最多 6 小時內會有數字。</div>';
     $('byhour').innerHTML = $('bystaff').innerHTML;
+    $('weekgrid').innerHTML = $('bystaff').innerHTML;
     $('funnel').innerHTML = $('bystaff').innerHTML;
     $('postlist').innerHTML = $('bystaff').innerHTML;
     return;
@@ -633,6 +641,49 @@ function paintStats() {
     }).join('') + '</div>'
     + '<div class="explain">📏 長條越長＝平均每則貼文被看到越多次。🏆是目前排第一的顧問。'
       + '則數少於3則的先別下結論——樣本太少，可能只是運氣。</div>';
+
+  // ── 每位顧問・一週七天 ──
+  // 2026-09-02 加：Jacky 要看「這個顧問是不是固定哪幾天發文比較有效」，
+  // 不只是整體平均。日期用「年/月/日三個數字自己組 Date」算星期幾，
+  // 不要拿 posted_at 整串去 new Date() 解析——字串沒帶時區，瀏覽器會用
+  // 自己的本地時區重新詮釋，顧問打開頁面的地點不同，算出來的星期幾
+  // 可能會跟顧問後台其他地方顯示的日期對不起來。
+  var WD_MON_FIRST = [1, 2, 3, 4, 5, 6, 0]; // Date.getDay() 是週日=0，這裡轉成週一開頭的顯示順序
+  var WD_LABEL = ['一', '二', '三', '四', '五', '六', '日'];
+  var weekBy = {}; // 顧問 -> [{sum,n} ×7]（索引跟 WD_MON_FIRST 對齊，不是 getDay() 原始順序）
+  rows.forEach(function (r) {
+    var k = nm(r);
+    var ymd = r.posted_at.slice(0, 10).split('-').map(Number);
+    var dow = new Date(ymd[0], ymd[1] - 1, ymd[2]).getDay();
+    var col = WD_MON_FIRST.indexOf(dow);
+    weekBy[k] = weekBy[k] || WD_LABEL.map(function () { return { sum: 0, n: 0 }; });
+    weekBy[k][col].sum += r.views || 0;
+    weekBy[k][col].n++;
+  });
+  var weekMax = 1;
+  Object.keys(weekBy).forEach(function (k) {
+    weekBy[k].forEach(function (c) { if (c.n) weekMax = Math.max(weekMax, c.sum / c.n); });
+  });
+  var weekNames = Object.keys(weekBy).sort(function (a, b) { return names.indexOf(a) - names.indexOf(b); });
+  if (!weekNames.length) {
+    $('weekgrid').innerHTML = '<div class="mut">還沒有資料。</div>';
+  } else {
+    $('weekgrid').innerHTML =
+      '<div class="weekgrid" style="grid-template-columns:minmax(34px,44px) repeat(7,1fr)">'
+      + '<div class="wh"></div>' + WD_LABEL.map(function (w) { return '<div class="wh">' + w + '</div>'; }).join('')
+      + weekNames.map(function (n) {
+          return '<div class="wname">' + n + '</div>' + weekBy[n].map(function (c) {
+            if (!c.n) return '<div class="wc" style="background:#f1ece0"><span class="wmut">—</span></div>';
+            var avg = Math.round(c.sum / c.n);
+            var alpha = 0.18 + 0.72 * Math.min(1, avg / weekMax);
+            var dark = alpha > 0.55;
+            return '<div class="wc" style="background:rgba(46,169,223,' + alpha.toFixed(2) + ')">'
+              + '<span style="color:' + (dark ? '#fff' : 'var(--ink)') + '">' + avg + '</span></div>';
+          }).join('');
+        }).join('')
+      + '</div>'
+      + '<div class="explain">🔵 顏色越深＝那位顧問在那天發的貼文平均被看到越多次。「—」代表那天沒發過文，還不是代表不好。</div>';
+  }
 
   // ── 依時段 ──
   var slotDef = [
@@ -700,7 +751,7 @@ function loadQueue() {
     if (!d.ok) return;
     ALL_QUEUE = d.queue || [];
     paintQueue();
-    if (!$('pane-stats').hidden || !$('pane-board').hidden) paintStats();
+    if (!$('pane-board').hidden) paintStats();
   }).catch(function () {});
 }
 
