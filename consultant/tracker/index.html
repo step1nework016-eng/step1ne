@@ -270,6 +270,19 @@ var SRC_STATUS_LABEL = {
 function hardGateBadge(c) {
   return c.hard_gate ? '<span class="badge b-undecided" style="margin-left:4px">硬性條件審核</span>' : '';
 }
+// 2026-09-02 加：Email／電話改選填後（顧問電洽新增人選時可以先跳過），沒填
+// 的話後端會塞一個佔位 email（xxx@no-email.step1ne.local，不是真的信箱，
+// 只是拿來當資料庫識別鍵用），這裡要能認得出來，不要在畫面上把它當成
+// 真的 email 顯示，也要在卡片上提醒顧問記得回頭補。
+function isPlaceholderEmail(email) {
+  return !!(email && /@no-email\.step1ne\.local$/i.test(String(email).trim()));
+}
+function hasContact(c) {
+  return !!((c.phone && c.phone.trim()) || (c.email && !isPlaceholderEmail(c.email)));
+}
+function contactMissingBadge(c) {
+  return hasContact(c) ? '' : '<span class="badge" style="margin-left:4px;background:#fdf6e9;color:var(--warn)">⚠ 記得補聯絡方式</span>';
+}
 function stageLabelOf(c) {
   if (c.kind === 'sourced') {
     var lb = SRC_STATUS_LABEL[c.status] || (c.tab === 'to_contact' ? '待開發接觸' : '等對方回');
@@ -738,7 +751,7 @@ function openDrawer(appId, kind) {
   var st = stageLabelOf(c);
   var extra = parseExtra(c.resume_extra_files);
   var html = '<div class="dhead"><span class="nm">' + esc(c.name) + '</span>' +
-    '<span class="badge ' + st.cls + '">' + st.lb + '</span>' + hardGateBadge(c) +
+    '<span class="badge ' + st.cls + '">' + st.lb + '</span>' + hardGateBadge(c) + contactMissingBadge(c) +
     '<button class="edbtn" id="edtog" type="button">編輯 ✎</button>' +
     '<button class="x" id="dclose" type="button">×</button></div><div class="dbody">';
 
@@ -802,8 +815,8 @@ function openDrawer(appId, kind) {
   var primaryPl = (c.placements || [])[0] || null;
   html += '<div class="sec" id="edsec"><h4>基本資料</h4><div id="viewbox"><dl class="kv">' +
     '<dt>姓名</dt><dd>' + esc(c.name) + '</dd>' +
-    '<dt>Email</dt><dd><a href="mailto:' + esc(c.email) + '">' + esc(c.email) + '</a></dd>' +
-    '<dt>電話</dt><dd><a href="tel:' + esc(c.phone) + '">' + esc(c.phone) + '</a></dd>' +
+    '<dt>Email</dt><dd>' + (c.email && !isPlaceholderEmail(c.email) ? '<a href="mailto:' + esc(c.email) + '">' + esc(c.email) + '</a>' : '<span style="color:var(--warn)">⚠ 還沒有，記得跟人選補</span>') + '</dd>' +
+    '<dt>電話</dt><dd>' + (c.phone ? '<a href="tel:' + esc(c.phone) + '">' + esc(c.phone) + '</a>' : '<span style="color:var(--warn)">⚠ 還沒有，記得跟人選補</span>') + '</dd>' +
     '<dt>應徵職缺</dt><dd>' + esc(c.job_title) + '</dd>' +
     '<dt>現職公司</dt><dd>' + esc(c.current_company || '—') + '</dd>' +
     '<dt>現職職位</dt><dd>' + esc(c.current_title || '—') + '</dd>' +
@@ -816,7 +829,7 @@ function openDrawer(appId, kind) {
     '<dt>負責顧問</dt><dd>' + ownerAssignSelect(c.owner) + '</dd>' +
     '</dl></div><div id="edbox" hidden>' +
     '<label class="edl">姓名</label><input class="edi" id="edName" value="' + esc(c.name) + '">' +
-    '<label class="edl">Email</label><input class="edi" id="edEmail" value="' + esc(c.email) + '">' +
+    '<label class="edl">Email</label><input class="edi" id="edEmail" value="' + esc(isPlaceholderEmail(c.email) ? '' : c.email) + '">' +
     '<label class="edl">電話</label><input class="edi" id="edPhone" value="' + esc(c.phone) + '">' +
     (c.sourced_link_id
       ? '<label class="edl">現職公司</label><input class="edi" id="edCompany" value="' + esc(c.current_company || '') + '">' +
