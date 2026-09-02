@@ -1336,25 +1336,44 @@ function openClientFormalModal(appId, kind) {
     '<div class="dbody"><div class="sec"><p class="mut" style="margin:0">載入中…</p></div></div>';
   $('cfClose').onclick = closeClientFormalModal;
   $('cfMask').classList.add('show');
-  api(apiBase + encodeURIComponent(appId) + '/client-formal-prefill').then(function (pre) {
-    if (!pre.ok) {
-      $('cfWrap').innerHTML = '<div class="dhead"><span class="nm">製作客戶版履歷</span><button class="x" id="cfClose" type="button">×</button></div>' +
-        '<div class="dbody"><div class="sec"><p style="color:#c0392b;margin:0">' + esc(pre.error || '載入失敗') + '</p></div></div>';
-      $('cfClose').onclick = closeClientFormalModal;
-      return;
-    }
+  // 2026-09-02 加：一個人選可能同時推薦給好幾家客戶，各自獨立進度——原本
+  // 這裡只會抓「最新一筆」，顧問想幫別家客戶做履歷完全沒辦法選。改成載入時
+  // 先問後端有哪些推薦紀錄（forwards），超過一筆就在最上面加選單，換公司會
+  // 重新打一次 prefill 帶 company_id，換到對應那家的職缺/公司資料。
+  var loadFor = function (companyId) {
+    var qs = companyId ? ('?company_id=' + encodeURIComponent(companyId)) : '';
+    api(apiBase + encodeURIComponent(appId) + '/client-formal-prefill' + qs).then(function (pre) {
+      if (!pre.ok) {
+        $('cfWrap').innerHTML = '<div class="dhead"><span class="nm">製作客戶版履歷</span><button class="x" id="cfClose" type="button">×</button></div>' +
+          '<div class="dbody"><div class="sec"><p style="color:#c0392b;margin:0">' + esc(pre.error || '載入失敗') + '</p></div></div>';
+        $('cfClose').onclick = closeClientFormalModal;
+        return;
+      }
+      renderClientFormalForm(pre);
+    });
+  };
+  var renderClientFormalForm = function (pre) {
+    var forwards = pre.forwards || [];
     var known = [
       ['姓名', pre.name + (pre.anonymous ? '（匿名版，客戶未簽約）' : '')],
-      ['職缺', pre.job_title], ['客戶', pre.client_name],
       ['現居地', pre.residence], ['學歷', pre.education], ['出生年月', pre.age],
       ['兵役', pre.military], ['語言', pre.languages],
       ['期望待遇', pre.expected_salary], ['可到職', pre.available_date],
     ].filter(function (r) { return r[1]; });
+    var companyPicker = forwards.length > 1
+      ? '<label class="edl" style="margin-top:0">幫哪一家客戶做（這位人選同時推薦給' + forwards.length + '家）</label>' +
+        '<select class="edi" id="cfCompany">' + forwards.map(function (f) {
+          return '<option value="' + esc(f.company_id) + '"' + (f.company_id === pre.selected_company_id ? ' selected' : '') + '>' +
+            esc(f.client_name) + '・' + esc(f.job_title) + '</option>';
+        }).join('') + '</select>'
+      : '<dt style="display:inline-block;font-weight:700;color:var(--ink3);font-size:12.5px">職缺</dt><dd style="display:inline;margin:0 0 0 6px">' + esc(pre.job_title) + '</dd>' +
+        '<br><dt style="display:inline-block;font-weight:700;color:var(--ink3);font-size:12.5px">客戶</dt><dd style="display:inline;margin:0 0 0 6px">' + esc(pre.client_name) + '</dd>';
     $('cfWrap').innerHTML =
       '<div class="dhead"><span class="nm">製作客戶版履歷</span><button class="x" id="cfClose" type="button">×</button></div>' +
       '<div class="dbody"><div class="sec">' +
       '<div class="subhint" style="margin:0 0 10px">以下欄位已經自動帶出（已過濾內部判斷內容），下面三格面談沒有系統化收集，請手動補上再產生。</div>' +
-      '<dl class="kv">' + known.map(function (r) { return '<dt>' + esc(r[0]) + '</dt><dd>' + esc(r[1]) + '</dd>'; }).join('') + '</dl>' +
+      companyPicker +
+      '<dl class="kv" style="margin-top:8px">' + known.map(function (r) { return '<dt>' + esc(r[0]) + '</dt><dd>' + esc(r[1]) + '</dd>'; }).join('') + '</dl>' +
       '<label class="edl" style="margin-top:10px">現況（必填）</label><textarea class="edi" id="cfState" rows="2" placeholder="例：待業中，最近一份工作為……"></textarea>' +
       '<label class="edl">相關經驗（必填）</label><textarea class="edi" id="cfExp" rows="2" placeholder="例：無 Revit／BIM 實際操作經驗，電訪前已主動查詢資料了解職務內容"></textarea>' +
       '<label class="edl">交通工具</label><input class="edi" id="cfTrans" placeholder="例：輕型機車、普通小型車駕照">' +
@@ -1367,6 +1386,8 @@ function openClientFormalModal(appId, kind) {
       '<div class="acts" style="margin-top:12px"><button class="btn p" id="cfGo" type="button">產生履歷</button><span class="mut" id="cfMsg"></span></div>' +
       '</div></div>';
     $('cfClose').onclick = closeClientFormalModal;
+    var cfCompany = $('cfCompany');
+    if (cfCompany) cfCompany.onchange = function () { loadFor(cfCompany.value); };
     var wantPhoto = $('cfWantPhoto');
     var photoBox = $('cfPhotoBox');
     wantPhoto.onchange = function () { photoBox.hidden = !wantPhoto.checked; };
@@ -1390,6 +1411,7 @@ function openClientFormalModal(appId, kind) {
         current_state: state, related_experience: exp, transportation: $('cfTrans').value.trim(),
         photo_b64: wantPhoto.checked ? photoDataUrl : null,
       };
+      if (cfCompany) body.company_id = cfCompany.value;
       if (kind === 'sourced') {
         body.expected_salary = $('cfSalary').value.trim();
         body.available_date = $('cfAvail').value.trim();
@@ -1406,7 +1428,8 @@ function openClientFormalModal(appId, kind) {
         closeClientFormalModal();
       });
     };
-  });
+  };
+  loadFor(null);
 }
 
 // 2026-09-01 加：引導式教學——按了才開始教，不按不會自動跳出來。這頁改版
