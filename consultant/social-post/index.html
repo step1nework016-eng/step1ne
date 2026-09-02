@@ -125,6 +125,41 @@ table.gap td.stale{color:#c0392b}
 .row{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-top:11px}
 #pane-cal select{width:100%;font:inherit;font-size:13.5px;padding:8px 11px;border:1px solid #eee7db;border-radius:9px;background:#fff;color:#23262d}
 #pane-cal label{display:block;font-size:11.5px;color:#8a8d95;font-weight:600;margin:9px 0 3px}
+
+/* ── 2026-09-02 改：成效儀表板從表格／文字改成可視化，給ADHD／一眼看懂
+   版本——一張圖只講一件事，數字要嘛是大字、要嘛是長條，盡量不要出現
+   「要自己心算比大小」的表格。 */
+.explain{font-size:13px;color:var(--ink2);line-height:1.6;margin:8px 0 0;padding:9px 12px;
+  background:var(--soft);border-radius:10px}
+.explain b{color:var(--ink)}
+.barlist{display:flex;flex-direction:column;gap:12px}
+.barrow{display:flex;align-items:center;gap:10px}
+.barrow .ic{flex:none;width:26px;text-align:center;font-size:16px}
+.barrow .nm{flex:none;width:78px;font-size:12.5px;color:var(--ink2);font-weight:600;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.barrow .track{flex:1;background:#f1ece0;border-radius:999px;height:22px;position:relative;overflow:hidden}
+.barrow .fill{position:absolute;left:0;top:0;bottom:0;border-radius:999px;
+  background:linear-gradient(90deg,#c79a5c,var(--gold));transition:width .5s ease;min-width:22px}
+.barrow .fill.best{background:linear-gradient(90deg,#e0aa5f,#c0392b)}
+.barrow .val{flex:none;width:64px;text-align:right;font-weight:800;font-variant-numeric:tabular-nums;
+  font-size:14.5px;color:var(--ink)}
+.barrow .sub{flex:none;width:64px;text-align:right;font-size:11px;color:var(--ink3)}
+.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:520px){.statgrid{grid-template-columns:1fr}}
+.stattile{background:var(--soft);border-radius:14px;padding:14px 12px;text-align:center}
+.stattile .ic{font-size:22px;line-height:1}
+.stattile .num{font-size:30px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.3;color:var(--ink)}
+.stattile .lb{font-size:12px;color:var(--ink2);margin-top:2px}
+.stattile.warn .num{color:var(--bad)}
+.stattile.good .num{color:var(--ok)}
+.funnelwrap{display:flex;flex-direction:column;gap:6px;padding:4px 0}
+.fstep{display:flex;align-items:center;gap:12px}
+.fstep .bar{height:40px;border-radius:10px;background:linear-gradient(90deg,#c79a5c,var(--gold));
+  display:flex;align-items:center;padding:0 14px;color:#fff;font-weight:800;font-size:16px;
+  font-variant-numeric:tabular-nums;transition:width .5s ease;white-space:nowrap;min-width:76px}
+.fstep .flabel{flex:none;width:118px;font-size:12.5px;color:var(--ink2);font-weight:600}
+.fstep .fic{flex:none;font-size:18px}
+.arrowdown{text-align:center;color:var(--ink3);font-size:13px;margin:-2px 0}
 </style>
 
 <div id="gate" class="gate" hidden>
@@ -369,18 +404,20 @@ function paintLine() {
   if (!d || !d.ok) { el.innerHTML = '<span class="mut">LINE 數字讀取失敗</span>'; return; }
   if (!d.ready) { el.innerHTML = '<span class="mut">' + (d.note || 'LINE 統計尚未結算') + '</span>'; return; }
   var blockPct = d.followers ? Math.round(d.blocks / d.followers * 100) : 0;
+  var blockWarn = blockPct >= 25;
   el.innerHTML =
-    '<div style="display:flex;gap:22px;flex-wrap:wrap;font-size:13px">'
-    + '<div><div style="font-size:24px;font-weight:800">' + d.reachable + '</div>'
-      + '<div class="mut">現在推得到的人</div></div>'
-    + '<div><div style="font-size:24px;font-weight:800">' + d.followers + '</div>'
-      + '<div class="mut">累積加入</div></div>'
-    + '<div><div style="font-size:24px;font-weight:800">' + d.blocks + '</div>'
-      + '<div class="mut">已封鎖（' + blockPct + '%）</div></div>'
+    '<div class="statgrid">'
+    + '<div class="stattile good"><div class="ic">📣</div><div class="num">' + d.reachable + '</div>'
+      + '<div class="lb">現在能推播到的人</div></div>'
+    + '<div class="stattile"><div class="ic">➕</div><div class="num">' + d.followers + '</div>'
+      + '<div class="lb">從開始到現在，一共加過的人</div></div>'
+    + '<div class="stattile' + (blockWarn ? ' warn' : '') + '"><div class="ic">' + (blockWarn ? '😥' : '🙂') + '</div>'
+      + '<div class="num">' + blockPct + '%</div>'
+      + '<div class="lb">封鎖我們的人（' + d.blocks + ' 人）</div></div>'
     + '</div>'
-    + '<div class="mut" style="margin-top:8px">統計日 ' + d.date.slice(4, 6) + '/' + d.date.slice(6, 8)
-    + '（LINE 隔天才結算）。<b>這是總量，不分顧問</b>——LINE 沒有提供「哪個加入連結帶來幾人」的介面，'
-    + '四位顧問的連結雖然各自不同，那個數字只有 LINE 後台看得到。</div>';
+    + '<div class="explain">📅 統計日 ' + d.date.slice(4, 6) + '/' + d.date.slice(6, 8)
+    + '（LINE 要隔一天才算好，所以看到的都是昨天以前的數字）。'
+    + '<b>這三個數字是全部顧問加起來的總量</b>，LINE沒辦法告訴我們「這個人是被誰的貼文吸引來的」。</div>';
 }
 
 // ── 主分頁切換 ──
@@ -575,62 +612,81 @@ function paintStats() {
     by[k].k2 += r.clicks || 0;
   });
   var names = Object.keys(by).sort(function (a, b) { return by[b].v / by[b].n - by[a].v / by[a].n; });
+  var maxAvg = Math.max.apply(null, names.map(function (n) { return Math.round(by[n].v / by[n].n); })) || 1;
   $('bystaff').innerHTML =
-    '<table style="width:100%;border-collapse:collapse;font-size:13px">'
-    + '<tr style="text-align:left;color:var(--ink2)"><th style="padding:6px 4px">顧問</th>'
-    + '<th style="text-align:right">則數</th><th style="text-align:right">平均瀏覽</th>'
-    + '<th style="text-align:right">最高</th><th style="text-align:right">互動</th>'
-    + '<th style="text-align:right">點擊</th><th style="text-align:right">點擊率</th></tr>'
-    + names.map(function (n) {
-        var d = by[n];
-        return '<tr style="border-top:1px solid var(--line)">'
-          + '<td style="padding:6px 4px">' + n + '</td>'
-          + '<td style="text-align:right">' + d.n + '</td>'
-          + '<td style="text-align:right;font-weight:700">' + Math.round(d.v / d.n) + '</td>'
-          + '<td style="text-align:right">' + d.best + '</td>'
-          + '<td style="text-align:right">♥' + d.l + ' 💬' + d.c + '</td>'
-          + '<td style="text-align:right;font-weight:700">' + d.k2 + '</td>'
-          + '<td style="text-align:right">' + (d.v ? (d.k2 / d.v * 100).toFixed(2) + '%' : '—') + '</td></tr>';
-      }).join('')
-    + '</table>'
-    + '<div class="mut" style="margin-top:8px">依平均瀏覽排序。則數少於 3 的先不要下結論——'
-      + '同一個職缺換不同帳號發，觸及差距可能來自帳號本身的追蹤數，不是貼文寫得好不好。</div>';
+    '<div class="barlist">' + names.map(function (n, i) {
+      var d = by[n];
+      var avg = Math.round(d.v / d.n);
+      var pct = Math.max(4, Math.round(avg / maxAvg * 100));
+      return '<div class="barrow">'
+        + '<span class="ic">' + (i === 0 ? '🏆' : '👤') + '</span>'
+        + '<span class="nm">' + n + '</span>'
+        + '<span class="track"><span class="fill' + (i === 0 ? ' best' : '') + '" style="width:' + pct + '%"></span></span>'
+        + '<span class="val">' + avg + ' 👁</span>'
+        + '<span class="sub">' + d.n + ' 則</span>'
+        + '</div>';
+    }).join('') + '</div>'
+    + '<div class="explain">📏 長條越長＝平均每則貼文被看到越多次。🏆是目前排第一的顧問。'
+      + '則數少於3則的先別下結論——樣本太少，可能只是運氣。</div>';
 
   // ── 依時段 ──
-  var slot = { '06-11 早上': [], '11-14 中午': [], '14-18 下午': [], '18-22 晚上': [], '22-06 深夜': [] };
+  var slotDef = [
+    { k: '06-11 早上', ic: '🌅' }, { k: '11-14 中午', ic: '☀️' }, { k: '14-18 下午', ic: '🌤️' },
+    { k: '18-22 晚上', ic: '🌆' }, { k: '22-06 深夜', ic: '🌙' },
+  ];
+  var slot = {}; slotDef.forEach(function (s) { slot[s.k] = []; });
   rows.forEach(function (r) {
     var h = parseInt(r.posted_at.slice(11, 13), 10);
     var k = h < 6 ? '22-06 深夜' : h < 11 ? '06-11 早上' : h < 14 ? '11-14 中午'
           : h < 18 ? '14-18 下午' : h < 22 ? '18-22 晚上' : '22-06 深夜';
     slot[k].push(r.views || 0);
   });
-  $('byhour').innerHTML = Object.keys(slot).map(function (k) {
-      var a = slot[k];
-      if (!a.length) return '<div style="padding:4px 0;color:var(--ink2)">' + k + '　—　尚無資料</div>';
-      var avg = Math.round(a.reduce(function (x, y) { return x + y; }, 0) / a.length);
-      return '<div style="padding:4px 0">' + k + '　<b>' + avg + '</b> 次平均瀏覽'
-        + '<span class="mut">（' + a.length + ' 則）</span></div>';
-    }).join('')
-    + '<div class="mut" style="margin-top:8px">⚠️ 目前樣本還太少，這張表先當「開始累積了」看，'
-      + '不要拿來排發文時間。每個時段各累積 5 則以上再看才準。</div>';
+  var slotAvg = {}; slotDef.forEach(function (s) {
+    var a = slot[s.k];
+    slotAvg[s.k] = a.length ? Math.round(a.reduce(function (x, y) { return x + y; }, 0) / a.length) : 0;
+  });
+  var maxSlot = Math.max.apply(null, Object.keys(slotAvg).map(function (k) { return slotAvg[k]; })) || 1;
+  $('byhour').innerHTML = '<div class="barlist">' + slotDef.map(function (s) {
+      var a = slot[s.k], avg = slotAvg[s.k];
+      var pct = a.length ? Math.max(4, Math.round(avg / maxSlot * 100)) : 0;
+      return '<div class="barrow">'
+        + '<span class="ic">' + s.ic + '</span>'
+        + '<span class="nm">' + s.k.split(' ')[1] + '</span>'
+        + '<span class="track"><span class="fill" style="width:' + pct + '%"></span></span>'
+        + '<span class="val">' + (a.length ? avg + ' 👁' : '—') + '</span>'
+        + '<span class="sub">' + (a.length ? a.length + ' 則' : '尚無資料') + '</span>'
+        + '</div>';
+    }).join('') + '</div>'
+    + '<div class="explain">⚠️ 現在樣本還太少，先當「開始累積了」看就好，'
+      + '每個時段要累積5則以上，才能真的拿來決定幾點發文比較好。</div>';
 
   // ── 漏斗 ──
   paintPostList();
 
   var tv = rows.reduce(function (x, r) { return x + (r.views || 0); }, 0);
   var tc = rows.reduce(function (x, r) { return x + (r.clicks || 0); }, 0);
-  $('funnel').innerHTML =
-    '<div style="font-size:13px;line-height:2">'
-    + '已發布貼文　<b>' + rows.length + '</b> 則<br>'
-    + '總觸及　<b>' + tv + '</b> 次<br>'
-    + '點擊窗口連結　<b>' + tc + '</b> 次<br>'
-    + '加入 LINE　<span class="mut">總量見上方（LINE 不提供分來源數字）</span>'
-    + '</div>'
-    + '<div class="mut" style="margin-top:10px">'
-    + (tc ? '點擊已經歸得到「哪位顧問的哪則貼文」，可以直接比較誰的貼文真的把人帶進來。'
-          : '⚠️ 目前還是 0 次——轉址是 2026-08-19 才上線的，'
-            + '<b>在那之前發的貼文結尾是舊的 LINE 連結，永遠不會有點擊數</b>。'
-            + '之後新發的貼文才算得到。')
+  var steps = [
+    { ic: '📮', lb: '發了幾則', v: rows.length },
+    { ic: '👀', lb: '被看到幾次', v: tv },
+    { ic: '🔗', lb: '點了連結', v: tc },
+    { ic: '💬', lb: '加LINE好友', v: null },
+  ];
+  var maxV = Math.max(rows.length, tv, tc, 1);
+  $('funnel').innerHTML = '<div class="funnelwrap">' + steps.map(function (s, i) {
+      var arrow = i > 0 ? '<div class="arrowdown">⬇</div>' : '';
+      if (s.v === null) {
+        return arrow + '<div class="fstep"><span class="fic">' + s.ic + '</span>'
+          + '<span class="flabel">' + s.lb + '</span>'
+          + '<span class="bar" style="width:76px;background:#c9c2b3">見上方</span></div>';
+      }
+      var pct = Math.max(14, Math.round(s.v / maxV * 100));
+      return arrow + '<div class="fstep"><span class="fic">' + s.ic + '</span>'
+        + '<span class="flabel">' + s.lb + '</span>'
+        + '<span class="bar" style="width:' + pct + '%">' + s.v + '</span></div>';
+    }).join('') + '</div>'
+    + '<div class="explain">' + (tc
+      ? '👉 每個箭頭往下，通常人數會變少——這很正常。「點了連結」的人才是真的有興趣，比「被看到」重要得多。'
+      : '⚠️ 「點了連結」現在還是 0——因為 2026-08-19 之前發的舊貼文，結尾放的是舊版LINE連結，本來就量不到點擊。新發的貼文之後才算得到數字。')
     + '</div>';
 }
 
