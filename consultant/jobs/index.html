@@ -792,17 +792,32 @@ function jdWireEdit() {
     save.disabled = true; msg.className = 'jdmsg'; msg.textContent = '儲存中…';
     var body = { fields: fields };
     if (JD_CUR.mismatched) body.confirm_mismatch = true;
-    api('/admin/jobs/' + encodeURIComponent(JD_CUR.slug) + '/content', {
-      method: 'POST', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(body),
-    }).then(function (d) {
-      save.disabled = false;
-      if (!d.ok) { msg.className = 'jdmsg err'; msg.textContent = d.error || d.message || '儲存失敗'; return; }
-      msg.className = 'jdmsg ok'; msg.textContent = '已存檔，最多 15 分鐘內會重新產生頁面並自動上線。';
-      Object.assign(JD_CUR.spec, fields);
-      JD_CUR.mismatched = false;
-      toast('JD 已存檔，稍後自動上線');
-    }).catch(function () { save.disabled = false; msg.className = 'jdmsg err'; msg.textContent = '連不上伺服器'; });
+    var doSave = function (b) {
+      api('/admin/jobs/' + encodeURIComponent(JD_CUR.slug) + '/content', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(b),
+      }).then(function (d) {
+        // 存檔前系統會自己檢查一次「這次存完內容會不會突然變超短」——
+        // 之前發生過只想刪一句話結果整頁被清空，這是抓那種狀況的最後防線。
+        if (!d.ok && d.shrink) {
+          save.disabled = false;
+          if (window.confirm(d.message + '\n\n確定要照這樣存嗎？')) {
+            save.disabled = true; msg.className = 'jdmsg'; msg.textContent = '儲存中…';
+            doSave(Object.assign({}, b, { confirm_shrink: true }));
+          } else {
+            msg.className = 'jdmsg err'; msg.textContent = '已取消存檔，內容維持原樣';
+          }
+          return;
+        }
+        save.disabled = false;
+        if (!d.ok) { msg.className = 'jdmsg err'; msg.textContent = d.error || d.message || '儲存失敗'; return; }
+        msg.className = 'jdmsg ok'; msg.textContent = '已存檔，最多 15 分鐘內會重新產生頁面並自動上線。';
+        Object.assign(JD_CUR.spec, fields);
+        JD_CUR.mismatched = false;
+        toast('JD 已存檔，稍後自動上線');
+      }).catch(function () { save.disabled = false; msg.className = 'jdmsg err'; msg.textContent = '連不上伺服器'; });
+    };
+    doSave(body);
   };
   var ai = document.getElementById('jdAiGo');
   ai.onclick = function () {
