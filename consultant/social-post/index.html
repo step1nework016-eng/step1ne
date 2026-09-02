@@ -668,7 +668,7 @@ function load() {
     // 跟 tracker 頁 30 秒輪詢同一類問題（D1 免費方案每日讀取額度被打到
     // 2200 萬筆那次的一部分）。改成分頁不可見就不打。
     if (!queueTimer) {
-      queueTimer = setInterval(function () { if (!document.hidden) loadQueue(); }, 8000);
+      queueTimer = setInterval(function () { if (!document.hidden) loadQueue(); }, 15000);
       document.addEventListener('visibilitychange', function () { if (!document.hidden) loadQueue(); });
     }
   }).catch(function () { $('job').innerHTML = '<option value="">讀取失敗</option>'; });

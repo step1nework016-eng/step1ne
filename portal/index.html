@@ -1367,7 +1367,7 @@ function openCandModal(appId){
   if (CHAT_POLL_TIMER) clearInterval(CHAT_POLL_TIMER);
   // 彈窗開著時本來就有範圍限制（關閉會 clearInterval），這裡順手也補上
   // 分頁不可見就不打，跟其他輪詢統一標準。
-  CHAT_POLL_TIMER = setInterval(function () { if (!document.hidden) cmLoadChat(); }, 6000);
+  CHAT_POLL_TIMER = setInterval(function () { if (!document.hidden) cmLoadChat(); }, 10000);
 }
 function closeCandModal(){
   document.getElementById('candModalMask').classList.remove('show');
@@ -1477,7 +1477,7 @@ function openFromNotification(appId){
 // 2026-09-01 加：分頁不在前景時不打這支——20 秒一次、客戶開著這頁掛一整天
 // 是背景常態流量，跟顧問後台 tracker 頁同一批問題（見 D1 額度打滿那次的
 // 修復註解），沒必要在看不到的分頁還一直刷。
-setInterval(function () { if (!document.hidden) refreshNotifications(); }, 20000);
+setInterval(function () { if (!document.hidden) refreshNotifications(); }, 40000);
 document.addEventListener('visibilitychange', function () { if (!document.hidden) refreshNotifications(); });
 refreshNotifications();
 
