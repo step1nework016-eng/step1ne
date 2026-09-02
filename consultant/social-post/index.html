@@ -133,17 +133,21 @@ table.gap td.stale{color:#c0392b}
   background:var(--soft);border-radius:10px}
 .explain b{color:var(--ink)}
 .barlist{display:flex;flex-direction:column;gap:12px}
-.barrow{display:flex;align-items:center;gap:10px}
-.barrow .ic{flex:none;width:26px;text-align:center;font-size:16px}
-.barrow .nm{flex:none;width:78px;font-size:12.5px;color:var(--ink2);font-weight:600;
+.barrow{display:flex;align-items:center;gap:6px}
+.barrow .ic{flex:none;width:20px;text-align:center;font-size:15px}
+.barrow .nm{flex:none;width:44px;font-size:12px;color:var(--ink2);font-weight:600;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.barrow .track{flex:1;background:#f1ece0;border-radius:999px;height:22px;position:relative;overflow:hidden}
+.barrow .track{flex:1;min-width:36px;background:#f1ece0;border-radius:999px;height:22px;position:relative;overflow:hidden}
 .barrow .fill{position:absolute;left:0;top:0;bottom:0;border-radius:999px;
-  background:linear-gradient(90deg,#c79a5c,var(--gold));transition:width .5s ease;min-width:22px}
+  background:linear-gradient(90deg,#c79a5c,var(--gold));transition:width .5s ease;min-width:10px}
 .barrow .fill.best{background:linear-gradient(90deg,#e0aa5f,#c0392b)}
-.barrow .val{flex:none;width:64px;text-align:right;font-weight:800;font-variant-numeric:tabular-nums;
-  font-size:14.5px;color:var(--ink)}
-.barrow .sub{flex:none;width:64px;text-align:right;font-size:11px;color:var(--ink3)}
+.barrow .val{flex:none;width:52px;text-align:right;font-weight:800;font-variant-numeric:tabular-nums;
+  font-size:13.5px;color:var(--ink)}
+.barrow .sub{flex:none;width:38px;text-align:right;font-size:10.5px;color:var(--ink3)}
+@media(max-width:380px){
+  .barrow .sub{display:none}
+  .barrow .nm{width:36px;font-size:11px}
+}
 .statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 @media(max-width:520px){.statgrid{grid-template-columns:1fr}}
 .stattile{background:var(--soft);border-radius:14px;padding:14px 12px;text-align:center}
@@ -153,12 +157,13 @@ table.gap td.stale{color:#c0392b}
 .stattile.warn .num{color:var(--bad)}
 .stattile.good .num{color:var(--ok)}
 .funnelwrap{display:flex;flex-direction:column;gap:6px;padding:4px 0}
-.fstep{display:flex;align-items:center;gap:12px}
+.fstep{display:flex;align-items:center;gap:8px}
 .fstep .bar{height:40px;border-radius:10px;background:linear-gradient(90deg,#c79a5c,var(--gold));
-  display:flex;align-items:center;padding:0 14px;color:#fff;font-weight:800;font-size:16px;
-  font-variant-numeric:tabular-nums;transition:width .5s ease;white-space:nowrap;min-width:76px}
-.fstep .flabel{flex:none;width:118px;font-size:12.5px;color:var(--ink2);font-weight:600}
-.fstep .fic{flex:none;font-size:18px}
+  display:flex;align-items:center;justify-content:center;padding:0 10px;color:#fff;font-weight:800;font-size:15px;
+  font-variant-numeric:tabular-nums;transition:width .5s ease;min-width:52px;box-sizing:border-box}
+.fstep .flabel{flex:none;width:82px;font-size:11.5px;color:var(--ink2);font-weight:600;line-height:1.3}
+.fstep .fic{flex:none;font-size:17px}
+@media(max-width:380px){.fstep .flabel{width:64px;font-size:11px}}
 .arrowdown{text-align:center;color:var(--ink3);font-size:13px;margin:-2px 0}
 </style>
 
