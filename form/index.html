@@ -102,6 +102,11 @@ function renderForm(d){
     (d.has_template
       ? '<p style="margin:0 0 16px"><a href="' + API + '/form/template?t=' + encodeURIComponent(T) + '" style="color:#a67c3d;font-weight:700;font-size:13.5px;text-decoration:none">↓ 下載空白表單（信件裡也有附檔）</a></p>'
       : '') +
+    // 2026-09-02 加：LINE 帳號，必填——用人單位安排面談要用，跟表單檔案
+    // 一起收，不用另外再麻煩人選一次。
+    '<label for="lineInput" style="display:block;font-size:12.5px;font-weight:700;color:#4a4d55;margin:0 0 6px">您的 LINE 帳號 <span style="color:#c0392b">（必填，用人單位安排面談用）</span></label>' +
+    '<input id="lineInput" type="text" placeholder="LINE ID 或手機號碼" value="' + esc(d.line_id_given || '') + '" ' +
+      'style="width:100%;font:inherit;font-size:14px;border:1px solid #e0d9cb;border-radius:9px;padding:11px 13px;margin-bottom:18px">' +
     '<div class="dz" id="dz"><p>填寫完成後，把檔案拖到這裡，或 <span class="pick">點擊選擇檔案</span></p></div>' +
     '<input type="file" id="fileInput" hidden accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.heic">' +
     '<div id="fnameBox"></div>' +
@@ -113,6 +118,10 @@ function renderForm(d){
   var fnameBox = document.getElementById('fnameBox');
   var goBtn = document.getElementById('goBtn');
   var msg = document.getElementById('msg');
+  var lineInput = document.getElementById('lineInput');
+
+  function checkReady(){ goBtn.disabled = !(FILE && lineInput.value.trim()); }
+  lineInput.oninput = checkReady;
 
   dz.onclick = function(){ input.click(); };
   ['dragover','dragenter'].forEach(function(ev){
@@ -130,13 +139,15 @@ function renderForm(d){
     if (f.size > 15 * 1024 * 1024) { msg.className = 'msg err'; msg.textContent = '檔案太大，請壓縮在 15MB 以內'; return; }
     FILE = f;
     fnameBox.innerHTML = '<div class="fname"><b>' + esc(f.name) + '</b><button type="button" id="clearBtn">移除</button></div>';
-    document.getElementById('clearBtn').onclick = function(){ FILE = null; fnameBox.innerHTML = ''; goBtn.disabled = true; input.value = ''; };
-    goBtn.disabled = false;
+    document.getElementById('clearBtn').onclick = function(){ FILE = null; fnameBox.innerHTML = ''; checkReady(); input.value = ''; };
+    checkReady();
     msg.textContent = '';
   }
 
   goBtn.onclick = function(){
     if (!FILE) return;
+    var lineId = lineInput.value.trim();
+    if (!lineId) { msg.className = 'msg err'; msg.textContent = '請填寫 LINE 帳號'; return; }
     goBtn.disabled = true;
     goBtn.textContent = '上傳中…';
     msg.className = 'msg';
@@ -146,7 +157,7 @@ function renderForm(d){
       var b64 = reader.result.split(',')[1];
       fetch(API + '/form/?t=' + encodeURIComponent(T), {
         method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ file_b64: b64, file_name: FILE.name, file_mime: FILE.type || 'application/octet-stream' })
+        body: JSON.stringify({ file_b64: b64, file_name: FILE.name, file_mime: FILE.type || 'application/octet-stream', line_id: lineId })
       }).then(function(r){ return r.json(); }).then(function(res){
         if (res.ok) {
           renderState('✅', '已收到，謝謝您！', '表單已經送出完成，顧問會盡快跟您確認後續進度。');
