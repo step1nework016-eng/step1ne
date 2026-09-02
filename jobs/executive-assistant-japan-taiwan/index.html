@@ -9,6 +9,8 @@ window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
 document.addEventListener('click', function (e) {
   var a = e.target.closest && e.target.closest('a[href*="lin.ee"]');
   if (!a) return;
@@ -20,9 +22,9 @@ document.addEventListener('click', function (e) {
 </script>
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>日商渡假集團 主管特助（日本東京／長野白馬常駐）｜Step1ne</title>
-<meta name="description" content="日商渡假集團徵主管特助，常駐日本、主要駐點長野白馬，需日文N1/N2程度。稅前月薪 35 萬日圓（內含20小時固定加班費），一年期契約、依日本制度投保，Step1ne顧問保密初談。">
-<meta name="keywords" content="主管特助,秘書工作,日文工作,日本工作,常駐日本,白馬,渡假村工作,日商特助">
+<title>主管特助（日本常駐）｜Step1ne 德仁管理顧問</title>
+<meta name="description" content="日商渡假集團徵主管特助，常駐日本、主要駐點長野白馬，需日文N1/N2程度。稅前月薪 35 萬日圓，一年期契約、依日本制度投保，Step1ne顧問保密初談。">
+<meta name="keywords" content="">
 <meta name="robots" content="index,follow">
 <link rel="canonical" href="https://step1ne.com/jobs/executive-assistant-japan-taiwan/">
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
@@ -30,8 +32,8 @@ document.addEventListener('click', function (e) {
 <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Step1ne 德仁管理顧問">
-<meta property="og:title" content="日商渡假集團 主管特助（日本東京／長野白馬常駐）">
-<meta property="og:description" content="需日文N1/N2程度，常駐日本主要駐點長野白馬，稅前月薪 35 萬日圓，Step1ne顧問保密初談。">
+<meta property="og:title" content="主管特助（日本常駐）｜Step1ne 德仁管理顧問">
+<meta property="og:description" content="日商渡假集團徵主管特助，常駐日本、主要駐點長野白馬，需日文N1/N2程度。稅前月薪 35 萬日圓，一年期契約、依日本制度投保，Step1ne顧問保密初談。">
 <meta property="og:url" content="https://step1ne.com/jobs/executive-assistant-japan-taiwan/">
 <meta property="og:locale" content="zh_TW">
 <meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
@@ -49,56 +51,27 @@ document.addEventListener('click', function (e) {
   "@context": "https://schema.org",
   "@type": "JobPosting",
   "title": "主管特助（日本常駐）",
-  "description": "<p>日商渡假集團招募主管特助，協助處理中日／英日口譯筆譯、日文商務資料、主管行程安排與隨行、對內外溝通協調窗口。需日文達JLPT N1或N2程度、可常駐日本並接受隨行出差。契約工作地為東京總公司，實際主要駐點在長野縣白馬，冬季為旺季。直接向公司老闆及高階主管匯報，個人貢獻者不帶人。</p><h3>工作內容</h3><ul> <li>中日／英日口譯與筆譯，協助處理日文商務資料（核心職責）</li> <li>規劃安排主管行程，視需要全程隨行（會開車尤佳）</li> <li>擔任主管對內團隊與對外單位的主要溝通協調窗口</li> <li>安排會議與通知、撰寫會議紀錄，並追蹤決議執行</li> <li>協助主管處理各項交辦事項與專案任務</li> </ul> <p>職務涉及機密事務，到職後需簽署保密協議（NDA）。</p>",
+  "description": "<p>主管特助（日本常駐）</p>",
   "datePosted": "2026-07-31",
   "validThrough": "2026-12-31",
   "employmentType": [
     "FULL_TIME"
   ],
-  "totalJobOpenings": 2,
   "hiringOrganization": {
     "@type": "Organization",
-    "name": "德仁管理顧問有限公司（Step1ne）",
-    "sameAs": "https://step1ne.com/",
-    "logo": "https://step1ne.com/assets/step1ne-logo.png"
+    "name": "Step1ne 德仁管理顧問有限公司",
+    "sameAs": "https://step1ne.com/"
   },
-  "jobLocation": [
-    {
-      "@type": "Place",
-      "address": {
-        "@type": "PostalAddress",
-        "addressLocality": "東京",
-        "addressCountry": "JP"
-      }
-    },
-    {
-      "@type": "Place",
-      "address": {
-        "@type": "PostalAddress",
-        "addressLocality": "白馬村・長野",
-        "addressCountry": "JP"
-      }
+  "jobLocation": {
+    "@type": "Place",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "",
+      "addressRegion": "",
+      "addressCountry": "TW"
     }
-  ],
-  "baseSalary": {
-    "@type": "MonetaryAmount",
-    "currency": "JPY",
-    "value": { "@type": "QuantitativeValue", "value": 350000, "unitText": "MONTH" }
   },
-  "employmentType": "FULL_TIME",
-  "jobBenefits": "依日本法令加保健康保險、厚生年金、雇用保險、勞災保險；白馬設有公司宿舍（東京無宿舍）；需辦理者公司協助安排簽證申請；獎金一年兩次（非保證給付）；公務車可供公務使用",
-  "educationRequirements": {
-    "@type": "EducationalOccupationalCredential",
-    "credentialCategory": "大學以上"
-  },
-  "experienceRequirements": {
-    "@type": "OccupationalExperienceRequirements",
-    "monthsOfExperience": 24
-  },
-  "responsibilities": "中日／英日口譯與筆譯，協助處理日文商務資料；規劃安排主管行程並視需要隨行；擔任主管對內外溝通協調窗口；安排會議並追蹤決議執行；協助處理各項交辦事項",
-  "industry": "渡假村／觀光旅遊集團",
-  "occupationalCategory": "主管特助・秘書",
-  "qualifications": "日文須達JLPT N1或N2程度，可進行會議即時溝通與商務文件處理；大學以上學歷；助理／秘書／口筆譯／主管支援相關經驗2–3年以上；具中文或英文溝通能力；可長期定居日本、接受主要駐點長野白馬；可接受隨行接送、彈性工時與一定程度待命"
+  "directApply": true
 }
 </script>
 
@@ -126,6 +99,7 @@ details[open] summary .faq-icon{transform:rotate(45deg);}
   .spec-row dt{font-size:12.5px;letter-spacing:0.5px;}
 }
 h2{font-family:'Noto Serif TC',serif;font-size:24px;font-weight:700;color:#1c1f26;margin:44px 0 16px;}
+h3{font-size:16.5px;font-weight:700;color:#1c1f26;margin:22px 0 8px;}
 ul.duties{padding-left:20px;margin:0;color:#3a3d44;font-size:15px;}
 ul.duties li{margin-bottom:10px;}
 @media (max-width:760px){
@@ -169,198 +143,30 @@ ul.duties li{margin-bottom:10px;}
     <a href="/about/">關於我們</a>
     <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="color:#a67c3d;font-weight:700;">LINE 洽詢 →</a>
   </div>
-</header>
+</header><main>
+<section style="padding:36px 0 8px;"><div class="wrap">
+<a href="/jobs/" style="font-size:14px;color:#8a8d95;">← 返回職缺專區</a>
+<div style="display:flex;flex-wrap:wrap;gap:8px;margin:16px 0;"></div>
+<h1 style="font-family:'Noto Serif TC',serif;font-weight:700;font-size:clamp(27px,4.5vw,40px);
+line-height:1.3;margin:0 0 16px;color:#1c1f26;">主管特助（日本常駐）<span class="h1-sub"></span></h1>
+<p style="font-size:16.5px;color:#3a3d44;margin:0;"></p>
+</div></section>
 
-<main>
-  <section style="padding:36px 0 8px;">
-    <div class="wrap">
-      <a href="/jobs/" style="font-size:14px;color:#8a8d95;">← 返回職缺專區</a>
-      <div style="display:flex;flex-wrap:wrap;gap:8px;margin:16px 0;">
-        <span class="tag">契約／年約</span>
-        <span class="tag">高階獵才</span>
-        <span class="tag">日文N1/N2</span>
-        <span class="tag">常駐日本</span>
-      </div>
-      <h1 style="font-family:'Noto Serif TC',serif;font-weight:700;font-size:clamp(27px,4.5vw,40px);line-height:1.3;margin:0 0 16px;color:#1c1f26;">主管特助<span class="h1-sub">日商渡假集團・日本常駐（東京／長野白馬）</span></h1>
-      <p style="font-size:16.5px;color:#3a3d44;margin:0;">日商渡假集團徵主管特助——直接向公司老闆及高階主管匯報，配有 Toyota Alphard、Hiace 公務用車供隨行使用。薪資已公開：稅前月薪固定 350,000 日圓（內含 20 小時固定加班費），固定年薪 4,200,000 日圓，不用你自己猜，也不用面談才知道。<strong>這是常駐日本的職缺</strong>——契約工作地為東京總公司，實際主要駐點在長野縣白馬渡假勝地，冬季為旺季最忙。需要能長期定居日本、穩定配合的人選，協助處理日文商務溝通、行程安排與對內外協調。由 Step1ne 顧問保密協助招募。</p>
-    </div>
-  </section>
+<section style="padding:26px 0;"><div class="wrap">
+<h2>職缺條件一覽</h2><dl class="spec"></dl>
+<p style="font-size:13.5px;color:#8a8d95;margin-top:10px;">※ 上述條件為目前規劃，實際待遇與工作條件依面試後雙方確認為準。</p>
 
-  <section style="padding:24px 0 8px;">
-    <div class="wrap">
-      <h2 style="margin-top:0;">職缺條件一覽</h2>
-      <dl class="spec">
-        <div class="spec-row highlight">
-          <dt>薪資待遇</dt>
-          <dd>稅前月薪 350,000 日圓（固定）<span style="display:block;font-weight:400;font-size:14px;color:#55585f;margin-top:4px;">此金額<strong>已內含 20 小時固定加班費（みなし残業）</strong>，超過部分依日本勞動法令與公司規定計給。固定年薪 4,200,000 日圓。獎金一年兩次，依公司營運狀況與個人表現決定是否發放，<strong>非保證給付</strong>——若未發放，年收即為 420 萬日圓。薪資以日圓計價與發放，無匯率保障、無台幣補貼。</span></dd>
-        </div>
-        <div class="spec-row">
-          <dt>職務性質</dt>
-          <dd>日本當地契約雇用・<strong>一年期契約</strong><span style="display:block;font-weight:400;font-size:14px;color:#55585f;margin-top:4px;">試用期 3 個月。個人貢獻者，不需負擔帶人管理責任，直接向公司老闆及高階主管匯報。續約條件與判準業主尚在確認，面談時會一併說明。</span></dd>
-        </div>
-        <div class="spec-row">
-          <dt>工作地點</dt>
-          <dd>常駐日本：契約工作地東京（總公司），實際主要駐點長野縣白馬<span style="display:block;font-weight:400;font-size:14px;color:#55585f;margin-top:4px;"><strong>這不是台日兩地往返的職缺</strong>，是長期定居日本。白馬為分公司所在，冬季是旺季也最忙，應徵前請先評估自己能否長期在日本生活、配合白馬冬季的在地步調。<strong>東京的住宿需自費安排</strong>，白馬則設有公司宿舍。</span></dd>
-        </div>
-        <div class="spec-row">
-          <dt>需求人數</dt>
-          <dd>1–3 名<span style="display:block;font-weight:400;font-size:14px;color:#55585f;margin-top:4px;">可較快到職者優先，明確時限業主尚未確認，顧問確認後會主動告知您。</span></dd>
-        </div>
-        <div class="spec-row">
-          <dt>上班時間</dt>
-          <dd>日班，以正常上班時段為主；因需隨行主管行程，會有一定程度的彈性配合與待命需求（非 24 小時全天候待命）<span style="display:block;font-size:14px;color:#55585f;margin-top:4px;">依主管行程安排。週休二日，比照日本國定假日、年末年始、黃金週與夏季假 3 日等休假制度；實際排休視主管行程調整。</span></dd>
-        </div>
-        <div class="spec-row">
-          <dt>學歷要求</dt>
-          <dd>大學以上</dd>
-        </div>
-        <div class="spec-row">
-          <dt>經驗要求</dt>
-          <dd>助理／秘書／口筆譯／主管支援相關經驗 2–3 年以上</dd>
-        </div>
-        <div class="spec-row">
-          <dt>語言能力</dt>
-          <dd>日文須達 JLPT N1 或 N2 程度，可進行會議即時溝通與商務文件處理<span style="display:block;font-size:14px;color:#55585f;margin-top:4px;">另具中文或英文溝通能力</span></dd>
-        </div>
-        <div class="spec-row">
-          <dt>其他要求</dt>
-          <dd>需能提供警察刑事紀錄證明（良民證）；需簽署保密協議（NDA）</dd>
-        </div>
-        <div class="spec-row">
-          <dt>加班制度</dt>
-          <dd>月薪已內含 20 小時固定加班費，超過部分依日本勞動法令與公司規定計給<span style="display:block;font-weight:400;font-size:14px;color:#55585f;margin-top:4px;"><strong>假日出勤原則以補休辦理，不是加班費。</strong>加班需經主管事前指示與核可才計入。</span></dd>
-        </div>
-        <div class="spec-row">
-          <dt>福利</dt>
-          <dd>依日本法令加保健康保險、厚生年金、雇用保險、勞災保險；白馬設有公司宿舍<span style="display:block;font-weight:400;font-size:14px;color:#55585f;margin-top:4px;"><strong>東京無宿舍</strong>；赴日與返台機票均無補助。需辦理簽證者由公司協助安排申請，但業主不保證「技術・人文知識・国際業務」在留資格必能核准。公務用車（Toyota Alphard、Hiace）可供公務使用，日本合法駕駛資格由人選自理。白馬宿舍的型態、費用負擔與可否攜眷，業主尚在確認。</span></dd>
-        </div>
-        <div class="spec-row">
-          <dt>辦公型態</dt>
-          <dd>實體到班，以隨行主管行程為主</dd>
-        </div>
-      </dl>
-      <p style="font-size:13.5px;color:#8a8d95;margin:12px 0 0;">※ 上述條件為目前規劃，實際待遇與工作條件依面試後雙方確認為準。</p>
-    </div>
-  </section>
 
-  <section style="padding:8px 0;">
-    <div class="wrap">
-      <h2>工作內容</h2>
-      <ul class="duties">
-        <li>中日／英日口譯與筆譯，協助處理日文商務資料（核心職責）</li>
-        <li>規劃安排主管行程，視需要全程隨行（會開車尤佳）</li>
-        <li>擔任主管對內團隊與對外單位的主要溝通協調窗口</li>
-        <li>安排會議與通知、撰寫會議紀錄，並追蹤決議執行</li>
-        <li>協助主管處理各項交辦事項與專案任務</li>
-      </ul>
-      <p style="margin-top:14px;font-size:13.5px;color:#8a8d95;">職務涉及機密事務，到職後需簽署保密協議（NDA）。</p>
-    </div>
-  </section>
 
-  <section style="padding:8px 0;">
-    <div class="wrap">
-      <h2>適合什麼樣的人</h2>
-      <p style="color:#4d5563;font-size:15px;margin:0 0 16px;">如果你想要的不只是一份工作，而是能貼身參與企業高層決策、同時在長野白馬這種國際滑雪勝地長住的生活方式，這個角色少見地兩者都給得到。</p>
-      <div style="display:flex;flex-direction:column;gap:12px;">
-        <div style="padding:18px 20px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;">
-          <h3 style="font-size:16.5px;font-weight:700;margin:0 0 4px;">日文能力是硬門檻</h3>
-          <p style="color:#6b6e77;font-size:14.5px;margin:0;">需達 JLPT N1 或 N2 程度，能進行會議即時溝通與商務文件處理，這是這個角色能不能上手的關鍵。</p>
-        </div>
-        <div style="padding:18px 20px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;">
-          <h3 style="font-size:16.5px;font-weight:700;margin:0 0 4px;">能長期定居日本</h3>
-          <p style="color:#6b6e77;font-size:14.5px;margin:0;">白馬是日本知名的國際滑雪勝地，主要駐點在此，冬季是這裡最熱鬧、也最忙碌的旺季——如果你喜歡雪國生活或山區步調，這會是少數能長住在這裡工作的機會。可接受隨行接送、彈性工時與一定程度待命，節奏明快、分寸得宜、能獨立作業。</p>
-        </div>
-        <div style="padding:18px 20px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;">
-          <h3 style="font-size:16.5px;font-weight:700;margin:0 0 4px;">加分背景</h3>
-          <p style="color:#6b6e77;font-size:14.5px;margin:0;">日本當地駕駛經驗、熟悉當地交通、英文能力，或旅館／餐飲業與渡假村營運相關經驗者尤佳。</p>
-        </div>
-      </div>
-      <p style="color:#8a8d95;font-size:13.5px;margin-top:14px;">應屆、僑生、外籍、新住民、二度就業者皆歡迎應徵（外籍人士需具備日本合法工作簽證／在留資格）。</p>
-    </div>
-  </section>
+<h2>應徵流程</h2><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;"><div style="padding:18px 20px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;"><div style="font-family:'Space Mono',monospace;color:#a67c3d;font-size:13px;margin-bottom:6px;">01</div><div style="font-weight:700;">跟 AI 阿財初步面談</div></div><div style="padding:18px 20px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;"><div style="font-family:'Space Mono',monospace;color:#a67c3d;font-size:13px;margin-bottom:6px;">02</div><div style="font-weight:700;">顧問保密初談</div></div><div style="padding:18px 20px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;"><div style="font-family:'Space Mono',monospace;color:#a67c3d;font-size:13px;margin-bottom:6px;">03</div><div style="font-weight:700;">安排面試、談定條件</div></div></div>
+<h2>立即應徵</h2>
+<p style="color:#55585f;font-size:15px;margin:0 0 22px;">線上填寫約 2 分鐘，Step1ne 顧問會盡快與你聯繫。</p>
+<a href="/apply/?job=executive-assistant-japan-taiwan&title=%E4%B8%BB%E7%AE%A1%E7%89%B9%E5%8A%A9%EF%BC%88%E6%97%A5%E6%9C%AC%E5%B8%B8%E9%A7%90%EF%BC%89&utm_source=website&utm_medium=job_page&utm_campaign=executive-assistant-japan-taiwan" style="display:inline-flex;align-items:center;gap:10px;background:#a67c3d;
+color:#fff;font-weight:700;font-size:16px;padding:15px 34px;border-radius:999px;">立即跟 AI 阿財面談</a>
+<span style="margin-left:14px;"><a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener"
+style="color:#a67c3d;font-weight:600;">或用 LINE 直接洽詢 →</a></span>
 
-  <section style="padding:8px 0;">
-    <div class="wrap">
-      <h2>應徵流程</h2>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;">
-        <div style="padding:18px 20px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;">
-          <div style="font-family:'Space Mono',monospace;color:#a67c3d;font-size:13px;margin-bottom:8px;">01</div>
-          <strong style="font-size:15.5px;">跟 AI 阿財初步面談</strong>
-        </div>
-        <div style="padding:18px 20px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;">
-          <div style="font-family:'Space Mono',monospace;color:#a67c3d;font-size:13px;margin-bottom:8px;">02</div>
-          <strong style="font-size:15.5px;">顧問保密初談</strong>
-        </div>
-        <div style="padding:18px 20px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;">
-          <div style="font-family:'Space Mono',monospace;color:#a67c3d;font-size:13px;margin-bottom:8px;">03</div>
-          <strong style="font-size:15.5px;">日文能力驗證面談</strong>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section style="padding:24px 0 64px;">
-    <div class="wrap">
-      <div style="text-align:center;padding:40px 28px;border-radius:20px;background:linear-gradient(150deg,rgba(166,124,61,0.12),rgba(96,128,180,0.06));border:1px solid rgba(166,124,61,0.3);">
-        <h2 style="margin:0 0 12px;">立即應徵</h2>
-        <p style="color:#55585f;font-size:15px;margin:0 0 22px;">留下資料，Step1ne 顧問會盡快與你聯繫。</p>
-        <a href="/apply/?job=executive-assistant-japan-taiwan&title=%E4%B8%BB%E7%AE%A1%E7%89%B9%E5%8A%A9%EF%BC%88%E6%97%A5%E6%9C%AC%E5%B8%B8%E9%A7%90%EF%BC%89&utm_source=website&utm_medium=job_page&utm_campaign=executive-assistant-japan-taiwan" style="display:inline-flex;align-items:center;gap:10px;background:#a67c3d;color:#fff;font-weight:700;font-size:16px;padding:15px 34px;border-radius:999px;">立即跟 AI 阿財面談</a>
-        <div style="margin-top:14px;font-size:14px;color:#55585f;">或 <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="color:#06c755;font-weight:700;">用 LINE 直接洽詢 →</a></div>
-      </div>
-    </div>
-  </section>
-
-  <section style="padding:8px 0;">
-    <div class="wrap">
-      <h2>常見問題</h2>
-      <div style="display:flex;flex-direction:column;gap:12px;">
-        <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
-          <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
-            <span>Step1ne 是什麼公司？可信嗎？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
-          </summary>
-          <p style="margin:0;padding:0 20px 18px;color:#55585f;font-size:14.5px;">Step1ne 是德仁管理顧問有限公司旗下品牌，統一編號 <strong>85046127</strong>，並持有台北市政府核發的就業服務許可證（北市就服字第0363號），登記地址臺北市內湖區康寧路三段54之7號3樓，可至經濟部商工登記公示資料查詢系統核對公司狀態。專注高階獵頭、正職招募與人力派遣，任用率達8成以上。</p>
-        </details>
-        <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
-          <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
-            <span>我還在職，投遞會不會曝光？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
-          </summary>
-          <p style="margin:0;padding:0 20px 18px;color:#55585f;font-size:14.5px;">不會。這個職缺一律保密進行，顧問在未取得你同意前不會將履歷送交任何企業，也不會向現職公司揭露。你可以先與顧問了解機會細節，再決定是否進入正式流程。</p>
-        </details>
-        <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
-          <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
-            <span>日文程度真的需要到 N1/N2 嗎？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
-          </summary>
-          <p style="margin:0;padding:0 20px 18px;color:#55585f;font-size:14.5px;">是的，這是這個職缺的硬門檻。工作內容包含即時口譯與商務文件處理，需要能在會議現場即時溝通的日文能力，面試會有日文對談驗證這個部分。</p>
-        </details>
-        <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
-          <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
-            <span>需要長期定居日本嗎？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
-          </summary>
-          <p style="margin:0;padding:0 20px 18px;color:#55585f;font-size:14.5px;">是的。<strong>這是常駐日本的職缺，不是台日兩地往返。</strong>契約工作地是東京總公司，實際主要駐點在長野縣白馬分公司——白馬是日本知名的國際滑雪勝地，冬季是這裡最熱鬧、也最忙碌的旺季。赴日與返台機票均無補助，<strong>東京沒有宿舍，住的地方要自己找、自己負擔</strong>（長野白馬有公司宿舍）。應徵前請先評估自己能否長期在日本生活、配合白馬冬季的高工作節奏，也建議先估算一下在日本的生活成本。</p>
-        </details>
-        <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
-          <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
-            <span>外籍人士或僑生可以應徵嗎？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
-          </summary>
-          <p style="margin:0;padding:0 20px 18px;color:#55585f;font-size:14.5px;">可以。<strong>台灣人選也歡迎應徵</strong>，重點不在國籍，而在你願不願意自費在日本生活——公司未提供東京的住宿，住的地方需要自己安排、自己負擔（長野白馬設有公司宿舍）。已經在日本生活的人選，因為省去搬遷的時間與成本，通常可以較快到職。需具備在日本工作的合法簽證／在留資格；需辦理者公司會協助安排申請，但無法保證核准。歡迎僑生、新住民與二度就業者應徵。</p>
-        </details>
-      </div>
-    </div>
-  </section>
-
-<section style="max-width:760px;margin:34px auto 0;padding:22px 24px;background:#faf8f3;
- border:1px solid #eee7db;border-radius:16px;text-align:center">
-  <div style="font-size:17px;font-weight:700;color:#23262d;margin-bottom:6px">
-    這個職缺不太適合你？</div>
-  <p style="font-size:14.5px;color:#4d5563;line-height:1.75;margin:0 0 14px">
-    我們手上在招的職缺，不是每一個都會出現在你搜尋的關鍵字裡。<br>
-    說一下你的經歷跟想找什麼，顧問這邊直接告訴你哪個對得上、還缺什麼。
-  </p>
-  <a href="/match/?utm_source=job&utm_medium=cta&utm_campaign=job_match"
-     style="display:inline-block;background:#a67c3d;color:#fff;text-decoration:none;font-weight:700;
-     font-size:15px;padding:12px 28px;border-radius:999px">幫我配職缺 →</a>
-</section>
-</main>
+</div></section></main>
 
 <footer style="border-top:1px solid #e6dfd1;background:#eee9de;padding:28px 0;">
   <div class="wrap" style="text-align:center;color:#9a9da5;font-size:13px;">

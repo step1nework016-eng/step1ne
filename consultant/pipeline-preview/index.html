@@ -1,0 +1,1300 @@
+<!doctype html>
+<html lang="zh-Hant">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>顧問人選追蹤（Phase 1 示範版）｜顧問後台</title>
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<style>
+/* 配色/字體/元件 class 完全沿用 consultant/pipeline、consultant/reports 既有的顧問後台視覺語言，
+   不是客戶 portal 的 cream/gold——Jacky 明確要求本地示範版跟之後正式上線的架構要一致。
+   卡片式改抄 portal/index.html 的 .dash-card（用人需求表那種卡片），這是這輪唯一從客戶 portal
+   借視覺的地方，其他（抽屜/欄位/按鈕）全部沿用顧問後台自己的元件。 */
+:root{--gold:#a67c3d;--ink:#23262d;--ink2:#4d5563;--ink3:#8a8d95;--line:#eee7db;--soft:#faf8f3;--bg:#f4f1ea;--ok:#2f8f5b;--bad:#c0392b;--warn:#8a6100}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 -apple-system,"Noto Sans TC",sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+header{background:#fff;border-bottom:1px solid var(--line);padding:14px 0}
+header .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header img{height:26px}
+header b{font-size:16px}
+.demo-flag{font-size:11.5px;font-weight:700;background:#fdf0d8;color:#8a5a1a;border-radius:999px;padding:2px 10px}
+nav{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+nav a{font-size:14px;text-decoration:none;color:var(--ink2);padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:#fff}
+nav a.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+main{padding:22px 0 80px}
+.banner{background:#fdf3e0;border:1px solid #efdcb6;border-radius:12px;padding:12px 16px;font-size:13px;color:var(--warn);margin-bottom:18px;line-height:1.7}
+
+/* 招募漏斗——畫成真的梯形漏斗（由上往下一關比一關窄，連續不斷開），
+   不是平面長條圖。六關對齊表格式的六個 checkpoint 欄位：顧問接觸中→
+   AI阿財面談完畢→顧問評估中→已推送客戶→已錄取→已到職，每一段梯形的
+   上下邊寬度分別對應這關跟下一關的人數比例，桌機/手機都是直向堆疊，
+   手機版只是字級縮小、不用整個換方向，比較不容易踩版面坑。 */
+.funnel-wrap{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px 16px 8px;margin-bottom:18px}
+.funnel-title{font-size:12px;color:var(--ink3);font-weight:700;letter-spacing:.06em;margin-bottom:14px}
+.funnel{max-width:520px;margin:0 auto}
+.funnel-seg{position:relative;height:52px;margin-bottom:2px}
+.funnel-seg .shape{position:absolute;inset:0;background:linear-gradient(180deg,var(--gold),#c99a4f)}
+.funnel-seg:nth-child(2) .shape{filter:brightness(.96)}
+.funnel-seg:nth-child(3) .shape{filter:brightness(.92)}
+.funnel-seg:nth-child(4) .shape{filter:brightness(.88)}
+.funnel-seg:nth-child(5) .shape{filter:brightness(.84)}
+.funnel-seg:nth-child(6) .shape{filter:brightness(.8)}
+.funnel-seg:nth-child(7) .shape{filter:brightness(.76)}
+.funnel-seg .txt{position:relative;z-index:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center}
+.funnel-seg .txt b{font-size:18px;font-variant-numeric:tabular-nums;line-height:1.1}
+.funnel-seg .txt span{font-size:11px;opacity:.92;margin-top:1px}
+@media (max-width:640px){
+  .funnel-seg{height:44px}
+  .funnel-seg .txt b{font-size:15px}
+  .funnel-seg .txt span{font-size:10px}
+}
+
+/* 顧問選擇器——照抄 consultant/pipeline 既有的 .who/select，是這頁最上面的
+   第一個控制項，在漏斗統計跟 chips 之前：選了哪個顧問，底下所有統計/篩選/
+   表格都只看那個顧問的案子，預設「全部顧問」。 */
+.who{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.who select{font:inherit;font-size:15px;font-weight:700;padding:9px 34px 9px 15px;border:1px solid var(--line);border-radius:999px;background:#fff url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238a8d95' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 14px center;appearance:none;color:var(--ink);cursor:pointer}
+
+/* ── 統計列 ── */
+.stats{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:18px}
+@media (max-width:900px){.stats{grid-template-columns:repeat(3,1fr)}}
+.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.stat .lb{font-size:12px;color:var(--ink3);margin-bottom:6px}
+.stat .v{font-size:26px;font-weight:800;font-variant-numeric:tabular-nums}
+.stat.hot .v{color:var(--bad)}
+
+/* ── chips 篩選（沿用我的案子 .tabs/.tab）── */
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.tab{position:relative;font:inherit;font-size:13.5px;font-weight:600;color:var(--ink2);background:#fff;border:1px solid var(--line);padding:7px 15px;border-radius:999px;cursor:pointer;display:flex;align-items:center;gap:7px}
+.tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.tab .n{font-variant-numeric:tabular-nums;opacity:.72}
+/* 手機版 chips 一行行折下來會佔很多垂直空間，還要一顆顆點才找得到目標分頁；
+   窄螢幕改成下拉選單，一次看到全部分頁名稱＋人數，選了直接跳。桌面版藏起來，
+   兩邊共用同一個 state.tab，不是兩套篩選邏輯。 */
+.tabsSel{display:none;width:100%;font:inherit;font-size:14px;font-weight:600;padding:10px 34px 10px 15px;border:1px solid var(--line);border-radius:999px;background:#fff url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238a8d95' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 14px center;appearance:none;color:var(--ink);cursor:pointer;margin-bottom:14px}
+@media (max-width:640px){
+  .tabs{display:none}
+  .tabsSel{display:block}
+}
+
+.toolbar{display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.toolbar input[type=search]{font:inherit;font-size:13.5px;padding:8px 13px;border:1px solid var(--line);border-radius:999px;flex:1 1 220px;min-width:160px;background:#fff}
+.viewsw{display:flex;gap:0;border:1px solid var(--line);border-radius:999px;overflow:hidden;margin-left:auto}
+.viewsw button{font:inherit;font-size:13px;font-weight:600;border:0;background:#fff;color:var(--ink2);padding:7px 16px;cursor:pointer}
+.viewsw button.on{background:var(--ink);color:#fff}
+
+/* ── 表格式 ── */
+.tbl-wrap{overflow-x:auto;background:#fff;border:1px solid var(--line);border-radius:12px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--ink3);font-size:12px;font-weight:600}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--soft)}
+tbody tr:last-child td{border-bottom:0}
+
+.badge{display:inline-block;font-size:11.5px;font-weight:700;border-radius:999px;padding:3px 10px}
+.b-undecided{background:#fdf0d8;color:#8a5a1a}
+.b-forward{background:#dff2e3;color:#1f6b34}
+.b-more{background:#e6eefb;color:#24528f}
+.b-no{background:#f2e6e6;color:#8a3333}
+.b-notstart{background:#f0efec;color:#6b6e77}
+.b-norep{background:#fdeeda;color:#9a5a12}
+.b-dup{background:#fdf0d8;color:#8a5a1a}
+
+.empty{background:#fff;border:1px dashed var(--line);border-radius:14px;padding:30px;text-align:center;color:var(--ink3)}
+
+/* 「疑似同一人」改成 hover 姓名才跳出來的提示，不佔表格版面一個常駐徽章欄位。
+   改用瀏覽器原生 title 提示（而不是自訂 CSS 浮層）——表格外層 .tbl-wrap 有
+   overflow-x:auto 會裁切絕對定位的浮層，之前那版在窄欄位裡會被裁到「破版」，
+   原生 title 不受這個裁切影響，最穩。 */
+.nmwrap{display:inline-flex;align-items:center;gap:5px}
+.nmwrap .dupflag{color:var(--warn);cursor:help}
+.stagecell{text-align:center;color:var(--ink3);font-variant-numeric:tabular-nums}
+.stagecell.now{color:var(--gold);font-weight:700}
+.stagecell.done{color:var(--ok);font-weight:700}
+
+/* ── 卡片式：照抄 portal/index.html 的 .dash-card（Jacky 指定「要像用人需求表那種卡片」）── */
+.dash-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.dash-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 15px;cursor:pointer;min-width:0}
+.dash-card:hover{border-color:var(--gold)}
+.dash-card.dup{border-left:3px solid var(--warn)}
+.dash-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.dash-card-top>div:first-child{min-width:0}
+.dash-card-fit{font-size:12px;color:var(--gold);font-weight:600;margin-top:3px}
+.dash-card-meta{font-size:11.5px;color:var(--ink3);margin-top:8px}
+.dash-card-info{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;margin-top:12px}
+.dash-card-info .lb{font-size:11px;color:var(--ink3);margin-bottom:2px}
+.dash-card-info .vv{font-size:13px}
+.dash-card-progress{display:flex;align-items:center;gap:5px;margin-top:14px}
+.dash-card-progress .dot{width:9px;height:9px;border-radius:50%;background:var(--line);flex-shrink:0}
+.dash-card-progress .dot.done{background:var(--ok)}
+.dash-card-progress .ln{flex:1;height:1px;background:var(--line)}
+.dash-card-foot{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid var(--line);font-size:12px;color:var(--ink2)}
+.dash-card-foot .hint{color:var(--gold);font-weight:600}
+
+/* ── 抽屜（照抄 consultant/pipeline 既有的滑出式詳情，Phase 2 要長一樣）── */
+.dmask{position:fixed;inset:0;background:rgba(20,22,26,.5);z-index:80;display:none;justify-content:flex-end}
+.dmask.show{display:flex}
+.dwrap{background:var(--bg);width:min(640px,100%);height:100%;overflow-y:auto;box-shadow:-8px 0 32px rgba(0,0,0,.12)}
+.dhead{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:14px 20px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;z-index:2}
+.dhead .nm{font-size:19px;font-weight:700}
+.edbtn{margin-left:auto;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;border:1px solid var(--line);background:var(--soft);color:var(--ink2);border-radius:999px;padding:4px 13px}
+.edbtn:hover{border-color:var(--gold);color:var(--gold)}
+.dhead .x{margin-left:8px;font:inherit;font-size:22px;line-height:1;background:none;border:0;cursor:pointer;color:var(--ink3);padding:0 4px}
+.dbody{padding:16px 20px 60px}
+.fitline{font-size:13.5px;color:var(--gold);font-weight:600;padding:10px 20px 0}
+.sec{background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 16px;margin-bottom:11px}
+.sec h4{margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--ink3);display:flex;align-items:center;gap:10px}
+.sec .subhint{font-size:11.5px;color:var(--ink3);font-weight:400;letter-spacing:0;margin:-4px 0 8px;display:block}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:13.5px}
+.kv dt{color:var(--ink3);white-space:nowrap}
+.kv dd{margin:0;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.kv a{color:var(--gold);text-decoration:none}
+.bar{display:flex;align-items:flex-start;margin:4px 0 2px;overflow-x:auto;padding-bottom:4px}
+.stp{flex:1 1 0;min-width:56px;text-align:center;position:relative}
+.dot{width:11px;height:11px;border-radius:50%;background:#e4ddcf;margin:0 auto 5px;position:relative;z-index:1}
+.stp.done .dot{background:var(--ok)}
+.stp.now .dot{background:var(--gold);box-shadow:0 0 0 4px rgba(166,124,61,.18)}
+.stp:not(:first-child):before{content:"";position:absolute;left:-50%;top:5px;width:100%;height:1px;background:#e4ddcf}
+.stp.done:before,.stp.now:before{background:var(--ok)}
+.stp .lb{font-size:11px;line-height:1.35;color:var(--ink3)}
+.stp.now .lb{color:var(--gold);font-weight:700}
+.stp.done .lb{color:var(--ink2)}
+.rpt{font-size:13.5px;line-height:1.8;white-space:pre-wrap;overflow-wrap:anywhere;max-height:160px;overflow-y:auto;border-top:1px solid var(--line);padding-top:10px;margin-top:2px}
+.rpt.open{max-height:none}
+.more{font:inherit;font-size:12.5px;font-weight:600;color:var(--gold);background:none;border:0;cursor:pointer;padding:6px 0 0}
+.pill{display:inline-block;font-size:11.5px;font-weight:700;border-radius:999px;padding:1px 9px;border:1px solid var(--line);background:var(--soft);color:var(--ink2)}
+.pill.ok{background:#e8f5ee;border-color:#bfe0cd;color:var(--ok)}
+.pill.warn{background:#fdf3e0;border-color:#efdcb6;color:var(--warn)}
+.pill.bad{background:#fdecea;border-color:#f3cdc7;color:var(--bad)}
+.edl{display:block;font-size:11.5px;color:var(--ink3);margin:9px 0 3px;font-weight:600}
+.edi{width:100%;font:inherit;font-size:13.5px;padding:7px 11px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);resize:vertical}
+.edi:focus{outline:2px solid rgba(166,124,61,.35);outline-offset:1px;border-color:var(--gold)}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px;align-items:center}
+.btn{font:inherit;font-size:13px;font-weight:600;border-radius:999px;padding:6px 15px;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink2)}
+.btn.p{background:var(--gold);color:#fff;border-color:var(--gold)}
+.btn.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn.d{color:var(--bad);border-color:#f0d4cf}
+.mut{color:var(--ink3);font-size:13px}
+select.edi{appearance:none;background:#fff url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238a8d95' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 12px center}
+
+/* ── 時間軸 ── */
+.tl{position:relative;padding-left:20px}
+.tl:before{content:"";position:absolute;left:5px;top:4px;bottom:4px;width:1px;background:var(--line)}
+.tlrow{position:relative;padding-bottom:14px}
+.tlrow:last-child{padding-bottom:0}
+.tlrow:before{content:"";position:absolute;left:-20px;top:4px;width:9px;height:9px;border-radius:50%;background:var(--gold);border:2px solid #fff;box-shadow:0 0 0 1px var(--line)}
+.tlrow .tt{font-size:13.5px;font-weight:700}
+.tlrow .td2{font-size:12px;color:var(--ink3);margin-top:1px}
+.tlrow .tx{font-size:13px;color:var(--ink2);margin-top:4px;white-space:pre-wrap}
+
+/* ── 過往推送企業紀錄清單 ── */
+.clist{font-size:13px;color:var(--ink2)}
+.clist div{display:flex;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+.clist div:last-child{border-bottom:0}
+</style>
+
+<div id="app">
+  <header><div class="wrap">
+    <img src="/assets/step1ne-logo.png" alt="Step1ne"><b>顧問人選追蹤</b><span class="demo-flag">Phase 1 示範版・全部假資料</span>
+    <nav>
+      <a href="/consultant/pipeline/">舊：我的案子</a>
+      <a href="/consultant/reports/">舊：初篩報告</a>
+      <a class="on" href="#">顧問人選追蹤（新）</a>
+    </nav>
+  </div></header>
+
+  <main class="wrap">
+    <div class="banner">
+      這頁是「初篩報告」＋「我的案子」合併後的示範版，資料全部是假的，不接任何真實資料庫／API。
+      給 Jacky 檢查 UI/UX 架構用——確認長相之後，Phase 2 才會接上真實端點，並讓正式站長成一模一樣的樣子。
+      這版已依回饋調整：卡片改用「用人需求表」的卡片樣式、階段可自由切換、名詞改了兩個、補上原本漏掉的欄位跟功能。
+    </div>
+
+    <div class="funnel-wrap" id="funnelWrap"></div>
+
+    <div class="who">
+      <select id="ownerSel" aria-label="顧問"></select>
+      <span class="mut" id="ownerHint"></span>
+    </div>
+
+    <div class="stats" id="stats"></div>
+
+    <div class="tabs" id="tabs"></div>
+    <select class="tabsSel" id="tabsSel" aria-label="篩選階段"></select>
+
+    <div class="toolbar">
+      <input type="search" id="q" placeholder="搜尋姓名／Email／電話">
+      <button class="btn p" id="ncOpen" type="button" style="white-space:nowrap">＋新增人選</button>
+      <div class="viewsw">
+        <button id="vTable" class="on" type="button">表格式</button>
+        <button id="vCard" type="button">卡片式</button>
+      </div>
+    </div>
+
+    <div id="listWrap"></div>
+  </main>
+</div>
+
+<div class="dmask" id="dmask"><div class="dwrap" id="dwrap"></div></div>
+<div class="dmask" id="ncMask"><div class="dwrap" id="ncWrap"></div></div>
+<div class="dmask" id="rptMask">
+  <div class="dwrap" style="width:min(760px,100%)">
+    <div class="dhead"><span class="nm">報告預覽</span><button class="x" id="rptMaskClose" type="button">×</button></div>
+    <iframe id="rptFrame" style="width:100%;height:calc(100% - 53px);border:0"></iframe>
+  </div>
+</div>
+
+<script>
+// ────────────────────────────────────────────────────────────
+// 假資料。設計成「一人一張卡」：timeline 陣列代表這張卡是由哪幾筆
+// 接觸紀錄併起來的（阿財面談 / 顧問電訪 / 主動開發），呼應 Jacky 拍板的合併原則。
+// fit_note＝「顧問評估：這個人適合什麼職缺、目前詳細狀態」，這是 Jacky 講的
+// 「人選卡片核心用途」——卡片列表跟抽屜開頭都要能一眼看到，不用點進報告全文才知道。
+// STAGE_ORDER / decision 的 key 沿用 src/index.js 既有命名，方便 Phase 2 直接對應。
+// ────────────────────────────────────────────────────────────
+var STAGE_ORDER = [
+  {key:'confirm', lb:'顧問確認中'},
+  {key:'matched', lb:'已推薦給客戶'},
+  {key:'stage1', lb:'第一階段'},
+  {key:'stage2', lb:'第二階段'},
+  {key:'offer', lb:'錄取'},
+  {key:'onboard', lb:'報到'},
+];
+// 照抄 consultant/pipeline 既有的 SOURCE_CHANNEL_OPTS，聯絡來源本來就是下拉選單，
+// 不是自由輸入——這輪示範版之前漏放成純文字顯示，這裡補回可編輯的下拉。
+var SOURCE_CHANNEL_OPTS = ['不指定','朋友介紹','LinkedIn','104','1111','Threads','Facebook','Dcard','Step1ne官網','LINE OA','人才池/獵頭資料庫','其他'];
+// 履歷來源——先選來源才上傳/貼連結，因為不同來源的處理方式不一樣：104/1111
+// 常是有時效性的連結，LinkedIn/CakeResume/作品集常常本來就只有連結沒有檔案，
+// 只有「自製履歷」才多半是顧問手上真的有一份檔案可以上傳。
+var RESUME_SOURCE_OPTS = ['不指定','104','1111','LinkedIn','CakeResume','自製履歷','作品集'];
+var DEC = {
+  forwarded: {lb:'已轉客戶', cls:'b-forward'},
+  need_more: {lb:'需補問', cls:'b-more'},
+  rejected:  {lb:'不推薦', cls:'b-no'},
+};
+
+// 萬用階段選單——把「我的案子」六關＋報告三種決定＋客戶端進度，全部收進同一個
+// select，選哪個就把卡片搬過去。這是這輪新加的能力：正式版現在只能靠各關卡
+// 自己的動作按鈕移動，沒有一個「直接選你要哪一關」的總開關。
+var STAGE_ALL = [
+  {grp:'尚未進入應徵流程（主動開發）', opts:[
+    {k:'to_contact', lb:'待開發接觸'},
+    {k:'waiting_reply', lb:'等對方回'},
+  ]},
+  {grp:'已面談／電訪，還沒決定', opts:[
+    {k:'screening', lb:'待審核（客戶硬性條件）'},
+    {k:'to_review', lb:'等我決定'},
+  ]},
+  {grp:'已決定推不推', opts:[
+    {k:'dec:forwarded', lb:'已轉客戶'},
+    {k:'dec:need_more', lb:'需補問'},
+    {k:'dec:rejected', lb:'不推薦'},
+  ]},
+  {grp:'客戶端流程', opts:[
+    {k:'stage:confirm', lb:'顧問確認中'},
+    {k:'stage:matched', lb:'已推薦給客戶'},
+    {k:'stage:stage1', lb:'第一階段面談'},
+    {k:'stage:stage2', lb:'第二階段面談'},
+    {k:'stage:offer', lb:'錄取'},
+    {k:'stage:onboard', lb:'報到'},
+  ]},
+  {grp:'結束', opts:[
+    {k:'done', lb:'已結案'},
+  ]},
+];
+
+var CANDS = [
+  {
+    id:'c1', name:'周丞恩', email:'panglovene04@gmail.com', phone:'0936-397-997',
+    job_title:'BIM 工程師（無經驗可・正職）', client_name:'弘昌管理顧問有限公司',
+    fit_note:'適合：BIM 工程師（苗栗銅鑼廠區）——通勤意願已電訪確認，硬條件符合，目前顧問確認中，尚未正式推薦給客戶。',
+    tab:'client_side', decision:null, stage_idx:0, ai_done:false, evaluated:true, pushed:true,
+    source_channel:'104人力銀行', owner:'Phoebe',
+    consultant_note:'候選人態度積極，唯一疑慮是通勤時間較長，已當面確認可接受。',
+    dup_notice:'姓名＋電話跟另一筆阿財面談紀錄相符（顧問電訪那筆原本打成「吳丞恩」）——這是這次事故的示範案例：Phase 2 會在這裡做真的比對，這裡先做視覺呈現。',
+    timeline:[
+      {type:'ai', title:'阿財面談', date:'2026-08-27 20:54', text:'⚠️ 面談未完成——候選人於第 2 題（通勤／進駐苗栗銅鑼廠區安排）後無回應，中途離開。'},
+      {type:'call', title:'顧問電訪', date:'2026-08-31 20:42', by:'Phoebe', text:'上週一直約不到時間跟阿財面談，顧問直接電訪補問。候選人表示可接受銅鑼廠區通勤，期望待遇依公司規定。'},
+    ],
+    current_company:'台灣某營造廠', current_title:'BIM 建模專員',
+    resume_link:null, resume_files:['周丞恩_履歷.pdf'],
+    client_note:'', report:'【初篩報告】周丞恩 → BIM 工程師（bim-engineer-tongluo）\n電訪紀錄補齊硬條件，通勤意願已確認，建議安排第一階段面談。',
+    cross_history:[],
+  },
+  {
+    id:'c2', name:'張博州', email:'a0978505053@gmail.com', phone:'0978-505-053',
+    job_title:'BIM 工程師（無經驗可・正職）', client_name:'弘昌管理顧問有限公司',
+    fit_note:'適合：BIM 工程師——Revit 操作熟練，已轉給客戶，等候安排面試。',
+    tab:'client_side', decision:'forwarded', stage_idx:0, ai_done:false, evaluated:true, pushed:true,
+    source_channel:'朋友介紹', owner:'顧問',
+    consultant_note:'',
+    timeline:[{type:'call', title:'顧問電訪', date:'2026-07-30 12:24', by:'顧問', text:'顧問自行接觸、電訪，尚未進入阿財面談。'}],
+    resume_link:null, resume_files:[],
+    client_note:'溝通清楚，Revit 操作熟練，可安排面試。',
+    report:'（這位是純電訪案例，沒有阿財面談逐字稿。）',
+    cross_history:[
+      {company:'某科技公司（結案）', job:'機電工程師', date:'2026-05-12', stage:'不合適・地點不行'},
+    ],
+  },
+  {
+    id:'c3', name:'呂皓宇', email:'a0937243005@gmail.com', phone:'0937-243-005',
+    job_title:'BIM 工程師（無經驗可・正職）', client_name:'弘昌管理顧問有限公司',
+    fit_note:'適合：BIM 工程師——已電訪接觸，等候安排面試時間。',
+    tab:'client_side', decision:null, stage_idx:0, ai_done:false, evaluated:false, pushed:true,
+    source_channel:'1111人力銀行', owner:'Phoebe', consultant_note:'',
+    timeline:[{type:'call', title:'顧問電訪', date:'2026-08-04 09:10', by:'Phoebe', text:'已接觸，等候安排面試時間。'}],
+    resume_link:'https://cake.me/resume/example', resume_files:[],
+    client_note:'', report:'（純電訪案例，尚未產出報告。）', cross_history:[],
+  },
+  {
+    id:'c4', name:'吳秉洋', email:'wu.bingyang@example.com', phone:'0921-000-111',
+    job_title:'BIM 工程師（無經驗可・正職）', client_name:'弘昌管理顧問有限公司',
+    fit_note:'適合：BIM 工程師——面談完整、經歷紮實，客戶主管面談後已排入第二階段。',
+    tab:'client_side', decision:'forwarded', stage_idx:3, ai_done:true, evaluated:true, pushed:true,
+    source_channel:'LinkedIn', owner:'顧問', consultant_note:'DISC 屬謹慎型，跟這家客戶的工程主管風格合得來。',
+    linkedin:'https://linkedin.com/in/example-wu',
+    current_company:'某建設公司', current_title:'BIM 工程師',
+    timeline:[
+      {type:'ai', title:'阿財面談', date:'2026-08-26 15:02', text:'面談完整結束，DISC：C（謹慎型）。工作經歷完整，Revit／Navisworks 皆熟練。'},
+    ],
+    resume_link:null, resume_files:['吳秉洋_履歷.pdf'],
+    client_note:'', report:'【初篩報告】吳秉洋 → BIM 工程師\n面談完整、經歷紮實，建議優先安排面試。',
+    client_feedback:'用人單位主管面談後回饋：溝通順暢，技術背景符合，已安排第二階段。',
+    cross_history:[],
+  },
+  {
+    id:'c5', name:'莊懿璇', email:'chuang.yh@example.com', phone:'0955-222-333',
+    job_title:'BIM 工程師（無經驗可・正職）', client_name:'弘昌管理顧問有限公司',
+    fit_note:'原評估適合 BIM 工程師，但通勤地點無法配合，已內部結案。',
+    tab:'done', decision:null, stage_idx:-1, closed:'CLOSED_INTERNAL', ai_done:true, evaluated:true, pushed:false,
+    source_channel:'104人力銀行', owner:'Phoebe', consultant_note:'地點問題，未來若有台北據點職缺可再聯繫。',
+    timeline:[{type:'ai', title:'阿財面談', date:'2026-08-20 11:00', text:'面談完成，但地點無法配合，內部結案。'}],
+    resume_link:null, resume_files:[],
+    client_note:'', report:'【初篩報告】莊懿璇 → BIM 工程師\n地點衝突，內部結案，不進入推薦流程。', cross_history:[],
+  },
+  {
+    id:'c6', name:'黎薇恩', email:'amatsuki420@gmail.com', phone:'0901-231-014',
+    job_title:'直播主', client_name:'（未綁客戶・內部評估中）',
+    fit_note:'適合方向：直播主／線上業務——面談中斷，期望待遇未問到具體數字，需要補問才能決定推不推。',
+    tab:'to_review', decision:null, stage_idx:-1, ai_done:false, evaluated:true, pushed:false,
+    source_channel:'Threads', owner:'顧問', consultant_note:'',
+    timeline:[{type:'ai', title:'阿財面談', date:'2026-08-18 04:26', text:'面談中途候選人離線，僅完成部分問題，期望待遇未問到具體數字。'}],
+    resume_link:null, resume_files:[],
+    client_note:'', report:'【初篩報告】黎薇恩 → 直播主\n⚠️ 面談未完成，期望待遇不明確，建議需補問再決定。', cross_history:[],
+  },
+  {
+    id:'c7', name:'周承緯', email:'a0916772224@yahoo.com.tw', phone:'0916-772224',
+    job_title:'VIP貴賓接待服務員', client_name:'（未綁客戶・內部評估中）',
+    fit_note:'適合方向：VIP貴賓接待——經歷 4 年但橫跨多產業，觸發客戶硬性條件審核，需要顧問人工核實。',
+    tab:'screening', decision:null, stage_idx:-1, ai_done:true, evaluated:true, pushed:false,
+    source_channel:'104人力銀行', owner:'顧問', consultant_note:'',
+    hard_gate:'客戶硬性條件：需 3 年以上內場管理經驗——候選人資歷約 4 年但橫跨多產業，需顧問人工判斷是否符合。',
+    timeline:[{type:'ai', title:'阿財面談', date:'2026-08-10 16:15', text:'面談完整結束，13 則回覆，經歷含 3 年多空窗待釐清。'}],
+    resume_link:null, resume_files:['周承緯_履歷.pdf'],
+    client_note:'', report:'【初篩報告】周承緯 → VIP貴賓接待服務員\n經歷需人工核實，觸發客戶硬性條件審核。', cross_history:[],
+  },
+  {
+    id:'c8', name:'林均緯', email:'lin.jw@example.com', phone:'0912-345-678',
+    job_title:'品牌社群影音編輯', client_name:'（尚未接觸）',
+    fit_note:'適合方向：品牌社群影音編輯——作品集含破 10 萬觀看短影音，尚未聯繫，等待顧問發第一封信。',
+    tab:'to_contact', decision:null, stage_idx:-1, ai_done:false, evaluated:false, pushed:false,
+    source_channel:'104履歷庫（主動開發）', owner:null, consultant_note:'',
+    origin:'sourced',
+    linkedin:'https://linkedin.com/in/example-lin',
+    timeline:[{type:'sourced', title:'主動開發・列入名單', date:'2026-08-29 10:00', text:'104 履歷庫找到，作品集含 3 支破 10 萬觀看的短影音，尚未聯繫。'}],
+    resume_link:null, resume_files:[],
+    client_note:'', report:null, cross_history:[],
+  },
+  {
+    id:'c9', name:'游子晴', email:'you.zq@example.com', phone:'0988-765-432',
+    job_title:'品牌社群影音編輯', client_name:'（等候回覆）',
+    fit_note:'適合方向：品牌社群影音編輯——已發送介紹信，等候對方回覆。',
+    tab:'waiting_reply', decision:null, stage_idx:-1, ai_done:false, evaluated:false, pushed:false,
+    source_channel:'Instagram（主動開發）', owner:'顧問', consultant_note:'',
+    origin:'sourced',
+    timeline:[
+      {type:'sourced', title:'主動開發・已接觸', date:'2026-08-25 09:00', text:'已發送第一封介紹信，說明職缺內容。'},
+    ],
+    resume_link:null, resume_files:[],
+    client_note:'', report:null, cross_history:[],
+  },
+  {
+    id:'c10', name:'呂書帆', email:'shufan.lu85@gmail.com', phone:'0704-223-1034',
+    job_title:'主管特助（台日兩地）', client_name:'（客戶保密）',
+    fit_note:'適合：主管特助（台日兩地）——9 年日本經驗、跨部門溝通能力佳，客戶已核發 offer，等待報到日確認。',
+    tab:'closing', decision:'forwarded', stage_idx:4, ai_done:true, evaluated:true, pushed:true,
+    source_channel:'獵頭資料庫', owner:'顧問', consultant_note:'薪資要求較高，已跟客戶談過月薪日幣 50 万円可接受。',
+    timeline:[
+      {type:'ai', title:'阿財面談', date:'2026-08-11 19:03', text:'現職日本白馬村宿泊支配人，9 年日本經驗，DISC：C。'},
+    ],
+    resume_link:null, resume_files:[],
+    client_note:'', report:'【初篩報告】呂書帆 → 主管特助（台日兩地）\n經歷完整、跨部門溝通能力佳，客戶端已進入錄取程序。',
+    client_feedback:'客戶回饋：面談表現優異，已核發 offer，等待報到日確認。',
+    cross_history:[
+      {company:'另一家日商（進行中）', job:'業務經理', date:'2026-08-15', stage:'客戶手上・等安排面試'},
+    ],
+  },
+];
+
+var TABS = [
+  {k:'', lb:'全部'},
+  {k:'to_contact', lb:'待開發接觸'},
+  {k:'waiting_reply', lb:'等對方回'},
+  {k:'screening', lb:'待審核（硬性條件）'},
+  {k:'to_review', lb:'等我決定'},
+  {k:'client_side', lb:'客戶手上'},
+  {k:'closing', lb:'快成交'},
+  {k:'done', lb:'已結案'},
+];
+
+// owner 用 localStorage 記住上次選的顧問，照抄正式版「我的案子」的行為——
+// 顧問每天開這頁不用重選一次。⚠️ 這份示範檔是直接雙擊用 file:// 開的，
+// Safari 等瀏覽器在 file:// 底下讀 localStorage 會直接丟例外，沒包 try/catch
+// 的話這行就會讓整支 script 中斷、整頁空白（Jacky 2026-08-31 實測撞到）。
+function safeGet(k){ try { return localStorage.getItem(k); } catch (e) { return null; } }
+function safeSet(k, v){ try { localStorage.setItem(k, v); } catch (e) {} }
+var state = {tab:'', view:'table', q:'', owner: safeGet('s1ne_pp_owner') || 'all'};
+
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+}); }
+
+// 顧問選擇器一定要先套用，才輪到 tab／搜尋——這是 Jacky 要的行為：
+// 選「全部顧問」看全部，選某個顧問名字，底下統計/chips/表格全部只算那個人。
+function ownerFiltered(){
+  return CANDS.filter(function(c){
+    if (state.owner === 'all') return true;
+    if (state.owner === 'unassigned') return !c.owner;
+    return c.owner === state.owner;
+  });
+}
+
+function tabCount(k){
+  var base = ownerFiltered();
+  if (!k) return base.length;
+  return base.filter(function(c){ return c.tab === k; }).length;
+}
+
+function filtered(){
+  var q = state.q.trim().toLowerCase();
+  return ownerFiltered().filter(function(c){
+    if (state.tab && c.tab !== state.tab) return false;
+    if (!q) return true;
+    return (c.name||'').toLowerCase().indexOf(q) >= 0
+      || (c.email||'').toLowerCase().indexOf(q) >= 0
+      || (c.phone||'').replace(/\D/g,'').indexOf(q.replace(/\D/g,'')) >= 0;
+  });
+}
+
+function renderOwnerSel(){
+  var names = Array.from(new Set(CANDS.map(function(c){ return c.owner; }).filter(Boolean)));
+  var sel = document.getElementById('ownerSel');
+  sel.innerHTML = '<option value="all">全部顧問</option>' +
+    names.map(function(n){ return '<option value="' + esc(n) + '">' + esc(n) + '</option>'; }).join('') +
+    '<option value="unassigned">未指派</option>';
+  sel.value = state.owner;
+  document.getElementById('ownerHint').textContent = state.owner === 'all'
+    ? '目前看全部顧問的案子'
+    : (state.owner === 'unassigned' ? '目前只看未指派顧問的案子' : '目前只看「' + state.owner + '」的案子');
+  sel.onchange = function(){
+    state.owner = sel.value;
+    safeSet('s1ne_pp_owner', state.owner);
+    renderOwnerSel(); renderStats(); renderTabs(); renderList();
+  };
+}
+
+function stageLabelOf(c){
+  if (c.closed) return {lb:'已結案', cls:'b-no'};
+  if (c.hard_gate) return {lb:'待審核', cls:'b-undecided'};
+  if (c.tab === 'to_contact') return {lb:'待開發接觸', cls:'b-notstart'};
+  if (c.tab === 'waiting_reply') return {lb:'等對方回', cls:'b-notstart'};
+  if (c.tab === 'to_review') return {lb:'等我決定', cls:'b-undecided'};
+  if (c.decision) return DEC[c.decision];
+  if (c.stage_idx >= 0) return {lb:STAGE_ORDER[c.stage_idx].lb, cls:'b-forward'};
+  return {lb:'—', cls:'b-notstart'};
+}
+
+// 萬用階段選單目前選到哪個 key——跟 STAGE_ALL 的 k 對應，用來讓 <select> 開啟時
+// 準確落在候選人目前所在的那一格，不會每次打開都跳回第一個選項。
+function currentStageKey(c){
+  if (c.closed || c.tab === 'done') return 'done';
+  if (c.decision) return 'dec:' + c.decision;
+  if (c.stage_idx >= 0) return 'stage:' + STAGE_ORDER[c.stage_idx].key;
+  return c.tab;
+}
+
+// 表格式的 checkpoint 直欄：每一欄只用打勾表示「這個里程碑到了沒」，不用文字
+// 狀態（不分「進行中」/「完成」）。idx 對到 STAGE_ORDER 的位置（1=matched／
+// 4=offer／5=onboard）；還沒進客戶端流程（stage_idx=-1）的人選一律顯示「—」——
+// 這是 Jacky 選的 A 案，這幾個人卡在哪一關交給上面的 chips 篩選，不塞進這張表。
+function checkpointCell(c, idx){
+  if (c.stage_idx < 0) return {text:'—', cls:''};
+  if (c.stage_idx >= idx) return {text:'✓', cls:'done'};
+  return {text:'—', cls:''};
+}
+// 「AI阿財面談完畢」「顧問評估中」是布林旗標（不是 stage_idx 的一部分）——
+// 一個人選可能面談完畢、報告也有了，但還沒被推去客戶端（stage_idx 還是 -1），
+// 這兩件事要能分開勾，不能綁在同一條 stage_idx 進度軸上。
+function boolCell(v){ return v ? {text:'✓', cls:'done'} : {text:'—', cls:''}; }
+// 「目前在第幾階段」只在候選人卡在 stage1／stage2 這種面試輪次時才有意義；
+// 卡在 confirm／matched／offer／onboard 這幾個非「面試輪次」的位置時顯示「—」，
+// 避免跟旁邊的「待推送客戶」「錄取」「報到」三欄語意重疊。
+function midStageCell(c){
+  if (c.stage_idx < 0) return {text:'—', cls:''};
+  var key = STAGE_ORDER[c.stage_idx].key;
+  if (key === 'stage1' || key === 'stage2') return {text:STAGE_ORDER[c.stage_idx].lb, cls:'now'};
+  return {text:'—', cls:''};
+}
+
+// 招募漏斗——梯形連續堆疊，每一段的「上邊寬度」＝這關人數比例，
+// 「下邊寬度」＝下一關人數比例，這樣一段接一段疊起來看起來才是連續的
+// 漏斗，不是六個各自獨立的梯形。寬度都相對第一關（顧問接觸中）算比例，
+// 最窄不小於 22%，避免人數是 0 時整段塌成一條線看不出形狀。
+function renderFunnel(){
+  var base = ownerFiltered();
+  var stages = [
+    ['顧問接觸中', base.length],
+    ['AI阿財面談完畢', base.filter(function(c){ return c.ai_done; }).length],
+    ['顧問評估中', base.filter(function(c){ return c.evaluated; }).length],
+    ['已推送客戶', base.filter(function(c){ return c.pushed; }).length],
+    ['客戶面談中', base.filter(function(c){ return c.stage_idx >= 2; }).length],
+    ['已錄取', base.filter(function(c){ return c.stage_idx >= 4; }).length],
+    ['已到職', base.filter(function(c){ return c.stage_idx >= 5; }).length],
+  ];
+  var max = Math.max(1, stages[0][1]);
+  var ratios = stages.map(function(s){ return Math.max(0.22, s[1] / max); });
+  var html = '<div class="funnel-title">招募漏斗</div><div class="funnel">' +
+    stages.map(function(s, i){
+      var topR = ratios[i], botR = i < stages.length - 1 ? ratios[i + 1] : ratios[i];
+      var topInset = (1 - topR) * 50, botInset = (1 - botR) * 50;
+      var pct = max ? Math.round(s[1] / max * 100) : 0;
+      return '<div class="funnel-seg"><div class="shape" style="clip-path:polygon(' +
+        topInset + '% 0,' + (100 - topInset) + '% 0,' + (100 - botInset) + '% 100%,' + botInset + '% 100%)"></div>' +
+        '<div class="txt"><b>' + s[1] + '</b><span>' + esc(s[0]) + (i > 0 ? '　·　' + pct + '%' : '') + '</span></div></div>';
+    }).join('') + '</div>';
+  document.getElementById('funnelWrap').innerHTML = html;
+}
+
+function renderStats(){
+  renderFunnel(); // 漏斗跟這排統計方塊永遠一起刷新，不用每個呼叫點各自記得加
+  var s1 = tabCount('to_contact'), s2 = tabCount('waiting_reply'), s3 = tabCount('screening'),
+      s4 = tabCount('to_review'), s5 = tabCount('client_side'), s6 = tabCount('closing');
+  var items = [
+    ['待開發接觸', s1], ['等對方回', s2], ['待審核（硬性條件）', s3],
+    ['等我決定', s4], ['客戶手上', s5], ['快成交', s6],
+  ];
+  document.getElementById('stats').innerHTML = items.map(function(it){
+    return '<div class="stat' + (it[1] > 0 && (it[0]==='等我決定'||it[0]==='待審核（硬性條件）') ? ' hot' : '') + '">' +
+      '<div class="lb">' + it[0] + '</div><div class="v">' + it[1] + '</div></div>';
+  }).join('');
+}
+
+function renderTabs(){
+  document.getElementById('tabs').innerHTML = TABS.map(function(t){
+    return '<button type="button" class="tab' + (state.tab===t.k?' on':'') + '" data-k="' + t.k + '">' +
+      t.lb + '<span class="n">' + tabCount(t.k) + '</span></button>';
+  }).join('');
+  Array.prototype.forEach.call(document.querySelectorAll('#tabs .tab'), function(b){
+    b.onclick = function(){ state.tab = b.dataset.k; renderTabs(); renderList(); };
+  });
+  // 手機版下拉——跟上面 chips 是同一個 state.tab，CSS 用 @media 決定哪個顯示，
+  // 不是兩套篩選邏輯，選其中一個另一個下次 render 也會跟著對。
+  var sel = document.getElementById('tabsSel');
+  sel.innerHTML = TABS.map(function(t){
+    return '<option value="' + t.k + '"' + (state.tab===t.k?' selected':'') + '>' + t.lb + '（' + tabCount(t.k) + '）</option>';
+  }).join('');
+  sel.onchange = function(){ state.tab = sel.value; renderTabs(); renderList(); };
+}
+
+function renderList(){
+  var list = filtered();
+  var el = document.getElementById('listWrap');
+  if (!list.length){ el.innerHTML = '<div class="empty">目前沒有符合條件的人選</div>'; return; }
+  if (state.view === 'table'){
+    // 照 Jacky 指定：人選一眼就要看出卡在哪一關，用「AI阿財面談完畢→顧問評估中→
+    // 推送客戶→第幾階段→錄取→報到」六個 checkpoint 直欄呈現，全部打勾表示，
+    // 不要自由文字摘要，也不要另外的「目前狀態」badge 欄。前兩欄（面談完畢／
+    // 評估中）是獨立布林值，不管有沒有被推去客戶端都能勾；後四欄跟 stage_idx
+    // 綁在一起，還沒進客戶端流程的人選一律顯示「—」（Jacky 選的 A 案），
+    // 要看他們卡在哪一關就用上面 chips 篩選。
+    el.innerHTML = '<div class="tbl-wrap"><table><thead><tr>' +
+      '<th>人選</th><th>目前應徵職缺</th><th>客戶</th>' +
+      '<th>AI阿財面談完畢</th><th>顧問評估中</th><th>推送客戶</th>' +
+      '<th>目前在第幾階段</th><th>錄取</th><th>報到</th>' +
+      '</tr></thead><tbody>' +
+      list.map(function(c){
+        var aiDone = boolCell(c.ai_done);
+        var evaluated = boolCell(c.evaluated);
+        var pushed = boolCell(c.pushed);
+        var mid = midStageCell(c);
+        var offer = checkpointCell(c, 4);
+        var onboard = checkpointCell(c, 5);
+        return '<tr data-id="' + c.id + '">' +
+          '<td><span class="nmwrap"><b>' + esc(c.name) + '</b>' +
+            (c.dup_notice ? '<span class="dupflag" title="' + esc(c.dup_notice) + '">⚠</span>' : '') +
+            '</span></td>' +
+          '<td>' + esc(c.job_title) + '</td>' +
+          '<td>' + esc(c.client_name) + '</td>' +
+          '<td class="stagecell ' + aiDone.cls + '">' + aiDone.text + '</td>' +
+          '<td class="stagecell ' + evaluated.cls + '">' + evaluated.text + '</td>' +
+          '<td class="stagecell ' + pushed.cls + '">' + pushed.text + '</td>' +
+          '<td class="stagecell ' + mid.cls + '">' + mid.text + '</td>' +
+          '<td class="stagecell ' + offer.cls + '">' + offer.text + '</td>' +
+          '<td class="stagecell ' + onboard.cls + '">' + onboard.text + '</td>' +
+          '</tr>';
+      }).join('') + '</tbody></table></div>';
+  } else {
+    el.innerHTML = '<div class="dash-cards">' + list.map(function(c){
+      var st = stageLabelOf(c);
+      var steps = c.stage_idx >= 0 ? STAGE_ORDER : null;
+      var dotsHtml = steps ? steps.map(function(s, i){
+        return '<span class="dot ' + (i <= c.stage_idx ? 'done' : '') + '"></span>' + (i < steps.length - 1 ? '<span class="ln"></span>' : '');
+      }).join('') : '';
+      return '<div class="dash-card' + (c.dup_notice ? ' dup' : '') + '" data-id="' + c.id + '">' +
+        '<div class="dash-card-top">' +
+        '<div><b>' + esc(c.name) + '</b><div style="font-size:12px;color:var(--ink3)">' + esc(c.job_title) + '</div></div>' +
+        '<span class="badge ' + st.cls + '">' + st.lb + '</span>' +
+        '</div>' +
+        '<div class="dash-card-fit">' + esc(c.fit_note || '') + '</div>' +
+        '<div class="dash-card-info">' +
+        '<div><div class="lb">客戶</div><div class="vv">' + esc(c.client_name) + '</div></div>' +
+        '<div><div class="lb">聯絡方式</div><div class="vv">' + esc(c.phone) + '</div></div>' +
+        '</div>' +
+        (dotsHtml ? '<div class="dash-card-progress">' + dotsHtml + '</div>' : '') +
+        '<div class="dash-card-foot">' +
+        '<span>' + (c.dup_notice ? '<span class="badge b-dup">⚠ 疑似同一人</span>' : esc(c.source_channel || '')) + '</span>' +
+        '<span class="hint">點擊查看完整人選資料 →</span></div>' +
+        '</div>';
+    }).join('') + '</div>';
+  }
+  Array.prototype.forEach.call(el.querySelectorAll('[data-id]'), function(row){
+    row.onclick = function(){ openDrawer(row.dataset.id); };
+  });
+}
+
+// 進度條的每個圓點都能直接點——點了就等於改「萬用階段」下拉的同一份 stage_idx，
+// 不是唯讀畫圖。這樣顧問不用特地跑去基本資料那邊找下拉選單，在這裡看到哪一關
+// 就能直接點哪一關，跟客戶 portal 看到的永遠是同一份資料。
+function bar(c){
+  var hint = c.stage_idx < 0
+    ? '<p class="mut" style="margin:0 0 6px">這位人選還沒進入客戶端流程，點下面圓點可以直接推進去。</p>'
+    : '<p class="mut" style="margin:0 0 6px">點圓點可以直接切換階段，跟基本資料的「萬用階段」下拉是同一份資料。</p>';
+  return hint + '<div class="bar">' + STAGE_ORDER.map(function(s, i){
+    return '<div class="stp stagebtn ' + (i < c.stage_idx ? 'done' : (i === c.stage_idx ? 'now' : '')) + '" data-i="' + i + '" style="cursor:pointer">' +
+      '<div class="dot"></div><div class="lb">' + s.lb + '</div></div>';
+  }).join('') + '</div>';
+}
+
+// 額外推派給其他客戶的進度條——跟主要那家共用 STAGE_ORDER/圓點視覺，一樣
+// 點圓點就能切換，只是每個 placement 自己的 stage_idx 各自獨立，不會互相影響。
+function extraBar(p, pi){
+  return '<div class="bar">' + STAGE_ORDER.map(function(s, i){
+    return '<div class="stp extrastagebtn ' + (i < p.stage_idx ? 'done' : (i === p.stage_idx ? 'now' : '')) + '" data-i="' + i + '" data-pi="' + pi + '" style="cursor:pointer">' +
+      '<div class="dot"></div><div class="lb">' + s.lb + '</div></div>';
+  }).join('') + '</div>';
+}
+
+// 履歷檔案清單——最多 3 個，每個檔名旁邊一顆「刪除」，刪掉之後 dropzone
+// 才會重新出現（見 openDrawer 裡 resumeDz 的顯示條件），不會讓人一直疊上去。
+function resumeListHtml(c){
+  var files = c.resume_files || [];
+  if (!files.length) return '';
+  return '<div style="margin:6px 0">' + files.map(function(f, i){
+    return '<div style="display:flex;align-items:center;gap:8px;font-size:13px;padding:5px 0;border-bottom:1px solid var(--line)">' +
+      '<span style="flex:1;overflow-wrap:anywhere">' + esc(f) + '</span>' +
+      '<button class="btn d resumeDel" type="button" data-i="' + i + '" style="padding:2px 10px;font-size:11.5px">刪除</button></div>';
+  }).join('') + '</div>';
+}
+
+function timelineHtml(c){
+  var ICON = {ai:'🤖 阿財面談', call:'📞 顧問電訪', sourced:'🔍 主動開發', change:'🔄 階段變更'};
+  return '<div class="tl">' + c.timeline.map(function(t){
+    return '<div class="tlrow"><div class="tt">' + (ICON[t.type]||t.title) + '</div>' +
+      '<div class="td2">' + esc(t.date) + (t.by ? '　·　' + esc(t.by) : '') + '</div>' +
+      '<div class="tx">' + esc(t.text) + '</div></div>';
+  }).join('') + '</div>' +
+  // 手動補記——顧問打完電話、有新的接觸都可以自己補一筆，不用等系統自動產生。
+  // 階段/決定變更那類事件由 logChange() 自動補，這裡專門給「人為接觸」用。
+  '<div class="acts" style="margin-top:12px;flex-direction:column;align-items:stretch;gap:6px">' +
+  '<label class="edl" style="margin:0">新增接觸紀錄</label>' +
+  '<select class="edi" id="tlType"><option value="call">📞 顧問電訪</option><option value="sourced">🔍 主動開發接觸</option></select>' +
+  '<textarea class="edi" id="tlText" rows="2" placeholder="這次接觸的內容摘要"></textarea>' +
+  '<div><button class="btn p" id="tlAdd" type="button">加進時間軸</button></div></div>';
+}
+
+function stageSelectHtml(c){
+  var cur = currentStageKey(c);
+  var html = '<select class="edi" id="stageSel">';
+  STAGE_ALL.forEach(function(g){
+    html += '<optgroup label="' + esc(g.grp) + '">';
+    g.opts.forEach(function(o){
+      html += '<option value="' + o.k + '"' + (o.k === cur ? ' selected' : '') + '>' + esc(o.lb) + '</option>';
+    });
+    html += '</optgroup>';
+  });
+  html += '</select>';
+  return html;
+}
+
+function openDrawer(id){
+  var c = CANDS.filter(function(x){ return x.id === id; })[0];
+  if (!c) return;
+  var st = stageLabelOf(c);
+  var html = '<div class="dhead"><span class="nm">' + esc(c.name) + '</span>' +
+    '<span class="badge ' + st.cls + '">' + st.lb + '</span>' +
+    '<button class="edbtn" id="edtog" type="button">編輯 ✎</button>' +
+    '<button class="x" id="dclose" type="button">×</button></div>';
+  if (c.fit_note) html += '<div class="fitline">👤 ' + esc(c.fit_note) + '</div>';
+  html += '<div class="dbody">';
+
+  if (c.dup_notice){
+    html += '<div class="sec" style="border-left:3px solid var(--warn);background:#fdf6e9">' +
+      '<h4 style="color:var(--warn)">⚠ 疑似同一人（Phase 1 示範，Phase 2 才做真的比對）</h4>' +
+      '<p style="margin:0;font-size:13px;color:var(--ink2)">' + esc(c.dup_notice) + '</p></div>';
+  }
+
+  // ── 目前進度：放最上面，一打開卡片就看得到，不用往下滑才找得到。
+  // 一個人選可能同時被推給好幾家客戶，各自進度互不相干（跟正式版
+  // candidate_forwards 用「人選+客戶」當主鍵同一個道理）——主要這家是原本
+  // 的 stage_idx/decision，額外推派的都在 c.extra_placements 裡，各自有
+  // 自己的萬用階段選單，改其中一家不會動到另一家。
+  if (!c.extra_placements) c.extra_placements = [];
+  html += '<div class="sec"><h4>目前進度<span class="subhint">客戶 portal 看到的就是這一份，同一套 resolveStage() 邏輯</span></h4>' +
+    '<div style="font-weight:700;font-size:13px;margin-bottom:4px">' + esc(c.client_name) + '</div>' +
+    bar(c) +
+    c.extra_placements.map(function(p, pi){
+      return '<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line)">' +
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">' +
+        '<b style="font-size:13px">' + esc(p.client_name) + '</b>' +
+        '<span class="mut" style="font-size:12px">' + esc(p.job_title) + '</span>' +
+        '<button class="btn d rmplacement" style="margin-left:auto;padding:2px 10px;font-size:11.5px" type="button" data-pi="' + pi + '">移除</button></div>' +
+        extraBar(p, pi) + '</div>';
+    }).join('') + '</div>';
+
+  // ── 基本資料：這次補齊 LinkedIn／履歷／LINE ID／來源／負責顧問／顧問備註／
+  // 現職公司職位，之前 Phase 1 漏放，正式版「我的案子」抽屜其實都有，只是散在
+  // 不同區塊。聯絡來源改回下拉選單（跟人才池同一組選項，不是自由輸入）；
+  // 履歷加拖曳上傳區；現職公司/職位開放編輯，並註明履歷若有更新內容應以履歷
+  // 為準（Phase 2 才會做真的「從履歷 OCR/解析同步」，這裡先留手動編輯 + 提示）。
+  html += '<div class="sec" id="edsec"><h4>基本資料　<span style="font-weight:400;color:var(--ink3)">萬用階段：</span>' + stageSelectHtml(c) + '</h4>' +
+    '<div id="viewbox"><dl class="kv">' +
+    '<dt>姓名</dt><dd>' + esc(c.name) + '</dd>' +
+    '<dt>Email</dt><dd><a href="mailto:' + esc(c.email) + '">' + esc(c.email) + '</a></dd>' +
+    '<dt>電話</dt><dd><a href="tel:' + esc(c.phone) + '">' + esc(c.phone) + '</a></dd>' +
+    '<dt>現職公司</dt><dd>' + esc(c.current_company || '—') + '</dd>' +
+    '<dt>現職職位</dt><dd>' + esc(c.current_title || '—') + '</dd>' +
+    '<dt>應徵職缺</dt><dd>' + esc(c.job_title) + '</dd>' +
+    '<dt>客戶</dt><dd>' + esc(c.client_name) + '</dd>' +
+    (c.linkedin ? '<dt>LinkedIn</dt><dd><a href="' + esc(c.linkedin) + '" target="_blank" rel="noopener">開啟</a></dd>' : '') +
+    '<dt>履歷</dt><dd>' + (
+      (c.resume_files && c.resume_files.length)
+        ? c.resume_files.map(function(f){ return '<a href="#" onclick="return false">' + esc(f) + '</a>'; }).join('　')
+        : (c.resume_link ? '<a href="' + esc(c.resume_link) + '" target="_blank" rel="noopener">開啟履歷連結</a>' : '<span class="mut">尚未提供</span>')
+    ) + '</dd>' +
+    '<dt>LINE ID</dt><dd>' + (c.line_id ? esc(c.line_id) : '<span class="mut">尚未提供（顧問跟人選要來後補上，用人單位會在這裡看到）</span>') + '</dd>' +
+    '<dt>聯絡來源</dt><dd>' + esc(c.source_channel || '—') + '</dd>' +
+    '<dt>負責顧問</dt><dd>' + esc(c.owner || '未指派') + '</dd>' +
+    '</dl></div>' +
+    '<div id="edbox" hidden>' +
+    '<label class="edl">姓名</label><input class="edi" id="edName" value="' + esc(c.name) + '">' +
+    '<label class="edl">Email</label><input class="edi" id="edEmail" value="' + esc(c.email) + '">' +
+    '<label class="edl">電話</label><input class="edi" id="edPhone" value="' + esc(c.phone) + '">' +
+    '<label class="edl">現職公司<span class="mut" style="font-weight:400">（履歷有更新的話以履歷為準，這裡先手動改）</span></label><input class="edi" id="edCompany" value="' + esc(c.current_company||'') + '">' +
+    '<label class="edl">現職職位</label><input class="edi" id="edTitle" value="' + esc(c.current_title||'') + '">' +
+    '<label class="edl">LinkedIn</label><input class="edi" id="edLinkedin" value="' + esc(c.linkedin||'') + '" placeholder="https://linkedin.com/in/...">' +
+    '<label class="edl">LINE ID</label><input class="edi" id="edLine" value="' + esc(c.line_id||'') + '" placeholder="例：abc1234（用人單位看得到）">' +
+    '<label class="edl">聯絡來源</label><select class="edi" id="edSource">' +
+      SOURCE_CHANNEL_OPTS.map(function(o){ return '<option' + (o===c.source_channel?' selected':'') + '>' + esc(o) + '</option>'; }).join('') +
+    '</select>' +
+    '<label class="edl">履歷來源<span class="mut" style="font-weight:400">（先選來源，104/1111 有時效性連結，作品集常常是連結不是檔案）</span></label>' +
+    '<select class="edi" id="edResumeSource">' +
+      RESUME_SOURCE_OPTS.map(function(o){ return '<option' + (o===c.resume_source?' selected':'') + '>' + esc(o) + '</option>'; }).join('') +
+    '</select>' +
+    '<label class="edl">履歷<span class="mut" style="font-weight:400">（最多 3 個檔案，例如中文版＋英文版＋作品集）</span></label>' +
+    resumeListHtml(c) +
+    (((c.resume_files||[]).length < 3)
+      ? '<div id="resumeDz" style="border:1.5px dashed var(--line);border-radius:10px;padding:16px;text-align:center;font-size:12.5px;color:var(--ink3);cursor:pointer;margin-top:6px">拖曳履歷檔案到這裡，或點擊選擇檔案（示範，不會真的上傳）</div>'
+      : '<p class="mut" style="margin:6px 0 0">已達 3 個檔案上限，要換檔案請先刪除其中一個。</p>') +
+    '<label class="edl" style="margin-top:6px">或直接貼履歷連結<span class="mut" style="font-weight:400">（LinkedIn／CakeResume／作品集常見這樣提供，跟上面上傳擇一填）</span></label>' +
+    '<input class="edi" id="edResumeUrl" value="' + esc(c.resume_link||'') + '" placeholder="https://...">' +
+    '<div class="acts"><button class="btn p" id="edsave" type="button">儲存（示範，不會真的寫入）</button>' +
+    '<button class="btn" id="edcancel" type="button">取消</button></div></div>' +
+    '<label class="edl" style="margin-top:12px">顧問備註<span class="mut" style="font-weight:400">（只有顧問看得到，不會出現在客戶端）</span></label>' +
+    '<div class="ntv" style="font-size:13.5px;color:var(--ink2);white-space:pre-wrap">' + (c.consultant_note ? esc(c.consultant_note) : '<span class="mut">尚未填寫</span>') + '</div>' +
+    '</div>';
+
+  // ── 電洽內容：這是照抄本機已經在跑的 consultant_call_report_tick.py 那套
+  // 真實邏輯——顧問打完電話，把內容貼上或上傳檔案（doc/docx/txt/md/html/pdf/
+  // excel 都收），系統排程會抓去餵給跟阿財面談完全同一套 AI，產出跟阿財面談
+  // 報告同格式的摘要，寫回這個人選的紀錄。每次電訪都新增一筆，不是覆蓋掉
+  // 上一筆——同一個人選可能被打過好幾次電話，每次的進度都要留得住。
+  // Phase 1 示範版沒有真的接 AI，送出後只會顯示「已排入 AI 總結佇列」的假摘要。
+  html += '<div class="sec"><h4>電洽內容 <span class="subhint" style="margin:0">顧問貼上或上傳這次通話內容，AI 會自動整理成跟阿財面談報告同格式的摘要，累積成這個人選的電訪紀錄</span></h4>' +
+    (c.call_summaries && c.call_summaries.length
+      ? c.call_summaries.slice().reverse().map(function(s){
+          // 分區塊列點，不要流水帳——每個標題一個小標籤＋內容，一眼掃過去
+          // 就找得到「期望薪資」「離職原因」這種特定資訊，不用整段讀完。
+          return '<div style="border-top:1px solid var(--line);padding:10px 0;font-size:13.5px">' +
+            '<div class="mut" style="margin-bottom:6px">' + esc(s.date) + '　·　' + esc(s.by) + (s.filename ? '　·　附檔：' + esc(s.filename) : '') + '</div>' +
+            (s.sections || []).map(function(sec){
+              return '<div style="margin-bottom:6px"><b style="font-size:12.5px;color:var(--gold)">' + esc(sec.label) + '</b>' +
+                '<div style="white-space:pre-wrap;color:var(--ink2);margin-top:1px">' + esc(sec.text) + '</div></div>';
+            }).join('') + '</div>';
+        }).join('')
+      : '<p class="mut" style="margin:0 0 10px">還沒有電洽紀錄。</p>') +
+    '<label class="edl" style="margin-top:12px">這次電洽內容（文字，可跟下面附檔擇一或都填）</label>' +
+    '<textarea class="edi" id="callText" rows="3" placeholder="打字轉錄這次通話重點，或直接貼逐字稿"></textarea>' +
+    '<label class="edl" style="margin-top:10px">或上傳電洽紀錄檔案</label>' +
+    '<div id="callDz" style="border:1.5px dashed var(--line);border-radius:10px;padding:16px;text-align:center;font-size:12.5px;color:var(--ink3);cursor:pointer">' +
+      '拖曳檔案到這裡，或點擊選擇（doc / docx / txt / md / html / pdf / excel）' +
+    '</div>' +
+    '<div class="mut" id="callFileMsg" style="margin-top:4px"></div>' +
+    '<div class="acts"><button class="btn p" id="callGo" type="button">送出給 AI 總結（示範）</button></div></div>';
+
+  html += '<div class="sec"><h4>接觸紀錄時間軸</h4>' + timelineHtml(c) + '</div>';
+
+  if (c.hard_gate){
+    html += '<div class="sec" style="border-left:3px solid var(--warn)">' +
+      '<h4 style="color:var(--warn)">待審核（客戶硬性條件）</h4>' +
+      '<p style="margin:0;font-size:13px">' + esc(c.hard_gate) + '</p></div>';
+  }
+
+  if (c.report){
+    html += '<div class="sec"><h4>初篩報告　' +
+      (c.decision ? '<span class="pill ' + (c.decision==='forwarded'?'ok':(c.decision==='rejected'?'bad':'warn')) + '">' + DEC[c.decision].lb + '</span>' : '<span class="pill">還沒決定推不推</span>') +
+      '</h4><div class="acts" style="margin-bottom:10px">' +
+      '<button class="btn p decbtn" data-k="forwarded"' + (c.decision==='forwarded'?' disabled style="opacity:.45"':'') + '>推薦給客戶</button>' +
+      '<button class="btn decbtn" data-k="need_more"' + (c.decision==='need_more'?' disabled style="opacity:.45"':'') + '>需補問</button>' +
+      '<button class="btn d decbtn" data-k="rejected"' + (c.decision==='rejected'?' disabled style="opacity:.45"':'') + '>婉拒</button>' +
+      '</div><div class="rpt" id="rpt">' + esc(c.report) + '</div>' +
+      '<div class="acts"><button class="more" id="rptmore" type="button">展開全文 ▾</button>' +
+      '<button class="btn p" id="rptview" type="button">👁 預覽報告</button>' +
+      '<button class="btn" id="rptdl" type="button">下載報告（.md）</button>' +
+      '<button class="btn" id="rptpdf" type="button">下載報告（PDF）</button></div></div>';
+  }
+
+  if (c.client_feedback){
+    html += '<div class="sec" style="background:#fdf6e9;border-color:#e8d5ab">' +
+      '<h4 style="color:var(--warn)">' + esc(c.client_name) + ' 回填的面談回饋</h4>' +
+      '<div style="white-space:pre-wrap;font-size:13.5px">' + esc(c.client_feedback) + '</div></div>';
+  }
+
+  // 給客戶看的摘要 vs 主動傳訊息——保留兩個獨立功能（用途不同：摘要是靜態常駐介紹，
+  // 訊息是即時通知），但各自補一行說明降低混淆，並且拿掉重複的 LINE ID 欄位
+  // （已併進基本資料）。
+  if (c.tab === 'client_side' || c.tab === 'closing' || c.tab === 'done'){
+    html += '<div class="sec"><h4>' + esc(c.client_name) + '</h4>' +
+      '<label class="edl" style="color:var(--warn)">給客戶看的摘要<span class="subhint">常駐顯示在客戶的人選卡片上，蓋著寫，是顧問對這個人的整體推薦理由——不是訊息，沒有時間性</span></label>' +
+      '<textarea class="edi" rows="3" style="background:#fdf6e9;border-color:#e8d5ab" placeholder="例：這位候選人溝通清楚，可安排面試">' + esc(c.client_note||'') + '</textarea>' +
+      '<div class="acts"><button class="btn p" type="button">存這家的摘要（示範）</button></div>' +
+      '<label class="edl" style="margin-top:14px">主動傳訊息給' + esc(c.client_name) + '<span class="subhint">即時的一則對話，會進客戶 portal 訊息串、通知鈴鐺會跳、同步發 Telegram——用在「有進度變化要馬上讓客戶知道」</span></label>' +
+      '<textarea class="edi" rows="2" placeholder="例：這位候選人已確認可配合到職日"></textarea>' +
+      '<div class="acts"><button class="btn p" type="button">傳送（示範）</button></div></div>';
+  }
+
+  // 過往推送企業紀錄——唯讀參考，跟正式版 crossHistPlaceholder() 同樣定位：
+  // 只給顧問自己看，不會出現在任何客戶看得到的地方。
+  html += '<div class="sec"><h4>這個人選在其他職缺／客戶的紀錄' +
+    '<span class="subhint" style="display:block;margin-top:2px">僅供內部參考，不會出現在任何客戶看得到的地方</span></h4>' +
+    (c.cross_history && c.cross_history.length
+      ? '<div class="clist">' + c.cross_history.map(function(h){
+          return '<div><b>' + esc(h.company) + '</b><span class="mut">' + esc(h.job) + '</span>' +
+            '<span class="mut">' + esc(h.date) + '</span><span>' + esc(h.stage) + '</span></div>';
+        }).join('') + '</div>'
+      : '<p class="mut" style="margin:0">沒有其他紀錄。</p>') + '</div>';
+
+  // 發應徵連結給他——只有「主動開發」進來、本人還沒自己填過表單的人選才有意義；
+  // 一般本人自己應徵或已經跟阿財面談過的人選不需要這個功能。
+  if (c.origin === 'sourced'){
+    html += '<div class="sec"><h4>發應徵連結給他</h4>' +
+      '<p class="mut" style="margin:0 0 9px">還沒產生。產生後把連結傳給他，他點進去只要填測驗就能跟阿財面談。</p>' +
+      '<div class="acts"><select class="edi" style="max-width:220px"><option value="">選一個職缺…</option></select>' +
+      '<button class="btn p" type="button">產生連結（示範）</button></div></div>';
+  }
+
+  // 推派其他公司——同一個人選再推去另一個客戶／職缺，正式版叫「手動新增應徵紀錄」。
+  // ⚠️ 這裡以前是空按鈕，按了不會真的多一筆——Jacky 問「這邊可以支援很多筆
+  // 客戶各自獨立的進度嗎」才發現這個洞。現在會真的推進 c.extra_placements，
+  // 每一家客戶的進度互不相干，出現在上面「目前進度」區塊各自一條進度條。
+  var clientNames = Array.from(new Set(CANDS.map(function(x){ return x.client_name; })
+    .filter(function(n){ return n && n.indexOf('（') !== 0 && n !== c.client_name; })));
+  html += '<div class="sec"><h4>推派這位人選給其他客戶／職缺</h4>' +
+    '<label class="edl">推去哪家客戶</label><input class="edi" id="fwClient" list="fwClientList" placeholder="選現有客戶或直接打新的名字">' +
+    '<datalist id="fwClientList">' + clientNames.map(function(n){ return '<option value="' + esc(n) + '">'; }).join('') + '</datalist>' +
+    '<label class="edl">送去哪個職缺</label><input class="edi" id="fwJob" placeholder="職缺名稱">' +
+    '<label class="edl">現在在第幾關（不確定可以先不填）</label>' +
+    '<select class="edi" id="fwStage"><option value="-1">尚未開始</option>' + STAGE_ORDER.map(function(s,i){ return '<option value="'+i+'">'+s.lb+'</option>'; }).join('') + '</select>' +
+    '<label style="display:flex;align-items:flex-start;gap:8px;margin-top:10px;font-size:13px;color:var(--ink2)">' +
+    '<input type="checkbox" id="fwConsent" style="width:auto;margin-top:3px"><span>我確認已經取得本人同意，這筆資料可以提供給客戶</span></label>' +
+    '<div class="acts" style="margin-top:10px"><button class="btn p" id="fwGo" type="button">新增這筆應徵紀錄</button>' +
+    '<span class="mut" id="fwMsg"></span></div></div>';
+
+  html += '</div>';
+  document.getElementById('dwrap').innerHTML = html;
+  document.getElementById('dmask').classList.add('show');
+
+  document.getElementById('dclose').onclick = closeDrawer;
+  document.getElementById('edtog').onclick = function(){
+    var box = document.getElementById('edbox'), vb = document.getElementById('viewbox');
+    var open = box.hidden;
+    box.hidden = !open; vb.hidden = open;
+    document.getElementById('edtog').textContent = open ? '收起' : '編輯 ✎';
+  };
+  var cn = document.getElementById('edcancel');
+  if (cn) cn.onclick = function(){ openDrawer(id); };
+  var sv = document.getElementById('edsave');
+  if (sv) sv.onclick = function(){
+    c.name = document.getElementById('edName').value;
+    c.email = document.getElementById('edEmail').value;
+    c.phone = document.getElementById('edPhone').value;
+    c.current_company = document.getElementById('edCompany').value;
+    c.current_title = document.getElementById('edTitle').value;
+    c.linkedin = document.getElementById('edLinkedin').value;
+    c.line_id = document.getElementById('edLine').value;
+    c.source_channel = document.getElementById('edSource').value;
+    c.resume_source = document.getElementById('edResumeSource').value;
+    c.resume_link = document.getElementById('edResumeUrl').value;
+    openDrawer(id); renderList();
+  };
+  // 履歷拖曳上傳區——最多 3 個檔案，示範版不會真的上傳，點擊或拖放檔案只
+  // 把檔名加進 resume_files；滿 3 個時 dropzone 本身就不會被畫出來
+  // （見上面 resumeListHtml 旁邊那段條件），這裡只要處理「加」跟「刪」。
+  // Phase 2 會接正式版 fileToB64()+/admin/application/update 那套既有上傳邏輯。
+  var dz = document.getElementById('resumeDz');
+  if (dz){
+    var addResumeFile = function(f){
+      if (!c.resume_files) c.resume_files = [];
+      if (c.resume_files.length >= 3) return;
+      c.resume_files.push(f.name);
+      openDrawer(id); renderList();
+    };
+    dz.onclick = function(){
+      var inp = document.createElement('input');
+      inp.type = 'file'; inp.accept = '.pdf,.doc,.docx';
+      inp.onchange = function(){ if (inp.files[0]) addResumeFile(inp.files[0]); };
+      inp.click();
+    };
+    dz.ondragover = function(e){ e.preventDefault(); dz.style.borderColor = 'var(--gold)'; };
+    dz.ondragleave = function(){ dz.style.borderColor = 'var(--line)'; };
+    dz.ondrop = function(e){
+      e.preventDefault(); dz.style.borderColor = 'var(--line)';
+      if (e.dataTransfer.files[0]) addResumeFile(e.dataTransfer.files[0]);
+    };
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('.resumeDel'), function(b){
+    b.onclick = function(){ c.resume_files.splice(Number(b.dataset.i), 1); openDrawer(id); renderList(); };
+  });
+  // 電洽內容拖曳上傳——跟履歷同一套拖放邏輯，只是接受的副檔名不同
+  // （doc/docx/txt/md/html/pdf/excel，對齊 consultant_call_report_tick.py
+  // 實際會抽取文字的格式）。選了檔案先記檔名，真正送出交給 callGo。
+  var callFile = null;
+  var cdz = document.getElementById('callDz');
+  if (cdz){
+    var pickCallFile = function(){
+      var inp = document.createElement('input');
+      inp.type = 'file'; inp.accept = '.doc,.docx,.txt,.md,.html,.htm,.pdf,.xlsx,.xls';
+      inp.onchange = function(){ if (inp.files[0]){ callFile = inp.files[0]; document.getElementById('callFileMsg').textContent = '已選擇：' + callFile.name; } };
+      inp.click();
+    };
+    cdz.onclick = pickCallFile;
+    cdz.ondragover = function(e){ e.preventDefault(); cdz.style.borderColor = 'var(--gold)'; };
+    cdz.ondragleave = function(){ cdz.style.borderColor = 'var(--line)'; };
+    cdz.ondrop = function(e){
+      e.preventDefault(); cdz.style.borderColor = 'var(--line)';
+      if (e.dataTransfer.files[0]){ callFile = e.dataTransfer.files[0]; document.getElementById('callFileMsg').textContent = '已選擇：' + callFile.name; }
+    };
+  }
+  var cg = document.getElementById('callGo');
+  if (cg) cg.onclick = function(){
+    var text = document.getElementById('callText').value.trim();
+    if (!text && !callFile){ document.getElementById('callFileMsg').textContent = '請至少填文字或附一個檔案。'; return; }
+    if (!c.call_summaries) c.call_summaries = [];
+    // Phase 1 沒有真的接 AI，這裡的摘要只是示範文字，用來驗證「不要流水帳、
+    // 分區塊列點」這個版面，跟「累積多筆、不覆蓋上一筆」這個行為；Phase 2
+    // 會換成真的呼叫跟阿財面談同一套 AI，prompt 照 AI_SUMMARY_SECTIONS 那六塊問。
+    c.call_summaries.push({date: nowStr(), by: '顧問', filename: callFile ? callFile.name : null,
+      sections: fakeAiSummary(text, callFile ? callFile.name : null)});
+    c.timeline.push({type:'call', date:nowStr(), by:'顧問', text: text || ('上傳電洽紀錄檔案：' + callFile.name)});
+    callFile = null;
+    openDrawer(id); renderList();
+  };
+  // 這幾顆按鈕跟「萬用階段」下拉是同一件事的兩個入口，一定要走同一個
+  // applyStageKey()，不能自己另外寫一套邏輯——不然又會出現「不推薦沒有變
+  // 已結案」這種兩條路徑各算各的落差。
+  Array.prototype.forEach.call(document.querySelectorAll('.decbtn'), function(b){
+    b.onclick = function(){
+      applyStageKey(c, 'dec:' + b.dataset.k);
+      openDrawer(id); renderList(); renderStats(); renderTabs();
+    };
+  });
+  var ta = document.getElementById('tlAdd');
+  if (ta) ta.onclick = function(){
+    var text = document.getElementById('tlText').value.trim();
+    if (!text) return;
+    c.timeline.push({type:document.getElementById('tlType').value, date:nowStr(), by:'顧問', text:text});
+    openDrawer(id); renderList();
+  };
+  Array.prototype.forEach.call(document.querySelectorAll('.stagebtn'), function(b){
+    b.onclick = function(){ applyStageKey(c, 'stage:' + STAGE_ORDER[Number(b.dataset.i)].key); openDrawer(id); renderList(); renderStats(); renderTabs(); };
+  });
+  // 額外推派客戶的進度圓點——只改那一家自己的 stage_idx，跟主要那家的
+  // applyStageKey() 完全分開，證明兩家客戶進度真的互不相干。
+  Array.prototype.forEach.call(document.querySelectorAll('.extrastagebtn'), function(b){
+    b.onclick = function(){
+      var p = c.extra_placements[Number(b.dataset.pi)];
+      p.stage_idx = Number(b.dataset.i);
+      logChange(c, p.client_name + '　' + p.job_title + '　推進到「' + STAGE_ORDER[p.stage_idx].lb + '」');
+      openDrawer(id); renderList();
+    };
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.rmplacement'), function(b){
+    b.onclick = function(){
+      var p = c.extra_placements[Number(b.dataset.pi)];
+      if (!confirm('確定要移除「' + p.client_name + '」這筆推派紀錄嗎？')) return;
+      c.extra_placements.splice(Number(b.dataset.pi), 1);
+      openDrawer(id); renderList();
+    };
+  });
+  var fw = document.getElementById('fwGo');
+  if (fw) fw.onclick = function(){
+    var client = document.getElementById('fwClient').value.trim();
+    var job = document.getElementById('fwJob').value.trim();
+    var msg = document.getElementById('fwMsg');
+    if (!client || !job){ msg.textContent = '客戶跟職缺都要填'; return; }
+    if (!document.getElementById('fwConsent').checked){ msg.textContent = '請先確認已取得本人同意'; return; }
+    var stageIdx = Number(document.getElementById('fwStage').value);
+    c.extra_placements.push({client_name: client, job_title: job, stage_idx: stageIdx, decision: stageIdx >= 0 ? 'forwarded' : null});
+    logChange(c, '推派給新客戶「' + client + '」（' + job + '）');
+    document.getElementById('fwClient').value = ''; document.getElementById('fwJob').value = '';
+    openDrawer(id); renderList();
+  };
+  var rm = document.getElementById('rptmore');
+  if (rm) rm.onclick = function(){
+    var r = document.getElementById('rpt');
+    r.classList.toggle('open');
+    rm.textContent = r.classList.contains('open') ? '收合 ▴' : '展開全文 ▾';
+  };
+  var rd = document.getElementById('rptdl');
+  if (rd) rd.onclick = function(){
+    var blob = new Blob([c.report || ''], {type:'text/markdown;charset=utf-8'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = c.name + '_初篩報告.md';
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 0);
+  };
+  var rv = document.getElementById('rptview');
+  if (rv) rv.onclick = function(){
+    // 彈窗預覽，不是直接下載——用 iframe srcdoc 把跟阿財面談報告同排版的
+    // HTML 塞進站內的 modal，顧問可以先看完整版面再決定要不要下載/列印，
+    // 不用被迫跳出一個新分頁。真的要存檔才用旁邊「下載報告」那兩顆按鈕。
+    document.getElementById('rptFrame').srcdoc = reportDocHtml(c, false);
+    document.getElementById('rptMask').classList.add('show');
+  };
+  var rp = document.getElementById('rptpdf');
+  if (rp) rp.onclick = function(){
+    // 瀏覽器沒有內建「產生 PDF 檔」的 API，正式版 consultant/reports 的作法
+    // 是開一個排版乾淨的列印頁，讓顧問用瀏覽器的「另存為 PDF」——這裡照抄
+    // 同一個 reportHtml() 排版慣例，不是另外生一套。
+    var w = window.open('', '_blank');
+    w.document.write(reportDocHtml(c, true));
+    w.document.close();
+  };
+  var ss = document.getElementById('stageSel');
+  if (ss) ss.onchange = function(){
+    applyStageKey(c, ss.value);
+    openDrawer(id); renderList(); renderStats(); renderTabs();
+  };
+}
+
+// 「萬用階段」下拉跟進度條圓點共用同一套寫入邏輯——確保不管顧問從哪裡改，
+// 寫進去的都是同一份 stage_idx/decision/tab/pushed，不會兩條路徑寫出不同的資料，
+// 表格式的六個打勾欄位就是直接讀這份資料算出來的，不用另外按「同步」。
+// ⚠️ 2026-08-31 修：原本不管選「已轉客戶」「需補問」「不推薦」都一律丟去
+// 「客戶手上」，這是錯的——「不推薦」根本沒有要推給客戶，應該直接進「已結案」；
+// 「需補問」也還沒決定要不要推，應該留在「等我決定」，不能算「已推送客戶」。
+// 只有「已轉客戶」跟「客戶端流程」這幾個選項才代表真的推送出去了（pushed=true）。
+function applyStageKey(c, v){
+  var before = stageLabelOf(c).lb;
+  c.decision = null; c.stage_idx = -1; c.closed = null; c.pushed = false;
+  if (v === 'dec:forwarded'){ c.decision = 'forwarded'; c.tab = 'client_side'; c.pushed = true; c.evaluated = true; }
+  else if (v === 'dec:need_more'){ c.decision = 'need_more'; c.tab = 'to_review'; c.evaluated = true; }
+  else if (v === 'dec:rejected'){ c.decision = 'rejected'; c.tab = 'done'; c.closed = 'CLOSED_LOST'; c.evaluated = true; }
+  else if (v.indexOf('stage:') === 0){
+    var key = v.slice(6);
+    c.stage_idx = STAGE_ORDER.map(function(s){ return s.key; }).indexOf(key);
+    c.tab = 'client_side'; c.pushed = true; c.evaluated = true;
+  } else if (v === 'done'){ c.closed = 'CLOSED_INTERNAL'; c.tab = 'done'; }
+  else { c.tab = v; }
+  logChange(c, before + ' → ' + stageLabelOf(c).lb);
+}
+
+// 這是純前端展示頁的時間戳記，不是 Workflow 腳本，可以直接用 Date()。
+// 報告的排版 HTML——彈窗預覽跟下載 PDF 共用同一份，只差 autoprint 這個開關
+// （預覽不要一開就跳系統列印視窗，下載才要）。照抄 consultant/reports 既有
+// reportHtml() 的排版慣例，不是另外生一套版型。
+function reportDocHtml(c, autoprint){
+  var title = esc(c.name) + ' → ' + esc(c.job_title);
+  return '<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8">' +
+    '<title>初篩報告｜' + title + '</title><style>' +
+    'body{font-family:-apple-system,"PingFang TC",sans-serif;max-width:720px;margin:40px auto;' +
+    'padding:0 20px;color:#16202e;line-height:1.7}' +
+    'h1{font-size:19px;margin:0 0 4px}.meta{color:#7c8899;font-size:13px;margin-bottom:24px}' +
+    'pre{white-space:pre-wrap;font-family:inherit;font-size:14px;background:#f6f8fb;' +
+    'border:1px solid #dfe4ec;border-radius:10px;padding:18px 20px}' +
+    '@media print{pre{border:none;background:none;padding:0}}' +
+    '</style></head><body>' +
+    '<h1>初篩報告　' + title + '</h1>' +
+    '<div class="meta">Step1ne 德仁管理顧問</div>' +
+    '<pre>' + esc(c.report || '') + '</pre>' +
+    (autoprint ? '<script>window.onload=function(){window.print()}<\/script>' : '') +
+    '</body></html>';
+}
+
+function nowStr(){
+  var d = new Date();
+  function p(n){ return String(n).padStart(2,'0'); }
+  return d.getFullYear() + '-' + p(d.getMonth()+1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+}
+// 階段/決定的變更一律自動補一筆時間軸紀錄——不靠顧問自己記得寫，
+// 這是回答 Jacky「怎麼確保時間軸一定有正確紀錄」的做法：人為接觸（電訪/開發）
+// 顧問自己補，系統可判斷的狀態變化系統自動補，兩種來源都進同一份時間軸。
+function logChange(c, text){
+  c.timeline.push({type:'change', date:nowStr(), by:'顧問', text:text});
+}
+
+// AI 電洽摘要的固定分區——Jacky 明確要求不要流水帳，要列點、分區塊，
+// 這六個標題是硬性規格（Phase 2 接真的 AI 時，prompt 也要照這六塊去問，
+// 不是把逐字稿丟給模型自己決定要不要分段）。Phase 1 沒有真的接 AI，
+// 這裡只是把顧問打的字塞進「重點狀況」，其餘欄位明講「示範版尚未產出」，
+// 不能假裝有真的分析結果，免得 Jacky 誤以為 Phase 1 就已經做完 AI 這塊。
+var AI_SUMMARY_SECTIONS = ['重點狀況','求職需求','期望薪資','離職原因','優勢與劣勢','顧問可再確認／可主動告知客戶的部分'];
+function fakeAiSummary(text, filename){
+  var gist = text ? text.slice(0, 100) + (text.length > 100 ? '…' : '') : ('已收到附檔（' + filename + '），內容整理中');
+  return AI_SUMMARY_SECTIONS.map(function(lb, i){
+    return { label: lb, text: i === 0 ? gist : '（示範版尚未接真的 AI，這欄 Phase 2 才會有內容）' };
+  });
+}
+
+function closeDrawer(){ document.getElementById('dmask').classList.remove('show'); }
+document.getElementById('dmask').addEventListener('click', function(e){
+  if (e.target.id === 'dmask') closeDrawer();
+});
+
+// ── 新增人選（不是從阿財面談進來的）——照抄正式版 consultant/pipeline
+// 的「＋新增人選」表單（source_kind='new'，走 /admin/pipeline/manual-forward），
+// 這個人選卡片本身完全沒有阿財面談紀錄，是顧問自己接觸後手動建的，跟
+// 「電洽內容」那個 AI 摘要功能是同一批需求：顧問自己談的，也要能留下紀錄
+// 並走完整套流程（推送客戶、進度追蹤都一樣可以用）。
+var NEW_STAGE_OPTS = [
+  {k:'to_contact', lb:'待開發接觸'}, {k:'waiting_reply', lb:'等對方回'},
+  {k:'screening', lb:'待審核（客戶硬性條件）'}, {k:'to_review', lb:'等我決定'},
+  {k:'client_side', lb:'已轉客戶（直接進客戶手上）'},
+];
+function openNewCandModal(){
+  var clients = Array.from(new Set(CANDS.map(function(c){ return c.client_name; })
+    .filter(function(n){ return n && n.indexOf('（') !== 0; })));
+  var html = '<div class="dhead"><span class="nm">＋新增人選</span>' +
+    '<span class="mut">不是跟阿財面談進來的，顧問自己接觸的人選</span>' +
+    '<button class="x" id="ncClose" type="button">×</button></div>' +
+    '<div class="dbody"><div class="sec">' +
+    '<label class="edl">姓名 *</label><input class="edi" id="ncName">' +
+    '<label class="edl">Email（Email／電話至少填一個）</label><input class="edi" id="ncEmail">' +
+    '<label class="edl">電話</label><input class="edi" id="ncPhone">' +
+    '<label class="edl">客戶</label><input class="edi" id="ncClient" list="ncClientList" placeholder="選現有客戶或直接打新的名字">' +
+    '<datalist id="ncClientList">' + clients.map(function(n){ return '<option value="' + esc(n) + '">'; }).join('') + '</datalist>' +
+    '<label class="edl">應徵職缺</label><input class="edi" id="ncJob">' +
+    '<label class="edl">聯絡來源</label><select class="edi" id="ncSource">' +
+      SOURCE_CHANNEL_OPTS.map(function(o){ return '<option>' + esc(o) + '</option>'; }).join('') +
+    '</select>' +
+    '<label class="edl">初始階段</label><select class="edi" id="ncStage">' +
+      NEW_STAGE_OPTS.map(function(o){ return '<option value="' + o.k + '">' + o.lb + '</option>'; }).join('') +
+    '</select>' +
+    '<label class="edl">履歷來源</label><select class="edi" id="ncResumeSource">' +
+      RESUME_SOURCE_OPTS.map(function(o){ return '<option>' + esc(o) + '</option>'; }).join('') +
+    '</select>' +
+    '<div id="ncResumeDz" style="border:1.5px dashed var(--line);border-radius:10px;padding:16px;text-align:center;font-size:12.5px;color:var(--ink3);cursor:pointer;margin-top:6px">拖曳履歷檔案到這裡，或點擊選擇檔案</div>' +
+    '<label class="edl" style="margin-top:6px">或貼履歷連結</label><input class="edi" id="ncResumeUrl" placeholder="https://...">' +
+    '<label class="edl" style="margin-top:12px">電洽內容<span class="mut" style="font-weight:400">（跟人選談過的內容，AI 會據此產生初篩摘要）</span></label>' +
+    '<textarea class="edi" id="ncCallText" rows="3" placeholder="這次接觸/電訪的重點"></textarea>' +
+    '<div id="ncCallDz" style="border:1.5px dashed var(--line);border-radius:10px;padding:16px;text-align:center;font-size:12.5px;color:var(--ink3);cursor:pointer;margin-top:6px">或拖曳電洽紀錄檔案（doc/docx/txt/md/html/pdf/excel）</div>' +
+    '<label style="display:flex;align-items:flex-start;gap:8px;margin-top:12px;font-size:13px;color:var(--ink2)">' +
+    '<input type="checkbox" id="ncConsent" style="width:auto;margin-top:3px">' +
+    '<span>我確認已經取得本人同意，這筆資料可以提供給客戶</span></label>' +
+    '<div class="acts" style="margin-top:12px"><button class="btn p" id="ncGo" type="button">建立這筆人選卡片</button>' +
+    '<span class="mut" id="ncMsg"></span></div></div></div>';
+  document.getElementById('ncWrap').innerHTML = html;
+  document.getElementById('ncMask').classList.add('show');
+  document.getElementById('ncClose').onclick = closeNewCand;
+
+  var resumeFile = null, callFile = null;
+  function wireDz(dzId, onPick){
+    var dz = document.getElementById(dzId);
+    dz.onclick = function(){
+      var inp = document.createElement('input'); inp.type = 'file';
+      inp.onchange = function(){ if (inp.files[0]) onPick(inp.files[0]); };
+      inp.click();
+    };
+    dz.ondragover = function(e){ e.preventDefault(); dz.style.borderColor = 'var(--gold)'; };
+    dz.ondragleave = function(){ dz.style.borderColor = 'var(--line)'; };
+    dz.ondrop = function(e){ e.preventDefault(); dz.style.borderColor = 'var(--line)'; if (e.dataTransfer.files[0]) onPick(e.dataTransfer.files[0]); };
+  }
+  wireDz('ncResumeDz', function(f){ resumeFile = f; document.getElementById('ncResumeDz').textContent = '已選擇：' + f.name; });
+  wireDz('ncCallDz', function(f){ callFile = f; document.getElementById('ncCallDz').textContent = '已選擇：' + f.name; });
+
+  document.getElementById('ncGo').onclick = function(){
+    var name = document.getElementById('ncName').value.trim();
+    var email = document.getElementById('ncEmail').value.trim();
+    var phone = document.getElementById('ncPhone').value.trim();
+    var msg = document.getElementById('ncMsg');
+    if (!name){ msg.textContent = '請填姓名'; return; }
+    if (!email && !phone){ msg.textContent = '至少要填 Email 或電話其中一個'; return; }
+    if (!document.getElementById('ncConsent').checked){ msg.textContent = '請先確認已取得本人同意'; return; }
+    var stageK = document.getElementById('ncStage').value;
+    var callText = document.getElementById('ncCallText').value.trim();
+    var id = 'new_' + Math.random().toString(36).slice(2, 9);
+    var c = {
+      id: id, name: name, email: email, phone: phone,
+      job_title: document.getElementById('ncJob').value.trim() || '（未指定職缺）',
+      client_name: document.getElementById('ncClient').value.trim() || '（未綁客戶）',
+      fit_note: '顧問剛手動建立，尚未有 AI 評估——' + (callText ? callText.slice(0, 40) + '…' : '待補充狀況說明'),
+      tab: stageK === 'client_side' ? 'client_side' : stageK,
+      decision: null, stage_idx: stageK === 'client_side' ? 0 : -1,
+      closed: null, ai_done: false, evaluated: !!(callText || callFile), pushed: stageK === 'client_side',
+      source_channel: document.getElementById('ncSource').value,
+      resume_source: document.getElementById('ncResumeSource').value,
+      resume_link: document.getElementById('ncResumeUrl').value.trim() || null,
+      resume_file: resumeFile ? resumeFile.name : null,
+      owner: '顧問', consultant_note: '',
+      origin: 'manual',
+      timeline: [{type:'call', date: nowStr(), by:'顧問', text: callText || ('上傳電洽紀錄檔案：' + (callFile ? callFile.name : ''))}],
+      call_summaries: (callText || callFile) ? [{date: nowStr(), by:'顧問', filename: callFile ? callFile.name : null,
+        sections: fakeAiSummary(callText, callFile ? callFile.name : null)}] : [],
+      client_note: '', report: null, cross_history: [],
+    };
+    CANDS.unshift(c);
+    closeNewCand();
+    renderOwnerSel(); renderStats(); renderTabs(); renderList();
+    openDrawer(id);
+  };
+}
+function closeNewCand(){ document.getElementById('ncMask').classList.remove('show'); }
+document.getElementById('ncMask').addEventListener('click', function(e){
+  if (e.target.id === 'ncMask') closeNewCand();
+});
+document.getElementById('ncOpen').onclick = openNewCandModal;
+
+document.getElementById('rptMaskClose').onclick = function(){ document.getElementById('rptMask').classList.remove('show'); };
+document.getElementById('rptMask').addEventListener('click', function(e){
+  if (e.target.id === 'rptMask') document.getElementById('rptMask').classList.remove('show');
+});
+
+document.getElementById('q').addEventListener('input', function(e){ state.q = e.target.value; renderList(); });
+document.getElementById('vTable').onclick = function(){ state.view='table'; document.getElementById('vTable').classList.add('on'); document.getElementById('vCard').classList.remove('on'); renderList(); };
+document.getElementById('vCard').onclick = function(){ state.view='card'; document.getElementById('vCard').classList.add('on'); document.getElementById('vTable').classList.remove('on'); renderList(); };
+
+renderOwnerSel(); renderStats(); renderTabs(); renderList();
+</script>
+</html>
