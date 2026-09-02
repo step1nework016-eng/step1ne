@@ -864,6 +864,15 @@ function openDrawer(appId, kind) {
       '<p style="margin:0;font-size:13px">這位人選卡在客戶硬性條件審核，需要顧問人工核實後才會進入一般流程。</p></div>';
   }
 
+  // 2026-09-02 修：原本這顆按鈕寫在「初篩」區塊裡，只有 c.report_md 有值
+  // 才會出現——但像廖若辰這種走「電洽新增人選」手動流程、還沒等本機排程
+  // 跑出報告就已經推給客戶的人選，完全沒有報告，整個區塊連按鈕一起消失。
+  // 基本資料（現居地/學歷/期望待遇/可到職）本來就是資料庫欄位，不需要報告
+  // 才能做；核心條件對應那段沒報告內容時模板本來就會自動略過，不會壞，
+  // 所以獨立出來，不再綁報告存不存在。
+  html += '<div class="sec"><h4>客戶版履歷</h4>' +
+    '<div class="acts"><button class="btn p" id="clientFormalBtn" type="button">📄 製作客戶版履歷</button></div></div>';
+
   if (c.report_md) {
     html += '<div class="sec"><h4>初篩　' +
       (c.decision && DEC[c.decision] ? '<span class="pill ' + (c.decision === 'forwarded' ? 'ok' : (c.decision === 'rejected' ? 'bad' : 'warn')) + '">' + DEC[c.decision].lb + '</span>' : '<span class="pill">還沒決定推不推</span>') +
@@ -876,7 +885,6 @@ function openDrawer(appId, kind) {
       '<button class="btn p" id="rptview" type="button">👁 預覽報告</button>' +
       '<button class="btn" id="rptdl" type="button">下載報告（.md）</button>' +
       '<button class="btn" id="rptpdf" type="button">下載報告（PDF）</button>' +
-      '<button class="btn p" id="clientFormalBtn" type="button">📄 製作客戶版履歷</button>' +
       (c.report_id ? '<button class="btn" id="rpttrans" type="button">💬 阿財面談逐字稿</button>' : '') +
       '</div><div id="transBox" hidden style="margin-top:10px;border-top:1px solid var(--line);padding-top:10px"></div></div>';
   }
