@@ -799,9 +799,22 @@ function openDrawer(appId, kind) {
             '❌ 用人單位婉拒（' + esc(pl.client_reject_reason || '') + '）　' +
             '<span class="mut" style="font-size:11px">' + esc(String(pl.client_rejected_at).slice(0, 16)) + '</span></div>'
         : '';
+      // 2026-09-02 加：這家客戶掛的客製表單（例：用人事資料表）填寫狀態。
+      // 只有這個職缺真的掛了表單才會有東西，沒掛的職缺完全不會多這一塊。
+      var forms = (pl.forms || []).map(function (f) {
+        var pill = f.status === 'submitted'
+          ? '<span class="badge b-forward" style="font-size:11px">已完成</span>'
+          : f.status === 'sent'
+            ? '<span class="badge b-undecided" style="font-size:11px">已寄送・待填寫</span>'
+            : '<span class="badge b-notstart" style="font-size:11px">待補聯絡方式</span>';
+        var action = f.status === 'submitted'
+          ? ' <a href="#" class="dlform" data-id="' + esc(f.id) + '" style="font-size:12px;margin-left:6px">下載</a>'
+          : ' <button type="button" class="formResend" data-id="' + esc(f.id) + '" style="border:0;background:none;color:var(--gold);font-size:12px;cursor:pointer;margin-left:6px;text-decoration:underline">重新寄送</button>';
+        return '<div style="margin-top:6px;font-size:12.5px">📋 ' + esc(f.form_name) + ' ' + pill + action + '</div>';
+      }).join('');
       return '<div style="background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-top:10px">' +
         '<div style="font-weight:700;font-size:13px;margin-bottom:4px">' + esc(pl.client_name) + '<span class="mut" style="font-weight:400;margin-left:8px">✓ 顧問確認</span></div>' +
-        bar(pl, appId, i > 0) + cr + nr + '</div>';
+        bar(pl, appId, i > 0) + cr + nr + forms + '</div>';
     }).join('') +
     (!c.placements || !c.placements.length ? '<p class="mut" style="margin:10px 0">還沒推薦給任何客戶。</p>' : '') +
     '<div style="margin-top:12px"><label class="edl" style="margin-top:0">推去哪家客戶</label><select class="edi" id="fwCompany"><option value="">載入中…</option></select>' +
@@ -1158,6 +1171,22 @@ function wireDrawer(c, appId) {
       api('/admin/pipeline/forward-decision', { method: 'POST', headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ application_id: appId, company_id: b.dataset.cid, not_recommended: false }) })
         .then(function (r) { if (!r.ok) { alert(r.error || '失敗'); return; } loadAndOpen(appId); });
+    };
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.dlform'), function (a) {
+    a.onclick = function (ev) {
+      ev.preventDefault(); var t = a.textContent; a.textContent = '下載中…';
+      fetch(API + '/admin/candidate-form-submissions/' + encodeURIComponent(a.dataset.id) + '/download', { headers: { authorization: 'Bearer ' + tok } })
+        .then(function (rs) { if (!rs.ok) throw new Error('下載失敗'); return rs.blob(); })
+        .then(function (b) { var u = URL.createObjectURL(b), el = document.createElement('a'); el.href = u; el.download = 'form'; document.body.appendChild(el); el.click(); el.remove(); setTimeout(function () { URL.revokeObjectURL(u); }, 2000); a.textContent = t; })
+        .catch(function () { a.textContent = '下載失敗'; });
+    };
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.formResend'), function (b) {
+    b.onclick = function () {
+      var t = b.textContent; b.textContent = '寄送中…'; b.disabled = true;
+      api('/admin/candidate-form-submissions/' + encodeURIComponent(b.dataset.id) + '/resend', { method: 'POST' })
+        .then(function (r) { if (!r.ok) { alert(r.error || '寄送失敗'); b.textContent = t; b.disabled = false; return; } loadAndOpen(appId); });
     };
   });
   var rm = $('rptmore');

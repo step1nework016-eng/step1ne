@@ -707,8 +707,65 @@ function jdRenderTab(tab) {
     b.classList.toggle('on', b.dataset.tab === tab);
   });
   var body = document.getElementById('jdTabBody');
+  if (tab === 'forms') { body.innerHTML = '<p class="mut">載入中⋯</p>'; jdLoadForms(); return; }
   body.innerHTML = tab === 'view' ? jdViewHtml(JD_CUR.spec) : jdEditHtml(JD_CUR.spec);
   if (tab === 'edit') jdWireEdit();
+}
+
+// 2026-09-02 加：人選客製表單——這個職缺要不要收特定表單（例：用人事資料表），
+// 掛在這裡管理。有掛的話，顧問把人選推薦給客戶時系統會自動寄連結給人選，
+// 細節見後端 triggerJobForms()。
+function jdLoadForms() {
+  var body = document.getElementById('jdTabBody');
+  api('/admin/job-forms?job_slug=' + encodeURIComponent(JD_CUR.slug)).then(function (d) {
+    var forms = (d.ok && d.forms) || [];
+    body.innerHTML =
+      '<p class="mut" style="margin:0 0 14px">這個職缺要收的客製表單（例如用人事資料表）。掛上之後，顧問把人選推薦給客戶時會自動寄連結給人選填寫。</p>' +
+      (forms.length
+        ? '<div id="jfList">' + forms.map(function (f) {
+            return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:#faf8f3;border-radius:10px;padding:12px 14px;margin-bottom:8px;font-size:13.5px">' +
+              '<b>' + esc(f.name) + '</b>' +
+              '<button type="button" class="jfDel" data-id="' + esc(f.id) + '" style="border:0;background:none;color:#c0392b;font-size:13px;cursor:pointer">刪除</button></div>';
+          }).join('') + '</div>'
+        : '<p class="mut" style="margin:0 0 14px">目前沒有掛任何表單。</p>') +
+      '<div style="border-top:1px solid #eee7db;padding-top:14px;margin-top:6px">' +
+      '<label style="margin-top:0">新增表單</label>' +
+      '<input id="jfName" placeholder="表單名稱，例如：用人事資料表">' +
+      '<input type="file" id="jfFile" style="margin-top:8px">' +
+      '<div style="margin-top:10px"><button class="jdbtn" id="jfGo" type="button">＋ 新增表單</button> <span class="jdmsg" id="jfMsg" style="display:inline"></span></div>' +
+      '</div>';
+    Array.prototype.forEach.call(body.querySelectorAll('.jfDel'), function (b) {
+      b.onclick = function () {
+        if (!confirm('確定要刪除這份表單嗎？已經寄出的填寫連結不受影響，只是之後不會再自動觸發寄送。')) return;
+        api('/admin/job-forms/' + encodeURIComponent(b.dataset.id) + '/delete', { method: 'POST' }).then(function () { jdLoadForms(); });
+      };
+    });
+    document.getElementById('jfGo').onclick = function () {
+      var name = document.getElementById('jfName').value.trim();
+      var fileInput = document.getElementById('jfFile');
+      var msg = document.getElementById('jfMsg');
+      if (!name) { msg.textContent = '請填表單名稱'; return; }
+      var go = document.getElementById('jfGo');
+      go.disabled = true; msg.textContent = '處理中…';
+      function submit(fileB64, fileName, fileMime) {
+        api('/admin/job-forms', {
+          method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ job_slug: JD_CUR.slug, name: name, file_b64: fileB64, file_name: fileName, file_mime: fileMime, by: tok })
+        }).then(function (d2) {
+          go.disabled = false;
+          if (!d2.ok) { msg.textContent = d2.error || '新增失敗'; return; }
+          jdLoadForms();
+        }).catch(function () { go.disabled = false; msg.textContent = '連不上伺服器'; });
+      }
+      if (fileInput.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function () { submit(reader.result.split(',')[1], fileInput.files[0].name, fileInput.files[0].type); };
+        reader.readAsDataURL(fileInput.files[0]);
+      } else {
+        submit(null, null, null);
+      }
+    };
+  });
 }
 
 function jdWireEdit() {
@@ -801,6 +858,7 @@ document.addEventListener('click', function (e) {
       + '<div class="jdtabs">'
       + '<button type="button" class="jdtab on" data-tab="view">查看</button>'
       + '<button type="button" class="jdtab" data-tab="edit">編輯</button>'
+      + '<button type="button" class="jdtab" data-tab="forms">客製表單</button>'
       + '</div><div id="jdTabBody"></div></div>';
     Array.prototype.forEach.call(document.querySelectorAll('#jdwrap .jdtab'), function (b) {
       b.onclick = function () { jdRenderTab(b.dataset.tab); };

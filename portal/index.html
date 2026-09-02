@@ -1366,9 +1366,17 @@ function openCandModal(appId){
   document.getElementById('cmNoteBlock').innerHTML = c.client_note
     ? `<h4>顧問給你的說明</h4><div class="note" style="margin:0">${esc(c.client_note).replace(/\n/g, '<br>')}</div>`
     : `<h4>顧問給你的說明</h4><div style="color:var(--ink3);font-size:13px">尚未提供</div>`;
+  // 2026-09-02 加：人選客製表單（例：用人事資料表）——只有這個職缺真的有掛
+  // 表單、且人選已經填完的才會出現下載按鈕；還在等人選填的顯示狀態文字，
+  // 不給下載（還沒有檔案）。
+  const formsHtml = (c.forms || []).map(f => f.status === 'submitted'
+    ? `<a class="cm-fbtn" href="${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(c.application_id)}/form/${encodeURIComponent(f.id)}" target="_blank" rel="noopener">↓ 下載${esc(f.form_name)}</a>`
+    : `<span style="font-size:13px;color:var(--ink3)">${esc(f.form_name)}：等人選填寫中</span>`
+  ).join('');
   document.getElementById('cmFiles').innerHTML = `
     ${c.has_resume ? `<a class="cm-fbtn" href="${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(c.application_id)}/resume" target="_blank" rel="noopener">↓ 下載履歷</a>` : `<span style="font-size:13px;color:var(--ink3)">履歷尚未提供</span>`}
     ${c.has_client_report ? `<button type="button" class="cm-fbtn" id="cmReportBtn">👁 查看初篩報告摘要</button>` : `<span style="font-size:13px;color:var(--ink3)">報告摘要顧問還在準備</span>`}
+    ${formsHtml}
   `;
   const reportBtn = document.getElementById('cmReportBtn');
   if (reportBtn) reportBtn.addEventListener('click', cmToggleReport);

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>表單填寫｜Step1ne 德仁管理顧問</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta name="theme-color" content="#ffffff">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+html,body{margin:0;padding:0;min-height:100%}
+body{
+  font-family:'Noto Sans TC',system-ui,sans-serif;color:#23262d;background:#f4f1ea;
+  -webkit-font-smoothing:antialiased;line-height:1.75;
+  display:flex;align-items:flex-start;justify-content:center;
+  padding:40px 16px 80px;
+}
+.card{
+  background:#fff;border-radius:16px;max-width:480px;width:100%;
+  padding:32px 28px;box-shadow:0 2px 18px rgba(35,38,45,.06);
+}
+.logo{height:auto;width:132px;display:block;margin-bottom:26px}
+h1{font-size:19px;margin:0 0 6px;color:#23262d}
+.sub{color:#6b6e77;font-size:14px;margin:0 0 24px}
+.meta{background:#faf8f3;border-left:3px solid #a67c3d;border-radius:8px;padding:14px 16px;margin-bottom:24px}
+.meta dt{font-size:11.5px;color:#9a9da5;margin:0 0 2px}
+.meta dd{font-size:14.5px;font-weight:700;color:#23262d;margin:0 0 10px}
+.meta dd:last-child{margin-bottom:0}
+.dz{
+  border:1.5px dashed #d8d2c2;border-radius:12px;padding:28px 18px;text-align:center;
+  cursor:pointer;transition:border-color .15s;
+}
+.dz:hover, .dz.drag{border-color:#a67c3d;background:#faf8f3}
+.dz p{margin:0;color:#6b6e77;font-size:13.5px}
+.dz .pick{color:#a67c3d;font-weight:700}
+.fname{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  background:#faf8f3;border-radius:10px;padding:12px 14px;margin-top:10px;font-size:13.5px;
+}
+.fname b{overflow-wrap:anywhere;flex:1}
+.fname button{border:0;background:none;color:#c0392b;font-size:13px;cursor:pointer;padding:2px 6px}
+.go{
+  display:block;width:100%;margin-top:22px;background:#a67c3d;color:#fff;border:0;
+  font-weight:700;font-size:15px;padding:14px;border-radius:999px;cursor:pointer;
+}
+.go:disabled{opacity:.4;cursor:not-allowed}
+.msg{margin-top:12px;font-size:13.5px}
+.msg.err{color:#c0392b}
+.msg.ok{color:#2f8f5b}
+.state{text-align:center;padding:20px 0}
+.state .ico{font-size:40px;margin-bottom:10px}
+.state h2{font-size:18px;margin:0 0 8px}
+.state p{color:#6b6e77;font-size:14px;margin:0}
+footer{margin-top:24px;padding-top:18px;border-top:1px solid #eee7db;color:#9a9da5;font-size:11.5px;line-height:1.8}
+</style>
+</head>
+<body>
+<div class="card" id="app">
+  <img class="logo" src="https://step1ne.com/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問">
+  <div id="body">
+    <p class="sub">讀取中…</p>
+  </div>
+  <footer>
+    這個連結專屬於您本次的表單填寫，請勿轉傳。<br>
+    德仁管理顧問有限公司（Step1ne）・統一編號 85046127
+  </footer>
+</div>
+
+<script>
+var API = 'https://step1ne-recruit-api.aiagentg888.workers.dev';
+var T = new URLSearchParams(location.search).get('t') || '';
+var body = document.getElementById('body');
+var FILE = null;
+
+function esc(s){ return String(s == null ? '' : s).replace(/[<>&]/g, function(c){ return {'<':'&lt;','>':'&gt;','&':'&amp;'}[c]; }); }
+
+function renderState(icon, title, text){
+  body.innerHTML = '<div class="state"><div class="ico">' + icon + '</div><h2>' + esc(title) + '</h2><p>' + esc(text) + '</p></div>';
+}
+
+function renderForm(d){
+  body.innerHTML =
+    '<h1>' + esc(d.form_name) + '</h1>' +
+    '<p class="sub">請上傳填寫完成的表單檔案（PDF、圖片、Word 都可以）</p>' +
+    '<dl class="meta">' +
+      '<dt>人選</dt><dd>' + esc(d.candidate_name || '') + '</dd>' +
+      '<dt>用人單位</dt><dd>' + esc(d.company_name || '') + (d.job_title ? '・' + esc(d.job_title) : '') + '</dd>' +
+    '</dl>' +
+    '<div class="dz" id="dz"><p>把檔案拖到這裡，或 <span class="pick">點擊選擇檔案</span></p></div>' +
+    '<input type="file" id="fileInput" hidden accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.heic">' +
+    '<div id="fnameBox"></div>' +
+    '<button class="go" id="goBtn" disabled>送出</button>' +
+    '<div class="msg" id="msg"></div>';
+
+  var dz = document.getElementById('dz');
+  var input = document.getElementById('fileInput');
+  var fnameBox = document.getElementById('fnameBox');
+  var goBtn = document.getElementById('goBtn');
+  var msg = document.getElementById('msg');
+
+  dz.onclick = function(){ input.click(); };
+  ['dragover','dragenter'].forEach(function(ev){
+    dz.addEventListener(ev, function(e){ e.preventDefault(); dz.classList.add('drag'); });
+  });
+  ['dragleave','drop'].forEach(function(ev){
+    dz.addEventListener(ev, function(e){ e.preventDefault(); dz.classList.remove('drag'); });
+  });
+  dz.addEventListener('drop', function(e){
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0]);
+  });
+  input.onchange = function(){ if (input.files[0]) setFile(input.files[0]); };
+
+  function setFile(f){
+    if (f.size > 15 * 1024 * 1024) { msg.className = 'msg err'; msg.textContent = '檔案太大，請壓縮在 15MB 以內'; return; }
+    FILE = f;
+    fnameBox.innerHTML = '<div class="fname"><b>' + esc(f.name) + '</b><button type="button" id="clearBtn">移除</button></div>';
+    document.getElementById('clearBtn').onclick = function(){ FILE = null; fnameBox.innerHTML = ''; goBtn.disabled = true; input.value = ''; };
+    goBtn.disabled = false;
+    msg.textContent = '';
+  }
+
+  goBtn.onclick = function(){
+    if (!FILE) return;
+    goBtn.disabled = true;
+    goBtn.textContent = '上傳中…';
+    msg.className = 'msg';
+    msg.textContent = '';
+    var reader = new FileReader();
+    reader.onload = function(){
+      var b64 = reader.result.split(',')[1];
+      fetch(API + '/form/?t=' + encodeURIComponent(T), {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ file_b64: b64, file_name: FILE.name, file_mime: FILE.type || 'application/octet-stream' })
+      }).then(function(r){ return r.json(); }).then(function(res){
+        if (res.ok) {
+          renderState('✅', '已收到，謝謝您！', '表單已經送出完成，顧問會盡快跟您確認後續進度。');
+        } else {
+          goBtn.disabled = false;
+          goBtn.textContent = '送出';
+          msg.className = 'msg err';
+          msg.textContent = res.error || '送出失敗，請稍後再試';
+        }
+      }).catch(function(){
+        goBtn.disabled = false;
+        goBtn.textContent = '送出';
+        msg.className = 'msg err';
+        msg.textContent = '網路連線失敗，請稍後再試';
+      });
+    };
+    reader.readAsDataURL(FILE);
+  };
+}
+
+if (!T) {
+  renderState('⚠️', '連結不完整', '請重新點擊信件裡的按鈕，或聯繫您的顧問。');
+} else {
+  fetch(API + '/form/?t=' + encodeURIComponent(T)).then(function(r){ return r.json(); }).then(function(d){
+    if (!d.ok) { renderState('⚠️', '連結失效', d.error || '這個連結不存在，或已經失效，請聯繫您的顧問。'); return; }
+    if (d.status === 'submitted') {
+      renderState('✅', '已經填寫完成', '這份表單已經送出過了，如需修改請聯繫您的顧問。');
+      return;
+    }
+    renderForm(d);
+  }).catch(function(){
+    renderState('⚠️', '連線失敗', '請稍後再試，或聯繫您的顧問。');
+  });
+}
+</script>
+</body>
+</html>
