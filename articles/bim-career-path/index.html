@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+document.addEventListener('click', function (e) {
+  if (!e.target.closest) return;
+  var a = e.target.closest('a[href*="lin.ee"], a[href^="/apply"], a[href^="/construction"]');
+  if (!a) return;
+  var href = a.getAttribute('href') || '';
+  var kind = href.indexOf('/apply') === 0 ? 'apply_click' : (href.indexOf('/construction') === 0 ? 'construction_click' : 'line_cta_click');
+  gtag('event', kind, {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60),
+    cta_slot: a.getAttribute('data-cta') || 'legacy'
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BIM工程師做3年後可以往哪走？獵頭實務觀察｜Step1ne</title>
+<meta name="description" content="BIM工程師做2-3年後不是只有等年資變厚。獵頭實務上常見的分岔點有三條：技術深化往BIM協調師/Lead走、轉PM或業主端代表、橫向轉出到營造其他職能。這篇拆解卡住的人通常卡在哪、往上爬的人做對了什麼選擇。">
+<meta name="keywords" content="BIM工程師 出路,BIM工程師 職涯發展,BIM 職涯,BIM工程師 轉PM,BIM工程師 未來發展,BIM Lead">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/articles/bim-career-path/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Step1ne 德仁管理顧問">
+<meta property="og:title" content="BIM工程師做3年後可以往哪走？獵頭實務觀察">
+<meta property="og:description" content="技術深化、轉PM、橫向轉出——三條實際走得通的路，以及卡住的人通常卡在哪。">
+<meta property="og:url" content="https://step1ne.com/articles/bim-career-path/">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://step1ne.com/assets/og-bim-career-path.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-bim-career-path.jpg">
+<meta name="theme-color" content="#f4f1ea">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Noto+Sans+TC:wght@300;400;500;700;900&family=Noto+Serif+TC:wght@500;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "BIM工程師做3年後可以往哪走？獵頭實務觀察",
+  "description": "拆解BIM工程師做2-3年後的三條實際職涯分岔：技術深化路線、轉PM或業主端代表、橫向轉出到營造其他職能。並說明常見卡點與往上爬的人通常做對了什麼選擇。",
+  "datePublished": "2026-09-03",
+  "dateModified": "2026-09-03",
+  "inLanguage": "zh-TW",
+  "author": { "@type": "Organization", "name": "Step1ne 德仁管理顧問有限公司", "url": "https://step1ne.com/" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "德仁管理顧問有限公司（Step1ne）",
+    "logo": { "@type": "ImageObject", "url": "https://step1ne.com/assets/step1ne-logo.png" }
+  }
+}
+</script>
+
+<style>
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{font-family:'Noto Sans TC',system-ui,sans-serif;color:#23262d;background:#f4f1ea;-webkit-font-smoothing:antialiased;line-height:1.8;}
+a{color:#a67c3d;text-decoration:none;}
+a:hover{color:#8a6531;}
+details summary{cursor:pointer;list-style:none;}
+details summary::-webkit-details-marker{display:none;}
+details summary .faq-icon{transition:transform .3s ease;}
+details[open] summary .faq-icon{transform:rotate(45deg);}
+.wrap{max-width:760px;margin:0 auto;padding:0 24px;}
+h2{font-family:'Noto Serif TC',serif;font-size:24px;font-weight:700;color:#1c1f26;margin:44px 0 14px;line-height:1.4;}
+h3{font-size:17px;font-weight:700;color:#1c1f26;margin:26px 0 8px;}
+p{color:#3a3d44;font-size:15.5px;margin:0 0 16px;}
+ul,ol{padding-left:22px;color:#3a3d44;font-size:15.5px;}
+li{margin-bottom:8px;}
+.tbl-wrap{overflow-x:auto;margin:16px 0 8px;}
+table{width:100%;border-collapse:collapse;font-size:14.5px;background:#fff;min-width:560px;}
+th,td{border:1px solid #e6dfd1;padding:11px 13px;text-align:left;vertical-align:top;}
+th{background:#faf7f1;font-weight:700;white-space:nowrap;}
+td strong{color:#8a5a1a;white-space:nowrap;}
+.note{font-size:13.5px;color:#8a8d95;margin:0 0 24px;}
+.callout{background:#fff;border:1px solid #e6dfd1;border-radius:14px;padding:20px 22px;margin:0 0 16px;}
+.insight{background:#fdfaf3;border:1px solid rgba(166,124,61,0.35);border-radius:14px;padding:20px 22px;margin:24px 0;}
+.insight .label{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;color:#a67c3d;text-transform:uppercase;margin-bottom:8px;}
+.insight p:last-child{margin-bottom:0;}
+@media (max-width:760px){
+  .s1ne-hide-m{display:none !important;}
+  .s1ne-show-m{display:flex !important;}
+  footer a{min-height:44px;display:inline-flex;align-items:center;}
+}
+.s1ne-show-m{display:none;}
+.s1ne-mobile-menu{display:none;flex-direction:column;padding:4px 24px 16px;border-top:1px solid #e6dfd1;background:rgba(244,241,234,0.98);}
+.s1ne-mobile-menu.is-open{display:flex;}
+.s1ne-mobile-menu a{padding:10px 0;color:#4a4d55;font-size:15px;border-bottom:1px solid #e6dfd1;min-height:44px;display:flex;align-items:center;}
+.s1ne-mobile-menu a:last-child{border-bottom:none;}
+
+/* 表格：桌機正常表格；手機自動改成卡片式堆疊，避免多欄被壓爛 */
+@media (max-width:640px){
+  .tbl-wrap{overflow-x:visible;}
+  .tbl-wrap table{min-width:0;display:block;background:transparent;}
+  .tbl-wrap thead{display:none;}
+  .tbl-wrap tbody{display:block;}
+  .tbl-wrap tr{display:block;background:#fff;border:1px solid #e6dfd1;border-radius:14px;margin-bottom:12px;overflow:hidden;}
+  .tbl-wrap td{display:block;border:none;border-bottom:1px solid #f2ede3;padding:12px 16px;}
+  .tbl-wrap tr td:last-child{border-bottom:none;}
+  .tbl-wrap td::before{content:attr(data-label);display:block;font-size:11.5px;font-weight:700;letter-spacing:0.5px;color:#a67c3d;margin-bottom:4px;}
+  .tbl-wrap td:empty{display:none;}
+}
+</style>
+</head>
+<body>
+
+<header style="position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:rgba(244,241,234,0.9);border-bottom:1px solid #e6dfd1;">
+  <div class="wrap" style="display:flex;align-items:center;justify-content:space-between;gap:20px;height:68px;max-width:1180px;">
+    <a href="/" style="display:flex;align-items:center;gap:12px;color:#23262d;">
+      <img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問" style="height:38px;width:auto;">
+    </a>
+    <div class="s1ne-hide-m" style="display:flex;align-items:center;gap:26px;font-size:15px;color:#4a4d55;">
+      <a href="/construction/" style="color:#a67c3d;font-weight:700;">營造工程專欄</a>
+      <a href="/jobs/" style="color:#4a4d55;">職缺專區</a>
+      <a href="/articles/" style="color:#4a4d55;">獵才專欄</a>
+      <a href="/talent/" style="color:#4a4d55;">全民獵才</a>
+      <a href="/about/" style="color:#4a4d55;">關於我們</a>
+    </div>
+    <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" class="s1ne-hide-m" style="background:#06c755;color:#fff;font-weight:700;font-size:13.5px;padding:9px 18px;border-radius:999px;white-space:nowrap;">LINE 洽詢</a>
+    <button type="button" class="s1ne-show-m" onclick="document.getElementById('s1ne-mmenu').classList.toggle('is-open')" aria-label="開啟選單" style="align-items:center;justify-content:center;width:40px;height:40px;border:1px solid #e6dfd1;border-radius:10px;background:#fff;flex-shrink:0;">
+      <span style="display:block;width:18px;height:2px;background:#23262d;box-shadow:0 6px 0 #23262d,0 -6px 0 #23262d;"></span>
+    </button>
+  </div>
+  <div id="s1ne-mmenu" class="s1ne-mobile-menu" onclick="if(event.target.closest('a'))this.classList.remove('is-open')">
+    <a href="/">首頁</a>
+    <a href="/construction/">營造工程專欄</a>
+    <a href="/jobs/">職缺專區</a>
+    <a href="/articles/">獵才專欄</a>
+    <a href="/talent/">全民獵才</a>
+    <a href="/about/">關於我們</a>
+    <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="color:#a67c3d;font-weight:700;">LINE 洽詢 →</a>
+  </div>
+</header>
+
+<main>
+  <article class="wrap" style="padding:40px 24px 24px;">
+    <div style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:2px;color:#a67c3d;text-transform:uppercase;margin-bottom:16px;">求職者指南・獵頭觀點</div>
+    <h1 style="font-family:'Noto Serif TC',serif;font-weight:700;font-size:clamp(26px,4vw,38px);line-height:1.35;margin:0 0 20px;color:#1c1f26;">BIM工程師做3年後可以往哪走？獵頭實務觀察</h1>
+
+    <p class="aeo-byline" style="font-size:14px;color:#6b6f78;margin:0 0 20px;padding-bottom:14px;border-bottom:1px solid #e6dfd1;"><span>作者：<a href="/about/" style="color:#6b6f78;">Step1ne 獵才顧問團隊</a></span><span style="margin:0 8px;">·</span><time datetime="2026-09-03">發布於 2026-09-03</time></p>
+
+    <p style="font-size:17px;color:#3a3d44;background:#fff;border:1px solid #e6dfd1;border-radius:14px;padding:20px 22px;">
+      <strong>直接答案：</strong>做滿 2–3 年後，BIM工程師的路大致分三條：<strong>技術深化</strong>（往BIM協調師、BIM Lead走，留在BIM專業裡越做越深）、<strong>轉職能</strong>（轉工地或建案的專案管理、轉業主端的擁有者代表）、<strong>橫向轉出</strong>（轉到營造業裡的工程設計或現場工程）。獵頭實務上最常看到卡住的原因，不是能力不夠，是一直待在同一種工作內容裡沒有換過。
+    </p>
+
+    <h2>三條路，不是一條線</h2>
+    <p>多數人以為 BIM 工程師的職涯就是「年資越久，職級越高」，一路往 BIM 經理爬。實際上看過的送件案例裡，這條路只是其中一條，而且不是走的人最多的一條。BIM 工程師做到 2–3 年這個階段，通常會出現三個方向的分岔：</p>
+
+    <h3>路線一：技術深化——留在 BIM，往協調與整合走</h3>
+    <p>這是最直覺的路，也是多數人預設的路。從單一專業建模，走到跨專業協調、制定 BEP、帶團隊。這條路的職級架構與薪資帶，在 <a href="/articles/bim-engineer-salary/">BIM工程師薪水行情：從無經驗到資深，數字怎麼跳？</a> 裡已經拆過六個級距，這篇不重複——重點是：走這條路的人，2–3 年後該問自己的不是「我還要不要做 BIM」，而是「我有沒有機會碰到跨專業協調」。沒有這個機會，留在原公司做技術深化會停滯。</p>
+
+    <h3>路線二：轉職能——從管模型轉成管專案或代表業主</h3>
+    <p>這是我們實務上看到比想像中更常見的一條路，卻很少被寫進職涯文章。做過 2–3 年 BIM 的人，通常已經很熟悉一個建案從設計到施工的完整流程，這個知識本身在兩個方向上很值錢：</p>
+    <ul>
+      <li><strong>轉工程專案管理（PM）</strong>——BIM 經驗讓你比一般 PM 更早看懂圖面上的衝突，這在營建 PM 職缺裡是明顯的加分項</li>
+      <li><strong>轉業主端的擁有者代表（Owner's Representative）</strong>——業主自己不見得有 BIM 背景，需要懂技術又能替業主把關的人去對接營造與設計端，這類職缺對「做過 BIM」的人接受度很高</li>
+    </ul>
+    <p>這條路的難處不是能力，是資訊落差——很多做 BIM 的人根本不知道這條路存在，以為離開 BIM 職稱就是「轉行」，其實是往上游移動。</p>
+
+    <h3>路線三：橫向轉出——轉到營造業裡的其他職能</h3>
+    <p>做了幾年 BIM，發現自己更喜歡出圖規劃而非協調會議，或想離開純辦公室環境，這條路是轉到工程設計或現場工程。營造業裡的角色分工與各自的入行條件，可以參考 <a href="/articles/how-to-enter-construction-industry/">怎麼踏入營造業？非本科系新手入行指南</a>——BIM 背景在轉這幾種角色時，通常比從零開始的人更有優勢，因為圖面判讀與跨部門溝通的底子已經有了。</p>
+
+    <div class="insight">
+      <div class="label">獵頭觀察</div>
+      <p><strong>這三條路不是互斥的，很多人是先走路線一，卡住之後才發現路線二存在。</strong>我們實際接觸的案例裡，願意主動打聽「BIM 做久了還能轉什麼」的人，通常已經比同儕多想了一步；反而是悶著頭只顧把模型做好、沒有對外打聽過的人，容易錯過轉職能的時機——因為業主端與 PM 職缺很少特別強調「歡迎 BIM 背景」，需要自己去連結這個關係。</p>
+    </div>
+
+    <h2>卡住的人，通常卡在同一個地方</h2>
+    <p>從送件經驗看，BIM 工程師職涯卡住最常見的原因，並不是市場上沒有機會，而是這幾種情況反覆出現：</p>
+    <ul>
+      <li><strong>年資很長，但都在做同一種構件建模。</strong>履歷上寫五年經驗，實際能力還停在建模階段，沒有跨過協調這一關——這一點在 <a href="/articles/bim-engineer-salary/">薪資行情那篇</a>也提過，是職級卡點，也是職涯卡點，同一個原因造成兩種結果</li>
+      <li><strong>只待過一種案型。</strong>一直做同一類建案（例如只做建廠、或只做一般建築），沒有機會累積跨案型的判斷力，履歷看起來經驗豐富，實際可轉移的能力有限</li>
+      <li><strong>沒有主動爭取跨專業會議的機會。</strong>公司不會主動把協調的機會分給資淺的人，這件事通常要自己開口要，才會被排進去</li>
+      <li><strong>不知道 BIM 以外的路存在。</strong>只看過 BIM 經理這個終點，沒想過轉 PM 或業主端，等於少看了一半的地圖</li>
+    </ul>
+
+    <h2>往上爬的人，通常做對了這幾個選擇</h2>
+    <p>對照職涯往上走得比較快的案例，共同點通常不是天賦或證照，而是幾個具體的選擇：</p>
+    <ul>
+      <li><strong>主動要求進協調會議，而不是等被指派。</strong>跨專業協調是整條路上漲幅最大的一關，但公司不會自動把機會給你，要自己爭取</li>
+      <li><strong>把自己定位成「解決衝突的人」，不是「畫模型的人」。</strong>這個定位轉換直接影響履歷怎麼寫、面試怎麼談，也影響用人主管把你放進哪一個職級考慮</li>
+      <li><strong>刻意換過不同案型。</strong>建廠案、公共工程、一般建築案的眉角不一樣，換過的人在履歷上明顯更有說服力，因為證明了「你能適應不同業主與流程」</li>
+      <li><strong>提早打聽 PM 與業主端的門路，不等到卡住才想。</strong>職涯轉換越早開始鋪墊（例如在做 BIM 期間就多接觸工程排程與預算相關的工作），轉職時越順</li>
+    </ul>
+
+    <aside data-exp="cta-mid-2026-09-03" style="margin:38px 0;padding:24px 26px;border-radius:16px;background:linear-gradient(150deg,rgba(166,124,61,0.10),rgba(96,128,180,0.05));border:1px solid rgba(166,124,61,0.28);"><p style="margin:0 0 8px;font-family:'Space Mono',monospace;font-size:11.5px;letter-spacing:.14em;color:#a67c3d;">STEP1NE 現正招募</p><h3 style="margin:0 0 10px;font-size:19px;line-height:1.4;">這個缺現在開著：無經驗可，正職僱用</h3><p style="margin:0 0 18px;font-size:15px;line-height:1.75;color:#4a4d55;">AI 記憶體產業擴產案（苗栗銅鑼），<strong>正職僱用</strong>（不是派遣、不是約聘），優先招募 10 名。月薪 <strong>4 萬以上，實際待遇面議</strong>（依學歷與科系相關性核定）。大學以上不限科系，<strong>無經驗可</strong>——公司安排完整培訓，先到桃園楊梅受訓 1 週，進駐銅鑼廠區後有設計 PM 與設計工程師組成的團隊帶到可獨立作業。不提供宿舍，但有租屋補助每月 5,000 元；作息固定 08:30–17:30，週休二日不輪班。如果你正在考慮從路線一起步、想累積跨案型經驗，這類大型建廠案是完整走過一輪流程的機會。想先問清楚再決定也可以，不用先投履歷。</p><div style="display:flex;flex-wrap:wrap;gap:12px;"><a href="/apply/?job=bim-engineer-tongluo&amp;utm_source=website&amp;utm_medium=article_cta&amp;utm_campaign=mid-bim-career-path" data-cta="mid-bim-career-path" style="display:inline-flex;align-items:center;gap:8px;background:#23262d;color:#fff;font-weight:700;font-size:15px;padding:13px 26px;border-radius:999px;">直接應徵 BIM 工程師</a><a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-bim-career-path" style="display:inline-flex;align-items:center;gap:8px;background:#06c755;color:#fff;font-weight:700;font-size:15px;padding:13px 26px;border-radius:999px;">加 LINE 先問清楚</a></div></aside>
+
+    <h2>三個下一步，各自要先準備什麼</h2>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>方向</th><th>先準備什麼</th><th>常見誤區</th></tr></thead>
+        <tbody>
+          <tr><td data-label="方向"><strong>技術深化（BIM協調師/Lead）</strong></td><td data-label="先準備什麼">主動爭取跨專業協調經驗、學 BIM 360／ACC 協作工具、練習主持衝突檢測會議</td><td data-label="常見誤區">以為多考證照就會被看到，實際上用人主管看的是有沒有主持過協調</td></tr>
+          <tr><td data-label="方向"><strong>轉 PM／業主端代表</strong></td><td data-label="先準備什麼">開始接觸工程排程與預算相關工作、練習用非技術語言跟業主或高層溝通</td><td data-label="常見誤區">以為要先離開 BIM 職稱才能轉，其實在職期間就能開始鋪墊</td></tr>
+          <tr><td data-label="方向"><strong>橫向轉出（工程設計／現場工程）</strong></td><td data-label="先準備什麼">誠實評估自己是喜歡辦公室規劃還是現場節奏，兩者體感差很多</td><td data-label="常見誤區">單純因為「想轉換」就跳，沒先確認新角色的日常實際長什麼樣</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">以上為方向性建議，實際轉職路徑與速度仍取決於個人條件與市場當下的職缺供給，這裡不承諾特定結果。</p>
+
+    <h2>常見問題</h2>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-top:20px;">
+      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
+        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
+          <span>BIM工程師做幾年該開始考慮往上跳？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
+        </summary>
+        <p style="margin:0;padding:0 20px 18px;">沒有固定年限，但 2–3 年是一個常見的檢查點——這時候應該已經累積到能獨立完成模型並出圖的程度。如果做到這個階段還完全沒接觸過跨專業協調，就值得主動去爭取，而不是繼續等年資往上加。</p>
+      </details>
+      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
+        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
+          <span>BIM工程師可以轉做工程專案管理（PM）嗎？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
+        </summary>
+        <p style="margin:0;padding:0 20px 18px;">可以，而且做過 BIM 是明顯的加分項——你比一般 PM 更早看懂圖面上的衝突與工序卡點。實務上這類轉職通常需要補齊排程、預算與跨部門溝通的經驗，可以在原職期間就開始主動接觸這些工作。</p>
+      </details>
+      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
+        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
+          <span>不想往上爬、只想專心做技術，可以嗎？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
+        </summary>
+        <p style="margin:0;padding:0 20px 18px;">可以。並不是每個人都要走管理或轉職路線，留在技術路線把 Revit、Navisworks、Dynamo 等工具用得更深，同樣是一條路，只是薪資成長曲線通常比走管理路線平緩。重點是自己清楚選了哪一條，而不是被動留在原地。</p>
+      </details>
+      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
+        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
+          <span>換公司比留在原公司更容易往上跳嗎？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
+        </summary>
+        <p style="margin:0;padding:0 20px 18px;">不一定，取決於原公司有沒有給你跨專業協調的機會。如果原公司的案子讓你一直做同一種建模、看不到升上去的路，換公司確實是常見的解法；但如果只是嫌加薪速度慢、實際上有機會爭取協調角色，先在原公司談清楚也是選項之一。</p>
+      </details>
+    </div>
+
+    <div style="margin-top:48px;text-align:center;padding:36px 28px;border-radius:20px;background:linear-gradient(150deg,rgba(166,124,61,0.12),rgba(96,128,180,0.06));border:1px solid rgba(166,124,61,0.3);">
+      <h2 style="margin-top:0;">想聊聊自己適合走哪條路？</h2>
+      <p style="margin-bottom:22px;">加入 LINE 與顧問聊聊你目前的經驗與想法，我們會依實際情況給方向性建議，也可以看看目前開放中的 BIM 與營建職缺。</p>
+      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;background:#06c755;color:#fff;font-weight:700;font-size:16px;padding:15px 32px;border-radius:999px;">加入LINE官方帳號諮詢</a>
+      <p style="margin:18px 0 0;font-size:14.5px;"><a href="/jobs/bim-engineer-tongluo/">查看 BIM 工程師職缺詳情 →</a></p><p style="margin:6px 0 22px;font-size:14.5px;"><a href="/construction/">查看更多營建工程職缺 →</a></p>
+    </div>
+  <p style="margin-top:32px;font-size:14.5px;color:#8a8d95;">延伸閱讀：<a href="/articles/bim-engineer-salary/">BIM工程師薪水行情：從無經驗到資深，數字怎麼跳？</a>　·　<a href="/articles/what-is-bim-engineer/">BIM 工程師是什麼？跟繪圖員差在哪？</a>　·　<a href="/articles/bim-career-change/">沒有相關科系，可以轉職 BIM 工程師嗎？</a>　·　<a href="/articles/how-to-enter-construction-industry/">怎麼踏入營造業？非本科系新手入行指南</a></p>
+  </article>
+</main>
+
+<footer style="border-top:1px solid #e6dfd1;background:#eee9de;padding:28px 0;">
+  <div class="wrap" style="text-align:center;color:#9a9da5;font-size:13px;max-width:800px;">
+    <a href="/articles/" style="color:#a67c3d;">獵才專欄</a>　|　<a href="/jobs/" style="color:#a67c3d;">職缺專區</a>　|　<a href="/" style="color:#a67c3d;">Step1ne 首頁</a>　|　© 2026 德仁管理顧問有限公司 Step1ne
+  </div>
+</footer>
+
+</body>
+</html>
