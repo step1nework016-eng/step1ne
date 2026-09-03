@@ -314,6 +314,7 @@ button.ghost:hover{border-color:var(--gold);color:var(--gold)}
         <button class="go" id="savemap" type="button" style="width:100%">儲存這位顧問的設定</button>
         <div class="mut" id="mapsaved" style="display:none;color:var(--ok);font-weight:600;margin-top:8px">✓ 已儲存</div>
       </div>
+      </div>
     </div>
 
   </main>
@@ -503,9 +504,9 @@ document.getElementById('addtopic').addEventListener('click', ()=>{
 
 // ── 職缺風格提示詞庫 ──
 const STYLES = [
-  { id:1, name:'活潑口語', updated:'09-01' },
-  { id:2, name:'專業權威', updated:'08-20' },
-  { id:3, name:'數據派', updated:'08-25' },
+  { id:1, name:'對話討論型', updated:'09-03' },
+  { id:2, name:'不發連結有CTA', updated:'09-03' },
+  { id:3, name:'原始格式（現有提示詞）', updated:'08-14' },
 ];
 function renderStyleLib(){
   const q = (document.getElementById('stylesearch').value || '').trim().toLowerCase();
@@ -697,5 +698,15 @@ function renderCalGrid(){
   });
 }
 renderCalGrid();
+
+// ── 顧問與話題設定：三個子分頁 ──
+document.getElementById('settingssubtabs').addEventListener('click', (e)=>{
+  const b = e.target.closest('button'); if(!b) return;
+  document.querySelectorAll('#settingssubtabs button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  document.getElementById('sub-topics').hidden = b.dataset.sub !== 'topics';
+  document.getElementById('sub-assign').hidden = b.dataset.sub !== 'assign';
+  document.getElementById('sub-jobstyles').hidden = b.dataset.sub !== 'jobstyles';
+});
 </script>
 </html>
