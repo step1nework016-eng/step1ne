@@ -1427,12 +1427,13 @@ function loadCal(){
 }
 
 // ── 某一天的視窗 ──
+const CAT_LABEL = {job:'📋 職缺文', general:'💼 通用文', ai:'🤖 AI阿財話題'};
 function openDay(k){
   const list=evOn(k);
   const rows = list.length ? list.map((e,i)=>`
     <div class="ent">
       <span class="who">${esc(short(e.label))}<br><span style="font-size:11px;color:var(--ink3)">${e.platform==='linkedin'?'LinkedIn':'Threads'}</span></span>
-      <span class="jb">${esc(jobTitle(e.slug))}${isDup(k,e)?' <b style="color:var(--bad)">⚠️ 同一個人重複發</b>':''}</span>
+      <span class="jb"><span style="font-size:11px;color:var(--ink3)">${CAT_LABEL[e.category]||CAT_LABEL.job}</span><br>${esc(jobTitle(e.slug))}${isDup(k,e)?' <b style="color:var(--bad)">⚠️ 同一個人重複發</b>':''}</span>
       <span class="st ${e.planned?'pl':(e.status==='posted'?'ok':'')}">${e.planned?'已排程':(e.status==='posted'?'已發布':'草稿')}</span>
       ${e.planned?`<button class="del" data-i="${EV.indexOf(e)}" title="移除">×</button>`:''}
     </div>`).join('') : '<p class="mut" style="margin:0;color:var(--ink3);font-size:13.5px">這一天還沒有安排。</p>';
