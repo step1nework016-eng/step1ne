@@ -227,6 +227,11 @@ button.sec{background:#fff;color:var(--ink2);border:1px solid var(--line)}
 .cm-info-grid .lb{font-size:11px;color:var(--ink3);margin-bottom:2px}
 .cm-info-grid .vv{font-size:13px;font-weight:600}
 .cm-fbtn{font:inherit;font-size:12.5px;font-weight:700;color:var(--gold);background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:8px 13px;cursor:pointer;text-decoration:none}
+.cm-file-grid{display:flex;flex-wrap:wrap;gap:10px}
+.cm-file-item{display:flex;flex-direction:column;gap:5px;min-width:120px}
+.cm-file-item .lb{font-size:11px;color:var(--ink3);display:flex;align-items:center;gap:4px}
+.cm-file-item .lb .ic{font-size:12.5px}
+.cm-file-item .wait{font-size:12px;color:var(--ink3);background:var(--bg);border:1px dashed var(--line);border-radius:8px;padding:6px 10px}
 .cm-update-grid{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .cm-update-grid select,.cm-update-grid input[type=text]{font:inherit;font-size:13px;padding:7px 9px;border:1px solid var(--line);border-radius:8px}
 .cm-update-grid button{padding:7px 14px;font-size:12.5px}
@@ -344,8 +349,8 @@ button.sec{background:#fff;color:var(--ink2);border:1px solid var(--line)}
             <div class="cm-info-grid" id="cmInfo"></div>
           </div>
           <div class="cm-section">
-            <h4>履歷 / 初篩報告</h4>
-            <div style="display:flex;gap:8px;flex-wrap:wrap" id="cmFiles"></div>
+            <h4>文件與表單</h4>
+            <div class="cm-file-grid" id="cmFiles"></div>
             <div class="report-box" id="cmReportBox" hidden style="margin-top:10px"></div>
           </div>
         </div>
@@ -1369,15 +1374,24 @@ function openCandModal(appId){
   // 2026-09-02 加：人選客製表單（例：用人事資料表）——只有這個職缺真的有掛
   // 表單、且人選已經填完的才會出現下載按鈕；還在等人選填的顯示狀態文字，
   // 不給下載（還沒有檔案）。
-  const formsHtml = (c.forms || []).map(f => f.status === 'submitted'
-    ? `<a class="cm-fbtn" href="${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(c.application_id)}/form/${encodeURIComponent(f.id)}" target="_blank" rel="noopener">↓ 下載${esc(f.form_name)}</a>`
-    : `<span style="font-size:13px;color:var(--ink3)">${esc(f.form_name)}：等人選填寫中</span>`
-  ).join('');
-  document.getElementById('cmFiles').innerHTML = `
-    ${c.has_resume ? `<a class="cm-fbtn" href="${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(c.application_id)}/resume" target="_blank" rel="noopener">↓ 下載履歷</a>` : `<span style="font-size:13px;color:var(--ink3)">履歷尚未提供</span>`}
-    ${c.has_client_report ? `<button type="button" class="cm-fbtn" id="cmReportBtn">👁 查看初篩報告摘要</button>` : `<span style="font-size:13px;color:var(--ink3)">報告摘要顧問還在準備</span>`}
-    ${formsHtml}
-  `;
+  // ⚠️ 2026-09-03 改：原本履歷／報告／表單三顆按鈕長得一模一樣，擠在一排，
+  // 只能靠讀按鈕文字分——客戶反映分不清楚哪個是哪個。改成每一項都先給一行
+  // 小標籤（帶圖示）再放操作，跟基本資料那格用同一套「標籤在上、內容在下」
+  // 的視覺語言，不用讀完整句按鈕文字也知道自己在點什麼。
+  const fileItem = (icon, label, inner) =>
+    `<div class="cm-file-item"><div class="lb"><span class="ic">${icon}</span>${esc(label)}</div>${inner}</div>`;
+  const filesHtml = [
+    fileItem('📄', '履歷', c.has_resume
+      ? `<a class="cm-fbtn" href="${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(c.application_id)}/resume" target="_blank" rel="noopener">↓ 下載</a>`
+      : `<span class="wait">尚未提供</span>`),
+    fileItem('📊', '初篩報告摘要', c.has_client_report
+      ? `<button type="button" class="cm-fbtn" id="cmReportBtn">👁 查看</button>`
+      : `<span class="wait">顧問還在準備</span>`),
+    ...(c.forms || []).map(f => fileItem('📋', f.form_name, f.status === 'submitted'
+      ? `<a class="cm-fbtn" href="${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(c.application_id)}/form/${encodeURIComponent(f.id)}" target="_blank" rel="noopener">↓ 下載</a>`
+      : `<span class="wait">等人選填寫中</span>`)),
+  ].join('');
+  document.getElementById('cmFiles').innerHTML = filesHtml;
   const reportBtn = document.getElementById('cmReportBtn');
   if (reportBtn) reportBtn.addEventListener('click', cmToggleReport);
   document.getElementById('cmReportBox').hidden = true;
