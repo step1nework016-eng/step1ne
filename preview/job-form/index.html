@@ -516,6 +516,10 @@ function setView(v){
   var mainBtnSub = document.getElementById('mainBtnSub');
   var banner = document.getElementById('reviewBanner');
   var track = document.getElementById('publishTrack');
+  // ⚠️ 切視角要把按鈕解鎖——client 送出後、consultant 剛發布完那 1.8 秒都會把
+  // 按鈕設成 disabled，之前沒重置，切到另一個視角時鎖住的狀態被留下來，
+  // 文字換了但按不動，看起來像壞掉。
+  mainBtn.disabled = false;
   if(v==='client'){
     document.getElementById('pageTitle').textContent = '這個職缺，分 7 大類填完';
     document.getElementById('pageSub').textContent = '不用一次填完，填一格算一格，隨時可以先關掉';
