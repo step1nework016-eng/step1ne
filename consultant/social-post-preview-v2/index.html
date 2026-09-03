@@ -351,6 +351,12 @@ button.ghost:hover{border-color:var(--gold);color:var(--gold)}
   </main>
 </div>
 <div id="msg" class="msg"></div>
+<div id="pvmodalmask" class="mask" hidden>
+  <div class="modal">
+    <div class="mh"><b id="pvmodalTitle"></b><button type="button" class="x" id="pvmodalClose">&times;</button></div>
+    <div class="mb"><pre id="pvmodalBody" style="white-space:pre-wrap;font-family:ui-monospace,'SF Mono',monospace;font-size:13px;line-height:1.75;margin:0;color:var(--ink2)"></pre></div>
+  </div>
+</div>
 
 <script>
 function esc(s){ return String(s||'').replace(/[&<>]/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
@@ -535,17 +541,117 @@ document.getElementById('addtopic').addEventListener('click', ()=>{
 
 // ── 職缺風格提示詞庫 ──
 const STYLES = [
-  { id:1, name:'對話討論型', updated:'09-03' },
-  { id:2, name:'不發連結有CTA', updated:'09-03' },
-  { id:3, name:'原始格式（現有提示詞）', updated:'08-14' },
+  { id:1, name:'純CTA型（不發連結）', subtype:'pure', updated:'09-03', body:
+`語氣公式：純CTA型（不發連結）
+
+寫法：
+1. 用 1–2 句話講清楚這個職缺最核心的吸引點（一個數字或一個亮點即可，不用寫全）。
+2. 不需要鋪陳觀點或故事，直接切入重點。
+3. 結尾固定格式：「留言『{{CTA_KEYWORD}}』，我私訊你」——不放任何連結。
+
+限制：全篇盡量精簡（50–120字），不寫完整的工作內容／招募資訊清單。
+
+為什麼這樣寫：這是最快速、成本最低的格式，適合職缺量大、需要快速鋪量測試哪個職缺有反應時使用。
+
+出處：BIM_THREADS_PLAYBOOK.md 第四節「把 CTA 從點連結改成留言」。` },
+  { id:2, name:'對話討論型・數字反直覺', subtype:'dialog', updated:'09-03', body:
+`語氣公式：數字反直覺
+
+寫法：
+1. 開場直接丟一個這個職缺相關的真實數字（例如平均薪資、資歷門檻等），不要鋪陳。
+2. 立刻補一個反直覺的細節——這個數字為什麼會讓人跌破眼鏡（例如落差來自什麼條件，不是年資）。
+3. 結尾用一句問句，邀請讀者留言講自己的狀況（不是「歡迎應徵」這種硬邀請）。
+
+限制：全篇 80–200 字，不分段超過 3 段，正文不放連結。不使用「超棒」「絕佳機會」這類推銷語氣。
+
+為什麼這樣寫：真實數字建立可信度，反直覺的落差製造討論動機，結尾問句直接把互動主動權交給讀者。
+
+出處：BIM_THREADS_PLAYBOOK.md 公式1。` },
+  { id:3, name:'對話討論型・身份切割', subtype:'dialog', updated:'09-03', body:
+`語氣公式：身份切割
+
+寫法：
+1. 點出一個關於這個職缺常見的身份／職能誤解（「很多人以為 A 其實是 B」）。
+2. 說明兩者實際的差異（待遇、發展路徑、日常工作內容哪裡不一樣）。
+3. 結尾用一個具體情境（例如面試被問到某個問題時），點出這個切割在現實裡的影響。
+
+限制：全篇 80–200 字，不分段超過 3 段，正文不放連結。
+
+為什麼這樣寫：「你以為A其實B」的結構製造認知反差，是最容易引發轉發／留言澄清的句型之一。
+
+出處：BIM_THREADS_PLAYBOOK.md 公式2。` },
+  { id:4, name:'對話討論型・真實轉述', subtype:'dialog', updated:'09-03', body:
+`語氣公式：真實轉述
+
+寫法：
+1. 用「上禮拜／最近有個業主／候選人跟我說」這類開場，引一句真實發生過的話。
+2. 用一兩句話說明這句話反映了什麼現象或迷思。
+3. 不需要額外收尾，讓那句話的餘韻留著。
+
+限制：引述必須真的發生過，且不可讓人辨識出特定公司或個人身分。全篇力求簡短，帶一點停頓感，不要解釋過度。
+
+為什麼這樣寫：真實引述加停頓感＝人味，這類貼文的觸及通常是制式職缺公告的5–10倍。
+
+出處：BIM_THREADS_PLAYBOOK.md 公式3。` },
+  { id:5, name:'對話討論型・轉職路徑', subtype:'dialog', updated:'09-03', body:
+`語氣公式：轉職路徑
+
+寫法：
+1. 直接正面回答一個常見的轉職焦慮（例如「非本科可以做這行嗎？」），先給明確答案。
+2. 用一個真實案例佐證（例如上一位做這個職缺的人原本的背景），不指名道姓、不可辨識。
+3. 結尾給一個低門檻的邀請（例如「可以先聊聊」「有方向可以問我」），不是直接叫人應徵。
+
+限制：全篇 80–200 字，不分段超過 3 段，正文不放連結。
+
+為什麼這樣寫：正面回答高搜尋量的焦慮問題，結尾用低門檻邀請取代招募語氣，降低讀者的心理門檻。
+
+出處：BIM_THREADS_PLAYBOOK.md 公式4。` },
+  { id:6, name:'對話討論型・職缺包在觀察裡', subtype:'dialog', updated:'09-03', body:
+`語氣公式：職缺包在觀察裡
+
+寫法：
+1. 先給一個關於這個職缺的具體觀察（例如業主開的條件裡少了什麼、多了什麼，這代表什麼）。
+2. 說明這個觀察背後可能的原因（例如業主被前一位人選踩過雷）。
+3. 點出這對讀者代表的機會（例如年資不夠也可以談）。
+4. 結尾固定格式：「想知道細節的留言『{{CTA_KEYWORD}}』，我私訊你。」——不放任何連結。
+
+限制：全篇 80–200 字，不分段超過 3 段。
+
+為什麼這樣寫：先給觀點，職缺只是觀點的證據，讀者是因為認同觀察才想深入了解，不是被公告推銷。這是唯一建議直接拿來貼職缺內容的公式。
+
+出處：BIM_THREADS_PLAYBOOK.md 公式5。` },
+  { id:7, name:'對話討論型・不把話講完', subtype:'dialog', updated:'09-03', body:
+`語氣公式：不把話講完
+
+寫法：
+1. 開場給幾個關鍵但容易引發好奇／誤解的資訊片段（例如特殊班表、特殊要求），不要解釋完整。
+2. 主動說一句「我知道這樣寫大家會有各種想像」，做預期管理。
+3. 澄清「不是什麼」（排除掉最可能的誤解方向），但仍然不解釋「是什麼」的全貌。
+4. 結尾固定格式：「剩下的細節留言『{{CTA_KEYWORD}}』問我」或「留言『{{CTA_KEYWORD}}』，我私訊你」。
+
+限制：同上（80–200字、不分段超過3段、不放連結）。
+
+⚠️ 風險：留白留太多會讓人真的誤會成不當行業，「不是什麼」這一步不能省略，一定要主動排除掉最壞的聯想方向。
+
+為什麼這樣寫：實測驗證過的最高互動格式（單則7則回覆，全帳號最高）——刻意留白比講完整更能引發留言，但要主動處理誤解，不能只靠讀者自己猜。
+
+出處：BIM_THREADS_PLAYBOOK.md 公式6（追加診斷章節）。` },
+  { id:8, name:'原始格式（現有提示詞）', subtype:'original', updated:'08-14', body:'（沿用現有 SKILL.md 內容，逐字收錄，這裡不重複貼出）' },
 ];
+function openStylePreview(id){
+  const s = STYLES.find(x=>x.id===id); if(!s) return;
+  document.getElementById('pvmodalTitle').textContent = s.name;
+  document.getElementById('pvmodalBody').textContent = s.body;
+  document.getElementById('pvmodalmask').hidden = false;
+}
 function renderStyleLib(){
   const q = (document.getElementById('stylesearch').value || '').trim().toLowerCase();
   const list = q ? STYLES.filter(s=>s.name.toLowerCase().includes(q)) : STYLES;
   document.getElementById('stylecnt').textContent = `共 ${STYLES.length} 筆`;
+  const subtypeLabel = { pure:'純CTA', dialog:'對話討論', original:'原始格式' };
   document.getElementById('styleglobal').innerHTML = list.length ? list.map(s=>`
     <div class="growrow">
-      <div class="gname">${esc(s.name)}</div>
+      <div class="gname" style="cursor:pointer" onclick="openStylePreview(${s.id})">${esc(s.name)}${s.subtype?`<span class="pill ${s.subtype==='dialog'?'general':s.subtype==='pure'?'job':'ai'}" style="margin-left:6px">${subtypeLabel[s.subtype]}</span>`:''}</div>
       <div class="gmeta">${s.updated}</div>
       <div class="gact"><button type="button">✎</button><button type="button">🗑</button></div>
     </div>
@@ -624,6 +730,9 @@ function renderAssign(){
   renderPickList('style');
   renderMapping();
 }
+
+document.getElementById('pvmodalClose').addEventListener('click', ()=>{ document.getElementById('pvmodalmask').hidden = true; });
+document.getElementById('pvmodalmask').addEventListener('click', (e)=>{ if (e.target.id === 'pvmodalmask') document.getElementById('pvmodalmask').hidden = true; });
 
 renderStyleLib();
 renderAssign();
