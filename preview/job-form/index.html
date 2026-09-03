@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>職缺編輯・新版介面（內部測試）</title>
+<style>
+:root{
+  --bg:#f4f1ea; --paper:#ffffff; --ink:#23262d; --ink2:#55585f; --ink3:#9a9da5;
+  --line:#e6dfd1; --gold:#a67c3d; --gold-soft:#f3e6ce;
+  --green:#2f9257; --green-soft:#e5f4ea;
+  --amber:#c4802e; --amber-soft:#fbf1e1;
+  --red:#c0392b; --red-soft:#fbeaea;
+  --blue:#2a5f9e; --blue-soft:#e3edf8;
+  --shadow: 0 3px 14px rgba(35,38,45,.08);
+  --shadow-lg: 0 8px 30px rgba(35,38,45,.12);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#1a1815; --paper:#24211c; --ink:#f1ece2; --ink2:#c9c2b3; --ink3:#8d8676;
+    --line:#3a352b; --gold:#d4a463; --gold-soft:#3c3122;
+    --green:#5cb87f; --green-soft:#1c2e21; --amber:#e0a655; --amber-soft:#3a2f1a;
+    --red:#e07a6c; --red-soft:#3a2220; --blue:#6fa3d8; --blue-soft:#1e2a38;
+    --shadow: 0 3px 16px rgba(0,0,0,.45); --shadow-lg: 0 10px 36px rgba(0,0,0,.55);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1a1815; --paper:#24211c; --ink:#f1ece2; --ink2:#c9c2b3; --ink3:#8d8676;
+  --line:#3a352b; --gold:#d4a463; --gold-soft:#3c3122;
+  --green:#5cb87f; --green-soft:#1c2e21; --amber:#e0a655; --amber-soft:#3a2f1a;
+  --red:#e07a6c; --red-soft:#3a2220; --blue:#6fa3d8; --blue-soft:#1e2a38;
+  --shadow: 0 3px 16px rgba(0,0,0,.45); --shadow-lg: 0 10px 36px rgba(0,0,0,.55);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.6 -apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;padding:0 0 60px}
+.topbar{position:sticky;top:0;z-index:10;background:var(--paper);border-bottom:1px solid var(--line);
+  padding:12px 16px;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:var(--shadow)}
+.switchWrap{display:flex;background:var(--bg);border-radius:999px;padding:4px;gap:4px}
+.switchBtn{border:0;background:none;font:inherit;font-weight:800;font-size:13.5px;padding:9px 18px;border-radius:999px;
+  cursor:pointer;color:var(--ink2)}
+.switchBtn.on{background:var(--gold);color:#fff}
+
+.wrap{max-width:600px;margin:0 auto;padding:26px 16px}
+.mockTag{text-align:center;font-size:11px;color:var(--ink3);letter-spacing:.5px;margin-bottom:6px;text-transform:uppercase}
+h1{font-family:"Noto Serif TC",serif;font-size:clamp(22px,5vw,27px);text-align:center;margin:0 0 4px;text-wrap:balance}
+.sub{text-align:center;color:var(--ink2);font-size:14px;margin:0 0 24px}
+
+/* 進度環 */
+.progWrap{display:flex;justify-content:center;margin-bottom:26px}
+.progRing{position:relative;width:96px;height:96px}
+.progRing svg{transform:rotate(-90deg)}
+.progRing .bgc{stroke:var(--line)}
+.progRing .fgc{stroke:var(--gold);stroke-linecap:round;transition:stroke-dashoffset .4s ease}
+.progNum{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.progNum b{font-size:22px}
+.progNum span{font-size:10.5px;color:var(--ink3)}
+
+/* 上傳匯入 */
+.uploadZone{display:flex;align-items:center;gap:14px;background:var(--gold-soft);border:2px dashed var(--gold);
+  border-radius:18px;padding:16px 18px;cursor:pointer;margin-bottom:10px}
+.uploadIc{flex:none;color:var(--gold)}
+.uploadTxt{flex:1;min-width:0}
+.uploadTxt b{display:block;font-size:14.5px;color:var(--ink)}
+.uploadTxt span{display:block;font-size:12px;color:var(--ink2);margin-top:3px;line-height:1.6}
+.uploadBtn{flex:none;background:var(--gold);color:#fff;font-size:13px;font-weight:800;border-radius:999px;
+  padding:9px 16px;white-space:nowrap}
+.orDivider{text-align:center;font-size:11.5px;color:var(--ink3);margin:12px 0 22px;position:relative}
+.orDivider::before,.orDivider::after{content:"";position:absolute;top:50%;width:38%;height:1px;background:var(--line)}
+.orDivider::before{left:0}.orDivider::after{right:0}
+.importBanner{background:var(--green-soft);border:1px solid var(--green);border-radius:14px;padding:13px 16px;
+  margin:-10px 0 18px;display:flex;gap:10px;align-items:flex-start}
+.importBanner .em{font-size:18px;flex:none}
+.importBanner p{margin:0;font-size:12.5px;color:var(--ink);line-height:1.7}
+.importBanner b{color:var(--green)}
+
+/* 卡片內「更多欄位」摺疊 */
+.moreToggle{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--gold);
+  cursor:pointer;padding:8px 0 2px;user-select:none}
+.moreToggle .n{background:var(--gold-soft);color:var(--gold);border-radius:999px;padding:1px 8px;font-size:11px}
+.moreWrap{max-height:0;overflow:hidden;transition:max-height .3s ease}
+.moreWrap.open{max-height:1400px}
+.aiFilled{background:var(--blue-soft)!important;border-color:var(--blue)!important}
+.aiFilled + .aiBadge{display:inline-flex}
+.aiBadge{display:none;align-items:center;gap:4px;font-size:10.5px;color:var(--blue);font-weight:800;margin-top:5px}
+
+/* 卡片 */
+.cards{display:flex;flex-direction:column;gap:12px}
+.card{background:var(--paper);border:1.5px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden;
+  transition:box-shadow .2s ease}
+.card.open{box-shadow:var(--shadow-lg);border-color:var(--gold)}
+.cardHead{display:flex;align-items:center;gap:14px;padding:16px 18px;cursor:pointer;user-select:none}
+.cardHead .ic{flex:none;width:44px;height:44px;border-radius:12px;display:flex;align-items:center;
+  justify-content:center;background:var(--gold-soft);color:var(--gold)}
+.cardHead .mid{flex:1;min-width:0}
+.cardHead .mid b{display:block;font-size:15.5px}
+.cardHead .mid span{display:block;font-size:12.5px;color:var(--ink3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cardHead .stateDot{width:22px;height:22px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;
+  font-size:13px;color:#fff;font-weight:800}
+.stateDot.done{background:var(--green)}
+.stateDot.empty{background:var(--line);color:var(--ink3)}
+.stateDot.warn{background:var(--amber)}
+.chev{color:var(--ink3);font-size:14px;transition:transform .2s ease;flex:none}
+.card.open .chev{transform:rotate(180deg)}
+
+.cardBody{max-height:0;overflow:hidden;transition:max-height .3s ease}
+.card.open .cardBody{max-height:2200px}
+.cardInner{padding:0 18px 20px}
+.qBlock{margin-bottom:16px}
+.qBlock.miss{padding-left:11px;border-left:3px solid var(--red)}
+.missBanner{background:var(--red-soft);border:1px solid var(--red);border-radius:12px;padding:12px 15px;
+  margin-bottom:16px;font-size:12.5px;color:var(--red);line-height:1.8}
+.missBanner b{display:block;margin-bottom:4px}
+.qBlock:last-child{margin-bottom:0}
+.qBlock label{display:block;font-size:13.5px;font-weight:700;margin-bottom:6px;color:var(--ink)}
+.qBlock .hint{font-size:11.5px;color:var(--ink3);margin-bottom:8px;line-height:1.6}
+.qBlock input,.qBlock textarea{width:100%;font:inherit;font-size:14.5px;border:1.5px solid var(--line);border-radius:11px;
+  padding:11px 13px;background:var(--bg);color:var(--ink)}
+.qBlock textarea{min-height:64px;resize:vertical}
+.chipRow{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1.5px solid var(--line);background:var(--bg);border-radius:999px;padding:8px 15px;font-size:13px;
+  cursor:pointer;font-weight:600;color:var(--ink2)}
+.chip.picked{background:var(--gold);border-color:var(--gold);color:#fff}
+
+/* 顧問視角：AI提示 */
+.aiFlag{background:var(--amber-soft);border:1px solid var(--amber);border-radius:11px;padding:10px 13px;
+  font-size:12.5px;color:var(--amber);display:flex;gap:8px;align-items:flex-start;margin-top:6px}
+.aiFlag .em{flex:none}
+.diffTag{display:inline-block;background:var(--blue-soft);color:var(--blue);font-size:10.5px;font-weight:800;
+  border-radius:999px;padding:2px 9px;margin-left:8px;vertical-align:middle}
+
+/* 底部大按鈕 */
+.bigBtnWrap{position:sticky;bottom:0;background:linear-gradient(to top, var(--bg) 60%, transparent);padding:20px 0 4px;margin-top:22px}
+.bigBtn{display:block;width:100%;border:0;border-radius:16px;padding:17px;font:inherit;font-size:16px;font-weight:800;
+  cursor:pointer;box-shadow:var(--shadow-lg)}
+.bigBtn.client{background:var(--gold);color:#fff}
+.bigBtn.consultant{background:var(--green);color:#fff}
+.bigBtnSub{text-align:center;font-size:11.5px;color:var(--ink3);margin-top:8px}
+
+/* 預覽彈窗——送出/核准前一定會先看到這個，不是可以跳過的另開分頁連結 */
+.pvMask{position:fixed;inset:0;background:rgba(20,18,15,.55);z-index:50;display:none;
+  align-items:flex-end;justify-content:center}
+.pvMask.show{display:flex}
+@media(min-width:640px){.pvMask{align-items:center}}
+.pvModal{background:var(--paper);width:100%;max-width:600px;max-height:88vh;border-radius:22px 22px 0 0;
+  display:flex;flex-direction:column;box-shadow:var(--shadow-lg)}
+@media(min-width:640px){.pvModal{border-radius:22px;max-height:82vh}}
+.pvHead{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+.pvHead b{font-size:15.5px;flex:1}
+.pvHead .x{cursor:pointer;color:var(--ink3);font-size:20px;padding:4px}
+.pvScroll{overflow-y:auto;padding:20px}
+.pvNote{background:var(--blue-soft);border:1px solid var(--blue);border-radius:12px;padding:11px 14px;
+  font-size:12.5px;color:var(--blue);margin-bottom:16px;line-height:1.7}
+.pvIssues{background:var(--red-soft);border:1px solid var(--red);border-radius:12px;padding:12px 15px;margin-bottom:16px}
+.pvIssues b{display:block;font-size:13px;color:var(--red);margin-bottom:6px}
+.pvIssues li{font-size:12px;color:var(--red);line-height:1.8;margin-left:16px}
+
+/* 模擬對外頁面的樣子 */
+.pvJob{border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.pvJob .hero{padding:20px 20px 16px;background:var(--bg)}
+.pvJob .hero .tag{display:inline-block;font-size:11px;font-weight:800;color:var(--gold);background:var(--gold-soft);
+  padding:3px 10px;border-radius:999px;margin-bottom:8px}
+.pvJob .hero h2{margin:0 0 4px;font-family:"Noto Serif TC",serif;font-size:20px}
+.pvJob .hero p{margin:0;font-size:13px;color:var(--ink2)}
+.pvSpecRow{display:grid;grid-template-columns:88px 1fr;gap:10px;padding:11px 20px;border-top:1px solid var(--line);font-size:13px}
+.pvSpecRow dt{color:var(--ink3);font-weight:700}
+.pvSpecRow dd{margin:0}
+.pvSection{padding:16px 20px;border-top:1px solid var(--line)}
+.pvSection h4{margin:0 0 8px;font-size:13px;color:var(--gold)}
+.pvSection p,.pvSection ul{margin:0;font-size:13px;color:var(--ink2);line-height:1.8}
+.pvSection ul{padding-left:18px}
+
+.pvFoot{padding:14px 20px;border-top:1px solid var(--line);display:flex;gap:10px}
+.pvFoot button{flex:1;border:0;border-radius:13px;padding:14px;font:inherit;font-size:14.5px;font-weight:800;cursor:pointer}
+.pvFoot .back{background:var(--bg);color:var(--ink2);border:1px solid var(--line)!important}
+.pvFoot .go{color:#fff}
+.pvFoot .go.client{background:var(--gold)}
+.pvFoot .go.consultant{background:var(--green)}
+
+/* 顧問視角上方摘要 */
+.reviewBanner{background:var(--blue-soft);border:1px solid var(--blue);border-radius:14px;padding:13px 16px;margin-bottom:18px;
+  display:flex;gap:10px;align-items:flex-start}
+.reviewBanner .em{font-size:20px;flex:none}
+.reviewBanner p{margin:0;font-size:12.5px;color:var(--ink);line-height:1.7}
+.reviewBanner b{color:var(--blue)}
+
+.publishTrack{display:flex;justify-content:space-between;margin-top:22px;gap:8px}
+.pStep{flex:1;text-align:center;font-size:11px;color:var(--ink3)}
+.pStep .dot{width:26px;height:26px;border-radius:50%;background:var(--line);margin:0 auto 6px;display:flex;
+  align-items:center;justify-content:center;font-size:13px;color:var(--ink3)}
+.pStep.done .dot{background:var(--green);color:#fff}
+.pStep.done{color:var(--green);font-weight:700}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="switchWrap">
+    <button class="switchBtn on" id="btnClient" onclick="setView('client')"><span data-icon="building" data-icon-size="15"></span> 客戶看到的</button>
+    <button class="switchBtn" id="btnConsultant" onclick="setView('consultant')"><span data-icon="users" data-icon-size="15"></span> 顧問看到的</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="mockTag">介面草案・非最終畫面</div>
+  <h1 id="pageTitle">這個職缺，分 7 大類填完</h1>
+  <p class="sub" id="pageSub">不用一次填完，填一格算一格，隨時可以先關掉</p>
+
+  <div class="uploadZone" id="uploadZone" onclick="doImport()">
+    <div class="uploadIc" data-icon="paperclip" data-icon-size="26"></div>
+    <div class="uploadTxt">
+      <b id="uploadTitle">已經有 Excel／Word／PDF 了嗎？</b>
+      <span id="uploadSub">丟進來，AI 自動幫你把內容對進下面 7 大類，不用手動填</span>
+    </div>
+    <div class="uploadBtn" id="uploadBtn">選擇檔案</div>
+  </div>
+  <div class="orDivider"><span>或自己一張一張填</span></div>
+
+  <div class="importBanner" id="importBanner" style="display:none">
+    <span class="em" data-icon="sparkles" style="color:var(--green)"></span>
+    <p><b>AI 已經把檔案內容對進對的類別了</b>——花 30 秒看一眼有沒有抓錯，錯的點進去改就好，不用整份重打。</p>
+  </div>
+
+  <div class="progWrap">
+    <div class="progRing">
+      <svg width="96" height="96"><circle class="bgc" cx="48" cy="48" r="42" fill="none" stroke-width="9"/>
+        <circle class="fgc" id="progCircle" cx="48" cy="48" r="42" fill="none" stroke-width="9"
+          stroke-dasharray="264" stroke-dashoffset="88"/></svg>
+      <div class="progNum"><b id="progText">4/6</b><span>完成</span></div>
+    </div>
+  </div>
+
+  <div class="reviewBanner" id="reviewBanner" style="display:none">
+    <span class="em" data-icon="eye" style="color:var(--blue)"></span>
+    <p><b>弘昌管理顧問</b> 昨天更新了 2 格，其餘照舊。看一眼藍色標籤那兩格，其他不用重看。</p>
+  </div>
+
+  <div class="missBanner" id="missBanner" style="display:none"></div>
+
+  <div class="cards" id="cardsWrap"></div>
+
+  <div class="bigBtnWrap">
+    <button class="bigBtn client" id="mainBtn" onclick="openPreview()"><span data-icon="eye" data-icon-size="18"></span> 看預覽，再交給顧問</button>
+    <div class="bigBtnSub" id="mainBtnSub">送出前一定會先看到實際樣子，不會盲送</div>
+  </div>
+
+  <div class="publishTrack" id="publishTrack" style="display:none">
+    <div class="pStep done"><div class="dot" data-icon="check" data-icon-size="13"></div>顧問確認</div>
+    <div class="pStep done"><div class="dot" data-icon="check" data-icon-size="13"></div>網站上線</div>
+    <div class="pStep done"><div class="dot" data-icon="check" data-icon-size="13"></div>阿財知道了</div>
+    <div class="pStep"><div class="dot">4</div>可以發社群</div>
+  </div>
+</div>
+
+<!-- 2026-09-03 加：送出/核准前強制先看預覽，不是可以跳過的另開分頁連結
+     （對照真實系統現況：客戶端只有 confirm() 文字框、顧問端「預覽」是可跳過的分頁連結） -->
+<div class="pvMask" id="pvMask" onclick="if(event.target===this) closePreview()">
+  <div class="pvModal">
+    <div class="pvHead"><b id="pvHeadTitle">預覽：發布後長這樣</b><span class="x" onclick="closePreview()" data-icon="x" data-icon-size="18"></span></div>
+    <div class="pvScroll" id="pvScroll"></div>
+    <div class="pvFoot">
+      <button class="back" onclick="closePreview()">← 回去改</button>
+      <button class="go" id="pvGoBtn" onclick="confirmSubmit()">確認沒問題，送出</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// 2026-09-03 加：emoji 在不同系統/字體渲染不一致，改用手刻的 line-icon SVG
+// （Feather 風格：24x24、線條、currentColor），跨平台長得一樣，也能跟著文字顏色走。
+var ICON_PATHS = {
+  building: '<path d="M6 22V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v18"/><path d="M9 22v-4h6v4"/><path d="M9 8h1M9 12h1M14 8h1M14 12h1"/>',
+  dollar: '<path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>',
+  mapPin: '<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>',
+  users: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  fileText: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/>',
+  target: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5.2"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/>',
+  gift: '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v7a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5"/>',
+  paperclip: '<path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>',
+  sparkles: '<path d="M12 2.5l1.8 5.2 5.2 1.8-5.2 1.8L12 17l-1.8-5.7L5 9.5l5.2-1.8Z"/><path d="M19 15.5v3M17.5 17h3"/>',
+  eye: '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/><circle cx="12" cy="12" r="3"/>',
+  bot: '<rect x="3" y="8" width="18" height="12" rx="2"/><path d="M12 2v6M8 14h.01M16 14h.01"/><path d="M9 20v2M15 20v2"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>',
+  x: '<path d="M18 6 6 18M6 6l12 12"/>',
+  alertTriangle: '<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><path d="M12 9v4M12 17h.01"/>',
+  send: '<path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4Z"/>',
+  rocket: '<path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>',
+  globe: '<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20Z"/>',
+  dot: '<circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/>',
+};
+function svgIcon(name, size){
+  size = size || 20;
+  return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" '
+    + 'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;vertical-align:-4px">'
+    + (ICON_PATHS[name]||'') + '</svg>';
+}
+document.querySelectorAll('[data-icon]').forEach(function(el){
+  el.innerHTML = svgIcon(el.dataset.icon, el.dataset.iconSize ? +el.dataset.iconSize : 20);
+});
+
+// 對照真實 PORTAL_FIELDS（step1ne-backoffice-worker/src/index.js:3340）53 個欄位，
+// 分成 7 組。每張卡片 core=預設看得到的 2-3 格，more=其餘欄位收在「顯示更多」裡，
+// 不是每個欄位都平鋪出來——密度高的卡片（用人條件、薪資）才需要摺疊。
+var DATA = [
+  {ic:'building', key:'company', title:'公司與聯絡窗口', state:'done', summary:'弘昌管理顧問有限公司',
+    core:[
+      {k:'client_name', l:'客戶公司全名', lClient:'公司全名', type:'text', v:'弘昌管理顧問有限公司', required:true},
+      {k:'title', l:'職缺名稱', type:'text', v:'BIM 工程師', required:true},
+    ],
+    more:[
+      {k:'client_intro', l:'公司簡介', type:'textarea', v:''},
+      {k:'hiring_manager', l:'用人主管是誰', type:'text', v:''},
+      {k:'client_contact_name', l:'客戶聯絡窗口姓名', lClient:'聯絡窗口姓名', type:'text', v:'袁聖玲'},
+      {k:'client_contact_phone', l:'客戶聯絡窗口電話', lClient:'聯絡窗口電話', type:'text', v:'03-4787512'},
+      {k:'client_screen_conditions', l:'客戶指定的篩選條件', lClient:'特別的篩選條件', type:'textarea', v:''},
+      {k:'faq_notes', l:'常見問題怎麼回答', type:'textarea', v:''},
+    ]},
+  {ic:'dollar', key:'salary', title:'薪水與加班', state:'done', summary:'40,833–50,167 元／月',
+    core:[
+      {k:'salary_min', l:'薪資下限', type:'text', v:'40,833', required:true},
+      {k:'salary_max', l:'薪資上限', type:'text', v:'50,167'},
+      {k:'salary_unit', l:'薪資單位', type:'chips', opts:['月薪','日薪','年薪'], v:'月薪'},
+      {k:'overtime_policy', l:'加班規則', type:'chips', opts:['依勞基法','責任制','固定加班費','無加班'], v:'依勞基法'},
+    ],
+    more:[
+      {k:'salary_note', l:'薪資怎麼跟人選說', hint:'這欄是給顧問參考的完整口徑，發佈時會自動整理成對外能講的版本', type:'textarea', v:'稅前月薪固定，已含年終攤提'},
+      {k:'salary_tier_table', l:'薪資分級表', type:'textarea', v:''},
+      {k:'salary_structure_note', l:'薪資結構說明', type:'textarea', v:''},
+      {k:'overtime_detail', l:'加班細項（平日／假日時數）', type:'textarea', v:''},
+    ]},
+  {ic:'mapPin', key:'place', title:'地點與工作型態', state:'done', summary:'苗栗縣銅鑼鄉・正職',
+    core:[
+      {k:'locations', l:'工作地點', type:'text', v:'苗栗縣銅鑼鄉', required:true},
+      {k:'employment', l:'聘僱型態', type:'chips', opts:['正職','兼職','派遣','約聘'], v:'正職', required:true},
+    ],
+    more:[
+      {k:'work_mode', l:'辦公型態', type:'chips', opts:['實體','遠端','混合'], v:'實體'},
+      {k:'work_hours', l:'上班時間', type:'text', v:'08:30–17:30'},
+      {k:'employment_period', l:'工作期間', type:'chips', opts:['長期','專案制'], v:'長期'},
+      {k:'attendance_method', l:'出勤紀錄方式', type:'chips', opts:['打卡機','App打卡','LINE回報','紙本簽到'], v:''},
+      {k:'dispatch_range', l:'派遣調派範圍', type:'text', v:''},
+      {k:'dispatch_client', l:'實際要派單位', type:'text', v:''},
+      {k:'dispatch_to_permanent_policy', l:'派遣轉正條件', type:'textarea', v:''},
+    ]},
+  {ic:'users', key:'who', title:'用人條件', state:'warn', summary:'有一句話建議調整',
+    core:[
+      {k:'must_skills', l:'必要技能', type:'text', v:'AutoCAD、Revit'},
+      {k:'education_level', l:'學歷要求', type:'chips', opts:['不限','高中職','大學','碩士','博士'], v:'大學'},
+    ],
+    more:[
+      {k:'years_min', l:'最低年資', type:'chips', opts:['不拘','1年以上','3年以上','5年以上','10年以上'], v:'不拘'},
+      {k:'required_conditions', l:'必備條件', type:'textarea', v:''},
+      {k:'language_requirement', l:'語言能力要求', type:'chips', opts:['中文即可','需英文','需日文','其他語言'], v:'中文即可'},
+      {k:'nice_to_have_skills', l:'加分技能', type:'text', v:''},
+      {k:'preferred_background', l:'偏好背景', type:'text', v:''},
+      {k:'personality_traits', l:'期望人格特質', type:'textarea',
+        v:'希望是35歲以下、體力好的男生比較能配合現場',
+        flag:'這句話提到年齡跟性別，就業服務法不能拿來當篩選條件——發佈時系統會自動幫你拿掉，你不用自己改，但顧問這邊會看到提醒。'},
+      {k:'off_limits_note', l:'不考慮的同業／公司', type:'text', v:''},
+    ]},
+  {ic:'fileText', key:'duties', title:'工作內容與團隊', state:'empty', summary:'還沒填',
+    core:[
+      {k:'main_duties', l:'主要工作內容', hint:'用大白話講就好，例如「畫圖」「跟工地開會」', type:'textarea', v:'', required:true},
+    ],
+    more:[
+      {k:'reports_to', l:'直屬主管／匯報對象', type:'text', v:''},
+      {k:'leads_team', l:'需不需要帶團隊', type:'chips', opts:['不用','需要'], v:'不用'},
+      {k:'department', l:'所屬部門', type:'text', v:''},
+      {k:'work_environment_ratio', l:'工作環境比重', type:'chips',
+        opts:['全辦公室','多辦公室少現場','各半','多現場少辦公室','全現場'], v:'多辦公室少現場'},
+      {k:'team_size', l:'團隊人數', type:'text', v:''},
+    ]},
+  {ic:'target', key:'process', title:'面試與到職流程', state:'done', summary:'面試到「第二階段」',
+    core:[
+      {k:'interview_stage_config', l:'這個職缺有幾階段面試？', type:'multichip',
+        hint:'第一階段是每個職缺都有的基本關卡，不用勾選。實際上還有更多輪面試才在這裡勾——勾了之後，「人選進度」表格的面試階段欄位才會出現對應選項。',
+        opts:['第二階段','第三階段','第四階段'], v:['第二階段']},
+      {k:'onboard_by', l:'希望到職日', type:'chips', opts:['越快越好','1個月內','2-3個月','依人選現況'], v:'1個月內'},
+    ],
+    more:[
+      {k:'interview_rounds', l:'面試輪數說明（備註用）', type:'text', v:''},
+      {k:'interview_who', l:'誰會面試', type:'text', v:''},
+      {k:'has_test', l:'有沒有筆試／測驗', type:'chips', opts:['沒有','有'], v:'沒有'},
+      {k:'interview_process', l:'面試流程說明', type:'textarea', v:''},
+      {k:'onboarding_prep_note', l:'錄取後前置作業', type:'textarea', v:''},
+    ]},
+  {ic:'gift', key:'perks', title:'福利與其他', state:'done', summary:'租屋補助、團保',
+    core:[
+      {k:'benefits_common', l:'常見福利，點就好', type:'multichip',
+        opts:['三節獎金','員工旅遊','健康檢查','停車位','團保','生日禮金','部門聚餐','年終獎金'],
+        v:['團保']},
+      {k:'benefits_detail', l:'還有其他的嗎？', hint:'不是清單上那些的，直接打字或整段複製貼上都可以，不用重打成一樣的格式',
+        type:'textarea', v:'租屋補助5000元'},
+      {k:'headcount', l:'需求人數', type:'text', v:'10名', required:true},
+      {k:'leave_policy', l:'休假制度', type:'chips', opts:['週休二日','排班制','依公司行事曆'], v:'週休二日'},
+      {k:'hiring_reason', l:'招募原因', type:'chips', opts:['新增職缺','離職遞補','擴編','專案需求'], v:'', required:true},
+      {k:'hiring_reason_note', l:'原因補充', hint:'例如客戶自己的擴廠/新產品線計畫，這段可以直接照顧問備註用的說法寫，不用對外', type:'textarea', v:''},
+      {k:'urgency', l:'急迫程度', type:'chips', opts:['不急','一般','急徵'], v:'急徵'},
+    ],
+    more:[
+      {k:'contract_terms_note', l:'合約條款備註', type:'textarea', v:''},
+    ]},
+];
+
+var VIEW = 'client';
+var OPEN_MORE = {};
+
+function stateDotHtml(s){
+  if(s==='done') return '<div class="stateDot done">'+svgIcon('check',13)+'</div>';
+  if(s==='warn') return '<div class="stateDot warn">'+svgIcon('alertTriangle',13)+'</div>';
+  return '<div class="stateDot empty">'+svgIcon('dot',10)+'</div>';
+}
+
+function fieldHtml(q){
+  var cls = q.aiFilled ? ' class="aiFilled"' : '';
+  var body = '';
+  if(q.type==='text'){
+    body = '<input'+cls+' value="'+ (q.v||'') +'" placeholder="還沒填，點這裡輸入">';
+  } else if(q.type==='textarea'){
+    body = '<textarea'+cls+' placeholder="還沒填，點這裡輸入">'+ (q.v||'') +'</textarea>';
+  } else if(q.type==='chips'){
+    body = '<div class="chipRow">' + q.opts.map(function(o){
+      return '<span class="chip'+(o===q.v?' picked':'')+'">'+o+'</span>';
+    }).join('') + '</div>';
+  } else if(q.type==='multichip'){
+    body = '<div class="chipRow">' + q.opts.map(function(o){
+      return '<span class="chip'+((q.v||[]).indexOf(o)>=0?' picked':'')+'">'+o+'</span>';
+    }).join('') + '</div>';
+  }
+  var hint = q.hint ? '<div class="hint">'+q.hint+'</div>' : '';
+  var aiTag = q.aiFilled ? '<div class="aiBadge" style="display:flex">'+svgIcon('sparkles',12)+' AI 幫你抓的，看一眼對不對</div>' : '';
+  var flag = '';
+  if(q.flag && VIEW==='consultant'){
+    flag = '<div class="aiFlag"><span class="em">'+svgIcon('bot',15)+'</span><span>'+q.flag+'</span></div>';
+  }
+  var showLabel = (VIEW==='client' && q.lClient) ? q.lClient : q.l;
+  var reqMark = q.required ? ' <span style="color:var(--red)">＊必填</span>' : '';
+  var missCls = (q.required && isFieldEmpty(q)) ? ' class="qBlock miss"' : ' class="qBlock"';
+  return '<div'+missCls+' data-k="'+q.k+'"><label>'+showLabel+reqMark+'</label>'+hint+body+aiTag+flag+'</div>';
+}
+
+function render(){
+  var wrap = document.getElementById('cardsWrap');
+  var doneCount = DATA.filter(function(d){return d.state==='done';}).length;
+  document.getElementById('progText').textContent = doneCount+'/'+DATA.length;
+  var pct = doneCount/DATA.length;
+  document.getElementById('progCircle').setAttribute('stroke-dashoffset', 264*(1-pct));
+
+  wrap.innerHTML = DATA.map(function(d, i){
+    var diffBadge = (VIEW==='consultant' && (d.key==='who')) ? '<span class="diffTag">客戶剛改過</span>' : '';
+    var moreOpen = !!OPEN_MORE[i];
+    return '<div class="card" data-i="'+i+'">'
+      + '<div class="cardHead" onclick="toggleCard('+i+')">'
+        + '<div class="ic">'+svgIcon(d.ic,22)+'</div>'
+        + '<div class="mid"><b>'+d.title+diffBadge+'</b><span>'+d.summary+'</span></div>'
+        + stateDotHtml(d.state)
+        + '<span class="chev">▾</span>'
+      + '</div>'
+      + '<div class="cardBody"><div class="cardInner">'
+        + d.core.map(function(q){ return fieldHtml(q); }).join('')
+        + (d.more.length ? (
+            '<div class="moreToggle" onclick="event.stopPropagation();toggleMore('+i+')">'
+              + (moreOpen ? '收起 ▴' : '顯示更多欄位 ▾') + '<span class="n">'+d.more.length+'</span></div>'
+            + '<div class="moreWrap'+(moreOpen?' open':'')+'">'
+              + d.more.map(function(q){ return fieldHtml(q); }).join('')
+            + '</div>'
+          ) : '')
+      + '</div></div>'
+    + '</div>';
+  }).join('');
+}
+
+function toggleCard(i){
+  var el = document.querySelector('.card[data-i="'+i+'"]');
+  el.classList.toggle('open');
+}
+
+function toggleMore(i){
+  OPEN_MORE[i] = !OPEN_MORE[i];
+  var wasOpen = document.querySelector('.card[data-i="'+i+'"]').classList.contains('open');
+  render();
+  if(wasOpen) document.querySelector('.card[data-i="'+i+'"]').classList.add('open');
+}
+
+function setView(v){
+  VIEW = v;
+  document.getElementById('btnClient').classList.toggle('on', v==='client');
+  document.getElementById('btnConsultant').classList.toggle('on', v==='consultant');
+  var mainBtn = document.getElementById('mainBtn');
+  var mainBtnSub = document.getElementById('mainBtnSub');
+  var banner = document.getElementById('reviewBanner');
+  var track = document.getElementById('publishTrack');
+  if(v==='client'){
+    document.getElementById('pageTitle').textContent = '這個職缺，分 7 大類填完';
+    document.getElementById('pageSub').textContent = '不用一次填完，填一格算一格，隨時可以先關掉';
+    mainBtn.className = 'bigBtn client';
+    mainBtn.innerHTML = svgIcon('eye',18)+' 看預覽，再交給顧問';
+    mainBtnSub.textContent = '送出前一定會先看到實際樣子，不會盲送';
+    banner.style.display = 'none';
+    track.style.display = 'none';
+    document.getElementById('uploadTitle').textContent = '已經有 Excel／Word／PDF 了嗎？';
+    document.getElementById('uploadSub').textContent = '丟進來，AI 自動幫你把內容對進下面 7 大類，不用手動填';
+  } else {
+    document.getElementById('pageTitle').textContent = '審核：BIM 工程師';
+    document.getElementById('pageSub').textContent = '只看有標籤的地方，其他客戶沒動過';
+    mainBtn.className = 'bigBtn consultant';
+    mainBtn.innerHTML = svgIcon('eye',18)+' 看預覽，再確認發布';
+    mainBtnSub.textContent = '發布前一定會先看到網站會長怎樣，不是盲按核准';
+    banner.style.display = 'flex';
+    track.style.display = 'flex';
+    document.getElementById('uploadTitle').textContent = '客戶傳了 Excel／PDF 給你嗎？';
+    document.getElementById('uploadSub').textContent = '不用自己謄，丟進來 AI 直接對進 7 大類，你只要看一眼';
+  }
+  render();
+}
+
+function doImport(){
+  var btn = document.getElementById('uploadBtn');
+  var sub = document.getElementById('uploadSub');
+  btn.textContent = '解析中…';
+  sub.textContent = '本機排程正在讀檔案，通常 1-2 分鐘，這段時間你可以先關掉，等等回來看';
+  // ⚠️ 真實系統是非同步排程解析（不是即時），這裡用較長的延遲＋狀態文字模擬，
+  // 解析完也不是直接覆蓋，是標成「AI 幫你抓的」讓人確認，跟現有 renderImportBox()
+  // 那套「填進表單並反白」的行為一致（portal/index.html:759-761）。
+  setTimeout(function(){
+    document.getElementById('uploadZone').style.display = 'none';
+    document.querySelector('.orDivider').style.display = 'none';
+    document.getElementById('importBanner').style.display = 'flex';
+    var dutiesCard = DATA[4];
+    dutiesCard.state = 'done';
+    dutiesCard.summary = 'BIM建模、圖說整合、工地視勘';
+    dutiesCard.core[0].v = 'BIM 模型建置與修正、跟工地開會確認施工圖、協助視勘';
+    dutiesCard.core[0].aiFilled = true;
+    dutiesCard.more.forEach(function(q){ if(!q.v){ q.v = ''; } });
+    OPEN_MORE[4] = false;
+    render();
+    document.querySelector('.card[data-i="4"]').classList.add('open');
+  }, 2200);
+}
+
+function isFieldEmpty(q){
+  if(q.type==='multichip') return !(q.v && q.v.length);
+  return !q.v;
+}
+
+function missingRequired(){
+  var out = [];
+  DATA.forEach(function(d){
+    d.core.concat(d.more).forEach(function(q){
+      if(q.required && isFieldEmpty(q)) out.push({card:d, q:q});
+    });
+  });
+  return out;
+}
+
+function fieldVal(key){
+  for(var i=0;i<DATA.length;i++){
+    var all = DATA[i].core.concat(DATA[i].more);
+    for(var j=0;j<all.length;j++) if(all[j].k===key) return all[j].v;
+  }
+  return '';
+}
+
+function collectIssues(){
+  var out = [];
+  DATA.forEach(function(d){
+    d.core.concat(d.more).forEach(function(q){
+      if(q.flag && q.v) out.push(q.flag);
+    });
+  });
+  return out;
+}
+
+function openPreview(){
+  var missing = missingRequired();
+  if(missing.length){
+    OPEN_MORE = {};
+    DATA.forEach(function(d,i){
+      var hasMiss = missing.some(function(m){ return m.card===d; });
+      if(hasMiss){
+        var inMore = d.more.indexOf(missing.filter(function(m){return m.card===d;})[0].q) >= 0;
+        if(inMore) OPEN_MORE[i] = true;
+      }
+    });
+    render();
+    missing.forEach(function(m){
+      var i = DATA.indexOf(m.card);
+      document.querySelector('.card[data-i="'+i+'"]').classList.add('open');
+    });
+    var banner = document.getElementById('missBanner');
+    banner.innerHTML = '<b>還有 '+missing.length+' 個必填欄位沒填</b>'
+      + missing.map(function(m){ return (VIEW==='client' && m.q.lClient) ? m.q.lClient : m.q.l; }).join('、') + '——填完才能看預覽';
+    banner.style.display = 'block';
+    banner.scrollIntoView({behavior:'smooth', block:'center'});
+    return;
+  }
+  document.getElementById('missBanner').style.display = 'none';
+  var issues = collectIssues();
+  document.getElementById('pvHeadTitle').textContent =
+    VIEW==='client' ? '預覽：交給顧問看之前，先確認一次' : '預覽：按下去之後，網站會長這樣';
+
+  var goBtn = document.getElementById('pvGoBtn');
+  goBtn.className = 'go ' + VIEW;
+  goBtn.textContent = VIEW==='client' ? '確認沒問題，交給顧問' : '確認沒問題，發布';
+
+  var note = VIEW==='client'
+    ? '<div class="pvNote">'+svgIcon('send',14)+' 這是顧問會看到的完整內容，跟你剛剛填的一樣，交給他之後不會再多問你什麼。</div>'
+    : '<div class="pvNote">'+svgIcon('globe',14)+' 這是按下去之後，網站、阿財、社群貼文實際會用到的內容——三個地方同一份。</div>';
+
+  var issuesHtml = '';
+  if(issues.length){
+    if(VIEW==='consultant'){
+      issuesHtml = '<div class="pvIssues"><b>'+svgIcon('alertTriangle',14)+' 系統會自動處理 '+issues.length+' 處合規問題</b>'
+        + '<ul>' + issues.map(function(t){ return '<li>'+t+'</li>'; }).join('') + '</ul></div>';
+    } else {
+      issuesHtml = '<div class="pvNote" style="background:var(--amber-soft);border-color:var(--amber);color:var(--amber)">'
+        + svgIcon('bot',14) + ' 有 1 處內容顧問會幫你看過調整，不用你自己改，正常送出就好。</div>';
+    }
+  }
+
+  var duties = fieldVal('main_duties') || '（還沒填，顧問看到這裡會是空的）';
+  var benefitsCommon = fieldVal('benefits_common') || [];
+  var benefits = [].concat(benefitsCommon, fieldVal('benefits_detail')||[]).filter(Boolean).join('、') || '（還沒填）';
+
+  document.getElementById('pvScroll').innerHTML = note + issuesHtml + '<div class="pvJob">'
+    + '<div class="hero"><span class="tag">'+ (fieldVal('employment')||'職缺') +'</span>'
+      + '<h2>'+ (fieldVal('title')||'（尚未命名）') +'</h2>'
+      + '<p>'+ (fieldVal('locations')||'地點未填') +'・'+ (fieldVal('work_hours')||'時間未填') +'</p></div>'
+    + '<div class="pvSpecRow"><dt>薪資</dt><dd>'+ (fieldVal('salary_min')&&fieldVal('salary_max') ? fieldVal('salary_min')+'–'+fieldVal('salary_max')+' 元' : '面議') +'</dd></div>'
+    + '<div class="pvSpecRow"><dt>地點</dt><dd>'+ (fieldVal('locations')||'—') +'</dd></div>'
+    + '<div class="pvSpecRow"><dt>需求人數</dt><dd>'+ (fieldVal('headcount')||'—') +'</dd></div>'
+    + '<div class="pvSpecRow"><dt>到職日</dt><dd>'+ (fieldVal('onboard_by')||'—') +'</dd></div>'
+    + '<div class="pvSection"><h4>工作內容</h4><p>'+ duties +'</p></div>'
+    + '<div class="pvSection"><h4>必要技能</h4><p>'+ (fieldVal('must_skills')||'—') +'</p></div>'
+    + '<div class="pvSection"><h4>福利</h4><p>'+ benefits +'</p></div>'
+    + '</div>';
+
+  document.getElementById('pvMask').classList.add('show');
+}
+
+function closePreview(){
+  document.getElementById('pvMask').classList.remove('show');
+}
+
+function confirmSubmit(){
+  var goBtn = document.getElementById('pvGoBtn');
+  goBtn.innerHTML = VIEW==='client' ? svgIcon('send',16)+' 送出中…' : svgIcon('rocket',16)+' 發布中…';
+  goBtn.disabled = true;
+  setTimeout(function(){
+    closePreview();
+    goBtn.disabled = false;
+    var btn = document.getElementById('mainBtn');
+    if(VIEW==='client'){
+      btn.innerHTML = svgIcon('send',18)+' 已經送出了！';
+      btn.disabled = true;
+    } else {
+      btn.innerHTML = svgIcon('check',18)+' 已發布，全部同步完成';
+      btn.disabled = true;
+      document.querySelectorAll('.pStep')[3].classList.add('done');
+      document.querySelectorAll('.pStep')[3].querySelector('.dot').innerHTML=svgIcon('check',13);
+    }
+  }, 900);
+}
+
+render();
+</script>
+</body>
+</html>
