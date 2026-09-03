@@ -43,6 +43,10 @@ button.go:disabled{opacity:.5;cursor:not-allowed}
 .tabs{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px}
 .tab{font:inherit;font-size:13px;font-weight:600;color:var(--ink2);background:var(--soft);border:1px solid var(--line);padding:6px 14px;border-radius:999px;cursor:pointer}
 .tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+/* 2026-09-03 加：顧問與話題設定改3個子分頁，縮短頁面長度 */
+.subtabs{display:flex;gap:6px;background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:4px;margin-bottom:16px}
+.subtabs button{flex:1;font:inherit;font-weight:700;font-size:12.5px;padding:9px 4px;border:0;border-radius:9px;background:transparent;color:var(--ink2);cursor:pointer}
+.subtabs button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.1)}
 
 /* ── 還沒發哪些 ── */
 .gapsum{display:grid;gap:9px;grid-template-columns:repeat(auto-fit,minmax(112px,1fr))}
@@ -360,27 +364,37 @@ table.gap td.stale{color:#c0392b}
          重複輸入內容；「一鍵發文」何時會真的套用這裡設定的風格，要等
          social_post_agent.py 加了話題類型分支才會生效——這裡先只負責存資料。 -->
     <div id="pane-settings" hidden>
-      <div class="note">
-        話題提示詞之後會接話題發想 agent；發文風格是給自動產稿套用的語氣模板。
-        你跟 Phoebe 都能切換任一位顧問來管理。
+      <div class="subtabs" id="settingssubtabs">
+        <button type="button" class="on" data-sub="topics">📝 話題提示詞庫</button>
+        <button type="button" data-sub="jobstyles">🎨 職缺風格提示詞庫</button>
+        <button type="button" data-sub="assign">👤 顧問指派</button>
       </div>
 
-      <div class="card">
-        <div class="sechd"><h3 style="margin:0;font-size:15px">📝 全站話題提示詞庫</h3><span class="mut" id="topiccnt"></span></div>
-        <div class="searchbar"><input type="search" id="topicsearch" placeholder="搜尋話題名稱…"></div>
-        <div id="topicglobal" class="growlist"></div>
-        <div id="topicform" class="form" hidden></div>
-        <button class="tab" id="addtopic" type="button">＋ 新增話題</button>
+      <div id="sub-topics">
+        <div class="note">
+          話題提示詞之後會接話題發想 agent；你跟 Phoebe 都能切換任一位顧問來管理。
+        </div>
+        <div class="card">
+          <div class="sechd"><h3 style="margin:0;font-size:15px">📝 全站話題提示詞庫</h3><span class="mut" id="topiccnt"></span></div>
+          <div class="searchbar"><input type="search" id="topicsearch" placeholder="搜尋話題名稱…"></div>
+          <div id="topicglobal" class="growlist"></div>
+          <div id="topicform" class="form" hidden></div>
+          <button class="tab" id="addtopic" type="button">＋ 新增話題</button>
+        </div>
       </div>
 
-      <div class="card">
-        <div class="sechd"><h3 style="margin:0;font-size:15px">🎨 職缺風格提示詞庫</h3><span class="mut" id="stylecnt"></span></div>
-        <div class="searchbar"><input type="search" id="stylesearch" placeholder="搜尋風格名稱…"></div>
-        <div id="styleglobal" class="growlist"></div>
-        <div id="styleform" class="form" hidden></div>
-        <button class="tab" id="addstyle" type="button">＋ 新增風格</button>
+      <div id="sub-jobstyles" hidden>
+        <div class="note">發文風格是給自動產稿套用的語氣模板。</div>
+        <div class="card">
+          <div class="sechd"><h3 style="margin:0;font-size:15px">🎨 職缺風格提示詞庫</h3><span class="mut" id="stylecnt"></span></div>
+          <div class="searchbar"><input type="search" id="stylesearch" placeholder="搜尋風格名稱…"></div>
+          <div id="styleglobal" class="growlist"></div>
+          <div id="styleform" class="form" hidden></div>
+          <button class="tab" id="addstyle" type="button">＋ 新增風格</button>
+        </div>
       </div>
 
+      <div id="sub-assign" hidden>
       <div class="card">
         <div class="sechd"><h3 style="margin:0;font-size:15px">👤 顧問指派</h3></div>
         <label>正在管理哪一位顧問</label>
@@ -406,6 +420,7 @@ table.gap td.stale{color:#c0392b}
         <select id="mapJob"></select>
         <button class="go" id="savemap" type="button" style="width:100%">儲存這位顧問的設定</button>
         <div class="mut" id="mapsaved" style="display:none;color:var(--ok);font-weight:600;margin-top:8px">✓ 已儲存</div>
+      </div>
       </div>
     </div>
 
@@ -756,6 +771,17 @@ $('maintabs').addEventListener('click', function (e) {
     POST_TOPICS_CACHE = null;
     refreshTopicOptionsForPost();
   }
+});
+
+// 2026-09-03 加：「顧問與話題設定」改3個子分頁，縮短頁面——純粹是顯示/隱藏
+// 三個既有容器，底下 topicglobal/styleglobal/apick_topic 等等抓資料邏輯完全
+// 不動，一開始（loadSettings）就三個都抓好，切子分頁不用重抓。
+$('settingssubtabs').addEventListener('click', function (e) {
+  var b = e.target.closest('button'); if (!b) return;
+  [].forEach.call($('settingssubtabs').children, function (x) { x.classList.toggle('on', x === b); });
+  ['topics', 'jobstyles', 'assign'].forEach(function (k) {
+    $('sub-' + k).hidden = (k !== b.dataset.sub);
+  });
 });
 // 成效儀表板要看的是「這位顧問到底發過多少文」，跟排隊列表要的「最近在
 // 跑什麼」是兩種資料量級，故意分開拉，不要共用小額度那份、也不要跟著
@@ -1819,7 +1845,7 @@ function csRenderList() {
     return '<div class="card">'
       + '<label style="margin-bottom:2px">' + esc(j.title || j.slug) + '<span class="mut" style="font-weight:400">　' + esc(j.client_name || '') + '</span></label>'
       + '<div style="white-space:pre-wrap;font-size:13.5px;background:var(--soft);border-radius:10px;padding:12px 14px;margin:8px 0;max-height:220px;overflow-y:auto">' + esc(j.summary_text) + '</div>'
-      + '<button type="button" class="go" data-i="' + i + '" data-act="cs-copy" style="width:100%">📋 複製回覆文字（含職缺連結＋LINE連結）</button>'
+      + '<button type="button" class="go" data-i="' + i + '" data-act="cs-copy" style="width:100%">📋 複製回覆文字（含LINE連結）</button>'
       + '</div>';
   }).join('');
   [].forEach.call($('csList').querySelectorAll('[data-act="cs-copy"]'), function (btn) {
@@ -1829,10 +1855,8 @@ function csRenderList() {
       var acc = (CS_ACCOUNTS || []).find(function (a) { return String(a.id) === accId; });
       if (!acc) { toast('請先在上面選你自己是哪位顧問', true); return; }
       if (!acc.line_link) { toast('這個帳號還沒設定LINE連結，請先去後台補上', true); return; }
-      var jobUrl = 'https://step1ne.com/jobs/' + j.slug + '/';
       var text = String(j.summary_text || '').split('{{LINE_LINK}}').join(acc.line_link);
       if (text.indexOf(acc.line_link) < 0) text += '\n\n' + acc.line_link; // 保底：萬一摘要沒有佔位符
-      text += '\n\n完整職缺介紹：' + jobUrl;
       navigator.clipboard.writeText(text).then(function () {
         toast('✓ 已複製，可以直接貼去LINE');
       }).catch(function () { toast('複製失敗，請手動選取', true); });
