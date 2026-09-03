@@ -451,8 +451,13 @@ function fcBenefitToggle(preset) {
 // 排班制／責任制這種本來就不是固定時段的職缺還是要能打字，兩個控制項
 // 並存，存的都是同一個 key，不是各存各的。
 function fcTimeParts(val) {
-  var m = String(val || '').match(/(\d{1,2}:\d{2})\s*[-–~]\s*(\d{1,2}:\d{2})/);
-  return m ? [m[1], m[2]] : ['', ''];
+  var s = String(val || '').trim();
+  var m = s.match(/(\d{1,2}:\d{2})\s*[-–~]\s*(\d{1,2}:\d{2})/);
+  if (m) return [m[1], m[2]];
+  // 只設了開始時間、還沒設結束時間的中間狀態——不是這種格式就會被當成
+  // 空值，剛填的開始時間下一次改結束時間時就會不見（真的發生過一次）。
+  var single = s.match(/^(\d{1,2}:\d{2})$/);
+  return single ? [single[1], ''] : ['', ''];
 }
 function fcTimeRangeChange(key, part, val) {
   var cur = fcTimeParts(fcVal(key));
