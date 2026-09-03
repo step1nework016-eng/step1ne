@@ -124,35 +124,46 @@ function row(label, val, opts){
 // 不改資料庫內容。
 function rowList(label, val){
   if (!val) return row(label, val);
-  const text = String(val);
-  if (text.length < 60) return row(label, val);
-  let parts = text.split(/[；;]/).map(s => s.trim()).filter(Boolean);
+  const text = normalizeListish(val);
+  // normalizeListish 把陣列格式的原始資料併成用「、」分隔的一行——這種情況
+  // 不管多短都要拆成條列，不然「['a','b']」變回一行看不出原本是三件事。
+  const wasArrayLike = /^\[.*\]$/.test(String(val).trim()) || text.indexOf('、') >= 0;
+  if (text.length < 60 && !wasArrayLike) return row(label, text);
+  let parts = text.split(/[；;、]/).map(s => s.trim()).filter(Boolean);
   if (parts.length < 2) parts = text.split(/(?<=。)/).map(s => s.trim()).filter(Boolean);
-  if (parts.length < 2) return row(label, val);
+  if (parts.length < 2) return row(label, text);
   const items = parts.map(p => `<li>${esc(p)}</li>`).join('');
   return `<div class="row"><div class="k">${esc(label)}</div>` +
     `<div class="v"><ul style="margin:0;padding-left:18px">${items}</ul></div></div>`;
 }
 
-// employment 欄位這一路走來至少四種格式都出現過：正常的中文字串、
-// 合法 JSON 陣列字串、以及兩筆壞資料（Python list 被 str() 之後直接存成
-// 「['FULL_TIME']」這種不是 JSON 也不是中文的殘骸）。與其信任資料庫一定
-// 乾淨，顯示層自己擋一層，不管收到哪種都轉成看得懂的中文。
+// 自由文字欄位這一路走來出現過至少四種格式：正常的中文字串、合法 JSON
+// 陣列字串、JSON 包一層的單一字串（例如 employment='"FULL_TIME"'，多包了
+// 一層 json.dumps）、以及 Python list 被 str() 之後直接存成
+// 「['桃竹苗地區', '台中']」這種不是 JSON 也不是中文的殘骸。與其信任
+// 資料庫一定乾淨，顯示層自己擋一層，不管收到哪種都轉成看得懂的文字。
+// 2026-09-03 加：locations／must_skills 也會中這幾種格式，原本只有
+// employment 有處理，律准科技這筆三個欄位一起中招才發現。
+function normalizeListish(val){
+  if (val === null || val === undefined || val === '') return '';
+  const s = String(val).trim();
+  try {
+    const p = JSON.parse(s);
+    if (Array.isArray(p)) return p.map(String).join('、');
+    if (typeof p === 'string') return p;
+  } catch {}
+  if (/^\[.*\]$/.test(s)) {
+    // 壞掉的 Python repr，例如 ['桃竹苗地區', '台中']：剝掉外層括號跟引號，逗號切開
+    return s.slice(1, -1).split(',').map(x => x.trim().replace(/^['"]|['"]$/g, '')).filter(Boolean).join('、');
+  }
+  return s;
+}
 const EMP_LABEL = { FULL_TIME: '正職', PART_TIME: '兼職', TEMPORARY: '臨時／派遣',
   CONTRACTOR: '承攬／約聘', INTERN: '實習' };
 function normalizeEmployment(val){
   if (!val) return '';
-  let arr = null;
-  try { const p = JSON.parse(val); if (Array.isArray(p)) arr = p; } catch {}
-  if (!arr && /^\[.*\]$/.test(val)) {
-    // 壞掉的 Python repr，例如 ['FULL_TIME']：剝掉外層括號跟引號，逗號切開
-    arr = val.slice(1, -1).split(',').map(s => s.trim().replace(/^['"]|['"]$/g, '')).filter(Boolean);
-  }
-  if (arr) return arr.map(v => EMP_LABEL[v] || v).join('、');
-  // 2026-08-25 修：資料庫也會存純字串（不包陣列）的英文代碼，例如
-  // employment='FULL_TIME'——律准那三筆用 104 JD 補資料時就是這樣寫進去的。
-  // 之前這裡直接當「本來就是中文字串」原樣印出，沒查翻譯表，畫面就會漏英文代碼。
-  return EMP_LABEL[val] || val;
+  const cleaned = normalizeListish(val);
+  return cleaned.split('、').map(v => EMP_LABEL[v] || v).join('、');
 }
 
 function section(title, rowsHtml){
@@ -171,7 +182,7 @@ function render(job){
       <p class="co">${esc(job.client_name || '（未填公司名稱）')}</p>
       <div class="quickgrid">
         <div class="qi"><div class="k">薪資</div><div class="v">${esc(salary || '未填')}</div></div>
-        <div class="qi"><div class="k">地點</div><div class="v">${esc(job.locations || '未填')}</div></div>
+        <div class="qi"><div class="k">地點</div><div class="v">${esc(normalizeListish(job.locations) || '未填')}</div></div>
         <div class="qi"><div class="k">工時</div><div class="v">${esc(job.work_hours || '未填')}</div></div>
         <div class="qi"><div class="k">需求人數</div><div class="v">${esc(job.headcount || '未填')}</div></div>
         <div class="qi"><div class="k">聘僱型態</div><div class="v">${esc(normalizeEmployment(job.employment) || '未填')}</div></div>
