@@ -205,6 +205,11 @@ table.gap td.stale{color:#c0392b}
 .form .frow{display:flex;gap:8px;margin-bottom:2px}
 .form input[type=file]{font-size:12.5px;margin-bottom:14px}
 .filehint{font-size:11.5px;color:var(--ink3);margin:-10px 0 14px}
+.seg{display:flex;gap:0;border:1px solid var(--line);border-radius:999px;padding:3px;margin-bottom:16px;background:var(--soft)}
+.seg button{flex:1;font:inherit;font-weight:700;font-size:13.5px;padding:9px 10px;border:0;border-radius:999px;background:transparent;color:var(--ink2);cursor:pointer}
+.seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+#topicreminder{background:#fbf1de;color:#8a6100;border-radius:9px;padding:9px 12px;margin:-6px 0 16px;line-height:1.6}
+#topicreminder a{color:inherit;font-weight:700}
 </style>
 
 <div id="gate" class="gate" hidden>
@@ -235,11 +240,23 @@ table.gap td.stale{color:#c0392b}
       這裡按下去不會直接發文。
     </div>
     <div class="card">
-      <label>選擇職缺</label>
-      <input id="q" type="search" placeholder="輸入職缺名稱或代號搜尋…" autocomplete="off">
-      <select id="job"><option value="">載入中…</option></select>
+      <label>這篇是哪一種？</label>
+      <div class="seg" id="typeseg">
+        <button type="button" class="on" data-type="job">📋 職缺類型</button>
+        <button type="button" data-type="topic">💬 話題類型</button>
+      </div>
       <label>選擇發文帳號</label>
       <select id="account"><option value="">載入中…</option></select>
+      <div id="jobpick">
+        <label>選擇職缺</label>
+        <input id="q" type="search" placeholder="輸入職缺名稱或代號搜尋…" autocomplete="off">
+        <select id="job"><option value="">載入中…</option></select>
+      </div>
+      <div id="topicpick" hidden>
+        <label>選擇話題<span class="mut">（只列這位顧問在「顧問與話題設定」打勾過的）</span></label>
+        <select id="topicsel"><option value="">請先選帳號…</option></select>
+        <div id="topicreminder" class="mut" style="display:none"></div>
+      </div>
       <button id="go" class="go" type="button" disabled>排入產稿</button>
     </div>
     <div class="card">
@@ -409,18 +426,83 @@ function filterJobs() {
 }
 $('q').addEventListener('input', filterJobs);
 
+// 2026-09-03 加：職缺/話題類型切換。話題類型要選帳號才知道要列哪位顧問
+// 打勾過的話題（consultant_content_settings），所以帳號永遠先選、類型切
+// 換或帳號變動都要重新刷新話題下拉。
+var POST_TOPICS_CACHE = null;
+function currentPostType() { return document.querySelector('#typeseg button.on').dataset.type; }
+
+$('typeseg').addEventListener('click', function (e) {
+  var b = e.target.closest('button'); if (!b) return;
+  [].forEach.call($('typeseg').children, function (x) { x.classList.toggle('on', x === b); });
+  var isTopic = b.dataset.type === 'topic';
+  $('jobpick').hidden = isTopic;
+  $('topicpick').hidden = !isTopic;
+  if (isTopic) refreshTopicOptionsForPost();
+  updateGoState();
+});
+
+function refreshTopicOptionsForPost() {
+  var opt = $('account').selectedOptions[0];
+  var sel = $('topicsel');
+  var reminder = $('topicreminder');
+  reminder.style.display = 'none';
+  if (!opt || !opt.value) { sel.innerHTML = '<option value="">請先選帳號…</option>'; updateGoState(); return; }
+  var consultant = personName(opt.textContent);
+  sel.innerHTML = '<option value="">載入中…</option>';
+  Promise.all([
+    POST_TOPICS_CACHE ? Promise.resolve({ ok: true, topics: POST_TOPICS_CACHE }) : api('/admin/topic-prompts'),
+    api('/admin/consultant-content-settings?consultant=' + encodeURIComponent(consultant)),
+  ]).then(function (r) {
+    POST_TOPICS_CACHE = r[0].topics || [];
+    var ids = r[1].topic_ids || [];
+    var list = POST_TOPICS_CACHE.filter(function (t) { return ids.indexOf(t.id) >= 0; });
+    if (!list.length) {
+      sel.innerHTML = '<option value="">（尚未指派任何話題）</option>';
+      reminder.style.display = 'block';
+      reminder.innerHTML = '⚠️ 「' + esc(consultant) + '」還沒有被指派任何話題，'
+        + '<a href="#" id="jumpsettings">先去「顧問與話題設定」勾選</a>才能用話題類型排稿。';
+      var jl = document.getElementById('jumpsettings');
+      if (jl) jl.addEventListener('click', function (ev) {
+        ev.preventDefault();
+        $('maintabs').querySelector('[data-pane="pane-settings"]').click();
+      });
+    } else {
+      sel.innerHTML = '<option value="">請選擇…</option>' + list.map(function (t) {
+        return '<option value="' + t.id + '">' + esc(t.name) + '</option>';
+      }).join('');
+      if (!r[1].topic_style_id) {
+        reminder.style.display = 'block';
+        reminder.innerHTML = '⚠️ 「' + esc(consultant) + '」還沒在「顧問與話題設定」指定話題類型要用哪個風格，'
+          + '產稿會用預設語氣，不會擋著不能排。';
+      }
+    }
+    updateGoState();
+  }).catch(function () { sel.innerHTML = '<option value="">讀取失敗</option>'; });
+}
+
 function updateGoState() {
-  $('go').disabled = !($('job').value && $('account').value);
+  var isTopic = currentPostType() === 'topic';
+  var val = isTopic ? $('topicsel').value : $('job').value;
+  $('go').disabled = !(val && $('account').value);
 }
 $('job').addEventListener('change', updateGoState);
-$('account').addEventListener('change', updateGoState);
+$('topicsel').addEventListener('change', updateGoState);
+$('account').addEventListener('change', function () {
+  updateGoState();
+  if (currentPostType() === 'topic') refreshTopicOptionsForPost();
+});
 
 $('go').addEventListener('click', function () {
   var btn = $('go');
+  var isTopic = currentPostType() === 'topic';
+  var payload = isTopic
+    ? { topic_id: Number($('topicsel').value), account_id: Number($('account').value) }
+    : { slug: $('job').value, account_id: Number($('account').value) };
   btn.disabled = true; btn.textContent = '排入中⋯';
   api('/admin/social-post-request', {
     method: 'POST', headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ slug: $('job').value, account_id: Number($('account').value) }),
+    body: JSON.stringify(payload),
   }).then(function (d) {
     if (!d.ok) { btn.disabled = false; btn.textContent = '排入產稿'; return toast(d.error || '排入失敗', true); }
     btn.textContent = '✅ 已排入，等 Telegram';
