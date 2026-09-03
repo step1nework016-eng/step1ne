@@ -109,6 +109,8 @@ h1{font-family:"Noto Serif TC",serif;font-size:clamp(22px,5vw,27px);text-align:c
 .cardInner{padding:0 18px 20px}
 .qBlock{margin-bottom:16px}
 .qBlock.miss{padding-left:11px;border-left:3px solid var(--red)}
+@keyframes jumpFlash{0%,100%{background:transparent}30%{background:var(--red-soft)}}
+.qBlock.jumpTo{animation:jumpFlash 1.4s ease}
 .missBanner{background:var(--red-soft);border:1px solid var(--red);border-radius:12px;padding:12px 15px;
   margin-bottom:16px;font-size:12.5px;color:var(--red);line-height:1.8}
 .missBanner b{display:block;margin-bottom:4px}
@@ -656,9 +658,20 @@ function openPreview(){
     });
     var banner = document.getElementById('missBanner');
     banner.innerHTML = '<b>還有 '+missing.length+' 個必填欄位沒填</b>'
-      + missing.map(function(m){ return (VIEW==='client' && m.q.lClient) ? m.q.lClient : m.q.l; }).join('、') + '——填完才能看預覽';
+      + missing.map(function(m){ return (VIEW==='client' && m.q.lClient) ? m.q.lClient : m.q.l; }).join('、') + '——先帶你去第一個';
     banner.style.display = 'block';
-    banner.scrollIntoView({behavior:'smooth', block:'center'});
+    // 跳到「第一個」缺的欄位本身，不是只跳到上面那條提示——欄位可能不只一個，
+    // 一次只精準定位一個，填完再按一次會自動找下一個沒填的，逐一解決。
+    var firstKey = missing[0].q.k;
+    setTimeout(function(){
+      var target = document.querySelector('.qBlock[data-k="'+firstKey+'"]');
+      if(target){
+        target.scrollIntoView({behavior:'smooth', block:'center'});
+        target.classList.remove('jumpTo'); void target.offsetWidth; target.classList.add('jumpTo');
+        var input = target.querySelector('input,textarea');
+        if(input) setTimeout(function(){ input.focus(); }, 400);
+      }
+    }, 50);
     return;
   }
   document.getElementById('missBanner').style.display = 'none';
@@ -717,14 +730,26 @@ function confirmSubmit(){
     closePreview();
     goBtn.disabled = false;
     var btn = document.getElementById('mainBtn');
+    var sub = document.getElementById('mainBtnSub');
     if(VIEW==='client'){
-      btn.innerHTML = svgIcon('send',18)+' 已經送出了！';
+      // ⚠️ 只有這裡是真的鎖住——客戶送出審核後，等顧問確認前不能再改，
+      // 避免顧問審到一半內容被偷改。這是暫時的，顧問核准/退回後就會解鎖，
+      // 不是永久鎖死，所以文字要講清楚「等一下」而不是「結束了」。
+      btn.innerHTML = svgIcon('send',18)+' 已送出，等顧問確認中';
       btn.disabled = true;
+      sub.textContent = '顧問確認或退回之前不能再改；確認後想調整，隨時可以回來改';
     } else {
+      // 發布不是終點，是完成這一輪同步——按完之後解鎖，顧問隨時能回來改，
+      // 改了一樣會再跑一次「預覽→確認發布」，不是重新整個流程。
       btn.innerHTML = svgIcon('check',18)+' 已發布，全部同步完成';
       btn.disabled = true;
       document.querySelectorAll('.pStep')[3].classList.add('done');
       document.querySelectorAll('.pStep')[3].querySelector('.dot').innerHTML=svgIcon('check',13);
+      setTimeout(function(){
+        btn.innerHTML = svgIcon('eye',18)+' 看預覽，再確認發布';
+        btn.disabled = false;
+        sub.textContent = '職缺已經是上線狀態，之後改動一樣會先看預覽再發布';
+      }, 1800);
     }
   }, 900);
 }
