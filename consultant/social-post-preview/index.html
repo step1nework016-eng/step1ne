@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="zh-Hant">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>顧問社群（含新功能預覽 v3）｜顧問後台</title>
+<style>
+:root{--gold:#a67c3d;--ink:#23262d;--ink2:#4d5563;--ink3:#8a8d95;--line:#eee7db;--soft:#faf8f3;--bg:#f4f1ea;--ok:#2f8f5b;--bad:#c0392b;--logo1:#2ea9df;--logo2:#167eb2}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 -apple-system,"Noto Sans TC",sans-serif}
+.wrap{max-width:640px;margin:0 auto;padding:0 16px}
+header{background:#fff;border-bottom:1px solid var(--line);padding:14px 0}
+header .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header b{font-size:16px}
+.previewtag{margin-left:auto;font-size:11.5px;font-weight:700;background:#fdecea;color:var(--bad);padding:4px 10px;border-radius:999px}
+.mut{color:var(--ink3);font-size:13px}
+main{padding:24px 0 60px}
+.card{background:#fff;border:1px solid var(--line);border-radius:15px;padding:20px 22px;margin-bottom:14px}
+label{display:block;font-size:13px;color:var(--ink2);margin:0 0 6px;font-weight:600}
+select,input[type=search],input[type=text],input[type=date],textarea{width:100%;font:inherit;font-size:15px;padding:11px 13px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);margin-bottom:16px}
+textarea{resize:vertical;min-height:110px;font-size:13.5px;line-height:1.6;font-family:ui-monospace,"SF Mono",Menlo,monospace}
+button.go{font:inherit;font-weight:700;font-size:15px;background:var(--gold);color:#fff;border:0;border-radius:999px;padding:12px 20px;cursor:pointer}
+button.go:disabled{opacity:.5;cursor:not-allowed}
+button.ghost{font:inherit;font-weight:600;font-size:13.5px;background:#fff;color:var(--ink2);border:1px solid var(--line);border-radius:999px;padding:9px 16px;cursor:pointer}
+button.ghost:hover{border-color:var(--gold);color:var(--gold)}
+.note{background:var(--soft);border-left:3px solid var(--gold);border-radius:0 10px 10px 0;padding:12px 15px;font-size:13px;color:var(--ink2);margin-bottom:16px;line-height:1.7}
+.msg{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:14px;padding:11px 20px;border-radius:999px;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap;z-index:99}
+.msg.on{opacity:1}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px}
+.tab{font:inherit;font-size:13px;font-weight:600;color:var(--ink2);background:var(--soft);border:1px solid var(--line);padding:6px 14px;border-radius:999px;cursor:pointer}
+.tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.seg{display:flex;gap:0;border:1px solid var(--line);border-radius:999px;padding:3px;margin-bottom:16px;background:var(--soft)}
+.seg button{flex:1;font:inherit;font-weight:700;font-size:13.5px;padding:9px 10px;border:0;border-radius:999px;background:transparent;color:var(--ink2);cursor:pointer}
+.seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.stub{padding:40px 10px;text-align:center;color:var(--ink3);font-size:13.5px}
+.sechd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:10px}
+.sechd h3{margin:0;font-size:15px}
+.sechd .cnt{font-size:12px;color:var(--ink3);font-weight:600;white-space:nowrap}
+
+.searchbar input{margin-bottom:10px}
+.growlist{max-height:260px;overflow-y:auto;border:1px solid var(--line);border-radius:10px;margin-bottom:14px}
+.growrow{display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid var(--line);font-size:13.5px}
+.growrow:last-child{border-bottom:0}
+.gname{flex:1;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
+.gname:hover{color:var(--gold)}
+.gmeta{flex:none;font-size:11px;color:var(--ink3);white-space:nowrap}
+.gact{flex:none;display:flex;gap:2px}
+.gact button{background:none;border:0;cursor:pointer;font-size:14px;padding:4px 6px;border-radius:6px;line-height:1}
+.gact button:hover{background:var(--soft)}
+.emptyrow{padding:18px 12px;text-align:center;color:var(--ink3);font-size:13px}
+
+.cklist{max-height:210px;overflow-y:auto;border:1px solid var(--line);border-radius:10px;margin-bottom:4px}
+.ckrow{display:flex;align-items:center;gap:9px;padding:8px 12px;border-bottom:1px solid var(--line);font-size:13.5px;cursor:pointer}
+.ckrow:last-child{border-bottom:0}
+.ckrow:hover{background:var(--soft)}
+.ckrow input{margin:0;flex:none;width:auto}
+.ckname{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ckmeta{flex:none;font-size:11px;color:var(--ink3)}
+.ckcount{font-size:11.5px;color:var(--ink3);margin:0 0 16px;text-align:right}
+
+.form{border:1px dashed #ddd3c0;border-radius:12px;padding:14px 16px;margin-bottom:14px;background:#fffdf8}
+.form .frow{display:flex;gap:8px;margin-bottom:2px}
+.form input[type=file]{font-size:12.5px;margin-bottom:14px}
+.filehint{font-size:11.5px;color:var(--ink3);margin:-10px 0 14px}
+.mapgrid{display:flex;flex-direction:column;gap:14px}
+.maprow .lab label{margin-bottom:8px}
+.maprow select{margin-bottom:0}
+.saved-hint{font-size:12px;color:var(--ok);font-weight:600;margin-top:8px}
+hr.sep{border:0;border-top:1px solid var(--line);margin:20px 0}
+.subh{font-size:12.5px;font-weight:700;color:var(--ink2);margin:0 0 8px;display:flex;align-items:center;gap:8px}
+.subh .n{background:var(--soft);color:var(--ink3);font-size:11px;font-weight:700;border-radius:999px;padding:1px 8px}
+
+.mask{position:fixed;inset:0;background:rgba(20,22,26,.5);z-index:80;display:flex;align-items:center;justify-content:center;padding:20px}
+.mask[hidden]{display:none}
+.modal{background:#fff;border-radius:14px;width:min(520px,100%);max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.modal .mh{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:14px 18px;display:flex;align-items:center;gap:10px;border-radius:14px 14px 0 0}
+.modal .mh b{font-size:15px;flex:1}
+.modal .mh button{background:none;border:0;font-size:22px;cursor:pointer;color:var(--ink3);line-height:1}
+.modal .mb{padding:14px 18px 22px;white-space:pre-wrap;font-size:13px;line-height:1.75;font-family:ui-monospace,"SF Mono",monospace;color:var(--ink2)}
+
+/* ── 排程行事曆／成效儀表板 新增部分 ── */
+.typebadge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap;flex:none}
+.typebadge.job{background:#eef4fd;color:#2f5fd8}
+.typebadge.topic{background:#f3e2c2;color:#8a5a1a}
+.gapmini{display:grid;gap:9px;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));margin-bottom:10px}
+.gapchip{background:var(--soft);border:1px solid var(--line);border-radius:11px;padding:10px 12px;text-align:center}
+.gapchip b{display:block;font-size:20px;color:var(--bad)}
+.gapchip b.zero{color:var(--ok)}
+.gapchip span{font-size:11.5px;color:var(--ink3);display:block;margin-top:2px}
+.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:6px}
+@media(max-width:480px){.statgrid{grid-template-columns:1fr}}
+.stattile{background:var(--soft);border-radius:14px;padding:14px 12px;text-align:center}
+.stattile .num{font-size:26px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums}
+.stattile .lb{font-size:12px;color:var(--ink2);margin-top:2px}
+.postrow{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.postrow:last-child{border-bottom:0}
+.postrow .pt{flex:1;min-width:0}
+.postrow .pt .ti{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.postrow .pt .me{font-size:11.5px;color:var(--ink3);margin-top:2px}
+.postrow .pv{flex:none;font-size:12.5px;color:var(--ink2);text-align:right;white-space:nowrap}
+</style>
+
+<div id="app">
+  <header><div class="wrap">
+    <b>顧問社群</b>
+    <span class="previewtag">本地預覽 v3・假資料</span>
+  </div></header>
+  <main class="wrap">
+
+    <div class="note">
+      這版加了兩塊你要的：<b>①排程行事曆</b>排一則新的時也能選職缺／話題類型、
+      <b>②成效儀表板</b>可以拆開只看職缺類型或話題類型的數據。
+      「排程行事曆」的月曆本體、「成效儀表板」的顧問排行等既有圖表都還在，這份預覽只放大呈現新增的那一小塊。
+    </div>
+
+    <div id="maintabs" class="tabs">
+      <button type="button" class="tab" data-pane="pane-post">一鍵發文</button>
+      <button type="button" class="tab on" data-pane="pane-cal">排程行事曆</button>
+      <button type="button" class="tab" data-pane="pane-board">成效儀表板</button>
+      <button type="button" class="tab" data-pane="pane-settings" style="border-color:var(--gold);color:var(--gold)">✨ 顧問與話題設定</button>
+    </div>
+
+    <!-- ── 一鍵發文（上一版已驗證過，維持原樣）── -->
+    <div id="pane-post" hidden>
+      <div class="note">
+        選職缺、選帳號，按下去會排入產稿——本機的腳本每 2 分鐘掃一次，抓到就會用 claude
+        產一則貼文草稿，推到 Telegram「社群發文審核」給你看，<b>你在那邊按確認發布才會真的貼出去</b>，
+        這裡按下去不會直接發文。
+      </div>
+      <div class="card">
+        <label>這篇是哪一種？</label>
+        <div class="seg" id="typeseg">
+          <button type="button" class="on" data-type="job">📋 職缺類型</button>
+          <button type="button" data-type="topic">💬 話題類型</button>
+        </div>
+        <label>選擇發文帳號</label>
+        <select id="account">
+          <option value="">請選擇…</option>
+          <option value="1" data-consultant="法蘭克">法蘭克 - Threads</option>
+          <option value="2" data-consultant="Bob">Bob - Threads</option>
+          <option value="3" data-consultant="Anna">Anna - Threads</option>
+          <option value="4" data-consultant="DR">DR - Threads</option>
+        </select>
+        <div id="jobpick">
+          <label>選擇職缺</label>
+          <select id="job">
+            <option value="">請選擇…</option>
+            <option>後端開發工程師</option>
+            <option>BIM 工程師</option>
+            <option>資深前端工程師</option>
+          </select>
+        </div>
+        <div id="topicpick" hidden>
+          <label>選擇話題<span class="mut">（只列這位顧問打勾過的）</span></label>
+          <select id="topicsel"><option value="">請先選帳號…</option></select>
+        </div>
+        <div id="applyhint" class="mut" style="margin:-8px 0 16px"></div>
+        <button id="go" class="go" type="button" style="width:100%" disabled>排入產稿</button>
+      </div>
+    </div>
+
+    <!-- ── 排程行事曆（新增：職缺/話題切換）── -->
+    <div id="pane-cal">
+      <div class="note">
+        月曆本體（點哪一天、看那天排了誰、防重複）是既有功能，這份預覽不重畫。
+        這裡放大示範的是「排一則新的」表單多了職缺/話題切換，跟「還有哪些沒發」為什麼<b>維持只算職缺類型</b>。
+      </div>
+
+      <div class="card">
+        <div class="sechd"><h3>排一則新的（示範：2026-09-08）</h3></div>
+        <label>誰要發</label>
+        <select id="caccount">
+          <option value="">選帳號…</option>
+          <option value="1" data-consultant="法蘭克">法蘭克 - Threads</option>
+          <option value="2" data-consultant="Bob">Bob - Threads</option>
+          <option value="3" data-consultant="Anna">Anna - Threads</option>
+          <option value="4" data-consultant="DR">DR - Threads</option>
+        </select>
+        <label>這篇是哪一種？</label>
+        <div class="seg" id="ctypeseg">
+          <button type="button" class="on" data-type="job">📋 職缺類型</button>
+          <button type="button" data-type="topic">💬 話題類型</button>
+        </div>
+        <div id="cjobpick">
+          <label>發哪個職缺</label>
+          <select id="cjob">
+            <option value="">選職缺…</option>
+            <option>後端開發工程師</option>
+            <option>BIM 工程師</option>
+            <option>資深前端工程師</option>
+          </select>
+        </div>
+        <div id="ctopicpick" hidden>
+          <label>發哪個話題<span class="mut">（只列這位顧問打勾過的）</span></label>
+          <select id="ctopic"><option value="">請先選帳號…</option></select>
+        </div>
+        <button id="cgo" class="go" type="button" style="width:100%" disabled>排入這一天</button>
+      </div>
+
+      <div class="card">
+        <div class="sechd"><h3>還有哪些沒發（缺口分析）</h3></div>
+        <div class="note" style="margin-bottom:12px">
+          這個功能<b>維持只算職缺類型</b>——它回答的是「這個月每個職缺、每個帳號都發過了嗎」，
+          話題類型沒有「一定要每個都發過一次」這種概念，所以話題貼文不會出現在下面這份缺口清單裡，
+          但一樣會正常排進月曆、正常進成效儀表板。
+        </div>
+        <div class="gapmini">
+          <div class="gapchip"><b>2</b><span>法蘭克<br>還差2個職缺</span></div>
+          <div class="gapchip"><b>1</b><span>Bob<br>還差1個職缺</span></div>
+          <div class="gapchip"><b>3</b><span>Anna<br>還差3個職缺</span></div>
+          <div class="gapchip"><b class="zero">0</b><span>DR<br>全部發過了</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 成效儀表板（新增：類型篩選）── -->
+    <div id="pane-board" hidden>
+      <div class="note">
+        顧問排行／一週熱力圖／發文時段這些既有圖表都還在，這份預覽放大示範的是新加的
+        <b>類型篩選</b>——切換後下面的總數跟每一則貼文清單會跟著換。
+      </div>
+      <div class="card">
+        <label>看哪一種類型的成效？</label>
+        <div class="seg" id="btypeseg">
+          <button type="button" class="on" data-btype="all">全部</button>
+          <button type="button" data-btype="job">📋 職缺類型</button>
+          <button type="button" data-btype="topic">💬 話題類型</button>
+        </div>
+        <div class="statgrid" id="bstats"></div>
+      </div>
+      <div class="card">
+        <div class="sechd"><h3>每一則貼文</h3><span class="cnt" id="bcnt"></span></div>
+        <div id="bpostlist"></div>
+      </div>
+    </div>
+
+    <!-- ── 顧問與話題設定（上一版已驗證過，維持原樣）── -->
+    <div id="pane-settings" hidden>
+
+      <div class="card">
+        <div class="sechd"><h3>📝 全站話題提示詞庫</h3><span class="cnt" id="topiccnt"></span></div>
+        <div class="searchbar"><input type="search" id="topicsearch" placeholder="搜尋話題名稱…"></div>
+        <div id="topicglobal" class="growlist"></div>
+        <div id="topicform" class="form" hidden></div>
+        <button class="ghost" id="addtopic" type="button">＋ 新增話題</button>
+      </div>
+
+      <div class="card">
+        <div class="sechd"><h3>🎨 全站發文風格庫</h3><span class="cnt" id="stylecnt"></span></div>
+        <div class="searchbar"><input type="search" id="stylesearch" placeholder="搜尋風格名稱…"></div>
+        <div id="styleglobal" class="growlist"></div>
+        <div id="styleform" class="form" hidden></div>
+        <button class="ghost" id="addstyle" type="button">＋ 新增風格</button>
+      </div>
+
+      <div class="card">
+        <div class="sechd"><h3>👤 顧問指派</h3></div>
+        <label>正在管理哪一位顧問</label>
+        <select id="cwho"></select>
+
+        <hr class="sep">
+
+        <div class="subh">這位顧問可以用的話題 <span class="n" id="topicpickcnt"></span></div>
+        <div class="searchbar"><input type="search" id="apick_topic_search" placeholder="搜尋…"></div>
+        <div id="apick_topic" class="cklist"></div>
+        <div class="ckcount" id="apick_topic_count"></div>
+
+        <div class="subh">這位顧問可以用的風格 <span class="n" id="stylepickcnt"></span></div>
+        <div class="searchbar"><input type="search" id="apick_style_search" placeholder="搜尋…"></div>
+        <div id="apick_style" class="cklist"></div>
+        <div class="ckcount" id="apick_style_count"></div>
+
+        <hr class="sep">
+
+        <div class="mapgrid">
+          <div class="maprow">
+            <div class="lab">
+              <label>話題類型貼文，採用哪個風格？<span class="mut">（只列上面打勾過的）</span></label>
+              <select id="mapTopic"></select>
+            </div>
+          </div>
+          <div class="maprow">
+            <div class="lab">
+              <label>職缺類型貼文，採用哪個風格？<span class="mut">（只列上面打勾過的）</span></label>
+              <select id="mapJob"></select>
+            </div>
+          </div>
+        </div>
+        <button class="go" id="savemap" type="button" style="margin-top:6px">儲存這位顧問的設定</button>
+        <div class="saved-hint" id="mapsaved" style="display:none">✓ 已儲存（此人「一鍵發文」之後會自動套用）</div>
+      </div>
+
+    </div>
+
+  </main>
+</div>
+<div id="msg" class="msg"></div>
+<div id="pvmask" class="mask" hidden></div>
+
+<script>
+// ────────────────────────────────────────────────────────────────
+// 純本地假資料 demo。所有「儲存/新增/刪除/排入」只改記憶體裡的物件，
+// 重新整理頁面會回到初始假資料，不接任何真實 API。
+// ────────────────────────────────────────────────────────────────
+
+const CONSULTANTS = ['法蘭克','Bob','Anna','DR'];
+
+const GLOBAL_TOPICS = [
+  { id:'t1', name:'AI取代營造業討論', updated:'09-02', body:'# 話題：AI 取代營造業\n\n切入角度：\n- 不是取代，是重新分配誰做什麼\n- BIM 工程師反而是這波受益者\n- 用實際案例佐證（興富發等）\n\n忌諱：\n- 不要用恐慌式標題' },
+  { id:'t2', name:'派遣 vs 正職迷思', updated:'08-28', body:'# 話題：派遣是不是次等工作\n\n切入角度：\n- 用薪資結構拆解，不是道德說教\n- 對象是猶豫要不要接派遣缺的求職者' },
+  { id:'t3', name:'科技業裁員潮觀察', updated:'08-30', body:'# 話題：這波裁員潮怎麼看\n\n切入角度：\n- 對比台灣跟國外情況\n- 給求職者的具體建議' },
+  { id:'t4', name:'遠距工作趨勢', updated:'08-22', body:'切入角度：混合辦公成常態，哪些產業還在抗拒。' },
+  { id:'t5', name:'新鮮人求職迷思', updated:'08-15', body:'切入角度：學歷 vs 作品集，企業實際在看什麼。' },
+  { id:'t6', name:'中高齡再就業', updated:'08-10', body:'切入角度：年齡不是問題，怎麼包裝經驗才是重點。' },
+  { id:'t7', name:'履歷健檢常見錯誤', updated:'08-05', body:'切入角度：條列最常見的 5 個履歷地雷，帶到阿福健檢。' },
+  { id:'t8', name:'面試地雷問題', updated:'07-30', body:'切入角度：面試官常見的陷阱題，怎麼回答不失分。' },
+  { id:'t9', name:'獵頭到底在幹嘛', updated:'07-20', body:'切入角度：破除「獵頭都只想抽成」的迷思。' },
+  { id:'t10', name:'薪資保密條款爭議', updated:'07-15', body:'切入角度：法規邊界在哪，企業能不能禁止員工討論薪資。' },
+  { id:'t11', name:'二例一休對招募的影響', updated:'07-05', body:'切入角度：對排班型產業找人的實際衝擊。' },
+  { id:'t12', name:'求職詐騙辨識', updated:'06-28', body:'切入角度：常見話術跟怎麼查證公司真偽。' },
+];
+const GLOBAL_STYLES = [
+  { id:'s1', name:'活潑口語', updated:'09-01', body:'語氣：像在跟朋友聊天，可以用「欸」「講真的」開頭。\n短句多，一段不超過3行。\n結尾丟一個問題引導留言，不要教條式收尾。' },
+  { id:'s2', name:'專業權威', updated:'08-20', body:'語氣：獵頭顧問的專業角度，用數據或案例開場。\n避免口語詞，可以用產業術語但要解釋。\n結尾給一個明確的行動建議。' },
+  { id:'s3', name:'數據派', updated:'08-25', body:'語氣：開場先丟一個數字或統計。\n中段用條列式拆解原因。\n結尾呼籲行動，語氣冷靜不煽情。' },
+  { id:'s4', name:'說故事型', updated:'08-18', body:'語氣：用一個真實案例（去識別化）當開場鋪陳，帶出結論。' },
+  { id:'s5', name:'條列乾脆', updated:'08-12', body:'語氣：不寒暄，開門見山條列 3-5 點，適合資訊型內容。' },
+  { id:'s6', name:'溫暖陪伴', updated:'08-08', body:'語氣：站在求職者角度講話，多用「你」，語氣像是在安慰、鼓勵。' },
+  { id:'s7', name:'犀利吐槽', updated:'07-28', body:'語氣：對產業亂象直接開嘴，適合話題型爭議貼文。' },
+  { id:'s8', name:'教學指南型', updated:'07-22', body:'語氣：Step 1 / Step 2 條列式教學語氣，適合技巧類內容。' },
+  { id:'s9', name:'產業觀察家', updated:'07-10', body:'語氣：第三人稱、分析師視角，帶趨勢判斷。' },
+  { id:'s10', name:'一句話金句型', updated:'06-30', body:'語氣：開頭一句話金句破題，後面用短段落補充脈絡。' },
+];
+
+const ASSIGN = {
+  '法蘭克': { topics:new Set(['t1','t2','t5']), styles:new Set(['s1','s2']), mapping:{ topic:'s1', job:'s2' } },
+  'Bob':    { topics:new Set(['t3']),           styles:new Set(['s3']),      mapping:{ topic:'s3', job:'s3' } },
+  'Anna':   { topics:new Set(),                 styles:new Set(),           mapping:{ topic:'', job:'' } },
+  'DR':     { topics:new Set(['t2']),           styles:new Set(),           mapping:{ topic:'', job:'' } },
+};
+
+// 成效儀表板假資料：混合職缺類型／話題類型的歷史貼文
+const FAKE_POSTS = [
+  { type:'job',   consultant:'法蘭克', title:'後端開發工程師',    date:'08-28', views:340, clicks:12 },
+  { type:'topic', consultant:'法蘭克', title:'AI取代營造業討論',   date:'08-30', views:512, clicks:34 },
+  { type:'job',   consultant:'法蘭克', title:'BIM 工程師',        date:'09-01', views:210, clicks:8  },
+  { type:'topic', consultant:'法蘭克', title:'派遣 vs 正職迷思',   date:'09-02', views:300, clicks:20 },
+  { type:'job',   consultant:'Bob',   title:'資深前端工程師',    date:'08-27', views:180, clicks:5  },
+  { type:'topic', consultant:'Bob',   title:'科技業裁員潮觀察',   date:'08-29', views:640, clicks:41 },
+  { type:'job',   consultant:'Bob',   title:'後端開發工程師',    date:'09-02', views:95,  clicks:2  },
+  { type:'job',   consultant:'Bob',   title:'BIM 工程師',        date:'08-24', views:60,  clicks:0  },
+  { type:'job',   consultant:'Anna',  title:'BIM 工程師',        date:'08-26', views:130, clicks:6  },
+  { type:'job',   consultant:'Anna',  title:'資深前端工程師',    date:'08-31', views:88,  clicks:1  },
+  { type:'topic', consultant:'Anna',  title:'中高齡再就業',      date:'08-22', views:410, clicks:25 },
+  { type:'topic', consultant:'DR',    title:'派遣 vs 正職迷思',   date:'08-25', views:260, clicks:15 },
+  { type:'job',   consultant:'DR',    title:'後端開發工程師',    date:'09-01', views:150, clicks:4  },
+  { type:'job',   consultant:'DR',    title:'資深前端工程師',    date:'08-20', views:70,  clicks:3  },
+];
+
+let curConsultant = CONSULTANTS[0];
+let uid = 100;
+let BOARD_TYPE = 'all';
+
+function toast(t){
+  const m = document.getElementById('msg');
+  m.textContent = t; m.classList.add('on');
+  clearTimeout(toast._h);
+  toast._h = setTimeout(()=>m.classList.remove('on'), 1800);
+}
+function esc(s){ return String(s||'').replace(/[&<>]/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+
+// ── 頂層分頁切換 ──
+document.getElementById('maintabs').addEventListener('click', (e)=>{
+  const b = e.target.closest('.tab'); if(!b) return;
+  document.querySelectorAll('#maintabs .tab').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  ['pane-post','pane-cal','pane-board','pane-settings'].forEach(id=>{
+    document.getElementById(id).hidden = (id !== b.dataset.pane);
+  });
+});
+
+// ── 一鍵發文 ──
+document.getElementById('typeseg').addEventListener('click', (e)=>{
+  const b = e.target.closest('button'); if(!b) return;
+  document.querySelectorAll('#typeseg button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  const isTopic = b.dataset.type === 'topic';
+  document.getElementById('jobpick').hidden = isTopic;
+  document.getElementById('topicpick').hidden = !isTopic;
+  refreshTopicSelect();
+  renderApplyHint();
+  refreshGoState();
+});
+document.getElementById('account').addEventListener('change', ()=>{
+  refreshTopicSelect(); renderApplyHint(); refreshGoState();
+});
+function currentType(){ return document.querySelector('#typeseg button.on').dataset.type; }
+function currentConsultant(){
+  const opt = document.getElementById('account').selectedOptions[0];
+  return opt ? opt.dataset.consultant : null;
+}
+function refreshTopicSelect(){
+  const c = currentConsultant();
+  const sel = document.getElementById('topicsel');
+  sel.innerHTML = '';
+  if (!c) { sel.innerHTML = '<option value="">請先選帳號…</option>'; return; }
+  const ids = ASSIGN[c].topics;
+  const list = GLOBAL_TOPICS.filter(t=>ids.has(t.id));
+  sel.innerHTML = list.length
+    ? '<option value="">請選擇…</option>' + list.map(t=>`<option value="${t.id}">${esc(t.name)}</option>`).join('')
+    : '<option value="">（這位顧問還沒勾任何話題，先去「顧問與話題設定」勾選）</option>';
+}
+function renderApplyHint(){
+  const c = currentConsultant();
+  const hint = document.getElementById('applyhint');
+  if (!c) { hint.textContent = ''; return; }
+  const type = currentType();
+  const map = ASSIGN[c].mapping;
+  const styleId = type === 'topic' ? map.topic : map.job;
+  const style = GLOBAL_STYLES.find(s=>s.id === styleId);
+  hint.innerHTML = style
+    ? `將套用「${c}」在「顧問與話題設定」設定好的${type==='topic'?'話題':'職缺'}類型風格：<b>${esc(style.name)}</b>`
+    : `⚠️「${c}」還沒在「顧問與話題設定」設定${type==='topic'?'話題':'職缺'}類型要用哪個風格，產稿會用預設語氣`;
+}
+function refreshGoState(){
+  const c = currentConsultant();
+  const type = currentType();
+  const val = type === 'job' ? document.getElementById('job').value : document.getElementById('topicsel').value;
+  document.getElementById('go').disabled = !(c && val);
+}
+document.getElementById('job').addEventListener('change', refreshGoState);
+document.getElementById('topicsel').addEventListener('change', refreshGoState);
+document.getElementById('go').addEventListener('click', ()=>{
+  const type = currentType();
+  toast(type === 'job' ? '✓ 已排入產稿（職缺類型，示範用，未真的送出）' : '✓ 已排入產稿（話題類型，示範用，未真的送出）');
+});
+
+// ── 排程行事曆：新增的類型切換 ──
+document.getElementById('ctypeseg').addEventListener('click', (e)=>{
+  const b = e.target.closest('button'); if(!b) return;
+  document.querySelectorAll('#ctypeseg button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  const isTopic = b.dataset.type === 'topic';
+  document.getElementById('cjobpick').hidden = isTopic;
+  document.getElementById('ctopicpick').hidden = !isTopic;
+  refreshCalTopicSelect();
+  refreshCalGoState();
+});
+document.getElementById('caccount').addEventListener('change', ()=>{ refreshCalTopicSelect(); refreshCalGoState(); });
+function currentCalType(){ return document.querySelector('#ctypeseg button.on').dataset.type; }
+function currentCalConsultant(){
+  const opt = document.getElementById('caccount').selectedOptions[0];
+  return opt ? opt.dataset.consultant : null;
+}
+function refreshCalTopicSelect(){
+  const c = currentCalConsultant();
+  const sel = document.getElementById('ctopic');
+  sel.innerHTML = '';
+  if (!c) { sel.innerHTML = '<option value="">請先選帳號…</option>'; return; }
+  const ids = ASSIGN[c].topics;
+  const list = GLOBAL_TOPICS.filter(t=>ids.has(t.id));
+  sel.innerHTML = list.length
+    ? '<option value="">請選擇…</option>' + list.map(t=>`<option value="${t.id}">${esc(t.name)}</option>`).join('')
+    : '<option value="">（這位顧問還沒勾任何話題）</option>';
+}
+function refreshCalGoState(){
+  const c = currentCalConsultant();
+  const type = currentCalType();
+  const val = type === 'job' ? document.getElementById('cjob').value : document.getElementById('ctopic').value;
+  document.getElementById('cgo').disabled = !(c && val);
+}
+document.getElementById('cjob').addEventListener('change', refreshCalGoState);
+document.getElementById('ctopic').addEventListener('change', refreshCalGoState);
+document.getElementById('cgo').addEventListener('click', ()=>{
+  const type = currentCalType();
+  toast(type === 'job' ? '✓ 已排到 2026-09-08（職缺類型，示範用）' : '✓ 已排到 2026-09-08（話題類型，示範用）');
+});
+
+// ── 成效儀表板：新增的類型篩選 ──
+document.getElementById('btypeseg').addEventListener('click', (e)=>{
+  const b = e.target.closest('button'); if(!b) return;
+  document.querySelectorAll('#btypeseg button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  BOARD_TYPE = b.dataset.btype;
+  renderBoard();
+});
+function renderBoard(){
+  const rows = FAKE_POSTS.filter(p => BOARD_TYPE==='all' || p.type===BOARD_TYPE);
+  const tv = rows.reduce((x,r)=>x+r.views,0);
+  const tc = rows.reduce((x,r)=>x+r.clicks,0);
+  document.getElementById('bstats').innerHTML = `
+    <div class="stattile"><div class="num">${rows.length}</div><div class="lb">📮 發了幾則</div></div>
+    <div class="stattile"><div class="num">${tv}</div><div class="lb">👀 被看到幾次</div></div>
+    <div class="stattile"><div class="num">${tc}</div><div class="lb">🔗 點了連結</div></div>
+  `;
+  document.getElementById('bcnt').textContent = `共 ${rows.length} 則`;
+  const sorted = rows.slice().sort((a,b)=> b.date.localeCompare(a.date));
+  document.getElementById('bpostlist').innerHTML = sorted.length ? sorted.map(r=>{
+    const rate = r.views ? ((r.clicks/r.views)*100).toFixed(1)+'%' : '—';
+    return `<div class="postrow">
+      <span class="typebadge ${r.type}">${r.type==='job'?'📋 職缺':'💬 話題'}</span>
+      <div class="pt"><div class="ti">${esc(r.title)}</div><div class="me">${r.consultant}・${r.date}</div></div>
+      <div class="pv">👀${r.views}　🔗${r.clicks}（${rate}）</div>
+    </div>`;
+  }).join('') : '<div class="emptyrow">這個類型還沒有資料</div>';
+}
+
+// ── 預覽彈窗 ──
+function openPreview(name, body){
+  const mask = document.getElementById('pvmask');
+  mask.hidden = false;
+  mask.innerHTML = `<div class="modal"><div class="mh"><b>${esc(name)}</b><button id="pvx" type="button">&times;</button></div><div class="mb">${esc(body)}</div></div>`;
+  mask.addEventListener('click', (e)=>{ if (e.target === mask) closePreview(); });
+  document.getElementById('pvx').addEventListener('click', closePreview);
+}
+function closePreview(){ document.getElementById('pvmask').hidden = true; document.getElementById('pvmask').innerHTML=''; }
+
+// ── 全站庫：搜尋 + 精簡列表 + 新增/編輯/刪除 ──
+function renderGlobalLib(kind){
+  const isTopic = kind === 'topic';
+  const data = isTopic ? GLOBAL_TOPICS : GLOBAL_STYLES;
+  const q = document.getElementById(isTopic ? 'topicsearch' : 'stylesearch').value.trim().toLowerCase();
+  const wrap = document.getElementById(isTopic ? 'topicglobal' : 'styleglobal');
+  document.getElementById(isTopic ? 'topiccnt' : 'stylecnt').textContent = `共 ${data.length} 筆`;
+  const filtered = q ? data.filter(x=>x.name.toLowerCase().includes(q)) : data;
+  if (!filtered.length){
+    wrap.innerHTML = `<div class="emptyrow">${q ? '沒有符合搜尋的結果' : '目前沒有資料，點下面新增一筆'}</div>`;
+    return;
+  }
+  wrap.innerHTML = filtered.map(item => `
+    <div class="growrow" data-id="${item.id}">
+      <div class="gname" data-act="preview">${esc(item.name)}</div>
+      <div class="gmeta">${item.updated}</div>
+      <div class="gact">
+        <button type="button" data-act="edit" title="編輯">✎</button>
+        <button type="button" data-act="del" title="刪除">🗑</button>
+      </div>
+    </div>
+  `).join('');
+}
+function bindGlobalLibEvents(kind){
+  const isTopic = kind === 'topic';
+  const data = isTopic ? GLOBAL_TOPICS : GLOBAL_STYLES;
+  const wrap = document.getElementById(isTopic ? 'topicglobal' : 'styleglobal');
+  wrap.addEventListener('click', (e)=>{
+    const el = e.target.closest('[data-act]'); if(!el) return;
+    const id = el.closest('.growrow').dataset.id;
+    const item = data.find(x=>x.id===id);
+    if (el.dataset.act === 'preview') openPreview(item.name, item.body);
+    if (el.dataset.act === 'edit') openForm(kind, id);
+    if (el.dataset.act === 'del') {
+      if (isTopic) GLOBAL_TOPICS.splice(GLOBAL_TOPICS.indexOf(item),1);
+      else GLOBAL_STYLES.splice(GLOBAL_STYLES.indexOf(item),1);
+      Object.values(ASSIGN).forEach(a=>{
+        (isTopic ? a.topics : a.styles).delete(id);
+        if (!isTopic){
+          if (a.mapping.topic === id) a.mapping.topic = '';
+          if (a.mapping.job === id) a.mapping.job = '';
+        }
+      });
+      toast('已刪除');
+      renderAll();
+    }
+  });
+  document.getElementById(isTopic ? 'topicsearch' : 'stylesearch').addEventListener('input', ()=>renderGlobalLib(kind));
+}
+bindGlobalLibEvents('topic');
+bindGlobalLibEvents('style');
+
+function openForm(kind, editId){
+  const isTopic = kind === 'topic';
+  const data = isTopic ? GLOBAL_TOPICS : GLOBAL_STYLES;
+  const form = document.getElementById(isTopic ? 'topicform' : 'styleform');
+  const editing = editId ? data.find(x=>x.id===editId) : null;
+  const nameLabel = isTopic ? '話題名稱' : '風格名稱';
+  form.innerHTML = `
+    <label>${nameLabel}</label>
+    <input type="text" id="f_name" value="${editing ? esc(editing.name) : ''}" placeholder="例如：${isTopic?'AI取代營造業討論':'活潑口語'}">
+    <label>上傳 .md 檔案（選填，會覆蓋下面文字框內容）</label>
+    <input type="file" id="f_file" accept=".md,text/markdown,text/plain">
+    <div class="filehint">支援直接貼文字，也支援上傳 md 檔——上傳後自動帶進下面文字框，兩種擇一即可。</div>
+    <label>內容</label>
+    <textarea id="f_body" placeholder="貼上內容…">${editing ? esc(editing.body) : ''}</textarea>
+    <div class="frow">
+      <button class="go" id="f_save" type="button">${editing?'儲存修改':'新增'}</button>
+      <button class="ghost" id="f_cancel" type="button">取消</button>
+    </div>
+  `;
+  form.hidden = false;
+  document.getElementById('f_file').addEventListener('change', (e)=>{
+    const f = e.target.files[0]; if(!f) return;
+    const reader = new FileReader();
+    reader.onload = () => { document.getElementById('f_body').value = reader.result; toast('✓ 已讀入檔案內容'); };
+    reader.readAsText(f);
+  });
+  document.getElementById('f_cancel').addEventListener('click', ()=>{ form.hidden = true; form.innerHTML=''; });
+  document.getElementById('f_save').addEventListener('click', ()=>{
+    const name = document.getElementById('f_name').value.trim();
+    const body = document.getElementById('f_body').value.trim();
+    if (!name || !body){ toast('名稱跟內容都要填'); return; }
+    const today = '09-03';
+    if (editing){
+      editing.name = name; editing.body = body; editing.updated = today;
+      toast('✓ 已更新');
+    } else {
+      data.push({ id:'u'+(uid++), name, body, updated: today });
+      toast('✓ 已新增到全站庫');
+    }
+    form.hidden = true; form.innerHTML = '';
+    renderAll();
+  });
+}
+document.getElementById('addtopic').addEventListener('click', ()=>openForm('topic'));
+document.getElementById('addstyle').addEventListener('click', ()=>openForm('style'));
+
+// ── 顧問指派 ──
+function renderConsultantSelect(){
+  const sel = document.getElementById('cwho');
+  sel.innerHTML = CONSULTANTS.map(c=>`<option value="${c}" ${c===curConsultant?'selected':''}>${c}</option>`).join('');
+}
+document.getElementById('cwho').addEventListener('change', (e)=>{
+  curConsultant = e.target.value;
+  renderAll();
+});
+function renderPickList(kind){
+  const isTopic = kind === 'topic';
+  const data = isTopic ? GLOBAL_TOPICS : GLOBAL_STYLES;
+  const assigned = isTopic ? ASSIGN[curConsultant].topics : ASSIGN[curConsultant].styles;
+  const q = document.getElementById(isTopic ? 'apick_topic_search' : 'apick_style_search').value.trim().toLowerCase();
+  const wrap = document.getElementById(isTopic ? 'apick_topic' : 'apick_style');
+  const filtered = q ? data.filter(x=>x.name.toLowerCase().includes(q)) : data;
+  document.getElementById(isTopic ? 'topicpickcnt' : 'stylepickcnt').textContent = `全站 ${data.length} 筆`;
+  wrap.innerHTML = filtered.length ? filtered.map(item => `
+      <label class="ckrow">
+        <input type="checkbox" data-id="${item.id}" ${assigned.has(item.id) ? 'checked' : ''}>
+        <span class="ckname">${esc(item.name)}</span>
+        <span class="ckmeta">${item.updated}</span>
+      </label>
+    `).join('') : `<div class="emptyrow">${q ? '沒有符合搜尋的結果' : '全站庫目前沒有資料'}</div>`;
+  document.getElementById(isTopic ? 'apick_topic_count' : 'apick_style_count').textContent = `已勾選 ${assigned.size} / ${data.length}`;
+}
+function bindPickEvents(kind){
+  const isTopic = kind === 'topic';
+  const wrap = document.getElementById(isTopic ? 'apick_topic' : 'apick_style');
+  wrap.addEventListener('change', (e)=>{
+    const cb = e.target.closest('input[type=checkbox]'); if(!cb) return;
+    const id = cb.dataset.id;
+    const set = isTopic ? ASSIGN[curConsultant].topics : ASSIGN[curConsultant].styles;
+    if (cb.checked) set.add(id); else {
+      set.delete(id);
+      if (!isTopic){
+        const m = ASSIGN[curConsultant].mapping;
+        if (m.topic === id) m.topic = '';
+        if (m.job === id) m.job = '';
+      }
+    }
+    renderPickList(kind);
+    renderMapping();
+  });
+  document.getElementById(isTopic ? 'apick_topic_search' : 'apick_style_search').addEventListener('input', ()=>renderPickList(kind));
+}
+bindPickEvents('topic');
+bindPickEvents('style');
+
+function renderMapping(){
+  const styleIds = ASSIGN[curConsultant].styles;
+  const picked = GLOBAL_STYLES.filter(s=>styleIds.has(s.id));
+  const opts = '<option value="">（不指定，用預設語氣）</option>' +
+    picked.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
+  const mt = document.getElementById('mapTopic'), mj = document.getElementById('mapJob');
+  mt.innerHTML = opts; mj.innerHTML = opts;
+  mt.value = ASSIGN[curConsultant].mapping.topic || '';
+  mj.value = ASSIGN[curConsultant].mapping.job || '';
+  document.getElementById('mapsaved').style.display = 'none';
+}
+document.getElementById('savemap').addEventListener('click', ()=>{
+  ASSIGN[curConsultant].mapping.topic = document.getElementById('mapTopic').value;
+  ASSIGN[curConsultant].mapping.job = document.getElementById('mapJob').value;
+  document.getElementById('mapsaved').style.display = 'block';
+  toast('✓ 設定已儲存');
+  renderApplyHint();
+});
+
+function renderAll(){
+  renderConsultantSelect();
+  renderGlobalLib('topic');
+  renderGlobalLib('style');
+  renderPickList('topic');
+  renderPickList('style');
+  renderMapping();
+  refreshTopicSelect();
+  renderApplyHint();
+  refreshCalTopicSelect();
+  renderBoard();
+}
+
+renderAll();
+refreshGoState();
+refreshCalGoState();
+</script>
+</html>
