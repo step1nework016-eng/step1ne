@@ -416,16 +416,16 @@ function fieldHtml(q){
   var cls = q.aiFilled ? ' class="aiFilled"' : '';
   var body = '';
   if(q.type==='text'){
-    body = '<input'+cls+' value="'+ (q.v||'') +'" placeholder="還沒填，點這裡輸入">';
+    body = '<input'+cls+' value="'+ (q.v||'') +'" placeholder="還沒填，點這裡輸入" onchange="textChange(\''+q.k+'\',this.value)">';
   } else if(q.type==='textarea'){
-    body = '<textarea'+cls+' placeholder="還沒填，點這裡輸入">'+ (q.v||'') +'</textarea>';
+    body = '<textarea'+cls+' placeholder="還沒填，點這裡輸入" onchange="textChange(\''+q.k+'\',this.value)">'+ (q.v||'') +'</textarea>';
   } else if(q.type==='chips'){
     body = '<div class="chipRow">' + q.opts.map(function(o){
-      return '<span class="chip'+(o===q.v?' picked':'')+'">'+o+'</span>';
+      return '<span class="chip'+(o===q.v?' picked':'')+'" onclick="chipClick(\''+q.k+'\',\''+o+'\')">'+o+'</span>';
     }).join('') + '</div>';
   } else if(q.type==='multichip'){
     body = '<div class="chipRow">' + q.opts.map(function(o){
-      return '<span class="chip'+((q.v||[]).indexOf(o)>=0?' picked':'')+'">'+o+'</span>';
+      return '<span class="chip'+((q.v||[]).indexOf(o)>=0?' picked':'')+'" onclick="multichipClick(\''+q.k+'\',\''+o+'\')">'+o+'</span>';
     }).join('') + '</div>';
   }
   var hint = q.hint ? '<div class="hint">'+q.hint+'</div>' : '';
@@ -440,9 +440,32 @@ function fieldHtml(q){
   return '<div'+missCls+' data-k="'+q.k+'"><label>'+showLabel+reqMark+'</label>'+hint+body+aiTag+flag+'</div>';
 }
 
+// 卡片狀態現在跟著實際填的值算，不是寫死的——不然點了選項，進度環跟勾勾
+// 都不會動，測起來又會像壞掉。有 flag 觸發中＝警示；核心欄位全空＝還沒填；
+// 其餘算已完成（不要求每個欄位都填，呼應「沒填也能發布」那個決定）。
+function computeState(d){
+  var all = d.core.concat(d.more);
+  var hasFlag = all.some(function(q){ return q.flag && !isFieldEmpty(q); });
+  if(hasFlag) return 'warn';
+  var allEmpty = d.core.every(function(q){ return isFieldEmpty(q); });
+  if(allEmpty) return 'empty';
+  return 'done';
+}
+function computeSummary(d){
+  var all = d.core.concat(d.more);
+  var flagged = all.filter(function(q){ return q.flag && !isFieldEmpty(q); });
+  if(flagged.length) return '有 '+flagged.length+' 處建議調整';
+  var vals = d.core.map(function(q){
+    if(isFieldEmpty(q)) return null;
+    if(q.type==='multichip') return q.v.join('、');
+    return String(q.v);
+  }).filter(Boolean);
+  return vals.length ? vals.slice(0,3).join('・') : '還沒填';
+}
+
 function render(){
   var wrap = document.getElementById('cardsWrap');
-  var doneCount = DATA.filter(function(d){return d.state==='done';}).length;
+  var doneCount = DATA.filter(function(d){return computeState(d)==='done';}).length;
   document.getElementById('progText').textContent = doneCount+'/'+DATA.length;
   var pct = doneCount/DATA.length;
   document.getElementById('progCircle').setAttribute('stroke-dashoffset', 264*(1-pct));
@@ -453,8 +476,8 @@ function render(){
     return '<div class="card" data-i="'+i+'">'
       + '<div class="cardHead" onclick="toggleCard('+i+')">'
         + '<div class="ic">'+svgIcon(d.ic,22)+'</div>'
-        + '<div class="mid"><b>'+d.title+diffBadge+'</b><span>'+d.summary+'</span></div>'
-        + stateDotHtml(d.state)
+        + '<div class="mid"><b>'+d.title+diffBadge+'</b><span>'+computeSummary(d)+'</span></div>'
+        + stateDotHtml(computeState(d))
         + '<span class="chev">▾</span>'
       + '</div>'
       + '<div class="cardBody"><div class="cardInner">'
@@ -537,6 +560,49 @@ function doImport(){
     render();
     document.querySelector('.card[data-i="4"]').classList.add('open');
   }, 2200);
+}
+
+function fieldByKey(key){
+  for(var i=0;i<DATA.length;i++){
+    var all = DATA[i].core.concat(DATA[i].more);
+    for(var j=0;j<all.length;j++) if(all[j].k===key) return all[j];
+  }
+  return null;
+}
+
+// 點下去要重畫整張卡，但不能把使用者剛展開的卡片/更多欄位收回去，
+// 不然每點一個選項畫面就跳一次，體驗比不能點還糟。
+function rerenderKeepOpen(){
+  var openIdx = [];
+  document.querySelectorAll('.card.open').forEach(function(el){ openIdx.push(el.dataset.i); });
+  render();
+  openIdx.forEach(function(i){
+    var el = document.querySelector('.card[data-i="'+i+'"]');
+    if(el) el.classList.add('open');
+  });
+}
+
+function chipClick(key, opt){
+  var q = fieldByKey(key);
+  if(!q) return;
+  q.v = (q.v===opt) ? '' : opt;
+  rerenderKeepOpen();
+}
+
+function multichipClick(key, opt){
+  var q = fieldByKey(key);
+  if(!q) return;
+  q.v = q.v || [];
+  var idx = q.v.indexOf(opt);
+  if(idx>=0) q.v.splice(idx,1); else q.v.push(opt);
+  rerenderKeepOpen();
+}
+
+function textChange(key, val){
+  var q = fieldByKey(key);
+  if(!q) return;
+  q.v = val;
+  rerenderKeepOpen();
 }
 
 function isFieldEmpty(q){
