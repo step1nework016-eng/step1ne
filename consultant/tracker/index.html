@@ -1101,9 +1101,12 @@ function resumeLinksHtml(c, extra) {
   // resume_url（外部連結，例如雲端資料夾）——同一位人選，客戶portal是
   // 看 resume_file_id || resume_url 判斷有沒有履歷，這裡漏了後者，變成
   // 客戶那邊看得到「下載履歷」，顧問這邊卻顯示「尚未提供」，兩邊兜不起來。
+  // 2026-09-03 加：有真的檔案就以檔案為主，resume_url 這種外部連結
+  // （可能是雲端資料夾，不一定乾淨）只在沒有檔案時當備援顯示，跟客戶portal
+  // 下載端點的優先順序一致，不要兩邊各顯示各的讓顧問誤點。
   var links = [];
   if (c.resume_file_id) links.push('<a href="#" class="dlres" data-f="' + esc(c.resume_file_id) + '">下載</a>');
-  if (c.resume_url) links.push('<a href="' + esc(c.resume_url) + '" target="_blank" rel="noopener">履歷連結</a>');
+  else if (c.resume_url) links.push('<a href="' + esc(c.resume_url) + '" target="_blank" rel="noopener">履歷連結</a>');
   extra.forEach(function (f) { links.push('<a href="#" class="dlres" data-f="' + esc(f.file_id) + '">' + esc(f.filename) + '</a>'); });
   return links.length ? links.join('　') : '<span class="mut">尚未提供</span>';
 }
