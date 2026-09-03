@@ -438,6 +438,14 @@ table.gap td.stale{color:#c0392b}
       <div class="card">
         <label>我是哪位顧問？</label>
         <select id="csAccount"><option value="">載入中…</option></select>
+        <label style="margin-top:14px">先選發文管道，縮小職缺範圍<span class="mut">（只列這個管道實際發過文的職缺）</span></label>
+        <select id="csChannel">
+          <option value="">全部管道</option>
+          <option value="threads">Threads</option>
+          <option value="linkedin">LinkedIn</option>
+        </select>
+        <label style="margin-top:14px">或先選客戶，縮小職缺範圍</label>
+        <select id="csClient"><option value="">全部客戶</option></select>
         <label style="margin-top:14px">搜尋職缺</label>
         <input type="search" id="csSearch" placeholder="輸入職缺名稱或客戶…">
       </div>
@@ -1838,14 +1846,39 @@ function csLoadAccounts() {
   });
 }
 
+// 2026-09-03 加：搜尋文字之外，再加兩種一步步縮小範圍的方式——
+// 先選發文管道（只列這個管道實際發過文的職缺，platforms 是逗號分隔字串，
+// 還沒發過文的職缺是 null）、或先選客戶。三種篩選同時套用（AND），
+// 都留空就等於只看搜尋文字。
+function csPopulateClients() {
+  var byId = {};
+  (CS_JOBS || []).forEach(function (j) {
+    var key = j.company_id ? String(j.company_id) : '__none__';
+    if (!byId[key]) byId[key] = j.client_name || '（未指定客戶）';
+  });
+  var ids = Object.keys(byId).sort(function (a, b) { return byId[a].localeCompare(byId[b], 'zh-Hant'); });
+  var cur = $('csClient').value;
+  $('csClient').innerHTML = '<option value="">全部客戶</option>' + ids.map(function (id) {
+    return '<option value="' + id + '">' + esc(byId[id]) + '</option>';
+  }).join('');
+  if (cur) $('csClient').value = cur;
+}
+
 function csRenderList() {
   var q = ($('csSearch').value || '').trim().toLowerCase();
+  var channel = $('csChannel').value;
+  var clientKey = $('csClient').value;
   var jobs = (CS_JOBS || []).filter(function (j) {
+    if (channel && (j.platforms || '').indexOf(channel) < 0) return false;
+    if (clientKey) {
+      var key = j.company_id ? String(j.company_id) : '__none__';
+      if (key !== clientKey) return false;
+    }
     if (!q) return true;
     return (j.title || '').toLowerCase().indexOf(q) >= 0 || (j.client_name || '').toLowerCase().indexOf(q) >= 0;
   });
   if (!jobs.length) {
-    $('csList').innerHTML = '<div class="note">' + (q ? '沒有符合搜尋的職缺' : '還沒有任何職缺的摘要，請先跑 candidate_summary_tick.py 產生') + '</div>';
+    $('csList').innerHTML = '<div class="note">' + ((q || channel || clientKey) ? '沒有符合篩選條件的職缺' : '還沒有任何職缺的摘要，請先跑 candidate_summary_tick.py 產生') + '</div>';
     return;
   }
   $('csList').innerHTML = jobs.map(function (j, i) {
@@ -1876,6 +1909,7 @@ function loadCandidateSummaries() {
   csLoadAccounts();
   api('/admin/candidate-summaries').then(function (r) {
     CS_JOBS = (r.ok && r.jobs) || [];
+    csPopulateClients();
     csRenderList();
   }).catch(function () { $('csList').innerHTML = '<div class="note">連線失敗</div>'; });
 }
@@ -1883,6 +1917,8 @@ $('csAccount').addEventListener('change', function () {
   localStorage.setItem(CS_ACCOUNT_KEY, $('csAccount').value || '');
 });
 $('csSearch').addEventListener('input', csRenderList);
+$('csChannel').addEventListener('change', csRenderList);
+$('csClient').addEventListener('change', csRenderList);
 
 </script>
 <script defer src="/consultant/_shell.js">
