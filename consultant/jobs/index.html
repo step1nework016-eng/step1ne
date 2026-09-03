@@ -701,6 +701,96 @@ function jdEditHtml(spec) {
     + '</div>';
 }
 
+// 2026-09-03 加：用人事實分頁——跟客戶用人需求表（portal/index.html）
+// 寫的是同一批 53 個欄位（JOB_FACT_FIELDS），LABELS／isLong 兩份清單
+// 刻意跟 portal 那邊逐字對齊，兩邊改標籤要記得一起改，不然客戶跟顧問
+// 看到的欄位名稱會兜不起來。存檔走新的 {facts:{...}} 路徑，跟上面
+// jdEditHtml() 存的行銷文案（{fields:{...}}）是兩批不同語意的資料，
+// 各自獨立存、互不覆蓋。
+var FACTS_LABELS = {
+  client_name: '公司名稱', client_screen_conditions: '用人條件補充說明', faq_notes: '常見問題／FAQ說明',
+  salary_note: '薪資補充說明',
+  title: '職缺名稱', client_intro: '公司簡介', hiring_manager: '用人主管',
+  years_min: '最低年資要求', must_skills: '必要技能',
+  salary_min: '薪資下限', salary_max: '薪資上限', salary_unit: '薪資單位',
+  locations: '工作地點', employment: '聘僱型態', onboard_by: '希望到職日',
+  team_size: '團隊人數與組成', interview_rounds: '面試次數', interview_stage_config: '面試輪數設定',
+  interview_who: '面試官', has_test: '是否有測驗',
+  client_contact_name: '聯絡窗口', client_contact_phone: '聯絡電話',
+  headcount: '需求人數', work_mode: '辦公型態',
+  work_hours: '上班時間', leave_policy: '休假方式', employment_period: '工作期間', overtime_policy: '加班情形',
+  hiring_reason: '招募原因', urgency: '急迫程度',
+  main_duties: '主要工作職責', reports_to: '直接匯報對象', leads_team: '是否帶團隊',
+  education_level: '學歷要求', required_conditions: '必備條件', language_requirement: '語言能力',
+  nice_to_have_skills: '加分技能／經驗', preferred_background: '偏好背景', personality_traits: '期望人格特質',
+  salary_tier_table: '薪資分級表', salary_structure_note: '薪資結構說明',
+  benefits_detail: '福利與津貼', dispatch_to_permanent_policy: '派遣／轉正條件', off_limits_note: '同業限制',
+  dispatch_client: '實際要派單位／進駐專案', department: '所屬部門／團隊',
+  work_environment_ratio: '工作環境現場比重', attendance_method: '出勤紀錄方式',
+  interview_process: '面試流程與關卡', dispatch_range: '專案調派範圍',
+  contract_terms_note: '保密／競業／最低服務年限', overtime_detail: '加班細項',
+  onboarding_prep_note: '錄取後前置作業',
+};
+var FACTS_LONG_KEYS = ['main_duties', 'required_conditions', 'benefits_detail', 'salary_tier_table',
+  'overtime_detail', 'salary_structure_note', 'dispatch_to_permanent_policy', 'contract_terms_note',
+  'client_intro', 'client_screen_conditions', 'faq_notes', 'salary_note'];
+var FACTS_EMPLOYMENT_OPTIONS = { FULL_TIME: '正職', PART_TIME: '兼職', TEMPORARY: '臨時／派遣',
+  CONTRACTOR: '承攬／約聘', INTERN: '實習' };
+var FACTS_KEYS = Object.keys(FACTS_LABELS).filter(function (k) { return k !== 'interview_stage_config'; });
+
+function jdFactsHtml(facts) {
+  facts = facts || {};
+  var filled = FACTS_KEYS.filter(function (k) { return facts[k] !== null && facts[k] !== undefined && facts[k] !== ''; }).length;
+  var rows = FACTS_KEYS.map(function (k) {
+    var val = facts[k] == null ? '' : facts[k];
+    var el;
+    if (k === 'employment') {
+      el = '<select id="jdfact_' + k + '"><option value="">— 請選擇 —</option>'
+        + Object.keys(FACTS_EMPLOYMENT_OPTIONS).map(function (o) {
+            return '<option value="' + o + '"' + (val === o ? ' selected' : '') + '>' + esc(FACTS_EMPLOYMENT_OPTIONS[o]) + '</option>';
+          }).join('') + '</select>';
+    } else if (FACTS_LONG_KEYS.indexOf(k) >= 0) {
+      el = '<textarea id="jdfact_' + k + '" style="min-height:80px">' + esc(val) + '</textarea>';
+    } else {
+      el = '<input id="jdfact_' + k + '" type="text" value="' + esc(val) + '">';
+    }
+    return '<label for="jdfact_' + k + '">' + esc(FACTS_LABELS[k]) + '</label>' + el;
+  }).join('');
+  return '<p class="jdhint">這批是「用人事實」，跟客戶在用人需求表填的是同一批欄位、同一份資料——'
+    + '改這裡等於幫客戶改，存檔後會自動重新生成對外文案並上線，不用另外去「編輯」分頁謄一次。'
+    + '目前已填 ' + filled + ' / ' + FACTS_KEYS.length + '。</p>'
+    + rows
+    + '<button type="button" class="jdbtn" id="jdFactsSave">存檔（自動重新生成文案並上線）</button>'
+    + '<div class="jdmsg" id="jdFactsMsg"></div>';
+}
+
+function jdWireFacts() {
+  document.getElementById('jdFactsSave').onclick = function () {
+    var msg = document.getElementById('jdFactsMsg');
+    var facts = {}, changed = 0;
+    FACTS_KEYS.forEach(function (k) {
+      var el = document.getElementById('jdfact_' + k); if (!el) return;
+      var val = el.value;
+      var cur = JD_CUR.facts && JD_CUR.facts[k] != null ? String(JD_CUR.facts[k]) : '';
+      if (val === cur) return;
+      facts[k] = val; changed++;
+    });
+    if (!changed) { msg.className = 'jdmsg err'; msg.textContent = '沒有改到東西'; return; }
+    var btn = document.getElementById('jdFactsSave');
+    btn.disabled = true; msg.className = 'jdmsg'; msg.textContent = '儲存中…';
+    api('/admin/jobs/' + encodeURIComponent(JD_CUR.slug) + '/content', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ facts: facts }),
+    }).then(function (d) {
+      btn.disabled = false;
+      if (!d.ok) { msg.className = 'jdmsg err'; msg.textContent = d.error || d.message || '儲存失敗'; return; }
+      msg.className = 'jdmsg ok'; msg.textContent = '已存檔，AI 正在重新生成文案，稍後會自動上線。';
+      Object.assign(JD_CUR.facts, facts);
+      toast('用人事實已存檔，稍後自動上線');
+    }).catch(function () { btn.disabled = false; msg.className = 'jdmsg err'; msg.textContent = '連不上伺服器'; });
+  };
+}
+
 function jdRenderTab(tab) {
   var wrap = document.getElementById('jdwrap'); if (!wrap) return;
   Array.prototype.forEach.call(wrap.querySelectorAll('.jdtab'), function (b) {
@@ -708,6 +798,7 @@ function jdRenderTab(tab) {
   });
   var body = document.getElementById('jdTabBody');
   if (tab === 'forms') { body.innerHTML = '<p class="mut">載入中⋯</p>'; jdLoadForms(); return; }
+  if (tab === 'facts') { body.innerHTML = jdFactsHtml(JD_CUR.facts); jdWireFacts(); return; }
   body.innerHTML = tab === 'view' ? jdViewHtml(JD_CUR.spec) : jdEditHtml(JD_CUR.spec);
   if (tab === 'edit') jdWireEdit();
 }
@@ -848,7 +939,7 @@ document.addEventListener('click', function (e) {
   $('mask').hidden = false; $('modal').hidden = false;
   api('/admin/jobs/' + encodeURIComponent(slug) + '/content').then(function (d) {
     if (!d.ok) { $('mbody').innerHTML = '<div id="jdwrap"><p class="mut">讀取失敗：' + esc(d.error || '') + '</p></div>'; return; }
-    JD_CUR = { slug: slug, spec: d.spec || {}, mismatched: !!d.mismatched, extraSections: d.extraSections || [] };
+    JD_CUR = { slug: slug, spec: d.spec || {}, facts: d.facts || {}, mismatched: !!d.mismatched, extraSections: d.extraSections || [] };
     var flags = '';
     if (d.source === 'backfilled_from_intake') {
       flags += '<div class="jdflag">這份內容是從當初的收件單抓來的底稿，還沒有人在這裡存過檔——存一次之後往後都會準。</div>';
@@ -869,10 +960,14 @@ document.addEventListener('click', function (e) {
     if (d.mismatched) {
       flags += '<div class="jdflag bad">⚠️ 這頁不是標準樣板，有客製內容（' + esc(d.extraSections.join('、')) + '），去「編輯」分頁存檔前會再提醒一次。</div>';
     }
+    if (d.ai_draft_pending) {
+      flags += '<div class="jdflag">🤖 用人事實剛被改過，AI 正在重新生成對外文案，稍後會自動上線（不用手動處理）。</div>';
+    }
     $('mbody').innerHTML = '<div id="jdwrap">' + flags
       + '<div class="jdtabs">'
       + '<button type="button" class="jdtab on" data-tab="view">查看</button>'
       + '<button type="button" class="jdtab" data-tab="edit">編輯</button>'
+      + '<button type="button" class="jdtab" data-tab="facts">用人事實</button>'
       + '<button type="button" class="jdtab" data-tab="forms">客製表單</button>'
       + '</div><div id="jdTabBody"></div></div>';
     Array.prototype.forEach.call(document.querySelectorAll('#jdwrap .jdtab'), function (b) {
