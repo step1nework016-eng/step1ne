@@ -76,14 +76,25 @@ button.ghost:hover{border-color:var(--gold);color:var(--gold)}
 .day:hover{border-color:var(--gold)}
 .day.pad{background:transparent;border:0;cursor:default;min-height:0}
 .day.today{border-color:var(--gold);box-shadow:0 0 0 2px rgba(166,124,61,.16)}
-.day .dn{font-size:10.5px;color:var(--ink3);font-variant-numeric:tabular-nums}
+.day.dup{border-color:#c0392b}
+.day .dn{font-size:10.5px;color:var(--ink3);font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:3px}
 .chip{font-size:9px;line-height:1.35;border-radius:3px;padding:1px 3px;background:var(--soft);color:var(--ink2);
-  border-left:2px solid var(--gold);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  border-left:2px solid var(--gold);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;gap:3px}
 .chip.job{border-left-color:#2f5fd8}
 .chip.general{border-left-color:#8a5a2b}
 .chip.ai{border-left-color:#6b5a8f}
+.chip.dupc{background:#fbeceb}
+.chip .plat{font-size:8px;font-weight:800;color:var(--ink3);flex:none}
 .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11.5px;color:var(--ink3);margin-top:10px}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+#ckpi{display:grid;gap:7px;grid-template-columns:repeat(4,1fr);margin-bottom:12px}
+@media(max-width:560px){#ckpi{grid-template-columns:repeat(2,1fr)}}
+#ckpi .k{background:#fff;border:1px solid var(--line);border-radius:9px;padding:8px 10px}
+#ckpi .k b{display:block;font-size:18px;font-variant-numeric:tabular-nums;line-height:1.25}
+#ckpi .k span{font-size:11.5px;color:var(--ink3);display:block;margin-top:2px;line-height:1.45}
+.calnav{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.calnav button{font:inherit;font-size:12.5px;font-weight:700;background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:6px 13px;cursor:pointer;color:var(--ink)}
+.calnav b{font-size:15px}
 .subtabs{display:flex;gap:6px;background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:4px;margin-bottom:16px}
 .subtabs button{flex:1;font:inherit;font-weight:700;font-size:12.5px;padding:9px 4px;border:0;border-radius:9px;background:transparent;color:var(--ink2);cursor:pointer}
 .subtabs button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.1)}
@@ -199,12 +210,21 @@ button.ghost:hover{border-color:var(--gold);color:var(--gold)}
       </div>
 
       <div class="card">
-        <div class="sechd"><h3 style="margin:0;font-size:15px">2026 年 9 月</h3></div>
+        <div id="ckpi"></div>
+        <div class="calnav">
+          <button type="button" id="calprev">← 上個月</button>
+          <b id="calmlabel"></b>
+          <button type="button" id="calnext">下個月 →</button>
+        </div>
         <div class="cal" id="calgrid"></div>
         <div class="legend">
           <span><i style="background:#2f5fd8"></i>職缺文</span>
           <span><i style="background:#8a5a2b"></i>通用文</span>
           <span><i style="background:#6b5a8f"></i>AI阿財話題</span>
+          <span style="margin-left:auto"></span>
+          <span><i style="background:#5a7d9a"></i>Threads</span>
+          <span><i style="background:#2f6ea8"></i>LinkedIn</span>
+          <span><i style="background:#c0392b"></i>同一個顧問重複發同職缺</span>
         </div>
       </div>
 
@@ -285,7 +305,7 @@ button.ghost:hover{border-color:var(--gold);color:var(--gold)}
       <div class="subtabs" id="settingssubtabs">
         <button type="button" class="on" data-sub="topics">📝 話題提示詞庫</button>
         <button type="button" data-sub="assign">👤 顧問指派</button>
-        <button type="button" data-sub="jobstyles">職缺文提示詞庫</button>
+        <button type="button" data-sub="jobstyles">🎨 職缺風格提示詞庫</button>
       </div>
 
       <div id="sub-topics">
@@ -308,7 +328,7 @@ button.ghost:hover{border-color:var(--gold);color:var(--gold)}
       <div id="sub-jobstyles" hidden>
         <div class="note">職缺文的三種寫法（純CTA型／對話討論型／原始格式），各自的完整提示詞放在這裡管理，一鍵發文選子類型時會對應套用。</div>
         <div class="card">
-          <div class="sechd"><h3>📋 職缺文提示詞庫</h3><span class="mut" id="stylecnt"></span></div>
+          <div class="sechd"><h3>🎨 職缺風格提示詞庫</h3><span class="mut" id="stylecnt"></span></div>
           <div class="searchbar"><input type="search" id="stylesearch" placeholder="搜尋提示詞名稱…"></div>
           <div id="styleglobal" class="growlist"></div>
           <div id="styleform" class="form" hidden></div>
@@ -804,50 +824,97 @@ document.getElementById('cgo').addEventListener('click', ()=>{
 refreshCalGoState();
 
 // ── 月曆本體：跟線上版一樣，點一天跳出彈窗（不是滑到表單）──
+// 圖例雙軌並存：平台別＋重複警告是正式版本來就有的，職缺文/通用文/AI阿財
+// 話題三分類是這次demo要展示的新東西——不是二選一，兩層資訊同時放在
+// 同一個chip上（左邊色條＝分類，右上角字母＝平台，紅底＝重複警告）。
 const TYPE_LABEL = { job:'📋 職缺文', general:'💼 通用文', ai:'🤖 AI阿財話題' };
 const CAL_EVENTS = {
   '2026-09-02': [
-    { who:'DR', type:'job', title:'主管特助（日本東京／長野白馬）' },
-    { who:'Phoebe', type:'job', title:'日本項目財務會計' },
-    { who:'Anna', type:'job', title:'BIM 工程師' },
-    { who:'法蘭克', type:'general', title:'加薪留才 vs 直接跳槽' },
+    { who:'DR', type:'job', title:'主管特助（日本東京／長野白馬）', platform:'threads', slug:'exec-assistant-tokyo' },
+    { who:'Phoebe', type:'job', title:'日本項目財務會計', platform:'linkedin', slug:'jp-finance-acct' },
+    { who:'Anna', type:'job', title:'BIM 工程師', platform:'threads', slug:'bim-engineer-tongluo' },
+    { who:'法蘭克', type:'general', title:'加薪留才 vs 直接跳槽', platform:'threads' },
   ],
-  '2026-09-03': [{ who:'法蘭克', type:'job', title:'BIM工程師跟繪圖師的差異' }],
-  '2026-09-04': [{ who:'Bob', type:'general', title:'HR最怕收到哪種履歷' }],
-  '2026-09-05': [{ who:'DR', type:'ai', title:'AI面談會不會讓求職者更緊張' }],
+  '2026-09-03': [
+    { who:'法蘭克', type:'job', title:'BIM工程師跟繪圖師的差異', platform:'threads', slug:'bim-engineer-tongluo' },
+    { who:'法蘭克', type:'job', title:'BIM工程師跟繪圖師的差異（重複貼一次）', platform:'threads', slug:'bim-engineer-tongluo' },
+  ],
+  '2026-09-04': [{ who:'Bob', type:'general', title:'HR最怕收到哪種履歷', platform:'threads' }],
+  '2026-09-05': [{ who:'DR', type:'ai', title:'AI面談會不會讓求職者更緊張', platform:'threads' }],
   '2026-09-08': [
-    { who:'法蘭克', type:'job', title:'應徵接待員的經歷要注意什麼' },
-    { who:'Bob', type:'general', title:'加薪留才 vs 直接跳槽' },
+    { who:'法蘭克', type:'job', title:'應徵接待員的經歷要注意什麼', platform:'threads', slug:'receptionist' },
+    { who:'Bob', type:'general', title:'加薪留才 vs 直接跳槽', platform:'linkedin' },
   ],
-  '2026-09-09': [{ who:'DR', type:'ai', title:'先跟AI談還是直接跟顧問談比較好' }],
-  '2026-09-10': [{ who:'法蘭克', type:'general', title:'HR最怕收到哪種履歷' }],
+  '2026-09-09': [{ who:'DR', type:'ai', title:'先跟AI談還是直接跟顧問談比較好', platform:'threads' }],
+  '2026-09-10': [{ who:'法蘭克', type:'general', title:'HR最怕收到哪種履歷', platform:'threads' }],
 };
 const CAL_ACCOUNTS = [
   { id:1, label:'法蘭克 - Threads', who:'法蘭克' },
   { id:2, label:'Bob - Threads', who:'Bob' },
   { id:3, label:'DR - Threads', who:'DR' },
 ];
+// KPI裡「整月一次都沒發的職缺」要有分母——示範資料，不是真的職缺庫。
+const CAL_ALL_JOBS = ['exec-assistant-tokyo','jp-finance-acct','bim-engineer-tongluo','receptionist','backend-engineer-game','senior-mech-design'];
+
+let calYear = 2026, calMonth = 8; // 9月，0-indexed；示範資料只填了9月，切到別月會是空的
+
+// 重複＝同一天、同一個顧問、同一個職缺（slug）發兩次以上——跟正式版同一套規則，
+// 通用文/AI阿財話題沒有slug，不參與這個判斷。
+function calDupKeys(list){
+  const c = {};
+  list.forEach(e=>{ if(!e.slug) return; const k=e.who+'|'+e.slug; c[k]=(c[k]||0)+1; });
+  return Object.keys(c).filter(k=>c[k]>1);
+}
+function calIsDup(list, e){ return !!e.slug && calDupKeys(list).includes(e.who+'|'+e.slug); }
+
+function renderCalKpi(){
+  const mk = `${calYear}-${String(calMonth+1).padStart(2,'0')}`;
+  const inMonth = Object.keys(CAL_EVENTS).filter(k=>k.startsWith(mk)).flatMap(k=>CAL_EVENTS[k]);
+  const dupDays = Object.keys(CAL_EVENTS).filter(k=>k.startsWith(mk) && calDupKeys(CAL_EVENTS[k]).length);
+  const jobsPosted = new Set(inMonth.filter(e=>e.slug).map(e=>e.slug));
+  document.getElementById('ckpi').innerHTML =
+     `<div class="k"><b>${inMonth.length}</b><span>這個月排／發的則數</span></div>`
+    +`<div class="k"><b style="color:#c0392b">${dupDays.length}</b><span>有人重複發同職缺的天數</span></div>`
+    +`<div class="k"><b>${jobsPosted.size}<span style="font-size:14px;color:var(--ink3)"> / ${CAL_ALL_JOBS.length}</span></b><span>這個月有露出的職缺</span></div>`
+    +`<div class="k"><b>${CAL_ALL_JOBS.length-jobsPosted.size}</b><span>整個月一次都沒發的職缺</span></div>`;
+}
 
 function renderCalGrid(){
   const grid = document.getElementById('calgrid');
-  const year = 2026, month = 8; // 9月，0-indexed
-  const first = new Date(year, month, 1);
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  document.getElementById('calmlabel').textContent = `${calYear} 年 ${calMonth+1} 月`;
+  const first = new Date(calYear, calMonth, 1);
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
   const startDow = first.getDay();
   const todayKey = '2026-09-03';
   let html = ['日','一','二','三','四','五','六'].map(d=>`<div class="dow">${d}</div>`).join('');
   for (let i = 0; i < startDow; i++) html += '<div class="day pad"></div>';
   for (let d = 1; d <= daysInMonth; d++) {
-    const key = `2026-09-${String(d).padStart(2,'0')}`;
+    const key = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const evs = CAL_EVENTS[key] || [];
-    const chips = evs.map(e => `<div class="chip ${e.type}">${esc(e.who)}</div>`).join('');
-    html += `<div class="day${key===todayKey?' today':''}" data-date="${key}"><div class="dn">${d}</div>${chips}</div>`;
+    const dups = calDupKeys(evs);
+    const chips = evs.slice(0,3).map(e => {
+      const bad = calIsDup(evs, e);
+      const plat = e.platform==='linkedin' ? 'LI' : 'TH';
+      return `<div class="chip ${e.type}${bad?' dupc':''}"><span class="plat">${plat}</span>${esc(e.who)}</div>`;
+    }).join('');
+    html += `<div class="day${dups.length?' dup':''}${key===todayKey?' today':''}" data-date="${key}">`
+      + `<div class="dn">${d}${dups.length?' ⚠️':''}</div>${chips}${evs.length>3?`<div class="mut" style="font-size:9px">+${evs.length-3}</div>`:''}</div>`;
   }
   grid.innerHTML = html;
   grid.querySelectorAll('.day[data-date]').forEach(el=>{
     el.addEventListener('click', ()=>openCalDay(el.dataset.date));
   });
+  renderCalKpi();
 }
+
+document.getElementById('calprev').addEventListener('click', ()=>{
+  calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; }
+  renderCalGrid();
+});
+document.getElementById('calnext').addEventListener('click', ()=>{
+  calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; }
+  renderCalGrid();
+});
 
 let calModalWho = '';
 function openCalDay(dateKey){
@@ -866,13 +933,16 @@ function renderCalDayList(dateKey){
   const all = CAL_EVENTS[dateKey] || [];
   const list = calModalWho ? all.filter(e=>e.who===calModalWho) : all;
   document.getElementById('cmodalcounttitle').textContent = `這一天的安排（${all.length}）`;
-  document.getElementById('cmodallist').innerHTML = list.length ? list.map(e=>`
+  document.getElementById('cmodallist').innerHTML = list.length ? list.map(e=>{
+    const bad = calIsDup(all, e);
+    return `
     <div class="ent">
-      <span class="who">${esc(e.who)}<br><span style="font-size:11px;color:var(--ink3)">Threads</span></span>
-      <span class="jb">${TYPE_LABEL[e.type]}<br>${esc(e.title)}</span>
+      <span class="who">${esc(e.who)}<br><span style="font-size:11px;color:var(--ink3)">${e.platform==='linkedin'?'LinkedIn':'Threads'}</span></span>
+      <span class="jb">${TYPE_LABEL[e.type]}<br>${esc(e.title)}${bad?'<br><span style="color:#c0392b;font-weight:700">⚠️ 同一顧問重複發同職缺</span>':''}</span>
       <span class="st ok">已發布</span>
     </div>
-  `).join('') : '<p class="mut" style="margin:0">這一天還沒有安排。</p>';
+  `;
+  }).join('') : '<p class="mut" style="margin:0">這一天還沒有安排。</p>';
 }
 document.getElementById('cmodalwho').addEventListener('change', (e)=>{
   calModalWho = e.target.value;
