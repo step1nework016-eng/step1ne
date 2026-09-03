@@ -97,6 +97,7 @@ table.gap td.stale{color:#c0392b}
   border-left:2px solid #a67c3d;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .chip.th{border-left-color:#5a7d9a}.chip.li{border-left-color:#2f6ea8}
 .chip.dupc{background:#fdecea;color:#c0392b;border-left-color:#c0392b}
+.chip .cat{display:inline-block;width:6px;height:6px;border-radius:1px;margin-right:2px;vertical-align:1px}
 .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11.5px;color:#8a8d95;margin-top:10px}
 .more{font-size:9px;color:#8a8d95;line-height:1.3}
 /* 手機：一格只放數字＋幾則，chip 收起來——七欄擠在手機上放不下文字 */
@@ -311,6 +312,10 @@ table.gap td.stale{color:#c0392b}
         <span><i style="background:#5a7d9a"></i>Threads</span>
         <span><i style="background:#2f6ea8"></i>LinkedIn</span>
         <span><i style="background:#c0392b"></i>同一個顧問重複發同職缺</span>
+        <span style="margin-left:auto"></span>
+        <span><i style="background:#2f5fd8"></i>職缺文</span>
+        <span><i style="background:#8a5a2b"></i>通用文</span>
+        <span><i style="background:#6b5a8f"></i>AI阿財話題</span>
         <span>點任何一天可以排程</span>
       </div>
       <div id="cmodal"></div>
@@ -1266,9 +1271,11 @@ function renderCal(){
   for(let i=0;i<first;i++) h+='<div class="day pad"></div>';
   for(let d=1;d<=days;d++){
     const k=dayKey(y,m,d), list=evOn(k), dups=dupKeys(k);
+    const catColor = {job:'#2f5fd8', general:'#8a5a2b', ai:'#6b5a8f'};
     const chips = list.slice(0,2).map(e=>{
       const bad = dups.includes(e.slug+'|'+e.label);
-      return `<div class="chip ${e.platform==='linkedin'?'li':'th'}${bad?' dupc':''}" title="${esc(short(e.label))}｜${esc(jobTitle(e.slug))}">${esc(short(e.label)).slice(0,6)}·${esc(jobTitle(e.slug)).slice(0,5)}</div>`;
+      const dot = `<i class="cat" style="background:${catColor[e.category]||catColor.job}"></i>`;
+      return `<div class="chip ${e.platform==='linkedin'?'li':'th'}${bad?' dupc':''}" title="${esc(short(e.label))}｜${esc(jobTitle(e.slug))}">${dot}${esc(short(e.label)).slice(0,6)}·${esc(jobTitle(e.slug)).slice(0,5)}</div>`;
     }).join('');
     h += `<div class="day${dups.length?' dup':''}${k===TODAY?' today':''}" data-k="${k}">
       <div class="dn">${d}${dups.length?' ⚠️':''}${list.length?`<span style="margin-left:auto">${list.length}</span>`:''}</div>
@@ -1401,11 +1408,11 @@ function loadCal(){
     // 排好的（可以取消）跟已發的（不能動）放同一個陣列，重複檢查一次寫完。
     EV = d.planned.map(function(p){
           return {id:p.id, d:p.d, slug:p.job_slug, title:p.job_title, label:p.label,
-                  platform:p.platform, status:'planned', planned:true};
+                  platform:p.platform, category:p.category, status:'planned', planned:true};
         }).concat(d.actual.filter(function(a){return a.status!=='skipped'&&a.status!=='deleted'})
         .map(function(a){
           return {d:a.d, slug:a.job_slug, title:a.job_title, label:a.label,
-                  platform:a.platform, status:a.status, planned:false};
+                  platform:a.platform, category:a.category, status:a.status, planned:false};
         }));
     renderCal();
   });
