@@ -6,9 +6,71 @@
 <title>招募職缺｜顧問後台</title>
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
 <style>
-:root{--gold:#a67c3d;--ink:#23262d;--ink2:#4d5563;--ink3:#8a8d95;--line:#eee7db;--soft:#faf8f3;--bg:#f4f1ea;--ok:#2f8f5b;--bad:#c0392b}
+:root{--gold:#a67c3d;--ink:#23262d;--ink2:#4d5563;--ink3:#8a8d95;--line:#eee7db;--soft:#faf8f3;--bg:#f4f1ea;--ok:#2f8f5b;--bad:#c0392b;--warn:#c98a1e}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 -apple-system,"Noto Sans TC",sans-serif}
+/* ── 用人事實卡片式編輯器（2026-09-03 加，跟 portal/index.html 逐字同步） ── */
+#fcWrap{display:flex;flex-direction:column;gap:10px}
+.fcProgBar{font-size:12.5px;color:var(--ink3);font-weight:700;margin-bottom:10px}
+.fcCard{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.fcCardHead{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer}
+.fcMid{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.fcMid b{font-size:14.5px}
+.fcMid span{font-size:12.5px;color:var(--ink3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fcDot{width:22px;height:22px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex:none}
+.fcDot.done{background:#e5f4ea;color:var(--ok)}
+.fcDot.warn{background:#fbf1e1;color:var(--warn)}
+.fcDot.empty{background:var(--soft);color:var(--ink3)}
+.fcChev{color:var(--ink3);transition:transform .15s;flex:none}
+.fcCard.open .fcChev{transform:rotate(180deg)}
+.fcCardBody{max-height:0;overflow:hidden;transition:max-height .2s ease}
+.fcCard.open .fcCardBody{max-height:4000px}
+.fcCardInner{padding:2px 16px 16px}
+.fcBlock{margin-top:12px}
+.fcBlock:first-child{margin-top:0}
+.fcBlock label{display:block;font-size:12.5px;font-weight:700;color:var(--ink2);margin-bottom:6px}
+.fcReq{color:var(--bad);font-weight:700}
+.fcBlock input[type=text],.fcBlock input:not([type]),.fcBlock textarea{width:100%;box-sizing:border-box;font:inherit;font-size:14px;
+  border:1px solid var(--line);border-radius:9px;padding:9px 11px;background:#fff;color:var(--ink)}
+.fcBlock textarea{min-height:72px;resize:vertical;line-height:1.6}
+.fcBlock.miss input,.fcBlock.miss textarea{border-color:var(--bad)}
+.fcHint{font-size:12px;color:var(--ink3);margin-bottom:6px;line-height:1.6}
+.fcBlock input.aiFilled,.fcBlock textarea.aiFilled{border-color:var(--gold);background:#fdf6e9}
+.fcAiBadge{margin-top:5px;font-size:11.5px;color:var(--gold);font-weight:700}
+.fcFlag{margin-top:6px;background:#fbf1e1;border:1px solid #e8d5ab;border-radius:9px;padding:8px 11px;font-size:12px;color:#7a5a22;line-height:1.6}
+.fcChipRow{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:6px}
+.fcChip{font-size:13px;padding:6px 13px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--ink2);cursor:pointer;user-select:none}
+.fcChip.picked{background:var(--gold);border-color:var(--gold);color:#fff;font-weight:700}
+.fcMoreToggle{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--gold);font-weight:700;cursor:pointer;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.fcN{background:var(--soft);color:var(--ink3);border-radius:999px;padding:1px 7px;font-size:11px;font-weight:700}
+.fcMoreWrap{display:none}
+.fcMoreWrap.open{display:block}
+@keyframes fcJumpFlash{0%{box-shadow:0 0 0 3px var(--gold)}100%{box-shadow:0 0 0 0 rgba(166,124,61,0)}}
+.fcJump{animation:fcJumpFlash 1.1s ease}
+.fcJump input,.fcJump textarea{border-color:var(--gold)}
+#fcMissBanner{display:none;background:#fbeaea;border:1px solid #f3cdc7;color:var(--bad);border-radius:10px;padding:11px 14px;font-size:13px;margin-bottom:12px}
+.fcPvMask{position:fixed;inset:0;background:rgba(35,38,45,.5);display:flex;align-items:center;justify-content:center;z-index:9000;opacity:0;pointer-events:none;transition:opacity .15s}
+.fcPvMask.show{opacity:1;pointer-events:auto}
+.fcPvBox{background:#fff;border-radius:16px;width:min(520px,92vw);max-height:84vh;display:flex;flex-direction:column;overflow:hidden}
+.fcPvHead{padding:16px 20px;border-bottom:1px solid var(--line);font-weight:700;font-size:15px}
+.fcPvScroll{padding:16px 20px;overflow-y:auto;flex:1}
+.fcPvIssues{background:#fbf1e1;border:1px solid #e8d5ab;border-radius:10px;padding:11px 14px;font-size:12.5px;color:#7a5a22;margin-bottom:14px}
+.fcPvIssues ul{margin:6px 0 0;padding-left:18px}
+.fcPvNote{font-size:12.5px;color:var(--ink3);margin-bottom:14px}
+.fcPvNote-amber{background:#fbf1e1;border:1px solid #e8d5ab;color:#7a5a22;border-radius:10px;padding:10px 13px}
+.fcPvJob .fcHero{margin-bottom:14px}
+.fcTag{font-size:11.5px;font-weight:700;color:var(--gold);background:#fbf2e2;border-radius:999px;padding:3px 11px}
+.fcPvJob h2{margin:8px 0 4px;font-size:19px}
+.fcPvJob .fcHero p{margin:0;color:var(--ink3);font-size:13px}
+.fcSpecRow{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.fcSpecRow dt{color:var(--ink3);margin:0}
+.fcSpecRow dd{margin:0;font-weight:700}
+.fcPvSection{margin-top:14px}
+.fcPvSection h4{margin:0 0 4px;font-size:12.5px;color:var(--ink3)}
+.fcPvSection p{margin:0;font-size:13.5px;white-space:pre-wrap}
+.fcPvFoot{padding:14px 20px;border-top:1px solid var(--line);display:flex;gap:10px;justify-content:flex-end}
+.fcPvFoot button.sec{background:#fff;color:var(--ink2);border:1px solid var(--line)}
+
 .wrap{max-width:1000px;margin:0 auto;padding:0 16px}
 header{background:#fff;border-bottom:1px solid var(--line);padding:14px 0}
 header .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
@@ -199,6 +261,17 @@ td.fn.clk:hover{background:#fdf6e9}
   </main>
 </div>
 <div id="msg" class="msg"></div>
+<div class="fcPvMask" id="fcPvMask">
+  <div class="fcPvBox">
+    <div class="fcPvHead" id="fcPvTitle">預覽</div>
+    <div class="fcPvScroll" id="fcPvScroll"></div>
+    <div class="fcPvFoot">
+      <button class="jdbtn alt" type="button" onclick="fcClosePreview()">再看一下</button>
+      <button class="jdbtn" type="button" id="fcPvGoBtn" onclick="fcConfirmAction()">確認</button>
+    </div>
+  </div>
+</div>
+
 <div id="mask" hidden></div>
 <div id="modal" role="dialog" aria-modal="true" hidden>
   <div class="mhd"><b id="mt">—</b><button id="mx" aria-label="關閉">×</button></div>
@@ -206,6 +279,359 @@ td.fn.clk:hover{background:#fdf6e9}
 </div>
 
 <script>
+// ============================================================================
+// 用人事實卡片式編輯器 —— 跟 portal/index.html 那邊逐字同步，改一邊要記得
+// 另一邊也要改。interview_stage_config 不在這裡管，那個欄位只有 portal
+// 那邊有專屬 UI；顧問要看/改面試階段設定目前只能請客戶自己在 portal 改。
+// benefits_common 不是真實欄位，是「常見福利點一下」的小幫手，選中的項目
+// 併回 benefits_detail 這個真正的欄位。
+// ============================================================================
+var FC_LAW5_WORDS = [
+  '性別', '男性', '女性', '男生', '女生', '限男', '限女',
+  '幾歲', '年齡', '歲以下', '歲以上',
+  '已婚', '未婚', '懷孕', '生育',
+  '國籍', '外籍', '原住民',
+  '身心障礙', '殘障', '宗教', '政黨', '容貌', '長相', '星座', '血型',
+];
+function fcLaw5Hits(text) {
+  var t = String(text || '');
+  return FC_LAW5_WORDS.filter(function (w) { return t.indexOf(w) >= 0; });
+}
+var FC_BENEFIT_PRESETS = ['三節獎金', '員工旅遊', '健康檢查', '停車位', '團保', '生日禮金', '部門聚餐', '年終獎金'];
+var FC_CARDS = [
+  { ic: 'building', key: 'company', title: '公司與聯絡窗口',
+    core: [
+      { k: 'client_name', l: '客戶公司全名', lClient: '公司全名', type: 'text', required: true },
+      { k: 'title', l: '職缺名稱', type: 'text', required: true },
+    ],
+    more: [
+      { k: 'client_intro', l: '公司簡介', type: 'textarea' },
+      { k: 'hiring_manager', l: '用人主管是誰', type: 'text' },
+      { k: 'client_contact_name', l: '客戶聯絡窗口姓名', lClient: '聯絡窗口姓名', type: 'text' },
+      { k: 'client_contact_phone', l: '客戶聯絡窗口電話', lClient: '聯絡窗口電話', type: 'text' },
+      { k: 'client_screen_conditions', l: '客戶指定的篩選條件', lClient: '特別的篩選條件', type: 'textarea' },
+      { k: 'faq_notes', l: '常見問題怎麼回答', type: 'textarea' },
+    ] },
+  { ic: 'dollar', key: 'salary', title: '薪水與加班',
+    core: [
+      { k: 'salary_min', l: '薪資下限', type: 'text', required: true },
+      { k: 'salary_max', l: '薪資上限', type: 'text' },
+      { k: 'salary_unit', l: '薪資單位', type: 'chips', opts: ['月薪', '日薪', '年薪'] },
+      { k: 'overtime_policy', l: '加班規則', type: 'chips', opts: ['依勞基法', '責任制', '固定加班費', '無加班'] },
+    ],
+    more: [
+      { k: 'salary_note', l: '薪資怎麼跟人選說', hint: '這欄是給顧問參考的完整口徑，發佈時會自動整理成對外能講的版本', type: 'textarea' },
+      { k: 'salary_tier_table', l: '薪資分級表', type: 'textarea' },
+      { k: 'salary_structure_note', l: '薪資結構說明', type: 'textarea' },
+      { k: 'overtime_detail', l: '加班細項（平日／假日時數）', type: 'textarea' },
+    ] },
+  { ic: 'mapPin', key: 'place', title: '地點與工作型態',
+    core: [
+      { k: 'locations', l: '工作地點', type: 'text', required: true },
+      { k: 'employment', l: '聘僱型態', type: 'chips', opts: ['正職', '兼職', '派遣', '約聘'], required: true },
+    ],
+    more: [
+      { k: 'work_mode', l: '辦公型態', type: 'chips', opts: ['實體', '遠端', '混合'] },
+      { k: 'work_hours', l: '上班時間', type: 'text' },
+      { k: 'employment_period', l: '工作期間', type: 'chips', opts: ['長期', '專案制'] },
+      { k: 'attendance_method', l: '出勤紀錄方式', type: 'chips', opts: ['打卡機', 'App打卡', 'LINE回報', '紙本簽到'] },
+      { k: 'dispatch_range', l: '派遣調派範圍', type: 'text' },
+      { k: 'dispatch_client', l: '實際要派單位', type: 'text' },
+      { k: 'dispatch_to_permanent_policy', l: '派遣轉正條件', type: 'textarea' },
+    ] },
+  { ic: 'users', key: 'who', title: '用人條件',
+    core: [
+      { k: 'must_skills', l: '必要技能', type: 'text' },
+      { k: 'education_level', l: '學歷要求', type: 'chips', opts: ['不限', '高中職', '大學', '碩士', '博士'] },
+    ],
+    more: [
+      { k: 'years_min', l: '最低年資', type: 'chips', opts: ['不拘', '1年以上', '3年以上', '5年以上', '10年以上'] },
+      { k: 'required_conditions', l: '必備條件', type: 'textarea' },
+      { k: 'language_requirement', l: '語言能力要求', type: 'chips', opts: ['中文即可', '需英文', '需日文', '其他語言'] },
+      { k: 'nice_to_have_skills', l: '加分技能', type: 'text' },
+      { k: 'preferred_background', l: '偏好背景', type: 'text' },
+      { k: 'personality_traits', l: '期望人格特質', type: 'textarea' },
+      { k: 'off_limits_note', l: '不考慮的同業／公司', type: 'text' },
+    ] },
+  { ic: 'fileText', key: 'duties', title: '工作內容與團隊',
+    core: [
+      { k: 'main_duties', l: '主要工作內容', hint: '用大白話講就好，例如「畫圖」「跟工地開會」', type: 'textarea', required: true },
+    ],
+    more: [
+      { k: 'reports_to', l: '直屬主管／匯報對象', type: 'text' },
+      { k: 'leads_team', l: '需不需要帶團隊', type: 'chips', opts: ['不用', '需要'] },
+      { k: 'department', l: '所屬部門', type: 'text' },
+      { k: 'work_environment_ratio', l: '工作環境比重', type: 'chips',
+        opts: ['全辦公室', '多辦公室少現場', '各半', '多現場少辦公室', '全現場'] },
+      { k: 'team_size', l: '團隊人數', type: 'text' },
+    ] },
+  { ic: 'target', key: 'process', title: '面試與到職流程',
+    core: [
+      { k: 'onboard_by', l: '希望到職日', type: 'chips', opts: ['越快越好', '1個月內', '2-3個月', '依人選現況'] },
+    ],
+    more: [
+      { k: 'interview_rounds', l: '面試輪數說明（備註用）', type: 'text' },
+      { k: 'interview_who', l: '誰會面試', type: 'text' },
+      { k: 'has_test', l: '有沒有筆試／測驗', type: 'chips', opts: ['沒有', '有'] },
+      { k: 'interview_process', l: '面試流程說明', type: 'textarea' },
+      { k: 'onboarding_prep_note', l: '錄取後前置作業', type: 'textarea' },
+    ] },
+  { ic: 'gift', key: 'perks', title: '福利與其他',
+    core: [
+      { k: 'benefits_detail', l: '福利', hint: '點下面常見項目快速加入，或直接打字／整段貼上，不用重打成一樣的格式', type: 'benefits' },
+      { k: 'headcount', l: '需求人數', type: 'text', required: true },
+      { k: 'leave_policy', l: '休假制度', type: 'chips', opts: ['週休二日', '排班制', '依公司行事曆'] },
+      { k: 'hiring_reason', l: '招募原因', type: 'chips', opts: ['新增職缺', '離職遞補', '擴編', '專案需求'], required: true },
+      { k: 'urgency', l: '急迫程度', type: 'chips', opts: ['不急', '一般', '急徵'] },
+    ],
+    more: [
+      { k: 'contract_terms_note', l: '合約條款備註', type: 'textarea' },
+    ] },
+];
+
+var FC_VALUES = {};
+var FC_OPEN_MORE = {};
+var FC_LABEL_MODE = 'client';
+var FC_ON_SUBMIT = null;
+var FC_WRAP_ID = 'fcWrap';
+var FC_AI_FILLED = {};
+function fcEsc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function fcInit(values, labelMode) {
+  FC_VALUES = {};
+  FC_CARDS.forEach(function (d) { d.core.concat(d.more).forEach(function (q) { FC_VALUES[q.k] = (values && values[q.k] != null) ? values[q.k] : ''; }); });
+  FC_OPEN_MORE = {};
+  FC_AI_FILLED = {};
+  FC_LABEL_MODE = labelMode || 'client';
+}
+function fcApplyImported(parsed) {
+  var n = 0;
+  Object.keys(parsed || {}).forEach(function (key) {
+    if (!fcFieldByKey(key)) return;
+    FC_VALUES[key] = parsed[key];
+    FC_AI_FILLED[key] = true;
+    n++;
+  });
+  fcRender();
+  return n;
+}
+function fcFieldByKey(key) {
+  for (var i = 0; i < FC_CARDS.length; i++) {
+    var all = FC_CARDS[i].core.concat(FC_CARDS[i].more);
+    for (var j = 0; j < all.length; j++) if (all[j].k === key) return all[j];
+  }
+  return null;
+}
+function fcVal(key) { return FC_VALUES[key] || ''; }
+function fcIsFieldEmpty(q) { return !fcVal(q.k); }
+function fcRerenderKeepOpen() {
+  var openIdx = [];
+  document.querySelectorAll('#' + FC_WRAP_ID + ' .fcCard.open').forEach(function (el) { openIdx.push(el.dataset.i); });
+  fcRender();
+  openIdx.forEach(function (i) {
+    var el = document.querySelector('#' + FC_WRAP_ID + ' .fcCard[data-i="' + i + '"]');
+    if (el) el.classList.add('open');
+  });
+}
+function fcTextChange(key, val) { FC_VALUES[key] = val; delete FC_AI_FILLED[key]; fcRerenderKeepOpen(); }
+function fcChipClick(key, opt) { FC_VALUES[key] = (FC_VALUES[key] === opt) ? '' : opt; delete FC_AI_FILLED[key]; fcRerenderKeepOpen(); }
+function fcBenefitToggle(preset) {
+  var cur = fcVal('benefits_detail');
+  var parts = cur.split(/[、,，]/).map(function (s) { return s.trim(); }).filter(Boolean);
+  var idx = parts.indexOf(preset);
+  if (idx >= 0) parts.splice(idx, 1); else parts.push(preset);
+  FC_VALUES.benefits_detail = parts.join('、');
+  delete FC_AI_FILLED.benefits_detail;
+  fcRerenderKeepOpen();
+}
+function fcStateDotHtml(s) {
+  if (s === 'done') return '<div class="fcDot done">✓</div>';
+  if (s === 'warn') return '<div class="fcDot warn">!</div>';
+  return '<div class="fcDot empty">·</div>';
+}
+function fcComputeState(d) {
+  var all = d.core.concat(d.more);
+  var hasFlag = FC_LABEL_MODE === 'consultant' && all.some(function (q) {
+    return (q.type === 'text' || q.type === 'textarea') && fcLaw5Hits(fcVal(q.k)).length;
+  });
+  if (hasFlag) return 'warn';
+  var allEmpty = d.core.every(function (q) { return fcIsFieldEmpty(q); });
+  if (allEmpty) return 'empty';
+  return 'done';
+}
+function fcComputeSummary(d) {
+  var vals = d.core.map(function (q) { return fcIsFieldEmpty(q) ? null : fcVal(q.k); }).filter(Boolean);
+  return vals.length ? vals.slice(0, 3).join('・') : '還沒填';
+}
+function fcFieldHtml(q) {
+  var body = '';
+  var aiCls = FC_AI_FILLED[q.k] ? ' aiFilled' : '';
+  if (q.type === 'text') {
+    body = '<input class="' + aiCls.trim() + '" value="' + fcEsc(fcVal(q.k)) + '" placeholder="還沒填，點這裡輸入" onchange="fcTextChange(\'' + q.k + '\',this.value)">';
+  } else if (q.type === 'textarea') {
+    body = '<textarea class="' + aiCls.trim() + '" placeholder="還沒填，點這裡輸入" onchange="fcTextChange(\'' + q.k + '\',this.value)">' + fcEsc(fcVal(q.k)) + '</textarea>';
+  } else if (q.type === 'chips') {
+    body = '<div class="fcChipRow">' + q.opts.map(function (o) {
+      return '<span class="fcChip' + (o === fcVal(q.k) ? ' picked' : '') + '" onclick="fcChipClick(\'' + q.k + '\',\'' + o + '\')">' + fcEsc(o) + '</span>';
+    }).join('') + '</div>';
+  } else if (q.type === 'benefits') {
+    var cur = fcVal('benefits_detail');
+    var parts = cur.split(/[、,，]/).map(function (s) { return s.trim(); }).filter(Boolean);
+    body = '<div class="fcChipRow">' + FC_BENEFIT_PRESETS.map(function (o) {
+      return '<span class="fcChip' + (parts.indexOf(o) >= 0 ? ' picked' : '') + '" onclick="fcBenefitToggle(\'' + o + '\')">' + o + '</span>';
+    }).join('') + '</div>'
+      + '<textarea placeholder="還沒填，點這裡輸入或直接貼上" onchange="fcTextChange(\'benefits_detail\',this.value)">' + fcEsc(cur) + '</textarea>';
+  }
+  var hint = q.hint ? '<div class="fcHint">' + fcEsc(q.hint) + '</div>' : '';
+  var aiTag = FC_AI_FILLED[q.k] ? '<div class="fcAiBadge">✨ AI 幫你抓的，看一眼對不對</div>' : '';
+  var flag = '';
+  if (FC_LABEL_MODE === 'consultant' && (q.type === 'text' || q.type === 'textarea')) {
+    var hits = fcLaw5Hits(fcVal(q.k));
+    if (hits.length) {
+      flag = '<div class="fcFlag">⚠️ 這欄提到「' + hits.join('、') + '」，就業服務法不能拿來當篩選條件——'
+        + '發佈時系統會自動幫你拿掉，不用自己改，這裡只是先讓你知道。</div>';
+    }
+  }
+  var showLabel = (FC_LABEL_MODE === 'client' && q.lClient) ? q.lClient : q.l;
+  var reqMark = q.required ? ' <span class="fcReq">＊必填</span>' : '';
+  var missCls = (q.required && fcIsFieldEmpty(q)) ? ' class="fcBlock miss"' : ' class="fcBlock"';
+  return '<div' + missCls + ' data-k="' + q.k + '"><label>' + fcEsc(showLabel) + reqMark + '</label>' + hint + body + aiTag + flag + '</div>';
+}
+function fcRender() {
+  var wrap = document.getElementById(FC_WRAP_ID); if (!wrap) return;
+  var doneCount = FC_CARDS.filter(function (d) { return fcComputeState(d) === 'done'; }).length;
+  var progEl = document.getElementById('fcProg');
+  if (progEl) progEl.textContent = doneCount + '/' + FC_CARDS.length + ' 已完成';
+  wrap.innerHTML = FC_CARDS.map(function (d, i) {
+    var moreOpen = !!FC_OPEN_MORE[i];
+    return '<div class="fcCard" data-i="' + i + '">'
+      + '<div class="fcCardHead" onclick="fcToggleCard(' + i + ')">'
+        + '<div class="fcMid"><b>' + fcEsc(d.title) + '</b><span>' + fcEsc(fcComputeSummary(d)) + '</span></div>'
+        + fcStateDotHtml(fcComputeState(d))
+        + '<span class="fcChev">▾</span>'
+      + '</div>'
+      + '<div class="fcCardBody"><div class="fcCardInner">'
+        + d.core.map(function (q) { return fcFieldHtml(q); }).join('')
+        + (d.more.length ? (
+            '<div class="fcMoreToggle" onclick="event.stopPropagation();fcToggleMore(' + i + ')">'
+              + (moreOpen ? '收起 ▴' : '顯示更多欄位 ▾') + '<span class="fcN">' + d.more.length + '</span></div>'
+            + '<div class="fcMoreWrap' + (moreOpen ? ' open' : '') + '">'
+              + d.more.map(function (q) { return fcFieldHtml(q); }).join('')
+            + '</div>'
+          ) : '')
+      + '</div></div>'
+    + '</div>';
+  }).join('');
+}
+function fcToggleCard(i) {
+  var el = document.querySelector('#' + FC_WRAP_ID + ' .fcCard[data-i="' + i + '"]');
+  if (el) el.classList.toggle('open');
+}
+function fcToggleMore(i) {
+  FC_OPEN_MORE[i] = !FC_OPEN_MORE[i];
+  var wasOpen = document.querySelector('#' + FC_WRAP_ID + ' .fcCard[data-i="' + i + '"]').classList.contains('open');
+  fcRender();
+  if (wasOpen) document.querySelector('#' + FC_WRAP_ID + ' .fcCard[data-i="' + i + '"]').classList.add('open');
+}
+function fcMissingRequired() {
+  var out = [];
+  FC_CARDS.forEach(function (d) { d.core.concat(d.more).forEach(function (q) { if (q.required && fcIsFieldEmpty(q)) out.push({ card: d, q: q }); }); });
+  return out;
+}
+function fcCollectFlags() {
+  var out = [];
+  if (FC_LABEL_MODE !== 'consultant') return out;
+  FC_CARDS.forEach(function (d) {
+    d.core.concat(d.more).forEach(function (q) {
+      if ((q.type === 'text' || q.type === 'textarea')) {
+        var hits = fcLaw5Hits(fcVal(q.k));
+        if (hits.length) out.push((FC_LABEL_MODE === 'client' && q.lClient ? q.lClient : q.l) + '：' + hits.join('、'));
+      }
+    });
+  });
+  return out;
+}
+function fcCollectValues() {
+  var out = {};
+  FC_CARDS.forEach(function (d) { d.core.concat(d.more).forEach(function (q) { out[q.k] = fcVal(q.k); }); });
+  return out;
+}
+function fcOpenPreview() {
+  var missing = fcMissingRequired();
+  var banner = document.getElementById('fcMissBanner');
+  if (missing.length) {
+    FC_OPEN_MORE = {};
+    missing.forEach(function (m) {
+      var i = FC_CARDS.indexOf(m.card);
+      var inMore = m.card.more.indexOf(m.q) >= 0;
+      if (inMore) FC_OPEN_MORE[i] = true;
+    });
+    fcRender();
+    missing.forEach(function (m) {
+      var i = FC_CARDS.indexOf(m.card);
+      var el = document.querySelector('#' + FC_WRAP_ID + ' .fcCard[data-i="' + i + '"]');
+      if (el) el.classList.add('open');
+    });
+    if (banner) {
+      banner.innerHTML = '<b>還有 ' + missing.length + ' 個必填欄位沒填：</b>'
+        + missing.map(function (m) { return fcEsc((FC_LABEL_MODE === 'client' && m.q.lClient) ? m.q.lClient : m.q.l); }).join('、')
+        + '——先帶你去第一個';
+      banner.style.display = 'block';
+    }
+    var firstKey = missing[0].q.k;
+    setTimeout(function () {
+      var target = document.querySelector('#' + FC_WRAP_ID + ' .fcBlock[data-k="' + firstKey + '"]');
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        target.classList.remove('fcJump'); void target.offsetWidth; target.classList.add('fcJump');
+        var input = target.querySelector('input,textarea');
+        if (input) setTimeout(function () { input.focus(); }, 400);
+      }
+    }, 50);
+    return;
+  }
+  if (banner) banner.style.display = 'none';
+  var flags = fcCollectFlags();
+  var mask = document.getElementById('fcPvMask');
+  var head = document.getElementById('fcPvTitle');
+  if (head) head.textContent = FC_LABEL_MODE === 'client' ? '預覽：交給顧問看之前，先確認一次' : '預覽：存檔後這份資料會長這樣';
+  var issuesHtml = '';
+  if (flags.length) {
+    issuesHtml = FC_LABEL_MODE === 'consultant'
+      ? ('<div class="fcPvIssues"><b>⚠️ 系統會自動處理 ' + flags.length + ' 處合規問題（發佈時自動拿掉，這裡列出來給你確認）</b><ul>'
+          + flags.map(function (t) { return '<li>' + fcEsc(t) + '</li>'; }).join('') + '</ul></div>')
+      : '<div class="fcPvNote fcPvNote-amber">有內容顧問會幫你看過調整，不用你自己改，正常送出就好。</div>';
+  }
+  var salaryLine = (fcVal('salary_min') && fcVal('salary_max')) ? (fcVal('salary_min') + '–' + fcVal('salary_max') + ' 元') : (fcVal('salary_min') ? fcVal('salary_min') + ' 元以上' : '面議');
+  var scroll = document.getElementById('fcPvScroll');
+  if (scroll) {
+    scroll.innerHTML = issuesHtml + '<div class="fcPvJob">'
+      + '<div class="fcHero"><span class="fcTag">' + fcEsc(fcVal('employment') || '職缺') + '</span>'
+        + '<h2>' + fcEsc(fcVal('title') || '（尚未命名）') + '</h2>'
+        + '<p>' + fcEsc(fcVal('locations') || '地點未填') + '・' + fcEsc(fcVal('work_hours') || '時間未填') + '</p></div>'
+      + '<div class="fcSpecRow"><dt>薪資</dt><dd>' + fcEsc(salaryLine) + '</dd></div>'
+      + '<div class="fcSpecRow"><dt>需求人數</dt><dd>' + fcEsc(fcVal('headcount') || '—') + '</dd></div>'
+      + '<div class="fcSpecRow"><dt>到職日</dt><dd>' + fcEsc(fcVal('onboard_by') || '—') + '</dd></div>'
+      + '<div class="fcPvSection"><h4>工作內容</h4><p>' + fcEsc(fcVal('main_duties') || '（還沒填）') + '</p></div>'
+      + '<div class="fcPvSection"><h4>必要技能</h4><p>' + fcEsc(fcVal('must_skills') || '—') + '</p></div>'
+      + '<div class="fcPvSection"><h4>福利</h4><p>' + fcEsc(fcVal('benefits_detail') || '（還沒填）') + '</p></div>'
+      + '</div>';
+  }
+  var goBtn = document.getElementById('fcPvGoBtn');
+  if (goBtn) goBtn.textContent = FC_LABEL_MODE === 'client' ? '確認沒問題，交給顧問' : '確認沒問題，存檔';
+  if (mask) mask.classList.add('show');
+}
+function fcClosePreview() {
+  var mask = document.getElementById('fcPvMask');
+  if (mask) mask.classList.remove('show');
+}
+function fcConfirmAction() {
+  var goBtn = document.getElementById('fcPvGoBtn');
+  if (goBtn) { goBtn.disabled = true; goBtn.textContent = '處理中…'; }
+  var done = function () { if (goBtn) goBtn.disabled = false; fcClosePreview(); };
+  if (typeof FC_ON_SUBMIT === 'function') { Promise.resolve(FC_ON_SUBMIT(fcCollectValues())).then(done).catch(done); }
+  else { done(); }
+}
+
 var API = 'https://step1ne-backoffice-worker.aiagentg888.workers.dev';
 var KEY = 's1ne_admin_tok';
 var tok = localStorage.getItem(KEY) || '';
@@ -701,93 +1127,37 @@ function jdEditHtml(spec) {
     + '</div>';
 }
 
-// 2026-09-03 加：用人事實分頁——跟客戶用人需求表（portal/index.html）
-// 寫的是同一批 53 個欄位（JOB_FACT_FIELDS），LABELS／isLong 兩份清單
-// 刻意跟 portal 那邊逐字對齊，兩邊改標籤要記得一起改，不然客戶跟顧問
-// 看到的欄位名稱會兜不起來。存檔走新的 {facts:{...}} 路徑，跟上面
-// jdEditHtml() 存的行銷文案（{fields:{...}}）是兩批不同語意的資料，
-// 各自獨立存、互不覆蓋。
-var FACTS_LABELS = {
-  client_name: '公司名稱', client_screen_conditions: '用人條件補充說明', faq_notes: '常見問題／FAQ說明',
-  salary_note: '薪資補充說明',
-  title: '職缺名稱', client_intro: '公司簡介', hiring_manager: '用人主管',
-  years_min: '最低年資要求', must_skills: '必要技能',
-  salary_min: '薪資下限', salary_max: '薪資上限', salary_unit: '薪資單位',
-  locations: '工作地點', employment: '聘僱型態', onboard_by: '希望到職日',
-  team_size: '團隊人數與組成', interview_rounds: '面試次數', interview_stage_config: '面試輪數設定',
-  interview_who: '面試官', has_test: '是否有測驗',
-  client_contact_name: '聯絡窗口', client_contact_phone: '聯絡電話',
-  headcount: '需求人數', work_mode: '辦公型態',
-  work_hours: '上班時間', leave_policy: '休假方式', employment_period: '工作期間', overtime_policy: '加班情形',
-  hiring_reason: '招募原因', urgency: '急迫程度',
-  main_duties: '主要工作職責', reports_to: '直接匯報對象', leads_team: '是否帶團隊',
-  education_level: '學歷要求', required_conditions: '必備條件', language_requirement: '語言能力',
-  nice_to_have_skills: '加分技能／經驗', preferred_background: '偏好背景', personality_traits: '期望人格特質',
-  salary_tier_table: '薪資分級表', salary_structure_note: '薪資結構說明',
-  benefits_detail: '福利與津貼', dispatch_to_permanent_policy: '派遣／轉正條件', off_limits_note: '同業限制',
-  dispatch_client: '實際要派單位／進駐專案', department: '所屬部門／團隊',
-  work_environment_ratio: '工作環境現場比重', attendance_method: '出勤紀錄方式',
-  interview_process: '面試流程與關卡', dispatch_range: '專案調派範圍',
-  contract_terms_note: '保密／競業／最低服務年限', overtime_detail: '加班細項',
-  onboarding_prep_note: '錄取後前置作業',
-};
-var FACTS_LONG_KEYS = ['main_duties', 'required_conditions', 'benefits_detail', 'salary_tier_table',
-  'overtime_detail', 'salary_structure_note', 'dispatch_to_permanent_policy', 'contract_terms_note',
-  'client_intro', 'client_screen_conditions', 'faq_notes', 'salary_note'];
-var FACTS_EMPLOYMENT_OPTIONS = { FULL_TIME: '正職', PART_TIME: '兼職', TEMPORARY: '臨時／派遣',
-  CONTRACTOR: '承攬／約聘', INTERN: '實習' };
-var FACTS_KEYS = Object.keys(FACTS_LABELS).filter(function (k) { return k !== 'interview_stage_config'; });
-
-function jdFactsHtml(facts) {
-  facts = facts || {};
-  var filled = FACTS_KEYS.filter(function (k) { return facts[k] !== null && facts[k] !== undefined && facts[k] !== ''; }).length;
-  var rows = FACTS_KEYS.map(function (k) {
-    var val = facts[k] == null ? '' : facts[k];
-    var el;
-    if (k === 'employment') {
-      el = '<select id="jdfact_' + k + '"><option value="">— 請選擇 —</option>'
-        + Object.keys(FACTS_EMPLOYMENT_OPTIONS).map(function (o) {
-            return '<option value="' + o + '"' + (val === o ? ' selected' : '') + '>' + esc(FACTS_EMPLOYMENT_OPTIONS[o]) + '</option>';
-          }).join('') + '</select>';
-    } else if (FACTS_LONG_KEYS.indexOf(k) >= 0) {
-      el = '<textarea id="jdfact_' + k + '" style="min-height:80px">' + esc(val) + '</textarea>';
-    } else {
-      el = '<input id="jdfact_' + k + '" type="text" value="' + esc(val) + '">';
-    }
-    return '<label for="jdfact_' + k + '">' + esc(FACTS_LABELS[k]) + '</label>' + el;
-  }).join('');
-  return '<p class="jdhint">這批是「用人事實」，跟客戶在用人需求表填的是同一批欄位、同一份資料——'
-    + '改這裡等於幫客戶改，存檔後會自動重新生成對外文案並上線，不用另外去「編輯」分頁謄一次。'
-    + '目前已填 ' + filled + ' / ' + FACTS_KEYS.length + '。</p>'
-    + rows
-    + '<button type="button" class="jdbtn" id="jdFactsSave">存檔（自動重新生成文案並上線）</button>'
+// 2026-09-03 加：用人事實分頁——卡片式編輯器，跟客戶用人需求表
+// （portal/index.html）逐字同步同一份 FC_CARDS 定義，改一邊要記得
+// 另一邊也要改，不然兩邊欄位標籤／分組會兜不起來。存檔走
+// {facts:{...}} 路徑，跟上面 jdEditHtml() 存的行銷文案
+// （{fields:{...}}）是兩批不同語意的資料，各自獨立存、互不覆蓋。
+function jdFactsHtml() {
+  return '<div id="fcProg" class="fcProgBar"></div>'
+    + '<div id="fcMissBanner"></div>'
+    + '<div id="fcWrap"></div>'
+    + '<button type="button" class="jdbtn" id="jdFactsGo">看預覽，再存檔</button>'
     + '<div class="jdmsg" id="jdFactsMsg"></div>';
 }
 
 function jdWireFacts() {
-  document.getElementById('jdFactsSave').onclick = function () {
-    var msg = document.getElementById('jdFactsMsg');
-    var facts = {}, changed = 0;
-    FACTS_KEYS.forEach(function (k) {
-      var el = document.getElementById('jdfact_' + k); if (!el) return;
-      var val = el.value;
-      var cur = JD_CUR.facts && JD_CUR.facts[k] != null ? String(JD_CUR.facts[k]) : '';
-      if (val === cur) return;
-      facts[k] = val; changed++;
-    });
-    if (!changed) { msg.className = 'jdmsg err'; msg.textContent = '沒有改到東西'; return; }
-    var btn = document.getElementById('jdFactsSave');
-    btn.disabled = true; msg.className = 'jdmsg'; msg.textContent = '儲存中…';
-    api('/admin/jobs/' + encodeURIComponent(JD_CUR.slug) + '/content', {
-      method: 'POST', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ facts: facts }),
-    }).then(function (d) {
-      btn.disabled = false;
-      if (!d.ok) { msg.className = 'jdmsg err'; msg.textContent = d.error || d.message || '儲存失敗'; return; }
-      msg.className = 'jdmsg ok'; msg.textContent = '已存檔，AI 正在重新生成文案，稍後會自動上線。';
-      Object.assign(JD_CUR.facts, facts);
-      toast('用人事實已存檔，稍後自動上線');
-    }).catch(function () { btn.disabled = false; msg.className = 'jdmsg err'; msg.textContent = '連不上伺服器'; });
+  fcInit(JD_CUR.facts, 'consultant');
+  fcRender();
+  document.getElementById('jdFactsGo').onclick = function () {
+    FC_ON_SUBMIT = function (values) {
+      var msg = document.getElementById('jdFactsMsg');
+      msg.className = 'jdmsg'; msg.textContent = '儲存中…';
+      return api('/admin/jobs/' + encodeURIComponent(JD_CUR.slug) + '/content', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ facts: values }),
+      }).then(function (d) {
+        if (!d.ok) { msg.className = 'jdmsg err'; msg.textContent = d.error || d.message || '儲存失敗'; return; }
+        msg.className = 'jdmsg ok'; msg.textContent = '已存檔，AI 正在重新生成文案，稍後會自動上線。';
+        Object.assign(JD_CUR.facts, values);
+        toast('用人事實已存檔，稍後自動上線');
+      }).catch(function () { msg.className = 'jdmsg err'; msg.textContent = '連不上伺服器'; });
+    };
+    fcOpenPreview();
   };
 }
 
@@ -798,7 +1168,7 @@ function jdRenderTab(tab) {
   });
   var body = document.getElementById('jdTabBody');
   if (tab === 'forms') { body.innerHTML = '<p class="mut">載入中⋯</p>'; jdLoadForms(); return; }
-  if (tab === 'facts') { body.innerHTML = jdFactsHtml(JD_CUR.facts); jdWireFacts(); return; }
+  if (tab === 'facts') { body.innerHTML = jdFactsHtml(); jdWireFacts(); return; }
   body.innerHTML = tab === 'view' ? jdViewHtml(JD_CUR.spec) : jdEditHtml(JD_CUR.spec);
   if (tab === 'edit') jdWireEdit();
 }
