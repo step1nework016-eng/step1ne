@@ -236,6 +236,7 @@ table.gap td.stale{color:#c0392b}
       <button type="button" class="tab" data-pane="pane-cal">排程行事曆</button>
       <button type="button" class="tab" data-pane="pane-board">成效儀表板</button>
       <button type="button" class="tab" data-pane="pane-settings">✨ 顧問與話題設定</button>
+      <button type="button" class="tab" data-pane="pane-candidates">📋 職缺社群回覆</button>
     </div>
 
     <div id="pane-post">
@@ -406,6 +407,21 @@ table.gap td.stale{color:#c0392b}
         <button class="go" id="savemap" type="button" style="width:100%">儲存這位顧問的設定</button>
         <div class="mut" id="mapsaved" style="display:none;color:var(--ok);font-weight:600;margin-top:8px">✓ 已儲存</div>
       </div>
+    </div>
+
+    <div id="pane-candidates" hidden>
+      <div class="note">
+        候選人在職缺的社群貼文下留言問，你要私訊回覆——這裡是每個職缺預先產好的
+        「第一輪職缺摘要」，選好你自己是哪位顧問，複製貼上就能用，結尾的 LINE
+        連結會自動換成你自己的加好友連結。內容跟顧問無關，只有 LINE 連結因人而異。
+      </div>
+      <div class="card">
+        <label>我是哪位顧問？</label>
+        <select id="csAccount"><option value="">載入中…</option></select>
+        <label style="margin-top:14px">搜尋職缺</label>
+        <input type="search" id="csSearch" placeholder="輸入職缺名稱或客戶…">
+      </div>
+      <div id="csList"></div>
     </div>
   </main>
 </div>
@@ -724,13 +740,14 @@ function paintLine() {
 $('maintabs').addEventListener('click', function (e) {
   var b = e.target.closest('.tab'); if (!b) return;
   [].forEach.call($('maintabs').children, function (x) { x.classList.toggle('on', x === b); });
-  ['pane-post', 'pane-cal', 'pane-board', 'pane-settings'].forEach(function (id) {
+  ['pane-post', 'pane-cal', 'pane-board', 'pane-settings', 'pane-candidates'].forEach(function (id) {
     $(id).hidden = (id !== b.dataset.pane);
   });
   if (b.dataset.pane === 'pane-cal') loadCal();
   if (b.dataset.pane === 'pane-board') loadStatsQueue();
   if (b.dataset.pane === 'pane-board' && !LINE_INS) loadLine();
   if (b.dataset.pane === 'pane-settings') loadSettings();
+  if (b.dataset.pane === 'pane-candidates') loadCandidateSummaries();
   // 2026-09-03 加：在「顧問與話題設定」改完指派、切回「一鍵發文」時，
   // 話題下拉之前只在切換帳號／類型當下抓一次，不會自動反映剛剛存的設定，
   // 會讓人以為「明明設定了怎麼還是沒有」。切回這個分頁時，如果正停在
@@ -1764,6 +1781,77 @@ $('savemap').addEventListener('click', function () {
     toast('✓ 設定已儲存');
   }).catch(function () { toast('連線失敗', true); });
 });
+
+// ── 職缺社群回覆（2026-09-03 加）──
+// 候選人留言問職缺，顧問私訊回覆要用的「第一輪職缺摘要」，內容是
+// jobintake/candidate_summary_tick.py 批次先產好的（job_candidate_summaries
+// 表），這裡只負責讀出來、換上目前選定顧問的 LINE 連結、附上職缺公開頁
+// 網址，一鍵複製整段貼去 LINE。
+var CS_ACCOUNT_KEY = 's1ne_cs_account';
+var CS_ACCOUNTS = null;
+var CS_JOBS = null;
+
+function csLoadAccounts() {
+  if (CS_ACCOUNTS) return Promise.resolve(CS_ACCOUNTS);
+  return api('/admin/social-accounts').then(function (r) {
+    CS_ACCOUNTS = (r.ok && r.accounts) || [];
+    var saved = localStorage.getItem(CS_ACCOUNT_KEY) || '';
+    $('csAccount').innerHTML = '<option value="">— 先選你自己 —</option>' +
+      CS_ACCOUNTS.map(function (a) {
+        return '<option value="' + a.id + '"' + (String(a.id) === saved ? ' selected' : '') + '>'
+          + esc(a.label) + (a.line_link ? '' : '　（尚未設定LINE連結）') + '</option>';
+      }).join('');
+    return CS_ACCOUNTS;
+  });
+}
+
+function csRenderList() {
+  var q = ($('csSearch').value || '').trim().toLowerCase();
+  var jobs = (CS_JOBS || []).filter(function (j) {
+    if (!q) return true;
+    return (j.title || '').toLowerCase().indexOf(q) >= 0 || (j.client_name || '').toLowerCase().indexOf(q) >= 0;
+  });
+  if (!jobs.length) {
+    $('csList').innerHTML = '<div class="note">' + (q ? '沒有符合搜尋的職缺' : '還沒有任何職缺的摘要，請先跑 candidate_summary_tick.py 產生') + '</div>';
+    return;
+  }
+  $('csList').innerHTML = jobs.map(function (j, i) {
+    return '<div class="card">'
+      + '<label style="margin-bottom:2px">' + esc(j.title || j.slug) + '<span class="mut" style="font-weight:400">　' + esc(j.client_name || '') + '</span></label>'
+      + '<div style="white-space:pre-wrap;font-size:13.5px;background:var(--soft);border-radius:10px;padding:12px 14px;margin:8px 0;max-height:220px;overflow-y:auto">' + esc(j.summary_text) + '</div>'
+      + '<button type="button" class="go" data-i="' + i + '" data-act="cs-copy" style="width:100%">📋 複製回覆文字（含職缺連結＋LINE連結）</button>'
+      + '</div>';
+  }).join('');
+  [].forEach.call($('csList').querySelectorAll('[data-act="cs-copy"]'), function (btn) {
+    btn.addEventListener('click', function () {
+      var j = jobs[Number(btn.dataset.i)];
+      var accId = $('csAccount').value;
+      var acc = (CS_ACCOUNTS || []).find(function (a) { return String(a.id) === accId; });
+      if (!acc) { toast('請先在上面選你自己是哪位顧問', true); return; }
+      if (!acc.line_link) { toast('這個帳號還沒設定LINE連結，請先去後台補上', true); return; }
+      var jobUrl = 'https://step1ne.com/jobs/' + j.slug + '/';
+      var text = String(j.summary_text || '').split('{{LINE_LINK}}').join(acc.line_link);
+      if (text.indexOf(acc.line_link) < 0) text += '\n\n' + acc.line_link; // 保底：萬一摘要沒有佔位符
+      text += '\n\n完整職缺介紹：' + jobUrl;
+      navigator.clipboard.writeText(text).then(function () {
+        toast('✓ 已複製，可以直接貼去LINE');
+      }).catch(function () { toast('複製失敗，請手動選取', true); });
+    });
+  });
+}
+
+function loadCandidateSummaries() {
+  $('csList').innerHTML = '<div class="note">載入中…</div>';
+  csLoadAccounts();
+  api('/admin/candidate-summaries').then(function (r) {
+    CS_JOBS = (r.ok && r.jobs) || [];
+    csRenderList();
+  }).catch(function () { $('csList').innerHTML = '<div class="note">連線失敗</div>'; });
+}
+$('csAccount').addEventListener('change', function () {
+  localStorage.setItem(CS_ACCOUNT_KEY, $('csAccount').value || '');
+});
+$('csSearch').addEventListener('input', csRenderList);
 
 </script>
 <script defer src="/consultant/_shell.js">
