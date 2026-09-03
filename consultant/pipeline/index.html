@@ -574,6 +574,22 @@ function drawerHtml(d){
       +(s.manual_stage_note?('<div class="sec" style="background:#fdf6e9;border-color:#e8d5ab;margin-top:10px">'
         +'<div class="mut" style="font-weight:700;color:var(--warn);margin-bottom:4px">'+esc(s.company_name||'客戶')+'回填的面談回饋</div>'
         +'<div style="white-space:pre-wrap">'+esc(s.manual_stage_note)+'</div></div>'):'')
+      // 2026-09-03 加：用人單位在 portal 排的面談/錄取/報到時間歷史——不只是
+      // 「現在卡在哪關」，同一階段改期也全部留著，不覆蓋，方便回頭對照。
+      +((s.stage_events||[]).length?('<div class="sec" style="margin-top:10px">'
+        +'<div class="mut" style="font-weight:700;color:var(--ink2);margin-bottom:6px">'+esc(s.company_name||'客戶')+'安排的時間紀錄</div>'
+        +'<div style="display:flex;flex-direction:column;gap:6px">'
+        +s.stage_events.slice().reverse().map(function(e){
+          var lb = ({stage1:'第一階段',stage2:'第二階段',stage3:'第三階段',stage4:'第四階段',
+                     offer:'錄取',onboard:'報到'})[e.stage] || e.stage;
+          return '<div style="font-size:13px;display:flex;gap:8px;flex-wrap:wrap;align-items:baseline">'
+            +'<b>'+esc(lb)+'</b>'
+            +(e.event_at?'<span>'+esc(String(e.event_at).slice(0,16).replace('T',' '))+'</span>':'<span class="mut">未填時間</span>')
+            +(e.note?'<span class="mut">・'+esc(e.note)+'</span>':'')
+            +'<span class="mut" style="margin-left:auto">回填於 '+fmtDate(e.created_at)+'</span>'
+            +'</div>';
+        }).join('')
+        +'</div></div>'):'')
       // 一家一組控制項。同一位人選推兩家時，兩家的進度是各自獨立的——
       // 共用一個下拉會讓 A 家談到第二關把 B 家也一起推過去。
       +'<div class="acts" style="margin-top:10px">'

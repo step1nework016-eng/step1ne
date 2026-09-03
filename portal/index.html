@@ -217,6 +217,9 @@ button.sec{background:#fff;color:var(--ink2);border:1px solid var(--line)}
 /* 人選詳情彈窗 */
 #candModalMask{position:fixed;inset:0;background:rgba(35,32,20,.4);z-index:70;display:none;align-items:center;justify-content:center;padding:16px}
 #candModalMask.show{display:flex}
+#dtModalMask{position:fixed;inset:0;background:rgba(35,32,20,.45);z-index:80;display:none;align-items:center;justify-content:center;padding:16px}
+#dtModalMask.show{display:flex}
+.dt-modal{width:min(360px,92vw);background:#fff;border-radius:16px;border:1px solid var(--line);padding:18px 20px}
 .cand-modal{width:min(760px,96vw);max-height:92vh;overflow:auto;background:#fff;border-radius:18px;border:1px solid var(--line)}
 .cand-modal-top{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:16px 18px;display:flex;justify-content:space-between;gap:10px;z-index:2}
 .cand-modal-body{padding:16px 18px 20px}
@@ -438,6 +441,22 @@ button.sec{background:#fff;color:var(--ink2);border:1px solid var(--line)}
           </div>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- 2026-09-03 加：面談/錄取/報到要留實際年月日時分，原生 prompt() 沒辦法
+     顯示 datetime-local 輸入框，所以另外做一個輕量小視窗，樣式比照 candModalMask。 -->
+<div id="dtModalMask">
+  <div class="dt-modal">
+    <h4 id="dtModalTitle" style="margin:0 0 12px;font-size:15px"></h4>
+    <label style="display:block;font-size:12.5px;color:var(--ink3);margin-bottom:4px">實際（或預計）時間</label>
+    <input type="datetime-local" id="dtModalInput" style="width:100%;font:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:12px">
+    <label id="dtModalNoteLabel" style="display:block;font-size:12.5px;color:var(--ink3);margin-bottom:4px"></label>
+    <textarea id="dtModalNote" rows="2" style="width:100%;font:inherit;font-size:13px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:14px;resize:vertical"></textarea>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button type="button" id="dtModalCancel" class="cm-fbtn">取消</button>
+      <button type="button" id="dtModalOk" class="cm-fbtn" style="background:var(--gold);color:#fff;border-color:var(--gold)">確認</button>
     </div>
   </div>
 </div>
@@ -1702,6 +1721,34 @@ function wireTableSelects(root){
   });
 }
 
+// 2026-09-03 加：跟 prompt() 一樣是「跳出來要一個值，取消就回 null」，
+// 只是多了 datetime-local 輸入框跟一個選填備註。
+function promptDateTime(title, noteLabel, defaultDate){
+  return new Promise((resolve) => {
+    const g = (id) => document.getElementById(id);
+    const mask = g('dtModalMask'), input = g('dtModalInput'), note = g('dtModalNote');
+    const okBtn = g('dtModalOk'), cancelBtn = g('dtModalCancel');
+    g('dtModalTitle').textContent = title;
+    g('dtModalNoteLabel').textContent = noteLabel;
+    input.value = defaultDate || '';
+    note.value = '';
+    mask.classList.add('show');
+    function cleanup(result){
+      mask.classList.remove('show');
+      okBtn.removeEventListener('click', onOk);
+      cancelBtn.removeEventListener('click', onCancel);
+      resolve(result);
+    }
+    function onOk(){
+      if (!input.value) { alert('請選擇時間'); return; }
+      cleanup({ event_at: input.value, note: note.value.trim() });
+    }
+    function onCancel(){ cleanup(null); }
+    okBtn.addEventListener('click', onOk);
+    cancelBtn.addEventListener('click', onCancel);
+  });
+}
+
 async function tblHandleChange(appId, role, value, sel){
   const prevValue = [...sel.options].find(o => o.defaultSelected)?.value ?? '';
   if (role === 'advance') {
@@ -1715,8 +1762,13 @@ async function tblHandleChange(appId, role, value, sel){
     // 2026-09-01 拿掉 confirm() 彈窗——選面試階段是往前推進的低風險動作
     // （後端本來就擋倒退），不需要多一層確認對話框；而且部分瀏覽器/嵌入
     // 環境對 confirm() 支援不穩，選了卻沒反應最常見的原因就是這個。
+    // 2026-09-03 加：改成一定要留面試實際/預計的年月日時分，後端也會擋
+    // 沒帶這個值的請求。
     if (!value) return;
-    await tblSetStage(appId, value, {}, sel, prevValue);
+    const stageLabel = sel.options[sel.selectedIndex]?.textContent || '這一階段面試';
+    const picked = await promptDateTime(stageLabel + '的時間', '備註（選填，顧問會看到）');
+    if (!picked) { sel.value = prevValue; return; }
+    await tblSetStage(appId, value, { event_at: picked.event_at, note: picked.note || undefined }, sel, prevValue);
     return;
   }
   if (role === 'offer') {
@@ -1725,8 +1777,9 @@ async function tblHandleChange(appId, role, value, sel){
       if (reason === null || !reason.trim()) { sel.value = prevValue; return; }
       await tblReject(appId, reason.trim(), sel, prevValue);
     } else if (value === 'offer') {
-      const note = prompt('錄取原因（選填，顧問會看到）') || '';
-      await tblSetStage(appId, 'offer', { note: note.trim() || undefined }, sel, prevValue);
+      const picked = await promptDateTime('錄取時間', '錄取原因（選填，顧問會看到）');
+      if (!picked) { sel.value = prevValue; return; }
+      await tblSetStage(appId, 'offer', { event_at: picked.event_at, note: picked.note || undefined }, sel, prevValue);
     }
     return;
   }
@@ -1736,11 +1789,12 @@ async function tblHandleChange(appId, role, value, sel){
       if (reason === null || !reason.trim()) { sel.value = prevValue; return; }
       await tblReject(appId, reason.trim(), sel, prevValue);
     } else if (value === 'onboard') {
-      const today = new Date().toISOString().slice(0, 10);
-      const date = prompt('預計報到日期（格式 YYYY-MM-DD）', today);
-      if (date === null) { sel.value = prevValue; return; }
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(date.trim())) { alert('日期格式不對，請用 YYYY-MM-DD'); sel.value = prevValue; return; }
-      await tblSetStage(appId, 'onboard', { onboard_date: date.trim() }, sel, prevValue);
+      const picked = await promptDateTime('預計報到時間', '備註（選填，顧問會看到）');
+      if (!picked) { sel.value = prevValue; return; }
+      await tblSetStage(appId, 'onboard', {
+        event_at: picked.event_at, note: picked.note || undefined,
+        onboard_date: picked.event_at.slice(0, 10),
+      }, sel, prevValue);
     }
     return;
   }
