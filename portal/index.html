@@ -1123,7 +1123,7 @@ function renderTable(){
   const el = document.getElementById('dashTableView');
   if (!list.length){ el.innerHTML = '<div class="dash-empty">目前沒有符合條件的人選</div>'; return; }
   el.innerHTML = `<div class="dash-table-wrap"><table class="dash-table">
-    <thead><tr><th>人選</th><th>LINE ID</th><th>推送日</th>${TABLE_COLS.map(([, lb]) => `<th>${esc(lb)}</th>`).join('')}</tr></thead>
+    <thead><tr><th>人選</th><th>LINE ID</th><th>推送日</th><th>人事資料表</th>${TABLE_COLS.map(([, lb]) => `<th>${esc(lb)}</th>`).join('')}</tr></thead>
     <tbody>${list.map(c => {
       const rejected = !!c.client_rejected_at;
       // 2026-09-01 修：跟 offer/onboard 同一種bug——原本只看 .now（現在卡在
@@ -1196,10 +1196,20 @@ function renderTable(){
         <option value="decline">不報到</option>
       </select>`;
 
+      // 2026-09-03 加：人事資料表狀態要在表格上一眼看到，不用逐一點開人選
+      // 彈窗才看得到——不管顧問是叫人選填、還是直接代為上傳，狀態都算數，
+      // 這裡不分來源，只看 status。一個職缺可能掛多份表單，全部列出來。
+      const formsCell = !(c.forms || []).length ? '<span style="color:var(--ink3)">—</span>'
+        : c.forms.map(f => f.status === 'submitted'
+            ? `<a class="dash-pill done" style="text-decoration:none;display:inline-block;margin:2px 0" href="${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(c.application_id)}/form/${encodeURIComponent(f.id)}" target="_blank" rel="noopener">↓ ${esc(f.form_name)}</a>`
+            : `<span class="dash-pill now" style="display:inline-block;margin:2px 0">${esc(f.form_name)}・等待中</span>`
+          ).join('<br>');
+
       return `<tr data-app="${esc(c.application_id)}">
         <td><b>${esc(c.candidate_name)}</b><div style="font-size:12px;color:var(--ink3)">${esc(c.job_title || c.job_slug)}</div></td>
         <td>${esc(c.line_id_given || '尚未提供')}</td>
         <td>${esc((c.forwarded_at || '').slice(0, 10))}</td>
+        <td>${formsCell}</td>
         <td>${confirmCell}</td>
         <td>${matchedCell}</td>
         <td>${interviewCell}</td>
