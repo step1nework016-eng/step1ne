@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="zh-Hant">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>一鍵發文＋顧問與話題設定 v2 預覽｜顧問後台</title>
+<style>
+:root{--gold:#a67c3d;--ink:#23262d;--ink2:#4d5563;--ink3:#8a8d95;--line:#eee7db;--soft:#faf8f3;--bg:#f4f1ea;--ok:#2f8f5b;--bad:#c0392b;--logo1:#2ea9df;--logo2:#167eb2}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 -apple-system,"Noto Sans TC",sans-serif}
+.wrap{max-width:640px;margin:0 auto;padding:0 16px}
+header{background:#fff;border-bottom:1px solid var(--line);padding:14px 0}
+header .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header b{font-size:16px}
+.previewtag{margin-left:auto;font-size:11.5px;font-weight:700;background:#fdecea;color:var(--bad);padding:4px 10px;border-radius:999px}
+.mut{color:var(--ink3);font-size:13px}
+main{padding:24px 0 60px}
+.card{background:#fff;border:1px solid var(--line);border-radius:15px;padding:20px 22px;margin-bottom:14px}
+label{display:block;font-size:13px;color:var(--ink2);margin:0 0 6px;font-weight:600}
+select,input[type=search],input[type=text],input[type=datetime-local],textarea{width:100%;font:inherit;font-size:15px;padding:11px 13px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);margin-bottom:16px}
+textarea{resize:vertical;min-height:90px;font-size:13.5px;line-height:1.6;font-family:ui-monospace,"SF Mono",Menlo,monospace}
+button.go{font:inherit;font-weight:700;font-size:15px;background:var(--gold);color:#fff;border:0;border-radius:999px;padding:12px 20px;cursor:pointer}
+button.go:disabled{opacity:.5;cursor:not-allowed}
+button.ghost{font:inherit;font-weight:600;font-size:13.5px;background:#fff;color:var(--ink2);border:1px solid var(--line);border-radius:999px;padding:9px 16px;cursor:pointer}
+button.ghost:hover{border-color:var(--gold);color:var(--gold)}
+.note{background:var(--soft);border-left:3px solid var(--gold);border-radius:0 10px 10px 0;padding:12px 15px;font-size:13px;color:var(--ink2);margin-bottom:16px;line-height:1.7}
+.msg{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:14px;padding:11px 20px;border-radius:999px;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap;z-index:99}
+.msg.on{opacity:1}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px}
+.tab{font:inherit;font-size:13px;font-weight:600;color:var(--ink2);background:var(--soft);border:1px solid var(--line);padding:6px 14px;border-radius:999px;cursor:pointer}
+.tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.seg{display:flex;gap:0;border:1px solid var(--line);border-radius:999px;padding:3px;margin-bottom:16px;background:var(--soft)}
+.seg button{flex:1;font:inherit;font-weight:700;font-size:12.5px;padding:9px 6px;border:0;border-radius:999px;background:transparent;color:var(--ink2);cursor:pointer}
+.seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.seg.sub button{font-size:12px;font-weight:600}
+.warn{background:#fbf1de;color:#8a6100;border-radius:10px;padding:11px 14px;font-size:13px;margin:-6px 0 16px;line-height:1.65;display:flex;gap:8px}
+.warn b{font-weight:800}
+.pill{display:inline-block;font-size:10.5px;font-weight:800;border-radius:999px;padding:2px 9px;margin-left:6px;vertical-align:1px}
+.pill.job{background:#eef4fd;color:#2f5fd8}
+.pill.general{background:#f1e4d4;color:#8a5a2b}
+.pill.ai{background:#eae6f2;color:#6b5a8f}
+.filterchips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.fchip{font-size:12.5px;font-weight:700;padding:6px 14px;border-radius:999px;border:1px solid var(--line);background:var(--soft);color:var(--ink2);cursor:pointer}
+.fchip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.searchbar input{margin-bottom:10px}
+.growlist{max-height:280px;overflow-y:auto;border:1px solid var(--line);border-radius:10px;margin-bottom:14px}
+.growrow{display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid var(--line);font-size:13.5px}
+.growrow:last-child{border-bottom:0}
+.gname{flex:1;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gmeta{flex:none;font-size:11px;color:var(--ink3);white-space:nowrap}
+.emptyrow{padding:18px 12px;text-align:center;color:var(--ink3);font-size:13px}
+.form{border:1px dashed #ddd3c0;border-radius:12px;padding:14px 16px;margin-bottom:14px;background:#fffdf8}
+.sechd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:10px}
+.sechd h3{margin:0;font-size:15px}
+.aitopicgrid{display:flex;flex-direction:column;gap:6px}
+.aitopicrow{display:flex;align-items:center;gap:9px;padding:9px 12px;border:1px solid var(--line);border-radius:9px;background:var(--soft);cursor:pointer;font-size:13px}
+.aitopicrow:hover{border-color:var(--gold)}
+.aitopicrow.sel{background:#eae6f2;border-color:#6b5a8f;color:#6b5a8f;font-weight:700}
+</style>
+
+<div id="app">
+  <header><div class="wrap">
+    <b>顧問社群</b>
+    <span class="previewtag">v2 概念預覽・假資料</span>
+  </div></header>
+  <main class="wrap">
+
+    <div class="note">
+      這是「一鍵發文」加上職缺文/通用文/AI阿財三大分類、排程發布、同天同話題防重複之後<b>大概會長怎樣</b>的示意版。
+      純假資料，不接真實 API，只是讓你先看形狀。
+    </div>
+
+    <div id="maintabs" class="tabs">
+      <button type="button" class="tab on" data-pane="pane-post">一鍵發文</button>
+      <button type="button" class="tab" data-pane="pane-settings">✨ 顧問與話題設定</button>
+    </div>
+
+    <!-- ══════════ 一鍵發文 ══════════ -->
+    <div id="pane-post">
+      <div class="card">
+        <label>這篇是哪一種？</label>
+        <div class="seg" id="typeseg">
+          <button type="button" class="on" data-type="job">📋 職缺文</button>
+          <button type="button" data-type="general">💼 通用文</button>
+          <button type="button" data-type="ai">🤖 AI阿財話題</button>
+        </div>
+
+        <div id="jobsubwrap">
+          <label>職缺文要用哪一種寫法？</label>
+          <div class="seg sub" id="jobsubseg">
+            <button type="button" class="on" data-sub="pure">純CTA型</button>
+            <button type="button" data-sub="dialog">對話討論型</button>
+            <button type="button" data-sub="original">原始格式</button>
+          </div>
+        </div>
+
+        <label>選擇發文帳號</label>
+        <select id="account">
+          <option value="">請選擇…</option>
+          <option value="1" data-consultant="法蘭克">法蘭克 - Threads</option>
+          <option value="2" data-consultant="Bob">Bob - Threads</option>
+          <option value="3" data-consultant="DR">DR - Threads</option>
+        </select>
+
+        <div id="jobpick">
+          <label>選擇客戶</label>
+          <select id="client">
+            <option value="">請選擇…</option>
+            <option value="c1">弘昌</option>
+            <option value="c2">律準</option>
+          </select>
+          <label>選擇職缺</label>
+          <select id="job">
+            <option value="">請先選客戶…</option>
+          </select>
+        </div>
+
+        <div id="generalpick" hidden>
+          <label>選擇通用話題<span class="mut">（人資/職場/工作討論）</span></label>
+          <select id="generaltopic"><option value="">請選擇…</option></select>
+        </div>
+
+        <div id="aipick" hidden>
+          <label>選擇 AI 阿財話題</label>
+          <div class="aitopicgrid" id="aitopicgrid"></div>
+        </div>
+
+        <div id="dupwarn" class="warn" style="display:none">
+          <span>⚠️</span><span><b id="dupwho"></b> 今天已經發過同一個話題了——同一天不能重複，請換一個話題或換一天。</span>
+        </div>
+
+        <label>發布方式</label>
+        <div class="seg" id="publishseg">
+          <button type="button" class="on" data-mode="now">⚡ 立即審核發文</button>
+          <button type="button" data-mode="later">⏰ 排程發文</button>
+        </div>
+        <div id="schedpick" hidden>
+          <label>排定時間</label>
+          <input type="datetime-local" id="schedtime">
+        </div>
+
+        <button id="go" class="go" type="button" style="width:100%" disabled>排入產稿</button>
+        <div class="mut" style="margin-top:10px;line-height:1.7">💬 草稿送到 Telegram 時，AI 會多附一段「留言回覆參考稿」，顧問看到留言可以直接複製回覆，不用臨場想。</div>
+      </div>
+    </div>
+
+    <!-- ══════════ 顧問與話題設定 ══════════ -->
+    <div id="pane-settings" hidden>
+      <div class="note">話題庫加了分類——新增話題時要選「職缺專屬／通用／AI阿財」，管理時也能依分類篩選。</div>
+
+      <div class="card">
+        <div class="sechd"><h3>📝 話題提示詞庫</h3><span class="mut" id="topiccnt"></span></div>
+        <div class="filterchips" id="catfilter">
+          <button type="button" class="fchip on" data-cat="all">全部</button>
+          <button type="button" class="fchip" data-cat="job">📋 職缺專屬</button>
+          <button type="button" class="fchip" data-cat="general">💼 通用</button>
+          <button type="button" class="fchip" data-cat="ai">🤖 AI阿財</button>
+        </div>
+        <div class="searchbar"><input type="search" id="topicsearch" placeholder="搜尋話題名稱…"></div>
+        <div id="topicglobal" class="growlist"></div>
+        <div id="topicform" class="form" hidden></div>
+        <button class="ghost" id="addtopic" type="button">＋ 新增話題</button>
+      </div>
+
+      <div class="note" style="margin-top:0">下方顧問指派、風格庫維持跟目前上線版一樣，這份預覽只放大呈現分類篩選這塊新的。</div>
+    </div>
+
+  </main>
+</div>
+<div id="msg" class="msg"></div>
+
+<script>
+function esc(s){ return String(s||'').replace(/[&<>]/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+function toast(t){
+  const m = document.getElementById('msg');
+  m.textContent = t; m.classList.add('on');
+  clearTimeout(toast._h);
+  toast._h = setTimeout(()=>m.classList.remove('on'), 2000);
+}
+
+const TOPICS = [
+  { id:1, name:'BIM工程師跟繪圖師的差異', cat:'job', updated:'09-03' },
+  { id:2, name:'應徵接待員的經歷要注意什麼', cat:'job', updated:'09-03' },
+  { id:3, name:'加薪留才 vs 直接跳槽', cat:'general', updated:'09-02' },
+  { id:4, name:'HR最怕收到哪種履歷', cat:'general', updated:'09-01' },
+  { id:5, name:'AI面談會不會讓求職者更緊張', cat:'ai', updated:'09-03' },
+  { id:6, name:'先跟AI談還是直接跟顧問談比較好', cat:'ai', updated:'09-03' },
+];
+const AI_TOPICS = TOPICS.filter(t=>t.cat==='ai');
+const GENERAL_TOPICS = TOPICS.filter(t=>t.cat==='general');
+
+// 假的「今天已經發過的話題」紀錄，示範同天同話題防重複
+const TODAY_POSTED = [
+  { topicId: 3, who: '法蘭克' },
+];
+
+// ── 頂層分頁切換 ──
+document.getElementById('maintabs').addEventListener('click', (e)=>{
+  const b = e.target.closest('.tab'); if(!b) return;
+  document.querySelectorAll('#maintabs .tab').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  document.getElementById('pane-post').hidden = b.dataset.pane !== 'pane-post';
+  document.getElementById('pane-settings').hidden = b.dataset.pane !== 'pane-settings';
+});
+
+// ── 一鍵發文：三大類型切換 ──
+function currentType(){ return document.querySelector('#typeseg button.on').dataset.type; }
+function currentSub(){ return document.querySelector('#jobsubseg button.on').dataset.sub; }
+
+document.getElementById('typeseg').addEventListener('click', (e)=>{
+  const b = e.target.closest('button'); if(!b) return;
+  document.querySelectorAll('#typeseg button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  const t = b.dataset.type;
+  document.getElementById('jobsubwrap').hidden = t !== 'job';
+  document.getElementById('jobpick').hidden = t !== 'job';
+  document.getElementById('generalpick').hidden = t !== 'general';
+  document.getElementById('aipick').hidden = t !== 'ai';
+  if (t === 'general') renderGeneralTopics();
+  if (t === 'ai') renderAiTopics();
+  clearDupWarn();
+  refreshGoState();
+});
+
+document.getElementById('jobsubseg').addEventListener('click', (e)=>{
+  const b = e.target.closest('button'); if(!b) return;
+  document.querySelectorAll('#jobsubseg button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+});
+
+function renderGeneralTopics(){
+  const sel = document.getElementById('generaltopic');
+  sel.innerHTML = '<option value="">請選擇…</option>' + GENERAL_TOPICS.map(t=>`<option value="${t.id}">${esc(t.name)}</option>`).join('');
+}
+
+let selectedAiTopic = null;
+function renderAiTopics(){
+  const wrap = document.getElementById('aitopicgrid');
+  wrap.innerHTML = AI_TOPICS.map(t=>`<div class="aitopicrow" data-id="${t.id}">${esc(t.name)}</div>`).join('');
+  [...wrap.querySelectorAll('.aitopicrow')].forEach(row=>{
+    row.addEventListener('click', ()=>{
+      wrap.querySelectorAll('.aitopicrow').forEach(r=>r.classList.remove('sel'));
+      row.classList.add('sel');
+      selectedAiTopic = Number(row.dataset.id);
+      checkDup(selectedAiTopic);
+      refreshGoState();
+    });
+  });
+}
+
+document.getElementById('generaltopic').addEventListener('change', (e)=>{
+  checkDup(Number(e.target.value));
+  refreshGoState();
+});
+
+function checkDup(topicId){
+  const opt = document.getElementById('account').selectedOptions[0];
+  const who = opt ? opt.dataset.consultant : null;
+  const hit = TODAY_POSTED.find(x=>x.topicId===topicId);
+  if (hit) {
+    document.getElementById('dupwho').textContent = hit.who;
+    document.getElementById('dupwarn').style.display = 'flex';
+  } else {
+    clearDupWarn();
+  }
+}
+function clearDupWarn(){ document.getElementById('dupwarn').style.display = 'none'; }
+
+document.getElementById('client').addEventListener('change', ()=>{
+  const opts = { c1: [['j1','後端開發工程師'],['j2','BIM工程師']], c2: [['j3','BIM工程師']] };
+  const sel = document.getElementById('job');
+  const list = opts[document.getElementById('client').value] || [];
+  sel.innerHTML = list.length ? '<option value="">請選擇…</option>' + list.map(([v,n])=>`<option value="${v}">${n}</option>`).join('')
+    : '<option value="">請先選客戶…</option>';
+  refreshGoState();
+});
+document.getElementById('job').addEventListener('change', refreshGoState);
+document.getElementById('account').addEventListener('change', refreshGoState);
+
+// ── 發布方式：立即 vs 排程 ──
+document.getElementById('publishseg').addEventListener('click', (e)=>{
+  const b = e.target.closest('button'); if(!b) return;
+  document.querySelectorAll('#publishseg button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  document.getElementById('schedpick').hidden = b.dataset.mode !== 'later';
+  refreshGoState();
+});
+document.getElementById('schedtime').addEventListener('change', refreshGoState);
+
+function refreshGoState(){
+  const t = currentType();
+  const acc = document.getElementById('account').value;
+  let contentOk = false;
+  if (t === 'job') contentOk = !!document.getElementById('job').value;
+  if (t === 'general') contentOk = !!document.getElementById('generaltopic').value;
+  if (t === 'ai') contentOk = !!selectedAiTopic;
+  const isDupBlocked = document.getElementById('dupwarn').style.display === 'flex';
+  const publishMode = document.querySelector('#publishseg button.on').dataset.mode;
+  const schedOk = publishMode === 'now' || !!document.getElementById('schedtime').value;
+  document.getElementById('go').disabled = !(acc && contentOk && schedOk) || isDupBlocked;
+}
+
+document.getElementById('go').addEventListener('click', ()=>{
+  const mode = document.querySelector('#publishseg button.on').dataset.mode;
+  toast(mode === 'now' ? '✓ 已排入產稿，等 Telegram 審核（示範用）' : '✓ 已排定時間，核准後到點自動發布（示範用）');
+});
+
+// ── 顧問與話題設定：分類篩選 ──
+let curCat = 'all';
+document.getElementById('catfilter').addEventListener('click', (e)=>{
+  const b = e.target.closest('.fchip'); if(!b) return;
+  document.querySelectorAll('#catfilter .fchip').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  curCat = b.dataset.cat;
+  renderTopicLib();
+});
+document.getElementById('topicsearch').addEventListener('input', renderTopicLib);
+
+function renderTopicLib(){
+  const q = (document.getElementById('topicsearch').value || '').trim().toLowerCase();
+  let list = curCat === 'all' ? TOPICS : TOPICS.filter(t=>t.cat===curCat);
+  if (q) list = list.filter(t=>t.name.toLowerCase().includes(q));
+  document.getElementById('topiccnt').textContent = `共 ${TOPICS.length} 筆`;
+  const wrap = document.getElementById('topicglobal');
+  const catLabel = { job:'職缺', general:'通用', ai:'阿財' };
+  wrap.innerHTML = list.length ? list.map(t=>`
+    <div class="growrow">
+      <div class="gname">${esc(t.name)}<span class="pill ${t.cat}">${catLabel[t.cat]}</span></div>
+      <div class="gmeta">${t.updated}</div>
+    </div>
+  `).join('') : '<div class="emptyrow">這個分類目前沒有話題</div>';
+}
+document.getElementById('addtopic').addEventListener('click', ()=>{
+  const form = document.getElementById('topicform');
+  form.innerHTML = `
+    <label>分類</label>
+    <select id="f_cat">
+      <option value="job">📋 職缺專屬</option>
+      <option value="general">💼 通用</option>
+      <option value="ai">🤖 AI阿財</option>
+    </select>
+    <label>話題名稱</label>
+    <input type="text" id="f_name" placeholder="例如：AI是否可能誤判非典型人才">
+    <label>內容</label>
+    <textarea placeholder="貼上內容…"></textarea>
+    <button class="go" type="button" id="f_save" style="width:auto;padding:10px 18px">新增</button>
+  `;
+  form.hidden = false;
+  document.getElementById('f_save').addEventListener('click', ()=>{ form.hidden = true; toast('✓ 已新增（示範用）'); });
+});
+
+renderTopicLib();
+refreshGoState();
+</script>
+</html>
