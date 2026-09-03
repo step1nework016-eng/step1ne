@@ -208,6 +208,11 @@ table.gap td.stale{color:#c0392b}
 .seg{display:flex;gap:0;border:1px solid var(--line);border-radius:999px;padding:3px;margin-bottom:16px;background:var(--soft)}
 .seg button{flex:1;font:inherit;font-weight:700;font-size:13.5px;padding:9px 10px;border:0;border-radius:999px;background:transparent;color:var(--ink2);cursor:pointer}
 .seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.seg.sub button{font-size:12.5px}
+.aitopicgrid{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.aitopicrow{display:flex;align-items:center;gap:9px;padding:9px 12px;border:1px solid var(--line);border-radius:9px;background:var(--soft);cursor:pointer;font-size:13.5px}
+.aitopicrow:hover{border-color:var(--gold)}
+.aitopicrow.sel{background:#eae6f2;border-color:#6b5a8f;color:#6b5a8f;font-weight:700}
 #topicreminder{background:#fbf1de;color:#8a6100;border-radius:9px;padding:9px 12px;margin:-6px 0 16px;line-height:1.6}
 #topicreminder a{color:inherit;font-weight:700}
 </style>
@@ -242,11 +247,26 @@ table.gap td.stale{color:#c0392b}
     <div class="card">
       <label>這篇是哪一種？</label>
       <div class="seg" id="typeseg">
-        <button type="button" class="on" data-type="job">📋 職缺類型</button>
-        <button type="button" data-type="topic">💬 話題類型</button>
+        <button type="button" class="on" data-type="job">📋 職缺文</button>
+        <button type="button" data-type="general">💼 通用文</button>
+        <button type="button" data-type="ai">🤖 AI阿財話題</button>
       </div>
       <label>選擇發文帳號</label>
       <select id="account"><option value="">載入中…</option></select>
+
+      <div id="jobsubwrap">
+        <label>職缺文要用哪一種寫法？</label>
+        <div class="seg sub" id="jobsubseg">
+          <button type="button" data-sub="pure">純CTA型</button>
+          <button type="button" class="on" data-sub="dialog">對話討論型</button>
+          <button type="button" data-sub="original">原始格式</button>
+        </div>
+      </div>
+      <div id="dialogpick">
+        <label>選擇要用哪個公式<span class="mut">（全站共用，任何顧問都能選）</span></label>
+        <div id="dialoggrid" class="aitopicgrid"></div>
+      </div>
+
       <div id="jobpick">
         <label>選擇客戶</label>
         <select id="client"><option value="">載入中…</option></select>
@@ -254,7 +274,7 @@ table.gap td.stale{color:#c0392b}
         <select id="job"><option value="">請先選擇客戶</option></select>
       </div>
       <div id="topicpick" hidden>
-        <label>選擇話題<span class="mut">（只列這位顧問在「顧問與話題設定」打勾過的）</span></label>
+        <label id="topicpicklabel">選擇話題<span class="mut">（只列這位顧問在「顧問與話題設定」打勾過的）</span></label>
         <select id="topicsel"><option value="">請先選帳號…</option></select>
         <div id="topicreminder" class="mut" style="display:none"></div>
       </div>
@@ -443,27 +463,67 @@ $('client').addEventListener('change', function () {
   }));
 });
 
-// 2026-09-03 加：職缺/話題類型切換。話題類型要選帳號才知道要列哪位顧問
-// 打勾過的話題（consultant_content_settings），所以帳號永遠先選、類型切
-// 換或帳號變動都要重新刷新話題下拉。
+// 2026-09-03 改：職缺文/通用文/AI阿財話題三大分類（原本只有職缺/話題兩種）。
+// 話題類/AI話題類要選帳號才知道要列哪位顧問打勾過的話題，所以帳號永遠先
+// 選、類型切換或帳號變動都要重新刷新對應下拉。
 var POST_TOPICS_CACHE = null;
+var POST_STYLES_CACHE = null;
+var selectedDialogStyle = null;
 function currentPostType() { return document.querySelector('#typeseg button.on').dataset.type; }
+function currentJobSub() { return document.querySelector('#jobsubseg button.on').dataset.sub; }
 
 $('typeseg').addEventListener('click', function (e) {
   var b = e.target.closest('button'); if (!b) return;
   [].forEach.call($('typeseg').children, function (x) { x.classList.toggle('on', x === b); });
-  var isTopic = b.dataset.type === 'topic';
-  $('jobpick').hidden = isTopic;
-  $('topicpick').hidden = !isTopic;
-  if (isTopic) refreshTopicOptionsForPost();
+  var t = b.dataset.type;
+  var isJob = t === 'job';
+  $('jobsubwrap').hidden = !isJob;
+  $('dialogpick').hidden = !(isJob && currentJobSub() === 'dialog');
+  $('jobpick').hidden = !isJob;
+  $('topicpick').hidden = isJob;
+  if (!isJob) {
+    $('topicpicklabel').innerHTML = (t === 'general' ? '選擇通用話題' : '選擇 AI 阿財話題')
+      + '<span class="mut">（只列這位顧問在「顧問與話題設定」打勾過的）</span>';
+    refreshTopicOptionsForPost();
+  }
   updateGoState();
 });
+
+$('jobsubseg').addEventListener('click', function (e) {
+  var b = e.target.closest('button'); if (!b) return;
+  [].forEach.call($('jobsubseg').children, function (x) { x.classList.toggle('on', x === b); });
+  var isDialog = b.dataset.sub === 'dialog';
+  $('dialogpick').hidden = !isDialog;
+  updateGoState();
+});
+
+function refreshDialogStyles() {
+  var wrap = $('dialoggrid');
+  selectedDialogStyle = null;
+  wrap.innerHTML = '載入中…';
+  (POST_STYLES_CACHE ? Promise.resolve({ ok: true, styles: POST_STYLES_CACHE }) : api('/admin/style-prompts')).then(function (d) {
+    POST_STYLES_CACHE = d.styles || [];
+    var list = POST_STYLES_CACHE.filter(function (s) { return s.subtype === 'dialog'; });
+    wrap.innerHTML = list.length ? list.map(function (s) {
+      return '<div class="aitopicrow" data-id="' + s.id + '">' + esc(s.name) + '</div>';
+    }).join('') : '<div class="mut">目前還沒有對話討論型的提示詞</div>';
+    [].forEach.call(wrap.querySelectorAll('.aitopicrow'), function (row) {
+      row.addEventListener('click', function () {
+        [].forEach.call(wrap.querySelectorAll('.aitopicrow'), function (r) { r.classList.remove('sel'); });
+        row.classList.add('sel');
+        selectedDialogStyle = Number(row.dataset.id);
+        updateGoState();
+      });
+    });
+  }).catch(function () { wrap.innerHTML = '<div class="mut">讀取失敗</div>'; });
+}
 
 function refreshTopicOptionsForPost() {
   var opt = $('account').selectedOptions[0];
   var sel = $('topicsel');
   var reminder = $('topicreminder');
   reminder.style.display = 'none';
+  var type = currentPostType();
   if (!opt || !opt.value) { sel.innerHTML = '<option value="">請先選帳號…</option>'; updateGoState(); return; }
   var consultant = personName(opt.textContent);
   sel.innerHTML = '<option value="">載入中…</option>';
@@ -473,12 +533,13 @@ function refreshTopicOptionsForPost() {
   ]).then(function (r) {
     POST_TOPICS_CACHE = r[0].topics || [];
     var ids = r[1].topic_ids || [];
-    var list = POST_TOPICS_CACHE.filter(function (t) { return ids.indexOf(t.id) >= 0; });
+    var list = POST_TOPICS_CACHE.filter(function (t) { return ids.indexOf(t.id) >= 0 && t.category === type; });
+    var typeLabel = type === 'general' ? '通用話題' : 'AI阿財話題';
     if (!list.length) {
-      sel.innerHTML = '<option value="">（尚未指派任何話題）</option>';
+      sel.innerHTML = '<option value="">（尚未指派任何' + typeLabel + '）</option>';
       reminder.style.display = 'block';
-      reminder.innerHTML = '⚠️ 「' + esc(consultant) + '」還沒有被指派任何話題，'
-        + '<a href="#" id="jumpsettings">先去「顧問與話題設定」勾選</a>才能用話題類型排稿。';
+      reminder.innerHTML = '⚠️ 「' + esc(consultant) + '」還沒有被指派任何' + typeLabel + '，'
+        + '<a href="#" id="jumpsettings">先去「顧問與話題設定」勾選</a>才能用這個類型排稿。';
       var jl = document.getElementById('jumpsettings');
       if (jl) jl.addEventListener('click', function (ev) {
         ev.preventDefault();
@@ -488,34 +549,45 @@ function refreshTopicOptionsForPost() {
       sel.innerHTML = '<option value="">請選擇…</option>' + list.map(function (t) {
         return '<option value="' + t.id + '">' + esc(t.name) + '</option>';
       }).join('');
-      if (!r[1].topic_style_id) {
-        reminder.style.display = 'block';
-        reminder.innerHTML = '⚠️ 「' + esc(consultant) + '」還沒在「顧問與話題設定」指定話題類型要用哪個風格，'
-          + '產稿會用預設語氣，不會擋著不能排。';
-      }
     }
     updateGoState();
   }).catch(function () { sel.innerHTML = '<option value="">讀取失敗</option>'; });
 }
 
 function updateGoState() {
-  var isTopic = currentPostType() === 'topic';
-  var val = isTopic ? $('topicsel').value : $('job').value;
-  $('go').disabled = !(val && $('account').value);
+  var type = currentPostType();
+  var contentOk;
+  if (type === 'job') {
+    var sub = currentJobSub();
+    contentOk = !!$('job').value && (sub !== 'dialog' || !!selectedDialogStyle);
+  } else {
+    contentOk = !!$('topicsel').value;
+  }
+  $('go').disabled = !(contentOk && $('account').value);
 }
 $('job').addEventListener('change', updateGoState);
 $('topicsel').addEventListener('change', updateGoState);
 $('account').addEventListener('change', function () {
   updateGoState();
-  if (currentPostType() === 'topic') refreshTopicOptionsForPost();
+  if (currentPostType() !== 'job') refreshTopicOptionsForPost();
 });
 
 $('go').addEventListener('click', function () {
   var btn = $('go');
-  var isTopic = currentPostType() === 'topic';
-  var payload = isTopic
-    ? { topic_id: Number($('topicsel').value), account_id: Number($('account').value) }
-    : { slug: $('job').value, account_id: Number($('account').value) };
+  var type = currentPostType();
+  var payload;
+  if (type === 'job') {
+    payload = { slug: $('job').value, account_id: Number($('account').value) };
+    var sub = currentJobSub();
+    if (sub === 'dialog' && selectedDialogStyle) {
+      payload.style_id = selectedDialogStyle;
+    } else if (sub === 'pure') {
+      var pureStyle = (POST_STYLES_CACHE || []).filter(function (s) { return s.subtype === 'pure'; })[0];
+      if (pureStyle) payload.style_id = pureStyle.id;
+    }
+  } else {
+    payload = { topic_id: Number($('topicsel').value), account_id: Number($('account').value) };
+  }
   btn.disabled = true; btn.textContent = '排入中⋯';
   api('/admin/social-post-request', {
     method: 'POST', headers: { 'content-type': 'application/json' },
@@ -663,7 +735,7 @@ $('maintabs').addEventListener('click', function (e) {
   // 話題下拉之前只在切換帳號／類型當下抓一次，不會自動反映剛剛存的設定，
   // 會讓人以為「明明設定了怎麼還是沒有」。切回這個分頁時，如果正停在
   // 話題類型，就重新抓一次最新的指派結果。
-  if (b.dataset.pane === 'pane-post' && currentPostType() === 'topic') {
+  if (b.dataset.pane === 'pane-post' && currentPostType() !== 'job') {
     POST_TOPICS_CACHE = null;
     refreshTopicOptionsForPost();
   }
@@ -1066,6 +1138,7 @@ function load() {
     $('gate').hidden = true; $('app').hidden = false;
     ALL_JOBS = (jd.jobs || []).filter(function (j) { return j.status !== 'closed' && j.status !== 'client_draft' && j.status !== 'pending_review'; });
     paintClients();
+    refreshDialogStyles(); // 預設就是職缺文/對話討論型，一進頁面就要能選公式
     var accs = ad.accounts || [];
     // 2026-09-01 改：新顧問帳號剛加進來、還沒去開發者後台申請 access_token
     // 時 is_active=0——原本這種帳號整個從清單消失，顧問以為系統忘了加。
