@@ -59,6 +59,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--ac);
 input::placeholder,textarea::placeholder{color:#a9b3c1}
 textarea{resize:vertical;min-height:76px}
 .areas{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:8px;margin:2px 0 0;}
+/* 手機版強制2欄，避免auto-fit在窄螢幕算成1欄疊成長條 */
 @media(max-width:520px){.areas{grid-template-columns:repeat(2,1fr)}}
 .areas label{display:flex;align-items:center;gap:9px;background:#fff;border:1px solid #dfe3e8;border-radius:10px;
   padding:11px 13px;font-size:14.5px;font-weight:400;cursor:pointer;margin:0;min-height:46px;}
