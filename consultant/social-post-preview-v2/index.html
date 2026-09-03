@@ -69,6 +69,24 @@ button.ghost:hover{border-color:var(--gold);color:var(--gold)}
 .gact{flex:none;display:flex;gap:2px}
 .gact button{background:none;border:0;cursor:pointer;font-size:14px;padding:4px 6px;border-radius:6px;line-height:1}
 .gact button:hover{background:var(--soft)}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.dow{font-size:10.5px;color:var(--ink3);text-align:center;font-weight:700;padding:2px 0;letter-spacing:.04em}
+.day{background:#fff;border:1px solid var(--line);border-radius:7px;min-height:58px;padding:3px 4px;
+  cursor:pointer;display:flex;flex-direction:column;gap:1px;overflow:hidden}
+.day:hover{border-color:var(--gold)}
+.day.pad{background:transparent;border:0;cursor:default;min-height:0}
+.day.today{border-color:var(--gold);box-shadow:0 0 0 2px rgba(166,124,61,.16)}
+.day .dn{font-size:10.5px;color:var(--ink3);font-variant-numeric:tabular-nums}
+.chip{font-size:9px;line-height:1.35;border-radius:3px;padding:1px 3px;background:var(--soft);color:var(--ink2);
+  border-left:2px solid var(--gold);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip.job{border-left-color:#2f5fd8}
+.chip.general{border-left-color:#8a5a2b}
+.chip.ai{border-left-color:#6b5a8f}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11.5px;color:var(--ink3);margin-top:10px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.subtabs{display:flex;gap:6px;background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:4px;margin-bottom:16px}
+.subtabs button{flex:1;font:inherit;font-weight:700;font-size:12.5px;padding:9px 4px;border:0;border-radius:9px;background:transparent;color:var(--ink2);cursor:pointer}
+.subtabs button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.1)}
 </style>
 
 <div id="app">
@@ -161,7 +179,17 @@ button.ghost:hover{border-color:var(--gold);color:var(--gold)}
     <!-- ══════════ 排程行事曆 ══════════ -->
     <div id="pane-cal" hidden>
       <div class="note">
-        月曆本體（點哪一天、防重複）維持既有功能，這份預覽放大呈現「排一則新的」表單套上新的三大分類之後長怎樣。
+        月曆本體維持既有功能（點哪一天、防重複），下面的方塊示範每天排的貼文會依三大分類顯示不同顏色的色條——點任何一天可以跳到下面的表單排新的。
+      </div>
+
+      <div class="card">
+        <div class="sechd"><h3 style="margin:0;font-size:15px">2026 年 9 月</h3></div>
+        <div class="cal" id="calgrid"></div>
+        <div class="legend">
+          <span><i style="background:#2f5fd8"></i>職缺文</span>
+          <span><i style="background:#8a5a2b"></i>通用文</span>
+          <span><i style="background:#6b5a8f"></i>AI阿財話題</span>
+        </div>
       </div>
 
       <div class="card">
@@ -216,16 +244,6 @@ button.ghost:hover{border-color:var(--gold);color:var(--gold)}
       </div>
 
       <div class="card">
-        <div class="sechd"><h3>📅 每日話題發文節奏（示範）</h3></div>
-        <div class="mut" style="margin-bottom:10px">同一個職缺，每天換顧問、每次換話題——這是理想狀態的示意，不是真資料</div>
-        <div class="growlist" style="max-height:none">
-          <div class="growrow"><div class="gname">09/08・法蘭克</div><div class="gmeta">BIM工程師跟繪圖師的差異</div></div>
-          <div class="growrow"><div class="gname">09/09・Bob</div><div class="gmeta">加薪留才 vs 直接跳槽</div></div>
-          <div class="growrow"><div class="gname">09/10・DR</div><div class="gmeta">先跟AI談還是直接跟顧問談比較好</div></div>
-        </div>
-      </div>
-
-      <div class="card">
         <div class="sechd"><h3>還有哪些沒發（缺口分析）</h3></div>
         <div class="note" style="margin-bottom:0">維持只算職缺文——通用文／AI阿財話題沒有「一定要發過一次」的概念，不會出現在這份缺口清單裡。</div>
       </div>
@@ -233,30 +251,41 @@ button.ghost:hover{border-color:var(--gold);color:var(--gold)}
 
     <!-- ══════════ 顧問與話題設定 ══════════ -->
     <div id="pane-settings" hidden>
-      <div class="note">話題庫加了分類——新增話題時要選「職缺專屬／通用／AI阿財」，管理時也能依分類篩選。</div>
+      <div class="subtabs" id="settingssubtabs">
+        <button type="button" class="on" data-sub="topics">📝 話題提示詞庫</button>
+        <button type="button" data-sub="assign">👤 顧問指派</button>
+        <button type="button" data-sub="jobstyles">職缺文提示詞庫</button>
+      </div>
 
-      <div class="card">
-        <div class="sechd"><h3>📝 話題提示詞庫</h3><span class="mut" id="topiccnt"></span></div>
-        <div class="filterchips" id="catfilter">
-          <button type="button" class="fchip on" data-cat="all">全部</button>
-          <button type="button" class="fchip" data-cat="job">📋 職缺專屬</button>
-          <button type="button" class="fchip" data-cat="general">💼 通用</button>
-          <button type="button" class="fchip" data-cat="ai">🤖 AI阿財</button>
+      <div id="sub-topics">
+        <div class="note">新增話題時要選「職缺專屬／通用／AI阿財」，管理時也能依分類篩選。</div>
+        <div class="card">
+          <div class="sechd"><h3>📝 話題提示詞庫</h3><span class="mut" id="topiccnt"></span></div>
+          <div class="filterchips" id="catfilter">
+            <button type="button" class="fchip on" data-cat="all">全部</button>
+            <button type="button" class="fchip" data-cat="job">📋 職缺專屬</button>
+            <button type="button" class="fchip" data-cat="general">💼 通用</button>
+            <button type="button" class="fchip" data-cat="ai">🤖 AI阿財</button>
+          </div>
+          <div class="searchbar"><input type="search" id="topicsearch" placeholder="搜尋話題名稱…"></div>
+          <div id="topicglobal" class="growlist"></div>
+          <div id="topicform" class="form" hidden></div>
+          <button class="ghost" id="addtopic" type="button">＋ 新增話題</button>
         </div>
-        <div class="searchbar"><input type="search" id="topicsearch" placeholder="搜尋話題名稱…"></div>
-        <div id="topicglobal" class="growlist"></div>
-        <div id="topicform" class="form" hidden></div>
-        <button class="ghost" id="addtopic" type="button">＋ 新增話題</button>
       </div>
 
-      <div class="card">
-        <div class="sechd"><h3>🎨 職缺風格提示詞庫</h3><span class="mut" id="stylecnt"></span></div>
-        <div class="searchbar"><input type="search" id="stylesearch" placeholder="搜尋風格名稱…"></div>
-        <div id="styleglobal" class="growlist"></div>
-        <div id="styleform" class="form" hidden></div>
-        <button class="ghost" id="addstyle" type="button">＋ 新增風格</button>
+      <div id="sub-jobstyles" hidden>
+        <div class="note">職缺文的三種寫法（純CTA型／對話討論型／原始格式），各自的完整提示詞放在這裡管理，一鍵發文選子類型時會對應套用。</div>
+        <div class="card">
+          <div class="sechd"><h3>📋 職缺文提示詞庫</h3><span class="mut" id="stylecnt"></span></div>
+          <div class="searchbar"><input type="search" id="stylesearch" placeholder="搜尋提示詞名稱…"></div>
+          <div id="styleglobal" class="growlist"></div>
+          <div id="styleform" class="form" hidden></div>
+          <button class="ghost" id="addstyle" type="button">＋ 新增提示詞</button>
+        </div>
       </div>
 
+      <div id="sub-assign" hidden>
       <div class="card">
         <div class="sechd"><h3>👤 顧問指派</h3></div>
         <label>正在管理哪一位顧問</label>
@@ -632,5 +661,41 @@ document.getElementById('cgo').addEventListener('click', ()=>{
   toast('✓ 已排到這一天（示範用，未真的送出）');
 });
 refreshCalGoState();
+
+// ── 月曆本體（假資料示範每天排的貼文顏色）──
+const CAL_EVENTS = {
+  '2026-09-03': [{ who:'法蘭克', type:'job' }],
+  '2026-09-04': [{ who:'Bob', type:'general' }],
+  '2026-09-05': [{ who:'DR', type:'ai' }],
+  '2026-09-08': [{ who:'法蘭克', type:'job' }, { who:'Bob', type:'general' }],
+  '2026-09-09': [{ who:'DR', type:'ai' }],
+  '2026-09-10': [{ who:'法蘭克', type:'general' }],
+};
+function renderCalGrid(){
+  const grid = document.getElementById('calgrid');
+  const year = 2026, month = 8; // 9月，0-indexed
+  const first = new Date(year, month, 1);
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const startDow = first.getDay();
+  const todayKey = '2026-09-03';
+  let html = ['日','一','二','三','四','五','六'].map(d=>`<div class="dow">${d}</div>`).join('');
+  for (let i = 0; i < startDow; i++) html += '<div class="day pad"></div>';
+  for (let d = 1; d <= daysInMonth; d++) {
+    const key = `2026-09-${String(d).padStart(2,'0')}`;
+    const evs = CAL_EVENTS[key] || [];
+    const chips = evs.map(e => `<div class="chip ${e.type}">${esc(e.who)}</div>`).join('');
+    html += `<div class="day${key===todayKey?' today':''}" data-date="${key}"><div class="dn">${d}</div>${chips}</div>`;
+  }
+  grid.innerHTML = html;
+  grid.querySelectorAll('.day[data-date]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      document.getElementById('cdate').value = el.dataset.date;
+      document.getElementById('cdate').dispatchEvent(new Event('change', {bubbles:true}));
+      document.querySelector('#pane-cal .card:nth-of-type(2)').scrollIntoView({behavior:'smooth', block:'start'});
+      toast(`已選 ${el.dataset.date}，往下滑排新的`);
+    });
+  });
+}
+renderCalGrid();
 </script>
 </html>
