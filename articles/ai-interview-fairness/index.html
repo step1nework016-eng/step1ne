@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href*="lin.ee"]');
+  if (!a) return;
+  gtag('event', 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60)
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI面談會不會誤判？不擅長表達的人怎麼辦｜Step1ne</title>
+<meta name="description" content="AI招募工具可能有偏誤，這是媒體與業界都在討論的真實疑慮，不是憑空想像。這篇誠實說明阿財可能誤判的情況、Step1ne目前有的把關方式——真人顧問覆核逐字稿後才決定要不要推薦——以及這個把關方式解決不了什麼。">
+<meta name="keywords" content="AI面談 誤判,AI面試 偏誤,AI招募 公平性,不擅長表達 面試,阿財面談 公平嗎">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/articles/ai-interview-fairness/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Step1ne 德仁管理顧問">
+<meta property="og:title" content="AI面談會不會誤判？不擅長表達的人怎麼辦">
+<meta property="og:description" content="AI招募的偏誤疑慮是真實存在的公共討論，這篇誠實說明可能誤判的情況與Step1ne目前的把關方式。">
+<meta property="og:url" content="https://step1ne.com/articles/ai-interview-fairness/">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta name="theme-color" content="#f4f1ea">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Noto+Sans+TC:wght@300;400;500;700;900&family=Noto+Serif+TC:wght@500;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "AI面談會不會誤判？不擅長表達的人怎麼辦",
+  "description": "誠實討論AI面談可能造成的誤判風險，說明這是媒體與業界持續在討論的公共議題而非Step1ne獨有的問題，並說明目前的把關設計——真人顧問覆核阿財的逐字稿後才決定是否推薦——以及這個設計解決不了的部分。",
+  "datePublished": "2026-09-03",
+  "dateModified": "2026-09-03",
+  "inLanguage": "zh-TW",
+  "author": { "@type": "Organization", "name": "Step1ne 德仁管理顧問有限公司", "url": "https://step1ne.com/" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "德仁管理顧問有限公司（Step1ne）",
+    "logo": { "@type": "ImageObject", "url": "https://step1ne.com/assets/step1ne-logo.png" }
+  }
+}
+</script>
+
+<style>
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{font-family:'Noto Sans TC',system-ui,sans-serif;color:#23262d;background:#f4f1ea;-webkit-font-smoothing:antialiased;line-height:1.8;}
+a{color:#a67c3d;text-decoration:none;}
+a:hover{color:#8a6531;}
+details summary{cursor:pointer;list-style:none;}
+details summary::-webkit-details-marker{display:none;}
+details summary .faq-icon{transition:transform .3s ease;}
+details[open] summary .faq-icon{transform:rotate(45deg);}
+.wrap{max-width:760px;margin:0 auto;padding:0 24px;}
+h2{font-family:'Noto Serif TC',serif;font-size:24px;font-weight:700;color:#1c1f26;margin:44px 0 14px;line-height:1.4;}
+h3{font-size:17.5px;font-weight:700;color:#1c1f26;margin:28px 0 8px;}
+p{color:#3a3d44;font-size:15.5px;margin:0 0 16px;}
+ul,ol{padding-left:22px;color:#3a3d44;font-size:15.5px;}
+li{margin-bottom:8px;}
+.tbl-wrap{overflow-x:auto;margin:16px 0 8px;}
+table{width:100%;border-collapse:collapse;font-size:14.5px;background:#fff;min-width:560px;}
+th,td{border:1px solid #e6dfd1;padding:11px 13px;text-align:left;vertical-align:top;}
+th{background:#faf7f1;font-weight:700;white-space:nowrap;}
+td strong{color:#8a5a1a;}
+.note{font-size:13.5px;color:#8a8d95;margin:0 0 24px;}
+.callout{background:#fff;border:1px solid #e6dfd1;border-radius:14px;padding:20px 22px;margin:0 0 16px;}
+.insight{background:#fdfaf3;border:1px solid rgba(166,124,61,0.35);border-radius:14px;padding:20px 22px;margin:24px 0;}
+.insight .label{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;color:#a67c3d;text-transform:uppercase;margin-bottom:8px;}
+.insight p:last-child{margin-bottom:0;}
+.warn{background:#fdf4f2;border:1px solid rgba(180,90,70,0.35);border-radius:14px;padding:20px 22px;margin:24px 0;}
+.warn .label{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;color:#a8543c;text-transform:uppercase;margin-bottom:8px;}
+.warn p:last-child{margin-bottom:0;}
+.law{background:#fff;border-left:3px solid #8a8d95;padding:14px 18px;margin:0 0 16px;font-size:14.5px;color:#4a4d55;border-radius:0 10px 10px 0;}
+@media (max-width:760px){
+  .s1ne-hide-m{display:none !important;}
+  .s1ne-show-m{display:flex !important;}
+  footer a{min-height:44px;display:inline-flex;align-items:center;}
+}
+.s1ne-show-m{display:none;}
+.s1ne-mobile-menu{display:none;flex-direction:column;padding:4px 24px 16px;border-top:1px solid #e6dfd1;background:rgba(244,241,234,0.98);}
+.s1ne-mobile-menu.is-open{display:flex;}
+.s1ne-mobile-menu a{padding:10px 0;color:#4a4d55;font-size:15px;border-bottom:1px solid #e6dfd1;min-height:44px;display:flex;align-items:center;}
+.s1ne-mobile-menu a:last-child{border-bottom:none;}
+
+@media (max-width:640px){
+  .tbl-wrap{overflow-x:visible;}
+  .tbl-wrap table{min-width:0;display:block;background:transparent;}
+  .tbl-wrap thead{display:none;}
+  .tbl-wrap tbody{display:block;}
+  .tbl-wrap tr{display:block;background:#fff;border:1px solid #e6dfd1;border-radius:14px;margin-bottom:12px;overflow:hidden;}
+  .tbl-wrap td{display:block;border:none;border-bottom:1px solid #f2ede3;padding:12px 16px;}
+  .tbl-wrap tr td:last-child{border-bottom:none;}
+  .tbl-wrap td::before{content:attr(data-label);display:block;font-size:11.5px;font-weight:700;letter-spacing:0.5px;color:#a67c3d;margin-bottom:4px;}
+  .tbl-wrap td:empty{display:none;}
+}
+</style>
+</head>
+<body>
+
+<header style="position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:rgba(244,241,234,0.9);border-bottom:1px solid #e6dfd1;">
+  <div class="wrap" style="display:flex;align-items:center;justify-content:space-between;gap:20px;height:68px;max-width:1180px;">
+    <a href="/" style="display:flex;align-items:center;gap:12px;color:#23262d;">
+      <img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問" style="height:38px;width:auto;">
+    </a>
+    <div class="s1ne-hide-m" style="display:flex;align-items:center;gap:28px;font-size:15px;color:#4a4d55;">
+      <a href="/jobs/" style="color:#4a4d55;">職缺專區</a>
+      <a href="/articles/" style="color:#4a4d55;">獵才專欄</a>
+      <a href="/talent/" style="color:#4a4d55;">全民獵才</a>
+      <a href="/talent/ai-tools/" style="color:#4a4d55;">AI求職工具</a>
+      <a href="/about/" style="color:#4a4d55;">關於我們</a>
+    </div>
+    <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" class="s1ne-hide-m" style="background:#06c755;color:#fff;font-weight:700;font-size:13.5px;padding:9px 18px;border-radius:999px;white-space:nowrap;">LINE 洽詢</a>
+    <button type="button" class="s1ne-show-m" onclick="document.getElementById('s1ne-mmenu').classList.toggle('is-open')" aria-label="開啟選單" style="align-items:center;justify-content:center;width:40px;height:40px;border:1px solid #e6dfd1;border-radius:10px;background:#fff;flex-shrink:0;">
+      <span style="display:block;width:18px;height:2px;background:#23262d;box-shadow:0 6px 0 #23262d,0 -6px 0 #23262d;"></span>
+    </button>
+  </div>
+  <div id="s1ne-mmenu" class="s1ne-mobile-menu" onclick="if(event.target.closest('a'))this.classList.remove('is-open')">
+    <a href="/">首頁</a>
+    <a href="/jobs/">職缺專區</a>
+    <a href="/articles/">獵才專欄</a>
+    <a href="/talent/">全民獵才</a>
+    <a href="/talent/ai-tools/">AI求職工具</a>
+    <a href="/about/">關於我們</a>
+    <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="color:#a67c3d;font-weight:700;">LINE 洽詢 →</a>
+  </div>
+</header>
+
+<main>
+  <article class="wrap" style="padding:40px 24px 24px;">
+    <div style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:2px;color:#a67c3d;text-transform:uppercase;margin-bottom:16px;">AI與求職・公平性</div>
+    <h1 style="font-family:'Noto Serif TC',serif;font-weight:700;font-size:clamp(26px,4vw,38px);line-height:1.35;margin:0 0 20px;color:#1c1f26;">AI面談會不會誤判？不擅長表達的人怎麼辦</h1>
+
+    <p class="aeo-byline" style="font-size:14px;color:#6b6f78;margin:0 0 20px;padding-bottom:14px;border-bottom:1px solid #e6dfd1;"><span>作者：<a href="/about/" style="color:#6b6f78;">Step1ne 獵才顧問團隊</a></span><span style="margin:0 8px;">·</span><time datetime="2026-09-03">發布於 2026-09-03</time></p>
+
+    <p style="font-size:17px;color:#3a3d44;background:#fff;border:1px solid #e6dfd1;border-radius:14px;padding:20px 22px;">
+      <strong>直接答案：</strong>會誤判，這件事沒辦法保證不會發生——不論是 AI 面談還是真人面試，都存在誤判風險，這是招募這件事本身的限制，不是某個工具獨有的問題。Step1ne 目前的做法是加一道<strong>人工檢查點</strong>：阿財不做最終決定，逐字稿一定會經過真人顧問覆核後，才會決定要不要推薦給用人單位。這解決不了「AI 提問方式可能不利某些人」的根本疑慮，但至少確保不會有人只被機器刷掉、完全沒有人看過。
+    </p>
+
+    <h2>這個疑慮不是憑空想像</h2>
+    <p>AI 招募工具可能存在偏誤，是這幾年台灣科技媒體與人資圈持續在討論的真實議題，數位時代、經理人等媒體都曾針對「AI 招募工具是否公平」寫過相關報導與分析，這不是我們自己編出來安撫大家的說法。常見的擔心包括：內向或不擅長用文字表達的人，在結構化問答裡容易吃虧；非典型職涯路徑（例如中間有空窗、轉換過很多次跑道）的人，容易被制式提問邏輯誤讀；以及 AI 對「答得完整」跟「答得好」有沒有辦法真的分辨清楚。</p>
+
+    <h2>阿財目前可能誤判的幾種情況，老實列出來</h2>
+    <ul>
+      <li><strong>打字慢或不擅長書面表達的人，可能顯得內容單薄。</strong>不是能力不足，只是文字輸出的速度跟口語表達不一定對等</li>
+      <li><strong>回答簡短但真的很有料的人，可能需要多一點追問才問得出來。</strong>阿財會針對你講的細節追問，但追問的深度不保證跟真人顧問一樣敏銳</li>
+      <li><strong>特殊或非典型的職涯路徑，敘述起來比較費工夫。</strong>如果你的經歷不是一條直線，建議在回答時主動多解釋轉折的原因，不要等對方問到才補</li>
+    </ul>
+
+    <h2>目前的把關方式，以及它解決不了什麼</h2>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>把關方式</th><th>解決了什麼</th><th>解決不了什麼</th></tr></thead>
+        <tbody>
+          <tr><td data-label="把關方式"><strong>真人顧問覆核逐字稿</strong></td><td data-label="解決了什麼">不會有人只憑 AI 的判斷就被直接刷掉，決定權在人身上</td><td data-label="解決不了什麼">如果阿財沒問到關鍵問題，顧問看到的逐字稿本身就是不完整的</td></tr>
+          <tr><td data-label="把關方式"><strong>資料僅用於本次媒合</strong></td><td data-label="解決了什麼">面談內容不會被拿去做其他用途或提供第三方</td><td data-label="解決不了什麼">不代表這場面談的評估邏輯本身沒有盲點</td></tr>
+          <tr><td data-label="把關方式"><strong>畫面上可隨時反映問題</strong></td><td data-label="解決了什麼">面談中卡住或覺得不對勁，可以直接請真人顧問介入</td><td data-label="解決不了什麼">要靠你自己主動按下去，不會自動偵測你正在吃虧</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="warn">
+      <div class="label">誠實說</div>
+      <p>我們不會說「阿財完全公平、不會誤判」，這句話對任何面談方式（包含真人面試）都不成立。能承諾的是：<strong>阿財的判斷不是終點</strong>，一定會有真人顧問看過逐字稿再決定。如果你屬於不擅長臨場書面表達、或職涯路徑比較特殊的人，建議面談時主動把轉折原因講清楚，不要預設對方（不管是 AI 還是真人）會自己看出來。</p>
+    </div>
+
+    <h2>如果你擔心自己在文字面談裡吃虧，可以怎麼做</h2>
+    <ul>
+      <li><strong>主動解釋，不要等對方問。</strong>特殊經歷、空窗期、轉職原因，與其等阿財追問，不如在相關問題出現時直接補充脈絡</li>
+      <li><strong>回答不用追求文筆，追求具體。</strong>顧問覆核時看的是內容有沒有實質細節，不是句子好不好看</li>
+      <li><strong>覺得談得不順，事後可以直接跟真人顧問反映。</strong>面談結束後的意見回饋，以及畫面上的「有問題？」按鈕，都是實際會被看到的管道</li>
+    </ul>
+
+    <h2>常見問題</h2>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-top:20px;">
+      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
+        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;"><span>阿財會不會因為我打字慢就判斷我表現不好？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span></summary>
+        <p style="margin:0;padding:0 20px 18px;">面談沒有嚴格的秒數限制，重點是內容完整度而不是打字速度。如果需要多一點時間整理答案，直接花時間打完整再送出即可。</p>
+      </details>
+      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
+        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;"><span>如果覺得阿財誤解我的意思，怎麼辦？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span></summary>
+        <p style="margin:0;padding:0 20px 18px;">可以直接在對話中補充澄清，例如「我剛剛的意思是⋯⋯」。逐字稿是完整對話紀錄，真人顧問覆核時會看到整段脈絡，不是只看單一句話的片段。</p>
+      </details>
+      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
+        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;"><span>AI 面談會不會完全取代真人的判斷？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span></summary>
+        <p style="margin:0;padding:0 20px 18px;">不會。阿財負責結構化的第一輪對話並產出逐字稿，但要不要推薦給用人單位，一律由真人顧問覆核後決定，這一段目前沒有交給機器自動判斷。</p>
+      </details>
+    </div>
+
+    <div style="margin-top:48px;text-align:center;padding:36px 28px;border-radius:20px;background:linear-gradient(150deg,rgba(166,124,61,0.12),rgba(96,128,180,0.06));border:1px solid rgba(166,124,61,0.3);">
+      <h2 style="margin-top:0;">還有顧慮，直接跟真人顧問說</h2>
+      <p style="margin-bottom:22px;">想先了解面談實際長怎樣，可以看看 <a href="https://step1ne.com/interview/">阿財的面談室</a>；如果對公平性還有具體疑慮，也可以先加 LINE 跟顧問聊聊，不用自己猜。</p>
+      <p style="margin-bottom:22px;"><a href="/jobs/" style="font-weight:700;font-size:16px;">看看目前開放中的職缺 →</a></p>
+      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;background:#06c755;color:#fff;font-weight:700;font-size:16px;padding:15px 32px;border-radius:999px;">加入LINE先問顧問</a>
+    </div>
+
+    <p style="margin-top:32px;font-size:14.5px;color:#8a8d95;">延伸閱讀：<a href="/articles/ai-interview-guide/">AI阿財是什麼？跟真人顧問面談有什麼不同？</a>　·　<a href="/articles/ai-interview-anxiety/">AI面談會不會比真人更緊張？</a>　·　<a href="/articles/ai-interview-questions/">阿財問的問題跟真人顧問差在哪？</a></p>
+  </article>
+</main>
+
+<footer style="border-top:1px solid #e6dfd1;background:#eee9de;padding:28px 0;">
+  <div class="wrap" style="text-align:center;color:#9a9da5;font-size:13px;max-width:800px;">
+    <a href="/articles/" style="color:#a67c3d;">獵才專欄</a>　|　<a href="/jobs/" style="color:#a67c3d;">職缺專區</a>　|　<a href="/" style="color:#a67c3d;">Step1ne 首頁</a>　|　© 2026 德仁管理顧問有限公司 Step1ne
+  </div>
+</footer>
+
+</body>
+</html>
