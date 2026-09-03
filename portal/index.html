@@ -1007,6 +1007,73 @@ function openJob(slug){
   // 回傳的是還沒 append 的 detached 節點，這裡才是它變成活的 DOM 的時間點。
   fcInit(job, 'client');
   fcRender();
+  loadJobForms(job.slug);
+}
+
+// 2026-09-03 加：面試前要先給人選填的資料／測驗，讓用人單位自己上傳，
+// 不用先傳給顧問再讓顧問手動上傳。跟顧問後台「客製表單」寫的是同一張
+// job_forms 表，推薦人選時觸發寄送的邏輯完全共用，這裡只負責上傳／列表／刪除。
+async function loadJobForms(slug){
+  const box = document.getElementById('jobFormsBox');
+  if (!box) return;
+  box.innerHTML = '<p class="mut">載入中…</p>';
+  let forms = [];
+  try{
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/jobs/${encodeURIComponent(slug)}/forms`);
+    const data = await res.json();
+    forms = (data.ok && data.forms) || [];
+  }catch{}
+  box.innerHTML = `
+    <div class="import-box">
+      <h3>面試前要給人選填的資料／測驗（選填）</h3>
+      <p class="hint">如果面試前需要人選先填寫某份資料或測驗，直接上傳在這裡——推薦人選給你們的時候，顧問會自動一起寄出，不用你們再傳一次給顧問。</p>
+      ${forms.length
+        ? '<div style="margin-bottom:12px">' + forms.map(f => `
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--soft);border-radius:10px;padding:11px 14px;margin-bottom:8px;font-size:13.5px">
+              <b>${esc(f.name)}</b>
+              <button type="button" class="jfDel" data-id="${esc(f.id)}" style="border:0;background:none;color:var(--bad);font-size:13px;cursor:pointer">刪除</button>
+            </div>`).join('') + '</div>'
+        : '<p class="mut" style="margin:0 0 12px">目前還沒有上傳任何表單。</p>'}
+      <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px">新增一份</label>
+      <input type="text" id="jfName" placeholder="表單名稱，例如：職前測驗、保密協議">
+      <input type="file" id="jfFile" style="margin-top:8px">
+      <div style="margin-top:10px"><button type="button" class="sec" id="jfGo">＋ 新增</button> <span id="jfMsg" style="font-size:12.5px;margin-left:8px"></span></div>
+    </div>`;
+  box.querySelectorAll('.jfDel').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('確定要刪除這份表單嗎？已經寄出的不受影響，只是之後不會再自動附上。')) return;
+      await fetch(`${API}/portal/${encodeURIComponent(token)}/jobs/${encodeURIComponent(slug)}/forms/${encodeURIComponent(btn.dataset.id)}/delete`, { method: 'POST' });
+      loadJobForms(slug);
+    });
+  });
+  document.getElementById('jfGo').addEventListener('click', async () => {
+    const name = document.getElementById('jfName').value.trim();
+    const fileInput = document.getElementById('jfFile');
+    const msg = document.getElementById('jfMsg');
+    if (!name){ msg.textContent = '請填表單名稱'; msg.style.color = 'var(--bad)'; return; }
+    const go = document.getElementById('jfGo');
+    go.disabled = true; msg.style.color = 'var(--ink3)'; msg.textContent = '處理中…';
+    const submit = async (fileB64, fileName, fileMime) => {
+      try{
+        const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/jobs/${encodeURIComponent(slug)}/forms`, {
+          method: 'POST', headers: {'content-type':'application/json'},
+          body: JSON.stringify({ name, file_b64: fileB64, file_name: fileName, file_mime: fileMime }),
+        });
+        const data = await res.json();
+        if (!data.ok){ go.disabled = false; msg.style.color = 'var(--bad)'; msg.textContent = data.error || '新增失敗'; return; }
+        loadJobForms(slug);
+      }catch{
+        go.disabled = false; msg.style.color = 'var(--bad)'; msg.textContent = '連不上伺服器';
+      }
+    };
+    if (fileInput.files[0]){
+      const reader = new FileReader();
+      reader.onload = () => submit(String(reader.result).split(',')[1], fileInput.files[0].name, fileInput.files[0].type);
+      reader.readAsDataURL(fileInput.files[0]);
+    } else {
+      submit(null, null, null);
+    }
+  });
 }
 
 // 2026-09-01 改：面試輪數設定原本混在下面 53 個欄位的表格裡，長得跟其他
@@ -1087,6 +1154,7 @@ function renderJob(job, fields){
     ${renderHireStateBox(job)}
     <div id="fcMissBanner"></div>
     <div id="fcWrap"></div>
+    <div id="jobFormsBox"></div>
     <div class="savebar">
       <button type="button" class="sec save-btn">存檔（不送審，隨時可以回來改）</button>
       <button type="button" class="submit-btn">看預覽，再送出審核 →</button>
