@@ -659,6 +659,14 @@ $('maintabs').addEventListener('click', function (e) {
   if (b.dataset.pane === 'pane-board') loadStatsQueue();
   if (b.dataset.pane === 'pane-board' && !LINE_INS) loadLine();
   if (b.dataset.pane === 'pane-settings') loadSettings();
+  // 2026-09-03 加：在「顧問與話題設定」改完指派、切回「一鍵發文」時，
+  // 話題下拉之前只在切換帳號／類型當下抓一次，不會自動反映剛剛存的設定，
+  // 會讓人以為「明明設定了怎麼還是沒有」。切回這個分頁時，如果正停在
+  // 話題類型，就重新抓一次最新的指派結果。
+  if (b.dataset.pane === 'pane-post' && currentPostType() === 'topic') {
+    POST_TOPICS_CACHE = null;
+    refreshTopicOptionsForPost();
+  }
 });
 // 成效儀表板要看的是「這位顧問到底發過多少文」，跟排隊列表要的「最近在
 // 跑什麼」是兩種資料量級，故意分開拉，不要共用小額度那份、也不要跟著
