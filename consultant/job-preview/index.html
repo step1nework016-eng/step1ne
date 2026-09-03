@@ -97,7 +97,16 @@ const STATUS_LABEL = {
 function fmtSalary(job){
   if (!job.salary_min && !job.salary_max) return '';
   const unit = job.salary_unit === 'YEAR' ? '年薪' : '月薪';
-  const fmt = (n) => Number(n).toLocaleString('zh-TW');
+  // salary_min/max 是自由文字欄位，顧問或客戶可能直接打「35,000」這種帶千分位逗號
+  // 的寫法，也可能打「面議」這種完全不是數字的內容——Number() 對這些會得到 NaN，
+  // NaN.toLocaleString('zh-TW') 又會印出「非數值」這種看起來像系統壞掉的字，
+  // 2026-09-03 律准科技這筆真的踩到。改成：能轉成乾淨數字就重新排千分位，
+  // 不能轉就照原始文字顯示，不再假設這欄一定是純數字。
+  const fmt = (n) => {
+    const cleaned = String(n).replace(/,/g, '').trim();
+    const num = Number(cleaned);
+    return (cleaned !== '' && !isNaN(num)) ? num.toLocaleString('zh-TW') : String(n).trim();
+  };
   if (job.salary_min && job.salary_max) return `${unit} ${fmt(job.salary_min)}–${fmt(job.salary_max)} 元`;
   return `${unit} ${fmt(job.salary_min || job.salary_max)} 元起`;
 }
