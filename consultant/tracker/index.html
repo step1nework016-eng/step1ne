@@ -850,10 +850,15 @@ function openDrawer(appId, kind) {
             : f.status === 'not_sent'
               ? '<span class="badge b-notstart" style="font-size:11px">尚未寄送</span>'
               : '<span class="badge b-notstart" style="font-size:11px">待補聯絡方式</span>';
+        // 2026-09-03 加：人選已經是顧問親自聯繫過、資料已經在手上（電話/LINE
+        // 給的）、只是還沒上傳檔案的情況——不該用「立即寄送」（那個會真的
+        // 發信叫人選重填一次）。加一顆「標記等待中」，只建紀錄不通知，讓
+        // 客戶portal先看到「填寫中」，之後顧問用旁邊的「上傳」補檔案。
         var action = f.status === 'submitted'
           ? ' <a href="#" class="dlform" data-id="' + esc(f.id) + '" style="font-size:12px;margin-left:6px">下載</a>'
           : f.status === 'not_sent'
-            ? ' <button type="button" class="formTrigger" data-jobform="' + esc(f.job_form_id) + '" data-cid="' + esc(pl.company_id) + '" style="border:0;background:none;color:var(--gold);font-size:12px;cursor:pointer;margin-left:6px;text-decoration:underline">立即寄送</button>'
+            ? ' <button type="button" class="formTrigger" data-jobform="' + esc(f.job_form_id) + '" data-cid="' + esc(pl.company_id) + '" style="border:0;background:none;color:var(--gold);font-size:12px;cursor:pointer;margin-left:6px;text-decoration:underline">立即寄送</button>' +
+              ' <button type="button" class="formTriggerQuiet" data-jobform="' + esc(f.job_form_id) + '" data-cid="' + esc(pl.company_id) + '" style="border:0;background:none;color:var(--ink3);font-size:12px;cursor:pointer;margin-left:6px;text-decoration:underline">標記等待中（已聯繫過，不通知）</button>'
             : ' <button type="button" class="formResend" data-id="' + esc(f.id) + '" style="border:0;background:none;color:var(--gold);font-size:12px;cursor:pointer;margin-left:6px;text-decoration:underline">重新寄送</button>';
         // 2026-09-02 加：顧問代為上傳——人選是用系統外的管道（電話、LINE、
         // 當面）就已經把填好的表單給顧問了，不用逼人選再走一次線上填寫，
@@ -1262,6 +1267,14 @@ function wireDrawer(c, appId) {
       api('/admin/candidate-form-submissions/trigger', { method: 'POST', headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ application_id: appId, company_id: b.dataset.cid, job_form_id: b.dataset.jobform, by: tok }) })
         .then(function (r) { if (!r.ok) { alert(r.error || '寄送失敗'); b.textContent = t; b.disabled = false; return; } loadAndOpen(appId); });
+    };
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.formTriggerQuiet'), function (b) {
+    b.onclick = function () {
+      var t = b.textContent; b.textContent = '標記中…'; b.disabled = true;
+      api('/admin/candidate-form-submissions/trigger', { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ application_id: appId, company_id: b.dataset.cid, job_form_id: b.dataset.jobform, by: tok, no_notify: true }) })
+        .then(function (r) { if (!r.ok) { alert(r.error || '標記失敗'); b.textContent = t; b.disabled = false; return; } loadAndOpen(appId); });
     };
   });
   Array.prototype.forEach.call(document.querySelectorAll('.formUpload'), function (inp) {
