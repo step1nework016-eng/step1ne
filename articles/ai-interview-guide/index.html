@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href*="lin.ee"]');
+  if (!a) return;
+  gtag('event', 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60)
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI阿財是什麼？跟真人顧問面談有什麼不同？｜Step1ne</title>
+<meta name="description" content="阿財是Step1ne自己開發的AI面談顧問，官方公布單場面談20到40分鐘，等同真人顧問的第一輪面試。談完的逐字稿由真人顧問覆核，決定要不要推薦給用人單位。這篇說明阿財實際怎麼運作、跟真人顧問面談差在哪。">
+<meta name="keywords" content="AI阿財,AI面談,AI面試,阿財是什麼,AI面談顧問,獵頭 AI面試,Step1ne AI面談">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/articles/ai-interview-guide/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Step1ne 德仁管理顧問">
+<meta property="og:title" content="AI阿財是什麼？跟真人顧問面談有什麼不同？">
+<meta property="og:description" content="阿財是Step1ne自己開發的AI面談顧問，20到40分鐘、等同第一輪面試，談完由真人顧問覆核。這篇說明它實際怎麼運作。">
+<meta property="og:url" content="https://step1ne.com/articles/ai-interview-guide/">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta name="theme-color" content="#f4f1ea">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Noto+Sans+TC:wght@300;400;500;700;900&family=Noto+Serif+TC:wght@500;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "AI阿財是什麼？跟真人顧問面談有什麼不同？",
+  "description": "說明Step1ne自研的AI面談顧問「阿財」實際怎麼運作：應徵後怎麼進入面談室、單場面談20到40分鐘、談完由真人顧問覆核逐字稿決定是否推薦給用人單位，以及跟真人顧問面談的具體差異與各自負責的環節。",
+  "datePublished": "2026-09-03",
+  "dateModified": "2026-09-03",
+  "inLanguage": "zh-TW",
+  "author": { "@type": "Organization", "name": "Step1ne 德仁管理顧問有限公司", "url": "https://step1ne.com/" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "德仁管理顧問有限公司（Step1ne）",
+    "logo": { "@type": "ImageObject", "url": "https://step1ne.com/assets/step1ne-logo.png" }
+  }
+}
+</script>
+
+<style>
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{font-family:'Noto Sans TC',system-ui,sans-serif;color:#23262d;background:#f4f1ea;-webkit-font-smoothing:antialiased;line-height:1.8;}
+a{color:#a67c3d;text-decoration:none;}
+a:hover{color:#8a6531;}
+details summary{cursor:pointer;list-style:none;}
+details summary::-webkit-details-marker{display:none;}
+details summary .faq-icon{transition:transform .3s ease;}
+details[open] summary .faq-icon{transform:rotate(45deg);}
+.wrap{max-width:760px;margin:0 auto;padding:0 24px;}
+h2{font-family:'Noto Serif TC',serif;font-size:24px;font-weight:700;color:#1c1f26;margin:44px 0 14px;line-height:1.4;}
+h3{font-size:17.5px;font-weight:700;color:#1c1f26;margin:28px 0 8px;}
+p{color:#3a3d44;font-size:15.5px;margin:0 0 16px;}
+ul,ol{padding-left:22px;color:#3a3d44;font-size:15.5px;}
+li{margin-bottom:8px;}
+.tbl-wrap{overflow-x:auto;margin:16px 0 8px;}
+table{width:100%;border-collapse:collapse;font-size:14.5px;background:#fff;min-width:560px;}
+th,td{border:1px solid #e6dfd1;padding:11px 13px;text-align:left;vertical-align:top;}
+th{background:#faf7f1;font-weight:700;white-space:nowrap;}
+td strong{color:#8a5a1a;}
+.note{font-size:13.5px;color:#8a8d95;margin:0 0 24px;}
+.callout{background:#fff;border:1px solid #e6dfd1;border-radius:14px;padding:20px 22px;margin:0 0 16px;}
+.insight{background:#fdfaf3;border:1px solid rgba(166,124,61,0.35);border-radius:14px;padding:20px 22px;margin:24px 0;}
+.insight .label{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;color:#a67c3d;text-transform:uppercase;margin-bottom:8px;}
+.insight p:last-child{margin-bottom:0;}
+.warn{background:#fdf4f2;border:1px solid rgba(180,90,70,0.35);border-radius:14px;padding:20px 22px;margin:24px 0;}
+.warn .label{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;color:#a8543c;text-transform:uppercase;margin-bottom:8px;}
+.warn p:last-child{margin-bottom:0;}
+.law{background:#fff;border-left:3px solid #8a8d95;padding:14px 18px;margin:0 0 16px;font-size:14.5px;color:#4a4d55;border-radius:0 10px 10px 0;}
+.hub{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:16px 0 8px;}
+.hub a{display:block;padding:18px 20px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;color:#23262d;}
+.hub a:hover{border-color:rgba(166,124,61,0.55);color:#23262d;}
+.hub b{display:block;font-size:15.5px;margin-bottom:4px;}
+.hub span{font-size:13.5px;color:#8a8d95;}
+@media (max-width:760px){
+  .s1ne-hide-m{display:none !important;}
+  .s1ne-show-m{display:flex !important;}
+  footer a{min-height:44px;display:inline-flex;align-items:center;}
+}
+.s1ne-show-m{display:none;}
+.s1ne-mobile-menu{display:none;flex-direction:column;padding:4px 24px 16px;border-top:1px solid #e6dfd1;background:rgba(244,241,234,0.98);}
+.s1ne-mobile-menu.is-open{display:flex;}
+.s1ne-mobile-menu a{padding:10px 0;color:#4a4d55;font-size:15px;border-bottom:1px solid #e6dfd1;min-height:44px;display:flex;align-items:center;}
+.s1ne-mobile-menu a:last-child{border-bottom:none;}
+
+@media (max-width:640px){
+  .tbl-wrap{overflow-x:visible;}
+  .tbl-wrap table{min-width:0;display:block;background:transparent;}
+  .tbl-wrap thead{display:none;}
+  .tbl-wrap tbody{display:block;}
+  .tbl-wrap tr{display:block;background:#fff;border:1px solid #e6dfd1;border-radius:14px;margin-bottom:12px;overflow:hidden;}
+  .tbl-wrap td{display:block;border:none;border-bottom:1px solid #f2ede3;padding:12px 16px;}
+  .tbl-wrap tr td:last-child{border-bottom:none;}
+  .tbl-wrap td::before{content:attr(data-label);display:block;font-size:11.5px;font-weight:700;letter-spacing:0.5px;color:#a67c3d;margin-bottom:4px;}
+  .tbl-wrap td:empty{display:none;}
+}
+</style>
+</head>
+<body>
+
+<header style="position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:rgba(244,241,234,0.9);border-bottom:1px solid #e6dfd1;">
+  <div class="wrap" style="display:flex;align-items:center;justify-content:space-between;gap:20px;height:68px;max-width:1180px;">
+    <a href="/" style="display:flex;align-items:center;gap:12px;color:#23262d;">
+      <img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問" style="height:38px;width:auto;">
+    </a>
+    <div class="s1ne-hide-m" style="display:flex;align-items:center;gap:28px;font-size:15px;color:#4a4d55;">
+      <a href="/jobs/" style="color:#4a4d55;">職缺專區</a>
+      <a href="/articles/" style="color:#4a4d55;">獵才專欄</a>
+      <a href="/talent/" style="color:#4a4d55;">全民獵才</a>
+      <a href="/talent/ai-tools/" style="color:#4a4d55;">AI求職工具</a>
+      <a href="/about/" style="color:#4a4d55;">關於我們</a>
+    </div>
+    <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" class="s1ne-hide-m" style="background:#06c755;color:#fff;font-weight:700;font-size:13.5px;padding:9px 18px;border-radius:999px;white-space:nowrap;">LINE 洽詢</a>
+    <button type="button" class="s1ne-show-m" onclick="document.getElementById('s1ne-mmenu').classList.toggle('is-open')" aria-label="開啟選單" style="align-items:center;justify-content:center;width:40px;height:40px;border:1px solid #e6dfd1;border-radius:10px;background:#fff;flex-shrink:0;">
+      <span style="display:block;width:18px;height:2px;background:#23262d;box-shadow:0 6px 0 #23262d,0 -6px 0 #23262d;"></span>
+    </button>
+  </div>
+  <div id="s1ne-mmenu" class="s1ne-mobile-menu" onclick="if(event.target.closest('a'))this.classList.remove('is-open')">
+    <a href="/">首頁</a>
+    <a href="/jobs/">職缺專區</a>
+    <a href="/articles/">獵才專欄</a>
+    <a href="/talent/">全民獵才</a>
+    <a href="/talent/ai-tools/">AI求職工具</a>
+    <a href="/about/">關於我們</a>
+    <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="color:#a67c3d;font-weight:700;">LINE 洽詢 →</a>
+  </div>
+</header>
+
+<main>
+  <article class="wrap" style="padding:40px 24px 24px;">
+    <div style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:2px;color:#a67c3d;text-transform:uppercase;margin-bottom:16px;">AI與求職・完整指南</div>
+    <h1 style="font-family:'Noto Serif TC',serif;font-weight:700;font-size:clamp(26px,4vw,38px);line-height:1.35;margin:0 0 20px;color:#1c1f26;">AI阿財是什麼？跟真人顧問面談有什麼不同？</h1>
+
+    <p class="aeo-byline" style="font-size:14px;color:#6b6f78;margin:0 0 20px;padding-bottom:14px;border-bottom:1px solid #e6dfd1;"><span>作者：<a href="/about/" style="color:#6b6f78;">Step1ne 獵才顧問團隊</a></span><span style="margin:0 8px;">·</span><time datetime="2026-09-03">發布於 2026-09-03</time></p>
+
+    <p style="font-size:17px;color:#3a3d44;background:#fff;border:1px solid #e6dfd1;border-radius:14px;padding:20px 22px;">
+      <strong>直接答案：</strong>阿財是 Step1ne 自己開發的 AI 面談顧問。應徵之後，你會先跟阿財進行一場<strong>20 到 40 分鐘</strong>的正式對談，等同真人顧問的第一輪面試。談完的逐字稿會交給<strong>真人顧問覆核</strong>，由顧問判斷要不要把你推薦給用人單位——阿財本身不做錄取或淘汰的最終決定，這一段一直是人在把關。
+    </p>
+
+    <h2>阿財實際上怎麼運作？</h2>
+    <p>整個流程沒有想像中複雜，大致是這幾步：</p>
+    <ol>
+      <li><strong>先在職缺頁面應徵。</strong>填基本資料與履歷，大約 2 分鐘</li>
+      <li><strong>部分職缺會先請你做一份工作風格測驗。</strong>約 5–7 分鐘，沒有標準答案，做完會有一份個人報告</li>
+      <li><strong>進入面談室。</strong>阿財會先花約半分鐘看過你的履歷與應徵資料，接著主動開口，說明這場面談大概要聊多久、請你比照正式面試看待</li>
+      <li><strong>對談 20 到 40 分鐘。</strong>用打字回覆為主；如果這個職缺需要驗證外語口說能力，阿財會請你錄一小段語音回答</li>
+      <li><strong>面談結束，留下評分與意見（選填）。</strong>不論談得順不順，畫面上都能直接跟顧問反映狀況</li>
+      <li><strong>真人顧問覆核逐字稿。</strong>沒問題就送給用人單位，過程中任何一關沒有下文，都會通知你，不會讓你一直等</li>
+    </ol>
+    <p class="note">如果剛好阿財正在跟其他候選人談，系統會請你先選一個等候時段，不是讓你打完字之後石沉大海——這也是誠實要說清楚的一點：阿財目前一次只服務一位候選人，不是無限併發的客服機器人。</p>
+
+    <h2>跟真人顧問面談，差在哪？</h2>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th></th><th>阿財（AI 面談顧問）</th><th>真人顧問</th></tr></thead>
+        <tbody>
+          <tr><td data-label=""><strong>負責的環節</strong></td><td data-label="阿財">結構化的第一輪面談，確認經歷、動機、硬條件</td><td data-label="真人顧問">薪資談判、職涯建議、公司匹配度判斷，需要人情世故的部分</td></tr>
+          <tr><td data-label=""><strong>時間安排</strong></td><td data-label="阿財">應徵後即可開始，不用等顧問有空（額滿時排等候時段）</td><td data-label="真人顧問">需要約時間，通常是電話或視訊</td></tr>
+          <tr><td data-label=""><strong>提問方式</strong></td><td data-label="阿財">依你的履歷與應徵職缺出發，會針對你講的細節追問，但不會臨場換題目方向</td><td data-label="真人顧問">會依現場臨場反應調整問法，也會主動分享行情與內部資訊</td></tr>
+          <tr><td data-label=""><strong>最終決定權</strong></td><td data-label="阿財">沒有——只產出逐字稿與初步判斷</td><td data-label="真人顧問">覆核阿財的紀錄後，決定要不要推薦給用人單位</td></tr>
+          <tr><td data-label=""><strong>紀錄方式</strong></td><td data-label="阿財">全程留下逐字稿，資訊不會因為記憶落差而失真</td><td data-label="真人顧問">依當次談話印象整理筆記</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="insight">
+      <div class="label">獵頭觀察</div>
+      <p>台灣做獵頭的公司，第一輪面談絕大多數還是顧問親自電訪或視訊。讓 AI 做結構化的第一輪，不是為了少雇用人，是因為顧問的時間該花在真正需要判斷力的地方——薪資談判、關係經營、判斷這個人跟這家公司的文化合不合。同樣的初篩問題問一百次，交給人做是浪費，交給機器做才對。</p>
+    </div>
+
+    <h2>為什麼會擔心，很正常——這四個問題分開講</h2>
+    <p>第一次聽到「要跟 AI 面試」，會有疑慮是合理反應。以下四篇分別回答最常見的四個問題，可以直接跳去看你在意的那一個：</p>
+    <div class="hub">
+      <a href="/articles/ai-interview-vs-consultant/"><b>先跟阿財談，還是直接找顧問比較好？</b><span>還在猶豫要不要先應徵開始面談</span></a>
+      <a href="/articles/ai-interview-anxiety/"><b>AI面談會不會比真人更緊張？</b><span>誠實聊聊這件事的心理壓力</span></a>
+      <a href="/articles/ai-interview-fairness/"><b>AI面談會不會誤判？</b><span>不擅長表達的人怎麼辦</span></a>
+      <a href="/articles/ai-interview-questions/"><b>阿財問的問題跟真人顧問差在哪？</b><span>好奇實際會被問什麼</span></a>
+    </div>
+
+    <h2>常見問題</h2>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-top:20px;">
+      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
+        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;"><span>阿財是真人假扮的嗎？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span></summary>
+        <p style="margin:0;padding:0 20px 18px;">不是，阿財是 AI 面談顧問，這場對談就是正式面談。結束後獵頭顧問會依面談狀況評估，決定是否推薦給用人單位面試，過程中一直有真人在把關。</p>
+      </details>
+      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
+        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;"><span>面談要準備什麼？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span></summary>
+        <p style="margin:0;padding:0 20px 18px;">找一個能專心作答、網路穩定的環境，比照正式面試的心情就可以。不需要特別準備簡報或範例，阿財會根據你的履歷與應徵的職缺提問。</p>
+      </details>
+      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
+        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;"><span>面談時間大概多久？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span></summary>
+        <p style="margin:0;padding:0 20px 18px;">官方公布是 20 到 40 分鐘，實際長短依職缺內容與你回答的細節多寡而定。</p>
+      </details>
+      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
+        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;"><span>沒有錄取，會通知我嗎？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span></summary>
+        <p style="margin:0;padding:0 20px 18px;">會。不論在應徵流程的哪個階段沒有通過，都會收到通知，不會讓你一直等著沒有下文。</p>
+      </details>
+      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
+        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;"><span>面談內容會外流嗎？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span></summary>
+        <p style="margin:0;padding:0 20px 18px;">你的履歷與面談內容僅提供給你應徵的用人單位評估使用，不會另作他用，也不會提供給第三方。</p>
+      </details>
+    </div>
+
+    <div style="margin-top:48px;text-align:center;padding:36px 28px;border-radius:20px;background:linear-gradient(150deg,rgba(166,124,61,0.12),rgba(96,128,180,0.06));border:1px solid rgba(166,124,61,0.3);">
+      <h2 style="margin-top:0;">想直接感受一下面談室長什麼樣子？</h2>
+      <p style="margin-bottom:22px;">正式的面談連結會在你應徵之後由系統產生，是你專屬的一場對話。想先看看介面，可以點開 <a href="https://step1ne.com/interview/">阿財的面談室</a>；想直接開始，先去看看目前開放中的職缺，應徵完就能進場跟阿財聊聊看。</p>
+      <p style="margin-bottom:22px;"><a href="/jobs/" style="font-weight:700;font-size:16px;">看看目前開放中的職缺 →</a></p>
+      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;background:#06c755;color:#fff;font-weight:700;font-size:16px;padding:15px 32px;border-radius:999px;">加入LINE先問顧問</a>
+    </div>
+
+    <p style="margin-top:32px;font-size:14.5px;color:#8a8d95;">延伸閱讀：<a href="/articles/ai-interview-vs-consultant/">先跟阿財談，還是直接找顧問比較好？</a>　·　<a href="/articles/ai-interview-anxiety/">AI面談會不會比真人更緊張？</a>　·　<a href="/articles/ai-interview-fairness/">AI面談會不會誤判？</a>　·　<a href="/articles/ai-interview-questions/">阿財問的問題跟真人顧問差在哪？</a></p>
+  </article>
+</main>
+
+<footer style="border-top:1px solid #e6dfd1;background:#eee9de;padding:28px 0;">
+  <div class="wrap" style="text-align:center;color:#9a9da5;font-size:13px;max-width:800px;">
+    <a href="/articles/" style="color:#a67c3d;">獵才專欄</a>　|　<a href="/jobs/" style="color:#a67c3d;">職缺專區</a>　|　<a href="/" style="color:#a67c3d;">Step1ne 首頁</a>　|　© 2026 德仁管理顧問有限公司 Step1ne
+  </div>
+</footer>
+
+</body>
+</html>
