@@ -87,6 +87,21 @@ button.ghost:hover{border-color:var(--gold);color:var(--gold)}
 .subtabs{display:flex;gap:6px;background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:4px;margin-bottom:16px}
 .subtabs button{flex:1;font:inherit;font-weight:700;font-size:12.5px;padding:9px 4px;border:0;border-radius:9px;background:transparent;color:var(--ink2);cursor:pointer}
 .subtabs button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.mask{position:fixed;inset:0;background:rgba(20,22,26,.5);z-index:60;display:flex;align-items:center;justify-content:center;padding:20px}
+.mask[hidden]{display:none}
+.modal{background:var(--bg);border-radius:16px;width:min(560px,100%);max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.22)}
+.mh{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:14px 20px;display:flex;align-items:baseline;gap:10px;z-index:2}
+.mh b{font-size:18px}
+.mh .x{margin-left:auto;background:none;border:0;font-size:22px;cursor:pointer;color:var(--ink3)}
+.mb{padding:16px 20px 24px}
+.sec{background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 15px;margin-bottom:11px}
+.sec h4{margin:0 0 9px;font-size:11.5px;font-weight:700;letter-spacing:.07em;color:var(--ink3)}
+.ent{display:flex;gap:9px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.ent:last-child{border-bottom:0}
+.ent .who{flex:none;width:88px;color:var(--ink2);font-size:12.5px}
+.ent .jb{flex:1;line-height:1.5}
+.ent .st{flex:none;font-size:11px;font-weight:700;border-radius:999px;padding:1px 8px;background:var(--soft);color:var(--ink2)}
+.ent .st.ok{background:#e8f5ee;color:var(--ok)}
 </style>
 
 <div id="app">
@@ -179,7 +194,8 @@ button.ghost:hover{border-color:var(--gold);color:var(--gold)}
     <!-- ══════════ 排程行事曆 ══════════ -->
     <div id="pane-cal" hidden>
       <div class="note">
-        月曆本體維持既有功能（點哪一天、防重複），下面的方塊示範每天排的貼文會依三大分類顯示不同顏色的色條——點任何一天可以跳到下面的表單排新的。
+        跟現在線上版一樣——<b>點哪一天會跳出彈窗</b>，裡面先看這天已經排了什麼，再往下排新的一則。
+        這份預覽放大呈現的是彈窗裡「排一則新的」套上三大分類之後長怎樣。
       </div>
 
       <div class="card">
@@ -193,59 +209,74 @@ button.ghost:hover{border-color:var(--gold);color:var(--gold)}
       </div>
 
       <div class="card">
-        <div class="sechd"><h3>排一則新的（示範：選一天）</h3></div>
-        <label>誰要發</label>
-        <select id="caccount">
-          <option value="">請選擇…</option>
-          <option value="1" data-consultant="法蘭克">法蘭克 - Threads</option>
-          <option value="2" data-consultant="Bob">Bob - Threads</option>
-          <option value="3" data-consultant="DR">DR - Threads</option>
-        </select>
-
-        <label>這篇是哪一種？</label>
-        <div class="seg" id="ctypeseg">
-          <button type="button" class="on" data-type="job">📋 職缺文</button>
-          <button type="button" data-type="general">💼 通用文</button>
-          <button type="button" data-type="ai">🤖 AI阿財話題</button>
-        </div>
-
-        <div id="cjobsubwrap">
-          <label>職缺文要用哪一種寫法？</label>
-          <div class="seg sub" id="cjobsubseg">
-            <button type="button" class="on" data-sub="pure">純CTA型</button>
-            <button type="button" data-sub="dialog">對話討論型</button>
-            <button type="button" data-sub="original">原始格式</button>
-          </div>
-        </div>
-
-        <div id="cjobpick">
-          <label>選擇客戶</label>
-          <select id="cclient">
-            <option value="">請選擇…</option>
-            <option value="c1">弘昌</option>
-            <option value="c2">律準</option>
-          </select>
-          <label>選擇職缺</label>
-          <select id="cjob"><option value="">請先選客戶…</option></select>
-        </div>
-        <div id="cgeneralpick" hidden>
-          <label>選擇通用話題</label>
-          <select id="cgeneraltopic"><option value="">請選擇…</option></select>
-        </div>
-        <div id="caipick" hidden>
-          <label>選擇 AI 阿財話題</label>
-          <div class="aitopicgrid" id="caitopicgrid"></div>
-        </div>
-
-        <label>排定日期</label>
-        <input type="date" id="cdate">
-
-        <button id="cgo" class="go" type="button" style="width:100%" disabled>排入這一天</button>
-      </div>
-
-      <div class="card">
         <div class="sechd"><h3>還有哪些沒發（缺口分析）</h3></div>
         <div class="note" style="margin-bottom:0">維持只算職缺文——通用文／AI阿財話題沒有「一定要發過一次」的概念，不會出現在這份缺口清單裡。</div>
+      </div>
+    </div>
+
+    <!-- 排程行事曆：點一天跳出的彈窗，跟線上版同一套互動方式 -->
+    <div id="cmodalmask" class="mask" hidden>
+      <div class="modal">
+        <div class="mh"><b id="cmodaldate"></b><button type="button" class="x" id="cmodalclose">&times;</button></div>
+        <div class="mb">
+          <div class="sec">
+            <h4 id="cmodalcounttitle">這一天的安排</h4>
+            <div id="cmodallist"></div>
+          </div>
+          <div class="sec">
+            <h4>選顧問，看他今天發了什麼</h4>
+            <select id="cmodalwho"><option value="">選顧問（帳號）…</option></select>
+            <div class="mut" style="margin-top:-8px">先選上面的顧問，才知道他今天發了什麼、還缺什麼。</div>
+          </div>
+          <div class="sec">
+            <h4>排一則新的</h4>
+            <label>誰要發</label>
+            <select id="caccount">
+              <option value="">請選擇…</option>
+              <option value="1" data-consultant="法蘭克">法蘭克 - Threads</option>
+              <option value="2" data-consultant="Bob">Bob - Threads</option>
+              <option value="3" data-consultant="DR">DR - Threads</option>
+            </select>
+
+            <label>這篇是哪一種？</label>
+            <div class="seg" id="ctypeseg">
+              <button type="button" class="on" data-type="job">📋 職缺文</button>
+              <button type="button" data-type="general">💼 通用文</button>
+              <button type="button" data-type="ai">🤖 AI阿財話題</button>
+            </div>
+
+            <div id="cjobsubwrap">
+              <label>職缺文要用哪一種寫法？</label>
+              <div class="seg sub" id="cjobsubseg">
+                <button type="button" class="on" data-sub="pure">純CTA型</button>
+                <button type="button" data-sub="dialog">對話討論型</button>
+                <button type="button" data-sub="original">原始格式</button>
+              </div>
+            </div>
+
+            <div id="cjobpick">
+              <label>選擇客戶</label>
+              <select id="cclient">
+                <option value="">請選擇…</option>
+                <option value="c1">弘昌</option>
+                <option value="c2">律準</option>
+              </select>
+              <label>選擇職缺</label>
+              <select id="cjob"><option value="">請先選客戶…</option></select>
+            </div>
+            <div id="cgeneralpick" hidden>
+              <label>選擇通用話題</label>
+              <select id="cgeneraltopic"><option value="">請選擇…</option></select>
+            </div>
+            <div id="caipick" hidden>
+              <label>選擇 AI 阿財話題</label>
+              <div class="aitopicgrid" id="caitopicgrid"></div>
+            </div>
+
+            <input type="hidden" id="cdate">
+            <button id="cgo" class="go" type="button" style="width:100%" disabled>排入這一天</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -663,15 +694,31 @@ document.getElementById('cgo').addEventListener('click', ()=>{
 });
 refreshCalGoState();
 
-// ── 月曆本體（假資料示範每天排的貼文顏色）──
+// ── 月曆本體：跟線上版一樣，點一天跳出彈窗（不是滑到表單）──
+const TYPE_LABEL = { job:'📋 職缺文', general:'💼 通用文', ai:'🤖 AI阿財話題' };
 const CAL_EVENTS = {
-  '2026-09-03': [{ who:'法蘭克', type:'job' }],
-  '2026-09-04': [{ who:'Bob', type:'general' }],
-  '2026-09-05': [{ who:'DR', type:'ai' }],
-  '2026-09-08': [{ who:'法蘭克', type:'job' }, { who:'Bob', type:'general' }],
-  '2026-09-09': [{ who:'DR', type:'ai' }],
-  '2026-09-10': [{ who:'法蘭克', type:'general' }],
+  '2026-09-02': [
+    { who:'DR', type:'job', title:'主管特助（日本東京／長野白馬）' },
+    { who:'Phoebe', type:'job', title:'日本項目財務會計' },
+    { who:'Anna', type:'job', title:'BIM 工程師' },
+    { who:'法蘭克', type:'general', title:'加薪留才 vs 直接跳槽' },
+  ],
+  '2026-09-03': [{ who:'法蘭克', type:'job', title:'BIM工程師跟繪圖師的差異' }],
+  '2026-09-04': [{ who:'Bob', type:'general', title:'HR最怕收到哪種履歷' }],
+  '2026-09-05': [{ who:'DR', type:'ai', title:'AI面談會不會讓求職者更緊張' }],
+  '2026-09-08': [
+    { who:'法蘭克', type:'job', title:'應徵接待員的經歷要注意什麼' },
+    { who:'Bob', type:'general', title:'加薪留才 vs 直接跳槽' },
+  ],
+  '2026-09-09': [{ who:'DR', type:'ai', title:'先跟AI談還是直接跟顧問談比較好' }],
+  '2026-09-10': [{ who:'法蘭克', type:'general', title:'HR最怕收到哪種履歷' }],
 };
+const CAL_ACCOUNTS = [
+  { id:1, label:'法蘭克 - Threads', who:'法蘭克' },
+  { id:2, label:'Bob - Threads', who:'Bob' },
+  { id:3, label:'DR - Threads', who:'DR' },
+];
+
 function renderCalGrid(){
   const grid = document.getElementById('calgrid');
   const year = 2026, month = 8; // 9月，0-indexed
@@ -689,14 +736,42 @@ function renderCalGrid(){
   }
   grid.innerHTML = html;
   grid.querySelectorAll('.day[data-date]').forEach(el=>{
-    el.addEventListener('click', ()=>{
-      document.getElementById('cdate').value = el.dataset.date;
-      document.getElementById('cdate').dispatchEvent(new Event('change', {bubbles:true}));
-      document.querySelector('#pane-cal .card:nth-of-type(2)').scrollIntoView({behavior:'smooth', block:'start'});
-      toast(`已選 ${el.dataset.date}，往下滑排新的`);
-    });
+    el.addEventListener('click', ()=>openCalDay(el.dataset.date));
   });
 }
+
+let calModalWho = '';
+function openCalDay(dateKey){
+  document.getElementById('cdate').value = dateKey;
+  document.getElementById('cmodaldate').textContent = dateKey;
+  calModalWho = '';
+
+  const who = document.getElementById('cmodalwho');
+  who.innerHTML = '<option value="">選顧問（帳號）…</option>' + CAL_ACCOUNTS.map(a=>`<option value="${esc(a.who)}">${esc(a.label)}</option>`).join('');
+
+  renderCalDayList(dateKey);
+  document.getElementById('cmodalmask').hidden = false;
+  refreshCalGoState();
+}
+function renderCalDayList(dateKey){
+  const all = CAL_EVENTS[dateKey] || [];
+  const list = calModalWho ? all.filter(e=>e.who===calModalWho) : all;
+  document.getElementById('cmodalcounttitle').textContent = `這一天的安排（${all.length}）`;
+  document.getElementById('cmodallist').innerHTML = list.length ? list.map(e=>`
+    <div class="ent">
+      <span class="who">${esc(e.who)}<br><span style="font-size:11px;color:var(--ink3)">Threads</span></span>
+      <span class="jb">${TYPE_LABEL[e.type]}<br>${esc(e.title)}</span>
+      <span class="st ok">已發布</span>
+    </div>
+  `).join('') : '<p class="mut" style="margin:0">這一天還沒有安排。</p>';
+}
+document.getElementById('cmodalwho').addEventListener('change', (e)=>{
+  calModalWho = e.target.value;
+  renderCalDayList(document.getElementById('cdate').value);
+});
+document.getElementById('cmodalclose').addEventListener('click', ()=>{ document.getElementById('cmodalmask').hidden = true; });
+document.getElementById('cmodalmask').addEventListener('click', (e)=>{ if (e.target.id === 'cmodalmask') document.getElementById('cmodalmask').hidden = true; });
+
 renderCalGrid();
 
 // ── 顧問與話題設定：三個子分頁 ──
