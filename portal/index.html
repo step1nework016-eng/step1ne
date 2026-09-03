@@ -1199,10 +1199,13 @@ function renderTable(){
       // 2026-09-03 加：人事資料表狀態要在表格上一眼看到，不用逐一點開人選
       // 彈窗才看得到——不管顧問是叫人選填、還是直接代為上傳，狀態都算數，
       // 這裡不分來源，只看 status。一個職缺可能掛多份表單，全部列出來。
+      // 欄位標題已經寫「人事資料表」了，儲存格裡不用再重複表單名稱——
+      // 一個職缺掛多份表單才需要靠名稱分是哪一份，只有一份就單純顯示狀態。
+      const multiForm = (c.forms || []).length > 1;
       const formsCell = !(c.forms || []).length ? '<span style="color:var(--ink3)">—</span>'
         : c.forms.map(f => f.status === 'submitted'
-            ? `<a class="dash-pill done" style="text-decoration:none;display:inline-block;margin:2px 0" href="${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(c.application_id)}/form/${encodeURIComponent(f.id)}" target="_blank" rel="noopener">↓ ${esc(f.form_name)}</a>`
-            : `<span class="dash-pill now" style="display:inline-block;margin:2px 0">${esc(f.form_name)}・等待中</span>`
+            ? `<a class="dash-pill done" style="text-decoration:none;display:inline-block;margin:2px 0" href="${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(c.application_id)}/form/${encodeURIComponent(f.id)}" target="_blank" rel="noopener">↓ 下載${multiForm ? esc(f.form_name) : ''}</a>`
+            : `<span class="dash-pill now" style="display:inline-block;margin:2px 0">等待中${multiForm ? '・' + esc(f.form_name) : ''}</span>`
           ).join('<br>');
 
       return `<tr data-app="${esc(c.application_id)}">
