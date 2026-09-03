@@ -974,6 +974,10 @@ function openJob(slug){
   jobsEl.appendChild(renderJob(job, PORTAL_DATA.fields));
   document.getElementById('pickView').hidden = true;
   document.getElementById('jobView').hidden = false;
+  // fcRender() 要在 #fcWrap 真的掛進 document 之後才能找到它——renderJob()
+  // 回傳的是還沒 append 的 detached 節點，這裡才是它變成活的 DOM 的時間點。
+  fcInit(job, 'client');
+  fcRender();
 }
 
 // 2026-09-01 改：面試輪數設定原本混在下面 53 個欄位的表格裡，長得跟其他
@@ -1058,9 +1062,6 @@ function renderJob(job, fields){
       <button type="button" class="sec save-btn">存檔（不送審，隨時可以回來改）</button>
       <button type="button" class="submit-btn">看預覽，再送出審核 →</button>
     </div>`;
-
-  fcInit(job, 'client');
-  fcRender();
 
   div.querySelector('.save-btn').addEventListener('click', (e) => quickSaveJob(job.slug, e.target));
   div.querySelector('.submit-btn').addEventListener('click', () => {
