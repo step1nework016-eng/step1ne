@@ -248,9 +248,10 @@ table.gap td.stale{color:#c0392b}
       <label>選擇發文帳號</label>
       <select id="account"><option value="">載入中…</option></select>
       <div id="jobpick">
+        <label>選擇客戶</label>
+        <select id="client"><option value="">載入中…</option></select>
         <label>選擇職缺</label>
-        <input id="q" type="search" placeholder="輸入職缺名稱或代號搜尋…" autocomplete="off">
-        <select id="job"><option value="">載入中…</option></select>
+        <select id="job"><option value="">請先選擇客戶</option></select>
       </div>
       <div id="topicpick" hidden>
         <label>選擇話題<span class="mut">（只列這位顧問在「顧問與話題設定」打勾過的）</span></label>
@@ -417,14 +418,30 @@ function paintJobs(list) {
   if (cur) sel.value = cur;
   updateGoState();
 }
-function filterJobs() {
-  var q = ($('q').value || '').trim().toLowerCase();
-  if (!q) return paintJobs(ALL_JOBS);
-  paintJobs(ALL_JOBS.filter(function (j) {
-    return ((j.title || '') + ' ' + j.slug).toLowerCase().indexOf(q) >= 0;
-  }));
+// 2026-09-03 改：原本用文字搜尋職缺，職缺一多、標題又常常長得像
+//（不同客戶都在徵「BIM 工程師」），打字搜尋根本篩不出來——改成先選客戶，
+// 職缺清單只列這家客戶的，一步一步縮小範圍。
+function paintClients() {
+  var byId = {};
+  ALL_JOBS.forEach(function (j) {
+    // 空字串是「請選擇…」佔位選項專用，沒有客戶的職缺要用另一個值，
+    // 不然「未指定客戶」會跟「還沒選」變成同一個 value，選了會被當作沒選。
+    var key = j.company_id ? String(j.company_id) : '__none__';
+    if (!byId[key]) byId[key] = j.company_display_name || '（未指定客戶）';
+  });
+  var ids = Object.keys(byId).sort(function (a, b) { return byId[a].localeCompare(byId[b], 'zh-Hant'); });
+  $('client').innerHTML = '<option value="">請選擇…</option>' + ids.map(function (id) {
+    return '<option value="' + id + '">' + esc(byId[id]) + '</option>';
+  }).join('');
 }
-$('q').addEventListener('input', filterJobs);
+$('client').addEventListener('change', function () {
+  var cid = $('client').value;
+  if (!cid) { $('job').innerHTML = '<option value="">請先選擇客戶</option>'; updateGoState(); return; }
+  paintJobs(ALL_JOBS.filter(function (j) {
+    var key = j.company_id ? String(j.company_id) : '__none__';
+    return key === cid;
+  }));
+});
 
 // 2026-09-03 加：職缺/話題類型切換。話題類型要選帳號才知道要列哪位顧問
 // 打勾過的話題（consultant_content_settings），所以帳號永遠先選、類型切
@@ -757,6 +774,14 @@ function paintGap() {
   [].forEach.call($('gapgrid').querySelectorAll('.pick'), function (b) {
     b.onclick = function () {
       // 直接把人送到一鍵發文並選好——這張表的用途就是「看完馬上去補」。
+      // 2026-09-03 改：職缺下拉現在要先選客戶才有選項，不然這裡直接設值
+      // 會選不到（select 裡根本沒有這個 option）。
+      var job = ALL_JOBS.find(function (j) { return j.slug === b.dataset.slug; });
+      var clientKey = job && job.company_id ? String(job.company_id) : '__none__';
+      var jobTypeBtn = document.querySelector('#typeseg button[data-type="job"]');
+      if (jobTypeBtn) jobTypeBtn.click();
+      $('client').value = clientKey;
+      $('client').dispatchEvent(new Event('change', { bubbles: true }));
       $('job').value = b.dataset.slug;
       $('account').value = b.dataset.acc;
       ['job', 'account'].forEach(function (id) {
@@ -1032,7 +1057,7 @@ function load() {
     if (!jd.ok) { localStorage.removeItem(KEY); return boot(); }
     $('gate').hidden = true; $('app').hidden = false;
     ALL_JOBS = (jd.jobs || []).filter(function (j) { return j.status !== 'closed' && j.status !== 'client_draft' && j.status !== 'pending_review'; });
-    paintJobs(ALL_JOBS);
+    paintClients();
     var accs = ad.accounts || [];
     // 2026-09-01 改：新顧問帳號剛加進來、還沒去開發者後台申請 access_token
     // 時 is_active=0——原本這種帳號整個從清單消失，顧問以為系統忘了加。
