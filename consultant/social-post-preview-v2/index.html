@@ -3,7 +3,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>一鍵發文＋顧問與話題設定 v2 預覽｜顧問後台</title>
+<title>一鍵發文＋排程行事曆＋顧問與話題設定 v2 預覽｜顧問後台</title>
 <style>
 :root{--gold:#a67c3d;--ink:#23262d;--ink2:#4d5563;--ink3:#8a8d95;--line:#eee7db;--soft:#faf8f3;--bg:#f4f1ea;--ok:#2f8f5b;--bad:#c0392b;--logo1:#2ea9df;--logo2:#167eb2}
 *{box-sizing:border-box}
@@ -56,6 +56,19 @@ button.ghost:hover{border-color:var(--gold);color:var(--gold)}
 .aitopicrow{display:flex;align-items:center;gap:9px;padding:9px 12px;border:1px solid var(--line);border-radius:9px;background:var(--soft);cursor:pointer;font-size:13px}
 .aitopicrow:hover{border-color:var(--gold)}
 .aitopicrow.sel{background:#eae6f2;border-color:#6b5a8f;color:#6b5a8f;font-weight:700}
+.cklist{max-height:210px;overflow-y:auto;border:1px solid var(--line);border-radius:10px;margin-bottom:4px}
+.ckrow{display:flex;align-items:center;gap:9px;padding:8px 12px;border-bottom:1px solid var(--line);font-size:13.5px;cursor:pointer}
+.ckrow:last-child{border-bottom:0}
+.ckrow:hover{background:var(--soft)}
+.ckrow input{margin:0;flex:none;width:auto}
+.ckname{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ckmeta{flex:none;font-size:11px;color:var(--ink3)}
+.ckcount{font-size:11.5px;color:var(--ink3);margin:0 0 16px;text-align:right}
+.subh{font-size:12.5px;font-weight:700;color:var(--ink2);margin:0 0 8px;display:flex;align-items:center;gap:8px}
+.subh .n{background:var(--soft);color:var(--ink3);font-size:11px;font-weight:700;border-radius:999px;padding:1px 8px}
+.gact{flex:none;display:flex;gap:2px}
+.gact button{background:none;border:0;cursor:pointer;font-size:14px;padding:4px 6px;border-radius:6px;line-height:1}
+.gact button:hover{background:var(--soft)}
 </style>
 
 <div id="app">
@@ -66,12 +79,13 @@ button.ghost:hover{border-color:var(--gold);color:var(--gold)}
   <main class="wrap">
 
     <div class="note">
-      這是「一鍵發文」加上職缺文/通用文/AI阿財三大分類、排程發布、同天同話題防重複之後<b>大概會長怎樣</b>的示意版。
-      純假資料，不接真實 API，只是讓你先看形狀。
+      「一鍵發文」「排程行事曆」「顧問與話題設定」三個分頁，套上職缺文/通用文/AI阿財三大分類、排程發布、
+      同天同話題防重複之後<b>大概會長怎樣</b>的完整示意版。純假資料，不接真實 API，只是讓你先看形狀跟流程。
     </div>
 
     <div id="maintabs" class="tabs">
       <button type="button" class="tab on" data-pane="pane-post">一鍵發文</button>
+      <button type="button" class="tab" data-pane="pane-cal">排程行事曆</button>
       <button type="button" class="tab" data-pane="pane-settings">✨ 顧問與話題設定</button>
     </div>
 
@@ -144,6 +158,79 @@ button.ghost:hover{border-color:var(--gold);color:var(--gold)}
       </div>
     </div>
 
+    <!-- ══════════ 排程行事曆 ══════════ -->
+    <div id="pane-cal" hidden>
+      <div class="note">
+        月曆本體（點哪一天、防重複）維持既有功能，這份預覽放大呈現「排一則新的」表單套上新的三大分類之後長怎樣。
+      </div>
+
+      <div class="card">
+        <div class="sechd"><h3>排一則新的（示範：選一天）</h3></div>
+        <label>誰要發</label>
+        <select id="caccount">
+          <option value="">請選擇…</option>
+          <option value="1" data-consultant="法蘭克">法蘭克 - Threads</option>
+          <option value="2" data-consultant="Bob">Bob - Threads</option>
+          <option value="3" data-consultant="DR">DR - Threads</option>
+        </select>
+
+        <label>這篇是哪一種？</label>
+        <div class="seg" id="ctypeseg">
+          <button type="button" class="on" data-type="job">📋 職缺文</button>
+          <button type="button" data-type="general">💼 通用文</button>
+          <button type="button" data-type="ai">🤖 AI阿財話題</button>
+        </div>
+
+        <div id="cjobsubwrap">
+          <label>職缺文要用哪一種寫法？</label>
+          <div class="seg sub" id="cjobsubseg">
+            <button type="button" class="on" data-sub="pure">純CTA型</button>
+            <button type="button" data-sub="dialog">對話討論型</button>
+            <button type="button" data-sub="original">原始格式</button>
+          </div>
+        </div>
+
+        <div id="cjobpick">
+          <label>選擇客戶</label>
+          <select id="cclient">
+            <option value="">請選擇…</option>
+            <option value="c1">弘昌</option>
+            <option value="c2">律準</option>
+          </select>
+          <label>選擇職缺</label>
+          <select id="cjob"><option value="">請先選客戶…</option></select>
+        </div>
+        <div id="cgeneralpick" hidden>
+          <label>選擇通用話題</label>
+          <select id="cgeneraltopic"><option value="">請選擇…</option></select>
+        </div>
+        <div id="caipick" hidden>
+          <label>選擇 AI 阿財話題</label>
+          <div class="aitopicgrid" id="caitopicgrid"></div>
+        </div>
+
+        <label>排定日期</label>
+        <input type="date" id="cdate">
+
+        <button id="cgo" class="go" type="button" style="width:100%" disabled>排入這一天</button>
+      </div>
+
+      <div class="card">
+        <div class="sechd"><h3>📅 每日話題發文節奏（示範）</h3></div>
+        <div class="mut" style="margin-bottom:10px">同一個職缺，每天換顧問、每次換話題——這是理想狀態的示意，不是真資料</div>
+        <div class="growlist" style="max-height:none">
+          <div class="growrow"><div class="gname">09/08・法蘭克</div><div class="gmeta">BIM工程師跟繪圖師的差異</div></div>
+          <div class="growrow"><div class="gname">09/09・Bob</div><div class="gmeta">加薪留才 vs 直接跳槽</div></div>
+          <div class="growrow"><div class="gname">09/10・DR</div><div class="gmeta">先跟AI談還是直接跟顧問談比較好</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="sechd"><h3>還有哪些沒發（缺口分析）</h3></div>
+        <div class="note" style="margin-bottom:0">維持只算職缺文——通用文／AI阿財話題沒有「一定要發過一次」的概念，不會出現在這份缺口清單裡。</div>
+      </div>
+    </div>
+
     <!-- ══════════ 顧問與話題設定 ══════════ -->
     <div id="pane-settings" hidden>
       <div class="note">話題庫加了分類——新增話題時要選「職缺專屬／通用／AI阿財」，管理時也能依分類篩選。</div>
@@ -162,7 +249,42 @@ button.ghost:hover{border-color:var(--gold);color:var(--gold)}
         <button class="ghost" id="addtopic" type="button">＋ 新增話題</button>
       </div>
 
-      <div class="note" style="margin-top:0">下方顧問指派、風格庫維持跟目前上線版一樣，這份預覽只放大呈現分類篩選這塊新的。</div>
+      <div class="card">
+        <div class="sechd"><h3>🎨 職缺風格提示詞庫</h3><span class="mut" id="stylecnt"></span></div>
+        <div class="searchbar"><input type="search" id="stylesearch" placeholder="搜尋風格名稱…"></div>
+        <div id="styleglobal" class="growlist"></div>
+        <div id="styleform" class="form" hidden></div>
+        <button class="ghost" id="addstyle" type="button">＋ 新增風格</button>
+      </div>
+
+      <div class="card">
+        <div class="sechd"><h3>👤 顧問指派</h3></div>
+        <label>正在管理哪一位顧問</label>
+        <select id="cwho">
+          <option value="法蘭克">法蘭克</option>
+          <option value="Bob">Bob</option>
+          <option value="DR">DR</option>
+        </select>
+
+        <hr style="border:0;border-top:1px solid var(--line);margin:16px 0">
+
+        <div class="subh">這位顧問可以用的話題 <span class="n" id="topicpickcnt"></span></div>
+        <div id="apick_topic" class="cklist"></div>
+        <div class="ckcount" id="apick_topic_count"></div>
+
+        <div class="subh">這位顧問可以用的風格 <span class="n" id="stylepickcnt"></span></div>
+        <div id="apick_style" class="cklist"></div>
+        <div class="ckcount" id="apick_style_count"></div>
+
+        <hr style="border:0;border-top:1px solid var(--line);margin:16px 0">
+
+        <label>話題類型貼文，採用哪個風格？<span class="mut">（只列上面打勾過的）</span></label>
+        <select id="mapTopic"></select>
+        <label>職缺類型貼文，採用哪個風格？<span class="mut">（只列上面打勾過的）</span></label>
+        <select id="mapJob"></select>
+        <button class="go" id="savemap" type="button" style="width:100%">儲存這位顧問的設定</button>
+        <div class="mut" id="mapsaved" style="display:none;color:var(--ok);font-weight:600;margin-top:8px">✓ 已儲存</div>
+      </div>
     </div>
 
   </main>
@@ -200,6 +322,7 @@ document.getElementById('maintabs').addEventListener('click', (e)=>{
   document.querySelectorAll('#maintabs .tab').forEach(x=>x.classList.remove('on'));
   b.classList.add('on');
   document.getElementById('pane-post').hidden = b.dataset.pane !== 'pane-post';
+  document.getElementById('pane-cal').hidden = b.dataset.pane !== 'pane-cal';
   document.getElementById('pane-settings').hidden = b.dataset.pane !== 'pane-settings';
 });
 
@@ -349,7 +472,165 @@ document.getElementById('addtopic').addEventListener('click', ()=>{
   document.getElementById('f_save').addEventListener('click', ()=>{ form.hidden = true; toast('✓ 已新增（示範用）'); });
 });
 
+// ── 職缺風格提示詞庫 ──
+const STYLES = [
+  { id:1, name:'活潑口語', updated:'09-01' },
+  { id:2, name:'專業權威', updated:'08-20' },
+  { id:3, name:'數據派', updated:'08-25' },
+];
+function renderStyleLib(){
+  const q = (document.getElementById('stylesearch').value || '').trim().toLowerCase();
+  const list = q ? STYLES.filter(s=>s.name.toLowerCase().includes(q)) : STYLES;
+  document.getElementById('stylecnt').textContent = `共 ${STYLES.length} 筆`;
+  document.getElementById('styleglobal').innerHTML = list.length ? list.map(s=>`
+    <div class="growrow">
+      <div class="gname">${esc(s.name)}</div>
+      <div class="gmeta">${s.updated}</div>
+      <div class="gact"><button type="button">✎</button><button type="button">🗑</button></div>
+    </div>
+  `).join('') : '<div class="emptyrow">沒有符合搜尋的結果</div>';
+}
+document.getElementById('stylesearch').addEventListener('input', renderStyleLib);
+document.getElementById('addstyle').addEventListener('click', ()=>{
+  const form = document.getElementById('styleform');
+  form.innerHTML = `
+    <label>風格名稱</label>
+    <input type="text" id="fs_name" placeholder="例如：活潑口語">
+    <label>內容</label>
+    <textarea placeholder="貼上內容…"></textarea>
+    <button class="go" type="button" id="fs_save" style="width:auto;padding:10px 18px">新增</button>
+  `;
+  form.hidden = false;
+  document.getElementById('fs_save').addEventListener('click', ()=>{ form.hidden = true; toast('✓ 已新增（示範用）'); });
+});
+
+// ── 顧問指派 ──
+const ASSIGN = {
+  '法蘭克': { topics:new Set([1,2,5]), styles:new Set([1,2]), mapping:{ topic:1, job:2 } },
+  'Bob':    { topics:new Set([3]),     styles:new Set([3]),   mapping:{ topic:3, job:3 } },
+  'DR':     { topics:new Set(),        styles:new Set(),      mapping:{ topic:'', job:'' } },
+};
+let curConsultant = '法蘭克';
+document.getElementById('cwho').addEventListener('change', (e)=>{
+  curConsultant = e.target.value;
+  renderAssign();
+});
+function renderPickList(kind){
+  const isTopic = kind === 'topic';
+  const data = isTopic ? TOPICS : STYLES;
+  const assigned = isTopic ? ASSIGN[curConsultant].topics : ASSIGN[curConsultant].styles;
+  const wrap = document.getElementById(isTopic ? 'apick_topic' : 'apick_style');
+  document.getElementById(isTopic ? 'topicpickcnt' : 'stylepickcnt').textContent = `全站 ${data.length} 筆`;
+  wrap.innerHTML = data.length ? data.map(item => `
+    <label class="ckrow">
+      <input type="checkbox" data-id="${item.id}" ${assigned.has(item.id) ? 'checked' : ''}>
+      <span class="ckname">${esc(item.name)}${isTopic ? `<span class="pill ${item.cat}" style="margin-left:6px">${{job:'職缺',general:'通用',ai:'阿財'}[item.cat]}</span>` : ''}</span>
+      <span class="ckmeta">${item.updated}</span>
+    </label>
+  `).join('') : '<div class="emptyrow">全站庫目前沒有資料</div>';
+  document.getElementById(isTopic ? 'apick_topic_count' : 'apick_style_count').textContent = `已勾選 ${assigned.size} / ${data.length}`;
+}
+function bindPickEvents(kind){
+  const isTopic = kind === 'topic';
+  document.getElementById(isTopic ? 'apick_topic' : 'apick_style').addEventListener('change', (e)=>{
+    const cb = e.target.closest('input[type=checkbox]'); if (!cb) return;
+    const id = Number(cb.dataset.id);
+    const set = isTopic ? ASSIGN[curConsultant].topics : ASSIGN[curConsultant].styles;
+    if (cb.checked) set.add(id); else set.delete(id);
+    renderPickList(kind);
+    renderMapping();
+  });
+}
+bindPickEvents('topic'); bindPickEvents('style');
+function renderMapping(){
+  const styleIds = ASSIGN[curConsultant].styles;
+  const picked = STYLES.filter(s=>styleIds.has(s.id));
+  const opts = '<option value="">（不指定，用預設語氣）</option>' + picked.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
+  document.getElementById('mapTopic').innerHTML = opts;
+  document.getElementById('mapJob').innerHTML = opts;
+  document.getElementById('mapTopic').value = ASSIGN[curConsultant].mapping.topic || '';
+  document.getElementById('mapJob').value = ASSIGN[curConsultant].mapping.job || '';
+  document.getElementById('mapsaved').style.display = 'none';
+}
+document.getElementById('savemap').addEventListener('click', ()=>{
+  ASSIGN[curConsultant].mapping.topic = document.getElementById('mapTopic').value;
+  ASSIGN[curConsultant].mapping.job = document.getElementById('mapJob').value;
+  document.getElementById('mapsaved').style.display = 'block';
+  toast('✓ 設定已儲存（示範用）');
+});
+function renderAssign(){
+  renderPickList('topic');
+  renderPickList('style');
+  renderMapping();
+}
+
+renderStyleLib();
+renderAssign();
 renderTopicLib();
 refreshGoState();
+
+// ── 排程行事曆：同一套三大分類，各自獨立一份id ──
+function currentCalType(){ return document.querySelector('#ctypeseg button.on').dataset.type; }
+let selectedCalAiTopic = null;
+
+document.getElementById('ctypeseg').addEventListener('click', (e)=>{
+  const b = e.target.closest('button'); if(!b) return;
+  document.querySelectorAll('#ctypeseg button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  const t = b.dataset.type;
+  document.getElementById('cjobsubwrap').hidden = t !== 'job';
+  document.getElementById('cjobpick').hidden = t !== 'job';
+  document.getElementById('cgeneralpick').hidden = t !== 'general';
+  document.getElementById('caipick').hidden = t !== 'ai';
+  if (t === 'general') {
+    document.getElementById('cgeneraltopic').innerHTML = '<option value="">請選擇…</option>' +
+      GENERAL_TOPICS.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('');
+  }
+  if (t === 'ai') {
+    const wrap = document.getElementById('caitopicgrid');
+    wrap.innerHTML = AI_TOPICS.map(x=>`<div class="aitopicrow" data-id="${x.id}">${esc(x.name)}</div>`).join('');
+    [...wrap.querySelectorAll('.aitopicrow')].forEach(row=>{
+      row.addEventListener('click', ()=>{
+        wrap.querySelectorAll('.aitopicrow').forEach(r=>r.classList.remove('sel'));
+        row.classList.add('sel');
+        selectedCalAiTopic = Number(row.dataset.id);
+        refreshCalGoState();
+      });
+    });
+  }
+  refreshCalGoState();
+});
+document.getElementById('cjobsubseg').addEventListener('click', (e)=>{
+  const b = e.target.closest('button'); if(!b) return;
+  document.querySelectorAll('#cjobsubseg button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+});
+document.getElementById('cclient').addEventListener('change', ()=>{
+  const opts = { c1: [['j1','後端開發工程師'],['j2','BIM工程師']], c2: [['j3','BIM工程師']] };
+  const sel = document.getElementById('cjob');
+  const list = opts[document.getElementById('cclient').value] || [];
+  sel.innerHTML = list.length ? '<option value="">請選擇…</option>' + list.map(([v,n])=>`<option value="${v}">${n}</option>`).join('')
+    : '<option value="">請先選客戶…</option>';
+  refreshCalGoState();
+});
+document.getElementById('cjob').addEventListener('change', refreshCalGoState);
+document.getElementById('cgeneraltopic').addEventListener('change', refreshCalGoState);
+document.getElementById('caccount').addEventListener('change', refreshCalGoState);
+document.getElementById('cdate').addEventListener('change', refreshCalGoState);
+
+function refreshCalGoState(){
+  const t = currentCalType();
+  const acc = document.getElementById('caccount').value;
+  const date = document.getElementById('cdate').value;
+  let contentOk = false;
+  if (t === 'job') contentOk = !!document.getElementById('cjob').value;
+  if (t === 'general') contentOk = !!document.getElementById('cgeneraltopic').value;
+  if (t === 'ai') contentOk = !!selectedCalAiTopic;
+  document.getElementById('cgo').disabled = !(acc && contentOk && date);
+}
+document.getElementById('cgo').addEventListener('click', ()=>{
+  toast('✓ 已排到這一天（示範用，未真的送出）');
+});
+refreshCalGoState();
 </script>
 </html>
