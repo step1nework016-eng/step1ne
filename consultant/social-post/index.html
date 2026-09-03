@@ -1671,8 +1671,12 @@ function renderGlobalLib(kind) {
     return;
   }
   wrap.innerHTML = filtered.map(function (item) {
+    // 2026-09-03 加：source='ai_research' 是 topic_research_tick.py 排程
+    // 自動查資料產的，不是顧問手打的——標籤讓人一眼看出這則不用另外查證來源。
+    var aiTag = (isTopic && item.source === 'ai_research')
+      ? '<span class="mut" style="background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:1px 8px;font-size:11px;margin-left:6px">🤖 AI自動研究</span>' : '';
     return '<div class="growrow" data-id="' + item.id + '">'
-      + '<div class="gname" data-act="preview">' + esc(item.name) + '</div>'
+      + '<div class="gname" data-act="preview">' + esc(item.name) + aiTag + '</div>'
       + '<div class="gmeta">' + esc((item.updated_at || '').slice(5, 16).replace('T', ' ')) + '</div>'
       + '<div class="gact"><button type="button" data-act="edit" title="編輯">✎</button>'
       + '<button type="button" data-act="del" title="刪除">🗑</button></div></div>';
@@ -1688,7 +1692,7 @@ function bindGlobalLibEvents(kind) {
     var data = isTopic ? TOPICS : STYLES;
     var item = data.find(function (x) { return x.id === id; });
     if (!item) return;
-    if (el.dataset.act === 'preview') openPreview(item.name, item.body);
+    if (el.dataset.act === 'preview') openPreview(item.name, item.body, isTopic && item.source === 'ai_research');
     if (el.dataset.act === 'edit') openForm(kind, id);
     if (el.dataset.act === 'del') {
       if (!confirm('確定要刪除「' + item.name + '」？已經指派給顧問的會一併移除。')) return;
@@ -1706,9 +1710,11 @@ function bindGlobalLibEvents(kind) {
 bindGlobalLibEvents('topic');
 bindGlobalLibEvents('style');
 
-function openPreview(name, body) {
+function openPreview(name, body, isAiResearch) {
+  var aiTag = isAiResearch
+    ? '<div class="mut" style="margin-top:4px">🤖 這則是AI自動查資料研究產生的，不是顧問手打</div>' : '';
   $('pvmodal').innerHTML = '<div class="mask"><div class="modal">'
-    + '<div class="mh"><b>' + esc(name) + '</b><button class="x">×</button></div>'
+    + '<div class="mh"><b>' + esc(name) + '</b><button class="x">×</button></div>' + aiTag
     + '<div class="mb" style="white-space:pre-wrap;font-family:ui-monospace,\'SF Mono\',monospace;font-size:13px;line-height:1.75;color:var(--ink2)">' + esc(body) + '</div>'
     + '</div></div>';
   var close = function () { $('pvmodal').innerHTML = ''; };
