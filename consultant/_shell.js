@@ -80,8 +80,8 @@
     { href: '/consultant/checkups/',       label: '阿福健檢', icon: 'pulse',  primary: false, group: '其他工具' },
     { href: '/consultant/line-bindings/',  label: 'LINE 進度綁定', icon: 'clip', primary: false, group: '其他工具' },
     { href: '/consultant/token-usage/',    label: 'Token 用量', icon: 'chart', primary: false, group: '其他工具' },
-    // 頁面 2026-08-19 已改名「顧問社群」（裡面分三個分頁：一鍵發文／發文數據／
-    // 成效儀表板），選單一起改，不然點進去標題對不上。
+    // 頁面 2026-08-19 已改名「顧問社群」（裡面分頁：一鍵發文／排程行事曆／
+    // 成效儀表板／顧問與話題設定），選單一起改，不然點進去標題對不上。
     { href: '/consultant/social-post/',    label: '顧問社群', icon: 'send',   primary: false, group: '其他工具' },
     // 2026-09-01 加：原本「顧問名單設定」埋在「我的案子」頁面最下面一個
     // <details> 折疊區塊，跟「我的案子」本身的用途（追每天該做什麼）沒關係，

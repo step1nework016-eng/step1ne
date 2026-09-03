@@ -180,6 +180,31 @@ table.gap td.stale{color:#c0392b}
   font-size:11.5px;font-weight:800;font-variant-numeric:tabular-nums}
 .weekgrid .wmut{color:var(--ink3);font-weight:400}
 .arrowdown{text-align:center;color:var(--ink3);font-size:13px;margin:-2px 0}
+
+/* ── 顧問與話題設定（2026-09-03 加）── */
+.sechd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:10px}
+.searchbar input{margin-bottom:10px}
+.growlist{max-height:260px;overflow-y:auto;border:1px solid var(--line);border-radius:10px;margin-bottom:14px}
+.growrow{display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid var(--line);font-size:13.5px}
+.growrow:last-child{border-bottom:0}
+.gname{flex:1;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
+.gname:hover{color:var(--gold)}
+.gmeta{flex:none;font-size:11px;color:var(--ink3);white-space:nowrap}
+.gact{flex:none;display:flex;gap:2px}
+.gact button{background:none;border:0;cursor:pointer;font-size:14px;padding:4px 6px;border-radius:6px;line-height:1}
+.gact button:hover{background:var(--soft)}
+.emptyrow{padding:18px 12px;text-align:center;color:var(--ink3);font-size:13px}
+.cklist{max-height:210px;overflow-y:auto;border:1px solid var(--line);border-radius:10px;margin-bottom:4px}
+.ckrow{display:flex;align-items:center;gap:9px;padding:8px 12px;border-bottom:1px solid var(--line);font-size:13.5px;cursor:pointer}
+.ckrow:last-child{border-bottom:0}
+.ckrow:hover{background:var(--soft)}
+.ckrow input{margin:0;flex:none;width:auto}
+.ckname{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ckmeta{flex:none;font-size:11px;color:var(--ink3)}
+.form{border:1px dashed #ddd3c0;border-radius:12px;padding:14px 16px;margin-bottom:14px;background:#fffdf8}
+.form .frow{display:flex;gap:8px;margin-bottom:2px}
+.form input[type=file]{font-size:12.5px;margin-bottom:14px}
+.filehint{font-size:11.5px;color:var(--ink3);margin:-10px 0 14px}
 </style>
 
 <div id="gate" class="gate" hidden>
@@ -200,6 +225,7 @@ table.gap td.stale{color:#c0392b}
       <button type="button" class="tab on" data-pane="pane-post">一鍵發文</button>
       <button type="button" class="tab" data-pane="pane-cal">排程行事曆</button>
       <button type="button" class="tab" data-pane="pane-board">成效儀表板</button>
+      <button type="button" class="tab" data-pane="pane-settings">✨ 顧問與話題設定</button>
     </div>
 
     <div id="pane-post">
@@ -289,9 +315,64 @@ table.gap td.stale{color:#c0392b}
         <div id="postlist" class="mut">載入中…</div>
       </div>
     </div>
+
+    <!-- ── 顧問與話題設定（2026-09-03 加）──
+         話題／發文風格是全站共用一份庫，顧問打勾選要用哪些，不用各自
+         重複輸入內容；「一鍵發文」何時會真的套用這裡設定的風格，要等
+         social_post_agent.py 加了話題類型分支才會生效——這裡先只負責存資料。 -->
+    <div id="pane-settings" hidden>
+      <div class="note">
+        話題提示詞之後會接話題發想 agent；發文風格是給自動產稿套用的語氣模板。
+        你跟 Phoebe 都能切換任一位顧問來管理。
+      </div>
+
+      <div class="card">
+        <div class="sechd"><h3 style="margin:0;font-size:15px">📝 全站話題提示詞庫</h3><span class="mut" id="topiccnt"></span></div>
+        <div class="searchbar"><input type="search" id="topicsearch" placeholder="搜尋話題名稱…"></div>
+        <div id="topicglobal" class="growlist"></div>
+        <div id="topicform" class="form" hidden></div>
+        <button class="tab" id="addtopic" type="button">＋ 新增話題</button>
+      </div>
+
+      <div class="card">
+        <div class="sechd"><h3 style="margin:0;font-size:15px">🎨 全站發文風格庫</h3><span class="mut" id="stylecnt"></span></div>
+        <div class="searchbar"><input type="search" id="stylesearch" placeholder="搜尋風格名稱…"></div>
+        <div id="styleglobal" class="growlist"></div>
+        <div id="styleform" class="form" hidden></div>
+        <button class="tab" id="addstyle" type="button">＋ 新增風格</button>
+      </div>
+
+      <div class="card">
+        <div class="sechd"><h3 style="margin:0;font-size:15px">👤 顧問指派</h3></div>
+        <label>正在管理哪一位顧問</label>
+        <select id="cwho"></select>
+
+        <hr style="border:0;border-top:1px solid var(--line);margin:16px 0">
+
+        <div class="sechd"><span class="mut" style="font-weight:700;color:var(--ink2)">這位顧問可以用的話題</span><span class="mut" id="topicpickcnt"></span></div>
+        <div class="searchbar"><input type="search" id="apick_topic_search" placeholder="搜尋…"></div>
+        <div id="apick_topic" class="cklist"></div>
+        <div class="mut" id="apick_topic_count" style="text-align:right;margin:0 0 16px"></div>
+
+        <div class="sechd"><span class="mut" style="font-weight:700;color:var(--ink2)">這位顧問可以用的風格</span><span class="mut" id="stylepickcnt"></span></div>
+        <div class="searchbar"><input type="search" id="apick_style_search" placeholder="搜尋…"></div>
+        <div id="apick_style" class="cklist"></div>
+        <div class="mut" id="apick_style_count" style="text-align:right;margin:0 0 16px"></div>
+
+        <hr style="border:0;border-top:1px solid var(--line);margin:16px 0">
+
+        <label>話題類型貼文，採用哪個風格？<span class="mut">（只列上面打勾過的）</span></label>
+        <select id="mapTopic"></select>
+        <label>職缺類型貼文，採用哪個風格？<span class="mut">（只列上面打勾過的）</span></label>
+        <select id="mapJob"></select>
+        <button class="go" id="savemap" type="button" style="width:100%">儲存這位顧問的設定</button>
+        <div class="mut" id="mapsaved" style="display:none;color:var(--ok);font-weight:600;margin-top:8px">✓ 已儲存</div>
+      </div>
+    </div>
   </main>
 </div>
 <div id="msg" class="msg"></div>
+<div id="pvmodal"></div>
 
 <script>
 var API = 'https://step1ne-backoffice-worker.aiagentg888.workers.dev';
@@ -472,12 +553,13 @@ function paintLine() {
 $('maintabs').addEventListener('click', function (e) {
   var b = e.target.closest('.tab'); if (!b) return;
   [].forEach.call($('maintabs').children, function (x) { x.classList.toggle('on', x === b); });
-  ['pane-post', 'pane-cal', 'pane-board'].forEach(function (id) {
+  ['pane-post', 'pane-cal', 'pane-board', 'pane-settings'].forEach(function (id) {
     $(id).hidden = (id !== b.dataset.pane);
   });
   if (b.dataset.pane === 'pane-cal') loadCal();
   if (b.dataset.pane === 'pane-board') loadStatsQueue();
   if (b.dataset.pane === 'pane-board' && !LINE_INS) loadLine();
+  if (b.dataset.pane === 'pane-settings') loadSettings();
 });
 // 成效儀表板要看的是「這位顧問到底發過多少文」，跟排隊列表要的「最近在
 // 跑什麼」是兩種資料量級，故意分開拉，不要共用小額度那份、也不要跟著
@@ -1281,6 +1363,219 @@ function addSched(date, slug, accountId, after){
   }).catch(function(){ alert('連線失敗'); });
 }
 
+// ── 顧問與話題設定（2026-09-03 加）──
+// 話題／發文風格是全站共用一份庫，顧問打勾選要用哪些；「一鍵發文」還沒有
+// 讀取這裡的設定去自動套用（social_post_agent.py 尚未加話題類型分支），
+// 這一頁先只負責讓你跟 Phoebe 建立內容庫、幫每位顧問打勾指派。
+var TOPICS = [], STYLES = [];
+var CUR_CONSULTANT = null;
+var CUR_ASSIGN = { topic_ids: [], style_ids: [], topic_style_id: null, job_style_id: null };
+var SETTINGS_LOADED = false;
+
+function personName(label) {
+  return String(label || '').split(/[-–—]/)[0].trim() || label;
+}
+
+function loadSettings() {
+  if (SETTINGS_LOADED) return;
+  SETTINGS_LOADED = true;
+  Promise.all([api('/admin/topic-prompts'), api('/admin/style-prompts'), api('/admin/social-accounts')]).then(function (r) {
+    TOPICS = (r[0].topics || []);
+    STYLES = (r[1].styles || []);
+    var names = [];
+    (r[2].accounts || []).forEach(function (a) {
+      if (a.platform === 'line_community') return;
+      var n = personName(a.label);
+      if (names.indexOf(n) < 0) names.push(n);
+    });
+    CUR_CONSULTANT = names[0] || null;
+    $('cwho').innerHTML = names.map(function (n) {
+      return '<option value="' + esc(n) + '">' + esc(n) + '</option>';
+    }).join('') || '<option value="">目前沒有顧問帳號</option>';
+    renderGlobalLib('topic');
+    renderGlobalLib('style');
+    loadAssign();
+  }).catch(function () { toast('讀取話題／風格庫失敗', true); });
+}
+
+$('cwho').addEventListener('change', function () { CUR_CONSULTANT = $('cwho').value; loadAssign(); });
+
+function loadAssign() {
+  if (!CUR_CONSULTANT) return;
+  api('/admin/consultant-content-settings?consultant=' + encodeURIComponent(CUR_CONSULTANT)).then(function (d) {
+    if (!d.ok) return;
+    CUR_ASSIGN = { topic_ids: d.topic_ids || [], style_ids: d.style_ids || [],
+                   topic_style_id: d.topic_style_id, job_style_id: d.job_style_id };
+    renderPickList('topic');
+    renderPickList('style');
+    renderMapping();
+  }).catch(function () { toast('讀取這位顧問的設定失敗', true); });
+}
+
+function renderGlobalLib(kind) {
+  var isTopic = kind === 'topic';
+  var data = isTopic ? TOPICS : STYLES;
+  var q = ($(isTopic ? 'topicsearch' : 'stylesearch').value || '').trim().toLowerCase();
+  var wrap = $(isTopic ? 'topicglobal' : 'styleglobal');
+  $(isTopic ? 'topiccnt' : 'stylecnt').textContent = '共 ' + data.length + ' 筆';
+  var filtered = q ? data.filter(function (x) { return x.name.toLowerCase().indexOf(q) >= 0; }) : data;
+  if (!filtered.length) {
+    wrap.innerHTML = '<div class="emptyrow">' + (q ? '沒有符合搜尋的結果' : '目前沒有資料，點下面新增一筆') + '</div>';
+    return;
+  }
+  wrap.innerHTML = filtered.map(function (item) {
+    return '<div class="growrow" data-id="' + item.id + '">'
+      + '<div class="gname" data-act="preview">' + esc(item.name) + '</div>'
+      + '<div class="gmeta">' + esc((item.updated_at || '').slice(5, 16).replace('T', ' ')) + '</div>'
+      + '<div class="gact"><button type="button" data-act="edit" title="編輯">✎</button>'
+      + '<button type="button" data-act="del" title="刪除">🗑</button></div></div>';
+  }).join('');
+}
+
+function bindGlobalLibEvents(kind) {
+  var isTopic = kind === 'topic';
+  var wrap = $(isTopic ? 'topicglobal' : 'styleglobal');
+  wrap.addEventListener('click', function (e) {
+    var el = e.target.closest('[data-act]'); if (!el) return;
+    var id = Number(el.closest('.growrow').dataset.id);
+    var data = isTopic ? TOPICS : STYLES;
+    var item = data.find(function (x) { return x.id === id; });
+    if (!item) return;
+    if (el.dataset.act === 'preview') openPreview(item.name, item.body);
+    if (el.dataset.act === 'edit') openForm(kind, id);
+    if (el.dataset.act === 'del') {
+      if (!confirm('確定要刪除「' + item.name + '」？已經指派給顧問的會一併移除。')) return;
+      api((isTopic ? '/admin/topic-prompts' : '/admin/style-prompts') + '/delete', {
+        method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: id }),
+      }).then(function (r) {
+        if (!r.ok) return toast(r.error || '刪除失敗', true);
+        toast('已刪除');
+        SETTINGS_LOADED = false; loadSettings();
+      }).catch(function () { toast('連線失敗', true); });
+    }
+  });
+  $(isTopic ? 'topicsearch' : 'stylesearch').addEventListener('input', function () { renderGlobalLib(kind); });
+}
+bindGlobalLibEvents('topic');
+bindGlobalLibEvents('style');
+
+function openPreview(name, body) {
+  $('pvmodal').innerHTML = '<div class="mask"><div class="modal">'
+    + '<div class="mh"><b>' + esc(name) + '</b><button class="x">×</button></div>'
+    + '<div class="mb" style="white-space:pre-wrap;font-family:ui-monospace,\'SF Mono\',monospace;font-size:13px;line-height:1.75;color:var(--ink2)">' + esc(body) + '</div>'
+    + '</div></div>';
+  var close = function () { $('pvmodal').innerHTML = ''; };
+  $('pvmodal').querySelector('.x').onclick = close;
+  $('pvmodal').querySelector('.mask').onclick = function (e) { if (e.target.classList.contains('mask')) close(); };
+}
+
+function openForm(kind, editId) {
+  var isTopic = kind === 'topic';
+  var data = isTopic ? TOPICS : STYLES;
+  var form = $(isTopic ? 'topicform' : 'styleform');
+  var editing = editId ? data.find(function (x) { return x.id === editId; }) : null;
+  var nameLabel = isTopic ? '話題名稱' : '風格名稱';
+  form.innerHTML = '<label>' + nameLabel + '</label>'
+    + '<input type="text" id="f_name" value="' + (editing ? esc(editing.name) : '') + '" placeholder="例如：' + (isTopic ? 'AI取代營造業討論' : '活潑口語') + '">'
+    + '<label>上傳 .md 檔案（選填，會覆蓋下面文字框內容）</label>'
+    + '<input type="file" id="f_file" accept=".md,text/markdown,text/plain">'
+    + '<div class="filehint">支援直接貼文字，也支援上傳 md 檔——上傳後自動帶進下面文字框，兩種擇一即可。</div>'
+    + '<label>內容</label>'
+    + '<textarea id="f_body" style="width:100%;min-height:110px;font:13.5px/1.6 ui-monospace,\'SF Mono\',monospace;padding:11px 13px;border:1px solid var(--line);border-radius:10px;margin-bottom:16px" placeholder="貼上內容…">' + (editing ? esc(editing.body) : '') + '</textarea>'
+    + '<div class="frow"><button class="go" id="f_save" type="button" style="width:auto;padding:10px 18px">' + (editing ? '儲存修改' : '新增') + '</button>'
+    + '<button class="tab" id="f_cancel" type="button">取消</button></div>';
+  form.hidden = false;
+  $('f_file').addEventListener('change', function (e) {
+    var f = e.target.files[0]; if (!f) return;
+    var reader = new FileReader();
+    reader.onload = function () { $('f_body').value = reader.result; toast('✓ 已讀入檔案內容'); };
+    reader.readAsText(f);
+  });
+  $('f_cancel').addEventListener('click', function () { form.hidden = true; form.innerHTML = ''; });
+  $('f_save').addEventListener('click', function () {
+    var name = $('f_name').value.trim();
+    var body = $('f_body').value.trim();
+    if (!name || !body) { toast('名稱跟內容都要填', true); return; }
+    var payload = { name: name, body: body };
+    if (editing) payload.id = editing.id;
+    api(isTopic ? '/admin/topic-prompts' : '/admin/style-prompts', {
+      method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload),
+    }).then(function (r) {
+      if (!r.ok) return toast(r.error || '儲存失敗', true);
+      toast(editing ? '✓ 已更新' : '✓ 已新增到全站庫');
+      form.hidden = true; form.innerHTML = '';
+      SETTINGS_LOADED = false; loadSettings();
+    }).catch(function () { toast('連線失敗', true); });
+  });
+}
+$('addtopic').addEventListener('click', function () { openForm('topic'); });
+$('addstyle').addEventListener('click', function () { openForm('style'); });
+
+function renderPickList(kind) {
+  var isTopic = kind === 'topic';
+  var data = isTopic ? TOPICS : STYLES;
+  var assigned = isTopic ? CUR_ASSIGN.topic_ids : CUR_ASSIGN.style_ids;
+  var q = ($(isTopic ? 'apick_topic_search' : 'apick_style_search').value || '').trim().toLowerCase();
+  var wrap = $(isTopic ? 'apick_topic' : 'apick_style');
+  var filtered = q ? data.filter(function (x) { return x.name.toLowerCase().indexOf(q) >= 0; }) : data;
+  $(isTopic ? 'topicpickcnt' : 'stylepickcnt').textContent = '全站 ' + data.length + ' 筆';
+  wrap.innerHTML = filtered.length ? filtered.map(function (item) {
+    return '<label class="ckrow"><input type="checkbox" data-id="' + item.id + '" '
+      + (assigned.indexOf(item.id) >= 0 ? 'checked' : '') + '>'
+      + '<span class="ckname">' + esc(item.name) + '</span>'
+      + '<span class="ckmeta">' + esc((item.updated_at || '').slice(5, 10)) + '</span></label>';
+  }).join('') : '<div class="emptyrow">' + (q ? '沒有符合搜尋的結果' : '全站庫目前沒有資料') + '</div>';
+  $(isTopic ? 'apick_topic_count' : 'apick_style_count').textContent = '已勾選 ' + assigned.length + ' / ' + data.length;
+}
+function bindPickEvents(kind) {
+  var isTopic = kind === 'topic';
+  var wrap = $(isTopic ? 'apick_topic' : 'apick_style');
+  wrap.addEventListener('change', function (e) {
+    var cb = e.target.closest('input[type=checkbox]'); if (!cb) return;
+    var id = Number(cb.dataset.id);
+    var key = isTopic ? 'topic_ids' : 'style_ids';
+    if (cb.checked) { if (CUR_ASSIGN[key].indexOf(id) < 0) CUR_ASSIGN[key].push(id); }
+    else {
+      CUR_ASSIGN[key] = CUR_ASSIGN[key].filter(function (x) { return x !== id; });
+      if (!isTopic) {
+        if (CUR_ASSIGN.topic_style_id === id) CUR_ASSIGN.topic_style_id = null;
+        if (CUR_ASSIGN.job_style_id === id) CUR_ASSIGN.job_style_id = null;
+      }
+    }
+    renderPickList(kind);
+    renderMapping();
+  });
+  $(isTopic ? 'apick_topic_search' : 'apick_style_search').addEventListener('input', function () { renderPickList(kind); });
+}
+bindPickEvents('topic');
+bindPickEvents('style');
+
+function renderMapping() {
+  var picked = STYLES.filter(function (s) { return CUR_ASSIGN.style_ids.indexOf(s.id) >= 0; });
+  var opts = '<option value="">（不指定，用預設語氣）</option>' +
+    picked.map(function (s) { return '<option value="' + s.id + '">' + esc(s.name) + '</option>'; }).join('');
+  $('mapTopic').innerHTML = opts;
+  $('mapJob').innerHTML = opts;
+  $('mapTopic').value = CUR_ASSIGN.topic_style_id || '';
+  $('mapJob').value = CUR_ASSIGN.job_style_id || '';
+  $('mapsaved').style.display = 'none';
+}
+$('savemap').addEventListener('click', function () {
+  var payload = {
+    consultant: CUR_CONSULTANT,
+    topic_ids: CUR_ASSIGN.topic_ids, style_ids: CUR_ASSIGN.style_ids,
+    topic_style_id: $('mapTopic').value || null, job_style_id: $('mapJob').value || null,
+  };
+  api('/admin/consultant-content-settings', {
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload),
+  }).then(function (r) {
+    if (!r.ok) return toast(r.error || '儲存失敗', true);
+    CUR_ASSIGN.topic_style_id = payload.topic_style_id ? Number(payload.topic_style_id) : null;
+    CUR_ASSIGN.job_style_id = payload.job_style_id ? Number(payload.job_style_id) : null;
+    $('mapsaved').style.display = 'block';
+    toast('✓ 設定已儲存');
+  }).catch(function () { toast('連線失敗', true); });
+});
 
 </script>
 <script defer src="/consultant/_shell.js">
