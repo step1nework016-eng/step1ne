@@ -1167,9 +1167,12 @@ function paintConvertList() {
     if (r.content_mission) tags.push('<span class="tobs-tag green">' + esc(MISSION_LB[r.content_mission] || r.content_mission) + '</span>');
     if (r.content_formula) tags.push('<span class="tobs-tag">' + esc(r.content_formula) + '</span>');
     if (r.content_length) tags.push('<span class="tobs-tag orange">' + esc(LENGTH_LB[r.content_length] || r.content_length) + '</span>');
-    // 2026-09-04 加：pending-co_ 開頭代表這則貼文原本連的職缺草稿後來被刪掉了，
-    // 不是話題貼文（話題貼文的job_slug本來就是拿來當標題用的描述文字，維持原樣）。
-    var titleText = r.title || (String(r.slug || '').indexOf('pending-co_') === 0 ? '（原職缺已下架或刪除）' : r.slug);
+    // 2026-09-04 修：話題貼文（topic_id 有值）的 job_slug 本來就是拿來當標題用
+    // 的描述文字（例如「💬 AI阿財不會做的三件事」），維持原樣顯示。
+    // 職缺貼文（topic_id 為空）如果 title 撈不到，代表對應的職缺草稿後來被刪掉
+    // 或改了slug——不管原本的slug長什麼樣（pending-co_開頭或純英文都一樣），
+    // 顯示原始slug對顧問沒有意義，統一換成看得懂的提示文字。
+    var titleText = r.title || (r.topic_id ? r.slug : '（原職缺已下架或刪除：' + r.slug + '）');
     return '<article class="tobs-post">'
       + '<div class="tobs-post-head"><div><h4>' + esc(titleText) + '</h4>'
       +   '<div class="tobs-meta">' + esc(nm(r)) + ' · Threads　發布 ' + r.posted_at.slice(5, 16)
