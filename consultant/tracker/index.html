@@ -1850,15 +1850,55 @@ function openNewCandModal() {
           call_notes: $('ncCallText').value.trim(), consent_confirmed: true, by: '顧問' }) })
       .then(function (r) {
         if (!r.ok) { msg.textContent = r.error || '建立失敗'; return; }
-        closeNewCand();
-        // 2026-09-04 加：選職缺只是內部配對，不會自動推薦給客戶——這件事
-        // 顧問容易誤會（之前系統行為也的確搞混過），送出後明講一次。
-        if (r.message) alert(r.message);
-        loadCards(function () { openDrawer(r.application_id); });
+        // 2026-09-04 加：卡片建好後不直接跳走，先問要不要當場產生連結——
+        // Jacky 要求的流程，跟「稍後到人選卡片再產生」兩條路都留著。
+        showNewCandLinksStep(r.application_id, r.message);
       }).catch(function () { msg.textContent = '連線失敗'; });
     };
     if (ncResumeFile) { var reader = new FileReader(); reader.onload = function () { submit(reader.result.split(',')[1], ncResumeFile.name, ncResumeFile.type); }; reader.readAsDataURL(ncResumeFile); }
     else submit(null, null, null);
+  };
+}
+// 2026-09-04 加：卡片建好那一刻問要不要當場產生連結。測驗連結
+// （/assessment/?t=）跟阿財面談連結（/interview/?t=）其實是同一個
+// chat_token 的兩種進入方式——assessment-link 那支端點已經會生／沿用
+// 這個 token，所以這裡只呼叫一次，兩條連結一起顯示，不用另外做第二支
+// 產生面談連結的端點。
+function showNewCandLinksStep(appId, companyMsg) {
+  var msgLine = companyMsg ? '<p class="mut" style="margin:0 0 14px">' + esc(companyMsg) + '</p>' : '';
+  $('ncWrap').innerHTML =
+    '<div class="dhead"><span class="nm">人選卡片已建立</span><button class="x" id="ncStepClose" type="button">×</button></div>' +
+    '<div class="dbody"><div class="sec">' + msgLine +
+    '<p style="margin:0 0 14px">要現在就產生「工作風格測驗」跟「阿財面談」的連結嗎？</p>' +
+    '<div class="acts">' +
+    '<button class="btn p" id="ncLinksYes" type="button">是，現在產生</button> ' +
+    '<button class="btn" id="ncLinksLater" type="button">稍後再到人選卡片產生</button></div>' +
+    '<div id="ncLinksResult" style="margin-top:14px"></div>' +
+    '</div></div>';
+  var finish = function () { closeNewCand(); loadCards(function () { openDrawer(appId); }); };
+  $('ncStepClose').onclick = finish;
+  $('ncLinksLater').onclick = finish;
+  $('ncLinksYes').onclick = function () {
+    var btn = $('ncLinksYes');
+    btn.disabled = true; btn.textContent = '產生中…';
+    api('/admin/application/' + encodeURIComponent(appId) + '/assessment-link', { method: 'POST' })
+    .then(function (r) {
+      btn.disabled = false; btn.textContent = '是，現在產生';
+      if (!r.ok) { $('ncLinksResult').innerHTML = '<span class="mut" style="color:#c0392b">' + esc(r.error || '產生失敗') + '</span>'; return; }
+      var interviewUrl = r.assessment_url.replace('/assessment/', '/interview/');
+      $('ncLinksResult').innerHTML =
+        '<dl class="kv">' +
+        '<dt>測驗連結</dt><dd style="overflow-wrap:anywhere">' + esc(r.assessment_url) + '</dd>' +
+        '<dt>阿財面談連結</dt><dd style="overflow-wrap:anywhere">' + esc(interviewUrl) + '</dd>' +
+        '</dl>' +
+        '<div class="acts" style="margin-top:8px">' +
+        '<button class="btn" id="ncCopyAssess" type="button">複製測驗連結</button> ' +
+        '<button class="btn" id="ncCopyInterview" type="button">複製面談連結</button> ' +
+        '<button class="btn p" id="ncLinksDone" type="button">完成</button></div>';
+      $('ncCopyAssess').onclick = function () { navigator.clipboard.writeText(r.assessment_url).then(function () { $('ncCopyAssess').textContent = '已複製'; }); };
+      $('ncCopyInterview').onclick = function () { navigator.clipboard.writeText(interviewUrl).then(function () { $('ncCopyInterview').textContent = '已複製'; }); };
+      $('ncLinksDone').onclick = finish;
+    }).catch(function () { btn.disabled = false; btn.textContent = '是，現在產生'; $('ncLinksResult').innerHTML = '<span class="mut" style="color:#c0392b">連線失敗</span>'; });
   };
 }
 function closeNewCand() { $('ncMask').classList.remove('show'); }
