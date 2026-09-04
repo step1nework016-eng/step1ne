@@ -428,10 +428,10 @@ table.gap td.stale{color:#c0392b}
 
     <!-- ── 招募轉換記錄（2026-09-04 加）──
          跟「成效儀表板」故意分開：那邊是被動看Threads官方數字，這邊是顧問
-         主動記錄「這則貼文真的帶來人了沒」——LINE好友跟初審是系統自動算出來的
-         （初審＝阿財面談結束或顧問電洽任一個有時間戳），有效詢問／送給客戶／
-         送件要顧問自己判斷、自己按，混在一起會分不清哪些數字是系統量的、
-         哪些是人記的。 -->
+         主動記錄「這則貼文真的帶來人了沒」——LINE好友是系統自動算出來的，
+         初審自動＋手動並存（阿財面談結束或顧問電洽有時間戳的自動算，系統
+         沒偵測到的顧問可以自己按加上去），有效詢問／送給客戶要顧問自己
+         判斷、自己按。「送件」拿掉了，跟「送給客戶」是同一件事。 -->
     <div id="pane-convert" hidden class="tobs-scope">
       <div class="tobs-hero">
         <div>
@@ -443,7 +443,7 @@ table.gap td.stale{color:#c0392b}
       <div class="tobs-steps">
         <div class="tobs-step"><div class="tobs-num">1</div><div><b>發文時貼標籤</b><span>一鍵發文選好公式/長短，系統自動記下這篇在測什麼</span></div></div>
         <div class="tobs-step"><div class="tobs-num">2</div><div><b>數字讓系統抓</b><span>瀏覽數 24 小時和 7 天自動更新，LINE好友即時歸因</span></div></div>
-        <div class="tobs-step"><div class="tobs-num">3</div><div><b>你只判斷人選</b><span>有效詢問、合格、送件——每則貼文下面按一下</span></div></div>
+        <div class="tobs-step"><div class="tobs-num">3</div><div><b>你只判斷人選</b><span>有效詢問、初審、送給客戶——每則貼文下面按一下</span></div></div>
       </div>
 
       <div class="tobs-subtabs" id="tobssubtabs">
@@ -454,13 +454,15 @@ table.gap td.stale{color:#c0392b}
 
       <div id="tobs-today" class="tobs-subpanel on">
         <div class="tobs-card">
-          <h3>從發文走到送件</h3>
+          <h3>從發文走到送給客戶</h3>
+          <p class="tobs-help">跟下面「今天的貼文」用同一組篩選——選顧問、選類型，這裡的數字會跟著變</p>
+          <div id="convtabs" class="tabs" style="margin-bottom:6px"></div>
+          <div id="convtagtabs" class="tobs-subtabs" style="margin-bottom:12px"></div>
           <div id="convfunnel" class="mut">載入中…</div>
         </div>
         <div class="tobs-card">
           <h3>今天的貼文</h3>
           <p class="tobs-help">灰色是系統還在等資料，綠色代表已經可以比較</p>
-          <div id="convtabs" class="tabs" style="margin-bottom:10px"></div>
           <div id="convlist" class="mut">載入中…</div>
         </div>
       </div>
@@ -1136,28 +1138,49 @@ var LENGTH_LB = { short: '短文', medium: '中長文', long: '長文' };
 var FORMULA_LB = { dialog: '對話討論型', pure: '純CTA型', default: '原始格式' };
 
 var CONV_TAB = '全部';
-function paintConvertList() {
+var TAG_TAB = '全部';
+// 2026-09-04 加：漏斗跟貼文列表要共用同一組「選顧問＋選類型」篩選——
+// 兩層篩選都用同一份 postType() 分類邏輯（跟「資料怎麼走」那個分頁同一套），
+// 篩選結果同時餵給漏斗跟列表，兩邊才會一直對得起來。
+function convertFilteredRows() {
   var rows = measured().slice().sort(function (a, b) {
     return (b.posted_at || '').localeCompare(a.posted_at || '');
   });
+  if (CONV_TAB !== '全部') rows = rows.filter(function (r) { return nm(r) === CONV_TAB; });
+  if (TAG_TAB !== '全部') rows = rows.filter(function (r) { return postType(r) === TAG_TAB; });
+  return rows;
+}
+function paintConvertList() {
+  var all = measured();
   var names = ['全部'];
-  rows.forEach(function (r) { if (names.indexOf(nm(r)) < 0) names.push(nm(r)); });
+  all.forEach(function (r) { if (names.indexOf(nm(r)) < 0) names.push(nm(r)); });
   if (names.indexOf(CONV_TAB) < 0) CONV_TAB = '全部';
   $('convtabs').innerHTML = names.map(function (n) {
     return '<button type="button" class="tab' + (n === CONV_TAB ? ' on' : '') + '" data-n="'
       + n.replace(/"/g, '&quot;') + '">' + n + '</button>';
   }).join('');
 
-  var list = CONV_TAB === '全部' ? rows : rows.filter(function (r) { return nm(r) === CONV_TAB; });
-  // 2026-09-04 加：顧問手動記錄「有效詢問／送給客戶／送件」——這幾件事系統
+  // 標籤類型的選項只列「這位顧問實際發過」的類型，選了顧問之後類型選單會跟著變窄。
+  var byConv = CONV_TAB === '全部' ? all : all.filter(function (r) { return nm(r) === CONV_TAB; });
+  var tagNames = ['全部'];
+  byConv.forEach(function (r) { var t = postType(r); if (tagNames.indexOf(t) < 0) tagNames.push(t); });
+  if (tagNames.indexOf(TAG_TAB) < 0) TAG_TAB = '全部';
+  $('convtagtabs').innerHTML = tagNames.map(function (n) {
+    return '<button type="button" class="tobs-subtab' + (n === TAG_TAB ? ' on' : '') + '" data-tag="'
+      + n.replace(/"/g, '&quot;') + '">' + esc(n) + '</button>';
+  }).join('');
+
+  var list = convertFilteredRows();
+  // 2026-09-04 加：顧問手動記錄「有效詢問／初審／送給客戶」——這幾件事系統
   // 自己看不出來（要顧問判斷這則詢問算不算數），只能靠人按。每次點都是+1，
   // 記錯了目前沒有退回機制，只能請系統管理員直接改資料庫。
-  // 「初審」不在這裡——那格是系統自動判斷（阿財面談結束或顧問電洽任一個時間
-  // 戳記有了就算），不需要顧問手動按，見下面 tobs-metrics 那格。
+  // 「初審」是自動＋手動並存：阿財面談結束或顧問電洽有時間戳的自動算，
+  // 顧問自己判斷「這個算初審完成」但系統沒偵測到的，可以手動再按一次補上。
+  // 「送件」拿掉了——跟「送給客戶」是同一件事，兩個按鈕會讓人不知道要按哪個。
   var CONV_BTNS = [
     { field: 'valid_inquiries', ic: '❓', lb: '有效詢問' },
+    { field: 'screened_manual', ic: '🎤', lb: '初審' },
     { field: 'qualified_candidates', ic: '✅', lb: '送給客戶' },
-    { field: 'submitted_candidates', ic: '📮', lb: '送件' },
   ];
   $('convlist').innerHTML = list.length ? list.map(function (r) {
     // 24小時內：還在等 Meta 數字穩定，跟原型一樣先標「等待24H」，過了才算「已完成」。
@@ -1185,7 +1208,7 @@ function paintConvertList() {
       +   '<div class="tobs-metric"><b>' + (r.likes || 0) + '</b><small>愛心</small></div>'
       +   '<div class="tobs-metric"><b>' + (r.replies || 0) + '</b><small>自然留言</small></div>'
       +   '<div class="tobs-metric"><b>' + (r.valid_inquiries || 0) + '</b><small>有效詢問</small></div>'
-      +   '<div class="tobs-metric"><b>' + (r.screened_auto || 0) + '</b><small>初審（自動）</small></div>'
+      +   '<div class="tobs-metric"><b>' + ((r.screened_auto || 0) + (r.screened_manual || 0)) + '</b><small>初審</small></div>'
       +   '<div class="tobs-metric"><b>' + (r.qualified_candidates || 0) + '</b><small>送給客戶</small></div>'
       + '</div>'
       + '<div class="tobs-convrow">' + CONV_BTNS.map(function (c) {
@@ -1206,17 +1229,24 @@ function paintConvertList() {
         if (!r.ok) { alert(r.error || '記錄失敗'); return; }
         var row = ALL_QUEUE_STATS.find(function (x) { return x.queue_id === postId; });
         if (row) row[field] = (row[field] || 0) + 1;
-        b.classList.add('saved');
-        setTimeout(function () { b.classList.remove('saved'); }, 800);
-        var bEl = b.querySelector('b'); if (bEl) bEl.textContent = row ? row[field] : '';
-        if (field === 'qualified_candidates') paintConvertList();
+        // 整張卡片重畫（不只改按鈕上的數字）——「初審」那格是自動＋手動加總，
+        // 只改按鈕自己的數字不會連動更新那個加總格，乾脆整段重畫比較不會漏掉。
+        // 漏斗也要跟著動，因為現在漏斗跟這份篩選結果是同一組數字。
+        paintConvertList();
+        paintConvertFunnel();
       }).catch(function () { b.disabled = false; alert('連線失敗'); });
     };
   });
 }
 $('convtabs').addEventListener('click', function (e) {
   var b = e.target.closest('.tab'); if (!b) return;
-  CONV_TAB = b.dataset.n; paintConvertList();
+  CONV_TAB = b.dataset.n; TAG_TAB = '全部';
+  paintConvertList(); paintConvertFunnel();
+});
+$('convtagtabs').addEventListener('click', function (e) {
+  var b = e.target.closest('.tobs-subtab'); if (!b) return;
+  TAG_TAB = b.dataset.tag;
+  paintConvertList(); paintConvertFunnel();
 });
 
 // 2026-09-04 加：「帳號起跑點」不用顧問手動填基準——直接從這個帳號目前
@@ -1271,13 +1301,12 @@ function paintConvertFlow() {
   var byType = {};
   list.forEach(function (r) {
     var t = postType(r);
-    byType[t] = byType[t] || { n: 0, views: 0, vi: 0, sa: 0, qc: 0, sc: 0 };
+    byType[t] = byType[t] || { n: 0, views: 0, vi: 0, sa: 0, qc: 0 };
     byType[t].n++;
     byType[t].views += r.views || 0;
     byType[t].vi += r.valid_inquiries || 0;
-    byType[t].sa += r.screened_auto || 0;
+    byType[t].sa += (r.screened_auto || 0) + (r.screened_manual || 0);
     byType[t].qc += r.qualified_candidates || 0;
-    byType[t].sc += r.submitted_candidates || 0;
   });
   var types = Object.keys(byType).sort(function (a, b) { return byType[b].n - byType[a].n; });
   $('tobsFlowGrid').innerHTML = types.map(function (t) {
@@ -1286,7 +1315,7 @@ function paintConvertFlow() {
     return '<article class="tobs-acct"><h4>' + esc(t) + '</h4>'
       + '<p>' + d.n + ' 則貼文・平均瀏覽 ' + avgViews + '</p>'
       + '<div class="tobs-baseline">❓有效詢問 ' + d.vi + '　🎤初審 ' + d.sa
-      +   '　✅送給客戶 ' + d.qc + '　📮送件 ' + d.sc + '</div></article>';
+      +   '　✅送給客戶 ' + d.qc + '</div></article>';
   }).join('');
 }
 $('tobsFlowTabs').addEventListener('click', function (e) {
@@ -1294,26 +1323,21 @@ $('tobsFlowTabs').addEventListener('click', function (e) {
   FLOW_ACC = b.dataset.acc; paintConvertFlow();
 });
 
-function paintConvert() {
-  var rows = measured();
+function paintConvertFunnel() {
+  var rows = convertFilteredRows();
   if (!rows.length) {
-    $('convfunnel').innerHTML = '<div class="mut">還沒有抓到成效的貼文。</div>';
-    $('convlist').innerHTML = '<div class="mut">還沒有抓到成效的貼文。</div>';
-    $('tobsAccountGrid').innerHTML = '<div class="mut">還沒有抓到成效的貼文。</div>';
-    $('tobsFlowGrid').innerHTML = '<div class="mut">還沒有抓到成效的貼文。</div>';
+    $('convfunnel').innerHTML = '<div class="mut">這個篩選條件下還沒有抓到成效的貼文。</div>';
     return;
   }
   var tla = rows.reduce(function (x, r) { return x + (r.line_adds || 0); }, 0);
   var tvi = rows.reduce(function (x, r) { return x + (r.valid_inquiries || 0); }, 0);
-  var tsa = rows.reduce(function (x, r) { return x + (r.screened_auto || 0); }, 0);
+  var tsa = rows.reduce(function (x, r) { return x + (r.screened_auto || 0) + (r.screened_manual || 0); }, 0);
   var tqc = rows.reduce(function (x, r) { return x + (r.qualified_candidates || 0); }, 0);
-  var tsc = rows.reduce(function (x, r) { return x + (r.submitted_candidates || 0); }, 0);
   var steps = [
     { ic: '💬', lb: '加LINE好友', v: tla },
     { ic: '❓', lb: '有效詢問', v: tvi },
     { ic: '🎤', lb: '初審', v: tsa },
     { ic: '✅', lb: '送給客戶', v: tqc },
-    { ic: '📮', lb: '送件', v: tsc },
   ];
   var maxV = Math.max(tla, 1);
   $('convfunnel').innerHTML = '<div class="funnelwrap">' + steps.map(function (s, i) {
@@ -1323,11 +1347,22 @@ function paintConvert() {
         + '<span class="flabel">' + s.lb + '</span>'
         + '<span class="bar" style="width:' + pct + '%">' + s.v + '</span></div>';
     }).join('') + '</div>'
-    + '<div class="explain">' + (tvi || tsa || tqc || tsc
-      ? '👉 「加LINE好友」跟「初審」是系統自動算出來的（初審＝阿財面談結束或顧問電洽任一個有時間戳），其他格是你自己按出來的。'
+    + '<div class="explain">' + (tvi || tsa || tqc
+      ? '👉 「加LINE好友」是系統自動算出來的。「初審」有兩種來源：阿財面談結束或顧問電洽有時間戳的自動算，系統沒偵測到的你也可以自己按加上去。「有效詢問」「送給客戶」全部要你自己按。'
       : '⚠️ 後面幾格還是 0，因為還沒有候選人走到那一步，或還沒有人按過下面每則貼文的按鈕記錄。')
     + '</div>';
+}
+function paintConvert() {
+  var rows = measured();
+  if (!rows.length) {
+    $('convfunnel').innerHTML = '<div class="mut">還沒有抓到成效的貼文。</div>';
+    $('convlist').innerHTML = '<div class="mut">還沒有抓到成效的貼文。</div>';
+    $('tobsAccountGrid').innerHTML = '<div class="mut">還沒有抓到成效的貼文。</div>';
+    $('tobsFlowGrid').innerHTML = '<div class="mut">還沒有抓到成效的貼文。</div>';
+    return;
+  }
   paintConvertList();
+  paintConvertFunnel();
   paintConvertAccounts();
   paintConvertFlow();
 }
