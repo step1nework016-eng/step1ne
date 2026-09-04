@@ -1714,7 +1714,20 @@ function openNewCandModal() {
     '<label class="edl">姓名 *</label><input class="edi" id="ncName">' +
     '<label class="edl">Email（Email／電話至少填一個）</label><input class="edi" id="ncEmail">' +
     '<label class="edl">電話</label><input class="edi" id="ncPhone">' +
-    '<label class="edl">送去哪個職缺</label><select class="edi" id="ncJob"><option value="">載入中…</option></select>' +
+    // 2026-09-04 加：指派顧問——之前這格漏了，人選新增時沒人負責，
+    // 後端 doManualForward() 本來就吃 owner 欄位，只是前端沒給輸入口。
+    '<label class="edl">指派顧問</label><select class="edi" id="ncOwner"><option value="">未指派</option>' +
+    CONSULTANTS.filter(function (c) { return c.is_active; }).map(function (c) { return '<option value="' + esc(c.id) + '">' + esc(c.display_name) + '</option>'; }).join('') + '</select>' +
+    // 2026-09-04 改：原本是單一顆「送去哪個職缺」下拉，把全站職缺攤成一長串，
+    // 客戶一多就變成要在幾十筆裡面找——改成先選客戶、再選這家客戶底下的職缺。
+    // 名稱也從「送去哪個職缺」改成「配對職缺」，容易讓人以為選了就等於推薦
+    // 出去（真實事故：蘇屁屁選了職缺當場收到用人單位審核信），這格其實只是
+    // 內部配對參考，語意對齊後端已經修正的實際行為。
+    // Jacky 要求：客戶清單要能選「不指定」——顧問可能還不知道要配哪家客戶，
+    // 這種情況沿用既有的共用佔位職缺 job_slug='unspecified'（company_id=NULL，
+    // TG「電洽新增人選」流程本來就在用同一個慣例，不是這次新發明）。
+    '<label class="edl">客戶</label><select class="edi" id="ncCompany"><option value="">載入中…</option></select>' +
+    '<label class="edl">配對職缺<span class="subhint">先配對用，不會自動推薦給客戶——要推薦請到人選卡片按「＋推薦給客戶／職缺」</span></label><select class="edi" id="ncJob"><option value="">請先選客戶</option></select>' +
     '<label class="edl">聯絡來源</label><select class="edi" id="ncSource">' + SOURCE_CHANNEL_OPTS.map(function (o) { return '<option>' + esc(o) + '</option>'; }).join('') + '</select>' +
     '<label class="edl">履歷來源</label><select class="edi" id="ncResumeSource">' + RESUME_SOURCE_OPTS.map(function (o) { return '<option>' + esc(o) + '</option>'; }).join('') + '</select>' +
     '<div id="ncResumeDz" style="border:1.5px dashed var(--line);border-radius:10px;padding:16px;text-align:center;font-size:12.5px;color:var(--ink3);cursor:pointer;margin-top:6px">拖曳履歷檔案到這裡，或點擊選擇檔案</div>' +
@@ -1725,9 +1738,26 @@ function openNewCandModal() {
   $('ncWrap').innerHTML = html;
   $('ncMask').classList.add('show');
   $('ncClose').onclick = closeNewCand;
+  var ncJobsByCompany = {}; // company_id（'' 代表不指定）→ [{slug, title}]
   api('/admin/jobs').then(function (d) {
-    var jobs = (d.results || d.jobs || []).map(function (j) { return { slug: j.slug, title: (j.company_display_name ? j.company_display_name + ' - ' : '') + j.title }; });
-    $('ncJob').innerHTML = '<option value="">選一個職缺…</option>' + jobs.map(function (j) { return '<option value="' + esc(j.slug) + '">' + esc(j.title) + '</option>'; }).join('');
+    var jobs = (d.results || d.jobs || []).filter(function (j) { return j.slug !== 'unspecified'; });
+    var companies = {}; // company_id → display_name，維持第一次出現的順序
+    var order = [];
+    jobs.forEach(function (j) {
+      if (!j.company_id) return; // 沒綁客戶的職缺不列進客戶清單（沒有客戶可選）
+      if (!companies[j.company_id]) { companies[j.company_id] = j.company_display_name || '（未命名客戶）'; order.push(j.company_id); }
+      (ncJobsByCompany[j.company_id] = ncJobsByCompany[j.company_id] || []).push({ slug: j.slug, title: j.title });
+    });
+    $('ncCompany').innerHTML = '<option value="">不指定客戶／職缺</option>' +
+      order.map(function (cid) { return '<option value="' + esc(cid) + '">' + esc(companies[cid]) + '</option>'; }).join('');
+    $('ncCompany').onchange = function () {
+      var cid = $('ncCompany').value;
+      if (!cid) { $('ncJob').innerHTML = '<option value="">（不指定，將建立為未配對職缺的人選）</option>'; $('ncJob').disabled = true; return; }
+      $('ncJob').disabled = false;
+      var list = ncJobsByCompany[cid] || [];
+      $('ncJob').innerHTML = '<option value="">選一個職缺…</option>' + list.map(function (j) { return '<option value="' + esc(j.slug) + '">' + esc(j.title) + '</option>'; }).join('');
+    };
+    $('ncCompany').onchange();
   });
   var ncResumeFile = null;
   var ncDz = $('ncResumeDz');
@@ -1740,12 +1770,16 @@ function openNewCandModal() {
     var msg = $('ncMsg');
     if (!name) { msg.textContent = '請填姓名'; return; }
     if (!email && !phone) { msg.textContent = '至少要填 Email 或電話其中一個'; return; }
-    if (!$('ncJob').value) { msg.textContent = '請選職缺'; return; }
+    // 2026-09-04 改：選了客戶就要選一個真的職缺，沒選客戶（不指定）就不用——
+    // 那種情況落回共用的 unspecified 佔位職缺。
+    if ($('ncCompany').value && !$('ncJob').value) { msg.textContent = '已選客戶，請再選一個職缺（或改回「不指定客戶／職缺」）'; return; }
     if (!$('ncConsent').checked) { msg.textContent = '請先確認已取得本人同意'; return; }
     msg.textContent = '建立中…';
+    var jobSlug = $('ncCompany').value ? $('ncJob').value : 'unspecified';
     var submit = function (resumeB64, resumeName, resumeMime) {
       api('/admin/pipeline/manual-forward', { method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ source_kind: 'new', name: name, email: email, phone: phone, job_slug: $('ncJob').value,
+        body: JSON.stringify({ source_kind: 'new', name: name, email: email, phone: phone, job_slug: jobSlug,
+          owner: $('ncOwner').value || null,
           source_channel: $('ncSource').value, resume_source: $('ncResumeSource').value,
           resume_b64: resumeB64, resume_name: resumeName, resume_mime: resumeMime,
           call_notes: $('ncCallText').value.trim(), consent_confirmed: true, by: '顧問' }) })
