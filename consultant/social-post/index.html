@@ -452,12 +452,22 @@ table.gap td.stale{color:#c0392b}
         <button type="button" class="tobs-subtab" data-sub="flow">資料怎麼走</button>
       </div>
 
+      <!-- 2026-09-04 改：篩選改用下拉選單，三個子分頁（今天要看／帳號起跑點／
+           資料怎麼走）共用同一組「選顧問＋選類型」，不用每個分頁各自選一次。 -->
+      <div class="tobs-card" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <div style="flex:1;min-width:140px">
+          <label style="display:block;font-size:12px;color:var(--tobs-muted);margin-bottom:4px">顧問</label>
+          <select id="convFilterAcc" style="width:100%;padding:9px;border:1px solid var(--tobs-line);border-radius:10px;font:inherit"></select>
+        </div>
+        <div style="flex:1;min-width:140px">
+          <label style="display:block;font-size:12px;color:var(--tobs-muted);margin-bottom:4px">文案類型</label>
+          <select id="convFilterTag" style="width:100%;padding:9px;border:1px solid var(--tobs-line);border-radius:10px;font:inherit"></select>
+        </div>
+      </div>
+
       <div id="tobs-today" class="tobs-subpanel on">
         <div class="tobs-card">
           <h3>從發文走到送給客戶</h3>
-          <p class="tobs-help">跟下面「今天的貼文」用同一組篩選——選顧問、選類型，這裡的數字會跟著變</p>
-          <div id="convtabs" class="tabs" style="margin-bottom:6px"></div>
-          <div id="convtagtabs" class="tobs-subtabs" style="margin-bottom:12px"></div>
           <div id="convfunnel" class="mut">載入中…</div>
         </div>
         <div class="tobs-card">
@@ -470,7 +480,7 @@ table.gap td.stale{color:#c0392b}
       <div id="tobs-accounts" class="tobs-subpanel">
         <div class="tobs-card">
           <h3>每個帳號從不同地方起跑</h3>
-          <p class="tobs-help">先和自己過去比，再和別人比——起跑點是這個帳號目前測得到的貼文平均瀏覽</p>
+          <p class="tobs-help">先和自己過去比，再和別人比——起跑點是目前測得到的貼文中位數瀏覽</p>
           <div class="tobs-accounts" id="tobsAccountGrid">載入中…</div>
         </div>
       </div>
@@ -478,8 +488,7 @@ table.gap td.stale{color:#c0392b}
       <div id="tobs-flow" class="tobs-subpanel">
         <div class="tobs-card">
           <h3>這個帳號都發了哪些類型</h3>
-          <p class="tobs-help">先選顧問，再看他發過的每種文案類型帶回多少真實成效——用來判斷哪個帳號的哪種寫法比較有效</p>
-          <div class="tobs-subtabs" id="tobsFlowTabs" style="margin-bottom:12px"></div>
+          <p class="tobs-help">用上面的篩選選顧問，看他發過的每種文案類型帶回多少真實成效——用來判斷哪個帳號的哪種寫法比較有效</p>
           <div class="tobs-accounts" id="tobsFlowGrid">載入中…</div>
         </div>
       </div>
@@ -1150,26 +1159,34 @@ function convertFilteredRows() {
   if (TAG_TAB !== '全部') rows = rows.filter(function (r) { return postType(r) === TAG_TAB; });
   return rows;
 }
-function paintConvertList() {
+// 2026-09-04 改：篩選改用下拉選單，三個子分頁共用同一組（顧問／類型），
+// 選單本身只需要建一次內容並保留目前選到的值，不用每個分頁各建一份。
+function paintConvertFilters() {
   var all = measured();
   var names = ['全部'];
   all.forEach(function (r) { if (names.indexOf(nm(r)) < 0) names.push(nm(r)); });
   if (names.indexOf(CONV_TAB) < 0) CONV_TAB = '全部';
-  $('convtabs').innerHTML = names.map(function (n) {
-    return '<button type="button" class="tab' + (n === CONV_TAB ? ' on' : '') + '" data-n="'
-      + n.replace(/"/g, '&quot;') + '">' + n + '</button>';
+  $('convFilterAcc').innerHTML = names.map(function (n) {
+    return '<option value="' + esc(n) + '"' + (n === CONV_TAB ? ' selected' : '') + '>' + esc(n) + '</option>';
   }).join('');
 
-  // 標籤類型的選項只列「這位顧問實際發過」的類型，選了顧問之後類型選單會跟著變窄。
-  var byConv = CONV_TAB === '全部' ? all : all.filter(function (r) { return nm(r) === CONV_TAB; });
-  var tagNames = ['全部'];
-  byConv.forEach(function (r) { var t = postType(r); if (tagNames.indexOf(t) < 0) tagNames.push(t); });
-  if (tagNames.indexOf(TAG_TAB) < 0) TAG_TAB = '全部';
-  $('convtagtabs').innerHTML = tagNames.map(function (n) {
-    return '<button type="button" class="tobs-subtab' + (n === TAG_TAB ? ' on' : '') + '" data-tag="'
-      + n.replace(/"/g, '&quot;') + '">' + esc(n) + '</button>';
+  var types = ['全部'];
+  all.forEach(function (r) { var t = postType(r); if (types.indexOf(t) < 0) types.push(t); });
+  if (types.indexOf(TAG_TAB) < 0) TAG_TAB = '全部';
+  $('convFilterTag').innerHTML = types.map(function (t) {
+    return '<option value="' + esc(t) + '"' + (t === TAG_TAB ? ' selected' : '') + '>' + esc(t) + '</option>';
   }).join('');
+}
+$('convFilterAcc').addEventListener('change', function () {
+  CONV_TAB = this.value;
+  paintConvertList(); paintConvertFunnel(); paintConvertAccounts(); paintConvertFlow();
+});
+$('convFilterTag').addEventListener('change', function () {
+  TAG_TAB = this.value;
+  paintConvertList(); paintConvertFunnel(); paintConvertAccounts(); paintConvertFlow();
+});
 
+function paintConvertList() {
   var list = convertFilteredRows();
   // 2026-09-04 加：顧問手動記錄「有效詢問／初審／送給客戶」——這幾件事系統
   // 自己看不出來（要顧問判斷這則詢問算不算數），只能靠人按。每次點都是+1，
@@ -1231,28 +1248,19 @@ function paintConvertList() {
         if (row) row[field] = (row[field] || 0) + 1;
         // 整張卡片重畫（不只改按鈕上的數字）——「初審」那格是自動＋手動加總，
         // 只改按鈕自己的數字不會連動更新那個加總格，乾脆整段重畫比較不會漏掉。
-        // 漏斗也要跟著動，因為現在漏斗跟這份篩選結果是同一組數字。
+        // 漏斗跟另外兩個子分頁也要跟著動，不然切分頁會看到按之前的舊數字。
         paintConvertList();
         paintConvertFunnel();
+        paintConvertAccounts();
+        paintConvertFlow();
       }).catch(function () { b.disabled = false; alert('連線失敗'); });
     };
   });
 }
-$('convtabs').addEventListener('click', function (e) {
-  var b = e.target.closest('.tab'); if (!b) return;
-  CONV_TAB = b.dataset.n; TAG_TAB = '全部';
-  paintConvertList(); paintConvertFunnel();
-});
-$('convtagtabs').addEventListener('click', function (e) {
-  var b = e.target.closest('.tobs-subtab'); if (!b) return;
-  TAG_TAB = b.dataset.tag;
-  paintConvertList(); paintConvertFunnel();
-});
-
 // 2026-09-04 加：「帳號起跑點」不用顧問手動填基準——直接從這個帳號目前
 // 已經測到成效的貼文算「中位數瀏覽」當起跑點，數字會隨貼文越發越多自動變準。
 function paintConvertAccounts() {
-  var rows = measured();
+  var rows = convertFilteredRows();
   var byAcc = {};
   rows.forEach(function (r) {
     var k = nm(r);
@@ -1282,22 +1290,12 @@ function postType(r) {
   if (r.content_mission === 'engagement') return '通用文';
   return '話題文・未分類';
 }
-var FLOW_ACC = null;
 function paintConvertFlow() {
-  var rows = measured();
-  var names = [];
-  rows.forEach(function (r) { if (names.indexOf(nm(r)) < 0) names.push(nm(r)); });
-  if ((FLOW_ACC === null || names.indexOf(FLOW_ACC) < 0) && names.length) FLOW_ACC = names[0];
-  if (!names.length) {
-    $('tobsFlowTabs').innerHTML = '';
-    $('tobsFlowGrid').innerHTML = '<div class="mut">還沒有抓到成效的貼文。</div>';
+  var list = convertFilteredRows();
+  if (!list.length) {
+    $('tobsFlowGrid').innerHTML = '<div class="mut">這個篩選條件下還沒有抓到成效的貼文。</div>';
     return;
   }
-  $('tobsFlowTabs').innerHTML = names.map(function (n) {
-    return '<button type="button" class="tobs-subtab' + (n === FLOW_ACC ? ' on' : '') + '" data-acc="'
-      + n.replace(/"/g, '&quot;') + '">' + esc(n) + '</button>';
-  }).join('');
-  var list = rows.filter(function (r) { return nm(r) === FLOW_ACC; });
   var byType = {};
   list.forEach(function (r) {
     var t = postType(r);
@@ -1318,10 +1316,6 @@ function paintConvertFlow() {
       +   '　✅送給客戶 ' + d.qc + '</div></article>';
   }).join('');
 }
-$('tobsFlowTabs').addEventListener('click', function (e) {
-  var b = e.target.closest('.tobs-subtab'); if (!b) return;
-  FLOW_ACC = b.dataset.acc; paintConvertFlow();
-});
 
 function paintConvertFunnel() {
   var rows = convertFilteredRows();
@@ -1361,6 +1355,7 @@ function paintConvert() {
     $('tobsFlowGrid').innerHTML = '<div class="mut">還沒有抓到成效的貼文。</div>';
     return;
   }
+  paintConvertFilters();
   paintConvertList();
   paintConvertFunnel();
   paintConvertAccounts();
