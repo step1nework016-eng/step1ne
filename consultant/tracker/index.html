@@ -1752,6 +1752,9 @@ function openNewCandModal() {
       .then(function (r) {
         if (!r.ok) { msg.textContent = r.error || '建立失敗'; return; }
         closeNewCand();
+        // 2026-09-04 加：選職缺只是內部配對，不會自動推薦給客戶——這件事
+        // 顧問容易誤會（之前系統行為也的確搞混過），送出後明講一次。
+        if (r.message) alert(r.message);
         loadCards(function () { openDrawer(r.application_id); });
       }).catch(function () { msg.textContent = '連線失敗'; });
     };
