@@ -428,9 +428,10 @@ table.gap td.stale{color:#c0392b}
 
     <!-- ── 招募轉換記錄（2026-09-04 加）──
          跟「成效儀表板」故意分開：那邊是被動看Threads官方數字，這邊是顧問
-         主動記錄「這則貼文真的帶來人了沒」——LINE好友是系統自動歸因算出來的，
-         有效詢問／合格人選／送件要顧問自己判斷、自己按，混在一起會分不清
-         哪些數字是系統量的、哪些是人記的。 -->
+         主動記錄「這則貼文真的帶來人了沒」——LINE好友跟初審是系統自動算出來的
+         （初審＝阿財面談結束或顧問電洽任一個有時間戳），有效詢問／送給客戶／
+         送件要顧問自己判斷、自己按，混在一起會分不清哪些數字是系統量的、
+         哪些是人記的。 -->
     <div id="pane-convert" hidden class="tobs-scope">
       <div class="tobs-hero">
         <div>
@@ -1149,12 +1150,14 @@ function paintConvertList() {
   }).join('');
 
   var list = CONV_TAB === '全部' ? rows : rows.filter(function (r) { return nm(r) === CONV_TAB; });
-  // 2026-09-04 加：顧問手動記錄「有效詢問／合格人選／送件」——這三件事系統
+  // 2026-09-04 加：顧問手動記錄「有效詢問／送給客戶／送件」——這幾件事系統
   // 自己看不出來（要顧問判斷這則詢問算不算數），只能靠人按。每次點都是+1，
   // 記錯了目前沒有退回機制，只能請系統管理員直接改資料庫。
+  // 「初審」不在這裡——那格是系統自動判斷（阿財面談結束或顧問電洽任一個時間
+  // 戳記有了就算），不需要顧問手動按，見下面 tobs-metrics 那格。
   var CONV_BTNS = [
     { field: 'valid_inquiries', ic: '❓', lb: '有效詢問' },
-    { field: 'qualified_candidates', ic: '✅', lb: '合格人選' },
+    { field: 'qualified_candidates', ic: '✅', lb: '送給客戶' },
     { field: 'submitted_candidates', ic: '📮', lb: '送件' },
   ];
   $('convlist').innerHTML = list.length ? list.map(function (r) {
@@ -1164,8 +1167,11 @@ function paintConvertList() {
     if (r.content_mission) tags.push('<span class="tobs-tag green">' + esc(MISSION_LB[r.content_mission] || r.content_mission) + '</span>');
     if (r.content_formula) tags.push('<span class="tobs-tag">' + esc(r.content_formula) + '</span>');
     if (r.content_length) tags.push('<span class="tobs-tag orange">' + esc(LENGTH_LB[r.content_length] || r.content_length) + '</span>');
+    // 2026-09-04 加：pending-co_ 開頭代表這則貼文原本連的職缺草稿後來被刪掉了，
+    // 不是話題貼文（話題貼文的job_slug本來就是拿來當標題用的描述文字，維持原樣）。
+    var titleText = r.title || (String(r.slug || '').indexOf('pending-co_') === 0 ? '（原職缺已下架或刪除）' : r.slug);
     return '<article class="tobs-post">'
-      + '<div class="tobs-post-head"><div><h4>' + esc(r.title || r.slug) + '</h4>'
+      + '<div class="tobs-post-head"><div><h4>' + esc(titleText) + '</h4>'
       +   '<div class="tobs-meta">' + esc(nm(r)) + ' · Threads　發布 ' + r.posted_at.slice(5, 16)
       +     (r.social_post_url ? '　·　<a href="' + r.social_post_url + '" target="_blank" rel="noopener">查看貼文</a>' : '')
       +   '</div></div>'
@@ -1176,8 +1182,9 @@ function paintConvertList() {
       +   '<div class="tobs-metric"><b>' + (r.views || 0) + '</b><small>瀏覽</small></div>'
       +   '<div class="tobs-metric"><b>' + (r.likes || 0) + '</b><small>愛心</small></div>'
       +   '<div class="tobs-metric"><b>' + (r.replies || 0) + '</b><small>自然留言</small></div>'
-      +   '<div class="tobs-metric"><b>' + (r.line_adds || 0) + '</b><small>加LINE好友</small></div>'
-      +   '<div class="tobs-metric"><b>' + (r.qualified_candidates || 0) + '</b><small>合格人選</small></div>'
+      +   '<div class="tobs-metric"><b>' + (r.valid_inquiries || 0) + '</b><small>有效詢問</small></div>'
+      +   '<div class="tobs-metric"><b>' + (r.screened_auto || 0) + '</b><small>初審（自動）</small></div>'
+      +   '<div class="tobs-metric"><b>' + (r.qualified_candidates || 0) + '</b><small>送給客戶</small></div>'
       + '</div>'
       + '<div class="tobs-convrow">' + CONV_BTNS.map(function (c) {
             return '<button type="button" class="tobs-convbtn" data-post="' + r.queue_id + '" data-field="' + c.field + '">'
@@ -1242,12 +1249,14 @@ function paintConvert() {
   }
   var tla = rows.reduce(function (x, r) { return x + (r.line_adds || 0); }, 0);
   var tvi = rows.reduce(function (x, r) { return x + (r.valid_inquiries || 0); }, 0);
+  var tsa = rows.reduce(function (x, r) { return x + (r.screened_auto || 0); }, 0);
   var tqc = rows.reduce(function (x, r) { return x + (r.qualified_candidates || 0); }, 0);
   var tsc = rows.reduce(function (x, r) { return x + (r.submitted_candidates || 0); }, 0);
   var steps = [
     { ic: '💬', lb: '加LINE好友', v: tla },
     { ic: '❓', lb: '有效詢問', v: tvi },
-    { ic: '✅', lb: '合格人選', v: tqc },
+    { ic: '🎤', lb: '初審', v: tsa },
+    { ic: '✅', lb: '送給客戶', v: tqc },
     { ic: '📮', lb: '送件', v: tsc },
   ];
   var maxV = Math.max(tla, 1);
@@ -1258,9 +1267,9 @@ function paintConvert() {
         + '<span class="flabel">' + s.lb + '</span>'
         + '<span class="bar" style="width:' + pct + '%">' + s.v + '</span></div>';
     }).join('') + '</div>'
-    + '<div class="explain">' + (tvi || tqc || tsc
-      ? '👉 「加LINE好友」是系統自動歸因算出來的，後面三格是你自己按出來的。'
-      : '⚠️ 後面三格還是 0，因為還沒有人按過下面每則貼文的按鈕記錄。')
+    + '<div class="explain">' + (tvi || tsa || tqc || tsc
+      ? '👉 「加LINE好友」跟「初審」是系統自動算出來的（初審＝阿財面談結束或顧問電洽任一個有時間戳），其他格是你自己按出來的。'
+      : '⚠️ 後面幾格還是 0，因為還沒有候選人走到那一步，或還沒有人按過下面每則貼文的按鈕記錄。')
     + '</div>';
   paintConvertList();
   paintConvertAccounts();
