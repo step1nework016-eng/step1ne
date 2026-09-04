@@ -59,6 +59,8 @@ document.addEventListener('click', function (e) {
   var FALLBACK = 'https://lin.ee/RR4nQqm';
   var q = new URLSearchParams(location.search);
   var c = q.get('c') || '', j = q.get('j') || '';
+  // ctx=reply：職缺社群回覆私訊裡的LINE連結（沒有對應貼文，跟原本的貼文CTA分開記）
+  var ctx = q.get('ctx') === 'reply' ? 'reply' : 'post';
   var done = false;
 
   function go(url) {
@@ -78,6 +80,7 @@ document.addEventListener('click', function (e) {
       gtag('event', 'line_redirect', {
         consultant: c || null,
         job: j || null,
+        ctx: ctx,
         target_url: target,
         event_callback: doRedirect,
         event_timeout: 200
@@ -95,7 +98,7 @@ document.addEventListener('click', function (e) {
     }
   }, 2000);
 
-  fetch(API + '/go/resolve?c=' + encodeURIComponent(c) + '&j=' + encodeURIComponent(j))
+  fetch(API + '/go/resolve?c=' + encodeURIComponent(c) + '&j=' + encodeURIComponent(j) + '&ctx=' + encodeURIComponent(ctx))
     .then(function (r) { return r.json(); })
     .then(function (d) { go(d && d.url ? d.url : FALLBACK); })
     .catch(function () { go(FALLBACK); });

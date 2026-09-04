@@ -1902,8 +1902,14 @@ function csRenderList() {
       var acc = (CS_ACCOUNTS || []).find(function (a) { return String(a.id) === accId; });
       if (!acc) { toast('請先在上面選你自己是哪位顧問', true); return; }
       if (!acc.line_link) { toast('這個帳號還沒設定LINE連結，請先去後台補上', true); return; }
-      var text = String(j.summary_text || '').split('{{LINE_LINK}}').join(acc.line_link);
-      if (text.indexOf(acc.line_link) < 0) text += '\n\n' + acc.line_link; // 保底：萬一摘要沒有佔位符
+      // 2026-09-04 改：不直接貼真正的LINE連結，改貼轉址頁（ctx=reply）——
+      // 候選人點了會被記一筆點擊（誰、哪個職缺、從私訊回覆來的），
+      // 之後才能在成效儀表板看到「這則回覆真的換到人加LINE了嗎」，
+      // 跟貼文CTA連結（ctx=post）分開算，不會互相混淆歸因。
+      var trackedLink = 'https://step1ne.com/go/?c=' + encodeURIComponent(acc.id)
+        + '&j=' + encodeURIComponent(j.slug || '') + '&ctx=reply';
+      var text = String(j.summary_text || '').split('{{LINE_LINK}}').join(trackedLink);
+      if (text.indexOf(trackedLink) < 0) text += '\n\n' + trackedLink; // 保底：萬一摘要沒有佔位符
       navigator.clipboard.writeText(text).then(function () {
         toast('✓ 已複製，可以直接貼去LINE');
       }).catch(function () { toast('複製失敗，請手動選取', true); });
