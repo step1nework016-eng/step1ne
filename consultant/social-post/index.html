@@ -247,6 +247,7 @@ table.gap td.stale{color:#c0392b}
       <button type="button" class="tab on" data-pane="pane-post">一鍵發文</button>
       <button type="button" class="tab" data-pane="pane-cal">排程行事曆</button>
       <button type="button" class="tab" data-pane="pane-board">成效儀表板</button>
+      <button type="button" class="tab" data-pane="pane-convert">🎯 招募轉換記錄</button>
       <button type="button" class="tab" data-pane="pane-settings">✨ 顧問與話題設定</button>
       <button type="button" class="tab" data-pane="pane-candidates">📋 職缺社群回覆</button>
     </div>
@@ -368,6 +369,27 @@ table.gap td.stale{color:#c0392b}
         <label style="margin-bottom:2px">每一則貼文</label>
         <div id="stattabs" class="tabs"></div>
         <div id="postlist" class="mut">載入中…</div>
+      </div>
+    </div>
+
+    <!-- ── 招募轉換記錄（2026-09-04 加）──
+         跟「成效儀表板」故意分開：那邊是被動看Threads官方數字，這邊是顧問
+         主動記錄「這則貼文真的帶來人了沒」——LINE好友是系統自動歸因算出來的，
+         有效詢問／合格人選／送件要顧問自己判斷、自己按，混在一起會分不清
+         哪些數字是系統量的、哪些是人記的。 -->
+    <div id="pane-convert" hidden>
+      <div class="note">
+        這一頁記錄「<b>貼文真的換到幾個人</b>」——加LINE好友是系統自動歸因算出來的
+        （候選人點連結加好友時系統會自動比對），下面三格要靠你自己判斷、自己按。
+      </div>
+      <div class="card">
+        <label style="margin-bottom:6px">從發文走到送件</label>
+        <div id="convfunnel" class="mut">載入中…</div>
+      </div>
+      <div class="card">
+        <label style="margin-bottom:2px">每一則貼文</label>
+        <div id="convtabs" class="tabs"></div>
+        <div id="convlist" class="mut">載入中…</div>
       </div>
     </div>
 
@@ -775,12 +797,13 @@ function paintLine() {
 $('maintabs').addEventListener('click', function (e) {
   var b = e.target.closest('.tab'); if (!b) return;
   [].forEach.call($('maintabs').children, function (x) { x.classList.toggle('on', x === b); });
-  ['pane-post', 'pane-cal', 'pane-board', 'pane-settings', 'pane-candidates'].forEach(function (id) {
+  ['pane-post', 'pane-cal', 'pane-board', 'pane-convert', 'pane-settings', 'pane-candidates'].forEach(function (id) {
     $(id).hidden = (id !== b.dataset.pane);
   });
   if (b.dataset.pane === 'pane-cal') loadCal();
   if (b.dataset.pane === 'pane-board') loadStatsQueue();
   if (b.dataset.pane === 'pane-board' && !LINE_INS) loadLine();
+  if (b.dataset.pane === 'pane-convert') loadConvertQueue();
   if (b.dataset.pane === 'pane-settings') loadSettings();
   if (b.dataset.pane === 'pane-candidates') loadCandidateSummaries();
   // 2026-09-03 加：在「顧問與話題設定」改完指派、切回「一鍵發文」時，
@@ -974,6 +997,56 @@ function paintPostList() {
   }).join('');
 
   var list = STAT_TAB === '全部' ? rows : rows.filter(function (r) { return nm(r) === STAT_TAB; });
+  $('postlist').innerHTML = list.length ? list.map(function (r) {
+    var rate = r.views ? ((r.clicks || 0) / r.views * 100).toFixed(2) + '%' : '—';
+    return '<div class="qrow" style="align-items:flex-start">'
+      + '<div style="flex:1">'
+      +   '<div class="t">' + (r.title || r.slug) + '</div>'
+      +   '<div class="m">' + nm(r) + '　·　' + r.posted_at.slice(5, 16)
+      +     (r.social_post_url
+              ? '　·　<a href="' + r.social_post_url + '" target="_blank" rel="noopener">查看貼文</a>' : '')
+      +   '</div>'
+      + '</div>'
+      + '<div style="text-align:right;white-space:nowrap;font-size:12.5px">'
+      +   '<div><b style="font-size:15px">' + r.views + '</b> 瀏覽</div>'
+      +   '<div class="m">♥' + (r.likes || 0) + ' 💬' + (r.replies || 0)
+      +     '　🔗' + (r.clicks || 0) + '（' + rate + '）</div>'
+      + '</div></div>';
+  }).join('') : '<div class="mut" style="padding:6px 0">這位顧問還沒有抓到成效的貼文。</div>';
+}
+$('stattabs').addEventListener('click', function (e) {
+  var b = e.target.closest('.tab'); if (!b) return;
+  STAT_TAB = b.dataset.n; paintPostList();
+});
+
+// ── 招募轉換記錄（獨立分頁，2026-09-04 加）──
+// 跟成效儀表板共用同一支 /admin/social-post-queue，資料抓過一次就夠，
+// 不用重打一次 API——但畫的東西完全不一樣，故意分開兩個 paint 函式。
+var CONVERT_LOADED = false;
+function loadConvertQueue() {
+  if (ALL_QUEUE_STATS.length) { CONVERT_LOADED = true; paintConvert(); return; }
+  api('/admin/social-post-queue?limit=300').then(function (d) {
+    if (!d.ok) return;
+    ALL_QUEUE_STATS = d.queue || [];
+    CONVERT_LOADED = true;
+    paintConvert();
+  }).catch(function () {});
+}
+
+var CONV_TAB = '全部';
+function paintConvertList() {
+  var rows = measured().slice().sort(function (a, b) {
+    return (b.posted_at || '').localeCompare(a.posted_at || '');
+  });
+  var names = ['全部'];
+  rows.forEach(function (r) { if (names.indexOf(nm(r)) < 0) names.push(nm(r)); });
+  if (names.indexOf(CONV_TAB) < 0) CONV_TAB = '全部';
+  $('convtabs').innerHTML = names.map(function (n) {
+    return '<button type="button" class="tab' + (n === CONV_TAB ? ' on' : '') + '" data-n="'
+      + n.replace(/"/g, '&quot;') + '">' + n + '</button>';
+  }).join('');
+
+  var list = CONV_TAB === '全部' ? rows : rows.filter(function (r) { return nm(r) === CONV_TAB; });
   // 2026-09-04 加：顧問手動記錄「有效詢問／合格人選／送件」——這三件事系統
   // 自己看不出來（要顧問判斷這則詢問算不算數），只能靠人按。每次點都是+1，
   // 記錯了目前沒有退回機制，只能請系統管理員直接改資料庫。
@@ -982,29 +1055,23 @@ function paintPostList() {
     { field: 'qualified_candidates', ic: '✅', lb: '合格人選' },
     { field: 'submitted_candidates', ic: '📮', lb: '送件' },
   ];
-  $('postlist').innerHTML = list.length ? list.map(function (r) {
-    var rate = r.views ? ((r.clicks || 0) / r.views * 100).toFixed(2) + '%' : '—';
+  $('convlist').innerHTML = list.length ? list.map(function (r) {
     return '<div class="qrow" style="align-items:flex-start;flex-wrap:wrap">'
       + '<div style="flex:1;min-width:200px">'
       +   '<div class="t">' + (r.title || r.slug) + '</div>'
       +   '<div class="m">' + nm(r) + '　·　' + r.posted_at.slice(5, 16)
       +     (r.social_post_url
               ? '　·　<a href="' + r.social_post_url + '" target="_blank" rel="noopener">查看貼文</a>' : '')
+      +     '　·　💬加LINE ' + (r.line_adds || 0)
       +   '</div>'
       +   '<div class="convrow">' + CONV_BTNS.map(function (c) {
             return '<button type="button" class="convbtn" data-post="' + r.queue_id + '" data-field="' + c.field + '">'
               + c.ic + ' ' + c.lb + ' <b>' + (r[c.field] || 0) + '</b></button>';
           }).join('') + '</div>'
-      + '</div>'
-      + '<div style="text-align:right;white-space:nowrap;font-size:12.5px">'
-      +   '<div><b style="font-size:15px">' + r.views + '</b> 瀏覽</div>'
-      +   '<div class="m">♥' + (r.likes || 0) + ' 💬' + (r.replies || 0)
-      +     '　🔗' + (r.clicks || 0) + '（' + rate + '）</div>'
-      +   '<div class="m">💬加LINE ' + (r.line_adds || 0) + '</div>'
       + '</div></div>';
   }).join('') : '<div class="mut" style="padding:6px 0">這位顧問還沒有抓到成效的貼文。</div>';
 
-  [].forEach.call($('postlist').querySelectorAll('.convbtn'), function (b) {
+  [].forEach.call($('convlist').querySelectorAll('.convbtn'), function (b) {
     b.onclick = function () {
       var postId = Number(b.dataset.post), field = b.dataset.field;
       b.disabled = true;
@@ -1022,10 +1089,42 @@ function paintPostList() {
     };
   });
 }
-$('stattabs').addEventListener('click', function (e) {
+$('convtabs').addEventListener('click', function (e) {
   var b = e.target.closest('.tab'); if (!b) return;
-  STAT_TAB = b.dataset.n; paintPostList();
+  CONV_TAB = b.dataset.n; paintConvertList();
 });
+
+function paintConvert() {
+  var rows = measured();
+  if (!rows.length) {
+    $('convfunnel').innerHTML = '<div class="mut">還沒有抓到成效的貼文。</div>';
+    $('convlist').innerHTML = '<div class="mut">還沒有抓到成效的貼文。</div>';
+    return;
+  }
+  var tla = rows.reduce(function (x, r) { return x + (r.line_adds || 0); }, 0);
+  var tvi = rows.reduce(function (x, r) { return x + (r.valid_inquiries || 0); }, 0);
+  var tqc = rows.reduce(function (x, r) { return x + (r.qualified_candidates || 0); }, 0);
+  var tsc = rows.reduce(function (x, r) { return x + (r.submitted_candidates || 0); }, 0);
+  var steps = [
+    { ic: '💬', lb: '加LINE好友', v: tla },
+    { ic: '❓', lb: '有效詢問', v: tvi },
+    { ic: '✅', lb: '合格人選', v: tqc },
+    { ic: '📮', lb: '送件', v: tsc },
+  ];
+  var maxV = Math.max(tla, 1);
+  $('convfunnel').innerHTML = '<div class="funnelwrap">' + steps.map(function (s, i) {
+      var arrow = i > 0 ? '<div class="arrowdown">⬇</div>' : '';
+      var pct = Math.max(14, Math.round(s.v / maxV * 100));
+      return arrow + '<div class="fstep"><span class="fic">' + s.ic + '</span>'
+        + '<span class="flabel">' + s.lb + '</span>'
+        + '<span class="bar" style="width:' + pct + '%">' + s.v + '</span></div>';
+    }).join('') + '</div>'
+    + '<div class="explain">' + (tvi || tqc || tsc
+      ? '👉 「加LINE好友」是系統自動歸因算出來的，後面三格是你自己按出來的。'
+      : '⚠️ 後面三格還是 0，因為還沒有人按過下面每則貼文的按鈕記錄。')
+    + '</div>';
+  paintConvertList();
+}
 
 function paintStats() {
   var rows = measured();
@@ -1191,25 +1290,20 @@ function paintStats() {
 
   var tv = rows.reduce(function (x, r) { return x + (r.views || 0); }, 0);
   var tc = rows.reduce(function (x, r) { return x + (r.clicks || 0); }, 0);
-  // 2026-09-04 加：候選人加LINE好友時，會把追蹤碼帶在送出的第一則訊息裡，
-  // webhook 收到後回頭比對回是哪一則貼文——這格終於算得出真數字，
-  // 不再是「見上方」。後面三格是顧問自己記錄的（見每則貼文下方的按鈕）。
-  var tla = rows.reduce(function (x, r) { return x + (r.line_adds || 0); }, 0);
-  var tvi = rows.reduce(function (x, r) { return x + (r.valid_inquiries || 0); }, 0);
-  var tqc = rows.reduce(function (x, r) { return x + (r.qualified_candidates || 0); }, 0);
-  var tsc = rows.reduce(function (x, r) { return x + (r.submitted_candidates || 0); }, 0);
   var steps = [
     { ic: '📮', lb: '發了幾則', v: rows.length },
     { ic: '👀', lb: '被看到幾次', v: tv },
     { ic: '🔗', lb: '點了連結', v: tc },
-    { ic: '💬', lb: '加LINE好友', v: tla },
-    { ic: '❓', lb: '有效詢問', v: tvi },
-    { ic: '✅', lb: '合格人選', v: tqc },
-    { ic: '📮', lb: '送件', v: tsc },
+    { ic: '💬', lb: '加LINE好友', v: null },
   ];
   var maxV = Math.max(rows.length, tv, tc, 1);
   $('funnel').innerHTML = '<div class="funnelwrap">' + steps.map(function (s, i) {
       var arrow = i > 0 ? '<div class="arrowdown">⬇</div>' : '';
+      if (s.v === null) {
+        return arrow + '<div class="fstep"><span class="fic">' + s.ic + '</span>'
+          + '<span class="flabel">' + s.lb + '</span>'
+          + '<span class="bar" style="width:76px;background:#c9c2b3">見上方</span></div>';
+      }
       var pct = Math.max(14, Math.round(s.v / maxV * 100));
       return arrow + '<div class="fstep"><span class="fic">' + s.ic + '</span>'
         + '<span class="flabel">' + s.lb + '</span>'
@@ -1217,7 +1311,6 @@ function paintStats() {
     }).join('') + '</div>'
     + '<div class="explain">' + (tc
       ? '👉 每個箭頭往下，通常人數會變少——這很正常。「點了連結」的人才是真的有興趣，比「被看到」重要得多。'
-        + (tvi || tqc || tsc ? '' : '「有效詢問」以下三格要靠你自己在下面每則貼文按按鈕記錄，還沒按過都是0。')
       : '⚠️ 「點了連結」現在還是 0——因為 2026-08-19 之前發的舊貼文，結尾放的是舊版LINE連結，本來就量不到點擊。新發的貼文之後才算得到數字。')
     + '</div>';
 }
