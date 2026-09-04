@@ -474,14 +474,12 @@ table.gap td.stale{color:#c0392b}
       </div>
 
       <div id="tobs-flow" class="tobs-subpanel">
-        <div class="tobs-flow">
-          <div class="tobs-flowbox"><div class="ico">📝</div><h4>你排程貼文</h4><p>選帳號、職缺、發文公式</p></div>
-          <div class="tobs-flowbox"><div class="ico">🤖</div><h4>Meta 抓數字</h4><p>瀏覽、愛心、回覆，24H／7D自動更新</p></div>
-          <div class="tobs-flowbox"><div class="ico">💬</div><h4>LINE 接住人</h4><p>記住他從哪篇貼文進來</p></div>
-          <div class="tobs-flowbox"><div class="ico">✅</div><h4>顧問做判斷</h4><p>有效詢問、合格、送件</p></div>
+        <div class="tobs-card">
+          <h3>這個帳號都發了哪些類型</h3>
+          <p class="tobs-help">先選顧問，再看他發過的每種文案類型帶回多少真實成效——用來判斷哪個帳號的哪種寫法比較有效</p>
+          <div class="tobs-subtabs" id="tobsFlowTabs" style="margin-bottom:12px"></div>
+          <div class="tobs-accounts" id="tobsFlowGrid">載入中…</div>
         </div>
-        <div class="tobs-rule"><b>最後只問一件事：</b>這種文案每 1,000 次瀏覽，帶來幾位真正符合條件的人？<br>
-          <span style="color:var(--tobs-muted);font-size:12.5px">瀏覽很多但沒有人選，不算招募成功</span></div>
       </div>
     </div>
 
@@ -1242,12 +1240,66 @@ function paintConvertAccounts() {
   }).join('');
 }
 
+// 2026-09-04 加：「資料怎麼走」改成 Jacky 要的用途——先選顧問，再看他發過
+// 的每一種文案類型（職缺文選了哪個公式／通用文／AI阿財話題）帶回多少真實
+// 成效，用來判斷「哪個帳號的哪種寫法比較有效」，不是原本那張靜態流程說明圖。
+// 分類邏輯對應「一鍵發文」表單的真實選項結構：職缺文（沒有topic_id）看
+// content_formula；話題文（有topic_id）看 content_mission 分通用文／AI阿財話題。
+function postType(r) {
+  if (!r.topic_id) return '職缺文・' + (r.content_formula || '未選公式');
+  if (r.content_mission === 'trust_building') return 'AI阿財話題';
+  if (r.content_mission === 'engagement') return '通用文';
+  return '話題文・未分類';
+}
+var FLOW_ACC = null;
+function paintConvertFlow() {
+  var rows = measured();
+  var names = [];
+  rows.forEach(function (r) { if (names.indexOf(nm(r)) < 0) names.push(nm(r)); });
+  if ((FLOW_ACC === null || names.indexOf(FLOW_ACC) < 0) && names.length) FLOW_ACC = names[0];
+  if (!names.length) {
+    $('tobsFlowTabs').innerHTML = '';
+    $('tobsFlowGrid').innerHTML = '<div class="mut">還沒有抓到成效的貼文。</div>';
+    return;
+  }
+  $('tobsFlowTabs').innerHTML = names.map(function (n) {
+    return '<button type="button" class="tobs-subtab' + (n === FLOW_ACC ? ' on' : '') + '" data-acc="'
+      + n.replace(/"/g, '&quot;') + '">' + esc(n) + '</button>';
+  }).join('');
+  var list = rows.filter(function (r) { return nm(r) === FLOW_ACC; });
+  var byType = {};
+  list.forEach(function (r) {
+    var t = postType(r);
+    byType[t] = byType[t] || { n: 0, views: 0, vi: 0, sa: 0, qc: 0, sc: 0 };
+    byType[t].n++;
+    byType[t].views += r.views || 0;
+    byType[t].vi += r.valid_inquiries || 0;
+    byType[t].sa += r.screened_auto || 0;
+    byType[t].qc += r.qualified_candidates || 0;
+    byType[t].sc += r.submitted_candidates || 0;
+  });
+  var types = Object.keys(byType).sort(function (a, b) { return byType[b].n - byType[a].n; });
+  $('tobsFlowGrid').innerHTML = types.map(function (t) {
+    var d = byType[t];
+    var avgViews = Math.round(d.views / d.n);
+    return '<article class="tobs-acct"><h4>' + esc(t) + '</h4>'
+      + '<p>' + d.n + ' 則貼文・平均瀏覽 ' + avgViews + '</p>'
+      + '<div class="tobs-baseline">❓有效詢問 ' + d.vi + '　🎤初審 ' + d.sa
+      +   '　✅送給客戶 ' + d.qc + '　📮送件 ' + d.sc + '</div></article>';
+  }).join('');
+}
+$('tobsFlowTabs').addEventListener('click', function (e) {
+  var b = e.target.closest('.tobs-subtab'); if (!b) return;
+  FLOW_ACC = b.dataset.acc; paintConvertFlow();
+});
+
 function paintConvert() {
   var rows = measured();
   if (!rows.length) {
     $('convfunnel').innerHTML = '<div class="mut">還沒有抓到成效的貼文。</div>';
     $('convlist').innerHTML = '<div class="mut">還沒有抓到成效的貼文。</div>';
     $('tobsAccountGrid').innerHTML = '<div class="mut">還沒有抓到成效的貼文。</div>';
+    $('tobsFlowGrid').innerHTML = '<div class="mut">還沒有抓到成效的貼文。</div>';
     return;
   }
   var tla = rows.reduce(function (x, r) { return x + (r.line_adds || 0); }, 0);
@@ -1276,6 +1328,7 @@ function paintConvert() {
     + '</div>';
   paintConvertList();
   paintConvertAccounts();
+  paintConvertFlow();
 }
 
 function paintStats() {
