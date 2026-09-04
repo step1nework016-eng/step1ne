@@ -1133,6 +1133,7 @@ $('tobssubtabs').addEventListener('click', function (e) {
 
 var MISSION_LB = { trust_building: '信任建立', engagement: '互動' };
 var LENGTH_LB = { short: '短文', medium: '中長文', long: '長文' };
+var FORMULA_LB = { dialog: '對話討論型', pure: '純CTA型', default: '原始格式' };
 
 var CONV_TAB = '全部';
 function paintConvertList() {
@@ -1163,7 +1164,7 @@ function paintConvertList() {
     var hoursSince = r.posted_at ? (Date.now() - Date.parse(r.posted_at.replace(' ', 'T') + '+08:00')) / 3600000 : 999;
     var tags = [];
     if (r.content_mission) tags.push('<span class="tobs-tag green">' + esc(MISSION_LB[r.content_mission] || r.content_mission) + '</span>');
-    if (r.content_formula) tags.push('<span class="tobs-tag">' + esc(r.content_formula) + '</span>');
+    if (r.content_formula) tags.push('<span class="tobs-tag">' + esc(FORMULA_LB[r.content_formula] || r.content_formula) + '</span>');
     if (r.content_length) tags.push('<span class="tobs-tag orange">' + esc(LENGTH_LB[r.content_length] || r.content_length) + '</span>');
     // 2026-09-04 修：話題貼文（topic_id 有值）的 job_slug 本來就是拿來當標題用
     // 的描述文字（例如「💬 AI阿財不會做的三件事」），維持原樣顯示。
@@ -1246,7 +1247,7 @@ function paintConvertAccounts() {
 // 分類邏輯對應「一鍵發文」表單的真實選項結構：職缺文（沒有topic_id）看
 // content_formula；話題文（有topic_id）看 content_mission 分通用文／AI阿財話題。
 function postType(r) {
-  if (!r.topic_id) return '職缺文・' + (r.content_formula || '未選公式');
+  if (!r.topic_id) return '職缺文・' + (r.content_formula ? (FORMULA_LB[r.content_formula] || r.content_formula) : '未選公式');
   if (r.content_mission === 'trust_building') return 'AI阿財話題';
   if (r.content_mission === 'engagement') return '通用文';
   return '話題文・未分類';
