@@ -948,6 +948,14 @@ function openDrawer(appId, kind) {
     '<button class="btn p" id="resendGo" type="button">產生新的面談連結</button></div>' +
     '<div id="resendResult" style="margin-top:8px"></div></div>';
 
+  // 2026-09-04 加：只做工作風格測驗、不用跟阿財聊天的連結——手動新增的人選
+  // 沒有 chat_token，這個機制之前完全沒有入口。/assessment/ 這頁本身早就是
+  // 獨立的（交卷後只是導去/apply/或顯示「現在就開始面談」按鈕，不點就不會
+  // 被拉進真的面談），缺的只是幫這種人選生一個連結。
+  html += '<div class="sec"><h4>只做工作風格測驗<span class="subhint">不用跟阿財聊天，人選填完測驗就好，之後做報告會用到這份資料。</span></h4>' +
+    '<div class="acts"><button class="btn p" id="assessLinkGo" type="button">產生測驗連結</button></div>' +
+    '<div id="assessLinkResult" style="margin-top:8px"></div></div>';
+
   // 2026-09-01 加：顧問備註改成一條一條紀錄（type+content+時間），不是單一
   // 文字欄位——顧問自己選類型（評估／聯繫紀錄／客戶回饋／其他），累積成清單。
   // 資料非同步載入（notesBox 佔位），不擋主畫面先開出來。
@@ -1506,6 +1514,22 @@ function wireDrawer(c, appId) {
         '<div class="acts"><button class="btn p" id="resendCopy" type="button">複製連結</button></div>';
       $('resendCopy').onclick = function () {
         navigator.clipboard.writeText(r.url).then(function () { $('resendCopy').textContent = '已複製'; });
+      };
+    });
+  };
+  // 2026-09-04 加：只做工作風格測驗的連結——同一顆按鈕重複按會拿回同一個
+  // token（後端沒有就生、有就沿用），不會每次都換連結。
+  var assessBtn = $('assessLinkGo');
+  if (assessBtn) assessBtn.onclick = function () {
+    assessBtn.disabled = true;
+    api('/admin/application/' + encodeURIComponent(appId) + '/assessment-link', { method: 'POST' })
+    .then(function (r) {
+      assessBtn.disabled = false;
+      if (!r.ok) { $('assessLinkResult').innerHTML = '<span class="mut" style="color:#c0392b">' + esc(r.error || '失敗') + '</span>'; return; }
+      $('assessLinkResult').innerHTML = '<dl class="kv"><dt>連結</dt><dd id="assessLinkUrl" style="overflow-wrap:anywhere">' + esc(r.assessment_url) + '</dd></dl>' +
+        '<div class="acts"><button class="btn p" id="assessLinkCopy" type="button">複製連結</button></div>';
+      $('assessLinkCopy').onclick = function () {
+        navigator.clipboard.writeText(r.assessment_url).then(function () { $('assessLinkCopy').textContent = '已複製'; });
       };
     });
   };
