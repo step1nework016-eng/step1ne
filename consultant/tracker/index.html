@@ -1001,6 +1001,24 @@ function openDrawer(appId, kind) {
     }
   });
 
+  // 2026-09-04 加：用人單位在 portal 排的面談/錄取/報到時間歷史——同一階段
+  // 改期也全部留著，不覆蓋，方便顧問回頭對照客戶到底排了幾次、什麼時候。
+  var STAGE_EVT_LABEL = { stage1: '第一階段', stage2: '第二階段', stage3: '第三階段', stage4: '第四階段', offer: '錄取', onboard: '報到' };
+  (c.placements || []).forEach(function (pl) {
+    if ((pl.stage_events || []).length) {
+      html += '<div class="sec"><h4>' + esc(pl.client_name) + ' 安排的時間紀錄</h4>' +
+        '<div style="display:flex;flex-direction:column;gap:6px">' +
+        pl.stage_events.slice().reverse().map(function (e) {
+          var lb = STAGE_EVT_LABEL[e.stage] || e.stage;
+          return '<div style="font-size:13px;display:flex;gap:8px;flex-wrap:wrap;align-items:baseline">' +
+            '<b>' + esc(lb) + '</b>' +
+            (e.event_at ? '<span>' + esc(String(e.event_at).slice(0, 16).replace('T', ' ')) + '</span>' : '<span class="mut">未填時間</span>') +
+            (e.note ? '<span class="mut">・' + esc(e.note) + '</span>' : '') +
+            '<span class="mut" style="margin-left:auto">回填於 ' + esc((e.created_at || '').slice(0, 16)) + '</span></div>';
+        }).join('') + '</div></div>';
+    }
+  });
+
   // 給客戶看的摘要 vs 主動傳訊息——這裡只留摘要，LINE ID 已經併進基本資料，
   // 不要重複的欄位。主動傳訊息是即時訊息，會進客戶 portal 訊息串、通知鈴鐺
   // 會跳、同步發 Telegram，之前做正式版時整塊漏放了。
