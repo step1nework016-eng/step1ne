@@ -954,6 +954,20 @@ function openDrawer(appId, kind) {
   html += '<div class="sec"><h4>顧問備註<button class="btn p" id="noteAddBtn" type="button" style="float:right;font-size:12.5px;padding:5px 12px">＋ 新增紀錄</button></h4>' +
     '<div id="notesBox" class="mut">載入中…</div></div>';
 
+  // 2026-09-04 加：三階段管線第一階段——新增人選當下（有履歷檔的話）AI就先
+  // 準備好的「人選狀況快速摘要＋建議電洽問題」，讓顧問還沒打電話/還沒看阿財
+  // 報告之前就有底。跟下面「電洽內容」（打完電話之後的AI整理）不一樣，
+  // 這個是打電話「之前」看的，所以放在它上面。
+  if (c.call_prep_md) {
+    html += '<div class="sec" style="border-left:3px solid var(--gold)"><h4>📋 電洽前準備（AI依履歷與職缺整理）</h4>' +
+      '<div style="border:1px solid var(--line);background:var(--soft);border-radius:10px;padding:12px 14px;font-size:13.5px;line-height:1.8;white-space:pre-wrap">' +
+      String(c.call_prep_md).split('\n').map(function (line) {
+        return /^(人選狀況快速摘要|建議電洽問題)$/.test(line.trim())
+          ? '<b style="color:var(--gold);display:block;margin-top:8px">' + esc(line.trim()) + '</b>'
+          : (line.trim() ? esc(line) : '');
+      }).join('\n') + '</div></div>';
+  }
+
   // 2026-09-01 改：電洽內容原本的輸入框（文字＋拖曳上傳）直接佔在卡片上，
   // 改成只顯示 AI 整理好的重點，輸入動作搬進「📞記錄新的通話」彈窗，
   // 不會洗人選卡片的版面（見 openCallModal()）。
