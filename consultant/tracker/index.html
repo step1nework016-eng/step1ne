@@ -971,15 +971,27 @@ function openDrawer(appId, kind) {
   // 2026-09-01 改：電洽內容原本的輸入框（文字＋拖曳上傳）直接佔在卡片上，
   // 改成只顯示 AI 整理好的重點，輸入動作搬進「📞記錄新的通話」彈窗，
   // 不會洗人選卡片的版面（見 openCallModal()）。
-  html += '<div class="sec"><h4>電洽內容<button class="btn p" id="callOpenBtn" type="button" style="float:right;font-size:12.5px;padding:5px 12px">📞 記錄新的通話</button></h4>' +
+  // 2026-09-04 加：AI 整理難免聽錯/整理錯，原本定案後顧問沒地方改——
+  // 加「✎ 編輯」直接改文字存回 call_summary_md，跟 content_client_md
+  // （AI草稿→顧問編輯→存檔）同一種信任模型。
+  html += '<div class="sec"><h4>電洽內容' +
+    '<button class="btn p" id="callOpenBtn" type="button" style="float:right;font-size:12.5px;padding:5px 12px;margin-left:6px">📞 記錄新的通話</button>' +
+    '<button class="btn" id="callSumEditBtn" type="button" style="float:right;font-size:12.5px;padding:5px 12px">✎ 編輯</button>' +
+    '</h4>' +
     '<div class="subhint" style="margin:0 0 10px">只顯示AI整理好的重點，逐字稿／檔案在彈窗裡輸入，不會洗這裡的版面。</div>' +
-    (c.call_summary_md
+    '<div id="callSumView">' + (c.call_summary_md
       ? '<div style="border:1px solid var(--line);background:var(--soft);border-radius:10px;padding:12px 14px;font-size:13.5px;line-height:1.8">' +
         String(c.call_summary_md).split('\n').map(function (line) {
           var m = line.match(/^#+\s*(.+)/);
           return m ? '<b style="color:var(--gold);display:block;margin-top:8px">' + esc(m[1]) + '</b>' : (line.trim() ? esc(line) + '<br>' : '');
         }).join('') + '</div>'
-      : '<span class="mut">尚未記錄過通話</span>') + '</div>';
+      : '<span class="mut">尚未記錄過通話</span>') + '</div>' +
+    '<div id="callSumEdit" hidden>' +
+    '<textarea class="edi" id="callSumTextarea" rows="8">' + esc(c.call_summary_md || '') + '</textarea>' +
+    '<div class="acts" style="margin-top:8px">' +
+    '<button class="btn p" id="callSumSaveBtn" type="button">儲存</button> ' +
+    '<button class="btn" id="callSumCancelBtn" type="button">取消</button> ' +
+    '<span class="mut" id="callSumMsg"></span></div></div></div>';
 
   if (c.hard_gate) {
     html += '<div class="sec" style="border-left:3px solid var(--warn)"><h4 style="color:var(--warn)">待審核（客戶硬性條件）</h4>' +
@@ -1250,6 +1262,26 @@ function wireDrawer(c, appId) {
   }
   var callBtn = $('callOpenBtn');
   if (callBtn) callBtn.onclick = function () { openCallModal(appId); };
+  // 2026-09-04 加：電洽內容（call_summary_md）直接編輯存檔。
+  var callSumEditBtn = $('callSumEditBtn');
+  if (callSumEditBtn) callSumEditBtn.onclick = function () {
+    $('callSumView').hidden = true; $('callSumEdit').hidden = false;
+  };
+  var callSumCancelBtn = $('callSumCancelBtn');
+  if (callSumCancelBtn) callSumCancelBtn.onclick = function () {
+    $('callSumEdit').hidden = true; $('callSumView').hidden = false; $('callSumMsg').textContent = '';
+  };
+  var callSumSaveBtn = $('callSumSaveBtn');
+  if (callSumSaveBtn) callSumSaveBtn.onclick = function () {
+    callSumSaveBtn.disabled = true; $('callSumMsg').textContent = '儲存中…';
+    api('/admin/application/call-summary', { method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ application_id: appId, content: $('callSumTextarea').value }) })
+    .then(function (r) {
+      callSumSaveBtn.disabled = false;
+      if (!r.ok) { $('callSumMsg').textContent = r.error || '儲存失敗'; return; }
+      loadAndOpen(appId);
+    }).catch(function () { callSumSaveBtn.disabled = false; $('callSumMsg').textContent = '連線失敗'; });
+  };
   var noteBtn = $('noteAddBtn');
   if (noteBtn) noteBtn.onclick = function () { openNoteModal(appId); };
   Array.prototype.forEach.call(document.querySelectorAll('.stp[data-key]'), function (b) {
