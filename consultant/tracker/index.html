@@ -651,10 +651,12 @@ function openSourcedDrawer(c) {
     // 共用同一個彈窗(openClientFormalModal)，用 kind='sourced' 分流資料來源。
     '<div class="sec"><h4>客戶版履歷</h4>' +
     (c.client_formal_report
-      ? '<div style="margin-bottom:6px;font-size:12.5px">📄 ' +
-        '<span class="badge b-forward" style="font-size:11px">已完成・' + esc(String(c.client_formal_report.generated_at).slice(0, 16)) + '</span> ' +
-        '<a href="#" class="cfrPreview" data-id="' + esc(c.client_formal_report.id) + '" style="font-size:12px;margin-left:4px">預覽</a> ' +
-        '<a href="#" class="cfrDownload" data-id="' + esc(c.client_formal_report.id) + '" style="font-size:12px;margin-left:4px">下載PDF</a></div>'
+      ? (c.client_formal_report.pending
+          ? '<div style="margin-bottom:6px;font-size:12.5px">⏳ <span class="badge" style="font-size:11px">本機處理中…</span></div>'
+          : '<div style="margin-bottom:6px;font-size:12.5px">📄 ' +
+            '<span class="badge b-forward" style="font-size:11px">已完成・' + esc(String(c.client_formal_report.generated_at).slice(0, 16)) + '</span> ' +
+            '<a href="#" class="cfrPreview" data-id="' + esc(c.client_formal_report.id) + '" style="font-size:12px;margin-left:4px">預覽</a> ' +
+            '<a href="#" class="cfrDownload" data-id="' + esc(c.client_formal_report.id) + '" style="font-size:12px;margin-left:4px">下載PDF</a></div>')
       : '') +
     '<div class="acts"><button class="btn p" id="clientFormalBtn" type="button">📄 製作客戶版履歷</button></div></div>' +
     '</div>';
@@ -752,28 +754,43 @@ function openSourcedDrawer(c) {
 // 2026-09-02 加：已存檔的客戶版履歷，預覽（開新分頁看）／下載PDF（開新
 // 分頁+自動跳列印視窗，跟原本產生當下的行為一致）共用同一支抓資料的邏輯，
 // 兩個按鈕只差要不要自動觸發列印。
+// 2026-09-04 改：新版走 PDF（deliver.py 本機產生），不是這裡當場組 HTML，
+// 三種狀態要分開處理——pending（本機還在處理）／file_id（新版PDF，直接下載
+// 原檔，不走window.print()那套）／html（舊版表格＋大頭貼格式，行為不變）。
+function openOrDownloadClientFormal(id, wantDownload) {
+  return api('/admin/client-formal-reports/' + encodeURIComponent(id)).then(function (r) {
+    if (!r.ok) { alert(r.error || '讀取失敗'); return; }
+    if (r.pending) { alert('本機還在處理這份履歷，通常1-2分鐘內會完成並透過TG通知，請稍後重新整理再試'); return; }
+    if (r.file_id) {
+      var tok = localStorage.getItem('s1ne_admin_tok');
+      var url = API + '/admin/file/' + encodeURIComponent(r.file_id);
+      fetch(url, { headers: { authorization: 'Bearer ' + tok } })
+        .then(function (rs) { if (!rs.ok) throw new Error('下載失敗'); return rs.blob(); })
+        .then(function (b) {
+          var u = URL.createObjectURL(b);
+          if (wantDownload) {
+            var el = document.createElement('a'); el.href = u; el.download = '客戶版履歷.pdf';
+            document.body.appendChild(el); el.click(); el.remove();
+          } else {
+            window.open(u, '_blank');
+          }
+          setTimeout(function () { URL.revokeObjectURL(u); }, 4000);
+        })
+        .catch(function () { alert('下載失敗'); });
+      return;
+    }
+    // 舊版（表格＋大頭貼），行為維持不變
+    var w = window.open('', '_blank');
+    w.document.write(r.html + (wantDownload ? '<script>window.onload=function(){window.print()}<\/script>' : ''));
+    w.document.close();
+  });
+}
 function wireClientFormalReportLinks() {
   Array.prototype.forEach.call(document.querySelectorAll('.cfrPreview'), function (a) {
-    a.onclick = function (ev) {
-      ev.preventDefault();
-      api('/admin/client-formal-reports/' + encodeURIComponent(a.dataset.id)).then(function (r) {
-        if (!r.ok) { alert(r.error || '讀取失敗'); return; }
-        var w = window.open('', '_blank');
-        w.document.write(r.html);
-        w.document.close();
-      });
-    };
+    a.onclick = function (ev) { ev.preventDefault(); openOrDownloadClientFormal(a.dataset.id, false); };
   });
   Array.prototype.forEach.call(document.querySelectorAll('.cfrDownload'), function (a) {
-    a.onclick = function (ev) {
-      ev.preventDefault();
-      api('/admin/client-formal-reports/' + encodeURIComponent(a.dataset.id)).then(function (r) {
-        if (!r.ok) { alert(r.error || '讀取失敗'); return; }
-        var w = window.open('', '_blank');
-        w.document.write(r.html + '<script>window.onload=function(){window.print()}<\/script>');
-        w.document.close();
-      });
-    };
+    a.onclick = function (ev) { ev.preventDefault(); openOrDownloadClientFormal(a.dataset.id, true); };
   });
 }
 
@@ -967,6 +984,10 @@ function openDrawer(appId, kind) {
   var existingFormalReports = (c.placements || []).filter(function (pl) { return pl.client_formal_report; });
   html += '<div class="sec"><h4>客戶版履歷</h4>' +
     existingFormalReports.map(function (pl) {
+      if (pl.client_formal_report.pending) {
+        return '<div style="margin-bottom:6px;font-size:12.5px">⏳ ' + esc(pl.client_name) + ' ' +
+          '<span class="badge" style="font-size:11px">本機處理中…</span></div>';
+      }
       return '<div style="margin-bottom:6px;font-size:12.5px">📄 ' + esc(pl.client_name) + ' ' +
         '<span class="badge b-forward" style="font-size:11px">已完成・' + esc(String(pl.client_formal_report.generated_at).slice(0, 16)) + '</span> ' +
         '<a href="#" class="cfrPreview" data-id="' + esc(pl.client_formal_report.id) + '" style="font-size:12px;margin-left:4px">預覽</a> ' +
@@ -1591,6 +1612,15 @@ function openClientFormalModal(appId, kind) {
       }).then(function (r) {
         btn.disabled = false;
         if (!r.ok) { $('cfMsg').textContent = r.error || '產生失敗'; return; }
+        // 2026-09-04 加：這個人選有阿財結構化報告時，改走新版模板——本機
+        // daemon 處理，不是這裡當場就有結果。舊版（沒有結構化報告的人選，
+        // 例如主動開發／手動新增）維持原本「當場拿到html直接開新分頁列印」。
+        if (r.pending) {
+          alert(r.message || '已送出，本機處理中，完成後會透過TG通知，並可在人選卡片下載/預覽');
+          closeClientFormalModal();
+          loadCards(function () { openDrawer(appId, kind); });
+          return;
+        }
         var w = window.open('', '_blank');
         w.document.write(r.html + '<script>window.onload=function(){window.print()}<\/script>');
         w.document.close();
