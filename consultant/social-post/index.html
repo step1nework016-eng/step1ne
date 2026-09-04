@@ -169,13 +169,6 @@ table.gap td.stale{color:#c0392b}
 .fstep .flabel{flex:none;width:82px;font-size:11.5px;color:var(--ink2);font-weight:600;line-height:1.3}
 .fstep .fic{flex:none;font-size:17px}
 @media(max-width:380px){.fstep .flabel{width:64px;font-size:11px}}
-.convrow{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-.convbtn{border:1px solid var(--line);background:var(--soft);border-radius:999px;padding:4px 10px;
-  font-size:12px;color:var(--ink2);cursor:pointer;display:flex;align-items:center;gap:4px;
-  transition:transform .12s ease}
-.convbtn:active{transform:scale(.94)}
-.convbtn b{font-variant-numeric:tabular-nums;color:var(--ink)}
-.convbtn.saved{border-color:var(--ok);color:var(--ok)}
 .wkcmp{display:flex;flex-direction:column;gap:10px}
 .wkcmprow{display:flex;align-items:center;gap:8px;background:var(--soft);border-radius:12px;padding:10px 12px}
 .wkcmprow .nm{flex:none;width:52px;font-size:12px;font-weight:700;color:var(--ink)}
@@ -227,6 +220,67 @@ table.gap td.stale{color:#c0392b}
 .aitopicrow.sel{background:#eae6f2;border-color:#6b5a8f;color:#6b5a8f;font-weight:700}
 #topicreminder{background:#fbf1de;color:#8a6100;border-radius:9px;padding:9px 12px;margin:-6px 0 16px;line-height:1.6}
 #topicreminder a{color:inherit;font-weight:700}
+
+/* ── 招募轉換記錄：套用 Jacky 原本設計的原型（獨立品牌視覺），
+   跟頁面其他地方的樸素風格刻意不共用，所以整組變數/class都加 tobs- 前綴，
+   不會跟上面既有的 --ink/--card/.tab 等等互相污染。 */
+.tobs-scope{--tobs-ink:#17213b;--tobs-muted:#68728a;--tobs-line:#dfe6ef;--tobs-blue:#4f6fe8;--tobs-blue2:#eef2ff;
+  --tobs-green:#16845b;--tobs-green2:#e8f7f0;--tobs-orange:#b85d13;--tobs-orange2:#fff1e5;
+  --tobs-red:#b64242;--tobs-yellow:#fff8d9;--tobs-card:#fff;--tobs-shadow:0 10px 30px rgba(36,55,90,.08)}
+.tobs-scope{color:var(--tobs-ink);font:15px/1.55 -apple-system,"Noto Sans TC",sans-serif}
+.tobs-hero{display:flex;gap:14px;align-items:flex-start;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap}
+.tobs-hero h2{font-size:22px;margin:0}
+.tobs-hero p{margin:4px 0 0;color:var(--tobs-muted)}
+.tobs-steps{display:grid;gap:10px;margin-bottom:18px}
+.tobs-step{background:var(--tobs-card);border:1px solid var(--tobs-line);border-radius:16px;padding:14px;display:flex;gap:12px;align-items:center}
+.tobs-step .tobs-num{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--tobs-blue2);color:var(--tobs-blue);font-weight:900;flex:none}
+.tobs-step b{display:block;font-size:14.5px}
+.tobs-step span{color:var(--tobs-muted);font-size:13px}
+.tobs-subtabs{display:flex;gap:8px;margin-bottom:14px;overflow:auto}
+.tobs-subtab{border:1px solid var(--tobs-line);background:#fff;padding:9px 15px;border-radius:999px;font-weight:800;white-space:nowrap;color:var(--tobs-ink);font-size:13.5px;cursor:pointer}
+.tobs-subtab.on{background:var(--tobs-ink);color:#fff;border-color:var(--tobs-ink)}
+.tobs-subpanel{display:none}
+.tobs-subpanel.on{display:block}
+.tobs-card{background:var(--tobs-card);border:1px solid var(--tobs-line);border-radius:20px;padding:18px;box-shadow:var(--tobs-shadow);margin-bottom:14px}
+.tobs-card h3{font-size:17px;margin:0 0 4px}
+.tobs-help{margin:0 0 14px;color:var(--tobs-muted);font-size:13.5px}
+.tobs-post{padding:14px 0;border-top:1px solid var(--tobs-line)}
+.tobs-post:first-of-type{border-top:0}
+.tobs-post-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.tobs-post h4{margin:0;font-size:15.5px}
+.tobs-meta{color:var(--tobs-muted);font-size:12.5px;margin-top:3px}
+.tobs-tags{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.tobs-tag{background:var(--tobs-blue2);color:#344db0;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:700}
+.tobs-tag.green{background:var(--tobs-green2);color:var(--tobs-green)}
+.tobs-tag.orange{background:var(--tobs-orange2);color:var(--tobs-orange)}
+.tobs-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:8px}
+.tobs-metric{background:#f7f9fc;border-radius:12px;padding:8px;text-align:center}
+.tobs-metric b{font-size:16px;display:block}
+.tobs-metric small{color:var(--tobs-muted);font-size:11px}
+.tobs-status{padding:4px 9px;border-radius:999px;font-size:12px;font-weight:800;white-space:nowrap;flex:none}
+.tobs-status.wait{background:var(--tobs-yellow);color:#765f00}
+.tobs-status.done{background:var(--tobs-green2);color:var(--tobs-green)}
+.tobs-convrow{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.tobs-convbtn{border:1px solid var(--tobs-line);background:var(--tobs-blue2);border-radius:999px;padding:4px 10px;
+  font-size:12px;color:#344db0;cursor:pointer;display:flex;align-items:center;gap:4px;transition:transform .12s ease}
+.tobs-convbtn:active{transform:scale(.94)}
+.tobs-convbtn b{font-variant-numeric:tabular-nums}
+.tobs-convbtn.saved{background:var(--tobs-green2);color:var(--tobs-green);border-color:var(--tobs-green)}
+.tobs-accounts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tobs-acct{background:#fff;border:1px solid var(--tobs-line);border-radius:16px;padding:14px}
+.tobs-acct-top{display:flex;justify-content:space-between;align-items:center}
+.tobs-avatar{width:36px;height:36px;border-radius:12px;background:var(--tobs-blue2);display:grid;place-items:center;font-weight:900;color:var(--tobs-blue);font-size:12.5px}
+.tobs-acct h4{margin:8px 0 2px;font-size:14.5px}
+.tobs-acct p{margin:0;color:var(--tobs-muted);font-size:12px}
+.tobs-baseline{margin-top:8px;background:#f7f9fc;padding:8px;border-radius:10px;font-size:12.5px}
+.tobs-flow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.tobs-flowbox{text-align:center;background:#fff;border:1px solid var(--tobs-line);border-radius:16px;padding:16px}
+.tobs-flowbox .ico{font-size:28px}
+.tobs-flowbox h4{margin:6px 0;font-size:14px}
+.tobs-flowbox p{margin:0;color:var(--tobs-muted);font-size:12px}
+.tobs-rule{background:#fff;border:1px solid var(--tobs-line);border-radius:16px;padding:16px;font-size:13.5px}
+.tobs-rule strong{color:var(--tobs-blue)}
+@media(max-width:420px){.tobs-accounts{grid-template-columns:1fr}.tobs-flow{grid-template-columns:1fr}.tobs-metrics{grid-template-columns:repeat(3,1fr)}}
 </style>
 
 <div id="gate" class="gate" hidden>
@@ -377,19 +431,56 @@ table.gap td.stale{color:#c0392b}
          主動記錄「這則貼文真的帶來人了沒」——LINE好友是系統自動歸因算出來的，
          有效詢問／合格人選／送件要顧問自己判斷、自己按，混在一起會分不清
          哪些數字是系統量的、哪些是人記的。 -->
-    <div id="pane-convert" hidden>
-      <div class="note">
-        這一頁記錄「<b>貼文真的換到幾個人</b>」——加LINE好友是系統自動歸因算出來的
-        （候選人點連結加好友時系統會自動比對），下面三格要靠你自己判斷、自己按。
+    <div id="pane-convert" hidden class="tobs-scope">
+      <div class="tobs-hero">
+        <div>
+          <h2>Threads 招募觀察小幫手</h2>
+          <p>不用抄一堆數字，只看有沒有人真的來找工作</p>
+        </div>
       </div>
-      <div class="card">
-        <label style="margin-bottom:6px">從發文走到送件</label>
-        <div id="convfunnel" class="mut">載入中…</div>
+
+      <div class="tobs-steps">
+        <div class="tobs-step"><div class="tobs-num">1</div><div><b>發文時貼標籤</b><span>一鍵發文選好公式/長短，系統自動記下這篇在測什麼</span></div></div>
+        <div class="tobs-step"><div class="tobs-num">2</div><div><b>數字讓系統抓</b><span>瀏覽數 24 小時和 7 天自動更新，LINE好友即時歸因</span></div></div>
+        <div class="tobs-step"><div class="tobs-num">3</div><div><b>你只判斷人選</b><span>有效詢問、合格、送件——每則貼文下面按一下</span></div></div>
       </div>
-      <div class="card">
-        <label style="margin-bottom:2px">每一則貼文</label>
-        <div id="convtabs" class="tabs"></div>
-        <div id="convlist" class="mut">載入中…</div>
+
+      <div class="tobs-subtabs" id="tobssubtabs">
+        <button type="button" class="tobs-subtab on" data-sub="today">今天要看</button>
+        <button type="button" class="tobs-subtab" data-sub="accounts">帳號起跑點</button>
+        <button type="button" class="tobs-subtab" data-sub="flow">資料怎麼走</button>
+      </div>
+
+      <div id="tobs-today" class="tobs-subpanel on">
+        <div class="tobs-card">
+          <h3>從發文走到送件</h3>
+          <div id="convfunnel" class="mut">載入中…</div>
+        </div>
+        <div class="tobs-card">
+          <h3>今天的貼文</h3>
+          <p class="tobs-help">灰色是系統還在等資料，綠色代表已經可以比較</p>
+          <div id="convtabs" class="tabs" style="margin-bottom:10px"></div>
+          <div id="convlist" class="mut">載入中…</div>
+        </div>
+      </div>
+
+      <div id="tobs-accounts" class="tobs-subpanel">
+        <div class="tobs-card">
+          <h3>每個帳號從不同地方起跑</h3>
+          <p class="tobs-help">先和自己過去比，再和別人比——起跑點是這個帳號目前測得到的貼文平均瀏覽</p>
+          <div class="tobs-accounts" id="tobsAccountGrid">載入中…</div>
+        </div>
+      </div>
+
+      <div id="tobs-flow" class="tobs-subpanel">
+        <div class="tobs-flow">
+          <div class="tobs-flowbox"><div class="ico">📝</div><h4>你排程貼文</h4><p>選帳號、職缺、發文公式</p></div>
+          <div class="tobs-flowbox"><div class="ico">🤖</div><h4>Meta 抓數字</h4><p>瀏覽、愛心、回覆，24H／7D自動更新</p></div>
+          <div class="tobs-flowbox"><div class="ico">💬</div><h4>LINE 接住人</h4><p>記住他從哪篇貼文進來</p></div>
+          <div class="tobs-flowbox"><div class="ico">✅</div><h4>顧問做判斷</h4><p>有效詢問、合格、送件</p></div>
+        </div>
+        <div class="tobs-rule"><b>最後只問一件事：</b>這種文案每 1,000 次瀏覽，帶來幾位真正符合條件的人？<br>
+          <span style="color:var(--tobs-muted);font-size:12.5px">瀏覽很多但沒有人選，不算招募成功</span></div>
       </div>
     </div>
 
@@ -1022,16 +1113,27 @@ $('stattabs').addEventListener('click', function (e) {
 // ── 招募轉換記錄（獨立分頁，2026-09-04 加）──
 // 跟成效儀表板共用同一支 /admin/social-post-queue，資料抓過一次就夠，
 // 不用重打一次 API——但畫的東西完全不一樣，故意分開兩個 paint 函式。
-var CONVERT_LOADED = false;
+// 2026-09-04 改：套用 Jacky 原本設計的原型視覺（獨立品牌配色／貼文卡／
+// 帳號起跑點／資料流程圖），不再套用頁面其他地方的樸素風格。
 function loadConvertQueue() {
-  if (ALL_QUEUE_STATS.length) { CONVERT_LOADED = true; paintConvert(); return; }
+  if (ALL_QUEUE_STATS.length) { paintConvert(); return; }
   api('/admin/social-post-queue?limit=300').then(function (d) {
     if (!d.ok) return;
     ALL_QUEUE_STATS = d.queue || [];
-    CONVERT_LOADED = true;
     paintConvert();
   }).catch(function () {});
 }
+
+$('tobssubtabs').addEventListener('click', function (e) {
+  var b = e.target.closest('.tobs-subtab'); if (!b) return;
+  [].forEach.call($('tobssubtabs').children, function (x) { x.classList.toggle('on', x === b); });
+  ['today', 'accounts', 'flow'].forEach(function (k) {
+    $('tobs-' + k).classList.toggle('on', k === b.dataset.sub);
+  });
+});
+
+var MISSION_LB = { trust_building: '信任建立', engagement: '互動' };
+var LENGTH_LB = { short: '短文', medium: '中長文', long: '長文' };
 
 var CONV_TAB = '全部';
 function paintConvertList() {
@@ -1056,22 +1158,35 @@ function paintConvertList() {
     { field: 'submitted_candidates', ic: '📮', lb: '送件' },
   ];
   $('convlist').innerHTML = list.length ? list.map(function (r) {
-    return '<div class="qrow" style="align-items:flex-start;flex-wrap:wrap">'
-      + '<div style="flex:1;min-width:200px">'
-      +   '<div class="t">' + (r.title || r.slug) + '</div>'
-      +   '<div class="m">' + nm(r) + '　·　' + r.posted_at.slice(5, 16)
-      +     (r.social_post_url
-              ? '　·　<a href="' + r.social_post_url + '" target="_blank" rel="noopener">查看貼文</a>' : '')
-      +     '　·　💬加LINE ' + (r.line_adds || 0)
-      +   '</div>'
-      +   '<div class="convrow">' + CONV_BTNS.map(function (c) {
-            return '<button type="button" class="convbtn" data-post="' + r.queue_id + '" data-field="' + c.field + '">'
+    // 24小時內：還在等 Meta 數字穩定，跟原型一樣先標「等待24H」，過了才算「已完成」。
+    var hoursSince = r.posted_at ? (Date.now() - Date.parse(r.posted_at.replace(' ', 'T') + '+08:00')) / 3600000 : 999;
+    var tags = [];
+    if (r.content_mission) tags.push('<span class="tobs-tag green">' + esc(MISSION_LB[r.content_mission] || r.content_mission) + '</span>');
+    if (r.content_formula) tags.push('<span class="tobs-tag">' + esc(r.content_formula) + '</span>');
+    if (r.content_length) tags.push('<span class="tobs-tag orange">' + esc(LENGTH_LB[r.content_length] || r.content_length) + '</span>');
+    return '<article class="tobs-post">'
+      + '<div class="tobs-post-head"><div><h4>' + esc(r.title || r.slug) + '</h4>'
+      +   '<div class="tobs-meta">' + esc(nm(r)) + ' · Threads　發布 ' + r.posted_at.slice(5, 16)
+      +     (r.social_post_url ? '　·　<a href="' + r.social_post_url + '" target="_blank" rel="noopener">查看貼文</a>' : '')
+      +   '</div></div>'
+      +   '<span class="tobs-status ' + (hoursSince >= 24 ? 'done' : 'wait') + '">' + (hoursSince >= 24 ? '24H 已完成' : '等待 24H') + '</span>'
+      + '</div>'
+      + (tags.length ? '<div class="tobs-tags">' + tags.join('') + '</div>' : '')
+      + '<div class="tobs-metrics">'
+      +   '<div class="tobs-metric"><b>' + (r.views || 0) + '</b><small>瀏覽</small></div>'
+      +   '<div class="tobs-metric"><b>' + (r.likes || 0) + '</b><small>愛心</small></div>'
+      +   '<div class="tobs-metric"><b>' + (r.replies || 0) + '</b><small>自然留言</small></div>'
+      +   '<div class="tobs-metric"><b>' + (r.line_adds || 0) + '</b><small>加LINE好友</small></div>'
+      +   '<div class="tobs-metric"><b>' + (r.qualified_candidates || 0) + '</b><small>合格人選</small></div>'
+      + '</div>'
+      + '<div class="tobs-convrow">' + CONV_BTNS.map(function (c) {
+            return '<button type="button" class="tobs-convbtn" data-post="' + r.queue_id + '" data-field="' + c.field + '">'
               + c.ic + ' ' + c.lb + ' <b>' + (r[c.field] || 0) + '</b></button>';
           }).join('') + '</div>'
-      + '</div></div>';
+      + '</article>';
   }).join('') : '<div class="mut" style="padding:6px 0">這位顧問還沒有抓到成效的貼文。</div>';
 
-  [].forEach.call($('convlist').querySelectorAll('.convbtn'), function (b) {
+  [].forEach.call($('convlist').querySelectorAll('.tobs-convbtn'), function (b) {
     b.onclick = function () {
       var postId = Number(b.dataset.post), field = b.dataset.field;
       b.disabled = true;
@@ -1085,6 +1200,7 @@ function paintConvertList() {
         b.classList.add('saved');
         setTimeout(function () { b.classList.remove('saved'); }, 800);
         var bEl = b.querySelector('b'); if (bEl) bEl.textContent = row ? row[field] : '';
+        if (field === 'qualified_candidates') paintConvertList();
       }).catch(function () { b.disabled = false; alert('連線失敗'); });
     };
   });
@@ -1094,11 +1210,34 @@ $('convtabs').addEventListener('click', function (e) {
   CONV_TAB = b.dataset.n; paintConvertList();
 });
 
+// 2026-09-04 加：「帳號起跑點」不用顧問手動填基準——直接從這個帳號目前
+// 已經測到成效的貼文算「中位數瀏覽」當起跑點，數字會隨貼文越發越多自動變準。
+function paintConvertAccounts() {
+  var rows = measured();
+  var byAcc = {};
+  rows.forEach(function (r) {
+    var k = nm(r);
+    byAcc[k] = byAcc[k] || [];
+    byAcc[k].push(r.views || 0);
+  });
+  var names = Object.keys(byAcc).sort();
+  if (!names.length) { $('tobsAccountGrid').innerHTML = '<div class="mut">還沒有抓到成效的貼文。</div>'; return; }
+  $('tobsAccountGrid').innerHTML = names.map(function (n) {
+    var views = byAcc[n].slice().sort(function (a, b) { return a - b; });
+    var mid = views[Math.floor(views.length / 2)];
+    return '<article class="tobs-acct"><div class="tobs-acct-top">'
+      + '<div class="tobs-avatar">' + esc(n.slice(0, 2)) + '</div></div>'
+      + '<h4>' + esc(n) + '</h4><p>共測過 ' + views.length + ' 則貼文</p>'
+      + '<div class="tobs-baseline"><b>起跑點</b><br>中位數瀏覽 ' + mid + '</div></article>';
+  }).join('');
+}
+
 function paintConvert() {
   var rows = measured();
   if (!rows.length) {
     $('convfunnel').innerHTML = '<div class="mut">還沒有抓到成效的貼文。</div>';
     $('convlist').innerHTML = '<div class="mut">還沒有抓到成效的貼文。</div>';
+    $('tobsAccountGrid').innerHTML = '<div class="mut">還沒有抓到成效的貼文。</div>';
     return;
   }
   var tla = rows.reduce(function (x, r) { return x + (r.line_adds || 0); }, 0);
@@ -1124,6 +1263,7 @@ function paintConvert() {
       : '⚠️ 後面三格還是 0，因為還沒有人按過下面每則貼文的按鈕記錄。')
     + '</div>';
   paintConvertList();
+  paintConvertAccounts();
 }
 
 function paintStats() {
