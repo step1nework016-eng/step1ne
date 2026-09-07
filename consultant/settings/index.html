@@ -56,6 +56,34 @@ main{padding:22px 0 80px}
         <button class="btn p" id="addc" type="button">新增顧問</button>
       </div>
     </div>
+    <div class="sec">
+      <h3>部署設定</h3>
+      <p class="hint">這幾個值原本寫死在程式碼裡指向特定帳號／Telegram群組，換一套環境（例如幫別家公司架一套）要能改，不用動程式碼重新部署。沒填就照舊用系統內建的預設值，不影響現況。</p>
+      <label class="mut" style="display:block;margin-top:10px">發職缺部署用的 GitHub 帳號</label>
+      <div class="row" style="margin-top:4px">
+        <input id="s_github_publish_user" placeholder="預設：jacky6658" autocomplete="off">
+      </div>
+      <label class="mut" style="display:block;margin-top:16px">Telegram 話題 ID（決策通知 / 履歷進件 / 履歷池 / 系統回報 / 顧問回報 / 主動開發 / 用人需求表審核）</label>
+      <div class="row" style="margin-top:4px">
+        <input id="s_thread_decide" placeholder="決策通知，預設 2855" autocomplete="off">
+        <input id="s_thread_intake" placeholder="履歷進件，預設 4" autocomplete="off">
+      </div>
+      <div class="row">
+        <input id="s_thread_pool" placeholder="履歷池，預設 304" autocomplete="off">
+        <input id="s_thread_system" placeholder="系統回報，預設 1360" autocomplete="off">
+      </div>
+      <div class="row">
+        <input id="s_thread_report" placeholder="顧問回報，預設 3161" autocomplete="off">
+        <input id="s_thread_sourced" placeholder="主動開發，預設 3477" autocomplete="off">
+      </div>
+      <div class="row">
+        <input id="s_thread_job_review" placeholder="用人需求表審核，預設 4307" autocomplete="off">
+      </div>
+      <div class="row">
+        <button class="btn p" id="saveSettings" type="button">儲存設定</button>
+        <span class="mut" id="settingsMsg"></span>
+      </div>
+    </div>
   </main>
 </div>
 
@@ -96,7 +124,38 @@ $('addc').onclick = function () {
 };
 $('newc').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('addc').click(); });
 
-function load() { $('gate').hidden = true; $('app').hidden = false; loadConsultants(); }
+// 2026-09-07 加：部署設定介面第一版——欄位跟D1 key名稱是同一套（s_開頭是DOM id，
+// 拿掉s_前綴就是設定表的key），存檔一次把有值的欄位各自POST一次，沒填的欄位不送
+// （後端讀不到就用預設值，不會被存成空字串蓋掉之前設定過的值）。
+var SETTINGS_KEYS = ['github_publish_user', 'thread_decide', 'thread_intake', 'thread_pool',
+  'thread_system', 'thread_report', 'thread_sourced', 'thread_job_review'];
+function loadSettings() {
+  return api('/admin/settings').then(function (d) {
+    if (!d.ok) return;
+    SETTINGS_KEYS.forEach(function (k) {
+      var el = $('s_' + k);
+      if (el && d.settings && d.settings[k] != null) el.value = d.settings[k];
+    });
+  });
+}
+$('saveSettings').onclick = function () {
+  var btn = $('saveSettings');
+  btn.disabled = true; $('settingsMsg').textContent = '儲存中…';
+  var jobs = SETTINGS_KEYS.map(function (k) {
+    var el = $('s_' + k);
+    var v = el ? el.value.trim() : '';
+    if (!v) return Promise.resolve({ ok: true });
+    return api('/admin/settings', { method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ key: k, value: v }) });
+  });
+  Promise.all(jobs).then(function (rs) {
+    btn.disabled = false;
+    var bad = rs.find(function (r) { return !r.ok; });
+    $('settingsMsg').textContent = bad ? (bad.error || '有欄位儲存失敗') : '已儲存';
+  }).catch(function () { btn.disabled = false; $('settingsMsg').textContent = '連線失敗'; });
+};
+
+function load() { $('gate').hidden = true; $('app').hidden = false; loadConsultants(); loadSettings(); }
 function boot() {
   if (tok) { load(); return; }
   $('gate').hidden = false;
