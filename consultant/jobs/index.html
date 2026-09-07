@@ -72,6 +72,9 @@ body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 -apple-system,
 .fcPvSection{margin-top:14px}
 .fcPvSection h4{margin:0 0 4px;font-size:12.5px;color:var(--ink3)}
 .fcPvSection p{margin:0;font-size:13.5px;white-space:pre-wrap}
+.fcPvRow{display:flex;gap:8px;padding:3px 0;font-size:13px;align-items:baseline}
+.fcPvRow b{color:var(--ink3);font-weight:600;flex:0 0 auto;white-space:nowrap}
+.fcPvRow span{white-space:pre-wrap;overflow-wrap:anywhere}
 .fcPvFoot{padding:14px 20px;border-top:1px solid var(--line);display:flex;gap:10px;justify-content:flex-end}
 .fcPvFoot button.sec{background:#fff;color:var(--ink2);border:1px solid var(--line)}
 
@@ -340,7 +343,7 @@ var FC_CARDS = [
       { k: 'employment_period', l: '工作期間', type: 'chips', opts: ['長期', '專案制'] },
       { k: 'attendance_method', l: '出勤紀錄方式', type: 'chips', opts: ['打卡機', 'App打卡', 'LINE回報', '紙本簽到'] },
       { k: 'dispatch_range', l: '派遣調派範圍', type: 'text' },
-      { k: 'dispatch_client', l: '實際要派單位', type: 'text' },
+      { k: 'dispatch_client', l: '實際要派單位／業主', hint: '跟客戶公司不同的話才要填（例如業主的工地／專案現場）', type: 'text' },
       { k: 'dispatch_to_permanent_policy', l: '派遣轉正條件', type: 'textarea' },
     ] },
   { ic: 'users', key: 'who', title: '用人條件',
@@ -389,6 +392,7 @@ var FC_CARDS = [
       { k: 'urgency', l: '急迫程度', type: 'chips', opts: ['不急', '一般', '急徵'] },
     ],
     more: [
+      { k: 'hiring_reason_note', l: '招募原因補充', hint: '選了「專案需求」的話，寫一下是哪個專案／怎麼來的，電洽時常會被人選問到', type: 'textarea' },
       { k: 'contract_terms_note', l: '合約條款備註', type: 'textarea' },
     ] },
 ];
@@ -635,6 +639,24 @@ function fcOpenPreview() {
       : '<div class="fcPvNote fcPvNote-amber">有內容顧問會幫你看過調整，不用你自己改，正常送出就好。</div>';
   }
   var salaryLine = (fcVal('salary_min') && fcVal('salary_max')) ? (fcVal('salary_min') + '–' + fcVal('salary_max') + ' 元') : (fcVal('salary_min') ? fcVal('salary_min') + ' 元以上' : '面議');
+  // 2026-09-07 加：這裡原本只挑 9 個欄位硬寫死顯示，其他已經收集到的~40個欄位
+  // （招募原因、實際要派單位/業主、學歷/年資/必備條件等）完全不會出現在預覽——
+  // 顧問反映電洽時看預覽看不到 HR 填的全部內容。改成上面固定顯示核心 6 項
+  // （職缺/地點/時間/薪資/人數/到職日/工作內容/必要技能/福利，原樣不動），
+  // 下面依卡片分組把「其他有填的欄位」全部列出來，沒填的不顯示，不會有一堆空白。
+  var FC_PV_ALREADY_SHOWN = ['employment', 'title', 'locations', 'work_hours', 'salary_min', 'salary_max', 'headcount', 'onboard_by', 'main_duties', 'must_skills', 'benefits_detail'];
+  var extraHtml = FC_CARDS.map(function (d) {
+    var rows = d.core.concat(d.more).filter(function (q) {
+      return FC_PV_ALREADY_SHOWN.indexOf(q.k) < 0 && fcVal(q.k);
+    });
+    if (!rows.length) return '';
+    return '<div class="fcPvSection"><h4>' + fcEsc(d.title) + '</h4>'
+      + rows.map(function (q) {
+          var lbl = (FC_LABEL_MODE === 'client' && q.lClient) ? q.lClient : q.l;
+          return '<div class="fcPvRow"><b>' + fcEsc(lbl) + '：</b><span>' + fcEsc(fcVal(q.k)) + '</span></div>';
+        }).join('')
+      + '</div>';
+  }).join('');
   var scroll = document.getElementById('fcPvScroll');
   if (scroll) {
     scroll.innerHTML = issuesHtml + '<div class="fcPvJob">'
@@ -647,6 +669,7 @@ function fcOpenPreview() {
       + '<div class="fcPvSection"><h4>工作內容</h4><p>' + fcEsc(fcVal('main_duties') || '（還沒填）') + '</p></div>'
       + '<div class="fcPvSection"><h4>必要技能</h4><p>' + fcEsc(fcVal('must_skills') || '—') + '</p></div>'
       + '<div class="fcPvSection"><h4>福利</h4><p>' + fcEsc(fcVal('benefits_detail') || '（還沒填）') + '</p></div>'
+      + extraHtml
       + '</div>';
   }
   var goBtn = document.getElementById('fcPvGoBtn');
