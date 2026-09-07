@@ -1934,10 +1934,10 @@ function openCandModal(appId){
   // 的視覺語言，不用讀完整句按鈕文字也知道自己在點什麼。
   const fileItem = (icon, label, inner) =>
     `<div class="cm-file-item"><div class="lb"><span class="ic">${icon}</span>${esc(label)}</div>${inner}</div>`;
+  // 2026-09-07 拿掉：企業客戶不該直接下載到人選原始履歷（104格式、聯絡方式
+  // 等未經篩選的資訊）——客戶要看的內容一律走「初篩報告摘要」（顧問確認過、
+  // 整理過的版本），原始履歷只留在顧問後台。
   const filesHtml = [
-    fileItem('📄', '履歷', c.has_resume
-      ? `<a class="cm-fbtn" href="${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(c.application_id)}/resume" target="_blank" rel="noopener">↓ 下載</a>`
-      : `<span class="wait">尚未提供</span>`),
     // 2026-09-07 改：原本按鈕會 fetch 內容再展開文字框，讀的是舊版
     // reports.content_client_md（新版PDF管線上線後沒人寫入，永遠是空的）。
     // 改成跟履歷下載同一種直接連結，指向顧問上傳確認過的 PDF——見
