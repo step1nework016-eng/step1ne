@@ -134,6 +134,7 @@ tbody tr:last-child td{border-bottom:0}
 .stp .lb{font-size:11px;line-height:1.35;color:var(--ink3)}
 .stp.now .lb{color:var(--gold);font-weight:700}
 .stp.done .lb{color:var(--ink2)}
+.stagedetail{margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
 .rpt{font-size:13.5px;line-height:1.8;white-space:pre-wrap;overflow-wrap:anywhere;max-height:160px;overflow-y:auto;border-top:1px solid var(--line);padding-top:10px;margin-top:2px}
 .rpt.open{max-height:none}
 .more{font:inherit;font-size:12.5px;font-weight:600;color:var(--gold);background:none;border:0;cursor:pointer;padding:6px 0 0}
@@ -861,6 +862,51 @@ function openDrawer(appId, kind) {
   //      唯一沒有其他入口的動作。
   var autoConfirmDone = !!c.decision;
   var autoScreenDone = !!(c.ai_done || c.evaluated);
+
+  // 2026-09-07 加：人選卡片改版——顧問反映「每個流程要看的區塊順序沒有照實際
+  // 作業流程排」，新增這條「整體進度」導覽列，讓顧問一眼看出人選卡在哪一關、
+  // 點下去看該關的重點，不用往下捲找。⚠️ 這是新加的一塊，跟正下面原本就有的
+  // 「目前進度」（推薦給客戶的各家客戶進度卡、標記已結案）是兩件事、刻意分開
+  // 命名，不要合併或互相取代——那塊原本的功能全部保留、完全沒動。
+  (function () {
+    var styleDone = !!c.disc_primary;
+    var callDone = !!c.call_summary_md;
+    var decideDone = !!c.decision;
+    var forwardDone = !!(c.placements && c.placements.length);
+    var stages = [
+      { key: 'style', lb: '風格測驗', done: styleDone },
+      { key: 'interview', lb: '阿財初審', done: autoScreenDone },
+      { key: 'call', lb: '電洽', done: callDone },
+      { key: 'screen', lb: '初篩決定', done: decideDone },
+      { key: 'forward', lb: '推薦給客戶', done: forwardDone },
+    ];
+    var nowSet = false;
+    stages.forEach(function (s) {
+      if (!s.done && !nowSet) { s.now = true; nowSet = true; }
+    });
+    html += '<div class="sec"><h4>整體進度</h4><div class="bar" id="stageBar">' +
+      stages.map(function (s) {
+        return '<div class="stp ' + (s.done ? 'done' : (s.now ? 'now' : '')) + '" data-stage="' + s.key + '"><div class="dot"></div><div class="lb">' + esc(s.lb) + '</div></div>';
+      }).join('') + '</div>' +
+      '<div class="stagedetail" data-detail="style" hidden>' + (styleDone
+        ? '<div style="margin:6px 0;font-size:12.5px">✅ <span class="badge b-forward" style="font-size:11px">已完成測驗</span></div>'
+        : '<p class="mut" style="margin:6px 0">還沒填風格測驗</p>') +
+        '<div class="acts"><button class="btn" type="button" onclick="document.querySelector(&quot;#assessLinkGo&quot;).scrollIntoView({behavior:&quot;smooth&quot;,block:&quot;center&quot;})">前往風格測驗區塊</button></div></div>' +
+      '<div class="stagedetail" data-detail="interview" hidden><p class="mut" style="margin:6px 0">' + (autoScreenDone ? '已完成阿財初審' : '進行中，還沒完成') + '</p></div>' +
+      '<div class="stagedetail" data-detail="call" hidden><p class="mut" style="margin:6px 0">' + (callDone ? '已記錄過電洽內容' : '尚未記錄過通話') + '</p><div class="acts"><button class="btn" type="button" onclick="document.querySelector(&quot;#callOpenBtn&quot;).scrollIntoView({behavior:&quot;smooth&quot;,block:&quot;center&quot;})">前往電洽內容區塊</button></div></div>' +
+      '<div class="stagedetail" data-detail="screen" hidden><div class="subhint" style="margin:2px 0 6px">AI阿財面談評分——你在這裡的決定，會被拿去跟阿財原本判斷值不值得面談的結果對照，算出「阿財準不準」（consultant/kpi 頁面看得到）</div>' +
+        (c.report_md
+          ? '<div class="acts">' +
+            '<button class="btn p decbtn" data-k="forwarded"' + (c.decision === 'forwarded' ? ' disabled style="opacity:.45"' : '') + '>推薦給客戶</button>' +
+            '<button class="btn decbtn" data-k="need_more"' + (c.decision === 'need_more' ? ' disabled style="opacity:.45"' : '') + '>需補問</button>' +
+            '<button class="btn d decbtn" data-k="rejected"' + (c.decision === 'rejected' ? ' disabled style="opacity:.45"' : '') + '>婉拒</button>' +
+            '</div>'
+          : '<p class="mut" style="margin:6px 0">還沒有初篩報告，無法評分</p>') +
+        '</div>' +
+      '<div class="stagedetail" data-detail="forward" hidden><p class="mut" style="margin:6px 0">' + (forwardDone ? '已推薦給 ' + c.placements.length + ' 家客戶，詳情見下面「目前進度」' : '還沒推薦給任何客戶') + '</p></div>' +
+      '</div>';
+  })();
+
   html += '<div class="sec"><h4>目前進度</h4>' +
     '<div style="display:flex;gap:16px;margin-bottom:14px;font-size:13px;color:var(--ink2)">' +
     '<span>' + (autoScreenDone ? '✓' : '○') + ' 阿財初審' + (autoScreenDone ? '' : '（進行中）') + '</span>' +
@@ -1094,13 +1140,13 @@ function openDrawer(appId, kind) {
     '<div class="acts"><button class="btn p" id="clientFormalBtn" type="button">📄 製作客戶版履歷</button></div></div>';
 
   if (c.report_md) {
+    // 2026-09-07 改：推薦給客戶／需補問／婉拒搬到上面「整體進度→初篩決定」
+    // 統一做（同一顆 .decbtn class，事件綁定沒變），這裡只留狀態 pill 跟指引，
+    // 不重複放按鈕，避免同一個決定有兩個地方可以按、顯示狀態卻可能對不齊。
     html += '<div class="sec"><h4>初篩　' +
       (c.decision && DEC[c.decision] ? '<span class="pill ' + (c.decision === 'forwarded' ? 'ok' : (c.decision === 'rejected' ? 'bad' : 'warn')) + '">' + DEC[c.decision].lb + '</span>' : '<span class="pill">還沒決定推不推</span>') +
-      '</h4><div class="acts" style="margin-bottom:10px">' +
-      '<button class="btn p decbtn" data-k="forwarded"' + (c.decision === 'forwarded' ? ' disabled style="opacity:.45"' : '') + '>推薦給客戶</button>' +
-      '<button class="btn decbtn" data-k="need_more"' + (c.decision === 'need_more' ? ' disabled style="opacity:.45"' : '') + '>需補問</button>' +
-      '<button class="btn d decbtn" data-k="rejected"' + (c.decision === 'rejected' ? ' disabled style="opacity:.45"' : '') + '>婉拒</button>' +
-      '</div><div class="rpt" id="rpt">' + esc(c.report_md) + '</div>' +
+      '</h4><div class="subhint" style="margin:2px 0 8px">要評分阿財這場面談準不準，去上面「整體進度」的「初篩決定」按推薦／需補問／婉拒——按下去就算數，不用在這裡再按一次</div>' +
+      '<div class="rpt" id="rpt">' + esc(c.report_md) + '</div>' +
       '<div class="acts"><button class="more" id="rptmore" type="button">展開全文 ▾</button>' +
       '<button class="btn p" id="rptview" type="button">👁 預覽報告</button>' +
       '<button class="btn" id="rptdl" type="button">下載報告（.md）</button>' +
@@ -1266,6 +1312,17 @@ var FORWARD_JOBS_CACHE = null;
 
 function wireDrawer(c, appId) {
   $('dclose').onclick = closeDrawer;
+  // 2026-09-07 加：「整體進度」導覽列——點一個階段展開/收合它的細節，同時只開一個。
+  Array.prototype.forEach.call(document.querySelectorAll('#stageBar .stp'), function (stp) {
+    stp.onclick = function () {
+      var key = stp.dataset.stage;
+      var target = document.querySelector('.stagedetail[data-detail="' + key + '"]');
+      if (!target) return;
+      var wasHidden = target.hidden;
+      Array.prototype.forEach.call(document.querySelectorAll('.stagedetail'), function (d) { d.hidden = true; });
+      target.hidden = !wasHidden ? true : false;
+    };
+  });
   wireOwnerAssign('application', appId, function () { loadAndOpen(appId); });
   $('edtog').onclick = function () {
     var box = $('edbox'), vb = $('viewbox');
