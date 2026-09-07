@@ -41,10 +41,10 @@ document.addEventListener('click', function (e) {
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://step1ne.com/assets/og-business-plan-writing.jpg">
-<meta name="theme-color" content="#f4f1ea">
+<meta name="theme-color" content="#F4F6F8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Noto+Sans+TC:wght@300;400;500;700;900&family=Noto+Serif+TC:wght@500;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
 
 <script type="application/ld+json">
 {
@@ -72,101 +72,175 @@ document.addEventListener('click', function (e) {
 </script>
 
 <style>
-*{box-sizing:border-box;}
-html,body{margin:0;padding:0;}
-body{font-family:'Noto Sans TC',system-ui,sans-serif;color:#23262d;background:#f4f1ea;-webkit-font-smoothing:antialiased;line-height:1.8;}
-a{color:#a67c3d;text-decoration:none;}
-a:hover{color:#8a6531;}
-details summary{cursor:pointer;list-style:none;}
-details summary::-webkit-details-marker{display:none;}
-details summary .faq-icon{transition:transform .3s ease;}
-details[open] summary .faq-icon{transform:rotate(45deg);}
-.wrap{max-width:760px;margin:0 auto;padding:0 24px;}
-h2{font-family:'Noto Serif TC',serif;font-size:24px;font-weight:700;color:#1c1f26;margin:44px 0 14px;line-height:1.4;}
-h3{font-size:17.5px;font-weight:700;color:#1c1f26;margin:28px 0 8px;}
-p{color:#3a3d44;font-size:15.5px;margin:0 0 16px;}
-ul,ol{padding-left:22px;color:#3a3d44;font-size:15.5px;}
-li{margin-bottom:8px;}
-.tbl-wrap{overflow-x:auto;margin:16px 0 8px;}
-table{width:100%;border-collapse:collapse;font-size:14.5px;background:#fff;min-width:560px;}
-th,td{border:1px solid #e6dfd1;padding:11px 13px;text-align:left;vertical-align:top;}
-th{background:#faf7f1;font-weight:700;white-space:nowrap;}
-td strong{color:#8a5a1a;}
-.note{font-size:13.5px;color:#8a8d95;margin:0 0 24px;}
-.callout{background:#fff;border:1px solid #e6dfd1;border-radius:14px;padding:20px 22px;margin:0 0 16px;}
-.insight{background:#fdfaf3;border:1px solid rgba(166,124,61,0.35);border-radius:14px;padding:20px 22px;margin:24px 0;}
-.insight .label{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;color:#a67c3d;text-transform:uppercase;margin-bottom:8px;}
-.insight p:last-child{margin-bottom:0;}
-.warn{background:#fdf4f2;border:1px solid rgba(180,90,70,0.35);border-radius:14px;padding:20px 22px;margin:24px 0;}
-.warn .label{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;color:#a8543c;text-transform:uppercase;margin-bottom:8px;}
-.warn p:last-child{margin-bottom:0;}
-.law{background:#fff;border-left:3px solid #8a8d95;padding:14px 18px;margin:0 0 16px;font-size:14.5px;color:#4a4d55;border-radius:0 10px 10px 0;}
-@media (max-width:760px){
-  .s1ne-hide-m{display:none !important;}
-  .s1ne-show-m{display:flex !important;}
-  footer a{min-height:44px;display:inline-flex;align-items:center;}
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;
+  --wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
 }
-.s1ne-show-m{display:none;}
-.s1ne-mobile-menu{display:none;flex-direction:column;padding:4px 24px 16px;border-top:1px solid #e6dfd1;background:rgba(244,241,234,0.98);}
-.s1ne-mobile-menu.is-open{display:flex;}
-.s1ne-mobile-menu a{padding:10px 0;color:#4a4d55;font-size:15px;border-bottom:1px solid #e6dfd1;min-height:44px;display:flex;align-items:center;}
-.s1ne-mobile-menu a:last-child{border-bottom:none;}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:17px;line-height:1.95;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.35;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,select,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 
-@media (max-width:640px){
-  .tbl-wrap{overflow-x:visible;}
-  .tbl-wrap table{min-width:0;display:block;background:transparent;}
-  .tbl-wrap thead{display:none;}
-  .tbl-wrap tbody{display:block;}
-  .tbl-wrap tr{display:block;background:#fff;border:1px solid #e6dfd1;border-radius:14px;margin-bottom:12px;overflow:hidden;}
-  .tbl-wrap td{display:block;border:none;border-bottom:1px solid #f2ede3;padding:12px 16px;}
-  .tbl-wrap tr td:last-child{border-bottom:none;}
-  .tbl-wrap td::before{content:attr(data-label);display:block;font-size:11.5px;font-weight:700;letter-spacing:0.5px;color:#a67c3d;margin-bottom:4px;}
-  .tbl-wrap td:empty{display:none;}
+/* 導覽 */
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+/* 閱讀進度 */
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
+
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
+.crumb{grid-column:1/-1;padding:22px 0 6px;font-size:13.5px;color:var(--slate-dim)}
+.crumb a{color:var(--slate)}
+.crumb a:hover{color:var(--brand-deep)}
+.crumb span{margin:0 8px;color:var(--rule)}
+
+/* 目錄軌：沿用全站 signature */
+.toc{position:sticky;top:92px;padding:8px 0 40px}
+.toc h2{font-size:13px;font-weight:700;color:var(--slate-dim);letter-spacing:.02em;margin-bottom:16px}
+.tns{position:relative;padding-left:22px}
+.tns::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.14))}
+.tn{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:14px;color:var(--slate);line-height:1.6;position:relative}
+.tn i{position:absolute;left:-22px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--rule);flex:0 0 auto}
+.tn:hover{color:var(--brand-deep)}
+.tn:hover i{border-color:var(--brand)}
+.tn.on{color:var(--ink);font-weight:700}
+.tn.on i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 4px rgba(46,169,223,.2)}
+.mtoc{display:none;margin:20px 0 0;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.mtoc summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15.5px;position:relative}
+.mtoc summary::-webkit-details-marker{display:none}
+.mtoc summary::after{content:"";position:absolute;right:20px;top:24px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.mtoc[open] summary::after{transform:rotate(-135deg)}
+.mtoc div{padding:0 18px 14px}
+.mtoc a{display:block;padding:9px 0;font-size:15px;color:var(--slate);border-top:1px solid var(--rule)}
+
+/* 文章本體 */
+article{padding:14px 0 60px;max-width:70ch}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--brand-deep);background:rgba(22,126,178,.07);border:1px solid rgba(22,126,178,.25);border-radius:5px;padding:4px 11px}
+article h1{margin-top:16px;font-size:clamp(28px,4.2vw,42px);line-height:1.28;letter-spacing:-.02em}
+.by{margin-top:18px;padding-bottom:20px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14px;color:var(--slate-dim)}
+.by a{color:var(--slate);border-bottom:1px solid var(--rule)}
+.by .d{font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+
+/* ★ Signature：直接答案 */
+.ans{margin-top:30px;background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:26px 30px}
+.ans .lab{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:10px}
+.ans p{font-size:19.5px;line-height:1.85;font-weight:500}
+.ans strong{font-weight:900}
+
+article h2{margin:52px 0 16px;font-size:25px;scroll-margin-top:92px}
+article h3{margin:34px 0 10px;font-size:19px}
+article h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-right:12px;border-radius:8px;background:var(--brand);color:#fff;font-family:var(--f-disp);font-size:17px;font-weight:700;vertical-align:2px}
+article p{margin-top:16px}
+article strong{font-weight:700}
+article a:not(.tn){color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.32)}
+article a:not(.tn):hover{border-bottom-color:var(--brand-deep)}
+article ul,article ol{margin:16px 0 0;padding-left:1.4em}
+article li{margin-top:9px}
+article table{width:100%;border-collapse:collapse;margin-top:22px;font-size:15.5px;background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+article th{text-align:left;background:var(--paper);font-weight:700;font-size:14px;color:var(--slate);padding:12px 14px;border-bottom:1px solid var(--rule)}
+article td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.75}
+article tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+article details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+article details summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+article details summary::-webkit-details-marker{display:none}
+article details summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+article details[open] summary::after{transform:rotate(-135deg)}
+article details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid var(--rule);color:var(--slate)}
+
+.foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
+.cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
+footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+.fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.note{max-width:var(--wrap);margin:0 auto 46px;padding-inline:var(--gut)}
+.note div{background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid #B45309;border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.note b{color:#5A3D0C}
+
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .mtoc{display:block}
 }
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  body{font-size:16.5px}
+  .ans{padding:22px;border-radius:0 8px 8px 0}
+  .ans p{font-size:18px}
+  article h2{font-size:22px;margin-top:42px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
 </style>
 </head>
-<body>
 
-<header style="position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:rgba(244,241,234,0.9);border-bottom:1px solid #e6dfd1;">
-  <div class="wrap" style="display:flex;align-items:center;justify-content:space-between;gap:20px;height:68px;max-width:1180px;">
-    <a href="/" style="display:flex;align-items:center;gap:12px;color:#23262d;">
-      <img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問" style="height:38px;width:auto;">
-    </a>
-    <div class="s1ne-hide-m" style="display:flex;align-items:center;gap:28px;font-size:15px;color:#4a4d55;">
-      <a href="/jobs/" style="color:#4a4d55;">職缺專區</a>
-      <a href="/articles/" style="color:#4a4d55;">獵才專欄</a>
-      <a href="/talent/" style="color:#4a4d55;">全民獵才</a>
-      <a href="/talent/ai-tools/" style="color:#4a4d55;">AI求職工具</a>
-      <a href="/about/" style="color:#4a4d55;">關於我們</a>
-    </div>
-    <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" class="s1ne-hide-m" style="background:#06c755;color:#fff;font-weight:700;font-size:13.5px;padding:9px 18px;border-radius:999px;white-space:nowrap;">LINE 洽詢</a>
-    <button type="button" class="s1ne-show-m" onclick="document.getElementById('s1ne-mmenu').classList.toggle('is-open')" aria-label="開啟選單" style="align-items:center;justify-content:center;width:40px;height:40px;border:1px solid #e6dfd1;border-radius:10px;background:#fff;flex-shrink:0;">
-      <span style="display:block;width:18px;height:2px;background:#23262d;box-shadow:0 6px 0 #23262d,0 -6px 0 #23262d;"></span>
-    </button>
-  </div>
-  <div id="s1ne-mmenu" class="s1ne-mobile-menu" onclick="if(event.target.closest('a'))this.classList.remove('is-open')">
-    <a href="/">首頁</a>
-    <a href="/jobs/">職缺專區</a>
-    <a href="/articles/">獵才專欄</a>
-    <a href="/talent/">全民獵才</a>
-    <a href="/talent/ai-tools/">AI求職工具</a>
-    <a href="/about/">關於我們</a>
-    <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="color:#a67c3d;font-weight:700;">LINE 洽詢 →</a>
+<body>
+<div id="bar"></div>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/"><img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問"><b>德仁管理顧問</b></a>
+    <nav class="hd-nav">
+      <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a class="on" href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
+    <button class="hd-burger" type="button" aria-label="開啟選單"><span></span></button>
   </div>
 </header>
 
-<main>
-  <article class="wrap" style="padding:40px 24px 24px;">
-    <div style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:2px;color:#a67c3d;text-transform:uppercase;margin-bottom:16px;">企業指南・獵頭觀點</div>
-    <h1 style="font-family:'Noto Serif TC',serif;font-weight:700;font-size:clamp(26px,4vw,38px);line-height:1.35;margin:0 0 20px;color:#1c1f26;">商業計畫書怎麼寫？架構、範例，與最容易被扣分的那一章</h1>
+<main class="shell">
+  <nav class="crumb" aria-label="麵包屑"><a href="/">首頁</a><span>/</span><a href="/articles/">獵才專欄</a><span>/</span>商業計畫書怎麼寫？架構、範例，與最容易被扣分的那一章</nav>
 
-    <p class="aeo-byline" style="font-size:14px;color:#6b6f78;margin:0 0 20px;padding-bottom:14px;border-bottom:1px solid #e6dfd1;"><span>作者：<a href="/about/" style="color:#6b6f78;">Step1ne 獵才顧問團隊</a></span><span style="margin:0 8px;">·</span><time datetime="2026-07-27">發布於 2026-07-27</time></p>
+  <aside class="toc" aria-label="本文目錄">
+    <h2>本文共 7 個段落</h2>
+    <div class="tns"><a class="tn" href="#sec-1" data-s="sec-1"><i></i><span>先給架構：八個區塊與各自的重點</span></a>
+<a class="tn" href="#sec-2" data-s="sec-2"><i></i><span>為什麼「團隊」這章最容易被扣分？</span></a>
+<a class="tn" href="#sec-3" data-s="sec-3"><i></i><span>審查與投資方在人力這章看什麼？</span></a>
+<a class="tn" href="#sec-4" data-s="sec-4"><i></i><span>商業計畫書 vs 政府補助計畫書：不是同一份文件</span></a>
+<a class="tn" href="#sec-5" data-s="sec-5"><i></i><span>寫之前先做的三件事</span></a>
+<a class="tn" href="#sec-6" data-s="sec-6"><i></i><span>常見問題</span></a>
+<a class="tn" href="#sec-7" data-s="sec-7"><i></i><span>人力那一章卡住了？</span></a></div>
+  </aside>
 
-    <p style="font-size:17px;color:#3a3d44;background:#fff;border:1px solid #e6dfd1;border-radius:14px;padding:20px 22px;">
-      <strong>直接答案：</strong>商業計畫書的架構其實很標準——摘要、市場、產品、營運、<strong>團隊</strong>、財務、時程、風險，八個區塊，網路上找得到大量範本。真正拉開差距的是<strong>「團隊與人力」那一章，而它偏偏是最多人隨便寫的一章</strong>。以政府補助計畫為例，審查明確把「人力與經費編列之合理性」列為評估重點，且看的不只是學歷，研發人員的實際經歷同樣是重要考量。架構可以照抄，人力這章抄不來。
-    </p>
+  <div>
+    <details class="mtoc"><summary>本文目錄（7 段）</summary><div><a href="#sec-1">先給架構：八個區塊與各自的重點</a>
+<a href="#sec-2">為什麼「團隊」這章最容易被扣分？</a>
+<a href="#sec-3">審查與投資方在人力這章看什麼？</a>
+<a href="#sec-4">商業計畫書 vs 政府補助計畫書：不是同一份文件</a>
+<a href="#sec-5">寫之前先做的三件事</a>
+<a href="#sec-6">常見問題</a>
+<a href="#sec-7">人力那一章卡住了？</a></div></details>
+    <article>
+      <span class="tag">企業指南・獵頭觀點</span>
+      <h1>商業計畫書怎麼寫？架構、範例，與最容易被扣分的那一章</h1>
+      <div class="by">
+        <span>作者：<a href="/about/">Step1ne 獵才顧問團隊</a></span>
+        <time class="d" datetime="2026-07-27">發布於 2026-07-27</time>
+        <span class="d">約 8 分鐘</span>
+      </div>
 
-    <h2>先給架構：八個區塊與各自的重點</h2>
+      <div class="ans">
+        <div class="lab">直接答案</div>
+        <p>商業計畫書的架構其實很標準——摘要、市場、產品、營運、<strong>團隊</strong>、財務、時程、風險，八個區塊，網路上找得到大量範本。真正拉開差距的是<strong>「團隊與人力」那一章，而它偏偏是最多人隨便寫的一章</strong>。以政府補助計畫為例，審查明確把「人力與經費編列之合理性」列為評估重點，且看的不只是學歷，研發人員的實際經歷同樣是重要考量。架構可以照抄，人力這章抄不來。</p>
+      </div>
+
+      <h2 id="sec-1">先給架構：八個區塊與各自的重點</h2>
     <p>不管是要送投資人、送銀行、還是送政府補助，骨架大同小異。差別在於<strong>誰在看、他最在意哪一段</strong>（下面會分開講）。</p>
 
     <div class="tbl-wrap">
@@ -187,7 +261,7 @@ td strong{color:#8a5a1a;}
 
     <p>八個區塊裡，第 1、2、3、6 有大量公開範本可以參考，照著填就有基本水準。<strong>第 5 沒有範本可以救</strong>——因為它寫的是你手上實際有誰、缺誰、打算怎麼補。</p>
 
-    <h2>為什麼「團隊」這章最容易被扣分？</h2>
+    <h2 id="sec-2">為什麼「團隊」這章最容易被扣分？</h2>
     <p>因為它是唯一一個<strong>無法用寫作技巧掩蓋的章節</strong>。</p>
     <p>市場分析寫得漂亮，看的人不見得查得出來；財務預估樂觀一點，反正是預估。但團隊這章寫的是具體的人、具體的經歷、具體的工時配置——<strong>一問就知道有沒有</strong>。</p>
     <p>而且審查或投資方的邏輯很簡單：計畫再好，執行的人做不出來就是零。所以他們花在這章的時間，通常比申請方以為的多得多。</p>
@@ -200,7 +274,7 @@ td strong{color:#8a5a1a;}
       <p>誠實的寫法反而有說服力：<strong>「本計畫需增聘 2 名 X 職能人員，預計於核定後 2 個月內到位，已委託獵才顧問啟動搜尋，市場薪資帶為 A 至 B。」</strong>這段話同時交代了缺口、時程、可行性與成本依據——比硬掰一個團隊完整得多。</p>
     </div>
 
-    <h2>審查與投資方在人力這章看什麼？</h2>
+    <h2 id="sec-3">審查與投資方在人力這章看什麼？</h2>
     <p>歸納成四點，順序就是重要性：</p>
 
     <h3>一、這些人真的做過類似的事嗎？</h3>
@@ -226,7 +300,7 @@ td strong{color:#8a5a1a;}
       <p><strong>3. 「本公司將視需要增聘所需人力」。</strong>這句話等於沒寫，而且會被解讀成還沒認真想過執行。</p>
     </div>
 
-    <h2>商業計畫書 vs 政府補助計畫書：不是同一份文件</h2>
+    <h2 id="sec-4">商業計畫書 vs 政府補助計畫書：不是同一份文件</h2>
     <p>很多人拿同一份到處送，這是效率考量，可以理解，但要知道差別在哪：</p>
 
     <div class="tbl-wrap">
@@ -252,47 +326,81 @@ td strong{color:#8a5a1a;}
       <p>要申請的話，界線要畫清楚：<strong>過去做的是什麼、這次要新做的是什麼、兩者的技術差異在哪。</strong>講不出差異，那可能真的不該用這個題目申請。</p>
     </div>
 
-    <h2>寫之前先做的三件事</h2>
+    <h2 id="sec-5">寫之前先做的三件事</h2>
     <ol>
       <li><strong>去下載你要投的那個計畫的官方格式。</strong>不同計畫的章節順序、頁數上限、必附文件都不一樣，先照它的架構寫，比寫完再改省事得多</li>
       <li><strong>把團隊現況誠實盤一次。</strong>誰在、誰不在、誰的工時已經被其他事佔滿。這張表是人力那章的底稿，也會直接影響時程可行性</li>
       <li><strong>先寫時程，再回頭寫產品。</strong>很多計畫書的產品章節寫得很宏大，但對照時程根本做不完。倒過來寫可以避免這個落差</li>
     </ol>
 
-    <h2>常見問題</h2>
-<div style="display:flex;flex-direction:column;gap:12px;margin-top:20px;"><details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
-        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;"><span>商業計畫書要寫多長？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span></summary>
-        <p style="margin:0;padding:0 20px 18px;">投資人版本建議 15–25 頁，加上一頁執行摘要；太長會沒人讀完。政府補助計畫書則要看該計畫的規定，多數有明確頁數上限（不含附件），超過會被要求修改甚至退件，所以務必先下載官方格式確認。共通原則是：把細節放附件，本文只留決策者需要的資訊。</p>
-      </details><details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
-        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;"><span>團隊還不完整，可以送件嗎？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span></summary>
-        <p style="margin:0;padding:0 20px 18px;">可以，而且這是常態。關鍵是把缺口寫清楚：缺哪個職能、為什麼這個計畫需要、預計何時到位、用什麼方式補（自行招募或委託獵才）、薪資編列的依據是什麼。誠實列出缺口並附上可行的補人計畫，比虛構一個完整團隊安全得多——後者在核銷或查核階段會出問題。</p>
-      </details><details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
-        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;"><span>可以把顧問寫進團隊嗎？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span></summary>
-        <p style="margin:0;padding:0 20px 18px;">可以，但要標明身分與投入方式，放在「顧問」或「外部支援」的欄位，不要混在核心團隊裡。寫的時候註明是專案顧問、投入時數大約多少、負責哪一塊。把外部顧問當成正職團隊呈現，一旦被追問就會影響整份計畫的可信度。</p>
-      </details><details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
-        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;"><span>人力成本要怎麼編才合理？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span></summary>
-        <p style="margin:0;padding:0 20px 18px;">用可查證的市場行情當基準，並說明你的數字為什麼落在那個位置。編太低會讓人懷疑你不了解行情，連帶質疑其他成本估算；編太高則要說明理由，例如職能稀缺、需外派、需具備特定資格。另外要確認每個人的總工時配置沒有超過 100%，這是最常被抓的一項。</p>
-      </details><details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
-        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;"><span>做過的政府標案可以寫進計畫書嗎？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span></summary>
-        <p style="margin:0;padding:0 20px 18px;">寫在「過往實績」是加分，能證明執行能力與交付紀錄。但要特別注意：已完成、已收款的工作通常不能再用相同內容去申請研發補助，這屬於重複補助的問題。若要以相關題目申請，必須清楚區分「過去已交付的是什麼」與「本計畫要新開發的是什麼」，並說明兩者的技術差異。講不出差異，代表這個題目可能不適合用來申請。</p>
-      </details><details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
-        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;"><span>風險那章要寫得多坦白？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span></summary>
-        <p style="margin:0;padding:0 20px 18px;">要坦白，但每個風險都要配一個因應做法。寫「無重大風險」會直接扣分——任何有經驗的審查者都知道不存在沒有風險的計畫，這句話只會顯示你沒有認真評估。建議挑三個最可能發生的（例如關鍵人力延遲到位、技術驗證失敗、客戶採用速度不如預期），各寫清楚影響程度與你的備案。</p>
-      </details></div><div style="margin-top:48px;text-align:center;padding:36px 28px;border-radius:20px;background:linear-gradient(150deg,rgba(166,124,61,0.12),rgba(96,128,180,0.06));border:1px solid rgba(166,124,61,0.3);">
-      <h2 style="margin-top:0;">人力那一章卡住了？</h2>
-      <p style="margin-bottom:22px;">如果計畫書要送了但關鍵人力還沒到位，我們可以先協助做一次市場盤點——確認這個職能在市場上有沒有人、行情落在哪、大概多久補得到。這些資訊可以直接寫進計畫書的人力規劃與經費編列，也讓你判斷時程排得合不合理。這個階段不收費，也不需要先簽約。</p>
-      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;background:#06c755;color:#fff;font-weight:700;font-size:16px;padding:15px 32px;border-radius:999px;">加入LINE與顧問談談</a>
+    <h2 id="sec-6">常見問題</h2>
+<div><details>
+        <summary><span>商業計畫書要寫多長？</span><span class="faq-icon">+</span></summary>
+        <p>投資人版本建議 15–25 頁，加上一頁執行摘要；太長會沒人讀完。政府補助計畫書則要看該計畫的規定，多數有明確頁數上限（不含附件），超過會被要求修改甚至退件，所以務必先下載官方格式確認。共通原則是：把細節放附件，本文只留決策者需要的資訊。</p>
+      </details><details>
+        <summary><span>團隊還不完整，可以送件嗎？</span><span class="faq-icon">+</span></summary>
+        <p>可以，而且這是常態。關鍵是把缺口寫清楚：缺哪個職能、為什麼這個計畫需要、預計何時到位、用什麼方式補（自行招募或委託獵才）、薪資編列的依據是什麼。誠實列出缺口並附上可行的補人計畫，比虛構一個完整團隊安全得多——後者在核銷或查核階段會出問題。</p>
+      </details><details>
+        <summary><span>可以把顧問寫進團隊嗎？</span><span class="faq-icon">+</span></summary>
+        <p>可以，但要標明身分與投入方式，放在「顧問」或「外部支援」的欄位，不要混在核心團隊裡。寫的時候註明是專案顧問、投入時數大約多少、負責哪一塊。把外部顧問當成正職團隊呈現，一旦被追問就會影響整份計畫的可信度。</p>
+      </details><details>
+        <summary><span>人力成本要怎麼編才合理？</span><span class="faq-icon">+</span></summary>
+        <p>用可查證的市場行情當基準，並說明你的數字為什麼落在那個位置。編太低會讓人懷疑你不了解行情，連帶質疑其他成本估算；編太高則要說明理由，例如職能稀缺、需外派、需具備特定資格。另外要確認每個人的總工時配置沒有超過 100%，這是最常被抓的一項。</p>
+      </details><details>
+        <summary><span>做過的政府標案可以寫進計畫書嗎？</span><span class="faq-icon">+</span></summary>
+        <p>寫在「過往實績」是加分，能證明執行能力與交付紀錄。但要特別注意：已完成、已收款的工作通常不能再用相同內容去申請研發補助，這屬於重複補助的問題。若要以相關題目申請，必須清楚區分「過去已交付的是什麼」與「本計畫要新開發的是什麼」，並說明兩者的技術差異。講不出差異，代表這個題目可能不適合用來申請。</p>
+      </details><details>
+        <summary><span>風險那章要寫得多坦白？</span><span class="faq-icon">+</span></summary>
+        <p>要坦白，但每個風險都要配一個因應做法。寫「無重大風險」會直接扣分——任何有經驗的審查者都知道不存在沒有風險的計畫，這句話只會顯示你沒有認真評估。建議挑三個最可能發生的（例如關鍵人力延遲到位、技術驗證失敗、客戶採用速度不如預期），各寫清楚影響程度與你的備案。</p>
+      </details></div><div>
+      <h2 id="sec-7">人力那一章卡住了？</h2>
+      <p>如果計畫書要送了但關鍵人力還沒到位，我們可以先協助做一次市場盤點——確認這個職能在市場上有沒有人、行情落在哪、大概多久補得到。這些資訊可以直接寫進計畫書的人力規劃與經費編列，也讓你判斷時程排得合不合理。這個階段不收費，也不需要先簽約。</p>
+      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">加入LINE與顧問談談</a>
     </div>
 
-    <p style="margin-top:32px;font-size:14.5px;color:#8a8d95;">延伸閱讀：<a href="/articles/executive-hiring-guide/">高階職缺開了半年還找不到人？五個卡點與解法</a>　·　<a href="/articles/work-with-headhunters/">台灣企業怎麼跟獵頭合作？</a>　·　<a href="/articles/dispatch-legal-risks/">企業用派遣的法律地雷</a></p>
-  </article>
+    <p>延伸閱讀：<a href="/articles/executive-hiring-guide/">高階職缺開了半年還找不到人？五個卡點與解法</a>　·　<a href="/articles/work-with-headhunters/">台灣企業怎麼跟獵頭合作？</a>　·　<a href="/articles/dispatch-legal-risks/">企業用派遣的法律地雷</a></p>
+
+      
+<div class="cta">
+        <p>看完還是不確定下一步？加入 LINE 直接問顧問，或看目前開放中的職缺。</p>
+        <a class="btn-line" href="https://lin.ee/XcSWPzM">用 LINE 問顧問</a>
+      </div>
+    </article>
+  </div>
 </main>
 
-<footer style="border-top:1px solid #e6dfd1;background:#eee9de;padding:28px 0;">
-  <div class="wrap" style="text-align:center;color:#9a9da5;font-size:13px;max-width:800px;">
-    <a href="/articles/" style="color:#a67c3d;">獵才專欄</a>　|　<a href="/jobs/" style="color:#a67c3d;">職缺專區</a>　|　<a href="/" style="color:#a67c3d;">Step1ne 首頁</a>　|　© 2026 德仁管理顧問有限公司 Step1ne
-  </div>
-</footer>
 
+<footer><div class="fw">德仁管理顧問有限公司　臺北市內湖區康寧路三段 54 之 7 號 3 樓</div></footer>
+
+<script>
+// 表格加水平捲動外框，避免手機橫向溢位
+document.querySelectorAll('article table').forEach(function(t){
+  var w=document.createElement('div'); w.className='tw';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
+// 閱讀進度
+var bar=document.getElementById('bar');
+function prog(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',prog,{passive:true}); prog();
+// 目錄跟隨
+var tns=[].slice.call(document.querySelectorAll('.tn'));
+var secs=tns.map(function(a){return document.getElementById(a.dataset.s)}).filter(Boolean);
+if('IntersectionObserver' in window && secs.length){
+  var cur=null;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) cur=e.target.id; });
+    tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  },{rootMargin:'-88px 0px -70% 0px'}).observe && secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===e.target.id)}); }
+      });
+    },{rootMargin:'-88px 0px -70% 0px'}).observe(s);
+  });
+}
+</script>
 </body>
 </html>

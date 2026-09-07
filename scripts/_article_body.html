@@ -1,0 +1,84 @@
+
+<body>
+<div id="bar"></div>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/"><img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問"><b>德仁管理顧問</b></a>
+    <nav class="hd-nav">
+      <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a class="on" href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
+    <button class="hd-burger" type="button" aria-label="開啟選單"><span></span></button>
+  </div>
+</header>
+
+<main class="shell">
+  <nav class="crumb" aria-label="麵包屑"><a href="/">首頁</a><span>/</span><a href="/articles/">獵才專欄</a><span>/</span>{{TITLE}}</nav>
+
+  <aside class="toc" aria-label="本文目錄">
+    <h2>本文共 {{NSEC}} 個段落</h2>
+    <div class="tns">{{NODES}}</div>
+  </aside>
+
+  <div>
+    <details class="mtoc"><summary>本文目錄（{{NSEC}} 段）</summary><div>{{MTOC}}</div></details>
+    <article>
+      <span class="tag">{{EYEBROW}}</span>
+      <h1>{{TITLE}}</h1>
+      <div class="by">
+        <span>作者：<a href="/about/">Step1ne 獵才顧問團隊</a></span>
+        <time class="d" datetime="{{DATE}}">發布於 {{DATEDOT}}</time>
+        <span class="d">約 {{MINS}} 分鐘</span>
+      </div>
+
+      <div class="ans">
+        <div class="lab">直接答案</div>
+        <p>{{ANSWER}}</p>
+      </div>
+
+      {{BODY}}
+
+      {{FOOTNOTE}}
+<div class="cta">
+        <p>看完還是不確定下一步？加入 LINE 直接問顧問，或看目前開放中的職缺。</p>
+        <a class="btn-line" href="https://lin.ee/XcSWPzM">用 LINE 問顧問</a>
+      </div>
+    </article>
+  </div>
+</main>
+
+
+<footer><div class="fw">德仁管理顧問有限公司　臺北市內湖區康寧路三段 54 之 7 號 3 樓</div></footer>
+
+<script>
+// 表格加水平捲動外框，避免手機橫向溢位
+document.querySelectorAll('article table').forEach(function(t){
+  var w=document.createElement('div'); w.className='tw';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
+// 閱讀進度
+var bar=document.getElementById('bar');
+function prog(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',prog,{passive:true}); prog();
+// 目錄跟隨
+var tns=[].slice.call(document.querySelectorAll('.tn'));
+var secs=tns.map(function(a){return document.getElementById(a.dataset.s)}).filter(Boolean);
+if('IntersectionObserver' in window && secs.length){
+  var cur=null;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) cur=e.target.id; });
+    tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  },{rootMargin:'-88px 0px -70% 0px'}).observe && secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===e.target.id)}); }
+      });
+    },{rootMargin:'-88px 0px -70% 0px'}).observe(s);
+  });
+}
+</script>
+</body>
+</html>

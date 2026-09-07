@@ -39,10 +39,10 @@ document.addEventListener('click', function (e) {
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
-<meta name="theme-color" content="#f4f1ea">
+<meta name="theme-color" content="#F4F6F8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Noto+Sans+TC:wght@300;400;500;700;900&family=Noto+Serif+TC:wght@500;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
 
 <script type="application/ld+json">
 {
@@ -63,110 +63,171 @@ document.addEventListener('click', function (e) {
 </script>
 
 <style>
-*{box-sizing:border-box;}
-html,body{margin:0;padding:0;}
-body{font-family:'Noto Sans TC',system-ui,sans-serif;color:#23262d;background:#f4f1ea;-webkit-font-smoothing:antialiased;line-height:1.8;}
-a{color:#a67c3d;text-decoration:none;}
-a:hover{color:#8a6531;}
-details summary{cursor:pointer;list-style:none;}
-details summary::-webkit-details-marker{display:none;}
-details summary .faq-icon{transition:transform .3s ease;}
-details[open] summary .faq-icon{transform:rotate(45deg);}
-.wrap{max-width:760px;margin:0 auto;padding:0 24px;}
-h2{font-family:'Noto Serif TC',serif;font-size:24px;font-weight:700;color:#1c1f26;margin:44px 0 14px;line-height:1.4;}
-h3{font-size:17.5px;font-weight:700;color:#1c1f26;margin:28px 0 8px;}
-p{color:#3a3d44;font-size:15.5px;margin:0 0 16px;}
-ul,ol{padding-left:22px;color:#3a3d44;font-size:15.5px;}
-li{margin-bottom:8px;}
-.tbl-wrap{overflow-x:auto;margin:16px 0 8px;}
-table{width:100%;border-collapse:collapse;font-size:14.5px;background:#fff;min-width:560px;}
-th,td{border:1px solid #e6dfd1;padding:11px 13px;text-align:left;vertical-align:top;}
-th{background:#faf7f1;font-weight:700;white-space:nowrap;}
-td strong{color:#8a5a1a;}
-.note{font-size:13.5px;color:#8a8d95;margin:0 0 24px;}
-.callout{background:#fff;border:1px solid #e6dfd1;border-radius:14px;padding:20px 22px;margin:0 0 16px;}
-.insight{background:#fdfaf3;border:1px solid rgba(166,124,61,0.35);border-radius:14px;padding:20px 22px;margin:24px 0;}
-.insight .label{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;color:#a67c3d;text-transform:uppercase;margin-bottom:8px;}
-.insight p:last-child{margin-bottom:0;}
-.warn{background:#fdf4f2;border:1px solid rgba(180,90,70,0.35);border-radius:14px;padding:20px 22px;margin:24px 0;}
-.warn .label{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;color:#a8543c;text-transform:uppercase;margin-bottom:8px;}
-.warn p:last-child{margin-bottom:0;}
-.law{background:#fff;border-left:3px solid #8a8d95;padding:14px 18px;margin:0 0 16px;font-size:14.5px;color:#4a4d55;border-radius:0 10px 10px 0;}
-.demo{background:#fff;border:1px solid #e6dfd1;border-radius:14px;overflow:hidden;margin:16px 0 8px;}
-.demo-tag{background:#faf7f1;padding:12px 20px;border-bottom:1px solid #e6dfd1;font-size:12.5px;color:#8a8d95;font-family:'Space Mono',monospace;letter-spacing:.4px;}
-.demo-body{padding:20px 22px;display:flex;flex-direction:column;gap:14px;}
-.bub{max-width:88%;border-radius:16px;padding:12px 16px;font-size:14.5px;line-height:1.7;}
-.bub b{display:block;font-size:11.5px;letter-spacing:.5px;margin-bottom:5px;text-transform:uppercase;font-family:'Space Mono',monospace;}
-.bub.ai{background:#f6f2ea;border:1px solid #eee7db;border-bottom-left-radius:4px;color:#3a3d44;}
-.bub.ai b{color:#a67c3d;}
-.bub.me{background:#23262d;color:#fff;margin-left:auto;border-bottom-right-radius:4px;}
-.bub.me b{color:#d9c9a8;}
-@media (max-width:760px){
-  .s1ne-hide-m{display:none !important;}
-  .s1ne-show-m{display:flex !important;}
-  footer a{min-height:44px;display:inline-flex;align-items:center;}
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;
+  --wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
 }
-.s1ne-show-m{display:none;}
-.s1ne-mobile-menu{display:none;flex-direction:column;padding:4px 24px 16px;border-top:1px solid #e6dfd1;background:rgba(244,241,234,0.98);}
-.s1ne-mobile-menu.is-open{display:flex;}
-.s1ne-mobile-menu a{padding:10px 0;color:#4a4d55;font-size:15px;border-bottom:1px solid #e6dfd1;min-height:44px;display:flex;align-items:center;}
-.s1ne-mobile-menu a:last-child{border-bottom:none;}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:17px;line-height:1.95;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.35;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,select,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 
-@media (max-width:640px){
-  .tbl-wrap{overflow-x:visible;}
-  .tbl-wrap table{min-width:0;display:block;background:transparent;}
-  .tbl-wrap thead{display:none;}
-  .tbl-wrap tbody{display:block;}
-  .tbl-wrap tr{display:block;background:#fff;border:1px solid #e6dfd1;border-radius:14px;margin-bottom:12px;overflow:hidden;}
-  .tbl-wrap td{display:block;border:none;border-bottom:1px solid #f2ede3;padding:12px 16px;}
-  .tbl-wrap tr td:last-child{border-bottom:none;}
-  .tbl-wrap td::before{content:attr(data-label);display:block;font-size:11.5px;font-weight:700;letter-spacing:0.5px;color:#a67c3d;margin-bottom:4px;}
-  .tbl-wrap td:empty{display:none;}
+/* 導覽 */
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+/* 閱讀進度 */
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
+
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
+.crumb{grid-column:1/-1;padding:22px 0 6px;font-size:13.5px;color:var(--slate-dim)}
+.crumb a{color:var(--slate)}
+.crumb a:hover{color:var(--brand-deep)}
+.crumb span{margin:0 8px;color:var(--rule)}
+
+/* 目錄軌：沿用全站 signature */
+.toc{position:sticky;top:92px;padding:8px 0 40px}
+.toc h2{font-size:13px;font-weight:700;color:var(--slate-dim);letter-spacing:.02em;margin-bottom:16px}
+.tns{position:relative;padding-left:22px}
+.tns::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.14))}
+.tn{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:14px;color:var(--slate);line-height:1.6;position:relative}
+.tn i{position:absolute;left:-22px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--rule);flex:0 0 auto}
+.tn:hover{color:var(--brand-deep)}
+.tn:hover i{border-color:var(--brand)}
+.tn.on{color:var(--ink);font-weight:700}
+.tn.on i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 4px rgba(46,169,223,.2)}
+.mtoc{display:none;margin:20px 0 0;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.mtoc summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15.5px;position:relative}
+.mtoc summary::-webkit-details-marker{display:none}
+.mtoc summary::after{content:"";position:absolute;right:20px;top:24px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.mtoc[open] summary::after{transform:rotate(-135deg)}
+.mtoc div{padding:0 18px 14px}
+.mtoc a{display:block;padding:9px 0;font-size:15px;color:var(--slate);border-top:1px solid var(--rule)}
+
+/* 文章本體 */
+article{padding:14px 0 60px;max-width:70ch}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--brand-deep);background:rgba(22,126,178,.07);border:1px solid rgba(22,126,178,.25);border-radius:5px;padding:4px 11px}
+article h1{margin-top:16px;font-size:clamp(28px,4.2vw,42px);line-height:1.28;letter-spacing:-.02em}
+.by{margin-top:18px;padding-bottom:20px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14px;color:var(--slate-dim)}
+.by a{color:var(--slate);border-bottom:1px solid var(--rule)}
+.by .d{font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+
+/* ★ Signature：直接答案 */
+.ans{margin-top:30px;background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:26px 30px}
+.ans .lab{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:10px}
+.ans p{font-size:19.5px;line-height:1.85;font-weight:500}
+.ans strong{font-weight:900}
+
+article h2{margin:52px 0 16px;font-size:25px;scroll-margin-top:92px}
+article h3{margin:34px 0 10px;font-size:19px}
+article h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-right:12px;border-radius:8px;background:var(--brand);color:#fff;font-family:var(--f-disp);font-size:17px;font-weight:700;vertical-align:2px}
+article p{margin-top:16px}
+article strong{font-weight:700}
+article a:not(.tn){color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.32)}
+article a:not(.tn):hover{border-bottom-color:var(--brand-deep)}
+article ul,article ol{margin:16px 0 0;padding-left:1.4em}
+article li{margin-top:9px}
+article table{width:100%;border-collapse:collapse;margin-top:22px;font-size:15.5px;background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+article th{text-align:left;background:var(--paper);font-weight:700;font-size:14px;color:var(--slate);padding:12px 14px;border-bottom:1px solid var(--rule)}
+article td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.75}
+article tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+article details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+article details summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+article details summary::-webkit-details-marker{display:none}
+article details summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+article details[open] summary::after{transform:rotate(-135deg)}
+article details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid var(--rule);color:var(--slate)}
+
+.foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
+.cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
+footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+.fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.note{max-width:var(--wrap);margin:0 auto 46px;padding-inline:var(--gut)}
+.note div{background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid #B45309;border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.note b{color:#5A3D0C}
+
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .mtoc{display:block}
 }
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  body{font-size:16.5px}
+  .ans{padding:22px;border-radius:0 8px 8px 0}
+  .ans p{font-size:18px}
+  article h2{font-size:22px;margin-top:42px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
 </style>
 </head>
-<body>
 
-<header style="position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:rgba(244,241,234,0.9);border-bottom:1px solid #e6dfd1;">
-  <div class="wrap" style="display:flex;align-items:center;justify-content:space-between;gap:20px;height:68px;max-width:1180px;">
-    <a href="/" style="display:flex;align-items:center;gap:12px;color:#23262d;">
-      <img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問" style="height:38px;width:auto;">
-    </a>
-    <div class="s1ne-hide-m" style="display:flex;align-items:center;gap:28px;font-size:15px;color:#4a4d55;">
-      <a href="/jobs/" style="color:#4a4d55;">職缺專區</a>
-      <a href="/articles/" style="color:#4a4d55;">獵才專欄</a>
-      <a href="/talent/" style="color:#4a4d55;">全民獵才</a>
-      <a href="/talent/ai-tools/" style="color:#4a4d55;">AI求職工具</a>
-      <a href="/about/" style="color:#4a4d55;">關於我們</a>
-    </div>
-    <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" class="s1ne-hide-m" style="background:#06c755;color:#fff;font-weight:700;font-size:13.5px;padding:9px 18px;border-radius:999px;white-space:nowrap;">LINE 洽詢</a>
-    <button type="button" class="s1ne-show-m" onclick="document.getElementById('s1ne-mmenu').classList.toggle('is-open')" aria-label="開啟選單" style="align-items:center;justify-content:center;width:40px;height:40px;border:1px solid #e6dfd1;border-radius:10px;background:#fff;flex-shrink:0;">
-      <span style="display:block;width:18px;height:2px;background:#23262d;box-shadow:0 6px 0 #23262d,0 -6px 0 #23262d;"></span>
-    </button>
-  </div>
-  <div id="s1ne-mmenu" class="s1ne-mobile-menu" onclick="if(event.target.closest('a'))this.classList.remove('is-open')">
-    <a href="/">首頁</a>
-    <a href="/jobs/">職缺專區</a>
-    <a href="/articles/">獵才專欄</a>
-    <a href="/talent/">全民獵才</a>
-    <a href="/talent/ai-tools/">AI求職工具</a>
-    <a href="/about/">關於我們</a>
-    <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="color:#a67c3d;font-weight:700;">LINE 洽詢 →</a>
+<body>
+<div id="bar"></div>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/"><img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問"><b>德仁管理顧問</b></a>
+    <nav class="hd-nav">
+      <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a class="on" href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
+    <button class="hd-burger" type="button" aria-label="開啟選單"><span></span></button>
   </div>
 </header>
 
-<main>
-  <article class="wrap" style="padding:40px 24px 24px;">
-    <div style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:2px;color:#a67c3d;text-transform:uppercase;margin-bottom:16px;">AI與求職・心理準備</div>
-    <h1 style="font-family:'Noto Serif TC',serif;font-weight:700;font-size:clamp(26px,4vw,38px);line-height:1.35;margin:0 0 20px;color:#1c1f26;">AI面談會不會比真人更緊張？</h1>
+<main class="shell">
+  <nav class="crumb" aria-label="麵包屑"><a href="/">首頁</a><span>/</span><a href="/articles/">獵才專欄</a><span>/</span>AI面談會不會比真人更緊張？</nav>
 
-    <p class="aeo-byline" style="font-size:14px;color:#6b6f78;margin:0 0 20px;padding-bottom:14px;border-bottom:1px solid #e6dfd1;"><span>作者：<a href="/about/" style="color:#6b6f78;">Step1ne 獵才顧問團隊</a></span><span style="margin:0 8px;">·</span><time datetime="2026-09-03">發布於 2026-09-03</time></p>
+  <aside class="toc" aria-label="本文目錄">
+    <h2>本文共 5 個段落</h2>
+    <div class="tns"><a class="tn" href="#sec-1" data-s="sec-1"><i></i><span>兩種緊張，來源不一樣</span></a>
+<a class="tn" href="#sec-2" data-s="sec-2"><i></i><span>示範情境：面談中途被打斷，阿財怎麼處理</span></a>
+<a class="tn" href="#sec-3" data-s="sec-3"><i></i><span>如果面談中真的卡住，怎麼辦</span></a>
+<a class="tn" href="#sec-4" data-s="sec-4"><i></i><span>常見問題</span></a>
+<a class="tn" href="#sec-5" data-s="sec-5"><i></i><span>緊張是正常的，談過一次就知道了</span></a></div>
+  </aside>
 
-    <p style="font-size:17px;color:#3a3d44;background:#fff;border:1px solid #e6dfd1;border-radius:14px;padding:20px 22px;">
-      <strong>直接答案：</strong>不一定比較緊張，但緊張的來源不一樣。跟真人面試的壓力多半來自「對方在看我的表情、我的停頓」；跟阿財面談沒有這層壓力，但會換一種——「打字要打多完整」「不知道對方到底聽懂了沒」。兩種都是真實的心理成本，這篇誠實拆開講，不打包票說 AI 面談一定比較輕鬆。
-    </p>
+  <div>
+    <details class="mtoc"><summary>本文目錄（5 段）</summary><div><a href="#sec-1">兩種緊張，來源不一樣</a>
+<a href="#sec-2">示範情境：面談中途被打斷，阿財怎麼處理</a>
+<a href="#sec-3">如果面談中真的卡住，怎麼辦</a>
+<a href="#sec-4">常見問題</a>
+<a href="#sec-5">緊張是正常的，談過一次就知道了</a></div></details>
+    <article>
+      <span class="tag">AI與求職・心理準備</span>
+      <h1>AI面談會不會比真人更緊張？</h1>
+      <div class="by">
+        <span>作者：<a href="/about/">Step1ne 獵才顧問團隊</a></span>
+        <time class="d" datetime="2026-09-03">發布於 2026-09-03</time>
+        <span class="d">約 3 分鐘</span>
+      </div>
 
-    <h2>兩種緊張，來源不一樣</h2>
+      <div class="ans">
+        <div class="lab">直接答案</div>
+        <p>不一定比較緊張，但緊張的來源不一樣。跟真人面試的壓力多半來自「對方在看我的表情、我的停頓」；跟阿財面談沒有這層壓力，但會換一種——「打字要打多完整」「不知道對方到底聽懂了沒」。兩種都是真實的心理成本，這篇誠實拆開講，不打包票說 AI 面談一定比較輕鬆。</p>
+      </div>
+
+      <h2 id="sec-1">兩種緊張，來源不一樣</h2>
     <div class="tbl-wrap">
       <table>
         <thead><tr><th></th><th>真人面試</th><th>阿財面談</th></tr></thead>
@@ -179,7 +240,7 @@ td strong{color:#8a5a1a;}
       </table>
     </div>
 
-    <h2>示範情境：面談中途被打斷，阿財怎麼處理</h2>
+    <h2 id="sec-2">示範情境：面談中途被打斷，阿財怎麼處理</h2>
     <p>以下是虛構的示範對話，用來說明阿財實際的應對方式，<strong>不是真實面談的逐字稿</strong>——假設一位應徵行銷專員的求職者，晚上在家用手機跟阿財面談，中途家裡有人開門進來，環境突然有點吵：</p>
     <div class="demo">
       <div class="demo-tag">示範情境・非真實面談紀錄</div>
@@ -198,41 +259,75 @@ td strong{color:#8a5a1a;}
       <p>我們自己看過的實際狀況是：很多人第一次打開面談室會緊張，但談到十分鐘左右反而比真人面試更放鬆——因為知道對面沒有人在皺眉頭。真正該提醒的是相反的風險：<strong>因為太放鬆，回答變得太簡短、太隨便</strong>。這場面談等同正式的第一輪面試，逐字稿會被真人顧問看到，內容的完整度還是會影響顧問怎麼判斷你，不是聊天室，不用緊張，但也不用當成沒關係的閒聊。</p>
     </div>
 
-    <h2>如果面談中真的卡住，怎麼辦</h2>
+    <h2 id="sec-3">如果面談中真的卡住，怎麼辦</h2>
     <p>面談畫面上一直都有一個「有問題？」的按鈕，可以直接反映幾種常見狀況：阿財一直沒有回應、聽不懂問題在問什麼、現在不方便想改時間、或想直接找真人顧問談。點下去顧問會馬上收到通知，不用自己乾等或直接關掉視窗放棄。</p>
 
-    <h2>常見問題</h2>
-    <div style="display:flex;flex-direction:column;gap:12px;margin-top:20px;">
-      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
-        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;"><span>打字回答會不會看起來比較沒誠意？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span></summary>
-        <p style="margin:0;padding:0 20px 18px;">不會，內容的完整度比「講得流不流利」重要。真人顧問覆核時看的是你回答的具體程度，而不是打字速度或用詞是否華麗。</p>
+    <h2 id="sec-4">常見問題</h2>
+    <div>
+      <details>
+        <summary><span>打字回答會不會看起來比較沒誠意？</span><span class="faq-icon">+</span></summary>
+        <p>不會，內容的完整度比「講得流不流利」重要。真人顧問覆核時看的是你回答的具體程度，而不是打字速度或用詞是否華麗。</p>
       </details>
-      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
-        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;"><span>可以中途離開，之後再回來繼續嗎？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span></summary>
-        <p style="margin:0;padding:0 20px 18px;">如果臨時真的不方便，可以透過畫面上的「有問題？」按鈕選擇「現在不方便，想改時間」，顧問會收到通知並與你另外安排。</p>
+      <details>
+        <summary><span>可以中途離開，之後再回來繼續嗎？</span><span class="faq-icon">+</span></summary>
+        <p>如果臨時真的不方便，可以透過畫面上的「有問題？」按鈕選擇「現在不方便，想改時間」，顧問會收到通知並與你另外安排。</p>
       </details>
-      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
-        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;"><span>回答錯了或漏講重點，可以補充嗎？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span></summary>
-        <p style="margin:0;padding:0 20px 18px;">可以，直接在下一則訊息補充說明就好，不用擔心「已經送出就改不了」。逐字稿是完整對話，顧問看的是整場脈絡。</p>
+      <details>
+        <summary><span>回答錯了或漏講重點，可以補充嗎？</span><span class="faq-icon">+</span></summary>
+        <p>可以，直接在下一則訊息補充說明就好，不用擔心「已經送出就改不了」。逐字稿是完整對話，顧問看的是整場脈絡。</p>
       </details>
     </div>
 
-    <div style="margin-top:48px;text-align:center;padding:36px 28px;border-radius:20px;background:linear-gradient(150deg,rgba(166,124,61,0.12),rgba(96,128,180,0.06));border:1px solid rgba(166,124,61,0.3);">
-      <h2 style="margin-top:0;">緊張是正常的，談過一次就知道了</h2>
-      <p style="margin-bottom:22px;">想先看看介面長什麼樣子，可以點開 <a href="https://step1ne.com/interview/">阿財的面談室</a>；準備好了就去看看目前開放的職缺，應徵完就能直接開始。</p>
-      <p style="margin-bottom:22px;"><a href="/jobs/" style="font-weight:700;font-size:16px;">看看目前開放中的職缺 →</a></p>
-      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;background:#06c755;color:#fff;font-weight:700;font-size:16px;padding:15px 32px;border-radius:999px;">加入LINE先問顧問</a>
+    <div>
+      <h2 id="sec-5">緊張是正常的，談過一次就知道了</h2>
+      <p>想先看看介面長什麼樣子，可以點開 <a href="https://step1ne.com/interview/">阿財的面談室</a>；準備好了就去看看目前開放的職缺，應徵完就能直接開始。</p>
+      <p><a href="/jobs/">看看目前開放中的職缺 →</a></p>
+      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">加入LINE先問顧問</a>
     </div>
 
-    <p style="margin-top:32px;font-size:14.5px;color:#8a8d95;">延伸閱讀：<a href="/articles/ai-interview-guide/">AI阿財是什麼？跟真人顧問面談有什麼不同？</a>　·　<a href="/articles/ai-interview-fairness/">AI面談會不會誤判？</a>　·　<a href="/articles/ai-interview-vs-consultant/">先跟阿財談，還是直接找顧問比較好？</a></p>
-  </article>
+    <p>延伸閱讀：<a href="/articles/ai-interview-guide/">AI阿財是什麼？跟真人顧問面談有什麼不同？</a>　·　<a href="/articles/ai-interview-fairness/">AI面談會不會誤判？</a>　·　<a href="/articles/ai-interview-vs-consultant/">先跟阿財談，還是直接找顧問比較好？</a></p>
+
+      
+<div class="cta">
+        <p>看完還是不確定下一步？加入 LINE 直接問顧問，或看目前開放中的職缺。</p>
+        <a class="btn-line" href="https://lin.ee/XcSWPzM">用 LINE 問顧問</a>
+      </div>
+    </article>
+  </div>
 </main>
 
-<footer style="border-top:1px solid #e6dfd1;background:#eee9de;padding:28px 0;">
-  <div class="wrap" style="text-align:center;color:#9a9da5;font-size:13px;max-width:800px;">
-    <a href="/articles/" style="color:#a67c3d;">獵才專欄</a>　|　<a href="/jobs/" style="color:#a67c3d;">職缺專區</a>　|　<a href="/" style="color:#a67c3d;">Step1ne 首頁</a>　|　© 2026 德仁管理顧問有限公司 Step1ne
-  </div>
-</footer>
 
+<footer><div class="fw">德仁管理顧問有限公司　臺北市內湖區康寧路三段 54 之 7 號 3 樓</div></footer>
+
+<script>
+// 表格加水平捲動外框，避免手機橫向溢位
+document.querySelectorAll('article table').forEach(function(t){
+  var w=document.createElement('div'); w.className='tw';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
+// 閱讀進度
+var bar=document.getElementById('bar');
+function prog(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',prog,{passive:true}); prog();
+// 目錄跟隨
+var tns=[].slice.call(document.querySelectorAll('.tn'));
+var secs=tns.map(function(a){return document.getElementById(a.dataset.s)}).filter(Boolean);
+if('IntersectionObserver' in window && secs.length){
+  var cur=null;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) cur=e.target.id; });
+    tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  },{rootMargin:'-88px 0px -70% 0px'}).observe && secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===e.target.id)}); }
+      });
+    },{rootMargin:'-88px 0px -70% 0px'}).observe(s);
+  });
+}
+</script>
 </body>
 </html>

@@ -47,10 +47,10 @@ document.addEventListener('click', function (e) {
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
-<meta name="theme-color" content="#f4f1ea">
+<meta name="theme-color" content="#F4F6F8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Noto+Sans+TC:wght@300;400;500;700;900&family=Noto+Serif+TC:wght@500;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
 
 <script type="application/ld+json">
 {
@@ -78,101 +78,181 @@ document.addEventListener('click', function (e) {
 </script>
 
 <style>
-*{box-sizing:border-box;}
-html,body{margin:0;padding:0;}
-body{font-family:'Noto Sans TC',system-ui,sans-serif;color:#23262d;background:#f4f1ea;-webkit-font-smoothing:antialiased;line-height:1.8;}
-a{color:#a67c3d;text-decoration:none;}
-a:hover{color:#8a6531;}
-details summary{cursor:pointer;list-style:none;}
-details summary::-webkit-details-marker{display:none;}
-details summary .faq-icon{transition:transform .3s ease;}
-details[open] summary .faq-icon{transform:rotate(45deg);}
-.wrap{max-width:760px;margin:0 auto;padding:0 24px;}
-h2{font-family:'Noto Serif TC',serif;font-size:24px;font-weight:700;color:#1c1f26;margin:44px 0 14px;line-height:1.4;}
-h3{font-size:17.5px;font-weight:700;color:#1c1f26;margin:28px 0 8px;}
-p{color:#3a3d44;font-size:15.5px;margin:0 0 16px;}
-ul,ol{padding-left:22px;color:#3a3d44;font-size:15.5px;}
-li{margin-bottom:8px;}
-.tbl-wrap{overflow-x:auto;margin:16px 0 8px;}
-table{width:100%;border-collapse:collapse;font-size:14.5px;background:#fff;min-width:560px;}
-th,td{border:1px solid #e6dfd1;padding:11px 13px;text-align:left;vertical-align:top;}
-th{background:#faf7f1;font-weight:700;white-space:nowrap;}
-td strong{color:#8a5a1a;}
-.note{font-size:13.5px;color:#8a8d95;margin:0 0 24px;}
-.callout{background:#fff;border:1px solid #e6dfd1;border-radius:14px;padding:20px 22px;margin:0 0 16px;}
-.insight{background:#fdfaf3;border:1px solid rgba(166,124,61,0.35);border-radius:14px;padding:20px 22px;margin:24px 0;}
-.insight .label{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;color:#a67c3d;text-transform:uppercase;margin-bottom:8px;}
-.insight p:last-child{margin-bottom:0;}
-.warn{background:#fdf4f2;border:1px solid rgba(180,90,70,0.35);border-radius:14px;padding:20px 22px;margin:24px 0;}
-.warn .label{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;color:#a8543c;text-transform:uppercase;margin-bottom:8px;}
-.warn p:last-child{margin-bottom:0;}
-.law{background:#fff;border-left:3px solid #8a8d95;padding:14px 18px;margin:0 0 16px;font-size:14.5px;color:#4a4d55;border-radius:0 10px 10px 0;}
-@media (max-width:760px){
-  .s1ne-hide-m{display:none !important;}
-  .s1ne-show-m{display:flex !important;}
-  footer a{min-height:44px;display:inline-flex;align-items:center;}
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;
+  --wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
 }
-.s1ne-show-m{display:none;}
-.s1ne-mobile-menu{display:none;flex-direction:column;padding:4px 24px 16px;border-top:1px solid #e6dfd1;background:rgba(244,241,234,0.98);}
-.s1ne-mobile-menu.is-open{display:flex;}
-.s1ne-mobile-menu a{padding:10px 0;color:#4a4d55;font-size:15px;border-bottom:1px solid #e6dfd1;min-height:44px;display:flex;align-items:center;}
-.s1ne-mobile-menu a:last-child{border-bottom:none;}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:17px;line-height:1.95;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.35;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,select,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 
-@media (max-width:640px){
-  .tbl-wrap{overflow-x:visible;}
-  .tbl-wrap table{min-width:0;display:block;background:transparent;}
-  .tbl-wrap thead{display:none;}
-  .tbl-wrap tbody{display:block;}
-  .tbl-wrap tr{display:block;background:#fff;border:1px solid #e6dfd1;border-radius:14px;margin-bottom:12px;overflow:hidden;}
-  .tbl-wrap td{display:block;border:none;border-bottom:1px solid #f2ede3;padding:12px 16px;}
-  .tbl-wrap tr td:last-child{border-bottom:none;}
-  .tbl-wrap td::before{content:attr(data-label);display:block;font-size:11.5px;font-weight:700;letter-spacing:0.5px;color:#a67c3d;margin-bottom:4px;}
-  .tbl-wrap td:empty{display:none;}
+/* 導覽 */
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+/* 閱讀進度 */
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
+
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
+.crumb{grid-column:1/-1;padding:22px 0 6px;font-size:13.5px;color:var(--slate-dim)}
+.crumb a{color:var(--slate)}
+.crumb a:hover{color:var(--brand-deep)}
+.crumb span{margin:0 8px;color:var(--rule)}
+
+/* 目錄軌：沿用全站 signature */
+.toc{position:sticky;top:92px;padding:8px 0 40px}
+.toc h2{font-size:13px;font-weight:700;color:var(--slate-dim);letter-spacing:.02em;margin-bottom:16px}
+.tns{position:relative;padding-left:22px}
+.tns::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.14))}
+.tn{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:14px;color:var(--slate);line-height:1.6;position:relative}
+.tn i{position:absolute;left:-22px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--rule);flex:0 0 auto}
+.tn:hover{color:var(--brand-deep)}
+.tn:hover i{border-color:var(--brand)}
+.tn.on{color:var(--ink);font-weight:700}
+.tn.on i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 4px rgba(46,169,223,.2)}
+.mtoc{display:none;margin:20px 0 0;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.mtoc summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15.5px;position:relative}
+.mtoc summary::-webkit-details-marker{display:none}
+.mtoc summary::after{content:"";position:absolute;right:20px;top:24px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.mtoc[open] summary::after{transform:rotate(-135deg)}
+.mtoc div{padding:0 18px 14px}
+.mtoc a{display:block;padding:9px 0;font-size:15px;color:var(--slate);border-top:1px solid var(--rule)}
+
+/* 文章本體 */
+article{padding:14px 0 60px;max-width:70ch}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--brand-deep);background:rgba(22,126,178,.07);border:1px solid rgba(22,126,178,.25);border-radius:5px;padding:4px 11px}
+article h1{margin-top:16px;font-size:clamp(28px,4.2vw,42px);line-height:1.28;letter-spacing:-.02em}
+.by{margin-top:18px;padding-bottom:20px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14px;color:var(--slate-dim)}
+.by a{color:var(--slate);border-bottom:1px solid var(--rule)}
+.by .d{font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+
+/* ★ Signature：直接答案 */
+.ans{margin-top:30px;background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:26px 30px}
+.ans .lab{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:10px}
+.ans p{font-size:19.5px;line-height:1.85;font-weight:500}
+.ans strong{font-weight:900}
+
+article h2{margin:52px 0 16px;font-size:25px;scroll-margin-top:92px}
+article h3{margin:34px 0 10px;font-size:19px}
+article h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-right:12px;border-radius:8px;background:var(--brand);color:#fff;font-family:var(--f-disp);font-size:17px;font-weight:700;vertical-align:2px}
+article p{margin-top:16px}
+article strong{font-weight:700}
+article a:not(.tn){color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.32)}
+article a:not(.tn):hover{border-bottom-color:var(--brand-deep)}
+article ul,article ol{margin:16px 0 0;padding-left:1.4em}
+article li{margin-top:9px}
+article table{width:100%;border-collapse:collapse;margin-top:22px;font-size:15.5px;background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+article th{text-align:left;background:var(--paper);font-weight:700;font-size:14px;color:var(--slate);padding:12px 14px;border-bottom:1px solid var(--rule)}
+article td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.75}
+article tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+article details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+article details summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+article details summary::-webkit-details-marker{display:none}
+article details summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+article details[open] summary::after{transform:rotate(-135deg)}
+article details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid var(--rule);color:var(--slate)}
+
+.foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
+.cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
+footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+.fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.note{max-width:var(--wrap);margin:0 auto 46px;padding-inline:var(--gut)}
+.note div{background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid #B45309;border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.note b{color:#5A3D0C}
+
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .mtoc{display:block}
 }
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  body{font-size:16.5px}
+  .ans{padding:22px;border-radius:0 8px 8px 0}
+  .ans p{font-size:18px}
+  article h2{font-size:22px;margin-top:42px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
 </style>
 </head>
-<body>
 
-<header style="position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:rgba(244,241,234,0.9);border-bottom:1px solid #e6dfd1;">
-  <div class="wrap" style="display:flex;align-items:center;justify-content:space-between;gap:20px;height:68px;max-width:1180px;">
-    <a href="/" style="display:flex;align-items:center;gap:12px;color:#23262d;">
-      <img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問" style="height:38px;width:auto;">
-    </a>
-    <div class="s1ne-hide-m" style="display:flex;align-items:center;gap:28px;font-size:15px;color:#4a4d55;">
-      <a href="/jobs/" style="color:#4a4d55;">職缺專區</a>
-      <a href="/articles/" style="color:#4a4d55;">獵才專欄</a>
-      <a href="/talent/" style="color:#4a4d55;">全民獵才</a>
-      <a href="/talent/ai-tools/" style="color:#4a4d55;">AI求職工具</a>
-      <a href="/about/" style="color:#4a4d55;">關於我們</a>
-    </div>
-    <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" class="s1ne-hide-m" style="background:#06c755;color:#fff;font-weight:700;font-size:13.5px;padding:9px 18px;border-radius:999px;white-space:nowrap;">LINE 洽詢</a>
-    <button type="button" class="s1ne-show-m" onclick="document.getElementById('s1ne-mmenu').classList.toggle('is-open')" aria-label="開啟選單" style="align-items:center;justify-content:center;width:40px;height:40px;border:1px solid #e6dfd1;border-radius:10px;background:#fff;flex-shrink:0;">
-      <span style="display:block;width:18px;height:2px;background:#23262d;box-shadow:0 6px 0 #23262d,0 -6px 0 #23262d;"></span>
-    </button>
-  </div>
-  <div id="s1ne-mmenu" class="s1ne-mobile-menu" onclick="if(event.target.closest('a'))this.classList.remove('is-open')">
-    <a href="/">首頁</a>
-    <a href="/jobs/">職缺專區</a>
-    <a href="/articles/">獵才專欄</a>
-    <a href="/talent/">全民獵才</a>
-    <a href="/talent/ai-tools/">AI求職工具</a>
-    <a href="/about/">關於我們</a>
-    <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="color:#a67c3d;font-weight:700;">LINE 洽詢 →</a>
+<body>
+<div id="bar"></div>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/"><img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問"><b>德仁管理顧問</b></a>
+    <nav class="hd-nav">
+      <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a class="on" href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
+    <button class="hd-burger" type="button" aria-label="開啟選單"><span></span></button>
   </div>
 </header>
 
-<main>
-  <article class="wrap" style="padding:40px 24px 24px;">
-    <div style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:2px;color:#a67c3d;text-transform:uppercase;margin-bottom:16px;">企業獵才指南・派遣實務</div>
-    <h1 style="font-family:'Noto Serif TC',serif;font-weight:700;font-size:clamp(26px,4vw,38px);line-height:1.35;margin:0 0 20px;color:#1c1f26;">人力派遣費用怎麼算？管理費與成本結構完整拆解</h1>
+<main class="shell">
+  <nav class="crumb" aria-label="麵包屑"><a href="/">首頁</a><span>/</span><a href="/articles/">獵才專欄</a><span>/</span>人力派遣費用怎麼算？管理費與成本結構完整拆解</nav>
 
-    <p class="aeo-byline" style="font-size:14px;color:#6b6f78;margin:0 0 20px;padding-bottom:14px;border-bottom:1px solid #e6dfd1;"><span>作者：<a href="/about/" style="color:#6b6f78;">Step1ne 獵才顧問團隊</a></span><span style="margin:0 8px;">·</span><time datetime="2026-08-06">發布於 2026-08-06</time></p>
+  <aside class="toc" aria-label="本文目錄">
+    <h2>本文共 10 個段落</h2>
+    <div class="tns"><a class="tn" href="#sec-1" data-s="sec-1"><i></i><span>派遣費用的三個組成部分</span></a>
+<a class="tn" href="#sec-2" data-s="sec-2"><i></i><span>2026 年法定雇主成本怎麼算？</span></a>
+<a class="tn" href="#sec-3" data-s="sec-3"><i></i><span>月薪 3 萬到 5 萬，企業實際付多少？</span></a>
+<a class="tn" href="#sec-4" data-s="sec-4"><i></i><span>派遣公司的管理費通常收多少？</span></a>
+<a class="tn" href="#sec-5" data-s="sec-5"><i></i><span>用派遣和自己聘人，成本差多少？</span></a>
+<a class="tn" href="#sec-6" data-s="sec-6"><i></i><span>派遣報價單上的數字怎麼看？</span></a>
+<a class="tn" href="#sec-7" data-s="sec-7"><i></i><span>什麼情況適合用派遣？什麼情況不適合？</span></a>
+<a class="tn" href="#sec-8" data-s="sec-8"><i></i><span>派遣的法律架構：誰是雇主、誰負什麼責任？</span></a>
+<a class="tn" href="#sec-9" data-s="sec-9"><i></i><span>常見問題</span></a>
+<a class="tn" href="#sec-10" data-s="sec-10"><i></i><span>需要一份具體的派遣報價？</span></a></div>
+  </aside>
 
-    <p style="font-size:17px;color:#3a3d44;background:#fff;border:1px solid #e6dfd1;border-radius:14px;padding:20px 22px;">
-      <strong>直接答案：</strong>企業用派遣的每月費用 = 員工薪資 + 法定雇主成本（約薪資的 18%）+ 管理服務費。以月薪 35,000 元、管理費 20% 為例，企業每月實際支付約 <strong>48,300 元</strong>。法定成本是固定的，真正影響報價差異的是管理費——那一項沒有法規標準，是市場行情。
-    </p>
+  <div>
+    <details class="mtoc"><summary>本文目錄（10 段）</summary><div><a href="#sec-1">派遣費用的三個組成部分</a>
+<a href="#sec-2">2026 年法定雇主成本怎麼算？</a>
+<a href="#sec-3">月薪 3 萬到 5 萬，企業實際付多少？</a>
+<a href="#sec-4">派遣公司的管理費通常收多少？</a>
+<a href="#sec-5">用派遣和自己聘人，成本差多少？</a>
+<a href="#sec-6">派遣報價單上的數字怎麼看？</a>
+<a href="#sec-7">什麼情況適合用派遣？什麼情況不適合？</a>
+<a href="#sec-8">派遣的法律架構：誰是雇主、誰負什麼責任？</a>
+<a href="#sec-9">常見問題</a>
+<a href="#sec-10">需要一份具體的派遣報價？</a></div></details>
+    <article>
+      <span class="tag">企業獵才指南・派遣實務</span>
+      <h1>人力派遣費用怎麼算？管理費與成本結構完整拆解</h1>
+      <div class="by">
+        <span>作者：<a href="/about/">Step1ne 獵才顧問團隊</a></span>
+        <time class="d" datetime="2026-08-06">發布於 2026-08-06</time>
+        <span class="d">約 9 分鐘</span>
+      </div>
 
-    <h2>派遣費用的三個組成部分</h2>
+      <div class="ans">
+        <div class="lab">直接答案</div>
+        <p>企業用派遣的每月費用 = 員工薪資 + 法定雇主成本（約薪資的 18%）+ 管理服務費。以月薪 35,000 元、管理費 20% 為例，企業每月實際支付約 <strong>48,300 元</strong>。法定成本是固定的，真正影響報價差異的是管理費——那一項沒有法規標準，是市場行情。</p>
+      </div>
+
+      <h2 id="sec-1">派遣費用的三個組成部分</h2>
     <p>派遣公司給企業的報價，拆開來只有三塊：</p>
     <ol>
       <li><strong>員工薪資</strong>——派遣員工實際領到的月薪，由企業與派遣公司議定</li>
@@ -181,7 +261,7 @@ td strong{color:#8a5a1a;}
     </ol>
     <p>前兩項是透明的：薪資你自己定，法定成本有公式可以算。第三項才是各家派遣公司報價差異的來源。</p>
 
-    <h2>2026 年法定雇主成本怎麼算？</h2>
+    <h2 id="sec-2">2026 年法定雇主成本怎麼算？</h2>
     <p>以下是 2026 年（民國 115 年）適用的費率，每一項都會影響派遣報價：</p>
     <div class="tbl-wrap">
       <table>
@@ -203,7 +283,7 @@ td strong{color:#8a5a1a;}
       <small>來源：勞動部 2026 年勞動新制公告</small>
     </div>
 
-    <h2>月薪 3 萬到 5 萬，企業實際付多少？</h2>
+    <h2 id="sec-3">月薪 3 萬到 5 萬，企業實際付多少？</h2>
     <p>以下用三個常見薪資級距實際試算。法定成本用各項費率直接計算，管理費假設 20%（僅為試算用，實際費率依個案而異）：</p>
     <div class="tbl-wrap">
       <table>
@@ -223,7 +303,7 @@ td strong{color:#8a5a1a;}
     </div>
     <p class="note">試算說明：法定成本以 2026 年費率計算，職災費率取全行業平均 0.21%（行業別 0.14% + 上下班 0.07%），健保僅計員工本人、未含眷屬。管理費 20% 為試算用假設值，實際費率依職務類型、人數規模、派遣期間等因素由雙方議定。以上計算公式：勞保 = 月薪 × 12.5% × 70%；健保 = 月薪 × 5.17% × 60%；勞退 = 月薪 × 6%。</p>
 
-    <h2>派遣公司的管理費通常收多少？</h2>
+    <h2 id="sec-4">派遣公司的管理費通常收多少？</h2>
     <p>管理費沒有法規標準。台灣現行法律並未對國內人力派遣的服務費訂定上限或下限——這一點與外籍移工仲介不同（外籍移工仲介有「私立就業服務機構收費項目及金額標準」的法定上限）。國內派遣的管理費完全是市場行情，由企業與派遣公司議定。</p>
 
     <p>影響管理費高低的因素：</p>
@@ -241,7 +321,7 @@ td strong{color:#8a5a1a;}
       <p><strong>真正該比的不是「管理費幾%」，而是「加上這些隱藏成本之後，自己聘跟用派遣哪個划算」。</strong></p>
     </div>
 
-    <h2>用派遣和自己聘人，成本差多少？</h2>
+    <h2 id="sec-5">用派遣和自己聘人，成本差多少？</h2>
     <p>單看帳面數字，自聘一定比派遣便宜——因為不用付管理費。但自聘有幾項帳面上看不到的成本：</p>
     <div class="tbl-wrap">
       <table>
@@ -259,7 +339,7 @@ td strong{color:#8a5a1a;}
     </div>
     <p><strong>結論：短期需求（6 個月以內）、季節性人力、員額凍結但業務量增加、需要快速補人——這些情況用派遣通常比自聘划算。</strong>長期固定的核心職務，自聘的總成本則通常較低。</p>
 
-    <h2>派遣報價單上的數字怎麼看？</h2>
+    <h2 id="sec-6">派遣報價單上的數字怎麼看？</h2>
     <p>拿到報價單時，確認這幾件事：</p>
     <h3>應該清楚列出的項目</h3>
     <ul>
@@ -284,7 +364,7 @@ td strong{color:#8a5a1a;}
       <p><small>依勞基法第 22-1 條，派遣公司積欠工資時，要派單位有補充給付責任。依第 63-1 條，職災補償由要派單位與派遣公司連帶負責。</small></p>
     </div>
 
-    <h2>什麼情況適合用派遣？什麼情況不適合？</h2>
+    <h2 id="sec-7">什麼情況適合用派遣？什麼情況不適合？</h2>
     <h3>適合用派遣</h3>
     <ul>
       <li><strong>季節性或專案性需求</strong>——年終盤點、產線趕工、展覽活動，結束就不需要了</li>
@@ -299,16 +379,16 @@ td strong{color:#8a5a1a;}
       <li><strong>長期固定的基層職務</strong>——超過一年以上的固定需求，自聘的總成本通常較低</li>
     </ul>
 
-    <aside data-exp="cta-mid-2026-08-06" style="margin:38px 0;padding:24px 26px;border-radius:16px;background:linear-gradient(150deg,rgba(166,124,61,0.10),rgba(96,128,180,0.05));border:1px solid rgba(166,124,61,0.28);">
-      <p style="margin:0 0 8px;font-family:'Space Mono',monospace;font-size:11.5px;letter-spacing:.14em;color:#a67c3d;">企業 HR 請看這裡</p>
-      <h3 style="margin:0 0 10px;font-size:19px;line-height:1.4;">需要派遣報價？把職務內容告訴我們，直接算給你</h3>
-      <p style="margin:0 0 18px;font-size:15px;line-height:1.75;color:#4a4d55;">把職務類型、人數、預計起迄日講一下，我們會回覆含法定成本在內的完整報價拆解——不合適用派遣的情況也會直接說。報價不收費，不用先簽任何東西。</p>
-      <div style="display:flex;flex-wrap:wrap;gap:12px;">
-        <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-dispatch" style="display:inline-flex;align-items:center;gap:8px;background:#06c755;color:#fff;font-weight:700;font-size:15px;padding:13px 26px;border-radius:999px;">加 LINE 取得報價</a>
+    <aside data-exp="cta-mid-2026-08-06">
+      <p>企業 HR 請看這裡</p>
+      <h3>需要派遣報價？把職務內容告訴我們，直接算給你</h3>
+      <p>把職務類型、人數、預計起迄日講一下，我們會回覆含法定成本在內的完整報價拆解——不合適用派遣的情況也會直接說。報價不收費，不用先簽任何東西。</p>
+      <div>
+        <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-dispatch">加 LINE 取得報價</a>
       </div>
     </aside>
 
-    <h2>派遣的法律架構：誰是雇主、誰負什麼責任？</h2>
+    <h2 id="sec-8">派遣的法律架構：誰是雇主、誰負什麼責任？</h2>
     <p>台灣目前沒有「派遣法」專法。2019 年立法院通過勞基法修正案，將派遣相關條文直接納入勞基法，主要規定分散在以下條文中：</p>
 
     <div class="tbl-wrap">
@@ -325,60 +405,94 @@ td strong{color:#8a5a1a;}
 
     <p><strong>簡單講：派遣員工的法定雇主是派遣公司</strong>，勞保健保勞退都由派遣公司辦理和負擔。但要派單位（用人企業）在工資補充給付和職災補償上有連帶責任——派遣公司出問題的時候，企業不能說「跟我無關」。</p>
 
-    <h2>常見問題</h2>
-    <div style="display:flex;flex-direction:column;gap:12px;margin-top:20px;">
-      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
-        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
+    <h2 id="sec-9">常見問題</h2>
+    <div>
+      <details>
+        <summary>
           <span>派遣公司會從員工薪水裡扣管理費嗎？</span>
-          <span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
+          <span class="faq-icon">+</span>
         </summary>
-        <p style="margin:0;padding:0 20px 18px;">不應該。管理費是企業付給派遣公司的服務費，不是從員工薪資裡扣。員工的月薪就是報價單上寫的那個金額，全額支付。如果派遣公司從員工薪資裡扣除管理費或其他名目的費用，那是違反勞基法工資全額給付原則的。</p>
+        <p>不應該。管理費是企業付給派遣公司的服務費，不是從員工薪資裡扣。員工的月薪就是報價單上寫的那個金額，全額支付。如果派遣公司從員工薪資裡扣除管理費或其他名目的費用，那是違反勞基法工資全額給付原則的。</p>
       </details>
-      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
-        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
+      <details>
+        <summary>
           <span>派遣員工的勞健保是誰負責？</span>
-          <span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
+          <span class="faq-icon">+</span>
         </summary>
-        <p style="margin:0;padding:0 20px 18px;">派遣公司。派遣員工的法定雇主是派遣事業單位（派遣公司），勞保、健保、就業保險、職災保險的投保與雇主份額負擔，以及勞退金的提繳，全部由派遣公司辦理。依據：勞工保險條例第 6、10 條、全民健保法第 15 條、勞退條例第 14 條。</p>
+        <p>派遣公司。派遣員工的法定雇主是派遣事業單位（派遣公司），勞保、健保、就業保險、職災保險的投保與雇主份額負擔，以及勞退金的提繳，全部由派遣公司辦理。依據：勞工保險條例第 6、10 條、全民健保法第 15 條、勞退條例第 14 條。</p>
       </details>
-      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
-        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
+      <details>
+        <summary>
           <span>派遣轉正職需要付費嗎？</span>
-          <span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
+          <span class="faq-icon">+</span>
         </summary>
-        <p style="margin:0;padding:0 20px 18px;">看合約。多數派遣公司會在要派契約中約定「轉正費」或「買斷費」，金額常見為 1–2 個月月薪，或依服務期間遞減（例如派遣滿一年後轉正免收費）。這不是法律規定的，是商業條款，簽約前可以談。另外，如果企業違反勞基法第 17-1 條（面試指定派遣員工），派遣員工有權要求直接與企業成立勞動契約，不需要經過派遣公司同意。</p>
+        <p>看合約。多數派遣公司會在要派契約中約定「轉正費」或「買斷費」，金額常見為 1–2 個月月薪，或依服務期間遞減（例如派遣滿一年後轉正免收費）。這不是法律規定的，是商業條款，簽約前可以談。另外，如果企業違反勞基法第 17-1 條（面試指定派遣員工），派遣員工有權要求直接與企業成立勞動契約，不需要經過派遣公司同意。</p>
       </details>
-      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
-        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
+      <details>
+        <summary>
           <span>派遣員工出了工安事故，責任歸誰？</span>
-          <span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
+          <span class="faq-icon">+</span>
         </summary>
-        <p style="margin:0;padding:0 20px 18px;">依勞基法第 63-1 條，要派單位應與派遣公司連帶負職業災害補償責任。另依職業安全衛生法第 25 條，要派單位對派遣勞工的職安衛事項應比照自僱勞工辦理。簡單說：工作環境的安全是企業的責任，不能因為是派遣員工就不管。</p>
+        <p>依勞基法第 63-1 條，要派單位應與派遣公司連帶負職業災害補償責任。另依職業安全衛生法第 25 條，要派單位對派遣勞工的職安衛事項應比照自僱勞工辦理。簡單說：工作環境的安全是企業的責任，不能因為是派遣員工就不管。</p>
       </details>
-      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
-        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
+      <details>
+        <summary>
           <span>短期派遣和長期派遣費率一樣嗎？</span>
-          <span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
+          <span class="faq-icon">+</span>
         </summary>
-        <p style="margin:0;padding:0 20px 18px;">通常不一樣。短期（3 個月以內）因為招募成本攤不開、人員流動風險較高，管理費率通常比長期合作高。長期穩定的合作（一年以上、人數固定），派遣公司的管理成本可預期，費率有比較多的議價空間。</p>
+        <p>通常不一樣。短期（3 個月以內）因為招募成本攤不開、人員流動風險較高，管理費率通常比長期合作高。長期穩定的合作（一年以上、人數固定），派遣公司的管理成本可預期，費率有比較多的議價空間。</p>
       </details>
     </div>
 
-    <div style="margin-top:48px;text-align:center;padding:36px 28px;border-radius:20px;background:linear-gradient(150deg,rgba(166,124,61,0.12),rgba(96,128,180,0.06));border:1px solid rgba(166,124,61,0.3);">
-      <h2 style="margin-top:0;">需要一份具體的派遣報價？</h2>
-      <p style="margin-bottom:22px;">告訴我們職務內容、人數和預計期間，顧問會提供含法定成本拆解的完整報價——費用結構透明，不適合用派遣的情況也會直說。</p>
-      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;background:#06c755;color:#fff;font-weight:700;font-size:16px;padding:15px 32px;border-radius:999px;">加 LINE 與顧問談談</a>
+    <div>
+      <h2 id="sec-10">需要一份具體的派遣報價？</h2>
+      <p>告訴我們職務內容、人數和預計期間，顧問會提供含法定成本拆解的完整報價——費用結構透明，不適合用派遣的情況也會直說。</p>
+      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">加 LINE 與顧問談談</a>
     </div>
 
-    <p style="margin-top:32px;font-size:14.5px;color:#8a8d95;">延伸閱讀：<a href="/articles/dispatch-legal-risks/">人力派遣的法律風險與注意事項</a>　·　<a href="/articles/headhunter-fees/">獵頭公司收費怎麼算？</a></p>
-  </article>
+    <p>延伸閱讀：<a href="/articles/dispatch-legal-risks/">人力派遣的法律風險與注意事項</a>　·　<a href="/articles/headhunter-fees/">獵頭公司收費怎麼算？</a></p>
+
+      
+<div class="cta">
+        <p>看完還是不確定下一步？加入 LINE 直接問顧問，或看目前開放中的職缺。</p>
+        <a class="btn-line" href="https://lin.ee/XcSWPzM">用 LINE 問顧問</a>
+      </div>
+    </article>
+  </div>
 </main>
 
-<footer style="border-top:1px solid #e6dfd1;background:#eee9de;padding:28px 0;">
-  <div class="wrap" style="text-align:center;color:#9a9da5;font-size:13px;max-width:800px;">
-    <a href="/articles/" style="color:#a67c3d;">獵才專欄</a>　|　<a href="/jobs/" style="color:#a67c3d;">職缺專區</a>　|　<a href="/" style="color:#a67c3d;">Step1ne 首頁</a>　|　© 2026 德仁管理顧問有限公司 Step1ne
-  </div>
-</footer>
 
+<footer><div class="fw">德仁管理顧問有限公司　臺北市內湖區康寧路三段 54 之 7 號 3 樓</div></footer>
+
+<script>
+// 表格加水平捲動外框，避免手機橫向溢位
+document.querySelectorAll('article table').forEach(function(t){
+  var w=document.createElement('div'); w.className='tw';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
+// 閱讀進度
+var bar=document.getElementById('bar');
+function prog(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',prog,{passive:true}); prog();
+// 目錄跟隨
+var tns=[].slice.call(document.querySelectorAll('.tn'));
+var secs=tns.map(function(a){return document.getElementById(a.dataset.s)}).filter(Boolean);
+if('IntersectionObserver' in window && secs.length){
+  var cur=null;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) cur=e.target.id; });
+    tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  },{rootMargin:'-88px 0px -70% 0px'}).observe && secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===e.target.id)}); }
+      });
+    },{rootMargin:'-88px 0px -70% 0px'}).observe(s);
+  });
+}
+</script>
 </body>
 </html>

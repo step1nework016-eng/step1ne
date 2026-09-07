@@ -43,10 +43,10 @@ document.addEventListener('click', function (e) {
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://step1ne.com/assets/og-bim-career-path.jpg">
-<meta name="theme-color" content="#f4f1ea">
+<meta name="theme-color" content="#F4F6F8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Noto+Sans+TC:wght@300;400;500;700;900&family=Noto+Serif+TC:wght@500;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
 
 <script type="application/ld+json">
 {
@@ -67,98 +67,173 @@ document.addEventListener('click', function (e) {
 </script>
 
 <style>
-*{box-sizing:border-box;}
-html,body{margin:0;padding:0;}
-body{font-family:'Noto Sans TC',system-ui,sans-serif;color:#23262d;background:#f4f1ea;-webkit-font-smoothing:antialiased;line-height:1.8;}
-a{color:#a67c3d;text-decoration:none;}
-a:hover{color:#8a6531;}
-details summary{cursor:pointer;list-style:none;}
-details summary::-webkit-details-marker{display:none;}
-details summary .faq-icon{transition:transform .3s ease;}
-details[open] summary .faq-icon{transform:rotate(45deg);}
-.wrap{max-width:760px;margin:0 auto;padding:0 24px;}
-h2{font-family:'Noto Serif TC',serif;font-size:24px;font-weight:700;color:#1c1f26;margin:44px 0 14px;line-height:1.4;}
-h3{font-size:17px;font-weight:700;color:#1c1f26;margin:26px 0 8px;}
-p{color:#3a3d44;font-size:15.5px;margin:0 0 16px;}
-ul,ol{padding-left:22px;color:#3a3d44;font-size:15.5px;}
-li{margin-bottom:8px;}
-.tbl-wrap{overflow-x:auto;margin:16px 0 8px;}
-table{width:100%;border-collapse:collapse;font-size:14.5px;background:#fff;min-width:560px;}
-th,td{border:1px solid #e6dfd1;padding:11px 13px;text-align:left;vertical-align:top;}
-th{background:#faf7f1;font-weight:700;white-space:nowrap;}
-td strong{color:#8a5a1a;white-space:nowrap;}
-.note{font-size:13.5px;color:#8a8d95;margin:0 0 24px;}
-.callout{background:#fff;border:1px solid #e6dfd1;border-radius:14px;padding:20px 22px;margin:0 0 16px;}
-.insight{background:#fdfaf3;border:1px solid rgba(166,124,61,0.35);border-radius:14px;padding:20px 22px;margin:24px 0;}
-.insight .label{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;color:#a67c3d;text-transform:uppercase;margin-bottom:8px;}
-.insight p:last-child{margin-bottom:0;}
-@media (max-width:760px){
-  .s1ne-hide-m{display:none !important;}
-  .s1ne-show-m{display:flex !important;}
-  footer a{min-height:44px;display:inline-flex;align-items:center;}
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;
+  --wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
 }
-.s1ne-show-m{display:none;}
-.s1ne-mobile-menu{display:none;flex-direction:column;padding:4px 24px 16px;border-top:1px solid #e6dfd1;background:rgba(244,241,234,0.98);}
-.s1ne-mobile-menu.is-open{display:flex;}
-.s1ne-mobile-menu a{padding:10px 0;color:#4a4d55;font-size:15px;border-bottom:1px solid #e6dfd1;min-height:44px;display:flex;align-items:center;}
-.s1ne-mobile-menu a:last-child{border-bottom:none;}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:17px;line-height:1.95;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.35;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,select,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 
-/* 表格：桌機正常表格；手機自動改成卡片式堆疊，避免多欄被壓爛 */
-@media (max-width:640px){
-  .tbl-wrap{overflow-x:visible;}
-  .tbl-wrap table{min-width:0;display:block;background:transparent;}
-  .tbl-wrap thead{display:none;}
-  .tbl-wrap tbody{display:block;}
-  .tbl-wrap tr{display:block;background:#fff;border:1px solid #e6dfd1;border-radius:14px;margin-bottom:12px;overflow:hidden;}
-  .tbl-wrap td{display:block;border:none;border-bottom:1px solid #f2ede3;padding:12px 16px;}
-  .tbl-wrap tr td:last-child{border-bottom:none;}
-  .tbl-wrap td::before{content:attr(data-label);display:block;font-size:11.5px;font-weight:700;letter-spacing:0.5px;color:#a67c3d;margin-bottom:4px;}
-  .tbl-wrap td:empty{display:none;}
+/* 導覽 */
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+/* 閱讀進度 */
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
+
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
+.crumb{grid-column:1/-1;padding:22px 0 6px;font-size:13.5px;color:var(--slate-dim)}
+.crumb a{color:var(--slate)}
+.crumb a:hover{color:var(--brand-deep)}
+.crumb span{margin:0 8px;color:var(--rule)}
+
+/* 目錄軌：沿用全站 signature */
+.toc{position:sticky;top:92px;padding:8px 0 40px}
+.toc h2{font-size:13px;font-weight:700;color:var(--slate-dim);letter-spacing:.02em;margin-bottom:16px}
+.tns{position:relative;padding-left:22px}
+.tns::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.14))}
+.tn{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:14px;color:var(--slate);line-height:1.6;position:relative}
+.tn i{position:absolute;left:-22px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--rule);flex:0 0 auto}
+.tn:hover{color:var(--brand-deep)}
+.tn:hover i{border-color:var(--brand)}
+.tn.on{color:var(--ink);font-weight:700}
+.tn.on i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 4px rgba(46,169,223,.2)}
+.mtoc{display:none;margin:20px 0 0;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.mtoc summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15.5px;position:relative}
+.mtoc summary::-webkit-details-marker{display:none}
+.mtoc summary::after{content:"";position:absolute;right:20px;top:24px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.mtoc[open] summary::after{transform:rotate(-135deg)}
+.mtoc div{padding:0 18px 14px}
+.mtoc a{display:block;padding:9px 0;font-size:15px;color:var(--slate);border-top:1px solid var(--rule)}
+
+/* 文章本體 */
+article{padding:14px 0 60px;max-width:70ch}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--brand-deep);background:rgba(22,126,178,.07);border:1px solid rgba(22,126,178,.25);border-radius:5px;padding:4px 11px}
+article h1{margin-top:16px;font-size:clamp(28px,4.2vw,42px);line-height:1.28;letter-spacing:-.02em}
+.by{margin-top:18px;padding-bottom:20px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14px;color:var(--slate-dim)}
+.by a{color:var(--slate);border-bottom:1px solid var(--rule)}
+.by .d{font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+
+/* ★ Signature：直接答案 */
+.ans{margin-top:30px;background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:26px 30px}
+.ans .lab{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:10px}
+.ans p{font-size:19.5px;line-height:1.85;font-weight:500}
+.ans strong{font-weight:900}
+
+article h2{margin:52px 0 16px;font-size:25px;scroll-margin-top:92px}
+article h3{margin:34px 0 10px;font-size:19px}
+article h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-right:12px;border-radius:8px;background:var(--brand);color:#fff;font-family:var(--f-disp);font-size:17px;font-weight:700;vertical-align:2px}
+article p{margin-top:16px}
+article strong{font-weight:700}
+article a:not(.tn){color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.32)}
+article a:not(.tn):hover{border-bottom-color:var(--brand-deep)}
+article ul,article ol{margin:16px 0 0;padding-left:1.4em}
+article li{margin-top:9px}
+article table{width:100%;border-collapse:collapse;margin-top:22px;font-size:15.5px;background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+article th{text-align:left;background:var(--paper);font-weight:700;font-size:14px;color:var(--slate);padding:12px 14px;border-bottom:1px solid var(--rule)}
+article td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.75}
+article tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+article details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+article details summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+article details summary::-webkit-details-marker{display:none}
+article details summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+article details[open] summary::after{transform:rotate(-135deg)}
+article details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid var(--rule);color:var(--slate)}
+
+.foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
+.cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
+footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+.fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.note{max-width:var(--wrap);margin:0 auto 46px;padding-inline:var(--gut)}
+.note div{background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid #B45309;border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.note b{color:#5A3D0C}
+
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .mtoc{display:block}
 }
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  body{font-size:16.5px}
+  .ans{padding:22px;border-radius:0 8px 8px 0}
+  .ans p{font-size:18px}
+  article h2{font-size:22px;margin-top:42px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
 </style>
 </head>
-<body>
 
-<header style="position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:rgba(244,241,234,0.9);border-bottom:1px solid #e6dfd1;">
-  <div class="wrap" style="display:flex;align-items:center;justify-content:space-between;gap:20px;height:68px;max-width:1180px;">
-    <a href="/" style="display:flex;align-items:center;gap:12px;color:#23262d;">
-      <img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問" style="height:38px;width:auto;">
-    </a>
-    <div class="s1ne-hide-m" style="display:flex;align-items:center;gap:26px;font-size:15px;color:#4a4d55;">
-      <a href="/construction/" style="color:#a67c3d;font-weight:700;">營造工程專欄</a>
-      <a href="/jobs/" style="color:#4a4d55;">職缺專區</a>
-      <a href="/articles/" style="color:#4a4d55;">獵才專欄</a>
-      <a href="/talent/" style="color:#4a4d55;">全民獵才</a>
-      <a href="/about/" style="color:#4a4d55;">關於我們</a>
-    </div>
-    <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" class="s1ne-hide-m" style="background:#06c755;color:#fff;font-weight:700;font-size:13.5px;padding:9px 18px;border-radius:999px;white-space:nowrap;">LINE 洽詢</a>
-    <button type="button" class="s1ne-show-m" onclick="document.getElementById('s1ne-mmenu').classList.toggle('is-open')" aria-label="開啟選單" style="align-items:center;justify-content:center;width:40px;height:40px;border:1px solid #e6dfd1;border-radius:10px;background:#fff;flex-shrink:0;">
-      <span style="display:block;width:18px;height:2px;background:#23262d;box-shadow:0 6px 0 #23262d,0 -6px 0 #23262d;"></span>
-    </button>
-  </div>
-  <div id="s1ne-mmenu" class="s1ne-mobile-menu" onclick="if(event.target.closest('a'))this.classList.remove('is-open')">
-    <a href="/">首頁</a>
-    <a href="/construction/">營造工程專欄</a>
-    <a href="/jobs/">職缺專區</a>
-    <a href="/articles/">獵才專欄</a>
-    <a href="/talent/">全民獵才</a>
-    <a href="/about/">關於我們</a>
-    <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="color:#a67c3d;font-weight:700;">LINE 洽詢 →</a>
+<body>
+<div id="bar"></div>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/"><img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問"><b>德仁管理顧問</b></a>
+    <nav class="hd-nav">
+      <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a class="on" href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
+    <button class="hd-burger" type="button" aria-label="開啟選單"><span></span></button>
   </div>
 </header>
 
-<main>
-  <article class="wrap" style="padding:40px 24px 24px;">
-    <div style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:2px;color:#a67c3d;text-transform:uppercase;margin-bottom:16px;">求職者指南・獵頭觀點</div>
-    <h1 style="font-family:'Noto Serif TC',serif;font-weight:700;font-size:clamp(26px,4vw,38px);line-height:1.35;margin:0 0 20px;color:#1c1f26;">BIM工程師做3年後可以往哪走？獵頭實務觀察</h1>
+<main class="shell">
+  <nav class="crumb" aria-label="麵包屑"><a href="/">首頁</a><span>/</span><a href="/articles/">獵才專欄</a><span>/</span>BIM工程師做3年後可以往哪走？獵頭實務觀察</nav>
 
-    <p class="aeo-byline" style="font-size:14px;color:#6b6f78;margin:0 0 20px;padding-bottom:14px;border-bottom:1px solid #e6dfd1;"><span>作者：<a href="/about/" style="color:#6b6f78;">Step1ne 獵才顧問團隊</a></span><span style="margin:0 8px;">·</span><time datetime="2026-09-03">發布於 2026-09-03</time></p>
+  <aside class="toc" aria-label="本文目錄">
+    <h2>本文共 6 個段落</h2>
+    <div class="tns"><a class="tn" href="#sec-1" data-s="sec-1"><i></i><span>三條路，不是一條線</span></a>
+<a class="tn" href="#sec-2" data-s="sec-2"><i></i><span>卡住的人，通常卡在同一個地方</span></a>
+<a class="tn" href="#sec-3" data-s="sec-3"><i></i><span>往上爬的人，通常做對了這幾個選擇</span></a>
+<a class="tn" href="#sec-4" data-s="sec-4"><i></i><span>三個下一步，各自要先準備什麼</span></a>
+<a class="tn" href="#sec-5" data-s="sec-5"><i></i><span>常見問題</span></a>
+<a class="tn" href="#sec-6" data-s="sec-6"><i></i><span>想聊聊自己適合走哪條路？</span></a></div>
+  </aside>
 
-    <p style="font-size:17px;color:#3a3d44;background:#fff;border:1px solid #e6dfd1;border-radius:14px;padding:20px 22px;">
-      <strong>直接答案：</strong>做滿 2–3 年後，BIM工程師的路大致分三條：<strong>技術深化</strong>（往BIM協調師、BIM Lead走，留在BIM專業裡越做越深）、<strong>轉職能</strong>（轉工地或建案的專案管理、轉業主端的擁有者代表）、<strong>橫向轉出</strong>（轉到營造業裡的工程設計或現場工程）。獵頭實務上最常看到卡住的原因，不是能力不夠，是一直待在同一種工作內容裡沒有換過。
-    </p>
+  <div>
+    <details class="mtoc"><summary>本文目錄（6 段）</summary><div><a href="#sec-1">三條路，不是一條線</a>
+<a href="#sec-2">卡住的人，通常卡在同一個地方</a>
+<a href="#sec-3">往上爬的人，通常做對了這幾個選擇</a>
+<a href="#sec-4">三個下一步，各自要先準備什麼</a>
+<a href="#sec-5">常見問題</a>
+<a href="#sec-6">想聊聊自己適合走哪條路？</a></div></details>
+    <article>
+      <span class="tag">求職者指南・獵頭觀點</span>
+      <h1>BIM工程師做3年後可以往哪走？獵頭實務觀察</h1>
+      <div class="by">
+        <span>作者：<a href="/about/">Step1ne 獵才顧問團隊</a></span>
+        <time class="d" datetime="2026-09-03">發布於 2026-09-03</time>
+        <span class="d">約 7 分鐘</span>
+      </div>
 
-    <h2>三條路，不是一條線</h2>
+      <div class="ans">
+        <div class="lab">直接答案</div>
+        <p>做滿 2–3 年後，BIM工程師的路大致分三條：<strong>技術深化</strong>（往BIM協調師、BIM Lead走，留在BIM專業裡越做越深）、<strong>轉職能</strong>（轉工地或建案的專案管理、轉業主端的擁有者代表）、<strong>橫向轉出</strong>（轉到營造業裡的工程設計或現場工程）。獵頭實務上最常看到卡住的原因，不是能力不夠，是一直待在同一種工作內容裡沒有換過。</p>
+      </div>
+
+      <h2 id="sec-1">三條路，不是一條線</h2>
     <p>多數人以為 BIM 工程師的職涯就是「年資越久，職級越高」，一路往 BIM 經理爬。實際上看過的送件案例裡，這條路只是其中一條，而且不是走的人最多的一條。BIM 工程師做到 2–3 年這個階段，通常會出現三個方向的分岔：</p>
 
     <h3>路線一：技術深化——留在 BIM，往協調與整合走</h3>
@@ -180,7 +255,7 @@ td strong{color:#8a5a1a;white-space:nowrap;}
       <p><strong>這三條路不是互斥的，很多人是先走路線一，卡住之後才發現路線二存在。</strong>我們實際接觸的案例裡，願意主動打聽「BIM 做久了還能轉什麼」的人，通常已經比同儕多想了一步；反而是悶著頭只顧把模型做好、沒有對外打聽過的人，容易錯過轉職能的時機——因為業主端與 PM 職缺很少特別強調「歡迎 BIM 背景」，需要自己去連結這個關係。</p>
     </div>
 
-    <h2>卡住的人，通常卡在同一個地方</h2>
+    <h2 id="sec-2">卡住的人，通常卡在同一個地方</h2>
     <p>從送件經驗看，BIM 工程師職涯卡住最常見的原因，並不是市場上沒有機會，而是這幾種情況反覆出現：</p>
     <ul>
       <li><strong>年資很長，但都在做同一種構件建模。</strong>履歷上寫五年經驗，實際能力還停在建模階段，沒有跨過協調這一關——這一點在 <a href="/articles/bim-engineer-salary/">薪資行情那篇</a>也提過，是職級卡點，也是職涯卡點，同一個原因造成兩種結果</li>
@@ -189,7 +264,7 @@ td strong{color:#8a5a1a;white-space:nowrap;}
       <li><strong>不知道 BIM 以外的路存在。</strong>只看過 BIM 經理這個終點，沒想過轉 PM 或業主端，等於少看了一半的地圖</li>
     </ul>
 
-    <h2>往上爬的人，通常做對了這幾個選擇</h2>
+    <h2 id="sec-3">往上爬的人，通常做對了這幾個選擇</h2>
     <p>對照職涯往上走得比較快的案例，共同點通常不是天賦或證照，而是幾個具體的選擇：</p>
     <ul>
       <li><strong>主動要求進協調會議，而不是等被指派。</strong>跨專業協調是整條路上漲幅最大的一關，但公司不會自動把機會給你，要自己爭取</li>
@@ -198,9 +273,9 @@ td strong{color:#8a5a1a;white-space:nowrap;}
       <li><strong>提早打聽 PM 與業主端的門路，不等到卡住才想。</strong>職涯轉換越早開始鋪墊（例如在做 BIM 期間就多接觸工程排程與預算相關的工作），轉職時越順</li>
     </ul>
 
-    <aside data-exp="cta-mid-2026-09-03" style="margin:38px 0;padding:24px 26px;border-radius:16px;background:linear-gradient(150deg,rgba(166,124,61,0.10),rgba(96,128,180,0.05));border:1px solid rgba(166,124,61,0.28);"><p style="margin:0 0 8px;font-family:'Space Mono',monospace;font-size:11.5px;letter-spacing:.14em;color:#a67c3d;">STEP1NE 現正招募</p><h3 style="margin:0 0 10px;font-size:19px;line-height:1.4;">這個缺現在開著：無經驗可，正職僱用</h3><p style="margin:0 0 18px;font-size:15px;line-height:1.75;color:#4a4d55;">AI 記憶體產業擴產案（苗栗銅鑼），<strong>正職僱用</strong>（不是派遣、不是約聘），優先招募 10 名。月薪 <strong>4 萬以上，實際待遇面議</strong>（依學歷與科系相關性核定）。大學以上不限科系，<strong>無經驗可</strong>——公司安排完整培訓，先到桃園楊梅受訓 1 週，進駐銅鑼廠區後有設計 PM 與設計工程師組成的團隊帶到可獨立作業。不提供宿舍，但有租屋補助每月 5,000 元；作息固定 08:30–17:30，週休二日不輪班。如果你正在考慮從路線一起步、想累積跨案型經驗，這類大型建廠案是完整走過一輪流程的機會。想先問清楚再決定也可以，不用先投履歷。</p><div style="display:flex;flex-wrap:wrap;gap:12px;"><a href="/apply/?job=bim-engineer-tongluo&amp;utm_source=website&amp;utm_medium=article_cta&amp;utm_campaign=mid-bim-career-path" data-cta="mid-bim-career-path" style="display:inline-flex;align-items:center;gap:8px;background:#23262d;color:#fff;font-weight:700;font-size:15px;padding:13px 26px;border-radius:999px;">直接應徵 BIM 工程師</a><a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-bim-career-path" style="display:inline-flex;align-items:center;gap:8px;background:#06c755;color:#fff;font-weight:700;font-size:15px;padding:13px 26px;border-radius:999px;">加 LINE 先問清楚</a></div></aside>
+    <aside data-exp="cta-mid-2026-09-03"><p>STEP1NE 現正招募</p><h3>這個缺現在開著：無經驗可，正職僱用</h3><p>AI 記憶體產業擴產案（苗栗銅鑼），<strong>正職僱用</strong>（不是派遣、不是約聘），優先招募 10 名。月薪 <strong>4 萬以上，實際待遇面議</strong>（依學歷與科系相關性核定）。大學以上不限科系，<strong>無經驗可</strong>——公司安排完整培訓，先到桃園楊梅受訓 1 週，進駐銅鑼廠區後有設計 PM 與設計工程師組成的團隊帶到可獨立作業。不提供宿舍，但有租屋補助每月 5,000 元；作息固定 08:30–17:30，週休二日不輪班。如果你正在考慮從路線一起步、想累積跨案型經驗，這類大型建廠案是完整走過一輪流程的機會。想先問清楚再決定也可以，不用先投履歷。</p><div><a href="/apply/?job=bim-engineer-tongluo&amp;utm_source=website&amp;utm_medium=article_cta&amp;utm_campaign=mid-bim-career-path" data-cta="mid-bim-career-path">直接應徵 BIM 工程師</a><a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-bim-career-path">加 LINE 先問清楚</a></div></aside>
 
-    <h2>三個下一步，各自要先準備什麼</h2>
+    <h2 id="sec-4">三個下一步，各自要先準備什麼</h2>
     <div class="tbl-wrap">
       <table>
         <thead><tr><th>方向</th><th>先準備什麼</th><th>常見誤區</th></tr></thead>
@@ -213,49 +288,83 @@ td strong{color:#8a5a1a;white-space:nowrap;}
     </div>
     <p class="note">以上為方向性建議，實際轉職路徑與速度仍取決於個人條件與市場當下的職缺供給，這裡不承諾特定結果。</p>
 
-    <h2>常見問題</h2>
-    <div style="display:flex;flex-direction:column;gap:12px;margin-top:20px;">
-      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
-        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
-          <span>BIM工程師做幾年該開始考慮往上跳？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
+    <h2 id="sec-5">常見問題</h2>
+    <div>
+      <details>
+        <summary>
+          <span>BIM工程師做幾年該開始考慮往上跳？</span><span class="faq-icon">+</span>
         </summary>
-        <p style="margin:0;padding:0 20px 18px;">沒有固定年限，但 2–3 年是一個常見的檢查點——這時候應該已經累積到能獨立完成模型並出圖的程度。如果做到這個階段還完全沒接觸過跨專業協調，就值得主動去爭取，而不是繼續等年資往上加。</p>
+        <p>沒有固定年限，但 2–3 年是一個常見的檢查點——這時候應該已經累積到能獨立完成模型並出圖的程度。如果做到這個階段還完全沒接觸過跨專業協調，就值得主動去爭取，而不是繼續等年資往上加。</p>
       </details>
-      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
-        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
-          <span>BIM工程師可以轉做工程專案管理（PM）嗎？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
+      <details>
+        <summary>
+          <span>BIM工程師可以轉做工程專案管理（PM）嗎？</span><span class="faq-icon">+</span>
         </summary>
-        <p style="margin:0;padding:0 20px 18px;">可以，而且做過 BIM 是明顯的加分項——你比一般 PM 更早看懂圖面上的衝突與工序卡點。實務上這類轉職通常需要補齊排程、預算與跨部門溝通的經驗，可以在原職期間就開始主動接觸這些工作。</p>
+        <p>可以，而且做過 BIM 是明顯的加分項——你比一般 PM 更早看懂圖面上的衝突與工序卡點。實務上這類轉職通常需要補齊排程、預算與跨部門溝通的經驗，可以在原職期間就開始主動接觸這些工作。</p>
       </details>
-      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
-        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
-          <span>不想往上爬、只想專心做技術，可以嗎？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
+      <details>
+        <summary>
+          <span>不想往上爬、只想專心做技術，可以嗎？</span><span class="faq-icon">+</span>
         </summary>
-        <p style="margin:0;padding:0 20px 18px;">可以。並不是每個人都要走管理或轉職路線，留在技術路線把 Revit、Navisworks、Dynamo 等工具用得更深，同樣是一條路，只是薪資成長曲線通常比走管理路線平緩。重點是自己清楚選了哪一條，而不是被動留在原地。</p>
+        <p>可以。並不是每個人都要走管理或轉職路線，留在技術路線把 Revit、Navisworks、Dynamo 等工具用得更深，同樣是一條路，只是薪資成長曲線通常比走管理路線平緩。重點是自己清楚選了哪一條，而不是被動留在原地。</p>
       </details>
-      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
-        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
-          <span>換公司比留在原公司更容易往上跳嗎？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
+      <details>
+        <summary>
+          <span>換公司比留在原公司更容易往上跳嗎？</span><span class="faq-icon">+</span>
         </summary>
-        <p style="margin:0;padding:0 20px 18px;">不一定，取決於原公司有沒有給你跨專業協調的機會。如果原公司的案子讓你一直做同一種建模、看不到升上去的路，換公司確實是常見的解法；但如果只是嫌加薪速度慢、實際上有機會爭取協調角色，先在原公司談清楚也是選項之一。</p>
+        <p>不一定，取決於原公司有沒有給你跨專業協調的機會。如果原公司的案子讓你一直做同一種建模、看不到升上去的路，換公司確實是常見的解法；但如果只是嫌加薪速度慢、實際上有機會爭取協調角色，先在原公司談清楚也是選項之一。</p>
       </details>
     </div>
 
-    <div style="margin-top:48px;text-align:center;padding:36px 28px;border-radius:20px;background:linear-gradient(150deg,rgba(166,124,61,0.12),rgba(96,128,180,0.06));border:1px solid rgba(166,124,61,0.3);">
-      <h2 style="margin-top:0;">想聊聊自己適合走哪條路？</h2>
-      <p style="margin-bottom:22px;">加入 LINE 與顧問聊聊你目前的經驗與想法，我們會依實際情況給方向性建議，也可以看看目前開放中的 BIM 與營建職缺。</p>
-      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;background:#06c755;color:#fff;font-weight:700;font-size:16px;padding:15px 32px;border-radius:999px;">加入LINE官方帳號諮詢</a>
-      <p style="margin:18px 0 0;font-size:14.5px;"><a href="/jobs/bim-engineer-tongluo/">查看 BIM 工程師職缺詳情 →</a></p><p style="margin:6px 0 22px;font-size:14.5px;"><a href="/construction/">查看更多營建工程職缺 →</a></p>
+    <div>
+      <h2 id="sec-6">想聊聊自己適合走哪條路？</h2>
+      <p>加入 LINE 與顧問聊聊你目前的經驗與想法，我們會依實際情況給方向性建議，也可以看看目前開放中的 BIM 與營建職缺。</p>
+      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">加入LINE官方帳號諮詢</a>
+      <p><a href="/jobs/bim-engineer-tongluo/">查看 BIM 工程師職缺詳情 →</a></p><p><a href="/construction/">查看更多營建工程職缺 →</a></p>
     </div>
-  <p style="margin-top:32px;font-size:14.5px;color:#8a8d95;">延伸閱讀：<a href="/articles/bim-engineer-salary/">BIM工程師薪水行情：從無經驗到資深，數字怎麼跳？</a>　·　<a href="/articles/what-is-bim-engineer/">BIM 工程師是什麼？跟繪圖員差在哪？</a>　·　<a href="/articles/bim-career-change/">沒有相關科系，可以轉職 BIM 工程師嗎？</a>　·　<a href="/articles/how-to-enter-construction-industry/">怎麼踏入營造業？非本科系新手入行指南</a></p>
-  </article>
+  <p>延伸閱讀：<a href="/articles/bim-engineer-salary/">BIM工程師薪水行情：從無經驗到資深，數字怎麼跳？</a>　·　<a href="/articles/what-is-bim-engineer/">BIM 工程師是什麼？跟繪圖員差在哪？</a>　·　<a href="/articles/bim-career-change/">沒有相關科系，可以轉職 BIM 工程師嗎？</a>　·　<a href="/articles/how-to-enter-construction-industry/">怎麼踏入營造業？非本科系新手入行指南</a></p>
+
+      
+<div class="cta">
+        <p>看完還是不確定下一步？加入 LINE 直接問顧問，或看目前開放中的職缺。</p>
+        <a class="btn-line" href="https://lin.ee/XcSWPzM">用 LINE 問顧問</a>
+      </div>
+    </article>
+  </div>
 </main>
 
-<footer style="border-top:1px solid #e6dfd1;background:#eee9de;padding:28px 0;">
-  <div class="wrap" style="text-align:center;color:#9a9da5;font-size:13px;max-width:800px;">
-    <a href="/articles/" style="color:#a67c3d;">獵才專欄</a>　|　<a href="/jobs/" style="color:#a67c3d;">職缺專區</a>　|　<a href="/" style="color:#a67c3d;">Step1ne 首頁</a>　|　© 2026 德仁管理顧問有限公司 Step1ne
-  </div>
-</footer>
 
+<footer><div class="fw">德仁管理顧問有限公司　臺北市內湖區康寧路三段 54 之 7 號 3 樓</div></footer>
+
+<script>
+// 表格加水平捲動外框，避免手機橫向溢位
+document.querySelectorAll('article table').forEach(function(t){
+  var w=document.createElement('div'); w.className='tw';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
+// 閱讀進度
+var bar=document.getElementById('bar');
+function prog(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',prog,{passive:true}); prog();
+// 目錄跟隨
+var tns=[].slice.call(document.querySelectorAll('.tn'));
+var secs=tns.map(function(a){return document.getElementById(a.dataset.s)}).filter(Boolean);
+if('IntersectionObserver' in window && secs.length){
+  var cur=null;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) cur=e.target.id; });
+    tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  },{rootMargin:'-88px 0px -70% 0px'}).observe && secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===e.target.id)}); }
+      });
+    },{rootMargin:'-88px 0px -70% 0px'}).observe(s);
+  });
+}
+</script>
 </body>
 </html>

@@ -47,10 +47,10 @@ document.addEventListener('click', function (e) {
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://step1ne.com/assets/og-work-with-headhunters.jpg">
-<meta name="theme-color" content="#f4f1ea">
+<meta name="theme-color" content="#F4F6F8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Noto+Sans+TC:wght@300;400;500;700;900&family=Noto+Serif+TC:wght@500;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
 
 <script type="application/ld+json">
 {
@@ -71,138 +71,266 @@ document.addEventListener('click', function (e) {
 </script>
 
 <style>
-*{box-sizing:border-box;}
-html,body{margin:0;padding:0;}
-body{font-family:'Noto Sans TC',system-ui,sans-serif;color:#23262d;background:#f4f1ea;-webkit-font-smoothing:antialiased;line-height:1.8;}
-a{color:#a67c3d;text-decoration:none;}
-a:hover{color:#8a6531;}
-details summary{cursor:pointer;list-style:none;}
-details summary::-webkit-details-marker{display:none;}
-details summary .faq-icon{transition:transform .3s ease;}
-details[open] summary .faq-icon{transform:rotate(45deg);}
-.wrap{max-width:760px;margin:0 auto;padding:0 24px;}
-h2{font-family:'Noto Serif TC',serif;font-size:24px;font-weight:700;color:#1c1f26;margin:44px 0 14px;line-height:1.4;}
-h3{font-size:17px;font-weight:700;color:#1c1f26;margin:26px 0 8px;}
-p{color:#3a3d44;font-size:15.5px;margin:0 0 16px;}
-table{width:100%;border-collapse:collapse;margin:16px 0 24px;font-size:14.5px;}
-th,td{border:1px solid #e6dfd1;padding:10px 12px;text-align:left;}
-th{background:#faf7f1;font-weight:700;}
-ul{padding-left:22px;color:#3a3d44;font-size:15.5px;}
-li{margin-bottom:8px;}
-@media (max-width:760px){
-  footer a{min-height:44px;display:inline-flex;align-items:center;}
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;
+  --wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:17px;line-height:1.95;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.35;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,select,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* 導覽 */
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+/* 閱讀進度 */
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
+
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
+.crumb{grid-column:1/-1;padding:22px 0 6px;font-size:13.5px;color:var(--slate-dim)}
+.crumb a{color:var(--slate)}
+.crumb a:hover{color:var(--brand-deep)}
+.crumb span{margin:0 8px;color:var(--rule)}
+
+/* 目錄軌：沿用全站 signature */
+.toc{position:sticky;top:92px;padding:8px 0 40px}
+.toc h2{font-size:13px;font-weight:700;color:var(--slate-dim);letter-spacing:.02em;margin-bottom:16px}
+.tns{position:relative;padding-left:22px}
+.tns::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.14))}
+.tn{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:14px;color:var(--slate);line-height:1.6;position:relative}
+.tn i{position:absolute;left:-22px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--rule);flex:0 0 auto}
+.tn:hover{color:var(--brand-deep)}
+.tn:hover i{border-color:var(--brand)}
+.tn.on{color:var(--ink);font-weight:700}
+.tn.on i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 4px rgba(46,169,223,.2)}
+.mtoc{display:none;margin:20px 0 0;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.mtoc summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15.5px;position:relative}
+.mtoc summary::-webkit-details-marker{display:none}
+.mtoc summary::after{content:"";position:absolute;right:20px;top:24px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.mtoc[open] summary::after{transform:rotate(-135deg)}
+.mtoc div{padding:0 18px 14px}
+.mtoc a{display:block;padding:9px 0;font-size:15px;color:var(--slate);border-top:1px solid var(--rule)}
+
+/* 文章本體 */
+article{padding:14px 0 60px;max-width:70ch}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--brand-deep);background:rgba(22,126,178,.07);border:1px solid rgba(22,126,178,.25);border-radius:5px;padding:4px 11px}
+article h1{margin-top:16px;font-size:clamp(28px,4.2vw,42px);line-height:1.28;letter-spacing:-.02em}
+.by{margin-top:18px;padding-bottom:20px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14px;color:var(--slate-dim)}
+.by a{color:var(--slate);border-bottom:1px solid var(--rule)}
+.by .d{font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+
+/* ★ Signature：直接答案 */
+.ans{margin-top:30px;background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:26px 30px}
+.ans .lab{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:10px}
+.ans p{font-size:19.5px;line-height:1.85;font-weight:500}
+.ans strong{font-weight:900}
+
+article h2{margin:52px 0 16px;font-size:25px;scroll-margin-top:92px}
+article h3{margin:34px 0 10px;font-size:19px}
+article h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-right:12px;border-radius:8px;background:var(--brand);color:#fff;font-family:var(--f-disp);font-size:17px;font-weight:700;vertical-align:2px}
+article p{margin-top:16px}
+article strong{font-weight:700}
+article a:not(.tn){color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.32)}
+article a:not(.tn):hover{border-bottom-color:var(--brand-deep)}
+article ul,article ol{margin:16px 0 0;padding-left:1.4em}
+article li{margin-top:9px}
+article table{width:100%;border-collapse:collapse;margin-top:22px;font-size:15.5px;background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+article th{text-align:left;background:var(--paper);font-weight:700;font-size:14px;color:var(--slate);padding:12px 14px;border-bottom:1px solid var(--rule)}
+article td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.75}
+article tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+article details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+article details summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+article details summary::-webkit-details-marker{display:none}
+article details summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+article details[open] summary::after{transform:rotate(-135deg)}
+article details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid var(--rule);color:var(--slate)}
+
+.foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
+.cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
+footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+.fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.note{max-width:var(--wrap);margin:0 auto 46px;padding-inline:var(--gut)}
+.note div{background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid #B45309;border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.note b{color:#5A3D0C}
+
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .mtoc{display:block}
 }
 @media (max-width:760px){
-  .s1ne-hide-m{display:none !important;}
-  .s1ne-show-m{display:flex !important;}
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  body{font-size:16.5px}
+  .ans{padding:22px;border-radius:0 8px 8px 0}
+  .ans p{font-size:18px}
+  article h2{font-size:22px;margin-top:42px}
 }
-.s1ne-show-m{display:none;}
-.s1ne-mobile-menu{display:none;flex-direction:column;padding:4px 24px 16px;border-top:1px solid #e6dfd1;background:rgba(244,241,234,0.98);}
-.s1ne-mobile-menu.is-open{display:flex;}
-.s1ne-mobile-menu a{padding:10px 0;color:#4a4d55;font-size:15px;border-bottom:1px solid #e6dfd1;min-height:44px;display:flex;align-items:center;}
-.s1ne-mobile-menu a:last-child{border-bottom:none;}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
 </style>
 </head>
-<body>
 
-<header style="position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:rgba(244,241,234,0.9);border-bottom:1px solid #e6dfd1;">
-  <div class="wrap" style="display:flex;align-items:center;justify-content:space-between;gap:20px;height:68px;max-width:1180px;">
-    <a href="/" style="display:flex;align-items:center;gap:12px;color:#23262d;">
-      <img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問" style="height:38px;width:auto;">
-    </a>
-    <div class="s1ne-hide-m" style="display:flex;align-items:center;gap:28px;font-size:15px;color:#4a4d55;">
-      <a href="/jobs/" style="color:#4a4d55;">職缺專區</a>
-      <a href="/articles/" style="color:#4a4d55;">獵才專欄</a>
-      <a href="/talent/" style="color:#4a4d55;">全民獵才</a>
-      <a href="/talent/ai-tools/" style="color:#4a4d55;">AI求職工具</a>
-      <a href="/about/" style="color:#4a4d55;">關於我們</a>
-    </div>
-    <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" class="s1ne-hide-m" style="background:#06c755;color:#fff;font-weight:700;font-size:13.5px;padding:9px 18px;border-radius:999px;">LINE 洽詢</a>
-    <button type="button" class="s1ne-show-m" onclick="document.getElementById('s1ne-mmenu').classList.toggle('is-open')" aria-label="開啟選單" style="align-items:center;justify-content:center;width:40px;height:40px;border:1px solid #e6dfd1;border-radius:10px;background:#fff;flex-shrink:0;">
-      <span style="display:block;width:18px;height:2px;background:#23262d;box-shadow:0 6px 0 #23262d,0 -6px 0 #23262d;"></span>
-    </button>
-  </div>
-  <div id="s1ne-mmenu" class="s1ne-mobile-menu" onclick="if(event.target.closest('a'))this.classList.remove('is-open')">
-    <a href="/">首頁</a>
-    <a href="/jobs/">職缺專區</a>
-    <a href="/articles/">獵才專欄</a>
-    <a href="/talent/">全民獵才</a>
-    <a href="/talent/ai-tools/">AI求職工具</a>
-    <a href="/about/">關於我們</a>
-    <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="color:#a67c3d;font-weight:700;">LINE 洽詢 →</a>
+<body>
+<div id="bar"></div>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/"><img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問"><b>德仁管理顧問</b></a>
+    <nav class="hd-nav">
+      <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a class="on" href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
+    <button class="hd-burger" type="button" aria-label="開啟選單"><span></span></button>
   </div>
 </header>
 
-<main>
-  <article class="wrap" style="padding:40px 24px 24px;">
-    <div style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:2px;color:#a67c3d;text-transform:uppercase;margin-bottom:16px;">企業獵才指南</div>
-    <h1 style="font-family:'Noto Serif TC',serif;font-weight:700;font-size:clamp(26px,4vw,38px);line-height:1.35;margin:0 0 20px;color:#1c1f26;">台灣企業怎麼跟獵頭合作？合作管道、收費方式一次搞懂</h1>
+<main class="shell">
+  <nav class="crumb" aria-label="麵包屑"><a href="/">首頁</a><span>/</span><a href="/articles/">獵才專欄</a><span>/</span>台灣企業怎麼跟獵頭合作？合作管道、收費方式一次搞懂</nav>
 
-    <p class="aeo-byline" style="font-size:14px;color:#6b6f78;margin:0 0 20px;padding-bottom:14px;border-bottom:1px solid #e6dfd1;"><span>作者：<a href="/about/" style="color:#6b6f78;">Step1ne 獵才顧問團隊</a></span><span style="margin:0 8px;">·</span><time datetime="2026-07-27">發布於 2026-07-27</time></p>
-    <p style="font-size:17px;color:#3a3d44;background:#fff;border:1px solid #e6dfd1;border-radius:14px;padding:20px 22px;">
-      <strong>直接答案：</strong>台灣獵頭公司多採「成功後收費」的委任制，費用通常是錄取人選年薪的20%-33%，於人選到職後結算；合作管道分為委任型獵頭（主動出擊、鎖定被動人選）與人力銀行刊登（被動等應徵）兩種，關鍵職位、機密職位或急件招募適合找獵頭，一般大量開缺則可兩種管道並行。
-    </p>
+  <aside class="toc" aria-label="本文目錄">
+    <h2>本文共 6 個段落</h2>
+    <div class="tns"><a class="tn" href="#sec-1" data-s="sec-1"><i></i><span>什麼時候該找獵頭，不只發 104？</span></a>
+<a class="tn" href="#sec-2" data-s="sec-2"><i></i><span>台灣獵頭的合作管道有哪些？</span></a>
+<a class="tn" href="#sec-3" data-s="sec-3"><i></i><span>獵頭收費怎麼算？</span></a>
+<a class="tn" href="#sec-4" data-s="sec-4"><i></i><span>Step1ne 如何協助企業獵才</span></a>
+<a class="tn" href="#sec-5" data-s="sec-5"><i></i><span>常見問題</span></a>
+<a class="tn" href="#sec-6" data-s="sec-6"><i></i><span>想找獵頭合作，先聊聊看</span></a></div>
+  </aside>
 
-    <h2>什麼時候該找獵頭，不只發 104？</h2>
+  <div>
+    <details class="mtoc"><summary>本文目錄（6 段）</summary><div><a href="#sec-1">什麼時候該找獵頭，不只發 104？</a>
+<a href="#sec-2">台灣獵頭的合作管道有哪些？</a>
+<a href="#sec-3">獵頭收費怎麼算？</a>
+<a href="#sec-4">Step1ne 如何協助企業獵才</a>
+<a href="#sec-5">常見問題</a>
+<a href="#sec-6">想找獵頭合作，先聊聊看</a></div></details>
+    <article>
+      <span class="tag">企業獵才指南</span>
+      <h1>台灣企業怎麼跟獵頭合作？合作管道、收費方式一次搞懂</h1>
+      <div class="by">
+        <span>作者：<a href="/about/">Step1ne 獵才顧問團隊</a></span>
+        <time class="d" datetime="2026-07-27">發布於 2026-07-27</time>
+        <span class="d">約 4 分鐘</span>
+      </div>
+
+      <div class="ans">
+        <div class="lab">直接答案</div>
+        <p>台灣獵頭公司多採「成功後收費」的委任制，費用通常是錄取人選年薪的20%-33%，於人選到職後結算；合作管道分為委任型獵頭（主動出擊、鎖定被動人選）與人力銀行刊登（被動等應徵）兩種，關鍵職位、機密職位或急件招募適合找獵頭，一般大量開缺則可兩種管道並行。</p>
+      </div>
+
+      <h2 id="sec-1">什麼時候該找獵頭，不只發 104？</h2>
     <p>人力銀行刊登職缺，等的是「正在主動求職」的人主動應徵；但企業真正想要的關鍵人才，往往已經在職、沒有在看 104——這群人只能靠獵頭主動接觸、保密評估才觸及得到。當職缺符合以下任一情況，找獵頭通常比單靠人力銀行更有效率：職位機密不能公開刊登、需要特定稀有技能或產業經驗、急需在短時間內大量補齊人力、過去自行招募多次都找不到合適人選。</p>
 
-    <h2>台灣獵頭的合作管道有哪些？</h2>
+    <h2 id="sec-2">台灣獵頭的合作管道有哪些？</h2>
     <h3>委任型獵頭（Retained / Contingency Search）</h3>
     <p>企業委任獵頭顧問主動出擊，鎖定特定產業與職能的被動人選，保密進行接觸與評估。委任又分兩種：Retained（預付部分費用，獵頭優先服務、深度投入）與 Contingency（成功媒合到職才收費，企業風險較低，但獵頭資源分配可能不如 Retained 集中）。台灣中小企業與多數職缺以 Contingency 為主流。</p>
     <h3>人力派遣</h3>
     <p>企業不直接雇用，改由派遣公司（如 Step1ne）與員工簽訂勞動契約，負擔薪資與勞健保，企業僅負責現場工作指揮，適合彈性人力調度、專案型人力需求或建廠等短期戰力補充。使用派遣前務必確認流程合規，詳見 <a href="/articles/dispatch-legal-risks/">企業用派遣最容易踩的法律地雷：勞基法 17-1 條</a>。</p>
 
-    <h2>獵頭收費怎麼算？</h2>
+    <h2 id="sec-3">獵頭收費怎麼算？</h2>
     <p>以下是收費結構的基本說明；哪些條件真的可以談、報價單上看不到的隱藏變數，另見 <a href="/articles/headhunter-fees/">獵頭公司收費怎麼算？費率之外，你更該談的四件事</a>。</p>
     <p>台灣獵頭多採「成功後收費」，費用以錄取人選的年薪為基準計算比例，市場常見區間落在 20%-33% 之間，職位層級越高、越稀缺，比例通常越高。收費時機通常是人選到職後結算，部分合約會約定保固期（人選到職後一定期間內離職，獵頭需免費替補）。委任前務必請獵頭書面明訂收費比例、計算基準（是否含獎金/股票）與保固條件，避免事後認知落差。</p>
 
     <p>合作對象怎麼挑，不是這篇的重點——如果你還在比較階段，完整的 7 個判斷標準跟可以直接拿去問的句子，看
       <a href="/articles/how-to-choose-headhunter/">怎麼挑台灣獵頭公司？7 個可以實際驗證的判斷標準</a>。這篇談的是<strong>選定合作對象之後</strong>，實際怎麼把流程跟合約談清楚。</p>
 
-    <h2>Step1ne 如何協助企業獵才</h2>
+    <h2 id="sec-4">Step1ne 如何協助企業獵才</h2>
     <p>Step1ne（德仁管理顧問有限公司，統一編號85046127，北市就服字第0363號）提供高階獵頭、正職招募與人力派遣三種服務，以自研 AI 精準媒合系統結合萬筆菁英人才資料庫，從職能、產業經驗、資歷軌跡等多維度演算契合度，任用率達 8 成以上。急件大量招募時，可同步啟動既有資料庫、內部推薦、人力銀行主動搜尋、LinkedIn 與在地社群等多管道，不把速度綁死在單一來源上。</p>
 
-    <aside data-exp="cta-mid-2026-08-06" style="margin:38px 0;padding:24px 26px;border-radius:16px;background:linear-gradient(150deg,rgba(166,124,61,0.10),rgba(96,128,180,0.05));border:1px solid rgba(166,124,61,0.28);"><p style="margin:0 0 8px;font-family:'Space Mono',monospace;font-size:11.5px;letter-spacing:.14em;color:#a67c3d;">企業方請看這裡</p><h3 style="margin:0 0 10px;font-size:19px;line-height:1.4;">你手上的缺，我們可以先報一個實際的數字給你</h3><p style="margin:0 0 18px;font-size:15px;line-height:1.75;color:#4a4d55;">把職稱、薪資帶、卡多久了講一下，我們會直接回覆這個缺大概要多少費用、多久找得到人，以及——如果我們認為這個缺根本不該用獵頭，也會直接跟你講。報價不用錢，也不用先簽任何東西。</p><div style="display:flex;flex-wrap:wrap;gap:12px;"><a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-client" style="display:inline-flex;align-items:center;gap:8px;background:#06c755;color:#fff;font-weight:700;font-size:15px;padding:13px 26px;border-radius:999px;">加 LINE 談委託找人</a></div></aside><h2 style="margin-top:44px;">常見問題</h2>
-    <div style="display:flex;flex-direction:column;gap:12px;margin-top:20px;">
-      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
-        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
-          <span>獵頭公司跟人力銀行差在哪？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
+    <aside data-exp="cta-mid-2026-08-06"><p>企業方請看這裡</p><h3>你手上的缺，我們可以先報一個實際的數字給你</h3><p>把職稱、薪資帶、卡多久了講一下，我們會直接回覆這個缺大概要多少費用、多久找得到人，以及——如果我們認為這個缺根本不該用獵頭，也會直接跟你講。報價不用錢，也不用先簽任何東西。</p><div><a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-client">加 LINE 談委託找人</a></div></aside><h2 id="sec-5">常見問題</h2>
+    <div>
+      <details>
+        <summary>
+          <span>獵頭公司跟人力銀行差在哪？</span><span class="faq-icon">+</span>
         </summary>
-        <p style="margin:0;padding:0 20px 18px;">人力銀行是被動刊登、廣撒履歷，等求職者主動應徵；獵頭是主動出擊，由顧問鎖定特定產業與職能的被動人選（在職中、未公開求職者），保密進行接觸與評估，適合關鍵與機密職位。</p>
+        <p>人力銀行是被動刊登、廣撒履歷，等求職者主動應徵；獵頭是主動出擊，由顧問鎖定特定產業與職能的被動人選（在職中、未公開求職者），保密進行接觸與評估，適合關鍵與機密職位。</p>
       </details>
-      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
-        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
-          <span>獵頭費用大概是多少？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
+      <details>
+        <summary>
+          <span>獵頭費用大概是多少？</span><span class="faq-icon">+</span>
         </summary>
-        <p style="margin:0;padding:0 20px 18px;">市場常見區間為錄取人選年薪的20%-33%，實際比例依職位層級、稀缺程度與獵頭公司而異，於人選到職後結算，建議簽約前以書面明訂計算基準與保固條件。</p>
+        <p>市場常見區間為錄取人選年薪的20%-33%，實際比例依職位層級、稀缺程度與獵頭公司而異，於人選到職後結算，建議簽約前以書面明訂計算基準與保固條件。</p>
       </details>
-      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
-        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
-          <span>沒有成功媒合到職，需要付費嗎？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
+      <details>
+        <summary>
+          <span>沒有成功媒合到職，需要付費嗎？</span><span class="faq-icon">+</span>
         </summary>
-        <p style="margin:0;padding:0 20px 18px;">多數台灣獵頭採「成功後收費」（Contingency）模式，未成功媒合到職原則上不收費；若採 Retained 模式則會有預付訂金，簽約前務必確認採用哪一種計費方式。</p>
+        <p>多數台灣獵頭採「成功後收費」（Contingency）模式，未成功媒合到職原則上不收費；若採 Retained 模式則會有預付訂金，簽約前務必確認採用哪一種計費方式。</p>
       </details>
-      <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
-        <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;">
-          <span>怎麼確認一間獵頭公司是合法的？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
+      <details>
+        <summary>
+          <span>怎麼確認一間獵頭公司是合法的？</span><span class="faq-icon">+</span>
         </summary>
-        <p style="margin:0;padding:0 20px 18px;">台灣的人才服務業者需取得地方政府核發的就業服務許可證字號，可直接請對方提供統一編號與許可證字號，並至經濟部商工登記公示資料查詢系統核對公司狀態是否正常營業。</p>
+        <p>台灣的人才服務業者需取得地方政府核發的就業服務許可證字號，可直接請對方提供統一編號與許可證字號，並至經濟部商工登記公示資料查詢系統核對公司狀態是否正常營業。</p>
       </details>
     </div>
 
-    <div style="margin-top:48px;text-align:center;padding:36px 28px;border-radius:20px;background:linear-gradient(150deg,rgba(166,124,61,0.12),rgba(96,128,180,0.06));border:1px solid rgba(166,124,61,0.3);">
-      <h2 style="margin-top:0;">想找獵頭合作，先聊聊看</h2>
-      <p style="margin-bottom:22px;">留下需求，Step1ne 顧問會盡快與你聯繫，說明合作方式與收費模式。</p>
-      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;background:#06c755;color:#fff;font-weight:700;font-size:16px;padding:15px 32px;border-radius:999px;">加入LINE官方帳號洽詢</a>
+    <div>
+      <h2 id="sec-6">想找獵頭合作，先聊聊看</h2>
+      <p>留下需求，Step1ne 顧問會盡快與你聯繫，說明合作方式與收費模式。</p>
+      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">加入LINE官方帳號洽詢</a>
     </div>
-  </article>
+
+      
+<div class="cta">
+        <p>看完還是不確定下一步？加入 LINE 直接問顧問，或看目前開放中的職缺。</p>
+        <a class="btn-line" href="https://lin.ee/XcSWPzM">用 LINE 問顧問</a>
+      </div>
+    </article>
+  </div>
 </main>
 
-<footer style="border-top:1px solid #e6dfd1;background:#eee9de;padding:28px 0;">
-  <div class="wrap" style="text-align:center;color:#9a9da5;font-size:13px;max-width:800px;">
-    <a href="/" style="color:#a67c3d;">← 回 Step1ne 首頁</a>　|　© 2026 德仁管理顧問有限公司 Step1ne
-  </div>
-</footer>
 
+<footer><div class="fw">德仁管理顧問有限公司　臺北市內湖區康寧路三段 54 之 7 號 3 樓</div></footer>
+
+<script>
+// 表格加水平捲動外框，避免手機橫向溢位
+document.querySelectorAll('article table').forEach(function(t){
+  var w=document.createElement('div'); w.className='tw';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
+// 閱讀進度
+var bar=document.getElementById('bar');
+function prog(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',prog,{passive:true}); prog();
+// 目錄跟隨
+var tns=[].slice.call(document.querySelectorAll('.tn'));
+var secs=tns.map(function(a){return document.getElementById(a.dataset.s)}).filter(Boolean);
+if('IntersectionObserver' in window && secs.length){
+  var cur=null;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) cur=e.target.id; });
+    tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  },{rootMargin:'-88px 0px -70% 0px'}).observe && secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===e.target.id)}); }
+      });
+    },{rootMargin:'-88px 0px -70% 0px'}).observe(s);
+  });
+}
+</script>
 </body>
 </html>
