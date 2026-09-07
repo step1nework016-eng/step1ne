@@ -1048,22 +1048,21 @@ function openDrawer(appId, kind) {
     var prepHtml;
     // 2026-09-04 加：三階段管線第一階段——新增人選當下（有履歷檔的話）AI就先
     // 準備好的「人選狀況快速摘要＋建議電洽問題」，讓顧問還沒打電話/還沒看阿財
-    // 報告之前就有底。
+    // 報告之前就有底。2026-09-07 改：這個自動生成失敗或條件不符（走真面談
+    // 進來、報告還沒出來的人選）就永遠沒有東西、也沒有按鈕能補——周海暉事件
+    // 發現的缺口。現在不管有沒有內容都固定顯示一顆「產生／重新產生」按鈕
+    // （id="callPrepGenBtn2"，對齊 /admin/application/:id/call-prep-generate，
+    // 履歷+JD必讀，有 report_id 才會一併帶逐字稿），不再區分 report_id 有無。
+    var genBtnHtml = '<div class="acts" style="margin-top:10px"><button class="btn' + (c.call_prep_md ? '' : ' p') + '" id="callPrepGenBtn2" type="button">' + (c.call_prep_md ? '重新產生' : '產生電洽前準備') + '</button><span class="mut" id="callPrepGenMsg2" style="margin-left:6px"></span></div>';
     if (c.call_prep_md) {
       prepHtml = '<div style="border:1px solid var(--line);background:var(--soft);border-radius:10px;padding:12px 14px;font-size:13.5px;line-height:1.8;white-space:pre-wrap">' +
         String(c.call_prep_md).split('\n').map(function (line) {
-          return /^(人選狀況快速摘要|建議電洽問題)$/.test(line.trim())
+          return /^(人選狀況快速摘要|建議電洽問題|工作介紹重點|人選可能問的問題與建議回覆)$/.test(line.trim())
             ? '<b style="color:var(--gold);display:block;margin-top:8px">' + esc(line.trim()) + '</b>'
             : (line.trim() ? esc(line) : '');
-        }).join('\n') + '</div>';
-    } else if (c.report_id) {
-      // 2026-09-07 加：走真面談進來的人選（不是手動新增）本來就不會觸發
-      // 上面那顆按鈕，但報告已經產生了——給顧問一顆補生成的按鈕。
-      prepHtml = '<div id="callPrepGenSec"><div class="subhint" style="margin:0 0 8px">這位人選已經有阿財面談報告，可以直接依報告內容整理一份電洽補問清單。</div>' +
-        '<div class="acts"><button class="btn p" id="callPrepGenBtn" type="button">依面談報告產生</button></div>' +
-        '<div id="callPrepGenMsg" class="mut" style="margin-top:6px"></div></div>';
+        }).join('\n') + '</div>' + genBtnHtml;
     } else {
-      prepHtml = '<p class="mut" style="margin:0">目前沒有電洽前準備資料。</p>';
+      prepHtml = '<p class="mut" style="margin:0 0 4px">目前沒有電洽前準備資料。</p>' + genBtnHtml;
     }
     html += '<div class="sec" id="callSec"><h4>電洽</h4>' +
       '<div class="calltabs" id="callTabs"><div class="calltab on" data-calltab="prep">電洽前準備</div><div class="calltab" data-calltab="log">電洽內容</div></div>' +
@@ -1670,14 +1669,17 @@ function wireDrawer(c, appId) {
       };
     });
   };
-  var callPrepGenBtn = $('callPrepGenBtn');
-  if (callPrepGenBtn) callPrepGenBtn.onclick = function () {
-    callPrepGenBtn.disabled = true; $('callPrepGenMsg').textContent = '產生中…';
-    api('/admin/application/' + encodeURIComponent(appId) + '/call-prep-from-report', { method: 'POST' })
+  // 2026-09-07 加：不管有沒有履歷/報告都固定顯示的「產生／重新產生電洽前準備」
+  // 按鈕，對齊新端點 /admin/application/:id/call-prep-generate（履歷+JD必讀，
+  // 有 report_id 才會一併帶逐字稿，後端自己判斷，前端不用先檢查條件）。
+  var callPrepGenBtn2 = $('callPrepGenBtn2');
+  if (callPrepGenBtn2) callPrepGenBtn2.onclick = function () {
+    callPrepGenBtn2.disabled = true; $('callPrepGenMsg2').textContent = '產生中…';
+    api('/admin/application/' + encodeURIComponent(appId) + '/call-prep-generate', { method: 'POST' })
     .then(function (r) {
-      if (!r.ok) { callPrepGenBtn.disabled = false; $('callPrepGenMsg').textContent = r.error || '產生失敗'; return; }
+      if (!r.ok) { callPrepGenBtn2.disabled = false; $('callPrepGenMsg2').textContent = r.error || '產生失敗'; return; }
       loadAndOpen(appId);
-    }).catch(function () { callPrepGenBtn.disabled = false; $('callPrepGenMsg').textContent = '連線失敗'; });
+    }).catch(function () { callPrepGenBtn2.disabled = false; $('callPrepGenMsg2').textContent = '連線失敗'; });
   };
 }
 
