@@ -748,7 +748,7 @@ function openSourcedDrawer(c) {
   });
   var cfb2 = $('clientFormalBtn');
   if (cfb2) cfb2.onclick = function () { openClientFormalModal(c.sourced_id, 'sourced'); };
-  wireClientFormalReportLinks();
+  wireClientFormalReportLinks(c.sourced_id);
 }
 
 // 2026-09-02 加：已存檔的客戶版履歷，預覽（開新分頁看）／下載PDF（開新
@@ -785,12 +785,36 @@ function openOrDownloadClientFormal(id, wantDownload) {
     w.document.close();
   });
 }
-function wireClientFormalReportLinks() {
+function wireClientFormalReportLinks(appId) {
   Array.prototype.forEach.call(document.querySelectorAll('.cfrPreview'), function (a) {
     a.onclick = function (ev) { ev.preventDefault(); openOrDownloadClientFormal(a.dataset.id, false); };
   });
   Array.prototype.forEach.call(document.querySelectorAll('.cfrDownload'), function (a) {
     a.onclick = function (ev) { ev.preventDefault(); openOrDownloadClientFormal(a.dataset.id, true); };
+  });
+  // 2026-09-07 加：顧問把AI草稿拿去調整過後，把正確版的PDF傳回來——存進
+  // client_formal_reports 並標記 consultant_confirmed_at，企業 portal 才會
+  // 開始顯示這份。appId 由呼叫端（openDrawer／openSourcedDrawer）傳進來。
+  Array.prototype.forEach.call(document.querySelectorAll('.cfrUploadInput'), function (inp) {
+    inp.onchange = function () {
+      var file = inp.files[0];
+      if (!file) return;
+      var companyId = inp.dataset.co;
+      var msgEl = document.querySelector('.cfrUploadMsg[data-co="' + companyId + '"]');
+      if (msgEl) msgEl.textContent = '上傳中…';
+      var reader = new FileReader();
+      reader.onload = function () {
+        var b64 = String(reader.result).split(',')[1] || '';
+        api('/admin/client-formal-reports/confirm-upload', {
+          method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ application_id: appId, company_id: companyId, pdf_b64: b64, filename: file.name }),
+        }).then(function (r) {
+          if (!r.ok) { if (msgEl) msgEl.textContent = r.error || '上傳失敗'; return; }
+          loadAndOpen(appId);
+        }).catch(function () { if (msgEl) msgEl.textContent = '連線失敗'; });
+      };
+      reader.readAsDataURL(file);
+    };
   });
 }
 
@@ -983,6 +1007,14 @@ function openDrawer(appId, kind) {
           ? '<b style="color:var(--gold);display:block;margin-top:8px">' + esc(line.trim()) + '</b>'
           : (line.trim() ? esc(line) : '');
       }).join('\n') + '</div></div>';
+  } else if (c.report_id) {
+    // 2026-09-07 加：走真面談進來的人選（不是手動新增）本來就不會觸發
+    // 上面那顆按鈕，但報告已經產生了——給顧問一顆補生成的按鈕，直接
+    // 用面談報告本身整理成同一種格式，不用等下次改版才有。
+    html += '<div class="sec" id="callPrepGenSec" style="border-left:3px solid var(--gold)"><h4>📋 電洽前準備</h4>' +
+      '<div class="subhint" style="margin:0 0 8px">這位人選已經有阿財面談報告，可以直接依報告內容整理一份電洽補問清單。</div>' +
+      '<div class="acts"><button class="btn p" id="callPrepGenBtn" type="button">依面談報告產生</button></div>' +
+      '<div id="callPrepGenMsg" class="mut" style="margin-top:6px"></div></div>';
   }
 
   // 2026-09-01 改：電洽內容原本的輸入框（文字＋拖曳上傳）直接佔在卡片上，
@@ -1025,16 +1057,30 @@ function openDrawer(appId, kind) {
   // 「製作客戶版履歷」按鈕還是留著（開彈窗可以重新產生／換公司），這裡只是
   // 多顯示「已經做過的」讓顧問一眼看到，不用每次都得先點進去才知道有沒有。
   var existingFormalReports = (c.placements || []).filter(function (pl) { return pl.client_formal_report; });
+  // 2026-09-07 加：AI 產完的是草稿，企業 portal 只認顧問上傳過的「確認版」
+  // （見 confirm_at／confirm-upload 端點）——這裡分三種狀態顯示：本機處理中／
+  // 草稿待上傳（顧問還沒點頭，企業看不到）／已確認（企業已經看得到）。
+  // 「⬆️ 上傳確認版」不管草稿在不在都給按，讓顧問可以直接跳過草稿、
+  // 自己準備好的正確版直接上傳。
   html += '<div class="sec"><h4>客戶版履歷</h4>' +
     existingFormalReports.map(function (pl) {
-      if (pl.client_formal_report.pending) {
-        return '<div style="margin-bottom:6px;font-size:12.5px">⏳ ' + esc(pl.client_name) + ' ' +
-          '<span class="badge" style="font-size:11px">本機處理中…</span></div>';
+      var cfr = pl.client_formal_report;
+      var statusHtml;
+      if (cfr.pending) {
+        statusHtml = '<span class="badge" style="font-size:11px">本機處理中…</span>';
+      } else if (cfr.confirmed_at) {
+        statusHtml = '<span class="badge b-forward" style="font-size:11px">已確認・企業看得到・' + esc(String(cfr.confirmed_at).slice(0, 16)) + '</span> ' +
+          '<a href="#" class="cfrPreview" data-id="' + esc(cfr.id) + '" style="font-size:12px;margin-left:4px">預覽</a> ' +
+          '<a href="#" class="cfrDownload" data-id="' + esc(cfr.id) + '" style="font-size:12px;margin-left:4px">下載PDF</a>';
+      } else {
+        statusHtml = '<span class="badge b-more" style="font-size:11px">AI草稿・' + esc(String(cfr.generated_at).slice(0, 16)) + '・企業還看不到</span> ' +
+          '<a href="#" class="cfrPreview" data-id="' + esc(cfr.id) + '" style="font-size:12px;margin-left:4px">預覽</a> ' +
+          '<a href="#" class="cfrDownload" data-id="' + esc(cfr.id) + '" style="font-size:12px;margin-left:4px">下載PDF</a>';
       }
-      return '<div style="margin-bottom:6px;font-size:12.5px">📄 ' + esc(pl.client_name) + ' ' +
-        '<span class="badge b-forward" style="font-size:11px">已完成・' + esc(String(pl.client_formal_report.generated_at).slice(0, 16)) + '</span> ' +
-        '<a href="#" class="cfrPreview" data-id="' + esc(pl.client_formal_report.id) + '" style="font-size:12px;margin-left:4px">預覽</a> ' +
-        '<a href="#" class="cfrDownload" data-id="' + esc(pl.client_formal_report.id) + '" style="font-size:12px;margin-left:4px">下載PDF</a></div>';
+      return '<div style="margin-bottom:8px;font-size:12.5px">📄 ' + esc(pl.client_name) + ' ' + statusHtml + ' ' +
+        '<label class="btn" style="font-size:11.5px;padding:3px 10px;margin-left:4px;cursor:pointer;display:inline-block">⬆️ 上傳確認版' +
+        '<input type="file" accept="application/pdf" class="cfrUploadInput" data-co="' + esc(pl.company_id) + '" style="display:none"></label>' +
+        '<span class="mut cfrUploadMsg" data-co="' + esc(pl.company_id) + '" style="margin-left:6px"></span></div>';
     }).join('') +
     '<div class="acts"><button class="btn p" id="clientFormalBtn" type="button">📄 製作客戶版履歷</button></div></div>';
 
@@ -1416,7 +1462,7 @@ function wireDrawer(c, appId) {
   };
   var cfb = $('clientFormalBtn');
   if (cfb) cfb.onclick = function () { openClientFormalModal(appId); };
-  wireClientFormalReportLinks();
+  wireClientFormalReportLinks(appId);
   // 面談逐字稿——Jacky 明確要求併進「初篩」這個區塊裡（本來獨立在舊版
   // 「初篩報告」頁才看得到），現點現拉，不是每次開卡片都先載入，減少
   // 沒必要的資料量。電訪產的報告沒有逐字稿（顧問打字整理，不是阿財問答），
@@ -1541,6 +1587,15 @@ function wireDrawer(c, appId) {
         navigator.clipboard.writeText(r.assessment_url).then(function () { $('assessLinkCopy').textContent = '已複製'; });
       };
     });
+  };
+  var callPrepGenBtn = $('callPrepGenBtn');
+  if (callPrepGenBtn) callPrepGenBtn.onclick = function () {
+    callPrepGenBtn.disabled = true; $('callPrepGenMsg').textContent = '產生中…';
+    api('/admin/application/' + encodeURIComponent(appId) + '/call-prep-from-report', { method: 'POST' })
+    .then(function (r) {
+      if (!r.ok) { callPrepGenBtn.disabled = false; $('callPrepGenMsg').textContent = r.error || '產生失敗'; return; }
+      loadAndOpen(appId);
+    }).catch(function () { callPrepGenBtn.disabled = false; $('callPrepGenMsg').textContent = '連線失敗'; });
   };
 }
 

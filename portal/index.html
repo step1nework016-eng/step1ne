@@ -430,7 +430,6 @@ button.sec{background:#fff;color:var(--ink2);border:1px solid var(--line)}
           <div class="cm-section">
             <h4>文件與表單</h4>
             <div class="cm-file-grid" id="cmFiles"></div>
-            <div class="report-box" id="cmReportBox" hidden style="margin-top:10px"></div>
           </div>
         </div>
         <div>
@@ -1916,17 +1915,18 @@ function openCandModal(appId){
     fileItem('📄', '履歷', c.has_resume
       ? `<a class="cm-fbtn" href="${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(c.application_id)}/resume" target="_blank" rel="noopener">↓ 下載</a>`
       : `<span class="wait">尚未提供</span>`),
+    // 2026-09-07 改：原本按鈕會 fetch 內容再展開文字框，讀的是舊版
+    // reports.content_client_md（新版PDF管線上線後沒人寫入，永遠是空的）。
+    // 改成跟履歷下載同一種直接連結，指向顧問上傳確認過的 PDF——見
+    // /portal/:token/candidates/:id/report 端點的改動說明。
     fileItem('📊', '初篩報告摘要', c.has_client_report
-      ? `<button type="button" class="cm-fbtn" id="cmReportBtn">👁 查看</button>`
+      ? `<a class="cm-fbtn" href="${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(c.application_id)}/report" target="_blank" rel="noopener">👁 查看</a>`
       : `<span class="wait">顧問還在準備</span>`),
     ...(c.forms || []).map(f => fileItem('📋', f.form_name, f.status === 'submitted'
       ? `<a class="cm-fbtn" href="${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(c.application_id)}/form/${encodeURIComponent(f.id)}" target="_blank" rel="noopener">↓ 下載</a>`
       : `<span class="wait">等人選填寫中</span>`)),
   ].join('');
   document.getElementById('cmFiles').innerHTML = filesHtml;
-  const reportBtn = document.getElementById('cmReportBtn');
-  if (reportBtn) reportBtn.addEventListener('click', cmToggleReport);
-  document.getElementById('cmReportBox').hidden = true;
 
   if (c.client_rejected_at){
     document.getElementById('cmUpdateBox').innerHTML = `
@@ -1962,23 +1962,6 @@ function closeCandModal(){
 document.getElementById('cmClose').addEventListener('click', closeCandModal);
 document.getElementById('candModalMask').addEventListener('click', (e) => { if (e.target.id === 'candModalMask') closeCandModal(); });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeCandModal(); });
-
-async function cmToggleReport(){
-  const box = document.getElementById('cmReportBox');
-  const btn = document.getElementById('cmReportBtn');
-  if (!box.hidden){ box.hidden = true; btn.textContent = '👁 查看初篩報告摘要'; return; }
-  box.hidden = false;
-  box.innerHTML = '<div class="state">讀取中…</div>';
-  try{
-    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(ACTIVE_APP)}/report`);
-    const data = await res.json();
-    if (!data.ok || !data.content_client_md){ box.innerHTML = '<div class="state">報告摘要顧問還在準備。</div>'; return; }
-    box.innerHTML = `<div class="report-md">${esc(data.content_client_md)}</div>`;
-    btn.textContent = '收合報告摘要';
-  }catch{
-    box.innerHTML = '<div class="state">連線失敗，請稍後再試。</div>';
-  }
-}
 
 async function cmLoadChat(){
   if (!ACTIVE_APP) return;
