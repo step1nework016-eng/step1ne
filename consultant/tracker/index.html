@@ -135,6 +135,13 @@ tbody tr:last-child td{border-bottom:0}
 .stp.now .lb{color:var(--gold);font-weight:700}
 .stp.done .lb{color:var(--ink2)}
 .stagedetail{margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+/* 2026-09-07 加：電洽／初篩分頁用自己的 class，跟外面表格視圖的 .tabs/.tab
+   分開命名——.tabs 在小螢幕會被 @media 規則整個隱藏（改用 .tabsSel 下拉頂替），
+   這裡的抽屜寬度固定，沒有對應下拉可以頂替，共用同一個 class 名稱會讓這兩個
+   分頁在窄螢幕直接消失、按鈕點不到。 */
+.calltabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.calltab{font:inherit;font-size:13.5px;font-weight:600;color:var(--ink2);background:#fff;border:1px solid var(--line);padding:7px 15px;border-radius:999px;cursor:pointer}
+.calltab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
 .rpt{font-size:13.5px;line-height:1.8;white-space:pre-wrap;overflow-wrap:anywhere;max-height:160px;overflow-y:auto;border-top:1px solid var(--line);padding-top:10px;margin-top:2px}
 .rpt.open{max-height:none}
 .more{font:inherit;font-size:12.5px;font-weight:600;color:var(--gold);background:none;border:0;cursor:pointer;padding:6px 0 0}
@@ -888,12 +895,18 @@ function openDrawer(appId, kind) {
       stages.map(function (s) {
         return '<div class="stp ' + (s.done ? 'done' : (s.now ? 'now' : '')) + '" data-stage="' + s.key + '"><div class="dot"></div><div class="lb">' + esc(s.lb) + '</div></div>';
       }).join('') + '</div>' +
+      // 2026-09-07 改：這裡直接放「只做工作風格測驗」的真實內容（原本獨立一個
+      // .sec，現在併進來，不是另外發明的假按鈕）——disc_primary 有值代表已填過，
+      // assessLinkGo／assessLinkResult 這兩個 id 不變，wireDrawer 的綁定照舊生效。
       '<div class="stagedetail" data-detail="style" hidden>' + (styleDone
-        ? '<div style="margin:6px 0;font-size:12.5px">✅ <span class="badge b-forward" style="font-size:11px">已完成測驗</span></div>'
-        : '<p class="mut" style="margin:6px 0">還沒填風格測驗</p>') +
-        '<div class="acts"><button class="btn" type="button" onclick="document.querySelector(&quot;#assessLinkGo&quot;).scrollIntoView({behavior:&quot;smooth&quot;,block:&quot;center&quot;})">前往風格測驗區塊</button></div></div>' +
+        ? '<div style="margin:0 0 8px;font-size:12.5px">✅ <span class="badge b-forward" style="font-size:11px">已完成測驗</span></div>'
+        : '') +
+        // ⚠️「已完成」狀態按這顆按鈕拿到的是同一條舊連結（後端邏輯是「沒有
+        // token 才生新的，有的話直接沿用」），不要講成「重新產生」。
+        '<div class="acts"><button class="btn' + (styleDone ? '' : ' p') + '" id="assessLinkGo" type="button">' + (styleDone ? '查看連結' : '產生測驗連結') + '</button></div>' +
+        '<div id="assessLinkResult" style="margin-top:8px"></div></div>' +
       '<div class="stagedetail" data-detail="interview" hidden><p class="mut" style="margin:6px 0">' + (autoScreenDone ? '已完成阿財初審' : '進行中，還沒完成') + '</p></div>' +
-      '<div class="stagedetail" data-detail="call" hidden><p class="mut" style="margin:6px 0">' + (callDone ? '已記錄過電洽內容' : '尚未記錄過通話') + '</p><div class="acts"><button class="btn" type="button" onclick="document.querySelector(&quot;#callOpenBtn&quot;).scrollIntoView({behavior:&quot;smooth&quot;,block:&quot;center&quot;})">前往電洽內容區塊</button></div></div>' +
+      '<div class="stagedetail" data-detail="call" hidden><p class="mut" style="margin:6px 0">' + (callDone ? '已記錄過電洽內容' : '尚未記錄過通話') + '</p><div class="acts"><button class="btn" type="button" onclick="document.querySelector(&quot;#callSec&quot;).scrollIntoView({behavior:&quot;smooth&quot;,block:&quot;start&quot;})">前往電洽區塊</button></div></div>' +
       '<div class="stagedetail" data-detail="screen" hidden><div class="subhint" style="margin:2px 0 6px">AI阿財面談評分——你在這裡的決定，會被拿去跟阿財原本判斷值不值得面談的結果對照，算出「阿財準不準」（consultant/kpi 頁面看得到）</div>' +
         (c.report_md
           ? '<div class="acts">' +
@@ -1018,31 +1031,10 @@ function openDrawer(appId, kind) {
     '<div class="acts"><button class="btn p" id="edsave" type="button">儲存</button>' +
     '<button class="btn" id="edcancel" type="button">取消</button><span class="mut" id="edMsg"></span></div></div></div>';
 
-  // 2026-09-01 加：讓「正式應徵」／「顧問履歷庫」的人選能重新跟阿財面談一次。
-  // 舊的 chat_token 一旦面談結束就永久鎖死，這裡是另外開一筆新的應徵紀錄、
-  // 產生全新 token（不動舊紀錄的報告/備註），顧問拿到連結後自己決定怎麼發
-  // （LINE／簡訊），不自動寄送。
-  html += '<div class="sec" id="resendSec"><h4>發應徵連結給他<span class="subhint">讓這位人選重新跟阿財面談一次，舊的報告跟紀錄不會被覆蓋。</span></h4>' +
-    '<div class="acts"><select class="edi" id="resendJob" style="max-width:260px"><option value="' + esc(c.job_slug || '') + '">沿用目前職缺：' + esc(c.job_title || c.job_slug || '') + '</option></select>' +
-    '<button class="btn p" id="resendGo" type="button">產生新的面談連結</button></div>' +
-    '<div id="resendResult" style="margin-top:8px"></div></div>';
-
-  // 2026-09-04 加：只做工作風格測驗、不用跟阿財聊天的連結——手動新增的人選
-  // 沒有 chat_token，這個機制之前完全沒有入口。/assessment/ 這頁本身早就是
-  // 獨立的（交卷後只是導去/apply/或顯示「現在就開始面談」按鈕，不點就不會
-  // 被拉進真的面談），缺的只是幫這種人選生一個連結。
-  // 2026-09-04 加：disc_primary 有值就代表測驗已經填過——不然顧問看不出來
-  // 這位人選是不是已經填了，只會一直重複發連結。
-  html += '<div class="sec"><h4>只做工作風格測驗<span class="subhint">不用跟阿財聊天，人選填完測驗就好，之後做報告會用到這份資料。</span></h4>' +
-    (c.disc_primary
-      ? '<div style="margin-bottom:8px;font-size:12.5px">✅ <span class="badge b-forward" style="font-size:11px">已完成測驗</span></div>'
-      : '') +
-    // ⚠️ 「已完成」狀態按這顆按鈕拿到的是同一條舊連結（後端邏輯是「沒有
-    // token 才生新的，有的話直接沿用」），人選重新打開只會看到「已經完成
-    // 測驗」的畫面，不會讓他重填——不要講成「重新產生」，會誤導顧問以為
-    // 按了就能讓人選重新作答一次。
-    '<div class="acts"><button class="btn' + (c.disc_primary ? '' : ' p') + '" id="assessLinkGo" type="button">' + (c.disc_primary ? '查看連結' : '產生測驗連結') + '</button></div>' +
-    '<div id="assessLinkResult" style="margin-top:8px"></div></div>';
+  // 2026-09-07 改：區塊順序照顧問實際作業流程重排——基本資料之後依序是
+  // 顧問備註／電洽／初篩，「發應徵連結給他」跟「只做工作風格測驗」這兩個
+  // 是重啟流程用的工具性動作，往下移／併進「整體進度」，不佔前面主要動線。
+  // 每個區塊本身的欄位、id、判斷條件都沒變，只是搬位置＋部分合併成分頁。
 
   // 2026-09-01 加：顧問備註改成一條一條紀錄（type+content+時間），不是單一
   // 文字欄位——顧問自己選類型（評估／聯繫紀錄／客戶回饋／其他），累積成清單。
@@ -1050,75 +1042,73 @@ function openDrawer(appId, kind) {
   html += '<div class="sec"><h4>顧問備註<button class="btn p" id="noteAddBtn" type="button" style="float:right;font-size:12.5px;padding:5px 12px">＋ 新增紀錄</button></h4>' +
     '<div id="notesBox" class="mut">載入中…</div></div>';
 
-  // 2026-09-04 加：三階段管線第一階段——新增人選當下（有履歷檔的話）AI就先
-  // 準備好的「人選狀況快速摘要＋建議電洽問題」，讓顧問還沒打電話/還沒看阿財
-  // 報告之前就有底。跟下面「電洽內容」（打完電話之後的AI整理）不一樣，
-  // 這個是打電話「之前」看的，所以放在它上面。
-  if (c.call_prep_md) {
-    html += '<div class="sec" style="border-left:3px solid var(--gold)"><h4>📋 電洽前準備（AI依履歷與職缺整理）</h4>' +
-      '<div style="border:1px solid var(--line);background:var(--soft);border-radius:10px;padding:12px 14px;font-size:13.5px;line-height:1.8;white-space:pre-wrap">' +
-      String(c.call_prep_md).split('\n').map(function (line) {
-        return /^(人選狀況快速摘要|建議電洽問題)$/.test(line.trim())
-          ? '<b style="color:var(--gold);display:block;margin-top:8px">' + esc(line.trim()) + '</b>'
-          : (line.trim() ? esc(line) : '');
-      }).join('\n') + '</div></div>';
-  } else if (c.report_id) {
-    // 2026-09-07 加：走真面談進來的人選（不是手動新增）本來就不會觸發
-    // 上面那顆按鈕，但報告已經產生了——給顧問一顆補生成的按鈕，直接
-    // 用面談報告本身整理成同一種格式，不用等下次改版才有。
-    html += '<div class="sec" id="callPrepGenSec" style="border-left:3px solid var(--gold)"><h4>📋 電洽前準備</h4>' +
-      '<div class="subhint" style="margin:0 0 8px">這位人選已經有阿財面談報告，可以直接依報告內容整理一份電洽補問清單。</div>' +
-      '<div class="acts"><button class="btn p" id="callPrepGenBtn" type="button">依面談報告產生</button></div>' +
-      '<div id="callPrepGenMsg" class="mut" style="margin-top:6px"></div></div>';
-  }
-
-  // 2026-09-01 改：電洽內容原本的輸入框（文字＋拖曳上傳）直接佔在卡片上，
-  // 改成只顯示 AI 整理好的重點，輸入動作搬進「📞記錄新的通話」彈窗，
-  // 不會洗人選卡片的版面（見 openCallModal()）。
-  // 2026-09-04 加：AI 整理難免聽錯/整理錯，原本定案後顧問沒地方改——
-  // 加「✎ 編輯」直接改文字存回 call_summary_md，跟 content_client_md
-  // （AI草稿→顧問編輯→存檔）同一種信任模型。
-  html += '<div class="sec"><h4>電洽內容' +
-    '<button class="btn p" id="callOpenBtn" type="button" style="float:right;font-size:12.5px;padding:5px 12px;margin-left:6px">📞 記錄新的通話</button>' +
-    '<button class="btn" id="callSumEditBtn" type="button" style="float:right;font-size:12.5px;padding:5px 12px">✎ 編輯</button>' +
-    '</h4>' +
-    '<div class="subhint" style="margin:0 0 10px">只顯示AI整理好的重點，逐字稿／檔案在彈窗裡輸入，不會洗這裡的版面。</div>' +
-    '<div id="callSumView">' + (c.call_summary_md
-      ? '<div style="border:1px solid var(--line);background:var(--soft);border-radius:10px;padding:12px 14px;font-size:13.5px;line-height:1.8">' +
-        String(c.call_summary_md).split('\n').map(function (line) {
-          var m = line.match(/^#+\s*(.+)/);
-          return m ? '<b style="color:var(--gold);display:block;margin-top:8px">' + esc(m[1]) + '</b>' : (line.trim() ? esc(line) + '<br>' : '');
-        }).join('') + '</div>'
-      : '<span class="mut">尚未記錄過通話</span>') + '</div>' +
-    '<div id="callSumEdit" hidden>' +
-    '<textarea class="edi" id="callSumTextarea" rows="8">' + esc(c.call_summary_md || '') + '</textarea>' +
-    '<div class="acts" style="margin-top:8px">' +
-    '<button class="btn p" id="callSumSaveBtn" type="button">儲存</button> ' +
-    '<button class="btn" id="callSumCancelBtn" type="button">取消</button> ' +
-    '<span class="mut" id="callSumMsg"></span></div></div></div>';
+  // 2026-09-07 改：電洽前準備／電洽內容合併成一個區塊、兩個分頁——原本兩塊
+  // 各自獨立的 .sec 疊在一起，改成分頁後畫面更短，資料/id/判斷條件都沒變。
+  (function () {
+    var prepHtml;
+    // 2026-09-04 加：三階段管線第一階段——新增人選當下（有履歷檔的話）AI就先
+    // 準備好的「人選狀況快速摘要＋建議電洽問題」，讓顧問還沒打電話/還沒看阿財
+    // 報告之前就有底。
+    if (c.call_prep_md) {
+      prepHtml = '<div style="border:1px solid var(--line);background:var(--soft);border-radius:10px;padding:12px 14px;font-size:13.5px;line-height:1.8;white-space:pre-wrap">' +
+        String(c.call_prep_md).split('\n').map(function (line) {
+          return /^(人選狀況快速摘要|建議電洽問題)$/.test(line.trim())
+            ? '<b style="color:var(--gold);display:block;margin-top:8px">' + esc(line.trim()) + '</b>'
+            : (line.trim() ? esc(line) : '');
+        }).join('\n') + '</div>';
+    } else if (c.report_id) {
+      // 2026-09-07 加：走真面談進來的人選（不是手動新增）本來就不會觸發
+      // 上面那顆按鈕，但報告已經產生了——給顧問一顆補生成的按鈕。
+      prepHtml = '<div id="callPrepGenSec"><div class="subhint" style="margin:0 0 8px">這位人選已經有阿財面談報告，可以直接依報告內容整理一份電洽補問清單。</div>' +
+        '<div class="acts"><button class="btn p" id="callPrepGenBtn" type="button">依面談報告產生</button></div>' +
+        '<div id="callPrepGenMsg" class="mut" style="margin-top:6px"></div></div>';
+    } else {
+      prepHtml = '<p class="mut" style="margin:0">目前沒有電洽前準備資料。</p>';
+    }
+    html += '<div class="sec" id="callSec"><h4>電洽</h4>' +
+      '<div class="calltabs" id="callTabs"><div class="calltab on" data-calltab="prep">電洽前準備</div><div class="calltab" data-calltab="log">電洽內容</div></div>' +
+      '<div class="calltabpanel" data-callpanel="prep">' + prepHtml + '</div>' +
+      // 2026-09-01 改：電洽內容原本的輸入框（文字＋拖曳上傳）直接佔在卡片上，
+      // 改成只顯示 AI 整理好的重點，輸入動作搬進「📞記錄新的通話」彈窗，
+      // 不會洗人選卡片的版面（見 openCallModal()）。
+      '<div class="calltabpanel" data-callpanel="log" hidden>' +
+      '<div class="subhint" style="margin:0 0 10px">只顯示AI整理好的重點，逐字稿／檔案在彈窗裡輸入，不會洗這裡的版面。</div>' +
+      '<div class="acts" style="margin-bottom:10px">' +
+      '<button class="btn p" id="callOpenBtn" type="button" style="float:right;font-size:12.5px;padding:5px 12px;margin-left:6px">📞 記錄新的通話</button>' +
+      '<button class="btn" id="callSumEditBtn" type="button" style="float:right;font-size:12.5px;padding:5px 12px">✎ 編輯</button>' +
+      '</div>' +
+      '<div id="callSumView">' + (c.call_summary_md
+        ? '<div style="border:1px solid var(--line);background:var(--soft);border-radius:10px;padding:12px 14px;font-size:13.5px;line-height:1.8">' +
+          String(c.call_summary_md).split('\n').map(function (line) {
+            var m = line.match(/^#+\s*(.+)/);
+            return m ? '<b style="color:var(--gold);display:block;margin-top:8px">' + esc(m[1]) + '</b>' : (line.trim() ? esc(line) + '<br>' : '');
+          }).join('') + '</div>'
+        : '<span class="mut">尚未記錄過通話</span>') + '</div>' +
+      '<div id="callSumEdit" hidden>' +
+      '<textarea class="edi" id="callSumTextarea" rows="8">' + esc(c.call_summary_md || '') + '</textarea>' +
+      '<div class="acts" style="margin-top:8px">' +
+      '<button class="btn p" id="callSumSaveBtn" type="button">儲存</button> ' +
+      '<button class="btn" id="callSumCancelBtn" type="button">取消</button> ' +
+      '<span class="mut" id="callSumMsg"></span></div></div>' +
+      '</div></div>';
+  })();
 
   if (c.hard_gate) {
     html += '<div class="sec" style="border-left:3px solid var(--warn)"><h4 style="color:var(--warn)">待審核（客戶硬性條件）</h4>' +
       '<p style="margin:0;font-size:13px">這位人選卡在客戶硬性條件審核，需要顧問人工核實後才會進入一般流程。</p></div>';
   }
 
-  // 2026-09-02 修：原本這顆按鈕寫在「初篩」區塊裡，只有 c.report_md 有值
-  // 才會出現——但像廖若辰這種走「電洽新增人選」手動流程、還沒等本機排程
-  // 跑出報告就已經推給客戶的人選，完全沒有報告，整個區塊連按鈕一起消失。
-  // 基本資料（現居地/學歷/期望待遇/可到職）本來就是資料庫欄位，不需要報告
-  // 才能做；核心條件對應那段沒報告內容時模板本來就會自動略過，不會壞，
-  // 所以獨立出來，不再綁報告存不存在。
-  // 2026-09-02 加：存檔狀態——每家客戶各自的最新一份，不用每次重新生成。
-  // 「製作客戶版履歷」按鈕還是留著（開彈窗可以重新產生／換公司），這裡只是
-  // 多顯示「已經做過的」讓顧問一眼看到，不用每次都得先點進去才知道有沒有。
-  var existingFormalReports = (c.placements || []).filter(function (pl) { return pl.client_formal_report; });
-  // 2026-09-07 加：AI 產完的是草稿，企業 portal 只認顧問上傳過的「確認版」
-  // （見 confirm_at／confirm-upload 端點）——這裡分三種狀態顯示：本機處理中／
-  // 草稿待上傳（顧問還沒點頭，企業看不到）／已確認（企業已經看得到）。
-  // 「⬆️ 上傳確認版」不管草稿在不在都給按，讓顧問可以直接跳過草稿、
-  // 自己準備好的正確版直接上傳。
-  html += '<div class="sec"><h4>客戶版履歷</h4>' +
-    existingFormalReports.map(function (pl) {
+  // 2026-09-07 改：初篩（AI初篩報告）跟客戶版履歷合併成一個區塊、兩個分頁——
+  // 這顆按鈕原本寫在「初篩」區塊裡，只有 c.report_md 有值才會出現，但像廖若辰
+  // 這種走「電洽新增人選」手動流程、還沒等本機排程跑出報告就已經推給客戶的
+  // 人選，完全沒有報告，整個區塊連按鈕一起消失。合併後外層 .sec 不綁報告
+  // 存不存在，兩個分頁各自處理自己的空狀態。
+  (function () {
+    var existingFormalReports = (c.placements || []).filter(function (pl) { return pl.client_formal_report; });
+    // 2026-09-07 加：AI 產完的是草稿，企業 portal 只認顧問上傳過的「確認版」
+    // （見 confirm_at／confirm-upload 端點）——這裡分三種狀態顯示：本機處理中／
+    // 草稿待上傳（顧問還沒點頭，企業看不到）／已確認（企業已經看得到）。
+    var formalHtml = existingFormalReports.map(function (pl) {
       var cfr = pl.client_formal_report;
       var statusHtml;
       if (cfr.pending) {
@@ -1136,24 +1126,34 @@ function openDrawer(appId, kind) {
         '<label class="btn" style="font-size:11.5px;padding:3px 10px;margin-left:4px;cursor:pointer;display:inline-block">⬆️ 上傳確認版' +
         '<input type="file" accept="application/pdf" class="cfrUploadInput" data-co="' + esc(pl.company_id) + '" style="display:none"></label>' +
         '<span class="mut cfrUploadMsg" data-co="' + esc(pl.company_id) + '" style="margin-left:6px"></span></div>';
-    }).join('') +
-    '<div class="acts"><button class="btn p" id="clientFormalBtn" type="button">📄 製作客戶版履歷</button></div></div>';
-
-  if (c.report_md) {
-    // 2026-09-07 改：推薦給客戶／需補問／婉拒搬到上面「整體進度→初篩決定」
-    // 統一做（同一顆 .decbtn class，事件綁定沒變），這裡只留狀態 pill 跟指引，
-    // 不重複放按鈕，避免同一個決定有兩個地方可以按、顯示狀態卻可能對不齊。
+    }).join('');
+    var reportHtml = c.report_md
+      ? '<div class="subhint" style="margin:2px 0 8px">要評分阿財這場面談準不準，去上面「整體進度」的「初篩決定」按推薦／需補問／婉拒——按下去就算數，不用在這裡再按一次</div>' +
+        '<div class="rpt" id="rpt">' + esc(c.report_md) + '</div>' +
+        '<div class="acts"><button class="more" id="rptmore" type="button">展開全文 ▾</button>' +
+        '<button class="btn p" id="rptview" type="button">👁 預覽報告</button>' +
+        '<button class="btn" id="rptdl" type="button">下載報告（.md）</button>' +
+        '<button class="btn" id="rptpdf" type="button">下載報告（PDF）</button>' +
+        (c.report_id ? '<button class="btn" id="rpttrans" type="button">💬 阿財面談逐字稿</button>' : '') +
+        '</div><div id="transBox" hidden style="margin-top:10px;border-top:1px solid var(--line);padding-top:10px"></div>'
+      : '<p class="mut" style="margin:0">還沒有初篩報告。</p>';
     html += '<div class="sec"><h4>初篩　' +
       (c.decision && DEC[c.decision] ? '<span class="pill ' + (c.decision === 'forwarded' ? 'ok' : (c.decision === 'rejected' ? 'bad' : 'warn')) + '">' + DEC[c.decision].lb + '</span>' : '<span class="pill">還沒決定推不推</span>') +
-      '</h4><div class="subhint" style="margin:2px 0 8px">要評分阿財這場面談準不準，去上面「整體進度」的「初篩決定」按推薦／需補問／婉拒——按下去就算數，不用在這裡再按一次</div>' +
-      '<div class="rpt" id="rpt">' + esc(c.report_md) + '</div>' +
-      '<div class="acts"><button class="more" id="rptmore" type="button">展開全文 ▾</button>' +
-      '<button class="btn p" id="rptview" type="button">👁 預覽報告</button>' +
-      '<button class="btn" id="rptdl" type="button">下載報告（.md）</button>' +
-      '<button class="btn" id="rptpdf" type="button">下載報告（PDF）</button>' +
-      (c.report_id ? '<button class="btn" id="rpttrans" type="button">💬 阿財面談逐字稿</button>' : '') +
-      '</div><div id="transBox" hidden style="margin-top:10px;border-top:1px solid var(--line);padding-top:10px"></div></div>';
-  }
+      '</h4><div class="calltabs" id="screenTabs"><div class="calltab on" data-screentab="report">AI初篩報告</div><div class="calltab" data-screentab="formal">製作客戶版履歷</div></div>' +
+      '<div class="screentabpanel" data-screenpanel="report">' + reportHtml + '</div>' +
+      '<div class="screentabpanel" data-screenpanel="formal" hidden>' + formalHtml +
+      '<div class="acts"><button class="btn p" id="clientFormalBtn" type="button">📄 製作客戶版履歷</button></div></div></div>';
+  })();
+
+  // 2026-09-01 加：讓「正式應徵」／「顧問履歷庫」的人選能重新跟阿財面談一次。
+  // 舊的 chat_token 一旦面談結束就永久鎖死，這裡是另外開一筆新的應徵紀錄、
+  // 產生全新 token（不動舊紀錄的報告/備註），顧問拿到連結後自己決定怎麼發
+  // （LINE／簡訊），不自動寄送。2026-09-07 從基本資料正下方移到這裡——這是
+  // 重啟流程用的工具性動作，不是常態會用到，往下移。
+  html += '<div class="sec" id="resendSec"><h4>發應徵連結給他<span class="subhint">讓這位人選重新跟阿財面談一次，舊的報告跟紀錄不會被覆蓋。</span></h4>' +
+    '<div class="acts"><select class="edi" id="resendJob" style="max-width:260px"><option value="' + esc(c.job_slug || '') + '">沿用目前職缺：' + esc(c.job_title || c.job_slug || '') + '</option></select>' +
+    '<button class="btn p" id="resendGo" type="button">產生新的面談連結</button></div>' +
+    '<div id="resendResult" style="margin-top:8px"></div></div>';
 
   // 用人單位在客戶 portal 更新階段時可以順手留的回饋（面談結束後狀況、
   // 主管評語等）——存在 candidate_forwards.manual_stage_note，顧問要看得到，
@@ -1321,6 +1321,22 @@ function wireDrawer(c, appId) {
       var wasHidden = target.hidden;
       Array.prototype.forEach.call(document.querySelectorAll('.stagedetail'), function (d) { d.hidden = true; });
       target.hidden = !wasHidden ? true : false;
+    };
+  });
+  // 2026-09-07 加：電洽（電洽前準備／電洽內容）跟初篩（AI初篩報告／製作客戶
+  // 版履歷）這兩組分頁切換，同一套邏輯各自綁一次。
+  Array.prototype.forEach.call(document.querySelectorAll('#callTabs .calltab'), function (tab) {
+    tab.onclick = function () {
+      var key = tab.dataset.calltab;
+      Array.prototype.forEach.call(document.querySelectorAll('#callTabs .calltab'), function (t) { t.classList.toggle('on', t === tab); });
+      Array.prototype.forEach.call(document.querySelectorAll('.calltabpanel'), function (p) { p.hidden = p.dataset.callpanel !== key; });
+    };
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('#screenTabs .calltab'), function (tab) {
+    tab.onclick = function () {
+      var key = tab.dataset.screentab;
+      Array.prototype.forEach.call(document.querySelectorAll('#screenTabs .calltab'), function (t) { t.classList.toggle('on', t === tab); });
+      Array.prototype.forEach.call(document.querySelectorAll('.screentabpanel'), function (p) { p.hidden = p.dataset.screenpanel !== key; });
     };
   });
   wireOwnerAssign('application', appId, function () { loadAndOpen(appId); });
