@@ -404,6 +404,36 @@ var FC_ON_SUBMIT = null;
 var FC_WRAP_ID = 'fcWrap';
 var FC_AI_FILLED = {};
 function fcEsc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+// 2026-09-07 加：跟 consultant/job-preview/index.html 同一套字串清洗——資料庫
+// 這幾個自由文字欄位出現過至少四種格式：正常中文、合法JSON陣列字串、JSON包一層
+// 的單一字串（employment='"FULL_TIME"'）、Python list 被 str() 之後的殘骸
+// （"['桃竹苗地區', '台中']"）。顯示層自己擋一層，不管收到哪種都轉成看得懂的
+// 文字——只影響「摘要行」跟「預覽」怎麼顯示，不動 <input>/<textarea> 裡的原始值
+// （顧問點進去編輯看到的還是原始資料，改完存檔會存乾淨的版本，等於順便修復）。
+function fcNormalizeListish(val) {
+  if (val === null || val === undefined || val === '') return '';
+  var s = String(val).trim();
+  try {
+    var p = JSON.parse(s);
+    if (Array.isArray(p)) return p.map(String).join('、');
+    if (typeof p === 'string') return p;
+  } catch (e) {}
+  if (/^\[.*\]$/.test(s)) {
+    return s.slice(1, -1).split(',').map(function (x) { return x.trim().replace(/^['"]|['"]$/g, ''); }).filter(Boolean).join('、');
+  }
+  return s;
+}
+var FC_EMP_LABEL = { FULL_TIME: '正職', PART_TIME: '兼職', TEMPORARY: '臨時／派遣', CONTRACTOR: '承攬／約聘', INTERN: '實習' };
+function fcNormalizeEmployment(val) {
+  if (!val) return '';
+  var cleaned = fcNormalizeListish(val);
+  return cleaned.split('、').map(function (v) { return FC_EMP_LABEL[v] || v; }).join('、');
+}
+function fcDisplayVal(key) {
+  var raw = fcVal(key);
+  if (key === 'employment') return fcNormalizeEmployment(raw);
+  return fcNormalizeListish(raw);
+}
 function fcInit(values, labelMode) {
   FC_VALUES = {};
   FC_CARDS.forEach(function (d) { d.core.concat(d.more).forEach(function (q) { FC_VALUES[q.k] = (values && values[q.k] != null) ? values[q.k] : ''; }); });
@@ -485,7 +515,7 @@ function fcComputeState(d) {
   return 'done';
 }
 function fcComputeSummary(d) {
-  var vals = d.core.map(function (q) { return fcIsFieldEmpty(q) ? null : fcVal(q.k); }).filter(Boolean);
+  var vals = d.core.map(function (q) { return fcIsFieldEmpty(q) ? null : fcDisplayVal(q.k); }).filter(Boolean);
   return vals.length ? vals.slice(0, 3).join('・') : '還沒填';
 }
 function fcFieldHtml(q) {
@@ -653,16 +683,16 @@ function fcOpenPreview() {
     return '<div class="fcPvSection"><h4>' + fcEsc(d.title) + '</h4>'
       + rows.map(function (q) {
           var lbl = (FC_LABEL_MODE === 'client' && q.lClient) ? q.lClient : q.l;
-          return '<div class="fcPvRow"><b>' + fcEsc(lbl) + '：</b><span>' + fcEsc(fcVal(q.k)) + '</span></div>';
+          return '<div class="fcPvRow"><b>' + fcEsc(lbl) + '：</b><span>' + fcEsc(fcDisplayVal(q.k)) + '</span></div>';
         }).join('')
       + '</div>';
   }).join('');
   var scroll = document.getElementById('fcPvScroll');
   if (scroll) {
     scroll.innerHTML = issuesHtml + '<div class="fcPvJob">'
-      + '<div class="fcHero"><span class="fcTag">' + fcEsc(fcVal('employment') || '職缺') + '</span>'
+      + '<div class="fcHero"><span class="fcTag">' + fcEsc(fcDisplayVal('employment') || '職缺') + '</span>'
         + '<h2>' + fcEsc(fcVal('title') || '（尚未命名）') + '</h2>'
-        + '<p>' + fcEsc(fcVal('locations') || '地點未填') + '・' + fcEsc(fcVal('work_hours') || '時間未填') + '</p></div>'
+        + '<p>' + fcEsc(fcDisplayVal('locations') || '地點未填') + '・' + fcEsc(fcVal('work_hours') || '時間未填') + '</p></div>'
       + '<div class="fcSpecRow"><dt>薪資</dt><dd>' + fcEsc(salaryLine) + '</dd></div>'
       + '<div class="fcSpecRow"><dt>需求人數</dt><dd>' + fcEsc(fcVal('headcount') || '—') + '</dd></div>'
       + '<div class="fcSpecRow"><dt>到職日</dt><dd>' + fcEsc(fcVal('onboard_by') || '—') + '</dd></div>'
@@ -1395,9 +1425,21 @@ document.addEventListener('click', function (e) {
       + '<button type="button" class="jdtab" data-tab="edit">編輯</button>'
       + '<button type="button" class="jdtab" data-tab="facts">用人事實</button>'
       + '<button type="button" class="jdtab" data-tab="forms">客製表單</button>'
+      // 2026-09-07 加：顧問反映電洽時要一路點進「用人事實」再展開「顯示更多
+      // 欄位」才找得到招募原因/業主這類內容，不實際——電洽時不可能邊講電話
+      // 邊翻找分頁。這顆直接開 job-preview（已經是彙整所有用人事實欄位、
+      // 電洽專用的整頁檢視，見 consultant/job-preview/），不是分頁、是新分頁
+      // 開整頁，方便顧問電洽時獨立開一個視窗放著看。
+      + '<button type="button" class="jdtab callprep" data-tab="callprep">📞 電洽重點</button>'
       + '</div><div id="jdTabBody"></div></div>';
     Array.prototype.forEach.call(document.querySelectorAll('#jdwrap .jdtab'), function (b) {
-      b.onclick = function () { jdRenderTab(b.dataset.tab); };
+      b.onclick = function () {
+        if (b.dataset.tab === 'callprep') {
+          window.open('/consultant/job-preview/?slug=' + encodeURIComponent(JD_CUR.slug), '_blank');
+          return;
+        }
+        jdRenderTab(b.dataset.tab);
+      };
     });
     jdRenderTab('view');
   }).catch(function () { $('mbody').innerHTML = '<div id="jdwrap"><p class="mut">連不上伺服器</p></div>'; });
