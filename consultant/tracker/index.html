@@ -426,7 +426,9 @@ function renderList() {
           : '<select class="edi inlineStageSel" data-id="' + cardIdOf(c) + '" style="font-size:12.5px;padding:5px 26px 5px 8px;max-width:150px">' +
               universalStageOptionsHtml(c, primaryPl) + '</select>';
         return '<tr data-id="' + cardIdOf(c) + '" data-kind="' + c.kind + '">' +
-          '<td><span class="nmwrap"><b>' + esc(c.name) + '</b>' +
+          '<td><span class="nmwrap">' +
+            (c.seq_no ? '<span class="mut" style="font-variant-numeric:tabular-nums;margin-right:5px">#' + esc(c.seq_no) + '</span>' : '') +
+            '<b>' + esc(c.name) + '</b>' +
             (c.dup_notice ? '<span class="dupflag" title="' + esc(c.dup_notice) + '">⚠</span>' : '') +
             hardGateBadge(c) + '</span></td>' +
           '<td>' + esc(c.job_title) + '</td>' +
@@ -451,7 +453,9 @@ function renderList() {
     el.innerHTML = '<div class="dash-cards">' + list.map(function (c) {
       var st = stageLabelOf(c);
       return '<div class="dash-card" data-id="' + cardIdOf(c) + '" data-kind="' + c.kind + '">' +
-        '<div class="dash-card-top"><div><b>' + esc(c.name) + '</b><div style="font-size:12px;color:var(--ink3)">' + esc(c.job_title) + '</div></div>' +
+        '<div class="dash-card-top"><div>' +
+          (c.seq_no ? '<span class="mut" style="font-variant-numeric:tabular-nums;margin-right:5px">#' + esc(c.seq_no) + '</span>' : '') +
+          '<b>' + esc(c.name) + '</b><div style="font-size:12px;color:var(--ink3)">' + esc(c.job_title) + '</div></div>' +
         '<span class="badge ' + st.cls + '">' + st.lb + '</span></div>' +
         '<div class="dash-card-meta">' + esc(c.client_name) + '　·　' + esc(c.phone || c.email || '') + '</div>' +
         '<div class="dash-card-foot"><span>' + esc(c.source_channel || '') + '</span><span class="hint">點擊查看完整人選資料 →</span></div></div>';
@@ -826,7 +830,12 @@ function openDrawer(appId, kind) {
   if (c.kind === 'sourced') { openSourcedDrawer(c); return; }
   var st = stageLabelOf(c);
   var extra = parseExtra(c.resume_extra_files);
-  var html = '<div class="dhead"><span class="nm">' + esc(c.name) + '</span>' +
+  var html = '<div class="dhead">' +
+    // 2026-09-07 加：周海暉事件之後 Jacky 要求——刪錯卡片的根因是靠姓名/email
+    // 這種模糊比對辨認人選，這個編號固定不變（見 D1 的 seq_no 欄位＋
+    // trg_applications_seq_no 觸發器），之後要刪東西一律先核對這個號碼再動手。
+    (c.seq_no ? '<span class="mut" style="font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;margin-right:4px">#' + esc(c.seq_no) + '</span>' : '') +
+    '<span class="nm">' + esc(c.name) + '</span>' +
     '<span class="badge ' + st.cls + '">' + st.lb + '</span>' + hardGateBadge(c) + contactMissingBadge(c) +
     '<button class="edbtn" id="edtog" type="button">編輯 ✎</button>' +
     '<button class="x" id="dclose" type="button">×</button></div><div class="dbody">';
