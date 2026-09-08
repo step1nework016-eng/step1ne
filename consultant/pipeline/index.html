@@ -171,31 +171,42 @@ var API='https://step1ne-backoffice-worker.aiagentg888.workers.dev';
 var KEY='s1ne_admin_tok';
 var tok=localStorage.getItem(KEY)||'';
 var $=function(i){return document.getElementById(i)};
-function api(p,o){o=o||{};o.headers=Object.assign({authorization:'Bearer '+tok},o.headers||{});
-  return fetch(API+p,o).then(function(r){return r.json()})}
-function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){
-  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
-
-// 分頁名稱刻意用顧問講話的方式寫，不用系統詞（不是 sourced / placement）——
-// 這頁的目的是「早上打開就知道今天先做哪一件」。
-var TABS=[
-  {k:'to_contact',   lb:'要我接觸', kind:'sourced',     hint:'找到人了，還沒發第一封信'},
-  {k:'waiting_reply',lb:'等對方回', kind:'sourced',     hint:'信發了，人還沒回'},
-  {k:'to_review',    lb:'等我看報告',kind:'application',hint:'阿財談完了，還沒決定推不推'},
-  {k:'client_side',  lb:'客戶手上', kind:'placement',   hint:'已送件，等客戶安排／回覆'},
-  {k:'closing',      lb:'快成交',   kind:'placement',   hint:'錄取到報到之間'},
-  {k:'done',         lb:'已收尾',   kind:'placement',   hint:'成交或結案，只供回頭查'}
-];
-var DATA=null, CUR='to_review', OWNER=localStorage.getItem('s1ne_pipe_owner')||'all', CONS=[];
-var FQ='', FGRADE='', FJOB='', FCLIENT='';
-
-// 篩選用的下拉選項——從「全部分頁」的資料裡收集，不是只看目前這一關，
-// 不然切分頁選項會一直跳動，顧問剛選好的等第/職缺可能突然消失。
-function allRows(){
-  var out=[]; var tabs=DATA&&DATA.tabs||{};
-  Object.keys(tabs).forEach(function(k){ out=out.concat(tabs[k]||[]) });
-  return out;
+function api(p, o) {
+  o = o || {};
+  o.headers = Object.assign({ authorization: 'Bearer ' + tok }, o.headers || {});
+  return fetch(API + p, o).then(function (r) {
+    if (r.status === 401) { var e401 = new Error('權杖不正確'); e401.status = 401; throw e401; }
+    return r.text().then(function (t) {
+      var d = null;
+      try { d = JSON.parse(t); } catch (x) { /* 不是 JSON——多半是 CF 的錯誤頁 */ }
+      if (!r.ok) {
+        var err = new Error('HTTP ' + r.status);
+        err.status = r.status;
+        err.serverError = d && d.error ? d.error : null;
+        err.body = d ? null : String(t).slice(0, 200);
+        throw err;
+      }
+      if (d === null) { var ep = new Error('回傳格式不是 JSON'); ep.body = String(t).slice(0, 200); throw ep; }
+      return d;
+    });
+  });
 }
+// ── 錯誤訊息不要一律說「連線失敗」 ──
+// 2026-09-08：顧問按「產生電洽前準備」看到「連線失敗」，實際上網路好好的，
+// 真正的錯是後端 D1_ERROR: no such column: report_id。前端把所有失敗都寫成
+// 同一句話，等於把診斷資訊丟掉，只能靠工程師去翻 worker log 才知道發生什麼事。
+//
+// apiFail() 依實際情況給不同訊息：後端有回錯誤就照實顯示，
+// HTTP 非 2xx 顯示狀態碼，真的連不上才說連線失敗。
+function apiFail(e) {
+  if (!e) return apiFail(e);
+  if (e.status === 401 || /權杖/.test(e.message || '')) return '權杖不正確，請重新輸入';
+  if (e.serverError) return '伺服器回報：' + String(e.serverError).slice(0, 120);
+  if (e.status) return '伺服器錯誤 ' + e.status + (e.body ? '：' + String(e.body).slice(0, 100) : '');
+  if (e.name === 'TypeError') return '連線失敗（連不到伺服器，檢查網路）';
+  return String(e.message || e).slice(0, 120);
+}
+
 function fillOptions(sel,vals,cur){
   var seen={}, arr=[];
   vals.forEach(function(v){ v=(v||'').trim(); if(v&&!seen[v]){seen[v]=1;arr.push(v)} });
@@ -739,7 +750,7 @@ function openCard(kind,id,name){
         var el=$('crosshist'); if(!el)return;
         el.innerHTML=el.querySelector('h4').outerHTML
           + (hd.ok ? crossHistHtml(hd.history) : '<p class="mut" style="margin:0">讀取失敗</p>');
-      }).catch(function(){
+      }).catch(function(e){
         var el=$('crosshist'); if(!el)return;
         el.innerHTML=el.querySelector('h4').outerHTML+'<p class="mut" style="margin:0">連線失敗</p>';
       });
@@ -758,7 +769,7 @@ function openCard(kind,id,name){
         .then(function(r){ b.disabled = false;
           if(!r.ok){ msg.textContent = r.error || '儲存失敗'; return; }
           msg.textContent = '已儲存';
-        }).catch(function(){ b.disabled = false; msg.textContent = '連線失敗'; });
+        }).catch(function(e){ b.disabled = false; msg.textContent = apiFail(e); });
       };
     });
     // ── 主動傳訊息給用人單位（一家一組）──
@@ -776,7 +787,7 @@ function openCard(kind,id,name){
           if(!r.ok){ msg.textContent = r.error || '傳送失敗'; return; }
           msg.style.color = 'var(--ok)'; msg.textContent = '已傳送';
           ta.value = '';
-        }).catch(function(){ b.disabled = false; msg.textContent = '連線失敗'; });
+        }).catch(function(e){ b.disabled = false; msg.textContent = apiFail(e); });
       };
     });
 
@@ -809,7 +820,7 @@ function openCard(kind,id,name){
         if(!r.ok){ msg.textContent=r.error||'新增失敗'; return; }
         if(r.message) alert(r.message);
         openCard(kind,id,name); load();
-      }).catch(function(){ afg.disabled=false; msg.textContent='連線失敗'; });
+      }).catch(function(e){ afg.disabled=false; msg.textContent=apiFail(e); });
     };
 
     var m=$('rptmore');
@@ -827,7 +838,7 @@ function openCard(kind,id,name){
         .then(function(r){ b.disabled=false;
           if(!r.ok)return alert(r.error||'更新失敗');
           openCard(kind,id,name); load();   // 抽屜跟後面的列表都要跟著更新
-        }).catch(function(){b.disabled=false;alert('連線失敗')});
+        }).catch(function(e){b.disabled=false;alert(apiFail(e))});
       };
     });
     Array.prototype.forEach.call($('dbody').querySelectorAll('.stgclr'),function(b){
@@ -850,7 +861,7 @@ function openCard(kind,id,name){
         .then(function(r){ b.disabled=false;
           if(!r.ok)return alert(r.error||'更新失敗');
           openCard(kind,id,name); load();
-        }).catch(function(){b.disabled=false;alert('連線失敗')});
+        }).catch(function(e){b.disabled=false;alert(apiFail(e))});
       };
     });
     Array.prototype.forEach.call($('dbody').querySelectorAll('.clrdec'),function(b){
@@ -889,7 +900,7 @@ function openCard(kind,id,name){
       .then(function(r){ ns.disabled=false;
         if(!r.ok){ $('ntmsg').textContent=r.error||'儲存失敗'; return; }
         openCard(kind,id,name);
-      }).catch(function(){ ns.disabled=false; $('ntmsg').textContent='連線失敗'; });
+      }).catch(function(e){ ns.disabled=false; $('ntmsg').textContent=apiFail(e); });
     };
 
     // ── 編輯欄位 ──
@@ -927,7 +938,7 @@ function openCard(kind,id,name){
       .then(function(r){ sv.disabled=false;
         if(!r.ok){ $('edmsg').textContent=r.error||'儲存失敗'; return; }
         openCard(kind,id,body.name||name); load();
-      }).catch(function(){ sv.disabled=false; $('edmsg').textContent='連線失敗'; });
+      }).catch(function(e){ sv.disabled=false; $('edmsg').textContent=apiFail(e); });
     };
 
     // ── 履歷：上傳檔案 / 貼連結 / 下載 ──
@@ -949,7 +960,7 @@ function openCard(kind,id,name){
           .then(function(r){ ub.disabled=false;
             if(!r.ok){ub.textContent='上傳履歷檔';return alert(r.error||'上傳失敗')}
             openCard(kind,id,name);
-          }).catch(function(){ub.disabled=false;ub.textContent='上傳履歷檔';alert('連線失敗')});
+          }).catch(function(e){ub.disabled=false;ub.textContent='上傳履歷檔';alert(apiFail(e))});
         };
         rd.readAsDataURL(f);
       };
@@ -991,7 +1002,7 @@ function openCard(kind,id,name){
       .then(function(r){ ig.disabled=false;
         if(!r.ok)return alert(r.error||'產生失敗');
         openCard(kind,id,name);
-      }).catch(function(){ig.disabled=false;alert('連線失敗')});
+      }).catch(function(e){ig.disabled=false;alert(apiFail(e))});
     };
     var ic=$('invcopy');
     if(ic)ic.onclick=function(){
@@ -1033,7 +1044,7 @@ function openCard(kind,id,name){
       .then(function(r){ b.disabled=false;
         if(!r.ok)return alert(r.error||'更新失敗');
         openCard(kind,id,name); load();
-      }).catch(function(){b.disabled=false;alert('連線失敗')});
+      }).catch(function(e){b.disabled=false;alert(apiFail(e))});
     }
 
     var dl=$('dlres');
@@ -1056,7 +1067,7 @@ function openCard(kind,id,name){
         });
       }).catch(function(e){dl.textContent=t;alert(e.message||'下載失敗')});
     };
-  }).catch(function(){$('dbody').innerHTML='<p class="mut">連線失敗</p>'});
+  }).catch(function(e){$('dbody').innerHTML='<p class="mut">連線失敗</p>'});
 }
 
 function renderTabs(){
@@ -1099,7 +1110,7 @@ function renderList(){
         if(!d.ok){alert(d.error||'指派失敗');s.value=prev;return}
         // 指派給別人之後，這一列就不該再留在「我的」畫面上——重載才不會誤導
         if(OWNER!=='all')load();
-      }).catch(function(){s.disabled=false;alert('連線失敗')});
+      }).catch(function(e){s.disabled=false;alert(apiFail(e))});
     };
     s.dataset.prev=s.value;
   });
@@ -1144,7 +1155,7 @@ function load(){
   return api('/admin/pipeline?owner='+encodeURIComponent(OWNER)).then(function(d){
     if(!d.ok){$('list').innerHTML='<div class="mut">讀取失敗</div>';return}
     DATA=d; renderTabs(); renderSum(); renderFilterOptions(); renderList();
-  }).catch(function(){$('list').innerHTML='<div class="mut">連線失敗</div>'});
+  }).catch(function(e){$('list').innerHTML='<div class="mut">連線失敗</div>'});
 }
 
 $('owner').onchange=function(){OWNER=this.value;localStorage.setItem('s1ne_pipe_owner',OWNER);load()};
@@ -1300,8 +1311,8 @@ function openNewCandModal(){
         if(r.message) alert(r.message);
         if(r.report_queued) alert('已建立，面談內容會在幾分鐘內自動整理成初篩報告，到「初篩報告」頁查看。');
         m.innerHTML=''; load();
-      }).catch(function(){ btn.disabled=false; msg.textContent='連線失敗'; });
-    }).catch(function(){ btn.disabled=false; msg.textContent='履歷檔案讀取失敗'; });
+      }).catch(function(e){ btn.disabled=false; msg.textContent=apiFail(e); });
+    }).catch(function(e){ btn.disabled=false; msg.textContent='履歷檔案讀取失敗'; });
   };
 }
 $('newCandBtn').onclick=openNewCandModal;

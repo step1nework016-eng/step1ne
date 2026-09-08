@@ -113,10 +113,38 @@ function api(path, opt) {
   opt = opt || {};
   opt.headers = Object.assign({ authorization: 'Bearer ' + tok }, opt.headers || {});
   return fetch(API + path, opt).then(function (r) {
-    if (r.status === 401) { gate('權杖不正確'); throw new Error('unauthorized'); }
-    return r.json();
+    if (r.status === 401) { var e401 = new Error('權杖不正確'); e401.status = 401; throw e401; }
+    return r.text().then(function (t) {
+      var d = null;
+      try { d = JSON.parse(t); } catch (x) { /* 不是 JSON——多半是 CF 的錯誤頁 */ }
+      if (!r.ok) {
+        var err = new Error('HTTP ' + r.status);
+        err.status = r.status;
+        err.serverError = d && d.error ? d.error : null;
+        err.body = d ? null : String(t).slice(0, 200);
+        throw err;
+      }
+      if (d === null) { var ep = new Error('回傳格式不是 JSON'); ep.body = String(t).slice(0, 200); throw ep; }
+      return d;
+    });
   });
 }
+// ── 錯誤訊息不要一律說「連線失敗」 ──
+// 2026-09-08：顧問按「產生電洽前準備」看到「連線失敗」，實際上網路好好的，
+// 真正的錯是後端 D1_ERROR: no such column: report_id。前端把所有失敗都寫成
+// 同一句話，等於把診斷資訊丟掉，只能靠工程師去翻 worker log 才知道發生什麼事。
+//
+// apiFail() 依實際情況給不同訊息：後端有回錯誤就照實顯示，
+// HTTP 非 2xx 顯示狀態碼，真的連不上才說連線失敗。
+function apiFail(e) {
+  if (!e) return apiFail(e);
+  if (e.status === 401 || /權杖/.test(e.message || '')) return '權杖不正確，請重新輸入';
+  if (e.serverError) return '伺服器回報：' + String(e.serverError).slice(0, 120);
+  if (e.status) return '伺服器錯誤 ' + e.status + (e.body ? '：' + String(e.body).slice(0, 100) : '');
+  if (e.name === 'TypeError') return '連線失敗（連不到伺服器，檢查網路）';
+  return String(e.message || e).slice(0, 120);
+}
+
 
 function closeModal() { $('mask').hidden = true; $('modal').hidden = true; }
 $('mx').onclick = closeModal;
@@ -269,7 +297,7 @@ function openCompany(id) {
           .then(function (r) { if (r.ok) openCompany(c.id); else alert(r.error || '失敗'); }.bind(this));
       };
     });
-  }).catch(function () {});
+  }).catch(function (e) {});
 }
 
 function load() {
@@ -301,7 +329,7 @@ $('save').onclick = function () {
     $('name').value = ''; $('email').value = '';
     load();
     openCompany(d.id);
-  }).catch(function (e) { if (e.message !== 'unauthorized') { $('err').textContent = '連線失敗'; $('err').hidden = false; } })
+  }).catch(function (e) { if (e.message !== 'unauthorized') { $('err').textContent = apiFail(e); $('err').hidden = false; } })
     .finally(function () { $('save').disabled = false; });
 };
 

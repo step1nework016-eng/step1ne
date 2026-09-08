@@ -215,9 +215,41 @@ var KEY = 's1ne_admin_tok';
 var tok = localStorage.getItem(KEY) || '';
 var $ = function (i) { return document.getElementById(i); };
 function api(p, o) {
-  o = o || {}; o.headers = Object.assign({ authorization: 'Bearer ' + tok }, o.headers || {});
-  return fetch(API + p, o).then(function (r) { return r.json(); });
+  o = o || {};
+  o.headers = Object.assign({ authorization: 'Bearer ' + tok }, o.headers || {});
+  return fetch(API + p, o).then(function (r) {
+    if (r.status === 401) { var e401 = new Error('權杖不正確'); e401.status = 401; throw e401; }
+    return r.text().then(function (t) {
+      var d = null;
+      try { d = JSON.parse(t); } catch (x) { /* 不是 JSON——多半是 CF 的錯誤頁 */ }
+      if (!r.ok) {
+        var err = new Error('HTTP ' + r.status);
+        err.status = r.status;
+        err.serverError = d && d.error ? d.error : null;
+        err.body = d ? null : String(t).slice(0, 200);
+        throw err;
+      }
+      if (d === null) { var ep = new Error('回傳格式不是 JSON'); ep.body = String(t).slice(0, 200); throw ep; }
+      return d;
+    });
+  });
 }
+// ── 錯誤訊息不要一律說「連線失敗」 ──
+// 2026-09-08：顧問按「產生電洽前準備」看到「連線失敗」，實際上網路好好的，
+// 真正的錯是後端 D1_ERROR: no such column: report_id。前端把所有失敗都寫成
+// 同一句話，等於把診斷資訊丟掉，只能靠工程師去翻 worker log 才知道發生什麼事。
+//
+// apiFail() 依實際情況給不同訊息：後端有回錯誤就照實顯示，
+// HTTP 非 2xx 顯示狀態碼，真的連不上才說連線失敗。
+function apiFail(e) {
+  if (!e) return apiFail(e);
+  if (e.status === 401 || /權杖/.test(e.message || '')) return '權杖不正確，請重新輸入';
+  if (e.serverError) return '伺服器回報：' + String(e.serverError).slice(0, 120);
+  if (e.status) return '伺服器錯誤 ' + e.status + (e.body ? '：' + String(e.body).slice(0, 100) : '');
+  if (e.name === 'TypeError') return '連線失敗（連不到伺服器，檢查網路）';
+  return String(e.message || e).slice(0, 120);
+}
+
 function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
   return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
 }); }
@@ -732,7 +764,7 @@ function openSourcedDrawer(c) {
     api('/admin/sourced/invite', { method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ id: c.sourced_id, job_slug: ij.value }) })
     .then(function (r) { ig.disabled = false; if (!r.ok) { alert(r.error || '產生失敗'); return; } closeDrawer(); loadCards(function () { openDrawer(c.sourced_id, 'sourced'); }); })
-    .catch(function () { ig.disabled = false; alert('連線失敗'); });
+    .catch(function (e) { ig.disabled = false; alert(apiFail(e)); });
   };
   var ic = $('invcopy');
   if (ic) ic.onclick = function () {
@@ -788,7 +820,7 @@ function openOrDownloadClientFormal(id, wantDownload) {
           }
           setTimeout(function () { URL.revokeObjectURL(u); }, 4000);
         })
-        .catch(function () { alert('下載失敗'); });
+        .catch(function (e) { alert('下載失敗'); });
       return;
     }
     // 舊版（表格＋大頭貼），行為維持不變
@@ -823,7 +855,7 @@ function wireClientFormalReportLinks(appId) {
         }).then(function (r) {
           if (!r.ok) { if (msgEl) msgEl.textContent = r.error || '上傳失敗'; return; }
           loadAndOpen(appId);
-        }).catch(function () { if (msgEl) msgEl.textContent = '連線失敗'; });
+        }).catch(function (e) { if (msgEl) msgEl.textContent = apiFail(e); });
       };
       reader.readAsDataURL(file);
     };
@@ -1368,7 +1400,7 @@ function wireDrawer(c, appId) {
       var bad = rs.find(function (r) { return !r.ok; });
       if (bad) { $('edMsg').textContent = bad.error || '儲存失敗'; return; }
       loadAndOpen(appId);
-    }).catch(function () { sv.disabled = false; $('edMsg').textContent = '連線失敗'; });
+    }).catch(function (e) { sv.disabled = false; $('edMsg').textContent = apiFail(e); });
   };
   Array.prototype.forEach.call(document.querySelectorAll('.dlres'), function (a) {
     a.onclick = function (ev) {
@@ -1376,7 +1408,7 @@ function wireDrawer(c, appId) {
       fetch(API + '/admin/file/' + encodeURIComponent(a.dataset.f), { headers: { authorization: 'Bearer ' + tok } })
         .then(function (rs) { if (!rs.ok) throw new Error('下載失敗'); return rs.blob(); })
         .then(function (b) { var u = URL.createObjectURL(b), el = document.createElement('a'); el.href = u; el.download = 'resume'; document.body.appendChild(el); el.click(); el.remove(); setTimeout(function () { URL.revokeObjectURL(u); }, 2000); a.textContent = t; })
-        .catch(function () { a.textContent = '下載失敗'; });
+        .catch(function (e) { a.textContent = '下載失敗'; });
     };
   });
   Array.prototype.forEach.call(document.querySelectorAll('.resumeDel'), function (b) {
@@ -1424,7 +1456,7 @@ function wireDrawer(c, appId) {
       callSumSaveBtn.disabled = false;
       if (!r.ok) { $('callSumMsg').textContent = r.error || '儲存失敗'; return; }
       loadAndOpen(appId);
-    }).catch(function () { callSumSaveBtn.disabled = false; $('callSumMsg').textContent = '連線失敗'; });
+    }).catch(function (e) { callSumSaveBtn.disabled = false; $('callSumMsg').textContent = apiFail(e); });
   };
   var noteBtn = $('noteAddBtn');
   if (noteBtn) noteBtn.onclick = function () { openNoteModal(appId); };
@@ -1483,7 +1515,7 @@ function wireDrawer(c, appId) {
       fetch(API + '/admin/candidate-form-submissions/' + encodeURIComponent(a.dataset.id) + '/download', { headers: { authorization: 'Bearer ' + tok } })
         .then(function (rs) { if (!rs.ok) throw new Error('下載失敗'); return rs.blob(); })
         .then(function (b) { var u = URL.createObjectURL(b), el = document.createElement('a'); el.href = u; el.download = 'form'; document.body.appendChild(el); el.click(); el.remove(); setTimeout(function () { URL.revokeObjectURL(u); }, 2000); a.textContent = t; })
-        .catch(function () { a.textContent = '下載失敗'; });
+        .catch(function (e) { a.textContent = '下載失敗'; });
     };
   });
   Array.prototype.forEach.call(document.querySelectorAll('.formResend'), function (b) {
@@ -1563,7 +1595,7 @@ function wireDrawer(c, appId) {
           '<span class="mut" style="font-size:11.5px">' + esc((m.created_at || '').slice(11, 16)) + '</span><br>' +
           esc(m.content).replace(/\n/g, '<br>') + '</p>';
       }).join('');
-    }).catch(function () { box.innerHTML = '<p class="mut" style="margin:0">連線失敗</p>'; });
+    }).catch(function (e) { box.innerHTML = '<p class="mut" style="margin:0">連線失敗</p>'; });
   };
   Array.prototype.forEach.call(document.querySelectorAll('.fdSave'), function (b) {
     b.onclick = function () {
@@ -1679,7 +1711,7 @@ function wireDrawer(c, appId) {
     .then(function (r) {
       if (!r.ok) { callPrepGenBtn2.disabled = false; $('callPrepGenMsg2').textContent = r.error || '產生失敗'; return; }
       loadAndOpen(appId);
-    }).catch(function () { callPrepGenBtn2.disabled = false; $('callPrepGenMsg2').textContent = '連線失敗'; });
+    }).catch(function (e) { callPrepGenBtn2.disabled = false; $('callPrepGenMsg2').textContent = apiFail(e); });
   };
 }
 
@@ -1992,7 +2024,7 @@ function openNewCandModal() {
         // 2026-09-04 加：卡片建好後不直接跳走，先問要不要當場產生連結——
         // Jacky 要求的流程，跟「稍後到人選卡片再產生」兩條路都留著。
         showNewCandLinksStep(r.application_id, r.message);
-      }).catch(function () { msg.textContent = '連線失敗'; });
+      }).catch(function (e) { msg.textContent = apiFail(e); });
     };
     if (ncResumeFile) { var reader = new FileReader(); reader.onload = function () { submit(reader.result.split(',')[1], ncResumeFile.name, ncResumeFile.type); }; reader.readAsDataURL(ncResumeFile); }
     else submit(null, null, null);
@@ -2037,7 +2069,7 @@ function showNewCandLinksStep(appId, companyMsg) {
       $('ncCopyAssess').onclick = function () { navigator.clipboard.writeText(r.assessment_url).then(function () { $('ncCopyAssess').textContent = '已複製'; }); };
       $('ncCopyInterview').onclick = function () { navigator.clipboard.writeText(interviewUrl).then(function () { $('ncCopyInterview').textContent = '已複製'; }); };
       $('ncLinksDone').onclick = finish;
-    }).catch(function () { btn.disabled = false; btn.textContent = '是，現在產生'; $('ncLinksResult').innerHTML = '<span class="mut" style="color:#c0392b">連線失敗</span>'; });
+    }).catch(function (e) { btn.disabled = false; btn.textContent = '是，現在產生'; $('ncLinksResult').innerHTML = '<span class="mut" style="color:#c0392b">連線失敗</span>'; });
   };
 }
 function closeNewCand() { $('ncMask').classList.remove('show'); }
@@ -2057,7 +2089,7 @@ function wireOwnerAssign(kind, id, reload) {
     api('/admin/set-owner', { method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ kind: kind, id: id, owner: sel.value || null }) })
     .then(function (r) { sel.disabled = false; if (!r.ok) { alert(r.error || '指派失敗'); return; } reload(); })
-    .catch(function () { sel.disabled = false; alert('連線失敗'); });
+    .catch(function (e) { sel.disabled = false; alert(apiFail(e)); });
   };
 }
 function ownerAssignSelect(cur) {
@@ -2089,7 +2121,7 @@ function loadCards(cb) {
     CARDS = d.cards || [];
     renderStats(); renderPipes(); renderTabs(); renderList();
     if (cb) cb();
-  }).catch(function () { if (!CARDS.length) $('listWrap').innerHTML = '<div class="empty">連線失敗</div>'; });
+  }).catch(function (e) { if (!CARDS.length) $('listWrap').innerHTML = '<div class="empty">連線失敗</div>'; });
 }
 
 function load() {

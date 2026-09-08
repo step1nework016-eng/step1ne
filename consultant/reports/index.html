@@ -524,10 +524,38 @@ function api(path, opt) {
   opt = opt || {};
   opt.headers = Object.assign({ authorization: 'Bearer ' + tok }, opt.headers || {});
   return fetch(API + path, opt).then(function (r) {
-    if (r.status === 401) { throw new Error('權杖不正確'); }
-    return r.json();
+    if (r.status === 401) { var e401 = new Error('權杖不正確'); e401.status = 401; throw e401; }
+    return r.text().then(function (t) {
+      var d = null;
+      try { d = JSON.parse(t); } catch (x) { /* 不是 JSON——多半是 CF 的錯誤頁 */ }
+      if (!r.ok) {
+        var err = new Error('HTTP ' + r.status);
+        err.status = r.status;
+        err.serverError = d && d.error ? d.error : null;
+        err.body = d ? null : String(t).slice(0, 200);
+        throw err;
+      }
+      if (d === null) { var ep = new Error('回傳格式不是 JSON'); ep.body = String(t).slice(0, 200); throw ep; }
+      return d;
+    });
   });
 }
+// ── 錯誤訊息不要一律說「連線失敗」 ──
+// 2026-09-08：顧問按「產生電洽前準備」看到「連線失敗」，實際上網路好好的，
+// 真正的錯是後端 D1_ERROR: no such column: report_id。前端把所有失敗都寫成
+// 同一句話，等於把診斷資訊丟掉，只能靠工程師去翻 worker log 才知道發生什麼事。
+//
+// apiFail() 依實際情況給不同訊息：後端有回錯誤就照實顯示，
+// HTTP 非 2xx 顯示狀態碼，真的連不上才說連線失敗。
+function apiFail(e) {
+  if (!e) return apiFail(e);
+  if (e.status === 401 || /權杖/.test(e.message || '')) return '權杖不正確，請重新輸入';
+  if (e.serverError) return '伺服器回報：' + String(e.serverError).slice(0, 120);
+  if (e.status) return '伺服器錯誤 ' + e.status + (e.body ? '：' + String(e.body).slice(0, 100) : '');
+  if (e.name === 'TypeError') return '連線失敗（連不到伺服器，檢查網路）';
+  return String(e.message || e).slice(0, 120);
+}
+
 
 // 應徵表單填的社群平台連結。存的是 JSON（可能有多個平台），
 // 壞掉或沒填就整段不顯示——不要在顧問畫面上留一個空欄位讓人猜。
@@ -1012,7 +1040,7 @@ async function open(row) {
   } catch (e) {
     // 權杖不對會走這條（api() 對 401 是 throw 不是回 ok:false）。
     // 原本沒接，會變成畫面卡在「載入中…」，看起來像當掉。
-    $('drep').textContent = '讀不到報告：' + (e && e.message ? e.message : '連線失敗') +
+    $('drep').textContent = '讀不到報告：' + (e && e.message ? e.message : apiFail(e)) +
       '\n\n如果寫「權杖不正確」，右上角重新輸入 ADMIN_TOKEN 就好。';
     return;
   }
@@ -1090,7 +1118,7 @@ function drawActs(now) {
         alert('重開失敗：' + (d.error || '伺服器沒說原因'));
       }
     } catch (e) {
-      alert('重開失敗：' + (e && e.message ? e.message : '連線失敗'));
+      alert('重開失敗：' + (e && e.message ? e.message : apiFail(e)));
     } finally {
       this.disabled = false; this.textContent = '↻ 重新開啟面談室';
     }
@@ -1129,7 +1157,7 @@ async function renderForwardPanel(appId, decided) {
 
   var jobSlug = (cur && cur.job_slug) || '';
   var [fwd, companies] = await Promise.all([
-    api('/admin/candidate-forwards/' + encodeURIComponent(appId)).catch(function () { return { ok: false }; }),
+    api('/admin/candidate-forwards/' + encodeURIComponent(appId)).catch(function (e) { return { ok: false }; }),
     loadForwardCompanies(jobSlug),
   ]);
   var list = (fwd.ok ? fwd.forwards : []) || [];
@@ -1184,7 +1212,7 @@ async function renderForwardPanel(appId, decided) {
         if (!d.ok) { msg.style.color = '#c0392b'; msg.textContent = d.error || '失敗'; addBtn.disabled = false; return; }
         renderForwardPanel(appId, decided);
       } catch (e) {
-        msg.style.color = '#c0392b'; msg.textContent = '連線失敗'; addBtn.disabled = false;
+        msg.style.color = '#c0392b'; msg.textContent = apiFail(e); addBtn.disabled = false;
       }
     });
   }
@@ -1201,7 +1229,7 @@ async function renderForwardPanel(appId, decided) {
         if (!d.ok) { alert(d.error || '取消失敗'); btn.disabled = false; btn.textContent = '✕ 取消推薦'; return; }
         renderForwardPanel(appId, decided);
       } catch (e) {
-        alert('連線失敗'); btn.disabled = false; btn.textContent = '✕ 取消推薦';
+        alert(apiFail(e)); btn.disabled = false; btn.textContent = '✕ 取消推薦';
       }
     });
   });
@@ -1323,7 +1351,7 @@ $('c_go').addEventListener('click', async function () {
       $('c_err').textContent = '🚨 這則訊息不能送出\n\n' + (d.message || '');
     } else { $('c_err').hidden = false; $('c_err').textContent = '失敗：' + (d.error || '伺服器沒說原因'); }
   } catch (e) {
-    $('c_err').hidden = false; $('c_err').textContent = '失敗：' + (e && e.message ? e.message : '連線失敗');
+    $('c_err').hidden = false; $('c_err').textContent = '失敗：' + (e && e.message ? e.message : apiFail(e));
   } finally {
     this.disabled = false; this.textContent = oldText;
   }
@@ -1380,7 +1408,7 @@ function wireOwnerAssign(kind, id, reload) {
     api('/admin/set-owner', { method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ kind: kind, id: id, owner: sel.value || null }) })
     .then(function (r) { sel.disabled = false; if (!r.ok) { alert(r.error || '指派失敗'); return; } reload(); })
-    .catch(function () { sel.disabled = false; alert('連線失敗'); });
+    .catch(function (e) { sel.disabled = false; alert(apiFail(e)); });
   };
 }
 function ownerAssignSelect(cur) {
@@ -1475,7 +1503,7 @@ function renderStageBar(row, d) {
                      f.company_id, f.display_name)
             + '</div>';
         }).join('');
-  }).catch(function () { /* 查不到就維持整體那一條，不擋畫面 */ });
+  }).catch(function (e) { /* 查不到就維持整體那一條，不擋畫面 */ });
 }
 
 // companyId 有值＝只調整那一家客戶的進度（同一位人選推給好幾家時各自獨立）；
@@ -1493,7 +1521,7 @@ async function setManualStage(stageKey, btn, companyId) {
     if (!d.ok) { alert('失敗：' + (d.error || '伺服器沒說原因')); return; }
     if (reopenFn && reopenRow) await reopenFn(reopenRow);   // 重新載入這個人選的詳情，階段列跟著更新
   } catch (e) {
-    alert('失敗：' + (e && e.message ? e.message : '連線失敗'));
+    alert('失敗：' + (e && e.message ? e.message : apiFail(e)));
   } finally {
     btn.disabled = false; btn.textContent = oldText;
   }
@@ -1590,7 +1618,7 @@ $('apptsubmit').addEventListener('click', async function () {
       $('apptresult').textContent = '❌ 失敗：' + (d2.error || '伺服器沒說原因');
     }
   } catch (e) {
-    $('apptresult').textContent = '❌ 失敗：' + (e && e.message ? e.message : '連線失敗');
+    $('apptresult').textContent = '❌ 失敗：' + (e && e.message ? e.message : apiFail(e));
   } finally {
     this.disabled = false; this.textContent = '送出安排';
   }
@@ -1642,7 +1670,7 @@ function startLivePanel() {
 }
 
 function loadConsultants() {
-  api('/admin/consultants').then(function (d) { CONSULTANTS = (d && d.consultants) || []; }).catch(function () {});
+  api('/admin/consultants').then(function (d) { CONSULTANTS = (d && d.consultants) || []; }).catch(function (e) {});
 }
 $('enter').addEventListener('click', function () {
   tok = $('tok').value.trim();

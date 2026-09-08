@@ -115,83 +115,42 @@ var API='https://step1ne-backoffice-worker.aiagentg888.workers.dev';
 var KEY='s1ne_admin_tok';
 var tok=localStorage.getItem(KEY)||'';
 var $=function(i){return document.getElementById(i)};
-function api(p,o){o=o||{};o.headers=Object.assign({authorization:'Bearer '+tok},o.headers||{});
-  return fetch(API+p,o).then(function(r){return r.json()})}
-function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){
-  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
-
-function render(d){
-  var n=d.now||{};
-  $('kpis').innerHTML=
-    kpi(n.need_call,'等你按判斷','act','⏳')+
-    kpi(n.lang_missing,'外語沒驗到',n.lang_missing?'act':'','🗣️')+
-    kpi(n.waiting,'等著進面談',n.waiting?'warn':'','⏱️')+
-    kpi(n.new7,'本週新進','','🆕')+
-    kpi(n.cands,'候選人總數','','👥')+
-    kpi(n.jobs_open,'在辦職缺','','📋');
-
-  // 漏斗
-  // 2026-09-02 改：舊的5關是讀 pipeline_events（死表，全站零寫入，卡在
-  // 8/6 沒動過），現在後端全部改成從 applications/reports/placements
-  // 即時算——這三張表是系統一直在寫的，不會再卡住，關卡也跟著改成
-  // 這三張表實際能算出來的6關。
-  var order=[['applied','收到應徵'],['interviewed','進入AI面談'],['consultant_review','顧問審核通過'],
-             ['client_stage','客戶面談中'],['offered','已錄取'],['onboard','已到職']];
-  var map={}; (d.funnel||[]).forEach(function(f){map[f.stage]=f.n});
-  var top=Math.max.apply(null,order.map(function(o){return map[o[0]]||0}).concat([1]));
-  $('funnel').innerHTML=order.map(function(o,i){
-    var v=map[o[0]]||0, prev=i?(map[order[i-1][0]]||0):0;
-    var pc=i&&prev?Math.round(v/prev*100)+'% 通過':'';
-    var pct=Math.max(4,Math.round(v/top*100));
-    return '<div class="fnrow"><span class="lb">'+o[1]+'</span>'
-      +'<span class="track"><span class="bar'+(v?'':' g')+'" style="width:'+pct+'%"></span></span>'
-      +'<span class="vn">'+v+'</span><span class="pc">'+pc+'</span></div>';
-  }).join('')
-  +'<div class="explain">👉 長條越短代表這一關流失越多人。這幾個數字直接從系統即時算出來，'
-  +'不用顧問手動記錄，也不會卡住不動。</div>';
-
-  // 準確率
-  var vs=d.verdicts||[];
-  if(!vs.length){
-    $('acc').innerHTML='<div class="empty">還沒有資料。'
-      +'面談報告推到 Telegram 時按「✅ 我也會推 / ✋ 我不推 / 🤔 還要再看」，'
-      +'或到 <a href="/consultant/kpi/" style="color:var(--gold)">阿財準不準</a> 補填之前的人選，'
-      +'累積十次左右就會出現「阿財判值得轉的人，你實際推了幾成」——'
-      +'那是對外賣 AI 招募時客戶唯一會信的數字。</div>';
-  }else{
-    var tot=vs.reduce(function(a,b){return a+b.n},0);
-    var yes=(vs.find(function(x){return x.k==='會推'})||{n:0}).n;
-    // ⚠️ 2026-08-21 改：樣本不到 5 筆不給百分比。
-    // 之前只有 1 位被回填，這裡就顯示「100%」——一個樣本的百分比不是統計，
-    // 而這個數字是要拿去跟客戶說「AI 沒把人看錯」的，講錯一次就回不來。
-    $('acc').innerHTML='<div class="kpis">'
-      +(tot>=5
-         ? kpi(Math.round(yes/tot*100)+'%','阿財判值得轉、你實際會推','','🎯')
-         : kpi('還不能算','回填滿 5 位才會顯示準確率','warn','🎯'))
-      +kpi(tot,'已回填的判斷','','✅')+'</div>'
-      +'<div class="mut" style="margin-top:8px">'
-      +vs.map(function(x){return esc(x.k)+' '+x.n+' 位'}).join('　·　')
-      +'　·　<a href="/consultant/kpi/" style="color:var(--gold)">去補填之前的人選 →</a></div>';
-  }
-
-  // 各職缺
-  $('byjob').innerHTML='<table><tr><th>職缺</th><th class="n">應徵</th><th class="n">已面談</th><th class="n">待判斷</th></tr>'
-    +(d.byJob||[]).map(function(j){
-      return '<tr><td>'+esc(j.title||j.job_slug)+'</td><td class="n">'+j.n+'</td>'
-        +'<td class="n">'+j.done+'</td><td class="n">'
-        +(j.need_call?'<span class="pill red">'+j.need_call+'</span>':'—')+'</td></tr>';
-    }).join('')+'</table>';
-
-  // 待辦名單
-  if((d.todo||[]).length){
-    $('todocard').hidden=false;
-    $('todo').innerHTML='<table><tr><th>人選</th><th>職缺</th><th>面談結束</th></tr>'
-      +d.todo.map(function(t){
-        return '<tr><td>'+esc(t.name)+'</td><td>'+esc(t.title||t.job_slug)+'</td>'
-          +'<td class="mut">'+esc((t.interview_ended_at||'').slice(5,16))+'</td></tr>';
-      }).join('')+'</table>';
-  }
+function api(p, o) {
+  o = o || {};
+  o.headers = Object.assign({ authorization: 'Bearer ' + tok }, o.headers || {});
+  return fetch(API + p, o).then(function (r) {
+    if (r.status === 401) { var e401 = new Error('權杖不正確'); e401.status = 401; throw e401; }
+    return r.text().then(function (t) {
+      var d = null;
+      try { d = JSON.parse(t); } catch (x) { /* 不是 JSON——多半是 CF 的錯誤頁 */ }
+      if (!r.ok) {
+        var err = new Error('HTTP ' + r.status);
+        err.status = r.status;
+        err.serverError = d && d.error ? d.error : null;
+        err.body = d ? null : String(t).slice(0, 200);
+        throw err;
+      }
+      if (d === null) { var ep = new Error('回傳格式不是 JSON'); ep.body = String(t).slice(0, 200); throw ep; }
+      return d;
+    });
+  });
 }
+// ── 錯誤訊息不要一律說「連線失敗」 ──
+// 2026-09-08：顧問按「產生電洽前準備」看到「連線失敗」，實際上網路好好的，
+// 真正的錯是後端 D1_ERROR: no such column: report_id。前端把所有失敗都寫成
+// 同一句話，等於把診斷資訊丟掉，只能靠工程師去翻 worker log 才知道發生什麼事。
+//
+// apiFail() 依實際情況給不同訊息：後端有回錯誤就照實顯示，
+// HTTP 非 2xx 顯示狀態碼，真的連不上才說連線失敗。
+function apiFail(e) {
+  if (!e) return apiFail(e);
+  if (e.status === 401 || /權杖/.test(e.message || '')) return '權杖不正確，請重新輸入';
+  if (e.serverError) return '伺服器回報：' + String(e.serverError).slice(0, 120);
+  if (e.status) return '伺服器錯誤 ' + e.status + (e.body ? '：' + String(e.body).slice(0, 100) : '');
+  if (e.name === 'TypeError') return '連線失敗（連不到伺服器，檢查網路）';
+  return String(e.message || e).slice(0, 120);
+}
+
 function kpi(v,l,cls,ic){return '<div class="kpi '+(cls||'')+'">'+(ic?'<div class="ic">'+ic+'</div>':'')+'<div class="n">'+v+'</div><div class="l">'+l+'</div></div>'}
 
 function load(){
@@ -199,7 +158,7 @@ function load(){
   api('/admin/overview').then(function(d){
     if(!d.ok){$('kpis').innerHTML='<div class="mut">讀取失敗</div>';return}
     render(d);
-  }).catch(function(){$('kpis').innerHTML='<div class="mut">連線失敗</div>'});
+  }).catch(function(e){$('kpis').innerHTML='<div class="mut">連線失敗</div>'});
 }
 function boot(){
   if(tok) return load();

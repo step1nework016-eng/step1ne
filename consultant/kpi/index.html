@@ -95,81 +95,42 @@ var KEY='s1ne_admin_tok';
 var tok=localStorage.getItem(KEY)||'';
 var $=function(i){return document.getElementById(i)};
 var ST='pending', DATA=null;
-function api(p,o){o=o||{};o.headers=Object.assign({authorization:'Bearer '+tok},o.headers||{});
-  return fetch(API+p,o).then(function(r){return r.json()})}
-function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){
-  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
-
-function render(){
-  var s=DATA.stats||{}, rows=DATA.rows||[];
-  // 樣本不到 5 筆就不顯示百分比。
-  // 一個樣本的 100% 不是統計，是誤導——那個數字會被拿去跟客戶說「AI 沒把人看錯」。
-  var rateHtml = s.rate==null
-    ? '<b style="font-size:17px;color:#8a6100">還不能算</b><span>阿財判值得轉的案子要滿 5 筆才會顯示準確率（目前 '+(s.aiWorthInterview||0)+' 筆）</span>'
-    : '<b>'+s.rate+'%</b><span>阿財判值得轉、你實際推薦給客戶</span>';
-  // 「顧問推了」只是第一層。真正證明阿財看對人的是後面兩層：客戶願意約面試、
-  // 客戶真的要。三個數字的分母都是「阿財說值得轉」的那些，一路往下看漏在哪一關。
-  // 分母是「已經有答案的」＝進了面試 ＋ 明確標沒面試。還在等客戶回覆的
-  // 不算進去——不然每多推一個人比率就往下掉一次。
-  var lvl = function (v, cnt, lb) {
-    return v == null
-      ? '<div class="k"><b style="font-size:17px;color:#8a6100">'+cnt+' 人</b><span>'+lb+'（有答案的還不到 5 筆，先不算比例）</span></div>'
-      : '<div class="k"><b>'+v+'%</b><span>'+lb+'（'+cnt+'／'+(s.settled||0)+'）</span></div>';
-  };
-  $('kpi').innerHTML =
-     '<div class="k">'+rateHtml+'</div>'
-    +lvl(s.interviewRate, s.gotInterview||0, '阿財判值得轉、實際進到面試')
-    +lvl(s.offerRate, s.gotOffer||0, '阿財判值得轉、實際錄取')
-    +'<div class="k"><b>'+(s.unknown||0)+'</b><span>還不知道有沒有進面試（要按下面的按鈕才算得出比率）</span></div>'
-    +'<div class="k"><b>'+(s.rejectedByUs||0)+' ／ '+(s.clientNoShow||0)+'</b>'
-    +'<span>沒進面試的原因：你不推 ／ 推了但客戶沒約</span></div>'
-    +'<div class="k"><b>'+(s.total||0)+'</b><span>談完總數</span></div>';
-
-  $('tabs').innerHTML=[['pending','還沒回填 '+(s.pending||0)],['done','已回填 '+(s.done||0)],['all','全部 '+(s.total||0)]]
-    .map(function(k){return '<button class="tab'+(k[0]===ST?' on':'')+'" data-s="'+k[0]+'">'+k[1]+'</button>'}).join('');
-
-  var show=rows.filter(function(r){
-    return ST==='all' || (ST==='pending' ? !r.verdict : !!r.verdict);
+function api(p, o) {
+  o = o || {};
+  o.headers = Object.assign({ authorization: 'Bearer ' + tok }, o.headers || {});
+  return fetch(API + p, o).then(function (r) {
+    if (r.status === 401) { var e401 = new Error('權杖不正確'); e401.status = 401; throw e401; }
+    return r.text().then(function (t) {
+      var d = null;
+      try { d = JSON.parse(t); } catch (x) { /* 不是 JSON——多半是 CF 的錯誤頁 */ }
+      if (!r.ok) {
+        var err = new Error('HTTP ' + r.status);
+        err.status = r.status;
+        err.serverError = d && d.error ? d.error : null;
+        err.body = d ? null : String(t).slice(0, 200);
+        throw err;
+      }
+      if (d === null) { var ep = new Error('回傳格式不是 JSON'); ep.body = String(t).slice(0, 200); throw ep; }
+      return d;
+    });
   });
-  if(!show.length){$('list').innerHTML='<div class="empty">'
-    +(ST==='pending'?'全部都處置完了 👍':'這一區還沒有資料')+'</div>';return}
-  $('list').innerHTML=show.map(function(r){
-    var days=r.days!=null?r.days:'';
-    var old = (r.days>=7 && !r.verdict) ? ' <span class="old">放了 '+days+' 天</span>' : '';
-    return '<div class="c"><div class="top">'
-      +'<span class="nm">'+esc(r.name||'（無姓名）')+'</span>'
-      +'<span class="hl">'+esc(r.job_title||r.job_slug||'')+'</span>'
-      +(r.verdict?'<span class="done">'+esc(r.verdict)+'</span>':'')+'</div>'
-      +'<div class="meta">報告 '+esc((r.report_at||'').slice(0,10))+'　·　'
-      +'<a class="lk" href="/consultant/reports/?id='+encodeURIComponent(r.report_id)+'">看報告</a>'+old+'</div>'
-      +'<div class="acts">'
-      +['會推','再看看','不推'].map(function(v){
-          var on=r.verdict===v;
-          return '<button class="btn'+(v==='會推'?' p':'')+(v==='不推'?' d':'')+'"'
-            +(on?' disabled style="opacity:.45"':'')
-            +' onclick="setv(\''+r.report_id+'\',\''+v+'\')">'+v+'</button>';
-        }).join('')
-      +'</div>'
-      // 里程碑：這個人選後來實際走到哪。按下去寫的是**進度條**同一份資料，
-      // 所以顧問後台、客戶入口、候選人 LINE 三邊會一起往前跳。
-      +'<div class="ms">'
-      +'<span class="mslb">實際走到：</span>'
-      // 你自己標「不推」的人，本來就不會有面試——不用再叫你手動按一次。
-      // 直接顯示成已定案，不給按鈕（省得每個不推的人都要多按一下）。
-      +(r.verdict==='不推' && !r.reached_interview
-        ? '<span class="msb on bad" style="cursor:default">✓ 你不推，所以沒面試</span>'
-        : MILESTONES.map(function(m){
-            // 「推了，客戶沒約」：已經走到面試之後就不該再標，直接不能按
-            var on = m[0]==='no_interview' ? !!r.no_interview_at && !r.reached_interview : !!r[m[2]];
-            var dead = m[0]==='no_interview' && !!r.reached_interview;
-            return '<button class="msb'+(on?' on'+(m[3]?' '+m[3]:''):'')+'"'
-              + (dead?' disabled style="opacity:.3" title="進度已經在面試之後了"':'')
-              + ' onclick="setms(\''+r.id+'\',\''+m[0]+'\','+(on?'1':'0')+')">'
-              + (on?'✓ ':'') + m[1] + '</button>';
-          }).join(''))
-      +'</div></div>';
-  }).join('');
 }
+// ── 錯誤訊息不要一律說「連線失敗」 ──
+// 2026-09-08：顧問按「產生電洽前準備」看到「連線失敗」，實際上網路好好的，
+// 真正的錯是後端 D1_ERROR: no such column: report_id。前端把所有失敗都寫成
+// 同一句話，等於把診斷資訊丟掉，只能靠工程師去翻 worker log 才知道發生什麼事。
+//
+// apiFail() 依實際情況給不同訊息：後端有回錯誤就照實顯示，
+// HTTP 非 2xx 顯示狀態碼，真的連不上才說連線失敗。
+function apiFail(e) {
+  if (!e) return apiFail(e);
+  if (e.status === 401 || /權杖/.test(e.message || '')) return '權杖不正確，請重新輸入';
+  if (e.serverError) return '伺服器回報：' + String(e.serverError).slice(0, 120);
+  if (e.status) return '伺服器錯誤 ' + e.status + (e.body ? '：' + String(e.body).slice(0, 100) : '');
+  if (e.name === 'TypeError') return '連線失敗（連不到伺服器，檢查網路）';
+  return String(e.message || e).slice(0, 120);
+}
+
 // [送出的值, 按鈕文字, API 回傳的欄位]
 var MILESTONES = [
   ['interview',    '有進面試', 'reached_interview', ''],
@@ -205,7 +166,7 @@ function load(){
   api('/admin/kpi/pending').then(function(d){
     if(!d.ok){$('list').innerHTML='<div class="mut">讀取失敗</div>';return}
     DATA=d; render();
-  }).catch(function(){$('list').innerHTML='<div class="mut">連線失敗</div>'});
+  }).catch(function(e){$('list').innerHTML='<div class="mut">連線失敗</div>'});
 }
 function boot(){
   if(tok)return load();

@@ -87,33 +87,42 @@ var API='https://step1ne-backoffice-worker.aiagentg888.workers.dev';
 var KEY='s1ne_admin_tok';
 var tok=localStorage.getItem(KEY)||'';
 var $=function(i){return document.getElementById(i)};
-function api(p,o){o=o||{};o.headers=Object.assign({authorization:'Bearer '+tok},o.headers||{});
-  return fetch(API+p,o).then(function(r){return r.json()})}
-function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){
-  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
-
-var TYPES=[['','全部'],['school','學校系所'],['candidate','人選'],['intro','介紹人'],['client','企業']];
-// 沒有「已讀不回」這個選項是刻意的——那是推測，不是事實。
-// 只有對方真的做了什麼（回了／婉拒／約到了）才有按鈕，其餘一律留在「等回覆」，
-// 由天數自己說話。
-var OUTCOMES=[
-  {k:'sent',     lb:'已聯絡', cls:''},
-  {k:'replied',  lb:'有回覆', cls:'ok'},
-  {k:'meeting',  lb:'約到了', cls:'ok'},
-  {k:'declined', lb:'明確婉拒', cls:'bad'},
-  {k:'no_reply', lb:'放棄追', cls:''},
-];
-var OUT_LB={todo:'還沒接觸',sent:'等回覆',replied:'有回覆',meeting:'約到了',declined:'婉拒',no_reply:'放棄追'};
-var TYPE_LB={school:'學校系所',candidate:'人選',intro:'介紹人',client:'企業'};
-var T='', DATA=null;
-var STALE=10;   // 系所信箱通常一到兩週內會回，10 天沒動就該補一封或換窗口
-
-function days(s){
-  if(!s)return null;
-  var d=new Date(String(s).replace(' ','T'));
-  if(isNaN(d))return null;
-  return Math.floor((new Date(Date.now()+8*3600*1000)-d)/86400000);
+function api(p, o) {
+  o = o || {};
+  o.headers = Object.assign({ authorization: 'Bearer ' + tok }, o.headers || {});
+  return fetch(API + p, o).then(function (r) {
+    if (r.status === 401) { var e401 = new Error('權杖不正確'); e401.status = 401; throw e401; }
+    return r.text().then(function (t) {
+      var d = null;
+      try { d = JSON.parse(t); } catch (x) { /* 不是 JSON——多半是 CF 的錯誤頁 */ }
+      if (!r.ok) {
+        var err = new Error('HTTP ' + r.status);
+        err.status = r.status;
+        err.serverError = d && d.error ? d.error : null;
+        err.body = d ? null : String(t).slice(0, 200);
+        throw err;
+      }
+      if (d === null) { var ep = new Error('回傳格式不是 JSON'); ep.body = String(t).slice(0, 200); throw ep; }
+      return d;
+    });
+  });
 }
+// ── 錯誤訊息不要一律說「連線失敗」 ──
+// 2026-09-08：顧問按「產生電洽前準備」看到「連線失敗」，實際上網路好好的，
+// 真正的錯是後端 D1_ERROR: no such column: report_id。前端把所有失敗都寫成
+// 同一句話，等於把診斷資訊丟掉，只能靠工程師去翻 worker log 才知道發生什麼事。
+//
+// apiFail() 依實際情況給不同訊息：後端有回錯誤就照實顯示，
+// HTTP 非 2xx 顯示狀態碼，真的連不上才說連線失敗。
+function apiFail(e) {
+  if (!e) return apiFail(e);
+  if (e.status === 401 || /權杖/.test(e.message || '')) return '權杖不正確，請重新輸入';
+  if (e.serverError) return '伺服器回報：' + String(e.serverError).slice(0, 120);
+  if (e.status) return '伺服器錯誤 ' + e.status + (e.body ? '：' + String(e.body).slice(0, 100) : '');
+  if (e.name === 'TypeError') return '連線失敗（連不到伺服器，檢查網路）';
+  return String(e.message || e).slice(0, 120);
+}
+
 
 function render(){
   var s=DATA.stats||{}, rows=DATA.rows||[];
@@ -181,7 +190,7 @@ function render(){
       api('/admin/outreach/outcome',{method:'POST',headers:{'content-type':'application/json'},
         body:JSON.stringify({id:Number(b.dataset.i), outcome:cur?'sent':b.dataset.o})})
       .then(function(d){ b.disabled=false; if(!d.ok)return alert(d.error||'失敗'); load(); })
-      .catch(function(){b.disabled=false;alert('連線失敗')});
+      .catch(function(e){b.disabled=false;alert(apiFail(e))});
     };
   });
 }
@@ -191,7 +200,7 @@ function load(){
   api('/admin/outreach').then(function(d){
     if(!d.ok){$('list').innerHTML='<div class="mut">讀取失敗</div>';return}
     DATA=d; render();
-  }).catch(function(){$('list').innerHTML='<div class="mut">連線失敗</div>'});
+  }).catch(function(e){$('list').innerHTML='<div class="mut">連線失敗</div>'});
 }
 function boot(){
   if(tok)return load();

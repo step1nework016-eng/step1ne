@@ -104,63 +104,42 @@ var API='https://step1ne-backoffice-worker.aiagentg888.workers.dev';
 var KEY='s1ne_admin_tok';
 var tok=localStorage.getItem(KEY)||'';
 var $=function(i){return document.getElementById(i)};
-function api(path,opt){opt=opt||{};opt.headers=Object.assign({authorization:'Bearer '+tok},opt.headers||{});
-  return fetch(API+path,opt).then(function(r){return r.json()})}
-function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){
-  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
-var KC={'經驗':'#23262d','情境':'#8a6100','技術':'#2f8f5b','外語':'#c0392b'};
-
-function render(d){
-  var banks=d.banks||[], miss=d.missing||[];
-  var tq=0,ts=0,hot=0;
-  banks.forEach(function(b){
-    BANKS[b.job_slug]=b;
-    b._q=JSON.parse(b.questions_json||'[]');
-    b._t=JSON.parse(b.topics_json||'[]');
-    b._s=JSON.parse(b.sources_json||'[]');
-    tq+=b._q.length; ts+=b._s.length; if(b.cands)hot++;
+function api(path, opt) {
+  opt = opt || {};
+  opt.headers = Object.assign({ authorization: 'Bearer ' + tok }, opt.headers || {});
+  return fetch(API + path, opt).then(function (r) {
+    if (r.status === 401) { var e401 = new Error('權杖不正確'); e401.status = 401; throw e401; }
+    return r.text().then(function (t) {
+      var d = null;
+      try { d = JSON.parse(t); } catch (x) { /* 不是 JSON——多半是 CF 的錯誤頁 */ }
+      if (!r.ok) {
+        var err = new Error('HTTP ' + r.status);
+        err.status = r.status;
+        err.serverError = d && d.error ? d.error : null;
+        err.body = d ? null : String(t).slice(0, 200);
+        throw err;
+      }
+      if (d === null) { var ep = new Error('回傳格式不是 JSON'); ep.body = String(t).slice(0, 200); throw ep; }
+      return d;
+    });
   });
-  $('stats').innerHTML=
-    '<div class="stat"><div class="n">'+banks.length+'</div><div class="l">職缺題庫</div></div>'+
-    '<div class="stat"><div class="n">'+tq+'</div><div class="l">專業題目</div></div>'+
-    '<div class="stat"><div class="n">'+ts+'</div><div class="l">查過的來源</div></div>'+
-    '<div class="stat"><div class="n">'+hot+'</div><div class="l">有人選在跑</div></div>';
-
-  $('list').innerHTML=banks.map(function(b){
-    var qs=b._q.map(function(q,i){
-      var gs=(q.good_signs||[]).join('；'), rf=(q.red_flags||[]).join('；');
-      return '<div class="q"><div class="head"><span class="k" style="background:'+(KC[q.kind]||'#8a8d95')+'">'
-        +esc(q.kind||'經驗')+'</span>'+(i+1)+'. '+esc(q.q)+'</div>'
-        +'<div class="why">'+esc(q.topic||'')+'｜想確認：'+esc(q.why||'')+'</div>'
-        +(gs?'<div class="sig good">✅ 真做過會提到：'+esc(gs)+'</div>':'')
-        +(rf?'<div class="sig bad">⚠️ 含糊的訊號：'+esc(rf)+'</div>':'')
-        +(q.followup?'<div class="fu">↳ 含糊就追問：'+esc(q.followup)+'</div>':'')
-        +'</div>';
-    }).join('');
-    return '<details><summary><span class="ttl">'+esc(b.title||b.job_slug)+'</span>'
-      +'<span class="dm">'+esc(b.domain||'')+'</span>'
-      +'<span class="cnt">'+b._q.length+' 題 · '+b._s.length+' 個來源</span>'
-      +(b.cands?'<span class="pill hot">'+b.cands+' 位人選</span>':'')
-      +(b.edited_by?'<span class="edited">'+esc(b.edited_by)+' 改過</span>':'')
-      +'</summary><div class="body">'
-      +'<div>'+b._t.map(function(t){return '<span class="pill">'+esc(t.name||'')+'</span>'}).join('')+'</div>'
-      +'<div class="bar"><button class="btn p" onclick="edit(\''+esc(b.job_slug)+'\')">✏️ 編輯這份題庫</button>'
-      +(b.can_restore?'<button class="btn d" onclick="restore(\''+esc(b.job_slug)+'\')">↺ 還原成機器原本產的版本</button>':'')
-      +'</div>'
-      +'<div id="ed-'+esc(b.job_slug)+'"></div>'
-      +qs
-      +'<div class="srcs"><b>實際查過的來源</b><br>'
-      + b._s.map(function(u){return '<a href="'+esc(u)+'" target="_blank" rel="noopener">'+esc(u)+'</a>'}).join('<br>')
-      +'</div><div class="mut" style="margin-top:8px">建立於 '+esc((b.built_at||'').slice(0,16))
-      +'　·　代號 <code>'+esc(b.job_slug)+'</code></div></div></details>';
-  }).join('')||'<div class="mut">還沒有任何題庫。</div>';
-
-  if(miss.length){
-    $('missing').hidden=false;
-    $('missinglist').innerHTML=miss.map(function(m){
-      return '<span class="pill">'+esc(m.title||m.slug)+'</span>'}).join('');
-  }
 }
+// ── 錯誤訊息不要一律說「連線失敗」 ──
+// 2026-09-08：顧問按「產生電洽前準備」看到「連線失敗」，實際上網路好好的，
+// 真正的錯是後端 D1_ERROR: no such column: report_id。前端把所有失敗都寫成
+// 同一句話，等於把診斷資訊丟掉，只能靠工程師去翻 worker log 才知道發生什麼事。
+//
+// apiFail() 依實際情況給不同訊息：後端有回錯誤就照實顯示，
+// HTTP 非 2xx 顯示狀態碼，真的連不上才說連線失敗。
+function apiFail(e) {
+  if (!e) return apiFail(e);
+  if (e.status === 401 || /權杖/.test(e.message || '')) return '權杖不正確，請重新輸入';
+  if (e.serverError) return '伺服器回報：' + String(e.serverError).slice(0, 120);
+  if (e.status) return '伺服器錯誤 ' + e.status + (e.body ? '：' + String(e.body).slice(0, 100) : '');
+  if (e.name === 'TypeError') return '連線失敗（連不到伺服器，檢查網路）';
+  return String(e.message || e).slice(0, 120);
+}
+
 
 var BANKS={};
 
@@ -215,7 +194,7 @@ function save(slug){
       if(!d.ok){alert('儲存失敗：'+(d.error||''));return}
       alert('已儲存，'+d.n+' 題');
       load();
-    }).catch(function(){alert('連線失敗')});
+    }).catch(function(e){alert(apiFail(e))});
 }
 function restore(slug){
   if(!confirm('要把這份題庫還原成機器原本產的版本嗎？你改的內容會消失。')) return;
@@ -231,7 +210,7 @@ function load(){
   api('/admin/expertise').then(function(d){
     if(!d.ok){$('list').innerHTML='<div class="mut">讀取失敗</div>';return}
     render(d);
-  }).catch(function(){$('list').innerHTML='<div class="mut">連線失敗</div>'});
+  }).catch(function(e){$('list').innerHTML='<div class="mut">連線失敗</div>'});
 }
 
 function boot(){

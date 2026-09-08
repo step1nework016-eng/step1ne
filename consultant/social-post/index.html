@@ -670,8 +670,39 @@ var ALL_JOBS = [];
 function api(path, opt) {
   opt = opt || {};
   opt.headers = Object.assign({ authorization: 'Bearer ' + tok }, opt.headers || {});
-  return fetch(API + path, opt).then(function (r) { return r.json(); });
+  return fetch(API + path, opt).then(function (r) {
+    if (r.status === 401) { var e401 = new Error('權杖不正確'); e401.status = 401; throw e401; }
+    return r.text().then(function (t) {
+      var d = null;
+      try { d = JSON.parse(t); } catch (x) { /* 不是 JSON——多半是 CF 的錯誤頁 */ }
+      if (!r.ok) {
+        var err = new Error('HTTP ' + r.status);
+        err.status = r.status;
+        err.serverError = d && d.error ? d.error : null;
+        err.body = d ? null : String(t).slice(0, 200);
+        throw err;
+      }
+      if (d === null) { var ep = new Error('回傳格式不是 JSON'); ep.body = String(t).slice(0, 200); throw ep; }
+      return d;
+    });
+  });
 }
+// ── 錯誤訊息不要一律說「連線失敗」 ──
+// 2026-09-08：顧問按「產生電洽前準備」看到「連線失敗」，實際上網路好好的，
+// 真正的錯是後端 D1_ERROR: no such column: report_id。前端把所有失敗都寫成
+// 同一句話，等於把診斷資訊丟掉，只能靠工程師去翻 worker log 才知道發生什麼事。
+//
+// apiFail() 依實際情況給不同訊息：後端有回錯誤就照實顯示，
+// HTTP 非 2xx 顯示狀態碼，真的連不上才說連線失敗。
+function apiFail(e) {
+  if (!e) return apiFail(e);
+  if (e.status === 401 || /權杖/.test(e.message || '')) return '權杖不正確，請重新輸入';
+  if (e.serverError) return '伺服器回報：' + String(e.serverError).slice(0, 120);
+  if (e.status) return '伺服器錯誤 ' + e.status + (e.body ? '：' + String(e.body).slice(0, 100) : '');
+  if (e.name === 'TypeError') return '連線失敗（連不到伺服器，檢查網路）';
+  return String(e.message || e).slice(0, 120);
+}
+
 function toast(t, err) {
   var m = $('msg'); m.textContent = t; m.className = 'msg on' + (err ? ' err' : '');
   setTimeout(function () { m.className = 'msg'; }, err ? 4000 : 2200);
@@ -763,7 +794,7 @@ function refreshDialogStyles() {
         updateGoState();
       });
     });
-  }).catch(function () { wrap.innerHTML = '<div class="mut">讀取失敗</div>'; });
+  }).catch(function (e) { wrap.innerHTML = '<div class="mut">讀取失敗</div>'; });
 }
 
 function refreshTopicOptionsForPost() {
@@ -799,7 +830,7 @@ function refreshTopicOptionsForPost() {
       }).join('');
     }
     updateGoState();
-  }).catch(function () { sel.innerHTML = '<option value="">讀取失敗</option>'; });
+  }).catch(function (e) { sel.innerHTML = '<option value="">讀取失敗</option>'; });
 }
 
 function updateGoState() {
@@ -856,7 +887,7 @@ $('go').addEventListener('click', function () {
       toast('已排入，產稿要 1–2 分鐘，會出現在 Telegram「社群發文審核」。不用重複按。');
     }
     loadQueue();
-  }).catch(function () { btn.disabled = false; btn.textContent = '排入產稿'; toast('連不上伺服器', true); });
+  }).catch(function (e) { btn.disabled = false; btn.textContent = '排入產稿'; toast('連不上伺服器', true); });
 });
 
 // 狀態徽章——跟 jobs.social_post_status 的實際值一一對應，
@@ -970,7 +1001,7 @@ function openMarkEditor(qid) {
           sel.innerHTML = POST_STYLES_CACHE.filter(function (x) { return x.subtype === 'dialog'; })
             .map(function (x) { return '<option value="' + x.id + '">' + x.name + '</option>'; }).join('');
           if (r.style_id) sel.value = r.style_id;
-        }).catch(function () { toast('讀不到公式清單', true); });
+        }).catch(function (e) { toast('讀不到公式清單', true); });
     };
     // 帶入目前值，顧問看得到現在標成什麼再決定要不要改
     var wsel = box.querySelector('#mkWay');
@@ -999,7 +1030,7 @@ function openMarkEditor(qid) {
     }).then(function (d) {
       if (!d.ok) { btn.disabled = false; btn.textContent = '儲存'; return toast(d.error || '儲存失敗', true); }
       close(); toast('標記已更新'); loadQueue();
-    }).catch(function () { btn.disabled = false; btn.textContent = '儲存'; toast('連不上伺服器', true); });
+    }).catch(function (e) { btn.disabled = false; btn.textContent = '儲存'; toast('連不上伺服器', true); });
   };
 }
 document.addEventListener('click', function (e) {
@@ -1042,7 +1073,7 @@ function loadLine() {
     api('/admin/line-insight?days_ago=9'),
   ]).then(function (r) {
     LINE_INS = r[0]; LINE_WEEK_AGO = r[1]; paintLine();
-  }).catch(function () {});
+  }).catch(function (e) {});
 }
 function paintLine() {
   var el = $('lineins'); if (!el) return;
@@ -1278,7 +1309,7 @@ function loadThreadsReport(){
   api('/admin/social-post-queue?limit=500').then(function(d){
     if(!d.ok){ $('thOut').innerHTML='<p class="thempty">讀取失敗：'+thEsc(d.error||'')+'</p>'; return; }
     ALL_QUEUE_STATS=d.queue||[]; go();
-  }).catch(function(){ $('thOut').innerHTML='<p class="thempty">連不上伺服器</p>'; });
+  }).catch(function(e){ $('thOut').innerHTML='<p class="thempty">連不上伺服器</p>'; });
 }
 $('thTabs').addEventListener('click',function(e){
   var b=e.target.closest('.tab'); if(b) thGo(b.dataset.t); });
@@ -1344,7 +1375,7 @@ function loadStatsQueue() {
     if (!d.ok) return;
     ALL_QUEUE_STATS = d.queue || [];
     paintStats();
-  }).catch(function () {});
+  }).catch(function (e) {});
 }
 
 // ── 還沒發哪些 ──
@@ -1379,7 +1410,7 @@ function loadGap() {
     // 不要一律寫「連線失敗」——這次真正的原因是畫表的程式炸了（少一個函式），
     // 但畫面上寫連線失敗，害我往網路的方向查。
     console.error(e);
-    $('gapgrid').textContent = '讀不到：' + (e && e.message ? e.message : '連線失敗');
+    $('gapgrid').textContent = '讀不到：' + (e && e.message ? e.message : apiFail(e));
   });
 }
 function paintGap() {
@@ -1441,7 +1472,7 @@ function paintGap() {
           ? (r.reason + '。\n\n' + r.note)
           : r.note);
         GAP = null; loadGap();
-      }).catch(function () { b.disabled = false; b.textContent = '!'; alert('連線失敗'); });
+      }).catch(function (e) { b.disabled = false; b.textContent = '!'; alert(apiFail(e)); });
     };
   });
 
@@ -1538,7 +1569,7 @@ function loadConvertQueue() {
     if (!d.ok) return;
     ALL_QUEUE_STATS = d.queue || [];
     paintConvert();
-  }).catch(function () {});
+  }).catch(function (e) {});
 }
 
 $('tobssubtabs').addEventListener('click', function (e) {
@@ -1660,7 +1691,7 @@ function paintConvertList() {
         paintConvertFunnel();
         paintConvertAccounts();
         paintConvertFlow();
-      }).catch(function () { b.disabled = false; alert('連線失敗'); });
+      }).catch(function (e) { b.disabled = false; alert(apiFail(e)); });
     };
   });
 }
@@ -1964,7 +1995,7 @@ function loadQueue() {
     ALL_QUEUE = d.queue || [];
     paintQueue();
     if (!$('pane-board').hidden) paintStats();
-  }).catch(function () {});
+  }).catch(function (e) {});
 }
 
 function load() {
@@ -1996,7 +2027,7 @@ function load() {
       queueTimer = setInterval(function () { if (!document.hidden) loadQueue(); }, 15000);
       document.addEventListener('visibilitychange', function () { if (!document.hidden) loadQueue(); });
     }
-  }).catch(function () { $('job').innerHTML = '<option value="">讀取失敗</option>'; });
+  }).catch(function (e) { $('job').innerHTML = '<option value="">讀取失敗</option>'; });
 }
 function boot() {
   if (tok) return load();
@@ -2342,7 +2373,7 @@ function openMissing(){
       return '<div class="gs"><b>'+g.missing+'</b><span>'+esc(shortLabel(g.label))+'<br>'
         +(g.platform==='linkedin'?'LinkedIn':'Threads')+' 還沒發</span></div>';
     }).join('')+'</div>';
-  }).catch(function(){});
+  }).catch(function(e){});
 
   const close=()=>{$('cmodal').innerHTML=''};
   $('cmodal').querySelector('.x').onclick=close;
@@ -2387,7 +2418,7 @@ function addSched(date, slug, accountId, after){
   .then(function(r){
     if(!r.ok) return alert(r.error||'排程失敗');
     loadCal().then(function(){ if(after) after(); });
-  }).catch(function(){ alert('連線失敗'); });
+  }).catch(function(e){ alert(apiFail(e)); });
 }
 
 // ── 顧問與話題設定（2026-09-03 加）──
@@ -2422,7 +2453,7 @@ function loadSettings() {
     renderGlobalLib('topic');
     renderGlobalLib('style');
     loadAssign();
-  }).catch(function () { toast('讀取話題／風格庫失敗', true); });
+  }).catch(function (e) { toast('讀取話題／風格庫失敗', true); });
 }
 
 $('cwho').addEventListener('change', function () { CUR_CONSULTANT = $('cwho').value; loadAssign(); });
@@ -2436,7 +2467,7 @@ function loadAssign() {
     renderPickList('topic');
     renderPickList('style');
     renderMapping();
-  }).catch(function () { toast('讀取這位顧問的設定失敗', true); });
+  }).catch(function (e) { toast('讀取這位顧問的設定失敗', true); });
 }
 
 function renderGlobalLib(kind) {
@@ -2482,7 +2513,7 @@ function bindGlobalLibEvents(kind) {
         if (!r.ok) return toast(r.error || '刪除失敗', true);
         toast('已刪除');
         SETTINGS_LOADED = false; loadSettings();
-      }).catch(function () { toast('連線失敗', true); });
+      }).catch(function (e) { toast(apiFail(e), true); });
     }
   });
   $(isTopic ? 'topicsearch' : 'stylesearch').addEventListener('input', function () { renderGlobalLib(kind); });
@@ -2538,7 +2569,7 @@ function openForm(kind, editId) {
       toast(editing ? '✓ 已更新' : '✓ 已新增到全站庫');
       form.hidden = true; form.innerHTML = '';
       SETTINGS_LOADED = false; loadSettings();
-    }).catch(function () { toast('連線失敗', true); });
+    }).catch(function (e) { toast(apiFail(e), true); });
   });
 }
 $('addtopic').addEventListener('click', function () { openForm('topic'); });
@@ -2607,7 +2638,7 @@ $('savemap').addEventListener('click', function () {
     CUR_ASSIGN.job_style_id = payload.job_style_id ? Number(payload.job_style_id) : null;
     $('mapsaved').style.display = 'block';
     toast('✓ 設定已儲存');
-  }).catch(function () { toast('連線失敗', true); });
+  }).catch(function (e) { toast(apiFail(e), true); });
 });
 
 // ── 職缺社群回覆（2026-09-03 加）──
@@ -2692,7 +2723,7 @@ function csRenderList() {
       if (text.indexOf(trackedLink) < 0) text += '\n\n' + trackedLink; // 保底：萬一摘要沒有佔位符
       navigator.clipboard.writeText(text).then(function () {
         toast('✓ 已複製，可以直接貼去LINE');
-      }).catch(function () { toast('複製失敗，請手動選取', true); });
+      }).catch(function (e) { toast('複製失敗，請手動選取', true); });
     });
   });
 }
@@ -2704,7 +2735,7 @@ function loadCandidateSummaries() {
     CS_JOBS = (r.ok && r.jobs) || [];
     csPopulateClients();
     csRenderList();
-  }).catch(function () { $('csList').innerHTML = '<div class="note">連線失敗</div>'; });
+  }).catch(function (e) { $('csList').innerHTML = '<div class="note">連線失敗</div>'; });
 }
 $('csAccount').addEventListener('change', function () {
   localStorage.setItem(CS_ACCOUNT_KEY, $('csAccount').value || '');

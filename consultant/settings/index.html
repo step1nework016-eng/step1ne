@@ -92,25 +92,42 @@ var API = 'https://step1ne-backoffice-worker.aiagentg888.workers.dev';
 var KEY = 's1ne_admin_tok';
 var tok = localStorage.getItem(KEY) || '';
 var $ = function (i) { return document.getElementById(i); };
-function api(p, o) { o = o || {}; o.headers = Object.assign({ authorization: 'Bearer ' + tok }, o.headers || {}); return fetch(API + p, o).then(function (r) { return r.json(); }); }
-function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
-
-var CONS = [];
-function renderConsultants() {
-  $('clist').innerHTML = CONS.map(function (c) {
-    return '<div class="' + (c.is_active ? '' : 'off') + '"><b>' + esc(c.display_name) + '</b>' +
-      '<span class="mut">' + esc(c.id) + '</span>' +
-      '<button class="btn" style="margin-left:auto" data-t="' + esc(c.id) + '" data-a="' + (c.is_active ? 0 : 1) + '" data-n="' + esc(c.display_name) + '">' +
-      (c.is_active ? '停用' : '重新啟用') + '</button></div>';
-  }).join('');
-  Array.prototype.forEach.call($('clist').querySelectorAll('button'), function (b) {
-    b.onclick = function () {
-      api('/admin/consultants', { method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ id: b.dataset.t, display_name: b.dataset.n, is_active: Number(b.dataset.a) }) })
-      .then(function (d) { if (!d.ok) { alert(d.error || '失敗'); return; } loadConsultants(); });
-    };
+function api(p, o) {
+  o = o || {};
+  o.headers = Object.assign({ authorization: 'Bearer ' + tok }, o.headers || {});
+  return fetch(API + p, o).then(function (r) {
+    if (r.status === 401) { var e401 = new Error('權杖不正確'); e401.status = 401; throw e401; }
+    return r.text().then(function (t) {
+      var d = null;
+      try { d = JSON.parse(t); } catch (x) { /* 不是 JSON——多半是 CF 的錯誤頁 */ }
+      if (!r.ok) {
+        var err = new Error('HTTP ' + r.status);
+        err.status = r.status;
+        err.serverError = d && d.error ? d.error : null;
+        err.body = d ? null : String(t).slice(0, 200);
+        throw err;
+      }
+      if (d === null) { var ep = new Error('回傳格式不是 JSON'); ep.body = String(t).slice(0, 200); throw ep; }
+      return d;
+    });
   });
 }
+// ── 錯誤訊息不要一律說「連線失敗」 ──
+// 2026-09-08：顧問按「產生電洽前準備」看到「連線失敗」，實際上網路好好的，
+// 真正的錯是後端 D1_ERROR: no such column: report_id。前端把所有失敗都寫成
+// 同一句話，等於把診斷資訊丟掉，只能靠工程師去翻 worker log 才知道發生什麼事。
+//
+// apiFail() 依實際情況給不同訊息：後端有回錯誤就照實顯示，
+// HTTP 非 2xx 顯示狀態碼，真的連不上才說連線失敗。
+function apiFail(e) {
+  if (!e) return apiFail(e);
+  if (e.status === 401 || /權杖/.test(e.message || '')) return '權杖不正確，請重新輸入';
+  if (e.serverError) return '伺服器回報：' + String(e.serverError).slice(0, 120);
+  if (e.status) return '伺服器錯誤 ' + e.status + (e.body ? '：' + String(e.body).slice(0, 100) : '');
+  if (e.name === 'TypeError') return '連線失敗（連不到伺服器，檢查網路）';
+  return String(e.message || e).slice(0, 120);
+}
+
 function loadConsultants() {
   return api('/admin/consultants').then(function (d) {
     if (!d.ok) { $('clist').innerHTML = '<div class="mut">讀取失敗</div>'; return; }
@@ -152,7 +169,7 @@ $('saveSettings').onclick = function () {
     btn.disabled = false;
     var bad = rs.find(function (r) { return !r.ok; });
     $('settingsMsg').textContent = bad ? (bad.error || '有欄位儲存失敗') : '已儲存';
-  }).catch(function () { btn.disabled = false; $('settingsMsg').textContent = '連線失敗'; });
+  }).catch(function (e) { btn.disabled = false; $('settingsMsg').textContent = apiFail(e); });
 };
 
 function load() { $('gate').hidden = true; $('app').hidden = false; loadConsultants(); loadSettings(); }
