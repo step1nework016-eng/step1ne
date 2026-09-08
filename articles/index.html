@@ -1,53 +1,14 @@
 <!DOCTYPE html>
-<html lang="zh-Hant-TW">
+<html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
-<script>
-window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag('js', new Date());
-gtag('config', 'G-DNPMMRDEC0');
-// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
-// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
-document.addEventListener('click', function (e) {
-  var a = e.target.closest && e.target.closest('a[href*="lin.ee"]');
-  if (!a) return;
-  gtag('event', 'line_cta_click', {
-    page_path: location.pathname,
-    link_text: (a.textContent || '').trim().slice(0, 60)
-  });
-});
-</script>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>獵才專欄｜企業獵才與求職指南｜Step1ne 德仁管理顧問</title>
-<meta name="description" content="Step1ne 獵才專欄，從獵頭顧問的第一線視角，寫企業如何委託獵頭、以及求職者的薪資行情與職涯路徑。企業端與求職者端內容分開整理。">
-<meta name="keywords" content="獵才專欄,獵頭文章,企業獵才指南,求職指南,薪資行情,職涯發展">
-<meta name="robots" content="index,follow">
-<link rel="canonical" href="https://step1ne.com/articles/">
-<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
-<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
-<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="Step1ne 德仁管理顧問">
-<meta property="og:title" content="獵才專欄｜企業獵才與求職指南">
-<meta property="og:description" content="從獵頭顧問的第一線視角，寫企業如何委託獵頭、以及求職者的薪資行情與職涯路徑。">
-<meta property="og:url" content="https://step1ne.com/articles/">
-<meta property="og:locale" content="zh_TW">
-<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
-<meta name="theme-color" content="#F4F6F8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
-
 <style>
-
 /* 沿用首頁／職缺頁 token v1 */
 :root{
   --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
@@ -141,6 +102,7 @@ footer{margin-top:48px;border-top:1px solid var(--rule);padding:28px 0;font-size
   .when span{font-size:13px}
 }
 @media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}.hd-burger{display:flex}
   .hd-nav,.hd .btn-line{display:none}
   .hd-burger{display:flex}
   .bar{flex-direction:column;align-items:stretch}
@@ -151,14 +113,33 @@ footer{margin-top:48px;border-top:1px solid var(--rule);padding:28px 0;font-size
   .spine::before{left:calc(var(--gut) + 5px)}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
-
 </style>
+
+<title>獵才專欄｜企業獵才與求職指南｜Step1ne 德仁管理顧問</title>
+<meta name="description" content="Step1ne 獵才專欄，從獵頭顧問的第一線視角，寫企業如何委託獵頭、以及求職者的薪資行情與職涯路徑。企業端與求職者端內容分開整理。">
+<meta name="keywords" content="獵才專欄,獵頭文章,企業獵才指南,求職指南,薪資行情,職涯發展">
+<link rel="canonical" href="https://step1ne.com/articles/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Step1ne 德仁管理顧問">
+<meta property="og:title" content="獵才專欄｜企業獵才與求職指南">
+<meta property="og:description" content="從獵頭顧問的第一線視角，寫企業如何委託獵頭、以及求職者的薪資行情與職涯路徑。">
+<meta property="og:url" content="https://step1ne.com/articles/">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
 </head>
 <body>
 
 <header class="hd">
   <div class="hd-in">
-    <a class="hd-logo" href="/"><img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問"><b>德仁管理顧問</b></a>
+    <a class="hd-logo" href="/"><img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問"><b>Step1ne</b></a>
     <nav class="hd-nav">
       <div class="hd-group"><span class="hd-tag">企業找人才</span><a href="/">企業服務</a><a href="/hiring-assessment/">招募形式評估</a></div>
       <div class="hd-group"><span class="hd-tag">我要找工作</span><a href="/jobs/">職缺專區</a><a class="on" href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a></div>
@@ -445,12 +426,63 @@ footer{margin-top:48px;border-top:1px solid var(--rule);padding:28px 0;font-size
 <div class="wrap">
   <div class="empty" id="empty" hidden>沒有符合的文章，換個關鍵字，或 <a href="https://lin.ee/XcSWPzM" style="color:var(--brand-deep)">直接用 LINE 問顧問</a>。</div>
 
+  <div class="notice">
+    <b>這一塊是給你看的，不是給讀者看的。</b>31 篇的分類、日期、字數都是腳本從各文章內頁的 Article schema 與內文直接讀出來的。<br><br>
+    <b>階段歸類是我判斷的，需要你確認</b>：例如「營造業真的缺工嗎？為什麼BIM工程師反而搶手」原本歸在「職涯發展」，我把它移到企業端的「判斷要不要用獵頭」，因為它是寫給要找人的人看的。<br>
+    <b>內容新鮮度：</b>31 篇沒有任何一篇更新過（<code>dateModified</code> 全部等於 <code>datePublished</code>），其中 18 篇是 2026-07-27 同一天發的。薪資行情類文章放著不更新，數字會過期。<br>
+    <b>閱讀時間：</b>用內文字數 ÷ 400 字/分鐘估算，不是精確值。
+  </div>
+
   <div class="end">
     <p>看完還是不確定下一步？加入 LINE 直接問顧問，或看目前開放中的職缺。</p>
     <a class="btn-line" href="https://lin.ee/XcSWPzM">用 LINE 問顧問</a>
   </div>
 
-  <footer>德仁管理顧問有限公司　臺北市內湖區康寧路三段 54 之 7 號 3 樓</footer>
+  <footer class="ft">
+  <div class="ft-in">
+    <div class="ft-brand">
+      <img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問" width="1535" height="1534">
+      <p>德仁管理顧問有限公司<br>AI 精準媒合 × 高階獵頭</p>
+      <div class="legal">
+        <span>統一編號 85046127</span>
+        <span>北市就服字第 0363 號</span>
+        <span>臺北市內湖區康寧路三段 54 之 7 號 3 樓</span>
+      </div>
+      <div class="ft-soc">
+        <a href="https://www.104.com.tw/company/1a2x6blikz" target="_blank" rel="noopener">104</a>
+        <a href="https://www.facebook.com/Step1ne" target="_blank" rel="noopener">Facebook</a>
+        <a href="https://www.instagram.com/step1ne_tw/" target="_blank" rel="noopener">Instagram</a>
+        <a href="https://www.linkedin.com/company/73006491/" target="_blank" rel="noopener">LinkedIn</a>
+      </div>
+    </div>
+    <nav class="ft-col">
+      <h3>企業服務</h3>
+      <a href="#svc">高階獵頭</a>
+      <a href="#svc">正職招募</a>
+      <a href="#svc">人力派遣</a>
+      <a href="/hiring-assessment/">招募形式評估工具</a>
+      <a href="/commission-recruiting/">企業委託招募流程</a>
+    </nav>
+    <nav class="ft-col">
+      <h3>人才專區</h3>
+      <a href="/jobs/">職缺專區</a>
+      <a href="/construction/">營造工程／BIM 專區</a>
+      <a href="/talent/">全民獵才 App</a>
+      <a href="/talent/ai-tools/">AI 求職工具</a>
+    </nav>
+    <nav class="ft-col">
+      <h3>認識我們</h3>
+      <a href="/articles/">獵才專欄</a>
+      <a href="/articles/bim-engineer-salary/">BIM 薪水行情</a>
+      <a href="/about/">關於我們</a>
+      <a href="#faq">常見問題</a>
+    </nav>
+  </div>
+  <div class="ft-btm">
+    <span>© 2026 德仁管理顧問有限公司 Step1ne. All rights reserved.</span>
+    <span>One step to us, a step to success.</span>
+  </div>
+</footer>
 </div>
 
 <script>

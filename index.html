@@ -1,35 +1,294 @@
 <!DOCTYPE html>
-<html lang="zh-Hant-TW">
+<html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
-<script>
-window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag('js', new Date());
-gtag('config', 'G-DNPMMRDEC0');
-// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
-// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
-document.addEventListener('click', function (e) {
-  var a = e.target.closest && e.target.closest('a[href*="lin.ee"]');
-  if (!a) return;
-  gtag('event', 'line_cta_click', {
-    page_path: location.pathname,
-    link_text: (a.textContent || '').trim().slice(0, 60)
-  });
-});
-</script>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════════════════
+   Step1ne 設計 token　v1（本地預覽稿）
+   ══════════════════════════════════════════════════════════ */
+:root{
+  --paper:#F4F6F8;        /* 頁面底：冷調紙，不是米白 */
+  --white:#FFFFFF;
+  --ink:#0D1B24;          /* 墨：內文＋求職者端深色區塊底 */
+  --slate:#4A5A66;        /* 次級文字 */
+  --slate-dim:#7A8A96;
+  --rule:#D9E0E6;         /* 髮絲線 */
+  --brand:#167EB2;        /* logo 深藍：軌、填色按鈕 */
+  --brand-deep:#0F5F87;   /* 藍字（對比達標用） */
+  --live:#2EA9DF;         /* logo 亮青：只給「進行中」節點 */
+  --line:#06C755;         /* LINE 官方綠，不動 */
+
+  --rail:2px;
+  --wrap:1200px;
+  --gut:clamp(20px,4vw,40px);
+
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--f-text);font-weight:400;
+  font-size:16px;line-height:1.85;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3,h4{margin:0;font-weight:900;line-height:1.25;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,input):focus-visible{
+  outline:2px solid var(--brand);outline-offset:3px;border-radius:3px;
+}
+.num{font-family:var(--f-disp);font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+.wrap{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+
+/* ─── 導覽：雙受眾分流 ─── */
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:70px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:38px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px;letter-spacing:.04em}
+.hd-nav{display:flex;align-items:center;gap:0;font-size:15px}
+.hd-group{display:flex;align-items:center;gap:20px;padding:0 22px;position:relative}
+.hd-group+.hd-group::before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);width:1px;height:22px;background:var(--rule)}
+.hd-tag{font-family:var(--f-disp);font-size:11px;font-weight:600;color:var(--slate-dim);letter-spacing:.02em}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;gap:8px;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:10px 18px;border-radius:6px}
+.hd-burger{display:none;width:42px;height:42px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav .hd-tag{display:block;padding:12px var(--gut) 4px;background:var(--paper)}
+
+/* ─── 品牌橫幅（沿用線上原圖，含 logo 與定位語） ─── */
+.banner{display:block;width:100%;background:var(--paper);border-bottom:1px solid var(--rule)}
+.banner img{width:100%;height:auto;display:block;max-width:1584px;margin:0 auto}
+
+/* ─── 全站左側軌 ─── */
+.spine{position:relative}
+.spine::before{
+  content:"";position:absolute;left:calc(var(--gut) + 5px);top:0;bottom:0;
+  width:var(--rail);background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.12));
+}
+.sec{position:relative;padding:80px 0}
+.sec+.sec{border-top:1px solid var(--rule)}
+.sec-in{max-width:var(--wrap);margin:0 auto;padding-left:calc(var(--gut) + 46px);padding-right:var(--gut)}
+.node{position:absolute;left:calc(var(--gut) - 1px);top:86px;width:14px;height:14px;border-radius:50%;background:var(--paper);border:var(--rail) solid var(--brand)}
+.sec-h{max-width:34ch;margin-bottom:14px;font-size:clamp(26px,3.6vw,38px)}
+.sec-p{max-width:62ch;color:var(--slate);font-size:17px}
+
+/* ─── Hero ─── */
+.hero{padding:76px 0 68px;position:relative}
+.hero-in{max-width:var(--wrap);margin:0 auto;padding-left:calc(var(--gut) + 46px);padding-right:var(--gut)}
+.hero h1{font-size:clamp(34px,6vw,64px);line-height:1.16;letter-spacing:-.02em;max-width:17ch}
+.hero h1 .lat{font-family:var(--f-disp);font-weight:700}
+.hero-p{margin-top:24px;max-width:56ch;font-size:18px;color:var(--slate)}
+.hero-act{margin-top:34px;display:flex;flex-wrap:wrap;gap:12px}
+.btn{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:15px;padding:13px 22px;border-radius:6px;border:1px solid transparent;cursor:pointer}
+.btn-p{background:var(--brand);color:#fff}
+.btn-p:hover{background:var(--brand-deep)}
+.btn-s{background:var(--white);color:var(--ink);border-color:var(--rule)}
+.btn-s:hover{border-color:var(--brand);color:var(--brand-deep)}
+
+/* ─── 委任進度軌（signature） ─── */
+.track{margin-top:56px;background:var(--white);border:1px solid var(--rule);border-radius:10px;padding:26px 4px 8px}
+.track-cap{padding:0 24px 22px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;border-bottom:1px solid var(--rule);margin-bottom:26px}
+.track-cap h2{font-size:17px;font-weight:700}
+.track-cap span{font-size:14px;color:var(--slate)}
+.track-rail{display:grid;grid-template-columns:repeat(6,1fr);padding:0 24px 24px;position:relative}
+.track-rail::before{content:"";position:absolute;left:calc(24px + 8.33% - 5px);right:calc(24px + 8.33% - 5px);top:5px;height:var(--rail);background:var(--rule)}
+.track-rail::after{content:"";position:absolute;left:calc(24px + 8.33% - 5px);width:33%;top:5px;height:var(--rail);background:var(--brand)}
+.stp{position:relative;padding-top:26px;padding-right:12px}
+.stp i{position:absolute;top:0;left:50%;transform:translateX(-50%);width:12px;height:12px;border-radius:50%;background:var(--white);border:var(--rail) solid var(--rule);box-shadow:0 0 0 4px var(--white)}
+.stp.done i{border-color:var(--brand);background:var(--brand)}
+.stp.now i{border-color:var(--live);background:var(--live);box-shadow:0 0 0 4px var(--white),0 0 0 8px rgba(46,169,223,.22)}
+.stp b{display:block;font-size:14px;font-weight:700;text-align:center;line-height:1.5}
+.stp em{display:block;margin-top:4px;font-style:normal;font-size:12.5px;color:var(--slate-dim);text-align:center;font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+.track-note{padding:16px 24px;border-top:1px solid var(--rule);font-size:13.5px;color:var(--slate-dim);line-height:1.7}
+
+/* ─── 數字列：主從不對稱（最強的數字放大，其餘降級成清單） ─── */
+.figs{margin-top:44px;display:grid;grid-template-columns:1.1fr 1fr;background:var(--white);border:1px solid var(--rule);border-radius:10px;overflow:hidden}
+.fig-lead{padding:34px 34px 32px;border-right:1px solid var(--rule)}
+.fig-lead b{display:block;font-family:var(--f-disp);font-size:clamp(52px,6vw,76px);font-weight:700;line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.fig-lead b .u{font-family:var(--f-text);font-size:.32em;font-weight:700;margin-left:4px;letter-spacing:0}
+.fig-lead span{display:block;margin-top:10px;font-size:17px;font-weight:700}
+.fig-lead em{display:block;margin-top:7px;font-style:normal;font-size:14px;color:var(--slate-dim);line-height:1.75}
+.figs ul{margin:0;padding:0;list-style:none}
+.figs li{padding:18px 28px;border-bottom:1px solid var(--rule);display:flex;gap:16px;align-items:baseline}
+.figs li:last-child{border-bottom:0}
+.figs li i{font-style:normal;font-family:var(--f-disp);font-variant-numeric:tabular-nums;font-size:21px;font-weight:700;min-width:62px}
+.figs li span{font-size:15px;color:var(--slate);line-height:1.7}
+
+/* ─── 資格憑證（政府背書，不是自己講的） ─── */
+.cred{margin-top:34px;background:var(--white);border:1px solid var(--rule);border-radius:10px;padding:26px;display:grid;grid-template-columns:200px 1fr;gap:30px;align-items:start}
+.cred figure{margin:0}
+.cred img{width:100%;height:auto;border:1px solid var(--rule);border-radius:6px}
+.cred figcaption{margin-top:9px;font-size:12.5px;color:var(--slate-dim);line-height:1.6}
+.cred dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:0}
+.cred dt{padding:11px 0;font-size:14px;color:var(--slate);white-space:nowrap;border-top:1px solid var(--rule)}
+.cred dd{margin:0;padding:11px 0 11px 24px;font-size:15px;font-weight:500;border-top:1px solid var(--rule)}
+.cred dt:first-of-type,.cred dl>dt:first-child+dd{border-top:0}
+.cred .code{font-family:var(--f-disp);font-variant-numeric:tabular-nums;font-size:14.5px;letter-spacing:.01em}
+.cred .lv{display:inline-flex;align-items:center;gap:7px;font-weight:700}
+.cred .lv b{font-family:var(--f-disp);font-size:19px;color:var(--brand-deep);border:2px solid var(--brand);border-radius:5px;padding:0 9px;line-height:1.5}
+
+/* ─── 三步驟（真的是序列，才留編號） ─── */
+.steps{margin-top:40px;display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--rule);border-radius:10px;overflow:hidden;background:var(--white)}
+.step{padding:28px 26px;border-right:1px solid var(--rule)}
+.step:last-child{border-right:0}
+.step .n{font-family:var(--f-disp);font-size:13px;font-weight:700;color:var(--brand);font-variant-numeric:tabular-nums}
+.step h3{margin:8px 0 10px;font-size:19px}
+.step p{font-size:15px;color:var(--slate);line-height:1.8}
+
+/* ─── 服務三線 ─── */
+.svcs{margin-top:40px;display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.svc{background:var(--white);border:1px solid var(--rule);border-top:3px solid var(--brand);border-radius:8px;padding:26px 24px;display:flex;flex-direction:column}
+.svc h3{font-size:20px}
+.svc p{margin-top:12px;font-size:15px;color:var(--slate);line-height:1.85;flex:1}
+.svc ul{margin:18px 0 0;padding:0;list-style:none;display:flex;gap:8px;flex-wrap:wrap}
+.svc li{font-size:12.5px;color:var(--brand-deep);background:rgba(22,126,178,.08);border-radius:4px;padding:4px 9px}
+.svc-links{margin-top:26px;display:flex;flex-wrap:wrap;gap:10px 20px;font-size:15px}
+.svc-links a{color:var(--brand-deep);font-weight:500;border-bottom:1px solid rgba(15,95,135,.3);padding-bottom:2px}
+.svc-links a:hover{border-bottom-color:var(--brand-deep)}
+
+/* ─── 職缺表 ─── */
+.jobs{margin-top:36px;border:1px solid var(--rule);border-radius:10px;overflow:hidden;background:var(--white)}
+.job{display:grid;grid-template-columns:132px 1fr auto;gap:20px;align-items:center;padding:20px 24px;border-bottom:1px solid var(--rule)}
+.job:last-child{border-bottom:0}
+.job:hover{background:var(--paper)}
+.job .kind{font-size:12.5px;font-weight:700;color:var(--slate);border:1px solid var(--rule);border-radius:4px;padding:3px 8px;text-align:center;white-space:nowrap}
+.job .kind.hh{color:var(--brand-deep);border-color:rgba(22,126,178,.4);background:rgba(22,126,178,.06)}
+.job h3{font-size:17px}
+.job p{margin-top:3px;font-size:14px;color:var(--slate)}
+.job .pay{font-family:var(--f-disp);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
+
+/* ─── 評估工具條 ─── */
+.tool{margin-top:36px;background:var(--white);border:1px solid var(--rule);border-left:3px solid var(--brand);border-radius:8px;padding:24px 26px;display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-content:space-between}
+.tool h3{font-size:19px}
+.tool p{margin-top:6px;font-size:15px;color:var(--slate);max-width:56ch}
+
+/* ─── 求職者端：深色底＝受眾切換 ─── */
+.dark{background:var(--ink);color:#E8EEF2;border-top:0}
+.dark::after{content:none}
+.dark .node{background:var(--ink);border-color:var(--live)}
+.dark .sec-p,.dark p{color:#A9BAC5}
+.dark .sec-h{color:#fff}
+.tal{margin-top:40px;display:grid;grid-template-columns:1.15fr 1fr;gap:20px}
+.tal-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:28px 26px}
+.tal-card h3{font-size:21px;color:#fff}
+.tal-card p{margin-top:12px;font-size:15px;line-height:1.85}
+.tal-card .fine{margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.14);font-size:14px;color:#8FA3B0;line-height:1.8}
+.tal-card .promo{margin-top:18px;width:100%;height:auto;border-radius:8px;border:1px solid rgba(255,255,255,.14)}
+.tal-list{margin:20px 0 0;padding:0;list-style:none;display:grid;gap:9px;font-size:15px;color:#CBD8E1}
+.tal-list li{padding-left:18px;position:relative}
+.tal-list li::before{content:"";position:absolute;left:0;top:.72em;width:7px;height:7px;border-radius:50%;background:var(--live)}
+.chips{margin:20px 0 0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:8px}
+.chips li{font-size:13.5px;border:1px solid rgba(255,255,255,.2);border-radius:5px;padding:6px 11px;color:#D8E4EB}
+.btn-live{background:var(--live);color:var(--ink)}
+.btn-ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.3)}
+
+/* ─── 專欄 ─── */
+.posts{margin-top:36px;display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.post{background:var(--white);border:1px solid var(--rule);border-radius:8px;padding:22px 20px}
+.post span{font-size:12.5px;color:var(--slate-dim)}
+.post h3{margin-top:8px;font-size:16.5px;line-height:1.6}
+.post p{margin-top:8px;font-size:14px;color:var(--slate)}
+
+/* ─── FAQ ─── */
+.faq{margin-top:32px;border-top:1px solid var(--rule)}
+.faq details{border-bottom:1px solid var(--rule)}
+.faq summary{cursor:pointer;list-style:none;padding:20px 40px 20px 0;font-size:17px;font-weight:700;position:relative}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"";position:absolute;right:8px;top:29px;width:11px;height:11px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg);transition:transform .2s}
+.faq details[open] summary::after{transform:rotate(-135deg)}
+.faq .a{padding:0 40px 22px 0;font-size:15.5px;color:var(--slate);line-height:1.9;max-width:74ch}
+
+/* ─── 頁尾 CTA ─── */
+.end{background:var(--white);border-top:1px solid var(--rule);padding:72px 0}
+.end h2{font-size:clamp(26px,4vw,40px);max-width:20ch}
+.end p{margin-top:16px;color:var(--slate);font-size:17px;max-width:52ch}
+.end .hero-act{margin-top:30px}
+.ft{border-top:1px solid var(--rule);background:var(--white);padding:52px 0 30px;font-size:14.5px;color:var(--slate)}
+.ft-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:36px}
+.ft-brand img{height:40px;width:auto;margin-bottom:14px}
+.ft-brand p{font-size:14px;line-height:1.85;color:var(--slate)}
+.ft-brand .legal{margin-top:12px;font-size:13px;color:var(--slate-dim);line-height:1.9}
+.ft-brand .legal span{display:block}
+.ft-soc{margin-top:16px;display:flex;flex-wrap:wrap;gap:8px}
+.ft-soc a{font-size:13px;color:var(--slate);border:1px solid var(--rule);border-radius:5px;padding:5px 11px}
+.ft-soc a:hover{border-color:var(--brand);color:var(--brand-deep)}
+.ft-col h3{font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:12px}
+.ft-col a{display:block;padding:6px 0;color:var(--slate);font-size:14px}
+.ft-col a:hover{color:var(--brand-deep)}
+.ft-btm{max-width:var(--wrap);margin:34px auto 0;padding:20px var(--gut) 0;border-top:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-between;font-size:13px;color:var(--slate-dim)}
+/* 全民獵才：海報改放淺色區，不再塞進深色卡片 */
+.mini{margin-top:40px;display:grid;grid-template-columns:1fr 420px;gap:40px;align-items:center;background:var(--white);border:1px solid var(--rule);border-radius:12px;padding:34px 36px}
+.mini h3{font-size:23px}
+.mini p{margin-top:14px;font-size:16px;color:var(--slate);line-height:1.9;max-width:46ch}
+.mini ul{margin:20px 0 0;padding:0;list-style:none;display:grid;gap:9px;font-size:15.5px}
+.mini li{padding-left:20px;position:relative;color:var(--slate)}
+.mini li::before{content:"";position:absolute;left:0;top:.72em;width:7px;height:7px;border-radius:50%;background:var(--brand)}
+.mini figure{margin:0}
+.mini img{width:100%;height:auto;border-radius:10px;border:1px solid var(--rule)}
+.mini figcaption{margin-top:9px;font-size:12.5px;color:var(--slate-dim);text-align:center}
+
+/* ─── 響應式 ─── */
+@media (max-width:980px){
+  .figs{grid-template-columns:1fr}
+  .fig-lead{border-right:0;border-bottom:1px solid var(--rule)}
+  .mini{grid-template-columns:1fr;gap:26px;padding:26px}
+  .ft-in{grid-template-columns:1fr 1fr;gap:28px}
+  .cred{grid-template-columns:1fr;gap:22px}
+  .cred figure{max-width:200px}
+  .steps,.svcs,.tal{grid-template-columns:1fr}
+  .step{border-right:0;border-bottom:1px solid var(--rule)}
+  .step:last-child{border-bottom:0}
+  .posts{grid-template-columns:repeat(2,1fr)}
+  .track-rail{grid-template-columns:repeat(3,1fr);row-gap:26px}
+  .track-rail::before,.track-rail::after{content:none}
+  .stp{padding-left:22px;padding-top:0}
+  .stp i{left:0;top:6px;transform:none}
+  .stp b,.stp em{text-align:left}
+}
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}.hd-burger{display:flex}
+  .hd-nav{display:none}
+  .hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  .spine::before{left:calc(var(--gut) + 5px)}
+  .sec-in,.hero-in{padding-left:calc(var(--gut) + 30px)}
+  .node{left:calc(var(--gut) - 1px);top:70px}
+  .sec{padding:58px 0}
+  .ft-in{grid-template-columns:1fr;gap:24px}
+  .cred{padding:20px}
+  .cred dl{grid-template-columns:1fr;gap:0}
+  .cred dt{padding:12px 0 0;border-top:1px solid var(--rule)}
+  .cred dd{padding:2px 0 12px;border-top:0}
+  .job{grid-template-columns:1fr;gap:8px}
+  .job .kind{justify-self:start}
+  .job .pay{text-align:left}
+  .posts{grid-template-columns:1fr}
+  .track-rail{grid-template-columns:1fr;row-gap:20px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important;scroll-behavior:auto!important}
+}
+</style>
+
 <title>Step1ne 德仁管理顧問｜AI 精準媒合・高階獵頭・正職招募・人力派遣</title>
 <meta name="description" content="Step1ne（德仁管理顧問）以自研 AI 精準媒合系統與萬筆菁英人才資料庫，專注高階獵頭、正職招募與人力派遣，任用率 8 成以上。企業找人才、人才找工作，一步到位。">
 <meta name="keywords" content="高階獵頭,內湖 獵頭公司,executive search,正職招募委託,人力派遣,AI 精準媒合,全民獵才 App,AI 求職工具">
-<meta name="robots" content="index,follow">
 <link rel="canonical" href="https://step1ne.com/">
-<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
-<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
-<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Step1ne 德仁管理顧問">
 <meta property="og:title" content="Step1ne 德仁管理顧問｜AI 精準媒合・高階獵頭">
@@ -41,10 +300,6 @@ document.addEventListener('click', function (e) {
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
-<meta name="theme-color" content="#f4f1ea">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Noto+Sans+TC:wght@300;400;500;700;900&family=Noto+Serif+TC:wght@500;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -83,550 +338,385 @@ document.addEventListener('click', function (e) {
   "inLanguage": "zh-TW"
 }
 </script>
-<style>
-*{box-sizing:border-box;}
-html,body{margin:0;padding:0;}
-body{font-family:'Noto Sans TC',system-ui,sans-serif;color:#23262d;background:#f4f1ea;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;line-height:1.6;position:relative;overflow-x:hidden;}
-a{color:#a67c3d;text-decoration:none;}
-a:hover{color:#8a6531;}
-::selection{background:#a67c3d;color:#fff;}
-details summary{cursor:pointer;list-style:none;}
-details summary::-webkit-details-marker{display:none;}
-details summary .faq-icon{transition:transform .3s ease;}
-details[open] summary .faq-icon{transform:rotate(45deg);}
-@keyframes s1neGlow{0%,100%{opacity:.5;}50%{opacity:.85;}}
-@media (max-width:860px){
-  .s1ne-hide-m{display:none !important;}
-  .s1ne-lineapp-grid{grid-template-columns:1fr !important;}
-  .s1ne-footer-grid{grid-template-columns:1fr !important;gap:24px !important;}
-  .s1ne-fcols{display:grid !important;grid-template-columns:1fr 1fr !important;gap:20px !important;}
-  .s1ne-show-m{display:flex !important;}
-}
-.s1ne-show-m{display:none;}
-.s1ne-mobile-menu{display:none;flex-direction:column;padding:8px 28px 20px;border-top:1px solid #e6dfd1;background:rgba(244,241,234,0.98);}
-.s1ne-mobile-menu.is-open{display:flex;}
-.s1ne-mobile-menu a{padding:12px 0;color:#4a4d55;font-size:15px;border-bottom:1px solid #e6dfd1;}
-.s1ne-mobile-menu a:last-child{border-bottom:none;}
-/* 品牌 Banner：桌機完整顯示 4:1，手機改用裁切避免變成無法辨識的細條 */
-.s1ne-banner{line-height:0;background:#dfe9f2;}
-.s1ne-banner img{width:100%;height:auto;display:block;}
-@media (max-width:760px){
-  .s1ne-banner img{height:150px;object-fit:cover;object-position:left center;}
-}
-/* 手機：頁尾連結加大觸控區至 44px（原本僅21px，低於行動裝置可用性建議） */
-@media (max-width:760px){
-  .s1ne-flinks{gap:0 !important;}
-  .s1ne-flinks a{display:inline-flex;align-items:center;min-height:44px;}
-  footer a{min-height:44px;display:inline-flex;align-items:center;}
-}
-[data-reveal]{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1);}
-[data-reveal].is-visible{opacity:1;transform:none;}
-</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href*="lin.ee"]');
+  if (!a) return;
+  gtag('event', 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60)
+  });
+});
+</script>
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
 </head>
 <body>
 
-<div style="position:relative;">
-
-  <header style="position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:rgba(244,241,234,0.82);border-bottom:1px solid #e6dfd1;">
-    <nav style="max-width:1240px;margin:0 auto;padding:0 28px;height:72px;display:flex;align-items:center;justify-content:space-between;gap:24px;">
-      <a href="#top" style="display:flex;align-items:center;gap:14px;color:#23262d;">
-        <img src="assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問 logo" style="height:48px;width:auto;display:block;">
-        <span class="s1ne-hide-m" style="font-size:12px;color:#8a8d95;letter-spacing:3px;border-left:1px solid #d9d2c4;padding-left:12px;">德仁管理顧問</span>
-      </a>
-      <div class="s1ne-hide-m" style="display:flex;align-items:center;gap:28px;font-size:15px;color:#4a4d55;">
-        <a href="/jobs/" style="color:#4a4d55;">職缺專區</a>
-        <a href="/articles/" style="color:#4a4d55;">獵才專欄</a>
-        <a href="/talent/" style="color:#4a4d55;">全民獵才</a>
-        <a href="/talent/ai-tools/" style="color:#4a4d55;">AI求職工具</a>
-        <a href="/hiring-assessment/" style="color:#a67c3d;font-weight:700;">招募形式評估 →</a>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="#top">
+      <img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問">
+      <b>Step1ne</b>
+    </a>
+    <nav class="hd-nav">
+      <div class="hd-group">
+        <span class="hd-tag">企業找人才</span>
+        <a href="#svc">企業服務</a>
+        <a href="#tool">招募形式評估</a>
+        <a href="#faq">常見問題</a>
       </div>
-      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" class="s1ne-hide-m" style="display:inline-flex;align-items:center;gap:8px;background:#06c755;color:#fff;font-weight:700;font-size:14px;padding:11px 20px;border-radius:999px;white-space:nowrap;box-shadow:0 6px 20px rgba(166,124,61,0.28);">
-        <span style="width:7px;height:7px;border-radius:50%;background:#fff;"></span>LINE 洽詢
-      </a>
-      <button type="button" class="s1ne-show-m" onclick="document.getElementById('s1ne-mmenu').classList.toggle('is-open')" aria-label="開啟選單" style="align-items:center;justify-content:center;width:40px;height:40px;border:1px solid #e6dfd1;border-radius:10px;background:#fff;">
-        <span style="display:block;width:18px;height:2px;background:#23262d;box-shadow:0 6px 0 #23262d,0 -6px 0 #23262d;"></span>
-      </button>
+      <div class="hd-group">
+        <span class="hd-tag">我要找工作</span>
+        <a href="#jobs">職缺專區</a>
+        <a href="#talent">全民獵才</a>
+        <a href="#talent">AI 求職工具</a>
+      </div>
     </nav>
-    <div id="s1ne-mmenu" class="s1ne-mobile-menu" onclick="if(event.target.closest('a'))this.classList.remove('is-open')">
-      <a href="/jobs/">職缺專區</a>
-      <a href="/articles/">獵才專欄</a>
-      <a href="/talent/">全民獵才</a>
-      <a href="/talent/ai-tools/">AI求職工具</a>
-      <a href="/hiring-assessment/">招募形式評估 →</a>
-      <a href="#enterprise">企業服務</a>
-      <a href="#talent">人才・求職者</a>
-      <a href="/about/">關於我們</a>
-      <a href="#faq">常見問題</a>
-      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="color:#a67c3d;font-weight:700;">LINE 洽詢 →</a>
-    </div>
-  </header>
-
-  <a id="top"></a>
-  <!-- ═══ 品牌 Banner ═══ -->
-  <div class="s1ne-banner">
-    <img src="assets/hero-banner.webp" alt="Step1ne 德仁管理顧問｜IT人才專家・高階獵才平台" width="1584" height="396" fetchpriority="high">
+    <a class="btn-line" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">LINE 洽詢</a>
+    <button class="hd-burger" type="button" aria-label="開啟選單" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))">
+      <span></span>
+    </button>
   </div>
+  <div class="mnav" id="mnav">
+    <span class="hd-tag">企業找人才</span>
+    <a href="#svc">企業服務</a><a href="#tool">招募形式評估</a><a href="#faq">常見問題</a>
+    <span class="hd-tag">我要找工作</span>
+    <a href="#jobs">職缺專區</a><a href="#talent">全民獵才</a><a href="#talent">AI 求職工具</a>
+    <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINE 洽詢</a>
+  </div>
+</header>
 
-  <!-- ═══ HERO：雙受眾對等分流 ═══ -->
-  <section style="position:relative;max-width:1240px;margin:0 auto;padding:clamp(56px,8vw,104px) 28px clamp(40px,5vw,64px);">
-    <div style="position:absolute;inset:0;pointer-events:none;overflow:hidden;">
-      <div style="position:absolute;top:-140px;right:-120px;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,106,0.24),transparent 62%);animation:s1neGlow 7s ease-in-out infinite;"></div>
-      <div style="position:absolute;bottom:-160px;left:-140px;width:480px;height:480px;border-radius:50%;background:radial-gradient(circle,rgba(96,128,180,0.14),transparent 64%);"></div>
-    </div>
-    <div style="position:relative;text-align:center;max-width:900px;margin:0 auto;">
-      <div style="display:inline-flex;align-items:center;gap:10px;font-family:'Space Mono',monospace;font-size:12px;letter-spacing:2.5px;color:#a67c3d;text-transform:uppercase;margin-bottom:26px;">
-        <span style="width:26px;height:1px;background:#a67c3d;opacity:.5;"></span>Executive Search · AI-Matched Talent<span style="width:26px;height:1px;background:#a67c3d;opacity:.5;"></span>
-      </div>
-      <h1 style="font-family:'Noto Serif TC',serif;font-weight:700;font-size:clamp(34px,5.4vw,62px);line-height:1.18;margin:0 0 22px;letter-spacing:-0.5px;color:#1c1f26;">為關鍵職位，<br><span style="background:linear-gradient(120deg,#b5895a,#a67c3d 55%,#7c5a2c);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">用 AI 精準媒合對的人</span></h1>
-      <p style="font-size:clamp(16px,1.7vw,19px);color:#55585f;max-width:660px;margin:0 auto 14px;">Step1ne（德仁管理顧問）以自研 <strong style="color:#23262d;font-weight:600;">AI 精準媒合系統</strong>與<strong style="color:#23262d;font-weight:600;">萬筆菁英人才資料庫</strong>，專注高階獵頭、正職招募與人力派遣——任用率 8 成以上。</p>
-      <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(17px,2vw,21px);color:#a67c3d;margin:0 0 40px;">“One step to us, a step to success.”</p>
-    </div>
-
-    <div style="position:relative;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:22px;max-width:940px;margin:0 auto;">
-      <a href="#enterprise" data-reveal style="display:block;padding:34px 32px;border-radius:18px;background:#ffffff;border:1px solid #e6dfd1;box-shadow:0 8px 30px rgba(40,35,25,0.05);">
-        <div style="font-family:'Space Mono',monospace;font-size:11.5px;letter-spacing:2px;color:#8a8d95;text-transform:uppercase;margin-bottom:14px;">For Enterprise · HR</div>
-        <div style="font-family:'Noto Serif TC',serif;font-size:26px;font-weight:700;margin-bottom:8px;color:#1c1f26;">我要找人才</div>
-        <p style="color:#55585f;font-size:15px;margin:0 0 20px;">委託高階獵頭、正職招募或人力派遣，讓 AI 與資深顧問替你鎖定對的人選。</p>
-        <span style="display:inline-flex;align-items:center;gap:8px;color:#a67c3d;font-weight:600;font-size:15px;">進入企業服務<span style="font-family:'Space Mono',monospace;">→</span></span>
-      </a>
-      <a href="#talent" data-reveal style="display:block;padding:34px 32px;border-radius:18px;background:#ffffff;border:1px solid #e6dfd1;box-shadow:0 8px 30px rgba(40,35,25,0.05);">
-        <div style="font-family:'Space Mono',monospace;font-size:11.5px;letter-spacing:2px;color:#8a8d95;text-transform:uppercase;margin-bottom:14px;">For Talent · Job Seeker</div>
-        <div style="font-family:'Noto Serif TC',serif;font-size:26px;font-weight:700;margin-bottom:8px;color:#1c1f26;">我要找工作</div>
-        <p style="color:#55585f;font-size:15px;margin:0 0 20px;">全民獵才 App 推薦職缺拿獎金，AI 求職工具幫你把履歷、面試一次備齊。</p>
-        <span style="display:inline-flex;align-items:center;gap:8px;color:#a67c3d;font-weight:600;font-size:15px;">進入人才專區<span style="font-family:'Space Mono',monospace;">→</span></span>
-      </a>
-    </div>
-  </section>
-
-  <!-- ═══ 指標帶 ═══ -->
-  <section style="border-top:1px solid #e6dfd1;border-bottom:1px solid #e6dfd1;background:#faf7f1;">
-    <div style="max-width:1240px;margin:0 auto;padding:34px 28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:24px;">
-      <div style="text-align:center;">
-        <div style="font-family:'Noto Serif TC',serif;font-size:40px;font-weight:700;color:#a67c3d;line-height:1;">8成+</div>
-        <div style="color:#6b6e77;font-size:13.5px;margin-top:8px;">任用率</div>
-      </div>
-      <div style="text-align:center;">
-        <div style="font-family:'Noto Serif TC',serif;font-size:40px;font-weight:700;color:#a67c3d;line-height:1;">萬筆</div>
-        <div style="color:#6b6e77;font-size:13.5px;margin-top:8px;">菁英人才資料庫</div>
-      </div>
-      <div style="text-align:center;">
-        <div style="font-family:'Noto Serif TC',serif;font-size:40px;font-weight:700;color:#a67c3d;line-height:1;">AI</div>
-        <div style="color:#6b6e77;font-size:13.5px;margin-top:8px;">自研精準媒合系統</div>
-      </div>
-      <div style="text-align:center;">
-        <div style="font-family:'Noto Serif TC',serif;font-size:40px;font-weight:700;color:#a67c3d;line-height:1;">內湖</div>
-        <div style="color:#6b6e77;font-size:13.5px;margin-top:8px;">內湖服務據點</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══ AI 精準媒合（技術力主打）═══ -->
-  <section id="ai" style="max-width:1240px;margin:0 auto;padding:clamp(64px,8vw,110px) 28px;">
-    <div data-reveal style="text-align:center;max-width:720px;margin:0 auto 56px;">
-      <div style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:2.5px;color:#a67c3d;text-transform:uppercase;margin-bottom:16px;">How it works</div>
-      <h2 style="font-family:'Noto Serif TC',serif;font-size:clamp(26px,3.6vw,42px);font-weight:700;margin:0 0 18px;line-height:1.25;color:#1c1f26;">不是關鍵字比對，是精準媒合</h2>
-      <p style="color:#55585f;font-size:16.5px;margin:0;">AI 精準媒合系統從職能、產業經驗、資歷軌跡與文化適配等多維度演算，從萬筆菁英人才資料庫中快速篩出高契合人選，再由資深顧問精修交付。</p>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;">
-      <div data-reveal style="padding:30px 28px;border-radius:16px;background:#ffffff;border:1px solid #e6dfd1;box-shadow:0 6px 22px rgba(40,35,25,0.04);">
-        <div style="font-family:'Space Mono',monospace;color:#a67c3d;font-size:14px;margin-bottom:16px;">01</div>
-        <h3 style="font-family:'Noto Serif TC',serif;font-size:20px;font-weight:600;margin:0 0 10px;color:#1c1f26;">需求解析</h3>
-        <p style="color:#6b6e77;font-size:14.5px;margin:0;">深入釐清職位規格、團隊文化與關鍵能力，把「找什麼樣的人」轉成可演算的條件。</p>
-      </div>
-      <div data-reveal style="padding:30px 28px;border-radius:16px;background:#ffffff;border:1px solid #e6dfd1;box-shadow:0 6px 22px rgba(40,35,25,0.04);">
-        <div style="font-family:'Space Mono',monospace;color:#a67c3d;font-size:14px;margin-bottom:16px;">02</div>
-        <h3 style="font-family:'Noto Serif TC',serif;font-size:20px;font-weight:600;margin:0 0 10px;color:#1c1f26;">資料庫智能配對</h3>
-        <p style="color:#6b6e77;font-size:14.5px;margin:0;">AI 從萬筆資料庫多維度演算契合度，主動觸及在職中的被動人選，而非被動等待投遞。</p>
-      </div>
-      <div data-reveal style="padding:30px 28px;border-radius:16px;background:#ffffff;border:1px solid #e6dfd1;box-shadow:0 6px 22px rgba(40,35,25,0.04);">
-        <div style="font-family:'Space Mono',monospace;color:#a67c3d;font-size:14px;margin-bottom:16px;">03</div>
-        <h3 style="font-family:'Noto Serif TC',serif;font-size:20px;font-weight:600;margin:0 0 10px;color:#1c1f26;">顧問精修交付</h3>
-        <p style="color:#6b6e77;font-size:14.5px;margin:0;">資深顧問人工複核、深度評估與引薦，把契合人選送到你面前——任用率 8 成以上。</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══ 企業服務三線 ═══ -->
-  <section id="enterprise" style="background:#faf7f1;border-top:1px solid #e6dfd1;">
-    <div style="max-width:1240px;margin:0 auto;padding:clamp(64px,8vw,110px) 28px;">
-      <div data-reveal style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:48px;">
-        <div style="max-width:620px;">
-          <div style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:2.5px;color:#a67c3d;text-transform:uppercase;margin-bottom:16px;">Enterprise Services</div>
-          <h2 style="font-family:'Noto Serif TC',serif;font-size:clamp(26px,3.6vw,42px);font-weight:700;margin:0 0 14px;color:#1c1f26;">企業服務</h2>
-          <p style="color:#55585f;font-size:16px;margin:0 0 10px;">從關鍵高階職位到彈性派遣，一條龍解決企業選才難題。</p>
-          <a href="/commission-recruiting/" style="font-weight:600;font-size:14.5px;">了解企業委託招募完整方案與流程 →</a>
-          <span style="color:#c9c2b0;margin:0 8px;">｜</span>
-          <a href="/success-stories/" style="font-weight:600;font-size:14.5px;">看成功案例 →</a>
-        </div>
-        <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(166,124,61,0.55);color:#a67c3d;font-weight:600;padding:12px 22px;border-radius:999px;font-size:14.5px;">預約顧問洽詢 →</a>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;">
-        <div data-reveal style="display:flex;flex-direction:column;padding:34px 30px;border-radius:18px;background:linear-gradient(165deg,rgba(166,124,61,0.1),#ffffff);border:1px solid rgba(166,124,61,0.35);box-shadow:0 10px 30px rgba(40,35,25,0.06);">
-          <div style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;color:#a67c3d;margin-bottom:14px;">EXECUTIVE SEARCH</div>
-          <h3 style="font-family:'Noto Serif TC',serif;font-size:23px;font-weight:700;margin:0 0 10px;color:#1c1f26;">高階獵頭・中高階獵才</h3>
-          <p style="color:#55585f;font-size:14.5px;margin:0 0 18px;flex:1;">CEO、CFO、VP 等關鍵與機密職位，保密委任、主動出擊，鎖定在職中的頂尖被動人選。品牌成立的初衷主戰場。</p>
-          <div style="display:flex;flex-wrap:wrap;gap:8px;">
-            <span style="font-size:12.5px;color:#a67c3d;background:rgba(166,124,61,0.12);padding:5px 11px;border-radius:999px;">保密委任</span>
-            <span style="font-size:12.5px;color:#a67c3d;background:rgba(166,124,61,0.12);padding:5px 11px;border-radius:999px;">被動人選</span>
-          </div>
-        </div>
-        <div data-reveal style="display:flex;flex-direction:column;padding:34px 30px;border-radius:18px;background:#ffffff;border:1px solid #e6dfd1;box-shadow:0 6px 22px rgba(40,35,25,0.04);">
-          <div style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;color:#8a8d95;margin-bottom:14px;">DIRECT HIRE</div>
-          <h3 style="font-family:'Noto Serif TC',serif;font-size:23px;font-weight:700;margin:0 0 10px;color:#1c1f26;">正職招募・全方位獵才</h3>
-          <p style="color:#6b6e77;font-size:14.5px;margin:0 0 18px;flex:1;">跨領域菁英與團隊建置，委由 AI 媒合系統與顧問一手包辦，快速補齊正職戰力。</p>
-          <div style="display:flex;flex-wrap:wrap;gap:8px;">
-            <span style="font-size:12.5px;color:#55585f;background:#efeae0;padding:5px 11px;border-radius:999px;">跨領域菁英</span>
-            <span style="font-size:12.5px;color:#55585f;background:#efeae0;padding:5px 11px;border-radius:999px;">團隊招募</span>
-          </div>
-        </div>
-        <div data-reveal style="display:flex;flex-direction:column;padding:34px 30px;border-radius:18px;background:#ffffff;border:1px solid #e6dfd1;box-shadow:0 6px 22px rgba(40,35,25,0.04);">
-          <div style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;color:#8a8d95;margin-bottom:14px;">STAFFING DISPATCH</div>
-          <h3 style="font-family:'Noto Serif TC',serif;font-size:23px;font-weight:700;margin:0 0 10px;color:#1c1f26;">人力派遣</h3>
-          <p style="color:#6b6e77;font-size:14.5px;margin:0 0 18px;flex:1;">彈性人力調度、合規派遣，勞健保與勞動法令責任一併承擔，讓企業專注核心業務。</p>
-          <div style="display:flex;flex-wrap:wrap;gap:8px;">
-            <span style="font-size:12.5px;color:#55585f;background:#efeae0;padding:5px 11px;border-radius:999px;">彈性人力</span>
-            <span style="font-size:12.5px;color:#55585f;background:#efeae0;padding:5px 11px;border-radius:999px;">合規承攬</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- ═══ 招募形式快速評估工具 CTA ═══
-           2026-08-25 加，同日改：不再放直連按鈕跳過留信箱，一律導去
-           /hiring-assessment/ 專屬頁面留 Email 才拿得到連結——名單才留得住。 -->
-      <div data-reveal style="margin-top:20px;padding:30px 32px;border-radius:18px;background:linear-gradient(120deg,#173b63,#0f2540);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:20px;">
-        <div style="max-width:640px;">
-          <div style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:2px;color:#7fc4ec;text-transform:uppercase;margin-bottom:10px;">Free Tool</div>
-          <h3 style="font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;margin:0 0 8px;color:#fff;">不確定該選哪一種招募形式？</h3>
-          <p style="color:#c7d9e8;font-size:14.5px;margin:0;">留下 Email，我們立即寄送評估工具連結，1 分鐘拿到建議結果，可直接列印或另存 PDF。</p>
-        </div>
-        <a href="/hiring-assessment/" style="flex-shrink:0;display:inline-flex;align-items:center;gap:8px;background:#fff;color:#173b63;font-weight:700;font-size:15px;padding:13px 26px;border-radius:999px;white-space:nowrap;">免費評估 →</a>
-      </div>
-
-      <div data-reveal style="margin-top:44px;">
-        <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:18px;">
-          <div>
-            <div style="font-family:'Space Mono',monospace;font-size:11.5px;letter-spacing:2px;color:#a67c3d;text-transform:uppercase;margin-bottom:6px;">Now Hiring</div>
-            <h3 style="font-family:'Noto Serif TC',serif;font-size:23px;font-weight:700;margin:0;color:#1c1f26;">即時職缺</h3>
-          </div>
-          <a href="/jobs/" style="font-weight:600;font-size:14.5px;white-space:nowrap;">查看全部職缺 →</a>
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;">
-          <!-- BIM 工程師：常駐首位（Jacky 指定固定曝光，不隨其他職缺輪替） -->
-          <a href="/jobs/bim-engineer-tongluo/" style="display:block;padding:20px 22px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;color:#23262d;">
-            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;"><span style="font-size:11.5px;font-weight:700;color:#fff;background:#3f6ea8;padding:4px 9px;border-radius:999px;">正職僱用</span><span style="font-size:11.5px;font-weight:700;color:#8a5a1a;background:#f3e2c2;padding:4px 9px;border-radius:999px;">月薪 4 萬以上</span></div>
-            <strong style="display:block;font-family:'Noto Serif TC',serif;font-size:17px;margin-bottom:6px;">BIM 工程師（無經驗可）</strong>
-            <span style="color:#8a8d95;font-size:13.5px;">苗栗銅鑼・AI 記憶體產業擴產案</span>
-          </a>
-          <a href="/jobs/finance-controller-overseas/" style="display:block;padding:20px 22px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;color:#23262d;">
-            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;"><span style="font-size:11.5px;font-weight:700;color:#fff;background:#1c1f26;padding:4px 9px;border-radius:999px;">高階獵才</span><span style="font-size:11.5px;font-weight:700;color:#8a5a1a;background:#f3e2c2;padding:4px 9px;border-radius:999px;">年薪 100–200 萬</span></div>
-            <strong style="display:block;font-family:'Noto Serif TC',serif;font-size:17px;margin-bottom:6px;">財務主管 Finance Controller</strong>
-            <span style="color:#8a8d95;font-size:13.5px;">柬埔寨長期外派・製造業集團</span>
-          </a>
-          <a href="/jobs/group-it-head/" style="display:block;padding:20px 22px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;color:#23262d;">
-            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;"><span style="font-size:11.5px;font-weight:700;color:#fff;background:#1c1f26;padding:4px 9px;border-radius:999px;">高階獵才</span><span style="font-size:11.5px;font-weight:700;color:#8a5a1a;background:#f3e2c2;padding:4px 9px;border-radius:999px;">年薪 100–200 萬</span></div>
-            <strong style="display:block;font-family:'Noto Serif TC',serif;font-size:17px;margin-bottom:6px;">集團資訊主管 Group IT Head</strong>
-            <span style="color:#8a8d95;font-size:13.5px;">台灣・跨國製造集團</span>
-          </a>
-          <a href="/jobs/business-operations-manager/" style="display:block;padding:20px 22px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;color:#23262d;">
-            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;"><span style="font-size:11.5px;font-weight:700;color:#fff;background:#1c1f26;padding:4px 9px;border-radius:999px;">高階獵才</span><span style="font-size:11.5px;font-weight:700;color:#8a5a1a;background:#f3e2c2;padding:4px 9px;border-radius:999px;">年薪 120–250 萬</span></div>
-            <strong style="display:block;font-family:'Noto Serif TC',serif;font-size:17px;margin-bottom:6px;">營運發展主管</strong>
-            <span style="color:#8a8d95;font-size:13.5px;">台北總部・製造業集團</span>
-          </a>
-          <a href="/jobs/backend-engineer-game/" style="display:block;padding:20px 22px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;color:#23262d;">
-            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;"><span style="font-size:11.5px;font-weight:700;color:#fff;background:#4a6285;padding:4px 9px;border-radius:999px;">人力派遣</span><span style="font-size:11.5px;font-weight:700;color:#8a5a1a;background:#f3e2c2;padding:4px 9px;border-radius:999px;">急徵</span></div>
-            <strong style="display:block;font-family:'Noto Serif TC',serif;font-size:17px;margin-bottom:6px;">後端開發工程師（.NET）</strong>
-            <span style="color:#8a8d95;font-size:13.5px;">台北內湖・遊戲產業</span>
-          </a>
-          <a href="/jobs/product-assistant-fintech/" style="display:block;padding:20px 22px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;color:#23262d;">
-            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;"><span style="font-size:11.5px;font-weight:700;color:#fff;background:#4a6285;padding:4px 9px;border-radius:999px;">人力派遣</span><span style="font-size:11.5px;font-weight:700;color:#8a5a1a;background:#f3e2c2;padding:4px 9px;border-radius:999px;">月薪 40–50K</span></div>
-            <strong style="display:block;font-family:'Noto Serif TC',serif;font-size:17px;margin-bottom:6px;">產品助理（可接受新鮮人）</strong>
-            <span style="color:#8a8d95;font-size:13.5px;">台北內湖・電子支付</span>
-          </a>
-          <a href="/jobs/receptionist-neihu/" style="display:block;padding:20px 22px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;color:#23262d;">
-            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;"><span style="font-size:11.5px;font-weight:700;color:#fff;background:#4a6285;padding:4px 9px;border-radius:999px;">人力派遣</span><span style="font-size:11.5px;font-weight:700;color:#8a5a1a;background:#f3e2c2;padding:4px 9px;border-radius:999px;">月薪 35–42K</span></div>
-            <strong style="display:block;font-family:'Noto Serif TC',serif;font-size:17px;margin-bottom:6px;">總機接待</strong>
-            <span style="color:#8a8d95;font-size:13.5px;">台北內湖・週休二日</span>
-          </a>
-        </div>
-      </div>
-
-      <div data-reveal style="margin-top:48px;">
-        <h3 style="font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;margin:0 0 18px;color:#1c1f26;">企業委託獵頭常見問題</h3>
-        <div style="display:flex;flex-direction:column;gap:12px;">
-          <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
-            <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:15.5px;color:#1c1f26;">
-              <span>正職招募委外流程是什麼？</span><span style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
-            </summary>
-            <p style="margin:0;padding:0 20px 18px;color:#55585f;font-size:14.5px;">先確認職位規格與收費方式，接著啟動人才搜尋（既有資料庫＋主動開發同步進行），初步媒合後安排面試，到offer與到職為止，Step1ne顧問全程跟進並定期回報進度。</p>
-          </details>
-          <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
-            <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:15.5px;color:#1c1f26;">
-              <span>大概多久能找到人？</span><span style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
-            </summary>
-            <p style="margin:0;padding:0 20px 18px;color:#55585f;font-size:14.5px;">依職缺難度而異：既有人才資料庫與內部推薦名單零開發時間，通常最快能安排面試；一般職缺約2-4週開始送件。急件大量招募可全通路（資料庫、人力銀行、LinkedIn、在地社群）同步啟動，加快到位速度。</p>
-          </details>
-          <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
-            <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:15.5px;color:#1c1f26;">
-              <span>有保固期或替補保證嗎？</span><span style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
-            </summary>
-            <p style="margin:0;padding:0 20px 18px;color:#55585f;font-size:14.5px;">委任前會明確約定保固期，人選在保固期內離職，Step1ne提供免費替補服務，實際條件依委任合約雙方約定為準。</p>
-          </details>
-          <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
-            <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:15.5px;color:#1c1f26;">
-              <span>沒有成功媒合到職，需要付費嗎？</span><span style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
-            </summary>
-            <p style="margin:0;padding:0 20px 18px;color:#55585f;font-size:14.5px;">高階獵頭多採「成功後收費」委任制，未成功媒合到職原則上不收費，實際收費模式與比例會於委任前雙方確認並寫入合約，過程透明無隱藏費用。</p>
-          </details>
-          <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
-            <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:15.5px;color:#1c1f26;">
-              <span>人力派遣合規嗎？企業要承擔什麼責任？</span><span style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
-            </summary>
-            <p style="margin:0;padding:0 20px 18px;color:#55585f;font-size:14.5px;">派遣員工與Step1ne簽訂勞動契約，薪資、勞健保與勞動法令責任由Step1ne負擔，要派企業僅負責現場工作指揮與管理，完全合規移轉勞務風險。派遣期間表現良好，雙方可另行協議轉正條件與時程。</p>
-          </details>
-          <details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;">
-            <summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:15.5px;color:#1c1f26;">
-              <span>Step1ne 做哪些產業的獵才？</span><span style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span>
-            </summary>
-            <p style="margin:0;padding:0 20px 18px;color:#55585f;font-size:14.5px;">Step1ne橫跨科技業、營建工程等多元產業，AI精準媒合系統依職能、產業經驗與資歷軌跡多維度演算，不限單一領域，目前也正協助大型建廠專案進行BIM工程師派遣招募。</p>
-          </details>
-        </div>
-      </div>
-
-      <div data-reveal style="margin-top:44px;">
-        <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:18px;">
-          <div>
-            <div style="font-family:'Space Mono',monospace;font-size:11.5px;letter-spacing:2px;color:#a67c3d;text-transform:uppercase;margin-bottom:6px;">Insights</div>
-            <h3 style="font-family:'Noto Serif TC',serif;font-size:23px;font-weight:700;margin:0;color:#1c1f26;">獵才專欄</h3>
-          </div>
-          <a href="/articles/" style="font-weight:600;font-size:14.5px;white-space:nowrap;">看所有文章 →</a>
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;">
-          <a href="/articles/bim-engineer-salary/" style="display:block;padding:22px 24px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;color:#23262d;">
-            <span style="display:inline-block;font-size:11.5px;font-weight:700;color:#8a5a1a;background:#f3e2c2;padding:4px 10px;border-radius:999px;margin-bottom:10px;">薪資行情</span>
-            <strong style="display:block;font-family:'Noto Serif TC',serif;font-size:17px;line-height:1.45;margin-bottom:6px;">BIM工程師薪水行情：從無經驗到資深，數字怎麼跳？</strong>
-            <span style="color:#8a8d95;font-size:13.5px;">Lv1 到 Lv6 六個職級的月薪帶拆解</span>
-          </a>
-          <a href="/articles/bim-career-change/" style="display:block;padding:22px 24px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;color:#23262d;">
-            <span style="display:inline-block;font-size:11.5px;font-weight:700;color:#8a5a1a;background:#f3e2c2;padding:4px 10px;border-radius:999px;margin-bottom:10px;">轉職入行</span>
-            <strong style="display:block;font-family:'Noto Serif TC',serif;font-size:17px;line-height:1.45;margin-bottom:6px;">沒有相關科系，可以轉職 BIM 工程師嗎？</strong>
-            <span style="color:#8a8d95;font-size:13.5px;">企業實際在看什麼、非本科怎麼補</span>
-          </a>
-          <a href="/articles/what-is-bim-engineer/" style="display:block;padding:22px 24px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;color:#23262d;">
-            <span style="display:inline-block;font-size:11.5px;font-weight:700;color:#8a5a1a;background:#f3e2c2;padding:4px 10px;border-radius:999px;margin-bottom:10px;">職務認識</span>
-            <strong style="display:block;font-family:'Noto Serif TC',serif;font-size:17px;line-height:1.45;margin-bottom:6px;">BIM 工程師是什麼？跟繪圖員差在哪？</strong>
-            <span style="color:#8a8d95;font-size:13.5px;">工作內容、LOD 等級、五種職缺型態</span>
-          </a>
-          <a href="/articles/how-to-choose-headhunter/" style="display:block;padding:22px 24px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;color:#23262d;">
-            <span style="display:inline-block;font-size:11.5px;font-weight:700;color:#8a5a1a;background:#f3e2c2;padding:4px 10px;border-radius:999px;margin-bottom:10px;">企業指南</span>
-            <strong style="display:block;font-family:'Noto Serif TC',serif;font-size:17px;line-height:1.45;margin-bottom:6px;">怎麼挑台灣獵頭公司？7 個判斷標準</strong>
-            <span style="color:#8a8d95;font-size:13.5px;">可以直接拿去問的驗證方法</span>
-          </a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══ 人才・求職者專區 ═══ -->
-  <section id="talent" style="max-width:1240px;margin:0 auto;padding:clamp(64px,8vw,110px) 28px;">
-    <div data-reveal style="text-align:center;max-width:700px;margin:0 auto 52px;">
-      <div style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:2.5px;color:#a67c3d;text-transform:uppercase;margin-bottom:16px;">Talent · Job Seeker</div>
-      <h2 style="font-family:'Noto Serif TC',serif;font-size:clamp(26px,3.6vw,42px);font-weight:700;margin:0 0 14px;color:#1c1f26;">人才・求職者專區</h2>
-      <p style="color:#55585f;font-size:16px;margin:0;">找工作、賺獎金、備好履歷與面試——免費工具一次到位。</p>
-    </div>
-
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;">
-      <div data-reveal style="padding:34px 30px;border-radius:18px;background:#ffffff;border:1px solid #e6dfd1;box-shadow:0 6px 22px rgba(40,35,25,0.04);">
-        <h3 style="font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;margin:0 0 10px;color:#1c1f26;">全民獵才・LINE 小程式</h3>
-        <p style="color:#55585f;font-size:15px;margin:0 0 18px;">直接在 LINE 官方帳號中開啟，免下載安裝。把適合的職缺推薦給朋友，媒合成功到職後就能拿推薦獎金。人人都是獵才夥伴。</p>
-        <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;">
-          <li style="display:flex;gap:10px;color:#4a4d55;font-size:14.5px;"><span style="color:#a67c3d;">◆</span>推薦職缺拿獎金</li>
-          <li style="display:flex;gap:10px;color:#4a4d55;font-size:14.5px;"><span style="color:#a67c3d;">◆</span>好職缺即時推播</li>
-          <li style="display:flex;gap:10px;color:#4a4d55;font-size:14.5px;"><span style="color:#a67c3d;">◆</span>媒合進度隨時追蹤</li>
-        </ul>
-      </div>
-      <div data-reveal style="padding:34px 30px;border-radius:18px;background:#ffffff;border:1px solid #e6dfd1;box-shadow:0 6px 22px rgba(40,35,25,0.04);">
-        <h3 style="font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;margin:0 0 10px;color:#1c1f26;">AI 智能求職工具</h3>
-        <p style="color:#55585f;font-size:15px;margin:0 0 18px;">從履歷到面試，AI 幫你把求職的每一步都準備好。</p>
-        <div style="display:flex;flex-wrap:wrap;gap:9px;">
-          <span style="font-size:13px;color:#55585f;background:#efeae0;padding:7px 14px;border-radius:999px;">履歷健診</span>
-          <span style="font-size:13px;color:#55585f;background:#efeae0;padding:7px 14px;border-radius:999px;">推薦信</span>
-          <span style="font-size:13px;color:#55585f;background:#efeae0;padding:7px 14px;border-radius:999px;">離職信</span>
-          <span style="font-size:13px;color:#55585f;background:#efeae0;padding:7px 14px;border-radius:999px;">自我介紹</span>
-          <span style="font-size:13px;color:#55585f;background:#efeae0;padding:7px 14px;border-radius:999px;">面試題庫</span>
-        </div>
-        <a href="/talent/ai-tools/" style="display:inline-block;margin-top:16px;font-size:13.5px;color:#a67c3d;font-weight:600;">查看全部 AI 求職工具 →</a>
-      </div>
-    </div>
-
-    <div data-reveal class="s1ne-lineapp-grid" style="margin-top:20px;display:grid;grid-template-columns:1.2fr 1fr;gap:36px;align-items:center;padding:44px clamp(28px,4vw,48px);border-radius:22px;background:linear-gradient(150deg,rgba(166,124,61,0.12),rgba(96,128,180,0.07));border:1px solid rgba(166,124,61,0.3);">
-      <div>
-        <div style="font-family:'Space Mono',monospace;font-size:11.5px;letter-spacing:2px;color:#a67c3d;text-transform:uppercase;margin-bottom:14px;">LINE Mini App</div>
-        <h3 style="font-family:'Noto Serif TC',serif;font-size:clamp(24px,3vw,34px);font-weight:700;margin:0 0 14px;line-height:1.3;color:#1c1f26;">在 LINE 開啟「全民獵才」<br>推薦職缺、媒合成功拿獎金</h3>
-        <p style="color:#55585f;font-size:15px;margin:0 0 26px;max-width:460px;">全民獵才是掛在 Step1ne LINE 官方帳號上的小程式——加入好友即可開啟，免下載、免安裝。不必是專業獵頭，也能替朋友找到好工作、替自己賺一筆。</p>
-        <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:center;">
-          <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,#06c755,#04a445);color:#fff;font-weight:700;font-size:15px;padding:14px 26px;border-radius:12px;box-shadow:0 8px 24px rgba(6,199,85,0.28);">
-            <span style="width:9px;height:9px;border-radius:50%;background:#fff;"></span>加入 LINE・開啟全民獵才
-          </a>
-          <a href="/talent/" style="font-size:13.5px;color:#a67c3d;font-weight:600;">獎金怎麼算？完整介紹 →</a>
-        </div>
-      </div>
-      <div style="display:flex;justify-content:center;">
-        <img src="assets/lineapp-promo.webp" alt="全民獵才 LINE首家求職平台，AI精美履歷生成、找工作拿獎金" style="width:100%;max-width:360px;height:auto;border-radius:20px;box-shadow:0 14px 40px rgba(40,35,25,0.12);">
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══ 關於／初衷 ═══ -->
-  <section id="about" style="border-top:1px solid #e6dfd1;background:#faf7f1;">
-    <div style="max-width:1000px;margin:0 auto;padding:clamp(64px,8vw,110px) 28px;text-align:center;">
-      <div data-reveal>
-        <div style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:2.5px;color:#a67c3d;text-transform:uppercase;margin-bottom:18px;">About Step1ne</div>
-        <h2 style="font-family:'Noto Serif TC',serif;font-size:clamp(26px,3.6vw,42px);font-weight:700;margin:0 0 24px;line-height:1.3;color:#1c1f26;">從高階獵頭起家，<br>把「對的人」與「對的機會」對接</h2>
-        <p style="color:#55585f;font-size:17px;max-width:720px;margin:0 auto 16px;">Step1ne 由<strong style="color:#23262d;font-weight:600;">德仁管理顧問有限公司</strong>營運，相信每一次成功的媒合，都是雙方向前的一步。我們以自研 AI 精準媒合系統與資深顧問的專業判斷，為企業與人才創造長期價值。</p>
-        <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:22px;color:#a67c3d;margin:26px 0 0;">“One step to us, a step to success.”</p>
-        <p style="color:#8a8d95;font-size:14px;margin:10px 0 0;">臺北市內湖區康寧路三段54之7號3樓</p>
-        <a href="/about/" style="display:inline-flex;align-items:center;gap:8px;margin-top:28px;color:#a67c3d;font-weight:600;font-size:15px;">認識 Step1ne・關於我們 →</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══ FAQ（AEO 核心，原生 details/summary，零 JS 依賴）═══ -->
-  <section id="faq" style="max-width:900px;margin:0 auto;padding:clamp(64px,8vw,110px) 28px;">
-    <div data-reveal style="text-align:center;margin-bottom:48px;">
-      <div style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:2.5px;color:#a67c3d;text-transform:uppercase;margin-bottom:16px;">FAQ</div>
-      <h2 style="font-family:'Noto Serif TC',serif;font-size:clamp(26px,3.6vw,42px);font-weight:700;margin:0;color:#1c1f26;">常見問題</h2>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:12px;">
-      <details data-reveal style="border:1px solid #e6dfd1;border-radius:14px;background:#ffffff;overflow:hidden;box-shadow:0 4px 16px rgba(40,35,25,0.04);">
-        <summary style="padding:22px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-family:'Noto Serif TC',serif;font-size:17.5px;font-weight:600;color:#1c1f26;">
-          <span>獵頭顧問的收費模式是什麼？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:22px;color:#a67c3d;flex-shrink:0;">+</span>
-        </summary>
-        <p style="margin:0;padding:0 24px 22px;color:#55585f;font-size:15px;line-height:1.75;">高階獵頭多採「成功後收費」的委任制，費用通常以錄取人選年薪的一定比例計算，於人選到職後結算。Step1ne 在委任前會先與企業確認職位規格與收費方式，過程透明無隱藏費用。</p>
-      </details>
-      <details data-reveal style="border:1px solid #e6dfd1;border-radius:14px;background:#ffffff;overflow:hidden;box-shadow:0 4px 16px rgba(40,35,25,0.04);">
-        <summary style="padding:22px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-family:'Noto Serif TC',serif;font-size:17.5px;font-weight:600;color:#1c1f26;">
-          <span>高階獵頭和人力銀行有什麼不同？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:22px;color:#a67c3d;flex-shrink:0;">+</span>
-        </summary>
-        <p style="margin:0;padding:0 24px 22px;color:#55585f;font-size:15px;line-height:1.75;">人力銀行是被動刊登、廣撒履歷；高階獵頭是主動出擊，由顧問鎖定特定產業與職能的被動人選（在職中、未公開求職者），並保密進行接觸與評估，適合關鍵與機密職位。</p>
-      </details>
-      <details data-reveal style="border:1px solid #e6dfd1;border-radius:14px;background:#ffffff;overflow:hidden;box-shadow:0 4px 16px rgba(40,35,25,0.04);">
-        <summary style="padding:22px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-family:'Noto Serif TC',serif;font-size:17.5px;font-weight:600;color:#1c1f26;">
-          <span>派遣員工算誰的員工？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:22px;color:#a67c3d;flex-shrink:0;">+</span>
-        </summary>
-        <p style="margin:0;padding:0 24px 22px;color:#55585f;font-size:15px;line-height:1.75;">派遣員工與派遣公司（Step1ne）簽訂勞動契約，由派遣公司負擔勞健保、薪資與勞動法令責任，再指派至要派企業提供勞務；要派企業負責現場工作指揮與管理。</p>
-      </details>
-      <details data-reveal style="border:1px solid #e6dfd1;border-radius:14px;background:#ffffff;overflow:hidden;box-shadow:0 4px 16px rgba(40,35,25,0.04);">
-        <summary style="padding:22px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-family:'Noto Serif TC',serif;font-size:17.5px;font-weight:600;color:#1c1f26;">
-          <span>Step1ne 的 AI 精準媒合系統如何運作？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:22px;color:#a67c3d;flex-shrink:0;">+</span>
-        </summary>
-        <p style="margin:0;padding:0 24px 22px;color:#55585f;font-size:15px;line-height:1.75;">系統不是單純關鍵字比對，而是從職能、產業經驗、資歷軌跡與文化適配等多維度演算，從萬筆菁英人才資料庫中快速篩出高契合人選，再由資深顧問精修交付，任用率達 8 成以上。</p>
-      </details>
-      <details data-reveal style="border:1px solid #e6dfd1;border-radius:14px;background:#ffffff;overflow:hidden;box-shadow:0 4px 16px rgba(40,35,25,0.04);">
-        <summary style="padding:22px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-family:'Noto Serif TC',serif;font-size:17.5px;font-weight:600;color:#1c1f26;">
-          <span>全民獵才怎麼用？怎麼賺獎金？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:22px;color:#a67c3d;flex-shrink:0;">+</span>
-        </summary>
-        <p style="margin:0;padding:0 24px 22px;color:#55585f;font-size:15px;line-height:1.75;">全民獵才是掛在 Step1ne LINE 官方帳號上的小程式（LINE Mini App），加好友即可開啟，免下載、免安裝。在裡面把適合的職缺推薦給朋友，當你推薦的人選媒合成功並到職後，即可獲得推薦獎金。完整使用步驟與獎金說明見<a href="/talent/">全民獵才專區</a>。</p>
-      </details>
-      <details data-reveal style="border:1px solid #e6dfd1;border-radius:14px;background:#ffffff;overflow:hidden;box-shadow:0 4px 16px rgba(40,35,25,0.04);">
-        <summary style="padding:22px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-family:'Noto Serif TC',serif;font-size:17.5px;font-weight:600;color:#1c1f26;">
-          <span>Step1ne 的服務據點在哪裡？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:22px;color:#a67c3d;flex-shrink:0;">+</span>
-        </summary>
-        <p style="margin:0;padding:0 24px 22px;color:#55585f;font-size:15px;line-height:1.75;">Step1ne 位於臺北市內湖區康寧路三段54之7號3樓，服務範圍涵蓋全台灣。</p>
-      </details>
-    </div>
-    <p style="text-align:center;margin-top:24px;font-size:14.5px;color:#8a8d95;">已經在應徵或委託流程中？面談、薪資、收費等操作類問題看<a href="/faq/">完整常見問題</a>。</p>
-  </section>
-
-  <!-- ═══ 聯絡 CTA ═══ -->
-  <section id="contact" style="border-top:1px solid #e6dfd1;background:linear-gradient(180deg,#f4f1ea,rgba(166,124,61,0.08));">
-    <div style="max-width:1000px;margin:0 auto;padding:clamp(64px,8vw,110px) 28px;">
-      <div data-reveal style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:40px;align-items:center;">
-        <div>
-          <h2 style="font-family:'Noto Serif TC',serif;font-size:clamp(26px,3.6vw,40px);font-weight:700;margin:0 0 16px;line-height:1.3;color:#1c1f26;">準備好找到<br>對的人選了嗎？</h2>
-          <p style="color:#55585f;font-size:16px;margin:0 0 28px;">透過官方 LINE 直接與顧問對話，我們會盡快回覆並安排洽詢。</p>
-          <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;background:#06c755;color:#fff;font-weight:700;font-size:16px;padding:15px 30px;border-radius:999px;box-shadow:0 8px 26px rgba(166,124,61,0.3);">
-            <span style="width:8px;height:8px;border-radius:50%;background:#fff;"></span>透過 LINE 洽詢
-          </a>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:18px;">
-          <div style="display:flex;gap:14px;align-items:flex-start;">
-            <span style="font-family:'Space Mono',monospace;color:#a67c3d;font-size:12px;letter-spacing:1px;width:64px;flex-shrink:0;padding-top:2px;">據點</span>
-            <span style="color:#4a4d55;font-size:15px;">臺北市內湖區康寧路三段54之7號3樓</span>
-          </div>
-          <div style="display:flex;gap:14px;align-items:flex-start;">
-            <span style="font-family:'Space Mono',monospace;color:#a67c3d;font-size:12px;letter-spacing:1px;width:64px;flex-shrink:0;padding-top:2px;">法人</span>
-            <span style="color:#4a4d55;font-size:15px;">德仁管理顧問有限公司</span>
-          </div>
-          <div style="display:flex;gap:14px;align-items:flex-start;">
-            <span style="font-family:'Space Mono',monospace;color:#a67c3d;font-size:12px;letter-spacing:1px;width:64px;flex-shrink:0;padding-top:2px;">產業</span>
-            <span style="color:#4a4d55;font-size:15px;">人力仲介代徵・工商顧問業</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══ Footer ═══ -->
-  <footer style="border-top:1px solid #e6dfd1;background:#eee9de;">
-    <div class="s1ne-footer-grid" style="max-width:1240px;margin:0 auto;padding:52px 28px 40px;display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:36px;">
-      <div style="min-width:200px;">
-        <div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;margin-bottom:10px;color:#23262d;">Step<span style="color:#a67c3d;">1</span>ne</div>
-        <p style="color:#7a7d85;font-size:13.5px;max-width:320px;margin:0 0 10px;">德仁管理顧問有限公司 · AI 精準媒合 × 高階獵頭</p>
-        <p style="color:#9a9da5;font-size:12.5px;max-width:320px;margin:0 0 16px;line-height:1.7;">統一編號 85046127<br>北市就服字第 0363 號<br>台北市內湖區康寧路三段54之7號3樓</p>
-        <div class="s1ne-flinks" style="display:flex;gap:14px;flex-wrap:wrap;">
-          <a href="https://www.104.com.tw/company/1a2x6blikz" target="_blank" rel="noopener" style="color:#7a7d85;font-size:13px;">104</a>
-          <a href="https://www.facebook.com/Step1ne" target="_blank" rel="noopener" style="color:#7a7d85;font-size:13px;">Facebook</a>
-          <a href="https://www.instagram.com/step1ne_tw/" target="_blank" rel="noopener" style="color:#7a7d85;font-size:13px;">Instagram</a>
-          <a href="https://www.linkedin.com/company/73006491/" target="_blank" rel="noopener" style="color:#7a7d85;font-size:13px;">LinkedIn</a>
-        </div>
-      </div>
-      <div class="s1ne-fcols" style="display:contents;">
-      <div>
-        <div style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;color:#a67c3d;text-transform:uppercase;margin-bottom:16px;">企業服務</div>
-        <div class="s1ne-flinks" style="display:flex;flex-direction:column;gap:10px;">
-          <a href="#enterprise" style="color:#6b6e77;font-size:14px;">高階獵頭</a>
-          <a href="#enterprise" style="color:#6b6e77;font-size:14px;">正職招募</a>
-          <a href="#enterprise" style="color:#6b6e77;font-size:14px;">人力派遣</a>
-          <a href="/hiring-assessment/" style="color:#6b6e77;font-size:14px;">招募形式評估工具</a>
-          <a href="/commission-recruiting/" style="color:#6b6e77;font-size:14px;">企業委託招募流程</a>
-          <a href="/articles/" style="color:#6b6e77;font-size:14px;">獵才專欄</a>
-          <a href="/articles/bim-engineer-salary/" style="color:#6b6e77;font-size:14px;">BIM薪水行情</a>
-        </div>
-      </div>
-      <div>
-        <div style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;color:#a67c3d;text-transform:uppercase;margin-bottom:16px;">人才專區</div>
-        <div class="s1ne-flinks" style="display:flex;flex-direction:column;gap:10px;">
-          <a href="/jobs/" style="color:#6b6e77;font-size:14px;">職缺專區</a>
-          <a href="/construction/" style="color:#6b6e77;font-size:14px;">營造工程／BIM專區</a>
-          <a href="/talent/" style="color:#6b6e77;font-size:14px;">全民獵才 App</a>
-          <a href="/talent/ai-tools/" style="color:#6b6e77;font-size:14px;">AI 求職工具</a>
-          <a href="/about/" style="color:#6b6e77;font-size:14px;">關於我們</a>
-          <a href="#faq" style="color:#6b6e77;font-size:14px;">常見問題</a>
-        </div>
-      </div>
-      </div>
-    </div>
-    <div style="border-top:1px solid #e0d9cb;">
-      <div style="max-width:1240px;margin:0 auto;padding:20px 28px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;color:#9a9da5;font-size:12.5px;">
-        <span style="color:#9a9da5;">© 2026 德仁管理顧問有限公司 Step1ne. All rights reserved.</span>
-        <span style="font-family:'Space Mono',monospace;color:#9a9da5;">One step to us, a step to success.</span>
-      </div>
-    </div>
-  </footer>
-
+<div class="banner">
+  <img src="/assets/hero-banner.webp" alt="Step1ne 德仁管理顧問｜IT人才專家・高階獵才平台" width="1584" height="396" fetchpriority="high">
 </div>
 
-<script>
-if ('IntersectionObserver' in window) {
-  var io = new IntersectionObserver(function(entries){
-    entries.forEach(function(e){
-      if (e.isIntersecting) { e.target.classList.add('is-visible'); io.unobserve(e.target); }
-    });
-  }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
-  document.querySelectorAll('[data-reveal]').forEach(function(el){ io.observe(el); });
-} else {
-  document.querySelectorAll('[data-reveal]').forEach(function(el){ el.classList.add('is-visible'); });
-}
-</script>
+<main class="spine" id="top">
+
+  <!-- ══ Hero：主角是「委任進度軌」，不是玻璃帷幕照片 ══ -->
+  <section class="hero">
+    <span class="node" style="top:96px"></span>
+    <div class="hero-in">
+      <h1>找人這件事，<br>應該看得到進度。</h1>
+      <p class="hero-p">Step1ne（德仁管理顧問）用自研 <span class="num">AI</span> 媒合系統與萬筆人才資料庫接手你的關鍵職缺，從解析需求到人選報到，每一段都有顧問署名、有時間、有回報。</p>
+      <div class="hero-act">
+        <a class="btn btn-p" href="#svc">委託我們找人</a>
+        <a class="btn btn-s" href="#jobs">我要找工作</a>
+      </div>
+
+      <div class="track">
+        <div class="track-cap">
+          <h2>一件委任長什麼樣子</h2>
+          <span>以一般正職職缺為例，實際天數依職缺難度而定</span>
+        </div>
+        <div class="track-rail">
+          <div class="stp done"><i></i><b>需求解析</b><em>第 1–3 天</em></div>
+          <div class="stp done"><i></i><b>資料庫配對</b><em>第 3–7 天</em></div>
+          <div class="stp now"><i></i><b>顧問精修</b><em>第 7–14 天</em></div>
+          <div class="stp"><i></i><b>送件</b><em>第 2–4 週</em></div>
+          <div class="stp"><i></i><b>企業面試</b><em>依貴司安排</em></div>
+          <div class="stp"><i></i><b>報到・保固</b><em>合約約定</em></div>
+        </div>
+        <p class="track-note">既有人才資料庫與內部推薦名單零開發時間，通常最快能安排面試。急件大量招募可全通路同步啟動。高階獵頭多採成功後收費，未成功媒合到職原則上不收費。</p>
+      </div>
+
+      <div class="figs">
+        <div class="fig-lead">
+          <b class="num">8<span class="u">成以上</span></b>
+          <span>任用率</span>
+          <em>媒合到職後於保固期內留任的比例，是我們最核心的一個數字。</em>
+        </div>
+        <ul>
+          <li><i class="num">36</i><span>個目前開放中的職缺</span></li>
+          <li><i class="num">萬筆</i><span>菁英人才資料庫，AI 從中演算契合度</span></li>
+          <li><i>內湖</i><span>t.Hub 服務據點，服務範圍涵蓋全台</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 資格憑證：政府背書，不是自己講的 ══ -->
+  <section class="sec" id="cred">
+    <span class="node"></span>
+    <div class="sec-in">
+      <h2 class="sec-h">這家公司的資格，你可以自己查</h2>
+      <p class="sec-p">獵頭公司值不值得託付，不該只看它怎麼自我介紹。以下每一組字號都能到主管機關查證。</p>
+      <div class="cred">
+        <figure>
+          <img src="/assets/award-a-rating-2025.webp" alt="臺北市政府勞動局頒發德仁管理顧問有限公司 114 年度私立就業服務機構評鑑 A 級獎狀" loading="lazy" width="1654" height="2338">
+          <figcaption>臺北市政府勞動局頒發<br>114 年度私立就業服務機構評鑑</figcaption>
+        </figure>
+        <dl>
+          <dt>評鑑等級</dt>
+          <dd><span class="lv"><b>A</b> 級　114 年度仲介本國人在國內工作</span></dd>
+          <dt>評鑑證書字號</dt>
+          <dd class="code">北市勞就字第 AYAA1146102860 號</dd>
+          <dt>就業服務許可字號</dt>
+          <dd class="code">北市就服字第 0363 號</dd>
+          <dt>統一編號</dt>
+          <dd class="code">85046127</dd>
+          <dt>法人名稱</dt>
+          <dd>德仁管理顧問有限公司</dd>
+        </dl>
+      </div>
+      <div class="svc-links" style="margin-top:22px"><a href="/about/">看完整公司資料與查證方式</a></div>
+    </div>
+  </section>
+
+  <!-- ══ 三步驟 ══ -->
+  <section class="sec" id="how">
+    <span class="node"></span>
+    <div class="sec-in">
+      <h2 class="sec-h">不是關鍵字比對，是精準媒合</h2>
+      <p class="sec-p">系統從職能、產業經驗、資歷軌跡與文化適配等多維度演算，從萬筆資料庫篩出高契合人選，再由資深顧問精修交付。</p>
+      <div class="steps">
+        <div class="step"><span class="n">第 1 步</span><h3>需求解析</h3><p>深入釐清職位規格、團隊文化與關鍵能力，把「找什麼樣的人」轉成可演算的條件。</p></div>
+        <div class="step"><span class="n">第 2 步</span><h3>資料庫智能配對</h3><p>AI 從萬筆資料庫多維度演算契合度，主動觸及在職中的被動人選，而非被動等待投遞。</p></div>
+        <div class="step"><span class="n">第 3 步</span><h3>顧問精修交付</h3><p>資深顧問人工複核、深度評估與引薦，把契合人選送到你面前——任用率 8 成以上。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 企業服務 ══ -->
+  <section class="sec" id="svc">
+    <span class="node"></span>
+    <div class="sec-in">
+      <h2 class="sec-h">企業服務</h2>
+      <p class="sec-p">從關鍵高階職位到彈性派遣，一條龍解決企業選才難題。</p>
+      <div class="svcs">
+        <article class="svc">
+          <h3>高階獵頭・中高階獵才</h3>
+          <p>CEO、CFO、VP 等關鍵與機密職位，保密委任、主動出擊，鎖定在職中的頂尖被動人選。品牌成立的初衷主戰場。</p>
+          <ul><li>保密委任</li><li>被動人選</li></ul>
+        </article>
+        <article class="svc">
+          <h3>正職招募・全方位獵才</h3>
+          <p>跨領域菁英與團隊建置，委由 AI 媒合系統與顧問一手包辦，快速補齊正職戰力。</p>
+          <ul><li>跨領域菁英</li><li>團隊招募</li></ul>
+        </article>
+        <article class="svc">
+          <h3>人力派遣</h3>
+          <p>彈性人力調度、合規派遣，勞健保與勞動法令責任一併承擔，讓企業專注核心業務。</p>
+          <ul><li>彈性人力</li><li>合規承攬</li></ul>
+        </article>
+      </div>
+      <div class="svc-links">
+        <a href="/commission-recruiting/">委託招募完整方案與流程</a>
+        <a href="/success-stories/">看成功案例</a>
+        <a href="/appointment/">預約顧問洽詢</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 評估工具 ══ -->
+  <section class="sec" id="tool">
+    <span class="node"></span>
+    <div class="sec-in">
+      <h2 class="sec-h">不確定該選哪一種招募形式？</h2>
+      <div class="tool">
+        <div>
+          <h3>招募形式評估工具</h3>
+          <p>留下 Email，我們立即寄送評估工具連結，1 分鐘拿到建議結果，可直接列印或另存 PDF。</p>
+        </div>
+        <a class="btn btn-p" href="/hiring-assessment/">免費取得評估工具</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 職缺 ══ -->
+  <section class="sec" id="jobs">
+    <span class="node"></span>
+    <div class="sec-in">
+      <h2 class="sec-h">即時職缺</h2>
+      <p class="sec-p">目前開放應徵的職位，點進去可以看到完整條件與應徵方式。</p>
+      <div class="jobs">
+        <a class="job" href="/jobs/">
+          <span class="kind">正職僱用</span>
+          <div><h3>BIM 工程師（無經驗可）</h3><p>苗栗銅鑼・AI 記憶體產業擴產案</p></div>
+          <span class="pay">月薪 40K 起</span>
+        </a>
+        <a class="job" href="/jobs/">
+          <span class="kind hh">高階獵才</span>
+          <div><h3>財務主管 Finance Controller</h3><p>保密職位・由顧問單獨聯繫</p></div>
+          <span class="pay">年薪 100–200 萬</span>
+        </a>
+        <a class="job" href="/jobs/">
+          <span class="kind">人力派遣</span>
+          <div><h3>產品助理（可接受新鮮人）</h3><p>台北內湖・電子支付</p></div>
+          <span class="pay">月薪 40–50K</span>
+        </a>
+        <a class="job" href="/jobs/">
+          <span class="kind">人力派遣</span>
+          <div><h3>總機接待</h3><p>台北內湖・週休二日</p></div>
+          <span class="pay">月薪 35–42K</span>
+        </a>
+      </div>
+      <div class="svc-links"><a href="/jobs/">查看全部 36 個職缺</a></div>
+    </div>
+  </section>
+
+  <!-- ══ 求職者端：換深色底＝換受眾 ══ -->
+  <section class="sec dark" id="talent">
+    <span class="node"></span>
+    <div class="sec-in">
+      <h2 class="sec-h">人才・求職者專區</h2>
+      <p class="sec-p">應徵之後會發生什麼、有哪些免費工具可以先用——這一段是給求職者看的。</p>
+      <div class="tal">
+        <article class="tal-card">
+          <h3>先跟阿財談一次，20–40 分鐘就知道結果</h3>
+          <p>阿財是 Step1ne 自己開發的 AI 面談顧問。應徵之後你會先跟阿財進行一場正式對談，等同真人顧問的第一輪面試——不用等顧問排時間，也不用配合上班時間請假。</p>
+          <ul class="tal-list">
+            <li>依你的履歷與職缺追問，不是照題庫唸</li>
+            <li>逐字稿一定經真人顧問覆核，阿財不做最終決定</li>
+            <li>可以打字，也可以按麥克風用講的</li>
+          </ul>
+          <p class="fine">不會有人只被機器刷掉、完全沒有人看過——這一段一直是人在把關。</p>
+          <div class="hero-act">
+            <a class="btn btn-live" href="/jobs/">找一個職缺開始應徵</a>
+            <a class="btn btn-ghost" href="/articles/ai-interview-guide/">AI阿財面談是什麼？先看說明</a>
+          </div>
+        </article>
+        <article class="tal-card">
+          <h3>AI 智能求職工具</h3>
+          <p>從履歷到面試，AI 幫你把求職的每一步都準備好。</p>
+          <ul class="chips">
+            <li>履歷健診</li><li>推薦信</li><li>離職信</li><li>自我介紹</li><li>面試題庫</li>
+          </ul>
+          <div class="hero-act">
+            <a class="btn btn-ghost" href="/talent/ai-tools/">查看全部 AI 求職工具</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══ 全民獵才：海報放在淺色區，不與深色面板打架 ══ -->
+  <section class="sec" id="lineapp">
+    <span class="node"></span>
+    <div class="sec-in">
+      <h2 class="sec-h">在 LINE 開啟「全民獵才」</h2>
+      <p class="sec-p">推薦職缺、媒合成功拿獎金。加入好友即可開啟，免下載、免安裝。</p>
+      <div class="mini">
+        <div>
+          <h3>不必是專業獵頭，也能替朋友找到好工作</h3>
+          <p>全民獵才是掛在 Step1ne LINE 官方帳號上的小程式。把適合的職缺推薦給朋友，當你推薦的人選媒合成功並到職後，即可獲得推薦獎金。</p>
+          <ul>
+            <li>推薦職缺拿獎金</li>
+            <li>好職缺即時推播</li>
+            <li>媒合進度隨時追蹤</li>
+          </ul>
+          <div class="hero-act">
+            <a class="btn btn-line" href="https://lin.ee/XcSWPzM">加入 LINE・開啟全民獵才</a>
+            <a class="btn btn-s" href="/talent/">獎金怎麼算</a>
+          </div>
+        </div>
+        <figure>
+          <img src="/assets/lineapp-promo.webp" alt="全民獵才 LINE 小程式介紹：在 LINE 上即可使用、專業顧問在線諮詢、AI 履歷生成與模擬面試、推薦職缺拿獎金" loading="lazy" width="1170" height="1165">
+          <figcaption>全民獵才 LINE 小程式介紹</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 專欄 ══ -->
+  <section class="sec" id="posts">
+    <span class="node"></span>
+    <div class="sec-in">
+      <h2 class="sec-h">獵才專欄</h2>
+      <div class="posts">
+        <a class="post" href="/articles/"><span>薪資行情</span><h3>BIM 工程師薪水行情：從無經驗到資深，數字怎麼跳？</h3><p>Lv1 到 Lv6 六個職級的月薪帶拆解</p></a>
+        <a class="post" href="/articles/"><span>轉職入行</span><h3>沒有相關科系，可以轉職 BIM 工程師嗎？</h3><p>企業實際在看什麼、非本科怎麼補</p></a>
+        <a class="post" href="/articles/"><span>職務認識</span><h3>BIM 工程師是什麼？跟繪圖員差在哪？</h3><p>工作內容、LOD 等級、五種職缺型態</p></a>
+        <a class="post" href="/articles/"><span>企業指南</span><h3>怎麼挑台灣獵頭公司？7 個判斷標準</h3><p>可以直接拿去問的驗證方法</p></a>
+      </div>
+      <div class="svc-links"><a href="/articles/">看所有文章</a></div>
+    </div>
+  </section>
+
+  <!-- ══ FAQ ══ -->
+  <section class="sec" id="faq">
+    <span class="node"></span>
+    <div class="sec-in">
+      <h2 class="sec-h">常見問題</h2>
+      <div class="faq">
+        <details open><summary>獵頭顧問的收費模式是什麼？</summary><div class="a">高階獵頭多採「成功後收費」的委任制，費用通常以錄取人選年薪的一定比例計算，於人選到職後結算。Step1ne 在委任前會先與企業確認職位規格與收費方式，過程透明無隱藏費用。</div></details>
+        <details><summary>大概多久能找到人？</summary><div class="a">依職缺難度而異：既有人才資料庫與內部推薦名單零開發時間，通常最快能安排面試；一般職缺約 2–4 週開始送件。急件大量招募可全通路（資料庫、人力銀行、LinkedIn、在地社群）同步啟動，加快到位速度。</div></details>
+        <details><summary>有保固期或替補保證嗎？</summary><div class="a">委任前會明確約定保固期，人選在保固期內離職，Step1ne 提供免費替補服務，實際條件依委任合約雙方約定為準。</div></details>
+        <details><summary>派遣員工算誰的員工？企業要承擔什麼責任？</summary><div class="a">派遣員工與 Step1ne 簽訂勞動契約，薪資、勞健保與勞動法令責任由 Step1ne 負擔，要派企業僅負責現場工作指揮與管理。派遣期間表現良好，雙方可另行協議轉正條件與時程。</div></details>
+        <details><summary>高階獵頭和人力銀行有什麼不同？</summary><div class="a">人力銀行是被動刊登、廣撒履歷；高階獵頭是主動出擊，由顧問鎖定特定產業與職能的被動人選（在職中、未公開求職者），並保密進行接觸與評估，適合關鍵與機密職位。</div></details>
+      </div>
+      <p class="sec-p" style="margin-top:24px;font-size:15px">已經在應徵或委託流程中？面談、薪資、收費等操作類問題看 <a href="/faq/" style="color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.3)">完整常見問題</a>。</p>
+    </div>
+  </section>
+
+</main>
+
+<section class="end">
+  <div class="wrap">
+    <h2>準備好找到對的人選了嗎？</h2>
+    <p>透過官方 LINE 直接與顧問對話，我們會盡快回覆並安排洽詢。Step1ne 由德仁管理顧問有限公司營運，據點在臺北市內湖區康寧路三段 54 之 7 號 3 樓。</p>
+    <div class="hero-act">
+      <a class="btn btn-line" href="https://lin.ee/XcSWPzM">透過 LINE 洽詢</a>
+      <a class="btn btn-s" href="/about/">認識 Step1ne</a>
+    </div>
+  </div>
+</section>
+
+<footer class="ft">
+  <div class="ft-in">
+    <div class="ft-brand">
+      <img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問" width="1535" height="1534">
+      <p>德仁管理顧問有限公司<br>AI 精準媒合 × 高階獵頭</p>
+      <div class="legal">
+        <span>統一編號 85046127</span>
+        <span>北市就服字第 0363 號</span>
+        <span>臺北市內湖區康寧路三段 54 之 7 號 3 樓</span>
+      </div>
+      <div class="ft-soc">
+        <a href="https://www.104.com.tw/company/1a2x6blikz" target="_blank" rel="noopener">104</a>
+        <a href="https://www.facebook.com/Step1ne" target="_blank" rel="noopener">Facebook</a>
+        <a href="https://www.instagram.com/step1ne_tw/" target="_blank" rel="noopener">Instagram</a>
+        <a href="https://www.linkedin.com/company/73006491/" target="_blank" rel="noopener">LinkedIn</a>
+      </div>
+    </div>
+    <nav class="ft-col">
+      <h3>企業服務</h3>
+      <a href="#svc">高階獵頭</a>
+      <a href="#svc">正職招募</a>
+      <a href="#svc">人力派遣</a>
+      <a href="/hiring-assessment/">招募形式評估工具</a>
+      <a href="/commission-recruiting/">企業委託招募流程</a>
+    </nav>
+    <nav class="ft-col">
+      <h3>人才專區</h3>
+      <a href="/jobs/">職缺專區</a>
+      <a href="/construction/">營造工程／BIM 專區</a>
+      <a href="/talent/">全民獵才 App</a>
+      <a href="/talent/ai-tools/">AI 求職工具</a>
+    </nav>
+    <nav class="ft-col">
+      <h3>認識我們</h3>
+      <a href="/articles/">獵才專欄</a>
+      <a href="/articles/bim-engineer-salary/">BIM 薪水行情</a>
+      <a href="/about/">關於我們</a>
+      <a href="#faq">常見問題</a>
+    </nav>
+  </div>
+  <div class="ft-btm">
+    <span>© 2026 德仁管理顧問有限公司 Step1ne. All rights reserved.</span>
+    <span>One step to us, a step to success.</span>
+  </div>
+</footer>
+
 </body>
 </html>
