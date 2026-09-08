@@ -100,6 +100,10 @@ p{margin:0}
 .hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
 .hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
 /* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
 #bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
 
 .shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
@@ -165,6 +169,8 @@ article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid 
 
 .foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
 .cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
 .cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
 footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
 .fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
@@ -199,7 +205,12 @@ html{scroll-behavior:smooth}
       <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a class="on" href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
     </nav>
     <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
-    <button class="hd-burger" type="button" aria-label="開啟選單"><span></span></button>
+    <button class="hd-burger" type="button" aria-label="開啟選單" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINE 洽詢</a>
   </div>
 </header>
 
@@ -244,7 +255,7 @@ html{scroll-behavior:smooth}
 
       <div class="ans">
         <div class="lab">直接答案</div>
-        <p>合約標題寫「承攬契約」「合作協議」<strong>不代表它就是承攬</strong>。依勞動部訂定的《勞動契約認定指導原則》，是不是勞動契約要看<strong>實質的從屬性</strong>，「不受契約形式或名稱拘束」。判斷標準有三項——人格從屬性、經濟從屬性、組織從屬性，勞動部並公布了 25 項檢核表逐條對照。所以真正該做的不是看合約叫什麼名字，而是拿檢核表逐條比對你實際的工作方式。</p>
+        <p>合約標題寫「承攬契約」「合作協議」<strong>不代表它就是承攬</strong>。依勞動部訂定的《勞動契約認定指導原則》，是不是勞動契約要看<strong>實質的從屬性</strong>，「不受契約形式或名稱拘束」。判斷標準有三項，人格從屬性、經濟從屬性、組織從屬性，勞動部並公布了 25 項檢核表逐條對照。所以真正該做的不是看合約叫什麼名字，而是拿檢核表逐條比對你實際的工作方式。</p>
       </div>
 
       <h2 id="sec-1">為什麼合約寫什麼不算數？</h2>
@@ -364,7 +375,7 @@ html{scroll-behavior:smooth}
     <div>
       <p>STEP1NE 開放職缺</p>
       <h2 id="sec-9">有在考慮把直播當正職嗎？</h2>
-      <p>我們是獵頭公司。<strong>目前有一個開放中的直播主職缺</strong>——在自己家裡播、1 對 1 手把手帶播培訓、保底 3–10 萬依面試條件核定，時數門檻 70 小時／23 天或 100 小時以上／25 天。平台是<strong>大陸抖音</strong>，合作方式是<strong>承攬</strong>（非僱傭，沒有勞健保與加班費）——這兩件事我們寫在職缺頁最上面，還沒確認的項目也標明了是面試時才會知道。</p>
+      <p>我們是獵頭公司。<strong>目前有一個開放中的直播主職缺</strong>，在自己家裡播、1 對 1 手把手帶播培訓、保底 3–10 萬依面試條件核定，時數門檻 70 小時／23 天或 100 小時以上／25 天。平台是<strong>大陸抖音</strong>，合作方式是<strong>承攬</strong>（非僱傭，沒有勞健保與加班費）這兩件事我們寫在職缺頁最上面，還沒確認的項目也標明了是面試時才會知道。</p>
       <p>這個職缺目前開放應徵中，完整條件與應徵方式都在職缺頁，看完再決定要不要談。</p>
       <a href="/jobs/live-streamer-home/">查看職缺並應徵 →</a>
     </div><h2 id="sec-10">常見問題</h2>
@@ -417,7 +428,8 @@ html{scroll-behavior:smooth}
 
       
 <div class="cta">
-        <p>看完還是不確定下一步？加入 LINE 直接問顧問，或看目前開放中的職缺。</p>
+        <p>拿到合約看不懂是承攬還是僱傭？加入 LINE 把條款貼給顧問，我們幫你對照。</p>
+          <a class="btn-alt" href="/jobs/live-streamer-home/">看直播主職缺</a>
         <a class="btn-line" href="https://lin.ee/XcSWPzM">用 LINE 問顧問</a>
       </div>
     </article>

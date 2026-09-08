@@ -101,6 +101,10 @@ p{margin:0}
 .hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
 .hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
 /* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
 #bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
 
 .shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
@@ -166,6 +170,8 @@ article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid 
 
 .foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
 .cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
 .cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
 footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
 .fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
@@ -200,7 +206,12 @@ html{scroll-behavior:smooth}
       <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a class="on" href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
     </nav>
     <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
-    <button class="hd-burger" type="button" aria-label="開啟選單"><span></span></button>
+    <button class="hd-burger" type="button" aria-label="開啟選單" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINE 洽詢</a>
   </div>
 </header>
 
@@ -235,7 +246,7 @@ html{scroll-behavior:smooth}
 
       <div class="ans">
         <div class="lab">直接答案</div>
-        <p>柬埔寨求職詐騙不是舊聞——<strong>2026 年 4 月柬埔寨警方搗破的詐騙據點中，被捕的 311 名外籍人士有 182 名是台灣人</strong>。所以看到任何海外工作機會，第一件事不是評估待遇，是查證真假。最容易分辨的訊號是：<strong>合法外派因為成本高，企業會嚴格「篩選你」；詐騙不在乎你會什麼，只在乎你人到不到得了。</strong></p>
+        <p>柬埔寨求職詐騙不是舊聞，<strong>2026 年 4 月柬埔寨警方搗破的詐騙據點中，被捕的 311 名外籍人士有 182 名是台灣人</strong>。所以看到任何海外工作機會，第一件事不是評估待遇，是查證真假。最容易分辨的訊號是：<strong>合法外派因為成本高，企業會嚴格「篩選你」；詐騙不在乎你會什麼，只在乎你人到不到得了。</strong></p>
       </div>
 
       <div class="warn">
@@ -248,7 +259,7 @@ html{scroll-behavior:smooth}
     <p>幾乎所有海外求職詐騙都符合同一套模板，認得出來就能避開九成風險：</p>
     <ol>
       <li><strong>高薪＋包吃包住＋免經驗＋免學歷</strong>——正常職缺不會同時具備這四項。真的不需要能力的工作，不會給遠高於市場的薪水</li>
-      <li><strong>工作內容講不清楚</strong>——問具體做什麼，只回「客服」「打字」「線上聊天」，講不出流程與職責</li>
+      <li><strong>工作內容講不清楚</strong>，問具體做什麼，只回「客服」「打字」「線上聊天」，講不出流程與職責</li>
       <li><strong>從沒見過公司的人</strong>——全程只用通訊軟體聯繫，沒有正式面試，也見不到用人主管</li>
       <li><strong>不太在乎你的能力，卻很快錄取</strong>——正常招募會評估適配度，詐騙只在乎你人到不到得了</li>
       <li><strong>催你立刻出發</strong>——給的考慮時間極短，甚至幫你買好機票、安排接機</li>
@@ -257,19 +268,19 @@ html{scroll-behavior:smooth}
     <div class="warn">
       <div class="label">⚠ 這幾件事絕對不能答應</div>
       <p><strong>交出護照、身分證件、信用卡或手機</strong>——這是控制人身自由的第一步，正常雇主不會要求。<br>
-      <strong>簽署債務或借款文件</strong>——常見話術是「機票、仲介費先幫你墊，之後從薪水扣」，簽了就會被用債務綁住。<br>
-      <strong>接受集中住宿與專車接送且不能自由外出</strong>——這是實質拘禁的前兆。</p>
+      <strong>簽署債務或借款文件</strong>，常見話術是「機票、仲介費先幫你墊，之後從薪水扣」，簽了就會被用債務綁住。<br>
+      <strong>接受集中住宿與專車接送且不能自由外出</strong>，這是實質拘禁的前兆。</p>
       <p>若你或親友已在海外遭遇狀況，可撥打<strong>外交部緊急聯絡中心 0800-085-095</strong>（國內），或聯繫我國駐當地館處的 24 小時緊急電話。</p>
     </div>
 
     <h2 id="sec-2">怎麼查證一個海外職缺是真的？</h2>
     <p>這五個動作全部做完再決定，不趕這幾天：</p>
     <ol>
-      <li><strong>查公司是否真實存在</strong>——用公司全名搜尋，確認有官網、有新聞、有其他員工在社群上留下痕跡。只有一個 LINE 帳號的直接排除</li>
+      <li><strong>查公司是否真實存在</strong>，用公司全名搜尋，確認有官網、有新聞、有其他員工在社群上留下痕跡。只有一個 LINE 帳號的直接排除</li>
       <li><strong>要統編與就業服務許可證字號</strong>——在台灣從事人力仲介必須取得主管機關許可。拿統編到經濟部商工登記公示資料查詢系統核對營業狀態</li>
       <li><strong>確認不會向你收費</strong>——正規人力仲介向企業收費。依法不得扣留求職人財物或收取推介就業保證金</li>
-      <li><strong>要求正式面試</strong>——不論線上或實體，要能跟用人單位的人談，並問得出團隊規模、匯報對象、實際工作內容</li>
-      <li><strong>看勞動契約</strong>——出發前應有書面契約，載明職務、薪資、工時、契約期間與返台安排。只有口頭承諾的不要去</li>
+      <li><strong>要求正式面試</strong>，不論線上或實體，要能跟用人單位的人談，並問得出團隊規模、匯報對象、實際工作內容</li>
+      <li><strong>看勞動契約</strong>，出發前應有書面契約，載明職務、薪資、工時、契約期間與返台安排。只有口頭承諾的不要去</li>
     </ol>
 
     <div class="insight">
@@ -297,15 +308,15 @@ html{scroll-behavior:smooth}
     <h2 id="sec-4">合法外派值不值得？誠實的評估</h2>
     <h3>可能拿到的</h3>
     <ul>
-      <li><strong>實質可支配所得較高</strong>——除本薪外常有外派津貼、住宿與交通補助、年度返台假，當地生活成本又低於台灣，存錢速度通常明顯快於同職級的國內職缺</li>
-      <li><strong>職責範圍更大</strong>——海外據點編制精簡，一個人要負責的面向比總部同職級廣，累積速度快</li>
+      <li><strong>實質可支配所得較高</strong>，除本薪外常有外派津貼、住宿與交通補助、年度返台假，當地生活成本又低於台灣，存錢速度通常明顯快於同職級的國內職缺</li>
+      <li><strong>職責範圍更大</strong>，海外據點編制精簡，一個人要負責的面向比總部同職級廣，累積速度快</li>
       <li><strong>跨國管理經歷</strong>——帶當地團隊、與總部協作的經驗，是往上走時的稀缺資歷</li>
     </ul>
     <h3>要付出的</h3>
     <ul>
-      <li><strong>生活圈重建</strong>——語言、飲食、醫療、社交都要重新適應，這是最多人低估的部分</li>
-      <li><strong>與家庭的距離</strong>——年度返台假的天數與頻率要在談 offer 時就確認清楚</li>
-      <li><strong>回任的不確定性</strong>——外派結束後回台灣的職位安排，很多人到要回來才發現沒有講清楚</li>
+      <li><strong>生活圈重建</strong>，語言、飲食、醫療、社交都要重新適應，這是最多人低估的部分</li>
+      <li><strong>與家庭的距離</strong>，年度返台假的天數與頻率要在談 offer 時就確認清楚</li>
+      <li><strong>回任的不確定性</strong>，外派結束後回台灣的職位安排，很多人到要回來才發現沒有講清楚</li>
     </ul>
 
     <div class="insight">
@@ -341,7 +352,8 @@ html{scroll-behavior:smooth}
 
       
 <div class="cta">
-        <p>看完還是不確定下一步？加入 LINE 直接問顧問，或看目前開放中的職缺。</p>
+        <p>看到海外職缺想查證真假，加入 LINE 把資訊貼給顧問，我們幫你判斷。</p>
+          <a class="btn-alt" href="/jobs/">看目前開放的職缺</a>
         <a class="btn-line" href="https://lin.ee/XcSWPzM">用 LINE 問顧問</a>
       </div>
     </article>

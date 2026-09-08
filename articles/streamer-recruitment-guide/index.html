@@ -102,6 +102,10 @@ p{margin:0}
 .hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
 .hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
 /* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
 #bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
 
 .shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
@@ -167,6 +171,8 @@ article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid 
 
 .foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
 .cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
 .cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
 footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
 .fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
@@ -201,7 +207,12 @@ html{scroll-behavior:smooth}
       <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a class="on" href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
     </nav>
     <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
-    <button class="hd-burger" type="button" aria-label="開啟選單"><span></span></button>
+    <button class="hd-burger" type="button" aria-label="開啟選單" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINE 洽詢</a>
   </div>
 </header>
 
@@ -238,7 +249,7 @@ html{scroll-behavior:smooth}
 
       <div class="ans">
         <div class="lab">直接答案</div>
-        <p>「主播招募」至少混了<strong>四種不同的工作</strong>——一般直播主、虛擬主播（VTuber）、電競主播、新聞主播。四者的入行門檻、收入結構與雇用形式完全不同，看到招募資訊第一件事是先確認<strong>它在招哪一種</strong>。搞錯類型，後面所有的條件判斷都會錯。</p>
+        <p>「主播招募」至少混了<strong>四種不同的工作</strong>，一般直播主、虛擬主播（VTuber）、電競主播、新聞主播。四者的入行門檻、收入結構與雇用形式完全不同，看到招募資訊第一件事是先確認<strong>它在招哪一種</strong>。搞錯類型，後面所有的條件判斷都會錯。</p>
       </div>
 
       <p>我們是獵頭公司。日常在做的是高階獵才、正職招募與人力派遣，也就是<strong>站在雇主端看條件怎麼開、站在求職端看這個條件該不該接</strong>。</p>
@@ -296,7 +307,7 @@ html{scroll-behavior:smooth}
 
     <h2 id="sec-2">看到「主播招募」，五個該停下來的訊號</h2>
 
-    <p>這是我們最有立場講的一段——因為分辨「這個缺是不是正經的」，本來就是獵頭每天在做的事。以下五點在台灣<strong>有明文法律可以對照</strong>，不是感覺問題。</p>
+    <p>這是我們最有立場講的一段，因為分辨「這個缺是不是正經的」，本來就是獵頭每天在做的事。以下五點在台灣<strong>有明文法律可以對照</strong>，不是感覺問題。</p>
 
     <h3>訊號一：要你先繳錢</h3>
 
@@ -326,7 +337,7 @@ html{scroll-behavior:smooth}
 
     <div class="warn">
       <div class="label">跟海外工作詐騙是同一套判斷邏輯</div>
-      <p>先收費、押證件、不給看完整合約、講不清楚自己是誰——這四件事在<a href="/articles/overseas-job-safety/">東南亞外派工作</a>的詐騙案裡是同一組特徵。產業不同，判斷方法一樣：<strong>把對方能拿走的東西（錢、證件、簽名）當成防線，任何一條在你確認清楚之前被要求交出，就先停下來。</strong></p>
+      <p>先收費、押證件、不給看完整合約、講不清楚自己是誰，這四件事在<a href="/articles/overseas-job-safety/">東南亞外派工作</a>的詐騙案裡是同一組特徵。產業不同，判斷方法一樣：<strong>把對方能拿走的東西（錢、證件、簽名）當成防線，任何一條在你確認清楚之前被要求交出，就先停下來。</strong></p>
     </div>
 
     <h2 id="sec-3">簽約前一定要問清楚的六件事</h2>
@@ -338,7 +349,7 @@ html{scroll-behavior:smooth}
       <li><strong>保底的條件是什麼？</strong>要達到什麼門檻才給、適用多久，以及保底與分潤是「取其高」還是「可累加」。這兩個字差很多錢。</li>
       <li><strong>抽成的基數是什麼？</strong>是觀眾儲值金額，還是平台結算給公司之後的金額？同樣一句「分你五成」，兩種算法差一倍。計算方式我們單獨拆過：<a href="/articles/streamer-revenue-split/">觀眾刷 1000 元，主播實際拿到多少</a>。</li>
       <li><strong>經紀約綁幾年？能不能提前終止？</strong>終止要提前多久通知、有沒有附帶條件。實務上多數主播經紀約被認定為委任或類似委任的勞務契約，而依民法第 549 條，「當事人之任何一方，得隨時終止委任契約」，但於不利於他方之時期終止者，應負損害賠償責任。<strong>所以「能不能走」跟「走了要不要賠」是兩個問題。</strong></li>
-      <li><strong>違約金多少、怎麼算？</strong>要看清楚是固定金額、剩餘月數乘以某個數字，還是「以最高月流水為基準」這種會隨你做得越好而越高的寫法。民法第 252 條規定「約定之違約金額過高者，法院得減至相當之數額」，法院確實會酌減——但那是<strong>打官司之後</strong>的事，時間與律師費都要你先付。不要用「反正法院會減」來安慰自己。</li>
+      <li><strong>違約金多少、怎麼算？</strong>要看清楚是固定金額、剩餘月數乘以某個數字，還是「以最高月流水為基準」這種會隨你做得越好而越高的寫法。民法第 252 條規定「約定之違約金額過高者，法院得減至相當之數額」，法院確實會酌減，但那是<strong>打官司之後</strong>的事，時間與律師費都要你先付。不要用「反正法院會減」來安慰自己。</li>
       <li><strong>有沒有競業或排他條款？</strong>約束你不能在別的平台開播、不能接自己談來的商案，甚至約滿後一段期間內不能做同類工作。這一條會直接影響你的收入上限與離開成本。</li>
     </ol>
 
@@ -409,13 +420,13 @@ html{scroll-behavior:smooth}
 
     <div class="insight">
       <div class="label">一個獵頭給的實際建議</div>
-      <p>如果你已經有正職，<strong>先不要辭職去做直播</strong>。用下班時間播三到六個月，看兩件事：一是你的觀眾數有沒有在長（不是絕對值，是趨勢），二是你自己有沒有在耗損。三個月後再決定要不要投入更多，這個順序的風險低很多。而且——<strong>手上還有正職的人，跟經紀公司談條件的底氣完全不一樣。</strong></p>
+      <p>如果你已經有正職，<strong>先不要辭職去做直播</strong>。用下班時間播三到六個月，看兩件事：一是你的觀眾數有沒有在長（不是絕對值，是趨勢），二是你自己有沒有在耗損。三個月後再決定要不要投入更多，這個順序的風險低很多。而且，<strong>手上還有正職的人，跟經紀公司談條件的底氣完全不一樣。</strong></p>
     </div>
 
     <div>
       <p>STEP1NE 開放職缺</p>
       <h2 id="sec-6">有在考慮把直播當正職嗎？</h2>
-      <p>我們是獵頭公司。<strong>目前有一個開放中的直播主職缺</strong>——在自己家裡播、1 對 1 手把手帶播培訓、保底 3–10 萬依面試條件核定，時數門檻 70 小時／23 天或 100 小時以上／25 天。平台是<strong>大陸抖音</strong>，合作方式是<strong>承攬</strong>（非僱傭，沒有勞健保與加班費）——這兩件事我們寫在職缺頁最上面，還沒確認的項目也標明了是面試時才會知道。</p>
+      <p>我們是獵頭公司。<strong>目前有一個開放中的直播主職缺</strong>，在自己家裡播、1 對 1 手把手帶播培訓、保底 3–10 萬依面試條件核定，時數門檻 70 小時／23 天或 100 小時以上／25 天。平台是<strong>大陸抖音</strong>，合作方式是<strong>承攬</strong>（非僱傭，沒有勞健保與加班費）這兩件事我們寫在職缺頁最上面，還沒確認的項目也標明了是面試時才會知道。</p>
       <p>這個職缺目前開放應徵中，完整條件與應徵方式都在職缺頁，看完再決定要不要談。</p>
       <a href="/jobs/live-streamer-home/">查看職缺並應徵 →</a>
     </div><h2 id="sec-7">常見問題</h2>
@@ -470,7 +481,8 @@ html{scroll-behavior:smooth}
 
       <div class="foot-note">本文法條引自《就業服務法》（最後修正日期民國 114 年 1 月 20 日）與《民法》，來源為全國法規資料庫；產業現況整理自公開報導與業者公開資訊，查詢時間為 2026 年 8 月。台灣直播主之從業人數與收入分布，本文未查得可信之公開官方統計，故不引用任何相關數字。各平台與經紀公司的合約條件依個案而異，實際內容請以你收到的合約文字為準。本文僅供一般性參考，不構成法律、稅務或投資建議，個案請諮詢律師或主管機關。撰稿當下 Step1ne 並無開放中之主播職缺，本文非招募廣告。</div>
 <div class="cta">
-        <p>看完還是不確定下一步？加入 LINE 直接問顧問，或看目前開放中的職缺。</p>
+        <p>看到主播招募但不確定是哪一種？加入 LINE 把招募資訊貼給顧問，我們幫你判斷。</p>
+          <a class="btn-alt" href="/jobs/live-streamer-home/">看直播主職缺</a>
         <a class="btn-line" href="https://lin.ee/XcSWPzM">用 LINE 問顧問</a>
       </div>
     </article>

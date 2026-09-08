@@ -101,6 +101,10 @@ p{margin:0}
 .hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
 .hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
 /* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
 #bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
 
 .shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
@@ -166,6 +170,8 @@ article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid 
 
 .foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
 .cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
 .cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
 footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
 .fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
@@ -200,7 +206,12 @@ html{scroll-behavior:smooth}
       <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a class="on" href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
     </nav>
     <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
-    <button class="hd-burger" type="button" aria-label="開啟選單"><span></span></button>
+    <button class="hd-burger" type="button" aria-label="開啟選單" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINE 洽詢</a>
   </div>
 </header>
 
@@ -255,16 +266,16 @@ html{scroll-behavior:smooth}
     <h2 id="sec-2">為什麼產業差距這麼大？</h2>
     <p>同樣是寫後端，在不同產業的薪資可以差到兩萬。原因不是技術難度，而是<strong>這個產業「養不養得起」工程師</strong>：</p>
     <ul>
-      <li><strong>金融／電子支付</strong>——受監理、錯誤成本高、系統穩定性要求嚴格，願意付較高薪資留住人</li>
+      <li><strong>金融／電子支付</strong>，受監理、錯誤成本高、系統穩定性要求嚴格，願意付較高薪資留住人</li>
       <li><strong>半導體／科技製造</strong>——本業毛利高，資訊部門預算相對充裕</li>
       <li><strong>電商／SaaS</strong>——技術直接等於營收，工程投資回報明確</li>
-      <li><strong>遊戲產業</strong>——人才供給充足（很多人因為興趣想進），加上產品週期風險高，整體薪資水準偏低</li>
+      <li><strong>遊戲產業</strong>，人才供給充足（很多人因為興趣想進），加上產品週期風險高，整體薪資水準偏低</li>
     </ul>
 
     <div class="insight">
       <div class="label">獵頭觀察</div>
       <p>這是我們在跟工程師談的時候，最常需要誠實講清楚的一件事：<strong>遊戲產業的薪資普遍低於金融、電商與半導體，這是結構性的，不是個別公司小氣。</strong></p>
-      <p>所以進遊戲業要換的是別的東西——對產品本身的興趣、技術挑戰的類型（高併發、即時互動）、團隊文化。<strong>如果你的首要目標是薪資最大化，遊戲業通常不是最短路徑</strong>；但如果你在意做的東西自己是不是有感覺，那這個交換可能划算。這一題沒有標準答案，但要在進去之前想清楚，而不是做兩年後才發現落差。</p>
+      <p>所以進遊戲業要換的是別的東西，對產品本身的興趣、技術挑戰的類型（高併發、即時互動）、團隊文化。<strong>如果你的首要目標是薪資最大化，遊戲業通常不是最短路徑</strong>；但如果你在意做的東西自己是不是有感覺，那這個交換可能划算。這一題沒有標準答案，但要在進去之前想清楚，而不是做兩年後才發現落差。</p>
     </div>
 
     <h2 id="sec-3">技術棧會不會影響薪水？</h2>
@@ -273,7 +284,7 @@ html{scroll-behavior:smooth}
     <p>真正影響薪資的是三件事，排序如下：</p>
     <ol>
       <li><strong>你在哪個產業</strong>——影響最大，差距可達兩萬</li>
-      <li><strong>你能不能獨立負責一個系統</strong>——從「照規格寫功能」到「能設計架構、扛效能與穩定性」，是最大的一次跳躍</li>
+      <li><strong>你能不能獨立負責一個系統</strong>，從「照規格寫功能」到「能設計架構、扛效能與穩定性」，是最大的一次跳躍</li>
       <li><strong>技術棧本身</strong>——影響存在但排第三，且可以透過轉換產業來繞過</li>
     </ol>
 
@@ -293,7 +304,7 @@ html{scroll-behavior:smooth}
     <div class="insight">
       <div class="label">獵頭觀察</div>
       <p>面試時最能拉開薪資的，不是你會幾種語言，而是<strong>你講不講得出「為什麼這樣做」</strong>。</p>
-      <p>我們送件後被打回來的案例裡，最常見的評語是「技術會但講不出取捨」——例如問到為什麼選這個資料庫、為什麼這樣設計 API，答案是「公司本來就這樣用」。反過來，能講出當時考慮過哪些方案、為什麼放棄的人選，即使年資略短也常拿到更好的條件。</p>
+      <p>我們送件後被打回來的案例裡，最常見的評語是「技術會但講不出取捨」，例如問到為什麼選這個資料庫、為什麼這樣設計 API，答案是「公司本來就這樣用」。反過來，能講出當時考慮過哪些方案、為什麼放棄的人選，即使年資略短也常拿到更好的條件。</p>
     </div>
 
     <h2 id="sec-5">常見問題</h2>
@@ -308,7 +319,7 @@ html{scroll-behavior:smooth}
         <p>值得評估，但要看你在意什麼。這些產業薪資較高，相對的合規要求嚴格、流程較長、技術選型偏保守。如果你享受的是快速迭代與技術自由度，可能會不適應。建議在面試時具體問清楚開發流程與技術決策方式，而不是只比 offer 數字。</p>
       </details><details>
         <summary><span>轉職時薪水可以談多少？</span><span class="faq-icon">+</span></summary>
-        <p>一般換工作的合理漲幅約 10%–20%，若同時伴隨職級提升或產業轉換（例如從遊戲業轉金融），幅度可能更高。實務上最有效的做法是先了解該職缺的預算帶再開價——這也是透過獵頭應徵的實質好處之一，顧問知道企業給的區間。</p>
+        <p>一般換工作的合理漲幅約 10%–20%，若同時伴隨職級提升或產業轉換（例如從遊戲業轉金融），幅度可能更高。實務上最有效的做法是先了解該職缺的預算帶再開價，這也是透過獵頭應徵的實質好處之一，顧問知道企業給的區間。</p>
       </details><details>
         <summary><span>維運類職缺薪水比開發低嗎？</span><span class="faq-icon">+</span></summary>
         <p>不必然。初階維運確實常低於初階開發，但具備自動化、雲端架構與 SRE 能力的維運工程師，薪資可與資深開發相當甚至更高。差別在於你是「處理事件的人」還是「設計系統讓事件不發生的人」。</p>
@@ -323,7 +334,8 @@ html{scroll-behavior:smooth}
 
       
 <div class="cta">
-        <p>看完還是不確定下一步？加入 LINE 直接問顧問，或看目前開放中的職缺。</p>
+        <p>想知道換到別的產業實際能談到多少，加入 LINE 把技術棧與年資說一下。</p>
+          <a class="btn-alt" href="/jobs/">看目前開放的技術職缺</a>
         <a class="btn-line" href="https://lin.ee/XcSWPzM">用 LINE 問顧問</a>
       </div>
     </article>

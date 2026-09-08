@@ -100,6 +100,10 @@ p{margin:0}
 .hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
 .hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
 /* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
 #bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
 
 .shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
@@ -165,6 +169,8 @@ article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid 
 
 .foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
 .cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
 .cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
 footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
 .fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
@@ -199,7 +205,12 @@ html{scroll-behavior:smooth}
       <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a class="on" href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
     </nav>
     <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
-    <button class="hd-burger" type="button" aria-label="開啟選單"><span></span></button>
+    <button class="hd-burger" type="button" aria-label="開啟選單" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINE 洽詢</a>
   </div>
 </header>
 
@@ -250,13 +261,13 @@ html{scroll-behavior:smooth}
     <p>以下是收費結構的基本說明；哪些條件真的可以談、報價單上看不到的隱藏變數，另見 <a href="/articles/headhunter-fees/">獵頭公司收費怎麼算？費率之外，你更該談的四件事</a>。</p>
     <p>台灣獵頭多採「成功後收費」，費用以錄取人選的年薪為基準計算比例，市場常見區間落在 20%-33% 之間，職位層級越高、越稀缺，比例通常越高。收費時機通常是人選到職後結算，部分合約會約定保固期（人選到職後一定期間內離職，獵頭需免費替補）。委任前務必請獵頭書面明訂收費比例、計算基準（是否含獎金/股票）與保固條件，避免事後認知落差。</p>
 
-    <p>合作對象怎麼挑，不是這篇的重點——如果你還在比較階段，完整的 7 個判斷標準跟可以直接拿去問的句子，看
+    <p>合作對象怎麼挑，不是這篇的重點，如果你還在比較階段，完整的 7 個判斷標準跟可以直接拿去問的句子，看
       <a href="/articles/how-to-choose-headhunter/">怎麼挑台灣獵頭公司？7 個可以實際驗證的判斷標準</a>。這篇談的是<strong>選定合作對象之後</strong>，實際怎麼把流程跟合約談清楚。</p>
 
     <h2 id="sec-4">Step1ne 如何協助企業獵才</h2>
     <p>Step1ne（德仁管理顧問有限公司，統一編號85046127，北市就服字第0363號）提供高階獵頭、正職招募與人力派遣三種服務，以自研 AI 精準媒合系統結合萬筆菁英人才資料庫，從職能、產業經驗、資歷軌跡等多維度演算契合度，任用率達 8 成以上。急件大量招募時，可同步啟動既有資料庫、內部推薦、人力銀行主動搜尋、LinkedIn 與在地社群等多管道，不把速度綁死在單一來源上。</p>
 
-    <aside data-exp="cta-mid-2026-08-06"><p>企業方請看這裡</p><h3>你手上的缺，我們可以先報一個實際的數字給你</h3><p>把職稱、薪資帶、卡多久了講一下，我們會直接回覆這個缺大概要多少費用、多久找得到人，以及——如果我們認為這個缺根本不該用獵頭，也會直接跟你講。報價不用錢，也不用先簽任何東西。</p><div><a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-client">加 LINE 談委託找人</a></div></aside><h2 id="sec-5">常見問題</h2>
+    <aside data-exp="cta-mid-2026-08-06"><p>企業方請看這裡</p><h3>你手上的缺，我們可以先報一個實際的數字給你</h3><p>想知道你這個缺實際會怎麼跑？把職稱、薪資帶與卡多久了講一下，我們會回覆預計多久送出第一批人選、用哪些管道找。談完不合適也沒關係，不用先簽任何東西。</p><div><a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-client">加 LINE 談委託找人</a></div></aside><h2 id="sec-5">常見問題</h2>
     <div>
       <details>
         <summary>
@@ -292,7 +303,8 @@ html{scroll-behavior:smooth}
 
       
 <div class="cta">
-        <p>看完還是不確定下一步？加入 LINE 直接問顧問，或看目前開放中的職缺。</p>
+        <p>想知道你這個缺實際會怎麼跑、多久送第一批人選？把職稱與薪資帶告訴我們。</p>
+          <a class="btn-alt" href="/hiring-assessment/">先做招募形式評估</a>
         <a class="btn-line" href="https://lin.ee/XcSWPzM">用 LINE 問顧問</a>
       </div>
     </article>

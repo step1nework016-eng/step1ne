@@ -101,6 +101,10 @@ p{margin:0}
 .hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
 .hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
 /* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
 #bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
 
 .shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
@@ -166,6 +170,8 @@ article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid 
 
 .foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
 .cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
 .cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
 footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
 .fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
@@ -200,7 +206,12 @@ html{scroll-behavior:smooth}
       <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a class="on" href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
     </nav>
     <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
-    <button class="hd-burger" type="button" aria-label="開啟選單"><span></span></button>
+    <button class="hd-burger" type="button" aria-label="開啟選單" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINE 洽詢</a>
   </div>
 </header>
 
@@ -237,7 +248,7 @@ html{scroll-behavior:smooth}
 
       <div class="ans">
         <div class="lab">直接答案</div>
-        <p>商業計畫書的架構其實很標準——摘要、市場、產品、營運、<strong>團隊</strong>、財務、時程、風險，八個區塊，網路上找得到大量範本。真正拉開差距的是<strong>「團隊與人力」那一章，而它偏偏是最多人隨便寫的一章</strong>。以政府補助計畫為例，審查明確把「人力與經費編列之合理性」列為評估重點，且看的不只是學歷，研發人員的實際經歷同樣是重要考量。架構可以照抄，人力這章抄不來。</p>
+        <p>商業計畫書的架構其實很標準，摘要、市場、產品、營運、<strong>團隊</strong>、財務、時程、風險，八個區塊，網路上找得到大量範本。真正拉開差距的是<strong>「團隊與人力」那一章，而它偏偏是最多人隨便寫的一章</strong>。以政府補助計畫為例，審查明確把「人力與經費編列之合理性」列為評估重點，且看的不只是學歷，研發人員的實際經歷同樣是重要考量。架構可以照抄，人力這章抄不來。</p>
       </div>
 
       <h2 id="sec-1">先給架構：八個區塊與各自的重點</h2>
@@ -290,7 +301,7 @@ html{scroll-behavior:smooth}
     <p>能講清楚「缺什麼職能、市場上這種人多不多、大概什麼薪資帶、預計多久到位」的申請方，看起來就是做過功課的。反過來，通篇沒提到招募的計畫書，會讓人懷疑執行規劃只想到一半。</p>
 
     <h3>四、人力成本編得對嗎？</h3>
-    <p>薪資編得太低是常見的問題——不是省錢，是<strong>會讓人懷疑你不了解市場行情</strong>，連帶懷疑你對成本的其他估算。編得太高則要說明理由（稀缺職能、外派、需具備特定資格）。</p>
+    <p>薪資編得太低是常見的問題，不是省錢，是<strong>會讓人懷疑你不了解市場行情</strong>，連帶懷疑你對成本的其他估算。編得太高則要說明理由（稀缺職能、外派、需具備特定資格）。</p>
     <p>合理的做法是引用可查證的行情基準，並說明你的數字為什麼落在那個位置。</p>
 
     <div class="warn">
@@ -322,7 +333,7 @@ html{scroll-behavior:smooth}
     <div class="insight">
       <div class="label">獵頭觀察</div>
       <p>還有一個很少被提醒、但真的會出事的地方：<strong>已經做完、已經收過款的工作，通常不能再用相同內容去申請研發補助。</strong></p>
-      <p>做過政府標案或學校案子的公司特別容易踩到——那些實績拿去寫在「過往經驗」是加分，但如果把同一批已交付的成果包裝成「本計畫將開發」，就是重複補助的問題。</p>
+      <p>做過政府標案或學校案子的公司特別容易踩到，那些實績拿去寫在「過往經驗」是加分，但如果把同一批已交付的成果包裝成「本計畫將開發」，就是重複補助的問題。</p>
       <p>要申請的話，界線要畫清楚：<strong>過去做的是什麼、這次要新做的是什麼、兩者的技術差異在哪。</strong>講不出差異，那可能真的不該用這個題目申請。</p>
     </div>
 
@@ -351,10 +362,10 @@ html{scroll-behavior:smooth}
         <p>寫在「過往實績」是加分，能證明執行能力與交付紀錄。但要特別注意：已完成、已收款的工作通常不能再用相同內容去申請研發補助，這屬於重複補助的問題。若要以相關題目申請，必須清楚區分「過去已交付的是什麼」與「本計畫要新開發的是什麼」，並說明兩者的技術差異。講不出差異，代表這個題目可能不適合用來申請。</p>
       </details><details>
         <summary><span>風險那章要寫得多坦白？</span><span class="faq-icon">+</span></summary>
-        <p>要坦白，但每個風險都要配一個因應做法。寫「無重大風險」會直接扣分——任何有經驗的審查者都知道不存在沒有風險的計畫，這句話只會顯示你沒有認真評估。建議挑三個最可能發生的（例如關鍵人力延遲到位、技術驗證失敗、客戶採用速度不如預期），各寫清楚影響程度與你的備案。</p>
+        <p>要坦白，但每個風險都要配一個因應做法。寫「無重大風險」會直接扣分，任何有經驗的審查者都知道不存在沒有風險的計畫，這句話只會顯示你沒有認真評估。建議挑三個最可能發生的（例如關鍵人力延遲到位、技術驗證失敗、客戶採用速度不如預期），各寫清楚影響程度與你的備案。</p>
       </details></div><div>
       <h2 id="sec-7">人力那一章卡住了？</h2>
-      <p>如果計畫書要送了但關鍵人力還沒到位，我們可以先協助做一次市場盤點——確認這個職能在市場上有沒有人、行情落在哪、大概多久補得到。這些資訊可以直接寫進計畫書的人力規劃與經費編列，也讓你判斷時程排得合不合理。這個階段不收費，也不需要先簽約。</p>
+      <p>如果計畫書要送了但關鍵人力還沒到位，我們可以先協助做一次市場盤點，確認這個職能在市場上有沒有人、行情落在哪、大概多久補得到。這些資訊可以直接寫進計畫書的人力規劃與經費編列，也讓你判斷時程排得合不合理。這個階段不收費，也不需要先簽約。</p>
       <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">加入LINE與顧問談談</a>
     </div>
 
@@ -362,7 +373,8 @@ html{scroll-behavior:smooth}
 
       
 <div class="cta">
-        <p>看完還是不確定下一步？加入 LINE 直接問顧問，或看目前開放中的職缺。</p>
+        <p>計畫書寫完卻缺人執行？把職缺條件講一下，我們評估要不要用獵頭。</p>
+          <a class="btn-alt" href="/hiring-assessment/">先做招募形式評估</a>
         <a class="btn-line" href="https://lin.ee/XcSWPzM">用 LINE 問顧問</a>
       </div>
     </article>

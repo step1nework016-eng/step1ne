@@ -100,6 +100,10 @@ p{margin:0}
 .hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
 .hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
 /* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
 #bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
 
 .shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
@@ -165,6 +169,8 @@ article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid 
 
 .foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
 .cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
 .cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
 footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
 .fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
@@ -199,7 +205,12 @@ html{scroll-behavior:smooth}
       <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a class="on" href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
     </nav>
     <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
-    <button class="hd-burger" type="button" aria-label="開啟選單"><span></span></button>
+    <button class="hd-burger" type="button" aria-label="開啟選單" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINE 洽詢</a>
   </div>
 </header>
 
@@ -256,16 +267,16 @@ html{scroll-behavior:smooth}
       </table>
     </div>
 
-    <p>多數人只算了第一關，或只聽公會說「我們給你五成」——但那個五成是<strong>從哪一個基數算的五成</strong>，才是重點。</p>
+    <p>多數人只算了第一關，或只聽公會說「我們給你五成」，但那個五成是<strong>從哪一個基數算的五成</strong>，才是重點。</p>
 
     <div class="insight">
       <div class="label">最容易被誤導的一句話</div>
-      <p>「我們分潤五成」聽起來很好。但如果那是「平台結算給公會之後，再分你五成」，而平台本身已經抽掉一半——那你實際拿到的是觀眾儲值金額的<strong>約四分之一</strong>，不是一半。<strong>問清楚基數，比問比例重要。</strong></p>
+      <p>「我們分潤五成」聽起來很好。但如果那是「平台結算給公會之後，再分你五成」，而平台本身已經抽掉一半，那你實際拿到的是觀眾儲值金額的<strong>約四分之一</strong>，不是一半。<strong>問清楚基數，比問比例重要。</strong></p>
     </div>
 
     <h2 id="sec-2">抖音的換算：1 元＝10 音浪</h2>
 
-    <p>抖音的虛擬單位叫「音浪」，與人民幣的兌換比例是 <strong>10:1</strong>——1 元人民幣等於 10 音浪，換句話說 1 音浪等於 0.1 元。所以 10000 音浪對應到 1000 元人民幣的儲值金額。</p>
+    <p>抖音的虛擬單位叫「音浪」，與人民幣的兌換比例是 <strong>10:1</strong>，1 元人民幣等於 10 音浪，換句話說 1 音浪等於 0.1 元。所以 10000 音浪對應到 1000 元人民幣的儲值金額。</p>
 
     <p>但那是<strong>觀眾花的錢</strong>，不是你拿到的錢。公開資料中常見的分成說法是：</p>
 
@@ -311,7 +322,7 @@ html{scroll-behavior:smooth}
 
     <ul>
       <li><strong>時數門檻</strong>——每月要播滿一定時數才算數，差一小時就整月不計</li>
-      <li><strong>流水門檻</strong>——要達到一定打賞金額才給保底，或保底與分潤「取其高」而非相加</li>
+      <li><strong>流水門檻</strong>，要達到一定打賞金額才給保底，或保底與分潤「取其高」而非相加</li>
       <li><strong>期間限制</strong>——只在前三個月或前半年適用</li>
     </ul>
 
@@ -335,7 +346,7 @@ html{scroll-behavior:smooth}
     <div>
       <p>STEP1NE 開放職缺</p>
       <h2 id="sec-7">有在考慮把直播當正職嗎？</h2>
-      <p>我們是獵頭公司。<strong>目前有一個開放中的直播主職缺</strong>——在自己家裡播、1 對 1 手把手帶播培訓、保底 3–10 萬依面試條件核定，時數門檻 70 小時／23 天或 100 小時以上／25 天。平台是<strong>大陸抖音</strong>，合作方式是<strong>承攬</strong>（非僱傭，沒有勞健保與加班費）——這兩件事我們寫在職缺頁最上面，還沒確認的項目也標明了是面試時才會知道。</p>
+      <p>我們是獵頭公司。<strong>目前有一個開放中的直播主職缺</strong>，在自己家裡播、1 對 1 手把手帶播培訓、保底 3–10 萬依面試條件核定，時數門檻 70 小時／23 天或 100 小時以上／25 天。平台是<strong>大陸抖音</strong>，合作方式是<strong>承攬</strong>（非僱傭，沒有勞健保與加班費）這兩件事我們寫在職缺頁最上面，還沒確認的項目也標明了是面試時才會知道。</p>
       <p>這個職缺目前開放應徵中，完整條件與應徵方式都在職缺頁，看完再決定要不要談。</p>
       <a href="/jobs/live-streamer-home/">查看職缺並應徵 →</a>
     </div><h2 id="sec-8">常見問題</h2>
@@ -368,7 +379,7 @@ html{scroll-behavior:smooth}
         <summary>
           <span>保底薪資是真的嗎？</span><span class="faq-icon">+</span>
         </summary>
-        <p>通常是真的，但幾乎都附條件——最低開播時數、流水門檻、適用期間，而且多半是保底與分潤「取其高」而非相加。保底 3 萬、分潤 2 萬，取其高是拿 3 萬不是 5 萬。簽約前務必把這三個條件問清楚並確認寫在合約裡。</p>
+        <p>通常是真的，但幾乎都附條件，最低開播時數、流水門檻、適用期間，而且多半是保底與分潤「取其高」而非相加。保底 3 萬、分潤 2 萬，取其高是拿 3 萬不是 5 萬。簽約前務必把這三個條件問清楚並確認寫在合約裡。</p>
       </details>
     </div>
 
@@ -384,7 +395,8 @@ html{scroll-behavior:smooth}
 
       <div class="foot-note">本文數據整理自平台公開說明與公開報導，資料整理時間為 2026 年 7 月。各平台的抽成比例、兌換率與活動條件均會調整，公會分潤亦依個別合約而異，實際數字請以你的合約與平台後台結算為準。本文僅供一般性參考，不構成法律、稅務或投資建議。</div>
 <div class="cta">
-        <p>看完還是不確定下一步？加入 LINE 直接問顧問，或看目前開放中的職缺。</p>
+        <p>想知道實際能拿多少，直接看條件寫清楚的職缺比聽人說更快。</p>
+          <a class="btn-alt" href="/jobs/live-streamer-home/">看直播主職缺</a>
         <a class="btn-line" href="https://lin.ee/XcSWPzM">用 LINE 問顧問</a>
       </div>
     </article>

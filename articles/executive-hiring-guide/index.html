@@ -107,6 +107,10 @@ p{margin:0}
 .hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
 .hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
 /* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
 #bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
 
 .shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
@@ -172,6 +176,8 @@ article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid 
 
 .foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
 .cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
 .cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
 footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
 .fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
@@ -206,7 +212,12 @@ html{scroll-behavior:smooth}
       <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a class="on" href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
     </nav>
     <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
-    <button class="hd-burger" type="button" aria-label="開啟選單"><span></span></button>
+    <button class="hd-burger" type="button" aria-label="開啟選單" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINE 洽詢</a>
   </div>
 </header>
 
@@ -251,7 +262,7 @@ html{scroll-behavior:smooth}
       </div>
 
       <h2 id="sec-1">先排除一個假設：真的沒有人嗎？</h2>
-    <p>當一個高階職缺開了半年，企業內部最常出現的結論是「這種人才市場上太少了」。有時候這是真的——某些極度細分的領域（例如同時懂特定製程與海外建廠的專案主管），全台灣可能就是二十幾個人。</p>
+    <p>當一個高階職缺開了半年，企業內部最常出現的結論是「這種人才市場上太少了」。有時候這是真的，某些極度細分的領域（例如同時懂特定製程與海外建廠的專案主管），全台灣可能就是二十幾個人。</p>
     <p>但更多時候不是。我們接手這類「找很久了」的委任時，第一步通常是做市場盤點：把符合條件的人一個個列出來。<strong>結果經常是名單有三、四十人，其中十幾位在合理條件下是有機會談的。</strong>人是在的，問題出在為什麼他們沒有進來、或進來了又走掉。</p>
     <p>所以在加預算、放寬條件之前，值得先檢查下面這五件事。</p>
 
@@ -260,7 +271,7 @@ html{scroll-behavior:smooth}
     <p>這些是<strong>篩選條件</strong>，不是<strong>職位內容</strong>。問題在於：能勝任這個位子的人，現在多半有份不錯的工作，他不缺一份符合條件的職缺，他缺的是一個值得動的理由。</p>
     <p>真正會讓高階候選人抬頭的寫法是講清楚三件事：</p>
     <ul>
-      <li><strong>這個位子存在是要解決什麼問題</strong>——是接手一個已經運作良好的部門，還是要重建一個亂掉的組織？這兩件事吸引的是完全不同的人</li>
+      <li><strong>這個位子存在是要解決什麼問題</strong>，是接手一個已經運作良好的部門，還是要重建一個亂掉的組織？這兩件事吸引的是完全不同的人</li>
       <li><strong>成功長什麼樣子</strong>——一年後這個人做到什麼，公司會認為找對了？</li>
       <li><strong>有什麼資源、有什麼限制</strong>——預算多少、能不能自己組團隊、上面有幾層要說服。誠實講限制不會嚇跑人，講不清楚才會</li>
     </ul>
@@ -268,18 +279,18 @@ html{scroll-behavior:smooth}
     <div class="insight">
       <div class="label">獵頭觀察</div>
       <p>我們接高階委任時，第一次跟用人單位開會通常會問一個問題：<strong>「如果這個位子今天有人做得很好，一年後公司會有什麼不一樣？」</strong></p>
-      <p>答得出來的，這個案子通常兩到三個月就有結果。答不出來的——回答「就是把部門管好」「讓營運順一點」的——往往拖很久，因為連內部都還沒共識這個人要做什麼。</p>
+      <p>答得出來的，這個案子通常兩到三個月就有結果。答不出來的，回答「就是把部門管好」「讓營運順一點」的，往往拖很久，因為連內部都還沒共識這個人要做什麼。</p>
       <p>職缺長期空著，有時候真正的問題不是找不到人，是<strong>還沒想清楚要找來做什麼</strong>。這句話不好聽，但它是我們看過最常見的根因。</p>
     </div>
 
     <h2 id="sec-3">卡點二：薪資帶落後市場，但沒人察覺</h2>
     <p>薪資帶通常是三、五年前訂的，中間市場走了很遠。企業內部因為沒有比較基準，很難察覺自己的數字已經不具競爭力。</p>
     <p>一個可以拿來對位的公開基準：依勞動部「114 年職類別薪資調查」（2026 年 5 月發布，有效樣本 9,977 家事業單位），113 年全年平均薪資所得以<strong>主管及監督人員 131.7 萬元最高</strong>，專業人員 106.2 萬元次之。這是全體平均，換句話說，如果你要找的是產業裡的前段班，數字必須明顯高於這個水準才有說服力。</p>
-    <p>不過要補一句：<strong>不是每個案子都靠加薪解決。</strong>高階候選人換工作的理由常常不是錢——更大的決策權、更清楚的接班路徑、更少的內耗，這些都有交換價值。重點是你得知道自己拿什麼在競爭。如果薪資只有市場水準、舞台也沒有比較大，那就真的只剩運氣了。</p>
+    <p>不過要補一句：<strong>不是每個案子都靠加薪解決。</strong>高階候選人換工作的理由常常不是錢，更大的決策權、更清楚的接班路徑、更少的內耗，這些都有交換價值。重點是你得知道自己拿什麼在競爭。如果薪資只有市場水準、舞台也沒有比較大，那就真的只剩運氣了。</p>
 
     <h2 id="sec-4">卡點三：決策者太晚進入流程</h2>
     <p>很多企業套用一般職缺的流程：HR 初篩 → 用人主管 → 再上一層 → 總經理。走完可能六到八週。</p>
-    <p>這個順序在高階招募會出問題，原因有兩個。第一，高階候選人願意投入的時間有限，前面幾輪都在回答「你做過什麼」的重複問題，很容易中途退出。第二，<strong>真正決定要不要的人在最後才出現，前面所有評估都可能白做</strong>——我們看過候選人走完四輪，最後跟總經理談 40 分鐘就被否決，理由是「風格不合」。這個判斷本來第一週就可以做出來。</p>
+    <p>這個順序在高階招募會出問題，原因有兩個。第一，高階候選人願意投入的時間有限，前面幾輪都在回答「你做過什麼」的重複問題，很容易中途退出。第二，<strong>真正決定要不要的人在最後才出現，前面所有評估都可能白做</strong>，我們看過候選人走完四輪，最後跟總經理談 40 分鐘就被否決，理由是「風格不合」。這個判斷本來第一週就可以做出來。</p>
     <p>比較有效的安排是<strong>把最終決策者往前放</strong>：顧問先做完背景與動機的深度確認，接著直接安排一場決策者的對談，確認方向一致後再進行後續評估。流程輪次不見得減少，但白費的部分會少很多。</p>
 
     <h2 id="sec-5">卡點四：面試設計沒有隨職級調整</h2>
@@ -302,14 +313,14 @@ html{scroll-behavior:smooth}
 
     <div class="warn">
       <div class="label">實務提醒</div>
-      <p>高階招募流程中，企業的一舉一動都在被評估。<strong>回覆慢、面試遲到、每輪都問一樣的問題、承諾的時程一再延後</strong>——這些對一般職缺可能還撐得住，對高階候選人是明確的負面訊號：如果決策這麼慢、內部這麼沒協調，那進去以後大概也是這樣。</p>
+      <p>高階招募流程中，企業的一舉一動都在被評估。<strong>回覆慢、面試遲到、每輪都問一樣的問題、承諾的時程一再延後</strong>，這些對一般職缺可能還撐得住，對高階候選人是明確的負面訊號：如果決策這麼慢、內部這麼沒協調，那進去以後大概也是這樣。</p>
       <p>我們遇過不只一次，候選人在最後階段婉拒，理由不是薪資或職務，而是「整個過程讓我對這家公司的運作方式有疑慮」。</p>
     </div>
 
     <h2 id="sec-6">卡點五：保密與內部溝通沒安排好</h2>
-    <p>高階招募幾乎都涉及敏感狀況——現任者還在位子上、內部有人在等這個升遷、或者這個職位本身透露了策略方向。這些如果沒有事先安排，很容易在中途出事：</p>
+    <p>高階招募幾乎都涉及敏感狀況，現任者還在位子上、內部有人在等這個升遷、或者這個職位本身透露了策略方向。這些如果沒有事先安排，很容易在中途出事：</p>
     <ul>
-      <li><strong>消息走漏到內部</strong>——原本在等升遷的人開始找工作，結果職缺沒補到，還多走了一個</li>
+      <li><strong>消息走漏到內部</strong>，原本在等升遷的人開始找工作，結果職缺沒補到，還多走了一個</li>
       <li><strong>消息走漏到市場</strong>——同業知道你要換人，順勢挖角你的團隊</li>
       <li><strong>候選人身分曝光</strong>——這是最傷的。候選人現職因此受影響，不但這個案子告吹，你在市場上的口碑也會受損</li>
     </ul>
@@ -346,7 +357,7 @@ html{scroll-behavior:smooth}
         <p>越詳細，媒合品質越高。除了 JD 之外，建議提供：這個位子為什麼空著、上一任的狀況、直屬主管的管理風格、團隊現況與已知的問題、薪資帶與彈性空間、以及一年內期待看到的成果。這些資訊會直接影響顧問在接觸候選人時能不能講出有說服力的內容。若涉及敏感資訊，可先簽保密協議再提供。</p>
       </details><details>
         <summary><span>內部已有人選在等升遷，還需要對外找嗎？</span><span class="faq-icon">+</span></summary>
-        <p>這要看目的。如果內部人選其實已經定案，只是想「對外比較一下」，建議不要啟動——這會消耗候選人與顧問的時間，且訊息一旦傳開會損及企業信譽。如果是真的還沒決定，那對外評估是合理的，但務必事先想好內部溝通方式：內部人選最終沒獲選時要怎麼談、有沒有替代的發展路徑。這件事沒安排好，常常是補到一個人卻走掉一個人。</p>
+        <p>這要看目的。如果內部人選其實已經定案，只是想「對外比較一下」，建議不要啟動，這會消耗候選人與顧問的時間，且訊息一旦傳開會損及企業信譽。如果是真的還沒決定，那對外評估是合理的，但務必事先想好內部溝通方式：內部人選最終沒獲選時要怎麼談、有沒有替代的發展路徑。這件事沒安排好，常常是補到一個人卻走掉一個人。</p>
       </details><details>
         <summary><span>高階職缺可以要求保證期嗎？</span><span class="faq-icon">+</span></summary>
         <p>可以，這是業界慣例。保證期內若人選離職，通常由顧問免費遞補或依比例退費。實際天數與條件依合約而定，簽約前務必確認三件事：保證期怎麼計算（到職日起算）、遞補與退費的適用條件、以及哪些情況不在保證範圍內（例如企業組織調整導致該職位取消）。</p>
@@ -355,7 +366,7 @@ html{scroll-behavior:smooth}
         <p>有幾個常被低估的：決策權限（能不能自己組團隊、預算核決額度）、直接向誰匯報（少一層匯報的吸引力常大於加薪一成）、明確的接班或晉升路徑、彈性工作安排，以及績效獎金的上限設計。這些對高階候選人的實際吸引力經常高於本薪，而且對企業的固定成本影響較小。關鍵是要在接觸前就想清楚哪些可以給、給到什麼程度。</p>
       </details></div><div>
       <h2 id="sec-9">高階職缺卡住了，先聊聊看</h2>
-      <p>如果貴公司有職缺已經開了一段時間還沒補齊，我們可以先協助做一次市場盤點——確認市場上到底有沒有人、行情落在哪裡，再決定要不要正式委任。這個階段不收費，也不需要先簽約。</p>
+      <p>如果貴公司有職缺已經開了一段時間還沒補齊，我們可以先協助做一次市場盤點，確認市場上到底有沒有人、行情落在哪裡，再決定要不要正式委任。這個階段不收費，也不需要先簽約。</p>
       <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">加入LINE與顧問談談</a>
     </div>
 
@@ -363,7 +374,8 @@ html{scroll-behavior:smooth}
 
       
 <div class="cta">
-        <p>看完還是不確定下一步？加入 LINE 直接問顧問，或看目前開放中的職缺。</p>
+        <p>卡了半年的缺，通常不是找不到人，是條件開錯。把 JD 給我們看一次，我們直說卡在哪。</p>
+          <a class="btn-alt" href="/hiring-assessment/">先做招募形式評估</a>
         <a class="btn-line" href="https://lin.ee/XcSWPzM">用 LINE 問顧問</a>
       </div>
     </article>

@@ -100,6 +100,10 @@ p{margin:0}
 .hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
 .hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
 /* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
 #bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
 
 .shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
@@ -165,6 +169,8 @@ article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid 
 
 .foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
 .cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
 .cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
 footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
 .fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
@@ -199,7 +205,12 @@ html{scroll-behavior:smooth}
       <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a class="on" href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
     </nav>
     <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
-    <button class="hd-burger" type="button" aria-label="開啟選單"><span></span></button>
+    <button class="hd-burger" type="button" aria-label="開啟選單" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINE 洽詢</a>
   </div>
 </header>
 
@@ -255,7 +266,7 @@ html{scroll-behavior:smooth}
 
     <div class="insight">
       <div class="label">獵頭觀察</div>
-      <p><strong>Lv2 到 Lv3 是整條路上漲幅最大、也最多人卡住的一關。</strong>差別不在你 Revit 畫得多快，而在你能不能「跨專業」——把機電、結構、建築三邊的模型放在一起，找出衝突、召集各方開會、把爭議收斂成決議。</p>
+      <p><strong>Lv2 到 Lv3 是整條路上漲幅最大、也最多人卡住的一關。</strong>差別不在你 Revit 畫得多快，而在你能不能「跨專業」，把機電、結構、建築三邊的模型放在一起，找出衝突、召集各方開會、把爭議收斂成決議。</p>
       <p>我們實際送件時最常看到的情況是：候選人有五年年資，但五年都在做同一種構件的建模，履歷上看起來是 Lv3 的年資、實際能力還在 Lv2，議價時就會很吃虧。如果你已經在 Lv2 待了兩年以上，該爭取的不是加薪，是<strong>參與協調會議的機會</strong>——那才是讓下一份工作跳級的東西。</p>
     </div>
 
@@ -280,10 +291,10 @@ html{scroll-behavior:smooth}
     <h2 id="sec-3">哪些條件真的會反映在薪水上？</h2>
     <p>從實際成交的案例看，以下四項最容易讓數字往上加，依影響程度排序：</p>
     <ul>
-      <li><strong>能獨立完成模型並出圖</strong>——不需要有人在旁邊盯，這是從「助理」跳到「工程師」的分水嶺，也是漲幅最明顯的一關</li>
-      <li><strong>做過同類型案子</strong>——建廠、廠務類專案的經驗，在同樣是建廠的職缺上直接反映在報價</li>
-      <li><strong>跨專業協調能力</strong>——能跟結構、機電、營造端對話並收斂衝突，這是中高階職缺真正在買的能力</li>
-      <li><strong>Revit 以外的工具</strong>——Navisworks、Dynamo 或其他協同平台，屬於加分而非門檻</li>
+      <li><strong>能獨立完成模型並出圖</strong>，不需要有人在旁邊盯，這是從「助理」跳到「工程師」的分水嶺，也是漲幅最明顯的一關</li>
+      <li><strong>做過同類型案子</strong>，建廠、廠務類專案的經驗，在同樣是建廠的職缺上直接反映在報價</li>
+      <li><strong>跨專業協調能力</strong>，能跟結構、機電、營造端對話並收斂衝突，這是中高階職缺真正在買的能力</li>
+      <li><strong>Revit 以外的工具</strong>，Navisworks、Dynamo 或其他協同平台，屬於加分而非門檻</li>
     </ul>
 
     <div class="insight">
@@ -292,11 +303,11 @@ html{scroll-behavior:smooth}
     </div>
 
     <h2 id="sec-4">無經驗想入行，怎麼選第一份工作？</h2>
-    <p>如果你完全沒有 BIM 背景，第一份工作的重點不是起薪高低——3.5 萬和 3.8 萬的差距，在你累積到 2 年經驗後會被完全洗掉。真正該看的是這三件事：</p>
+    <p>如果你完全沒有 BIM 背景，第一份工作的重點不是起薪高低，3.5 萬和 3.8 萬的差距，在你累積到 2 年經驗後會被完全洗掉。真正該看的是這三件事：</p>
     <ul>
       <li><strong>有沒有正式的訓練機制</strong>——是有人帶、有教材，還是丟給你自己摸索</li>
-      <li><strong>會碰到多完整的專案流程</strong>——只做建模，跟能參與到協調、檢核、出圖，兩年後的履歷完全不同</li>
-      <li><strong>專案週期長不長</strong>——長期的建廠專案能讓你完整走過一輪流程；一直換短期小案，經驗會很零碎</li>
+      <li><strong>會碰到多完整的專案流程</strong>，只做建模，跟能參與到協調、檢核、出圖，兩年後的履歷完全不同</li>
+      <li><strong>專案週期長不長</strong>，長期的建廠專案能讓你完整走過一輪流程；一直換短期小案，經驗會很零碎</li>
     </ul>
     <p>這也是為什麼「大型建廠專案＋公司提供完整訓練」的職缺，對轉職者來說起點通常比較好——即使起薪不是最高的那個。非本科想入行的完整說明，可參考 <a href="/articles/bim-career-change/">沒有相關科系，可以轉職 BIM 工程師嗎？</a></p>
 
@@ -305,7 +316,7 @@ html{scroll-behavior:smooth}
       <p>勞動部「產業新尖兵計畫」對 15–29 歲失（待）業青年提供訓練費用補助最高 10 萬元（訓前自付 1 萬，結訓後 90 日內就業可申請返還），參訓期間出席率達標另有每月 8,000 元學習獎勵金、最長 12 個月。指定課程中包含 BIM／Revit 相關班別，等於用接近零成本先把軟體能力補起來再進市場。實際開課清單與資格請以<a href="https://elite.taiwanjobs.gov.tw/" target="_blank" rel="noopener">產業新尖兵計畫官網</a>公告為準。</p>
     </div>
 
-    <aside data-exp="cta-mid-2026-08-28"><p>STEP1NE 現正招募</p><h3>這個缺現在開著：無經驗可，正職僱用</h3><p>AI 記憶體產業擴產案（苗栗銅鑼），<strong>正職僱用</strong>（不是派遣、不是約聘），優先招募 10 名。月薪 <strong>4 萬以上，實際待遇面議</strong>（依學歷與科系相關性核定）。大學以上不限科系，<strong>無經驗可</strong>——公司安排完整培訓，先到桃園楊梅受訓 1 週，進駐銅鑼廠區後有設計 PM 與設計工程師組成的團隊帶到可獨立作業。不提供宿舍，但有租屋補助每月 5,000 元；作息固定 08:30–17:30，週休二日不輪班。這波 AI 需求正在帶動記憶體產業擴產，及早累積這段實戰經驗，是可以放進長遠職涯規劃裡的資產。想先問清楚再決定也可以，不用先投履歷。</p><div><a href="/apply/?job=bim-engineer-tongluo&amp;utm_source=website&amp;utm_medium=article_cta&amp;utm_campaign=mid-bim" data-cta="mid-bim">直接應徵 BIM 工程師</a><a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-bim">加 LINE 先問清楚</a></div></aside><h2 id="sec-5">常見問題</h2>
+    <aside data-exp="cta-mid-2026-08-28"><p>STEP1NE 現正招募</p><h3>這個缺現在開著：無經驗可，正職僱用</h3><p>AI 記憶體產業擴產案（苗栗銅鑼），<strong>正職僱用</strong>（不是派遣、不是約聘），優先招募 10 名。月薪 <strong>4 萬以上，實際待遇面議</strong>（依學歷與科系相關性核定）。大學以上不限科系，<strong>無經驗可</strong>，公司安排完整培訓，先到桃園楊梅受訓 1 週，進駐銅鑼廠區後有設計 PM 與設計工程師組成的團隊帶到可獨立作業。不提供宿舍，但有租屋補助每月 5,000 元；作息固定 08:30–17:30，週休二日不輪班。這波 AI 需求正在帶動記憶體產業擴產，及早累積這段實戰經驗，是可以放進長遠職涯規劃裡的資產。想先問清楚再決定也可以，不用先投履歷。</p><div><a href="/apply/?job=bim-engineer-tongluo&amp;utm_source=website&amp;utm_medium=article_cta&amp;utm_campaign=mid-bim" data-cta="mid-bim">直接應徵 BIM 工程師</a><a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-bim">加 LINE 先問清楚</a></div></aside><h2 id="sec-5">常見問題</h2>
     <div>
       <details>
         <summary>
@@ -323,7 +334,7 @@ html{scroll-behavior:smooth}
         <summary>
           <span>BIM工程師的薪水天花板在哪？</span><span class="faq-icon">+</span>
         </summary>
-        <p>單純做建模的角色（Lv1–Lv2），月薪天花板大約落在 5 萬多到 6 萬。要再往上必須轉換職能——BIM 協調師（Lv3，跨專業整合）約 50–70K，BIM Lead（Lv4，負責全案 BEP 與三方溝通）再往上，到 BIM 經理／VDC 總監（Lv5–6）則進入年薪 90–120 萬的區間。關鍵轉折在於從「畫模型的人」變成「管模型標準與協調衝突的人」。</p>
+        <p>單純做建模的角色（Lv1–Lv2），月薪天花板大約落在 5 萬多到 6 萬。要再往上必須轉換職能，BIM 協調師（Lv3，跨專業整合）約 50–70K，BIM Lead（Lv4，負責全案 BEP 與三方溝通）再往上，到 BIM 經理／VDC 總監（Lv5–6）則進入年薪 90–120 萬的區間。關鍵轉折在於從「畫模型的人」變成「管模型標準與協調衝突的人」。</p>
       </details>
       <details>
         <summary>
@@ -343,7 +354,8 @@ html{scroll-behavior:smooth}
 
       
 <div class="cta">
-        <p>看完還是不確定下一步？加入 LINE 直接問顧問，或看目前開放中的職缺。</p>
+        <p>想知道自己現在的條件實際能談到多少，加入 LINE 把年資與工具經驗說一下。</p>
+          <a class="btn-alt" href="/jobs/bim-engineer-tongluo/">看 BIM 工程師職缺</a>
         <a class="btn-line" href="https://lin.ee/XcSWPzM">用 LINE 問顧問</a>
       </div>
     </article>

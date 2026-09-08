@@ -100,6 +100,10 @@ p{margin:0}
 .hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
 .hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
 /* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
 #bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
 
 .shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
@@ -165,6 +169,8 @@ article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid 
 
 .foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
 .cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
 .cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
 footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
 .fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
@@ -199,7 +205,12 @@ html{scroll-behavior:smooth}
       <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a class="on" href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
     </nav>
     <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
-    <button class="hd-burger" type="button" aria-label="開啟選單"><span></span></button>
+    <button class="hd-burger" type="button" aria-label="開啟選單" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINE 洽詢</a>
   </div>
 </header>
 
@@ -249,7 +260,7 @@ html{scroll-behavior:smooth}
 
     <div class="warn">
       <div class="label">⚠ 罰則不只是罰錢</div>
-      <p>很多人以為最糟就是罰款，但這條的實際殺傷力在<strong>「公布公司名稱與負責人姓名」</strong>——被公布之後會留在網路上，求職者、客戶、合作夥伴都查得到，對雇主品牌的傷害遠大於罰鍰本身。</p>
+      <p>很多人以為最糟就是罰款，但這條的實際殺傷力在<strong>「公布公司名稱與負責人姓名」</strong>，被公布之後會留在網路上，求職者、客戶、合作夥伴都查得到，對雇主品牌的傷害遠大於罰鍰本身。</p>
       <p>另外，派遣勞工可主張直接聘僱：若在提供勞務起 90 日內以書面提出，要派單位須於意思表示到達起 10 日內協商訂約；逾期未協商或協商不成，<strong>視為雙方自期滿翌日成立勞動契約</strong>，勞動條件以其在要派單位工作期間的條件為準。等於這個人直接變成你的正職員工，而且不是你能選的。</p>
     </div>
 
@@ -270,7 +281,7 @@ html{scroll-behavior:smooth}
         </tbody>
       </table>
     </div>
-    <p>換句話說，企業能做的是<strong>把規格定清楚</strong>——需要什麼能力、什麼經驗、什麼特質，讓派遣公司去找符合的人。而不是自己先挑人。</p>
+    <p>換句話說，企業能做的是<strong>把規格定清楚</strong>，需要什麼能力、什麼經驗、什麼特質，讓派遣公司去找符合的人。而不是自己先挑人。</p>
 
     <div class="insight">
       <div class="label">獵頭觀察</div>
@@ -281,13 +292,13 @@ html{scroll-behavior:smooth}
     <h2 id="sec-3">其他常被忽略的派遣合規重點</h2>
 
     <h3>職業災害的連帶責任</h3>
-    <p>派遣勞工發生職災時，要派單位與派遣事業單位負連帶補償責任。也就是說，就算勞動契約簽在派遣公司，工作現場的安全管理責任並不會因此免除——現場的工安管理、教育訓練、防護設備仍然是要派單位必須落實的事。</p>
+    <p>派遣勞工發生職災時，要派單位與派遣事業單位負連帶補償責任。也就是說，就算勞動契約簽在派遣公司，工作現場的安全管理責任並不會因此免除，現場的工安管理、教育訓練、防護設備仍然是要派單位必須落實的事。</p>
 
     <h3>「長期用派遣比較省」通常是錯覺</h3>
-    <p>派遣的服務費用會反映在人月成本上，長期下來的總成本經常高於直接聘僱。派遣真正的價值在<strong>彈性</strong>——專案型、季節性、尖峰期的人力調度，或是不確定長期需求時的緩衝。若一個職位確定會長期存在，直接聘僱通常反而划算，而且在搶人市場裡，「正職」本身就是招募武器。</p>
+    <p>派遣的服務費用會反映在人月成本上，長期下來的總成本經常高於直接聘僱。派遣真正的價值在<strong>彈性</strong>，專案型、季節性、尖峰期的人力調度，或是不確定長期需求時的緩衝。若一個職位確定會長期存在，直接聘僱通常反而划算，而且在搶人市場裡，「正職」本身就是招募武器。</p>
 
     <h3>職缺廣告不能寫歧視性條件</h3>
-    <p>不論正職或派遣，招募廣告都受《就業服務法》第 5 條規範，不得以年齡、性別、國籍、婚姻等因素歧視。實務上最常見的是在需求單上寫「限 30 歲以下」——內部溝通這樣寫或許能理解用意，但一旦出現在對外刊登的職缺上就是違規。這類條件應該翻譯成實際的能力或條件需求再對外呈現。</p>
+    <p>不論正職或派遣，招募廣告都受《就業服務法》第 5 條規範，不得以年齡、性別、國籍、婚姻等因素歧視。實務上最常見的是在需求單上寫「限 30 歲以下」，內部溝通這樣寫或許能理解用意，但一旦出現在對外刊登的職缺上就是違規。這類條件應該翻譯成實際的能力或條件需求再對外呈現。</p>
 
     <h2 id="sec-4">企業自我檢核：五個問題</h2>
     <ol>
@@ -317,7 +328,7 @@ html{scroll-behavior:smooth}
         <summary>
           <span>什麼情況適合用派遣，什麼情況不適合？</span><span class="faq-icon">+</span>
         </summary>
-        <p>適合：專案型人力、季節性尖峰、業務量不確定時的緩衝、需要快速補位但長期需求未定的情況。不適合：確定長期存在的核心職位，尤其是專業或技術職——這類職位用派遣不但總成本未必較低，在搶人市場中「正職」本身就是重要的招募誘因，用派遣反而會降低人選接受度。</p>
+        <p>適合：專案型人力、季節性尖峰、業務量不確定時的緩衝、需要快速補位但長期需求未定的情況。不適合：確定長期存在的核心職位，尤其是專業或技術職，這類職位用派遣不但總成本未必較低，在搶人市場中「正職」本身就是重要的招募誘因，用派遣反而會降低人選接受度。</p>
       </details>
       <details>
         <summary>
@@ -337,7 +348,8 @@ html{scroll-behavior:smooth}
 
       
 <div class="cta">
-        <p>看完還是不確定下一步？加入 LINE 直接問顧問，或看目前開放中的職缺。</p>
+        <p>不確定自己現在的派遣安排有沒有踩到 17-1 條？把合作方式描述一下，我們幫你對照。</p>
+          <a class="btn-alt" href="/commission-recruiting/">看委託招募流程</a>
         <a class="btn-line" href="https://lin.ee/XcSWPzM">用 LINE 問顧問</a>
       </div>
     </article>

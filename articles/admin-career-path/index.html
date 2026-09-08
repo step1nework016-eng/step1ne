@@ -101,6 +101,10 @@ p{margin:0}
 .hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
 .hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
 /* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
 #bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
 
 .shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
@@ -166,6 +170,8 @@ article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid 
 
 .foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
 .cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
 .cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
 footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
 .fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
@@ -200,7 +206,12 @@ html{scroll-behavior:smooth}
       <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a class="on" href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
     </nav>
     <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
-    <button class="hd-burger" type="button" aria-label="開啟選單"><span></span></button>
+    <button class="hd-burger" type="button" aria-label="開啟選單" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINE 洽詢</a>
   </div>
 </header>
 
@@ -238,7 +249,7 @@ html{scroll-behavior:smooth}
 
       <h2 id="sec-1">先講清楚真正的天花板在哪</h2>
     <p>很多討論會說「行政助理沒有未來」，這個講法不精確，也不太公平。更準確的說法是：<strong>行政職的問題不在天花板低，而在往上的階梯常常不存在。</strong></p>
-    <p>差別在哪？如果是天花板低，那至少還有幾階可以爬。但實際狀況是——台灣以中小企業為主，一間公司的行政單位可能就兩三個人，上面是行政主管或直接是老闆。<strong>那個位子沒有人要走，你就沒有地方可以去。</strong></p>
+    <p>差別在哪？如果是天花板低，那至少還有幾階可以爬。但實際狀況是，台灣以中小企業為主，一間公司的行政單位可能就兩三個人，上面是行政主管或直接是老闆。<strong>那個位子沒有人要走，你就沒有地方可以去。</strong></p>
     <p>這是結構問題，不是能力問題。認清這一點很重要，因為它決定了你該把力氣花在哪裡：不是花在「表現好一點好被升」，而是花在<strong>累積可以帶著走的東西</strong>。</p>
 
     <div class="insight">
@@ -272,21 +283,21 @@ html{scroll-behavior:smooth}
     <p>缺的通常只有兩樣：<strong>一個可以講的完整專案</strong>，以及專案管理的共同語言（範疇、時程、風險、關係人）。前者建議在現職就爭取，例如辦公室搬遷、系統導入、年度活動——這些都是真正的專案，而且行政通常本來就是主辦。</p>
 
     <h3>路徑三：採購／供應鏈</h3>
-    <p>如果你已經在管文具、設備、廠商合約，那你其實在做小型採購。往正式採購走，要補的是<strong>議價與成本意識</strong>——從「找一家可以配合的」變成「比較三家、算出總成本、談出更好的條件」。</p>
+    <p>如果你已經在管文具、設備、廠商合約，那你其實在做小型採購。往正式採購走，要補的是<strong>議價與成本意識</strong>，從「找一家可以配合的」變成「比較三家、算出總成本、談出更好的條件」。</p>
     <p>這條路在中大型企業機會較多，因為小公司的採購通常就散在行政裡，沒有獨立編制。</p>
 
     <h3>路徑四：財會——最需要投入，但最穩</h3>
     <p>如果你在做請款、傳票、對帳，往財會走是合理的。但這條路比較不同：<strong>它需要真正的專業補強</strong>，通常要進修會計課程或考取相關證照，不是靠現職經驗自然過渡。</p>
-    <p>好處是財會職涯的階梯明確——會計專員、主辦會計、會計主管——不像行政那樣上面沒有位子。願意投入時間的人，這是五條裡最穩的一條。</p>
+    <p>好處是財會職涯的階梯明確，會計專員、主辦會計、會計主管，不像行政那樣上面沒有位子。願意投入時間的人，這是五條裡最穩的一條。</p>
 
     <h3>路徑五：高階特助——機會少，但跳幅最大</h3>
     <p>特助跟行政助理最大的差別不在做的事，而在<strong>你是不是主管思考的延伸</strong>。行政助理處理交辦事項；特助要能預判、要能整理出判斷所需的資訊、有時要代表主管出去講話。</p>
-    <p>這條路的機會不多、也很看緣分（誰的特助、那個人願不願意帶），但薪資跳幅是五條裡最大的。準備的方式是把書面表達練好——會議紀錄能不能寫成有結論、有待辦、有負責人的東西，是很直接的檢驗。</p>
+    <p>這條路的機會不多、也很看緣分（誰的特助、那個人願不願意帶），但薪資跳幅是五條裡最大的。準備的方式是把書面表達練好，會議紀錄能不能寫成有結論、有待辦、有負責人的東西，是很直接的檢驗。</p>
 
     <div class="warn">
       <div class="label">要誠實面對的一件事</div>
       <p><strong>純文書處理的部分，確實正在被自動化取代。</strong>資料建檔、表單彙整、排程協調，這些工具已經做得不錯，而且還在變好。</p>
-      <p>但這不等於行政職會消失。<strong>會消失的是「只做這些」的位子。</strong>需要判斷、協調、應變的部分——處理兩個部門搶同一個資源、突發狀況的臨場決定、面對面的接待與安撫——短期內取代不了。</p>
+      <p>但這不等於行政職會消失。<strong>會消失的是「只做這些」的位子。</strong>需要判斷、協調、應變的部分，處理兩個部門搶同一個資源、突發狀況的臨場決定、面對面的接待與安撫，短期內取代不了。</p>
       <p>務實的做法不是抗拒，是反過來用：主動拿這些工具把重複工作處理掉，然後把省下的時間放在協調與流程改善上。這件事本身，就是最好的轉職準備。</p>
     </div>
 
@@ -294,7 +305,7 @@ html{scroll-behavior:smooth}
     <p>不用等到要換工作才準備。這四件事現在就做得到，而且都不需要主管同意：</p>
     <ol>
       <li><strong>把你負責的事情命名</strong>——不要寫「協助處理雜務」。你管的是「全公司供應商窗口與合約續約追蹤」，那就這樣寫、這樣說</li>
-      <li><strong>記錄可量化的東西</strong>——「重整報銷流程，將平均請款時間從 10 天縮到 4 天」「導入新的會議室預約方式，減少排程衝突」。數字不用漂亮，有就好</li>
+      <li><strong>記錄可量化的東西</strong>，「重整報銷流程，將平均請款時間從 10 天縮到 4 天」「導入新的會議室預約方式，減少排程衝突」。數字不用漂亮，有就好</li>
       <li><strong>主動接一個沒人想接的專案</strong>——搬遷、系統導入、年度活動、稽核準備。這些是行政職少數能產出「專案經驗」的機會，而且通常沒人跟你搶</li>
       <li><strong>選一個方向，補那個方向的知識</strong>——五條路不用都準備。選一個，然後把該補的補起來。同時準備五條的結果通常是五條都不夠深</li>
     </ol>
@@ -321,10 +332,10 @@ html{scroll-behavior:smooth}
         <p>跨到全新領域的入門職缺時有可能持平或小幅下修，但幅度通常不大，且多在一到兩年內追回並超過。降幅較明顯的情況多發生在「完全沒有接軌點」的硬轉——例如行政直接轉工程職。若是從有接軌點的方向走（人資、採購、專案），持平或小幅成長是常見結果。談的時候可以把現職已在做的相關業務具體列出來，這是議價的基礎。</p>
       </details><details>
         <summary><span>小公司的行政經驗，大公司會認嗎？</span><span class="faq-icon">+</span></summary>
-        <p>會，而且有時是優勢。小公司的行政通常一個人包辦多種業務，接觸面比大公司分工細的行政更廣。要注意的是表達方式——大企業重視流程與制度，所以講經驗時建議帶到「怎麼做」而不只是「做過」，例如說明你如何建立某個流程、如何處理例外狀況。這會讓對方相信你進到制度化的環境也能適應。</p>
+        <p>會，而且有時是優勢。小公司的行政通常一個人包辦多種業務，接觸面比大公司分工細的行政更廣。要注意的是表達方式，大企業重視流程與制度，所以講經驗時建議帶到「怎麼做」而不只是「做過」，例如說明你如何建立某個流程、如何處理例外狀況。這會讓對方相信你進到制度化的環境也能適應。</p>
       </details><details>
         <summary><span>一直待在行政，最壞的情況是什麼？</span><span class="faq-icon">+</span></summary>
-        <p>最需要留意的不是薪資停滯，而是工作範圍長期沒有擴大——這會讓你在被動換工作（公司縮編、組織調整）時選擇變少，只能應徵跟現在條件相近的職缺。避免的方式不必然是離職，而是確保每一兩年至少多負責一塊有名字的事務。若目前的公司完全沒有這種空間，那才是該考慮換的訊號。</p>
+        <p>最需要留意的不是薪資停滯，而是工作範圍長期沒有擴大，這會讓你在被動換工作（公司縮編、組織調整）時選擇變少，只能應徵跟現在條件相近的職缺。避免的方式不必然是離職，而是確保每一兩年至少多負責一塊有名字的事務。若目前的公司完全沒有這種空間，那才是該考慮換的訊號。</p>
       </details></div><div>
       <h2 id="sec-5">想換方向，先聊聊看</h2>
       <p>目前有總機接待（內湖・週休二日，35–42K）與產品助理（內湖，40–50K，可接受新鮮人）開放中。後者屬於專案型職務，對想往專案管理方向走的人是不錯的接軌點。不確定自己適合哪條路，也可以先跟顧問談。</p>
@@ -336,7 +347,8 @@ html{scroll-behavior:smooth}
 
       
 <div class="cta">
-        <p>看完還是不確定下一步？加入 LINE 直接問顧問，或看目前開放中的職缺。</p>
+        <p>這五條路裡有想走的，但不知道自己缺什麼？加入 LINE 跟顧問聊，我們會直接說要補哪一塊。</p>
+          <a class="btn-alt" href="/jobs/">看目前開放的職缺</a>
         <a class="btn-line" href="https://lin.ee/XcSWPzM">用 LINE 問顧問</a>
       </div>
     </article>

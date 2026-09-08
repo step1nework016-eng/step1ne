@@ -92,6 +92,10 @@ p{margin:0}
 .hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
 .hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
 /* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
 #bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
 
 .shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
@@ -157,6 +161,8 @@ article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid 
 
 .foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
 .cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
 .cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
 footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
 .fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
@@ -191,7 +197,12 @@ html{scroll-behavior:smooth}
       <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a class="on" href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
     </nav>
     <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
-    <button class="hd-burger" type="button" aria-label="開啟選單"><span></span></button>
+    <button class="hd-burger" type="button" aria-label="開啟選單" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINE 洽詢</a>
   </div>
 </header>
 
@@ -226,7 +237,7 @@ html{scroll-behavior:smooth}
 
       <div class="ans">
         <div class="lab">直接答案</div>
-        <p>只是想知道這個機會值不值得談、自己合不合適，<strong>直接應徵去跟阿財談最快</strong>——20 到 40 分鐘就能有結果，不用等顧問排時間，談完照樣有真人顧問接手。只有一種情況適合先加 LINE 問顧問：你有在職保密、特殊身分安排、或其他需要先講清楚才能決定要不要投遞的顧慮。兩條路最終都會走到同一個真人顧問，差別只在先後順序。</p>
+        <p>只是想知道這個機會值不值得談、自己合不合適，<strong>直接應徵去跟阿財談最快</strong>，20 到 40 分鐘就能有結果，不用等顧問排時間，談完照樣有真人顧問接手。只有一種情況適合先加 LINE 問顧問：你有在職保密、特殊身分安排、或其他需要先講清楚才能決定要不要投遞的顧慮。兩條路最終都會走到同一個真人顧問，差別只在先後順序。</p>
       </div>
 
       <h2 id="sec-1">其實這不是「AI還是真人」的選擇</h2>
@@ -247,7 +258,7 @@ html{scroll-behavior:smooth}
 
     <div class="insight">
       <div class="label">獵頭觀察</div>
-      <p>猶豫要不要先問顧問，多半不是因為不信任 AI，是因為<strong>不確定要不要投出履歷這個動作本身</strong>——尤其是在職的人，最怕的是「一投履歷就等於公開表態要離職」。如果這是你的顧慮，先加 LINE 問清楚是對的，而不是先跟阿財聊，因為阿財面談是正式面談的一環，是應徵動作已經發生之後的事。但如果你只是單純好奇「我這個條件行不行」，直接應徵反而是成本最低的做法——大不了談完覺得不合適，本來就可以自己決定要不要繼續。</p>
+      <p>猶豫要不要先問顧問，多半不是因為不信任 AI，是因為<strong>不確定要不要投出履歷這個動作本身</strong>，尤其是在職的人，最怕的是「一投履歷就等於公開表態要離職」。如果這是你的顧慮，先加 LINE 問清楚是對的，而不是先跟阿財聊，因為阿財面談是正式面談的一環，是應徵動作已經發生之後的事。但如果你只是單純好奇「我這個條件行不行」，直接應徵反而是成本最低的做法，大不了談完覺得不合適，本來就可以自己決定要不要繼續。</p>
     </div>
 
     <h2 id="sec-3">什麼情況不用想太多，直接去談就對了</h2>
@@ -263,7 +274,7 @@ html{scroll-behavior:smooth}
       <li><strong>有特殊僱用安排的疑慮。</strong>例如僑外身分、需要簽證、有特定的到職時間限制</li>
       <li><strong>職缺內容有沒寫清楚的地方。</strong>先問清楚再決定要不要投遞，比投了才發現不合適更有效率</li>
     </ul>
-    <p class="note">保密與履歷處理的細節，可以參考另一篇：<a href="/articles/headhunter-contacted-you/">獵頭找上你，該怎麼回應？</a>——裡面談到怎麼要求 off-limits 名單與保密送件，同樣的原則也適用在你自己主動應徵的情況。</p>
+    <p class="note">保密與履歷處理的細節，可以參考另一篇：<a href="/articles/headhunter-contacted-you/">獵頭找上你，該怎麼回應？</a>，裡面談到怎麼要求 off-limits 名單與保密送件，同樣的原則也適用在你自己主動應徵的情況。</p>
 
     <h2 id="sec-5">常見問題</h2>
     <div>
@@ -292,7 +303,8 @@ html{scroll-behavior:smooth}
 
       
 <div class="cta">
-        <p>看完還是不確定下一步？加入 LINE 直接問顧問，或看目前開放中的職缺。</p>
+        <p>有在職保密或特殊身分安排的顧慮，先加 LINE 問清楚再決定要不要投遞。</p>
+          <a class="btn-alt" href="/jobs/">或直接看職缺</a>
         <a class="btn-line" href="https://lin.ee/XcSWPzM">用 LINE 問顧問</a>
       </div>
     </article>

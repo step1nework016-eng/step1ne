@@ -100,6 +100,10 @@ p{margin:0}
 .hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
 .hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
 /* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
 #bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
 
 .shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
@@ -165,6 +169,8 @@ article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid 
 
 .foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
 .cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
 .cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
 footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
 .fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
@@ -199,7 +205,12 @@ html{scroll-behavior:smooth}
       <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a class="on" href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
     </nav>
     <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
-    <button class="hd-burger" type="button" aria-label="開啟選單"><span></span></button>
+    <button class="hd-burger" type="button" aria-label="開啟選單" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINE 洽詢</a>
   </div>
 </header>
 
@@ -236,7 +247,7 @@ html{scroll-behavior:smooth}
 
       <div class="ans">
         <div class="lab">直接答案</div>
-        <p>BIM 工程師負責用 Revit 等軟體，把建築或廠房蓋成一個「帶資訊的立體模型」，讓設計、施工、機電各方在動工前就先在電腦裡把衝突找出來。跟 CAD 繪圖員最核心的差別是：繪圖員產出的是「圖」，BIM 工程師產出的是「資料庫」——模型裡的每根管、每片牆都帶著尺寸、材質、規格等可被查詢與統計的資訊。也因此 BIM 的工作重心不只是畫，而是<strong>協調</strong>。</p>
+        <p>BIM 工程師負責用 Revit 等軟體，把建築或廠房蓋成一個「帶資訊的立體模型」，讓設計、施工、機電各方在動工前就先在電腦裡把衝突找出來。跟 CAD 繪圖員最核心的差別是：繪圖員產出的是「圖」，BIM 工程師產出的是「資料庫」，模型裡的每根管、每片牆都帶著尺寸、材質、規格等可被查詢與統計的資訊。也因此 BIM 的工作重心不只是畫，而是<strong>協調</strong>。</p>
       </div>
 
       <h2 id="sec-1">用一句話理解 BIM 在做什麼</h2>
@@ -291,7 +302,7 @@ html{scroll-behavior:smooth}
     <p>BIM 不是做到死的建模工作，它有清楚的分級路徑：從 BIM 建模師（單一構件建模）→ BIM 工程師（主導單一專業模型、出衝突報告）→ BIM 協調師（跨專業整合、制定標準、帶人）→ BIM Lead → BIM 經理／VDC 總監。</p>
     <p>關鍵的轉折在於<strong>從「畫模型的人」變成「管模型標準與協調衝突的人」</strong>。各級距對應的年資、工具與薪資帶，詳見 <a href="/articles/bim-engineer-salary/">BIM工程師薪水行情：從無經驗到資深，數字怎麼跳？</a></p>
 
-    <aside data-exp="cta-mid-2026-08-28"><p>STEP1NE 現正招募</p><h3>這個缺現在開著：無經驗可，正職僱用</h3><p>AI 記憶體產業擴產案（苗栗銅鑼），<strong>正職僱用</strong>（不是派遣、不是約聘），優先招募 10 名。月薪 <strong>4 萬以上，實際待遇面議</strong>（依學歷與科系相關性核定）。大學以上不限科系，<strong>無經驗可</strong>——公司安排完整培訓，先到桃園楊梅受訓 1 週，進駐銅鑼廠區後有設計 PM 與設計工程師組成的團隊帶到可獨立作業。不提供宿舍，但有租屋補助每月 5,000 元；作息固定 08:30–17:30，週休二日不輪班。這波 AI 需求正在帶動記憶體產業擴產，及早累積這段實戰經驗，是可以放進長遠職涯規劃裡的資產。想先問清楚再決定也可以，不用先投履歷。</p><div><a href="/apply/?job=bim-engineer-tongluo&amp;utm_source=website&amp;utm_medium=article_cta&amp;utm_campaign=mid-bim" data-cta="mid-bim">直接應徵 BIM 工程師</a><a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-bim">加 LINE 先問清楚</a></div></aside><h2 id="sec-6">常見問題</h2>
+    <aside data-exp="cta-mid-2026-08-28"><p>STEP1NE 現正招募</p><h3>這個缺現在開著：無經驗可，正職僱用</h3><p>AI 記憶體產業擴產案（苗栗銅鑼），<strong>正職僱用</strong>（不是派遣、不是約聘），優先招募 10 名。月薪 <strong>4 萬以上，實際待遇面議</strong>（依學歷與科系相關性核定）。大學以上不限科系，<strong>無經驗可</strong>，公司安排完整培訓，先到桃園楊梅受訓 1 週，進駐銅鑼廠區後有設計 PM 與設計工程師組成的團隊帶到可獨立作業。不提供宿舍，但有租屋補助每月 5,000 元；作息固定 08:30–17:30，週休二日不輪班。這波 AI 需求正在帶動記憶體產業擴產，及早累積這段實戰經驗，是可以放進長遠職涯規劃裡的資產。想先問清楚再決定也可以，不用先投履歷。</p><div><a href="/apply/?job=bim-engineer-tongluo&amp;utm_source=website&amp;utm_medium=article_cta&amp;utm_campaign=mid-bim" data-cta="mid-bim">直接應徵 BIM 工程師</a><a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-bim">加 LINE 先問清楚</a></div></aside><h2 id="sec-6">常見問題</h2>
     <div>
       <details>
         <summary>
@@ -315,7 +326,7 @@ html{scroll-behavior:smooth}
         <summary>
           <span>BIM 會不會被 AI 取代？</span><span class="faq-icon">+</span>
         </summary>
-        <p>重複性的建模工作確實會愈來愈自動化，這也是為什麼純建模的薪資天花板較低。但 BIM 真正的價值在跨專業協調——判斷這個衝突該讓機電退讓還是結構調整、召集各方達成共識，這是牽涉專業判斷與溝通的工作。想降低被取代的風險，方向就是往協調與整合走，而不是把建模速度練得更快。</p>
+        <p>重複性的建模工作確實會愈來愈自動化，這也是為什麼純建模的薪資天花板較低。但 BIM 真正的價值在跨專業協調，判斷這個衝突該讓機電退讓還是結構調整、召集各方達成共識，這是牽涉專業判斷與溝通的工作。想降低被取代的風險，方向就是往協調與整合走，而不是把建模速度練得更快。</p>
       </details>
     </div>
 
@@ -330,7 +341,8 @@ html{scroll-behavior:smooth}
 
       
 <div class="cta">
-        <p>看完還是不確定下一步？加入 LINE 直接問顧問，或看目前開放中的職缺。</p>
+        <p>看完覺得這份工作可以試，目前有無經驗可、公司安排培訓的 BIM 職缺。</p>
+          <a class="btn-alt" href="/jobs/bim-engineer-tongluo/">看 BIM 工程師職缺（無經驗可）</a>
         <a class="btn-line" href="https://lin.ee/XcSWPzM">用 LINE 問顧問</a>
       </div>
     </article>

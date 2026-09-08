@@ -107,6 +107,10 @@ p{margin:0}
 .hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
 .hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
 /* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
 #bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
 
 .shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
@@ -172,6 +176,8 @@ article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid 
 
 .foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
 .cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
 .cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
 footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
 .fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
@@ -206,7 +212,12 @@ html{scroll-behavior:smooth}
       <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a class="on" href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
     </nav>
     <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
-    <button class="hd-burger" type="button" aria-label="開啟選單"><span></span></button>
+    <button class="hd-burger" type="button" aria-label="開啟選單" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINE 洽詢</a>
   </div>
 </header>
 
@@ -256,8 +267,8 @@ html{scroll-behavior:smooth}
     <p>派遣公司給企業的報價，拆開來只有三塊：</p>
     <ol>
       <li><strong>員工薪資</strong>——派遣員工實際領到的月薪，由企業與派遣公司議定</li>
-      <li><strong>法定雇主成本</strong>——勞保、健保、勞退、職災保險，法律規定雇主（派遣公司）必須負擔的部分</li>
-      <li><strong>管理服務費</strong>——派遣公司的服務費與利潤，涵蓋招募、薪資發放、勞健保管理、人事行政、合規處理等</li>
+      <li><strong>法定雇主成本</strong>，勞保、健保、勞退、職災保險，法律規定雇主（派遣公司）必須負擔的部分</li>
+      <li><strong>管理服務費</strong>，派遣公司的服務費與利潤，涵蓋招募、薪資發放、勞健保管理、人事行政、合規處理等</li>
     </ol>
     <p>前兩項是透明的：薪資你自己定，法定成本有公式可以算。第三項才是各家派遣公司報價差異的來源。</p>
 
@@ -304,20 +315,20 @@ html{scroll-behavior:smooth}
     <p class="note">試算說明：法定成本以 2026 年費率計算，職災費率取全行業平均 0.21%（行業別 0.14% + 上下班 0.07%），健保僅計員工本人、未含眷屬。管理費 20% 為試算用假設值，實際費率依職務類型、人數規模、派遣期間等因素由雙方議定。以上計算公式：勞保 = 月薪 × 12.5% × 70%；健保 = 月薪 × 5.17% × 60%；勞退 = 月薪 × 6%。</p>
 
     <h2 id="sec-4">派遣公司的管理費通常收多少？</h2>
-    <p>管理費沒有法規標準。台灣現行法律並未對國內人力派遣的服務費訂定上限或下限——這一點與外籍移工仲介不同（外籍移工仲介有「私立就業服務機構收費項目及金額標準」的法定上限）。國內派遣的管理費完全是市場行情，由企業與派遣公司議定。</p>
+    <p>管理費沒有法規標準。台灣現行法律並未對國內人力派遣的服務費訂定上限或下限，這一點與外籍移工仲介不同（外籍移工仲介有「私立就業服務機構收費項目及金額標準」的法定上限）。國內派遣的管理費完全是市場行情，由企業與派遣公司議定。</p>
 
     <p>影響管理費高低的因素：</p>
     <ul>
-      <li><strong>職務類型</strong>——一般行政、倉管等替代性高的職務，管理費通常較低；技術性職務（IT、工程）或需要特定證照的，費率較高</li>
+      <li><strong>職務類型</strong>，一般行政、倉管等替代性高的職務，管理費通常較低；技術性職務（IT、工程）或需要特定證照的，費率較高</li>
       <li><strong>派遣人數</strong>——量大通常有議價空間</li>
       <li><strong>派遣期間</strong>——長期穩定合作比短期急件費率低</li>
-      <li><strong>替換承諾</strong>——承諾幾天內補人、人選不適任免費替換等條件，會反映在費率上</li>
-      <li><strong>服務範圍</strong>——只做人力提供，還是含出勤管理、績效回報、勞資爭議處理等</li>
+      <li><strong>替換承諾</strong>，承諾幾天內補人、人選不適任免費替換等條件，會反映在費率上</li>
+      <li><strong>服務範圍</strong>，只做人力提供，還是含出勤管理、績效回報、勞資爭議處理等</li>
     </ul>
 
     <div class="insight">
       <div class="label">派遣顧問觀察</div>
-      <p>很多企業拿到報價的第一反應是「管理費太高，我自己請人不用付這筆」。但管理費裡包含的不只是利潤——招募廣告費、面試篩選人力、每月薪資核算與發放、勞健保加退保作業、工安法規遵循、人員替換的緩衝成本，這些全部由派遣公司吸收。</p>
+      <p>很多企業拿到報價的第一反應是「管理費太高，我自己請人不用付這筆」。但管理費裡包含的不只是利潤，招募廣告費、面試篩選人力、每月薪資核算與發放、勞健保加退保作業、工安法規遵循、人員替換的緩衝成本，這些全部由派遣公司吸收。</p>
       <p><strong>真正該比的不是「管理費幾%」，而是「加上這些隱藏成本之後，自己聘跟用派遣哪個划算」。</strong></p>
     </div>
 
@@ -360,7 +371,7 @@ html{scroll-behavior:smooth}
 
     <div class="warn">
       <div class="label">報價紅旗</div>
-      <p>如果報價低到不合理——例如管理費只收薪資的幾個百分點——要小心是不是從員工的法定權益上省下來的。常見手法是<strong>低報投保薪資</strong>（員工實際月薪 35,000 卻只用基本工資投保）或<strong>將勞退轉嫁給員工</strong>。這不但違法，出事時要派單位也有連帶責任。</p>
+      <p>如果報價低到不合理，例如管理費只收薪資的幾個百分點，要小心是不是從員工的法定權益上省下來的。常見手法是<strong>低報投保薪資</strong>（員工實際月薪 35,000 卻只用基本工資投保）或<strong>將勞退轉嫁給員工</strong>。這不但違法，出事時要派單位也有連帶責任。</p>
       <p><small>依勞基法第 22-1 條，派遣公司積欠工資時，要派單位有補充給付責任。依第 63-1 條，職災補償由要派單位與派遣公司連帶負責。</small></p>
     </div>
 
@@ -454,7 +465,8 @@ html{scroll-behavior:smooth}
 
       
 <div class="cta">
-        <p>看完還是不確定下一步？加入 LINE 直接問顧問，或看目前開放中的職缺。</p>
+        <p>想知道你這個職缺實際的派遣報價，把職稱、薪資帶與人數說一下，我們直接算給你看。</p>
+          <a class="btn-alt" href="/hiring-assessment/">先做招募形式評估</a>
         <a class="btn-line" href="https://lin.ee/XcSWPzM">用 LINE 問顧問</a>
       </div>
     </article>

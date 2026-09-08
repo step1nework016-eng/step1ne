@@ -96,6 +96,10 @@ p{margin:0}
 .hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
 .hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
 /* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
 #bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
 
 .shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
@@ -161,6 +165,8 @@ article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid 
 
 .foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
 .cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
 .cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
 footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
 .fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
@@ -195,7 +201,12 @@ html{scroll-behavior:smooth}
       <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a class="on" href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
     </nav>
     <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
-    <button class="hd-burger" type="button" aria-label="開啟選單"><span></span></button>
+    <button class="hd-burger" type="button" aria-label="開啟選單" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINE 洽詢</a>
   </div>
 </header>
 
@@ -237,28 +248,28 @@ html{scroll-behavior:smooth}
     <p>多數人以為 BIM 工程師的職涯就是「年資越久，職級越高」，一路往 BIM 經理爬。實際上看過的送件案例裡，這條路只是其中一條，而且不是走的人最多的一條。BIM 工程師做到 2–3 年這個階段，通常會出現三個方向的分岔：</p>
 
     <h3>路線一：技術深化——留在 BIM，往協調與整合走</h3>
-    <p>這是最直覺的路，也是多數人預設的路。從單一專業建模，走到跨專業協調、制定 BEP、帶團隊。這條路的職級架構與薪資帶，在 <a href="/articles/bim-engineer-salary/">BIM工程師薪水行情：從無經驗到資深，數字怎麼跳？</a> 裡已經拆過六個級距，這篇不重複——重點是：走這條路的人，2–3 年後該問自己的不是「我還要不要做 BIM」，而是「我有沒有機會碰到跨專業協調」。沒有這個機會，留在原公司做技術深化會停滯。</p>
+    <p>這是最直覺的路，也是多數人預設的路。從單一專業建模，走到跨專業協調、制定 BEP、帶團隊。這條路的職級架構與薪資帶，在 <a href="/articles/bim-engineer-salary/">BIM工程師薪水行情：從無經驗到資深，數字怎麼跳？</a> 裡已經拆過六個級距，這篇不重複，重點是：走這條路的人，2–3 年後該問自己的不是「我還要不要做 BIM」，而是「我有沒有機會碰到跨專業協調」。沒有這個機會，留在原公司做技術深化會停滯。</p>
 
     <h3>路線二：轉職能——從管模型轉成管專案或代表業主</h3>
     <p>這是我們實務上看到比想像中更常見的一條路，卻很少被寫進職涯文章。做過 2–3 年 BIM 的人，通常已經很熟悉一個建案從設計到施工的完整流程，這個知識本身在兩個方向上很值錢：</p>
     <ul>
-      <li><strong>轉工程專案管理（PM）</strong>——BIM 經驗讓你比一般 PM 更早看懂圖面上的衝突，這在營建 PM 職缺裡是明顯的加分項</li>
-      <li><strong>轉業主端的擁有者代表（Owner's Representative）</strong>——業主自己不見得有 BIM 背景，需要懂技術又能替業主把關的人去對接營造與設計端，這類職缺對「做過 BIM」的人接受度很高</li>
+      <li><strong>轉工程專案管理（PM）</strong>，BIM 經驗讓你比一般 PM 更早看懂圖面上的衝突，這在營建 PM 職缺裡是明顯的加分項</li>
+      <li><strong>轉業主端的擁有者代表（Owner's Representative）</strong>，業主自己不見得有 BIM 背景，需要懂技術又能替業主把關的人去對接營造與設計端，這類職缺對「做過 BIM」的人接受度很高</li>
     </ul>
-    <p>這條路的難處不是能力，是資訊落差——很多做 BIM 的人根本不知道這條路存在，以為離開 BIM 職稱就是「轉行」，其實是往上游移動。</p>
+    <p>這條路的難處不是能力，是資訊落差，很多做 BIM 的人根本不知道這條路存在，以為離開 BIM 職稱就是「轉行」，其實是往上游移動。</p>
 
     <h3>路線三：橫向轉出——轉到營造業裡的其他職能</h3>
-    <p>做了幾年 BIM，發現自己更喜歡出圖規劃而非協調會議，或想離開純辦公室環境，這條路是轉到工程設計或現場工程。營造業裡的角色分工與各自的入行條件，可以參考 <a href="/articles/how-to-enter-construction-industry/">怎麼踏入營造業？非本科系新手入行指南</a>——BIM 背景在轉這幾種角色時，通常比從零開始的人更有優勢，因為圖面判讀與跨部門溝通的底子已經有了。</p>
+    <p>做了幾年 BIM，發現自己更喜歡出圖規劃而非協調會議，或想離開純辦公室環境，這條路是轉到工程設計或現場工程。營造業裡的角色分工與各自的入行條件，可以參考 <a href="/articles/how-to-enter-construction-industry/">怎麼踏入營造業？非本科系新手入行指南</a>，BIM 背景在轉這幾種角色時，通常比從零開始的人更有優勢，因為圖面判讀與跨部門溝通的底子已經有了。</p>
 
     <div class="insight">
       <div class="label">獵頭觀察</div>
-      <p><strong>這三條路不是互斥的，很多人是先走路線一，卡住之後才發現路線二存在。</strong>我們實際接觸的案例裡，願意主動打聽「BIM 做久了還能轉什麼」的人，通常已經比同儕多想了一步；反而是悶著頭只顧把模型做好、沒有對外打聽過的人，容易錯過轉職能的時機——因為業主端與 PM 職缺很少特別強調「歡迎 BIM 背景」，需要自己去連結這個關係。</p>
+      <p><strong>這三條路不是互斥的，很多人是先走路線一，卡住之後才發現路線二存在。</strong>我們實際接觸的案例裡，願意主動打聽「BIM 做久了還能轉什麼」的人，通常已經比同儕多想了一步；反而是悶著頭只顧把模型做好、沒有對外打聽過的人，容易錯過轉職能的時機，因為業主端與 PM 職缺很少特別強調「歡迎 BIM 背景」，需要自己去連結這個關係。</p>
     </div>
 
     <h2 id="sec-2">卡住的人，通常卡在同一個地方</h2>
     <p>從送件經驗看，BIM 工程師職涯卡住最常見的原因，並不是市場上沒有機會，而是這幾種情況反覆出現：</p>
     <ul>
-      <li><strong>年資很長，但都在做同一種構件建模。</strong>履歷上寫五年經驗，實際能力還停在建模階段，沒有跨過協調這一關——這一點在 <a href="/articles/bim-engineer-salary/">薪資行情那篇</a>也提過，是職級卡點，也是職涯卡點，同一個原因造成兩種結果</li>
+      <li><strong>年資很長，但都在做同一種構件建模。</strong>履歷上寫五年經驗，實際能力還停在建模階段，沒有跨過協調這一關，這一點在 <a href="/articles/bim-engineer-salary/">薪資行情那篇</a>也提過，是職級卡點，也是職涯卡點，同一個原因造成兩種結果</li>
       <li><strong>只待過一種案型。</strong>一直做同一類建案（例如只做建廠、或只做一般建築），沒有機會累積跨案型的判斷力，履歷看起來經驗豐富，實際可轉移的能力有限</li>
       <li><strong>沒有主動爭取跨專業會議的機會。</strong>公司不會主動把協調的機會分給資淺的人，這件事通常要自己開口要，才會被排進去</li>
       <li><strong>不知道 BIM 以外的路存在。</strong>只看過 BIM 經理這個終點，沒想過轉 PM 或業主端，等於少看了一半的地圖</li>
@@ -273,7 +284,7 @@ html{scroll-behavior:smooth}
       <li><strong>提早打聽 PM 與業主端的門路，不等到卡住才想。</strong>職涯轉換越早開始鋪墊（例如在做 BIM 期間就多接觸工程排程與預算相關的工作），轉職時越順</li>
     </ul>
 
-    <aside data-exp="cta-mid-2026-09-03"><p>STEP1NE 現正招募</p><h3>這個缺現在開著：無經驗可，正職僱用</h3><p>AI 記憶體產業擴產案（苗栗銅鑼），<strong>正職僱用</strong>（不是派遣、不是約聘），優先招募 10 名。月薪 <strong>4 萬以上，實際待遇面議</strong>（依學歷與科系相關性核定）。大學以上不限科系，<strong>無經驗可</strong>——公司安排完整培訓，先到桃園楊梅受訓 1 週，進駐銅鑼廠區後有設計 PM 與設計工程師組成的團隊帶到可獨立作業。不提供宿舍，但有租屋補助每月 5,000 元；作息固定 08:30–17:30，週休二日不輪班。如果你正在考慮從路線一起步、想累積跨案型經驗，這類大型建廠案是完整走過一輪流程的機會。想先問清楚再決定也可以，不用先投履歷。</p><div><a href="/apply/?job=bim-engineer-tongluo&amp;utm_source=website&amp;utm_medium=article_cta&amp;utm_campaign=mid-bim-career-path" data-cta="mid-bim-career-path">直接應徵 BIM 工程師</a><a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-bim-career-path">加 LINE 先問清楚</a></div></aside>
+    <aside data-exp="cta-mid-2026-09-03"><p>STEP1NE 現正招募</p><h3>這個缺現在開著：無經驗可，正職僱用</h3><p>AI 記憶體產業擴產案（苗栗銅鑼），<strong>正職僱用</strong>（不是派遣、不是約聘），優先招募 10 名。月薪 <strong>4 萬以上，實際待遇面議</strong>（依學歷與科系相關性核定）。大學以上不限科系，<strong>無經驗可</strong>，公司安排完整培訓，先到桃園楊梅受訓 1 週，進駐銅鑼廠區後有設計 PM 與設計工程師組成的團隊帶到可獨立作業。不提供宿舍，但有租屋補助每月 5,000 元；作息固定 08:30–17:30，週休二日不輪班。如果你正在考慮從路線一起步、想累積跨案型經驗，這類大型建廠案是完整走過一輪流程的機會。想先問清楚再決定也可以，不用先投履歷。</p><div><a href="/apply/?job=bim-engineer-tongluo&amp;utm_source=website&amp;utm_medium=article_cta&amp;utm_campaign=mid-bim-career-path" data-cta="mid-bim-career-path">直接應徵 BIM 工程師</a><a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-bim-career-path">加 LINE 先問清楚</a></div></aside>
 
     <h2 id="sec-4">三個下一步，各自要先準備什麼</h2>
     <div class="tbl-wrap">
@@ -326,7 +337,8 @@ html{scroll-behavior:smooth}
 
       
 <div class="cta">
-        <p>看完還是不確定下一步？加入 LINE 直接問顧問，或看目前開放中的職缺。</p>
+        <p>已經做了幾年，想知道往哪一條走比較實際？加入 LINE 跟做過營造業的顧問聊。</p>
+          <a class="btn-alt" href="/jobs/bim-engineer-tongluo/">看目前的 BIM 職缺</a>
         <a class="btn-line" href="https://lin.ee/XcSWPzM">用 LINE 問顧問</a>
       </div>
     </article>

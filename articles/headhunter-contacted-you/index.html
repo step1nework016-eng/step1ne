@@ -101,6 +101,10 @@ p{margin:0}
 .hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
 .hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
 /* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
 #bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
 
 .shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
@@ -166,6 +170,8 @@ article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid 
 
 .foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
 .cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
 .cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
 footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
 .fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
@@ -200,7 +206,12 @@ html{scroll-behavior:smooth}
       <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a class="on" href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
     </nav>
     <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
-    <button class="hd-burger" type="button" aria-label="開啟選單"><span></span></button>
+    <button class="hd-burger" type="button" aria-label="開啟選單" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINE 洽詢</a>
   </div>
 </header>
 
@@ -237,7 +248,7 @@ html{scroll-behavior:smooth}
 
       <div class="ans">
         <div class="lab">直接答案</div>
-        <p>先查證對方是否為合法的就業服務機構（要統編與許可證字號、確認不會向你收費），再決定要不要談。<strong>就算目前沒有換工作的打算，也建議回一句話</strong>——這是了解自己市場行情最低成本的方式。真的要談下去之前，先問清楚五件事：哪家公司、薪資範圍、為什麼開這個缺、案子做多久了，以及最重要的——未經你同意不會送出履歷。</p>
+        <p>先查證對方是否為合法的就業服務機構（要統編與許可證字號、確認不會向你收費），再決定要不要談。<strong>就算目前沒有換工作的打算，也建議回一句話</strong>——這是了解自己市場行情最低成本的方式。真的要談下去之前，先問清楚五件事：哪家公司、薪資範圍、為什麼開這個缺、案子做多久了，以及最重要的，未經你同意不會送出履歷。</p>
       </div>
 
       <h2 id="sec-1">先確認：這是真獵頭還是詐騙？</h2>
@@ -245,16 +256,16 @@ html{scroll-behavior:smooth}
     <ul>
       <li><strong>要統編與就業服務許可證字號</strong>——台灣的人力仲介依法必須取得主管機關許可才能營業。正派公司會直接給，甚至寫在官網上</li>
       <li><strong>拿統編查營業狀態</strong>——到經濟部商工登記公示資料查詢系統核對公司是否正常營業</li>
-      <li><strong>確認不會跟你收錢</strong>——正常的獵頭向<strong>企業</strong>收費。任何要求求職者先付費、繳保證金、或要你先辦貸款買課程的，直接封鎖</li>
+      <li><strong>確認不會跟你收錢</strong>，正常的獵頭向<strong>企業</strong>收費。任何要求求職者先付費、繳保證金、或要你先辦貸款買課程的，直接封鎖</li>
     </ul>
     <div class="warn">
       <div class="label">⚠ 這幾種情況直接停止聯繫</div>
-      <p>要求先付費或繳保證金、要你交出身分證件正本或存摺、面試地點在私人住宅或境外、開的條件明顯高於行情又催你「今天就要決定」、或整個過程只用通訊軟體不願提供公司資訊——遇到任何一項就停止往來，必要時可向當地勞工主管機關或警政單位反映。</p>
+      <p>要求先付費或繳保證金、要你交出身分證件正本或存摺、面試地點在私人住宅或境外、開的條件明顯高於行情又催你「今天就要決定」、或整個過程只用通訊軟體不願提供公司資訊，遇到任何一項就停止往來，必要時可向當地勞工主管機關或警政單位反映。</p>
     </div>
 
     <h2 id="sec-2">就算現在不想換工作，也建議回覆</h2>
     <p>很多人收到獵頭訊息會直接已讀不回，覺得反正沒有要換。但從市場角度看，這是浪費掉一次免費的資訊機會。</p>
-    <p>你可以用一句話回覆，成本很低但拿得到東西：「目前沒有異動打算，但想了解一下這個機會的內容與薪資範圍，方便說明嗎？」——這樣你會知道<strong>自己現在的市場行情</strong>，也建立了一條之後真的想動時可以直接用的線。</p>
+    <p>你可以用一句話回覆，成本很低但拿得到東西：「目前沒有異動打算，但想了解一下這個機會的內容與薪資範圍，方便說明嗎？」，這樣你會知道<strong>自己現在的市場行情</strong>，也建立了一條之後真的想動時可以直接用的線。</p>
 
     <div class="insight">
       <div class="label">獵頭觀察</div>
@@ -265,16 +276,16 @@ html{scroll-behavior:smooth}
     <h2 id="sec-3">回覆前，先問這五個問題</h2>
     <p>在花時間看 JD 或安排通話之前，用這五題快速判斷值不值得談下去：</p>
     <ol>
-      <li><strong>「這是哪一家公司？」</strong>——如果是保密職缺不能說公司名，至少要能說明產業、規模、團隊狀況。什麼都不肯講的要留意</li>
+      <li><strong>「這是哪一家公司？」</strong>，如果是保密職缺不能說公司名，至少要能說明產業、規模、團隊狀況。什麼都不肯講的要留意</li>
       <li><strong>「薪資範圍大概多少？」</strong>——問區間不是失禮，是效率。範圍差太多就不用往下浪費彼此時間</li>
       <li><strong>「為什麼這個位子在找人？」</strong>——是擴編、有人離職、還是新設單位？離職補人的話，前一位待多久、為什麼走，值得多問一句</li>
-      <li><strong>「你手上這個案子做多久了？」</strong>——做了三個月還在找，通常代表條件跟市場有落差，或用人主管標準特別高</li>
+      <li><strong>「你手上這個案子做多久了？」</strong>，做了三個月還在找，通常代表條件跟市場有落差，或用人主管標準特別高</li>
       <li><strong>「未經我同意，履歷不會送出，對嗎？」</strong>——這句一定要問，理由見下一段</li>
     </ol>
 
     <h2 id="sec-4">最重要的一件事：履歷保密</h2>
     <p>求職者對獵頭最大的疑慮通常是「我的履歷會不會被亂丟」。這個擔心是合理的，尤其如果不小心被送到現在任職的公司或關係企業，後果很嚴重。</p>
-    <p>正規的作法是：<strong>顧問在取得你明確同意之前，不會將履歷送交任何企業</strong>，而且送出前應告知是哪一家。你也可以主動提出「off-limits 名單」——明確講出哪些公司不希望被推薦（例如現職公司的關係企業、往來客戶），專業的顧問會記錄並遵守。</p>
+    <p>正規的作法是：<strong>顧問在取得你明確同意之前，不會將履歷送交任何企業</strong>，而且送出前應告知是哪一家。你也可以主動提出「off-limits 名單」，明確講出哪些公司不希望被推薦（例如現職公司的關係企業、往來客戶），專業的顧問會記錄並遵守。</p>
     <div class="ask"><strong>可以直接這樣說：</strong>「我目前在職，希望保密進行。送出履歷前請先讓我確認是哪一家公司，另外這幾家請不要推薦：⋯⋯」</div>
 
     <h2 id="sec-5">透過獵頭應徵，跟自己投有什麼不同？</h2>
@@ -324,7 +335,8 @@ html{scroll-behavior:smooth}
 
       
 <div class="cta">
-        <p>看完還是不確定下一步？加入 LINE 直接問顧問，或看目前開放中的職缺。</p>
+        <p>想確認找上你的是不是正派的獵頭？我們的就服字號與評鑑等級都可以公開查證。</p>
+          <a class="btn-alt" href="/about/">看 Step1ne 公司資料</a>
         <a class="btn-line" href="https://lin.ee/XcSWPzM">用 LINE 問顧問</a>
       </div>
     </article>

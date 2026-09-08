@@ -100,6 +100,10 @@ p{margin:0}
 .hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
 .hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
 /* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
 #bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
 
 .shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
@@ -165,6 +169,8 @@ article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid 
 
 .foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
 .cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
 .cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
 footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
 .fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
@@ -199,7 +205,12 @@ html{scroll-behavior:smooth}
       <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a class="on" href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
     </nav>
     <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
-    <button class="hd-burger" type="button" aria-label="開啟選單"><span></span></button>
+    <button class="hd-burger" type="button" aria-label="開啟選單" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINE 洽詢</a>
   </div>
 </header>
 
@@ -300,11 +311,11 @@ html{scroll-behavior:smooth}
 
     <p>是。要走到最後一站，你需要一個<strong>中國境內的銀行帳戶</strong>，或是能綁定中國銀行卡的支付寶／微信支付。</p>
 
-    <p>身分文件方面近年有放寬：抖音已開放非中國大陸的證件做實名認證，台胞證、台灣護照與部分境外永久居留證件都在可選範圍內，綁定錢包銀行卡時也能匹配台灣護照。但<strong>「能做實名認證」跟「能開到銀行帳戶」是兩件事</strong>——開戶通常需要本人到中國的銀行臨櫃辦理，各家銀行與各地分行的實務要求不一致。</p>
+    <p>身分文件方面近年有放寬：抖音已開放非中國大陸的證件做實名認證，台胞證、台灣護照與部分境外永久居留證件都在可選範圍內，綁定錢包銀行卡時也能匹配台灣護照。但<strong>「能做實名認證」跟「能開到銀行帳戶」是兩件事</strong>，開戶通常需要本人到中國的銀行臨櫃辦理，各家銀行與各地分行的實務要求不一致。</p>
 
     <div class="warn">
       <div class="label">別走這條路</div>
-      <p>網路上會看到「買人頭帳號」「借別人的證件認證」這類做法。<strong>不要。</strong>平台的二次人臉驗證會比對本人，證件與人對不上時帳號會被永久封停——屆時帳上的錢一併歸零，而且因為帳號不是你的名字，你連主張權利的立場都沒有。</p>
+      <p>網路上會看到「買人頭帳號」「借別人的證件認證」這類做法。<strong>不要。</strong>平台的二次人臉驗證會比對本人，證件與人對不上時帳號會被永久封停，屆時帳上的錢一併歸零，而且因為帳號不是你的名字，你連主張權利的立場都沒有。</p>
     </div>
 
     <h2 id="sec-4">公會代收：最容易出事的一段</h2>
@@ -313,7 +324,7 @@ html{scroll-behavior:smooth}
 
     <p>這個安排本身不必然有問題——公會有中國境內的實體與帳戶，確實解得掉上面那道關卡。問題在於，這一刻起<strong>你的錢在別人手上，而你手上只有一份合約</strong>。合約寫得不清楚，或對方不認帳，你要在境外求償，實務上非常困難。</p>
 
-    <p>公開討論裡反覆出現的一種模式是：簽約初期公會會幫忙推流量，收入看得到；幾個月後流量支援停掉，收入跟著掉下來。這不必然是詐騙，但它說明一件事——<strong>你在簽約當下看到的收入水準，不能當成長期預期。</strong></p>
+    <p>公開討論裡反覆出現的一種模式是：簽約初期公會會幫忙推流量，收入看得到；幾個月後流量支援停掉，收入跟著掉下來。這不必然是詐騙，但它說明一件事，<strong>你在簽約當下看到的收入水準，不能當成長期預期。</strong></p>
 
     <h2 id="sec-5">簽約前先確認這五件事</h2>
 
@@ -360,7 +371,7 @@ html{scroll-behavior:smooth}
     <div>
       <p>STEP1NE 開放職缺</p>
       <h2 id="sec-8">有在考慮把直播當正職嗎？</h2>
-      <p>我們是獵頭公司。<strong>目前有一個開放中的直播主職缺</strong>——在自己家裡播、1 對 1 手把手帶播培訓、保底 3–10 萬依面試條件核定，時數門檻 70 小時／23 天或 100 小時以上／25 天。平台是<strong>大陸抖音</strong>，合作方式是<strong>承攬</strong>（非僱傭，沒有勞健保與加班費）——這兩件事我們寫在職缺頁最上面，還沒確認的項目也標明了是面試時才會知道。</p>
+      <p>我們是獵頭公司。<strong>目前有一個開放中的直播主職缺</strong>，在自己家裡播、1 對 1 手把手帶播培訓、保底 3–10 萬依面試條件核定，時數門檻 70 小時／23 天或 100 小時以上／25 天。平台是<strong>大陸抖音</strong>，合作方式是<strong>承攬</strong>（非僱傭，沒有勞健保與加班費）這兩件事我們寫在職缺頁最上面，還沒確認的項目也標明了是面試時才會知道。</p>
       <p>這個職缺目前開放應徵中，完整條件與應徵方式都在職缺頁，看完再決定要不要談。</p>
       <a href="/jobs/live-streamer-home/">查看職缺並應徵 →</a>
     </div><h2 id="sec-9">常見問題</h2>
@@ -369,7 +380,7 @@ html{scroll-behavior:smooth}
         <summary>
           <span>台灣人可以在大陸抖音直播嗎？</span><span class="faq-icon">+</span>
         </summary>
-        <p>可以。抖音已開放非中國大陸證件做實名認證，台胞證與台灣護照都在可選範圍內。真正的門檻不在能不能開播，而在收入結算之後能不能領出來——那需要中國境內的銀行帳戶或綁定中國銀行卡的支付寶、微信支付。</p>
+        <p>可以。抖音已開放非中國大陸證件做實名認證，台胞證與台灣護照都在可選範圍內。真正的門檻不在能不能開播，而在收入結算之後能不能領出來，那需要中國境內的銀行帳戶或綁定中國銀行卡的支付寶、微信支付。</p>
       </details>
       <details>
         <summary>
@@ -413,7 +424,8 @@ html{scroll-behavior:smooth}
 
       
 <div class="cta">
-        <p>看完還是不確定下一步？加入 LINE 直接問顧問，或看目前開放中的職缺。</p>
+        <p>如果你正在評估的是台灣本地、金流走得清楚的直播機會，目前有一個開放中的職缺。</p>
+          <a class="btn-alt" href="/jobs/live-streamer-home/">看直播主職缺</a>
         <a class="btn-line" href="https://lin.ee/XcSWPzM">用 LINE 問顧問</a>
       </div>
     </article>

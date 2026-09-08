@@ -101,6 +101,10 @@ p{margin:0}
 .hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
 .hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
 /* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
 #bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
 
 .shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
@@ -166,6 +170,8 @@ article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid 
 
 .foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
 .cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
 .cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
 footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
 .fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
@@ -200,7 +206,12 @@ html{scroll-behavior:smooth}
       <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a class="on" href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
     </nav>
     <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
-    <button class="hd-burger" type="button" aria-label="開啟選單"><span></span></button>
+    <button class="hd-burger" type="button" aria-label="開啟選單" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINE 洽詢</a>
   </div>
 </header>
 
@@ -239,13 +250,13 @@ html{scroll-behavior:smooth}
 
       <div class="ans">
         <div class="lab">直接答案</div>
-        <p>高階主管職缺多半不公開，不是因為神祕，而是<strong>公開的成本太高</strong>——現任者還沒離職、對手會知道你的組織要動、履歷海量湧入但適配者極少。所以這類職缺走的是「顧問主動接觸特定名單」的模式，而不是「刊登等人投」。對求職者的意思是：你不會因為每天刷職缺就找到它，你要做的是讓自己出現在那份名單上。</p>
+        <p>高階主管職缺多半不公開，不是因為神祕，而是<strong>公開的成本太高</strong>，現任者還沒離職、對手會知道你的組織要動、履歷海量湧入但適配者極少。所以這類職缺走的是「顧問主動接觸特定名單」的模式，而不是「刊登等人投」。對求職者的意思是：你不會因為每天刷職缺就找到它，你要做的是讓自己出現在那份名單上。</p>
       </div>
 
       <h2 id="sec-1">先確認一件事：主管職年薪百萬並不罕見</h2>
     <p>很多人把「年薪百萬」想成一個遙遠的標籤，但在主管職這個層級，它其實是市場的中位數附近，不是頂端。</p>
     <p>依勞動部「114 年職類別薪資調查」（2026 年 5 月發布，回收有效樣本 9,977 家事業單位），113 年全年平均薪資所得以<strong>主管及監督人員 131.7 萬元最高</strong>，專業人員 106.2 萬元次之。也就是說，站上主管職以後，百萬年薪是常態區間而非例外。</p>
-    <p>這個數字有兩層意義。第一，如果你已經在帶團隊卻還沒到這個水準，值得盤點一下是產業因素還是個人議價的問題。第二，也是更重要的——<strong>當你進入這個薪資帶，你找工作的方式就必須跟以前不一樣了</strong>。</p>
+    <p>這個數字有兩層意義。第一，如果你已經在帶團隊卻還沒到這個水準，值得盤點一下是產業因素還是個人議價的問題。第二，也是更重要的，<strong>當你進入這個薪資帶，你找工作的方式就必須跟以前不一樣了</strong>。</p>
 
     <h2 id="sec-2">高階職缺為什麼不公開？四個實務原因</h2>
     <p>從我們實際承接的高階委任來看，企業選擇不公開徵才，通常是這四個原因之一或組合：</p>
@@ -286,15 +297,15 @@ html{scroll-behavior:smooth}
       </table>
     </div>
 
-    <p>最後一列是最多人低估的。到了這個層級，能力落選的比例其實不高，<strong>大部分落選是因為「不適配」</strong>——你習慣的決策速度跟這家公司差太多、你上一份工作的資源規模跟這裡不同、或者你跟未來的老闆講話的方式對不上。這些都不是好壞問題，是合不合的問題。</p>
+    <p>最後一列是最多人低估的。到了這個層級，能力落選的比例其實不高，<strong>大部分落選是因為「不適配」</strong>，你習慣的決策速度跟這家公司差太多、你上一份工作的資源規模跟這裡不同、或者你跟未來的老闆講話的方式對不上。這些都不是好壞問題，是合不合的問題。</p>
 
     <h2 id="sec-4">履歷要改的不是格式，是敘事單位</h2>
     <p>從一般職缺轉向主管職，履歷最需要改的地方只有一個：<strong>把敘事單位從「我做過什麼」換成「我改變了什麼」</strong>。</p>
     <p>具體來說：</p>
     <ul>
-      <li><strong>寫決策，不是寫職責</strong>——「負責財務報表與稅務」是職責，任何坐在那個位子的人都會寫。「重整三地子公司的核決權限，將月結時程從 12 個工作天縮到 6 天」才是你做的事</li>
+      <li><strong>寫決策，不是寫職責</strong>，「負責財務報表與稅務」是職責，任何坐在那個位子的人都會寫。「重整三地子公司的核決權限，將月結時程從 12 個工作天縮到 6 天」才是你做的事</li>
       <li><strong>寫規模，讓人可以對位</strong>——帶幾人、管多少預算、營收多少的單位。沒有規模數字，對方無法判斷你的經驗能不能對接到他們的組織</li>
-      <li><strong>寫取捨，不只寫成果</strong>——高階面試很喜歡問「當時有沒有別的選項，你為什麼選這個」。履歷上若能帶到一句取捨背景，會比純數字更有說服力</li>
+      <li><strong>寫取捨，不只寫成果</strong>，高階面試很喜歡問「當時有沒有別的選項，你為什麼選這個」。履歷上若能帶到一句取捨背景，會比純數字更有說服力</li>
       <li><strong>誠實處理失敗的經歷</strong>——做到這個層級，沒有人的職涯是全勝。收掉過一個產品線、砍過一個團隊，講得出從中學到什麼，反而比履歷完美無瑕更可信</li>
     </ul>
 
@@ -309,7 +320,7 @@ html{scroll-behavior:smooth}
     <ul>
       <li><strong>你怎麼看這個產業接下來三年</strong>——測的不是預測準不準，是你有沒有在思考位子以外的事</li>
       <li><strong>你上一次做的困難決定是什麼</strong>——測承擔。答不出來的人，通常是還沒真正當過決策者</li>
-      <li><strong>你會怎麼處理團隊裡表現不好但資深的人</strong>——測管理的實際手感，這題沒有標準答案，但迴避的人會被扣分</li>
+      <li><strong>你會怎麼處理團隊裡表現不好但資深的人</strong>，測管理的實際手感，這題沒有標準答案，但迴避的人會被扣分</li>
       <li><strong>你為什麼想離開現在的位子</strong>——測動機的真實性。講「想挑戰自己」這種答案，在這個層級會被認為沒有準備</li>
     </ul>
     <p>還有一個很多人沒意識到的：<strong>高階面試是雙向的，而且對方期待你問問題</strong>。一個候選人如果從頭到尾沒問公司的策略、團隊現況、這個職位為什麼空著，會被解讀成「他只是想找份工作」，而不是「他想解這個題」。</p>
@@ -317,7 +328,7 @@ html{scroll-behavior:smooth}
     <h2 id="sec-6">怎麼讓獵頭找得到你？</h2>
     <p>回到最開頭的問題。既然這些職缺不公開，那求職者實際能做的是什麼？四件事：</p>
     <ol>
-      <li><strong>讓專業身分在同業裡看得見</strong>——公開演講、產業社群、專業文章、LinkedIn 上寫得清楚的經歷。不必經營成網紅，但要讓「這個領域誰做得好」這個問題被問到時，有人想得起你</li>
+      <li><strong>讓專業身分在同業裡看得見</strong>，公開演講、產業社群、專業文章、LinkedIn 上寫得清楚的經歷。不必經營成網紅，但要讓「這個領域誰做得好」這個問題被問到時，有人想得起你</li>
       <li><strong>跟找過你的顧問保持關係，即使當下不換</strong>——這是最被低估的一點。多數高階媒合不是發生在第一次接觸，而是兩年後那位顧問手上剛好有更合適的案子時。<a href="/articles/headhunter-contacted-you/">獵頭找上你時該怎麼回應</a>這篇有更完整的說明</li>
       <li><strong>把成果隨手記下來</strong>——重大專案結束時花十分鐘寫下背景、你的決策與結果。等到要用履歷時再回想，細節都模糊了</li>
       <li><strong>先想清楚你要的是什麼</strong>——更大的舞台、更好的報酬、更短的通勤、還是更少的政治？機會來的時候通常只有幾天可以決定，事先沒想過的人多半會錯過或做錯選擇</li>
@@ -333,7 +344,7 @@ html{scroll-behavior:smooth}
     <h2 id="sec-7">常見問題</h2>
 <div><details>
         <summary><span>主動投履歷給獵頭有用嗎？</span><span class="faq-icon">+</span></summary>
-        <p>有用，但作用跟多數人想的不同。主動投遞不會讓顧問「立刻幫你找工作」，而是讓你進入他的名單，等到相符的委任出現時被想起來。所以重點不在投得多，而在投得準——找專做你所在產業或職能的顧問，附上具體的成果與你想要的方向，比群發履歷有效得多。</p>
+        <p>有用，但作用跟多數人想的不同。主動投遞不會讓顧問「立刻幫你找工作」，而是讓你進入他的名單，等到相符的委任出現時被想起來。所以重點不在投得多，而在投得準，找專做你所在產業或職能的顧問，附上具體的成果與你想要的方向，比群發履歷有效得多。</p>
       </details><details>
         <summary><span>找獵頭要付費嗎？</span><span class="faq-icon">+</span></summary>
         <p>合法的獵頭服務對求職者完全免費，費用由委任的企業支付。若有任何單位以「保證媒合」「優先推薦」「資料建檔」等名義向求職者收費，應提高警覺——這在台灣的就業服務規範下是有問題的。</p>
@@ -342,7 +353,7 @@ html{scroll-behavior:smooth}
         <p>正規的高階獵才作業本來就以保密為前提。顧問在未取得你同意前不會將履歷送出，也不會向任何第三方揭露你的求職意向；背景查核（reference check）必須經你同意並由你指定聯絡對象，通常安排在最後階段。第一次接觸時就可以直接把保密要求說清楚，這是合理且常見的。</p>
       </details><details>
         <summary><span>年薪百萬的主管職一定要有名校或大公司背景嗎？</span><span class="faq-icon">+</span></summary>
-        <p>不一定，但背景會影響你被搜尋到的機率。大企業的經歷之所以有優勢，是因為決策者比較容易對位你經手的規模與制度成熟度。若你來自中小型企業，補償的方式是把規模數字與實際成果寫清楚——「從零建立三十人團隊」在很多情境下比「在千人組織裡管十人」更有說服力。</p>
+        <p>不一定，但背景會影響你被搜尋到的機率。大企業的經歷之所以有優勢，是因為決策者比較容易對位你經手的規模與制度成熟度。若你來自中小型企業，補償的方式是把規模數字與實際成果寫清楚，「從零建立三十人團隊」在很多情境下比「在千人組織裡管十人」更有說服力。</p>
       </details><details>
         <summary><span>薪資期待該在什麼時候講？</span><span class="faq-icon">+</span></summary>
         <p>建議在第一次跟顧問談的時候就給出區間，而不是拖到最後。高階職缺的預算通常在委任時就已經定好，早點對齊可以避免雙方走完五輪面試才發現差距太大。給區間時一併說明目前的組成（本薪、獎金、股票、其他），讓對方能拿同樣的基礎來比較。</p>
@@ -360,7 +371,8 @@ html{scroll-behavior:smooth}
 
       
 <div class="cta">
-        <p>看完還是不確定下一步？加入 LINE 直接問顧問，或看目前開放中的職缺。</p>
+        <p>想被這類不公開的機會找到，把履歷交給顧問建檔，有適合的會直接聯繫你。</p>
+          <a class="btn-alt" href="/jobs/">或先看公開職缺</a>
         <a class="btn-line" href="https://lin.ee/XcSWPzM">用 LINE 問顧問</a>
       </div>
     </article>

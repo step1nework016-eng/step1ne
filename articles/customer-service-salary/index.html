@@ -101,6 +101,10 @@ p{margin:0}
 .hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
 .hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
 /* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
 #bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
 
 .shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
@@ -166,6 +170,8 @@ article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid 
 
 .foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
 .cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
 .cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
 footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
 .fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
@@ -200,7 +206,12 @@ html{scroll-behavior:smooth}
       <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a class="on" href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
     </nav>
     <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
-    <button class="hd-burger" type="button" aria-label="開啟選單"><span></span></button>
+    <button class="hd-burger" type="button" aria-label="開啟選單" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINE 洽詢</a>
   </div>
 </header>
 
@@ -235,7 +246,7 @@ html{scroll-behavior:smooth}
 
       <div class="ans">
         <div class="lab">直接答案</div>
-        <p>台灣客服平均月薪約 33,000 元，但差距主要來自<strong>產業</strong>而非班別——金融保險客服中位數可達 39,700 元、科技與半導體客服約 35,000 元起，一般消費服務業則落在 28,000–33,000 元。班別津貼、季獎金與遠距與否會再影響實拿數千元。想在客服加薪，換產業的效益通常大於換班別。</p>
+        <p>台灣客服平均月薪約 33,000 元，但差距主要來自<strong>產業</strong>而非班別，金融保險客服中位數可達 39,700 元、科技與半導體客服約 35,000 元起，一般消費服務業則落在 28,000–33,000 元。班別津貼、季獎金與遠距與否會再影響實拿數千元。想在客服加薪，換產業的效益通常大於換班別。</p>
       </div>
 
       <h2 id="sec-1">先看市場行情：客服的薪水差距，主要來自產業</h2>
@@ -256,7 +267,7 @@ html{scroll-behavior:smooth}
     <div class="insight">
       <div class="label">獵頭觀察</div>
       <p>很多人想加薪的方式是「找有夜班津貼的缺」，但實際上<strong>換產業的效益遠大於換班別</strong>。夜班津貼一個月可能多兩三千，但從一般消費客服跳到金融或科技客服，落差可以到五千甚至一萬。</p>
-      <p>而且這個跳轉沒有想像中難——多數企業要的是「服務經驗＋抗壓性＋溝通能力」，產業知識可以訓練。真正卡住人的往往不是能力，是沒有意識到自己可以往上跳。</p>
+      <p>而且這個跳轉沒有想像中難，多數企業要的是「服務經驗＋抗壓性＋溝通能力」，產業知識可以訓練。真正卡住人的往往不是能力，是沒有意識到自己可以往上跳。</p>
     </div>
 
     <h2 id="sec-2">底薪之外，這四項才決定實拿</h2>
@@ -286,7 +297,7 @@ html{scroll-behavior:smooth}
         </tbody>
       </table>
     </div>
-    <p>選班別不要只看津貼。<strong>能不能長期維持</strong>才是關鍵——為了多三千塊上大夜，撐三個月就離職，對履歷跟身體都是損失。</p>
+    <p>選班別不要只看津貼。<strong>能不能長期維持</strong>才是關鍵，為了多三千塊上大夜，撐三個月就離職，對履歷跟身體都是損失。</p>
 
     <div class="insight">
       <div class="label">獵頭觀察</div>
@@ -297,9 +308,9 @@ html{scroll-behavior:smooth}
     <h2 id="sec-4">怎麼在客服職涯往上走？</h2>
     <p>客服不是只能一直接線。常見的往上路徑有三條：</p>
     <ul>
-      <li><strong>往專業縱深</strong>——從一般客服轉金融、技術支援等需要專業知識的領域，薪資天花板明顯較高</li>
-      <li><strong>往管理走</strong>——資深客服 → 帶班／組長 → 客服主管，管理職的薪資結構跟第一線不同</li>
-      <li><strong>橫向轉職</strong>——客服累積的溝通、流程與客訴處理經驗，可轉往業務、產品營運、客戶成功（CS/CSM）等職務</li>
+      <li><strong>往專業縱深</strong>，從一般客服轉金融、技術支援等需要專業知識的領域，薪資天花板明顯較高</li>
+      <li><strong>往管理走</strong>，資深客服 → 帶班／組長 → 客服主管，管理職的薪資結構跟第一線不同</li>
+      <li><strong>橫向轉職</strong>，客服累積的溝通、流程與客訴處理經驗，可轉往業務、產品營運、客戶成功（CS/CSM）等職務</li>
     </ul>
     <p>要往哪條走，第一份工作的選擇就有影響：進到有明確分級與訓練制度的客服中心，比進到什麼都要做的小型團隊，職涯累積會清楚很多。</p>
 
@@ -312,7 +323,7 @@ html{scroll-behavior:smooth}
         <p>可以。多數客服中心提供教育訓練，入門職缺看重的是打字速度、口語表達、抗壓性與服務熱忱，而非既有經驗。不過有電話客服經驗者在薪資談判上會有優勢——實務上常見「有電話經驗可談到區間上緣」的做法。</p>
       </details><details>
         <summary><span>大夜班的津貼值得嗎？</span><span class="faq-icon">+</span></summary>
-        <p>純以收入看，夜班津貼確實能拉高實拿。但要誠實評估自己能否長期適應日夜顛倒——為了多幾千元上大夜、三個月後離職，對履歷與健康都不划算。建議先確認津貼實際金額與班表輪替方式再決定。</p>
+        <p>純以收入看，夜班津貼確實能拉高實拿。但要誠實評估自己能否長期適應日夜顛倒，為了多幾千元上大夜、三個月後離職，對履歷與健康都不划算。建議先確認津貼實際金額與班表輪替方式再決定。</p>
       </details><details>
         <summary><span>遠距客服薪水比較低，值得選嗎？</span><span class="faq-icon">+</span></summary>
         <p>要看你的通勤成本。實務上遠距職缺薪資常略低於到班（常見差距約 1,500 元），但若你原本單趟通勤一小時、月交通費兩千以上，遠距在時間與金錢上其實划算。反之若住得近，到班可能更好。</p>
@@ -330,7 +341,8 @@ html{scroll-behavior:smooth}
 
       
 <div class="cta">
-        <p>看完還是不確定下一步？加入 LINE 直接問顧問，或看目前開放中的職缺。</p>
+        <p>想知道自己的班別與津貼結構合不合理，加入 LINE 直接問顧問。</p>
+          <a class="btn-alt" href="/jobs/">看目前開放的客服職缺</a>
         <a class="btn-line" href="https://lin.ee/XcSWPzM">用 LINE 問顧問</a>
       </div>
     </article>

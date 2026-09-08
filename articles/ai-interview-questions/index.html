@@ -92,6 +92,10 @@ p{margin:0}
 .hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
 .hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
 /* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
 #bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
 
 .shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
@@ -157,6 +161,8 @@ article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid 
 
 .foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
 .cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
 .cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
 footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
 .fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
@@ -191,7 +197,12 @@ html{scroll-behavior:smooth}
       <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a class="on" href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
     </nav>
     <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
-    <button class="hd-burger" type="button" aria-label="開啟選單"><span></span></button>
+    <button class="hd-burger" type="button" aria-label="開啟選單" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINE 洽詢</a>
   </div>
 </header>
 
@@ -231,7 +242,7 @@ html{scroll-behavior:smooth}
     <p>整場面談會先花點時間核對基本資訊、說明大概要聊多久，接著問題都是針對你履歷上寫的經歷跟這個職缺本身，不是隨機通用題庫。如果職缺有外派、進駐特定地點這類硬性條件，通常不會留到最後才問，你不用擔心快聊完了才被丟一個措手不及的問題。你自己提到的經驗細節，阿財也會順著多問一句，不會你講了什麼卻直接被無視跳下一題。聊到最後會說明逐字稿交給誰看、多久有回覆、想找真人顧問怎麼聯繫，這些收尾資訊都會講清楚。</p>
 
     <h2 id="sec-2">示範對話：阿財怎麼順著你提到的細節追問</h2>
-    <p>以下是虛構的示範對話，用來說明阿財的追問邏輯，<strong>不是真實面談的逐字稿</strong>——假設一位應徵客服主管的求職者，在回答工作經驗時順口提到一段相關經歷：</p>
+    <p>以下是虛構的示範對話，用來說明阿財的追問邏輯，<strong>不是真實面談的逐字稿</strong>，假設一位應徵客服主管的求職者，在回答工作經驗時順口提到一段相關經歷：</p>
     <div class="demo">
       <div class="demo-tag">示範情境・非真實面談紀錄</div>
       <div class="demo-body">
@@ -260,7 +271,7 @@ html{scroll-behavior:smooth}
 
     <div class="insight">
       <div class="label">獵頭觀察</div>
-      <p>把兩層拆開來看反而更清楚：<strong>結構化的部分交給阿財做，能做到每一位候選人的第一輪紀錄都一致、可以互相比較</strong>；需要臨場判斷、需要根據當下反應調整話術的部分，還是顧問在做，而且做得更深入——因為顧問不用再花時間問「你之前做過什麼」，一開始就能從逐字稿裡已經確認過的地方往下談。這不是「AI 比顧問厲害」，是把兩種擅長的事分開做。</p>
+      <p>把兩層拆開來看反而更清楚：<strong>結構化的部分交給阿財做，能做到每一位候選人的第一輪紀錄都一致、可以互相比較</strong>；需要臨場判斷、需要根據當下反應調整話術的部分，還是顧問在做，而且做得更深入，因為顧問不用再花時間問「你之前做過什麼」，一開始就能從逐字稿裡已經確認過的地方往下談。這不是「AI 比顧問厲害」，是把兩種擅長的事分開做。</p>
     </div>
 
     <h2 id="sec-4">常見問題</h2>
@@ -290,7 +301,8 @@ html{scroll-behavior:smooth}
 
       
 <div class="cta">
-        <p>看完還是不確定下一步？加入 LINE 直接問顧問，或看目前開放中的職缺。</p>
+        <p>好奇實際會被問什麼？談一次就知道，逐字稿最後還是會有真人顧問看過。</p>
+          <a class="btn-alt" href="/jobs/">找一個職缺開始</a>
         <a class="btn-line" href="https://lin.ee/XcSWPzM">用 LINE 問顧問</a>
       </div>
     </article>

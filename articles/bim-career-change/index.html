@@ -100,6 +100,10 @@ p{margin:0}
 .hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
 .hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
 /* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
 #bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
 
 .shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
@@ -165,6 +169,8 @@ article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid 
 
 .foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
 .cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
 .cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
 footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
 .fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
@@ -199,7 +205,12 @@ html{scroll-behavior:smooth}
       <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a class="on" href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
     </nav>
     <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
-    <button class="hd-burger" type="button" aria-label="開啟選單"><span></span></button>
+    <button class="hd-burger" type="button" aria-label="開啟選單" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINE 洽詢</a>
   </div>
 </header>
 
@@ -241,19 +252,19 @@ html{scroll-behavior:smooth}
 
       <h2 id="sec-1">為什麼 BIM 願意收非本科？</h2>
     <p>（還不清楚 BIM 工程師實際在做什麼？可先看 <a href="/articles/what-is-bim-engineer/">BIM 工程師是什麼？跟繪圖員差在哪？</a>）</p>
-    <p>這不是佛心，是供需問題。BIM（建築資訊模型）在台灣真正大量導入是近幾年的事——公共工程與科技廠建廠陸續要求 BIM 交付，但學校端的人才培育跟不上這個速度，形成「需求先到、人才後補」的缺口。</p>
-    <p>結果是：企業與其枯等本科生，不如自己訓練。尤其是<strong>大型建廠專案</strong>這類需要一次補進大量人力的案子，幾乎都會開出「科系不限、提供訓練」的職缺——因為在人力市場上，同時要求本科又要有經驗的人選根本湊不到數量。</p>
+    <p>這不是佛心，是供需問題。BIM（建築資訊模型）在台灣真正大量導入是近幾年的事，公共工程與科技廠建廠陸續要求 BIM 交付，但學校端的人才培育跟不上這個速度，形成「需求先到、人才後補」的缺口。</p>
+    <p>結果是：企業與其枯等本科生，不如自己訓練。尤其是<strong>大型建廠專案</strong>這類需要一次補進大量人力的案子，幾乎都會開出「科系不限、提供訓練」的職缺，因為在人力市場上，同時要求本科又要有經驗的人選根本湊不到數量。</p>
 
     <div class="insight">
       <div class="label">獵頭觀察</div>
-      <p>我們實際接觸的用人主管，對非本科的態度通常比求職者想像的開放很多。真正會被追問的不是「你為什麼不是土木系」，而是<strong>「你為什麼想做這個，打算做多久」</strong>——因為訓練一個新人的成本很高，主管最怕的是教會了、人走了。</p>
+      <p>我們實際接觸的用人主管，對非本科的態度通常比求職者想像的開放很多。真正會被追問的不是「你為什麼不是土木系」，而是<strong>「你為什麼想做這個，打算做多久」</strong>，因為訓練一個新人的成本很高，主管最怕的是教會了、人走了。</p>
       <p>換句話說，非本科的劣勢在履歷關（沒有關鍵字讓 HR 一眼認出你），到了面試關反而是可以扭轉的。難的是怎麼進到面試那一關。</p>
     </div>
 
     <h2 id="sec-2">企業實際在看的三件事</h2>
 
     <h3>1. Revit 能不能實際做出東西</h3>
-    <p>這是唯一沒得談的硬門檻。BIM 工作的核心就是用 Revit 等軟體把設計做成模型，不會操作等於無法上工。但要求的程度沒有想像中高——入門職位要的是「能照著規範把構件建出來」，不是「精通所有進階功能」。</p>
+    <p>這是唯一沒得談的硬門檻。BIM 工作的核心就是用 Revit 等軟體把設計做成模型，不會操作等於無法上工。但要求的程度沒有想像中高，入門職位要的是「能照著規範把構件建出來」，不是「精通所有進階功能」。</p>
 
     <h3>2. 看不看得懂圖</h3>
     <p>建模的來源是設計圖。看不懂平面圖、剖面圖、機電系統圖，就沒辦法把二維圖面轉成三維模型。這一項本科生確實有優勢，但也是最容易靠短期補足的——市面上的 BIM 課程通常會一起教。</p>
@@ -293,7 +304,7 @@ html{scroll-behavior:smooth}
         </tbody>
       </table>
     </div>
-    <p>如果你符合政府補助資格且時間允許，<strong>兩條路併行是最務實的做法</strong>——一邊上課補軟體能力，一邊留意有訓練機制的職缺，錄取了就直接進場。</p>
+    <p>如果你符合政府補助資格且時間允許，<strong>兩條路併行是最務實的做法</strong>，一邊上課補軟體能力，一邊留意有訓練機制的職缺，錄取了就直接進場。</p>
 
     <div class="callout">
       <h3>29 歲以下：政府補助可以先用</h3>
@@ -304,10 +315,10 @@ html{scroll-behavior:smooth}
     <ol>
       <li><strong>沒有任何可驗證的作品</strong>——只寫「熟悉 Revit」，沒有任何模型或專案佐證。HR 無法判斷程度，最省事的做法就是跳過</li>
       <li><strong>沒有解釋為什麼要轉</strong>——用人主管怕的是「試試看」心態。轉職動機寫得清楚具體，比多修一門課有用</li>
-      <li><strong>沒有處理「現場」這個疑慮</strong>——如果你過去的工作都在辦公室，主管會擔心你受不了廠區或工地。履歷或面試時主動說明你理解且能配合，這個疑慮就消失了</li>
+      <li><strong>沒有處理「現場」這個疑慮</strong>，如果你過去的工作都在辦公室，主管會擔心你受不了廠區或工地。履歷或面試時主動說明你理解且能配合，這個疑慮就消失了</li>
     </ol>
 
-    <aside data-exp="cta-mid-2026-08-28"><p>STEP1NE 現正招募</p><h3>這個缺現在開著：無經驗可，正職僱用</h3><p>AI 記憶體產業擴產案（苗栗銅鑼），<strong>正職僱用</strong>（不是派遣、不是約聘），優先招募 10 名。月薪 <strong>4 萬以上，實際待遇面議</strong>（依學歷與科系相關性核定）。大學以上不限科系，<strong>無經驗可</strong>——公司安排完整培訓，先到桃園楊梅受訓 1 週，進駐銅鑼廠區後有設計 PM 與設計工程師組成的團隊帶到可獨立作業。不提供宿舍，但有租屋補助每月 5,000 元；作息固定 08:30–17:30，週休二日不輪班。這波 AI 需求正在帶動記憶體產業擴產，及早累積這段實戰經驗，是可以放進長遠職涯規劃裡的資產。想先問清楚再決定也可以，不用先投履歷。</p><div><a href="/apply/?job=bim-engineer-tongluo&amp;utm_source=website&amp;utm_medium=article_cta&amp;utm_campaign=mid-bim" data-cta="mid-bim">直接應徵 BIM 工程師</a><a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-bim">加 LINE 先問清楚</a></div></aside><h2 id="sec-6">常見問題</h2>
+    <aside data-exp="cta-mid-2026-08-28"><p>STEP1NE 現正招募</p><h3>這個缺現在開著：無經驗可，正職僱用</h3><p>AI 記憶體產業擴產案（苗栗銅鑼），<strong>正職僱用</strong>（不是派遣、不是約聘），優先招募 10 名。月薪 <strong>4 萬以上，實際待遇面議</strong>（依學歷與科系相關性核定）。大學以上不限科系，<strong>無經驗可</strong>，公司安排完整培訓，先到桃園楊梅受訓 1 週，進駐銅鑼廠區後有設計 PM 與設計工程師組成的團隊帶到可獨立作業。不提供宿舍，但有租屋補助每月 5,000 元；作息固定 08:30–17:30，週休二日不輪班。這波 AI 需求正在帶動記憶體產業擴產，及早累積這段實戰經驗，是可以放進長遠職涯規劃裡的資產。想先問清楚再決定也可以，不用先投履歷。</p><div><a href="/apply/?job=bim-engineer-tongluo&amp;utm_source=website&amp;utm_medium=article_cta&amp;utm_campaign=mid-bim" data-cta="mid-bim">直接應徵 BIM 工程師</a><a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-bim">加 LINE 先問清楚</a></div></aside><h2 id="sec-6">常見問題</h2>
     <div>
       <details>
         <summary>
@@ -344,7 +355,8 @@ html{scroll-behavior:smooth}
 
       
 <div class="cta">
-        <p>看完還是不確定下一步？加入 LINE 直接問顧問，或看目前開放中的職缺。</p>
+        <p>想從無經驗入行，目前有正職且含培訓的 BIM 職缺開放中。</p>
+          <a class="btn-alt" href="/jobs/bim-engineer-tongluo/">看 BIM 工程師職缺（無經驗可）</a>
         <a class="btn-line" href="https://lin.ee/XcSWPzM">用 LINE 問顧問</a>
       </div>
     </article>

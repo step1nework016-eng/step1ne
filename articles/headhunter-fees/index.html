@@ -107,6 +107,10 @@ p{margin:0}
 .hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
 .hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
 /* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
 #bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
 
 .shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
@@ -172,6 +176,8 @@ article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid 
 
 .foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
 .cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
 .cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
 footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
 .fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
@@ -206,7 +212,12 @@ html{scroll-behavior:smooth}
       <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a class="on" href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
     </nav>
     <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
-    <button class="hd-burger" type="button" aria-label="開啟選單"><span></span></button>
+    <button class="hd-burger" type="button" aria-label="開啟選單" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINE 洽詢</a>
   </div>
 </header>
 
@@ -275,7 +286,7 @@ html{scroll-behavior:smooth}
 
     <div class="insight">
       <div class="label">獵頭觀察</div>
-      <p>幾乎所有企業談費率時都在殺那個百分比，但<strong>百分比通常是最沒有彈性的一項</strong>——那是市場行情，殺太多獵頭就不投入資源，最後你拿到的是別人挑剩的人選。</p>
+      <p>幾乎所有企業談費率時都在殺那個百分比，但<strong>百分比通常是最沒有彈性的一項</strong>，那是市場行情，殺太多獵頭就不投入資源，最後你拿到的是別人挑剩的人選。</p>
       <p>真正好談、而且對你更有價值的是另外三件事：<strong>保固期拉長、付款分期綁到職穩定度、以及承諾送件節奏</strong>。例如「保固從 90 天延長到 120 天」對獵頭的成本壓力不大，但對企業實質保障多很多。把談判力氣花在這裡，比殺 3% 划算。</p>
     </div>
 
@@ -283,7 +294,7 @@ html{scroll-behavior:smooth}
     <p>不要只比費率數字，用這三個角度回推：</p>
     <ul>
       <li><strong>換算成「每個到職者的總成本」</strong>——把服務費、內部面試時間、職缺空窗的營運損失一起算。空一個關鍵職位三個月的成本，往往遠高於費率差的那幾個百分點</li>
-      <li><strong>看送件品質而不是送件數量</strong>——送 20 份履歷讓你自己篩，跟送 5 份都值得面試，後者省下的是你主管的時間</li>
+      <li><strong>看送件品質而不是送件數量</strong>，送 20 份履歷讓你自己篩，跟送 5 份都值得面試，後者省下的是你主管的時間</li>
       <li><strong>問清楚「誰負責執行」</strong>——同樣費率下，資深顧問親自做跟交給新人做，結果差很多</li>
     </ul>
 
@@ -296,7 +307,7 @@ html{scroll-behavior:smooth}
     </ul>
     <p>獵頭真正划算的場景是：職位機密不能公開、需要稀有技能組合、急需短時間補齊大量人力，或自行招募多次失敗——這些情況下，你買的是「主動接觸沒在看職缺的人」的能力。</p>
 
-    <aside data-exp="cta-mid-2026-08-06"><p>企業方請看這裡</p><h3>你手上的缺，我們可以先報一個實際的數字給你</h3><p>把職稱、薪資帶、卡多久了講一下，我們會直接回覆這個缺大概要多少費用、多久找得到人，以及——如果我們認為這個缺根本不該用獵頭，也會直接跟你講。報價不用錢，也不用先簽任何東西。</p><div><a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-client">加 LINE 談委託找人</a></div></aside><h2 id="sec-5">常見問題</h2>
+    <aside data-exp="cta-mid-2026-08-06"><p>企業方請看這裡</p><h3>你手上的缺，我們可以先報一個實際的數字給你</h3><p>想知道你這個缺大概要多少費用？把職稱、薪資帶與卡多久了講一下，我們會直接回覆費率與付款時點。如果我們認為這個缺根本不該用獵頭，也會直說。報價不用錢。</p><div><a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-client">加 LINE 談委託找人</a></div></aside><h2 id="sec-5">常見問題</h2>
 <div><details>
         <summary><span>獵頭費用可以殺價嗎？</span><span class="faq-icon">+</span></summary>
         <p>百分比本身彈性有限，因為那是市場行情，壓太低獵頭投入的資源也會跟著降低，最後影響的是送件品質。比較有效的談法是調整其他條件：延長保固期、把付款拆成到職後分期、約定明確的送件時程與數量。這些對企業的實質保障往往大於省下的幾個百分點。</p>
@@ -323,7 +334,8 @@ html{scroll-behavior:smooth}
 
       
 <div class="cta">
-        <p>看完還是不確定下一步？加入 LINE 直接問顧問，或看目前開放中的職缺。</p>
+        <p>想知道你這個缺大概要多少費用、多久找得到人？把職稱、薪資帶與卡多久了講一下，報價不用錢，也不用先簽任何東西。</p>
+          <a class="btn-alt" href="/hiring-assessment/">先做招募形式評估</a>
         <a class="btn-line" href="https://lin.ee/XcSWPzM">用 LINE 問顧問</a>
       </div>
     </article>

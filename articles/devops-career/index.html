@@ -101,6 +101,10 @@ p{margin:0}
 .hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
 .hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
 /* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
 #bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
 
 .shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
@@ -166,6 +170,8 @@ article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid 
 
 .foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
 .cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
 .cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
 footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
 .fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
@@ -200,7 +206,12 @@ html{scroll-behavior:smooth}
       <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a class="on" href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
     </nav>
     <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
-    <button class="hd-burger" type="button" aria-label="開啟選單"><span></span></button>
+    <button class="hd-burger" type="button" aria-label="開啟選單" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINE 洽詢</a>
   </div>
 </header>
 
@@ -237,7 +248,7 @@ html{scroll-behavior:smooth}
 
       <div class="ans">
         <div class="lab">直接答案</div>
-        <p>維運不是開發的次等選項，但職涯天花板確實差很多——關鍵在於你是<strong>「處理事件的人」還是「設計系統讓事件不發生的人」</strong>。純處理告警的維運會被壓在較低薪資帶；具備自動化、雲端架構與可靠度工程能力的，市場價值與資深開發相當甚至更高。看到「維運工程師」這個職稱時，要從 JD 裡有沒有自動化、CI/CD、IaC 這些字判斷屬於哪一種。</p>
+        <p>維運不是開發的次等選項，但職涯天花板確實差很多，關鍵在於你是<strong>「處理事件的人」還是「設計系統讓事件不發生的人」</strong>。純處理告警的維運會被壓在較低薪資帶；具備自動化、雲端架構與可靠度工程能力的，市場價值與資深開發相當甚至更高。看到「維運工程師」這個職稱時，要從 JD 裡有沒有自動化、CI/CD、IaC 這些字判斷屬於哪一種。</p>
       </div>
 
       <h2 id="sec-1">維運不是「開發做不好才去做的」</h2>
@@ -256,7 +267,7 @@ html{scroll-behavior:smooth}
         </tbody>
       </table>
     </div>
-    <p>這四種常常混在同一個職稱底下。看到「維運工程師」時，光看標題判斷不出屬於哪一種——要看 JD 裡有沒有出現自動化、IaC、CI/CD 這些關鍵字。</p>
+    <p>這四種常常混在同一個職稱底下。看到「維運工程師」時，光看標題判斷不出屬於哪一種，要看 JD 裡有沒有出現自動化、IaC、CI/CD 這些關鍵字。</p>
 
     <div class="insight">
       <div class="label">獵頭觀察</div>
@@ -273,14 +284,14 @@ html{scroll-behavior:smooth}
       <li><strong>補償方式</strong>——有沒有待命津貼？被叫起來處理的時間怎麼算加班？隔天可否補休？</li>
       <li><strong>升級機制</strong>——半夜遇到自己解不了的問題，找得到人嗎？沒有後援的 on-call 壓力會大很多</li>
     </ol>
-    <p>on-call 本身不是壞事——有 on-call 通常代表這個系統是重要的，而重要系統的經驗有價值。問題出在<strong>頻率不合理又沒有相應補償</strong>。</p>
+    <p>on-call 本身不是壞事，有 on-call 通常代表這個系統是重要的，而重要系統的經驗有價值。問題出在<strong>頻率不合理又沒有相應補償</strong>。</p>
 
     <h2 id="sec-4">怎麼從維運往上走？</h2>
     <p>三條實際可行的路徑：</p>
     <ul>
-      <li><strong>往雲端與自動化深化</strong>——把重複性工作腳本化、學 IaC 與容器編排，往雲端維運或 SRE 走。這是目前市場需求最強的方向</li>
-      <li><strong>往開發轉</strong>——維運支援類的職缺本來就會接觸程式碼與 CI/CD，累積後轉開發並不罕見，而且懂維運的開發者在系統設計上更務實</li>
-      <li><strong>往架構或管理走</strong>——維運看過最多系統壞掉的方式，這是設計架構時很稀有的直覺</li>
+      <li><strong>往雲端與自動化深化</strong>，把重複性工作腳本化、學 IaC 與容器編排，往雲端維運或 SRE 走。這是目前市場需求最強的方向</li>
+      <li><strong>往開發轉</strong>，維運支援類的職缺本來就會接觸程式碼與 CI/CD，累積後轉開發並不罕見，而且懂維運的開發者在系統設計上更務實</li>
+      <li><strong>往架構或管理走</strong>，維運看過最多系統壞掉的方式，這是設計架構時很稀有的直覺</li>
     </ul>
     <p>共通的關鍵是：<strong>累積「你做了什麼改善」而不是「你處理了多少事件」</strong>。履歷上寫「維護 200 台伺服器」不如寫「將部署流程自動化，發版時間從 2 小時縮短到 15 分鐘」。</p>
 
@@ -288,8 +299,8 @@ html{scroll-behavior:smooth}
     <p>從實際的用人回饋看，維運職缺的面試重點跟開發不太一樣：</p>
     <ul>
       <li><strong>故障排除的思路</strong>——會被問「系統變慢你怎麼查」。重點不是講出正確答案，是講得出有系統的排查順序</li>
-      <li><strong>對風險的敏感度</strong>——例如問到要不要在下班前上線，答案本身不重要，但要看得出你有在評估風險</li>
-      <li><strong>溝通能力</strong>——維運要跟開發、資安、PM 甚至客戶協調，只會技術但講不清楚狀況的人很難勝任</li>
+      <li><strong>對風險的敏感度</strong>，例如問到要不要在下班前上線，答案本身不重要，但要看得出你有在評估風險</li>
+      <li><strong>溝通能力</strong>，維運要跟開發、資安、PM 甚至客戶協調，只會技術但講不清楚狀況的人很難勝任</li>
       <li><strong>學習意願</strong>——雲端與工具變化快，主管會想確認你有沒有持續更新的習慣</li>
     </ul>
 
@@ -320,7 +331,8 @@ html{scroll-behavior:smooth}
 
       
 <div class="cta">
-        <p>看完還是不確定下一步？加入 LINE 直接問顧問，或看目前開放中的職缺。</p>
+        <p>想從維運往上走，或想換一個 on-call 條件合理的環境？加入 LINE 聊聊。</p>
+          <a class="btn-alt" href="/jobs/">看目前開放的技術職缺</a>
         <a class="btn-line" href="https://lin.ee/XcSWPzM">用 LINE 問顧問</a>
       </div>
     </article>

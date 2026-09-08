@@ -96,6 +96,10 @@ p{margin:0}
 .hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
 .hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
 /* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
 #bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
 
 .shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
@@ -161,6 +165,8 @@ article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid 
 
 .foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
 .cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
 .cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
 footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
 .fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
@@ -195,7 +201,12 @@ html{scroll-behavior:smooth}
       <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a class="on" href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
     </nav>
     <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
-    <button class="hd-burger" type="button" aria-label="開啟選單"><span></span></button>
+    <button class="hd-burger" type="button" aria-label="開啟選單" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINE 洽詢</a>
   </div>
 </header>
 
@@ -242,7 +253,7 @@ html{scroll-behavior:smooth}
       <li>其中<strong>基層勞工空缺 32,525 人</strong>，占整體缺口逾 <strong>70%</strong>，是缺口的主要來源</li>
       <li>拆開看，普通工空缺約 <strong>9,917 人</strong>，技術工空缺約 <strong>2.2 萬人</strong></li>
       <li>地區分布：中部地區 10,248 人最多，北部地區 9,977 人居次，南部地區 8,082 人再次之</li>
-      <li>移工雇用情況：<strong>92.7% 的營造業企業沒有雇用移工</strong>，僱用比例隨企業規模上升——300 人以上企業雇用移工比例達 81.6%，是所有規模區間裡最高的</li>
+      <li>移工雇用情況：<strong>92.7% 的營造業企業沒有雇用移工</strong>，僱用比例隨企業規模上升，300 人以上企業雇用移工比例達 81.6%，是所有規模區間裡最高的</li>
     </ul>
     <p class="note">資料來源：內政部國土署「營造業經濟概況」調查，經<a href="https://www.ctee.com.tw/news/20260803700087-439901" target="_blank" rel="noopener">工商時報 2026 年 8 月 3 日</a>報導引用。缺工統計方法與樣本仍以官方公告為準，本文僅整理轉述，不另行推算。</p>
 
@@ -251,17 +262,17 @@ html{scroll-behavior:smooth}
     <p class="note">資料來源：<a href="https://www.ly.gov.tw/Pages/Detail.aspx?nodeid=6590&pid=230956" target="_blank" rel="noopener">立法院「營造業缺工問題研析」</a>，撰成日期 2023 年 8 月。此為結構性成因的背景說明，非最新缺工數字，實際缺口請以上一節 2026 年數據為準。</p>
 
     <h2 id="sec-3">BIM工程師為什麼不在這個缺口裡，卻同樣搶手</h2>
-    <p>看到上面的統計，容易誤會「整個營造業都缺人，找什麼職缺都好找」。但缺口的組成很明確——它算的是<strong>現場基層勞動力</strong>（普通工、技術工），不是辦公室裡做規劃、建模、協調的技術與管理職能。BIM 工程師屬於後者，不會出現在「基層勞工空缺」這個統計項目裡。</p>
+    <p>看到上面的統計，容易誤會「整個營造業都缺人，找什麼職缺都好找」。但缺口的組成很明確，它算的是<strong>現場基層勞動力</strong>（普通工、技術工），不是辦公室裡做規劃、建模、協調的技術與管理職能。BIM 工程師屬於後者，不會出現在「基層勞工空缺」這個統計項目裡。</p>
     <p>可是我們實際接觸的用人企業，對 BIM 職缺的搶人程度並不比現場人力低，甚至部分職缺開出「科系不限、公司提供訓練」這種條件（詳見 <a href="/articles/bim-career-change/">沒有相關科系，可以轉職 BIM 工程師嗎？</a>）——這通常是供需失衡的直接反映，不是企業佛心。原因有兩個：</p>
     <ul>
-      <li><strong>半導體與 AI 相關產業建廠潮同時拉動兩種人力需求。</strong>這幾年密集動工的科技廠案，既需要現場基層人力把建案蓋出來，也需要 BIM 團隊把跨專業的機電、結構、建築模型整合起來——兩種需求同時爆量，但學校端每年培育的 BIM 相關人才數量跟不上</li>
-      <li><strong>部分建商把 BIM 當成降低對現場人力依賴的工具，結果反而拉高了對 BIM 人力的需求。</strong>公開報導中，興富發建設在 2022 年投入約新台幣 5 億元、歷時十年建置逾百人規模的 BIM 團隊，把建造流程先在電腦裡跑過一遍，目標是降低人工需求 2–3 成。這個邏輯在業界並不罕見：想用技術減少對基層勞力的依賴，前提是要先有足夠的 BIM 人力把這套流程建起來——等於把「找工人」的壓力，部分轉成了「找 BIM 工程師」的壓力</li>
+      <li><strong>半導體與 AI 相關產業建廠潮同時拉動兩種人力需求。</strong>這幾年密集動工的科技廠案，既需要現場基層人力把建案蓋出來，也需要 BIM 團隊把跨專業的機電、結構、建築模型整合起來，兩種需求同時爆量，但學校端每年培育的 BIM 相關人才數量跟不上</li>
+      <li><strong>部分建商把 BIM 當成降低對現場人力依賴的工具，結果反而拉高了對 BIM 人力的需求。</strong>公開報導中，興富發建設在 2022 年投入約新台幣 5 億元、歷時十年建置逾百人規模的 BIM 團隊，把建造流程先在電腦裡跑過一遍，目標是降低人工需求 2–3 成。這個邏輯在業界並不罕見：想用技術減少對基層勞力的依賴，前提是要先有足夠的 BIM 人力把這套流程建起來，等於把「找工人」的壓力，部分轉成了「找 BIM 工程師」的壓力</li>
     </ul>
     <p class="note">興富發案例資料來源：<a href="https://www.ctwant.com/article/176353/" target="_blank" rel="noopener">CTWANT，2022 年 4 月 5 日報導</a>。此為單一企業的公開案例，用來說明業界思路，非全產業普遍數據，且時間點距今已有數年，僅供參考。</p>
 
     <div class="insight">
       <div class="label">獵頭觀察</div>
-      <p>我們接觸到的營造與建設相關職缺裡，現場基層職缺與 BIM／技術職缺是兩種完全不同的難易度。現場基層職缺卡住的原因通常是<strong>意願問題</strong>——待遇與工作環境對本地勞動力吸引力不足；BIM 職缺卡住的原因通常是<strong>供給問題</strong>——想找的條件（會 Revit、能跨專業協調、願意配合現場）本身在市場上數量就不夠。兩種卡點需要的解法完全不同，用同一套「缺工」去理解，容易誤判。</p>
+      <p>我們接觸到的營造與建設相關職缺裡，現場基層職缺與 BIM／技術職缺是兩種完全不同的難易度。現場基層職缺卡住的原因通常是<strong>意願問題</strong>，待遇與工作環境對本地勞動力吸引力不足；BIM 職缺卡住的原因通常是<strong>供給問題</strong>，想找的條件（會 Revit、能跨專業協調、願意配合現場）本身在市場上數量就不夠。兩種卡點需要的解法完全不同，用同一套「缺工」去理解，容易誤判。</p>
     </div>
 
     <h2 id="sec-4">缺工與BIM搶手，怎麼同時成立</h2>
@@ -278,10 +289,10 @@ html{scroll-behavior:smooth}
     </div>
     <p>這兩件事不矛盾——它們是同一個產業裡，兩種性質完全不同的人力缺口。營造業整體缺工是真的，但如果因此推論「營建相關工作都不好找」，會漏看 BIM 這類技術轉型角色正在發生的另一種供需失衡。</p>
 
-    <aside data-exp="cta-mid-2026-09-03"><p>STEP1NE 現正招募</p><h3>這個缺現在開著：無經驗可，正職僱用</h3><p>AI 記憶體產業擴產案（苗栗銅鑼），<strong>正職僱用</strong>（不是派遣、不是約聘），優先招募 10 名。月薪 <strong>4 萬以上，實際待遇面議</strong>（依學歷與科系相關性核定）。大學以上不限科系，<strong>無經驗可</strong>——公司安排完整培訓，先到桃園楊梅受訓 1 週，進駐銅鑼廠區後有設計 PM 與設計工程師組成的團隊帶到可獨立作業。不提供宿舍，但有租屋補助每月 5,000 元；作息固定 08:30–17:30，週休二日不輪班。這正是本文談到的技術轉型缺口——企業願意自己訓練人，而不是等市場上剛好有現成的人選。想先問清楚再決定也可以，不用先投履歷。</p><div><a href="/apply/?job=bim-engineer-tongluo&amp;utm_source=website&amp;utm_medium=article_cta&amp;utm_campaign=mid-construction-shortage" data-cta="mid-construction-shortage">直接應徵 BIM 工程師</a><a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-construction-shortage">加 LINE 先問清楚</a></div></aside>
+    <aside data-exp="cta-mid-2026-09-03"><p>STEP1NE 現正招募</p><h3>這個缺現在開著：無經驗可，正職僱用</h3><p>AI 記憶體產業擴產案（苗栗銅鑼），<strong>正職僱用</strong>（不是派遣、不是約聘），優先招募 10 名。月薪 <strong>4 萬以上，實際待遇面議</strong>（依學歷與科系相關性核定）。大學以上不限科系，<strong>無經驗可</strong>，公司安排完整培訓，先到桃園楊梅受訓 1 週，進駐銅鑼廠區後有設計 PM 與設計工程師組成的團隊帶到可獨立作業。不提供宿舍，但有租屋補助每月 5,000 元；作息固定 08:30–17:30，週休二日不輪班。這正是本文談到的技術轉型缺口，企業願意自己訓練人，而不是等市場上剛好有現成的人選。想先問清楚再決定也可以，不用先投履歷。</p><div><a href="/apply/?job=bim-engineer-tongluo&amp;utm_source=website&amp;utm_medium=article_cta&amp;utm_campaign=mid-construction-shortage" data-cta="mid-construction-shortage">直接應徵 BIM 工程師</a><a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-construction-shortage">加 LINE 先問清楚</a></div></aside>
 
     <h2 id="sec-5">如果你在考慮往這個方向發展，這代表什麼</h2>
-    <p>供需失衡對求職者來說是中性的事實，不是保證。它代表企業目前更願意投入訓練成本、放寬科系限制去補這類角色的缺口，入行的門檻相對友善；但不代表薪水一定持續上漲，也不代表每個人都適合——現場配合度、學習意願、跨專業溝通能力仍是實際錄取的關鍵。想知道怎麼準備入行，可以看 <a href="/articles/bim-career-change/">沒有相關科系，可以轉職 BIM 工程師嗎？</a>；已經在做 BIM、想知道接下來的路怎麼走，可以看 <a href="/articles/bim-career-path/">BIM工程師做3年後可以往哪走？</a>。</p>
+    <p>供需失衡對求職者來說是中性的事實，不是保證。它代表企業目前更願意投入訓練成本、放寬科系限制去補這類角色的缺口，入行的門檻相對友善；但不代表薪水一定持續上漲，也不代表每個人都適合，現場配合度、學習意願、跨專業溝通能力仍是實際錄取的關鍵。想知道怎麼準備入行，可以看 <a href="/articles/bim-career-change/">沒有相關科系，可以轉職 BIM 工程師嗎？</a>；已經在做 BIM、想知道接下來的路怎麼走，可以看 <a href="/articles/bim-career-path/">BIM工程師做3年後可以往哪走？</a>。</p>
 
     <h2 id="sec-6">常見問題</h2>
     <div>
@@ -301,13 +312,13 @@ html{scroll-behavior:smooth}
         <summary>
           <span>缺工會不會讓 BIM 工程師的薪水一直漲？</span><span class="faq-icon">+</span>
         </summary>
-        <p>供需失衡確實對薪資有支撐力道，但不代表會無限上漲，也跟職級高度相關——實際薪資帶可參考 <a href="/articles/bim-engineer-salary/">BIM工程師薪水行情</a>。這裡不對未來薪資走勢做保證，只能說目前企業願意開出的條件，反映了現在的供需狀態。</p>
+        <p>供需失衡確實對薪資有支撐力道，但不代表會無限上漲，也跟職級高度相關，實際薪資帶可參考 <a href="/articles/bim-engineer-salary/">BIM工程師薪水行情</a>。這裡不對未來薪資走勢做保證，只能說目前企業願意開出的條件，反映了現在的供需狀態。</p>
       </details>
       <details>
         <summary>
           <span>現在轉職營造業或 BIM 是好時機嗎？</span><span class="faq-icon">+</span>
         </summary>
-        <p>從供需角度看，目前企業投入訓練成本、放寬科系限制的意願確實比較高，入行門檻相對友善。但「好時機」也取決於個人是否適合——現場配合度、學習意願、跨專業溝通能力仍是能不能做得長久的關鍵，這篇不做「一定值得」的保證，只提供現況判斷的依據。</p>
+        <p>從供需角度看，目前企業投入訓練成本、放寬科系限制的意願確實比較高，入行門檻相對友善。但「好時機」也取決於個人是否適合，現場配合度、學習意願、跨專業溝通能力仍是能不能做得長久的關鍵，這篇不做「一定值得」的保證，只提供現況判斷的依據。</p>
       </details>
     </div>
 
@@ -321,7 +332,8 @@ html{scroll-behavior:smooth}
 
       
 <div class="cta">
-        <p>看完還是不確定下一步？加入 LINE 直接問顧問，或看目前開放中的職缺。</p>
+        <p>人補不進來、案子卻等不了？把職缺與時間壓力說明一下，我們會直說這個缺該用什麼方式補。</p>
+          <a class="btn-alt" href="/hiring-assessment/">先做招募形式評估</a>
         <a class="btn-line" href="https://lin.ee/XcSWPzM">用 LINE 問顧問</a>
       </div>
     </article>

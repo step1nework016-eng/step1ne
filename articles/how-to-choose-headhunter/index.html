@@ -100,6 +100,10 @@ p{margin:0}
 .hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
 .hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
 /* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
 #bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
 
 .shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
@@ -165,6 +169,8 @@ article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid 
 
 .foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
 .cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
 .cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
 footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
 .fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
@@ -199,7 +205,12 @@ html{scroll-behavior:smooth}
       <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a class="on" href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
     </nav>
     <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
-    <button class="hd-burger" type="button" aria-label="開啟選單"><span></span></button>
+    <button class="hd-burger" type="button" aria-label="開啟選單" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINE 洽詢</a>
   </div>
 </header>
 
@@ -289,12 +300,12 @@ html{scroll-behavior:smooth}
     <div class="ask"><strong>可以直接這樣問：</strong>「後續實際負責搜尋與聯繫候選人的，是您本人嗎？如果不是，我可以認識一下負責的同事嗎？」</div>
 
     <h2 id="sec-6"><span class="num">6</span>送件品質，看第一批就知道</h2>
-    <p>合作後真正的驗收點是第一批人選。品質好的送件會附上顧問的評估說明——為什麼推薦這個人、他哪裡符合、哪裡有落差、目前的求職動機與期待待遇。品質差的就是把履歷原封不動轉寄給你。</p>
+    <p>合作後真正的驗收點是第一批人選。品質好的送件會附上顧問的評估說明，為什麼推薦這個人、他哪裡符合、哪裡有落差、目前的求職動機與期待待遇。品質差的就是把履歷原封不動轉寄給你。</p>
     <p>如果第一批送來的人選明顯不符規格，也不必馬上放棄——但要立刻回饋，觀察對方修正的速度。<strong>會問你「為什麼不合適」的獵頭，比默默再送十份履歷的獵頭有用得多。</strong></p>
 
     <h2 id="sec-7"><span class="num">7</span>接案前敢不敢講實話？</h2>
     <p>這一項最軟，但往往最準。</p>
-    <p>如果你的職缺條件在市場上明顯不合理——薪資低於行情、要求的技能組合幾乎不存在、地點偏遠又沒有配套——一個負責任的獵頭會在接案前就告訴你，並提出調整建議。只想先把案子接下來、之後再說找不到的，通常最後浪費的是雙方的時間。</p>
+    <p>如果你的職缺條件在市場上明顯不合理，薪資低於行情、要求的技能組合幾乎不存在、地點偏遠又沒有配套，一個負責任的獵頭會在接案前就告訴你，並提出調整建議。只想先把案子接下來、之後再說找不到的，通常最後浪費的是雙方的時間。</p>
 
     <div class="insight">
       <div class="label">獵頭觀察</div>
@@ -304,12 +315,12 @@ html{scroll-behavior:smooth}
 
     <h2 id="sec-8">三個常見的踩雷情況</h2>
     <ol>
-      <li><strong>比稿式同時委託五家</strong>——看起來多管齊下，實際上每一家都知道自己只有 20% 機率，於是都不投入資源，最後五家都在等別人先動。要嘛少數幾家認真談，要嘛給獨家但綁定明確時程與退場條件</li>
-      <li><strong>只比費率不比品質</strong>——費率差 3% 但送件品質差一倍，你付出的是面試時間與職缺空窗成本，那遠比 3% 貴</li>
-      <li><strong>沒有講清楚「誰能碰、誰不能碰」</strong>——若有不希望被接觸的公司（例如合作夥伴、同集團），委任時就要白紙黑字列出 off-limits 名單。事後才發現挖到自己夥伴的人，會很難處理</li>
+      <li><strong>比稿式同時委託五家</strong>，看起來多管齊下，實際上每一家都知道自己只有 20% 機率，於是都不投入資源，最後五家都在等別人先動。要嘛少數幾家認真談，要嘛給獨家但綁定明確時程與退場條件</li>
+      <li><strong>只比費率不比品質</strong>，費率差 3% 但送件品質差一倍，你付出的是面試時間與職缺空窗成本，那遠比 3% 貴</li>
+      <li><strong>沒有講清楚「誰能碰、誰不能碰」</strong>，若有不希望被接觸的公司（例如合作夥伴、同集團），委任時就要白紙黑字列出 off-limits 名單。事後才發現挖到自己夥伴的人，會很難處理</li>
     </ol>
 
-    <aside data-exp="cta-mid-2026-08-06"><p>企業方請看這裡</p><h3>你手上的缺，我們可以先報一個實際的數字給你</h3><p>把職稱、薪資帶、卡多久了講一下，我們會直接回覆這個缺大概要多少費用、多久找得到人，以及——如果我們認為這個缺根本不該用獵頭，也會直接跟你講。報價不用錢，也不用先簽任何東西。</p><div><a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-client">加 LINE 談委託找人</a></div></aside><h2 id="sec-9">常見問題</h2>
+    <aside data-exp="cta-mid-2026-08-06"><p>企業方請看這裡</p><h3>你手上的缺，我們可以先報一個實際的數字給你</h3><p>上面七項，你也可以直接拿來問我們。就服許可字號、評鑑等級、統一編號都公開可查；顧問是誰、怎麼找人、保固怎麼算，第一次會談就會講清楚，不用等合作後才知道。</p><div><a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-client">加 LINE 談委託找人</a></div></aside><h2 id="sec-9">常見問題</h2>
     <div>
       <details>
         <summary>
@@ -347,7 +358,8 @@ html{scroll-behavior:smooth}
 
       
 <div class="cta">
-        <p>看完還是不確定下一步？加入 LINE 直接問顧問，或看目前開放中的職缺。</p>
+        <p>這七項我們自己也接受檢驗——就服許可字號、評鑑等級、統一編號都公開可查。</p>
+          <a class="btn-alt" href="/about/">查證 Step1ne 的資格</a>
         <a class="btn-line" href="https://lin.ee/XcSWPzM">用 LINE 問顧問</a>
       </div>
     </article>
