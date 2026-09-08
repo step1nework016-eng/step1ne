@@ -1,0 +1,196 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>顧問 Threads 成效｜Step1ne</title><style>
+:root{--ink:#12161c;--mut:#6b7480;--line:#e2e6ea;--bg:#fbfcfd;--card:#fff;
+--acc:#1f5f4f;--acc2:#d8ede6;--warn:#8a4b12;--warnbg:#fdf3e7}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 "Noto Sans TC","PingFang TC",system-ui,sans-serif}
+.wrap{max-width:1240px;margin:0 auto;padding:28px 18px 80px}
+header h1{font-size:26px;margin:0 0 4px;letter-spacing:-.02em}
+header p{margin:0 0 22px;color:var(--mut);font-size:13px}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:22px}
+.tab{border:1px solid var(--line);background:var(--card);color:var(--mut);border-radius:999px;padding:7px 14px;font:inherit;font-size:13px;cursor:pointer}
+.tab em{font-style:normal;opacity:.6;font-size:11px}
+.tab.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.msel{display:none;width:100%;padding:12px;font:inherit;border:1px solid var(--line);border-radius:10px;background:var(--card);margin-bottom:20px}
+h2{font-size:20px;margin:0 0 14px}
+h3{font-size:14px;color:var(--mut);font-weight:600;margin:30px 0 10px;letter-spacing:.04em}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:10px}
+.c{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 14px}
+.c span{display:block;font-size:11px;color:var(--mut);letter-spacing:.05em}
+.c b{font-size:24px;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.c i{font-style:normal;font-size:11px;color:var(--mut);margin-left:3px}
+.c.hi{background:var(--acc);border-color:var(--acc);color:#fff}
+.c.hi span,.c.hi i{color:#bcd9d0}
+.warn{background:var(--warnbg);border-left:3px solid var(--warn);color:var(--warn);padding:11px 14px;border-radius:0 8px 8px 0;font-size:13px;margin:0 0 16px}
+.note{background:#fff;border:1px dashed var(--line);border-radius:10px;padding:11px 14px;font-size:13px;color:var(--mut);margin:0 0 12px}
+.note b{color:var(--ink)}
+.mut{color:var(--mut);font-size:13px}
+.rank{list-style:none;margin:0 0 8px;padding:0}
+.rank li{display:grid;grid-template-columns:82px 1fr 74px;align-items:center;gap:10px;padding:5px 0}
+.nm{font-size:13px}
+.rb{height:9px;border-radius:5px;background:var(--acc);width:var(--w);min-width:3px}
+.nv{text-align:right;font-size:12px;font-variant-numeric:tabular-nums;color:var(--mut)}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+table{border-collapse:collapse;width:100%;min-width:900px}
+th{text-align:left;font-size:11px;color:var(--mut);font-weight:600;padding:10px 12px;border-bottom:1px solid var(--line);letter-spacing:.05em;white-space:nowrap}
+td{padding:9px 12px;border-bottom:1px solid #f0f3f5;font-size:13px;vertical-align:middle}
+tr:last-child td{border-bottom:0}
+.dt{color:var(--mut);font-size:12px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.ti a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--line)}
+.ti a:hover{border-color:var(--acc);color:var(--acc)}
+.tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:5px;white-space:nowrap}
+.k-j{background:#e4edfa;color:#2b5788}
+.k-g{background:#f6ece0;color:#8a5a2b}
+.k-a{background:#eee7f5;color:#5a3c86}
+.k-n{background:#fff;color:#98a1aa;border:1px dashed var(--line)}
+.w-o{background:#f1f3f5;color:#5a636d}
+.w-p{background:#fde9e4;color:#a34327}
+.w-d{background:var(--acc2);color:var(--acc)}
+.w-n{background:#fff;color:#98a1aa;border:1px dashed var(--line)}
+.fo{font-size:12px;color:var(--mut);white-space:nowrap}
+.thin{font-size:10px;color:#98a1aa;margin-left:5px;white-space:nowrap}
+.v{position:relative;white-space:nowrap;font-variant-numeric:tabular-nums;min-width:112px;text-align:right}
+.v .bar{position:absolute;left:0;top:50%;transform:translateY(-50%);height:20px;width:var(--w);background:var(--acc2);border-radius:3px}
+.v b{position:relative}
+.m{text-align:right;color:var(--mut);font-variant-numeric:tabular-nums;white-space:nowrap}
+th:nth-last-child(-n+3){text-align:right}
+footer{margin-top:34px;color:var(--mut);font-size:12px;line-height:1.8}
+a:focus-visible,button:focus-visible,select:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+@media(max-width:720px){.tabs{display:none}.msel{display:block}}
+
+.nt{display:block;font-size:10px;color:#98a1aa;margin-top:2px}
+
+.bar2{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 20px}
+.bar2 select{padding:9px 12px;font:inherit;font-size:13px;border:1px solid var(--line);
+border-radius:9px;background:var(--card);color:var(--ink)}
+.bar2 .lb{font-size:12px;color:var(--mut)}
+.empty{padding:26px;text-align:center;color:var(--mut);font-size:13px;
+border:1px dashed var(--line);border-radius:12px;background:var(--card)}
+</style></head><body><div class="wrap"><header><h1>顧問 Threads 成效</h1><p>只列 Threads 已發布貼文，共 110 篇・資料時間 2026-09-08</p></header><div class="tabs" id="tabs"></div><select class="msel" id="msel" aria-label="選擇顧問"></select><div class="bar2"><span class="lb">期間</span><select id="pmode"><option value="all">全部期間</option><option value="week">依週看</option><option value="month">依月看</option></select><select id="pval" hidden></select><span class="lb" id="pinfo"></span></div><div id="out"></div><footer>三個欄位對應「一鍵發文」表單的三層選擇：<b>貼文種類</b>＝職缺文／通用文／AI阿財話題；<b>寫法類型</b>＝純CTA型／對話討論型／原始格式；<b>寫法公式</b>＝選了對話討論型才有。<br><b>原始格式</b>＝沒挑公式，走顧問自己的風格提示詞。<b>未標記（顧問自己發的）</b>＝顧問在 App 上發完才貼網址回來匯入，匯入流程沒問格式，系統不知道。<br>週是週一到週日。平均瀏覽只算抓得到數據的貼文，當天剛發的還沒有數字是正常的。<br>瀏覽數是系統每 12 小時回抓一次的快照。LinkedIn 沒有公開成效 API，這份只算 Threads。<br>點擊數沒有列——轉址連結沒帶「哪一篇貼文」，分不到個別貼文上，列了會誤導。</footer></div><script>
+var POSTS=[{"a":"法蘭克","d":"2026-09-07","k":"📋 職缺文","w":"對話討論型","f":"身份切割","t":"資深職業安全衛生工程師","n":"已下架，沿用合併後的職缺","u":"https://www.threads.com/@franklee1369_/post/Dc-noIwjr9H","v":9313,"l":122,"r":12,"hv":1,"wk":"2026-09-07","mo":"2026-09"},{"a":"EYLISE","d":"2026-08-24","k":"📋 職缺文","w":"原始格式","f":"—","t":"BIM 工程師（無經驗可・正職）","n":"","u":"https://www.threads.com/@step1ne.jobs/post/Dca0N96jQsi","v":7478,"l":21,"r":11,"hv":1,"wk":"2026-08-24","mo":"2026-08"},{"a":"DR","d":"2026-08-31","k":"📋 職缺文","w":"原始格式","f":"—","t":"主管特助（日本長野白馬渡假勝地・常駐）","n":"","u":"https://www.threads.com/@step1ne_tw/post/DcsYA1CjgbD","v":6341,"l":28,"r":5,"hv":1,"wk":"2026-08-31","mo":"2026-08"},{"a":"DR","d":"2026-08-31","k":"📋 職缺文","w":"原始格式","f":"—","t":"日本項目財務會計（Finance & Accounting／Project Controller）","n":"","u":"https://www.threads.com/@step1ne_tw/post/Dcs2emHkVwA","v":3934,"l":21,"r":3,"hv":1,"wk":"2026-08-31","mo":"2026-08"},{"a":"DR","d":"2026-09-02","k":"📋 職缺文","w":"原始格式","f":"—","t":"主管特助（日本長野白馬渡假勝地・常駐）","n":"","u":"https://www.threads.com/@step1ne_tw/post/DcxYyfcDSFm","v":3907,"l":17,"r":2,"hv":1,"wk":"2026-08-31","mo":"2026-09"},{"a":"DR","d":"2026-09-01","k":"📋 職缺文","w":"原始格式","f":"—","t":"VIP貴賓接待服務員（晚班）","n":"","u":"https://www.threads.com/@step1ne_tw/post/DcvVWbrgJLG","v":2891,"l":10,"r":8,"hv":1,"wk":"2026-08-31","mo":"2026-09"},{"a":"DR","d":"2026-08-28","k":"📋 職缺文","w":"原始格式","f":"—","t":"BIM 工程師","n":"","u":"https://www.threads.com/@step1ne_tw/post/DclKFNVjeU0","v":2613,"l":9,"r":3,"hv":1,"wk":"2026-08-24","mo":"2026-08"},{"a":"EYLISE","d":"2026-08-26","k":"📋 職缺文","w":"原始格式","f":"—","t":"財務會計專員｜投資帳務・國營保險集團財務部（15個月專案）","n":"","u":"https://www.threads.com/@step1ne.jobs/post/DcftEC2APs2","v":2547,"l":7,"r":7,"hv":1,"wk":"2026-08-24","mo":"2026-08"},{"a":"Jacky","d":"2026-08-21","k":"📋 職缺文","w":"原始格式","f":"—","t":"BIM 工程師（無經驗可・正職）","n":"","u":"https://www.threads.com/@step1ne_jacky/post/DcTbvSAjluf","v":2296,"l":10,"r":2,"hv":1,"wk":"2026-08-17","mo":"2026-08"},{"a":"DR","d":"2026-08-24","k":"📋 職缺文","w":"原始格式","f":"—","t":"資深職業安全衛生工程師","n":"","u":"https://www.threads.com/@step1ne_tw/post/Dca-6bgDaLe","v":2227,"l":12,"r":2,"hv":1,"wk":"2026-08-24","mo":"2026-08"},{"a":"Bob","d":"2026-09-02","k":"📋 職缺文","w":"未標記（顧問自己發的）","f":"—","t":"BIM 工程師","n":"","u":"https://www.threads.com/@bobchang_share/post/Dcu8zNaE2JV","v":2030,"l":16,"r":0,"hv":1,"wk":"2026-08-31","mo":"2026-09"},{"a":"Bob","d":"2026-09-04","k":"📋 職缺文","w":"對話討論型","f":"數字反直覺","t":"BIM 工程師","n":"","u":"https://www.threads.com/@bobchang_share/post/Dc2lfkbjNaU","v":1944,"l":8,"r":8,"hv":1,"wk":"2026-08-31","mo":"2026-09"},{"a":"DR","d":"2026-08-27","k":"📋 職缺文","w":"原始格式","f":"—","t":"日本白馬渡假村物業經理／資產營運經理","n":"","u":"https://www.threads.com/@step1ne_tw/post/DcimN6zkXa5","v":1884,"l":13,"r":3,"hv":1,"wk":"2026-08-24","mo":"2026-08"},{"a":"Jacky","d":"2026-08-18","k":"📋 職缺文","w":"原始格式","f":"—","t":"財務會計專員｜投資帳務・國營保險集團財務部（15個月專案）","n":"","u":"https://www.threads.com/@step1ne_jacky/post/DcLwycTjQKK","v":1614,"l":2,"r":2,"hv":1,"wk":"2026-08-17","mo":"2026-08"},{"a":"DR","d":"2026-08-18","k":"📋 職缺文","w":"原始格式","f":"—","t":"財務會計專員｜投資帳務・國營保險集團財務部（15個月專案）","n":"","u":"https://www.threads.com/@step1ne_tw/post/DcLGqHSCmY9","v":1597,"l":2,"r":2,"hv":1,"wk":"2026-08-17","mo":"2026-08"},{"a":"EYLISE","d":"2026-09-02","k":"📋 職缺文","w":"原始格式","f":"—","t":"日本項目財務會計（Finance & Accounting／Project Controller）","n":"","u":"https://www.threads.com/@step1ne.jobs/post/DcxbC1ECEMc","v":1591,"l":6,"r":2,"hv":1,"wk":"2026-08-31","mo":"2026-09"},{"a":"EYLISE","d":"2026-08-26","k":"📋 職缺文","w":"原始格式","f":"—","t":"日本白馬渡假村物業經理／資產營運經理","n":"","u":"https://www.threads.com/@step1ne.jobs/post/DcgHZHdjSPn","v":1585,"l":14,"r":3,"hv":1,"wk":"2026-08-24","mo":"2026-08"},{"a":"DR","d":"2026-08-26","k":"📋 職缺文","w":"原始格式","f":"—","t":"資深職業安全衛生工程師","n":"","u":"https://www.threads.com/@step1ne_tw/post/DcgHG5bDX3P","v":1519,"l":4,"r":2,"hv":1,"wk":"2026-08-24","mo":"2026-08"},{"a":"Jacky","d":"2026-08-25","k":"📋 職缺文","w":"原始格式","f":"—","t":"品牌社群影音編輯｜Indian Motorcycle 台灣總代理","n":"","u":"https://www.threads.com/@step1ne_jacky/post/Dcc_kwtCphI","v":1428,"l":9,"r":2,"hv":1,"wk":"2026-08-24","mo":"2026-08"},{"a":"EYLISE","d":"2026-08-27","k":"📋 職缺文","w":"原始格式","f":"—","t":"BIM 工程師","n":"","u":"https://www.threads.com/@step1ne.jobs/post/DciuZ_WjTG5","v":1417,"l":4,"r":2,"hv":1,"wk":"2026-08-24","mo":"2026-08"},{"a":"EYLISE","d":"2026-08-25","k":"📋 職缺文","w":"原始格式","f":"—","t":"VIP貴賓接待服務員","n":"","u":"https://www.threads.com/@step1ne.jobs/post/DcdAeSaDtdR","v":1360,"l":5,"r":3,"hv":1,"wk":"2026-08-24","mo":"2026-08"},{"a":"法蘭克","d":"2026-09-03","k":"📋 職缺文","w":"原始格式","f":"—","t":"培訓工程設計工程師","n":"","u":"https://www.threads.com/@franklee1369_/post/Dc1G2a1Dq92","v":1348,"l":1,"r":2,"hv":1,"wk":"2026-08-31","mo":"2026-09"},{"a":"EYLISE","d":"2026-08-28","k":"📋 職缺文","w":"原始格式","f":"—","t":"主管特助（日本長野白馬渡假勝地・常駐）","n":"","u":"https://www.threads.com/@step1ne.jobs/post/DclJy7Gl3Fn","v":1344,"l":9,"r":3,"hv":1,"wk":"2026-08-24","mo":"2026-08"},{"a":"DR","d":"2026-08-20","k":"📋 職缺文","w":"原始格式","f":"—","t":"VIP貴賓接待服務員","n":"","u":"https://www.threads.com/@step1ne_tw/post/DcP79vWCDFX","v":1311,"l":7,"r":2,"hv":1,"wk":"2026-08-17","mo":"2026-08"},{"a":"Jacky","d":"2026-09-01","k":"📋 職缺文","w":"原始格式","f":"—","t":"日本項目財務會計（Finance & Accounting／Project Controller）","n":"","u":"https://www.threads.com/@step1ne_jacky/post/DcuvQwzgp3A","v":1299,"l":10,"r":4,"hv":1,"wk":"2026-08-31","mo":"2026-09"},{"a":"EYLISE","d":"2026-09-01","k":"📋 職缺文","w":"原始格式","f":"—","t":"BIM 工程師","n":"","u":"https://www.threads.com/@step1ne.jobs/post/DcuvWhaDGjK","v":1244,"l":2,"r":3,"hv":1,"wk":"2026-08-31","mo":"2026-09"},{"a":"法蘭克","d":"2026-09-08","k":"📋 職缺文","w":"對話討論型","f":"真實轉述","t":"培訓工程設計工程師","n":"","u":"https://www.threads.com/@franklee1369_/post/Dc_jQ-QDRhP","v":1222,"l":8,"r":0,"hv":1,"wk":"2026-09-07","mo":"2026-09"},{"a":"DR","d":"2026-09-04","k":"📋 職缺文","w":"原始格式","f":"—","t":"資深半導體專案工程師","n":"","u":"https://www.threads.com/@step1ne_tw/post/Dc2jn_FCtBj","v":1208,"l":5,"r":2,"hv":1,"wk":"2026-08-31","mo":"2026-09"},{"a":"Jacky","d":"2026-08-31","k":"📋 職缺文","w":"原始格式","f":"—","t":"BIM 工程師","n":"","u":"https://www.threads.com/@step1ne_jacky/post/DcsyRRxkRUk","v":1123,"l":2,"r":2,"hv":1,"wk":"2026-08-31","mo":"2026-08"},{"a":"Jacky","d":"2026-08-28","k":"📋 職缺文","w":"原始格式","f":"—","t":"資深職業安全衛生工程師","n":"","u":"https://www.threads.com/@step1ne_jacky/post/DclJ6X-jkHR","v":1039,"l":0,"r":2,"hv":1,"wk":"2026-08-24","mo":"2026-08"},{"a":"EYLISE","d":"2026-08-31","k":"📋 職缺文","w":"原始格式","f":"—","t":"VIP貴賓接待服務員","n":"","u":"https://www.threads.com/@step1ne.jobs/post/DcsbOqADpAl","v":1029,"l":2,"r":2,"hv":1,"wk":"2026-08-31","mo":"2026-08"},{"a":"EYLISE","d":"2026-09-07","k":"📋 職缺文","w":"純CTA型","f":"—","t":"資深職業安全衛生工程師","n":"已下架，沿用合併後的職缺","u":"https://www.threads.com/@step1ne.jobs/post/Dc-lDMgCucC","v":1023,"l":7,"r":7,"hv":1,"wk":"2026-09-07","mo":"2026-09"},{"a":"DR","d":"2026-08-27","k":"📋 職缺文","w":"原始格式","f":"—","t":"資深工程設計工程師","n":"","u":"https://www.threads.com/@step1ne_tw/post/Dch-fPUjeL8","v":964,"l":4,"r":2,"hv":1,"wk":"2026-08-24","mo":"2026-08"},{"a":"DR","d":"2026-09-03","k":"📋 職缺文","w":"原始格式","f":"—","t":"復健科診所護理師","n":"","u":"https://www.threads.com/@step1ne_tw/post/Dc0LJI3iLST","v":926,"l":3,"r":2,"hv":1,"wk":"2026-08-31","mo":"2026-09"},{"a":"Jacky","d":"2026-08-17","k":"📋 職缺文","w":"原始格式","f":"—","t":"復健科診所護理師","n":"","u":"https://www.threads.com/@step1ne_jacky/post/DcJFcuIilZU","v":917,"l":3,"r":1,"hv":1,"wk":"2026-08-17","mo":"2026-08"},{"a":"EYLISE","d":"2026-08-31","k":"📋 職缺文","w":"原始格式","f":"—","t":"資深職業安全衛生工程師","n":"","u":"https://www.threads.com/@step1ne.jobs/post/DcsyD88jhFV","v":877,"l":2,"r":2,"hv":1,"wk":"2026-08-31","mo":"2026-08"},{"a":"DR","d":"2026-08-17","k":"📋 職缺文","w":"原始格式","f":"—","t":"BIM 工程師（無經驗可・正職）","n":"","u":"https://www.threads.com/@step1ne_tw/post/DcJHYLMkb_n","v":860,"l":6,"r":2,"hv":1,"wk":"2026-08-17","mo":"2026-08"},{"a":"Jacky","d":"2026-08-27","k":"📋 職缺文","w":"原始格式","f":"—","t":"資深半導體專案現場工程師","n":"","u":"https://www.threads.com/@step1ne_jacky/post/DcimmzhER-P","v":834,"l":2,"r":2,"hv":1,"wk":"2026-08-24","mo":"2026-08"},{"a":"EYLISE","d":"2026-08-28","k":"📋 職缺文","w":"原始格式","f":"—","t":"BIM 工程師","n":"","u":"https://www.threads.com/@step1ne.jobs/post/DckmYLDgGgf","v":755,"l":4,"r":2,"hv":1,"wk":"2026-08-24","mo":"2026-08"},{"a":"Bob","d":"2026-09-03","k":"📋 職缺文","w":"原始格式","f":"—","t":"復健科診所護理師","n":"","u":"https://www.threads.com/@bobchang_share/post/Dc1G801jppT","v":701,"l":3,"r":0,"hv":1,"wk":"2026-08-31","mo":"2026-09"},{"a":"EYLISE","d":"2026-09-07","k":"📋 職缺文","w":"原始格式","f":"—","t":"BIM 工程師","n":"","u":"https://www.threads.com/@step1ne.jobs/post/Dc-mlQXnOdu","v":662,"l":2,"r":1,"hv":1,"wk":"2026-09-07","mo":"2026-09"},{"a":"DR","d":"2026-08-26","k":"📋 職缺文","w":"原始格式","f":"—","t":"VIP貴賓接待服務員","n":"","u":"https://www.threads.com/@step1ne_tw/post/DcfoLDzAMZK","v":662,"l":2,"r":2,"hv":1,"wk":"2026-08-24","mo":"2026-08"},{"a":"法蘭克","d":"2026-09-02","k":"📋 職缺文","w":"未標記（顧問自己發的）","f":"—","t":"BIM 工程師","n":"","u":"https://www.threads.com/@franklee1369_/post/Dcx0YOiGcI1","v":659,"l":1,"r":1,"hv":1,"wk":"2026-08-31","mo":"2026-09"},{"a":"EYLISE","d":"2026-08-19","k":"📋 職缺文","w":"原始格式","f":"—","t":"VIP貴賓接待服務員","n":"","u":"https://www.threads.com/@step1ne.jobs/post/DcOGUo6CNUq","v":649,"l":4,"r":2,"hv":1,"wk":"2026-08-17","mo":"2026-08"},{"a":"DR","d":"2026-09-08","k":"📋 職缺文","w":"原始格式","f":"—","t":"BIM 工程師","n":"","u":"https://www.threads.com/@step1ne_tw/post/Dc_i_TMCNO1","v":601,"l":1,"r":2,"hv":1,"wk":"2026-09-07","mo":"2026-09"},{"a":"EYLISE","d":"2026-09-03","k":"📋 職缺文","w":"原始格式","f":"—","t":"pending-co_802bdd6b-9868182d","n":"查不到職稱","u":"https://www.threads.com/@step1ne.jobs/post/Dc1Gradjbkt","v":591,"l":2,"r":3,"hv":1,"wk":"2026-08-31","mo":"2026-09"},{"a":"Dan H","d":"2026-09-03","k":"📋 職缺文","w":"未標記（顧問自己發的）","f":"—","t":"BIM 工程師","n":"","u":"https://www.threads.com/@danh.headhunter/post/Dcz5gligYo9","v":580,"l":1,"r":2,"hv":1,"wk":"2026-08-31","mo":"2026-09"},{"a":"Bob","d":"2026-09-07","k":"📋 職缺文","w":"原始格式","f":"—","t":"培訓半導體專案工程師","n":"","u":"https://www.threads.com/@bobchang_share/post/Dc-mpgCHJKi","v":562,"l":2,"r":1,"hv":1,"wk":"2026-09-07","mo":"2026-09"},{"a":"EYLISE","d":"2026-08-18","k":"📋 職缺文","w":"原始格式","f":"—","t":"雲端維運工程師","n":"","u":"https://www.threads.com/@step1ne.jobs/post/DcK5Lyyl2FF","v":546,"l":1,"r":1,"hv":1,"wk":"2026-08-17","mo":"2026-08"},{"a":"Jacky","d":"2026-08-28","k":"📋 職缺文","w":"原始格式","f":"—","t":"資深職業安全衛生工程師","n":"","u":"https://www.threads.com/@step1ne_jacky/post/DckmdkEgArh","v":507,"l":0,"r":2,"hv":1,"wk":"2026-08-24","mo":"2026-08"},{"a":"DR","d":"2026-08-25","k":"📋 職缺文","w":"原始格式","f":"—","t":"直播主","n":"","u":"https://www.threads.com/@step1ne_tw/post/Dcc_zjVDefQ","v":505,"l":2,"r":2,"hv":1,"wk":"2026-08-24","mo":"2026-08"},{"a":"Jacky","d":"2026-09-03","k":"📋 職缺文","w":"原始格式","f":"—","t":"培訓半導體專案工程師","n":"","u":"https://www.threads.com/@step1ne_jacky/post/Dc037cTiL9d","v":489,"l":2,"r":1,"hv":1,"wk":"2026-08-31","mo":"2026-09"},{"a":"Bob","d":"2026-09-02","k":"📋 職缺文","w":"原始格式","f":"—","t":"品牌社群影音編輯｜Indian Motorcycle 台灣總代理","n":"","u":"https://www.threads.com/@bobchang_share/post/Dcxc2iRggUP","v":481,"l":3,"r":7,"hv":1,"wk":"2026-08-31","mo":"2026-09"},{"a":"Jacky","d":"2026-08-19","k":"📋 職缺文","w":"原始格式","f":"—","t":"VIP貴賓接待服務員","n":"","u":"https://www.threads.com/@step1ne_jacky/post/DcOGP1rDY7v","v":475,"l":2,"r":1,"hv":1,"wk":"2026-08-17","mo":"2026-08"},{"a":"EYLISE","d":"2026-09-02","k":"📋 職缺文","w":"原始格式","f":"—","t":"直播主","n":"","u":"https://www.threads.com/@step1ne.jobs/post/Dcx8Px8jOTU","v":471,"l":1,"r":3,"hv":1,"wk":"2026-08-31","mo":"2026-09"},{"a":"法蘭克","d":"2026-09-04","k":"📋 職缺文","w":"對話討論型","f":"職缺包在觀察裡","t":"培訓工程設計工程師","n":"","u":"https://www.threads.com/@franklee1369_/post/Dc2ly15CAfo","v":433,"l":0,"r":2,"hv":1,"wk":"2026-08-31","mo":"2026-09"},{"a":"宥恩","d":"2026-09-03","k":"📋 職缺文","w":"原始格式","f":"—","t":"資深工程設計工程師","n":"","u":"https://www.threads.com/@ann25817/post/Dc1Gys5DmRM","v":431,"l":1,"r":1,"hv":1,"wk":"2026-08-31","mo":"2026-09"},{"a":"宥恩","d":"2026-09-08","k":"📋 職缺文","w":"純CTA型","f":"—","t":"資深半導體專案工程師","n":"","u":"https://www.threads.com/@ann25817/post/Dc_jSgDDc2E","v":429,"l":3,"r":5,"hv":1,"wk":"2026-09-07","mo":"2026-09"},{"a":"EYLISE","d":"2026-09-08","k":"📋 職缺文","w":"純CTA型","f":"—","t":"VIP貴賓接待服務員","n":"","u":"https://www.threads.com/@step1ne.jobs/post/Dc_jHGCjKlj","v":421,"l":2,"r":3,"hv":1,"wk":"2026-09-07","mo":"2026-09"},{"a":"Jacky","d":"2026-09-03","k":"📋 職缺文","w":"原始格式","f":"—","t":"BIM 工程師","n":"","u":"https://www.threads.com/@step1ne_jacky/post/Dc1GvQyDi7x","v":415,"l":0,"r":1,"hv":1,"wk":"2026-08-31","mo":"2026-09"},{"a":"Jacky","d":"2026-09-07","k":"📋 職缺文","w":"純CTA型","f":"—","t":"培訓工程設計工程師","n":"","u":"https://www.threads.com/@step1ne_jacky/post/Dc-kh3GiIg2","v":412,"l":3,"r":3,"hv":1,"wk":"2026-09-07","mo":"2026-09"},{"a":"Jacky","d":"2026-09-02","k":"📋 職缺文","w":"原始格式","f":"—","t":"VIP貴賓接待服務員（晚班）","n":"","u":"https://www.threads.com/@step1ne_jacky/post/Dcxa7Uzir2T","v":407,"l":0,"r":2,"hv":1,"wk":"2026-08-31","mo":"2026-09"},{"a":"DR","d":"2026-09-03","k":"📋 職缺文","w":"原始格式","f":"—","t":"培訓半導體專案工程師","n":"","u":"https://www.threads.com/@step1ne_tw/post/Dc0qTjzCNZP","v":396,"l":2,"r":2,"hv":1,"wk":"2026-08-31","mo":"2026-09"},{"a":"Jacky","d":"2026-09-03","k":"📋 職缺文","w":"原始格式","f":"—","t":"主管特助（日本長野白馬渡假勝地・常駐）","n":"","u":"https://www.threads.com/@step1ne_jacky/post/Dcz38QgjEm2","v":381,"l":2,"r":2,"hv":1,"wk":"2026-08-31","mo":"2026-09"},{"a":"宥恩","d":"2026-09-02","k":"📋 職缺文","w":"未標記（顧問自己發的）","f":"—","t":"BIM 工程師","n":"","u":"https://www.threads.com/@ann25817/post/Dcxw8LKEx_d","v":376,"l":0,"r":1,"hv":1,"wk":"2026-08-31","mo":"2026-09"},{"a":"宥恩","d":"2026-09-07","k":"📋 職缺文","w":"對話討論型","f":"真實轉述","t":"資深職業安全衛生工程師","n":"已下架，沿用合併後的職缺","u":"https://www.threads.com/@ann25817/post/Dc-np4MDRX_","v":348,"l":2,"r":5,"hv":1,"wk":"2026-09-07","mo":"2026-09"},{"a":"EYLISE","d":"2026-08-20","k":"📋 職缺文","w":"原始格式","f":"—","t":"直播主","n":"","u":"https://www.threads.com/@step1ne.jobs/post/DcQApogjNoo","v":338,"l":1,"r":3,"hv":1,"wk":"2026-08-17","mo":"2026-08"},{"a":"Jacky","d":"2026-08-31","k":"📋 職缺文","w":"原始格式","f":"—","t":"資深工程設計工程師","n":"","u":"https://www.threads.com/@step1ne_jacky/post/DcsYMkzjT2U","v":317,"l":0,"r":2,"hv":1,"wk":"2026-08-31","mo":"2026-08"},{"a":"EYLISE","d":"2026-09-04","k":"📋 職缺文","w":"原始格式","f":"—","t":"培訓職業安全衛生工程師","n":"","u":"https://www.threads.com/@step1ne.jobs/post/Dc2lbYfiM3t","v":311,"l":1,"r":1,"hv":1,"wk":"2026-08-31","mo":"2026-09"},{"a":"DR","d":"2026-09-03","k":"📋 職缺文","w":"未標記（顧問自己發的）","f":"—","t":"BIM 工程師","n":"","u":"https://www.threads.com/@step1ne_tw/post/Dcz4X8pD325","v":311,"l":0,"r":1,"hv":1,"wk":"2026-08-31","mo":"2026-09"},{"a":"Bob","d":"2026-09-03","k":"📋 職缺文","w":"原始格式","f":"—","t":"直播主","n":"","u":"https://www.threads.com/@bobchang_share/post/Dcz7RMLiIoT","v":308,"l":0,"r":2,"hv":1,"wk":"2026-08-31","mo":"2026-09"},{"a":"Bob","d":"2026-09-08","k":"📋 職缺文","w":"對話討論型","f":"數字反直覺","t":"BIM 工程師","n":"","u":"https://www.threads.com/@bobchang_share/post/DdAyi1NiFcW","v":294,"l":0,"r":0,"hv":1,"wk":"2026-09-07","mo":"2026-09"},{"a":"宥恩","d":"2026-09-04","k":"📋 職缺文","w":"對話討論型","f":"真實轉述","t":"資深半導體專案工程師","n":"","u":"https://www.threads.com/@ann25817/post/Dc2l2YCiEYd","v":292,"l":0,"r":0,"hv":1,"wk":"2026-08-31","mo":"2026-09"},{"a":"EYLISE","d":"2026-08-24","k":"📋 職缺文","w":"原始格式","f":"—","t":"資深職業安全衛生工程師","n":"","u":"https://www.threads.com/@step1ne.jobs/post/DcbIxWjDLMe","v":261,"l":0,"r":1,"hv":1,"wk":"2026-08-24","mo":"2026-08"},{"a":"Dan H","d":"2026-09-04","k":"📋 職缺文","w":"純CTA型","f":"—","t":"培訓半導體專案工程師","n":"","u":"https://www.threads.com/@danh.headhunter/post/Dc2lwXjCEtq","v":249,"l":0,"r":0,"hv":1,"wk":"2026-08-31","mo":"2026-09"},{"a":"Dan H","d":"2026-09-08","k":"📋 職缺文","w":"純CTA型","f":"—","t":"BIM 工程師","n":"","u":"https://www.threads.com/@danh.headhunter/post/Dc_jNc3DUOB","v":243,"l":0,"r":1,"hv":1,"wk":"2026-09-07","mo":"2026-09"},{"a":"Anna","d":"2026-09-02","k":"📋 職缺文","w":"原始格式","f":"—","t":"BIM 工程師","n":"","u":"https://www.threads.com/@step1ne_anna/post/Dcxmf3ZAkc4","v":229,"l":0,"r":1,"hv":1,"wk":"2026-08-31","mo":"2026-09"},{"a":"Jacky","d":"2026-09-08","k":"📋 職缺文","w":"純CTA型","f":"—","t":"資深職業安全衛生工程師","n":"已下架，沿用合併後的職缺","u":"https://www.threads.com/@step1ne_jacky/post/DdAxh1ajHxT","v":184,"l":0,"r":2,"hv":1,"wk":"2026-09-07","mo":"2026-09"},{"a":"Anna","d":"2026-09-03","k":"📋 職缺文","w":"未標記（顧問自己發的）","f":"—","t":"主管特助（日本長野白馬渡假勝地・常駐）","n":"","u":"https://www.threads.com/@step1ne_anna/post/Dc0zO-gE2O0","v":139,"l":1,"r":4,"hv":1,"wk":"2026-08-31","mo":"2026-09"},{"a":"Phoebe","d":"2026-08-24","k":"📋 職缺文","w":"原始格式","f":"—","t":"BIM 工程師（無經驗可・正職）","n":"","u":"https://www.threads.com/@step1ne.phoebe/post/Dca-_1XEXbm","v":129,"l":1,"r":3,"hv":1,"wk":"2026-08-24","mo":"2026-08"},{"a":"EYLISE","d":"2026-09-08","k":"📋 職缺文","w":"純CTA型","f":"—","t":"日本項目財務會計（Finance & Accounting／Project Controller）","n":"","u":"https://www.threads.com/@step1ne.jobs/post/DdAxmbeiMTh","v":118,"l":1,"r":1,"hv":1,"wk":"2026-09-07","mo":"2026-09"},{"a":"Anna","d":"2026-09-03","k":"📋 職缺文","w":"原始格式","f":"—","t":"pending-co_802bdd6b-9868182d","n":"查不到職稱","u":"https://www.threads.com/@step1ne_anna/post/Dcz5tiiCqdP","v":109,"l":1,"r":3,"hv":1,"wk":"2026-08-31","mo":"2026-09"},{"a":"Phoebe","d":"2026-08-28","k":"📋 職缺文","w":"原始格式","f":"—","t":"日本白馬渡假村物業經理／資產營運經理","n":"","u":"https://www.threads.com/@step1ne.phoebe/post/DckmiUICEPT","v":107,"l":2,"r":2,"hv":1,"wk":"2026-08-24","mo":"2026-08"},{"a":"Phoebe","d":"2026-09-04","k":"📋 職缺文","w":"原始格式","f":"—","t":"BIM 工程師","n":"","u":"https://www.threads.com/@step1ne.phoebe/post/Dc2j5gUDeMC","v":88,"l":2,"r":4,"hv":1,"wk":"2026-08-31","mo":"2026-09"},{"a":"Phoebe","d":"2026-08-27","k":"📋 職缺文","w":"原始格式","f":"—","t":"資深職業安全衛生工程師","n":"","u":"https://www.threads.com/@step1ne.phoebe/post/Dch-XyqAEPG","v":86,"l":0,"r":2,"hv":1,"wk":"2026-08-24","mo":"2026-08"},{"a":"Phoebe","d":"2026-09-01","k":"📋 職缺文","w":"原始格式","f":"—","t":"主管特助（日本長野白馬渡假勝地・常駐）","n":"","u":"https://www.threads.com/@step1ne.phoebe/post/DcuvJYtgmd2","v":78,"l":0,"r":2,"hv":1,"wk":"2026-08-31","mo":"2026-09"},{"a":"Phoebe","d":"2026-08-26","k":"📋 職缺文","w":"原始格式","f":"—","t":"資深半導體專案現場工程師","n":"","u":"https://www.threads.com/@step1ne.phoebe/post/DcgHAGvDuNN","v":73,"l":1,"r":3,"hv":1,"wk":"2026-08-24","mo":"2026-08"},{"a":"Phoebe","d":"2026-09-07","k":"📋 職缺文","w":"原始格式","f":"—","t":"培訓工程設計工程師","n":"","u":"https://www.threads.com/@step1ne.phoebe/post/Dc-gkwTknDg","v":68,"l":1,"r":1,"hv":1,"wk":"2026-09-07","mo":"2026-09"},{"a":"Phoebe","d":"2026-08-28","k":"📋 職缺文","w":"原始格式","f":"—","t":"資深工程設計工程師","n":"","u":"https://www.threads.com/@step1ne.phoebe/post/DclJ-xrDTFm","v":65,"l":2,"r":2,"hv":1,"wk":"2026-08-24","mo":"2026-08"},{"a":"Phoebe","d":"2026-09-02","k":"📋 職缺文","w":"原始格式","f":"—","t":"日本項目財務會計（Finance & Accounting／Project Controller）","n":"","u":"https://www.threads.com/@step1ne.phoebe/post/DcxaAM2ioaI","v":61,"l":0,"r":2,"hv":1,"wk":"2026-08-31","mo":"2026-09"},{"a":"Phoebe","d":"2026-08-27","k":"📋 職缺文","w":"原始格式","f":"—","t":"資深工程設計工程師","n":"","u":"https://www.threads.com/@step1ne.phoebe/post/DcimgEKkS1L","v":57,"l":1,"r":2,"hv":1,"wk":"2026-08-24","mo":"2026-08"},{"a":"Phoebe","d":"2026-09-03","k":"話題文（未分類）","w":"未標記（顧問自己發的）","f":"—","t":"職場面試","n":"","u":"https://www.threads.com/@step1ne.phoebe/post/Dcz768QkjNU","v":56,"l":1,"r":0,"hv":1,"wk":"2026-08-31","mo":"2026-09"},{"a":"Anna","d":"2026-09-04","k":"📋 職缺文","w":"對話討論型","f":"轉職路徑","t":"日本項目財務會計（Finance & Accounting／Project Controller）","n":"","u":"https://www.threads.com/@step1ne_anna/post/Dc3BuhODVfn","v":50,"l":0,"r":0,"hv":1,"wk":"2026-08-31","mo":"2026-09"},{"a":"Phoebe","d":"2026-08-25","k":"📋 職缺文","w":"原始格式","f":"—","t":"復健科診所護理師","n":"","u":"https://www.threads.com/@step1ne.phoebe/post/Dcc_sJqjbNF","v":45,"l":1,"r":2,"hv":1,"wk":"2026-08-24","mo":"2026-08"},{"a":"Phoebe","d":"2026-09-03","k":"話題文（未分類）","w":"未標記（顧問自己發的）","f":"—","t":"遠端職缺","n":"","u":"https://www.threads.com/@step1ne.phoebe/post/Dc04kOwEuTH","v":39,"l":0,"r":2,"hv":1,"wk":"2026-08-31","mo":"2026-09"},{"a":"Bob","d":"2026-09-08","k":"📋 職缺文","w":"純CTA型","f":"—","t":"資深職業安全衛生工程師","n":"已下架，沿用合併後的職缺","u":"https://www.threads.com/@bobchang_share/post/Dc_jKSWjZtV","v":36,"l":0,"r":1,"hv":1,"wk":"2026-09-07","mo":"2026-09"},{"a":"Dan H","d":"2026-09-07","k":"📋 職缺文","w":"純CTA型","f":"—","t":"培訓工程設計工程師","n":"","u":"https://www.threads.com/@danh.headhunter/post/Dc-m83XikF6","v":33,"l":0,"r":1,"hv":1,"wk":"2026-09-07","mo":"2026-09"},{"a":"Phoebe","d":"2026-09-01","k":"📋 職缺文","w":"原始格式","f":"—","t":"復健科診所護理師","n":"","u":"https://www.threads.com/@step1ne.phoebe/post/DcvVc7qDAjk","v":32,"l":0,"r":2,"hv":1,"wk":"2026-08-31","mo":"2026-09"},{"a":"Phoebe","d":"2026-08-20","k":"📋 職缺文","w":"原始格式","f":"—","t":"財務會計專員｜投資帳務・國營保險集團財務部（15個月專案）","n":"","u":"https://www.threads.com/@step1ne.phoebe/post/DcQAc6PCEJG","v":30,"l":0,"r":1,"hv":1,"wk":"2026-08-17","mo":"2026-08"},{"a":"Phoebe","d":"2026-08-20","k":"📋 職缺文","w":"原始格式","f":"—","t":"VIP貴賓接待服務員","n":"","u":"https://www.threads.com/@step1ne.phoebe/post/DcQAkWUioE_","v":27,"l":0,"r":2,"hv":1,"wk":"2026-08-17","mo":"2026-08"},{"a":"DR","d":"2026-09-08","k":"📋 職缺文","w":"純CTA型","f":"—","t":"資深工程設計工程師","n":"","u":"https://www.threads.com/@step1ne_tw/post/DdAwCR8iECp","v":26,"l":1,"r":1,"hv":1,"wk":"2026-09-07","mo":"2026-09"},{"a":"Phoebe","d":"2026-08-20","k":"📋 職缺文","w":"原始格式","f":"—","t":"VIP貴賓接待服務員","n":"","u":"https://www.threads.com/@step1ne.phoebe/post/DcP-CEXgP5k","v":20,"l":0,"r":2,"hv":1,"wk":"2026-08-17","mo":"2026-08"},{"a":"Anna","d":"2026-09-08","k":"📋 職缺文","w":"原始格式","f":"—","t":"日本白馬渡假村物業經理／資產營運經理","n":"","u":"https://www.threads.com/@step1ne_anna/post/DdAyLQZF0Eq","v":10,"l":0,"r":1,"hv":1,"wk":"2026-09-07","mo":"2026-09"},{"a":"Phoebe","d":"2026-09-08","k":"💼 通用文","w":"未標記","f":"—","t":"104人資FBI報告：企業平均花44.9天才找到一人，新人卻只有62.2%撐過半年，招募三大難題浮上檯面","n":"","u":"https://www.threads.com/@step1ne.phoebe/post/DdAxrUdCG-h","v":5,"l":0,"r":1,"hv":1,"wk":"2026-09-07","mo":"2026-09"},{"a":"法蘭克","d":"2026-09-08","k":"📋 職缺文","w":"對話討論型","f":"真實轉述","t":"培訓半導體專案工程師","n":"","u":"https://www.threads.com/@franklee1369_/post/DdA0jRIjU5n","v":0,"l":0,"r":0,"hv":0,"wk":"2026-09-07","mo":"2026-09"},{"a":"Dan H","d":"2026-09-08","k":"📋 職缺文","w":"純CTA型","f":"—","t":"資深職業安全衛生工程師","n":"已下架，沿用合併後的職缺","u":"https://www.threads.com/@danh.headhunter/post/DdA0deLCrtK","v":0,"l":0,"r":0,"hv":0,"wk":"2026-09-07","mo":"2026-09"},{"a":"Anna","d":"2026-09-08","k":"📋 職缺文","w":"對話討論型","f":"轉職路徑","t":"日本白馬渡假村物業經理／資產營運經理","n":"","u":"https://www.threads.com/@step1ne_anna/post/DdA0bKGCnlY","v":0,"l":0,"r":0,"hv":0,"wk":"2026-09-07","mo":"2026-09"},{"a":"Phoebe","d":"2026-09-07","k":"📋 職缺文","w":"未標記（顧問自己發的）","f":"—","t":"培訓工程設計工程師","n":"","u":"https://www.threads.com/share/BBZi4yr43Z/","v":0,"l":0,"r":0,"hv":0,"wk":"2026-09-07","mo":"2026-09"},{"a":"未指定","d":"2026-08-26","k":"📋 職缺文","w":"原始格式","f":"—","t":"資深半導體專案現場工程師","n":"","u":"https://www.threads.com/@step1ne_jacky/post/DcfviJqEXGo","v":0,"l":0,"r":2,"hv":0,"wk":"2026-08-24","mo":"2026-08"},{"a":"Jacky","d":"2026-08-17","k":"📋 職缺文","w":"原始格式","f":"—","t":"日本白馬渡假村物業經理／資產營運經理","n":"","u":"https://www.threads.com/@step1ne_jacky/post/DcI3cL7DTC_","v":0,"l":0,"r":0,"hv":0,"wk":"2026-08-17","mo":"2026-08"}];
+var WEEKS=[{"v": "2026-09-07", "l": "9/7 – 9/13"}, {"v": "2026-08-31", "l": "8/31 – 9/6"}, {"v": "2026-08-24", "l": "8/24 – 8/30"}, {"v": "2026-08-17", "l": "8/17 – 8/23"}];
+var MONTHS=[{"v": "2026-09", "l": "2026 年 9 月"}, {"v": "2026-08", "l": "2026 年 8 月"}];
+var ACCTS=["DR", "EYLISE", "Jacky", "法蘭克", "Bob", "宥恩", "Dan H", "Phoebe", "Anna", "未指定"];
+var KC={'📋 職缺文':'k-j','💼 通用文':'k-g','🤖 AI阿財話題':'k-a','話題文（未分類）':'k-n'};
+var WC={'原始格式':'w-o','純CTA型':'w-p','對話討論型':'w-d','未標記（顧問自己發的）':'w-n','未標記':'w-n'};
+var CUR='全部', PMODE='all', PVAL='';
+var E=function(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
+var NF=function(x){return x.toLocaleString('en-US')};
+var MAXV=POSTS.reduce(function(m,p){return Math.max(m,p.v)},1)||1;
+
+function filtered(){
+  return POSTS.filter(function(p){
+    if(CUR!=='全部'&&p.a!==CUR) return false;
+    if(PMODE==='week'&&p.wk!==PVAL) return false;
+    if(PMODE==='month'&&p.mo!==PVAL) return false;
+    return true;
+  });
+}
+function stats(rs){
+  var wd=rs.filter(function(p){return p.hv}), v=rs.reduce(function(s,p){return s+p.v},0);
+  return {c:rs.length,wd:wd.length,v:v,avg:wd.length?Math.round(v/wd.length):0,
+    l:rs.reduce(function(s,p){return s+p.l},0), r:rs.reduce(function(s,p){return s+p.r},0)};
+}
+function cards(s){
+  return '<div class="cards">'+
+   '<div class="c"><span>已發布</span><b>'+s.c+'</b><i>篇</i></div>'+
+   '<div class="c hi"><span>總瀏覽</span><b>'+NF(s.v)+'</b><i>次</i></div>'+
+   '<div class="c"><span>平均瀏覽</span><b>'+NF(s.avg)+'</b><i>次／篇</i></div>'+
+   '<div class="c"><span>按讚</span><b>'+s.l+'</b><i></i></div>'+
+   '<div class="c"><span>留言</span><b>'+s.r+'</b><i></i></div></div>';
+}
+function rankHtml(rs){
+  var g={}; rs.forEach(function(p){g[p.a]=(g[p.a]||0)+p.v});
+  var tot=rs.reduce(function(s,p){return s+p.v},0)||1;
+  var ks=Object.keys(g).sort(function(a,b){return g[b]-g[a]});
+  if(!ks.length) return '';
+  return '<h3>顧問總瀏覽排行</h3><ol class="rank">'+ks.map(function(k){
+    return '<li><span class="nm">'+E(k)+'</span><span class="rb" style="--w:'+
+      Math.round(g[k]/tot*100)+'%"></span><span class="nv">'+NF(g[k])+'</span></li>'}).join('')+'</ol>';
+}
+function perf(rs){
+  var g={}; rs.forEach(function(p){ if(!p.hv) return; var k=p.w+'|'+p.f; (g[k]=g[k]||[]).push(p)});
+  var ks=Object.keys(g);
+  if(!ks.length) return '<p class="mut">這個範圍裡的貼文還沒有抓到成效數據。</p>';
+  ks.sort(function(a,b){
+    var av=g[a].reduce(function(s,p){return s+p.v},0)/g[a].length;
+    var bv=g[b].reduce(function(s,p){return s+p.v},0)/g[b].length; return bv-av});
+  return '<div class="tw"><table><thead><tr><th>寫法類型</th><th>寫法公式</th><th>篇數</th>'+
+   '<th>平均瀏覽</th><th>平均留言</th></tr></thead><tbody>'+ks.map(function(k){
+    var v=g[k], w=k.split('|')[0], f=k.split('|')[1];
+    var av=Math.round(v.reduce(function(s,p){return s+p.v},0)/v.length);
+    var rp=(v.reduce(function(s,p){return s+p.r},0)/v.length).toFixed(1);
+    return '<tr><td><span class="tag '+(WC[w]||'w-n')+'">'+E(w)+'</span></td><td class="fo">'+E(f)+'</td>'+
+      '<td class="m">'+v.length+(v.length<3?' <span class="thin">樣本太少</span>':'')+'</td>'+
+      '<td class="v"><span class="bar" style="--w:'+Math.round(av/MAXV*100)+'%"></span><b>'+NF(av)+'</b></td>'+
+      '<td class="m">'+rp+'</td></tr>'}).join('')+'</tbody></table></div>';
+}
+function rowsHtml(rs){
+  if(!rs.length) return '<p class="empty">這個期間這位顧問沒有發文。</p>';
+  return '<div class="tw"><table><thead><tr><th>日期</th><th>貼文</th><th>貼文種類</th>'+
+   '<th>寫法類型</th><th>寫法公式</th><th>瀏覽</th><th>讚</th><th>留言</th></tr></thead><tbody>'+
+   rs.slice().sort(function(a,b){return b.v-a.v}).map(function(p){
+    return '<tr><td class="dt">'+E(p.d)+'</td>'+
+      '<td class="ti"><a href="'+E(p.u)+'" target="_blank" rel="noopener">'+E(p.t.slice(0,40))+'</a>'+
+      (p.n?'<span class="nt">'+E(p.n)+'</span>':'')+'</td>'+
+      '<td><span class="tag '+(KC[p.k]||'k-n')+'">'+E(p.k)+'</span></td>'+
+      '<td><span class="tag '+(WC[p.w]||'w-n')+'">'+E(p.w)+'</span></td>'+
+      '<td class="fo">'+E(p.f)+'</td>'+
+      '<td class="v"><span class="bar" style="--w:'+Math.round(p.v/MAXV*100)+'%"></span><b>'+NF(p.v)+'</b></td>'+
+      '<td class="m">'+(p.l||'·')+'</td><td class="m">'+(p.r||'·')+'</td></tr>'}).join('')+'</tbody></table></div>';
+}
+function render(){
+  var rs=filtered(), s=stats(rs), all=stats(POSTS.filter(function(p){
+    return PMODE==='all'||(PMODE==='week'?p.wk===PVAL:p.mo===PVAL)}));
+  var h='';
+  if(CUR!=='全部'){
+    h+='<h2>'+E(CUR)+'</h2>';
+    if(rs.length>=3&&s.avg&&all.avg&&s.avg<all.avg*0.25)
+      h+='<p class="warn">⚠️ 這個帳號的平均觸及只有全隊平均的 '+Math.round(s.avg/all.avg*100)+
+        '%。篇數不少但看到的人很少，比較可能是帳號本身被壓著，不是文案問題——需要人去看帳號狀態。</p>';
+  }
+  h+=cards(s);
+  if(CUR==='全部') h+=rankHtml(rs);
+  h+='<h3>哪一種寫法有效</h3>';
+  if(rs.filter(function(p){return p.hv}).length<10)
+    h+='<p class="note">⚠️ 這個範圍只有 '+rs.filter(function(p){return p.hv}).length+
+      ' 篇有數據，<b>樣本太少，看趨勢就好不要當結論</b>。</p>';
+  h+=perf(rs);
+  h+='<h3>貼文明細（'+rs.length+' 篇）</h3>'+rowsHtml(rs);
+  document.getElementById('out').innerHTML=h;
+  var pi=document.getElementById('pinfo');
+  pi.textContent=PMODE==='all'?'（全部 '+POSTS.length+' 篇）':'（此期間全隊 '+all.c+' 篇）';
+}
+function buildTabs(){
+  var g={}; POSTS.forEach(function(p){g[p.a]=(g[p.a]||0)+1});
+  var t='<button class="tab on" data-t="全部">全部</button>';
+  var o='<option value="全部">全部（總覽）</option>';
+  ACCTS.forEach(function(a){
+    t+='<button class="tab" data-t="'+E(a)+'">'+E(a)+' <em>'+g[a]+'</em></button>';
+    o+='<option value="'+E(a)+'">'+E(a)+'（'+g[a]+' 篇）</option>';
+  });
+  document.getElementById('tabs').innerHTML=t;
+  document.getElementById('msel').innerHTML=o;
+  document.querySelectorAll('.tab').forEach(function(b){b.onclick=function(){go(b.dataset.t)}});
+  document.getElementById('msel').onchange=function(){go(this.value)};
+}
+function go(v){
+  CUR=v;
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.toggle('on',t.dataset.t===v)});
+  var s=document.getElementById('msel'); if(s.value!==v) s.value=v;
+  render();
+}
+document.getElementById('pmode').onchange=function(){
+  PMODE=this.value;
+  var pv=document.getElementById('pval');
+  if(PMODE==='all'){ pv.hidden=true; PVAL=''; }
+  else{
+    var list=PMODE==='week'?WEEKS:MONTHS;
+    pv.innerHTML=list.map(function(x){return '<option value="'+x.v+'">'+E(x.l)+'</option>'}).join('');
+    pv.hidden=false; PVAL=list[0].v;
+  }
+  render();
+};
+document.getElementById('pval').onchange=function(){PVAL=this.value;render()};
+buildTabs(); render();
+
+</script></body></html>

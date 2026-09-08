@@ -34,6 +34,23 @@ button.go:disabled{opacity:.5;cursor:not-allowed}
 .qrow:last-child{border-bottom:none}
 .qrow .t{font-weight:600;font-size:14px}
 .qrow .m{color:var(--ink3);font-size:12.5px;margin-top:2px}
+.markpill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:5px;background:#eef1f4;color:#48525c}
+.markpill.miss{background:#fdf3e7;color:#8a4b12;border:1px dashed #e0c39a}
+.markedit{margin-left:6px;font:inherit;font-size:11px;padding:2px 8px;border-radius:5px;
+  border:1px solid var(--line);background:#fff;color:var(--ink3);cursor:pointer}
+.markedit:hover{border-color:#8a9199;color:var(--ink)}
+.markmask{position:fixed;inset:0;background:rgba(18,22,28,.42);display:flex;align-items:center;
+  justify-content:center;padding:18px;z-index:90}
+.markbox{background:#fff;border-radius:14px;padding:20px;width:100%;max-width:380px;
+  box-shadow:0 18px 48px rgba(0,0,0,.22)}
+.markbox h4{margin:0 0 4px;font-size:15px}
+.markbox label{display:block;font-size:12px;color:var(--ink3);margin:12px 0 5px}
+.markbox select{width:100%;padding:10px;font:inherit;font-size:13.5px;
+  border:1px solid var(--line);border-radius:9px;background:#fff}
+.markbtns{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
+.markbtns button{font:inherit;font-size:13px;padding:9px 16px;border-radius:9px;border:0;
+  background:var(--brand,#1f5f4f);color:#fff;cursor:pointer}
+.markbtns .ghost{background:#fff;border:1px solid var(--line);color:var(--ink3)}
 .badge{font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap}
 .badge.wait{background:#f3e2c2;color:#8a5a1a}
 .badge.draft{background:#eef4fd;color:#2f5fd8}
@@ -831,6 +848,108 @@ function metricsHtml(r) {
     + '</div>';
 }
 
+// ── 寫法標記：顯示 + 就地編輯 ──
+// 2026-09-08 加。顧問自己在 App 發完才貼網址匯入的貼文，以前完全沒有寫法標記，
+// 成效分析只能看總量、比不出哪種寫法有效。匯入流程已改成會問，但既有的補不回來，
+// 所以在列表上直接開一個入口讓顧問補標，也能修改當初選錯的。
+function isTopicRow(r) {
+  return !!r.topic_id || String(r.slug || '').indexOf('💬') === 0;
+}
+function markLabel(r) {
+  if (isTopicRow(r)) {
+    if (r.content_mission === 'trust_building') return { t: '🤖 AI阿財話題', ok: true };
+    if (r.content_mission === 'engagement') return { t: '💼 通用文', ok: true };
+    if (r.topic_category === 'ai') return { t: '🤖 AI阿財話題', ok: true };
+    if (r.topic_category === 'general') return { t: '💼 通用文', ok: true };
+    return { t: '未標記', ok: false };
+  }
+  if (r.style_subtype === 'dialog') return { t: '對話討論型・' + String(r.style_name || '').replace('對話討論型・', ''), ok: true };
+  if (r.style_subtype === 'pure' || r.content_formula === 'pure') return { t: '純CTA型', ok: true };
+  if (r.content_formula === 'default') return { t: '原始格式', ok: true };
+  return { t: '未標記', ok: false };
+}
+function markHtml(r) {
+  var m = markLabel(r);
+  return '<div class="m" style="margin-top:4px">'
+    + '<span class="markpill' + (m.ok ? '' : ' miss') + '">' + m.t + '</span>'
+    + '<button type="button" class="markedit" data-qid="' + r.queue_id + '">'
+    + (m.ok ? '改標記' : '補標記') + '</button></div>';
+}
+function openMarkEditor(qid) {
+  var r = null;
+  ALL_QUEUE.forEach(function (x) { if (String(x.queue_id) === String(qid)) r = x; });
+  if (!r) return;
+  var topic = isTopicRow(r);
+  var box = document.createElement('div');
+  box.className = 'markmask';
+  var inner = topic
+    ? '<label>這篇話題是哪一種？</label>'
+      + '<select id="mkMission">'
+      + '<option value="general">💼 通用文</option>'
+      + '<option value="ai">🤖 AI阿財話題</option></select>'
+    : '<label>用哪一種寫法？</label>'
+      + '<select id="mkWay">'
+      + '<option value="default">原始格式（沒特別套公式）</option>'
+      + '<option value="pure">純CTA型</option>'
+      + '<option value="dialog">對話討論型</option></select>'
+      + '<div id="mkStyleWrap" hidden><label>是哪一個公式？</label>'
+      + '<select id="mkStyle"></select></div>';
+  box.innerHTML = '<div class="markbox"><h4>' + (r.title || r.slug) + '</h4>'
+    + '<p class="mut" style="font-size:12.5px;margin:0 0 12px">'
+    + (topic ? '話題文只分通用文／AI阿財話題，沒有寫法公式。'
+             : '純CTA型與原始格式沒有下一層公式，只有對話討論型要再挑一個。') + '</p>'
+    + inner
+    + '<div class="markbtns"><button type="button" id="mkCancel" class="ghost">取消</button>'
+    + '<button type="button" id="mkSave">儲存</button></div></div>';
+  document.body.appendChild(box);
+
+  if (!topic) {
+    var wrap = box.querySelector('#mkStyleWrap');
+    var sel = box.querySelector('#mkStyle');
+    var fill = function () {
+      (POST_STYLES_CACHE ? Promise.resolve({ styles: POST_STYLES_CACHE }) : api('/admin/style-prompts'))
+        .then(function (d) {
+          POST_STYLES_CACHE = d.styles || POST_STYLES_CACHE || [];
+          sel.innerHTML = POST_STYLES_CACHE.filter(function (x) { return x.subtype === 'dialog'; })
+            .map(function (x) { return '<option value="' + x.id + '">' + x.name + '</option>'; }).join('');
+          if (r.style_id) sel.value = r.style_id;
+        }).catch(function () { toast('讀不到公式清單', true); });
+    };
+    // 帶入目前值，顧問看得到現在標成什麼再決定要不要改
+    var wsel = box.querySelector('#mkWay');
+    wsel.value = r.style_subtype === 'dialog' ? 'dialog'
+      : (r.style_subtype === 'pure' || r.content_formula === 'pure') ? 'pure' : 'default';
+    var sync = function () { wrap.hidden = wsel.value !== 'dialog'; if (!wrap.hidden) fill(); };
+    wsel.addEventListener('change', sync); sync();
+  } else if (r.content_mission) {
+    box.querySelector('#mkMission').value = r.content_mission === 'trust_building' ? 'ai' : 'general';
+  }
+
+  var close = function () { box.remove(); };
+  box.querySelector('#mkCancel').onclick = close;
+  box.addEventListener('click', function (e) { if (e.target === box) close(); });
+  box.querySelector('#mkSave').onclick = function () {
+    var btn = this; btn.disabled = true; btn.textContent = '儲存中⋯';
+    var payload = { queue_id: r.queue_id };
+    if (topic) payload.mission = box.querySelector('#mkMission').value;
+    else {
+      payload.way = box.querySelector('#mkWay').value;
+      if (payload.way === 'dialog') payload.style_id = Number(box.querySelector('#mkStyle').value);
+    }
+    api('/admin/social-post-meta', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(payload),
+    }).then(function (d) {
+      if (!d.ok) { btn.disabled = false; btn.textContent = '儲存'; return toast(d.error || '儲存失敗', true); }
+      close(); toast('標記已更新'); loadQueue();
+    }).catch(function () { btn.disabled = false; btn.textContent = '儲存'; toast('連不上伺服器', true); });
+  };
+}
+document.addEventListener('click', function (e) {
+  var b = e.target.closest && e.target.closest('.markedit');
+  if (b) openMarkEditor(b.dataset.qid);
+});
+
 function paintQueue() {
   paintTabs();
   var rows = CUR_TAB === '全部' ? ALL_QUEUE : ALL_QUEUE.filter(function (r) {
@@ -846,7 +965,7 @@ function paintQueue() {
       + (r.posted_at ? '　·　發布 ' + r.posted_at.slice(5, 16)
                      : (r.social_post_at ? '　·　排入 ' + r.social_post_at.slice(5, 16) : ''))
       + (r.social_post_url ? '　·　<a href="' + r.social_post_url + '" target="_blank" rel="noopener">查看貼文</a>' : '')
-      + '</div>' + metricsHtml(r) + '</div>'
+      + '</div>' + metricsHtml(r) + markHtml(r) + '</div>'
       + '<span class="badge ' + b.c + '">' + b.t + '</span></div>';
   }).join('') : '<div class="mut" style="padding:6px 0">目前沒有排入中的職缺。</div>';
 }
