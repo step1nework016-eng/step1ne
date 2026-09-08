@@ -75,6 +75,18 @@ def check_headings(f, h):
             bad(f, f'h{lv} 標籤數量不符：開 {o} 個、關 {c} 個')
 
 
+def check_internal_notes(f, h):
+    """給我們自己看的備註不能留在公開頁面。
+
+    2026-09-08：新版上線後，職缺列表與獵才專欄各留著一段開頭寫
+    「這一塊是給你看的，不是給求職者看的」的資料品質備註，直接公開在線上，
+    而且內容還過期（說還有 6 筆暫存網址、BIM 疑似重複頁）。
+    """
+    for kw in ('給你看的', '不是給求職者', '不是給讀者', '設計稿說明', 'TODO', 'FIXME'):
+        if kw in h:
+            bad(f, f'公開頁面留著內部備註：{kw}')
+
+
 def check_links(f, h, slugs, redirects):
     """站內職缺連結必須指向真的存在的頁面（或有 301）。"""
     for m in re.finditer(r'href="/jobs/([a-z0-9_\-]+)/"', h):
@@ -127,6 +139,7 @@ def main():
         check_burger(n, h)
         check_header(n, h)
         check_headings(n, h)
+        check_internal_notes(n, h)
         check_links(n, h, slugs, redirects)
         check_assets(n, h)
         check_counts(n, h)
