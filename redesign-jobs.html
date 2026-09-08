@@ -187,15 +187,15 @@ footer{margin-top:56px;border-top:1px solid var(--rule);padding:28px 0;font-size
 
   <div class="bar" id="tabs">
     <button class="chip" type="button" data-g="all">全部 <span class="c">34</span></button><button class="chip" type="button" data-g="senior">中高階獵才 <span class="c">3</span></button><button class="chip" type="button" data-g="fulltime">正職僱用 <span class="c">16</span></button><button class="chip" type="button" data-g="dispatch">人力派遣 <span class="c">11</span></button><button class="chip" type="button" data-g="overseas">海外・外派 <span class="c">4</span></button><button class="chip" type="button" data-g="contract">承攬合作 <span class="c">1</span></button>
-    <div class="selwrap"><label class="sr" for="gsel">職缺類型</label><select id="gsel"><option value="all">全部（34 個職缺）</option><option value="senior">中高階獵才（3 個）</option><option value="fulltime">正職僱用（16 個）</option><option value="dispatch">人力派遣（11 個）</option><option value="overseas">海外・外派（4 個）</option><option value="contract">承攬合作（1 個）</option></select></div>
+    <div class="selwrap"><label class="sr" for="gsel">職缺類型</label><select id="gsel"><option value="all">全部（34 個職缺）</option><option value="senior">senior（0）</option><option value="fulltime">fulltime（0）</option><option value="dispatch">dispatch（0）</option><option value="overseas">overseas（0）</option><option value="contract">contract（0）</option></select></div>
     <input type="search" id="q" placeholder="搜尋職稱或地點">
   </div>
   <div class="bar bar2" id="rtabs">
     <span class="barlab">地區</span>
-    <button class="chip rchip on" type="button" data-r="all">不限 <span class="c">34</span></button><button class="chip rchip" type="button" data-r="台北市">台北市 <span class="c">12</span></button><button class="chip rchip" type="button" data-r="新北市">新北市 <span class="c">3</span></button><button class="chip rchip" type="button" data-r="新竹">新竹 <span class="c">2</span></button><button class="chip rchip" type="button" data-r="苗栗縣">苗栗縣 <span class="c">1</span></button><button class="chip rchip" type="button" data-r="雲林縣">雲林縣 <span class="c">3</span></button><button class="chip rchip" type="button" data-r="日本">日本 <span class="c">2</span></button><button class="chip rchip" type="button" data-r="海外">海外 <span class="c">1</span></button><button class="chip rchip" type="button" data-r="在家工作">在家工作 <span class="c">1</span></button><button class="chip rchip" type="button" data-r="地區待確認">地區待確認 <span class="c">9</span></button>
-    <div class="selwrap"><label class="sr" for="rsel">地區</label><select id="rsel"><option value="all">地區不限（34 個職缺）</option><option value="台北市">台北市（12）</option><option value="新北市">新北市（3）</option><option value="新竹">新竹（2）</option><option value="苗栗縣">苗栗縣（1）</option><option value="雲林縣">雲林縣（3）</option><option value="日本">日本（2）</option><option value="海外">海外（1）</option><option value="在家工作">在家工作（1）</option><option value="地區待確認">地區待確認（9）</option></select></div>
+    <button class="chip rchip on" type="button" data-r="all">不限 <span class="c">0</span></button><button class="chip rchip" type="button" data-r="台北市">台北市 <span class="c">12</span></button><button class="chip rchip" type="button" data-r="新北市">新北市 <span class="c">3</span></button><button class="chip rchip" type="button" data-r="新竹">新竹 <span class="c">2</span></button><button class="chip rchip" type="button" data-r="苗栗縣">苗栗縣 <span class="c">1</span></button><button class="chip rchip" type="button" data-r="雲林縣">雲林縣 <span class="c">2</span></button><button class="chip rchip" type="button" data-r="日本">日本 <span class="c">2</span></button><button class="chip rchip" type="button" data-r="海外">海外 <span class="c">1</span></button><button class="chip rchip" type="button" data-r="在家工作">在家工作 <span class="c">1</span></button><button class="chip rchip" type="button" data-r="地區待確認">地區待確認 <span class="c">8</span></button>
+    <div class="selwrap"><label class="sr" for="rsel">地區</label><select id="rsel"><option value="all">地區不限（34 個職缺）</option><option value="台北市">台北市（12）</option><option value="新北市">新北市（3）</option><option value="新竹">新竹（2）</option><option value="苗栗縣">苗栗縣（1）</option><option value="雲林縣">雲林縣（2）</option><option value="日本">日本（2）</option><option value="海外">海外（1）</option><option value="在家工作">在家工作（1）</option><option value="地區待確認">地區待確認（8）</option></select></div>
   </div>
-  <p class="cnt" id="cnt">共 <b>34</b> 個職缺，依類型分成 5 區</p>
+  <p class="cnt" id="cnt">共 <b>32</b> 個職缺，依類型分成 5 區</p>
 
 
 
@@ -224,22 +224,12 @@ footer{margin-top:56px;border-top:1px solid var(--rule);padding:28px 0;font-size
   </section>
 
   <section class="grp" data-g="fulltime">
-    <div class="grp-hd"><h2>正職僱用</h2><span class="meta"><span class="gn">15</span> 個職缺　·　直接與用人企業簽訂勞動契約</span></div>
-    <div class="scale"><div class="cap">這 15 個正職僱用職缺的薪資，只跟彼此比較</div><div class="ticks"><span class="tick f" style="left:0%">3.4萬</span><span class="tick" style="left:33.33%">4.3萬</span><span class="tick" style="left:66.67%">5.2萬</span><span class="tick l" style="left:100%">6.2萬</span></div></div>
+    <div class="grp-hd"><h2>正職僱用</h2><span class="meta"><span class="gn">13</span> 個職缺　·　直接與用人企業簽訂勞動契約</span></div>
+    <div class="scale"><div class="cap">這 13 個正職僱用職缺的薪資，只跟彼此比較</div><div class="ticks"><span class="tick f" style="left:0%">3.4萬</span><span class="tick" style="left:33.33%">4.3萬</span><span class="tick" style="left:66.67%">5.2萬</span><span class="tick l" style="left:100%">6.2萬</span></div></div>
     <div class="list">
-      <a class="row" href="/jobs/pending-co_802bdd6b-3b807a75/" data-r="雲林縣" data-t="資深職業安全衛生工程師 雲林縣 pending-co_802bdd6b-3b807a75">
-        <div class="pay">50,000–60,000<small>月薪</small></div>
-        <div class="mid"><h3>資深職業安全衛生工程師</h3><div class="tags"><span class="t ft">正職僱用</span><span class="t">雲林縣</span><span class="t warnt">網址仍是暫存代號</span></div></div>
-        <div class="rail"><div class="bandwrap"><span class="band" style="left:58.9%;width:35.7%"></span></div><div class="bandnote">5.0萬 – 6.0萬</div></div>
-      </a>
       <a class="row" href="/jobs/senior-semiconductor-project-engineer/" data-r="地區待確認" data-t="資深半導體專案工程師 地區待確認 senior-semiconductor-project-engineer">
         <div class="pay">50,000–60,000<small>月薪</small></div>
         <div class="mid"><h3>資深半導體專案工程師</h3><div class="tags"><span class="t ft">正職僱用</span><span class="t miss">地區待確認</span><span class="t warnt">網址仍是暫存代號</span></div></div>
-        <div class="rail"><div class="bandwrap"><span class="band" style="left:58.9%;width:35.7%"></span></div><div class="bandnote">5.0萬 – 6.0萬</div></div>
-      </a>
-      <a class="row" href="/jobs/pending-co_802bdd6b-dd0123c6/" data-r="地區待確認" data-t="資深工程設計工程師 地區待確認 pending-co_802bdd6b-dd0123c6">
-        <div class="pay">50,000–60,000<small>月薪</small></div>
-        <div class="mid"><h3>資深工程設計工程師</h3><div class="tags"><span class="t ft">正職僱用</span><span class="t miss">地區待確認</span><span class="t warnt">網址仍是暫存代號</span></div></div>
         <div class="rail"><div class="bandwrap"><span class="band" style="left:58.9%;width:35.7%"></span></div><div class="bandnote">5.0萬 – 6.0萬</div></div>
       </a>
       <a class="row" href="/jobs/clinic-nurse-neihu/" data-r="台北市" data-t="復健科診所護理師 台北市 clinic-nurse-neihu">
@@ -449,8 +439,18 @@ footer{margin-top:56px;border-top:1px solid var(--rule);padding:28px 0;font-size
       var g=o.value;
       var n=g==='all'?all:document.querySelectorAll('.grp[data-g="'+g+'"] .row').length;
       if(n===0 && g!=='all'){ o.remove(); return; }
-      o.textContent=o.textContent.replace(/（[^）]*）/, g==='all'?('（'+n+' 個職缺）'):('（'+n+' 個）'));
+      // ⚠️ 手機版下拉原本直接沿用 option 裡寫死的英文代號（senior／fulltime…），
+      //    使用者看到的是「fulltime（13 個）」。名稱一律取該分類自己的中文標題，
+      //    才不會有兩套講法。
+      var hd=document.querySelector('.grp[data-g="'+g+'"] .grp-hd h2');
+      var label=g==='all'?'全部':(hd?hd.textContent.trim():g);
+      o.textContent=label+(g==='all'?('（'+n+' 個職缺）'):('（'+n+' 個）'));
     });
+    // 地區下拉的「地區不限」也要跟著實際數量走
+    var rsel=document.getElementById('rsel');
+    if(rsel && rsel.options.length){
+      rsel.options[0].textContent='地區不限（'+all+' 個職缺）';
+    }
     var h1=document.querySelector('.top h1');
     if(h1) h1.textContent=all+' 個開放中的職缺';
   })();
