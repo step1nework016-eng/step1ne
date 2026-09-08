@@ -104,8 +104,11 @@ aside{position:sticky;top:88px}
 
 /* 手機底部固定應徵列 */
 .dock{display:none;position:fixed;left:0;right:0;bottom:0;z-index:70;background:rgba(255,255,255,.97);border-top:1px solid var(--rule);padding:10px var(--gut);gap:10px;backdrop-filter:blur(10px)}
-.dock .btn{flex:1;justify-content:center;padding:13px 10px;font-size:15px}
-.dock .pay{flex:0 0 auto;align-self:center;font-family:var(--fd);font-variant-numeric:tabular-nums;font-weight:700;font-size:14.5px;line-height:1.3;max-width:34%}
+/* ⚠️ 原本按鈕 flex:1、金額被壓在 34% 寬度裡，長一點的薪資說明會斷成四行，
+   按鈕卻佔掉大半條。改成金額吃剩餘空間、按鈕固定寬度剛好放得下四個字。 */
+.dock .btn{flex:0 0 auto;justify-content:center;padding:12px 22px;font-size:15px;white-space:nowrap}
+.dock .pay{flex:1 1 auto;min-width:0;align-self:center;font-family:var(--fd);font-variant-numeric:tabular-nums;font-weight:700;font-size:15px;line-height:1.35}
+.dock .pay small{white-space:normal}
 .dock .pay small{display:block;font-family:var(--ft);font-size:11.5px;color:var(--dim);font-weight:400}
 footer{border-top:1px solid var(--rule);padding:26px 0;font-size:14px;color:var(--slate);background:var(--white)}
 
@@ -145,7 +148,7 @@ footer{border-top:1px solid var(--rule);padding:26px 0;font-size:14px;color:var(
     <h1>BIM 工程師</h1>
     <p class="sub">無經驗可・正職・苗栗銅鑼</p>
     <dl class="facts">
-      <div><dt>薪資</dt><dd>月薪 40,833–50,167，依學歷與科系相關性核定，已含年終攤提</dd></div>
+      <div><dt>薪資</dt><dd>月薪 4 萬起，依學歷與科系相關性核定，已含年終攤提</dd></div>
       <div><dt>工作地點</dt><dd class="zh">苗栗縣銅鑼鄉（調派範圍：苗栗、台中）</dd></div>
       <div><dt>僱傭型態</dt><dd class="zh">正職（非派遣、非約聘）</dd></div>
     </dl>
@@ -159,14 +162,14 @@ footer{border-top:1px solid var(--rule);padding:26px 0;font-size:14px;color:var(
 <div class="shell">
   <main>
     <section class="blk"><h2>職缺條件一覽</h2>
-      <dl class="spec"><div class="sr"><dt>薪資</dt><dd>月薪 40,833–50,167，依學歷與科系相關性核定，已含年終攤提</dd></div><div class="sr"><dt>工作地點</dt><dd>苗栗縣銅鑼鄉（調派範圍：苗栗、台中）</dd></div><div class="sr"><dt>上班時間</dt><dd>08:30–17:30（午休 12:00–13:00 不計工時），週休二日不輪班</dd></div><div class="sr"><dt>僱傭型態</dt><dd>正職（非派遣、非約聘）</dd></div><div class="sr"><dt>需求人數</dt><dd>優先招募 10 名，後續滾動增補</dd></div><div class="sr"><dt>學歷要求</dt><dd>大學以上（畢業非在學），不限科系</dd></div><div class="sr"><dt>工作經驗</dt><dd>無經驗可</dd></div><div class="sr"><dt>工作環境</dt><dd>辦公室（BIM Room）8 成、無塵室現場 2 成</dd></div><div class="sr"><dt>到職時程</dt><dd>急徵，希望一個月內到位</dd></div></dl>
+      <dl class="spec"><div class="sr"><dt>薪資</dt><dd>月薪 4 萬起，依學歷與科系相關性核定，已含年終攤提</dd></div><div class="sr"><dt>工作地點</dt><dd>苗栗縣銅鑼鄉（調派範圍：苗栗、台中）</dd></div><div class="sr"><dt>上班時間</dt><dd>08:30–17:30（午休 12:00–13:00 不計工時），週休二日不輪班</dd></div><div class="sr"><dt>僱傭型態</dt><dd>正職（非派遣、非約聘）</dd></div><div class="sr"><dt>需求人數</dt><dd>優先招募 10 名，後續滾動增補</dd></div><div class="sr"><dt>學歷要求</dt><dd>大學以上（畢業非在學），不限科系</dd></div><div class="sr"><dt>工作經驗</dt><dd>無經驗可</dd></div><div class="sr"><dt>工作環境</dt><dd>辦公室（BIM Room）8 成、無塵室現場 2 成</dd></div><div class="sr"><dt>到職時程</dt><dd>急徵，希望一個月內到位</dd></div></dl>
       <p class="note">※ 上述條件為目前規劃，實際待遇與工作條件依面試後雙方確認為準。</p>
     </section>
     <section class="blk"><h2>工作內容</h2>工作內容</h2><h3>BIM 建模與整合</h3><ul class="duties"><li>依專案契約執行 BIM 作業並接受公司培訓</li><li>BIM 模型建置與修正</li><li>BIM 整合與圖面檢討</li><li>使用工具：AutoCAD、Revit</li></ul><h3>現場配合</h3><ul class="duties"><li>協助工地現場視勘</li><li>主管交辦事項</li></ul>
 </section>
     <section class="blk"><h2>應徵條件</h2>應徵條件</h2><div><div><div>必要條件</div><ul class="duties"><li>大學以上學歷（畢業非在學），不限科系</li><li>可長期於苗栗銅鑼廠區全實體到班</li><li>理解公司不提供宿舍、僅有每月 5,000 元租屋補助</li><li>需配合專案期程加班，加班費依勞動基準法規定發給</li><li>可接受無塵室環境（約 2 成工時）</li><li>持有機車駕照</li><li>願意在報到前自行完成 6 小時工安訓練（可在住家附近上課，費用錄取後憑單據請款）</li></ul></div><div><div>加分條件</div><ul class="duties"><li>AutoCAD／Revit 操作能力或國際認證</li><li>1–3 年 BIM 相關經歷</li></ul></div></div>
 </section>
-    <section class="blk"><h2>為什麼選擇這個機會</h2>為什麼選擇這個機會</h2><div><div><h3>無經驗可入行，有人帶到會</h3><p>錄取後直接進駐銅鑼廠區，現場有設計 PM 與設計工程師組成的團隊輔導到可獨立作業，不是丟進去自己摸。</p></div><div><h3>正職僱用，不是派遣</h3><p>錄取後直接是用人單位的正職員工，不經過派遣公司，勞健保與各項權益都在用人單位。</p></div><div><h3>月薪 40,833–50,167</h3><p>依學歷與科系相關性核定，實際數字由顧問與你確認。年終已經攤入月薪，每個月固定領到，不用等年底、也不怕領不到，年度總所得相當 14 個月。</p></div><div><h3>作息固定不輪班</h3><p>08:30–17:30、週休二日，不用大夜班，作息穩定。</p></div><div><h3>培訓不綁約</h3><p>工安證照可在住家附近上課、錄取後憑單據請款，教育訓練不綁最低服務年限、也沒有競業限制。</p></div><div><h3>學到的是長期技能</h3><p>Revit、AutoCAD 是營建與科技廠專案通用的技能，做這份工作等於替履歷加一項長期用得到的專業，不是做完就沒用的臨時工作。</p></div></div>
+    <section class="blk"><h2>為什麼選擇這個機會</h2>為什麼選擇這個機會</h2><div><div><h3>無經驗可入行，有人帶到會</h3><p>錄取後直接進駐銅鑼廠區，現場有設計 PM 與設計工程師組成的團隊輔導到可獨立作業，不是丟進去自己摸。</p></div><div><h3>正職僱用，不是派遣</h3><p>錄取後直接是用人單位的正職員工，不經過派遣公司，勞健保與各項權益都在用人單位。</p></div><div><h3>月薪 4 萬起</h3><p>依學歷與科系相關性核定，實際數字由顧問與你確認。年終已經攤入月薪，每個月固定領到，不用等年底、也不怕領不到，年度總所得相當 14 個月。</p></div><div><h3>作息固定不輪班</h3><p>08:30–17:30、週休二日，不用大夜班，作息穩定。</p></div><div><h3>培訓不綁約</h3><p>工安證照可在住家附近上課、錄取後憑單據請款，教育訓練不綁最低服務年限、也沒有競業限制。</p></div><div><h3>學到的是長期技能</h3><p>Revit、AutoCAD 是營建與科技廠專案通用的技能，做這份工作等於替履歷加一項長期用得到的專業，不是做完就沒用的臨時工作。</p></div></div>
 </section>
     <section class="blk"><h2>應徵流程</h2>
       <div class="flow">
@@ -175,7 +178,7 @@ footer{border-top:1px solid var(--rule);padding:26px 0;font-size:14px;color:var(
         <div class="fs"><i></i><b>03</b><span>安排面試、談定條件</span></div>
       </div>
     </section>
-    <section class="blk"><h2>常見問題</h2>常見問題</h2><div><details><summary><span>真的完全沒經驗也可以嗎？</span><span class="faq-icon">+</span></summary><p>可以。這個案子明確接受無經驗者，公司安排完整培訓：錄取後直接進駐銅鑼廠區，現場有設計 PM 與設計工程師組成的團隊帶到可上手，工安證照可在住家附近上課、錄取後憑單據請款。教育訓練不綁最低服務年限。</p></details><details><summary><span>是派遣還是正職？</span><span class="faq-icon">+</span></summary><p>正職。錄取後直接是用人單位的正職員工，不是派遣也不是約聘。</p></details><details><summary><span>薪水大概多少？</span><span class="faq-icon">+</span></summary><p>月薪 40,833–50,167，依學歷與科系相關性核定，已含年終攤提。實際數字由顧問與你確認，上述不含加班費。</p></details><details><summary><span>有提供宿舍嗎？</span><span class="faq-icon">+</span></summary><p>不提供宿舍，但有租屋補助每月 5,000 元（適用條件面談時說明）。交通費用含在月薪內，配合專案調派另有返鄉交通補助。</p></details><details><summary><span>需要進無塵室嗎？</span><span class="faq-icon">+</span></summary><p>工作環境約 8 成在辦公室（BIM Room）、2 成在無塵室現場。入場安全裝備由現場單位提供。</p></details><details><summary><span>加班多嗎？</span><span class="faq-icon">+</span></summary><p>專案期間需配合加班，加班費依勞動基準法規定發給。實際時數依當期工進調整，會在面談時依最新現場狀況說明。</p></details></div>
+    <section class="blk"><h2>常見問題</h2>常見問題</h2><div><details><summary><span>真的完全沒經驗也可以嗎？</span><span class="faq-icon">+</span></summary><p>可以。這個案子明確接受無經驗者，公司安排完整培訓：錄取後直接進駐銅鑼廠區，現場有設計 PM 與設計工程師組成的團隊帶到可上手，工安證照可在住家附近上課、錄取後憑單據請款。教育訓練不綁最低服務年限。</p></details><details><summary><span>是派遣還是正職？</span><span class="faq-icon">+</span></summary><p>正職。錄取後直接是用人單位的正職員工，不是派遣也不是約聘。</p></details><details><summary><span>薪水大概多少？</span><span class="faq-icon">+</span></summary><p>月薪 4 萬起，依學歷與科系相關性核定，已含年終攤提。實際數字由顧問與你確認，上述不含加班費。</p></details><details><summary><span>有提供宿舍嗎？</span><span class="faq-icon">+</span></summary><p>不提供宿舍，但有租屋補助每月 5,000 元（適用條件面談時說明）。交通費用含在月薪內，配合專案調派另有返鄉交通補助。</p></details><details><summary><span>需要進無塵室嗎？</span><span class="faq-icon">+</span></summary><p>工作環境約 8 成在辦公室（BIM Room）、2 成在無塵室現場。入場安全裝備由現場單位提供。</p></details><details><summary><span>加班多嗎？</span><span class="faq-icon">+</span></summary><p>專案期間需配合加班，加班費依勞動基準法規定發給。實際時數依當期工進調整，會在面談時依最新現場狀況說明。</p></details></div>
 </div></section></main>
 
 <footer>
@@ -199,7 +202,7 @@ footer{border-top:1px solid var(--rule);padding:26px 0;font-size:14px;color:var(
     <div class="card">
       <h3>重點速覽</h3>
       <ul>
-        <li><span>薪資</span><span>月薪 40,833–50,167，依學歷與科系相關性核定，已含年終攤提</span></li>
+        <li><span>薪資</span><span>月薪 4 萬起，依學歷與科系相關性核定，已含年終攤提</span></li>
         <li><span>地點</span><span>苗栗縣銅鑼鄉（調派範圍：苗栗、台中）</span></li>
         <li><span>僱傭型態</span><span>正職（非派遣、非約聘）</span></li>
       </ul>
@@ -208,7 +211,7 @@ footer{border-top:1px solid var(--rule);padding:26px 0;font-size:14px;color:var(
 </div>
 
 <div class="dock">
-  <div class="pay">月薪 40,833–50,167，依學歷與科系相關性核定，已含年終攤提<small>苗栗縣銅鑼鄉（調派範圍：苗栗、台中）</small></div>
+  <div class="pay">月薪 4 萬起<small>苗栗縣銅鑼鄉・依經歷面議</small></div>
   <a class="btn btn-p" href="/apply/?job=bim-engineer-tongluo&title=BIM%20%E5%B7%A5%E7%A8%8B%E5%B8%AB&utm_source=website&utm_medium=job_page&utm_campaign=bim-engineer-tongluo">立即應徵</a>
 </div>
 
