@@ -307,6 +307,11 @@ button.sec{background:#fff;color:var(--ink2);border:1px solid var(--line)}
 .fcPvRow span{white-space:pre-wrap;overflow-wrap:anywhere}
 .fcPvFoot{padding:14px 20px;border-top:1px solid var(--line);display:flex;gap:10px;justify-content:flex-end}
 .fcPvFoot button.sec{background:#fff;color:var(--ink2);border:1px solid var(--line)}
+.nrec{background:#fdf3e7;border-left:3px solid #8a4b12;border-radius:0 10px 10px 0;
+  padding:12px 15px;margin:0 0 14px}
+.nrec h4{margin:0 0 6px;font-size:14px;color:#8a4b12}
+.nrec-why{font-size:13.5px;line-height:1.7;color:#5c3a12}
+.nrec-when{margin-top:7px;font-size:11.5px;color:#9a7a52}
 </style>
 
 <header><div class="wrap" style="position:relative">
@@ -1929,9 +1934,26 @@ function openCandModal(appId){
     ['職缺', c.job_title || c.job_slug || '—'],
     ['目前狀態', currentStageOf(c).lb],
   ].map(([k, v]) => `<div><div class="lb">${esc(k)}</div><div class="vv">${esc(v)}</div></div>`).join('');
-  document.getElementById('cmNoteBlock').innerHTML = c.client_note
+  // 2026-09-08 加：顧問標「不推薦」時客戶完全看不到，只看到人選卡在那裡，
+  // 不知道是我們評估後決定不推，還是流程卡住。這一塊放在「顧問給你的說明」
+  // 前面，因為它會直接改變客戶要不要繼續等這位人選。
+  // ⚠️ 原因已在後端過 scrubForClient()，濾光時回 null——這裡就顯示
+  //    「未提供說明」，不要露出半截句子。
+  var nrHtml = '';
+  if (c.advisor_not_recommended_at) {
+    var when = String(c.advisor_not_recommended_at).slice(0, 10);
+    var why = c.advisor_not_recommended_reason
+      ? esc(c.advisor_not_recommended_reason).replace(/\n/g, '<br>')
+      : '顧問評估後決定不推薦，未提供進一步說明。';
+    nrHtml = '<div class="nrec">'
+      + '<h4>這位人選我們不推薦</h4>'
+      + '<div class="nrec-why">' + why + '</div>'
+      + '<div class="nrec-when">顧問於 ' + esc(when) + ' 標記・這位人選不會再往下推進</div>'
+      + '</div>';
+  }
+  document.getElementById('cmNoteBlock').innerHTML = nrHtml + (c.client_note
     ? `<h4>顧問給你的說明</h4><div class="note" style="margin:0">${esc(c.client_note).replace(/\n/g, '<br>')}</div>`
-    : `<h4>顧問給你的說明</h4><div style="color:var(--ink3);font-size:13px">尚未提供</div>`;
+    : `<h4>顧問給你的說明</h4><div style="color:var(--ink3);font-size:13px">尚未提供</div>`);
   // 2026-09-02 加：人選客製表單（例：用人事資料表）——只有這個職缺真的有掛
   // 表單、且人選已經填完的才會出現下載按鈕；還在等人選填的顯示狀態文字，
   // 不給下載（還沒有檔案）。
