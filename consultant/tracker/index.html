@@ -1835,18 +1835,6 @@ function openClientFormalModal(appId, kind) {
         $('cfWrap').innerHTML = '<div class="dhead"><span class="nm">製作客戶版履歷</span><button class="x" id="cfClose" type="button">×</button></div>' +
           '<div class="dbody"><div class="sec"><p style="color:#c0392b;margin:0">' + esc(pre.error || '載入失敗') + '</p></div></div>';
         $('cfClose').onclick = closeClientFormalModal;
-    var setAll = function (fn) {
-      [].forEach.call(document.querySelectorAll('.cfblk'), function (el, i) {
-        el.checked = fn(CF_BLOCKS[i]);
-        el.closest('.cfb').classList.toggle('off', !el.checked);
-      });
-    };
-    $('cfAll').onclick = function () { setAll(function () { return true; }); };
-    $('cfNone').onclick = function () { setAll(function () { return false; }); };
-    $('cfDef').onclick = function () { setAll(function (b) { return !!b[2]; }); };
-    [].forEach.call(document.querySelectorAll('.cfblk'), function (el) {
-      el.onchange = function () { el.closest('.cfb').classList.toggle('off', !el.checked); };
-    });
         return;
       }
       renderClientFormalForm(pre);
@@ -1887,6 +1875,21 @@ function openClientFormalModal(appId, kind) {
       '<div class="acts" style="margin-top:12px"><button class="btn p" id="cfGo" type="button">產生履歷</button><span class="mut" id="cfMsg"></span></div>' +
       '</div></div>';
     $('cfClose').onclick = closeClientFormalModal;
+    // 區塊勾選的行為。⚠️ 一定要接在「表單真的畫出來之後」——
+    // 2026-09-08 第一版把這段插進了 prefill 失敗的分支裡，正常路徑完全沒接到，
+    // 顧問看到的彈窗裡根本沒有勾選區。
+    var setAll = function (fn) {
+      [].forEach.call(document.querySelectorAll('.cfblk'), function (el, i) {
+        el.checked = fn(CF_BLOCKS[i]);
+        el.closest('.cfb').classList.toggle('off', !el.checked);
+      });
+    };
+    if ($('cfAll')) $('cfAll').onclick = function () { setAll(function () { return true; }); };
+    if ($('cfNone')) $('cfNone').onclick = function () { setAll(function () { return false; }); };
+    if ($('cfDef')) $('cfDef').onclick = function () { setAll(function (b) { return !!b[2]; }); };
+    [].forEach.call(document.querySelectorAll('.cfblk'), function (el) {
+      el.onchange = function () { el.closest('.cfb').classList.toggle('off', !el.checked); };
+    });
     var cfCompany = $('cfCompany');
     if (cfCompany) cfCompany.onchange = function () { loadFor(cfCompany.value); };
     var wantPhoto = $('cfWantPhoto');
