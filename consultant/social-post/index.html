@@ -1107,6 +1107,10 @@ function thKind(r){
   return '話題文（未分類）';
 }
 function thWay(r){
+  // ⚠️ 話題文沒有「寫法類型」這一層——後台表單只有職缺文才會問純CTA／對話討論／
+  //    原始格式。話題文顯示「—」才對，標成「未標記」會去催顧問補一個根本不存在
+  //    的欄位（2026-09-08 初版就這樣誤報了 Phoebe 那篇通用文）。
+  if(r.topic_id || String(r.slug||'').indexOf('💬')===0) return '—';
   if(r.style_subtype==='dialog') return '對話討論型';
   if(r.style_subtype==='pure'||r.content_formula==='pure') return '純CTA型';
   if(r.content_formula==='default') return '原始格式';
@@ -1207,6 +1211,24 @@ function thRender(){
     if(rs.length>=3&&s.avg&&base.avg&&s.avg<base.avg*0.25)
       h+='<p class="thwarn">⚠️ 這個帳號的平均觸及只有全隊平均的 '+Math.round(s.avg/base.avg*100)
         +'%。篇數不少但看到的人很少，比較可能是帳號本身被壓著，不是文案問題——需要人去看帳號狀態。</p>';
+  }
+  // 2026-09-08 加：沒標寫法的貼文直接點出來。這些多半是顧問自己在 App 上
+  // 發完才貼網址回來匯入的（匯入流程 2026-09-08 之後才會問寫法），
+  // 沒補的話這幾篇永遠進不了「哪一種寫法有效」的比較。
+  // 兩種都算沒標完：職缺文缺「寫法類型」、話題文缺「通用文／AI阿財話題」。
+  // 補標記的彈窗兩種都處理得了，所以一起提醒。
+  var unmarked = rs.filter(function(p){
+    return p.w==='未標記' || p.k==='話題文（未分類）'; });
+  if(unmarked.length){
+    h+='<p class="thwarn" id="thUnmarked">⚠️ 有 <b>'+unmarked.length+'</b> 篇還沒標完分類'
+      +(TH.cur==='全部'?'':'（'+thEsc(TH.cur)+'）')
+      +'，這幾篇不會出現在下面的寫法比較裡。<br>'
+      +'職缺文缺的是「用哪一種寫法」，話題文缺的是「通用文還是 AI阿財話題」。<br>'
+      +'去「一鍵發文」分頁的貼文列表，找到標著<b>未標記</b>的那幾則按「補標記」，'
+      +'花不到一分鐘。<br>'
+      +'<span style="opacity:.8">'+unmarked.slice(0,6).map(function(p){
+        return thEsc(p.d)+'　'+thEsc(p.t.slice(0,22));
+      }).join('<br>')+(unmarked.length>6?'<br>…另外 '+(unmarked.length-6)+' 篇':'')+'</span></p>';
   }
   h+=thCards(s);
   if(TH.cur==='全部'&&inPeriod.length){
