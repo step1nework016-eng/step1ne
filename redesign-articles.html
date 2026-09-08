@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>［新版設計稿］獵才專欄｜Step1ne</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+/* 沿用首頁／職缺頁 token v1 */
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;--warn:#B45309;
+  --rail:2px;--wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:16px;line-height:1.85;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.3;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,select,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+[hidden]{display:none!important}
+.off{display:none}
+
+/* 導覽 */
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:70px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:38px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;font-size:15px}
+.hd-group{display:flex;align-items:center;gap:20px;padding:0 22px;position:relative}
+.hd-group+.hd-group::before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);width:1px;height:22px;background:var(--rule)}
+.hd-tag{font-family:var(--f-disp);font-size:11px;font-weight:600;color:var(--slate-dim)}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;gap:8px;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:10px 18px;border-radius:6px}
+.hd-burger{display:none;width:42px;height:42px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule)}
+
+.wrap{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.top{padding:52px 0 26px}
+.top h1{font-size:clamp(30px,4.4vw,44px)}
+.top p{margin-top:14px;max-width:60ch;color:var(--slate);font-size:17px}
+
+/* 篩選：桌機橫排、手機下拉（同職缺頁） */
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:26px}
+.chip{font-family:inherit;font-size:14.5px;font-weight:500;color:var(--slate);background:var(--white);border:1px solid var(--rule);padding:9px 16px;border-radius:6px;cursor:pointer;min-height:44px;display:inline-flex;align-items:center;gap:7px}
+.chip:hover{border-color:var(--brand);color:var(--brand-deep)}
+.chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.chip .c{font-family:var(--f-disp);font-variant-numeric:tabular-nums;font-size:12.5px;opacity:.65}
+.chip.on .c{opacity:.85}
+.selwrap{display:none;position:relative;flex:1;min-width:180px}
+.selwrap::after{content:"";position:absolute;right:16px;top:50%;margin-top:-4px;width:8px;height:8px;border-right:2px solid var(--slate);border-bottom:2px solid var(--slate);transform:rotate(45deg);pointer-events:none}
+.selwrap select{-webkit-appearance:none;appearance:none;width:100%;font-family:inherit;font-size:16px;font-weight:700;color:var(--ink);background:var(--white);border:1px solid var(--rule);border-radius:6px;padding:13px 40px 13px 15px;min-height:48px;cursor:pointer}
+.bar input{flex:1;min-width:200px;font-family:inherit;font-size:15px;color:var(--ink);background:var(--white);border:1px solid var(--rule);border-radius:6px;padding:11px 14px;min-height:44px}
+.cnt{margin:20px 0 6px;font-size:14.5px;color:var(--slate)}
+.cnt b{font-family:var(--f-disp);font-variant-numeric:tabular-nums;color:var(--ink)}
+.cnt a{color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.35)}
+
+/* 階段軌：沿用首頁的 signature */
+.spine{position:relative}
+.spine::before{content:"";position:absolute;left:calc(var(--gut) + 5px);top:26px;bottom:40px;width:var(--rail);background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.12))}
+.grp{position:relative;padding:26px 0}
+.grp-in{max-width:var(--wrap);margin:0 auto;padding-left:calc(var(--gut) + 46px);padding-right:var(--gut)}
+.node{position:absolute;left:calc(var(--gut) - 1px);top:34px;width:14px;height:14px;border-radius:50%;background:var(--paper);border:var(--rail) solid var(--brand)}
+.grp-hd{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:baseline;padding-bottom:14px}
+.grp-hd h2{font-size:21px}
+.gmeta{font-size:14px;color:var(--slate)}
+
+/* 文章列 */
+.list{border:1px solid var(--rule);border-radius:10px;overflow:hidden;background:var(--white)}
+.row{display:grid;grid-template-columns:110px 1fr 120px;gap:22px;align-items:start;padding:20px 24px;border-bottom:1px solid var(--rule)}
+.row:last-child{border-bottom:0}
+.row:hover{background:var(--paper)}
+.tag{display:inline-block;font-size:12.5px;font-weight:700;color:var(--brand-deep);background:rgba(22,126,178,.07);border:1px solid rgba(22,126,178,.25);border-radius:4px;padding:3px 9px;white-space:nowrap}
+.mid h3{font-size:17.5px;line-height:1.55}
+.mid p{margin-top:6px;font-size:14.5px;color:var(--slate);line-height:1.8;max-width:62ch}
+.when{text-align:right;font-family:var(--f-disp);font-variant-numeric:tabular-nums;font-size:13.5px;color:var(--slate-dim);line-height:1.7}
+.when time{display:block;color:var(--slate);font-weight:600}
+.when span{display:block;font-family:var(--f-text);font-size:12.5px}
+
+.empty{margin:26px 0;padding:36px 24px;text-align:center;color:var(--slate-dim);background:var(--white);border:1px dashed var(--rule);border-radius:10px}
+.notice{margin:34px 0;background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid var(--warn);border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.notice b{color:#5A3D0C}
+.end{margin-top:20px;padding:26px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.end p{font-size:15px;color:var(--slate);max-width:52ch}
+footer{margin-top:48px;border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+
+@media (max-width:900px){
+  .row{grid-template-columns:1fr;gap:8px;padding:18px 20px}
+  .when{text-align:left;display:flex;gap:14px}
+  .when span{font-size:13px}
+}
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  .bar{flex-direction:column;align-items:stretch}
+  .bar .chip{display:none}
+  .selwrap{display:block}
+  .bar input{width:100%;min-width:0}
+  .grp-in{padding-left:calc(var(--gut) + 30px)}
+  .spine::before{left:calc(var(--gut) + 5px)}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/"><img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問"><b>德仁管理顧問</b></a>
+    <nav class="hd-nav">
+      <div class="hd-group"><span class="hd-tag">企業找人才</span><a href="/">企業服務</a><a href="/hiring-assessment/">招募形式評估</a></div>
+      <div class="hd-group"><span class="hd-tag">我要找工作</span><a href="/jobs/">職缺專區</a><a class="on" href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a></div>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
+    <button class="hd-burger" type="button" aria-label="開啟選單" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINE 洽詢</a>
+  </div>
+</header>
+
+<div class="wrap">
+  <section class="top">
+    <h1>獵才專欄</h1>
+    <p>31 篇文章，不是照發文順序排，是<b>照你現在走到哪一步</b>排。每篇都標出寫作日期與大約讀多久。</p>
+  </section>
+
+  <div class="bar" id="tabs">
+    <button class="chip" type="button" data-aud="job">我要找工作 <span class="c">23</span></button>
+    <button class="chip" type="button" data-aud="biz">我在找人才 <span class="c">8</span></button>
+    <button class="chip" type="button" data-aud="all">全部 <span class="c">31</span></button>
+    <div class="selwrap"><label class="sr" for="asel">讀者類型</label><select id="asel">
+      <option value="job">我要找工作（23 篇）</option>
+      <option value="biz">我在找人才（8 篇）</option>
+      <option value="all">全部（31 篇）</option>
+    </select></div>
+    <input type="search" id="q" placeholder="搜尋標題或關鍵字">
+  </div>
+  <p class="cnt" id="cnt">共 31 篇文章</p>
+</div>
+
+<main class="spine" id="out">
+
+  <section class="grp" data-aud="job">
+    <span class="node"></span>
+    <div class="grp-in">
+      <div class="grp-hd"><h2>了解這一行</h2><span class="gmeta"><span class="gn">5</span> 篇　·　還沒決定要不要投入，先看清楚這份工作實際在做什麼</span></div>
+      <div class="list">
+      <a class="row" href="/articles/what-is-bim-engineer/" data-t="bim 工程師是什麼？跟繪圖員差在哪？ 實際工作內容、與 cad 繪圖員的五個差別、lod 等級的意義，以及同一個職稱底下為什麼有五種完全不同的工作。 職務認識 what-is-bim-engineer">
+        <div class="meta"><span class="tag">職務認識</span></div>
+        <div class="mid"><h3>BIM 工程師是什麼？跟繪圖員差在哪？</h3><p>實際工作內容、與 CAD 繪圖員的五個差別、LOD 等級的意義，以及同一個職稱底下為什麼有五種完全不同的工作。</p></div>
+        <div class="when"><time datetime="2026-07-27">2026.07.27</time><span>約 6 分鐘</span></div>
+      </a>
+      <a class="row" href="/articles/customer-service-reality/" data-t="客服工作的真實樣貌：四種客服差在哪？ 遊戲、金流、品牌、技術支援客服的工作內容與壓力來源完全不同，以及應徵前必問的五件事。 職務認識 customer-service-reality">
+        <div class="meta"><span class="tag">職務認識</span></div>
+        <div class="mid"><h3>客服工作的真實樣貌：四種客服差在哪？</h3><p>遊戲、金流、品牌、技術支援客服的工作內容與壓力來源完全不同，以及應徵前必問的五件事。</p></div>
+        <div class="when"><time datetime="2026-07-27">2026.07.27</time><span>約 5 分鐘</span></div>
+      </a>
+      <a class="row" href="/articles/how-to-enter-construction-industry/" data-t="怎麼踏入營造業？非本科系新手入行完整指南 bim、工程設計、現場工程、職業安全四種角色怎麼選，要不要考證照，完全沒經驗第一份工作怎麼談。 產業入門 how-to-enter-construction-industry">
+        <div class="meta"><span class="tag">產業入門</span></div>
+        <div class="mid"><h3>怎麼踏入營造業？非本科系新手入行完整指南</h3><p>BIM、工程設計、現場工程、職業安全四種角色怎麼選，要不要考證照，完全沒經驗第一份工作怎麼談。</p></div>
+        <div class="when"><time datetime="2026-08-31">2026.08.31</time><span>約 7 分鐘</span></div>
+      </a>
+      <a class="row" href="/articles/streamer-recruitment-guide/" data-t="主播招募是在招什麼？四種主播的差別與五個危險訊號 一般直播主、vtuber、電競主播、新聞主播，門檻與收入結構完全不同。附五個該停下來的訊號與簽約前必問的六件事。 入行前必讀 streamer-recruitment-guide">
+        <div class="meta"><span class="tag">入行前必讀</span></div>
+        <div class="mid"><h3>主播招募是在招什麼？四種主播的差別與五個危險訊號</h3><p>一般直播主、VTuber、電競主播、新聞主播，門檻與收入結構完全不同。附五個該停下來的訊號與簽約前必問的六件事。</p></div>
+        <div class="when"><time datetime="2026-08-04">2026.08.04</time><span>約 14 分鐘</span></div>
+      </a>
+      <a class="row" href="/articles/devops-career/" data-t="維運工程師的職涯：跟開發比，差在哪？ 四種維運型態的天花板差很多，關鍵在你是處理事件的人、還是設計系統讓事件不發生的人。 職涯發展 devops-career">
+        <div class="meta"><span class="tag">職涯發展</span></div>
+        <div class="mid"><h3>維運工程師的職涯：跟開發比，差在哪？</h3><p>四種維運型態的天花板差很多，關鍵在你是處理事件的人、還是設計系統讓事件不發生的人。</p></div>
+        <div class="when"><time datetime="2026-07-27">2026.07.27</time><span>約 6 分鐘</span></div>
+      </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="grp" data-aud="job">
+    <span class="node"></span>
+    <div class="grp-in">
+      <div class="grp-hd"><h2>考慮轉職</h2><span class="gmeta"><span class="gn">4</span> 篇　·　已經想動，需要知道路徑走不走得通、要補什麼</span></div>
+      <div class="list">
+      <a class="row" href="/articles/bim-career-change/" data-t="沒有相關科系，可以轉職 bim 工程師嗎？ 企業實際在看的三件事、要學哪些軟體、政府補助怎麼用，以及非本科履歷最常被刷掉的三個原因。 轉職入行 bim-career-change">
+        <div class="meta"><span class="tag">轉職入行</span></div>
+        <div class="mid"><h3>沒有相關科系，可以轉職 BIM 工程師嗎？</h3><p>企業實際在看的三件事、要學哪些軟體、政府補助怎麼用，以及非本科履歷最常被刷掉的三個原因。</p></div>
+        <div class="when"><time datetime="2026-07-27">2026.07.27</time><span>約 7 分鐘</span></div>
+      </a>
+      <a class="row" href="/articles/bim-career-path/" data-t="bim工程師做3年後可以往哪走？獵頭實務觀察 技術深化、轉pm、橫向轉出三條路，卡住的人通常卡在哪、往上爬的人做對了什麼選擇。 職涯路徑 bim-career-path">
+        <div class="meta"><span class="tag">職涯路徑</span></div>
+        <div class="mid"><h3>BIM工程師做3年後可以往哪走？獵頭實務觀察</h3><p>技術深化、轉PM、橫向轉出三條路，卡住的人通常卡在哪、往上爬的人做對了什麼選擇。</p></div>
+        <div class="when"><time datetime="2026-09-03">2026.09.03</time><span>約 8 分鐘</span></div>
+      </a>
+      <a class="row" href="/articles/admin-career-path/" data-t="行政助理有職涯嗎？五條實際走得通的路 行政的天花板不在能力，在於「你負責的事有沒有名字」。人資、pm、採購等五條路徑。 職涯路徑 admin-career-path">
+        <div class="meta"><span class="tag">職涯路徑</span></div>
+        <div class="mid"><h3>行政助理有職涯嗎？五條實際走得通的路</h3><p>行政的天花板不在能力，在於「你負責的事有沒有名字」。人資、PM、採購等五條路徑。</p></div>
+        <div class="when"><time datetime="2026-07-27">2026.07.27</time><span>約 9 分鐘</span></div>
+      </a>
+      <a class="row" href="/articles/executive-job-search/" data-t="年薪百萬的主管職，為什麼求職網站上看不到？ 高階職缺不公開，不是神祕，是公開的成本太高。主管職履歷、面試重心與怎麼讓獵頭找到你。 高階職涯 executive-job-search">
+        <div class="meta"><span class="tag">高階職涯</span></div>
+        <div class="mid"><h3>年薪百萬的主管職，為什麼求職網站上看不到？</h3><p>高階職缺不公開，不是神祕，是公開的成本太高。主管職履歷、面試重心與怎麼讓獵頭找到你。</p></div>
+        <div class="when"><time datetime="2026-07-27">2026.07.27</time><span>約 9 分鐘</span></div>
+      </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="grp" data-aud="job">
+    <span class="node"></span>
+    <div class="grp-in">
+      <div class="grp-hd"><h2>看薪水行情</h2><span class="gmeta"><span class="gn">5</span> 篇　·　談薪水之前，先知道市場實際給到多少</span></div>
+      <div class="list">
+      <a class="row" href="/articles/bim-engineer-salary/" data-t="bim工程師薪水行情：從無經驗到資深，數字怎麼跳？ 拆解 lv1 建模師到 lv6 vdc 總監六個職級的月薪帶，以及最多人卡住的 lv2→lv3 分水嶺該怎麼過。 薪資行情 bim-engineer-salary">
+        <div class="meta"><span class="tag">薪資行情</span></div>
+        <div class="mid"><h3>BIM工程師薪水行情：從無經驗到資深，數字怎麼跳？</h3><p>拆解 Lv1 建模師到 Lv6 VDC 總監六個職級的月薪帶，以及最多人卡住的 Lv2→Lv3 分水嶺該怎麼過。</p></div>
+        <div class="when"><time datetime="2026-07-27">2026.07.27</time><span>約 8 分鐘</span></div>
+      </a>
+      <a class="row" href="/articles/software-engineer-salary/" data-t="軟體工程師薪水：為什麼同樣年資，產業不同差兩萬？ 前端 47,700、後端 45,000–65,000、遊戲開發 32,000–38,000。差距主要來自產業而非技術棧。 薪資行情 software-engineer-salary">
+        <div class="meta"><span class="tag">薪資行情</span></div>
+        <div class="mid"><h3>軟體工程師薪水：為什麼同樣年資，產業不同差兩萬？</h3><p>前端 47,700、後端 45,000–65,000、遊戲開發 32,000–38,000。差距主要來自產業而非技術棧。</p></div>
+        <div class="when"><time datetime="2026-07-27">2026.07.27</time><span>約 5 分鐘</span></div>
+      </a>
+      <a class="row" href="/articles/customer-service-salary/" data-t="客服薪水行情：產業、班別、津貼怎麼影響實拿？ 平均約 33,000 元，但金融客服中位數可達 39,700。換產業的效益，其實遠大於換班別。 薪資行情 customer-service-salary">
+        <div class="meta"><span class="tag">薪資行情</span></div>
+        <div class="mid"><h3>客服薪水行情：產業、班別、津貼怎麼影響實拿？</h3><p>平均約 33,000 元，但金融客服中位數可達 39,700。換產業的效益，其實遠大於換班別。</p></div>
+        <div class="when"><time datetime="2026-07-27">2026.07.27</time><span>約 6 分鐘</span></div>
+      </a>
+      <a class="row" href="/articles/admin-assistant-salary/" data-t="行政助理薪水：為什麼同樣是助理，差一萬？ 平均月薪 32,975，但實際 28k 到 50k 都有。差距來自產業、職務含金量與負責範圍。 薪資行情 admin-assistant-salary">
+        <div class="meta"><span class="tag">薪資行情</span></div>
+        <div class="mid"><h3>行政助理薪水：為什麼同樣是助理，差一萬？</h3><p>平均月薪 32,975，但實際 28K 到 50K 都有。差距來自產業、職務含金量與負責範圍。</p></div>
+        <div class="when"><time datetime="2026-07-27">2026.07.27</time><span>約 8 分鐘</span></div>
+      </a>
+      <a class="row" href="/articles/streamer-revenue-split/" data-t="觀眾刷 1000 元，主播實際拿到多少？ 中間有三層：平台抽成、公會分潤、稅。算一次給你看，並附簽約前該問清楚的五個數字。 收入結構 streamer-revenue-split">
+        <div class="meta"><span class="tag">收入結構</span></div>
+        <div class="mid"><h3>觀眾刷 1000 元，主播實際拿到多少？</h3><p>中間有三層：平台抽成、公會分潤、稅。算一次給你看，並附簽約前該問清楚的五個數字。</p></div>
+        <div class="when"><time datetime="2026-07-29">2026.07.29</time><span>約 7 分鐘</span></div>
+      </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="grp" data-aud="job">
+    <span class="node"></span>
+    <div class="grp-in">
+      <div class="grp-hd"><h2>面試與媒合</h2><span class="gmeta"><span class="gn">6</span> 篇　·　要面談了，包含 AI 面談阿財與獵頭接觸怎麼應對</span></div>
+      <div class="list">
+      <a class="row" href="/articles/ai-interview-guide/" data-t="ai阿財是什麼？跟真人顧問面談有什麼不同？ 應徵後先跟ai面談顧問阿財聊20到40分鐘，等同第一輪面試，談完由真人顧問覆核決定要不要推薦。 ai面談 ai-interview-guide">
+        <div class="meta"><span class="tag">AI面談</span></div>
+        <div class="mid"><h3>AI阿財是什麼？跟真人顧問面談有什麼不同？</h3><p>應徵後先跟AI面談顧問阿財聊20到40分鐘，等同第一輪面試，談完由真人顧問覆核決定要不要推薦。</p></div>
+        <div class="when"><time datetime="2026-09-03">2026.09.03</time><span>約 4 分鐘</span></div>
+      </a>
+      <a class="row" href="/articles/ai-interview-questions/" data-t="阿財問的問題，跟真人顧問有什麼不同？ 阿財依履歷與職缺出發、針對你提到的細節追問。附示範對話，並說明跟真人顧問各自負責的部分。 ai面談 ai-interview-questions">
+        <div class="meta"><span class="tag">AI面談</span></div>
+        <div class="mid"><h3>阿財問的問題，跟真人顧問有什麼不同？</h3><p>阿財依履歷與職缺出發、針對你提到的細節追問。附示範對話，並說明跟真人顧問各自負責的部分。</p></div>
+        <div class="when"><time datetime="2026-09-03">2026.09.03</time><span>約 4 分鐘</span></div>
+      </a>
+      <a class="row" href="/articles/ai-interview-vs-consultant/" data-t="先跟ai阿財談，還是直接找顧問比較好？ 想知道行情就直接應徵去跟阿財談最快；有保密或特殊安排的顧慮，適合先加line問顧問。 ai面談 ai-interview-vs-consultant">
+        <div class="meta"><span class="tag">AI面談</span></div>
+        <div class="mid"><h3>先跟AI阿財談，還是直接找顧問比較好？</h3><p>想知道行情就直接應徵去跟阿財談最快；有保密或特殊安排的顧慮，適合先加LINE問顧問。</p></div>
+        <div class="when"><time datetime="2026-09-03">2026.09.03</time><span>約 4 分鐘</span></div>
+      </a>
+      <a class="row" href="/articles/ai-interview-anxiety/" data-t="ai面談會不會比真人更緊張？ 兩種緊張的來源不一樣，不是誰比較可怕。附示範情境，看阿財怎麼處理面談中被打斷的狀況。 ai面談 ai-interview-anxiety">
+        <div class="meta"><span class="tag">AI面談</span></div>
+        <div class="mid"><h3>AI面談會不會比真人更緊張？</h3><p>兩種緊張的來源不一樣，不是誰比較可怕。附示範情境，看阿財怎麼處理面談中被打斷的狀況。</p></div>
+        <div class="when"><time datetime="2026-09-03">2026.09.03</time><span>約 4 分鐘</span></div>
+      </a>
+      <a class="row" href="/articles/ai-interview-fairness/" data-t="ai面談會不會誤判？不擅長表達的人怎麼辦 ai招募的偏誤疑慮是真實的公共議題，這篇誠實說明可能誤判的情況與目前的把關方式。 ai面談 ai-interview-fairness">
+        <div class="meta"><span class="tag">AI面談</span></div>
+        <div class="mid"><h3>AI面談會不會誤判？不擅長表達的人怎麼辦</h3><p>AI招募的偏誤疑慮是真實的公共議題，這篇誠實說明可能誤判的情況與目前的把關方式。</p></div>
+        <div class="when"><time datetime="2026-09-03">2026.09.03</time><span>約 4 分鐘</span></div>
+      </a>
+      <a class="row" href="/articles/headhunter-contacted-you/" data-t="獵頭找上你，該怎麼回應？ 先查證真假、回覆前該問哪五題、履歷保密怎麼要求，以及為什麼就算不想換工作也建議回一句話。 獵頭應對 headhunter-contacted-you">
+        <div class="meta"><span class="tag">獵頭應對</span></div>
+        <div class="mid"><h3>獵頭找上你，該怎麼回應？</h3><p>先查證真假、回覆前該問哪五題、履歷保密怎麼要求，以及為什麼就算不想換工作也建議回一句話。</p></div>
+        <div class="when"><time datetime="2026-07-27">2026.07.27</time><span>約 6 分鐘</span></div>
+      </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="grp" data-aud="job">
+    <span class="node"></span>
+    <div class="grp-in">
+      <div class="grp-hd"><h2>簽約與權益</h2><span class="gmeta"><span class="gn">3</span> 篇　·　拿到 offer 之後，合約與法規上你該確認的事</span></div>
+      <div class="list">
+      <a class="row" href="/articles/streamer-contract-employment-status/" data-t="直播主簽的是承攬還是僱傭？合約寫什麼不算數 勞動部以三種從屬性實質認定，並公布 25 項檢核表。逐條對照你的合約，看你有沒有勞基法保障。 勞動法規 streamer-contract-employment-status">
+        <div class="meta"><span class="tag">勞動法規</span></div>
+        <div class="mid"><h3>直播主簽的是承攬還是僱傭？合約寫什麼不算數</h3><p>勞動部以三種從屬性實質認定，並公布 25 項檢核表。逐條對照你的合約，看你有沒有勞基法保障。</p></div>
+        <div class="when"><time datetime="2026-07-29">2026.07.29</time><span>約 8 分鐘</span></div>
+      </a>
+      <a class="row" href="/articles/douyin-live-payout-taiwan/" data-t="台灣人在大陸抖音直播，錢到底領不領得到？ 領得到，但不能直接進台灣帳戶——外匯管制卡在最後一站。附簽約前必問的五件事。 風險判斷 douyin-live-payout-taiwan">
+        <div class="meta"><span class="tag">風險判斷</span></div>
+        <div class="mid"><h3>台灣人在大陸抖音直播，錢到底領不領得到？</h3><p>領得到，但不能直接進台灣帳戶——外匯管制卡在最後一站。附簽約前必問的五件事。</p></div>
+        <div class="when"><time datetime="2026-07-29">2026.07.29</time><span>約 8 分鐘</span></div>
+      </a>
+      <a class="row" href="/articles/overseas-job-safety/" data-t="東南亞外派工作，怎麼分辨真假？ 柬埔寨詐騙 2026 年仍在發生。詐騙的五個共同特徵、查證五步驟，以及合法外派實際長什麼樣。 海外求職 overseas-job-safety">
+        <div class="meta"><span class="tag">海外求職</span></div>
+        <div class="mid"><h3>東南亞外派工作，怎麼分辨真假？</h3><p>柬埔寨詐騙 2026 年仍在發生。詐騙的五個共同特徵、查證五步驟，以及合法外派實際長什麼樣。</p></div>
+        <div class="when"><time datetime="2026-07-27">2026.07.27</time><span>約 6 分鐘</span></div>
+      </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="grp" data-aud="biz">
+    <span class="node"></span>
+    <div class="grp-in">
+      <div class="grp-hd"><h2>判斷要不要用獵頭</h2><span class="gmeta"><span class="gn">2</span> 篇　·　職缺卡住了，先確認問題出在哪</span></div>
+      <div class="list">
+      <a class="row" href="/articles/executive-hiring-guide/" data-t="高階職缺開了半年還找不到人？ 八成不是市場沒人，是流程在勸退人。jd寫法、薪資帶、決策節奏等五個卡點與解法。 高階招募 executive-hiring-guide">
+        <div class="meta"><span class="tag">高階招募</span></div>
+        <div class="mid"><h3>高階職缺開了半年還找不到人？</h3><p>八成不是市場沒人，是流程在勸退人。JD寫法、薪資帶、決策節奏等五個卡點與解法。</p></div>
+        <div class="when"><time datetime="2026-07-27">2026.07.27</time><span>約 10 分鐘</span></div>
+      </a>
+      <a class="row" href="/articles/construction-labor-shortage-bim/" data-t="營造業真的缺工嗎？為什麼bim工程師反而搶手 官方統計缺工逾4.6萬人、逾七成是基層人力，但bim等技術轉型職缺同樣搶手。拆解兩者為什麼不矛盾。 產業觀察 construction-labor-shortage-bim">
+        <div class="meta"><span class="tag">產業觀察</span></div>
+        <div class="mid"><h3>營造業真的缺工嗎？為什麼BIM工程師反而搶手</h3><p>官方統計缺工逾4.6萬人、逾七成是基層人力，但BIM等技術轉型職缺同樣搶手。拆解兩者為什麼不矛盾。</p></div>
+        <div class="when"><time datetime="2026-09-03">2026.09.03</time><span>約 8 分鐘</span></div>
+      </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="grp" data-aud="biz">
+    <span class="node"></span>
+    <div class="grp-in">
+      <div class="grp-hd"><h2>怎麼挑、怎麼合作</h2><span class="gmeta"><span class="gn">2</span> 篇　·　決定要委外之後，怎麼選、怎麼對接</span></div>
+      <div class="list">
+      <a class="row" href="/articles/how-to-choose-headhunter/" data-t="怎麼挑台灣獵頭公司？7 個可以實際驗證的判斷標準 從合法許可證查證、產業專精度、人才觸及方式到收費與保固條件，附可以直接拿去問的句子，以及三個常見踩雷情況。 選擇評估 how-to-choose-headhunter">
+        <div class="meta"><span class="tag">選擇評估</span></div>
+        <div class="mid"><h3>怎麼挑台灣獵頭公司？7 個可以實際驗證的判斷標準</h3><p>從合法許可證查證、產業專精度、人才觸及方式到收費與保固條件，附可以直接拿去問的句子，以及三個常見踩雷情況。</p></div>
+        <div class="when"><time datetime="2026-07-27">2026.07.27</time><span>約 8 分鐘</span></div>
+      </a>
+      <a class="row" href="/articles/work-with-headhunters/" data-t="台灣企業怎麼跟獵頭合作？合作管道、收費方式一次搞懂 什麼時候該找獵頭而不是只發人力銀行、收費怎麼算、怎麼挑選合法且適合的獵頭公司。 合作指南 work-with-headhunters">
+        <div class="meta"><span class="tag">合作指南</span></div>
+        <div class="mid"><h3>台灣企業怎麼跟獵頭合作？合作管道、收費方式一次搞懂</h3><p>什麼時候該找獵頭而不是只發人力銀行、收費怎麼算、怎麼挑選合法且適合的獵頭公司。</p></div>
+        <div class="when"><time datetime="2026-07-27">2026.07.27</time><span>約 4 分鐘</span></div>
+      </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="grp" data-aud="biz">
+    <span class="node"></span>
+    <div class="grp-in">
+      <div class="grp-hd"><h2>費用怎麼算</h2><span class="gmeta"><span class="gn">2</span> 篇　·　報價看不懂的地方，都在這兩篇</span></div>
+      <div class="list">
+      <a class="row" href="/articles/headhunter-fees/" data-t="獵頭公司收費怎麼算？費率之外，你更該談的四件事 三種收費模式的風險差異，以及年薪定義、保底費、保固條件、人選歸屬這四個決定總金額的隱藏變數。 收費談判 headhunter-fees">
+        <div class="meta"><span class="tag">收費談判</span></div>
+        <div class="mid"><h3>獵頭公司收費怎麼算？費率之外，你更該談的四件事</h3><p>三種收費模式的風險差異，以及年薪定義、保底費、保固條件、人選歸屬這四個決定總金額的隱藏變數。</p></div>
+        <div class="when"><time datetime="2026-07-27">2026.07.27</time><span>約 6 分鐘</span></div>
+      </a>
+      <a class="row" href="/articles/dispatch-cost-breakdown/" data-t="人力派遣費用怎麼算？管理費與成本結構完整拆解 派遣費用 = 薪資 + 法定成本（約 18%）+ 管理費。以 2026 費率實際試算，拆解報價單判讀方式。 派遣費用 dispatch-cost-breakdown">
+        <div class="meta"><span class="tag">派遣費用</span></div>
+        <div class="mid"><h3>人力派遣費用怎麼算？管理費與成本結構完整拆解</h3><p>派遣費用 = 薪資 + 法定成本（約 18%）+ 管理費。以 2026 費率實際試算，拆解報價單判讀方式。</p></div>
+        <div class="when"><time datetime="2026-08-06">2026.08.06</time><span>約 10 分鐘</span></div>
+      </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="grp" data-aud="biz">
+    <span class="node"></span>
+    <div class="grp-in">
+      <div class="grp-hd"><h2>合規風險</h2><span class="gmeta"><span class="gn">1</span> 篇　·　用派遣、用外包最容易踩的線</span></div>
+      <div class="list">
+      <a class="row" href="/articles/dispatch-legal-risks/" data-t="企業用派遣最容易踩的法律地雷：勞基法 17-1 條 「先面試、後轉掛」違法，罰 9–45 萬並公布公司名稱與負責人姓名，勞工還能要求直接聘僱。附企業自我檢核五題。 法規合規 dispatch-legal-risks">
+        <div class="meta"><span class="tag">法規合規</span></div>
+        <div class="mid"><h3>企業用派遣最容易踩的法律地雷：勞基法 17-1 條</h3><p>「先面試、後轉掛」違法，罰 9–45 萬並公布公司名稱與負責人姓名，勞工還能要求直接聘僱。附企業自我檢核五題。</p></div>
+        <div class="when"><time datetime="2026-07-27">2026.07.27</time><span>約 7 分鐘</span></div>
+      </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="grp" data-aud="biz">
+    <span class="node"></span>
+    <div class="grp-in">
+      <div class="grp-hd"><h2>經營與計畫</h2><span class="gmeta"><span class="gn">1</span> 篇　·　非招募類，但企業主會用到</span></div>
+      <div class="list">
+      <a class="row" href="/articles/business-plan-writing/" data-t="商業計畫書怎麼寫？最容易被扣分的那一章 架構是標準的，拉開差距的是「團隊與人力」——審查會逐項核對工時與經歷，抄不來。 計畫書撰寫 business-plan-writing">
+        <div class="meta"><span class="tag">計畫書撰寫</span></div>
+        <div class="mid"><h3>商業計畫書怎麼寫？最容易被扣分的那一章</h3><p>架構是標準的，拉開差距的是「團隊與人力」——審查會逐項核對工時與經歷，抄不來。</p></div>
+        <div class="when"><time datetime="2026-07-27">2026.07.27</time><span>約 9 分鐘</span></div>
+      </a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div class="wrap">
+  <div class="empty" id="empty" hidden>沒有符合的文章，換個關鍵字，或 <a href="https://lin.ee/XcSWPzM" style="color:var(--brand-deep)">直接用 LINE 問顧問</a>。</div>
+
+  <div class="notice">
+    <b>這一塊是給你看的，不是給讀者看的。</b>31 篇的分類、日期、字數都是腳本從各文章內頁的 Article schema 與內文直接讀出來的。<br><br>
+    <b>階段歸類是我判斷的，需要你確認</b>：例如「營造業真的缺工嗎？為什麼BIM工程師反而搶手」原本歸在「職涯發展」，我把它移到企業端的「判斷要不要用獵頭」，因為它是寫給要找人的人看的。<br>
+    <b>內容新鮮度：</b>31 篇沒有任何一篇更新過（<code>dateModified</code> 全部等於 <code>datePublished</code>），其中 18 篇是 2026-07-27 同一天發的。薪資行情類文章放著不更新，數字會過期。<br>
+    <b>閱讀時間：</b>用內文字數 ÷ 400 字/分鐘估算，不是精確值。
+  </div>
+
+  <div class="end">
+    <p>看完還是不確定下一步？加入 LINE 直接問顧問，或看目前開放中的職缺。</p>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">用 LINE 問顧問</a>
+  </div>
+
+  <footer>德仁管理顧問有限公司　臺北市內湖區康寧路三段 54 之 7 號 3 樓</footer>
+</div>
+
+<script>
+/* 31 篇全部寫在 HTML 裡，爬蟲不跑 JS 也讀得到。這段只負責隱藏。 */
+(function(){
+  var AN={all:'',job:'我要找工作',biz:'我在找人才'};
+  var grps=[].slice.call(document.querySelectorAll('.grp'));
+  var rows=[].slice.call(document.querySelectorAll('.row'));
+  var chips=[].slice.call(document.querySelectorAll('#tabs .chip'));
+  var sel=document.getElementById('asel'), q=document.getElementById('q');
+  var cnt=document.getElementById('cnt'), empty=document.getElementById('empty');
+  var state={a:'job',t:''};
+  function apply(){
+    var shown=0;
+    grps.forEach(function(sec){
+      var ok=state.a==='all'||sec.dataset.aud===state.a, n=0;
+      [].slice.call(sec.querySelectorAll('.row')).forEach(function(r){
+        var v=ok&&(!state.t||r.dataset.t.indexOf(state.t)>-1);
+        r.classList.toggle('off',!v); if(v) n++;
+      });
+      sec.classList.toggle('off',n===0);
+      var gn=sec.querySelector('.gn'); if(gn) gn.textContent=n;
+      shown+=n;
+    });
+    empty.hidden=shown>0;
+    cnt.innerHTML = state.a==='all'
+      ? '共 <b>'+shown+'</b> 篇文章，依你走到哪一步分段'
+      : '「'+AN[state.a]+'」<b>'+shown+'</b> 篇　·　<a href="#" id="showall">看全部 '+rows.length+' 篇</a>';
+    var sa=document.getElementById('showall');
+    if(sa) sa.addEventListener('click',function(ev){ev.preventDefault();state.a='all';apply();window.scrollTo({top:0,behavior:'smooth'});});
+    chips.forEach(function(b){b.classList.toggle('on',b.dataset.aud===state.a)});
+    if(sel.value!==state.a) sel.value=state.a;
+  }
+  document.getElementById('tabs').addEventListener('click',function(ev){
+    var b=ev.target.closest('.chip'); if(!b) return; state.a=b.dataset.aud; apply();
+  });
+  sel.addEventListener('change',function(ev){state.a=ev.target.value;apply();});
+  q.addEventListener('input',function(ev){state.t=ev.target.value.trim().toLowerCase();apply();});
+  apply();
+})();
+</script>
+</body>
+</html>

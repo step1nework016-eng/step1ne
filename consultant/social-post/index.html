@@ -738,6 +738,8 @@ function updateGoState() {
     contentOk = !!$('topicsel').value;
   }
   $('go').disabled = !(contentOk && $('account').value);
+  // 換了職缺／話題／帳號 → 這是新的一筆，把按鈕文字復原
+  if (!$('go').disabled) $('go').textContent = '排入產稿';
 }
 $('job').addEventListener('change', updateGoState);
 $('topicsel').addEventListener('change', updateGoState);
@@ -768,10 +770,18 @@ $('go').addEventListener('click', function () {
     body: JSON.stringify(payload),
   }).then(function (d) {
     if (!d.ok) { btn.disabled = false; btn.textContent = '排入產稿'; return toast(d.error || '排入失敗', true); }
-    btn.textContent = '✅ 已排入，等 Telegram';
-    toast('已排入，最多等 2 分鐘會出現在 Telegram「社群發文審核」');
+    // 2026-09-08 改：原本 3 秒後就把按鈕解鎖，但產稿要 1–2 分鐘才會出現在
+    // Telegram——顧問以為沒反應就一直按，真的排出 7 份一樣的草稿（2026-09-03
+    // 事故）。後端現在會擋重複，前端這裡也不再自動解鎖：要換職缺或換帳號
+    // 才會重新亮起來。
+    if (d.duplicate) {
+      btn.textContent = '✅ 已經排過了';
+      toast(d.message || '這一筆已經排過了，不用重複按');
+    } else {
+      btn.textContent = '✅ 已排入，等 Telegram';
+      toast('已排入，產稿要 1–2 分鐘，會出現在 Telegram「社群發文審核」。不用重複按。');
+    }
     loadQueue();
-    setTimeout(function () { btn.disabled = false; btn.textContent = '排入產稿'; updateGoState(); }, 3000);
   }).catch(function () { btn.disabled = false; btn.textContent = '排入產稿'; toast('連不上伺服器', true); });
 });
 

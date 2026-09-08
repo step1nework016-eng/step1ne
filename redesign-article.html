@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>［新版設計稿］「主播招募」到底在招什麼？四種主播的差別｜Step1ne</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;
+  --wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:17px;line-height:1.95;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.35;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,select,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* 導覽 */
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+/* 閱讀進度 */
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
+
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
+.crumb{grid-column:1/-1;padding:22px 0 6px;font-size:13.5px;color:var(--slate-dim)}
+.crumb a{color:var(--slate)}
+.crumb a:hover{color:var(--brand-deep)}
+.crumb span{margin:0 8px;color:var(--rule)}
+
+/* 目錄軌：沿用全站 signature */
+.toc{position:sticky;top:92px;padding:8px 0 40px}
+.toc h2{font-size:13px;font-weight:700;color:var(--slate-dim);letter-spacing:.02em;margin-bottom:16px}
+.tns{position:relative;padding-left:22px}
+.tns::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.14))}
+.tn{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:14px;color:var(--slate);line-height:1.6;position:relative}
+.tn i{position:absolute;left:-22px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--rule);flex:0 0 auto}
+.tn:hover{color:var(--brand-deep)}
+.tn:hover i{border-color:var(--brand)}
+.tn.on{color:var(--ink);font-weight:700}
+.tn.on i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 4px rgba(46,169,223,.2)}
+.mtoc{display:none;margin:20px 0 0;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.mtoc summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15.5px;position:relative}
+.mtoc summary::-webkit-details-marker{display:none}
+.mtoc summary::after{content:"";position:absolute;right:20px;top:24px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.mtoc[open] summary::after{transform:rotate(-135deg)}
+.mtoc div{padding:0 18px 14px}
+.mtoc a{display:block;padding:9px 0;font-size:15px;color:var(--slate);border-top:1px solid var(--rule)}
+
+/* 文章本體 */
+article{padding:14px 0 60px;max-width:70ch}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--brand-deep);background:rgba(22,126,178,.07);border:1px solid rgba(22,126,178,.25);border-radius:5px;padding:4px 11px}
+article h1{margin-top:16px;font-size:clamp(28px,4.2vw,42px);line-height:1.28;letter-spacing:-.02em}
+.by{margin-top:18px;padding-bottom:20px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14px;color:var(--slate-dim)}
+.by a{color:var(--slate);border-bottom:1px solid var(--rule)}
+.by .d{font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+
+/* ★ Signature：直接答案 */
+.ans{margin-top:30px;background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:26px 30px}
+.ans .lab{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:10px}
+.ans p{font-size:19.5px;line-height:1.85;font-weight:500}
+.ans strong{font-weight:900}
+
+article h2{margin:52px 0 16px;font-size:25px;scroll-margin-top:92px}
+article h3{margin:34px 0 10px;font-size:19px}
+article p{margin-top:16px}
+article strong{font-weight:700}
+article a:not(.tn){color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.32)}
+article a:not(.tn):hover{border-bottom-color:var(--brand-deep)}
+article ul,article ol{margin:16px 0 0;padding-left:1.4em}
+article li{margin-top:9px}
+article table{width:100%;border-collapse:collapse;margin-top:22px;font-size:15.5px;background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+article th{text-align:left;background:var(--paper);font-weight:700;font-size:14px;color:var(--slate);padding:12px 14px;border-bottom:1px solid var(--rule)}
+article td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.75}
+article tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+article details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+article details summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+article details summary::-webkit-details-marker{display:none}
+article details summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+article details[open] summary::after{transform:rotate(-135deg)}
+article details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid var(--rule);color:var(--slate)}
+
+.foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
+.cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
+footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+.fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.note{max-width:var(--wrap);margin:0 auto 46px;padding-inline:var(--gut)}
+.note div{background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid #B45309;border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.note b{color:#5A3D0C}
+
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .mtoc{display:block}
+}
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  body{font-size:16.5px}
+  .ans{padding:22px;border-radius:0 8px 8px 0}
+  .ans p{font-size:18px}
+  article h2{font-size:22px;margin-top:42px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+</head>
+<body>
+<div id="bar"></div>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/"><img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問"><b>德仁管理顧問</b></a>
+    <nav class="hd-nav">
+      <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a class="on" href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
+    <button class="hd-burger" type="button" aria-label="開啟選單"><span></span></button>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="crumb" aria-label="麵包屑"><a href="/">首頁</a><span>/</span><a href="/articles/">獵才專欄</a><span>/</span>「主播招募」到底在招什麼？四種主播的差別</nav>
+
+  <aside class="toc" aria-label="本文目錄">
+    <h2>本文共 7 個段落</h2>
+    <div class="tns"><a class="tn" href="#sec-1" data-s="sec-1"><i></i><span>第一步：先分清楚你看到的是哪一種主播</span></a>
+<a class="tn" href="#sec-2" data-s="sec-2"><i></i><span>看到「主播招募」，五個該停下來的訊號</span></a>
+<a class="tn" href="#sec-3" data-s="sec-3"><i></i><span>簽約前一定要問清楚的六件事</span></a>
+<a class="tn" href="#sec-4" data-s="sec-4"><i></i><span>經紀公司、公會、平台直簽，差在哪</span></a>
+<a class="tn" href="#sec-5" data-s="sec-5"><i></i><span>「當直播主好嗎？」——誠實回答</span></a>
+<a class="tn" href="#sec-6" data-s="sec-6"><i></i><span>有在考慮把直播當正職嗎？</span></a>
+<a class="tn" href="#sec-7" data-s="sec-7"><i></i><span>常見問題</span></a></div>
+  </aside>
+
+  <div>
+    <details class="mtoc"><summary>本文目錄（7 段）</summary><div><a href="#sec-1">第一步：先分清楚你看到的是哪一種主播</a>
+<a href="#sec-2">看到「主播招募」，五個該停下來的訊號</a>
+<a href="#sec-3">簽約前一定要問清楚的六件事</a>
+<a href="#sec-4">經紀公司、公會、平台直簽，差在哪</a>
+<a href="#sec-5">「當直播主好嗎？」——誠實回答</a>
+<a href="#sec-6">有在考慮把直播當正職嗎？</a>
+<a href="#sec-7">常見問題</a></div></details>
+    <article>
+      <span class="tag">求職者指南・入行前必讀</span>
+      <h1>「主播招募」到底在招什麼？四種主播的差別</h1>
+      <div class="by">
+        <span>作者：<a href="/about/">Step1ne 獵才顧問團隊</a></span>
+        <time class="d" datetime="2026-08-04">發布於 2026.08.04</time>
+        <span class="d">約 13 分鐘</span>
+      </div>
+
+      <div class="ans">
+        <div class="lab">直接答案</div>
+        <p>「主播招募」至少混了<strong>四種不同的工作</strong>——一般直播主、虛擬主播（VTuber）、電競主播、新聞主播。四者的入行門檻、收入結構與雇用形式完全不同，看到招募資訊第一件事是先確認<strong>它在招哪一種</strong>。搞錯類型，後面所有的條件判斷都會錯。</p>
+      </div>
+
+      <p class="aeo-byline"><span>作者：<a href="/about/">Step1ne 獵才顧問團隊</a></span><span>·</span><time datetime="2026-08-04">發布於 2026-08-04</time></p>
+
+    
+
+    <p>我們是獵頭公司。日常在做的是高階獵才、正職招募與人力派遣，也就是<strong>站在雇主端看條件怎麼開、站在求職端看這個條件該不該接</strong>。</p>
+
+    <p>會寫這篇，是因為網路上關於「主播招募」的內容幾乎都是經紀公司自己寫的招募文案——目的是把你招進來，所以只會講好的那面。這篇不是招募文案。<strong>本文寫作當下，Step1ne 沒有開放中的主播職缺</strong>，所以我沒有理由把這一行講得比實際好聽。</p>
+
+    <h2 id="sec-1">第一步：先分清楚你看到的是哪一種主播</h2>
+
+    <p>多數人把這四種混為一談，然後拿 A 的期待去接 B 的工作。這是最常見的入行失誤。</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>類型</th><th>做什麼</th><th>入行門檻</th><th>錢從哪來</th></tr></thead>
+        <tbody>
+          <tr>
+            <td data-label="類型"><strong>一般直播主</strong><br>（抖音、浪 LIVE 等平台）</td>
+            <td data-label="做什麼">聊天、唱歌、才藝、陪伴型互動</td>
+            <td data-label="門檻">最低。多數平台可自行註冊開播</td>
+            <td data-label="錢從哪來">觀眾打賞為主，可能有保底</td>
+          </tr>
+          <tr>
+            <td data-label="類型"><strong>虛擬主播（VTuber）</strong></td>
+            <td data-label="做什麼">用虛擬形象出演，內容型態與一般直播主類似，但多一層角色設定</td>
+            <td data-label="門檻">中高。需要 Live2D／3D 模型、動作捕捉設備與美術資源，個人做要自己出錢，企業勢由公司出</td>
+            <td data-label="錢從哪來">打賞、會員、周邊商品、商案代言</td>
+          </tr>
+          <tr>
+            <td data-label="類型"><strong>電競主播</strong></td>
+            <td data-label="做什麼">賽事主持與講評、遊戲實況</td>
+            <td data-label="門檻">高。要有遊戲專業度與臨場口條，賽評更需要對版本與戰術的理解</td>
+            <td data-label="錢從哪來">賽事單場酬勞、隊伍／賽事方合約、平台簽約金、打賞</td>
+          </tr>
+          <tr>
+            <td data-label="類型"><strong>新聞主播</strong></td>
+            <td data-label="做什麼">電視或網路新聞播報、採訪</td>
+            <td data-label="門檻">最高，而且路徑不同。通常從記者做起，多要求相關學經歷與正職資歷</td>
+            <td data-label="錢從哪來"><strong>媒體業正職薪水</strong>，與打賞無關</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="insight">
+      <div class="label">獵頭視角：這張表最重要的一欄是最後一欄</div>
+      <p>新聞主播是<strong>一份有薪水的正職</strong>，招募流程跟一般白領工作一樣：投履歷、面試、談薪、簽勞動契約。另外三種絕大多數不是——你拿到的不是薪水，是分潤，而且很可能簽的不是勞動契約。<strong>「有沒有底薪」跟「底薪算不算薪資」是兩個問題</strong>，後者才決定你有沒有勞健保、特休與資遣費。這一題我們另外寫過：<a href="/articles/streamer-contract-employment-status/">直播主簽的是承攬還是僱傭</a>。</p>
+    </div>
+
+    <h3>關於虛擬主播招募，多補一句</h3>
+
+    <p>台灣的 VTuber 產業確實在長，累積出道人數已達一定規模，也有數家本土經紀公司在運作（如公開資訊中常被提到的春魚創意、子午計畫等，另有 17LIVE 這類從直播平台切入的業者）。<strong>但「產業在長」不等於「個人容易活下來」。</strong></p>
+
+    <p>虛擬主播招募最需要問清楚的是<strong>模型（俗稱「皮」）的所有權</strong>：是公司出錢做、你只有使用權，還是你自己出錢、著作權歸你？這決定你日後想離開時，能不能把辛苦養起來的角色帶走。這件事在很多招募說明裡不會主動講，你要自己問，而且要問到寫進合約。</p>
+
+    <p class="note">產業現況與公司名稱整理自公開報導與業者公開資訊，查詢時間 2026 年 8 月。台灣虛擬主播從業人數的官方統計查不到可信來源，本文不引用任何人數或收入數字。</p>
+
+    <h2 id="sec-2">看到「主播招募」，五個該停下來的訊號</h2>
+
+    <p>這是我們最有立場講的一段——因為分辨「這個缺是不是正經的」，本來就是獵頭每天在做的事。以下五點在台灣<strong>有明文法律可以對照</strong>，不是感覺問題。</p>
+
+    <h3>訊號一：要你先繳錢</h3>
+
+    <p>包裝的名目很多：培訓費、包裝費、設備押金、保證金、經紀約履約金。<strong>就業服務法第 5 條第 2 項第 3 款明文規定，雇主招募或僱用員工，不得「扣留求職人或員工財物或收取保證金」。</strong>違反者依同法第 67 條第 1 項，處新臺幣 6 萬元以上 30 萬元以下罰鍰。</p>
+
+    <h3>訊號二：要你押身分證或存摺</h3>
+
+    <p><strong>同法第 5 條第 2 項第 2 款規定，不得「違反求職人或員工之意思，留置其國民身分證、工作憑證或其他證明文件，或要求提供非屬就業所需之隱私資料」。</strong>罰則同樣是第 67 條第 1 項，6 萬至 30 萬元罰鍰。</p>
+
+    <p>提醒一件事：正常的簽約與報稅流程確實需要看你的身分證與帳戶資料，這跟「把證件留在對方那裡」是兩回事。<strong>可以看、可以影印，不該留置。</strong></p>
+
+    <h3>訊號三：廣告寫的跟實際談的不一樣</h3>
+
+    <p>「保證月入 X 萬」「保底 X 萬起」貼得很大，等你去談才發現有一堆前提條件——這在法律上有名字。<strong>就業服務法第 5 條第 2 項第 1 款禁止「為不實之廣告或揭示」，違反者依第 65 條第 1 項處新臺幣 30 萬元以上 150 萬元以下罰鍰</strong>，是前面兩款的五倍。</p>
+
+    <p class="note">以上條文引自《就業服務法》，該法最後修正日期為民國 114 年 1 月 20 日，查詢時間 2026 年 8 月，來源為全國法規資料庫。實際個案是否構成違法由主管機關認定，本文不構成法律意見。</p>
+
+    <h3>訊號四：叫你「先簽再說，細節之後補」</h3>
+
+    <p>這句話在任何產業都是紅燈。合約以簽署當下的文字為準，「之後補」的東西通常不會補，補了也不一定對你有利。<strong>沒看到完整條文之前不要簽名，也不要交出任何證件正本。</strong></p>
+
+    <h3>訊號五：對方講不清楚自己是誰、也講不清楚錢從誰那裡來</h3>
+
+    <p>如果對方是<strong>替其他公司媒介職缺</strong>（也就是人力仲介性質），依就業服務法第 34 條，私立就業服務機構應向主管機關申請設立許可、取得許可證後才能從事就業服務業務。你可以要對方提供許可證字號，也可以向所在地的勞工主管機關查詢。</p>
+
+    <p>如果對方是<strong>替自己旗下招募</strong>（經紀公司自己要簽你），情況不同，但你更該問清楚：你的錢是平台結給公司、公司再結給你，還是平台直接結給你？這條金流路徑決定了萬一出事，你要跟誰要錢。</p>
+
+    <div class="warn">
+      <div class="label">跟海外工作詐騙是同一套判斷邏輯</div>
+      <p>先收費、押證件、不給看完整合約、講不清楚自己是誰——這四件事在<a href="/articles/overseas-job-safety/">東南亞外派工作</a>的詐騙案裡是同一組特徵。產業不同，判斷方法一樣：<strong>把對方能拿走的東西（錢、證件、簽名）當成防線，任何一條在你確認清楚之前被要求交出，就先停下來。</strong></p>
+    </div>
+
+    <h2 id="sec-3">簽約前一定要問清楚的六件事</h2>
+
+    <p>把這六題用文字訊息傳過去，請對方文字回覆。願意白紙黑字回答的，才值得繼續談。</p>
+
+    <ol>
+      <li><strong>每月最低開播時數怎麼算？</strong>是總時數、有效時數（要有人看才算），還是要滿足「每週幾天、每天幾小時」的分佈？差一小時是整月不計還是按比例扣？</li>
+      <li><strong>保底的條件是什麼？</strong>要達到什麼門檻才給、適用多久，以及保底與分潤是「取其高」還是「可累加」。這兩個字差很多錢。</li>
+      <li><strong>抽成的基數是什麼？</strong>是觀眾儲值金額，還是平台結算給公司之後的金額？同樣一句「分你五成」，兩種算法差一倍。計算方式我們單獨拆過：<a href="/articles/streamer-revenue-split/">觀眾刷 1000 元，主播實際拿到多少</a>。</li>
+      <li><strong>經紀約綁幾年？能不能提前終止？</strong>終止要提前多久通知、有沒有附帶條件。實務上多數主播經紀約被認定為委任或類似委任的勞務契約，而依民法第 549 條，「當事人之任何一方，得隨時終止委任契約」，但於不利於他方之時期終止者，應負損害賠償責任。<strong>所以「能不能走」跟「走了要不要賠」是兩個問題。</strong></li>
+      <li><strong>違約金多少、怎麼算？</strong>要看清楚是固定金額、剩餘月數乘以某個數字，還是「以最高月流水為基準」這種會隨你做得越好而越高的寫法。民法第 252 條規定「約定之違約金額過高者，法院得減至相當之數額」，法院確實會酌減——但那是<strong>打官司之後</strong>的事，時間與律師費都要你先付。不要用「反正法院會減」來安慰自己。</li>
+      <li><strong>有沒有競業或排他條款？</strong>約束你不能在別的平台開播、不能接自己談來的商案，甚至約滿後一段期間內不能做同類工作。這一條會直接影響你的收入上限與離開成本。</li>
+    </ol>
+
+    <div class="insight">
+      <div class="label">獵頭實務的一個小習慣</div>
+      <p>談任何一份合約，我都會先看<strong>「怎麼結束」的那幾條</strong>，再回頭看「多少錢」。因為錢談得好但走不掉的合約，比錢普通但可以隨時走的合約危險得多。看主播經紀約也適用：先翻到年限、終止、違約金、競業那幾頁。</p>
+    </div>
+
+    <h2 id="sec-4">經紀公司、公會、平台直簽，差在哪</h2>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>對象</th><th>它給你什麼</th><th>它要走什麼</th><th>適合誰</th></tr></thead>
+        <tbody>
+          <tr>
+            <td data-label="對象"><strong>平台直簽</strong></td>
+            <td data-label="給你什麼">平台流量與活動資源，條件多半標準化</td>
+            <td data-label="要走什麼">平台抽成。中間層級最少</td>
+            <td data-label="適合誰">已有觀眾基礎、不需要人帶、想保留自主權的人</td>
+          </tr>
+          <tr>
+            <td data-label="對象"><strong>公會</strong></td>
+            <td data-label="給你什麼">導流、衝榜、活動配合、同儕互推</td>
+            <td data-label="要走什麼"><strong>從你分到的那份再抽一次</strong></td>
+            <td data-label="適合誰">缺初期曝光、需要有人帶著跑活動節奏的新人</td>
+          </tr>
+          <tr>
+            <td data-label="對象"><strong>經紀公司</strong></td>
+            <td data-label="給你什麼">資源最完整——企劃、美術（VTuber 的模型）、商案接洽、法務</td>
+            <td data-label="要走什麼">抽成，加上<strong>約束最多</strong>：年限較長、違約金較重、常有排他條款</td>
+            <td data-label="適合誰">想長期經營、願意用自由度換資源的人</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>沒有哪一種「比較好」。真正的問題是：<strong>你現在缺的是資源，還是自由度？</strong>缺資源的人簽了自由度高但沒人帶的約，會空轉；不缺資源的人簽了綁三年的經紀約，是把自己賣便宜了。</p>
+
+    <h2 id="sec-5">「當直播主好嗎？」——誠實回答</h2>
+
+    <p>先說我不會給你的東西：<strong>我不會給你「平均月入多少」或「多少比例的人做不下去」的數字。</strong>台灣直播主的人數與收入分布，我查不到可信的公開官方統計。網路上流傳的那些數字多半沒有出處，或是平台自己公布的宣傳素材。沒有來源的數字，我不寫。</p>
+
+    <p>但不給數字，不代表不能回答。這一行的結構本身就講得很清楚：</p>
+
+    <h3>收入的形狀是「極度不平均」，這是結構性的，不是運氣</h3>
+
+    <p>打賞收入來自少數重度付費觀眾，而這些觀眾會集中在少數已經有聲量的主播身上。這是所有注意力型產業的共同結構——不是有人特別倒楣，是這個分佈本來就長這樣。所以<strong>「頭部主播月入很高」跟「多數人賺不到什麼」可以同時為真</strong>，兩件事不衝突。</p>
+
+    <h3>前期是「投入時間但沒有回饋」的階段，而且不知道多長</h3>
+
+    <p>一般工作做滿一個月就領一個月薪水。直播不是——你可能連續播三個月、每天四小時，收入仍然接近零。這段沒有回饋的期間有多長無法預測，而多數人是在這個階段離開的。</p>
+
+    <h3>比較適合的人</h3>
+    <ul>
+      <li>能<strong>固定時段、規律開播</strong>的人。這一行拚的是累積，不是爆發。</li>
+      <li>有<strong>其他收入來源撐過前期</strong>的人，或生活成本壓力小的人。</li>
+      <li>擅長即時互動、被冷場也不會慌的人。</li>
+      <li>把它當<strong>經營一個事業</strong>而不是「上班」的人——要自己排內容、看數據、找觀眾。</li>
+    </ul>
+
+    <h3>比較不適合的人</h3>
+    <ul>
+      <li>需要<strong>穩定現金流</strong>的人（有房貸、要養家、沒有存款緩衝）。</li>
+      <li>期待「三個月見效」的人。</li>
+      <li>對負面留言與外貌評論敏感的人。這件事不會因為習慣就消失，只會變成長期成本。</li>
+      <li>把它當成<strong>備案</strong>的人。半心半意做直播，通常兩邊都做不好。</li>
+    </ul>
+
+    <div class="insight">
+      <div class="label">一個獵頭給的實際建議</div>
+      <p>如果你已經有正職，<strong>先不要辭職去做直播</strong>。用下班時間播三到六個月，看兩件事：一是你的觀眾數有沒有在長（不是絕對值，是趨勢），二是你自己有沒有在耗損。三個月後再決定要不要投入更多，這個順序的風險低很多。而且——<strong>手上還有正職的人，跟經紀公司談條件的底氣完全不一樣。</strong></p>
+    </div>
+
+    <div>
+      <p>STEP1NE 開放職缺</p>
+      <h2 id="sec-6">有在考慮把直播當正職嗎？</h2>
+      <p>我們是獵頭公司。<strong>目前有一個開放中的直播主職缺</strong>——在自己家裡播、1 對 1 手把手帶播培訓、保底 3–10 萬依面試條件核定，時數門檻 70 小時／23 天或 100 小時以上／25 天。平台是<strong>大陸抖音</strong>，合作方式是<strong>承攬</strong>（非僱傭，沒有勞健保與加班費）——這兩件事我們寫在職缺頁最上面，還沒確認的項目也標明了是面試時才會知道。</p>
+      <p>這個職缺目前開放應徵中，完整條件與應徵方式都在職缺頁，看完再決定要不要談。</p>
+      <a href="/jobs/live-streamer-home/">查看職缺並應徵 →</a>
+    </div><h2 id="sec-7">常見問題</h2>
+    <div>
+      <details>
+        <summary>
+          <span>主播招募是在招什麼樣的工作？</span><span class="faq-icon">+</span>
+        </summary>
+        <p>至少涵蓋四種不同的工作：一般直播主（靠打賞與互動）、虛擬主播 VTuber（用虛擬形象出演，需要美術與技術支援）、電競主播（賽事講評或遊戲實況，需要遊戲專業）、新聞主播（媒體業正職，需要相關學經歷）。四者的入行門檻、收入結構與雇用形式都不同，看到招募資訊要先確認是哪一種。</p>
+      </details>
+      <details>
+        <summary>
+          <span>主播招募要求先繳費或押身分證，合法嗎？</span><span class="faq-icon">+</span>
+        </summary>
+        <p>不合法。就業服務法第 5 條第 2 項第 2 款禁止違反求職人意思留置其國民身分證、工作憑證或其他證明文件；第 3 款禁止扣留求職人財物或收取保證金。違反者依同法第 67 條第 1 項處新臺幣 6 萬元以上 30 萬元以下罰鍰。另外第 5 條第 2 項第 1 款禁止為不實之廣告或揭示，違反者依第 65 條第 1 項處新臺幣 30 萬元以上 150 萬元以下罰鍰。（就業服務法，修正日期民國 114 年 1 月 20 日）</p>
+      </details>
+      <details>
+        <summary>
+          <span>虛擬主播招募跟一般直播主招募差在哪？</span><span class="faq-icon">+</span>
+        </summary>
+        <p>差在多了一層「角色資產」。虛擬主播需要 Live2D 或 3D 模型與動作捕捉設備，這些通常由經紀公司出資，因此模型的著作權與使用權歸屬會寫進合約。簽約前務必問清楚：模型是誰出錢、著作權歸誰、約滿或提前終止時你能不能繼續使用這個形象。這一題不問清楚，等於你養大的角色不是你的。</p>
+      </details>
+      <details>
+        <summary>
+          <span>簽經紀約之前一定要問清楚哪些事？</span><span class="faq-icon">+</span>
+        </summary>
+        <p>至少六項：每月最低開播時數與如何認定；保底的條件與是否與分潤「取其高」；抽成的基數是觀眾儲值金額還是平台結算後金額；經紀約年限與能不能提前終止；違約金金額與計算方式；有沒有競業或排他條款。這六項都要寫進合約，口頭承諾不算數。</p>
+      </details>
+      <details>
+        <summary>
+          <span>經紀約簽了就不能走嗎？違約金一定要付嗎？</span><span class="faq-icon">+</span>
+        </summary>
+        <p>實務上多數主播經紀約被認定為委任或類似委任的勞務契約，依民法第 549 條，任何一方得隨時終止委任契約，但於不利於他方之時期終止者應負損害賠償責任。至於違約金，民法第 252 條規定「約定之違約金額過高者，法院得減至相當之數額」，法院確實會酌減。但酌減發生在訴訟之後，時間與費用都要自己先承擔，不宜當成簽約時的安全網。個案認定請諮詢律師。</p>
+      </details>
+      <details>
+        <summary>
+          <span>當直播主好嗎？</span><span class="faq-icon">+</span>
+        </summary>
+        <p>取決於你能不能承受收入不穩定與長期無回饋期。打賞收入結構上高度集中在少數已有聲量的主播身上，且前期可能連續數月投入而收入接近零。適合能規律開播、有其他收入撐過前期、把它當事業經營的人；不適合需要穩定現金流、期待短期見效、或對負面留言敏感的人。台灣直播主人數與收入分布查不到可信的公開官方統計，任何宣稱「平均月入多少」的數字都要問出處。</p>
+      </details>
+      <details>
+        <summary>
+          <span>經紀公司、公會、平台直簽差在哪？</span><span class="faq-icon">+</span>
+        </summary>
+        <p>平台直簽條件多半標準化、談判空間小，但中間層級最少。公會負責導流與衝榜，會從你分到的那份再抽一次。經紀公司資源最完整（企劃、美術、商案、法務），相對地約束也最多，年限與違約金通常最重。差別不在誰比較好，而在你現在缺的是資源還是自由度。</p>
+      </details>
+    </div>
+
+    
+
+    <p>延伸閱讀：<a href="/articles/streamer-revenue-split/">觀眾刷 1000 元，主播實際拿到多少？</a>｜<a href="/articles/streamer-contract-employment-status/">直播主簽的是承攬還是僱傭？</a>｜<a href="/articles/douyin-live-payout-taiwan/">台灣人在大陸抖音直播，錢到底領不領得到？</a>｜<a href="/articles/overseas-job-safety/">東南亞高薪工作，怎麼分辨真假？</a></p>
+
+      <div class="foot-note">本文法條引自《就業服務法》（最後修正日期民國 114 年 1 月 20 日）與《民法》，來源為全國法規資料庫；產業現況整理自公開報導與業者公開資訊，查詢時間為 2026 年 8 月。台灣直播主之從業人數與收入分布，本文未查得可信之公開官方統計，故不引用任何相關數字。各平台與經紀公司的合約條件依個案而異，實際內容請以你收到的合約文字為準。本文僅供一般性參考，不構成法律、稅務或投資建議，個案請諮詢律師或主管機關。撰稿當下 Step1ne 並無開放中之主播職缺，本文非招募廣告。</div>
+
+      <div class="cta">
+        <p>看完還是不確定下一步？加入 LINE 直接問顧問，或看目前開放中的職缺。</p>
+        <a class="btn-line" href="https://lin.ee/XcSWPzM">用 LINE 問顧問</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<div class="note"><div>
+  <b>這一塊是給你看的，不是給讀者看的。</b>這頁是用腳本從 <code>/articles/streamer-recruitment-guide/</code> 的原始內容自動轉出來的，文字一個字都沒改，只換版面。<br>
+  <b>新增的三樣東西：</b>左側目錄軌（原本 31 篇都沒有目錄，每篇有 5–11 段）、頂端閱讀進度條、麵包屑。<br>
+  <b>「直接答案」升格成主角：</b>31 篇全部都用這個開頭，這是你們的固定寫法，我把它做成頁面上第一個看到的區塊。
+</div></div>
+
+<footer><div class="fw">德仁管理顧問有限公司　臺北市內湖區康寧路三段 54 之 7 號 3 樓</div></footer>
+
+<script>
+// 表格加水平捲動外框，避免手機橫向溢位
+document.querySelectorAll('article table').forEach(function(t){
+  var w=document.createElement('div'); w.className='tw';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
+// 閱讀進度
+var bar=document.getElementById('bar');
+function prog(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',prog,{passive:true}); prog();
+// 目錄跟隨
+var tns=[].slice.call(document.querySelectorAll('.tn'));
+var secs=tns.map(function(a){return document.getElementById(a.dataset.s)}).filter(Boolean);
+if('IntersectionObserver' in window && secs.length){
+  var cur=null;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) cur=e.target.id; });
+    tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  },{rootMargin:'-88px 0px -70% 0px'}).observe && secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===e.target.id)}); }
+      });
+    },{rootMargin:'-88px 0px -70% 0px'}).observe(s);
+  });
+}
+</script>
+</body>
+</html>

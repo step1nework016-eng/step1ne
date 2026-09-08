@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>［新版設計稿］BIM 工程師｜Step1ne</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#F4F6F8;--white:#fff;--ink:#0D1B24;--slate:#4A5A66;--dim:#7A8A96;--rule:#D9E0E6;
+--brand:#167EB2;--deep:#0F5F87;--live:#2EA9DF;--line:#06C755;--warn:#B45309;
+--wrap:1200px;--gut:clamp(20px,4vw,40px);
+--fd:'Archivo','Noto Sans TC',sans-serif;--ft:'Noto Sans TC',sans-serif}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--ft);font-size:16.5px;line-height:1.9;-webkit-font-smoothing:antialiased;overflow-x:hidden;padding-bottom:76px}
+img{max-width:100%;display:block}a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.32;letter-spacing:-.01em}p{margin:0}
+:where(a,button,summary):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.num{font-family:var(--fd);font-variant-numeric:tabular-nums}
+.wrap{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:26px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule)}
+
+.crumb{padding:20px 0 4px;font-size:13.5px;color:var(--dim)}
+.crumb a{color:var(--slate)}.crumb span{margin:0 8px;color:var(--rule)}
+
+/* Hero：職稱 + 三個最關鍵的事實 */
+.jh{padding:14px 0 30px}
+.jh h1{font-size:clamp(28px,4.4vw,42px);max-width:22ch}
+.jh .sub{margin-top:12px;font-size:17.5px;color:var(--slate);max-width:52ch}
+.facts{margin-top:26px;display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:10px;overflow:hidden}
+.facts>div{background:var(--white);padding:20px 22px}
+.facts dt{font-size:13px;color:var(--dim);font-weight:700}
+.facts dd{margin:5px 0 0;font-family:var(--fd);font-variant-numeric:tabular-nums;font-size:19px;font-weight:700;letter-spacing:-.01em;line-height:1.45}
+.facts dd.zh{font-family:var(--ft)}
+.jh-act{margin-top:24px;display:flex;flex-wrap:wrap;gap:12px}
+.btn{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:15.5px;padding:14px 24px;border-radius:6px;border:1px solid transparent}
+.btn-p{background:var(--brand);color:#fff}.btn-p:hover{background:var(--deep)}
+.btn-s{background:var(--white);color:var(--ink);border-color:var(--rule)}
+.btn-s:hover{border-color:var(--brand);color:var(--deep)}
+
+/* 主體：左內容 右黏性側欄 */
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:52px;align-items:start;padding-bottom:60px}
+main{min-width:0}
+section.blk{padding:34px 0;border-top:1px solid var(--rule)}
+section.blk>h2{font-size:24px;margin-bottom:16px}
+.blk h3{margin:26px 0 8px;font-size:18.5px}
+.blk p{margin-top:12px}
+.blk ul,.blk ol{margin:14px 0 0;padding-left:1.4em}.blk li{margin-top:8px}
+.blk strong{font-weight:700}
+.blk a{color:var(--deep);border-bottom:1px solid rgba(15,95,135,.3)}
+
+/* 條件表 */
+.spec{margin:0;border:1px solid var(--rule);border-radius:10px;overflow:hidden;background:var(--white)}
+.sr{display:grid;grid-template-columns:118px 1fr;gap:18px;padding:14px 20px;border-bottom:1px solid var(--rule)}
+.sr:last-child{border-bottom:0}
+.sr dt{font-size:14.5px;color:var(--slate);font-weight:700}
+.sr dd{margin:0;font-size:15.5px;line-height:1.75}
+.sr:first-child{background:var(--paper)}
+.sr:first-child dd{font-family:var(--fd);font-variant-numeric:tabular-nums;font-size:17.5px;font-weight:700}
+.note{margin-top:10px;font-size:13px;color:var(--dim)}
+
+/* 應徵流程：沿用全站的進度軌 */
+.flow{margin-top:6px;display:grid;grid-template-columns:repeat(3,1fr);position:relative;padding-top:6px}
+.flow::before{content:"";position:absolute;left:16.6%;right:16.6%;top:11px;height:2px;background:var(--rule)}
+.fs{position:relative;padding:26px 14px 0;text-align:center}
+.fs i{position:absolute;top:0;left:50%;transform:translateX(-50%);width:14px;height:14px;border-radius:50%;background:var(--brand);border:2px solid var(--brand);box-shadow:0 0 0 5px var(--paper)}
+.fs:first-child i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 5px var(--paper),0 0 0 9px rgba(46,169,223,.2)}
+.fs b{display:block;font-family:var(--fd);font-size:12.5px;color:var(--dim)}
+.fs span{display:block;margin-top:4px;font-size:15.5px;font-weight:700;line-height:1.5}
+
+.blk details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.blk summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+.blk summary::-webkit-details-marker{display:none}
+.blk summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.blk details[open] summary::after{transform:rotate(-135deg)}
+.blk details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+
+/* 側欄 */
+aside{position:sticky;top:88px}
+.card{background:var(--white);border:1px solid var(--rule);border-radius:10px;padding:22px;margin-bottom:16px}
+.card h3{font-size:16.5px}
+.card p{margin-top:10px;font-size:14.5px;color:var(--slate);line-height:1.8}
+.card .btn{width:100%;justify-content:center;margin-top:14px}
+.card ul{margin:12px 0 0;padding:0;list-style:none;font-size:14.5px}
+.card li{padding:8px 0;border-top:1px solid var(--rule);display:flex;justify-content:space-between;gap:14px}
+.card li span:first-child{color:var(--slate)}
+.card li span:last-child{font-weight:700;text-align:right}
+
+/* 手機底部固定應徵列 */
+.dock{display:none;position:fixed;left:0;right:0;bottom:0;z-index:70;background:rgba(255,255,255,.97);border-top:1px solid var(--rule);padding:10px var(--gut);gap:10px;backdrop-filter:blur(10px)}
+.dock .btn{flex:1;justify-content:center;padding:13px 10px;font-size:15px}
+.dock .pay{flex:0 0 auto;align-self:center;font-family:var(--fd);font-variant-numeric:tabular-nums;font-weight:700;font-size:14.5px;line-height:1.3;max-width:34%}
+.dock .pay small{display:block;font-family:var(--ft);font-size:11.5px;color:var(--dim);font-weight:400}
+footer{border-top:1px solid var(--rule);padding:26px 0;font-size:14px;color:var(--slate);background:var(--white)}
+
+@media (max-width:1000px){.shell{grid-template-columns:1fr;gap:0}aside{position:static;margin-top:24px}}
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}.hd-burger{display:flex}
+  .facts{grid-template-columns:1fr}
+  .flow{grid-template-columns:1fr;row-gap:20px}
+  .flow::before{content:none}
+  .fs{text-align:left;padding:0 0 0 26px}
+  .fs i{left:0;top:5px;transform:none}
+  .jh-act{display:none}
+  .dock{display:flex}
+  .sr{grid-template-columns:1fr;gap:2px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/"><img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問"><b>德仁管理顧問</b></a>
+    <nav class="hd-nav"><a href="/">企業服務</a><a class="on" href="/jobs/">職缺專區</a><a href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a></nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
+    <button class="hd-burger" type="button" aria-label="開啟選單" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINE 洽詢</a>
+  </div>
+</header>
+
+<div class="wrap">
+  <nav class="crumb"><a href="/">首頁</a><span>/</span><a href="/jobs/">職缺專區</a><span>/</span>BIM 工程師</nav>
+  <section class="jh">
+    <h1>BIM 工程師</h1>
+    <p class="sub">無經驗可・正職・苗栗銅鑼</p>
+    <dl class="facts">
+      <div><dt>薪資</dt><dd>月薪 40,833–50,167，依學歷與科系相關性核定，已含年終攤提</dd></div>
+      <div><dt>工作地點</dt><dd class="zh">苗栗縣銅鑼鄉（調派範圍：苗栗、台中）</dd></div>
+      <div><dt>僱傭型態</dt><dd class="zh">正職（非派遣、非約聘）</dd></div>
+    </dl>
+    <div class="jh-act">
+      <a class="btn btn-p" href="/apply/?job=bim-engineer-tongluo&title=BIM%20%E5%B7%A5%E7%A8%8B%E5%B8%AB&utm_source=website&utm_medium=job_page&utm_campaign=bim-engineer-tongluo">立即應徵・先跟 AI 阿財面談</a>
+      <a class="btn btn-s" href="https://lin.ee/XcSWPzM">用 LINE 先問顧問</a>
+    </div>
+  </section>
+</div>
+
+<div class="shell">
+  <main>
+    <section class="blk"><h2>職缺條件一覽</h2>
+      <dl class="spec"><div class="sr"><dt>薪資</dt><dd>月薪 40,833–50,167，依學歷與科系相關性核定，已含年終攤提</dd></div><div class="sr"><dt>工作地點</dt><dd>苗栗縣銅鑼鄉（調派範圍：苗栗、台中）</dd></div><div class="sr"><dt>上班時間</dt><dd>08:30–17:30（午休 12:00–13:00 不計工時），週休二日不輪班</dd></div><div class="sr"><dt>僱傭型態</dt><dd>正職（非派遣、非約聘）</dd></div><div class="sr"><dt>需求人數</dt><dd>優先招募 10 名，後續滾動增補</dd></div><div class="sr"><dt>學歷要求</dt><dd>大學以上（畢業非在學），不限科系</dd></div><div class="sr"><dt>工作經驗</dt><dd>無經驗可</dd></div><div class="sr"><dt>工作環境</dt><dd>辦公室（BIM Room）8 成、無塵室現場 2 成</dd></div><div class="sr"><dt>到職時程</dt><dd>急徵，希望一個月內到位</dd></div></dl>
+      <p class="note">※ 上述條件為目前規劃，實際待遇與工作條件依面試後雙方確認為準。</p>
+    </section>
+    <section class="blk"><h2>工作內容</h2>工作內容</h2><h3>BIM 建模與整合</h3><ul class="duties"><li>依專案契約執行 BIM 作業並接受公司培訓</li><li>BIM 模型建置與修正</li><li>BIM 整合與圖面檢討</li><li>使用工具：AutoCAD、Revit</li></ul><h3>現場配合</h3><ul class="duties"><li>協助工地現場視勘</li><li>主管交辦事項</li></ul>
+</section>
+    <section class="blk"><h2>應徵條件</h2>應徵條件</h2><div><div><div>必要條件</div><ul class="duties"><li>大學以上學歷（畢業非在學），不限科系</li><li>可長期於苗栗銅鑼廠區全實體到班</li><li>理解公司不提供宿舍、僅有每月 5,000 元租屋補助</li><li>需配合專案期程加班，加班費依勞動基準法規定發給</li><li>可接受無塵室環境（約 2 成工時）</li><li>持有機車駕照</li><li>願意在報到前自行完成 6 小時工安訓練（可在住家附近上課，費用錄取後憑單據請款）</li></ul></div><div><div>加分條件</div><ul class="duties"><li>AutoCAD／Revit 操作能力或國際認證</li><li>1–3 年 BIM 相關經歷</li></ul></div></div>
+</section>
+    <section class="blk"><h2>為什麼選擇這個機會</h2>為什麼選擇這個機會</h2><div><div><h3>無經驗可入行，有人帶到會</h3><p>錄取後直接進駐銅鑼廠區，現場有設計 PM 與設計工程師組成的團隊輔導到可獨立作業，不是丟進去自己摸。</p></div><div><h3>正職僱用，不是派遣</h3><p>錄取後直接是用人單位的正職員工，不經過派遣公司，勞健保與各項權益都在用人單位。</p></div><div><h3>月薪 40,833–50,167</h3><p>依學歷與科系相關性核定，實際數字由顧問與你確認。年終已經攤入月薪，每個月固定領到，不用等年底、也不怕領不到，年度總所得相當 14 個月。</p></div><div><h3>作息固定不輪班</h3><p>08:30–17:30、週休二日，不用大夜班，作息穩定。</p></div><div><h3>培訓不綁約</h3><p>工安證照可在住家附近上課、錄取後憑單據請款，教育訓練不綁最低服務年限、也沒有競業限制。</p></div><div><h3>學到的是長期技能</h3><p>Revit、AutoCAD 是營建與科技廠專案通用的技能，做這份工作等於替履歷加一項長期用得到的專業，不是做完就沒用的臨時工作。</p></div></div>
+</section>
+    <section class="blk"><h2>應徵流程</h2>
+      <div class="flow">
+        <div class="fs"><i></i><b>01</b><span>跟 AI 阿財初步面談</span></div>
+        <div class="fs"><i></i><b>02</b><span>顧問保密初談</span></div>
+        <div class="fs"><i></i><b>03</b><span>安排面試、談定條件</span></div>
+      </div>
+    </section>
+    <section class="blk"><h2>常見問題</h2>常見問題</h2><div><details><summary><span>真的完全沒經驗也可以嗎？</span><span class="faq-icon">+</span></summary><p>可以。這個案子明確接受無經驗者，公司安排完整培訓：錄取後直接進駐銅鑼廠區，現場有設計 PM 與設計工程師組成的團隊帶到可上手，工安證照可在住家附近上課、錄取後憑單據請款。教育訓練不綁最低服務年限。</p></details><details><summary><span>是派遣還是正職？</span><span class="faq-icon">+</span></summary><p>正職。錄取後直接是用人單位的正職員工，不是派遣也不是約聘。</p></details><details><summary><span>薪水大概多少？</span><span class="faq-icon">+</span></summary><p>月薪 40,833–50,167，依學歷與科系相關性核定，已含年終攤提。實際數字由顧問與你確認，上述不含加班費。</p></details><details><summary><span>有提供宿舍嗎？</span><span class="faq-icon">+</span></summary><p>不提供宿舍，但有租屋補助每月 5,000 元（適用條件面談時說明）。交通費用含在月薪內，配合專案調派另有返鄉交通補助。</p></details><details><summary><span>需要進無塵室嗎？</span><span class="faq-icon">+</span></summary><p>工作環境約 8 成在辦公室（BIM Room）、2 成在無塵室現場。入場安全裝備由現場單位提供。</p></details><details><summary><span>加班多嗎？</span><span class="faq-icon">+</span></summary><p>專案期間需配合加班，加班費依勞動基準法規定發給。實際時數依當期工進調整，會在面談時依最新現場狀況說明。</p></details></div>
+</div></section></main>
+
+<footer>
+  <div class="wrap">
+    <a href="/jobs/">← 所有職缺</a>　|　<a href="/">Step1ne 首頁</a>　|　© 2026 德仁管理顧問有限公司 Step1ne
+  </div>
+</footer>
+
+</body>
+</html>
+</section>
+  </main>
+
+  <aside>
+    <div class="card">
+      <h3>立即應徵</h3>
+      <p>線上填寫約 2 分鐘，接著跟 AI 面談顧問阿財談 20–40 分鐘，逐字稿會由真人顧問覆核。</p>
+      <a class="btn btn-p" href="/apply/?job=bim-engineer-tongluo&title=BIM%20%E5%B7%A5%E7%A8%8B%E5%B8%AB&utm_source=website&utm_medium=job_page&utm_campaign=bim-engineer-tongluo">立即應徵</a>
+      <a class="btn btn-s" href="https://lin.ee/XcSWPzM">用 LINE 先問顧問</a>
+    </div>
+    <div class="card">
+      <h3>重點速覽</h3>
+      <ul>
+        <li><span>薪資</span><span>月薪 40,833–50,167，依學歷與科系相關性核定，已含年終攤提</span></li>
+        <li><span>地點</span><span>苗栗縣銅鑼鄉（調派範圍：苗栗、台中）</span></li>
+        <li><span>僱傭型態</span><span>正職（非派遣、非約聘）</span></li>
+      </ul>
+    </div>
+  </aside>
+</div>
+
+<div class="dock">
+  <div class="pay">月薪 40,833–50,167，依學歷與科系相關性核定，已含年終攤提<small>苗栗縣銅鑼鄉（調派範圍：苗栗、台中）</small></div>
+  <a class="btn btn-p" href="/apply/?job=bim-engineer-tongluo&title=BIM%20%E5%B7%A5%E7%A8%8B%E5%B8%AB&utm_source=website&utm_medium=job_page&utm_campaign=bim-engineer-tongluo">立即應徵</a>
+</div>
+
+<footer><div class="wrap">德仁管理顧問有限公司　臺北市內湖區康寧路三段 54 之 7 號 3 樓</div></footer>
+</body>
+</html>

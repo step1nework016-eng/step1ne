@@ -969,8 +969,10 @@ document.addEventListener('click', function (e) {
       body: JSON.stringify(body),
     }).then(function (d) {
       if (!d.ok) { btn.disabled = false; btn.textContent = '📱 產生社群貼文'; return toast(d.error || '排入失敗', true); }
-      btn.textContent = '✅ 已排入，等 Telegram';
-      toast('已排入，最多等 15 分鐘會出現在 Telegram「社群發文審核」');
+      // 2026-09-08：後端會擋同職缺同帳號的重複排入，這裡照實顯示
+      btn.textContent = d.duplicate ? '✅ 已經排過了' : '✅ 已排入，等 Telegram';
+      toast(d.duplicate ? (d.message || '這一筆已經排過了，不用重複按')
+                        : '已排入，產稿要 1–2 分鐘會出現在 Telegram「社群發文審核」。不用重複按。');
     }).catch(function () { btn.disabled = false; btn.textContent = '📱 產生社群貼文'; toast('連不上伺服器', true); });
   });
 });

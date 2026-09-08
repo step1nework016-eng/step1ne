@@ -1,0 +1,153 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
+<title>數字區塊　四種做法比較</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#F4F6F8;--white:#fff;--ink:#0D1B24;--slate:#4A5A66;--dim:#7A8A96;--rule:#D9E0E6;
+--brand:#167EB2;--deep:#0F5F87;--live:#2EA9DF;--fd:'Archivo','Noto Sans TC',sans-serif;--ft:'Noto Sans TC',sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--ft);line-height:1.85;padding:36px 20px 80px}
+.w{max-width:960px;margin:0 auto}
+h1{font-size:28px;font-weight:900;letter-spacing:-.01em}
+.lead{margin-top:10px;color:var(--slate);max-width:62ch}
+.prob{margin:22px 0 0;background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid #B45309;border-radius:8px;padding:16px 20px;color:#6B4A12;font-size:15px}
+.prob b{color:#5A3D0C}
+section{margin-top:44px}
+.hd{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;padding-bottom:14px;border-bottom:1px solid var(--rule);margin-bottom:22px}
+.hd h2{font-size:20px;font-weight:900}
+.hd .tag{font-size:12.5px;font-weight:700;color:var(--deep);background:rgba(22,126,178,.08);border:1px solid rgba(22,126,178,.25);border-radius:5px;padding:3px 9px}
+.hd p{width:100%;font-size:14.5px;color:var(--slate);margin-top:4px}
+.num{font-family:var(--fd);font-variant-numeric:tabular-nums}
+
+/* A 現況：四格 */
+.a{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+.a>div{background:var(--paper);padding:22px 20px}
+.a b{display:block;font-family:var(--fd);font-size:36px;font-weight:700;letter-spacing:-.02em}
+.a b .u{font-family:var(--ft);font-size:.5em;font-weight:700;margin-left:2px}
+.a span{display:block;margin-top:2px;font-size:13.5px;color:var(--slate)}
+
+/* B 不對稱：一個主數字＋三條說明 */
+.b{display:grid;grid-template-columns:1.1fr 1fr;gap:0;background:var(--white);border:1px solid var(--rule);border-radius:10px;overflow:hidden}
+.b .hero{padding:34px 32px;border-right:1px solid var(--rule)}
+.b .hero b{display:block;font-family:var(--fd);font-size:76px;font-weight:700;line-height:1;letter-spacing:-.03em}
+.b .hero b .u{font-family:var(--ft);font-size:.32em;font-weight:700;margin-left:4px}
+.b .hero span{display:block;margin-top:8px;font-size:16px;font-weight:700}
+.b .hero em{display:block;margin-top:6px;font-style:normal;font-size:13.5px;color:var(--dim);line-height:1.7}
+.b ul{list-style:none}
+.b li{padding:18px 28px;border-bottom:1px solid var(--rule);display:flex;gap:14px;align-items:baseline}
+.b li:last-child{border-bottom:0}
+.b li i{font-style:normal;font-family:var(--fd);font-size:20px;font-weight:700;min-width:56px}
+.b li span{font-size:14.5px;color:var(--slate)}
+
+/* C 單行條 */
+.c{display:flex;flex-wrap:wrap;background:var(--white);border:1px solid var(--rule);border-radius:10px;padding:20px 8px}
+.c>div{flex:1;min-width:150px;padding:6px 22px;position:relative}
+.c>div+div::before{content:"";position:absolute;left:0;top:6px;bottom:6px;width:1px;background:var(--rule)}
+.c b{font-family:var(--fd);font-size:26px;font-weight:700;letter-spacing:-.02em}
+.c b .u{font-family:var(--ft);font-size:.55em;font-weight:700;margin-left:2px}
+.c span{display:block;font-size:13.5px;color:var(--slate);margin-top:1px}
+
+/* D 證據卡：每個數字附「怎麼算的」 */
+.d{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.d article{background:var(--white);border:1px solid var(--rule);border-left:3px solid var(--brand);border-radius:0 8px 8px 0;padding:20px 22px}
+.d b{font-family:var(--fd);font-size:32px;font-weight:700;letter-spacing:-.02em;line-height:1.2}
+.d b .u{font-family:var(--ft);font-size:.5em;font-weight:700;margin-left:2px}
+.d h3{font-size:15.5px;font-weight:700;margin-top:2px}
+.d p{margin-top:8px;font-size:13.5px;color:var(--dim);line-height:1.75;border-top:1px solid var(--rule);padding-top:8px}
+
+/* E 只留真數字 */
+.e{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:10px;overflow:hidden}
+.e>div{background:var(--white);padding:28px 30px}
+.e b{display:block;font-family:var(--fd);font-size:52px;font-weight:700;line-height:1;letter-spacing:-.03em}
+.e b .u{font-family:var(--ft);font-size:.36em;font-weight:700;margin-left:3px}
+.e span{display:block;margin-top:10px;font-size:15.5px;font-weight:700}
+.e em{display:block;margin-top:4px;font-style:normal;font-size:13.5px;color:var(--dim)}
+.note{margin-top:14px;font-size:13.5px;color:var(--slate)}
+.note b{color:var(--ink)}
+@media (max-width:760px){
+  .a{grid-template-columns:1fr 1fr}
+  .b{grid-template-columns:1fr}.b .hero{border-right:0;border-bottom:1px solid var(--rule)}
+  .d,.e{grid-template-columns:1fr}
+  .c>div+div::before{display:none}
+  .c>div{border-top:1px solid var(--rule);padding-top:14px;margin-top:8px}
+  .c>div:first-child{border-top:0;margin-top:0;padding-top:6px}
+}
+</style></head><body><div class="w">
+
+<h1>首頁數字區塊　四種做法</h1>
+<p class="lead">同一組資料，四種呈現方式。手機請直接縮小視窗看，每一種的斷點行為都不一樣。</p>
+
+<div class="prob"><b>先講現況的問題：</b>四個格子裡只有兩個是真的數字（<b>8</b> 成、<b>36</b> 個）。
+「<b>萬</b>」跟「<b>內湖</b>」被放進同樣的特大數字版位——「萬」不是數字，「內湖」是地名。
+用同樣的字級呈現，讀起來會卡。下面每一種做法都在處理這件事。</div>
+
+<section>
+  <div class="hd"><h2>A　四格對稱</h2><span class="tag">目前的做法</span>
+  <p>四個等寬格子。整齊，但四個資料的性質不同卻長得一樣，「萬」與「內湖」被迫假裝成數字。</p></div>
+  <div class="a">
+    <div><b class="num">8<span class="u">成以上</span></b><span>任用率</span></div>
+    <div><b class="num">36<span class="u">個</span></b><span>目前在線職缺</span></div>
+    <div><b class="num">萬<span class="u">筆</span></b><span>菁英人才資料庫</span></div>
+    <div><b>內湖</b><span>t.Hub 服務據點</span></div>
+  </div>
+</section>
+
+<section>
+  <div class="hd"><h2>B　主從不對稱</h2><span class="tag">推薦</span>
+  <p>把最強的那個數字放大成主角，其餘三項降級成清單。解決了「四個一樣大但重要性不同」的問題，
+  也讓「內湖」不用假裝成數字。</p></div>
+  <div class="b">
+    <div class="hero">
+      <b class="num">8<span class="u">成以上</span></b>
+      <span>任用率</span>
+      <em>媒合到職後留任的比例，是 Step1ne 最核心的一個數字。</em>
+    </div>
+    <ul>
+      <li><i class="num">36</i><span>個目前開放中的職缺</span></li>
+      <li><i class="num">萬筆</i><span>菁英人才資料庫</span></li>
+      <li><i>內湖</i><span>t.Hub 服務據點，服務範圍涵蓋全台</span></li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="hd"><h2>C　單行條</h2><span class="tag">最省空間</span>
+  <p>壓成一行，用細分隔線區隔。適合放在 hero 底部當收尾，不佔版面。缺點是每一項都變小，沒有重點。</p></div>
+  <div class="c">
+    <div><b class="num">8<span class="u">成以上</span></b><span>任用率</span></div>
+    <div><b class="num">36<span class="u">個</span></b><span>在線職缺</span></div>
+    <div><b class="num">萬<span class="u">筆</span></b><span>人才資料庫</span></div>
+    <div><b style="font-size:22px">內湖 t.Hub</b><span>服務據點</span></div>
+  </div>
+</section>
+
+<section>
+  <div class="hd"><h2>D　證據卡</h2><span class="tag">最能建立信任</span>
+  <p>每個數字底下加一行「這個數字怎麼來的」。跟頁面上「A 級評鑑可查證」那一段是同一個邏輯——
+  宣稱要附依據。缺點是佔的版面最大。</p></div>
+  <div class="d">
+    <article><b class="num">8<span class="u">成以上</span></b><h3>任用率</h3>
+      <p>指媒合到職的人選在保固期內留任的比例。保固期條件於委任前寫入合約。</p></article>
+    <article><b class="num">36<span class="u">個</span></b><h3>目前開放中的職缺</h3>
+      <p>職缺專區即時顯示，顧問在後台關閉後會即時從列表移除。</p></article>
+    <article><b class="num">萬<span class="u">筆</span></b><h3>菁英人才資料庫</h3>
+      <p>累積至今的人選資料，AI 媒合系統從中演算契合度。</p></article>
+    <article><b style="font-size:26px">A 級</b><h3>臺北市政府勞動局評鑑</h3>
+      <p>114 年度私立就業服務機構評鑑，證書字號北市勞就字第 AYAA1146102860 號。</p></article>
+  </div>
+  <p class="note"><b>注意：</b>這個版本我把「內湖據點」換成了「A 級評鑑」，因為據點不是成效指標，
+  而評鑑是。據點資訊放在頁尾就夠了。</p>
+</section>
+
+<section>
+  <div class="hd"><h2>E　只留真數字</h2><span class="tag">最克制</span>
+  <p>只留下兩個真的是數字的項目，各佔一半、字級加大。「萬筆」與「內湖」改寫進旁邊的文案裡。</p></div>
+  <div class="e">
+    <div><b class="num">8<span class="u">成以上</span></b><span>任用率</span><em>媒合到職後於保固期內留任</em></div>
+    <div><b class="num">36<span class="u">個</span></b><span>目前開放中的職缺</span><em>職缺專區即時更新</em></div>
+  </div>
+  <p class="note"><b>取捨：</b>最乾淨，但「萬筆人才資料庫」是你們的核心資產，從數字區拿掉就必須確保
+  hero 的文案裡有講到，否則資訊會不見。</p>
+</section>
+
+</div></body></html>

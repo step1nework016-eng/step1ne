@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>［新版設計稿］Step1ne 德仁管理顧問</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════════════════
+   Step1ne 設計 token　v1（本地預覽稿）
+   ══════════════════════════════════════════════════════════ */
+:root{
+  --paper:#F4F6F8;        /* 頁面底：冷調紙，不是米白 */
+  --white:#FFFFFF;
+  --ink:#0D1B24;          /* 墨：內文＋求職者端深色區塊底 */
+  --slate:#4A5A66;        /* 次級文字 */
+  --slate-dim:#7A8A96;
+  --rule:#D9E0E6;         /* 髮絲線 */
+  --brand:#167EB2;        /* logo 深藍：軌、填色按鈕 */
+  --brand-deep:#0F5F87;   /* 藍字（對比達標用） */
+  --live:#2EA9DF;         /* logo 亮青：只給「進行中」節點 */
+  --line:#06C755;         /* LINE 官方綠，不動 */
+
+  --rail:2px;
+  --wrap:1200px;
+  --gut:clamp(20px,4vw,40px);
+
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--f-text);font-weight:400;
+  font-size:16px;line-height:1.85;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3,h4{margin:0;font-weight:900;line-height:1.25;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,input):focus-visible{
+  outline:2px solid var(--brand);outline-offset:3px;border-radius:3px;
+}
+.num{font-family:var(--f-disp);font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+.wrap{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+
+/* ─── 導覽：雙受眾分流 ─── */
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:70px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:38px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px;letter-spacing:.04em}
+.hd-nav{display:flex;align-items:center;gap:0;font-size:15px}
+.hd-group{display:flex;align-items:center;gap:20px;padding:0 22px;position:relative}
+.hd-group+.hd-group::before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);width:1px;height:22px;background:var(--rule)}
+.hd-tag{font-family:var(--f-disp);font-size:11px;font-weight:600;color:var(--slate-dim);letter-spacing:.02em}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;gap:8px;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:10px 18px;border-radius:6px}
+.hd-burger{display:none;width:42px;height:42px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav .hd-tag{display:block;padding:12px var(--gut) 4px;background:var(--paper)}
+
+/* ─── 品牌橫幅（沿用線上原圖，含 logo 與定位語） ─── */
+.banner{display:block;width:100%;background:var(--paper);border-bottom:1px solid var(--rule)}
+.banner img{width:100%;height:auto;display:block;max-width:1584px;margin:0 auto}
+
+/* ─── 全站左側軌 ─── */
+.spine{position:relative}
+.spine::before{
+  content:"";position:absolute;left:calc(var(--gut) + 5px);top:0;bottom:0;
+  width:var(--rail);background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.12));
+}
+.sec{position:relative;padding:80px 0}
+.sec+.sec{border-top:1px solid var(--rule)}
+.sec-in{max-width:var(--wrap);margin:0 auto;padding-left:calc(var(--gut) + 46px);padding-right:var(--gut)}
+.node{position:absolute;left:calc(var(--gut) - 1px);top:86px;width:14px;height:14px;border-radius:50%;background:var(--paper);border:var(--rail) solid var(--brand)}
+.sec-h{max-width:34ch;margin-bottom:14px;font-size:clamp(26px,3.6vw,38px)}
+.sec-p{max-width:62ch;color:var(--slate);font-size:17px}
+
+/* ─── Hero ─── */
+.hero{padding:76px 0 68px;position:relative}
+.hero-in{max-width:var(--wrap);margin:0 auto;padding-left:calc(var(--gut) + 46px);padding-right:var(--gut)}
+.hero h1{font-size:clamp(34px,6vw,64px);line-height:1.16;letter-spacing:-.02em;max-width:17ch}
+.hero h1 .lat{font-family:var(--f-disp);font-weight:700}
+.hero-p{margin-top:24px;max-width:56ch;font-size:18px;color:var(--slate)}
+.hero-act{margin-top:34px;display:flex;flex-wrap:wrap;gap:12px}
+.btn{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:15px;padding:13px 22px;border-radius:6px;border:1px solid transparent;cursor:pointer}
+.btn-p{background:var(--brand);color:#fff}
+.btn-p:hover{background:var(--brand-deep)}
+.btn-s{background:var(--white);color:var(--ink);border-color:var(--rule)}
+.btn-s:hover{border-color:var(--brand);color:var(--brand-deep)}
+
+/* ─── 委任進度軌（signature） ─── */
+.track{margin-top:56px;background:var(--white);border:1px solid var(--rule);border-radius:10px;padding:26px 4px 8px}
+.track-cap{padding:0 24px 22px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;border-bottom:1px solid var(--rule);margin-bottom:26px}
+.track-cap h2{font-size:17px;font-weight:700}
+.track-cap span{font-size:14px;color:var(--slate)}
+.track-rail{display:grid;grid-template-columns:repeat(6,1fr);padding:0 24px 24px;position:relative}
+.track-rail::before{content:"";position:absolute;left:calc(24px + 8.33% - 5px);right:calc(24px + 8.33% - 5px);top:5px;height:var(--rail);background:var(--rule)}
+.track-rail::after{content:"";position:absolute;left:calc(24px + 8.33% - 5px);width:33%;top:5px;height:var(--rail);background:var(--brand)}
+.stp{position:relative;padding-top:26px;padding-right:12px}
+.stp i{position:absolute;top:0;left:50%;transform:translateX(-50%);width:12px;height:12px;border-radius:50%;background:var(--white);border:var(--rail) solid var(--rule);box-shadow:0 0 0 4px var(--white)}
+.stp.done i{border-color:var(--brand);background:var(--brand)}
+.stp.now i{border-color:var(--live);background:var(--live);box-shadow:0 0 0 4px var(--white),0 0 0 8px rgba(46,169,223,.22)}
+.stp b{display:block;font-size:14px;font-weight:700;text-align:center;line-height:1.5}
+.stp em{display:block;margin-top:4px;font-style:normal;font-size:12.5px;color:var(--slate-dim);text-align:center;font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+.track-note{padding:16px 24px;border-top:1px solid var(--rule);font-size:13.5px;color:var(--slate-dim);line-height:1.7}
+
+/* ─── 數字列：主從不對稱（最強的數字放大，其餘降級成清單） ─── */
+.figs{margin-top:44px;display:grid;grid-template-columns:1.1fr 1fr;background:var(--white);border:1px solid var(--rule);border-radius:10px;overflow:hidden}
+.fig-lead{padding:34px 34px 32px;border-right:1px solid var(--rule)}
+.fig-lead b{display:block;font-family:var(--f-disp);font-size:clamp(52px,6vw,76px);font-weight:700;line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.fig-lead b .u{font-family:var(--f-text);font-size:.32em;font-weight:700;margin-left:4px;letter-spacing:0}
+.fig-lead span{display:block;margin-top:10px;font-size:17px;font-weight:700}
+.fig-lead em{display:block;margin-top:7px;font-style:normal;font-size:14px;color:var(--slate-dim);line-height:1.75}
+.figs ul{margin:0;padding:0;list-style:none}
+.figs li{padding:18px 28px;border-bottom:1px solid var(--rule);display:flex;gap:16px;align-items:baseline}
+.figs li:last-child{border-bottom:0}
+.figs li i{font-style:normal;font-family:var(--f-disp);font-variant-numeric:tabular-nums;font-size:21px;font-weight:700;min-width:62px}
+.figs li span{font-size:15px;color:var(--slate);line-height:1.7}
+
+/* ─── 資格憑證（政府背書，不是自己講的） ─── */
+.cred{margin-top:34px;background:var(--white);border:1px solid var(--rule);border-radius:10px;padding:26px;display:grid;grid-template-columns:200px 1fr;gap:30px;align-items:start}
+.cred figure{margin:0}
+.cred img{width:100%;height:auto;border:1px solid var(--rule);border-radius:6px}
+.cred figcaption{margin-top:9px;font-size:12.5px;color:var(--slate-dim);line-height:1.6}
+.cred dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:0}
+.cred dt{padding:11px 0;font-size:14px;color:var(--slate);white-space:nowrap;border-top:1px solid var(--rule)}
+.cred dd{margin:0;padding:11px 0 11px 24px;font-size:15px;font-weight:500;border-top:1px solid var(--rule)}
+.cred dt:first-of-type,.cred dl>dt:first-child+dd{border-top:0}
+.cred .code{font-family:var(--f-disp);font-variant-numeric:tabular-nums;font-size:14.5px;letter-spacing:.01em}
+.cred .lv{display:inline-flex;align-items:center;gap:7px;font-weight:700}
+.cred .lv b{font-family:var(--f-disp);font-size:19px;color:var(--brand-deep);border:2px solid var(--brand);border-radius:5px;padding:0 9px;line-height:1.5}
+
+/* ─── 三步驟（真的是序列，才留編號） ─── */
+.steps{margin-top:40px;display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--rule);border-radius:10px;overflow:hidden;background:var(--white)}
+.step{padding:28px 26px;border-right:1px solid var(--rule)}
+.step:last-child{border-right:0}
+.step .n{font-family:var(--f-disp);font-size:13px;font-weight:700;color:var(--brand);font-variant-numeric:tabular-nums}
+.step h3{margin:8px 0 10px;font-size:19px}
+.step p{font-size:15px;color:var(--slate);line-height:1.8}
+
+/* ─── 服務三線 ─── */
+.svcs{margin-top:40px;display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.svc{background:var(--white);border:1px solid var(--rule);border-top:3px solid var(--brand);border-radius:8px;padding:26px 24px;display:flex;flex-direction:column}
+.svc h3{font-size:20px}
+.svc p{margin-top:12px;font-size:15px;color:var(--slate);line-height:1.85;flex:1}
+.svc ul{margin:18px 0 0;padding:0;list-style:none;display:flex;gap:8px;flex-wrap:wrap}
+.svc li{font-size:12.5px;color:var(--brand-deep);background:rgba(22,126,178,.08);border-radius:4px;padding:4px 9px}
+.svc-links{margin-top:26px;display:flex;flex-wrap:wrap;gap:10px 20px;font-size:15px}
+.svc-links a{color:var(--brand-deep);font-weight:500;border-bottom:1px solid rgba(15,95,135,.3);padding-bottom:2px}
+.svc-links a:hover{border-bottom-color:var(--brand-deep)}
+
+/* ─── 職缺表 ─── */
+.jobs{margin-top:36px;border:1px solid var(--rule);border-radius:10px;overflow:hidden;background:var(--white)}
+.job{display:grid;grid-template-columns:132px 1fr auto;gap:20px;align-items:center;padding:20px 24px;border-bottom:1px solid var(--rule)}
+.job:last-child{border-bottom:0}
+.job:hover{background:var(--paper)}
+.job .kind{font-size:12.5px;font-weight:700;color:var(--slate);border:1px solid var(--rule);border-radius:4px;padding:3px 8px;text-align:center;white-space:nowrap}
+.job .kind.hh{color:var(--brand-deep);border-color:rgba(22,126,178,.4);background:rgba(22,126,178,.06)}
+.job h3{font-size:17px}
+.job p{margin-top:3px;font-size:14px;color:var(--slate)}
+.job .pay{font-family:var(--f-disp);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
+
+/* ─── 評估工具條 ─── */
+.tool{margin-top:36px;background:var(--white);border:1px solid var(--rule);border-left:3px solid var(--brand);border-radius:8px;padding:24px 26px;display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-content:space-between}
+.tool h3{font-size:19px}
+.tool p{margin-top:6px;font-size:15px;color:var(--slate);max-width:56ch}
+
+/* ─── 求職者端：深色底＝受眾切換 ─── */
+.dark{background:var(--ink);color:#E8EEF2;border-top:0}
+.dark::after{content:none}
+.dark .node{background:var(--ink);border-color:var(--live)}
+.dark .sec-p,.dark p{color:#A9BAC5}
+.dark .sec-h{color:#fff}
+.tal{margin-top:40px;display:grid;grid-template-columns:1.15fr 1fr;gap:20px}
+.tal-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:28px 26px}
+.tal-card h3{font-size:21px;color:#fff}
+.tal-card p{margin-top:12px;font-size:15px;line-height:1.85}
+.tal-card .fine{margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.14);font-size:14px;color:#8FA3B0;line-height:1.8}
+.tal-card .promo{margin-top:18px;width:100%;height:auto;border-radius:8px;border:1px solid rgba(255,255,255,.14)}
+.tal-list{margin:20px 0 0;padding:0;list-style:none;display:grid;gap:9px;font-size:15px;color:#CBD8E1}
+.tal-list li{padding-left:18px;position:relative}
+.tal-list li::before{content:"";position:absolute;left:0;top:.72em;width:7px;height:7px;border-radius:50%;background:var(--live)}
+.chips{margin:20px 0 0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:8px}
+.chips li{font-size:13.5px;border:1px solid rgba(255,255,255,.2);border-radius:5px;padding:6px 11px;color:#D8E4EB}
+.btn-live{background:var(--live);color:var(--ink)}
+.btn-ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.3)}
+
+/* ─── 專欄 ─── */
+.posts{margin-top:36px;display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.post{background:var(--white);border:1px solid var(--rule);border-radius:8px;padding:22px 20px}
+.post span{font-size:12.5px;color:var(--slate-dim)}
+.post h3{margin-top:8px;font-size:16.5px;line-height:1.6}
+.post p{margin-top:8px;font-size:14px;color:var(--slate)}
+
+/* ─── FAQ ─── */
+.faq{margin-top:32px;border-top:1px solid var(--rule)}
+.faq details{border-bottom:1px solid var(--rule)}
+.faq summary{cursor:pointer;list-style:none;padding:20px 40px 20px 0;font-size:17px;font-weight:700;position:relative}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"";position:absolute;right:8px;top:29px;width:11px;height:11px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg);transition:transform .2s}
+.faq details[open] summary::after{transform:rotate(-135deg)}
+.faq .a{padding:0 40px 22px 0;font-size:15.5px;color:var(--slate);line-height:1.9;max-width:74ch}
+
+/* ─── 頁尾 CTA ─── */
+.end{background:var(--white);border-top:1px solid var(--rule);padding:72px 0}
+.end h2{font-size:clamp(26px,4vw,40px);max-width:20ch}
+.end p{margin-top:16px;color:var(--slate);font-size:17px;max-width:52ch}
+.end .hero-act{margin-top:30px}
+.ft{border-top:1px solid var(--rule);background:var(--white);padding:52px 0 30px;font-size:14.5px;color:var(--slate)}
+.ft-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:36px}
+.ft-brand img{height:40px;width:auto;margin-bottom:14px}
+.ft-brand p{font-size:14px;line-height:1.85;color:var(--slate)}
+.ft-brand .legal{margin-top:12px;font-size:13px;color:var(--slate-dim);line-height:1.9}
+.ft-brand .legal span{display:block}
+.ft-soc{margin-top:16px;display:flex;flex-wrap:wrap;gap:8px}
+.ft-soc a{font-size:13px;color:var(--slate);border:1px solid var(--rule);border-radius:5px;padding:5px 11px}
+.ft-soc a:hover{border-color:var(--brand);color:var(--brand-deep)}
+.ft-col h3{font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:12px}
+.ft-col a{display:block;padding:6px 0;color:var(--slate);font-size:14px}
+.ft-col a:hover{color:var(--brand-deep)}
+.ft-btm{max-width:var(--wrap);margin:34px auto 0;padding:20px var(--gut) 0;border-top:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-between;font-size:13px;color:var(--slate-dim)}
+/* 全民獵才：海報改放淺色區，不再塞進深色卡片 */
+.mini{margin-top:40px;display:grid;grid-template-columns:1fr 420px;gap:40px;align-items:center;background:var(--white);border:1px solid var(--rule);border-radius:12px;padding:34px 36px}
+.mini h3{font-size:23px}
+.mini p{margin-top:14px;font-size:16px;color:var(--slate);line-height:1.9;max-width:46ch}
+.mini ul{margin:20px 0 0;padding:0;list-style:none;display:grid;gap:9px;font-size:15.5px}
+.mini li{padding-left:20px;position:relative;color:var(--slate)}
+.mini li::before{content:"";position:absolute;left:0;top:.72em;width:7px;height:7px;border-radius:50%;background:var(--brand)}
+.mini figure{margin:0}
+.mini img{width:100%;height:auto;border-radius:10px;border:1px solid var(--rule)}
+.mini figcaption{margin-top:9px;font-size:12.5px;color:var(--slate-dim);text-align:center}
+
+/* ─── 響應式 ─── */
+@media (max-width:980px){
+  .figs{grid-template-columns:1fr}
+  .fig-lead{border-right:0;border-bottom:1px solid var(--rule)}
+  .mini{grid-template-columns:1fr;gap:26px;padding:26px}
+  .ft-in{grid-template-columns:1fr 1fr;gap:28px}
+  .cred{grid-template-columns:1fr;gap:22px}
+  .cred figure{max-width:200px}
+  .steps,.svcs,.tal{grid-template-columns:1fr}
+  .step{border-right:0;border-bottom:1px solid var(--rule)}
+  .step:last-child{border-bottom:0}
+  .posts{grid-template-columns:repeat(2,1fr)}
+  .track-rail{grid-template-columns:repeat(3,1fr);row-gap:26px}
+  .track-rail::before,.track-rail::after{content:none}
+  .stp{padding-left:22px;padding-top:0}
+  .stp i{left:0;top:6px;transform:none}
+  .stp b,.stp em{text-align:left}
+}
+@media (max-width:760px){
+  .hd-nav{display:none}
+  .hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  .spine::before{left:calc(var(--gut) + 5px)}
+  .sec-in,.hero-in{padding-left:calc(var(--gut) + 30px)}
+  .node{left:calc(var(--gut) - 1px);top:70px}
+  .sec{padding:58px 0}
+  .ft-in{grid-template-columns:1fr;gap:24px}
+  .cred{padding:20px}
+  .cred dl{grid-template-columns:1fr;gap:0}
+  .cred dt{padding:12px 0 0;border-top:1px solid var(--rule)}
+  .cred dd{padding:2px 0 12px;border-top:0}
+  .job{grid-template-columns:1fr;gap:8px}
+  .job .kind{justify-self:start}
+  .job .pay{text-align:left}
+  .posts{grid-template-columns:1fr}
+  .track-rail{grid-template-columns:1fr;row-gap:20px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important;scroll-behavior:auto!important}
+}
+</style>
+</head>
+<body>
+
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="#top">
+      <img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問">
+      <b>德仁管理顧問</b>
+    </a>
+    <nav class="hd-nav">
+      <div class="hd-group">
+        <span class="hd-tag">企業找人才</span>
+        <a href="#svc">企業服務</a>
+        <a href="#tool">招募形式評估</a>
+        <a href="#faq">常見問題</a>
+      </div>
+      <div class="hd-group">
+        <span class="hd-tag">我要找工作</span>
+        <a href="#jobs">職缺專區</a>
+        <a href="#talent">全民獵才</a>
+        <a href="#talent">AI 求職工具</a>
+      </div>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">LINE 洽詢</a>
+    <button class="hd-burger" type="button" aria-label="開啟選單" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))">
+      <span></span>
+    </button>
+  </div>
+  <div class="mnav" id="mnav">
+    <span class="hd-tag">企業找人才</span>
+    <a href="#svc">企業服務</a><a href="#tool">招募形式評估</a><a href="#faq">常見問題</a>
+    <span class="hd-tag">我要找工作</span>
+    <a href="#jobs">職缺專區</a><a href="#talent">全民獵才</a><a href="#talent">AI 求職工具</a>
+    <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINE 洽詢</a>
+  </div>
+</header>
+
+<div class="banner">
+  <img src="/assets/hero-banner.webp" alt="Step1ne 德仁管理顧問｜IT人才專家・高階獵才平台" width="1584" height="396" fetchpriority="high">
+</div>
+
+<main class="spine" id="top">
+
+  <!-- ══ Hero：主角是「委任進度軌」，不是玻璃帷幕照片 ══ -->
+  <section class="hero">
+    <span class="node" style="top:96px"></span>
+    <div class="hero-in">
+      <h1>找人這件事，<br>應該看得到進度。</h1>
+      <p class="hero-p">Step1ne（德仁管理顧問）用自研 <span class="num">AI</span> 媒合系統與萬筆人才資料庫接手你的關鍵職缺，從解析需求到人選報到，每一段都有顧問署名、有時間、有回報。</p>
+      <div class="hero-act">
+        <a class="btn btn-p" href="#svc">委託我們找人</a>
+        <a class="btn btn-s" href="#jobs">我要找工作</a>
+      </div>
+
+      <div class="track">
+        <div class="track-cap">
+          <h2>一件委任長什麼樣子</h2>
+          <span>以一般正職職缺為例，實際天數依職缺難度而定</span>
+        </div>
+        <div class="track-rail">
+          <div class="stp done"><i></i><b>需求解析</b><em>第 1–3 天</em></div>
+          <div class="stp done"><i></i><b>資料庫配對</b><em>第 3–7 天</em></div>
+          <div class="stp now"><i></i><b>顧問精修</b><em>第 7–14 天</em></div>
+          <div class="stp"><i></i><b>送件</b><em>第 2–4 週</em></div>
+          <div class="stp"><i></i><b>企業面試</b><em>依貴司安排</em></div>
+          <div class="stp"><i></i><b>報到・保固</b><em>合約約定</em></div>
+        </div>
+        <p class="track-note">既有人才資料庫與內部推薦名單零開發時間，通常最快能安排面試。急件大量招募可全通路同步啟動。高階獵頭多採成功後收費，未成功媒合到職原則上不收費。</p>
+      </div>
+
+      <div class="figs">
+        <div class="fig-lead">
+          <b class="num">8<span class="u">成以上</span></b>
+          <span>任用率</span>
+          <em>媒合到職後於保固期內留任的比例，是我們最核心的一個數字。</em>
+        </div>
+        <ul>
+          <li><i class="num">36</i><span>個目前開放中的職缺</span></li>
+          <li><i class="num">萬筆</i><span>菁英人才資料庫，AI 從中演算契合度</span></li>
+          <li><i>內湖</i><span>t.Hub 服務據點，服務範圍涵蓋全台</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 資格憑證：政府背書，不是自己講的 ══ -->
+  <section class="sec" id="cred">
+    <span class="node"></span>
+    <div class="sec-in">
+      <h2 class="sec-h">這家公司的資格，你可以自己查</h2>
+      <p class="sec-p">獵頭公司值不值得託付，不該只看它怎麼自我介紹。以下每一組字號都能到主管機關查證。</p>
+      <div class="cred">
+        <figure>
+          <img src="/assets/award-a-rating-2025.webp" alt="臺北市政府勞動局頒發德仁管理顧問有限公司 114 年度私立就業服務機構評鑑 A 級獎狀" loading="lazy" width="1654" height="2338">
+          <figcaption>臺北市政府勞動局頒發<br>114 年度私立就業服務機構評鑑</figcaption>
+        </figure>
+        <dl>
+          <dt>評鑑等級</dt>
+          <dd><span class="lv"><b>A</b> 級　114 年度仲介本國人在國內工作</span></dd>
+          <dt>評鑑證書字號</dt>
+          <dd class="code">北市勞就字第 AYAA1146102860 號</dd>
+          <dt>就業服務許可字號</dt>
+          <dd class="code">北市就服字第 0363 號</dd>
+          <dt>統一編號</dt>
+          <dd class="code">85046127</dd>
+          <dt>法人名稱</dt>
+          <dd>德仁管理顧問有限公司</dd>
+        </dl>
+      </div>
+      <div class="svc-links" style="margin-top:22px"><a href="/about/">看完整公司資料與查證方式</a></div>
+    </div>
+  </section>
+
+  <!-- ══ 三步驟 ══ -->
+  <section class="sec" id="how">
+    <span class="node"></span>
+    <div class="sec-in">
+      <h2 class="sec-h">不是關鍵字比對，是精準媒合</h2>
+      <p class="sec-p">系統從職能、產業經驗、資歷軌跡與文化適配等多維度演算，從萬筆資料庫篩出高契合人選，再由資深顧問精修交付。</p>
+      <div class="steps">
+        <div class="step"><span class="n">第 1 步</span><h3>需求解析</h3><p>深入釐清職位規格、團隊文化與關鍵能力，把「找什麼樣的人」轉成可演算的條件。</p></div>
+        <div class="step"><span class="n">第 2 步</span><h3>資料庫智能配對</h3><p>AI 從萬筆資料庫多維度演算契合度，主動觸及在職中的被動人選，而非被動等待投遞。</p></div>
+        <div class="step"><span class="n">第 3 步</span><h3>顧問精修交付</h3><p>資深顧問人工複核、深度評估與引薦，把契合人選送到你面前——任用率 8 成以上。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 企業服務 ══ -->
+  <section class="sec" id="svc">
+    <span class="node"></span>
+    <div class="sec-in">
+      <h2 class="sec-h">企業服務</h2>
+      <p class="sec-p">從關鍵高階職位到彈性派遣，一條龍解決企業選才難題。</p>
+      <div class="svcs">
+        <article class="svc">
+          <h3>高階獵頭・中高階獵才</h3>
+          <p>CEO、CFO、VP 等關鍵與機密職位，保密委任、主動出擊，鎖定在職中的頂尖被動人選。品牌成立的初衷主戰場。</p>
+          <ul><li>保密委任</li><li>被動人選</li></ul>
+        </article>
+        <article class="svc">
+          <h3>正職招募・全方位獵才</h3>
+          <p>跨領域菁英與團隊建置，委由 AI 媒合系統與顧問一手包辦，快速補齊正職戰力。</p>
+          <ul><li>跨領域菁英</li><li>團隊招募</li></ul>
+        </article>
+        <article class="svc">
+          <h3>人力派遣</h3>
+          <p>彈性人力調度、合規派遣，勞健保與勞動法令責任一併承擔，讓企業專注核心業務。</p>
+          <ul><li>彈性人力</li><li>合規承攬</li></ul>
+        </article>
+      </div>
+      <div class="svc-links">
+        <a href="/commission-recruiting/">委託招募完整方案與流程</a>
+        <a href="/success-stories/">看成功案例</a>
+        <a href="/appointment/">預約顧問洽詢</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 評估工具 ══ -->
+  <section class="sec" id="tool">
+    <span class="node"></span>
+    <div class="sec-in">
+      <h2 class="sec-h">不確定該選哪一種招募形式？</h2>
+      <div class="tool">
+        <div>
+          <h3>招募形式評估工具</h3>
+          <p>留下 Email，我們立即寄送評估工具連結，1 分鐘拿到建議結果，可直接列印或另存 PDF。</p>
+        </div>
+        <a class="btn btn-p" href="/hiring-assessment/">免費取得評估工具</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 職缺 ══ -->
+  <section class="sec" id="jobs">
+    <span class="node"></span>
+    <div class="sec-in">
+      <h2 class="sec-h">即時職缺</h2>
+      <p class="sec-p">目前開放應徵的職位，點進去可以看到完整條件與應徵方式。</p>
+      <div class="jobs">
+        <a class="job" href="/jobs/">
+          <span class="kind">正職僱用</span>
+          <div><h3>BIM 工程師（無經驗可）</h3><p>苗栗銅鑼・AI 記憶體產業擴產案</p></div>
+          <span class="pay">月薪 40K 起</span>
+        </a>
+        <a class="job" href="/jobs/">
+          <span class="kind hh">高階獵才</span>
+          <div><h3>財務主管 Finance Controller</h3><p>保密職位・由顧問單獨聯繫</p></div>
+          <span class="pay">年薪 100–200 萬</span>
+        </a>
+        <a class="job" href="/jobs/">
+          <span class="kind">人力派遣</span>
+          <div><h3>產品助理（可接受新鮮人）</h3><p>台北內湖・電子支付</p></div>
+          <span class="pay">月薪 40–50K</span>
+        </a>
+        <a class="job" href="/jobs/">
+          <span class="kind">人力派遣</span>
+          <div><h3>總機接待</h3><p>台北內湖・週休二日</p></div>
+          <span class="pay">月薪 35–42K</span>
+        </a>
+      </div>
+      <div class="svc-links"><a href="/jobs/">查看全部 36 個職缺</a></div>
+    </div>
+  </section>
+
+  <!-- ══ 求職者端：換深色底＝換受眾 ══ -->
+  <section class="sec dark" id="talent">
+    <span class="node"></span>
+    <div class="sec-in">
+      <h2 class="sec-h">人才・求職者專區</h2>
+      <p class="sec-p">應徵之後會發生什麼、有哪些免費工具可以先用——這一段是給求職者看的。</p>
+      <div class="tal">
+        <article class="tal-card">
+          <h3>先跟阿財談一次，20–40 分鐘就知道結果</h3>
+          <p>阿財是 Step1ne 自己開發的 AI 面談顧問。應徵之後你會先跟阿財進行一場正式對談，等同真人顧問的第一輪面試——不用等顧問排時間，也不用配合上班時間請假。</p>
+          <ul class="tal-list">
+            <li>依你的履歷與職缺追問，不是照題庫唸</li>
+            <li>逐字稿一定經真人顧問覆核，阿財不做最終決定</li>
+            <li>可以打字，也可以按麥克風用講的</li>
+          </ul>
+          <p class="fine">不會有人只被機器刷掉、完全沒有人看過——這一段一直是人在把關。</p>
+          <div class="hero-act">
+            <a class="btn btn-live" href="/jobs/">找一個職缺開始應徵</a>
+            <a class="btn btn-ghost" href="/articles/ai-interview-guide/">阿財是什麼？先看說明</a>
+          </div>
+        </article>
+        <article class="tal-card">
+          <h3>AI 智能求職工具</h3>
+          <p>從履歷到面試，AI 幫你把求職的每一步都準備好。</p>
+          <ul class="chips">
+            <li>履歷健診</li><li>推薦信</li><li>離職信</li><li>自我介紹</li><li>面試題庫</li>
+          </ul>
+          <div class="hero-act">
+            <a class="btn btn-ghost" href="/talent/ai-tools/">查看全部 AI 求職工具</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══ 全民獵才：海報放在淺色區，不與深色面板打架 ══ -->
+  <section class="sec" id="lineapp">
+    <span class="node"></span>
+    <div class="sec-in">
+      <h2 class="sec-h">在 LINE 開啟「全民獵才」</h2>
+      <p class="sec-p">推薦職缺、媒合成功拿獎金。加入好友即可開啟，免下載、免安裝。</p>
+      <div class="mini">
+        <div>
+          <h3>不必是專業獵頭，也能替朋友找到好工作</h3>
+          <p>全民獵才是掛在 Step1ne LINE 官方帳號上的小程式。把適合的職缺推薦給朋友，當你推薦的人選媒合成功並到職後，即可獲得推薦獎金。</p>
+          <ul>
+            <li>推薦職缺拿獎金</li>
+            <li>好職缺即時推播</li>
+            <li>媒合進度隨時追蹤</li>
+          </ul>
+          <div class="hero-act">
+            <a class="btn btn-line" href="https://lin.ee/XcSWPzM">加入 LINE・開啟全民獵才</a>
+            <a class="btn btn-s" href="/talent/">獎金怎麼算</a>
+          </div>
+        </div>
+        <figure>
+          <img src="/assets/lineapp-promo.webp" alt="全民獵才 LINE 小程式介紹：在 LINE 上即可使用、專業顧問在線諮詢、AI 履歷生成與模擬面試、推薦職缺拿獎金" loading="lazy" width="1170" height="1165">
+          <figcaption>全民獵才 LINE 小程式介紹</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 專欄 ══ -->
+  <section class="sec" id="posts">
+    <span class="node"></span>
+    <div class="sec-in">
+      <h2 class="sec-h">獵才專欄</h2>
+      <div class="posts">
+        <a class="post" href="/articles/"><span>薪資行情</span><h3>BIM 工程師薪水行情：從無經驗到資深，數字怎麼跳？</h3><p>Lv1 到 Lv6 六個職級的月薪帶拆解</p></a>
+        <a class="post" href="/articles/"><span>轉職入行</span><h3>沒有相關科系，可以轉職 BIM 工程師嗎？</h3><p>企業實際在看什麼、非本科怎麼補</p></a>
+        <a class="post" href="/articles/"><span>職務認識</span><h3>BIM 工程師是什麼？跟繪圖員差在哪？</h3><p>工作內容、LOD 等級、五種職缺型態</p></a>
+        <a class="post" href="/articles/"><span>企業指南</span><h3>怎麼挑台灣獵頭公司？7 個判斷標準</h3><p>可以直接拿去問的驗證方法</p></a>
+      </div>
+      <div class="svc-links"><a href="/articles/">看所有文章</a></div>
+    </div>
+  </section>
+
+  <!-- ══ FAQ ══ -->
+  <section class="sec" id="faq">
+    <span class="node"></span>
+    <div class="sec-in">
+      <h2 class="sec-h">常見問題</h2>
+      <div class="faq">
+        <details open><summary>獵頭顧問的收費模式是什麼？</summary><div class="a">高階獵頭多採「成功後收費」的委任制，費用通常以錄取人選年薪的一定比例計算，於人選到職後結算。Step1ne 在委任前會先與企業確認職位規格與收費方式，過程透明無隱藏費用。</div></details>
+        <details><summary>大概多久能找到人？</summary><div class="a">依職缺難度而異：既有人才資料庫與內部推薦名單零開發時間，通常最快能安排面試；一般職缺約 2–4 週開始送件。急件大量招募可全通路（資料庫、人力銀行、LinkedIn、在地社群）同步啟動，加快到位速度。</div></details>
+        <details><summary>有保固期或替補保證嗎？</summary><div class="a">委任前會明確約定保固期，人選在保固期內離職，Step1ne 提供免費替補服務，實際條件依委任合約雙方約定為準。</div></details>
+        <details><summary>派遣員工算誰的員工？企業要承擔什麼責任？</summary><div class="a">派遣員工與 Step1ne 簽訂勞動契約，薪資、勞健保與勞動法令責任由 Step1ne 負擔，要派企業僅負責現場工作指揮與管理。派遣期間表現良好，雙方可另行協議轉正條件與時程。</div></details>
+        <details><summary>高階獵頭和人力銀行有什麼不同？</summary><div class="a">人力銀行是被動刊登、廣撒履歷；高階獵頭是主動出擊，由顧問鎖定特定產業與職能的被動人選（在職中、未公開求職者），並保密進行接觸與評估，適合關鍵與機密職位。</div></details>
+      </div>
+      <p class="sec-p" style="margin-top:24px;font-size:15px">已經在應徵或委託流程中？面談、薪資、收費等操作類問題看 <a href="/faq/" style="color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.3)">完整常見問題</a>。</p>
+    </div>
+  </section>
+
+</main>
+
+<section class="end">
+  <div class="wrap">
+    <h2>準備好找到對的人選了嗎？</h2>
+    <p>透過官方 LINE 直接與顧問對話，我們會盡快回覆並安排洽詢。Step1ne 由德仁管理顧問有限公司營運，據點在臺北市內湖區康寧路三段 54 之 7 號 3 樓。</p>
+    <div class="hero-act">
+      <a class="btn btn-line" href="https://lin.ee/XcSWPzM">透過 LINE 洽詢</a>
+      <a class="btn btn-s" href="/about/">認識 Step1ne</a>
+    </div>
+  </div>
+</section>
+
+<footer class="ft">
+  <div class="ft-in">
+    <div class="ft-brand">
+      <img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問" width="1535" height="1534">
+      <p>德仁管理顧問有限公司<br>AI 精準媒合 × 高階獵頭</p>
+      <div class="legal">
+        <span>統一編號 85046127</span>
+        <span>北市就服字第 0363 號</span>
+        <span>臺北市內湖區康寧路三段 54 之 7 號 3 樓</span>
+      </div>
+      <div class="ft-soc">
+        <a href="https://www.104.com.tw/company/1a2x6blikz" target="_blank" rel="noopener">104</a>
+        <a href="https://www.facebook.com/Step1ne" target="_blank" rel="noopener">Facebook</a>
+        <a href="https://www.instagram.com/step1ne_tw/" target="_blank" rel="noopener">Instagram</a>
+        <a href="https://www.linkedin.com/company/73006491/" target="_blank" rel="noopener">LinkedIn</a>
+      </div>
+    </div>
+    <nav class="ft-col">
+      <h3>企業服務</h3>
+      <a href="#svc">高階獵頭</a>
+      <a href="#svc">正職招募</a>
+      <a href="#svc">人力派遣</a>
+      <a href="/hiring-assessment/">招募形式評估工具</a>
+      <a href="/commission-recruiting/">企業委託招募流程</a>
+    </nav>
+    <nav class="ft-col">
+      <h3>人才專區</h3>
+      <a href="/jobs/">職缺專區</a>
+      <a href="/construction/">營造工程／BIM 專區</a>
+      <a href="/talent/">全民獵才 App</a>
+      <a href="/talent/ai-tools/">AI 求職工具</a>
+    </nav>
+    <nav class="ft-col">
+      <h3>認識我們</h3>
+      <a href="/articles/">獵才專欄</a>
+      <a href="/articles/bim-engineer-salary/">BIM 薪水行情</a>
+      <a href="/about/">關於我們</a>
+      <a href="#faq">常見問題</a>
+    </nav>
+  </div>
+  <div class="ft-btm">
+    <span>© 2026 德仁管理顧問有限公司 Step1ne. All rights reserved.</span>
+    <span>One step to us, a step to success.</span>
+  </div>
+</footer>
+
+</body>
+</html>

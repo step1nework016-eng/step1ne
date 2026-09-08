@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>［新版設計稿］{{TITLE}}｜Step1ne</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#F4F6F8;--white:#fff;--ink:#0D1B24;--slate:#4A5A66;--dim:#7A8A96;--rule:#D9E0E6;
+--brand:#167EB2;--deep:#0F5F87;--live:#2EA9DF;--line:#06C755;--warn:#B45309;
+--wrap:1200px;--gut:clamp(20px,4vw,40px);
+--fd:'Archivo','Noto Sans TC',sans-serif;--ft:'Noto Sans TC',sans-serif}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--ft);font-size:16.5px;line-height:1.9;-webkit-font-smoothing:antialiased;overflow-x:hidden;padding-bottom:76px}
+img{max-width:100%;display:block}a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.32;letter-spacing:-.01em}p{margin:0}
+:where(a,button,summary):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.num{font-family:var(--fd);font-variant-numeric:tabular-nums}
+.wrap{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:26px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule)}
+
+.crumb{padding:20px 0 4px;font-size:13.5px;color:var(--dim)}
+.crumb a{color:var(--slate)}.crumb span{margin:0 8px;color:var(--rule)}
+
+/* Hero：職稱 + 三個最關鍵的事實 */
+.jh{padding:14px 0 30px}
+.jh h1{font-size:clamp(28px,4.4vw,42px);max-width:22ch}
+.jh .sub{margin-top:12px;font-size:17.5px;color:var(--slate);max-width:52ch}
+.facts{margin-top:26px;display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:10px;overflow:hidden}
+.facts>div{background:var(--white);padding:20px 22px}
+.facts dt{font-size:13px;color:var(--dim);font-weight:700}
+.facts dd{margin:5px 0 0;font-family:var(--fd);font-variant-numeric:tabular-nums;font-size:19px;font-weight:700;letter-spacing:-.01em;line-height:1.45}
+.facts dd.zh{font-family:var(--ft)}
+.jh-act{margin-top:24px;display:flex;flex-wrap:wrap;gap:12px}
+.btn{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:15.5px;padding:14px 24px;border-radius:6px;border:1px solid transparent}
+.btn-p{background:var(--brand);color:#fff}.btn-p:hover{background:var(--deep)}
+.btn-s{background:var(--white);color:var(--ink);border-color:var(--rule)}
+.btn-s:hover{border-color:var(--brand);color:var(--deep)}
+
+/* 主體：左內容 右黏性側欄 */
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:52px;align-items:start;padding-bottom:60px}
+main{min-width:0}
+section.blk{padding:34px 0;border-top:1px solid var(--rule)}
+section.blk>h2{font-size:24px;margin-bottom:16px}
+.blk h3{margin:26px 0 8px;font-size:18.5px}
+.blk p{margin-top:12px}
+.blk ul,.blk ol{margin:14px 0 0;padding-left:1.4em}.blk li{margin-top:8px}
+.blk strong{font-weight:700}
+.blk a{color:var(--deep);border-bottom:1px solid rgba(15,95,135,.3)}
+
+/* 條件表 */
+.spec{margin:0;border:1px solid var(--rule);border-radius:10px;overflow:hidden;background:var(--white)}
+.sr{display:grid;grid-template-columns:118px 1fr;gap:18px;padding:14px 20px;border-bottom:1px solid var(--rule)}
+.sr:last-child{border-bottom:0}
+.sr dt{font-size:14.5px;color:var(--slate);font-weight:700}
+.sr dd{margin:0;font-size:15.5px;line-height:1.75}
+.sr:first-child{background:var(--paper)}
+.sr:first-child dd{font-family:var(--fd);font-variant-numeric:tabular-nums;font-size:17.5px;font-weight:700}
+.note{margin-top:10px;font-size:13px;color:var(--dim)}
+
+/* 應徵流程：沿用全站的進度軌 */
+.flow{margin-top:6px;display:grid;grid-template-columns:repeat(3,1fr);position:relative;padding-top:6px}
+.flow::before{content:"";position:absolute;left:16.6%;right:16.6%;top:11px;height:2px;background:var(--rule)}
+.fs{position:relative;padding:26px 14px 0;text-align:center}
+.fs i{position:absolute;top:0;left:50%;transform:translateX(-50%);width:14px;height:14px;border-radius:50%;background:var(--brand);border:2px solid var(--brand);box-shadow:0 0 0 5px var(--paper)}
+.fs:first-child i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 5px var(--paper),0 0 0 9px rgba(46,169,223,.2)}
+.fs b{display:block;font-family:var(--fd);font-size:12.5px;color:var(--dim)}
+.fs span{display:block;margin-top:4px;font-size:15.5px;font-weight:700;line-height:1.5}
+
+.blk details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.blk summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+.blk summary::-webkit-details-marker{display:none}
+.blk summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.blk details[open] summary::after{transform:rotate(-135deg)}
+.blk details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+
+/* 側欄 */
+aside{position:sticky;top:88px}
+.card{background:var(--white);border:1px solid var(--rule);border-radius:10px;padding:22px;margin-bottom:16px}
+.card h3{font-size:16.5px}
+.card p{margin-top:10px;font-size:14.5px;color:var(--slate);line-height:1.8}
+.card .btn{width:100%;justify-content:center;margin-top:14px}
+.card ul{margin:12px 0 0;padding:0;list-style:none;font-size:14.5px}
+.card li{padding:8px 0;border-top:1px solid var(--rule);display:flex;justify-content:space-between;gap:14px}
+.card li span:first-child{color:var(--slate)}
+.card li span:last-child{font-weight:700;text-align:right}
+
+/* 手機底部固定應徵列 */
+.dock{display:none;position:fixed;left:0;right:0;bottom:0;z-index:70;background:rgba(255,255,255,.97);border-top:1px solid var(--rule);padding:10px var(--gut);gap:10px;backdrop-filter:blur(10px)}
+.dock .btn{flex:1;justify-content:center;padding:13px 10px;font-size:15px}
+.dock .pay{flex:0 0 auto;align-self:center;font-family:var(--fd);font-variant-numeric:tabular-nums;font-weight:700;font-size:14.5px;line-height:1.3;max-width:34%}
+.dock .pay small{display:block;font-family:var(--ft);font-size:11.5px;color:var(--dim);font-weight:400}
+footer{border-top:1px solid var(--rule);padding:26px 0;font-size:14px;color:var(--slate);background:var(--white)}
+
+@media (max-width:1000px){.shell{grid-template-columns:1fr;gap:0}aside{position:static;margin-top:24px}}
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}.hd-burger{display:flex}
+  .facts{grid-template-columns:1fr}
+  .flow{grid-template-columns:1fr;row-gap:20px}
+  .flow::before{content:none}
+  .fs{text-align:left;padding:0 0 0 26px}
+  .fs i{left:0;top:5px;transform:none}
+  .jh-act{display:none}
+  .dock{display:flex}
+  .sr{grid-template-columns:1fr;gap:2px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/"><img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問"><b>德仁管理顧問</b></a>
+    <nav class="hd-nav"><a href="/">企業服務</a><a class="on" href="/jobs/">職缺專區</a><a href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a></nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
+    <button class="hd-burger" type="button" aria-label="開啟選單" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINE 洽詢</a>
+  </div>
+</header>
+
+<div class="wrap">
+  <nav class="crumb"><a href="/">首頁</a><span>/</span><a href="/jobs/">職缺專區</a><span>/</span>{{TITLE}}</nav>
+  <section class="jh">
+    <h1>{{TITLE}}</h1>
+    <p class="sub">{{SUB}}</p>
+    <dl class="facts">
+      <div><dt>薪資</dt><dd>{{SAL}}</dd></div>
+      <div><dt>工作地點</dt><dd class="zh">{{LOC}}</dd></div>
+      <div><dt>僱傭型態</dt><dd class="zh">{{EMP}}</dd></div>
+    </dl>
+    <div class="jh-act">
+      <a class="btn btn-p" href="{{APPLY}}">立即應徵・先跟 AI 阿財面談</a>
+      <a class="btn btn-s" href="https://lin.ee/XcSWPzM">用 LINE 先問顧問</a>
+    </div>
+  </section>
+</div>
+
+<div class="shell">
+  <main>
+    <section class="blk"><h2>職缺條件一覽</h2>
+      <dl class="spec">{{SPECROWS}}</dl>
+      <p class="note">※ 上述條件為目前規劃，實際待遇與工作條件依面試後雙方確認為準。</p>
+    </section>
+    <section class="blk"><h2>工作內容</h2>{{DUTIES}}</section>
+    <section class="blk"><h2>應徵條件</h2>{{REQS}}</section>
+    <section class="blk"><h2>為什麼選擇這個機會</h2>{{WHY}}</section>
+    <section class="blk"><h2>應徵流程</h2>
+      <div class="flow">
+        <div class="fs"><i></i><b>01</b><span>跟 AI 阿財初步面談</span></div>
+        <div class="fs"><i></i><b>02</b><span>顧問保密初談</span></div>
+        <div class="fs"><i></i><b>03</b><span>安排面試、談定條件</span></div>
+      </div>
+    </section>
+    <section class="blk"><h2>常見問題</h2>{{FAQ}}</section>
+  </main>
+
+  <aside>
+    <div class="card">
+      <h3>立即應徵</h3>
+      <p>線上填寫約 2 分鐘，接著跟 AI 面談顧問阿財談 20–40 分鐘，逐字稿會由真人顧問覆核。</p>
+      <a class="btn btn-p" href="{{APPLY}}">立即應徵</a>
+      <a class="btn btn-s" href="https://lin.ee/XcSWPzM">用 LINE 先問顧問</a>
+    </div>
+    <div class="card">
+      <h3>重點速覽</h3>
+      <ul>
+        <li><span>薪資</span><span>{{SAL}}</span></li>
+        <li><span>地點</span><span>{{LOC}}</span></li>
+        <li><span>僱傭型態</span><span>{{EMP}}</span></li>
+      </ul>
+    </div>
+  </aside>
+</div>
+
+<div class="dock">
+  <div class="pay">{{SAL}}<small>{{LOC}}</small></div>
+  <a class="btn btn-p" href="{{APPLY}}">立即應徵</a>
+</div>
+
+<footer><div class="wrap">德仁管理顧問有限公司　臺北市內湖區康寧路三段 54 之 7 號 3 樓</div></footer>
+</body>
+</html>

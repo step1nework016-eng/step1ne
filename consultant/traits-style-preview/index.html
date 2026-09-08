@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="zh-Hant">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>特質與風格優化 · 本機示範</title>
+<style>
+:root{--gold:#a67c3d;--ink:#23262d;--ink2:#4d5563;--ink3:#8a8d95;--line:#eee7db;--soft:#faf8f3;--bg:#f4f1ea;
+  --D:#c0392b;--I:#d9a441;--S:#3d7a52;--C:#2f6ea8}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 -apple-system,"Noto Sans TC",sans-serif}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px 80px}
+header{background:#fff;border-bottom:1px solid var(--line);padding:16px}
+header .tag{display:inline-block;background:#fdecea;color:#c0392b;font-size:11px;font-weight:800;padding:3px 10px;border-radius:999px;margin-bottom:8px}
+header h1{margin:0;font-size:20px}
+header p{margin:6px 0 0;color:var(--ink3);font-size:13px}
+main{padding:24px 0}
+.compare{display:grid;grid-template-columns:1fr;gap:14px}
+@media(min-width:680px){.compare{grid-template-columns:1fr 1fr}}
+.col h2{font-size:13px;color:var(--ink3);margin:0 0 10px;text-transform:uppercase;letter-spacing:.04em}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:22px}
+.card.before{opacity:.75}
+.name{font-weight:700;font-size:15px;margin-bottom:2px}
+.jobline{color:var(--ink3);font-size:12.5px;margin-bottom:14px}
+
+.old-disc{font-size:13.5px;color:var(--ink2);font-family:ui-monospace,monospace;background:var(--soft);border-radius:8px;padding:10px 12px}
+
+.bars{display:flex;flex-direction:column;gap:9px;margin-bottom:16px}
+.brow{display:grid;grid-template-columns:70px 1fr 34px;align-items:center;gap:10px}
+.blabel{font-size:12.5px;font-weight:700;color:var(--ink2)}
+.btrack{background:var(--soft);border-radius:999px;height:14px;overflow:hidden}
+.bfill{height:100%;border-radius:999px}
+.bnum{font-size:12px;color:var(--ink3);text-align:right;font-variant-numeric:tabular-nums}
+
+.summary{background:var(--soft);border:1px solid var(--line);border-radius:11px;padding:14px 16px;font-size:14px;line-height:1.85}
+.summary b{color:var(--gold)}
+
+.section-title{display:flex;align-items:center;gap:8px;margin:36px 0 14px}
+.section-title .n{background:var(--gold);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex:none}
+.section-title h3{margin:0;font-size:15px}
+
+footer{color:var(--ink3);font-size:12px;padding:20px 0;border-top:1px solid var(--line);margin-top:30px}
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="tag">🔒 本機示範・尚未上線</span>
+    <h1>初篩報告優化：特質與風格</h1>
+    <p>用真實候選人的DISC分數示範改版，圖表+一段話總結都改成「不用懂DISC也看得懂」的版本，給內部同仁對焦用</p>
+  </header>
+
+  <main>
+    <div class="section-title"><span class="n">01</span><h3>現在 vs 改版後</h3></div>
+
+    <div class="compare">
+      <div class="col">
+        <h2>現在（純文字，要懂DISC才看得懂）</h2>
+        <div class="card before">
+          <div class="name">王伒枻</div>
+          <div class="jobline">應徵：秘書／行政職</div>
+          <div class="old-disc">DISC：IS　(D1 I10 S8 C1)</div>
+        </div>
+      </div>
+      <div class="col">
+        <h2>改版後（圖表＋一句話）</h2>
+        <div class="card" id="demo1"></div>
+      </div>
+    </div>
+
+    <div class="section-title"><span class="n">02</span><h3>再看兩個真實案例，確認不同組合都講得通</h3></div>
+    <div class="card" id="demo2"></div>
+    <div class="card" id="demo3"></div>
+  </main>
+
+  <footer>本機示範版本・資料取自真實候選人DISC分數（僅供對焦視覺與文案，不含個人其他資訊）</footer>
+</div>
+
+<script>
+// D=支配 I=影響 S=穩定 C=謹慎，這是業界通用的DISC四色，內部同仁看習慣了不用改
+const DIM = [
+  { k:'D', label:'主導', color:'var(--D)', lo:'不太搶主導權，習慣配合大家的節奏',
+    hi:'做事直接、喜歡自己拿主意，講話不太繞彎子' },
+  { k:'I', label:'外向', color:'var(--I)', lo:'話不多，比較不主動炒熱氣氛',
+    hi:'很會聊天、容易跟人熟，喜歡帶動氣氛' },
+  { k:'S', label:'穩定', color:'var(--S)', lo:'能接受變動快、常常要調整的工作',
+    hi:'做事穩、有耐心，不喜歡臨時被打亂節奏' },
+  { k:'C', label:'謹慎', color:'var(--C)', lo:'做事比較憑感覺，不會反覆確認細節',
+    hi:'重視細節、按規矩來，喜歡先想清楚再動手' },
+];
+
+function renderCard(el, name, jobline, scores){
+  const max = Math.max(...Object.values(scores), 1);
+  const bars = DIM.map(d => {
+    const v = scores[d.k] || 0;
+    const pct = Math.round((v / max) * 100);
+    return `<div class="brow">
+      <div class="blabel" style="color:${d.color}">${d.label}</div>
+      <div class="btrack"><div class="bfill" style="width:${pct}%;background:${d.color}"></div></div>
+      <div class="bnum">${v}</div>
+    </div>`;
+  }).join('');
+
+  // 抓分數最高的1-2項，組一句大白話總結——不提D/I/S/C字母，直接講意思
+  const ranked = DIM.map(d => ({...d, v: scores[d.k]||0})).sort((a,b)=>b.v-a.v);
+  const top = ranked[0], second = ranked[1];
+  const phrase1 = top.v >= max*0.5 ? top.hi : top.lo;
+  const phrase2 = second.v >= max*0.35 ? second.hi : null;
+  const summary = phrase2
+    ? `這個人${phrase1}，同時${phrase2}。跟他溝通，講重點、給明確方向會比較順。`
+    : `這個人${phrase1}。跟他溝通，講重點、給明確方向會比較順。`;
+
+  el.innerHTML = `
+    <div class="name">${name}</div>
+    <div class="jobline">${jobline}</div>
+    <div class="bars">${bars}</div>
+    <div class="summary">💬 ${summary}</div>
+  `;
+}
+
+renderCard(document.getElementById('demo1'), '王伒枻', '應徵：秘書／行政職', {D:1,I:10,S:8,C:1});
+renderCard(document.getElementById('demo2'), '范博翔', '應徵：BIM工程師（原始資料，[測試]標記，僅供示範樣式）', {D:0,I:1,S:3,C:16});
+renderCard(document.getElementById('demo3'), '林均緯', '應徵：BIM工程師', {D:4,I:2,S:9,C:5});
+</script>
+</html>

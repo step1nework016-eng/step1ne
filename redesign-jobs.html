@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>［新版設計稿］職缺專區｜Step1ne</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+/* 沿用首頁 token v1 */
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;
+  --warn:#B45309;
+  --rail:2px;--wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:16px;line-height:1.8;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.3;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.num{font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+.wrap{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* 導覽（與首頁同） */
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:70px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:38px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;font-size:15px}
+.hd-group{display:flex;align-items:center;gap:20px;padding:0 22px;position:relative}
+.hd-group+.hd-group::before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);width:1px;height:22px;background:var(--rule)}
+.hd-tag{font-family:var(--f-disp);font-size:11px;font-weight:600;color:var(--slate-dim)}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;gap:8px;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:10px 18px;border-radius:6px}
+.hd-burger{display:none;width:42px;height:42px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule)}
+
+/* 頁首 */
+.top{padding:52px 0 30px}
+.top h1{font-size:clamp(30px,4.4vw,44px)}
+.top p{margin-top:14px;max-width:60ch;color:var(--slate);font-size:17px}
+
+/* ── Signature：薪資尺 ── */
+.scale{margin-top:34px;background:var(--white);border:1px solid var(--rule);border-radius:10px;padding:22px 26px}
+.scale h2{font-size:16px}
+.scale p{margin-top:6px;font-size:14px;color:var(--slate)}
+.ticks{margin-top:18px;position:relative;height:26px;border-bottom:1px solid var(--rule)}
+.tick{position:absolute;top:0;transform:translateX(-50%);font-family:var(--f-disp);font-variant-numeric:tabular-nums;font-size:12.5px;color:var(--slate-dim)}
+.tick::after{content:"";position:absolute;left:50%;bottom:-7px;width:1px;height:7px;background:var(--rule)}
+.tick.last{transform:translateX(-100%);white-space:nowrap}
+.tick.last::after{left:auto;right:0}
+
+/* 篩選 */
+.bar{margin-top:26px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.chip{font-family:inherit;font-size:14.5px;font-weight:500;color:var(--slate);background:var(--white);border:1px solid var(--rule);padding:9px 16px;border-radius:6px;cursor:pointer;min-height:44px;display:inline-flex;align-items:center;gap:7px}
+.chip:hover{border-color:var(--brand);color:var(--brand-deep)}
+.chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.chip .c{font-family:var(--f-disp);font-variant-numeric:tabular-nums;font-size:12.5px;opacity:.65}
+.chip.on .c{opacity:.8}
+.bar input{flex:1;min-width:200px;font-family:inherit;font-size:15px;color:var(--ink);background:var(--white);border:1px solid var(--rule);border-radius:6px;padding:11px 14px;min-height:44px}
+.bar2{margin-top:10px;align-items:center}
+.barlab{font-size:13.5px;font-weight:700;color:var(--slate-dim);margin-right:2px}
+.rchip{font-size:14px;padding:8px 14px;min-height:40px}
+.bar2{margin-top:10px}
+.barlab{font-size:13.5px;font-weight:700;color:var(--slate-dim);align-self:center;margin-right:4px}
+.rchip{font-size:14px;padding:8px 14px;min-height:40px}
+.cnt{margin:22px 0 10px;font-size:14.5px;color:var(--slate)}
+.cnt b{font-family:var(--f-disp);font-variant-numeric:tabular-nums;color:var(--ink)}
+.cnt a{color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.35)}
+
+/* 職缺列：三欄對齊，掃視用 */
+.list{border:1px solid var(--rule);border-radius:10px;overflow:hidden;background:var(--white)}
+.row{display:grid;grid-template-columns:168px 1fr 300px;gap:22px;align-items:center;padding:18px 24px;border-bottom:1px solid var(--rule)}
+.row:last-child{border-bottom:0}
+.row:hover{background:var(--paper)}
+.row.thin{opacity:.72}
+.pay{font-family:var(--f-disp);font-variant-numeric:tabular-nums;font-size:16px;font-weight:600;letter-spacing:-.01em}
+.pay small{display:block;font-family:var(--f-text);font-size:12.5px;font-weight:400;color:var(--slate-dim);letter-spacing:0}
+.pay.todo{color:var(--warn);font-family:var(--f-text);font-size:14px;font-weight:700}
+.mid h3{font-size:17px}
+.tags{margin-top:5px;display:flex;flex-wrap:wrap;gap:6px 10px;font-size:13.5px;color:var(--slate)}
+.tags .t{border:1px solid var(--rule);border-radius:4px;padding:2px 8px}
+.tags .t.hh{color:var(--brand-deep);border-color:rgba(22,126,178,.4);background:rgba(22,126,178,.07);font-weight:700}
+.tags .t.dis{color:#4A5A66;background:#EDF1F4;font-weight:700}
+.tags .t.ft{color:var(--ink);background:#E4EAEE;font-weight:700}
+.tags .t.hot{color:#B3123B;border-color:rgba(179,18,59,.35);background:rgba(179,18,59,.06);font-weight:700}
+/* 薪資條：對齊同一把尺 */
+.bandwrap{position:relative;height:10px;border-radius:5px;background:linear-gradient(90deg,rgba(22,126,178,.07),rgba(22,126,178,.02))}
+.band{position:absolute;top:0;height:10px;border-radius:5px;background:var(--brand)}
+.band.open{background:linear-gradient(90deg,var(--brand),rgba(22,126,178,.12))}
+.bandnote{margin-top:5px;font-size:12px;color:var(--slate-dim);font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+.bandmiss{font-size:12.5px;color:var(--slate-dim)}
+[hidden]{display:none!important}
+.grp.off,.row.off{display:none}
+/* 手機用下拉，桌機用橫排 */
+.selwrap{display:none;position:relative;flex:1;min-width:180px}
+.selwrap::after{content:"";position:absolute;right:16px;top:50%;margin-top:-4px;width:8px;height:8px;border-right:2px solid var(--slate);border-bottom:2px solid var(--slate);transform:rotate(45deg);pointer-events:none}
+.selwrap select{-webkit-appearance:none;appearance:none;width:100%;font-family:inherit;font-size:16px;font-weight:700;color:var(--ink);background:var(--white);border:1px solid var(--rule);border-radius:6px;padding:13px 40px 13px 15px;min-height:48px;cursor:pointer}
+.selwrap select:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+/* 分組區塊 */
+.grp{margin-top:34px}
+.grp-hd{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;padding-bottom:12px}
+.grp-hd h2{font-size:20px}
+.grp-hd .meta{font-size:14px;color:var(--slate)}
+.scale{background:var(--white);border:1px solid var(--rule);border-radius:10px 10px 0 0;border-bottom:0;padding:16px 24px 10px}
+.scale .cap{font-size:13.5px;color:var(--slate)}
+.ticks{margin-top:12px;position:relative;height:24px;border-bottom:1px solid var(--rule)}
+.tick{position:absolute;top:0;transform:translateX(-50%);font-family:var(--f-disp);font-variant-numeric:tabular-nums;font-size:12.5px;color:var(--slate-dim);white-space:nowrap}
+.tick::after{content:"";position:absolute;left:50%;bottom:-7px;width:1px;height:7px;background:var(--rule)}
+.tick.f{transform:none}.tick.f::after{left:0}
+.tick.l{transform:translateX(-100%)}.tick.l::after{left:auto;right:0}
+.list{border:1px solid var(--rule);border-radius:0 0 10px 10px;overflow:hidden;background:var(--white)}
+.noscale{background:var(--white);border:1px solid var(--rule);border-bottom:0;border-radius:10px 10px 0 0;padding:14px 24px;font-size:13.5px;color:var(--slate-dim)}
+.empty{padding:36px 24px;text-align:center;color:var(--slate-dim);background:var(--white);border:1px dashed var(--rule);border-radius:10px}
+
+.pay.fx{color:var(--warn);font-family:var(--f-text);font-size:14px;font-weight:700}
+.pay.fx small{color:var(--slate-dim);font-weight:400}
+.tags .t.miss{color:var(--warn);border-color:#F0DCB8;background:#FFF8EC}
+.tags .t.warnt{color:#B3123B;border-color:rgba(179,18,59,.3);background:rgba(179,18,59,.05)}
+.tags .t.ct{color:var(--slate);background:#EDF1F4;font-weight:700}
+.notice code{font-family:var(--f-disp);font-size:13px;background:#F7EBD4;padding:1px 5px;border-radius:3px}
+
+/* 待補資料提示 */
+.notice{margin-top:26px;background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid var(--warn);border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.notice b{color:#5A3D0C}
+.end{margin-top:34px;padding:26px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.end p{font-size:15px;color:var(--slate);max-width:52ch}
+footer{margin-top:56px;border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+
+@media (max-width:1040px){
+  .row{grid-template-columns:150px 1fr;row-gap:12px}
+  .rail{grid-column:1/-1}
+}
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  .bar{flex-direction:column;align-items:stretch}
+  .bar .chip{display:none}
+  .selwrap{display:block}
+  .bar input{width:100%;min-width:0}
+  .row{grid-template-columns:1fr;gap:10px;padding:18px 20px}
+  .pay{order:-1}
+  .scale{padding:18px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/"><img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問"><b>德仁管理顧問</b></a>
+    <nav class="hd-nav">
+      <div class="hd-group"><span class="hd-tag">企業找人才</span><a href="/">企業服務</a><a href="/hiring-assessment/">招募形式評估</a></div>
+      <div class="hd-group"><span class="hd-tag">我要找工作</span><a class="on" href="/jobs/">職缺專區</a><a href="/talent/">全民獵才</a><a href="/talent/ai-tools/">AI 求職工具</a></div>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
+    <button class="hd-burger" type="button" aria-label="開啟選單" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a href="/talent/">全民獵才</a><a href="/talent/ai-tools/">AI 求職工具</a>
+    <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINE 洽詢</a>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="top">
+    <h1>34 個開放中的職缺</h1>
+    <p>薪資帶、地點、僱用型態都直接列出來，你不用點進去才知道適不適合。<br>
+       <b>每一種職缺類型有自己的一把薪資尺</b>——派遣跟高階獵才不會放在同一條線上比。</p>
+  </section>
+
+  <div class="bar" id="tabs">
+    <button class="chip" type="button" data-g="all">全部 <span class="c">34</span></button><button class="chip" type="button" data-g="senior">中高階獵才 <span class="c">3</span></button><button class="chip" type="button" data-g="fulltime">正職僱用 <span class="c">16</span></button><button class="chip" type="button" data-g="dispatch">人力派遣 <span class="c">11</span></button><button class="chip" type="button" data-g="overseas">海外・外派 <span class="c">4</span></button><button class="chip" type="button" data-g="contract">承攬合作 <span class="c">1</span></button>
+    <div class="selwrap"><label class="sr" for="gsel">職缺類型</label><select id="gsel"><option value="all">全部（34 個職缺）</option><option value="senior">中高階獵才（3 個）</option><option value="fulltime">正職僱用（16 個）</option><option value="dispatch">人力派遣（11 個）</option><option value="overseas">海外・外派（4 個）</option><option value="contract">承攬合作（1 個）</option></select></div>
+    <input type="search" id="q" placeholder="搜尋職稱或地點">
+  </div>
+  <div class="bar bar2" id="rtabs">
+    <span class="barlab">地區</span>
+    <button class="chip rchip on" type="button" data-r="all">不限 <span class="c">34</span></button><button class="chip rchip" type="button" data-r="台北市">台北市 <span class="c">12</span></button><button class="chip rchip" type="button" data-r="新北市">新北市 <span class="c">3</span></button><button class="chip rchip" type="button" data-r="新竹">新竹 <span class="c">2</span></button><button class="chip rchip" type="button" data-r="苗栗縣">苗栗縣 <span class="c">1</span></button><button class="chip rchip" type="button" data-r="雲林縣">雲林縣 <span class="c">3</span></button><button class="chip rchip" type="button" data-r="日本">日本 <span class="c">2</span></button><button class="chip rchip" type="button" data-r="海外">海外 <span class="c">1</span></button><button class="chip rchip" type="button" data-r="在家工作">在家工作 <span class="c">1</span></button><button class="chip rchip" type="button" data-r="地區待確認">地區待確認 <span class="c">9</span></button>
+    <div class="selwrap"><label class="sr" for="rsel">地區</label><select id="rsel"><option value="all">地區不限（34 個職缺）</option><option value="台北市">台北市（12）</option><option value="新北市">新北市（3）</option><option value="新竹">新竹（2）</option><option value="苗栗縣">苗栗縣（1）</option><option value="雲林縣">雲林縣（3）</option><option value="日本">日本（2）</option><option value="海外">海外（1）</option><option value="在家工作">在家工作（1）</option><option value="地區待確認">地區待確認（9）</option></select></div>
+  </div>
+  <p class="cnt" id="cnt">共 <b>34</b> 個職缺，依類型分成 5 區</p>
+
+
+
+
+
+  <section class="grp" data-g="senior">
+    <div class="grp-hd"><h2>中高階獵才</h2><span class="meta"><span class="gn">3</span> 個職缺　·　保密委任、主動出擊的關鍵職位</span></div>
+    <div class="scale"><div class="cap">這 2 個中高階獵才職缺的薪資，只跟彼此比較</div><div class="ticks"><span class="tick f" style="left:0%">7.6萬</span><span class="tick" style="left:33.33%">12萬</span><span class="tick" style="left:66.67%">17萬</span><span class="tick l" style="left:100%">22萬</span></div></div>
+    <div class="list">
+      <a class="row" href="/jobs/business-operations-manager/" data-r="台北市" data-t="營運發展主管 business operations manager 台北市 business-operations-manager">
+        <div class="pay">100,000–208,333<small>月薪</small></div>
+        <div class="mid"><h3>營運發展主管 Business Operations Manager</h3><div class="tags"><span class="t hh">中高階獵才</span><span class="t">台北市（推得）</span></div></div>
+        <div class="rail"><div class="bandwrap"><span class="band" style="left:17.3%;width:77.4%"></span></div><div class="bandnote">年薪 120–250 萬換算</div></div>
+      </a>
+      <a class="row" href="/jobs/group-it-head/" data-r="台北市" data-t="集團資訊主管 group it head 台北市 group-it-head">
+        <div class="pay">83,333–166,667<small>月薪</small></div>
+        <div class="mid"><h3>集團資訊主管 Group IT Head</h3><div class="tags"><span class="t hh">中高階獵才</span><span class="t">台北市（推得）</span></div></div>
+        <div class="rail"><div class="bandwrap"><span class="band" style="left:5.4%;width:59.5%"></span></div><div class="bandnote">年薪 100–200 萬換算</div></div>
+      </a>
+      <a class="row" href="/jobs/finance-group-treasury-head-xinyi/" data-r="台北市" data-t="集團財務主管 group treasury head 台北市 finance-group-treasury-head-xinyi">
+        <div class="pay todo">薪資面議</div>
+        <div class="mid"><h3>集團財務主管 Group Treasury Head</h3><div class="tags"><span class="t hh">中高階獵才</span><span class="t">台北市</span></div></div>
+        <div class="rail"><span class="bandmiss">薪資面議，畫不進尺上</span></div>
+      </a>
+    </div>
+  </section>
+
+  <section class="grp" data-g="fulltime">
+    <div class="grp-hd"><h2>正職僱用</h2><span class="meta"><span class="gn">15</span> 個職缺　·　直接與用人企業簽訂勞動契約</span></div>
+    <div class="scale"><div class="cap">這 15 個正職僱用職缺的薪資，只跟彼此比較</div><div class="ticks"><span class="tick f" style="left:0%">3.4萬</span><span class="tick" style="left:33.33%">4.3萬</span><span class="tick" style="left:66.67%">5.2萬</span><span class="tick l" style="left:100%">6.2萬</span></div></div>
+    <div class="list">
+      <a class="row" href="/jobs/pending-co_802bdd6b-3b807a75/" data-r="雲林縣" data-t="資深職業安全衛生工程師 雲林縣 pending-co_802bdd6b-3b807a75">
+        <div class="pay">50,000–60,000<small>月薪</small></div>
+        <div class="mid"><h3>資深職業安全衛生工程師</h3><div class="tags"><span class="t ft">正職僱用</span><span class="t">雲林縣</span><span class="t warnt">網址仍是暫存代號</span></div></div>
+        <div class="rail"><div class="bandwrap"><span class="band" style="left:58.9%;width:35.7%"></span></div><div class="bandnote">5.0萬 – 6.0萬</div></div>
+      </a>
+      <a class="row" href="/jobs/pending-co_802bdd6b-9ffc1f8d/" data-r="地區待確認" data-t="資深半導體專案工程師 地區待確認 pending-co_802bdd6b-9ffc1f8d">
+        <div class="pay">50,000–60,000<small>月薪</small></div>
+        <div class="mid"><h3>資深半導體專案工程師</h3><div class="tags"><span class="t ft">正職僱用</span><span class="t miss">地區待確認</span><span class="t warnt">網址仍是暫存代號</span></div></div>
+        <div class="rail"><div class="bandwrap"><span class="band" style="left:58.9%;width:35.7%"></span></div><div class="bandnote">5.0萬 – 6.0萬</div></div>
+      </a>
+      <a class="row" href="/jobs/pending-co_802bdd6b-dd0123c6/" data-r="地區待確認" data-t="資深工程設計工程師 地區待確認 pending-co_802bdd6b-dd0123c6">
+        <div class="pay">50,000–60,000<small>月薪</small></div>
+        <div class="mid"><h3>資深工程設計工程師</h3><div class="tags"><span class="t ft">正職僱用</span><span class="t miss">地區待確認</span><span class="t warnt">網址仍是暫存代號</span></div></div>
+        <div class="rail"><div class="bandwrap"><span class="band" style="left:58.9%;width:35.7%"></span></div><div class="bandnote">5.0萬 – 6.0萬</div></div>
+      </a>
+      <a class="row" href="/jobs/clinic-nurse-neihu/" data-r="台北市" data-t="復健科診所護理師 台北市 clinic-nurse-neihu">
+        <div class="pay">43,000–50,000<small>月薪</small></div>
+        <div class="mid"><h3>復健科診所護理師</h3><div class="tags"><span class="t ft">正職僱用</span><span class="t">台北市（推得）</span></div></div>
+        <div class="rail"><div class="bandwrap"><span class="band" style="left:33.9%;width:25.0%"></span></div><div class="bandnote">4.3萬 – 5.0萬</div></div>
+      </a>
+      <a class="row" href="/jobs/bim-engineer-tongluo/" data-r="苗栗縣" data-t="bim 工程師 苗栗縣 bim-engineer-tongluo">
+        <div class="pay">40,833–50,167<small>月薪</small></div>
+        <div class="mid"><h3>BIM 工程師</h3><div class="tags"><span class="t ft">正職僱用</span><span class="t">苗栗縣</span></div></div>
+        <div class="rail"><div class="bandwrap"><span class="band" style="left:26.2%;width:33.3%"></span></div><div class="bandnote">4.1萬 – 5.0萬</div></div>
+      </a>
+      <a class="row" href="/jobs/brand-social-video-editor-neihu/" data-r="台北市" data-t="品牌社群影音編輯｜indian motorcycle 台灣總代理 台北市 brand-social-video-editor-neihu">
+        <div class="pay">40,000<small>月薪</small></div>
+        <div class="mid"><h3>品牌社群影音編輯｜Indian Motorcycle 台灣總代理</h3><div class="tags"><span class="t ft">正職僱用</span><span class="t">台北市（推得）</span></div></div>
+        <div class="rail"><div class="bandwrap"><span class="band" style="left:23.2%;width:2.5%"></span></div><div class="bandnote">4.0萬</div></div>
+      </a>
+      <a class="row" href="/jobs/ehs-engineer-yunlin/" data-r="雲林縣" data-t="資深職業安全衛生工程師 雲林縣 ehs-engineer-yunlin">
+        <div class="pay">40,000<small>月薪</small></div>
+        <div class="mid"><h3>資深職業安全衛生工程師</h3><div class="tags"><span class="t ft">正職僱用</span><span class="t">雲林縣</span></div></div>
+        <div class="rail"><div class="bandwrap"><span class="band" style="left:23.2%;width:2.5%"></span></div><div class="bandnote">4.0萬</div></div>
+      </a>
+      <a class="row" href="/jobs/engineering-design-engineer-hsinchu/" data-r="新竹" data-t="資深工程設計工程師 新竹 engineering-design-engineer-hsinchu">
+        <div class="pay">40,000<small>月薪</small></div>
+        <div class="mid"><h3>資深工程設計工程師</h3><div class="tags"><span class="t ft">正職僱用</span><span class="t">新竹</span></div></div>
+        <div class="rail"><div class="bandwrap"><span class="band" style="left:23.2%;width:2.5%"></span></div><div class="bandnote">4.0萬</div></div>
+      </a>
+      <a class="row" href="/jobs/semiconductor-site-engineer-hsinchu/" data-r="新竹" data-t="資深半導體專案現場工程師 新竹 semiconductor-site-engineer-hsinchu">
+        <div class="pay">40,000<small>月薪</small></div>
+        <div class="mid"><h3>資深半導體專案現場工程師</h3><div class="tags"><span class="t ft">正職僱用</span><span class="t">新竹</span></div></div>
+        <div class="rail"><div class="bandwrap"><span class="band" style="left:23.2%;width:2.5%"></span></div><div class="bandnote">4.0萬</div></div>
+      </a>
+      <a class="row" href="/jobs/headhunter-consultant/" data-r="台北市" data-t="獵頭顧問（recruitment consultant） 台北市 headhunter-consultant">
+        <div class="pay">38,000–60,000<small>月薪</small></div>
+        <div class="mid"><h3>獵頭顧問（Recruitment Consultant）</h3><div class="tags"><span class="t ft">正職僱用</span><span class="t">台北市（推得）</span></div></div>
+        <div class="rail"><div class="bandwrap"><span class="band" style="left:16.1%;width:78.6%"></span></div><div class="bandnote">3.8萬 – 6.0萬</div></div>
+      </a>
+      <a class="row" href="/jobs/pending-co_802bdd6b-106ca482/" data-r="地區待確認" data-t="培訓工程設計工程師 地區待確認 pending-co_802bdd6b-106ca482">
+        <div class="pay">35,000–45,000<small>月薪</small></div>
+        <div class="mid"><h3>培訓工程設計工程師</h3><div class="tags"><span class="t ft">正職僱用</span><span class="t miss">地區待確認</span><span class="t warnt">網址仍是暫存代號</span></div></div>
+        <div class="rail"><div class="bandwrap"><span class="band" style="left:5.4%;width:35.7%"></span></div><div class="bandnote">3.5萬 – 4.5萬</div></div>
+      </a>
+      <a class="row" href="/jobs/pending-co_802bdd6b-64500461/" data-r="雲林縣" data-t="培訓職業安全衛生工程師 雲林縣 pending-co_802bdd6b-64500461">
+        <div class="pay">35,000–45,000<small>月薪</small></div>
+        <div class="mid"><h3>培訓職業安全衛生工程師</h3><div class="tags"><span class="t ft">正職僱用</span><span class="t">雲林縣</span><span class="t warnt">網址仍是暫存代號</span></div></div>
+        <div class="rail"><div class="bandwrap"><span class="band" style="left:5.4%;width:35.7%"></span></div><div class="bandnote">3.5萬 – 4.5萬</div></div>
+      </a>
+      <a class="row" href="/jobs/pending-co_802bdd6b-8bd0eb29/" data-r="地區待確認" data-t="培訓半導體專案工程師 地區待確認 pending-co_802bdd6b-8bd0eb29">
+        <div class="pay">35,000–45,000<small>月薪</small></div>
+        <div class="mid"><h3>培訓半導體專案工程師</h3><div class="tags"><span class="t ft">正職僱用</span><span class="t miss">地區待確認</span><span class="t warnt">網址仍是暫存代號</span></div></div>
+        <div class="rail"><div class="bandwrap"><span class="band" style="left:5.4%;width:35.7%"></span></div><div class="bandnote">3.5萬 – 4.5萬</div></div>
+      </a>
+      <a class="row" href="/jobs/vip-hospitality-attendant-night/" data-r="台北市" data-t="vip貴賓接待服務員（晚班） 台北市 vip-hospitality-attendant-night">
+        <div class="pay">35,000–50,000<small>月薪</small></div>
+        <div class="mid"><h3>VIP貴賓接待服務員（晚班）</h3><div class="tags"><span class="t ft">正職僱用</span><span class="t">台北市（推得）</span></div></div>
+        <div class="rail"><div class="bandwrap"><span class="band" style="left:5.4%;width:53.6%"></span></div><div class="bandnote">3.5萬 – 5.0萬</div></div>
+      </a>
+      <a class="row" href="/jobs/vip-hospitality-attendant/" data-r="地區待確認" data-t="vip貴賓接待服務員 地區待確認 vip-hospitality-attendant">
+        <div class="pay">35,000–50,000<small>月薪</small></div>
+        <div class="mid"><h3>VIP貴賓接待服務員</h3><div class="tags"><span class="t ft">正職僱用</span><span class="t miss">地區待確認</span></div></div>
+        <div class="rail"><div class="bandwrap"><span class="band" style="left:5.4%;width:53.6%"></span></div><div class="bandnote">3.5萬 – 5.0萬</div></div>
+      </a>
+    </div>
+  </section>
+
+  <section class="grp" data-g="dispatch">
+    <div class="grp-hd"><h2>人力派遣</h2><span class="meta"><span class="gn">11</span> 個職缺　·　與 Step1ne 簽約，派駐客戶端工作</span></div>
+    <div class="scale"><div class="cap">這 7 個人力派遣職缺的薪資，只跟彼此比較</div><div class="ticks"><span class="tick f" style="left:0%">2.8萬</span><span class="tick" style="left:33.33%">3.6萬</span><span class="tick" style="left:66.67%">4.4萬</span><span class="tick l" style="left:100%">5.1萬</span></div></div>
+    <div class="list">
+      <a class="row" href="/jobs/product-assistant-fintech/" data-r="地區待確認" data-t="產品助理 地區待確認 product-assistant-fintech">
+        <div class="pay">40,000–50,000<small>月薪</small></div>
+        <div class="mid"><h3>產品助理</h3><div class="tags"><span class="t dis">人力派遣</span><span class="t miss">地區待確認</span></div></div>
+        <div class="rail"><div class="bandwrap"><span class="band" style="left:51.1%;width:43.6%"></span></div><div class="bandnote">4.0萬 – 5.0萬</div></div>
+      </a>
+      <a class="row" href="/jobs/finance-accounting-insurance-dispatch/" data-r="地區待確認" data-t="財務會計專員｜投資帳務・國營保險集團財務部（15個月專案） 地區待確認 finance-accounting-insurance-dispatch">
+        <div class="pay">39,000–41,000<small>月薪</small></div>
+        <div class="mid"><h3>財務會計專員｜投資帳務・國營保險集團財務部（15個月專案）</h3><div class="tags"><span class="t dis">人力派遣</span><span class="t miss">地區待確認</span></div></div>
+        <div class="rail"><div class="bandwrap"><span class="band" style="left:46.7%;width:8.7%"></span></div><div class="bandnote">3.9萬 – 4.1萬</div></div>
+      </a>
+      <a class="row" href="/jobs/receptionist-neihu/" data-r="台北市" data-t="總機接待 台北市 receptionist-neihu">
+        <div class="pay">35,000–42,000<small>月薪</small></div>
+        <div class="mid"><h3>總機接待</h3><div class="tags"><span class="t dis">人力派遣</span><span class="t">台北市（推得）</span></div></div>
+        <div class="rail"><div class="bandwrap"><span class="band" style="left:29.3%;width:30.5%"></span></div><div class="bandnote">3.5萬 – 4.2萬</div></div>
+      </a>
+      <a class="row" href="/jobs/fnb-brand-cs-zhonghe/" data-r="新北市" data-t="餐飲品牌客服 新北市 fnb-brand-cs-zhonghe">
+        <div class="pay">33,000–35,000<small>月薪</small></div>
+        <div class="mid"><h3>餐飲品牌客服</h3><div class="tags"><span class="t dis">人力派遣</span><span class="t">新北市</span></div></div>
+        <div class="rail"><div class="bandwrap"><span class="band" style="left:20.6%;width:8.7%"></span></div><div class="bandnote">3.3萬 – 3.5萬</div></div>
+      </a>
+      <a class="row" href="/jobs/mobile-game-cs-neihu/" data-r="台北市" data-t="遊戲客服 台北市 mobile-game-cs-neihu">
+        <div class="pay">31,000<small>月薪</small></div>
+        <div class="mid"><h3>遊戲客服</h3><div class="tags"><span class="t dis">人力派遣</span><span class="t">台北市（推得）</span></div></div>
+        <div class="rail"><div class="bandwrap"><span class="band" style="left:11.9%;width:2.5%"></span></div><div class="bandnote">3.1萬</div></div>
+      </a>
+      <a class="row" href="/jobs/payment-cs-night-zhonghe/" data-r="新北市" data-t="金流客服 新北市 payment-cs-night-zhonghe">
+        <div class="pay">31,000<small>月薪</small></div>
+        <div class="mid"><h3>金流客服</h3><div class="tags"><span class="t dis">人力派遣</span><span class="t">新北市（推得）</span></div></div>
+        <div class="rail"><div class="bandwrap"><span class="band" style="left:11.9%;width:2.5%"></span></div><div class="bandnote">3.1萬</div></div>
+      </a>
+      <a class="row" href="/jobs/game-phone-cs-zhonghe/" data-r="新北市" data-t="遊戲客服專員（電話／文字客服） 新北市 game-phone-cs-zhonghe">
+        <div class="pay">29,500–31,000<small>月薪</small></div>
+        <div class="mid"><h3>遊戲客服專員（電話／文字客服）</h3><div class="tags"><span class="t dis">人力派遣</span><span class="t">新北市</span></div></div>
+        <div class="rail"><div class="bandwrap"><span class="band" style="left:5.4%;width:6.5%"></span></div><div class="bandnote">3.0萬 – 3.1萬</div></div>
+      </a>
+      <a class="row" href="/jobs/backend-engineer-game/" data-r="地區待確認" data-t="後端開發工程師（.net） 地區待確認 backend-engineer-game">
+        <div class="pay todo">薪資面議</div>
+        <div class="mid"><h3>後端開發工程師（.NET）</h3><div class="tags"><span class="t dis">人力派遣</span><span class="t miss">地區待確認</span></div></div>
+        <div class="rail"><span class="bandmiss">薪資面議，畫不進尺上</span></div>
+      </a>
+      <a class="row" href="/jobs/cloud-ops-engineer/" data-r="台北市" data-t="雲端維運工程師 台北市 cloud-ops-engineer">
+        <div class="pay todo">薪資面議</div>
+        <div class="mid"><h3>雲端維運工程師</h3><div class="tags"><span class="t dis">人力派遣</span><span class="t">台北市（推得）</span></div></div>
+        <div class="rail"><span class="bandmiss">薪資面議，畫不進尺上</span></div>
+      </a>
+      <a class="row" href="/jobs/frontend-engineer-game/" data-r="台北市" data-t="前端開發工程師 台北市 frontend-engineer-game">
+        <div class="pay todo">薪資面議</div>
+        <div class="mid"><h3>前端開發工程師</h3><div class="tags"><span class="t dis">人力派遣</span><span class="t">台北市（推得）</span></div></div>
+        <div class="rail"><span class="bandmiss">薪資面議，畫不進尺上</span></div>
+      </a>
+      <a class="row" href="/jobs/ops-support-engineer-fintech/" data-r="地區待確認" data-t="維運工程師 地區待確認 ops-support-engineer-fintech">
+        <div class="pay todo">薪資面議</div>
+        <div class="mid"><h3>維運工程師</h3><div class="tags"><span class="t dis">人力派遣</span><span class="t miss">地區待確認</span></div></div>
+        <div class="rail"><span class="bandmiss">薪資面議，畫不進尺上</span></div>
+      </a>
+    </div>
+  </section>
+
+  <section class="grp" data-g="overseas">
+    <div class="grp-hd"><h2>海外・外派</h2><span class="meta"><span class="gn">4</span> 個職缺　·　日本與海外駐點職缺</span></div>
+    <div class="scale"><div class="cap">這 2 個海外・外派職缺的薪資，只跟彼此比較</div><div class="ticks"><span class="tick f" style="left:0%">4.8萬</span><span class="tick" style="left:33.33%">9.0萬</span><span class="tick" style="left:66.67%">13萬</span><span class="tick l" style="left:100%">17萬</span></div></div>
+    <div class="list">
+      <a class="row" href="/jobs/finance-controller-overseas/" data-r="海外" data-t="財務主管 finance controller 海外 finance-controller-overseas">
+        <div class="pay">83,333–166,667<small>月薪</small></div>
+        <div class="mid"><h3>財務主管 Finance Controller</h3><div class="tags"><span class="t ct">海外・外派</span><span class="t">海外（推得）</span></div></div>
+        <div class="rail"><div class="bandwrap"><span class="band" style="left:28.0%;width:66.6%"></span></div><div class="bandnote">年薪約 100–200 萬換算（原標 USD 月薪）</div></div>
+      </a>
+      <a class="row" href="/jobs/japan-project-finance-taipei/" data-r="台北市" data-t="日本項目財務會計（finance &amp; accounting／project controller） 台北市 japan-project-finance-taipei">
+        <div class="pay">55,000<small>月薪</small></div>
+        <div class="mid"><h3>日本項目財務會計（Finance &amp; Accounting／Project Controller）</h3><div class="tags"><span class="t ct">海外・外派</span><span class="t">台北市（推得）</span></div></div>
+        <div class="rail"><div class="bandwrap"><span class="band" style="left:5.4%;width:2.5%"></span></div><div class="bandnote">5.5萬</div></div>
+      </a>
+      <a class="row" href="/jobs/executive-assistant-japan-taiwan/" data-r="日本" data-t="主管特助（日本東京／長野白馬） 日本 executive-assistant-japan-taiwan">
+        <div class="pay fx">外幣計薪<small>日圓年薪 420 萬起</small></div>
+        <div class="mid"><h3>主管特助（日本東京／長野白馬）</h3><div class="tags"><span class="t ct">海外・外派</span><span class="t">日本</span></div></div>
+        <div class="rail"><span class="bandmiss">外幣計薪，未換算上尺</span></div>
+      </a>
+      <a class="row" href="/jobs/hakuba-resort-property-manager/" data-r="日本" data-t="日本白馬渡假村物業經理／資產營運經理 日本 hakuba-resort-property-manager">
+        <div class="pay fx">外幣計薪<small>日圓年薪 500–850 萬</small></div>
+        <div class="mid"><h3>日本白馬渡假村物業經理／資產營運經理</h3><div class="tags"><span class="t ct">海外・外派</span><span class="t">日本</span></div></div>
+        <div class="rail"><span class="bandmiss">外幣計薪，未換算上尺</span></div>
+      </a>
+    </div>
+  </section>
+
+  <section class="grp" data-g="contract">
+    <div class="grp-hd"><h2>承攬合作</h2><span class="meta"><span class="gn">1</span> 個職缺　·　非僱傭，依成果計酬</span></div>
+    <div class="noscale">這個分類目前只有 1 筆有明確薪資，沒有可比較的同類職缺，不畫薪資尺。</div>
+    <div class="list">
+      <a class="row" href="/jobs/live-streamer-home/" data-r="在家工作" data-t="直播主 在家工作 live-streamer-home">
+        <div class="pay">30,000–100,000<small>月薪</small></div>
+        <div class="mid"><h3>直播主</h3><div class="tags"><span class="t ct">承攬</span><span class="t">在家工作</span></div></div>
+        <div class="rail"><div class="bandnote">3.0萬 – 10萬</div></div>
+      </a>
+    </div>
+  </section>
+
+  <div class="empty" id="empty" hidden>沒有符合的職缺，換個條件或 <a href="https://lin.ee/XcSWPzM" style="color:var(--brand-deep)">加入 LINE 留履歷</a>。</div>
+
+<script>
+/* 35 筆職缺全部寫在上面的 HTML 裡，爬蟲不跑 JS 也讀得到。
+   這段只負責「隱藏不符合的」，不負責產生內容。 */
+(async function(){
+  var GN={all:'',senior:'中高階獵才',fulltime:'正職僱用',dispatch:'人力派遣',overseas:'海外・外派',contract:'承攬合作'};
+
+  // 顧問在後台關掉職缺是即時的，這一頁是靜態 HTML——關掉之後要馬上從
+  // 網站上消失，不能等重新部署才生效。所以先問後端「現在哪些是關的」，
+  // 把對應的列從 DOM 拿掉，再讓下面的篩選邏輯照正常流程跑，數字才會算對。
+  try {
+    var r = await fetch('https://step1ne-public-worker.aiagentg888.workers.dev/jobs-closed').then(function(x){return x.json()});
+    var closed = new Set((r && r.closed) || []);
+    if (closed.size) {
+      [].slice.call(document.querySelectorAll('.row')).forEach(function(el){
+        var m = (el.getAttribute('href')||'').match(/\/jobs\/([^/]+)\/?$/);
+        if (m && closed.has(m[1])) el.remove();
+      });
+    }
+  } catch (e) { /* 查不到就照舊全部顯示，不能讓這支失敗擋住整個職缺頁 */ }
+
+  var grps=[].slice.call(document.querySelectorAll('.grp'));
+  var rows=[].slice.call(document.querySelectorAll('.row'));
+  var chips=[].slice.call(document.querySelectorAll('#tabs .chip'));
+  var sel=document.getElementById('gsel'), q=document.getElementById('q');
+  var cnt=document.getElementById('cnt'), empty=document.getElementById('empty');
+  var state={g:'fulltime',t:'',r:'all'};
+
+  // 計數一律從 DOM 現況重算，不能用寫死的數字（已關閉的職缺已被移除）
+  (function recount(){
+    var all=document.querySelectorAll('.row').length;
+    document.querySelectorAll('#tabs .chip').forEach(function(b){
+      var g=b.dataset.g;
+      var n=g==='all'?all:document.querySelectorAll('.grp[data-g="'+g+'"] .row').length;
+      var c=b.querySelector('.c'); if(c) c.textContent=n;
+      if(n===0 && g!=='all') b.remove();
+    });
+    var sel=document.getElementById('gsel');
+    [].slice.call(sel.options).forEach(function(o){
+      var g=o.value;
+      var n=g==='all'?all:document.querySelectorAll('.grp[data-g="'+g+'"] .row').length;
+      if(n===0 && g!=='all'){ o.remove(); return; }
+      o.textContent=o.textContent.replace(/（[^）]*）/, g==='all'?('（'+n+' 個職缺）'):('（'+n+' 個）'));
+    });
+    var h1=document.querySelector('.top h1');
+    if(h1) h1.textContent=all+' 個開放中的職缺';
+  })();
+
+  function apply(){
+    var shown=0;
+    grps.forEach(function(sec){
+      var gok = state.g==='all' || sec.dataset.g===state.g, n=0;
+      [].slice.call(sec.querySelectorAll('.row')).forEach(function(r){
+        var ok = gok && (state.r==='all' || r.dataset.r===state.r) && (!state.t || r.dataset.t.indexOf(state.t)>-1);
+        r.classList.toggle('off',!ok); if(ok) n++;
+      });
+      sec.classList.toggle('off', n===0);
+      var gn=sec.querySelector('.gn'); if(gn) gn.textContent=n;
+      shown+=n;
+    });
+    empty.hidden = shown>0;
+    cnt.innerHTML = state.g==='all'
+      ? '共 <b>'+shown+'</b> 個職缺，依類型分成 '+grps.filter(function(s){return !s.classList.contains('off')}).length+' 區'
+      : '顯示「'+GN[state.g]+'」<b>'+shown+'</b> 筆　·　<a href="#" id="showall">看全部 '+rows.length+' 個職缺</a>';
+    var sa=document.getElementById('showall');
+    if(sa) sa.addEventListener('click',function(ev){ev.preventDefault();state.g='all';apply();window.scrollTo({top:0,behavior:'smooth'});});
+    chips.forEach(function(b){b.classList.toggle('on',b.dataset.g===state.g)});
+    [].slice.call(rt.querySelectorAll('.rchip')).forEach(function(b){b.classList.toggle('on',b.dataset.r===state.r)});
+    var rs=document.getElementById('rsel'); if(rs && rs.value!==state.r) rs.value=state.r;
+    [].slice.call(rt.querySelectorAll('.rchip')).forEach(function(b){b.classList.toggle('on',b.dataset.r===state.r)});
+    var rs=document.getElementById('rsel'); if(rs && rs.value!==state.r) rs.value=state.r;
+    if(sel.value!==state.g) sel.value=state.g;
+  }
+
+  var rt=document.getElementById('rtabs');
+  rt.addEventListener('click',function(ev){
+    var b=ev.target.closest('.rchip'); if(!b) return;
+    state.r=b.dataset.r; apply();
+  });
+  document.getElementById('rsel').addEventListener('change',function(ev){ state.r=ev.target.value; apply(); });
+  var rt=document.getElementById('rtabs');
+  rt.addEventListener('click',function(ev){
+    var b=ev.target.closest('.rchip'); if(!b) return;
+    state.r=b.dataset.r; apply();
+  });
+  document.getElementById('rsel').addEventListener('change',function(ev){ state.r=ev.target.value; apply(); });
+  document.getElementById('tabs').addEventListener('click',function(ev){
+    var b=ev.target.closest('.chip'); if(!b) return;
+    state.g=b.dataset.g; apply();
+  });
+  sel.addEventListener('change',function(ev){ state.g=ev.target.value; apply(); });
+  q.addEventListener('input',function(ev){ state.t=ev.target.value.trim().toLowerCase(); apply(); });
+  apply();
+})();
+</script>
+
+  <div class="notice">
+    <b>這一塊是給你看的，不是給求職者看的。</b>全部 35 列是腳本從各職缺內頁的 JobPosting schema 直接讀出來的，沒有一個字是手打的——證明列表頁可以自動維護，顧問改內頁、列表頁跟著變。<br><br>
+    <b>已修正後才畫上尺：</b>3 筆年薪被 schema 標成月薪（營運發展主管、集團資訊主管、財務主管），依內頁文字換算。<br>
+    <b>沒有自行換匯：</b>日本 2 筆是日圓卻標成 TWD，標「外幣計薪」不上尺。<br>
+    <b>地點：</b>35 筆只有 5 筆 schema 有城市，其餘標「地點待補」或由網址推得（已註明）。<br>
+    <b>其他：</b>6 筆網址仍是 <code>pending-co_…</code> 暫存代號；BIM 工程師有兩個網址、薪資完全相同，疑似重複頁。
+  </div>
+
+  <div class="end">
+    <p>沒有適合的職缺？加入 LINE 留下履歷，有符合條件的新職缺會直接通知你。</p>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">加入 LINE 留履歷</a>
+  </div>
+
+  <footer>德仁管理顧問有限公司　臺北市內湖區康寧路三段 54 之 7 號 3 樓</footer>
+</main>
+
+</body>
+</html>
