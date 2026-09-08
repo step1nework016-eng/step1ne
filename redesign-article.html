@@ -35,6 +35,9 @@ p{margin:0}
 .hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
 .hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
 .btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule)}
 .hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
 .hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
 /* 閱讀進度 */
@@ -115,6 +118,7 @@ footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(
   .mtoc{display:block}
 }
 @media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}.hd-burger{display:flex}
   .hd-nav,.hd .btn-line{display:none}
   .hd-burger{display:flex}
   body{font-size:16.5px}
@@ -130,12 +134,16 @@ html{scroll-behavior:smooth}
 <div id="bar"></div>
 <header class="hd">
   <div class="hd-in">
-    <a class="hd-logo" href="/"><img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問"><b>德仁管理顧問</b></a>
+    <a class="hd-logo" href="/"><img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問"><b>Step1ne</b></a>
     <nav class="hd-nav">
       <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a class="on" href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
     </nav>
     <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
-    <button class="hd-burger" type="button" aria-label="開啟選單"><span></span></button>
+    <button class="hd-burger" type="button" aria-label="開啟選單" aria-expanded="false" onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINE 洽詢</a>
   </div>
 </header>
 
