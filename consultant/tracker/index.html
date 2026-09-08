@@ -947,9 +947,10 @@ function openDrawer(appId, kind) {
         // token 才生新的，有的話直接沿用」），不要講成「重新產生」。
         '<div class="acts"><button class="btn' + (styleDone ? '' : ' p') + '" id="assessLinkGo" type="button">' + (styleDone ? '查看連結' : '產生測驗連結') + '</button></div>' +
         '<div id="assessLinkResult" style="margin-top:8px"></div></div>' +
-      '<div class="stagedetail" data-detail="interview" hidden><p class="mut" style="margin:6px 0">' + (autoScreenDone ? '已完成阿財初審' : '進行中，還沒完成') + '</p></div>' +
-      '<div class="stagedetail" data-detail="call" hidden><p class="mut" style="margin:6px 0">' + (callDone ? '已記錄過電洽內容' : '尚未記錄過通話') + '</p><div class="acts"><button class="btn" type="button" onclick="document.querySelector(&quot;#callSec&quot;).scrollIntoView({behavior:&quot;smooth&quot;,block:&quot;start&quot;})">前往電洽區塊</button></div></div>' +
-      '<div class="stagedetail" data-detail="screen" hidden><div class="subhint" style="margin:2px 0 6px">AI阿財面談評分——你在這裡的決定，會被拿去跟阿財原本判斷值不值得面談的結果對照，算出「阿財準不準」（consultant/kpi 頁面看得到）</div>' +
+      // 2026-09-08 改：AI阿財面談評分原本掛在「初篩決定」那一格，但那是在評
+      // 「阿財這場面談準不準」——屬於阿財初審這一關的事，放錯格顧問會找不到。
+      '<div class="stagedetail" data-detail="interview" hidden><p class="mut" style="margin:6px 0">' + (autoScreenDone ? '已完成阿財初審' : '進行中，還沒完成') + '</p>' +
+        '<div class="subhint" style="margin:2px 0 6px">AI阿財面談評分——你在這裡的決定，會被拿去跟阿財原本判斷值不值得面談的結果對照，算出「阿財準不準」（consultant/kpi 頁面看得到）</div>' +
         (c.report_md
           ? '<div class="acts">' +
             '<button class="btn p decbtn" data-k="forwarded"' + (c.decision === 'forwarded' ? ' disabled style="opacity:.45"' : '') + '>推薦給客戶</button>' +
@@ -957,6 +958,35 @@ function openDrawer(appId, kind) {
             '<button class="btn d decbtn" data-k="rejected"' + (c.decision === 'rejected' ? ' disabled style="opacity:.45"' : '') + '>婉拒</button>' +
             '</div>'
           : '<p class="mut" style="margin:6px 0">還沒有初篩報告，無法評分</p>') +
+        '</div>' +
+      '<div class="stagedetail" data-detail="call" hidden><p class="mut" style="margin:6px 0">' + (callDone ? '已記錄過電洽內容' : '尚未記錄過通話') + '</p><div class="acts"><button class="btn" type="button" onclick="document.querySelector(&quot;#callSec&quot;).scrollIntoView({behavior:&quot;smooth&quot;,block:&quot;start&quot;})">前往電洽區塊</button></div></div>' +
+      // 2026-09-08 改：這一格改成「推進／不推進」，而且是**對每一家客戶各自決定**。
+      // 顧問在這裡按下去，用人單位那邊的人選卡片就會看到「已完成」或「不推進」。
+      // ⚠️ 沿用既有的 /admin/pipeline/forward-decision，不另造端點。
+      '<div class="stagedetail" data-detail="screen" hidden>' +
+        (function () {
+          var pls = c.placements || [];
+          if (!pls.length) {
+            return '<p class="mut" style="margin:6px 0">還沒推薦給任何客戶，先在下面「推薦給客戶」選一家送出，才有東西可以推進。</p>';
+          }
+          return '<div class="subhint" style="margin:2px 0 8px">對每一家客戶各自決定。' +
+            '按下去用人單位那邊的人選卡片會立刻看到——推進顯示「已完成」，不推進顯示原因。</div>' +
+            pls.map(function (pl) {
+              var nr = pl.advisor_not_recommended_at;
+              var state = nr
+                ? '<span class="badge d" style="font-size:11px">⚠ 不推進・' + esc(String(nr).slice(0, 10)) + '</span>'
+                : '<span class="badge b-forward" style="font-size:11px">✓ 推進中・客戶看得到</span>';
+              var btns = nr
+                ? '<button type="button" class="btn notrecClear" data-cid="' + esc(pl.company_id) + '" style="font-size:11.5px;padding:3px 10px">改回推進</button>'
+                : '<button type="button" class="btn d notrecSet" data-cid="' + esc(pl.company_id) + '" style="font-size:11.5px;padding:3px 10px">標不推進</button>';
+              return '<div style="padding:8px 0;border-top:1px solid var(--line)">' +
+                '<div style="font-size:13px;font-weight:600">' + esc(pl.client_name) + ' ' + state + '</div>' +
+                (nr && pl.advisor_not_recommended_reason
+                  ? '<div class="mut" style="font-size:12px;margin:3px 0 5px">給客戶看的原因：' + esc(pl.advisor_not_recommended_reason) + '</div>'
+                  : '') +
+                '<div style="margin-top:5px">' + btns + '</div></div>';
+            }).join('');
+        })() +
         '</div>' +
       '<div class="stagedetail" data-detail="forward" hidden><p class="mut" style="margin:6px 0">' + (forwardDone ? '已推薦給 ' + c.placements.length + ' 家客戶，詳情見下面「目前進度」' : '還沒推薦給任何客戶') + '</p></div>' +
       '</div>';
@@ -968,14 +998,26 @@ function openDrawer(appId, kind) {
     '<span>' + (autoConfirmDone ? '✓' : '○') + ' 顧問確認' + (autoConfirmDone ? '' : '（等決定）') + '</span>' +
     '</div>' +
     '<div style="font-size:13px;font-weight:700;margin-bottom:8px">推薦給客戶</div>' +
+    // 2026-09-08 改：把「推去哪家客戶／哪個職缺」的選單移到最上面，已經推薦
+    // 出去的清單移到下面。顧問打開這一區八成是要「再推一家」，原本要先捲過
+    // 一串已推薦卡片才看得到選單。
+    '<div style="margin-bottom:12px"><label class="edl" style="margin-top:0">推去哪家客戶</label><select class="edi" id="fwCompany"><option value="">載入中…</option></select>' +
+    '<label class="edl">推去哪個職缺<span class="mut" style="font-weight:400">（送出即代表「顧問確認」，客戶那邊立刻看到這關已完成）</span></label>' +
+    '<select class="edi" id="fwJob"><option value="">先選客戶</option></select>' +
+    '<div class="acts" style="margin-top:8px"><button class="btn p" id="fwGo" type="button">＋ 推薦給客戶／職缺</button><span class="mut" id="fwMsg"></span></div></div>' +
+    ((c.placements || []).length
+      ? '<div class="mut" style="font-size:12px;border-top:1px solid var(--line);padding-top:10px;margin-top:4px">已經推薦出去的</div>'
+      : '') +
     (c.placements || []).map(function (pl, i) {
       // 2026-09-01 加：每個 placement 自己的「顧問不推薦」——掛在這一組
       // （人選＋這家客戶）底下，不是整個人選都不推薦，也不擋之後重新推薦。
       var nr = pl.advisor_not_recommended_at
         ? '<div class="notrec" style="margin-top:6px;padding:8px 10px;border-radius:8px;background:#fdf1ef;color:var(--bad);font-size:12.5px">' +
-            '⚠ 顧問不推薦（' + esc(pl.advisor_not_recommended_reason || '') + '）　' +
-            '<button type="button" class="btn notrecClear" data-cid="' + esc(pl.company_id) + '" style="font-size:11.5px;padding:2px 8px;margin-left:4px">取消不推薦</button></div>'
-        : '<button type="button" class="btn notrecSet" data-cid="' + esc(pl.company_id) + '" style="font-size:11.5px;padding:3px 10px;margin-top:6px;color:var(--bad)">標不推薦（這家客戶這個職缺）</button>';
+            // 2026-09-08 統一用詞：進度條那格叫「推進／不推進」，這裡不要再叫
+            // 「推薦／不推薦」——同一件事兩種講法，顧問會以為是兩個功能。
+            '⚠ 不推進（' + esc(pl.advisor_not_recommended_reason || '') + '）　' +
+            '<button type="button" class="btn notrecClear" data-cid="' + esc(pl.company_id) + '" style="font-size:11.5px;padding:2px 8px;margin-left:4px">改回推進</button></div>'
+        : '<button type="button" class="btn notrecSet" data-cid="' + esc(pl.company_id) + '" style="font-size:11.5px;padding:3px 10px;margin-top:6px;color:var(--bad)">標不推進（這家客戶這個職缺）</button>';
       // 2026-09-01 加：client_rejected_at 資料早就接進來了，但沒有畫出來——
       // 顧問看不到「用人單位已經婉拒」這件事，只能靠客戶端那句一次性 Telegram
       // 通知，漏看就等於不知道。這裡補上顯示，跟顧問自己的「不推薦」用同一種
@@ -1025,10 +1067,6 @@ function openDrawer(appId, kind) {
         bar(pl, appId, i > 0) + cr + nr + forms + '</div>';
     }).join('') +
     (!c.placements || !c.placements.length ? '<p class="mut" style="margin:10px 0">還沒推薦給任何客戶。</p>' : '') +
-    '<div style="margin-top:12px"><label class="edl" style="margin-top:0">推去哪家客戶</label><select class="edi" id="fwCompany"><option value="">載入中…</option></select>' +
-    '<label class="edl">推去哪個職缺<span class="mut" style="font-weight:400">（送出即代表「顧問確認」，客戶那邊立刻看到這關已完成）</span></label>' +
-    '<select class="edi" id="fwJob"><option value="">先選客戶</option></select>' +
-    '<div class="acts" style="margin-top:8px"><button class="btn p" id="fwGo" type="button">＋ 推薦給客戶／職缺</button><span class="mut" id="fwMsg"></span></div></div>' +
     '<div class="acts" style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px">' +
     '<button class="btn d" id="markClosedBtn" type="button" style="font-size:12.5px">標記已結案（進顧問履歷庫）</button></div>' +
     '</div>';
