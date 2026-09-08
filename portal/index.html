@@ -1653,13 +1653,20 @@ function renderTable(){
         : '<span class="dash-pill now">進行中</span>';
 
       const matchedS = stepOf(c, 'matched');
+      // 2026-09-07 加：顧問下「不推進」的人選，根本沒有送到用人單位手上，
+      // 後面四欄（用人單位／面試階段／錄取／報到）都不該讓客戶做決定——
+      // 原本只檢查 client_rejected_at（客戶自己拒絕），漏了顧問這一關，
+      // 結果顧問已經不推進的人，客戶端還是看到「尚未決定」的下拉。
+      const consultantRejected = !!(confirmS && confirmS.decision === 'rejected');
       // 2026-09-01 加：「用人單位」欄要先明確選過「推進」，後面三欄（面試階段／
       // 錄取／報到）才能填——不然還沒決定要不要推進，先填了後面幾欄也沒意義。
       // matchedS.done（已經有真實面試進度）也算數，是給舊資料相容：這個功能
       // 上線前就已經進到第一階段以後的人選，不該因為沒補點過「推進」而被鎖住。
       const advanced = !!c.client_advanced_at || (matchedS && matchedS.done);
       let matchedCell;
-      if (rejected) {
+      if (consultantRejected) {
+        matchedCell = '<span class="dash-pill" style="opacity:.55">—</span>';
+      } else if (rejected) {
         matchedCell = `<span class="dash-pill rejected" title="${esc(c.client_reject_reason || '')}">不推進</span>`;
       } else if (advanced) {
         matchedCell = `<span class="dash-pill done">已推進</span>`;
@@ -1677,7 +1684,7 @@ function renderTable(){
       const lockedCell = '<span class="dash-pill" style="opacity:.55">請先選推進</span>';
 
       const curInterview = currentInterviewStage(c);
-      const interviewCell = rejected ? '—' : !advanced ? lockedCell : `<select class="dash-tbl-sel" data-app="${esc(c.application_id)}" data-role="interview">
+      const interviewCell = (consultantRejected || rejected) ? '—' : !advanced ? lockedCell : `<select class="dash-tbl-sel" data-app="${esc(c.application_id)}" data-role="interview">
         <option value="" ${!curInterview ? 'selected' : ''} disabled>尚未決定</option>
         ${interviewStageOptsFor(c).map(([k, lb]) => `<option value="${k}" ${curInterview === k ? 'selected' : ''}>${esc(lb)}</option>`).join('')}
       </select>`;
@@ -1688,7 +1695,7 @@ function renderTable(){
       // 下拉因此顯示回「尚未決定」，資料其實是對的，純粹是畫面判斷漏了一半。
       const offerStep = stepOf(c, 'offer') || {};
       const offerDone = !!(offerStep.done || offerStep.now);
-      const offerCell = rejected ? '—' : !advanced ? lockedCell : `<select class="dash-tbl-sel" data-app="${esc(c.application_id)}" data-role="offer">
+      const offerCell = (consultantRejected || rejected) ? '—' : !advanced ? lockedCell : `<select class="dash-tbl-sel" data-app="${esc(c.application_id)}" data-role="offer">
         <option value="" ${!offerDone ? 'selected' : ''} disabled>尚未決定</option>
         <option value="offer" ${offerDone ? 'selected' : ''}>錄取</option>
         <option value="decline">不錄取</option>
@@ -1696,7 +1703,7 @@ function renderTable(){
 
       const onboardStep = stepOf(c, 'onboard') || {};
       const onboardDone = !!(onboardStep.done || onboardStep.now);
-      const onboardCell = rejected ? '—' : !advanced ? lockedCell : `<select class="dash-tbl-sel" data-app="${esc(c.application_id)}" data-role="onboard">
+      const onboardCell = (consultantRejected || rejected) ? '—' : !advanced ? lockedCell : `<select class="dash-tbl-sel" data-app="${esc(c.application_id)}" data-role="onboard">
         <option value="" ${!onboardDone ? 'selected' : ''} disabled>尚未決定</option>
         <option value="onboard" ${onboardDone ? 'selected' : ''}>報到</option>
         <option value="decline">不報到</option>
