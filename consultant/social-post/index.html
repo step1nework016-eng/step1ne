@@ -297,6 +297,44 @@ table.gap td.stale{color:#c0392b}
 .tobs-flowbox p{margin:0;color:var(--tobs-muted);font-size:12px}
 .tobs-rule{background:#fff;border:1px solid var(--tobs-line);border-radius:16px;padding:16px;font-size:13.5px}
 .tobs-rule strong{color:var(--tobs-blue)}
+/* ── Threads 個別成效 ── */
+.thmsel{display:none;width:100%;padding:11px;font:inherit;border:1px solid var(--line);border-radius:10px;background:#fff;margin-bottom:14px}
+.thbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 16px}
+.thbar select{padding:8px 11px;font:inherit;font-size:13px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.thlb{font-size:12px;color:var(--ink3)}
+.thcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:9px;margin-bottom:6px}
+.thc{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 13px}
+.thc span{display:block;font-size:11px;color:var(--ink3)}
+.thc b{font-size:22px;font-variant-numeric:tabular-nums}
+.thc i{font-style:normal;font-size:11px;color:var(--ink3);margin-left:3px}
+.thc.hi{background:#1f5f4f;border-color:#1f5f4f;color:#fff}
+.thc.hi span,.thc.hi i{color:#bcd9d0}
+.thh{font-size:13px;color:var(--ink3);font-weight:600;margin:26px 0 9px}
+.thrank{list-style:none;margin:0;padding:0}
+.thrank li{display:grid;grid-template-columns:78px 1fr 72px;align-items:center;gap:9px;padding:4px 0}
+.thrank .rb{height:9px;border-radius:5px;background:#1f5f4f;width:var(--w);min-width:3px}
+.thrank .nv{text-align:right;font-size:12px;color:var(--ink3);font-variant-numeric:tabular-nums}
+.thtw{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:#fff}
+.thtw table{border-collapse:collapse;width:100%;min-width:860px}
+.thtw th{text-align:left;font-size:11px;color:var(--ink3);font-weight:600;padding:9px 11px;border-bottom:1px solid var(--line);white-space:nowrap}
+.thtw td{padding:8px 11px;border-bottom:1px solid #f2f4f6;font-size:13px;vertical-align:middle}
+.thtw tr:last-child td{border-bottom:0}
+.thtw .dt{color:var(--ink3);font-size:12px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.thtw .ti a{color:inherit;text-decoration:none;border-bottom:1px solid var(--line)}
+.thtag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:5px;white-space:nowrap}
+.th-j{background:#e4edfa;color:#2b5788}.th-g{background:#f6ece0;color:#8a5a2b}
+.th-a{background:#eee7f5;color:#5a3c86}.th-x{background:#fff;color:#98a1aa;border:1px dashed var(--line)}
+.th-o{background:#f1f3f5;color:#5a636d}.th-p{background:#fde9e4;color:#a34327}.th-d{background:#d8ede6;color:#1f5f4f}
+.thv{position:relative;white-space:nowrap;font-variant-numeric:tabular-nums;min-width:108px;text-align:right}
+.thv .bar{position:absolute;left:0;top:50%;transform:translateY(-50%);height:19px;width:var(--w);background:#d8ede6;border-radius:3px}
+.thv b{position:relative}
+.thm{text-align:right;color:var(--ink3);font-variant-numeric:tabular-nums;white-space:nowrap}
+.thfo{font-size:12px;color:var(--ink3);white-space:nowrap}
+.thnote{background:#fff;border:1px dashed var(--line);border-radius:10px;padding:10px 13px;font-size:12.5px;color:var(--ink3);margin:0 0 10px}
+.thwarn{background:#fdf3e7;border-left:3px solid #8a4b12;color:#8a4b12;padding:10px 13px;border-radius:0 8px 8px 0;font-size:12.5px;margin:0 0 14px}
+.thempty{padding:24px;text-align:center;color:var(--ink3);font-size:13px;border:1px dashed var(--line);border-radius:12px;background:#fff}
+.thin2{font-size:10px;color:#98a1aa;margin-left:5px}
+@media(max-width:720px){#thTabs{display:none}.thmsel{display:block}}
 @media(max-width:420px){.tobs-accounts{grid-template-columns:1fr}.tobs-flow{grid-template-columns:1fr}.tobs-metrics{grid-template-columns:repeat(3,1fr)}}
 </style>
 
@@ -321,6 +359,7 @@ table.gap td.stale{color:#c0392b}
       <button type="button" class="tab" data-pane="pane-convert">🎯 招募轉換記錄</button>
       <button type="button" class="tab" data-pane="pane-settings">✨ 顧問與話題設定</button>
       <button type="button" class="tab" data-pane="pane-candidates">📋 職缺社群回覆</button>
+      <button type="button" class="tab" data-pane="pane-threads">📊 Threads 個別成效</button>
     </div>
 
     <div id="pane-post">
@@ -515,6 +554,24 @@ table.gap td.stale{color:#c0392b}
          話題／發文風格是全站共用一份庫，顧問打勾選要用哪些，不用各自
          重複輸入內容；「一鍵發文」何時會真的套用這裡設定的風格，要等
          social_post_agent.py 加了話題類型分支才會生效——這裡先只負責存資料。 -->
+    <div id="pane-threads" hidden>
+      <p class="mut" style="margin:0 0 14px;font-size:13px">
+        這一頁只列 <b>Threads 已發布</b>的貼文，每位顧問一個分頁，看得到每一則用了哪種寫法。
+        LinkedIn 沒有公開成效 API，抓不到數據所以不列。</p>
+      <div id="thTabs" class="tabs" style="margin-bottom:12px"></div>
+      <select id="thSel" class="thmsel" aria-label="選擇顧問"></select>
+      <div class="thbar"><span class="thlb">期間</span>
+        <select id="thMode">
+          <option value="all">全部期間</option>
+          <option value="week">依週看</option>
+          <option value="month">依月看</option>
+        </select>
+        <select id="thVal" hidden></select>
+        <span class="thlb" id="thInfo"></span>
+      </div>
+      <div id="thOut" class="mut">載入中…</div>
+    </div>
+
     <div id="pane-settings" hidden>
       <div class="subtabs" id="settingssubtabs">
         <button type="button" class="on" data-sub="topics">📝 話題提示詞庫</button>
@@ -1023,11 +1080,209 @@ function paintLine() {
     + '<b>這三個數字是全部顧問加起來的總量</b>，LINE沒辦法告訴我們「這個人是被誰的貼文吸引來的」。</div>';
 }
 
+// ── Threads 個別成效（每位顧問一個分頁）──
+// 2026-09-08 加。跟「成效儀表板」共用 ALL_QUEUE_STATS 那份資料，不另外再拉一次。
+// 這一頁回答的是「每一則貼文用了哪種寫法、跑出什麼數字」，儀表板回答的是
+// 「整體趨勢與帶來多少人」，兩者刻意不合併——合在一起會變成誰都看不懂的大表。
+var TH_FALLBACK_TITLE = {"backend-engineer-game": "後端開發工程師（.NET）", "bim-engineer": "BIM 工程師（無經驗可・正職）", "bim-engineer-tongluo": "BIM 工程師", "brand-social-video-editor-neihu": "品牌社群影音編輯｜美式重機品牌台灣總代理", "business-operations-manager": "營運發展主管 Business Operations Manager", "clinic-nurse-neihu": "復健科診所護理師", "cloud-ops-engineer": "雲端維運工程師", "ehs-engineer-yunlin": "資深職業安全衛生工程師", "engineering-design-engineer-hsinchu": "資深工程設計工程師", "executive-assistant-japan-taiwan": "主管特助（日本東京／長野白馬）", "finance-accounting-insurance-dispatch": "財務會計專員｜投資帳務・國營保險集團財務部（15個月專案）", "finance-controller-overseas": "財務主管 Finance Controller", "finance-group-treasury-head-xinyi": "集團財務主管 Group Treasury Head", "fnb-brand-cs-zhonghe": "餐飲品牌客服", "frontend-engineer-game": "前端開發工程師", "game-phone-cs-zhonghe": "遊戲客服專員（電話／文字客服）", "group-it-head": "集團資訊主管 Group IT Head", "hakuba-resort-property-manager": "日本白馬渡假村物業經理／資產營運經理", "headhunter-consultant": "獵頭顧問（Recruitment Consultant）", "japan-project-finance-taipei": "日本項目財務會計（Finance & Accounting／Project Controller）", "live-streamer-home": "直播主", "mobile-game-cs-neihu": "遊戲客服", "ops-support-engineer-fintech": "維運工程師", "payment-cs-night-zhonghe": "金流客服", "pending-co_802bdd6b-106ca482": "培訓工程設計工程師", "pending-co_802bdd6b-64500461": "培訓職業安全衛生工程師", "pending-co_802bdd6b-8bd0eb29": "培訓半導體專案工程師", "pending-co_802bdd6b-9ffc1f8d": "資深半導體專案工程師", "product-assistant-fintech": "產品助理", "receptionist-neihu": "總機接待", "semiconductor-site-engineer-hsinchu": "資深半導體專案現場工程師", "senior-ehs-engineer-yunlin": "資深職業安全衛生工程師", "vip-hospitality-attendant": "VIP貴賓接待服務員", "vip-hospitality-attendant-night": "VIP貴賓接待服務員（晚班）"};
+// 已下架、被 301 合併掉的舊網址：貼文還指著它，顯示合併後那個職缺的名字並註明
+var TH_MERGED_TITLE = {"game-phone-cs-evening-zhonghe": "遊戲客服專員（電話／文字客服）", "mobile-game-cs-neihu-mid": "遊戲客服", "mobile-game-cs-neihu-morning": "遊戲客服", "pending-co_802bdd6b-3b807a75": "資深職業安全衛生工程師", "pending-co_802bdd6b-dd0123c6": "資深工程設計工程師"};
+var TH = { cur: '全部', mode: 'all', val: '' };
+var TH_KC = {'📋 職缺文':'th-j','💼 通用文':'th-g','🤖 AI阿財話題':'th-a','話題文（未分類）':'th-x'};
+var TH_WC = {'原始格式':'th-o','純CTA型':'th-p','對話討論型':'th-d'};
+
+function thEsc(x){return String(x==null?'':x).replace(/[&<>"]/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]});}
+function thNum(x){return (x||0).toLocaleString('en-US');}
+function thAcct(r){return String(r.account_label||'未指定').split(/ [-–] /)[0];}
+
+// 分類邏輯跟「一鍵發文」表單的三層選擇一一對應。
+// ⚠️ 貼文種類要看 topic_prompts.category，不要看 content_mission——
+//    實際資料裡 mission 幾乎全是空的，用它分會把所有話題文都算成未分類。
+function thKind(r){
+  var isTopic = r.topic_id || String(r.slug||'').indexOf('💬')===0;
+  if(!isTopic) return '📋 職缺文';
+  if(r.topic_category==='ai'||r.content_mission==='trust_building') return '🤖 AI阿財話題';
+  if(r.topic_category==='general'||r.content_mission==='engagement') return '💼 通用文';
+  return '話題文（未分類）';
+}
+function thWay(r){
+  if(r.style_subtype==='dialog') return '對話討論型';
+  if(r.style_subtype==='pure'||r.content_formula==='pure') return '純CTA型';
+  if(r.content_formula==='default') return '原始格式';
+  return '未標記';
+}
+// 寫法公式只有對話討論型才有，其餘顯示「—」是正確的不是漏抓。
+function thFormula(r){
+  return r.style_subtype==='dialog'
+    ? String(r.style_name||'對話討論型').replace('對話討論型・','') : '—';
+}
+// 職稱四層去找：D1 的 jobs → 網站靜態頁（有些職缺 D1 裡根本沒有）→
+// 已下架被 301 合併掉的沿用新職缺 → 都沒有才顯示網址代號。
+function thTitle(r){
+  var slug = String(r.slug||'');
+  if(r.title) return { t: r.title, note: '' };
+  if(slug.indexOf('💬')===0) return { t: slug.slice(1).trim(), note: '' };
+  // 有些職缺 D1 的 jobs 表裡根本沒有，只有網站靜態頁有——那不是下架，不要亂加註記
+  if(TH_FALLBACK_TITLE[slug]) return { t: TH_FALLBACK_TITLE[slug], note: '' };
+  if(TH_MERGED_TITLE[slug]) return { t: TH_MERGED_TITLE[slug], note: '已下架，沿用合併後的職缺' };
+  return { t: slug, note: '查不到職稱' };
+}
+function thWeek(d){
+  var p=d.split('-'), dt=new Date(+p[0],+p[1]-1,+p[2]);
+  dt.setDate(dt.getDate()-((dt.getDay()+6)%7));
+  return dt.getFullYear()+'-'+('0'+(dt.getMonth()+1)).slice(-2)+'-'+('0'+dt.getDate()).slice(-2);
+}
+function thPosts(){
+  return (ALL_QUEUE_STATS||[]).filter(function(r){
+    return r.social_post_status==='posted' && String(r.social_post_url||'').indexOf('threads')>=0;
+  }).map(function(r){
+    var d=String(r.posted_at||r.social_post_at||'').slice(0,10);
+    var ti=thTitle(r);
+    return { a:thAcct(r), d:d, wk:d?thWeek(d):'', mo:d.slice(0,7),
+      k:thKind(r), w:thWay(r), f:thFormula(r), t:ti.t, n:ti.note,
+      u:r.social_post_url||'', v:+(r.views||0), l:+(r.likes||0), rp:+(r.replies||0),
+      hv:r.views?1:0 };
+  });
+}
+function thStats(rs){
+  var wd=rs.filter(function(p){return p.hv});
+  var v=rs.reduce(function(s,p){return s+p.v},0);
+  return {c:rs.length, v:v, avg:wd.length?Math.round(v/wd.length):0,
+    l:rs.reduce(function(s,p){return s+p.l},0), r:rs.reduce(function(s,p){return s+p.rp},0),
+    wd:wd.length};
+}
+function thCards(s){
+  return '<div class="thcards">'
+   +'<div class="thc"><span>已發布</span><b>'+s.c+'</b><i>篇</i></div>'
+   +'<div class="thc hi"><span>總瀏覽</span><b>'+thNum(s.v)+'</b><i>次</i></div>'
+   +'<div class="thc"><span>平均瀏覽</span><b>'+thNum(s.avg)+'</b><i>次／篇</i></div>'
+   +'<div class="thc"><span>按讚</span><b>'+s.l+'</b><i></i></div>'
+   +'<div class="thc"><span>留言</span><b>'+s.r+'</b><i></i></div></div>';
+}
+function thPerf(rs,max){
+  var g={}; rs.forEach(function(p){ if(!p.hv) return; var k=p.w+'|'+p.f; (g[k]=g[k]||[]).push(p); });
+  var ks=Object.keys(g);
+  if(!ks.length) return '<p class="mut" style="font-size:13px">這個範圍還沒有抓到成效數據。</p>';
+  ks.sort(function(a,b){
+    return g[b].reduce(function(s,p){return s+p.v},0)/g[b].length
+         - g[a].reduce(function(s,p){return s+p.v},0)/g[a].length; });
+  return '<div class="thtw"><table><thead><tr><th>寫法類型</th><th>寫法公式</th><th>篇數</th>'
+   +'<th class="thm">平均瀏覽</th><th class="thm">平均留言</th></tr></thead><tbody>'
+   +ks.map(function(k){
+     var v=g[k], w=k.split('|')[0], f=k.split('|')[1];
+     var av=Math.round(v.reduce(function(s,p){return s+p.v},0)/v.length);
+     return '<tr><td><span class="thtag '+(TH_WC[w]||'th-x')+'">'+thEsc(w)+'</span></td>'
+      +'<td class="thfo">'+thEsc(f)+'</td>'
+      +'<td class="thm">'+v.length+(v.length<3?'<span class="thin2">樣本太少</span>':'')+'</td>'
+      +'<td class="thv"><span class="bar" style="--w:'+Math.round(av/max*100)+'%"></span><b>'+thNum(av)+'</b></td>'
+      +'<td class="thm">'+(v.reduce(function(s,p){return s+p.rp},0)/v.length).toFixed(1)+'</td></tr>';
+   }).join('')+'</tbody></table></div>';
+}
+function thRows(rs,max){
+  if(!rs.length) return '<p class="thempty">這個期間這位顧問沒有發文。</p>';
+  return '<div class="thtw"><table><thead><tr><th>日期</th><th>貼文</th><th>貼文種類</th>'
+   +'<th>寫法類型</th><th>寫法公式</th><th class="thm">瀏覽</th><th class="thm">讚</th>'
+   +'<th class="thm">留言</th></tr></thead><tbody>'
+   +rs.slice().sort(function(a,b){return b.v-a.v}).map(function(p){
+     return '<tr><td class="dt">'+thEsc(p.d)+'</td>'
+      +'<td class="ti"><a href="'+thEsc(p.u)+'" target="_blank" rel="noopener">'+thEsc(p.t.slice(0,40))+'</a>'
+      +(p.n?'<span class="mut" style="display:block;font-size:10px">'+thEsc(p.n)+'</span>':'')+'</td>'
+      +'<td><span class="thtag '+(TH_KC[p.k]||'th-x')+'">'+thEsc(p.k)+'</span></td>'
+      +'<td><span class="thtag '+(TH_WC[p.w]||'th-x')+'">'+thEsc(p.w)+'</span></td>'
+      +'<td class="thfo">'+thEsc(p.f)+'</td>'
+      +'<td class="thv"><span class="bar" style="--w:'+Math.round(p.v/max*100)+'%"></span><b>'+thNum(p.v)+'</b></td>'
+      +'<td class="thm">'+(p.l||'·')+'</td><td class="thm">'+(p.rp||'·')+'</td></tr>';
+   }).join('')+'</tbody></table></div>';
+}
+function thRender(){
+  var all=thPosts();
+  var max=all.reduce(function(m,p){return Math.max(m,p.v)},1)||1;
+  var inPeriod=all.filter(function(p){
+    return TH.mode==='all'||(TH.mode==='week'?p.wk===TH.val:p.mo===TH.val); });
+  var rs=inPeriod.filter(function(p){ return TH.cur==='全部'||p.a===TH.cur; });
+  var s=thStats(rs), base=thStats(inPeriod), h='';
+  if(TH.cur!=='全部'){
+    h+='<h3 style="margin:0 0 12px">'+thEsc(TH.cur)+'</h3>';
+    if(rs.length>=3&&s.avg&&base.avg&&s.avg<base.avg*0.25)
+      h+='<p class="thwarn">⚠️ 這個帳號的平均觸及只有全隊平均的 '+Math.round(s.avg/base.avg*100)
+        +'%。篇數不少但看到的人很少，比較可能是帳號本身被壓著，不是文案問題——需要人去看帳號狀態。</p>';
+  }
+  h+=thCards(s);
+  if(TH.cur==='全部'&&inPeriod.length){
+    var g={}; rs.forEach(function(p){g[p.a]=(g[p.a]||0)+p.v});
+    var tot=Object.keys(g).reduce(function(x,k){return x+g[k]},0)||1;
+    var ks=Object.keys(g).sort(function(a,b){return g[b]-g[a]});
+    if(ks.length) h+='<div class="thh">顧問總瀏覽排行</div><ol class="thrank">'+ks.map(function(k){
+      return '<li><span>'+thEsc(k)+'</span><span class="rb" style="--w:'+Math.round(g[k]/tot*100)
+        +'%"></span><span class="nv">'+thNum(g[k])+'</span></li>'; }).join('')+'</ol>';
+  }
+  h+='<div class="thh">哪一種寫法有效</div>';
+  if(s.wd<10) h+='<p class="thnote">⚠️ 這個範圍只有 '+s.wd+' 篇有數據，<b>樣本太少，看趨勢就好不要當結論</b>。</p>';
+  h+=thPerf(rs,max);
+  h+='<div class="thh">貼文明細（'+rs.length+' 篇）</div>'+thRows(rs,max);
+  $('thOut').innerHTML=h;
+  $('thInfo').textContent = TH.mode==='all'
+    ? '（全部 '+all.length+' 篇）' : '（此期間全隊 '+inPeriod.length+' 篇）';
+}
+function thBuildTabs(){
+  var all=thPosts(), g={};
+  all.forEach(function(p){g[p.a]=(g[p.a]||0)+1});
+  var names=Object.keys(g).sort(function(a,b){
+    var av=0,bv=0;
+    all.forEach(function(p){ if(p.a===a) av+=p.v; if(p.a===b) bv+=p.v; });
+    return bv-av; });
+  $('thTabs').innerHTML='<button type="button" class="tab on" data-t="全部">全部</button>'
+    +names.map(function(n){return '<button type="button" class="tab" data-t="'+thEsc(n)+'">'
+      +thEsc(n)+'</button>';}).join('');
+  $('thSel').innerHTML='<option value="全部">全部（總覽）</option>'
+    +names.map(function(n){return '<option value="'+thEsc(n)+'">'+thEsc(n)+'（'+g[n]+' 篇）</option>';}).join('');
+  // 期間選項從真實資料長出來，不要寫死月份
+  var wks={}, mos={};
+  all.forEach(function(p){ if(p.wk){ wks[p.wk]=1; mos[p.mo]=1; } });
+  TH._weeks=Object.keys(wks).sort().reverse();
+  TH._months=Object.keys(mos).sort().reverse();
+}
+function thGo(v){
+  TH.cur=v;
+  [].forEach.call($('thTabs').children,function(b){b.classList.toggle('on',b.dataset.t===v)});
+  if($('thSel').value!==v) $('thSel').value=v;
+  thRender();
+}
+function loadThreadsReport(){
+  var go=function(){ thBuildTabs(); thRender(); };
+  if(ALL_QUEUE_STATS.length) return go();
+  $('thOut').textContent='載入中…';
+  api('/admin/social-post-queue?limit=500').then(function(d){
+    if(!d.ok){ $('thOut').innerHTML='<p class="thempty">讀取失敗：'+thEsc(d.error||'')+'</p>'; return; }
+    ALL_QUEUE_STATS=d.queue||[]; go();
+  }).catch(function(){ $('thOut').innerHTML='<p class="thempty">連不上伺服器</p>'; });
+}
+$('thTabs').addEventListener('click',function(e){
+  var b=e.target.closest('.tab'); if(b) thGo(b.dataset.t); });
+$('thSel').onchange=function(){ thGo(this.value); };
+$('thMode').onchange=function(){
+  TH.mode=this.value;
+  var pv=$('thVal');
+  if(TH.mode==='all'){ pv.hidden=true; TH.val=''; }
+  else{
+    var list=TH.mode==='week'?TH._weeks:TH._months;
+    pv.innerHTML=list.map(function(x){
+      if(TH.mode==='month'){ var p=x.split('-'); return '<option value="'+x+'">'+p[0]+' 年 '+(+p[1])+' 月</option>'; }
+      var p2=x.split('-'), st=new Date(+p2[0],+p2[1]-1,+p2[2]), en=new Date(st); en.setDate(en.getDate()+6);
+      return '<option value="'+x+'">'+(st.getMonth()+1)+'/'+st.getDate()+' – '+(en.getMonth()+1)+'/'+en.getDate()+'</option>';
+    }).join('');
+    pv.hidden=false; TH.val=list[0];
+  }
+  thRender();
+};
+$('thVal').onchange=function(){ TH.val=this.value; thRender(); };
+
 // ── 主分頁切換 ──
 $('maintabs').addEventListener('click', function (e) {
   var b = e.target.closest('.tab'); if (!b) return;
   [].forEach.call($('maintabs').children, function (x) { x.classList.toggle('on', x === b); });
-  ['pane-post', 'pane-cal', 'pane-board', 'pane-convert', 'pane-settings', 'pane-candidates'].forEach(function (id) {
+  ['pane-post', 'pane-cal', 'pane-board', 'pane-convert', 'pane-settings', 'pane-candidates', 'pane-threads'].forEach(function (id) {
     $(id).hidden = (id !== b.dataset.pane);
   });
   if (b.dataset.pane === 'pane-cal') loadCal();
@@ -1036,6 +1291,7 @@ $('maintabs').addEventListener('click', function (e) {
   if (b.dataset.pane === 'pane-convert') loadConvertQueue();
   if (b.dataset.pane === 'pane-settings') loadSettings();
   if (b.dataset.pane === 'pane-candidates') loadCandidateSummaries();
+  if (b.dataset.pane === 'pane-threads') loadThreadsReport();
   // 2026-09-03 加：在「顧問與話題設定」改完指派、切回「一鍵發文」時，
   // 話題下拉之前只在切換帳號／類型當下抓一次，不會自動反映剛剛存的設定，
   // 會讓人以為「明明設定了怎麼還是沒有」。切回這個分頁時，如果正停在
