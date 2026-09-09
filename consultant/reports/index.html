@@ -213,8 +213,6 @@ button.primary:hover{background:#8a6531;}
 .qr{font:inherit;font-size:12.5px;font-weight:600;border:1px solid #e0d9cb;background:#fff;color:#4a4d55;border-radius:999px;padding:7px 13px;cursor:pointer;}
 .qr:hover{border-color:#a67c3d;color:#a67c3d;}
 .qr.on{background:#f3e2c2;border-color:#d9bd85;color:#7a4e12;}
-.umask{position:fixed;inset:0;background:rgba(20,22,26,.6);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;}
-.ucard{background:#fff;border-radius:16px;padding:22px 24px;max-width:520px;width:100%;max-height:88vh;overflow:auto;}
 @keyframes livepulse{0%,100%{opacity:1}50%{opacity:.35}}
 </style>
 </head>
@@ -401,7 +399,6 @@ button.primary:hover{background:#8a6531;}
   <div class="dtabs">
     <button type="button" class="dtab on" data-tab="overview">總覽</button>
     <button type="button" class="dtab" data-tab="report">報告</button>
-    <button type="button" class="dtab" data-tab="schedule">安排面談</button>
     <button type="button" class="dtab" data-tab="transcript">逐字稿</button>
   </div>
   <div class="dbody">
@@ -441,29 +438,6 @@ button.primary:hover{background:#8a6531;}
         <button id="dl_cp" type="button">複製報告</button>
       </div>
       <pre class="rep" id="drep">載入中…</pre>
-    </div>
-
-    <div class="dtabpanel" data-tabpanel="schedule" hidden>
-      <p class="mut" style="font-size:12.5px;margin:0 0 12px;">
-        填幾個候選時段，送出後如果這位人選有綁過 LINE 會自動推播給他選；沒綁過的話請自己把下面產生的連結傳給他。
-      </p>
-      <label style="display:block;font-size:12.5px;color:#8a8d95;margin:8px 0 3px;">階段</label>
-      <select id="apptstage" style="border:1px solid #eee7db;border-radius:8px;padding:6px;font:inherit;">
-        <option value="1">第一階段</option><option value="2">第二階段</option>
-        <option value="3">第三階段</option><option value="4">第四階段</option>
-      </select>
-      <div id="apptrows"></div>
-      <button type="button" id="apptaddrow" style="margin:6px 0;background:#fff;border:1px solid #eee7db;border-radius:8px;padding:6px 12px;cursor:pointer;">＋ 加一個時段</button>
-      <label style="display:block;font-size:12.5px;color:#8a8d95;margin:10px 0 3px;">面談對象（選填，例如「王經理・用人主管」）</label>
-      <input id="apptinterviewer" style="width:100%;font:inherit;border:1px solid #eee7db;border-radius:8px;padding:8px;">
-      <label style="display:block;font-size:12.5px;color:#8a8d95;margin:10px 0 3px;">面談地點（現場面談才需要）</label>
-      <input id="apptlocation" style="width:100%;font:inherit;border:1px solid #eee7db;border-radius:8px;padding:8px;">
-      <div id="apptfill" class="mut" style="font-size:11.5px;margin-top:4px;"></div>
-      <div>
-        <textarea id="apptnote" rows="2" placeholder="給人選看的備註（選填，例如攜帶物品、聯絡窗口）" style="width:100%;font:inherit;border:1px solid #eee7db;border-radius:8px;padding:8px;margin-top:10px;"></textarea>
-      </div>
-      <button type="button" id="apptsubmit" style="margin-top:8px;background:#2f6fed;color:#fff;border:0;border-radius:8px;padding:8px 16px;font-weight:700;cursor:pointer;">送出安排</button>
-      <div id="apptresult" class="mut" style="font-size:12.5px;margin-top:8px;"></div>
     </div>
 
     <div class="dtabpanel" data-tabpanel="transcript" hidden>
@@ -723,7 +697,6 @@ async function openSession(row) {
   showDialogTab('overview');
   $('dlg').showModal();
   fitDialogHeight();
-  apptAutofill();
 
   var d = await api('/admin/session/' + encodeURIComponent(row.id));
   if (!d.ok) { $('drep').textContent = '讀取失敗'; return; }
@@ -1032,7 +1005,6 @@ async function open(row) {
   showDialogTab('overview');
   $('dlg').showModal();
   fitDialogHeight();
-  apptAutofill();
 
   var d;
   try {
@@ -1527,103 +1499,6 @@ async function setManualStage(stageKey, btn, companyId) {
   }
 }
 
-// ── 安排面談時間（讓人選自己挑）──
-function apptRowHtml() {
-  return '<div class="apptrow" style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap;align-items:center;">' +
-    '<input type="date" class="appt-date" style="border:1px solid #eee7db;border-radius:8px;padding:6px;">' +
-    '<input type="time" class="appt-time" style="border:1px solid #eee7db;border-radius:8px;padding:6px;">' +
-    '<select class="appt-fmt" style="border:1px solid #eee7db;border-radius:8px;padding:6px;">' +
-      '<option value="現場面談">現場面談</option><option value="視訊面談">視訊面談</option><option value="電話面談">電話面談</option>' +
-    '</select>' +
-    '<input type="url" class="appt-url" placeholder="視訊連結（選視訊面談才需要）" hidden ' +
-      'style="border:1px solid #eee7db;border-radius:8px;padding:6px;flex:1 1 200px;min-width:160px;">' +
-    '<button type="button" class="appt-rm" style="background:#fff;border:1px solid #eee7db;border-radius:8px;padding:4px 10px;cursor:pointer;color:#b4552e;">移除</button>' +
-  '</div>';
-}
-function apptAddRow() {
-  var wrap = document.createElement('div');
-  wrap.innerHTML = apptRowHtml();
-  var row = wrap.firstChild;
-  row.querySelector('.appt-rm').addEventListener('click', function () { row.remove(); });
-  // 視訊連結欄位只在選「視訊面談」時才需要，其他格式不用讓顧問看到多餘欄位
-  var fmtSel = row.querySelector('.appt-fmt'), urlInp = row.querySelector('.appt-url');
-  function syncUrlVisibility() { urlInp.hidden = fmtSel.value !== '視訊面談'; }
-  fmtSel.addEventListener('change', syncUrlVisibility);
-  syncUrlVisibility();
-  $('apptrows').appendChild(row);
-}
-$('apptaddrow').addEventListener('click', apptAddRow);
-$('dlg').addEventListener('close', function () {
-  // 每次關掉詳情視窗就清空表單，下次開別的人選才不會殘留上一位的時段
-  $('apptrows').innerHTML = ''; $('apptnote').value = ''; $('apptresult').textContent = '';
-  $('apptinterviewer').value = ''; $('apptlocation').value = ''; $('apptfill').textContent = '';
-  $('apptstage').value = '1';
-  apptAddRow(); apptAddRow();
-});
-apptAddRow(); apptAddRow();   // 預設先給兩列，省得每次都要按「加一個時段」
-
-// 2026-08-13 加：同一間公司（同職缺）、同一個階段，面談對象跟地點通常會重複。
-// 選階段的時候順便去查上次填過的值，帶進來讓顧問確認一下或改掉，不用每次空白重打。
-// ⚠️ 只在欄位還是空的時候才自動帶入，避免蓋掉顧問已經手動打好的內容。
-async function apptAutofill() {
-  if (!cur || !cur.job_slug) return;
-  var stage = $('apptstage').value;
-  try {
-    var d = await api('/admin/appointment/last?' + new URLSearchParams({ job_slug: cur.job_slug, stage: stage }));
-    if (!d.ok) return;
-    var filled = [];
-    if (d.interviewer && !$('apptinterviewer').value) { $('apptinterviewer').value = d.interviewer; filled.push('面談對象'); }
-    if (d.location && !$('apptlocation').value) { $('apptlocation').value = d.location; filled.push('面談地點'); }
-    $('apptfill').textContent = filled.length ? '↑ 已帶入上次同階段填過的內容，麻煩確認一下還適用' : '';
-  } catch { /* 自動帶入失敗不影響手動填寫 */ }
-}
-$('apptstage').addEventListener('change', apptAutofill);
-
-$('apptsubmit').addEventListener('click', async function () {
-  if (!cur || !cur.app_id) return alert('這筆報告沒有對應的應徵紀錄，無法安排');
-  var slots = [];
-  document.querySelectorAll('#apptrows .apptrow').forEach(function (row) {
-    var d = row.querySelector('.appt-date').value;
-    var t = row.querySelector('.appt-time').value;
-    var f = row.querySelector('.appt-fmt').value;
-    var u = row.querySelector('.appt-url').value.trim();
-    if (d && t) slots.push(u ? { slot_at: d + ' ' + t, format: f, meeting_url: u } : { slot_at: d + ' ' + t, format: f });
-  });
-  if (!slots.length) return alert('至少要填一個完整的日期＋時間');
-  this.disabled = true; this.textContent = '送出中…';
-  try {
-    var d2 = await api('/admin/appointment', {
-      method: 'POST', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        application_id: cur.app_id, slots: slots, note: $('apptnote').value.trim(),
-        stage: Number($('apptstage').value), interviewer: $('apptinterviewer').value.trim(),
-        location: $('apptlocation').value.trim(),
-      }),
-    });
-    if (d2.ok) {
-      var copyBtn = '<button type="button" onclick="navigator.clipboard.writeText(\'' + d2.url + '\')" style="margin-left:6px;">複製連結</button>';
-      // ⚠️ 2026-08-21 事故：孙悦沒綁 LINE，卡片靜默沒送出，這裡卻顯示「已安排」，
-      //    顧問以為發了、人選什麼都沒收到，兩邊都在等。
-      //    現在一定要講清楚「有沒有真的送到他手上」。
-      if (d2.notified) {
-        $('apptresult').innerHTML = '✅ 已安排，<b>面談卡片已送到他的 LINE</b>　' + copyBtn;
-      } else {
-        $('apptresult').innerHTML =
-          '<div style="background:#fff6e0;border:1px solid #f0d48a;border-radius:10px;padding:11px 13px;line-height:1.7">'
-          + '⚠️ 時段已存好，但<b>沒有送到人選手上</b>。詳情看剛才跳出的視窗。'
-          + '</div>';
-        showUnbound(d2, cur, copyBtn);
-      }
-    } else {
-      $('apptresult').textContent = '❌ 失敗：' + (d2.error || '伺服器沒說原因');
-    }
-  } catch (e) {
-    $('apptresult').textContent = '❌ 失敗：' + (e && e.message ? e.message : apiFail(e));
-  } finally {
-    this.disabled = false; this.textContent = '送出安排';
-  }
-});
-
 function gate(msg) {
   $('app').hidden = true; $('gate').hidden = false;
   if (msg) { $('gerr').hidden = false; $('gerr').textContent = msg; }
@@ -1908,57 +1783,6 @@ if (tok) {
 } else { gate(''); }
 </script>
 <script defer src="/consultant/_shell.js">
-// ── 人選沒綁 LINE 時的提醒視窗 ──
-// 2026-08-21 Jacky 要求。事故背景：顧問幫孙悦排了當天 15:00 的面談，
-// 畫面顯示成功，但她沒綁 LINE、卡片靜默沒送出，兩邊都在等，
-// 距離面談只剩不到三小時才被發現。
-// 光是把錯誤訊息顯示出來還不夠——顧問還是要自己想「那我該傳什麼給他」，
-// 那一步的摩擦就是訊息最後沒被傳出去的原因。所以直接把話寫好讓他複製。
-function showUnbound(d2, cur, copyBtn) {
-  var name = (cur && cur.name) || '您好';
-  var why = d2.notify_reason === 'push_failed'
-    ? 'LINE 推播失敗（他綁過，但這次沒送成功）'
-    : '這位人選還沒有綁定「追蹤面試進度」';
-  // 給人選看的文字，套三條規則：不用「客戶」、不要拿「顧問／我們」當主詞、
-  // 不外流內部資訊。
-  var msg =
-    name + ' 您好，面談時間已經安排好了 🙌\n\n' +
-    '請點下面的連結選擇方便的時段：\n' + d2.url + '\n\n' +
-    '另外建議加入官方帳號綁定「追蹤面試進度」，之後每一步的進度都會直接通知您，' +
-    '不用自己來問：\n' +
-    '1. 加入好友 https://lin.ee/XcSWPzM\n' +
-    '2. 點下方選單的「追蹤面試進度」\n' +
-    '3. 依序輸入姓名、應徵時留的信箱、手機號碼（三項都要跟應徵表單一致才能核對身分）\n\n' +
-    '綁定只需要做一次，之後都不用再輸入。';
-  var box = document.getElementById('unboundBox');
-  if (!box) { box = document.createElement('div'); box.id = 'unboundBox'; document.body.appendChild(box); }
-  box.innerHTML =
-    '<div class="umask"><div class="ucard">'
-    + '<h3 style="margin:0 0 6px;font-size:17px;">⚠️ 這個人選收不到面談通知</h3>'
-    + '<p style="margin:0 0 12px;color:#4d5563;font-size:13.5px;line-height:1.7">'
-    + '原因：<b>' + why + '</b>。<br>'
-    + '時段已經存好了，但系統沒有辦法主動通知他——<b>請你自己把下面這段傳給他</b>，'
-    + '並順便請他完成綁定，以後就不用每次都手動傳。</p>'
-    + '<textarea id="umsg" readonly style="width:100%;height:210px;font:inherit;font-size:13px;'
-    + 'line-height:1.7;border:1px solid #eee7db;border-radius:10px;padding:11px;background:#faf8f3;">'
-    + msg.replace(/</g, '&lt;') + '</textarea>'
-    + '<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">'
-    + '<button type="button" id="ucopy" style="background:#a67c3d;color:#fff;border:0;border-radius:999px;'
-    + 'padding:9px 18px;font-weight:700;cursor:pointer;">複製整段訊息</button>'
-    + '<button type="button" id="ucopylink" style="background:#fff;border:1px solid #eee7db;border-radius:999px;'
-    + 'padding:9px 18px;cursor:pointer;">只複製連結</button>'
-    + '<button type="button" id="uclose" style="margin-left:auto;background:#fff;border:1px solid #eee7db;'
-    + 'border-radius:999px;padding:9px 18px;cursor:pointer;">關閉</button>'
-    + '</div></div></div>';
-  box.style.display = 'block';
-  document.getElementById('ucopy').onclick = function () {
-    navigator.clipboard.writeText(msg); this.textContent = '✅ 已複製';
-  };
-  document.getElementById('ucopylink').onclick = function () {
-    navigator.clipboard.writeText(d2.url); this.textContent = '✅ 已複製';
-  };
-  document.getElementById('uclose').onclick = function () { box.style.display = 'none'; };
-}
 
 </script>
 </body>
