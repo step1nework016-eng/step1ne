@@ -94,12 +94,12 @@ a.q{color:var(--gold);text-decoration:none}
     <div class="card">
       <h2>阿財準不準</h2>
       <div class="sub">這一段是拿去跟客戶證明「AI 沒把人看錯」的依據</div>
-      <div id="acc">載入中…</div>
+      <div class="fn" id="acc">載入中…</div>
     </div>
 
     <div class="card">
       <h2>各職缺進度</h2>
-      <div id="byjob">載入中…</div>
+      <div class="fn" id="byjob">載入中…</div>
     </div>
 
     <div class="card" id="todocard" hidden>
@@ -214,21 +214,27 @@ function renderAcc(agree){
     return aiPositive === humanPositive;
   }).reduce(function(s,x){return s+x.n},0);
   var rows = agree.map(function(x){
-    return '<div class="fnrow"><div class="lb">阿財：'+esc(x.ai)+'</div>'
-      + '<div class="track" style="flex:none;width:auto;background:none;height:auto;">'
-      + '<span class="mut">→ 顧問：'+esc(x.call)+'</span></div><div class="vn">'+x.n+'</div></div>';
+    var matched = (/值得|推薦|會推/.test(x.ai||'')) === (x.call === '會推');
+    return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;'
+      + (agree.indexOf(x)>0 ? 'border-top:1px solid var(--line)' : '') + '">'
+      + '<div style="flex:1;font-size:13px;color:var(--ink2)">阿財：'+esc(x.ai)+'</div>'
+      + '<div style="flex:none;font-size:14px;color:var(--ink3)">&#8594;</div>'
+      + '<div style="flex:1;font-size:13px;font-weight:700;color:'+(matched?'var(--ink1)':'var(--bad)')+'">顧問：'+esc(x.call)+'</div>'
+      + '<div style="flex:none;width:32px;text-align:right;font-weight:800;font-variant-numeric:tabular-nums">'+x.n+'</div>'
+      + '</div>';
   }).join('');
-  $('acc').innerHTML = '<div class="sub" style="margin-bottom:8px">樣本數 '+total+'，方向一致 '+same+'（'+Math.round(same/total*100)+'%）</div>' + rows;
+  $('acc').innerHTML = '<div class="sub" style="margin-bottom:4px">樣本數 '+total+'，方向一致 '+same+'（'+Math.round(same/total*100)+'%）</div>' + rows;
 }
 
 function renderByJob(byJob){
   if (!byJob.length) { $('byjob').innerHTML = '<div class="mut">還沒有應徵紀錄</div>'; return; }
   $('byjob').innerHTML = byJob.map(function(j){
     var pct = j.n ? Math.round(j.done / j.n * 100) : 0;
-    return '<div class="fnrow"><div class="lb" style="width:140px">'+esc(j.title||j.job_slug)+'</div>'
+    var title = esc(j.title||j.job_slug);
+    return '<div class="fnrow"><div class="lb" style="width:180px" title="'+title+'">'+title+'</div>'
       + '<div class="track"><div class="bar" style="width:'+pct+'%"></div></div>'
       + '<div class="vn">'+j.done+'/'+j.n+'</div>'
-      + (j.need_call>0 ? '<div class="pc" style="color:var(--bad)">'+j.need_call+' 待電洽</div>' : '<div class="pc"></div>')
+      + (j.need_call>0 ? '<div class="pc" style="color:var(--bad);width:64px">'+j.need_call+' 待電洽</div>' : '<div class="pc" style="width:64px"></div>')
       + '</div>';
   }).join('');
 }
