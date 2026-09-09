@@ -153,12 +153,111 @@ function apiFail(e) {
 
 function kpi(v,l,cls,ic){return '<div class="kpi '+(cls||'')+'">'+(ic?'<div class="ic">'+ic+'</div>':'')+'<div class="n">'+v+'</div><div class="l">'+l+'</div></div>'}
 
+// ⚠️ 2026-09-09 修：這頁上面明明定義了 apiFail()，catch 裡卻還是寫死
+// 「連線失敗」，等於白做——Jacky 看到的就是那句話，看不出到底是權杖過期、
+// 後端壞掉還是真的斷網。而且四張卡只有 kpis 會被寫入訊息，另外三張
+// （funnel／acc／byjob）永遠停在「載入中…」，看起來像當掉。
+// 現在：照實顯示原因、四張卡一起交代、權杖問題直接退回輸入畫面。
+function loadFail(e){
+  var msg = apiFail(e);
+  ['kpis','funnel','acc','byjob','todo'].forEach(function(id){
+    var el=$(id); if(el) el.innerHTML='<div class="mut">'+msg+'</div>';
+  });
+  if(e && (e.status===401 || /權杖/.test(msg))){
+    localStorage.removeItem(KEY); tok='';
+    $('app').hidden=true; $('gate').hidden=false;
+    $('gerr').hidden=false; $('gerr').textContent='權杖已失效，請重新輸入';
+  }
+}
+// ⚠️ 2026-09-09 補：這頁從建立那天起就只有抓資料的 load()，render() 從沒被
+// 定義過——render(d) 一執行就是 ReferenceError，被 catch 吃掉變成「連線
+// 失敗」，四張卡永遠卡在「載入中…」。現在把 API 回傳的五組資料實際畫出來。
+var STAGE_LABEL = { applied:'應徵', interviewed:'已面談', consultant_review:'顧問覆核通過',
+  client_stage:'客戶端進行中', offered:'已發 offer', onboard:'已到職' };
+
+function esc(s){ return String(s==null?'':s).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]}); }
+
+function renderKpis(now){
+  var items = [
+    [now.jobs_open,'在辦職缺',''],
+    [now.cands,'累積人選',''],
+    [now.new7,'近7天新進','',],
+    [now.done,'已完成初談',''],
+    [now.need_call,'等你電洽', now.need_call>0?'act':''],
+    [now.waiting,'等候分流', now.waiting>0?'warn':''],
+    [now.lang_missing,'外語未驗證', now.lang_missing>0?'warn':''],
+  ];
+  $('kpis').innerHTML = items.map(function(it){return kpi(it[0],it[1],it[2])}).join('');
+  // 「等你電洽」那格點下去捲到下面的名單卡——todo 撈的正是同一批人
+  // （interview_state='done' AND consultant_call IS NULL），不用另外呼叫 API。
+  var actEl = $('kpis').querySelector('.kpi.act');
+  if (actEl) { actEl.style.cursor='pointer';
+    actEl.onclick = function(){ var t=$('todocard'); if(t) t.scrollIntoView({behavior:'smooth'}); }; }
+}
+
+function renderFunnel(funnel){
+  var max = Math.max.apply(null, funnel.map(function(f){return f.n})) || 1;
+  $('funnel').innerHTML = funnel.map(function(f){
+    var pct = Math.round(f.n / max * 100);
+    return '<div class="fnrow"><div class="lb">'+esc(STAGE_LABEL[f.stage]||f.stage)+'</div>'
+      + '<div class="track"><div class="bar" style="width:'+pct+'%"></div></div>'
+      + '<div class="vn">'+f.n+'</div></div>';
+  }).join('');
+}
+
+function renderAcc(agree){
+  if (!agree.length) { $('acc').innerHTML = '<div class="mut">還沒有同時做過阿財初談跟顧問電洽的人選，先累積樣本</div>'; return; }
+  var total = agree.reduce(function(s,x){return s+x.n},0);
+  var same = agree.filter(function(x){
+    var aiPositive = /值得|推薦|會推/.test(x.ai||'');
+    var humanPositive = x.call === '會推';
+    return aiPositive === humanPositive;
+  }).reduce(function(s,x){return s+x.n},0);
+  var rows = agree.map(function(x){
+    return '<div class="fnrow"><div class="lb">阿財：'+esc(x.ai)+'</div>'
+      + '<div class="track" style="flex:none;width:auto;background:none;height:auto;">'
+      + '<span class="mut">→ 顧問：'+esc(x.call)+'</span></div><div class="vn">'+x.n+'</div></div>';
+  }).join('');
+  $('acc').innerHTML = '<div class="sub" style="margin-bottom:8px">樣本數 '+total+'，方向一致 '+same+'（'+Math.round(same/total*100)+'%）</div>' + rows;
+}
+
+function renderByJob(byJob){
+  if (!byJob.length) { $('byjob').innerHTML = '<div class="mut">還沒有應徵紀錄</div>'; return; }
+  $('byjob').innerHTML = byJob.map(function(j){
+    var pct = j.n ? Math.round(j.done / j.n * 100) : 0;
+    return '<div class="fnrow"><div class="lb" style="width:140px">'+esc(j.title||j.job_slug)+'</div>'
+      + '<div class="track"><div class="bar" style="width:'+pct+'%"></div></div>'
+      + '<div class="vn">'+j.done+'/'+j.n+'</div>'
+      + (j.need_call>0 ? '<div class="pc" style="color:var(--bad)">'+j.need_call+' 待電洽</div>' : '<div class="pc"></div>')
+      + '</div>';
+  }).join('');
+}
+
+function renderTodo(todo){
+  var card = $('todocard');
+  if (!todo.length) { card.hidden = true; return; }
+  card.hidden = false;
+  $('todo').innerHTML = todo.map(function(t){
+    return '<div class="fnrow"><div class="lb" style="width:auto;flex:1;overflow:visible;white-space:normal">'
+      + '<b>'+esc(t.name)+'</b> · '+esc(t.title||t.job_slug)+'</div>'
+      + '<div class="pc">'+esc((t.interview_ended_at||'').slice(5,16))+'</div></div>';
+  }).join('');
+}
+
+function render(d){
+  renderKpis(d.now||{});
+  renderFunnel(d.funnel||[]);
+  renderAcc(d.agree||[]);
+  renderByJob(d.byJob||[]);
+  renderTodo(d.todo||[]);
+}
+
 function load(){
   $('gate').hidden=true;$('app').hidden=false;
   api('/admin/overview').then(function(d){
-    if(!d.ok){$('kpis').innerHTML='<div class="mut">讀取失敗</div>';return}
+    if(!d.ok) return loadFail({serverError:d.error||'後端回報讀取失敗'});
     render(d);
-  }).catch(function(e){$('kpis').innerHTML='<div class="mut">連線失敗</div>'});
+  }).catch(loadFail);
 }
 function boot(){
   if(tok) return load();
@@ -166,8 +265,10 @@ function boot(){
   $('enter').onclick=function(){
     tok=$('tok').value.trim(); if(!tok) return;
     api('/admin/overview').then(function(d){
-      if(!d.ok){$('gerr').hidden=false;$('gerr').textContent='權杖不正確';return}
+      if(!d.ok){$('gerr').hidden=false;$('gerr').textContent=d.error||'權杖不正確';return}
       localStorage.setItem(KEY,tok);load();
+    }).catch(function(e){
+      $('gerr').hidden=false;$('gerr').textContent=apiFail(e);
     });
   };
   $('tok').addEventListener('keydown',function(e){if(e.key==='Enter')$('enter').click()});
