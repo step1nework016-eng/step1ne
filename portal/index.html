@@ -219,6 +219,7 @@ button.sec{background:#fff;color:var(--ink2);border:1px solid var(--line)}
 #candModalMask.show{display:flex}
 #dtModalMask{position:fixed;inset:0;background:rgba(35,32,20,.45);z-index:80;display:none;align-items:center;justify-content:center;padding:16px}
 #dtModalMask.show{display:flex}
+#slotsModalMask.show{display:flex}
 .dt-modal{width:min(360px,92vw);background:#fff;border-radius:16px;border:1px solid var(--line);padding:18px 20px}
 .cand-modal{width:min(760px,96vw);max-height:92vh;overflow:auto;background:#fff;border-radius:18px;border:1px solid var(--line)}
 .cand-modal-top{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:16px 18px;display:flex;justify-content:space-between;gap:10px;z-index:2}
@@ -464,6 +465,25 @@ button.sec{background:#fff;color:var(--ink2);border:1px solid var(--line)}
     <div style="display:flex;gap:8px;justify-content:flex-end">
       <button type="button" id="dtModalCancel" class="cm-fbtn">取消</button>
       <button type="button" id="dtModalOk" class="cm-fbtn" style="background:var(--gold);color:#fff;border-color:var(--gold)">確認</button>
+    </div>
+  </div>
+</div>
+<div id="slotsModalMask" style="position:fixed;inset:0;background:rgba(35,32,20,.45);z-index:80;display:none;align-items:center;justify-content:center;padding:16px">
+  <div class="dt-modal" style="max-width:460px;width:100%">
+    <h4 id="slotsModalTitle" style="margin:0 0 6px;font-size:15px"></h4>
+    <p style="margin:0 0 14px;font-size:12.5px;color:var(--ink3)">填至少 2 個候選時段，系統會直接用 LINE 官方帳號＋Email 通知人選，人選選定後這裡會自動顯示確認的時間，不用再手動回填。</p>
+    <div id="slotsModalRows"></div>
+    <button type="button" id="slotsModalAddRow" style="margin:6px 0 14px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px">＋ 加一個時段</button>
+    <label style="display:block;font-size:12.5px;color:var(--ink3);margin-bottom:4px">面談對象（選填）</label>
+    <input type="text" id="slotsModalInterviewer" style="width:100%;font:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:12px">
+    <label style="display:block;font-size:12.5px;color:var(--ink3);margin-bottom:4px">面談地點（現場面談才需要）</label>
+    <input type="text" id="slotsModalLocation" style="width:100%;font:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:12px">
+    <label style="display:block;font-size:12.5px;color:var(--ink3);margin-bottom:4px">給人選看的備註（選填）</label>
+    <textarea id="slotsModalNote" rows="2" style="width:100%;font:inherit;font-size:13px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:14px;resize:vertical"></textarea>
+    <div id="slotsModalMsg" style="font-size:12.5px;color:var(--ink3);margin-bottom:10px"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button type="button" id="slotsModalCancel" class="cm-fbtn">取消</button>
+      <button type="button" id="slotsModalOk" class="cm-fbtn" style="background:var(--gold);color:#fff;border-color:var(--gold)">送出邀請</button>
     </div>
   </div>
 </div>
@@ -1693,6 +1713,11 @@ function renderTable(){
         <option value="" ${!curInterview ? 'selected' : ''} disabled>尚未決定</option>
         ${interviewStageOptsFor(c).map(([k, lb]) => `<option value="${k}" ${curInterview === k ? 'selected' : ''}>${esc(lb)}</option>`).join('')}
       </select>`;
+      const confirmedAppt = (c.appts || []).filter(a => a.status === 'confirmed' && a.confirmed_slot).sort((a, b) => b.stage - a.stage)[0];
+      const confirmedLine = confirmedAppt
+        ? `<div style="margin-top:4px;font-size:11.5px;color:var(--good,#2f8f5b)">✅ 人選已確認：${esc(confirmedAppt.confirmed_slot)}</div>` : '';
+      const proposeBtn = (consultantRejected || rejected || !advanced) ? '' :
+        `<button type="button" class="cm-fbtn" style="font-size:11.5px;padding:4px 8px;margin-top:4px" data-propose="${esc(c.application_id)}">📅 邀請人選選時段</button>`;
 
       // 2026-09-01 修：原本只看 .done（已經走過這關），沒看 .now（現在正卡在
       // 這一關）——選了「錄取」之後，這關通常正好是 effective_index 本身
@@ -1733,7 +1758,7 @@ function renderTable(){
         <td>${formsCell}</td>
         <td>${confirmCell}</td>
         <td>${matchedCell}</td>
-        <td>${interviewCell}</td>
+        <td>${interviewCell}${confirmedLine}${proposeBtn}</td>
         <td>${offerCell}</td>
         <td>${onboardCell}</td>
       </tr>`;
@@ -1741,6 +1766,7 @@ function renderTable(){
   </table></div>`;
   wireOpenButtons(el);
   wireTableSelects(el);
+  wireProposeButtons(el);
 }
 
 // 表格上的下拉選單是企業自己操作進度用的，不能點了反而順便打開人選彈窗
@@ -1751,6 +1777,19 @@ function wireTableSelects(root){
     sel.addEventListener('change', (e) => {
       e.stopPropagation();
       tblHandleChange(sel.dataset.app, sel.dataset.role, sel.value, sel);
+    });
+  });
+}
+
+// 2026-09-09 加：「邀請人選選時段」按鈕，跟下拉選單同一套 stopPropagation
+// 理由——按鈕在表格列裡，不能點了順便觸發列本身的「打開人選彈窗」。
+function wireProposeButtons(root){
+  root.querySelectorAll('[data-propose]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const appId = btn.dataset.propose;
+      const c = CAND_LIST.find(x => x.application_id === appId);
+      if (c) tblPropose(appId, c);
     });
   });
 }
@@ -1781,6 +1820,91 @@ function promptDateTime(title, noteLabel, defaultDate){
     okBtn.addEventListener('click', onOk);
     cancelBtn.addEventListener('click', onCancel);
   });
+}
+
+// ── 2026-09-09 加：邀請人選選時段（用人單位還沒喬好確定時間時用）──
+function slotRowHtml(){
+  return '<div class="slot-row" style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap;align-items:center;">' +
+    '<input type="date" class="slot-date" style="border:1px solid var(--line);border-radius:8px;padding:6px;font:inherit;font-size:13px">' +
+    '<input type="time" class="slot-time" style="border:1px solid var(--line);border-radius:8px;padding:6px;font:inherit;font-size:13px">' +
+    '<select class="slot-fmt" style="border:1px solid var(--line);border-radius:8px;padding:6px;font:inherit;font-size:13px">' +
+      '<option value="現場面談">現場面談</option><option value="視訊面談">視訊面談</option><option value="電話面談">電話面談</option>' +
+    '</select>' +
+    '<input type="url" class="slot-url" placeholder="視訊連結（選視訊面談才需要）" hidden ' +
+      'style="border:1px solid var(--line);border-radius:8px;padding:6px;font:inherit;font-size:13px;flex:1 1 160px;min-width:140px">' +
+    '<button type="button" class="slot-rm cm-fbtn" style="padding:4px 8px;font-size:12px">移除</button>' +
+  '</div>';
+}
+function slotsAddRow(){
+  const wrap = document.createElement('div');
+  wrap.innerHTML = slotRowHtml();
+  const row = wrap.firstChild;
+  row.querySelector('.slot-rm').addEventListener('click', () => row.remove());
+  const fmtSel = row.querySelector('.slot-fmt'), urlInp = row.querySelector('.slot-url');
+  const syncUrl = () => { urlInp.hidden = fmtSel.value !== '視訊面談'; };
+  fmtSel.addEventListener('change', syncUrl); syncUrl();
+  document.getElementById('slotsModalRows').appendChild(row);
+}
+function promptThreeSlots(title){
+  return new Promise((resolve) => {
+    const g = (id) => document.getElementById(id);
+    const mask = g('slotsModalMask');
+    g('slotsModalTitle').textContent = title;
+    g('slotsModalRows').innerHTML = '';
+    g('slotsModalInterviewer').value = ''; g('slotsModalLocation').value = ''; g('slotsModalNote').value = '';
+    g('slotsModalMsg').textContent = '';
+    slotsAddRow(); slotsAddRow();
+    mask.classList.add('show');
+    const addBtn = g('slotsModalAddRow'), okBtn = g('slotsModalOk'), cancelBtn = g('slotsModalCancel');
+    function cleanup(result){
+      mask.classList.remove('show');
+      addBtn.removeEventListener('click', slotsAddRow);
+      okBtn.removeEventListener('click', onOk);
+      cancelBtn.removeEventListener('click', onCancel);
+      resolve(result);
+    }
+    function onOk(){
+      const slots = [];
+      document.querySelectorAll('#slotsModalRows .slot-row').forEach(row => {
+        const d = row.querySelector('.slot-date').value, t = row.querySelector('.slot-time').value;
+        const f = row.querySelector('.slot-fmt').value, u = row.querySelector('.slot-url').value.trim();
+        if (d && t) slots.push(u ? { slot_at: d + ' ' + t, format: f, meeting_url: u } : { slot_at: d + ' ' + t, format: f });
+      });
+      if (slots.length < 2) { g('slotsModalMsg').textContent = '至少要填 2 個完整的候選時段'; return; }
+      cleanup({
+        slots,
+        interviewer: g('slotsModalInterviewer').value.trim(),
+        location: g('slotsModalLocation').value.trim(),
+        note: g('slotsModalNote').value.trim(),
+      });
+    }
+    function onCancel(){ cleanup(null); }
+    addBtn.addEventListener('click', slotsAddRow);
+    okBtn.addEventListener('click', onOk);
+    cancelBtn.addEventListener('click', onCancel);
+  });
+}
+async function tblPropose(appId, c){
+  const opts = interviewStageOptsFor(c);
+  const stage = currentInterviewStage(c) || (opts[0] || [])[0];
+  if (!stage) { alert('這個職缺還沒設定面試輪次，請聯繫顧問先設定'); return; }
+  const stageLb = (opts.find(([k]) => k === stage) || [null, '這一階段面試'])[1];
+  const picked = await promptThreeSlots(stageLb + '的候選時段');
+  if (!picked) return;
+  try{
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(appId)}/propose-slots`, {
+      method: 'POST', headers: {'content-type':'application/json'},
+      body: JSON.stringify({ stage, slots: picked.slots, interviewer: picked.interviewer || undefined,
+        location: picked.location || undefined, note: picked.note || undefined }),
+    });
+    const data = await res.json();
+    if (!data.ok){ alert(data.error || '送出失敗'); return; }
+    const via = [data.notified_line ? 'LINE' : null, data.notified_email ? 'Email' : null].filter(Boolean).join('＋');
+    alert(via ? `已經用 ${via} 通知人選選時段了。` : '時段已存好，但這位人選還沒有可通知的管道（沒綁 LINE、也沒有 Email），麻煩自己聯繫他。');
+    await loadCandidates();
+  }catch{
+    alert('連線失敗，請稍後再試');
+  }
 }
 
 async function tblHandleChange(appId, role, value, sel){
