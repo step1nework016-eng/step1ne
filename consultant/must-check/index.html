@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="zh-Hant">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>必要評估項目審核｜顧問後台</title>
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<style>
+:root{--gold:#a67c3d;--ink:#23262d;--ink2:#4d5563;--ink3:#8a8d95;--line:#eee7db;--soft:#faf8f3;--bg:#f4f1ea;--ok:#2f8f5b;--bad:#c0392b;--warn:#8a6100}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 -apple-system,"Noto Sans TC",sans-serif}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px}
+header{background:#fff;border-bottom:1px solid var(--line);padding:14px 0}
+header .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header img{height:26px}
+nav{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+nav a{font-size:14px;text-decoration:none;color:var(--ink2);padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:#fff}
+nav a.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.gate{max-width:380px;margin:16vh auto;background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px}
+.gate input{width:100%;font:inherit;padding:11px 13px;border:1px solid var(--line);border-radius:10px;margin:12px 0}
+.gate button{width:100%;font:inherit;font-weight:700;background:var(--gold);color:#fff;border:0;border-radius:999px;padding:12px}
+.mut{color:var(--ink3);font-size:13px}
+main{padding:22px 0 60px}
+.card{background:#fff;border:1px solid var(--line);border-radius:15px;padding:18px 20px;margin-bottom:14px}
+.card h2{font-size:15px;margin:0 0 4px}
+.card .sub{font-size:12.5px;color:var(--ink3);margin-bottom:12px}
+.empty{background:var(--soft);border-left:3px solid var(--gold);border-radius:0 10px 10px 0;padding:12px 15px;font-size:13px;color:var(--ink2)}
+.jobcard{background:#fff;border:1px solid var(--line);border-radius:15px;padding:18px 20px;margin-bottom:14px}
+.jobcard .co{font-size:12px;color:var(--ink3)}
+.jobcard h3{font-size:16px;margin:2px 0 12px}
+.item{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid var(--line)}
+.item:first-of-type{border-top:none}
+.item input[type=checkbox]{width:18px;height:18px;margin-top:2px;flex:none;accent-color:var(--gold)}
+.item .lb{flex:1;font-size:14px}
+.item.off .lb{color:var(--ink3);text-decoration:line-through}
+.addrow{display:flex;gap:8px;margin-top:12px}
+.addrow input{flex:1;font:inherit;padding:9px 11px;border:1px solid var(--line);border-radius:8px}
+.addrow button{font:inherit;background:#fff;border:1px solid var(--line);border-radius:8px;padding:9px 14px;cursor:pointer}
+.go{margin-top:14px;display:flex;gap:10px;align-items:center}
+.go button{font:inherit;font-weight:700;background:var(--gold);color:#fff;border:0;border-radius:999px;padding:10px 20px;cursor:pointer}
+.go button:disabled{opacity:.5;cursor:default}
+.go .msg{font-size:13px}
+.jobcard.done{opacity:.55}
+.jobcard.done h3::after{content:" ✅ 已確認";color:var(--ok);font-size:13px;font-weight:400}
+</style>
+
+<div id="gate" class="gate" hidden>
+  <b>顧問後台</b>
+  <p class="mut" style="margin:6px 0 0">需要存取權杖。這組權杖等同密碼，不要外傳。</p>
+  <input id="tok" type="password" placeholder="ADMIN_TOKEN" autocomplete="off">
+  <button id="enter" type="button">進入</button>
+  <p id="gerr" class="mut" style="color:#b4552e;margin:12px 0 0" hidden></p>
+</div>
+
+<div id="app" hidden>
+  <header><div class="wrap">
+    <img src="/assets/step1ne-logo.png" alt="Step1ne"><b>必要評估項目審核</b>
+    <nav>
+      <a href="/consultant/overview/">總覽</a>
+      <a href="/consultant/reports/">初篩報告</a>
+      <a href="/consultant/jobs/">招募職缺</a>
+      <a href="/consultant/expertise/">職缺題庫</a>
+      <a href="/consultant/social-post/">顧問社群</a>
+    </nav>
+  </div></header>
+  <main class="wrap">
+    <div class="card">
+      <h2>待審核的必要評估項目</h2>
+      <div class="sub">這些是從各職缺 JD 逐條抓出來的草稿，不是我猜的——哪位顧問熟這個職缺，就開這頁勾一下。不對的項目取消勾選，漏掉的用下面「補充」加進去，按確認送出。</div>
+    </div>
+    <div id="list">載入中…</div>
+  </main>
+</div>
+
+<script>
+var API='https://step1ne-backoffice-worker.aiagentg888.workers.dev';
+var KEY='s1ne_admin_tok';
+var tok=localStorage.getItem(KEY)||'';
+var $=function(i){return document.getElementById(i)};
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function api(p,o){
+  o=o||{};
+  o.headers=Object.assign({authorization:'Bearer '+tok},o.headers||{});
+  return fetch(API+p,o).then(function(r){
+    if(r.status===401){var e=new Error('權杖不正確');e.status=401;throw e}
+    return r.text().then(function(t){
+      var d=null; try{d=JSON.parse(t)}catch(x){}
+      if(!r.ok){var err=new Error('HTTP '+r.status);err.status=r.status;err.serverError=d&&d.error?d.error:null;err.body=d?null:String(t).slice(0,200);throw err}
+      if(d===null){var ep=new Error('回傳格式不是 JSON');ep.body=String(t).slice(0,200);throw ep}
+      return d;
+    });
+  });
+}
+function apiFail(e){
+  if(!e) return '未知錯誤';
+  if(e.status===401||/權杖/.test(e.message||'')) return '權杖不正確，請重新輸入';
+  if(e.serverError) return '伺服器回報：'+String(e.serverError).slice(0,120);
+  if(e.status) return '伺服器錯誤 '+e.status+(e.body?'：'+String(e.body).slice(0,100):'');
+  if(e.name==='TypeError') return '連線失敗（連不到伺服器，檢查網路）';
+  return String(e.message||e).slice(0,120);
+}
+
+function jobCardHtml(job, idx){
+  var itemsHtml = job.items.map(function(it, i){
+    return '<label class="item" data-jc="'+idx+'"><input type="checkbox" checked data-jc="'+idx+'" data-idx="'+i+'"><span class="lb">'+esc(it.label)+'</span></label>';
+  }).join('');
+  return '<div class="jobcard" id="job-'+idx+'">'
+    + '<div class="co">'+esc(job.company)+'</div>'
+    + '<h3>'+esc(job.title)+'<span class="mut" style="font-weight:400;font-size:12px"> · '+esc(job.slug)+'</span></h3>'
+    + '<div class="items" id="items-'+idx+'">'+itemsHtml+'</div>'
+    + '<div class="addrow"><input type="text" placeholder="補充一項這裡沒有的條件" id="add-'+idx+'">'
+    + '<button type="button" data-add="'+idx+'">＋ 加入</button></div>'
+    + '<div class="go"><button type="button" data-confirm="'+idx+'">確認送出</button><span class="msg mut" id="msg-'+idx+'"></span></div>'
+    + '</div>';
+}
+
+var JOBS = [];
+
+function render(){
+  if(!JOBS.length){ $('list').innerHTML='<div class="empty">目前沒有待審核的項目，都處理完了。</div>'; return; }
+  $('list').innerHTML = JOBS.map(jobCardHtml).join('');
+  wire();
+}
+
+function wire(){
+  document.querySelectorAll('[data-add]').forEach(function(btn){
+    btn.onclick = function(){
+      var idx = btn.dataset.add;
+      var inp = $('add-'+idx);
+      var v = inp.value.trim();
+      if(!v) return;
+      JOBS[idx].items.push({label:v});
+      inp.value='';
+      var box = $('items-'+idx);
+      var i = JOBS[idx].items.length - 1;
+      box.insertAdjacentHTML('beforeend',
+        '<label class="item" data-jc="'+idx+'"><input type="checkbox" checked data-jc="'+idx+'" data-idx="'+i+'"><span class="lb">'+esc(v)+'</span></label>');
+    };
+  });
+  document.querySelectorAll('input[type=checkbox][data-jc]').forEach(function(cb){
+    cb.addEventListener('change', function(){
+      cb.closest('.item').classList.toggle('off', !cb.checked);
+    });
+  });
+  document.querySelectorAll('[data-confirm]').forEach(function(btn){
+    btn.onclick = function(){
+      var idx = btn.dataset.confirm;
+      var job = JOBS[idx];
+      var checked = Array.prototype.slice.call(document.querySelectorAll('#items-'+idx+' input[type=checkbox]'))
+        .filter(function(cb){ return cb.checked; })
+        .map(function(cb){ return job.items[Number(cb.dataset.idx)]; });
+      if(!checked.length){ $('msg-'+idx).textContent='至少要留一項'; return; }
+      btn.disabled = true; $('msg-'+idx).textContent='送出中…';
+      api('/admin/jobs/'+encodeURIComponent(job.slug)+'/must-check-confirm', {
+        method:'POST', headers:{'content-type':'application/json'},
+        body: JSON.stringify({ items: checked })
+      }).then(function(d){
+        if(!d.ok){ btn.disabled=false; $('msg-'+idx).textContent=d.error||'失敗'; return; }
+        $('job-'+idx).classList.add('done');
+        $('msg-'+idx).textContent='已確認';
+      }).catch(function(e){
+        btn.disabled=false; $('msg-'+idx).textContent=apiFail(e);
+      });
+    };
+  });
+}
+
+function load(){
+  $('gate').hidden=true; $('app').hidden=false;
+  $('list').innerHTML='<div class="mut">載入中…</div>';
+  api('/admin/must-check-pending').then(function(d){
+    if(!d.ok){ $('list').innerHTML='<div class="mut">'+(d.error||'讀取失敗')+'</div>'; return; }
+    JOBS = (d.jobs||[]).map(function(j){
+      return { slug:j.slug, title:j.title, company:j.company,
+        items:(j.items||[]).filter(function(it){return it.pending_review;}).map(function(it){return {label:it.label};}) };
+    }).filter(function(j){ return j.items.length; });
+    render();
+  }).catch(function(e){
+    var msg = apiFail(e);
+    $('list').innerHTML = '<div class="mut">'+esc(msg)+'</div>';
+    if(e && (e.status===401 || /權杖/.test(msg))){
+      localStorage.removeItem(KEY); tok='';
+      $('app').hidden=true; $('gate').hidden=false;
+      $('gerr').hidden=false; $('gerr').textContent='權杖已失效，請重新輸入';
+    }
+  });
+}
+function boot(){
+  if(tok) return load();
+  $('gate').hidden=false;
+  $('enter').onclick=function(){
+    tok=$('tok').value.trim(); if(!tok) return;
+    api('/admin/must-check-pending').then(function(d){
+      if(!d.ok){$('gerr').hidden=false;$('gerr').textContent=d.error||'權杖不正確';return}
+      localStorage.setItem(KEY,tok); load();
+    }).catch(function(e){
+      $('gerr').hidden=false; $('gerr').textContent=apiFail(e);
+    });
+  };
+  $('tok').addEventListener('keydown',function(e){if(e.key==='Enter')$('enter').click()});
+}
+boot();
+</script>
+<script defer src="/consultant/_shell.js"></script>
+</html>
