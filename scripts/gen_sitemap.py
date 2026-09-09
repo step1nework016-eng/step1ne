@@ -33,12 +33,29 @@ for u,(cf,pr) in keep.items():
     f=(u.strip('/')+'/index.html') if u!='/' else 'index.html'
     urls[u]=(cf,pr,gitdate(f) if os.path.exists(f) else None)
 
+# ⚠️ 2026-09-09 加：_redirects 裡做過 301 的網址不可以進 sitemap——資料夾
+# 還在（舊頁沒刪或留著當備份）但線上其實是轉址，收進來等於叫 Google 去索引
+# 一個 301。實際踩過：/jobs/bim-engineer/ 是已關閉職缺、線上 301 導到
+# bim-engineer-tongluo，卻被自動收進 sitemap。
+redirected=set()
+if os.path.exists('_redirects'):
+    for line in io.open('_redirects',encoding='utf-8'):
+        line=line.strip()
+        if not line or line.startswith('#'): continue
+        src=line.split()[0]
+        redirected.add(src if src.endswith('/') else src+'/')
+
 added=[]
 for pat,cf,pr in [('articles/*/index.html','monthly','0.8'),('jobs/*/index.html','weekly','0.8')]:
     for f in sorted(glob.glob(pat)):
         u='/'+f.rsplit('/index.html',1)[0]+'/'
+        if u in redirected: continue
         if u not in urls:
             urls[u]=(cf,pr,gitdate(f)); added.append(u)
+
+# 手動清單 keep 裡如果也有已轉址的網址，一併踢掉
+for u in [x for x in urls if x in redirected]:
+    del urls[u]; print(f'  － 略過（線上是 301）：{u}')
 
 def key(u): return (0 if u=='/' else 1, u)
 out=['<?xml version="1.0" encoding="UTF-8"?>','<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
