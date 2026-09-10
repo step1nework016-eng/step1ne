@@ -1993,6 +1993,42 @@ async function tblAdvance(appId, sel, prevValue){
   }
 }
 
+// 2026-09-10 加：offer信上傳——選檔案後直接base64送出（跟後端saveUpload()
+// 同一套，不是multipart），成功後重整這個人選的資料讓按鈕變「重新上傳」＋
+// 顯示檔名。8MB上限跟後端一致，前端先擋一次省得選了大檔案傳到一半才報錯。
+function wireOfferUpload(appId){
+  const btn = document.getElementById('cmOfferBtn');
+  const input = document.getElementById('cmOfferFile');
+  if (!btn || !input) return;
+  btn.addEventListener('click', () => input.click());
+  input.addEventListener('change', async () => {
+    const file = input.files && input.files[0];
+    if (!file) return;
+    if (file.size > 8 * 1024 * 1024) { alert('檔案超過 8MB，麻煩壓縮後再傳'); input.value = ''; return; }
+    btn.disabled = true; btn.textContent = '上傳中…';
+    try {
+      const b64 = await new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(String(r.result).split(',')[1] || '');
+        r.onerror = reject;
+        r.readAsDataURL(file);
+      });
+      const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(appId)}/offer-upload`, {
+        method: 'POST', headers: {'content-type':'application/json'},
+        body: JSON.stringify({ b64, name: file.name, mime: file.type || 'application/octet-stream' }),
+      });
+      const data = await res.json();
+      if (!data.ok) { alert(data.error || '上傳失敗'); btn.disabled = false; btn.textContent = '⬆ 上傳'; return; }
+      alert('已上傳，系統同步寄給人選跟貴司信箱了');
+      await loadCandidates();
+      if (ACTIVE_APP === appId) openCandModal(appId);
+    } catch {
+      alert('連線失敗，請稍後再試');
+      btn.disabled = false; btn.textContent = '⬆ 上傳';
+    }
+  });
+}
+
 async function tblReject(appId, reason, sel, prevValue){
   try{
     const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(appId)}/reject`, {
@@ -2105,8 +2141,18 @@ function openCandModal(appId){
     ...(c.forms || []).map(f => fileItem('📋', f.form_name, f.status === 'submitted'
       ? `<a class="cm-fbtn" href="${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(c.application_id)}/form/${encodeURIComponent(f.id)}" target="_blank" rel="noopener">↓ 下載</a>`
       : `<span class="wait">等人選填寫中</span>`)),
+    // 2026-09-10 加：offer信上傳——只有到「錄取」階段才出現，上傳後同步寄給
+    // 人選跟用人單位自己的信箱各一份，不用另外轉寄。已經傳過的顯示檔名＋
+    // 重新上傳（覆蓋，寄送邏輯不變，每次都會重寄一次給雙方）。
+    c.offer_stage_reached
+      ? fileItem('📨', 'Offer 信',
+          `<input type="file" id="cmOfferFile" style="display:none" accept=".pdf,.jpg,.jpeg,.png">` +
+          `<button type="button" class="cm-fbtn" id="cmOfferBtn">${c.offer_file_name ? '🔄 重新上傳' : '⬆ 上傳'}</button>` +
+          (c.offer_file_name ? `<div class="mut" style="font-size:11.5px;margin-top:4px">${esc(c.offer_file_name)}・已同步寄給人選與貴司信箱</div>` : ''))
+      : '',
   ].join('');
   document.getElementById('cmFiles').innerHTML = filesHtml;
+  wireOfferUpload(appId);
 
   if (c.client_rejected_at){
     document.getElementById('cmUpdateBox').innerHTML = `
