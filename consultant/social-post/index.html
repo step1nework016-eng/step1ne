@@ -456,6 +456,10 @@ table.gap td.stale{color:#c0392b}
         <div id="bystaff" class="mut">載入中…</div>
       </div>
       <div class="card">
+        <label style="margin-bottom:2px">顧問連結點擊排行<span class="mut" style="font-weight:400">（貼文CTA＋私訊回覆連結，加總不分職缺）</span></label>
+        <div id="byclicks" class="mut">載入中…</div>
+      </div>
+      <div class="card">
         <label style="margin-bottom:2px">本週 vs 上週<span class="mut" style="font-weight:400">（跟自己上禮拜比，不是跟其他顧問比）</span></label>
         <div id="weekcompare" class="mut">載入中…</div>
       </div>
@@ -1340,6 +1344,7 @@ $('maintabs').addEventListener('click', function (e) {
   });
   if (b.dataset.pane === 'pane-cal') loadCal();
   if (b.dataset.pane === 'pane-board') loadStatsQueue();
+  if (b.dataset.pane === 'pane-board') loadClickRanking();
   if (b.dataset.pane === 'pane-board' && !LINE_INS) loadLine();
   if (b.dataset.pane === 'pane-convert') loadConvertQueue();
   if (b.dataset.pane === 'pane-settings') loadSettings();
@@ -1376,6 +1381,29 @@ function loadStatsQueue() {
     ALL_QUEUE_STATS = d.queue || [];
     paintStats();
   }).catch(function (e) {});
+}
+
+// 2026-09-10 加：「顧問排行」卡只算貼文CTA的點擊（跟著social_post_queue一筆
+// 一筆加），私訊回覆連結沒有對應貼文，完全漏算。這張直接查link_clicks依帳號
+// 分組，兩種來源都算進去。
+function loadClickRanking() {
+  api('/admin/link-clicks-by-account').then(function (d) {
+    var box = $('byclicks');
+    if (!d.ok || !d.accounts || !d.accounts.length) { box.innerHTML = '<div class="mut">還沒有點擊資料。</div>'; return; }
+    var rows = d.accounts.filter(function (a) { return a.label; });
+    var max = Math.max.apply(null, rows.map(function (a) { return a.clicks; })) || 1;
+    box.innerHTML = '<div class="barlist">' + rows.map(function (a, i) {
+      var pct = Math.max(4, Math.round(a.clicks / max * 100));
+      var replyNote = a.reply_clicks ? '（含私訊回覆 ' + a.reply_clicks + '）' : '';
+      return '<div class="barrow">'
+        + '<span class="ic">' + (i === 0 ? '🏆' : '👤') + '</span>'
+        + '<span class="nm">' + esc(a.label) + '</span>'
+        + '<span class="track"><span class="fill' + (i === 0 ? ' best' : '') + '" style="width:' + pct + '%"></span></span>'
+        + '<span class="val">' + a.clicks + ' 🔗</span>'
+        + '<span class="sub">' + replyNote + '</span>'
+        + '</div>';
+    }).join('') + '</div>';
+  }).catch(function () { $('byclicks').innerHTML = '<div class="mut">載入失敗。</div>'; });
 }
 
 // ── 還沒發哪些 ──
