@@ -2148,6 +2148,7 @@ function openCandModal(appId){
       ? fileItem('📨', 'Offer 信',
           `<input type="file" id="cmOfferFile" style="display:none" accept=".pdf,.jpg,.jpeg,.png">` +
           `<button type="button" class="cm-fbtn" id="cmOfferBtn">${c.offer_file_name ? '🔄 重新上傳' : '⬆ 上傳'}</button>` +
+          `<div class="mut" style="font-size:11px;margin-top:3px">限PDF／JPG／PNG，檔案大小8MB以內</div>` +
           (c.offer_file_name ? `<div class="mut" style="font-size:11.5px;margin-top:4px">${esc(c.offer_file_name)}・已同步寄給人選</div>` : ''))
       : '',
   ].join('');
