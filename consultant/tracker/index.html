@@ -1086,6 +1086,10 @@ function openDrawer(appId, kind) {
     '<dt>現職公司</dt><dd>' + esc(c.current_company || '—') + '</dd>' +
     '<dt>現職職位</dt><dd>' + esc(c.current_title || '—') + '</dd>' +
     (c.linkedin ? '<dt>LinkedIn</dt><dd><a href="' + esc(c.linkedin) + '" target="_blank" rel="noopener">開啟</a></dd>' : '') +
+    // 2026-09-10 加：主動開發常常來自Cake.me等非LinkedIn平台，原本這種來源
+    // 連結完全沒地方顯示，顧問以為資料不見了（江芷楹那次）。跟LinkedIn分開
+    // 顯示，標籤用實際來源平台名稱（source_label），沒有就顯示「來源連結」。
+    (c.source_url ? '<dt>' + esc(c.source_label || '來源連結') + '</dt><dd><a href="' + esc(c.source_url) + '" target="_blank" rel="noopener">開啟</a></dd>' : '') +
     '<dt>期望待遇</dt><dd>' + esc(c.expected_salary || '—') + '</dd>' +
     '<dt>可到職</dt><dd>' + esc(c.available_date || '—') + '</dd>' +
     '<dt>履歷</dt><dd>' + resumeLinksHtml(c, extra) + '</dd>' +
