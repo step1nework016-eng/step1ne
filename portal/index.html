@@ -1714,7 +1714,10 @@ function renderTable(){
         <option value="" ${!curInterview ? 'selected' : ''} disabled>尚未決定</option>
         ${interviewStageOptsFor(c).map(([k, lb]) => `<option value="${k}" ${curInterview === k ? 'selected' : ''}>${esc(lb)}</option>`).join('')}
       </select>`;
-      const confirmedAppt = (c.appts || []).filter(a => a.status === 'confirmed' && a.confirmed_slot).sort((a, b) => b.stage - a.stage)[0];
+      // 2026-09-10 修：漏擋 stage=0（顧問電話洽談，內部電洽——不是客戶面談）。
+      // 這格是給用人單位看的，stage=0 的確認時段是顧問自己跟人選喬電洽時間，
+      // 客戶不該看到，之前只看 status/confirmed_slot 沒看 stage，導致洩漏。
+      const confirmedAppt = (c.appts || []).filter(a => a.status === 'confirmed' && a.confirmed_slot && Number(a.stage) > 0).sort((a, b) => b.stage - a.stage)[0];
       const confirmedLine = confirmedAppt
         ? `<div style="margin-top:4px;font-size:11.5px;color:var(--good,#2f8f5b)">✅ 人選已確認：${esc(confirmedAppt.confirmed_slot)}</div>` : '';
       const proposeBtn = (consultantRejected || rejected || !advanced) ? '' :
