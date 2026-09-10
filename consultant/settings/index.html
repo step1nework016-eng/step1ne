@@ -34,6 +34,15 @@ main{padding:22px 0 80px}
 .btn.p{background:var(--gold);color:#fff;border-color:var(--gold)}
 .row{display:flex;gap:8px;align-items:center;margin-top:12px}
 .row input{font:inherit;font-size:14px;padding:8px 13px;border:1px solid var(--line);border-radius:10px;flex:1 1 160px}
+.uitem{padding:10px 0;border-bottom:1px solid var(--line)}
+.uitem:last-child{border-bottom:0}
+.uitem .top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:6px}
+.uitem .nm{font-weight:600;font-size:13.5px;color:var(--ink)}
+.uitem .ct{font:600 13px/1 ui-monospace,monospace;color:var(--ink)}
+.uitem .ct small{font-weight:500;color:var(--ink3);margin-left:2px}
+.uitem .track{height:6px;border-radius:99px;background:var(--soft);overflow:hidden;margin-bottom:5px}
+.uitem .fill{height:100%;border-radius:99px;background:var(--gold)}
+.uitem .dep{font:500 11.5px ui-monospace,monospace;color:var(--ink3)}
 </style>
 
 <div id="gate" class="gate" hidden>
@@ -83,6 +92,11 @@ main{padding:22px 0 80px}
         <button class="btn p" id="saveSettings" type="button">儲存設定</button>
         <span class="mut" id="settingsMsg"></span>
       </div>
+    </div>
+    <div class="sec">
+      <h3>常用功能監控</h3>
+      <p class="hint">依過去14天實際使用次數排序，標出各自依賴哪個本機常駐服務——2026-09-10那天三個排程先後靜默卡死，事後才發現剛好都是清單裡最常用的功能。平常點開看看，系統出狀況時能立刻判斷優先度。</p>
+      <div id="usageList" class="clist"><div class="mut">載入中…</div></div>
     </div>
   </main>
 </div>
@@ -172,7 +186,23 @@ $('saveSettings').onclick = function () {
   }).catch(function (e) { btn.disabled = false; $('settingsMsg').textContent = apiFail(e); });
 };
 
-function load() { $('gate').hidden = true; $('app').hidden = false; loadConsultants(); loadSettings(); }
+function loadUsage() {
+  return api('/admin/feature-usage').then(function (d) {
+    if (!d.ok || !d.items || !d.items.length) { $('usageList').innerHTML = '<div class="mut">讀取失敗</div>'; return; }
+    var max = Math.max.apply(null, d.items.map(function (x) { return x.count; })) || 1;
+    $('usageList').innerHTML = d.items.map(function (x) {
+      var pct = Math.round(x.count / max * 100);
+      return '<div class="uitem">'
+        + '<div class="top"><span class="nm">' + x.name + '</span>'
+        + '<span class="ct">' + x.count + '<small>次</small></span></div>'
+        + '<div class="track"><div class="fill" style="width:' + pct + '%"></div></div>'
+        + '<div class="dep">' + x.dep + '</div>'
+        + '</div>';
+    }).join('');
+  }).catch(function (e) { $('usageList').innerHTML = '<div class="mut">' + apiFail(e) + '</div>'; });
+}
+
+function load() { $('gate').hidden = true; $('app').hidden = false; loadConsultants(); loadSettings(); loadUsage(); }
 function boot() {
   if (tok) { load(); return; }
   $('gate').hidden = false;
