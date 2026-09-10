@@ -571,26 +571,20 @@ var CLIENT_COL_OF_STAGE = {
 // 不要為了「先做一個」就把邏輯寫死在某一個介面裡，之後要拆會很痛。
 function applyUniversalStage(c, appId, v, afterFn) {
   var primaryPl = (c.placements || [])[0] || null;
-  // 2026-09-10 加：這4個分支原本呼叫 api() 之後都只掛 .then()，沒有 .catch()。
-  // api() 對任何 HTTP 錯誤（含後端主動擋掉的 422、網路問題）都是用 throw 的方式
-  // reject promise——沒接 .catch() 等於這個 rejection 直接被吞掉，畫面上完全
-  // 沒有任何反應。林怡瑩那次「按了都沒有動作」就是這樣：後端擋掉了，但使用者
-  // 什麼提示都看不到。統一補上 .catch(onErr) 而不是各分支各自補，避免漏掉。
-  function onErr(e) { alert(apiFail(e)); afterFn(); }
   if (v === 'to_review') {
     if (!c.report_id) { afterFn(); return; }
     api('/admin/clear-decision', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: c.report_id }) })
-      .then(afterFn, onErr);
+      .then(afterFn);
   } else if (v.indexOf('dec:') === 0) {
     var k = v.slice(4);
     api('/admin/decide-report', { method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ id: c.report_id, decision: k, app_id: appId,
         app_status: k === 'forwarded' ? 'passed' : (k === 'rejected' ? 'rejected' : 'reported'), by: '顧問' }) })
-      .then(afterFn, onErr);
+      .then(afterFn);
   } else if (v.indexOf('stage:') === 0) {
     api('/admin/set-manual-stage', { method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ application_id: appId, stage: v.slice(6), company_id: primaryPl ? primaryPl.company_id : null, by: '顧問' }) })
-      .then(afterFn, onErr);
+      .then(afterFn);
   } else if (v === 'closed') {
     // 2026-09-01 改：Jacky 要求先移除「要不要順便通知候選人」這個彈窗——結案
     // 一律只記內部（CLOSED_INTERNAL），不發婉拒通知，之後要重新開放通知再改。
@@ -600,12 +594,8 @@ function applyUniversalStage(c, appId, v, afterFn) {
       body: JSON.stringify({ application_id: appId, notify: false, reason: reason }) })
       .then(function (r) {
         if (!r.ok) { alert(r.message || r.error || '結案失敗'); afterFn(); return; }
-        // 2026-09-10 加：成功也要有反應——結案成功後人選會從目前這個篩選頁籤
-        // 消失（移進顧問履歷庫），使用者看不到任何確認訊息的話，感覺上跟
-        // 「按了沒反應」一模一樣。
-        alert('已標記結案，人選移入顧問履歷庫');
         afterFn();
-      }, onErr);
+      });
   }
 }
 
