@@ -830,7 +830,7 @@ function openOrDownloadClientFormal(id, wantDownload) {
           } else {
             window.open(u, '_blank');
           }
-          setTimeout(function () { URL.revokeObjectURL(u); }, 4000);
+          setTimeout(function () { URL.revokeObjectURL(u); }, 30000);
         })
         .catch(function (e) { alert('下載失敗'); });
       return;
@@ -1591,7 +1591,7 @@ function wireDrawer(c, appId) {
       ev.preventDefault(); var t = a.textContent; a.textContent = '下載中…';
       fetch(API + '/admin/file/' + encodeURIComponent(a.dataset.f), { headers: { authorization: 'Bearer ' + tok } })
         .then(function (rs) { if (!rs.ok) throw new Error('下載失敗'); return rs.blob(); })
-        .then(function (b) { var u = URL.createObjectURL(b), el = document.createElement('a'); el.href = u; el.download = 'resume'; document.body.appendChild(el); el.click(); el.remove(); setTimeout(function () { URL.revokeObjectURL(u); }, 2000); a.textContent = t; })
+        .then(function (b) { var u = URL.createObjectURL(b), el = document.createElement('a'); el.href = u; el.download = 'resume'; document.body.appendChild(el); el.click(); el.remove(); setTimeout(function () { URL.revokeObjectURL(u); }, 30000); a.textContent = t; })
         .catch(function (e) { a.textContent = '下載失敗'; });
     };
   });
@@ -1698,7 +1698,7 @@ function wireDrawer(c, appId) {
       ev.preventDefault(); var t = a.textContent; a.textContent = '下載中…';
       fetch(API + '/admin/candidate-form-submissions/' + encodeURIComponent(a.dataset.id) + '/download', { headers: { authorization: 'Bearer ' + tok } })
         .then(function (rs) { if (!rs.ok) throw new Error('下載失敗'); return rs.blob(); })
-        .then(function (b) { var u = URL.createObjectURL(b), el = document.createElement('a'); el.href = u; el.download = 'form'; document.body.appendChild(el); el.click(); el.remove(); setTimeout(function () { URL.revokeObjectURL(u); }, 2000); a.textContent = t; })
+        .then(function (b) { var u = URL.createObjectURL(b), el = document.createElement('a'); el.href = u; el.download = 'form'; document.body.appendChild(el); el.click(); el.remove(); setTimeout(function () { URL.revokeObjectURL(u); }, 30000); a.textContent = t; })
         .catch(function (e) { a.textContent = '下載失敗'; });
     };
   });
@@ -1749,7 +1749,7 @@ function wireDrawer(c, appId) {
   if (rd) rd.onclick = function () {
     var blob = new Blob([c.report_md || ''], { type: 'text/markdown;charset=utf-8' });
     var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = c.name + '_初篩報告.md';
-    document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(a.href); }, 30000);
   };
   var rp = $('rptpdf');
   if (rp) rp.onclick = function () {
