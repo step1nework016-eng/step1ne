@@ -139,6 +139,13 @@ var API='https://step1ne-backoffice-worker.aiagentg888.workers.dev';
 var KEY='s1ne_admin_tok';
 var tok=localStorage.getItem(KEY)||'';
 var $=function(i){return document.getElementById(i)};
+// 2026-09-10 加：這支頁面從頭到尾都在用esc()（render()裡每一筆人選卡片都
+// 呼叫），但這個函式從來沒有在這個檔案或_shell.js裡定義過——只要render()
+// 被叫到（=只要清單裡真的有資料），就會拋ReferenceError，被外層.catch()
+// 接住，誤報成「連線失敗」。實際上API多半是成功的，是畫面渲染那一步就炸了。
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+  return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+}); }
 var ST='new', Q='', CAT='', SRC='', HAS='', JOB='', GRD='', RC='', PAGE=0;
 var CONS=[], SEL={}, TOTAL=0;
 // 目前的篩選條件——批次「指派全部」時要原封不動送回後端，
@@ -430,8 +437,8 @@ function load(){
     +(GRD?'&grade='+encodeURIComponent(GRD):'')
     +(RC?'&rc='+encodeURIComponent(RC):'');
   api(qs).then(function(d){
-    if(!d.ok){$('list').innerHTML='<div class="mut">讀取失敗</div>';return} render(d);
-  }).catch(function(e){$('list').innerHTML='<div class="mut">連線失敗</div>'});
+    if(!d.ok){$('list').innerHTML='<div class="mut">讀取失敗：'+esc(d.error||'')+'</div>';return} render(d);
+  }).catch(function(e){$('list').innerHTML='<div class="mut">'+esc(apiFail(e))+'</div>'});
 }
 function loadCons(){
   return api('/admin/consultants').then(function(d){ if(d.ok)CONS=d.consultants||[]; })
