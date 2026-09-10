@@ -1901,7 +1901,32 @@ function wireDrawer(c, appId) {
     api('/admin/application/' + encodeURIComponent(appId) + '/call-prep-generate', { method: 'POST' })
     .then(function (r) {
       if (!r.ok) { callPrepGenBtn2.disabled = false; $('callPrepGenMsg2').textContent = r.error || '產生失敗'; return; }
-      loadAndOpen(appId);
+      // 2026-09-10 加：後端是排隊給本機claude CLI處理（1-2分鐘），不是秒回。
+      // 原本這裡直接loadAndOpen()，畫面當下抓到的還是舊資料（還沒處理完），
+      // 顧問看到「沒反應」，其實是1-2分鐘後才寫回去，江芷楹那次就是這樣——
+      // 資料其實已經產好了，只是畫面沒有自動更新。改成輪詢：每8秒用輕量的
+      // /card端點（單筆查詢，不是整頁列表）確認call_prep_md有沒有值，
+      // 有了才真的重開卡片；最多等2分鐘還沒好就提示改用手動重新整理。
+      $('callPrepGenMsg2').textContent = '產生中…（約需1-2分鐘，請不要關掉這張卡片）';
+      var tries = 0;
+      var poll = setInterval(function () {
+        tries++;
+        api('/admin/application/' + encodeURIComponent(appId) + '/card').then(function (d) {
+          // 輪詢期間顧問可能已經關掉這張卡片、換看別人——這時候還硬把
+          // 抽屜重新打開會很突兀，資料反正已經存進資料庫了，下次打開自然看得到。
+          if (!$('dmask').classList.contains('show')) { clearInterval(poll); return; }
+          if (d.ok && d.application && d.application.call_prep_md) {
+            clearInterval(poll);
+            loadAndOpen(appId);
+            return;
+          }
+          if (tries >= 15) {
+            clearInterval(poll);
+            callPrepGenBtn2.disabled = false;
+            $('callPrepGenMsg2').textContent = '產生時間比預期久，請稍後手動重新整理這張卡片查看';
+          }
+        }).catch(function () { /* 單次輪詢失敗不用中斷，下一輪再試 */ });
+      }, 8000);
     }).catch(function (e) { callPrepGenBtn2.disabled = false; $('callPrepGenMsg2').textContent = apiFail(e); });
   };
 }
