@@ -52,6 +52,9 @@
     // 對不上到底哪邊才是真的。/consultant/pipeline/ 頁面本身沒刪，只是拿掉
     // 導覽入口，之後確認完全沒人再需要才考慮真的刪檔案。
     { href: '/consultant/sourced/',        label: '人才池',   icon: 'people', primary: true,  group: '招募流程' },
+    // 2026-09-10 加：貼文點過 LINE 職缺連結、系統自動回了應徵入口，但滿 1 天
+    // 還是沒進度的人——原本只有 TG 通知一閃即逝，顧問要一個可以回頭找的清單。
+    { href: '/consultant/line-followup/',  label: 'LINE 未讀追蹤', icon: 'clip', primary: false, group: '招募流程' },
     // 2026-08-26 加：為了某個職缺接觸了誰（學校系所、人選、介紹人）。
     // 跟「開發客戶」方向相反——那邊是把人選推銷給企業，這邊是找人選的管道。
     { href: '/consultant/outreach/',       label: '接觸紀錄', icon: 'target', primary: false, group: '招募流程' },

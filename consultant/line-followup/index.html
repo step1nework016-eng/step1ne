@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="zh-Hant">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>LINE 未讀追蹤｜顧問後台</title>
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<script defer src="/consultant/_shell.js"></script>
+<style>
+:root{--gold:#a67c3d;--ink:#23262d;--ink2:#4d5563;--ink3:#8a8d95;--line:#eee7db;--soft:#faf8f3;--bg:#f4f1ea;--ok:#2f8f5b;--bad:#c0392b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 -apple-system,"Noto Sans TC",sans-serif}
+.wrap{max-width:960px;margin:0 auto;padding:0 16px}
+header{background:#fff;border-bottom:1px solid var(--line);padding:14px 0}
+header .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header img{height:26px}
+nav{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+nav a{font-size:14px;text-decoration:none;color:var(--ink2);padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:#fff}
+nav a.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.gate{max-width:380px;margin:16vh auto;background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px}
+.gate input{width:100%;font:inherit;padding:11px 13px;border:1px solid var(--line);border-radius:10px;margin:12px 0}
+.gate button{width:100%;font:inherit;font-weight:700;background:var(--gold);color:#fff;border:0;border-radius:999px;padding:12px}
+.mut{color:var(--ink3);font-size:13px}
+main{padding:20px 0 60px}
+.note{background:#fff;border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:0 12px 12px 0;padding:13px 16px;font-size:13.5px;color:var(--ink2);margin-bottom:16px}
+.note b{color:var(--ink)}
+.cnt{font-size:12.5px;color:var(--ink3);margin-bottom:12px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:12px;display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap}
+.card .main{flex:1;min-width:220px}
+.name{font-weight:700;font-size:16px}
+.job{color:var(--ink2);font-size:14px;margin-top:3px}
+.meta{color:var(--ink3);font-size:12.5px;margin-top:6px}
+.uid{font-size:11px;color:var(--ink3);word-break:break-all;margin-top:4px}
+.pill{font-size:11.5px;font-weight:700;border-radius:999px;padding:2px 9px;display:inline-block;margin-right:6px}
+.pill.applied{background:#fdf6e9;color:#c98a1e}
+.pill.noapp{background:#fbeceb;color:var(--bad)}
+.pill.orphan{background:#eee;color:var(--ink3)}
+button.handle{font:inherit;font-size:13px;font-weight:700;background:var(--ok);color:#fff;border:0;border-radius:999px;padding:9px 16px;cursor:pointer;white-space:nowrap}
+button.handle:hover{opacity:.9}
+</style>
+
+<div id="gate" class="gate" hidden>
+  <b>顧問後台</b>
+  <p class="mut" style="margin:6px 0 0">需要存取權杖。這組權杖等同密碼，不要外傳。</p>
+  <input id="tok" type="password" placeholder="ADMIN_TOKEN" autocomplete="off">
+  <button id="enter" type="button">進入</button>
+  <p id="gerr" class="mut" style="color:#b4552e;margin:12px 0 0" hidden></p>
+</div>
+
+<div id="app" hidden>
+  <header><div class="wrap">
+    <img src="/assets/step1ne-logo.png" alt="Step1ne"><b>LINE 未讀追蹤</b>
+    <nav>
+      <a href="/consultant/tracker/">顧問人選追蹤</a>
+      <a href="/consultant/sourced/">人才池</a>
+      <a href="/consultant/line-bindings/">LINE 綁定</a>
+      <a href="/consultant/line-followup/" class="on">LINE 未讀追蹤</a>
+    </nav>
+  </div></header>
+  <main class="wrap">
+    <div class="note">
+      有人從社群貼文點了 LINE 職缺連結、系統自動回了應徵入口，但滿 <b>1 天</b>還是
+      沒填表、或填了還沒跟阿財面談完——這裡列出來，方便你直接去 LINE 官方帳號
+      後台用<b>顯示名稱</b>或<b>點擊時間</b>找到那則對話，手動問一下。
+      按「已處理」之後這筆就會從清單消失。<br>
+      ⚠️ LINE 沒有提供讀取回條給官方帳號 API，這裡的「已讀」是用「他有傳訊息
+      觸發自動回覆」的時間點當替代指標，不是真正的已讀時間戳。
+    </div>
+    <div class="cnt" id="cnt"></div>
+    <div id="list"><p class="mut">載入中⋯</p></div>
+  </main>
+</div>
+<div id="msg" class="mut" style="position:fixed;left:50%;bottom:26px;transform:translateX(-50%)"></div>
+
+<script>
+var API = 'https://step1ne-backoffice-worker.aiagentg888.workers.dev';
+var KEY = 's1ne_admin_tok';
+var tok = localStorage.getItem(KEY) || '';
+var $ = function (i) { return document.getElementById(i); };
+
+function esc(s) { return String(s == null ? '' : s).replace(/[<>&]/g, function (c) { return { '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]; }); }
+
+function api(path, opt) {
+  opt = opt || {};
+  opt.headers = Object.assign({ authorization: 'Bearer ' + tok }, opt.headers || {});
+  return fetch(API + path, opt).then(function (r) { return r.json(); });
+}
+
+function card(it) {
+  var pills = '';
+  if (it.orphan) pills += '<span class="pill orphan">貼文職缺代碼對不到</span>';
+  else pills += it.applied ? '<span class="pill applied">已填表未面談</span>' : '<span class="pill noapp">還沒填表</span>';
+  var who = it.display_name ? esc(it.display_name) : ('LINE 使用者 …' + esc(String(it.line_user_id).slice(-8)));
+  var jobLine = it.orphan ? '（系統已回覆他改看職缺列表）' : esc(it.job_title || it.job_slug);
+  return '<div class="card" data-id="' + it.click_id + '">'
+    + '<div class="main">'
+    + '<div class="name">' + who + (it.candidate_name ? '（' + esc(it.candidate_name) + '）' : '') + '</div>'
+    + '<div class="job">' + jobLine + '</div>'
+    + '<div class="meta">' + pills + ' 點擊時間 ' + esc(it.attributed_at) + '（台北時間）</div>'
+    + '<div class="uid">' + esc(it.line_user_id) + '</div>'
+    + '</div>'
+    + '<button class="handle" type="button">✅ 已處理</button>'
+    + '</div>';
+}
+
+function load() {
+  api('/admin/line-followup-overdue').then(function (d) {
+    if (!d.ok) { localStorage.removeItem(KEY); return boot(); }
+    $('gate').hidden = true; $('app').hidden = false;
+    var items = d.items || [];
+    $('cnt').textContent = items.length + ' 筆待處理';
+    $('list').innerHTML = items.map(card).join('')
+      || '<p class="mut" style="text-align:center;padding:26px">目前沒有超過 1 天沒進度的人</p>';
+    Array.prototype.forEach.call($('list').querySelectorAll('.handle'), function (btn) {
+      btn.onclick = function () {
+        var cardEl = btn.closest('.card');
+        var id = Number(cardEl.getAttribute('data-id'));
+        btn.disabled = true; btn.textContent = '處理中⋯';
+        api('/admin/line-followup-overdue/handled', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ click_id: id }),
+        }).then(function (r) {
+          if (!r.ok) { btn.disabled = false; btn.textContent = '✅ 已處理'; $('msg').textContent = '失敗：' + (r.error || ''); return; }
+          cardEl.remove();
+          $('cnt').textContent = $('list').querySelectorAll('.card').length + ' 筆待處理';
+        });
+      };
+    });
+  }).catch(function () { $('list').innerHTML = '<p class="mut">讀取失敗</p>'; });
+}
+function boot() {
+  if (tok) return load();
+  $('gate').hidden = false;
+  $('enter').onclick = function () {
+    tok = $('tok').value.trim();
+    if (!tok) return;
+    api('/admin/line-followup-overdue').then(function (d) {
+      if (!d.ok) { $('gerr').hidden = false; $('gerr').textContent = '權杖不正確'; return; }
+      localStorage.setItem(KEY, tok); load();
+    });
+  };
+  $('tok').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('enter').click(); });
+}
+boot();
+</script>
+</html>
