@@ -2075,6 +2075,11 @@ function openClientFormalModal(appId, kind) {
         ? '<label class="edl">期望待遇</label><input class="edi" id="cfSalary" placeholder="例：40k（主動開發還沒面談，通常沒有這格資料，可留空）">' +
           '<label class="edl">可到職</label><input class="edi" id="cfAvail" placeholder="例：錄取後隨時可上班">'
         : '') +
+      // 2026-09-10 加：依學歷核薪是顧問每次自己判斷、系統沒有任何地方算得出來
+      // 的數字（跟人選履歷／電洽內容無關，是這家客戶這個職缺的薪資帶政策），
+      // 選填——沒填PDF那一格就不出現，不會憑空編一個數字上去。
+      '<label class="edl">依學歷核薪區間（選填，PDF「期望待遇」欄會附上這個對照）</label>' +
+      '<input class="edi" id="cfSalaryBand" placeholder="例：35,000–40,833（攤提年終2個月）">' +
       '<label class="edl" style="margin-top:10px;display:flex;align-items:center;gap:6px;font-weight:400"><input type="checkbox" id="cfWantPhoto" style="width:auto">要附上大頭貼</label>' +
       '<div id="cfPhotoBox" hidden style="margin-top:6px"><input type="file" id="cfPhotoFile" accept="image/*"><div class="mut" id="cfPhotoMsg" style="margin-top:4px"></div></div>' +
       CF_BLOCK_PICKER +
@@ -2121,6 +2126,7 @@ function openClientFormalModal(appId, kind) {
       var body = {
         current_state: state, related_experience: exp, transportation: $('cfTrans').value.trim(),
         photo_b64: wantPhoto.checked ? photoDataUrl : null,
+        salary_band: $('cfSalaryBand') ? $('cfSalaryBand').value.trim() : '',
       };
       if (cfCompany) body.company_id = cfCompany.value;
       // 勾選結果一起送出。存進 client_report_requests.show_json——
