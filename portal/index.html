@@ -2019,7 +2019,7 @@ function wireOfferUpload(appId){
       });
       const data = await res.json();
       if (!data.ok) { alert(data.error || '上傳失敗'); btn.disabled = false; btn.textContent = '⬆ 上傳'; return; }
-      alert('已上傳，系統同步寄給人選跟貴司信箱了');
+      alert('已上傳，系統同步寄給人選了');
       await loadCandidates();
       if (ACTIVE_APP === appId) openCandModal(appId);
     } catch {
@@ -2148,7 +2148,7 @@ function openCandModal(appId){
       ? fileItem('📨', 'Offer 信',
           `<input type="file" id="cmOfferFile" style="display:none" accept=".pdf,.jpg,.jpeg,.png">` +
           `<button type="button" class="cm-fbtn" id="cmOfferBtn">${c.offer_file_name ? '🔄 重新上傳' : '⬆ 上傳'}</button>` +
-          (c.offer_file_name ? `<div class="mut" style="font-size:11.5px;margin-top:4px">${esc(c.offer_file_name)}・已同步寄給人選與貴司信箱</div>` : ''))
+          (c.offer_file_name ? `<div class="mut" style="font-size:11.5px;margin-top:4px">${esc(c.offer_file_name)}・已同步寄給人選</div>` : ''))
       : '',
   ].join('');
   document.getElementById('cmFiles').innerHTML = filesHtml;
