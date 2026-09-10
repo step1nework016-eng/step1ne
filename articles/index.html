@@ -94,12 +94,25 @@ p{margin:0}
 .notice b{color:#5A3D0C}
 .end{margin-top:20px;padding:26px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
 .end p{font-size:15px;color:var(--slate);max-width:52ch}
-footer{margin-top:48px;border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+.ft{margin-top:48px;border-top:1px solid var(--rule);background:var(--white);padding:52px 0 30px;font-size:14.5px;color:var(--slate)}
+.ft-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:36px}
+.ft-brand img{height:40px;width:auto;margin-bottom:14px}
+.ft-brand p{font-size:14px;line-height:1.85;color:var(--slate)}
+.ft-brand .legal{margin-top:12px;font-size:13px;color:var(--slate-dim);line-height:1.9}
+.ft-brand .legal span{display:block}
+.ft-soc{margin-top:16px;display:flex;flex-wrap:wrap;gap:8px}
+.ft-soc a{font-size:13px;color:var(--slate);border:1px solid var(--rule);border-radius:5px;padding:5px 11px}
+.ft-soc a:hover{border-color:var(--brand);color:var(--brand-deep)}
+.ft-col h3{font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:12px}
+.ft-col a{display:block;padding:6px 0;color:var(--slate);font-size:14px}
+.ft-col a:hover{color:var(--brand-deep)}
+.ft-btm{max-width:var(--wrap);margin:34px auto 0;padding:20px var(--gut) 0;border-top:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-between;font-size:13px;color:var(--slate-dim)}
 
 @media (max-width:900px){
   .row{grid-template-columns:1fr;gap:8px;padding:18px 20px}
   .when{text-align:left;display:flex;gap:14px}
   .when span{font-size:13px}
+  .ft-in{grid-template-columns:1fr 1fr;gap:28px}
 }
 @media (max-width:760px){
   .hd-nav,.hd .btn-line{display:none}.hd-burger{display:flex}
@@ -109,6 +122,7 @@ footer{margin-top:48px;border-top:1px solid var(--rule);padding:28px 0;font-size
   .bar .chip{display:none}
   .selwrap{display:block}
   .bar input{width:100%;min-width:0}
+  .ft-in{grid-template-columns:1fr;gap:24px}
   .grp-in{padding-left:calc(var(--gut) + 30px)}
   .spine::before{left:calc(var(--gut) + 5px)}
 }
