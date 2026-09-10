@@ -764,7 +764,10 @@ function openSourcedDrawer(c) {
         body: JSON.stringify({ source_kind: 'sourced', source_id: c.sourced_id, job_slug: cj.value,
           call_notes: text || undefined, call_notes_file_b64: fileB64, call_notes_file_name: fileName, call_notes_file_mime: fileMime,
           consent_confirmed: true, by: '顧問' }) })
-      .then(function (r) { cg.disabled = false; if (!r.ok) { $('convMsg').textContent = r.error || '送出失敗'; return; } closeDrawer(); loadCards(); });
+      .then(function (r) { cg.disabled = false; if (!r.ok) { $('convMsg').textContent = r.error || '送出失敗'; return; } closeDrawer(); loadCards(); })
+      // 2026-09-10 加：跟結案按鈕同一個洞——原本沒接 .catch()，後端擋掉
+      // 或網路出狀況時完全沒反應，按鈕還會卡在disabled，看起來像「按了沒用」。
+      .catch(function (e) { cg.disabled = false; $('convMsg').textContent = apiFail(e); });
     };
     if (convFile) { var reader = new FileReader(); reader.onload = function () { send(reader.result.split(',')[1], convFile.name, convFile.type); }; reader.readAsDataURL(convFile); }
     else send(null, null, null);
