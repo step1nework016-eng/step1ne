@@ -823,26 +823,17 @@ function refreshTopicOptionsForPost() {
   reminder.style.display = 'none';
   var type = currentPostType();
   if (!opt || !opt.value) { sel.innerHTML = '<option value="">請先選帳號…</option>'; updateGoState(); return; }
-  var consultant = personName(opt.textContent);
   sel.innerHTML = '<option value="">載入中…</option>';
-  Promise.all([
-    POST_TOPICS_CACHE ? Promise.resolve({ ok: true, topics: POST_TOPICS_CACHE }) : api('/admin/topic-prompts'),
-    api('/admin/consultant-content-settings?consultant=' + encodeURIComponent(consultant)),
-  ]).then(function (r) {
-    POST_TOPICS_CACHE = r[0].topics || [];
-    var ids = r[1].topic_ids || [];
-    var list = POST_TOPICS_CACHE.filter(function (t) { return ids.indexOf(t.id) >= 0 && t.category === type; });
+  // 2026-09-11 改：Jacky 明確要求拿掉「顧問指派」那道關卡——新增任何話題／
+  // 風格，全站所有顧問要能直接選，不用先去「顧問與話題設定」手動勾選才能用。
+  // 不再打 /admin/consultant-content-settings 查這個帳號被指派了哪些，
+  // 直接列出「這個分類底下全部的話題」。
+  (POST_TOPICS_CACHE ? Promise.resolve({ ok: true, topics: POST_TOPICS_CACHE }) : api('/admin/topic-prompts')).then(function (r) {
+    POST_TOPICS_CACHE = r.topics || [];
+    var list = POST_TOPICS_CACHE.filter(function (t) { return t.category === type; });
     var typeLabel = type === 'general' ? '通用話題' : 'AI阿財話題';
     if (!list.length) {
-      sel.innerHTML = '<option value="">（尚未指派任何' + typeLabel + '）</option>';
-      reminder.style.display = 'block';
-      reminder.innerHTML = '⚠️ 「' + esc(consultant) + '」還沒有被指派任何' + typeLabel + '，'
-        + '<a href="#" id="jumpsettings">先去「顧問與話題設定」勾選</a>才能用這個類型排稿。';
-      var jl = document.getElementById('jumpsettings');
-      if (jl) jl.addEventListener('click', function (ev) {
-        ev.preventDefault();
-        $('maintabs').querySelector('[data-pane="pane-settings"]').click();
-      });
+      sel.innerHTML = '<option value="">（目前沒有' + typeLabel + '，去「話題提示詞庫」新增一筆）</option>';
     } else {
       sel.innerHTML = '<option value="">請選擇…</option>' + list.map(function (t) {
         return '<option value="' + t.id + '">' + esc(t.name) + '</option>';
