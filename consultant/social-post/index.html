@@ -376,7 +376,17 @@ table.gap td.stale{color:#c0392b}
         <button type="button" data-type="ai">🤖 AI阿財話題</button>
       </div>
       <label>選擇發文帳號</label>
-      <select id="account"><option value="">載入中…</option></select>
+      <!-- 2026-09-11 改：原本是一個扁平下拉，「Jacky - Threads」「Jacky –
+           LinkedIn」各自一行，人一多、每個人又都要開兩個平台，清單越滑越長。
+           拆成兩層：先選顧問，再選這位顧問的管道（Threads／LinkedIn）。
+           #account 保留在 DOM 裡當「真正選到的帳號 id」，其餘程式碼（送出、
+           話題重整、外部按鈕直接設值)全部照舊透過它運作，不用改；這裡只是
+           多包一層好選的 UI，兩個新 select 改動時同步寫回 #account。 -->
+      <div style="display:flex;gap:8px">
+        <select id="consultantSel" style="flex:1"><option value="">載入中…</option></select>
+        <select id="channelSel" style="flex:1"><option value="">請先選顧問</option></select>
+      </div>
+      <select id="account" hidden><option value="">載入中…</option></select>
 
       <div id="jobsubwrap">
         <label>職缺文要用哪一種寫法？</label>
@@ -856,12 +866,94 @@ function updateGoState() {
   // 換了職缺／話題／帳號 → 這是新的一筆，把按鈕文字復原
   if (!$('go').disabled) $('go').textContent = '排入產稿';
 }
+var PLATFORM_LABEL = { threads: 'Threads', linkedin: 'LinkedIn', line_community: 'LINE 社群（手動發）' };
+var ACCS_BY_CONSULTANT = {};
+
+// 兩層帳號選單：先選顧問，再選這位顧問的管道（Threads／LinkedIn）。
+// #account 還是唯一的「真正選到的帳號 id」，這兩個新 select 只是負責把
+// 它填對——其餘送出／話題重整邏輯完全不用動。
+function buildConsultantChannelSelects(accs) {
+  ACCS_BY_CONSULTANT = {};
+  var order = [];
+  accs.forEach(function (a) {
+    var name = a.consultant_name || a.label;
+    if (!ACCS_BY_CONSULTANT[name]) { ACCS_BY_CONSULTANT[name] = []; order.push(name); }
+    ACCS_BY_CONSULTANT[name].push(a);
+  });
+  var consultantSel = $('consultantSel');
+  if (!order.length) {
+    consultantSel.innerHTML = '<option value="">目前沒有可用的發文帳號</option>';
+    $('channelSel').innerHTML = '<option value="">—</option>';
+    return;
+  }
+  var prevConsultant = consultantSel.value;
+  consultantSel.innerHTML = order.map(function (name) {
+    var hasActive = ACCS_BY_CONSULTANT[name].some(function (a) { return a.is_active; });
+    return '<option value="' + esc(name) + '"' + (hasActive ? '' : ' disabled') + '>'
+      + esc(name) + (hasActive ? '' : '（尚未設定）') + '</option>';
+  }).join('');
+  var pick = order.indexOf(prevConsultant) >= 0 ? prevConsultant : order[0];
+  consultantSel.value = pick;
+  renderChannelOptions(pick);
+}
+
+function renderChannelOptions(consultantName) {
+  var channelSel = $('channelSel');
+  var list = ACCS_BY_CONSULTANT[consultantName] || [];
+  if (!list.length) { channelSel.innerHTML = '<option value="">—</option>'; return; }
+  var prevChannel = channelSel.value;
+  channelSel.innerHTML = list.map(function (a) {
+    var lb = PLATFORM_LABEL[a.platform] || a.platform;
+    return a.is_active
+      ? '<option value="' + a.id + '">' + esc(lb) + '</option>'
+      : '<option value="" disabled>' + esc(lb) + '（尚未設定）</option>';
+  }).join('');
+  var stillThere = list.some(function (a) { return String(a.id) === prevChannel && a.is_active; });
+  var firstActive = list.find(function (a) { return a.is_active; });
+  channelSel.value = stillThere ? prevChannel : (firstActive ? String(firstActive.id) : '');
+  $('account').value = channelSel.value;
+  $('account').dispatchEvent(new Event('change', { bubbles: true }));
+}
+
+$('consultantSel').addEventListener('change', function () { renderChannelOptions(this.value); });
+$('channelSel').addEventListener('change', function () {
+  $('account').value = this.value;
+  $('account').dispatchEvent(new Event('change', { bubbles: true }));
+});
+
 $('job').addEventListener('change', updateGoState);
 $('topicsel').addEventListener('change', updateGoState);
 $('account').addEventListener('change', function () {
   updateGoState();
   if (currentPostType() !== 'job') refreshTopicOptionsForPost();
+  // #account 被外部程式碼直接設值時（例如「看完馬上去補」按鈕），把兩個
+  // 可見的下拉也同步過去，不然選單畫面跟實際選到的帳號會對不起來。
+  var acc = $('account').selectedOptions[0];
+  if (acc && acc.value) {
+    for (var name in ACCS_BY_CONSULTANT) {
+      if (ACCS_BY_CONSULTANT[name].some(function (a) { return String(a.id) === acc.value; })) {
+        $('consultantSel').value = name;
+        renderChannelOptionsNoDispatch(name, acc.value);
+        break;
+      }
+    }
+  }
 });
+
+// 跟 renderChannelOptions 一樣，但不會再回頭改 #account／發 change——
+// 純粹用來把畫面同步成目前真正選到的值，避免跟 #account 的 change
+// listener 互相觸發形成迴圈。
+function renderChannelOptionsNoDispatch(consultantName, accountId) {
+  var channelSel = $('channelSel');
+  var list = ACCS_BY_CONSULTANT[consultantName] || [];
+  channelSel.innerHTML = list.map(function (a) {
+    var lb = PLATFORM_LABEL[a.platform] || a.platform;
+    return a.is_active
+      ? '<option value="' + a.id + '">' + esc(lb) + '</option>'
+      : '<option value="" disabled>' + esc(lb) + '（尚未設定）</option>';
+  }).join('');
+  channelSel.value = String(accountId);
+}
 
 // 2026-09-11 加：時／分兩個下拉，24 小時制，不用原生 <input type="time">——
 // 那個在某些瀏覽器/系統語系下會用 12 小時制（上午/下午）顯示，真實事故：
@@ -2093,6 +2185,7 @@ function load() {
             : '<option value="" disabled>' + a.label + '（' + a.platform + '・尚未設定）</option>';
         }).join('')
       : '<option value="">目前沒有可用的發文帳號</option>';
+    buildConsultantChannelSelects(accs);
     updateGoState();
     loadQueue();
     // 2026-09-01 加：8秒一次、完全沒有範圍限制，分頁開著就打到關掉為止——
