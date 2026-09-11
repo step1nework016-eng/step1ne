@@ -152,7 +152,6 @@ h2{font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;color:#1c1f2
     <div class="wrap">
       <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
         <h2 style="margin:0;font-size:20px;">熱門職缺</h2>
-        <button type="button" id="hotShuffle" style="background:none;border:1px solid #e6dfd1;border-radius:999px;padding:6px 14px;font-size:13px;color:#8a8d95;cursor:pointer;font-family:inherit;">換一批</button>
       </div>
       <div id="hotJobs" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;"></div>
     </div>
@@ -533,27 +532,22 @@ h2{font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;color:#1c1f2
 </html>
 
 <script>
-// 熱門職缺：中高階／正職／派遣各抽一個。
-// 純隨機的話常常三張都是同一類，看的人會以為這裡只有那種職缺。
+// 熱門職缺：2026-09-11 改成固定三家優先客戶各一個（弘昌／律準／築樂），
+// 不再照中高階／正職／派遣隨機抽——Jacky 要求直接取消「每個類型抽一個」
+// 這套邏輯，固定顯示這三個，換一批按鈕也一併拿掉（沒有可換的東西了）。
 (function () {
   const box = document.getElementById('hotJobs');
   if (!box) return;
 
-  // 分類沿用篩選器既有的 data-track，不另外定義一套，
-  // 否則篩選器改了分類這裡就會對不上。
-  const TRACKS = [
-    { key: 'senior',   label: '中高階', color: '#a67c3d', bg: 'rgba(166,124,61,.12)' },
-    { key: 'general',  label: '正職',   color: '#3f6ea8', bg: 'rgba(63,110,168,.12)' },
-    { key: 'dispatch', label: '派遣',   color: '#4a8f6d', bg: 'rgba(74,143,109,.12)' },
+  const FIXED_SLUGS = [
+    { slug: 'bim-engineer-tongluo',        label: '弘昌', color: '#a67c3d', bg: 'rgba(166,124,61,.12)' },
+    { slug: 'ehs-engineer-yunlin',         label: '律準', color: '#3f6ea8', bg: 'rgba(63,110,168,.12)' },
+    { slug: 'hakuba-resort-property-manager', label: '築樂', color: '#4a8f6d', bg: 'rgba(74,143,109,.12)' },
   ];
 
   const cards = [...document.querySelectorAll('#jobs a.job')].map((a) => ({
     href: a.getAttribute('href'),
-    track: a.dataset.track || '',
-    // 2026-08-21 加：卡片標了 data-pin="<分類>" 就固定佔住熱門職缺那一格，不參加隨機。
-    // 篩選器早就在讀這個屬性了（第 439 行），但這裡沒讀——所以 BIM 標了 data-pin
-    // 卻還是抽到後端工程師。要換成別的職缺，把 data-pin 搬到那張卡上就好。
-    pin: a.dataset.pin || '',
+    slug: (a.getAttribute('href') || '').split('/').filter(Boolean).pop(),
     title: (a.querySelector('.job-title')?.textContent || '').trim(),
     industry: (a.querySelector('.job-industry')?.textContent || '').trim(),
     salary: (a.querySelector('.salary')?.textContent || '').trim(),
@@ -561,34 +555,15 @@ h2{font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;color:#1c1f2
 
   if (!cards.length) { box.closest('section').style.display = 'none'; return; }
 
-  const pick1 = (k) => {
-    const pool = cards.filter((j) => j.track === k);
-    if (!pool.length) return null;
-    const pinned = pool.find((j) => j.pin === k);
-    return pinned || pool[Math.floor(Math.random() * pool.length)];
-  };
+  const byId = Object.fromEntries(cards.map((j) => [j.slug, j]));
+  const list = FIXED_SLUGS.map((f) => ({ t: f, j: byId[f.slug] })).filter((x) => x.j);
+  if (!list.length) { box.closest('section').style.display = 'none'; return; }
 
-  function draw() {
-    let list = TRACKS.map((t) => ({ t, j: pick1(t.key) })).filter((x) => x.j);
-    // 某一類目前沒有職缺時，用其他類補滿三張，而不是留空格
-    if (list.length < 3) {
-      const used = new Set(list.map((x) => x.j.href));
-      for (const j of cards) {
-        if (list.length >= 3) break;
-        if (used.has(j.href)) continue;
-        const t = TRACKS.find((x) => x.key === j.track) || { label: '職缺', color: '#8a8d95', bg: 'rgba(138,141,149,.12)' };
-        list.push({ t, j }); used.add(j.href);
-      }
-    }
-    box.innerHTML = list.map(({ t, j }) => `
-      <a href="${j.href}" style="display:block;padding:16px 18px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;text-decoration:none;color:inherit;">
-        <span style="display:inline-block;font-size:12px;font-weight:700;color:${t.color};background:${t.bg};padding:3px 10px;border-radius:999px;">${t.label}</span>
-        <div style="font-weight:700;font-size:15.5px;line-height:1.5;margin-top:9px;">${j.title}</div>
-        <div style="font-size:13px;color:#8a8d95;margin-top:6px;">${[j.industry, j.salary].filter(Boolean).join('　')}</div>
-      </a>`).join('');
-  }
-
-  draw();
-  document.getElementById('hotShuffle')?.addEventListener('click', draw);
+  box.innerHTML = list.map(({ t, j }) => `
+    <a href="${j.href}" style="display:block;padding:16px 18px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;text-decoration:none;color:inherit;">
+      <span style="display:inline-block;font-size:12px;font-weight:700;color:${t.color};background:${t.bg};padding:3px 10px;border-radius:999px;">${t.label}</span>
+      <div style="font-weight:700;font-size:15.5px;line-height:1.5;margin-top:9px;">${j.title}</div>
+      <div style="font-size:13px;color:#8a8d95;margin-top:6px;">${[j.industry, j.salary].filter(Boolean).join('　')}</div>
+    </a>`).join('');
 })();
 </script>
