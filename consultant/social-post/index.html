@@ -2254,7 +2254,7 @@ function loadCal(){
     RECENT_IV = d.recentInterviews || {};
     // 排好的（可以取消）跟已發的（不能動）放同一個陣列，重複檢查一次寫完。
     EV = d.planned.map(function(p){
-          return {id:p.id, d:p.d, slug:p.job_slug, title:p.job_title, label:p.label,
+          return {id:p.id, d:p.d, t:p.post_time, slug:p.job_slug, title:p.job_title, label:p.label,
                   platform:p.platform, category:p.category, status:'planned', planned:true};
         }).concat(d.actual.filter(function(a){return a.status!=='skipped'&&a.status!=='deleted'})
         .map(function(a){
@@ -2273,7 +2273,7 @@ function openDay(k){
     <div class="ent">
       <span class="who">${esc(short(e.label))}<br><span style="font-size:11px;color:var(--ink3)">${e.platform==='linkedin'?'LinkedIn':'Threads'}</span></span>
       <span class="jb"><span style="font-size:11px;color:var(--ink3)">${CAT_LABEL[e.category]||CAT_LABEL.job}</span><br>${esc(jobTitle(e.slug))}${isDup(k,e)?' <b style="color:var(--bad)">⚠️ 同一個人重複發</b>':''}</span>
-      <span class="st ${e.planned?'pl':(e.status==='posted'?'ok':'')}">${e.planned?'已排程':(e.status==='posted'?'已發布':'草稿')}</span>
+      <span class="st ${e.planned?'pl':(e.status==='posted'?'ok':'')}">${e.planned?('已排程'+(e.t?'・'+esc(e.t):'')):(e.status==='posted'?'已發布':'草稿')}</span>
       ${e.planned?`<button class="del" data-i="${EV.indexOf(e)}" title="移除">×</button>`:''}
     </div>`).join('') : '<p class="mut" style="margin:0;color:var(--ink3);font-size:13.5px">這一天還沒有安排。</p>';
 
@@ -2287,6 +2287,8 @@ function openDay(k){
         <select id="acc"><option value="">選帳號…</option>${SEED.accounts.map(a=>`<option value="${a.id}" data-p="${a.platform}" data-l="${esc(a.label)}">${esc(a.label)}</option>`).join('')}</select>
         <label>發哪個職缺</label>
         <select id="job"><option value="">選職缺…</option>${SEED.jobs.map(j=>`<option value="${j.slug}">${esc(j.title)}</option>`).join('')}</select>
+        <label>幾點發（不填＝當天排程一跑到就送出確認）</label>
+        <input type="time" id="ptime" style="width:100%;font:inherit;font-size:13.5px;padding:8px 11px;border:1px solid #eee7db;border-radius:9px;background:#fff;color:#23262d">
         <div id="chk"></div>
         <div class="row"><button class="btn p" id="add">排入這一天</button></div>
       </div>
@@ -2327,9 +2329,9 @@ function openDay(k){
   };
   $('acc').onchange=check; $('job').onchange=check;
   $('add').onclick=()=>{
-    const a=$('acc'), j=$('job').value;
+    const a=$('acc'), j=$('job').value, t=$('ptime').value;
     if(!a.value||!j) return alert('帳號跟職缺都要選');
-    addSched(k, j, a.value, function(){ openDay(k); });
+    addSched(k, j, a.value, t, function(){ openDay(k); });
   };
 }
 
@@ -2440,9 +2442,11 @@ $('ctips').onclick=openMissing;
 
 
 // 排一則排程。硬規則由後端擋（資料庫有 UNIQUE），前端只負責把錯誤講清楚。
-function addSched(date, slug, accountId, after){
+// time 可以不傳（快速建議那顆按鈕沒有時間欄位，維持原本「當天排程一跑到就送」）。
+function addSched(date, slug, accountId, time, after){
+  if(typeof time==='function'){ after=time; time=''; } // 相容舊呼叫方式（沒帶時間）
   api('/admin/social/schedule',{method:'POST',headers:{'content-type':'application/json'},
-    body:JSON.stringify({post_date:date, job_slug:slug, account_id:Number(accountId)})})
+    body:JSON.stringify({post_date:date, post_time:time||undefined, job_slug:slug, account_id:Number(accountId)})})
   .then(function(r){
     if(!r.ok) return alert(r.error||'排程失敗');
     loadCal().then(function(){ if(after) after(); });
