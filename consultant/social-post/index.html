@@ -2574,8 +2574,13 @@ function renderGlobalLib(kind) {
     // 自動查資料產的，不是顧問手打的——標籤讓人一眼看出這則不用另外查證來源。
     var aiTag = (isTopic && item.source === 'ai_research')
       ? '<span class="mut" style="background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:1px 8px;font-size:11px;margin-left:6px">🤖 AI自動研究</span>' : '';
+    // 2026-09-11 加：顧問自己新增的公式，subtype 沒選對就不會出現在「一鍵發文」
+    // 能挑的清單裡——這裡直接標出來，一眼看得出這筆現在算不算「公式」。
+    var subTag = (!isTopic)
+      ? ('<span class="mut" style="background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:1px 8px;font-size:11px;margin-left:6px">'
+        + (item.subtype === 'dialog' ? '對話討論型' : item.subtype === 'pure' ? '純CTA型' : '⚠️ 不會出現在公式清單') + '</span>') : '';
     return '<div class="growrow" data-id="' + item.id + '">'
-      + '<div class="gname" data-act="preview">' + esc(item.name) + aiTag + '</div>'
+      + '<div class="gname" data-act="preview">' + esc(item.name) + aiTag + subTag + '</div>'
       + '<div class="gmeta">' + esc((item.updated_at || '').slice(5, 16).replace('T', ' ')) + '</div>'
       + '<div class="gact"><button type="button" data-act="edit" title="編輯">✎</button>'
       + '<button type="button" data-act="del" title="刪除">🗑</button></div></div>';
@@ -2627,8 +2632,19 @@ function openForm(kind, editId) {
   var form = $(isTopic ? 'topicform' : 'styleform');
   var editing = editId ? data.find(function (x) { return x.id === editId; }) : null;
   var nameLabel = isTopic ? '話題名稱' : '風格名稱';
+  // 2026-09-11 加 subtype 選擇（只有風格/公式要選，話題沒有這個概念）——
+  // 之前這個表單只存 name/body，新建的公式 subtype 永遠是 NULL，導致顧問自己
+  // 加的公式在「一鍵發文」的「對話討論型」清單裡完全選不到，等於白加。
+  var subtypeField = isTopic ? '' :
+    '<label>這是哪一種公式？</label>'
+    + '<select id="f_subtype" style="width:100%;font:inherit;font-size:13.5px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff;margin-bottom:16px">'
+    + '<option value="dialog"' + (editing && editing.subtype === 'dialog' ? ' selected' : '') + '>對話討論型（會出現在「一鍵發文」選公式的清單）</option>'
+    + '<option value="pure"' + (editing && editing.subtype === 'pure' ? ' selected' : '') + '>純CTA型</option>'
+    + '<option value=""' + (editing && !editing.subtype ? ' selected' : '') + '>顧問個人語氣（不會出現在公式清單，只有指派給該顧問時用）</option>'
+    + '</select>';
   form.innerHTML = '<label>' + nameLabel + '</label>'
     + '<input type="text" id="f_name" value="' + (editing ? esc(editing.name) : '') + '" placeholder="例如：' + (isTopic ? 'AI取代營造業討論' : '活潑口語') + '">'
+    + subtypeField
     + '<label>上傳 .md 檔案（選填，會覆蓋下面文字框內容）</label>'
     + '<input type="file" id="f_file" accept=".md,text/markdown,text/plain">'
     + '<div class="filehint">支援直接貼文字，也支援上傳 md 檔——上傳後自動帶進下面文字框，兩種擇一即可。</div>'
@@ -2649,6 +2665,7 @@ function openForm(kind, editId) {
     var body = $('f_body').value.trim();
     if (!name || !body) { toast('名稱跟內容都要填', true); return; }
     var payload = { name: name, body: body };
+    if (!isTopic) payload.subtype = $('f_subtype').value || null;
     if (editing) payload.id = editing.id;
     api(isTopic ? '/admin/topic-prompts' : '/admin/style-prompts', {
       method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload),
