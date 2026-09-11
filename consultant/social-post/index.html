@@ -402,7 +402,12 @@ table.gap td.stale{color:#c0392b}
         <select id="topicsel"><option value="">請先選帳號…</option></select>
         <div id="topicreminder" class="mut" style="display:none"></div>
       </div>
-      <button id="go" class="go" type="button" disabled>排入產稿</button>
+      <label style="margin-top:14px">排程時間<span class="mut">（留空＝立刻排入產稿；填了就是到那個時間才送出確認）</span></label>
+      <div style="display:flex;gap:8px">
+        <input type="date" id="schedDate" style="flex:1;font:inherit;font-size:13.5px;padding:8px 11px;border:1px solid #eee7db;border-radius:9px;background:#fff;color:#23262d">
+        <input type="time" id="schedTime" style="flex:1;font:inherit;font-size:13.5px;padding:8px 11px;border:1px solid #eee7db;border-radius:9px;background:#fff;color:#23262d">
+      </div>
+      <button id="go" class="go" type="button" disabled style="margin-top:14px">排入產稿</button>
     </div>
     <div class="card">
       <label style="margin-bottom:2px">排隊列表<span class="mut" style="font-weight:400"> ・每 8 秒自動更新</span></label>
@@ -874,6 +879,23 @@ $('go').addEventListener('click', function () {
     payload = { topic_id: Number($('topicsel').value), account_id: Number($('account').value) };
   }
   btn.disabled = true; btn.textContent = '排入中⋯';
+  // 2026-09-11 加：填了日期就改走排程（到那個時間才送出確認），沒填維持
+  // 原本「立刻排入產稿」——同一份 payload（職缺／話題／帳號／公式）兩條路都通用。
+  var schedDate = $('schedDate').value;
+  if (schedDate) {
+    var schedPayload = Object.assign({}, payload, { post_date: schedDate, post_time: $('schedTime').value || undefined });
+    if (schedPayload.slug) { schedPayload.job_slug = schedPayload.slug; delete schedPayload.slug; }
+    api('/admin/social/schedule', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(schedPayload),
+    }).then(function (d) {
+      if (!d.ok) { btn.disabled = false; btn.textContent = '排入產稿'; return toast(d.error || '排程失敗', true); }
+      btn.textContent = '✅ 已排程';
+      toast('已排到 ' + schedDate + ($('schedTime').value ? ' ' + $('schedTime').value : '') + '，到時間才會送出確認。');
+      loadQueue();
+    }).catch(function (e) { btn.disabled = false; btn.textContent = '排入產稿'; toast('連不上伺服器', true); });
+    return;
+  }
   api('/admin/social-post-request', {
     method: 'POST', headers: { 'content-type': 'application/json' },
     body: JSON.stringify(payload),
