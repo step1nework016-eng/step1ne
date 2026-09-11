@@ -893,7 +893,7 @@ $('go').addEventListener('click', function () {
       btn.textContent = '✅ 已排程';
       toast('已排到 ' + schedDate + ($('schedTime').value ? ' ' + $('schedTime').value : '') + '，到時間才會送出確認。');
       loadQueue();
-    }).catch(function (e) { btn.disabled = false; btn.textContent = '排入產稿'; toast('連不上伺服器', true); });
+    }).catch(function (e) { btn.disabled = false; btn.textContent = '排入產稿'; toast(apiFail(e), true); });
     return;
   }
   api('/admin/social-post-request', {
