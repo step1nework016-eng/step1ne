@@ -405,8 +405,18 @@ table.gap td.stale{color:#c0392b}
       <label style="margin-top:14px">排程時間<span class="mut">（留空＝立刻排入產稿；填了就是到那個時間才送出確認）</span></label>
       <div style="display:flex;gap:8px">
         <input type="date" id="schedDate" style="flex:1;font:inherit;font-size:13.5px;padding:8px 11px;border:1px solid #eee7db;border-radius:9px;background:#fff;color:#23262d">
-        <input type="time" id="schedTime" style="flex:1;font:inherit;font-size:13.5px;padding:8px 11px;border:1px solid #eee7db;border-radius:9px;background:#fff;color:#23262d">
+        <!-- 2026-09-11 改：原本用 <input type="time">，瀏覽器原生 12 小時制（上午/下午）
+             很容易誤按——真實事故：Jacky 排「12點」被記成「上午12:00」（半夜），排程
+             因為時間已過直接立刻觸發，不是等到中午。改成兩個下拉選 0–23 時／分鐘，
+             24 小時制沒有 AM/PM 這種模稜兩可的空間。 -->
+        <select id="schedHour" style="font:inherit;font-size:13.5px;padding:8px 6px;border:1px solid #eee7db;border-radius:9px;background:#fff;color:#23262d">
+          <option value="">時</option>
+        </select>
+        <select id="schedMin" style="font:inherit;font-size:13.5px;padding:8px 6px;border:1px solid #eee7db;border-radius:9px;background:#fff;color:#23262d">
+          <option value="">分</option>
+        </select>
       </div>
+      <div class="mut" id="schedPreview" style="margin-top:4px"></div>
       <button id="go" class="go" type="button" disabled style="margin-top:14px">排入產稿</button>
     </div>
     <div class="card">
@@ -862,6 +872,28 @@ $('account').addEventListener('change', function () {
   if (currentPostType() !== 'job') refreshTopicOptionsForPost();
 });
 
+// 2026-09-11 加：時／分兩個下拉，24 小時制，不用原生 <input type="time">——
+// 那個在某些瀏覽器/系統語系下會用 12 小時制（上午/下午）顯示，真實事故：
+// 排「12點」被記成「上午12:00」（半夜），排程因為時間已過直接立刻觸發。
+(function () {
+  var hSel = $('schedHour'), mSel = $('schedMin');
+  for (var h = 0; h < 24; h++) hSel.insertAdjacentHTML('beforeend', '<option value="' + String(h).padStart(2, '0') + '">' + String(h).padStart(2, '0') + ' 時</option>');
+  for (var m = 0; m < 60; m += 5) mSel.insertAdjacentHTML('beforeend', '<option value="' + String(m).padStart(2, '0') + '">' + String(m).padStart(2, '0') + ' 分</option>');
+  function updatePreview() {
+    var d = $('schedDate').value, hm = schedHM();
+    if (!d) { $('schedPreview').textContent = ''; return; }
+    $('schedPreview').textContent = '＝ ' + d + ' ' + (hm || '（時間留空，當天排程一跑到就送出確認）') + (hm ? '（24小時制）' : '');
+  }
+  $('schedDate').addEventListener('change', updatePreview);
+  hSel.addEventListener('change', updatePreview);
+  mSel.addEventListener('change', updatePreview);
+})();
+function schedHM() {
+  var h = $('schedHour').value, m = $('schedMin').value;
+  if (!h && !m) return '';
+  return (h || '00') + ':' + (m || '00');
+}
+
 $('go').addEventListener('click', function () {
   var btn = $('go');
   var type = currentPostType();
@@ -883,7 +915,8 @@ $('go').addEventListener('click', function () {
   // 原本「立刻排入產稿」——同一份 payload（職缺／話題／帳號／公式）兩條路都通用。
   var schedDate = $('schedDate').value;
   if (schedDate) {
-    var schedPayload = Object.assign({}, payload, { post_date: schedDate, post_time: $('schedTime').value || undefined });
+    var schedTimeVal = schedHM();
+    var schedPayload = Object.assign({}, payload, { post_date: schedDate, post_time: schedTimeVal || undefined });
     if (schedPayload.slug) { schedPayload.job_slug = schedPayload.slug; delete schedPayload.slug; }
     api('/admin/social/schedule', {
       method: 'POST', headers: { 'content-type': 'application/json' },
@@ -891,7 +924,7 @@ $('go').addEventListener('click', function () {
     }).then(function (d) {
       if (!d.ok) { btn.disabled = false; btn.textContent = '排入產稿'; return toast(d.error || '排程失敗', true); }
       btn.textContent = '✅ 已排程';
-      toast('已排到 ' + schedDate + ($('schedTime').value ? ' ' + $('schedTime').value : '') + '，到時間才會送出確認。');
+      toast('已排到 ' + schedDate + (schedTimeVal ? ' ' + schedTimeVal : '') + '（24小時制），到時間才會送出確認。');
       loadQueue();
     }).catch(function (e) { btn.disabled = false; btn.textContent = '排入產稿'; toast(apiFail(e), true); });
     return;
