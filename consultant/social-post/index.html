@@ -1077,7 +1077,8 @@ function paintQueue() {
       // 已經發出去的就顯示「真正貼出去的時間」，還沒發的才顯示排隊時間——
       // 這兩個時間常常差好幾小時（草稿產好等顧問審），混在一起看會誤判成效。
       + (r.posted_at ? '　·　發布 ' + r.posted_at.slice(5, 16)
-                     : (r.social_post_at ? '　·　排入 ' + r.social_post_at.slice(5, 16) : ''))
+                     : (r.scheduled_at ? '　·　排程 ' + r.scheduled_at.slice(5, 16)
+                     : (r.social_post_at ? '　·　排入 ' + r.social_post_at.slice(5, 16) : '')))
       + (r.social_post_url ? '　·　<a href="' + r.social_post_url + '" target="_blank" rel="noopener">查看貼文</a>' : '')
       + '</div>' + metricsHtml(r) + markHtml(r) + '</div>'
       + '<span class="badge ' + b.c + '">' + b.t + '</span></div>';
