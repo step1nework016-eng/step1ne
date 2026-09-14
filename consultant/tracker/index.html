@@ -1226,9 +1226,18 @@ function openDrawer(appId, kind) {
         (c.report_id ? '<button class="btn" id="rpttrans" type="button">💬 阿財面談逐字稿</button>' : '') +
         '</div><div id="transBox" hidden style="margin-top:10px;border-top:1px solid var(--line);padding-top:10px"></div>'
       : '<p class="mut" style="margin:0">還沒有初篩報告。</p>';
+    // 2026-09-14 加：阿財讀完履歷自動寫的面談前筆記——跟 AI 初篩報告（面談後）
+    // 是兩個不同時間點的東西，不要塞進同一個分頁，獨立放在最上面。
+    var preNoteHtml = c.pre_interview_note
+      ? '<div class="subhint" style="margin:2px 0 6px">📝 面談前筆記（阿財讀完履歷自動寫的，' +
+        esc(String(c.pre_interview_note_at || '').slice(0, 16)) + '）</div>' +
+        '<div class="rpt" style="white-space:pre-wrap;font-size:12.5px;margin-bottom:10px">' +
+        esc(c.pre_interview_note) + '</div>'
+      : '';
     html += '<div class="sec"><h4>初篩　' +
       (c.decision && DEC[c.decision] ? '<span class="pill ' + (c.decision === 'forwarded' ? 'ok' : (c.decision === 'rejected' ? 'bad' : 'warn')) + '">' + DEC[c.decision].lb + '</span>' : '<span class="pill">還沒決定推不推</span>') +
-      '</h4><div class="calltabs" id="screenTabs"><div class="calltab on" data-screentab="report">AI初篩報告</div><div class="calltab" data-screentab="formal">製作客戶版履歷</div></div>' +
+      '</h4>' + preNoteHtml +
+      '<div class="calltabs" id="screenTabs"><div class="calltab on" data-screentab="report">AI初篩報告</div><div class="calltab" data-screentab="formal">製作客戶版履歷</div></div>' +
       '<div class="screentabpanel" data-screenpanel="report">' + reportHtml + '</div>' +
       '<div class="screentabpanel" data-screenpanel="formal" hidden>' + formalHtml +
       '<div class="acts"><button class="btn p" id="clientFormalBtn" type="button">📄 製作客戶版履歷</button></div></div></div>';
