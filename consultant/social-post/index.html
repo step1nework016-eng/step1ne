@@ -3296,6 +3296,13 @@ function scRenderAddForm() {
 
   $('scAddClose').addEventListener('click', scCloseAddForm);
   $('scAddMaskBg').addEventListener('click', function (e) { if (e.target.id === 'scAddMaskBg') scCloseAddForm(); });
+  if ($('scAddExisting')) {
+    $('scAddExisting').addEventListener('change', function () {
+      if (this.value) { s.mergeInto = this.value; s.mergeName = this.value; }
+      else { s.mergeInto = null; s.mergeName = null; }
+      scRenderAddForm();
+    });
+  }
   if (!isMerge) {
     $('scAddName').addEventListener('input', function () { s.name = this.value; });
     $('scAddName').addEventListener('blur', function () { scRunDuplicateCheck(s.name); });
@@ -3315,8 +3322,20 @@ function scRenderAddForm() {
 }
 
 function scRenderSharedFields(s) {
+  // 2026-09-14 加：原本只能打字、靠事後的「重複偵測」跳窗才找得到既有顧問。
+  // Jacky 要的是主動選——本來就知道是要幫既有顧問加平台時，直接選，
+  // 不用故意打一個很像的名字去釣重複偵測跳出來。選了這裡，name 欄自動鎖住
+  // 顯示既有名字，跟原本「是同一人，併進」那條路徑共用同一套 mergeInto 邏輯。
+  var existingOpts = SC_CONSULTANTS.map(function (c) {
+    return '<option value="' + esc(c.name) + '"' + (s.mergeName === c.name ? ' selected' : '') + '>' + esc(c.name) + '</option>';
+  }).join('');
   return '<label>② 顧問社群名稱</label>'
-    + '<input type="text" id="scAddName" value="' + esc(s.name) + '" placeholder="例如：Phoebe">'
+    + (SC_CONSULTANTS.length
+        ? '<select id="scAddExisting" style="margin-bottom:8px">'
+          + '<option value="">— 新顧問（下面自己打名字）—</option>' + existingOpts + '</select>'
+        : '')
+    + '<input type="text" id="scAddName" value="' + esc(s.name) + '" placeholder="例如：Phoebe"'
+    + (s.mergeInto ? ' disabled' : '') + '>'
     + '<label>③ 社群帳號密碼</label>'
     + '<input type="text" id="scAddUsername" value="' + esc(s.username || '') + '" placeholder="帳號（Email 或用戶名）" autocomplete="username" style="margin-bottom:8px">'
     + '<input type="password" id="scAddPassword" value="' + esc(s.password_note) + '" placeholder="密碼" autocomplete="new-password">'
@@ -3449,7 +3468,10 @@ function scSubmitAddForm() {
     skill_prompt: s.style_body || '',
   };
   if (s.mergeInto) {
-    payload.existing_consultant_id = s.mergeInto;
+    // 併入的來源有兩種：重複偵測跳窗給的是數字 id，② 直接選既有顧問下拉
+    // 給的是姓名字串——後端兩種都吃，這裡照類型送對應欄位就好。
+    if (typeof s.mergeInto === 'number') payload.existing_consultant_id = s.mergeInto;
+    else payload.existing_consultant_name = s.mergeInto;
   } else {
     payload.consultant_name = s.name.trim();
     payload.account_username = (s.username || '').trim();
