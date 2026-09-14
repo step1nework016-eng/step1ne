@@ -39,6 +39,11 @@ button.go:disabled{opacity:.5;cursor:not-allowed}
 .markedit{margin-left:6px;font:inherit;font-size:11px;padding:2px 8px;border-radius:5px;
   border:1px solid var(--line);background:#fff;color:var(--ink3);cursor:pointer}
 .markedit:hover{border-color:#8a9199;color:var(--ink)}
+.qright{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex:0 0 auto}
+.qcancel{font:inherit;font-size:11px;padding:3px 10px;border-radius:5px;
+  border:1px solid #e3b3ad;background:#fff;color:#b23a2e;cursor:pointer;white-space:nowrap}
+.qcancel:hover{background:#fdf1ef}
+.qcancel:disabled{opacity:.6;cursor:default}
 .markmask{position:fixed;inset:0;background:rgba(18,22,28,.42);display:flex;align-items:center;
   justify-content:center;padding:18px;z-index:90}
 .markbox{background:#fff;border-radius:14px;padding:20px;width:100%;max-width:380px;
@@ -1133,7 +1138,12 @@ var Q_BADGE = {
   posted:   { c: 'posted',  t: '✅ 已發布' },
   skipped:  { c: 'skip',    t: '❌ 已標記不發' },
   approved: { c: 'posting', t: '✅ 已核准（尚未串金鑰）' },
+  approved_scheduled: { c: 'posting', t: '✅ 已核准，排程中' },
 };
+// 這幾種狀態還沒真的發出去，網頁上可以取消——posted／posting／skipped 不行
+// （posted 發都發了；posting 正在發，這中間取消會跟真正的發文動作打架；
+// skipped 已經是取消過的狀態，不用再取消一次）。
+var CANCELABLE_STATUSES = [null, 'drafted', 'approved', 'approved_scheduled'];
 var queueTimer = null;
 var ALL_QUEUE = [];
 var ALL_QUEUE_STATS = [];   // 成效儀表板專用，一次拉大量，不跟排隊列表共用小額度那份
@@ -1278,7 +1288,9 @@ function paintQueue() {
     return (r.account_label || '（未指定帳號）') === CUR_TAB;
   });
   $('queue').innerHTML = rows.length ? rows.map(function (r) {
-    var b = Q_BADGE[r.social_post_status === null ? 'null' : r.social_post_status] || { c: 'wait', t: r.social_post_status || '—' };
+    var status = r.social_post_status === null ? null : r.social_post_status;
+    var b = Q_BADGE[status === null ? 'null' : status] || { c: 'wait', t: status || '—' };
+    var canCancel = CANCELABLE_STATUSES.indexOf(status) !== -1;
     return '<div class="qrow">'
       + '<div><div class="t">' + (r.title || r.slug) + '</div>'
       + '<div class="m">' + (r.account_label || '（未指定帳號）')
@@ -1289,9 +1301,21 @@ function paintQueue() {
                      : (r.social_post_at ? '　·　排入 ' + r.social_post_at.slice(5, 16) : '')))
       + (r.social_post_url ? '　·　<a href="' + r.social_post_url + '" target="_blank" rel="noopener">查看貼文</a>' : '')
       + '</div>' + metricsHtml(r) + markHtml(r) + '</div>'
-      + '<span class="badge ' + b.c + '">' + b.t + '</span></div>';
+      + '<div class="qright"><span class="badge ' + b.c + '">' + b.t + '</span>'
+      + (canCancel ? '<button type="button" class="qcancel" data-qid="' + r.queue_id + '">取消</button>' : '')
+      + '</div></div>';
   }).join('') : '<div class="mut" style="padding:6px 0">目前沒有排入中的職缺。</div>';
 }
+document.addEventListener('click', function (e) {
+  var b = e.target.closest && e.target.closest('.qcancel');
+  if (!b) return;
+  if (!confirm('確定要取消這一則嗎？取消後不會發布。')) return;
+  b.disabled = true; b.textContent = '取消中⋯';
+  api('/admin/social-post-queue/' + b.dataset.qid + '/cancel', { method: 'POST' }).then(function (d) {
+    if (!d.ok) { b.disabled = false; b.textContent = '取消'; return toast(d.error || '取消失敗', true); }
+    toast('✓ 已取消，不會發布'); loadQueue();
+  }).catch(function (e) { b.disabled = false; b.textContent = '取消'; toast(apiFail(e), true); });
+});
 
 var LINE_INS = null;
 var LINE_WEEK_AGO = null;
