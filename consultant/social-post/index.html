@@ -3214,8 +3214,7 @@ function scOpenAcctForm(c, plat, p) {
 }
 
 // 重新匯入風格提示詞——沿用「話題提示詞庫」貼文字／上傳 .md 二擇一的匯入方式
-// ⚠️ 假設端點：POST /admin/social-consultants/:id/style-prompt {platform, body}
-// 後端還沒建，等對規格。
+// 端點：POST /admin/social-consultants/:id/style-prompt {platform, body}
 function scOpenReimportForm(c, plat) {
   var area = $('scDInlineArea');
   area.innerHTML = '<div class="inlineform">'
@@ -3268,7 +3267,6 @@ function scOpenThreadsTokenForm(c) {
     }).then(function (d) {
       if (!d.ok) { btn.disabled = false; btn.textContent = '送出'; return toast(d.error || '換取失敗', true); }
       toast('✓ Threads 已連線'); area.innerHTML = '';
-      scLoadList().then ? null : null;
       scRefreshOneAndReopen(c.name, 'threads');
     }).catch(function (e) { btn.disabled = false; btn.textContent = '送出'; toast(apiFail(e), true); });
   });
@@ -3342,6 +3340,7 @@ function scRenderAddForm() {
     + '<button type="button" data-p="linkedin">LinkedIn</button>'
     + '</div>'
     + (isMerge ? '' : scRenderSharedFields(s))
+    + scRenderStylePromptField(s, isMerge)
     + '<div id="scAddPlatFields"></div>'
     + '<button class="go" id="scAddSubmit" type="button" style="margin-top:6px">' + (isMerge ? '併進這張卡片' : '新增卡片') + '</button>'
     + (isMerge ? '<button type="button" class="tab" id="scAddUnmerge" style="width:100%;margin-top:8px">不對，這是新顧問，取消併入</button>' : '')
@@ -3367,7 +3366,6 @@ function scRenderAddForm() {
     $('scAddName').addEventListener('blur', function () { scRunDuplicateCheck(s.name); });
     $('scAddUsername').addEventListener('input', function () { s.username = this.value; });
     $('scAddPassword').addEventListener('input', function () { s.password_note = this.value; });
-    scBindStyleImport('scAddStyleFile', 'scAddStyleBody', s);
     $('scAddLine').addEventListener('input', function () { s.line_link = this.value; });
     $('scAddTgNew').addEventListener('change', function () {
       s.tg_new_topic = this.checked;
@@ -3377,6 +3375,7 @@ function scRenderAddForm() {
   } else {
     $('scAddUnmerge').addEventListener('click', function () { s.mergeInto = null; s.mergeName = null; scRenderAddForm(); });
   }
+  scBindStyleImport('scAddStyleFile', 'scAddStyleBody', s);
   $('scAddSubmit').addEventListener('click', scSubmitAddForm);
 }
 
@@ -3399,10 +3398,6 @@ function scRenderSharedFields(s) {
     + '<input type="text" id="scAddUsername" value="' + esc(s.username || '') + '" placeholder="帳號（Email 或用戶名）" autocomplete="username" style="margin-bottom:8px">'
     + '<input type="password" id="scAddPassword" value="' + esc(s.password_note) + '" placeholder="密碼" autocomplete="new-password">'
     + '<div class="filehint">這兩欄只給你自己人工去 Meta/LinkedIn 後台登入該帳號用，系統不會拿它做任何自動登入；密碼會加密存放。</div>'
-    + '<label>④ 匯入原始風格提示詞</label>'
-    + '<input type="file" id="scAddStyleFile" accept=".md,text/markdown,text/plain" style="margin-bottom:14px;font-size:12.5px">'
-    + '<div class="filehint">支援直接貼文字，也支援上傳 md 檔——上傳後自動帶進下面文字框，兩種擇一即可。</div>'
-    + '<textarea id="scAddStyleBody" placeholder="貼上這位顧問的風格提示詞內容…">' + esc(s.style_body) + '</textarea>'
     + '<label>⑤ LINE 官方帳號連結</label>'
     + '<input type="url" id="scAddLine" value="' + esc(s.line_link) + '" placeholder="https://line.me/R/ti/p/...">'
     + '<label style="display:flex;align-items:center;gap:8px;font-weight:600;margin-bottom:6px">'
@@ -3410,6 +3405,18 @@ function scRenderSharedFields(s) {
     + '⑥ 建立新的 TG 審核主題</label>'
     + '<div id="scAddTgReuseWrap" ' + (s.tg_new_topic ? 'hidden' : '') + '>'
     + '<label>沿用哪位既有顧問的主題？</label><select id="scAddTgReuse"></select></div>';
+}
+
+// 風格提示詞是「平台專屬」的資料（同一位顧問的 Threads／LinkedIn 語氣可能不同），
+// 跟姓名／LINE／TG 主題這些真正共用的欄位不一樣——併入既有顧問、只加新平台時
+// 也要能填，不能因為 isMerge 把 scRenderSharedFields 整段跳過就連這格也不見了
+// （2026-09-14 修：原本沒有這支獨立函式，合併模式下會把這格一起吃掉，
+// 導致新平台的卡片一律存成空字串，使用者完全看不到有這個欄位可以填）。
+function scRenderStylePromptField(s, isMerge) {
+  return '<label>④ 匯入原始風格提示詞' + (isMerge ? '（這個平台專屬，跟其他平台分開存）' : '') + '</label>'
+    + '<input type="file" id="scAddStyleFile" accept=".md,text/markdown,text/plain" style="margin-bottom:14px;font-size:12.5px">'
+    + '<div class="filehint">支援直接貼文字，也支援上傳 md 檔——上傳後自動帶進下面文字框，兩種擇一即可。</div>'
+    + '<textarea id="scAddStyleBody" placeholder="貼上這位顧問的風格提示詞內容…">' + esc(s.style_body) + '</textarea>';
 }
 
 function scFillReuseSelect() {
