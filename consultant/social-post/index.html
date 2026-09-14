@@ -3099,9 +3099,10 @@ function scRenderDetail(c) {
     + '<div class="dhead"><span class="nm">' + esc(c.name) + '</span><button class="x" id="scDClose">×</button></div>'
     + '<div class="dbody">'
     + '<div class="sec"><h4>共用資料</h4><dl class="kv">'
-    + '<dt>LINE 官方帳號</dt><dd>' + (c.line_link ? '<a href="' + esc(c.line_link) + '" target="_blank">' + esc(c.line_link) + '</a>' : '<span class="mut">未填</span>') + '</dd>'
+    + '<dt>LINE 官方帳號</dt><dd>' + (c.line_link ? '<a href="' + esc(c.line_link) + '" target="_blank">' + esc(c.line_link) + '</a>' : '<span class="mut">未填</span>')
+    + ' <button type="button" class="linkbtn" id="scDEditLine">編輯</button></dd>'
     + '<dt>TG 審核主題</dt><dd>' + (c.tg_thread_id ? esc(c.tg_thread_id) : '<span class="mut">未設定</span>') + '</dd>'
-    + '</dl></div>'
+    + '</dl><div id="scDLineArea"></div></div>'
     + '<div class="platformtabs" id="scDTabs">'
     + '<button type="button" data-p="threads">Threads</button>'
     + '<button type="button" data-p="linkedin">LinkedIn</button>'
@@ -3109,11 +3110,37 @@ function scRenderDetail(c) {
     + '<div id="scDPlatBody"></div>'
     + '</div></div>';
   $('scDClose').onclick = scCloseDetail;
+  $('scDEditLine').addEventListener('click', function () { scOpenLineLinkForm(c); });
   [].forEach.call($('scDTabs').children, function (b) { b.classList.toggle('on', b.dataset.p === SC_DETAIL_PLAT); });
   [].forEach.call($('scDTabs').children, function (b) {
     b.addEventListener('click', function () { SC_DETAIL_PLAT = b.dataset.p; scRenderDetail(c); });
   });
   scRenderPlatBody(c, SC_DETAIL_PLAT);
+}
+
+function scOpenLineLinkForm(c) {
+  var area = $('scDLineArea');
+  area.innerHTML = '<div class="inlineform">'
+    + '<label>LINE 官方帳號連結</label>'
+    + '<input type="url" id="scLiLink" value="' + esc(c.line_link || '') + '" placeholder="https://line.me/R/ti/p/...">'
+    + '<div style="display:flex;gap:8px;margin-top:8px"><button class="go" id="scLiSave" type="button" style="width:auto;padding:9px 16px">儲存</button>'
+    + '<button class="tab" id="scLiCancel" type="button">取消</button></div>'
+    + '</div>';
+  $('scLiCancel').addEventListener('click', function () { area.innerHTML = ''; });
+  $('scLiSave').addEventListener('click', function () {
+    var v = $('scLiLink').value.trim();
+    var idForRoute = (c.threads && c.threads.id) || (c.linkedin && c.linkedin.id);
+    if (!idForRoute) return toast('這張卡片還沒有任何平台資料，無法儲存', true);
+    var btn = $('scLiSave'); btn.disabled = true; btn.textContent = '儲存中⋯';
+    api('/admin/social-consultants/' + idForRoute + '/line-link', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ line_link: v }),
+    }).then(function (d) {
+      if (!d.ok) { btn.disabled = false; btn.textContent = '儲存'; return toast(d.error || '儲存失敗', true); }
+      toast('✓ 已更新 LINE 連結'); area.innerHTML = '';
+      scRefreshOneAndReopen(c.name, SC_DETAIL_PLAT);
+    }).catch(function (e) { btn.disabled = false; btn.textContent = '儲存'; toast(apiFail(e), true); });
+  });
 }
 
 function scRenderPlatBody(c, plat) {
@@ -3123,8 +3150,14 @@ function scRenderPlatBody(c, plat) {
   var promptId = 'dprompt_' + plat;
   var html = '<div class="sec">'
     + '<div class="statusrow"><span class="statusbadge ' + (p.connected ? 'ok' : 'off') + '">'
-    + (p.connected ? '✅ 已連線' + (p.expires_at ? '（到期 ' + scFmtDate(p.expires_at) + '）' : '') : '⚪ 尚未設定') + '</span></div>'
-    + '<h4 style="margin-top:12px">風格提示詞</h4>'
+    + (p.connected ? '✅ 已連線' + (p.expires_at ? '（到期 ' + scFmtDate(p.expires_at) + '）' : '') : '⚪ 尚未設定') + '</span></div>';
+  if (p.id) {
+    html += '<h4 style="margin-top:12px">' + label + ' 帳號密碼</h4>'
+      + '<dl class="kv"><dt>帳號</dt><dd>' + (p.account_username ? esc(p.account_username) : '<span class="mut">未填</span>')
+      + ' <button type="button" class="linkbtn" id="scDEditAcct">編輯帳密</button></dd></dl>'
+      + '<div id="scDAcctArea"></div>';
+  }
+  html += '<h4 style="margin-top:12px">風格提示詞</h4>'
     + '<div class="promptbox' + (p.style_prompt_preview ? '' : ' empty') + '" id="' + promptId + '">'
     + (p.style_prompt_preview ? esc(p.style_prompt_preview) : '（還沒有匯入過風格提示詞）')
     + '</div>'
@@ -3152,6 +3185,32 @@ function scRenderPlatBody(c, plat) {
 
   var authBtn = $('scDAuthLink');
   if (authBtn) authBtn.addEventListener('click', function () { scFetchLinkedinAuthLink(c); });
+
+  var acctBtn = $('scDEditAcct');
+  if (acctBtn) acctBtn.addEventListener('click', function () { scOpenAcctForm(c, plat, p); });
+}
+
+function scOpenAcctForm(c, plat, p) {
+  var area = $('scDAcctArea');
+  area.innerHTML = '<div class="inlineform">'
+    + '<label>帳號</label><input type="text" id="scAcUser" value="' + esc(p.account_username || '') + '" placeholder="登入帳號">'
+    + '<label style="margin-top:8px">密碼</label><input type="text" id="scAcPass" placeholder="留空表示不更改密碼">'
+    + '<div style="display:flex;gap:8px;margin-top:8px"><button class="go" id="scAcSave" type="button" style="width:auto;padding:9px 16px">儲存</button>'
+    + '<button class="tab" id="scAcCancel" type="button">取消</button></div>'
+    + '</div>';
+  $('scAcCancel').addEventListener('click', function () { area.innerHTML = ''; });
+  $('scAcSave').addEventListener('click', function () {
+    var u = $('scAcUser').value.trim(), pw = $('scAcPass').value;
+    var btn = $('scAcSave'); btn.disabled = true; btn.textContent = '儲存中⋯';
+    api('/admin/social-consultants/' + p.id + '/account', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ account_username: u, account_password: pw || undefined }),
+    }).then(function (d) {
+      if (!d.ok) { btn.disabled = false; btn.textContent = '儲存'; return toast(d.error || '儲存失敗', true); }
+      toast('✓ 已更新帳號密碼'); area.innerHTML = '';
+      scRefreshOneAndReopen(c.name, plat);
+    }).catch(function (e) { btn.disabled = false; btn.textContent = '儲存'; toast(apiFail(e), true); });
+  });
 }
 
 // 重新匯入風格提示詞——沿用「話題提示詞庫」貼文字／上傳 .md 二擇一的匯入方式
