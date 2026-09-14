@@ -415,6 +415,7 @@ function freshAddState() {
     mergeInto: null,      // 重複偵測選「是同一人」時填既有顧問 id，之後只送平台專屬欄位
     mergeName: null,
     name: '',
+    username: '',
     password_note: '',
     style_body: '',
     line_link: '',
@@ -460,6 +461,7 @@ function renderAddForm() {
   if (!isMerge) {
     $('addName').addEventListener('input', function () { s.name = this.value; });
     $('addName').addEventListener('blur', function () { runDuplicateCheck(s.name); });
+    $('addUsername').addEventListener('input', function () { s.username = this.value; });
     $('addPassword').addEventListener('input', function () { s.password_note = this.value; });
     bindStyleImport('addStyleFile', 'addStyleBody', s);
     $('addLine').addEventListener('input', function () { s.line_link = this.value; });
@@ -478,8 +480,9 @@ function renderSharedFields(s) {
   return '<label>② 顧問社群名稱</label>'
     + '<input type="text" id="addName" value="' + esc(s.name) + '" placeholder="例如：Phoebe">'
     + '<label>③ 社群帳號密碼</label>'
-    + '<input type="password" id="addPassword" value="' + esc(s.password_note) + '" placeholder="Threads/LinkedIn 該帳號的登入密碼" autocomplete="new-password">'
-    + '<div class="filehint">這欄只給你自己人工去 Meta/LinkedIn 後台登入該帳號用，系統不會拿它做任何自動登入。</div>'
+    + '<input type="text" id="addUsername" value="' + esc(s.username || '') + '" placeholder="帳號（Email 或用戶名）" autocomplete="username" style="margin-bottom:8px">'
+    + '<input type="password" id="addPassword" value="' + esc(s.password_note) + '" placeholder="密碼" autocomplete="new-password">'
+    + '<div class="filehint">這兩欄只給你自己人工去 Meta/LinkedIn 後台登入該帳號用，系統不會拿它做任何自動登入；密碼會加密存放。</div>'
     + '<label>④ 匯入原始風格提示詞</label>'
     + '<input type="file" id="addStyleFile" accept=".md,text/markdown,text/plain" style="margin-bottom:14px;font-size:12.5px">'
     + '<div class="filehint">支援直接貼文字，也支援上傳 md 檔——上傳後自動帶進下面文字框，兩種擇一即可。</div>'
@@ -497,7 +500,7 @@ function fillReuseSelect() {
   var sel = $('addTgReuse');
   if (!sel) return;
   sel.innerHTML = '<option value="">請選擇…</option>' + CONSULTANTS.filter(function (c) { return c.tg_thread_id; }).map(function (c) {
-    return '<option value="' + c.id + '">' + esc(c.name) + '</option>';
+    return '<option value="' + c.tg_thread_id + '">' + esc(c.name) + '</option>';
   }).join('');
   sel.addEventListener('change', function () { ADD_STATE.tg_reuse_id = this.value; });
 }
@@ -606,20 +609,20 @@ function submitAddForm() {
 
   var payload = {
     platform: s.platform,
-    style_prompt_body: s.style_body || '',
+    skill_prompt: s.style_body || '',
   };
   if (s.mergeInto) {
     payload.existing_consultant_id = s.mergeInto;
   } else {
-    payload.name = s.name.trim();
-    payload.account_password_note = s.password_note;
+    payload.consultant_name = s.name.trim();
+    payload.account_username = (s.username || '').trim();
+    payload.account_password = s.password_note;
     payload.line_link = s.line_link.trim();
-    payload.tg_new_topic = s.tg_new_topic;
-    if (!s.tg_new_topic) payload.tg_reuse_consultant_id = Number(s.tg_reuse_id);
+    payload.new_tg_topic = s.tg_new_topic;
+    if (!s.tg_new_topic) payload.reuse_tg_thread_id = Number(s.tg_reuse_id);
   }
-  if (s.platform === 'threads') {
-    payload.threads_token_mode = s.threads_mode;
-    if (s.threads_mode === 'now') payload.threads_short_token = s.threads_token.trim();
+  if (s.platform === 'threads' && s.threads_mode === 'now') {
+    payload.threads_short_token = s.threads_token.trim();
   }
 
   btn.disabled = true; btn.textContent = '處理中⋯';
