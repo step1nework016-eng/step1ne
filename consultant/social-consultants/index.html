@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="zh-Hant">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>顧問社群卡片｜顧問後台</title>
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<style>
+:root{--gold:#a67c3d;--ink:#23262d;--ink2:#4d5563;--ink3:#8a8d95;--line:#eee7db;--soft:#faf8f3;--bg:#f4f1ea;--ok:#2f8f5b;--bad:#c0392b;--th:#5a7d9a;--li:#2f6ea8}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 -apple-system,"Noto Sans TC",sans-serif}
+.wrap{max-width:820px;margin:0 auto;padding:0 16px}
+header{background:#fff;border-bottom:1px solid var(--line);padding:14px 0}
+header .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header img{height:26px}
+nav{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+nav a{font-size:14px;text-decoration:none;color:var(--ink2);padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:#fff}
+nav a.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.gate{max-width:380px;margin:16vh auto;background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px}
+.gate input{width:100%;font:inherit;padding:11px 13px;border:1px solid var(--line);border-radius:10px;margin:12px 0}
+.gate button{width:100%;font:inherit;font-weight:700;background:var(--gold);color:#fff;border:0;border-radius:999px;padding:12px}
+.mut{color:var(--ink3);font-size:13px}
+main{padding:24px 0 60px}
+.card{background:#fff;border:1px solid var(--line);border-radius:15px;padding:20px 22px;margin-bottom:14px}
+label{display:block;font-size:13px;color:var(--ink2);margin:0 0 6px;font-weight:600}
+input[type=text],input[type=password],input[type=url],input[type=search],select,textarea{width:100%;font:inherit;font-size:15px;padding:11px 13px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);margin-bottom:16px}
+textarea{min-height:110px;font:13.5px/1.6 ui-monospace,"SF Mono",monospace}
+button.go{width:100%;font:inherit;font-weight:700;font-size:15.5px;background:var(--gold);color:#fff;border:0;border-radius:999px;padding:13px;cursor:pointer}
+button.go:disabled{opacity:.5;cursor:not-allowed}
+.tab{font:inherit;font-size:13px;font-weight:600;color:var(--ink2);background:var(--soft);border:1px solid var(--line);padding:7px 15px;border-radius:999px;cursor:pointer}
+.note{background:var(--soft);border-left:3px solid var(--gold);border-radius:0 10px 10px 0;padding:12px 15px;font-size:13px;color:var(--ink2);margin-bottom:16px;line-height:1.7}
+.filehint{font-size:11.5px;color:var(--ink3);margin:-10px 0 14px}
+.msg{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:14px;padding:11px 20px;border-radius:999px;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap;max-width:90vw;text-align:center}
+.msg.on{opacity:1}
+.msg.err{background:var(--bad)}
+.seg{display:flex;gap:0;border:1px solid var(--line);border-radius:999px;padding:3px;margin-bottom:16px;background:var(--soft)}
+.seg button{flex:1;font:inherit;font-weight:700;font-size:13.5px;padding:9px 10px;border:0;border-radius:999px;background:transparent;color:var(--ink2);cursor:pointer}
+.seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.radiorow{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.radiorow label{display:flex;align-items:flex-start;gap:9px;font-size:13.5px;font-weight:400;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:11px 13px;cursor:pointer;margin:0}
+.radiorow label.on{border-color:var(--gold);background:#fffaf0}
+.radiorow input{margin:2px 0 0}
+
+/* ── 列表：顧問卡片 grid ── */
+.toolbar{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap}
+.toolbar h1{font-size:19px;margin:0}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.pcard{background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px 16px;cursor:pointer}
+.pcard:hover{border-color:var(--gold)}
+.pcard .nm{font-weight:700;font-size:15.5px;margin-bottom:10px}
+.plats{display:flex;gap:8px}
+.platpill{flex:1;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;border-radius:9px;padding:7px 9px;background:var(--soft);color:var(--ink3)}
+.platpill .dot{width:8px;height:8px;border-radius:50%;background:#c9c2b2;flex:none}
+.platpill.on{background:#e8f5ee;color:var(--ok)}
+.platpill.on .dot{background:var(--ok)}
+.platpill .exp{font-size:10px;color:inherit;opacity:.75;display:block;margin-top:1px}
+.empty{background:#fff;border:1px dashed var(--line);border-radius:14px;padding:32px;text-align:center;color:var(--ink3)}
+
+/* ── 詳情抽屜 ── */
+.dmask{position:fixed;inset:0;background:rgba(20,22,26,.5);z-index:80;display:none;justify-content:flex-end}
+.dmask.show{display:flex}
+.dwrap{background:var(--bg);width:min(600px,100%);height:100%;overflow-y:auto;box-shadow:-8px 0 32px rgba(0,0,0,.12)}
+.dhead{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:14px 20px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;z-index:2}
+.dhead .nm{font-size:18px;font-weight:700}
+.dhead .x{margin-left:auto;font:inherit;font-size:22px;line-height:1;background:none;border:0;cursor:pointer;color:var(--ink3);padding:0 4px}
+.dbody{padding:16px 20px 60px}
+.sec{background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 16px;margin-bottom:12px}
+.sec h4{margin:0 0 9px;font-size:11.5px;font-weight:700;letter-spacing:.06em;color:var(--ink3)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:13.5px}
+.kv dt{color:var(--ink3);white-space:nowrap}
+.kv dd{margin:0;overflow-wrap:anywhere}
+.kv a{color:var(--gold);text-decoration:none}
+.platformtabs{display:flex;gap:8px;margin-bottom:12px}
+.platformtabs button{flex:1;font:inherit;font-weight:700;font-size:13.5px;padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:var(--soft);color:var(--ink2);cursor:pointer}
+.platformtabs button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.statusrow{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.statusbadge{font-size:12px;font-weight:700;padding:4px 11px;border-radius:999px}
+.statusbadge.ok{background:#e8f5ee;color:var(--ok)}
+.statusbadge.off{background:#f1f1ee;color:var(--ink3)}
+.promptbox{background:var(--soft);border:1px solid var(--line);border-radius:9px;padding:10px 12px;font-size:12.5px;color:var(--ink2);white-space:pre-wrap;font-family:ui-monospace,"SF Mono",monospace;max-height:80px;overflow:hidden;position:relative;margin-bottom:8px}
+.promptbox.expand{max-height:none}
+.promptbox.empty{color:var(--ink3);font-family:inherit;font-style:italic}
+.linkbtn{background:none;border:0;color:var(--gold);font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;padding:0}
+.actrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.actrow button{font:inherit;font-size:12.5px;font-weight:700;padding:7px 13px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--ink2);cursor:pointer}
+.actrow button:hover{border-color:var(--gold);color:var(--gold)}
+.inlineform{border:1px dashed #ddd3c0;border-radius:10px;padding:12px 14px;margin-top:10px;background:#fffdf8}
+.inlineform label{margin-top:0}
+.linkbox{display:flex;gap:8px;align-items:center;background:var(--soft);border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:12.5px;word-break:break-all}
+.linkbox button{flex:none}
+
+/* ── 新增卡片彈窗 ── */
+.mask{position:fixed;inset:0;background:rgba(18,22,28,.45);display:flex;align-items:flex-start;justify-content:center;padding:24px 16px;z-index:90;overflow-y:auto}
+.modal{background:var(--bg);border-radius:16px;width:100%;max-width:520px;box-shadow:0 20px 60px rgba(0,0,0,.24);margin:auto}
+.mh{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);border-radius:16px 16px 0 0;padding:14px 20px;display:flex;align-items:baseline;gap:10px}
+.mh b{font-size:17px}
+.mh .x{margin-left:auto;background:none;border:0;font-size:22px;cursor:pointer;color:var(--ink3)}
+.mb{padding:16px 20px 24px}
+.stepdot{display:flex;gap:6px;margin-bottom:14px}
+.stepdot span{flex:1;height:4px;border-radius:2px;background:var(--line)}
+.stepdot span.on{background:var(--gold)}
+
+/* ── 重複偵測 confirm modal ── */
+.confirmbtns{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+.confirmbtns button{font:inherit;font-size:14px;font-weight:700;padding:12px 14px;border-radius:11px;border:1px solid var(--line);background:#fff;cursor:pointer;text-align:left}
+.confirmbtns button.primary{background:var(--gold);color:#fff;border-color:var(--gold)}
+.confirmbtns button small{display:block;font-weight:400;font-size:12px;opacity:.85;margin-top:2px}
+</style>
+
+<div id="gate" class="gate" hidden>
+  <b>顧問後台</b>
+  <p class="mut" style="margin:6px 0 0">需要存取權杖。這組權杖等同密碼，不要外傳。</p>
+  <input id="tok" type="password" placeholder="ADMIN_TOKEN" autocomplete="off">
+  <button id="enter" type="button">進入</button>
+  <p id="gerr" class="mut" style="color:#b4552e;margin:12px 0 0" hidden></p>
+</div>
+
+<div id="app" hidden>
+  <header><div class="wrap">
+    <img src="/assets/step1ne-logo.png" alt="Step1ne"><b>顧問社群卡片</b>
+    <nav>
+      <a href="/consultant/overview/">總覽</a>
+      <a href="/consultant/reports/">初篩報告</a>
+      <a href="/consultant/jobs/">招募職缺</a>
+      <a href="/consultant/social-post/">顧問社群</a>
+      <a href="/consultant/social-consultants/" class="on">顧問社群卡片</a>
+      <a href="/consultant/expertise/">職缺題庫</a>
+    </nav>
+  </div></header>
+  <main class="wrap">
+    <div class="note">
+      這裡是幫顧問接 Threads／LinkedIn 帳號的地方——換 token、寫 LINE 連結、開 TG 審核主題，
+      以前都是老闆用終端機一步步做，現在你自己就能操作。一個顧問一張卡，Threads／LinkedIn
+      是卡片裡的兩個分頁，不是兩張卡。
+    </div>
+
+    <div class="toolbar">
+      <h1>所有顧問（<span id="cardcount">…</span>）</h1>
+      <button class="go" id="btnAdd" type="button" style="width:auto;padding:11px 20px">＋ 新增顧問社群卡片</button>
+    </div>
+
+    <div id="cardlist" class="cards"><div class="mut">載入中…</div></div>
+  </main>
+</div>
+
+<div id="detailmask" class="dmask"></div>
+<div id="addmask"></div>
+<div id="dupmask"></div>
+<div id="msg" class="msg"></div>
+
+<script>
+var API = 'https://step1ne-backoffice-worker.aiagentg888.workers.dev';
+var KEY = 's1ne_admin_tok';
+var tok = localStorage.getItem(KEY) || '';
+var $ = function (i) { return document.getElementById(i); };
+
+function api(path, opt) {
+  opt = opt || {};
+  opt.headers = Object.assign({ authorization: 'Bearer ' + tok }, opt.headers || {});
+  return fetch(API + path, opt).then(function (r) {
+    if (r.status === 401) { var e401 = new Error('權杖不正確'); e401.status = 401; throw e401; }
+    return r.text().then(function (t) {
+      var d = null;
+      try { d = JSON.parse(t); } catch (x) { /* 不是 JSON——多半是 CF 的錯誤頁 */ }
+      if (!r.ok) {
+        var err = new Error('HTTP ' + r.status);
+        err.status = r.status;
+        err.serverError = d && d.error ? d.error : null;
+        err.body = d ? null : String(t).slice(0, 200);
+        throw err;
+      }
+      if (d === null) { var ep = new Error('回傳格式不是 JSON'); ep.body = String(t).slice(0, 200); throw ep; }
+      return d;
+    });
+  });
+}
+function apiFail(e) {
+  if (!e) return '發生未知錯誤';
+  if (e.status === 401 || /權杖/.test(e.message || '')) return '權杖不正確，請重新輸入';
+  if (e.serverError) return '伺服器回報：' + String(e.serverError).slice(0, 120);
+  if (e.status) return '伺服器錯誤 ' + e.status + (e.body ? '：' + String(e.body).slice(0, 100) : '');
+  if (e.name === 'TypeError') return '連線失敗（連不到伺服器，檢查網路）';
+  return String(e.message || e).slice(0, 120);
+}
+function toast(t, err) {
+  var m = $('msg'); m.textContent = t; m.className = 'msg on' + (err ? ' err' : '');
+  setTimeout(function () { m.className = 'msg'; }, err ? 4200 : 2200);
+}
+function esc(x) {
+  return String(x == null ? '' : x).replace(/[&<>"]/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+  });
+}
+function fmtDate(s) {
+  if (!s) return '';
+  return String(s).slice(0, 10);
+}
+
+// ────────────────────────────────────────────────────────────────
+// 列表
+// ────────────────────────────────────────────────────────────────
+var CONSULTANTS = [];
+
+function platPill(c, plat) {
+  var p = c[plat] || {};
+  var label = plat === 'threads' ? 'Threads' : 'LinkedIn';
+  if (!p.connected) {
+    return '<div class="platpill"><span class="dot"></span><span>' + label + '<span class="exp">未設定</span></span></div>';
+  }
+  return '<div class="platpill on"><span class="dot"></span><span>' + label
+    + '<span class="exp">' + (p.expires_at ? '到期 ' + fmtDate(p.expires_at) : '已連線') + '</span></span></div>';
+}
+
+function paintList() {
+  $('cardcount').textContent = CONSULTANTS.length;
+  if (!CONSULTANTS.length) {
+    $('cardlist').innerHTML = '<div class="empty">目前還沒有顧問社群卡片，按右上角「＋ 新增」開始接第一位顧問</div>';
+    return;
+  }
+  $('cardlist').innerHTML = CONSULTANTS.map(function (c) {
+    return '<div class="pcard" data-id="' + c.id + '">'
+      + '<div class="nm">' + esc(c.name) + '</div>'
+      + '<div class="plats">' + platPill(c, 'threads') + platPill(c, 'linkedin') + '</div>'
+      + '</div>';
+  }).join('');
+  [].forEach.call($('cardlist').querySelectorAll('.pcard'), function (el) {
+    el.addEventListener('click', function () { openDetail(Number(el.dataset.id)); });
+  });
+}
+
+function loadList() {
+  $('cardlist').innerHTML = '<div class="mut">載入中…</div>';
+  api('/admin/social-consultants').then(function (d) {
+    if (!d.ok) return toast(d.error || '讀取失敗', true);
+    CONSULTANTS = d.consultants || [];
+    paintList();
+  }).catch(function (e) {
+    $('cardlist').innerHTML = '<div class="empty">讀取失敗：' + esc(apiFail(e)) + '</div>';
+  });
+}
+
+// ────────────────────────────────────────────────────────────────
+// 詳情抽屜
+// ────────────────────────────────────────────────────────────────
+var DETAIL_ID = null;
+var DETAIL_PLAT = 'threads';
+
+function openDetail(id) {
+  var c = CONSULTANTS.find(function (x) { return x.id === id; });
+  if (!c) return;
+  DETAIL_ID = id;
+  DETAIL_PLAT = (c.threads && c.threads.connected) ? 'threads' : (c.linkedin && c.linkedin.connected) ? 'linkedin' : 'threads';
+  renderDetail(c);
+  $('detailmask').classList.add('show');
+}
+function closeDetail() { $('detailmask').classList.remove('show'); $('detailmask').innerHTML = ''; DETAIL_ID = null; }
+
+function renderDetail(c) {
+  var mask = $('detailmask');
+  mask.innerHTML = '<div class="dwrap">'
+    + '<div class="dhead"><span class="nm">' + esc(c.name) + '</span><button class="x" id="dClose">×</button></div>'
+    + '<div class="dbody">'
+    + '<div class="sec"><h4>共用資料</h4><dl class="kv">'
+    + '<dt>LINE 官方帳號</dt><dd>' + (c.line_link ? '<a href="' + esc(c.line_link) + '" target="_blank">' + esc(c.line_link) + '</a>' : '<span class="mut">未填</span>') + '</dd>'
+    + '<dt>TG 審核主題</dt><dd>' + (c.tg_thread_id ? esc(c.tg_thread_id) : '<span class="mut">未設定</span>') + '</dd>'
+    + '</dl></div>'
+    + '<div class="platformtabs" id="dTabs">'
+    + '<button type="button" data-p="threads">Threads</button>'
+    + '<button type="button" data-p="linkedin">LinkedIn</button>'
+    + '</div>'
+    + '<div id="dPlatBody"></div>'
+    + '</div></div>';
+  $('dClose').onclick = closeDetail;
+  [].forEach.call($('dTabs').children, function (b) { b.classList.toggle('on', b.dataset.p === DETAIL_PLAT); });
+  [].forEach.call($('dTabs').children, function (b) {
+    b.addEventListener('click', function () { DETAIL_PLAT = b.dataset.p; renderDetail(c); });
+  });
+  renderPlatBody(c, DETAIL_PLAT);
+}
+
+function renderPlatBody(c, plat) {
+  var p = c[plat] || {};
+  var label = plat === 'threads' ? 'Threads' : 'LinkedIn';
+  var body = $('dPlatBody');
+  var promptId = 'dprompt_' + plat;
+  var html = '<div class="sec">'
+    + '<div class="statusrow"><span class="statusbadge ' + (p.connected ? 'ok' : 'off') + '">'
+    + (p.connected ? '✅ 已連線' + (p.expires_at ? '（到期 ' + fmtDate(p.expires_at) + '）' : '') : '⚪ 尚未設定') + '</span></div>'
+    + '<h4 style="margin-top:12px">風格提示詞</h4>'
+    + '<div class="promptbox' + (p.style_prompt_preview ? '' : ' empty') + '" id="' + promptId + '">'
+    + (p.style_prompt_preview ? esc(p.style_prompt_preview) : '（還沒有匯入過風格提示詞）')
+    + '</div>'
+    + (p.style_prompt_preview ? '<button type="button" class="linkbtn" id="dPromptToggle">展開看全文</button>' : '')
+    + '<div class="actrow">'
+    + '<button type="button" id="dReimport">🔄 重新匯入風格提示詞</button>';
+  if (plat === 'threads' && !p.connected) html += '<button type="button" id="dSetToken">貼入短期 token</button>';
+  if (plat === 'linkedin' && !p.connected) html += '<button type="button" id="dAuthLink">產生授權連結</button>';
+  html += '</div><div id="dInlineArea"></div></div>';
+  body.innerHTML = html;
+
+  var toggleBtn = $('dPromptToggle');
+  if (toggleBtn) toggleBtn.addEventListener('click', function () {
+    var box = $(promptId);
+    var expand = !box.classList.contains('expand');
+    box.classList.toggle('expand', expand);
+    toggleBtn.textContent = expand ? '收合' : '展開看全文';
+  });
+
+  var reimportBtn = $('dReimport');
+  if (reimportBtn) reimportBtn.addEventListener('click', function () { openReimportForm(c, plat); });
+
+  var tokenBtn = $('dSetToken');
+  if (tokenBtn) tokenBtn.addEventListener('click', function () { openThreadsTokenForm(c); });
+
+  var authBtn = $('dAuthLink');
+  if (authBtn) authBtn.addEventListener('click', function () { fetchLinkedinAuthLink(c); });
+}
+
+// 重新匯入風格提示詞——沿用「話題提示詞庫」貼文字／上傳 .md 二擇一的匯入方式
+// ⚠️ 假設端點：POST /admin/social-consultants/:id/style-prompt {platform, body}
+// 後端還沒建，等對規格。
+function openReimportForm(c, plat) {
+  var area = $('dInlineArea');
+  area.innerHTML = '<div class="inlineform">'
+    + '<label>上傳 .md 檔案（選填，會覆蓋下面文字框內容）</label>'
+    + '<input type="file" id="riFile" accept=".md,text/markdown,text/plain" style="margin-bottom:14px;font-size:12.5px">'
+    + '<div class="filehint">支援直接貼文字，也支援上傳 md 檔——上傳後自動帶進下面文字框，兩種擇一即可。</div>'
+    + '<label>內容</label><textarea id="riBody" placeholder="貼上風格提示詞內容…"></textarea>'
+    + '<div style="display:flex;gap:8px"><button class="go" id="riSave" type="button" style="width:auto;padding:9px 16px">儲存</button>'
+    + '<button class="tab" id="riCancel" type="button">取消</button></div>'
+    + '</div>';
+  $('riFile').addEventListener('change', function (e) {
+    var f = e.target.files[0]; if (!f) return;
+    var reader = new FileReader();
+    reader.onload = function () { $('riBody').value = reader.result; toast('✓ 已讀入檔案內容'); };
+    reader.readAsText(f);
+  });
+  $('riCancel').addEventListener('click', function () { area.innerHTML = ''; });
+  $('riSave').addEventListener('click', function () {
+    var b = $('riBody').value.trim();
+    if (!b) return toast('內容不能空白', true);
+    var btn = $('riSave'); btn.disabled = true; btn.textContent = '儲存中⋯';
+    api('/admin/social-consultants/' + c.id + '/style-prompt', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ platform: plat, body: b }),
+    }).then(function (d) {
+      if (!d.ok) { btn.disabled = false; btn.textContent = '儲存'; return toast(d.error || '儲存失敗', true); }
+      toast('✓ 已更新風格提示詞'); area.innerHTML = '';
+      loadList(); // 重新拉一次讓 preview 更新，展開的詳情之後重開會看到最新內容
+    }).catch(function (e) { btn.disabled = false; btn.textContent = '儲存'; toast(apiFail(e), true); });
+  });
+}
+
+function openThreadsTokenForm(c) {
+  var area = $('dInlineArea');
+  area.innerHTML = '<div class="inlineform">'
+    + '<label>貼上 Threads 短期 token</label>'
+    + '<textarea id="ttBody" style="min-height:70px" placeholder="從 Meta 開發者後台複製過來的短期 token…"></textarea>'
+    + '<div class="filehint">貼上後系統會自動換成長期 token，並排進每週自動續期。</div>'
+    + '<div style="display:flex;gap:8px"><button class="go" id="ttSave" type="button" style="width:auto;padding:9px 16px">送出</button>'
+    + '<button class="tab" id="ttCancel" type="button">取消</button></div>'
+    + '</div>';
+  $('ttCancel').addEventListener('click', function () { area.innerHTML = ''; });
+  $('ttSave').addEventListener('click', function () {
+    var v = $('ttBody').value.trim();
+    if (!v) return toast('token 不能空白', true);
+    var btn = $('ttSave'); btn.disabled = true; btn.textContent = '處理中⋯';
+    api('/admin/social-consultants/' + c.id + '/threads-token', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ short_token: v }),
+    }).then(function (d) {
+      if (!d.ok) { btn.disabled = false; btn.textContent = '送出'; return toast(d.error || '換取失敗', true); }
+      toast('✓ Threads 已連線'); area.innerHTML = '';
+      loadList().then ? null : null;
+      refreshOneAndReopen(c.id, 'threads');
+    }).catch(function (e) { btn.disabled = false; btn.textContent = '送出'; toast(apiFail(e), true); });
+  });
+}
+
+function fetchLinkedinAuthLink(c) {
+  var area = $('dInlineArea');
+  area.innerHTML = '<div class="inlineform mut">產生連結中…</div>';
+  api('/admin/social-consultants/' + c.id + '/linkedin-auth-link').then(function (d) {
+    if (!d.ok || !d.url) { area.innerHTML = ''; return toast(d.error || '產生失敗', true); }
+    area.innerHTML = '<div class="inlineform">'
+      + '<label style="margin-bottom:8px">把這個連結傳給 ' + esc(c.name) + ' 本人</label>'
+      + '<div class="linkbox"><span style="flex:1">' + esc(d.url) + '</span>'
+      + '<button type="button" class="tab" id="liCopy" style="padding:5px 10px">複製</button></div>'
+      + '<div class="filehint">他點擊並在 LinkedIn 上授權通過後，會自動出現在上面的連線狀態，不用你再做任何事。</div>'
+      + '</div>';
+    $('liCopy').addEventListener('click', function () {
+      navigator.clipboard && navigator.clipboard.writeText(d.url).then(function () { toast('已複製連結'); });
+    });
+  }).catch(function (e) { area.innerHTML = ''; toast(apiFail(e), true); });
+}
+
+// 補完 token／授權後，重新拉列表資料並就地刷新這張卡的詳情（不整頁重載）
+function refreshOneAndReopen(id, plat) {
+  api('/admin/social-consultants').then(function (d) {
+    if (!d.ok) return;
+    CONSULTANTS = d.consultants || [];
+    paintList();
+    if (DETAIL_ID === id) { DETAIL_PLAT = plat; var c = CONSULTANTS.find(function (x) { return x.id === id; }); if (c) renderDetail(c); }
+  }).catch(function (e) {});
+}
+
+// ────────────────────────────────────────────────────────────────
+// 新增卡片表單
+// ────────────────────────────────────────────────────────────────
+var ADD_STATE = null;
+
+function freshAddState() {
+  return {
+    platform: 'threads',
+    mergeInto: null,      // 重複偵測選「是同一人」時填既有顧問 id，之後只送平台專屬欄位
+    mergeName: null,
+    name: '',
+    password_note: '',
+    style_body: '',
+    line_link: '',
+    tg_new_topic: true,
+    tg_reuse_id: '',
+    threads_mode: 'later',   // 'now' | 'later'
+    threads_token: '',
+  };
+}
+
+function openAddForm() {
+  ADD_STATE = freshAddState();
+  renderAddForm();
+}
+function closeAddForm() { $('addmask').innerHTML = ''; ADD_STATE = null; }
+
+function renderAddForm() {
+  var s = ADD_STATE;
+  var isMerge = !!s.mergeInto;
+  var mask = $('addmask');
+  mask.innerHTML = '<div class="mask" id="addMaskBg"><div class="modal">'
+    + '<div class="mh"><b>' + (isMerge ? '幫「' + esc(s.mergeName) + '」新增一個平台' : '＋ 新增顧問社群卡片') + '</b><button class="x" id="addClose">×</button></div>'
+    + '<div class="mb">'
+    + '<label>① 選平台</label>'
+    + '<div class="seg" id="addPlatSeg">'
+    + '<button type="button" data-p="threads">Threads</button>'
+    + '<button type="button" data-p="linkedin">LinkedIn</button>'
+    + '</div>'
+    + (isMerge ? '' : renderSharedFields(s))
+    + '<div id="addPlatFields"></div>'
+    + '<button class="go" id="addSubmit" type="button" style="margin-top:6px">' + (isMerge ? '併進這張卡片' : '新增卡片') + '</button>'
+    + (isMerge ? '<button type="button" class="tab" id="addUnmerge" style="width:100%;margin-top:8px">不對，這是新顧問，取消併入</button>' : '')
+    + '</div></div></div>';
+
+  [].forEach.call($('addPlatSeg').children, function (b) { b.classList.toggle('on', b.dataset.p === s.platform); });
+  [].forEach.call($('addPlatSeg').children, function (b) {
+    b.addEventListener('click', function () { s.platform = b.dataset.p; renderAddForm(); });
+  });
+  renderAddPlatFields(s);
+
+  $('addClose').addEventListener('click', closeAddForm);
+  $('addMaskBg').addEventListener('click', function (e) { if (e.target.id === 'addMaskBg') closeAddForm(); });
+  if (!isMerge) {
+    $('addName').addEventListener('input', function () { s.name = this.value; });
+    $('addName').addEventListener('blur', function () { runDuplicateCheck(s.name); });
+    $('addPassword').addEventListener('input', function () { s.password_note = this.value; });
+    bindStyleImport('addStyleFile', 'addStyleBody', s);
+    $('addLine').addEventListener('input', function () { s.line_link = this.value; });
+    $('addTgNew').addEventListener('change', function () {
+      s.tg_new_topic = this.checked;
+      $('addTgReuseWrap').hidden = s.tg_new_topic;
+    });
+    fillReuseSelect();
+  } else {
+    $('addUnmerge').addEventListener('click', function () { s.mergeInto = null; s.mergeName = null; renderAddForm(); });
+  }
+  $('addSubmit').addEventListener('click', submitAddForm);
+}
+
+function renderSharedFields(s) {
+  return '<label>② 顧問社群名稱</label>'
+    + '<input type="text" id="addName" value="' + esc(s.name) + '" placeholder="例如：Phoebe">'
+    + '<label>③ 社群帳號密碼</label>'
+    + '<input type="password" id="addPassword" value="' + esc(s.password_note) + '" placeholder="Threads/LinkedIn 該帳號的登入密碼" autocomplete="new-password">'
+    + '<div class="filehint">這欄只給你自己人工去 Meta/LinkedIn 後台登入該帳號用，系統不會拿它做任何自動登入。</div>'
+    + '<label>④ 匯入原始風格提示詞</label>'
+    + '<input type="file" id="addStyleFile" accept=".md,text/markdown,text/plain" style="margin-bottom:14px;font-size:12.5px">'
+    + '<div class="filehint">支援直接貼文字，也支援上傳 md 檔——上傳後自動帶進下面文字框，兩種擇一即可。</div>'
+    + '<textarea id="addStyleBody" placeholder="貼上這位顧問的風格提示詞內容…">' + esc(s.style_body) + '</textarea>'
+    + '<label>⑤ LINE 官方帳號連結</label>'
+    + '<input type="url" id="addLine" value="' + esc(s.line_link) + '" placeholder="https://line.me/R/ti/p/...">'
+    + '<label style="display:flex;align-items:center;gap:8px;font-weight:600;margin-bottom:6px">'
+    + '<input type="checkbox" id="addTgNew" ' + (s.tg_new_topic ? 'checked' : '') + ' style="width:auto;margin:0">'
+    + '⑥ 建立新的 TG 審核主題</label>'
+    + '<div id="addTgReuseWrap" ' + (s.tg_new_topic ? 'hidden' : '') + '>'
+    + '<label>沿用哪位既有顧問的主題？</label><select id="addTgReuse"></select></div>';
+}
+
+function fillReuseSelect() {
+  var sel = $('addTgReuse');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">請選擇…</option>' + CONSULTANTS.filter(function (c) { return c.tg_thread_id; }).map(function (c) {
+    return '<option value="' + c.id + '">' + esc(c.name) + '</option>';
+  }).join('');
+  sel.addEventListener('change', function () { ADD_STATE.tg_reuse_id = this.value; });
+}
+
+function bindStyleImport(fileId, bodyId, s) {
+  $(bodyId).addEventListener('input', function () { s.style_body = this.value; });
+  $(fileId).addEventListener('change', function (e) {
+    var f = e.target.files[0]; if (!f) return;
+    var reader = new FileReader();
+    reader.onload = function () { $(bodyId).value = reader.result; s.style_body = reader.result; toast('✓ 已讀入檔案內容'); };
+    reader.readAsText(f);
+  });
+}
+
+function renderAddPlatFields(s) {
+  var wrap = $('addPlatFields');
+  if (s.platform === 'threads') {
+    wrap.innerHTML = '<label>⑦ Threads token</label>'
+      + '<div class="radiorow" id="threadsModeRow">'
+      + '<label data-v="now"><input type="radio" name="tmode" value="now" ' + (s.threads_mode === 'now' ? 'checked' : '') + '>現在就貼短期 token</label>'
+      + '<label data-v="later"><input type="radio" name="tmode" value="later" ' + (s.threads_mode === 'later' ? 'checked' : '') + '>先建卡片，之後再補 token</label>'
+      + '</div>'
+      + '<div id="threadsTokenWrap" ' + (s.threads_mode === 'now' ? '' : 'hidden') + '>'
+      + '<label>短期 token</label><textarea id="addThreadsToken" style="min-height:70px" placeholder="從 Meta 開發者後台複製過來的短期 token…">' + esc(s.threads_token) + '</textarea>'
+      + '</div>';
+    [].forEach.call(wrap.querySelectorAll('.radiorow label'), function (l) { l.classList.toggle('on', l.dataset.v === s.threads_mode); });
+    [].forEach.call(wrap.querySelectorAll('input[name=tmode]'), function (r) {
+      r.addEventListener('change', function () {
+        s.threads_mode = this.value;
+        $('threadsTokenWrap').hidden = s.threads_mode !== 'now';
+        [].forEach.call(wrap.querySelectorAll('.radiorow label'), function (l) { l.classList.toggle('on', l.dataset.v === s.threads_mode); });
+      });
+    });
+    var ta = $('addThreadsToken');
+    if (ta) ta.addEventListener('input', function () { s.threads_token = this.value; });
+  } else {
+    wrap.innerHTML = '<div class="note" style="margin-top:0">'
+      + '⑦ 填完上面資料、按下新增後，系統會產生一個授權連結，你要把連結傳給這位顧問本人，'
+      + '他點擊並在 LinkedIn 上授權通過後，會自動出現在列表的連線狀態裡。'
+      + '</div>';
+  }
+}
+
+// ── 重複偵測 ──
+// POST /admin/social-consultants/check-duplicate {name} -> {ok, similar:[{id,name}]}
+var dupTimer = null;
+function runDuplicateCheck(name) {
+  name = (name || '').trim();
+  if (!name) return;
+  clearTimeout(dupTimer);
+  dupTimer = setTimeout(function () {
+    api('/admin/social-consultants/check-duplicate', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ name: name }),
+    }).then(function (d) {
+      if (!d.ok) return;
+      var similar = d.similar || [];
+      if (similar.length) showDupModal(name, similar);
+    }).catch(function (e) { /* 查不到就不打擾，照樣讓她填 */ });
+  }, 300);
+}
+
+function showDupModal(typedName, similar) {
+  var m = $('dupmask');
+  var opts = similar.map(function (s) {
+    return '<button type="button" data-merge="' + s.id + '" data-name="' + esc(s.name) + '">'
+      + '是同一人，併進「' + esc(s.name) + '」這張卡片<small>只需要再填平台專屬欄位，共用資料不用重填</small></button>';
+  }).join('');
+  m.innerHTML = '<div class="mask" id="dupMaskBg"><div class="modal" style="max-width:420px">'
+    + '<div class="mh"><b>這可能是同一位顧問</b><button class="x" id="dupClose">×</button></div>'
+    + '<div class="mb">'
+    + '<p style="margin:0 0 4px;font-size:13.5px">你輸入的「' + esc(typedName) + '」跟系統裡已經有的名字很像：</p>'
+    + '<div class="confirmbtns">'
+    + opts
+    + '<button type="button" data-merge="0">不是，這是新顧問，繼續新建</button>'
+    + '</div></div></div></div>';
+  var close = function () { m.innerHTML = ''; };
+  $('dupClose').addEventListener('click', close);
+  $('dupMaskBg').addEventListener('click', function (e) { if (e.target.id === 'dupMaskBg') close(); });
+  [].forEach.call(m.querySelectorAll('.confirmbtns button'), function (b) {
+    b.addEventListener('click', function () {
+      var mid = Number(b.dataset.merge);
+      close();
+      if (mid) {
+        ADD_STATE.mergeInto = mid;
+        ADD_STATE.mergeName = b.dataset.name;
+        renderAddForm();
+      }
+      // mid===0：不是同一人，什麼都不用動，表單繼續原樣讓她填
+    });
+  });
+}
+
+function submitAddForm() {
+  var s = ADD_STATE;
+  var btn = $('addSubmit');
+
+  if (!s.mergeInto) {
+    if (!s.name.trim()) return toast('顧問社群名稱要填', true);
+    if (!s.line_link.trim()) return toast('LINE 官方帳號連結要填', true);
+    if (!s.tg_new_topic && !s.tg_reuse_id) return toast('沒勾「建立新主題」就要選要沿用誰的', true);
+  }
+  if (s.platform === 'threads' && s.threads_mode === 'now' && !s.threads_token.trim()) {
+    return toast('選了「現在就貼」就要貼 token，不然改選「之後再補」', true);
+  }
+
+  var payload = {
+    platform: s.platform,
+    style_prompt_body: s.style_body || '',
+  };
+  if (s.mergeInto) {
+    payload.existing_consultant_id = s.mergeInto;
+  } else {
+    payload.name = s.name.trim();
+    payload.account_password_note = s.password_note;
+    payload.line_link = s.line_link.trim();
+    payload.tg_new_topic = s.tg_new_topic;
+    if (!s.tg_new_topic) payload.tg_reuse_consultant_id = Number(s.tg_reuse_id);
+  }
+  if (s.platform === 'threads') {
+    payload.threads_token_mode = s.threads_mode;
+    if (s.threads_mode === 'now') payload.threads_short_token = s.threads_token.trim();
+  }
+
+  btn.disabled = true; btn.textContent = '處理中⋯';
+  api('/admin/social-consultants', {
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload),
+  }).then(function (d) {
+    if (!d.ok) { btn.disabled = false; btn.textContent = s.mergeInto ? '併進這張卡片' : '新增卡片'; return toast(d.error || '新增失敗', true); }
+    var newId = d.id || s.mergeInto;
+    closeAddForm();
+    toast(s.platform === 'linkedin' ? '✓ 已建立，接著幫她產生授權連結' : '✓ 已新增');
+    loadList();
+    if (s.platform === 'linkedin' && newId) {
+      // LinkedIn 沒有「立刻完成」這回事，直接開詳情、幫她把授權連結準備好
+      setTimeout(function () {
+        api('/admin/social-consultants').then(function (r) {
+          if (!r.ok) return;
+          CONSULTANTS = r.consultants || [];
+          paintList();
+          var c = CONSULTANTS.find(function (x) { return x.id === newId; });
+          if (c) { DETAIL_ID = newId; DETAIL_PLAT = 'linkedin'; renderDetail(c); $('detailmask').classList.add('show'); fetchLinkedinAuthLink(c); }
+        }).catch(function (e) {});
+      }, 300);
+    }
+  }).catch(function (e) { btn.disabled = false; btn.textContent = s.mergeInto ? '併進這張卡片' : '新增卡片'; toast(apiFail(e), true); });
+}
+
+$('btnAdd').addEventListener('click', openAddForm);
+
+// ────────────────────────────────────────────────────────────────
+// 登入門檻（跟其他顧問後台頁同一套）
+// ────────────────────────────────────────────────────────────────
+function load() {
+  $('gate').hidden = true; $('app').hidden = false;
+  loadList();
+}
+function boot() {
+  if (tok) return load();
+  $('gate').hidden = false;
+  $('enter').onclick = function () {
+    tok = $('tok').value.trim();
+    if (!tok) return;
+    api('/admin/social-consultants').then(function (d) {
+      if (!d.ok) { $('gerr').hidden = false; $('gerr').textContent = '權杖不正確'; return; }
+      localStorage.setItem(KEY, tok); load();
+    }).catch(function (e) {
+      if (e.status === 401) { $('gerr').hidden = false; $('gerr').textContent = '權杖不正確'; return; }
+      // 端點還沒上線時也讓她先進去，看得到「讀取失敗」比卡在登入頁好查
+      localStorage.setItem(KEY, tok); load();
+    });
+  };
+  $('tok').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('enter').click(); });
+}
+boot();
+</script>
+</html>
