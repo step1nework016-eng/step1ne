@@ -336,6 +336,73 @@ table.gap td.stale{color:#c0392b}
 .thin2{font-size:10px;color:#98a1aa;margin-left:5px}
 @media(max-width:720px){#thTabs{display:none}.thmsel{display:block}}
 @media(max-width:420px){.tobs-accounts{grid-template-columns:1fr}.tobs-flow{grid-template-columns:1fr}.tobs-metrics{grid-template-columns:repeat(3,1fr)}}
+
+/* ── 顧問社群卡片（2026-09-14 從獨立頁 /consultant/social-consultants/ 併進來）──
+   接 Threads／LinkedIn 帳號、token、風格提示詞、LINE連結、TG審核主題的地方。
+   老闆要求改表格呈現＋整合進這個分頁；.mask/.modal/.mh/.mb/.sec/.seg/.filehint/
+   .note/.go/.tab 沿用上面已經有的全站樣式，這裡只補表格與抽屜特有的樣式。 */
+.toolbar{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap}
+.toolbar h1{font-size:19px;margin:0}
+.sc-tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:12px;background:#fff}
+table.sc-table{border-collapse:collapse;width:100%;min-width:560px}
+table.sc-table th{text-align:left;font-size:11.5px;font-weight:700;color:var(--ink3);padding:10px 13px;border-bottom:1px solid var(--line);white-space:nowrap}
+table.sc-table td{padding:10px 13px;border-bottom:1px solid #f2f0ea;font-size:13.5px;vertical-align:middle}
+table.sc-table tr:last-child td{border-bottom:0}
+tr.sc-row{cursor:pointer}
+tr.sc-row:hover{background:var(--soft)}
+td.sc-nm{font-weight:700}
+.sc-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#c9c2b2;margin-right:6px;vertical-align:1px}
+.sc-dot.on{background:var(--ok)}
+.sc-off{color:var(--ink3);font-size:12.5px}
+.sc-on{color:var(--ok);font-weight:600;font-size:12.5px}
+.sc-exp{color:var(--ink3);font-weight:400;margin-left:5px;font-size:11.5px}
+.sc-linechip{display:inline-block;font-size:11px;font-weight:700;color:#1a7a43;background:#e8f5ee;border-radius:6px;padding:3px 8px;text-decoration:none}
+.sc-viewbtn{font:inherit;font-size:12.5px;font-weight:700;padding:6px 13px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--ink2);cursor:pointer}
+tr.sc-row:hover .sc-viewbtn{border-color:var(--gold);color:var(--gold)}
+.empty{background:#fff;border:1px dashed var(--line);border-radius:14px;padding:32px;text-align:center;color:var(--ink3)}
+
+/* 詳情抽屜 */
+.dmask{position:fixed;inset:0;background:rgba(20,22,26,.5);z-index:80;display:none;justify-content:flex-end}
+.dmask.show{display:flex}
+.dwrap{background:var(--bg);width:min(600px,100%);height:100%;overflow-y:auto;box-shadow:-8px 0 32px rgba(0,0,0,.12)}
+.dhead{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:14px 20px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;z-index:2}
+.dhead .nm{font-size:18px;font-weight:700}
+.dhead .x{margin-left:auto;font:inherit;font-size:22px;line-height:1;background:none;border:0;cursor:pointer;color:var(--ink3);padding:0 4px}
+.dbody{padding:16px 20px 60px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:13.5px}
+.kv dt{color:var(--ink3);white-space:nowrap}
+.kv dd{margin:0;overflow-wrap:anywhere}
+.kv a{color:var(--gold);text-decoration:none}
+.platformtabs{display:flex;gap:8px;margin-bottom:12px}
+.platformtabs button{flex:1;font:inherit;font-weight:700;font-size:13.5px;padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:var(--soft);color:var(--ink2);cursor:pointer}
+.platformtabs button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.statusrow{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.statusbadge{font-size:12px;font-weight:700;padding:4px 11px;border-radius:999px}
+.statusbadge.ok{background:#e8f5ee;color:var(--ok)}
+.statusbadge.off{background:#f1f1ee;color:var(--ink3)}
+.promptbox{background:var(--soft);border:1px solid var(--line);border-radius:9px;padding:10px 12px;font-size:12.5px;color:var(--ink2);white-space:pre-wrap;font-family:ui-monospace,"SF Mono",monospace;max-height:80px;overflow:hidden;position:relative;margin-bottom:8px}
+.promptbox.expand{max-height:none}
+.promptbox.empty{color:var(--ink3);font-family:inherit;font-style:italic;background:var(--soft);border:1px solid var(--line);border-radius:9px;padding:10px 12px}
+.linkbtn{background:none;border:0;color:var(--gold);font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;padding:0}
+.actrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.actrow button{font:inherit;font-size:12.5px;font-weight:700;padding:7px 13px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--ink2);cursor:pointer}
+.actrow button:hover{border-color:var(--gold);color:var(--gold)}
+.inlineform{border:1px dashed #ddd3c0;border-radius:10px;padding:12px 14px;margin-top:10px;background:#fffdf8}
+.inlineform label{margin-top:0}
+.linkbox{display:flex;gap:8px;align-items:center;background:var(--soft);border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:12.5px;word-break:break-all}
+.linkbox button{flex:none}
+
+/* 新增卡片彈窗內的單選列（現在就貼token／先建卡片再補） */
+.radiorow{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.radiorow label{display:flex;align-items:flex-start;gap:9px;font-size:13.5px;font-weight:400;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:11px 13px;cursor:pointer;margin:0}
+.radiorow label.on{border-color:var(--gold);background:#fffaf0}
+.radiorow input{margin:2px 0 0}
+
+/* 重複偵測 confirm modal */
+.confirmbtns{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+.confirmbtns button{font:inherit;font-size:14px;font-weight:700;padding:12px 14px;border-radius:11px;border:1px solid var(--line);background:#fff;cursor:pointer;text-align:left}
+.confirmbtns button.primary{background:var(--gold);color:#fff;border-color:var(--gold)}
+.confirmbtns button small{display:block;font-weight:400;font-size:12px;opacity:.85;margin-top:2px}
 </style>
 
 <div id="gate" class="gate" hidden>
@@ -360,6 +427,7 @@ table.gap td.stale{color:#c0392b}
       <button type="button" class="tab" data-pane="pane-settings">✨ 顧問與話題設定</button>
       <button type="button" class="tab" data-pane="pane-candidates">📋 職缺社群回覆</button>
       <button type="button" class="tab" data-pane="pane-threads">📊 Threads 個別成效</button>
+      <button type="button" class="tab" data-pane="pane-sc">🔗 顧問社群卡片</button>
     </div>
 
     <div id="pane-post">
@@ -684,8 +752,32 @@ table.gap td.stale{color:#c0392b}
       </div>
       <div id="csList"></div>
     </div>
+
+    <!-- ── 顧問社群卡片（2026-09-14 從獨立頁 /consultant/social-consultants/ 併進來，
+         改成表格呈現）── 幫顧問接 Threads／LinkedIn 帳號、token、風格提示詞、LINE
+         連結、TG 審核主題的地方，以前都是老闆用終端機一步步做。 -->
+    <div id="pane-sc" hidden>
+      <div class="note">
+        這裡是幫顧問接 Threads／LinkedIn 帳號的地方——換 token、寫 LINE 連結、開 TG 審核主題，
+        以前都是老闆用終端機一步步做，現在你自己就能操作。一個顧問一列，Threads／LinkedIn
+        是點進去之後的兩個分頁，不是兩列。
+      </div>
+      <div class="toolbar">
+        <h1>所有顧問（<span id="scCount">…</span>）</h1>
+        <button class="go" id="scBtnAdd" type="button" style="width:auto;padding:11px 20px">＋ 新增顧問社群卡片</button>
+      </div>
+      <div class="sc-tablewrap">
+        <table class="sc-table">
+          <thead><tr><th>顧問姓名</th><th>Threads</th><th>LinkedIn</th><th>LINE</th><th></th></tr></thead>
+          <tbody id="scTbody"><tr><td colspan="5" class="mut">載入中…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
   </main>
 </div>
+<div id="scDetailmask" class="dmask"></div>
+<div id="scAddmask"></div>
+<div id="scDupmask"></div>
 <div id="msg" class="msg"></div>
 <div id="pvmodal"></div>
 
@@ -1478,7 +1570,7 @@ $('thVal').onchange=function(){ TH.val=this.value; thRender(); };
 $('maintabs').addEventListener('click', function (e) {
   var b = e.target.closest('.tab'); if (!b) return;
   [].forEach.call($('maintabs').children, function (x) { x.classList.toggle('on', x === b); });
-  ['pane-post', 'pane-cal', 'pane-board', 'pane-convert', 'pane-settings', 'pane-candidates', 'pane-threads'].forEach(function (id) {
+  ['pane-post', 'pane-cal', 'pane-board', 'pane-convert', 'pane-settings', 'pane-candidates', 'pane-threads', 'pane-sc'].forEach(function (id) {
     $(id).hidden = (id !== b.dataset.pane);
   });
   if (b.dataset.pane === 'pane-cal') loadCal();
@@ -1489,6 +1581,7 @@ $('maintabs').addEventListener('click', function (e) {
   if (b.dataset.pane === 'pane-settings') loadSettings();
   if (b.dataset.pane === 'pane-candidates') loadCandidateSummaries();
   if (b.dataset.pane === 'pane-threads') loadThreadsReport();
+  if (b.dataset.pane === 'pane-sc') scLoadList();
   // 2026-09-03 加：在「顧問與話題設定」改完指派、切回「一鍵發文」時，
   // 話題下拉之前只在切換帳號／類型當下抓一次，不會自動反映剛剛存的設定，
   // 會讓人以為「明明設定了怎麼還是沒有」。切回這個分頁時，如果正停在
@@ -2932,6 +3025,471 @@ $('csAccount').addEventListener('change', function () {
 $('csSearch').addEventListener('input', csRenderList);
 $('csChannel').addEventListener('change', csRenderList);
 $('csClient').addEventListener('change', csRenderList);
+
+// ────────────────────────────────────────────────────────────────
+// 顧問社群卡片（2026-09-14 從獨立頁 /consultant/social-consultants/ 併進來）
+// ────────────────────────────────────────────────────────────────
+function scFmtDate(s) {
+  if (!s) return '';
+  return String(s).slice(0, 10);
+}
+// ────────────────────────────────────────────────────────────────
+// 列表
+// ────────────────────────────────────────────────────────────────
+var SC_CONSULTANTS = [];
+
+function scStatusCell(c, plat) {
+  var p = c[plat] || {};
+  var label = plat === 'threads' ? 'Threads' : 'LinkedIn';
+  if (!p.connected) return '<span class="sc-dot"></span><span class="sc-off">' + label + ' 未設定</span>';
+  return '<span class="sc-dot on"></span><span class="sc-on">' + label
+    + (p.expires_at ? '<span class="sc-exp">到期 ' + scFmtDate(p.expires_at) + '</span>' : '<span class="sc-exp">已連線</span>') + '</span>';
+}
+
+function scPaintList() {
+  $('scCount').textContent = SC_CONSULTANTS.length;
+  if (!SC_CONSULTANTS.length) {
+    $('scTbody').innerHTML = '<tr><td colspan="5"><div class="empty">目前還沒有顧問社群卡片，按右上角「＋ 新增」開始接第一位顧問</div></td></tr>';
+    return;
+  }
+  $('scTbody').innerHTML = SC_CONSULTANTS.map(function (c) {
+    return '<tr class="sc-row" data-name="' + esc(c.name) + '">'
+      + '<td class="sc-nm">' + esc(c.name) + '</td>'
+      + '<td>' + scStatusCell(c, 'threads') + '</td>'
+      + '<td>' + scStatusCell(c, 'linkedin') + '</td>'
+      + '<td>' + (c.line_link ? '<a href="' + esc(c.line_link) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()" class="sc-linechip">LINE</a>' : '<span class="mut">—</span>') + '</td>'
+      + '<td><button type="button" class="sc-viewbtn">查看</button></td>'
+      + '</tr>';
+  }).join('');
+  [].forEach.call($('scTbody').querySelectorAll('.sc-row'), function (el) {
+    el.addEventListener('click', function () { scOpenDetail(el.dataset.name); });
+  });
+}
+
+function scLoadList() {
+  $('scTbody').innerHTML = '<div class="mut">載入中…</div>';
+  api('/admin/social-consultants').then(function (d) {
+    if (!d.ok) return toast(d.error || '讀取失敗', true);
+    SC_CONSULTANTS = d.consultants || [];
+    scPaintList();
+  }).catch(function (e) {
+    $('scTbody').innerHTML = '<div class="empty">讀取失敗：' + esc(apiFail(e)) + '</div>';
+  });
+}
+
+// ────────────────────────────────────────────────────────────────
+// 詳情抽屜
+// ────────────────────────────────────────────────────────────────
+var SC_DETAIL_NAME = null;
+var SC_DETAIL_PLAT = 'threads';
+
+function scOpenDetail(name) {
+  var c = SC_CONSULTANTS.find(function (x) { return x.name === name; });
+  if (!c) return;
+  SC_DETAIL_NAME = name;
+  SC_DETAIL_PLAT = (c.threads && c.threads.connected) ? 'threads' : (c.linkedin && c.linkedin.connected) ? 'linkedin' : 'threads';
+  scRenderDetail(c);
+  $('scDetailmask').classList.add('show');
+}
+function scCloseDetail() { $('scDetailmask').classList.remove('show'); $('scDetailmask').innerHTML = ''; SC_DETAIL_NAME = null; }
+
+function scRenderDetail(c) {
+  var mask = $('scDetailmask');
+  mask.innerHTML = '<div class="dwrap">'
+    + '<div class="dhead"><span class="nm">' + esc(c.name) + '</span><button class="x" id="scDClose">×</button></div>'
+    + '<div class="dbody">'
+    + '<div class="sec"><h4>共用資料</h4><dl class="kv">'
+    + '<dt>LINE 官方帳號</dt><dd>' + (c.line_link ? '<a href="' + esc(c.line_link) + '" target="_blank">' + esc(c.line_link) + '</a>' : '<span class="mut">未填</span>') + '</dd>'
+    + '<dt>TG 審核主題</dt><dd>' + (c.tg_thread_id ? esc(c.tg_thread_id) : '<span class="mut">未設定</span>') + '</dd>'
+    + '</dl></div>'
+    + '<div class="platformtabs" id="scDTabs">'
+    + '<button type="button" data-p="threads">Threads</button>'
+    + '<button type="button" data-p="linkedin">LinkedIn</button>'
+    + '</div>'
+    + '<div id="scDPlatBody"></div>'
+    + '</div></div>';
+  $('scDClose').onclick = scCloseDetail;
+  [].forEach.call($('scDTabs').children, function (b) { b.classList.toggle('on', b.dataset.p === SC_DETAIL_PLAT); });
+  [].forEach.call($('scDTabs').children, function (b) {
+    b.addEventListener('click', function () { SC_DETAIL_PLAT = b.dataset.p; scRenderDetail(c); });
+  });
+  scRenderPlatBody(c, SC_DETAIL_PLAT);
+}
+
+function scRenderPlatBody(c, plat) {
+  var p = c[plat] || {};
+  var label = plat === 'threads' ? 'Threads' : 'LinkedIn';
+  var body = $('scDPlatBody');
+  var promptId = 'dprompt_' + plat;
+  var html = '<div class="sec">'
+    + '<div class="statusrow"><span class="statusbadge ' + (p.connected ? 'ok' : 'off') + '">'
+    + (p.connected ? '✅ 已連線' + (p.expires_at ? '（到期 ' + scFmtDate(p.expires_at) + '）' : '') : '⚪ 尚未設定') + '</span></div>'
+    + '<h4 style="margin-top:12px">風格提示詞</h4>'
+    + '<div class="promptbox' + (p.style_prompt_preview ? '' : ' empty') + '" id="' + promptId + '">'
+    + (p.style_prompt_preview ? esc(p.style_prompt_preview) : '（還沒有匯入過風格提示詞）')
+    + '</div>'
+    + (p.style_prompt_preview ? '<button type="button" class="linkbtn" id="scDPromptToggle">展開看全文</button>' : '')
+    + '<div class="actrow">'
+    + '<button type="button" id="scDReimport">🔄 重新匯入風格提示詞</button>';
+  if (plat === 'threads' && !p.connected) html += '<button type="button" id="scDSetToken">貼入短期 token</button>';
+  if (plat === 'linkedin' && !p.connected) html += '<button type="button" id="scDAuthLink">產生授權連結</button>';
+  html += '</div><div id="scDInlineArea"></div></div>';
+  body.innerHTML = html;
+
+  var toggleBtn = $('scDPromptToggle');
+  if (toggleBtn) toggleBtn.addEventListener('click', function () {
+    var box = $(promptId);
+    var expand = !box.classList.contains('expand');
+    box.classList.toggle('expand', expand);
+    toggleBtn.textContent = expand ? '收合' : '展開看全文';
+  });
+
+  var reimportBtn = $('scDReimport');
+  if (reimportBtn) reimportBtn.addEventListener('click', function () { scOpenReimportForm(c, plat); });
+
+  var tokenBtn = $('scDSetToken');
+  if (tokenBtn) tokenBtn.addEventListener('click', function () { scOpenThreadsTokenForm(c); });
+
+  var authBtn = $('scDAuthLink');
+  if (authBtn) authBtn.addEventListener('click', function () { scFetchLinkedinAuthLink(c); });
+}
+
+// 重新匯入風格提示詞——沿用「話題提示詞庫」貼文字／上傳 .md 二擇一的匯入方式
+// ⚠️ 假設端點：POST /admin/social-consultants/:id/style-prompt {platform, body}
+// 後端還沒建，等對規格。
+function scOpenReimportForm(c, plat) {
+  var area = $('scDInlineArea');
+  area.innerHTML = '<div class="inlineform">'
+    + '<label>上傳 .md 檔案（選填，會覆蓋下面文字框內容）</label>'
+    + '<input type="file" id="scRiFile" accept=".md,text/markdown,text/plain" style="margin-bottom:14px;font-size:12.5px">'
+    + '<div class="filehint">支援直接貼文字，也支援上傳 md 檔——上傳後自動帶進下面文字框，兩種擇一即可。</div>'
+    + '<label>內容</label><textarea id="scRiBody" placeholder="貼上風格提示詞內容…"></textarea>'
+    + '<div style="display:flex;gap:8px"><button class="go" id="scRiSave" type="button" style="width:auto;padding:9px 16px">儲存</button>'
+    + '<button class="tab" id="scRiCancel" type="button">取消</button></div>'
+    + '</div>';
+  $('scRiFile').addEventListener('change', function (e) {
+    var f = e.target.files[0]; if (!f) return;
+    var reader = new FileReader();
+    reader.onload = function () { $('scRiBody').value = reader.result; toast('✓ 已讀入檔案內容'); };
+    reader.readAsText(f);
+  });
+  $('scRiCancel').addEventListener('click', function () { area.innerHTML = ''; });
+  $('scRiSave').addEventListener('click', function () {
+    var b = $('scRiBody').value.trim();
+    if (!b) return toast('內容不能空白', true);
+    var btn = $('scRiSave'); btn.disabled = true; btn.textContent = '儲存中⋯';
+    api('/admin/social-consultants/' + (c[plat] && c[plat].id) + '/style-prompt', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ platform: plat, body: b }),
+    }).then(function (d) {
+      if (!d.ok) { btn.disabled = false; btn.textContent = '儲存'; return toast(d.error || '儲存失敗', true); }
+      toast('✓ 已更新風格提示詞'); area.innerHTML = '';
+      scLoadList(); // 重新拉一次讓 preview 更新，展開的詳情之後重開會看到最新內容
+    }).catch(function (e) { btn.disabled = false; btn.textContent = '儲存'; toast(apiFail(e), true); });
+  });
+}
+
+function scOpenThreadsTokenForm(c) {
+  var area = $('scDInlineArea');
+  area.innerHTML = '<div class="inlineform">'
+    + '<label>貼上 Threads 短期 token</label>'
+    + '<textarea id="scTtBody" style="min-height:70px" placeholder="從 Meta 開發者後台複製過來的短期 token…"></textarea>'
+    + '<div class="filehint">貼上後系統會自動換成長期 token，並排進每週自動續期。</div>'
+    + '<div style="display:flex;gap:8px"><button class="go" id="scTtSave" type="button" style="width:auto;padding:9px 16px">送出</button>'
+    + '<button class="tab" id="scTtCancel" type="button">取消</button></div>'
+    + '</div>';
+  $('scTtCancel').addEventListener('click', function () { area.innerHTML = ''; });
+  $('scTtSave').addEventListener('click', function () {
+    var v = $('scTtBody').value.trim();
+    if (!v) return toast('token 不能空白', true);
+    var btn = $('scTtSave'); btn.disabled = true; btn.textContent = '處理中⋯';
+    api('/admin/social-consultants/' + (c.threads && c.threads.id) + '/threads-token', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ short_token: v }),
+    }).then(function (d) {
+      if (!d.ok) { btn.disabled = false; btn.textContent = '送出'; return toast(d.error || '換取失敗', true); }
+      toast('✓ Threads 已連線'); area.innerHTML = '';
+      scLoadList().then ? null : null;
+      scRefreshOneAndReopen(c.name, 'threads');
+    }).catch(function (e) { btn.disabled = false; btn.textContent = '送出'; toast(apiFail(e), true); });
+  });
+}
+
+function scFetchLinkedinAuthLink(c) {
+  var area = $('scDInlineArea');
+  area.innerHTML = '<div class="inlineform mut">產生連結中…</div>';
+  api('/admin/social-consultants/' + (c.linkedin && c.linkedin.id) + '/linkedin-auth-link').then(function (d) {
+    if (!d.ok || !d.url) { area.innerHTML = ''; return toast(d.error || '產生失敗', true); }
+    area.innerHTML = '<div class="inlineform">'
+      + '<label style="margin-bottom:8px">把這個連結傳給 ' + esc(c.name) + ' 本人</label>'
+      + '<div class="linkbox"><span style="flex:1">' + esc(d.url) + '</span>'
+      + '<button type="button" class="tab" id="scLiCopy" style="padding:5px 10px">複製</button></div>'
+      + '<div class="filehint">他點擊並在 LinkedIn 上授權通過後，會自動出現在上面的連線狀態，不用你再做任何事。</div>'
+      + '</div>';
+    $('scLiCopy').addEventListener('click', function () {
+      navigator.clipboard && navigator.clipboard.writeText(d.url).then(function () { toast('已複製連結'); });
+    });
+  }).catch(function (e) { area.innerHTML = ''; toast(apiFail(e), true); });
+}
+
+// 補完 token／授權後，重新拉列表資料並就地刷新這張卡的詳情（不整頁重載）
+function scRefreshOneAndReopen(name, plat) {
+  api('/admin/social-consultants').then(function (d) {
+    if (!d.ok) return;
+    SC_CONSULTANTS = d.consultants || [];
+    scPaintList();
+    if (SC_DETAIL_NAME === name) { SC_DETAIL_PLAT = plat; var c = SC_CONSULTANTS.find(function (x) { return x.name === name; }); if (c) scRenderDetail(c); }
+  }).catch(function (e) {});
+}
+
+// ────────────────────────────────────────────────────────────────
+// 新增卡片表單
+// ────────────────────────────────────────────────────────────────
+var SC_ADD_STATE = null;
+
+function scFreshAddState() {
+  return {
+    platform: 'threads',
+    mergeInto: null,      // 重複偵測選「是同一人」時填既有顧問 id，之後只送平台專屬欄位
+    mergeName: null,
+    name: '',
+    username: '',
+    password_note: '',
+    style_body: '',
+    line_link: '',
+    tg_new_topic: true,
+    tg_reuse_id: '',
+    threads_mode: 'later',   // 'now' | 'later'
+    threads_token: '',
+  };
+}
+
+function scOpenAddForm() {
+  SC_ADD_STATE = scFreshAddState();
+  scRenderAddForm();
+}
+function scCloseAddForm() { $('scAddmask').innerHTML = ''; SC_ADD_STATE = null; }
+
+function scRenderAddForm() {
+  var s = SC_ADD_STATE;
+  var isMerge = !!s.mergeInto;
+  var mask = $('scAddmask');
+  mask.innerHTML = '<div class="mask" id="scAddMaskBg"><div class="modal">'
+    + '<div class="mh"><b>' + (isMerge ? '幫「' + esc(s.mergeName) + '」新增一個平台' : '＋ 新增顧問社群卡片') + '</b><button class="x" id="scAddClose">×</button></div>'
+    + '<div class="mb">'
+    + '<label>① 選平台</label>'
+    + '<div class="seg" id="scAddPlatSeg">'
+    + '<button type="button" data-p="threads">Threads</button>'
+    + '<button type="button" data-p="linkedin">LinkedIn</button>'
+    + '</div>'
+    + (isMerge ? '' : scRenderSharedFields(s))
+    + '<div id="scAddPlatFields"></div>'
+    + '<button class="go" id="scAddSubmit" type="button" style="margin-top:6px">' + (isMerge ? '併進這張卡片' : '新增卡片') + '</button>'
+    + (isMerge ? '<button type="button" class="tab" id="scAddUnmerge" style="width:100%;margin-top:8px">不對，這是新顧問，取消併入</button>' : '')
+    + '</div></div></div>';
+
+  [].forEach.call($('scAddPlatSeg').children, function (b) { b.classList.toggle('on', b.dataset.p === s.platform); });
+  [].forEach.call($('scAddPlatSeg').children, function (b) {
+    b.addEventListener('click', function () { s.platform = b.dataset.p; scRenderAddForm(); });
+  });
+  scRenderAddPlatFields(s);
+
+  $('scAddClose').addEventListener('click', scCloseAddForm);
+  $('scAddMaskBg').addEventListener('click', function (e) { if (e.target.id === 'scAddMaskBg') scCloseAddForm(); });
+  if (!isMerge) {
+    $('scAddName').addEventListener('input', function () { s.name = this.value; });
+    $('scAddName').addEventListener('blur', function () { scRunDuplicateCheck(s.name); });
+    $('scAddUsername').addEventListener('input', function () { s.username = this.value; });
+    $('scAddPassword').addEventListener('input', function () { s.password_note = this.value; });
+    scBindStyleImport('scAddStyleFile', 'scAddStyleBody', s);
+    $('scAddLine').addEventListener('input', function () { s.line_link = this.value; });
+    $('scAddTgNew').addEventListener('change', function () {
+      s.tg_new_topic = this.checked;
+      $('scAddTgReuseWrap').hidden = s.tg_new_topic;
+    });
+    scFillReuseSelect();
+  } else {
+    $('scAddUnmerge').addEventListener('click', function () { s.mergeInto = null; s.mergeName = null; scRenderAddForm(); });
+  }
+  $('scAddSubmit').addEventListener('click', scSubmitAddForm);
+}
+
+function scRenderSharedFields(s) {
+  return '<label>② 顧問社群名稱</label>'
+    + '<input type="text" id="scAddName" value="' + esc(s.name) + '" placeholder="例如：Phoebe">'
+    + '<label>③ 社群帳號密碼</label>'
+    + '<input type="text" id="scAddUsername" value="' + esc(s.username || '') + '" placeholder="帳號（Email 或用戶名）" autocomplete="username" style="margin-bottom:8px">'
+    + '<input type="password" id="scAddPassword" value="' + esc(s.password_note) + '" placeholder="密碼" autocomplete="new-password">'
+    + '<div class="filehint">這兩欄只給你自己人工去 Meta/LinkedIn 後台登入該帳號用，系統不會拿它做任何自動登入；密碼會加密存放。</div>'
+    + '<label>④ 匯入原始風格提示詞</label>'
+    + '<input type="file" id="scAddStyleFile" accept=".md,text/markdown,text/plain" style="margin-bottom:14px;font-size:12.5px">'
+    + '<div class="filehint">支援直接貼文字，也支援上傳 md 檔——上傳後自動帶進下面文字框，兩種擇一即可。</div>'
+    + '<textarea id="scAddStyleBody" placeholder="貼上這位顧問的風格提示詞內容…">' + esc(s.style_body) + '</textarea>'
+    + '<label>⑤ LINE 官方帳號連結</label>'
+    + '<input type="url" id="scAddLine" value="' + esc(s.line_link) + '" placeholder="https://line.me/R/ti/p/...">'
+    + '<label style="display:flex;align-items:center;gap:8px;font-weight:600;margin-bottom:6px">'
+    + '<input type="checkbox" id="scAddTgNew" ' + (s.tg_new_topic ? 'checked' : '') + ' style="width:auto;margin:0">'
+    + '⑥ 建立新的 TG 審核主題</label>'
+    + '<div id="scAddTgReuseWrap" ' + (s.tg_new_topic ? 'hidden' : '') + '>'
+    + '<label>沿用哪位既有顧問的主題？</label><select id="scAddTgReuse"></select></div>';
+}
+
+function scFillReuseSelect() {
+  var sel = $('scAddTgReuse');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">請選擇…</option>' + SC_CONSULTANTS.filter(function (c) { return c.tg_thread_id; }).map(function (c) {
+    return '<option value="' + c.tg_thread_id + '">' + esc(c.name) + '</option>';
+  }).join('');
+  sel.addEventListener('change', function () { SC_ADD_STATE.tg_reuse_id = this.value; });
+}
+
+function scBindStyleImport(fileId, bodyId, s) {
+  $(bodyId).addEventListener('input', function () { s.style_body = this.value; });
+  $(fileId).addEventListener('change', function (e) {
+    var f = e.target.files[0]; if (!f) return;
+    var reader = new FileReader();
+    reader.onload = function () { $(bodyId).value = reader.result; s.style_body = reader.result; toast('✓ 已讀入檔案內容'); };
+    reader.readAsText(f);
+  });
+}
+
+function scRenderAddPlatFields(s) {
+  var wrap = $('scAddPlatFields');
+  if (s.platform === 'threads') {
+    wrap.innerHTML = '<label>⑦ Threads token</label>'
+      + '<div class="radiorow" id="scThreadsModeRow">'
+      + '<label data-v="now"><input type="radio" name="tmode" value="now" ' + (s.threads_mode === 'now' ? 'checked' : '') + '>現在就貼短期 token</label>'
+      + '<label data-v="later"><input type="radio" name="tmode" value="later" ' + (s.threads_mode === 'later' ? 'checked' : '') + '>先建卡片，之後再補 token</label>'
+      + '</div>'
+      + '<div id="scThreadsTokenWrap" ' + (s.threads_mode === 'now' ? '' : 'hidden') + '>'
+      + '<label>短期 token</label><textarea id="scAddThreadsToken" style="min-height:70px" placeholder="從 Meta 開發者後台複製過來的短期 token…">' + esc(s.threads_token) + '</textarea>'
+      + '</div>';
+    [].forEach.call(wrap.querySelectorAll('.radiorow label'), function (l) { l.classList.toggle('on', l.dataset.v === s.threads_mode); });
+    [].forEach.call(wrap.querySelectorAll('input[name=tmode]'), function (r) {
+      r.addEventListener('change', function () {
+        s.threads_mode = this.value;
+        $('scThreadsTokenWrap').hidden = s.threads_mode !== 'now';
+        [].forEach.call(wrap.querySelectorAll('.radiorow label'), function (l) { l.classList.toggle('on', l.dataset.v === s.threads_mode); });
+      });
+    });
+    var ta = $('scAddThreadsToken');
+    if (ta) ta.addEventListener('input', function () { s.threads_token = this.value; });
+  } else {
+    wrap.innerHTML = '<div class="note" style="margin-top:0">'
+      + '⑦ 填完上面資料、按下新增後，系統會產生一個授權連結，你要把連結傳給這位顧問本人，'
+      + '他點擊並在 LinkedIn 上授權通過後，會自動出現在列表的連線狀態裡。'
+      + '</div>';
+  }
+}
+
+// ── 重複偵測 ──
+// POST /admin/social-consultants/check-duplicate {name} -> {ok, similar:[{id,name}]}
+var scDupTimer = null;
+function scRunDuplicateCheck(name) {
+  name = (name || '').trim();
+  if (!name) return;
+  clearTimeout(scDupTimer);
+  scDupTimer = setTimeout(function () {
+    api('/admin/social-consultants/check-duplicate', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ name: name }),
+    }).then(function (d) {
+      if (!d.ok) return;
+      var similar = d.similar || [];
+      if (similar.length) scShowDupModal(name, similar);
+    }).catch(function (e) { /* 查不到就不打擾，照樣讓她填 */ });
+  }, 300);
+}
+
+function scShowDupModal(typedName, similar) {
+  var m = $('scDupmask');
+  var opts = similar.map(function (s) {
+    return '<button type="button" data-merge="' + s.id + '" data-name="' + esc(s.name) + '">'
+      + '是同一人，併進「' + esc(s.name) + '」這張卡片<small>只需要再填平台專屬欄位，共用資料不用重填</small></button>';
+  }).join('');
+  m.innerHTML = '<div class="mask" id="scDupMaskBg"><div class="modal" style="max-width:420px">'
+    + '<div class="mh"><b>這可能是同一位顧問</b><button class="x" id="scDupClose">×</button></div>'
+    + '<div class="mb">'
+    + '<p style="margin:0 0 4px;font-size:13.5px">你輸入的「' + esc(typedName) + '」跟系統裡已經有的名字很像：</p>'
+    + '<div class="confirmbtns">'
+    + opts
+    + '<button type="button" data-merge="0">不是，這是新顧問，繼續新建</button>'
+    + '</div></div></div></div>';
+  var close = function () { m.innerHTML = ''; };
+  $('scDupClose').addEventListener('click', close);
+  $('scDupMaskBg').addEventListener('click', function (e) { if (e.target.id === 'scDupMaskBg') close(); });
+  [].forEach.call(m.querySelectorAll('.confirmbtns button'), function (b) {
+    b.addEventListener('click', function () {
+      var mid = Number(b.dataset.merge);
+      close();
+      if (mid) {
+        SC_ADD_STATE.mergeInto = mid;
+        SC_ADD_STATE.mergeName = b.dataset.name;
+        scRenderAddForm();
+      }
+      // mid===0：不是同一人，什麼都不用動，表單繼續原樣讓她填
+    });
+  });
+}
+
+function scSubmitAddForm() {
+  var s = SC_ADD_STATE;
+  var btn = $('scAddSubmit');
+
+  if (!s.mergeInto) {
+    if (!s.name.trim()) return toast('顧問社群名稱要填', true);
+    if (!s.line_link.trim()) return toast('LINE 官方帳號連結要填', true);
+    if (!s.tg_new_topic && !s.tg_reuse_id) return toast('沒勾「建立新主題」就要選要沿用誰的', true);
+  }
+  if (s.platform === 'threads' && s.threads_mode === 'now' && !s.threads_token.trim()) {
+    return toast('選了「現在就貼」就要貼 token，不然改選「之後再補」', true);
+  }
+
+  var payload = {
+    platform: s.platform,
+    skill_prompt: s.style_body || '',
+  };
+  if (s.mergeInto) {
+    payload.existing_consultant_id = s.mergeInto;
+  } else {
+    payload.consultant_name = s.name.trim();
+    payload.account_username = (s.username || '').trim();
+    payload.account_password = s.password_note;
+    payload.line_link = s.line_link.trim();
+    payload.new_tg_topic = s.tg_new_topic;
+    if (!s.tg_new_topic) payload.reuse_tg_thread_id = Number(s.tg_reuse_id);
+  }
+  if (s.platform === 'threads' && s.threads_mode === 'now') {
+    payload.threads_short_token = s.threads_token.trim();
+  }
+
+  btn.disabled = true; btn.textContent = '處理中⋯';
+  api('/admin/social-consultants', {
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload),
+  }).then(function (d) {
+    if (!d.ok) { btn.disabled = false; btn.textContent = s.mergeInto ? '併進這張卡片' : '新增卡片'; return toast(d.error || '新增失敗', true); }
+    // c.id 從來不存在（列表物件沒有頂層 id，只有 threads.id／linkedin.id）——
+    // 用顧問姓名找剛建好的這張卡片，姓名才是這個分組系統的唯一鍵。
+    var newName = s.mergeInto ? s.mergeName : s.name.trim();
+    scCloseAddForm();
+    toast(s.platform === 'linkedin' ? '✓ 已建立，接著幫她產生授權連結' : '✓ 已新增');
+    scLoadList();
+    if (s.platform === 'linkedin' && newName) {
+      // LinkedIn 沒有「立刻完成」這回事，直接開詳情、幫她把授權連結準備好
+      setTimeout(function () {
+        api('/admin/social-consultants').then(function (r) {
+          if (!r.ok) return;
+          SC_CONSULTANTS = r.consultants || [];
+          scPaintList();
+          var c = SC_CONSULTANTS.find(function (x) { return x.name === newName; });
+          if (c) { SC_DETAIL_NAME = newName; SC_DETAIL_PLAT = 'linkedin'; scRenderDetail(c); $('scDetailmask').classList.add('show'); scFetchLinkedinAuthLink(c); }
+        }).catch(function (e) {});
+      }, 300);
+    }
+  }).catch(function (e) { btn.disabled = false; btn.textContent = s.mergeInto ? '併進這張卡片' : '新增卡片'; toast(apiFail(e), true); });
+}
+
+$('scBtnAdd').addEventListener('click', scOpenAddForm);
 
 </script>
 <script defer src="/consultant/_shell.js">
