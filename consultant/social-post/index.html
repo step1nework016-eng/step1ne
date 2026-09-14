@@ -3436,11 +3436,10 @@ function scSubmitAddForm() {
   var s = SC_ADD_STATE;
   var btn = $('scAddSubmit');
 
-  if (!s.mergeInto) {
-    if (!s.name.trim()) return toast('顧問社群名稱要填', true);
-    if (!s.line_link.trim()) return toast('LINE 官方帳號連結要填', true);
-    if (!s.tg_new_topic && !s.tg_reuse_id) return toast('沒勾「建立新主題」就要選要沿用誰的', true);
-  }
+  // 2026-09-14 改：除了顧問社群名稱（這是識別用的唯一鍵，一定要有），
+  // 其他都是選填——Phoebe 可能先幫顧問建卡片佔位，LINE 連結、TG 主題
+  // 之後再補都可以，不要卡在這裡讓她建不了卡片。
+  if (!s.mergeInto && !s.name.trim()) return toast('顧問社群名稱要填', true);
   if (s.platform === 'threads' && s.threads_mode === 'now' && !s.threads_token.trim()) {
     return toast('選了「現在就貼」就要貼 token，不然改選「之後再補」', true);
   }
