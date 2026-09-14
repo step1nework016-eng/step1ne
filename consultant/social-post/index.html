@@ -3243,7 +3243,7 @@ function scOpenReimportForm(c, plat) {
     }).then(function (d) {
       if (!d.ok) { btn.disabled = false; btn.textContent = '儲存'; return toast(d.error || '儲存失敗', true); }
       toast('✓ 已更新風格提示詞'); area.innerHTML = '';
-      scLoadList(); // 重新拉一次讓 preview 更新，展開的詳情之後重開會看到最新內容
+      scRefreshOneAndReopen(c.name, plat);
     }).catch(function (e) { btn.disabled = false; btn.textContent = '儲存'; toast(apiFail(e), true); });
   });
 }
