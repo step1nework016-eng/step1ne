@@ -196,6 +196,24 @@ function apiFail(e) {
   return String(e.message || e).slice(0, 120);
 }
 
+// 2026-09-14 補：LB／LBRC／jobOpts 三個從沒定義過，render() 第一行就會呼叫
+// jobOpts，整頁只要清單有資料就必定 ReferenceError，被外層 .catch() 吞掉
+// 顯示成「連線失敗」——實際上 API 都是成功的，是這段程式碼原本就沒寫完。
+var LB = {
+  new: '待挑選', shortlisted: '已挑出', contacted: '已接觸',
+  replied: '有回覆', converted: '已轉應徵', rejected: '不合適', all: '全部',
+};
+var LBRC = {
+  DIRECT_TARGET: '直接目標', CONTACT_AFTER_CONFIRMATION: '待確認後聯繫',
+  ADJACENT_TARGET: '鄰近目標', REFERRAL_ONLY: '僅供轉介', LONG_TERM_POOL: '長期池',
+};
+function jobOpts(list,cur){
+  return '<option value=""'+(cur?'':' selected')+'>所有職缺</option>'
+    + (list||[]).map(function(j){
+        return '<option value="'+esc(j.slug)+'"'+(cur===j.slug?' selected':'')+'>'
+          +esc(j.title||j.slug)+'（'+j.n+'）</option>';
+      }).join('');
+}
 function rcOpts(list,cur){
   return '<option value=""'+(cur?'':' selected')+'>所有招募分類</option>'
     + (list||[]).map(function(c){
