@@ -22,7 +22,7 @@ nav a.on{background:var(--ink);color:#fff;border-color:var(--ink)}
 .mut{color:var(--ink3);font-size:13px}
 main{padding:22px 0 60px}
 .note{background:var(--soft);border-left:3px solid var(--gold);border-radius:0 10px 10px 0;padding:12px 15px;font-size:13px;color:var(--ink2);margin-bottom:14px;line-height:1.7}
-select{font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;min-width:240px}
+select{font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;min-width:240px;max-width:100%;box-sizing:border-box}
 .c{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:14px}
 .c h3{margin:0 0 10px;font-size:15px}
 table{width:100%;border-collapse:collapse;font-size:13.5px}
@@ -210,7 +210,7 @@ function loadInstallments() {
       byPlacement[r.placement_id].push(r);
     });
     GROUPS = Object.keys(byPlacement).map(function (pid) { return byPlacement[pid]; });
-    $('list').innerHTML = '<table><thead><tr><th>人選</th><th>客戶／職缺</th><th>報到日期</th><th>到職多久</th><th>收款進度</th></tr></thead><tbody>' +
+    $('list').innerHTML = '<div style="overflow-x:auto"><table style="min-width:680px"><thead><tr><th>人選</th><th>客戶／職缺</th><th>報到日期</th><th>到職多久</th><th>收款進度</th></tr></thead><tbody>' +
       GROUPS.map(function (rows, gi) {
         var r0 = rows[0];
         var paidN = rows.filter(function (x) { return !!x.paid_at; }).length;
@@ -219,7 +219,7 @@ function loadInstallments() {
           '<td>' + esc(r0.client_name) + '<br><span class="mut">' + esc(r0.job_title) + '</span></td>' +
           '<td>' + esc(r0.onboard_date) + '</td><td>' + esc(tenureText(r0.onboard_date)) + '</td>' +
           '<td><span class="progress"><i style="width:' + paidPct + '%"></i></span>' + paidN + '/' + rows.length + ' 期已收（' + paidPct + '%）</td></tr>';
-      }).join('') + '</tbody></table>';
+      }).join('') + '</tbody></table></div>';
     Array.prototype.forEach.call($('list').querySelectorAll('.candRow'), function (tr) {
       tr.onclick = function () { openDetail(GROUPS[Number(tr.dataset.gi)]); };
     });
