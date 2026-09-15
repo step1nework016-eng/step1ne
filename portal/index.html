@@ -1589,17 +1589,74 @@ async function loadBilling(){
     tr.addEventListener('click', () => openBillModal(BILL_GROUPS[Number(tr.dataset.gi)]));
   });
 }
+// 2026-09-15 加：每一期改成可以直接上傳匯款證明＋選匯款日期，按「確認送出」＝
+// 「我已經匯款了」，會通知顧問到 Telegram 按已收到／還沒收到。已經回報過的（不管
+// 待確認還是已確認）不能重複送出，避免同一期送兩次搞混顧問要看哪一份證明。
+function billStatusBlock(r){
+  if (r.confirmed_received === 'yes') {
+    return { status: `<span style="color:#2f8f5b;font-weight:700">✅ 顧問已收到</span>`, action: '' };
+  }
+  if (r.client_submitted_at) {
+    return { status: `<span style="color:#8a6100;font-weight:700">⏳ 已回報匯款，待顧問確認</span><br>` +
+      `<span style="color:var(--ink3);font-size:12px">匯款日期 ${esc(r.client_transfer_date || '')}</span>`, action: '' };
+  }
+  return { status: `<span style="color:var(--ink3)">未收款</span>`, action:
+    `<div class="bill-upload" data-id="${esc(r.id)}" style="margin-top:8px;padding:10px;background:var(--soft);border-radius:10px">` +
+    `<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">` +
+    `<input type="date" class="bu-date" max="${new Date().toISOString().slice(0,10)}" style="font:inherit;font-size:13px;padding:6px 8px;border:1px solid var(--line);border-radius:8px">` +
+    `<input type="file" class="bu-file" accept="image/*,.pdf" style="font-size:12.5px;max-width:160px">` +
+    `<button type="button" class="bu-go" style="font:inherit;font-size:13px;font-weight:700;background:var(--gold);color:#fff;border:0;border-radius:999px;padding:7px 14px;cursor:pointer">我已匯款，確認送出</button>` +
+    `</div><div class="bu-msg" style="font-size:12px;color:var(--ink3);margin-top:6px"></div></div>` };
+}
 function openBillModal(rows){
   const r0 = rows[0];
   document.getElementById('billModalBody').innerHTML =
     `<h3 style="margin:0 0 4px">${esc(r0.candidate_name)}</h3>` +
     `<p style="margin:0 0 4px;color:var(--ink3);font-size:13px">${esc(r0.job_title)}</p>` +
     `<p style="margin:0 0 16px;color:var(--ink3);font-size:13px">報到日期 ${esc(r0.onboard_date)}　·　${esc(billTenureText(r0.onboard_date))}</p>` +
-    `<div class="dash-table-wrap"><table class="dash-table" style="min-width:0"><thead><tr><th>期別</th><th>比例</th><th>到期日</th><th>狀態</th></tr></thead><tbody>` +
-    rows.map(r => `<tr><td>${esc(r.label)}</td><td>${esc(r.percent)}%</td><td>${esc(r.due_date)}</td>` +
-      `<td>${r.paid ? '<span style="color:#2f8f5b;font-weight:700">已收款</span>' : '<span style="color:#8a6100;font-weight:700">未收款</span>'}</td></tr>`
-    ).join('') + `</tbody></table></div>`;
+    rows.map(r => {
+      const b = billStatusBlock(r);
+      return `<div style="border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px">` +
+        `<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">` +
+        `<b>${esc(r.label)}</b><span style="color:var(--ink3);font-size:13px">${esc(r.percent)}%　·　到期 ${esc(r.due_date)}</span>` +
+        `</div><div style="margin-top:6px">${b.status}</div>${b.action}</div>`;
+    }).join('');
   document.getElementById('billModalMask').classList.add('show');
+  document.querySelectorAll('.bu-go').forEach(btn => {
+    btn.addEventListener('click', () => submitBillProof(btn.closest('.bill-upload')));
+  });
+}
+async function submitBillProof(box){
+  const id = box.dataset.id;
+  const dateInput = box.querySelector('.bu-date');
+  const fileInput = box.querySelector('.bu-file');
+  const msg = box.querySelector('.bu-msg');
+  const btn = box.querySelector('.bu-go');
+  const transferDate = dateInput.value;
+  if (!transferDate) { msg.style.color = 'var(--bad)'; msg.textContent = '請選匯款日期'; return; }
+  btn.disabled = true; msg.style.color = 'var(--ink3)'; msg.textContent = '送出中…';
+  const send = async (fileB64, filename, mime) => {
+    try {
+      const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/billing/${encodeURIComponent(id)}`, {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ transfer_date: transferDate, file_b64: fileB64, filename, mime }),
+      });
+      const data = await res.json();
+      if (!data.ok) { btn.disabled = false; msg.style.color = 'var(--bad)'; msg.textContent = data.error || '送出失敗'; return; }
+      msg.style.color = '#2f8f5b'; msg.textContent = '已送出，等顧問確認';
+      BILLING_LOADED = false;
+      loadBilling();
+    } catch {
+      btn.disabled = false; msg.style.color = 'var(--bad)'; msg.textContent = '連不上伺服器，請稍後再試';
+    }
+  };
+  if (fileInput.files[0]) {
+    const reader = new FileReader();
+    reader.onload = () => send(String(reader.result).split(',')[1], fileInput.files[0].name, fileInput.files[0].type);
+    reader.readAsDataURL(fileInput.files[0]);
+  } else {
+    send(null, null, null);
+  }
 }
 document.getElementById('billModalClose').addEventListener('click', () => document.getElementById('billModalMask').classList.remove('show'));
 document.getElementById('billModalMask').addEventListener('click', (e) => { if (e.target.id === 'billModalMask') document.getElementById('billModalMask').classList.remove('show'); });

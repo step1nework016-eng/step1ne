@@ -233,17 +233,50 @@ function openDetail(rows) {
     '<h3>' + esc(r0.candidate_name) + '</h3>' +
     '<p class="mut" style="margin:0 0 4px">' + esc(r0.client_name) + '　' + esc(r0.job_title) + '</p>' +
     '<p class="mut" style="margin:0 0 16px">報到日期 ' + esc(r0.onboard_date) + '　·　' + esc(tenureText(r0.onboard_date)) + '</p>' +
-    '<table><thead><tr><th>期別</th><th>比例</th><th>到期日</th><th>狀態</th><th></th></tr></thead><tbody id="detailRows">' +
+    '<table><thead><tr><th>期別</th><th>比例</th><th>到期日</th><th>客戶回報</th><th>狀態</th><th></th></tr></thead><tbody id="detailRows">' +
     rows.map(function (r) {
       var paid = !!r.paid_at;
+      // 2026-09-15 加：客戶回報有三種狀態——沒回報／已回報待確認／已確認，
+      // 已確認的不管結果是收到還沒收到，都不再顯示操作按鈕（要改去後台調整原始資料）。
+      var clientCol = r.client_submitted_at
+        ? ('客戶回報匯款日 ' + esc(r.client_transfer_date || '') +
+           (r.proof_file_id ? ' <a href="#" class="proofLink" data-id="' + esc(r.id) + '" style="color:var(--gold)">查看證明</a>' : ''))
+        : '<span class="mut">客戶尚未回報</span>';
+      var actionCol;
+      if (r.confirmed_received) {
+        actionCol = '<span class="mut">已於 ' + esc(String(r.confirmed_at || '').slice(0, 16)) + ' 由 ' + esc(r.confirmed_by || '') + ' 確認</span>';
+      } else if (r.client_submitted_at) {
+        actionCol = '<button type="button" class="btn ok confirmBill" data-id="' + esc(r.id) + '" data-received="1">✅ 確認已收到</button> ' +
+          '<button type="button" class="btn d confirmBill" data-id="' + esc(r.id) + '" data-received="0">❌ 還沒收到</button>';
+      } else {
+        actionCol = '<button type="button" class="btn ' + (paid ? '' : 'ok') + ' togglePaid" data-id="' + esc(r.id) + '" data-paid="' + (paid ? '0' : '1') + '">' +
+          (paid ? '標記未收款' : '標記已收款（無客戶回報）') + '</button>';
+      }
       return '<tr data-id="' + esc(r.id) + '"><td>' + esc(r.label) + '</td><td>' + esc(r.percent) + '%</td><td>' + esc(r.due_date) + '</td>' +
-        '<td><span class="badge ' + (paid ? 'paid' : 'unpaid') + '">' + (paid ? '已收款' : '未收款') + '</span>' +
-        (paid ? '<br><span class="mut">' + esc(String(r.paid_at).slice(0, 16)) + '</span>' : '') + '</td>' +
-        '<td><button type="button" class="btn ' + (paid ? '' : 'ok') + ' togglePaid" data-id="' + esc(r.id) + '" data-paid="' + (paid ? '0' : '1') + '">' +
-        (paid ? '標記未收款' : '標記已收款') + '</button></td></tr>';
+        '<td>' + clientCol + '</td>' +
+        '<td><span class="badge ' + (paid ? 'paid' : 'unpaid') + '">' + (paid ? '已收款' : '未收款') + '</span></td>' +
+        '<td>' + actionCol + '</td></tr>';
     }).join('') + '</tbody></table></div>';
   $('ovlMask').onclick = closeDetail;
   $('ovlClose').onclick = closeDetail;
+  Array.prototype.forEach.call($('ovl').querySelectorAll('.proofLink'), function (a) {
+    a.onclick = function (ev) {
+      ev.preventDefault();
+      fetch(API + '/admin/billing-installments/' + encodeURIComponent(a.dataset.id) + '/proof', { headers: { authorization: 'Bearer ' + tok } })
+        .then(function (rs) { if (!rs.ok) throw new Error('下載失敗'); return rs.blob(); })
+        .then(function (blob) { var u = URL.createObjectURL(blob), el = document.createElement('a'); el.href = u; el.target = '_blank'; document.body.appendChild(el); el.click(); el.remove(); setTimeout(function () { URL.revokeObjectURL(u); }, 30000); })
+        .catch(function () { alert('下載失敗'); });
+    };
+  });
+  Array.prototype.forEach.call($('ovl').querySelectorAll('.confirmBill'), function (b) {
+    b.onclick = function () {
+      b.disabled = true;
+      api('/admin/billing-installments/confirm', { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ id: b.dataset.id, received: b.dataset.received === '1' }) })
+        .then(function (r) { if (!r.ok) { alert(r.error || '失敗'); b.disabled = false; return; } closeDetail(); loadInstallments(); })
+        .catch(function (e) { alert(apiFail(e)); b.disabled = false; });
+    };
+  });
   Array.prototype.forEach.call($('ovl').querySelectorAll('.togglePaid'), function (b) {
     b.onclick = function () {
       var paid = b.dataset.paid === '1';
