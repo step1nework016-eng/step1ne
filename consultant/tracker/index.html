@@ -682,6 +682,14 @@ function openSourcedDrawer(c) {
     '<dt>電話</dt><dd>' + (c.phone ? '<a href="tel:' + esc(c.phone) + '">' + esc(c.phone) + '</a>' : '<span class="mut">還沒有</span>') + '</dd>' +
     '<dt>現職</dt><dd>' + esc(c.job_title || '—') + '</dd>' +
     '<dt>來源</dt><dd>' + esc(c.source_channel || '—') + '</dd>' +
+    // 2026-09-15 加：人才池（還沒轉正式應徵）的簡化版抽屜原本沒有這兩格，
+    // 後端 /admin/pipeline/tracker 其實一直都有算（source_url／linkedin），
+    // 只是這個簡化模板從沒接進來——顧問在人才池點開人選完全看不到 LinkedIn／
+    // Cake 連結。照抄下面 openDrawer() 完整版（第1100行附近）已經在用的
+    // 同一套判斷：LinkedIn 用結構化欄位，其他平台（Cake／GitHub等）用
+    // source_url＋source_label 當通用「來源連結」。
+    (c.linkedin ? '<dt>LinkedIn</dt><dd><a href="' + esc(c.linkedin) + '" target="_blank" rel="noopener">開啟</a></dd>' : '') +
+    (c.source_url ? '<dt>' + esc(c.source_label || '來源連結') + '</dt><dd><a href="' + esc(c.source_url) + '" target="_blank" rel="noopener">開啟</a></dd>' : '') +
     '<dt>負責顧問</dt><dd>' + ownerAssignSelect(c.owner) + '</dd>' +
     '</dl></div>' +
     '<div class="sec"><h4>電洽紀錄，轉為正式應徵<span class="subhint">顧問直接把電洽內容打進來，跳過連結自己填——會建立正式應徵紀錄，之後就能在「正式應徵」管道推薦給客戶。</span></h4>' +
