@@ -228,6 +228,14 @@ button.sec{background:#fff;color:var(--ink2);border:1px solid var(--line)}
 .bill-modal .close{float:right;width:28px;height:28px;min-width:28px;padding:0;border-radius:50%;border:1px solid var(--line);background:var(--soft);cursor:pointer;font-size:16px;line-height:1;display:flex;align-items:center;justify-content:center;color:var(--ink);font-family:inherit}
 tr.billRow{cursor:pointer}
 tr.billRow:hover td{background:var(--soft)}
+/* 收費進程表只有 5 欄，不像人選進度表需要 8 欄橫向捲動的寬度——沿用
+   .dash-table 的 min-width:960px 會讓手機版把「到職多久」「收款進度」
+   擠到螢幕外，還看不出來可以滑。這裡蓋掉，讓它照內容自然寬度排版。 */
+.dash-table.bill-table{min-width:0}
+@media(max-width:640px){
+  .dash-table.bill-table td:not(:first-child),.dash-table.bill-table th{white-space:normal}
+  .bill-table th,.bill-table td{font-size:12.5px;padding:9px 6px}
+}
 .progress{display:inline-block;width:70px;height:6px;border-radius:999px;background:#eee7db;overflow:hidden;vertical-align:middle;margin-right:6px}
 .progress i{display:block;height:100%;background:#2f8f5b}
 .cand-modal{width:min(760px,96vw);max-height:92vh;overflow:auto;background:#fff;border-radius:18px;border:1px solid var(--line)}
@@ -1575,7 +1583,7 @@ async function loadBilling(){
   items.forEach(r => { (byPlacement[r.placement_id] = byPlacement[r.placement_id] || []).push(r); });
   BILL_GROUPS = Object.keys(byPlacement).map(k => byPlacement[k]);
   el.className = '';
-  el.innerHTML = `<div class="dash-table-wrap"><table class="dash-table"><thead><tr>` +
+  el.innerHTML = `<div class="dash-table-wrap"><table class="dash-table bill-table"><thead><tr>` +
     `<th>人選</th><th>職缺</th><th>報到日期</th><th>到職多久</th><th>收款進度</th></tr></thead><tbody>` +
     BILL_GROUPS.map((rows, gi) => {
       const r0 = rows[0];
