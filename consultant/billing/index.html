@@ -30,7 +30,7 @@ th{text-align:left;color:var(--ink3);font-weight:600;font-size:12px;padding:6px 
 td{padding:8px;border-bottom:1px solid var(--line);vertical-align:middle}
 td input[type=text],td input[type=number]{font:inherit;width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:7px}
 td select{min-width:0;width:100%;padding:6px 8px}
-.btn{font:inherit;font-size:13px;font-weight:600;border-radius:999px;padding:6px 14px;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink2)}
+.btn{font:inherit;font-size:13px;font-weight:600;border-radius:999px;padding:6px 14px;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink2);white-space:nowrap}
 .btn.p{background:var(--gold);color:#fff;border-color:var(--gold)}
 .btn.d{color:var(--bad);border-color:#f0d4cf}
 .btn.ok{color:var(--ok);border-color:#bfe0cd}
@@ -45,7 +45,8 @@ tr.candRow:hover{background:var(--soft)}
 .progress i{display:block;height:100%;background:var(--ok)}
 .mask{position:fixed;inset:0;background:rgba(35,38,45,.45);z-index:30}
 .modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:#fff;border-radius:16px;
-       width:min(560px,calc(100vw - 32px));max-height:85vh;overflow:auto;z-index:31;padding:22px 24px}
+       width:min(680px,calc(100vw - 32px));max-height:85vh;overflow:auto;z-index:31;padding:22px 24px}
+.modal table{min-width:600px}
 .modal h3{margin:0 0 4px}
 .modal .close{position:absolute;right:16px;top:14px;border:0;background:none;font-size:22px;cursor:pointer;color:var(--ink3)}
 </style>
@@ -249,8 +250,9 @@ function openDetail(rows) {
         actionCol = '<button type="button" class="btn ok confirmBill" data-id="' + esc(r.id) + '" data-received="1">✅ 確認已收到</button> ' +
           '<button type="button" class="btn d confirmBill" data-id="' + esc(r.id) + '" data-received="0">❌ 還沒收到</button>';
       } else {
-        actionCol = '<button type="button" class="btn ' + (paid ? '' : 'ok') + ' togglePaid" data-id="' + esc(r.id) + '" data-paid="' + (paid ? '0' : '1') + '">' +
-          (paid ? '標記未收款' : '標記已收款（無客戶回報）') + '</button>';
+        actionCol = '<button type="button" class="btn ' + (paid ? '' : 'ok') + ' togglePaid" data-id="' + esc(r.id) + '" data-paid="' + (paid ? '0' : '1') + '" title="' +
+          (paid ? '' : '客戶還沒在收費進程頁回報，這是顧問自己確認有收到款項時用') + '">' +
+          (paid ? '標記未收款' : '標記已收款') + '</button>';
       }
       return '<tr data-id="' + esc(r.id) + '"><td>' + esc(r.label) + '</td><td>' + esc(r.percent) + '%</td><td>' + esc(r.due_date) + '</td>' +
         '<td>' + clientCol + '</td>' +
