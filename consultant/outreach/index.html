@@ -87,6 +87,7 @@ var API='https://step1ne-backoffice-worker.aiagentg888.workers.dev';
 var KEY='s1ne_admin_tok';
 var tok=localStorage.getItem(KEY)||'';
 var $=function(i){return document.getElementById(i)};
+function esc(s) { return String(s == null ? '' : s).replace(/[<>&]/g, function (c) { return { '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]; }); }
 function api(p, o) {
   o = o || {};
   o.headers = Object.assign({ authorization: 'Bearer ' + tok }, o.headers || {});
@@ -123,6 +124,26 @@ function apiFail(e) {
   return String(e.message || e).slice(0, 120);
 }
 
+
+// ⚠️ 2026-09-15 修：這幾個常數（連同 DATA/T）從沒被宣告過，render() 一執行到
+// TYPES.map(...) 就 ReferenceError，被外層 load() 的 .catch() 接住變成「連線失敗」——
+// 這個頁面等於從沒真的顯示過任何一筆接觸紀錄。target_type／outcome 的合法值照
+// 後端 /admin/outreach（POST 那支）實際檢查的白名單來，不是自己編的。
+var DATA = null, T = '';
+var TYPES = [['', '全部'], ['school', '學校系所'], ['candidate', '人選'], ['client', '客戶'], ['intro', '介紹人']];
+var OUTCOMES = [
+  { k: 'replied', lb: '有回覆', cls: 'ok' },
+  { k: 'meeting', lb: '約到面談', cls: 'ok' },
+  { k: 'no_reply', lb: '已讀不回', cls: 'warn' },
+  { k: 'declined', lb: '婉拒', cls: 'bad' },
+];
+var OUT_LB = { todo: '待寄送', sent: '已寄出', replied: '有回覆', meeting: '約到面談', declined: '婉拒', no_reply: '已讀不回' };
+var STALE = 14; // 寄出超過 14 天還沒回應，標成「該追一下了」
+function days(dateStr) { // days() 同樣從沒被宣告過，一起補上
+  if (!dateStr) return null;
+  var d = Math.floor((Date.now() - new Date(String(dateStr).replace(' ', 'T') + '+08:00').getTime()) / 86400000);
+  return isNaN(d) ? null : d;
+}
 
 function render(){
   var s=DATA.stats||{}, rows=DATA.rows||[];
