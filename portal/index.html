@@ -222,6 +222,14 @@ button.sec{background:#fff;color:var(--ink2);border:1px solid var(--line)}
 #slotsModalMask{position:fixed;inset:0;background:rgba(35,32,20,.45);z-index:80;display:none;align-items:center;justify-content:center;padding:16px}
 #slotsModalMask.show{display:flex}
 .dt-modal{width:min(360px,92vw);background:#fff;border-radius:16px;border:1px solid var(--line);padding:18px 20px}
+#billModalMask{position:fixed;inset:0;background:rgba(35,32,20,.45);z-index:80;display:none;align-items:center;justify-content:center;padding:16px}
+#billModalMask.show{display:flex}
+.bill-modal{width:min(480px,94vw);max-height:88vh;overflow:auto;background:#fff;border-radius:16px;border:1px solid var(--line);padding:20px 22px}
+.bill-modal .close{float:right;width:28px;height:28px;border-radius:50%;border:1px solid var(--line);background:var(--soft);cursor:pointer;font-size:16px}
+tr.billRow{cursor:pointer}
+tr.billRow:hover td{background:var(--soft)}
+.progress{display:inline-block;width:70px;height:6px;border-radius:999px;background:#eee7db;overflow:hidden;vertical-align:middle;margin-right:6px}
+.progress i{display:block;height:100%;background:#2f8f5b}
 .cand-modal{width:min(760px,96vw);max-height:92vh;overflow:auto;background:#fff;border-radius:18px;border:1px solid var(--line)}
 .cand-modal-top{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:16px 18px;display:flex;justify-content:space-between;gap:10px;z-index:2}
 .cand-modal-body{padding:16px 18px 20px}
@@ -412,6 +420,13 @@ button.sec{background:#fff;color:var(--ink2);border:1px solid var(--line)}
       <button class="sec" type="button" onclick="fcClosePreview()">再看一下</button>
       <button type="button" id="fcPvGoBtn" onclick="fcConfirmAction()">確認</button>
     </div>
+  </div>
+</div>
+
+<div id="billModalMask">
+  <div class="bill-modal">
+    <button type="button" class="close" id="billModalClose">×</button>
+    <div id="billModalBody"></div>
   </div>
 </div>
 
@@ -1528,8 +1543,19 @@ document.getElementById('tabJobs').addEventListener('click', () => showTopView('
 document.getElementById('tabCandidates').addEventListener('click', () => showTopView('candidates'));
 document.getElementById('tabBilling').addEventListener('click', () => showTopView('billing'));
 
-// 2026-09-15 加：收費進程——只讀，欄位跟顧問後台那份刻意不同（不給 paid_by，
+// 2026-09-15 改：原本一人拆好幾列很難讀，改成一人一行（報到日期／到職多久／收款
+// 進度一眼看完），點進去才看單期明細。欄位跟顧問後台那份刻意不同（不給是誰標記的，
 // 不給範本編輯介面），客戶只需要知道「這位、這期、多少比例、什麼時候到期、收了沒」。
+let BILL_GROUPS = [];
+function billTenureText(onboardDate){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const od = new Date(onboardDate + 'T00:00:00');
+  const days = Math.round((today - od) / 86400000);
+  if (days < 0) return `尚未到職（還有 ${-days} 天）`;
+  if (days === 0) return '今天到職';
+  if (days < 30) return `已到職 ${days} 天`;
+  return `已到職約 ${Math.floor(days/30)} 個月（${days} 天）`;
+}
 async function loadBilling(){
   BILLING_LOADED = true;
   const el = document.getElementById('billingList');
@@ -1545,14 +1571,38 @@ async function loadBilling(){
   if (!data.ok) { el.textContent = data.error || '讀取失敗'; return; }
   const items = data.installments || [];
   if (!items.length) { el.textContent = '目前沒有收費排程資料。'; return; }
+  const byPlacement = {};
+  items.forEach(r => { (byPlacement[r.placement_id] = byPlacement[r.placement_id] || []).push(r); });
+  BILL_GROUPS = Object.keys(byPlacement).map(k => byPlacement[k]);
   el.className = '';
   el.innerHTML = `<div class="dash-table-wrap"><table class="dash-table"><thead><tr>` +
-    `<th>人選</th><th>職缺</th><th>期別</th><th>比例</th><th>到期日</th><th>狀態</th></tr></thead><tbody>` +
-    items.map(r => `<tr><td>${esc(r.candidate_name)}</td><td>${esc(r.job_title)}</td>` +
-      `<td>${esc(r.label)}</td><td>${esc(r.percent)}%</td><td>${esc(r.due_date)}</td>` +
+    `<th>人選</th><th>職缺</th><th>報到日期</th><th>到職多久</th><th>收款進度</th></tr></thead><tbody>` +
+    BILL_GROUPS.map((rows, gi) => {
+      const r0 = rows[0];
+      const paidN = rows.filter(x => x.paid).length;
+      const paidPct = Math.round(rows.filter(x => x.paid).reduce((s, x) => s + Number(x.percent), 0));
+      return `<tr class="billRow" data-gi="${gi}"><td>${esc(r0.candidate_name)}</td><td>${esc(r0.job_title)}</td>` +
+        `<td>${esc(r0.onboard_date)}</td><td>${esc(billTenureText(r0.onboard_date))}</td>` +
+        `<td><span class="progress"><i style="width:${paidPct}%"></i></span>${paidN}/${rows.length} 期已收（${paidPct}%）</td></tr>`;
+    }).join('') + `</tbody></table></div>`;
+  document.querySelectorAll('.billRow').forEach(tr => {
+    tr.addEventListener('click', () => openBillModal(BILL_GROUPS[Number(tr.dataset.gi)]));
+  });
+}
+function openBillModal(rows){
+  const r0 = rows[0];
+  document.getElementById('billModalBody').innerHTML =
+    `<h3 style="margin:0 0 4px">${esc(r0.candidate_name)}</h3>` +
+    `<p style="margin:0 0 4px;color:var(--ink3);font-size:13px">${esc(r0.job_title)}</p>` +
+    `<p style="margin:0 0 16px;color:var(--ink3);font-size:13px">報到日期 ${esc(r0.onboard_date)}　·　${esc(billTenureText(r0.onboard_date))}</p>` +
+    `<div class="dash-table-wrap"><table class="dash-table" style="min-width:0"><thead><tr><th>期別</th><th>比例</th><th>到期日</th><th>狀態</th></tr></thead><tbody>` +
+    rows.map(r => `<tr><td>${esc(r.label)}</td><td>${esc(r.percent)}%</td><td>${esc(r.due_date)}</td>` +
       `<td>${r.paid ? '<span style="color:#2f8f5b;font-weight:700">已收款</span>' : '<span style="color:#8a6100;font-weight:700">未收款</span>'}</td></tr>`
     ).join('') + `</tbody></table></div>`;
+  document.getElementById('billModalMask').classList.add('show');
 }
+document.getElementById('billModalClose').addEventListener('click', () => document.getElementById('billModalMask').classList.remove('show'));
+document.getElementById('billModalMask').addEventListener('click', (e) => { if (e.target.id === 'billModalMask') document.getElementById('billModalMask').classList.remove('show'); });
 
 function currentStageOf(c){
   // 2026-09-01 改：客戶端字眼統一用「不推進」，跟表格「用人單位」欄的下拉選項

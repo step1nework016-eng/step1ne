@@ -39,6 +39,15 @@ td select{min-width:0;width:100%;padding:6px 8px}
 .badge.paid{background:#e8f5ee;color:var(--ok)}
 .badge.unpaid{background:#fdf1ef;color:var(--bad)}
 .empty{background:#fff;border:1px dashed var(--line);border-radius:14px;padding:26px;text-align:center;color:var(--ink3)}
+tr.candRow{cursor:pointer}
+tr.candRow:hover{background:var(--soft)}
+.progress{display:inline-block;width:70px;height:6px;border-radius:999px;background:#eee7db;overflow:hidden;vertical-align:middle;margin-right:6px}
+.progress i{display:block;height:100%;background:var(--ok)}
+.mask{position:fixed;inset:0;background:rgba(35,38,45,.45);z-index:30}
+.modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:#fff;border-radius:16px;
+       width:min(560px,calc(100vw - 32px));max-height:85vh;overflow:auto;z-index:31;padding:22px 24px}
+.modal h3{margin:0 0 4px}
+.modal .close{position:absolute;right:16px;top:14px;border:0;background:none;font-size:22px;cursor:pointer;color:var(--ink3)}
 </style>
 
 <div id="gate" class="gate" hidden>
@@ -75,10 +84,12 @@ td select{min-width:0;width:100%;padding:6px 8px}
 
     <div class="c">
       <h3>收費進度（所有已報到人選）</h3>
+      <p class="mut">點一列看這個人選每一期的明細與到期日。</p>
       <div id="list" class="mut">載入中…</div>
     </div>
   </main>
 </div>
+<div id="ovl" hidden></div>
 
 <script>
 var API='https://step1ne-backoffice-worker.aiagentg888.workers.dev';
@@ -171,6 +182,20 @@ function loadPlan(companyId) {
     .catch(function (e) { $('planBox').innerHTML = '<p class="mut">' + esc(apiFail(e)) + '</p>'; });
 }
 
+// 2026-09-15 改：使用者反饋原本一人拆三列很難讀，改成一人一行（報到日期／到職多久／
+// 收款進度一眼看完），點進去才看單期明細——跟人選追蹤頁「列表看總覽、點進去看明細」
+// 是同一種設計語言，不是這頁自己另外發明一套。
+var GROUPS = [];
+function tenureText(onboardDate) {
+  var today = new Date(); today.setHours(0, 0, 0, 0);
+  var od = new Date(onboardDate + 'T00:00:00');
+  var days = Math.round((today - od) / 86400000);
+  if (days < 0) return '尚未到職（還有 ' + (-days) + ' 天）';
+  if (days === 0) return '今天到職';
+  if (days < 30) return '已到職 ' + days + ' 天';
+  var months = Math.floor(days / 30);
+  return '已到職約 ' + months + ' 個月（' + days + ' 天）';
+}
 function loadInstallments() {
   var qs = CUR_COMPANY ? ('?company_id=' + encodeURIComponent(CUR_COMPANY)) : '';
   $('list').innerHTML = '載入中…';
@@ -178,26 +203,57 @@ function loadInstallments() {
     if (!d.ok) { $('list').innerHTML = '<div class="mut">' + esc(d.error) + '</div>'; return; }
     var items = d.installments || [];
     if (!items.length) { $('list').innerHTML = '<div class="empty">目前沒有已報到、且客戶有設定收費範本的人選。</div>'; return; }
-    $('list').innerHTML = '<table><thead><tr><th>人選</th><th>客戶／職缺</th><th>期別</th><th>比例</th><th>到期日</th><th>狀態</th><th></th></tr></thead><tbody>' +
-      items.map(function (r) {
-        var paid = !!r.paid_at;
-        return '<tr><td>' + esc(r.candidate_name) + '</td>' +
-          '<td>' + esc(r.client_name) + '<br><span class="mut">' + esc(r.job_title) + '</span></td>' +
-          '<td>' + esc(r.label) + '</td><td>' + esc(r.percent) + '%</td><td>' + esc(r.due_date) + '</td>' +
-          '<td><span class="badge ' + (paid ? 'paid' : 'unpaid') + '">' + (paid ? '已收款' : '未收款') + '</span>' +
-          (paid ? '<br><span class="mut">' + esc(String(r.paid_at).slice(0, 16)) + '</span>' : '') + '</td>' +
-          '<td><button type="button" class="btn ' + (paid ? '' : 'ok') + ' togglePaid" data-id="' + esc(r.id) + '" data-paid="' + (paid ? '0' : '1') + '">' +
-          (paid ? '標記未收款' : '標記已收款') + '</button></td></tr>';
+    var byPlacement = {};
+    items.forEach(function (r) {
+      if (!byPlacement[r.placement_id]) byPlacement[r.placement_id] = [];
+      byPlacement[r.placement_id].push(r);
+    });
+    GROUPS = Object.keys(byPlacement).map(function (pid) { return byPlacement[pid]; });
+    $('list').innerHTML = '<table><thead><tr><th>人選</th><th>客戶／職缺</th><th>報到日期</th><th>到職多久</th><th>收款進度</th></tr></thead><tbody>' +
+      GROUPS.map(function (rows, gi) {
+        var r0 = rows[0];
+        var paidN = rows.filter(function (x) { return !!x.paid_at; }).length;
+        var paidPct = Math.round(rows.filter(function (x) { return !!x.paid_at; }).reduce(function (s, x) { return s + Number(x.percent); }, 0));
+        return '<tr class="candRow" data-gi="' + gi + '"><td>' + esc(r0.candidate_name) + '</td>' +
+          '<td>' + esc(r0.client_name) + '<br><span class="mut">' + esc(r0.job_title) + '</span></td>' +
+          '<td>' + esc(r0.onboard_date) + '</td><td>' + esc(tenureText(r0.onboard_date)) + '</td>' +
+          '<td><span class="progress"><i style="width:' + paidPct + '%"></i></span>' + paidN + '/' + rows.length + ' 期已收（' + paidPct + '%）</td></tr>';
       }).join('') + '</tbody></table>';
-    Array.prototype.forEach.call($('list').querySelectorAll('.togglePaid'), function (b) {
-      b.onclick = function () {
-        var paid = b.dataset.paid === '1';
-        api('/admin/billing-installments/mark-paid', { method: 'POST', headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ id: b.dataset.id, paid: paid }) })
-          .then(function (r) { if (!r.ok) { alert(r.error || '失敗'); return; } loadInstallments(); });
-      };
+    Array.prototype.forEach.call($('list').querySelectorAll('.candRow'), function (tr) {
+      tr.onclick = function () { openDetail(GROUPS[Number(tr.dataset.gi)]); };
     });
   }).catch(function (e) { $('list').innerHTML = '<div class="mut">' + esc(apiFail(e)) + '</div>'; });
+}
+function closeDetail() { $('ovl').hidden = true; $('ovl').innerHTML = ''; }
+function openDetail(rows) {
+  var r0 = rows[0];
+  $('ovl').hidden = false;
+  $('ovl').innerHTML = '<div class="mask" id="ovlMask"></div><div class="modal">' +
+    '<button type="button" class="close" id="ovlClose">×</button>' +
+    '<h3>' + esc(r0.candidate_name) + '</h3>' +
+    '<p class="mut" style="margin:0 0 4px">' + esc(r0.client_name) + '　' + esc(r0.job_title) + '</p>' +
+    '<p class="mut" style="margin:0 0 16px">報到日期 ' + esc(r0.onboard_date) + '　·　' + esc(tenureText(r0.onboard_date)) + '</p>' +
+    '<table><thead><tr><th>期別</th><th>比例</th><th>到期日</th><th>狀態</th><th></th></tr></thead><tbody id="detailRows">' +
+    rows.map(function (r) {
+      var paid = !!r.paid_at;
+      return '<tr data-id="' + esc(r.id) + '"><td>' + esc(r.label) + '</td><td>' + esc(r.percent) + '%</td><td>' + esc(r.due_date) + '</td>' +
+        '<td><span class="badge ' + (paid ? 'paid' : 'unpaid') + '">' + (paid ? '已收款' : '未收款') + '</span>' +
+        (paid ? '<br><span class="mut">' + esc(String(r.paid_at).slice(0, 16)) + '</span>' : '') + '</td>' +
+        '<td><button type="button" class="btn ' + (paid ? '' : 'ok') + ' togglePaid" data-id="' + esc(r.id) + '" data-paid="' + (paid ? '0' : '1') + '">' +
+        (paid ? '標記未收款' : '標記已收款') + '</button></td></tr>';
+    }).join('') + '</tbody></table></div>';
+  $('ovlMask').onclick = closeDetail;
+  $('ovlClose').onclick = closeDetail;
+  Array.prototype.forEach.call($('ovl').querySelectorAll('.togglePaid'), function (b) {
+    b.onclick = function () {
+      var paid = b.dataset.paid === '1';
+      b.disabled = true;
+      api('/admin/billing-installments/mark-paid', { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ id: b.dataset.id, paid: paid }) })
+        .then(function (r) { if (!r.ok) { alert(r.error || '失敗'); b.disabled = false; return; } closeDetail(); loadInstallments(); })
+        .catch(function (e) { alert(apiFail(e)); b.disabled = false; });
+    };
+  });
 }
 
 function load() {
