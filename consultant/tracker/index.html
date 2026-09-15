@@ -1068,9 +1068,21 @@ function openDrawer(appId, kind) {
           '或直接上傳已完成的檔案<input type="file" class="formUpload" data-jobform="' + esc(f.job_form_id) + '" data-cid="' + esc(pl.company_id) + '" hidden></label>';
         return '<div style="margin-top:6px;font-size:12.5px">📋 ' + esc(f.form_name) + ' ' + pill + action + uploadAction + '</div>';
       }).join('');
+      // 2026-09-15 加：報到日期跟不報到——資料庫早就有這兩樣，畫面上從來沒印出來，
+      // 顧問完全看不到「這個人是幾號報到」跟「這個人談好日期結果沒出現」。
+      var onboardHtml = pl.onboard_date
+        ? '<div style="margin-top:6px;font-size:12.5px;color:var(--ink2)">📅 報到日：' + esc(String(pl.onboard_date).slice(0, 10)) + '</div>'
+        : '';
+      var noShowHtml = pl.no_show_at
+        ? '<div class="notrec" style="margin-top:6px;padding:8px 10px;border-radius:8px;background:#fdf1ef;color:var(--bad);font-size:12.5px">' +
+            '🚫 不報到（' + esc(pl.no_show_reason || '') + '）　' +
+            '<span class="mut" style="font-size:11px">' + esc(String(pl.no_show_at).slice(0, 16)) + '</span></div>'
+        : (pl.onboard_date
+            ? '<button type="button" class="btn noshowSet" data-appid="' + esc(pl.application_id || appId) + '" data-cid="' + esc(pl.company_id) + '" style="font-size:11.5px;padding:3px 10px;margin-top:6px;color:var(--bad)">標記不報到（談好日期但沒出現）</button>'
+            : '');
       return '<div style="background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-top:10px">' +
         '<div style="font-weight:700;font-size:13px;margin-bottom:4px">' + esc(pl.client_name) + '<span class="mut" style="font-weight:400;margin-left:8px">✓ 顧問確認</span></div>' +
-        bar(pl, appId, i > 0) + cr + nr + forms + '</div>';
+        bar(pl, appId, i > 0) + onboardHtml + cr + nr + noShowHtml + forms + '</div>';
     }).join('') +
     (!c.placements || !c.placements.length ? '<p class="mut" style="margin:10px 0">還沒推薦給任何客戶。</p>' : '') +
     '<div class="acts" style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px">' +
@@ -1706,6 +1718,17 @@ function wireDrawer(c, appId) {
     b.onclick = function () {
       api('/admin/pipeline/forward-decision', { method: 'POST', headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ application_id: appId, company_id: b.dataset.cid, not_recommended: false }) })
+        .then(function (r) { if (!r.ok) { alert(r.error || '失敗'); return; } loadAndOpen(appId); });
+    };
+  });
+  // 2026-09-15 加：不報到——原因純內部備忘，不會送任何訊息給候選人（跟「標記
+  // 已結案」那個會組進候選人訊息的 close_reason 是分開的欄位，這裡故意不共用）。
+  Array.prototype.forEach.call(document.querySelectorAll('.noshowSet'), function (b) {
+    b.onclick = function () {
+      var reason = prompt('不報到的原因（內部備忘，不會送給候選人）：');
+      if (!reason || !reason.trim()) return;
+      api('/admin/placement/no-show', { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ application_id: b.dataset.appid, company_id: b.dataset.cid, reason: reason.trim() }) })
         .then(function (r) { if (!r.ok) { alert(r.error || '失敗'); return; } loadAndOpen(appId); });
     };
   });

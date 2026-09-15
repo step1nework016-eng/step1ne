@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="zh-Hant">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>收費進程｜顧問後台</title>
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<style>
+:root{--gold:#a67c3d;--ink:#23262d;--ink2:#4d5563;--ink3:#8a8d95;--line:#eee7db;--soft:#faf8f3;--bg:#f4f1ea;--ok:#2f8f5b;--bad:#c0392b;--warn:#8a6100}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 -apple-system,"Noto Sans TC",sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:0 16px}
+header{background:#fff;border-bottom:1px solid var(--line);padding:14px 0}
+header .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header img{height:26px}
+nav{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+nav a{font-size:14px;text-decoration:none;color:var(--ink2);padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:#fff}
+nav a.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.gate{max-width:380px;margin:16vh auto;background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px}
+.gate input{width:100%;font:inherit;padding:11px 13px;border:1px solid var(--line);border-radius:10px;margin:12px 0}
+.gate button{width:100%;font:inherit;font-weight:700;background:var(--gold);color:#fff;border:0;border-radius:999px;padding:12px}
+.mut{color:var(--ink3);font-size:13px}
+main{padding:22px 0 60px}
+.note{background:var(--soft);border-left:3px solid var(--gold);border-radius:0 10px 10px 0;padding:12px 15px;font-size:13px;color:var(--ink2);margin-bottom:14px;line-height:1.7}
+select{font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;min-width:240px}
+.c{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:14px}
+.c h3{margin:0 0 10px;font-size:15px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;color:var(--ink3);font-weight:600;font-size:12px;padding:6px 8px;border-bottom:1px solid var(--line)}
+td{padding:8px;border-bottom:1px solid var(--line);vertical-align:middle}
+td input[type=text],td input[type=number]{font:inherit;width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:7px}
+td select{min-width:0;width:100%;padding:6px 8px}
+.btn{font:inherit;font-size:13px;font-weight:600;border-radius:999px;padding:6px 14px;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink2)}
+.btn.p{background:var(--gold);color:#fff;border-color:var(--gold)}
+.btn.d{color:var(--bad);border-color:#f0d4cf}
+.btn.ok{color:var(--ok);border-color:#bfe0cd}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.badge{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:3px 10px}
+.badge.paid{background:#e8f5ee;color:var(--ok)}
+.badge.unpaid{background:#fdf1ef;color:var(--bad)}
+.empty{background:#fff;border:1px dashed var(--line);border-radius:14px;padding:26px;text-align:center;color:var(--ink3)}
+</style>
+
+<div id="gate" class="gate" hidden>
+  <b>顧問後台</b>
+  <p class="mut" style="margin:6px 0 0">需要存取權杖。這組權杖等同密碼，不要外傳。</p>
+  <input id="tok" type="password" placeholder="ADMIN_TOKEN" autocomplete="off">
+  <button id="enter" type="button">進入</button>
+  <p id="gerr" class="mut" style="color:#b4552e;margin:12px 0 0" hidden></p>
+</div>
+
+<div id="app" hidden>
+  <header><div class="wrap">
+    <img src="/assets/step1ne-logo.png" alt="Step1ne"><b>收費進程</b>
+    <nav>
+      <a href="/consultant/client-info/">客戶資訊</a>
+      <a href="/consultant/billing/" class="on">收費進程</a>
+      <a href="/consultant/tracker/">人選追蹤</a>
+    </nav>
+  </div></header>
+  <main class="wrap">
+    <div class="note">
+      每家客戶合約的分期收款條件不一樣（例：報到滿 30 天收 50%、3 個月收 25%、6 個月收 25%），
+      先在下面幫這家客戶設定一次範本；之後人選在<b>人選追蹤</b>頁被標記「報到」時，
+      系統會自動依這個範本算出每一期的到期日。<br>
+      改範本<b>不會</b>回頭改已經報到的舊人選——那是合約簽當下那份，不是永遠跟著最新設定走。<br>
+      下面的「已收款」只是顧問自己標記用，<b>不是</b>接了金流或發票系統，系統本身不會自動確認有沒有真的收到錢。
+    </div>
+
+    <div class="c">
+      <h3>選客戶設定收費範本</h3>
+      <select id="companySel"><option value="">載入中…</option></select>
+      <div id="planBox" style="margin-top:14px"></div>
+    </div>
+
+    <div class="c">
+      <h3>收費進度（所有已報到人選）</h3>
+      <div id="list" class="mut">載入中…</div>
+    </div>
+  </main>
+</div>
+
+<script>
+var API='https://step1ne-backoffice-worker.aiagentg888.workers.dev';
+var KEY='s1ne_admin_tok';
+var tok=localStorage.getItem(KEY)||'';
+var $=function(i){return document.getElementById(i)};
+var esc=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
+var COMPANIES=[], CUR_COMPANY='';
+
+function api(p, o) {
+  o = o || {};
+  o.headers = Object.assign({ authorization: 'Bearer ' + tok }, o.headers || {});
+  return fetch(API + p, o).then(function (r) {
+    if (r.status === 401) { var e401 = new Error('權杖不正確'); e401.status = 401; throw e401; }
+    return r.text().then(function (t) {
+      var d = null;
+      try { d = JSON.parse(t); } catch (x) {}
+      if (!r.ok) { var err = new Error('HTTP ' + r.status); err.status = r.status; err.serverError = d && d.error ? d.error : null; throw err; }
+      if (d === null) { throw new Error('回傳格式不是 JSON'); }
+      return d;
+    });
+  });
+}
+function apiFail(e) {
+  if (!e) return '未知錯誤';
+  if (e.status === 401 || /權杖/.test(e.message || '')) return '權杖不正確，請重新輸入';
+  if (e.serverError) return '伺服器回報：' + String(e.serverError).slice(0, 120);
+  if (e.status) return '伺服器錯誤 ' + e.status;
+  if (e.name === 'TypeError') return '連線失敗（連不到伺服器，檢查網路）';
+  return String(e.message || e).slice(0, 120);
+}
+
+var UNIT_LABEL = { days: '天', months: '個月' };
+
+function renderPlan(tiers) {
+  tiers = tiers || [];
+  var rows = tiers.map(function (t, i) {
+    return '<tr data-i="' + i + '">' +
+      '<td><input type="text" class="f-label" value="' + esc(t.label || '') + '" placeholder="第一期"></td>' +
+      '<td><input type="number" class="f-percent" value="' + esc(t.percent) + '" min="0" max="100" step="0.1" style="width:80px"> %</td>' +
+      '<td>報到滿 <input type="number" class="f-value" value="' + esc(t.trigger_value) + '" min="0" style="width:70px">' +
+        ' <select class="f-unit"><option value="days"' + (t.trigger_unit === 'days' ? ' selected' : '') + '>天</option>' +
+        '<option value="months"' + (t.trigger_unit === 'months' ? ' selected' : '') + '>個月</option></select></td>' +
+      '<td><button type="button" class="btn d rmRow" style="padding:4px 10px">刪除</button></td></tr>';
+  }).join('');
+  $('planBox').innerHTML =
+    '<table><thead><tr><th>名稱</th><th>比例</th><th>觸發時機</th><th></th></tr></thead><tbody id="planRows">' + rows + '</tbody></table>' +
+    '<div class="acts"><button type="button" class="btn" id="addRow">＋ 加一期</button>' +
+    '<button type="button" class="btn p" id="savePlan">儲存範本</button><span class="mut" id="planMsg"></span></div>';
+  $('addRow').onclick = function () {
+    var body = $('planRows');
+    var i = body.children.length;
+    body.insertAdjacentHTML('beforeend', '<tr data-i="' + i + '">' +
+      '<td><input type="text" class="f-label" placeholder="第' + (i + 1) + '期"></td>' +
+      '<td><input type="number" class="f-percent" value="0" min="0" max="100" step="0.1" style="width:80px"> %</td>' +
+      '<td>報到滿 <input type="number" class="f-value" value="30" min="0" style="width:70px"> ' +
+        '<select class="f-unit"><option value="days">天</option><option value="months">個月</option></select></td>' +
+      '<td><button type="button" class="btn d rmRow" style="padding:4px 10px">刪除</button></td></tr>');
+  };
+  $('planBox').addEventListener('click', function (e) {
+    var b = e.target.closest('.rmRow'); if (!b) return;
+    b.closest('tr').remove();
+  });
+  $('savePlan').onclick = function () {
+    if (!CUR_COMPANY) return;
+    var out = [];
+    Array.prototype.forEach.call($('planRows').querySelectorAll('tr'), function (tr, i) {
+      out.push({
+        seq: i + 1,
+        label: tr.querySelector('.f-label').value.trim() || ('第' + (i + 1) + '期'),
+        percent: Number(tr.querySelector('.f-percent').value) || 0,
+        trigger_unit: tr.querySelector('.f-unit').value,
+        trigger_value: Number(tr.querySelector('.f-value').value) || 0,
+      });
+    });
+    $('planMsg').textContent = '儲存中…';
+    api('/admin/client-billing-plan', { method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ company_id: CUR_COMPANY, tiers: out }) })
+      .then(function (d) { if (!d.ok) { $('planMsg').textContent = d.error || '儲存失敗'; return; } $('planMsg').textContent = '已儲存'; loadInstallments(); })
+      .catch(function (e) { $('planMsg').textContent = apiFail(e); });
+  };
+}
+
+function loadPlan(companyId) {
+  CUR_COMPANY = companyId;
+  if (!companyId) { $('planBox').innerHTML = ''; return; }
+  $('planBox').innerHTML = '<p class="mut">載入中…</p>';
+  api('/admin/client-billing-plan?company_id=' + encodeURIComponent(companyId))
+    .then(function (d) { if (!d.ok) { $('planBox').innerHTML = '<p class="mut">' + esc(d.error) + '</p>'; return; } renderPlan(d.tiers); })
+    .catch(function (e) { $('planBox').innerHTML = '<p class="mut">' + esc(apiFail(e)) + '</p>'; });
+}
+
+function loadInstallments() {
+  var qs = CUR_COMPANY ? ('?company_id=' + encodeURIComponent(CUR_COMPANY)) : '';
+  $('list').innerHTML = '載入中…';
+  api('/admin/billing-installments' + qs).then(function (d) {
+    if (!d.ok) { $('list').innerHTML = '<div class="mut">' + esc(d.error) + '</div>'; return; }
+    var items = d.installments || [];
+    if (!items.length) { $('list').innerHTML = '<div class="empty">目前沒有已報到、且客戶有設定收費範本的人選。</div>'; return; }
+    $('list').innerHTML = '<table><thead><tr><th>人選</th><th>客戶／職缺</th><th>期別</th><th>比例</th><th>到期日</th><th>狀態</th><th></th></tr></thead><tbody>' +
+      items.map(function (r) {
+        var paid = !!r.paid_at;
+        return '<tr><td>' + esc(r.candidate_name) + '</td>' +
+          '<td>' + esc(r.client_name) + '<br><span class="mut">' + esc(r.job_title) + '</span></td>' +
+          '<td>' + esc(r.label) + '</td><td>' + esc(r.percent) + '%</td><td>' + esc(r.due_date) + '</td>' +
+          '<td><span class="badge ' + (paid ? 'paid' : 'unpaid') + '">' + (paid ? '已收款' : '未收款') + '</span>' +
+          (paid ? '<br><span class="mut">' + esc(String(r.paid_at).slice(0, 16)) + '</span>' : '') + '</td>' +
+          '<td><button type="button" class="btn ' + (paid ? '' : 'ok') + ' togglePaid" data-id="' + esc(r.id) + '" data-paid="' + (paid ? '0' : '1') + '">' +
+          (paid ? '標記未收款' : '標記已收款') + '</button></td></tr>';
+      }).join('') + '</tbody></table>';
+    Array.prototype.forEach.call($('list').querySelectorAll('.togglePaid'), function (b) {
+      b.onclick = function () {
+        var paid = b.dataset.paid === '1';
+        api('/admin/billing-installments/mark-paid', { method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ id: b.dataset.id, paid: paid }) })
+          .then(function (r) { if (!r.ok) { alert(r.error || '失敗'); return; } loadInstallments(); });
+      };
+    });
+  }).catch(function (e) { $('list').innerHTML = '<div class="mut">' + esc(apiFail(e)) + '</div>'; });
+}
+
+function load() {
+  $('gate').hidden = true; $('app').hidden = false;
+  api('/admin/portal/companies').then(function (d) {
+    if (!d.ok) { $('companySel').innerHTML = '<option>讀取失敗</option>'; return; }
+    COMPANIES = d.companies || [];
+    $('companySel').innerHTML = '<option value="">－－選一家客戶－－</option>' +
+      COMPANIES.map(function (c) { return '<option value="' + esc(c.id) + '">' + esc(c.display_name) + '</option>'; }).join('');
+    $('companySel').onchange = function () { loadPlan($('companySel').value); };
+    loadInstallments();
+  }).catch(function (e) { $('companySel').innerHTML = '<option>' + esc(apiFail(e)) + '</option>'; });
+}
+function boot() {
+  if (tok) return load();
+  $('gate').hidden = false;
+  $('enter').onclick = function () {
+    tok = $('tok').value.trim(); if (!tok) return;
+    api('/admin/portal/companies').then(function (d) {
+      if (!d.ok) { $('gerr').hidden = false; $('gerr').textContent = '權杖不正確'; return; }
+      localStorage.setItem(KEY, tok); load();
+    }).catch(function () { $('gerr').hidden = false; $('gerr').textContent = '權杖不正確'; });
+  };
+  $('tok').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('enter').click(); });
+}
+boot();
+</script>
+<script defer src="/consultant/_shell.js"></script>
+</html>
