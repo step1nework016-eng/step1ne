@@ -332,7 +332,12 @@ button.sec{background:#fff;color:var(--ink2);border:1px solid var(--line)}
   <div id="content" hidden>
     <div class="toptabs">
       <button type="button" class="toptab on" id="tabCandidates">人選進度</button>
+      <button type="button" class="toptab" id="tabBilling">收費進程</button>
       <button type="button" class="toptab" id="tabJobs">用人需求表</button>
+    </div>
+    <div id="billingView" hidden>
+      <div class="dash-helper" style="margin:14px 0">每位人選報到後依合約分期比例自動列出到期日；「已收款」是 Step1ne 內部標記，僅供對帳參考。</div>
+      <div id="billingList" class="state">讀取中…</div>
     </div>
     <div id="candidatesView">
       <section class="dash-stats" id="dashStats"></section>
@@ -1507,16 +1512,47 @@ const FUNNEL_STAGES = [
   ['onboard', '已到職'],
 ];
 
+let BILLING_LOADED = false;
 function showTopView(view){
   document.getElementById('tabJobs').classList.toggle('on', view === 'jobs');
   document.getElementById('tabCandidates').classList.toggle('on', view === 'candidates');
+  document.getElementById('tabBilling').classList.toggle('on', view === 'billing');
   document.getElementById('candidatesView').hidden = view !== 'candidates';
+  document.getElementById('billingView').hidden = view !== 'billing';
   document.getElementById('pickView').hidden = view !== 'jobs';
   document.getElementById('jobView').hidden = true;
   if (view === 'candidates' && !CANDIDATES_LOADED) loadCandidates();
+  if (view === 'billing' && !BILLING_LOADED) loadBilling();
 }
 document.getElementById('tabJobs').addEventListener('click', () => showTopView('jobs'));
 document.getElementById('tabCandidates').addEventListener('click', () => showTopView('candidates'));
+document.getElementById('tabBilling').addEventListener('click', () => showTopView('billing'));
+
+// 2026-09-15 加：收費進程——只讀，欄位跟顧問後台那份刻意不同（不給 paid_by，
+// 不給範本編輯介面），客戶只需要知道「這位、這期、多少比例、什麼時候到期、收了沒」。
+async function loadBilling(){
+  BILLING_LOADED = true;
+  const el = document.getElementById('billingList');
+  el.className = 'state'; el.textContent = '讀取中…';
+  let data;
+  try {
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/billing`);
+    data = await res.json();
+  } catch {
+    el.textContent = '連線失敗，請稍後再試。';
+    return;
+  }
+  if (!data.ok) { el.textContent = data.error || '讀取失敗'; return; }
+  const items = data.installments || [];
+  if (!items.length) { el.textContent = '目前沒有收費排程資料。'; return; }
+  el.className = '';
+  el.innerHTML = `<div class="dash-table-wrap"><table class="dash-table"><thead><tr>` +
+    `<th>人選</th><th>職缺</th><th>期別</th><th>比例</th><th>到期日</th><th>狀態</th></tr></thead><tbody>` +
+    items.map(r => `<tr><td>${esc(r.candidate_name)}</td><td>${esc(r.job_title)}</td>` +
+      `<td>${esc(r.label)}</td><td>${esc(r.percent)}%</td><td>${esc(r.due_date)}</td>` +
+      `<td>${r.paid ? '<span style="color:#2f8f5b;font-weight:700">已收款</span>' : '<span style="color:#8a6100;font-weight:700">未收款</span>'}</td></tr>`
+    ).join('') + `</tbody></table></div>`;
+}
 
 function currentStageOf(c){
   // 2026-09-01 改：客戶端字眼統一用「不推進」，跟表格「用人單位」欄的下拉選項
