@@ -399,16 +399,30 @@ function setEnded() {
   $('log').scrollTop = $('log').scrollHeight;
 }
 
-// 2026-09-16 加：LIFF 綁定。只在真的透過 LIFF（LINE App 內的 webview）打開這頁
-// 時才會成功——liff.init 需要真實 LIFF ID 且在 LINE App 環境才會 isLoggedIn。
-// 一般瀏覽器打開同一個連結，liff.init 會失敗或 isLoggedIn() 為 false，這支
-// 直接安靜跳過，不影響原本的面談流程（原本的 LINE OA 文字驗證備援照常運作）。
+// 2026-09-16 加：LIFF 綁定。
+//
+// ⚠️ 2026-09-16 實測踩到的坑：在 LINE App 的原生 webview 裡開，網址列從一開始
+// 就帶著 ?t=...，沒問題；但透過「外部瀏覽器」開 liff.line.me 連結時（例如從
+// Telegram、或其他不是 LINE 原生 webview 的地方點開），LIFF 是先導到
+// liff.line.me 自己的頁面、把原始網址參數包進 liff.state，再由 liff.init()
+// 執行到一半時用 history.replaceState() 把 ?t=... 寫回網址列——這件事是
+// **非同步**發生在 liff.init() 內部，如果程式碼在頁面一載入就同步讀
+// location.search 取 t（像原本那版），liff.init() 根本還沒跑完，讀到的會是
+// 空的，導致「連結不完整」。修法：一律先 await liff.init()（不管有沒有
+// liffId context 都安全，失敗會被 catch 住），跑完之後才重新讀一次
+// location.search，這樣不管是哪種開法都讀得到正確的 t。
 var LIFF_ID = '2011631457-YcRRVX0v';
-async function liffTryBind() {
+function readTokenFromUrl() {
+  return new URLSearchParams(location.search).get('t') || '';
+}
+async function liffBootstrap() {
   try {
-    if (typeof liff === 'undefined' || T.length < 32) return;
+    if (typeof liff === 'undefined') return;
     await liff.init({ liffId: LIFF_ID });
-    if (!liff.isLoggedIn()) return;
+    // liff.init() 跑完後，如果原本網址沒帶到 t（外部瀏覽器那種情況），
+    // 這裡重新讀一次就會抓到 LIFF 剛剛用 history.replaceState 寫回去的版本。
+    if (T.length < 32) T = readTokenFromUrl();
+    if (!liff.isLoggedIn() || T.length < 32) return;
     var profile = await liff.getProfile();
     await fetch(API + '/chat/' + encodeURIComponent(T) + '/liff-bind', {
       method: 'POST',
@@ -420,7 +434,8 @@ async function liffTryBind() {
       }),
     });
   } catch (e) {
-    // 非 LIFF 環境、或候選人不同意 LINE Login 授權，都會落到這裡——安靜跳過。
+    // 非 LIFF 環境、liff.init 失敗、或候選人不同意 LINE Login 授權，
+    // 都會落到這裡——安靜跳過，讓原本的面談流程繼續走。
   }
 }
 
@@ -428,7 +443,6 @@ async function boot() {
   if (T.length < 32) {
     return notice('連結不完整', '請從應徵完成後的頁面或我們寄給您的連結進入。');
   }
-  liffTryBind();  // 不 await：不能讓候選人等這個才看到面談室，背景做就好
   var r, d;
   try {
     r = await fetch(API + '/chat/' + encodeURIComponent(T));
@@ -739,7 +753,18 @@ $('say').addEventListener('input', function () {
   this.style.height = Math.min(this.scrollHeight, 130) + 'px';
 });
 
-boot();
+// 2026-09-16 加：啟動順序依 T 一開始有沒有帶到分兩條路走——
+// 有帶到（LINE App 原生 webview、或一般瀏覽器直接開帶 ?t= 的連結）：
+// 不等 LIFF，馬上進面談室，LIFF 綁定在背景做，不拖畫面出現的時間；
+// 沒帶到（外部瀏覽器開 liff.line.me 連結，t 被包進 liff.state 裡）：
+// 一定要先等 liffBootstrap() 把 t 從 liff.state 救回來，才能進面談室，
+// 不然會誤判成「連結不完整」。
+if (T.length >= 32) {
+  liffBootstrap();
+  boot();
+} else {
+  liffBootstrap().then(boot);
+}
 </script>
 </body>
 </html>
