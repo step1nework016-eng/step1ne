@@ -83,6 +83,24 @@ async function boot() {
     await liff.init({ liffId: LIFF_ID });
     if (!liff.isLoggedIn()) throw new Error('not logged in');
     profile = await liff.getProfile();
+
+    // 2026-09-16 加：已經綁過的人（比如收過面談連結、透過 /interview/ 那支
+    // LIFF 綁過的候選人）再點「查詢我的面試進度」，不應該又被要求重填一次
+    // 姓名/信箱/電話——先問後端這個 LINE 帳號是不是已經 bound，是的話直接
+    // 跳過表單，不要讓表單擋在前面。
+    try {
+      var statusR = await fetch(API + '/line-binding-status?userId=' + encodeURIComponent(profile.userId));
+      var statusD = await statusR.json();
+      if (statusD && statusD.ok && statusD.bound) {
+        $('f').hidden = true;
+        $('hint').hidden = true;
+        $('ok').hidden = false;
+        $('ok').textContent = '您已經綁定過囉！請回到 LINE 對話視窗，再打一次「查詢我的面試進度」，就會看到目前最新進度。';
+        return;
+      }
+    } catch (e2) {
+      // 查詢失敗就照常顯示表單，不要因為這個附加檢查掛掉整個流程
+    }
   } catch (e) {
     // 沒有透過 LIFF 開這頁（例如直接用瀏覽器打開），沒辦法拿到 LINE 身分，
     // 這個表單本身的目的就是要綁定 LINE 帳號，沒有 LINE 身分就做不到，
