@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+</script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>查詢面試進度｜Step1ne 德仁管理顧問</title>
+<!-- 只給從 LINE 圖文選單 LIFF 入口進來的人用，不需要被搜尋引擎收錄 -->
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta name="theme-color" content="#ffffff">
+<!-- 2026-09-16 建：給「從沒收過面談連結、直接在 LINE 冒出來問查詢進度」的陌生
+     候選人用的 LIFF 表單頁。跟 /interview/ 的 LIFF 綁定不一樣——那支已經知道
+     要綁哪個 application_id（從網址上的 chat_token 查得到），這支完全不知道，
+     LINE 身分本身不足以配對到應徵紀錄，一定要姓名+信箱+電話三項一起比對
+     （後端 /progress-liff-bind 沿用跟 LINE OA 對話裡三步驟驗證同一套比對邏輯）。 -->
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+html,body{margin:0;padding:0;min-height:100%}
+body{font-family:'Noto Sans TC',system-ui,sans-serif;color:#23262d;background:#fafafa;
+  display:flex;align-items:center;justify-content:center;padding:24px}
+.card{max-width:420px;width:100%;background:#fff;border:1px solid #e6e6e6;border-radius:16px;
+  padding:28px 24px;box-shadow:0 6px 24px rgba(0,0,0,.05)}
+h1{font-size:19px;margin:0 0 6px}
+p.sub{color:#6b7280;font-size:13.5px;margin:0 0 22px;line-height:1.6}
+label{display:block;font-size:13px;color:#374151;margin:14px 0 6px;font-weight:700}
+input{width:100%;padding:11px 12px;border:1px solid #d8dbe2;border-radius:9px;font-size:15px;font-family:inherit}
+input:focus{outline:2px solid #2563eb;outline-offset:1px}
+button{width:100%;margin-top:22px;padding:13px;border:0;border-radius:10px;background:#111;color:#fff;
+  font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+button:disabled{opacity:.5;cursor:default}
+.msg{margin-top:16px;font-size:13.5px;line-height:1.7;padding:12px 14px;border-radius:9px}
+.msg.err{background:#fef2f2;color:#b91c1c}
+.msg.ok{background:#f0fdf4;color:#15803d}
+.hint{font-size:12px;color:#9ca3af;margin-top:18px;line-height:1.6}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h1>查詢面試進度</h1>
+  <p class="sub">請填您應徵時留下的姓名、信箱、電話，三項要完全一樣才配對得到，我們就能立刻告訴您目前進度。</p>
+
+  <form id="f">
+    <label for="nm">姓名</label>
+    <input id="nm" name="nm" autocomplete="name" required>
+    <label for="em">信箱</label>
+    <input id="em" name="em" type="email" autocomplete="email" required>
+    <label for="ph">電話</label>
+    <input id="ph" name="ph" type="tel" autocomplete="tel" required>
+    <button id="submitBtn" type="submit">查詢進度</button>
+  </form>
+
+  <div class="msg err" id="err" hidden></div>
+  <div class="msg ok" id="ok" hidden></div>
+
+  <p class="hint" id="hint">找不到您的應徵紀錄嗎？可能是三項資訊跟當初填寫的不完全一樣，請直接留言給顧問，我們會盡快協助您。</p>
+</div>
+
+<script>
+var LIFF_ID = '';  // 部署前由 Jacky 提供的第二個 LIFF ID 填進來
+var API = 'https://step1ne-public-worker.aiagentg888.workers.dev';
+var $ = function (id) { return document.getElementById(id); };
+var profile = null;
+
+async function boot() {
+  try {
+    if (typeof liff === 'undefined' || !LIFF_ID) throw new Error('no liff');
+    await liff.init({ liffId: LIFF_ID });
+    if (!liff.isLoggedIn()) throw new Error('not logged in');
+    profile = await liff.getProfile();
+  } catch (e) {
+    // 沒有透過 LIFF 開這頁（例如直接用瀏覽器打開），沒辦法拿到 LINE 身分，
+    // 這個表單本身的目的就是要綁定 LINE 帳號，沒有 LINE 身分就做不到，
+    // 直接告訴使用者要怎麼進來，不要讓他填完表單才發現不能用。
+    $('f').hidden = true;
+    $('err').hidden = false;
+    $('err').textContent = '請從 LINE 官方帳號的圖文選單點「查詢我的面試進度」進來，不能直接用瀏覽器打開這一頁。';
+  }
+}
+boot();
+
+$('f').addEventListener('submit', function (e) {
+  e.preventDefault();
+  if (!profile) return;
+  var btn = $('submitBtn');
+  btn.disabled = true; btn.textContent = '查詢中…';
+  $('err').hidden = true; $('ok').hidden = true;
+
+  fetch(API + '/progress-liff-bind', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      userId: profile.userId,
+      displayName: profile.displayName || '',
+      pictureUrl: profile.pictureUrl || '',
+      name: $('nm').value.trim(),
+      email: $('em').value.trim(),
+      phone: $('ph').value.trim(),
+    }),
+  }).then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); })
+    .then(function (res) {
+      btn.disabled = false; btn.textContent = '查詢進度';
+      if (res.d && res.d.ok) {
+        $('f').hidden = true;
+        $('hint').hidden = true;
+        $('ok').hidden = false;
+        $('ok').textContent = '✅ 綁定成功！請回到 LINE 對話視窗，再打一次「查詢我的面試進度」，就會看到目前最新進度。';
+      } else {
+        $('err').hidden = false;
+        $('err').textContent = (res.d && res.d.error === 'no_match')
+          ? '沒有找到符合的應徵紀錄，請確認姓名/信箱/電話都跟應徵時填的完全一樣（信箱大小寫不影響，但姓名不能有多餘空格或簡稱）。'
+          : '查詢失敗，請稍後再試一次。';
+      }
+    })
+    .catch(function () {
+      btn.disabled = false; btn.textContent = '查詢進度';
+      $('err').hidden = false; $('err').textContent = '連不上伺服器，請確認網路後再試一次。';
+    });
+});
+</script>
+</body>
+</html>
