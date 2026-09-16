@@ -28,6 +28,12 @@ document.addEventListener('click', function (e) {
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
 <meta name="theme-color" content="#ffffff">
+<!-- 2026-09-16 加：LIFF SDK，讓候選人從圖文選單的 LIFF 入口打開這頁時可以
+     自動抓 LINE 身分完成綁定，不用再走 LINE OA 對話裡打字驗證姓名/信箱/電話
+     三步驟。一般瀏覽器直接開這個連結（不是透過 LIFF）時，這支 SDK 載入了也
+     不會做任何事——liff.init() 在非 LINE App 環境會失敗，程式碼有 try/catch
+     接住，不影響原本的面談流程。 -->
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -393,10 +399,36 @@ function setEnded() {
   $('log').scrollTop = $('log').scrollHeight;
 }
 
+// 2026-09-16 加：LIFF 綁定。只在真的透過 LIFF（LINE App 內的 webview）打開這頁
+// 時才會成功——liff.init 需要真實 LIFF ID 且在 LINE App 環境才會 isLoggedIn。
+// 一般瀏覽器打開同一個連結，liff.init 會失敗或 isLoggedIn() 為 false，這支
+// 直接安靜跳過，不影響原本的面談流程（原本的 LINE OA 文字驗證備援照常運作）。
+var LIFF_ID = '2011631457-YcRRVX0v';
+async function liffTryBind() {
+  try {
+    if (typeof liff === 'undefined' || T.length < 32) return;
+    await liff.init({ liffId: LIFF_ID });
+    if (!liff.isLoggedIn()) return;
+    var profile = await liff.getProfile();
+    await fetch(API + '/chat/' + encodeURIComponent(T) + '/liff-bind', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        userId: profile.userId,
+        displayName: profile.displayName || '',
+        pictureUrl: profile.pictureUrl || '',
+      }),
+    });
+  } catch (e) {
+    // 非 LIFF 環境、或候選人不同意 LINE Login 授權，都會落到這裡——安靜跳過。
+  }
+}
+
 async function boot() {
   if (T.length < 32) {
     return notice('連結不完整', '請從應徵完成後的頁面或我們寄給您的連結進入。');
   }
+  liffTryBind();  // 不 await：不能讓候選人等這個才看到面談室，背景做就好
   var r, d;
   try {
     r = await fetch(API + '/chat/' + encodeURIComponent(T));
