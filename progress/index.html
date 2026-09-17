@@ -47,13 +47,23 @@ button:disabled{opacity:.5;cursor:default}
 .msg.err{background:#fef2f2;color:#b91c1c}
 .msg.ok{background:#f0fdf4;color:#15803d}
 .hint{font-size:12px;color:#9ca3af;margin-top:18px;line-height:1.6}
+/* 2026-09-17 加：已綁定的人直接在網頁上看進度，不用跳回 LINE 對話視窗——
+   一張卡對應一筆應徵紀錄，格式盡量貼近 LINE 那邊的 Flex 卡片，讓候選人
+   兩邊看到的東西感覺是同一套系統，不是兩種不同體驗。 */
+.progress-list{display:grid;gap:12px;margin-top:6px}
+.progress-card{border:1px solid #e6e6e6;border-radius:12px;padding:14px 16px;background:#fafbfc}
+.progress-card.closed{background:#fff7ed;border-color:#fed7aa}
+.progress-card .job{font-size:14px;font-weight:700;margin:0 0 6px}
+.progress-card .body{font-size:13.5px;color:#374151;line-height:1.6;margin:0}
+.progress-card .date{font-size:11.5px;color:#9ca3af;margin:8px 0 0}
 </style>
 </head>
 <body>
 
 <div class="card">
   <h1>查詢面試進度</h1>
-  <p class="sub">請填您應徵時留下的姓名、信箱、電話，三項要完全一樣才配對得到，我們就能立刻告訴您目前進度。</p>
+  <p class="sub" id="sub">請填您應徵時留下的姓名、信箱、電話，三項要完全一樣才配對得到，我們就能立刻告訴您目前進度。</p>
+  <div class="progress-list" id="progressList" hidden></div>
 
   <form id="f">
     <label for="nm">姓名</label>
@@ -74,8 +84,44 @@ button:disabled{opacity:.5;cursor:default}
 <script>
 var LIFF_ID = '2011631457-WcDji8Bx';
 var API = 'https://step1ne-public-worker.aiagentg888.workers.dev';
+// 2026-09-17 加：進度資料在 step1ne-recruit-api 那支 Worker（跟 LINE 對話裡
+// 查進度共用同一個 deriveApplicationProgress()，不要另外兜一套判斷邏輯）。
+var RECRUIT_API = 'https://step1ne-recruit-api.aiagentg888.workers.dev';
 var $ = function (id) { return document.getElementById(id); };
 var profile = null;
+
+function renderProgress(rows) {
+  var list = $('progressList');
+  list.innerHTML = '';
+  if (!rows || !rows.length) {
+    list.hidden = true;
+    return false;
+  }
+  rows.forEach(function (r) {
+    var el = document.createElement('div');
+    el.className = 'progress-card' + (r.closed ? ' closed' : '');
+    var dateLine = r.secondStageDate ? ('面試時間：' + r.secondStageDate)
+      : (r.interviewDate ? '應徵日期：' + r.interviewDate : '');
+    el.innerHTML = '<p class="job">' + (r.jobTitle || '').replace(/</g, '&lt;') + '</p>'
+      + '<p class="body">' + (r.message || '').replace(/</g, '&lt;') + '</p>'
+      + (dateLine ? '<p class="date">' + dateLine + '</p>' : '');
+    list.appendChild(el);
+  });
+  list.hidden = false;
+  return true;
+}
+
+async function loadAndShowProgress(userId) {
+  try {
+    var r = await fetch(RECRUIT_API + '/progress-data?userId=' + encodeURIComponent(userId));
+    var d = await r.json();
+    if (d && d.ok && d.bound && renderProgress(d.rows)) {
+      $('sub').textContent = '以下是您目前的應徵進度：';
+      return true;
+    }
+  } catch (e) { /* 拿不到就照舊顯示「已綁定」那句話，不擋流程 */ }
+  return false;
+}
 
 async function boot() {
   try {
@@ -94,8 +140,14 @@ async function boot() {
       if (statusD && statusD.ok && statusD.bound) {
         $('f').hidden = true;
         $('hint').hidden = true;
-        $('ok').hidden = false;
-        $('ok').textContent = '您已經綁定過囉！請回到 LINE 對話視窗，再打一次「查詢我的面試進度」，就會看到目前最新進度。';
+        // 2026-09-17 改：原本這裡只叫使用者回 LINE 對話視窗重打一次，等於
+        // 白開這個網頁——改成直接在這裡打進度資料出來，拿不到才退回舊的
+        // 那句提示（fallback，不讓畫面空白或卡住）。
+        var shown = await loadAndShowProgress(profile.userId);
+        if (!shown) {
+          $('ok').hidden = false;
+          $('ok').textContent = '您已經綁定過囉！請回到 LINE 對話視窗，再打一次「查詢我的面試進度」，就會看到目前最新進度。';
+        }
         return;
       }
     } catch (e2) {
@@ -131,13 +183,18 @@ $('f').addEventListener('submit', function (e) {
       phone: $('ph').value.trim(),
     }),
   }).then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); })
-    .then(function (res) {
+    .then(async function (res) {
       btn.disabled = false; btn.textContent = '查詢進度';
       if (res.d && res.d.ok) {
         $('f').hidden = true;
         $('hint').hidden = true;
+        // 2026-09-17 改：綁定成功後直接秀進度，不要叫使用者跳回 LINE 對話視窗
+        // 再問一次——理由同上面 boot() 那段。
+        var shown = await loadAndShowProgress(profile.userId);
         $('ok').hidden = false;
-        $('ok').textContent = '✅ 綁定成功！請回到 LINE 對話視窗，再打一次「查詢我的面試進度」，就會看到目前最新進度。';
+        $('ok').textContent = shown
+          ? '✅ 綁定成功！以下是您目前的應徵進度：'
+          : '✅ 綁定成功！請回到 LINE 對話視窗，再打一次「查詢我的面試進度」，就會看到目前最新進度。';
       } else {
         $('err').hidden = false;
         $('err').textContent = (res.d && res.d.error === 'no_match')
