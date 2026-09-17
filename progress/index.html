@@ -64,8 +64,9 @@ button:disabled{opacity:.5;cursor:default}
   <h1>查詢面試進度</h1>
   <p class="sub" id="sub">請填您應徵時留下的姓名、信箱、電話，三項要完全一樣才配對得到，我們就能立刻告訴您目前進度。</p>
   <div class="progress-list" id="progressList" hidden></div>
+  <p class="hint" id="loading">載入中…</p>
 
-  <form id="f">
+  <form id="f" hidden>
     <label for="nm">姓名</label>
     <input id="nm" name="nm" autocomplete="name" required>
     <label for="em">信箱</label>
@@ -78,7 +79,7 @@ button:disabled{opacity:.5;cursor:default}
   <div class="msg err" id="err" hidden></div>
   <div class="msg ok" id="ok" hidden></div>
 
-  <p class="hint" id="hint">找不到您的應徵紀錄嗎？可能是三項資訊跟當初填寫的不完全一樣，請直接留言給顧問，我們會盡快協助您。</p>
+  <p class="hint" id="hint" hidden>找不到您的應徵紀錄嗎？可能是三項資訊跟當初填寫的不完全一樣，請直接留言給顧問，我們會盡快協助您。</p>
 </div>
 
 <script>
@@ -138,11 +139,12 @@ async function boot() {
       var statusR = await fetch(API + '/line-binding-status?userId=' + encodeURIComponent(profile.userId));
       var statusD = await statusR.json();
       if (statusD && statusD.ok && statusD.bound) {
-        $('f').hidden = true;
+        $('loading').hidden = true;
         $('hint').hidden = true;
         // 2026-09-17 改：原本這裡只叫使用者回 LINE 對話視窗重打一次，等於
         // 白開這個網頁——改成直接在這裡打進度資料出來，拿不到才退回舊的
-        // 那句提示（fallback，不讓畫面空白或卡住）。
+        // 那句提示（fallback，不讓畫面空白或卡住）。表單維持預設隱藏
+        // （HTML 一開始就是 hidden），已綁定的人從頭到尾不會看到表單閃一下。
         var shown = await loadAndShowProgress(profile.userId);
         if (!shown) {
           $('ok').hidden = false;
@@ -153,10 +155,16 @@ async function boot() {
     } catch (e2) {
       // 查詢失敗就照常顯示表單，不要因為這個附加檢查掛掉整個流程
     }
+    // 確認過不是「已綁定」（或查詢失敗保守當作沒綁定），這時候才把表單顯示出來——
+    // 一開始就 hidden，走到這裡才 show，已綁定的人完全不會經過這一行。
+    $('loading').hidden = true;
+    $('f').hidden = false;
+    $('hint').hidden = false;
   } catch (e) {
     // 沒有透過 LIFF 開這頁（例如直接用瀏覽器打開），沒辦法拿到 LINE 身分，
     // 這個表單本身的目的就是要綁定 LINE 帳號，沒有 LINE 身分就做不到，
     // 直接告訴使用者要怎麼進來，不要讓他填完表單才發現不能用。
+    $('loading').hidden = true;
     $('f').hidden = true;
     $('err').hidden = false;
     $('err').textContent = '請從 LINE 官方帳號的圖文選單點「查詢我的面試進度」進來，不能直接用瀏覽器打開這一頁。';
