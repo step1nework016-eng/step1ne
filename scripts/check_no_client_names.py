@@ -108,6 +108,49 @@ def client_names():
                   key=len, reverse=True)
 
 
+# ⚠️ 2026-09-21 Jacky 補的洞：上面那份清單**只認得資料庫裡登記過的客戶**。
+# 文案裡冒出一間沒建檔的公司（業主的母公司、合作廠商、客戶的客戶），
+# 清單就抓不到。這一組規則不看資料庫，直接抓「看起來就是公司名」的字樣。
+#
+# 他的原話是重點：「去掉股份有限公司、但留公司名更不行」——簡稱比全名更容易
+# 被認出來，因為大家平常就是用簡稱在講。所以這裡抓的是**整串**，
+# 包含前面那幾個字。
+# ⚠️ 後綴只留「不可能出現在一般描述裡」的那幾個。
+#    第一版把「診所」「醫院」「事務所」也放進來，結果把「復健科診所」
+#    「一定要有四大會計師事務所」這種一般敘述全抓成公司名——警報一旦
+#    充滿假的，真的那筆就會被忽略，等於沒有這道檢查。
+COMPANY_PAT = re.compile(
+    r'[\u4e00-\u9fffA-Za-z0-9．\.]{2,12}'
+    r'(?:股份有限公司|有限公司|企業社|工程行|實業社)')
+
+# 這些是自己人或通用詞，不算
+PAT_ALLOWED = ('德仁管理顧問有限公司', '私人招待所')
+
+
+def scan_company_pattern(verbose=False):
+    """不靠資料庫，直接抓看起來就是公司行號的字樣。"""
+    hits = []
+    for root, dirs, files in os.walk(HERE):
+        dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
+        for fn in files:
+            if not fn.endswith(SCAN_EXT):
+                continue
+            rel = os.path.relpath(os.path.join(root, fn), HERE)
+            try:
+                text = open(os.path.join(root, fn), encoding='utf-8').read()
+            except Exception:
+                continue
+            for i, line in enumerate(text.split('\n'), 1):
+                for mt in COMPANY_PAT.finditer(line):
+                    name = mt.group(0)
+                    if any(a in name for a in PAT_ALLOWED):
+                        continue
+                    if any(a in name for a in ALLOWED):
+                        continue
+                    hits.append((rel, i, name, line.strip()[:120]))
+    return hits
+
+
 def scan(names, verbose=False):
     hits = []
     for root, dirs, files in os.walk(HERE):
@@ -137,9 +180,18 @@ def main():
     names = client_names()
     print(f'要擋的客戶名稱／簡稱共 {len(names)} 組')
     hits = scan(names, verbose)
-    if not hits:
-        print('✅ 對外網站沒有任何客戶名稱')
+    pat_hits = scan_company_pattern(verbose)
+    if not hits and not pat_hits:
+        print('✅ 對外網站沒有任何客戶名稱，也沒有任何看起來像公司行號的字樣')
         return 0
+    if pat_hits:
+        print(f'\n🚨 另外抓到 {len(pat_hits)} 處「看起來就是公司名」的字樣'
+              '（不在客戶清單裡，但一樣不該出現）：\n')
+        for rel, ln, name, line in pat_hits:
+            print(f'  {rel}:{ln}  ←「{name}」')
+            print(f'      {line}')
+    if not hits:
+        return 1
     print(f'\n🚨 命中 {len(hits)} 處——**不要部署**：\n')
     for rel, ln, name, line in hits:
         print(f'  {rel}:{ln}  ←「{name}」')
