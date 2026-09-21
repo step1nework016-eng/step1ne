@@ -532,17 +532,30 @@ h2{font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;color:#1c1f2
 </html>
 
 <script>
-// 熱門職缺：2026-09-11 改成固定三家優先客戶各一個（弘昌／律準／築樂），
-// 不再照中高階／正職／派遣隨機抽——Jacky 要求直接取消「每個類型抽一個」
-// 這套邏輯，固定顯示這三個，換一批按鈕也一併拿掉（沒有可換的東西了）。
+// 熱門職缺：固定顯示三個優先推的職缺。
+//
+// 🚨 2026-09-21 緊急修正：標籤原本直接寫客戶簡稱（弘昌／律準／築樂），
+//    等於在**對外公開的職缺頁**上把我們的客戶是誰全部講出來。
+//    客戶名稱屬於不可對外揭露的資訊（跟窗口電話、合約條款同一類），
+//    這是 2026-09-11 那次改動留下的。
+//    ⚠️ 這裡的標籤一律只能是「職缺類型／產業」這種描述性文字，
+//       任何情況都不准放客戶名稱、簡稱或看得出是誰的代號。
 (function () {
   const box = document.getElementById('hotJobs');
   if (!box) return;
 
+  // 標籤＝職缺類型，直接讀那張卡片自己的 data-track，不另外維護一份對照表——
+  // 寫死的對照表正是客戶名稱跑進來的原因（有人改標籤時沒人擋得住）。
+  // 職缺換了、類型改了，這裡自動跟著變。
+  const TRACK_LABEL = {
+    senior:   { label: '中高階獵才', color: '#4a8f6d', bg: 'rgba(74,143,109,.12)' },
+    general:  { label: '正職',       color: '#a67c3d', bg: 'rgba(166,124,61,.12)' },
+    dispatch: { label: '派遣',       color: '#3f6ea8', bg: 'rgba(63,110,168,.12)' },
+  };
   const FIXED_SLUGS = [
-    { slug: 'bim-engineer-tongluo',        label: '弘昌', color: '#a67c3d', bg: 'rgba(166,124,61,.12)' },
-    { slug: 'ehs-engineer-yunlin',         label: '律準', color: '#3f6ea8', bg: 'rgba(63,110,168,.12)' },
-    { slug: 'hakuba-resort-property-manager', label: '築樂', color: '#4a8f6d', bg: 'rgba(74,143,109,.12)' },
+    { slug: 'bim-engineer-tongluo' },
+    { slug: 'ehs-engineer-yunlin' },
+    { slug: 'hakuba-resort-property-manager' },
   ];
 
   const cards = [...document.querySelectorAll('#jobs a.job')].map((a) => ({
@@ -551,12 +564,16 @@ h2{font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;color:#1c1f2
     title: (a.querySelector('.job-title')?.textContent || '').trim(),
     industry: (a.querySelector('.job-industry')?.textContent || '').trim(),
     salary: (a.querySelector('.salary')?.textContent || '').trim(),
+    track: a.getAttribute('data-track') || 'general',
   })).filter((j) => j.title);
 
   if (!cards.length) { box.closest('section').style.display = 'none'; return; }
 
   const byId = Object.fromEntries(cards.map((j) => [j.slug, j]));
-  const list = FIXED_SLUGS.map((f) => ({ t: f, j: byId[f.slug] })).filter((x) => x.j);
+  const list = FIXED_SLUGS
+    .map((f) => ({ j: byId[f.slug] }))
+    .filter((x) => x.j)
+    .map((x) => ({ ...x, t: TRACK_LABEL[x.j.track] || TRACK_LABEL.general }));
   if (!list.length) { box.closest('section').style.display = 'none'; return; }
 
   box.innerHTML = list.map(({ t, j }) => `

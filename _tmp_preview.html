@@ -1,0 +1,349 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>人選推薦｜Step1ne</title>
+<!--
+  客戶版（給用人企業）樣板。
+
+  ⚠️ 2026-09-08 Jacky 指定改成他內部討論定案的新版式
+     （來源：Downloads/蘇微閔_人選推薦_客戶版_.pdf）。
+     這份取代 2026-08-10 那一版的米色／圓角卡片設計——舊版的註解寫著
+     「不要重新設計」，那是當時的決定，這次是他本人要求換的。
+     舊檔備份在 client.html.bak-20260908。
+
+  ⚠️ 哪些內容絕對不能出現在這一版，見 memory/report_two_versions_spec.md，
+     過濾邏輯寫在 deliver.py 的 CLIENT_BANNED_RE 與 build_client_html()。
+
+  語法：
+                                        直接代換
+    …         flags[key] 為假就整段刪掉
+                                               ← 顧問的「勾選顯示／隱藏」就是靠這個，
+                                                 不要另造一套機制
+-->
+<style>
+:root{
+  --navy:#1b3a5c;      /* 區塊標題、重點字 */
+  --ink:#1f2328;       /* 內文 */
+  --ink2:#4a5058;      /* 次要文字 */
+  --ink3:#8a9099;      /* 註解、來源 */
+  --line:#dfe4ea;      /* 分隔線 */
+  --hero:#22304a;      /* 抬頭深底 */
+  --gold:#c8a45c;      /* 抬頭上的品牌字 */
+  --okbg:#eef7f0; --okbd:#bcd9c4;   /* 條件對照：符合 */
+  --wnbg:#fdf6e9; --wnbd:#e6d3a8;   /* 條件對照：待確認 */
+  --nobg:#fdeeee; --nobd:#e8bcbc;   /* 條件對照：不符合 */
+  --note:#eef3f9; --notebd:#b9cde3; /* 電洽補充 */
+}
+*{box-sizing:border-box}
+body{margin:0;background:#fff;color:var(--ink);
+  font:14px/1.75 -apple-system,"Noto Sans TC","PingFang TC",sans-serif;padding:0}
+.wrap{max-width:820px;margin:0 auto;padding:22px 20px 40px}
+
+/* ── 抬頭 ── */
+/* 2026-09-10 改：原本整塊深藍底色塊，跟Jacky提供的參考範本（純文字＋姓名
+   旁綠色「推薦」標籤）不同，改成純文字版，色塊拿掉。 */
+.hero{padding:0;margin-bottom:22px}
+.hero .brand{font-size:11px;letter-spacing:.18em;color:var(--navy);font-weight:700}
+.hero h1{font-size:28px;margin:10px 0 6px;font-weight:700;letter-spacing:.01em;color:var(--ink);display:inline-block;vertical-align:middle}
+.hero .tag{display:inline-block;vertical-align:middle;margin-left:10px;padding:3px 12px;
+  border-radius:999px;background:#1f8f5f;color:#fff;font-size:12px;font-weight:700}
+.hero .job{font-size:14px;color:var(--ink2);margin:2px 0 10px}
+.hero .pos{font-size:13.5px;line-height:1.85;color:var(--ink2);margin:0}
+
+/* ── 四格關鍵欄位 ──
+   _nums() 輸出的是 <div>標籤<b>值</b></div> 四組，不是 table。
+   用 grid 畫成表格的樣子，不去改 Python 那邊的輸出格式。 */
+.keyfacts{display:grid;grid-template-columns:repeat(4,1fr);
+  border:1px solid var(--line);margin-bottom:26px}
+.keyfacts>div{display:flex;flex-direction:column;font-size:12px;color:var(--ink2);
+  border-right:1px solid var(--line)}
+.keyfacts>div:last-child{border-right:0}
+.keyfacts>div::before{content:"";display:block}
+.keyfacts>div{padding:0}
+.keyfacts>div{position:relative}
+/* 標籤那半：灰底 */
+.keyfacts>div{background:#fff}
+.keyfacts>div b{display:block;padding:11px 12px;font-size:13px;color:var(--ink);
+  font-weight:700;border-top:1px solid var(--line)}
+.keyfacts>div{padding-top:0}
+.keyfacts>div{line-height:1.6}
+.keyfacts>div{align-content:start}
+.keyfacts>div{ }
+.keyfacts>div{--x:0}
+.keyfacts>div{background:linear-gradient(#f5f7f9 0 40px,#fff 40px 100%)}
+.keyfacts>div{padding:9px 12px 0}
+.keyfacts>div b{margin:9px -12px 0;padding:11px 12px}
+
+/* ── 區塊標題：深藍字＋整條底線 ── */
+h2{font-size:15px;color:var(--navy);font-weight:700;margin:26px 0 12px;
+  padding-bottom:7px;border-bottom:2px solid var(--navy)}
+h3{font-size:13.5px;margin:16px 0 4px;font-weight:700;color:var(--ink)}
+
+/* ── 基本資料 ── */
+/* _basics() 每一項是 <div><i>標籤</i><b>值</b></div>，兩欄排列。 */
+.basics h3{font-size:15px;color:var(--navy);font-weight:700;margin:26px 0 12px;
+  padding-bottom:7px;border-bottom:2px solid var(--navy)}
+.bgrid{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-bottom:0}
+.bgrid>div{display:grid;grid-template-columns:76px 1fr;gap:10px;align-items:start;
+  padding:10px 12px;font-size:13px;border-bottom:1px solid var(--line);
+  border-right:1px solid var(--line)}
+.bgrid>div:nth-child(2n){border-right:0}
+.bgrid i{font-style:normal;font-weight:700;color:var(--ink2);font-size:12.5px}
+.bgrid b{font-weight:400}
+.bsrc{border:1px solid var(--line);border-top:0;padding:8px 12px;
+  font-size:12px;font-style:italic;color:var(--ink3)}
+
+/* ── 推薦理由：編號 ── */
+.reason{display:flex;gap:10px;margin-bottom:7px;font-size:13.5px;line-height:1.7}
+.reason .num{flex:none;font-weight:700;color:var(--navy);min-width:16px}
+
+/* ── 顧問電洽補充 ── */
+.callup{background:var(--note);border:1px solid var(--notebd);border-radius:4px;
+  padding:13px 15px;margin:14px 0 6px}
+.callup .when{font-size:11.5px;color:var(--ink3);font-weight:700;margin-bottom:6px}
+.callup .when b{color:var(--navy);margin-right:8px}
+.callup p{margin:0;font-size:13px;line-height:1.85}
+
+/* ── 說明列（灰字） ── */
+.hint{font-size:12.5px;color:var(--ink3);margin:0 0 10px}
+
+/* ── 與職缺條件對照：色塊卡 ── */
+.condcard{border:1px solid var(--okbd);background:var(--okbg);border-radius:4px;
+  padding:11px 14px;margin-bottom:9px}
+.condcard.warn{border-color:var(--wnbd);background:var(--wnbg)}
+.condcard.no{border-color:var(--nobd);background:var(--nobg)}
+.condcard .t{font-size:13.5px;font-weight:700;margin-bottom:4px}
+.condcard .d{font-size:13px;color:var(--ink2);line-height:1.7}
+.condcard .src{display:block;margin-top:4px;font-size:11.5px;color:var(--ink3);font-style:italic}
+
+/* ── 我們問了人選哪些問題 ── */
+.qcat{border:1px solid var(--line);border-radius:4px;padding:12px 14px;margin-bottom:10px}
+.qcat .h{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.qcat .no{font-size:12px;font-weight:700;color:var(--navy);letter-spacing:.06em}
+.qcat .ti{font-size:13.5px;font-weight:700}
+.qcat .by{font-size:11px;font-weight:700;padding:1px 7px;border-radius:3px;white-space:nowrap}
+.qcat .by.ai{background:#eef3f9;color:var(--navy)}
+.qcat .by.call{background:#fdf6e9;color:#8a6a20}
+.qcat .by.both{background:#eef7f0;color:#2f6b46}
+.qcat .pp{font-size:12.5px;color:var(--ink3);line-height:1.75;margin:0 0 7px}
+.qcat ul{margin:0;padding-left:18px}
+.qcat li{font-size:13px;line-height:1.75;margin-bottom:4px}
+
+/* ── 人選主動提出的問題 ── */
+.ask{border-left:3px solid var(--navy);padding:3px 0 3px 12px;margin-bottom:8px;font-size:13.5px}
+
+/* ── 特質與風格 ── */
+.axis{margin:0 0 14px}
+.axis .row{display:grid;grid-template-columns:96px 1fr 96px;align-items:center;gap:10px}
+.axis s{text-decoration:none;text-align:right;font-size:12.5px;color:var(--ink2)}
+.axis u{text-decoration:none;font-size:12.5px;color:var(--ink2)}
+.axis i{position:relative;display:block;height:2px;background:var(--line)}
+.axis i::after{content:"";position:absolute;left:var(--p);top:50%;transform:translate(-50%,-50%);
+  width:15px;height:15px;border-radius:50%;background:#fff;border:3px solid var(--gold)}
+.evi{font-size:12.5px;font-style:italic;color:var(--ink2);line-height:1.85;margin:0 0 9px}
+.spec-note{font-size:12px;color:var(--ink3);font-style:italic;margin:12px 0 0}
+
+/* ── 優勢／需要留意 ── */
+.fitwrap{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+.fitcard{border-radius:4px;padding:13px 15px;font-size:13px}
+.fitcard h4{margin:0 0 8px;font-size:13px}
+.fitcard ul{margin:0;padding-left:18px}
+.fitcard li{margin-bottom:7px;line-height:1.7}
+.fitcard.good{background:var(--okbg);border:1px solid var(--okbd)}
+.fitcard.risk2{background:var(--nobg);border:1px solid var(--nobd)}
+
+/* ── 一句話總結 ── */
+.oneliner{background:var(--wnbg);border:1px solid var(--wnbd);border-radius:4px;
+  padding:13px 16px;font-size:13px;line-height:1.85;margin-top:16px}
+.oneliner b{color:var(--navy)}
+
+/* ── 我們要先跟您說明的事 ── */
+.risk{background:var(--nobg);border:1px solid var(--nobd);border-radius:4px;
+  padding:12px 15px;font-size:13px;line-height:1.8;margin:14px 0}
+
+/* ── 2026-09-10 加：附件一多出來的五塊 ── */
+.overview{font-size:13.5px;line-height:1.85;color:var(--ink2);margin:10px 0 4px}
+.motivation{margin:0;padding-left:18px}
+.motivation li{font-size:13px;line-height:1.8;margin-bottom:5px}
+.condrow{font-size:13px;line-height:1.8;margin-bottom:6px}
+.condrow b{color:var(--navy)}
+.obsitem{margin-bottom:12px}
+.obsitem h4{margin:0 0 3px;font-size:13px;color:var(--navy)}
+.obsitem p{margin:0;font-size:13px;line-height:1.8;color:var(--ink2)}
+.flagsbox{background:var(--wnbg);border:1px solid var(--wnbd);border-radius:4px;
+  padding:13px 16px;margin-top:16px}
+.flagsbox h4{margin:0 0 8px;font-size:13px;color:var(--navy)}
+.flagsbox p{margin:0 0 8px;font-size:13px;line-height:1.8}
+.flagsbox p:last-child{margin-bottom:0}
+.jobdetail{margin:4px 0 0;padding-left:18px}
+.jobdetail li{font-size:12.5px;line-height:1.75;color:var(--ink2);margin-bottom:2px}
+.leave{margin:4px 0 0;font-size:12.5px;color:var(--ink3)}
+.leave b{color:var(--ink2);font-weight:700}
+.otherexp{margin:10px 0 0;font-size:12.5px;color:var(--ink3)}
+.otherexp b{color:var(--ink2);font-weight:700}
+
+/* ── 頁尾 ── */
+.stamp{margin-top:30px;padding-top:16px;border-top:1px solid var(--line);
+  text-align:center;font-size:12px;color:var(--ink3);line-height:2}
+
+@page{size:A4;margin:12mm}
+@media print{
+  body{padding:0}
+  .wrap{max-width:none;padding:0}
+  h2{break-after:avoid}
+  .condcard,.fitcard,.callup,.oneliner,.axis{break-inside:avoid}
+  .hero{break-inside:avoid}
+}
+@media(max-width:640px){
+  .bgrid{grid-template-columns:auto 1fr}
+  .fitwrap{grid-template-columns:1fr}
+  .axis .row{grid-template-columns:76px 1fr 76px}
+}
+</style>
+
+<div class="wrap">
+
+<div class="hero">
+  <div class="brand">STEP1NE 人選推薦</div>
+  <h1>黃育騏</h1><span class="tag">推薦</span>
+  <div class="job">推薦職缺：BIM 工程師</div>
+  <p class="pos">物流倉儲資材背景，竹南在地騎車通勤，願從零學習轉職BIM</p>
+</div>
+
+
+<div class="overview">黃育騏目前於一家出版社擔任業務，仍在試用期，若本BIM職缺確定將提出離職；過往工作經歷以物流、倉儲及資材管理為主，目前無AutoCAD、Revit或BIM相關實務經驗，對此領域為全新轉職。候選人現居苗栗竹南，騎機車通勤至銅鑼廠區約20分鐘，對駐點、租屋補助及加班安排皆已表示可以接受。對這個職缺表達明確的學習意願，原訂到職日為9/21，實際到職時程仍待與顧問進一步協調。</div>
+
+
+
+<div class="keyfacts"><div>期望待遇<b>月薪 35,000</b></div><div>可到職<b>9/21</b></div><div>工作地點<b>苗栗・台中・彰化　｜　想先了解細節再決定</b></div><div>目前狀態<b>在職中</b></div></div>
+
+
+
+<!-- ⚠️ 這裡不要再放 <h2>基本資料</h2>——_basics() 自己就會輸出 <h3>基本資料</h3>，
+     兩個都放會在畫面上重複兩次（2026-09-08 第一版樣張就是這樣）。 -->
+<div class="basics"><h3>基本資料</h3><div class="bgrid"><div><i>居住地</i><b>苗栗竹南（大埔里）</b></div><div><i>學歷</i><b>大學（資訊管理系）</b></div><div><i>證照</i><b>履歷列出一項丙級技術士證照（項目因履歷掃描辨識不清，無法確認確切名稱）</b></div><div><i>駕照</i><b>重型機車駕照、小型車駕照</b></div></div><p class="bsrc">來源：履歷／應徵表單，非面談詢問</p></div>
+
+
+
+<h2>推薦理由</h2>
+<div class="reason"><span class="num">1</span><span>具備重型機車駕照，現居苗栗竹南，通勤至銅鑼廠區約20分鐘，交通條件可配合駐點需求</span></div><div class="reason"><span class="num">2</span><span>對於無相關經驗需從零受訓一事已明確表達正向意願，並主動詢問培訓安排，顯示投入意願</span></div><div class="reason"><span class="num">3</span><span>學歷符合大學以上門檻（資訊管理系），且過往多份工作皆涉及物流、倉儲、資材管理，具備流程與問題處理經驗基礎</span></div>
+
+
+
+<div class="callup">
+  <div class="when"><b>顧問電洽補充</b>2026-09-11 13:02:55</div>
+  <p>電洽中，候選人說明過往於中光電智能機器人、台灣德森蜜、鈺博科技、昀言精品服飾及兆勁科技等物流倉儲相關職務的經歷與各段離職原因。候選人表示目前於出版社擔任業務，仍在試用期，若本職缺確定將提出離職。針對BIM工程師角色，候選人表示雖無AutoCAD或Revit相關經驗，但認同公司提供從零培訓的安排，並認為有助於未來考取相關證照。候選人現居苗栗竹南，通勤銅鑼廠區以騎機車為主，約20分鐘車程，對駐點、加班安排及租屋補助等條件均表示可以接受。顧問並說明報到前需完成安全衛生訓練，候選人表示已有相關訓練經驗。候選人原訂到職日為9月21日，因當週報到名額已滿，實際到職時程待進一步協調。</p>
+</div>
+
+
+
+<div class="risk"></div>
+
+
+
+<h2>必要評估項目</h2>
+<p class="hint">貴司指定要確認的項目與目前掌握狀況。</p>
+<div class="condcard"><div class="t">✓ 工作態度成熟穩定、抗壓性佳</div><div class="d">電洽以情境題詢問處理員工品檢／出貨問題及遇到不會的事情如何應對，候選人回答會先自行思考，想不到解法會請教前輩討論後再執行，現場忙碌時會直接請示主管；AI面談中亦以類似情境詢問，候選人回答會先告知主管問題所在並同時告知廠商，若同事重複犯錯會告知主管</div></div><div class="condcard"><div class="t">✓ 配合專案加班，接受加班制度</div><div class="d">AI面談與電洽皆明確詢問，候選人於AI面談回覆可以接受，電洽中顧問說明前期衝刺階段需配合加班，候選人回覆OK</div></div>
+
+
+
+<h2>到職可行性</h2>
+<p class="hint">面談中確認過的到職相關條件與他的回答。</p>
+
+
+
+
+<h2>專業問答</h2>
+<div style="border-top:1px solid #e3e7ec;padding:10px 0"><div style="font-size:13px;font-weight:700">AutoCAD／Revit實務經驗<span style="font-weight:600;font-size:11.5px;color:#8b95a1;margin-left:8px">沒談到</span></div><div style="font-size:12.5px;color:#5d6672;margin-top:2px">問：您之前有接觸過AutoCAD或類似的繪圖軟體嗎？還是這次對您來說是完全新的領域？</div><div style="font-size:13px;margin-top:4px">候選人表示為全新領域，沒有接觸過AutoCAD；電洽中補充朋友曾考取AutoCAD相關證照，自己因此對此有印象，但不清楚BIM工程師角色實際工作內容</div></div><div style="border-top:1px solid #e3e7ec;padding:10px 0"><div style="font-size:13px;font-weight:700">對BIM工程師工作內容的理解程度<span style="font-weight:600;font-size:11.5px;color:#8a6100;margin-left:8px">講得籠統</span></div><div style="font-size:12.5px;color:#5d6672;margin-top:2px">問：電洽中顧問完整說明BIM工程師工作型態（七成辦公室繪圖、三成現場巡查）及專案背景後，詢問是否與候選人原本想像相符</div><div style="font-size:13px;margin-top:4px">候選人回應「跟我想的差不多」</div></div>
+
+
+
+<h2>動機與意願</h2>
+<ul class="motivation"><li>轉職動機為想學習一技之長、累積技術經驗（AI面談與電洽皆提及）</li><li>現職（出版社業務，試用期）非久留產業，若BIM機會確定將提出離職</li><li>認為此職缺提供完整從零培訓，有助於未來考取相關證照，提高考照成功率（電洽提及）</li><li>對此領域的長期發展規劃為「做越久越好」，傾向長期轉職而非短期過渡（電洽提及）</li></ul>
+
+
+
+<h2>條件接受度</h2>
+<div class="condrow"><b>通勤／駐點：</b>電洽確認候選人現居苗栗竹南，騎機車通勤至銅鑼約20分鐘，對駐點無異議</div><div class="condrow"><b>加班：</b>AI面談與電洽皆詢問專案期間配合加班意願，候選人皆表示可以接受</div><div class="condrow"><b>住宿／租屋補助：</b>AI面談明確告知無宿舍、僅每月5,000元租屋補助，候選人表示可以接受</div><div class="condrow"><b>到職日：</b>候選人原訂9/21到職，因該週報到名額已滿，顧問詢問可否提前至18日，候選人表示下週有事無法配合，實際到職日待進一步協調</div><div class="condrow"><b>公安訓練：</b>電洽說明報到前須完成6小時公安訓練，候選人表示自己已有相關安全訓練經驗（小綠卡），顧問指出可能非對應課程類型，將另行提供正確資訊</div>
+
+
+
+<h2>工作經歷</h2>
+<div class="job"><div class="period">2026年近期到職～在職中（確切到職日期未提及）</div><div class="co">出版社（業務，公司名稱未提及）</div><div class="role">業務（試用期）</div><p>候選人表示若本BIM職缺確定將提出離職；因剛報到不久，不需離職預告</p></div><div class="job"><div class="period">2025/3～2026年中（約1年5個月，履歷原標示在職中，電洽確認已離職轉任業務）</div><div class="co">中光電智能機器人</div><div class="role">物流專員</div><p>電洽以情境題詢問工作內容，候選人表示主要負責倉儲相關工作</p><ul class="jobdetail"><li>問題處理</li><li>物流／倉儲／配送作業</li><li>商品入庫作業</li></ul><p class="leave"><b>離職原因：</b>團隊相處氛圍因素，候選人表示所屬約6人團隊互動狀況影響其工作狀態</p></div><div class="job"><div class="period">2024/9～2025/2（6個月）</div><div class="co">台灣德森蜜</div><div class="role">倉儲／物流管理員</div><ul class="jobdetail"><li>商品入庫作業</li><li>理貨／揀貨／包裝作業</li><li>物流／倉儲／配送作業</li><li>行銷及行政協助</li><li>商品上架管理</li></ul><p class="leave"><b>離職原因：</b>薪資問題</p></div><div class="job"><div class="period">2023/4～2024/8（1年5個月，候選人口頭表示約1年3個月）</div><div class="co">鈺博科技</div><div class="role">倉儲／物流管理員</div><ul class="jobdetail"><li>物流／倉儲管理</li><li>商品入庫作業</li><li>使用Excel處理物料資料</li><li>物料規劃相關工作</li></ul><p class="leave"><b>離職原因：</b>工作內容與當初面試不符</p></div><div class="job"><div class="period">2021/12～2023/4（1年5個月）</div><div class="co">昀言精品服飾</div><div class="role">資材主管</div><p>AI面談中候選人表示有帶領團隊</p><ul class="jobdetail"><li>品檢與包貨出貨</li><li>盤點入庫</li><li>後台管理</li><li>帶領團隊（有下屬）</li></ul><p class="leave"><b>離職原因：</b>待遇未含加班費及三節獎金</p></div><div class="job"><div class="period">2019/9～2021/12（2年4個月）</div><div class="co">兆勁科技</div><div class="role">作業員</div><ul class="jobdetail"><li>包裝作業</li><li>異常狀況處理</li><li>理貨／揀貨／包裝作業</li></ul></div><div class="job"><div class="period">2018/9～2019/9（1年1個月）</div><div class="co">（公司名稱因履歷掃描辨識不清）</div><div class="role">倉儲／物流管理員</div></div><div class="job"><div class="period">2012/11～2018/9（5年11個月）</div><div class="co">兆勁科技</div><div class="role">作業員</div></div>
+<dt>履歷</dt><dd>履歷另附（與本報告一併提供）</dd>
+
+
+
+<h2>與職缺條件對照</h2>
+<div><span>✅</span><span><b>依專案契約執行BIM作業，並接受公司安排之培訓</b><em>候選人明確表示無經驗但願意從零開始接受訓練，並認為完整培訓有助未來考取證照</em></span></div><div><span>⚠️</span><span><b>使用AutoCAD、Revit等軟體進行BIM模型建置與修正</b><em>候選人目前無AutoCAD／Revit實務經驗，對話中僅確認其願意學習，實際操作能力需待進場受訓後觀察</em></span></div><div><span>⚠️</span><span><b>進行BIM整合與圖面檢討</b><em>本場對話未針對圖面檢討所需經驗或細心度進一步詢問</em></span></div><div><span>⚠️</span><span><b>協助工地現場視勘</b><em>顧問說明約三成工作時間為現場巡查比對圖面與管線配置，候選人表示整體工作型態「跟我想的差不多」，但未針對現場視勘細節（如廠區環境）進一步確認</em></span></div><div><span>⚠️</span><span><b>主管交辦事項配合度</b><em>對話中未特別針對此項目進行提問</em></span></div><div><span>✅</span><span><b>工作地點苗栗銅鑼，駐點不排班，專案期間需配合加班</b><em>AI面談與電洽皆明確告知並取得候選人可以接受的回覆，候選人現居竹南，通勤約20分鐘</em></span></div>
+
+
+
+<h2>顧問觀察</h2>
+<div class="obsitem"><h4>做事方法</h4><p>電洽中詢問候選人遇到不會的事情如何處理，候選人說明會先自行思考解決方式，想不到答案會請教前輩討論後才執行，現場忙碌時會直接詢問所屬主管</p></div><div class="obsitem"><h4>溝通</h4><p>電洽中候選人針對顧問說明的BIM角色工作內容主動回應「跟我想的差不多」，並主動提及自己已報名安全衛生相關訓練課程、自行指出可能報名到不對應的課程類型，顯示其對到職前置作業有主動掌握</p></div>
+
+
+
+<h2>我們問了人選哪些問題</h2>
+<p class="hint">供貴司安排後續面談參考——這些問題候選人在我們這一輪都已經回答過，
+重複詢問容易讓候選人覺得流程沒有銜接。建議把時間留給需要人親自判斷的部分。</p>
+
+
+
+
+<h2>候選人提供的社群連結</h2>
+
+
+
+
+<h2>人選面談中主動提出的問題</h2>
+<p class="hint">面談結束後我們會協助整理貴司的回覆，轉達讓候選人了解。</p>
+<div class="ask">沒有AutoCAD的經驗也會有人帶嗎</div>
+
+
+
+<h2>特質與風格</h2>
+<div class="axis"><div class="row"><s>內斂寡言</s><i style="--p:50%"></i><u>外向健談</u></div></div><div class="axis"><div class="row"><s>重執行細節</s><i style="--p:25%"></i><u>重整體策略</u></div></div><div class="axis"><div class="row"><s>需要明確指示</s><i style="--p:10%"></i><u>自主推進</u></div></div><div class="axis"><div class="row"><s>條件導向</s><i style="--p:50%"></i><u>認同導向</u></div></div>
+
+
+
+<!-- 2026-09-10 修：fit／oneliner 原本巢狀包在 spectrum 的 @IF 裡面——
+     _render() 的 @IF 處理是「單次、不遞迴」的正規表示式取代（見 deliver.py
+     的 _render() 註解），巢狀的內層 @IF 永遠不會被獨立當成一次比對，
+     只會原封不動跟著外層一起被留下或整段砍掉，內層自己的flag形同虛設。
+     江芷楹那份「一句話總結：」印出空白框就是撞到這個——spectrum為真、
+     oneliner自己的flag為假，但因為巢狀，oneliner的@IF從來沒被單獨處理過，
+     div跟label照樣印出來，只有依電洽情境題回應觀察，候選人遇到不確定狀況時傾向先自行思考、再向前輩或主管確認後行動，溝通態度平和配合變數被換成空字串。拆成同一層
+     級的獨立區塊，各自的flag才會真的生效。 -->
+
+<div class="fitwrap">
+  <div class="fitcard good">
+    <h4>👍 對這個職缺的優勢</h4>
+    <ul><li>過往在昀言精品服飾擔任資材主管期間曾帶領團隊，具備基層管理經驗</li><li>電洽情境題回應顯示其處理問題時會先自行思考、想不到解法再與前輩討論後執行，現場忙碌時會直接請示主管</li><li>電洽中明確表達長期發展意願（做越久越好），對此職缺抱持長期轉職的心態</li></ul>
+  </div>
+  <div class="fitcard risk2">
+    <h4>⚠️ 需要留意的地方</h4>
+    <ul><li>近三年工作異動較為頻繁，多段工作年資介於半年至一年半之間，請企業自行評估其穩定度</li><li>目前無AutoCAD、Revit或BIM相關實務經驗，對此領域屬全新轉職</li></ul>
+  </div>
+</div>
+
+
+
+<div class="flagsbox">
+  <h4>有3件事想先跟您說明</h4>
+  <p>① 候選人原訂到職日9/21，因該週報到名額已滿，實際到職時程仍待與顧問協調，請企業自行評估時程安排</p><p>② 顧問已說明起薪約4萬元出頭（不含加班費及三節獎金），電洽中未明確取得候選人對此數字的確認回覆，請企業自行評估</p><p>③ 候選人表示已完成一般安全衛生訓練（小綠卡），但顧問指出可能非對應本案所需課程類型，正確課程資訊尚待提供予候選人確認，請企業自行評估後續安排</p>
+</div>
+
+
+
+<div class="oneliner"><b>一句話總結：</b>依電洽情境題回應觀察，候選人遇到不確定狀況時傾向先自行思考、再向前輩或主管確認後行動，溝通態度平和配合</div>
+
+
+
+
+<div class="stamp">
+  本人選已完成 Step1ne 的<b>結構化初步面談</b>，上述內容為面談紀錄與應徵資料之摘要整理。<br>本摘要不取代候選人本人之作品集與後續面試查證。
+</div>
+
+<p class="foot">德仁管理顧問有限公司（Step1ne）　統一編號 85046127<br>就業服務許可證：北市就服字第 0363 號</p>
+
+</div>
