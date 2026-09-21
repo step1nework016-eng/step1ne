@@ -237,11 +237,11 @@ function openCompany(id) {
           return '<option value="' + o2[0] + '"' + ((c.relation || '') === o2[0] ? ' selected' : '') + '>' + o2[1] + '</option>';
         }).join('') + '</select>'
       + '<label>別名／簡稱（一行一個，開發時用來比對是不是同一家）</label>'
-      + '<textarea id="ealias" rows="2" placeholder="帆宣&#10;帆宣系統&#10;MIC">' + esc(c.aliases || '') + '</textarea>'
+      + '<textarea id="ealias" rows="2" placeholder="簡稱&#10;公司全名&#10;英文縮寫">' + esc(c.aliases || '') + '</textarea>'
       + '<label>原因／備註（不能碰的話一定要寫，開發名單會照這個跳過）</label>'
       + '<input id="erelnote" type="text" value="' + esc(c.relation_note || '') + '" placeholder="例：顧問正在談簽約中，不可以當開發對象">'
       + '<label>是透過哪一家接觸到的（終端客戶才要填）</label>'
-      + '<input id="evia" type="text" value="' + esc(c.via_client || '') + '" placeholder="例：律准科技">'
+      + '<input id="evia" type="text" value="' + esc(c.via_client || '') + '" placeholder="例：某某科技">'
       + '<button class="sec" id="esave" style="margin-top:8px">儲存</button>'
       + '<div id="eerr" class="err" hidden></div><div id="eok" class="ok2" hidden></div>'
       + '<label style="margin-top:18px">用人需求表連結</label>'

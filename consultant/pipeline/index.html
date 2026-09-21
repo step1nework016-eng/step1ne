@@ -1229,7 +1229,7 @@ function openNewCandModal(){
     if(!r.ok)return;
     ALL_JOBS_NC=(r.jobs||[]).filter(function(j){return (j.status||'open')!=='closed' && j.status!=='client_draft' && j.status!=='pending_review'});
     // 先選客戶再選職缺——同一個客戶常常開好幾個職缺，職缺標題也可能撞名
-    // （弘昌跟律準都開過「BIM 工程師」），先縮小範圍比較不會選錯。
+    // （不同客戶可能開同名職缺，例如「BIM 工程師」），先縮小範圍比較不會選錯。
     var clients=[];
     ALL_JOBS_NC.forEach(function(j){
       var name=j.company_display_name||'（未綁定客戶）';
