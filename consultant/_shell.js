@@ -71,7 +71,7 @@
     // 這裡是每家真實合作客戶的用人需求表入口（公司資訊＋掛的職缺＋補件連結）。
     { href: '/consultant/client-info/',    label: '客戶資訊', icon: 'doc',    primary: true,  group: '客戶與商機' },
     // 2026-09-15 加：收費排程（每家客戶合約各自的分期比例＋日期）＋實際每一期
-    // 收款進度，弘昌 BIM 案顧問實際操作時發現系統完全沒地方看這個。
+    // 收款進度，顧問實際操作某個 BIM 案時發現系統完全沒地方看這個。
     { href: '/consultant/billing/',        label: '收費進程', icon: 'chart',  primary: true,  group: '客戶與商機' },
     { href: '/consultant/bd/',             label: '開發客戶', icon: 'target', primary: true,  group: '客戶與商機' },
     // 2026-08-25 加：enterprise.step1ne.com 招募形式評估工具的企業客戶提交紀錄——
