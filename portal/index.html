@@ -500,7 +500,7 @@ tr.billRow:hover td{background:var(--soft)}
 <div id="slotsModalMask">
   <div class="dt-modal" style="max-width:460px;width:100%">
     <h4 id="slotsModalTitle" style="margin:0 0 6px;font-size:15px"></h4>
-    <p style="margin:0 0 14px;font-size:12.5px;color:var(--ink3)">填至少 2 個候選時段，系統會直接用 LINE 官方帳號＋Email 通知人選，人選選定後這裡會自動顯示確認的時間，不用再手動回填。</p>
+    <p style="margin:0 0 14px;font-size:12.5px;color:var(--ink3)">填 1 個以上的候選時段，系統會直接用 LINE 官方帳號＋Email 通知人選，人選選定後這裡會自動顯示確認的時間，不用再手動回填。給 2 個以上人選比較好配合，但只有一個確定的時間也可以直接送出。</p>
     <div id="slotsModalRows"></div>
     <button type="button" id="slotsModalAddRow" style="margin:6px 0 14px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px">＋ 加一個時段</button>
     <label style="display:block;font-size:12.5px;color:var(--ink3);margin-bottom:4px">面談對象（選填）</label>
@@ -2025,7 +2025,10 @@ function promptThreeSlots(title){
         const f = row.querySelector('.slot-fmt').value, u = row.querySelector('.slot-url').value.trim();
         if (d && t) slots.push(u ? { slot_at: d + ' ' + t, format: f, meeting_url: u } : { slot_at: d + ' ' + t, format: f });
       });
-      if (slots.length < 2) { g('slotsModalMsg').textContent = '至少要填 2 個完整的候選時段'; return; }
+      // 2026-09-21 改：原本硬性要求 2 個。實際上用人單位常常就是「我只有這個
+      // 時間」——逼他補第二個，他要嘛亂填一個不打算用的，要嘛乾脆不用這個功能
+      // 改回頭用電話約，兩種都比讓他送出一個時段糟。改成至少 1 個。
+      if (!slots.length) { g('slotsModalMsg').textContent = '至少要填 1 個完整的候選時段（日期＋時間都要選）'; return; }
       cleanup({
         slots,
         interviewer: g('slotsModalInterviewer').value.trim(),
