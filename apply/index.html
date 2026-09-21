@@ -128,6 +128,11 @@ button:disabled{opacity:.45;cursor:not-allowed}
   font-size:13px;cursor:pointer;text-align:center;font-family:inherit;color:var(--tx);margin:0}
 .slot.on{border-color:var(--ac);background:#f3f7ff;color:var(--ac);font-weight:600}
 .slot:disabled{opacity:.6;cursor:default}
+.about{background:#f6f8fb;border:1px solid #e3e9f2;border-radius:10px;padding:14px 16px;margin:0 0 18px;font-size:14px;line-height:1.7}
+.about p{margin:0 0 8px}
+.about p:last-child{margin-bottom:0}
+.about .lic{font-size:12.5px;color:#5d6672;border-top:1px solid #e3e9f2;padding-top:8px;margin-top:10px}
+#jobFilter{margin-bottom:6px}
 </style>
 
 <header class="top">
@@ -139,12 +144,28 @@ button:disabled{opacity:.45;cursor:not-allowed}
 <div id="form-view">
   <h1>應徵職缺</h1>
   <p class="lead">填完約 2 分鐘，接著做一段線上初步面談。我們會依您的條件推薦適合的機會。</p>
+  <!-- 2026-09-21 加：求職者從廣告或社群點進來，看到的第一個畫面只有「德仁管理
+       顧問」五個字跟一張表單，不知道這是誰、為什麼要把履歷交給他們。
+       目的是提升填寫意願，所以這段要回答的是「你們是誰、我為什麼要信你」，
+       不是公司沿革。許可證號是求職者能自己去勞動部查的唯一憑據，一定要放。 -->
+  <div class="about">
+    <p><b>關於德仁管理顧問（Step1ne）</b></p>
+    <p>我們是台灣的獵才顧問公司，替企業找人，也替求職者找到更適合的位置。
+       您填的資料只會用在推薦職缺，<b>不會未經同意轉給任何公司</b>。</p>
+    <p>接下來的線上初步面談由 AI 顧問「阿財」進行，可以用打字的、隨時停下來，
+       沒有標準答案——它只是先了解您的經歷與期待，之後由真人顧問接手。</p>
+    <p class="lic">私立就業服務機構許可證號：<b>0363</b>｜德仁管理顧問有限公司</p>
+  </div>
   <div class="prog"><i id="bar"></i></div>
 
   <form id="f">
     <fieldset>
       <legend>應徵職缺</legend>
       <label>想應徵哪一個 <span class="req">*</span></label>
+      <!-- 2026-09-21 加：職缺變多之後選單一長串很難找。打關鍵字（例如「工程師」
+           「台中」）就只留符合的，不用一路捲。⚠️ 只是過濾顯示，不影響送出的值。 -->
+      <input type="text" id="jobFilter" placeholder="打關鍵字快速找，例如：工程師、台中" autocomplete="off">
+      <div class="hint" id="jobFilterHint" hidden></div>
       <select name="job_slug" id="jobSel" required><option value="">載入中⋯</option></select>
       <!-- 選了職缺才展開的簡要說明。存在的理由：以前選完就只剩一片表單，
            求職者沒辦法在填的過程中確認「我選的這個到底是什麼」——尤其從
@@ -432,6 +453,31 @@ Promise.all([
   }
 
   sel.addEventListener('change', () => { showJob(); toggleSocial(); });
+
+  // 關鍵字過濾。⚠️ 只動顯示，不動已選的值——使用者選好之後才打字過濾，
+  // 不可以把他選的那個弄不見。做法是把所有 <option> 留著，不符合的隱藏；
+  // 目前選中的那個一律保留可見，否則選單會顯示空白看起來像被清掉了。
+  const filterInput = document.getElementById('jobFilter');
+  const filterHint = document.getElementById('jobFilterHint');
+  if (filterInput) {
+    filterInput.addEventListener('input', () => {
+      const kw = filterInput.value.trim().toLowerCase();
+      let shown = 0;
+      for (const o of sel.options) {
+        if (!o.value) { o.hidden = false; continue; }          // 「請選擇」永遠在
+        if (o.value === 'unspecified') { o.hidden = false; continue; } // 「請顧問幫我評估」永遠在
+        const hit = !kw || o.textContent.toLowerCase().includes(kw);
+        o.hidden = !hit && o.value !== sel.value;
+        if (hit) shown += 1;
+      }
+      if (!kw) { filterHint.hidden = true; return; }
+      filterHint.hidden = false;
+      filterHint.textContent = shown
+        ? `符合「${filterInput.value.trim()}」的職缺有 ${shown} 個`
+        : `沒有符合「${filterInput.value.trim()}」的職缺，可以換個字，或選「不確定，請顧問幫我評估」`;
+    });
+  }
+
   showJob();
   prog();
 }).catch(() => {
