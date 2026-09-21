@@ -1,26 +1,31 @@
-# 部署方式
-
-**推 `deploy` 遠端才會上線。`origin` 不會。**
+# 部署這個站之前
 
 ```bash
-git push deploy HEAD:main
+./scripts/predeploy.sh && git push deploy HEAD:main
 ```
 
-| 遠端 | 位置 | 作用 |
-|---|---|---|
-| `deploy` | `step1nework016-eng/step1ne` | **Cloudflare Worker `broad-haze-0c9b` 接的來源**，push 後約 45 秒自動建置上線 |
-| `origin` | `aijob888/step1ne-website` | 舊備份。沒有任何 webhook，推了不會部署 |
+`predeploy.sh` 會擋住**客戶名稱出現在對外網站**。有命中就不要推。
 
-Worker 在 `Official@step1ne.com` 的 Cloudflare 帳號底下，跟 aijob 的帳號是分開的。
-`aiagentg888` 那把 CF token 看不到這個 Worker，也查不到建置紀錄——要看 build log
-只能登入 step1ne 官方帳號的 Cloudflare 後台。
+## 為什麼有這道檢查
 
-兩個 repo 內容一樣但 commit hash 不同（各自獨立的歷史），
-所以「線上內容跟本機一致」不代表 `origin` 有在部署。2026-07-28 就是這樣誤判過一次：
-推了 `origin`、等了 16 分鐘沒生效，查到 `origin` 根本沒有 webhook 才發現接的是另一個 repo。
+2026-09-21：首頁「熱門職缺」卡片的標籤直接印客戶簡稱——那個位置本來是要放
+職缺類型（派遣／正職／中高階獵才）。同一次掃描還找到 4 個公開可讀（HTTP 200）
+的頁面整頁都是客戶名，其中一份是「哪個職缺對應哪一家客戶」的完整對照表。
 
-## 分析追蹤
+會發生是因為三件事：
 
-GA4 `G-DNPMMRDEC0`，裝在每頁 `<head>` 的 `<meta charset>` 之後
-（放 charset 前面中文有機率亂碼）。全站的 `lin.ee` 連結點擊會送 `line_cta_click` 事件，
-用事件委派掛在 document 上，新增頁面不用再改。
+1. **內部文件跟對外網站同一個 repo**。`/docs`、`/preview`、各種 `-preview`
+   樣板頁跟職缺頁躺在一起，放進去就等於公開。→ 那 9 個目錄已經移除。
+2. **資料庫的「客戶名不可揭露」開關只在自動產生職缺頁時生效**。手寫的 HTML、
+   程式註解、樣板頁完全不受管——出事的首頁標籤就是手寫的。
+3. **沒有出站檢查**。全靠寫的人自己記得。
+
+第 1 點已修。第 2、3 點靠這支檢查補起來：不管是手寫、貼上還是 AI 產生的，
+都要過這道門。
+
+## 規則
+
+- 客戶名稱、簡稱、別名**都不行**，包含 HTML 與 JS 的註解（原始碼任何人都看得到）
+- 職缺卡片那個標籤位置放的是**職缺類型**，不是客戶是誰
+- 職缺標題、`<title>`、SEO 描述、JSON-LD 一樣不能寫客戶名
+- 要放寬（例如客戶同意具名）先問 Jacky，改 `check_no_client_names.py` 的 `ALLOWED`
