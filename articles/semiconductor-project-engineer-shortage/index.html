@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  if (!e.target.closest) return;
+  // 2026-08-06：原本只抓 lin.ee。BIM 那群的下一步是「直接應徵」不是加 LINE，
+  // 不一起記的話，等於把那條路做出來卻量不到，實驗就白做了。
+  var a = e.target.closest('a[href*="lin.ee"], a[href^="/apply"]');
+  if (!a) return;
+  var isApply = (a.getAttribute('href') || '').indexOf('/apply') === 0;
+  gtag('event', isApply ? 'apply_click' : 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60),
+    // mid＝這次新加的文章中段；沒有標的就是原本頁首／頁尾那些
+    cta_slot: a.getAttribute('data-cta') || 'legacy'
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>半導體廠為什麼一直缺工程專案人才？高科技廠房建置的人力缺口｜Step1ne</title>
+<meta name="description" content="台積電等半導體廠擴建速度超前人力補充，營建、監工類職缺求供比達12.5。拆解半導體專案工程師到底在缺什麼樣的人，以及沒有相關背景能不能應徵。">
+<meta name="keywords" content="半導體專案工程師,高科技廠房建置,建廠工程師,竹科職缺,中科職缺,派遣工程師,轉職半導體業">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/articles/semiconductor-project-engineer-shortage/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Step1ne 德仁管理顧問">
+<meta property="og:title" content="半導體廠為什麼一直缺工程專案人才？高科技廠房建置的人力缺口">
+<meta property="og:description" content="台積電13座廠同步興建，建廠工人求供比達12.5：1。拆解半導體專案工程師這個職位到底在缺什麼人、沒有相關科系背景能不能做。">
+<meta property="og:url" content="https://step1ne.com/articles/semiconductor-project-engineer-shortage/">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://step1ne.com/assets/og-bim-career-change.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-bim-career-change.jpg">
+<meta name="theme-color" content="#F4F6F8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "半導體廠為什麼一直缺工程專案人才？高科技廠房建置的人力缺口",
+  "description": "台積電等半導體廠擴建速度超前人力補充，營建、監工類職缺求供比達12.5。拆解半導體專案工程師到底在缺什麼樣的人，以及沒有相關背景能不能應徵。",
+  "datePublished": "2026-09-23",
+  "dateModified": "2026-09-23",
+  "inLanguage": "zh-TW",
+  "author": { "@type": "Organization", "name": "Step1ne 德仁管理顧問有限公司", "url": "https://step1ne.com/" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "德仁管理顧問有限公司（Step1ne）",
+    "logo": { "@type": "ImageObject", "url": "https://step1ne.com/assets/step1ne-logo.png" }
+  }
+}
+</script>
+
+<style>
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;
+  --wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:17px;line-height:1.95;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.35;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,select,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* 導覽 */
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+/* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
+
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
+.crumb{grid-column:1/-1;padding:22px 0 6px;font-size:13.5px;color:var(--slate-dim)}
+.crumb a{color:var(--slate)}
+.crumb a:hover{color:var(--brand-deep)}
+.crumb span{margin:0 8px;color:var(--rule)}
+
+/* 目錄軌：沿用全站 signature */
+.toc{position:sticky;top:92px;padding:8px 0 40px}
+.toc h2{font-size:13px;font-weight:700;color:var(--slate-dim);letter-spacing:.02em;margin-bottom:16px}
+.tns{position:relative;padding-left:22px}
+.tns::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.14))}
+.tn{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:14px;color:var(--slate);line-height:1.6;position:relative}
+.tn i{position:absolute;left:-22px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--rule);flex:0 0 auto}
+.tn:hover{color:var(--brand-deep)}
+.tn:hover i{border-color:var(--brand)}
+.tn.on{color:var(--ink);font-weight:700}
+.tn.on i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 4px rgba(46,169,223,.2)}
+.mtoc{display:none;margin:20px 0 0;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.mtoc summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15.5px;position:relative}
+.mtoc summary::-webkit-details-marker{display:none}
+.mtoc summary::after{content:"";position:absolute;right:20px;top:24px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.mtoc[open] summary::after{transform:rotate(-135deg)}
+.mtoc div{padding:0 18px 14px}
+.mtoc a{display:block;padding:9px 0;font-size:15px;color:var(--slate);border-top:1px solid var(--rule)}
+
+/* 文章本體 */
+article{padding:14px 0 60px;max-width:70ch}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--brand-deep);background:rgba(22,126,178,.07);border:1px solid rgba(22,126,178,.25);border-radius:5px;padding:4px 11px}
+article h1{margin-top:16px;font-size:clamp(28px,4.2vw,42px);line-height:1.28;letter-spacing:-.02em}
+.by{margin-top:18px;padding-bottom:20px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14px;color:var(--slate-dim)}
+.by a{color:var(--slate);border-bottom:1px solid var(--rule)}
+.by .d{font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+
+/* ★ Signature：直接答案 */
+.ans{margin-top:30px;background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:26px 30px}
+.ans .lab{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:10px}
+.ans p{font-size:19.5px;line-height:1.85;font-weight:500}
+.ans strong{font-weight:900}
+
+article h2{margin:52px 0 16px;font-size:25px;scroll-margin-top:92px}
+article h3{margin:34px 0 10px;font-size:19px}
+article h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-right:12px;border-radius:8px;background:var(--brand);color:#fff;font-family:var(--f-disp);font-size:17px;font-weight:700;vertical-align:2px}
+article p{margin-top:16px}
+article strong{font-weight:700}
+article a:not(.tn){color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.32)}
+article a:not(.tn):hover{border-bottom-color:var(--brand-deep)}
+article ul,article ol{margin:16px 0 0;padding-left:1.4em}
+article li{margin-top:9px}
+article table{width:100%;border-collapse:collapse;margin-top:22px;font-size:15.5px;background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+article th{text-align:left;background:var(--paper);font-weight:700;font-size:14px;color:var(--slate);padding:12px 14px;border-bottom:1px solid var(--rule)}
+article td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.75}
+article tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+article details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+article details summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+article details summary::-webkit-details-marker{display:none}
+article details summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+article details[open] summary::after{transform:rotate(-135deg)}
+article details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid var(--rule);color:var(--slate)}
+
+.foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
+.cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
+.cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
+footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+.fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.note{max-width:var(--wrap);margin:0 auto 46px;padding-inline:var(--gut)}
+.note div{background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid #B45309;border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.note b{color:#5A3D0C}
+
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .mtoc{display:block}
+}
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  body{font-size:16.5px}
+  .ans{padding:22px;border-radius:0 8px 8px 0}
+  .ans p{font-size:18px}
+  article h2{font-size:22px;margin-top:42px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+</head>
+
+<body>
+<div id="bar"></div>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/"><img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問"><b>Step1ne</b></a>
+    <nav class="hd-nav">
+      <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a class="on" href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
+    <button class="hd-burger" type="button" aria-label="開啟選單" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINE 洽詢</a>
+  </div>
+</header>
+
+<main class="shell">
+  <nav class="crumb" aria-label="麵包屑"><a href="/">首頁</a><span>/</span><a href="/articles/">獵才專欄</a><span>/</span>半導體廠為什麼一直缺工程專案人才？高科技廠房建置的人力缺口</nav>
+
+  <aside class="toc" aria-label="本文目錄">
+    <h2>本文共 7 個段落</h2>
+    <div class="tns"><a class="tn" href="#sec-1" data-s="sec-1"><i></i><span>半導體廠到底缺多少建廠工程人才？</span></a>
+<a class="tn" href="#sec-2" data-s="sec-2"><i></i><span>這裡說的「缺人」，跟大家常聽到的半導體缺工程師是同一件事嗎？</span></a>
+<a class="tn" href="#sec-3" data-s="sec-3"><i></i><span>為什麼這類職缺一直招不到人？</span></a>
+<a class="tn" href="#sec-4" data-s="sec-4"><i></i><span>半導體專案工程師實際在做什麼？資深跟培訓兩個職缺差在哪</span></a>
+<a class="tn" href="#sec-5" data-s="sec-5"><i></i><span>外派駐點的實際條件是什麼？</span></a>
+<a class="tn" href="#sec-6" data-s="sec-6"><i></i><span>沒有相關證照或經驗，能不能應徵？</span></a>
+<a class="tn" href="#sec-7" data-s="sec-7"><i></i><span>常見問題</span></a></div>
+  </aside>
+
+  <div>
+    <details class="mtoc"><summary>本文目錄（7 段）</summary><div><a href="#sec-1">半導體廠到底缺多少建廠工程人才？</a>
+<a href="#sec-2">這裡說的「缺人」，跟大家常聽到的半導體缺工程師是同一件事嗎？</a>
+<a href="#sec-3">為什麼這類職缺一直招不到人？</a>
+<a href="#sec-4">半導體專案工程師實際在做什麼？資深跟培訓兩個職缺差在哪</a>
+<a href="#sec-5">外派駐點的實際條件是什麼？</a>
+<a href="#sec-6">沒有相關證照或經驗，能不能應徵？</a>
+<a href="#sec-7">常見問題</a></div></details>
+    <article>
+      <span class="tag">產業觀察</span>
+      <h1>半導體廠為什麼一直缺工程專案人才？高科技廠房建置的人力缺口</h1>
+      <div class="by">
+        <span>作者：<a href="/about/">Step1ne 獵才顧問團隊</a></span>
+        <time class="d" datetime="2026-09-23">發布於 2026-09-23</time>
+      </div>
+
+      <div class="ans"><div class="lab">直接答案</div><p>半導體廠現在缺的不是晶片設計工程師，是能到工地現場盯進度、管包商、抓品質的「建廠專案人才」——104人力銀行《2026半導體人才報告書》指出，營建、製圖類職缺的求供比高達12.5（等於每個求職者平均能挑12.5個職缺），台積電資深副總暨共同營運長侯永清在SEMICON TAIWAN期間也坦言，建廠擴產的瓶頸就是「建廠工人不足」。缺口出在這類工作需要跨領域背景（電機、機械、土木、建築都算相關）、要接受外派調度，形象上也不像坐辦公室的工程師，導致符合條件的人不知道自己其實可以應徵，職缺長期補不齊。</p></div>
+
+<h2 id="sec-1">半導體廠到底缺多少建廠工程人才？</h2>
+<p>2026年9月，104人力銀行發布的《2026半導體人才報告書》給出一個具體數字：營建、製圖類職缺的求供比達到12.5，也就是說，這類職缺平均一個求職者可以挑12.5個工作機會，是半導體產業裡供需失衡最嚴重的職務類別之一。</p>
+<p>台積電資深副總暨共同營運長侯永清在SEMICON TAIWAN期間也直接點出問題所在：台積電目前在台灣有13座廠同步興建，擴產真正卡住的瓶頸不是設備、不是資金，是「建廠工人不足」——而且這個困境在美國和台灣同時存在。當龍頭廠商的擴廠腳步已經跑到需要13座廠同時動工，供應鏈上下游的工程專案人力需求只會更緊繃，不會只是台積電自己的問題。</p>
+
+<h2 id="sec-2">這裡說的「缺人」，跟大家常聽到的半導體缺工程師是同一件事嗎？</h2>
+<p>不是同一件事，很多人會搞混。媒體常報導的「半導體最缺人才」多半指IC設計、製程研發這類職務——比如類比IC設計工程師年薪中位數達172萬元，這是另一個人才賽道，通常要求電子、電機、物理相關碩士以上學歷，做的是晶片本身的設計。</p>
+<p>建廠工程專案人才要做的是完全不同的事：廠房蓋不蓋得起來、機電系統裝得對不對、工程進度趕不趕得上量產時程。報告書同時提到，市場對「專案經理」的需求也很強勁，薪資中位數達131萬元，反映的是軟硬體協調與專案推動能力的稀缺，而不是晶片設計能力的稀缺。這兩種人才互不替代，廠房蓋不好，晶片設計得再好也沒地方量產。</p>
+
+<h2 id="sec-3">為什麼這類職缺一直招不到人？</h2>
+<p>缺口不是因為薪水不夠吸引人，而是三個結構性的原因疊在一起：</p>
+<ul>
+<li><strong>工作型態不是想像中的「工程師」</strong>：這類職務主要待在專案現場工務所、工地，不是辦公室，要盯施工進度、查品質、跟包商協調介面，很多人以為工程師就是坐辦公室畫圖或寫程式，自動把自己排除在外。</li>
+<li><strong>需要接受跨地區調派</strong>：半導體廠遍布桃竹苗、台中、雲林等地，職缺要求「能依公司現有專案地點配合調派」，外派駐點對很多人是門檻，即使公司有提供宿舍與補助。</li>
+<li><strong>符合資格的人不知道自己符合資格</strong>：學歷背景涵蓋電機工程、機械工程（含冷凍空調與能源系）、工業設計系、土木工程（含營建）、建築系五個領域——橫跨這麼多科系，反而讓每個科系的人都覺得「這應該不是找我」，實際上只要沾到邊都算數。</li>
+</ul>
+
+<h2 id="sec-4">半導體專案工程師實際在做什麼？資深跟培訓兩個職缺差在哪</h2>
+<p>以桃竹苗、台中、雲林地區的半導體專案工程師職缺為例，核心工作內容包含：現場施工進度控管、品質查驗、工程介面協調與包商管理；廠房製程管線規劃、設計和施工的監督管理；機電系統規劃、設計和施工的監督管理；製作與保存施工紀錄等文件資料；以及現場勘查作業。</p>
+<p>職缺分成兩個管道：</p>
+<ul>
+<li><strong>資深半導體專案工程師</strong>：月薪約5萬至6萬元，依過往資歷、專業能力與面試表現核薪，之後依績效調薪，適合已有半導體廠房或廠辦監工、機電類型經驗的人。</li>
+<li><strong>培訓半導體專案工程師</strong>：月薪約3.5萬至4.5萬元，不要求相關經驗，只要有強烈學習意願、能配合調派，適合沒有相關工作經驗但想轉入這個領域的人。</li>
+</ul>
+<p>兩者共同的硬條件是基礎文書能力、與內部及協力廠商溝通協調的能力、能配合專案地點調派，以及具備普通重機車駕照方便日常通勤——外縣市同仁會提供宿舍，且距廠區通常不遠。</p>
+
+<h2 id="sec-5">外派駐點的實際條件是什麼？</h2>
+<p>因為職缺明確要求「配合專案地點調派」，這裡把實際配套條件列清楚，讓考慮應徵的人心裡有數：</p>
+<ul>
+<li>工作時間為08:30至17:30，週休二日（依行政院公告行事曆）。</li>
+<li>異地駐點提供員工宿舍、每月返鄉費補助、專案調派油資補助。</li>
+<li>獎金項目包含年終獎金、期中獎金、端午獎金、中秋獎金、勞動節禮金、生日禮金，以及推薦獎金。</li>
+<li>證照進修及教育訓練全額補助，另有團體保險、差旅險與年度員工健康檢查。</li>
+<li>法定假別（生理假、產檢假、產假、陪產假、安胎假、育嬰假、家庭照顧假等）與新制退休金提撥依法落實。</li>
+</ul>
+
+<h2 id="sec-6">沒有相關證照或經驗，能不能應徵？</h2>
+<p>可以，但要分清楚兩件事：學歷科系是硬門檻（電機、機械、工業設計、土木、建築五選一），工作經驗不是——培訓管道本來就是為沒有相關經驗的人設計的。</p>
+<p>如果已經具備以下加分條件，核薪會更優：公共工程品質管理人員證照、營造業甲種職業安全衛生主管證照，或基本的AutoCAD繪圖能力／土木、建築、機電、水電工程圖的識圖能力。曾有高科技廠房建置現場監工、工程發包相關經驗，同樣是加分項目，但不是應徵的必要條件。</p>
+<p>對還在猶豫「我這個科系到底算不算」的人，建議直接投履歷讓用人單位判斷，而不是自己先預設不符合資格而放棄——這正是這類職缺長期補不齊的原因之一。</p>
+
+<p>相關職缺：<a href="/jobs/semiconductor-site-engineer-hsinchu/">資深半導體專案工程師</a>、<a href="/jobs/trainee-semiconductor-project-engineer/">培訓半導體專案工程師</a>，涵蓋桃竹苗、台中、雲林地區。</p>
+
+## FAQ
+
+**Q1. 半導體專案工程師跟一般營造業的工地主任有什麼不同？**
+A1. 主要差在服務對象：半導體專案工程師負責的是高科技廠房（無塵室、製程管線、機電系統）的施工監督與品質查驗，比一般建築工地多了製程相關的介面協調，例如廠房機電系統要配合半導體設備的規格施工，對精度與潔淨度的要求比一般營造案更高。
+
+**Q2. 一定要土木或建築本科系才能應徵嗎？**
+A2. 不一定。學歷要求涵蓋電機工程、機械工程（含冷凍空調與能源系）、工業設計系、土木工程（含營建）、建築系共五個領域，符合其中任一項專科以上學歷就算數，不是只收土木或建築背景。
+
+**Q3. 培訓職缺跟資深職缺，錄取後的工作內容會不一樣嗎？**
+A3. 核心職掌相同（現場進度控管、品質查驗、包商協調、機電監督），差別在薪資起點與對經驗的要求：資深職缺月薪5-6萬元，要求已有半導體廠房或廠辦監工、機電相關經驗；培訓職缺月薪3.5-4.5萬元，不要求相關經驗，但要有強烈學習意願。
+
+**Q4. 外派調度會很頻繁嗎？會不會常常要搬家？**
+A4. 職缺會依現有專案地點配合調派，涵蓋桃竹苗、台中、雲林地區，但外縣市同仁會提供宿舍，且距廠區通常不遠，並有每月返鄉費補助與專案調派油資補助，用來降低駐外的實際負擔。確切的調派頻率與地點會依當下承接的專案而定，建議應徵時直接跟用人單位確認當前專案地點。
+
+**Q5. 沒有相關證照，會不會比較吃虧？**
+A5. 公共工程品質管理人員、營造業甲種職業安全衛生主管等證照，以及AutoCAD繪圖或識圖能力，都是加分條件而非必要條件——具備的話核薪會更優，但沒有這些證照一樣可以應徵，尤其是培訓管道本來就設計給沒有相關經驗或證照的人。
+
+**Q6. 薪水固定不會調整嗎？**
+A6. 不是。核薪會依過往資歷、專業能力與面試表現決定起薪，到職後則依績效調薪，不是固定薪資結構。
+
+## 查證來源
+- 104人力銀行《2026半導體人才報告書》，經工商時報報導〈半導體拚擴廠猛搶建廠工人 這職位平均年薪衝破172萬〉，2026-09-13：https://www.ctee.com.tw/news/20260913700008-431003（查證日期2026-09-23，報告書發布於2026-09-08）
+- 職缺條件、薪資、福利與工作內容：律准科技股份有限公司「資深半導體專案工程師」（slug: semiconductor-site-engineer-hsinchu）與「培訓半導體專案工程師」（slug: trainee-semiconductor-project-engineer）職缺資料，Step1ne D1 資料庫，查證日期2026-09-23
+
+      <h2 id="sec-7">常見問題</h2>
+      <div>
+      </div>
+
+      <div class="cta"><p>對這個職缺有興趣，或想先了解細節？</p><a class="btn-alt" href="/jobs/semiconductor-site-engineer-hsinchu/">看職缺詳情</a></div>
+    </article>
+  </div>
+</main>
+
+
+<footer><div class="fw">德仁管理顧問有限公司　臺北市內湖區康寧路三段 54 之 7 號 3 樓</div></footer>
+
+<script>
+// 表格加水平捲動外框，避免手機橫向溢位
+document.querySelectorAll('article table').forEach(function(t){
+  var w=document.createElement('div'); w.className='tw';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
+// 閱讀進度
+var bar=document.getElementById('bar');
+function prog(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',prog,{passive:true}); prog();
+// 目錄跟隨
+var tns=[].slice.call(document.querySelectorAll('.tn'));
+var secs=tns.map(function(a){return document.getElementById(a.dataset.s)}).filter(Boolean);
+if('IntersectionObserver' in window && secs.length){
+  var cur=null;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) cur=e.target.id; });
+    tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  },{rootMargin:'-88px 0px -70% 0px'}).observe && secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===e.target.id)}); }
+      });
+    },{rootMargin:'-88px 0px -70% 0px'}).observe(s);
+  });
+}
+</script>
+</body>
+</html>
