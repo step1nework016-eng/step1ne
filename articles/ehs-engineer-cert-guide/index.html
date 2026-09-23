@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  if (!e.target.closest) return;
+  // 2026-08-06：原本只抓 lin.ee。BIM 那群的下一步是「直接應徵」不是加 LINE，
+  // 不一起記的話，等於把那條路做出來卻量不到，實驗就白做了。
+  var a = e.target.closest('a[href*="lin.ee"], a[href^="/apply"]');
+  if (!a) return;
+  var isApply = (a.getAttribute('href') || '').indexOf('/apply') === 0;
+  gtag('event', isApply ? 'apply_click' : 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60),
+    // mid＝這次新加的文章中段；沒有標的就是原本頁首／頁尾那些
+    cta_slot: a.getAttribute('data-cta') || 'legacy'
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>職業安全衛生工程師證照怎麼考？在工地實際要做什麼｜Step1ne</title>
+<meta name="description" content="職安衛工程師在工地現場做什麼、乙級技術士跟甲種業務主管差在哪、沒證照能不能先應徵，用一個雲林虎尾的真實職缺說清楚。">
+<meta name="keywords" content="職業安全衛生工程師,職安衛證照,職業安全衛生管理乙級技術士,營造業甲種業務主管,工地職安衛,半導體廠職安衛,職安衛轉職">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/articles/ehs-engineer-cert-guide/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Step1ne 德仁管理顧問">
+<meta property="og:title" content="職業安全衛生工程師證照怎麼考？在工地實際要做什麼">
+<meta property="og:description" content="職安衛工程師在工地現場做什麼、乙級技術士跟甲種業務主管差在哪、沒證照能不能先應徵，用一個雲林虎尾的真實職缺說清楚。">
+<meta property="og:url" content="https://step1ne.com/articles/ehs-engineer-cert-guide/">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://step1ne.com/assets/og-bim-career-change.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-bim-career-change.jpg">
+<meta name="theme-color" content="#F4F6F8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "職業安全衛生工程師證照怎麼考？在工地實際要做什麼",
+  "description": "職安衛工程師在工地現場做什麼、乙級技術士跟甲種業務主管差在哪、沒證照能不能先應徵，用一個雲林虎尾的真實職缺說清楚。",
+  "datePublished": "2026-09-23",
+  "dateModified": "2026-09-23",
+  "inLanguage": "zh-TW",
+  "author": { "@type": "Organization", "name": "Step1ne 德仁管理顧問有限公司", "url": "https://step1ne.com/" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "德仁管理顧問有限公司（Step1ne）",
+    "logo": { "@type": "ImageObject", "url": "https://step1ne.com/assets/step1ne-logo.png" }
+  }
+}
+</script>
+
+<style>
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;
+  --wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:17px;line-height:1.95;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.35;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,select,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* 導覽 */
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+/* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
+
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
+.crumb{grid-column:1/-1;padding:22px 0 6px;font-size:13.5px;color:var(--slate-dim)}
+.crumb a{color:var(--slate)}
+.crumb a:hover{color:var(--brand-deep)}
+.crumb span{margin:0 8px;color:var(--rule)}
+
+/* 目錄軌：沿用全站 signature */
+.toc{position:sticky;top:92px;padding:8px 0 40px}
+.toc h2{font-size:13px;font-weight:700;color:var(--slate-dim);letter-spacing:.02em;margin-bottom:16px}
+.tns{position:relative;padding-left:22px}
+.tns::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.14))}
+.tn{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:14px;color:var(--slate);line-height:1.6;position:relative}
+.tn i{position:absolute;left:-22px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--rule);flex:0 0 auto}
+.tn:hover{color:var(--brand-deep)}
+.tn:hover i{border-color:var(--brand)}
+.tn.on{color:var(--ink);font-weight:700}
+.tn.on i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 4px rgba(46,169,223,.2)}
+.mtoc{display:none;margin:20px 0 0;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.mtoc summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15.5px;position:relative}
+.mtoc summary::-webkit-details-marker{display:none}
+.mtoc summary::after{content:"";position:absolute;right:20px;top:24px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.mtoc[open] summary::after{transform:rotate(-135deg)}
+.mtoc div{padding:0 18px 14px}
+.mtoc a{display:block;padding:9px 0;font-size:15px;color:var(--slate);border-top:1px solid var(--rule)}
+
+/* 文章本體 */
+article{padding:14px 0 60px;max-width:70ch}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--brand-deep);background:rgba(22,126,178,.07);border:1px solid rgba(22,126,178,.25);border-radius:5px;padding:4px 11px}
+article h1{margin-top:16px;font-size:clamp(28px,4.2vw,42px);line-height:1.28;letter-spacing:-.02em}
+.by{margin-top:18px;padding-bottom:20px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14px;color:var(--slate-dim)}
+.by a{color:var(--slate);border-bottom:1px solid var(--rule)}
+.by .d{font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+
+/* ★ Signature：直接答案 */
+.ans{margin-top:30px;background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:26px 30px}
+.ans .lab{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:10px}
+.ans p{font-size:19.5px;line-height:1.85;font-weight:500}
+.ans strong{font-weight:900}
+
+article h2{margin:52px 0 16px;font-size:25px;scroll-margin-top:92px}
+article h3{margin:34px 0 10px;font-size:19px}
+article h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-right:12px;border-radius:8px;background:var(--brand);color:#fff;font-family:var(--f-disp);font-size:17px;font-weight:700;vertical-align:2px}
+article p{margin-top:16px}
+article strong{font-weight:700}
+article a:not(.tn){color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.32)}
+article a:not(.tn):hover{border-bottom-color:var(--brand-deep)}
+article ul,article ol{margin:16px 0 0;padding-left:1.4em}
+article li{margin-top:9px}
+article table{width:100%;border-collapse:collapse;margin-top:22px;font-size:15.5px;background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+article th{text-align:left;background:var(--paper);font-weight:700;font-size:14px;color:var(--slate);padding:12px 14px;border-bottom:1px solid var(--rule)}
+article td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.75}
+article tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+article details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+article details summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+article details summary::-webkit-details-marker{display:none}
+article details summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+article details[open] summary::after{transform:rotate(-135deg)}
+article details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid var(--rule);color:var(--slate)}
+
+.foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
+.cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
+.cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
+footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+.fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.note{max-width:var(--wrap);margin:0 auto 46px;padding-inline:var(--gut)}
+.note div{background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid #B45309;border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.note b{color:#5A3D0C}
+
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .mtoc{display:block}
+}
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  body{font-size:16.5px}
+  .ans{padding:22px;border-radius:0 8px 8px 0}
+  .ans p{font-size:18px}
+  article h2{font-size:22px;margin-top:42px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+</head>
+
+<body>
+<div id="bar"></div>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/"><img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問"><b>Step1ne</b></a>
+    <nav class="hd-nav">
+      <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a class="on" href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
+    <button class="hd-burger" type="button" aria-label="開啟選單" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINE 洽詢</a>
+  </div>
+</header>
+
+<main class="shell">
+  <nav class="crumb" aria-label="麵包屑"><a href="/">首頁</a><span>/</span><a href="/articles/">獵才專欄</a><span>/</span>職業安全衛生工程師證照怎麼考？在工地實際要做什麼</nav>
+
+  <aside class="toc" aria-label="本文目錄">
+    <h2>本文共 7 個段落</h2>
+    <div class="tns"><a class="tn" href="#sec-1" data-s="sec-1"><i></i><span>職業安全衛生工程師，在工地現場實際在做什麼？</span></a>
+<a class="tn" href="#sec-2" data-s="sec-2"><i></i><span>「職業安全衛生管理員」跟「業務主管」是同一件事嗎？</span></a>
+<a class="tn" href="#sec-3" data-s="sec-3"><i></i><span>乙級職業安全衛生管理員怎麼考？</span></a>
+<a class="tn" href="#sec-4" data-s="sec-4"><i></i><span>營造業甲種職業安全衛生業務主管的訓練在上什麼？</span></a>
+<a class="tn" href="#sec-5" data-s="sec-5"><i></i><span>沒有證照，可以先應徵再考嗎？</span></a>
+<a class="tn" href="#sec-6" data-s="sec-6"><i></i><span>高科技廠房專案的職安衛工程師，待遇跟一般工地缺有什麼不同？</span></a>
+<a class="tn" href="#sec-7" data-s="sec-7"><i></i><span>常見問題</span></a></div>
+  </aside>
+
+  <div>
+    <details class="mtoc"><summary>本文目錄（7 段）</summary><div><a href="#sec-1">職業安全衛生工程師，在工地現場實際在做什麼？</a>
+<a href="#sec-2">「職業安全衛生管理員」跟「業務主管」是同一件事嗎？</a>
+<a href="#sec-3">乙級職業安全衛生管理員怎麼考？</a>
+<a href="#sec-4">營造業甲種職業安全衛生業務主管的訓練在上什麼？</a>
+<a href="#sec-5">沒有證照，可以先應徵再考嗎？</a>
+<a href="#sec-6">高科技廠房專案的職安衛工程師，待遇跟一般工地缺有什麼不同？</a>
+<a href="#sec-7">常見問題</a></div></details>
+    <article>
+      <span class="tag">求職者指南・證照攻略</span>
+      <h1>職業安全衛生工程師證照怎麼考？在工地實際要做什麼</h1>
+      <div class="by">
+        <span>作者：<a href="/about/">Step1ne 獵才顧問團隊</a></span>
+        <time class="d" datetime="2026-09-23">發布於 2026-09-23</time>
+      </div>
+
+      <div class="ans"><div class="lab">直接答案</div><p>職業安全衛生工程師在工地現場的核心工作是「風險管理」，不是紙上作業：主持每日工具箱會議、審核廠商入廠許可、巡查工地安全並管理承攬商，出狀況要能立即判斷並回報主管。證照方面，最基本的門檻是「職業安全衛生管理乙級技術士」，員工規模達一定門檻的事業單位還要另外設「甲種職業安全衛生業務主管」——這是兩套不同的資格，不能互相取代。但實際應徵時，證照多半是加分項而不是硬性門檻，企業更在意的是能不能配合現場調派。以雲林虎尾這類高科技廠房新建案為例，起薪已拉到月薪 5–6 萬，比一般工地職缺高不少。</p></div>
+
+<h2 id="sec-1">職業安全衛生工程師，在工地現場實際在做什麼？</h2>
+<p>如果只看職稱，很容易以為這是坐辦公室做報表的工作。實際上，一線的職業安全衛生工程師每天大部分時間都在工地現場，主要做這幾件事：</p>
+<ul>
+<li>主持每日「工具箱會議」，開工前跟現場人員確認當天的作業風險與注意事項</li>
+<li>審核廠商施工作業單與入廠許可單，確保每一組進場的協力廠商都合乎規範</li>
+<li>製作職業安全衛生相關表單，把巡查跟稽核結果留下紀錄</li>
+<li>執行工地安全衛生巡查作業，管理進場的承攬商</li>
+<li>做現場視勘，配合公司專案進度處理主管交辦事項</li>
+</ul>
+<p>以律准科技雲林虎尾這個高科技廠房新建案為例，工程部有 10 人，但工安只編制 1 人——代表這個角色要能獨立扛下整個工地的職安衛管理，不是有一整個團隊分工，溝通協調能力跟現場判斷力比證照本身更常被用人主管拿來評估。</p>
+
+<h2 id="sec-2">「職業安全衛生管理員」跟「業務主管」是同一件事嗎？</h2>
+<p>不是。這是求職者最容易搞混的地方。「職業安全衛生管理員」跟「職業安全衛生業務主管」是兩套不同的資格體系，適用時機也不一樣：</p>
+<ul>
+<li><strong>管理員</strong>：對應「職業安全衛生管理乙級技術士」這張證照，屬於技能檢定體系</li>
+<li><strong>業務主管</strong>：分甲、乙、丙、丁種，依事業單位的員工規模與行業別決定要設哪一種，屬於教育訓練體系，不是技能檢定</li>
+</ul>
+<p>依現行規定，職業安全衛生管理員的結業證書無法直接兼任營造業甲、乙、丙種業務主管使用，兩邊要分別受訓或考取對應資格才算合格。這代表一個人如果同時要扛「管理員」跟「業務主管」的職責，通常需要兩張證都拿到，不能拿一張混用。實際規定請以勞動部職業安全衛生署最新公告為準，這類分類規則過去有調整過，之後也可能再修正。</p>
+
+<h2 id="sec-3">乙級職業安全衛生管理員怎麼考？</h2>
+<p>職業安全衛生管理乙級技術士屬於技能檢定的一種，分「學科」跟「術科」兩階段。報考資格有幾種常見途徑，例如完成指定的職業安全衛生教育訓練並取得結訓證明，或具備相關系所學歷等，實際上會依個人背景組合出不同的報考路徑。</p>
+<p>由於報考資格、考試科目與梯次時間會不定期調整，建議直接查詢勞動部勞動力發展署技能檢定中心的公告，或報名前跟訓練機構確認自己符合哪一種資格，不要只憑網路上的舊資訊判斷。</p>
+
+<h2 id="sec-4">營造業甲種職業安全衛生業務主管的訓練在上什麼？</h2>
+<p>甲種業務主管走的是教育訓練體系，公開資訊顯示訓練時數約 42 小時，內容涵蓋職業安全衛生相關法規、營造業職業安全衛生管理系統介紹、營造業風險評估、倒塌崩塌危害預防管理實務、墜落危害預防管理實務、施工機械設備安全管理實務等主題——每一項都對應到工地現場真的會遇到的高風險場景，不是純理論課。</p>
+<p>是否需要設置甲種業務主管，跟事業單位的員工規模有關，公開規定中常見的門檻是員工人數達到一定規模（例如 100 人以上）才須設置甲種，規模較小的對應乙種或丙種。這類受訓通常是雇主安排在職員工去上，而不是求職者自己先考好才能應徵——這一點下一段會展開講。</p>
+
+<h2 id="sec-5">沒有證照，可以先應徵再考嗎？</h2>
+<p>可以，而且以雲林虎尾這個職缺的實際條件來看，答案更明確。這個職缺把「乙級職業安全衛生管理員、營造業甲種（或一般業）職業安全衛生業務主管、職業安全衛生管理人員乙級技術士」列在<strong>加分條件</strong>裡，寫明「如果有以上證照，核薪更優」——不是應徵的前提。</p>
+<p>真正列在必要條件裡的，反而是這幾項：</p>
+<ul>
+<li>專科以上學歷，職安衛相關科系畢業佳（不是必要，是「佳」）</li>
+<li>能與公司內部及協力廠商溝通協調、有團隊合作能力</li>
+<li>能配合公司現有專案地點調派（目前是雲林虎尾）</li>
+<li>具備普通重機車駕照，方便日常通勤</li>
+</ul>
+<p>換句話說，企業寧可先找到願意配合現場、能溝通協調的人，再用「證照進修及教育訓練全額補助」把人留下來考證，而不是卡死在「先有證照才能面試」。這跟營造業其他非本科轉職職缺的邏輯是一致的，如果你對整個入行路徑還不熟，可以先看<a href="/articles/how-to-enter-construction-industry/">怎麼踏入營造業？非本科系新手入行完整指南</a>。</p>
+
+<h2 id="sec-6">高科技廠房專案的職安衛工程師，待遇跟一般工地缺有什麼不同？</h2>
+<p>半導體與高科技廠房這幾年密集擴建，工地端的職安衛人力需求也跟著拉高，反映在待遇結構上。以這個職缺為例：</p>
+<ul>
+<li>月薪 5–6 萬（依過往資歷、專業能力與面試表現核薪，之後依績效調薪）</li>
+<li>薪資結構包含浮動底薪、伙食津貼 3,000 元、安全津貼 2,500 元，若擔任管理職另有主管津貼</li>
+<li>異地駐點的同仁有員工宿舍（通常距廠區不遠）、每月返鄉費補助、專案調派油資補助</li>
+<li>證照進修及教育訓練全額補助，鼓勵在職期間再考取對應證照</li>
+<li>作息固定 08:30–17:30，週休二日，公司說明「幾乎不加班」</li>
+</ul>
+<p>「幾乎不加班」跟一般人對工地職缺「常態加班」的印象有落差，這類差異通常來自專案排程方式，實際狀況建議在面試時直接跟用人主管確認，不要只憑職缺頁的描述當作保證。</p>
+<p>如果你想投入高科技廠房新建案的工地安全管理工作，目前雲林虎尾這個資深職業安全衛生工程師職缺仍在招募中。</p>
+<p><a href="/jobs/ehs-engineer-yunlin/">查看資深職業安全衛生工程師職缺詳情 →</a></p>
+
+      <h2 id="sec-7">常見問題</h2>
+      <div>
+<details><summary><span>沒有職安衛相關科系，可以應徵這類職缺嗎？</span><span class="faq-icon">+</span></summary><p>可以。這個雲林虎尾的職缺把「專科以上、職安衛相關科系」列為加分條件而非硬性門檻，必要條件其實是溝通協調能力、配合調派意願，以及普通重機車駕照；有職安衛乙級技術士等證照則核薪更優，但不是應徵的前提。</p></details>
+<details><summary><span>職業安全衛生管理員跟業務主管的證照可以互相取代嗎？</span><span class="faq-icon">+</span></summary><p>不行。依現行規定，職業安全衛生管理員結業證書無法直接兼任營造業甲、乙、丙種業務主管，兩者是不同的資格體系，需分別受訓或考取對應資格。實際規定請以勞動部職業安全衛生署最新公告為準。</p></details>
+<details><summary><span>乙級職業安全衛生管理員技術士要考什麼？</span><span class="faq-icon">+</span></summary><p>屬於技能檢定的一種，分學科與術科兩階段，報考資格有多種途徑，例如完成指定的職業安全衛生教育訓練並取得結訓證明，或具備相關系所學歷等。詳細報名資格、考試科目與梯次請以勞動部勞動力發展署技能檢定中心公告為準，這類規則會不時修正。</p></details>
+<details><summary><span>甲種職業安全衛生業務主管是不是每個工地都要設？</span><span class="faq-icon">+</span></summary><p>不是每個工地都要求，而是與事業單位的員工規模掛鉤，公開規定中常見的門檻是員工達一定人數（例如 100 人以上）才須設置甲種業務主管，規模較小的則對應乙種或丙種。實際適用標準請以《職業安全衛生管理辦法》最新版本為準。</p></details>
+<details><summary><span>這類職缺常要求外縣市調派，家人問題怎麼辦？</span><span class="faq-icon">+</span></summary><p>以雲林虎尾這個職缺為例，公司對外縣市到職的同仁提供員工宿舍（通常距廠區不遠），另有每月返鄉費補助與專案調派油資補助，用意是降低異地駐點的生活成本，這類福利在高科技廠房專案型職缺中算常見設計。</p></details>
+<details><summary><span>考證照要花多少時間跟費用？</span><span class="faq-icon">+</span></summary><p>這部分因訓練機構、班別與個人報考資格不同而有差異，建議直接查詢勞動部勞動力發展署技能檢定中心或欲報名的訓練機構取得最新費用與時數資訊，不要只以單一篇文章的數字當作唯一依據。</p></details>
+      </div>
+
+      <div class="cta"><p>對這個職缺有興趣，或想先了解細節？</p><a class="btn-alt" href="/jobs/ehs-engineer-yunlin/">看職缺詳情</a></div>
+    </article>
+  </div>
+</main>
+
+
+<footer><div class="fw">德仁管理顧問有限公司　臺北市內湖區康寧路三段 54 之 7 號 3 樓</div></footer>
+
+<script>
+// 表格加水平捲動外框，避免手機橫向溢位
+document.querySelectorAll('article table').forEach(function(t){
+  var w=document.createElement('div'); w.className='tw';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
+// 閱讀進度
+var bar=document.getElementById('bar');
+function prog(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',prog,{passive:true}); prog();
+// 目錄跟隨
+var tns=[].slice.call(document.querySelectorAll('.tn'));
+var secs=tns.map(function(a){return document.getElementById(a.dataset.s)}).filter(Boolean);
+if('IntersectionObserver' in window && secs.length){
+  var cur=null;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) cur=e.target.id; });
+    tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  },{rootMargin:'-88px 0px -70% 0px'}).observe && secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===e.target.id)}); }
+      });
+    },{rootMargin:'-88px 0px -70% 0px'}).observe(s);
+  });
+}
+</script>
+</body>
+</html>
