@@ -445,7 +445,7 @@ tr.sc-row:hover .sc-viewbtn{border-color:var(--gold);color:var(--gold)}
       <label>這篇是哪一種？</label>
       <div class="seg" id="typeseg">
         <button type="button" class="on" data-type="job">📋 職缺文</button>
-        <button type="button" data-type="general">💼 通用文</button>
+        <button type="button" data-type="general">💼 時事話題文</button>
         <button type="button" data-type="ai">🤖 AI阿財話題</button>
       </div>
       <label>選擇發文帳號</label>
@@ -530,7 +530,7 @@ tr.sc-row:hover .sc-viewbtn{border-color:var(--gold);color:var(--gold)}
         <span><i style="background:#c0392b"></i>同一個顧問重複發同職缺</span>
         <span style="margin-left:auto"></span>
         <span><i style="background:#2f5fd8"></i>職缺文</span>
-        <span><i style="background:#8a5a2b"></i>通用文</span>
+        <span><i style="background:#8a5a2b"></i>時事話題文</span>
         <span><i style="background:#6b5a8f"></i>AI阿財話題</span>
         <span>點任何一天可以排程</span>
       </div>
@@ -868,7 +868,7 @@ $('client').addEventListener('change', function () {
   }));
 });
 
-// 2026-09-03 改：職缺文/通用文/AI阿財話題三大分類（原本只有職缺/話題兩種）。
+// 2026-09-03 改：職缺文/時事話題文/AI阿財話題三大分類（原本只有職缺/話題兩種）。
 // 話題類/AI話題類要選帳號才知道要列哪位顧問打勾過的話題，所以帳號永遠先
 // 選、類型切換或帳號變動都要重新刷新對應下拉。
 var POST_TOPICS_CACHE = null;
@@ -887,7 +887,7 @@ $('typeseg').addEventListener('click', function (e) {
   $('jobpick').hidden = !isJob;
   $('topicpick').hidden = isJob;
   if (!isJob) {
-    $('topicpicklabel').innerHTML = (t === 'general' ? '選擇通用話題' : '選擇 AI 阿財話題')
+    $('topicpicklabel').innerHTML = (t === 'general' ? '選擇時事話題' : '選擇 AI 阿財話題')
       + '<span class="mut">（只列這位顧問在「顧問與話題設定」打勾過的）</span>';
     refreshTopicOptionsForPost();
   }
@@ -942,7 +942,7 @@ function refreshTopicOptionsForPost() {
   (POST_TOPICS_CACHE ? Promise.resolve({ ok: true, topics: POST_TOPICS_CACHE }) : api('/admin/topic-prompts')).then(function (r) {
     POST_TOPICS_CACHE = r.topics || [];
     var list = POST_TOPICS_CACHE.filter(function (t) { return t.category === type; });
-    var typeLabel = type === 'general' ? '通用話題' : 'AI阿財話題';
+    var typeLabel = type === 'general' ? '時事話題' : 'AI阿財話題';
     if (!list.length) {
       sel.innerHTML = '<option value="">（目前沒有' + typeLabel + '，去「話題提示詞庫」新增一筆）</option>';
     } else {
@@ -1191,9 +1191,9 @@ function isTopicRow(r) {
 function markLabel(r) {
   if (isTopicRow(r)) {
     if (r.content_mission === 'trust_building') return { t: '🤖 AI阿財話題', ok: true };
-    if (r.content_mission === 'engagement') return { t: '💼 通用文', ok: true };
+    if (r.content_mission === 'engagement') return { t: '💼 時事話題文', ok: true };
     if (r.topic_category === 'ai') return { t: '🤖 AI阿財話題', ok: true };
-    if (r.topic_category === 'general') return { t: '💼 通用文', ok: true };
+    if (r.topic_category === 'general') return { t: '💼 時事話題文', ok: true };
     return { t: '未標記', ok: false };
   }
   if (r.style_subtype === 'dialog') return { t: '對話討論型・' + String(r.style_name || '').replace('對話討論型・', ''), ok: true };
@@ -1218,7 +1218,7 @@ function openMarkEditor(qid) {
   var inner = topic
     ? '<label>這篇話題是哪一種？</label>'
       + '<select id="mkMission">'
-      + '<option value="general">💼 通用文</option>'
+      + '<option value="general">💼 時事話題文</option>'
       + '<option value="ai">🤖 AI阿財話題</option></select>'
     : '<label>用哪一種寫法？</label>'
       + '<select id="mkWay">'
@@ -1229,7 +1229,7 @@ function openMarkEditor(qid) {
       + '<select id="mkStyle"></select></div>';
   box.innerHTML = '<div class="markbox"><h4>' + (r.title || r.slug) + '</h4>'
     + '<p class="mut" style="font-size:12.5px;margin:0 0 12px">'
-    + (topic ? '話題文只分通用文／AI阿財話題，沒有寫法公式。'
+    + (topic ? '話題文只分時事話題文／AI阿財話題，沒有寫法公式。'
              : '原始格式沒有下一層公式；純CTA型與對話討論型要再挑一個。') + '</p>'
     + inner
     + '<div class="markbtns"><button type="button" id="mkCancel" class="ghost">取消</button>'
@@ -1379,7 +1379,7 @@ var TH_FALLBACK_TITLE = {"backend-engineer-game": "後端開發工程師（.NET�
 // 已下架、被 301 合併掉的舊網址：貼文還指著它，顯示合併後那個職缺的名字並註明
 var TH_MERGED_TITLE = {"game-phone-cs-evening-zhonghe": "遊戲客服專員（電話／文字客服）", "mobile-game-cs-neihu-mid": "遊戲客服", "mobile-game-cs-neihu-morning": "遊戲客服", "pending-co_802bdd6b-3b807a75": "資深職業安全衛生工程師", "pending-co_802bdd6b-dd0123c6": "資深工程設計工程師"};
 var TH = { cur: '全部', mode: 'all', val: '' };
-var TH_KC = {'📋 職缺文':'th-j','💼 通用文':'th-g','🤖 AI阿財話題':'th-a','話題文（未分類）':'th-x'};
+var TH_KC = {'📋 職缺文':'th-j','💼 時事話題文':'th-g','🤖 AI阿財話題':'th-a','話題文（未分類）':'th-x'};
 var TH_WC = {'原始格式':'th-o','純CTA型':'th-p','對話討論型':'th-d'};
 
 function thEsc(x){return String(x==null?'':x).replace(/[&<>"]/g,function(c){
@@ -1394,13 +1394,13 @@ function thKind(r){
   var isTopic = r.topic_id || String(r.slug||'').indexOf('💬')===0;
   if(!isTopic) return '📋 職缺文';
   if(r.topic_category==='ai'||r.content_mission==='trust_building') return '🤖 AI阿財話題';
-  if(r.topic_category==='general'||r.content_mission==='engagement') return '💼 通用文';
+  if(r.topic_category==='general'||r.content_mission==='engagement') return '💼 時事話題文';
   return '話題文（未分類）';
 }
 function thWay(r){
   // ⚠️ 話題文沒有「寫法類型」這一層——後台表單只有職缺文才會問純CTA／對話討論／
   //    原始格式。話題文顯示「—」才對，標成「未標記」會去催顧問補一個根本不存在
-  //    的欄位（2026-09-08 初版就這樣誤報了 Phoebe 那篇通用文）。
+  //    的欄位（2026-09-08 初版就這樣誤報了 Phoebe 那篇時事話題文）。
   if(r.topic_id || String(r.slug||'').indexOf('💬')===0) return '—';
   if(r.style_subtype==='dialog') return '對話討論型';
   if(r.style_subtype==='pure'||r.content_formula==='pure') return '純CTA型';
@@ -1506,7 +1506,7 @@ function thRender(){
   // 2026-09-08 加：沒標寫法的貼文直接點出來。這些多半是顧問自己在 App 上
   // 發完才貼網址回來匯入的（匯入流程 2026-09-08 之後才會問寫法），
   // 沒補的話這幾篇永遠進不了「哪一種寫法有效」的比較。
-  // 兩種都算沒標完：職缺文缺「寫法類型」、話題文缺「通用文／AI阿財話題」。
+  // 兩種都算沒標完：職缺文缺「寫法類型」、話題文缺「時事話題文／AI阿財話題」。
   // 補標記的彈窗兩種都處理得了，所以一起提醒。
   var unmarked = rs.filter(function(p){
     return p.w==='未標記' || p.k==='話題文（未分類）'; });
@@ -1514,7 +1514,7 @@ function thRender(){
     h+='<p class="thwarn" id="thUnmarked">⚠️ 有 <b>'+unmarked.length+'</b> 篇還沒標完分類'
       +(TH.cur==='全部'?'':'（'+thEsc(TH.cur)+'）')
       +'，這幾篇不會出現在下面的寫法比較裡。<br>'
-      +'職缺文缺的是「用哪一種寫法」，話題文缺的是「通用文還是 AI阿財話題」。<br>'
+      +'職缺文缺的是「用哪一種寫法」，話題文缺的是「時事話題文還是 AI阿財話題」。<br>'
       +'去「一鍵發文」分頁的貼文列表，找到標著<b>未標記</b>的那幾則按「補標記」，'
       +'花不到一分鐘。<br>'
       +'<span style="opacity:.8">'+unmarked.slice(0,6).map(function(p){
@@ -2003,14 +2003,14 @@ function paintConvertAccounts() {
 }
 
 // 2026-09-04 加：「資料怎麼走」改成 Jacky 要的用途——先選顧問，再看他發過
-// 的每一種文案類型（職缺文選了哪個公式／通用文／AI阿財話題）帶回多少真實
+// 的每一種文案類型（職缺文選了哪個公式／時事話題文／AI阿財話題）帶回多少真實
 // 成效，用來判斷「哪個帳號的哪種寫法比較有效」，不是原本那張靜態流程說明圖。
 // 分類邏輯對應「一鍵發文」表單的真實選項結構：職缺文（沒有topic_id）看
-// content_formula；話題文（有topic_id）看 content_mission 分通用文／AI阿財話題。
+// content_formula；話題文（有topic_id）看 content_mission 分時事話題文／AI阿財話題。
 function postType(r) {
   if (!r.topic_id) return '職缺文・' + (r.content_formula ? (FORMULA_LB[r.content_formula] || r.content_formula) : '未選公式');
   if (r.content_mission === 'trust_building') return 'AI阿財話題';
-  if (r.content_mission === 'engagement') return '通用文';
+  if (r.content_mission === 'engagement') return '時事話題文';
   return '話題文・未分類';
 }
 function paintConvertFlow() {
@@ -2524,7 +2524,7 @@ function loadCal(){
 }
 
 // ── 某一天的視窗 ──
-const CAT_LABEL = {job:'📋 職缺文', general:'💼 通用文', ai:'🤖 AI阿財話題'};
+const CAT_LABEL = {job:'📋 職缺文', general:'💼 時事話題文', ai:'🤖 AI阿財話題'};
 function openDay(k){
   const list=evOn(k);
   const rows = list.length ? list.map((e,i)=>`
