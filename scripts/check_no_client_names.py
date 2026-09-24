@@ -59,8 +59,31 @@ SUFFIXES = ('股份有限公司', '有限公司', '管理顧問', '科技', '集
             '企業社', '工程行', '事業處')
 
 
+def _cf_creds():
+    tok, acc = os.environ.get('CLOUDFLARE_API_TOKEN'), os.environ.get('CLOUDFLARE_ACCOUNT_ID')
+    p = os.path.expanduser('~/.config/workflow-os/cf.env')
+    if (not tok or not acc) and os.path.exists(p):
+        for line in open(p, encoding='utf-8'):
+            k, _, v = line.strip().partition('=')
+            v = v.strip().strip('"\'')
+            tok = tok or (v if k == 'CLOUDFLARE_API_TOKEN' else None)
+            acc = acc or (v if k == 'CLOUDFLARE_ACCOUNT_ID' else None)
+    return tok, acc
+
+
 def d1(sql):
-    """走 wrangler 查 D1。這支是部署前跑的，不在乎幾秒鐘。"""
+    """查 D1。2026-09-24 改：先走 Cloudflare HTTP API（Mac、Windows 都能跑），不行才退回 wrangler。
+    Windows 那台沒有 npx，原本這裡直接查不到客戶名單，檢查等於沒做卻顯示通過。"""
+    tok, acc = _cf_creds()
+    if tok and acc:
+        import urllib.request
+        req = urllib.request.Request(
+            f'https://api.cloudflare.com/client/v4/accounts/{acc}/d1/database/67077b4b-42d9-4086-8d04-b3658a89cffd/query',
+            data=json.dumps({'sql': sql}).encode(), headers={'Authorization': f'Bearer {tok}', 'Content-Type': 'application/json'})
+        body = json.load(urllib.request.urlopen(req, timeout=60))
+        if not body.get('success'):
+            raise RuntimeError(f'查資料庫失敗：{body.get("errors")}')
+        return body['result'][0].get('results', [])
     r = subprocess.run(
         ['npx', 'wrangler', 'd1', 'execute', 'step1ne-recruit', '--remote',
          '--json', '--command', sql],
@@ -180,7 +203,15 @@ def scan(names, verbose=False):
 
 def main():
     verbose = '-v' in sys.argv
-    names = client_names()
+    try:
+        names = client_names()
+    except Exception as e:
+        print(f'⛔ 讀不到客戶名單，這次檢查無效，不准部署：{e}')
+        return 2
+    if len(names) < 5:
+        # 正常至少有十幾家。讀到 0 筆＝設定壞了，不是「沒有客戶」——絕對不能當成通過
+        print(f'⛔ 客戶名單只讀到 {len(names)} 組，檢查無效，不准部署（請確認 Cloudflare 憑證）')
+        return 2
     print(f'要擋的客戶名稱／簡稱共 {len(names)} 組')
     hits = scan(names, verbose)
     pat_hits = scan_company_pattern(verbose)
