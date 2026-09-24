@@ -3203,6 +3203,16 @@ function scRenderPlatBody(c, plat) {
       + '<div class="actrow"><button type="button" id="scVcSave">儲存語氣卡</button>'
       + (p.voice_card_manual ? '<button type="button" id="scVcRegen">改回自動產生</button>' : '')
       + '</div>';
+    // 2026-09-24：話題語氣卡——只給話題文（時事話題、AI阿財話題）用，招募文不受影響。
+    // 第一版只能手寫；空著＝話題文沿用上面的語氣卡。
+    html += '<h4 style="margin-top:14px">話題語氣卡 '
+      + (p.topic_voice_card ? '<span class="statusbadge ok">你手寫的</span>' : '<span class="statusbadge off">沿用招募語氣卡</span>') + '</h4>'
+      + '<div class="filehint" style="margin:0 0 8px">只用在話題文（時事話題、AI阿財話題）。招募文不受影響。空著就沿用上面的語氣卡。</div>'
+      + '<textarea id="scTvcBody" style="min-height:160px" placeholder="還沒有話題語氣卡，話題文會沿用上面的語氣卡。&#10;想讓話題文講話的樣子跟招募文不一樣（例：比較隨性、會碎念、不用 emoji），就寫在這裡。&#10;&#10;可以照這六項寫：&#10;口吻：&#10;自稱／怎麼稱呼讀者：&#10;常用詞、口頭禪：&#10;emoji 與符號習慣：&#10;句子長短與斷行：&#10;不會這樣寫：">' + esc(p.topic_voice_card || '') + '</textarea>'
+      + '<div class="actrow"><button type="button" id="scTvcSave">儲存話題語氣卡</button>'
+      + (!p.topic_voice_card && p.voice_card ? '<button type="button" id="scTvcCopy">複製上面的語氣卡來改</button>' : '')
+      + (p.topic_voice_card ? '<button type="button" id="scTvcClear">清空，改回沿用招募語氣卡</button>' : '')
+      + '</div><div id="scTvcConfirm"></div>';
   }
   html += '<div class="actrow">';
   if (plat === 'threads' && !p.connected) html += '<button type="button" id="scDSetToken">貼入短期 token</button>';
@@ -3237,6 +3247,38 @@ function scRenderPlatBody(c, plat) {
       if (!d.ok) return toast(d.error || '失敗', true);
       toast('✓ 已清掉，系統幾分鐘內會從風格提示詞重新抽一份'); scRefreshOneAndReopen(c.name, plat);
     }).catch(function (e) { toast(apiFail(e), true); });
+  });
+
+  function scSaveTopicVoiceCard(v, okMsg, btn) {
+    if (btn) btn.disabled = true;
+    api('/admin/social-consultants/' + p.id + '/topic-voice-card', { method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ body: v }) }).then(function (d) {
+      if (btn) btn.disabled = false;
+      if (!d.ok) return toast(d.error || '儲存失敗', true);
+      toast(okMsg); scRefreshOneAndReopen(c.name, plat);
+    }).catch(function (e) { if (btn) btn.disabled = false; toast(apiFail(e), true); });
+  }
+  var tvcSave = $('scTvcSave');
+  if (tvcSave) tvcSave.addEventListener('click', function () {
+    var v = $('scTvcBody').value.trim();
+    if (!v) return toast('話題語氣卡不能空白；要改回沿用招募語氣卡，請按「清空」', true);
+    scSaveTopicVoiceCard(v, '✓ 話題語氣卡已儲存，下一篇話題文就會照這份語氣', tvcSave);
+  });
+  var tvcCopy = $('scTvcCopy');
+  if (tvcCopy) tvcCopy.addEventListener('click', function () {
+    $('scTvcBody').value = p.voice_card || '';
+    $('scTvcBody').focus();
+    toast('已複製，改完記得按「儲存話題語氣卡」');
+  });
+  var tvcClear = $('scTvcClear');
+  if (tvcClear) tvcClear.addEventListener('click', function () {
+    var box = $('scTvcConfirm');
+    box.innerHTML = '<div class="inlineform" style="margin-top:8px">確定清空？清空後這位顧問的話題文會改回用上面的招募語氣卡。'
+      + '<div class="actrow"><button type="button" id="scTvcClearYes">確定清空</button><button type="button" id="scTvcClearNo">取消</button></div></div>';
+    $('scTvcClearNo').addEventListener('click', function () { box.innerHTML = ''; });
+    $('scTvcClearYes').addEventListener('click', function () {
+      scSaveTopicVoiceCard('', '✓ 已清空，話題文改回沿用招募語氣卡', $('scTvcClearYes'));
+    });
   });
 
   var reimportBtn = $('scDReimport');
