@@ -3192,7 +3192,19 @@ function scRenderPlatBody(c, plat) {
     + '</div>'
     + (p.style_prompt_preview ? '<button type="button" class="linkbtn" id="scDPromptToggle">展開看全文</button>' : '')
     + '<div class="actrow">'
-    + '<button type="button" id="scDReimport">🔄 重新匯入風格提示詞</button>';
+    + '<button type="button" id="scDReimport">🔄 重新匯入風格提示詞</button>'
+    + '</div>';
+  // 2026-09-24：語氣卡——產稿時放最後、公式蓋不掉的「這個人怎麼講話」。顧問自己看、自己改。
+  if (p.id) {
+    html += '<h4 style="margin-top:12px">語氣卡'
+      + (p.voice_card ? (p.voice_card_manual ? '<span class="mut">（你手動改過）</span>' : '<span class="mut">（系統從風格提示詞自動抽的）</span>') : '') + '</h4>'
+      + '<div class="filehint">公式只決定文章結構；這張卡決定每一句話的口吻、用字、emoji。改了下一篇產稿就生效。</div>'
+      + '<textarea id="scVcBody" style="min-height:180px" placeholder="還沒有語氣卡。有風格提示詞的話，下一次產稿會自動產生；也可以直接寫。">' + esc(p.voice_card || '') + '</textarea>'
+      + '<div class="actrow"><button type="button" id="scVcSave">儲存語氣卡</button>'
+      + (p.voice_card_manual ? '<button type="button" id="scVcRegen">改回自動產生</button>' : '')
+      + '</div>';
+  }
+  html += '<div class="actrow">';
   if (plat === 'threads' && !p.connected) html += '<button type="button" id="scDSetToken">貼入短期 token</button>';
   if (plat === 'linkedin' && !p.connected) html += '<button type="button" id="scDAuthLink">產生授權連結</button>';
   html += '</div><div id="scDInlineArea"></div></div>';
@@ -3204,6 +3216,27 @@ function scRenderPlatBody(c, plat) {
     var expand = !box.classList.contains('expand');
     box.classList.toggle('expand', expand);
     toggleBtn.textContent = expand ? '收合' : '展開看全文';
+  });
+
+  var vcSave = $('scVcSave');
+  if (vcSave) vcSave.addEventListener('click', function () {
+    var v = $('scVcBody').value.trim();
+    if (!v) return toast('語氣卡不能空白', true);
+    vcSave.disabled = true;
+    api('/admin/social-consultants/' + p.id + '/voice-card', { method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ body: v }) }).then(function (d) {
+      vcSave.disabled = false;
+      if (!d.ok) return toast(d.error || '儲存失敗', true);
+      toast('✓ 語氣卡已更新，下一篇產稿就會照這份語氣'); scRefreshOneAndReopen(c.name, plat);
+    }).catch(function (e) { vcSave.disabled = false; toast(apiFail(e), true); });
+  });
+  var vcRegen = $('scVcRegen');
+  if (vcRegen) vcRegen.addEventListener('click', function () {
+    api('/admin/social-consultants/' + p.id + '/voice-card', { method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ regenerate: true }) }).then(function (d) {
+      if (!d.ok) return toast(d.error || '失敗', true);
+      toast('✓ 已清掉，系統幾分鐘內會從風格提示詞重新抽一份'); scRefreshOneAndReopen(c.name, plat);
+    }).catch(function (e) { toast(apiFail(e), true); });
   });
 
   var reimportBtn = $('scDReimport');
