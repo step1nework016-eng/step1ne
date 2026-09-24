@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  if (!e.target.closest) return;
+  // 2026-08-06：原本只抓 lin.ee。BIM 那群的下一步是「直接應徵」不是加 LINE，
+  // 不一起記的話，等於把那條路做出來卻量不到，實驗就白做了。
+  var a = e.target.closest('a[href*="lin.ee"], a[href^="/apply"]');
+  if (!a) return;
+  var isApply = (a.getAttribute('href') || '').indexOf('/apply') === 0;
+  gtag('event', isApply ? 'apply_click' : 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60),
+    // mid＝這次新加的文章中段；沒有標的就是原本頁首／頁尾那些
+    cta_slot: a.getAttribute('data-cta') || 'legacy'
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>中低階職位招募外包怎麼選？委託招募、派遣、自己招的費用與適合情境（2026）｜Step1ne</title>
+<meta name="description" content="行政、客服、門市、倉管、技術員這類中低階職位，量大、流動快，該自己招、用派遣，還是委託招募？本文比較三種做法的雇主身分、費用、速度與風險，用 2026 年費率試算，並列出挑選外包廠商要問的五個問題。">
+<meta name="keywords" content="招募外包,中低階職位招募,招募委外,委託招募費用,人力派遣,正職招募外包,基層人員招募">
+
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/articles/entry-level-recruitment-outsourcing/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Step1ne 德仁管理顧問">
+<meta property="og:title" content="中低階職位招募外包怎麼選？委託招募、派遣、自己招的費用與適合情境（2026）">
+<meta property="og:description" content="行政、客服、門市、倉管、技術員這類中低階職位，量大、流動快，該自己招、用派遣，還是委託招募？本文比較三種做法的雇主身分、費用、速度與風險，用 2026 年費率試算，並列出挑選外包廠商要問的五個問題。">
+<meta property="og:url" content="https://step1ne.com/articles/entry-level-recruitment-outsourcing/">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta name="theme-color" content="#F4F6F8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "中低階職位招募外包怎麼選？委託招募、派遣、自己招的費用與適合情境（2026）",
+  "description": "行政、客服、門市、倉管、技術員這類中低階職位，量大、流動快，該自己招、用派遣，還是委託招募？本文比較三種做法的雇主身分、費用、速度與風險，用 2026 年費率試算，並列出挑選外包廠商要問的五個問題。",
+  "datePublished": "2026-09-24",
+  "dateModified": "2026-09-24",
+  "inLanguage": "zh-TW",
+  "author": {
+    "@type": "Organization",
+    "name": "Step1ne 德仁管理顧問有限公司",
+    "url": "https://step1ne.com/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "德仁管理顧問有限公司（Step1ne）",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://step1ne.com/assets/step1ne-logo.png"
+    }
+  },
+  "mainEntityOfPage": "https://step1ne.com/articles/entry-level-recruitment-outsourcing/"
+}
+</script>
+
+<style>
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;
+  --wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:17px;line-height:1.95;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.35;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,select,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* 導覽 */
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+/* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
+
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
+.crumb{grid-column:1/-1;padding:22px 0 6px;font-size:13.5px;color:var(--slate-dim)}
+.crumb a{color:var(--slate)}
+.crumb a:hover{color:var(--brand-deep)}
+.crumb span{margin:0 8px;color:var(--rule)}
+
+/* 目錄軌：沿用全站 signature */
+.toc{position:sticky;top:92px;padding:8px 0 40px}
+.toc h2{font-size:13px;font-weight:700;color:var(--slate-dim);letter-spacing:.02em;margin-bottom:16px}
+.tns{position:relative;padding-left:22px}
+.tns::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.14))}
+.tn{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:14px;color:var(--slate);line-height:1.6;position:relative}
+.tn i{position:absolute;left:-22px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--rule);flex:0 0 auto}
+.tn:hover{color:var(--brand-deep)}
+.tn:hover i{border-color:var(--brand)}
+.tn.on{color:var(--ink);font-weight:700}
+.tn.on i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 4px rgba(46,169,223,.2)}
+.mtoc{display:none;margin:20px 0 0;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.mtoc summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15.5px;position:relative}
+.mtoc summary::-webkit-details-marker{display:none}
+.mtoc summary::after{content:"";position:absolute;right:20px;top:24px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.mtoc[open] summary::after{transform:rotate(-135deg)}
+.mtoc div{padding:0 18px 14px}
+.mtoc a{display:block;padding:9px 0;font-size:15px;color:var(--slate);border-top:1px solid var(--rule)}
+
+/* 文章本體 */
+article{padding:14px 0 60px;max-width:70ch}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--brand-deep);background:rgba(22,126,178,.07);border:1px solid rgba(22,126,178,.25);border-radius:5px;padding:4px 11px}
+article h1{margin-top:16px;font-size:clamp(28px,4.2vw,42px);line-height:1.28;letter-spacing:-.02em}
+.by{margin-top:18px;padding-bottom:20px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14px;color:var(--slate-dim)}
+.by a{color:var(--slate);border-bottom:1px solid var(--rule)}
+.by .d{font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+
+/* ★ Signature：直接答案 */
+.ans{margin-top:30px;background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:26px 30px}
+.ans .lab{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:10px}
+.ans p{font-size:19.5px;line-height:1.85;font-weight:500}
+.ans strong{font-weight:900}
+
+article h2{margin:52px 0 16px;font-size:25px;scroll-margin-top:92px}
+article h3{margin:34px 0 10px;font-size:19px}
+article h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-right:12px;border-radius:8px;background:var(--brand);color:#fff;font-family:var(--f-disp);font-size:17px;font-weight:700;vertical-align:2px}
+article p{margin-top:16px}
+article strong{font-weight:700}
+article a:not(.tn){color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.32)}
+article a:not(.tn):hover{border-bottom-color:var(--brand-deep)}
+article ul,article ol{margin:16px 0 0;padding-left:1.4em}
+article li{margin-top:9px}
+article table{width:100%;border-collapse:collapse;margin-top:22px;font-size:15.5px;background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+article th{text-align:left;background:var(--paper);font-weight:700;font-size:14px;color:var(--slate);padding:12px 14px;border-bottom:1px solid var(--rule)}
+article td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.75}
+article tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+article details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+article details summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+article details summary::-webkit-details-marker{display:none}
+article details summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+article details[open] summary::after{transform:rotate(-135deg)}
+article details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid var(--rule);color:var(--slate)}
+
+.foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
+.cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
+.cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
+footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+.fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.note{max-width:var(--wrap);margin:0 auto 46px;padding-inline:var(--gut)}
+.note div{background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid #B45309;border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.note b{color:#5A3D0C}
+
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .mtoc{display:block}
+}
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  body{font-size:16.5px}
+  .ans{padding:22px;border-radius:0 8px 8px 0}
+  .ans p{font-size:18px}
+  article h2{font-size:22px;margin-top:42px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+</head>
+
+<body>
+<div id="bar"></div>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/"><img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問"><b>Step1ne</b></a>
+    <nav class="hd-nav">
+      <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a class="on" href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
+    <button class="hd-burger" type="button" aria-label="開啟選單" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/">企業服務</a><a href="/jobs/">職缺專區</a><a href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINE 洽詢</a>
+  </div>
+</header>
+
+<main class="shell">
+  <nav class="crumb" aria-label="麵包屑"><a href="/">首頁</a><span>/</span><a href="/articles/">獵才專欄</a><span>/</span>中低階職位招募外包怎麼選？委託招募、派遣、自己招的費用與適合情境</nav>
+
+  <aside class="toc" aria-label="本文目錄">
+    <h2>本文共 8 個段落</h2>
+    <div class="tns"><a class="tn" href="#sec-1" data-s="sec-1"><i></i><span>中低階職位招募，難在哪裡？</span></a>
+<a class="tn" href="#sec-2" data-s="sec-2"><i></i><span>三種做法比較：自己招、委託招募、派遣</span></a>
+<a class="tn" href="#sec-3" data-s="sec-3"><i></i><span>費用怎麼比？用一個人試算</span></a>
+<a class="tn" href="#sec-4" data-s="sec-4"><i></i><span>什麼情況該把招募外包出去？</span></a>
+<a class="tn" href="#sec-5" data-s="sec-5"><i></i><span>挑外包廠商前，先問這五個問題</span></a>
+<a class="tn" href="#sec-6" data-s="sec-6"><i></i><span>外包也要遵守的法規</span></a>
+<a class="tn" href="#sec-7" data-s="sec-7"><i></i><span>常見問題</span></a>
+<a class="tn" href="#sec-8" data-s="sec-8"><i></i><span>不確定哪一種適合你？</span></a></div>
+  </aside>
+
+  <div>
+    <details class="mtoc"><summary>本文目錄（8 段）</summary><div><a href="#sec-1">中低階職位招募，難在哪裡？</a>
+<a href="#sec-2">三種做法比較：自己招、委託招募、派遣</a>
+<a href="#sec-3">費用怎麼比？用一個人試算</a>
+<a href="#sec-4">什麼情況該把招募外包出去？</a>
+<a href="#sec-5">挑外包廠商前，先問這五個問題</a>
+<a href="#sec-6">外包也要遵守的法規</a>
+<a href="#sec-7">常見問題</a>
+<a href="#sec-8">不確定哪一種適合你？</a></div></details>
+    <article>
+      <span class="tag">企業獵才指南・招募外包</span>
+      <h1>中低階職位招募外包怎麼選？委託招募、派遣、自己招的費用與適合情境</h1>
+      <div class="by">
+        <span>作者：<a href="/about/">Step1ne 獵才顧問團隊</a></span>
+        <time class="d" datetime="2026-09-24">發布於 2026-09-24</time>
+        <span class="d">約 7 分鐘</span>
+      </div>
+
+      <div class="ans">
+        <div class="lab">直接答案</div>
+        <p>中低階職位要不要外包，先看<strong>這個人要用多久</strong>：預計長期用的正職，適合<strong>委託招募</strong>（到職後付一次，平均約 1.5 個月薪起，沒到職不收）；短期、季節性或還不確定的，適合<strong>人力派遣</strong>（每月付薪資、法定成本和管理費）。HR 有時間、職缺也好招，就自己招最省。</p>
+      </div>
+
+      <div class="employer-cta" style="margin:24px 0;padding:22px 24px;border-radius:16px;background:linear-gradient(135deg,#0F5F87,#167EB2);color:#fff">
+        <div style="font-size:18px;font-weight:800;margin-bottom:6px">你是企業、正在找人？</div>
+        <div style="font-size:14.5px;opacity:.92;margin-bottom:15px;line-height:1.6">高階獵頭・正職招募・人力派遣，成功後收費、沒到職不收，收費透明。</div>
+        <a href="/commission-recruiting/" style="display:inline-block;background:#fff;color:#0F5F87;font-weight:700;padding:11px 20px;border-radius:10px;text-decoration:none;margin:0 8px 8px 0">看委託招募方案 →</a><a href="https://lin.ee/XcSWPzM" style="display:inline-block;background:#06C755;color:#fff;font-weight:700;padding:11px 20px;border-radius:10px;text-decoration:none">LINE 洽詢</a>
+      </div>
+
+    <h2 id="sec-1">中低階職位招募，難在哪裡？</h2>
+    <p>這裡指的是行政、客服、門市、倉管物流、生產線或技術員、工程助理、業務助理這類職務。它們的共同難處不是「沒人應徵」，而是：</p>
+<ul><li><strong>量大</strong>：常常同時要好幾個</li>
+<li><strong>流動快</strong>：補進來、走掉、再補，HR 一直在重複同一件事</li>
+<li><strong>應徵多、合格少</strong>：履歷很多，但能配合班別、地點、真的會來報到的不多</li>
+<li><strong>面試約不到、錄取不報到</strong>：基層職務的求職者常同時應徵很多家</li></ul>
+<p>所以外包的價值，主要是把「篩選、約面試、追報到」這段最花時間的工作交出去。</p>
+
+    <h2 id="sec-2">三種做法比較：自己招、委託招募、派遣</h2>
+    <div class="tbl-wrap"><table><thead><tr><th></th><th>自己招</th><th>委託招募（招募外包）</th><th>人力派遣</th></tr></thead><tbody><tr><td style="white-space:nowrap;font-weight:700">誰是雇主</td><td>你的公司</td><td>你的公司</td><td>派遣公司</td></tr><tr><td style="white-space:nowrap;font-weight:700">費用</td><td>廣告費＋HR 的時間</td><td>到職後付一次，平均約 1.5 個月薪起</td><td>每月：薪資＋法定成本（約 18%）＋管理費</td></tr><tr><td style="white-space:nowrap;font-weight:700">沒補到人</td><td>時間成本已經花了</td><td>原則上不收費</td><td>沒派人就沒費用</td></tr><tr><td style="white-space:nowrap;font-weight:700">人走了</td><td>重新招</td><td>保固期內免費替補（依合約）</td><td>派遣公司補人（依合約）</td></tr><tr><td style="white-space:nowrap;font-weight:700">最適合</td><td>HR 有時間、職缺好招</td><td>長期正職、一次多缺、HR 人力吃緊</td><td>短期專案、季節性、還不確定要不要長期用</td></tr></tbody></table></div>
+
+    <h2 id="sec-3">費用怎麼比？用一個人試算</h2>
+    <p>以月薪 35,000 元的一個職位為例（<strong>以下為試算</strong>，管理費以 20% 假設，實際依合約）：</p><div class="tbl-wrap"><table><thead><tr><th></th><th>委託招募</th><th>人力派遣</th></tr></thead><tbody><tr><td style="white-space:nowrap;font-weight:700">付費方式</td><td>到職後一次</td><td>每月</td></tr><tr><td style="white-space:nowrap;font-weight:700">金額</td><td>約 52,500 元</td><td>約 48,300 元／月</td></tr><tr><td style="white-space:nowrap;font-weight:700">跟自己聘比，多付的部分</td><td>這 52,500 元</td><td>管理費約 7,000 元／月</td></tr></tbody></table></div><p>重點在最後一列：不管自己聘還是派遣，薪資和法定成本本來就要付；派遣多出來的是每月管理費。</p>
+<p>52,500 ÷ 7,000 ≈ 7.5，也就是說：<strong>預計用超過 7～8 個月的職位，委託招募通常比派遣省</strong>；用不到半年的短期人力，派遣比較彈性、也不用處理離職。</p><div class="insight"><div class="label">顧問觀察</div><p>很多企業只比「委託費 vs 管理費」誰的數字大，但真正的成本是<strong>補錯人、補到又走</strong>。所以比價之外，一定要問清楚保固期和替補條件。</p></div>
+
+    <aside data-exp="cta-mid-2026-09-24">
+      <p>企業 HR 請看這裡</p>
+      <h3>不確定該委託還是派遣？一句話描述職缺就好</h3>
+      <p>告訴我們職稱、人數、薪資帶和打算用多久，顧問會直接說哪一種比較划算，也會說哪些職缺其實你自己招就夠了。</p>
+      <div><a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-entry-level-recruitment-outsourcing">加 LINE 跟顧問談</a></div>
+    </aside>
+
+    <h2 id="sec-4">什麼情況該把招募外包出去？</h2>
+    <ul>
+<li><strong>HR 只有一兩個人</strong>，還要處理薪資、勞健保、教育訓練</li>
+<li><strong>同時開很多職缺</strong>，每個都要自己篩、自己約</li>
+<li><strong>有明確的到職期限</strong>：新店開幕、產線開工</li>
+<li><strong>流動率高</strong>，希望有保固替補，不想每次從零開始</li></ul>
+<p>反過來說，職缺吸引力夠、一年只補幾個人、HR 也有時間，自己招就好，不需要外包。</p>
+
+    <h2 id="sec-5">挑外包廠商前，先問這五個問題</h2>
+    <ol>
+<li><strong>什麼時候開始收費？</strong>到職才收，還是簽約就先收一部分？</li>
+<li><strong>保固期多長？</strong>人選在保固期內離職，怎麼替補？</li>
+<li><strong>送人選之前，誰篩過？</strong>只是轉履歷，還是有人先電話或面談確認過？</li>
+<li><strong>多久送第一批人選？</strong></li>
+<li><strong>進度怎麼回報？</strong>多久更新一次，看得到每個人選卡在哪一關嗎？</li></ol>
+
+    <h2 id="sec-6">外包也要遵守的法規</h2>
+    <div class="law"><div class="label">法規重點</div><ul>
+<li><strong>薪資要揭露</strong>：經常性薪資未達新臺幣 4 萬元的職缺，應公開揭示或告知薪資範圍（就業服務法第 5 條第 2 項第 6 款）。中低階職位多數落在這個範圍</li>
+<li><strong>不能用年齡、性別等條件篩人</strong>：外包出去一樣要遵守（就業服務法第 5 條第 1 項）。要求寫成工作條件本身，例如「能配合輪班」「需要堆高機證照」</li>
+<li><strong>派遣人力不能事先面試指定</strong>：要派單位不得在派遣公司與派遣勞工簽約前面試或指定特定人選（勞動基準法第 17 條之 1）</li></ul></div>
+
+    <h2 id="sec-7">常見問題</h2>
+    <div>
+      <details>
+        <summary><span>委託招募和派遣最大的差別是什麼？</span><span class="faq-icon">+</span></summary>
+        <p>雇主不同。委託招募找到的人是你的正職員工；派遣員工的雇主是派遣公司，你是「要派單位」。費用上，委託招募到職後付一次，派遣是每月付。</p>
+      </details>
+      <details>
+        <summary><span>中低階職位也可以用獵頭嗎？</span><span class="faq-icon">+</span></summary>
+        <p>可以。現在很多獵頭與招募顧問公司都做正職委託招募，不只高階職位。中低階職位的收費通常以月薪為基礎計算。</p>
+      </details>
+      <details>
+        <summary><span>委託招募補到的人很快就離職怎麼辦？</span><span class="faq-icon">+</span></summary>
+        <p>委任前會約定保固期，保固期內離職通常提供免費替補，實際條件以合約為準。簽約前一定要問清楚。</p>
+      </details>
+      <details>
+        <summary><span>一次委託好幾個職缺，費用可以談嗎？</span><span class="faq-icon">+</span></summary>
+        <p>可以。職缺數量、職務難度和合作期間都會影響費率，洽談時把需求一次講清楚最好估。</p>
+      </details>
+    </div>
+
+    <div>
+      <h2 id="sec-8">不確定哪一種適合你？</h2>
+      <p>把職稱、人數、薪資帶和預計用多久告訴我們，顧問會幫你比較三種做法的成本，也會直接說哪一種不適合。</p>
+      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">加 LINE 與顧問談談</a>
+    </div>
+
+    <p>延伸閱讀：<a href="/commission-recruiting/">企業委託招募方案</a>　·　<a href="/articles/dispatch-cost-breakdown/">人力派遣費用怎麼算？</a>　·　<a href="/articles/dispatch-legal-risks/">人力派遣的法律風險</a>　·　<a href="/articles/mass-hiring-guide/">大量招募怎麼做？</a></p>
+
+<div class="cta">
+        <p>中低階職位一次要補好幾個？把職務和人數說一下，我們幫你算委託和派遣哪個划算。</p>
+          <a class="btn-alt" href="/hiring-assessment/">先做招募形式評估</a>
+        <a class="btn-line" href="https://lin.ee/XcSWPzM">用 LINE 問顧問</a>
+      </div>
+<div class="related-jobs-box" style="margin:26px 0;padding:18px 20px;border:1px solid #D9E0E6;border-radius:14px;background:#EAF4FA"><strong style="display:block;margin-bottom:9px;color:#0F5F87;font-size:15px">🔎 相關</strong><div style="display:flex;flex-wrap:wrap;gap:8px 14px;font-size:14.5px"><a href="/commission-recruiting/">企業委託招募方案</a>　·　<a href="/jobs/">看全部職缺</a></div></div>
+</article>
+  </div>
+</main>
+
+
+<footer><div class="fw">德仁管理顧問有限公司　臺北市內湖區康寧路三段 54 之 7 號 3 樓</div></footer>
+
+<script>
+// 表格加水平捲動外框，避免手機橫向溢位
+document.querySelectorAll('article table').forEach(function(t){
+  var w=document.createElement('div'); w.className='tw';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
+// 閱讀進度
+var bar=document.getElementById('bar');
+function prog(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',prog,{passive:true}); prog();
+// 目錄跟隨
+var tns=[].slice.call(document.querySelectorAll('.tn'));
+var secs=tns.map(function(a){return document.getElementById(a.dataset.s)}).filter(Boolean);
+if('IntersectionObserver' in window && secs.length){
+  var cur=null;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) cur=e.target.id; });
+    tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  },{rootMargin:'-88px 0px -70% 0px'}).observe && secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===e.target.id)}); }
+      });
+    },{rootMargin:'-88px 0px -70% 0px'}).observe(s);
+  });
+}
+</script>
+</body>
+</html>
