@@ -1192,6 +1192,7 @@ function markLabel(r) {
   if (isTopicRow(r)) {
     if (r.content_mission === 'trust_building') return { t: '🤖 AI阿財話題', ok: true };
     if (r.content_mission === 'engagement') return { t: '💼 時事話題文', ok: true };
+    if (r.content_mission === 'topic') return { t: '💬 話題文', ok: true };
     if (r.topic_category === 'ai') return { t: '🤖 AI阿財話題', ok: true };
     if (r.topic_category === 'general') return { t: '💼 時事話題文', ok: true };
     return { t: '未標記', ok: false };
@@ -1218,6 +1219,7 @@ function openMarkEditor(qid) {
   var inner = topic
     ? '<label>這篇話題是哪一種？</label>'
       + '<select id="mkMission">'
+      + '<option value="topic">💬 話題文</option>'
       + '<option value="general">💼 時事話題文</option>'
       + '<option value="ai">🤖 AI阿財話題</option></select>'
     : '<label>用哪一種寫法？</label>'
@@ -1255,7 +1257,7 @@ function openMarkEditor(qid) {
     var sync = function () { wrap.hidden = wsel.value !== 'dialog' && wsel.value !== 'pure'; if (!wrap.hidden) fill(); };
     wsel.addEventListener('change', sync); sync();
   } else if (r.content_mission) {
-    box.querySelector('#mkMission').value = r.content_mission === 'trust_building' ? 'ai' : 'general';
+    box.querySelector('#mkMission').value = { trust_building: 'ai', engagement: 'general', topic: 'topic' }[r.content_mission] || 'general';
   }
 
   var close = function () { box.remove(); };
@@ -1379,7 +1381,7 @@ var TH_FALLBACK_TITLE = {"backend-engineer-game": "後端開發工程師（.NET�
 // 已下架、被 301 合併掉的舊網址：貼文還指著它，顯示合併後那個職缺的名字並註明
 var TH_MERGED_TITLE = {"game-phone-cs-evening-zhonghe": "遊戲客服專員（電話／文字客服）", "mobile-game-cs-neihu-mid": "遊戲客服", "mobile-game-cs-neihu-morning": "遊戲客服", "pending-co_802bdd6b-3b807a75": "資深職業安全衛生工程師", "pending-co_802bdd6b-dd0123c6": "資深工程設計工程師"};
 var TH = { cur: '全部', mode: 'all', val: '' };
-var TH_KC = {'📋 職缺文':'th-j','💼 時事話題文':'th-g','🤖 AI阿財話題':'th-a','話題文（未分類）':'th-x'};
+var TH_KC = {'📋 職缺文':'th-j','💼 時事話題文':'th-g','🤖 AI阿財話題':'th-a','💬 話題文':'th-g','話題文（未分類）':'th-x'};
 var TH_WC = {'原始格式':'th-o','純CTA型':'th-p','對話討論型':'th-d'};
 
 function thEsc(x){return String(x==null?'':x).replace(/[&<>"]/g,function(c){
@@ -1395,6 +1397,7 @@ function thKind(r){
   if(!isTopic) return '📋 職缺文';
   if(r.topic_category==='ai'||r.content_mission==='trust_building') return '🤖 AI阿財話題';
   if(r.topic_category==='general'||r.content_mission==='engagement') return '💼 時事話題文';
+  if(r.content_mission==='topic') return '💬 話題文';
   return '話題文（未分類）';
 }
 function thWay(r){
@@ -1865,7 +1868,7 @@ $('tobssubtabs').addEventListener('click', function (e) {
   });
 });
 
-var MISSION_LB = { trust_building: '信任建立', engagement: '互動' };
+var MISSION_LB = { trust_building: '信任建立', engagement: '互動', topic: '話題文' };
 var LENGTH_LB = { short: '短文', medium: '中長文', long: '長文' };
 var FORMULA_LB = { dialog: '對話討論型', pure: '純CTA型', default: '原始格式' };
 
@@ -2011,6 +2014,7 @@ function postType(r) {
   if (!r.topic_id) return '職缺文・' + (r.content_formula ? (FORMULA_LB[r.content_formula] || r.content_formula) : '未選公式');
   if (r.content_mission === 'trust_building') return 'AI阿財話題';
   if (r.content_mission === 'engagement') return '時事話題文';
+  if (r.content_mission === 'topic') return '話題文';
   return '話題文・未分類';
 }
 function paintConvertFlow() {
