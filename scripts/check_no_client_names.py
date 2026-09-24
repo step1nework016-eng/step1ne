@@ -167,8 +167,11 @@ def scan(names, verbose=False):
             for n in names:
                 if n not in text:
                     continue
+                # 純英文簡稱要整個字比對：2026-09-24「MIC」被「SEMICON」誤判，
+                # 擋掉了一次正常部署。中文名照舊用子字串比對（中文沒有字的邊界）。
+                pat = re.compile(r'(?<![A-Za-z])' + re.escape(n) + r'(?![A-Za-z])') if n.isascii() else None
                 for i, line in enumerate(text.split('\n'), 1):
-                    if n in line:
+                    if (pat.search(line) if pat else n in line):
                         hits.append((rel, i, n, line.strip()[:120]))
                         if not verbose:
                             break

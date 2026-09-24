@@ -883,7 +883,7 @@ $('typeseg').addEventListener('click', function (e) {
   var t = b.dataset.type;
   var isJob = t === 'job';
   $('jobsubwrap').hidden = !isJob;
-  $('dialogpick').hidden = !(isJob && currentJobSub() === 'dialog');
+  $('dialogpick').hidden = !(isJob && (currentJobSub() === 'dialog' || currentJobSub() === 'pure'));
   $('jobpick').hidden = !isJob;
   $('topicpick').hidden = isJob;
   if (!isJob) {
@@ -897,8 +897,10 @@ $('typeseg').addEventListener('click', function (e) {
 $('jobsubseg').addEventListener('click', function (e) {
   var b = e.target.closest('button'); if (!b) return;
   [].forEach.call($('jobsubseg').children, function (x) { x.classList.toggle('on', x === b); });
-  var isDialog = b.dataset.sub === 'dialog';
-  $('dialogpick').hidden = !isDialog;
+  // 2026-09-24 起純CTA型底下也有多個公式可選，跟對話討論型共用同一塊選單
+  var hasPick = b.dataset.sub === 'dialog' || b.dataset.sub === 'pure';
+  $('dialogpick').hidden = !hasPick;
+  if (hasPick) refreshDialogStyles();
   updateGoState();
 });
 
@@ -908,10 +910,12 @@ function refreshDialogStyles() {
   wrap.innerHTML = '載入中…';
   (POST_STYLES_CACHE ? Promise.resolve({ ok: true, styles: POST_STYLES_CACHE }) : api('/admin/style-prompts')).then(function (d) {
     POST_STYLES_CACHE = d.styles || [];
-    var list = POST_STYLES_CACHE.filter(function (s) { return s.subtype === 'dialog'; });
+    var sub = currentJobSub() === 'pure' ? 'pure' : 'dialog';
+    var list = POST_STYLES_CACHE.filter(function (s) { return s.subtype === sub; })
+      .sort(function (a, b) { return a.id - b.id; });
     wrap.innerHTML = list.length ? list.map(function (s) {
       return '<div class="aitopicrow" data-id="' + s.id + '">' + esc(s.name) + '</div>';
-    }).join('') : '<div class="mut">目前還沒有對話討論型的提示詞</div>';
+    }).join('') : '<div class="mut">目前還沒有' + (sub === 'pure' ? '純CTA型' : '對話討論型') + '的公式</div>';
     [].forEach.call(wrap.querySelectorAll('.aitopicrow'), function (row) {
       row.addEventListener('click', function () {
         [].forEach.call(wrap.querySelectorAll('.aitopicrow'), function (r) { r.classList.remove('sel'); });
@@ -955,7 +959,7 @@ function updateGoState() {
   var contentOk;
   if (type === 'job') {
     var sub = currentJobSub();
-    contentOk = !!$('job').value && (sub !== 'dialog' || !!selectedDialogStyle);
+    contentOk = !!$('job').value && ((sub !== 'dialog' && sub !== 'pure') || !!selectedDialogStyle);
   } else {
     contentOk = !!$('topicsel').value;
   }
@@ -1081,11 +1085,8 @@ $('go').addEventListener('click', function () {
   if (type === 'job') {
     payload = { slug: $('job').value, account_id: Number($('account').value) };
     var sub = currentJobSub();
-    if (sub === 'dialog' && selectedDialogStyle) {
+    if ((sub === 'dialog' || sub === 'pure') && selectedDialogStyle) {
       payload.style_id = selectedDialogStyle;
-    } else if (sub === 'pure') {
-      var pureStyle = (POST_STYLES_CACHE || []).filter(function (s) { return s.subtype === 'pure'; })[0];
-      if (pureStyle) payload.style_id = pureStyle.id;
     }
   } else {
     payload = { topic_id: Number($('topicsel').value), account_id: Number($('account').value) };
@@ -1229,7 +1230,7 @@ function openMarkEditor(qid) {
   box.innerHTML = '<div class="markbox"><h4>' + (r.title || r.slug) + '</h4>'
     + '<p class="mut" style="font-size:12.5px;margin:0 0 12px">'
     + (topic ? '話題文只分通用文／AI阿財話題，沒有寫法公式。'
-             : '純CTA型與原始格式沒有下一層公式，只有對話討論型要再挑一個。') + '</p>'
+             : '原始格式沒有下一層公式；純CTA型與對話討論型要再挑一個。') + '</p>'
     + inner
     + '<div class="markbtns"><button type="button" id="mkCancel" class="ghost">取消</button>'
     + '<button type="button" id="mkSave">儲存</button></div></div>';
@@ -1242,7 +1243,7 @@ function openMarkEditor(qid) {
       (POST_STYLES_CACHE ? Promise.resolve({ styles: POST_STYLES_CACHE }) : api('/admin/style-prompts'))
         .then(function (d) {
           POST_STYLES_CACHE = d.styles || POST_STYLES_CACHE || [];
-          sel.innerHTML = POST_STYLES_CACHE.filter(function (x) { return x.subtype === 'dialog'; })
+          sel.innerHTML = POST_STYLES_CACHE.filter(function (x) { return x.subtype === wsel.value; })
             .map(function (x) { return '<option value="' + x.id + '">' + x.name + '</option>'; }).join('');
           if (r.style_id) sel.value = r.style_id;
         }).catch(function (e) { toast('讀不到公式清單', true); });
@@ -1251,7 +1252,7 @@ function openMarkEditor(qid) {
     var wsel = box.querySelector('#mkWay');
     wsel.value = r.style_subtype === 'dialog' ? 'dialog'
       : (r.style_subtype === 'pure' || r.content_formula === 'pure') ? 'pure' : 'default';
-    var sync = function () { wrap.hidden = wsel.value !== 'dialog'; if (!wrap.hidden) fill(); };
+    var sync = function () { wrap.hidden = wsel.value !== 'dialog' && wsel.value !== 'pure'; if (!wrap.hidden) fill(); };
     wsel.addEventListener('change', sync); sync();
   } else if (r.content_mission) {
     box.querySelector('#mkMission').value = r.content_mission === 'trust_building' ? 'ai' : 'general';
@@ -1266,7 +1267,7 @@ function openMarkEditor(qid) {
     if (topic) payload.mission = box.querySelector('#mkMission').value;
     else {
       payload.way = box.querySelector('#mkWay').value;
-      if (payload.way === 'dialog') payload.style_id = Number(box.querySelector('#mkStyle').value);
+      if (payload.way === 'dialog' || payload.way === 'pure') payload.style_id = Number(box.querySelector('#mkStyle').value);
     }
     api('/admin/social-post-meta', {
       method: 'POST', headers: { 'content-type': 'application/json' },
