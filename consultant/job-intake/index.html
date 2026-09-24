@@ -93,6 +93,8 @@ button.go:disabled{opacity:.5;cursor:default;}
     <div class="card">
       <h2><span class="n">1</span>職缺資料</h2>
 
+      <label for="title">職缺名稱 <span class="req">＊</span></label>
+      <input id="title" type="text" maxlength="80" placeholder="例：建築專案助理（常駐白馬）">
       <label for="raw">文字敘述</label>
       <textarea id="raw" placeholder="客戶用 LINE 給的、電話裡記的、Email 貼過來的都可以，原文丟進來就好，不用整理。"></textarea>
       <p class="hint">不用先整理格式。原文越完整越好——整理是總指揮的事。</p>
@@ -249,12 +251,14 @@ $('go').onclick = async function () {
     client_relation: $('cr').value,
     client_name: $('cname').value.trim(),
     client_code: $('ccode').value.trim(),
+    title: $('title').value.trim(),
     raw_text: $('raw').value.trim(),
     source_url: $('url').value.trim(),
     note: $('note').value.trim(),
     submitted_by: $('by').value.trim(),
     files: picked,
   };
+  if (!body.title) return show('請填職缺名稱。');
   if (!body.service_line) return show('請選服務線。');
   if (!body.client_relation) return show('請選客戶對象。這一項決定客戶會不會被公開，不能空著。');
   if (!body.raw_text && !body.source_url && !picked.length) {
