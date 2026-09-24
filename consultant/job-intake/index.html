@@ -101,7 +101,7 @@ button.go:disabled{opacity:.5;cursor:default;}
       <input id="url" type="url" inputmode="url" placeholder="https://（104／1111／客戶官網／Google 文件）">
 
       <label for="files">PDF 或圖片</label>
-      <input id="files" type="file" multiple accept=".pdf,image/*">
+      <input id="files" type="file" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.md,.txt,image/*">
       <p class="hint">可多選。單檔上限 8MB，超過的請改貼雲端連結。</p>
       <ul id="flist" class="files"></ul>
     </div>
@@ -232,7 +232,7 @@ $('files').onchange = async function () {
     }
     picked.push({
       name: f.name, mime: f.type || 'application/octet-stream',
-      kind: /pdf$/i.test(f.type) ? 'pdf' : (/^image\//.test(f.type) ? 'image' : 'other'),
+      kind: /\.pdf$/i.test(f.name) ? 'pdf' : (/^image\//.test(f.type) ? 'image' : (/\.(docx?|xlsx?|csv|md|txt)$/i.test(f.name) ? 'document' : 'other')),
       b64: await readB64(f),
     });
   }
