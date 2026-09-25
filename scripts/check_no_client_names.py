@@ -56,7 +56,26 @@ ALLOWED = (
 
 # 公司名常見後綴，去掉之後就是大家實際在講的簡稱（弘昌管理顧問有限公司 → 弘昌）
 SUFFIXES = ('股份有限公司', '有限公司', '管理顧問', '科技', '集團', '公司',
-            '企業社', '工程行', '事業處')
+            '企業社', '工程行', '事業處', '株式會社', '有限會社', '國際開發')
+
+# ⚠️ 2026-09-25 Jacky 抓到的洞：客戶清單登記的是「築樂國際開發」，職缺頁寫的卻是
+#    日文漢字「築楽国際開発株式会社」——字面不同，逐字比對就漏掉了，直接上線外洩。
+#    比對前一律把日文新字體／簡體字轉成繁體再比，名單和頁面兩邊都轉。
+VARIANTS = str.maketrans({
+    '楽': '樂', '国': '國', '発': '發', '会': '會', '営': '營', '売': '賣', '総': '總',
+    '産': '產', '学': '學', '広': '廣', '栄': '榮', '関': '關', '区': '區', '実': '實',
+    '鉄': '鐵', '気': '氣', '経': '經', '済': '濟', '証': '證', '薬': '藥', '医': '醫',
+    '団': '團', '図': '圖', '豊': '豐', '沢': '澤', '浜': '濱', '辺': '邊', '県': '縣',
+    '乐': '樂', '发': '發', '际': '際', '开': '開', '业': '業', '产': '產', '团': '團',
+    '华': '華', '电': '電', '东': '東', '贸': '貿', '汇': '匯', '银': '銀', '药': '藥',
+    '阳': '陽', '达': '達', '时': '時', '创': '創', '兴': '興', '机': '機', '车': '車',
+    '龙': '龍', '丰': '豐', '宝': '寶', '联': '聯', '万': '萬', '门': '門', '网': '網',
+    '传': '傳', '讯': '訊', '软': '軟', '设': '設', '计': '計', '筑': '築', '远': '遠',
+})
+
+
+def norm(t):
+    return (t or '').translate(VARIANTS)
 
 
 def _cf_creds():
@@ -103,7 +122,12 @@ def d1(sql):
 def client_names():
     """所有要擋的字串：全名、別名、以及自動推出來的簡稱。"""
     names = set()
-    for row in d1('SELECT display_name, aliases FROM client_companies'):
+    rows = d1('SELECT display_name, aliases FROM client_companies')
+    # jobs.client_name 也要收：有些職缺的業主寫在這裡（例如日本法人的日文名），
+    # 不一定登記在 client_companies。
+    rows += [{'display_name': r.get('client_name'), 'aliases': ''}
+             for r in d1("SELECT DISTINCT client_name FROM jobs WHERE COALESCE(client_name,'')!=''")]
+    for row in rows:
         raw = [row.get('display_name') or '']
         al = row.get('aliases') or ''
         if al.strip().startswith('['):
@@ -114,7 +138,7 @@ def client_names():
         else:
             raw += re.split(r'[\n,、;；]', al)
         for n in raw:
-            n = (n or '').strip()
+            n = norm((n or '').strip())
             if len(n) < 2:
                 continue
             names.add(n)
@@ -144,7 +168,7 @@ def client_names():
 #    充滿假的，真的那筆就會被忽略，等於沒有這道檢查。
 COMPANY_PAT = re.compile(
     r'[\u4e00-\u9fffA-Za-z0-9．\.]{2,12}'
-    r'(?:股份有限公司|有限公司|企業社|工程行|實業社)')
+    r'(?:股份有限公司|有限公司|企業社|工程行|實業社|株式會社|有限會社)')
 
 # 這些是自己人或通用詞，不算
 PAT_ALLOWED = ('德仁管理顧問有限公司', '私人招待所')
@@ -163,7 +187,7 @@ def scan_company_pattern(verbose=False):
                 text = open(os.path.join(root, fn), encoding='utf-8').read()
             except Exception:
                 continue
-            for i, line in enumerate(text.split('\n'), 1):
+            for i, line in enumerate(norm(text).split('\n'), 1):
                 for mt in COMPANY_PAT.finditer(line):
                     name = mt.group(0)
                     if any(a in name for a in PAT_ALLOWED):
@@ -184,7 +208,7 @@ def scan(names, verbose=False):
             path = os.path.join(root, fn)
             rel = os.path.relpath(path, HERE)
             try:
-                text = open(path, encoding='utf-8').read()
+                text = norm(open(path, encoding='utf-8').read())
             except Exception:
                 continue
             for n in names:
