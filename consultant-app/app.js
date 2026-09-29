@@ -1193,6 +1193,26 @@ function wireCallGuide() {
   root.querySelectorAll('input[name="cg-type"]').forEach((r) => r.addEventListener('change', () => {
     root.querySelectorAll('[data-when]').forEach((el) => { el.hidden = el.dataset.when !== r.value; });
   }));
+  // 新手／高手打法切換（兩者共用過總機、拒絕、收尾；功課、開場、問需求各有一版）
+  root.querySelectorAll('[data-cg-mode]').forEach((b) => b.addEventListener('click', () => {
+    const m = b.dataset.cgMode;
+    root.querySelectorAll('[data-cg-mode]').forEach((x) => { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', String(x === b)); });
+    root.querySelectorAll('[data-mode]').forEach((el) => { el.hidden = el.dataset.mode !== m; });
+  }));
+  // 高手打法：選哪個理由就顯示哪一段開場，填的字即時帶進開場白
+  const syncPro = () => {
+    const a = root.querySelector('input[name="cg-angle"]:checked')?.value || 'trigger';
+    root.querySelectorAll('[data-cg-pro]').forEach((el) => { el.hidden = el.dataset.cgPro !== a; });
+  };
+  root.querySelectorAll('input[name="cg-angle"]').forEach((r) => r.addEventListener('change', syncPro));
+  root.querySelectorAll('[data-cg-fill]').forEach((inp) => inp.addEventListener('input', () => {
+    const k = inp.dataset.cgFill;
+    root.querySelectorAll(`.cg-fill[data-fill="${k}"]`).forEach((el) => { el.textContent = inp.value.trim() || el.dataset.ph || el.textContent; });
+    const radio = inp.closest('.cg-angle')?.querySelector('input[type=radio]');
+    if (radio && inp.value.trim()) { radio.checked = true; syncPro(); }
+  }));
+  root.querySelectorAll('.cg-fill').forEach((el) => { el.dataset.ph = el.textContent; });
+  syncPro();
   let result = '';
   const form = root.querySelector('.cg-form');
   root.querySelectorAll('[data-cg-result]').forEach((b) => b.addEventListener('click', () => {

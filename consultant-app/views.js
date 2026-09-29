@@ -1888,22 +1888,49 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
     const say = (t, when) => `<p class="cg-say"${when ? ` data-when="${when}"` : ''}${when === 'small' ? ' hidden' : ''}>${text(t)}</p>`;
     const guidePane = g ? `<div class="cg" data-bd-id="${escapeHtml(callRow ? callRow.id : '')}">
       ${lastCall ? `<div class="notice" style="margin:0 0 10px">上次電訪：${text(RES_ZH[lastCall.call_result] || lastCall.call_result)}${lastCall.call_retry_at ? `，建議 ${text(String(lastCall.call_retry_at).slice(5, 10))} 再打` : ''}${lastCall.call_note ? `（${text(lastCall.call_note)}）` : ''}</div>` : ''}
+      <div class="cg-mode" role="group" aria-label="打法">
+        <button type="button" class="cg-mode-btn on" data-cg-mode="rookie" aria-pressed="true">新手打法<small>用 104 職缺開口</small></button>
+        <button type="button" class="cg-mode-btn" data-cg-mode="pro" aria-pressed="false">高手打法<small>抓時機／帶人選／帶市場情報</small></button>
+      </div>
+      <p class="help cg-mode-tip">兩種可以隨時切換：新手打法被說「沒在徵人」→ 切高手打法換個理由；高手打法對方問「你們在找哪個缺」→ 切新手打法講 104 的缺。</p>
       <div class="cg-dots">${['功課', '過總機', '開場', '問需求', '拒絕時', '收尾'].map((t, i) => `<button type="button" class="cg-dot${i ? '' : ' on'}" data-cg-go="${i}">${i}. ${t}</button>`).join('')}</div>
-      ${step(0, '打之前 30 秒功課', `
+      ${step(0, '打之前 30 秒功課', `<div data-mode="rookie">
         <div class="cg-row"><b>要推的職缺</b><span>${g.job_title ? text(g.job_title) : g.unverified_job ? `<span class="pc-status bad">未查證</span> 原始紀錄寫「${text(g.unverified_job)}」，<b>不一定還在徵</b>` : '（沒有記錄職缺）'}${g.job_url ? ` <a href="${escapeHtml(g.job_url)}" target="_blank" rel="noopener">職缺頁 ↗</a>` : ''}</span></div>
         <div class="cg-row"><b>104 查證</b><span>${checked ? `✅ ${text(String(g.job_checked_at).slice(5, 10))} 查過：${text(g.job_check_note || '')}` : '⚠️ 14 天內沒查過——先上 104 確認這個缺還開著，再打'}</span></div>
         <div class="cg-row"><b>內部備註</b><span>${text(g.why)}<small class="cg-internal">只給你看，不要照唸（客戶面前只說「看到貴公司在徵＿＿」，不提在哪裡看到）</small></span></div>
         <div class="cg-row"><b>這家有人資嗎？</b><span class="cg-type"><label><input type="radio" name="cg-type" value="hr" checked> 有（找人資）</label><label><input type="radio" name="cg-type" value="small"> 沒有／小公司（找老闆或負責面試的人）</label></span></div>
-        <p class="help">手上如果有對得上的人選（見「人選敲門卡」），開場可以帶一句，成功率會高很多。</p>`)}
+        <p class="help">手上如果有對得上的人選（見「人選敲門卡」），開場可以帶一句，成功率會高很多。</p></div>
+        <div data-mode="pro" hidden>
+          <p class="help" style="margin-top:0">高手打法要「有理由才打」。三個理由挑一個，填一句話，下一步的開場白會自動帶進去：</p>
+          <label class="cg-angle"><input type="radio" name="cg-angle" value="trigger" checked> <b>抓時機</b>：這家最近發生什麼事？（擴廠、得標、新廠動工、募資、換主管、併購）
+            <input class="cg-in" data-cg-fill="trigger" placeholder="例：南科新廠動工、剛得標台積電 A14 機電包"></label>
+          <label class="cg-angle"><input type="radio" name="cg-angle" value="candidate"> <b>帶人選</b>：手上哪一位人選對得上？（一句話背景，不寫名字）
+            <input class="cg-in" data-cg-fill="candidate" placeholder="例：做過 10 年營造現場、有甲種職安證照"></label>
+          <label class="cg-angle"><input type="radio" name="cg-angle" value="intel"> <b>帶市場情報</b>：最近面談這類人看到的現況？
+            <input class="cg-in" data-cg-fill="intel" placeholder="例：南部職安工程師多數期望月薪 6 萬以上、很在意住宿"></label>
+          <div class="cg-row"><b>這家產業常補</b><span>${text(g.industry_roles || '（沒有產業資料，自己判斷）')}</span></div>
+          <div class="cg-row"><b>這家有人資嗎？</b><span>用上面新手打法那格的選擇（兩種打法共用）</span></div>
+          <p class="help">三個都填不出來 → 先用新手打法。目標不是今天成交，是留下窗口＋下次聯絡的理由。</p>
+        </div>`)}
       ${step(1, '過總機（只講兩句，不要推銷）', `${say(g.gate_hr, 'hr')}${say(g.gate_small, 'small')}${say(g.gate_fallback)}
         <p class="help">報全名、講短、請對方「指點該找誰」。總機說「我幫你轉達」→ 直接問姓名＋分機或信箱。</p>`)}
-      ${step(2, '開場 20 秒', `${g.opener_industry_hr && !g.job_title
+      ${step(2, '開場 20 秒', `<div data-mode="pro" hidden>
+          <p class="cg-say" data-cg-pro="trigger">您好，我是 Step1ne 德仁管理顧問的○○。我打來的原因是看到貴公司<b class="cg-fill" data-fill="trigger">（最近的消息）</b>，先恭喜！這種時候通常${text(g.industry_roles ? g.industry_roles + '這類人' : '好幾個位置')}會一次缺好幾個，想請教一下，這波人力大概怎麼規劃？</p>
+          <p class="cg-say" data-cg-pro="candidate" hidden>您好，我是 Step1ne 德仁管理顧問的○○。我打來的原因是，我手上剛好有一位<b class="cg-fill" data-fill="candidate">（人選背景）</b>的人選，覺得跟貴公司的方向滿對得上，想說先跟您提一下，您看要不要先了解一下他的背景？</p>
+          <p class="cg-say" data-cg-pro="intel" hidden>您好，我是 Step1ne 德仁管理顧問的○○。我們最近面談了好幾位${text(g.industry_roles ? g.industry_roles.split('、')[0] : '這個領域')}背景的人，發現<b class="cg-fill" data-fill="intel">（市場現況）</b>。想說貴公司這類人應該也常在找，先跟您分享一下，也想聽聽您這邊的狀況。</p>
+          <p class="help">重點：先給對方一個「為什麼現在打給你」的理由，再自我介紹（Gong：先講背景的開場成功率最高）。不要問「現在方便嗎」。</p>
+        </div><div data-mode="rookie">${g.opener_industry_hr && !g.job_title
           ? `<p class="help" style="margin:0 0 8px">104 上沒看到確定的職缺 → 用<b>產業切入</b>（${text(g.industry_short || '')}）</p>${say(g.opener_industry_hr, 'hr')}${say(g.opener_industry_small, 'small')}`
           : `${say(g.opener_hr, 'hr')}${say(g.opener_small, 'small')}<p class="cg-say cg-opt">${text(g.candidate_hook)}</p>
              ${g.opener_industry_hr ? `<details class="cg-obj"><summary>對方說「那個缺已經沒在找了」→ 改用產業切入</summary>${say(g.opener_industry_hr, 'hr')}${say(g.opener_industry_small, 'small')}</details>` : ''}`}
-        <p class="help">一定要講到「我打來的原因是…」。對方說「現在不方便」→「那我什麼時間再打給您比較好？」</p>`)}
-      ${step(3, '問需求（3 題）', g.questions.map((x, i) => `<div class="cg-q"><b>${i + 1}. ${text(x.q)}</b><small>${text(x.tip)}</small></div>`).join(''))}
-      ${step(4, '對方拒絕時', g.objections.map((o) => `<details class="cg-obj"><summary>「${text(o.q)}」</summary><p class="cg-say">${text(o.a)}</p></details>`).join('') + '<p class="help">不要反駁，先問一句、再退一步；最後都要留下姓名＋信箱。</p>')}
+        <p class="help">一定要講到「我打來的原因是…」。對方說「現在不方便」→「那我什麼時間再打給您比較好？」</p></div>`)}
+      ${step(3, '問需求（3 題）', `<div data-mode="rookie">${g.questions.map((x, i) => `<div class="cg-q"><b>${i + 1}. ${text(x.q)}</b><small>${text(x.tip)}</small></div>`).join('')}</div>
+        <div data-mode="pro" hidden>${[
+          ['接下來半年到一年，人力上最擔心哪幾個位置？', '問的是「規劃」，不是「現在有沒有缺」——高手在需求出現之前就先卡位'],
+          ['這類位置以往都怎麼補？補一個大概要多久？', '聽到「很久」「一直換人」→ 這就是我們的切入點'],
+          ['如果之後遇到很適合的人，我先跟您說，還是有其他負責的主管？', '拿到「下次聯絡的理由」跟「對的人」，比今天談成更重要'],
+        ].map(([q, tip], i) => `<div class="cg-q"><b>${i + 1}. ${q}</b><small>${tip}</small></div>`).join('')}</div>`)}
+      ${step(4, '對方拒絕時', g.objections.map((o) => `<details class="cg-obj"><summary>「${text(o.q)}」</summary><p class="cg-say">${text(o.a)}</p></details>`).join('') + '<p class="help">不要反駁，先問一句、再退一步；最後都要留下姓名＋信箱。</p><p class="help">新手打法被說「沒在徵人」→ 按上面「高手打法」，換成聊人力規劃或分享市場情報。</p>')}
       ${step(5, '收尾＋點結果', `${g.close.map((c) => `<p class="cg-say">${text(c)}</p>`).join('')}
         <h4 style="margin:14px 0 6px">這通電話結果</h4>
         <div class="cg-results">${[['no_answer', '沒接'], ['gatekeeper', '被總機擋'], ['got_contact', '問到窗口'], ['got_email', '拿到信箱'], ['interested', '有興趣'], ['not_hiring', '沒在徵人'], ['not_interested', '拒絕']].map(([k, lb]) => `<button type="button" class="btn" data-cg-result="${k}">${lb}</button>`).join('')}</div>
