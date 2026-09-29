@@ -1332,7 +1332,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
       const f = accIds.map((id) => fol[id]).find(Boolean);
       const jRows = accIds.map((id) => jn[id]).filter(Boolean);
       const adds = jRows.length ? jRows.reduce((a, j) => a + T.n(j.joins), 0) : rows.reduce((a, r) => a + T.n(r.line_adds), 0);
-      return `<tr class="tp-trow" data-who="${escapeHtml(name)}" tabindex="0"><td><b>${text(name)}</b></td>
+      return `<tr class="tp-trow" data-who="${escapeHtml(name)}" tabindex="0" aria-expanded="false"><td><span class="tp-caret" aria-hidden="true">▸</span><b>${text(name)}</b></td>
         <td class="num">${f ? T.fmt(f.followers) : '—'}</td><td class="num">${rows.length}</td>
         <td class="num">${T.fmt(T.avg(rows, 'views'))}<small>中 ${T.fmt(T.med(rows, 'views'))}</small></td>
         <td class="num">${T.fmt(T.avg(rows, 'likes'), 1)}</td><td class="num">${T.fmt(T.avg(rows, 'replies'), 1)}</td>
@@ -1350,7 +1350,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
         <div data-tp-view="table"${mode === 'table' ? '' : ' hidden'}><div class="table-wrap"><table class="spec tp-sum">
           <tr><th>顧問</th><th class="num">追蹤</th><th class="num">總篇數</th><th class="num">平均瀏覽</th><th class="num">平均讚</th><th class="num">平均留言</th><th class="num">平均點擊</th><th class="num">加入 LINE</th></tr>
           ${people.map(trow).join('')}</table></div>
-          <div id="tp-table-detail"></div></div></article>
+          </div></article>
 
       <article class="card" style="margin-top:12px"><div class="card-head"><h2 style="margin:0;font-size:16px">② 哪個時段 × 哪個公式比較好</h2></div>
         <div class="tp-controls">

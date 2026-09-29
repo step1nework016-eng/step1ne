@@ -462,3 +462,12 @@ details.note-details p{margin:8px 0 0;font-size:13.5px;white-space:pre-wrap;colo
 .tp-fig figcaption{font-weight:700;font-size:13.5px;margin-bottom:8px}
 .tp-cv{position:relative;height:300px}
 @media (max-width:760px){.tp-charts{grid-template-columns:1fr}.tp-cv{height:260px}}
+
+.tp-caret{display:inline-block;width:14px;color:var(--muted);transition:transform .15s}
+.tp-trow.on .tp-caret{transform:rotate(90deg)}
+.tp-trow-detail>td{background:#f7f9fc;padding:4px 0 10px}
+.tp-trow-detail .tp-table{margin:6px 12px;width:calc(100% - 24px)}
+@media (prefers-reduced-motion:reduce){.tp-caret{transition:none}}
+
+.tp-table td{white-space:normal;overflow:visible;text-overflow:clip;max-width:none}
+.tp-table td:nth-child(2){min-width:160px}
