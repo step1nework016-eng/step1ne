@@ -1632,7 +1632,20 @@ function stageDetailHtml(key, application, forwards, report, applicationId) {
     // 使用者要求：點這一格要看得到「推薦哪一客戶哪一個職缺」，不是只講一句
     // 「還沒推薦給任何客戶」——列出每一筆真實推薦紀錄，並且能直接在這裡送出
     // 新的推薦（跟「操作」列表那顆按鈕共用同一支 action，客戶下拉選單也一起帶著走）。
-    const listHtml = forwards.length ? forwards.map((f) => `<div class="list-row"><span><b>${text(f.company_name)}</b><small>${text(f.job_title || f.job_slug)}${f.stage_label ? ' · ' + text(f.stage_label) : ''}</small></span></div>`).join('') : '<p class="help" style="margin:0">還沒推薦給任何客戶</p>';
+    // 2026-09-29 Jacky：推薦履歷要在這裡就能上傳——顧問推薦完第一眼看的是這一格，
+    // 原本只放在下面「推薦客戶進度」，他找不到。兩處共用同一支 action。
+    const cfrStatus = (cfr) => !cfr ? '<span class="badge warning">推薦履歷還沒上傳</span>'
+      : cfr.pdf_pending ? '<span class="badge">推薦履歷 AI 產生中</span>'
+      : cfr.consultant_confirmed_at ? `<span class="badge success">推薦履歷：客戶看得到（${text(String(cfr.consultant_confirmed_at).slice(5, 16))}）</span>`
+      : '<span class="badge warning">只有 AI 草稿，客戶還看不到</span>';
+    const listHtml = forwards.length ? forwards.map((f) => {
+      const cfr = f.client_formal_report;
+      const ids = { idParams: { application_id: applicationId, company_id: f.company_id } };
+      return `<div class="list-row" style="flex-wrap:wrap;row-gap:8px"><span style="flex:1 1 100%"><b>${text(f.company_name)}</b><small>${text(f.job_title || f.job_slug)}${f.stage_label ? ' · ' + text(f.stage_label) : ''}</small><span style="display:block;margin-top:6px">${cfrStatus(cfr)}</span></span>${rowActions([
+        actionBtn(cfr && cfr.consultant_confirmed_at ? '換一份推薦履歷' : '上傳推薦履歷', 'client-formal-report-upload', ids, cfr && cfr.consultant_confirmed_at ? '' : 'primary'),
+        cfr && cfr.consultant_confirmed_at && cfr.file_id ? `<button type="button" class="btn ghost sm" data-download-file="${text(cfr.file_id)}">下載推薦履歷</button>` : '',
+      ].filter(Boolean))}</div>`;
+    }).join('') : '<p class="help" style="margin:0">還沒推薦給任何客戶</p>';
     return `<div class="stage-detail-panel"><h4>推薦給客戶</h4>${listHtml}<div style="margin-top:12px"><button type="button" class="btn primary" data-action="open-forward-candidate" data-application-id="${escapeHtml(applicationId)}">推薦給客戶</button></div></div>`;
   }
   return '';
