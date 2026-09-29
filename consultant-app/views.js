@@ -2163,7 +2163,7 @@ ${a.note ? `<details class="note-details"><summary>顧問備註／電洽紀錄</
   // 排序照「顧問打開後最想知道什麼」：
   //   分流（要不要現在打）→ 一句話定位 → 最大風險 → 分數 → 專業題深度
   //   → 硬條件 → 待追問 → 報告全文（收合，備查用）
-  interviewResult: (report) => {
+  interviewResult: (report, application = {}) => {
     const parse = (raw) => { try { return raw ? JSON.parse(raw) : null; } catch { return null; } };
     const d = parse(report.content_json);
     const full = `<details class="note-details" style="margin-top:12px"><summary><b>報告全文</b>（結構化資料就是從這份整理出來的）</summary><p style="white-space:pre-wrap">${text(report.content_md || '（沒有內容）')}</p></details>`;
@@ -2191,7 +2191,33 @@ ${a.note ? `<details class="note-details"><summary>顧問備註／電洽紀錄</
         <td style="font-size:12.5px;color:#5d6672">${text(x.detail || '')}</td></tr>`;
     }).join('');
     const todo = (d.consultant_followups || []).filter(Boolean);
+    // 2026-09-29 Jacky：①最上面先看「背景經歷 × 職缺」匹配總結 ②風格測驗結果 ③專業分級
+    const jm = d.job_match || {};
+    const jmIcon = { 符合: '✅', 部分符合: '⚠️', 缺: '❌', 未確認: '❓' };
+    const jmTone = { 符合: 'good', 部分符合: 'warn', 缺: 'bad', 未確認: '' };
+    const jmHtml = (jm.items || []).length || jm.conclusion ? `<section class="rp-match">
+        <h4 style="margin:0 0 8px">職缺匹配總結<span class="muted" style="font-weight:400;font-size:12px">（背景經歷＋面談${report.content_md && /顧問電訪/.test(report.content_md) ? '＋電洽' : ''} 對這個職缺的核心條件）</span></h4>
+        ${jm.conclusion ? `<p class="rp-match-conc">${text(jm.conclusion)}</p>` : ''}
+        ${(jm.items || []).length ? `<table class="spec"><tr><th>職缺條件</th><th>結果</th><th>根據</th></tr>${jm.items.map((x) => `<tr><td>${text(x.requirement)}</td>
+          <td style="white-space:nowrap"><span class="pc-status ${jmTone[x.verdict] || ''}">${jmIcon[x.verdict] || ''} ${text(x.verdict)}</span></td>
+          <td style="font-size:12.5px;color:#5d6672">${text(x.evidence)}${x.basis ? `<span class="muted">（${text(x.basis)}）</span>` : ''}</td></tr>`).join('')}</table>` : ''}
+      </section>` : `<div class="notice" style="margin:0 0 10px">這份報告產生時還沒有「職缺匹配總結」（9/29 之後的報告才有；匯入電洽紀錄重新產生後會補上）。</div>`;
+    const discVals = ['d', 'i', 's', 'c'].map((k) => application[`disc_${k}`]);
+    const hasDisc = discVals.some((v) => v !== null && v !== undefined);
+    const obsA = ((d.observations || {}).assessment || []).filter((x) => x && x.trait);
+    const vTone = (v) => (/印證/.test(v || '') ? 'good' : /不一致/.test(v || '') ? 'bad' : '');
+    const testHtml = `<h4 style="margin:18px 0 6px">風格測驗結果</h4>
+      ${hasDisc ? `<div class="rp-disc">${['D 支配', 'I 影響', 'S 穩定', 'C 謹慎'].map((lb, i) => `<span class="${application.disc_primary && lb.startsWith(String(application.disc_primary).toUpperCase()) ? 'on' : ''}"><small>${lb}</small><b>${text(discVals[i] ?? '—')}</b></span>`).join('')}
+        ${application.disc_primary ? `<span class="rp-disc-main">主型 ${text(application.disc_primary)}</span>` : ''}</div>`
+        : '<p class="muted" style="margin:0">人選還沒做風格測驗。</p>'}
+      ${obsA.length ? `<table class="spec" style="margin-top:8px"><tr><th>測驗特質</th><th>面談對照</th><th>根據</th></tr>${obsA.map((x) => `<tr><td>${text(x.trait)}${x.score !== undefined && x.score !== null ? ` <span class="muted">${text(x.score)}</span>` : ''}</td>
+        <td style="white-space:nowrap"><span class="pc-status ${vTone(x.verified)}">${text(x.verified || '—')}</span></td><td style="font-size:12.5px;color:#5d6672">${text(x.evidence || '')}</td></tr>`).join('')}</table>` : ''}`;
+    const sl = d.skill_ladder;
+    const ladderHtml = sl ? `<h4 style="margin:18px 0 6px">專業分級（整體約第 ${text(sl.overall)} 級，這個職缺期待第 ${text(sl.expected)} 級）</h4>
+      ${sl.suggest ? `<div class="notice" style="margin:0 0 6px">💡 ${text(sl.suggest)}</div>` : ''}
+      <table class="spec"><tr><th>主題</th><th>到第幾級</th></tr>${(sl.topics || []).map((t) => `<tr><td>${text(t.topic)}</td><td>${t.level === null || t.level === undefined ? '<span class="muted">沒問到</span>' : `${'●'.repeat(t.level)}${'○'.repeat(Math.max(0, 5 - t.level))} ${text(t.level_name || '')}`}</td></tr>`).join('')}</table>` : '';
     return `
+      ${jmHtml}
       ${rt ? `<div style="margin:0 0 10px">${rt}</div>` : ''}
       ${d.one_liner ? `<p style="font-size:15px;font-weight:600;margin:0 0 8px">${text(d.one_liner)}</p>` : ''}
       ${row('判定', d.verdict)}
@@ -2207,8 +2233,10 @@ ${a.note ? `<details class="note-details"><summary>顧問備註／電洽紀錄</
       ${dims ? `<table class="spec" style="margin-top:6px"><tr><th>面向</th><th style="text-align:right">分數</th><th>依據</th></tr>${dims}</table>` : ''}
       ${exp ? `<h4 style="margin:18px 0 6px">專業題（●＝講得多深，不是答得對不對）</h4>
                <table class="spec"><tr><th>技能</th><th>程度</th><th>為什麼是這一級</th></tr>${exp}</table>` : ''}
+      ${ladderHtml}
       ${hard ? `<h4 style="margin:18px 0 6px">硬條件</h4>
                 <table class="spec"><tr><th>項目</th><th>結果</th><th>說明</th></tr>${hard}</table>` : ''}
+      ${testHtml}
       ${todo.length ? `<h4 style="margin:18px 0 6px">阿財沒問到、要你補問的</h4><ul style="margin:0;padding-left:20px">${todo.map((x) => `<li style="margin:4px 0">${text(x)}</li>`).join('')}</ul>` : ''}
       ${full}`;
   },
