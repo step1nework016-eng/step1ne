@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="zh-Hant">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>設定｜顧問後台</title>
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<style>
+/* 沿用全站顧問後台既有視覺語言。這頁目前只有「顧問名單」一塊——原本埋在
+   「我的案子」頁面最下面一個折疊區塊，跟那頁本身的用途（追每天該做什麼）
+   沒關係，獨立出來放這裡。是全站共用的 consultants 表，改這裡任何地方
+   （含顧問人選追蹤、我的案子）的顧問下拉都會同步。之後有其他全站設定
+   項目也會加進這頁。 */
+:root{--gold:#a67c3d;--ink:#23262d;--ink2:#4d5563;--ink3:#8a8d95;--line:#eee7db;--soft:#faf8f3;--bg:#f4f1ea;--bad:#c0392b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 -apple-system,"Noto Sans TC",sans-serif}
+.wrap{max-width:640px;margin:0 auto;padding:0 16px}
+header{background:#fff;border-bottom:1px solid var(--line);padding:14px 0}
+header .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header img{height:26px}
+.gate{max-width:380px;margin:16vh auto;background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px}
+.gate input{width:100%;font:inherit;padding:11px 13px;border:1px solid var(--line);border-radius:10px;margin:12px 0}
+.gate button{width:100%;font:inherit;font-weight:700;background:var(--gold);color:#fff;border:0;border-radius:999px;padding:12px}
+.mut{color:var(--ink3);font-size:13px}
+main{padding:22px 0 80px}
+.sec{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:14px}
+.sec h3{margin:0 0 4px;font-size:15px}
+.sec p.hint{margin:0 0 14px;font-size:13px;color:var(--ink3);line-height:1.7}
+.clist{font-size:13px;color:var(--ink2)}
+.clist>div{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.clist>div:last-child{border-bottom:0}
+.clist .off{opacity:.5}
+.btn{font:inherit;font-size:13px;font-weight:600;border-radius:999px;padding:6px 15px;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink2)}
+.btn.p{background:var(--gold);color:#fff;border-color:var(--gold)}
+.row{display:flex;gap:8px;align-items:center;margin-top:12px}
+.row input{font:inherit;font-size:14px;padding:8px 13px;border:1px solid var(--line);border-radius:10px;flex:1 1 160px}
+.uitem{padding:10px 0;border-bottom:1px solid var(--line)}
+.uitem:last-child{border-bottom:0}
+.uitem .top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:6px}
+.uitem .nm{font-weight:600;font-size:13.5px;color:var(--ink)}
+.uitem .ct{font:600 13px/1 ui-monospace,monospace;color:var(--ink)}
+.uitem .ct small{font-weight:500;color:var(--ink3);margin-left:2px}
+.uitem .track{height:6px;border-radius:99px;background:var(--soft);overflow:hidden;margin-bottom:5px}
+.uitem .fill{height:100%;border-radius:99px;background:var(--gold)}
+.uitem .dep{font:500 11.5px ui-monospace,monospace;color:var(--ink3)}
+</style>
+
+<div id="gate" class="gate" hidden>
+  <b>顧問後台</b>
+  <p class="mut" style="margin:6px 0 0">需要存取權杖。這組權杖等同密碼，不要外傳。</p>
+  <input id="tok" type="password" placeholder="ADMIN_TOKEN" autocomplete="off">
+  <button id="enter" type="button">進入</button>
+  <p id="gerr" class="mut" style="color:#b4552e;margin:12px 0 0" hidden></p>
+</div>
+
+<div id="app" hidden>
+  <header><div class="wrap"><img src="/assets/step1ne-logo.png" alt="Step1ne"><b>設定</b></div></header>
+  <main class="wrap">
+    <div class="sec">
+      <h3>顧問名單</h3>
+      <p class="hint">全站共用一份名單——這裡新增或停用，「顧問人選追蹤」「我的案子」的顧問下拉會立刻同步看到，不用兩邊分開維護。顧問只能停用、不能刪除，離職後他經手過的人選紀錄還是要查得到。</p>
+      <div class="clist" id="clist"></div>
+      <div class="row">
+        <input id="newc" placeholder="新顧問名字" autocomplete="off">
+        <button class="btn p" id="addc" type="button">新增顧問</button>
+      </div>
+    </div>
+    <div class="sec">
+      <h3>部署設定</h3>
+      <p class="hint">這幾個值原本寫死在程式碼裡指向特定帳號／Telegram群組，換一套環境（例如幫別家公司架一套）要能改，不用動程式碼重新部署。沒填就照舊用系統內建的預設值，不影響現況。</p>
+      <label class="mut" style="display:block;margin-top:10px">發職缺部署用的 GitHub 帳號</label>
+      <div class="row" style="margin-top:4px">
+        <input id="s_github_publish_user" placeholder="預設：jacky6658" autocomplete="off">
+      </div>
+      <label class="mut" style="display:block;margin-top:16px">Telegram 話題 ID（決策通知 / 履歷進件 / 履歷池 / 系統回報 / 顧問回報 / 主動開發 / 用人需求表審核）</label>
+      <div class="row" style="margin-top:4px">
+        <input id="s_thread_decide" placeholder="決策通知，預設 2855" autocomplete="off">
+        <input id="s_thread_intake" placeholder="履歷進件，預設 4" autocomplete="off">
+      </div>
+      <div class="row">
+        <input id="s_thread_pool" placeholder="履歷池，預設 304" autocomplete="off">
+        <input id="s_thread_system" placeholder="系統回報，預設 1360" autocomplete="off">
+      </div>
+      <div class="row">
+        <input id="s_thread_report" placeholder="顧問回報，預設 3161" autocomplete="off">
+        <input id="s_thread_sourced" placeholder="主動開發，預設 3477" autocomplete="off">
+      </div>
+      <div class="row">
+        <input id="s_thread_job_review" placeholder="用人需求表審核，預設 4307" autocomplete="off">
+      </div>
+      <div class="row">
+        <button class="btn p" id="saveSettings" type="button">儲存設定</button>
+        <span class="mut" id="settingsMsg"></span>
+      </div>
+    </div>
+    <div class="sec">
+      <h3>常用功能監控</h3>
+      <p class="hint">依過去14天實際使用次數排序，標出各自依賴哪個本機常駐服務——2026-09-10那天三個排程先後靜默卡死，事後才發現剛好都是清單裡最常用的功能。平常點開看看，系統出狀況時能立刻判斷優先度。</p>
+      <div id="usageList" class="clist"><div class="mut">載入中…</div></div>
+    </div>
+  </main>
+</div>
+
+<script>
+var API = 'https://step1ne-backoffice-worker.aiagentg888.workers.dev';
+var KEY = 's1ne_admin_tok';
+var tok = localStorage.getItem(KEY) || '';
+var $ = function (i) { return document.getElementById(i); };
+function api(p, o) {
+  o = o || {};
+  o.headers = Object.assign({ authorization: 'Bearer ' + tok }, o.headers || {});
+  return fetch(API + p, o).then(function (r) {
+    if (r.status === 401) { var e401 = new Error('權杖不正確'); e401.status = 401; throw e401; }
+    return r.text().then(function (t) {
+      var d = null;
+      try { d = JSON.parse(t); } catch (x) { /* 不是 JSON——多半是 CF 的錯誤頁 */ }
+      if (!r.ok) {
+        var err = new Error('HTTP ' + r.status);
+        err.status = r.status;
+        err.serverError = d && d.error ? d.error : null;
+        err.body = d ? null : String(t).slice(0, 200);
+        throw err;
+      }
+      if (d === null) { var ep = new Error('回傳格式不是 JSON'); ep.body = String(t).slice(0, 200); throw ep; }
+      return d;
+    });
+  });
+}
+// ── 錯誤訊息不要一律說「連線失敗」 ──
+// 2026-09-08：顧問按「產生電洽前準備」看到「連線失敗」，實際上網路好好的，
+// 真正的錯是後端 D1_ERROR: no such column: report_id。前端把所有失敗都寫成
+// 同一句話，等於把診斷資訊丟掉，只能靠工程師去翻 worker log 才知道發生什麼事。
+//
+// apiFail() 依實際情況給不同訊息：後端有回錯誤就照實顯示，
+// HTTP 非 2xx 顯示狀態碼，真的連不上才說連線失敗。
+function apiFail(e) {
+  if (!e) return apiFail(e);
+  if (e.status === 401 || /權杖/.test(e.message || '')) return '權杖不正確，請重新輸入';
+  if (e.serverError) return '伺服器回報：' + String(e.serverError).slice(0, 120);
+  if (e.status) return '伺服器錯誤 ' + e.status + (e.body ? '：' + String(e.body).slice(0, 100) : '');
+  if (e.name === 'TypeError') return '連線失敗（連不到伺服器，檢查網路）';
+  return String(e.message || e).slice(0, 120);
+}
+
+function loadConsultants() {
+  return api('/admin/consultants').then(function (d) {
+    if (!d.ok) { $('clist').innerHTML = '<div class="mut">讀取失敗</div>'; return; }
+    CONS = d.consultants || []; renderConsultants();
+  });
+}
+$('addc').onclick = function () {
+  var n = $('newc').value.trim(); if (!n) return;
+  api('/admin/consultants', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ display_name: n }) })
+  .then(function (d) { if (!d.ok) { alert(d.error || '失敗'); return; } $('newc').value = ''; loadConsultants(); });
+};
+$('newc').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('addc').click(); });
+
+// 2026-09-07 加：部署設定介面第一版——欄位跟D1 key名稱是同一套（s_開頭是DOM id，
+// 拿掉s_前綴就是設定表的key），存檔一次把有值的欄位各自POST一次，沒填的欄位不送
+// （後端讀不到就用預設值，不會被存成空字串蓋掉之前設定過的值）。
+var SETTINGS_KEYS = ['github_publish_user', 'thread_decide', 'thread_intake', 'thread_pool',
+  'thread_system', 'thread_report', 'thread_sourced', 'thread_job_review'];
+function loadSettings() {
+  return api('/admin/settings').then(function (d) {
+    if (!d.ok) return;
+    SETTINGS_KEYS.forEach(function (k) {
+      var el = $('s_' + k);
+      if (el && d.settings && d.settings[k] != null) el.value = d.settings[k];
+    });
+  });
+}
+$('saveSettings').onclick = function () {
+  var btn = $('saveSettings');
+  btn.disabled = true; $('settingsMsg').textContent = '儲存中…';
+  var jobs = SETTINGS_KEYS.map(function (k) {
+    var el = $('s_' + k);
+    var v = el ? el.value.trim() : '';
+    if (!v) return Promise.resolve({ ok: true });
+    return api('/admin/settings', { method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ key: k, value: v }) });
+  });
+  Promise.all(jobs).then(function (rs) {
+    btn.disabled = false;
+    var bad = rs.find(function (r) { return !r.ok; });
+    $('settingsMsg').textContent = bad ? (bad.error || '有欄位儲存失敗') : '已儲存';
+  }).catch(function (e) { btn.disabled = false; $('settingsMsg').textContent = apiFail(e); });
+};
+
+function loadUsage() {
+  return api('/admin/feature-usage').then(function (d) {
+    if (!d.ok || !d.items || !d.items.length) { $('usageList').innerHTML = '<div class="mut">讀取失敗</div>'; return; }
+    var max = Math.max.apply(null, d.items.map(function (x) { return x.count; })) || 1;
+    $('usageList').innerHTML = d.items.map(function (x) {
+      var pct = Math.round(x.count / max * 100);
+      return '<div class="uitem">'
+        + '<div class="top"><span class="nm">' + x.name + '</span>'
+        + '<span class="ct">' + x.count + '<small>次</small></span></div>'
+        + '<div class="track"><div class="fill" style="width:' + pct + '%"></div></div>'
+        + '<div class="dep">' + x.dep + '</div>'
+        + '</div>';
+    }).join('');
+  }).catch(function (e) { $('usageList').innerHTML = '<div class="mut">' + apiFail(e) + '</div>'; });
+}
+
+function load() { $('gate').hidden = true; $('app').hidden = false; loadConsultants(); loadSettings(); loadUsage(); }
+function boot() {
+  if (tok) { load(); return; }
+  $('gate').hidden = false;
+  $('enter').onclick = function () {
+    tok = $('tok').value.trim(); if (!tok) return;
+    api('/admin/consultants').then(function (d) {
+      if (!d.ok) { $('gerr').hidden = false; $('gerr').textContent = '權杖不正確'; return; }
+      localStorage.setItem(KEY, tok); load();
+    });
+  };
+  $('tok').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('enter').click(); });
+}
+boot();
+</script>
+<script defer src="/consultant-old/_shell.js"></script>
+</html>

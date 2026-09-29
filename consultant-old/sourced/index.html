@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="zh-Hant">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>人才池｜顧問後台</title>
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<style>
+:root{--gold:#a67c3d;--ink:#23262d;--ink2:#4d5563;--ink3:#8a8d95;--line:#eee7db;--soft:#faf8f3;--bg:#f4f1ea;--ok:#2f8f5b;--bad:#c0392b;--warn:#8a6100}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 -apple-system,"Noto Sans TC",sans-serif}
+.wrap{max-width:820px;margin:0 auto;padding:0 16px}
+header{background:#fff;border-bottom:1px solid var(--line);padding:14px 0}
+header .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header img{height:26px}
+nav{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+nav a{font-size:14px;text-decoration:none;color:var(--ink2);padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:#fff}
+nav a.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.gate{max-width:380px;margin:16vh auto;background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px}
+.gate input{width:100%;font:inherit;padding:11px 13px;border:1px solid var(--line);border-radius:10px;margin:12px 0}
+.gate button{width:100%;font:inherit;font-weight:700;background:var(--gold);color:#fff;border:0;border-radius:999px;padding:12px}
+.mut{color:var(--ink3);font-size:13px}
+main{padding:22px 0 60px}
+.note{background:var(--soft);border-left:3px solid var(--gold);border-radius:0 10px 10px 0;padding:12px 15px;font-size:13px;color:var(--ink2);margin-bottom:14px;line-height:1.7}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.tab{font:inherit;font-size:13px;font-weight:600;color:var(--ink2);background:#fff;border:1px solid var(--line);padding:6px 14px;border-radius:999px;cursor:pointer}
+.tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.c{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:10px}
+.c .top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.c .nm{font-weight:700;font-size:15px}
+.c .hl{font-size:13px;color:var(--ink2)}
+.c .meta{font-size:12.5px;color:var(--ink3);margin-top:2px}
+.c .sk{font-size:12px;color:var(--ink2);margin-top:6px}
+.c .ct{font-size:12.5px;margin-top:6px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;font-variant-numeric:tabular-nums}
+.c .ct .nomail{color:var(--ink3)}
+.c .ct .ow{color:var(--ink2);background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:1px 9px;font-size:11.5px}
+.sc{margin-left:auto;font-size:12px;font-weight:700;background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:1px 10px}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.btn{font:inherit;font-size:13px;font-weight:600;border-radius:999px;padding:6px 14px;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink2)}
+.btn.p{background:var(--gold);color:#fff;border-color:var(--gold)}
+.btn.d{color:var(--bad);border-color:#f0d4cf}
+a.lk{color:var(--gold);text-decoration:none;font-size:12.5px}
+.empty{background:#fff;border:1px dashed var(--line);border-radius:14px;padding:26px;text-align:center;color:var(--ink3)}
+.rmask{position:fixed;inset:0;background:rgba(20,22,26,.55);display:flex;align-items:center;justify-content:center;z-index:99;padding:20px;}
+.rcard{background:#fff;border-radius:16px;padding:20px 22px;max-width:360px;width:100%;}
+.rbtn{display:block;width:100%;text-align:left;margin-bottom:8px;}
+.sbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.sbar input[type=search]{flex:1 1 220px;min-width:180px;font:inherit;font-size:14px;padding:9px 15px;border:1px solid var(--line);border-radius:999px;background:#fff}
+.sbar select{font:inherit;font-size:13.5px;padding:9px 30px 9px 14px;border:1px solid var(--line);border-radius:999px;background:#fff url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238a8d95' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 13px center;appearance:none;color:var(--ink);cursor:pointer;max-width:190px}
+/* 2026-08-27 篩選區改版：原本六個控制項平起平坐、選了值標籤就消失，
+   看到「AI獵頭顧問專員（99）」根本不知道那是「來源」。
+   改成「標籤＋選單」的膠囊，並依邏輯分兩層：先選範圍（哪個缺），再篩人。 */
+.f{display:inline-flex;align-items:center;background:#fff;border:1px solid var(--line);border-radius:999px;padding-left:13px}
+.f>b{font-size:12px;font-weight:500;color:var(--ink2);white-space:nowrap;letter-spacing:.02em}
+.f select{border:0;background-color:transparent;padding:8px 28px 8px 7px;max-width:200px;border-radius:999px}
+.f.wide select{max-width:290px}
+.f.on{border-color:var(--gold);background:#fffdf7}
+.f.on>b{color:var(--gold)}
+.f.on select{background-color:transparent}
+.fsep{width:1px;height:24px;background:var(--line);margin:0 4px;flex:0 0 auto}
+.fhint{font-size:12px;color:var(--ink2);align-self:center}
+.sbar .ck{display:flex;align-items:center;gap:6px;font-size:13.5px;color:var(--ink2);background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 15px;cursor:pointer}
+.sbar .ck input{margin:0;accent-color:var(--gold)}
+.pager{display:flex;gap:8px;justify-content:center;margin-top:14px}
+.cat{font-size:12.5px}
+.gs{font-size:11px;color:var(--warn);margin-left:5px}
+.bulk{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:#fff;border:1px solid var(--line);
+  border-radius:12px;padding:9px 13px;margin-bottom:10px}
+.bulk select{font:inherit;font-size:13px;padding:6px 26px 6px 12px;border:1px solid var(--line);
+  border-radius:999px;background:#fff;appearance:none;cursor:pointer;color:var(--ink)}
+.bulk .ck{display:flex;align-items:center;gap:6px;font-size:13.5px;color:var(--ink2);cursor:pointer}
+.bulk .ck input{margin:0;accent-color:var(--gold)}
+.bulk .allbtn{font:inherit;font-size:12.5px;font-weight:600;color:var(--gold);background:none;border:0;
+  cursor:pointer;text-decoration:underline;padding:0}
+.c{position:relative}
+.c.sel{border-color:var(--gold);background:#fffdf7}
+.pick{position:absolute;top:14px;right:15px;width:18px;height:18px;margin:0;accent-color:var(--gold);cursor:pointer}
+.c .top{padding-right:28px}
+.ow{font:inherit;font-size:12.5px;padding:4px 24px 4px 11px;border:1px solid var(--line);border-radius:999px;
+  background:#fff;appearance:none;cursor:pointer;color:var(--ink2)}
+</style>
+
+<div id="gate" class="gate" hidden>
+  <b>顧問後台</b>
+  <p class="mut" style="margin:6px 0 0">需要存取權杖。這組權杖等同密碼，不要外傳。</p>
+  <input id="tok" type="password" placeholder="ADMIN_TOKEN" autocomplete="off">
+  <button id="enter" type="button">進入</button>
+  <p id="gerr" class="mut" style="color:#b4552e;margin:12px 0 0" hidden></p>
+</div>
+
+<div id="app" hidden>
+  <header><div class="wrap">
+    <img src="/assets/step1ne-logo.png" alt="Step1ne"><b>人才池</b>
+    <nav>
+      <a href="/consultant-old/overview/">總覽</a>
+      <a href="/consultant-old/sourced/" class="on">人才池</a>
+      <a href="/consultant-old/reports/">初篩報告</a>
+      <a href="/consultant-old/jobs/">招募職缺</a>
+    </nav>
+  </div></header>
+  <main class="wrap">
+    <div class="note">
+      這裡是<b>主動開發爬回來的人</b>，不是應徵者——他們沒有投履歷、也還沒同意個資利用，
+      所以跟正式應徵者分開放，不會混進漏斗統計。<br>
+      流程是：<b>挑出值得談的 → 顧問接觸 → 對方有意願 → 才轉成應徵者發面談連結</b>。
+      ⚠️ 沒有回覆意願之前，不要把人轉成應徵者。
+    </div>
+    <div class="tabs" id="tabs"></div>
+    <div class="sbar">
+      <input id="q" type="search" placeholder="搜尋姓名、職稱、公司、技能…" autocomplete="off">
+      <span class="f wide" id="f-job"><b>職缺</b><select id="jobs" aria-label="職缺"></select></span>
+    </div>
+    <div class="sbar">
+      <span class="f" id="f-rc"><b>要怎麼處理</b><select id="rcs2" aria-label="招募分類"></select></span>
+      <span class="f" id="f-grade"><b>等第</b><select id="grades" aria-label="等第"></select></span>
+      <label class="ck"><input type="checkbox" id="hasmail"> 有 email</label>
+      <span class="fsep"></span>
+      <span class="f" id="f-cat"><b>職類</b><select id="cats" aria-label="職類"></select></span>
+      <span class="f" id="f-src"><b>來源</b><select id="srcs" aria-label="來源"></select></span>
+      <button class="btn" id="clr">清除</button>
+      <span class="fhint" id="fhint"></span>
+    </div>
+    <div id="cnt" class="mut" style="margin-bottom:8px"></div>
+    <!-- 批次指派。池子 3,500 人、一頁 60 筆，一個一個下拉指派是不可能的事。 -->
+    <div class="bulk" id="bulk">
+      <label class="ck"><input type="checkbox" id="selall"> 選這一頁</label>
+      <span id="selinfo" class="mut"></span>
+      <select id="bulkow" aria-label="指派給"></select>
+      <button class="btn p" id="bulkgo" type="button">指派</button>
+      <button class="btn" id="bulkclr" type="button" hidden>取消選取</button>
+    </div>
+    <div id="list" class="mut">載入中…</div>
+    <div id="pager" class="pager"></div>
+  </main>
+</div>
+
+<script>
+var API='https://step1ne-backoffice-worker.aiagentg888.workers.dev';
+var KEY='s1ne_admin_tok';
+var tok=localStorage.getItem(KEY)||'';
+var $=function(i){return document.getElementById(i)};
+// 2026-09-10 加：這支頁面從頭到尾都在用esc()（render()裡每一筆人選卡片都
+// 呼叫），但這個函式從來沒有在這個檔案或_shell.js裡定義過——只要render()
+// 被叫到（=只要清單裡真的有資料），就會拋ReferenceError，被外層.catch()
+// 接住，誤報成「連線失敗」。實際上API多半是成功的，是畫面渲染那一步就炸了。
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+  return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+}); }
+var ST='new', Q='', CAT='', SRC='', HAS='', JOB='', GRD='', RC='', PAGE=0;
+var CONS=[], SEL={}, TOTAL=0;
+// 目前的篩選條件——批次「指派全部」時要原封不動送回後端，
+// 後端用一模一樣的 WHERE 去改。畫面說 55 人、實際改 3,500 人這種事不能發生。
+function curFilter(){return {status:ST,q:Q,cat:CAT,source:SRC,has:HAS,job:JOB}}
+function selIds(){return Object.keys(SEL).filter(function(k){return SEL[k]})}
+function ownerOpts(cur,cls){
+  return '<select class="'+(cls||'ow')+'">'
+    +'<option value="">未指派</option>'
+    + CONS.filter(function(c){return c.is_active||c.id===cur}).map(function(c){
+        return '<option value="'+esc(c.id)+'"'+(cur===c.id?' selected':'')+'>'+esc(c.display_name)+'</option>';
+      }).join('')
+    +'</select>';
+}
+function api(p, o) {
+  o = o || {};
+  o.headers = Object.assign({ authorization: 'Bearer ' + tok }, o.headers || {});
+  return fetch(API + p, o).then(function (r) {
+    if (r.status === 401) { var e401 = new Error('權杖不正確'); e401.status = 401; throw e401; }
+    return r.text().then(function (t) {
+      var d = null;
+      try { d = JSON.parse(t); } catch (x) { /* 不是 JSON——多半是 CF 的錯誤頁 */ }
+      if (!r.ok) {
+        var err = new Error('HTTP ' + r.status);
+        err.status = r.status;
+        err.serverError = d && d.error ? d.error : null;
+        err.body = d ? null : String(t).slice(0, 200);
+        throw err;
+      }
+      if (d === null) { var ep = new Error('回傳格式不是 JSON'); ep.body = String(t).slice(0, 200); throw ep; }
+      return d;
+    });
+  });
+}
+// ── 錯誤訊息不要一律說「連線失敗」 ──
+// 2026-09-08：顧問按「產生電洽前準備」看到「連線失敗」，實際上網路好好的，
+// 真正的錯是後端 D1_ERROR: no such column: report_id。前端把所有失敗都寫成
+// 同一句話，等於把診斷資訊丟掉，只能靠工程師去翻 worker log 才知道發生什麼事。
+//
+// apiFail() 依實際情況給不同訊息：後端有回錯誤就照實顯示，
+// HTTP 非 2xx 顯示狀態碼，真的連不上才說連線失敗。
+function apiFail(e) {
+  if (!e) return apiFail(e);
+  if (e.status === 401 || /權杖/.test(e.message || '')) return '權杖不正確，請重新輸入';
+  if (e.serverError) return '伺服器回報：' + String(e.serverError).slice(0, 120);
+  if (e.status) return '伺服器錯誤 ' + e.status + (e.body ? '：' + String(e.body).slice(0, 100) : '');
+  if (e.name === 'TypeError') return '連線失敗（連不到伺服器，檢查網路）';
+  return String(e.message || e).slice(0, 120);
+}
+
+// 2026-09-14 補：LB／LBRC／jobOpts 三個從沒定義過，render() 第一行就會呼叫
+// jobOpts，整頁只要清單有資料就必定 ReferenceError，被外層 .catch() 吞掉
+// 顯示成「連線失敗」——實際上 API 都是成功的，是這段程式碼原本就沒寫完。
+var LB = {
+  new: '待挑選', shortlisted: '已挑出', contacted: '已接觸',
+  replied: '有回覆', converted: '已轉應徵', rejected: '不合適', all: '全部',
+};
+var LBRC = {
+  DIRECT_TARGET: '直接目標', CONTACT_AFTER_CONFIRMATION: '待確認後聯繫',
+  ADJACENT_TARGET: '鄰近目標', REFERRAL_ONLY: '僅供轉介', LONG_TERM_POOL: '長期池',
+};
+function jobOpts(list,cur){
+  return '<option value=""'+(cur?'':' selected')+'>所有職缺</option>'
+    + (list||[]).map(function(j){
+        return '<option value="'+esc(j.slug)+'"'+(cur===j.slug?' selected':'')+'>'
+          +esc(j.title||j.slug)+'（'+j.n+'）</option>';
+      }).join('');
+}
+function rcOpts(list,cur){
+  return '<option value=""'+(cur?'':' selected')+'>所有招募分類</option>'
+    + (list||[]).map(function(c){
+        return '<option value="'+esc(c.k)+'"'+(cur===c.k?' selected':'')+'>'
+          +esc(LBRC[c.k]||c.k)+'（'+c.n+'）</option>';
+      }).join('');
+}
+function gradeOpts(list,cur){
+  return '<option value=""'+(cur?'':' selected')+'>所有等第</option>'
+    + (list||[]).map(function(g){
+        return '<option value="'+esc(g.k)+'"'+(cur===g.k?' selected':'')+'>'
+          +esc(g.k)+' 級（'+g.n+'）</option>';
+      }).join('');
+}
+function opts(list,cur,allLabel){
+  return '<option value=""'+(cur?'':' selected')+'>'+allLabel+'</option>'
+    + list.map(function(c){
+        return '<option value="'+esc(c.k)+'"'+(cur===c.k?' selected':'')+'>'
+          +esc(c.k)+'（'+c.n+'）</option>';
+      }).join('');
+}
+function render(d){
+  var cnt={}; (d.counts||[]).forEach(function(c){cnt[c.status]=c.n});
+  // 分類是用他自己的職稱／技能判斷；完全沒寫的人用「當初為哪個職缺撈的」回推，
+  // 那種卡片上會標「推測」——因為那是我們在找什麼，不是他會什麼。
+  $('jobs').innerHTML = jobOpts(d.jobs||[], JOB);
+  $('rcs2').innerHTML = rcOpts(d.rcs||[], RC);
+  $('grades').innerHTML = gradeOpts(d.grades||[], GRD);
+  $('cats').innerHTML = opts(d.cats||[], CAT, '所有職類');
+  $('srcs').innerHTML = opts(d.srcs||[], SRC, '所有來源');
+  $('hasmail').checked = HAS==='email';
+  // 有值的篩選器上金色，一眼看得出現在被什麼條件框住
+  [['f-job',JOB],['f-rc',RC],['f-grade',GRD],['f-cat',CAT],['f-src',SRC]].forEach(function(x){
+    var el=$(x[0]); if(el) el.className = 'f'+(x[0]==='f-job'?' wide':'')+(x[1]?' on':'');
+  });
+  var nOn=[JOB,RC,GRD,CAT,SRC,Q,HAS].filter(Boolean).length;
+  $('clr').disabled = !nOn;
+  $('fhint').textContent = nOn ? ('套用了 '+nOn+' 個條件') : '';
+  var tot=d.total||0, size=d.size||60, pg=d.page||0;
+  $('cnt').textContent = tot ? ('符合 '+tot+' 位，顯示第 '+(pg*size+1)+'–'+Math.min(tot,(pg+1)*size)+' 位') : '';
+  var pages=Math.ceil(tot/size);
+  $('pager').innerHTML = pages>1
+    ? '<button class="btn" id="prev"'+(pg<=0?' disabled':'')+'>← 上一頁</button>'
+      +'<span class="mut" style="align-self:center">第 '+(pg+1)+' / '+pages+' 頁</span>'
+      +'<button class="btn" id="next"'+(pg>=pages-1?' disabled':'')+'>下一頁 →</button>'
+    : '';
+  if($('prev'))$('prev').onclick=function(){PAGE--;load()};
+  if($('next'))$('next').onclick=function(){PAGE++;load()};
+  $('tabs').innerHTML=['new','shortlisted','contacted','replied','converted','rejected','all']
+    .map(function(k){
+      var n=k==='all'?Object.keys(cnt).reduce(function(a,b){return a+cnt[b]},0):(cnt[k]||0);
+      return '<button class="tab'+(k===ST?' on':'')+'" data-s="'+k+'">'+LB[k]+' '+n+'</button>';
+    }).join('');
+  var rows=d.rows||[];
+  if(!rows.length){$('list').innerHTML='<div class="empty">'
+    +((Q||CAT||SRC||HAS)?'沒有符合這些條件的人。<br><span class="mut">換個關鍵字，或按「清除」看全部。</span>'
+      :'這一區目前沒有人。<br><span class="mut">爬蟲跑完會自動把人送進「待挑選」。</span>')
+    +'</div>';$('pager').innerHTML='';return}
+  TOTAL=tot;
+  renderBulk();
+  $('list').innerHTML=rows.map(function(r){
+    var links=[];
+    if(r.linkedin_url)links.push('<a class="lk" href="'+esc(r.linkedin_url)+'" target="_blank" rel="noopener">LinkedIn</a>');
+    if(r.github_url)links.push('<a class="lk" href="'+esc(r.github_url)+'" target="_blank" rel="noopener">GitHub</a>');
+    if(r.source_url&&!links.length)links.push('<a class="lk" href="'+esc(r.source_url)+'" target="_blank" rel="noopener">來源</a>');
+    var catTag = r.category
+      ? '<span class="sc">'+esc(r.category)
+        +(r.cat_src==='searched'?'<span class="gs">推測</span>':'')+'</span>' : '';
+    var rcTag = r.recruitability_class
+      ? '<span class="sc">'+esc(LBRC[r.recruitability_class]||r.recruitability_class)+'</span>' : '';
+    return '<div class="c'+(SEL[r.id]?' sel':'')+'" data-id="'+esc(r.id)+'">'
+      +'<input type="checkbox" class="pick" data-id="'+esc(r.id)+'"'+(SEL[r.id]?' checked':'')+' aria-label="選取">'
+      +'<div class="top"><span class="nm">'+esc(r.name||'（無姓名）')+'</span>'
+      +'<span class="hl">'+esc(r.headline||'')+'</span>'+catTag+rcTag+'</div>'
+      +'<div class="meta">'+[esc(r.company),esc(r.location),esc(r.source)].filter(Boolean).join('　·　')
+      +(links.length?'　·　'+links.join('　'):'')+'</div>'
+      +(r.skills?'<div class="sk">'+esc(r.skills)+'</div>':'')
+      // 2026-08-26 加：聯絡方式原本查得到卻不顯示——顧問要接觸一個人
+      // 得另外開來源網址自己找，等於這一欄存了等於沒存（3,506 人裡有
+      // 307 人是有 email 的）。沒有 email 的直接標明白，才不會有人
+      // 對著一列想半天要怎麼聯絡。這個池子沒有電話欄位，爬回來的公開
+      // 資料本來就不會有電話。
+      +'<div class="ct">'
+      +(r.email
+        ? '<a class="lk" href="mailto:'+esc(r.email)+'">'+esc(r.email)+'</a>'
+        : '<span class="nomail">沒有 email，只能從上面的來源連結聯絡</span>')
+      +(r.phone?'<a class="lk" href="tel:'+esc(r.phone)+'">'+esc(r.phone)+'</a>':'')
+      // 顯示 owner_name（顧問看得懂的名字），不是 owner（系統代號 phoebe/jacky）
+      // 個別指派：直接在卡片上換人，不用先勾選再走批次
+      +'<span data-ow="'+esc(r.id)+'">'+ownerOpts(r.owner||'')+'</span>'
+      +'</div>'
+      +'<div class="acts">'
+      +(r.status!=='shortlisted'?'<button class="btn p" onclick="mv(\''+r.id+'\',\'shortlisted\')">挑出來</button>':'')
+      +(r.status!=='contacted'?'<button class="btn" onclick="mv(\''+r.id+'\',\'contacted\')">已接觸</button>':'')
+      +(r.status!=='replied'?'<button class="btn" onclick="mv(\''+r.id+'\',\'replied\')">他有回覆</button>':'')
+      +'<button class="btn d" onclick="mv(\''+r.id+'\',\'rejected\')">不合適</button>'
+      +'</div></div>';
+  }).join('');
+  bindRows();
+}
+
+function bindRows(){
+  Array.prototype.forEach.call($('list').querySelectorAll('.pick'),function(cb){
+    cb.onchange=function(){
+      SEL[cb.dataset.id]=cb.checked;
+      cb.closest('.c').classList.toggle('sel',cb.checked);
+      renderBulk();
+    };
+  });
+  Array.prototype.forEach.call($('list').querySelectorAll('[data-ow] select'),function(sel){
+    var id=sel.parentNode.dataset.ow, prev=sel.value;
+    sel.onchange=function(){
+      sel.disabled=true;
+      api('/admin/sourced/assign-owner',{method:'POST',headers:{'content-type':'application/json'},
+        body:JSON.stringify({owner:sel.value||null, ids:[id]})})
+      .then(function(d){ sel.disabled=false;
+        if(!d.ok){alert(d.error||'指派失敗');sel.value=prev;return}
+        prev=sel.value;
+      }).catch(function(e){sel.disabled=false;sel.value=prev;alert(apiFail(e))});
+    };
+  });
+}
+
+function renderBulk(){
+  var n=selIds().length;
+  $('bulkow').innerHTML='<option value="">未指派（取消）</option>'
+    + CONS.filter(function(c){return c.is_active}).map(function(c){
+        return '<option value="'+esc(c.id)+'">'+esc(c.display_name)+'</option>'}).join('');
+  $('bulkclr').hidden = n===0;
+  $('selinfo').innerHTML = n
+    ? '已選 <b>'+n+'</b> 位'
+      + (n<TOTAL ? '　<button class="allbtn" id="selfilter">改成指派符合條件的全部 '+TOTAL+' 位</button>' : '')
+    : '勾選要指派的人，或直接用每張卡片右下角的下拉指派。';
+  var sf=$('selfilter');
+  if(sf)sf.onclick=function(){ SEL={__ALL__:true}; renderBulk(); $('selinfo').innerHTML=
+    '已選 <b>符合目前條件的全部 '+TOTAL+' 位</b>　<span class="mut">（含沒顯示在這一頁的）</span>'; };
+}
+
+// 標記不合適時要選原因。用固定選項不是自由輸入——
+// 這份資料是要累積起來看出「該調整什麼」的，
+// 自由文字寫法太散（地點太遠／通勤問題／在南部其實同一件事），統計不出東西。
+var REJECT_REASONS=['地點不行','資歷差太多','職類根本不對','找不到聯絡方式','已有工作或沒意願','其他'];
+function mv(id,st){
+  if(st==='rejected'){ askReason(id); return; }
+  send(id,st,null);
+}
+function askReason(id){
+  var box=$('reasonBox');
+  box.innerHTML='<div class="rmask"><div class="rcard">'
+    +'<h3 style="margin:0 0 4px;font-size:16px;">為什麼不合適？</h3>'
+    +'<p style="margin:0 0 12px;color:#6b6e77;font-size:13px;">'
+    +'選一個就好。累積幾筆之後，系統會依這些原因調整下一次要怎麼找人。</p>'
+    +REJECT_REASONS.map(function(r){
+        return '<button class="btn rbtn" data-r="'+r+'">'+r+'</button>';}).join('')
+    +'<div style="margin-top:12px;"><button class="btn" id="rCancel">取消</button></div>'
+    +'</div></div>';
+  box.style.display='block';
+  box.querySelectorAll('.rbtn').forEach(function(b){
+    b.onclick=function(){ box.style.display='none'; send(id,'rejected',b.dataset.r); };
+  });
+  $('rCancel').onclick=function(){ box.style.display='none'; };
+}
+function send(id,st,reason){
+  api('/admin/sourced/status',{method:'POST',headers:{'content-type':'application/json'},
+    body:JSON.stringify({id:id,status:st,reason:reason})}).then(function(d){
+      if(!d.ok){alert(d.error||'更新失敗');return} load();
+    });
+}
+$('tabs').addEventListener('click',function(e){
+  var b=e.target.closest('.tab'); if(!b)return; ST=b.dataset.s; PAGE=0; load();
+});
+$('jobs').onchange=function(){JOB=this.value;PAGE=0;load()};
+$('rcs2').onchange=function(){RC=this.value;PAGE=0;load()};
+$('grades').onchange=function(){GRD=this.value;PAGE=0;load()};
+$('cats').onchange=function(){CAT=this.value;PAGE=0;load()};
+$('srcs').onchange=function(){SRC=this.value;PAGE=0;load()};
+$('hasmail').onchange=function(){HAS=this.checked?'email':'';PAGE=0;load()};
+// 邊打邊找，但等他停下來再送——每一個字都打一次 API，3,456 筆會卡
+var t=null;
+$('q').addEventListener('input',function(){
+  clearTimeout(t); var v=this.value.trim();
+  t=setTimeout(function(){ Q=v; PAGE=0; load(); }, 350);
+});
+$('q').addEventListener('keydown',function(e){
+  if(e.key==='Enter'){clearTimeout(t);Q=this.value.trim();PAGE=0;load()}
+});
+$('clr').onclick=function(){Q='';CAT='';SRC='';HAS='';JOB='';GRD='';RC='';PAGE=0;$('q').value='';load()};
+
+// ── 批次指派 ──
+$('selall').onchange=function(){
+  var on=this.checked;
+  Array.prototype.forEach.call($('list').querySelectorAll('.pick'),function(cb){
+    cb.checked=on; SEL[cb.dataset.id]=on; cb.closest('.c').classList.toggle('sel',on);
+  });
+  renderBulk();
+};
+$('bulkclr').onclick=function(){
+  SEL={}; $('selall').checked=false;
+  Array.prototype.forEach.call($('list').querySelectorAll('.pick'),function(cb){
+    cb.checked=false; cb.closest('.c').classList.remove('sel');
+  });
+  renderBulk();
+};
+$('bulkgo').onclick=function(){
+  var ow=$('bulkow').value||null;
+  var who=ow?$('bulkow').selectedOptions[0].textContent:'未指派（取消指派）';
+  var body;
+  if(SEL.__ALL__){
+    // 條件模式：把畫面上看到的筆數一起送過去，後端對不上就整批不做——
+    // 顧問看到 55、實際改到 3,500 這種錯，事後要一筆一筆比對才救得回來。
+    if(!confirm('要把「符合目前條件的全部 '+TOTAL+' 位」指派給 '+who+' 嗎？\n\n這包含沒顯示在這一頁的人。'))return;
+    body={owner:ow, filter:curFilter(), expect:TOTAL};
+  }else{
+    var ids=selIds();
+    if(!ids.length)return alert('先勾選要指派的人');
+    if(ids.length>20 && !confirm('要把勾選的 '+ids.length+' 位指派給 '+who+' 嗎？'))return;
+    body={owner:ow, ids:ids};
+  }
+  $('bulkgo').disabled=true;
+  api('/admin/sourced/assign-owner',{method:'POST',headers:{'content-type':'application/json'},
+    body:JSON.stringify(body)})
+  .then(function(d){
+    $('bulkgo').disabled=false;
+    if(!d.ok)return alert(d.error||'指派失敗');
+    SEL={}; $('selall').checked=false;
+    alert('已指派 '+d.changed+' 位給 '+who);
+    load();
+  }).catch(function(e){$('bulkgo').disabled=false;alert(apiFail(e))});
+};
+function load(){
+  $('gate').hidden=true;$('app').hidden=false;
+  var qs='/admin/sourced?status='+encodeURIComponent(ST)
+    +'&page='+PAGE
+    +(Q?'&q='+encodeURIComponent(Q):'')
+    +(CAT?'&cat='+encodeURIComponent(CAT):'')
+    +(SRC?'&source='+encodeURIComponent(SRC):'')
+    +(HAS?'&has='+encodeURIComponent(HAS):'')
+    +(JOB?'&job='+encodeURIComponent(JOB):'')
+    +(GRD?'&grade='+encodeURIComponent(GRD):'')
+    +(RC?'&rc='+encodeURIComponent(RC):'');
+  api(qs).then(function(d){
+    if(!d.ok){$('list').innerHTML='<div class="mut">讀取失敗：'+esc(d.error||'')+'</div>';return} render(d);
+  }).catch(function(e){$('list').innerHTML='<div class="mut">'+esc(apiFail(e))+'</div>'});
+}
+function loadCons(){
+  return api('/admin/consultants').then(function(d){ if(d.ok)CONS=d.consultants||[]; })
+    .catch(function(e){});
+}
+function boot(){
+  if(tok)return loadCons().then(load);
+  $('gate').hidden=false;
+  $('enter').onclick=function(){
+    tok=$('tok').value.trim(); if(!tok)return;
+    api('/admin/sourced').then(function(d){
+      if(!d.ok){$('gerr').hidden=false;$('gerr').textContent='權杖不正確';return}
+      localStorage.setItem(KEY,tok);loadCons().then(load);
+    });
+  };
+  $('tok').addEventListener('keydown',function(e){if(e.key==='Enter')$('enter').click()});
+}
+boot();
+</script>
+<script defer src="/consultant-old/_shell.js"></script>
+</html>
