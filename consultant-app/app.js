@@ -1170,6 +1170,52 @@ function wireBdDetailTabs() {
       if (playbookPane) playbookPane.hidden = key !== 'playbook';
     };
   }
+  wireCallGuide();
+}
+
+// 電話引導 v2：上一步／下一步、有沒有人資切換講稿、點結果就記錄。
+function wireCallGuide() {
+  const root = document.querySelector('.cg');
+  if (!root) return;
+  const steps = [...root.querySelectorAll('[data-cg-step]')];
+  let cur = 0;
+  const go = (i) => {
+    cur = Math.max(0, Math.min(steps.length - 1, i));
+    steps.forEach((el, k) => { el.hidden = k !== cur; });
+    root.querySelectorAll('[data-cg-go]').forEach((b) => b.classList.toggle('on', Number(b.dataset.cgGo) === cur));
+    const prev = root.querySelector('[data-cg-prev]'), next = root.querySelector('[data-cg-next]');
+    if (prev) prev.disabled = cur === 0;
+    if (next) next.hidden = cur === steps.length - 1;
+  };
+  root.querySelectorAll('[data-cg-go]').forEach((b) => b.addEventListener('click', () => go(Number(b.dataset.cgGo))));
+  root.querySelector('[data-cg-prev]')?.addEventListener('click', () => go(cur - 1));
+  root.querySelector('[data-cg-next]')?.addEventListener('click', () => go(cur + 1));
+  root.querySelectorAll('input[name="cg-type"]').forEach((r) => r.addEventListener('change', () => {
+    root.querySelectorAll('[data-when]').forEach((el) => { el.hidden = el.dataset.when !== r.value; });
+  }));
+  let result = '';
+  const form = root.querySelector('.cg-form');
+  root.querySelectorAll('[data-cg-result]').forEach((b) => b.addEventListener('click', () => {
+    result = b.dataset.cgResult;
+    root.querySelectorAll('[data-cg-result]').forEach((x) => x.classList.toggle('primary', x === b));
+    if (form) { form.hidden = false; form.querySelector('input,textarea')?.focus(); }
+  }));
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = root.dataset.bdId;
+    if (!id || !result) { toast('先點上面的結果', 'error'); return; }
+    const fd = new FormData(form);
+    const btn = form.querySelector('button[type=submit]');
+    btn.disabled = true;
+    try {
+      const r = await api.post(`/admin/bd/${encodeURIComponent(id)}/call-result`,
+        { result, contact_name: fd.get('contact_name') || '', email: fd.get('email') || '', note: fd.get('note') || '' });
+      toast(r && r.retry_at ? `已記錄，${String(r.retry_at).slice(5, 10)} 會提醒再打` : '已記錄', 'success');
+      form.hidden = true;
+    } catch (err) { toast(err.message || '記錄失敗', 'error'); }
+    btn.disabled = false;
+  });
+  go(0);
 }
 
 async function loadSystemTab(target) {

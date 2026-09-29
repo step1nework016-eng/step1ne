@@ -1878,7 +1878,42 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
     ].filter(Boolean)) : '';
     const timelinePane = `<h3 style="font-size:14px;margin:4px 0">接觸時間軸</h3>${tl}${actions}<h3 style="font-size:14px;margin:16px 0 4px">信件全文</h3>${letters}`;
 
-    const playbookPane = !playbook ? empty('這家還沒有足夠資料組出開發引導') : `
+    const g = playbook && playbook.call_guide;
+    const callRow = [...outreach].reverse().find((o) => o.channel === 'phone') || outreach[outreach.length - 1];
+    const RES_ZH = { interested: '有興趣', not_interested: '沒興趣', got_email: '給了信箱', no_answer: '沒接', gatekeeper: '被總機擋', got_contact: '問到窗口', not_hiring: '沒在徵人' };
+    const lastCall = [...outreach].reverse().find((o) => o.call_result);
+    // 2026-09-29 電話引導 v2：跟著通話一步一步走，每一步只放當下要講的話；最後一步直接點結果。
+    const checked = g && g.job_checked_at && (Date.now() - Date.parse(String(g.job_checked_at).replace(' ', 'T') + '+08:00')) < 14 * 86400000;
+    const step = (i, title, body) => `<section class="cg-step" data-cg-step="${i}"${i ? ' hidden' : ''}><h3 class="cg-title"><span>${i}</span>${title}</h3>${body}</section>`;
+    const say = (t, when) => `<p class="cg-say"${when ? ` data-when="${when}"` : ''}${when === 'small' ? ' hidden' : ''}>${text(t)}</p>`;
+    const guidePane = g ? `<div class="cg" data-bd-id="${escapeHtml(callRow ? callRow.id : '')}">
+      ${lastCall ? `<div class="notice" style="margin:0 0 10px">上次電訪：${text(RES_ZH[lastCall.call_result] || lastCall.call_result)}${lastCall.call_retry_at ? `，建議 ${text(String(lastCall.call_retry_at).slice(5, 10))} 再打` : ''}${lastCall.call_note ? `（${text(lastCall.call_note)}）` : ''}</div>` : ''}
+      <div class="cg-dots">${['功課', '過總機', '開場', '問需求', '拒絕時', '收尾'].map((t, i) => `<button type="button" class="cg-dot${i ? '' : ' on'}" data-cg-go="${i}">${i}. ${t}</button>`).join('')}</div>
+      ${step(0, '打之前 30 秒功課', `
+        <div class="cg-row"><b>要推的職缺</b><span>${text(g.job_title || '（沒有記錄職缺）')}${g.job_url ? ` <a href="${escapeHtml(g.job_url)}" target="_blank" rel="noopener">職缺頁 ↗</a>` : ''}</span></div>
+        <div class="cg-row"><b>104 查證</b><span>${checked ? `✅ ${text(String(g.job_checked_at).slice(5, 10))} 查過：${text(g.job_check_note || '')}` : '⚠️ 14 天內沒查過——先上 104 確認這個缺還開著，再打'}</span></div>
+        <div class="cg-row"><b>為什麼打給他</b><span>${text(g.why)}</span></div>
+        <div class="cg-row"><b>這家有人資嗎？</b><span class="cg-type"><label><input type="radio" name="cg-type" value="hr" checked> 有（找人資）</label><label><input type="radio" name="cg-type" value="small"> 沒有／小公司（找老闆或負責面試的人）</label></span></div>
+        <p class="help">手上如果有對得上的人選（見「人選敲門卡」），開場可以帶一句，成功率會高很多。</p>`)}
+      ${step(1, '過總機（只講兩句，不要推銷）', `${say(g.gate_hr, 'hr')}${say(g.gate_small, 'small')}${say(g.gate_fallback)}
+        <p class="help">報全名、講短、請對方「指點該找誰」。總機說「我幫你轉達」→ 直接問姓名＋分機或信箱。</p>`)}
+      ${step(2, '開場 20 秒', `${say(g.opener_hr, 'hr')}${say(g.opener_small, 'small')}<p class="cg-say cg-opt">${text(g.candidate_hook)}</p>
+        <p class="help">一定要講到「我打來的原因是…」。對方說「現在不方便」→「那我什麼時間再打給您比較好？」</p>`)}
+      ${step(3, '問需求（3 題）', g.questions.map((x, i) => `<div class="cg-q"><b>${i + 1}. ${text(x.q)}</b><small>${text(x.tip)}</small></div>`).join(''))}
+      ${step(4, '對方拒絕時', g.objections.map((o) => `<details class="cg-obj"><summary>「${text(o.q)}」</summary><p class="cg-say">${text(o.a)}</p></details>`).join('') + '<p class="help">不要反駁，先問一句、再退一步；最後都要留下姓名＋信箱。</p>')}
+      ${step(5, '收尾＋點結果', `${g.close.map((c) => `<p class="cg-say">${text(c)}</p>`).join('')}
+        <h4 style="margin:14px 0 6px">這通電話結果</h4>
+        <div class="cg-results">${[['no_answer', '沒接'], ['gatekeeper', '被總機擋'], ['got_contact', '問到窗口'], ['got_email', '拿到信箱'], ['interested', '有興趣'], ['not_hiring', '沒在徵人'], ['not_interested', '拒絕']].map(([k, lb]) => `<button type="button" class="btn" data-cg-result="${k}">${lb}</button>`).join('')}</div>
+        <form class="cg-form" hidden>
+          <label class="field"><span>窗口姓名／職稱</span><input name="contact_name" placeholder="例：王小姐（人資）"></label>
+          <label class="field"><span>信箱</span><input name="email" type="email" placeholder="有拿到才填"></label>
+          <label class="field"><span>補充（拒絕原因、下次什麼時候打、對方說了什麼）</span><textarea name="note" rows="2"></textarea></label>
+          <div class="actions-row"><button type="submit" class="btn primary">記錄這通電話</button></div>
+        </form>
+        <p class="help">沒接／被擋／只問到窗口 → 系統 2 個工作天後提醒再打；拿到信箱或有興趣 → TG 通知去寫開發信。</p>`)}
+      <div class="cg-nav"><button type="button" class="btn" data-cg-prev>← 上一步</button><button type="button" class="btn primary" data-cg-next>下一步 →</button></div>
+    </div>` : '';
+    const playbookPane = !playbook ? empty('這家還沒有足夠資料組出開發引導') : guidePane || `
       <h3 style="font-size:14px;margin:4px 0">為什麼開發這家</h3>
       <p>${text(playbook.why)}</p>
       <h3 style="font-size:14px;margin:16px 0 4px">切入角度${playbook.difficulty_type ? `（${playbook.difficulty_type === 'source' ? '難在來源' : playbook.difficulty_type === 'screening' ? '難在篩選' : '待判斷'}）` : ''}</h3>

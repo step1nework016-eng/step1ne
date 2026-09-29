@@ -523,3 +523,27 @@ details.note-details p{margin:8px 0 0;font-size:13.5px;white-space:pre-wrap;colo
 .cr-box{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:4px 0 14px;background:#fff}
 .cr-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 .cr-head .btn{min-height:40px}
+
+/* 電話引導 v2（2026-09-29） */
+.cg-dots{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}
+.cg-dot{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 10px;font-size:12.5px;cursor:pointer;min-height:36px;color:#33405a}
+.cg-dot.on{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+.cg-title{display:flex;align-items:center;gap:8px;font-size:16px;margin:4px 0 10px}
+.cg-title span{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#eaf1ff;color:var(--blue);font-size:13px}
+.cg-say{background:#f3f7ff;border-left:3px solid var(--blue);border-radius:8px;padding:10px 12px;margin:0 0 10px;font-size:15px;line-height:1.75}
+.cg-say.cg-opt{background:#f5f8fc;border-left-color:#9fb3d3;font-size:14px}
+.cg-row{display:grid;grid-template-columns:110px 1fr;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+.cg-row b{color:var(--muted);font-weight:700}
+.cg-type{display:flex;flex-direction:column;gap:6px}
+.cg-type label{display:flex;gap:6px;align-items:center;min-height:32px}
+.cg-q{padding:10px 0;border-bottom:1px solid var(--line)}
+.cg-q small{display:block;color:var(--muted);margin-top:4px;font-size:12.5px}
+.cg-obj{border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin-bottom:8px}
+.cg-obj summary{cursor:pointer;font-weight:700;min-height:32px;display:flex;align-items:center}
+.cg-obj .cg-say{margin:8px 0 0}
+.cg-results{display:flex;flex-wrap:wrap;gap:8px}
+.cg-results .btn{min-height:44px}
+.cg-form{margin-top:12px;display:grid;gap:10px}
+.cg-nav{display:flex;justify-content:space-between;margin-top:16px}
+.cg-nav .btn{min-height:44px;min-width:110px}
+@media (max-width:640px){.cg-row{grid-template-columns:1fr;gap:2px}}
