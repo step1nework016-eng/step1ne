@@ -2759,6 +2759,25 @@ function wireThreadsPerf() {
     tr.after(d);
     tr.classList.add('on'); tr.setAttribute('aria-expanded', 'true');
   };
+  // 表頭點一下排序：第一次由大到小，再點由小到大（顧問名稱那欄照筆畫）。
+  const sumTbl = document.querySelector('.tp-sum');
+  if (sumTbl) sumTbl.querySelectorAll('[data-sort-col]').forEach((btn) => btn.addEventListener('click', () => {
+    const col = Number(btn.dataset.sortCol);
+    const desc = !(btn.dataset.dir === 'desc');
+    sumTbl.querySelectorAll('[data-sort-col]').forEach((b) => { b.dataset.dir = ''; b.closest('th').removeAttribute('aria-sort'); });
+    btn.dataset.dir = desc ? 'desc' : 'asc';
+    btn.closest('th').setAttribute('aria-sort', desc ? 'descending' : 'ascending');
+    sumTbl.querySelectorAll('.tp-trow-detail').forEach((d) => d.remove());
+    sumTbl.querySelectorAll('.tp-trow.on').forEach((r) => { r.classList.remove('on'); r.setAttribute('aria-expanded', 'false'); });
+    const body = sumTbl.querySelector('tbody') || sumTbl;
+    const trs = [...sumTbl.querySelectorAll('.tp-trow')];
+    trs.sort((a, b) => {
+      const va = a.children[col].dataset.v, vb = b.children[col].dataset.v;
+      const r = col === 0 ? String(va).localeCompare(String(vb), 'zh-Hant') : Number(va) - Number(vb);
+      return desc ? -r : r;
+    });
+    trs.forEach((tr) => body.appendChild(tr));
+  }));
   document.querySelectorAll('.tp-trow').forEach((tr) => {
     tr.addEventListener('click', () => openRow(tr));
     tr.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openRow(tr); } });

@@ -1332,11 +1332,12 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
       const f = accIds.map((id) => fol[id]).find(Boolean);
       const jRows = accIds.map((id) => jn[id]).filter(Boolean);
       const adds = jRows.length ? jRows.reduce((a, j) => a + T.n(j.joins), 0) : rows.reduce((a, r) => a + T.n(r.line_adds), 0);
-      return `<tr class="tp-trow" data-who="${escapeHtml(name)}" tabindex="0" aria-expanded="false"><td><span class="tp-caret" aria-hidden="true">▸</span><b>${text(name)}</b></td>
-        <td class="num">${f ? T.fmt(f.followers) : '—'}</td><td class="num">${rows.length}</td>
-        <td class="num">${T.fmt(T.avg(rows, 'views'))}<small>中 ${T.fmt(T.med(rows, 'views'))}</small></td>
-        <td class="num">${T.fmt(T.avg(rows, 'likes'), 1)}</td><td class="num">${T.fmt(T.avg(rows, 'replies'), 1)}</td>
-        <td class="num">${T.fmt(T.avg(rows, 'clicks'), 1)}</td><td class="num">${adds}</td></tr>`;
+      // data-v：排序用的原始數字（畫面上的字有千分位、小字中間值，不能直接比）
+      return `<tr class="tp-trow" data-who="${escapeHtml(name)}" tabindex="0" aria-expanded="false"><td data-v="${escapeHtml(name)}"><span class="tp-caret" aria-hidden="true">▸</span><b>${text(name)}</b></td>
+        <td class="num" data-v="${f ? f.followers : -1}">${f ? T.fmt(f.followers) : '—'}</td><td class="num" data-v="${rows.length}">${rows.length}</td>
+        <td class="num" data-v="${T.avg(rows, 'views')}">${T.fmt(T.avg(rows, 'views'))}<small>中 ${T.fmt(T.med(rows, 'views'))}</small></td>
+        <td class="num" data-v="${T.avg(rows, 'likes')}">${T.fmt(T.avg(rows, 'likes'), 1)}</td><td class="num" data-v="${T.avg(rows, 'replies')}">${T.fmt(T.avg(rows, 'replies'), 1)}</td>
+        <td class="num" data-v="${T.avg(rows, 'clicks')}">${T.fmt(T.avg(rows, 'clicks'), 1)}</td><td class="num" data-v="${adds}">${adds}</td></tr>`;
     };
     let mode = 'card';
     try { mode = localStorage.getItem('s1ne_tp_mode') || 'card'; } catch { /* 無痕 */ }
@@ -1348,7 +1349,8 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
         <p class="help" style="margin:6px 0 12px">點卡片（或表格的一列）展開每一篇。平均會被單篇爆文拉高，旁邊的「中間值」比較代表平常一篇的水準。追蹤人數每天早上記一次。</p>
         <div class="tp-grid" data-tp-view="card"${mode === 'card' ? '' : ' hidden'}>${people.map(card).join('')}</div>
         <div data-tp-view="table"${mode === 'table' ? '' : ' hidden'}><div class="table-wrap"><table class="spec tp-sum">
-          <tr><th>顧問</th><th class="num">追蹤</th><th class="num">總篇數</th><th class="num">平均瀏覽</th><th class="num">平均讚</th><th class="num">平均留言</th><th class="num">平均點擊</th><th class="num">加入 LINE</th></tr>
+          <tr>${['顧問', '追蹤', '總篇數', '平均瀏覽', '平均讚', '平均留言', '平均點擊', '加入 LINE'].map((h, i) =>
+            `<th class="${i ? 'num ' : ''}tp-sort"><button type="button" data-sort-col="${i}">${h}<span class="tp-arrow" aria-hidden="true"></span></button></th>`).join('')}</tr>
           ${people.map(trow).join('')}</table></div>
           </div></article>
 

@@ -471,3 +471,10 @@ details.note-details p{margin:8px 0 0;font-size:13.5px;white-space:pre-wrap;colo
 
 .tp-table td{white-space:normal;overflow:visible;text-overflow:clip;max-width:none}
 .tp-table td:nth-child(2){min-width:160px}
+
+.tp-sort button{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:4px;min-height:32px;color:inherit;font-weight:inherit}
+.tp-sort button:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:4px}
+.tp-sort button:hover{text-decoration:underline}
+.tp-arrow::after{content:'↕';opacity:.35;font-size:11px}
+.tp-sort button[data-dir="desc"] .tp-arrow::after{content:'▼';opacity:1}
+.tp-sort button[data-dir="asc"] .tp-arrow::after{content:'▲';opacity:1}
