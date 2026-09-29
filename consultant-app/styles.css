@@ -456,3 +456,9 @@ details.note-details p{margin:8px 0 0;font-size:13.5px;white-space:pre-wrap;colo
 .tp-trow:hover,.tp-trow.on{background:#eef4ff}
 .tp-trow:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
 .tp-heat th{white-space:nowrap}
+
+.tp-charts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.tp-fig{margin:0;border:1px solid var(--line);border-radius:12px;padding:12px}
+.tp-fig figcaption{font-weight:700;font-size:13.5px;margin-bottom:8px}
+.tp-cv{position:relative;height:300px}
+@media (max-width:760px){.tp-charts{grid-template-columns:1fr}.tp-cv{height:260px}}

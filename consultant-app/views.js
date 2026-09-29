@@ -1360,7 +1360,17 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
         <div id="tp-heat"></div>
         <p class="help">格子越深代表越好；小字是篇數。<b>少於 3 篇的格子反灰</b>，樣本太少，先不要拿來下結論。</p></article>
 
-      <article class="card" style="margin-top:12px"><div class="card-head"><h2 style="margin:0;font-size:16px">③ 轉化：哪個公式、哪個時段帶來加入 LINE</h2></div>
+      <article class="card" style="margin-top:12px"><div class="card-head"><h2 style="margin:0;font-size:16px">③ 統計圖：哪個公式、哪個時段比較好</h2></div>
+        <p class="help" style="margin:6px 0 12px">跟著上面②選的顧問一起變。公式只列 3 篇以上的，篇數太少的先不放。</p>
+        <div class="tp-charts">
+          <figure class="tp-fig"><figcaption>依公式：平均瀏覽 vs 平均留言</figcaption><div class="tp-cv"><canvas id="tp-ch-fv"></canvas></div></figure>
+          <figure class="tp-fig"><figcaption>依時段：平均瀏覽 vs 平均留言</figcaption><div class="tp-cv"><canvas id="tp-ch-sv"></canvas></div></figure>
+          <figure class="tp-fig"><figcaption>依公式：帶來幾人加入 LINE（顏色＝哪位顧問）</figcaption><div class="tp-cv"><canvas id="tp-ch-fj"></canvas></div></figure>
+          <figure class="tp-fig"><figcaption>依時段：帶來幾人加入 LINE（顏色＝哪位顧問）</figcaption><div class="tp-cv"><canvas id="tp-ch-sj"></canvas></div></figure>
+        </div>
+      </article>
+
+      <article class="card" style="margin-top:12px"><div class="card-head"><h2 style="margin:0;font-size:16px">轉化明細：哪個公式、哪個時段帶來加入 LINE</h2></div>
         <p class="help" style="margin:6px 0 12px">目前「轉化」＝有人點了貼文裡的連結、接著加入 LINE 官方帳號。從「職缺社群回覆」（回覆貼文底下留言的人）連結加入的，歸到同一位顧問、同一個職缺當時最近發的那一篇。「加入後有沒有詢問」9/29 才開始記，累積 3～4 週後會換成那個定義。數字還很少，先看方向就好。</p>
         <div class="tp-two"><div><h3 class="tp-h3">依公式</h3><div id="tp-conv-f"></div></div><div><h3 class="tp-h3">依時段</h3><div id="tp-conv-s"></div></div></div>
       </article>

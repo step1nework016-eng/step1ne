@@ -2732,6 +2732,7 @@ function wireThreadsPerf() {
     const cs = document.getElementById('tp-conv-s');
     if (cf) cf.innerHTML = views.threadsConvBars(sub, 'f');
     if (cs) cs.innerHTML = views.threadsConvBars(sub, 's');
+    drawThreadsCharts(sub).catch(() => {});
   };
   who.addEventListener('change', draw);
   metric.addEventListener('change', draw);
@@ -2760,4 +2761,65 @@ function wireThreadsPerf() {
     tr.addEventListener('click', () => openRow(tr));
     tr.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openRow(tr); } });
   });
+}
+
+
+// ③ 統計圖（Chart.js，第一次用到才載入，其他頁不會多載）。
+let _chartLib = null;
+function loadChartJs() {
+  if (window.Chart) return Promise.resolve(window.Chart);
+  if (_chartLib) return _chartLib;
+  _chartLib = new Promise((ok, bad) => {
+    const sc = document.createElement('script');
+    sc.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js';
+    sc.onload = () => ok(window.Chart);
+    sc.onerror = () => bad(new Error('圖表元件載入失敗'));
+    document.head.appendChild(sc);
+  });
+  return _chartLib;
+}
+const _tpCharts = {};
+async function drawThreadsCharts(rows) {
+  const Chart = await loadChartJs();
+  const reduce = !window.matchMedia || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const slots = views.threadsPerf.SLOTS.map(([s0]) => s0);
+  const group = (key) => {
+    const g = {};
+    rows.forEach((r) => { const x = g[r[key]] = g[r[key]] || { n: 0, v: 0, r: 0, j: 0, who: {} }; x.n += 1; x.v += r.v; x.r += r.r; x.j += r.j; if (r.j) x.who[r.w] = (x.who[r.w] || 0) + r.j; });
+    return g;
+  };
+  const gf = group('f'), gs = group('s');
+  const forms = Object.keys(gf).filter((k) => gf[k].n >= 3).sort((a, b) => gf[b].v / gf[b].n - gf[a].v / gf[a].n);
+  const short = (t) => (t.length > 14 ? t.slice(0, 13) + '…' : t);
+  const put = (id, cfg) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (_tpCharts[id]) _tpCharts[id].destroy();
+    cfg.options = Object.assign({ responsive: true, maintainAspectRatio: false, animation: reduce ? false : { duration: 300 },
+      plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } } }, cfg.options || {});
+    _tpCharts[id] = new Chart(el, cfg);
+  };
+  const viewsVsReplies = (labels, g) => ({
+    data: { labels: labels.map(short), datasets: [
+      { type: 'bar', label: '平均瀏覽', data: labels.map((k) => Math.round(g[k].v / g[k].n)), backgroundColor: 'rgba(40,103,237,.75)', yAxisID: 'y' },
+      { type: 'line', label: '平均留言', data: labels.map((k) => +(g[k].r / g[k].n).toFixed(1)), borderColor: '#e0892a', backgroundColor: '#e0892a', pointRadius: 4, tension: 0.25, yAxisID: 'y1' },
+    ] },
+    options: { scales: { y: { beginAtZero: true, title: { display: true, text: '瀏覽' } },
+      y1: { beginAtZero: true, position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: '留言' } } },
+      plugins: { tooltip: { callbacks: { afterLabel: (c) => `${g[labels[c.dataIndex]].n} 篇` } } } },
+  });
+  put('tp-ch-fv', viewsVsReplies(forms, gf));
+  const sl = slots.filter((k) => gs[k]);
+  put('tp-ch-sv', viewsVsReplies(sl, gs));
+  const palette = ['#2867ed', '#06C755', '#e0892a', '#8b5cf6', '#e5484d', '#0ea5a4', '#a16207', '#64748b', '#db2777', '#4f46e5', '#65a30d', '#0891b2', '#b45309'];
+  const people = [...new Set(rows.map((r) => r.w))];
+  const stacked = (labels, g) => ({
+    type: 'bar',
+    data: { labels: labels.map(short), datasets: people.map((w, i) => ({ label: w, data: labels.map((k) => (g[k] && g[k].who[w]) || 0), backgroundColor: palette[i % palette.length] }))
+      .filter((d) => d.data.some((x) => x > 0)) },
+    options: { scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true, ticks: { precision: 0 }, title: { display: true, text: '加入 LINE 人數' } } } },
+  });
+  const jf = Object.keys(gf).filter((k) => gf[k].j > 0).sort((a, b) => gf[b].j - gf[a].j);
+  put('tp-ch-fj', stacked(jf.length ? jf : ['還沒有資料'], jf.length ? gf : { '還沒有資料': { who: {} } }));
+  put('tp-ch-sj', stacked(sl, gs));
 }
