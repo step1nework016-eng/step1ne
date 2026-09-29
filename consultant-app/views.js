@@ -1806,7 +1806,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
   // data-bd-stage／data-bd-has-todo 屬性標記，篩選邏輯在 app.js 的
   // wireBdDashboardFilter()（同一套 wireBindFilter() 的作法：show/hide，不重打 API）。
   bdDashboardStageLabel: { sent: '已接觸', delivered: '送達', opened: '開信', replied: '回信', jd_shared: '談到職缺', closed: '成交' },
-  bdDashboard: ({ funnel, open_tracking_note, no_delivery_record_count, contact_breakdown, rows, consultants }) => {
+  bdDashboard: ({ funnel, open_tracking_note, no_delivery_record_count, contact_breakdown, rows, consultants, cached_at }) => {
     const LABEL = views.bdDashboardStageLabel;
     const STAGES = ['sent', 'delivered', 'opened', 'replied', 'jd_shared', 'closed'];
     const cb = contact_breakdown || { mail: 0, call: 0 };
@@ -1855,7 +1855,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
       return `${head}<article class="list-row bd-dash-row" data-bd-stage="${text(r.stage)}" data-bd-has-todo="${r.todo.length ? 1 : 0}" data-bd-industry="${escapeHtml(g)}" data-bd-assignee="${escapeHtml(r.assigned_to || '')}" data-bd-phone="${phoneKind}">
         <span>
           <b>${text(r.company)}</b> ${r.industry ? `<span class="badge">${text(String(r.industry).split(/[（(]/)[0].slice(0, 18))}</span>` : ''}
-          ${r.trigger ? `<small class="bd-trigger">【觸發】${text(r.trigger)}</small>` : ''}
+          ${views.bdEntry(r.trigger, r.has_candidate)}
           ${phoneHtml}${mainHtml}${noPhone}
           <small>${text(r.contact_name || '窗口未知')}${r.contact_email ? ' · ' + text(r.contact_email) : ''}</small>
           ${lastCall}
@@ -1870,7 +1870,20 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
         </div>
       </article>`;
     }).join('')}</div>` : empty('目前沒有已經接觸過的公司');
-    return `<div class="page-head"><div><h2>開發進度看板</h2><p>寄出、電訪、追信、回信、談到職缺、成交——同一家公司合併成一列，不用分頭看。</p></div></div>${funnelCard}${filterBar}${rowsHtml}`;
+    return `<div class="page-head"><div><h2>開發進度看板</h2><p>寄出、電訪、追信、回信、談到職缺、成交——同一家公司合併成一列，不用分頭看。</p>${cached_at ? `<p class="help">資料時間 ${text(String(cached_at).slice(11, 16))}（為了省資料庫額度，每 5 分鐘更新一次；你們按按鈕改的資料會立刻更新）</p>` : ''}</div></div>${funnelCard}${filterBar}${rowsHtml}`;
+  },
+  // 切入點（2026-09-29 Jacky：本週計畫表寫的切入點，卡片上也要看得到）：新消息＞人選敲門＞104 職缺
+  bdTriggerOf: (rows) => {
+    const o = (rows || []).find((x) => String(x.why_company || '').includes('【觸發】'));
+    return o ? String(o.why_company).split('【觸發】').pop().split(/來源[:：]|https?:\/\//)[0].replace(/[\s。；;（(]+$/, '').slice(0, 90) : '';
+  },
+  bdEntry: (trigger, hasCandidate, big) => {
+    const [tag, how, cls] = trigger
+      ? ['新消息', `${trigger}　→ 高手打法：先恭喜，再問這波人力怎麼規劃`, 'tr']
+      : hasCandidate
+        ? ['人選敲門', '手上有對得上的人選　→ 開口先講「我這有一位＿＿，要不要先看看背景？」', 'cand']
+        : ['104 職缺', '只看到他們在 104 徵人　→ 新手打法：先承認「你們自己找得順就不打擾」，當難補缺的備案', 'job'];
+    return `<div class="bd-entry ${cls}${big ? ' big' : ''}"><b>切入點・${tag}</b><span>${text(how)}</span></div>`;
   },
   // 話術手冊（2026-09-29）：卡片裡的「話術快查」與獨立分頁共用。vars 有值就把 {公司}{職缺}{產業}{常補} 換成那一家的資料。
   scriptFill: (t, vars) => String(t).replace(/\{(公司|職缺|產業|常補)\}/g, (_, k) => (vars && vars[k]) || '＿＿'),
@@ -1939,6 +1952,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
     const say = (t, when) => `<p class="cg-say"${when ? ` data-when="${when}"` : ''}${when === 'small' ? ' hidden' : ''}>${text(t)}</p>`;
     const guidePane = g ? `<div class="cg" data-bd-id="${escapeHtml(callRow ? callRow.id : '')}">
       ${lastCall ? `<div class="notice" style="margin:0 0 10px">上次電訪：${text(RES_ZH[lastCall.call_result] || lastCall.call_result)}${lastCall.call_retry_at ? `，建議 ${text(String(lastCall.call_retry_at).slice(5, 10))} 再打` : ''}${lastCall.call_note ? `（${text(lastCall.call_note)}）` : ''}</div>` : ''}
+      ${views.bdEntry(views.bdTriggerOf(outreach), outreach.some((o) => o.candidate_card), true)}
       <section class="sc-quick sc-top"><h3 class="cg-title" style="margin-top:0"><span>★</span>話術對照（我的最愛固定在最上面，照著打）</h3>
         ${views.scriptsBlock({ 公司: (outreach[0] || {}).company || '', 職缺: g.job_title ? `「${g.job_title}」` : '', 產業: g.industry_short || '', 常補: g.industry_roles || '' }, true)}</section>
       <div class="cg-mode" role="group" aria-label="打法">
