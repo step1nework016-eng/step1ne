@@ -157,7 +157,14 @@ export const ACTIONS = {
   'pipeline-recommended-again': { label: '改回推進', method: 'post', path: () => '/admin/pipeline/forward-decision', fields: [], body: (ctx) => ({ application_id: ctx.idParams.application_id, company_id: ctx.idParams.company_id, not_recommended: false }), success: '已改回推進', confirmText: '確定要把這家客戶這個職缺改回推進中嗎？' },
   'pipeline-message-client': { label: '傳訊息給客戶', method: 'post', path: () => '/admin/pipeline/message-client', fields: [{ name: 'message', label: '訊息內容', type: 'textarea', required: true }], body: idBody, success: '訊息已送出' },
   'client-formal-report': { label: '建立正式報告', method: 'post', path: () => '/admin/client-formal-reports/', fields: [{ name: 'note', label: '報告說明', type: 'textarea' }], body: idBody, success: '正式報告已建立' },
-  'client-formal-report-confirm': { label: '確認報告已上傳', method: 'post', path: () => '/admin/client-formal-reports/confirm-upload', fields: [], body: idBody, success: '已確認上傳', confirmText: '確認此正式報告已完成上傳？' },
+  // 2026-09-29 修：原本這顆「確認報告已上傳」沒有帶檔案，後端一律回 400（缺 pdf_b64）——
+  // 顧問做好的推薦履歷在新版根本傳不上去。改成真的選 PDF 上傳，跟舊版人選追蹤頁同一支端點。
+  'client-formal-report-upload': {
+    label: '上傳推薦履歷', method: 'post', path: () => '/admin/client-formal-reports/confirm-upload',
+    fields: [{ name: 'file', label: '選擇顧問做好的推薦履歷（PDF）。上傳後客戶在企業後台就看得到。', type: 'file', accept: 'application/pdf,.pdf', required: true }],
+    body: (ctx, values) => ({ ...(ctx.idParams || {}), pdf_b64: values.file_b64, filename: values.file_name }),
+    success: '已上傳，客戶在企業後台看得到了',
+  },
   // 2026-09-29 加（總指揮交辦，補新舊後台對照表抓到的缺口）：LINE ID／客戶
   // 備註原本只能看不能改——後端 /admin/pipeline/forward-detail 早就支援
   // 寫入這兩個欄位（見 index.js 對應段落的查證註解），只是前端一直沒接。

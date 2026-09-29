@@ -1239,6 +1239,11 @@ async function openCandidate(applicationId) {
         { idParams: { application_id: applicationId, company_id: companyId },
           record: { line_id_given: f.line_id_given || '', client_note: f.client_note || '' } });
       const lineIdLine = f.line_id_given ? ` · LINE ID：${text(f.line_id_given)}` : '';
+      const cfr = f.client_formal_report;
+      const cfrLine = !cfr ? ' · 推薦履歷：還沒上傳'
+        : cfr.pdf_pending ? ' · 推薦履歷：AI 產生中'
+        : cfr.consultant_confirmed_at ? ` · ✅ 推薦履歷：客戶看得到（${text(String(cfr.consultant_confirmed_at).slice(5, 16))} 上傳）`
+        : ' · 推薦履歷：只有 AI 草稿，客戶還看不到';
       // ⚠️ 2026-09-29 真實撞到、瀏覽器實測才抓到的版面 bug：這一列現在最多會
       // 疊到 8 顆操作按鈕，.actions-row 有 flex-shrink:0（不准縮），按鈕多到
       // 加總寬度超過 .drawer 本身的寬度（650px）時，同一個 flex row 裡的
@@ -1248,13 +1253,14 @@ async function openCandidate(applicationId) {
       // 觸發——所以只在這一列強制換行（span 佔滿一整行、按鈕另起一行），
       // 不依賴視窗寬度，也不去動全站 .list-row 這個共用類別去影響到別的地方。
       return `<div>
-<div class="list-row" style="flex-wrap:wrap;row-gap:8px"><span style="flex:1 1 100%"><b>${text(f.company_name)}</b><small>${text(f.job_title || f.job_slug)}${f.stage_label ? ' · ' + text(f.stage_label) : ''}${f.client_note ? ' · ' + text(f.client_note) : ''}${lineIdLine}${nr ? ' · ⚠ 不推進：' + text(f.advisor_not_recommended_reason || '') : ''}${f.no_show_at ? ' · ⚠ 不報到：' + text(f.no_show_reason || '') : ''}${f.candidate_withdrawn_at ? ' · 🚪 人選已放棄：' + text(f.candidate_withdraw_reason || '') : ''}</small></span>${rowActions([
+<div class="list-row" style="flex-wrap:wrap;row-gap:8px"><span style="flex:1 1 100%"><b>${text(f.company_name)}</b><small>${text(f.job_title || f.job_slug)}${f.stage_label ? ' · ' + text(f.stage_label) : ''}${f.client_note ? ' · ' + text(f.client_note) : ''}${lineIdLine}${cfrLine}${nr ? ' · ⚠ 不推進：' + text(f.advisor_not_recommended_reason || '') : ''}${f.no_show_at ? ' · ⚠ 不報到：' + text(f.no_show_reason || '') : ''}${f.candidate_withdrawn_at ? ' · 🚪 人選已放棄：' + text(f.candidate_withdraw_reason || '') : ''}</small></span>${rowActions([
         toggleBtn,
         withdrawBtn,
         editBtn,
         actionBtn('傳訊息給客戶', 'pipeline-message-client', { idParams: { application_id: applicationId, company_id: companyId } }),
         actionBtn('建立正式報告', 'client-formal-report', { idParams: { application_id: applicationId, company_id: companyId } }),
-        actionBtn('確認報告已上傳', 'client-formal-report-confirm', { idParams: { application_id: applicationId, company_id: companyId } }),
+        actionBtn(cfr && cfr.consultant_confirmed_at ? '換一份推薦履歷' : '上傳推薦履歷', 'client-formal-report-upload', { idParams: { application_id: applicationId, company_id: companyId } }),
+        cfr && cfr.consultant_confirmed_at && cfr.file_id ? `<button type="button" class="btn ghost sm" data-download-file="${text(cfr.file_id)}">下載推薦履歷</button>` : '',
         noShowBtn,
         actionBtn('取消推薦', 'pipeline-unforward-candidate', { idParams: { application_id: applicationId, company_id: companyId } }, 'danger')
       ].filter(Boolean))}</div>
@@ -2414,6 +2420,8 @@ document.addEventListener('click', async (event) => {
   if (copyBtn) { navigator.clipboard.writeText(copyBtn.getAttribute('data-copy-text') || '').then(() => toast('已複製連結', 'success')).catch(() => toast('複製失敗，請手動選取', 'error')); return; }
   const resumeDl = target.closest('[data-download-resume]');
   if (resumeDl) { downloadResume(resumeDl.getAttribute('data-download-resume')); return; }
+  const fileDl = target.closest('[data-download-file]');
+  if (fileDl) { const id = fileDl.getAttribute('data-download-file'); downloadFileGeneric(id, `/admin/file/${encodeURIComponent(id)}`, '推薦履歷.pdf'); return; }
   const formDl = target.closest('[data-download-form-submission]');
   if (formDl) { downloadFormSubmission(formDl.getAttribute('data-download-form-submission')); return; }
   // 2026-09-18 加（Phase 1.1 v1.1）：整理履歷／AI 面談／查看佐證，三個都開
