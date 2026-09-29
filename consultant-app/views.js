@@ -2163,6 +2163,20 @@ ${a.note ? `<details class="note-details"><summary>顧問備註／電洽紀錄</
   // 排序照「顧問打開後最想知道什麼」：
   //   分流（要不要現在打）→ 一句話定位 → 最大風險 → 分數 → 專業題深度
   //   → 硬條件 → 待追問 → 報告全文（收合，備查用）
+  // 2026-09-29 Jacky：打開人選卡片第一眼就要看到「背景經歷 × 職缺」匹配總結，不用再點進阿財初審。
+  jobMatchTop: (report) => {
+    let d = null;
+    try { d = report && report.content_json ? JSON.parse(report.content_json) : null; } catch { d = null; }
+    const jm = (d && d.job_match) || {};
+    if (!(jm.items || []).length && !jm.conclusion) return '';
+    const icon = { 符合: '✅', 部分符合: '⚠️', 缺: '❌', 未確認: '❓' };
+    const n = (v) => (jm.items || []).filter((x) => x.verdict === v).length;
+    return `<details class="rp-match rp-top" open><summary><b>職缺匹配總結</b>
+        <span class="rp-count">✅ ${n('符合')}　⚠️ ${n('部分符合')}　❌ ${n('缺')}${n('未確認') ? `　❓ ${n('未確認')}` : ''}</span></summary>
+      ${jm.conclusion ? `<p class="rp-match-conc">${text(jm.conclusion)}</p>` : ''}
+      <ul class="rp-items">${(jm.items || []).map((x) => `<li><span>${icon[x.verdict] || '❓'}</span><div><b>${text(x.requirement)}</b><small>${text(x.evidence)}${x.basis ? `（${text(x.basis)}）` : ''}</small></div></li>`).join('')}</ul>
+    </details>`;
+  },
   interviewResult: (report, application = {}) => {
     const parse = (raw) => { try { return raw ? JSON.parse(raw) : null; } catch { return null; } };
     const d = parse(report.content_json);

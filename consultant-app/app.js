@@ -1346,7 +1346,7 @@ ${views.candidateFormsBlock(f.forms, applicationId, companyId)}
       // ／trg_applications_seq_no 觸發器），一直沒搬進 V3 標題。
       title: (application.seq_no ? `#${application.seq_no} ` : '') + (application.name || '應徵單'),
       subtitle: `${application.job_title || application.job_slug || ''} · ${channelTag}`,
-      body: `<div class="drawer-section">${dupNoticeHtml}${stageBar}<h3>基本資料${contactBadge}${hardGateBadge}</h3>${basics}<h3>操作</h3>${rowActions([
+      body: `<div class="drawer-section">${dupNoticeHtml}${stageBar}${views.jobMatchTop(report)}<h3>基本資料${contactBadge}${hardGateBadge}</h3>${basics}<h3>操作</h3>${rowActions([
         actionBtn('新增顧問備註', 'application-notes', ctxId, 'primary'),
         // 2026-09-17 改名：這顆原本也叫「電洽前準備」，但實際上是手動打字存進
         // consultant_call_notes 的表單，跟「電洽」階段格裡新加的 AI Pre-call Card
