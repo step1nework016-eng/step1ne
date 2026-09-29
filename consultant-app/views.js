@@ -1849,7 +1849,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
         ? `<div class="bd-phone main"><b>公司總機</b> ${tel(r.company_phone)}<small>→ 先過總機：問「＿＿職缺是哪位人資負責」</small></div>` : '';
       const noPhone = !r.hr_phone && !r.company_phone ? '<div class="bd-phone none">⚠️ 還沒有電話</div>' : '';
       const phoneKind = r.hr_phone ? 'hr' : (r.company_phone ? 'main' : 'none');
-      const lastCall = r.last_call_result ? `<small>上次電訪：${text(RES[r.last_call_result] || r.last_call_result)}（${text(String(r.last_call_at || '').slice(5, 10))}）${r.call_retry_at ? `・建議 ${text(String(r.call_retry_at).slice(5, 10))} 再打` : ''}${r.last_call_note ? `・${text(r.last_call_note)}` : ''}</small>` : '';
+      const lastCall = r.last_call_result ? `<small>${r.call_count ? `已打 ${r.call_count} 通・` : ''}上次電訪：${text(RES[r.last_call_result] || r.last_call_result)}（${text(String(r.last_call_at || '').slice(5, 10))}）${r.call_retry_at ? `・建議 ${text(String(r.call_retry_at).slice(5, 10))} 再打` : ''}${r.last_call_note ? `・${text(r.last_call_note)}` : ''}</small>` : '';
       const oid = (r.outreach_ids || [])[0] || '';
       return `${head}<article class="list-row bd-dash-row" data-bd-stage="${text(r.stage)}" data-bd-has-todo="${r.todo.length ? 1 : 0}" data-bd-industry="${escapeHtml(g)}" data-bd-assignee="${escapeHtml(r.assigned_to || '')}" data-bd-phone="${phoneKind}">
         <span>
