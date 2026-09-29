@@ -1897,7 +1897,10 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
         <p class="help">手上如果有對得上的人選（見「人選敲門卡」），開場可以帶一句，成功率會高很多。</p>`)}
       ${step(1, '過總機（只講兩句，不要推銷）', `${say(g.gate_hr, 'hr')}${say(g.gate_small, 'small')}${say(g.gate_fallback)}
         <p class="help">報全名、講短、請對方「指點該找誰」。總機說「我幫你轉達」→ 直接問姓名＋分機或信箱。</p>`)}
-      ${step(2, '開場 20 秒', `${say(g.opener_hr, 'hr')}${say(g.opener_small, 'small')}<p class="cg-say cg-opt">${text(g.candidate_hook)}</p>
+      ${step(2, '開場 20 秒', `${g.opener_industry_hr && !g.job_title
+          ? `<p class="help" style="margin:0 0 8px">104 上沒看到確定的職缺 → 用<b>產業切入</b>（${text(g.industry_short || '')}）</p>${say(g.opener_industry_hr, 'hr')}${say(g.opener_industry_small, 'small')}`
+          : `${say(g.opener_hr, 'hr')}${say(g.opener_small, 'small')}<p class="cg-say cg-opt">${text(g.candidate_hook)}</p>
+             ${g.opener_industry_hr ? `<details class="cg-obj"><summary>對方說「那個缺已經沒在找了」→ 改用產業切入</summary>${say(g.opener_industry_hr, 'hr')}${say(g.opener_industry_small, 'small')}</details>` : ''}`}
         <p class="help">一定要講到「我打來的原因是…」。對方說「現在不方便」→「那我什麼時間再打給您比較好？」</p>`)}
       ${step(3, '問需求（3 題）', g.questions.map((x, i) => `<div class="cg-q"><b>${i + 1}. ${text(x.q)}</b><small>${text(x.tip)}</small></div>`).join(''))}
       ${step(4, '對方拒絕時', g.objections.map((o) => `<details class="cg-obj"><summary>「${text(o.q)}」</summary><p class="cg-say">${text(o.a)}</p></details>`).join('') + '<p class="help">不要反駁，先問一句、再退一步；最後都要留下姓名＋信箱。</p>')}
