@@ -1,0 +1,393 @@
+:root{font-family:Inter,"Noto Sans TC",system-ui,sans-serif;color:#172033;background:#f4f7fb;--blue:#2867ed;--line:#dfe6f1;--muted:#69758a;--shadow:0 10px 28px rgba(35,55,90,.08)}*{box-sizing:border-box}body{margin:0}button,input,select,textarea{font:inherit}.app-shell{min-height:100vh;display:grid;grid-template-columns:236px 1fr}.sidebar{background:#101b32;color:#dfe8fb;padding:22px 14px;position:sticky;top:0;height:100vh}.brand{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none;font-weight:800;font-size:18px;padding:0 10px 22px;cursor:pointer}.brand>span{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:linear-gradient(135deg,#3478ff,#6a5cff)}.brand small{display:block;color:#7f91b5;font-size:9px;letter-spacing:1.8px;margin-top:3px}.sidebar nav p{font-size:11px;text-transform:uppercase;color:#7182a3;margin:22px 10px 7px}.sidebar nav a{display:flex;gap:11px;align-items:center;padding:11px 12px;border-radius:10px;color:#bac7df;cursor:pointer;margin:3px 0}.sidebar nav a:hover,.sidebar nav a.active{color:#fff;background:#263755}.sidebar nav i{width:22px;text-align:center;font-style:normal}.sidebar footer{position:absolute;bottom:20px;color:#7182a3;font-size:11px;padding:0 10px}.topbar{height:66px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:0 28px;position:sticky;top:0;z-index:5}.topbar input{max-width:520px;flex:1}.topbar .btn{margin-left:auto}.mobile-menu{display:none;border:0;background:none;font-size:22px}.content{padding:28px;max-width:1480px;margin:auto}.page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:20px}.page-head h1{margin:0;font-size:27px}.page-head p{margin:6px 0;color:var(--muted)}.actions{display:flex;gap:8px}.btn,.chip{border:1px solid var(--line);background:#fff;border-radius:9px;padding:9px 13px;color:#33405a;cursor:pointer;white-space:nowrap;flex-shrink:0}.btn:hover{border-color:#9fb3d3}.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}.btn.danger{background:#c53a45;border-color:#c53a45;color:#fff}.btn.ghost{font-size:12px}.btn:disabled{opacity:.55;cursor:not-allowed}input,select,textarea{border:1px solid #d8e0ec;background:#fff;border-radius:9px;padding:10px 12px;min-width:0}textarea{resize:vertical}.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:18px;overflow:auto}.tabs button{white-space:nowrap;border:0;background:none;padding:12px 14px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent}.tabs button.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:700}.filters{display:flex;flex-wrap:wrap;gap:9px;margin:0 0 18px}.chip.active{background:#eaf1ff;color:var(--blue);border-color:#b7cdfa}.kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:16px}.kpi,.card{background:#fff;border:1px solid #e5eaf2;border-radius:14px;padding:18px;box-shadow:var(--shadow)}.kpi span,.kpi small{display:block;color:var(--muted)}.kpi strong{display:block;font-size:27px;margin:7px 0}.two-col,.dashboard-grid,.card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.dashboard-grid .span-2{grid-column:span 2}.card h2{font-size:17px;margin:0 0 14px}.card h3{margin:0}.card-head{display:flex;justify-content:space-between;align-items:center;gap:12px}.list{display:grid;gap:9px}.list-row,.session-row{width:100%;border:1px solid var(--line);background:#fff;border-radius:11px;padding:13px;display:flex;justify-content:space-between;align-items:center;gap:12px;text-align:left}.list-row small,.session-row small{display:block;color:var(--muted);margin-top:4px}.list-row>span,.session-row>span{flex:1;min-width:0}.list-row .actions-row{flex-shrink:0}.candidate-card,.job-row{background:#fff;border:1px solid var(--line);border-radius:13px;padding:16px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start}.candidate-card h3,.job-row h3{margin:0}.candidate-card p,.job-row p{margin:4px 0;color:var(--muted)}.candidate-card dl{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,1fr);margin:0}.candidate-card dt{color:var(--muted);font-size:12px}.candidate-card dd{margin:4px 0}.candidate-card .btn{justify-self:end}.job-row{grid-template-columns:1fr auto auto auto}.metrics{display:flex;gap:12px;color:var(--muted);font-size:13px}.badge{display:inline-flex;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:700;background:#edf1f6;color:#556276;white-space:nowrap;flex-shrink:0}.badge.success{background:#e2f8ed;color:#14794c}.badge.warning{background:#fff0d5;color:#9b5b00}.badge.info{background:#e7f0ff;color:#235fcb}.badge.danger{background:#ffe5e7;color:#a72f3a}.notice{padding:11px 13px;background:#fff7dd;border:1px solid #f2d98a;border-radius:9px;color:#775b08;margin:10px 0}.state{min-height:150px;border:1px dashed #cbd6e6;border-radius:13px;display:grid;place-items:center;align-content:center;text-align:center;padding:24px;color:var(--muted)}.state strong{color:#39465d}.state p{max-width:500px;margin:7px 0}.state.error{border-color:#e9abb0;background:#fff9f9}.state.development{background:#f7f9fc}.dev-mark{background:#dbe6f7;color:#405477;border-radius:7px;padding:5px 7px;font-size:11px;margin-bottom:8px}.spinner{width:24px;height:24px;border:3px solid #dfe7f4;border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;margin-bottom:10px}@keyframes spin{to{transform:rotate(360deg)}}.master-detail{display:grid;grid-template-columns:350px minmax(0,1fr);gap:14px}.master-detail>aside{max-height:calc(100vh - 190px);overflow:auto}.transcript{display:grid;gap:11px;max-height:65vh;overflow:auto;margin-top:15px}.bubble{width:fit-content;max-width:76%;border-radius:13px;padding:11px 13px;background:#eef3f9}.bubble.candidate{margin-left:auto;background:#e7f0ff}.bubble p{margin:6px 0;white-space:pre-wrap}.bubble small{color:var(--muted)}.compact-json{white-space:pre-wrap;word-break:break-word;max-height:300px;overflow:auto;background:#f7f9fc;padding:12px;border-radius:9px}.mask{position:fixed;inset:0;background:rgba(12,21,37,.46);z-index:20}.modal,.drawer{position:fixed;background:#fff;z-index:21;box-shadow:0 24px 70px rgba(0,0,0,.25)}.modal{width:min(620px,calc(100vw - 30px));max-height:90vh;overflow:auto;left:50%;top:50%;transform:translate(-50%,-50%);border-radius:16px}.drawer{right:0;top:0;width:min(650px,100vw);height:100vh;overflow:auto}.modal header,.drawer header{display:flex;justify-content:space-between;gap:20px;padding:20px;border-bottom:1px solid var(--line)}.modal header h2,.drawer header h2{margin:0}.modal header p,.drawer header p{margin:5px 0 0;color:var(--muted)}.modal-body,.drawer-body{padding:20px}.modal footer{padding:15px 20px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px}.icon-btn{border:0;background:none;font-size:26px;cursor:pointer}.drawer-section{padding:6px}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.field{display:grid;gap:6px}.field span{font-size:13px;font-weight:700}.field:has(textarea),.span-2{grid-column:span 2}.help,.muted{color:var(--muted);font-size:13px}.toast-root{position:fixed;right:18px;bottom:18px;display:grid;gap:8px;z-index:40}.toast{background:#17243d;color:#fff;padding:12px 15px;border-radius:9px;box-shadow:var(--shadow)}.toast.success{background:#176f4b}.toast.error{background:#a72f3a}.btn.sm{padding:6px 10px;font-size:12px}.btn.danger.ghost,.btn.danger.sm{background:#fff;color:#a72f3a;border-color:#eab8bc}.actions-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}.bulk-bar{display:flex;flex-wrap:wrap;align-items:center;gap:9px;background:#eaf1ff;border:1px solid #b7cdfa;border-radius:11px;padding:11px 13px;margin-bottom:12px}.bulk-bar span{font-size:13px;color:var(--muted);margin-right:4px}.row-check{margin-right:4px;width:17px;height:17px}.funnel-chart{display:grid;gap:9px}.fnrow{display:flex;align-items:center;gap:10px}.fnrow .lb{width:150px;flex-shrink:0;font-size:13px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.fnrow .track{flex:1;height:8px;background:#eef2f8;border-radius:99px;overflow:hidden}.fnrow .bar{height:100%;background:var(--blue);border-radius:99px}.fnrow .vn{width:52px;flex-shrink:0;text-align:right;font-variant-numeric:tabular-nums;font-weight:700;font-size:13px}.kpi.accent strong{color:var(--blue)}.kpi.warn strong{color:#9b5b00}.aging-warn{color:#9b5b00}.aging-bad{color:#a72f3a}
+.fn-drop{font-size:11px;color:#9b5b00;text-align:center;margin:-2px 0}
+.hist-chart{display:flex;align-items:flex-end;gap:6px;height:130px;padding-top:8px}
+.hist-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+.hist-n{font-size:11px;color:var(--muted);font-weight:700;margin-bottom:3px}
+.hist-bar{width:100%;background:var(--blue);border-radius:4px 4px 0 0;min-height:2px}
+.hist-lb{font-size:10.5px;color:var(--muted);margin-top:5px}
+/* 2026-09-17 加：PRECALL_PHASE1 — Pre-call Card。抽屜寬度固定 650px（見 .drawer），
+   視覺盡量貼近 references/UI_REFERENCE_PRECALL_CARD.html 的配色跟階層，但版面改成
+   單欄堆疊（不是參考檔案那種 980px 容器裡的 2 欄/3 欄 grid）——抽屜本來就窄，
+   勉強塞多欄只會讓每欄擠成一團，不是真的「響應式」，直接單欄反而在手機上也不用
+   額外寫 media query，抽屜本身寬度變化就已經是響應式的。 */
+.pc-hero{display:grid;gap:10px;margin-bottom:12px}
+.pc-candidate{padding:14px 16px;background:linear-gradient(135deg,#eef5ff,#fff);border:1px solid #d7e6fb;border-radius:14px}
+.pc-candidate-name{font-size:19px;font-weight:800;margin-bottom:8px}
+.pc-meta{display:flex;gap:7px;flex-wrap:wrap}
+.pc-chip{font-size:12.5px;background:#fff;border:1px solid var(--line);padding:6px 10px;border-radius:999px;color:#33405a}
+.pc-goal{padding:14px 16px;border-radius:14px;background:#132238;color:#fff}
+.pc-goal small{opacity:.72;font-size:12px}
+.pc-goal strong{display:block;font-size:15.5px;line-height:1.55;margin-top:7px;font-weight:700}
+.pc-jobline{display:flex;gap:12px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin:-4px 0 12px;padding:0 2px}
+.pc-card{margin-bottom:12px;padding:0}
+.pc-card .card-head{padding:13px 15px;border-bottom:1px solid var(--line)}
+.pc-gate-list,.pc-questions{padding:13px 15px;display:grid;gap:9px}
+.pc-gate{border:1px solid var(--line);border-radius:12px;padding:11px 13px}
+.pc-gate-row{display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;list-style:none}
+.pc-gate-row::-webkit-details-marker{display:none}
+.pc-gate p{margin:9px 0 0;font-size:12.5px;color:var(--muted);line-height:1.5}
+.pc-status{font-size:11.5px;padding:4px 8px;border-radius:999px;font-weight:800;flex-shrink:0}
+.pc-status.good{background:#e2f8ed;color:#14794c}
+.pc-status.warn{background:#fff0d5;color:#9b5b00}
+.pc-status.bad{background:#ffe5e7;color:#a72f3a}
+.pc-q{display:grid;grid-template-columns:30px 1fr;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:11px 13px}
+.pc-q-num{width:26px;height:26px;border-radius:8px;background:#eaf1ff;color:var(--blue);display:grid;place-items:center;font-weight:800;font-size:12.5px}
+.pc-q strong{display:block;line-height:1.5;font-size:13.5px}
+.pc-q small{display:block;color:var(--muted);margin-top:5px;font-size:12px}
+.pc-q details{margin-top:6px}
+.pc-q summary{cursor:pointer;color:var(--blue);font-weight:700;font-size:12px}
+.pc-flag{padding:13px 15px;border-radius:0 0 14px 14px;background:#fff5df;color:#6f4b08}
+.pc-flag strong{display:block;margin-bottom:5px}
+.pc-flag p{margin:4px 0;font-size:12.5px;line-height:1.5}
+.pc-empty{padding:20px}
+.pc-legacy-body{background:#f7f9fc;border-radius:10px;padding:12px 14px;margin:10px 0;font-size:13px}
+.pc-legacy-body p{margin:4px 0}
+.pc-loading{display:grid;gap:10px}
+.pc-skel{background:linear-gradient(90deg,#eef2f8 25%,#f7f9fc 37%,#eef2f8 63%);background-size:400% 100%;animation:pc-shimmer 1.4s ease infinite;border-radius:12px}
+.pc-skel-hero{height:70px}
+.pc-skel-row{height:44px}
+@keyframes pc-shimmer{0%{background-position:100% 0}100%{background-position:0 0}}
+.line-avatar{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#06c755;color:#fff;font-size:11px;font-weight:700;overflow:hidden;vertical-align:middle;margin-right:4px}
+.line-avatar img{width:100%;height:100%;object-fit:cover}
+@media(max-width:1024px){.app-shell{grid-template-columns:76px 1fr}.sidebar{padding:20px 9px}.brand div,.sidebar nav p,.sidebar nav a{font-size:0}.sidebar nav a{justify-content:center}.sidebar nav i{font-size:18px}.sidebar footer{display:none}.content{padding:22px}.kpi-grid{grid-template-columns:repeat(2,1fr)}.brand-row{flex-direction:column;gap:8px;padding:0 2px 22px;justify-content:center}.sidebar-toggle{margin-left:0}}
+@media(max-width:768px){.app-shell{display:block}.sidebar{display:none;position:fixed;z-index:30;width:240px}.sidebar.open{display:block}
+.brand div,.sidebar nav p{display:block}.mobile-menu{display:block}.topbar{padding:0 14px}.topbar input{width:100%}.content{padding:18px 14px}.page-head{display:block}.page-head .actions{margin-top:12px}.two-col,.dashboard-grid,.card-grid,.master-detail{grid-template-columns:1fr}.dashboard-grid .span-2{grid-column:auto}.master-detail>aside{max-height:none}.kpi-grid{grid-template-columns:repeat(2,1fr)}.job-row{grid-template-columns:1fr auto}.job-row .metrics{grid-column:1/-1}.candidate-card dl{grid-template-columns:1fr 1fr}.drawer{width:100vw}.form-grid{grid-template-columns:1fr}.field:has(textarea),.span-2{grid-column:auto}}
+@media(max-width:430px){.kpi-grid{grid-template-columns:1fr}.candidate-card dl{grid-template-columns:1fr}.topbar .ghost{font-size:0}.topbar .ghost:after{content:'TOKEN';font-size:11px}}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-dow{text-align:center;font-size:12px;font-weight:700;color:var(--muted);padding:4px 0}
+.cal-day{display:flex;flex-direction:column;align-items:stretch;gap:2px;min-height:78px;border:1px solid var(--line);border-radius:9px;background:#fff;padding:6px;cursor:pointer;text-align:left;font:inherit}
+.cal-day:hover{border-color:#9fb3d3}
+.cal-day.pad{visibility:hidden;cursor:default}
+.cal-day.today{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue) inset}
+.cal-day.dup{border-color:#eab8bc;background:#fff9f9}
+.cal-dn{display:flex;align-items:center;font-size:12.5px;font-weight:700;color:#33405a}
+.cal-dn b{margin-left:auto;font-weight:700;color:var(--muted);font-size:11px}
+.cal-chip{display:flex;align-items:center;gap:4px;font-size:10.5px;background:#f4f7fb;border-radius:5px;padding:2px 5px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.cal-chip i{width:6px;height:6px;border-radius:50%;flex:none}
+.cal-chip.dup{background:#ffe5e7;color:#a72f3a}
+.cal-day>small{font-size:10.5px;color:var(--muted)}
+@media(max-width:640px){.cal-day{min-height:56px;padding:4px}.cal-chip{display:none}.cal-dn b{display:block}}
+table.spec{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:14px;background:#fff;border:1px solid var(--line);border-radius:11px;overflow:hidden}
+table.spec th{background:#f4f7fb;text-align:left;padding:9px 11px;font-size:12px;color:var(--blue);font-weight:700}
+table.spec td{padding:10px 11px;border-top:1px solid var(--line);vertical-align:top;color:#33405a}
+table.spec td.num{font-weight:800;text-align:center;white-space:nowrap;color:#172033}
+.spec-bar{display:flex;height:32px;border-radius:8px;overflow:hidden;margin:10px 0;border:1px solid var(--line)}
+.spec-bar div{display:grid;place-items:center;font-size:11px;font-weight:700;color:#fff;text-align:center;padding:0 4px}
+.spec-b0{background:#9aa3b5}.spec-b1{background:#2867ed}.spec-b2{background:#5b8def}
+.spec-b3{background:#1d4fb8}.spec-b4{background:#3f9e73}.spec-b5{background:#7182a3}
+.spec-q{background:#f4f7fb;border-radius:8px;padding:8px 11px;font-size:12.5px;margin:5px 0}
+.spec-q.no{background:#ffe5e7;color:#a72f3a}
+.spec-q.yes{background:#e2f8ed;color:#14794c}
+.spec-pre{margin:0;white-space:pre-wrap;font:12.5px/1.8 ui-monospace,monospace;color:#33405a;background:#f4f7fb;border-radius:9px;padding:12px}
+.metrics span.accent{color:var(--blue);font-weight:700}
+.metrics span.warn{color:#9b5b00;font-weight:700}
+.kv-grid{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:13.5px;margin:0}
+.kv-grid dt{color:var(--muted);white-space:nowrap}
+.kv-grid dd{margin:0}
+.stage-bar{display:flex;gap:2px;margin:4px 0 18px}
+.stage-dot{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;position:relative}
+.stage-dot span{width:18px;height:18px;border-radius:50%;background:#e5eaf2;border:2px solid #e5eaf2;z-index:1}
+.stage-dot.done span{background:var(--blue);border-color:var(--blue)}
+.stage-dot.now span{background:#fff;border-color:var(--blue);box-shadow:0 0 0 3px #eaf1ff}
+.stage-dot::before{content:'';position:absolute;top:9px;left:-50%;width:100%;height:2px;background:#e5eaf2;z-index:0}
+.stage-dot:first-child::before{display:none}
+.stage-dot.done::before{background:var(--blue)}
+.stage-dot small{font-size:11px;color:var(--muted);text-align:center}
+.stage-dot.done small,.stage-dot.now small{color:#172033;font-weight:700}
+.appt-row{position:relative}
+.field[hidden]{display:none}
+.stage-dot{cursor:pointer}
+.stage-detail-panel{background:#f9fafc;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:0 0 16px}
+.stage-detail-panel h4{margin:0 0 8px;font-size:14px}
+.stage-dot.active small{color:var(--blue)}
+.stage-dot.active span{box-shadow:0 0 0 3px #eaf1ff}
+details.note-details{border:1px solid var(--line);border-radius:11px;padding:10px 13px;margin-bottom:8px;background:#fff}
+details.note-details summary{cursor:pointer;display:flex;justify-content:space-between;gap:12px;list-style:none;font-size:13.5px}
+details.note-details summary::-webkit-details-marker{display:none}
+details.note-details summary::marker{content:''}
+details.note-details summary b{color:#172033}
+details.note-details summary small{color:var(--muted);white-space:nowrap}
+details.note-details p{margin:8px 0 0;font-size:13.5px;white-space:pre-wrap;color:#33405a}
+.view-toggle{display:flex;gap:2px}
+.view-toggle .btn.active,.btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.table-wrap{overflow-x:auto}
+.table-wrap table.spec{table-layout:fixed;width:100%}
+.table-wrap table.spec td{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.table-wrap table.spec col.col-name{width:15%}
+.table-wrap table.spec col.col-job{width:26%}
+.table-wrap table.spec col.col-client{width:16%}
+.table-wrap table.spec col.col-owner{width:9%}
+.table-wrap table.spec col.col-stage{width:12%}
+.table-wrap table.spec col.col-contact{width:16%}
+.table-wrap table.spec col.col-updated{width:12%}
+.table-wrap table.spec tr[data-application]:hover{background:#f4f7fb}
+.sidebar-toggle{background:none;border:0;color:#bac7df;cursor:pointer;font-size:16px;padding:4px 8px;margin-left:auto}
+.app-shell.collapsed{grid-template-columns:64px 1fr}
+.app-shell.collapsed .brand div,.app-shell.collapsed .sidebar nav p,.app-shell.collapsed .sidebar nav a{font-size:0}
+.app-shell.collapsed .sidebar nav a{justify-content:center}
+.app-shell.collapsed .sidebar nav i{font-size:18px}
+.app-shell.collapsed .sidebar footer{display:none}
+.app-shell.collapsed .sidebar{padding:22px 9px}
+.brand-row{display:flex;align-items:center;padding:0 10px 22px}
+.brand-row .brand{padding:0}
+.app-shell.collapsed .brand-row{padding:0 4px 22px;justify-content:center;flex-direction:column;gap:8px}
+.app-shell.collapsed .sidebar-toggle{margin-left:0}
+/* 2026-09-17 加：顧問人選面談室 */
+.linechat-grid{display:grid;grid-template-columns:300px minmax(0,1fr);gap:14px;height:calc(100vh - 190px);min-height:560px}
+.linechat-list{overflow:auto;display:flex;flex-direction:column;gap:6px;padding-right:2px}
+.linechat-row{display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:#fff;border-radius:11px;padding:10px 12px;cursor:pointer;text-align:left;width:100%}
+.linechat-row:hover{border-color:#9fb3d3}
+.linechat-row.active{border-color:var(--blue);background:#eaf1ff}
+.linechat-avatar{flex-shrink:0;width:36px;height:36px;border-radius:50%;background:#06c755;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;overflow:hidden}
+.linechat-avatar img{width:100%;height:100%;object-fit:cover}
+.linechat-meta{min-width:0;display:flex;flex-direction:column;gap:1px}
+.linechat-meta b{font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.linechat-meta small{color:var(--muted);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.linechat-meta .linechat-preview{color:#8c96a8}
+.linechat-panel{display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.linechat-head{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.linechat-head b{display:block;font-size:14.5px}
+.linechat-head small{color:var(--muted)}
+.linechat-head .actions-row{margin-left:auto}
+.linechat-panel .transcript{flex:1;overflow:auto;padding:16px;max-height:none;min-height:0}
+.linechat-form{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line)}
+.linechat-form textarea{flex:1;resize:none}
+.linechat-hint{margin:0;padding:8px 16px;font-size:12px;color:var(--muted);background:#f7f9fc;border-top:1px solid var(--line)}
+.linechat-quota{font-size:12px;color:var(--muted);background:#f0f4fa;border:1px solid var(--line);border-radius:999px;padding:5px 11px;white-space:nowrap}.linechat-quota.warn{background:#fff0d5;color:#9b5b00;border-color:#f2d98a}
+@media (max-width:720px){.linechat-grid{grid-template-columns:1fr;height:auto}.linechat-list{max-height:220px}}
+
+/* 2026-09-18 加：PRECALL_PHASE1_1 — 顧問口頭版 1→7 電洽順序卡（conversation_flow），
+   跟改版清單 06 節「左→右、上→下」對齊；抽屜寬度固定 650px，所以桌機也用
+   單欄兩格一組（grid-template-columns:1fr 1fr）而不是參考 mockup 的三欄版面，
+   窄寬度硬塞三欄只會擠爆，兩欄在這個寬度下才讀得動。手機（<560px）退回單欄。 */
+.pc-flow-title{display:flex;align-items:baseline;justify-content:space-between;margin:18px 2px 10px}
+.pc-flow-title h3{margin:0;font-size:15px}
+.pc-flow-hint{font-size:11.5px;color:var(--muted)}
+.pc-flow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.pc-step{border:1px solid var(--line);background:#fff;border-radius:14px;overflow:hidden}
+.pc-step-head{display:flex;align-items:center;gap:9px;padding:11px 13px;border-bottom:1px solid var(--line);font-weight:800;font-size:13px}
+.pc-num{width:24px;height:24px;border-radius:50%;background:#132238;color:#fff;display:grid;place-items:center;font-size:12px;flex-shrink:0}
+.pc-step-body{padding:12px 13px;display:grid;gap:9px}
+.pc-quote{background:#f7f9fc;border-left:3px solid var(--blue);padding:10px 12px;border-radius:0 10px 10px 0;font-size:13px;line-height:1.6}
+.pc-known{display:flex;flex-wrap:wrap;gap:6px}
+.pc-known span{background:#e2f8ed;border:1px solid #c9ecd8;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:700;color:#14794c;cursor:help}
+.pc-q-title{font-weight:800;font-size:12.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.02em;margin-bottom:3px}
+.pc-mini{background:#f7f9fc;border:1px solid var(--line);border-radius:10px;padding:9px 11px}
+.pc-mini b{display:block;font-size:13px}
+.pc-mini small{color:var(--muted)}
+.pc-closebox{background:#eaf1ff;border:1px solid #b7cdfa;border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.65}
+.pc-alt-summary{cursor:pointer;padding:12px 13px;font-weight:800;font-size:13px;list-style:none}
+.pc-alt-summary::-webkit-details-marker{display:none}
+.pc-alt-job{border:1px solid var(--line);border-radius:12px;padding:12px 13px;margin-bottom:9px}
+.pc-alt-job:last-child{margin-bottom:0}
+.pc-alt-job-title{display:flex;align-items:center;gap:8px;font-weight:800;font-size:13.5px;margin-bottom:6px}
+.pc-alt-reason{font-size:12.5px;color:#14794c;margin:3px 0}
+.pc-alt-watch{font-size:12.5px;color:#9b5b00;margin:3px 0}
+.pc-tools{margin-top:18px;padding-top:16px;border-top:2px dashed var(--line)}
+.pc-tools-title{font-size:13px;font-weight:800;color:var(--muted);margin-bottom:10px}
+.pc-toolgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pc-tool{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.pc-tool-dark{background:#101d31;color:#fff;border:none}
+.pc-tool-warn{background:#fff8e8}
+.pc-tool-head{padding:10px 12px;border-bottom:1px solid var(--line);font-weight:800;font-size:12.5px}
+.pc-tool-dark .pc-tool-head{border-color:rgba(255,255,255,.14)}
+.pc-tool-body{padding:10px 12px}
+.pc-phone-item{background:rgba(255,255,255,.08);border-radius:8px;padding:7px 9px;margin-bottom:6px;font-weight:700;font-size:12.5px}
+.pc-tool-warn .pc-tool-body details{margin-top:8px}
+.pc-tool-warn .pc-tool-body summary{cursor:pointer;font-weight:700;font-size:12px;color:#6f4b08}
+
+/* 2026-09-18 加：電洽結果 Post-call Decision（規格 B）——AI 建議跟顧問決定
+   要視覺上分開，用一個獨立底色區塊裝顧問決定，不能讓兩者長得一樣被誤讀成同一件事。 */
+.pc-decision-box{margin-top:12px;padding:12px 13px;background:#f7f9fc;border:1px dashed var(--line);border-radius:12px}
+.pc-decision-label{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:800;margin-bottom:6px}
+
+@media(max-width:560px){.pc-flow{grid-template-columns:1fr}.pc-toolgrid{grid-template-columns:1fr}}
+
+/* 2026-09-18 加：Phase 1.1 v1.1 — 整理履歷／AI 面談／查看佐證，疊在候選人
+   主抽屜（.mask z-index:20／.drawer z-index:21）之上再開一層，z-index 要
+   蓋過去，關掉這層時主抽屜完全不受影響（各自獨立的 root）。 */
+.sub-mask{z-index:30}
+.sub-drawer{z-index:31;width:min(560px,94vw)}
+.pc-tool-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-bottom:10px}
+.pc-tool-btn{border:1px solid #cfd9e6;background:#fff;color:#34445d;border-radius:10px;padding:8px 12px;font-size:12.5px;font-weight:700;cursor:pointer}
+.pc-tool-btn.primary{background:#172944;color:#fff;border-color:#172944}
+.pc-known-item{border:1px solid #dfe8e2;background:#f7fcf8;border-radius:12px;padding:10px 12px}
+.pc-known-item b{display:block;font-size:13.5px;margin-bottom:3px}
+.pc-known-item .pc-known-value{font-size:13px;color:#46536a;line-height:1.5}
+.pc-known-item.legacy{background:#f7f9fc;border-color:var(--line)}
+.pc-source-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+.pc-source-badge{border:0;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:800;cursor:pointer}
+.pc-source-badge.resume{background:#e9f1ff;color:#2d63b9}
+.pc-source-badge.ai_interview{background:#efe9ff;color:#6942b8}
+.pc-source-badge.consultant_note{background:#eef8f1;color:#368255}
+.pc-source-badge.report{background:#f0f4fa;color:#4a5a78}
+.pc-source-badge.verify{background:#172944;color:#fff}
+.pc-source-badge.legacy{background:#edf1f6;color:#556276;cursor:default}
+.pc-evidence-box{border:1px solid var(--line);border-radius:12px;padding:11px 12px;margin-bottom:9px}
+.pc-evidence-src{font-size:12px;font-weight:800;color:#506078;margin-bottom:6px}
+.pc-evidence-snippet{background:#f7f9fc;border-radius:9px;padding:9px 10px;line-height:1.6;font-size:13.5px;white-space:pre-wrap}
+.pc-resume-card{border:1px solid var(--line);border-radius:13px;padding:11px 12px;margin-bottom:9px}
+.pc-resume-card b{display:block;margin-bottom:4px}
+.pc-timeline{border-left:2px solid #cfd9e7;padding-left:14px;margin-left:5px}
+.pc-timeline-item{margin-bottom:13px}
+.pc-timeline-item b{display:block;font-size:13.5px}
+.pc-timeline-period{color:var(--blue);font-size:12px;font-weight:700}
+.pc-timeline-item small{display:block;color:var(--muted);margin-top:2px}
+/* 2026-09-18 加（P3-A 職缺推薦）：沿用既有 pc- 系列的卡片語彙，沒有新設計語言——
+   卡片本體直接用 .pc-card，適合原因／需注意重用 .pc-alt-reason／.pc-alt-watch
+   的綠橘配色，佐證重用 .pc-evidence-snippet，這裡只補「標籤列」「分區小標」
+   「待確認」「佐證摺疊」四個既有樣式蓋不到的地方。 */
+.pc-rec-notice{margin:0 0 12px}
+.pc-rec-notice b{color:#5c4506}
+.pc-rec .card-head{gap:10px;align-items:flex-start;flex-wrap:wrap}
+.pc-rec-tags{display:flex;gap:6px;flex-wrap:wrap;flex-shrink:0}
+.pc-rec-block{margin-bottom:10px}
+.pc-rec-block:last-of-type{margin-bottom:0}
+.pc-rec-block>b{display:block;font-size:12px;font-weight:800;color:var(--muted);margin-bottom:5px}
+.pc-rec-missing{font-size:12.5px;color:#46536a;margin:3px 0}
+.pc-rec-missing::before{content:'・'}
+.pc-rec-evidence{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:10px;background:#fff}
+.pc-rec-evidence summary{cursor:pointer;color:var(--blue);font-weight:700;font-size:12px}
+.pc-rec-evidence .pc-evidence-snippet{margin-top:9px}
+@media(max-width:560px){.pc-rec .card-head{flex-direction:column}.pc-rec .actions-row{flex-direction:column;align-items:stretch}.pc-rec .actions-row .btn{width:100%}}
+
+/* ⚠️ 2026-09-18 QA 抓到的手機問題：「電洽準備」那排分頁在 375px 寬度下
+   scrollWidth 416 > clientWidth 289，第四個分頁「AI 職缺推薦」整個在畫面外
+   （x 347–459，可視範圍只到 332），而且沒有任何箭頭或露出半截的提示——
+   顧問用手機根本不會知道有這個功能存在。
+   改成手機寬度下讓分頁換行排成兩排，全部看得到；順便把點擊區拉到 44px
+   （QA 量到原本只有 31px，低於手指可靠點擊的下限）。 */
+@media (max-width: 560px) {
+  .stage-detail-panel .tabs { flex-wrap: wrap; overflow: visible; }
+  .stage-detail-panel .tabs button { flex: 1 1 auto; min-height: 44px; padding: 12px 10px; }
+  .pc-rec-actions .btn, .pc-rec-actions button { min-height: 44px; }
+  .pc-rec-evidence summary { min-height: 44px; display: flex; align-items: center; }
+}
+
+/* 2026-09-20 加：面談題庫逐題檢視／編輯。
+   .sig 是每一題底下的「真做過會提到」／「含糊的訊號」兩塊——用綠/紅底色分開，
+   顧問掃過去就知道哪邊是正面訊號、哪邊是警訊，不用讀完整段文字。 */
+.expertise-q{align-items:flex-start;background:#fbfcfe}
+.expertise-q>span{display:grid;gap:6px}
+.expertise-q>span>b{font-size:15px;line-height:1.7}
+.sig{border-radius:8px;padding:8px 11px;font-size:12.5px;line-height:1.65}
+.sig>b{display:block;font-size:11px;letter-spacing:.04em;margin-bottom:3px}
+.sig ul{margin:0;padding-left:17px}
+.sig li{margin:1px 0}
+.sig.good{background:#e7f6ee;color:#14603f}
+.sig.good>b{color:#14794c}
+.sig.bad{background:#fdeceb;color:#8a2f28}
+.sig.bad>b{color:#a72f3a}
+@media(max-width:700px){.expertise-q{flex-direction:column}.expertise-q .actions-row{width:100%}}
+
+
+/* ── 手機版側欄（2026-09-22）─────────────────────────────────────
+   ⚠️ 這一段一定要放在**檔案最後面**。上面的 .app-shell.collapsed 規則
+      跟這裡同權重，同權重時後面的贏——第一版我寫在 @media(max-width:768px)
+      那一行裡（檔案第 53 行），被第 125 行的 collapsed 規則蓋掉，部署完
+      完全沒有效果。
+
+   要解決的三件事（都是 Jacky 在 iPhone 上截到的）：
+   ① 「收合側欄」是桌機的偏好，存在 localStorage，**手機也照吃**。
+      手機的選單是 240px 寬的抽屜，收合模式卻把文字設成 font-size:0，
+      整排只剩看不懂的符號。
+   ② 抽屜打開後**點外面關不掉**，也沒有遮罩——不知道要再按一次左上角。
+   ③ 點了選單項目之後抽屜**不會自己關**，還要再手動關一次。
+*/
+@media(max-width:768px){
+  .app-shell .sidebar nav a,.app-shell.collapsed .sidebar nav a{font-size:14px;justify-content:flex-start}
+  .app-shell .sidebar nav p,.app-shell.collapsed .sidebar nav p{font-size:11px;display:block}
+  .app-shell .brand div,.app-shell.collapsed .brand div{font-size:18px;display:block}
+  .app-shell .brand,.app-shell.collapsed .brand{font-size:18px}
+  .app-shell.collapsed .sidebar{padding:22px 14px}
+  .app-shell.collapsed .brand-row{flex-direction:row;padding:0 10px 22px}
+  .app-shell .sidebar footer,.app-shell.collapsed .sidebar footer{display:none}
+  /* 收合鈕在手機上沒有意義（抽屜本身就是開關），留著只會讓人誤按 */
+  .sidebar-toggle{display:none}
+  /* 遮罩：點旁邊就關 */
+  .sidebar-backdrop{position:fixed;inset:0;background:rgba(12,21,37,.46);z-index:29}
+}
+
+/* 有新版時的提醒條。刻意放在畫面最下方置中，不擋住任何操作區。 */
+.update-banner{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:45;
+  background:#17243d;color:#fff;padding:12px 16px;border-radius:11px;display:flex;
+  align-items:center;gap:12px;box-shadow:0 10px 28px rgba(35,55,90,.25);font-size:13.5px}
+.update-banner .btn{background:#fff;border-color:#fff;color:#17243d}
+
+/* 2026-09-22：窄螢幕上 .list-row 是一行 flex，內容一長右邊的狀態徽章跟
+   按鈕就被擠出畫面外——Jacky 在手機上只看得到姓名跟職缺，看不到「已綁定」
+   也看不到「通知他來面談」，等於這一頁的重點全部不見。
+   ⚠️ 不是把字變小，是讓它換行：左邊資訊佔滿一行，徽章與按鈕掉到下一行。 */
+@media(max-width:860px){
+  .list-row,.session-row{flex-wrap:wrap;row-gap:8px}
+  .list-row>span:first-child,.session-row>span:first-child{flex:1 1 100%}
+  .list-row .actions-row{margin-top:0}
+}
+
+/* 🚨 2026-09-22：hidden 屬性一定要蓋得過 display:flex。
+   .list-row／.session-row 這些是 display:flex，而瀏覽器預設的
+   [hidden]{display:none} 權重比 class 低——設了 hidden 畫面上照樣看得到。
+   Jacky 連續兩次回報「下拉點了沒有反應」：計數器明明寫「顯示 2 位」，
+   列卻一列都沒消失，因為每一列都還在畫面上。
+   ⚠️ 這一行要放在檔案最後面，確保蓋得過前面所有規則。 */
+
+/* 兩層 tab（2026-09-22）：上排大類做成分段控制的樣子（比較明顯），
+   下排小 tab 維持原本底線樣式但字小一點、往內縮，讓層級一眼看得出來。 */
+.tabs.tabs-group{gap:6px;border-bottom:0;margin-bottom:10px}
+.tabs.tabs-group button{border:1px solid var(--line);border-radius:999px;padding:8px 16px;font-weight:700;color:#33405a}
+.tabs.tabs-group button.active{background:var(--blue);border-color:var(--blue);color:#fff}
+.tabs.tabs-sub{margin-bottom:18px;padding-left:2px}
+.tabs.tabs-sub button{padding:8px 12px;font-size:13.5px}
+
+[hidden]{display:none!important}
+
+/* 2026-09-23：話題／公式改成卡片牆。最小 260px 自動換行——公式名稱常常很長
+   （「DR模仿祥仁｜Sun Career 職涯洞察室高流量文案」），固定兩欄會折成三行。 */
+.prompt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.prompt-card{display:flex;flex-direction:column;gap:8px;text-align:left;cursor:pointer;background:#fff;border:1px solid var(--line);border-radius:13px;padding:14px 15px;min-height:128px}
+.prompt-card:hover{border-color:#9fb3d3;box-shadow:var(--shadow)}
+.prompt-card .pc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.prompt-card .pc-top b{font-size:14.5px;line-height:1.45}
+.prompt-card .pc-body{color:var(--muted);font-size:12.5px;line-height:1.7;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+@media (max-width:560px){.prompt-grid{grid-template-columns:1fr}}
+.bd-funnel{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.bd-funnel-step{flex:1;min-width:84px;border:1px solid var(--line);background:#f7f9fc;border-radius:11px;padding:10px;text-align:center;cursor:pointer}.bd-funnel-step:hover{border-color:#9fb3d3}.bd-funnel-step b{display:block;font-size:20px}.bd-funnel-step span{display:block;font-size:12px;color:var(--muted);margin-top:2px}.filter-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 0 14px}.filter-row select{min-width:200px}.bd-overdue{color:#a72f3a;font-weight:700}.bd-letter{border:1px solid var(--line);border-radius:9px;padding:8px 11px;margin-top:8px;background:#fff}.bd-letter summary{cursor:pointer;font-weight:700;font-size:13px}.bd-letter-body{white-space:pre-wrap;font-family:inherit;font-size:13px;color:#33405a;margin:8px 0 0;max-height:50vh;overflow:auto}
+
+/* 2026-09-24（總指揮交辦）：職缺卡卡片牆的標題很長時（例如日文職稱＋
+   全稱客戶名）原本會被 Lv 徽章擠爆——flex item 預設 min-width:auto，
+   長字串不換行、直接撐爆卡片。允許這個 <b> 縮到比內容窄，讓它換行。 */
+.prompt-card .pc-top b{min-width:0;word-break:break-word}
+
+/* 「每個職缺的漏斗與命中率」表格（2026-09-24，總指揮交辦，取代橫條圖版）。
+   桌面版是真正的 <table>：表頭一次、數字靠右等寬、轉換率當小字副標；
+   手機版（<=640px）換成一小卡一個職缺、直式列出——不是同一份 markup
+   用 CSS 硬擠，是兩份 markup 各自負責，用 display 開關哪一份看得到。 */
+.jc-ft-table{width:100%;border-collapse:collapse;font-size:13px}
+.jc-ft-table th,.jc-ft-table td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.jc-ft-table th.num,.jc-ft-table td.num{text-align:right;font-variant-numeric:tabular-nums}
+.jc-ft-table td.jc-ft-job{white-space:normal;word-break:break-word;font-weight:700;min-width:120px}
+.jc-ft-table td.num small{display:block;color:var(--muted);font-size:11px;font-weight:400}
+.jc-ft-table td.jc-ft-rate{font-weight:700}
+.jc-ft-cards{display:none}
+@media(max-width:640px){
+  .jc-ft-wrap{display:none}
+  .jc-ft-cards{display:grid;gap:10px}
+  .jc-ft-card{border:1px solid var(--line);border-radius:12px;padding:13px 15px;background:#fff}
+  .jc-ft-card>b{display:block;margin-bottom:6px;font-size:14.5px;word-break:break-word}
+  .jc-ft-card-row{display:flex;justify-content:space-between;align-items:baseline;padding:4px 0;font-size:13.5px}
+  .jc-ft-card-row .num{font-variant-numeric:tabular-nums;text-align:right}
+  .jc-ft-card-row .num small{display:inline;margin-left:5px;color:var(--muted);font-size:11.5px}
+}
+
+/* 待配對人選（2026-09-24，總指揮交辦）：職缺選單＋指派鈕，手機上各自佔滿
+   一行，觸控目標維持 44px 高。 */
+.jc-unmatched-job-select{min-width:0}
+@media(max-width:640px){
+  .jc-unmatched-row .actions-row{width:100%}
+  .jc-unmatched-job-select,.jc-unmatched-row .actions-row .btn{width:100%;min-height:44px}
+}
+
+/* 兩個卡片牆篩選下拉（招募狀態／客戶）在手機上各自佔滿一行，不要並排
+   擠成看不清楚的兩截——2026-09-24 總指揮交辦，沿用 .filter-row 同款寫法。 */
+@media(max-width:560px){.filters select{width:100%}}
+@media (max-width:560px){.bd-funnel-step{min-width:70px}.filter-row select{width:100%}}
+.bd-contact-card{margin-bottom:14px}.bd-contact-row{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:13px;flex-wrap:wrap}.bd-contact-row span{color:var(--muted);min-width:52px;flex-shrink:0}.bd-contact-row a{color:var(--blue);word-break:break-all}

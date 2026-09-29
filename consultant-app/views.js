@@ -1,0 +1,2866 @@
+import { escapeHtml, text } from './core/security.js';
+import { statusBadge } from './core/status.js';
+
+// 阿財分流 A–E 徽章——卡片式與表格式共用。
+const ROUTE_STYLE = {
+  A: ['#1a7f4b', '#e6f4ec'], B: ['#1c5fa8', '#e7f0fa'], C: ['#c2600d', '#fdf0e3'],
+  D: ['#6b3fa0', '#f1ebf9'], E: ['#a32b21', '#fbeceb'],
+};
+function routeBadge(code, label) {
+  const st = ROUTE_STYLE[String(code || '').toUpperCase()];
+  if (!st) return '';
+  return `<span class="badge" style="background:${st[1]};color:${st[0]};font-weight:700;`
+       + `border:1px solid ${st[0]}33">${code}｜${label || ''}</span>`;
+}
+import { empty } from './core/ui.js';
+
+const pageHead = (title, subtitle, actions = '') => `<div class="page-head"><div><h1>${title}</h1><p>${subtitle}</p></div><div class="actions">${actions}</div></div>`;
+const tabbar = (scope, tabs, active) => `<div class="tabs">${tabs.map(([key, label]) => `<button class="${active === key ? 'active' : ''}" data-tab-scope="${scope}" data-tab="${key}">${label}</button>`).join('')}</div>`;
+
+// 兩層 tab：上面一排大類，點了才顯示該類底下的小 tab。
+// groups: [[大類名, [[葉key, 葉label], ...]], ...]
+// active 是目前的葉 key（state.sub）。點大類 = 跳到它底下第一個葉。
+// 沿用同一套 data-tab 分派（state.sub 存的還是葉 key），loadSocialTab 完全不用改。
+const groupedTabbar = (scope, groups, active) => {
+  const activeGroup = groups.find((g) => g[1].some(([k]) => k === active)) || groups[0];
+  const top = groups.map((g) => {
+    const firstLeaf = g[1][0][0];
+    const isActive = g === activeGroup;
+    return `<button class="${isActive ? 'active' : ''}" data-tab-scope="${scope}" data-tab="${firstLeaf}">${g[0]}</button>`;
+  }).join('');
+  const subs = activeGroup[1].length > 1
+    ? `<div class="tabs tabs-sub">${activeGroup[1].map(([k, label]) =>
+      `<button class="${active === k ? 'active' : ''}" data-tab-scope="${scope}" data-tab="${k}">${label}</button>`).join('')}</div>`
+    : '';
+  return `<div class="tabs tabs-group">${top}</div>${subs}`;
+};
+const field = (label, control) => `<label class="field"><span>${label}</span>${control}</label>`;
+const endpointState = (name) => `<div class="state"><strong>${name}</strong><p>等待登入並從 Production API 載入。</p></div>`;
+const list = (items, row) => items.length ? `<div class="list">${items.map(row).join('')}</div>` : empty('目前沒有資料', '可調整篩選條件或建立新項目。');
+const safeParseJson = (raw) => { try { return JSON.parse(raw); } catch { return []; } };
+// 2026-09-18 修：有些職缺（非顧問手動建檔，是別的來源匯進來的）locations
+// 存的是 JSON 陣列字串、employment 存的是英文代碼，直接 text() 印出來會讓
+// 顧問看到 ['桃竹苗地區', '台中', '雲林'] 或 "FULL_TIME" 這種給程式看的原始值
+// （今天客戶回報的就是這個）。這裡統一轉成人看得懂的中文，轉不出來就至少
+// 去掉底線／引號，不要照搬代碼格式。
+// 2026-09-18 再改：原本這兩個 helper 寫在 jobIntro() 裡面，P3-A 職缺推薦卡的
+// job_locations／job_employment 是同一批欄位、同樣會吃到原始值，所以搬到模組
+// 層級共用——避免兩邊各寫一份、以後修了一邊漏另一邊。
+const formatLocations = (loc) => {
+  if (Array.isArray(loc)) return loc.join('、');
+  if (typeof loc === 'string') {
+    const trimmed = loc.trim();
+    if (trimmed.startsWith('[')) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        if (Array.isArray(parsed)) return parsed.join('、');
+      } catch {
+        // ⚠️ 2026-09-18 第二次修：第一版只處理雙引號的標準 JSON，但實際 DB 裡
+        // 存的是 Python 的 repr 格式（單引號）：['桃竹苗地區', '台中', '雲林']，
+        // JSON.parse 會丟例外 → 掉進這個 catch → 原樣印出整串給顧問看。
+        // 當天 QA 在陳旻婕的推薦卡上實際重現（同一位候選人的第二張卡卻是正常的，
+        // 因為那個職缺的 locations 存的是正常字串——同一欄位兩種格式並存）。
+        // 這裡手動拆單引號陣列；根因是職缺匯入時就存成 repr 字串，
+        // 上游那邊該另外修，但顧問不該因為上游沒修就看到程式碼。
+        const items = trimmed
+          .replace(/^\[|\]$/g, '')
+          .split(',')
+          .map((s) => s.trim().replace(/^['"]|['"]$/g, ''))
+          .filter(Boolean);
+        if (items.length) return items.join('、');
+      }
+    }
+    return loc;
+  }
+  return '';
+};
+const EMPLOYMENT_LABEL = { FULL_TIME: '正職・全職', PART_TIME: '兼職', CONTRACT: '約聘', DISPATCH: '派遣', INTERNSHIP: '實習' };
+const formatEmployment = (e) => {
+  if (!e) return '';
+  const key = String(e).replace(/^"|"$/g, '').trim();
+  return EMPLOYMENT_LABEL[key] || key.replace(/_/g, ' ');
+};
+// ⚠️ 2026-09-18 QA 抓到：薪資後面的單位是直接把 jobs.salary_unit 原文印出來，
+// 顧問看到的是「50000–60000 MONTH」。這個欄位全站都會用到（推薦卡、職缺介紹），
+// 統一在這裡轉成中文；認不得的單位就整個不顯示，不要把原始碼露給人看。
+const SALARY_UNIT_LABEL = { MONTH: '月薪', YEAR: '年薪', HOUR: '時薪', DAY: '日薪', MONTHLY: '月薪', YEARLY: '年薪' };
+const formatSalaryUnit = (u) => {
+  if (!u) return '';
+  const key = String(u).replace(/^"|"$/g, '').trim().toUpperCase();
+  return SALARY_UNIT_LABEL[key] || '';
+};
+// 後端組好的 "50000–60000 MONTH" 這種字串，把結尾的單位換成中文並移到前面。
+const formatSalarySummary = (s) => {
+  if (!s) return '';
+  const m = String(s).trim().match(/^(.*?)[\s]+([A-Za-z"]+)$/);
+  if (!m) return String(s);
+  const label = formatSalaryUnit(m[2]);
+  return label ? `${label} ${m[1]}` : m[1];
+};
+// 跟舊版 consultant/tracker/index.html 的 SOURCE_CHANNEL_OPTS／RESUME_SOURCE_OPTS 一字不差，
+// 這是既有 applications 資料裡實際在用的值，不是自己重新發明一套分類。
+const SOURCE_CHANNEL_OPTS = ['不指定', '朋友介紹', 'LinkedIn', '104', '1111', 'Threads', 'Facebook', 'Dcard', 'Step1ne官網', 'LINE OA', '人才池/獵頭資料庫', '其他'];
+const RESUME_SOURCE_OPTS = ['不指定', '104', '1111', 'LinkedIn', 'CakeResume', '自製履歷', '作品集'];
+const STAGE_LABEL = { applied: '應徵', interviewed: '已面談', consultant_review: '顧問覆核通過', client_stage: '客戶端進行中', offered: '已發 Offer', onboard: '已到職' };
+// funnel／byJob 都是 /admin/overview 當下快照（不是期間趨勢），標籤要老實寫「目前」不寫「近 N 天」。
+// 2026-09-17 加逐階段流失率：funnel 陣列本來就是 applied→onboard 由後端逐關
+// COUNT 出來的（每一關本來就是前一關的子集合，不是各自獨立的數字），加一行
+// 「↓ N% 流失」純粹是相鄰兩關相減再除，不用另外查資料——參考同業儀表板的
+// 呈現方式，但這裡用的是既有真實資料，不是假裝有的比較基準。
+const funnelBars = (funnel) => { const max = Math.max(1, ...funnel.map((f) => f.n)); return `<div class="funnel-chart">${funnel.map((f, i) => { const prev = i > 0 ? funnel[i - 1].n : null; const drop = (prev && prev > 0) ? Math.round((1 - f.n / prev) * 100) : null; return `${drop !== null ? `<div class="fn-drop">↓ ${drop}% 流失</div>` : ''}<div class="fnrow"><div class="lb">${text(STAGE_LABEL[f.stage] || f.stage)}</div><div class="track"><div class="bar" style="width:${Math.round(f.n / max * 100)}%"></div></div><div class="vn">${text(f.n)}</div></div>`; }).join('')}</div>`; };
+const byJobRows = (byJob) => byJob.length ? `<div class="funnel-chart">${byJob.map((j) => `<div class="fnrow"><div class="lb" title="${text(j.title || j.job_slug)}">${text(j.title || j.job_slug)}</div><div class="track"><div class="bar" style="width:${j.n ? Math.round(j.done / j.n * 100) : 0}%"></div></div><div class="vn">${text(j.done)}/${text(j.n)}</div>${j.need_call > 0 ? `<span class="badge warning">${text(j.need_call)} 待電洽</span>` : ''}</div>`).join('')}</div>` : empty('目前沒有應徵紀錄');
+// 2026-09-17 加：screenings.score（履歷初篩分數，0-100）分佈直方圖，10 分一桶。
+const scoreHistogram = (dist) => {
+  if (!dist || !dist.length) return empty('目前沒有履歷初篩分數資料');
+  const max = Math.max(1, ...dist.map((d) => d.n));
+  return `<div class="hist-chart">${dist.map((d) => `<div class="hist-col"><div class="hist-n">${text(d.n)}</div><div class="hist-bar" style="height:${Math.round(d.n / max * 100)}%"></div><div class="hist-lb">${text(d.bucket)}</div></div>`).join('')}</div>`;
+};
+// 2026-09-17 加：申請數趨勢圖——/admin/overview.trend 是近30天每日新增應徵數
+// （date(created_at,'+8 hours') 分桶），用簡單長條圖呈現，缺的日子後端就是沒有
+// 那天的資料（GROUP BY 只會產出有資料的日期），不用前端補零裝滿30根。
+const trendChart = (trend) => {
+  if (!trend || !trend.length) return empty('近30天沒有新增應徵紀錄');
+  const max = Math.max(1, ...trend.map((d) => d.n));
+  return `<div class="hist-chart">${trend.map((d) => `<div class="hist-col"><div class="hist-n">${text(d.n)}</div><div class="hist-bar" style="height:${Math.round(d.n / max * 100)}%"></div><div class="hist-lb">${text((d.day || '').slice(5))}</div></div>`).join('')}</div>`;
+};
+// 2026-09-17 加：人才來源成效表——source_channel 是顧問手動加人選時填的自由
+// 文字欄位，公開應徵表單那條路徑不會寫這欄（會是「未填寫」，是資料本來就沒有，
+// 不是查詢漏了）。「進客戶端」比對跟目前漏斗卡片同一組 stage 判定，後端已經算好。
+const sourceTable = (bySource) => {
+  if (!bySource || !bySource.length) return empty('目前沒有應徵紀錄可統計來源');
+  return `<div class="list">${bySource.map((s) => `<div class="list-row"><span>${text(s.source)}</span><b>${text(s.n)} 人</b><small>進客戶端 ${text(s.reached_client)} 人（${text(s.n ? Math.round(s.reached_client / s.n * 100) : 0)}%）</small></div>`).join('')}</div>`;
+};
+// 2026-09-17 加：卡關與 Aging——placements 停在同一個 stage 幾天，倒序（卡最久的在最上面）。
+// 20天以上標紅提醒，14天以上標黃，其餘一般顯示，門檻是跟顧問經驗值對齊的粗略分級，不是精算。
+const CLIENT_STAGE_LABEL = { SUBMITTED: '已送出客戶', INTERVIEWING: '客戶面談中', INTERVIEW: '客戶面談中', INTERVIEW_COMPLETED: '客戶面談完成', AWAITING_CLIENT_FEEDBACK: '等客戶回饋', PENDING_CANDIDATE: '等候選人回覆', OFFER: '已發 Offer', OFFER_ACCEPTED: '候選人已接受' };
+const agingRows = (aging) => {
+  if (!aging || !aging.length) return empty('目前沒有卡在客戶端超過門檻的案子');
+  return `<div class="list">${aging.map((r) => `<div class="list-row"><span>${text(r.name)}<small>${text(CLIENT_STAGE_LABEL[r.stage] || r.stage)}</small></span><b class="${r.days >= 20 ? 'aging-bad' : r.days >= 14 ? 'aging-warn' : ''}">${text(r.days)} 天</b></div>`).join('')}</div>`;
+};
+const agreeRows = (agree) => { if (!agree.length) return empty('還沒有同時做過阿財初談跟顧問電洽的人選，先累積樣本'); const total = agree.reduce((s, x) => s + x.n, 0); const same = agree.filter((x) => /值得|推薦|會推/.test(x.ai || '') === (x.call === '會推')).reduce((s, x) => s + x.n, 0); return `<p class="help">樣本數 ${text(total)}，方向一致 ${text(same)}（${text(Math.round(same / total * 100))}%）</p><div class="list">${agree.map((x) => `<div class="list-row"><span>阿財：${text(x.ai)} → 顧問：${text(x.call)}</span><b>${text(x.n)}</b></div>`).join('')}</div>`; };
+
+// 2026-09-17 加：PRECALL_PHASE1。Gate 狀態 matched/unknown/unmatched 的顯示
+// 對照表集中在這一個地方——規格明講「不要建立第二套 DB enum，mapping 要集中
+// 管理，不要散落在 frontend 與 backend 各寫一份」，這裡就是那個唯一的地方，
+// 之後任何要畫 Gate 狀態小圓標的地方都呼叫這個，不要在各自的 template 字串裡
+// 重複寫一次 if/else。
+// 2026-09-17 v2.0 稽核修正：文字要跟 docs/06 第 5.3 節、docs/09 第 42 節規定的
+// 字樣一致——matched 是「履歷有明確證據符合」，不是「可能」，用「可能符合」這種
+// 模稜兩可的講法違反規格說的「不可虛假精準／不可過度保守」；unmatched 也要講清楚
+// 是「明確不符」，不是含糊的「不符合」。每個狀態都配一個 icon，不能只靠顏色分辨。
+export const GATE_STATUS_META = {
+  matched: { label: '✅ 已符合', cls: 'good' },
+  unknown: { label: '❓ 待確認', cls: 'warn' },
+  unmatched: { label: '⛔ 明確不符', cls: 'bad' },
+};
+
+export const actionBtn = (label, actionId, ctx = {}, extraClass = '') => `<button type="button" class="btn ghost sm ${extraClass}" data-open-action="${escapeHtml(actionId)}" data-ctx='${escapeHtml(JSON.stringify(ctx))}'>${text(label)}</button>`;
+export const rowActions = (buttons) => `<div class="actions-row">${buttons.join('')}</div>`;
+
+// 2026-09-15 加 collapsed 參數：使用者要求側欄要能收合展開（表格式看多欄資料時
+// 想多擠一點寬度出來），跟手機版那顆漢堡選單（.mobile-menu／toggle-menu）是
+// 兩件不同的事——那個是小螢幕的疊層選單，這個是桌機版「收起側欄多留內容區寬度」。
+export function shell(active, content, collapsed = false) {
+  // 2026-09-17 加「人選面談室」：插在 AI 面談後面、社群前面——跟面談/人選
+  // 關聯最近，還沒到「營運成長」那個分組。這樣一插，後面兩個分組標題的
+  // index 要跟著往後推一格（social 從 5 變 6、system 從 7 變 8），
+  // icon 陣列也要對應補一顆，不能只加 nav 項目忘了改分組判斷跟圖示。
+  const nav = [['home','首頁'],['recruitment','招募總覽'],['candidates','人選'],['jobs','職缺'],['interviews','AI 面談'],['linechat','人選面談室'],['social','社群'],['clients','客戶 / BD'],['system','系統']];
+  // ⚠️ 收合按鈕不能放進 <a class="brand"> 裡面——瀏覽器不允許互動元素巢狀
+  // interactive content，而且全域點擊委派會先比對 [data-route]，按鈕點下去會
+  // 連帶觸發外層 <a> 的 data-route="home" 跳轉。改成跟 .brand 平行的兄弟元素。
+  return `<div class="app-shell${collapsed ? ' collapsed' : ''}"><aside class="sidebar"><div class="brand-row"><a class="brand" data-route="home"><span>S</span><div>Step1ne<small>CONSULTANT OS</small></div></a><button type="button" class="sidebar-toggle" data-action="toggle-sidebar" title="${collapsed ? '展開側欄' : '收合側欄'}">${collapsed ? '»' : '«'}</button></div><nav>${nav.map(([key,label], index) => `${index === 0 ? '<p>工作台</p>' : index === 6 ? '<p>營運成長</p>' : index === 8 ? '<p>管理</p>' : ''}<a class="${active === key ? 'active' : ''}" data-route="${key}"><i>${['⌂','▥','◉','▣','◎','✉','◁','♙','⚙'][index]}</i>${label}</a>`).join('')}</nav><footer>Production contract v2</footer></aside><main><header class="topbar"><button class="mobile-menu" data-action="toggle-menu">☰</button><input data-action="global-search" placeholder="搜尋人選、職缺、客戶…"><button class="btn ghost" data-action="token">ADMIN TOKEN</button></header><section class="content">${content}</section></main></div>`;
+}
+
+export const views = {
+  home: () => pageHead('今天先做什麼？','首頁只呈現待處理工作與風險，不用先讀整份儀表板。','<button class="btn primary" data-route="candidates">進入人選工作台</button>') + `<div id="page-data">${endpointState('今日工作')}</div>`,
+  // 2026-09-15 驗證：/admin/overview 實際形狀是 {funnel,verdicts,agree,byJob,todo}，沒有
+  // pending_review/client_pending/alerts 這幾個欄位（之前這三張 KPI 卡一直顯示假的 0）。
+  // todo 是唯一有意義的「待處理」清單（面談已結束、還沒被顧問看過的）；client_pending／alerts
+  // 這個 API 目前真的沒有，誠實顯示「—」而不是造一個假的 0。
+  // 2026-09-15 用真實 token 核對 /admin/overview.now，7 個 KPI 全部是真實欄位
+  // （jobs_open/cands/new7/done/need_call/waiting/lang_missing），跟正式舊版首頁同一批資料。
+  homeData: ({ overview, live }) => { const now = overview?.now || {};
+    // 2026-09-21 加：阿財分流 A–E。顧問每天打開後台第一個問題是「今天先打給誰」，
+    // 在這之前首頁八張卡沒有一張回答得了。A 那格點下去直接跳到人選中心並套好篩選。
+    const ROUTE_ORDER = [['A', '優先聯繫'], ['B', '需顧問判斷'], ['C', '可轉其他職缺'],
+                         ['D', '人才池'], ['E', 'Hard Gate 沒過']];
+    const routeMap = new Map((overview?.routes || []).map((r) => [String(r.code || '').toUpperCase(), r]));
+    const routeTotal = (overview?.routes || []).reduce((sum, r) => sum + Number(r.n || 0), 0);
+    // ⚠️ 一份報告都還沒有的時候整塊不顯示，不要畫五個 0——那看起來像壞掉。
+    const routeBlock = routeTotal ? `<article class="card"><div class="card-head"><h2>阿財分流（共 ${routeTotal} 位談過的人選）</h2></div>
+      <div class="kpi-grid">${ROUTE_ORDER.map(([code, label]) => {
+        const n = Number((routeMap.get(code) || {}).n || 0);
+        const tone = code === 'A' && n > 0 ? 'accent' : '';
+        return `<button class="kpi ${tone}" data-action="home-route" data-route-code="${code}" style="text-align:left;cursor:pointer"><span>${code}｜${label}</span><strong>${n}</strong></button>`;
+      }).join('')}</div>
+      <p class="help" style="margin:8px 0 0">點任一格會跳到人選中心並自動篩選。A 是阿財判斷「硬條件沒問題、分數夠高」的人，建議今天先打。
+      <a href="#" data-action="open-route-spec" style="margin-left:4px">分流規則怎麼算？</a></p></article>` : '';
+    return routeBlock + `<div class="kpi-grid"><article class="kpi"><span>在辦職缺</span><strong>${text(now.jobs_open ?? 0)}</strong></article><article class="kpi"><span>累積人選</span><strong>${text(now.cands ?? 0)}</strong></article><article class="kpi"><span>近 7 天新進</span><strong>${text(now.new7 ?? 0)}</strong></article><article class="kpi"><span>阿財累計面談</span><strong>${text(now.talked_total ?? 0)}</strong></article><article class="kpi"><span>已完成初談</span><strong>${text(now.done ?? 0)}</strong></article><article class="kpi ${now.need_call > 0 ? 'accent' : ''}"><span>等你電洽</span><strong>${text(now.need_call ?? 0)}</strong></article><article class="kpi ${now.waiting > 0 ? 'warn' : ''}"><span>等候分流</span><strong>${text(now.waiting ?? 0)}</strong></article><article class="kpi ${now.lang_missing > 0 ? 'warn' : ''}"><span>外語未驗證</span><strong>${text(now.lang_missing ?? 0)}</strong></article></div><div class="two-col"><article class="card"><h2>正在 AI 面談</h2>${list(live, (i) => `<button class="list-row" data-route="interviews"><span><b>${text(i.candidate_name || i.name)}</b><small>${text(i.job_title || i.job)}</small></span>${statusBadge(i.interview_state || i.state || 'active')}</button>`)}</article><article class="card"><h2>等你電洽（面談已結束，待顧問決策）</h2>${list(overview?.todo || [], (t) => `<div class="list-row" data-application="${text(t.id)}" style="cursor:pointer"><span><b>${text(t.name)}</b><small>${text(t.title || t.job_slug)}</small></span><small>${text((t.interview_ended_at || '').slice(5, 16))}</small></div>`)}</article></div>`; },
+  recruitment: () => pageHead('招募總覽','看真實招募成效與卡點。') + `<div id="page-data">${endpointState('招募分析')}</div>`,
+  // funnel／byJob／verdicts／agree 都來自同一支 /admin/overview，是「目前」快照，不是期間趨勢——
+  // 標題老實寫「目前」。2026-09-17 加 trend／bySource／aging 三個端點後，招募總覽頁全部
+  // 六張卡片都是真實資料，沒有佔位卡了。
+  recruitmentData: ({ applications, jobs, overview }) => `<div class="kpi-grid"><article class="kpi"><span>目前應徵單</span><strong>${applications.length}</strong><small>tracker 當下清單，不冒充 30 天新增量</small></article><article class="kpi"><span>正式職缺</span><strong>${jobs.length}</strong><small>jobs 當下清單</small></article><article class="kpi"><span>近 7 天新進</span><strong>${text(overview?.now?.new7 ?? 0)}</strong></article><article class="kpi ${overview?.now?.need_call > 0 ? 'accent' : ''}"><span>等你電洽</span><strong>${text(overview?.now?.need_call ?? 0)}</strong></article></div><div class="dashboard-grid"><article class="card"><h2>目前招募漏斗（快照，非期間趨勢）</h2>${funnelBars(overview?.funnel || [])}</article><article class="card"><h2>阿財初篩 vs 顧問電洽，方向一致率</h2>${agreeRows(overview?.agree || [])}</article><article class="card"><h2>履歷初篩 AI 評分分佈</h2>${scoreHistogram(overview?.scoreDist || [])}</article><article class="card span-2"><h2>各職缺進度（目前快照）</h2>${byJobRows(overview?.byJob || [])}</article><article class="card"><h2>申請數趨勢（近30天，每日）</h2>${trendChart(overview?.trend || [])}</article><article class="card"><h2>人才來源成效</h2>${sourceTable(overview?.bySource || [])}</article><article class="card span-2"><h2>卡關與 Aging（客戶端停留天數，由久到近）</h2>${agingRows(overview?.aging || [])}</article></div>`,
+  // 2026-09-15 查證更正：「所有階段」下拉原本的選項（篩選中/待確認/客戶初審/Offer/
+  // 已到職）根本不是 tab 的真實值——tab 只有 fill/decide/client/pool 四種，選那些
+  // 選項永遠篩不出東西。改成真實的四分頁；另外補一個「負責顧問」篩選（對應後端
+  // /admin/pipeline/tracker 本來就支援的 ?owner= 參數，含「未指派」），選項在
+  // loadCandidateTab 裡用真實顧問名單動態填入。
+  candidates: (tab='workbench') => pageHead('人選中心','操作單位是 application；疑似同一人只提示，不自動合併。','<button class="btn primary" data-action="add-candidate">＋ 新增人選</button>') + tabbar('candidates',[['workbench','工作台'],['pool','人才池'],['reports','阿財報告'],['outreach','接觸紀錄'],['checkups','阿福健檢'],['screening','待審核']],tab) + `<div class="filters"><input id="candidate-search" placeholder="搜尋姓名、職缺、來源"><select id="candidate-stage"><option value="">所有階段</option><option value="fill">等人選填完</option><option value="decide">等我決定</option><option value="client">客戶面談階段</option><option value="pool">候補池</option></select><select id="candidate-owner"><option value="">所有顧問</option><option value="unassigned">未指派</option></select><select id="candidate-route"><option value="">所有分流</option><option value="A">A｜優先聯繫</option><option value="B">B｜需顧問判斷</option><option value="C">C｜可轉其他職缺</option><option value="D">D｜人才池</option><option value="E">E｜Hard Gate 沒過</option><option value="none">還沒面談過</option><option value="silent">阿財面談室無對話紀錄</option></select><div class="view-toggle"><button type="button" class="btn sm" data-action="candidate-view-card">卡片式</button><button type="button" class="btn sm" data-action="candidate-view-table">表格式</button></div><button class="btn" data-action="reset-candidate-filter">清除</button><a href="#" data-action="open-route-spec" class="help" style="align-self:center;margin-left:4px">分流規則？</a></div><div id="page-data">${endpointState('人選資料')}</div>`,
+  // 2026-09-15 查證更正：卡片其實有 email/phone（原本沒接進來，一直顯示不存在的
+  // 「下一步」欄位）；stage 這裡的 statusBadge(i.stage) 現在會顯示真正的四分頁
+  // 翻譯（等人選填完/等我決定/客戶面談階段/候補池），不是原始代碼字串。clientName
+  // 一樣後端早就有：推薦給客戶之前是「（未綁客戶）」，推薦之後自動換成真實客戶名，
+  // 讓卡片一眼看出「推薦了沒、推去哪」，不用點進去才知道。
+  // 2026-09-21 加：阿財分流 A–E 的徽章。來源是 Jacky 的「阿財 × 真人顧問分工圖」
+  // 第 5 步。色碼照那張圖：A 綠（優先聯繫）、B 藍（需顧問判斷）、C 橘（可轉其他
+  // 職缺）、D 紫（人才池）、E 紅（Hard Gate 沒過）。
+  // ⚠️ 只有阿財談完、報告產出來才會有值；還在面談中或沒面談的一律不顯示，
+  //    不要用「—」佔位——那會讓顧問以為系統判過了只是沒分出來。
+  candidateRows: (items) => list(items, (i) => {
+    const placeholder = i.email && /@no-email\.step1ne\.local$/i.test(String(i.email).trim());
+    const contact = [i.phone, (i.email && !placeholder) ? i.email : null].filter(Boolean).join(' · ') || '未留聯絡方式';
+    const boundClient = i.clientName && i.clientName !== '（未綁客戶）';
+    return `<article class="candidate-card" data-application="${text(i.applicationId)}"><div><h3>${i.seqNo ? `<small class="muted">#${text(i.seqNo)}</small> ` : ''}${text(i.name)} ${routeBadge(i.routeCode, i.routeLabel)}${i.lineBound ? ' <span class="badge success" title="已綁定 LINE，可以直接用 LINE 聯絡">LINE</span>' : ''}${i.hardGate ? ' <span class="badge warning">硬性條件審核</span>' : ''}</h3><p>${text(i.job)}${boundClient ? ` → ${text(i.clientName)}` : ''} · ${text(i.owner)}</p></div>${statusBadge(i.stage)}<dl><div><dt>聯絡方式</dt><dd>${text(contact)}</dd></div><div><dt>來源</dt><dd>${text(i.source || '—')}</dd></div><div><dt>最後活動</dt><dd>${text(i.updatedAt)}</dd></div></dl>${i.duplicate ? `<div class="notice">${text(i.duplicate)}</div>` : ''}<button class="btn primary">查看應徵單</button></article>`;
+  }),
+  // 表格式——照抄舊版 consultant/tracker 的欄位精神（人選／職缺／客戶／顧問／
+  // 階段／聯絡方式／最後活動），縮成一行方便一次掃過大量人選；點列一樣開抽屜。
+  // 2026-09-15 修：原本沒限制欄寬，table-layout 預設 auto 會把最長文字那欄
+  // （職缺名稱）硬撐到 1200px 寬，整張表被拉到 2500px 需要橫向捲動——改成
+  // table-layout:fixed + colgroup 固定每欄比例，內容過長用 ellipsis 截斷
+  // （標題屬性可以之後補 hover 顯示全文，這輪先求版面不再暴衝）。
+  candidateTableRows: (items) => items.length ? `<div class="table-wrap"><table class="spec"><colgroup><col class="col-name"><col class="col-job"><col class="col-client"><col class="col-owner"><col class="col-stage"><col class="col-stage"><col class="col-contact"><col class="col-updated"></colgroup><tr><th>人選</th><th>目前應徵職缺</th><th>客戶</th><th>顧問</th><th>阿財分流</th><th>階段</th><th>聯絡方式</th><th>最後活動</th></tr>${items.map((i) => {
+    const placeholder = i.email && /@no-email\.step1ne\.local$/i.test(String(i.email).trim());
+    const contact = [i.phone, (i.email && !placeholder) ? i.email : null].filter(Boolean).join(' · ') || '—';
+    const boundClient = i.clientName && i.clientName !== '（未綁客戶）';
+    return `<tr data-application="${text(i.applicationId)}" style="cursor:pointer">
+      <td>${i.seqNo ? `<small class="muted">#${text(i.seqNo)}</small> ` : ''}${text(i.name)}${i.duplicate ? ' ⚠' : ''}${i.hardGate ? ' <span class="badge warning">硬性條件</span>' : ''}</td>
+      <td title="${escapeHtml(i.job || '')}">${text(i.job)}</td><td title="${escapeHtml(boundClient ? i.clientName : '')}">${boundClient ? text(i.clientName) : '—'}</td><td>${text(i.owner)}</td>
+      <td>${i.lineBound ? '<span class="badge success" title="已綁定 LINE">LINE</span> ' : ''}${routeBadge(i.routeCode, i.routeLabel) || '<span class="muted">—</span>'}${i.silentInterview ? ' <small class="muted" title="阿財面談室沒有對話紀錄，不代表沒談過——顧問可能是自己打電話談的">無阿財紀錄</small>' : ''}</td>
+      <td>${statusBadge(i.stage)}</td><td>${text(contact)}</td><td>${text(i.updatedAt)}</td>
+    </tr>`;
+  }).join('')}</table></div>` : empty('目前沒有資料', '可調整篩選條件或建立新項目。'),
+  // 阿財初篩報告清單。r.app_id 是這份報告所屬的 application_id——整列點擊會開既有的
+  // candidateRows 那個豐富抽屜（data-application 是全域點擊委派已經在聽的屬性，
+  // 不用另外接線）。決策徽章照 reports.consultant_decision 的三個真實值＋null＝待處置。
+  reportRows: (items) => list(items, (r) => `<article class="candidate-card" data-application="${text(r.app_id)}"><div><h3>${text(r.name)}</h3><p>${text(r.job_title || r.job_slug)} · ${text(r.turns ?? 0)} 輪對話</p></div>${statusBadge(r.consultant_decision || 'undecided')}<dl><div><dt>建議</dt><dd>${text(r.recommend)}</dd></div><div><dt>報告摘要</dt><dd>${text((r.preview || '').slice(0, 80))}${(r.preview || '').length > 80 ? '…' : ''}</dd></div><div><dt>面談結束</dt><dd>${text(r.interview_ended_at)}</dd></div></dl><button class="btn primary">查看應徵單</button></article>`),
+  // 接觸紀錄（跟開發客戶方向相反：是「為了某職缺去接觸了誰」，學校系所／人選／
+  // 介紹人都算）。樣本不到 100 封不顯示回覆率——這是 Jacky 定的門檻，見後端註解。
+  outreachTab: ({ rows, stats }) => `<div class="kpi-grid"><article class="kpi"><span>已寄出</span><strong>${text(stats.total ?? 0)}</strong></article><article class="kpi"><span>有回覆</span><strong>${text(stats.replied ?? 0)}</strong></article><article class="kpi"><span>還在等</span><strong>${text(stats.waiting ?? 0)}</strong></article><article class="kpi"><span>回覆率</span><strong>${stats.reply_rate == null ? '—' : text(stats.reply_rate) + '%'}</strong><small>${stats.reply_rate == null ? `樣本要滿 100 封才顯示（目前 ${text(stats.total ?? 0)}）` : ''}</small></article></div><div class="card"><h2>新增接觸紀錄</h2>${actionBtn('新增一筆', 'outreach-add', {}, 'primary')}</div>${list(rows, (o) => `<article class="list-row"><span><b>${text(o.target_name)}</b><small>${text(o.company || o.region)} · ${text(o.job_title || o.job_slug)} · ${text(o.channel)} · ${text(o.sent_at)}</small></span>${statusBadge(o.outcome)}${rowActions([actionBtn('有回覆', 'outreach-outcome', { idParams: { id: o.id, outcome: 'replied' } }),actionBtn('約到面談', 'outreach-outcome', { idParams: { id: o.id, outcome: 'meeting' } }),actionBtn('已讀不回', 'outreach-outcome', { idParams: { id: o.id, outcome: 'no_reply' } }),actionBtn('婉拒', 'outreach-outcome', { idParams: { id: o.id, outcome: 'declined' } })])}</article>`)}`,
+  // 阿福履歷健檢（跟阿財完全分開的獨立人格與資料表，本人主動來問自己的市場價值，
+  // 沒有應徵任何職缺）。對話已結束（chat_state=done）但沒有 report_at 代表報告排版
+  // 失敗、卡住了，跟「還在對談中」要分開標示——照抄舊版 consultant/checkups 的判斷。
+  checkupRows: (items) => list(items, (c) => {
+    const stuck = c.status === 'talking' && c.chat_state === 'done' && !c.report_at;
+    const nums = [['led_headcount', '帶人'], ['budget_scale', '預算'], ['crowdfunding_raised', '募資']]
+      .map(([k, label]) => `${label}：${c[k] ? text(c[k]) : '—'}`).join('　');
+    const rpt = (c.report_at && c.chat_token)
+      ? `<a class="btn ghost sm" target="_blank" rel="noopener" href="https://step1ne-backoffice-worker.aiagentg888.workers.dev/checkup-chat/${encodeURIComponent(c.chat_token)}/report">查看報告 →</a>` : '';
+    const badge = stuck ? '<span class="badge danger">對話已結束但報告沒產出，需人工查看</span>' : statusBadge(c.status);
+    return `<article class="list-row"><span><b>${text(c.name)}</b><small>${text(c.current_title || '—')} · ${text(c.current_industry || '—')} · ${nums}</small></span>${badge}<small>${text(c.created_at)}</small>${rpt}</article>`;
+  }),
+  jobs: (tab='list') => pageHead('職缺中心','新增職缺會進入 intake → AI 擬稿 → 人工核准流程。','<button class="btn primary" data-action="job-intake">＋ 建立用人需求</button>') + tabbar('jobs',[['list','職缺總覽'],['card','職缺卡'],['ops','營運數據'],['intake','新增／收件'],['drafts','待 AI 擬稿'],['checks','必要條件'],['expertise','面談題庫']],tab) + `<div id="page-data">${endpointState('職缺資料')}</div>`,
+  // /admin/jobs 真實欄位：company_display_name（不是 company_name/client_name）、applicants
+  // （不是 applications_count）；沒有 location 或 forward_count 這兩個欄位，不假裝有。
+  // 2026-09-15 查證：後端 /admin/jobs 其實一次帶出全部 6 關（applicants/screening/
+  // client_stage/offered/onboard/closed），不是只有前 3 關——漏斗少「錄取/到職/結案」
+  // 不是後端沒有這些數字，是前端一直沒把它們畫出來。到職／結案有數字時特別標色，
+  // 顧問一眼看得出這職缺是不是真的有在成交，不是只看應徵量。
+  jobRows: (items) => list(items, (j) => `<article class="job-row" data-job="${text(j.slug || j.id)}"><div><h3>${text(j.title)}</h3><p>${text(j.company_display_name || j.company_name || j.client_name)} · ${text(j.service_line)}</p></div>${statusBadge(j.status)}<div class="metrics"><span>應徵 ${text(j.applicants ?? 0)}</span><span>篩選中 ${text(j.screening ?? 0)}</span><span>客戶階段 ${text(j.client_stage ?? 0)}</span><span>錄取 ${text(j.offered ?? 0)}</span><span class="${(j.onboard ?? 0) > 0 ? 'accent' : ''}">到職 ${text(j.onboard ?? 0)}</span><span class="${(j.closed ?? 0) > 0 ? 'warn' : ''}">結案 ${text(j.closed ?? 0)}</span></div><button class="btn">管理</button></article>`),
+  // 2026-09-24 重寫：收件單沒有 title 欄位（職稱要等總指揮擬完才有），原本顯示一排空白。
+  //   改成客戶／服務線／進度中文／附件數，核准一樣在 TG 群組按。
+  jobDraftRows: (items) => list(items, (d) => {
+    const ST = { new: '排隊中（約 10 分鐘內開始擬）', drafting: '總指揮擬 JD 中', drafted: '擬好了，等你在 TG 群組按核准',
+      rewrite: '退回重寫中', approved: '已核准，等發布', published: '已發布', rejected: '已拒絕' };
+    const SL = { dispatch: '人力派遣', direct: '正職代招', executive: '中高階獵才' };
+    const done = d.status === 'published' || d.status === 'rejected';
+    const what = d.draft_title || d.title_hint
+      || (d.file_names ? String(d.file_names).replace(/\.(docx?|xlsx?|pdf|md|txt|csv|png|jpe?g)(?=、|$)/gi, '') : '')
+      || String(d.raw_preview || '').split('\n').map((x) => x.trim()).find(Boolean)
+      || d.source_url || '（沒有職缺資料）';
+    return `<article class="list-row"><span><b>${text(String(what).slice(0, 60))}</b>
+      <small>客戶：${text(d.client_name || '（沒填）')}${d.draft_title ? '' : '　（職稱等 AI 擬完會換成正式的）'}</small>
+      <small>${text(SL[d.service_line] || d.service_line || '')} · ${text(ST[d.status] || d.status)} · 附件 ${text(d.file_count ?? 0)} 個 · ${text(d.created_at)}${d.published_slug ? ` · 職缺：${text(d.published_slug)}` : ''}</small></span>
+      ${done ? '' : rowActions([actionBtn('刪除收件單','job-draft-delete',{ idParams: { id: d.id } },'danger')])}</article>`;
+  }),
+  jobCheckRows: (items) => list(items, (j) => `<article class="list-row"><span><b>${text(j.title || j.job_title)}</b><small>${text(j.slug || j.job_slug)} · ${text(j.missing || j.note)}</small></span>${rowActions([actionBtn('確認必要條件','must-check-confirm',{ idParams: { slug: j.slug || j.job_slug } })])}</article>`),
+  // /admin/expertise 回傳 {banks, missing} 兩個陣列；banks 每筆是 title/job_slug/questions_json
+  // （字串，需要 JSON.parse 才是題目陣列，見 expertise-save action）/edited_at/can_restore。
+  // ── 2026-09-20 改寫：從「一行一個職缺＋一顆開 JSON 文字框的按鈕」，改成
+  // 逐題看得到、逐題改得動的畫面。
+  //
+  // 改的理由：舊版唯一的編輯入口 expertise-save 開出來是一個裝原始 JSON 的
+  // textarea，Jacky 看不懂也不敢動，所以題庫從上線到現在沒被人工調整過一次。
+  // 題庫是阿財專業題的來源，也是新的「專業技能深度」那一維（佔 20%）的分數
+  // 來源——顧問改不動它，等於這 20% 完全交給機器出的題目決定。
+  // 舊的 expertise-save 沒有拿掉，留著當「整包貼上」的後路。
+
+  // 五級尺：顧問要看得懂阿財怎麼把一題的回答換成分數，才會信這個分數。
+  expertiseRuler: () => `<div class="card"><h2>阿財怎麼判斷「粗略懂」還是「很上手」</h2>
+<p class="help">量的是<b>他講得有多深</b>，不是答案對不對——專業對錯留給你跟用人主管判斷。每題評 1–5 級，平均後換成「專業技能深度」這一維的分數，佔總分 20%。</p>
+<table class="spec"><tr><th>級</th><th>他答到哪一層</th></tr>
+<tr><td class="num">1</td><td>只講得出「我會」，講不出用它做過什麼</td></tr>
+<tr><td class="num">2</td><td>講得出做過什麼，但講不出細節、規模、頻率</td></tr>
+<tr><td class="num">3</td><td>講得出實際專案、常用哪些功能，但沒碰過難題</td></tr>
+<tr><td class="num">4</td><td>講得出遇過什麼問題、怎麼解的</td></tr>
+<tr><td class="num">5</td><td>講得出取捨與代價——為什麼選這個做法、放棄了什麼。做過的人才答得出來</td></tr></table>
+<div class="notice">沒問到的題目不會被當成 1 級——「沒問」跟「問了答不出來」是兩件事，當成 1 級等於誣賴候選人不會。</div></div>`,
+
+  expertiseQuestionCard: (jobSlug, q, i) => {
+    const kind = q.kind || '經驗';
+    const live = kind === '情境' || kind === '外語';
+    const bullets = (arr, cls, title) => (arr && arr.length)
+      ? `<div class="sig ${cls}"><b>${title}</b><ul>${arr.map((x) => `<li>${text(x)}</li>`).join('')}</ul></div>`
+      : '';
+    return `<article class="list-row expertise-q"><span>
+<small>${i + 1}. <b>${text(kind)}</b>${live ? '（當場請他做）' : ''} · ${text(q.topic || '')}</small>
+<b>${text(q.q || '')}</b>
+${q.why ? `<small>為什麼問：${text(q.why)}</small>` : ''}
+${bullets(q.good_signs, 'good', '真做過會提到')}
+${bullets(q.red_flags, 'bad', '含糊的訊號')}
+${q.followup ? `<small>含糊就追問：${text(q.followup)}</small>` : ''}
+</span>${rowActions([
+      // record 裡的 good_signs／red_flags 先轉成「一行一條」的字串再傳。
+      // 直接把陣列丟進去的話，app.js 的 formFields(fields, ctx.record) 會用
+      // ctx.record 的值蓋掉欄位 value，陣列被 String() 成「a,b,c」，存回去就
+      // 從 3 條變成 1 條（2026-09-20 實測踩到）。
+      actionBtn('改這題', 'expertise-question-edit', {
+        idParams: { job_slug: jobSlug, idx: i },
+        record: { ...q,
+          good_signs: (q.good_signs || []).join('\n'),
+          red_flags: (q.red_flags || []).join('\n') },
+      }),
+      actionBtn('刪掉', 'expertise-question-delete', { idParams: { job_slug: jobSlug, idx: i } }, 'danger'),
+    ])}</article>`;
+  },
+
+  jobExpertiseRows: (items, building = []) => list(items || [], (e) => {
+    // ⚠️ safeParseJson 只擋得住「字串不是合法 JSON」，擋不住 questions_json 是
+    // SQL NULL——JSON.parse(null) 回傳 null 而且**不丟例外**，try/catch 完全接不到，
+    // 後面 qs.length 就整頁炸掉（2026-09-20 實測：產題失敗留下的空殼職缺一進
+    // banks 就觸發）。一律收斂成陣列。
+    const parsed = safeParseJson(e.questions_json);
+    const qs = Array.isArray(parsed) ? parsed : [];
+    const isBuilding = building.includes(e.job_slug);
+    return `<section class="card"><div class="list-row">
+<span><b>${text(e.title || e.job_slug)}</b><small>${text(e.domain)} · ${qs.length} 題 · ${e.edited_at ? `${text(e.edited_by || '顧問')}改過 ${text(e.edited_at)}` : `機器產於 ${text(e.built_at)}`}</small></span>
+${rowActions([
+      actionBtn('＋ 自己加一題', 'expertise-question-add', { idParams: { job_slug: e.job_slug } }),
+      ...(isBuilding ? [] : [actionBtn('重新產生整份', 'expertise-build', { idParams: { job_slug: e.job_slug } })]),
+      ...(e.can_restore ? [actionBtn('還原上一版', 'expertise-restore', { idParams: { job_slug: e.job_slug } }, 'danger')] : []),
+    ])}</div>
+${isBuilding ? '<div class="notice">⏳ 正在重新產生，約 2–3 分鐘，好了會在 Telegram 通知你。</div>' : ''}
+${qs.length ? qs.map((q, i) => views.expertiseQuestionCard(e.job_slug, q, i)).join('')
+    : '<div class="notice">這個職缺的題庫是空的（之前產題失敗），阿財面談時問不到任何專業題。按上面的「重新產生整份」。</div>'}
+</section>`;
+  }),
+
+  // 沒題庫的職缺：以前只顯示「尚未建立題庫」卻沒有任何按鈕可以叫它產——
+  // 28 個在辦職缺有 20 個空著沒人發現就是因為這個。現在每一列都有按鈕。
+  jobExpertiseMissingRows: (items, building = []) => (items && items.length)
+    ? `<div class="card"><h2>還沒有題庫的職缺（${items.length}）</h2>
+<p class="help">這些職缺阿財面談時<b>問不到任何專業題</b>，「專業技能深度」那一維會是空的。按「產生題庫」讓 AI 上網查這個職務的專業內涵再出題。</p>
+${list(items, (j) => `<article class="list-row"><span><b>${text(j.title || j.slug)}</b><small>${text(j.client_name || '')}${j.empty_shell ? ' · 之前產題失敗，題庫是空的' : ' · 尚未建立題庫'}</small></span>${rowActions(building.includes(j.slug) ? [] : [actionBtn('產生題庫', 'expertise-build', { idParams: { job_slug: j.slug } }, 'primary')])}${building.includes(j.slug) ? '<span class="badge">⏳ 產生中</span>' : ''}</article>`)}</div>`
+    : '',
+  // 2026-09-21 改：抽屜加分頁。原本題庫只做在「職缺中心 → 面談題庫」那個
+  // 全站攤平的總覽頁，Jacky 反映（附截圖）他的預期是「點進職缺卡片就能切分頁看」——
+  // 他說得對：正在看這個職缺時本來就想順手看它的題庫，現在卻要跳出去、
+  // 到另一個分頁、在 30 幾個職缺裡再找回同一個。總覽頁保留（適合一次看全部
+  // 缺哪些），這裡是同一份資料的第二個入口。
+  jobManageBody: (job, content, bank, isBuilding = false, card = null, acai = null) => {
+    const slug = job.slug || job.id;
+    const lv = card && card.profile ? `（Lv.${card.profile.level || 0}）` : '';
+    return `<div class="tabs">
+<button class="active" data-jobtab="manage">管理</button>
+<button data-jobtab="expertise">面談題庫${bank && bank._n ? `（${bank._n}）` : ''}</button>
+<button data-jobtab="card">職缺卡${lv}</button>
+<button data-jobtab="acai">阿財的理解</button>
+</div>
+<div class="drawer-section" id="job-tab-manage"><h3>職缺狀態</h3>${rowActions([actionBtn('開啟／關閉職缺','job-status',{ idParams: { slug } }),actionBtn('刪除職缺','job-delete',{ idParams: { slug } },'danger')])}<h3>職缺內容</h3><form id="job-content-form" class="form-grid"><label class="field span-2"><span>內容（JD／用人事實）</span><textarea name="content" rows="10">${escapeHtml(content?.content || content?.html || content?.body || '')}</textarea></label></form><button class="btn primary" data-action="submit-job-content" data-slug="${text(slug)}">儲存職缺內容</button><p class="help">儲存時若偵測到 template_mismatch 或 content_shrink，會再跳出二次確認。</p><h3>客製表單欄位</h3>${actionBtn('新增客製表單欄位','job-forms-create',{ idParams: {}, record: { job_slug: slug } })}</div>
+<div class="drawer-section" id="job-tab-expertise" hidden>${views.jobExpertisePanel(slug, bank, isBuilding)}</div>
+<div class="drawer-section" id="job-tab-card" hidden>${views.jobCardPanel(slug, card)}</div>
+<div class="drawer-section" id="job-tab-acai" hidden>${views.jobAcaiPanel(slug, acai)}</div>`;
+  },
+
+  // 單一職缺的題庫面板。跟總覽頁用同一顆 expertiseQuestionCard，不另做一套
+  // ——兩邊長不一樣的話，顧問會不知道哪個才是真的。
+  jobExpertisePanel: (slug, bank, isBuilding = false) => {
+    const qs = bank && Array.isArray(bank.questions) ? bank.questions : [];
+    if (!bank) {
+      return `<div class="notice">這個職缺還沒有面談題庫，阿財面談時<b>問不到任何專業題</b>，評分表上的「專業技能深度」（佔 20%）會是空的。</div>
+${isBuilding ? '<div class="notice">⏳ 正在產生，約 2–3 分鐘，好了會在 Telegram 通知你。</div>'
+    : rowActions([actionBtn('產生題庫', 'expertise-build', { idParams: { job_slug: slug } }, 'primary')])}`;
+    }
+    return `<p class="help">${text(bank.domain || '')} · ${qs.length} 題 · ${bank.edited_at ? `${text(bank.edited_by || '顧問')}改過 ${text(bank.edited_at)}` : `機器產於 ${text(bank.built_at || '')}`}</p>
+${rowActions([
+      actionBtn('＋ 自己加一題', 'expertise-question-add', { idParams: { job_slug: slug } }),
+      ...(isBuilding ? [] : [actionBtn('重新產生整份', 'expertise-build', { idParams: { job_slug: slug } })]),
+      ...(bank.can_restore ? [actionBtn('還原上一版', 'expertise-restore', { idParams: { job_slug: slug } }, 'danger')] : []),
+    ])}
+${isBuilding ? '<div class="notice">⏳ 正在重新產生，約 2–3 分鐘，好了會在 Telegram 通知你。</div>' : ''}
+${views.expertiseRuler()}
+${qs.length ? qs.map((q, i) => views.expertiseQuestionCard(slug, q, i)).join('')
+    : '<div class="notice">題庫是空的（之前產題失敗），按上面的「重新產生整份」。</div>'}`;
+  },
+
+  // 職缺卡（對話 B，2026-09-24，Jacky 交辦）——顧問把客戶回饋餵進來，累積
+  // 「這個職缺客戶真正要什麼」，阿財面談前先讀濃縮版。等級／經驗值／命中率
+  // 是本機 job_card.py 從 placements 對帳算出來的，這裡只負責顯示跟收件。
+  // 「A 級人選命中率」——2026-09-24 總指揮交辦，Jacky 的目標是「看到 A 級
+  // 人選，就知道這職缺 A 級命中率 85% 以上」。advance_rate／hire_rate／
+  // a_grade_settled_n 都是 job_card.py 的 recompute_profile() 已經在算的
+  // （跟 Lv.10 品質門檻同一組數字），這裡只負責顯示，不重算。
+  // ⚠️ 2026-09-29 總指揮抓到：「錄取 Y%（目標70%）」這條線的 70% 是我自己
+  // 套用 job_card.py 的 LV10_GATE_HIRE_RATE 常數畫上去的，Jacky 從來沒有
+  // 針對「A 級人選錄取率」訂過 70% 這個數字——那個常數是 Lv.10 封頂門檻的
+  // 內部設定，跟「顧問在卡片上看到的目標」是兩回事，不能拿來當成這裡的
+  // 目標值展示。改成只顯示錄取率本身（純事實），不配色、不寫「目標」，
+  // 只留 Jacky 真的訂過的 85%（客戶約面試）這條。
+  jobCardAGradeLine: (p) => {
+    const n = p?.a_grade_settled_n || 0;
+    const pct1 = (v) => (v === null || v === undefined) ? '—' : `${Math.round(v * 100)}%`;
+    const tone = (v, target) => (v !== null && v !== undefined && v >= target)
+      ? 'style="color:#14794c;font-weight:700"' : 'style="color:var(--muted)"';
+    if (!n) return '<p class="help">A 級人選命中率：還沒有 A 級樣本可以算。</p>';
+    return `<p class="help">A 級送客戶 ${n} 位${n < 5 ? '（樣本不足）' : ''}・
+客戶約面試 <span ${tone(p.advance_rate, 0.85)}>${pct1(p.advance_rate)}</span>（目標 85%）・
+錄取 ${pct1(p.hire_rate)}</p>`;
+  },
+
+  // 匯入回饋前 vs 後的 A 級命中率對照——唯一能證明「匯入回饋有沒有用」的
+  // 證據。兩邊樣本都要 >=1 才顯示對照，不然「之前 0/0、之後 1/1」這種
+  // 比較沒有意義。
+  jobCardBeforeAfter: (p) => {
+    const beforeN = p?.a_before_n || 0, afterN = p?.a_after_n || 0;
+    if (!beforeN && !afterN) return '';
+    const pct1 = (v) => (v === null || v === undefined) ? '—' : `${Math.round(v * 100)}%`;
+    return `<p class="help">匯入回饋前 A 級錄取率：${pct1(p.a_before_hire_rate)}（樣本 ${beforeN}） vs 匯入回饋後：${pct1(p.a_after_hire_rate)}（樣本 ${afterN}）</p>`;
+  },
+
+  jobCardLevelBar: (p) => {
+    if (!p) return '';
+    const LV_NEXT = [100, 250, 450, 700, 1000, 1350, 1750, 2200, 2700, 3250];
+    const xp = p.xp_total || 0;
+    const lv = p.level || 0;
+    const nextNeed = lv < 10 ? LV_NEXT[lv] : null;
+    const prevNeed = lv > 0 ? LV_NEXT[lv - 1] : 0;
+    const pct = nextNeed ? Math.max(4, Math.round((xp - prevNeed) / (nextNeed - prevNeed) * 100)) : 100;
+    const cap = p.level_capped_by_gate
+      ? '<span class="badge warning" title="經驗值已經到 Lv.10 門檻，但阿財評A的人選還沒穩定達到「多數進面試、多數被錄取」，先卡在 Lv.9">卡在 Lv.9（品質門檻未達）</span>' : '';
+    const pct1 = (v) => (v === null || v === undefined) ? '—' : `${Math.round(v * 100)}%`;
+    const settledN = p.settled_n || 0;
+    // ⚠️ 2026-09-24 總指揮交辦：分母是 0 時不要顯示「命中率 0%」——那會讓人
+    // 誤以為「阿財全猜錯」，實際上是「還沒有任何一筆有結果可以比對」，
+    // 兩件事天差地遠。改成直接講白話。
+    const rateLine = settledN
+      ? `<span style="white-space:nowrap">命中率 ${pct1(p.accuracy_rate)}</span>
+  <span style="white-space:nowrap">婉拒率 ${pct1(p.decline_rate)}</span>`
+      : '<span style="white-space:nowrap;color:var(--muted)">還沒有可比對的結果</span>';
+    const excludedN = p.excluded_n || 0;
+    return `<div class="list-row" style="align-items:center;gap:16px;flex-wrap:wrap">
+<span class="badge info" style="font-weight:700">Lv.${lv}${cap}</span>
+<span style="flex:1;min-width:180px">
+  <div class="fnrow"><span class="lb">經驗值 ${xp}${nextNeed ? `／${nextNeed}` : '（已達曲線頂端）'}</span>
+    <span class="track"><span class="bar" style="width:${pct}%;display:block"></span></span></div>
+</span>
+<span class="metrics" style="flex-wrap:wrap;min-width:200px">
+  ${rateLine}
+  <span style="white-space:nowrap">回饋 ${p.feedback_count || 0} 筆</span>
+</span>
+</div>
+<p class="help" style="margin:6px 0 0">阿財面談 ${p.interviewed_n || 0} 人・送客戶 ${p.submitted_n || 0} 人・客戶面試 ${p.client_interviewed_n || 0} 人・錄取 ${p.hired_n || 0} 人・報到 ${p.onboarded_n || 0} 人・有結果 ${settledN} 筆${excludedN ? ` （另有 ${excludedN} 筆我方結案／失聯，不計入命中率）` : ''}</p>`;
+  },
+
+  jobCardProfileGrid: (full) => {
+    const sec = (key, label) => {
+      const items = (full && full[key]) || [];
+      if (!items.length) return '';
+      return `<div class="card" style="padding:13px 15px"><h3 style="margin:0 0 8px;font-size:13px">${label}</h3>
+<ul style="margin:0;padding-left:18px;font-size:13px">${items.map((x) => `<li>${text(x)}</li>`).join('')}</ul></div>`;
+    };
+    const body = [sec('skills', '技能深淺'), sec('traits', '特質'),
+                  sec('plus', '加分'), sec('fail_reasons', '常見落選原因')].join('');
+    return body ? `<div class="two-col">${body}</div>`
+      : '<div class="notice">還沒有任何回饋，職缺卡是空的——阿財目前只能照通用標準評分。</div>';
+  },
+
+  // 2026-09-24 加（總指揮交辦）：補過回饋的候選人，紅色提醒要消失。判斷
+  // 「補過了」的依據是同一個 application_id 有沒有出現在 feedback_import
+  // 事件裡——顧問匯入回饋時可以指定「這筆是補哪位」（見 jobCardPanel 的
+  // 表單），兩邊用 events 裡的 application_id 對起來，不用另外打一支 API。
+  jobCardOutstandingAlerts: (events) => {
+    const list = events || [];
+    const resolvedIds = new Set(list.filter((e) => e.event_type === 'feedback_import' && e.application_id)
+      .map((e) => e.application_id));
+    return list.filter((e) => e.event_type === 'placed' && !['A', 'B'].includes(e.grade)
+      && e.application_id && !resolvedIds.has(e.application_id));
+  },
+
+  jobCardLowScoreAlerts: (events) => {
+    const bad = views.jobCardOutstandingAlerts(events);
+    if (!bad.length) return '';
+    return bad.map((e) => `<div class="notice" style="background:#ffe5e7;border-color:#eab8bc;color:#a72f3a">
+⚠️ <b>${text(e.candidate_name || '這位人選')}</b> 是阿財評 <b>${text(e.grade)}</b> 卻被客戶錄取的——這種落差最值得學，
+幫我們補一筆：阿財那次看漏了什麼？（在下面「匯入客戶回饋」選這位、貼一段說明就可以）</div>`).join('');
+  },
+
+  jobCardEventRow: (e) => {
+    const XP_LABEL = { feedback_import: '匯入回饋', recommend: '推薦給客戶', placed: '錄取', client_declined: '客戶婉拒' };
+    const grade = e.grade ? routeBadge(e.grade, '') : '';
+    return `<div class="list-row" style="padding:10px 13px">
+<span><small>${text(e.created_at)}${e.candidate_name ? ` · ${text(e.candidate_name)}` : ''}</small>
+<b>${text(XP_LABEL[e.event_type] || e.event_type)}</b>${grade ? ` ${grade}` : ''}
+${e.note ? `<small>${text(e.note)}</small>` : ''}</span>
+${e.xp_delta ? `<span class="badge success">+${e.xp_delta} XP</span>` : ''}
+</div>`;
+  },
+
+  // 職缺卡卡片牆（2026-09-24，Jacky 交辦）：職缺中心一次看完全部職缺的卡，
+  // 不用一張一張點開抽屜。沿用既有公式卡片牆的 .prompt-grid／.prompt-card
+  // （見 socialFormulasTab），不另外發明畫風。
+  // 客戶名稱太長（例如日文全稱＋集團說明）會把卡片撐爆，這裡跟卡片／
+  // 客戶篩選選單共用同一個截斷規則，兩處看起來要一致。
+  jobCardClientLabel: (name, max = 16) => {
+    const s = name || '未指定客戶';
+    return s.length > max ? `${s.slice(0, max)}…` : s;
+  },
+
+  // 每個職缺的漏斗＋命中率的迷你版（卡片牆單張卡片內用）：橫條依序是
+  // 阿財面談／送客戶／客戶面試／錄取／報到，寬度依人數比例（面談當基準
+  // 100%）。完整、可排序、手機友善的版本是 jobCardFunnelTable，這裡只是
+  // 卡片內的縮圖。顏色用同一個藍色（品牌色）由淺到深——五個階段是同一種
+  // 東西（人數）的漸進篩選，不是五個不同類別，序列色階比分類色更誠實。
+  jobCardFunnelBars: (j) => {
+    const stages = [
+      ['面談', j.interviewed_n || 0, '#dce6fc'],
+      ['送客戶', j.submitted_n || 0, '#a9c3f6'],
+      ['客戶面試', j.client_interviewed_n || 0, '#6c98ef'],
+      ['錄取', j.hired_n || 0, '#2867ed'],
+      ['報到', j.onboarded_n || 0, '#173d94'],
+    ];
+    const max = Math.max(1, stages[0][1]);
+    const rows = stages.map(([label, n]) => `<span style="display:flex;align-items:center;gap:6px">
+<span style="width:46px;flex:none;font-size:11px;color:var(--muted)">${label}</span>
+<span style="flex:1;height:8px;background:#eef2f8;border-radius:3px;overflow:hidden;display:block">
+<span style="display:block;height:100%;width:${n ? Math.max(4, Math.round(n / max * 100)) : 0}%;background:${stages.find((s) => s[0] === label)[2]};border-radius:3px"></span></span>
+<span style="width:18px;flex:none;text-align:right;font-size:11px;font-variant-numeric:tabular-nums">${n}</span>
+</span>`).join('');
+    const settledN = j.settled_n || 0;
+    const pct1 = (v) => (v === null || v === undefined) ? '—' : `${Math.round(v * 100)}%`;
+    const acc = settledN ? `${pct1(j.accuracy_rate)}（樣本${settledN}）` : `—（樣本0）`;
+    return `<span style="display:flex;flex-direction:column;gap:3px;margin:4px 0">${rows}
+<span style="font-size:11px;color:var(--muted);text-align:right">命中率 ${acc}</span></span>`;
+  },
+
+  jobCardWallItem: (j) => {
+    const LV_NEXT = [100, 250, 450, 700, 1000, 1350, 1750, 2200, 2700, 3250];
+    const hasProfile = j.level !== null && j.level !== undefined;
+    const closed = j.status !== 'open';
+    const closedTag = closed ? '<span class="badge">已關閉</span>' : '';
+    const clientLabel = text(views.jobCardClientLabel(j.client_name));
+    const flagN = j.low_score_hires || 0;
+    // ⚠️ 這裡只能用 <span>——外層是 <button>（跟 promptCard 同一個模式），
+    // <div> 塞進 <button> 在部分瀏覽器排版會跑掉。.fnrow／.notice 這些
+    // class 本來就是用 class 選字，不管掛在 span 還是 div 上效果一樣。
+    const flag = flagN
+      ? `<span class="notice" style="display:block;background:#ffe5e7;border-color:#eab8bc;color:#a72f3a;margin:2px 0;padding:5px 8px;font-size:12px">⚠️ ${flagN} 位待補回饋</span>`
+      : '';
+    // 已關閉、或還沒餵過回饋，整張卡都淡色——同一種「先看招募中、有內容的」邏輯。
+    const dim = (closed || !hasProfile) ? ' style="opacity:.55"' : '';
+    const funnel = views.jobCardFunnelBars(j);
+    if (!hasProfile) {
+      return `<button type="button" class="prompt-card job-card-wall-item" data-slug="${text(j.slug)}"${dim}>
+<span class="pc-top"><b>${text(j.title)}</b>${closedTag}</span>
+<span class="help">${clientLabel}</span>
+${funnel}
+<span class="pc-body">還沒餵回饋</span>
+</button>`;
+    }
+    const nextNeed = j.level < 10 ? LV_NEXT[j.level] : null;
+    const prevNeed = j.level > 0 ? LV_NEXT[j.level - 1] : 0;
+    const pct = nextNeed ? Math.max(4, Math.round((j.xp_total - prevNeed) / (nextNeed - prevNeed) * 100)) : 100;
+    return `<button type="button" class="prompt-card job-card-wall-item" data-slug="${text(j.slug)}"${dim}>
+<span class="pc-top"><b>${text(j.title)}</b><span class="badge info">Lv.${j.level}</span></span>
+<span class="help">${clientLabel}${closedTag ? ' · 已關閉' : ''}</span>
+${flag}
+<span class="fnrow" style="display:flex"><span class="lb">${j.xp_total}${nextNeed ? `／${nextNeed}` : ''}</span><span class="track"><span class="bar" style="width:${pct}%;display:block"></span></span></span>
+${funnel}
+<span class="pc-body" style="-webkit-line-clamp:1">回饋 ${j.feedback_count || 0} 筆</span>
+</button>`;
+  },
+
+  // 排序：招募中的優先，已關閉的一律排最後、淡色顯示；招募中裡面再依
+  // 待補回饋（紅標）→ 還很淺（沒卡片或 Lv≤2）→ 其他 排。
+  // 狀態篩選：open（預設，只看招募中）／needs（需要補回饋，只算招募中的）／
+  // all（含已關閉）。客戶篩選：company_id 對不到就退回 client_name 當 key
+  // （這裡跟卡片顯示、後端 client_name 解析用同一套「先 company_id」邏輯，
+  // 同一家客戶不會因為兩種來源被拆成兩個選項）。
+  // 兩個篩選互相影響對方選單裡的數字：客戶選單的數字看目前的狀態篩選，
+  // 狀態選單的數字看目前選的客戶——這樣選完一個之後，另一個選單的數字
+  // 才會跟畫面上實際看到的一致，不是兩份互不相干的統計。
+  // 「每個職缺的漏斗與命中率」改成真正的表格（2026-09-24，總指揮交辦，
+  // 取代原本的橫條圖版 jobCardFunnelChart）：表頭寫一次，數字靠右等寬，
+  // 送客戶／客戶面試／錄取／報到底下加轉換率（對上一欄），命中率有樣本才
+  // 顯示百分比＋樣本數，沒樣本只寫「—」。同時準備兩套 markup（<table> 跟
+  // 卡片），用 CSS media query 切換——手機版不是「硬擠進同一張表」，是
+  // 直式一小卡一個職缺（見 styles.css 的 .jc-ft-wrap／.jc-ft-cards）。
+  // 依 job_slug='unspecified' 排除：卡片牆本來就不含它（/admin/job-cards
+  // 已排除），這裡多加一層防呆，不依賴呼叫端一定記得先濾掉。
+  jobCardFunnelTable: (jobs) => {
+    const rows = (jobs || []).filter((j) => (j.interviewed_n || 0) > 0 && j.slug !== 'unspecified');
+    if (!rows.length) return '';
+    const sorted = [...rows].sort((a, b) => (b.interviewed_n || 0) - (a.interviewed_n || 0));
+    const convPct = (v, prev) => (prev ? `<small>${Math.round((v || 0) / prev * 100)}%</small>` : '');
+    const rateCell = (j) => {
+      const n = j.settled_n || 0;
+      if (!n) return '—';
+      const pct = (j.accuracy_rate === null || j.accuracy_rate === undefined)
+        ? '—' : `${Math.round(j.accuracy_rate * 100)}%`;
+      return `${pct}<small>樣本 ${n}</small>`;
+    };
+    const stageTd = (v, prev) => `<td class="num">${v || 0}${convPct(v, prev)}</td>`;
+    const bodyOf = (j) => {
+      const interviewed = j.interviewed_n || 0, submitted = j.submitted_n || 0,
+            clientInt = j.client_interviewed_n || 0, hired = j.hired_n || 0, onboarded = j.onboarded_n || 0;
+      return { interviewed, submitted, clientInt, hired, onboarded };
+    };
+    const theadHtml = `<thead><tr><th>職缺</th><th class="num">阿財面談</th><th class="num">送客戶</th>
+<th class="num">客戶面試</th><th class="num">錄取</th><th class="num">報到</th><th class="num">命中率</th></tr></thead>`;
+    const tbodyHtml = sorted.map((j) => {
+      const b = bodyOf(j);
+      return `<tr>
+<td class="jc-ft-job">${text(j.title)}</td>
+<td class="num">${b.interviewed}</td>
+${stageTd(b.submitted, b.interviewed)}
+${stageTd(b.clientInt, b.submitted)}
+${stageTd(b.hired, b.clientInt)}
+${stageTd(b.onboarded, b.hired)}
+<td class="num jc-ft-rate">${rateCell(j)}</td>
+</tr>`;
+    }).join('');
+    const cardsHtml = sorted.map((j) => {
+      const b = bodyOf(j);
+      const line = (label, v, prev) => `<span class="jc-ft-card-row"><span>${label}</span><span class="num">${v}${convPct(v, prev)}</span></span>`;
+      return `<div class="jc-ft-card">
+<b>${text(j.title)}</b>
+${line('阿財面談', b.interviewed, 0)}
+${line('送客戶', b.submitted, b.interviewed)}
+${line('客戶面試', b.clientInt, b.submitted)}
+${line('錄取', b.hired, b.clientInt)}
+${line('報到', b.onboarded, b.hired)}
+<span class="jc-ft-card-row"><span>命中率</span><span class="num jc-ft-rate">${rateCell(j)}</span></span>
+</div>`;
+    }).join('');
+    return `<details class="card jc-funnel" style="margin-bottom:14px" open>
+<summary style="cursor:pointer;font-weight:700">每個職缺的漏斗與命中率（${sorted.length}）</summary>
+<div class="jc-ft-wrap" style="margin-top:10px"><table class="jc-ft-table">${theadHtml}<tbody>${tbodyHtml}</tbody></table></div>
+<div class="jc-ft-cards" style="margin-top:10px">${cardsHtml}</div>
+</details>`;
+  },
+
+  // 營運數據：阿財面談趨勢（2026-09-24，總指揮交辦）。兩條線——應徵人數／
+  // 阿財面談人數，同一張圖（同一個量級：都是「人數」，不需要雙軸）。
+  // 配色用 dataviz 技能包的預設驗證色盤 slot1（藍，跟這個後台既有的
+  // --blue 很接近）／slot2（橘），這組順序在 CVD 檢測下是安全的，
+  // 不是隨便挑的兩個顏色。
+  opsTrendLine: (series, w = 760, h = 220) => {
+    // series: [{label, color, points:[{bucket,n}]}], 同一組 bucket（已對齊）
+    const allBuckets = series[0]?.points.map((p) => p.bucket) || [];
+    if (!allBuckets.length) return '<div class="notice">還沒有資料可以畫。</div>';
+    const padL = 34, padR = 12, padT = 16, padB = 28;
+    const plotW = w - padL - padR, plotH = h - padT - padB;
+    const maxN = Math.max(1, ...series.flatMap((s) => s.points.map((p) => p.n)));
+    const yMax = Math.ceil(maxN / 5) * 5 || 5;
+    const x = (i) => padL + (allBuckets.length > 1 ? i / (allBuckets.length - 1) * plotW : plotW / 2);
+    const y = (v) => padT + plotH - (v / yMax) * plotH;
+    const gridY = [0, 0.25, 0.5, 0.75, 1].map((f) => Math.round(yMax * f));
+    const lines = series.map((s) => {
+      const pts = s.points.map((p, i) => `${x(i)},${y(p.n)}`).join(' ');
+      const last = s.points[s.points.length - 1];
+      const lastX = x(s.points.length - 1), lastY = y(last?.n || 0);
+      return `<polyline points="${pts}" fill="none" stroke="${s.color}" stroke-width="2"
+        stroke-linejoin="round" stroke-linecap="round" />
+${s.points.map((p, i) => `<circle cx="${x(i)}" cy="${y(p.n)}" r="4" fill="${s.color}" stroke="var(--viz-surface,#fff)" stroke-width="2">
+  <title>${text(s.label)} ${text(p.bucket)}：${p.n}</title>
+</circle>`).join('')}
+<text x="${lastX + 6}" y="${lastY + 4}" font-size="11" fill="${s.color}" font-weight="700">${last?.n ?? ''}</text>`;
+    }).join('');
+    const gridLines = gridY.map((v) => `<line x1="${padL}" y1="${y(v)}" x2="${w - padR}" y2="${y(v)}"
+        stroke="var(--viz-grid,#e2e8f0)" stroke-width="1" />
+<text x="${padL - 6}" y="${y(v) + 3}" font-size="10" fill="var(--viz-muted,#69758a)" text-anchor="end">${v}</text>`).join('');
+    const step = Math.max(1, Math.ceil(allBuckets.length / 8));
+    const isLast = (i) => i === allBuckets.length - 1;
+    const xLabels = allBuckets.map((b, i) => (i % step === 0 || isLast(i))
+      ? `<text x="${x(i)}" y="${h - 6}" font-size="10" fill="var(--viz-muted,#69758a)" text-anchor="${isLast(i) ? 'end' : 'middle'}">${text(b.slice(5))}</text>` : '').join('');
+    const legend = `<div style="display:flex;gap:14px;margin-bottom:6px;font-size:12px">
+${series.map((s) => `<span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;background:${s.color};display:inline-block"></span>${text(s.label)}</span>`).join('')}
+</div>`;
+    return `${legend}<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto" role="img" aria-label="${series.map((s) => s.label).join('、')}趨勢">
+${gridLines}${lines}${xLabels}
+</svg>`;
+  },
+
+  opsKpiTile: (label, cur, prev) => {
+    const delta = (prev === null || prev === undefined) ? ''
+      : cur === prev ? '（持平）'
+      : `${cur > prev ? '▲' : '▼'} ${Math.abs(cur - prev)}`;
+    return `<div class="kpi"><span>${text(label)}</span><strong>${cur}</strong>${prev !== null && prev !== undefined ? `<small>${delta}</small>` : ''}</div>`;
+  },
+
+  opsData: (d) => {
+    const scopeSlug = d._scopeSlug || 'all';
+    const selector = views.opsJobScopeSelector(d._jobs, scopeSlug);
+    // 選了某個職缺：只看那個職缺的每週漏斗＋命中率趨勢，不是全站 KPI 的
+    // 縮小版——這是總指揮交辦的「依職缺看」，跟上面全站總覽是兩種不同
+    // 的問題（「這個職缺最近怎麼樣」vs「整體業務量」），不硬塞在同一組數字裡。
+    if (scopeSlug !== 'all') {
+      return `${selector}
+${views.opsJobFunnelTrend(d._jobTrend?.funnel)}
+${views.opsJobHitRateTrend(d._jobTrend?.hitRateTrend)}`;
+    }
+    const kpi = d?.kpi || {};
+    const gran = d?._gran || 'week';
+    const trend = gran === 'month' ? d.monthly : d.weekly;
+    const applicants = trend?.applicants || [];
+    const interviews = trend?.interviews || [];
+    // 兩條線要對齊同一組 bucket（月或週），應徵/面談哪個月份沒資料就補 0，
+    // 不然畫出來兩條線的點數對不起來，會斜著連錯。
+    const buckets = [...new Set([...applicants.map((p) => p.bucket), ...interviews.map((p) => p.bucket)])].sort();
+    const fill = (rows) => buckets.map((b) => ({ bucket: b, n: (rows.find((r) => r.bucket === b) || {}).n || 0 }));
+    const series = [
+      { label: '應徵人數', color: '#2a78d6', points: fill(applicants) },
+      { label: '阿財面談人數', color: '#eb6834', points: fill(interviews) },
+    ];
+    return `<div class="kpi-grid">
+${views.opsKpiTile('累計應徵', kpi.allTime?.applicants ?? '—', null)}
+${views.opsKpiTile('累計面談', kpi.allTime?.interviews ?? '—', null)}
+${views.opsKpiTile('本月應徵／面談', `${kpi.thisMonth?.applicants ?? 0} / ${kpi.thisMonth?.interviews ?? 0}`, null)}
+${views.opsKpiTile('本週（至今）應徵／面談', `${kpi.thisWeek?.applicants ?? 0} / ${kpi.thisWeek?.interviews ?? 0}`, null)}
+</div>
+<p class="help">上週整週（${text(kpi.lastWeekLabel || '')}）：應徵 ${kpi.lastWeek?.applicants ?? 0} 人・面談 ${kpi.lastWeek?.interviews ?? 0} 人——跟「本週至今」不是同一種比法（一個是整週、一個是到今天為止），僅供對照。</p>
+<div class="card">
+<div class="card-head"><h2>阿財面談趨勢</h2>
+<div class="filters" style="margin:0"><select id="ops-granularity">
+<option value="week"${gran === 'week' ? ' selected' : ''}>依週（週一起算）</option>
+<option value="month"${gran === 'month' ? ' selected' : ''}>依月</option>
+</select></div></div>
+${views.opsTrendLine(series)}
+</div>
+${selector}
+${views.opsAllJobsFunnelBar(d._jobs)}`;
+  },
+
+  // 營運數據依職缺看（2026-09-24，總指揮交辦）：「全部」或某個職缺的下拉，
+  // 跟卡片牆／漏斗表共用同一份 jobs 陣列（已經排除 unspecified），不用
+  // 另外打一支 API 列職缺。
+  opsJobScopeSelector: (jobs, scopeSlug) => {
+    const opts = (jobs || []).filter((j) => j.status === 'open')
+      .sort((a, b) => String(a.title).localeCompare(String(b.title)))
+      .map((j) => `<option value="${text(j.slug)}"${scopeSlug === j.slug ? ' selected' : ''}>${text(j.title)}</option>`).join('');
+    return `<div class="filters" style="margin-top:14px">
+<select id="ops-job-scope"><option value="all"${scopeSlug === 'all' ? ' selected' : ''}>全部職缺</option>${opts}</select>
+</div>`;
+  },
+
+  // 「全部」時的橫向長條圖：每個職缺的阿財面談人數，右邊標命中率（總指揮
+  // 交辦）。沿用漏斗表格同一套 .funnel-chart／.fnrow／.track／.bar／.lb／.vn
+  // （跟舊版漏斗橫條圖同一套視覺語言），單一藍色＝單一種量（人數），不是
+  // 分類色，不用另外驗色盤。已排除 unspecified，依阿財面談人數由多到少排序。
+  opsAllJobsFunnelBar: (jobs) => {
+    const rows = (jobs || []).filter((j) => j.slug !== 'unspecified' && (j.interviewed_n || 0) > 0);
+    if (!rows.length) return '<div class="notice" style="margin-top:14px">還沒有職缺累積到阿財面談的資料。</div>';
+    const sorted = [...rows].sort((a, b) => (b.interviewed_n || 0) - (a.interviewed_n || 0));
+    const max = Math.max(1, ...sorted.map((j) => j.interviewed_n || 0));
+    const pct1 = (v) => (v === null || v === undefined) ? '—' : `${Math.round(v * 100)}%`;
+    return `<div class="card" style="margin-top:14px">
+<h2>每個職缺的阿財面談人數</h2>
+<div class="funnel-chart" style="margin-top:10px">
+${sorted.map((j) => {
+    const n = j.interviewed_n || 0;
+    const w = Math.max(2, Math.round(n / max * 100));
+    const rate = (j.settled_n || 0) ? `${pct1(j.accuracy_rate)}（樣本${j.settled_n}）` : '—';
+    return `<div class="fnrow"><div class="lb" title="${text(j.title)}">${text(j.title)}</div>
+<div class="track"><span class="bar" style="width:${w}%"></span></div>
+<div class="vn" style="width:auto;white-space:nowrap">${n}人｜${rate}</div></div>`;
+  }).join('')}
+</div>
+</div>`;
+  },
+
+  // 選了某個職缺：四條線的每週漏斗（阿財面談／送客戶／客戶面試／錄取，
+  // 同一個 Y 軸），跟下面另一張命中率趨勢分開畫（總指揮交辦：不要雙 y 軸——
+  // 命中率是百分比、人數是計數，兩種量級混在一張圖只會互相看不清楚）。
+  // 顏色用 dataviz 技能包驗證過的分類色盤前四格（藍/橘/青/黃，固定順序，
+  // `node scripts/validate_palette.js "#2a78d6,#eb6834,#1baf7a,#eda100" --mode light`
+  // 全部 PASS），青／黃兩色對白底對比不足，靠端點直接標數字＋圖例文字
+  // 補救（relief rule），不是只靠顏色分辨。
+  opsJobFunnelTrend: (funnel) => {
+    const f = funnel || {};
+    const buckets = [...new Set([
+      ...(f.interviewed || []).map((p) => p.bucket), ...(f.submitted || []).map((p) => p.bucket),
+      ...(f.clientInterviewed || []).map((p) => p.bucket), ...(f.hired || []).map((p) => p.bucket),
+    ])].sort();
+    if (!buckets.length) return '<div class="notice">這個職缺還沒有面談紀錄可以畫趨勢。</div>';
+    const fill = (rows) => buckets.map((b) => ({ bucket: b, n: (rows || []).find((r) => r.bucket === b)?.n || 0 }));
+    const series = [
+      { label: '阿財面談', color: '#2a78d6', points: fill(f.interviewed) },
+      { label: '送客戶', color: '#eb6834', points: fill(f.submitted) },
+      { label: '客戶面試', color: '#1baf7a', points: fill(f.clientInterviewed) },
+      { label: '錄取', color: '#eda100', points: fill(f.hired) },
+    ];
+    return `<div class="card" style="margin-top:14px"><h2>每週漏斗</h2>${views.opsTrendLine(series)}</div>`;
+  },
+
+  // 命中率趨勢：資料來自 job_card_snapshots（總指揮交辦，2026-09-24）。
+  // 命中率是「阿財那次評的等第」跟「後來有沒有錄取」對出來的結果，沒辦法
+  // 回頭幫某一週重算「當時」的命中率（系統沒存那週的報告等第歷史）——
+  // 只能靠往後每週寫一次快照慢慢累積，樣本不足 3 筆就老實講「還在累積」，
+  // 不要硬畫一條只有一兩個點、看起來像趨勢其實只是雜訊的線。
+  opsJobHitRateTrend: (hitRateTrend) => {
+    const rows = hitRateTrend || [];
+    if (rows.length < 3) {
+      return `<div class="card" style="margin-top:14px"><h2>命中率趨勢</h2>
+<div class="notice">累積中，已記錄 ${rows.length} 週——至少累積 3 週快照才會畫趨勢線，太少筆數畫出來像趨勢，其實只是雜訊。</div></div>`;
+    }
+    const series = [{
+      label: '命中率', color: '#2a78d6',
+      points: rows.map((r) => ({ bucket: r.snapshot_date, n: Math.round((r.accuracy_rate || 0) * 100) })),
+    }];
+    return `<div class="card" style="margin-top:14px"><h2>命中率趨勢</h2>${views.opsTrendLine(series)}</div>`;
+  },
+
+  // 「待配對人選」（2026-09-24，總指揮交辦）：job_slug='unspecified' 不是
+  // 真職缺，是還沒配對到職缺的人選暫存桶——後端已經排除 duplicate／測試
+  // 資料，這裡只負責顯示跟指派表單。jobOptions 直接用卡片牆本來就撈好的
+  // 職缺清單（已排除 unspecified 本身），不用另外打一支 API 列職缺。
+  jobCardUnmatchedSection: (candidates, jobOptions) => {
+    const list = candidates || [];
+    if (!list.length) return '';
+    const opts = (jobOptions || []).filter((j) => j.status === 'open')
+      .sort((a, b) => String(a.title).localeCompare(String(b.title)))
+      .map((j) => `<option value="${text(j.slug)}">${text(j.title)}</option>`).join('');
+    return `<details class="card jc-unmatched" style="margin-bottom:14px" open>
+<summary style="cursor:pointer;font-weight:700">待配對人選（${list.length}）</summary>
+<div class="list" style="margin-top:10px;display:grid;gap:9px">
+${list.map((c) => `<div class="list-row jc-unmatched-row">
+<span><b>${text(c.name)}</b><small>${text(c.one_liner || '（還沒有阿財摘要）')} · ${text((c.created_at || '').slice(0, 10))}</small></span>
+<span class="actions-row" style="flex-wrap:wrap">
+<select class="jc-unmatched-job-select" data-app-id="${text(c.id)}"><option value="">選職缺…</option>${opts}</select>
+<button type="button" class="btn sm primary" data-action="reassign-unmatched" data-app-id="${text(c.id)}">指派</button>
+</span>
+</div>`).join('')}
+</div>
+</details>`;
+  },
+
+  jobCardWallTab: (jobs, statusFilter = 'open', clientKey = 'all', unmatched = []) => {
+    jobs = jobs || [];
+    const tier = (j) => {
+      if (j.status !== 'open') return 3;
+      if ((j.low_score_hires || 0) > 0) return 0;
+      if (j.level === null || j.level === undefined || j.level <= 2) return 1;
+      return 2;
+    };
+    const ckey = (j) => j.company_id || `name:${j.client_name || ''}`;
+    const byClient = (j) => clientKey === 'all' || ckey(j) === clientKey;
+    const byStatus = (j) => {
+      if (statusFilter === 'all') return true;
+      if (statusFilter === 'needs') return j.status === 'open' && tier(j) <= 1;
+      // 2026-09-24 加（總指揮交辦）：只看「已經送出去給客戶」的職缺——
+      // submitted_n 由後端 recompute_profile() 算好，這裡只是篩選。
+      if (statusFilter === 'has_submitted') return j.status === 'open' && (j.submitted_n || 0) > 0;
+      return j.status === 'open'; // 'open'
+    };
+
+    const clientScope = jobs.filter(byStatus);
+    const clientCounts = new Map();
+    clientScope.forEach((j) => {
+      const k = ckey(j);
+      const cur = clientCounts.get(k) || { label: views.jobCardClientLabel(j.client_name, 24), n: 0 };
+      cur.n += 1;
+      clientCounts.set(k, cur);
+    });
+    const clientOptions = [...clientCounts.entries()].sort((a, b) => a[1].label.localeCompare(b[1].label));
+
+    const statusScope = jobs.filter(byClient);
+    const openN = statusScope.filter((j) => j.status === 'open').length;
+    const needsN = statusScope.filter((j) => j.status === 'open' && tier(j) <= 1).length;
+    const submittedN = statusScope.filter((j) => j.status === 'open' && (j.submitted_n || 0) > 0).length;
+    const allN = statusScope.length;
+
+    const finalList = jobs.filter((j) => byStatus(j) && byClient(j));
+    const sorted = [...finalList].sort((a, b) => tier(a) - tier(b)
+      || (a.xp_total || 0) - (b.xp_total || 0) || String(a.title).localeCompare(String(b.title)));
+
+    return `${views.jobCardUnmatchedSection(unmatched, jobs)}
+${views.jobCardFunnelTable(jobs.filter((j) => j.status === 'open'))}
+<div class="filters" style="margin-bottom:14px;flex-wrap:wrap">
+<select id="jobcard-filter">
+<option value="open"${statusFilter === 'open' ? ' selected' : ''}>招募中（${openN}）</option>
+<option value="needs"${statusFilter === 'needs' ? ' selected' : ''}>需要補回饋（${needsN}）</option>
+<option value="has_submitted"${statusFilter === 'has_submitted' ? ' selected' : ''}>有推薦人選（${submittedN}）</option>
+<option value="all"${statusFilter === 'all' ? ' selected' : ''}>含已關閉（${allN}）</option>
+</select>
+<select id="jobcard-client-filter">
+<option value="all"${clientKey === 'all' ? ' selected' : ''}>全部客戶（${clientScope.length}）</option>
+${clientOptions.map(([k, v]) => `<option value="${escapeHtml(k)}"${clientKey === k ? ' selected' : ''}>${text(v.label)}（${v.n}）</option>`).join('')}
+</select>
+</div>
+${sorted.length ? `<div class="prompt-grid">${sorted.map((j) => views.jobCardWallItem(j)).join('')}</div>`
+    : empty('沒有符合條件的職缺', '換個篩選條件看看。')}`;
+  },
+
+  jobCardPanel: (slug, card) => {
+    const p = card && card.profile;
+    const full = p && p.full_profile_json ? safeParseJson(p.full_profile_json) : null;
+    const events = (card && card.events) || [];
+    const importing = card && card.importing;
+    return `${p ? views.jobCardLevelBar(p) : '<div class="notice">這個職缺還沒有職缺卡資料。匯入第一筆客戶回饋就會開始累積等級與判斷標準。</div>'}
+${p ? views.jobCardAGradeLine(p) : ''}
+${p ? views.jobCardBeforeAfter(p) : ''}
+${views.jobCardLowScoreAlerts(events)}
+<h3 style="margin-top:16px">這個職缺客戶重視什麼</h3>
+${views.jobCardProfileGrid(full)}
+<h3>匯入客戶回饋</h3>
+${importing ? `<div class="notice">⏳ 有一筆回饋正在整理中（${text(importing)}），大約 1-2 分鐘，好了會自動更新，重新打開這個職缺卡就看得到。</div>` : (() => {
+      const outstanding = views.jobCardOutstandingAlerts(events);
+      return `
+<form id="job-card-feedback-form" class="form-grid">
+${outstanding.length ? `<label class="field span-2"><span>這筆是補哪位（選了的話，補完那張紅色提醒就會消失）</span>
+<select name="application_id"><option value="">— 不指定，泛用的職缺判斷標準 —</option>
+${outstanding.map((e) => `<option value="${text(e.application_id)}">${text(e.candidate_name || e.application_id)}（阿財評${text(e.grade)}卻錄取）</option>`).join('')}
+</select></label>` : ''}
+<label class="field span-2"><span>客戶回饋原文（貼上就好，不用先自己整理）</span><textarea name="text" rows="5" placeholder="例：這個王小姐我們主管聊完覺得不錯……"></textarea></label>
+<label class="field span-2"><span>或傳一張截圖（跟文字擇一，也可以都給）</span><input type="file" name="image" accept="image/*"></label>
+</form>
+<button class="btn primary" data-action="submit-job-card-feedback" data-slug="${text(slug)}">確認匯入</button>
+<p class="help">客戶名、薪資、內部評語只有你在這裡看得到；阿財面談時讀到的是已經濾過的乾淨版，不會有這些內容。</p>`;
+    })()}
+<h3 style="margin-top:20px">回饋與經驗值紀錄</h3>
+${events.length ? events.map((e) => views.jobCardEventRow(e)).join('') : '<div class="notice">還沒有任何紀錄。</div>'}`;
+  },
+
+  // 「阿財的理解」（2026-09-24，Jacky 交辦）：顧問確認阿財理解得對不對、
+  // 面談會問什麼。⚠️ 這裡顯示的每一個字都來自後端快照（本機
+  // interview_daemon.py／job_card.py 算好存的），前端不做任何加工、
+  // 不猜、不補——顯示的就是阿財實際讀到的東西，跟面談是同一份資料。
+  // 每一區旁邊的「這裡不對」用 data-jump-tab／data-jump-route 告訴 app.js
+  // 要跳去哪裡修正，實際切換邏輯統一在 wireJobAcai() 處理。
+  jobAcaiJumpBtn: (label, jumpTab, jumpRoute) => `<button type="button" class="btn ghost sm"
+    ${jumpTab ? `data-jump-tab="${text(jumpTab)}"` : ''}${jumpRoute ? ` data-jump-route="${text(jumpRoute)}"` : ''}
+    style="margin-top:6px">${text(label)}</button>`,
+
+  jobAcaiPanel: (slug, payload) => {
+    const view = payload && payload.view;
+    if (!view) {
+      return `<div class="notice">${text((payload && payload.message) || '這個職缺還沒有「阿財的理解」快照，等下一輪自動重算，或先去「面談題庫」「必要條件」補資料再回來看。')}</div>`;
+    }
+    const f = view.fields || {};
+    const introLines = [
+      f.client_intro ? `<p>${text(f.client_intro)}</p>` : '',
+      `<p class="help">地點：${text(f.locations || '未填')} ・ 型態：${text(f.employment || '未填')} ・ 團隊：${text(f.team_size || '未填')}</p>`,
+      `<p class="help">面談：${text(f.interview_rounds || '—')} 輪 ・ ${text(f.interview_who || '未指定對象')} ${f.has_test && f.has_test !== '否' ? `・ 有測驗（${text(f.has_test)}）` : ''}</p>`,
+      f.onboard_by ? `<p class="help">客戶希望到職日：${text(f.onboard_by)}</p>` : '',
+    ].filter(Boolean).join('');
+
+    const blockerRow = (b) => `<li>${b.critical ? '🚨 ' : ''}${text(b.item)}${b.ask ? `<br><span class="help">問法：${text(b.ask)}</span>` : ''}</li>`;
+    const hardHtml = `${f.must_skills ? `<p><b>必備技能／條件：</b>${text(f.must_skills)}</p>` : ''}
+${(view.blockers_critical || []).length ? `<p><b>到職障礙（不過就不推薦）：</b></p><ul>${view.blockers_critical.map(blockerRow).join('')}</ul>` : ''}
+${!f.must_skills && !(view.blockers_critical || []).length ? '<p class="help">這個職缺目前沒有設定硬條件／到職障礙。</p>' : ''}`;
+    const softHtml = `${(view.blockers_soft || []).length ? `<ul>${view.blockers_soft.map(blockerRow).join('')}</ul>` : ''}
+${view.talking_points ? `<p><b>這個職缺怎麼推銷：</b>${text(view.talking_points)}</p>` : ''}
+${!(view.blockers_soft || []).length && !view.talking_points ? '<p class="help">沒有額外的軟性條件或推銷重點。</p>' : ''}`;
+
+    const qs = view.questions || [];
+    const qGroups = [...new Set(qs.map((x) => x.group))];
+    const qRow = (x) => `<li>${x.critical ? '🚨 ' : ''}${x.kind ? `[${text(x.kind)}] ` : ''}${text(x.q)}
+${x.why ? `<br><span class="help">在確認：${text(x.why)}</span>` : ''}</li>`;
+    const qShown = qs.slice(0, 8);
+    const qRest = qs.slice(8);
+    const qHtml = qGroups.map((g) => {
+      const items = qShown.filter((x) => x.group === g);
+      return items.length ? `<p><b>${text(g)}</b></p><ul>${items.map(qRow).join('')}</ul>` : '';
+    }).join('') + (qRest.length
+      ? `<details><summary class="help" style="cursor:pointer">還有 ${qRest.length} 題（點開看全部）</summary><ul>${qRest.map(qRow).join('')}</ul></details>`
+      : '') + (qs.length ? `<p class="help">${text(view.questions_note || '')}</p>` : '<p class="help">還沒有面談題庫，阿財目前只問到職障礙與通用題。</p>');
+
+    return `<p class="help">最後更新：${text(payload.updated_at || '—')}——這是阿財面談前實際會讀到的內容，不是另外生的摘要。</p>
+
+<h3>這個職缺在做什麼</h3>
+${introLines}
+${views.jobAcaiJumpBtn('這裡不對 → 改職缺內容', 'manage')}
+
+<h3 style="margin-top:18px">必要條件・硬條件（不符合就不推薦）</h3>
+${hardHtml}
+${views.jobAcaiJumpBtn('這裡不對 → 去必要條件分頁', null, 'checks')}
+
+<h3 style="margin-top:18px">必要條件・軟條件／加分</h3>
+${softHtml}
+
+<h3 style="margin-top:18px">阿財面談會問這些（共 ${qs.length} 題）</h3>
+${qHtml}
+${views.jobAcaiJumpBtn('這題不對／想加一題 → 去面談題庫', 'expertise')}
+
+<h3 style="margin-top:18px">客戶真正重視的（來自職缺卡）</h3>
+${view.job_card_summary ? `<pre style="white-space:pre-wrap;font-family:inherit;font-size:13px;margin:0">${text(view.job_card_summary)}</pre>` : '<p class="help">這個職缺卡還沒有累積任何客戶回饋。</p>'}
+${views.jobAcaiJumpBtn('補一筆回饋 → 去職缺卡', 'card')}
+
+<h3 style="margin-top:18px">阿財不會講、不能講的</h3>
+<ul>${(view.redactions || []).map((r) => `<li>${text(r)}</li>`).join('')}</ul>
+${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶保密」，上面客戶名稱那一欄阿財看得到（面談內部判斷要用），但規則會擋住不讓他講給候選人聽——確認擋住的規則有沒有列在這裡。</p>' : ''}`;
+  },
+
+  // 2026-09-15 改：批次區只留 assign-owner（唯一後端真的支援多筆 ids 的動作，見
+  // actions.js 的說明）；狀態／邀請應徵／履歷連結改成每一筆自己的操作，因為後端只認
+  // 單一 id，放在批次區之前點了會 400。另外加一顆真的會建立 application 的「轉入正式
+  // 應徵（顧問建檔）」——呼叫的是跟「＋新增人選」同一支後端（doManualForward，
+  // source_kind:'sourced'），跟上面「邀請應徵」（寄連結讓本人自己填）是兩條不同的路：
+  // 這位聯絡得到但懶得自己填表單，顧問直接幫他建檔用這顆；聯絡到但想讓他自己填，
+  // 用「邀請應徵」寄連結。
+  // 2026-09-15 加連結：`/admin/sourced` 其實一直都有回傳 linkedin_url／github_url／
+  // source_url（舊版顧問後台今天才發現同一批欄位漏接，見顧問人選追蹤那邊的修法），
+  // 這裡從一開始就沒接進畫面——人才池列表完全看不到 LinkedIn／Cake 連結，顧問要
+  // 接觸一個人得自己去猜網址。照同一套判斷：LinkedIn 給結構化按鈕，其他平台
+  // （Cake／GitHub）用 source_url 當通用「來源」連結，兩者不重複顯示同一個網址。
+  sourcedLink: (i) => {
+    const li = i.linkedin_url ? `<a class="btn ghost sm" href="${escapeHtml(i.linkedin_url)}" target="_blank" rel="noopener">LinkedIn</a>` : '';
+    const other = i.source_url && i.source_url !== i.linkedin_url ? `<a class="btn ghost sm" href="${escapeHtml(i.source_url)}" target="_blank" rel="noopener">${text(i.source || '來源')}連結</a>` : (i.github_url ? `<a class="btn ghost sm" href="${escapeHtml(i.github_url)}" target="_blank" rel="noopener">GitHub</a>` : '');
+    return li + other;
+  },
+  sourcedTab: (items) => `<div class="bulk-bar"><span id="sourced-count">已選 0 筆</span>${actionBtn('指派負責顧問','sourced-assign-owner',{ bulk: true })}</div>${list(items, (i) => `<article class="list-row"><input type="checkbox" class="row-check" data-sourced-id="${text(i.id)}"><span><b>${text(i.name)}</b><small>${text(i.title || i.headline)} · ${text(i.source)}</small></span>${statusBadge(i.status)}${views.sourcedLink(i)}${rowActions([
+    `<button type="button" class="btn ghost sm" data-action="open-convert-sourced" data-sourced-id="${text(i.id)}">轉入正式應徵（顧問建檔）</button>`,
+    actionBtn('邀請應徵（寄連結給本人填）','sourced-invite',{ idParams: { id: i.id } }),
+    actionBtn('更新狀態','sourced-status',{ idParams: { id: i.id } }),
+    actionBtn('上傳履歷連結','sourced-resume',{ idParams: { id: i.id } }),
+    actionBtn('編輯','sourced-update',{ idParams: { id: i.id }, record: i }),
+  ])}</article>`)}`,
+  interviews: (tab='live') => pageHead('AI 阿財面談中心','監看真實對話、狀態與活動時間；不顯示不存在的題號、Phase 或輸入訊號。','<button class="btn" data-action="refresh">重新整理</button>') + tabbar('interviews',[['live','進行中'],['paused','暫停／待回來'],['done','已完成'],['errors','報告異常']],tab) + `<div class="master-detail"><aside id="page-data">${endpointState('面談清單')}</aside><article class="card" id="detail-data">${empty('請選擇一場面談','桌機會在右側顯示；手機會開啟全螢幕內容。')}</article></div>`,
+  interviewRows: (items) => list(items, (i) => `<button class="session-row" data-session="${text(i.application_id || i.id)}"><span><b>${text(i.candidate_name || i.name)}</b><small>${text(i.job_title || i.job)}</small></span>${statusBadge(i.interview_state || i.state)}<small>${text(i.last_at || i.updated_at)}</small></button>`),
+  // 2026-09-22 改兩層 tab：9 個平排太多，收成 4 大類（發文／成效／回覆／設定），
+  // 各自底下才展開小 tab。葉 key 不變（today/workbench/schedule/analytics/threads/
+  // conversion/replies/content/accounts），loadSocialTab 完全沿用。
+  social: (tab='today') => pageHead('社群營運','預設進「今日話題」；統計 queue 一律以大 limit 讀取。','<button class="btn primary" data-action="social-request">建立發文需求</button>') + groupedTabbar('social', [
+    ['發文', [['today', '今日話題'], ['workbench', '一鍵發文'], ['schedule', '排程']]],
+    ['成效', [['analytics', '成效總覽'], ['threads', 'Threads 成效'], ['import', '手動匯入貼文']]],
+    ['回覆', [['replies', '職缺社群回覆']]],
+    // 2026-09-23 改：原本「內容庫／Prompt」一頁擠兩欄（話題＋公式），兩邊都只剩
+    // 一半寬度，公式名稱長一點就折三行。拆成兩個小 tab，各自用整個版面排卡片。
+    // 舊的 content 這個 key 仍然收得到（見 app.js），舊書籤不會壞。
+    ['設定', [['topics', '話題 Prompt'], ['formulas', '公式'], ['accounts', '帳號']]],
+  ], tab) + `<div id="page-data">${endpointState('社群資料')}</div>`,
+
+  // ── 今日話題（2026-09-22 新增）──
+  // 每天早上 topic_research_tick.py 生 10 題菜單（企業端 5＋求職端 5）。
+  // 顧問在這裡挑一題、指定一位顧問的口吻，按下去就走既有的一鍵發文流程
+  // （/admin/social-post-request 帶 topic_id + account_id）→ 產稿 → TG 審核。
+  // 舊的「系統每天自動挑 1 題直接發」已經關掉，發不發由顧問在這裡決定。
+  topicsTodayView: ({ date, empty, enterprise, jobseeker, accounts, styles }) => {
+    // 平台 / 顧問 / 公式的選項，存成一份 JSON 給彈窗用（每張卡共用同一份）。
+    const platforms = [...new Set((accounts || []).map((a) => a.platform).filter(Boolean))];
+    const pickerData = JSON.stringify({
+      accounts: (accounts || []).map((a) => ({ id: a.id, label: a.label || a.consultant_name || a.id, platform: a.platform || '' })),
+      styles: (styles || []).filter((s) => s.subtype === 'dialog' || s.subtype === 'pure')
+        .map((s) => ({ id: s.id, name: s.name, subtype: s.subtype })),
+      platforms,
+    });
+    const card = (t) => `<article class="card topic-pick ${t.picked ? 'is-picked' : ''}" data-topic-id="${escapeHtml(t.id)}" style="margin-bottom:12px">
+        <div style="font-weight:600;font-size:14px;line-height:1.5;margin-bottom:6px">${escapeHtml(t.name)}</div>
+        <div class="help" style="white-space:pre-wrap;margin-bottom:10px">${escapeHtml(t.body || '')}</div>
+        ${t.picked
+          ? `<button type="button" class="badge success topic-picked-btn" style="border:none;cursor:pointer" data-topic-id="${escapeHtml(t.id)}">已排入產稿 ×${(t.picks || []).length}｜看誰發過</button><script type="application/json" class="topic-picks-data" data-for="${escapeHtml(t.id)}">${JSON.stringify(t.picks || [])}</script>`
+          : ''}
+        <div style="margin-top:8px">
+          <button type="button" class="btn primary topic-open" data-topic-id="${escapeHtml(t.id)}" data-topic-name="${escapeHtml(t.name)}">選這則來發</button>
+        </div>
+      </article>`;
+    const col = (title, hint, arr) => `<article class="card span-1" style="background:transparent;border:none;padding:0">
+        <h2 style="font-size:15px;margin:0 0 4px">${title}</h2>
+        <p class="help" style="margin:0 0 10px">${hint}</p>
+        ${(arr || []).length ? (arr).map(card).join('') : empty ? '' : '<p class="help">今天這一側還沒有題目。</p>'}
+      </article>`;
+    const tpe = (off) => new Date(Date.now() + 8 * 3600e3 - off * 86400e3).toISOString().slice(0, 10);
+    const dayOpts = Array.from({ length: 14 }, (_, i) => tpe(i)).map((d, i) =>
+      `<option value="${i === 0 ? '' : d}" ${(date || tpe(0)) === d ? 'selected' : ''}>${i === 0 ? `今天（${d}）` : i === 1 ? `昨天（${d}）` : d}</option>`).join('');
+    return `<script type="application/json" id="topic-picker-data">${pickerData}</script>
+      <label class="field" style="max-width:260px;margin:0 0 10px"><span>看哪一天的菜單（舊的都會留著）</span><select id="tp-date">${dayOpts}</select></label>
+      <p class="help" style="margin:0 0 14px">${date ? date + '　' : ''}每天早上自動生 10 題（企業端 5／求職端 5）。挑一題按「選這則來發」，接著選平台、顧問、公式，最後按產生草稿——1～2 分鐘後到 Telegram 審核，<b>在那邊按確認才會真的發</b>。</p>
+      ${empty ? `<article class="card"><p class="help" style="margin:0">今天的話題菜單還沒生出來。<br>菜單每天早上 8:30 由話題研究排程自動產生；如果你剛部署或想馬上要，可以手動跑一次 <code>topic_research_tick.py</code>。</p></article>`
+        : `<div class="dashboard-grid">${col('🏢 企業端', '說給在找人的老闆／HR 聽', enterprise)}${col('🙋 求職端', '說給在看機會的求職者聽', jobseeker)}</div>`}`;
+  },
+
+  // 今日話題挑題彈窗：選平台 → 顧問（依平台過濾）→ 公式 → 產生草稿。
+  topicPickerBody: () => `<div class="drawer-section">
+      <label class="field"><span>發文平台</span>
+        <select id="tp-channel"><option value="">全部平台</option></select></label>
+      <label class="field"><span>指定哪位顧問的口吻</span>
+        <select id="tp-account"><option value="">請選擇…</option></select></label>
+      <label class="field"><span>用哪個公式（不選＝顧問預設語氣）</span>
+        <select id="tp-style"><option value="">原始格式（顧問預設語氣）</option></select></label>
+      <div id="tp-msg" class="help" style="margin-top:6px"></div>
+    </div>`,
+  // /admin/social-post-queue 真實主鍵是 queue_id（不是 id），狀態欄位是 social_post_status
+  // （不是 status），顧問/帳號顯示欄位是 account_label（不是 consultant_name/account_name）。
+  // 這三個欄位錯了會讓取消／重新通知／排程全部對不到正確的貼文，先前一直是壞的。
+  // 2026-09-15 補：/admin/link-clicks-by-account、/admin/line-insight、/admin/social/coverage
+  // 三支其實早就被 adapters.social() 讀進來了，但畫面上完全沒用到，一直顯示假的「待接」。
+  // link-clicks-by-account 是累計總點擊（不是趨勢線，誠實標「累計」）；line-insight 是 LINE OA
+  // 快照；coverage.gaps 是「哪個帳號還有幾個職缺沒發過」的真實覆蓋率缺口，比原本畫的假漏斗更有用。
+  // 唯一真的沒有的是「跨貼文/LINE/應徵單逐日趨勢線」，這塊仍是誠實佔位。
+  socialData: ({ queue, accounts, clicks, line, coverage, trend }) => `<div class="kpi-grid"><article class="kpi"><span>讀取貼文筆數</span><strong>${queue.length}</strong><small>limit=500；非完整歷史時不冒充全量</small></article><article class="kpi"><span>社群帳號</span><strong>${accounts.length}</strong></article><article class="kpi"><span>LINE OA 好友數</span><strong>${text(line?.followers ?? '—')}</strong><small>可觸及 ${text(line?.reachable ?? '—')}</small></article><article class="kpi"><span>LINE OA 封鎖數</span><strong>${text(line?.blocks ?? '—')}</strong></article></div><div class="dashboard-grid"><article class="card"><h2>各帳號累計點擊數</h2><p class="help">累計總數，不是趨勢線；逐日/週趨勢仍需唯讀 aggregate API。</p>${list((clicks?.accounts || []).slice(0, 12), (a) => `<div class="list-row"><span><b>${text(a.label)}</b><small>${text(a.platform)}</small></span><b>${text(a.clicks)}</b><small>留言 ${text(a.reply_clicks)}</small></div>`)}</article><article class="card"><h2>覆蓋率缺口（近 ${text(coverage?.days ?? 30)} 天，依帳號）</h2><p class="help">還沒發過的職缺數；不是完整跨表歸因漏斗。</p>${list((coverage?.gaps || []).slice(0, 12), (g) => `<div class="list-row"><span><b>${text(g.label)}</b><small>${text(g.platform)}</small></span><span class="badge ${g.missing > 0 ? 'warning' : 'success'}">未發 ${text(g.missing)}</span><small>已發 ${text(g.posted)}</small></div>`)}</article><article class="card span-2"><h2>發文佇列</h2>${list(queue.slice(0,30), (q) => `<div class="list-row"><span><b>${text(q.title || q.content_formula || q.slug)}</b><small>${text(q.account_label)} · ${text(q.scheduled_at || q.posted_at)}</small></span>${statusBadge(q.social_post_status)}${rowActions([actionBtn('重新通知審核','social-renotify',{ idParams: { id: q.queue_id } })])}</div>`)}</article></div>${trend?.reason ? `<p class="help">${text(trend.reason)}</p>` : ''}`,
+  // ── 一鍵發文（2026-09-22 從舊版 /consultant/social-post 搬過來）──
+  //
+  // 新版原本這一頁只是一個清單加一顆「取消」，**根本不能發文**——而這是
+  // 顧問每天用最多次的頁面。舊版的流程是：選類型 → 選帳號 → （職缺文再選
+  // 寫法與職缺／話題文選話題）→ 可選排程時間 → 排入產稿。
+  //
+  // ⚠️ 兩個從舊版帶過來、不能省的設計：
+  //   ① 時間用「時」「分」兩個下拉，24 小時制，**不要用 <input type="time">**。
+  //      那個在某些瀏覽器／系統語系會顯示 12 小時制（上午／下午）。真實事故：
+  //      Jacky 排「12 點」被記成「上午 12:00」（半夜），排程因為時間已過
+  //      直接立刻觸發，不是等到中午。
+  //   ② 按下去之後按鈕**不自動解鎖**。產稿要 1–2 分鐘才會出現在 Telegram，
+  //      顧問以為沒反應就一直按——2026-09-03 真的排出 7 份一樣的草稿。
+  //      要換職缺或換帳號才會重新亮起來。
+  socialComposer: ({ accounts, jobs, styles, topics }) => {
+    const openJobs = (jobs || []).filter((j) => String(j.status || 'open') === 'open');
+    const byClient = {};
+    openJobs.forEach((j) => {
+      // ⚠️ /admin/jobs 回的欄位叫 company_display_name，不是 client_name——
+      //    第一版寫錯，30 個職缺全部掉進「（未綁客戶）」同一組。
+      const k = j.company_display_name || j.client_name || '（未綁客戶）';
+      (byClient[k] = byClient[k] || []).push(j);
+    });
+    const jobOpts = Object.keys(byClient).sort().map((k) =>
+      `<optgroup label="${escapeHtml(k)}">${byClient[k].map((j) =>
+        `<option value="${escapeHtml(j.slug)}">${escapeHtml(j.title || j.slug)}</option>`).join('')}</optgroup>`).join('');
+    const dialog = (styles || []).filter((x) => x.subtype === 'dialog');
+    // ⚠️ 「純CTA型」也要送 style_id，不能只送一個 way='pure'——後端不認那個參數，
+    //    會被當成「沒選公式」＝原始格式。2026-09-22 Jacky 實測抓到：他選純CTA型，
+    //    TG 通知跟產出來的文案卻都是原始格式。
+    // 2026-09-24 起純CTA型底下也可以有多個公式（原始那個＋誘因型），跟對話討論型一樣給下拉選。
+    const pures = (styles || []).filter((x) => x.subtype === 'pure').sort((a, b) => a.id - b.id);
+    const hours = Array.from({ length: 24 }, (_, h) => `<option value="${String(h).padStart(2, '0')}">${String(h).padStart(2, '0')} 時</option>`).join('');
+    const mins = Array.from({ length: 12 }, (_, i) => `<option value="${String(i * 5).padStart(2, '0')}">${String(i * 5).padStart(2, '0')} 分</option>`).join('');
+    return `<article class="card">
+      <div class="card-head"><h2 style="margin:0;font-size:15px">一鍵發文</h2></div>
+      <p class="help" style="margin:6px 0 14px">選職缺、選帳號，按下去會<b>排入產稿</b>——本機腳本每 2 分鐘掃一次，抓到就用 AI 產一則草稿推到 Telegram「社群發文審核」。<b>你在那邊按確認發布才會真的貼出去</b>，這裡按下去不會直接發文。</p>
+
+      <label class="field"><span>這篇是哪一種？</span>
+        <select id="sc-type">
+          <option value="job">📋 職缺文</option>
+          <option value="general">💼 時事話題文</option>
+          <option value="ai">🤖 AI 阿財話題</option>
+        </select></label>
+
+      <!-- 2026-09-22 加管道下拉：帳號有 22 個（Threads 12／LinkedIn 9／LINE 社群 1），
+           一長串很難找自己那個。先選管道就只剩該管道的帳號。
+           ⚠️ 只是過濾顯示，送出去的還是 account_id，後端完全不用改。 -->
+      <label class="field"><span>發文管道</span>
+        <select id="sc-channel">
+          <option value="">全部管道</option>
+          <option value="threads">Threads（${(accounts || []).filter((a) => a.platform === 'threads').length}）</option>
+          <option value="linkedin">LinkedIn（${(accounts || []).filter((a) => a.platform === 'linkedin').length}）</option>
+          <option value="line_community">LINE 社群（${(accounts || []).filter((a) => a.platform === 'line_community').length}）</option>
+        </select></label>
+
+      <label class="field"><span>發文帳號</span>
+        <select id="sc-account"><option value="">請選擇…</option>${(accounts || []).map((a) =>
+          `<option value="${escapeHtml(a.id)}" data-platform="${escapeHtml(a.platform || '')}">${escapeHtml(a.label || a.consultant_name || a.id)}</option>`).join('')}</select></label>
+
+      <div id="sc-job-only">
+        <label class="field"><span>職缺文要用哪一種寫法？</span>
+          <select id="sc-way">
+            <option value="pure">純CTA型</option>
+            <option value="dialog">對話討論型</option>
+            <option value="default">原始格式（照顧問自己的格式，附 LINE 連結）</option>
+          </select></label>
+        <label class="field" id="sc-pstyle-wrap" hidden><span>純CTA型要用哪個公式？</span>
+          <select id="sc-pstyle">${pures.map((x) =>
+            `<option value="${escapeHtml(x.id)}">${escapeHtml(x.name)}</option>`).join('')}</select></label>
+        <label class="field" id="sc-style-wrap" hidden><span>選擇要用哪個公式（全站共用）</span>
+          <select id="sc-style"><option value="">請選擇…</option>${dialog.map((x) =>
+            `<option value="${escapeHtml(x.id)}">${escapeHtml(x.name)}</option>`).join('')}</select></label>
+        <label class="field"><span>選擇職缺（依客戶分組，只列招募中）</span>
+          <select id="sc-job"><option value="">請選擇…</option>${jobOpts}</select></label>
+      </div>
+
+      <div id="sc-topic-only" hidden>
+        <label class="field"><span>選擇話題</span>
+          <select id="sc-topic"><option value="">請選擇…</option></select></label>
+        <p class="help" style="margin:4px 0 0">列的是這個分類底下全部的話題。⚠️ 2026-09-11 Jacky 拿掉了「顧問指派」那道關卡——新增任何話題，全站顧問都能直接選，不用先去設定頁勾。</p>
+        <script type="application/json" id="sc-topics-data">${JSON.stringify((topics || []).map((t) => ({ id: t.id, name: t.name || t.title, category: t.category })))}</script>
+      </div>
+
+      <label class="field"><span>排程時間（留空＝立刻排入產稿）</span>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <input type="date" id="sc-date" style="max-width:170px">
+          <select id="sc-hour" style="max-width:110px"><option value="">時</option>${hours}</select>
+          <select id="sc-min" style="max-width:110px"><option value="">分</option>${mins}</select>
+        </div></label>
+      <p class="help" id="sc-preview" style="margin:4px 0 0"></p>
+
+      <button type="button" class="btn primary" id="sc-go" style="margin-top:14px">排入產稿</button>
+      <div id="sc-msg" style="margin-top:8px"></div>
+    </article>`;
+  },
+
+  // ── 職缺社群回覆（2026-09-22 從舊版搬過來，新版完全沒有）──
+  //
+  // 用途：候選人在職缺的社群貼文下留言問，顧問要私訊回。這裡是每個職缺
+  // 預先產好的「第一輪職缺摘要」，選好自己是哪位顧問，複製貼上就能用。
+  // 內容跟顧問無關，**只有結尾的 LINE 連結因人而異**。
+  //
+  // ⚠️ 複製出來的連結不是顧問真正的 LINE 連結，是轉址頁（ctx=reply）——
+  //    候選人點了會記一筆點擊（誰、哪個職缺、從私訊回覆來的），成效儀表板
+  //    才看得到「這則回覆真的換到人加 LINE 了嗎」。跟貼文 CTA 連結
+  //    （ctx=post）分開算，不會互相混淆歸因。這個不要改成直接貼 line_link。
+  socialRepliesTab: ({ jobs, accounts }) => {
+    const withLine = (accounts || []).filter((a) => a.line_link);
+    const clients = [...new Set((jobs || []).map((j) => j.client_name).filter(Boolean))].sort();
+    return `<article class="card">
+      <div class="card-head"><h2 style="margin:0;font-size:15px">職缺社群回覆</h2></div>
+      <p class="help" style="margin:6px 0 12px">候選人在貼文下留言問，你要私訊回——這裡是每個職缺預先產好的「第一輪職缺摘要」，選好你是哪位顧問，複製貼上就能用。結尾的連結會自動換成你自己的加好友連結。</p>
+      <div class="filters">
+        <select id="cs-account"><option value="">我是哪位顧問？</option>${withLine.map((a) =>
+          `<option value="${escapeHtml(a.id)}">${escapeHtml(a.label || a.consultant_name || a.id)}</option>`).join('')}</select>
+        <select id="cs-client"><option value="">所有客戶</option>${clients.map((c) =>
+          `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('')}</select>
+        <input type="search" id="cs-search" placeholder="搜尋職稱或客戶">
+      </div>
+      ${withLine.length < (accounts || []).length
+        ? `<p class="help">⚠️ 有 ${(accounts || []).length - withLine.length} 個帳號還沒設定 LINE 連結，沒列出來——到「帳號」分頁補上才能用。</p>` : ''}
+      <div id="cs-list">${(jobs || []).length ? '' : '<div class="state"><strong>還沒有任何職缺的摘要</strong><p>摘要是排程（candidate_summary_tick.py）產的，還沒跑到就會是空的。</p></div>'}</div>
+    </article>`;
+  },
+
+  socialReplyCards: (jobs) => (jobs.length ? jobs.map((j, i) => `<article class="card" style="margin-top:10px">
+      <div class="card-head"><h3 style="margin:0;font-size:14px">${text(j.title || j.slug)}<span class="muted" style="font-weight:400"> ${text(j.client_name || '')}</span></h3></div>
+      <div style="white-space:pre-wrap;font-size:13.5px;background:#f6f8fb;border-radius:10px;padding:12px 14px;margin:8px 0;max-height:220px;overflow-y:auto">${text(j.summary_text)}</div>
+      <button type="button" class="btn primary" style="width:100%" data-action="cs-copy" data-i="${i}">📋 複製回覆文字（含 LINE 連結）</button>
+    </article>`).join('') : '<div class="state"><strong>沒有符合篩選條件的職缺</strong></div>'),
+
+  // ── Threads 個別成效（2026-09-22 從舊版搬過來，新版完全沒有）──
+  //
+  // 這一頁回答的是「**哪種寫法有用**」——每位顧問各自的已發布貼文，
+  // 看得到每一則用了哪種寫法、拿到多少瀏覽。
+  // ⚠️ 只列 Threads。LinkedIn 沒有公開成效 API，抓不到數據，列了只會是
+  //    一排空白，讓人以為成效是零。
+  // ⚠️ 平均瀏覽的分母只算**有抓到數據**的那幾篇，不是全部篇數——剛發還沒
+  //    回填 views 的算進分母會把平均拉低，看起來像成效變差。
+  socialThreadsTab: (queue) => {
+    const posts = (queue || []).filter((r) => r.social_post_status === 'posted'
+      && String(r.social_post_url || '').includes('threads'));
+    if (!posts.length) return empty('還沒有已發布的 Threads 貼文');
+    const wayOf = (r) => (r.style_subtype === 'pure' ? '純CTA型'
+      // style_name 本身就叫「對話討論型・身份切割」，前面再加一次會變成
+      // 「對話討論型・對話討論型・身份切割」。有 style_name 就直接用它。
+      : r.style_subtype === 'dialog' ? (r.style_name || '對話討論型')
+      : '原始格式');
+    const stat = (rows) => {
+      const withV = rows.filter((r) => Number(r.views) > 0);
+      const v = rows.reduce((a, r) => a + Number(r.views || 0), 0);
+      return { c: rows.length, v, avg: withV.length ? Math.round(v / withV.length) : 0,
+               l: rows.reduce((a, r) => a + Number(r.likes || 0), 0),
+               rp: rows.reduce((a, r) => a + Number(r.replies || 0), 0),
+               clk: rows.reduce((a, r) => a + Number(r.clicks || 0), 0), wd: withV.length };
+    };
+    const all = stat(posts);
+    const byAcc = {};
+    posts.forEach((r) => { (byAcc[r.account_label || '未知帳號'] = byAcc[r.account_label || '未知帳號'] || []).push(r); });
+    const byWay = {};
+    posts.forEach((r) => { const k = wayOf(r); (byWay[k] = byWay[k] || []).push(r); });
+    const num = (n) => Number(n || 0).toLocaleString('en-US');
+    const accRows = Object.entries(byAcc).sort((a, b) => stat(b[1]).avg - stat(a[1]).avg).map(([k, rows]) => {
+      const st = stat(rows);
+      // 篇數不少但平均觸及遠低於全隊——比較可能是帳號被壓著，不是文案問題。
+      const suppressed = st.c >= 3 && st.avg && all.avg && st.avg < all.avg * 0.25;
+      return `<tr><td>${text(k)}${suppressed ? ' <span class="badge danger">觸及偏低</span>' : ''}</td>
+        <td class="num">${st.c}</td><td class="num">${num(st.v)}</td><td class="num">${num(st.avg)}</td>
+        <td class="num">${st.l}</td><td class="num">${st.rp}</td><td class="num">${st.clk}</td></tr>`;
+    }).join('');
+    const wayRows = Object.entries(byWay).sort((a, b) => stat(b[1]).avg - stat(a[1]).avg).map(([k, rows]) => {
+      const st = stat(rows);
+      return `<tr><td>${text(k)}</td><td class="num">${st.c}</td><td class="num">${num(st.avg)}</td>
+        <td class="num">${st.l}</td><td class="num">${st.rp}</td><td class="num">${st.clk}</td></tr>`;
+    }).join('');
+    const noData = posts.length - all.wd;
+    return `<div class="kpi-grid">
+        <article class="kpi"><span>已發布</span><strong>${all.c}</strong></article>
+        <article class="kpi"><span>總瀏覽</span><strong>${num(all.v)}</strong></article>
+        <article class="kpi accent"><span>平均瀏覽／篇</span><strong>${num(all.avg)}</strong></article>
+        <article class="kpi"><span>按讚</span><strong>${all.l}</strong></article>
+        <article class="kpi"><span>留言</span><strong>${all.rp}</strong></article>
+        <article class="kpi"><span>連結點擊</span><strong>${all.clk}</strong></article>
+      </div>
+      ${noData ? `<p class="help">⚠️ ${noData} 篇還沒抓到瀏覽數（剛發的要等快照排程），平均瀏覽的分母只算有數據的 ${all.wd} 篇。</p>` : ''}
+      <article class="card"><div class="card-head"><h2 style="margin:0;font-size:15px">各帳號</h2></div>
+        <div class="table-wrap"><table class="spec"><tr><th>帳號</th><th style="text-align:right">篇數</th><th style="text-align:right">總瀏覽</th><th style="text-align:right">平均</th><th style="text-align:right">讚</th><th style="text-align:right">留言</th><th style="text-align:right">點擊</th></tr>${accRows}</table></div></article>
+      <article class="card" style="margin-top:10px"><div class="card-head"><h2 style="margin:0;font-size:15px">哪種寫法有用</h2></div>
+        <p class="help" style="margin:6px 0 8px">依平均瀏覽排序。篇數少的先別下結論。</p>
+        <div class="table-wrap"><table class="spec"><tr><th>寫法</th><th style="text-align:right">篇數</th><th style="text-align:right">平均瀏覽</th><th style="text-align:right">讚</th><th style="text-align:right">留言</th><th style="text-align:right">點擊</th></tr>${wayRows}</table></div></article>
+      <article class="card" style="margin-top:10px"><div class="card-head"><h2 style="margin:0;font-size:15px">逐篇</h2></div>
+        ${list(posts.slice().sort((a, b) => String(b.posted_at || '').localeCompare(String(a.posted_at || ''))).slice(0, 60), (r) => `<div class="list-row"><span><b>${text(r.title || r.slug)}</b><small>${text(r.account_label)} · ${text(wayOf(r))} · ${text(String(r.posted_at || '').slice(0, 16))}</small></span><small>${r.views ? `👁 ${num(r.views)}` : '（還沒抓到數據）'}${r.likes ? ` ♥ ${r.likes}` : ''}${r.clicks ? ` 🔗 ${r.clicks}` : ''}</small>${r.social_post_url ? `<a class="btn sm" href="${escapeHtml(r.social_post_url)}" target="_blank" rel="noopener">看貼文</a>` : ''}</div>`)}</article>`;
+  },
+
+  socialWorkbenchTab: (queue) => list(queue, (q) => `<article class="list-row"><span><b>${text(q.title || q.content_formula || q.slug)}</b><small>${text(q.account_label)} · ${text(q.scheduled_at || q.posted_at)}</small></span>${statusBadge(q.social_post_status)}${rowActions(['posted','skipped','expired'].includes(String(q.social_post_status)) ? [] : [actionBtn('取消','social-cancel',{ idParams: { id: q.queue_id } },'danger')])}</article>`),
+  // 排程行事曆——照抄舊版 consultant/social-post 的月曆邏輯（renderCal/renderKpi），
+  // 只是搬進 SPA。「重複」定義：同一天、同一個職缺、**同一個顧問**發兩次以上；
+  // 不同顧問同一天發同一個職缺是正常的（四個帳號一起推），不算重複——第一版把它
+  // 算進去，整個月幾乎每天都紅，那種警告等於沒有警告。
+  socialCalendarTab: ({ month, jobs, ev }) => {
+    const [y, m] = month.split('-').map(Number);
+    const evOn = (k) => ev.filter((e) => e.d === k);
+    const dupKeysOn = (k) => { const c = {}; evOn(k).forEach((e) => { const kk = e.slug + '|' + e.label; c[kk] = (c[kk] || 0) + 1; }); return Object.keys(c).filter((x) => c[x] > 1); };
+    const jobTitle = (slug) => (jobs.find((j) => j.slug === slug) || {}).title || slug;
+    const short = (l) => String(l || '').split(/[-–—]/)[0].trim();
+    const catColor = { job: '#2f5fd8', general: '#8a5a2b', ai: '#6b5a8f' };
+    const first = new Date(y, m - 1, 1).getDay(), days = new Date(y, m, 0).getDate();
+    const today = new Date().toISOString().slice(0, 10);
+    let grid = ['日', '一', '二', '三', '四', '五', '六'].map((d) => `<div class="cal-dow">${d}</div>`).join('');
+    for (let i = 0; i < first; i++) grid += '<div class="cal-day cal-pad"></div>';
+    for (let d = 1; d <= days; d++) {
+      const k = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      const list = evOn(k), dups = dupKeysOn(k);
+      const chips = list.slice(0, 2).map((e) => {
+        const bad = dups.includes(e.slug + '|' + e.label);
+        return `<div class="cal-chip ${bad ? 'dup' : ''}" title="${escapeHtml(short(e.label))}｜${escapeHtml(jobTitle(e.slug))}"><i style="background:${catColor[e.category] || catColor.job}"></i>${text(short(e.label)).slice(0, 6)}·${text(jobTitle(e.slug)).slice(0, 5)}</div>`;
+      }).join('');
+      grid += `<button type="button" class="cal-day${dups.length ? ' dup' : ''}${k === today ? ' today' : ''}" data-cal-day="${k}"><span class="cal-dn">${d}${dups.length ? ' ⚠️' : ''}${list.length ? `<b>${list.length}</b>` : ''}</span>${chips}${list.length > 2 ? `<small>+${list.length - 2}</small>` : ''}</button>`;
+    }
+    const inMonth = ev.filter((e) => e.d.startsWith(month));
+    const dupDays = [...new Set(inMonth.map((e) => e.d))].filter((k) => dupKeysOn(k).length);
+    const jobsPosted = new Set(inMonth.map((e) => e.slug));
+    return `${pageHead(`${y} 年 ${m} 月`, '排程行事曆——點任一天可排入新的或看當天安排。', `<button class="btn" data-action="cal-prev">← 上個月</button><button class="btn" data-action="cal-next">下個月 →</button><button class="btn primary" data-action="cal-missing">還有哪些沒發</button>`)}<div class="kpi-grid"><article class="kpi"><span>這個月排／發的則數</span><strong>${text(inMonth.length)}</strong></article><article class="kpi ${dupDays.length ? 'warn' : ''}"><span>有人重複發同職缺的天數</span><strong>${text(dupDays.length)}</strong></article><article class="kpi"><span>這個月有露出的職缺</span><strong>${text(jobsPosted.size)} / ${text(jobs.length)}</strong></article><article class="kpi"><span>整個月一次都沒發的職缺</span><strong>${text(jobs.length - jobsPosted.size)}</strong></article></div><div class="cal-grid">${grid}</div>`;
+  },
+  // 「這一天」抽屜：當天安排＋建議引擎（選顧問看他這天發了什麼、還缺什麼）＋排一則新的。
+  scheduleDayBody: ({ k, ev, accounts, jobs }) => {
+    const evOn = (kk) => ev.filter((e) => e.d === kk);
+    const jobTitle = (slug) => (jobs.find((j) => j.slug === slug) || {}).title || slug;
+    const short = (l) => String(l || '').split(/[-–—]/)[0].trim();
+    const dupKeysOn = (kk) => { const c = {}; evOn(kk).forEach((e) => { const key = e.slug + '|' + e.label; c[key] = (c[key] || 0) + 1; }); return Object.keys(c).filter((x) => c[x] > 1); };
+    const isDup = (kk, e) => dupKeysOn(kk).includes(e.slug + '|' + e.label);
+    const CAT_LABEL = { job: '📋 職缺文', general: '💼 時事話題文', ai: '🤖 AI阿財話題' };
+    const list = evOn(k);
+    const entryBadge = (e) => e.planned ? `<span class="badge info">已排程${e.t ? '・' + text(e.t) : ''}</span>` : (e.status === 'posted' ? '<span class="badge success">已發布</span>' : '<span class="badge neutral">草稿</span>');
+    const rows = list.length ? list.map((e) => `<div class="list-row"><span><b>${text(short(e.label))}</b><small>${e.platform === 'linkedin' ? 'LinkedIn' : 'Threads'} · ${text(CAT_LABEL[e.category] || CAT_LABEL.job)}</small></span><span>${text(jobTitle(e.slug))}${isDup(k, e) ? ' <b style="color:var(--danger,#c0392b)">⚠️ 同一個人重複發</b>' : ''}</span>${entryBadge(e)}${e.planned ? actionBtn('移除', 'social-schedule-cancel', { idParams: { id: e.id } }, 'danger') : ''}</div>`).join('') : '<p class="muted">這一天還沒有安排。</p>';
+    return `<div class="drawer-section"><h3>這一天的安排（${list.length}）</h3>${rows}<h3>選顧問，看他這天發了什麼</h3><select id="cal-suggest-acc"><option value="">選顧問（帳號）…</option>${accounts.map((a) => `<option value="${text(a.id)}">${text(a.label)} · ${a.platform === 'linkedin' ? 'LinkedIn' : 'Threads'}</option>`).join('')}</select><div id="cal-suggest-body" style="margin-top:11px"><p class="muted" style="margin:0;font-size:13.5px">先選上面的顧問，才知道他今天發了什麼、還缺什麼。</p></div><h3>排一則新的</h3><form id="cal-add-form" class="form-grid"><label class="field"><span>誰要發</span><select name="account_id" required><option value="">選帳號…</option>${accounts.map((a) => `<option value="${text(a.id)}">${text(a.label)}</option>`).join('')}</select></label><label class="field"><span>發哪個職缺</span><select name="job_slug" required><option value="">選職缺…</option>${jobs.map((j) => `<option value="${text(j.slug)}">${text(j.title)}</option>`).join('')}</select></label><label class="field"><span>幾點發（不填＝當天排程一跑到就送）</span><input type="time" name="post_time"></label></form><div id="cal-add-check"></div><button class="btn primary" data-action="cal-add-submit" data-day="${text(k)}">排入這一天</button></div>`;
+  },
+  // 建議引擎：選一個顧問，看他這天發了什麼、還缺什麼——近 14 天有人選在跟阿財
+  // 面談的職缺排最前面（現在發文接得住人），比「這個月發過幾次」準。
+  scheduleSuggestBody: ({ k, acc, ev, jobs, recentIv }) => {
+    if (!acc) return '<p class="muted" style="margin:0;font-size:13.5px">先選上面的顧問，才知道他今天發了什麼、還缺什麼。</p>';
+    const jobTitleOf = (slug) => (jobs.find((j) => j.slug === slug) || {}).title || slug;
+    const evOn = (kk) => ev.filter((e) => e.d === kk);
+    const mk = k.slice(0, 7);
+    const mine = evOn(k).filter((e) => e.label === acc.label && e.platform === acc.platform);
+    const doneSlugs = new Set(mine.map((e) => e.slug));
+    const monthCnt = {}; jobs.forEach((j) => { monthCnt[j.slug] = 0; });
+    ev.filter((e) => e.d.startsWith(mk)).forEach((e) => { if (monthCnt[e.slug] !== undefined) monthCnt[e.slug]++; });
+    const todo = jobs.filter((j) => !doneSlugs.has(j.slug)).sort((a, b) => { const ia = recentIv[a.slug] || 0, ib = recentIv[b.slug] || 0; if (ia !== ib) return ib - ia; return monthCnt[a.slug] - monthCnt[b.slug]; });
+    const hot = todo.filter((j) => recentIv[j.slug]).length;
+    const never = todo.filter((j) => !monthCnt[j.slug]).length;
+    let h = `<div class="help">今天已發（${mine.length}）</div>`;
+    const mineBadge = (e) => e.planned ? '<span class="badge info">已排程</span>' : (e.status === 'posted' ? '<span class="badge success">已發布</span>' : '<span class="badge neutral">草稿</span>');
+    h += mine.length ? mine.map((e) => `<div class="list-row"><span>${text(jobTitleOf(e.slug))}</span>${mineBadge(e)}</div>`).join('') : '<p class="muted" style="margin:0 0 4px;font-size:13px">今天還沒發任何一個。</p>';
+    h += `<div class="help" style="margin-top:14px">還沒發（${todo.length}）</div>`;
+    if (!todo.length) { h += '<p class="muted" style="margin:0;font-size:13px">全部職缺今天都幫他排過了。</p>'; }
+    else {
+      h += (hot ? `<p style="margin:-2px 0 8px;font-size:12.5px;color:var(--success,#1f6b34)">🔥 <b>${text(hot)}</b> 個這 14 天內有人選在跟阿財面談，排最前面——現在發文接得住他。</p>` : '')
+        + (never ? `<p style="margin:-2px 0 8px;font-size:12.5px;color:var(--warning,#8a5a1a)">其中 <b>${text(never)}</b> 個這個月他一次都還沒發過。</p>` : '')
+        + todo.slice(0, 12).map((j) => { const iv = recentIv[j.slug] || 0; const zero = !monthCnt[j.slug];
+          return `<div class="list-row"><span>${iv ? '🔥 ' : (zero ? '◆ ' : '')}${text(j.title)}<br><small>${iv ? `這 14 天有 ${text(iv)} 位人選在跟阿財面談・` : ''}他這個月發過 ${text(monthCnt[j.slug])} 次</small></span><button type="button" class="btn sm primary" data-suggest-add="${escapeHtml(j.slug)}">補發</button></div>`;
+        }).join('')
+        + (todo.length > 12 ? `<p style="margin:8px 0 0;font-size:12.5px;color:var(--ink3,#8a8d95)">還有 ${text(todo.length - 12)} 個，用上面「排一則新的」自己選。</p>` : '');
+    }
+    return h;
+  },
+  // 「還有哪些沒發」彈窗：這個月一次都沒發的職缺，逐一或一次全部丟給自動排空檔
+  // （findSlot 邏輯在 app.js，這裡只負責渲染跟接住點擊）。gaps 是 /admin/social/coverage
+  // 算好的「每個帳號還差幾個職缺沒發」，跟月曆是同一件事的不同角度，放同一個彈窗省得
+  // 使用者再開一頁。
+  // gaps[].label 後端已經包含平台後綴（如「Anna Wu – LinkedIn」），不用再自己補一次
+  // 「· LinkedIn」，不然會變成「Anna Wu – LinkedIn · LinkedIn」重複兩次。
+  scheduleMissingBody: ({ missing, gaps }) => `<div class="drawer-section"><h3>每個帳號還差幾個職缺沒發</h3>${gaps && gaps.length ? `<div class="kpi-grid">${gaps.map((g) => `<article class="kpi ${g.missing > 0 ? 'warn' : ''}"><span>${text(g.label)}</span><strong>${text(g.missing)}</strong></article>`).join('')}</div>` : '<p class="muted">讀取中…</p>'}<h3>這個月一次都沒發過的職缺（${missing.length}）</h3>${missing.length ? `<button class="btn primary" data-action="cal-missing-all" style="margin-bottom:10px">一次把 ${text(missing.length)} 個全部排進空檔</button>${missing.map((j) => `<div class="list-row" data-missing-row="${escapeHtml(j.slug)}"><span>${text(j.title)}</span><button type="button" class="btn sm" data-missing-add="${escapeHtml(j.slug)}">自動排一則</button></div>`).join('')}` : '<p class="muted">全部都有發到 👍</p>'}<p class="help">自動排的規則：從明天起找空檔 → 挑這個月發最少的帳號（讓幾個人量平均）→ 挑那天排最少的日子（一天最多 4 則）→ 避開同一個人 7 天內剛發過的。排完還是可以點行事曆上那一天自己調。</p></div>`,
+  // 2026-09-24：取代「招募轉換」。顧問自己在 App 上發的文，貼網址進來：
+  //   ① 系統之後自動抓瀏覽／讚／留言（匯入 1 小時後第一次，之後每 12 小時抓到第 7 天）
+  //   ② 可以順便（或之後）把這篇拆解成寫法公式
+  // 問法順序跟「一鍵發文」一樣：哪一種 → 職缺文（寫法→公式→職缺）／話題文（選話題）。
+  socialImportTab: ({ composer, imports }) => {
+    const { accounts = [], jobs = [], styles = [], topics = [] } = composer || {};
+    const threadsAcc = accounts.filter((a) => a.platform === 'threads' && a.is_active !== 0);
+    const byClient = {};
+    jobs.filter((j) => ['open', 'active'].includes(String(j.status || 'open'))).forEach((j) => {
+      const k = j.company_display_name || '（未綁客戶）';
+      (byClient[k] = byClient[k] || []).push(j);
+    });
+    const jobOpts = Object.keys(byClient).sort().map((k) =>
+      `<optgroup label="${escapeHtml(k)}">${byClient[k].map((j) =>
+        `<option value="${escapeHtml(j.slug)}">${escapeHtml(j.title || j.slug)}</option>`).join('')}</optgroup>`).join('');
+    const data = { styles: styles.map((s) => ({ id: s.id, name: s.name, subtype: s.subtype })),
+      topics: topics.map((t) => ({ id: t.id, name: t.name || t.title, category: t.category })) };
+    const num = (n) => (n === null || n === undefined ? '—' : Number(n).toLocaleString());
+    const EXT = {
+      pending: ['拆解中…（1–3 分鐘）', ''],
+      ready: ['看拆解結果', 'imp-ext-view'],
+      saved: ['✅ 已存進公式庫', ''],
+      failed: ['拆解失敗，再試一次', 'imp-ext-go'],
+      dropped: ['🧩 再拆一次', 'imp-ext-go'],
+    };
+    const rowsHtml = (imports || []).map((r) => {
+      const isTopic = String(r.job_slug || '').startsWith('💬');
+      const way = isTopic ? ({ trust_building: 'AI阿財話題', engagement: '時事話題文', topic: '話題文' }[r.content_mission] || '話題文')
+        : ({ pure: '純CTA型', dialog: '對話討論型', default: '原始格式' }[r.content_formula] || '未標記');
+      const stats = r.insights_at
+        ? `👁 ${num(r.views)}　♥ ${num(r.likes)}　💬 ${num(r.replies)}`
+        : ((r.metrics_fail_count || 0) >= 3 ? '⚠️ 抓不到數據（貼文刪了或帳號授權失效）' : '等待抓數據（匯入 1 小時後開始抓）');
+      const [extLabel, extAct] = EXT[r.ext_status] || ['🧩 拆解成公式', 'imp-ext-go'];
+      const extBtn = extAct
+        ? `<button type="button" class="btn ghost sm" data-imp-act="${extAct}" data-qid="${escapeHtml(r.id)}" data-ext="${escapeHtml(r.ext_id || '')}">${text(extLabel)}</button>`
+        : `<span class="help">${text(extLabel)}</span>`;
+      return `<article class="list-row"><span><b>${text(r.job_title || r.job_slug)}</b>
+        <small>${text(r.account_label || '')} · ${text(way)}${r.style_name ? `・${text(r.style_name)}` : ''} · ${text(String(r.posted_at || '').slice(0, 16))}</small>
+        <small>${stats}　<a href="${escapeHtml(r.url)}" target="_blank" rel="noopener">開貼文</a></small></span>
+        <div class="row-actions">${extBtn}</div></article>`;
+    }).join('');
+    return `<div class="card"><h2>匯入顧問自己發的貼文</h2>
+      <p class="help">顧問在 App 上直接發的文，貼網址進來，系統會自動抓瀏覽、讚、留言數，也可以把它拆解成寫法公式。跟在 TG 貼網址是同一件事。</p>
+      <form id="imp-form" class="form-grid">
+        <label class="field span-2"><span>貼文網址 ＊</span><input name="url" required placeholder="https://www.threads.com/@帳號/post/…（分享短網址也可以）"></label>
+        <label class="field"><span>哪個帳號發的 ＊</span><select name="account_id" required><option value="">請選擇…</option>${threadsAcc.map((a) =>
+          `<option value="${escapeHtml(a.id)}">${escapeHtml(a.label || a.consultant_name || a.id)}</option>`).join('')}</select></label>
+        <div class="field span-2"><span>這篇是哪一種？ ＊</span>
+          <!-- 2026-09-24 Jacky：話題文不要藏在下拉裡、看起來只有職缺文。第一層改成兩顆大按鈕，
+               選話題文就只問種類跟話題，不用選寫法、不用選公式。 -->
+          <div class="view-toggle" style="display:flex;gap:8px">
+            <button type="button" class="btn" data-imp-kind="job" style="flex:1;min-height:44px">📋 職缺文</button>
+            <button type="button" class="btn" data-imp-kind="topic" style="flex:1;min-height:44px">💬 話題文（不用選公式）</button>
+          </div><input type="hidden" name="kind" value=""></div>
+        <div id="imp-job" class="span-2 form-grid" hidden>
+          <label class="field"><span>用哪一種寫法？</span><select name="formula"><option value="default">✍️ 顧問自己寫的（沒套公式）</option><option value="pure">純CTA型</option><option value="dialog">對話討論型</option></select></label>
+          <label class="field" id="imp-style-wrap"><span>用哪個公式？</span><select name="style_id"></select></label>
+          <label class="field span-2"><span>哪個職缺？（依客戶分組）</span><select name="job_slug"><option value="">請選擇…</option>${jobOpts}</select></label>
+        </div>
+        <div id="imp-topic" class="span-2 form-grid" hidden>
+          <label class="field span-2"><span>這篇在談什麼？ ＊</span><input name="topic_label" placeholder="一句話就好，例：面試後一直沒收到通知"></label>
+        </div>
+        <label class="span-2" style="display:flex;align-items:center;gap:10px;cursor:pointer;min-height:44px"><input type="checkbox" name="extract" style="width:20px;height:20px;min-height:0;margin:0;flex:none"><span>匯入後順便拆解成寫法公式（拆好也會推到該帳號的 TG 主題）</span></label>
+        <div class="span-2"><button type="button" class="btn primary" id="imp-go">匯入</button></div>
+      </form>
+      <script type="application/json" id="imp-data">${JSON.stringify(data).replace(/</g, '\\u003c')}</script></div>
+      <div class="card"><h2>已匯入的貼文（最近 60 篇）</h2>${rowsHtml ? `<div class="list">${rowsHtml}</div>` : empty('還沒有匯入的貼文', '上面貼網址就可以開始。')}</div>`;
+  },
+  // 拆解結果彈窗內容（跟 TG 版同樣的區塊）
+  socialExtractionBody: (x) => {
+    const r = x.result || {}; const a = r.analysis || {};
+    const sec = (h, body) => body ? `<h3 style="margin:14px 0 4px">${text(h)}</h3><div>${body}</div>` : '';
+    return `<div class="drawer-section">
+      <p class="help">來源 @${text(x.source_author || '未知')}（${x.is_own ? '自家顧問' : '對標帳號'}）</p>
+      ${sec('開場怎麼抓人', text(a.hook || ''))}
+      ${sec('段落骨架', (a.structure || []).map((s, i) => `${i + 1}. ${text(s)}`).join('<br>'))}
+      ${sec('語氣', text(a.tone || ''))}
+      ${sec('用了哪些手法', (a.devices || []).map((d) => `・${text(d)}`).join('<br>'))}
+      ${sec('結尾怎麼收', text(a.cta || ''))}
+      ${sec('為什麼這樣寫會有人看', text(a.why_it_works || ''))}
+      <form id="imp-save-form" class="form-grid" style="margin-top:16px">
+        <label class="field"><span>公式名稱</span><input name="name" value="${escapeHtml(r.name || '')}"></label>
+        <label class="field"><span>存到哪一類（AI 建議：${text({ dialog: '對話討論型', pure: '純CTA型', original: '原始格式' }[r.subtype_suggestion] || '對話討論型')}）</span>
+          <select name="subtype">${[['dialog', '對話討論型'], ['pure', '純CTA型'], ['original', '原始格式（只留在內容庫）']].map(([k, l]) =>
+            `<option value="${k}" ${k === (r.subtype_suggestion || 'dialog') ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
+      </form>
+      <details style="margin-top:10px"><summary>看完整寫作指令（${(r.prompt_body || '').length} 字）</summary><pre style="white-space:pre-wrap">${text(r.prompt_body || '')}</pre></details></div>`;
+  },
+  socialConversionTab: () => `<div class="card"><h2>記錄招募轉換</h2><p class="help">若後端尚無 undo endpoint，前端不做假的復原功能。</p>${actionBtn('記錄一筆轉換','conversion-record',{},'primary')}</div>`,
+  // topic/style prompts 內容欄位是 body（不是 prompt/text）。
+  // 2026-09-22 改：公式（寫法 Prompt）本來只能看不能改。Jacky 要能改名稱、
+  // 改裡面的字。每一列改成可點，點了跳編輯彈窗（名稱／分類／內容／刪除）。
+  // subtype：dialog=對話討論型、pure=純CTA型、original=原始格式、空=一般語氣。
+  SUBTYPE_ZH: { dialog: '對話討論型', pure: '純CTA型', original: '原始格式', '': '一般語氣' },
+  // 一張 Prompt 卡片。話題與公式共用同一個外型，差別只在右上角的標籤。
+  promptCard: (t, cls, badge) => `<button type="button" class="prompt-card ${cls}" data-id="${text(t.id)}">
+      <span class="pc-top"><b>${text(t.name)}</b>${badge}</span>
+      <span class="pc-body">${text((t.body || '').replace(/[#*`>]/g, ' ').replace(/\s+/g, ' ').slice(0, 130))}</span>
+    </button>`,
+
+  socialTopicsTab: ({ topics }) => `<article class="card">
+      <div class="card-head"><h2>話題 Prompt</h2>
+        <button type="button" class="btn primary" data-topic-prompt-new>＋ 新增話題 Prompt</button></div>
+      <p class="help" style="margin:6px 0 14px">點任一張卡片可編輯內容。共 ${(topics || []).length} 則。</p>
+      ${(topics || []).length
+        ? `<div class="prompt-grid">${topics.map((t) => views.promptCard(t, 'topic-prompt-edit', '<span class="badge">編輯</span>')).join('')}</div>`
+        : empty('還沒有話題 Prompt', '按右上角新增一則。')}
+      <script type="application/json" id="topic-prompts-data">${JSON.stringify((topics || []).map((t) => ({ id: t.id, name: t.name, body: t.body })))}</script>
+    </article>`,
+
+  socialFormulasTab: ({ styles }) => `<article class="card">
+      <div class="card-head"><h2>公式（寫法 Prompt）</h2>
+        <button type="button" class="btn primary" data-style-prompt-new>＋ 新增公式</button></div>
+      <p class="help" style="margin:6px 0 14px">點任一張卡片可改名稱、改分類、改裡面的字。共 ${(styles || []).length} 則。
+        只有標「對話討論型」的才會出現在今日話題／一鍵發文的公式清單裡。</p>
+      ${(styles || []).length
+        ? `<div class="prompt-grid">${styles.map((t) => views.promptCard(t, 'style-prompt-edit',
+            `<span class="badge${t.subtype === 'dialog' ? ' info' : t.subtype ? '' : ' warning'}">${text(views.SUBTYPE_ZH[t.subtype || ''] || '一般語氣')}</span>`)).join('')}</div>`
+        : empty('還沒有公式', '按右上角新增一則。')}
+      <script type="application/json" id="style-prompts-data">${JSON.stringify((styles || []).map((t) => ({ id: t.id, name: t.name, body: t.body, subtype: t.subtype || '' })))}</script>
+    </article>`,
+
+  // 公式編輯表單（放進彈窗）。新增時 s 傳空物件。
+  stylePromptEditor: (s) => `<div class="drawer-section">
+      <label class="field"><span>公式名稱</span>
+        <input type="text" id="sp-name" value="${escapeHtml(s.name || '')}" maxlength="100" placeholder="例如：個人觀察型（版本C）"></label>
+      <label class="field"><span>分類（決定它出現在哪個選單）</span>
+        <select id="sp-subtype">
+          <option value="dialog"${s.subtype === 'dialog' ? ' selected' : ''}>對話討論型（今日話題／一鍵發文選得到）</option>
+          <option value="pure"${s.subtype === 'pure' ? ' selected' : ''}>純CTA型</option>
+          <option value="original"${s.subtype === 'original' ? ' selected' : ''}>原始格式</option>
+          <option value=""${!s.subtype ? ' selected' : ''}>一般語氣（顧問個人風格用，不進公式選單）</option>
+        </select></label>
+      <label class="field"><span>公式內容（AI 就照這段寫）</span>
+        <textarea id="sp-body" rows="18" style="font-family:ui-monospace,monospace;font-size:12.5px">${escapeHtml(s.body || '')}</textarea></label>
+      <!-- 2026-09-23 加：公式常常是先在別的地方寫成 .md 檔，手動複製貼上又長又容易漏。
+           選了檔案直接灌進上面的框，灌完還是可以手改再存——不是直接送出去。 -->
+      <div class="actions-row" style="margin-top:-4px">
+        <label class="btn ghost sm" style="cursor:pointer;margin:0">
+          📄 從 .md 檔帶入
+          <input type="file" id="sp-file" accept=".md,.markdown,.txt,text/plain,text/markdown" hidden>
+        </label>
+        <span class="help" style="margin-left:8px">會覆蓋上面的內容，帶入後還可以改</span>
+      </div>
+      <div id="sp-msg" class="help" style="margin-top:6px"></div>
+    </div>`,
+
+  topicPromptEditor: (t) => `<div class="drawer-section">
+      <label class="field"><span>話題名稱</span>
+        <input type="text" id="tpp-name" value="${escapeHtml(t.name || '')}" maxlength="100"></label>
+      <label class="field"><span>話題內容（切入方向）</span>
+        <textarea id="tpp-body" rows="12">${escapeHtml(t.body || '')}</textarea></label>
+      <div id="tpp-msg" class="help" style="margin-top:6px"></div>
+    </div>`,
+  // /admin/social-consultants 每筆是 name/threads/linkedin/line_link（沒有 platform/handle 這種
+  // 單一欄位——一個顧問可以同時有 Threads 跟 LinkedIn 兩個帳號）。
+  // ── 顧問社群卡片（2026-09-22 從舊版搬過來補齊）──
+  //
+  // 舊版說明：「這裡是幫顧問接 Threads／LinkedIn 帳號的地方——換 token、
+  // 寫 LINE 連結、開 TG 審核主題，**以前都是老闆用終端機一步步做，
+  // 現在你自己就能操作**。」新版原本只列帳號名稱，一個維護動作都沒有，
+  // 等於這件事又退回去要找老闆。
+  //
+  // 一位顧問一列，Threads／LinkedIn 是那一列底下的兩塊，不是兩列。
+  socialAccountsTab: ({ accounts, consultants }) => {
+    const plat = (c, key, label) => {
+      const p = c[key];
+      if (!p) return `<div class="list-row"><span><b>${label}</b><small class="muted">還沒接</small></span></div>`;
+      const exp = p.expires_at ? String(p.expires_at).slice(0, 10) : '';
+      const soon = p.expires_at && (new Date(p.expires_at) - Date.now()) < 14 * 864e5;
+      return `<div class="list-row"><span><b>${label}</b><small>${
+        p.connected ? `已接上${exp ? ` 到期 ${exp}` : ''}` : '⚠️ 未連線'
+      }${soon ? '　⚠️ 快到期了' : ''}${p.has_style_prompt ? '　·　有風格提示詞' : '　·　⚠️ 沒有風格提示詞'}${p.voice_card ? (p.voice_card_manual ? '　·　語氣卡（手改過）' : '　·　有語氣卡') : ''}${p.topic_voice_card ? '　·　有話題語氣卡' : '　·　話題文沿用語氣卡'}</small>${p.voice_card ? `<small class="help" style="white-space:pre-wrap;display:block;margin-top:4px">${text(String(p.voice_card).slice(0, 140))}${String(p.voice_card).length > 140 ? '…' : ''}</small>` : ''}</span>${
+        rowActions([
+          key === 'threads'
+            ? actionBtn('更新 Token', 'sc-threads-token', { idParams: { id: p.id } })
+            : actionBtn('產生授權連結', 'sc-linkedin-auth', { idParams: { id: p.id } }),
+          actionBtn('帳號密碼', 'sc-account', { idParams: { id: p.id }, record: p }),
+          actionBtn('風格提示詞', 'sc-style-prompt', { idParams: { id: p.id } }),
+          actionBtn(p.voice_card ? '看／改語氣卡' : '寫語氣卡', 'sc-voice-card', { idParams: { id: p.id }, record: p }),
+          ...(p.voice_card && p.voice_card_manual ? [actionBtn('改回自動產生', 'sc-voice-card-regen', { idParams: { id: p.id } })] : []),
+          // 2026-09-24：話題語氣卡（只給話題文用；空著＝沿用語氣卡）
+          actionBtn(p.topic_voice_card ? '看／改話題語氣卡' : '寫話題語氣卡', 'sc-topic-voice-card', { idParams: { id: p.id }, record: p }),
+          ...(!p.topic_voice_card && p.voice_card ? [actionBtn('複製語氣卡來寫話題卡', 'sc-topic-voice-card', { idParams: { id: p.id }, record: p, copyFromVoiceCard: true })] : []),
+          ...(p.topic_voice_card ? [actionBtn('清空話題語氣卡', 'sc-topic-voice-card-clear', { idParams: { id: p.id } })] : []),
+        ])}</div>`;
+    };
+    return `<article class="card">
+      <div class="card-head"><h2 style="margin:0;font-size:15px">顧問社群卡片</h2></div>
+      <p class="help" style="margin:6px 0 12px">幫顧問接 Threads／LinkedIn 帳號的地方——換 token、寫 LINE 連結、看風格提示詞在不在。以前這些都要用終端機做。</p>
+      ${actionBtn('＋ 新增顧問社群卡片', 'social-consultant-create', {}, 'primary')}
+    </article>
+    ${(consultants || []).map((c) => {
+      const anyId = (c.threads && c.threads.id) || (c.linkedin && c.linkedin.id);
+      return `<article class="card" style="margin-top:10px">
+        <div class="card-head"><h3 style="margin:0;font-size:14px">${text(c.name)}</h3>
+          ${c.tg_thread_id ? `<span class="badge">TG 主題 ${text(c.tg_thread_id)}</span>` : '<span class="badge warning">沒有 TG 審核主題</span>'}</div>
+        <div class="list-row"><span><b>LINE 加好友連結</b><small>${c.line_link ? text(c.line_link) : '⚠️ 還沒設定——這位顧問的貼文與私訊回覆都放不了連結'}</small></span>
+          ${anyId ? rowActions([actionBtn(c.line_link ? '修改' : '設定', 'sc-line-link', { idParams: { id: anyId }, record: c })]) : ''}</div>
+        ${plat(c, 'threads', 'Threads')}
+        ${plat(c, 'linkedin', 'LinkedIn')}
+      </article>`;
+    }).join('') || empty('目前沒有顧問社群卡片')}
+    <article class="card" style="margin-top:14px"><div class="card-head"><h3 style="margin:0;font-size:14px">所有發文帳號（${(accounts || []).length}）</h3></div>
+      ${list(accounts || [], (a) => `<div class="list-row"><span><b>${text(a.label || a.consultant_name || a.id)}</b><small>${text(a.platform)}</small></span></div>`)}</article>`;
+  },
+  clients: (tab='clients') => pageHead('客戶 / BD','集中管理客戶關係、推薦人選與企業用人需求。','<button class="btn primary" data-action="add-client">＋ 新增客戶</button>') + tabbar('clients',[['clients','客戶'],['bd','BD Pipeline'],['bd-progress','開發進度'],['requests','BD Requests'],['hiring','企業用人需求'],['billing','收費進程']],tab) + `<div id="page-data">${endpointState('客戶與 BD')}</div>`,
+  clientsData: ({ companies, bd, requests }) => `<div class="kpi-grid"><article class="kpi"><span>客戶</span><strong>${companies.length}</strong></article><article class="kpi"><span>BD 案件</span><strong>${bd.length}</strong></article><article class="kpi"><span>BD Requests</span><strong>${requests.length}</strong></article></div>
+    <div class="card"><div class="card-head"><h2 style="margin:0;font-size:15px">新增客戶</h2></div>
+      <p class="help" style="margin:6px 0 10px">建好之後會自動產生一組「用人需求表連結」，把連結給客戶窗口他就能自己填職缺。</p>
+      ${actionBtn('＋ 新增客戶', 'company-add', {}, 'primary')}</div>
+    <div class="card-grid">${companies.map((c) => `<article class="card"><div class="card-head"><h3>${text(c.display_name || c.name)}</h3>${statusBadge(c.relation)}</div><p>${text(c.contact_email, '（沒有聯絡信箱）')}</p><p class="muted" style="font-size:12px;margin:2px 0 8px">${c.last_emailed_at ? `需求表上次寄送 ${text(String(c.last_emailed_at).slice(0, 10))}` : '需求表還沒寄過'}</p><button class="btn" data-client="${text(c.id)}">管理客戶</button></article>`).join('') || empty('目前沒有客戶資料')}</div>`,
+  // ── 客戶資訊（2026-09-22 從舊版 /consultant/client-info 搬過來補齊）──
+  //
+  // 搬之前新版少了三樣**舊版天天在用**的東西，而且有一個一直沒被發現的 bug：
+  //   🐛 待審職缺永遠是空的——前端讀 detail.pending_jobs，但後端回的是
+  //      detail.jobs（全部職缺，要自己用 status='pending_review' 篩）。
+  //      顧問在新版根本看不到有職缺在等他審。
+  //   ❌ 用人需求表連結完全沒顯示。只有「重新產生 Token」跟「寄送邀請信」
+  //      兩顆按鈕——但顧問最常做的事是**把連結複製起來貼給客戶窗口**，
+  //      舊版那個「複製」按鈕沒了等於這件事做不了。
+  //   ❌ 沒有已掛職缺清單、上次寄送時間、合作關係／別名／誰介紹的。
+  //
+  // ⚠️ 連結網址寫死 https://step1ne.com/portal/?t=<token>，跟舊版一致。
+  //    這個不是 API 回的，是前端組的——改網域的時候這裡要一起改。
+  companyRelationLabel: (r) => ({ signed: '已簽約', negotiating: '洽談中', end_client: '最終用人單位',
+    past: '過去客戶', prospect: '潛在客戶', blocked: '⛔ 拒絕往來', private: '朋友私人協助' }[r] || r || '未設定'),
+
+  companyDrawerBody: (detail) => {
+    const c = detail.company || detail;
+    const jobs = detail.jobs || [];
+    const pending = jobs.filter((j) => j.status === 'pending_review');
+    const linked = jobs.filter((j) => j.status !== 'pending_review');
+    const portalUrl = c.portal_token ? `https://step1ne.com/portal/?t=${c.portal_token}` : '';
+    const JOB_ST = { open: '招募中', closed: '已關閉', paused: '暫停', filled: '已找到人',
+                     draft: '尚未公開', client_draft: '客戶草稿', pending_review: '待審核' };
+    return `<div class="drawer-section">
+      <h3>基本資料</h3>
+      <p>${text(c.contact_name, '（沒有聯絡人）')} · ${text(c.contact_email, '（沒有信箱）')}</p>
+      <p class="muted" style="margin:4px 0 0">合作關係：${text(views.companyRelationLabel(c.relation))}${c.via_client ? ` · 透過 ${text(c.via_client)} 介紹` : ''}</p>
+      ${c.relation_note ? `<p class="muted" style="margin:4px 0 0">${text(c.relation_note)}</p>` : ''}
+      ${c.aliases ? `<p class="muted" style="margin:4px 0 0">別名：${text(String(c.aliases).replace(/[\n]+/g, '、'))}</p>` : ''}
+      ${rowActions([
+        actionBtn('編輯客戶資料', 'company-update', { idParams: { id: c.id }, record: c }),
+        actionBtn('寄送邀請信', 'company-send-email', { idParams: { id: c.id } }),
+        actionBtn('重新產生連結', 'company-regen-token', { idParams: { id: c.id } }, 'danger'),
+      ])}
+
+      <h3 style="margin-top:20px">用人需求表連結</h3>
+      <p class="help" style="margin:0 0 6px">把這個連結給客戶窗口，他就能自己填職缺需求。連結不會過期；要收回舊連結的存取權，按上面的「重新產生連結」。</p>
+      ${portalUrl
+        ? `<div class="list-row" style="align-items:center">
+             <code style="font-size:12.5px;word-break:break-all">${text(portalUrl)}</code>
+             <button type="button" class="btn sm" data-action="copy-text" data-copy="${escapeHtml(portalUrl)}">複製</button>
+           </div>
+           <p class="muted" style="margin:6px 0 0">${c.last_emailed_at ? `上次寄送：${text(c.last_emailed_at)}` : '還沒寄過邀請信'}</p>`
+        : '<div class="notice">這家客戶還沒有連結。按「重新產生連結」就會建一組。</div>'}
+
+      <h3 style="margin-top:20px">待審職缺（${pending.length}）</h3>
+      <p class="help" style="margin:0 0 6px">客戶自己填完送出的，核准後才會上架。</p>
+      ${pending.length ? list(pending, (j) => `<div class="list-row"><span><b>${text(j.title)}</b><small>${text(j.updated_at)}${
+          Array.isArray(j.compliance_hits) && j.compliance_hits.length
+            ? ` · ⚠️ 有 ${j.compliance_hits.length} 處要改才能刊：${text(j.compliance_hits.slice(0, 2).join('、'))}`
+            : ''}</small></span>${rowActions([
+          actionBtn('核准', 'pending-job-approve', { idParams: { slug: j.slug } }),
+          actionBtn('駁回', 'pending-job-reject', { idParams: { slug: j.slug } }, 'danger'),
+        ])}</div>`) : '<p class="muted">沒有待審的職缺。</p>'}
+
+      <h3 style="margin-top:20px">已掛職缺（${linked.length}）</h3>
+      ${linked.length ? list(linked, (j) => `<div class="list-row"><span><b>${text(j.title)}</b><small>${text(j.slug)}</small></span><span class="badge">${text(JOB_ST[j.status] || j.status || '—')}</span></div>`) : '<p class="muted">這家客戶底下還沒有職缺。</p>'}
+    </div>`;
+  },
+  // /admin/bd（bd_outreach 表）真實欄位是 company/why_company/contact_email/status/created_at——
+  // 沒有 job_title（舊版 consultant/bd 那頁寫 r.job_title 是錯的，一直顯示假的「無職缺錨點」，
+  // 這裡改用真的存在的 why_company 當脈絡）。status 真實值：pending/draft/rejected/blocked/sent，
+  // 顧問核准／駁回是走 Telegram 群組的 /admin/bd/:id/decide，這頁不重做那個流程。
+  // 待補窗口＝status=pending 又沒填 contact_email 的——這幾封在群組按核准也寄不出去，
+  // 顧問要有地方補，不然只能卡住。
+  clientsBdTab: ({ bd, talentPool }) => {
+    const BD_ST = { pending: ['待處理', 'warning'], draft: ['草稿', 'neutral'], sent: ['已寄出', 'success'], rejected: ['已婉拒', 'neutral'], blocked: ['⛔ 客戶名單擋下', 'danger'] };
+    const badge = (s) => { const [lb, tone] = BD_ST[s] || [s || '未知', 'neutral']; return `<span class="badge ${tone}">${text(lb)}</span>`; };
+    const rows = talentPool?.rows || [];
+    const byJob = {};
+    rows.forEach((r) => { const k = r.job_title || '未指定'; byJob[k] = (byJob[k] || 0) + 1; });
+    const used = rows.filter((r) => r.used).length;
+    const poolCard = `<div class="card"><h2>目前人才庫</h2>${rows.length ? `<div class="list">${Object.entries(byJob).map(([k, n]) => `<div class="list-row"><span>${text(k)}</span><b>${text(n)} 人</b></div>`).join('')}</div><p class="help">共 ${text(rows.length)} 人可用（面談過、還沒到職）${used ? `，其中 ${text(used)} 人已用於開發` : ''}。到職的人會自動退出人才庫。</p>` : '<p class="muted">人才庫是空的。</p>'}</div>`;
+    const need = bd.filter((b) => b.status === 'pending' && !b.contact_email);
+    const needCard = `<div class="card"><h2>待補窗口（${need.length}）</h2><p class="help">這幾封查不到收件信箱，在群組按核准也寄不出去。補上就能寄。</p>${need.length ? list(need, (b) => `<div class="list-row"><span><b>${text(b.company)}</b><small>${text(b.why_company || '')}</small></span>${actionBtn('補窗口 email', 'bd-fill-email', { idParams: { id: b.id } }, 'primary')}</div>`) : '<p class="muted">沒有待補的窗口。</p>'}</div>`;
+    const restRows = bd.filter((b) => !need.includes(b));
+    return `${poolCard}${needCard}<h2 style="font-size:16px">開發信清單</h2>${list(restRows, (b) => `<article class="list-row"><span><b>${text(b.company)}</b><small>${text(b.why_company || '')} · ${text(b.created_at)}</small></span>${badge(b.status)}</article>`)}`;
+  },
+  // ── 開發進度看板（2026-09-24 Jacky 指派）──────────────────────────
+  //
+  // 漏斗：寄出→送達→開信→回信→談到職缺→成交。電訪（channel='phone'）跟寄信
+  // 併在同一份列表——這是 Jacky 明講的要求，不要分兩個地方看。
+  //
+  // 篩選用原生 <select>（手機版直接可用，不用另外判斷裝置），列表本身用
+  // data-bd-stage／data-bd-has-todo 屬性標記，篩選邏輯在 app.js 的
+  // wireBdDashboardFilter()（同一套 wireBindFilter() 的作法：show/hide，不重打 API）。
+  bdDashboardStageLabel: { sent: '已接觸', delivered: '送達', opened: '開信', replied: '回信', jd_shared: '談到職缺', closed: '成交' },
+  bdDashboard: ({ funnel, open_tracking_note, no_delivery_record_count, contact_breakdown, rows }) => {
+    const LABEL = views.bdDashboardStageLabel;
+    const STAGES = ['sent', 'delivered', 'opened', 'replied', 'jd_shared', 'closed'];
+    const cb = contact_breakdown || { mail: 0, call: 0 };
+    const funnelCard = `<div class="card">
+      <h2>開發漏斗</h2>
+      ${open_tracking_note ? `<p class="notice">ℹ️ ${text(open_tracking_note)}</p>` : ''}
+      <div class="bd-funnel">${STAGES.map((k) => `<button type="button" class="bd-funnel-step" data-bd-filter-stage="${k}"><b>${text(funnel[k] || 0)}</b><span>${LABEL[k]}</span></button>`).join('')}</div>
+      <p class="help">「已接觸」＝寄信 ${text(cb.mail)} 家＋電訪 ${text(cb.call)} 家；電訪是推卡給 Phoebe，不是真的寄出信，「送達」只會算在寄信的 ${text(cb.mail)} 家裡。</p>
+      ${no_delivery_record_count ? `<p class="help">送達數字裡，另外有 ${text(no_delivery_record_count)} 家是 9/23 前寄的信——那時候還沒有送達回報，不是真的沒送到，看列表上會標「無送達紀錄」。</p>` : ''}
+      <p class="help">點一格可以篩出停在那一步的公司；一家公司只會算在它目前走到的最後一步。</p>
+    </div>`;
+    const filterBar = `<div class="filter-row">
+      <select id="bd-dash-filter">
+        <option value="">全部</option>
+        <option value="todo">待我處理</option>
+        <option value="replied">已回信（含談到職缺／成交）</option>
+        ${STAGES.map((k) => `<option value="stage:${k}">停在「${LABEL[k]}」</option>`).join('')}
+      </select>
+      <span id="bd-dash-count" class="help"></span>
+    </div>`;
+    const rowsHtml = rows.length ? `<div class="list" id="bd-dash-list">${rows.map((r) => {
+      const chLabel = r.channel === 'phone' ? '📞 電訪' : (r.channel === 'both' ? '✉️＋📞 信＋電訪' : '✉️ 寄信');
+      return `<article class="list-row bd-dash-row" data-bd-stage="${text(r.stage)}" data-bd-has-todo="${r.todo.length ? 1 : 0}">
+        <span>
+          <b>${text(r.company)}</b>
+          <small>${text(r.contact_name || '窗口未知')}${r.contact_email ? ' · ' + text(r.contact_email) : ''}${r.call_phone ? ' · ' + text(r.call_phone) : ''}</small>
+          <small>${chLabel} · 第 ${text(r.attempts)} 次接觸 · 目前：${r.awaiting_call ? '待電訪' : text(LABEL[r.stage] || r.stage)}${r.delivery_note === 'no_tracking' ? '（送達：無紀錄，9/23 前寄的信還沒有追蹤）' : ''}</small>
+          ${r.next_followup_due ? `<small class="${r.next_followup_overdue ? 'bd-overdue' : ''}">${r.next_followup_overdue ? '⚠️ 追信逾期：' : '下次追信：'}${text(String(r.next_followup_due).slice(0, 16))}</small>` : ''}
+          ${r.todo.length ? `<small>${r.todo.map((t) => `<span class="badge warning">${text(t)}</span>`).join(' ')}</small>` : ''}
+        </span>
+        ${rowActions([`<button type="button" class="btn ghost sm" data-bd-company="${escapeHtml(r.company)}">看時間軸／信件</button>`])}
+      </article>`;
+    }).join('')}</div>` : empty('目前沒有已經接觸過的公司');
+    return `<div class="page-head"><div><h2>開發進度看板</h2><p>寄出、電訪、追信、回信、談到職缺、成交——同一家公司合併成一列，不用分頭看。</p></div></div>${funnelCard}${filterBar}${rowsHtml}`;
+  },
+  // 2026-09-29 加：企業卡片補聯絡方式（一鍵複製／撥號）、資料來源連結、
+  // 104 企業頁連結，另外加「開發引導」分頁（時間軸／信件 之外的第二個分頁）。
+  // 找不到的欄位一律不顯示那一行，不留空殼。
+  bdDashboardDetail: ({ outreach, timeline, playbook }) => {
+    const pick = (key) => outreach.map((o) => o[key]).find(Boolean) || null;
+    const contactName = pick('contact_name');
+    const contactEmail = pick('contact_email');
+    const callPhone = pick('call_phone');
+    const sourceUrl = pick('source_url');
+    const url104 = pick('company_104_url');
+
+    const contactCard = `<div class="card bd-contact-card">
+      <h3 style="font-size:14px;margin:0 0 8px">聯絡方式</h3>
+      ${contactName ? `<div class="bd-contact-row"><span>窗口</span><b>${text(contactName)}</b></div>` : ''}
+      ${callPhone ? `<div class="bd-contact-row"><span>電話</span><a href="tel:${escapeHtml(String(callPhone).replace(/[^0-9+#]/g, ''))}">${text(callPhone)}</a><button type="button" class="btn ghost sm" data-copy-text="${escapeHtml(callPhone)}">複製</button></div>` : ''}
+      ${contactEmail ? `<div class="bd-contact-row"><span>Email</span><a href="mailto:${escapeHtml(contactEmail)}">${text(contactEmail)}</a><button type="button" class="btn ghost sm" data-copy-text="${escapeHtml(contactEmail)}">複製</button></div>` : ''}
+      ${(!contactName && !callPhone && !contactEmail) ? '<p class="muted">目前沒有記錄到窗口資訊。</p>' : ''}
+      ${sourceUrl ? `<div class="bd-contact-row"><span>資料來源</span><a href="${escapeHtml(sourceUrl)}" target="_blank" rel="noopener">原始頁面 ↗</a></div>` : ''}
+      ${url104 ? `<div class="bd-contact-row"><span>104</span><a href="${escapeHtml(url104)}" target="_blank" rel="noopener">企業頁 ↗</a></div>` : ''}
+    </div>`;
+
+    const tl = timeline.length ? `<div class="list">${timeline.map((t) => `<div class="list-row"><span><small>${text(String(t.at || '').slice(0, 16))}</small><b>${text(t.kind)}</b></span></div>`).join('')}</div>` : empty('還沒有任何時間軸事件');
+    const letters = outreach.map((o) => {
+      const parts = [];
+      if (o.body) parts.push([o.channel === 'phone' ? '電訪備註' : (o.subject && o.subject.startsWith('Re:') ? '追信' : '首封信'), o.subject, o.body]);
+      if (o.followup1) parts.push(['追信 1', null, o.followup1]);
+      if (o.followup2) parts.push(['追信 2', null, o.followup2]);
+      return parts.map(([label, subject, body]) => `<details class="bd-letter"><summary>${text(label)}${subject ? '：' + text(subject) : ''}</summary><pre class="bd-letter-body">${text(body)}</pre></details>`).join('');
+    }).join('') || '<p class="muted">這家目前沒有信件內容（純電訪，或還沒寫信）。</p>';
+    const lastPhone = [...outreach].reverse().find((o) => o.channel === 'phone');
+    const lastRow = outreach[outreach.length - 1];
+    const actions = outreach.length ? rowActions([
+      lastRow ? actionBtn('標記談到職缺／成交', 'bd-stage', { idParams: { id: lastRow.id } }, 'primary') : '',
+      lastPhone ? actionBtn('回報電訪結果', 'bd-call-result', { idParams: { id: lastPhone.id } }) : '',
+    ].filter(Boolean)) : '';
+    const timelinePane = `<h3 style="font-size:14px;margin:4px 0">接觸時間軸</h3>${tl}${actions}<h3 style="font-size:14px;margin:16px 0 4px">信件全文</h3>${letters}`;
+
+    const playbookPane = !playbook ? empty('這家還沒有足夠資料組出開發引導') : `
+      <h3 style="font-size:14px;margin:4px 0">為什麼開發這家</h3>
+      <p>${text(playbook.why)}</p>
+      <h3 style="font-size:14px;margin:16px 0 4px">切入角度${playbook.difficulty_type ? `（${playbook.difficulty_type === 'source' ? '難在來源' : playbook.difficulty_type === 'screening' ? '難在篩選' : '待判斷'}）` : ''}</h3>
+      <p>${text(playbook.angle)}</p>
+      <h3 style="font-size:14px;margin:16px 0 4px">電話開場白（30 秒）</h3>
+      <pre class="bd-letter-body">${text(playbook.phone_script)}</pre>
+      <h3 style="font-size:14px;margin:16px 0 4px">可以問的三個問題</h3>
+      <div class="list">${playbook.questions.map((q) => `<div class="list-row"><span>${text(q)}</span></div>`).join('')}</div>
+      <h3 style="font-size:14px;margin:16px 0 4px">常見拒絕與怎麼回應</h3>
+      <div class="list">${playbook.objections.map((o) => `<div class="list-row"><span><b>「${text(o.q)}」</b><small>${text(o.a)}</small></span></div>`).join('')}</div>
+      <h3 style="font-size:14px;margin:16px 0 4px">下一步（三選一）</h3>
+      <div class="list">${playbook.next_steps.map((s) => `<div class="list-row"><span>${text(s)}</span></div>`).join('')}</div>
+    `;
+
+    return `${contactCard}
+      <div class="tabs tabs-sub" id="bd-detail-tabs">
+        <button type="button" class="active" data-bd-detail-tab="timeline">時間軸／信件</button>
+        <button type="button" data-bd-detail-tab="playbook">開發引導</button>
+      </div>
+      <div id="bd-detail-pane-timeline">${timelinePane}</div>
+      <div id="bd-detail-pane-playbook" hidden>${playbookPane}</div>`;
+  },
+  // bd_requests 真實欄位是 role_family（不是 company_name/target，這裡從沒要求填公司名——
+  // 系統自己去人才庫配對職缺再挑公司）；status 真實值 new/working/done/failed，跟 bd_outreach
+  // 的 status 是不同一組列舉，不能共用 statusBadge() 的全域標籤，容易對到別的語意。
+  clientsRequestsTab: (requests) => {
+    const REQ_ST = { new: ['排隊中', 'info'], working: ['配對中', 'warning'], done: ['已送審', 'success'], failed: ['沒出信', 'danger'] };
+    const badge = (s) => { const [lb, tone] = REQ_ST[s] || [s || '未知', 'neutral']; return `<span class="badge ${tone}">${text(lb)}</span>`; };
+    return `<div class="card"><h2>新增 BD 需求</h2><p class="help">講一句「想開發做什麼職缺的客戶」就好，系統會去人才庫撈得上用場的人、挑目標公司、自動跳過既有客戶與洽談中的公司、寫開發信進群組等核准。</p>${actionBtn('新增 BD 需求', 'bd-request-create', {}, 'primary')}</div>${list(requests, (r) => `<article class="list-row"><span><b>${text(r.role_family)}</b><small>${text(r.created_at)} · ${text(r.submitted_by || '未填')}${r.letters ? ` · ${text(r.letters)} 封信` : ''}</small></span>${badge(r.status)}</article>`)}`;
+  },
+  // 2026-09-22：原本一列只顯示「公司名 · status · 時間」，而 API 其實回了
+  // 職稱、薪資、產業、僱用型態——顧問要點「處理」才看得到自己在處理什麼。
+  // status 也直接印英文（new），顧問不知道那是什麼。
+  // 收費進程（2026-09-29，總指揮交辦，補新舊後台對照表抓到的缺口：後端
+  // /admin/billing-installments、/admin/client-billing-plan 早就存在——舊版
+  // consultant/billing 一直在用，新版只是完全沒做畫面）。沿用舊版兩段式
+  // 設計：① 選客戶、設定這家的分期範本（人選報到時系統照這個範本自動展開）
+  // ② 所有已報到人選的收款進度總覽，一人一行，點進去看單期明細。
+  // 改範本不會回頭改已經報到的舊人選——那是報到當下就決定的，不是永遠
+  // 跟著最新設定走（同一則提醒文字照抄舊版，這是 Jacky 已經確認過的行為）。
+  billingPlanRow: (t, i) => `<tr data-i="${i}">
+<td><input type="text" class="bp-label" value="${text(t.label || '')}" placeholder="第${i + 1}期"></td>
+<td><input type="number" class="bp-percent" value="${text(t.percent)}" min="0" max="100" step="0.1" style="width:80px"> %</td>
+<td>報到滿 <input type="number" class="bp-value" value="${text(t.trigger_value)}" min="0" style="width:70px">
+<select class="bp-unit"><option value="days"${t.trigger_unit === 'days' ? ' selected' : ''}>天</option>
+<option value="months"${t.trigger_unit === 'months' ? ' selected' : ''}>個月</option></select></td>
+<td><button type="button" class="btn danger sm bp-remove">刪除</button></td></tr>`,
+
+  billingTab: (companies, companyId, plan, installments) => {
+    const companyOpts = (companies || []).map((c) => `<option value="${text(c.id)}"${companyId === c.id ? ' selected' : ''}>${text(c.display_name || c.name)}</option>`).join('');
+    const tiers = (plan && plan.tiers) || [];
+    const planBox = !companyId ? '' : `<div id="billing-plan-box" style="margin-top:14px">
+<table><thead><tr><th>名稱</th><th>比例</th><th>觸發時機</th><th></th></tr></thead>
+<tbody id="billing-plan-rows">${tiers.map((t, i) => views.billingPlanRow(t, i)).join('')}</tbody></table>
+<div class="actions-row"><button type="button" class="btn" id="billing-add-row">＋ 加一期</button>
+<button type="button" class="btn primary" id="billing-save-plan">儲存範本</button></div>
+</div>`;
+    const byPlacement = new Map();
+    (installments || []).forEach((r) => {
+      if (!byPlacement.has(r.placement_id)) byPlacement.set(r.placement_id, []);
+      byPlacement.get(r.placement_id).push(r);
+    });
+    const groups = [...byPlacement.values()];
+    const listHtml = !groups.length ? empty('目前沒有已報到、且客戶有設定收費範本的人選')
+      : groups.map((rows) => {
+        const r0 = rows[0];
+        const paidN = rows.filter((x) => !!x.paid_at).length;
+        const paidPct = Math.round(rows.filter((x) => !!x.paid_at).reduce((s, x) => s + Number(x.percent), 0));
+        return `<div class="list-row billing-group-row" style="cursor:pointer" data-rows='${escapeHtml(JSON.stringify(rows))}'>
+<span><b>${text(r0.candidate_name)}</b><small>${text(r0.client_name)}・${text(r0.job_title)}・報到 ${text(r0.onboard_date)}</small></span>
+<span>${paidN}/${rows.length} 期已收（${paidPct}%）</span></div>`;
+      }).join('');
+    return `<div class="notice">每家客戶合約的分期收款條件不一樣，先在下面幫這家客戶設定一次範本；之後人選在人選詳情被標記「報到」時，系統會自動依這個範本算出每一期的到期日。改範本<b>不會</b>回頭改已經報到的舊人選——那是報到當下那份，不是永遠跟著最新設定走。「已收款」只是顧問自己標記用，<b>不是</b>接了金流或發票系統。</div>
+<div class="card"><h2>選客戶設定收費範本</h2>
+<select id="billing-company-select"><option value="">－－選一家客戶－－</option>${companyOpts}</select>
+${planBox}</div>
+<div class="card" style="margin-top:14px"><h2>收費進度（所有已報到人選）</h2>
+<p class="help">點一列看這個人選每一期的明細與到期日。</p>
+<div class="list">${listHtml}</div></div>`;
+  },
+
+  billingDetailBody: (rows, tenureText) => {
+    const r0 = rows[0];
+    return `<p class="muted" style="margin:0 0 4px">報到日期 ${text(r0.onboard_date)} · ${text(tenureText)}</p>
+<div class="list">${rows.map((r) => {
+      const paid = !!r.paid_at;
+      const clientCol = r.client_submitted_at
+        ? `客戶回報匯款日 ${text(r.client_transfer_date || '')}${r.proof_file_id ? ` <a href="#" data-proof-download="${text(r.id)}">查看證明</a>` : ''}`
+        : '<span class="muted">客戶尚未回報</span>';
+      let actionCol;
+      if (r.confirmed_received) {
+        actionCol = `<span class="muted">已於 ${text(String(r.confirmed_at || '').slice(0, 16))} 由 ${text(r.confirmed_by || '')} 確認</span>`;
+      } else if (r.client_submitted_at) {
+        actionCol = rowActions([
+          actionBtn('✅ 確認已收到', 'billing-confirm-received', { idParams: { id: r.id } }),
+          actionBtn('❌ 還沒收到', 'billing-confirm-not-received', { idParams: { id: r.id } }, 'danger'),
+        ]);
+      } else {
+        actionCol = paid
+          ? actionBtn('標記未收款', 'billing-mark-unpaid', { idParams: { id: r.id } })
+          : actionBtn('標記已收款', 'billing-mark-paid', { idParams: { id: r.id } }, 'primary');
+      }
+      return `<div class="list-row"><span><b>${text(r.label)}</b> ${text(r.percent)}% 到期 ${text(r.due_date)}
+<br><small>${clientCol}</small></span>
+<span class="badge ${paid ? 'success' : 'warning'}">${paid ? '已收款' : '未收款'}</span>
+${actionCol}</div>`;
+    }).join('')}</div>`;
+  },
+
+  // 待審核清單（2026-09-29，總指揮交辦，補新舊後台對照表抓到的缺口）：
+  // 職缺有 client_screen_conditions（客戶硬性條件）時，應徵會先卡在這裡、
+  // 還沒送進阿財面談——決策動作沿用既有的 screen-decide（單一人選詳情
+  // 本來就在用同一支），這裡只是補一個一次看完全部待審清單的畫面。
+  screeningTab: (pending) => {
+    const list = pending || [];
+    if (!list.length) return empty('目前沒有人選卡在硬條件審核', '所有應徵都已經處理過，不用等你決定。');
+    return `<div class="notice">這裡列的是「職缺有客戶硬性條件、還沒送進阿財面談前」卡住等你決定的應徵。一般職缺（沒有硬條件）不會出現在這裡，會直接進阿財面談。</div>
+<div class="list">${list.map((a) => {
+      const resumeBtn = a.resume_file_id ? `<button type="button" class="btn ghost sm" data-download-resume="${text(a.id)}">下載履歷</button>`
+        : (a.resume_url ? `<a class="btn ghost sm" href="${escapeHtml(a.resume_url)}" target="_blank" rel="noopener">履歷連結</a>` : '');
+      return `<div class="list-row"><span>
+<b>${text(a.name)}</b><small>${text(a.job_title || a.job_slug)}${a.client_name ? ' · ' + text(a.client_name) : ''} · 應徵於 ${text(String(a.created_at || '').slice(0, 10))}</small>
+<p class="help" style="margin:6px 0 0">硬性條件：${text(a.client_screen_conditions || '（無）')}</p>
+${a.must_skills ? `<p class="help" style="margin:4px 0 0">必要技能：${text(a.must_skills)}</p>` : ''}
+${a.note ? `<details class="note-details"><summary>顧問備註／電洽紀錄</summary><p>${text(a.note)}</p></details>` : ''}
+</span>${rowActions([
+        resumeBtn,
+        actionBtn('AI 篩選決策', 'screen-decide', { idParams: { application_id: a.id } }, 'primary'),
+      ].filter(Boolean))}</div>`;
+    }).join('')}</div>`;
+  },
+
+  clientsHiringTab: (items) => {
+    const ST = { new: ['待處理', 'warning'], working: ['處理中', 'info'], done: ['已完成', 'success'], rejected: ['不承接', 'neutral'] };
+    const badge = (v) => { const [lb, tone] = ST[v] || [v || '未知', 'neutral']; return `<span class="badge ${tone}">${text(lb)}</span>`; };
+    if (!items.length) return empty('目前沒有企業送進來的用人需求');
+    return list(items, (s) => `<article class="list-row">
+      <span><b>${text(s.job_title || '（沒填職稱）')}</b>
+        <small>${text(s.company_name || '（沒填公司）')}${s.industry ? ' · ' + text(s.industry) : ''}${s.salary_text ? ' · ' + text(s.salary_text) : ''}</small>
+        <small>${text(s.mode_label || s.mode || '')}${s.talent_type === 'scarce' ? ' · 稀缺人才' : ''} · ${text(s.created_at)}</small></span>
+      ${badge(s.status)}
+      ${rowActions([actionBtn('處理', 'hiring-submission-update', { idParams: { id: s.id }, record: s })])}
+    </article>`);
+  },
+  // 2026-09-17 加「顧問人選面談室」——Jacky 的規格：先選顧問，只列出這位
+  // 顧問名下、已經綁定 LIFF 的人選（照 LINE 官方帳號後台左清單右對話的樣子），
+  // 點開人選旁邊能切「人選卡片／面談進度／推薦職缺」，不用跳出這個畫面。
+  // ⚠️ 「人選卡片」跟「面談進度」目前共用同一個既有的候選人詳情抽屜
+  // （openCandidate 裡本來就同時有基本資料進度條跟阿財報告）——沒有另外
+  // 拆成兩個獨立畫面，是刻意重用既有元件不重造，兩顆按鈕效果一樣，
+  // 這是實作上的簡化，不是漏做，跟 Jacky 講清楚。「推薦職缺」按鈕另外開
+  // 既有的 openForwardCandidate() 那個客戶→職缺級聯彈窗，一樣可以直接動作。
+  linechat: (consultants, activeOwner) => pageHead('人選面談室','選顧問，只列出他名下已經綁定 LIFF 的人選，直接在這裡跟人選聊天。',
+    `<span id="linechat-quota" class="linechat-quota">查詢中…</span><select data-action="linechat-owner"><option value="">選顧問…</option>${(consultants || []).map((c) => `<option value="${escapeHtml(c.id)}" ${c.id === activeOwner ? 'selected' : ''}>${text(c.display_name)}</option>`).join('')}</select>`)
+    + `<div id="page-data">${activeOwner ? endpointState('人選清單') : empty('先選一位顧問', '選完會列出他名下已經綁定 LIFF 的人選。')}</div>`,
+  // 這個月免費推播剩多少則——低於 30 標紅提醒（下面 app.js 判斷門檻）。
+  linechatQuota: (q) => {
+    if (q.unlimited) return '不限則數';
+    if (q.limit == null || q.used == null) return '額度查不到';
+    const remain = q.limit - q.used;
+    return `這個月還剩 ${remain} / ${q.limit} 則`;
+  },
+  linechatEmptyOwner: () => empty('先選一位顧問', '選完會列出他名下已經綁定 LIFF 的人選。'),
+  linechatCandList: (candidates, activeAppId) => candidates.length
+    ? candidates.map((c) => `<button type="button" class="linechat-row ${c.application_id === activeAppId ? 'active' : ''}" data-linechat-select="${escapeHtml(c.application_id)}">
+        <span class="linechat-avatar">${c.picture_url ? `<img src="${escapeHtml(c.picture_url)}" alt="">` : text((c.display_name || c.name || '?').slice(0, 2))}</span>
+        <span class="linechat-meta"><b>${text(c.name)}</b><small>${text(c.job_title || c.job_slug)}</small>${c.last_message ? `<small class="linechat-preview">${c.last_message.direction === 'out' ? '你：' : ''}${text((c.last_message.content || '').slice(0, 24))}</small>` : ''}</span>
+      </button>`).join('')
+    : empty('這位顧問名下目前沒有已綁定 LIFF 的人選'),
+  linechatPanel: (cand) => !cand ? `<div class="state">點左邊清單裡的人選開始聊天</div>` : `
+    <div class="linechat-head">
+      <span class="linechat-avatar">${cand.picture_url ? `<img src="${escapeHtml(cand.picture_url)}" alt="">` : text((cand.display_name || cand.name || '?').slice(0, 2))}</span>
+      <div><b>${text(cand.name)}</b><small>${text(cand.job_title || cand.job_slug)}</small></div>
+      <div class="actions-row">
+        <button type="button" class="btn ghost sm" data-linechat-view="card">人選卡片</button>
+        <button type="button" class="btn ghost sm" data-linechat-view="progress">面談進度</button>
+        <button type="button" class="btn ghost sm" data-linechat-view="forward">推薦職缺</button>
+      </div>
+    </div>
+    <div class="transcript" id="linechat-transcript"></div>
+    <p class="linechat-hint">這裡發訊息會算錢，單純聊天不看資料可以改用 LINE 官方帳號自己的聊天視窗（免費）。</p>
+    <form id="linechat-form" class="linechat-form">
+      <textarea id="linechat-input" placeholder="輸入訊息，直接 LINE 推播給候選人…" rows="2" required></textarea>
+      <button type="submit" class="btn primary">送出</button>
+    </form>`,
+  linechatMessages: (messages) => messages.length
+    ? messages.map((m) => `<div class="bubble ${m.direction === 'out' ? 'candidate' : ''}"><p>${text(m.content)}</p><small>${text((m.created_at || '').slice(5, 16))}${m.direction === 'out' ? ' · 你' : ''}</small></div>`).join('')
+    : `<p class="muted" style="text-align:center;margin-top:20px">還沒有對話紀錄</p>`,
+  system: (tab='line') => pageHead('系統','LINE、阿財 KPI、Token、顧問設定與系統健康集中管理。') + tabbar('system',[['line','LINE'],['kpi','阿財 KPI'],['token','Token Usage'],['settings','顧問設定'],['spec','面談規格'],['health','系統健康']],tab) + `<div id="page-data">${endpointState('系統資料')}</div>`,
+  systemData: ({ bindings, consultants, token }) => `<div class="kpi-grid"><article class="kpi"><span>LINE 綁定</span><strong>${bindings.length}</strong></article><article class="kpi"><span>顧問</span><strong>${consultants.length}</strong></article></div><div class="two-col"><article class="card"><h2>Token Usage</h2><p class="notice">此數字是若改走 API 計費的估算，不是實際帳單；後端價格公式可能需要更新。</p><pre class="compact-json">${escapeHtml(JSON.stringify(token, null, 2))}</pre></article><article class="card"><h2>權限邊界</h2><p>目前全站沿用單一 ADMIN_TOKEN。顧問篩選只是畫面篩選，不是 RBAC。</p></article></div>`,
+  // line-followup-overdue 真實主鍵是 click_id（不是 id）。
+  // ── LINE 綁定（2026-09-22 第二版）──────────────────────────────
+  //
+  // 第一版我分成三個摺疊區塊，結果 Jacky 還是看不懂——因為「已綁定」被收
+  // 在摺疊區裡，畫面上先看到的全是沒綁定的人，而他要找的正是**有綁定的**。
+  //
+  // 這一版只做兩件事，不要再多：
+  //   ① 一個清單，每一列左邊就是綁沒綁（綠色＝綁好了）
+  //   ② 綁好的那幾列，旁邊直接有「通知他來面談」可以按
+  // 已綁定排最前面。逾期未回覆搬到下面去，那不是這一頁的重點。
+  systemLineTab: ({ overdue, bindings }) => {
+    const rows = bindings || [];
+    const ST = {
+      bound: ['✅ 已綁定', 'success', '查得到是誰，可以直接通知'],
+      ask_name: ['⚠️ 綁到一半', 'warning', '系統問了名字，他還沒回'],
+      pending_phone: ['⬜ 只加好友', 'neutral', '還沒開始綁，對不到是哪位應徵者'],
+    };
+    const order = { bound: 0, ask_name: 1, pending_phone: 2 };
+    const sorted = rows.slice().sort((a, b) => (order[a.state] ?? 9) - (order[b.state] ?? 9)
+      || String(b.bound_at || b.updated_at || '').localeCompare(String(a.bound_at || a.updated_at || '')));
+    const from = (b) => (b.source_kind === 'post_link' ? '從社群貼文連結'
+      : String(b.source || '').startsWith('liff') ? '從查詢進度（LIFF）'
+      : b.source_kind === 'campaign' ? `活動：${b.source}` : '舊資料，沒記來源');
+    const n = (st) => rows.filter((b) => b.state === st).length;
+
+    const row = (b) => {
+      const [label, tone, hint] = ST[b.state] || [b.state || '未知', 'neutral', ''];
+      const app = (b.applications || [])[0];
+      const canNotify = b.state === 'bound' && app
+        && (!b.interview_state || b.interview_state === 'not_started');
+      const jobs = (b.applications || []).map((a) => a.job_title || a.job_slug).join('、');
+      // 2026-09-22：整列可點 → 開那位人選的卡片抽屜。data-application 是
+      // 全域點擊委派已經在聽的屬性，不用另外接線。對不到應徵記錄的（還沒綁完）
+      // 就不給 data-application——點了開一個空抽屜比不能點更糟。
+      return `<article class="list-row" data-bind-state="${escapeHtml(b.state || '')}" data-can-notify="${canNotify ? '1' : ''}"${app ? ` data-application="${escapeHtml(app.id)}" style="cursor:pointer"` : ''}>
+        <span style="min-width:0">
+          <b>${text(b.candidate_name || b.display_name || '（還不知道是誰）')}</b>
+          <small>${jobs ? text(jobs) : '（還對不到應徵職缺）'}${b.phone ? ' · ' + text(b.phone) : ''}</small>
+          <small>${text(from(b))} · ${text(String(b.bound_at || b.updated_at || '').slice(0, 16))}</small>
+        </span>
+        <span class="badge ${tone}" title="${escapeHtml(hint)}">${text(label)}</span>
+        ${canNotify
+          ? rowActions([actionBtn('通知他來面談', 'line-notify-interview', { idParams: { application_id: app.id } }, 'primary')])
+          : (b.state === 'bound'
+              ? '<small class="muted">已經在面談了</small>'
+              : '<small class="muted">沒綁定，通知不了</small>')}
+      </article>`;
+    };
+
+    return `<div class="kpi-grid">
+        <article class="kpi accent"><span>✅ 已綁定</span><strong>${n('bound')}</strong><small>可以直接用系統通知</small></article>
+        <article class="kpi ${n('ask_name') ? 'warn' : ''}"><span>⚠️ 綁到一半</span><strong>${n('ask_name')}</strong><small>要有人去問一下</small></article>
+        <article class="kpi"><span>⬜ 只加好友</span><strong>${n('pending_phone')}</strong><small>還沒開始綁</small></article>
+      </div>
+      <article class="card">
+        <div class="card-head"><h2 style="margin:0;font-size:15px">LINE 綁定（${rows.length}）</h2></div>
+        <p class="help" style="margin:6px 0 10px">點任一列可以打開那位人選的卡片。綠色＝綁好了，右邊可以直接按「通知他來面談」。其他顏色代表還沒綁完，系統對不到是哪一位應徵者，所以通知不了。</p>
+        <div class="filters">
+          <select id="bind-filter">
+            <option value="">全部（${rows.length}）</option>
+            <option value="bound">✅ 已綁定（${n('bound')}）</option>
+            <option value="can_notify">✅ 已綁定・還沒面談，可以通知（${rows.filter((b) => b.state === 'bound' && (b.applications || [])[0] && (!b.interview_state || b.interview_state === 'not_started')).length}）</option>
+            <option value="ask_name">⚠️ 綁到一半（${n('ask_name')}）</option>
+            <option value="pending_phone">⬜ 只加好友（${n('pending_phone')}）</option>
+          </select>
+          <input type="search" id="bind-search" placeholder="搜尋姓名或職缺">
+        </div>
+        <p class="help" id="bind-count" style="margin:0 0 8px;font-weight:700;color:#2867ed">顯示全部 ${rows.length} 位</p>
+        <div class="list" id="bind-list">${sorted.map(row).join('')}</div>
+        <p class="help" id="bind-empty" hidden>沒有符合的人。</p>
+        <p class="help" style="margin-top:12px">「舊資料，沒記來源」是 2026-09-22 以前綁的——LIFF、手動、應徵表單當初都沒記，分不出來。之後綁的都會標明。</p>
+      </article>
+      <article class="card" style="margin-top:14px">
+        <div class="card-head"><h2 style="margin:0;font-size:15px">逾期未回覆（${(overdue || []).length}）</h2></div>
+        <p class="help" style="margin:6px 0 10px">昨天以前點過職缺連結、到現在還沒去應徵的人。</p>
+        ${list(overdue, (o) => `<div class="list-row"><span><b>${text(o.candidate_name || o.display_name || `（LINE 使用者 …${String(o.line_user_id || '').slice(-6)}）`)}</b><small>${text(o.job_title || (o.orphan ? '（話題文，對不到職缺）' : o.job_slug))} · ${text(o.attributed_at)}</small></span>${rowActions([actionBtn('標記已處理', 'line-followup-handled', { idParams: { id: o.click_id } })])}</div>`)}
+      </article>`;
+  },
+
+  // 照抄舊版 consultant/interview-spec（2026-08-11 版）的內容——這是給顧問看的
+  // 參考文件，不是可即時控制阿財 prompt 的設定頁；真的要調面談邏輯要改後端
+  // SKILL.md 的「結構式面談」那一段，這裡純粹是把規則講清楚。
+  // ── 阿財面談結果（2026-09-21 加）────────────────────────────
+  //
+  // Jacky 的原始需求：「最後 AI 阿財面談要給顧問這個人選面談結果，
+  // 在初篩區塊顯示，**取代初篩報告**」。
+  //
+  // 在這之前這一格只有一段純文字報告全文，顧問要自己從一大段文字裡撈結論——
+  // 而結構化資料（分流、七維評分、專業題 1–5 級、硬條件逐條、待追問）
+  // 早就都在 reports.content_json 裡，只是從來沒回給前端、也沒有畫面。
+  //
+  // 排序照「顧問打開後最想知道什麼」：
+  //   分流（要不要現在打）→ 一句話定位 → 最大風險 → 分數 → 專業題深度
+  //   → 硬條件 → 待追問 → 報告全文（收合，備查用）
+  interviewResult: (report) => {
+    const parse = (raw) => { try { return raw ? JSON.parse(raw) : null; } catch { return null; } };
+    const d = parse(report.content_json);
+    const full = `<details class="note-details" style="margin-top:12px"><summary><b>報告全文</b>（結構化資料就是從這份整理出來的）</summary><p style="white-space:pre-wrap">${text(report.content_md || '（沒有內容）')}</p></details>`;
+    if (!d) {
+      // content_json 是 NULL 的舊報告（2026-07-30～08-12 那批撞到額度上限的）。
+      // 不要假裝有結構化資料，照實說並把原文給出來。
+      return `<div class="notice">這份報告沒有結構化資料（產生當下撞到用量上限），只能看原文。</div>${full}`;
+    }
+    const fs = d.fit_scores || {};
+    const rt = report.route_code
+      ? routeBadge(report.route_code, report.route_label)
+      : '';
+    const row = (k, v) => v ? `<div style="margin:6px 0"><b>${k}</b> ${text(v)}</div>` : '';
+    const lv = (n) => (n ? '●'.repeat(n) + '○'.repeat(Math.max(0, 5 - n)) : '—');
+    const dims = (fs.dimensions || []).map((x) => `<tr><td>${text(x.name)}</td>
+        <td class="num">${x.score === null || x.score === undefined ? '<span class="muted">未評估</span>' : `<b>${text(x.score)}</b><span class="muted">/10</span>`}</td>
+        <td style="font-size:12.5px;color:#5d6672">${text(x.note || x.evidence || '')}</td></tr>`).join('');
+    const exp = (d.expertise_findings || []).map((x) => `<tr>
+        <td>${text(x.skill || x.topic || '')}</td>
+        <td style="white-space:nowrap">${text(lv(x.skill_level))} ${x.skill_level ? text(x.skill_level) + '/5' : ''}</td>
+        <td style="font-size:12.5px;color:#5d6672">${text(x.level_reason || x.note || x.answered || '')}</td></tr>`).join('');
+    const hard = (d.hard_conditions || []).map((x) => {
+      const tone = x.verdict === '符合' ? 'good' : (x.verdict === '不符' ? 'bad' : 'warn');
+      return `<tr><td>${text(x.item)}</td><td><span class="pc-status ${tone}">${text(x.verdict || '待確認')}</span></td>
+        <td style="font-size:12.5px;color:#5d6672">${text(x.detail || '')}</td></tr>`;
+    }).join('');
+    const todo = (d.consultant_followups || []).filter(Boolean);
+    return `
+      ${rt ? `<div style="margin:0 0 10px">${rt}</div>` : ''}
+      ${d.one_liner ? `<p style="font-size:15px;font-weight:600;margin:0 0 8px">${text(d.one_liner)}</p>` : ''}
+      ${row('判定', d.verdict)}
+      ${d.top_selling_point ? `<div class="notice" style="margin:8px 0">✅ <b>最大賣點</b> ${text(d.top_selling_point)}</div>` : ''}
+      ${d.top_risk ? `<div class="notice" style="margin:8px 0">⚠️ <b>最大風險</b> ${text(d.top_risk)}</div>` : ''}
+      ${fs.total !== null && fs.total !== undefined
+        ? `<div style="display:flex;align-items:baseline;gap:12px;margin:14px 0 6px">
+             <span style="font-size:26px;font-weight:800">${text(fs.total)}</span>
+             <span style="font-weight:700">${text(fs.grade || '')}</span>
+             <span class="muted" style="font-size:12px">${text(fs.basis || '')}</span></div>`
+        : `<div class="notice" style="margin:14px 0 6px">${text(fs.grade || '這場問到的資料不足以評分')}<br><span class="muted">${text(fs.basis || '')}</span></div>`}
+      ${fs.score_verdict_conflict ? `<div class="notice" style="margin:6px 0">⚠️ 結論與分數不一致：${text(fs.score_verdict_conflict)}</div>` : ''}
+      ${dims ? `<table class="spec" style="margin-top:6px"><tr><th>面向</th><th style="text-align:right">分數</th><th>依據</th></tr>${dims}</table>` : ''}
+      ${exp ? `<h4 style="margin:18px 0 6px">專業題（●＝講得多深，不是答得對不對）</h4>
+               <table class="spec"><tr><th>技能</th><th>程度</th><th>為什麼是這一級</th></tr>${exp}</table>` : ''}
+      ${hard ? `<h4 style="margin:18px 0 6px">硬條件</h4>
+                <table class="spec"><tr><th>項目</th><th>結果</th><th>說明</th></tr>${hard}</table>` : ''}
+      ${todo.length ? `<h4 style="margin:18px 0 6px">阿財沒問到、要你補問的</h4><ul style="margin:0;padding-left:20px">${todo.map((x) => `<li style="margin:4px 0">${text(x)}</li>`).join('')}</ul>` : ''}
+      ${full}`;
+  },
+  systemSpecTab: () => `<div class="card"><h2>0 · 阿財分流 A–E：什麼條件會被分到哪一類</h2>
+<p class="help">2026-09-21 上線。阿財面談完，系統會自動把人選分成五類，顯示在首頁、人選中心與報告最上方。
+<b>分流由程式用固定規則算，不是模型自由判斷</b>——同一份報告重跑兩次一定落在同一類，顧問才能拿它排今天要打的電話順序。</p>
+<table class="spec">
+  <tr><th>分流</th><th>意思</th><th>什麼情況會被分到這一類</th></tr>
+  <tr><td><span class="badge" style="background:#e6f4ec;color:#1a7f4b;font-weight:700">A</span></td>
+      <td><b>優先聯繫</b></td>
+      <td>總分 <b>65 分以上</b>，硬條件沒有任何一項不符，而且阿財沒說還有關鍵沒問到</td></tr>
+  <tr><td><span class="badge" style="background:#e7f0fa;color:#1c5fa8;font-weight:700">B</span></td>
+      <td><b>需顧問判斷</b></td>
+      <td>三種情況：① 總分 50–64 的中間帶；② 這場問到的資料太少、<b>算不出總分</b>；③ 分數雖高，但阿財判定「資訊不足建議補問」</td></tr>
+  <tr><td><span class="badge" style="background:#fdf0e3;color:#c2600d;font-weight:700">C</span></td>
+      <td><b>可轉其他職缺</b></td>
+      <td>這個職缺的硬條件沒過，<b>但整體分數 50 分以上</b>——意思是「這個缺不適合」，不是「這個人不適合」</td></tr>
+  <tr><td><span class="badge" style="background:#f1ebf9;color:#6b3fa0;font-weight:700">D</span></td>
+      <td><b>人才池</b></td>
+      <td>總分 <b>低於 50 分</b>，但硬條件沒有不符。先留著，之後有別的缺再看</td></tr>
+  <tr><td><span class="badge" style="background:#fbeceb;color:#a32b21;font-weight:700">E</span></td>
+      <td><b>Hard Gate 沒過</b></td>
+      <td>硬條件不符，而且分數也撐不起來（低於 50 或算不出來）</td></tr>
+</table>
+<div class="notice"><b>「資料不足」永遠是 B，不會掉進 D。</b>沒問到不等於不適合——把沒問到的人歸成人才池，等於讓一場問得少的面談決定一個人的去留。這條規則有寫測試鎖住。</div>
+<div class="notice"><b>總分怎麼算：</b>七個面向各 0–10 分，加權後換算成百分。權重是硬條件符合度 25、專業技能深度 20、相關經驗深度 20、案例具體度 12、動機明確度 12、溝通清晰度 7、工作穩定度 4。
+<b>面談沒談到的面向不算 0 分</b>，是把它的權重從分母拿掉——不然話少的場次會被系統性懲罰。有依據的權重不到 50 就不給總分（該筆歸 B）。</div>
+<div class="notice"><b>專業技能深度</b>這一維，是把這場問到的每一道職缺專業題各打 1–5 級後取平均 ×2。那把尺量的是「<b>他講得有多深</b>」，不是「答案對不對」——1 級＝只講得出「我會」，5 級＝講得出踩過的坑與取捨。專業對錯留給顧問跟用人主管判斷。</div>
+<div class="notice">⚠️ <b>分數等第（優／良／中／待加強）跟分流 A–E 是兩回事。</b>等第原本也用 A/B/C/D，跟分流撞字，2026-09-21 改成中文。看到「良」是分數，看到「A」是分流。</div>
+<div class="notice">分流<b>不會</b>影響人選在進度條上的階段，也不會發任何訊息給人選。它只是排序與提醒，最終要不要推、怎麼推，還是顧問決定。</div>
+</div>
+<div class="notice">以下是面談規格：此頁是靜態規格文件，不是可即時控制阿財 prompt 的設定頁。要調面談邏輯得改後端 SKILL.md，非本畫面可操作範圍。2026-08-11 版；佔比之後要調也是改那邊。</div>
+<div class="card"><h2>1 · 先看預算：一場只有 9 題</h2><p class="help">抓 10 場已完成面談的真實紀錄算出來的，不是估計。</p><div class="kpi-grid"><article class="kpi"><span>阿財提問（中位數）</span><strong>9.5</strong></article><article class="kpi"><span>人選回覆次數</span><strong>7.7</strong></article><article class="kpi"><span>分鐘（中位數）</span><strong>31</strong></article><article class="kpi"><span>人選單次回覆字數</span><strong>13–113</strong></article></div><div class="notice">九題就是全部。四個面向要驗，一個面向平均只分得到兩題多，還要扣掉硬條件確認與收尾。所以問一題履歷上寫過的東西＝丟掉 11% 的預算。呂書帆那場前兩題都是履歷上有的——他等於是到第三題才開始被面談，然後在中途說「問的都有履歷上面寫過的問題很沒效率」。</div></div>
+<div class="card"><h2>2 · 佔比：一般職缺（10 題）</h2><div class="spec-bar"><div class="spec-b0" style="flex:1">硬條件 10%</div><div class="spec-b1" style="flex:2">① 技能 20%</div><div class="spec-b2" style="flex:2">② 經驗 20%</div><div class="spec-b3" style="flex:2">③ 實際探查 20%</div><div class="spec-b4" style="flex:2">④ 人格特質 20%</div><div class="spec-b5" style="flex:1">換他問 10%</div></div><table class="spec"><tr><th>題數</th><th>面向</th><th>這一段要拿到什麼</th></tr><tr><td class="num">1</td><td>硬條件確認</td><td>只問履歷與表單「沒填」或「兩邊衝突」的。都齊全就 0 題，省下來給後面用</td></tr><tr><td class="num">2</td><td>① 技能確認</td><td>他列的技能實際做到哪一層。不是會不會，是做到什麼程度</td></tr><tr><td class="num">2</td><td>② 經驗：具體在做什麼</td><td>那個職稱每天實際在做的事。同一個職稱在不同公司差很多</td></tr><tr><td class="num">2</td><td>③ 這段時間的實際探查</td><td>進去時什麼樣、離開時什麼樣、他改變了哪一段。含空窗與離職原因</td></tr><tr><td class="num">2</td><td>④ 人格特質驗收</td><td>全部附掛在 ①②③ 的回答上追問，不獨立出題</td></tr><tr><td class="num">1</td><td>換他問</td><td>他問什麼，透露他在意什麼</td></tr></table></div>
+<div class="card"><h2>3 · 佔比：中高階（5 題）</h2><div class="spec-bar"><div class="spec-b3" style="flex:2">③ 實際探查 40%</div><div class="spec-b4" style="flex:1">④ 特質 20%</div><div class="spec-b1" style="flex:1">最大落差 20%</div><div class="spec-b2" style="flex:1">薪資・時程 20%</div></div><table class="spec"><tr><th>題數</th><th>面向</th><th>為什麼這樣分</th></tr><tr><td class="num">0</td><td>①② 技能與經驗</td><td>履歷已經寫了。中高階的履歷比基層完整得多，問了就是那句「很沒效率」</td></tr><tr><td class="num">2</td><td>③ 實際探查</td><td>履歷寫「負責再生專案」，但沒寫「接手時最爛的是哪一塊、他改變了什麼」</td></tr><tr><td class="num">1</td><td>④ 人格特質</td><td>附掛在 ③ 的回答上：「這個決定是你拍板還是上面交代的？」</td></tr><tr><td class="num">1</td><td>最大落差</td><td>履歷跟這個缺對不上的那一點（例：管理職 → 不帶人的特助）</td></tr><tr><td class="num">1</td><td>薪資結構與決策時程</td><td>中高階不談這兩件等於沒談。基層看表單就好，中高階的結構複雜得多</td></tr></table><div class="notice">中高階的硬條件（地點、工作型態、待命）用確認語氣一次帶過，不佔題數：「這個缺要〈照該職缺實際的工作型態講〉、彈性工時，也有一定程度待命——這樣的型態您可以嗎？」</div><div class="notice">判準是「職級」，不是「服務線」。派遣也會有中高階（派遣的廠長、專案總監）。用服務線判斷的話，那種缺會被當成基層跑 30 分鐘標準流程。職級在職缺頁自己調：基層／一般／中高階。</div></div>
+<div class="card"><h2>4 · 四個面向要問到什麼層次</h2><div class="two-col"><div><h3>① 技能確認</h3><div class="spec-q no">❌「您會不會寫 SOP？」</div><div class="spec-q yes">✅「那份 SOP 你寫了幾條？誰在用？有人不照做的時候怎麼處理？」</div><p class="help">「會不會」的答案永遠是會。要問的是做到哪一層。</p></div><div><h3>② 經驗：具體在做什麼</h3><div class="spec-q no">❌「您主要負責哪些事？」</div><div class="spec-q yes">✅「這個職稱，你每天進辦公室第一件事是什麼？」</div><p class="help">同一個職稱，在不同公司可以是排班發薪，也可以是重整整個部門。</p></div><div><h3>③ 這段時間的實際探查</h3><div class="spec-q no">❌「這段做了多久？」（履歷上有）</div><div class="spec-q yes">✅「你接手的時候現場最爛的是哪一塊？離開時變成什麼樣？」</div><p class="help">年資長不等於做得深。要問的是這段時間裡發生了什麼變化。</p></div><div><h3>④ 人格特質驗收</h3><div class="spec-q no">❌「您覺得自己是什麼樣的人？」</div><div class="spec-q yes">✅「那個做不來的員工，你最後怎麼處理？」</div><p class="help">從他講的事反推，不要另外問性格題——那種題目每個人都背過答案。</p></div></div><table class="spec" style="margin-top:14px"><tr><th>想驗的特質</th><th>從哪種回答切進去</th></tr><tr><td>主導 vs 配合</td><td>「這個決定是你自己拍板，還是上面交代的？」</td></tr><tr><td>對人 vs 對事</td><td>「那個做不來的員工，你最後怎麼處理？」</td></tr><tr><td>穩定 vs 求變</td><td>「當時有更輕鬆的做法嗎？為什麼沒選？」</td></tr><tr><td>細節 vs 大局</td><td>「這件事你自己盯到什麼程度？」</td></tr></table><div class="notice">驗的是「跟這個職缺吻不吻合」，不是「這個人好不好」。主管特助要配合與細節，旅館再生要主導與抗壓——同一個人在 A 缺是優勢，在 B 缺是風險。報告要寫的是這句，不是貼一個 DISC 標籤。</div></div>
+<div class="card"><h2>5 · 三條省題規則</h2><table class="spec"><tr><th>#</th><th>規則</th><th>為什麼</th></tr><tr><td class="num">1</td><td>一則訊息只問一個問題</td><td>兩個問題塞同一則，人選只會答其中一個，另一個等於白問</td></tr><tr><td class="num">2</td><td>問之前先確認履歷上有沒有</td><td>有就換題。要確認的話用確認語氣，不佔提問額度：「您表單填 9/15 可到職，這個還準嗎？」</td></tr><tr><td class="num">3</td><td>追問「為什麼這樣做」不另計一題</td><td>接在他剛講的事上面，成本最低、收穫最大——④ 幾乎全靠它</td></tr></table><div class="notice">預算用完就收尾。問到第 8 題還沒拿到 ③ 或 ④，放掉剩下的直接收。報告寫「未問到」比硬拖到第 15 題好——失去耐性的人選，後面回答的品質也不能用了。</div></div>
+<div class="card"><h2>6 · 外語驗證：哪些職缺會做、怎麼做</h2><p class="help">掃過全部職缺，語言要求觸發條件寫在後端 SKILL.md：must_skills／client_screen_conditions／JD 出現任何語言要求就做。不限日文——英文、韓文、越南語、粵語都一樣，新職缺只要 JD 寫了語言，自動就會跑，不用另外設定。</p><h3>怎麼驗（佔 1 題，不額外加預算）</h3><table class="spec"><tr><th>#</th><th>步驟</th><th>做法與理由</th></tr><tr><td class="num">1</td><td>先講清楚要切換</td><td>「這個職缺會直接用該語言開會，我們接下來用該語言聊兩句可以嗎？不用緊張，就一般對話。」突襲會讓人緊張，測到的是反應不是能力</td></tr><tr><td class="num">2</td><td>問他剛剛用中文講過的同一件事</td><td>⚠️ 一定要問講過的事——這樣才比對得出「同一件事用外語講，細節有沒有掉」。換新題目的話，答得差你分不清是語言不行還是那件事他本來就不熟</td></tr><tr><td class="num">3</td><td>用該語言再追問一句</td><td>一來一往才叫對談。單問單答只證明他看得懂，不代表能開會</td></tr><tr><td class="num">4</td><td>切回中文並說明</td><td>「謝謝，這部分沒問題，我這邊記錄下來。接下來我們回中文。」</td></tr></table><div class="notice">證照不能代替這一段。JLPT N1、多益 900 測的是讀跟聽，這個缺要的是當場對話。呂書帆那場就是最好的例子：他的自我 PR 寫「JLPT N1 相当」，但證照欄實際登記的是 2018 年 N2——履歷自己內部就對不上，而這個缺的硬條件寫「N1 或 N2」。</div><h3>報告要怎麼寫</h3><pre class="spec-pre">外語驗證（日文）
+  測法：用日文問「旅館再生專案最困難的部分與解法」，一問一追問
+  回應：能即時回覆、句子完整、用了業界用語，中文講過的細節在日文版本裡都在，沒有掉
+  判斷：可即時對談（符合 JD 的「會議即時溝通」要求）
+  ⚠️ 這是文字對談的結果，口說與聽力仍建議客戶端面談確認</pre><div class="notice">不准寫「日文流利」「英文良好」這種形容詞，要寫測法／回應／判斷三件事。最後那句每次都要寫——測的是文字不是口說，把文字表現當口說能力交給客戶，出錯的是顧問的信用。他拒絕用外語對談或答得吃力，一樣照實寫、不准修飾；但也不准直接判定不通過，寫「需顧問／客戶端確認」——錄取判斷不是這裡做的。</div></div>`,
+  // 這是若改走 API 計費的估算（cost_usd 是後端用目前 Sonnet 5 費率算出來的），
+  // 不是實際帳單。group 分三類：interview=阿財面談／checkup=阿福健檢／
+  // ops=其他一次性工作（職缺文案、題庫、履歷解析…），這三條成本性質不同不能混算平均。
+  systemTokenTab: (t) => {
+    const GROUP_LB = { interview: '阿財面談', checkup: '阿福健檢', ops: '其他工作' };
+    const usd = (n) => `$${Number(n || 0).toFixed(4)}`;
+    return `<div class="notice">此數字是若改走 API 計費的估算（用目前 Sonnet 5 費率換算），不是實際帳單。</div><div class="kpi-grid"><article class="kpi"><span>累積面談／工作筆數</span><strong>${text(t.total_interviews ?? 0)}</strong></article><article class="kpi"><span>累積估算花費</span><strong>${usd(t.total_cost_usd)}</strong></article><article class="kpi"><span>平均每筆花費</span><strong>${usd(t.avg_cost_usd)}</strong></article><article class="kpi"><span>平均 input／output token</span><strong style="font-size:19px">${text(t.avg_input_tokens ?? 0)} / ${text(t.avg_output_tokens ?? 0)}</strong></article></div><div class="card"><h2>依呼叫類型</h2><table class="spec"><tr><th>call_type</th><th style="text-align:right">次數</th><th style="text-align:right">input tokens</th><th style="text-align:right">output tokens</th><th style="text-align:right">估算花費</th></tr>${(t.by_call_type || []).map((c) => `<tr><td><code>${text(c.call_type)}</code></td><td class="num">${text(c.calls)}</td><td class="num">${text(c.input_tokens)}</td><td class="num">${text(c.output_tokens)}</td><td class="num">${usd(c.cost_usd)}</td></tr>`).join('')}</table></div><div class="card"><h2>最近 60 筆</h2>${list(t.recent || [], (r) => `<article class="list-row"><span><b>${text(r.name)}</b><small>${text(r.job_title || '')} · ${text((r.call_types || []).join('、'))}</small></span><span class="badge info">${text(GROUP_LB[r.group] || r.group)}</span><small>${usd(r.cost_usd)} · ${text(r.last_at)}</small></article>`)}</div>`;
+  },
+  systemHealthTab: (usage) => `<div class="card"><h2>功能使用狀態（近 ${text(usage.since_days ?? 14)} 天）</h2><p class="help">依 /admin/feature-usage 實際回傳資料呈現，是使用次數不是服務健康度百分比——次數低不代表壞掉，可能只是本來就少用。</p><table class="spec"><tr><th>功能</th><th>依賴的排程／服務</th><th style="text-align:right">近期使用次數</th></tr>${(usage.items || []).map((i) => `<tr><td>${text(i.name)}</td><td>${text(i.dep)}</td><td class="num">${text(i.count)}</td></tr>`).join('')}</table></div>`,
+  tokenModal: () => `<form id="token-form">${field('ADMIN_TOKEN','<input id="admin-token" type="password" autocomplete="off" required>')}<p class="help">憑證只儲存在此瀏覽器 localStorage，沿用既有 auth contract。</p></form>`,
+  // 2026-09-24 重寫：舊版只有「職缺名稱／公司描述／原始需求」三格，
+  //   後端必填的 service_line、client_relation 都沒送 → 按送出一定 400
+  //   （「請選擇客戶對象」）。Jacky 要在新版新增客戶職缺才發現。
+  //   欄位照舊版 /consultant/job-intake/ 對齊（同一支 /admin/job-intake）。
+  jobIntakeModal: (companies = [], consultants = [], me = '') => `<form id="job-intake-form" class="form-grid">
+    <label class="field span-2"><span>職缺名稱 ＊</span><input name="title" required maxlength="80" placeholder="例：建築專案助理（常駐白馬）——清單上顯示這個，AI 也會照這個訂標題"></label>
+    ${field('送件人 ＊', `<select name="submitted_by" required><option value="">請選擇</option>${consultants.filter((c) => c.is_active !== 0).map((c) => {
+      const n = c.name || c.display_name || c; return `<option value="${escapeHtml(n)}" ${n === me ? 'selected' : ''}>${escapeHtml(n)}</option>`; }).join('')}</select>`)}
+    ${field('客戶 ＊',`<select name="client_pick" required><option value="">請選擇客戶</option>${companies.map((c) =>
+      `<option value="${escapeHtml(c.display_name)}" data-relation="${escapeHtml(c.relation || '')}">${escapeHtml(c.display_name)}</option>`).join('')}<option value="__new__">＋ 不在清單裡的新客戶</option></select>`)}
+    <label class="field" id="ji-newname-wrap" hidden><span>新客戶公司全名 ＊</span><input name="client_new" placeholder="真實公司全名（只進內部，不會上職缺頁）"></label>
+    ${field('服務線 ＊','<select name="service_line" required><option value="">請選擇</option><option value="dispatch">人力派遣</option><option value="direct">正職代招</option><option value="executive">中高階獵才</option></select>')}
+    ${field('客戶對象 ＊（選客戶會自動帶入）','<select name="client_relation" required><option value="">請選擇</option><option value="signed">已簽約客戶</option><option value="unsigned">未簽約客戶</option><option value="private">朋友認識・私人協助</option></select>')}
+    <label class="field span-2"><span>JD 檔案（Word、Excel、PDF、md、圖片都可以，單檔 8MB 內）</span><input name="files" type="file" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.md,.txt,image/*"></label>
+    <label class="field span-2"><span>或直接貼文字（檔案、文字、連結至少給一種）</span><textarea name="raw_text" rows="6" placeholder="把用人需求表、JD、客戶講的話直接貼進來"></textarea></label>
+    ${field('職缺連結','<input name="source_url" type="url" placeholder="104／官網／雲端連結">')}
+    ${field('補充（交代總指揮的事）','<input name="note" placeholder="例：客戶很在意保密；急件">')}
+    <p class="help span-2">送出不等於發布：總指揮擬好 JD 會發到 Telegram 群組，按「核准發布」網站才會改。</p></form>`,
+  socialRequestModal: () => `<form id="social-request-form" class="form-grid">${field('職缺 slug','<input name="job_slug" required>')}${field('顧問／帳號','<input name="consultant_name" required>')}${field('內容方向','<textarea name="request_text" rows="6" required></textarea>')}</form>`,
+  // 2026-09-15 補：對齊舊版 openNewCandModal() 的欄位與流程（同一支後端
+  // /admin/pipeline/manual-forward，source_kind:'new'）。客戶／職缺是前端 JS
+  // 動態級聯（company 選了才顯示對應 job 清單），這裡先給空殼，app.js 開窗後填值。
+  addCandidateModal: (consultants) => `<form id="add-candidate-form" class="form-grid">
+    ${field('姓名 *', '<input name="name" required>')}
+    ${field('Email（Email／電話至少填一個）', '<input name="email" type="email">')}
+    ${field('電話', '<input name="phone">')}
+    ${field('指派顧問', `<select name="owner"><option value="">未指派</option>${consultants.filter((c) => c.is_active).map((c) => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.display_name)}</option>`).join('')}</select>`)}
+    ${field('客戶', '<select id="ac-company"><option value="">載入中…</option></select>')}
+    ${field('配對職缺（先配對用，不會自動推薦給客戶）', '<select id="ac-job" name="job_slug" disabled><option value="">請先選客戶</option></select>')}
+    ${field('聯絡來源', `<select name="source_channel">${SOURCE_CHANNEL_OPTS.map((o) => `<option${o === '不指定' ? ' selected' : ''}>${escapeHtml(o)}</option>`).join('')}</select>`)}
+    ${field('履歷來源', `<select name="resume_source">${RESUME_SOURCE_OPTS.map((o) => `<option${o === '不指定' ? ' selected' : ''}>${escapeHtml(o)}</option>`).join('')}</select>`)}
+    <label class="field span-2"><span>履歷檔案（選填）</span><input type="file" id="ac-resume"></label>
+    <label class="field span-2"><span>電洽內容</span><textarea name="call_notes" rows="3" placeholder="這次接觸／電訪的重點"></textarea></label>
+    <label class="field span-2" style="flex-direction:row;align-items:flex-start;gap:8px"><input type="checkbox" id="ac-consent" style="width:auto;margin-top:3px"><span>我確認已經取得本人同意，這筆資料可以提供給客戶</span></label>
+  </form>`,
+  // 2026-09-15 加：「推薦給客戶」原本只能選客戶，選不到要推哪個職缺——
+  // /admin/forward-candidate 其實接受 job_slug（沒傳才退回人選自己原本應徵的
+  // 那個職缺），改成客戶→職缺級聯選單，照抄新增人選那顆的模式。
+  forwardCandidateModal: () => `<form id="forward-candidate-form" class="form-grid">
+    ${field('客戶 *', '<select id="fc-company" name="company_id" required><option value="">載入中…</option></select>')}
+    ${field('職缺（不選＝沿用人選原本應徵的職缺）', '<select id="fc-job" name="job_slug" disabled><option value="">請先選客戶</option></select>')}
+    <label class="field span-2"><span>推薦說明</span><textarea name="note" rows="3"></textarea></label>
+  </form>`,
+  // 2026-09-15 加：人才池「轉正」的顧問建檔路徑，照抄新增人選那顆（同一支後端
+  // /admin/pipeline/manual-forward，差別只在 source_kind:'sourced' + source_id 帶
+  // 這位人才池的 id，聯絡方式從 sourced_candidates 自動帶，不用顧問重打一次）。
+  convertSourcedModal: (s) => `<form id="convert-sourced-form" class="form-grid">
+    <p class="help span-2">人選：${text(s.name || '')}${s.email ? ' · ' + text(s.email) : ''}${s.phone ? ' · ' + text(s.phone) : ''}</p>
+    ${field('客戶 *', '<select id="cs-company" name="company_id" required><option value="">載入中…</option></select>')}
+    ${field('職缺 *', '<select id="cs-job" name="job_slug" disabled required><option value="">請先選客戶</option></select>')}
+    <label class="field span-2" style="flex-direction:row;align-items:flex-start;gap:8px"><input type="checkbox" id="cs-consent" style="width:auto;margin-top:3px"><span>我確認已經取得本人同意，這筆資料可以提供給客戶</span></label>
+  </form>`,
+
+  // 2026-09-17 加：PRECALL_PHASE1 — Pre-call Card（唯讀電話前準備）。
+  // 視覺盡量貼近 references/UI_REFERENCE_PRECALL_CARD.html：候選人摘要＋深色
+  // 「這通電話只要確認」卡在最上面，Hard Gate 最多 3 個（unknown/unmatched優先，
+  // matched 收合），Must Ask 最多 3 題，AI Flag 最多 1 個且沒有就整段不顯示。
+  precallCardEmpty: () => `<div class="pc-empty state">
+    <strong>還沒有這位人選的電洽前準備</strong>
+    <p>AI 會讀履歷跟職缺資料，整理成一張電話前 60-90 秒看完的卡片。</p>
+    <button type="button" class="btn primary" data-action="precall-generate">產生電洽前準備卡</button>
+  </div>`,
+  precallCardLoading: () => `<div class="pc-loading">
+    <div class="pc-skel pc-skel-hero"></div>
+    <div class="pc-skel pc-skel-row"></div>
+    <div class="pc-skel pc-skel-row"></div>
+    <p class="help" style="text-align:center">AI 正在整理，通常 1-2 分鐘…</p>
+  </div>`,
+  // 2026-09-17 v2.0 稽核修正：doc09 第 26 節要求錯誤畫面要講清楚「發生什麼事」
+  // 「哪些資料仍保留」，而且不可再生的錯誤（retryable:false，例如這位人選
+  // 根本沒有履歷檔）不該一直給「重試」按鈕——按了也不會成功，只會讓顧問
+  // 一直點一個沒用的按鈕。改成吃真實錯誤訊息，依 retryable 決定要不要顯示重試。
+  precallCardTimeout: (err) => {
+    const message = (err && err.message) || '可能是履歷資料太複雜，或這次 AI 呼叫沒有成功。';
+    const retryable = !err || err.retryable !== false;
+    return `<div class="pc-empty state error">
+    <strong>產生失敗</strong>
+    <p>${text(message)}</p>
+    <p class="help">舊版「電洽前準備」內容（如果有）不會被這次失敗清掉，重新整理可以看到。</p>
+    ${retryable ? '<button type="button" class="btn primary" data-action="precall-generate" data-force="1">重試</button>' : ''}
+  </div>`;
+  },
+  // 舊格式（call_prep_md 是純文字 MD，不是 JSON）——維持原本純文字呈現，
+  // 不強迫使用者重新產生，但給一個明顯的「升級成新版卡片」按鈕。
+  precallCardLegacy: (mdText) => `<div class="pc-legacy">
+    <p class="help">這是舊版電洽前準備（純文字），重新產生可以看到新版卡片。</p>
+    <div class="pc-legacy-body">${text(mdText).split('\n').map((line) => `<p>${line || '&nbsp;'}</p>`).join('')}</div>
+    <button type="button" class="btn ghost sm" data-action="precall-generate" data-force="1">重新產生（新版卡片）</button>
+  </div>`,
+  // 2026-09-17 依 PRECALL v1.4 Contract 升級：hard_gates 多了 category/
+  // classification/priority/source，ai_flags 多了 show_on_main_card 挑主卡，
+  // call_goal.validation_points 從純字串陣列變成 {gate_id,label} 物件。
+  // 過期（stale）時在最上面加一條提醒 banner，卡片本體照樣顯示舊資料，不擋看。
+  //
+  // 2026-09-18 Phase 1.1 改版：主流程從「AI 判斷摘要」換成「顧問口頭電洽
+  // 順序卡」（conversation_flow，1→7 步）。舊資料（改版前產生、call_prep_md
+  // 裡沒有 conversation_flow 這個 key）不能因為多了這個新規則就顯示不出來——
+  // 沒有 conversation_flow 就退回 `precallCardV1()`（原本那一版排版），
+  // 顧問看到的還是「重新產生」按鈕，不會是空白或錯誤畫面（改版清單 06 節：
+  // backward compatibility）。
+  precallCard: (data, opts = {}) => {
+    if (!data.conversation_flow) return views.precallCardV1(data, opts);
+    const cs = data.candidate_summary || {};
+    const goal = data.call_goal || {};
+    const jc = data.job_context || {};
+    const cf = data.conversation_flow || {};
+    const vpText = (goal.validation_points || [])
+      .map((v) => (typeof v === 'string' ? v : v.label)).filter(Boolean).join('＋');
+
+    const qCard = (q, i) => `<div class="pc-q">
+      <div class="pc-q-num">${i + 1}</div>
+      <div>
+        <div class="pc-q-title">${text(q.title || '')}</div>
+        ${q.lead_in ? `<p class="muted" style="margin:4px 0">${text(q.lead_in)}</p>` : ''}
+        <strong>${text(q.question)}</strong>
+        ${q.backup_probe ? `<details><summary>追問</summary><p>${text(q.backup_probe)}</p></details>` : ''}
+        ${q.record_hint ? `<small style="display:block;margin-top:4px" class="muted">📝 記：${text(q.record_hint)}</small>` : ''}
+      </div>
+    </div>`;
+
+    const altJobs = data.alternative_jobs || [];
+    const appIdAttr = escapeHtml(opts.applicationId || '');
+
+    return `
+    ${opts.stale ? `<div class="notice">職缺或履歷內容已更新，這張卡可能是舊版——建議重新產生。</div>` : ''}
+    ${opts.applicationId ? `<div class="pc-tool-row">
+      <button type="button" class="pc-tool-btn primary" data-action="open-resume-summary" data-application-id="${appIdAttr}">📄 整理履歷</button>
+      <button type="button" class="pc-tool-btn" data-action="open-ai-interview" data-application-id="${appIdAttr}">🧠 AI 面談</button>
+      <button type="button" class="pc-tool-btn" data-download-resume="${appIdAttr}">原始履歷</button>
+    </div>` : ''}
+    <section class="pc-hero">
+      <div class="pc-candidate">
+        <div class="pc-candidate-name">${text(cs.name)}</div>
+        <div class="pc-meta">
+          <span class="pc-chip">${text(cs.current_role || '履歷未提及')}</span>
+          <span class="pc-chip">${text(cs.relevant_experience || '履歷未提及')}</span>
+          <span class="pc-chip">${text(cs.location_summary || '履歷未提及')}</span>
+          ${cs.source_channel && cs.source_channel !== '未填寫' ? `<span class="pc-chip">來源：${text(cs.source_channel)}</span>` : ''}
+        </div>
+      </div>
+      <div class="pc-goal">
+        <small>🎯 這通電話只要確認</small>
+        <strong>${text(goal.decision)}${goal.target_role ? `「${text(goal.target_role)}」` : ''}${vpText ? '：' + vpText : ''}</strong>
+        ${goal.reason ? `<small style="display:block;margin-top:8px">${text(goal.reason)}</small>` : ''}
+      </div>
+    </section>
+
+    ${(jc.title || jc.salary_summary || jc.work_mode) ? `<section class="pc-jobline">
+      <span>${text(jc.title || '')}</span>
+      ${jc.salary_summary ? `<span>💰 ${text(jc.salary_summary)}</span>` : ''}
+      ${jc.work_mode ? `<span>${text(jc.work_mode)}</span>` : ''}
+      ${jc.work_hours ? `<span>${text(jc.work_hours)}</span>` : ''}
+      ${(jc.locations || []).length ? `<span>📍 ${text(jc.locations.join('、'))}</span>` : ''}
+    </section>` : ''}
+
+    <div class="pc-flow-title"><h3>☎️ 建議電洽順序</h3><span class="pc-flow-hint">左 → 右｜上 → 下</span></div>
+    <div class="pc-flow">
+      <section class="pc-step"><div class="pc-step-head"><span class="pc-num">1</span>開場＋設定這通目的</div>
+        <div class="pc-step-body"><div class="pc-quote">${text((cf.opening || {}).script || '')}</div></div></section>
+      <section class="pc-step"><div class="pc-step-head"><span class="pc-num">2</span>已經知道，不要重問</div>
+        <div class="pc-step-body">${views.knownFactList(cf.known_do_not_ask || [])}</div></section>
+
+      <section class="pc-step" style="grid-column:1/-1"><div class="pc-step-head"><span class="pc-num">3</span>Top 3｜先問最重要的<span class="badge">必問</span></div>
+        <div class="pc-step-body">${(cf.top_questions || []).map(qCard).join('') || '<p class="muted">目前沒有必問題目</p>'}</div></section>
+
+      ${(cf.extra_questions || []).length ? `<section class="pc-step" style="grid-column:1/-1"><div class="pc-step-head"><span class="pc-num">4</span>補問｜有時間再確認</div>
+        <div class="pc-step-body">${(cf.extra_questions || []).map((q) => `<div class="pc-mini"><b>${text(q.title || '')}</b><small>${text(q.question)}</small></div>`).join('')}</div></section>` : ''}
+
+      <section class="pc-step"><div class="pc-step-head"><span class="pc-num">${(cf.extra_questions || []).length ? 5 : 4}</span>60 秒介紹職缺</div>
+        <div class="pc-step-body"><p style="margin:0;line-height:1.7">${text((cf.job_pitch_60s || {}).script || '')}</p></div></section>
+      <section class="pc-step"><div class="pc-step-head"><span class="pc-num">${(cf.extra_questions || []).length ? 6 : 5}</span>薪資／地點／條件</div>
+        <div class="pc-step-body">${(cf.conditions || []).length
+          ? (cf.conditions || []).map((c) => `<div class="pc-mini"><b>${text(c.label)}</b><small>${text(c.value)}</small></div>`).join('')
+          : '<p class="muted" style="margin:0">職缺條件資料不足</p>'}</div></section>
+
+      ${altJobs.length ? `<section class="pc-step" style="grid-column:1/-1">
+        <details><summary class="pc-alt-summary">✨ 如果主職缺不合，可再分享（${altJobs.length}）</summary>
+        <div class="pc-step-body">${altJobs.map((a) => `<div class="pc-alt-job">
+          <div class="pc-alt-job-title">${text(a.title)}<span class="badge">${a.recommendation_level === 'primary_alternative' ? '優先備案' : '次要備案'}</span></div>
+          ${(a.fit_reasons || []).slice(0, 2).map((r) => `<div class="pc-alt-reason">✓ ${text(r)}</div>`).join('')}
+          ${(a.watchouts || [])[0] ? `<div class="pc-alt-watch">△ ${text(a.watchouts[0])}</div>` : ''}
+          <div class="pc-jobline" style="margin:8px 0 0;padding:0">${a.salary_summary ? `<span>💰 ${text(a.salary_summary)}</span>` : ''}${a.location_summary ? `<span>📍 ${text(a.location_summary)}</span>` : ''}</div>
+          ${a.consultant_talk_track ? `<p class="pc-quote" style="margin-top:8px">${text(a.consultant_talk_track)}</p>` : ''}
+          <button type="button" class="pc-tool-btn" style="margin-top:8px" data-action="open-alt-job-intro" data-job-slug="${escapeHtml(a.job_slug || '')}">查看職缺介紹</button>
+        </div>`).join('')}</div></details></section>` : ''}
+
+      <section class="pc-step" style="grid-column:1/-1"><div class="pc-step-head"><span class="pc-num">${altJobs.length ? 7 : ((cf.extra_questions || []).length ? 7 : 6)}</span>收尾｜確認意願與下一步</div>
+        <div class="pc-step-body"><div class="pc-closebox">${text((cf.closing || {}).script || '')}</div></div></section>
+    </div>
+
+    <div class="pc-tools">
+      <div class="pc-tools-title">🧰 輔助工具｜不是流程步驟</div>
+      <div class="pc-toolgrid">
+        <section class="pc-tool pc-tool-dark">
+          <div class="pc-tool-head">☎️ 電話旁超短版</div>
+          <div class="pc-tool-body">${(cf.phone_sidecar || []).map((s, i) => `<div class="pc-phone-item">${i + 1}. ${text(s)}</div>`).join('') || '<p class="muted" style="margin:0">沒有提供</p>'}</div>
+        </section>
+        <section class="pc-tool pc-tool-warn">
+          <div class="pc-tool-head">⚠️ 顧問注意＋AI 判斷</div>
+          <div class="pc-tool-body">
+            ${(() => {
+              const flag = (data.ai_flags || []).find((f) => f.show_on_main_card);
+              return flag ? `<p style="margin:0 0 8px"><strong>${text(flag.title)}</strong><br>${text(flag.short_message)}</p>` : '<p class="muted" style="margin:0 0 8px">目前沒有特別提示</p>';
+            })()}
+            <details><summary>展開 Hard Gate / Evidence</summary>
+              <div class="pc-gate-list">${(data.hard_gates || []).filter((g) => g.classification !== 'nice_to_have').map((g) => {
+                const meta = GATE_STATUS_META[g.status] || GATE_STATUS_META.unknown;
+                return `<div class="pc-gate"><div class="pc-gate-row"><strong>${text(g.label)}</strong><span class="pc-status ${meta.cls}">${meta.label}</span></div><p>${text(g.evidence || '')}</p></div>`;
+              }).join('') || '<p class="muted">沒有 Hard Gate 資料</p>'}</div>
+            </details>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div class="actions-row" style="margin-top:10px">
+      <button type="button" class="btn ghost sm" data-action="precall-generate" data-force="1">重新產生</button>
+    </div>`;
+  },
+  // 舊版排版（改版前產生的卡片沒有 conversation_flow 時的 fallback，內容
+  // 跟改版前完全一樣，只是改名成 V1 讓新版 precallCard() 可以在缺欄位時呼叫它）。
+  precallCardV1: (data, opts = {}) => {
+    const cs = data.candidate_summary || {};
+    const goal = data.call_goal || {};
+    const jc = data.job_context || {};
+    const statusOrder = { unknown: 0, unmatched: 1, matched: 2 };
+    const priorityOrder = { high: 0, medium: 1, low: 2 };
+    const gates = [...(data.hard_gates || [])]
+      .filter((g) => g.classification !== 'nice_to_have')
+      .sort((a, b) => (statusOrder[a.status] ?? 1) - (statusOrder[b.status] ?? 1)
+        || (priorityOrder[a.priority] ?? 1) - (priorityOrder[b.priority] ?? 1))
+      .slice(0, 3);
+    const questions = (data.must_ask_questions || []).slice(0, 3);
+    const flag = (data.ai_flags || []).find((f) => f.show_on_main_card);
+    const vpText = (goal.validation_points || [])
+      .map((v) => (typeof v === 'string' ? v : v.label)).filter(Boolean).join('＋');
+    return `
+    ${opts.stale ? `<div class="notice">職缺或履歷內容已更新，這張卡可能是舊版——建議重新產生。</div>` : ''}
+    <section class="pc-hero">
+      <div class="pc-candidate">
+        <div class="pc-candidate-name">${text(cs.name)}</div>
+        <div class="pc-meta">
+          <span class="pc-chip">${text(cs.current_role || '履歷未提及')}</span>
+          <span class="pc-chip">${text(cs.relevant_experience || '履歷未提及')}</span>
+          <span class="pc-chip">${text(cs.location_summary || '履歷未提及')}</span>
+          ${cs.source_channel && cs.source_channel !== '未填寫' ? `<span class="pc-chip">來源：${text(cs.source_channel)}</span>` : ''}
+        </div>
+      </div>
+      <div class="pc-goal">
+        <small>🎯 這通電話只要確認</small>
+        <strong>${text(goal.decision)}${goal.target_role ? `「${text(goal.target_role)}」` : ''}${vpText ? '：' + vpText : ''}</strong>
+        ${goal.reason ? `<small style="display:block;margin-top:8px">${text(goal.reason)}</small>` : ''}
+      </div>
+    </section>
+
+    ${(jc.title || jc.salary_summary || jc.work_mode) ? `<section class="pc-jobline">
+      <span>${text(jc.title || '')}</span>
+      ${jc.salary_summary ? `<span>💰 ${text(jc.salary_summary)}</span>` : ''}
+      ${jc.work_mode ? `<span>${text(jc.work_mode)}</span>` : ''}
+      ${jc.work_hours ? `<span>${text(jc.work_hours)}</span>` : ''}
+      ${(jc.locations || []).length ? `<span>📍 ${text(jc.locations.join('、'))}</span>` : ''}
+    </section>` : ''}
+
+    <section class="card pc-card">
+      <div class="card-head"><h2 style="margin:0;font-size:15px">🚪 Hard Gate</h2><span class="badge">最多 3 個</span></div>
+      <div class="pc-gate-list">
+        ${gates.length ? gates.map((g) => {
+          const meta = GATE_STATUS_META[g.status] || GATE_STATUS_META.unknown;
+          const collapsedMatched = g.status === 'matched';
+          return `<details class="pc-gate" ${collapsedMatched ? '' : 'open'}>
+            <summary class="pc-gate-row"><strong>${text(g.label)}</strong><span class="pc-status ${meta.cls}">${meta.label}</span></summary>
+            <p>${text(g.evidence || '')}</p>
+          </details>`;
+        }).join('') : '<p class="muted">這個職缺沒有設定 Hard Gate 資料</p>'}
+      </div>
+    </section>
+
+    <section class="card pc-card">
+      <div class="card-head"><h2 style="margin:0;font-size:15px">🔥 今天只問這 ${questions.length} 題</h2><span class="badge">不要超過 3 題</span></div>
+      <div class="pc-questions">
+        ${questions.length ? questions.map((q, i) => `<div class="pc-q">
+          <div class="pc-q-num">${i + 1}</div>
+          <div><strong>${text(q.question)}</strong>${q.why_it_matters ? `<small>驗證：${text(q.why_it_matters)}</small>` : ''}${q.backup_probe ? `<details><summary>備用追問</summary><p>${text(q.backup_probe)}</p></details>` : ''}</div>
+        </div>`).join('') : '<p class="muted">目前沒有必問題目</p>'}
+      </div>
+    </section>
+
+    ${flag ? `<section class="card pc-card">
+      <div class="card-head"><h2 style="margin:0;font-size:15px">⚠️ 風險提示</h2><span class="badge">${text(flag.risk_level)}</span></div>
+      <div class="pc-flag"><strong>${text(flag.title)}</strong><p>${text(flag.short_message)}</p>${flag.recommended_action ? `<p class="muted">建議：${text(flag.recommended_action.label || flag.recommended_action)}</p>` : ''}</div>
+    </section>` : ''}
+
+    <div class="actions-row" style="margin-top:10px">
+      <button type="button" class="btn ghost sm" data-action="precall-generate" data-force="1">重新產生</button>
+    </div>`;
+  },
+  // 2026-09-18 加（Phase 1.1 v1.1：履歷佐證版）——Step 2「已經知道，不要重問」
+  // 每一條都要秀出處，不能只有一個 chip。舊卡片（改版前產生，known_do_not_ask
+  // 還是純字串陣列）不能因為多了這個規則就壞掉，退回「來源未結構化」的樣式
+  // （規格第 17 節：backward compatibility），不顯示來源徽章或查看佐證按鈕。
+  knownFactList: (items) => {
+    if (!items.length) return '<p class="muted" style="margin:0">目前沒有可以確定跳過的項目</p>';
+    const sourceLabel = { resume: '履歷', ai_interview: 'AI 面談', consultant_note: '顧問紀錄', report: '報告' };
+    return `<div style="display:grid;gap:9px">${items.map((k, i) => {
+      if (typeof k === 'string') {
+        // 舊格式：純字串，沒有 value/sources。
+        return `<div class="pc-known-item legacy"><b>✓ ${text(k)}</b><span class="pc-source-badge legacy">來源未結構化</span></div>`;
+      }
+      const knowId = k.id || `k_${i}`;
+      const sources = k.sources || [];
+      return `<div class="pc-known-item">
+        <b>✓ ${text(k.label)}</b>
+        <div class="pc-known-value">${text(k.value || '')}</div>
+        <div class="pc-source-row">
+          ${[...new Set(sources.map((s) => s.type))].map((t) => `<span class="pc-source-badge ${escapeHtml(t)}">${sourceLabel[t] || t}</span>`).join('')}
+          ${sources.length ? `<button type="button" class="pc-source-badge verify" data-action="open-evidence" data-know-id="${escapeHtml(knowId)}">查看佐證</button>` : ''}
+        </div>
+      </div>`;
+    }).join('')}</div>`;
+  },
+  // 「📄 整理履歷」side panel 內容——resume_summary 是 runtime 衍生資料，不是
+  // 新的候選人真相來源（規格第 19 節），履歷更新後這裡的內容會跟著卡片一起重生。
+  resumeSummaryBody: (rs) => {
+    if (!rs) return '<p class="muted">這張卡片是改版前產生的舊版，沒有整理履歷資料——重新產生卡片後就會有。</p>';
+    const cs = rs.current_status || {};
+    return `
+    <div class="section"><h3 style="margin:0 0 8px;font-size:15px">候選人快速定位</h3>
+      <div class="pc-resume-card"><p style="margin:0">${text(rs.headline || '')}</p></div>
+    </div>
+    ${(rs.core_skills || []).length ? `<div class="section"><h3 style="margin:0 0 8px;font-size:15px">核心能力</h3>
+      <div class="pc-meta">${(rs.core_skills || []).map((s) => `<span class="pc-chip">${text(s)}</span>`).join('')}</div>
+    </div>` : ''}
+    <div class="section"><h3 style="margin:16px 0 8px;font-size:15px">職涯時間軸</h3>
+      <div class="pc-timeline">${(rs.career_timeline || []).length ? (rs.career_timeline || []).map((t) => `<div class="pc-timeline-item">
+        <b>${text(t.company || '')}${t.title ? '｜' + text(t.title) : ''}</b>
+        <span class="pc-timeline-period">${text(t.period || '履歷未載明')}</span>
+        <small>${text(t.core_duties || '')}${t.note ? '　·　' + text(t.note) : ''}</small>
+      </div>`).join('') : '<p class="muted" style="margin:0">沒有可整理的職涯資料</p>'}</div>
+    </div>
+    <div class="section"><h3 style="margin:16px 0 8px;font-size:15px">目前狀態</h3>
+      <div class="pc-resume-card">
+        ${cs.employment_status ? `<p style="margin:0 0 4px"><b>狀態：</b>${text(cs.employment_status)}</p>` : ''}
+        ${cs.start_date ? `<p style="margin:0 0 4px"><b>可到職：</b>${text(cs.start_date)}</p>` : ''}
+        ${cs.location ? `<p style="margin:0 0 4px"><b>地點：</b>${text(cs.location)}</p>` : ''}
+        ${cs.salary ? `<p style="margin:0"><b>薪資：</b>${text(cs.salary)}</p>` : ''}
+        ${!cs.employment_status && !cs.start_date && !cs.location && !cs.salary ? '<p class="muted" style="margin:0">沒有可判斷的狀態資料</p>' : ''}
+      </div>
+    </div>`;
+  },
+  // 「🧠 AI 面談」side panel——直接沿用既有 /admin/session/:id 的 transcript
+  // 欄位，不重新生成逐字稿（規格第 5 節）。
+  aiInterviewBody: (body) => {
+    const messages = body.transcript || [];
+    if (!messages.length) return '<p class="muted">目前沒有 AI 面談逐字稿</p>';
+    return `<div class="transcript">${messages.map((m) => `<div class="bubble ${String(m.role).includes('assistant') ? 'ai' : 'candidate'}"><b>${String(m.role).includes('assistant') ? '阿財' : '人選'}</b><p>${text(m.content || m.text)}</p><small>${text(m.created_at || m.at)}</small></div>`).join('')}</div>`;
+  },
+  // 「查看佐證」——只顯示來源片段，不顯示 AI 內部推理過程（規格第 10 節）。
+  evidenceBody: (item) => {
+    if (!item || !(item.sources || []).length) return '<p class="muted">找不到這條的佐證資料，可能是卡片已經被重新產生過。</p>';
+    const sourceLabel = { resume: '📄 履歷', ai_interview: '🧠 AI 面談', consultant_note: '📝 顧問紀錄', report: '📋 報告' };
+    return `<div class="pc-resume-card" style="margin-bottom:14px"><b>${text(item.label)}</b><p style="margin:4px 0 0">${text(item.value || '')}</p></div>
+    ${item.sources.map((s, i) => `<div class="pc-evidence-box"><div class="pc-evidence-src">來源 ${i + 1}｜${sourceLabel[s.type] || s.type}</div><div class="pc-evidence-snippet">${text(s.snippet || '')}</div></div>`).join('')}`;
+  },
+  // 2026-09-18 加「職缺介紹」tab：給沒接觸過這個職缺的顧問看的背景資料，
+  // 純顯示 jobs 既有欄位（不是 AI 生的，職缺內容改了這裡就跟著變）。
+  jobIntroLoading: () => `<div class="pc-loading"><div class="pc-skel pc-skel-row"></div><div class="pc-skel pc-skel-row"></div></div>`,
+  jobIntroEmpty: () => `<div class="pc-empty state"><strong>這位人選還沒有指定職缺</strong><p>先在「編輯應徵單」選一個職缺，才有內容可以顯示。</p></div>`,
+  jobIntro: (job) => {
+    // 2026-09-18 補：salary_min/max 是 null 時（業主沒公告固定區間，例如美德醫療
+    // 這個職缺）原本只印「面議」，把 salary_note（顧問打的補充說明，通常會講
+    // 「電洽時要向業主確認範圍」這類重要提醒）漏掉了，顧問看不到就不知道這通
+    // 電話要記得問。有 salary_note 就附在「面議」後面，不要讓這欄資訊憑空消失。
+    const salary = (job.salary_min || job.salary_max)
+      ? `${job.salary_min || ''}${job.salary_min && job.salary_max ? '–' : ''}${job.salary_max || ''}`.trim() + (formatSalaryUnit(job.salary_unit) ? ' ' + formatSalaryUnit(job.salary_unit) : '')
+      : (job.salary_note ? `面議（${job.salary_note}）` : '面議');
+    // 2026-09-18 加：職缺欄位裡常見「1. xxx；2. yyy；3. zzz」這種顧問自己打字
+    // 編號、但整段擠在一行沒有換行的內容——直接用 white-space:pre-wrap 印出來
+    // 還是一整團，因為原文根本沒有 \n。這裡偵測到「數字. 」編號就拆成清單項目，
+    // 偵測不到（一般散文）就照舊印一整段，不要為了拆而拆。
+    const asList = (str) => {
+      const parts = str.split(/(?:^|[；;])\s*(?=\d+[.．、]\s*)/).map((s) => s.trim()).filter(Boolean);
+      if (parts.length < 2 || !parts.every((p) => /^\d+[.．、]/.test(p))) return null;
+      return parts.map((p) => p.replace(/^\d+[.．、]\s*/, ''));
+    };
+    const section = (title, body) => {
+      if (!body) return '';
+      const list = asList(body);
+      const inner = list
+        ? `<ol style="margin:0;padding-left:20px;display:grid;gap:8px">${list.map((li) => `<li>${text(li)}</li>`).join('')}</ol>`
+        : `<div style="white-space:pre-wrap">${text(body)}</div>`;
+      return `<section class="card pc-card"><div class="card-head"><h2 style="margin:0;font-size:15px">${title}</h2></div><div style="padding:14px 15px;font-size:13.5px;line-height:1.7">${inner}</div></section>`;
+    };
+    const relationLabel = { signed: '已簽約', negotiating: '洽談中', end_client: '最終用人單位', past: '過去客戶', prospect: '潛在客戶', private: '朋友私人協助' }[job.relation] || job.relation;
+    // 地點／僱傭型態的中文轉換已搬到模組層級（formatLocations／formatEmployment），
+    // 跟 P3-A 職缺推薦卡共用同一份，見檔案最上方的說明。
+    return `
+    <section class="card pc-card">
+      <div class="card-head"><h2 style="margin:0;font-size:15px">🏢 公司基本資料</h2></div>
+      <div style="padding:14px 15px">
+        <div class="pc-candidate-name" style="font-size:16px;margin-bottom:4px">${text(job.client_name || '客戶名稱未填')}</div>
+        ${relationLabel ? `<span class="pc-chip" style="margin-bottom:8px;display:inline-block">合作關係：${text(relationLabel)}</span>` : ''}
+        ${job.client_intro ? `<p style="font-size:13.5px;line-height:1.7;margin:8px 0 0;white-space:pre-wrap">${text(job.client_intro)}</p>` : '<p class="muted" style="margin:8px 0 0">目前沒有公司簡介資料</p>'}
+      </div>
+    </section>
+    <section class="pc-jobline" style="margin-top:0">
+      ${job.locations ? `<span>📍 ${text(formatLocations(job.locations))}</span>` : ''}
+      <span>💰 ${text(salary)}</span>
+      ${job.work_mode ? `<span>${text(job.work_mode)}</span>` : ''}
+      ${job.work_hours ? `<span>${text(job.work_hours)}</span>` : ''}
+      ${job.employment ? `<span>${text(formatEmployment(job.employment))}</span>` : ''}
+    </section>
+    ${section('📋 主要工作內容', job.main_duties)}
+    ${section('✨ 加分條件（非硬性）', job.nice_to_have_skills)}
+    ${section('⚠️ 硬性條件／客戶篩選重點', job.client_screen_conditions)}
+    ${section('📞 面試流程', job.interview_process)}
+    ${(job.onboard_by || job.urgency) ? section('⏱️ 到職時程', [job.onboard_by ? `到職時程：${job.onboard_by}` : '', job.urgency ? `急迫度：${job.urgency}` : ''].filter(Boolean).join('\n')) : ''}
+    ${section('💬 給候選人的常見問答', job.faq_notes)}
+    <section class="card pc-card">
+      <div class="card-head"><h2 style="margin:0;font-size:15px">📝 顧問補充（非 JD 上的資訊，跟客戶對接後補充）</h2></div>
+      <div style="padding:14px 15px">
+        ${job.notes ? `<div style="font-size:13px;line-height:1.7;white-space:pre-wrap;margin-bottom:12px">${text(job.notes)}</div>` : '<p class="muted" style="margin:0 0 12px">還沒有補充內容</p>'}
+        <textarea id="job-notes-input" rows="3" placeholder="例如：客戶其實比較在意穩定度，學歷沒那麼硬性…" style="width:100%"></textarea>
+        <button type="button" class="btn primary sm" id="job-notes-submit" data-job-slug="${escapeHtml(job.slug)}" style="margin-top:8px">新增補充</button>
+      </div>
+    </section>`;
+  },
+  // 2026-09-18 加「電洽結果」tab：call_summary_md 是 prompt_call_notes_summary
+  // 產出的固定格式（**標題**\n內容，六段），原本用純文字塞在一個摺疊框裡，
+  // 這裡拆成跟職缺介紹同款的卡片，每段一張，比較好找、比較好讀。
+  callResult: (md) => {
+    if (!md) return `<div class="pc-empty state"><strong>還沒有電洽紀錄</strong><p>打完電話後用「手動記一筆電洽重點」或 TG「電洽新增人選」貼逐字稿，AI 會自動整理成這裡的摘要。</p></div>`;
+    const parts = md.split(/\n(?=\*\*.+?\*\*)/).map((s) => s.trim()).filter(Boolean);
+    const sections = parts
+      .map((p) => {
+        const m = p.match(/^\*\*(.+?)\*\*\s*\n?([\s\S]*)$/);
+        return m ? { title: m[1].trim(), body: m[2].trim() } : null;
+      })
+      .filter(Boolean);
+    if (!sections.length) {
+      // 格式不是預期的 **標題** 分段（例如舊資料或格式跑掉），照原文顯示，
+      // 不要因為解析不出來就整段不見。
+      return `<div class="pc-empty state"><strong>電洽摘要</strong><p style="white-space:pre-wrap;text-align:left">${text(md)}</p></div>`;
+    }
+    return sections.map((s) => `<section class="card pc-card"><div class="card-head"><h2 style="margin:0;font-size:15px">${text(s.title)}</h2></div><div style="padding:14px 15px;font-size:13.5px;line-height:1.7;white-space:pre-wrap">${text(s.body || '未提及')}</div></section>`).join('');
+  },
+  postcallResultLoading: () => `<div class="pc-loading"><div class="pc-skel pc-skel-hero"></div><div class="pc-skel pc-skel-row"></div><p class="help" style="text-align:center">AI 正在整理電洽結果，通常 1-2 分鐘…</p></div>`,
+  postcallResultEmpty: () => `<div class="pc-empty state">
+    <strong>還沒有結構化的電洽結果</strong>
+    <p>需要先有電洽紀錄（手動記一筆或 TG 貼逐字稿），AI 才能整理成這裡的重點摘要／求職需求／Gate 結果／下一步建議。</p>
+    <button type="button" class="btn primary" data-action="postcall-generate">產生電洽結果</button>
+  </div>`,
+  postcallResultTimeout: (err) => {
+    const message = (err && err.message) || 'AI 這次呼叫沒有成功，或這位人選還沒有電洽紀錄。';
+    return `<div class="pc-empty state error"><strong>產生失敗</strong><p>${text(message)}</p>
+    <button type="button" class="btn primary" data-action="postcall-generate" data-force="1">重試</button></div>`;
+  },
+  // 2026-09-18 新增（規格 B）：電洽結果從長篇 call_summary_md 升級成 6 區
+  // 結構化決策頁——①摘要②求職需求③Gate Result④AI建議⑤其他適合職缺
+  // ⑥下一步Action。「AI建議」跟「顧問決定」刻意分兩塊顯示，不能互相覆蓋
+  // （規格 B 第 14 節）。
+  postcallResult: (data, applicationId) => {
+    const cs = data.call_summary || {};
+    const prefs = data.candidate_preferences || {};
+    const gates = data.gate_results || [];
+    const rec = data.ai_recommendation || {};
+    const decision = data.consultant_decision || {};
+    const altJobs = data.alternative_jobs || [];
+    const actions = data.actions || [];
+    const routeLabel = { recommend: '🟢 可推薦', need_more_info: '🟡 補資料', alternative_role: '🔵 轉其他職缺', talent_pool: '⚪ 人才池', pause_recommendation: '🔴 暫停推薦' };
+    const gateIcon = { matched: '✅', unknown: '❓', unmatched: '⛔' };
+
+    const prefRow = (label, val) => (val && (Array.isArray(val) ? val.length : true))
+      ? `<div class="pc-mini"><b>${text(label)}</b><small>${Array.isArray(val) ? text(val.join('、')) : text(val)}</small></div>` : '';
+
+    return `
+    <section class="card pc-card">
+      <div class="card-head"><h2 style="margin:0;font-size:15px">① 電洽重點摘要</h2></div>
+      <div style="padding:14px 15px">
+        <strong style="display:block;margin-bottom:8px">${text(cs.headline || '')}</strong>
+        <ul style="margin:0;padding-left:20px;display:grid;gap:6px">${(cs.key_points || []).map((k) => `<li>${text(k)}</li>`).join('') || '<li class="muted">沒有重點</li>'}</ul>
+      </div>
+    </section>
+
+    <section class="card pc-card">
+      <div class="card-head"><h2 style="margin:0;font-size:15px">② 求職需求</h2></div>
+      <div class="pc-questions" style="padding:14px 15px;display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px">
+        ${prefRow('職務方向', prefs.role_direction)}
+        ${prefRow('期望薪資', prefs.expected_salary)}
+        ${prefRow('最低接受', prefs.minimum_salary)}
+        ${prefRow('地點', prefs.locations)}
+        ${prefRow('外派／調派', prefs.relocation)}
+        ${prefRow('出差', prefs.travel)}
+        ${prefRow('工時／輪班', prefs.shift)}
+        ${prefRow('到職時間', prefs.start_date)}
+        ${prefRow('其他偏好', prefs.work_preferences)}
+        ${(prefs.explicit_rejections || []).length ? `<div class="pc-mini" style="border-color:var(--danger,#c0392b)"><b>明確排斥</b><small>${text((prefs.explicit_rejections || []).map((r) => (typeof r === 'string' ? r : r.label)).join('、'))}</small></div>` : ''}
+      </div>
+    </section>
+
+    <section class="card pc-card">
+      <div class="card-head"><h2 style="margin:0;font-size:15px">③ Gate Result</h2></div>
+      <div class="pc-gate-list">
+        ${gates.length ? gates.map((g) => `<div class="pc-gate"><div class="pc-gate-row"><strong>${gateIcon[g.result] || '❓'} ${text(g.label)}</strong></div><p>${text(g.evidence || '')}${g.impact ? `<br><small class="muted">影響：${text(g.impact)}</small>` : ''}</p></div>`).join('') : '<p class="muted" style="padding:0 15px 14px">沒有 Gate 資料</p>'}
+      </div>
+    </section>
+
+    <section class="card pc-card">
+      <div class="card-head"><h2 style="margin:0;font-size:15px">④ 主職缺 AI 建議</h2><span class="badge">AI 建議，非最終決定</span></div>
+      <div style="padding:14px 15px">
+        <strong>${routeLabel[rec.route] || rec.route || ''}</strong>
+        <p style="margin:8px 0">${text(rec.reason || '')}</p>
+        ${(rec.missing_info || []).length ? `<p class="muted" style="margin:4px 0">缺：${text(rec.missing_info.join('、'))}</p>` : ''}
+        ${(rec.next_actions || []).length ? `<p class="muted" style="margin:4px 0">下一步：${text(rec.next_actions.join('、'))}</p>` : ''}
+        <div class="pc-decision-box">
+          <div class="pc-decision-label">顧問最終決定</div>
+          ${decision.route ? `<div><strong>${routeLabel[decision.route] || text(decision.route)}</strong>${decision.reason ? `<p class="muted" style="margin:4px 0 0">${text(decision.reason)}</p>` : ''}</div>`
+            : '<p class="muted" style="margin:0">尚未確認</p>'}
+          <div class="actions-row" style="margin-top:8px">
+            <select id="postcall-route-select" data-application-id="${escapeHtml(applicationId)}">
+              ${Object.entries(routeLabel).map(([k, v]) => `<option value="${k}" ${rec.route === k ? 'selected' : ''}>${v}</option>`).join('')}
+            </select>
+            <button type="button" class="btn primary sm" id="postcall-decision-confirm" data-application-id="${escapeHtml(applicationId)}">確認決定</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card pc-card">
+      <div class="card-head"><h2 style="margin:0;font-size:15px">⑤ 其他適合職缺</h2></div>
+      <div style="padding:14px 15px">
+        ${altJobs.length ? altJobs.map((a) => `<div class="pc-alt-job">
+          <div class="pc-alt-job-title">${text(a.title)}<span class="badge">${a.recommendation_level === 'primary_alternative' ? '優先備案' : '次要備案'}</span></div>
+          ${(a.fit_reasons || []).map((r) => `<div class="pc-alt-reason">✓ ${text(r)}</div>`).join('')}
+          ${(a.watchouts || []).map((w) => `<div class="pc-alt-watch">△ ${text(w)}</div>`).join('')}
+          <div class="pc-jobline" style="margin:8px 0 0;padding:0">${a.salary_summary ? `<span>💰 ${text(a.salary_summary)}</span>` : ''}${a.location_summary ? `<span>📍 ${text(a.location_summary)}</span>` : ''}</div>
+          <button type="button" class="pc-tool-btn" style="margin-top:8px" data-action="open-alt-job-intro" data-job-slug="${escapeHtml(a.job_slug || '')}">查看職缺介紹</button>
+        </div>`).join('') : '<p class="muted" style="margin:0">目前系統內沒有明確更適合的開放職缺</p>'}
+      </div>
+    </section>
+
+    <section class="card pc-card">
+      <div class="card-head"><h2 style="margin:0;font-size:15px">⑥ 下一步 Action</h2></div>
+      <div style="padding:14px 15px;display:grid;gap:8px">
+        ${actions.length ? actions.map((a) => `<label style="display:flex;gap:8px;align-items:flex-start"><input type="checkbox" disabled ${a.done ? 'checked' : ''}><span>${text(a.label)}</span></label>`).join('') : '<p class="muted" style="margin:0">沒有建議的下一步</p>'}
+      </div>
+    </section>
+
+    <div class="actions-row" style="margin-top:10px">
+      <button type="button" class="btn ghost sm" data-action="postcall-generate" data-force="1">重新產生</button>
+    </div>`;
+  },
+  // 2026-09-18 加（P3-A 職缺推薦）：人選跟阿財面談完，系統會自動比對其他開放
+  // 職缺有沒有比他原本應徵的那個更適合，最多給 3 個建議。這一區只做兩件事——
+  // 把建議翻成顧問看得懂的話、把顧問的「採用／不採用」記下來。
+  // 產品規則（一定要在畫面上講清楚）：阿財只是「建議」，系統沒有發任何訊息給
+  // 人選，按「採用」也不會自動把人選搬到別的職缺——顧問看到「採用」兩個字很容易
+  // 以為系統已經動作了，所以最上面固定放一段提醒，不能只寫在說明文件裡。
+  recommendationsLoading: () => `<div class="pc-loading"><div class="pc-skel pc-skel-row"></div><div class="pc-skel pc-skel-row"></div></div>`,
+  recommendationsEmpty: () => `<div class="pc-empty state">
+    <strong>阿財這次沒有找到更適合的其他職缺</strong>
+    <p>表示目前開放中的職缺裡，沒有比這位人選原本應徵的那個更適合的。之後有新職缺上架，阿財會再比對一次。</p>
+  </div>`,
+  recommendations: (list) => {
+    const items = Array.isArray(list) ? list : [];
+    if (!items.length) return views.recommendationsEmpty();
+    // 這四個是後端的 match_status，絕對不能直接印給顧問看（顧問看到
+    // POSSIBLE_MATCH 不會知道那是什麼意思），一律先轉中文；真的出現沒見過的
+    // 值就顯示「無法判斷」，不要把原始代碼漏出去。
+    const MATCH_LABEL = { MATCH_CANDIDATE: '很可能適合', POSSIBLE_MATCH: '可能適合', INSUFFICIENT_DATA: '資料不足', NOT_MATCH: '不適合' };
+    const MATCH_TONE = { MATCH_CANDIDATE: 'good', POSSIBLE_MATCH: 'warn', INSUFFICIENT_DATA: 'warn', NOT_MATCH: 'bad' };
+    const JOB_STATUS_LABEL = { open: '招募中', closed: '已關閉', paused: '暫停招募', filled: '已找到人', draft: '尚未公開' };
+    // confidence 後端可能給 0～1 的數字，也可能給 high/medium/low 或中文——
+    // 三種都接，轉成顧問一眼看得懂的高／中／低；認不出來就整個不顯示，
+    // 不要印出 0.82 或 "medium" 這種半成品。
+    const confidenceLabel = (value) => {
+      if (value === null || value === undefined || value === '') return '';
+      if (typeof value === 'number' || /^[0-9.]+$/.test(String(value))) {
+        const n = Number(value) > 1 ? Number(value) / 100 : Number(value);
+        if (Number.isNaN(n)) return '';
+        return n >= 0.7 ? '高' : (n >= 0.4 ? '中' : '低');
+      }
+      const key = String(value).trim().toLowerCase();
+      return { high: '高', medium: '中', middle: '中', low: '低', 高: '高', 中: '中', 低: '低' }[key] || '';
+    };
+    // 2026-09-21 改字：原本是「採用／不採用」，Jacky 定的是「請阿財詢問／略過」。
+    // 但「請阿財詢問」會讓顧問以為按下去阿財就去問人選了——實際上 P3-B 的
+    // B2（只發給測試帳號）跟 B3（對真人開放）都還沒做，按下去只有記錄。
+    // 顧問按完會等一則永遠不會來的回覆，那比名字不精準嚴重得多。
+    // 折衷用「值得問人選」：表達了判斷，但沒承諾系統會自動去問。
+    // 等 B3 真的上線那天再改成「請阿財詢問」，那時候才名副其實。
+    const DECISION_LABEL = { approved: '值得問人選', rejected: '已略過', superseded: '已被新的建議取代' };
+    // 2026-09-21 加（P3-B）：外聯狀態。之前發出去之後顧問完全看不到後續——
+    // 不知道發了沒、人選回了沒、被擋下來的原因是什麼。
+    // ⚠️ 一律用中文講「發生了什麼事」，不要把 outreach_sent 這種代碼漏出去。
+    const OUTREACH = {
+      outreach_queued: ['排隊中', '準備要發給人選', 'warn'],
+      outreach_sent: ['已發出', '阿財已經用 LINE 問了，等人選回覆', 'info'],
+      outreach_blocked: ['沒有發出去', '', 'bad'],
+      candidate_interested: ['人選說想了解', '🟢 他按了「想了解看看」——換你接手聯繫', 'good'],
+      candidate_declined: ['人選說這次不用', '他婉拒了，同一個職缺不會再問他', 'muted'],
+      candidate_question: ['人選有問題', '❓ 他按了「我有問題」，需要你直接跟他說明', 'warn'],
+    };
+    const outreachBlock = (rec) => {
+      const o = OUTREACH[rec.outreach_status];
+      if (!o) return '';
+      const [label, note, tone] = o;
+      const detail = rec.outreach_status === 'outreach_blocked'
+        ? (rec.outreach_blocked_reason || '沒有記錄原因')
+        : note;
+      const when = rec.candidate_responded_at || rec.outreach_sent_at;
+      return `<div class="pc-decision-box" style="margin-top:8px">
+        <div class="pc-decision-label">阿財外聯</div>
+        <strong class="pc-status ${tone}">${text(label)}</strong>
+        ${detail ? `<p style="margin:6px 0 0">${text(detail)}</p>` : ''}
+        ${when ? `<p class="muted" style="margin:4px 0 0">${text(when)}</p>` : ''}
+      </div>`;
+    };
+
+    const card = (rec, index) => {
+      const matchKey = String(rec.match_status || '').trim();
+      const matchLabel = MATCH_LABEL[matchKey] || '無法判斷';
+      const matchTone = MATCH_TONE[matchKey] || 'warn';
+      const conf = confidenceLabel(rec.confidence);
+      const reasons = Array.isArray(rec.reasons) ? rec.reasons : [];
+      const blockers = Array.isArray(rec.blockers) ? rec.blockers : [];
+      const missing = Array.isArray(rec.missing_information) ? rec.missing_information : [];
+      const evidence = Array.isArray(rec.evidence) ? rec.evidence : [];
+      const locations = formatLocations(rec.job_locations);
+      const employment = formatEmployment(rec.job_employment);
+      const jobStatus = JOB_STATUS_LABEL[String(rec.job_status || '').trim().toLowerCase()] || '';
+      const decided = rec.status && rec.status !== 'pending_review';
+      const recId = escapeHtml(rec.id ?? '');
+      // 已經做過決定的就不再給按鈕（避免顧問重複按、也避免看起來像還沒處理），
+      // 改成顯示當初決定了什麼、誰決定的、什麼時候。
+      const decisionBlock = decided
+        ? `<div class="pc-decision-box">
+            <div class="pc-decision-label">顧問決定</div>
+            <strong>${text(DECISION_LABEL[rec.status] || DECISION_LABEL[rec.consultant_decision] || '已處理', '已處理')}</strong>
+            <p class="muted" style="margin:4px 0 0">${text(rec.consultant_decision_by, '（沒有記錄是誰）')}・${text(rec.consultant_decision_at, '（沒有記錄時間）')}</p>
+            ${rec.rejection_reason ? `<p style="margin:6px 0 0">略過原因：${text(rec.rejection_reason)}</p>` : ''}
+          </div>${outreachBlock(rec)}`
+        : `<div class="actions-row" style="margin-top:12px">
+            <button type="button" class="btn primary sm" data-action="rec-approve" data-rec-id="${recId}">值得問人選</button>
+            <button type="button" class="btn ghost sm" data-action="rec-reject" data-rec-id="${recId}">略過</button>
+          </div>
+          <p class="help" style="margin:8px 0 0">按下去<b>只會記錄你的判斷</b>——現階段不會通知人選，也不會改變人選目前的職缺。</p>`;
+      return `
+      <section class="card pc-card pc-rec">
+        <div class="card-head">
+          <h2 style="margin:0;font-size:15px">${text(rec.rank || index + 1, String(index + 1))}. ${text(rec.job_title, '（職缺名稱未填）')}</h2>
+          <div class="pc-rec-tags">
+            <span class="pc-status ${matchTone}">${matchLabel}</span>
+            ${conf ? `<span class="badge">信心：${conf}</span>` : ''}
+            ${jobStatus && jobStatus !== '招募中' ? `<span class="badge warning">${jobStatus}</span>` : ''}
+          </div>
+        </div>
+        <div style="padding:14px 15px">
+          ${(locations || rec.job_salary_summary || employment) ? `<div class="pc-jobline" style="margin:0 0 10px">
+            ${locations ? `<span>📍 ${text(locations)}</span>` : ''}
+            ${rec.job_salary_summary ? `<span>💰 ${text(formatSalarySummary(rec.job_salary_summary))}</span>` : ''}
+            ${employment ? `<span>${text(employment)}</span>` : ''}
+          </div>` : ''}
+          ${reasons.length ? `<div class="pc-rec-block"><b>適合原因</b>${reasons.map((r) => `<div class="pc-alt-reason">✓ ${text(r)}</div>`).join('')}</div>` : ''}
+          ${blockers.length ? `<div class="pc-rec-block"><b>需注意</b>${blockers.map((b) => `<div class="pc-alt-watch">△ ${text(b)}</div>`).join('')}</div>` : ''}
+          ${missing.length ? `<div class="pc-rec-block"><b>待確認</b>${missing.map((m) => `<div class="pc-rec-missing">${text(m)}</div>`).join('')}</div>` : ''}
+          ${evidence.length ? `<details class="pc-rec-evidence"><summary>佐證（${evidence.length}）｜履歷與面談裡的原文</summary>
+            ${evidence.map((e) => `<div class="pc-evidence-snippet">${text(e)}</div>`).join('')}
+          </details>` : ''}
+          ${decisionBlock}
+        </div>
+      </section>`;
+    };
+
+    return `
+    <div class="notice pc-rec-notice">
+      <b>這裡只是阿財的建議。</b>系統沒有發任何訊息給人選，也不會自動把人選換到別的職缺。按「值得問人選」只是把你的判斷記下來，要不要真的推、怎麼跟人選說，都還是你自己決定、自己操作。
+    </div>
+    ${items.map(card).join('')}`;
+  },
+
+  // 客製表單狀態（2026-09-29，總指揮交辦，補新舊後台對照表抓到的缺口）：
+  // 每張職缺可能掛好幾份表單，同一份表單三種狀態各配一種操作——沒寄過
+  // （寄送／代為上傳）、已寄還沒填完（催填／代為上傳）、已填完（下載，
+  // 不給催填也不給重複上傳，避免蓋掉人選自己填的那份）。跟 jobCardPanel
+  // 的表單風格不同，這裡動作多、資料本來就有 job_form_id 當唯一鍵，不用
+  // 另外發明一套識別方式。
+  candidateFormsBlock: (forms, applicationId, companyId) => {
+    const list = forms || [];
+    if (!list.length) return '';
+    const row = (f) => {
+      const idParams = { application_id: applicationId, company_id: companyId, job_form_id: f.job_form_id };
+      let statusTag, actions;
+      if (f.status === 'submitted') {
+        statusTag = '<span class="badge success">已填完</span>';
+        actions = [`<button type="button" class="btn ghost sm" data-download-form-submission="${text(f.id)}">下載</button>`];
+      } else if (f.status === 'sent') {
+        statusTag = '<span class="badge warning">已寄送，等填寫</span>';
+        actions = [
+          actionBtn('催填', 'candidate-form-resend', { idParams: { id: f.id } }),
+          actionBtn('代為上傳', 'candidate-form-upload', idParams),
+        ];
+      } else {
+        statusTag = '<span class="badge">尚未寄送</span>';
+        actions = [
+          actionBtn('寄送表單', 'candidate-form-trigger', idParams),
+          actionBtn('代為上傳', 'candidate-form-upload', idParams),
+        ];
+      }
+      return `<div class="list-row" style="padding:8px 10px;margin-top:4px"><span style="font-size:13px">${text(f.form_name)} ${statusTag}</span>${rowActions(actions)}</div>`;
+    };
+    return `<div style="margin-top:6px"><small class="muted">客製表單</small>${list.map(row).join('')}</div>`;
+  },
+
+  // 客戶已在 portal 回報匯款、等顧問確認——跟收費進程頁同一批資料
+  // （billing_pending），掛在這裡是因為顧問正在看這位人選的時候最順手
+  // 處理，不用為了確認一筆錢跳去另一個分頁再找一次是哪個人。
+  candidateBillingPendingBlock: (pending) => {
+    const list = pending || [];
+    if (!list.length) return '';
+    const row = (b) => `<div class="list-row" style="padding:8px 10px;margin-top:4px;background:#fff7dd"><span style="font-size:13px">${text(b.label)}（${text(b.percent)}%）客戶回報匯款日 ${text(b.client_transfer_date || '—')}</span>${rowActions([
+      actionBtn('✅ 確認已收到', 'billing-confirm-received', { idParams: { id: b.id } }),
+      actionBtn('❌ 還沒收到', 'billing-confirm-not-received', { idParams: { id: b.id } }, 'danger'),
+    ])}</div>`;
+    return `<div style="margin-top:6px"><small class="muted">⚠️ 客戶回報已匯款，待確認</small>${list.map(row).join('')}</div>`;
+  }
+};
