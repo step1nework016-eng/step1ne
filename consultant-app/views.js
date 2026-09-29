@@ -1805,7 +1805,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
   // data-bd-stage／data-bd-has-todo 屬性標記，篩選邏輯在 app.js 的
   // wireBdDashboardFilter()（同一套 wireBindFilter() 的作法：show/hide，不重打 API）。
   bdDashboardStageLabel: { sent: '已接觸', delivered: '送達', opened: '開信', replied: '回信', jd_shared: '談到職缺', closed: '成交' },
-  bdDashboard: ({ funnel, open_tracking_note, no_delivery_record_count, contact_breakdown, rows }) => {
+  bdDashboard: ({ funnel, open_tracking_note, no_delivery_record_count, contact_breakdown, rows, consultants }) => {
     const LABEL = views.bdDashboardStageLabel;
     const STAGES = ['sent', 'delivered', 'opened', 'replied', 'jd_shared', 'closed'];
     const cb = contact_breakdown || { mail: 0, call: 0 };
@@ -1820,7 +1820,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
     // 2026-09-29 Jacky：依產業分類、可以指派給誰打、電話分「人資電話／公司總機」標清楚
     const groups = {};
     rows.forEach((r) => { const g = r.industry_group || '未分類'; groups[g] = (groups[g] || 0) + 1; });
-    const people = [...new Set(['Jacky', 'Phoebe', ...rows.map((r) => r.assigned_to).filter(Boolean)])];
+    const people = [...new Set(['Jacky', 'Phoebe', ...(consultants || []), ...rows.map((r) => r.assigned_to).filter(Boolean)])];
     const filterBar = `<div class="filter-row">
       <select id="bd-dash-industry"><option value="">全部產業（${rows.length}）</option>${Object.entries(groups).sort((a, b) => b[1] - a[1]).map(([g, n]) => `<option value="${escapeHtml(g)}">${text(g)}（${n}）</option>`).join('')}</select>
       <select id="bd-dash-assignee"><option value="">全部負責人</option><option value="__none">未指派</option>${people.map((x) => `<option value="${escapeHtml(x)}">${text(x)}</option>`).join('')}</select>
