@@ -1348,7 +1348,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
           </div></div>
         <p class="help" style="margin:6px 0 12px">點卡片（或表格的一列）展開每一篇。平均會被單篇爆文拉高，旁邊的「中間值」比較代表平常一篇的水準。追蹤人數每天早上記一次。</p>
         <div class="tp-grid" data-tp-view="card"${mode === 'card' ? '' : ' hidden'}>${people.map(card).join('')}</div>
-        <div data-tp-view="table"${mode === 'table' ? '' : ' hidden'}><div class="table-wrap"><table class="spec tp-sum">
+        <div data-tp-view="table"${mode === 'table' ? '' : ' hidden'}><span class="tp-swipe-hint">← 左右滑動看其他欄位 →</span><div class="table-wrap"><table class="spec tp-sum">
           <tr>${['顧問', '追蹤', '總篇數', '平均瀏覽', '平均讚', '平均留言', '平均點擊', '加入 LINE'].map((h, i) =>
             `<th class="${i ? 'num ' : ''}tp-sort"><button type="button" data-sort-col="${i}">${h}<span class="tp-arrow" aria-hidden="true"></span></button></th>`).join('')}</tr>
           ${people.map(trow).join('')}</table></div>
@@ -1359,7 +1359,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
           <label class="field"><span>顧問</span><select id="tp-who"><option value="">全部顧問</option>${names.map((n) => `<option>${text(n)}</option>`).join('')}</select></label>
           <label class="field"><span>看哪個數字</span><select id="tp-metric"><option value="v">平均瀏覽</option><option value="l">平均讚</option><option value="r">平均留言</option></select></label>
         </div>
-        <div id="tp-heat"></div>
+        <span class="tp-swipe-hint">← 左右滑動看其他時段 →</span><div id="tp-heat"></div>
         <p class="help">格子越深代表越好；小字是篇數。<b>少於 3 篇的格子反灰</b>，樣本太少，先不要拿來下結論。</p></article>
 
       <article class="card" style="margin-top:12px"><div class="card-head"><h2 style="margin:0;font-size:16px">③ 統計圖：哪個公式、哪個時段比較好</h2></div>

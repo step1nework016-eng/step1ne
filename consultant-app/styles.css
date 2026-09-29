@@ -478,3 +478,26 @@ details.note-details p{margin:8px 0 0;font-size:13.5px;white-space:pre-wrap;colo
 .tp-arrow::after{content:'↕';opacity:.35;font-size:11px}
 .tp-sort button[data-dir="desc"] .tp-arrow::after{content:'▼';opacity:1}
 .tp-sort button[data-dir="asc"] .tp-arrow::after{content:'▲';opacity:1}
+
+/* Threads 成效：手機版（2026-09-29）。表格不擠成「…」，改成左右滑、顧問名字那欄固定在左邊 */
+.tp-sum,.tp-heat{min-width:640px}
+.tp-sum th,.tp-sum td{white-space:nowrap;overflow:visible;text-overflow:clip}
+.tp-sum th:first-child,.tp-sum td:first-child{position:sticky;left:0;z-index:1;background:#fff}
+.tp-sum tr.on td:first-child,.tp-sum tr:hover td:first-child{background:#eef4ff}
+.tp-heat th.tp-fname{position:sticky;left:0;z-index:1;background:#fff;white-space:normal;min-width:120px}
+.tp-trow-detail>td{position:static}
+.tp-trow-detail .tp-table{min-width:600px}
+@media (max-width:640px){
+  .tp-card summary{padding:12px}
+  .tp-head{flex-wrap:wrap}
+  .tp-stats b{font-size:16px}
+  .tp-controls .field{min-width:0;flex:1 1 140px}
+  .tp-heat td{min-width:58px;padding:6px 2px}
+  .tp-fig{padding:10px}
+  .tp-swipe-hint{display:block}
+}
+.tp-swipe-hint{display:none;font-size:12px;color:var(--muted);margin:4px 0 6px}
+.tp-sum th:first-child,.tp-sum td:first-child{min-width:118px}
+.tp-card .table-wrap{margin:0 12px 12px;overflow-x:auto}
+.tp-card .tp-table{min-width:600px;margin:0;width:100%}
+.tp-table th,.tp-table td.num{white-space:nowrap}
