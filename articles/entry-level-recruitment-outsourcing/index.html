@@ -286,7 +286,15 @@ html{scroll-behavior:smooth}
       <p>企業 HR 請看這裡</p>
       <h3>不確定該委託還是派遣？一句話描述職缺就好</h3>
       <p>告訴我們職稱、人數、薪資帶和打算用多久，顧問會直接說哪一種比較划算，也會說哪些職缺其實你自己招就夠了。</p>
-      <div><a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-entry-level-recruitment-outsourcing">加 LINE 跟顧問談</a></div>
+      <form class="s1-lead" novalidate style="display:grid;gap:8px;margin-top:14px;position:relative">
+<input name="company" aria-label="公司名稱" placeholder="公司名稱" autocomplete="organization" style="min-height:44px;padding:0 12px;border:1px solid #D9E0E6;border-radius:10px;font-size:15px;background:#fff;color:#0D1B24">
+<input name="job" aria-label="要找的職缺" placeholder="要找什麼職缺？（例：客服 3 位）" style="min-height:44px;padding:0 12px;border:1px solid #D9E0E6;border-radius:10px;font-size:15px;background:#fff;color:#0D1B24">
+<input name="contact" aria-label="Email 或電話" placeholder="Email 或電話" autocomplete="email" style="min-height:44px;padding:0 12px;border:1px solid #D9E0E6;border-radius:10px;font-size:15px;background:#fff;color:#0D1B24">
+<input name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
+<button type="submit" data-cta="mid-entry-level-recruitment-outsourcing-form" style="min-height:46px;border:0;border-radius:10px;background:#167EB2;color:#fff;font-size:15.5px;font-weight:700;cursor:pointer">免費取得報價與建議</button>
+<p class="s1-lead-msg" role="status" aria-live="polite" style="margin:0;font-size:14px"></p>
+<p style="margin:0;font-size:13px;opacity:.85">1 個工作天內由顧問回覆，不用先簽約。也可以 <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-entry-level-recruitment-outsourcing">用 LINE 問顧問</a></p>
+</form>
     </aside>
 
     <h2 id="sec-4">什麼情況該把招募外包出去？</h2>
@@ -382,5 +390,6 @@ if('IntersectionObserver' in window && secs.length){
   });
 }
 </script>
+<script src="/assets/lead-form.js" defer></script>
 </body>
 </html>
