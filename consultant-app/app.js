@@ -518,6 +518,23 @@ function wireSocialContent() {
     });
   };
 
+  // 公式「我的最愛」（顧問認證）。先選「我是」才能按；按完只重畫這一頁，不整頁重載。
+  const favMe = document.getElementById('fav-me');
+  if (favMe) favMe.addEventListener('change', () => {
+    try { localStorage.setItem('s1_fav_me', favMe.value); } catch { /* 無痕模式存不了就算了 */ }
+    loadRoute();
+  });
+  document.querySelectorAll('[data-fav-id]').forEach((b) => b.addEventListener('click', async () => {
+    const who = favMe && favMe.value;
+    if (!who) { toast('先在上面「我是」選你自己', 'error'); favMe && favMe.focus(); return; }
+    const on = b.getAttribute('aria-pressed') !== 'true';
+    b.disabled = true;
+    try {
+      await api.post('/admin/style-prompts/favorite', { id: Number(b.dataset.favId), consultant: who, on });
+      toast(on ? '已認證這個公式' : '已取消認證', 'success');
+      loadRoute();
+    } catch (e) { b.disabled = false; toast(`沒存成功：${e.message || e}`, 'error'); }
+  }));
   document.querySelectorAll('.style-prompt-edit').forEach((b) => b.addEventListener('click', () => {
     openStyle(styles.find((s) => String(s.id) === b.dataset.id) || {});
   }));

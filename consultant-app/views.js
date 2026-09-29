@@ -1061,7 +1061,8 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
     const pickerData = JSON.stringify({
       accounts: (accounts || []).map((a) => ({ id: a.id, label: a.label || a.consultant_name || a.id, platform: a.platform || '' })),
       styles: (styles || []).filter((s) => s.subtype === 'dialog' || s.subtype === 'pure')
-        .map((s) => ({ id: s.id, name: s.name, subtype: s.subtype })),
+        .sort((a, b) => (b.favs || []).length - (a.favs || []).length)
+        .map((s) => ({ id: s.id, name: `${(s.favs || []).length ? `⭐${s.favs.length} ` : ''}${s.name}`, subtype: s.subtype })),
       platforms,
     });
     const card = (t) => `<article class="card topic-pick ${t.picked ? 'is-picked' : ''}" data-topic-id="${escapeHtml(t.id)}" style="margin-bottom:12px">
@@ -1134,12 +1135,14 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
     const jobOpts = Object.keys(byClient).sort().map((k) =>
       `<optgroup label="${escapeHtml(k)}">${byClient[k].map((j) =>
         `<option value="${escapeHtml(j.slug)}">${escapeHtml(j.title || j.slug)}</option>`).join('')}</optgroup>`).join('');
-    const dialog = (styles || []).filter((x) => x.subtype === 'dialog');
+    const favN = (x) => (x.favs || []).length;
+    const favLabel = (x) => `${favN(x) ? `⭐${favN(x)} ` : ''}${x.name}`;
+    const dialog = (styles || []).filter((x) => x.subtype === 'dialog').sort((a, b) => favN(b) - favN(a));
     // ⚠️ 「純CTA型」也要送 style_id，不能只送一個 way='pure'——後端不認那個參數，
     //    會被當成「沒選公式」＝原始格式。2026-09-22 Jacky 實測抓到：他選純CTA型，
     //    TG 通知跟產出來的文案卻都是原始格式。
     // 2026-09-24 起純CTA型底下也可以有多個公式（原始那個＋誘因型），跟對話討論型一樣給下拉選。
-    const pures = (styles || []).filter((x) => x.subtype === 'pure').sort((a, b) => a.id - b.id);
+    const pures = (styles || []).filter((x) => x.subtype === 'pure').sort((a, b) => favN(b) - favN(a) || a.id - b.id);
     const hours = Array.from({ length: 24 }, (_, h) => `<option value="${String(h).padStart(2, '0')}">${String(h).padStart(2, '0')} 時</option>`).join('');
     const mins = Array.from({ length: 12 }, (_, i) => `<option value="${String(i * 5).padStart(2, '0')}">${String(i * 5).padStart(2, '0')} 分</option>`).join('');
     return `<article class="card">
@@ -1177,10 +1180,10 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
           </select></label>
         <label class="field" id="sc-pstyle-wrap" hidden><span>純CTA型要用哪個公式？</span>
           <select id="sc-pstyle">${pures.map((x) =>
-            `<option value="${escapeHtml(x.id)}">${escapeHtml(x.name)}</option>`).join('')}</select></label>
+            `<option value="${escapeHtml(x.id)}">${escapeHtml(favLabel(x))}</option>`).join('')}</select></label>
         <label class="field" id="sc-style-wrap" hidden><span>選擇要用哪個公式（全站共用）</span>
           <select id="sc-style"><option value="">請選擇…</option>${dialog.map((x) =>
-            `<option value="${escapeHtml(x.id)}">${escapeHtml(x.name)}</option>`).join('')}</select></label>
+            `<option value="${escapeHtml(x.id)}">${escapeHtml(favLabel(x))}</option>`).join('')}</select></label>
         <label class="field"><span>選擇職缺（依客戶分組，只列招募中）</span>
           <select id="sc-job"><option value="">請選擇…</option>${jobOpts}</select></label>
       </div>
@@ -1492,17 +1495,34 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
       <script type="application/json" id="topic-prompts-data">${JSON.stringify((topics || []).map((t) => ({ id: t.id, name: t.name, body: t.body })))}</script>
     </article>`,
 
-  socialFormulasTab: ({ styles }) => `<article class="card">
+  // 2026-09-29 Jacky：顧問可以替公式按「我的最愛」＝顧問認證這個公式好用。
+  // 認證多的排前面；一鍵發文／今日話題的公式下拉也會標 ⭐N 並排前面。
+  // 「我是」存在瀏覽器（s1_fav_me，跟舊版同一個 key，切換過來不用重選）。
+  socialFormulasTab: ({ styles, consultants }) => {
+    let me = '';
+    try { me = localStorage.getItem('s1_fav_me') || ''; } catch { /* 無痕模式 */ }
+    const list = [...(styles || [])].sort((a, b) => (b.favs || []).length - (a.favs || []).length);
+    return `<article class="card">
       <div class="card-head"><h2>公式（寫法 Prompt）</h2>
         <button type="button" class="btn primary" data-style-prompt-new>＋ 新增公式</button></div>
-      <p class="help" style="margin:6px 0 14px">點任一張卡片可改名稱、改分類、改裡面的字。共 ${(styles || []).length} 則。
+      <p class="help" style="margin:6px 0 10px">點任一張卡片可改名稱、改分類、改裡面的字。共 ${(styles || []).length} 則。
         只有標「對話討論型」的才會出現在今日話題／一鍵發文的公式清單裡。</p>
-      ${(styles || []).length
-        ? `<div class="prompt-grid">${styles.map((t) => views.promptCard(t, 'style-prompt-edit',
-            `<span class="badge${t.subtype === 'dialog' ? ' info' : t.subtype ? '' : ' warning'}">${text(views.SUBTYPE_ZH[t.subtype || ''] || '一般語氣')}</span>`)).join('')}</div>`
+      <label class="field fav-me"><span>我是（按 ☆ 認證好用的公式）</span>
+        <select id="fav-me"><option value="">請選擇…</option>${(consultants || []).map((n) =>
+          `<option value="${text(n)}"${n === me ? ' selected' : ''}>${text(n)}</option>`).join('')}</select></label>
+      ${list.length
+        ? `<div class="prompt-grid">${list.map((t) => {
+            const favs = t.favs || [];
+            const mine = me && favs.includes(me);
+            return `<div class="pc-fav-wrap">${views.promptCard(t, 'style-prompt-edit',
+              `<span class="badge${t.subtype === 'dialog' ? ' info' : t.subtype ? '' : ' warning'}">${text(views.SUBTYPE_ZH[t.subtype || ''] || '一般語氣')}</span>`)}
+              <button type="button" class="pc-fav${mine ? ' on' : ''}" data-fav-id="${text(t.id)}" aria-pressed="${mine ? 'true' : 'false'}"
+                title="${favs.length ? text(favs.join('、')) + ' 認證' : '還沒有顧問認證'}">${mine ? '★' : '☆'} ${favs.length ? `${favs.length} 位顧問認證` : '認證這個公式'}</button></div>`;
+          }).join('')}</div>`
         : empty('還沒有公式', '按右上角新增一則。')}
       <script type="application/json" id="style-prompts-data">${JSON.stringify((styles || []).map((t) => ({ id: t.id, name: t.name, body: t.body, subtype: t.subtype || '' })))}</script>
-    </article>`,
+    </article>`;
+  },
 
   // 公式編輯表單（放進彈窗）。新增時 s 傳空物件。
   stylePromptEditor: (s) => `<div class="drawer-section">

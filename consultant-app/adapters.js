@@ -174,7 +174,8 @@ export const adapters = {
   },
   async socialPrompts() {
     const [topics, styles] = await Promise.all([api.get('/admin/topic-prompts'), api.get('/admin/style-prompts')]);
-    return { topics: rows(topics, 'topics', 'items', 'prompts'), styles: rows(styles, 'styles', 'items', 'prompts') };
+    return { topics: rows(topics, 'topics', 'items', 'prompts'), styles: rows(styles, 'styles', 'items', 'prompts'),
+      consultants: rows(styles, 'consultants') };
   },
   async socialConsultants() { return rows(await api.get('/admin/social-consultants'), 'items', 'consultants'); },
   // ⚠️ 2026-09-24 修：陣列鍵是 rows（第 64 行那個註解早就寫了），這裡還在用 items/intakes，
