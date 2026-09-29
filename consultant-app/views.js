@@ -1890,7 +1890,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
       ${lastCall ? `<div class="notice" style="margin:0 0 10px">上次電訪：${text(RES_ZH[lastCall.call_result] || lastCall.call_result)}${lastCall.call_retry_at ? `，建議 ${text(String(lastCall.call_retry_at).slice(5, 10))} 再打` : ''}${lastCall.call_note ? `（${text(lastCall.call_note)}）` : ''}</div>` : ''}
       <div class="cg-dots">${['功課', '過總機', '開場', '問需求', '拒絕時', '收尾'].map((t, i) => `<button type="button" class="cg-dot${i ? '' : ' on'}" data-cg-go="${i}">${i}. ${t}</button>`).join('')}</div>
       ${step(0, '打之前 30 秒功課', `
-        <div class="cg-row"><b>要推的職缺</b><span>${text(g.job_title || '（沒有記錄職缺）')}${g.job_url ? ` <a href="${escapeHtml(g.job_url)}" target="_blank" rel="noopener">職缺頁 ↗</a>` : ''}</span></div>
+        <div class="cg-row"><b>要推的職缺</b><span>${g.job_title ? text(g.job_title) : g.unverified_job ? `<span class="pc-status bad">未查證</span> 原始紀錄寫「${text(g.unverified_job)}」，<b>不一定還在徵</b>` : '（沒有記錄職缺）'}${g.job_url ? ` <a href="${escapeHtml(g.job_url)}" target="_blank" rel="noopener">職缺頁 ↗</a>` : ''}</span></div>
         <div class="cg-row"><b>104 查證</b><span>${checked ? `✅ ${text(String(g.job_checked_at).slice(5, 10))} 查過：${text(g.job_check_note || '')}` : '⚠️ 14 天內沒查過——先上 104 確認這個缺還開著，再打'}</span></div>
         <div class="cg-row"><b>為什麼打給他</b><span>${text(g.why)}</span></div>
         <div class="cg-row"><b>這家有人資嗎？</b><span class="cg-type"><label><input type="radio" name="cg-type" value="hr" checked> 有（找人資）</label><label><input type="radio" name="cg-type" value="small"> 沒有／小公司（找老闆或負責面試的人）</label></span></div>
