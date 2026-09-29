@@ -1969,7 +1969,6 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
     const say = (t, when) => `<p class="cg-say"${when ? ` data-when="${when}"` : ''}${when === 'small' ? ' hidden' : ''}>${text(t)}</p>`;
     const guidePane = g ? `<div class="cg" data-bd-id="${escapeHtml(callRow ? callRow.id : '')}">
       ${lastCall ? `<div class="notice" style="margin:0 0 10px">上次電訪：${text(RES_ZH[lastCall.call_result] || lastCall.call_result)}${lastCall.call_retry_at ? `，建議 ${text(String(lastCall.call_retry_at).slice(5, 10))} 再打` : ''}${lastCall.call_note ? `（${text(lastCall.call_note)}）` : ''}</div>` : ''}
-      ${views.bdEntry(views.bdTriggerOf(outreach), outreach.some((o) => o.candidate_card), true)}
       <section class="sc-quick sc-top"><h3 class="cg-title" style="margin-top:0"><span>★</span>話術對照（我的最愛固定在最上面，照著打）</h3>
         ${views.scriptsBlock({ 公司: (outreach[0] || {}).company || '', 職缺: g.job_title ? `「${g.job_title}」` : '', 產業: g.industry_short || '', 常補: g.industry_roles || '' }, true)}</section>
       <div class="cg-mode" role="group" aria-label="打法">
@@ -2042,7 +2041,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
       <div class="list">${playbook.next_steps.map((s) => `<div class="list-row"><span>${text(s)}</span></div>`).join('')}</div>
     `;
 
-    return `${contactCard}
+    return `${views.bdEntry(views.bdTriggerOf(outreach), outreach.some((o) => o.candidate_card), true)}${contactCard}
       <div class="tabs tabs-sub" id="bd-detail-tabs">
         <button type="button" class="active" data-bd-detail-tab="timeline">時間軸／信件</button>
         <button type="button" data-bd-detail-tab="playbook">開發引導</button>
