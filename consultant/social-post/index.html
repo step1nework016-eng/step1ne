@@ -239,6 +239,7 @@ table.gap td.stale{color:#c0392b}
 .aitopicgrid{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
 .aitopicrow{display:flex;align-items:center;gap:9px;padding:9px 12px;border:1px solid var(--line);border-radius:9px;background:var(--soft);cursor:pointer;font-size:13.5px}
 .aitopicrow:hover{border-color:var(--gold)}
+.favbtn{border:0;background:transparent;font-size:17px;cursor:pointer;min-width:32px;min-height:32px;line-height:1;color:#b9a24a;padding:0}.favcnt{font-size:11.5px;color:#8a6d00;background:#fff6d6;border:1px solid #f0dc9a;border-radius:999px;padding:1px 7px;white-space:nowrap}
 .aitopicrow.sel{background:#eae6f2;border-color:#6b5a8f;color:#6b5a8f;font-weight:700}
 #topicreminder{background:#fbf1de;color:#8a6100;border-radius:9px;padding:9px 12px;margin:-6px 0 16px;line-height:1.6}
 #topicreminder a{color:inherit;font-weight:700}
@@ -470,7 +471,8 @@ tr.sc-row:hover .sc-viewbtn{border-color:var(--gold);color:var(--gold)}
         </div>
       </div>
       <div id="dialogpick">
-        <label>選擇要用哪個公式<span class="mut">（全站共用，任何顧問都能選）</span></label>
+        <label>選擇要用哪個公式<span class="mut">（全站共用，任何顧問都能選；⭐ 越多代表越多顧問認證好用）</span></label>
+        <div style="margin:4px 0 8px;font-size:13px">我是 <select id="favme" style="font-size:13px"></select> <span class="mut">按公式旁的 ☆ 就是認證這個公式好用</span></div>
         <div id="dialoggrid" class="aitopicgrid"></div>
       </div>
 
@@ -873,6 +875,40 @@ $('client').addEventListener('change', function () {
 // 選、類型切換或帳號變動都要重新刷新對應下拉。
 var POST_TOPICS_CACHE = null;
 var POST_STYLES_CACHE = null;
+// ── 公式「我的最愛」（2026-09-29 Jacky）：顧問按 ☆ ＝認證這個公式好用 ──
+var FAV_CONSULTANTS = [];
+function favMe() { try { return localStorage.getItem('s1_fav_me') || ''; } catch (e) { return ''; } }
+function favSetMe(n) { try { localStorage.setItem('s1_fav_me', n); } catch (e) {} }
+function favBadge(st) {
+  var f = st.favs || [];
+  var mine = f.indexOf(favMe()) >= 0;
+  return '<button type="button" class="favbtn" data-fav="' + st.id + '" aria-label="' + (mine ? '取消我的認證' : '認證這個公式好用') + '" title="' + (mine ? '取消我的認證' : '認證這個公式好用') + '">' + (mine ? '★' : '☆') + '</button>'
+    + (f.length ? '<span class="favcnt" title="' + esc(f.join('、')) + '">⭐ ' + f.length + ' 位顧問認證</span>' : '');
+}
+function favSort(list) {
+  return list.slice().sort(function (a, b) { return ((b.favs || []).length - (a.favs || []).length) || (a.id - b.id); });
+}
+function favFillMe(names) {
+  if (names && names.length) FAV_CONSULTANTS = names;
+  var sel = document.getElementById('favme'); if (!sel) return;
+  var me = favMe();
+  sel.innerHTML = '<option value="">請選擇</option>' + FAV_CONSULTANTS.map(function (n) {
+    return '<option' + (n === me ? ' selected' : '') + '>' + esc(n) + '</option>'; }).join('');
+}
+function favToggle(id, after) {
+  var me = favMe();
+  if (!me) { toast('先選「我是」哪位顧問', true); var s = document.getElementById('favme'); if (s) s.focus(); return; }
+  var pools = [POST_STYLES_CACHE || [], (typeof STYLES !== 'undefined' && STYLES) || []];
+  var st = null; pools.forEach(function (arr) { arr.forEach(function (x) { if (x.id === id) st = st || x; }); });
+  var on = !(st && (st.favs || []).indexOf(me) >= 0);
+  api('/admin/style-prompts/favorite', { method: 'POST', headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ id: id, consultant: me, on: on }) }).then(function (d) {
+    pools.forEach(function (arr) { arr.forEach(function (x) { if (x.id === id) x.favs = d.favs || []; }); });
+    toast(on ? '已認證這個公式 ⭐' : '已取消認證');
+    if (after) after();
+  }).catch(function (e) { toast('存不進去：' + (e.message || e), true); });
+}
+document.addEventListener('change', function (e) { if (e.target && e.target.id === 'favme') { favSetMe(e.target.value); if (typeof refreshDialogStyles === 'function') refreshDialogStyles(); } });
 var selectedDialogStyle = null;
 function currentPostType() { return document.querySelector('#typeseg button.on').dataset.type; }
 function currentJobSub() { return document.querySelector('#jobsubseg button.on').dataset.sub; }
@@ -910,14 +946,16 @@ function refreshDialogStyles() {
   wrap.innerHTML = '載入中…';
   (POST_STYLES_CACHE ? Promise.resolve({ ok: true, styles: POST_STYLES_CACHE }) : api('/admin/style-prompts')).then(function (d) {
     POST_STYLES_CACHE = d.styles || [];
+    favFillMe(d.consultants);
     var sub = currentJobSub() === 'pure' ? 'pure' : 'dialog';
-    var list = POST_STYLES_CACHE.filter(function (s) { return s.subtype === sub; })
-      .sort(function (a, b) { return a.id - b.id; });
+    var list = favSort(POST_STYLES_CACHE.filter(function (s) { return s.subtype === sub; }));
     wrap.innerHTML = list.length ? list.map(function (s) {
-      return '<div class="aitopicrow" data-id="' + s.id + '">' + esc(s.name) + '</div>';
+      return '<div class="aitopicrow" data-id="' + s.id + '"><span style="flex:1">' + esc(s.name) + '</span>' + favBadge(s) + '</div>';
     }).join('') : '<div class="mut">目前還沒有' + (sub === 'pure' ? '純CTA型' : '對話討論型') + '的公式</div>';
     [].forEach.call(wrap.querySelectorAll('.aitopicrow'), function (row) {
-      row.addEventListener('click', function () {
+      row.addEventListener('click', function (ev) {
+        var fb = ev.target.closest('[data-fav]');
+        if (fb) { ev.stopPropagation(); favToggle(Number(fb.dataset.fav), refreshDialogStyles); return; }
         [].forEach.call(wrap.querySelectorAll('.aitopicrow'), function (r) { r.classList.remove('sel'); });
         row.classList.add('sel');
         selectedDialogStyle = Number(row.dataset.id);
@@ -2741,6 +2779,8 @@ function loadSettings() {
       if (names.indexOf(n) < 0) names.push(n);
     });
     CUR_CONSULTANT = names[0] || null;
+    if (r[1].consultants) favFillMe(r[1].consultants);
+    if (!favMe() && CUR_CONSULTANT) favSetMe(CUR_CONSULTANT);
     $('cwho').innerHTML = names.map(function (n) {
       return '<option value="' + esc(n) + '">' + esc(n) + '</option>';
     }).join('') || '<option value="">目前沒有顧問帳號</option>';
@@ -2750,7 +2790,7 @@ function loadSettings() {
   }).catch(function (e) { toast('讀取話題／風格庫失敗', true); });
 }
 
-$('cwho').addEventListener('change', function () { CUR_CONSULTANT = $('cwho').value; loadAssign(); });
+$('cwho').addEventListener('change', function () { CUR_CONSULTANT = $('cwho').value; favSetMe(CUR_CONSULTANT); renderGlobalLib('style'); loadAssign(); });
 
 function loadAssign() {
   if (!CUR_CONSULTANT) return;
@@ -2771,6 +2811,7 @@ function renderGlobalLib(kind) {
   var wrap = $(isTopic ? 'topicglobal' : 'styleglobal');
   $(isTopic ? 'topiccnt' : 'stylecnt').textContent = '共 ' + data.length + ' 筆';
   var filtered = q ? data.filter(function (x) { return x.name.toLowerCase().indexOf(q) >= 0; }) : data;
+  if (!isTopic) filtered = favSort(filtered);
   if (!filtered.length) {
     wrap.innerHTML = '<div class="emptyrow">' + (q ? '沒有符合搜尋的結果' : '目前沒有資料，點下面新增一筆') + '</div>';
     return;
@@ -2787,6 +2828,7 @@ function renderGlobalLib(kind) {
         + (item.subtype === 'dialog' ? '對話討論型' : item.subtype === 'pure' ? '純CTA型' : '⚠️ 不會出現在公式清單') + '</span>') : '';
     return '<div class="growrow" data-id="' + item.id + '">'
       + '<div class="gname" data-act="preview">' + esc(item.name) + aiTag + subTag + '</div>'
+      + (!isTopic ? '<div class="gfav" style="display:flex;align-items:center;gap:4px">' + favBadge(item) + '</div>' : '')
       + '<div class="gmeta">' + esc((item.updated_at || '').slice(5, 16).replace('T', ' ')) + '</div>'
       + '<div class="gact"><button type="button" data-act="edit" title="編輯">✎</button>'
       + '<button type="button" data-act="del" title="刪除">🗑</button></div></div>';
@@ -2797,6 +2839,8 @@ function bindGlobalLibEvents(kind) {
   var isTopic = kind === 'topic';
   var wrap = $(isTopic ? 'topicglobal' : 'styleglobal');
   wrap.addEventListener('click', function (e) {
+    var fb = e.target.closest('[data-fav]');
+    if (fb) { favToggle(Number(fb.dataset.fav), function () { renderGlobalLib('style'); }); return; }
     var el = e.target.closest('[data-act]'); if (!el) return;
     var id = Number(el.closest('.growrow').dataset.id);
     var data = isTopic ? TOPICS : STYLES;
