@@ -13,6 +13,7 @@ function routeBadge(code, label) {
        + `border:1px solid ${st[0]}33">${code}｜${label || ''}</span>`;
 }
 import { empty } from './core/ui.js';
+import { SCRIPTS, SCRIPT_CATS } from './scripts_data.js';
 
 const pageHead = (title, subtitle, actions = '') => `<div class="page-head"><div><h1>${title}</h1><p>${subtitle}</p></div><div class="actions">${actions}</div></div>`;
 const tabbar = (scope, tabs, active) => `<div class="tabs">${tabs.map(([key, label]) => `<button class="${active === key ? 'active' : ''}" data-tab-scope="${scope}" data-tab="${key}">${label}</button>`).join('')}</div>`;
@@ -1711,7 +1712,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
     <article class="card" style="margin-top:14px"><div class="card-head"><h3 style="margin:0;font-size:14px">所有發文帳號（${(accounts || []).length}）</h3></div>
       ${list(accounts || [], (a) => `<div class="list-row"><span><b>${text(a.label || a.consultant_name || a.id)}</b><small>${text(a.platform)}</small></span></div>`)}</article>`;
   },
-  clients: (tab='clients') => pageHead('客戶 / BD','集中管理客戶關係、推薦人選與企業用人需求。','<button class="btn primary" data-action="add-client">＋ 新增客戶</button>') + tabbar('clients',[['clients','客戶'],['bd','BD Pipeline'],['bd-progress','開發進度'],['requests','BD Requests'],['hiring','企業用人需求'],['billing','收費進程']],tab) + `<div id="page-data">${endpointState('客戶與 BD')}</div>`,
+  clients: (tab='clients') => pageHead('客戶 / BD','集中管理客戶關係、推薦人選與企業用人需求。','<button class="btn primary" data-action="add-client">＋ 新增客戶</button>') + tabbar('clients',[['clients','客戶'],['bd','BD Pipeline'],['bd-progress','開發進度'],['scripts','話術手冊'],['requests','BD Requests'],['hiring','企業用人需求'],['billing','收費進程']],tab) + `<div id="page-data">${endpointState('客戶與 BD')}</div>`,
   clientsData: ({ companies, bd, requests }) => `<div class="kpi-grid"><article class="kpi"><span>客戶</span><strong>${companies.length}</strong></article><article class="kpi"><span>BD 案件</span><strong>${bd.length}</strong></article><article class="kpi"><span>BD Requests</span><strong>${requests.length}</strong></article></div>
     <div class="card"><div class="card-head"><h2 style="margin:0;font-size:15px">新增客戶</h2></div>
       <p class="help" style="margin:6px 0 10px">建好之後會自動產生一組「用人需求表連結」，把連結給客戶窗口他就能自己填職缺。</p>
@@ -1871,6 +1872,24 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
     }).join('')}</div>` : empty('目前沒有已經接觸過的公司');
     return `<div class="page-head"><div><h2>開發進度看板</h2><p>寄出、電訪、追信、回信、談到職缺、成交——同一家公司合併成一列，不用分頭看。</p></div></div>${funnelCard}${filterBar}${rowsHtml}`;
   },
+  // 話術手冊（2026-09-29）：卡片裡的「話術快查」與獨立分頁共用。vars 有值就把 {公司}{職缺}{產業}{常補} 換成那一家的資料。
+  scriptFill: (t, vars) => String(t).replace(/\{(公司|職缺|產業|常補)\}/g, (_, k) => (vars && vars[k]) || '＿＿'),
+  scriptsBlock: (vars, compact) => `<div class="sc-wrap" data-sc-vars='${escapeHtml(JSON.stringify(vars || {}))}'>
+      <input type="search" class="sc-search" placeholder="打關鍵字：已有獵頭、先寄資料、費用、忙、分機…" aria-label="搜尋話術">
+      <div class="sc-cats">${SCRIPT_CATS.map(([k, lb]) => `<button type="button" class="chip" data-sc-cat="${k}">${lb}</button>`).join('')}</div>
+      <div class="sc-list">${SCRIPTS.map((x, i) => {
+        const line = views.scriptFill(x.a, vars);
+        return `<details class="sc-item" data-sc-cat-of="${x.cat}" data-sc-text="${escapeHtml((x.q + ' ' + x.a + ' ' + (x.tags || '')).toLowerCase())}"${compact ? ' hidden' : ''}>
+          <summary>${x.cat === 'jacky' ? '<span class="badge info">Jacky 親授</span> ' : ''}${text(views.scriptFill(x.q, vars))}</summary>
+          <p class="cg-say">${text(line)}</p>
+          <button type="button" class="btn ghost sm" data-copy-text="${escapeHtml(line)}">複製這段</button>
+        </details>`;
+      }).join('')}</div>
+      ${compact ? '<p class="help sc-hint">點上面的情境或打關鍵字，話術就會出現（已經換成這家的資料）。</p>' : ''}
+    </div>`,
+  scriptsTab: () => `<article class="card"><div class="card-head"><h2 style="margin:0;font-size:16px">話術手冊</h2></div>
+      <p class="help" style="margin:6px 0 12px">打電話開發客戶時隨手查。來源：Jacky 親授（最優先）、開發信框架、國外研究；費用一律照正職代招委託合約。每家客戶卡片的「開發引導」下面也有同一份「話術快查」，會自動換成那一家的公司、職缺、產業。</p>
+      ${views.scriptsBlock(null, false)}</article>`,
   // 2026-09-29 加：企業卡片補聯絡方式（一鍵複製／撥號）、資料來源連結、
   // 104 企業頁連結，另外加「開發引導」分頁（時間軸／信件 之外的第二個分頁）。
   // 找不到的欄位一律不顯示那一行，不留空殼。
@@ -1972,6 +1991,8 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
         </form>
         <p class="help">沒接／被擋／只問到窗口 → 系統 2 個工作天後提醒再打；拿到信箱或有興趣 → TG 通知去寫開發信。</p>`)}
       <div class="cg-nav"><button type="button" class="btn" data-cg-prev>← 上一步</button><button type="button" class="btn primary" data-cg-next>下一步 →</button></div>
+      <section class="sc-quick"><h3 class="cg-title" style="margin-top:18px"><span>?</span>話術快查（對方丟出講稿沒寫到的問題時）</h3>
+        ${views.scriptsBlock({ 公司: (outreach[0] || {}).company || '', 職缺: g.job_title ? `「${g.job_title}」` : '', 產業: g.industry_short || '', 常補: g.industry_roles || '' }, true)}</section>
     </div>` : '';
     const playbookPane = !playbook ? empty('這家還沒有足夠資料組出開發引導') : guidePane || `
       <h3 style="font-size:14px;margin:4px 0">為什麼開發這家</h3>

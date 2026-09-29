@@ -1027,6 +1027,11 @@ function wireScheduleMissingButtons(missing) {
 
 async function loadClientsTab(target) {
   if (state.sub === 'bd') return boundary(target, async () => ({ bd: (await adapters.clients()).bd, talentPool: await adapters.talentPool() }), views.clientsBdTab, 'refresh');
+  if (state.sub === 'scripts') {
+    target.innerHTML = views.scriptsTab();
+    wireScripts(target);
+    return null;
+  }
   if (state.sub === 'bd-progress') {
     const res = await boundary(target, adapters.bdDashboard, views.bdDashboard, 'refresh');
     wireBdDashboardFilter();
@@ -1194,6 +1199,38 @@ function wireBdDetailTabs() {
     };
   }
   wireCallGuide();
+  const sq = document.querySelector('.sc-quick');
+  if (sq) wireScripts(sq);
+}
+
+// 話術快查／話術手冊：搜尋＋情境按鈕，純前端篩選
+function wireScripts(root) {
+  const wrap = root.querySelector('.sc-wrap');
+  if (!wrap) return;
+  const items = [...wrap.querySelectorAll('.sc-item')];
+  const input = wrap.querySelector('.sc-search');
+  const hint = wrap.querySelector('.sc-hint');
+  let cat = '';
+  const apply = () => {
+    const kw = (input?.value || '').trim().toLowerCase();
+    const compact = !!hint;
+    let n = 0;
+    for (const it of items) {
+      const ok = (!cat || it.dataset.scCatOf === cat) && (!kw || kw.split(/\s+/).every((w) => it.dataset.scText.includes(w)));
+      it.hidden = compact && !cat && !kw ? true : !ok;
+      if (!it.hidden) n += 1;
+    }
+    if (hint) hint.hidden = !!(cat || kw);
+    // 只剩一兩張時直接展開，省一次點擊
+    items.filter((it) => !it.hidden).forEach((it) => { it.open = n <= 2; });
+  };
+  input?.addEventListener('input', apply);
+  wrap.querySelectorAll('[data-sc-cat]').forEach((b) => b.addEventListener('click', () => {
+    cat = cat === b.dataset.scCat ? '' : b.dataset.scCat;
+    wrap.querySelectorAll('[data-sc-cat]').forEach((x) => x.classList.toggle('active', x.dataset.scCat === cat));
+    apply();
+  }));
+  apply();
 }
 
 // 電話引導 v2：上一步／下一步、有沒有人資切換講稿、點結果就記錄。
