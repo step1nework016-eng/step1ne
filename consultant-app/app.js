@@ -1253,7 +1253,7 @@ async function openCandidate(applicationId) {
       // 觸發——所以只在這一列強制換行（span 佔滿一整行、按鈕另起一行），
       // 不依賴視窗寬度，也不去動全站 .list-row 這個共用類別去影響到別的地方。
       return `<div>
-<div class="list-row" style="flex-wrap:wrap;row-gap:8px"><span style="flex:1 1 100%"><b>${text(f.company_name)}</b><small>${text(f.job_title || f.job_slug)}${f.stage_label ? ' · ' + text(f.stage_label) : ''}${f.client_note ? ' · ' + text(f.client_note) : ''}${lineIdLine}${cfrLine}${nr ? ' · ⚠ 不推進：' + text(f.advisor_not_recommended_reason || '') : ''}${f.no_show_at ? ' · ⚠ 不報到：' + text(f.no_show_reason || '') : ''}${f.candidate_withdrawn_at ? ' · 🚪 人選已放棄：' + text(f.candidate_withdraw_reason || '') : ''}</small></span>${rowActions([
+<div class="list-row cfr-drop" style="flex-wrap:wrap;row-gap:8px" data-cfr-app="${escapeHtml(applicationId)}" data-cfr-co="${escapeHtml(companyId)}" data-cfr-name="${escapeHtml(f.company_name || '')}" data-cfr-has="${cfr && cfr.consultant_confirmed_at ? '1' : ''}"><span style="flex:1 1 100%"><b>${text(f.company_name)}</b><small>${text(f.job_title || f.job_slug)}${f.stage_label ? ' · ' + text(f.stage_label) : ''}${f.client_note ? ' · ' + text(f.client_note) : ''}${lineIdLine}${cfrLine}${nr ? ' · ⚠ 不推進：' + text(f.advisor_not_recommended_reason || '') : ''}${f.no_show_at ? ' · ⚠ 不報到：' + text(f.no_show_reason || '') : ''}${f.candidate_withdrawn_at ? ' · 🚪 人選已放棄：' + text(f.candidate_withdraw_reason || '') : ''}</small></span>${rowActions([
         toggleBtn,
         withdrawBtn,
         editBtn,
@@ -1641,7 +1641,7 @@ function stageDetailHtml(key, application, forwards, report, applicationId) {
     const listHtml = forwards.length ? forwards.map((f) => {
       const cfr = f.client_formal_report;
       const ids = { idParams: { application_id: applicationId, company_id: f.company_id } };
-      return `<div class="list-row" style="flex-wrap:wrap;row-gap:8px"><span style="flex:1 1 100%"><b>${text(f.company_name)}</b><small>${text(f.job_title || f.job_slug)}${f.stage_label ? ' · ' + text(f.stage_label) : ''}</small><span style="display:block;margin-top:6px">${cfrStatus(cfr)}</span></span>${rowActions([
+      return `<div class="list-row cfr-drop" style="flex-wrap:wrap;row-gap:8px" data-cfr-app="${escapeHtml(applicationId)}" data-cfr-co="${escapeHtml(f.company_id)}" data-cfr-name="${escapeHtml(f.company_name || '')}" data-cfr-has="${cfr && cfr.consultant_confirmed_at ? '1' : ''}"><span style="flex:1 1 100%"><b>${text(f.company_name)}</b><small>${text(f.job_title || f.job_slug)}${f.stage_label ? ' · ' + text(f.stage_label) : ''}</small><span style="display:block;margin-top:6px">${cfrStatus(cfr)}</span><small class="cfr-drop-hint">也可以直接把推薦履歷 PDF 拖進這一格</small></span>${rowActions([
         actionBtn(cfr && cfr.consultant_confirmed_at ? '換一份推薦履歷' : '上傳推薦履歷', 'client-formal-report-upload', ids, cfr && cfr.consultant_confirmed_at ? '' : 'primary'),
         cfr && cfr.consultant_confirmed_at && cfr.file_id ? `<button type="button" class="btn ghost sm" data-download-file="${text(cfr.file_id)}">下載推薦履歷</button>` : '',
       ].filter(Boolean))}</div>`;
@@ -2667,3 +2667,44 @@ setInterval(checkForUpdate, VERSION_CHECK_MS);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) checkForUpdate(); });
 
 render();
+
+
+// 2026-09-29 Jacky：推薦履歷可以直接把 PDF 拖進「推薦給客戶」那一列上傳。
+// 用 document 層的事件委派，人選卡片怎麼重畫都不用重接；按鈕上傳那條路照舊。
+// 已經有客戶看得到的版本時，拖進來會先問一次要不要換掉，避免誤拖蓋掉。
+(() => {
+  const zoneOf = (e) => e.target && e.target.closest && e.target.closest('.cfr-drop');
+  const isFileDrag = (e) => [...(e.dataTransfer?.types || [])].includes('Files');
+  document.addEventListener('dragover', (e) => {
+    const z = zoneOf(e);
+    if (!z || !isFileDrag(e)) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+    z.classList.add('dragover');
+  });
+  document.addEventListener('dragleave', (e) => {
+    const z = zoneOf(e);
+    if (z && !z.contains(e.relatedTarget)) z.classList.remove('dragover');
+  });
+  document.addEventListener('drop', async (e) => {
+    const z = zoneOf(e);
+    if (!z || !isFileDrag(e)) return;
+    e.preventDefault();
+    z.classList.remove('dragover');
+    const file = e.dataTransfer.files && e.dataTransfer.files[0];
+    if (!file) return;
+    if (!/\.pdf$/i.test(file.name) && file.type !== 'application/pdf') { toast('推薦履歷只收 PDF 檔', 'error'); return; }
+    if (z.dataset.cfrHas && !confirm(`${z.dataset.cfrName || '這家客戶'}已經有一份客戶看得到的推薦履歷，要換成「${file.name}」嗎？`)) return;
+    z.classList.add('uploading');
+    try {
+      const pdf_b64 = await readFileAsB64(file);
+      await api.post('/admin/client-formal-reports/confirm-upload',
+        { application_id: z.dataset.cfrApp, company_id: z.dataset.cfrCo, pdf_b64, filename: file.name });
+      toast('已上傳，客戶在企業後台看得到了', 'success');
+      if (state.openCandidateId) openCandidate(state.openCandidateId);
+    } catch (err) {
+      z.classList.remove('uploading');
+      toast(`上傳失敗：${err.message || err}`, 'error');
+    }
+  });
+})();
