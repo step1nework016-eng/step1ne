@@ -6,6 +6,7 @@ import { escapeHtml, text } from './core/security.js';
 import { adapters, analyticsAdapter } from './adapters.js';
 import { views, actionBtn, rowActions, shell } from './views.js';
 import { ACTIONS } from './actions.js';
+import { jdFieldParse } from './jd_fields.js';
 
 // 2026-09-15 補：使用者反映「不知道要看哪個是自己的」——沒有登入系統，只能靠
 // 這組「切換選擇」記住上次選的是誰，換分頁/重新整理都不用重選（存在瀏覽器
@@ -2421,7 +2422,15 @@ async function submitJobContent(slug) {
   if (!form || !button) return;
   button.disabled = true;
   try {
-    const result = await saveJobContent(slug, formBody(form));
+    // 只送有改的欄位（跟舊後台一樣），沒改的欄位不動，避免整頁被覆蓋
+    const fields = {};
+    for (const el of form.querySelectorAll('[data-kind]')) {
+      const kind = el.dataset.kind;
+      const now = jdFieldParse(kind, el.value), before = jdFieldParse(kind, el.dataset.orig);
+      if (JSON.stringify(now) !== JSON.stringify(before)) fields[el.name] = now;
+    }
+    if (!Object.keys(fields).length) { toast('沒有改到任何欄位', 'error'); return; }
+    const result = await saveJobContent(slug, { fields });
     if (result !== null) { toast('職缺內容已儲存', 'success'); openJobManage(slug); }
   } catch (error) {
     console.error(error);
@@ -2677,7 +2686,7 @@ document.addEventListener('click', async (event) => {
     if (!state.jobContentRetry) return;
     const { slug, body } = state.jobContentRetry;
     state.jobContentRetry = null;
-    try { await saveJobContent(slug, body, { confirm: true }); closeOverlay(); toast('職缺內容已儲存', 'success'); openJobManage(slug); }
+    try { await saveJobContent(slug, body, { confirm_mismatch: true, confirm_shrink: true }); closeOverlay(); toast('職缺內容已儲存', 'success'); openJobManage(slug); }
     catch (error) { console.error(error); toast(error.message, 'error'); }
   }
   if (action === 'submit-job-content') submitJobContent(target.closest('[data-slug]').getAttribute('data-slug'));

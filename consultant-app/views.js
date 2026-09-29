@@ -14,6 +14,7 @@ function routeBadge(code, label) {
 }
 import { empty } from './core/ui.js';
 import { SCRIPTS, SCRIPT_CATS } from './scripts_data.js';
+import { JD_FIELDS, jdFieldVal } from './jd_fields.js';
 
 const pageHead = (title, subtitle, actions = '') => `<div class="page-head"><div><h1>${title}</h1><p>${subtitle}</p></div><div class="actions">${actions}</div></div>`;
 const tabbar = (scope, tabs, active) => `<div class="tabs">${tabs.map(([key, label]) => `<button class="${active === key ? 'active' : ''}" data-tab-scope="${scope}" data-tab="${key}">${label}</button>`).join('')}</div>`;
@@ -378,7 +379,7 @@ ${list(items, (j) => `<article class="list-row"><span><b>${text(j.title || j.slu
 <button data-jobtab="card">職缺卡${lv}</button>
 <button data-jobtab="acai">阿財的理解</button>
 </div>
-<div class="drawer-section" id="job-tab-manage"><h3>職缺狀態</h3>${rowActions([actionBtn('開啟／關閉職缺','job-status',{ idParams: { slug } }),actionBtn('刪除職缺','job-delete',{ idParams: { slug } },'danger')])}<h3>職缺內容</h3><form id="job-content-form" class="form-grid"><label class="field span-2"><span>內容（JD／用人事實）</span><textarea name="content" rows="10">${escapeHtml(content?.content || content?.html || content?.body || '')}</textarea></label></form><button class="btn primary" data-action="submit-job-content" data-slug="${text(slug)}">儲存職缺內容</button><p class="help">儲存時若偵測到 template_mismatch 或 content_shrink，會再跳出二次確認。</p><h3>客製表單欄位</h3>${actionBtn('新增客製表單欄位','job-forms-create',{ idParams: {}, record: { job_slug: slug } })}</div>
+<div class="drawer-section" id="job-tab-manage"><h3>職缺狀態</h3>${rowActions([actionBtn('開啟／關閉職缺','job-status',{ idParams: { slug } }),actionBtn('刪除職缺','job-delete',{ idParams: { slug } },'danger')])}<h3>職缺內容</h3>${views.jobContentForm(content)}<button class="btn primary" data-action="submit-job-content" data-slug="${text(slug)}">儲存職缺內容（只存有改的欄位，最多 15 分鐘內上線）</button><p class="help">存檔前系統會檢查：內容突然少一大截、或頁面是客製版面，都會再問你一次。</p><h3>客製表單欄位</h3>${actionBtn('新增客製表單欄位','job-forms-create',{ idParams: {}, record: { job_slug: slug } })}</div>
 <div class="drawer-section" id="job-tab-expertise" hidden>${views.jobExpertisePanel(slug, bank, isBuilding)}</div>
 <div class="drawer-section" id="job-tab-card" hidden>${views.jobCardPanel(slug, card)}</div>
 <div class="drawer-section" id="job-tab-acai" hidden>${views.jobAcaiPanel(slug, acai)}</div>`;
@@ -1871,6 +1872,22 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
       </article>`;
     }).join('')}</div>` : empty('目前沒有已經接觸過的公司');
     return `<div class="page-head"><div><h2>開發進度看板</h2><p>寄出、電訪、追信、回信、談到職缺、成交——同一家公司合併成一列，不用分頭看。</p>${cached_at ? `<p class="help">資料時間 ${text(String(cached_at).slice(11, 16))}（為了省資料庫額度，每 5 分鐘更新一次；你們按按鈕改的資料會立刻更新）</p>` : ''}</div></div>${funnelCard}${filterBar}${rowsHtml}`;
+  },
+  // 職缺內容逐欄位編輯（2026-09-29 修：原本一個大文字框讀不到結構化 JD，每個職缺都顯示空白）
+  jobContentForm: (content) => {
+    const spec = (content && content.spec) || {};
+    const src = { saved: '已存檔的版本', backfilled_from_intake: '收件單底稿', scraped_live_page: '目前網站上的職缺頁' }[content && content.source] || '';
+    return `<form id="job-content-form" class="form-grid">
+      ${src ? `<p class="help span-2" style="margin:0">內容來源：${text(src)}</p>` : ''}
+      ${content && content.mismatched ? `<div class="notice span-2">這個職缺頁不是標準樣板，多了：${text((content.extraSections || []).join('、'))}。存檔會用標準樣板重新產生，這些內容會不見。</div>` : ''}
+      ${JD_FIELDS.map(([k, lb, kind]) => {
+        const v = jdFieldVal(kind, spec[k]);
+        const el = kind === 'line'
+          ? `<input name="${k}" value="${escapeHtml(v)}" data-orig="${escapeHtml(v)}" data-kind="${kind}">`
+          : `<textarea name="${k}" rows="${kind === 'text' ? 3 : Math.min(14, Math.max(4, v.split('\n').length + 1))}" data-orig="${escapeHtml(v)}" data-kind="${kind}">${escapeHtml(v)}</textarea>`;
+        return `<label class="field span-2"><span>${text(lb)}</span>${el}</label>`;
+      }).join('')}
+    </form>`;
   },
   // 切入點（2026-09-29 Jacky：本週計畫表寫的切入點，卡片上也要看得到）：新消息＞人選敲門＞104 職缺
   bdTriggerOf: (rows) => {
