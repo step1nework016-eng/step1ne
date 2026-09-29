@@ -330,7 +330,14 @@ async function loadSocialTab(target) {
     wireSocialReplies();
     return res;
   }
-  if (state.sub === 'threads') return boundary(target, async () => (await adapters.social()).queue, views.socialThreadsTab, 'refresh');
+  if (state.sub === 'threads') {
+    const res = await boundary(target, async () => {
+      const [social, fol] = await Promise.all([adapters.social(), api.get('/admin/social/followers').catch(() => ({ items: [] }))]);
+      return { queue: social.queue, followers: (fol && fol.items) || [], joins: (fol && fol.joins) || [] };
+    }, views.socialThreadsTab, 'refresh');
+    wireThreadsPerf();
+    return res;
+  }
   if (state.sub === 'schedule') return loadScheduleTab(target);
   // 2026-09-24：「招募轉換」換成「手動匯入貼文」。舊書籤 conversion 一律導到新分頁。
   if (state.sub === 'import' || state.sub === 'conversion') {
@@ -2708,3 +2715,25 @@ render();
     }
   });
 })();
+
+
+// Threads 成效頁 ②③：下拉選單換顧問／換數字時只重畫那兩塊，不重打 API。
+function wireThreadsPerf() {
+  let rows = [];
+  try { rows = JSON.parse(document.getElementById('tp-data')?.textContent || '[]'); } catch { return; }
+  const who = document.getElementById('tp-who');
+  const metric = document.getElementById('tp-metric');
+  if (!who || !metric) return;
+  const draw = () => {
+    const sub = who.value ? rows.filter((r) => r.w === who.value) : rows;
+    const heat = document.getElementById('tp-heat');
+    if (heat) heat.innerHTML = views.threadsHeat(sub, metric.value);
+    const cf = document.getElementById('tp-conv-f');
+    const cs = document.getElementById('tp-conv-s');
+    if (cf) cf.innerHTML = views.threadsConvBars(sub, 'f');
+    if (cs) cs.innerHTML = views.threadsConvBars(sub, 's');
+  };
+  who.addEventListener('change', draw);
+  metric.addEventListener('change', draw);
+  draw();
+}

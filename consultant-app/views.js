@@ -1251,59 +1251,128 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
   //    一排空白，讓人以為成效是零。
   // ⚠️ 平均瀏覽的分母只算**有抓到數據**的那幾篇，不是全部篇數——剛發還沒
   //    回填 views 的算進分母會把平均拉低，看起來像成效變差。
-  socialThreadsTab: (queue) => {
+  // 2026-09-29 Jacky 改版：Threads 成效頁分三塊
+  //  ① 每位顧問一張卡（追蹤人數、總篇數、平均瀏覽／讚／留言／點擊），點開看逐篇＋公式＋發文時間
+  //  ② 選一位顧問，比較「哪個時段 × 哪個公式」的瀏覽／讚／留言
+  //  ③ 轉化：哪個公式、哪個時段帶來加入 LINE（目前轉化＝點貼文連結後加入 LINE；
+  //     「加入後有詢問」要等 line_inbound_log 累積，9/29 才開始記）
+  // 平均數會被單篇爆文拉高，卡片上另外標中間值；格子裡篇數太少的反灰，不要拿來下結論。
+  threadsPerf: {
+    SLOTS: [['早上', 6, 11], ['中午', 11, 14], ['下午', 14, 18], ['晚上', 18, 22], ['深夜', 22, 30]],
+    slotOf(posted) {
+      const h = Number(String(posted || '').slice(11, 13));
+      if (Number.isNaN(h)) return '—';
+      const hh = h < 6 ? h + 24 : h;
+      const f = views.threadsPerf.SLOTS.find(([, a, b]) => hh >= a && hh < b);
+      return f ? f[0] : '—';
+    },
+    formulaOf(r) {
+      if (r.style_name) return r.style_name;
+      return { pure: '純CTA型（未標公式）', dialog: '對話討論型（未標公式）', default: '原始格式' }[r.content_formula] || '未標公式';
+    },
+    who(r) { return r.consultant_name || r.account_label || '未知'; },
+    n(v) { return Number(v || 0); },
+    avg(rows, k) { const v = rows.map((r) => Number(r[k] || 0)); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : 0; },
+    med(rows, k) { const v = rows.map((r) => Number(r[k] || 0)).sort((a, b) => a - b); if (!v.length) return 0; const m = Math.floor(v.length / 2); return v.length % 2 ? v[m] : (v[m - 1] + v[m]) / 2; },
+    fmt(x, d = 0) { return Number(x || 0).toLocaleString('en-US', { maximumFractionDigits: d, minimumFractionDigits: d }); },
+  },
+
+  socialThreadsTab: ({ queue, followers, joins }) => {
+    const T = views.threadsPerf;
     const posts = (queue || []).filter((r) => r.social_post_status === 'posted'
-      && String(r.social_post_url || '').includes('threads'));
+      && (r.account_platform === 'threads' || String(r.social_post_url || '').includes('threads')));
     if (!posts.length) return empty('還沒有已發布的 Threads 貼文');
-    const wayOf = (r) => (r.style_subtype === 'pure' ? '純CTA型'
-      // style_name 本身就叫「對話討論型・身份切割」，前面再加一次會變成
-      // 「對話討論型・對話討論型・身份切割」。有 style_name 就直接用它。
-      : r.style_subtype === 'dialog' ? (r.style_name || '對話討論型')
-      : '原始格式');
-    const stat = (rows) => {
-      const withV = rows.filter((r) => Number(r.views) > 0);
-      const v = rows.reduce((a, r) => a + Number(r.views || 0), 0);
-      return { c: rows.length, v, avg: withV.length ? Math.round(v / withV.length) : 0,
-               l: rows.reduce((a, r) => a + Number(r.likes || 0), 0),
-               rp: rows.reduce((a, r) => a + Number(r.replies || 0), 0),
-               clk: rows.reduce((a, r) => a + Number(r.clicks || 0), 0), wd: withV.length };
+    const fol = {};
+    (followers || []).forEach((f) => { fol[f.account_id] = f; });
+    const jn = {};
+    (joins || []).forEach((j) => { jn[j.account_id] = j; });
+    const byWho = {};
+    posts.forEach((r) => { (byWho[T.who(r)] = byWho[T.who(r)] || []).push(r); });
+    const people = Object.entries(byWho).sort((a, b) => b[1].length - a[1].length);
+
+    const card = ([name, rows]) => {
+      const accIds = [...new Set(rows.map((r) => r.account_id).filter(Boolean))];
+      const f = accIds.map((id) => fol[id]).find(Boolean);
+      const grow = f && f.followers_7d_ago != null ? f.followers - f.followers_7d_ago : null;
+      const sorted = rows.slice().sort((a, b) => String(b.posted_at || '').localeCompare(String(a.posted_at || '')));
+      // 加入 LINE 用帳號層級的數字（含留言區連結帶來、對不到哪一篇的）
+      const jRows = accIds.map((id) => jn[id]).filter(Boolean);
+      const lineAdds = jRows.length ? jRows.reduce((a, j) => a + T.n(j.joins), 0) : rows.reduce((a, r) => a + T.n(r.line_adds), 0);
+      const noPost = jRows.reduce((a, j) => a + T.n(j.joins_no_post), 0);
+      return `<details class="tp-card">
+        <summary>
+          <div class="tp-head"><b>${text(name)}</b>
+            <span class="tp-fol">${f ? `追蹤 ${T.fmt(f.followers)}${grow != null ? `<small class="${grow >= 0 ? 'up' : 'down'}">（7 天 ${grow >= 0 ? '+' : ''}${grow}）</small>` : ''}` : '<small>追蹤人數：還沒抓到</small>'}</span></div>
+          <div class="tp-stats">
+            <span><small>總篇數</small><b>${rows.length}</b></span>
+            <span><small>平均瀏覽</small><b>${T.fmt(T.avg(rows, 'views'))}</b><small>中間值 ${T.fmt(T.med(rows, 'views'))}</small></span>
+            <span><small>平均讚</small><b>${T.fmt(T.avg(rows, 'likes'), 1)}</b></span>
+            <span><small>平均留言</small><b>${T.fmt(T.avg(rows, 'replies'), 1)}</b></span>
+            <span><small>平均點擊</small><b>${T.fmt(T.avg(rows, 'clicks'), 1)}</b></span>
+            <span><small>加入 LINE</small><b>${lineAdds}</b>${noPost ? `<small>${noPost} 位來自留言區連結</small>` : ''}</span>
+          </div>
+          <span class="tp-more">點開看每一篇 ▾</span>
+        </summary>
+        <div class="table-wrap"><table class="spec tp-table">
+          <tr><th>發文時間</th><th>公式</th><th class="num">瀏覽</th><th class="num">讚</th><th class="num">留言</th><th class="num">點擊</th><th class="num">加入LINE</th><th></th></tr>
+          ${sorted.map((r) => `<tr><td>${text(String(r.posted_at || '').slice(5, 16))}<small class="tp-slot">${text(T.slotOf(r.posted_at))}</small></td>
+            <td>${text(T.formulaOf(r))}</td><td class="num">${T.fmt(r.views)}</td><td class="num">${T.n(r.likes)}</td>
+            <td class="num">${T.n(r.replies)}</td><td class="num">${T.n(r.clicks)}</td><td class="num">${T.n(r.line_adds)}</td>
+            <td>${r.social_post_url ? `<a href="${escapeHtml(r.social_post_url)}" target="_blank" rel="noopener">看貼文</a>` : ''}</td></tr>`).join('')}
+        </table></div>
+      </details>`;
     };
-    const all = stat(posts);
-    const byAcc = {};
-    posts.forEach((r) => { (byAcc[r.account_label || '未知帳號'] = byAcc[r.account_label || '未知帳號'] || []).push(r); });
-    const byWay = {};
-    posts.forEach((r) => { const k = wayOf(r); (byWay[k] = byWay[k] || []).push(r); });
-    const num = (n) => Number(n || 0).toLocaleString('en-US');
-    const accRows = Object.entries(byAcc).sort((a, b) => stat(b[1]).avg - stat(a[1]).avg).map(([k, rows]) => {
-      const st = stat(rows);
-      // 篇數不少但平均觸及遠低於全隊——比較可能是帳號被壓著，不是文案問題。
-      const suppressed = st.c >= 3 && st.avg && all.avg && st.avg < all.avg * 0.25;
-      return `<tr><td>${text(k)}${suppressed ? ' <span class="badge danger">觸及偏低</span>' : ''}</td>
-        <td class="num">${st.c}</td><td class="num">${num(st.v)}</td><td class="num">${num(st.avg)}</td>
-        <td class="num">${st.l}</td><td class="num">${st.rp}</td><td class="num">${st.clk}</td></tr>`;
-    }).join('');
-    const wayRows = Object.entries(byWay).sort((a, b) => stat(b[1]).avg - stat(a[1]).avg).map(([k, rows]) => {
-      const st = stat(rows);
-      return `<tr><td>${text(k)}</td><td class="num">${st.c}</td><td class="num">${num(st.avg)}</td>
-        <td class="num">${st.l}</td><td class="num">${st.rp}</td><td class="num">${st.clk}</td></tr>`;
-    }).join('');
-    const noData = posts.length - all.wd;
-    return `<div class="kpi-grid">
-        <article class="kpi"><span>已發布</span><strong>${all.c}</strong></article>
-        <article class="kpi"><span>總瀏覽</span><strong>${num(all.v)}</strong></article>
-        <article class="kpi accent"><span>平均瀏覽／篇</span><strong>${num(all.avg)}</strong></article>
-        <article class="kpi"><span>按讚</span><strong>${all.l}</strong></article>
-        <article class="kpi"><span>留言</span><strong>${all.rp}</strong></article>
-        <article class="kpi"><span>連結點擊</span><strong>${all.clk}</strong></article>
-      </div>
-      ${noData ? `<p class="help">⚠️ ${noData} 篇還沒抓到瀏覽數（剛發的要等快照排程），平均瀏覽的分母只算有數據的 ${all.wd} 篇。</p>` : ''}
-      <article class="card"><div class="card-head"><h2 style="margin:0;font-size:15px">各帳號</h2></div>
-        <div class="table-wrap"><table class="spec"><tr><th>帳號</th><th style="text-align:right">篇數</th><th style="text-align:right">總瀏覽</th><th style="text-align:right">平均</th><th style="text-align:right">讚</th><th style="text-align:right">留言</th><th style="text-align:right">點擊</th></tr>${accRows}</table></div></article>
-      <article class="card" style="margin-top:10px"><div class="card-head"><h2 style="margin:0;font-size:15px">哪種寫法有用</h2></div>
-        <p class="help" style="margin:6px 0 8px">依平均瀏覽排序。篇數少的先別下結論。</p>
-        <div class="table-wrap"><table class="spec"><tr><th>寫法</th><th style="text-align:right">篇數</th><th style="text-align:right">平均瀏覽</th><th style="text-align:right">讚</th><th style="text-align:right">留言</th><th style="text-align:right">點擊</th></tr>${wayRows}</table></div></article>
-      <article class="card" style="margin-top:10px"><div class="card-head"><h2 style="margin:0;font-size:15px">逐篇</h2></div>
-        ${list(posts.slice().sort((a, b) => String(b.posted_at || '').localeCompare(String(a.posted_at || ''))).slice(0, 60), (r) => `<div class="list-row"><span><b>${text(r.title || r.slug)}</b><small>${text(r.account_label)} · ${text(wayOf(r))} · ${text(String(r.posted_at || '').slice(0, 16))}</small></span><small>${r.views ? `👁 ${num(r.views)}` : '（還沒抓到數據）'}${r.likes ? ` ♥ ${r.likes}` : ''}${r.clicks ? ` 🔗 ${r.clicks}` : ''}</small>${r.social_post_url ? `<a class="btn sm" href="${escapeHtml(r.social_post_url)}" target="_blank" rel="noopener">看貼文</a>` : ''}</div>`)}</article>`;
+
+    const names = people.map(([n]) => n);
+    const dataJson = JSON.stringify(posts.map((r) => ({ w: T.who(r), f: T.formulaOf(r), s: T.slotOf(r.posted_at),
+      v: T.n(r.views), l: T.n(r.likes), r: T.n(r.replies), c: T.n(r.clicks), j: T.n(r.line_adds) })));
+    return `<article class="card"><div class="card-head"><h2 style="margin:0;font-size:16px">① 每位顧問</h2></div>
+        <p class="help" style="margin:6px 0 12px">點卡片展開每一篇。平均會被單篇爆文拉高，旁邊的「中間值」比較代表平常一篇的水準。追蹤人數每天早上記一次。</p>
+        <div class="tp-grid">${people.map(card).join('')}</div></article>
+
+      <article class="card" style="margin-top:12px"><div class="card-head"><h2 style="margin:0;font-size:16px">② 哪個時段 × 哪個公式比較好</h2></div>
+        <div class="tp-controls">
+          <label class="field"><span>顧問</span><select id="tp-who"><option value="">全部顧問</option>${names.map((n) => `<option>${text(n)}</option>`).join('')}</select></label>
+          <label class="field"><span>看哪個數字</span><select id="tp-metric"><option value="v">平均瀏覽</option><option value="l">平均讚</option><option value="r">平均留言</option></select></label>
+        </div>
+        <div id="tp-heat"></div>
+        <p class="help">格子越深代表越好；小字是篇數。<b>少於 3 篇的格子反灰</b>，樣本太少，先不要拿來下結論。</p></article>
+
+      <article class="card" style="margin-top:12px"><div class="card-head"><h2 style="margin:0;font-size:16px">③ 轉化：哪個公式、哪個時段帶來加入 LINE</h2></div>
+        <p class="help" style="margin:6px 0 12px">目前「轉化」＝有人點了貼文裡的連結、接著加入 LINE 官方帳號。<b>從留言區連結加入的人對不到是哪一篇，所以不在這張圖裡</b>（顧問卡片上的總數有算進去）。「加入後有沒有詢問」9/29 才開始記，累積 3～4 週後會換成那個定義。數字還很少，先看方向就好。</p>
+        <div class="tp-two"><div><h3 class="tp-h3">依公式</h3><div id="tp-conv-f"></div></div><div><h3 class="tp-h3">依時段</h3><div id="tp-conv-s"></div></div></div>
+      </article>
+      <script type="application/json" id="tp-data">${dataJson.replace(/</g, '\\u003c')}</script>`;
+  },
+
+  // ② 熱力圖與 ③ 轉化長條，由 app.js 的 wireThreadsPerf() 依下拉選單重畫。
+  threadsHeat: (rows, metric) => {
+    const T = views.threadsPerf;
+    const slots = T.SLOTS.map(([s]) => s);
+    const forms = [...new Set(rows.map((r) => r.f))].sort();
+    if (!forms.length) return '<p class="help">這位顧問還沒有貼文。</p>';
+    const cell = (f, s) => rows.filter((r) => r.f === f && r.s === s);
+    const vals = forms.flatMap((f) => slots.map((s) => { const c = cell(f, s); return c.length >= 3 ? c.reduce((a, r) => a + r[metric], 0) / c.length : null; })).filter((x) => x != null);
+    const max = Math.max(1, ...vals);
+    return `<div class="table-wrap"><table class="tp-heat"><tr><th>公式＼時段</th>${slots.map((s) => `<th>${s}</th>`).join('')}</tr>
+      ${forms.map((f) => `<tr><th class="tp-fname">${text(f)}</th>${slots.map((s) => {
+        const c = cell(f, s);
+        if (!c.length) return '<td class="tp-empty">—</td>';
+        const a = c.reduce((x, r) => x + r[metric], 0) / c.length;
+        if (c.length < 3) return `<td class="tp-few"><b>${T.fmt(a, metric === 'v' ? 0 : 1)}</b><small>${c.length} 篇</small></td>`;
+        const alpha = 0.12 + 0.78 * (a / max);
+        return `<td style="background:rgba(40,103,237,${alpha.toFixed(2)});color:${alpha > 0.55 ? '#fff' : 'inherit'}"><b>${T.fmt(a, metric === 'v' ? 0 : 1)}</b><small>${c.length} 篇</small></td>`;
+      }).join('')}</tr>`).join('')}</table></div>`;
+  },
+
+  threadsConvBars: (rows, key) => {
+    const groups = {};
+    rows.forEach((r) => { const g = groups[r[key]] = groups[r[key]] || { j: 0, c: 0, n: 0, who: {} }; g.j += r.j; g.c += r.c; g.n += 1; if (r.j) g.who[r.w] = (g.who[r.w] || 0) + r.j; });
+    const list = Object.entries(groups).sort((a, b) => b[1].j - a[1].j || b[1].c - a[1].c);
+    const max = Math.max(1, ...list.map(([, g]) => g.j));
+    return list.map(([k, g]) => `<div class="tp-bar"><div class="tp-bar-top"><span>${text(k)}</span><b>${g.j} 人加入</b></div>
+      <div class="tp-track"><div class="tp-fill" style="width:${(g.j / max) * 100}%"></div></div>
+      <small>${g.n} 篇・${g.c} 次點擊${Object.keys(g.who).length ? '・來自 ' + Object.entries(g.who).sort((a, b) => b[1] - a[1]).map(([w, n]) => `${text(w)} ${n}`).join('、') : ''}</small></div>`).join('') || '<p class="help">還沒有資料。</p>';
   },
 
   socialWorkbenchTab: (queue) => list(queue, (q) => `<article class="list-row"><span><b>${text(q.title || q.content_formula || q.slug)}</b><small>${text(q.account_label)} · ${text(q.scheduled_at || q.posted_at)}</small></span>${statusBadge(q.social_post_status)}${rowActions(['posted','skipped','expired'].includes(String(q.social_post_status)) ? [] : [actionBtn('取消','social-cancel',{ idParams: { id: q.queue_id } },'danger')])}</article>`),
