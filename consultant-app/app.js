@@ -1460,10 +1460,10 @@ async function loadPostcallResult(applicationId, box) {
       box.innerHTML = views.callResult(data.legacy_call_summary_md)
         + `<div class="actions-row" style="margin-top:10px"><button type="button" class="btn ghost sm" data-action="postcall-generate">升級成結構化電洽結果（含 Gate Result／下一步建議）</button></div>`;
     }
-    else box.innerHTML = views.postcallResultEmpty();
+    else box.innerHTML = views.postcallResultEmpty(applicationId);
     return data;
   } catch (error) {
-    box.innerHTML = views.postcallResultTimeout(error);
+    box.innerHTML = views.postcallResultTimeout(error, applicationId);
     return null;
   }
 }
@@ -1536,7 +1536,7 @@ async function postcallGenerate(applicationId, force) {
   try {
     await adapters.postcallResultGenerate(applicationId, force);
   } catch (error) {
-    if (box) box.innerHTML = views.postcallResultTimeout(error);
+    if (box) box.innerHTML = views.postcallResultTimeout(error, applicationId);
     toast(error.message || '產生失敗', 'error');
     return;
   }
@@ -1550,7 +1550,7 @@ async function postcallGenerate(applicationId, force) {
     if (data && data.status === 'ready') { clearInterval(timer); return; }
     if (attempts >= MAX_ATTEMPTS) {
       clearInterval(timer);
-      if (state.openCandidateId === applicationId && liveBox) liveBox.innerHTML = views.postcallResultTimeout();
+      if (state.openCandidateId === applicationId && liveBox) liveBox.innerHTML = views.postcallResultTimeout(null, applicationId);
     }
   }, CONFIG.detailPollMs);
 }

@@ -2707,15 +2707,22 @@ ${a.note ? `<details class="note-details"><summary>顧問備註／電洽紀錄</
     return sections.map((s) => `<section class="card pc-card"><div class="card-head"><h2 style="margin:0;font-size:15px">${text(s.title)}</h2></div><div style="padding:14px 15px;font-size:13.5px;line-height:1.7;white-space:pre-wrap">${text(s.body || '未提及')}</div></section>`).join('');
   },
   postcallResultLoading: () => `<div class="pc-loading"><div class="pc-skel pc-skel-hero"></div><div class="pc-skel pc-skel-row"></div><p class="help" style="text-align:center">AI 正在整理電洽結果，通常 1-2 分鐘…</p></div>`,
-  postcallResultEmpty: () => `<div class="pc-empty state">
-    <strong>還沒有結構化的電洽結果</strong>
-    <p>需要先有電洽紀錄（手動記一筆或 TG 貼逐字稿），AI 才能整理成這裡的重點摘要／求職需求／Gate 結果／下一步建議。</p>
-    <button type="button" class="btn primary" data-action="postcall-generate">產生電洽結果</button>
+  // 2026-09-29 Jacky：電洽結果這格只有「產生／重試」，沒有電洽紀錄時顧問卡在這裡不知道去哪匯入。
+  // 匯入按鈕直接放在這格（跟「操作」裡的「手動記一筆電洽重點」同一支），存完再按產生。
+  postcallImportBtn: (applicationId) => (applicationId
+    ? actionBtn('貼上／上傳電洽逐字稿', 'application-call-note', { idParams: { application_id: applicationId } }, 'primary') : ''),
+  postcallResultEmpty: (applicationId) => `<div class="pc-empty state">
+    <strong>還沒有電洽結果</strong>
+    <p><b>第 1 步</b>：把這通電話的逐字稿貼上或上傳（txt／pdf／doc 都可以）。<br><b>第 2 步</b>：存好後按「產生電洽結果」，AI 1～2 分鐘整理出重點、求職需求、條件符不符合、下一步。</p>
+    <div class="actions-row" style="justify-content:center">${views.postcallImportBtn(applicationId)}
+    <button type="button" class="btn" data-action="postcall-generate">產生電洽結果</button></div>
   </div>`,
-  postcallResultTimeout: (err) => {
+  postcallResultTimeout: (err, applicationId) => {
     const message = (err && err.message) || 'AI 這次呼叫沒有成功，或這位人選還沒有電洽紀錄。';
-    return `<div class="pc-empty state error"><strong>產生失敗</strong><p>${text(message)}</p>
-    <button type="button" class="btn primary" data-action="postcall-generate" data-force="1">重試</button></div>`;
+    const noRecord = /沒有電洽紀錄/.test(message);
+    return `<div class="pc-empty state${noRecord ? '' : ' error'}"><strong>${noRecord ? '還沒有電洽紀錄' : '產生失敗'}</strong><p>${text(noRecord ? '先把這通電話的逐字稿貼上或上傳，存好後再按「產生電洽結果」。' : message)}</p>
+    <div class="actions-row" style="justify-content:center">${views.postcallImportBtn(applicationId)}
+    <button type="button" class="btn${noRecord ? '' : ' primary'}" data-action="postcall-generate" data-force="1">${noRecord ? '產生電洽結果' : '重試'}</button></div></div>`;
   },
   // 2026-09-18 新增（規格 B）：電洽結果從長篇 call_summary_md 升級成 6 區
   // 結構化決策頁——①摘要②求職需求③Gate Result④AI建議⑤其他適合職缺
