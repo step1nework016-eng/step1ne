@@ -2036,11 +2036,13 @@ const downloadBillingProof = (id) => downloadFileGeneric(id, `/admin/billing-ins
 async function openJobManage(slug, initialTab = 'manage') {
   drawer({ title: '載入職缺…', body: loading() });
   try {
-    const [jobsData, content, card, acai] = await Promise.all([
+    const [jobsData, content, card, acai, sourced] = await Promise.all([
       adapters.jobs(), adapters.jobContent(slug).catch(() => ({})),
       // 職缺卡（對話 B）：失敗不擋整個抽屜開啟，退回空卡片一樣可以匯入第一筆。
       adapters.jobCard(slug).catch(() => null),
-      adapters.jobAcaiView(slug).catch(() => null)]);
+      adapters.jobAcaiView(slug).catch(() => null),
+      // 「AI 找的人」分頁（2026-09-29）：失敗不擋抽屜，分頁裡顯示載入失敗。
+      adapters.jobSourced(slug).catch(() => null)]);
     const job = jobsData.jobs.find((j) => (j.slug || j.id) === slug) || { slug };
     // 2026-09-21：題庫加進職缺抽屜。adapters.jobs() 本來就會一併抓
     // /admin/expertise，這裡直接從同一包資料撈，不用為了抽屜再打一次 API。
@@ -2056,10 +2058,10 @@ async function openJobManage(slug, initialTab = 'manage') {
     }
     const isBuilding = (jobsData.expertiseBuilding || []).includes(slug);
     drawer({ title: job.title || slug, subtitle: job.company_name || job.client_name || '',
-             body: views.jobManageBody(job, content, bank, isBuilding, card, acai) });
+             body: views.jobManageBody(job, content, bank, isBuilding, card, acai, sourced) });
     // 分頁切換。四個面板都已經 render 好，純顯示／隱藏，不 lazy-load
     // ——題庫／職缺卡／阿財理解資料上面已經拿到了，再延遲載入只是多一次往返。
-    const PANELS = ['manage', 'expertise', 'card', 'acai'];
+    const PANELS = ['manage', 'sourced', 'expertise', 'card', 'acai'];
     $$('[data-jobtab]').forEach((btn) => {
       btn.onclick = () => {
         $$('[data-jobtab]').forEach((b) => b.classList.remove('active'));
@@ -2540,6 +2542,10 @@ async function submitPendingAction() {
     await api[action.method](path, body, options);
     toast(action.success || '已完成', 'success');
     state.pendingAction = null;
+    // 2026-09-29：職缺抽屜「AI 找的人」分頁的記錄聯絡，送出後重開同一個職缺、停在同一個分頁。
+    if (action.reopenJobTab && ctx.idParams.job_slug) { openJobManage(ctx.idParams.job_slug, action.reopenJobTab); return; }
+    // 2026-09-29：客戶開發卡片的「新增通話心得」，送出後重開同一家公司的抽屜（看得到剛寫的那則）。
+    if (action.reopenBdCompany && ctx.idParams.company) { openBdDetail(ctx.idParams.company); return; }
     // 2026-09-15 改：使用者反映「每次一個操作都會自己關閉卡片」——因為
     // modal()／drawer() 共用同一個 #overlay-root，開確認框那一刻卡片其實已經
     // 被蓋掉了，之前又緊接著 closeOverlay()+refreshCurrentView() 直接跳回列表。

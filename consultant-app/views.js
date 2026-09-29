@@ -370,19 +370,68 @@ ${list(items, (j) => `<article class="list-row"><span><b>${text(j.title || j.slu
   // 他說得對：正在看這個職缺時本來就想順手看它的題庫，現在卻要跳出去、
   // 到另一個分頁、在 30 幾個職缺裡再找回同一個。總覽頁保留（適合一次看全部
   // 缺哪些），這裡是同一份資料的第二個入口。
-  jobManageBody: (job, content, bank, isBuilding = false, card = null, acai = null) => {
+  jobManageBody: (job, content, bank, isBuilding = false, card = null, acai = null, sourced = null) => {
     const slug = job.slug || job.id;
     const lv = card && card.profile ? `（Lv.${card.profile.level || 0}）` : '';
     return `<div class="tabs">
 <button class="active" data-jobtab="manage">管理</button>
+<button data-jobtab="sourced">AI 找的人${sourced && Array.isArray(sourced.rows) ? `（${sourced.rows.length}）` : ''}</button>
 <button data-jobtab="expertise">面談題庫${bank && bank._n ? `（${bank._n}）` : ''}</button>
 <button data-jobtab="card">職缺卡${lv}</button>
 <button data-jobtab="acai">阿財的理解</button>
 </div>
 <div class="drawer-section" id="job-tab-manage"><h3>職缺狀態</h3>${rowActions([actionBtn('開啟／關閉職缺','job-status',{ idParams: { slug } }),actionBtn('刪除職缺','job-delete',{ idParams: { slug } },'danger')])}<h3>職缺內容</h3>${views.jobContentForm(content)}<button class="btn primary" data-action="submit-job-content" data-slug="${text(slug)}">儲存職缺內容（只存有改的欄位，最多 15 分鐘內上線）</button><p class="help">存檔前系統會檢查：內容突然少一大截、或頁面是客製版面，都會再問你一次。</p><h3>客製表單欄位</h3>${actionBtn('新增客製表單欄位','job-forms-create',{ idParams: {}, record: { job_slug: slug } })}</div>
+<div class="drawer-section" id="job-tab-sourced" hidden>${views.jobSourcedPanel(slug, sourced)}</div>
 <div class="drawer-section" id="job-tab-expertise" hidden>${views.jobExpertisePanel(slug, bank, isBuilding)}</div>
 <div class="drawer-section" id="job-tab-card" hidden>${views.jobCardPanel(slug, card)}</div>
 <div class="drawer-section" id="job-tab-acai" hidden>${views.jobAcaiPanel(slug, acai)}</div>`;
+  },
+
+  // 職缺抽屜「AI 找的人」分頁（2026-09-29，Jacky 簡化主線流程：AI 持續找人 →
+  // 顧問打電話 → 阿財面談…）。AI 找到的人原本只能去「人選 → 人才池」翻，
+  // 現在直接掛在職缺底下，顧問打完電話順手記錄＋評符不符合，累積「AI 找人精準度」。
+  // 資料來自 GET /admin/jobs/:slug/sourced；記錄聯絡走 ACTIONS['sourced-contact']。
+  jobSourcedPanel: (slug, data) => {
+    if (!data) return '<div class="notice">AI 找的人載入失敗，關掉抽屜再開一次試試。</div>';
+    const rows = Array.isArray(data.rows) ? data.rows : [];
+    const k = data.kpi || {};
+    const kpi = `<div class="src-kpi"><b>AI 找人精準度：符合 ${k.fit || 0}／已評分 ${k.rated || 0}${k.rated ? `（${k.precision}%）` : '（還沒有人被評分）'}</b>
+<small>已評分＝評過「符合」或「不符合」；「不確定」${k.unsure || 0} 位不算進去。已聯絡 ${k.contacted || 0} 位${k.rejected ? `・另有 ${k.rejected} 位之前被標不合適，不列出` : ''}</small></div>`;
+    if (!rows.length) return `${kpi}<div class="notice">這個職缺目前沒有 AI 找到的人選。</div>`;
+    const RES = { no_answer: '沒接／沒回', interested: '有興趣', not_interested: '沒興趣', invited: '已約阿財面談', wrong_person: '資料不對／不是本人' };
+    const safeUrl = (u) => (/^https?:\/\//i.test(String(u || '').trim()) ? String(u).trim() : '');
+    const link = (u, label) => (safeUrl(u) ? `<a class="btn ghost sm" href="${escapeHtml(safeUrl(u))}" target="_blank" rel="noopener">${text(label)}</a>` : '');
+    const card = (r) => {
+      const others = String(r.other_links || '').split(/[\s,，、]+/).map(safeUrl).filter(Boolean);
+      const otherLinks = others.slice(0, 3).map((u) => link(u, /cake\.me|cakeresume/i.test(u) ? 'CakeResume' : '作品／其他')).join('');
+      const srcLink = r.source_url && r.source_url !== r.linkedin_url && r.source_url !== r.github_url ? link(r.source_url, '原始頁') : '';
+      const phone = String(r.phone || '').trim();
+      const email = String(r.email || '').trim();
+      const hasSocial = !!(r.linkedin_url || r.github_url || others.length || r.source_url);
+      const how = [];
+      if (r.grade === 'C' || r.grade === 'D') how.push('<span class="badge">先不聯絡</span>');
+      if (email) how.push('<span class="badge info">可寄信</span>');
+      if (phone) how.push('<span class="badge success">可打電話</span>');
+      if (!email && !phone && hasSocial && r.grade !== 'C' && r.grade !== 'D') how.push('<span class="badge warning">只能私訊</span>');
+      const fitMark = r.fit === 'fit' ? '<span class="badge success" title="顧問評：符合">✓ 符合</span>'
+        : r.fit === 'unfit' ? '<span class="badge danger" title="顧問評：不符合">✕ 不符合</span>'
+        : r.fit === 'unsure' ? '<span class="badge">？ 不確定</span>' : '';
+      const cc = Number(r.call_count) || 0;
+      const last = cc ? `<small class="src-last">已聯絡 ${cc} 次・上次：${text(RES[r.last_contact_result] || r.last_contact_result || '')}・${text(String(r.last_contact_at || '').slice(0, 10))}</small>` : '';
+      const why = String(r.why || '').trim();
+      return `<article class="src-card${cc ? ' contacted' : ''}">
+<div class="src-head"><span class="src-name"><b>${text(r.name || '（沒有名字）')}</b>${r.grade ? `<span class="badge info">${text(r.grade)} 級${r.score !== null && r.score !== undefined ? ` · ${text(r.score)}` : ''}</span>` : ''}${fitMark}</span></div>
+<small>${[r.headline, r.company, r.location].filter(Boolean).map((x) => text(x)).join(' · ')}</small>
+${why ? `<details class="src-why"><summary>為什麼符合</summary><p>${text(why)}</p></details>` : ''}
+<div class="src-how">${how.join('')}</div>
+${(email || phone) ? `<div class="src-contact">${phone ? `<a href="tel:${escapeHtml(phone.replace(/[^0-9+#,]/g, ''))}">${text(phone)}</a>` : ''}${email ? `<a href="mailto:${escapeHtml(email)}">${text(email)}</a>` : ''}</div>` : ''}
+<div class="src-links">${srcLink}${link(r.linkedin_url, 'LinkedIn')}${otherLinks}${link(r.github_url, 'GitHub')}</div>
+${last}
+${rowActions([actionBtn('記錄聯絡', 'sourced-contact', { idParams: { id: r.id, job_slug: slug } }, 'primary')])}
+</article>`;
+    };
+    return `${kpi}<p class="help">沒聯絡過的排前面，再依評級、分數排。打完電話按「記錄聯絡」，順手評符不符合——這就是 AI 找人精準度的分母。</p>
+<div class="src-list">${rows.map(card).join('')}</div>`;
   },
 
   // 單一職缺的題庫面板。跟總覽頁用同一顆 expertiseQuestionCard，不另做一套
@@ -1855,7 +1904,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
       const oid = (r.outreach_ids || [])[0] || '';
       return `${head}<article class="list-row bd-dash-row" data-bd-stage="${text(r.stage)}" data-bd-has-todo="${r.todo.length ? 1 : 0}" data-bd-industry="${escapeHtml(g)}" data-bd-assignee="${escapeHtml(r.assigned_to || '')}" data-bd-phone="${phoneKind}">
         <span>
-          <b>${text(r.company)}</b> ${r.industry ? `<span class="badge">${text(String(r.industry).split(/[（(]/)[0].slice(0, 18))}</span>` : ''}
+          <b>${text(r.company)}</b> ${r.industry ? `<span class="badge">${text(String(r.industry).split(/[（(]/)[0].slice(0, 18))}</span>` : ''}${r.note_count ? ` <span class="badge info">有 ${text(r.note_count)} 則心得</span>` : ''}
           ${views.bdEntry(r.trigger, r.has_candidate)}
           ${phoneHtml}${mainHtml}${noPhone}
           <small>${text(r.contact_name || '窗口未知')}${r.contact_email ? ' · ' + text(r.contact_email) : ''}</small>
@@ -1888,6 +1937,15 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
         return `<label class="field span-2"><span>${text(lb)}</span>${el}</label>`;
       }).join('')}
     </form>`;
+  },
+  // 通話心得（2026-09-29 Jacky）：放在客戶卡片最上面的切入點下面。顧問談完一家記下
+  // 學到什麼／下一通怎麼講／遇到的問題，每一則累積、新的在上面，下一個打電話的人先看這裡。
+  bdNotesBlock: (company, notes, people, assignedTo) => {
+    const ns = Array.isArray(notes) ? notes : [];
+    const item = (n) => `<article class="bdn-item"><small>${text(String(n.created_at || '').slice(0, 16))}・${text(n.author || '顧問')}</small>
+${n.learned ? `<p><b>學到什麼</b>${text(n.learned)}</p>` : ''}${n.next_time ? `<p><b>下一通怎麼講</b>${text(n.next_time)}</p>` : ''}${n.problem ? `<p class="bdn-problem"><b>遇到的問題</b>${text(n.problem)}</p>` : ''}</article>`;
+    return `<section class="bdn"><div class="bdn-head"><h3>通話心得${ns.length ? `（${ns.length}）` : ''}</h3>${actionBtn('＋ 新增心得', 'bd-note-create', { idParams: { company }, record: { author: assignedTo || '', _people: people || [] } }, 'primary')}</div>
+${ns.length ? `<div class="bdn-list">${ns.map(item).join('')}</div>` : '<p class="help" style="margin:4px 0 0">還沒有人寫過心得。談完這家，記一下學到什麼、下一通怎麼講。</p>'}</section>`;
   },
   // 切入點（2026-09-29 Jacky：本週計畫表寫的切入點，卡片上也要看得到）：新消息＞人選敲門＞104 職缺
   bdTriggerOf: (rows) => {
@@ -1925,7 +1983,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
   // 2026-09-29 加：企業卡片補聯絡方式（一鍵複製／撥號）、資料來源連結、
   // 104 企業頁連結，另外加「開發引導」分頁（時間軸／信件 之外的第二個分頁）。
   // 找不到的欄位一律不顯示那一行，不留空殼。
-  bdDashboardDetail: ({ outreach, timeline, playbook }) => {
+  bdDashboardDetail: ({ outreach, timeline, playbook, notes, people, assigned_to, company }) => {
     const pick = (key) => outreach.map((o) => o[key]).find(Boolean) || null;
     const contactName = pick('contact_name');
     const contactEmail = pick('contact_email');
@@ -2041,7 +2099,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
       <div class="list">${playbook.next_steps.map((s) => `<div class="list-row"><span>${text(s)}</span></div>`).join('')}</div>
     `;
 
-    return `${views.bdEntry(views.bdTriggerOf(outreach), outreach.some((o) => o.candidate_card), true)}${contactCard}
+    return `${views.bdEntry(views.bdTriggerOf(outreach), outreach.some((o) => o.candidate_card), true)}${views.bdNotesBlock(company || (outreach[0] || {}).company || '', notes, people, assigned_to)}${contactCard}
       <div class="tabs tabs-sub" id="bd-detail-tabs">
         <button type="button" class="active" data-bd-detail-tab="timeline">時間軸／信件</button>
         <button type="button" data-bd-detail-tab="playbook">開發引導</button>

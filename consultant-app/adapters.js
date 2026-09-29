@@ -88,6 +88,8 @@ export const adapters = {
   async jobCards() { const r = await api.get('/admin/job-cards'); return r.jobs || []; },
   // 「阿財的理解」快照（2026-09-24），見 GET /admin/jobs/:slug/acai-view。
   async jobAcaiView(slug) { return api.get(`/admin/jobs/${encodeURIComponent(slug)}/acai-view`); },
+  // 職缺抽屜「AI 找的人」分頁（2026-09-29），見 GET /admin/jobs/:slug/sourced。
+  async jobSourced(slug) { return api.get(`/admin/jobs/${encodeURIComponent(slug)}/sourced`); },
   // 營運數據（2026-09-24），見 GET /admin/operations-trend。
   async operationsTrend() { return api.get('/admin/operations-trend'); },
   // 營運數據依職缺看（2026-09-24，總指揮交辦），見 GET /admin/jobs/:slug/operations-trend。
