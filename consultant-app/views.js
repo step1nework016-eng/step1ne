@@ -1817,7 +1817,14 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
       ${no_delivery_record_count ? `<p class="help">送達數字裡，另外有 ${text(no_delivery_record_count)} 家是 9/23 前寄的信——那時候還沒有送達回報，不是真的沒送到，看列表上會標「無送達紀錄」。</p>` : ''}
       <p class="help">點一格可以篩出停在那一步的公司；一家公司只會算在它目前走到的最後一步。</p>
     </div>`;
+    // 2026-09-29 Jacky：依產業分類、可以指派給誰打、電話分「人資電話／公司總機」標清楚
+    const groups = {};
+    rows.forEach((r) => { const g = r.industry_group || '未分類'; groups[g] = (groups[g] || 0) + 1; });
+    const people = [...new Set(['Jacky', 'Phoebe', ...rows.map((r) => r.assigned_to).filter(Boolean)])];
     const filterBar = `<div class="filter-row">
+      <select id="bd-dash-industry"><option value="">全部產業（${rows.length}）</option>${Object.entries(groups).sort((a, b) => b[1] - a[1]).map(([g, n]) => `<option value="${escapeHtml(g)}">${text(g)}（${n}）</option>`).join('')}</select>
+      <select id="bd-dash-assignee"><option value="">全部負責人</option><option value="__none">未指派</option>${people.map((x) => `<option value="${escapeHtml(x)}">${text(x)}</option>`).join('')}</select>
+      <select id="bd-dash-phone"><option value="">電話：全部</option><option value="hr">有人資電話</option><option value="any">有任何電話</option><option value="none">還沒有電話</option></select>
       <select id="bd-dash-filter">
         <option value="">全部</option>
         <option value="todo">待我處理</option>
@@ -1826,17 +1833,40 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
       </select>
       <span id="bd-dash-count" class="help"></span>
     </div>`;
-    const rowsHtml = rows.length ? `<div class="list" id="bd-dash-list">${rows.map((r) => {
+    const RES = { interested: '有興趣', not_interested: '拒絕', got_email: '拿到信箱', no_answer: '沒接', gatekeeper: '被總機擋', got_contact: '問到窗口', not_hiring: '沒在徵人' };
+    const sorted = rows.slice().sort((a, b) => String(a.industry_group || '未分類').localeCompare(String(b.industry_group || '未分類'), 'zh-Hant') || 0);
+    let lastGroup = null;
+    const rowsHtml = rows.length ? `<div class="list" id="bd-dash-list">${sorted.map((r) => {
       const chLabel = r.channel === 'phone' ? '📞 電訪' : (r.channel === 'both' ? '✉️＋📞 信＋電訪' : '✉️ 寄信');
-      return `<article class="list-row bd-dash-row" data-bd-stage="${text(r.stage)}" data-bd-has-todo="${r.todo.length ? 1 : 0}">
+      const g = r.industry_group || '未分類';
+      const head = g !== lastGroup ? `<h3 class="bd-group" data-bd-group-head="${escapeHtml(g)}">${text(g)}</h3>` : '';
+      lastGroup = g;
+      const tel = (n) => `<a href="tel:${escapeHtml(String(n).replace(/[^0-9+#,]/g, ''))}">${text(n)}</a>`;
+      const phoneHtml = r.hr_phone
+        ? `<div class="bd-phone hr"><b>人資電話</b> ${tel(r.hr_phone)}${r.hr_contact ? `（${text(r.hr_contact)}）` : ''}<small>→ 直接找人資，照開發引導「開場」講</small></div>`
+        : '';
+      const mainHtml = r.company_phone
+        ? `<div class="bd-phone main"><b>公司總機</b> ${tel(r.company_phone)}<small>→ 先過總機：問「＿＿職缺是哪位人資負責」</small></div>` : '';
+      const noPhone = !r.hr_phone && !r.company_phone ? '<div class="bd-phone none">⚠️ 還沒有電話</div>' : '';
+      const phoneKind = r.hr_phone ? 'hr' : (r.company_phone ? 'main' : 'none');
+      const lastCall = r.last_call_result ? `<small>上次電訪：${text(RES[r.last_call_result] || r.last_call_result)}（${text(String(r.last_call_at || '').slice(5, 10))}）${r.call_retry_at ? `・建議 ${text(String(r.call_retry_at).slice(5, 10))} 再打` : ''}${r.last_call_note ? `・${text(r.last_call_note)}` : ''}</small>` : '';
+      const oid = (r.outreach_ids || [])[0] || '';
+      return `${head}<article class="list-row bd-dash-row" data-bd-stage="${text(r.stage)}" data-bd-has-todo="${r.todo.length ? 1 : 0}" data-bd-industry="${escapeHtml(g)}" data-bd-assignee="${escapeHtml(r.assigned_to || '')}" data-bd-phone="${phoneKind}">
         <span>
-          <b>${text(r.company)}</b>
-          <small>${text(r.contact_name || '窗口未知')}${r.contact_email ? ' · ' + text(r.contact_email) : ''}${r.call_phone ? ' · ' + text(r.call_phone) : ''}</small>
+          <b>${text(r.company)}</b> ${r.industry ? `<span class="badge">${text(String(r.industry).split(/[（(]/)[0].slice(0, 18))}</span>` : ''}
+          ${r.trigger ? `<small class="bd-trigger">【觸發】${text(r.trigger)}</small>` : ''}
+          ${phoneHtml}${mainHtml}${noPhone}
+          <small>${text(r.contact_name || '窗口未知')}${r.contact_email ? ' · ' + text(r.contact_email) : ''}</small>
+          ${lastCall}
           <small>${chLabel} · 第 ${text(r.attempts)} 次接觸 · 目前：${r.awaiting_call ? '待電訪' : text(LABEL[r.stage] || r.stage)}${r.delivery_note === 'no_tracking' ? '（送達：無紀錄，9/23 前寄的信還沒有追蹤）' : ''}</small>
           ${r.next_followup_due ? `<small class="${r.next_followup_overdue ? 'bd-overdue' : ''}">${r.next_followup_overdue ? '⚠️ 追信逾期：' : '下次追信：'}${text(String(r.next_followup_due).slice(0, 16))}</small>` : ''}
           ${r.todo.length ? `<small>${r.todo.map((t) => `<span class="badge warning">${text(t)}</span>`).join(' ')}</small>` : ''}
         </span>
-        ${rowActions([`<button type="button" class="btn ghost sm" data-bd-company="${escapeHtml(r.company)}">看時間軸／信件</button>`])}
+        <div class="bd-actions">
+          <label class="bd-assign"><span>負責</span><select data-bd-assign="${escapeHtml(r.company)}"><option value="">未指派</option>${people.map((x) => `<option value="${escapeHtml(x)}"${r.assigned_to === x ? ' selected' : ''}>${text(x)}</option>`).join('')}</select></label>
+          ${oid ? actionBtn('記錄電話結果', 'bd-call-result', { idParams: { id: oid } }, 'primary') : ''}
+          <button type="button" class="btn ghost sm" data-bd-company="${escapeHtml(r.company)}">開發引導／時間軸</button>
+        </div>
       </article>`;
     }).join('')}</div>` : empty('目前沒有已經接觸過的公司');
     return `<div class="page-head"><div><h2>開發進度看板</h2><p>寄出、電訪、追信、回信、談到職缺、成交——同一家公司合併成一列，不用分頭看。</p></div></div>${funnelCard}${filterBar}${rowsHtml}`;

@@ -1119,6 +1119,9 @@ function wireBdDashboardFilter() {
   const box = document.getElementById('bd-dash-list');
   const counter = document.getElementById('bd-dash-count');
   if (!sel || !box) return;
+  const ind = document.getElementById('bd-dash-industry');
+  const who = document.getElementById('bd-dash-assignee');
+  const ph = document.getElementById('bd-dash-phone');
   const apply = () => {
     const v = sel.value;
     let shown = 0;
@@ -1129,13 +1132,33 @@ function wireBdDashboardFilter() {
       if (v === 'todo') ok = hasTodo;
       else if (v === 'replied') ok = ['replied', 'jd_shared', 'closed'].includes(stage);
       else if (v.startsWith('stage:')) ok = stage === v.slice('stage:'.length);
+      if (ok && ind && ind.value) ok = r.dataset.bdIndustry === ind.value;
+      if (ok && who && who.value) ok = who.value === '__none' ? !r.dataset.bdAssignee : r.dataset.bdAssignee === who.value;
+      if (ok && ph && ph.value) ok = ph.value === 'hr' ? r.dataset.bdPhone === 'hr' : ph.value === 'any' ? r.dataset.bdPhone !== 'none' : r.dataset.bdPhone === 'none';
       r.hidden = !ok;
       if (ok) shown += 1;
+    }
+    // 產業標題：底下沒有顯示中的公司就藏起來
+    for (const h of box.querySelectorAll('[data-bd-group-head]')) {
+      h.hidden = ![...box.querySelectorAll(`.bd-dash-row[data-bd-industry="${CSS.escape(h.dataset.bdGroupHead)}"]`)].some((r) => !r.hidden);
     }
     const total = box.querySelectorAll('.bd-dash-row').length;
     if (counter) counter.textContent = shown === total ? `顯示全部 ${total} 家` : `顯示 ${shown} 家（全部 ${total} 家）`;
   };
   sel.onchange = apply;
+  [ind, who, ph].forEach((x) => { if (x) x.onchange = apply; });
+  // 指派顧問：選了就存，不用另外按儲存
+  for (const s2 of box.querySelectorAll('[data-bd-assign]')) {
+    s2.onchange = async () => {
+      s2.disabled = true;
+      try {
+        await api.post('/admin/bd/assign', { company: s2.dataset.bdAssign, assignee: s2.value });
+        s2.closest('.bd-dash-row').dataset.bdAssignee = s2.value;
+        toast(s2.value ? `已指派給 ${s2.value}` : '已取消指派', 'success');
+      } catch (e) { toast(`指派失敗：${e.message || e}`, 'error'); }
+      s2.disabled = false;
+    };
+  }
   for (const btn of $$('.bd-funnel-step')) {
     btn.onclick = () => { sel.value = `stage:${btn.getAttribute('data-bd-filter-stage')}`; apply(); };
   }
