@@ -1210,26 +1210,60 @@ function wireScripts(root) {
   const items = [...wrap.querySelectorAll('.sc-item')];
   const input = wrap.querySelector('.sc-search');
   const hint = wrap.querySelector('.sc-hint');
+  const list = wrap.querySelector('.sc-list');
   let cat = '';
+  // 我的最愛（2026-09-29 Jacky）：顧問點星星收藏，固定排最上面並直接展開。跟負責人篩選一樣存這台裝置。
+  const FAV_KEY = 's1_script_favs';
+  let favs;
+  try { favs = new Set(JSON.parse(localStorage.getItem(FAV_KEY) || '[]')); } catch { favs = new Set(); }
+  const isFav = (it) => favs.has(it.dataset.scId);
+  const syncFavs = () => {
+    try { localStorage.setItem(FAV_KEY, JSON.stringify([...favs])); } catch { /* 無痕模式存不了就算了 */ }
+    for (const it of items) {
+      const on = isFav(it);
+      it.classList.toggle('fav', on);
+      const b = it.querySelector('[data-sc-star]');
+      if (b) { b.setAttribute('aria-pressed', String(on)); b.setAttribute('aria-label', on ? '從我的最愛移除' : '加入我的最愛'); b.title = b.getAttribute('aria-label'); }
+    }
+    // 最愛排前面，其他維持原本順序
+    [...items.filter(isFav), ...items.filter((it) => !isFav(it))].forEach((it) => list.appendChild(it));
+    const cnt = wrap.querySelector('[data-sc-fav-n]');
+    if (cnt) cnt.textContent = String(favs.size);
+  };
   const apply = () => {
     const kw = (input?.value || '').trim().toLowerCase();
     const compact = !!hint;
+    const idle = !cat && !kw;
     let n = 0;
     for (const it of items) {
-      const ok = (!cat || it.dataset.scCatOf === cat) && (!kw || kw.split(/\s+/).every((w) => it.dataset.scText.includes(w)));
-      it.hidden = compact && !cat && !kw ? true : !ok;
+      const ok = (!cat || (cat === 'fav' ? isFav(it) : it.dataset.scCatOf === cat)) && (!kw || kw.split(/\s+/).every((w) => it.dataset.scText.includes(w)));
+      it.hidden = compact && idle ? !isFav(it) : !ok;
       if (!it.hidden) n += 1;
     }
-    if (hint) hint.hidden = !!(cat || kw);
-    // 只剩一兩張時直接展開，省一次點擊
-    items.filter((it) => !it.hidden).forEach((it) => { it.open = n <= 2; });
+    if (hint) hint.hidden = !idle || favs.size > 0;
+    // 最愛直接展開（照著唸）；其他只剩一兩張時才展開，省一次點擊
+    items.filter((it) => !it.hidden).forEach((it) => { it.open = ((idle || cat === 'fav') && isFav(it)) || n <= 2; });
   };
+  wrap.querySelectorAll('[data-sc-star]').forEach((b) => b.addEventListener('click', (e) => {
+    e.preventDefault(); e.stopPropagation(); // 點星星不要順便開合那一段
+    const id = b.closest('.sc-item').dataset.scId;
+    if (favs.has(id)) favs.delete(id); else favs.add(id);
+    syncFavs(); apply();
+  }));
+  syncFavs();
   input?.addEventListener('input', apply);
   wrap.querySelectorAll('[data-sc-cat]').forEach((b) => b.addEventListener('click', () => {
     cat = cat === b.dataset.scCat ? '' : b.dataset.scCat;
     wrap.querySelectorAll('[data-sc-cat]').forEach((x) => x.classList.toggle('active', x.dataset.scCat === cat));
     apply();
   }));
+  // 手機版用下拉選單（跟分類按鈕同步）
+  const catSel = wrap.querySelector('.sc-cat-select');
+  catSel?.addEventListener('change', () => {
+    cat = catSel.value;
+    wrap.querySelectorAll('[data-sc-cat]').forEach((x) => x.classList.toggle('active', x.dataset.scCat === cat));
+    apply();
+  });
   apply();
 }
 

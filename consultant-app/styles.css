@@ -582,3 +582,19 @@ details.note-details p{margin:8px 0 0;font-size:13.5px;white-space:pre-wrap;colo
 .sc-item summary{cursor:pointer;font-weight:700;min-height:32px;display:flex;align-items:center;gap:6px}
 .sc-item .cg-say{margin:8px 0}
 .sc-quick{border-top:1px solid var(--line);margin-top:16px}
+/* 話術我的最愛（2026-09-29） */
+.sc-item summary{justify-content:space-between}
+.sc-item .sc-q{flex:1;min-width:0}
+.sc-star{flex:none;width:44px;height:44px;margin:-6px -8px -6px 0;border:0;background:transparent;border-radius:10px;cursor:pointer;display:grid;place-items:center;color:#9aa6b8}
+.sc-star svg{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round}
+.sc-star[aria-pressed="true"]{color:#d99a00}
+.sc-star[aria-pressed="true"] svg{fill:currentColor}
+.sc-star:hover{background:rgba(0,0,0,.05)}
+.sc-star:focus-visible{outline:3px solid #2459d6;outline-offset:1px}
+.sc-item.fav{border-color:#e7c35a;background:#fffbea}
+.sc-fav-chip b{font-weight:700;margin-left:2px}
+.sc-fav-tip{margin:-4px 0 10px}
+.sc-quick.sc-top{border-top:0;margin-top:0;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:14px}
+@media (prefers-reduced-motion:no-preference){.sc-star{transition:color .15s,background .15s}}
+.sc-cat-select{display:none;width:100%;min-height:44px;margin:0 0 8px}
+@media (max-width:760px){.sc-cats{display:none}.sc-cat-select{display:block}}

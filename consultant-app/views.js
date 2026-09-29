@@ -1876,19 +1876,21 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
   scriptFill: (t, vars) => String(t).replace(/\{(公司|職缺|產業|常補)\}/g, (_, k) => (vars && vars[k]) || '＿＿'),
   scriptsBlock: (vars, compact) => `<div class="sc-wrap" data-sc-vars='${escapeHtml(JSON.stringify(vars || {}))}'>
       <input type="search" class="sc-search" placeholder="打關鍵字：已有獵頭、先寄資料、費用、忙、分機…" aria-label="搜尋話術">
-      <div class="sc-cats">${SCRIPT_CATS.map(([k, lb]) => `<button type="button" class="chip" data-sc-cat="${k}">${lb}</button>`).join('')}</div>
+      <div class="sc-cats"><button type="button" class="chip sc-fav-chip" data-sc-cat="fav">★ 我的最愛 <b data-sc-fav-n>0</b></button>${SCRIPT_CATS.map(([k, lb]) => `<button type="button" class="chip" data-sc-cat="${k}">${lb}</button>`).join('')}</div>
+      <select class="sc-cat-select" aria-label="話術分類"><option value="">全部情境</option><option value="fav">★ 我的最愛</option>${SCRIPT_CATS.map(([k, lb]) => `<option value="${k}">${lb}</option>`).join('')}</select>
+      <p class="help sc-fav-tip">點每段話術右邊的星星加入最愛，最愛會固定排在最上面、直接展開，打電話時照著唸就好（存在這台裝置）。</p>
       <div class="sc-list">${SCRIPTS.map((x, i) => {
         const line = views.scriptFill(x.a, vars);
-        return `<details class="sc-item" data-sc-cat-of="${x.cat}" data-sc-text="${escapeHtml((x.q + ' ' + x.a + ' ' + (x.tags || '')).toLowerCase())}"${compact ? ' hidden' : ''}>
-          <summary>${x.cat === 'jacky' ? '<span class="badge info">Jacky 親授</span> ' : ''}${text(views.scriptFill(x.q, vars))}</summary>
+        return `<details class="sc-item" data-sc-id="${escapeHtml(x.q)}" data-sc-cat-of="${x.cat}" data-sc-text="${escapeHtml((x.q + ' ' + x.a + ' ' + (x.tags || '')).toLowerCase())}"${compact ? ' hidden' : ''}>
+          <summary><span class="sc-q">${x.cat === 'jacky' ? '<span class="badge info">Jacky 親授</span> ' : ''}${text(views.scriptFill(x.q, vars))}</span><button type="button" class="sc-star" data-sc-star aria-pressed="false" aria-label="加入我的最愛" title="加入我的最愛"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 2.8l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.5l6.3-.9z"/></svg></button></summary>
           <p class="cg-say">${text(line)}</p>
           <button type="button" class="btn ghost sm" data-copy-text="${escapeHtml(line)}">複製這段</button>
         </details>`;
       }).join('')}</div>
-      ${compact ? '<p class="help sc-hint">點上面的情境或打關鍵字，話術就會出現（已經換成這家的資料）。</p>' : ''}
+      ${compact ? '<p class="help sc-hint">點上面的情境或打關鍵字，話術就會出現（已經換成這家的資料）。加了星星的最愛會直接顯示在這裡。</p>' : ''}
     </div>`,
   scriptsTab: () => `<article class="card"><div class="card-head"><h2 style="margin:0;font-size:16px">話術手冊</h2></div>
-      <p class="help" style="margin:6px 0 12px">打電話開發客戶時隨手查。來源：Jacky 親授（最優先）、開發信框架、國外研究；費用一律照正職代招委託合約。每家客戶卡片的「開發引導」下面也有同一份「話術快查」，會自動換成那一家的公司、職缺、產業。</p>
+      <p class="help" style="margin:6px 0 12px">打電話開發客戶時隨手查。來源：Jacky 親授（最優先）、開發信框架、國外研究；費用一律照正職代招委託合約。每家客戶卡片的「開發引導」最上面也有同一份「話術對照」，會自動換成那一家的公司、職缺、產業。</p>
       ${views.scriptsBlock(null, false)}</article>`,
   // 2026-09-29 加：企業卡片補聯絡方式（一鍵複製／撥號）、資料來源連結、
   // 104 企業頁連結，另外加「開發引導」分頁（時間軸／信件 之外的第二個分頁）。
@@ -1937,6 +1939,8 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
     const say = (t, when) => `<p class="cg-say"${when ? ` data-when="${when}"` : ''}${when === 'small' ? ' hidden' : ''}>${text(t)}</p>`;
     const guidePane = g ? `<div class="cg" data-bd-id="${escapeHtml(callRow ? callRow.id : '')}">
       ${lastCall ? `<div class="notice" style="margin:0 0 10px">上次電訪：${text(RES_ZH[lastCall.call_result] || lastCall.call_result)}${lastCall.call_retry_at ? `，建議 ${text(String(lastCall.call_retry_at).slice(5, 10))} 再打` : ''}${lastCall.call_note ? `（${text(lastCall.call_note)}）` : ''}</div>` : ''}
+      <section class="sc-quick sc-top"><h3 class="cg-title" style="margin-top:0"><span>★</span>話術對照（我的最愛固定在最上面，照著打）</h3>
+        ${views.scriptsBlock({ 公司: (outreach[0] || {}).company || '', 職缺: g.job_title ? `「${g.job_title}」` : '', 產業: g.industry_short || '', 常補: g.industry_roles || '' }, true)}</section>
       <div class="cg-mode" role="group" aria-label="打法">
         <button type="button" class="cg-mode-btn on" data-cg-mode="rookie" aria-pressed="true">新手打法<small>用 104 職缺開口</small></button>
         <button type="button" class="cg-mode-btn" data-cg-mode="pro" aria-pressed="false">高手打法<small>抓時機／帶人選／帶市場情報</small></button>
@@ -1991,8 +1995,6 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
         </form>
         <p class="help">沒接／被擋／只問到窗口 → 系統 2 個工作天後提醒再打；拿到信箱或有興趣 → TG 通知去寫開發信。</p>`)}
       <div class="cg-nav"><button type="button" class="btn" data-cg-prev>← 上一步</button><button type="button" class="btn primary" data-cg-next>下一步 →</button></div>
-      <section class="sc-quick"><h3 class="cg-title" style="margin-top:18px"><span>?</span>話術快查（對方丟出講稿沒寫到的問題時）</h3>
-        ${views.scriptsBlock({ 公司: (outreach[0] || {}).company || '', 職缺: g.job_title ? `「${g.job_title}」` : '', 產業: g.industry_short || '', 常補: g.industry_roles || '' }, true)}</section>
     </div>` : '';
     const playbookPane = !playbook ? empty('這家還沒有足夠資料組出開發引導') : guidePane || `
       <h3 style="font-size:14px;margin:4px 0">為什麼開發這家</h3>
