@@ -20,7 +20,7 @@
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
-          company: v('company'), job: v('job'), contact: v('contact'),
+          company: v('company'), job: v('job'), contact: v('contact'), plan: v('plan'),
           website: v('website'), page: location.pathname
         })
       }).then(function (r) { return r.json(); }).then(function (d) {
