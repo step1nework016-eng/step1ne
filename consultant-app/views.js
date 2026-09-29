@@ -2163,6 +2163,27 @@ ${a.note ? `<details class="note-details"><summary>顧問備註／電洽紀錄</
   // 排序照「顧問打開後最想知道什麼」：
   //   分流（要不要現在打）→ 一句話定位 → 最大風險 → 分數 → 專業題深度
   //   → 硬條件 → 待追問 → 報告全文（收合，備查用）
+  // 2026-09-29 Jacky：「我要有一個製作客戶履歷的地方讓 AI 幫我生出來，我要提供給客戶」。
+  // 卡片最上面固定一格：一顆按鈕做 AI 客戶版履歷（沒推薦給客戶之前也能做，會用他應徵的職缺），
+  // 做好的每一份都列在這裡可下載；改好的正式版一樣用下面「推薦給客戶」那格上傳給客戶。
+  clientResumeBox: (applicationId, reports, forwards) => {
+    const nameOf = (cid) => ((forwards || []).find((f) => f.company_id === cid) || {}).company_name || '';
+    const rows = (reports || []).slice().sort((a, b) => String(b.generated_at || '').localeCompare(String(a.generated_at || '')));
+    const item = (r) => {
+      const who = nameOf(r.company_id);
+      const st = r.pdf_pending ? '<span class="badge">AI 製作中（1～2 分鐘）</span>'
+        : r.consultant_confirmed_at ? '<span class="badge success">正式版・客戶看得到</span>'
+        : '<span class="badge warning">AI 草稿・客戶還看不到</span>';
+      return `<div class="list-row" style="padding:8px 10px"><span><b>${text(who || '依應徵職缺')}</b> ${st}<small>${text(String(r.generated_at || '').slice(5, 16))}</small></span>
+        ${r.file_id && !r.pdf_pending ? `<button type="button" class="btn ghost sm" data-download-file="${text(r.file_id)}">下載</button>` : ''}</div>`;
+    };
+    return `<section class="cr-box">
+      <div class="cr-head"><h3 style="margin:0">客戶履歷</h3>
+        ${actionBtn(rows.length ? '重新製作客戶履歷（AI）' : '製作客戶履歷（AI）', 'client-formal-report', { idParams: { application_id: applicationId } }, 'primary')}</div>
+      <p class="help" style="margin:6px 0 8px">按下去 → AI 用阿財報告＋履歷整理內容（約 2～3 分鐘）→ 草稿貼到 TG「客戶履歷人工確認」，你在那邊按確認 → 產出 PDF，這裡就能下載。要給客戶看，到下面「推薦給客戶」那格上傳正式版。</p>
+      ${rows.length ? rows.map(item).join('') : '<p class="muted" style="margin:0">還沒做過。</p>'}
+    </section>`;
+  },
   // 2026-09-29 Jacky：打開人選卡片第一眼就要看到「背景經歷 × 職缺」匹配總結，不用再點進阿財初審。
   jobMatchTop: (report) => {
     let d = null;
