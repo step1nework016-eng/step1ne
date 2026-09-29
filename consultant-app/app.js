@@ -1161,7 +1161,11 @@ function wireBdDashboardFilter() {
         await api.post('/admin/bd/assign', { company: s2.dataset.bdAssign, assignee: s2.value });
         s2.closest('.bd-dash-row').dataset.bdAssignee = s2.value;
         toast(s2.value ? `已指派給 ${s2.value}` : '已取消指派', 'success');
-      } catch (e) { toast(`指派失敗：${e.message || e}`, 'error'); }
+      } catch (e) {
+        toast(`指派失敗：${e.message || e}`, 'error');
+        // 2026-09-29：沒電話不能指派（後端回 400），選單退回原本的人，不要顯示成已經指派
+        s2.value = s2.closest('.bd-dash-row').dataset.bdAssignee || '';
+      }
       s2.disabled = false;
     };
   }
@@ -1195,6 +1199,8 @@ function wireBdDetailTabs() {
       for (const b of tabs) b.classList.toggle('active', b === btn);
       const timelinePane = document.getElementById('bd-detail-pane-timeline');
       const playbookPane = document.getElementById('bd-detail-pane-playbook');
+      const profilePane = document.getElementById('bd-detail-pane-profile');
+      if (profilePane) profilePane.hidden = key !== 'profile';
       if (timelinePane) timelinePane.hidden = key !== 'timeline';
       if (playbookPane) playbookPane.hidden = key !== 'playbook';
     };

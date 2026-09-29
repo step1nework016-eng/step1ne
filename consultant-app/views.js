@@ -1904,7 +1904,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
       const oid = (r.outreach_ids || [])[0] || '';
       return `${head}<article class="list-row bd-dash-row" data-bd-stage="${text(r.stage)}" data-bd-has-todo="${r.todo.length ? 1 : 0}" data-bd-industry="${escapeHtml(g)}" data-bd-assignee="${escapeHtml(r.assigned_to || '')}" data-bd-phone="${phoneKind}">
         <span>
-          <b>${text(r.company)}</b> ${r.industry ? `<span class="badge">${text(String(r.industry).split(/[（(]/)[0].slice(0, 18))}</span>` : ''}${r.note_count ? ` <span class="badge info">有 ${text(r.note_count)} 則心得</span>` : ''}
+          <b>${text(r.company)}</b> ${r.industry ? `<span class="badge">${text(String(r.industry).split(/[（(]/)[0].slice(0, 18))}</span>` : ''}${r.has_profile ? ' <span class="badge success">有介紹</span>' : ''}${r.note_count ? ` <span class="badge info">有 ${text(r.note_count)} 則心得</span>` : ''}
           ${views.bdEntry(r.trigger, r.has_candidate)}
           ${phoneHtml}${mainHtml}${noPhone}
           <small>${text(r.contact_name || '窗口未知')}${r.contact_email ? ' · ' + text(r.contact_email) : ''}</small>
@@ -1914,7 +1914,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
           ${r.todo.length ? `<small>${r.todo.map((t) => `<span class="badge warning">${text(t)}</span>`).join(' ')}</small>` : ''}
         </span>
         <div class="bd-actions">
-          <label class="bd-assign"><span>負責</span><select data-bd-assign="${escapeHtml(r.company)}"><option value="">未指派</option>${people.map((x) => `<option value="${escapeHtml(x)}"${r.assigned_to === x ? ' selected' : ''}>${text(x)}</option>`).join('')}</select></label>
+          <label class="bd-assign"><span>負責</span><select data-bd-assign="${escapeHtml(r.company)}"${phoneKind === 'none' && !r.assigned_to ? ' disabled title="Jacky 規定：有電話才能指派"' : ''}><option value="">未指派</option>${people.map((x) => `<option value="${escapeHtml(x)}"${r.assigned_to === x ? ' selected' : ''}>${text(x)}</option>`).join('')}</select>${phoneKind === 'none' ? '<em class="bd-need-phone">待補電話</em>' : ''}</label>
           ${oid ? actionBtn('記錄電話結果', 'bd-call-result', { idParams: { id: oid } }, 'primary') : ''}
           <button type="button" class="btn ghost sm" data-bd-company="${escapeHtml(r.company)}">開發引導／時間軸</button>
         </div>
@@ -1937,6 +1937,34 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
         return `<label class="field span-2"><span>${text(lb)}</span>${el}</label>`;
       }).join('')}
     </form>`;
+  },
+  // 「認識客戶」分頁（2026-09-29 Jacky）：顧問不用自己上網研究客戶背景。資料是 bd_company_profiles
+  // （AI 整理好寫進 D1），這裡照固定順序顯示；hiring／topics／recent_news／sources 一行一項，用條列。
+  bdProfilePane: (pf) => {
+    const has = (v) => String(v || '').trim() !== '';
+    if (!pf || !['business', 'scale', 'org', 'hiring', 'topics', 'recent_news', 'website', 'industry'].some((k) => has(pf[k]))) {
+      return '<div class="state"><strong>AI 還在整理這家的介紹</strong><p>整理好會自動出現在這裡，先看「開發引導」準備打電話。</p></div>';
+    }
+    const safeUrl = (u) => (/^https?:\/\//i.test(String(u || '').trim()) ? String(u).trim() : '');
+    const lines = (v) => String(v || '').split(/\r?\n/).map((x) => x.replace(/^[\s・•\-*]+/, '').trim()).filter(Boolean);
+    const ul = (v, asLink) => `<ul class="bdp-ul">${lines(v).map((x) => {
+      const u = asLink ? safeUrl(x) : '';
+      return `<li>${u ? `<a href="${escapeHtml(u)}" target="_blank" rel="noopener">${text(x)}</a>` : text(x)}</li>`;
+    }).join('')}</ul>`;
+    const row = (label, body) => `<div class="bdp-row"><h4>${label}</h4>${body}</div>`;
+    const site = safeUrl(pf.website);
+    return `<div class="bdp">
+      ${has(pf.website) ? row('官網', site ? `<a class="bdp-site" href="${escapeHtml(site)}" target="_blank" rel="noopener">${text(pf.website)} ↗</a>` : `<p>${text(pf.website)}</p>`) : ''}
+      ${has(pf.industry) ? row('產業', `<p>${text(pf.industry)}</p>`) : ''}
+      ${has(pf.business) ? row('做什麼的', `<p>${text(pf.business)}</p>`) : ''}
+      ${has(pf.scale) ? row('規模', `<p>${text(pf.scale)}</p>`) : ''}
+      ${has(pf.org) ? row('組織架構', `<p>${text(pf.org)}</p>`) : ''}
+      ${has(pf.hiring) ? row('需要的職缺', ul(pf.hiring)) : ''}
+      ${has(pf.topics) ? row('可以聊的議題', ul(pf.topics)) : ''}
+      ${has(pf.recent_news) ? row('近期新聞', ul(pf.recent_news)) : ''}
+      ${has(pf.sources) ? row('來源', ul(pf.sources, true)) : ''}
+      ${has(pf.updated_at) ? `<p class="help">整理時間 ${text(String(pf.updated_at).slice(0, 16))}${has(pf.updated_by) ? `・${text(pf.updated_by)}` : ''}</p>` : ''}
+    </div>`;
   },
   // 通話心得（2026-09-29 Jacky）：放在客戶卡片最上面的切入點下面。顧問談完一家記下
   // 學到什麼／下一通怎麼講／遇到的問題，每一則累積、新的在上面，下一個打電話的人先看這裡。
@@ -1983,7 +2011,7 @@ ${ns.length ? `<div class="bdn-list">${ns.map(item).join('')}</div>` : '<p class
   // 2026-09-29 加：企業卡片補聯絡方式（一鍵複製／撥號）、資料來源連結、
   // 104 企業頁連結，另外加「開發引導」分頁（時間軸／信件 之外的第二個分頁）。
   // 找不到的欄位一律不顯示那一行，不留空殼。
-  bdDashboardDetail: ({ outreach, timeline, playbook, notes, people, assigned_to, company }) => {
+  bdDashboardDetail: ({ outreach, timeline, playbook, notes, people, assigned_to, company, profile }) => {
     const pick = (key) => outreach.map((o) => o[key]).find(Boolean) || null;
     const contactName = pick('contact_name');
     const contactEmail = pick('contact_email');
@@ -2101,10 +2129,12 @@ ${ns.length ? `<div class="bdn-list">${ns.map(item).join('')}</div>` : '<p class
 
     return `${views.bdEntry(views.bdTriggerOf(outreach), outreach.some((o) => o.candidate_card), true)}${views.bdNotesBlock(company || (outreach[0] || {}).company || '', notes, people, assigned_to)}${contactCard}
       <div class="tabs tabs-sub" id="bd-detail-tabs">
-        <button type="button" class="active" data-bd-detail-tab="timeline">時間軸／信件</button>
+        <button type="button" class="active" data-bd-detail-tab="profile">認識客戶</button>
+        <button type="button" data-bd-detail-tab="timeline">時間軸／信件</button>
         <button type="button" data-bd-detail-tab="playbook">開發引導</button>
       </div>
-      <div id="bd-detail-pane-timeline">${timelinePane}</div>
+      <div id="bd-detail-pane-profile">${views.bdProfilePane(profile)}</div>
+      <div id="bd-detail-pane-timeline" hidden>${timelinePane}</div>
       <div id="bd-detail-pane-playbook" hidden>${playbookPane}</div>`;
   },
   // bd_requests 真實欄位是 role_family（不是 company_name/target，這裡從沒要求填公司名——
