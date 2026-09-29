@@ -1265,7 +1265,8 @@ async function openCandidate(applicationId) {
         withdrawBtn,
         editBtn,
         actionBtn('傳訊息給客戶', 'pipeline-message-client', { idParams: { application_id: applicationId, company_id: companyId } }),
-        actionBtn('建立正式報告', 'client-formal-report', { idParams: { application_id: applicationId, company_id: companyId } }),
+        cfr && cfr.pdf_pending ? '' : actionBtn(cfr ? '重新製作 AI 草稿' : '製作推薦履歷（AI 草稿）', 'client-formal-report', { idParams: { application_id: applicationId, company_id: companyId } }),
+        cfr && !cfr.consultant_confirmed_at && !cfr.pdf_pending && cfr.file_id ? `<button type="button" class="btn ghost sm" data-download-file="${text(cfr.file_id)}">下載 AI 草稿</button>` : '',
         actionBtn(cfr && cfr.consultant_confirmed_at ? '換一份推薦履歷' : '上傳推薦履歷', 'client-formal-report-upload', { idParams: { application_id: applicationId, company_id: companyId } }),
         cfr && cfr.consultant_confirmed_at && cfr.file_id ? `<button type="button" class="btn ghost sm" data-download-file="${text(cfr.file_id)}">下載推薦履歷</button>` : '',
         noShowBtn,
@@ -1649,6 +1650,8 @@ function stageDetailHtml(key, application, forwards, report, applicationId) {
       const cfr = f.client_formal_report;
       const ids = { idParams: { application_id: applicationId, company_id: f.company_id } };
       return `<div class="list-row cfr-drop" style="flex-wrap:wrap;row-gap:8px" data-cfr-app="${escapeHtml(applicationId)}" data-cfr-co="${escapeHtml(f.company_id)}" data-cfr-name="${escapeHtml(f.company_name || '')}" data-cfr-has="${cfr && cfr.consultant_confirmed_at ? '1' : ''}"><span style="flex:1 1 100%"><b>${text(f.company_name)}</b><small>${text(f.job_title || f.job_slug)}${f.stage_label ? ' · ' + text(f.stage_label) : ''}</small><span style="display:block;margin-top:6px">${cfrStatus(cfr)}</span><small class="cfr-drop-hint">也可以直接把推薦履歷 PDF 拖進這一格</small></span>${rowActions([
+        cfr && cfr.pdf_pending ? '' : actionBtn(cfr ? '重新製作 AI 草稿' : '製作推薦履歷（AI 草稿）', 'client-formal-report', ids),
+        cfr && !cfr.consultant_confirmed_at && !cfr.pdf_pending && cfr.file_id ? `<button type="button" class="btn ghost sm" data-download-file="${text(cfr.file_id)}">下載 AI 草稿</button>` : '',
         actionBtn(cfr && cfr.consultant_confirmed_at ? '換一份推薦履歷' : '上傳推薦履歷', 'client-formal-report-upload', ids, cfr && cfr.consultant_confirmed_at ? '' : 'primary'),
         cfr && cfr.consultant_confirmed_at && cfr.file_id ? `<button type="button" class="btn ghost sm" data-download-file="${text(cfr.file_id)}">下載推薦履歷</button>` : '',
       ].filter(Boolean))}</div>`;

@@ -156,7 +156,16 @@ export const ACTIONS = {
   },
   'pipeline-recommended-again': { label: '改回推進', method: 'post', path: () => '/admin/pipeline/forward-decision', fields: [], body: (ctx) => ({ application_id: ctx.idParams.application_id, company_id: ctx.idParams.company_id, not_recommended: false }), success: '已改回推進', confirmText: '確定要把這家客戶這個職缺改回推進中嗎？' },
   'pipeline-message-client': { label: '傳訊息給客戶', method: 'post', path: () => '/admin/pipeline/message-client', fields: [{ name: 'message', label: '訊息內容', type: 'textarea', required: true }], body: idBody, success: '訊息已送出' },
-  'client-formal-report': { label: '建立正式報告', method: 'post', path: () => '/admin/client-formal-reports/', fields: [{ name: 'note', label: '報告說明', type: 'textarea' }], body: idBody, success: '正式報告已建立' },
+  // 2026-09-29 修：原本打 /admin/client-formal-reports/（不存在，按了一律失敗）。
+  // 真正產客戶版推薦履歷的是 /admin/application/:id/client-formal-report（舊版人選追蹤頁用的那支）：
+  // 有阿財結構化報告的，本機排程 1～2 分鐘產 PDF 草稿，產好 TG 會通知，卡片上就能下載。
+  'client-formal-report': {
+    label: '製作推薦履歷（AI 草稿）', method: 'post',
+    path: (ctx) => `/admin/application/${encodeURIComponent(ctx.idParams.application_id)}/client-formal-report`,
+    fields: [], body: (ctx) => ({ company_id: ctx.idParams.company_id }),
+    success: '已開始製作，1～2 分鐘後卡片上會出現「下載 AI 草稿」（TG 也會通知）',
+    confirmText: '用阿財報告＋履歷幫這家客戶做一份推薦履歷草稿？做好後你下載修改，再用「上傳推薦履歷」傳正式版給客戶。',
+  },
   // 2026-09-29 修：原本這顆「確認報告已上傳」沒有帶檔案，後端一律回 400（缺 pdf_b64）——
   // 顧問做好的推薦履歷在新版根本傳不上去。改成真的選 PDF 上傳，跟舊版人選追蹤頁同一支端點。
   'client-formal-report-upload': {
