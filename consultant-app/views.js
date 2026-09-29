@@ -1258,7 +1258,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
   //     「加入後有詢問」要等 line_inbound_log 累積，9/29 才開始記）
   // 平均數會被單篇爆文拉高，卡片上另外標中間值；格子裡篇數太少的反灰，不要拿來下結論。
   threadsPerf: {
-    SLOTS: [['早上', 6, 11], ['中午', 11, 14], ['下午', 14, 18], ['晚上', 18, 22], ['深夜', 22, 30]],
+    SLOTS: [['早上 6–11 點', 6, 11], ['中午 11–14 點', 11, 14], ['下午 14–18 點', 14, 18], ['晚上 18–22 點', 18, 22], ['深夜 22–6 點', 22, 30]],
     slotOf(posted) {
       const h = Number(String(posted || '').slice(11, 13));
       if (Number.isNaN(h)) return '—';
@@ -1326,9 +1326,31 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
     const names = people.map(([n]) => n);
     const dataJson = JSON.stringify(posts.map((r) => ({ w: T.who(r), f: T.formulaOf(r), s: T.slotOf(r.posted_at),
       v: T.n(r.views), l: T.n(r.likes), r: T.n(r.replies), c: T.n(r.clicks), j: T.n(r.line_adds) })));
-    return `<article class="card"><div class="card-head"><h2 style="margin:0;font-size:16px">① 每位顧問</h2></div>
-        <p class="help" style="margin:6px 0 12px">點卡片展開每一篇。平均會被單篇爆文拉高，旁邊的「中間值」比較代表平常一篇的水準。追蹤人數每天早上記一次。</p>
-        <div class="tp-grid">${people.map(card).join('')}</div></article>
+    // 表格版：一位顧問一列，點列一樣展開逐篇（共用 card() 裡的逐篇表）
+    const trow = ([name, rows]) => {
+      const accIds = [...new Set(rows.map((r) => r.account_id).filter(Boolean))];
+      const f = accIds.map((id) => fol[id]).find(Boolean);
+      const jRows = accIds.map((id) => jn[id]).filter(Boolean);
+      const adds = jRows.length ? jRows.reduce((a, j) => a + T.n(j.joins), 0) : rows.reduce((a, r) => a + T.n(r.line_adds), 0);
+      return `<tr class="tp-trow" data-who="${escapeHtml(name)}" tabindex="0"><td><b>${text(name)}</b></td>
+        <td class="num">${f ? T.fmt(f.followers) : '—'}</td><td class="num">${rows.length}</td>
+        <td class="num">${T.fmt(T.avg(rows, 'views'))}<small>中 ${T.fmt(T.med(rows, 'views'))}</small></td>
+        <td class="num">${T.fmt(T.avg(rows, 'likes'), 1)}</td><td class="num">${T.fmt(T.avg(rows, 'replies'), 1)}</td>
+        <td class="num">${T.fmt(T.avg(rows, 'clicks'), 1)}</td><td class="num">${adds}</td></tr>`;
+    };
+    let mode = 'card';
+    try { mode = localStorage.getItem('s1ne_tp_mode') || 'card'; } catch { /* 無痕 */ }
+    return `<article class="card"><div class="card-head"><h2 style="margin:0;font-size:16px">① 每位顧問</h2>
+          <div class="tp-toggle" role="group" aria-label="顯示方式">
+            <button type="button" class="chip${mode === 'card' ? ' active' : ''}" data-tp-mode="card" aria-pressed="${mode === 'card'}">卡片</button>
+            <button type="button" class="chip${mode === 'table' ? ' active' : ''}" data-tp-mode="table" aria-pressed="${mode === 'table'}">表格</button>
+          </div></div>
+        <p class="help" style="margin:6px 0 12px">點卡片（或表格的一列）展開每一篇。平均會被單篇爆文拉高，旁邊的「中間值」比較代表平常一篇的水準。追蹤人數每天早上記一次。</p>
+        <div class="tp-grid" data-tp-view="card"${mode === 'card' ? '' : ' hidden'}>${people.map(card).join('')}</div>
+        <div data-tp-view="table"${mode === 'table' ? '' : ' hidden'}><div class="table-wrap"><table class="spec tp-sum">
+          <tr><th>顧問</th><th class="num">追蹤</th><th class="num">總篇數</th><th class="num">平均瀏覽</th><th class="num">平均讚</th><th class="num">平均留言</th><th class="num">平均點擊</th><th class="num">加入 LINE</th></tr>
+          ${people.map(trow).join('')}</table></div>
+          <div id="tp-table-detail"></div></div></article>
 
       <article class="card" style="margin-top:12px"><div class="card-head"><h2 style="margin:0;font-size:16px">② 哪個時段 × 哪個公式比較好</h2></div>
         <div class="tp-controls">
@@ -1339,7 +1361,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
         <p class="help">格子越深代表越好；小字是篇數。<b>少於 3 篇的格子反灰</b>，樣本太少，先不要拿來下結論。</p></article>
 
       <article class="card" style="margin-top:12px"><div class="card-head"><h2 style="margin:0;font-size:16px">③ 轉化：哪個公式、哪個時段帶來加入 LINE</h2></div>
-        <p class="help" style="margin:6px 0 12px">目前「轉化」＝有人點了貼文裡的連結、接著加入 LINE 官方帳號。<b>從留言區連結加入的人對不到是哪一篇，所以不在這張圖裡</b>（顧問卡片上的總數有算進去）。「加入後有沒有詢問」9/29 才開始記，累積 3～4 週後會換成那個定義。數字還很少，先看方向就好。</p>
+        <p class="help" style="margin:6px 0 12px">目前「轉化」＝有人點了貼文裡的連結、接著加入 LINE 官方帳號。從「職缺社群回覆」（回覆貼文底下留言的人）連結加入的，歸到同一位顧問、同一個職缺當時最近發的那一篇。「加入後有沒有詢問」9/29 才開始記，累積 3～4 週後會換成那個定義。數字還很少，先看方向就好。</p>
         <div class="tp-two"><div><h3 class="tp-h3">依公式</h3><div id="tp-conv-f"></div></div><div><h3 class="tp-h3">依時段</h3><div id="tp-conv-s"></div></div></div>
       </article>
       <script type="application/json" id="tp-data">${dataJson.replace(/</g, '\\u003c')}</script>`;

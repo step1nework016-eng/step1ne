@@ -2736,4 +2736,28 @@ function wireThreadsPerf() {
   who.addEventListener('change', draw);
   metric.addEventListener('change', draw);
   draw();
+  // 卡片／表格切換（記在這台瀏覽器）
+  document.querySelectorAll('[data-tp-mode]').forEach((b) => b.addEventListener('click', () => {
+    const m = b.dataset.tpMode;
+    try { localStorage.setItem('s1ne_tp_mode', m); } catch { /* 無痕 */ }
+    document.querySelectorAll('[data-tp-mode]').forEach((x) => { x.classList.toggle('active', x === b); x.setAttribute('aria-pressed', String(x === b)); });
+    document.querySelectorAll('[data-tp-view]').forEach((v) => { v.hidden = v.dataset.tpView !== m; });
+  }));
+  // 表格點一列 → 在表格下方展開那位顧問的逐篇（直接借卡片裡那張表）
+  const openRow = (tr) => {
+    const box = document.getElementById('tp-table-detail');
+    const cardEl = [...document.querySelectorAll('.tp-card')].find((c) => c.querySelector('.tp-head b')?.textContent === tr.dataset.who);
+    const tbl = cardEl && cardEl.querySelector('.tp-table');
+    if (!box || !tbl) return;
+    const same = box.dataset.who === tr.dataset.who;
+    document.querySelectorAll('.tp-trow').forEach((x) => x.classList.remove('on'));
+    if (same) { box.innerHTML = ''; box.dataset.who = ''; return; }
+    tr.classList.add('on');
+    box.dataset.who = tr.dataset.who;
+    box.innerHTML = `<h3 class="tp-h3" style="margin:14px 0 6px">${tr.dataset.who} 的每一篇</h3><div class="table-wrap">${tbl.outerHTML}</div>`;
+  };
+  document.querySelectorAll('.tp-trow').forEach((tr) => {
+    tr.addEventListener('click', () => openRow(tr));
+    tr.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openRow(tr); } });
+  });
 }
