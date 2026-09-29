@@ -2506,7 +2506,7 @@ ${a.note ? `<details class="note-details"><summary>顧問備註／電洽紀錄</
   jobIntroLoading: () => `<div class="pc-loading"><div class="pc-skel pc-skel-row"></div><div class="pc-skel pc-skel-row"></div></div>`,
   jobIntroEmpty: () => `<div class="pc-empty state"><strong>這位人選還沒有指定職缺</strong><p>先在「編輯應徵單」選一個職缺，才有內容可以顯示。</p></div>`,
   jobIntro: (job) => {
-    // 2026-09-18 補：salary_min/max 是 null 時（業主沒公告固定區間，例如美德醫療
+    // 2026-09-18 補：salary_min/max 是 null 時（業主沒公告固定區間，例如某醫療器材客戶
     // 這個職缺）原本只印「面議」，把 salary_note（顧問打的補充說明，通常會講
     // 「電洽時要向業主確認範圍」這類重要提醒）漏掉了，顧問看不到就不知道這通
     // 電話要記得問。有 salary_note 就附在「面議」後面，不要讓這欄資訊憑空消失。
