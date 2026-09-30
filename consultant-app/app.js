@@ -1354,7 +1354,7 @@ function wireCallGuide() {
   root.querySelectorAll('[data-cg-result]').forEach((b) => b.addEventListener('click', () => {
     result = b.dataset.cgResult;
     root.querySelectorAll('[data-cg-result]').forEach((x) => x.classList.toggle('primary', x === b));
-    if (form) { form.hidden = false; form.querySelector('input,textarea')?.focus(); }
+    if (form) form.querySelector('textarea[name=note]')?.focus();
   }));
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -1367,9 +1367,9 @@ function wireCallGuide() {
       const trBox = root.querySelector('[data-cg-transcript]');
       const transcript = (trBox?.value || '').trim();
       const r = await api.post(`/admin/bd/${encodeURIComponent(id)}/call-result`,
-        { result, contact_name: fd.get('contact_name') || '', email: fd.get('email') || '', note: fd.get('note') || '', transcript });
+        { result, caller: fd.get('caller') || '', contact_name: fd.get('contact_name') || '', email: fd.get('email') || '', note: fd.get('note') || '', transcript });
       toast((r && r.retry_at ? `已記錄，${String(r.retry_at).slice(5, 10)} 會提醒再打` : '已記錄') + (r && r.transcript_id ? '；逐字稿 AI 分析中' : ''), 'success');
-      form.hidden = true;
+      form.reset(); result = ''; root.querySelectorAll('[data-cg-result]').forEach((x) => x.classList.remove('primary'));
       if (r && r.transcript_id && trBox) trBox.value = '';
     } catch (err) { toast(err.message || '記錄失敗', 'error'); }
     btn.disabled = false;

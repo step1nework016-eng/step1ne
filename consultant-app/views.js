@@ -2174,11 +2174,12 @@ ${ns.length ? `<div class="bdn-list">${ns.map(item).join('')}</div>` : '<p class
       ${step(5, '收尾＋點結果', `${g.close.map((c) => `<p class="cg-say">${text(c)}</p>`).join('')}
         <h4 style="margin:14px 0 6px">這通電話結果</h4>
         <div class="cg-results">${[['no_answer', '沒接'], ['gatekeeper', '被總機擋'], ['got_contact', '問到窗口'], ['got_email', '拿到信箱'], ['interested', '有興趣'], ['not_hiring', '沒在徵人'], ['not_interested', '拒絕']].map(([k, lb]) => `<button type="button" class="btn" data-cg-result="${k}">${lb}</button>`).join('')}</div>
-        <form class="cg-form" hidden>
+        <form class="cg-form">
+          <label class="field"><span>誰打的</span><select name="caller">${[...new Set([assigned_to, 'Jacky', 'Phoebe', ...(people || [])].filter(Boolean))].map((x) => `<option value="${escapeHtml(x)}"${x === assigned_to ? ' selected' : ''}>${text(x)}</option>`).join('')}</select></label>
           <label class="field"><span>窗口姓名／職稱</span><input name="contact_name" placeholder="例：王小姐（人資）"></label>
           <label class="field"><span>信箱</span><input name="email" type="email" placeholder="有拿到才填"></label>
-          <label class="field"><span>補充（拒絕原因、下次什麼時候打、對方說了什麼）</span><textarea name="note" rows="2"></textarea></label>
-          <div class="actions-row"><button type="submit" class="btn primary">記錄這通電話</button></div>
+          <label class="field span-2"><span>備註（顧問自己的筆記：問到什麼電話、拒絕原因、下次什麼時候打、對方說了什麼）</span><textarea name="note" rows="3" placeholder="例：招募專線在善化廠 06-5837608，晚點再打"></textarea></label>
+          <div class="actions-row"><button type="submit" class="btn primary">記錄這通電話</button><small class="help">先點上面的結果，再按記錄</small></div>
         </form>
         <section class="cg-tr">
           <h4 style="margin:14px 0 6px">電洽逐字稿（選填，AI 會評分＋給下一通的講法）</h4>
