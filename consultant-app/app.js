@@ -1147,7 +1147,11 @@ function wireBdDashboardFilter() {
       else if (v.startsWith('stage:')) ok = stage === v.slice('stage:'.length);
       if (ok && ind && ind.value) ok = r.dataset.bdIndustry === ind.value;
       if (ok && who && who.value) ok = who.value === '__none' ? !r.dataset.bdAssignee : r.dataset.bdAssignee === who.value;
-      if (ok && ct && ct.value) ok = ct.value === 'yes' ? r.dataset.bdContacted === '1' : r.dataset.bdContacted !== '1';
+      // 備選池（2026-09-30 Jacky）：只有選「備選池」才看得到，其他篩選一律藏起來
+      const parked = r.dataset.bdParked === '1';
+      if (ct && ct.value === 'parked') ok = ok && parked;
+      else if (parked) ok = false;
+      if (ok && ct && ct.value && ct.value !== 'parked') ok = ct.value === 'yes' ? r.dataset.bdContacted === '1' : r.dataset.bdContacted !== '1';
       if (ok && qc && qc.value) ok = qc.value === 'ok' ? r.dataset.bdQc === '1' : r.dataset.bdQc !== '1';
       if (ok && ph && ph.value) ok = ph.value === 'hr' ? r.dataset.bdPhone === 'hr' : ph.value === 'any' ? r.dataset.bdPhone !== 'none' : r.dataset.bdPhone === 'none';
       r.hidden = !ok;
@@ -1482,6 +1486,25 @@ function wireContractPack(scope) {
   });
 }
 
+// 2026-09-30 Jacky：移到備選池／拉回來（開發進度列表、客戶跟進、卡片共用）
+document.addEventListener('click', async (event) => {
+  const btn = event.target instanceof Element ? event.target.closest('[data-park]') : null;
+  if (!btn) return;
+  const company = btn.dataset.park;
+  const on = btn.dataset.parkOn === '1';
+  let reason = '';
+  if (on) {
+    reason = window.prompt(`「${company}」移到備選池：以後開發進度、客戶跟進、日報都不會再出現（篩選「備選池」看得到，可以拉回來）。\n原因（可以不填）：`, '');
+    if (reason === null) return;
+  }
+  btn.disabled = true;
+  try {
+    await api.post('/admin/bd/park', { company, parked: on, reason, by: btn.dataset.parkBy || '' });
+    toast(on ? '已移到備選池' : '已拉回來', 'success');
+    if (btn.closest('.drawer, [role="dialog"]')) openBdDetail(company); else loadRoute();
+  } catch (err) { toast(err.message || '操作失敗', 'error'); btn.disabled = false; }
+});
+
 // 2026-09-30 Jacky：跟進便利貼（卡片最上面／客戶跟進分頁共用）
 function followPayload(root, prefix) {
   return {
@@ -1503,10 +1526,28 @@ function wireDueQuick(root, prefix, onSet) {
     };
   }
 }
+// AI 建議：採用＝把建議填進欄位並存；不用＝標記略過
+function wireAiSuggest(root, prefix, company, by, after) {
+  const box = root.querySelector('[data-ai-box]');
+  if (!box) return;
+  const post = (extra) => api.post('/admin/bd/company-status', { company, ...followPayload(root, prefix), by, ...extra });
+  box.querySelector('[data-ai-accept]').onclick = async () => {
+    const a = box.dataset;
+    if (a.aiAction) root.querySelector(`[data-${prefix}-action]`).value = a.aiAction;
+    if (a.aiDue) root.querySelector(`[data-${prefix}-due]`).value = a.aiDue;
+    const memo = root.querySelector(`[data-${prefix}-memo]`);
+    if (a.aiMemo && !memo.value.includes(a.aiMemo)) memo.value = memo.value.trim() ? `${memo.value.trim()}\n${a.aiMemo}` : a.aiMemo;
+    try { await post({ ai_state: 'accepted' }); box.remove(); toast('已採用 AI 建議', 'success'); if (after) after(); } catch (err) { toast(err.message || '儲存失敗', 'error'); }
+  };
+  box.querySelector('[data-ai-dismiss]').onclick = async () => {
+    try { await post({ ai_state: 'dismissed' }); box.remove(); toast('已略過這次 AI 建議', 'success'); } catch (err) { toast(err.message || '儲存失敗', 'error'); }
+  };
+}
 function wireCompanyStatus(root) {
   const box = root.querySelector('.bd-status-card');
   if (!box) return;
   wireDueQuick(box, 'status');
+  wireAiSuggest(box, 'status', box.dataset.statusCompany, document.querySelector('.cg-pack')?.dataset.packBy || '');
   box.querySelector('[data-status-save]')?.addEventListener('click', async (e) => {
     const btn = e.currentTarget;
     btn.disabled = true;
@@ -1553,7 +1594,10 @@ function wireWrapup(root) {
   const show = root.querySelector('#wu-show');
   const applyFilter = () => {
     rows().forEach((r) => {
-      r.hidden = (!!who.value && r.dataset.wuAssignee !== who.value) || (show.value === 'need' && r.dataset.wuNeeds !== '1');
+      const parked = r.dataset.wuParked === '1';
+      r.hidden = (!!who.value && r.dataset.wuAssignee !== who.value)
+        || (show.value === 'parked' ? !parked : parked)
+        || (show.value === 'need' && r.dataset.wuNeeds !== '1');
       if (r.hidden) r.querySelector('[data-wu-pick]').checked = false;
     });
     sync();
@@ -1592,6 +1636,10 @@ function wireWrapup(root) {
       memoTimer = setTimeout(save, 1000);
     });
     wireDueQuick(row, 'wu', save);
+    wireAiSuggest(row, 'wu', row.dataset.wuCompany, row.dataset.wuAssignee || '', () => {
+      row.querySelector('.wu-mail').hidden = row.querySelector('[data-wu-action]').value !== 'mail';
+      saved.textContent = '✓ 已採用 AI 建議';
+    });
     const mail = row.querySelector('.wu-mail');
     row.querySelector('[data-wu-action]').addEventListener('change', (e) => {
       mail.hidden = e.target.value !== 'mail';
