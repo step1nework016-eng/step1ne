@@ -1038,6 +1038,11 @@ async function loadClientsTab(target) {
     wireBdDashboardFilter();
     return res;
   }
+  if (state.sub === 'bd-wrapup') {
+    const res = await boundary(target, adapters.bdWrapup, views.bdWrapup, 'refresh');
+    wireWrapup(target);
+    return res;
+  }
   if (state.sub === 'requests') return boundary(target, async () => (await adapters.clients()).requests, views.clientsRequestsTab, 'refresh');
   if (state.sub === 'hiring') return boundary(target, adapters.hiringSubmissions, views.clientsHiringTab, 'refresh');
   if (state.sub === 'billing') return loadBillingTab(target);
@@ -1197,6 +1202,8 @@ async function openBdDetail(company) {
     const detail = await adapters.bdDashboardDetail(company);
     drawer({ title: company, subtitle: '開發進度時間軸', body: views.bdDashboardDetail(detail) });
     wireBdDetailTabs();
+    const dr = document.querySelector('.bd-status-card')?.parentElement;
+    if (dr) wireCompanyStatus(dr);
   } catch (error) {
     console.error(error);
     drawer({ title: company, body: errorState(error) });
@@ -1401,11 +1408,29 @@ function wireContractPack(scope) {
   const company = box.dataset.packCompany;
   const out = box.querySelector('[data-pack-out]');
   const fileIn = box.querySelector('[data-pack-file]');
-  const pickContract = () => {
+  const scSel = box.querySelector('[data-pack-scenario]');
+  const anSel = box.querySelector('[data-pack-angle]');
+  const briefWrap = box.querySelector('[data-pack-brief-wrap]');
+  const subjIn = box.querySelector('[data-pack-subj]');
+  const bodyIn = box.querySelector('[data-pack-body]');
+  let orig = null; // 上一次系統擬的主旨／內文；顧問改過才送 override
+  const opts = () => {
     const sel = box.querySelector('[data-pack-contract]');
-    if (!sel) return { no_contract: true };
-    return sel.value ? { contract_id: sel.value } : { no_contract: true };
+    const o = {
+      scenario: scSel?.value || 'followup',
+      angle: anSel?.value || '',
+      attach_intro: !!box.querySelector('[data-pack-intro]')?.checked,
+      candidate_brief: box.querySelector('[data-pack-brief]')?.value || '',
+      ...(sel && sel.value ? { contract_id: sel.value } : { no_contract: true }),
+    };
+    if (orig && !out.hidden) {
+      if (subjIn.value.trim() !== orig.subject) o.subject_override = subjIn.value;
+      if (bodyIn.value.trim() !== orig.body) o.body_override = bodyIn.value;
+    }
+    return o;
   };
+  const syncBrief = () => { if (briefWrap) briefWrap.hidden = scSel?.value !== 'candidate'; };
+  syncBrief();
   fileIn?.addEventListener('change', async () => {
     const f = fileIn.files && fileIn.files[0];
     if (!f) return;
@@ -1414,28 +1439,159 @@ function wireContractPack(scope) {
     fileIn.disabled = true;
     try {
       const b64 = await new Promise((ok, bad) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(',')[1]); r.onerror = bad; r.readAsDataURL(f); });
-      await api.post('/admin/bd/contract-file', { company, file_b64: b64, file_name: f.name, file_mime: f.type, by: box.dataset.packBy || '' });
+      await api.post('/admin/bd/contract-file', { company, file_b64: b64, file_name: f.name, file_mime: f.type, contract_type: box.querySelector('[data-pack-ctype]')?.value || '', by: box.dataset.packBy || '' });
       toast('合約已上傳', 'success');
       openBdDetail(company);
     } catch (err) { toast(err.message || '上傳失敗', 'error'); }
     fileIn.disabled = false;
   });
-  const run = async (dry, btn) => {
+  const preview = async (btn) => {
+    if (btn) btn.disabled = true;
+    try {
+      const o = opts(); delete o.subject_override; delete o.body_override;
+      const r = await api.post('/admin/bd/contract-pack', { company, dry_run: true, by: box.dataset.packBy || '', ...o });
+      const d = r.draft || {};
+      orig = { subject: String(d.subject || '').trim(), body: String(d.body || '').trim() };
+      out.hidden = false;
+      box.querySelector('[data-pack-meta]').textContent = `收件：${d.to || ''}｜附件：${(d.attachments || []).map((a) => a.filename).join('、') || '沒有附件'}`;
+      subjIn.value = d.subject || '';
+      bodyIn.value = d.body || '';
+    } catch (err) { toast(err.message || '擬信失敗', 'error'); }
+    if (btn) btn.disabled = false;
+  };
+  // 換情境／切角／附件：預覽開著就重擬（改過的字會被換掉，先提醒）
+  const onChange = () => {
+    syncBrief();
+    if (out.hidden) return;
+    const edited = orig && (subjIn.value.trim() !== orig.subject || bodyIn.value.trim() !== orig.body);
+    if (edited) toast('換了選項，信件重新擬過（剛剛改的字沒有保留）', 'info');
+    preview(null);
+  };
+  [scSel, anSel, box.querySelector('[data-pack-intro]'), box.querySelector('[data-pack-contract]')].forEach((el) => el?.addEventListener('change', onChange));
+  box.querySelector('[data-pack-brief]')?.addEventListener('change', () => { if (!out.hidden) onChange(); });
+  box.querySelector('[data-pack-preview]')?.addEventListener('click', (e) => preview(e.currentTarget));
+  box.querySelector('[data-pack-send]')?.addEventListener('click', async (e) => {
+    const btn = e.currentTarget;
     btn.disabled = true;
     try {
-      const r = await api.post('/admin/bd/contract-pack', { company, dry_run: dry, by: box.dataset.packBy || '', ...pickContract() });
-      const d = r.draft || {};
-      out.hidden = false;
-      out.textContent = `收件：${d.to || ''}\n附件：${(d.attachments || []).map((a) => a.filename).join('、')}\n主旨：${d.subject || ''}\n\n${d.body || ''}`;
-      if (!dry) {
-        toast(r.tg_sent ? '已送到 TG，等 Jacky 按核准才會寄' : '已存好，但 TG 沒送出去，請通知 Jacky', r.tg_sent ? 'success' : 'error');
-        openBdDetail(company);
+      const r = await api.post('/admin/bd/contract-pack', { company, by: box.dataset.packBy || '', ...opts() });
+      toast(r.tg_sent ? '已送到 TG，等 Jacky 按核准才會寄' : '已存好，但 TG 沒送出去，請通知 Jacky', r.tg_sent ? 'success' : 'error');
+      openBdDetail(company);
+    } catch (err) { toast(err.message || '擬信失敗', 'error'); }
+    btn.disabled = false;
+  });
+}
+
+// 2026-09-30 Jacky：卡片最上面「這家的下一步」
+function wireCompanyStatus(root) {
+  const box = root.querySelector('.bd-status-card');
+  if (!box) return;
+  box.querySelector('[data-status-save]')?.addEventListener('click', async (e) => {
+    const btn = e.currentTarget;
+    btn.disabled = true;
+    try {
+      const r = await api.post('/admin/bd/company-status', {
+        company: box.dataset.statusCompany,
+        next_step: box.querySelector('[data-status-next]').value,
+        adjust_note: box.querySelector('[data-status-adjust]').value,
+        by: document.querySelector('.cg-pack')?.dataset.packBy || '',
+      });
+      box.querySelector('[data-status-at]').textContent = `已儲存 ${String(r.updated_at || '').slice(5, 16)}`;
+      toast('已儲存', 'success');
+    } catch (err) { toast(err.message || '儲存失敗', 'error'); }
+    btn.disabled = false;
+  });
+}
+
+// 2026-09-30 Jacky：收尾分頁
+function wireWrapup(root) {
+  const list = root.querySelector('.wu-list');
+  if (!list) return;
+  const rows = () => [...list.querySelectorAll('.wu-row')];
+  const bar = root.querySelector('.wu-bar');
+  const outAll = root.querySelector('#wu-batch-out');
+  const itemOf = (row) => {
+    const c = row.querySelector('[data-wu-contract]');
+    return {
+      company: row.dataset.wuCompany,
+      scenario: row.querySelector('[data-wu-scenario]').value,
+      angle: row.querySelector('[data-wu-angle]').value,
+      attach_intro: row.querySelector('[data-wu-intro]').checked,
+      candidate_brief: row.querySelector('[data-wu-brief]').value,
+      ...(c && c.value ? { contract_id: c.value } : { no_contract: true }),
+    };
+  };
+  const picked = () => rows().filter((r) => !r.hidden && r.querySelector('[data-wu-pick]').checked);
+  const sync = () => {
+    const n = picked().length;
+    bar.querySelector('[data-wu-picked]').textContent = `已勾 ${n} 家${n > 12 ? '（一次最多 12 封）' : ''}`;
+    bar.querySelectorAll('button').forEach((b) => { b.disabled = !n || n > 12; });
+    const shown = rows().filter((r) => !r.hidden).length;
+    const cnt = root.querySelector('#wu-count');
+    if (cnt) cnt.textContent = `顯示 ${shown} 家`;
+  };
+  const who = root.querySelector('#wu-assignee');
+  who.onchange = () => {
+    rows().forEach((r) => { r.hidden = !!who.value && r.dataset.wuAssignee !== who.value; if (r.hidden) r.querySelector('[data-wu-pick]').checked = false; });
+    sync();
+  };
+  root.querySelector('#wu-pick-all').onchange = (e) => {
+    rows().forEach((r) => { const cb = r.querySelector('[data-wu-pick]'); if (!r.hidden && !cb.disabled) cb.checked = e.target.checked; });
+    sync();
+  };
+  for (const row of rows()) {
+    row.querySelector('[data-wu-pick]').onchange = sync;
+    const sc = row.querySelector('[data-wu-scenario]');
+    const syncBrief = () => { row.querySelector('.wu-brief').hidden = sc.value !== 'candidate'; };
+    sc.addEventListener('change', syncBrief);
+    syncBrief();
+    // 下一步／要調整：離開欄位就自動存
+    const saved = row.querySelector('[data-wu-saved]');
+    for (const inp of row.querySelectorAll('[data-wu-next],[data-wu-adjust]')) {
+      let last = inp.value;
+      inp.addEventListener('change', async () => {
+        if (inp.value === last) return;
+        try {
+          await api.post('/admin/bd/company-status', { company: row.dataset.wuCompany, next_step: row.querySelector('[data-wu-next]').value, adjust_note: row.querySelector('[data-wu-adjust]').value, by: row.dataset.wuAssignee || '' });
+          last = inp.value;
+          saved.textContent = '✓ 已自動儲存';
+        } catch (err) { saved.textContent = ''; toast(err.message || '儲存失敗', 'error'); }
+      });
+    }
+    row.querySelector('[data-wu-preview]').onclick = async (e) => {
+      const btn = e.currentTarget; const out = row.querySelector('[data-wu-out]');
+      btn.disabled = true;
+      try {
+        const r = await api.post('/admin/bd/contract-pack', { ...itemOf(row), dry_run: true });
+        const d = r.draft || {};
+        out.hidden = false;
+        out.textContent = `收件：${d.to || ''}\n附件：${(d.attachments || []).map((a) => a.filename).join('、') || '沒有附件'}\n主旨：${d.subject || ''}\n\n${d.body || ''}`;
+      } catch (err) { toast(err.message || '擬信失敗', 'error'); }
+      btn.disabled = false;
+    };
+  }
+  const batch = async (dry, btn) => {
+    const items = picked().map(itemOf);
+    if (!items.length) return;
+    if (!dry && !window.confirm(`確定把 ${items.length} 封信送到 TG，等 Jacky 核准？（按了還不會寄出）`)) return;
+    btn.disabled = true;
+    try {
+      const r = await api.post('/admin/bd/contract-pack-batch', { items, dry_run: dry, by: root.querySelector('#wu-assignee')?.value || '' });
+      const sk = (r.skipped || []).map((x) => `<li>${text(x.company)}：${text(x.error)}</li>`).join('');
+      if (dry) {
+        outAll.innerHTML = `<div class="card"><h3 style="font-size:14px;margin:0 0 8px">預覽 ${text((r.drafts || []).length)} 封</h3>${sk ? `<div class="notice">這幾家擬不了：<ul>${sk}</ul></div>` : ''}${(r.drafts || []).map((d) => `<details class="bd-letter"><summary>${text(d.company)}｜${text(d.scenario_label)}${d.angle_label ? '｜' + text(d.angle_label) : ''}</summary><pre class="bd-letter-body">${text(`收件：${d.to}\n附件：${(d.attachments || []).map((a) => a.filename).join('、') || '沒有附件'}\n主旨：${d.subject}\n\n${d.body}`)}</pre></details>`).join('')}</div>`;
+        outAll.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        toast(r.tg_sent ? `${r.count} 封已送到 TG，等 Jacky 按「全部核准」` : '已存好，但 TG 沒送出去，請通知 Jacky', r.tg_sent ? 'success' : 'error');
+        if (sk) outAll.innerHTML = `<div class="notice">這幾家沒有擬信：<ul>${sk}</ul></div>`;
+        loadRoute();
       }
     } catch (err) { toast(err.message || '擬信失敗', 'error'); }
     btn.disabled = false;
   };
-  box.querySelector('[data-pack-preview]')?.addEventListener('click', (e) => run(true, e.currentTarget));
-  box.querySelector('[data-pack-send]')?.addEventListener('click', (e) => run(false, e.currentTarget));
+  bar.querySelector('[data-wu-batch-preview]').onclick = (e) => batch(true, e.currentTarget);
+  bar.querySelector('[data-wu-batch-send]').onclick = (e) => batch(false, e.currentTarget);
+  sync();
 }
 
 // 2026-09-30：逐字稿檔（.md／.txt）讀成文字放進同一個表單的逐字稿欄位

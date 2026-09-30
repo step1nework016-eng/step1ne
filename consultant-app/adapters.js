@@ -132,6 +132,7 @@ export const adapters = {
   },
   // 開發進度看板（2026-09-24）：漏斗＋逐家列表一次撈，點開一列才另外打 detail 拿時間軸跟信件全文。
   async bdDashboard() { return api.get('/admin/bd/dashboard'); },
+  async bdWrapup() { return api.get('/admin/bd/wrapup'); },
   async bdDashboardDetail(company) { return api.get(`/admin/bd/dashboard/detail?company=${encodeURIComponent(company)}`); },
   async talentPool() { return api.get('/admin/talent-pool'); },
   async hiringSubmissions() { return rows(await api.get('/hiring-mode/submissions', { recruit: true }), 'items', 'submissions'); },
