@@ -2124,7 +2124,7 @@ ${ns.length ? `<div class="bdn-list">${ns.map(item).join('')}</div>` : '<p class
     const _candRow = outreach.find((o) => o.candidate_card);
     const _preCand = _candRow ? String(_candRow.candidate_card).split('\n').map((x) => x.replace(/^[・•\-\s]+/, '').trim()).filter(Boolean).slice(0, 2).join('，').slice(0, 60) : '';
     const _preRoles = profile ? String(profile.hiring || '').split('\n').map((x) => x.replace(/^[-・•\s]+/, '').replace(/（.*?）/g, '').trim()).filter((x) => x && !/未查到/.test(x)).slice(0, 3).join('、').slice(0, 80) : '';
-    const guidePane = g ? `<div class="cg" data-bd-id="${escapeHtml(callRow ? callRow.id : '')}">
+    const guidePane = g ? `<div class="cg" data-bd-id="${escapeHtml(callRow ? callRow.id : '')}" data-default-mode="${_preTrig || _preCand ? 'pro' : 'rookie'}">
       ${lastCall ? `<div class="notice" style="margin:0 0 10px">上次電訪：${text(RES_ZH[lastCall.call_result] || lastCall.call_result)}${lastCall.call_retry_at ? `，建議 ${text(String(lastCall.call_retry_at).slice(5, 10))} 再打` : ''}${lastCall.call_note ? `（${text(lastCall.call_note)}）` : ''}</div>` : ''}
       <section class="sc-quick sc-top"><h3 class="cg-title" style="margin-top:0"><span>★</span>話術對照（我的最愛固定在最上面，照著打）</h3>
         ${views.scriptsBlock({ 公司: (outreach[0] || {}).company || '', 職缺: g.job_title ? `「${g.job_title}」` : '', 產業: g.industry_short || '', 常補: g.industry_roles || '' }, true)}</section>

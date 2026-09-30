@@ -1329,6 +1329,8 @@ function wireCallGuide() {
     if (radio && inp.value.trim()) { radio.checked = true; syncPro(); }
   }));
   root.querySelectorAll('.cg-fill').forEach((el) => { el.dataset.ph = el.textContent; });
+  // 有新消息或人選可以帶的，打開就停在高手打法（2026-09-30 Jacky）
+  if (root.dataset.defaultMode === 'pro') root.querySelector('[data-cg-mode="pro"]')?.click();
   // 自動帶入的內容先套進開場白（不用顧問自己打）
   root.querySelectorAll('[data-cg-fill]').forEach((inp) => {
     if (!inp.value.trim()) return;
