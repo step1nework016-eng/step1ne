@@ -653,3 +653,10 @@ details.note-details p{margin:8px 0 0;font-size:13.5px;white-space:pre-wrap;colo
 .bd-qc{padding:2px 10px;border-radius:999px;font-weight:700}
 .bd-qc.ok{background:#e2f8ed;color:#14794c}.bd-qc.miss{background:#ffe5e7;color:#a72f3a}
 .bd-contact-row small{color:var(--muted);margin-left:6px}
+/* 長文字不破版（2026-09-30 Jacky：內容備註會破版） */
+.bd-dash-row,.bd-dash-row>span,.bd-contact-card,.bd-contact-row,.bd-entry,.bd-notes,.cg,.sc-item,.list-row>span{min-width:0;overflow-wrap:anywhere;word-break:break-word}
+.bd-contact-row{flex-wrap:wrap}
+.bd-contact-row small,.bd-dash-row small{white-space:normal}
+.bd-letter-body,pre{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;max-width:100%}
+.bd-contact-card a,.bd-dash-row a{overflow-wrap:anywhere}
+.drawer-body{overflow-x:hidden}
