@@ -2020,7 +2020,7 @@ ${ns.length ? `<div class="bdn-list">${ns.map(item).join('')}</div>` : '<p class
   // 2026-09-29 加：企業卡片補聯絡方式（一鍵複製／撥號）、資料來源連結、
   // 104 企業頁連結，另外加「開發引導」分頁（時間軸／信件 之外的第二個分頁）。
   // 找不到的欄位一律不顯示那一行，不留空殼。
-  bdDashboardDetail: ({ outreach, timeline, playbook, notes, people, assigned_to, company, profile }) => {
+  bdDashboardDetail: ({ outreach, timeline, playbook, notes, people, assigned_to, company, profile, hr_contacts }) => {
     const pick = (key) => outreach.map((o) => o[key]).find(Boolean) || null;
     const contactName = pick('contact_name');
     const contactEmail = pick('contact_email');
@@ -2041,6 +2041,7 @@ ${ns.length ? `<div class="bdn-list">${ns.map(item).join('')}</div>` : '<p class
       ${hrPhone ? telRow('人資電話', hrPhone, hrContact) : ''}
       ${mainPhone ? telRow('公司總機', mainPhone, hrPhone ? '' : '先過總機，問人資姓名＋分機') : ''}
       ${phoneSrc ? `<div class="bd-contact-row"><span>電話來源</span><small>${text(String(phoneSrc).slice(0, 120))}</small></div>` : ''}
+      ${(hr_contacts || []).length ? `<div class="bd-hr-list"><b>人資窗口（LinkedIn）</b>${hr_contacts.map((h) => `<div class="bd-contact-row"><span>${text(h.name)}</span><small>${text(h.title || '')}</small><a href="${escapeHtml(h.li_search_url)}" target="_blank" rel="noopener">LinkedIn ↗</a></div>`).join('')}<small class="help">打總機時可以直接說要找這位；也可以用 LinkedIn 私訊。</small></div>` : ''}
       ${website ? `<div class="bd-contact-row"><span>官網</span><a href="${escapeHtml(website)}" target="_blank" rel="noopener">${text(website.replace(/^https?:\/\//, '').replace(/\/$/, ''))} ↗</a></div>` : ''}
       ${contactEmail ? `<div class="bd-contact-row"><span>Email</span><a href="mailto:${escapeHtml(contactEmail)}">${text(contactEmail)}</a><button type="button" class="btn ghost sm" data-copy-text="${escapeHtml(contactEmail)}">複製</button></div>` : ''}
       ${(!contactName && !hrPhone && !mainPhone && !contactEmail) ? '<p class="muted">目前沒有記錄到窗口資訊。</p>' : ''}
