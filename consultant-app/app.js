@@ -2809,6 +2809,24 @@ document.addEventListener('click', async (event) => {
   if (action === 'submit-social-request') submitSocialRequest();
   if (action === 'add-client') openAction('company-create', {});
   if (action === 'run-action') submitPendingAction();
+  // 2026-09-30 Jacky：打電話問到新電話（例如招募專線在廠區），顧問自己在卡片上更新
+  if (action === 'bd-phone-edit') {
+    const d = target.dataset;
+    modal({ title: '更新電話', subtitle: d.company, body: `<form id="bd-phone-form" class="form-grid">
+      <label class="field"><span>人資／招募電話</span><input name="hr_phone" value="${escapeHtml(d.hr || '')}" placeholder="例：06-5837608"></label>
+      <label class="field"><span>人資窗口／哪個廠</span><input name="hr_contact" value="${escapeHtml(d.hrname || '')}" placeholder="例：招募（善化廠）王小姐"></label>
+      <label class="field"><span>公司總機</span><input name="company_phone" value="${escapeHtml(d.main || '')}"></label>
+      <label class="field"><span>怎麼問到的</span><input name="source" placeholder="例：打總機轉介"></label></form>`,
+      footer: '<button class="btn" data-close-overlay>取消</button><button class="btn primary" data-action="bd-phone-save" data-company="' + escapeHtml(d.company) + '">儲存</button>' });
+  }
+  if (action === 'bd-phone-save') {
+    const f = $('#bd-phone-form'); if (!f) return;
+    const b = Object.fromEntries(new FormData(f).entries());
+    try {
+      await api.post('/admin/bd/phone', { company: target.dataset.company, ...b, source: b.source ? `${b.source}（顧問補登）` : '顧問補登' });
+      closeOverlay(); toast('電話已更新', 'success'); openBdDetail(target.dataset.company);
+    } catch (e) { toast(`更新失敗：${e.message || e}`, 'error'); }
+  }
   if (action === 'confirm-job-content') {
     if (!state.jobContentRetry) return;
     const { slug, body } = state.jobContentRetry;
