@@ -2024,12 +2024,22 @@ ${ns.length ? `<div class="bdn-list">${ns.map(item).join('')}</div>` : '<p class
     const sourceUrl = pick('source_url');
     const url104 = pick('company_104_url');
 
+    // 2026-09-30 Jacky：列表有電話、卡片裡卻沒有——卡片改成讀跟列表同一套（人資電話＞總機），並加官網與 104 企業頁。
+    const hrPhone = pick('hr_phone') || '', hrContact = pick('hr_contact') || '', mainPhone = pick('company_phone') || callPhone || '', phoneSrc = pick('phone_source') || '';
+    const website = profile && /^https?:\/\//.test(String(profile.website || '')) ? profile.website : '';
+    const telRow = (label, num, extra) => `<div class="bd-contact-row"><span>${label}</span><a href="tel:${escapeHtml(String(num).replace(/[^0-9+#,]/g, ''))}">${text(num)}</a>${extra ? `<small>${text(extra)}</small>` : ''}<button type="button" class="btn ghost sm" data-copy-text="${escapeHtml(num)}">複製</button></div>`;
+    const okMark = (ok, label) => `<span class="bd-qc ${ok ? 'ok' : 'miss'}">${ok ? '✓' : '✗'} ${label}${ok ? '' : '（缺）'}</span>`;
+    const qc = `<div class="bd-qc-row"><b>資料合格檢查</b>${okMark(!!(hrPhone || mainPhone), '電話')}${okMark(!!url104, '104 企業頁')}${okMark(!!website, '官網')}</div>`;
     const contactCard = `<div class="card bd-contact-card">
       <h3 style="font-size:14px;margin:0 0 8px">聯絡方式</h3>
+      ${qc}
       ${contactName ? `<div class="bd-contact-row"><span>窗口</span><b>${text(contactName)}</b></div>` : ''}
-      ${callPhone ? `<div class="bd-contact-row"><span>電話</span><a href="tel:${escapeHtml(String(callPhone).replace(/[^0-9+#]/g, ''))}">${text(callPhone)}</a><button type="button" class="btn ghost sm" data-copy-text="${escapeHtml(callPhone)}">複製</button></div>` : ''}
+      ${hrPhone ? telRow('人資電話', hrPhone, hrContact) : ''}
+      ${mainPhone ? telRow('公司總機', mainPhone, hrPhone ? '' : '先過總機，問人資姓名＋分機') : ''}
+      ${phoneSrc ? `<div class="bd-contact-row"><span>電話來源</span><small>${text(String(phoneSrc).slice(0, 120))}</small></div>` : ''}
+      ${website ? `<div class="bd-contact-row"><span>官網</span><a href="${escapeHtml(website)}" target="_blank" rel="noopener">${text(website.replace(/^https?:\/\//, '').replace(/\/$/, ''))} ↗</a></div>` : ''}
       ${contactEmail ? `<div class="bd-contact-row"><span>Email</span><a href="mailto:${escapeHtml(contactEmail)}">${text(contactEmail)}</a><button type="button" class="btn ghost sm" data-copy-text="${escapeHtml(contactEmail)}">複製</button></div>` : ''}
-      ${(!contactName && !callPhone && !contactEmail) ? '<p class="muted">目前沒有記錄到窗口資訊。</p>' : ''}
+      ${(!contactName && !hrPhone && !mainPhone && !contactEmail) ? '<p class="muted">目前沒有記錄到窗口資訊。</p>' : ''}
       ${sourceUrl ? `<div class="bd-contact-row"><span>資料來源</span><a href="${escapeHtml(sourceUrl)}" target="_blank" rel="noopener">原始頁面 ↗</a></div>` : ''}
       ${url104 ? `<div class="bd-contact-row"><span>104</span><a href="${escapeHtml(url104)}" target="_blank" rel="noopener">企業頁 ↗</a></div>` : ''}
     </div>`;
