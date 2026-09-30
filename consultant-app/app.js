@@ -1128,6 +1128,8 @@ function wireBdDashboardFilter() {
   const ind = document.getElementById('bd-dash-industry');
   const who = document.getElementById('bd-dash-assignee');
   const ph = document.getElementById('bd-dash-phone');
+  const ct = document.getElementById('bd-dash-contacted');
+  const qc = document.getElementById('bd-dash-qc');
   const apply = () => {
     const v = sel.value;
     let shown = 0;
@@ -1140,6 +1142,8 @@ function wireBdDashboardFilter() {
       else if (v.startsWith('stage:')) ok = stage === v.slice('stage:'.length);
       if (ok && ind && ind.value) ok = r.dataset.bdIndustry === ind.value;
       if (ok && who && who.value) ok = who.value === '__none' ? !r.dataset.bdAssignee : r.dataset.bdAssignee === who.value;
+      if (ok && ct && ct.value) ok = ct.value === 'yes' ? r.dataset.bdContacted === '1' : r.dataset.bdContacted !== '1';
+      if (ok && qc && qc.value) ok = qc.value === 'ok' ? r.dataset.bdQc === '1' : r.dataset.bdQc !== '1';
       if (ok && ph && ph.value) ok = ph.value === 'hr' ? r.dataset.bdPhone === 'hr' : ph.value === 'any' ? r.dataset.bdPhone !== 'none' : r.dataset.bdPhone === 'none';
       r.hidden = !ok;
       if (ok) shown += 1;
@@ -1152,7 +1156,18 @@ function wireBdDashboardFilter() {
     if (counter) counter.textContent = shown === total ? `顯示全部 ${total} 家` : `顯示 ${shown} 家（全部 ${total} 家）`;
   };
   sel.onchange = apply;
-  [ind, who, ph].forEach((x) => { if (x) x.onchange = apply; });
+  [ind, who, ph, ct, qc].forEach((x) => { if (x) x.onchange = apply; });
+  // 已聯繫打勾（2026-09-30 Jacky）：勾了就存，記錄是誰（用這列的負責人）
+  for (const cb of box.querySelectorAll('[data-bd-contacted-box]')) {
+    cb.onchange = async () => {
+      const row = cb.closest('.bd-dash-row');
+      try {
+        await api.post('/admin/bd/contacted', { company: cb.dataset.bdContactedBox, checked: cb.checked, by: row.dataset.bdAssignee || '' });
+        row.dataset.bdContacted = cb.checked ? '1' : '0';
+        toast(cb.checked ? '已標記聯繫過' : '已取消聯繫標記', 'success');
+      } catch (e) { cb.checked = !cb.checked; toast(`存檔失敗：${e.message || e}`, 'error'); }
+    };
+  }
   // 指派顧問：選了就存，不用另外按儲存
   for (const s2 of box.querySelectorAll('[data-bd-assign]')) {
     s2.onchange = async () => {

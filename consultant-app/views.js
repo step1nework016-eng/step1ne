@@ -1875,6 +1875,8 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
     const filterBar = `<div class="filter-row">
       <select id="bd-dash-industry"><option value="">全部產業（${rows.length}）</option>${Object.entries(groups).sort((a, b) => b[1] - a[1]).map(([g, n]) => `<option value="${escapeHtml(g)}">${text(g)}（${n}）</option>`).join('')}</select>
       <select id="bd-dash-assignee"><option value="">全部負責人</option><option value="__none">未指派</option>${people.map((x) => `<option value="${escapeHtml(x)}">${text(x)}</option>`).join('')}</select>
+      <select id="bd-dash-contacted"><option value="">聯繫：全部</option><option value="no">還沒聯繫</option><option value="yes">已聯繫</option></select>
+      <select id="bd-dash-qc"><option value="">資料：全部</option><option value="ok">合格（可以打）</option><option value="bad">不合格（補資料中）</option></select>
       <select id="bd-dash-phone"><option value="">電話：全部</option><option value="hr">有人資電話</option><option value="any">有任何電話</option><option value="none">還沒有電話</option></select>
       <select id="bd-dash-filter">
         <option value="">全部</option>
@@ -1902,9 +1904,10 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
       const phoneKind = r.hr_phone ? 'hr' : (r.company_phone ? 'main' : 'none');
       const lastCall = r.last_call_result ? `<small>${r.call_count ? `已打 ${r.call_count} 通・` : ''}上次電訪：${text(RES[r.last_call_result] || r.last_call_result)}（${text(String(r.last_call_at || '').slice(5, 10))}）${r.call_retry_at ? `・建議 ${text(String(r.call_retry_at).slice(5, 10))} 再打` : ''}${r.last_call_note ? `・${text(r.last_call_note)}` : ''}</small>` : '';
       const oid = (r.outreach_ids || [])[0] || '';
-      return `${head}<article class="list-row bd-dash-row" data-bd-stage="${text(r.stage)}" data-bd-has-todo="${r.todo.length ? 1 : 0}" data-bd-industry="${escapeHtml(g)}" data-bd-assignee="${escapeHtml(r.assigned_to || '')}" data-bd-phone="${phoneKind}">
+      return `${head}<article class="list-row bd-dash-row" data-bd-stage="${text(r.stage)}" data-bd-has-todo="${r.todo.length ? 1 : 0}" data-bd-industry="${escapeHtml(g)}" data-bd-assignee="${escapeHtml(r.assigned_to || '')}" data-bd-phone="${phoneKind}" data-bd-contacted="${r.contacted_at ? 1 : 0}" data-bd-qc="${(r.qc_missing || []).length ? 0 : 1}">
         <span>
           <b>${text(r.company)}</b> ${r.industry ? `<span class="badge">${text(String(r.industry).split(/[（(]/)[0].slice(0, 18))}</span>` : ''}${r.has_profile ? ' <span class="badge success">有介紹</span>' : ''}${r.note_count ? ` <span class="badge info">有 ${text(r.note_count)} 則心得</span>` : ''}
+          ${(r.qc_missing || []).length ? `<small class="bd-qc-bad">不合格，補資料中：缺 ${text(r.qc_missing.join('、'))}</small>` : ''}
           ${views.bdEntry(r.trigger, r.has_candidate, false, r.job_title, r.topic)}
           ${phoneHtml}${mainHtml}${noPhone}
           <small>${text(r.contact_name || '窗口未知')}${r.contact_email ? ' · ' + text(r.contact_email) : ''}</small>
@@ -1914,7 +1917,8 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
           ${r.todo.length ? `<small>${r.todo.map((t) => `<span class="badge warning">${text(t)}</span>`).join(' ')}</small>` : ''}
         </span>
         <div class="bd-actions">
-          <label class="bd-assign"><span>負責</span><select data-bd-assign="${escapeHtml(r.company)}"${phoneKind === 'none' && !r.assigned_to ? ' disabled title="Jacky 規定：有電話才能指派"' : ''}><option value="">未指派</option>${people.map((x) => `<option value="${escapeHtml(x)}"${r.assigned_to === x ? ' selected' : ''}>${text(x)}</option>`).join('')}</select>${phoneKind === 'none' ? '<em class="bd-need-phone">待補電話</em>' : ''}</label>
+          <label class="bd-contacted"><input type="checkbox" data-bd-contacted-box="${escapeHtml(r.company)}"${r.contacted_at ? ' checked' : ''}> 已聯繫${r.contacted_at ? `<small>${text(String(r.contacted_at).slice(5, 10))}${r.contacted_by ? ' ' + text(r.contacted_by) : ''}</small>` : ''}</label>
+          <label class="bd-assign"><span>負責</span><select data-bd-assign="${escapeHtml(r.company)}"${(r.qc_missing || []).length && !r.assigned_to ? ' disabled title="電話＋104＋官網都補齊才能指派"' : ''}><option value="">未指派</option>${people.map((x) => `<option value="${escapeHtml(x)}"${r.assigned_to === x ? ' selected' : ''}>${text(x)}</option>`).join('')}</select>${phoneKind === 'none' ? '<em class="bd-need-phone">待補電話</em>' : ''}</label>
           ${oid ? actionBtn('記錄電話結果', 'bd-call-result', { idParams: { id: oid } }, 'primary') : ''}
           <button type="button" class="btn ghost sm" data-bd-company="${escapeHtml(r.company)}">開發引導／時間軸</button>
         </div>
