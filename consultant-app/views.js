@@ -1999,7 +1999,7 @@ ${imps ? `<h4>下一通更好的講法</h4><ol class="trv-imps">${imps}</ol>` : 
   bdNotesBlock: (company, notes, people, assignedTo, transcripts) => {
     const ns = Array.isArray(notes) ? notes : [];
     const tr = (Array.isArray(transcripts) ? transcripts : [])[0];
-    const item = (n) => `<article class="bdn-item"><small>${text(String(n.created_at || '').slice(0, 16))}・${text(n.author || '顧問')}</small>
+    const item = (n) => `<article class="bdn-item"><small>${text(String(n.created_at || '').slice(0, 16))}・${text(n.author || '顧問')}</small><button type="button" class="btn ghost sm bd-del" data-action="bd-delete-record" data-kind="note" data-id="${escapeHtml(n.id)}" data-company="${escapeHtml(company || '')}">刪除</button>
 ${n.learned ? `<p><b>學到什麼</b>${text(n.learned)}</p>` : ''}${n.next_time ? `<p><b>下一通怎麼講</b>${text(n.next_time)}</p>` : ''}${n.problem ? `<p class="bdn-problem"><b>遇到的問題</b>${text(n.problem)}</p>` : ''}</article>`;
     return `<section class="bdn"><div class="bdn-head"><h3>通話心得${ns.length ? `（${ns.length}）` : ''}</h3>${actionBtn('＋ 新增心得', 'bd-note-create', { idParams: { company }, record: { author: assignedTo || '', _people: people || [] } }, 'primary')}</div>
 ${tr ? views.transcriptReview(tr) : ''}
@@ -2095,7 +2095,7 @@ ${ns.length ? `<div class="bdn-list">${ns.map(item).join('')}</div>` : '<p class
       ${url104 ? `<div class="bd-contact-row"><span>104</span><a href="${escapeHtml(url104)}" target="_blank" rel="noopener">企業頁 ↗</a></div>` : ''}
     </div>`;
 
-    const tl = timeline.length ? `<div class="list">${timeline.map((t) => `<div class="list-row"><span><small>${text(String(t.at || '').slice(0, 16))}</small><b>${text(t.kind)}</b></span></div>`).join('')}</div>` : empty('還沒有任何時間軸事件');
+    const tl = timeline.length ? `<div class="list">${timeline.map((t) => `<div class="list-row"><span><small>${text(String(t.at || '').slice(0, 16))}</small><b>${text(t.kind)}</b></span>${t.call_log_id ? `<button type="button" class="btn ghost sm bd-del" data-action="bd-delete-record" data-kind="call" data-id="${escapeHtml(t.call_log_id)}" data-company="${escapeHtml(company || (outreach[0] || {}).company || '')}">刪除</button>` : ''}</div>`).join('')}</div>` : empty('還沒有任何時間軸事件');
     const letters = outreach.map((o) => {
       const parts = [];
       if (o.body) parts.push([o.channel === 'phone' ? '電訪備註' : (o.subject && o.subject.startsWith('Re:') ? '追信' : '首封信'), o.subject, o.body]);

@@ -2810,6 +2810,15 @@ document.addEventListener('click', async (event) => {
   if (action === 'add-client') openAction('company-create', {});
   if (action === 'run-action') submitPendingAction();
   // 2026-09-30 Jacky：打電話問到新電話（例如招募專線在廠區），顧問自己在卡片上更新
+  // 2026-09-30 Jacky：電話紀錄／通話心得記錯了可以刪
+  if (action === 'bd-delete-record') {
+    const d = target.dataset;
+    if (!window.confirm(d.kind === 'note' ? '確定刪除這則通話心得？' : '確定刪除這通電話紀錄？刪掉後通數和日報都不會再算它。')) return;
+    try {
+      await api.post('/admin/bd/delete-record', { kind: d.kind, id: d.id });
+      toast('已刪除', 'success'); openBdDetail(d.company);
+    } catch (e) { toast(`刪除失敗：${e.message || e}`, 'error'); }
+  }
   if (action === 'bd-phone-edit') {
     const d = target.dataset;
     modal({ title: '更新電話', subtitle: d.company, body: `<form id="bd-phone-form" class="form-grid">
