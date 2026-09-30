@@ -383,7 +383,12 @@ ${list(items, (j) => `<article class="list-row"><span><b>${text(j.title || j.slu
 <div class="drawer-section" id="job-tab-manage"><h3>職缺狀態</h3>${rowActions([actionBtn('開啟／關閉職缺','job-status',{ idParams: { slug } }),actionBtn('刪除職缺','job-delete',{ idParams: { slug } },'danger')])}<h3>職缺內容</h3>${views.jobContentForm(content)}<button class="btn primary" data-action="submit-job-content" data-slug="${text(slug)}">儲存職缺內容（只存有改的欄位，最多 15 分鐘內上線）</button><p class="help">存檔前系統會檢查：內容突然少一大截、或頁面是客製版面，都會再問你一次。</p><h3>客製表單欄位</h3>${actionBtn('新增客製表單欄位','job-forms-create',{ idParams: {}, record: { job_slug: slug } })}</div>
 <div class="drawer-section" id="job-tab-sourced" hidden>${views.jobSourcedPanel(slug, sourced)}</div>
 <div class="drawer-section" id="job-tab-expertise" hidden>${views.jobExpertisePanel(slug, bank, isBuilding)}</div>
-<div class="drawer-section" id="job-tab-card" hidden>${views.jobCardPanel(slug, card)}</div>
+<div class="drawer-section" id="job-tab-card" hidden>${views.jobCardPanel(slug, card)}${(() => {
+  // 2026-09-30 Jacky：「職缺卡下方」也要看得到 AI 找的人，點了跳到完整分頁
+  const rs = (sourced && Array.isArray(sourced.rows)) ? sourced.rows : [];
+  if (!rs.length) return '<div class="card" style="margin-top:14px"><h3 style="font-size:15px;margin:0">AI 找的人</h3><p class="help">這個職缺還沒有 AI 找到的人選。</p></div>';
+  return `<div class="card" style="margin-top:14px"><div class="card-head"><h3 style="font-size:15px;margin:0">AI 找的人（${rs.length}）</h3><button type="button" class="btn primary sm" data-jump-tab="sourced">看全部＋記錄聯絡</button></div>${rs.slice(0, 5).map((x) => `<div class="list-row"><span><b>${text(x.name)}</b> <span class="badge">${text(x.grade || '')}</span><small>${text(x.headline || '')}${x.company ? '・' + text(x.company) : ''}</small></span></div>`).join('')}</div>`;
+})()}</div>
 <div class="drawer-section" id="job-tab-acai" hidden>${views.jobAcaiPanel(slug, acai)}</div>`;
   },
 
