@@ -2152,7 +2152,7 @@ ${ns.length ? `<div class="bdn-list">${ns.map(item).join('')}</div>` : '<p class
           <div class="cg-row"><b>這家有人資嗎？</b><span>用上面新手打法那格的選擇（兩種打法共用）</span></div>
           <p class="help">三個都填不出來 → 先用新手打法。目標不是今天成交，是留下窗口＋下次聯絡的理由。</p>
         </div>`)}
-      ${step(1, '過總機（只講兩句，不要推銷）', `${say(g.gate_hr, 'hr')}${say(g.gate_small, 'small')}${say(g.gate_fallback)}
+      ${step(1, '過總機（只講兩句，不要推銷）', `${(hr_contacts || []).length ? `<p class="help" style="margin:0 0 6px">這家有 LinkedIn 查到的人資，<b>直接指名</b>，語氣平常、不解釋來意：</p><p class="cg-say">您好，麻煩找${text((hr_contacts[0] || {}).name || '')}，我是 Step1ne 的○○。</p><p class="help">被問什麼事 →「跟招募有關，想請教兩個問題。」指名不在 → 問他的分機或信箱，記在「更新電話」。</p><details class="cg-obj"><summary>沒指名成功時的講法</summary>${say(g.gate_hr, 'hr')}${say(g.gate_small, 'small')}${say(g.gate_fallback)}</details>` : `<p class="help" style="margin:0 0 6px">這家還沒有人資名字，<b>用寄資料問收件人</b>（我們真的會寄公司介紹，不是藉口）：</p><p class="cg-say">您好，我是 Step1ne 德仁管理顧問，要寄一份企業招募的資料給貴公司人資，想確認收件人要寫哪一位、分機多少，免得寄錯人。</p><details class="cg-obj"><summary>其他講法</summary>${say(g.gate_hr, 'hr')}${say(g.gate_small, 'small')}${say(g.gate_fallback)}</details>`}
         <p class="help">報全名、講短、請對方「指點該找誰」。總機說「我幫你轉達」→ 直接問姓名＋分機或信箱。</p>`)}
       ${step(2, '開場 20 秒', `<div data-mode="pro" hidden>
           <p class="cg-say" data-cg-pro="trigger">您好，我是 Step1ne 德仁管理顧問的○○。我打來的原因是看到貴公司<b class="cg-fill" data-fill="trigger">（最近的消息）</b>，先恭喜！這種時候通常${text(g.industry_roles ? g.industry_roles + '這類人' : '好幾個位置')}會一次缺好幾個，想請教一下，這波人力大概怎麼規劃？</p>
