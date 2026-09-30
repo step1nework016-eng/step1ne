@@ -1328,6 +1328,11 @@ function wireCallGuide() {
     if (radio && inp.value.trim()) { radio.checked = true; syncPro(); }
   }));
   root.querySelectorAll('.cg-fill').forEach((el) => { el.dataset.ph = el.textContent; });
+  // 自動帶入的內容先套進開場白（不用顧問自己打）
+  root.querySelectorAll('[data-cg-fill]').forEach((inp) => {
+    if (!inp.value.trim()) return;
+    root.querySelectorAll(`.cg-fill[data-fill="${inp.dataset.cgFill}"]`).forEach((el) => { el.textContent = inp.value.trim(); });
+  });
   syncPro();
   let result = '';
   const form = root.querySelector('.cg-form');

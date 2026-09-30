@@ -2072,6 +2072,11 @@ ${ns.length ? `<div class="bdn-list">${ns.map(item).join('')}</div>` : '<p class
     const checked = g && g.job_checked_at && (Date.now() - Date.parse(String(g.job_checked_at).replace(' ', 'T') + '+08:00')) < 14 * 86400000;
     const step = (i, title, body) => `<section class="cg-step" data-cg-step="${i}"${i ? ' hidden' : ''}><h3 class="cg-title"><span>${i}</span>${title}</h3>${body}</section>`;
     const say = (t, when) => `<p class="cg-say"${when ? ` data-when="${when}"` : ''}${when === 'small' ? ' hidden' : ''}>${text(t)}</p>`;
+    // 2026-09-30 Jacky：顧問不用自己做功課——抓時機／帶人選／產業常補直接從卡片資料帶入
+    const _preTrig = String(views.bdTriggerOf(outreach) || '').replace(/[，,。].*$/, '').slice(0, 50);
+    const _candRow = outreach.find((o) => o.candidate_card);
+    const _preCand = _candRow ? String(_candRow.candidate_card).split('\n').map((x) => x.replace(/^[・•\-\s]+/, '').trim()).filter(Boolean).slice(0, 2).join('，').slice(0, 60) : '';
+    const _preRoles = profile ? String(profile.hiring || '').split('\n').map((x) => x.replace(/^[-・•\s]+/, '').replace(/（.*?）/g, '').trim()).filter((x) => x && !/未查到/.test(x)).slice(0, 3).join('、').slice(0, 80) : '';
     const guidePane = g ? `<div class="cg" data-bd-id="${escapeHtml(callRow ? callRow.id : '')}">
       ${lastCall ? `<div class="notice" style="margin:0 0 10px">上次電訪：${text(RES_ZH[lastCall.call_result] || lastCall.call_result)}${lastCall.call_retry_at ? `，建議 ${text(String(lastCall.call_retry_at).slice(5, 10))} 再打` : ''}${lastCall.call_note ? `（${text(lastCall.call_note)}）` : ''}</div>` : ''}
       <section class="sc-quick sc-top"><h3 class="cg-title" style="margin-top:0"><span>★</span>話術對照（我的最愛固定在最上面，照著打）</h3>
@@ -2090,13 +2095,13 @@ ${ns.length ? `<div class="bdn-list">${ns.map(item).join('')}</div>` : '<p class
         <p class="help">手上如果有對得上的人選（見「人選敲門卡」），開場可以帶一句，成功率會高很多。</p></div>
         <div data-mode="pro" hidden>
           <p class="help" style="margin-top:0">高手打法要「有理由才打」。三個理由挑一個，填一句話，下一步的開場白會自動帶進去：</p>
-          <label class="cg-angle"><input type="radio" name="cg-angle" value="trigger" checked> <b>抓時機</b>：這家最近發生什麼事？（擴廠、得標、新廠動工、募資、換主管、併購）
-            <input class="cg-in" data-cg-fill="trigger" placeholder="例：南科新廠動工、剛得標台積電 A14 機電包"></label>
-          <label class="cg-angle"><input type="radio" name="cg-angle" value="candidate"> <b>帶人選</b>：手上哪一位人選對得上？（一句話背景，不寫名字）
-            <input class="cg-in" data-cg-fill="candidate" placeholder="例：做過 10 年營造現場、有甲種職安證照"></label>
+          <label class="cg-angle"><input type="radio" name="cg-angle" value="trigger"${_preTrig || !_preCand ? ' checked' : ''}> <b>抓時機</b>：這家最近發生什麼事？（擴廠、得標、新廠動工、募資、換主管、併購）
+            <input class="cg-in" data-cg-fill="trigger" value="${escapeHtml(_preTrig)}" placeholder="例：南科新廠動工、剛得標台積電 A14 機電包"></label>
+          <label class="cg-angle"><input type="radio" name="cg-angle" value="candidate"${!_preTrig && _preCand ? ' checked' : ''}> <b>帶人選</b>：手上哪一位人選對得上？（一句話背景，不寫名字）
+            <input class="cg-in" data-cg-fill="candidate" value="${escapeHtml(_preCand)}" placeholder="例：做過 10 年營造現場、有甲種職安證照"></label>
           <label class="cg-angle"><input type="radio" name="cg-angle" value="intel"> <b>帶市場情報</b>：最近面談這類人看到的現況？
             <input class="cg-in" data-cg-fill="intel" placeholder="例：南部職安工程師多數期望月薪 6 萬以上、很在意住宿"></label>
-          <div class="cg-row"><b>這家產業常補</b><span>${text(g.industry_roles || '（沒有產業資料，自己判斷）')}</span></div>
+          <div class="cg-row"><b>這家產業常補</b><span>${text(g.industry_roles || _preRoles || '（認識客戶分頁看需要的職缺）')}</span></div>
           <div class="cg-row"><b>這家有人資嗎？</b><span>用上面新手打法那格的選擇（兩種打法共用）</span></div>
           <p class="help">三個都填不出來 → 先用新手打法。目標不是今天成交，是留下窗口＋下次聯絡的理由。</p>
         </div>`)}
