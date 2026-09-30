@@ -1905,7 +1905,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
       return `${head}<article class="list-row bd-dash-row" data-bd-stage="${text(r.stage)}" data-bd-has-todo="${r.todo.length ? 1 : 0}" data-bd-industry="${escapeHtml(g)}" data-bd-assignee="${escapeHtml(r.assigned_to || '')}" data-bd-phone="${phoneKind}">
         <span>
           <b>${text(r.company)}</b> ${r.industry ? `<span class="badge">${text(String(r.industry).split(/[（(]/)[0].slice(0, 18))}</span>` : ''}${r.has_profile ? ' <span class="badge success">有介紹</span>' : ''}${r.note_count ? ` <span class="badge info">有 ${text(r.note_count)} 則心得</span>` : ''}
-          ${views.bdEntry(r.trigger, r.has_candidate)}
+          ${views.bdEntry(r.trigger, r.has_candidate, false, r.job_title, r.topic)}
           ${phoneHtml}${mainHtml}${noPhone}
           <small>${text(r.contact_name || '窗口未知')}${r.contact_email ? ' · ' + text(r.contact_email) : ''}</small>
           ${lastCall}
@@ -1980,12 +1980,17 @@ ${ns.length ? `<div class="bdn-list">${ns.map(item).join('')}</div>` : '<p class
     const o = (rows || []).find((x) => String(x.why_company || '').includes('【觸發】'));
     return o ? String(o.why_company).split('【觸發】').pop().split(/來源[:：]|https?:\/\//)[0].replace(/[\s。；;（(]+$/, '').slice(0, 90) : '';
   },
-  bdEntry: (trigger, hasCandidate, big) => {
+  bdEntry: (trigger, hasCandidate, big, job, topic) => {
+    const jobTxt = job ? String(job).split(/[，,、]/).slice(0, 2).join('、').slice(0, 40) : '';
     const [tag, how, cls] = trigger
       ? ['新消息', `${trigger}　→ 高手打法：先恭喜，再問這波人力怎麼規劃`, 'tr']
       : hasCandidate
         ? ['人選敲門', '手上有對得上的人選　→ 開口先講「我這有一位＿＿，要不要先看看背景？」', 'cand']
-        : ['104 職缺', '只看到他們在 104 徵人　→ 新手打法：先承認「你們自己找得順就不打擾」，當難補缺的備案', 'job'];
+        : jobTxt
+          ? ['現有職缺', `看到他們在徵「${jobTxt}」　→ 先承認「你們自己找得順就不打擾」，問這個缺開多久、難在哪，當難補缺的備案${topic ? `；也可以聊：${topic}` : ''}`, 'job']
+          : topic
+            ? ['可以聊的議題', `${topic}　→ 用這個問題開場，問人力怎麼規劃`, 'job']
+            : ['先問需求', '沒有新消息也沒有已知職缺　→ 先問「最近哪個位置最難補？」', 'job'];
     return `<div class="bd-entry ${cls}${big ? ' big' : ''}"><b>切入點・${tag}</b><span>${text(how)}</span></div>`;
   },
   // 話術手冊（2026-09-29）：卡片裡的「話術快查」與獨立分頁共用。vars 有值就把 {公司}{職缺}{產業}{常補} 換成那一家的資料。
@@ -2127,7 +2132,8 @@ ${ns.length ? `<div class="bdn-list">${ns.map(item).join('')}</div>` : '<p class
       <div class="list">${playbook.next_steps.map((s) => `<div class="list-row"><span>${text(s)}</span></div>`).join('')}</div>
     `;
 
-    return `${views.bdEntry(views.bdTriggerOf(outreach), outreach.some((o) => o.candidate_card), true)}${views.bdNotesBlock(company || (outreach[0] || {}).company || '', notes, people, assigned_to)}${contactCard}
+    const _topic = profile && String(profile.topics || '').split('\n').map((x) => x.replace(/^[-・•\s]+/, '').trim()).find(Boolean);
+    return `${views.bdEntry(views.bdTriggerOf(outreach), outreach.some((o) => o.candidate_card), true, (outreach.find((o) => o.job_title) || {}).job_title, _topic)}${views.bdNotesBlock(company || (outreach[0] || {}).company || '', notes, people, assigned_to)}${contactCard}
       <div class="tabs tabs-sub" id="bd-detail-tabs">
         <button type="button" class="active" data-bd-detail-tab="profile">認識客戶</button>
         <button type="button" data-bd-detail-tab="timeline">時間軸／信件</button>
