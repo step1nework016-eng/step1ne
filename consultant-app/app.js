@@ -1568,15 +1568,24 @@ function wireWrapup(root) {
     syncBrief();
     // 下一步／日期／備註：改了就自動存；下一步選「寄信」才打開寄信設定
     const saved = row.querySelector('[data-wu-saved]');
+    let memoTimer = null;
     const save = async () => {
       try {
         await api.post('/admin/bd/company-status', { company: row.dataset.wuCompany, ...followPayload(row, 'wu'), by: row.dataset.wuAssignee || '' });
-        saved.textContent = '✓ 已自動儲存';
+        const t = new Date(Date.now() + 8 * 3600000).toISOString().slice(11, 16);
+        saved.textContent = `✓ 已儲存 ${t}`;
+        return true;
       } catch (err) { saved.textContent = ''; toast(err.message || '儲存失敗', 'error'); }
     };
     for (const inp of row.querySelectorAll('[data-wu-action],[data-wu-due],[data-wu-memo]')) inp.addEventListener('change', save);
+    row.querySelector('[data-wu-save]').onclick = async (e) => {
+      const b = e.currentTarget;
+      b.disabled = true;
+      clearTimeout(memoTimer);
+      if (await save()) toast(`${row.dataset.wuCompany.replace(/股份有限公司|有限公司/g, '')} 已儲存`, 'success');
+      b.disabled = false;
+    };
     // 備註邊打邊存（停手 1 秒就存），不用等游標離開
-    let memoTimer = null;
     row.querySelector('[data-wu-memo]').addEventListener('input', () => {
       saved.textContent = '輸入中…';
       clearTimeout(memoTimer);

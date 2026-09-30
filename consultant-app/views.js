@@ -2137,7 +2137,7 @@ ${ns.length ? `<div class="bdn-list">${ns.map(item).join('')}</div>` : '<p class
           <p class="fu-last"><b>上次聯絡</b>${text(views.followLastLine(r.last_contact))}</p>
         </div>
         ${views.followFields(r, 'wu')}
-        <div class="wu-foot"><small class="help" data-wu-saved>${r.status_updated_at ? `上次更新 ${text(String(r.status_updated_at).slice(5, 16))}${r.status_updated_by ? ' ' + text(r.status_updated_by) : ''}` : ''}</small></div>
+        <div class="wu-foot"><button type="button" class="btn sm primary" data-wu-save>儲存</button><small class="help" data-wu-saved>${r.status_updated_at ? `上次更新 ${text(String(r.status_updated_at).slice(5, 16))}${r.status_updated_by ? ' ' + text(r.status_updated_by) : ''}` : ''}</small></div>
         <div class="wu-mail" ${r.next_action === 'mail' ? '' : 'hidden'}>
           <div class="wu-mail-head"><label class="wu-inline"><input type="checkbox" data-wu-pick${block ? ' disabled' : ''}> 放進這次要寄的信</label>${block ? `<small class="wu-block">不能勾：${text(block)}</small>` : ''}${r.last_pack ? `<small class="help">上一封：${text(ST[r.last_pack.status] || r.last_pack.status)}${r.last_pack.sent_at ? ` ${text(String(r.last_pack.sent_at).slice(5, 10))}` : ''}</small>` : ''}</div>
           <div class="wu-grid">
