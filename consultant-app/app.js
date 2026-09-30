@@ -1582,7 +1582,7 @@ function wireWrapup(root) {
       const b = e.currentTarget;
       b.disabled = true;
       clearTimeout(memoTimer);
-      if (await save()) toast(`${row.dataset.wuCompany.replace(/股份有限公司|有限公司/g, '')} 已儲存`, 'success');
+      if (await save()) toast('已儲存', 'success');
       b.disabled = false;
     };
     // 備註邊打邊存（停手 1 秒就存），不用等游標離開
