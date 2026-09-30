@@ -1303,6 +1303,18 @@ function wireCallGuide() {
     const prev = root.querySelector('[data-cg-prev]'), next = root.querySelector('[data-cg-next]');
     if (prev) prev.disabled = cur === 0;
     if (next) next.hidden = cur === steps.length - 1;
+    // 2026-09-30 Jacky：切到哪一步，上面的話術對照就自動跳到那一步的話術（我的最愛照樣在最上面）
+    const CAT = { 1: 'gate', 2: 'open', 3: 'ask', 4: 'object', 5: 'close' };
+    const box = document.querySelector('.sc-quick .sc-wrap');
+    if (box) {
+      const want = CAT[cur] || '';
+      const active = box.querySelector('[data-sc-cat].active');
+      if ((active ? active.dataset.scCat : '') !== want) {
+        if (want) box.querySelector(`[data-sc-cat="${want}"]`)?.click();
+        else active?.click();
+      }
+      const sel = box.querySelector('.sc-cat-select'); if (sel) sel.value = want;
+    }
   };
   root.querySelectorAll('[data-cg-go]').forEach((b) => b.addEventListener('click', () => go(Number(b.dataset.cgGo))));
   root.querySelector('[data-cg-prev]')?.addEventListener('click', () => go(cur - 1));

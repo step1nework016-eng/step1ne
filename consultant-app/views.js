@@ -2136,7 +2136,7 @@ ${ns.length ? `<div class="bdn-list">${ns.map(item).join('')}</div>` : '<p class
       <div class="cg-dots">${['功課', '過總機', '開場', '問需求', '拒絕時', '收尾'].map((t, i) => `<button type="button" class="cg-dot${i ? '' : ' on'}" data-cg-go="${i}">${i}. ${t}</button>`).join('')}</div>
       ${step(0, '打之前 30 秒功課', `<div data-mode="rookie">
         <div class="cg-row"><b>要推的職缺</b><span>${g.job_title ? text(g.job_title) : g.unverified_job ? `<span class="pc-status bad">未查證</span> 原始紀錄寫「${text(g.unverified_job)}」，<b>不一定還在徵</b>` : '（沒有記錄職缺）'}${g.job_url ? ` <a href="${escapeHtml(g.job_url)}" target="_blank" rel="noopener">職缺頁 ↗</a>` : ''}</span></div>
-        <div class="cg-row"><b>104 查證</b><span>${checked ? `✅ ${text(String(g.job_checked_at).slice(5, 10))} 查過：${text(g.job_check_note || '')}` : '⚠️ 14 天內沒查過——先上 104 確認這個缺還開著，再打'}</span></div>
+        <div class="cg-row"><b>104</b><span>${checked ? `✅ ${text(String(g.job_checked_at).slice(5, 10))} 查過：${text(g.job_check_note || '')}` : (url104 ? `<a href="${escapeHtml(url104)}" target="_blank" rel="noopener">104 企業頁 ↗</a>（想知道他們現在在徵什麼再點，不用先查也能打）` : '—')}</span></div>
         <div class="cg-row"><b>內部備註</b><span>${String(g.why || '').split(/(https?:\/\/\S+)/).map((x) => /^https?:\/\//.test(x) ? `<a href="${escapeHtml(x.replace(/[）)，。]+$/, ''))}" target="_blank" rel="noopener">來源 ↗</a>` : text(x)).join('')}<small class="cg-internal">只給你看，不要照唸（客戶面前只說「看到貴公司在徵＿＿」，不提在哪裡看到）</small></span></div>
         <div class="cg-row"><b>這家有人資嗎？</b><span class="cg-type"><label><input type="radio" name="cg-type" value="hr" checked> 有（找人資）</label><label><input type="radio" name="cg-type" value="small"> 沒有／小公司（找老闆或負責面試的人）</label></span></div>
         <p class="help">手上如果有對得上的人選（見「人選敲門卡」），開場可以帶一句，成功率會高很多。</p></div>
