@@ -1191,6 +1191,7 @@ function wireBdDashboardFilter() {
 }
 
 async function openBdDetail(company) {
+  state.openBdCompany = company;
   drawer({ title: company, subtitle: '開發進度時間軸', body: loading() });
   try {
     const detail = await adapters.bdDashboardDetail(company);
@@ -1349,15 +1350,50 @@ function wireCallGuide() {
     const btn = form.querySelector('button[type=submit]');
     btn.disabled = true;
     try {
+      const trBox = root.querySelector('[data-cg-transcript]');
+      const transcript = (trBox?.value || '').trim();
       const r = await api.post(`/admin/bd/${encodeURIComponent(id)}/call-result`,
-        { result, contact_name: fd.get('contact_name') || '', email: fd.get('email') || '', note: fd.get('note') || '' });
-      toast(r && r.retry_at ? `已記錄，${String(r.retry_at).slice(5, 10)} 會提醒再打` : '已記錄', 'success');
+        { result, contact_name: fd.get('contact_name') || '', email: fd.get('email') || '', note: fd.get('note') || '', transcript });
+      toast((r && r.retry_at ? `已記錄，${String(r.retry_at).slice(5, 10)} 會提醒再打` : '已記錄') + (r && r.transcript_id ? '；逐字稿 AI 分析中' : ''), 'success');
       form.hidden = true;
+      if (r && r.transcript_id && trBox) trBox.value = '';
     } catch (err) { toast(err.message || '記錄失敗', 'error'); }
     btn.disabled = false;
   });
+  // 2026-09-30：只上傳逐字稿讓 AI 看（不記錄電話結果）
+  root.querySelector('[data-cg-tr-only]')?.addEventListener('click', async (e) => {
+    const btn2 = e.currentTarget;
+    const trBox = root.querySelector('[data-cg-transcript]');
+    const transcript = (trBox?.value || '').trim();
+    if (!transcript) { toast('先貼逐字稿或上傳 .md／.txt 檔', 'error'); return; }
+    const company = root.closest('[data-bd-company]')?.dataset.bdCompany || state.openBdCompany || '';
+    const note = form ? String(new FormData(form).get('note') || '') : '';
+    btn2.disabled = true;
+    try {
+      await api.post('/admin/bd/transcript', { outreach_id: root.dataset.bdId || '', company, transcript, note });
+      toast('已送出，AI 約 1～3 分鐘後看完，會出現在「通話心得」', 'success');
+      if (trBox) trBox.value = '';
+    } catch (err) { toast(err.message || '送出失敗', 'error'); }
+    btn2.disabled = false;
+  });
   go(0);
 }
+
+// 2026-09-30：逐字稿檔（.md／.txt）讀成文字放進同一個表單的逐字稿欄位
+document.addEventListener('change', (event) => {
+  const inp = event.target instanceof HTMLInputElement ? event.target : null;
+  if (!inp || inp.type !== 'file' || !(inp.matches('[data-transcript-file]') || inp.name === 'transcript_file')) return;
+  const file = inp.files?.[0];
+  if (!file) return;
+  if (!/\.(md|txt|markdown)$/i.test(file.name) && !/^text\//.test(file.type)) { toast('只收 .md 或 .txt 檔', 'error'); inp.value = ''; return; }
+  if (file.size > 2 * 1024 * 1024) { toast('檔案太大（上限 2MB）', 'error'); inp.value = ''; return; }
+  const scope = inp.closest('form, .cg-tr, .cg') || document;
+  const box = scope.querySelector('[data-cg-transcript], textarea[name="transcript"]');
+  const reader = new FileReader();
+  reader.onload = () => { if (box) { box.value = String(reader.result || ''); toast(`已讀入「${file.name}」`, 'success'); } };
+  reader.onerror = () => toast('檔案讀取失敗', 'error');
+  reader.readAsText(file, 'utf-8');
+});
 
 async function loadSystemTab(target) {
   if (state.sub === 'kpi') return boundary(target, async () => (await adapters.system()).kpi, views.systemKpiTab, 'refresh');
@@ -2548,7 +2584,7 @@ async function submitPendingAction() {
   // 這三個，是照抄 doCallNote() 既有就在吃的參數名稱（TG bot 那條路徑也是同一套），
   // 不要為了這次前端補的欄位另外發明新名字，後端不用跟著改。
   const fields = typeof action.fields === 'function' ? action.fields(ctx) : (action.fields || []);
-  const fileField = fields.find((f) => f.type === 'file');
+  const fileField = fields.find((f) => f.type === 'file' && !f.textInto);
   if (fileField && form) {
     const input = form.querySelector(`[name="${fileField.name}"]`);
     const file = input?.files?.[0];

@@ -432,6 +432,7 @@ ${why ? `<details class="src-why"><summary>為什麼符合</summary><p>${text(wh
 ${(email || phone) ? `<div class="src-contact">${phone ? `<a href="tel:${escapeHtml(phone.replace(/[^0-9+#,]/g, ''))}">${text(phone)}</a>` : ''}${email ? `<a href="mailto:${escapeHtml(email)}">${text(email)}</a>` : ''}</div>` : ''}
 <div class="src-links">${srcLink}${link(r.linkedin_url, 'LinkedIn')}${otherLinks}${link(r.github_url, 'GitHub')}</div>
 ${last}
+${r.transcript_review ? views.transcriptReview(r.transcript_review) : ''}
 ${rowActions([actionBtn('記錄聯絡', 'sourced-contact', { idParams: { id: r.id, job_slug: slug } }, 'primary')])}
 </article>`;
     };
@@ -1977,11 +1978,31 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
   },
   // 通話心得（2026-09-29 Jacky）：放在客戶卡片最上面的切入點下面。顧問談完一家記下
   // 學到什麼／下一通怎麼講／遇到的問題，每一則累積、新的在上面，下一個打電話的人先看這裡。
-  bdNotesBlock: (company, notes, people, assignedTo) => {
+  // 2026-09-30：電洽逐字稿 AI 評分卡（客戶卡片通話心得區、AI 找的人小卡共用）
+  transcriptReview: (t) => {
+    if (!t) return '';
+    const when = `${text(String(t.created_at || '').slice(5, 16))}${t.caller ? '・' + text(t.caller) : ''}`;
+    if (t.ai_status === 'pending') return `<div class="trv trv-wait"><b>AI 分析中</b><small>逐字稿已收到（${when}），約 1～3 分鐘後重開卡片就看得到分數與建議。</small></div>`;
+    if (t.ai_status === 'error') return `<div class="trv trv-err"><b>AI 分析失敗</b><small>${when}，請再上傳一次；還是不行跟 Jacky 說。</small></div>`;
+    let d = null;
+    try { d = JSON.parse(t.ai_json || 'null'); } catch { d = null; }
+    if (!d) return '';
+    const axes = (d.axes || []).map((a) => `<span class="trv-axis"><b>${text(a.name)}</b>${a.score === null || a.score === undefined ? '—' : text(a.score)}</span>`).join('');
+    const imps = (d.improvements || []).map((x) => `<li>${x.original ? `<span class="trv-old">原本：「${text(x.original)}」</span>` : ''}<span class="trv-new">建議：「${text(x.better)}」</span>${x.why ? `<small>${text(x.why)}</small>` : ''}</li>`).join('');
+    const pr = d.prospect, cd = d.candidate;
+    const judge = pr ? `<p class="trv-judge"><b>對方興趣：${text(pr.interest || '—')}</b>${pr.interest_reason ? `（${text(pr.interest_reason)}）` : ''}<br><b>建議下一步：${text(pr.next_step || '—')}</b>${pr.next_step_detail ? `・${text(pr.next_step_detail)}` : ''}</p>`
+      : cd ? `<p class="trv-judge"><b>意願：${text(cd.willingness || '—')}</b>${cd.willingness_reason ? `（${text(cd.willingness_reason)}）` : ''}<br><b>適配度：${text(cd.fit || '—')}</b>${cd.fit_reason ? `（${text(cd.fit_reason)}）` : ''}<br><b>建議下一步：${text(cd.next_step || '—')}</b>${cd.next_step_detail ? `・${text(cd.next_step_detail)}` : ''}<small>（AI 判斷僅供顧問參考）</small></p>` : '';
+    return `<details class="trv" open><summary><span class="trv-score">${text(d.score)}<small>分</small></span><span>AI 看電洽逐字稿<small>${when}</small></span></summary>
+${d.summary ? `<p>${text(d.summary)}</p>` : ''}<div class="trv-axes">${axes}</div>${judge}
+${imps ? `<h4>下一通更好的講法</h4><ol class="trv-imps">${imps}</ol>` : ''}</details>`;
+  },
+  bdNotesBlock: (company, notes, people, assignedTo, transcripts) => {
     const ns = Array.isArray(notes) ? notes : [];
+    const tr = (Array.isArray(transcripts) ? transcripts : [])[0];
     const item = (n) => `<article class="bdn-item"><small>${text(String(n.created_at || '').slice(0, 16))}・${text(n.author || '顧問')}</small>
 ${n.learned ? `<p><b>學到什麼</b>${text(n.learned)}</p>` : ''}${n.next_time ? `<p><b>下一通怎麼講</b>${text(n.next_time)}</p>` : ''}${n.problem ? `<p class="bdn-problem"><b>遇到的問題</b>${text(n.problem)}</p>` : ''}</article>`;
     return `<section class="bdn"><div class="bdn-head"><h3>通話心得${ns.length ? `（${ns.length}）` : ''}</h3>${actionBtn('＋ 新增心得', 'bd-note-create', { idParams: { company }, record: { author: assignedTo || '', _people: people || [] } }, 'primary')}</div>
+${tr ? views.transcriptReview(tr) : ''}
 ${ns.length ? `<div class="bdn-list">${ns.map(item).join('')}</div>` : '<p class="help" style="margin:4px 0 0">還沒有人寫過心得。談完這家，記一下學到什麼、下一通怎麼講。</p>'}</section>`;
   },
   // 切入點（2026-09-29 Jacky：本週計畫表寫的切入點，卡片上也要看得到）：新消息＞人選敲門＞104 職缺
@@ -2025,7 +2046,7 @@ ${ns.length ? `<div class="bdn-list">${ns.map(item).join('')}</div>` : '<p class
   // 2026-09-29 加：企業卡片補聯絡方式（一鍵複製／撥號）、資料來源連結、
   // 104 企業頁連結，另外加「開發引導」分頁（時間軸／信件 之外的第二個分頁）。
   // 找不到的欄位一律不顯示那一行，不留空殼。
-  bdDashboardDetail: ({ outreach, timeline, playbook, notes, people, assigned_to, company, profile, hr_contacts }) => {
+  bdDashboardDetail: ({ outreach, timeline, playbook, notes, people, assigned_to, company, profile, hr_contacts, transcripts }) => {
     const pick = (key) => outreach.map((o) => o[key]).find(Boolean) || null;
     const contactName = pick('contact_name');
     const contactEmail = pick('contact_email');
@@ -2139,6 +2160,13 @@ ${ns.length ? `<div class="bdn-list">${ns.map(item).join('')}</div>` : '<p class
           <label class="field"><span>補充（拒絕原因、下次什麼時候打、對方說了什麼）</span><textarea name="note" rows="2"></textarea></label>
           <div class="actions-row"><button type="submit" class="btn primary">記錄這通電話</button></div>
         </form>
+        <section class="cg-tr">
+          <h4 style="margin:14px 0 6px">電洽逐字稿（選填，AI 會評分＋給下一通的講法）</h4>
+          <label class="field"><span>直接貼文字，或上傳 .md／.txt 檔（會讀進這格）</span><textarea name="transcript" data-cg-transcript rows="5" placeholder="有錄音轉文字就貼這裡；沒有可以不填"></textarea></label>
+          <label class="field"><span>上傳逐字稿檔</span><input type="file" accept=".md,.txt,text/plain,text/markdown" data-transcript-file></label>
+          <div class="actions-row"><button type="button" class="btn" data-cg-tr-only>只上傳逐字稿讓 AI 看</button></div>
+          <p class="help">點「記錄這通電話」時，這格有字會一起送出；不想記錄結果也可以按「只上傳逐字稿讓 AI 看」。AI 看完會出現在上面「通話心得」。</p>
+        </section>
         <p class="help">沒接／被擋／只問到窗口 → 系統 2 個工作天後提醒再打；拿到信箱或有興趣 → TG 通知去寫開發信。</p>`)}
       <div class="cg-nav"><button type="button" class="btn" data-cg-prev>← 上一步</button><button type="button" class="btn primary" data-cg-next>下一步 →</button></div>
     </div>` : '';
@@ -2158,7 +2186,7 @@ ${ns.length ? `<div class="bdn-list">${ns.map(item).join('')}</div>` : '<p class
     `;
 
     const _topic = profile && String(profile.topics || '').split('\n').map((x) => x.replace(/^[-・•\s]+/, '').trim()).find(Boolean);
-    return `${views.bdEntry(views.bdTriggerOf(outreach), outreach.some((o) => o.candidate_card), true, (outreach.find((o) => o.job_title) || {}).job_title, _topic)}${views.bdNotesBlock(company || (outreach[0] || {}).company || '', notes, people, assigned_to)}${contactCard}
+    return `${views.bdEntry(views.bdTriggerOf(outreach), outreach.some((o) => o.candidate_card), true, (outreach.find((o) => o.job_title) || {}).job_title, _topic)}${views.bdNotesBlock(company || (outreach[0] || {}).company || '', notes, people, assigned_to, transcripts)}${contactCard}
       <div class="tabs tabs-sub" id="bd-detail-tabs">
         <button type="button" class="active" data-bd-detail-tab="profile">認識客戶</button>
         <button type="button" data-bd-detail-tab="timeline">時間軸／信件</button>
