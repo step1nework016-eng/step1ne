@@ -1377,6 +1377,51 @@ function wireCallGuide() {
     btn2.disabled = false;
   });
   go(0);
+  wireContractPack(root);
+}
+
+// 2026-09-30：開發引導第 5 步「寄公司介紹＋合約」——上傳合約、預覽、擬信送 TG（Jacky 核准才寄）
+function wireContractPack(scope) {
+  const box = scope.querySelector('.cg-pack');
+  if (!box) return;
+  const company = box.dataset.packCompany;
+  const out = box.querySelector('[data-pack-out]');
+  const fileIn = box.querySelector('[data-pack-file]');
+  const pickContract = () => {
+    const sel = box.querySelector('[data-pack-contract]');
+    if (!sel) return { no_contract: true };
+    return sel.value ? { contract_id: sel.value } : { no_contract: true };
+  };
+  fileIn?.addEventListener('change', async () => {
+    const f = fileIn.files && fileIn.files[0];
+    if (!f) return;
+    if (!/\.(pdf|docx)$/i.test(f.name)) { toast('合約只收 PDF 或 DOCX', 'error'); fileIn.value = ''; return; }
+    if (f.size > 8 * 1024 * 1024) { toast('檔案超過 8MB', 'error'); fileIn.value = ''; return; }
+    fileIn.disabled = true;
+    try {
+      const b64 = await new Promise((ok, bad) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(',')[1]); r.onerror = bad; r.readAsDataURL(f); });
+      await api.post('/admin/bd/contract-file', { company, file_b64: b64, file_name: f.name, file_mime: f.type, by: box.dataset.packBy || '' });
+      toast('合約已上傳', 'success');
+      openBdDetail(company);
+    } catch (err) { toast(err.message || '上傳失敗', 'error'); }
+    fileIn.disabled = false;
+  });
+  const run = async (dry, btn) => {
+    btn.disabled = true;
+    try {
+      const r = await api.post('/admin/bd/contract-pack', { company, dry_run: dry, by: box.dataset.packBy || '', ...pickContract() });
+      const d = r.draft || {};
+      out.hidden = false;
+      out.textContent = `收件：${d.to || ''}\n附件：${(d.attachments || []).map((a) => a.filename).join('、')}\n主旨：${d.subject || ''}\n\n${d.body || ''}`;
+      if (!dry) {
+        toast(r.tg_sent ? '已送到 TG，等 Jacky 按核准才會寄' : '已存好，但 TG 沒送出去，請通知 Jacky', r.tg_sent ? 'success' : 'error');
+        openBdDetail(company);
+      }
+    } catch (err) { toast(err.message || '擬信失敗', 'error'); }
+    btn.disabled = false;
+  };
+  box.querySelector('[data-pack-preview]')?.addEventListener('click', (e) => run(true, e.currentTarget));
+  box.querySelector('[data-pack-send]')?.addEventListener('click', (e) => run(false, e.currentTarget));
 }
 
 // 2026-09-30：逐字稿檔（.md／.txt）讀成文字放進同一個表單的逐字稿欄位

@@ -2046,7 +2046,27 @@ ${ns.length ? `<div class="bdn-list">${ns.map(item).join('')}</div>` : '<p class
   // 2026-09-29 加：企業卡片補聯絡方式（一鍵複製／撥號）、資料來源連結、
   // 104 企業頁連結，另外加「開發引導」分頁（時間軸／信件 之外的第二個分頁）。
   // 找不到的欄位一律不顯示那一行，不留空殼。
-  bdDashboardDetail: ({ outreach, timeline, playbook, notes, people, assigned_to, company, profile, hr_contacts, transcripts }) => {
+  // 2026-09-30 Jacky：對方有興趣之後，寄公司介紹＋合約。擬好先送 TG，Jacky 按核准才寄。
+  bdContractPackBlock: (company, outreach, contractFiles, assignedTo) => {
+    const email = ([...(outreach || [])].reverse().find((o) => String(o.contact_email || '').trim()) || {}).contact_email || '';
+    const packs = (outreach || []).filter((o) => o.scenario === 'contract_pack');
+    const lastPack = packs[packs.length - 1];
+    const ST = { pending: '等 Jacky 在 TG 核准', sent: '已寄出', draft: '被退回', rejected: '不寄' };
+    const files = Array.isArray(contractFiles) ? contractFiles : [];
+    return `<section class="cg-pack" data-pack-company="${escapeHtml(company)}" data-pack-by="${escapeHtml(assignedTo || '')}">
+      <h4 style="margin:18px 0 6px">寄公司介紹＋合約</h4>
+      <p class="help" style="margin-top:0">對方說「寄來看看」之後用。公司介紹每次都會附；合約有上傳就一起附（沒有也可以只寄公司介紹）。信裡不寫任何費用數字。</p>
+      <div class="cg-row"><b>收件人</b><span>${email ? text(email) : '<span class="pc-status bad">還沒有信箱</span> 先在上面記錄電話結果時補信箱'}</span></div>
+      <div class="cg-row"><b>署名</b><span>${assignedTo ? `${text(assignedTo)}｜Step1ne 德仁管理顧問有限公司` : '<span class="pc-status bad">還沒指派負責顧問</span>'}</span></div>
+      <div class="cg-row"><b>固定附件</b><span>STEP1NE_企業人才招募解決方案.pdf（公司介紹）</span></div>
+      <div class="cg-row"><b>合約</b><span>${files.length ? `<select class="cg-in" data-pack-contract>${files.map((f, i) => `<option value="${escapeHtml(f.id)}"${i ? '' : ' selected'}>${text(f.filename)}（${text(String(f.created_at || '').slice(5, 16))}${f.uploaded_by ? ' ' + text(f.uploaded_by) : ''}）</option>`).join('')}<option value="">這次不附合約，只寄公司介紹</option></select>` : '<span class="muted">還沒上傳（可以只寄公司介紹）</span>'}</span></div>
+      <label class="field"><span>上傳這家的合約（PDF／DOCX，8MB 內）</span><input type="file" data-pack-file accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"></label>
+      ${lastPack ? `<div class="notice" style="margin:8px 0">上一封：${text(ST[lastPack.status] || lastPack.status)}${lastPack.sent_at ? `（${text(String(lastPack.sent_at).slice(5, 16))} 寄出）` : ''}</div>` : ''}
+      <div class="actions-row"><button type="button" class="btn" data-pack-preview>先看信的內容</button><button type="button" class="btn primary" data-pack-send>擬信並送 TG 核准</button></div>
+      <pre class="bd-letter-body" data-pack-out hidden></pre>
+    </section>`;
+  },
+  bdDashboardDetail: ({ outreach, timeline, playbook, notes, people, assigned_to, company, profile, hr_contacts, transcripts, contract_files }) => {
     const pick = (key) => outreach.map((o) => o[key]).find(Boolean) || null;
     const contactName = pick('contact_name');
     const contactEmail = pick('contact_email');
@@ -2167,7 +2187,8 @@ ${ns.length ? `<div class="bdn-list">${ns.map(item).join('')}</div>` : '<p class
           <div class="actions-row"><button type="button" class="btn" data-cg-tr-only>只上傳逐字稿讓 AI 看</button></div>
           <p class="help">點「記錄這通電話」時，這格有字會一起送出；不想記錄結果也可以按「只上傳逐字稿讓 AI 看」。AI 看完會出現在上面「通話心得」。</p>
         </section>
-        <p class="help">沒接／被擋／只問到窗口 → 系統 2 個工作天後提醒再打；拿到信箱或有興趣 → TG 通知去寫開發信。</p>`)}
+        <p class="help">沒接／被擋／只問到窗口 → 系統 2 個工作天後提醒再打；拿到信箱或有興趣 → TG 通知去寫開發信。</p>
+        ${views.bdContractPackBlock(company || (outreach[0] || {}).company || '', outreach, contract_files, assigned_to)}`)}
       <div class="cg-nav"><button type="button" class="btn" data-cg-prev>← 上一步</button><button type="button" class="btn primary" data-cg-next>下一步 →</button></div>
     </div>` : '';
     const playbookPane = !playbook ? empty('這家還沒有足夠資料組出開發引導') : guidePane || `
