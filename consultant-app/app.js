@@ -1482,18 +1482,37 @@ function wireContractPack(scope) {
   });
 }
 
-// 2026-09-30 Jacky：卡片最上面「這家的下一步」
+// 2026-09-30 Jacky：跟進便利貼（卡片最上面／客戶跟進分頁共用）
+function followPayload(root, prefix) {
+  return {
+    next_action: root.querySelector(`[data-${prefix}-action]`).value,
+    next_due: root.querySelector(`[data-${prefix}-due]`).value,
+    next_step: root.querySelector(`[data-${prefix}-memo]`).value,
+    adjust_note: '', // 舊的「要調整的地方」已經併進備註
+  };
+}
+function wireDueQuick(root, prefix, onSet) {
+  for (const b of root.querySelectorAll('[data-due-quick]')) {
+    b.onclick = () => {
+      const d = new Date(Date.now() + 8 * 3600000);
+      const k = b.dataset.dueQuick;
+      if (k === 'mon') d.setUTCDate(d.getUTCDate() + (((8 - d.getUTCDay()) % 7) || 7));
+      else d.setUTCDate(d.getUTCDate() + Number(k));
+      root.querySelector(`[data-${prefix}-due]`).value = d.toISOString().slice(0, 10);
+      if (onSet) onSet();
+    };
+  }
+}
 function wireCompanyStatus(root) {
   const box = root.querySelector('.bd-status-card');
   if (!box) return;
+  wireDueQuick(box, 'status');
   box.querySelector('[data-status-save]')?.addEventListener('click', async (e) => {
     const btn = e.currentTarget;
     btn.disabled = true;
     try {
       const r = await api.post('/admin/bd/company-status', {
-        company: box.dataset.statusCompany,
-        next_step: box.querySelector('[data-status-next]').value,
-        adjust_note: box.querySelector('[data-status-adjust]').value,
+        company: box.dataset.statusCompany, ...followPayload(box, 'status'),
         by: document.querySelector('.cg-pack')?.dataset.packBy || '',
       });
       box.querySelector('[data-status-at]').textContent = `已儲存 ${String(r.updated_at || '').slice(5, 16)}`;
@@ -1503,7 +1522,7 @@ function wireCompanyStatus(root) {
   });
 }
 
-// 2026-09-30 Jacky：收尾分頁
+// 2026-09-30 Jacky：客戶跟進分頁（原「收尾」）
 function wireWrapup(root) {
   const list = root.querySelector('.wu-list');
   if (!list) return;
@@ -1521,43 +1540,47 @@ function wireWrapup(root) {
       ...(c && c.value ? { contract_id: c.value } : { no_contract: true }),
     };
   };
-  const picked = () => rows().filter((r) => !r.hidden && r.querySelector('[data-wu-pick]').checked);
+  const picked = () => rows().filter((r) => !r.hidden && !r.querySelector('.wu-mail').hidden && r.querySelector('[data-wu-pick]').checked);
   const sync = () => {
     const n = picked().length;
-    bar.querySelector('[data-wu-picked]').textContent = `已勾 ${n} 家${n > 12 ? '（一次最多 12 封）' : ''}`;
+    bar.querySelector('[data-wu-picked]').textContent = `要寄的信：已勾 ${n} 家${n > 12 ? '（一次最多 12 封）' : ''}`;
     bar.querySelectorAll('button').forEach((b) => { b.disabled = !n || n > 12; });
     const shown = rows().filter((r) => !r.hidden).length;
     const cnt = root.querySelector('#wu-count');
     if (cnt) cnt.textContent = `顯示 ${shown} 家`;
   };
   const who = root.querySelector('#wu-assignee');
-  who.onchange = () => {
-    rows().forEach((r) => { r.hidden = !!who.value && r.dataset.wuAssignee !== who.value; if (r.hidden) r.querySelector('[data-wu-pick]').checked = false; });
+  const show = root.querySelector('#wu-show');
+  const applyFilter = () => {
+    rows().forEach((r) => {
+      r.hidden = (!!who.value && r.dataset.wuAssignee !== who.value) || (show.value === 'need' && r.dataset.wuNeeds !== '1');
+      if (r.hidden) r.querySelector('[data-wu-pick]').checked = false;
+    });
     sync();
   };
-  root.querySelector('#wu-pick-all').onchange = (e) => {
-    rows().forEach((r) => { const cb = r.querySelector('[data-wu-pick]'); if (!r.hidden && !cb.disabled) cb.checked = e.target.checked; });
-    sync();
-  };
+  who.onchange = applyFilter;
+  show.onchange = applyFilter;
   for (const row of rows()) {
     row.querySelector('[data-wu-pick]').onchange = sync;
     const sc = row.querySelector('[data-wu-scenario]');
     const syncBrief = () => { row.querySelector('.wu-brief').hidden = sc.value !== 'candidate'; };
     sc.addEventListener('change', syncBrief);
     syncBrief();
-    // 下一步／要調整：離開欄位就自動存
+    // 下一步／日期／備註：改了就自動存；下一步選「寄信」才打開寄信設定
     const saved = row.querySelector('[data-wu-saved]');
-    for (const inp of row.querySelectorAll('[data-wu-next],[data-wu-adjust]')) {
-      let last = inp.value;
-      inp.addEventListener('change', async () => {
-        if (inp.value === last) return;
-        try {
-          await api.post('/admin/bd/company-status', { company: row.dataset.wuCompany, next_step: row.querySelector('[data-wu-next]').value, adjust_note: row.querySelector('[data-wu-adjust]').value, by: row.dataset.wuAssignee || '' });
-          last = inp.value;
-          saved.textContent = '✓ 已自動儲存';
-        } catch (err) { saved.textContent = ''; toast(err.message || '儲存失敗', 'error'); }
-      });
-    }
+    const save = async () => {
+      try {
+        await api.post('/admin/bd/company-status', { company: row.dataset.wuCompany, ...followPayload(row, 'wu'), by: row.dataset.wuAssignee || '' });
+        saved.textContent = '✓ 已自動儲存';
+      } catch (err) { saved.textContent = ''; toast(err.message || '儲存失敗', 'error'); }
+    };
+    for (const inp of row.querySelectorAll('[data-wu-action],[data-wu-due],[data-wu-memo]')) inp.addEventListener('change', save);
+    wireDueQuick(row, 'wu', save);
+    const mail = row.querySelector('.wu-mail');
+    row.querySelector('[data-wu-action]').addEventListener('change', (e) => {
+      mail.hidden = e.target.value !== 'mail';
+      if (mail.hidden) { row.querySelector('[data-wu-pick]').checked = false; sync(); }
+    });
     row.querySelector('[data-wu-preview]').onclick = async (e) => {
       const btn = e.currentTarget; const out = row.querySelector('[data-wu-out]');
       btn.disabled = true;
@@ -1591,7 +1614,7 @@ function wireWrapup(root) {
   };
   bar.querySelector('[data-wu-batch-preview]').onclick = (e) => batch(true, e.currentTarget);
   bar.querySelector('[data-wu-batch-send]').onclick = (e) => batch(false, e.currentTarget);
-  sync();
+  applyFilter();
 }
 
 // 2026-09-30：逐字稿檔（.md／.txt）讀成文字放進同一個表單的逐字稿欄位

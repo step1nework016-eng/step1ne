@@ -1768,7 +1768,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
     <article class="card" style="margin-top:14px"><div class="card-head"><h3 style="margin:0;font-size:14px">所有發文帳號（${(accounts || []).length}）</h3></div>
       ${list(accounts || [], (a) => `<div class="list-row"><span><b>${text(a.label || a.consultant_name || a.id)}</b><small>${text(a.platform)}</small></span></div>`)}</article>`;
   },
-  clients: (tab='clients') => pageHead('客戶 / BD','集中管理客戶關係、推薦人選與企業用人需求。','<button class="btn primary" data-action="add-client">＋ 新增客戶</button>') + tabbar('clients',[['clients','客戶'],['bd','BD Pipeline'],['bd-progress','開發進度'],['bd-wrapup','收尾'],['scripts','話術手冊'],['requests','BD Requests'],['hiring','企業用人需求'],['billing','收費進程']],tab) + `<div id="page-data">${endpointState('客戶與 BD')}</div>`,
+  clients: (tab='clients') => pageHead('客戶 / BD','集中管理客戶關係、推薦人選與企業用人需求。','<button class="btn primary" data-action="add-client">＋ 新增客戶</button>') + tabbar('clients',[['clients','客戶'],['bd','BD Pipeline'],['bd-progress','開發進度'],['bd-wrapup','客戶跟進'],['scripts','話術手冊'],['requests','BD Requests'],['hiring','企業用人需求'],['billing','收費進程']],tab) + `<div id="page-data">${endpointState('客戶與 BD')}</div>`,
   clientsData: ({ companies, bd, requests }) => `<div class="kpi-grid"><article class="kpi"><span>客戶</span><strong>${companies.length}</strong></article><article class="kpi"><span>BD 案件</span><strong>${bd.length}</strong></article><article class="kpi"><span>BD Requests</span><strong>${requests.length}</strong></article></div>
     <div class="card"><div class="card-head"><h2 style="margin:0;font-size:15px">新增客戶</h2></div>
       <p class="help" style="margin:6px 0 10px">建好之後會自動產生一組「用人需求表連結」，把連結給客戶窗口他就能自己填職缺。</p>
@@ -1918,6 +1918,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
           ${phoneHtml}${mainHtml}${noPhone}
           <small>${text(r.contact_name || '窗口未知')}${r.contact_email ? ' · ' + text(r.contact_email) : ''}</small>
           ${lastCall}
+          <small class="fu-row-line">${r.next_action || r.next_due || r.next_step ? `下一步：${text(views.FOLLOW_ACTS[r.next_action] || '還沒決定')}${r.next_due ? `・${text(r.next_due.slice(5).replace('-', '/'))}` : ''} ${views.followDueTag(r.next_due)}${r.next_step ? `｜${text(String(r.next_step).split('\n')[0].slice(0, 40))}` : ''}` : (r.contacted_at || r.last_call_result ? '<span class="fu-tag none">還沒排下一步</span>' : '')}</small>
           <small>${chLabel} · 第 ${text(r.attempts)} 次接觸 · 目前：${r.awaiting_call ? '待電訪' : text(LABEL[r.stage] || r.stage)}${r.delivery_note === 'no_tracking' ? '（送達：無紀錄，9/23 前寄的信還沒有追蹤）' : ''}</small>
           ${r.next_followup_due ? `<small class="${r.next_followup_overdue ? 'bd-overdue' : ''}">${r.next_followup_overdue ? '⚠️ 追信逾期：' : '下次追信：'}${text(String(r.next_followup_due).slice(0, 16))}</small>` : ''}
           ${r.todo.length ? `<small>${r.todo.map((t) => `<span class="badge warning">${text(t)}</span>`).join(' ')}</small>` : ''}
@@ -2084,54 +2085,82 @@ ${ns.length ? `<div class="bdn-list">${ns.map(item).join('')}</div>` : '<p class
   },
   packScenarioSelect: (po, sel, attr) => `<select class="cg-in" ${attr}>${Object.entries(po.scenarios || {}).map(([k, v]) => `<option value="${k}"${k === sel ? ' selected' : ''}>${text(v)}</option>`).join('')}</select>`,
   packAngleSelect: (po, sel, attr) => `<select class="cg-in" ${attr}><option value="">不特別強調</option>${Object.entries(po.angles || {}).map(([k, v]) => `<option value="${k}"${k === sel ? ' selected' : ''}>${text(v)}</option>`).join('')}</select>`,
-  // 2026-09-30 Jacky：每家「下一步」＋「這家要調整的地方」，卡片最上面跟收尾分頁是同一份
-  bdStatusBlock: (company, st, fallbackNext) => `<div class="card bd-status-card" data-status-company="${escapeHtml(company)}">
-      <h3 style="font-size:14px;margin:0 0 8px">這家的下一步</h3>
-      <label class="field"><span>下一步要做什麼</span><input class="cg-in" data-status-next value="${escapeHtml((st && st.next_step) || '')}" placeholder="${escapeHtml(fallbackNext ? `上次心得（下一通怎麼講）：${fallbackNext}` : '例：週五前寄公司介紹，下週一電話追')}"></label>
-      <label class="field"><span>這家要調整的地方</span><textarea class="cg-in" data-status-adjust rows="2" placeholder="例：總機說人資只收 Email；職缺名稱要改成「製程整合」">${escapeHtml((st && st.adjust_note) || '')}</textarea></label>
-      <div class="actions-row"><button type="button" class="btn sm" data-status-save>儲存</button><small class="help" data-status-at>${st && st.updated_at ? `上次更新 ${text(String(st.updated_at).slice(5, 16))}${st.updated_by ? ' ' + text(st.updated_by) : ''}` : ''}</small></div>
-    </div>`,
-  // 2026-09-30 Jacky：收尾分頁——聯繫過的公司一頁看完，寫下一步，打勾一次擬信
+  // 2026-09-30 Jacky：每家客戶一張「跟進便利貼」——上次聯絡到哪、下一步做什麼、哪一天、備註。
+  // 卡片最上面、「客戶跟進」分頁、開發進度列表是同一份資料（bd_company_status）。
+  FOLLOW_ACTS: { call: '打電話', mail: '寄信', wait: '等對方回覆', meet: '約見面', pause: '先暫停' },
+  FOLLOW_RES: { interested: '有興趣', not_interested: '拒絕', got_email: '拿到信箱', no_answer: '沒接', gatekeeper: '被總機擋', got_contact: '問到窗口', not_hiring: '沒在徵人', mail_sent: '信已寄出' },
+  followDueTag: (due) => {
+    if (!due) return '';
+    const today = new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 10);
+    if (due < today) return '<span class="fu-tag late">過期</span>';
+    if (due === today) return '<span class="fu-tag today">今天</span>';
+    return '';
+  },
+  followLastLine: (lc) => {
+    if (!lc) return '還沒有聯絡紀錄';
+    const res = lc.result ? `：${views.FOLLOW_RES[lc.result] || lc.result}` : '';
+    return `${String(lc.at || '').slice(5, 10).replace('-', '/')} ${lc.who || ''} ${lc.how || ''}${res}${lc.note ? `（${String(lc.note).slice(0, 60)}）` : ''}`;
+  },
+  followFields: (st, attrPrefix) => {
+    const a = st || {};
+    return `<div class="fu-fields">
+      <label class="field"><span>下一步</span><select class="cg-in" data-${attrPrefix}-action><option value="">還沒決定</option>${Object.entries(views.FOLLOW_ACTS).map(([k, v]) => `<option value="${k}"${a.next_action === k ? ' selected' : ''}>${text(v)}</option>`).join('')}</select></label>
+      <label class="field"><span>哪一天 ${views.followDueTag(a.next_due)}</span><span class="fu-date"><input type="date" class="cg-in" data-${attrPrefix}-due value="${escapeHtml(a.next_due || '')}">
+        <button type="button" class="btn ghost sm" data-due-quick="1">明天</button><button type="button" class="btn ghost sm" data-due-quick="3">3 天後</button><button type="button" class="btn ghost sm" data-due-quick="mon">下週一</button></span></label>
+      <label class="field fu-memo"><span>備註（要做什麼、要注意什麼）</span><textarea class="cg-in" data-${attrPrefix}-memo rows="2" placeholder="例：寄完公司介紹，週五打去問看完沒；人資只收 Email">${escapeHtml([a.next_step, a.adjust_note].filter(Boolean).join('\n'))}</textarea></label>
+    </div>`;
+  },
+  bdStatusBlock: (company, st, calls) => {
+    const last = (calls || [])[calls ? calls.length - 1 : 0];
+    const lc = last ? { at: last.created_at, who: last.caller, how: '電話', result: last.result, note: last.note } : null;
+    return `<div class="card bd-status-card" data-status-company="${escapeHtml(company)}">
+      <h3 style="font-size:14px;margin:0 0 6px">跟進</h3>
+      <p class="fu-last"><b>上次聯絡</b>${text(views.followLastLine(lc))}</p>
+      ${views.followFields(st, 'status')}
+      <div class="actions-row"><button type="button" class="btn sm primary" data-status-save>儲存</button><small class="help" data-status-at>${st && st.updated_at ? `上次更新 ${text(String(st.updated_at).slice(5, 16))}${st.updated_by ? ' ' + text(st.updated_by) : ''}` : ''}</small></div>
+    </div>`;
+  },
+  // 「客戶跟進」分頁：聯繫過的公司一頁看完，照「哪一天要做」排；下一步選「寄信」才出現寄信設定
   bdWrapup: ({ rows, scenarios, angles, contract_types }) => {
     const po = { scenarios, angles, contract_types };
-    const RES = { interested: '有興趣', not_interested: '拒絕', got_email: '拿到信箱', no_answer: '沒接', gatekeeper: '被總機擋', got_contact: '問到窗口', not_hiring: '沒在徵人' };
     const ST = { pending: '等 Jacky 核准', sending: '寄送中', sent: '已寄出', draft: '被退回', rejected: '不寄' };
     const people = [...new Set(rows.map((r) => r.assigned_to).filter(Boolean))];
+    const today = new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 10);
+    const needs = (r) => r.next_action !== 'pause' && (!r.next_due || r.next_due <= today);
     const card = (r) => {
       const why = !r.email ? '缺信箱' : (!r.assigned_to ? '還沒指派負責顧問' : '');
       const pendingPack = r.last_pack && ['pending', 'sending'].includes(r.last_pack.status);
       const block = why || (pendingPack ? '已經有一封在等核准' : '');
-      const c = r.last_call;
-      return `<article class="wu-row" data-wu-company="${escapeHtml(r.company)}" data-wu-assignee="${escapeHtml(r.assigned_to || '')}">
-        <div class="wu-head">
-          <label class="wu-pick"><input type="checkbox" data-wu-pick${block ? ' disabled' : ''} aria-label="勾選 ${escapeHtml(r.company)}"></label>
-          <div class="wu-title"><button type="button" class="linklike" data-bd-company="${escapeHtml(r.company)}">${text(r.company)}</button>
-            <small>負責：${text(r.assigned_to || '未指派')}${c ? `・${text(String(c.created_at || '').slice(5, 10))} ${text(c.caller || '')} 打：${text(RES[c.result] || c.result)}` : (r.contacted_at ? `・${text(String(r.contacted_at).slice(5, 10))} 標記已聯繫` : '')}${r.job_title ? `・職缺：${text(r.job_title)}` : ''}</small>
-            <small>${r.email ? `✉️ ${text(r.email)}` : '<span class="pc-status bad">缺信箱</span>'}${r.last_pack ? `・上一封：${text(ST[r.last_pack.status] || r.last_pack.status)}${r.last_pack.sent_at ? ` ${text(String(r.last_pack.sent_at).slice(5, 10))}` : ''}` : ''}</small>
-            ${block ? `<small class="wu-block">不能勾：${text(block)}</small>` : ''}
+      return `<article class="wu-row" data-wu-company="${escapeHtml(r.company)}" data-wu-assignee="${escapeHtml(r.assigned_to || '')}" data-wu-needs="${needs(r) ? 1 : 0}">
+        <div class="wu-title"><button type="button" class="linklike" data-bd-company="${escapeHtml(r.company)}">${text(r.company)}</button>
+          <small>負責：${text(r.assigned_to || '未指派')}${r.job_title ? `・職缺：${text(r.job_title)}` : ''}${r.email ? `・${text(r.email)}` : ''}</small>
+          <p class="fu-last"><b>上次聯絡</b>${text(views.followLastLine(r.last_contact))}</p>
+        </div>
+        ${views.followFields(r, 'wu')}
+        <div class="wu-foot"><small class="help" data-wu-saved>${r.status_updated_at ? `上次更新 ${text(String(r.status_updated_at).slice(5, 16))}${r.status_updated_by ? ' ' + text(r.status_updated_by) : ''}` : ''}</small></div>
+        <div class="wu-mail" ${r.next_action === 'mail' ? '' : 'hidden'}>
+          <div class="wu-mail-head"><label class="wu-inline"><input type="checkbox" data-wu-pick${block ? ' disabled' : ''}> 放進這次要寄的信</label>${block ? `<small class="wu-block">不能勾：${text(block)}</small>` : ''}${r.last_pack ? `<small class="help">上一封：${text(ST[r.last_pack.status] || r.last_pack.status)}${r.last_pack.sent_at ? ` ${text(String(r.last_pack.sent_at).slice(5, 10))}` : ''}</small>` : ''}</div>
+          <div class="wu-grid">
+            <label class="field"><span>寄什麼信</span>${views.packScenarioSelect(po, r.suggested_scenario, 'data-wu-scenario')}</label>
+            <label class="field"><span>強調什麼</span>${views.packAngleSelect(po, '', 'data-wu-angle')}</label>
+            <label class="field wu-brief" hidden><span>人選背景重點（不寫姓名、不寫目前公司）</span><textarea class="cg-in" data-wu-brief rows="2"></textarea></label>
+            <div class="field"><span>附件</span><label class="wu-inline"><input type="checkbox" data-wu-intro checked> 公司介紹</label>
+              ${(r.contract_files || []).length ? `<select class="cg-in" data-wu-contract><option value="">不附合約</option>${r.contract_files.map((f) => `<option value="${escapeHtml(f.id)}">${f.contract_type ? `【${text(f.contract_type)}】` : ''}${text(f.filename)}</option>`).join('')}</select>` : '<small class="muted">沒有合約</small>'}</div>
           </div>
+          <button type="button" class="btn ghost sm" data-wu-preview>看這封信</button>
+          <pre class="bd-letter-body" data-wu-out hidden></pre>
         </div>
-        <div class="wu-grid">
-          <label class="field"><span>下一步</span><input class="cg-in" data-wu-next value="${escapeHtml(r.next_step || '')}" placeholder="${escapeHtml(r.note_next_time ? `上次心得：${r.note_next_time}` : '還沒寫')}"></label>
-          <label class="field"><span>要調整的地方</span><input class="cg-in" data-wu-adjust value="${escapeHtml(r.adjust_note || '')}" placeholder="沒有就空著"></label>
-          <label class="field"><span>寄什麼信</span>${views.packScenarioSelect(po, r.suggested_scenario, 'data-wu-scenario')}</label>
-          <label class="field"><span>強調什麼</span>${views.packAngleSelect(po, '', 'data-wu-angle')}</label>
-          <label class="field wu-brief" hidden><span>人選背景重點（不寫姓名、不寫目前公司）</span><textarea class="cg-in" data-wu-brief rows="2"></textarea></label>
-          <div class="field"><span>附件</span><label class="wu-inline"><input type="checkbox" data-wu-intro checked> 公司介紹</label>
-            ${(r.contract_files || []).length ? `<select class="cg-in" data-wu-contract><option value="">不附合約</option>${r.contract_files.map((f) => `<option value="${escapeHtml(f.id)}">${f.contract_type ? `【${text(f.contract_type)}】` : ''}${text(f.filename)}</option>`).join('')}</select>` : '<small class="muted">沒有合約</small>'}</div>
-        </div>
-        <div class="wu-foot"><button type="button" class="btn ghost sm" data-wu-preview>看這封信</button><small class="help" data-wu-saved></small></div>
-        <pre class="bd-letter-body" data-wu-out hidden></pre>
       </article>`;
     };
-    return `<div class="page-head"><div><h2>收尾</h2><p>聯繫過的公司都在這裡：寫好每家的下一步，勾選要寄信的公司，一次擬好送 TG，Jacky 一個按鈕核准全部。</p></div></div>
-      <div class="filter-row"><select id="wu-assignee"><option value="">全部負責人（${rows.length}）</option>${people.map((x) => `<option value="${escapeHtml(x)}">${text(x)}</option>`).join('')}</select>
-        <label class="wu-inline"><input type="checkbox" id="wu-pick-all"> 全選可以寄的</label><span class="help" id="wu-count"></span></div>
-      ${rows.length ? `<div class="wu-list">${rows.map(card).join('')}</div>` : empty('還沒有聯繫過的公司。打完電話記錄結果，或在開發進度勾「已聯繫」，就會出現在這裡。')}
-      <div class="wu-bar"><span data-wu-picked>已勾 0 家</span><button type="button" class="btn" data-wu-batch-preview disabled>先預覽勾選的信</button><button type="button" class="btn primary" data-wu-batch-send disabled>擬好勾選的信，送 TG 核准</button></div>
+    const nNeed = rows.filter(needs).length;
+    return `<div class="page-head"><div><h2>客戶跟進</h2><p>聯繫過的客戶都在這裡：上次聯絡到哪、下一步做什麼、哪一天做。照日期排，過期和今天的在最上面。打完電話或寄完信，記得回來改下一步。</p></div></div>
+      <div class="filter-row"><select id="wu-assignee"><option value="">全部負責人</option>${people.map((x) => `<option value="${escapeHtml(x)}">${text(x)}</option>`).join('')}</select>
+        <select id="wu-show"><option value="need">要處理的（今天以前到期＋還沒排）${nNeed}</option><option value="">全部（${rows.length}）</option></select><span class="help" id="wu-count"></span></div>
+      ${rows.length ? `<div class="wu-list">${rows.map(card).join('')}</div>` : empty('還沒有聯繫過的客戶。打完電話記錄結果，或在開發進度勾「已聯繫」，就會出現在這裡。')}
+      <div class="wu-bar"><span data-wu-picked>下一步選「寄信」的公司，勾選後可以一次擬好信：已勾 0 家</span><button type="button" class="btn" data-wu-batch-preview disabled>先預覽勾選的信</button><button type="button" class="btn primary" data-wu-batch-send disabled>擬好勾選的信，送 TG 核准</button></div>
       <div id="wu-batch-out"></div>`;
   },
-  bdDashboardDetail: ({ outreach, timeline, playbook, notes, people, assigned_to, company, profile, hr_contacts, transcripts, contract_files, company_status, pack_options }) => {
+  bdDashboardDetail: ({ outreach, timeline, playbook, notes, people, assigned_to, company, profile, hr_contacts, transcripts, contract_files, company_status, pack_options, calls }) => {
     const pick = (key) => outreach.map((o) => o[key]).find(Boolean) || null;
     const contactName = pick('contact_name');
     const contactEmail = pick('contact_email');
@@ -2273,7 +2302,7 @@ ${ns.length ? `<div class="bdn-list">${ns.map(item).join('')}</div>` : '<p class
     `;
 
     const _topic = profile && String(profile.topics || '').split('\n').map((x) => x.replace(/^[-・•\s]+/, '').trim()).find(Boolean);
-    return `${views.bdEntry(views.bdTriggerOf(outreach), outreach.some((o) => o.candidate_card), true, (outreach.find((o) => o.job_title) || {}).job_title, _topic)}${views.bdStatusBlock(company || (outreach[0] || {}).company || '', company_status, ((notes || [])[0] || {}).next_time)}${views.bdNotesBlock(company || (outreach[0] || {}).company || '', notes, people, assigned_to, transcripts)}${contactCard}
+    return `${views.bdEntry(views.bdTriggerOf(outreach), outreach.some((o) => o.candidate_card), true, (outreach.find((o) => o.job_title) || {}).job_title, _topic)}${views.bdStatusBlock(company || (outreach[0] || {}).company || '', company_status, calls)}${views.bdNotesBlock(company || (outreach[0] || {}).company || '', notes, people, assigned_to, transcripts)}${contactCard}
       <div class="tabs tabs-sub" id="bd-detail-tabs">
         <button type="button" class="active" data-bd-detail-tab="profile">認識客戶</button>
         <button type="button" data-bd-detail-tab="timeline">時間軸／信件</button>
