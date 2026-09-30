@@ -1575,6 +1575,13 @@ function wireWrapup(root) {
       } catch (err) { saved.textContent = ''; toast(err.message || '儲存失敗', 'error'); }
     };
     for (const inp of row.querySelectorAll('[data-wu-action],[data-wu-due],[data-wu-memo]')) inp.addEventListener('change', save);
+    // 備註邊打邊存（停手 1 秒就存），不用等游標離開
+    let memoTimer = null;
+    row.querySelector('[data-wu-memo]').addEventListener('input', () => {
+      saved.textContent = '輸入中…';
+      clearTimeout(memoTimer);
+      memoTimer = setTimeout(save, 1000);
+    });
     wireDueQuick(row, 'wu', save);
     const mail = row.querySelector('.wu-mail');
     row.querySelector('[data-wu-action]').addEventListener('change', (e) => {

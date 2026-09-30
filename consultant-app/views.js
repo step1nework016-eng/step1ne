@@ -2155,7 +2155,7 @@ ${ns.length ? `<div class="bdn-list">${ns.map(item).join('')}</div>` : '<p class
     const nNeed = rows.filter(needs).length;
     return `<div class="page-head"><div><h2>客戶跟進</h2><p>聯繫過的客戶都在這裡：上次聯絡到哪、下一步做什麼、哪一天做。照日期排，過期和今天的在最上面。打完電話或寄完信，記得回來改下一步。</p></div></div>
       <div class="filter-row"><select id="wu-assignee"><option value="">全部負責人</option>${people.map((x) => `<option value="${escapeHtml(x)}">${text(x)}</option>`).join('')}</select>
-        <select id="wu-show"><option value="need">要處理的（今天以前到期＋還沒排）${nNeed}</option><option value="">全部（${rows.length}）</option></select><span class="help" id="wu-count"></span></div>
+        <select id="wu-show"><option value="">全部（${rows.length}）</option><option value="need">只看要處理的：今天以前到期＋還沒排（${nNeed}）</option></select><span class="help" id="wu-count"></span></div>
       ${rows.length ? `<div class="wu-list">${rows.map(card).join('')}</div>` : empty('還沒有聯繫過的客戶。打完電話記錄結果，或在開發進度勾「已聯繫」，就會出現在這裡。')}
       <div class="wu-bar"><span data-wu-picked>下一步選「寄信」的公司，勾選後可以一次擬好信：已勾 0 家</span><button type="button" class="btn" data-wu-batch-preview disabled>先預覽勾選的信</button><button type="button" class="btn primary" data-wu-batch-send disabled>擬好勾選的信，送 TG 核准</button></div>
       <div id="wu-batch-out"></div>`;
