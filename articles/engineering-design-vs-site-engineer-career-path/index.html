@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  if (!e.target.closest) return;
+  // 2026-08-06：原本只抓 lin.ee。BIM 那群的下一步是「直接應徵」不是加 LINE，
+  // 不一起記的話，等於把那條路做出來卻量不到，實驗就白做了。
+  var a = e.target.closest('a[href*="lin.ee"], a[href^="/apply"]');
+  if (!a) return;
+  var isApply = (a.getAttribute('href') || '').indexOf('/apply') === 0;
+  gtag('event', isApply ? 'apply_click' : 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60),
+    // mid＝這次新加的文章中段；沒有標的就是原本頁首／頁尾那些
+    cta_slot: a.getAttribute('data-cta') || 'legacy'
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>工程設計工程師 vs 現場工程師：兩條不同的職涯路，該選哪一條？｜Step1ne</title>
+<meta name="description" content="同樣是高科技廠房工程職缺，工程設計工程師跟現場（專案）工程師做的事完全不同。拆解職務內容、薪資、證照門檻與職涯走向的實際差異。">
+<meta name="keywords" content="工程設計工程師,現場工程師,監造工程師,廠房工程師轉職,AutoCAD Revit工程師,半導體廠房職涯,工程職涯比較,工地監工">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/articles/engineering-design-vs-site-engineer-career-path/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Step1ne 德仁管理顧問">
+<meta property="og:title" content="工程設計工程師 vs 現場工程師：兩條不同的職涯路，該選哪一條？">
+<meta property="og:description" content="同樣掛「工程師」，畫圖的跟顧工地的做的事完全不同。從實際職缺拆解職務內容、薪資與證照門檻的差異，幫你判斷哪一條路適合自己。">
+<meta property="og:url" content="https://step1ne.com/articles/engineering-design-vs-site-engineer-career-path/">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://step1ne.com/assets/og-bim-career-change.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-bim-career-change.jpg">
+<meta name="theme-color" content="#F4F6F8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "工程設計工程師 vs 現場工程師：兩條不同的職涯路，該選哪一條？",
+  "description": "同樣是高科技廠房工程職缺，工程設計工程師跟現場（專案）工程師做的事完全不同。拆解職務內容、薪資、證照門檻與職涯走向的實際差異。",
+  "datePublished": "2026-09-30",
+  "dateModified": "2026-09-30",
+  "inLanguage": "zh-TW",
+  "author": { "@type": "Organization", "name": "Step1ne 德仁管理顧問有限公司", "url": "https://step1ne.com/" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "德仁管理顧問有限公司（Step1ne）",
+    "logo": { "@type": "ImageObject", "url": "https://step1ne.com/assets/step1ne-logo.png" }
+  }
+}
+</script>
+
+<style>
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;
+  --wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:17px;line-height:1.95;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.35;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,select,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* 導覽 */
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+/* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
+
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
+.crumb{grid-column:1/-1;padding:22px 0 6px;font-size:13.5px;color:var(--slate-dim)}
+.crumb a{color:var(--slate)}
+.crumb a:hover{color:var(--brand-deep)}
+.crumb span{margin:0 8px;color:var(--rule)}
+
+/* 目錄軌：沿用全站 signature */
+.toc{position:sticky;top:92px;padding:8px 0 40px}
+.toc h2{font-size:13px;font-weight:700;color:var(--slate-dim);letter-spacing:.02em;margin-bottom:16px}
+.tns{position:relative;padding-left:22px}
+.tns::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.14))}
+.tn{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:14px;color:var(--slate);line-height:1.6;position:relative}
+.tn i{position:absolute;left:-22px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--rule);flex:0 0 auto}
+.tn:hover{color:var(--brand-deep)}
+.tn:hover i{border-color:var(--brand)}
+.tn.on{color:var(--ink);font-weight:700}
+.tn.on i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 4px rgba(46,169,223,.2)}
+.mtoc{display:none;margin:20px 0 0;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.mtoc summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15.5px;position:relative}
+.mtoc summary::-webkit-details-marker{display:none}
+.mtoc summary::after{content:"";position:absolute;right:20px;top:24px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.mtoc[open] summary::after{transform:rotate(-135deg)}
+.mtoc div{padding:0 18px 14px}
+.mtoc a{display:block;padding:9px 0;font-size:15px;color:var(--slate);border-top:1px solid var(--rule)}
+
+/* 文章本體 */
+article{padding:14px 0 60px;max-width:70ch}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--brand-deep);background:rgba(22,126,178,.07);border:1px solid rgba(22,126,178,.25);border-radius:5px;padding:4px 11px}
+article h1{margin-top:16px;font-size:clamp(28px,4.2vw,42px);line-height:1.28;letter-spacing:-.02em}
+.by{margin-top:18px;padding-bottom:20px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14px;color:var(--slate-dim)}
+.by a{color:var(--slate);border-bottom:1px solid var(--rule)}
+.by .d{font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+
+/* ★ Signature：直接答案 */
+.ans{margin-top:30px;background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:26px 30px}
+.ans .lab{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:10px}
+.ans p{font-size:19.5px;line-height:1.85;font-weight:500}
+.ans strong{font-weight:900}
+
+article h2{margin:52px 0 16px;font-size:25px;scroll-margin-top:92px}
+article h3{margin:34px 0 10px;font-size:19px}
+article h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-right:12px;border-radius:8px;background:var(--brand);color:#fff;font-family:var(--f-disp);font-size:17px;font-weight:700;vertical-align:2px}
+article p{margin-top:16px}
+article strong{font-weight:700}
+article a:not(.tn){color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.32)}
+article a:not(.tn):hover{border-bottom-color:var(--brand-deep)}
+article ul,article ol{margin:16px 0 0;padding-left:1.4em}
+article li{margin-top:9px}
+article table{width:100%;border-collapse:collapse;margin-top:22px;font-size:15.5px;background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+article th{text-align:left;background:var(--paper);font-weight:700;font-size:14px;color:var(--slate);padding:12px 14px;border-bottom:1px solid var(--rule)}
+article td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.75}
+article tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+article details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+article details summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+article details summary::-webkit-details-marker{display:none}
+article details summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+article details[open] summary::after{transform:rotate(-135deg)}
+article details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid var(--rule);color:var(--slate)}
+
+.foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
+.cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
+.cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
+footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+.fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.note{max-width:var(--wrap);margin:0 auto 46px;padding-inline:var(--gut)}
+.note div{background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid #B45309;border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.note b{color:#5A3D0C}
+
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .mtoc{display:block}
+}
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  body{font-size:16.5px}
+  .ans{padding:22px;border-radius:0 8px 8px 0}
+  .ans p{font-size:18px}
+  article h2{font-size:22px;margin-top:42px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+</head>
+
+<body>
+<div id="bar"></div>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/"><img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問"><b>Step1ne</b></a>
+    <nav class="hd-nav">
+      <a href="/commission-recruiting/">企業服務</a><a href="/jobs/">職缺專區</a><a class="on" href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
+    <button class="hd-burger" type="button" aria-label="開啟選單" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/commission-recruiting/">企業服務</a><a href="/jobs/">職缺專區</a><a href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINE 洽詢</a>
+  </div>
+</header>
+
+<main class="shell">
+  <nav class="crumb" aria-label="麵包屑"><a href="/">首頁</a><span>/</span><a href="/articles/">獵才專欄</a><span>/</span>工程設計工程師 vs 現場工程師：兩條不同的職涯路，該選哪一條？</nav>
+
+  <aside class="toc" aria-label="本文目錄">
+    <h2>本文共 7 個段落</h2>
+    <div class="tns"><a class="tn" href="#sec-1" data-s="sec-1"><i></i><span>工程設計工程師跟現場工程師，職稱聽起來很像，實際做的事一樣嗎？</span></a>
+<a class="tn" href="#sec-2" data-s="sec-2"><i></i><span>兩邊都說「100%現場」，那工程設計工程師不是坐辦公室畫圖嗎？</span></a>
+<a class="tn" href="#sec-3" data-s="sec-3"><i></i><span>薪資、學歷門檻，兩條路差在哪？</span></a>
+<a class="tn" href="#sec-4" data-s="sec-4"><i></i><span>要應徵哪一條路，需要具備什麼技能或證照？</span></a>
+<a class="tn" href="#sec-5" data-s="sec-5"><i></i><span>長期職涯發展，這兩條路會通到哪裡？</span></a>
+<a class="tn" href="#sec-6" data-s="sec-6"><i></i><span>不確定自己適合哪一條，怎麼判斷？</span></a>
+<a class="tn" href="#sec-7" data-s="sec-7"><i></i><span>常見問題</span></a></div>
+  </aside>
+
+  <div>
+    <details class="mtoc"><summary>本文目錄（7 段）</summary><div><a href="#sec-1">工程設計工程師跟現場工程師，職稱聽起來很像，實際做的事一樣嗎？</a>
+<a href="#sec-2">兩邊都說「100%現場」，那工程設計工程師不是坐辦公室畫圖嗎？</a>
+<a href="#sec-3">薪資、學歷門檻，兩條路差在哪？</a>
+<a href="#sec-4">要應徵哪一條路，需要具備什麼技能或證照？</a>
+<a href="#sec-5">長期職涯發展，這兩條路會通到哪裡？</a>
+<a href="#sec-6">不確定自己適合哪一條，怎麼判斷？</a>
+<a href="#sec-7">常見問題</a></div></details>
+    <article>
+      <span class="tag">職涯路徑</span>
+      <h1>工程設計工程師 vs 現場工程師：兩條不同的職涯路，該選哪一條？</h1>
+      <div class="by">
+        <span>作者：<a href="/about/">Step1ne 獵才顧問團隊</a></span>
+        <time class="d" datetime="2026-09-30">發布於 2026-09-30</time>
+      </div>
+
+      <div class="ans"><div class="lab">直接答案</div><p>工程設計工程師跟現場（專案）工程師雖然都叫工程師、薪資區間也重疊（同樣是培訓3.5-4.5萬、資深5-6萬），但實際工作內容不同：工程設計工程師主要用AutoCAD、Revit把工程圖畫出來，工作重心在「圖」；現場（專案）工程師主要盯施工進度、品質查驗、跟包商協調，工作重心在「人跟工地」。兩者都要到工地現場（不是純粹坐辦公室），差別是設計工程師去現場是為了核對圖面，現場工程師去現場是為了管理進度。選哪一條，取決於你比較喜歡把細節畫精準，還是比較喜歡在現場跟人協調解決問題。</p></div>
+
+<h2 id="sec-1">工程設計工程師跟現場工程師，職稱聽起來很像，實際做的事一樣嗎？</h2>
+<p>不一樣。以高科技廠房工程職缺為例，這兩個職務分屬不同部門，職掌設計上就是分開的。</p>
+<p>工程設計工程師隸屬「設計部」，核心工作是高科技廠各系統工程的電腦繪圖（AutoCAD、Revit），另外會協助現場視勘、確保圖面跟現場一致，以及配合專案進度完成主管交辦事項。簡單說，產出是「圖」，現場視勘是為了讓圖畫得準，不是去管工地。</p>
+<p>現場（專案）工程師隸屬「工程部」，核心工作是現場施工進度控管、品質查驗、工程介面協調與包商管理，另外要負責廠房製程管線與機電系統規劃、設計和施工的監督管理，以及製作保存施工紀錄。產出是「工地按時按品質蓋好」，圖是拿來對照現場用的工具，不是主要產出。</p>
+
+<h2 id="sec-2">兩邊都說「100%現場」，那工程設計工程師不是坐辦公室畫圖嗎？</h2>
+<p>這是最容易誤會的地方。一般人聽到「畫圖」會直覺聯想到辦公室工作，但高科技廠房工程的設計工程師其實跟現場工程師一樣，工作模式是派駐專案現場工務所，工作環境比例同樣標示「100%現場」。</p>
+<p>差別不在「要不要進現場」，而在「進現場要做什麼」：設計工程師進現場是為了核對圖面跟實際施工是否一致（視勘），大部分時間仍是在工務所裡用電腦畫圖；現場工程師進現場則是直接參與進度控管、品質查驗、跟包商溝通協調，工地本身就是他的工作場所，圖只是輔助判斷的工具，不是他要產出的東西。</p>
+<p>如果你以為工程設計工程師是「坐辦公室不用跑工地」而選這條路，實際到職後會有落差，這點務必先確認清楚。</p>
+
+<h2 id="sec-3">薪資、學歷門檻，兩條路差在哪？</h2>
+<p>薪資區間其實是重疊的，不是「現場比較高」或「設計比較高」：</p>
+<ul>
+<li><strong>培訓工程設計工程師</strong>：月薪3.5萬至4.5萬元，不要求相關經驗，但要有基本AutoCAD或Revit繪圖能力、看得懂土木/建築/機電/水電工程圖、強烈學習意願。</li>
+<li><strong>資深工程設計工程師</strong>：月薪5萬至6萬元，要求進階AutoCAD、Revit繪圖能力，以及廠房、工程設計相關經驗。</li>
+<li><strong>培訓半導體專案工程師（現場端）</strong>：月薪3.5萬至4.5萬元，不要求相關經驗，但要有基礎文書能力、溝通協調能力、強烈學習意願。</li>
+<li><strong>資深半導體專案工程師（現場端）</strong>：月薪5萬至6萬元，要求過往半導體廠房或廠辦監工、機電類型工作經驗。</li>
+</ul>
+<p>學歷門檻兩邊都是專科以上，但科系範圍不完全一樣：工程設計工程師偏重工業設計系、土木工程（含營建）、建築（或室內設計）系；現場工程師的科系範圍更寬，額外納入電機工程、機械工程（含冷凍空調與能源系），因為現場要處理的機電系統規劃、監督範圍更廣。</p>
+
+<h2 id="sec-4">要應徵哪一條路，需要具備什麼技能或證照？</h2>
+<p>工程設計工程師的核心門檻是軟體能力——AutoCAD、Revit的繪圖熟練度直接決定能不能上手，資深職缺明確要求「進階」繪圖能力，這是這條路最硬的技術門檻。備有AutoCAD或Revit國際認證、曾有工程發包／施工圖繪製／竣工圖製作經驗，會是加分條件。</p>
+<p>現場（專案）工程師的核心門檻是溝通協調跟現場判斷力，職缺條件裡沒有把CAD軟體列為必要條件，而是列為加分項——具備公共工程品質管理人員、營造業甲種職業安全衛生主管等證照，或基本的AutoCAD繪圖／識圖能力，都能拿到更好的核薪，但不是應徵門檻。真正的必要條件是能配合公司現有專案地點調派，以及與內部、協力廠商溝通協調的能力。</p>
+<p>兩條路都接受沒有相關經驗的人，透過培訓管道進來——差別在「培訓的是什麼」：設計端培訓的是軟體操作跟識圖能力，現場端培訓的是現場協調跟施工管理的實務經驗。</p>
+
+<h2 id="sec-5">長期職涯發展，這兩條路會通到哪裡？</h2>
+<p>業界一般的分工邏輯是：設計端偏向把建築師或業主的設計圖轉化為詳細施工圖，做久了會往圖面精細度、BIM整合、設計協調的方向深化；現場端則接近監工／專案管理的角色，負責督導營造廠是否按圖施工、掌控進度與品質，做久了容易往工地主管、專案經理的方向發展（Source: [一次盤點工程師6大種類](https://www.hnl-consultants.com/%E5%B7%A5%E7%A8%8B%E5%B8%AB/)、[建築工程監造全解析](https://twprobe.com/jianzhu-gongcheng-jianzao-zhineng-zongjian-zhinan/)）。</p>
+<p>要注意的是，「監造」在法規上有明確定義（業主指派的獨立第三方，監督營造廠是否按圖施工），跟一般民間工程公司內部的「工程設計工程師」「現場（專案）工程師」職稱不完全是同一套法律身分，這裡談的是實際職務內容的分工邏輯，不是在講法規上的監造資格，應徵前如果在意這點差異，建議直接跟用人單位確認職務的實際定位。</p>
+
+<h2 id="sec-6">不確定自己適合哪一條，怎麼判斷？</h2>
+<p>幾個可以自問的判斷點：</p>
+<ul>
+<li>比較能長時間專注在電腦前把圖畫到毫米級精準，還是比較坐不住、喜歡直接到現場看實際狀況、跟不同的人溝通協調？</li>
+<li>對AutoCAD、Revit這類繪圖軟體有沒有興趣或基礎？如果完全沒接觸過也沒興趣學，現場端會是比較務實的起點。</li>
+<li>能不能接受長時間待在工地環境（日曬、噪音、跟包商打交道），還是比較偏好待在工務所裡的固定工作內容？設計端相對而言現場管理的責任較輕。</li>
+<li>兩條路都需要接受外縣市駐點調派，這點沒有差別，不是選擇的判斷依據。</li>
+</ul>
+
+<p>相關職缺：<a href="/jobs/engineering-design-engineer-hsinchu/">資深工程設計工程師</a>、<a href="/jobs/trainee-engineering-design-engineer/">培訓工程設計工程師</a>（設計端）；<a href="/jobs/semiconductor-site-engineer-hsinchu/">資深半導體專案工程師</a>、<a href="/jobs/trainee-semiconductor-project-engineer/">培訓半導體專案工程師</a>（現場端），涵蓋桃竹苗、台中、雲林地區。</p>
+
+## FAQ
+
+**Q1. 工程設計工程師完全不用進工地嗎？**
+A1. 不是。工程設計工程師的工作環境比例同樣標示「100%現場」，仍會派駐專案現場工務所，並需要協助現場視勘、核對圖面與實際施工是否一致，只是主要產出還是圖，不是現場管理。
+
+**Q2. 現場（專案）工程師一定要會AutoCAD嗎？**
+A2. 不一定。職缺條件裡AutoCAD繪圖或識圖能力是加分項，不是必要條件；真正的必要條件是溝通協調能力、能配合專案地點調派，以及基礎文書能力。會軟體的話核薪會更優，但不是應徵門檻。
+
+**Q3. 兩條路薪水誰比較高？**
+A3. 薪資區間重疊，不是單純誰比較高：培訓管道兩邊都是月薪3.5萬至4.5萬元，資深管道兩邊都是月薪5萬至6萬元，實際核薪依過往資歷、專業能力與面試表現決定，差異在職務內容而不是起薪結構。
+
+**Q4. 沒有相關科系背景，兩條路都能應徵嗎？**
+A4. 培訓管道兩邊都不要求相關工作經驗，但學歷科系仍有門檻：設計端偏重工業設計、土木工程（含營建）、建築（或室內設計）系；現場端範圍更寬，額外納入電機工程、機械工程（含冷凍空調與能源系）。只要學歷科系符合範圍，沒有實務經驗一樣可以應徵培訓職缺。
+
+**Q5. 做設計端跟做現場端，以後能不能互轉？**
+A5. 職缺本身沒有限制互轉，但實務上兩邊累積的能力不同——設計端累積的是繪圖與圖面整合能力，現場端累積的是工地管理與協調實務，要轉換方向通常需要額外補足對方那條路要求的核心能力（例如設計端要轉現場端，得補現場管理經驗；現場端要轉設計端，得補進階繪圖能力）。
+
+**Q6. 「監造」跟這裡講的現場（專案）工程師是同一件事嗎？**
+A6. 不完全一樣。「監造」在法規上是業主指派的獨立第三方角色，負責監督營造廠是否按圖施工；這裡談的現場（專案）工程師是民間工程公司內部的職稱，職務內容偏向現場進度控管、品質查驗與包商協調，兩者職務性質類似但法律身分不同，在意這點差異的話建議應徵時直接跟用人單位確認職務定位。
+
+## 查證來源
+- 工程設計工程師／現場（半導體專案）工程師的職務內容、薪資、學歷與證照條件：律准科技股份有限公司「資深工程設計工程師」（slug: engineering-design-engineer-hsinchu）、「培訓工程設計工程師」（slug: trainee-engineering-design-engineer）、「資深半導體專案工程師」（slug: semiconductor-site-engineer-hsinchu）、「培訓半導體專案工程師」（slug: trainee-semiconductor-project-engineer）職缺資料，Step1ne D1 資料庫，查證日期2026-09-30
+- 設計端與現場端職涯分工的一般性說明：〈一次盤點工程師6大種類！企業與求職者必懂的工程職務地圖〉，HNL Consultants：https://www.hnl-consultants.com/%E5%B7%A5%E7%A8%8B%E5%B8%AB/（查證日期2026-09-30）
+- 監造的法規定義與職責範圍：〈建築工程監造全解析：品管、進度與安全職責〉，TWProbe房產觀測站：https://twprobe.com/jianzhu-gongcheng-jianzao-zhineng-zongjian-zhinan/（查證日期2026-09-30）
+
+      <h2 id="sec-7">常見問題</h2>
+      <div>
+      </div>
+
+      <div class="cta"><p>對這個職缺有興趣，或想先了解細節？</p><a class="btn-alt" href="/jobs/engineering-design-engineer-hsinchu/">看職缺詳情</a></div>
+    </article>
+  </div>
+</main>
+
+
+<footer><div class="fw">德仁管理顧問有限公司　臺北市內湖區康寧路三段 54 之 7 號 3 樓</div></footer>
+
+<script>
+// 表格加水平捲動外框，避免手機橫向溢位
+document.querySelectorAll('article table').forEach(function(t){
+  var w=document.createElement('div'); w.className='tw';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
+// 閱讀進度
+var bar=document.getElementById('bar');
+function prog(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',prog,{passive:true}); prog();
+// 目錄跟隨
+var tns=[].slice.call(document.querySelectorAll('.tn'));
+var secs=tns.map(function(a){return document.getElementById(a.dataset.s)}).filter(Boolean);
+if('IntersectionObserver' in window && secs.length){
+  var cur=null;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) cur=e.target.id; });
+    tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  },{rootMargin:'-88px 0px -70% 0px'}).observe && secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===e.target.id)}); }
+      });
+    },{rootMargin:'-88px 0px -70% 0px'}).observe(s);
+  });
+}
+</script>
+</body>
+</html>
