@@ -1487,6 +1487,16 @@ function wireContractPack(scope) {
 }
 
 // 2026-09-30 Jacky：移到備選池／拉回來（開發進度列表、客戶跟進、卡片共用）
+// 2026-10-01 Jacky：從網頁／PDF／LINE 複製信箱會夾帶看不見的空白（不斷行空白、零寬字元），
+// 瀏覽器就擋「@ 後面不應包含空白」，人眼看不出哪裡錯。所有 Email 欄位輸入／貼上時自動清掉。
+const INVISIBLE_SPACES = /[\s\u00a0\u200b-\u200d\u2060\ufeff\u3000]/g;
+document.addEventListener('input', (event) => {
+  const el = event.target;
+  if (!(el instanceof HTMLInputElement) || el.type !== 'email') return;
+  const cleaned = el.value.replace(INVISIBLE_SPACES, '');
+  if (cleaned !== el.value) el.value = cleaned;
+}, true);
+
 document.addEventListener('click', async (event) => {
   const btn = event.target instanceof Element ? event.target.closest('[data-park]') : null;
   if (!btn) return;
