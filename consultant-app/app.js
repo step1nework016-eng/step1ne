@@ -296,14 +296,43 @@ async function loadJobTab(target) {
     if (jobSel) jobSel.onchange = () => { state.opsJobScope = jobSel.value; loadRoute(); };
     return res;
   }
-  return boundary(target, adapters.jobs, (data) => {
+  let listJobs = null;
+  const res = await boundary(target, adapters.jobs, (data) => {
     if (state.sub === 'intake') return views.jobDraftRows(data.intakes);
     if (state.sub === 'checks') return views.jobCheckRows(data.checks);
     if (state.sub === 'expertise') return views.expertiseRuler()
       + views.jobExpertiseMissingRows(data.expertiseMissing, data.expertiseBuilding)
       + views.jobExpertiseRows(data.expertise, data.expertiseBuilding);
-    return views.jobRows(data.jobs);
+    listJobs = data.jobs;
+    return views.jobListTab(data.jobs, jobListState());
   }, 'refresh');
+  if (listJobs) wireJobList(listJobs);
+  return res;
+}
+
+// 職缺總覽的篩選（2026-10-01）：選單一換就整頁重畫（選項數字要跟著變），
+// 打字只換結果區，游標不會跳掉。
+function jobListState() {
+  state.jobListFilter = state.jobListFilter || { q: '', status: 'open', client: 'all', line: 'all' };
+  return state.jobListFilter;
+}
+function wireJobList(jobs) {
+  const f = jobListState();
+  const redraw = () => {
+    const box = $('#page-data');
+    if (box) box.innerHTML = views.jobListTab(jobs, f);
+    wireJobList(jobs);
+  };
+  [['#joblist-status', 'status'], ['#joblist-client', 'client'], ['#joblist-line', 'line']].forEach(([sel, key]) => {
+    const el = $(sel);
+    if (el) el.onchange = () => { f[key] = el.value; redraw(); };
+  });
+  const q = $('#joblist-q');
+  if (q) q.oninput = () => {
+    f.q = q.value;
+    const out = $('#joblist-results');
+    if (out) out.innerHTML = views.jobListResults(jobs, f);
+  };
 }
 
 async function loadSocialTab(target) {
