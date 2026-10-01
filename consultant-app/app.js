@@ -3112,6 +3112,28 @@ document.addEventListener('click', async (event) => {
       toast('已刪除', 'success'); openBdDetail(d.company);
     } catch (e) { toast(`刪除失敗：${e.message || e}`, 'error'); }
   }
+  // 2026-10-01 Jacky：電話紀錄存了之後要能改（結果／補充／人資電話／窗口／信箱），改的是同一筆，不新增
+  if (action === 'bd-call-edit') {
+    const d = target.dataset;
+    const rf = (ACTIONS['bd-call-result'].fields || []).find((f) => f.name === 'result');
+    const opts = (rf ? rf.options : []).map((o) => `<option value="${escapeHtml(o.value)}"${o.value === d.result ? ' selected' : ''}>${escapeHtml(o.label)}</option>`).join('');
+    modal({ title: '編輯這通電話紀錄', subtitle: d.company, body: `<form id="bd-call-edit-form" class="form-grid">
+      <label class="field"><span>這通電話結果</span><select name="result" required>${opts}</select></label>
+      <label class="field"><span>人資電話／分機</span><input name="hr_phone" value="${escapeHtml(d.hr || '')}"></label>
+      <label class="field"><span>窗口姓名／職稱</span><input name="contact_name" value="${escapeHtml(d.cname || '')}"></label>
+      <label class="field"><span>信箱</span><input name="email" type="email" value="${escapeHtml(d.email || '')}"></label>
+      <label class="field"><span>補充（對方說了什麼、下次什麼時候打）</span><textarea name="note" rows="4">${escapeHtml(d.note || '')}</textarea></label></form>`,
+      footer: `<button class="btn" data-close-overlay>取消</button><button class="btn primary" data-action="bd-call-edit-save" data-id="${escapeHtml(d.id)}" data-company="${escapeHtml(d.company)}">儲存修改</button>` });
+  }
+  if (action === 'bd-call-edit-save') {
+    const f = $('#bd-call-edit-form'); if (!f) return;
+    const b = Object.fromEntries(new FormData(f).entries());
+    b.email = String(b.email || '').replace(/[\s\u00a0\u200b-\u200d\ufeff]/g, '');
+    try {
+      await api.post('/admin/bd/edit-call', { id: target.dataset.id, ...b });
+      closeOverlay(); toast('已更新這通電話紀錄', 'success'); openBdDetail(target.dataset.company);
+    } catch (e) { toast(`儲存失敗：${e.message || e}`, 'error'); }
+  }
   if (action === 'bd-phone-edit') {
     const d = target.dataset;
     modal({ title: '更新電話', subtitle: d.company, body: `<form id="bd-phone-form" class="form-grid">

@@ -2234,7 +2234,11 @@ ${ns.length ? `<div class="bdn-list">${ns.map(item).join('')}</div>` : '<p class
       ${url104 ? `<div class="bd-contact-row"><span>104</span><a href="${escapeHtml(url104)}" target="_blank" rel="noopener">企業頁 ↗</a></div>` : ''}
     </div>`;
 
-    const tl = timeline.length ? `<div class="list">${timeline.map((t) => `<div class="list-row"><span><small>${text(String(t.at || '').slice(0, 16))}</small><b>${text(t.kind)}</b></span>${t.call_log_id ? `<button type="button" class="btn ghost sm bd-del" data-action="bd-delete-record" data-kind="call" data-id="${escapeHtml(t.call_log_id)}" data-company="${escapeHtml(company || (outreach[0] || {}).company || '')}">刪除</button>` : ''}</div>`).join('')}</div>` : empty('還沒有任何時間軸事件');
+    const tl = timeline.length ? `<div class="list">${timeline.map((t) => `<div class="list-row"><span><small>${text(String(t.at || '').slice(0, 16))}</small><b>${text(t.kind)}</b></span>${t.call_log_id ? `<span class="bd-call-btns" style="display:inline-flex;gap:6px;flex-shrink:0">${(() => {
+      // 2026-10-01 Jacky：電話紀錄存了要能改——資料直接從 calls 帶進「編輯」彈窗
+      const c = (calls || []).find((x) => String(x.id) === String(t.call_log_id)) || {};
+      return `<button type="button" class="btn ghost sm" data-action="bd-call-edit" data-id="${escapeHtml(t.call_log_id)}" data-company="${escapeHtml(company || (outreach[0] || {}).company || '')}" data-result="${escapeHtml(c.result || '')}" data-note="${escapeHtml(c.note || '')}" data-hr="${escapeHtml(c.hr_phone || '')}" data-cname="${escapeHtml(c.contact_name || '')}" data-email="${escapeHtml(c.email || '')}">編輯</button>`;
+    })()}<button type="button" class="btn ghost sm bd-del" data-action="bd-delete-record" data-kind="call" data-id="${escapeHtml(t.call_log_id)}" data-company="${escapeHtml(company || (outreach[0] || {}).company || '')}">刪除</button></span>` : ''}${t.call_log_id && ((calls || []).find((x) => String(x.id) === String(t.call_log_id)) || {}).updated_at ? `<small class="muted" style="display:block">（${text(String(((calls || []).find((x) => String(x.id) === String(t.call_log_id)) || {}).updated_at).slice(5, 16))} 修改過）</small>` : ''}</div>`).join('')}</div>` : empty('還沒有任何時間軸事件');
     const letters = outreach.map((o) => {
       const parts = [];
       if (o.body) parts.push([o.channel === 'phone' ? '電訪備註' : (o.subject && o.subject.startsWith('Re:') ? '追信' : '首封信'), o.subject, o.body]);
