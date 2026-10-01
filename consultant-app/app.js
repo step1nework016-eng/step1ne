@@ -181,6 +181,7 @@ async function loadCandidateTab(target) {
   // 那個警示標籤——這裡補上跟舊版一致的清單頁，決策動作沿用既有的
   // screen-decide（單一人選詳情本來就在用同一支）。
   if (state.sub === 'screening') return boundary(target, async () => (await adapters.screening()).pending || [], views.screeningTab, 'refresh');
+  if (state.sub === 'aimatch') return loadAiMatchTab(target);
   const loaders = { workbench: adapters.candidates, pool: adapters.sourced, reports: adapters.reports, outreach: adapters.outreach, checkups: adapters.checkups };
   const tab = loaders[state.sub] ? state.sub : 'workbench';
   if (tab === 'workbench') {
@@ -199,6 +200,111 @@ async function loadCandidateTab(target) {
   if (tab === 'checkups') return boundary(target, adapters.checkups, (items) => views.checkupRows(items), 'refresh');
   return boundary(target, loaders[tab], (items) => genericRows(items), 'refresh');
 }
+
+// ── 2026-10-01 AI 配對頁（人選中心 →「AI 配對」）──────────────────────────
+// 篩選條件跟「我是誰」記在瀏覽器（沒有登入系統，跟人選工作台的顧問選擇同一套做法）。
+// 「我是誰」會寫進資料庫的 email_sent_by／outreach_sent_by，沒選就不准發。
+const AM_KEY = 's1ne_aimatch_ui';
+function amUi() {
+  if (!state.aiMatch) {
+    let saved;
+    try { saved = JSON.parse(localStorage.getItem(AM_KEY) || '{}') || {}; } catch { saved = {}; }
+    state.aiMatch = { view: 'todo', job: '', owner: '', confidence: '', source: '', me: '', ...saved, items: [] };
+  }
+  return state.aiMatch;
+}
+function amSave() {
+  const u = amUi();
+  try { localStorage.setItem(AM_KEY, JSON.stringify({ view: u.view, job: u.job, owner: u.owner, confidence: u.confidence, source: u.source, me: u.me })); } catch { /* 私密視窗存不了就算了 */ }
+}
+async function loadAiMatchTab(target) {
+  const filters = target.parentElement.querySelector(':scope > .filters');
+  if (filters) filters.hidden = true;   // 人選工作台那排篩選在這一頁用不到
+  const ui = amUi();
+  await ensureConsultants();
+  await boundary(target, async () => {
+    const data = await adapters.aiMatches({ view: ui.view, job: ui.job, owner: ui.owner, confidence: ui.confidence, source: ui.source });
+    ui.items = data.items || [];
+    return data;
+  }, (data) => views.aiMatchTab(data, { ...ui, consultants: state.consultantsCache || [] }), 'refresh');
+  target.querySelectorAll('[data-am-filter]').forEach((el) => {
+    el.onchange = () => { ui[el.getAttribute('data-am-filter')] = el.value; amSave(); if (el.getAttribute('data-am-filter') !== 'me') loadAiMatchTab(target); };
+  });
+}
+function amRequireMe() {
+  const me = amUi().me;
+  if (!me) { toast('請先在上方「我是」選你的名字，系統才記得是誰發的', 'error'); document.querySelector('[data-am-filter="me"]')?.focus(); }
+  return me;
+}
+async function amEmailPreview(recId, why) {
+  const rec = amUi().items.find((x) => x.id === recId) || {};
+  let d;
+  try { d = await adapters.aiMatchEmailPreview(recId, why); } catch (e) { d = { ...(e.body || {}), error: (e.body && e.body.error) || e.message }; }
+  amUi().preview = { recId, d };
+  const canSend = !d.error && !d.blocked;
+  modal({ title: '寄信邀請預覽', subtitle: `${rec.candidate_name || ''} → ${rec.job_title || ''}`, body: views.aiMatchEmailPreview(d),
+    footer: `<button class="btn" data-close-overlay>取消</button>
+      <button class="btn" data-am-action="mail-refresh">更新預覽</button>
+      <button class="btn" data-am-action="mail-test" ${d.error ? 'disabled' : ''} title="寄一封一模一樣的信到 Jacky 的信箱，不會寄給人選、不改任何狀態">寄測試信給 Jacky 看</button>
+      <button class="btn primary" data-am-action="mail-send" ${canSend ? '' : 'disabled'}>確認寄給人選</button>` });
+}
+async function amHandle(btn) {
+  const act = btn.getAttribute('data-am-action');
+  const card = btn.closest('[data-rec-id]');
+  const recId = card ? card.getAttribute('data-rec-id') : (amUi().preview || {}).recId;
+  const target = $('#page-data');
+  const rec = amUi().items.find((x) => x.id === recId) || {};
+  if (act === 'open') { openCandidate(btn.getAttribute('data-app-id')); return; }
+  if (act === 'run') {
+    const me = amRequireMe(); if (!me) return;
+    const slug = document.querySelector('[data-am-run-job]')?.value;
+    if (!slug) return;
+    btn.disabled = true;
+    try { const r = await adapters.aiMatchRun(slug, me); toast(`已排入：${r.job}。約 1～3 分鐘後重新整理`, 'success'); }
+    catch (e) { toast(e.message, 'error'); }
+    finally { btn.disabled = false; }
+    return;
+  }
+  if (act === 'email') { amEmailPreview(recId); return; }
+  if (act === 'mail-refresh') { amEmailPreview(recId, $('#am-why')?.value); return; }
+  if (act === 'mail-test' || act === 'mail-send') {
+    const me = amRequireMe(); if (!me) return;
+    const why = $('#am-why')?.value;
+    if (act === 'mail-send' && !window.confirm(`確定要寄這封信給 ${rec.candidate_name || '這位人選'}（${(amUi().preview?.d || {}).to || ''}）嗎？寄出就收不回來了。`)) return;
+    btn.disabled = true;
+    try {
+      const r = await adapters.aiMatchEmailSend(recId, me, why, act === 'mail-test');
+      if (act === 'mail-test') { toast(`測試信已寄到 ${r.to}`, 'success'); btn.disabled = false; return; }
+      toast(`已寄出邀請信給 ${rec.candidate_name || '人選'}`, 'success');
+      closeOverlay();
+      if (target) loadAiMatchTab(target);
+    } catch (e) { toast(e.message, 'error'); btn.disabled = false; }
+    return;
+  }
+  if (act === 'line') {
+    const me = amRequireMe(); if (!me) return;
+    if (!window.confirm(`要現在用 LINE 問 ${rec.candidate_name || '這位人選'} 有沒有興趣了解「${rec.job_title || ''}」嗎？\n\n按「確定」會立刻送出一則 LINE 訊息（有三個按鈕：想了解看看／這次不用／我有問題）。`)) return;
+    btn.disabled = true;
+    try { await adapters.aiMatchLineSend(recId, me); toast(`已用 LINE 發給 ${rec.candidate_name || '人選'}`, 'success'); }
+    catch (e) { toast(e.message || '沒有發出去', 'error'); }
+    if (target) loadAiMatchTab(target);
+    return;
+  }
+  if (act === 'reject') {
+    const me = amRequireMe(); if (!me) return;
+    const reason = window.prompt(`「${rec.candidate_name || ''} → ${rec.job_title || ''}」不適合的原因？（可以不填，直接按確定）`);
+    if (reason === null) return;
+    try { await adapters.aiMatchReject(recId, me, reason); toast('已記錄：不適合', 'success'); }
+    catch (e) { toast(e.message, 'error'); }
+    if (target) loadAiMatchTab(target);
+  }
+}
+document.addEventListener('click', (event) => {
+  const btn = event.target instanceof Element ? event.target.closest('[data-am-action]') : null;
+  if (!btn || btn.disabled) return;
+  event.preventDefault();
+  amHandle(btn);
+});
 
 // 顧問／客戶名單快取（後端本來就有 45 秒快取，這裡再存一次省得每次開下拉選單都重打）。
 async function ensureConsultants() {

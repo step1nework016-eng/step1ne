@@ -210,7 +210,7 @@ export const views = {
   // 選項永遠篩不出東西。改成真實的四分頁；另外補一個「負責顧問」篩選（對應後端
   // /admin/pipeline/tracker 本來就支援的 ?owner= 參數，含「未指派」），選項在
   // loadCandidateTab 裡用真實顧問名單動態填入。
-  candidates: (tab='workbench') => pageHead('人選中心','操作單位是 application；疑似同一人只提示，不自動合併。','<button class="btn primary" data-action="add-candidate">＋ 新增人選</button>') + tabbar('candidates',[['workbench','工作台'],['pool','人才池'],['reports','阿財報告'],['outreach','接觸紀錄'],['checkups','阿福健檢'],['screening','待審核']],tab) + `<div class="filters"><input id="candidate-search" placeholder="搜尋姓名、職缺、來源"><select id="candidate-stage"><option value="">所有階段</option><option value="fill">等人選填完</option><option value="decide">等我決定</option><option value="client">客戶面談階段</option><option value="pool">候補池</option></select><select id="candidate-owner"><option value="">所有顧問</option><option value="unassigned">未指派</option></select><select id="candidate-route"><option value="">所有分流</option><option value="A">A｜優先聯繫</option><option value="B">B｜需顧問判斷</option><option value="C">C｜可轉其他職缺</option><option value="D">D｜人才池</option><option value="E">E｜Hard Gate 沒過</option><option value="none">還沒面談過</option><option value="silent">阿財面談室無對話紀錄</option></select><div class="view-toggle"><button type="button" class="btn sm" data-action="candidate-view-card">卡片式</button><button type="button" class="btn sm" data-action="candidate-view-table">表格式</button></div><button class="btn" data-action="reset-candidate-filter">清除</button><a href="#" data-action="open-route-spec" class="help" style="align-self:center;margin-left:4px">分流規則？</a></div><div id="page-data">${endpointState('人選資料')}</div>`,
+  candidates: (tab='workbench') => pageHead('人選中心','操作單位是 application；疑似同一人只提示，不自動合併。','<button class="btn primary" data-action="add-candidate">＋ 新增人選</button>') + tabbar('candidates',[['workbench','工作台'],['pool','人才池'],['aimatch','AI 配對'],['reports','阿財報告'],['outreach','接觸紀錄'],['checkups','阿福健檢'],['screening','待審核']],tab) + `<div class="filters"><input id="candidate-search" placeholder="搜尋姓名、職缺、來源"><select id="candidate-stage"><option value="">所有階段</option><option value="fill">等人選填完</option><option value="decide">等我決定</option><option value="client">客戶面談階段</option><option value="pool">候補池</option></select><select id="candidate-owner"><option value="">所有顧問</option><option value="unassigned">未指派</option></select><select id="candidate-route"><option value="">所有分流</option><option value="A">A｜優先聯繫</option><option value="B">B｜需顧問判斷</option><option value="C">C｜可轉其他職缺</option><option value="D">D｜人才池</option><option value="E">E｜Hard Gate 沒過</option><option value="none">還沒面談過</option><option value="silent">阿財面談室無對話紀錄</option></select><div class="view-toggle"><button type="button" class="btn sm" data-action="candidate-view-card">卡片式</button><button type="button" class="btn sm" data-action="candidate-view-table">表格式</button></div><button class="btn" data-action="reset-candidate-filter">清除</button><a href="#" data-action="open-route-spec" class="help" style="align-self:center;margin-left:4px">分流規則？</a></div><div id="page-data">${endpointState('人選資料')}</div>`,
   // 2026-09-15 查證更正：卡片其實有 email/phone（原本沒接進來，一直顯示不存在的
   // 「下一步」欄位）；stage 這裡的 statusBadge(i.stage) 現在會顯示真正的四分頁
   // 翻譯（等人選填完/等我決定/客戶面談階段/候補池），不是原始代碼字串。clientName
@@ -2746,6 +2746,15 @@ ${a.note ? `<details class="note-details"><summary>顧問備註／電洽紀錄</
           <td style="white-space:nowrap"><span class="pc-status ${jmTone[x.verdict] || ''}">${jmIcon[x.verdict] || ''} ${text(x.verdict)}</span></td>
           <td style="font-size:12.5px;color:#5d6672">${text(x.evidence)}${x.basis ? `<span class="muted">（${text(x.basis)}）</span>` : ''}</td></tr>`).join('')}</table>` : ''}
       </section>` : `<div class="notice" style="margin:0 0 10px">這份報告產生時還沒有「職缺匹配總結」（9/29 之後的報告才有；匯入電洽紀錄重新產生後會補上）。</div>`;
+    // 2026-10-01：阿財報告新增「適合的職務方向」（content_json.career_directions）。
+    // 可能是系統裡還沒有的職務類型；「不確定，請顧問幫我評估」的人這段最重要，放在匹配總結下面。
+    const cds = (d.career_directions || []).filter((x) => x && x.direction);
+    const cdHtml = cds.length ? `<section class="rp-match" style="margin-top:12px">
+        <h4 style="margin:0 0 8px">適合的職務方向<span class="muted" style="font-weight:400;font-size:12px">（阿財依面談內容整理，可能是系統裡還沒有的職缺類型）</span></h4>
+        <table class="spec"><tr><th>方向</th><th>為什麼</th><th>系統裡的職缺</th></tr>${cds.map((x) => `<tr><td><b>${text(x.direction)}</b></td>
+          <td style="font-size:12.5px">${text(x.why)}${x.evidence ? `<br><span class="muted">「${text(x.evidence)}」</span>` : ''}${x.watch_out ? `<br><span style="color:#9b5b00">注意：${text(x.watch_out)}</span>` : ''}</td>
+          <td style="font-size:12.5px">${x.open_job_title ? text(x.open_job_title) : '<span class="muted">目前沒有在辦職缺</span>'}</td></tr>`).join('')}</table>
+      </section>` : '';
     const discVals = ['d', 'i', 's', 'c'].map((k) => application[`disc_${k}`]);
     const hasDisc = discVals.some((v) => v !== null && v !== undefined);
     const obsA = ((d.observations || {}).assessment || []).filter((x) => x && x.trait);
@@ -2762,6 +2771,7 @@ ${a.note ? `<details class="note-details"><summary>顧問備註／電洽紀錄</
       <table class="spec"><tr><th>主題</th><th>到第幾級</th></tr>${(sl.topics || []).map((t) => `<tr><td>${text(t.topic)}</td><td>${t.level === null || t.level === undefined ? '<span class="muted">沒問到</span>' : `${'●'.repeat(t.level)}${'○'.repeat(Math.max(0, 5 - t.level))} ${text(t.level_name || '')}`}</td></tr>`).join('')}</table>` : '';
     return `
       ${jmHtml}
+      ${cdHtml}
       ${rt ? `<div style="margin:0 0 10px">${rt}</div>` : ''}
       ${d.one_liner ? `<p style="font-size:15px;font-weight:600;margin:0 0 8px">${text(d.one_liner)}</p>` : ''}
       ${row('判定', d.verdict)}
@@ -2784,6 +2794,89 @@ ${a.note ? `<details class="note-details"><summary>顧問備註／電洽紀錄</
       ${todo.length ? `<h4 style="margin:18px 0 6px">阿財沒問到、要你補問的</h4><ul style="margin:0;padding-left:20px">${todo.map((x) => `<li style="margin:4px 0">${text(x)}</li>`).join('')}</ul>` : ''}
       ${full}`;
   },
+  // 2026-10-01 AI 配對頁。資料就是 P3 的 candidate_job_recommendations，兩種來源：
+  // 面談後找替代職缺（post_interview）、職缺開出來回頭找人才庫（reverse_job_open）。
+  // 最上面固定講清楚：這裡的名單沒有聯絡任何人，要顧問按、而且寄信會先給預覽。
+  aiMatchTab: (data, ui) => {
+    const items = (data && data.items) || [];
+    const jobs = (data && data.open_jobs) || [];
+    const cons = ui.consultants || [];
+    const MATCH = { MATCH_CANDIDATE: ['很可能適合', 'success'], POSSIBLE_MATCH: ['可能適合', 'info'], INSUFFICIENT_DATA: ['資料不足', 'warning'], NOT_MATCH: ['不適合', 'danger'] };
+    const CONF = { high: '高', medium: '中', low: '低' };
+    const OUT = { outreach_queued: 'LINE 排隊中', outreach_sent: 'LINE 已發出，等人選回覆', outreach_blocked: 'LINE 沒發出去',
+      candidate_interested: '🟢 人選按了「想了解看看」——換你接手聯繫', candidate_declined: '人選說這次不用', candidate_question: '❓ 人選按了「我有問題」，請直接聯繫說明' };
+    const opt = (v, label, cur) => `<option value="${escapeHtml(v)}" ${String(cur || '') === String(v) ? 'selected' : ''}>${escapeHtml(label)}</option>`;
+    const jobOpts = new Map(jobs.map((j) => [j.slug, j.title]));
+    items.forEach((r) => { if (!jobOpts.has(r.recommended_job_slug)) jobOpts.set(r.recommended_job_slug, r.job_title || r.recommended_job_slug); });
+    const runInfo = (j) => j.last_run_at ? `上次 ${String(j.last_run_at).slice(5, 16)}${j.last_run_status === 'queued' ? '（排隊中）' : `・找到 ${j.last_run_saved ?? 0} 位`}` : '還沒找過';
+    const head = `<div class="notice" style="margin:0 0 12px"><b>AI 只做建議。</b>這裡的名單都還沒聯絡任何人——發 LINE、寄信都要你按，寄信前會先給你看信的內容。</div>
+      <div class="filters am-filters">
+        <label class="am-me">我是 <select data-am-filter="me">${opt('', '選擇…', ui.me)}${cons.filter((c) => c.is_active).map((c) => opt(c.display_name, c.display_name, ui.me)).join('')}</select></label>
+        <select data-am-filter="view" aria-label="狀態">${[['todo', '待處理'], ['invited', '已邀請'], ['rejected', '不適合'], ['all', '全部']].map(([v, l]) => opt(v, l, ui.view)).join('')}</select>
+        <select data-am-filter="job" aria-label="職缺">${opt('', '所有職缺', ui.job)}${[...jobOpts].map(([v, l]) => opt(v, l, ui.job)).join('')}</select>
+        <select data-am-filter="owner" aria-label="顧問">${opt('', '所有顧問', ui.owner)}${opt('unassigned', '未指派', ui.owner)}${cons.map((c) => opt(c.id, c.display_name, ui.owner)).join('')}</select>
+        <select data-am-filter="confidence" aria-label="信心">${opt('', '所有信心', ui.confidence)}${opt('high', '信心：高', ui.confidence)}${opt('medium', '信心：中', ui.confidence)}${opt('low', '信心：低', ui.confidence)}</select>
+        <select data-am-filter="source" aria-label="來源">${opt('', '所有來源', ui.source)}${opt('reverse_job_open', '新職缺回頭找人才庫', ui.source)}${opt('post_interview', '面談後推薦其他職缺', ui.source)}</select>
+      </div>
+      <details class="card am-run"><summary><b>用人才庫幫一個職缺找人</b><span class="muted">&emsp;新開的職缺系統會自動找；舊職缺想重新找一次用這裡</span></summary>
+        <div class="filters" style="margin:12px 0 0"><select data-am-run-job aria-label="選職缺">${jobs.map((j) => `<option value="${escapeHtml(j.slug)}">${escapeHtml(j.title)}｜${escapeHtml(runInfo(j))}</option>`).join('')}</select>
+        <button type="button" class="btn primary" data-am-action="run">開始找人</button></div>
+        <p class="help" style="margin:8px 0 0">比對最近 180 天內跟阿財面談過的人（不含已應徵這個職缺、已淘汰、已在錄取階段的人），每個職缺最多留 5 位。大約 1～3 分鐘後重新整理就看得到，也會在 TG 發一則摘要。</p>
+      </details>
+      <p class="help" style="margin:12px 0 8px">共 ${items.length} 筆</p>`;
+    if (!items.length) {
+      const msg = ui.view === 'todo' ? '目前沒有待處理的 AI 配對' : '這個篩選條件下沒有資料';
+      return head + empty(msg, '新職缺開出來時，系統會自動從人才庫找；面談完的人也會自動比對其他職缺。');
+    }
+    const row = (r) => {
+      const [ml, mt] = MATCH[r.match_status] || ['無法判斷', 'warning'];
+      const done = r.status === 'rejected' || r.outreach_status || r.email_status === 'sent';
+      const jobOpen = ['open', 'active', ''].includes(String(r.job_status || ''));
+      const lineWhy = !jobOpen ? '這個職缺已經不是招募中' : (!r.line_bound ? '這位人選沒有綁定 LINE' : '');
+      const mailWhy = !jobOpen ? '這個職缺已經不是招募中' : (!r.has_email ? '這位人選沒有可用的 Email' : (r.email_status === 'sending' ? '寄送中' : ''));
+      const list = (arr, cls) => (arr || []).length ? `<ul class="am-list ${cls}">${arr.map((x) => `<li>${text(x)}</li>`).join('')}</ul>` : '';
+      const status = [];
+      if (r.status === 'rejected') status.push(`<span class="badge">不適合</span> ${text(r.consultant_decision_by, '')}・${text(r.consultant_decision_at, '')}${r.rejection_reason ? `｜${text(r.rejection_reason)}` : ''}`);
+      if (r.outreach_status) status.push(`<span class="badge ${r.outreach_status === 'outreach_blocked' ? 'danger' : 'info'}">LINE</span> ${text(OUT[r.outreach_status] || r.outreach_status)}${r.outreach_status === 'outreach_blocked' && r.outreach_blocked_reason ? `：${text(r.outreach_blocked_reason)}` : ''}${r.outreach_sent_at ? `&emsp;<span class="muted">${text(r.outreach_sent_by || '')} ${text(r.outreach_sent_at)}</span>` : ''}`);
+      if (r.email_status === 'sent') status.push(`<span class="badge info">Email</span> 已寄出邀請&emsp;<span class="muted">${text(r.email_sent_by || '')} ${text(r.email_sent_at)}</span>`);
+      if (r.email_status === 'failed') status.push(`<span class="badge danger">Email</span> 上次寄送失敗：${text(r.email_error || '')}（可以再寄一次）`);
+      return `<article class="card am-row" data-rec-id="${escapeHtml(r.id)}">
+        <div class="am-top">
+          <div class="am-who">
+            <button type="button" class="am-name" data-am-action="open" data-app-id="${escapeHtml(r.application_id)}">${text(r.candidate_name)}</button>
+            <span class="muted">原應徵：${text(r.applied_job_title || r.applied_job_slug, '—')}</span>
+          </div>
+          <span class="am-arrow" aria-hidden="true">→</span>
+          <div class="am-job"><b>${text(r.job_title || r.recommended_job_slug)}</b>
+            <span class="muted">${text(r.job_salary_text || '')}${!jobOpen ? '・<b style="color:#a72f3a">已不是招募中</b>' : ''}</span></div>
+          <div class="am-tags"><span class="badge ${mt}">${ml}</span>${CONF[r.confidence] ? `<span class="badge">信心 ${CONF[r.confidence]}</span>` : ''}
+            <span class="badge ${r.match_source === 'reverse_job_open' ? 'warning' : ''}">${r.match_source === 'reverse_job_open' ? '新職缺回頭找' : '面談後推薦'}</span></div>
+        </div>
+        <div class="am-body">
+          ${list(r.reasons, 'good')}
+          ${list(r.blockers, 'warn')}
+          ${(r.missing_information || []).length ? `<p class="help" style="margin:6px 0 0">還要確認：${(r.missing_information || []).map((x) => text(x)).join('；')}</p>` : ''}
+          ${r.candidate_why ? `<p class="am-why"><span class="muted">給人選看的那一句：</span>${text(r.candidate_why)}</p>` : ''}
+        </div>
+        ${status.length ? `<div class="am-status">${status.map((x) => `<div>${x}</div>`).join('')}</div>` : ''}
+        ${done ? '' : `<div class="actions-row am-actions">
+          <button type="button" class="btn primary sm" data-am-action="line" ${lineWhy ? 'disabled' : ''} title="${escapeHtml(lineWhy || '用 LINE 問人選有沒有興趣')}">發 LINE 邀請</button>
+          <button type="button" class="btn sm" data-am-action="email" ${mailWhy ? 'disabled' : ''} title="${escapeHtml(mailWhy || '先看信的內容再決定要不要寄')}">寄信邀請</button>
+          <button type="button" class="btn ghost sm" data-am-action="reject">不適合</button>
+          ${lineWhy && mailWhy ? '' : (lineWhy ? `<span class="help">LINE：${text(lineWhy)}</span>` : (mailWhy ? `<span class="help">Email：${text(mailWhy)}</span>` : ''))}
+        </div>`}
+      </article>`;
+    };
+    return head + `<div class="am-grid">${items.map(row).join('')}</div>`;
+  },
+  aiMatchEmailPreview: (d) => `
+    ${d.blocked ? `<div class="notice"><b>現在不能寄：</b>${text(d.blocked)}</div>` : ''}
+    ${d.error ? `<div class="notice"><b>還不能寄：</b>${text(d.error)}</div>` : ''}
+    <dl class="am-mailmeta"><dt>寄給</dt><dd>${text(d.to || '—')}</dd><dt>寄件人</dt><dd>Step1ne 德仁管理顧問 &lt;noreply@step1ne.com&gt;（人選回信會到 official@step1ne.com）</dd><dt>主旨</dt><dd>${text(d.subject || '—')}</dd></dl>
+    <label class="field" style="margin:12px 0"><span>「為什麼想到您」這一句（可以自己改，改完按「更新預覽」）</span>
+      <textarea id="am-why" rows="2" maxlength="120">${escapeHtml(d.why || d.suggested_why || '')}</textarea></label>
+    <p class="help" style="margin:-4px 0 10px">不能寫公司名稱、「客戶」、年齡性別、待業空窗這類評估。</p>
+    ${d.html ? `<iframe class="am-mailframe" title="信件預覽" sandbox="" srcdoc="${escapeHtml(d.html)}"></iframe>` : ''}`,
   systemSpecTab: () => `<div class="card"><h2>0 · 阿財分流 A–E：什麼條件會被分到哪一類</h2>
 <p class="help">2026-09-21 上線。阿財面談完，系統會自動把人選分成五類，顯示在首頁、人選中心與報告最上方。
 <b>分流由程式用固定規則算，不是模型自由判斷</b>——同一份報告重跑兩次一定落在同一類，顧問才能拿它排今天要打的電話順序。</p>

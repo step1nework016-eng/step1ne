@@ -252,6 +252,16 @@ export const adapters = {
   async p3bSendOne(recId) {
     return api.post('/admin/p3b/send-one', { rec_id: recId });
   },
+  // 2026-10-01 AI 配對頁：所有人選 × 職缺的 AI 建議集中成一張清單
+  async aiMatches(params = {}) {
+    const q = new URLSearchParams(Object.entries(params).filter(([, v]) => v)).toString();
+    return api.get(`/admin/ai-matches${q ? '?' + q : ''}`);
+  },
+  async aiMatchRun(jobSlug, by) { return api.post('/admin/ai-matches/run', { job_slug: jobSlug, by }); },
+  async aiMatchEmailPreview(recId, why) { return api.post(`/admin/ai-matches/${encodeURIComponent(recId)}/email-preview`, { why: why || null }); },
+  async aiMatchEmailSend(recId, by, why, test = false) { return api.post(`/admin/ai-matches/${encodeURIComponent(recId)}/email-send`, { by, why: why || null, test }); },
+  async aiMatchLineSend(recId, by) { return api.post(`/admin/ai-matches/${encodeURIComponent(recId)}/line-send`, { by }); },
+  async aiMatchReject(recId, by, reason) { return api.post(`/admin/ai-matches/${encodeURIComponent(recId)}/reject`, { by, reason: reason || null }); },
   async recommendationDecision(recId, decision, by, rejectionReason) {
     return api.post(`/admin/recommendation/${encodeURIComponent(recId)}/decision`, {
       decision, by, rejection_reason: rejectionReason || null
