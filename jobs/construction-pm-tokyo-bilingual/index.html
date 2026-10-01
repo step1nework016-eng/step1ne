@@ -185,5 +185,26 @@ style="color:#a67c3d;font-weight:600;">或用 LINE 直接洽詢 →</a></span>
   </div>
 </footer>
 
+<script>
+// 2026-10-01 加：社群貼文如果直接連到這個職缺頁（網址帶 ?utm_content=q123，
+// 123 是貼文的排隊紀錄 id），原本「立即應徵」按鈕是寫死的連結，這組參數
+// 進了職缺頁就斷在這裡、傳不到應徵表單——顧問問「這個應徵是哪篇貼文來的」
+// 永遠回答不出來，因為表單那邊收到的 utm 永遠是職缺頁自己貼死的
+// utm_source=website&utm_medium=job_page。
+// 作法：讀職缺頁自己網址上的 utm_content，有的話原樣接到每個「立即應徵」
+// 按鈕的連結後面，讓它跟著使用者一路傳到應徵表單。沒有這個參數（例如
+// 直接從 Google 搜尋進來）就完全不動，維持原本行為。
+(function () {
+  try {
+    var uc = new URLSearchParams(location.search).get('utm_content');
+    if (!uc) return;
+    document.querySelectorAll('a[href^="/apply/"]').forEach(function (a) {
+      var u = new URL(a.getAttribute('href'), location.origin);
+      u.searchParams.set('utm_content', uc);
+      a.setAttribute('href', u.pathname + '?' + u.searchParams.toString());
+    });
+  } catch (e) { /* 壞了也不能擋住應徵按鈕本身能不能點 */ }
+})();
+</script>
 </body>
 </html>

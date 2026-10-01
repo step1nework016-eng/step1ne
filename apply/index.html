@@ -529,7 +529,11 @@ async function buildBody() {
     })(),
     consent: true,
     utm_source: q.get('utm_source'), utm_medium: q.get('utm_medium'),
-    utm_campaign: q.get('utm_campaign'), referrer: document.referrer || null,
+    utm_campaign: q.get('utm_campaign'),
+    // 2026-10-01 加：q=<queue_id> 這組是「哪一則社群貼文帶來這個應徵」的
+    // 唯一線索，網址帶 utm_content=q123 就原樣送回後端（後端會驗證這個
+    // queue_id 真的存在才記，這裡不用先驗證）。
+    utm_content: q.get('utm_content'), referrer: document.referrer || null,
   };
   const file = fd.get('resume');
   if (file && file.size) {
