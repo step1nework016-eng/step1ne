@@ -134,6 +134,11 @@ button:disabled{opacity:.45;cursor:not-allowed}
 .about p:last-child{margin-bottom:0}
 .about .lic{font-size:12.5px;color:#5d6672;border-top:1px solid #e3e9f2;padding-top:8px;margin-top:10px}
 #jobFilter{margin-bottom:6px}
+.job-pick{display:flex;flex-direction:column;gap:6px;margin:6px 0 10px;max-height:320px;overflow-y:auto}
+.job-pick button{min-height:44px;text-align:left;padding:10px 12px;border:1px solid #c9d3e0;border-radius:10px;background:#fff;font:inherit;font-size:15px;line-height:1.4;cursor:pointer;color:#1d2a3a}
+.job-pick button:hover,.job-pick button:focus-visible{border-color:#0F5F87;background:#eef6fb;outline:2px solid #0F5F87;outline-offset:1px}
+.job-pick button small{display:block;color:#5b6b7d;font-size:13px}
+#jobFilterHint.picked{color:#0F5F87;font-weight:700}
 </style>
 
 <header class="top">
@@ -167,6 +172,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
            「台中」）就只留符合的，不用一路捲。⚠️ 只是過濾顯示，不影響送出的值。 -->
       <input type="text" id="jobFilter" placeholder="打關鍵字快速找，例如：工程師、台中" autocomplete="off">
       <div class="hint" id="jobFilterHint" hidden></div>
+      <div class="job-pick" id="jobFilterList" hidden></div>
       <select name="job_slug" id="jobSel" required><option value="">載入中⋯</option></select>
       <!-- 選了職缺才展開的簡要說明。存在的理由：以前選完就只剩一片表單，
            求職者沒辦法在填的過程中確認「我選的這個到底是什麼」——尤其從
@@ -460,22 +466,42 @@ Promise.all([
   // 目前選中的那個一律保留可見，否則選單會顯示空白看起來像被清掉了。
   const filterInput = document.getElementById('jobFilter');
   const filterHint = document.getElementById('jobFilterHint');
+  // 2026-10-01 Jacky：「輸入完之後很難判斷是否有篩選可以選」——結果藏在收合的選單裡，
+  // 候選人看不到。改成：符合的職缺直接列在輸入框下面，點一下就選好；只剩一個就自動選。
+  const filterList = document.getElementById('jobFilterList');
+  const escPick = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const pick = (o) => {
+    sel.value = o.value;
+    sel.dispatchEvent(new Event('change'));
+    filterList.hidden = true; filterList.innerHTML = '';
+    filterHint.hidden = false; filterHint.classList.add('picked');
+    filterHint.textContent = `已選：${o.dataset.title || o.textContent}（要換的話再打字搜尋，或直接用下面的選單）`;
+  };
   if (filterInput) {
     filterInput.addEventListener('input', () => {
       const kw = filterInput.value.trim().toLowerCase();
-      let shown = 0;
+      const hits = [];
       for (const o of sel.options) {
         if (!o.value) { o.hidden = false; continue; }          // 「請選擇」永遠在
         if (o.value === 'unspecified') { o.hidden = false; continue; } // 「請顧問幫我評估」永遠在
         const hit = !kw || o.textContent.toLowerCase().includes(kw);
         o.hidden = !hit && o.value !== sel.value;
-        if (hit) shown += 1;
+        if (hit && kw) hits.push(o);
       }
-      if (!kw) { filterHint.hidden = true; return; }
+      filterHint.classList.remove('picked');
+      if (!kw) { filterHint.hidden = true; filterList.hidden = true; filterList.innerHTML = ''; return; }
       filterHint.hidden = false;
-      filterHint.textContent = shown
-        ? `符合「${filterInput.value.trim()}」的職缺有 ${shown} 個`
-        : `沒有符合「${filterInput.value.trim()}」的職缺，可以換個字，或選「不確定，請顧問幫我評估」`;
+      if (hits.length === 1) { pick(hits[0]); return; }
+      filterHint.textContent = hits.length
+        ? `找到 ${hits.length} 個符合「${filterInput.value.trim()}」的職缺，點一下就選好：`
+        : `沒有符合「${filterInput.value.trim()}」的職缺，可以換個字，或在下面選單選「不確定，請顧問幫我評估」`;
+      filterList.innerHTML = hits.map((o, i) => {
+        const t = o.dataset.title || o.textContent;
+        const where = o.textContent.slice(t.length).replace(/^（|）$/g, '');
+        return `<button type="button" data-i="${i}">${escPick(t)}${where ? `<small>${escPick(where)}</small>` : ''}</button>`;
+      }).join('');
+      filterList.hidden = !hits.length;
+      filterList.querySelectorAll('button').forEach((b) => { b.onclick = () => pick(hits[+b.dataset.i]); });
     });
   }
 
