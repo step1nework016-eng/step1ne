@@ -1876,6 +1876,10 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
         actionBtn('重新產生連結', 'company-regen-token', { idParams: { id: c.id } }, 'danger'),
       ])}
 
+      ${(detail.docs || []).length ? `<h3 style="margin-top:20px">客戶背景資料（顧問參考）</h3>
+      <p class="help" style="margin:0 0 6px">之前整理過的公司介紹、人才地圖、開會紀錄，接案或跟客戶通話前先看。內部資料，不要轉給人選或客戶。</p>
+      ${list(detail.docs, (d) => `<div class="list-row"><span><b>${text(d.title)}</b><small>${text(d.doc_date || '')}</small></span><button type="button" class="btn sm" data-client-doc="${text(d.id)}">打開</button></div>`)}` : ''}
+
       <h3 style="margin-top:20px">用人需求表連結</h3>
       <p class="help" style="margin:0 0 6px">把這個連結給客戶窗口，他就能自己填職缺需求。連結不會過期；要收回舊連結的存取權，按上面的「重新產生連結」。</p>
       ${portalUrl

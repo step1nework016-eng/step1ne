@@ -2691,6 +2691,23 @@ async function openCompanyManage(id) {
     const detail = await adapters.companyDetail(id);
     const c = detail.company || detail;
     drawer({ title: c.display_name || c.name || '客戶', subtitle: c.contact_email || '', body: views.companyDrawerBody(detail) });
+    // 客戶背景資料：在客戶抽屜上面再疊一層看，關掉就回到客戶抽屜。內容放進沙盒 iframe，文件裡的樣式／程式碼碰不到後台
+    $$('[data-client-doc]').forEach((btn) => {
+      btn.onclick = async () => {
+        openSubDrawer({ title: '載入中…', body: loading() });
+        try {
+          const r = await adapters.clientDoc(btn.getAttribute('data-client-doc'));
+          const d = r.doc || {};
+          openSubDrawer({ title: d.title || '客戶資料', subtitle: [c.display_name, d.doc_date].filter(Boolean).join('・'),
+            body: `<iframe class="client-doc-frame" sandbox="" title="${escapeHtml(d.title || '客戶資料')}" style="width:100%;height:calc(100vh - 140px);border:1px solid var(--line,#dbe2ea);border-radius:10px;background:#fff"></iframe>` });
+          const f = $('.client-doc-frame');
+          if (f) f.srcdoc = d.html || '<p>這份資料是空的</p>';
+        } catch (error) {
+          console.error(error);
+          openSubDrawer({ title: '資料載入失敗', body: errorState(error) });
+        }
+      };
+    });
   } catch (error) {
     console.error(error);
     drawer({ title: '客戶載入失敗', body: errorState(error) });

@@ -122,6 +122,7 @@ export const adapters = {
     return { companies: rows(companies, 'items', 'companies'), bd: rows(bd, 'rows', 'items', 'opportunities'), requests: rows(requests, 'items', 'requests') };
   },
   async companyDetail(id) { return api.get(`/admin/portal/companies/${encodeURIComponent(id)}`); },
+  async clientDoc(id) { return api.get(`/admin/client-docs/${encodeURIComponent(id)}`); },
   // 收費進程（2026-09-29，總指揮交辦，補新舊後台對照表抓到的缺口）：
   // 三支端點跟舊版 consultant/billing 一模一樣，見 index.js 對應段落。
   async billingPlan(companyId) { return api.get(`/admin/client-billing-plan?company_id=${encodeURIComponent(companyId)}`); },
