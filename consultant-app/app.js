@@ -2500,13 +2500,15 @@ async function openJobManage(slug, initialTab = 'manage') {
              body: views.jobManageBody(job, content, bank, isBuilding, card, acai, sourced) });
     // 分頁切換。四個面板都已經 render 好，純顯示／隱藏，不 lazy-load
     // ——題庫／職缺卡／阿財理解資料上面已經拿到了，再延遲載入只是多一次往返。
-    const PANELS = ['manage', 'sourced', 'expertise', 'card', 'acai'];
+    const PANELS = ['manage', 'preview', 'sourced', 'expertise', 'card', 'acai'];
     $$('[data-jobtab]').forEach((btn) => {
       btn.onclick = () => {
         $$('[data-jobtab]').forEach((b) => b.classList.remove('active'));
         btn.classList.add('active');
         const which = btn.getAttribute('data-jobtab');
         PANELS.forEach((k) => { const el = $(`#job-tab-${k}`); if (el) el.hidden = which !== k; });
+        // JD 預覽：切到這個分頁才載入，開抽屜不會每次都多抓一整頁
+        if (which === 'preview') { const f = $('.jd-preview-frame'); if (f && !f.src) f.src = `${f.dataset.src}?v=${Date.now()}`; }
       };
     });
     // 從職缺卡卡片牆點進來要直接落在「職缺卡」分頁，不是每次都回到「管理」。

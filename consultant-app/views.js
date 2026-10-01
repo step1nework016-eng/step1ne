@@ -277,8 +277,8 @@ export const views = {
     const client = (j) => j.company_display_name || j.company_name || j.client_name || '';
     const isOpen = (j) => ['open', 'active'].includes(j.status);
     const kw = String(f.q || '').trim().toLowerCase();
-    return (jobs || []).filter((j) =>
-      (f.status === 'all' || (f.status === 'closed' ? !isOpen(j) : isOpen(j)))
+    return (jobs || []).filter((j) => j.slug !== 'unspecified' // 系統佔位用，不是真的職缺
+      && (f.status === 'all' || (f.status === 'closed' ? !isOpen(j) : isOpen(j)))
       && (f.client === 'all' || client(j) === f.client)
       && (f.line === 'all' || (j.service_line || '') === f.line)
       && (!kw || [j.title, client(j), j.slug, SL[j.service_line] || j.service_line].join(' ').toLowerCase().includes(kw)));
@@ -413,12 +413,14 @@ ${list(items, (j) => `<article class="list-row"><span><b>${text(j.title || j.slu
     const lv = card && card.profile ? `（Lv.${card.profile.level || 0}）` : '';
     return `<div class="tabs">
 <button class="active" data-jobtab="manage">管理</button>
+<button data-jobtab="preview">JD 完整預覽</button>
 <button data-jobtab="sourced">AI 找的人${sourced && Array.isArray(sourced.rows) ? `（${sourced.rows.length}）` : ''}</button>
 <button data-jobtab="expertise">面談題庫${bank && bank._n ? `（${bank._n}）` : ''}</button>
 <button data-jobtab="card">職缺卡${lv}</button>
 <button data-jobtab="acai">阿財的理解</button>
 </div>
 <div class="drawer-section" id="job-tab-manage"><h3>職缺狀態</h3>${rowActions([actionBtn('開啟／關閉職缺','job-status',{ idParams: { slug } }),actionBtn('刪除職缺','job-delete',{ idParams: { slug } },'danger')])}<h3>職缺內容</h3>${views.jobContentForm(content)}<button class="btn primary" data-action="submit-job-content" data-slug="${text(slug)}">儲存職缺內容（只存有改的欄位，最多 15 分鐘內上線）</button><p class="help">存檔前系統會檢查：內容突然少一大截、或頁面是客製版面，都會再問你一次。</p><h3>客製表單欄位</h3>${actionBtn('新增客製表單欄位','job-forms-create',{ idParams: {}, record: { job_slug: slug } })}</div>
+<div class="drawer-section" id="job-tab-preview" hidden><div class="card-head" style="margin-bottom:8px"><p class="help" style="margin:0">這就是求職者在官網看到的完整職缺頁。改完「管理」裡的職缺內容，最多 15 分鐘後這裡會更新。</p><a class="btn sm" href="https://step1ne.com/jobs/${encodeURIComponent(slug)}/" target="_blank" rel="noopener">在新分頁打開</a></div><iframe class="jd-preview-frame" title="職缺頁預覽" data-src="https://step1ne.com/jobs/${encodeURIComponent(slug)}/" style="width:100%;height:75vh;border:1px solid var(--line,#d6dde6);border-radius:10px;background:#fff" loading="lazy"></iframe><p class="help">如果上面是空白，代表這個職缺還沒上官網，或你是在測試站看（測試站不能嵌正式站的頁面），按「在新分頁打開」。</p></div>
 <div class="drawer-section" id="job-tab-sourced" hidden>${views.jobSourcedPanel(slug, sourced)}</div>
 <div class="drawer-section" id="job-tab-expertise" hidden>${views.jobExpertisePanel(slug, bank, isBuilding)}</div>
 <div class="drawer-section" id="job-tab-card" hidden>${views.jobCardPanel(slug, card)}${(() => {
