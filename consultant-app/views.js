@@ -1295,6 +1295,10 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
       <div id="sc-topic-only" hidden>
         <label class="field"><span>選擇話題</span>
           <select id="sc-topic"><option value="">請選擇…</option></select></label>
+        <!-- 2026-10-01 Jacky：時事話題文也要能選公式。跟「今日話題」挑題視窗同一套：不選＝顧問預設語氣 -->
+        <label class="field"><span>用哪個公式？（不選＝顧問平常的語氣）</span>
+          <select id="sc-tstyle"><option value="">原始格式（顧問預設語氣）</option>${[...dialog, ...pures].map((x) =>
+            `<option value="${escapeHtml(x.id)}">${escapeHtml(favLabel(x))}（${x.subtype === 'pure' ? '純CTA型' : '對話討論型'}）</option>`).join('')}</select></label>
         <p class="help" style="margin:4px 0 0">列的是這個分類底下全部的話題。⚠️ 2026-09-11 Jacky 拿掉了「顧問指派」那道關卡——新增任何話題，全站顧問都能直接選，不用先去設定頁勾。</p>
         <script type="application/json" id="sc-topics-data">${JSON.stringify((topics || []).map((t) => ({ id: t.id, name: t.name || t.title, category: t.category })))}</script>
       </div>

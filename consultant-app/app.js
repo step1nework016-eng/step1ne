@@ -839,6 +839,7 @@ function wireSocialComposer() {
   typeSel.onchange = () => { syncType(); unlock(); };
   waySel.onchange = () => { syncWay(); unlock(); };
   $$id('sc-job').onchange = unlock;
+  $$id('sc-tstyle').onchange = unlock;
   $$id('sc-date').onchange = syncPreview;
   $$id('sc-hour').onchange = syncPreview;
   $$id('sc-min').onchange = syncPreview;
@@ -909,6 +910,8 @@ function wireSocialComposer() {
       if (!tid) return toast('請先選話題', 'error');
       payload.topic_id = tid;
       payload.mission = typeSel.value === 'ai' ? 'trust_building' : 'engagement';
+      const tsid = Number($$id('sc-tstyle').value || 0);
+      if (tsid) payload.style_id = tsid;
     }
     const date = $$id('sc-date').value;
     const h = $$id('sc-hour').value, m = $$id('sc-min').value;
