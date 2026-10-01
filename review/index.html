@@ -139,7 +139,7 @@ button.submit:focus-visible{outline:3px solid #16202e;outline-offset:2px}
         <input type="text" id="offered" name="offered" maxlength="120" placeholder="錄取的職缺名稱" hidden style="margin-top:8px">
 
         <label for="consultant">負責的顧問</label>
-        <input type="text" id="consultant" name="consultant" maxlength="40" placeholder="選填">
+        <select id="consultant" name="consultant"><option value="">不記得／不確定</option></select>
 
         <span class="q">這則心得可以放上官網嗎？ <span class="req">*</span></span>
         <div class="opts">
@@ -196,6 +196,13 @@ button.submit:focus-visible{outline:3px solid #16202e;outline-offset:2px}
   var preJob = (qs.get('j') || '').slice(0, 120);
   fetch(API.replace('/submit', '/jobs')).then(function (r) { return r.json(); }).then(function (d) {
     JOBS = d.jobs || [];
+    var cSel = f.consultant, preC = (qs.get('c') || '').trim();
+    (d.consultants || []).forEach(function (n) { var o = document.createElement('option'); o.value = n; o.textContent = n; cSel.appendChild(o); });
+    if (preC) {
+      var hitC = (d.consultants || []).find(function (n) { return n.toLowerCase() === preC.toLowerCase(); });
+      if (!hitC) { var o2 = document.createElement('option'); o2.value = preC; o2.textContent = preC; cSel.appendChild(o2); hitC = preC; }
+      cSel.value = hitC;
+    }
     catSel.innerHTML = '<option value="">① 先選類別</option>' + (d.cats || []).map(function (c) { return '<option>' + c + '</option>'; }).join('')
       + '<option value="' + OTHER + '">都不是，我自己填</option>';
     var hit = preJob && JOBS.find(function (j) { return j.title === preJob; });
@@ -204,11 +211,11 @@ button.submit:focus-visible{outline:3px solid #16202e;outline-offset:2px}
   }).catch(function () {
     // 清單抓不到就退回自己填，不能讓人卡住
     catSel.hidden = true; pickSel.hidden = true; jobInput.hidden = false; if (preJob) jobInput.value = preJob;
+    var pc = (qs.get('c') || '').trim(); if (pc) { var oc = document.createElement('option'); oc.value = pc; oc.textContent = pc; f.consultant.appendChild(oc); f.consultant.value = pc; }
   });
   catSel.addEventListener('change', function () {
     if (catSel.value === OTHER) { pickSel.disabled = true; jobInput.hidden = false; jobInput.value = ''; jobInput.focus(); }
   });
-  if (qs.get('c')) f.consultant.value = qs.get('c').slice(0, 40);
   if (qs.get('n')) f.name.value = qs.get('n').slice(0, 40);
   // ?o=錄取職缺：跟面試的一樣就勾「同一個」，不一樣就勾「其他」並填好
   var offeredBox = document.getElementById('offered');

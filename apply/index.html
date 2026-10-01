@@ -211,7 +211,7 @@ dialog.think::backdrop{background:rgba(22,32,46,.45)}
       document.getElementById('rvList').innerHTML = rs.map(function (r) {
         var n = Math.max(1, Math.min(5, r.rating | 0));
         return '<div class="rv-item"><span class="st" aria-label="' + n + ' 顆星">' + '★★★★★'.slice(0, n) + '☆☆☆☆☆'.slice(0, 5 - n) + '</span>'
-          + '<p>' + esc(r.text) + '</p><small>' + esc([r.job, r.who].filter(Boolean).join('・')) + '</small></div>';
+          + '<p>' + esc(r.text) + '</p><small>' + esc([r.job, r.who].filter(Boolean).join('・')) + (r.consultant ? '｜負責顧問：' + esc(r.consultant) : '') + '</small></div>';
       }).join('');
       document.getElementById('rvBox').hidden = false;
     }).catch(function () {});
