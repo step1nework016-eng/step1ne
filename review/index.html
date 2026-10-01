@@ -123,6 +123,7 @@ button.submit:focus-visible{outline:3px solid #16202e;outline-offset:2px}
         <legend>關於您</legend>
         <label for="name">您的稱呼 <span class="req">*</span></label>
         <input type="text" id="name" name="name" maxlength="40" autocomplete="name" placeholder="例：王小明">
+        <div class="hint">只給負責的顧問看，不會公開。</div>
 
         <label for="job">這次的職位</label>
         <input type="text" id="job" name="job" maxlength="120" placeholder="選填，例：遊戲客服專員">
@@ -130,11 +131,11 @@ button.submit:focus-visible{outline:3px solid #16202e;outline-offset:2px}
         <label for="consultant">負責的顧問</label>
         <input type="text" id="consultant" name="consultant" maxlength="40" placeholder="選填">
 
-        <span class="q">這則心得可以公開嗎？ <span class="req">*</span></span>
+        <span class="q">這則心得可以放上官網嗎？ <span class="req">*</span></span>
         <div class="opts">
-          <label><input type="radio" name="consent" value="full"><span>可以公開，寫我的全名<small>可能放在官網或社群上</small></span></label>
-          <label><input type="radio" name="consent" value="surname"><span>可以公開，只寫姓氏<small>例：王先生／王小姐</small></span></label>
-          <label><input type="radio" name="consent" value="private"><span>不要公開<small>只作為內部改進參考</small></span></label>
+          <label><input type="radio" name="consent" value="anon"><span>可以，匿名放上官網<small>不會出現名字，只寫職位類型，例：「遊戲客服專員」</small></span></label>
+          <label><input type="radio" name="consent" value="surname"><span>可以，只寫姓氏<small>例：「遊戲客服專員・王先生」</small></span></label>
+          <label><input type="radio" name="consent" value="private"><span>不要放<small>只作為內部改進參考</small></span></label>
         </div>
 
         <label for="contact">Email 或電話</label>
@@ -196,7 +197,7 @@ button.submit:focus-visible{outline:3px solid #16202e;outline-offset:2px}
     if (!rating) return err('請選整體滿意度（點星星）');
     if (v('review').length < 10) { f.review.focus(); return err('心得請至少寫 10 個字'); }
     if (!v('name')) { f.name.focus(); return err('請填您的稱呼'); }
-    if (!consent) return err('請選這則心得可不可以公開');
+    if (!consent) return err('請選這則心得可不可以放上官網');
     var btn = f.querySelector('button.submit');
     btn.disabled = true; btn.textContent = '送出中…'; msg.textContent = ''; msg.className = 'msg';
     fetch(API, {
