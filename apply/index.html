@@ -139,6 +139,25 @@ button:disabled{opacity:.45;cursor:not-allowed}
 .job-pick button:hover,.job-pick button:focus-visible{border-color:#0F5F87;background:#eef6fb;outline:2px solid #0F5F87;outline-offset:1px}
 .job-pick button small{display:block;color:#5b6b7d;font-size:13px}
 #jobFilterHint.picked{color:#0F5F87;font-weight:700}
+/* 還在考慮的人：心得＋常見疑問彈窗（2026-10-01 Jacky 選 B） */
+.think-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:46px;margin:-6px 0 22px;
+  border:1px dashed var(--ac);border-radius:10px;background:#f4f7ff;color:var(--ac);font:inherit;font-size:14.5px;font-weight:600;cursor:pointer}
+.think-btn:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+dialog.think{border:0;border-radius:14px;padding:0;width:min(560px,calc(100vw - 24px));max-height:calc(100vh - 40px);color:var(--tx)}
+dialog.think::backdrop{background:rgba(22,32,46,.45)}
+.think-head{position:sticky;top:0;background:#fff;display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line)}
+.think-head h2{font-size:17px;margin:0}
+.think-x{width:44px;height:44px;border:0;background:none;font-size:22px;cursor:pointer;color:var(--tx2)}
+.think-x:focus-visible{outline:3px solid var(--ac)}
+.think-body{padding:6px 16px 18px}
+.think-body h3{font-size:14px;color:var(--tx3);margin:16px 0 8px;letter-spacing:.03em}
+.rv-item{border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:8px}
+.rv-item .st{color:#f2a516;letter-spacing:1px}
+.rv-item p{margin:6px 0 0;font-size:14.5px;white-space:pre-line}
+.rv-item small{color:var(--tx3);font-size:12.5px}
+.think-body details{border:1px solid var(--line);border-radius:10px;margin-bottom:8px}
+.think-body summary{cursor:pointer;padding:12px;font-weight:600;font-size:14.5px;min-height:44px;list-style-position:inside}
+.think-body details p{margin:0;padding:0 12px 12px;font-size:14px;color:var(--tx2)}
 </style>
 
 <header class="top">
@@ -163,6 +182,48 @@ button:disabled{opacity:.45;cursor:not-allowed}
     <p class="lic">私立就業服務機構許可證號：<b>0363</b>｜德仁管理顧問有限公司</p>
   </div>
   <div class="prog"><i id="bar"></i></div>
+  <button type="button" class="think-btn" id="thinkOpen" aria-haspopup="dialog">還在考慮嗎？看看常見疑問</button>
+  <dialog class="think" id="think" aria-labelledby="thinkTitle">
+    <div class="think-head"><h2 id="thinkTitle">還在考慮嗎？</h2><button type="button" class="think-x" id="thinkClose" aria-label="關閉">✕</button></div>
+    <div class="think-body">
+      <div id="rvBox" hidden><h3>其他人選怎麼說</h3><div id="rvList"></div></div>
+      <h3>常見疑問</h3>
+      <!-- 答案照抄 /faq/ 已公開的內容，不在這裡另外寫新承諾；FAQ 改了這裡要一起改 -->
+      <details><summary>面談的「阿財」是真人嗎？</summary><p>是 AI 面談顧問，這場對談就是正式面談；結束後獵頭顧問會依面談狀況評估，決定是否推薦給用人單位進行面試。</p></details>
+      <details><summary>阿財面談大概多久、要準備什麼？</summary><p>約 20–40 分鐘，找一個能專心作答的環境即可。這場面談會視為正式面談，獵頭顧問會依面談狀況評估，決定是否將您推薦給用人單位進行面試，請以正式面試的心情看待，謝謝。</p></details>
+      <details><summary>我的資料會外流嗎？</summary><p>您的履歷與面談內容僅提供給您應徵的用人單位評估使用，不會另作他用。</p></details>
+      <details><summary>應徵後多久會有回覆？</summary><p>約 1–2 天內會有初步回覆，也可以隨時透過 LINE 圖文選單「追蹤面談進度」查詢。與阿財面談結束後，如果內容沒有問題，會立即送出給用人單位；後續會依用人單位的審核進度持續追蹤，有新進度會通知您。</p></details>
+      <details><summary>如果沒有錄取，會通知我嗎？</summary><p>會。不論在哪個階段沒有通過，都會收到通知，不會讓您一直等著沒有下文。</p></details>
+      <details><summary>沒有相關經驗可以應徵嗎？</summary><p>職缺頁面上會清楚標示是否接受無經驗——如果沒有特別標示「無經驗可」，代表這個職缺需要相關經驗。</p></details>
+      <details><summary>派遣是什麼意思，跟正職差在哪？</summary><p>派遣是由人力派遣公司（Step1ne）與您簽訂勞動契約，再指派您到用人單位的工作現場提供服務；勞健保、薪資由派遣公司處理，工作內容與環境則跟用人單位溝通。是否為派遣，職缺頁面都會清楚標示。</p></details>
+      <p style="font-size:13.5px;color:var(--tx2);margin:14px 0 0">還有其他問題？<a href="/faq/" target="_blank" rel="noopener">看完整常見問題</a>，或<a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">加 LINE 直接問顧問</a>。</p>
+    </div>
+  </dialog>
+  <script>
+  (function () {
+    var dlg = document.getElementById('think'), opened = false;
+    var esc = function (t) { return String(t || '').replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+    // 有核准滿 3 則心得才換成「看看其他人選怎麼說」，不滿就只放常見疑問，不會出現空的心得區
+    fetch('https://step1ne-recruit-api.aiagentg888.workers.dev/review/public').then(function (r) { return r.json(); }).then(function (d) {
+      var rs = (d && d.reviews) || [];
+      if (rs.length < 3) return;
+      document.getElementById('thinkOpen').textContent = '還在考慮嗎？看看其他人選怎麼說';
+      document.getElementById('rvList').innerHTML = rs.map(function (r) {
+        var n = Math.max(1, Math.min(5, r.rating | 0));
+        return '<div class="rv-item"><span class="st" aria-label="' + n + ' 顆星">' + '★★★★★'.slice(0, n) + '☆☆☆☆☆'.slice(0, 5 - n) + '</span>'
+          + '<p>' + esc(r.text) + '</p><small>' + esc([r.job, r.who].filter(Boolean).join('・')) + '</small></div>';
+      }).join('');
+      document.getElementById('rvBox').hidden = false;
+    }).catch(function () {});
+    document.getElementById('thinkOpen').addEventListener('click', function () {
+      if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', '');
+      if (!opened && window.gtag) gtag('event', 'apply_think_open', { page_path: location.pathname });
+      opened = true;
+    });
+    document.getElementById('thinkClose').addEventListener('click', function () { dlg.close ? dlg.close() : dlg.removeAttribute('open'); });
+    dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+  })();
+  </script>
 
   <form id="f">
     <fieldset>
