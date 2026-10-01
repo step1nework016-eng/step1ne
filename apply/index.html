@@ -93,6 +93,7 @@ button{width:100%;background:var(--ac);color:#fff;border:0;border-radius:10px;
 button:disabled{opacity:.45;cursor:not-allowed}
 .msg{margin-top:14px;padding:13px 15px;border-radius:10px;font-size:13.5px;display:none;line-height:1.6}
 .msg.err{display:block;background:#fdecea;border:1px solid #f3c2bc;color:#a5312a}
+.msg{white-space:pre-line}
 .invite{display:block;margin:0 0 16px;padding:13px 15px;border-radius:10px;font-size:13.5px;line-height:1.7;
   background:#f6efe2;border:1px solid #e6dfd1;color:#5a4a2f}
 .done{text-align:center;padding:40px 0}
@@ -236,7 +237,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
       <label>或貼雲端連結</label>
       <input name="resume_url" placeholder="Google Drive／Dropbox 連結">
       <div class="hint">
-        檔案較大再用這個，並確認權限設為「知道連結的人可讀取」。
+        檔案較大再用這個，並確認分享設定是「知道連結的任何人都能檢視」（沒公開的連結會被擋下，送出前會自動檢查）。
         <b style="color:#b4552e;">要貼「檔案」的分享連結，不能貼資料夾連結</b>
         （網址裡有 <code>/folders/</code> 的就是資料夾，系統讀不到裡面的履歷）。
         上傳檔案跟貼連結<b>擇一即可</b>，能上傳檔案就盡量用上傳，最快也最準確。
@@ -545,6 +546,26 @@ async function buildBody() {
   return body;
 }
 
+// 2026-10-01：只貼雲端連結（沒上傳檔案）時，送出前先檢查連結是不是公開的。
+// 沒公開（要登入／申請存取權）或找不到檔案 → 回傳要顯示的說明；
+// 檢查本身失敗（逾時、網路錯）→ 回傳 null 放行，不能因為檢查壞掉擋住應徵。
+// 後端 /apply、/apply/update 送出時也會再查一次，這裡只是讓人早點知道。
+async function resumeLinkProblem(url) {
+  url = String(url || '').trim();
+  if (!url) return null;
+  try {
+    const ctl = new AbortController();
+    const timer = setTimeout(() => ctl.abort(), 10000);
+    const r = await fetch(`${API}/apply/check-resume-link`, {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ url }), signal: ctl.signal,
+    });
+    clearTimeout(timer);
+    const d = await r.json();
+    return (d && d.block && d.message) ? d.message : null;
+  } catch (e) { return null; }
+}
+
 document.getElementById('toAssess').addEventListener('click', async () => {
   const btn = document.getElementById('toAssess');
   const msg = document.getElementById('msg');
@@ -587,6 +608,16 @@ document.getElementById('toAssess').addEventListener('click', async () => {
     return;
   }
 
+  if (!hasFile && hasUrl) {
+    btn.disabled = true; btn.textContent = '檢查履歷連結⋯';
+    const problem = await resumeLinkProblem(hasUrl);
+    btn.disabled = false; btn.textContent = '開始工作風格測驗 →';
+    if (problem) {
+      msg.className = 'msg err'; msg.textContent = problem;
+      f.querySelector('input[name=resume_url]').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+  }
   btn.disabled = true; btn.textContent = '處理中⋯';
   try {
     const body = await buildBody();
@@ -739,6 +770,16 @@ f.addEventListener('submit', async (e) => {
     return;
   }
 
+  if (!(file.files.length > 0) && hasUrl && hasUrl !== String((RETURN_FORM_DATA && RETURN_FORM_DATA.resume_url) || '').trim()) {
+    btn.disabled = true; btn.textContent = '檢查履歷連結⋯';
+    const problem = await resumeLinkProblem(hasUrl);
+    btn.disabled = false; btn.textContent = '送出應徵';
+    if (problem) {
+      msg.className = 'msg err'; msg.textContent = problem;
+      f.resume_url.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+  }
   btn.disabled = true; btn.textContent = '送出中⋯';
   let d;
   try {
