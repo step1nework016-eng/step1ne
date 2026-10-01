@@ -639,6 +639,42 @@ function wireTopicsToday() {
   });
 }
 
+// 2026-10-01 加：「用這篇的寫法再排一則」。排隊列表跟一鍵發文表單在同一頁
+// （社群／發文／一鍵發文），直接操作表單 DOM，不用另外開彈窗或換頁。
+// 只動「寫法」相關欄位（管道／寫法類型／公式），帳號跟職缺留白——
+// 業主明確要求「顧問還是要自己選帳號跟職缺」，不要替他決定要對誰發。
+function prefillSocialRepost(btn) {
+  if (!btn) return;
+  const $$id = (id) => document.getElementById(id);
+  const typeSel = $$id('sc-type'), chSel = $$id('sc-channel'), waySel = $$id('sc-way');
+  if (!typeSel || !waySel) { toast('表單還沒載入，稍等一下再試', 'error'); return; }
+  const fire = (el) => el && el.dispatchEvent(new Event('change'));
+
+  typeSel.value = 'job'; fire(typeSel);
+
+  const platform = btn.getAttribute('data-platform');
+  if (platform && chSel) { chSel.value = platform; fire(chSel); }
+
+  const subtype = btn.getAttribute('data-subtype');
+  const styleId = btn.getAttribute('data-style-id');
+  if (subtype === 'pure') {
+    waySel.value = 'pure'; fire(waySel);
+    const sel = $$id('sc-pstyle');
+    if (sel && styleId) sel.value = styleId;
+  } else if (subtype === 'dialog') {
+    waySel.value = 'dialog'; fire(waySel);
+    const sel = $$id('sc-style');
+    if (sel && styleId) sel.value = styleId;
+  } else {
+    // 沒有 style_id（原始格式）或查不到 subtype，退回原始格式——
+    // 跟這則貼文當初的寫法一致，不要瞎猜成某個公式。
+    waySel.value = 'default'; fire(waySel);
+  }
+
+  $$id('sc-account')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  toast('已帶入這篇的寫法，請選擇帳號與職缺', 'success');
+}
+
 function wireSocialComposer() {
   const $$id = (id) => document.getElementById(id);
   const typeSel = $$id('sc-type'), accSel = $$id('sc-account'), waySel = $$id('sc-way');
@@ -1881,7 +1917,7 @@ ${views.candidateFormsBlock(f.forms, applicationId, companyId)}
       // ／trg_applications_seq_no 觸發器），一直沒搬進 V3 標題。
       title: (application.seq_no ? `#${application.seq_no} ` : '') + (application.name || '應徵單'),
       subtitle: `${application.job_title || application.job_slug || ''} · ${channelTag}`,
-      body: `<div class="drawer-section">${dupNoticeHtml}${stageBar}${views.clientResumeBox(applicationId, card.client_formal_reports || [], forwards)}${views.jobMatchTop(report)}<h3>基本資料${contactBadge}${hardGateBadge}</h3>${basics}<h3>操作</h3>${rowActions([
+      body: `<div class="drawer-section">${dupNoticeHtml}${views.socialSourceBadge(card.social_source)}${stageBar}${views.clientResumeBox(applicationId, card.client_formal_reports || [], forwards)}${views.jobMatchTop(report)}<h3>基本資料${contactBadge}${hardGateBadge}</h3>${basics}<h3>操作</h3>${rowActions([
         actionBtn('新增顧問備註', 'application-notes', ctxId, 'primary'),
         // 2026-09-17 改名：這顆原本也叫「電洽前準備」，但實際上是手動打字存進
         // consultant_call_notes 的表單，跟「電洽」階段格裡新加的 AI Pre-call Card
@@ -2519,7 +2555,7 @@ async function openSession(id) {
     const messages = body.transcript || [];
     const app = body.application || body;
     const fb = body.feedback;
-    return `<div class="card-head"><div><h2>${text(app.candidate_name || app.name)}</h2><p>${text(app.job_title || app.job)} · ${text(app.interview_state || app.state)}</p></div>${['done','interviewed'].includes(String(app.interview_state || app.state)) ? '<button class="btn" data-action="reopen-interview" data-id="'+escapeHtml(id)+'">重新開啟面談</button>' : ''}</div>${fb ? `<div class="notice">人選給這場面談的評分：${'★'.repeat(Number(fb.rating) || 0)}${'☆'.repeat(Math.max(0, 5 - (Number(fb.rating) || 0)))}（${text(fb.rating)}/5）${fb.comment ? ' · ' + text(fb.comment) : ''}</div>` : ''}<div class="transcript">${messages.map((message) => `<div class="bubble ${String(message.role).includes('assistant') ? 'ai' : 'candidate'}"><b>${String(message.role).includes('assistant') ? '阿財' : '人選'}</b><p>${text(message.content || message.text)}</p><small>${text(message.created_at || message.at)}</small></div>`).join('') || '<div class="state">目前沒有對話訊息</div>'}</div>`;
+    return `<div class="card-head"><div><h2>${text(app.candidate_name || app.name)}</h2><p>${text(app.job_title || app.job)} · ${text(app.interview_state || app.state)}</p></div>${['done','interviewed'].includes(String(app.interview_state || app.state)) ? '<button class="btn" data-action="reopen-interview" data-id="'+escapeHtml(id)+'">重新開啟面談</button>' : ''}</div>${views.socialSourceBadge(body.social_source)}${fb ? `<div class="notice">人選給這場面談的評分：${'★'.repeat(Number(fb.rating) || 0)}${'☆'.repeat(Math.max(0, 5 - (Number(fb.rating) || 0)))}（${text(fb.rating)}/5）${fb.comment ? ' · ' + text(fb.comment) : ''}</div>` : ''}<div class="transcript">${messages.map((message) => `<div class="bubble ${String(message.role).includes('assistant') ? 'ai' : 'candidate'}"><b>${String(message.role).includes('assistant') ? '阿財' : '人選'}</b><p>${text(message.content || message.text)}</p><small>${text(message.created_at || message.at)}</small></div>`).join('') || '<div class="state">目前沒有對話訊息</div>'}</div>`;
   });
 }
 
@@ -3060,6 +3096,10 @@ document.addEventListener('click', async (event) => {
   if (action === 'submit-convert-sourced') submitConvertSourced(target.closest('[data-sourced-id]').getAttribute('data-sourced-id'));
   if (action === 'social-request') modal({ title: '建立社群發文需求', subtitle: 'Agent 產稿後仍須 Telegram 人工核准。', body: views.socialRequestModal(), footer: '<button class="btn" data-close-overlay>取消</button><button class="btn primary" data-action="submit-social-request">建立需求</button>' });
   if (action === 'submit-social-request') submitSocialRequest();
+  // 2026-10-01 加：「用這篇的寫法再排一則」——排隊列表跟一鍵發文表單
+  // 同一頁，不用跨分頁，直接把表現好的這則貼文的寫法（公式／篇幅／管道）
+  // 帶進上面的表單。帳號跟職缺刻意不帶，要顧問自己選要對誰發。
+  if (action === 'social-repost-prefill') prefillSocialRepost(target.closest('[data-action="social-repost-prefill"]'));
   if (action === 'add-client') openAction('company-create', {});
   if (action === 'run-action') submitPendingAction();
   // 2026-09-30 Jacky：打電話問到新電話（例如招募專線在廠區），顧問自己在卡片上更新

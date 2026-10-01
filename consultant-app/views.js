@@ -1467,7 +1467,33 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
       <small>${g.n} 篇・${g.c} 次點擊${Object.keys(g.who).length ? '・來自 ' + Object.entries(g.who).sort((a, b) => b[1] - a[1]).map(([w, n]) => `${text(w)} ${n}`).join('、') : ''}</small></div>`).join('') || '<p class="help">還沒有資料。</p>';
   },
 
-  socialWorkbenchTab: (queue) => list(queue, (q) => `<article class="list-row"><span><b>${text(q.title || q.content_formula || q.slug)}</b><small>${text(q.account_label)} · ${text(q.scheduled_at || q.posted_at)}</small></span>${statusBadge(q.social_post_status)}${rowActions(['posted','skipped','expired'].includes(String(q.social_post_status)) ? [] : [actionBtn('取消','social-cancel',{ idParams: { id: q.queue_id } },'danger')])}</article>`),
+  // 2026-10-01 加：顧問反映「看不出哪篇貼文帶來今天的應徵者、也看不到發文
+  // 時間」，排隊列表原本只有標題＋狀態。現在每一則貼文（用 queue_id 區分，
+  // 同一位顧問同一天發同一個職缺好幾次時才分得出是哪一篇）都帶出：
+  //   發文時間（MM/DD HH:mm）、點擊數、加LINE好友數、歸因到的應徵人數、
+  //   貼文連結。表現好的（有加LINE好友或有應徵，不是憑感覺排名）額外給一顆
+  // 「用這篇的寫法再排一則」——只帶寫法（way／公式／篇幅這些貼文本身的
+  // 屬性），帳號跟職缺仍然要顧問自己選，不要替他決定要對誰發。
+  socialWorkbenchTab: (queue) => list(queue, (q) => {
+    const posted = q.posted_at || q.social_post_at;
+    const m = posted && String(posted).match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/);
+    const postedLabel = m ? `${m[2]}/${m[3]} ${m[4]}:${m[5]}` : (posted ? text(posted) : '尚未發出');
+    const clicks = Number(q.clicks || 0), lineAdds = Number(q.line_adds || 0), applicants = Number(q.applicants_attributed || 0);
+    const performsWell = lineAdds > 0 || applicants > 0;
+    const stats = `<span class="badge">🖱 點擊 ${text(clicks)}</span><span class="badge">💬 加LINE ${text(lineAdds)}</span><span class="badge">📨 應徵 ${text(applicants)}</span>`;
+    const viewLink = q.social_post_url ? `<a href="${escapeHtml(q.social_post_url)}" target="_blank" rel="noopener" class="btn ghost sm">看貼文</a>` : '';
+    const btns = ['posted','skipped','expired'].includes(String(q.social_post_status)) ? [] : [actionBtn('取消','social-cancel',{ idParams: { id: q.queue_id } },'danger')];
+    if (performsWell) {
+      btns.unshift(`<button type="button" class="btn sm" data-action="social-repost-prefill"
+        data-style-id="${escapeHtml(q.style_id || '')}" data-subtype="${escapeHtml(q.style_subtype || '')}"
+        data-formula="${escapeHtml(q.content_formula || '')}"
+        data-length="${escapeHtml(q.content_length || '')}" data-platform="${escapeHtml(q.account_platform || '')}"
+        >用這篇的寫法再排一則</button>`);
+    }
+    return `<article class="list-row"><span><b>#${text(q.queue_id)}　${text(q.title || q.content_formula || q.slug)}</b>`
+      + `<small>${text(q.account_label)} · 發文時間 ${postedLabel}</small><small>${stats}</small></span>`
+      + `${statusBadge(q.social_post_status)}${viewLink}${rowActions(btns)}</article>`;
+  }),
   // 排程行事曆——照抄舊版 consultant/social-post 的月曆邏輯（renderCal/renderKpi），
   // 只是搬進 SPA。「重複」定義：同一天、同一個職缺、**同一個顧問**發兩次以上；
   // 不同顧問同一天發同一個職缺是正常的（四個帳號一起推），不算重複——第一版把它
@@ -2615,6 +2641,16 @@ ${a.note ? `<details class="note-details"><summary>顧問備註／電洽紀錄</
     </section>`;
   },
   // 2026-09-29 Jacky：打開人選卡片第一眼就要看到「背景經歷 × 職缺」匹配總結，不用再點進阿財初審。
+  // 2026-10-01 加：這位人選是哪個顧問哪則貼文帶來的。後端查不到就回 null，
+  // 這裡也是——沒把握就不顯示，不要用「可能是…」這種猜測字眼唬弄顧問。
+  socialSourceBadge: (s) => {
+    if (!s) return '';
+    const platformLabel = { threads: 'Threads', linkedin: 'LinkedIn', line_community: 'LINE 社群' }[s.platform] || (s.platform || '');
+    const m = s.posted_at && String(s.posted_at).match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/);
+    const posted = m ? `${m[2]}/${m[3]} ${m[4]}:${m[5]}` : (s.posted_at ? text(s.posted_at) : '時間不明');
+    const link = s.url ? `<a href="${escapeHtml(s.url)}" target="_blank" rel="noopener">看貼文</a>` : '';
+    return `<p class="help" style="margin:0 0 10px">來源：${text(s.consultant)}・${text(platformLabel)}・${posted}${link ? '・' + link : ''}</p>`;
+  },
   jobMatchTop: (report) => {
     let d = null;
     try { d = report && report.content_json ? JSON.parse(report.content_json) : null; } catch { d = null; }
