@@ -16,7 +16,7 @@ gtag('config', 'G-DNPMMRDEC0');
 <meta name="robots" content="noindex">
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
 <!-- 2026-10-01 Jacky：給人選填服務心得的連結。樣式沿用 /apply/，同一套顏色與欄位。
-     可帶參數預先填好：?c=顧問名字&j=職位&ref=識別碼（例：/review/?c=Phoebe&j=遊戲客服專員） -->
+     可帶參數預先填好：?c=顧問名字&j=面試職缺&o=錄取職缺&ref=識別碼（例：/review/?c=Phoebe&j=遊戲客服專員&o=遊戲客服專員） -->
 <style>
 :root{--bg:#ffffff;--card:#ffffff;--line:#dfe4ec;--tx:#16202e;--tx2:#4d5c72;--tx3:#7c8899;
       --ac:#2f5fd8;--rd:#c0392b;--soft:#f6f8fb;--star:#f2a516;
@@ -125,8 +125,16 @@ button.submit:focus-visible{outline:3px solid #16202e;outline-offset:2px}
         <input type="text" id="name" name="name" maxlength="40" autocomplete="name" placeholder="例：王小明">
         <div class="hint">只給負責的顧問看，不會公開。</div>
 
-        <label for="job">這次的職位</label>
-        <input type="text" id="job" name="job" maxlength="120" placeholder="選填，例：遊戲客服專員">
+        <label for="job">面試的職缺 <span class="req">*</span></label>
+        <input type="text" id="job" name="job" maxlength="120" placeholder="例：遊戲客服專員">
+
+        <span class="q">錄取的職缺 <span class="req">*</span></span>
+        <div class="opts">
+          <label><input type="radio" name="offer" value="same"><span>就是上面面試的那個職缺</span></label>
+          <label><input type="radio" name="offer" value="other"><span>錄取了其他職缺</span></label>
+          <label><input type="radio" name="offer" value="none"><span>這次沒有錄取</span></label>
+        </div>
+        <input type="text" id="offered" name="offered" maxlength="120" placeholder="錄取的職缺名稱" hidden style="margin-top:8px">
 
         <label for="consultant">負責的顧問</label>
         <input type="text" id="consultant" name="consultant" maxlength="40" placeholder="選填">
@@ -167,6 +175,19 @@ button.submit:focus-visible{outline:3px solid #16202e;outline-offset:2px}
   if (qs.get('c')) f.consultant.value = qs.get('c').slice(0, 40);
   if (qs.get('j')) f.job.value = qs.get('j').slice(0, 120);
   if (qs.get('n')) f.name.value = qs.get('n').slice(0, 40);
+  // ?o=錄取職缺：跟面試的一樣就勾「同一個」，不一樣就勾「其他」並填好
+  var offeredBox = document.getElementById('offered');
+  function syncOffer() {
+    var o = (f.querySelector('input[name=offer]:checked') || {}).value;
+    offeredBox.hidden = o !== 'other';
+    if (o === 'other') offeredBox.focus();
+  }
+  Array.prototype.forEach.call(f.querySelectorAll('input[name=offer]'), function (r) { r.addEventListener('change', syncOffer); });
+  if (qs.get('o')) {
+    var ov = qs.get('o').slice(0, 120);
+    if (ov === f.job.value) f.querySelector('input[name=offer][value=same]').checked = true;
+    else { f.querySelector('input[name=offer][value=other]').checked = true; offeredBox.value = ov; offeredBox.hidden = false; }
+  }
 
   var rating = 0;
   var LABELS = ['', '很不滿意', '不太滿意', '普通', '滿意', '非常滿意'];
@@ -197,6 +218,11 @@ button.submit:focus-visible{outline:3px solid #16202e;outline-offset:2px}
     if (!rating) return err('請選整體滿意度（點星星）');
     if (v('review').length < 10) { f.review.focus(); return err('心得請至少寫 10 個字'); }
     if (!v('name')) { f.name.focus(); return err('請填您的稱呼'); }
+    if (!v('job')) { f.job.focus(); return err('請填面試的職缺'); }
+    var offer = (f.querySelector('input[name=offer]:checked') || {}).value || '';
+    if (!offer) return err('請選錄取的職缺');
+    if (offer === 'other' && !v('offered')) { offeredBox.focus(); return err('請填錄取的職缺名稱'); }
+    var offered = offer === 'same' ? v('job') : offer === 'other' ? v('offered') : '（這次沒有錄取）';
     if (!consent) return err('請選這則心得可不可以放上官網');
     var btn = f.querySelector('button.submit');
     btn.disabled = true; btn.textContent = '送出中…'; msg.textContent = ''; msg.className = 'msg';
@@ -205,7 +231,7 @@ button.submit:focus-visible{outline:3px solid #16202e;outline-offset:2px}
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
         rating: rating, review: v('review'), improve: v('improve'), name: v('name'), job: v('job'),
-        consultant: v('consultant'), consent: consent, contact: v('contact'), website: v('website'),
+        consultant: v('consultant'), offered: offered, consent: consent, contact: v('contact'), website: v('website'),
         helpful: Array.prototype.map.call(f.querySelectorAll('input[name=helpful]:checked'), function (x) { return x.value; }),
         ref: (qs.get('ref') || '').slice(0, 80), page: location.pathname + location.search
       })
