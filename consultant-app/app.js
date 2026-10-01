@@ -1809,6 +1809,21 @@ function openTokenModal(subtitle = '') {
 function isPlaceholderEmail(email) { return !!(email && /@no-email\.step1ne\.local$/i.test(String(email).trim())); }
 function hasContact(a) { return !!((a.phone && a.phone.trim()) || (a.email && !isPlaceholderEmail(a.email))); }
 
+// 服務心得連結（2026-10-01 Jacky：「網址後面那一串不可能自己打，人選卡片要能直接產生」）。
+// 帶好顧問、面試職缺、人選稱呼；階段是錄取／到職的，錄取職缺也先填成同一個。
+// ref＝應徵單 id，收到的心得就知道是哪一張應徵單。
+function reviewLinkRow(app, applicationId) {
+  const qs = new URLSearchParams();
+  if (app.owner) qs.set('c', app.owner);
+  const job = app.job_title && app.job_slug !== 'unspecified' ? app.job_title : '';
+  if (job) qs.set('j', job);
+  if (job && /錄取|到職|offer|onboard|hired/i.test(String(app.manual_stage || ''))) qs.set('o', job);
+  if (app.name) qs.set('n', app.name);
+  qs.set('ref', applicationId);
+  const url = `https://step1ne.com/review/?${qs.toString()}`;
+  return `<div class="actions-row" style="margin-top:8px"><button type="button" class="btn sm" data-copy-text="${escapeHtml(url)}">複製服務心得連結</button><span class="help" style="align-self:center">複製後直接貼給人選，顧問、職缺都幫他填好了</span></div>`;
+}
+
 async function openCandidate(applicationId) {
   state.openCandidateId = applicationId;
   drawer({ title: '載入應徵單…', body: loading() });
@@ -1909,7 +1924,7 @@ ${views.candidateFormsBlock(f.forms, applicationId, companyId)}
       <dt>手動階段</dt><dd>${text(application.manual_stage || '—')}${application.manual_stage_note ? '：' + text(application.manual_stage_note) : ''}</dd>
       <dt>面談狀態</dt><dd>${text(application.interview_state || '—')}</dd>
       <dt>負責顧問</dt><dd>${text(application.owner || '未指派')}</dd>
-    </dl></div></div>${resumeBtns.length ? `<div class="actions-row">${resumeBtns.join('')}</div>` : '<p class="muted">沒有履歷檔案或連結</p>'}`;
+    </dl></div></div>${resumeBtns.length ? `<div class="actions-row">${resumeBtns.join('')}</div>` : '<p class="muted">沒有履歷檔案或連結</p>'}${reviewLinkRow(application, applicationId)}`;
     // <details> 預設收合——電洽紀錄常常是一整篇逐字稿整理，攤平顯示會把整個
     // 抽屜撐得很長，點開才看到內容比較合理。
     const notesHtml = notes.length
