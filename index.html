@@ -283,6 +283,9 @@ p{margin:0}
 @media (prefers-reduced-motion:reduce){
   *{transition:none!important;animation:none!important;scroll-behavior:auto!important}
 }
+#reviews .s1rv-grid .s1rv-card{border-color:var(--rule);border-radius:10px}
+#reviews .s1rv-all,#reviews .s1rv-more{color:var(--brand-deep)}
+#reviews .s1rv-tag{background:var(--paper);color:var(--slate)}
 </style>
 
 <title>Step1ne 德仁管理顧問｜AI 精準媒合・正職招募・高階獵頭・人力派遣</title>
@@ -379,6 +382,7 @@ document.addEventListener('click', function (e) {
         <a href="#jobs">職缺專區</a>
         <a href="#lineapp">全民獵才</a>
         <a href="#talent">AI 求職工具</a>
+        <a href="/reviews/">人選評價</a>
         <a href="/articles/">獵才專欄</a>
       </div>
     </nav>
@@ -392,7 +396,7 @@ document.addEventListener('click', function (e) {
     <span class="hd-tag">企業找人才</span>
     <a href="/commission-recruiting/">企業服務</a><a href="#tool">招募形式評估</a><a href="#faq">常見問題</a>
     <span class="hd-tag">我要找工作</span>
-    <a href="#jobs">職缺專區</a><a href="#lineapp">全民獵才</a><a href="#talent">AI 求職工具</a><a href="/articles/">獵才專欄</a>
+    <a href="#jobs">職缺專區</a><a href="#lineapp">全民獵才</a><a href="#talent">AI 求職工具</a><a href="/reviews/">人選評價</a><a href="/articles/">獵才專欄</a>
     <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINE 洽詢</a>
   </div>
 </header>
@@ -600,6 +604,17 @@ document.addEventListener('click', function (e) {
     </div>
   </section>
 
+
+  <!-- ══ 人選怎麼說（2026-10-01 Jacky）：先看幾則真實評價，再連到 /reviews/。
+       資料來自 /assets/reviews.js；核准不滿 3 則時整段隱藏，不出現空區塊 ══ -->
+  <section class="sec" id="reviews" data-s1-reviews-home hidden>
+    <span class="node"></span>
+    <div class="sec-in">
+      <h2 class="sec-h">人選怎麼說</h2>
+      <p class="sec-p">透過 Step1ne 找到工作的人選，在面試、錄取或到職之後留下的真實評價。</p>
+      <div data-s1-reviews-slot hidden></div>
+    </div>
+  </section>
 
   <!-- ══ 全民獵才：海報放在淺色區，不與深色面板打架 ══ -->
   <section class="sec" id="lineapp">

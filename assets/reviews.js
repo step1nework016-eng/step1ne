@@ -31,6 +31,11 @@
     '.s1rv-tag{display:inline-block;margin-top:8px;font-size:12.5px;color:#4a5568;background:#f3f6fa;border-radius:999px;padding:3px 10px}' +
     '.s1rv-badge{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:8px 14px;border:1px solid #e3e8ef;border-radius:999px;background:#fff;color:#1b2433;text-decoration:none;font-size:14px}' +
     '.s1rv-badge b{font-size:15px}' +
+    '.s1rv-mini{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 18px;font-size:15px}' +
+    '.s1rv-mini b{font-size:26px;line-height:1}' +
+    '.s1rv-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}' +
+    '.s1rv-grid .s1rv-card{background:#fff;border:1px solid #e3e8ef;border-radius:12px;padding:18px}' +
+    '.s1rv-all{display:inline-flex;align-items:center;min-height:44px;margin-top:16px;font-weight:600}' +
     '@media (prefers-reduced-motion:reduce){.s1rv *{transition:none!important}}';
 
   function css() {
@@ -80,8 +85,12 @@
     if (!el || !d || !d.stats || !(d.reviews || []).length) return false;
     css();
     var list = d.reviews.slice(0, opts.limit || d.reviews.length);
-    el.innerHTML = '<div class="s1rv">' + summaryHtml(d.stats) + '<div class="s1rv-list">' + list.map(cardHtml).join('') + '</div>' +
-      (opts.moreHref && d.reviews.length > list.length ? '<p style="margin:14px 0 0"><a href="' + opts.moreHref + '">看全部 ' + d.stats.total + ' 則評價 →</a></p>' : '') + '</div>';
+    var head = opts.compact
+      ? '<div class="s1rv-mini">' + stars(d.stats.avg) + '<b>' + d.stats.avg.toFixed(1) + '</b><span>' + d.stats.total + ' 則人選評價</span></div>'
+      : summaryHtml(d.stats);
+    var more = opts.moreHref && (opts.compact || d.reviews.length > list.length)
+      ? '<a class="s1rv-all" href="' + opts.moreHref + '">看全部 ' + d.stats.total + ' 則評價 →</a>' : '';
+    el.innerHTML = '<div class="s1rv">' + head + '<div class="' + (opts.compact ? 's1rv-grid' : 's1rv-list') + '">' + list.map(cardHtml).join('') + '</div>' + more + '</div>';
     el.querySelectorAll('[data-s1rv-more]').forEach(function (b) {
       b.addEventListener('click', function () {
         var t = document.getElementById(b.getAttribute('data-s1rv-more'));
@@ -109,6 +118,9 @@
   function boot() {
     load().then(function (d) {
       badges(d);
+      // 首頁「人選怎麼說」：精簡版 3 則＋連到 /reviews/；沒資料整段維持隱藏
+      var home = document.querySelector('[data-s1-reviews-home]');
+      if (home && renderInto(home.querySelector('[data-s1-reviews-slot]'), d, { compact: true, limit: 3, moreHref: '/reviews/' })) home.hidden = false;
       var page = document.querySelector('[data-s1-reviews-page]');
       if (page && !renderInto(page, d)) { var e = document.querySelector('[data-s1-reviews-empty]'); if (e) e.hidden = false; }
     });
