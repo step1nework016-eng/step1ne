@@ -1220,18 +1220,26 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
   //   ② 按下去之後按鈕**不自動解鎖**。產稿要 1–2 分鐘才會出現在 Telegram，
   //      顧問以為沒反應就一直按——2026-09-03 真的排出 7 份一樣的草稿。
   //      要換職缺或換帳號才會重新亮起來。
-  socialComposer: ({ accounts, jobs, styles, topics }) => {
-    const openJobs = (jobs || []).filter((j) => String(j.status || 'open') === 'open');
+  // 2026-10-01 Jacky：「選擇職缺可以改成先選客戶下拉選單，再選職缺嗎？不要用分組的」。
+  // 客戶選單換了，職缺選單才換成那家的職缺（app.js 的 .job-client-pick 監聽）。
+  // 職缺下拉保留原本的 id／name，送出的程式不用改。
+  // ⚠️ status 'open' 跟 'active' 意思一樣（歷史遺留），兩個都要列——只認 open 的時候，
+  //    私人招待所兩個 VIP 職缺、主管特助從 9/18 起就在一鍵發文選單裡消失了。
+  clientJobPicker: (jobs, { selectAttr, label = '選擇職缺' } = {}) => {
+    const live = (jobs || []).filter((j) => ['open', 'active'].includes(String(j.status || 'open')) && j.slug !== 'unspecified');
     const byClient = {};
-    openJobs.forEach((j) => {
-      // ⚠️ /admin/jobs 回的欄位叫 company_display_name，不是 client_name——
-      //    第一版寫錯，30 個職缺全部掉進「（未綁客戶）」同一組。
+    live.forEach((j) => {
       const k = j.company_display_name || j.client_name || '（未綁客戶）';
-      (byClient[k] = byClient[k] || []).push(j);
+      (byClient[k] = byClient[k] || []).push({ slug: j.slug, title: j.title || j.slug });
     });
-    const jobOpts = Object.keys(byClient).sort().map((k) =>
-      `<optgroup label="${escapeHtml(k)}">${byClient[k].map((j) =>
-        `<option value="${escapeHtml(j.slug)}">${escapeHtml(j.title || j.slug)}</option>`).join('')}</optgroup>`).join('');
+    const keys = Object.keys(byClient).sort((a, b) => a.localeCompare(b, 'zh-Hant'));
+    return `<label class="field"><span>先選客戶</span>
+          <select class="job-client-pick" data-jobs="${escapeHtml(JSON.stringify(byClient))}"><option value="">請選擇客戶…</option>${keys.map((k) =>
+            `<option value="${escapeHtml(k)}">${escapeHtml(k)}（${byClient[k].length}）</option>`).join('')}</select></label>
+        <label class="field"><span>${escapeHtml(label)}</span>
+          <select ${selectAttr} disabled><option value="">先選上面的客戶</option></select></label>`;
+  },
+  socialComposer: ({ accounts, jobs, styles, topics }) => {
     const favN = (x) => (x.favs || []).length;
     const favLabel = (x) => `${favN(x) ? `⭐${favN(x)} ` : ''}${x.name}`;
     const dialog = (styles || []).filter((x) => x.subtype === 'dialog').sort((a, b) => favN(b) - favN(a));
@@ -1281,8 +1289,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
         <label class="field" id="sc-style-wrap" hidden><span>選擇要用哪個公式（全站共用）</span>
           <select id="sc-style"><option value="">請選擇…</option>${dialog.map((x) =>
             `<option value="${escapeHtml(x.id)}">${escapeHtml(favLabel(x))}</option>`).join('')}</select></label>
-        <label class="field"><span>選擇職缺（依客戶分組，只列招募中）</span>
-          <select id="sc-job"><option value="">請選擇…</option>${jobOpts}</select></label>
+        ${views.clientJobPicker(jobs, { selectAttr: 'id="sc-job"', label: '再選職缺（只列招募中）' })}
       </div>
 
       <div id="sc-topic-only" hidden>
@@ -1618,14 +1625,6 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
   socialImportTab: ({ composer, imports }) => {
     const { accounts = [], jobs = [], styles = [], topics = [] } = composer || {};
     const threadsAcc = accounts.filter((a) => a.platform === 'threads' && a.is_active !== 0);
-    const byClient = {};
-    jobs.filter((j) => ['open', 'active'].includes(String(j.status || 'open'))).forEach((j) => {
-      const k = j.company_display_name || '（未綁客戶）';
-      (byClient[k] = byClient[k] || []).push(j);
-    });
-    const jobOpts = Object.keys(byClient).sort().map((k) =>
-      `<optgroup label="${escapeHtml(k)}">${byClient[k].map((j) =>
-        `<option value="${escapeHtml(j.slug)}">${escapeHtml(j.title || j.slug)}</option>`).join('')}</optgroup>`).join('');
     const data = { styles: styles.map((s) => ({ id: s.id, name: s.name, subtype: s.subtype })),
       topics: topics.map((t) => ({ id: t.id, name: t.name || t.title, category: t.category })) };
     const num = (n) => (n === null || n === undefined ? '—' : Number(n).toLocaleString());
@@ -1668,7 +1667,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
         <div id="imp-job" class="span-2 form-grid" hidden>
           <label class="field"><span>用哪一種寫法？</span><select name="formula"><option value="default">✍️ 顧問自己寫的（沒套公式）</option><option value="pure">純CTA型</option><option value="dialog">對話討論型</option></select></label>
           <label class="field" id="imp-style-wrap"><span>用哪個公式？</span><select name="style_id"></select></label>
-          <label class="field span-2"><span>哪個職缺？（依客戶分組）</span><select name="job_slug"><option value="">請選擇…</option>${jobOpts}</select></label>
+          ${views.clientJobPicker(jobs, { selectAttr: 'name="job_slug"', label: '再選職缺' })}
         </div>
         <div id="imp-topic" class="span-2 form-grid" hidden>
           <label class="field span-2"><span>這篇在談什麼？ ＊</span><input name="topic_label" placeholder="一句話就好，例：面試後一直沒收到通知"></label>

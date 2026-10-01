@@ -1930,6 +1930,24 @@ function reviewLinkRow(app, applicationId) {
   return `<div class="actions-row" style="margin-top:8px"><button type="button" class="btn sm" data-copy-text="${escapeHtml(url)}">複製服務心得連結</button><span class="help" style="align-self:center">複製後直接貼給人選，顧問、職缺都幫他填好了</span></div>`;
 }
 
+// 先選客戶 → 再選職缺（views.clientJobPicker）。全站共用一個監聽，哪個畫面用到都會動。
+document.addEventListener('change', (e) => {
+  const sel = e.target.closest && e.target.closest('.job-client-pick');
+  if (!sel) return;
+  const field = sel.closest('.field');
+  const target = field && field.nextElementSibling && field.nextElementSibling.querySelector('select');
+  if (!target) return;
+  let map = {};
+  try { map = JSON.parse(sel.dataset.jobs || '{}'); } catch { map = {}; }
+  const list = map[sel.value] || [];
+  target.innerHTML = sel.value
+    ? `<option value="">請選擇職缺…</option>${list.map((j) => `<option value="${escapeHtml(j.slug)}">${escapeHtml(j.title)}</option>`).join('')}`
+    : '<option value="">先選上面的客戶</option>';
+  target.disabled = !sel.value;
+  if (list.length === 1) target.value = list[0].slug;   // 只有一個職缺就直接選好
+  target.dispatchEvent(new Event('change', { bubbles: true }));
+});
+
 async function openCandidate(applicationId) {
   state.openCandidateId = applicationId;
   drawer({ title: '載入應徵單…', body: loading() });
