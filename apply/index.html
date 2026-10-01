@@ -199,22 +199,23 @@ dialog.think::backdrop{background:rgba(22,32,46,.45)}
       <p style="font-size:13.5px;color:var(--tx2);margin:14px 0 0">還有其他問題？<a href="/faq/" target="_blank" rel="noopener">看完整常見問題</a>，或<a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">加 LINE 直接問顧問</a>。</p>
     </div>
   </dialog>
+  <script src="/assets/reviews.js" defer></script>
   <script>
   (function () {
     var dlg = document.getElementById('think'), opened = false;
-    var esc = function (t) { return String(t || '').replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
     // 有核准滿 3 則心得才換成「看看其他人選怎麼說」，不滿就只放常見疑問，不會出現空的心得區
-    fetch('https://step1ne-recruit-api.aiagentg888.workers.dev/review/public').then(function (r) { return r.json(); }).then(function (d) {
-      var rs = (d && d.reviews) || [];
-      if (rs.length < 3) return;
-      document.getElementById('thinkOpen').textContent = '還在考慮嗎？看看其他人選怎麼說';
-      document.getElementById('rvList').innerHTML = rs.map(function (r) {
-        var n = Math.max(1, Math.min(5, r.rating | 0));
-        return '<div class="rv-item"><span class="st" aria-label="' + n + ' 顆星">' + '★★★★★'.slice(0, n) + '☆☆☆☆☆'.slice(0, 5 - n) + '</span>'
-          + '<p>' + esc(r.text) + '</p><small>' + esc([r.job, r.who].filter(Boolean).join('・')) + (r.consultant ? '｜負責顧問：' + esc(r.consultant) : '') + '</small></div>';
-      }).join('');
-      document.getElementById('rvBox').hidden = false;
-    }).catch(function () {});
+    // 評價改用全站共用的 Google 評論式元件（/assets/reviews.js）；核准滿 3 則才會有資料
+    var bootRv = function () {
+      if (!window.S1Reviews) return;
+      S1Reviews.load().then(function (d) {
+        if (!d || !d.stats) return;
+        if (S1Reviews.renderInto(document.getElementById('rvList'), d, { limit: 5, moreHref: '/reviews/' })) {
+          document.getElementById('thinkOpen').textContent = '還在考慮嗎？看看其他人選怎麼說';
+          document.getElementById('rvBox').hidden = false;
+        }
+      });
+    };
+    if (window.S1Reviews) bootRv(); else window.addEventListener('load', bootRv);
     document.getElementById('thinkOpen').addEventListener('click', function () {
       if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', '');
       if (!opened && window.gtag) gtag('event', 'apply_think_open', { page_path: location.pathname });
