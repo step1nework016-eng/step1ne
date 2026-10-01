@@ -306,6 +306,86 @@ document.addEventListener('click', (event) => {
   amHandle(btn);
 });
 
+// ── 2026-10-01 外部人選資料卡＋Email 邀請 ───────────────────────────────────
+// 疊在職缺抽屜／人才池清單「之上」的一層（openSubDrawer），關掉不影響底下的抽屜。
+// 「我是誰」跟 AI 配對頁共用同一個（amUi().me），選一次兩邊都記得。
+async function scOpen(id, job) {
+  state.sc = { id, job: job || null };
+  openSubDrawer({ title: '人選資料卡', subtitle: '看完再決定：寄信邀請／不適合／先跳過', body: loading() });
+  await ensureConsultants();
+  let d;
+  try { d = await adapters.sourcedCard(id, job); }
+  catch (e) { $('#sub-overlay-root .drawer-body').innerHTML = `<div class="notice">${text(e.message || '載入失敗')}</div>`; return; }
+  state.sc.card = d;
+  state.sc.job = (d.job && d.job.slug) || job || null;
+  $('#sub-overlay-root .drawer-body').innerHTML = views.sourcedCard(d, { me: amUi().me, consultants: state.consultantsCache || [] });
+}
+async function scPreview(why) {
+  const { id, job } = state.sc || {};
+  const body = $('#sub-overlay-root .drawer-body');
+  if (!body) return;
+  body.innerHTML = loading();
+  let d;
+  try { d = await adapters.sourcedMailPreview(id, job, why); } catch (e) { d = { ...(e.body || {}), error: (e.body && e.body.error) || e.message }; }
+  state.sc.preview = d;
+  body.innerHTML = views.sourcedMailPreview(d);
+}
+function scRequireMe() {
+  const me = amUi().me;
+  if (!me) { toast('請先在資料卡下方「我是」選你的名字，系統才記得是誰寄的', 'error'); }
+  return me;
+}
+function scAfterChange() {
+  const job = state.sc && state.sc.job;
+  closeSubDrawer();
+  if ($('#job-tab-sourced') && job) { openJobManage(job, 'sourced'); return; }
+  const target = $('#page-data');
+  if (target && state.route === 'candidates' && state.sub === 'pool') loadCandidateTab(target);
+}
+async function scHandle(btn) {
+  const act = btn.getAttribute('data-sc-action');
+  if (act === 'open') { scOpen(btn.getAttribute('data-sourced-id'), btn.getAttribute('data-sc-job') || null); return; }
+  if (!state.sc) return;
+  if (act === 'skip') { closeSubDrawer(); return; }
+  if (act === 'back') { scOpen(state.sc.id, state.sc.job); return; }
+  if (act === 'mail') { if (!scRequireMe()) return; scPreview(); return; }
+  if (act === 'refresh') { scPreview($('#sc-why')?.value); return; }
+  if (act === 'unfit-show') { const box = $('#sub-overlay-root .sc-unfit'); if (box) { box.hidden = false; box.querySelector('select')?.focus(); } return; }
+  if (act === 'unfit-confirm') {
+    const me = scRequireMe(); if (!me) return;
+    const reason = $('#sub-overlay-root [data-sc-reason]')?.value;
+    if (!reason) { toast('請選一個不適合的原因', 'error'); return; }
+    btn.disabled = true;
+    try { await adapters.sourcedUnfit(state.sc.id, me, reason); toast('已記錄：不適合', 'success'); scAfterChange(); }
+    catch (e) { toast(e.message, 'error'); btn.disabled = false; }
+    return;
+  }
+  if (act === 'test' || act === 'send') {
+    const me = scRequireMe(); if (!me) return;
+    const why = $('#sc-why')?.value;
+    const name = (state.sc.card && state.sc.card.person && state.sc.card.person.name) || '這位人選';
+    if (act === 'send' && !window.confirm(`確定要寄這封信給 ${name}（${(state.sc.preview || {}).to || ''}）嗎？寄出就收不回來了。`)) return;
+    btn.disabled = true;
+    try {
+      const r = await adapters.sourcedMailSend(state.sc.id, state.sc.job, me, why, act === 'test');
+      if (act === 'test') { toast(`測試信已寄到 ${r.to}`, 'success'); btn.disabled = false; return; }
+      toast(`已寄出邀請信給 ${name}`, 'success');
+      scAfterChange();
+    } catch (e) { toast(e.message, 'error'); btn.disabled = false; }
+  }
+}
+document.addEventListener('click', (event) => {
+  const btn = event.target instanceof Element ? event.target.closest('[data-sc-action]') : null;
+  if (!btn || btn.disabled) return;
+  event.preventDefault();
+  scHandle(btn);
+});
+document.addEventListener('change', (event) => {
+  const el = event.target instanceof Element ? event.target.closest('[data-sc-me]') : null;
+  if (!el) return;
+  amUi().me = el.value; amSave();
+});
+
 // 顧問／客戶名單快取（後端本來就有 45 秒快取，這裡再存一次省得每次開下拉選單都重打）。
 async function ensureConsultants() {
   if (!state.consultantsCache) {

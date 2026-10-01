@@ -258,6 +258,11 @@ export const adapters = {
     const q = new URLSearchParams(Object.entries(params).filter(([, v]) => v)).toString();
     return api.get(`/admin/ai-matches${q ? '?' + q : ''}`);
   },
+  // 2026-10-01 外部人選資料卡＋Email 邀請
+  async sourcedCard(id, job) { return api.get(`/admin/sourced/${encodeURIComponent(id)}/card${job ? '?job=' + encodeURIComponent(job) : ''}`); },
+  async sourcedMailPreview(id, job, why) { return api.post(`/admin/sourced/${encodeURIComponent(id)}/email-preview`, { job_slug: job || null, why: why || null }); },
+  async sourcedMailSend(id, job, by, why, test = false) { return api.post(`/admin/sourced/${encodeURIComponent(id)}/email-send`, { job_slug: job || null, by, why: why || null, test }); },
+  async sourcedUnfit(id, by, reason) { return api.post(`/admin/sourced/${encodeURIComponent(id)}/unfit`, { by, reason }); },
   async aiMatchRun(jobSlug, by) { return api.post('/admin/ai-matches/run', { job_slug: jobSlug, by }); },
   async aiMatchEmailPreview(recId, why) { return api.post(`/admin/ai-matches/${encodeURIComponent(recId)}/email-preview`, { why: why || null }); },
   async aiMatchEmailSend(recId, by, why, test = false) { return api.post(`/admin/ai-matches/${encodeURIComponent(recId)}/email-send`, { by, why: why || null, test }); },

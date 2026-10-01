@@ -443,7 +443,7 @@ ${list(items, (j) => `<article class="list-row"><span><b>${text(j.title || j.slu
     const kpi = `<div class="src-kpi"><b>AI 找人精準度：符合 ${k.fit || 0}／已評分 ${k.rated || 0}${k.rated ? `（${k.precision}%）` : '（還沒有人被評分）'}</b>
 <small>已評分＝評過「符合」或「不符合」；「不確定」${k.unsure || 0} 位不算進去。已聯絡 ${k.contacted || 0} 位${k.rejected ? `・另有 ${k.rejected} 位之前被標不合適，不列出` : ''}</small></div>`;
     if (!rows.length) return `${kpi}<div class="notice">這個職缺目前沒有 AI 找到的人選。</div>`;
-    const RES = { no_answer: '沒接／沒回', interested: '有興趣', not_interested: '沒興趣', invited: '已約阿財面談', wrong_person: '資料不對／不是本人' };
+    const RES = { no_answer: '沒接／沒回', interested: '有興趣', not_interested: '沒興趣', invited: '已約阿財面談', wrong_person: '資料不對／不是本人', email_invited: '已寄邀請信', opt_out: '本人說不要再寄' };
     const safeUrl = (u) => (/^https?:\/\//i.test(String(u || '').trim()) ? String(u).trim() : '');
     const link = (u, label) => (safeUrl(u) ? `<a class="btn ghost sm" href="${escapeHtml(safeUrl(u))}" target="_blank" rel="noopener">${text(label)}</a>` : '');
     const card = (r) => {
@@ -473,10 +473,10 @@ ${(email || phone) ? `<div class="src-contact">${phone ? `<a href="tel:${escapeH
 <div class="src-links">${srcLink}${link(r.linkedin_url, 'LinkedIn')}${otherLinks}${link(r.github_url, 'GitHub')}</div>
 ${last}
 ${r.transcript_review ? views.transcriptReview(r.transcript_review) : ''}
-${rowActions([actionBtn('記錄聯絡', 'sourced-contact', { idParams: { id: r.id, job_slug: slug } }, 'primary')])}
+${rowActions([`<button type="button" class="btn primary sm" data-sc-action="open" data-sourced-id="${escapeHtml(r.id)}" data-sc-job="${escapeHtml(slug)}">看資料卡${email ? '・寄信' : ''}</button>`, views.sourcedListMailBtn(r), actionBtn('記錄聯絡', 'sourced-contact', { idParams: { id: r.id, job_slug: slug } })])}
 </article>`;
     };
-    return `${kpi}<p class="help">沒聯絡過的排前面，再依評級、分數排。打完電話按「記錄聯絡」，順手評符不符合——這就是 AI 找人精準度的分母。</p>
+    return `${kpi}<p class="help">沒聯絡過的排前面，再依評級、分數排。有 Email 的人按「看資料卡・寄信」，看完再決定寄不寄；打完電話按「記錄聯絡」，順手評符不符合——這就是 AI 找人精準度的分母。</p>
 <div class="src-list">${rows.map(card).join('')}</div>`;
   },
 
@@ -1126,6 +1126,8 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
     return li + other;
   },
   sourcedTab: (items) => `<div class="bulk-bar"><span id="sourced-count">已選 0 筆</span>${actionBtn('指派負責顧問','sourced-assign-owner',{ bulk: true })}</div>${list(items, (i) => `<article class="list-row"><input type="checkbox" class="row-check" data-sourced-id="${text(i.id)}"><span><b>${text(i.name)}</b><small>${text(i.title || i.headline)} · ${text(i.source)}</small></span>${statusBadge(i.status)}${views.sourcedLink(i)}${rowActions([
+    `<button type="button" class="btn primary sm" data-sc-action="open" data-sourced-id="${escapeHtml(i.id)}" data-sc-job="${escapeHtml(i.job_slug || '')}">看資料卡${i.email ? '・寄信' : ''}</button>`,
+    views.sourcedListMailBtn(i),
     `<button type="button" class="btn ghost sm" data-action="open-convert-sourced" data-sourced-id="${text(i.id)}">轉入正式應徵（顧問建檔）</button>`,
     actionBtn('邀請應徵（寄連結給本人填）','sourced-invite',{ idParams: { id: i.id } }),
     actionBtn('更新狀態','sourced-status',{ idParams: { id: i.id } }),
@@ -2876,6 +2878,88 @@ ${a.note ? `<details class="note-details"><summary>顧問備註／電洽紀錄</
     };
     return head + `<div class="am-grid">${items.map(row).join('')}</div>`;
   },
+  // ── 2026-10-01 外部人選資料卡（AI 找的人）──────────────────────────────────
+  // 外部人選沒有正式履歷，所以先把能看的全部攤開（AI 抓到的公開資料＋原始頁面連結＋顧問上傳的履歷），
+  // 看完才給三個選擇：寄信邀請／不適合／先跳過。寄信只能從這張卡裡按，清單上不給一鍵寄。
+  sourcedListMailBtn: (r) => {
+    const email = String(r.email || '').trim();
+    if (!email) return '<button type="button" class="btn sm" disabled title="這位人選沒有 Email，只能打電話或私訊">寄信邀請（沒有 Email）</button>';
+    if (r.last_contact_result === 'email_invited') return '<span class="badge success">已寄邀請信</span>';
+    return '';
+  },
+  sourcedCard: (d, ui) => {
+    const p = d.person || {};
+    const safeUrl = (u) => (/^https?:\/\//i.test(String(u || '').trim()) ? String(u).trim() : '');
+    const lk = (u, label) => (safeUrl(u) ? `<a class="btn ghost sm" href="${escapeHtml(safeUrl(u))}" target="_blank" rel="noopener">開新分頁看${text(label)}</a>` : '');
+    const others = String((d.links || {}).other || '').split(/[\s,，、]+/).map(safeUrl).filter(Boolean).slice(0, 4);
+    const links = [lk(d.links?.linkedin, ' LinkedIn'), lk(d.links?.github, ' GitHub'),
+      d.links?.source && d.links.source !== d.links.linkedin && d.links.source !== d.links.github ? lk(d.links.source, '原始頁面') : '',
+      ...others.map((u) => lk(u, '作品／其他頁面'))].filter(Boolean).join('');
+    const fmt = (v) => {
+      if (v == null || v === '') return '';
+      if (Array.isArray(v)) return `<ul class="sc-list">${v.slice(0, 8).map((x) => `<li>${text(typeof x === 'object' ? Object.values(x).filter((y) => y && typeof y !== 'object').join('・') : x)}</li>`).join('')}</ul>`;
+      if (typeof v === 'object') return `<p>${text(Object.entries(v).map(([k, x]) => `${k}：${x}`).join('・'))}</p>`;
+      return `<p>${text(v)}</p>`;
+    };
+    const sec = (title, inner) => (inner ? `<section class="sc-sec"><h3>${title}</h3>${inner}</section>` : '');
+    const RES = { no_answer: '沒接／沒回', interested: '有興趣', not_interested: '沒興趣', invited: '已約阿財面談', wrong_person: '資料不對／不是本人', email_invited: '已寄邀請信', opt_out: '本人說不要再寄' };
+    const fitMark = p.fit === 'fit' ? '<span class="badge success">✓ 顧問評：符合</span>' : p.fit === 'unfit' ? '<span class="badge danger">✕ 顧問評：不符合</span>' : p.fit === 'unsure' ? '<span class="badge">？ 不確定</span>' : '';
+    const m = d.mail || {};
+    const mailWhy = !m.email ? '這位人選沒有 Email，只能打電話或私訊' : (m.blocked || '');
+    const sentList = (m.sent || []).map((s) => `<li>${text(s.job_title || s.job_slug)}：${s.status === 'sent' ? `已寄出（${text(s.sent_by || '')}・${text(String(s.sent_at || '').slice(0, 16))}・${s.via === 'telegram' ? 'TG' : '後台'}）` : s.status === 'failed' ? `寄送失敗：${text(s.error || '')}` : '寄送中'}</li>`).join('');
+    const logs = (d.logs || []).map((l) => `<li>${text(String(l.created_at || '').slice(0, 16))}・${text(l.caller || '')}・${text(RES[l.result] || l.result || '')}${l.note ? `・${text(l.note)}` : ''}</li>`).join('');
+    const tg = d.tg ? `<p class="help">Telegram 待判斷卡：${text(String(d.tg.pushed_at || '').slice(0, 16))} 推過${d.tg.action ? `，${text(d.tg.action_by || '')} ${d.tg.action === 'sent' ? '已寄出' : d.tg.action === 'unfit' ? '判定不適合' : '先跳過'}` : '，還沒人按'}</p>` : '';
+    const resume = d.resume || {};
+    const resumeHtml = [resume.file_id ? `<button type="button" class="btn sm" data-download-file="${escapeHtml(resume.file_id)}">下載履歷檔</button>` : '',
+      safeUrl(resume.url) ? `<a class="btn ghost sm" href="${escapeHtml(safeUrl(resume.url))}" target="_blank" rel="noopener">開新分頁看履歷連結</a>` : '',
+      resume.note ? `<p class="help">${text(resume.note)}</p>` : ''].join('');
+    const cons = (ui.consultants || []).filter((c) => c.is_active);
+    const me = `<label class="sc-me">我是 <select data-sc-me>${['<option value="">選擇…</option>', ...cons.map((c) => `<option value="${escapeHtml(c.display_name)}" ${c.display_name === ui.me ? 'selected' : ''}>${text(c.display_name)}</option>`)].join('')}</select></label>`;
+    const done = p.status === 'rejected';
+    return `<div class="sc-card">
+<div class="sc-head"><b class="sc-name">${text(p.name || '（沒有名字）')}</b>${p.grade ? `<span class="badge info">${text(p.grade)} 級${p.score != null ? ` · ${text(p.score)} 分` : ''}</span>` : ''}${fitMark}${done ? `<span class="badge danger">已標不適合${p.reject_reason ? `：${text(p.reject_reason)}` : ''}</span>` : ''}</div>
+<p class="sc-job">應徵職缺：<b>${text(d.job?.title || '（沒有對應職缺）')}</b>${d.job && !['open', 'active'].includes(d.job.status) ? ' <span class="badge">已不是招募中</span>' : ''}</p>
+${sec('他現在', `<p>${[p.headline, p.company, p.location].filter(Boolean).map((x) => text(x)).join('<br>') || '—'}</p>${p.years ? `<p class="help">年資：${text(p.years)}</p>` : ''}`)}
+${sec('技能', p.skills ? `<p>${text(p.skills)}</p>` : '')}
+${sec('自我介紹', p.bio ? `<p>${text(p.bio)}</p>` : '')}
+${sec('經歷', fmt(p.experience))}
+${sec('學歷', fmt(p.education))}
+${sec('為什麼 AI 配到這個職缺 <small>（內部評估，不會寄給人選）</small>', (p.note || p.evidence) ? `<p>${text(p.note || p.evidence)}</p>` : '')}
+${sec('原始頁面', links ? `<div class="sc-links">${links}</div>` : '<p class="help">沒有可以點開的頁面</p>')}
+${sec('履歷', resumeHtml || '<p class="help">還沒有履歷檔（外部人選通常沒有，看上面的原始頁面判斷）</p>')}
+${sec('聯絡方式', `<p>${m.email ? `Email：${text(m.email)}${p.company_email ? ' <span class="badge warning">看起來是公司信箱</span>' : ''}` : '沒有 Email'}${p.phone ? `<br>電話：${text(p.phone)}` : ''}</p>`)}
+${sec('聯絡紀錄', (logs || sentList) ? `${sentList ? `<ul class="sc-list">${sentList}</ul>` : ''}${logs ? `<ul class="sc-list">${logs}</ul>` : ''}` : '<p class="help">還沒聯絡過</p>')}
+${tg}
+<div class="sc-decide">
+  <p class="help">看完了嗎？今天已寄 ${text(m.today_sent ?? 0)}／${text(m.daily_max ?? 20)} 封（全系統每天上限）。同一個人 30 天內只會收到一封。</p>
+  ${me}
+  ${mailWhy ? `<p class="notice sc-why-not">不能寄信：${text(mailWhy)}</p>` : ''}
+  <div class="sc-btns">
+    <button type="button" class="btn primary" data-sc-action="mail" ${mailWhy ? 'disabled' : ''}>寄信邀請（先看預覽）</button>
+    <button type="button" class="btn" data-sc-action="unfit-show" ${done ? 'disabled' : ''}>不適合</button>
+    <button type="button" class="btn ghost" data-sc-action="skip">先跳過</button>
+  </div>
+  <div class="sc-unfit" hidden>
+    <label class="field"><span>不適合的原因</span><select data-sc-reason><option value="">選一個…</option>${(d.reject_reasons || []).map((r) => `<option>${text(r)}</option>`).join('')}</select></label>
+    <button type="button" class="btn danger" data-sc-action="unfit-confirm">確認不適合（會從待辦清單拿掉）</button>
+  </div>
+</div></div>`;
+  },
+  sourcedMailPreview: (d) => `
+    <button type="button" class="btn ghost sm" data-sc-action="back">← 回資料卡</button>
+    ${d.blocked ? `<div class="notice"><b>現在不能寄：</b>${text(d.blocked)}</div>` : ''}
+    ${d.error ? `<div class="notice"><b>還不能寄：</b>${text(d.error)}</div>` : ''}
+    ${d.company_email ? '<div class="notice">⚠️ 這個信箱看起來是他<b>現在公司</b>的信箱，信可能被公司看到。確定要寄再寄。</div>' : ''}
+    <dl class="am-mailmeta"><dt>寄給</dt><dd>${text(d.to || '—')}</dd><dt>寄件人</dt><dd>Step1ne 德仁管理顧問 &lt;noreply@step1ne.com&gt;（人選回信會到 official@step1ne.com）</dd><dt>主旨</dt><dd>${text(d.subject || '—')}</dd><dt>今天已寄</dt><dd>${text(d.today_sent ?? 0)}／${text(d.daily_max ?? 20)} 封</dd></dl>
+    <label class="field" style="margin:12px 0"><span>「為什麼想到您」這一句（可以自己改，改完按「更新預覽」）</span>
+      <textarea id="sc-why" rows="2" maxlength="120">${escapeHtml(d.why || d.suggested_why || '')}</textarea></label>
+    <p class="help" style="margin:-4px 0 10px">不能寫公司名稱、「客戶」、年齡性別、待業空窗，也不能提資料是從哪裡找到的（LinkedIn、GitHub、104…）。專屬應徵連結寄出時才產生。</p>
+    ${d.html ? `<iframe class="am-mailframe" title="信件預覽" sandbox="" srcdoc="${escapeHtml(d.html)}"></iframe>` : ''}
+    <div class="sc-btns">
+      <button type="button" class="btn" data-sc-action="refresh">更新預覽</button>
+      <button type="button" class="btn" data-sc-action="test" ${d.error ? 'disabled' : ''} title="寄一封一模一樣的信到 Jacky 的信箱，不會寄給人選、不改任何狀態">寄測試信給 Jacky 看</button>
+      <button type="button" class="btn primary" data-sc-action="send" ${!d.error && !d.blocked ? '' : 'disabled'}>確認寄給人選</button>
+    </div>`,
   aiMatchEmailPreview: (d) => `
     ${d.blocked ? `<div class="notice"><b>現在不能寄：</b>${text(d.blocked)}</div>` : ''}
     ${d.error ? `<div class="notice"><b>還不能寄：</b>${text(d.error)}</div>` : ''}
