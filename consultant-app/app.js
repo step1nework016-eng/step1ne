@@ -442,6 +442,22 @@ document.addEventListener('click', async (e) => {
   } catch (err) { toast(err.message || '沒有成功', 'error'); act.disabled = false; }
 });
 
+// AI 名單 → 加入開發進度
+document.addEventListener('click', async (e) => {
+  const b = e.target instanceof Element ? e.target.closest('[data-bd-promote]') : null;
+  if (!b) return;
+  e.preventDefault(); e.stopPropagation();
+  const me = amUi().me || window.prompt('負責人是誰？（Jacky／Phoebe）', 'Jacky');
+  if (!me) return;
+  amUi().me = me; amSave();
+  b.disabled = true;
+  try {
+    await api.post('/admin/bd/promote-ai', { company: b.getAttribute('data-bd-promote'), by: me });
+    toast(`已移到開發進度，負責人：${me}`, 'success');
+    b.closest('.bd-dash-row')?.remove();
+  } catch (err) { toast(err.message || '沒有成功', 'error'); b.disabled = false; }
+}, true);
+
 // 開發進度卡片可以用鍵盤打開（Tab 到卡片按 Enter）
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Enter' || !(e.target instanceof Element) || !e.target.matches('[data-bd-open]')) return;
@@ -1486,8 +1502,14 @@ async function loadClientsTab(target) {
     await ensureConsultants();
     return boundary(target, adapters.candBd, (d) => views.candBdTab(d, { me: amUi().me, consultants: state.consultantsCache || [] }), 'refresh');
   }
+  // 2026-10-02 Jacky：夜間 AI 找來、還沒人碰過的放「AI 名單」分頁，開發進度只放顧問碰過的
+  if (state.sub === 'bd-ai') {
+    const res = await boundary(target, adapters.bdDashboard, (d) => views.bdDashboard({ ...d, rows: (d.rows || []).filter((r) => r.ai_untouched) }, 'ai'), 'refresh');
+    wireBdDashboardFilter();
+    return res;
+  }
   if (state.sub === 'bd-progress') {
-    const res = await boundary(target, adapters.bdDashboard, views.bdDashboard, 'refresh');
+    const res = await boundary(target, adapters.bdDashboard, (d) => views.bdDashboard({ ...d, rows: (d.rows || []).filter((r) => !r.ai_untouched) }), 'refresh');
     wireBdDashboardFilter();
     return res;
   }

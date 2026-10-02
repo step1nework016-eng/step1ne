@@ -1841,7 +1841,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
     <article class="card" style="margin-top:14px"><div class="card-head"><h3 style="margin:0;font-size:14px">所有發文帳號（${(accounts || []).length}）</h3></div>
       ${list(accounts || [], (a) => `<div class="list-row"><span><b>${text(a.label || a.consultant_name || a.id)}</b><small>${text(a.platform)}</small></span></div>`)}</article>`;
   },
-  clients: (tab='clients') => pageHead('客戶 / BD','集中管理客戶關係、推薦人選與企業用人需求。','<button class="btn primary" data-action="add-client">＋ 新增客戶</button>') + tabbar('clients',[['clients','客戶'],['bd','BD Pipeline'],['bd-progress','開發進度'],['candbd','人選敲門名單'],['bd-wrapup','客戶跟進'],['scripts','話術手冊'],['requests','BD Requests'],['hiring','企業用人需求'],['billing','收費進程']],tab) + `<div id="page-data">${endpointState('客戶與 BD')}</div>`,
+  clients: (tab='clients') => pageHead('客戶 / BD','集中管理客戶關係、推薦人選與企業用人需求。','<button class="btn primary" data-action="add-client">＋ 新增客戶</button>') + tabbar('clients',[['clients','客戶'],['bd','BD Pipeline'],['bd-progress','開發進度'],['bd-ai','AI 名單（未聯繫）'],['candbd','人選敲門名單'],['bd-wrapup','客戶跟進'],['scripts','話術手冊'],['requests','BD Requests'],['hiring','企業用人需求'],['billing','收費進程']],tab) + `<div id="page-data">${endpointState('客戶與 BD')}</div>`,
   clientsData: ({ companies, bd, requests }) => `<div class="kpi-grid"><article class="kpi"><span>客戶</span><strong>${companies.length}</strong></article><article class="kpi"><span>BD 案件</span><strong>${bd.length}</strong></article><article class="kpi"><span>BD Requests</span><strong>${requests.length}</strong></article></div>
     <div class="card"><div class="card-head"><h2 style="margin:0;font-size:15px">新增客戶</h2></div>
       <p class="help" style="margin:6px 0 10px">建好之後會自動產生一組「用人需求表連結」，把連結給客戶窗口他就能自己填職缺。</p>
@@ -1939,7 +1939,8 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
   // data-bd-stage／data-bd-has-todo 屬性標記，篩選邏輯在 app.js 的
   // wireBdDashboardFilter()（同一套 wireBindFilter() 的作法：show/hide，不重打 API）。
   bdDashboardStageLabel: { sent: '已接觸', delivered: '送達', opened: '開信', replied: '回信', jd_shared: '談到職缺', closed: '成交' },
-  bdDashboard: ({ funnel, open_tracking_note, no_delivery_record_count, contact_breakdown, rows, consultants, cached_at }) => {
+  bdDashboard: ({ funnel, open_tracking_note, no_delivery_record_count, contact_breakdown, rows, consultants, cached_at }, mode) => {
+    const aiMode = mode === 'ai';
     const LABEL = views.bdDashboardStageLabel;
     const STAGES = ['sent', 'delivered', 'opened', 'replied', 'jd_shared', 'closed'];
     const cb = contact_breakdown || { mail: 0, call: 0 };
@@ -2015,13 +2016,14 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
           <label class="bd-contacted"><input type="checkbox" data-bd-contacted-box="${escapeHtml(r.company)}"${r.contacted_at ? ' checked' : ''}> 已聯繫${r.contacted_at ? `<small>${text(String(r.contacted_at).slice(5, 10))}${r.contacted_by ? ' ' + text(r.contacted_by) : ''}</small>` : ''}</label>
           <label class="bd-assign"><span>負責</span><select data-bd-assign="${escapeHtml(r.company)}"${(r.qc_missing || []).length && !r.assigned_to && !(r.inbound || r.by_hand) ? ' disabled title="電話＋104＋官網都補齊才能指派"' : ''}><option value="">未指派</option>${people.map((x) => `<option value="${escapeHtml(x)}"${r.assigned_to === x ? ' selected' : ''}>${text(x)}</option>`).join('')}</select>${phoneKind === 'none' ? ((r.inbound || r.by_hand) && r.contact_email ? '<em class="bd-need-phone">只留 Email，先寄信</em>' : '<em class="bd-need-phone">待補電話</em>') : ''}</label>
           ${oid ? actionBtn('記錄電話結果', 'bd-call-result', { idParams: { id: oid } }, 'primary') : ''}
+          ${aiMode ? `<button type="button" class="btn sm" data-bd-promote="${escapeHtml(r.company)}" title="決定要開發這家：移到開發進度，負責人是你">加入開發進度</button>` : ''}
           <button type="button" class="btn ghost sm" data-bd-mail="${escapeHtml(r.company)}" title="直接打開寄公司介紹信那一段">寄公司介紹信</button>
           ${r.stage === 'closed' ? '<span class="badge success">已是正式客戶</span>' : actionBtn('簽約了，轉成正式客戶', 'bd-promote-client', { idParams: { company: r.company }, record: { assigned_to: r.assigned_to } })}
           ${views.parkBtn(r.company, !!r.parked_at, r.assigned_to)}
         </div>
       </article>`;
     }).join('')}</div>` : empty('目前沒有已經接觸過的公司');
-    return `<div class="page-head" style="align-items:flex-start"><div><h2>開發進度看板</h2><p>寄出、電訪、追信、回信、談到職缺、成交——同一家公司合併成一列，不用分頭看。</p>${cached_at ? `<p class="help">資料時間 ${text(String(cached_at).slice(11, 16))}（為了省資料庫額度，每 5 分鐘更新一次；你們按按鈕改的資料會立刻更新）</p>` : ''}</div>${actionBtn('＋ 新增開發對象', 'bd-add-company', {}, 'primary')}</div>${funnelCard}${filterBar}${rowsHtml}`;
+    return `<div class="page-head" style="align-items:flex-start"><div><h2>${aiMode ? 'AI 名單（還沒聯繫）' : '開發進度看板'}</h2><p>${aiMode ? '夜間 AI 自動找來、<b>還沒有任何人打過或寄過</b>的公司。打完一通電話（就算沒接）、寄過信，或按「加入開發進度」，就會移到開發進度。' : '寄出、電訪、追信、回信、談到職缺、成交——同一家公司合併成一列，不用分頭看。只放顧問碰過的公司；夜間 AI 找來還沒聯繫的在「AI 名單」分頁。'}</p>${cached_at ? `<p class="help">資料時間 ${text(String(cached_at).slice(11, 16))}（為了省資料庫額度，每 5 分鐘更新一次；你們按按鈕改的資料會立刻更新）</p>` : ''}</div>${actionBtn('＋ 新增開發對象', 'bd-add-company', {}, 'primary')}</div>${funnelCard}${filterBar}${rowsHtml}`;
   },
   // 職缺內容逐欄位編輯（2026-09-29 修：原本一個大文字框讀不到結構化 JD，每個職缺都顯示空白）
   jobContentForm: (content) => {
