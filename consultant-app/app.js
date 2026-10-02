@@ -1608,21 +1608,22 @@ function wireBdDashboardFilter() {
 
 async function openBdDetail(company, focus) {
   state.openBdCompany = company;
-  drawer({ title: company, subtitle: '開發進度時間軸', body: loading() });
+  // 寄信獨立一頁：送 TG／上傳合約之後重開，要回到寄信頁而不是整張卡片
+  state.bdMailMode = focus === 'mail';
+  const sub = state.bdMailMode ? '寄公司介紹信' : '開發進度時間軸';
+  drawer({ title: company, subtitle: sub, body: loading() });
   try {
     const detail = await adapters.bdDashboardDetail(company);
-    drawer({ title: company, subtitle: '開發進度時間軸', body: views.bdDashboardDetail(detail) });
+    if (state.bdMailMode) {
+      drawer({ title: company, subtitle: sub, body: views.bdMailOnly({ ...detail, company }) });
+      const root = document.querySelector('.bd-mail-only');
+      if (root) { wireContractPack(root); root.querySelector('select')?.focus(); }
+      return;
+    }
+    drawer({ title: company, subtitle: sub, body: views.bdDashboardDetail(detail) });
     wireBdDetailTabs();
     const dr = document.querySelector('.bd-status-card')?.parentElement;
     if (dr) wireCompanyStatus(dr);
-    // 2026-10-02 Jacky：卡片上的「寄公司介紹信」要一鍵直接看到寄信那段（開發引導 → 收尾 → 寄公司介紹）
-    if (focus === 'mail') {
-      document.querySelector('#bd-detail-tabs [data-bd-detail-tab="playbook"]')?.click();
-      const steps = document.querySelectorAll('.cg [data-cg-go]');
-      steps[steps.length - 1]?.click();
-      const pack = document.querySelector('.cg-pack');
-      if (pack) { pack.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); pack.querySelector('select,button')?.focus({ preventScroll: true }); }
-    }
   } catch (error) {
     console.error(error);
     drawer({ title: company, body: errorState(error) });
@@ -1861,7 +1862,7 @@ function wireContractPack(scope) {
       const b64 = await new Promise((ok, bad) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(',')[1]); r.onerror = bad; r.readAsDataURL(f); });
       await api.post('/admin/bd/contract-file', { company, file_b64: b64, file_name: f.name, file_mime: f.type, contract_type: box.querySelector('[data-pack-ctype]')?.value || '', by: box.dataset.packBy || '' });
       toast('合約已上傳', 'success');
-      openBdDetail(company);
+      openBdDetail(company, state.bdMailMode ? 'mail' : undefined);
     } catch (err) { toast(err.message || '上傳失敗', 'error'); }
     fileIn.disabled = false;
   });
@@ -1896,7 +1897,7 @@ function wireContractPack(scope) {
     try {
       const r = await api.post('/admin/bd/contract-pack', { company, by: box.dataset.packBy || '', ...opts() });
       toast(r.tg_sent ? '已送到 TG，等 Jacky 按核准才會寄' : '已存好，但 TG 沒送出去，請通知 Jacky', r.tg_sent ? 'success' : 'error');
-      openBdDetail(company);
+      openBdDetail(company, state.bdMailMode ? 'mail' : undefined);
     } catch (err) { toast(err.message || '擬信失敗', 'error'); }
     btn.disabled = false;
   });

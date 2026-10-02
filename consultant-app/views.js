@@ -2175,6 +2175,14 @@ ${n.learned ? `<p><b>學到什麼</b>${text(n.learned)}</p>` : ''}${n.next_time 
   // 104 企業頁連結，另外加「開發引導」分頁（時間軸／信件 之外的第二個分頁）。
   // 找不到的欄位一律不顯示那一行，不留空殼。
   // 2026-09-30 Jacky：對方有興趣之後，寄公司介紹＋合約。擬好先送 TG，Jacky 按核准才寄。
+  // 2026-10-02 Jacky：「寄信就寄信，上面資訊太多，不要放在收尾裡面」→ 寄信獨立一頁，只放寄信要用的東西
+  bdMailOnly: (d) => {
+    const company = d.company || ((d.outreach || [])[0] || {}).company || '';
+    return `<div class="bd-mail-only" data-bd-company="${escapeHtml(company)}">
+      <div class="actions-row" style="margin:0 0 4px"><button type="button" class="btn ghost sm" data-bd-company="${escapeHtml(company)}">← 看完整客戶卡片（進度、開發引導）</button></div>
+      ${views.bdContractPackBlock(company, d.outreach || [], d.contract_files, d.assigned_to, d.pack_options)}
+    </div>`;
+  },
   bdContractPackBlock: (company, outreach, contractFiles, assignedTo, packOptions) => {
     const email = ([...(outreach || [])].reverse().find((o) => String(o.contact_email || '').trim()) || {}).contact_email || '';
     const packs = (outreach || []).filter((o) => o.scenario === 'contract_pack');
@@ -2435,7 +2443,7 @@ ${n.learned ? `<p><b>學到什麼</b>${text(n.learned)}</p>` : ''}${n.next_time 
           <p class="help">點「記錄這通電話」時，這格有字會一起送出；不想記錄結果也可以按「只上傳逐字稿讓 AI 看」。AI 看完會出現在上面「通話心得」。</p>
         </section>
         <p class="help">沒接／被擋／只問到窗口 → 系統 2 個工作天後提醒再打；拿到信箱或有興趣 → TG 通知去寫開發信。</p>
-        ${views.bdContractPackBlock(company || (outreach[0] || {}).company || '', outreach, contract_files, assigned_to, pack_options)}`)}
+        <div class="actions-row" style="margin-top:14px"><button type="button" class="btn primary" data-bd-mail="${escapeHtml(company || (outreach[0] || {}).company || '')}">寄公司介紹信 →</button><small class="help" style="align-self:center">寄信獨立一頁，不用在這裡往下找</small></div>`)}
       <div class="cg-nav"><button type="button" class="btn" data-cg-prev>← 上一步</button><button type="button" class="btn primary" data-cg-next>下一步 →</button></div>
     </div>` : '';
     const playbookPane = !playbook ? empty('這家還沒有足夠資料組出開發引導') : guidePane || `
