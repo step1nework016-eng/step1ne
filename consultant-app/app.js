@@ -1896,8 +1896,10 @@ function wireContractPack(scope) {
     btn.disabled = true;
     try {
       const r = await api.post('/admin/bd/contract-pack', { company, by: box.dataset.packBy || '', ...opts() });
-      toast(r.tg_sent ? '已送到 TG，等 Jacky 按核准才會寄' : '已存好，但 TG 沒送出去，請通知 Jacky', r.tg_sent ? 'success' : 'error');
-      openBdDetail(company, state.bdMailMode ? 'mail' : undefined);
+      toast(r.tg_sent ? '已送到 TG，等 Jacky 按核准才會寄。順手在「跟進」排下一步' : '已存好，但 TG 沒送出去，請通知 Jacky', r.tg_sent ? 'success' : 'error');
+      // 2026-10-02 Jacky：寄完要跳回客戶卡片的「跟進」，順手排下一步
+      await openBdDetail(company);
+      document.querySelector('.bd-status-card')?.scrollIntoView({ block: 'start' });
     } catch (err) { toast(err.message || '擬信失敗', 'error'); }
     btn.disabled = false;
   });
