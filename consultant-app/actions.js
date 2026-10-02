@@ -393,6 +393,23 @@ export const ACTIONS = {
     fields: [], body: (ctx) => ({ application_id: ctx.idParams.application_id }),
     success: '已用 LINE 送出面談通知',
     confirmText: '會立刻送一則 LINE 給這位人選，附上他的面談連結。確定要發嗎？' },
+  // 2026-10-02 Jacky：開發進度要能自己新增公司（海底撈主動來電），可填官網、指派顧問、分機
+  'bd-add-company': { label: '新增開發對象', method: 'post', path: () => '/admin/bd/add-company',
+    fields: [
+      { name: 'company', label: '公司名稱（正式全名）', required: true, wide: true },
+      { name: 'website', label: '官網' },
+      { name: 'industry', label: '產業' },
+      { name: 'contact_name', label: '聯絡人（例：林小姐）' },
+      { name: 'contact_email', label: '聯絡 Email' },
+      { name: 'phone', label: '聯絡電話' },
+      { name: 'ext', label: '分機' },
+      { name: 'assigned_to', label: '指派顧問', type: 'select', options: [{ value: '', label: '先不指派' }, { value: 'Jacky', label: 'Jacky' }, { value: 'Phoebe', label: 'Phoebe' }] },
+      { name: 'source', label: '怎麼來的', type: 'select', options: [{ value: '對方主動來電', label: '對方主動來電' }, { value: '對方主動來信', label: '對方主動來信' }, { value: '朋友介紹', label: '朋友介紹' }, { value: '顧問自己開發', label: '顧問自己開發' }] },
+      { name: 'company_104_url', label: '104 公司頁網址（選填）', wide: true },
+      { name: 'note', label: '備註（聊到什麼、需求）', type: 'textarea', wide: true },
+    ],
+    body: (ctx, values) => ({ ...values, note: values.note ? `【${values.source || '顧問手動新增'}】${values.note}` : '', by: values.assigned_to || '' }),
+    success: '已加進開發進度（重新整理後就看得到）' },
   'company-add': { label: '新增客戶', method: 'post', path: () => '/admin/portal/companies',
     fields: [
       { name: 'displayName', label: '公司名稱（正式全名）', required: true },

@@ -1954,6 +1954,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
     rows.forEach((r) => { const g = r.industry_group || '未分類'; groups[g] = (groups[g] || 0) + 1; });
     const people = [...new Set(['Jacky', 'Phoebe', ...(consultants || []), ...rows.map((r) => r.assigned_to).filter(Boolean)])];
     const filterBar = `<div class="filter-row">
+      <input id="bd-dash-q" type="search" placeholder="搜尋公司名稱" style="min-height:44px;flex:1 1 200px" aria-label="搜尋公司名稱">
       <select id="bd-dash-industry"><option value="">全部產業（${rows.length}）</option>${Object.entries(groups).sort((a, b) => b[1] - a[1]).map(([g, n]) => `<option value="${escapeHtml(g)}">${text(g)}（${n}）</option>`).join('')}</select>
       <select id="bd-dash-assignee"><option value="">全部負責人</option><option value="__none">未指派</option>${people.map((x) => `<option value="${escapeHtml(x)}">${text(x)}</option>`).join('')}</select>
       <select id="bd-dash-contacted"><option value="">聯繫：全部</option><option value="no">還沒聯繫</option><option value="yes">已聯繫</option><option value="parked">備選池（${rows.filter((r) => r.parked_at).length}）</option></select>
@@ -1985,7 +1986,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
       const phoneKind = r.hr_phone ? 'hr' : (r.company_phone ? 'main' : 'none');
       const lastCall = r.last_call_result ? `<small>${r.call_count ? `已打 ${r.call_count} 通・` : ''}上次電訪：${text(RES[r.last_call_result] || r.last_call_result)}（${text(String(r.last_call_at || '').slice(5, 10))}）${r.call_retry_at ? `・建議 ${text(String(r.call_retry_at).slice(5, 10))} 再打` : ''}${r.last_call_note ? `・${text(r.last_call_note)}` : ''}</small>` : '';
       const oid = (r.outreach_ids || [])[0] || '';
-      return `${head}<article class="list-row bd-dash-row" data-bd-stage="${text(r.stage)}" data-bd-has-todo="${r.todo.length ? 1 : 0}" data-bd-industry="${escapeHtml(g)}" data-bd-assignee="${escapeHtml(r.assigned_to || '')}" data-bd-phone="${phoneKind}" data-bd-contacted="${r.contacted_at ? 1 : 0}" data-bd-parked="${r.parked_at ? 1 : 0}" data-bd-qc="${(r.qc_missing || []).length ? 0 : 1}">
+      return `${head}<article class="list-row bd-dash-row" data-bd-name="${escapeHtml(String(r.company || '').toLowerCase())}" data-bd-stage="${text(r.stage)}" data-bd-has-todo="${r.todo.length ? 1 : 0}" data-bd-industry="${escapeHtml(g)}" data-bd-assignee="${escapeHtml(r.assigned_to || '')}" data-bd-phone="${phoneKind}" data-bd-contacted="${r.contacted_at ? 1 : 0}" data-bd-parked="${r.parked_at ? 1 : 0}" data-bd-qc="${(r.qc_missing || []).length ? 0 : 1}">
         <span>
           <b>${text(r.company)}</b> ${r.industry ? `<span class="badge">${text(String(r.industry).split(/[（(]/)[0].slice(0, 18))}</span>` : ''}${r.has_profile ? ' <span class="badge success">有介紹</span>' : ''}${r.note_count ? ` <span class="badge info">有 ${text(r.note_count)} 則心得</span>` : ''}
           ${(r.qc_missing || []).length ? `<small class="bd-qc-bad">不合格，補資料中：缺 ${text(r.qc_missing.join('、'))}</small>` : ''}
@@ -2007,7 +2008,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
         </div>
       </article>`;
     }).join('')}</div>` : empty('目前沒有已經接觸過的公司');
-    return `<div class="page-head"><div><h2>開發進度看板</h2><p>寄出、電訪、追信、回信、談到職缺、成交——同一家公司合併成一列，不用分頭看。</p>${cached_at ? `<p class="help">資料時間 ${text(String(cached_at).slice(11, 16))}（為了省資料庫額度，每 5 分鐘更新一次；你們按按鈕改的資料會立刻更新）</p>` : ''}</div></div>${funnelCard}${filterBar}${rowsHtml}`;
+    return `<div class="page-head" style="align-items:flex-start"><div><h2>開發進度看板</h2><p>寄出、電訪、追信、回信、談到職缺、成交——同一家公司合併成一列，不用分頭看。</p>${cached_at ? `<p class="help">資料時間 ${text(String(cached_at).slice(11, 16))}（為了省資料庫額度，每 5 分鐘更新一次；你們按按鈕改的資料會立刻更新）</p>` : ''}</div>${actionBtn('＋ 新增開發對象', 'bd-add-company', {}, 'primary')}</div>${funnelCard}${filterBar}${rowsHtml}`;
   },
   // 職缺內容逐欄位編輯（2026-09-29 修：原本一個大文字框讀不到結構化 JD，每個職缺都顯示空白）
   jobContentForm: (content) => {
