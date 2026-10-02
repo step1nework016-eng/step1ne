@@ -383,38 +383,50 @@ document.addEventListener('keydown', (e) => {
 
 // ── 2026-10-02 寄信約電話（沒綁 LINE 的人選）──────────────────────────────
 // 快速判斷卡片和人選卡片共用；「我是誰」跟 AI 配對頁共用 amUi().me。
-async function cmOpen(appId, name, note, askResume) {
-  state.cm = { appId, name, note: note || '', askResume };
-  openSubDrawer({ title: '寄信約電話', subtitle: `${name || ''}｜先看信的內容，按「確認寄給人選」才會寄`, body: loading() });
+// 預覽畫面上目前的選擇（加一句話、要不要附履歷、要問哪幾項、自己加的那一項）
+function cmPicks() {
+  const ar = document.querySelector('[data-cm-ask-resume]');
+  const tb = [...document.querySelectorAll('[data-cm-topic]')];
+  return {
+    note: $('#cm-note')?.value || '',
+    askResume: ar ? ar.checked : undefined,
+    topics: tb.length ? tb.filter((x) => x.checked).map((x) => x.getAttribute('data-cm-topic')) : undefined,
+    topicExtra: $('#cm-topic-extra')?.value || '',
+  };
+}
+async function cmOpen(appId, name, picks) {
+  const p = picks || {};
+  state.cm = { appId, name, picks: p };
+  const keep = document.querySelector('#sub-overlay-root .drawer-body')?.scrollTop || 0;
+  if (!document.querySelector('#sub-overlay-root .cm-wrap')) openSubDrawer({ title: '寄信約電話', subtitle: `${name || ''}｜先看信的內容，按「確認寄給人選」才會寄`, body: loading() });
   await ensureConsultants();
   let d;
-  try { d = await adapters.callMail(appId, 'preview', amUi().me || null, note, askResume); } catch (e) { d = { error: (e.body && e.body.error) || e.message }; }
+  try { d = await adapters.callMail(appId, 'preview', amUi().me || null, p); } catch (e) { d = { error: (e.body && e.body.error) || e.message }; }
   const body = $('#sub-overlay-root .drawer-body');
-  if (body) body.innerHTML = views.callMailPreview(d, { me: amUi().me, note, consultants: state.consultantsCache || [] });
+  if (body) { body.innerHTML = views.callMailPreview(d, { me: amUi().me, note: p.note, consultants: state.consultantsCache || [] }); body.scrollTop = keep; }
 }
 document.addEventListener('change', (e) => {
-  const sel = e.target.closest && e.target.closest('[data-cm-me]');
-  if (sel) { amUi().me = sel.value; amSave(); if (state.cm) cmOpen(state.cm.appId, state.cm.name, $('#cm-note')?.value || '', state.cm.askResume); }
-  const ar = e.target.closest && e.target.closest('[data-cm-ask-resume]');
-  if (ar && state.cm) cmOpen(state.cm.appId, state.cm.name, $('#cm-note')?.value || '', ar.checked);
+  if (!state.cm || !(e.target instanceof Element)) return;
+  const sel = e.target.closest('[data-cm-me]');
+  if (sel) { amUi().me = sel.value; amSave(); }
+  if (sel || e.target.closest('[data-cm-ask-resume],[data-cm-topic],#cm-topic-extra')) cmOpen(state.cm.appId, state.cm.name, cmPicks());
 });
 document.addEventListener('click', async (event) => {
   const t = event.target instanceof Element ? event.target : null;
   const open = t && t.closest('[data-call-mail]');
-  if (open) { event.preventDefault(); cmOpen(open.getAttribute('data-call-mail'), open.getAttribute('data-call-mail-name')); return; }
+  if (open) { event.preventDefault(); document.querySelector('#sub-overlay-root .cm-wrap')?.remove(); cmOpen(open.getAttribute('data-call-mail'), open.getAttribute('data-call-mail-name')); return; }
   const btn = t && t.closest('[data-cm-action]');
   if (!btn || btn.disabled || !state.cm) return;
   event.preventDefault();
   const act = btn.getAttribute('data-cm-action');
-  const note = $('#cm-note')?.value || '';
-  const askResume = document.querySelector('[data-cm-ask-resume]') ? document.querySelector('[data-cm-ask-resume]').checked : undefined;
-  if (act === 'refresh') { cmOpen(state.cm.appId, state.cm.name, note, askResume); return; }
+  const picks = cmPicks();
+  if (act === 'refresh') { cmOpen(state.cm.appId, state.cm.name, picks); return; }
   const me = amUi().me;
   if (!me) { toast('請先在上方「我是」選你的名字', 'error'); document.querySelector('[data-cm-me]')?.focus(); return; }
   if (act === 'send' && !window.confirm(`確定要寄這封信給 ${state.cm.name || '這位人選'} 嗎？寄出就收不回來了。`)) return;
   btn.disabled = true;
   try {
-    const r = await adapters.callMail(state.cm.appId, act, me, note, askResume);
+    const r = await adapters.callMail(state.cm.appId, act, me, picks);
     if (act === 'test') { toast(`測試信已寄到 ${r.to}`, 'success'); btn.disabled = false; return; }
     toast(`已寄信給 ${state.cm.name || '人選'}，人選回信會出現在 TG`, 'success');
     closeSubDrawer();

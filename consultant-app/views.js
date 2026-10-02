@@ -2826,6 +2826,10 @@ ${a.note ? `<details class="note-details"><summary>顧問備註／電洽紀錄</
       <dl class="am-mailmeta"><dt>寄給</dt><dd>${text(d.to)}</dd><dt>主旨</dt><dd>${text(d.subject)}</dd><dt>人選回信</dt><dd>會出現在 TG「📬 開發信 開信・回信」</dd></dl>
       <label class="field" style="margin-top:12px"><span>想多加一句話給人選（可以不填；不能出現「客戶」）</span>
         <textarea id="cm-note" rows="2" placeholder="例如：想先跟您確認可以出差的頻率">${text(d.note || ui.note || '', '')}</textarea></label>
+      <fieldset class="cm-topics"><legend>電話中想確認哪幾項（勾了才會寫進信裡，可以全部不勾）</legend>
+        ${(d.topic_options || []).map((t) => `<label class="cm-check"><input type="checkbox" data-cm-topic="${escapeHtml(t.key)}" ${t.on ? 'checked' : ''}> ${text(t.label)}</label>`).join('')}
+        <label class="field" style="margin-top:6px"><span>自己加一項（可以不填；不能出現「客戶」）</span><input id="cm-topic-extra" maxlength="80" value="${escapeHtml(d.topic_extra || '')}" placeholder="例如：之前在新加坡的工作經驗"></label>
+      </fieldset>
       <label class="cm-check"><input type="checkbox" data-cm-ask-resume ${d.ask_resume ? 'checked' : ''}> 請人選在回信附上履歷 PDF<span class="help">${d.has_resume_file ? '（系統裡已經有履歷檔，需要最新版才勾）' : '（系統裡沒有可讀的履歷檔，建議勾）'}</span></label>
       <div class="actions-row" style="margin:8px 0 12px"><button type="button" class="btn sm" data-cm-action="refresh">更新預覽</button></div>
       <iframe class="am-mailframe" sandbox="" title="信件預覽" srcdoc="${escapeHtml(d.html || '')}"></iframe>
