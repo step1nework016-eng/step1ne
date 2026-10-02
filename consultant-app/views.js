@@ -2001,7 +2001,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
       return `${head}<article class="list-row bd-dash-row" data-bd-open="${escapeHtml(r.company)}" tabindex="0" aria-label="${escapeHtml(r.company)}：打開開發引導／時間軸" title="點卡片打開開發引導／時間軸" data-bd-name="${escapeHtml(String(r.company || '').toLowerCase())}" data-bd-stage="${text(r.stage)}" data-bd-has-todo="${r.todo.length ? 1 : 0}" data-bd-industry="${escapeHtml(g)}" data-bd-assignee="${escapeHtml(r.assigned_to || '')}" data-bd-phone="${phoneKind}" data-bd-contacted="${r.contacted_at ? 1 : 0}" data-bd-parked="${r.parked_at ? 1 : 0}" data-bd-qc="${(r.qc_missing || []).length ? 0 : 1}">
         <span>
           <b>${text(r.company)}</b> ${r.industry ? `<span class="badge">${text(String(r.industry).split(/[（(]/)[0].slice(0, 18))}</span>` : ''}${r.inbound ? ' <span class="badge warning">官網詢問・1 個工作天內要回</span>' : ''}${r.industry_group === NEW_G ? ` <span class="badge info">新・${text(String(r.first_created_at || '').slice(5, 10))}</span>` : ''}${r.has_profile ? ' <span class="badge success">有介紹</span>' : ''}${r.note_count ? ` <span class="badge info">有 ${text(r.note_count)} 則心得</span>` : ''}
-          ${(r.qc_missing || []).length ? `<small class="bd-qc-bad">不合格，補資料中：缺 ${text(r.qc_missing.join('、'))}</small>` : ''}
+          ${(r.qc_missing || []).length && !(r.inbound || r.by_hand) ? `<small class="bd-qc-bad">不合格，補資料中：缺 ${text(r.qc_missing.join('、'))}</small>` : ''}
           ${views.bdEntry(r.trigger, r.has_candidate, false, r.job_title, r.topic)}
           ${phoneHtml}${mainHtml}${noPhone}
           <small>${text(r.contact_name || '窗口未知')}${r.contact_email ? ' · ' + text(r.contact_email) : ''}</small>
@@ -2013,7 +2013,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
         </span>
         <div class="bd-actions">
           <label class="bd-contacted"><input type="checkbox" data-bd-contacted-box="${escapeHtml(r.company)}"${r.contacted_at ? ' checked' : ''}> 已聯繫${r.contacted_at ? `<small>${text(String(r.contacted_at).slice(5, 10))}${r.contacted_by ? ' ' + text(r.contacted_by) : ''}</small>` : ''}</label>
-          <label class="bd-assign"><span>負責</span><select data-bd-assign="${escapeHtml(r.company)}"${(r.qc_missing || []).length && !r.assigned_to ? ' disabled title="電話＋104＋官網都補齊才能指派"' : ''}><option value="">未指派</option>${people.map((x) => `<option value="${escapeHtml(x)}"${r.assigned_to === x ? ' selected' : ''}>${text(x)}</option>`).join('')}</select>${phoneKind === 'none' ? '<em class="bd-need-phone">待補電話</em>' : ''}</label>
+          <label class="bd-assign"><span>負責</span><select data-bd-assign="${escapeHtml(r.company)}"${(r.qc_missing || []).length && !r.assigned_to && !(r.inbound || r.by_hand) ? ' disabled title="電話＋104＋官網都補齊才能指派"' : ''}><option value="">未指派</option>${people.map((x) => `<option value="${escapeHtml(x)}"${r.assigned_to === x ? ' selected' : ''}>${text(x)}</option>`).join('')}</select>${phoneKind === 'none' ? ((r.inbound || r.by_hand) && r.contact_email ? '<em class="bd-need-phone">只留 Email，先寄信</em>' : '<em class="bd-need-phone">待補電話</em>') : ''}</label>
           ${oid ? actionBtn('記錄電話結果', 'bd-call-result', { idParams: { id: oid } }, 'primary') : ''}
           <button type="button" class="btn ghost sm" data-bd-mail="${escapeHtml(r.company)}" title="直接打開寄公司介紹信那一段">寄公司介紹信</button>
           ${r.stage === 'closed' ? '<span class="badge success">已是正式客戶</span>' : actionBtn('簽約了，轉成正式客戶', 'bd-promote-client', { idParams: { company: r.company }, record: { assigned_to: r.assigned_to } })}
