@@ -382,13 +382,13 @@ async function cmOpen(appId, name, note) {
   openSubDrawer({ title: '寄信約電話', subtitle: `${name || ''}｜先看信的內容，按「確認寄給人選」才會寄`, body: loading() });
   await ensureConsultants();
   let d;
-  try { d = await adapters.callMail(appId, 'preview', null, note); } catch (e) { d = { error: (e.body && e.body.error) || e.message }; }
+  try { d = await adapters.callMail(appId, 'preview', amUi().me || null, note); } catch (e) { d = { error: (e.body && e.body.error) || e.message }; }
   const body = $('#sub-overlay-root .drawer-body');
   if (body) body.innerHTML = views.callMailPreview(d, { me: amUi().me, note, consultants: state.consultantsCache || [] });
 }
 document.addEventListener('change', (e) => {
   const sel = e.target.closest && e.target.closest('[data-cm-me]');
-  if (sel) { amUi().me = sel.value; amSave(); }
+  if (sel) { amUi().me = sel.value; amSave(); if (state.cm) cmOpen(state.cm.appId, state.cm.name, $('#cm-note')?.value || ''); }
 });
 document.addEventListener('click', async (event) => {
   const t = event.target instanceof Element ? event.target : null;
@@ -401,7 +401,7 @@ document.addEventListener('click', async (event) => {
   const note = $('#cm-note')?.value || '';
   if (act === 'refresh') { cmOpen(state.cm.appId, state.cm.name, note); return; }
   const me = amUi().me;
-  if (!me) { toast('請先在下方「我是」選你的名字', 'error'); document.querySelector('[data-cm-me]')?.focus(); return; }
+  if (!me) { toast('請先在上方「我是」選你的名字', 'error'); document.querySelector('[data-cm-me]')?.focus(); return; }
   if (act === 'send' && !window.confirm(`確定要寄這封信給 ${state.cm.name || '這位人選'} 嗎？寄出就收不回來了。`)) return;
   btn.disabled = true;
   try {

@@ -2821,13 +2821,14 @@ ${a.note ? `<details class="note-details"><summary>顧問備註／電洽紀錄</
     return `<div class="cm-wrap">
       ${d.line_bound ? '<p class="notice">這位人選有綁 LINE，用 LINE 聯繫通常比較快。還是要寄信也可以。</p>' : ''}
       ${d.blocked ? `<p class="notice">${text(d.blocked)}</p>` : ''}
+      <label class="am-me" style="margin:0 0 10px">我是 <select data-cm-me>${opt('', '選擇…（信的開頭會寫你的名字）', ui.me)}${cons.filter((c) => c.is_active).map((c) => opt(c.display_name, c.display_name, ui.me)).join('')}</select></label>
+      ${(d.followups || []).length ? `<div class="notice" style="margin:0 0 12px"><b>電話裡要問的（阿財報告整理，只有你看得到，不會放進信裡）</b><ul class="am-list" style="margin:6px 0 0">${d.followups.map((x) => `<li>${text(x)}</li>`).join('')}</ul></div>` : ''}
       <dl class="am-mailmeta"><dt>寄給</dt><dd>${text(d.to)}</dd><dt>主旨</dt><dd>${text(d.subject)}</dd><dt>人選回信</dt><dd>會出現在 TG「📬 開發信 開信・回信」</dd></dl>
       <label class="field" style="margin-top:12px"><span>想多加一句話給人選（可以不填；不能出現「客戶」）</span>
         <textarea id="cm-note" rows="2" placeholder="例如：想先跟您確認可以出差的頻率">${text(d.note || ui.note || '', '')}</textarea></label>
       <div class="actions-row" style="margin:8px 0 12px"><button type="button" class="btn sm" data-cm-action="refresh">更新預覽</button></div>
       <iframe class="am-mailframe" sandbox="" title="信件預覽" srcdoc="${escapeHtml(d.html || '')}"></iframe>
       <div class="actions-row cm-actions" style="margin-top:12px;align-items:center">
-        <label class="am-me">我是 <select data-cm-me>${opt('', '選擇…', ui.me)}${cons.filter((c) => c.is_active).map((c) => opt(c.display_name, c.display_name, ui.me)).join('')}</select></label>
         <button type="button" class="btn" data-cm-action="test" title="寄一封一模一樣的信到 Jacky 的信箱，不會寄給人選">寄測試信給 Jacky 看</button>
         <button type="button" class="btn primary" data-cm-action="send" ${d.blocked ? 'disabled' : ''}>確認寄給人選</button>
       </div></div>`;
