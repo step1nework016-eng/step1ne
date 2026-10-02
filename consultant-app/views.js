@@ -101,8 +101,10 @@ const formatSalarySummary = (s) => {
 };
 // 跟舊版 consultant/tracker/index.html 的 SOURCE_CHANNEL_OPTS／RESUME_SOURCE_OPTS 一字不差，
 // 這是既有 applications 資料裡實際在用的值，不是自己重新發明一套分類。
-const SOURCE_CHANNEL_OPTS = ['不指定', '朋友介紹', 'LinkedIn', '104', '1111', 'Threads', 'Facebook', 'Dcard', 'Step1ne官網', 'LINE OA', '人才池/獵頭資料庫', '其他'];
-const RESUME_SOURCE_OPTS = ['不指定', '104', '1111', 'LinkedIn', 'CakeResume', '自製履歷', '作品集'];
+// 2026-10-02 Jacky：「少一個來源」→ 補 AI 夜間找人／顧問主動電話開發／人選自己打來／CakeResume／Yourator。
+// 舊選項一個都不拿掉（已存的資料、人才來源成效表都用這些字）。
+const SOURCE_CHANNEL_OPTS = ['不指定', '顧問主動電話開發', 'AI 夜間找人', '人選自己打來', '朋友介紹', 'LinkedIn', 'Threads', 'LINE OA', '104', '1111', 'CakeResume', 'Yourator', 'Facebook', 'Dcard', 'Step1ne官網', '人才池/獵頭資料庫', '其他'];
+const RESUME_SOURCE_OPTS = ['不指定', '104', '1111', 'LinkedIn', 'CakeResume', 'Yourator', '自製履歷', '作品集'];
 const STAGE_LABEL = { applied: '應徵', interviewed: '已面談', consultant_review: '顧問覆核通過', client_stage: '客戶端進行中', offered: '已發 Offer', onboard: '已到職' };
 // funnel／byJob 都是 /admin/overview 當下快照（不是期間趨勢），標籤要老實寫「目前」不寫「近 N 天」。
 // 2026-09-17 加逐階段流失率：funnel 陣列本來就是 applied→onboard 由後端逐關
