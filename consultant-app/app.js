@@ -375,6 +375,16 @@ document.addEventListener('click', async (event) => {
   }
 });
 
+// 客戶卡片「通話紀錄與進度」的兩個分頁（進度／AI 建議）
+document.addEventListener('click', (e) => {
+  const b = e.target instanceof Element ? e.target.closest('[data-bdp-tab]') : null;
+  if (!b) return;
+  const box = b.closest('[data-bdp]');
+  const key = b.getAttribute('data-bdp-tab');
+  box.querySelectorAll('[data-bdp-tab]').forEach((x) => { const on = x === b; x.classList.toggle('active', on); x.setAttribute('aria-selected', on ? 'true' : 'false'); });
+  box.querySelectorAll('[data-bdp-pane]').forEach((x) => { x.hidden = x.getAttribute('data-bdp-pane') !== key; });
+});
+
 // 開發進度卡片可以用鍵盤打開（Tab 到卡片按 Enter）
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Enter' || !(e.target instanceof Element) || !e.target.matches('[data-bd-open]')) return;

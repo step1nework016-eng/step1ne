@@ -62,7 +62,7 @@ export function formFields(fields, values = {}) {
     // 2026-09-17 加：檔案上傳欄位（電洽逐字稿檔案用）——只負責畫 input，實際
     // 讀成 base64 在 app.js 的 submitPendingAction 另外處理，這裡不碰 FileReader。
     if (f.type === 'file') return `<label class="field span-2"><span>${escapeHtml(f.label)}</span><input type="file" name="${escapeHtml(f.name)}" ${f.accept ? `accept="${escapeHtml(f.accept)}"` : ''} ${req}></label>`;
-    return `<label class="field ${f.wide ? 'span-2' : ''}"><span>${escapeHtml(f.label)}</span><input name="${escapeHtml(f.name)}" value="${escapeHtml(val)}" ${req}></label>`;
+    return `<label class="field ${f.wide ? 'span-2' : ''}"><span>${escapeHtml(f.label)}</span><input ${f.type === 'date' ? 'type="date" ' : ''}name="${escapeHtml(f.name)}" value="${escapeHtml(val)}" ${req}></label>`;
   }).join('')}</div>`;
 }
 

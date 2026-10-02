@@ -2086,6 +2086,53 @@ ${n.learned ? `<p><b>學到什麼</b>${text(n.learned)}</p>` : ''}${n.next_time 
 ${tr ? views.transcriptReview(tr) : ''}
 ${ns.length ? `<div class="bdn-list">${ns.map(item).join('')}</div>` : '<p class="help" style="margin:4px 0 0">還沒有人寫過心得。談完這家，記一下學到什麼、下一通怎麼講。</p>'}</section>`;
   },
+  // 2026-10-02 Jacky：「通話心得除了改進建議，也要能持續新增通話紀錄，讓顧問知道目前跟客戶的進度」
+  // →「通話紀錄與進度」兩個分頁：進度（每一通的結果、談到哪、下一步，新的在上）／AI 建議（逐字稿評分＋心得）。
+  // 最上面一行「目前進度」：最新一通談到哪＋這家的下一步（跟「跟進」卡片同一份資料）。
+  bdProgressBlock: (company, { calls, notes, transcripts, status, people, assignedTo, oid }) => {
+    const RES = { interested: ['有興趣', 'success'], got_email: ['拿到信箱', 'info'], got_contact: ['問到窗口', 'info'], no_answer: ['沒接', ''], gatekeeper: ['被總機擋', 'warning'], not_hiring: ['沒在徵人', ''], not_interested: ['拒絕', 'danger'] };
+    const cs = (Array.isArray(calls) ? calls : []).slice().sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)));
+    const ns = Array.isArray(notes) ? notes : [];
+    const ts = (Array.isArray(transcripts) ? transcripts : []).filter((t) => t.ai_status !== 'error' || true);
+    const st = status || {};
+    const md = (d) => String(d || '').slice(5, 10).replace('-', '/');
+    const lastTalk = cs.find((c) => String(c.note || '').trim());
+    const nextTxt = [st.next_action ? (views.FOLLOW_ACTS[st.next_action] || '') : '', st.next_due ? md(st.next_due) : '', st.next_step ? String(st.next_step).split('\n')[0].slice(0, 60) : ''].filter(Boolean).join('・');
+    const summary = cs.length || nextTxt ? `<div class="bdp-now">
+        <p><b>目前進度</b>${lastTalk ? `${text(md(lastTalk.created_at))} ${text((RES[lastTalk.result] || [lastTalk.result])[0])}：${text(String(lastTalk.note).slice(0, 80))}` : (cs[0] ? `${text(md(cs[0].created_at))} ${text((RES[cs[0].result] || [cs[0].result])[0])}（沒記談到哪）` : '還沒有通話紀錄')}</p>
+        <p><b>下一步</b>${nextTxt ? text(nextTxt) : (cs[0] && cs[0].retry_at ? `${text(md(cs[0].retry_at))} 再打（系統排的）` : '還沒決定——記下一通時順手填')} ${st.next_due ? views.followDueTag(st.next_due) : ''}</p>
+      </div>` : '';
+    const aiShort = (t) => {
+      let d = null; try { d = JSON.parse(t.ai_json || 'null'); } catch { d = null; }
+      const pr = d && d.prospect;
+      return pr ? `AI：對方興趣 ${text(pr.interest || '—')}｜建議下一步 ${text(pr.next_step || '—')}` : (t.ai_status === 'pending' ? 'AI 分析中' : '');
+    };
+    const entries = [
+      ...cs.map((c) => ({ at: c.created_at, html: `<article class="bdp-item">
+        <div class="bdp-top"><small>${text(String(c.created_at || '').slice(5, 16))}・${text(c.caller || '顧問')}</small><span class="badge ${(RES[c.result] || [])[1] || ''}">${text((RES[c.result] || [c.result])[0])}</span>
+          <button type="button" class="btn ghost sm bd-del" data-action="bd-delete-record" data-kind="call" data-id="${escapeHtml(c.id)}" data-company="${escapeHtml(company || '')}">刪除</button></div>
+        ${c.note ? `<p><b>談到哪</b>${text(c.note)}</p>` : ''}
+        ${[c.contact_name ? `窗口 ${text(c.contact_name)}` : '', c.hr_phone ? `電話 ${text(c.hr_phone)}` : '', c.email ? `信箱 ${text(c.email)}` : ''].filter(Boolean).length ? `<small>問到：${[c.contact_name ? `窗口 ${text(c.contact_name)}` : '', c.hr_phone ? `電話 ${text(c.hr_phone)}` : '', c.email ? `信箱 ${text(c.email)}` : ''].filter(Boolean).join('・')}</small>` : ''}
+        ${c.retry_at ? `<small>系統排 ${text(md(c.retry_at))} 再打</small>` : ''}</article>` })),
+      ...ts.filter((t) => aiShort(t)).map((t) => ({ at: t.created_at, html: `<article class="bdp-item bdp-ai"><div class="bdp-top"><small>${text(String(t.created_at || '').slice(5, 16))}・${text(t.caller || '顧問')}</small><span class="badge">上傳逐字稿</span></div><small>${aiShort(t)}（完整建議看「AI 建議」分頁）</small></article>` })),
+    ].sort((a, b) => String(b.at).localeCompare(String(a.at)));
+    const noteItem = (n) => `<article class="bdn-item"><small>${text(String(n.created_at || '').slice(0, 16))}・${text(n.author || '顧問')}</small><button type="button" class="btn ghost sm bd-del" data-action="bd-delete-record" data-kind="note" data-id="${escapeHtml(n.id)}" data-company="${escapeHtml(company || '')}">刪除</button>
+${n.learned ? `<p><b>學到什麼</b>${text(n.learned)}</p>` : ''}${n.next_time ? `<p><b>下一通怎麼講</b>${text(n.next_time)}</p>` : ''}${n.problem ? `<p class="bdn-problem"><b>遇到的問題</b>${text(n.problem)}</p>` : ''}</article>`;
+    const aiCount = ts.length + ns.length;
+    const addBtn = oid ? actionBtn('＋ 新增通話紀錄', 'bd-call-log', { idParams: { id: oid, company }, record: { caller: '' } }, 'primary') : '<span class="help">這家還沒有開發紀錄，先在開發進度按「記錄電話結果」</span>';
+    return `<section class="bdn bdp" data-bdp>
+      <div class="bdn-head"><h3>通話紀錄與進度</h3>${addBtn}</div>
+      ${summary}
+      <div class="tabs tabs-sub bdp-tabs" role="tablist"><button type="button" class="active" data-bdp-tab="log" role="tab" aria-selected="true">進度（${cs.length}）</button><button type="button" data-bdp-tab="ai" role="tab" aria-selected="false">AI 建議（${aiCount}）</button></div>
+      <div data-bdp-pane="log">${entries.length ? `<div class="bdp-list">${entries.map((e) => e.html).join('')}</div>` : '<p class="help">還沒有通話紀錄。打完電話按「＋ 新增通話紀錄」，寫談到哪、下一步。</p>'}</div>
+      <div data-bdp-pane="ai" hidden>
+        <div class="actions-row" style="margin:0 0 8px">${actionBtn('＋ 新增心得', 'bd-note-create', { idParams: { company }, record: { author: assignedTo || '', _people: people || [] } })}</div>
+        ${ts.map((t) => views.transcriptReview(t)).join('')}
+        ${ns.length ? `<div class="bdn-list">${ns.map(noteItem).join('')}</div>` : ''}
+        ${!aiCount ? '<p class="help">記電話時附上逐字稿，AI 會評分、給下一通更好的講法；也可以自己寫心得。</p>' : ''}
+      </div>
+    </section>`;
+  },
   // 切入點（2026-09-29 Jacky：本週計畫表寫的切入點，卡片上也要看得到）：新消息＞人選敲門＞104 職缺
   bdTriggerOf: (rows) => {
     const o = (rows || []).find((x) => String(x.why_company || '').includes('【觸發】'));
@@ -2403,7 +2450,7 @@ ${ns.length ? `<div class="bdn-list">${ns.map(item).join('')}</div>` : '<p class
     `;
 
     const _topic = profile && String(profile.topics || '').split('\n').map((x) => x.replace(/^[-・•\s]+/, '').trim()).find(Boolean);
-    return `${views.bdEntry(views.bdTriggerOf(outreach), outreach.some((o) => o.candidate_card), true, (outreach.find((o) => o.job_title) || {}).job_title, _topic)}${views.bdStatusBlock(company || (outreach[0] || {}).company || '', company_status, calls)}${views.bdNotesBlock(company || (outreach[0] || {}).company || '', notes, people, assigned_to, transcripts)}${contactCard}
+    return `${views.bdEntry(views.bdTriggerOf(outreach), outreach.some((o) => o.candidate_card), true, (outreach.find((o) => o.job_title) || {}).job_title, _topic)}${views.bdStatusBlock(company || (outreach[0] || {}).company || '', company_status, calls)}${views.bdProgressBlock(company || (outreach[0] || {}).company || '', { calls, notes, transcripts, status: company_status, people, assignedTo: assigned_to, oid: ((outreach || []).slice().reverse()[0] || {}).id })}${contactCard}
       <div class="tabs tabs-sub" id="bd-detail-tabs">
         <button type="button" class="active" data-bd-detail-tab="profile">認識客戶</button>
         <button type="button" data-bd-detail-tab="timeline">時間軸／信件</button>
