@@ -2178,7 +2178,7 @@ ${n.learned ? `<p><b>學到什麼</b>${text(n.learned)}</p>` : ''}${n.next_time 
   // 2026-10-02 Jacky：「寄信就寄信，上面資訊太多，不要放在收尾裡面」→ 寄信獨立一頁，只放寄信要用的東西
   bdMailOnly: (d) => {
     const company = d.company || ((d.outreach || [])[0] || {}).company || '';
-    return `<div class="bd-mail-only" data-bd-company="${escapeHtml(company)}">
+    return `<div class="bd-mail-only">
       <div class="actions-row" style="margin:0 0 4px"><button type="button" class="btn ghost sm" data-bd-company="${escapeHtml(company)}">← 看完整客戶卡片（進度、開發引導）</button></div>
       ${views.bdContractPackBlock(company, d.outreach || [], d.contract_files, d.assigned_to, d.pack_options)}
     </div>`;
