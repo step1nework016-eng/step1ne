@@ -1844,7 +1844,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
     <div class="card"><div class="card-head"><h2 style="margin:0;font-size:15px">新增客戶</h2></div>
       <p class="help" style="margin:6px 0 10px">建好之後會自動產生一組「用人需求表連結」，把連結給客戶窗口他就能自己填職缺。</p>
       ${actionBtn('＋ 新增客戶', 'company-add', {}, 'primary')}</div>
-    <div class="card-grid">${companies.map((c) => `<article class="card"><div class="card-head"><h3>${text(c.display_name || c.name)}</h3>${statusBadge(c.relation)}</div><p>${text(c.contact_email, '（沒有聯絡信箱）')}</p><p class="muted" style="font-size:12px;margin:2px 0 8px">${c.last_emailed_at ? `需求表上次寄送 ${text(String(c.last_emailed_at).slice(0, 10))}` : '需求表還沒寄過'}</p><button class="btn" data-client="${text(c.id)}">管理客戶</button></article>`).join('') || empty('目前沒有客戶資料')}</div>`,
+    <div class="card-grid">${companies.map((c) => `<article class="card"><div class="card-head"><h3>${text(c.display_name || c.name)}</h3><span class="badge">${text(views.companyRelationLabel(c.relation))}</span></div><p>${text(c.contact_email, '（沒有聯絡信箱）')}</p><p class="muted" style="font-size:12px;margin:2px 0 8px">${c.last_emailed_at ? `需求表上次寄送 ${text(String(c.last_emailed_at).slice(0, 10))}` : '需求表還沒寄過'}</p><button class="btn" data-client="${text(c.id)}">管理客戶</button></article>`).join('') || empty('目前沒有客戶資料')}</div>`,
   // ── 客戶資訊（2026-09-22 從舊版 /consultant/client-info 搬過來補齊）──
   //
   // 搬之前新版少了三樣**舊版天天在用**的東西，而且有一個一直沒被發現的 bug：
@@ -2004,6 +2004,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
           <label class="bd-assign"><span>負責</span><select data-bd-assign="${escapeHtml(r.company)}"${(r.qc_missing || []).length && !r.assigned_to ? ' disabled title="電話＋104＋官網都補齊才能指派"' : ''}><option value="">未指派</option>${people.map((x) => `<option value="${escapeHtml(x)}"${r.assigned_to === x ? ' selected' : ''}>${text(x)}</option>`).join('')}</select>${phoneKind === 'none' ? '<em class="bd-need-phone">待補電話</em>' : ''}</label>
           ${oid ? actionBtn('記錄電話結果', 'bd-call-result', { idParams: { id: oid } }, 'primary') : ''}
           <button type="button" class="btn ghost sm" data-bd-company="${escapeHtml(r.company)}">開發引導／時間軸</button>
+          ${r.stage === 'closed' ? '<span class="badge success">已是正式客戶</span>' : actionBtn('簽約了，轉成正式客戶', 'bd-promote-client', { idParams: { company: r.company }, record: { assigned_to: r.assigned_to } })}
           ${views.parkBtn(r.company, !!r.parked_at, r.assigned_to)}
         </div>
       </article>`;

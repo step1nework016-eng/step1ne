@@ -394,6 +394,15 @@ export const ACTIONS = {
     success: '已用 LINE 送出面談通知',
     confirmText: '會立刻送一則 LINE 給這位人選，附上他的面談連結。確定要發嗎？' },
   // 2026-10-02 Jacky：開發進度要能自己新增公司（海底撈主動來電），可填官網、指派顧問、分機
+  // 2026-10-02 Jacky：開發進度簽約成功 → 一鍵轉到「客戶」分頁（已簽約），看板自動算成交
+  'bd-promote-client': { label: '簽約了，轉成正式客戶', method: 'post', path: () => '/admin/bd/promote-client',
+    fields: (ctx) => [
+      { name: 'contract_type', label: '簽的是哪一種', type: 'select', options: [{ value: '正職代招', label: '正職代招' }, { value: '人力派遣', label: '人力派遣' }, { value: '高階獵頭', label: '高階獵頭' }, { value: '', label: '還不確定' }] },
+      { name: 'by', label: '負責顧問', value: (ctx.record && ctx.record.assigned_to) || '' },
+    ],
+    body: (ctx, values) => ({ company: ctx.idParams.company, ...values }),
+    confirmText: '這家會加到「客戶」分頁（已簽約），聯絡人、Email、電話會一起帶過去，開發進度會標成「成交」。確定嗎？',
+    success: '已轉成正式客戶，到「客戶」分頁就看得到（需求表連結也產好了）' },
   'bd-add-company': { label: '新增開發對象', method: 'post', path: () => '/admin/bd/add-company',
     fields: [
       { name: 'company', label: '公司名稱（正式全名）', required: true, wide: true },
