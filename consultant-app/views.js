@@ -1971,10 +1971,11 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
       <span id="bd-dash-count" class="help"></span>
     </div>`;
     const RES = { interested: '有興趣', not_interested: '拒絕', got_email: '拿到信箱', no_answer: '沒接', gatekeeper: '被總機擋', got_contact: '問到窗口', not_hiring: '沒在徵人' };
-    // 2026-10-02 Jacky：「剛新增的卡片，一打開開發進度沒辦法很直覺看到」→ 7 天內新進來、還沒人聯繫的，釘在最上面一組
-    const NEW_G = '🆕 新進來（7 天內，還沒聯繫）';
+    // 2026-10-02 Jacky：「剛新增的卡片，一打開開發進度沒辦法很直覺看到」→ 官網詢問、顧問手動新增的，7 天內還沒人聯繫就釘在最上面一組
+    // （夜間 AI 名單一天幾十家，不釘，不然最上面會被淹掉）
+    const NEW_G = '🆕 新進來：官網詢問／顧問新增（7 天內，還沒聯繫）';
     const weekAgo = new Date(Date.now() + 8 * 3600000 - 7 * 86400000).toISOString().slice(0, 10);
-    rows.forEach((r) => { if (!r.contacted_at && !r.parked_at && String(r.first_created_at || '') >= weekAgo) r.industry_group = NEW_G; });
+    rows.forEach((r) => { if ((r.inbound || r.by_hand) && !r.contacted_at && !r.parked_at && String(r.first_created_at || '') >= weekAgo) r.industry_group = NEW_G; });
     const sorted = rows.slice().sort((a, b) => {
       const an = a.industry_group === NEW_G, bn = b.industry_group === NEW_G;
       if (an !== bn) return an ? -1 : 1;
