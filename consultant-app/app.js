@@ -1826,6 +1826,7 @@ function wireContractPack(scope) {
     const sel = box.querySelector('[data-pack-contract]');
     const o = {
       scenario: scSel?.value || 'followup',
+      style: box.querySelector('[data-pack-style]')?.value || 'short',
       angle: anSel?.value || '',
       attach_intro: !!box.querySelector('[data-pack-intro]')?.checked,
       candidate_brief: box.querySelector('[data-pack-brief]')?.value || '',
@@ -1875,7 +1876,7 @@ function wireContractPack(scope) {
     if (edited) toast('換了選項，信件重新擬過（剛剛改的字沒有保留）', 'info');
     preview(null);
   };
-  [scSel, anSel, box.querySelector('[data-pack-intro]'), box.querySelector('[data-pack-contract]')].forEach((el) => el?.addEventListener('change', onChange));
+  [scSel, anSel, box.querySelector('[data-pack-style]'), box.querySelector('[data-pack-intro]'), box.querySelector('[data-pack-contract]')].forEach((el) => el?.addEventListener('change', onChange));
   box.querySelector('[data-pack-brief]')?.addEventListener('change', () => { if (!out.hidden) onChange(); });
   box.querySelector('[data-pack-preview]')?.addEventListener('click', (e) => preview(e.currentTarget));
   box.querySelector('[data-pack-send]')?.addEventListener('click', async (e) => {
@@ -1989,6 +1990,7 @@ function wireWrapup(root) {
     return {
       company: row.dataset.wuCompany,
       scenario: row.querySelector('[data-wu-scenario]').value,
+      style: row.querySelector('[data-wu-style]')?.value || 'short',
       angle: row.querySelector('[data-wu-angle]').value,
       attach_intro: row.querySelector('[data-wu-intro]').checked,
       candidate_brief: row.querySelector('[data-wu-brief]').value,

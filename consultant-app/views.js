@@ -2187,6 +2187,7 @@ ${n.learned ? `<p><b>學到什麼</b>${text(n.learned)}</p>` : ''}${n.next_time 
       <p class="help" style="margin-top:0">選「為什麼寄」和「強調什麼」，信會自動換一版；按「先看信的內容」可以直接改字。信裡不寫任何費用數字。擬好送 TG，Jacky 按核准才寄。</p>
       <div class="cg-row"><b>收件人</b><span>${email ? text(email) : '<span class="pc-status bad">還沒有信箱</span> 先在上面記錄電話結果時補信箱'}</span></div>
       <div class="cg-row"><b>署名</b><span>${assignedTo ? `${text(assignedTo)}｜Step1ne 德仁管理顧問有限公司` : '<span class="pc-status bad">還沒指派負責顧問</span>'}</span></div>
+      <label class="field"><span>信件版本</span>${views.packStyleSelect('short', 'data-pack-style')}</label>
       <label class="field"><span>為什麼寄</span>${views.packScenarioSelect(po, 'followup', 'data-pack-scenario')}</label>
       <label class="field"><span>強調什麼（可以不選）</span>${views.packAngleSelect(po, '', 'data-pack-angle')}</label>
       <label class="field" data-pack-brief-wrap hidden><span>人選背景重點（一行一個；不寫姓名、不寫目前任職公司）</span><textarea class="cg-in" data-pack-brief rows="3" placeholder="例：半導體設備 8 年，熟 PVD／CVD&#10;帶過 5 人團隊"></textarea></label>
@@ -2211,6 +2212,7 @@ ${n.learned ? `<p><b>學到什麼</b>${text(n.learned)}</p>` : ''}${n.next_time 
     contract_types: ['正職代招', '高階獵頭', '人力派遣'],
   },
   packScenarioSelect: (po, sel, attr) => `<select class="cg-in" ${attr}>${Object.entries(po.scenarios || {}).map(([k, v]) => `<option value="${k}"${k === sel ? ' selected' : ''}>${text(v)}</option>`).join('')}</select>`,
+  packStyleSelect: (sel, attr) => `<select class="cg-in" ${attr}><option value="short"${sel !== 'full' ? ' selected' : ''}>簡短版（依情境，幾段話）</option><option value="full"${sel === 'full' ? ' selected' : ''}>完整介紹版（我們專注什麼、優勢、服務、全民獵才）</option></select>`,
   packAngleSelect: (po, sel, attr) => `<select class="cg-in" ${attr}><option value="">不特別強調</option>${Object.entries(po.angles || {}).map(([k, v]) => `<option value="${k}"${k === sel ? ' selected' : ''}>${text(v)}</option>`).join('')}</select>`,
   // 2026-09-30 Jacky：每家客戶一張「跟進便利貼」——上次聯絡到哪、下一步做什麼、哪一天、備註。
   // 卡片最上面、「客戶跟進」分頁、開發進度列表是同一份資料（bd_company_status）。
@@ -2285,6 +2287,7 @@ ${n.learned ? `<p><b>學到什麼</b>${text(n.learned)}</p>` : ''}${n.next_time 
         <div class="wu-mail" ${r.next_action === 'mail' ? '' : 'hidden'}>
           <div class="wu-mail-head"><label class="wu-inline"><input type="checkbox" data-wu-pick${block ? ' disabled' : ''}> 放進這次要寄的信</label>${block ? `<small class="wu-block">不能勾：${text(block)}</small>` : ''}${r.last_pack ? `<small class="help">上一封：${text(ST[r.last_pack.status] || r.last_pack.status)}${r.last_pack.sent_at ? ` ${text(String(r.last_pack.sent_at).slice(5, 10))}` : ''}</small>` : ''}</div>
           <div class="wu-grid">
+            <label class="field"><span>信件版本</span>${views.packStyleSelect('short', 'data-wu-style')}</label>
             <label class="field"><span>寄什麼信</span>${views.packScenarioSelect(po, r.suggested_scenario, 'data-wu-scenario')}</label>
             <label class="field"><span>強調什麼</span>${views.packAngleSelect(po, '', 'data-wu-angle')}</label>
             <label class="field wu-brief" hidden><span>人選背景重點（不寫姓名、不寫目前公司）</span><textarea class="cg-in" data-wu-brief rows="2"></textarea></label>
