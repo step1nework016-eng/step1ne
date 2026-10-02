@@ -2454,6 +2454,11 @@ async function loadPostcallResult(applicationId, box) {
       box.innerHTML = views.callResult(data.legacy_call_summary_md)
         + `<div class="actions-row" style="margin-top:10px"><button type="button" class="btn ghost sm" data-action="postcall-generate">升級成結構化電洽結果（含 Gate Result／下一步建議）</button></div>`;
     }
+    else if (data.status === 'not_generated' && data.has_call_notes && !data.legacy_call_summary_md && box.dataset.autoGen !== applicationId) {
+      // 2026-10-02 Jacky：「我剛剛貼上逐字稿了，回來看卡片又叫我貼一次」——逐字稿存了就直接開始整理
+      box.dataset.autoGen = applicationId;
+      postcallGenerate(applicationId, false);
+    }
     else box.innerHTML = views.postcallResultEmpty(applicationId);
     return data;
   } catch (error) {
