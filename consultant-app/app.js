@@ -375,6 +375,12 @@ document.addEventListener('click', async (event) => {
   }
 });
 
+// 開發進度卡片可以用鍵盤打開（Tab 到卡片按 Enter）
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter' || !(e.target instanceof Element) || !e.target.matches('[data-bd-open]')) return;
+  e.preventDefault(); openBdDetail(e.target.getAttribute('data-bd-open'));
+});
+
 // ── 2026-10-02 寄信約電話（沒綁 LINE 的人選）──────────────────────────────
 // 快速判斷卡片和人選卡片共用；「我是誰」跟 AI 配對頁共用 amUi().me。
 async function cmOpen(appId, name, note, askResume) {
@@ -1567,7 +1573,7 @@ function wireBdDashboardFilter() {
   apply();
 }
 
-async function openBdDetail(company) {
+async function openBdDetail(company, focus) {
   state.openBdCompany = company;
   drawer({ title: company, subtitle: '開發進度時間軸', body: loading() });
   try {
@@ -1576,6 +1582,14 @@ async function openBdDetail(company) {
     wireBdDetailTabs();
     const dr = document.querySelector('.bd-status-card')?.parentElement;
     if (dr) wireCompanyStatus(dr);
+    // 2026-10-02 Jacky：卡片上的「寄公司介紹信」要一鍵直接看到寄信那段（開發引導 → 收尾 → 寄公司介紹）
+    if (focus === 'mail') {
+      document.querySelector('#bd-detail-tabs [data-bd-detail-tab="playbook"]')?.click();
+      const steps = document.querySelectorAll('.cg [data-cg-go]');
+      steps[steps.length - 1]?.click();
+      const pack = document.querySelector('.cg-pack');
+      if (pack) { pack.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); pack.querySelector('select,button')?.focus({ preventScroll: true }); }
+    }
   } catch (error) {
     console.error(error);
     drawer({ title: company, body: errorState(error) });
@@ -3412,6 +3426,11 @@ document.addEventListener('click', async (event) => {
   if (clientRow) { openCompanyManage(clientRow.getAttribute('data-client')); return; }
   const bdCompany = target.closest('[data-bd-company]');
   if (bdCompany) { openBdDetail(bdCompany.getAttribute('data-bd-company')); return; }
+  const bdMail = target.closest('[data-bd-mail]');
+  if (bdMail) { openBdDetail(bdMail.getAttribute('data-bd-mail'), 'mail'); return; }
+  // 2026-10-02 Jacky：點開發進度卡片本身就打開開發引導／時間軸（點到按鈕、勾選、下拉、電話連結不算）
+  const bdRow = target.closest('[data-bd-open]');
+  if (bdRow && !target.closest('a,button,input,select,label,textarea,summary,[data-action]')) { openBdDetail(bdRow.getAttribute('data-bd-open')); return; }
   const copyBtn = target.closest('[data-copy-text]');
   if (copyBtn) { navigator.clipboard.writeText(copyBtn.getAttribute('data-copy-text') || '').then(() => toast('已複製連結', 'success')).catch(() => toast('複製失敗，請手動選取', 'error')); return; }
   const resumeDl = target.closest('[data-download-resume]');
