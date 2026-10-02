@@ -263,7 +263,7 @@ export const adapters = {
     const q = new URLSearchParams(Object.entries(params).filter(([, v]) => v)).toString();
     return api.get(`/admin/triage${q ? '?' + q : ''}`);
   },
-  async callMail(applicationId, action, by, note) { return api.post(`/admin/applications/${encodeURIComponent(applicationId)}/call-mail`, { action, by: by || null, note: note || null }); },
+  async callMail(applicationId, action, by, note, askResume) { return api.post(`/admin/applications/${encodeURIComponent(applicationId)}/call-mail`, { action, by: by || null, note: note || null, ...(typeof askResume === 'boolean' ? { ask_resume: askResume } : {}) }); },
   async triageDecide(applicationId, decision, by, note) { return api.post('/admin/triage', { application_id: applicationId, decision, by, note: note || null }); },
   // 2026-10-01 外部人選資料卡＋Email 邀請
   async sourcedCard(id, job) { return api.get(`/admin/sourced/${encodeURIComponent(id)}/card${job ? '?job=' + encodeURIComponent(job) : ''}`); },

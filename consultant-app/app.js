@@ -377,18 +377,20 @@ document.addEventListener('click', async (event) => {
 
 // ── 2026-10-02 寄信約電話（沒綁 LINE 的人選）──────────────────────────────
 // 快速判斷卡片和人選卡片共用；「我是誰」跟 AI 配對頁共用 amUi().me。
-async function cmOpen(appId, name, note) {
-  state.cm = { appId, name, note: note || '' };
+async function cmOpen(appId, name, note, askResume) {
+  state.cm = { appId, name, note: note || '', askResume };
   openSubDrawer({ title: '寄信約電話', subtitle: `${name || ''}｜先看信的內容，按「確認寄給人選」才會寄`, body: loading() });
   await ensureConsultants();
   let d;
-  try { d = await adapters.callMail(appId, 'preview', amUi().me || null, note); } catch (e) { d = { error: (e.body && e.body.error) || e.message }; }
+  try { d = await adapters.callMail(appId, 'preview', amUi().me || null, note, askResume); } catch (e) { d = { error: (e.body && e.body.error) || e.message }; }
   const body = $('#sub-overlay-root .drawer-body');
   if (body) body.innerHTML = views.callMailPreview(d, { me: amUi().me, note, consultants: state.consultantsCache || [] });
 }
 document.addEventListener('change', (e) => {
   const sel = e.target.closest && e.target.closest('[data-cm-me]');
-  if (sel) { amUi().me = sel.value; amSave(); if (state.cm) cmOpen(state.cm.appId, state.cm.name, $('#cm-note')?.value || ''); }
+  if (sel) { amUi().me = sel.value; amSave(); if (state.cm) cmOpen(state.cm.appId, state.cm.name, $('#cm-note')?.value || '', state.cm.askResume); }
+  const ar = e.target.closest && e.target.closest('[data-cm-ask-resume]');
+  if (ar && state.cm) cmOpen(state.cm.appId, state.cm.name, $('#cm-note')?.value || '', ar.checked);
 });
 document.addEventListener('click', async (event) => {
   const t = event.target instanceof Element ? event.target : null;
@@ -399,13 +401,14 @@ document.addEventListener('click', async (event) => {
   event.preventDefault();
   const act = btn.getAttribute('data-cm-action');
   const note = $('#cm-note')?.value || '';
-  if (act === 'refresh') { cmOpen(state.cm.appId, state.cm.name, note); return; }
+  const askResume = document.querySelector('[data-cm-ask-resume]') ? document.querySelector('[data-cm-ask-resume]').checked : undefined;
+  if (act === 'refresh') { cmOpen(state.cm.appId, state.cm.name, note, askResume); return; }
   const me = amUi().me;
   if (!me) { toast('請先在上方「我是」選你的名字', 'error'); document.querySelector('[data-cm-me]')?.focus(); return; }
   if (act === 'send' && !window.confirm(`確定要寄這封信給 ${state.cm.name || '這位人選'} 嗎？寄出就收不回來了。`)) return;
   btn.disabled = true;
   try {
-    const r = await adapters.callMail(state.cm.appId, act, me, note);
+    const r = await adapters.callMail(state.cm.appId, act, me, note, askResume);
     if (act === 'test') { toast(`測試信已寄到 ${r.to}`, 'success'); btn.disabled = false; return; }
     toast(`已寄信給 ${state.cm.name || '人選'}，人選回信會出現在 TG`, 'success');
     closeSubDrawer();
@@ -2218,6 +2221,7 @@ ${views.candidateFormsBlock(f.forms, applicationId, companyId)}
     const resumeBtns = [];
     if (application.resume_file_id) resumeBtns.push(`<button type="button" class="btn ghost sm" data-download-resume="${escapeHtml(applicationId)}">下載履歷</button>`);
     if (application.resume_url) resumeBtns.push(`<a class="btn ghost sm" href="${escapeHtml(application.resume_url)}" target="_blank" rel="noopener">履歷連結</a>`);
+    resumeBtns.push(actionBtn(application.resume_file_id ? '換一份履歷' : '上傳履歷 PDF', 'application-resume-upload', { idParams: { id: applicationId } }));
     if (application.resume_104_url) resumeBtns.push(`<a class="btn ghost sm" href="${escapeHtml(application.resume_104_url)}" target="_blank" rel="noopener">104 履歷</a>`);
     const contactBadge = hasContact(application) ? '' : '<span class="badge warning" style="margin-left:8px">⚠ 記得補聯絡方式</span>';
     // hard_gate 照抄後端 /admin/pipeline/tracker 的判準（a.status==='pending_screen' && !a.screen_decision）——

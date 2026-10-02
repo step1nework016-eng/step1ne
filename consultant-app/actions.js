@@ -174,6 +174,13 @@ export const ACTIONS = {
   },
   // 2026-09-29 修：原本這顆「確認報告已上傳」沒有帶檔案，後端一律回 400（缺 pdf_b64）——
   // 顧問做好的推薦履歷在新版根本傳不上去。改成真的選 PDF 上傳，跟舊版人選追蹤頁同一支端點。
+  // 2026-10-02 Jacky：人選回信附的履歷、或顧問自己拿到的檔案，直接掛到人選卡片（原本只能貼連結）
+  'application-resume-upload': {
+    label: '上傳履歷 PDF', method: 'post', path: (ctx) => `/admin/applications/${encodeURIComponent(ctx.idParams.id)}/resume-upload`,
+    fields: [{ name: 'file', label: '選擇人選的履歷（PDF 或 Word）。已經有履歷檔的話會換成這一份，舊的不會刪。', type: 'file', accept: 'application/pdf,.pdf,.doc,.docx', required: true }],
+    body: (ctx, values) => ({ file_b64: values.file_b64, file_name: values.file_name }),
+    success: '履歷已上傳，電洽前準備現在可以產生了',
+  },
   'client-formal-report-upload': {
     label: '上傳推薦履歷', method: 'post', path: () => '/admin/client-formal-reports/confirm-upload',
     fields: [{ name: 'file', label: '選擇顧問做好的推薦履歷（PDF）。上傳後客戶在企業後台就看得到。', type: 'file', accept: 'application/pdf,.pdf', required: true }],
