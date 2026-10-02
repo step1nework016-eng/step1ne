@@ -1971,7 +1971,16 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
       <span id="bd-dash-count" class="help"></span>
     </div>`;
     const RES = { interested: '有興趣', not_interested: '拒絕', got_email: '拿到信箱', no_answer: '沒接', gatekeeper: '被總機擋', got_contact: '問到窗口', not_hiring: '沒在徵人' };
-    const sorted = rows.slice().sort((a, b) => String(a.industry_group || '未分類').localeCompare(String(b.industry_group || '未分類'), 'zh-Hant') || 0);
+    // 2026-10-02 Jacky：「剛新增的卡片，一打開開發進度沒辦法很直覺看到」→ 7 天內新進來、還沒人聯繫的，釘在最上面一組
+    const NEW_G = '🆕 新進來（7 天內，還沒聯繫）';
+    const weekAgo = new Date(Date.now() + 8 * 3600000 - 7 * 86400000).toISOString().slice(0, 10);
+    rows.forEach((r) => { if (!r.contacted_at && !r.parked_at && String(r.first_created_at || '') >= weekAgo) r.industry_group = NEW_G; });
+    const sorted = rows.slice().sort((a, b) => {
+      const an = a.industry_group === NEW_G, bn = b.industry_group === NEW_G;
+      if (an !== bn) return an ? -1 : 1;
+      if (an) return String(b.first_created_at || '').localeCompare(String(a.first_created_at || ''));
+      return String(a.industry_group || '未分類').localeCompare(String(b.industry_group || '未分類'), 'zh-Hant') || 0;
+    });
     let lastGroup = null;
     const rowsHtml = rows.length ? `<div class="list" id="bd-dash-list">${sorted.map((r) => {
       const chLabel = r.channel === 'phone' ? '📞 電訪' : (r.channel === 'both' ? '✉️＋📞 信＋電訪' : '✉️ 寄信');
@@ -1990,7 +1999,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
       const oid = (r.outreach_ids || [])[0] || '';
       return `${head}<article class="list-row bd-dash-row" data-bd-open="${escapeHtml(r.company)}" tabindex="0" aria-label="${escapeHtml(r.company)}：打開開發引導／時間軸" title="點卡片打開開發引導／時間軸" data-bd-name="${escapeHtml(String(r.company || '').toLowerCase())}" data-bd-stage="${text(r.stage)}" data-bd-has-todo="${r.todo.length ? 1 : 0}" data-bd-industry="${escapeHtml(g)}" data-bd-assignee="${escapeHtml(r.assigned_to || '')}" data-bd-phone="${phoneKind}" data-bd-contacted="${r.contacted_at ? 1 : 0}" data-bd-parked="${r.parked_at ? 1 : 0}" data-bd-qc="${(r.qc_missing || []).length ? 0 : 1}">
         <span>
-          <b>${text(r.company)}</b> ${r.industry ? `<span class="badge">${text(String(r.industry).split(/[（(]/)[0].slice(0, 18))}</span>` : ''}${r.has_profile ? ' <span class="badge success">有介紹</span>' : ''}${r.note_count ? ` <span class="badge info">有 ${text(r.note_count)} 則心得</span>` : ''}
+          <b>${text(r.company)}</b> ${r.industry ? `<span class="badge">${text(String(r.industry).split(/[（(]/)[0].slice(0, 18))}</span>` : ''}${r.inbound ? ' <span class="badge warning">官網詢問・1 個工作天內要回</span>' : ''}${r.industry_group === NEW_G ? ` <span class="badge info">新・${text(String(r.first_created_at || '').slice(5, 10))}</span>` : ''}${r.has_profile ? ' <span class="badge success">有介紹</span>' : ''}${r.note_count ? ` <span class="badge info">有 ${text(r.note_count)} 則心得</span>` : ''}
           ${(r.qc_missing || []).length ? `<small class="bd-qc-bad">不合格，補資料中：缺 ${text(r.qc_missing.join('、'))}</small>` : ''}
           ${views.bdEntry(r.trigger, r.has_candidate, false, r.job_title, r.topic)}
           ${phoneHtml}${mainHtml}${noPhone}
