@@ -2450,14 +2450,14 @@ async function loadPostcallResult(applicationId, box) {
     const data = res.data || res;
     if (data.status === 'ready') box.innerHTML = views.postcallResult(data.result, applicationId);
     else if (data.status === 'generating') box.innerHTML = views.postcallResultLoading();
+    else if (data.status === 'not_generated' && data.has_call_notes && box.dataset.autoGen !== applicationId) {
+      // 2026-10-02：有逐字稿、還沒有結構化電洽結果 → 打開就自動開始整理（舊版文字摘要有的話先秀在下面）
+      box.dataset.autoGen = applicationId;
+      postcallGenerate(applicationId, false);
+    }
     else if (data.status === 'not_generated' && data.legacy_call_summary_md) {
       box.innerHTML = views.callResult(data.legacy_call_summary_md)
         + `<div class="actions-row" style="margin-top:10px"><button type="button" class="btn ghost sm" data-action="postcall-generate">升級成結構化電洽結果（含 Gate Result／下一步建議）</button></div>`;
-    }
-    else if (data.status === 'not_generated' && data.has_call_notes && !data.legacy_call_summary_md && box.dataset.autoGen !== applicationId) {
-      // 2026-10-02 Jacky：「我剛剛貼上逐字稿了，回來看卡片又叫我貼一次」——逐字稿存了就直接開始整理
-      box.dataset.autoGen = applicationId;
-      postcallGenerate(applicationId, false);
     }
     else box.innerHTML = views.postcallResultEmpty(applicationId);
     return data;
@@ -3402,6 +3402,11 @@ async function submitPendingAction() {
     if (action.reopenJobTab && ctx.idParams.job_slug) { openJobManage(ctx.idParams.job_slug, action.reopenJobTab); return; }
     // 2026-09-29：客戶開發卡片的「新增通話心得」，送出後重開同一家公司的抽屜（看得到剛寫的那則）。
     if (action.reopenBdCompany && ctx.idParams.company) { openBdDetail(ctx.idParams.company); return; }
+    // 2026-10-02 Jacky：「不是個案吧？」——任何地方存了電洽逐字稿，馬上排「產生電洽結果」，不用再按第二步
+    if (action === ACTIONS['application-call-note'] && ctx.idParams && ctx.idParams.application_id) {
+      adapters.postcallResultGenerate(ctx.idParams.application_id, true)
+        .then(() => toast('逐字稿已存，AI 開始整理電洽結果（1～3 分鐘）', 'success')).catch(() => {});
+    }
     // 2026-09-15 改：使用者反映「每次一個操作都會自己關閉卡片」——因為
     // modal()／drawer() 共用同一個 #overlay-root，開確認框那一刻卡片其實已經
     // 被蓋掉了，之前又緊接著 closeOverlay()+refreshCurrentView() 直接跳回列表。
