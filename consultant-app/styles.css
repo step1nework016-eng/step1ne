@@ -769,3 +769,15 @@ details.note-details p{margin:8px 0 0;font-size:13.5px;white-space:pre-wrap;colo
 .sc-unfit select,.sc-unfit .btn{min-height:44px}
 .sc-card .btn:focus-visible,.sc-card select:focus-visible,.sc-btns .btn:focus-visible{outline:3px solid #2459d6;outline-offset:1px}
 @media (max-width:560px){.sc-btns .btn{flex:1 1 100%;justify-content:center}}
+
+/* 2026-10-02 快速判斷：一人一張小卡，三個按鈕手指好按 */
+.tri-grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(min(100%,420px),1fr))}
+.tri-card{padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.tri-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap}
+.tri-top .muted{display:block;font-size:12.5px}
+.tri-one{margin:2px 0;font-weight:700;line-height:1.5}
+.tri-line{display:grid;grid-template-columns:56px 1fr;gap:6px;font-size:13.5px;line-height:1.55}
+.tri-k{color:var(--muted,#6b7280);white-space:nowrap}
+.tri-actions{margin-top:auto;padding-top:6px;flex-wrap:wrap;gap:8px}
+.tri-actions .btn{min-height:44px;min-width:64px}
+.tri-grid :focus-visible,.tri-filters :focus-visible{outline:2px solid var(--blue);outline-offset:2px}

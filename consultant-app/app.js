@@ -182,6 +182,7 @@ async function loadCandidateTab(target) {
   // screen-decide（單一人選詳情本來就在用同一支）。
   if (state.sub === 'screening') return boundary(target, async () => (await adapters.screening()).pending || [], views.screeningTab, 'refresh');
   if (state.sub === 'aimatch') return loadAiMatchTab(target);
+  if (state.sub === 'triage') return loadTriageTab(target);
   const loaders = { workbench: adapters.candidates, pool: adapters.sourced, reports: adapters.reports, outreach: adapters.outreach, checkups: adapters.checkups };
   const tab = loaders[state.sub] ? state.sub : 'workbench';
   if (tab === 'workbench') {
@@ -304,6 +305,74 @@ document.addEventListener('click', (event) => {
   if (!btn || btn.disabled) return;
   event.preventDefault();
   amHandle(btn);
+});
+
+// ── 2026-10-02 快速判斷（人選中心 →「快速判斷」）────────────────────────────
+// 「我是誰」跟 AI 配對頁共用（amUi().me）；篩選記在瀏覽器。
+const TRI_KEY = 's1ne_triage_ui';
+function triUi() {
+  if (!state.triage) {
+    let saved;
+    try { saved = JSON.parse(localStorage.getItem(TRI_KEY) || '{}') || {}; } catch { saved = {}; }
+    state.triage = { view: 'todo', job: '', days: '7', ...saved, items: [] };
+  }
+  return state.triage;
+}
+async function loadTriageTab(target) {
+  const filters = target.parentElement.querySelector(':scope > .filters');
+  if (filters) filters.hidden = true;
+  const ui = triUi();
+  await ensureConsultants();
+  await boundary(target, async () => {
+    const data = await adapters.triage({ view: ui.view, job: ui.job, days: ui.days });
+    ui.items = data.items || [];
+    return data;
+  }, (data) => views.triageTab(data, { ...ui, me: amUi().me, consultants: state.consultantsCache || [] }), 'refresh');
+  target.querySelectorAll('[data-tri-filter]').forEach((el) => {
+    el.onchange = () => {
+      const k = el.getAttribute('data-tri-filter');
+      if (k === 'me') { amUi().me = el.value; amSave(); return; }
+      ui[k] = el.value;
+      try { localStorage.setItem(TRI_KEY, JSON.stringify({ view: ui.view, job: ui.job, days: ui.days })); } catch { /* 存不了就算了 */ }
+      loadTriageTab(target);
+    };
+  });
+  // TG「要打電話」通知裡的連結會帶 ?app=，直接打開那位人選
+  const qApp = new URLSearchParams(location.search).get('app');
+  if (qApp && !state.triageDeepOpened) { state.triageDeepOpened = true; openCandidate(qApp); }
+}
+document.addEventListener('click', async (event) => {
+  const btn = event.target instanceof Element ? event.target.closest('[data-tri-action]') : null;
+  if (!btn || btn.disabled) return;
+  event.preventDefault();
+  const card = btn.closest('[data-tri-app]');
+  if (!card) return;
+  const appId = card.getAttribute('data-tri-app');
+  const name = card.getAttribute('data-tri-name') || '這位人選';
+  const act = btn.getAttribute('data-tri-action');
+  if (act === 'open') { openCandidate(appId); return; }
+  const decision = act === 'undo' ? '' : act;
+  let note = null;
+  if (decision) {
+    const me = amUi().me;
+    if (!me) { toast('請先在上方「我是」選你的名字', 'error'); document.querySelector('[data-tri-filter="me"]')?.focus(); return; }
+    if (decision === 'call') {
+      note = window.prompt(`要請負責顧問打給 ${name}。有什麼要先問清楚的嗎？（可以不填，直接按確定）`);
+      if (note === null) return;
+    }
+  }
+  card.querySelectorAll('button').forEach((b) => { b.disabled = true; });
+  try {
+    await adapters.triageDecide(appId, decision, amUi().me, note);
+    const LB = { push: '推', call: '要打電話（已在 TG 通知負責顧問）', no: '不推', '': '已放回「還沒決定」' };
+    toast(`${name}：${LB[decision]}`, 'success');
+    card.remove();
+    const left = document.querySelectorAll('.tri-card').length;
+    if (!left) loadTriageTab($('#page-data'));
+  } catch (e) {
+    toast(e.message || '沒有存到，請再按一次', 'error');
+    card.querySelectorAll('button').forEach((b) => { b.disabled = false; });
+  }
 });
 
 // ── 2026-10-01 外部人選資料卡＋Email 邀請 ───────────────────────────────────

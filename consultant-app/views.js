@@ -210,7 +210,7 @@ export const views = {
   // 選項永遠篩不出東西。改成真實的四分頁；另外補一個「負責顧問」篩選（對應後端
   // /admin/pipeline/tracker 本來就支援的 ?owner= 參數，含「未指派」），選項在
   // loadCandidateTab 裡用真實顧問名單動態填入。
-  candidates: (tab='workbench') => pageHead('人選中心','操作單位是 application；疑似同一人只提示，不自動合併。','<button class="btn primary" data-action="add-candidate">＋ 新增人選</button>') + tabbar('candidates',[['workbench','工作台'],['pool','人才池'],['aimatch','AI 配對'],['reports','阿財報告'],['outreach','接觸紀錄'],['checkups','阿福健檢'],['screening','待審核']],tab) + `<div class="filters"><input id="candidate-search" placeholder="搜尋姓名、職缺、來源"><select id="candidate-stage"><option value="">所有階段</option><option value="fill">等人選填完</option><option value="decide">等我決定</option><option value="client">客戶面談階段</option><option value="pool">候補池</option></select><select id="candidate-owner"><option value="">所有顧問</option><option value="unassigned">未指派</option></select><select id="candidate-route"><option value="">所有分流</option><option value="A">A｜優先聯繫</option><option value="B">B｜需顧問判斷</option><option value="C">C｜可轉其他職缺</option><option value="D">D｜人才池</option><option value="E">E｜Hard Gate 沒過</option><option value="none">還沒面談過</option><option value="silent">阿財面談室無對話紀錄</option></select><div class="view-toggle"><button type="button" class="btn sm" data-action="candidate-view-card">卡片式</button><button type="button" class="btn sm" data-action="candidate-view-table">表格式</button></div><button class="btn" data-action="reset-candidate-filter">清除</button><a href="#" data-action="open-route-spec" class="help" style="align-self:center;margin-left:4px">分流規則？</a></div><div id="page-data">${endpointState('人選資料')}</div>`,
+  candidates: (tab='workbench') => pageHead('人選中心','操作單位是 application；疑似同一人只提示，不自動合併。','<button class="btn primary" data-action="add-candidate">＋ 新增人選</button>') + tabbar('candidates',[['workbench','工作台'],['triage','快速判斷'],['pool','人才池'],['aimatch','AI 配對'],['reports','阿財報告'],['outreach','接觸紀錄'],['checkups','阿福健檢'],['screening','待審核']],tab) + `<div class="filters"><input id="candidate-search" placeholder="搜尋姓名、職缺、來源"><select id="candidate-stage"><option value="">所有階段</option><option value="fill">等人選填完</option><option value="decide">等我決定</option><option value="client">客戶面談階段</option><option value="pool">候補池</option></select><select id="candidate-owner"><option value="">所有顧問</option><option value="unassigned">未指派</option></select><select id="candidate-route"><option value="">所有分流</option><option value="A">A｜優先聯繫</option><option value="B">B｜需顧問判斷</option><option value="C">C｜可轉其他職缺</option><option value="D">D｜人才池</option><option value="E">E｜Hard Gate 沒過</option><option value="none">還沒面談過</option><option value="silent">阿財面談室無對話紀錄</option></select><div class="view-toggle"><button type="button" class="btn sm" data-action="candidate-view-card">卡片式</button><button type="button" class="btn sm" data-action="candidate-view-table">表格式</button></div><button class="btn" data-action="reset-candidate-filter">清除</button><a href="#" data-action="open-route-spec" class="help" style="align-self:center;margin-left:4px">分流規則？</a></div><div id="page-data">${endpointState('人選資料')}</div>`,
   // 2026-09-15 查證更正：卡片其實有 email/phone（原本沒接進來，一直顯示不存在的
   // 「下一步」欄位）；stage 這裡的 statusBadge(i.stage) 現在會顯示真正的四分頁
   // 翻譯（等人選填完/等我決定/客戶面談階段/候補池），不是原始代碼字串。clientName
@@ -2808,6 +2808,53 @@ ${a.note ? `<details class="note-details"><summary>顧問備註／電洽紀錄</
   // 2026-10-01 AI 配對頁。資料就是 P3 的 candidate_job_recommendations，兩種來源：
   // 面談後找替代職缺（post_interview）、職缺開出來回頭找人才庫（reverse_job_open）。
   // 最上面固定講清楚：這裡的名單沒有聯絡任何人，要顧問按、而且寄信會先給預覽。
+  // ── 2026-10-02 快速判斷：Jacky「不用一直完整點看，直接看 tab 就知道推不推、打不打電話」──
+  // 一人一張小卡，只放阿財報告裡現成的：一句話、亮點、風險、分流、期望薪資、到職時間。
+  // 三個按鈕都只是內部記號（不寄任何東西給人選、不改推薦流程）；「要打電話」會在 TG 通知負責顧問。
+  triageTab: (data, ui) => {
+    const items = (data && data.items) || [];
+    const jobs = (data && data.jobs) || [];
+    const cons = ui.consultants || [];
+    const opt = (v, label, cur) => `<option value="${escapeHtml(v)}" ${String(cur || '') === String(v) ? 'selected' : ''}>${escapeHtml(label)}</option>`;
+    const jobOpts = new Map(jobs.map((j) => [j.job_slug, `${j.title || j.job_slug}（${j.n}）`]));
+    if (ui.job && !jobOpts.has(ui.job)) jobOpts.set(ui.job, (items[0] && items[0].job_title) || ui.job);
+    const ROUTE = { A: 'success', B: 'info', C: 'warning', D: '', E: 'danger' };
+    const TRI = { push: ['推', 'success'], call: ['要打電話', 'info'], no: ['不推', ''] };
+    const OWN = Object.fromEntries(cons.map((c) => [String(c.id), c.display_name]));
+    const head = `<div class="filters tri-filters">
+        <label class="am-me">我是 <select data-tri-filter="me">${opt('', '選擇…', ui.me)}${cons.filter((c) => c.is_active).map((c) => opt(c.display_name, c.display_name, ui.me)).join('')}</select></label>
+        <select data-tri-filter="job" aria-label="職缺">${opt('', '所有職缺', ui.job)}${[...jobOpts].map(([v, l]) => opt(v, l, ui.job)).join('')}</select>
+        <select data-tri-filter="days" aria-label="期間">${[['3', '近 3 天'], ['7', '近 7 天'], ['14', '近 14 天'], ['30', '近 30 天']].map(([v, l]) => opt(v, l, ui.days)).join('')}</select>
+        <select data-tri-filter="view" aria-label="狀態">${opt('todo', '還沒決定', ui.view)}${opt('done', '已判斷', ui.view)}</select>
+      </div>
+      <p class="help" style="margin:0 0 10px">按下去只是內部記號，不會通知人選。「推」之後要送用人單位，照舊在人選卡片裡按；「要打電話」會在 TG 通知負責顧問。共 ${items.length} 位</p>`;
+    if (!items.length) return head + empty(ui.view === 'todo' ? '這段期間的面談都判斷完了' : '這段期間還沒有判斷過的人選', '換個期間或職缺看看。');
+    const card = (r) => {
+      const rc = r.route_code || '';
+      const line = (icon, label, v) => v ? `<div class="tri-line"><span class="tri-k">${icon} ${label}</span><span>${text(v)}</span></div>` : '';
+      const tri = TRI[r.triage];
+      return `<article class="card tri-card" data-tri-app="${escapeHtml(r.application_id)}" data-tri-name="${escapeHtml(r.name || '')}">
+        <div class="tri-top">
+          <div><button type="button" class="am-name" data-tri-action="open">${text(r.name)}</button>
+            <span class="muted">${text(r.job_title || r.job_slug, '')}・${text(String(r.interview_ended_at || r.report_at || '').slice(5, 16))}${r.owner ? `・${text(OWN[r.owner] || r.owner)}` : '・未指派'}</span></div>
+          <div class="am-tags">${rc ? `<span class="badge ${ROUTE[rc] || ''}" title="${escapeHtml(r.route_reason || '')}">阿財：${text(rc)} ${text(r.route_label || '')}</span>` : ''}${r.score != null ? `<span class="badge">${text(r.score)} 分</span>` : ''}</div>
+        </div>
+        ${r.one_liner ? `<p class="tri-one">${text(r.one_liner)}</p>` : ''}
+        ${line('＋', '亮點', r.top_selling_point)}
+        ${line('！', '風險', r.top_risk)}
+        ${(r.expected_salary || r.available_date) ? line('・', '條件', [r.expected_salary ? `期望 ${r.expected_salary}` : '', r.available_date ? `到職 ${r.available_date}` : ''].filter(Boolean).join('｜')) : ''}
+        ${tri ? `<div class="am-status"><span class="badge ${tri[1]}">${tri[0]}</span> ${text(r.triage_by || '')}・${text(String(r.triage_at || '').slice(5, 16))}${r.triage_note ? `｜${text(r.triage_note)}` : ''}</div>` : ''}
+        <div class="actions-row tri-actions">
+          ${r.triage ? `<button type="button" class="btn sm" data-tri-action="undo">復原（放回還沒決定）</button>` : `
+          <button type="button" class="btn primary sm" data-tri-action="push">推</button>
+          <button type="button" class="btn sm" data-tri-action="call">要打電話</button>
+          <button type="button" class="btn ghost sm" data-tri-action="no">不推</button>`}
+          <button type="button" class="btn ghost sm" data-tri-action="open">看完整報告</button>
+        </div>
+      </article>`;
+    };
+    return head + `<div class="tri-grid">${items.map(card).join('')}</div>`;
+  },
   aiMatchTab: (data, ui) => {
     const items = (data && data.items) || [];
     const jobs = (data && data.open_jobs) || [];

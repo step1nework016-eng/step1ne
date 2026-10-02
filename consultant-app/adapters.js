@@ -258,6 +258,12 @@ export const adapters = {
     const q = new URLSearchParams(Object.entries(params).filter(([, v]) => v)).toString();
     return api.get(`/admin/ai-matches${q ? '?' + q : ''}`);
   },
+  // 2026-10-02 人選中心「快速判斷」：近期阿財報告一張小卡，按 推／要打電話／不推（只是內部記號）
+  async triage(params = {}) {
+    const q = new URLSearchParams(Object.entries(params).filter(([, v]) => v)).toString();
+    return api.get(`/admin/triage${q ? '?' + q : ''}`);
+  },
+  async triageDecide(applicationId, decision, by, note) { return api.post('/admin/triage', { application_id: applicationId, decision, by, note: note || null }); },
   // 2026-10-01 外部人選資料卡＋Email 邀請
   async sourcedCard(id, job) { return api.get(`/admin/sourced/${encodeURIComponent(id)}/card${job ? '?job=' + encodeURIComponent(job) : ''}`); },
   async sourcedMailPreview(id, job, why) { return api.post(`/admin/sourced/${encodeURIComponent(id)}/email-preview`, { job_slug: job || null, why: why || null }); },
