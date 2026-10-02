@@ -1897,7 +1897,7 @@ function wireContractPack(scope) {
     btn.disabled = true;
     try {
       const r = await api.post('/admin/bd/contract-pack', { company, by: box.dataset.packBy || '', ...opts() });
-      toast(r.tg_sent ? '已送到 TG，等 Jacky 按核准才會寄。順手在「跟進」排下一步' : '已存好，但 TG 沒送出去，請通知 Jacky', r.tg_sent ? 'success' : 'error');
+      toast(r.tg_sent ? '已送到 TG，等 Jacky 或 Phoebe 按核准才會寄。順手在「跟進」排下一步' : '已存好，但 TG 沒送出去，請通知 Jacky', r.tg_sent ? 'success' : 'error');
       // 2026-10-02 Jacky：寄完要跳回客戶卡片的「跟進」，順手排下一步
       await openBdDetail(company);
       document.querySelector('.bd-status-card')?.scrollIntoView({ block: 'start' });
@@ -2091,7 +2091,7 @@ function wireWrapup(root) {
   const batch = async (dry, btn) => {
     const items = picked().map(itemOf);
     if (!items.length) return;
-    if (!dry && !window.confirm(`確定把 ${items.length} 封信送到 TG，等 Jacky 核准？（按了還不會寄出）`)) return;
+    if (!dry && !window.confirm(`確定把 ${items.length} 封信送到 TG，等 Jacky／Phoebe 核准？（按了還不會寄出）`)) return;
     btn.disabled = true;
     try {
       const r = await api.post('/admin/bd/contract-pack-batch', { items, dry_run: dry, by: root.querySelector('#wu-assignee')?.value || '' });

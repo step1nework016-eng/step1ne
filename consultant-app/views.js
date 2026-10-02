@@ -2174,7 +2174,7 @@ ${n.learned ? `<p><b>學到什麼</b>${text(n.learned)}</p>` : ''}${n.next_time 
   // 2026-09-29 加：企業卡片補聯絡方式（一鍵複製／撥號）、資料來源連結、
   // 104 企業頁連結，另外加「開發引導」分頁（時間軸／信件 之外的第二個分頁）。
   // 找不到的欄位一律不顯示那一行，不留空殼。
-  // 2026-09-30 Jacky：對方有興趣之後，寄公司介紹＋合約。擬好先送 TG，Jacky 按核准才寄。
+  // 2026-09-30 Jacky：對方有興趣之後，寄公司介紹＋合約。擬好先送 TG，Jacky 或 Phoebe 按核准才寄。
   // 2026-10-02 Jacky：「寄信就寄信，上面資訊太多，不要放在收尾裡面」→ 寄信獨立一頁，只放寄信要用的東西
   bdMailOnly: (d) => {
     const company = d.company || ((d.outreach || [])[0] || {}).company || '';
@@ -2187,7 +2187,7 @@ ${n.learned ? `<p><b>學到什麼</b>${text(n.learned)}</p>` : ''}${n.next_time 
     const email = ([...(outreach || [])].reverse().find((o) => String(o.contact_email || '').trim()) || {}).contact_email || '';
     const packs = (outreach || []).filter((o) => o.scenario === 'contract_pack');
     const lastPack = packs[packs.length - 1];
-    const ST = { pending: '等 Jacky 在 TG 核准', sending: '寄送中', sent: '已寄出', draft: '被退回', rejected: '不寄' };
+    const ST = { pending: '等 Jacky／Phoebe 在 TG 核准', sending: '寄送中', sent: '已寄出', draft: '被退回', rejected: '不寄' };
     // 2026-10-02：合約跟匿名履歷放同一張表，用 contract_type 分（'匿名履歷'）
     const allFiles = Array.isArray(contractFiles) ? contractFiles : [];
     const files = allFiles.filter((f) => f.contract_type !== '匿名履歷');
@@ -2195,7 +2195,7 @@ ${n.learned ? `<p><b>學到什麼</b>${text(n.learned)}</p>` : ''}${n.next_time 
     const po = packOptions || views.PACK_OPTIONS_FALLBACK;
     return `<section class="cg-pack" data-pack-company="${escapeHtml(company)}" data-pack-by="${escapeHtml(assignedTo || '')}">
       <h4 style="margin:18px 0 6px">寄公司介紹／開發信</h4>
-      <p class="help" style="margin-top:0">選「為什麼寄」和「強調什麼」，信會自動換一版；按「先看信的內容」可以直接改字。信裡不寫任何費用數字。擬好送 TG，Jacky 按核准才寄。</p>
+      <p class="help" style="margin-top:0">選「為什麼寄」和「強調什麼」，信會自動換一版；按「先看信的內容」可以直接改字。信裡不寫任何費用數字。擬好送 TG，Jacky 或 Phoebe 按核准才寄。</p>
       <div class="cg-row"><b>收件人</b><span>${email ? text(email) : '<span class="pc-status bad">還沒有信箱</span> 先在上面記錄電話結果時補信箱'}</span></div>
       <div class="cg-row"><b>署名</b><span>${assignedTo ? `${text(assignedTo)}｜Step1ne 德仁管理顧問有限公司` : '<span class="pc-status bad">還沒指派負責顧問</span>'}</span></div>
       <label class="field"><span>信件版本</span>${views.packStyleSelect('short', 'data-pack-style')}</label>
@@ -2281,7 +2281,7 @@ ${n.learned ? `<p><b>學到什麼</b>${text(n.learned)}</p>` : ''}${n.next_time 
   // 「客戶跟進」分頁：聯繫過的公司一頁看完，照「哪一天要做」排；下一步選「寄信」才出現寄信設定
   bdWrapup: ({ rows, scenarios, angles, contract_types }) => {
     const po = { scenarios, angles, contract_types };
-    const ST = { pending: '等 Jacky 核准', sending: '寄送中', sent: '已寄出', draft: '被退回', rejected: '不寄' };
+    const ST = { pending: '等 Jacky／Phoebe 核准', sending: '寄送中', sent: '已寄出', draft: '被退回', rejected: '不寄' };
     const people = [...new Set(rows.map((r) => r.assigned_to).filter(Boolean))];
     const today = new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 10);
     const needs = (r) => !r.parked_at && r.next_action !== 'pause' && (!r.next_due || r.next_due <= today);
