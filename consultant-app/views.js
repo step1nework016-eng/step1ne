@@ -1938,7 +1938,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
   // 篩選用原生 <select>（手機版直接可用，不用另外判斷裝置），列表本身用
   // data-bd-stage／data-bd-has-todo 屬性標記，篩選邏輯在 app.js 的
   // wireBdDashboardFilter()（同一套 wireBindFilter() 的作法：show/hide，不重打 API）。
-  bdDashboardStageLabel: { sent: '已接觸', delivered: '送達', opened: '開信', replied: '回信', jd_shared: '談到職缺', closed: '成交' },
+  bdDashboardStageLabel: { sent: '已接觸', delivered: '送達', opened: '開信', replied: '有回應', jd_shared: '談到職缺', closed: '成交' },
   bdDashboard: ({ funnel, open_tracking_note, no_delivery_record_count, contact_breakdown, rows, consultants, cached_at }, mode) => {
     const aiMode = mode === 'ai';
     const LABEL = views.bdDashboardStageLabel;
@@ -1966,7 +1966,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
       <select id="bd-dash-filter">
         <option value="">全部</option>
         <option value="todo">待我處理</option>
-        <option value="replied">已回信（含談到職缺／成交）</option>
+        <option value="replied">有回應（回信或電訪講到話，含談到職缺／成交）</option>
         ${STAGES.map((k) => `<option value="stage:${k}">停在「${LABEL[k]}」</option>`).join('')}
       </select>
       <span id="bd-dash-count" class="help"></span>
