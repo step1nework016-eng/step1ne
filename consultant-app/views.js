@@ -3253,11 +3253,39 @@ ${tg}
   },
   // 舊格式（call_prep_md 是純文字 MD，不是 JSON）——維持原本純文字呈現，
   // 不強迫使用者重新產生，但給一個明顯的「升級成新版卡片」按鈕。
-  precallCardLegacy: (mdText) => `<div class="pc-legacy">
-    <p class="help">這是舊版電洽前準備（純文字），重新產生可以看到新版卡片。</p>
-    <div class="pc-legacy-body">${text(mdText).split('\n').map((line) => `<p>${line || '&nbsp;'}</p>`).join('')}</div>
-    <button type="button" class="btn ghost sm" data-action="precall-generate" data-force="1">重新產生（新版卡片）</button>
-  </div>`,
+  // 2026-10-02 Jacky：「但我要排版啊」——AI 寫卡片失敗時退回的純文字版，本身就分好段
+  // （標題一行、・開頭的重點、1. 開頭的問題），照段落排成卡片，不用等重產。
+  precallCardLegacy: (mdText) => {
+    const blocks = [];
+    let cur = null;
+    String(mdText || '').split('\n').forEach((raw) => {
+      const line = raw.trim();
+      if (!line) return;
+      const bullet = line.match(/^[・•\-*]\s*(.+)$/);
+      const num = line.match(/^(\d+)[.、)]\s*(.+)$/);
+      if (bullet || num) {
+        if (!cur) { cur = { title: '', items: [], ordered: !!num }; blocks.push(cur); }
+        cur.items.push(bullet ? bullet[1] : num[2]);
+        if (num) cur.ordered = true;
+      } else {
+        cur = { title: line, items: [], ordered: false };
+        blocks.push(cur);
+      }
+    });
+    const sec = (b) => {
+      const warn = /缺口|風險|落差|未提及|注意/.test(b.title);
+      const items = b.items.map((x) => {
+        const hot = /最大缺口|缺口|未提及|沒有|未實測|落差/.test(x);
+        return `<li${hot ? ' class="pcl-hot"' : ''}>${text(x)}</li>`;
+      }).join('');
+      return `<section class="pcl-sec${warn ? ' warn' : ''}">${b.title ? `<h4>${text(b.title)}</h4>` : ''}${items ? (b.ordered ? `<ol class="pcl-q">${items}</ol>` : `<ul>${items}</ul>`) : ''}</section>`;
+    };
+    return `<div class="pc-legacy">
+    <div class="pcl">${blocks.map(sec).join('')}</div>
+    <p class="help" style="margin-top:10px">這份是精簡版。想看有硬條件、必問題、提醒的完整卡片，可以按重新產生（約 5～10 分鐘）。</p>
+    <button type="button" class="btn ghost sm" data-action="precall-generate" data-force="1">重新產生（完整卡片）</button>
+  </div>`;
+  },
   // 2026-09-17 依 PRECALL v1.4 Contract 升級：hard_gates 多了 category/
   // classification/priority/source，ai_flags 多了 show_on_main_card 挑主卡，
   // call_goal.validation_points 從純字串陣列變成 {gate_id,label} 物件。
