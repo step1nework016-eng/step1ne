@@ -2405,7 +2405,7 @@ function renderPrecallStatus(box, data, applicationId) {
   if (data.card) state.precallCardCache = { applicationId, card: data.card };
   if (status === 'ready') box.innerHTML = views.precallCard(data.card, { stale: false, applicationId });
   else if (status === 'stale') box.innerHTML = views.precallCard(data.card, { stale: true, applicationId });
-  else if (status === 'generating') box.innerHTML = views.precallCardLoading();
+  else if (status === 'generating') box.innerHTML = views.precallCardLoading() + (data.legacy_call_prep_md ? `<p class="help" style="margin:10px 0 6px">完整卡片產生中，先看這份精簡版：</p>${views.precallCardLegacy(data.legacy_call_prep_md)}` : '');
   else if (status === 'not_generated' && data.legacy_call_prep_md) box.innerHTML = views.precallCardLegacy(data.legacy_call_prep_md);
   else box.innerHTML = views.precallCardEmpty();
 }
