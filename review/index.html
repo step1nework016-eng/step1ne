@@ -138,6 +138,19 @@ button.submit:focus-visible{outline:3px solid #16202e;outline-offset:2px}
         </div>
         <input type="text" id="offered" name="offered" maxlength="120" placeholder="錄取的職缺名稱" hidden style="margin-top:8px">
 
+        <span class="q">您是從哪裡認識 Step1ne 的？ <span class="req">*</span></span>
+        <div class="chips" role="radiogroup" aria-label="從哪裡認識 Step1ne">
+          <label><input type="radio" name="heard" value="Threads">Threads</label>
+          <label><input type="radio" name="heard" value="LinkedIn">LinkedIn</label>
+          <label><input type="radio" name="heard" value="LINE 官方帳號">LINE 官方帳號</label>
+          <label><input type="radio" name="heard" value="朋友介紹">朋友介紹</label>
+          <label><input type="radio" name="heard" value="網路搜尋">網路搜尋</label>
+          <label><input type="radio" name="heard" value="104／其他人力銀行">104／其他人力銀行</label>
+          <label><input type="radio" name="heard" value="其他">其他</label>
+        </div>
+        <input type="text" id="heardOther" maxlength="40" placeholder="請簡單寫一下" hidden style="margin-top:8px">
+        <div class="hint">只作為內部參考，不會公開。</div>
+
         <label for="consultant">負責的顧問</label>
         <select id="consultant" name="consultant"><option value="">不記得／不確定</option></select>
 
@@ -231,6 +244,9 @@ button.submit:focus-visible{outline:3px solid #16202e;outline-offset:2px}
     else { f.querySelector('input[name=offer][value=other]').checked = true; offeredBox.value = ov; offeredBox.hidden = false; }
   }
 
+  Array.prototype.forEach.call(f.querySelectorAll('input[name=heard]'), function (r) {
+    r.addEventListener('change', function () { var o = document.getElementById('heardOther'); o.hidden = r.value !== '其他' || !r.checked; if (!o.hidden) o.focus(); });
+  });
   var rating = 0;
   var LABELS = ['', '很不滿意', '不太滿意', '普通', '滿意', '非常滿意'];
   var stars = Array.prototype.slice.call(document.querySelectorAll('.stars button'));
@@ -266,6 +282,9 @@ button.submit:focus-visible{outline:3px solid #16202e;outline-offset:2px}
     if (offer === 'other' && !v('offered')) { offeredBox.focus(); return err('請填錄取的職缺名稱'); }
     var offered = offer === 'same' ? v('job') : offer === 'other' ? v('offered') : '（這次沒有錄取）';
     if (!consent) return err('請選這則心得可不可以放上官網');
+    var heard = (f.querySelector('input[name=heard]:checked') || {}).value || '';
+    if (!heard) return err('請選您是從哪裡認識 Step1ne 的');
+    if (heard === '其他') { var ho = document.getElementById('heardOther').value.trim(); if (!ho) { document.getElementById('heardOther').focus(); return err('請簡單寫一下是從哪裡認識的'); } heard = '其他：' + ho; }
     var btn = f.querySelector('button.submit');
     btn.disabled = true; btn.textContent = '送出中…'; msg.textContent = ''; msg.className = 'msg';
     fetch(API, {
@@ -273,7 +292,7 @@ button.submit:focus-visible{outline:3px solid #16202e;outline-offset:2px}
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
         rating: rating, review: v('review'), improve: v('improve'), name: v('name'), job: v('job'),
-        consultant: v('consultant'), offered: offered, consent: consent, contact: v('contact'), website: v('website'),
+        consultant: v('consultant'), offered: offered, heard_from: heard, consent: consent, contact: v('contact'), website: v('website'),
         helpful: Array.prototype.map.call(f.querySelectorAll('input[name=helpful]:checked'), function (x) { return x.value; }),
         ref: (qs.get('ref') || '').slice(0, 80), page: location.pathname + location.search
       })
