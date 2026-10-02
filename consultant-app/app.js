@@ -375,6 +375,17 @@ document.addEventListener('click', async (event) => {
   }
 });
 
+// 寄公司介紹預覽：顧問改完字可以自己複製主旨／內文（2026-10-02 Jacky）
+document.addEventListener('click', (e) => {
+  const b = e.target instanceof Element ? e.target.closest('[data-pack-copy]') : null;
+  if (!b) return;
+  const box = b.closest('[data-pack-out]');
+  const el = box && box.querySelector(b.getAttribute('data-pack-copy') === 'subj' ? '[data-pack-subj]' : '[data-pack-body]');
+  if (!el) return;
+  navigator.clipboard.writeText(el.value || '').then(() => toast(b.getAttribute('data-pack-copy') === 'subj' ? '已複製主旨' : '已複製內文', 'success'))
+    .catch(() => { el.select(); toast('自動複製失敗，已幫你選好文字，按 Cmd＋C', 'error'); });
+});
+
 // 客戶卡片「通話紀錄與進度」的兩個分頁（進度／AI 建議）
 document.addEventListener('click', (e) => {
   const b = e.target instanceof Element ? e.target.closest('[data-bdp-tab]') : null;

@@ -2203,6 +2203,7 @@ ${n.learned ? `<p><b>學到什麼</b>${text(n.learned)}</p>` : ''}${n.next_time 
         <div class="pack-meta" data-pack-meta></div>
         <label class="field"><span>主旨</span><input class="cg-in" data-pack-subj></label>
         <label class="field"><span>內文</span><textarea class="cg-in" data-pack-body rows="16"></textarea></label>
+        <div class="actions-row" style="margin:6px 0 0"><button type="button" class="btn sm" data-pack-copy="subj">複製主旨</button><button type="button" class="btn sm" data-pack-copy="body">複製內文</button><small class="help" style="align-self:center">改好可以直接複製，貼到自己的信箱寄</small></div>
       </div>
     </section>`;
   },
