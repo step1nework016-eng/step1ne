@@ -375,6 +375,44 @@ document.addEventListener('click', async (event) => {
   }
 });
 
+// ── 2026-10-02 寄信約電話（沒綁 LINE 的人選）──────────────────────────────
+// 快速判斷卡片和人選卡片共用；「我是誰」跟 AI 配對頁共用 amUi().me。
+async function cmOpen(appId, name, note) {
+  state.cm = { appId, name, note: note || '' };
+  openSubDrawer({ title: '寄信約電話', subtitle: `${name || ''}｜先看信的內容，按「確認寄給人選」才會寄`, body: loading() });
+  await ensureConsultants();
+  let d;
+  try { d = await adapters.callMail(appId, 'preview', null, note); } catch (e) { d = { error: (e.body && e.body.error) || e.message }; }
+  const body = $('#sub-overlay-root .drawer-body');
+  if (body) body.innerHTML = views.callMailPreview(d, { me: amUi().me, note, consultants: state.consultantsCache || [] });
+}
+document.addEventListener('change', (e) => {
+  const sel = e.target.closest && e.target.closest('[data-cm-me]');
+  if (sel) { amUi().me = sel.value; amSave(); }
+});
+document.addEventListener('click', async (event) => {
+  const t = event.target instanceof Element ? event.target : null;
+  const open = t && t.closest('[data-call-mail]');
+  if (open) { event.preventDefault(); cmOpen(open.getAttribute('data-call-mail'), open.getAttribute('data-call-mail-name')); return; }
+  const btn = t && t.closest('[data-cm-action]');
+  if (!btn || btn.disabled || !state.cm) return;
+  event.preventDefault();
+  const act = btn.getAttribute('data-cm-action');
+  const note = $('#cm-note')?.value || '';
+  if (act === 'refresh') { cmOpen(state.cm.appId, state.cm.name, note); return; }
+  const me = amUi().me;
+  if (!me) { toast('請先在下方「我是」選你的名字', 'error'); document.querySelector('[data-cm-me]')?.focus(); return; }
+  if (act === 'send' && !window.confirm(`確定要寄這封信給 ${state.cm.name || '這位人選'} 嗎？寄出就收不回來了。`)) return;
+  btn.disabled = true;
+  try {
+    const r = await adapters.callMail(state.cm.appId, act, me, note);
+    if (act === 'test') { toast(`測試信已寄到 ${r.to}`, 'success'); btn.disabled = false; return; }
+    toast(`已寄信給 ${state.cm.name || '人選'}，人選回信會出現在 TG`, 'success');
+    closeSubDrawer();
+    if (state.route === 'candidates' && state.sub === 'triage') loadTriageTab($('#page-data'));
+  } catch (e) { toast((e.body && e.body.error) || e.message || '沒有寄出去', 'error'); btn.disabled = false; }
+});
+
 // ── 2026-10-01 外部人選資料卡＋Email 邀請 ───────────────────────────────────
 // 疊在職缺抽屜／人才池清單「之上」的一層（openSubDrawer），關掉不影響底下的抽屜。
 // 「我是誰」跟 AI 配對頁共用同一個（amUi().me），選一次兩邊都記得。
@@ -2083,7 +2121,10 @@ function reviewLinkRow(app, applicationId) {
   if (app.name) qs.set('n', app.name);
   qs.set('ref', applicationId);
   const url = `https://step1ne.com/review/?${qs.toString()}`;
-  return `<div class="actions-row" style="margin-top:8px"><button type="button" class="btn sm" data-copy-text="${escapeHtml(url)}">複製服務心得連結</button><span class="help" style="align-self:center">複製後直接貼給人選，顧問、職缺都幫他填好了</span></div>`;
+  const mail = String(app.email || '').trim();
+  const callMailBtn = mail && !isPlaceholderEmail(mail)
+    ? `<button type="button" class="btn sm" data-call-mail="${escapeHtml(applicationId)}" data-call-mail-name="${escapeHtml(app.name || '')}">寄信約電話</button>` : '';
+  return `<div class="actions-row" style="margin-top:8px">${callMailBtn}<button type="button" class="btn sm" data-copy-text="${escapeHtml(url)}">複製服務心得連結</button><span class="help" style="align-self:center">複製後直接貼給人選，顧問、職缺都幫他填好了</span></div>`;
 }
 
 // 先選客戶 → 再選職缺（views.clientJobPicker）。全站共用一個監聽，哪個畫面用到都會動。

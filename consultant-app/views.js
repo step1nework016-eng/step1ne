@@ -2813,6 +2813,25 @@ ${a.note ? `<details class="note-details"><summary>顧問備註／電洽紀錄</
   // ── 2026-10-02 快速判斷：Jacky「不用一直完整點看，直接看 tab 就知道推不推、打不打電話」──
   // 一人一張小卡，只放阿財報告裡現成的：一句話、亮點、風險、分流、期望薪資、到職時間。
   // 三個按鈕都只是內部記號（不寄任何東西給人選、不改推薦流程）；「要打電話」會在 TG 通知負責顧問。
+  // 2026-10-02 寄信約電話預覽（疊在上層的小抽屜）
+  callMailPreview: (d, ui) => {
+    const cons = ui.consultants || [];
+    const opt = (v, label, cur) => `<option value="${escapeHtml(v)}" ${String(cur || '') === String(v) ? 'selected' : ''}>${escapeHtml(label)}</option>`;
+    if (d.error) return `<div class="notice">${text(d.error)}</div>`;
+    return `<div class="cm-wrap">
+      ${d.line_bound ? '<p class="notice">這位人選有綁 LINE，用 LINE 聯繫通常比較快。還是要寄信也可以。</p>' : ''}
+      ${d.blocked ? `<p class="notice">${text(d.blocked)}</p>` : ''}
+      <dl class="am-mailmeta"><dt>寄給</dt><dd>${text(d.to)}</dd><dt>主旨</dt><dd>${text(d.subject)}</dd><dt>人選回信</dt><dd>會出現在 TG「📬 開發信 開信・回信」</dd></dl>
+      <label class="field" style="margin-top:12px"><span>想多加一句話給人選（可以不填；不能出現「客戶」）</span>
+        <textarea id="cm-note" rows="2" placeholder="例如：想先跟您確認可以出差的頻率">${text(d.note || ui.note || '', '')}</textarea></label>
+      <div class="actions-row" style="margin:8px 0 12px"><button type="button" class="btn sm" data-cm-action="refresh">更新預覽</button></div>
+      <iframe class="am-mailframe" sandbox="" title="信件預覽" srcdoc="${escapeHtml(d.html || '')}"></iframe>
+      <div class="actions-row cm-actions" style="margin-top:12px;align-items:center">
+        <label class="am-me">我是 <select data-cm-me>${opt('', '選擇…', ui.me)}${cons.filter((c) => c.is_active).map((c) => opt(c.display_name, c.display_name, ui.me)).join('')}</select></label>
+        <button type="button" class="btn" data-cm-action="test" title="寄一封一模一樣的信到 Jacky 的信箱，不會寄給人選">寄測試信給 Jacky 看</button>
+        <button type="button" class="btn primary" data-cm-action="send" ${d.blocked ? 'disabled' : ''}>確認寄給人選</button>
+      </div></div>`;
+  },
   triageTab: (data, ui) => {
     const items = (data && data.items) || [];
     const jobs = (data && data.jobs) || [];
@@ -2845,6 +2864,8 @@ ${a.note ? `<details class="note-details"><summary>顧問備註／電洽紀錄</
         ${line('＋', '亮點', r.top_selling_point)}
         ${line('！', '風險', r.top_risk)}
         ${(r.expected_salary || r.available_date) ? line('・', '條件', [r.expected_salary ? `期望 ${r.expected_salary}` : '', r.available_date ? `到職 ${r.available_date}` : ''].filter(Boolean).join('｜')) : ''}
+        ${r.call_mail_at ? `<div class="am-status"><span class="badge ${r.call_mail_reply_at ? 'success' : 'info'}">${r.call_mail_reply_at ? '人選已回信約時間（看 TG）' : '已寄信約電話'}</span> ${text(String(r.call_mail_reply_at || r.call_mail_at).slice(5, 16))}</div>` : ''}
+        ${!r.has_email && !r.line_bound ? '<p class="help" style="margin:0">沒綁 LINE、也沒有 Email，只能直接打電話</p>' : ''}
         ${tri ? `<div class="am-status"><span class="badge ${tri[1]}">${tri[0]}</span> ${text(r.triage_by || '')}・${text(String(r.triage_at || '').slice(5, 16))}${r.triage_note ? `｜${text(r.triage_note)}` : ''}</div>` : ''}
         <div class="actions-row tri-actions">
           ${r.triage ? `<button type="button" class="btn sm" data-tri-action="undo">復原（放回還沒決定）</button>` : `
@@ -2852,6 +2873,7 @@ ${a.note ? `<details class="note-details"><summary>顧問備註／電洽紀錄</
           <button type="button" class="btn sm" data-tri-action="call">要打電話</button>
           <button type="button" class="btn ghost sm" data-tri-action="no">不推</button>`}
           <button type="button" class="btn ghost sm" data-tri-action="open">看完整報告</button>
+          ${r.has_email && !r.line_bound ? `<button type="button" class="btn ghost sm" data-call-mail="${escapeHtml(r.application_id)}" data-call-mail-name="${escapeHtml(r.name || '')}">寄信約電話</button>` : ''}
         </div>
       </article>`;
     };
