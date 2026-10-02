@@ -423,6 +423,17 @@ document.addEventListener('click', async (e) => {
   const me = amUi().me;
   if (!me) { toast('請先在上方「我是」選你的名字', 'error'); document.querySelector('[data-cb-me]')?.focus(); return; }
   const row = act.closest('[data-cb-id]');
+  if (act.getAttribute('data-cb-act') === 'mail') {
+    // 寄信：還沒加入開發進度就先加，再打開寄信頁，預先選好「手上有人選」＋匿名重點
+    act.disabled = true;
+    const needPick = !!row.querySelector('[data-cb-act="pick"]');
+    try {
+      if (needPick) await adapters.candBdDecide(row.getAttribute('data-cb-id'), 'pick', me);
+      state.mailPreset = { scenario: 'candidate', brief: act.closest('[data-cb-brief]')?.getAttribute('data-cb-brief') || '' };
+      openBdDetail(act.getAttribute('data-cb-company'), 'mail');
+    } catch (err) { toast(err.message || '沒有成功', 'error'); act.disabled = false; }
+    return;
+  }
   act.disabled = true;
   try {
     const r = await adapters.candBdDecide(row.getAttribute('data-cb-id'), act.getAttribute('data-cb-act'), me);
@@ -1656,7 +1667,18 @@ async function openBdDetail(company, focus) {
     if (state.bdMailMode) {
       drawer({ title: company, subtitle: sub, body: views.bdMailOnly({ ...detail, company }) });
       const root = document.querySelector('.bd-mail-only');
-      if (root) { wireContractPack(root); root.querySelector('select')?.focus(); }
+      if (root) {
+        wireContractPack(root);
+        // 從人選敲門名單按「寄信」進來：預先選好「手上有人選」，帶入匿名人選重點
+        const pre = state.mailPreset; state.mailPreset = null;
+        if (pre) {
+          const sc = root.querySelector('[data-pack-scenario]');
+          const br = root.querySelector('[data-pack-brief]');
+          if (br && pre.brief) br.value = pre.brief;
+          if (sc && pre.scenario) { sc.value = pre.scenario; sc.dispatchEvent(new Event('change')); }
+        }
+        (root.querySelector('[data-pack-to]') || root.querySelector('select'))?.focus();
+      }
       return;
     }
     drawer({ title: company, subtitle: sub, body: views.bdDashboardDetail(detail) });
@@ -1881,6 +1903,7 @@ function wireContractPack(scope) {
       angle: anSel?.value || '',
       attach_intro: !!box.querySelector('[data-pack-intro]')?.checked,
       candidate_brief: box.querySelector('[data-pack-brief]')?.value || '',
+      ...(box.querySelector('[data-pack-to]')?.value.trim() ? { to_override: box.querySelector('[data-pack-to]').value.trim() } : {}),
       resume_ids: [...box.querySelectorAll('[data-pack-cv]:checked')].map((x) => x.value),
       ...(sel && sel.value ? { contract_id: sel.value } : { no_contract: true }),
     };

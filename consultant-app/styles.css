@@ -814,3 +814,6 @@ details.note-details p{margin:8px 0 0;font-size:13.5px;white-space:pre-wrap;colo
 .cb-runs{display:grid;gap:12px}.cb-run{padding:14px 16px}
 .cb-brief{background:#f3f7ff;border-radius:10px;padding:8px 14px;margin:8px 0;font-size:14px}.cb-brief ul{margin:4px 0 0;padding-left:18px}
 .cb-row{flex-wrap:wrap;row-gap:6px}.cb-row .actions-row .btn{min-height:40px}
+.cb-run>summary{cursor:pointer;list-style:none;display:flex;align-items:center;min-height:44px}.cb-run>summary::-webkit-details-marker{display:none}
+.cb-caret{display:inline-block;transition:transform .15s;color:var(--muted)}.cb-run[open] .cb-caret{transform:rotate(90deg)}
+@media (prefers-reduced-motion:reduce){.cb-caret{transition:none}}

@@ -2110,7 +2110,7 @@ ${ns.length ? `<div class="bdn-list">${ns.map(item).join('')}</div>` : '<p class
       <span class="help">名單從人選卡片按「拿這位人選去開發客戶」產生</span></div>`;
     if (!runs.length) return head + empty('還沒有人選敲門名單', '打開一位人選卡片，按「拿這位人選去開發客戶」。');
     const ST = { queued: ['AI 找名單中（約 3～5 分鐘）', 'info'], done: ['', ''], failed: ['失敗', 'danger'] };
-    const run = (r) => {
+    const run = (r, idx) => {
       const ts = r.targets || [];
       const left = ts.filter((t) => t.status === 'new');
       const row = (t) => {
@@ -2119,16 +2119,17 @@ ${ns.length ? `<div class="bdn-list">${ns.map(item).join('')}</div>` : '<p class
           : t.status === 'dropped' ? `<span class="badge">不要・${text(t.decided_by || '')}</span>` : '';
         return `<div class="list-row cb-row" data-cb-id="${escapeHtml(t.id)}"><span style="flex:1 1 320px"><b>${text(t.company)}</b> ${t.angle ? `<span class="badge ${ANG[t.angle] || ''}">${text(t.angle)}</span>` : ''} ${ex}
           <small>${text(t.why || '')}${t.job_hint ? `｜可能職缺：${text(t.job_hint)}` : ''}</small></span>
-          <span class="actions-row">${done || (t.existing === 'client' ? '' : `<button type="button" class="btn primary sm" data-cb-act="pick">加入開發進度</button><button type="button" class="btn ghost sm" data-cb-act="drop">不要</button>`)}</span></div>`;
+          <span class="actions-row">${t.existing === 'client' ? '' : (t.status === 'dropped' ? done : `${done || `<button type="button" class="btn primary sm" data-cb-act="pick">加入開發進度</button>`}<button type="button" class="btn sm" data-cb-act="mail" data-cb-company="${escapeHtml(t.company)}" title="自動加入開發進度，打開寄信頁（已選好「手上有人選」、帶入匿名重點）">寄信</button>${done ? '' : '<button type="button" class="btn ghost sm" data-cb-act="drop">不要</button>'}`)}</span></div>`;
       };
       const st = ST[r.status] || ['', ''];
-      return `<article class="card cb-run"><div class="card-head" style="flex-wrap:wrap;gap:6px"><h3 style="margin:0;font-size:15px">拿 <button type="button" class="am-name" data-cb-open="${escapeHtml(r.application_id)}">${text(r.candidate_name || '人選')}</button> 去開發</h3>
+      // 2026-10-02 Jacky：名單要能展開收合——最新一筆預設展開，其他收起來
+      return `<details class="card cb-run" data-cb-brief="${escapeHtml(r.brief || '')}"${idx === 0 ? ' open' : ''}><summary class="card-head cb-sum" style="flex-wrap:wrap;gap:6px"><span class="cb-caret" aria-hidden="true">▸</span><h3 style="margin:0;font-size:15px">拿 <button type="button" class="am-name" data-cb-open="${escapeHtml(r.application_id)}">${text(r.candidate_name || '人選')}</button> 去開發</h3>
           <small class="muted">${text(r.job_title || '')}・${text(String(r.created_at || '').slice(5, 16))}・${text(r.requested_by || '')}${r.status === 'done' ? `・剩 ${left.length} 家沒處理` : ''}</small>
-          ${st[0] ? `<span class="badge ${st[1]}">${text(st[0])}</span>` : ''}</div>
+          ${st[0] ? `<span class="badge ${st[1]}">${text(st[0])}</span>` : ''}</summary>
         ${r.error ? `<p class="notice">${text(r.error)}</p>` : ''}
         ${r.brief ? `<div class="cb-brief"><b>匿名人選重點（開口用）</b><ul>${String(r.brief).split('\n').filter(Boolean).map((x) => `<li>${text(x)}</li>`).join('')}</ul></div>` : ''}
         ${ts.length ? `<div class="list">${ts.map(row).join('')}</div>` : ''}
-      </article>`;
+      </details>`;
     };
     return head + `<div class="cb-runs">${runs.map(run).join('')}</div>`;
   },
@@ -2239,7 +2240,7 @@ ${n.learned ? `<p><b>學到什麼</b>${text(n.learned)}</p>` : ''}${n.next_time 
     return `<section class="cg-pack" data-pack-company="${escapeHtml(company)}" data-pack-by="${escapeHtml(assignedTo || '')}">
       <h4 style="margin:18px 0 6px">寄公司介紹／開發信</h4>
       <p class="help" style="margin-top:0">選「為什麼寄」和「強調什麼」，信會自動換一版；按「先看信的內容」可以直接改字。信裡不寫任何費用數字。擬好送 TG，Jacky 或 Phoebe 按核准才寄。</p>
-      <div class="cg-row"><b>收件人</b><span>${email ? text(email) : '<span class="pc-status bad">還沒有信箱</span> 先在上面記錄電話結果時補信箱'}</span></div>
+      <div class="cg-row"><b>收件人</b><span>${email ? text(email) : '<input class="cg-in" data-pack-to type="email" placeholder="還沒有信箱，直接填在這裡（例：hr@company.com）" style="width:100%;min-width:240px">'}</span></div>
       <div class="cg-row"><b>署名</b><span>${assignedTo ? `${text(assignedTo)}｜Step1ne 德仁管理顧問有限公司` : '<span class="pc-status bad">還沒指派負責顧問</span>'}</span></div>
       <label class="field"><span>信件版本</span>${views.packStyleSelect('short', 'data-pack-style')}</label>
       <label class="field"><span>為什麼寄</span>${views.packScenarioSelect(po, (outreach || []).some((o) => String(o.why_company || '').includes('【官網主動詢問】')) && !(outreach || []).some((o) => o.call_result) ? 'inbound' : 'followup', 'data-pack-scenario')}</label>
