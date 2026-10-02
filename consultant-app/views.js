@@ -2188,7 +2188,10 @@ ${n.learned ? `<p><b>學到什麼</b>${text(n.learned)}</p>` : ''}${n.next_time 
     const packs = (outreach || []).filter((o) => o.scenario === 'contract_pack');
     const lastPack = packs[packs.length - 1];
     const ST = { pending: '等 Jacky 在 TG 核准', sending: '寄送中', sent: '已寄出', draft: '被退回', rejected: '不寄' };
-    const files = Array.isArray(contractFiles) ? contractFiles : [];
+    // 2026-10-02：合約跟匿名履歷放同一張表，用 contract_type 分（'匿名履歷'）
+    const allFiles = Array.isArray(contractFiles) ? contractFiles : [];
+    const files = allFiles.filter((f) => f.contract_type !== '匿名履歷');
+    const cvFiles = allFiles.filter((f) => f.contract_type === '匿名履歷');
     const po = packOptions || views.PACK_OPTIONS_FALLBACK;
     return `<section class="cg-pack" data-pack-company="${escapeHtml(company)}" data-pack-by="${escapeHtml(assignedTo || '')}">
       <h4 style="margin:18px 0 6px">寄公司介紹／開發信</h4>
@@ -2200,9 +2203,10 @@ ${n.learned ? `<p><b>學到什麼</b>${text(n.learned)}</p>` : ''}${n.next_time 
       <label class="field"><span>強調什麼（可以不選）</span>${views.packAngleSelect(po, '', 'data-pack-angle')}</label>
       <label class="field" data-pack-brief-wrap hidden><span>人選背景重點（一行一個；不寫姓名、不寫目前任職公司）</span><textarea class="cg-in" data-pack-brief rows="3" placeholder="例：半導體設備 8 年，熟 PVD／CVD&#10;帶過 5 人團隊"></textarea></label>
       <div class="cg-row"><b>附件</b><span class="pack-attach"><label><input type="checkbox" data-pack-intro checked> 公司介紹（STEP1NE_企業人才招募解決方案.pdf）</label>
+        ${cvFiles.length ? `<span class="pack-cvs"><b>匿名履歷（可複選）</b>${cvFiles.map((f, i) => `<label><input type="checkbox" data-pack-cv value="${escapeHtml(f.id)}"${i ? '' : ' checked'}> ${text(f.filename)}<small>（${text(String(f.created_at || '').slice(5, 16))}${f.uploaded_by ? ' ' + text(f.uploaded_by) : ''}）</small></label>`).join('')}</span>` : ''}
         ${files.length ? `<select class="cg-in" data-pack-contract><option value="">不附合約</option>${files.map((f, i) => `<option value="${escapeHtml(f.id)}"${i ? '' : ' selected'}>${f.contract_type ? `【${text(f.contract_type)}】` : ''}${text(f.filename)}（${text(String(f.created_at || '').slice(5, 16))}${f.uploaded_by ? ' ' + text(f.uploaded_by) : ''}）</option>`).join('')}</select>` : '<span class="muted">合約：還沒上傳（選填）</span>'}</span></div>
-      <div class="pack-upload"><label class="field"><span>上傳這家的合約（選填；PDF／DOCX，8MB 內）</span>
-        <span class="pack-upload-row"><select class="cg-in" data-pack-ctype>${(po.contract_types || []).map((t) => `<option value="${escapeHtml(t)}">${text(t)}</option>`).join('')}</select>
+      <div class="pack-upload"><label class="field"><span>上傳附件：合約或匿名履歷（選填；先選種類再選檔案，PDF／DOCX，8MB 內）</span>
+        <span class="pack-upload-row"><select class="cg-in" data-pack-ctype>${[...(po.contract_types || []), '匿名履歷'].map((t) => `<option value="${escapeHtml(t)}">${t === '匿名履歷' ? '匿名履歷' : `合約：${text(t)}`}</option>`).join('')}</select>
         <input type="file" data-pack-file accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"></span></label></div>
       ${lastPack ? `<div class="notice" style="margin:8px 0">上一封：${text(ST[lastPack.status] || lastPack.status)}${lastPack.sent_at ? `（${text(String(lastPack.sent_at).slice(5, 16))} 寄出）` : ''}</div>` : ''}
       <div class="actions-row"><button type="button" class="btn" data-pack-preview>先看信的內容</button><button type="button" class="btn primary" data-pack-send>擬信並送 TG 核准</button></div>

@@ -1842,6 +1842,7 @@ function wireContractPack(scope) {
       angle: anSel?.value || '',
       attach_intro: !!box.querySelector('[data-pack-intro]')?.checked,
       candidate_brief: box.querySelector('[data-pack-brief]')?.value || '',
+      resume_ids: [...box.querySelectorAll('[data-pack-cv]:checked')].map((x) => x.value),
       ...(sel && sel.value ? { contract_id: sel.value } : { no_contract: true }),
     };
     if (orig && !out.hidden) {
@@ -1855,13 +1856,13 @@ function wireContractPack(scope) {
   fileIn?.addEventListener('change', async () => {
     const f = fileIn.files && fileIn.files[0];
     if (!f) return;
-    if (!/\.(pdf|docx)$/i.test(f.name)) { toast('合約只收 PDF 或 DOCX', 'error'); fileIn.value = ''; return; }
+    if (!/\.(pdf|docx)$/i.test(f.name)) { toast('附件只收 PDF 或 DOCX', 'error'); fileIn.value = ''; return; }
     if (f.size > 8 * 1024 * 1024) { toast('檔案超過 8MB', 'error'); fileIn.value = ''; return; }
     fileIn.disabled = true;
     try {
       const b64 = await new Promise((ok, bad) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(',')[1]); r.onerror = bad; r.readAsDataURL(f); });
       await api.post('/admin/bd/contract-file', { company, file_b64: b64, file_name: f.name, file_mime: f.type, contract_type: box.querySelector('[data-pack-ctype]')?.value || '', by: box.dataset.packBy || '' });
-      toast('合約已上傳', 'success');
+      toast(box.querySelector('[data-pack-ctype]')?.value === '匿名履歷' ? '匿名履歷已上傳，已幫你勾成附件' : '合約已上傳', 'success');
       openBdDetail(company, state.bdMailMode ? 'mail' : undefined);
     } catch (err) { toast(err.message || '上傳失敗', 'error'); }
     fileIn.disabled = false;
@@ -1888,7 +1889,7 @@ function wireContractPack(scope) {
     if (edited) toast('換了選項，信件重新擬過（剛剛改的字沒有保留）', 'info');
     preview(null);
   };
-  [scSel, anSel, box.querySelector('[data-pack-style]'), box.querySelector('[data-pack-intro]'), box.querySelector('[data-pack-contract]')].forEach((el) => el?.addEventListener('change', onChange));
+  [scSel, anSel, box.querySelector('[data-pack-style]'), box.querySelector('[data-pack-intro]'), box.querySelector('[data-pack-contract]'), ...box.querySelectorAll('[data-pack-cv]')].forEach((el) => el?.addEventListener('change', onChange));
   box.querySelector('[data-pack-brief]')?.addEventListener('change', () => { if (!out.hidden) onChange(); });
   box.querySelector('[data-pack-preview]')?.addEventListener('click', (e) => preview(e.currentTarget));
   box.querySelector('[data-pack-send]')?.addEventListener('click', async (e) => {
