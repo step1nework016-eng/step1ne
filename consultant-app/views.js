@@ -2209,7 +2209,7 @@ ${n.learned ? `<p><b>學到什麼</b>${text(n.learned)}</p>` : ''}${n.next_time 
       <div class="cg-row"><b>收件人</b><span>${email ? text(email) : '<span class="pc-status bad">還沒有信箱</span> 先在上面記錄電話結果時補信箱'}</span></div>
       <div class="cg-row"><b>署名</b><span>${assignedTo ? `${text(assignedTo)}｜Step1ne 德仁管理顧問有限公司` : '<span class="pc-status bad">還沒指派負責顧問</span>'}</span></div>
       <label class="field"><span>信件版本</span>${views.packStyleSelect('short', 'data-pack-style')}</label>
-      <label class="field"><span>為什麼寄</span>${views.packScenarioSelect(po, 'followup', 'data-pack-scenario')}</label>
+      <label class="field"><span>為什麼寄</span>${views.packScenarioSelect(po, (outreach || []).some((o) => String(o.why_company || '').includes('【官網主動詢問】')) && !(outreach || []).some((o) => o.call_result) ? 'inbound' : 'followup', 'data-pack-scenario')}</label>
       <label class="field"><span>強調什麼（可以不選）</span>${views.packAngleSelect(po, '', 'data-pack-angle')}</label>
       <label class="field" data-pack-brief-wrap hidden><span>人選背景重點（一行一個；不寫姓名、不寫目前任職公司）</span><textarea class="cg-in" data-pack-brief rows="3" placeholder="例：半導體設備 8 年，熟 PVD／CVD&#10;帶過 5 人團隊"></textarea></label>
       <div class="cg-row"><b>附件</b><span class="pack-attach"><label><input type="checkbox" data-pack-intro checked> 公司介紹（STEP1NE_企業人才招募解決方案.pdf）</label>
@@ -2230,7 +2230,7 @@ ${n.learned ? `<p><b>學到什麼</b>${text(n.learned)}</p>` : ''}${n.next_time 
     </section>`;
   },
   PACK_OPTIONS_FALLBACK: {
-    scenarios: { followup: '電話後補資料', has_job: '有缺在找', has_agency: '已有配合獵頭', no_job: '目前沒缺', candidate: '手上有人選', strengths: '介紹我們的優勢', sign: '準備簽約' },
+    scenarios: { inbound: '官網詢問回覆（對方主動留需求）', followup: '電話後補資料', has_job: '有缺在找', has_agency: '已有配合獵頭', no_job: '目前沒缺', candidate: '手上有人選', strengths: '介紹我們的優勢', sign: '準備簽約' },
     angles: { no_risk: '到職才收費，沒風險', hard_fill: '難補的缺、開很久的缺', confidential: '保密職缺', mass: '新廠／擴點大量招人', industry: '我們熟這個產業' },
     contract_types: ['正職代招', '高階獵頭', '人力派遣'],
   },
