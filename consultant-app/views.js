@@ -1841,7 +1841,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
     <article class="card" style="margin-top:14px"><div class="card-head"><h3 style="margin:0;font-size:14px">所有發文帳號（${(accounts || []).length}）</h3></div>
       ${list(accounts || [], (a) => `<div class="list-row"><span><b>${text(a.label || a.consultant_name || a.id)}</b><small>${text(a.platform)}</small></span></div>`)}</article>`;
   },
-  clients: (tab='clients') => pageHead('客戶 / BD','集中管理客戶關係、推薦人選與企業用人需求。','<button class="btn primary" data-action="add-client">＋ 新增客戶</button>') + tabbar('clients',[['clients','客戶'],['bd','BD Pipeline'],['bd-progress','開發進度'],['bd-wrapup','客戶跟進'],['scripts','話術手冊'],['requests','BD Requests'],['hiring','企業用人需求'],['billing','收費進程']],tab) + `<div id="page-data">${endpointState('客戶與 BD')}</div>`,
+  clients: (tab='clients') => pageHead('客戶 / BD','集中管理客戶關係、推薦人選與企業用人需求。','<button class="btn primary" data-action="add-client">＋ 新增客戶</button>') + tabbar('clients',[['clients','客戶'],['bd','BD Pipeline'],['bd-progress','開發進度'],['candbd','人選敲門名單'],['bd-wrapup','客戶跟進'],['scripts','話術手冊'],['requests','BD Requests'],['hiring','企業用人需求'],['billing','收費進程']],tab) + `<div id="page-data">${endpointState('客戶與 BD')}</div>`,
   clientsData: ({ companies, bd, requests }) => `<div class="kpi-grid"><article class="kpi"><span>客戶</span><strong>${companies.length}</strong></article><article class="kpi"><span>BD 案件</span><strong>${bd.length}</strong></article><article class="kpi"><span>BD Requests</span><strong>${requests.length}</strong></article></div>
     <div class="card"><div class="card-head"><h2 style="margin:0;font-size:15px">新增客戶</h2></div>
       <p class="help" style="margin:6px 0 10px">建好之後會自動產生一組「用人需求表連結」，把連結給客戶窗口他就能自己填職缺。</p>
@@ -2099,6 +2099,39 @@ ${ns.length ? `<div class="bdn-list">${ns.map(item).join('')}</div>` : '<p class
   // 2026-10-02 Jacky：「通話心得除了改進建議，也要能持續新增通話紀錄，讓顧問知道目前跟客戶的進度」
   // →「通話紀錄與進度」兩個分頁：進度（每一通的結果、談到哪、下一步，新的在上）／AI 建議（逐字稿評分＋心得）。
   // 最上面一行「目前進度」：最新一通談到哪＋這家的下一步（跟「跟進」卡片同一份資料）。
+  // 2026-10-02 人選敲門名單：AI 依人選找的公司，顧問篩過才進開發進度（Jacky：不要讓人以為電洽過）
+  candBdTab: (data, ui) => {
+    const runs = (data && data.runs) || [];
+    const cons = ui.consultants || [];
+    const opt = (v, label, cur) => `<option value="${escapeHtml(v)}" ${String(cur || '') === String(v) ? 'selected' : ''}>${escapeHtml(label)}</option>`;
+    const ANG = { '同業': 'info', '在徵類似職缺': 'success', '擴編展店': 'warning' };
+    const head = `<div class="notice" style="margin:0 0 12px"><b>這裡的公司都還沒聯繫過。</b>是 AI 依人選背景推測「可能需要這種人」的名單（沒有上網查證），打之前先看一下 104／官網。按「加入開發進度」才會進開發進度、開始電訪。</div>
+      <div class="filters"><label class="am-me">我是 <select data-cb-me>${opt('', '選擇…', ui.me)}${cons.filter((c) => c.is_active).map((c) => opt(c.display_name, c.display_name, ui.me)).join('')}</select></label>
+      <span class="help">名單從人選卡片按「拿這位人選去開發客戶」產生</span></div>`;
+    if (!runs.length) return head + empty('還沒有人選敲門名單', '打開一位人選卡片，按「拿這位人選去開發客戶」。');
+    const ST = { queued: ['AI 找名單中（約 3～5 分鐘）', 'info'], done: ['', ''], failed: ['失敗', 'danger'] };
+    const run = (r) => {
+      const ts = r.targets || [];
+      const left = ts.filter((t) => t.status === 'new');
+      const row = (t) => {
+        const ex = t.existing === 'client' ? '<span class="badge danger">已經是客戶</span>' : (t.existing === 'bd' ? '<span class="badge">已在開發進度</span>' : '');
+        const done = t.status === 'picked' ? `<span class="badge success">已加入開發進度・${text(t.decided_by || '')}</span>`
+          : t.status === 'dropped' ? `<span class="badge">不要・${text(t.decided_by || '')}</span>` : '';
+        return `<div class="list-row cb-row" data-cb-id="${escapeHtml(t.id)}"><span style="flex:1 1 320px"><b>${text(t.company)}</b> ${t.angle ? `<span class="badge ${ANG[t.angle] || ''}">${text(t.angle)}</span>` : ''} ${ex}
+          <small>${text(t.why || '')}${t.job_hint ? `｜可能職缺：${text(t.job_hint)}` : ''}</small></span>
+          <span class="actions-row">${done || (t.existing === 'client' ? '' : `<button type="button" class="btn primary sm" data-cb-act="pick">加入開發進度</button><button type="button" class="btn ghost sm" data-cb-act="drop">不要</button>`)}</span></div>`;
+      };
+      const st = ST[r.status] || ['', ''];
+      return `<article class="card cb-run"><div class="card-head" style="flex-wrap:wrap;gap:6px"><h3 style="margin:0;font-size:15px">拿 <button type="button" class="am-name" data-cb-open="${escapeHtml(r.application_id)}">${text(r.candidate_name || '人選')}</button> 去開發</h3>
+          <small class="muted">${text(r.job_title || '')}・${text(String(r.created_at || '').slice(5, 16))}・${text(r.requested_by || '')}${r.status === 'done' ? `・剩 ${left.length} 家沒處理` : ''}</small>
+          ${st[0] ? `<span class="badge ${st[1]}">${text(st[0])}</span>` : ''}</div>
+        ${r.error ? `<p class="notice">${text(r.error)}</p>` : ''}
+        ${r.brief ? `<div class="cb-brief"><b>匿名人選重點（開口用）</b><ul>${String(r.brief).split('\n').filter(Boolean).map((x) => `<li>${text(x)}</li>`).join('')}</ul></div>` : ''}
+        ${ts.length ? `<div class="list">${ts.map(row).join('')}</div>` : ''}
+      </article>`;
+    };
+    return head + `<div class="cb-runs">${runs.map(run).join('')}</div>`;
+  },
   bdProgressBlock: (company, { calls, notes, transcripts, status, people, assignedTo, oid }) => {
     const RES = { interested: ['有興趣', 'success'], got_email: ['拿到信箱', 'info'], got_contact: ['問到窗口', 'info'], no_answer: ['沒接', ''], gatekeeper: ['被總機擋', 'warning'], not_hiring: ['沒在徵人', ''], not_interested: ['拒絕', 'danger'] };
     const cs = (Array.isArray(calls) ? calls : []).slice().sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)));

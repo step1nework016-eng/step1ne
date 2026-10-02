@@ -396,6 +396,41 @@ document.addEventListener('click', (e) => {
   box.querySelectorAll('[data-bdp-pane]').forEach((x) => { x.hidden = x.getAttribute('data-bdp-pane') !== key; });
 });
 
+// 2026-10-02 人選敲門：人選卡片按鈕＋名單頁的「加入開發進度／不要」
+document.addEventListener('change', (e) => {
+  const sel = e.target instanceof Element ? e.target.closest('[data-cb-me]') : null;
+  if (sel) { amUi().me = sel.value; amSave(); }
+});
+document.addEventListener('click', async (e) => {
+  const t = e.target instanceof Element ? e.target : null;
+  const runBtn = t && t.closest('[data-cand-bd]');
+  if (runBtn) {
+    e.preventDefault();
+    const me = amUi().me || window.prompt('你是誰？（Jacky／Phoebe）', 'Jacky');
+    if (!me) return;
+    amUi().me = me; amSave();
+    if (!window.confirm('要讓 AI 找「可能需要這位人選」的公司嗎？\n\n找到的公司只會放在「客戶 → 人選敲門名單」，不會自動聯繫、也不會進開發進度，要你篩過才加入。')) return;
+    runBtn.disabled = true;
+    try { await adapters.candBdRun(runBtn.getAttribute('data-cand-bd'), me); toast('已開始找，約 3～5 分鐘後到「客戶 → 人選敲門名單」看（TG 客戶群組也會通知）', 'success'); }
+    catch (err) { toast(err.message || '沒有排進去', 'error'); runBtn.disabled = false; }
+    return;
+  }
+  const open = t && t.closest('[data-cb-open]');
+  if (open) { e.preventDefault(); openCandidate(open.getAttribute('data-cb-open')); return; }
+  const act = t && t.closest('[data-cb-act]');
+  if (!act) return;
+  e.preventDefault();
+  const me = amUi().me;
+  if (!me) { toast('請先在上方「我是」選你的名字', 'error'); document.querySelector('[data-cb-me]')?.focus(); return; }
+  const row = act.closest('[data-cb-id]');
+  act.disabled = true;
+  try {
+    const r = await adapters.candBdDecide(row.getAttribute('data-cb-id'), act.getAttribute('data-cb-act'), me);
+    toast(act.getAttribute('data-cb-act') === 'pick' ? (r.existed ? '這家原本就在開發進度，已補上人選敲門資訊' : '已加入開發進度（負責人是你），可以開始打了') : '已標記不要', 'success');
+    loadClientsTab($('#page-data'));
+  } catch (err) { toast(err.message || '沒有成功', 'error'); act.disabled = false; }
+});
+
 // 開發進度卡片可以用鍵盤打開（Tab 到卡片按 Enter）
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Enter' || !(e.target instanceof Element) || !e.target.matches('[data-bd-open]')) return;
@@ -1436,6 +1471,10 @@ async function loadClientsTab(target) {
     wireScripts(target);
     return null;
   }
+  if (state.sub === 'candbd') {
+    await ensureConsultants();
+    return boundary(target, adapters.candBd, (d) => views.candBdTab(d, { me: amUi().me, consultants: state.consultantsCache || [] }), 'refresh');
+  }
   if (state.sub === 'bd-progress') {
     const res = await boundary(target, adapters.bdDashboard, views.bdDashboard, 'refresh');
     wireBdDashboardFilter();
@@ -2178,9 +2217,10 @@ function reviewLinkRow(app, applicationId) {
   qs.set('ref', applicationId);
   const url = `https://step1ne.com/review/?${qs.toString()}`;
   const mail = String(app.email || '').trim();
+  const candBdBtn = `<button type="button" class="btn sm" data-cand-bd="${escapeHtml(applicationId)}" title="AI 找可能需要這種人的公司，放進「人選敲門名單」，顧問篩過才進開發進度">🧲 拿這位人選去開發客戶</button>`;
   const callMailBtn = mail && !isPlaceholderEmail(mail)
     ? `<button type="button" class="btn sm" data-call-mail="${escapeHtml(applicationId)}" data-call-mail-name="${escapeHtml(app.name || '')}">寄信約電話</button>` : '';
-  return `<div class="actions-row" style="margin-top:8px">${callMailBtn}<button type="button" class="btn sm" data-copy-text="${escapeHtml(url)}">複製服務心得連結</button><span class="help" style="align-self:center">複製後直接貼給人選，顧問、職缺都幫他填好了</span></div>`;
+  return `<div class="actions-row" style="margin-top:8px">${callMailBtn}${candBdBtn}<button type="button" class="btn sm" data-copy-text="${escapeHtml(url)}">複製服務心得連結</button><span class="help" style="align-self:center">複製後直接貼給人選，顧問、職缺都幫他填好了</span></div>`;
 }
 
 // 先選客戶 → 再選職缺（views.clientJobPicker）。全站共用一個監聽，哪個畫面用到都會動。

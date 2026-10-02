@@ -263,6 +263,9 @@ export const adapters = {
     const q = new URLSearchParams(Object.entries(params).filter(([, v]) => v)).toString();
     return api.get(`/admin/triage${q ? '?' + q : ''}`);
   },
+  async candBd() { return api.get('/admin/cand-bd'); },
+  async candBdRun(applicationId, by) { return api.post('/admin/cand-bd/run', { application_id: applicationId, by }); },
+  async candBdDecide(targetId, act, by) { return api.post(`/admin/cand-bd/target/${encodeURIComponent(targetId)}/${act}`, { by }); },
   async callMail(applicationId, action, by, picks = {}) {
     const p = picks || {};
     return api.post(`/admin/applications/${encodeURIComponent(applicationId)}/call-mail`, { action, by: by || null, note: p.note || null,
