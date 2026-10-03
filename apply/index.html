@@ -337,6 +337,25 @@ dialog.think::backdrop{background:rgba(22,32,46,.45)}
       <textarea name="note" placeholder="選填"></textarea>
     </fieldset>
 
+    <fieldset>
+      <legend>讓顧問更快幫你媒合（選填）</legend>
+      <p class="hint" style="margin:0 0 10px">都是選填，不想填可以跳過；填了面談時就不用再問一次。</p>
+      <label>目前的薪資結構</label>
+      <div class="two">
+        <input name="cur_monthly" placeholder="月薪，例：55K">
+        <input name="cur_months" placeholder="一年領幾個月（含年終），例：14 個月">
+      </div>
+      <input name="cur_bonus" placeholder="其他：績效獎金、分紅、股票等（選填）" style="margin-top:8px">
+      <label>一定不能接受的條件</label>
+      <input name="deal_breakers" placeholder="例：輪大夜班、通勤超過一小時、年薪低於 80 萬">
+      <label>最近自己投過、或正在面試的公司</label>
+      <input name="applied_elsewhere" placeholder="例：A 公司（下週二面）。避免重複推薦到同一家">
+      <label style="display:flex;gap:8px;align-items:flex-start;margin-top:12px;font-weight:400">
+        <input type="checkbox" name="consent_recommend" value="1" style="margin-top:4px;width:auto">
+        <span>我同意 Step1ne 顧問在跟我確認職缺後，把我的資料推薦給用人公司（每一次推薦前都會先跟我確認）</span>
+      </label>
+    </fieldset>
+
     <fieldset id="assessGate">
       <legend>工作風格測驗 <span class="req">*</span></legend>
       <p class="hint" style="margin:0 0 10px">
@@ -617,6 +636,16 @@ async function buildBody() {
     resume_url: fd.get('resume_url'),
     invite_token: INV || null,
     note: fd.get('note'),
+    // 2026-10-03 資深獵頭初談必做項：薪資結構、底線、自己投過哪些、同意推薦（都選填）
+    screen_extra: (() => {
+      const o = {};
+      for (const k of ['cur_monthly', 'cur_months', 'cur_bonus', 'deal_breakers', 'applied_elsewhere']) {
+        const v = (fd.get(k) || '').trim();
+        if (v) o[k] = v.slice(0, 300);
+      }
+      if (fd.get('consent_recommend')) o.consent_recommend = true;
+      return Object.keys(o).length ? o : null;
+    })(),
     // 六個平台各自一格，有填的才送——後端只要求至少一個
     social_links: (() => {
       const o = {};
