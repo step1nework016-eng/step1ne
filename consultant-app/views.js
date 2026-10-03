@@ -2910,6 +2910,10 @@ ${a.note ? `<details class="note-details"><summary>顧問備註／電洽紀錄</
       ${exp ? `<h4 style="margin:18px 0 6px">專業題（●＝講得多深，不是答得對不對）</h4>
                <table class="spec"><tr><th>技能</th><th>程度</th><th>為什麼是這一級</th></tr>${exp}</table>` : ''}
       ${ladderHtml}
+      ${(d.work_style_findings || []).length ? `<h4 style="margin:18px 0 6px">做事風格<span class="muted" style="font-weight:400;font-size:12px">（阿財請他講實際遇過的一次，依他的做法整理，不是人格標籤）</span></h4>
+        <table class="spec"><tr><th>面向</th><th>他講的那一次與做法</th><th>偏向</th></tr>${d.work_style_findings.map((w) => `<tr><td><b>${text(w.dimension)}</b></td>
+          <td style="font-size:12.5px">${text(w.story || '')}${w.approach ? `<br>${text(w.approach)}` : ''}${w.evidence ? `<br><span class="muted">「${text(w.evidence)}」</span>` : ''}${w.fit_note ? `<br><span style="color:#5d6672">${text(w.fit_note)}</span>` : ''}</td>
+          <td style="white-space:nowrap;font-size:12.5px">${text(w.leaning || '—')}</td></tr>`).join('')}</table>` : ''}
       ${hard ? `<h4 style="margin:18px 0 6px">硬條件</h4>
                 <table class="spec"><tr><th>項目</th><th>結果</th><th>說明</th></tr>${hard}</table>` : ''}
       ${testHtml}
