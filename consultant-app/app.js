@@ -488,6 +488,26 @@ async function cmOpen(appId, name, picks) {
   const body = $('#sub-overlay-root .drawer-body');
   if (body) { body.innerHTML = views.callMailPreview(d, { me: amUi().me, note: p.note, consultants: state.consultantsCache || [] }); body.scrollTop = keep; }
 }
+// 2026-10-03：人選回信給了時段 → 顧問填約好的時間，看過信再寄。
+document.addEventListener('click', async (event) => {
+  const btn = event.target instanceof Element ? event.target.closest('[data-call-confirm]') : null;
+  if (!btn || btn.disabled) return;
+  event.preventDefault();
+  const appId = btn.getAttribute('data-call-confirm');
+  const name = btn.getAttribute('data-call-mail-name') || '';
+  const me = amUi().me;
+  if (!me) { toast('先在上面選「我是」，系統才記得是誰寄的', 'error'); return; }
+  const slot = window.prompt(`跟 ${name} 約好的時間（照人選給的時段寫，例如：10/6（二）下午 2:00）`);
+  if (!slot || !slot.trim()) return;
+  const sal = window.prompt('信的開頭怎麼稱呼？（人選信裡署名英文名就填英文名，空白＝用本名）', name) || name;
+  btn.disabled = true;
+  try {
+    const pv = await adapters.callConfirm(appId, 'preview', me, slot.trim(), sal.trim());
+    if (!window.confirm(`寄給 ${pv.to}\n主旨：${pv.subject}\n\n${pv.text}\n\n確認寄出？`)) return;
+    await adapters.callConfirm(appId, 'send', me, slot.trim(), sal.trim());
+    toast(`已寄給 ${name}：約 ${slot.trim()}`, 'success');
+  } catch (e) { toast((e.body && e.body.error) || e.message, 'error'); } finally { btn.disabled = false; }
+});
 document.addEventListener('change', (e) => {
   if (!state.cm || !(e.target instanceof Element)) return;
   const sel = e.target.closest('[data-cm-me]');
@@ -2264,7 +2284,7 @@ function reviewLinkRow(app, applicationId) {
   const mail = String(app.email || '').trim();
   const candBdBtn = `<button type="button" class="btn sm" data-cand-bd="${escapeHtml(applicationId)}" title="AI 找可能需要這種人的公司，放進「人選敲門名單」，顧問篩過才進開發進度">🧲 拿這位人選去開發客戶</button>`;
   const callMailBtn = mail && !isPlaceholderEmail(mail)
-    ? `<button type="button" class="btn sm" data-call-mail="${escapeHtml(applicationId)}" data-call-mail-name="${escapeHtml(app.name || '')}">寄信約電話</button>` : '';
+    ? `<button type="button" class="btn sm" data-call-mail="${escapeHtml(applicationId)}" data-call-mail-name="${escapeHtml(app.name || '')}">寄信約電話</button><button type="button" class="btn sm" data-call-confirm="${escapeHtml(applicationId)}" data-call-mail-name="${escapeHtml(app.name || '')}" title="人選回信給了時段，回一封「那就約這個時間」">回信確認電話時間</button>` : '';
   return `<div class="actions-row" style="margin-top:8px">${callMailBtn}${candBdBtn}<button type="button" class="btn sm" data-copy-text="${escapeHtml(url)}">複製服務心得連結</button><span class="help" style="align-self:center">複製後直接貼給人選，顧問、職缺都幫他填好了</span></div>`;
 }
 

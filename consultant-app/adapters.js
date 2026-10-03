@@ -266,6 +266,9 @@ export const adapters = {
   async candBd() { return api.get('/admin/cand-bd'); },
   async candBdRun(applicationId, by) { return api.post('/admin/cand-bd/run', { application_id: applicationId, by }); },
   async candBdDecide(targetId, act, by) { return api.post(`/admin/cand-bd/target/${encodeURIComponent(targetId)}/${act}`, { by }); },
+  async callConfirm(applicationId, action, by, slot, salutation, phone) {
+    return api.post(`/admin/applications/${encodeURIComponent(applicationId)}/call-confirm`, { action, by: by || null, slot, salutation: salutation || null, phone: phone || null });
+  },
   async callMail(applicationId, action, by, picks = {}) {
     const p = picks || {};
     return api.post(`/admin/applications/${encodeURIComponent(applicationId)}/call-mail`, { action, by: by || null, note: p.note || null,

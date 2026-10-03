@@ -2989,6 +2989,7 @@ ${a.note ? `<details class="note-details"><summary>顧問備註／電洽紀錄</
           <button type="button" class="btn ghost sm" data-tri-action="no">不推</button>`}
           <button type="button" class="btn ghost sm" data-tri-action="open">看完整報告</button>
           ${r.has_email && !r.line_bound ? `<button type="button" class="btn ghost sm" data-call-mail="${escapeHtml(r.application_id)}" data-call-mail-name="${escapeHtml(r.name || '')}">寄信約電話</button>` : ''}
+          ${r.call_mail_reply_at ? `<button type="button" class="btn sm" data-call-confirm="${escapeHtml(r.application_id)}" data-call-mail-name="${escapeHtml(r.name || '')}">回信確認電話時間</button>` : ''}
         </div>
       </article>`;
     };
