@@ -488,6 +488,19 @@ async function cmOpen(appId, name, picks) {
   const body = $('#sub-overlay-root .drawer-body');
   if (body) { body.innerHTML = views.callMailPreview(d, { me: amUi().me, note: p.note, consultants: state.consultantsCache || [] }); body.scrollTop = keep; }
 }
+// 2026-10-03：職缺「阿財的理解」分頁改面談層級
+document.addEventListener('click', async (event) => {
+  const btn = event.target instanceof Element ? event.target.closest('[data-screen-tier-save]') : null;
+  if (!btn || btn.disabled) return;
+  event.preventDefault();
+  const slug = btn.getAttribute('data-screen-tier-save');
+  const sel = document.querySelector(`[data-screen-tier="${CSS.escape(slug)}"]`);
+  const me = amUi().me;
+  if (!me) { toast('先在人選中心上方選「我是」，系統才記得是誰改的', 'error'); return; }
+  btn.disabled = true;
+  try { await adapters.jobScreenTier(slug, sel.value, me); toast('已改層級，下一場面談開始照新層級問', 'success'); }
+  catch (e) { toast((e.body && e.body.error) || e.message, 'error'); } finally { btn.disabled = false; }
+});
 // 2026-10-03：人選回信給了時段 → 顧問填約好的時間，看過信再寄。
 document.addEventListener('click', async (event) => {
   const btn = event.target instanceof Element ? event.target.closest('[data-call-confirm]') : null;

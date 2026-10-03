@@ -1056,6 +1056,18 @@ ${events.length ? events.map((e) => views.jobCardEventRow(e)).join('') : '<div c
       return `<div class="notice">${text((payload && payload.message) || '這個職缺還沒有「阿財的理解」快照，等下一輪自動重算，或先去「面談題庫」「必要條件」補資料再回來看。')}</div>`;
     }
     const f = view.fields || {};
+    // 2026-10-03：面談層級（決定阿財問多深）＋做事風格題
+    const sc = (payload && payload.screen) || null;
+    const TIER = { basic: '基層服務', pro: '一般專業', manager: '中階主管', exec: '高階主管' };
+    const screenHtml = sc ? `<div class="card" style="padding:12px 14px;margin:0 0 12px">
+      <b>面談層級：${text(TIER[sc.tier] || '未判斷')}</b>${sc.v2 ? ' <span class="badge success">新版阿財試跑中</span>' : ''}
+      <p class="help" style="margin:4px 0 8px">${text(sc.reason || '')}${sc.by && sc.by !== 'AI' ? `（${text(sc.by)} 改過）` : '（AI 判斷）'}——層級越高，阿財問得越深（慰留、薪資含股票、驗證成就數字、職涯方向）；基層服務只問核心。</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <select data-screen-tier="${escapeHtml(slug)}" aria-label="面談層級" style="min-height:40px">${Object.entries(TIER).map(([k, v]) => `<option value="${k}" ${sc.tier === k ? 'selected' : ''}>${v}</option>`).join('')}</select>
+        <button type="button" class="btn sm" data-screen-tier-save="${escapeHtml(slug)}">改層級</button>
+      </div>
+      ${(sc.workstyle || []).length ? `<p style="margin:10px 0 4px"><b>做事風格題（阿財會請他講實際遇過的一次）</b></p><ul style="margin:0;padding-left:18px">${sc.workstyle.map((w) => `<li><b>${text(w.name)}</b>：${text(w.q)}${w.fit_hint ? `<br><span class="help">${text(w.fit_hint)}</span>` : ''}</li>`).join('')}</ul>` : ''}
+    </div>` : '';
     const introLines = [
       f.client_intro ? `<p>${text(f.client_intro)}</p>` : '',
       `<p class="help">地點：${text(f.locations || '未填')} ・ 型態：${text(f.employment || '未填')} ・ 團隊：${text(f.team_size || '未填')}</p>`,
@@ -1084,7 +1096,7 @@ ${x.why ? `<br><span class="help">在確認：${text(x.why)}</span>` : ''}</li>`
       ? `<details><summary class="help" style="cursor:pointer">還有 ${qRest.length} 題（點開看全部）</summary><ul>${qRest.map(qRow).join('')}</ul></details>`
       : '') + (qs.length ? `<p class="help">${text(view.questions_note || '')}</p>` : '<p class="help">還沒有面談題庫，阿財目前只問到職障礙與通用題。</p>');
 
-    return `<p class="help">最後更新：${text(payload.updated_at || '—')}——這是阿財面談前實際會讀到的內容，不是另外生的摘要。</p>
+    return `${screenHtml}<p class="help">最後更新：${text(payload.updated_at || '—')}——這是阿財面談前實際會讀到的內容，不是另外生的摘要。</p>
 
 <h3>這個職缺在做什麼</h3>
 ${introLines}
@@ -2914,6 +2926,19 @@ ${a.note ? `<details class="note-details"><summary>顧問備註／電洽紀錄</
         <table class="spec"><tr><th>面向</th><th>他講的那一次與做法</th><th>偏向</th></tr>${d.work_style_findings.map((w) => `<tr><td><b>${text(w.dimension)}</b></td>
           <td style="font-size:12.5px">${text(w.story || '')}${w.approach ? `<br>${text(w.approach)}` : ''}${w.evidence ? `<br><span class="muted">「${text(w.evidence)}」</span>` : ''}${w.fit_note ? `<br><span style="color:#5d6672">${text(w.fit_note)}</span>` : ''}</td>
           <td style="white-space:nowrap;font-size:12.5px">${text(w.leaning || '—')}</td></tr>`).join('')}</table>` : ''}
+      ${(d.motive || d.move_risk) ? `<h4 style="margin:18px 0 6px">動機與動向</h4><table class="spec">
+        ${d.motive && d.motive.push ? `<tr><th>想離開的原因</th><td>${text(d.motive.push)}</td></tr>` : ''}
+        ${d.motive && d.motive.pull ? `<tr><th>被這個機會吸引的點</th><td>${text(d.motive.pull)}</td></tr>` : ''}
+        ${d.motive && d.motive.direction ? `<tr><th>三到五年方向</th><td>${text(d.motive.direction)}</td></tr>` : ''}
+        ${d.move_risk && d.move_risk.other_processes ? `<tr><th>其他面試進度</th><td>${text(d.move_risk.other_processes)}</td></tr>` : ''}
+        ${d.move_risk && d.move_risk.counteroffer_view ? `<tr><th>被慰留會怎麼想</th><td>${text(d.move_risk.counteroffer_view)}</td></tr>` : ''}
+        ${d.move_risk && d.move_risk.decision_timeline ? `<tr><th>什麼時候決定</th><td>${text(d.move_risk.decision_timeline)}</td></tr>` : ''}
+        ${d.move_risk && d.move_risk.hesitation ? `<tr><th>會猶豫的點</th><td>${text(d.move_risk.hesitation)}</td></tr>` : ''}
+        ${d.move_risk && d.move_risk.level ? `<tr><th>跑掉的風險</th><td><b>${text(d.move_risk.level)}</b></td></tr>` : ''}
+      </table>` : ''}
+      ${(d.number_checks || []).length ? `<h4 style="margin:18px 0 6px">成果數字追問</h4><table class="spec"><tr><th>他講的數字</th><th>他怎麼說明</th><th>說得清楚嗎</th></tr>${d.number_checks.map((n) => `<tr><td>${text(n.claim)}</td><td style="font-size:12.5px">${text(n.explained || '')}</td><td style="white-space:nowrap">${text(n.clarity || '—')}</td></tr>`).join('')}</table>` : ''}
+      ${(d.consistency_flags || []).length ? `<div class="notice" style="margin:12px 0">⚠️ <b>前後說法對不上，打電話時可以追問</b><ul style="margin:6px 0 0;padding-left:18px">${d.consistency_flags.map((c) => `<li>${text(c.what)}${c.detail ? `<br><span class="muted">${text(c.detail)}</span>` : ''}</li>`).join('')}</ul></div>` : ''}
+      ${d.referral ? `<p class="help" style="margin:8px 0">推薦人選：${text(d.referral)}</p>` : ''}
       ${hard ? `<h4 style="margin:18px 0 6px">硬條件</h4>
                 <table class="spec"><tr><th>項目</th><th>結果</th><th>說明</th></tr>${hard}</table>` : ''}
       ${testHtml}

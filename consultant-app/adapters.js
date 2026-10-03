@@ -87,6 +87,7 @@ export const adapters = {
   // 職缺卡卡片牆（2026-09-24）：全部職缺一次撈，見 GET /admin/job-cards。
   async jobCards() { const r = await api.get('/admin/job-cards'); return r.jobs || []; },
   // 「阿財的理解」快照（2026-09-24），見 GET /admin/jobs/:slug/acai-view。
+  async jobScreenTier(slug, tier, by) { return api.post(`/admin/jobs/${encodeURIComponent(slug)}/screen-tier`, { tier, by }); },
   async jobAcaiView(slug) { return api.get(`/admin/jobs/${encodeURIComponent(slug)}/acai-view`); },
   // 職缺抽屜「AI 找的人」分頁（2026-09-29），見 GET /admin/jobs/:slug/sourced。
   async jobSourced(slug) { return api.get(`/admin/jobs/${encodeURIComponent(slug)}/sourced`); },
