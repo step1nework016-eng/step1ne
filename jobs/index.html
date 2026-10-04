@@ -101,6 +101,89 @@ h2{font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;color:#1c1f2
 .s1ne-mobile-menu.is-open{display:flex;}
 .s1ne-mobile-menu a{padding:10px 0;color:#4a4d55;font-size:15px;border-bottom:1px solid #e6dfd1;min-height:44px;display:flex;align-items:center;}
 .s1ne-mobile-menu a:last-child{border-bottom:none;}
+
+/* 2026-10-04 職缺專區改版：版面與資訊擺放參考 CareerOS「職缺雷達」，配色用 Step1ne logo 藍 */
+:root{--jv-ink:#0f1b2d;--jv-ink2:#475569;--jv-mut:#64748b;--jv-line:#e2e8f0;--jv-bg:#f6f8fb;--jv-blue:#1880B4;--jv-blue-d:#0f5f88;--jv-tint:#e8f3fa;--jv-green:#0f766e;--jv-green-bg:#e9f7f3;--jv-amber:#a15c07;--jv-amber-bg:#fdf3e2;}
+body{background:var(--jv-bg)!important;}
+body>header{background:rgba(255,255,255,.94)!important;border-bottom-color:var(--jv-line)!important;}
+footer{background:#eef2f7!important;border-top-color:var(--jv-line)!important;}
+.jv2{font-family:'Noto Sans TC',-apple-system,'PingFang TC',sans-serif;color:var(--jv-ink);}
+.jv2 .wrap{max-width:860px;}
+.jv2-top{padding:20px 0 6px;}
+.jv2-seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:#eef2f7;border:1px solid var(--jv-line);border-radius:14px;padding:4px;margin:0 0 22px;}
+.jv2-seg a{display:flex;align-items:center;justify-content:center;min-height:44px;border-radius:11px;font-size:14.5px;font-weight:600;color:var(--jv-ink2);}
+.jv2-seg a.on{background:var(--jv-blue);color:#fff;box-shadow:0 2px 8px rgba(24,128,180,.3);}
+.jv2-eyebrow{font-size:14px;font-weight:700;color:var(--jv-ink);margin:0 0 6px;}
+.jv2 h1{font-family:inherit;font-weight:900;font-size:clamp(30px,6vw,40px);letter-spacing:-.5px;margin:0 0 10px;color:var(--jv-ink);}
+.jv2-lead{font-size:15.5px;color:var(--jv-ink2);margin:0 0 10px;line-height:1.7;}
+.jv2-stats{font-size:14px;color:var(--jv-mut);margin:0 0 18px;line-height:1.8;}
+.jv2-stats b{color:var(--jv-blue);font-size:16px;font-weight:800;}
+.jv2-stats span{font-size:13px;}
+.jv2-search{display:flex;gap:10px;margin:0 0 12px;}
+.jv2 .search-box{flex:1;position:relative;margin:0;display:flex;align-items:center;background:#fff;border:1px solid #cbd5e1;border-radius:12px;padding:0 12px;}
+.jv2 .search-box svg{color:var(--jv-mut);flex-shrink:0;}
+.jv2 .search-box input{border:none!important;background:transparent!important;padding:0 8px!important;min-height:50px;font-size:15.5px;outline:none;box-shadow:none!important;}
+.jv2 .search-box:focus-within{border-color:var(--jv-blue);box-shadow:0 0 0 3px rgba(24,128,180,.15);}
+.jv2-go{flex:0 0 auto;min-height:52px;padding:0 20px;border:none;border-radius:12px;background:var(--jv-ink);color:#fff;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;}
+.jv2-quick{font-size:13.5px;color:var(--jv-mut);margin:0 0 6px;}
+.jv2-quick button{font-family:inherit;font-size:13.5px;color:var(--jv-ink);background:none;border:none;padding:6px 2px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;min-height:36px;}
+.jv2-list{padding:14px 0 64px;}
+.jv2-filterrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 12px;}
+.jv2 .filter-btn{display:inline-flex;align-items:center;gap:6px;font-family:inherit;font-size:14.5px;font-weight:700;color:var(--jv-ink);background:#fff;border:1px solid #cbd5e1;border-radius:12px;padding:0 14px;min-height:44px;cursor:pointer;}
+.jv2 #filterN{display:inline-grid;place-items:center;min-width:20px;height:20px;border-radius:999px;background:var(--jv-ink);color:#fff;font-size:12px;margin-left:2px;}
+.jv2 #filterN:empty{display:none;}
+.jv2 .active-chips{display:contents;}
+.jv2 .active-chips button{font-family:inherit;font-size:13px;font-weight:600;color:var(--jv-ink2);background:#eef2f7;border:1px solid var(--jv-line);border-radius:8px;padding:6px 10px;cursor:pointer;min-height:34px;}
+.jv2 .active-chips .clear-all{background:none;border:none;color:var(--jv-mut);text-decoration:underline;}
+.jv2-resultrow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:6px 0 14px;}
+.jv2-resultrow b{font-size:17px;font-weight:800;color:var(--jv-ink);}
+.jv2-sub{font-size:12.5px;color:var(--jv-mut);margin-left:10px;}
+.jv2 #sortSel{font-family:inherit;font-size:14px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;padding:0 10px;min-height:42px;color:var(--jv-ink);}
+.jv2 .hot-wrap,.jv2 .result-bar{display:none!important;}
+/* 篩選：所有寬度都是彈出選單（手機從底部、電腦置中） */
+.jv2 .filters{position:fixed;z-index:80;background:#fff;margin:0;border:none;padding:0 20px;overflow:auto;box-shadow:0 -10px 40px rgba(15,27,45,.2);transition:transform .25s,opacity .2s;}
+.jv2 .filters:not(.is-open){transform:translateY(105%);pointer-events:none;}
+@media (min-width:761px){.jv2 .filters{left:50%;top:50%;width:560px;max-height:80vh;border-radius:18px;transform:translate(-50%,-50%);}.jv2 .filters:not(.is-open){opacity:0;transform:translate(-50%,-46%);}}
+@media (max-width:760px){.jv2 .filters{left:0;right:0;bottom:0;max-height:84vh;border-radius:18px 18px 0 0;}}
+.jv2 .sheet-head{display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:1;background:#fff;padding:16px 0 12px;border-bottom:1px solid var(--jv-line);margin:0 0 14px;}
+.jv2 .sheet-head button{font-size:24px;background:none;border:none;width:44px;height:44px;cursor:pointer;color:var(--jv-ink2);}
+.jv2 .sheet-head:before{content:'';position:absolute;left:50%;top:6px;width:36px;height:4px;border-radius:4px;background:#cbd5e1;transform:translateX(-50%);}
+.jv2 .filter-label{font-size:13px;font-weight:800;color:var(--jv-ink);letter-spacing:0;text-transform:none;font-family:inherit;margin:0 0 8px;}
+.jv2 .filter-group{margin:0 0 18px;}
+.jv2 .chip{font-size:14px;font-weight:600;color:var(--jv-ink2);background:#fff;border:1px solid #cbd5e1;border-radius:10px;padding:8px 12px;min-height:40px;}
+.jv2 .chip.is-active{background:var(--jv-tint);border-color:var(--jv-blue);color:var(--jv-blue-d);}
+.jv2 .chip small{font-weight:500;color:#94a3b8;margin-left:4px;}
+.jv2 .sheet-foot{display:flex;gap:10px;position:sticky;bottom:0;background:#fff;padding:12px 0 calc(12px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--jv-line);margin-top:6px;}
+.jv2 .sheet-foot button{font-family:inherit;font-size:15px;font-weight:700;min-height:50px;border-radius:12px;cursor:pointer;}
+.jv2 #sheetClear{flex:0 0 30%;background:#fff;border:1px solid #cbd5e1;color:var(--jv-ink2);}
+.jv2 #sheetApply{flex:1;background:var(--jv-ink);border:none;color:#fff;}
+.jv2 .sheet-mask{display:none;position:fixed;inset:0;z-index:79;background:rgba(15,27,45,.45);}
+.jv2 .sheet-mask.is-open{display:block;}
+/* 職缺卡片 */
+.jv2 .jobs{gap:12px;}
+.jv2 a.job{display:block;padding:16px 16px 12px;background:#fff;border:1px solid var(--jv-line);border-radius:14px;color:var(--jv-ink);box-shadow:0 1px 2px rgba(15,27,45,.04);}
+.jv2 a.job:hover{border-color:#94a3b8;box-shadow:0 6px 18px rgba(15,27,45,.08);transform:none;}
+.jc-top{display:flex;gap:12px;align-items:flex-start;}
+.jc-logo{flex:0 0 44px;height:44px;border-radius:10px;border:1px solid var(--jv-line);display:grid;place-items:center;font-weight:900;font-size:15px;}
+.jc-logo.t-senior{color:var(--jv-green);background:var(--jv-green-bg);}
+.jc-logo.t-general{color:var(--jv-blue-d);background:var(--jv-tint);}
+.jc-logo.t-dispatch{color:var(--jv-amber);background:var(--jv-amber-bg);}
+.jc-main{flex:1;min-width:0;}
+.jv2 .job-title{font-family:inherit!important;font-size:17px!important;font-weight:800!important;line-height:1.4!important;margin:0 0 3px!important;color:var(--jv-ink)!important;}
+.jc-sub{font-size:13.5px;color:var(--jv-ink2);}
+.jc-pay{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0 8px;font-size:17px;font-weight:800;}
+.jc-est{font-size:12px;font-weight:700;color:var(--jv-amber);background:var(--jv-amber-bg);border:1px solid #f3d9a8;border-radius:6px;padding:2px 6px;}
+.jc-tags{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px;}
+.jc-tags span{font-size:12.5px;font-weight:600;color:var(--jv-ink2);background:#f1f5f9;border-radius:6px;padding:3px 8px;}
+.jc-tags span.hl{color:var(--jv-green);background:var(--jv-green-bg);border:1px solid #bfe6db;}
+.jv2 .job-desc{font-size:13.5px!important;color:var(--jv-mut)!important;margin:0 0 10px!important;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;}
+.jc-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;border-top:1px solid #f1f5f9;padding-top:10px;font-size:13px;color:var(--jv-mut);}
+.jc-foot b{color:var(--jv-blue);font-weight:700;}
+.jv2 .job-industry,.jv2 .job-more,.jv2 .job-meta{display:none!important;}
+.jv2-help{margin:22px 0 0;padding:18px;background:#fff;border:1px solid var(--jv-line);border-radius:14px;font-size:14px;color:var(--jv-ink2);}
+.jv2-help p{margin:0 0 8px!important;font-size:14px!important;color:var(--jv-ink2)!important;}
+.jv2-help-lead{display:none;}
+@media (max-width:760px){.jv2-go{padding:0 16px;}.jv2-sub{display:block;margin:2px 0 0;}}
 </style>
 </head>
 <body>
@@ -133,38 +216,34 @@ h2{font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;color:#1c1f2
   </div>
 </header>
 
-<main>
-  <section style="padding:44px 0 8px;">
-    <div class="wrap">
-      <div style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:2px;color:#a67c3d;text-transform:uppercase;margin-bottom:14px;">Jobs</div>
-      <h1 style="font-family:'Noto Serif TC',serif;font-weight:700;font-size:clamp(28px,4.5vw,40px);line-height:1.3;margin:0 0 16px;color:#1c1f26;">職缺專區</h1>
-      <p style="font-size:16.5px;color:#3a3d44;margin:0 0 8px;">Step1ne 目前開放中的職缺，包含<strong>高階獵才</strong>（年薪百萬等級的主管與專業職，保密進行）與<strong>人力派遣</strong>兩種，涵蓋財務、資訊、營運供應鏈、營建工程與海外外派等領域。每個職缺都由專業顧問接洽，在職者可保密初談，從應徵、面試到到職全程協助。</p>
-      <p style="font-size:14.5px;color:#8a8d95;margin:0 0 6px;">沒看到適合的職缺？<a href="/apply/?utm_source=website&utm_medium=jobs_index&utm_campaign=general">留下履歷，跟 AI 阿財聊聊</a>，有適合機會顧問會主動通知你。</p>
-      <p style="font-size:14.5px;color:#8a8d95;margin:0;">身邊有朋友在找工作？透過<a href="/talent/">全民獵才</a>把職缺推薦給他，媒合成功到職還能領推薦獎金。</p>
-      <p style="font-size:14.5px;color:#8a8d95;margin:6px 0 0;">你是企業、正在找人？看看<a href="/commission-recruiting/">企業委託招募方案</a>：高階獵頭、正職招募與人力派遣，成功後收費、收費透明。</p>
-      <p style="margin:14px 0 0;padding:14px 18px;background:#fdf6e9;border:1px solid #e8d5ab;border-radius:12px;font-size:14.5px;">
-        <a href="/construction/" style="font-weight:700;">📐 查看 BIM 工程師／營建工程職缺專區 →</a>
-        <span style="color:#7a5a22;">　半導體與AI記憶體產業擴產帶動的職缺都集中在這裡</span>
-      </p>
+<main class="jv2">
+  <section class="jv2-top"><div class="wrap">
+    <nav class="jv2-seg" aria-label="求職工具">
+      <a href="/jobs/" class="on" aria-current="page">找職缺</a>
+      <a href="/talent/">全民獵才</a>
+      <a href="/talent/ai-tools/">AI 求職工具</a>
+    </nav>
+    <div class="jv2-eyebrow">職缺專區 Jobs</div>
+    <h1>找職缺</h1>
+    <p class="jv2-lead">Step1ne 顧問親自接洽的職缺：高階獵才、正職與人力派遣，依類型、地區、薪資一次篩完。</p>
+    <p class="jv2-stats"><b id="statJobs">–</b> 個開放中職缺　<b id="statCats">–</b> 個產業領域<br><span>每個職缺都由顧問確認過需求，在職可保密初談</span></p>
+    <div class="jv2-search">
+      <div class="search-box"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input type="search" id="q" placeholder="職稱、地點或關鍵字，例如 BIM、會計、客服" aria-label="搜尋職缺" autocomplete="off"><button type="button" id="qclear" aria-label="清除搜尋">×</button></div>
+      <button type="button" id="qGo" class="jv2-go">搜尋</button>
     </div>
-  </section>
+    <div class="jv2-quick">快速入口：<button type="button" data-open="tracks">依職缺類型</button> / <button type="button" data-open="locs">依地區</button> / <button type="button" data-open="pays">依薪資</button></div>
+  </div></section>
 
-  <section style="padding:8px 0 0;">
-    <div class="wrap">
-      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
-        <h2 style="margin:0;font-size:20px;">熱門職缺</h2>
-      </div>
-      <div id="hotJobs" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;"></div>
+  <section class="jv2-list"><div class="wrap">
+    <div class="jv2-filterrow">
+      <button type="button" id="filterBtn" class="filter-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>篩選<span id="filterN"></span></button>
+      <div class="active-chips" id="activeChips"></div>
     </div>
-  </section>
-
-  <section style="padding:28px 0 64px;">
-    <div class="wrap">
-      <div class="filters">
-        <div class="search-box">
-          <input type="search" id="q" placeholder="搜尋職稱、地點或關鍵字…" aria-label="搜尋職缺" autocomplete="off">
-          <button type="button" id="qclear" aria-label="清除搜尋">×</button>
-        </div>
+    <div class="jv2-resultrow"><div><b id="count"></b><span class="jv2-sub">由顧問即時更新</span></div>
+      <select id="sortSel" aria-label="排序"><option value="">推薦排序</option><option value="pay">薪資高到低</option></select></div>
+      <div class="filters" id="filterSheet" role="dialog" aria-label="篩選條件">
+        <div class="sheet-head"><b>篩選條件</b><button type="button" id="sheetClose" aria-label="關閉">×</button></div>
+        
 
         <div class="filter-group">
           <div class="filter-label">職缺類型</div>
@@ -180,9 +259,26 @@ h2{font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;color:#1c1f2
           <div class="filter-label">產業領域</div>
           <div class="chips" id="cats"></div>
         </div>
+      
+        <div class="filter-group">
+          <div class="filter-label">工作地點</div>
+          <div class="chips" id="locs"></div>
+        </div>
+        <div class="filter-group">
+          <div class="filter-label">薪資（換算年薪）</div>
+          <div class="chips" id="pays"></div>
+        </div>
+        <div class="sheet-foot"><button type="button" id="sheetClear">清除</button><button type="button" id="sheetApply">顯示職缺</button></div>
       </div>
+      <div class="sheet-mask" id="sheetMask"></div>
 
-      <div class="result-bar"><span id="count"></span><button type="button" id="reset">清除全部條件</button></div>
+      <div class="hot-wrap">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
+        <h2 style="margin:0;font-size:20px;">熱門職缺</h2>
+      </div>
+      <div id="hotJobs" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;"></div>
+    </div>
+      <div class="result-bar" hidden><button type="button" id="reset">清除全部條件</button></div>
 
       <div class="jobs" id="jobs">
         <a class="job" href="/jobs/news-social-editor-neihu-contract/" data-track="dispatch" data-cat="media"> <div class="job-industry">網路新聞媒體・社群經營</div> <h2 class="job-title">新聞社群編輯（約聘一年・早晚輪班）</h2> <div class="job-meta"><span>月薪 42K–45K</span><span>人力派遣・定期契約一年</span><span>台北內湖</span><span>早晚輪班</span><span>不限科系</span></div> <p class="job-desc">網路新聞媒體徵新聞社群編輯（派遣・一年期）：獨立負責當班 Facebook 選題、文案與發布、留言互動，每班一則 LINE 官方帳號推播，並跟進突發新聞。月薪 42,000–45,000 元，早晚輪班，每月休 8 天，不限科系。</p> <span class="job-more">查看職缺詳情 →</span> </a><a class="job" href="/jobs/admin-assistant-neihu-hq/" data-track="dispatch" data-cat="service"> <div class="job-industry">上市集團總部・行政幕僚</div> <h2 class="job-title">行政助理（集團總部・台北內湖）</h2> <div class="job-meta"><span>月薪 40K–45K</span><span>人力派遣</span><span>台北內湖</span><span>週休二日</span><span>需英文溝通</span><span>2 年行政經驗</span></div> <p class="job-desc">上市集團總部徵行政助理（派遣）：主管行程與差旅安排、跨部門會議資料與簡報整理、信件電話協調與辦公室庶務。月薪 40,000–45,000 元，週一至週五、週休二日，需 2 年行政經驗與英文溝通能力。</p> <span class="job-more">查看職缺詳情 →</span> </a><a class="job" href="/jobs/payment-cs-neihu-mid/" data-track="dispatch" data-cat="service"> <div class="job-industry">上市集團旗下客服中心</div> <h2 class="job-title">支付客服（中班・台北內湖）</h2> <div class="job-meta"><span>月薪 33K–35K</span><span>人力派遣・全職</span><span>台北內湖</span><span>中班 14:00–23:00</span><span>經驗不限</span></div> <p class="job-desc">上市集團旗下客服中心徵支付客服（派遣・全職）：支付相關電話、信件、即時文字對談、公開評論回覆與外撥聯繫，並支援活動諮詢。月薪 33,000–35,000 元，另有季獎金與值班津貼，中班 14:00–23:00，工作經驗不限。</p> <span class="job-more">查看職缺詳情 →</span> </a><a class="job" href="/jobs/game-qa-specialist-neihu-senior/" data-track="dispatch" data-cat="it"> <div class="job-industry">上市集團・軟體測試 QA</div> <h2 class="job-title">資深測試產品專員（遊戲・台北內湖）</h2> <div class="job-meta"><span>月薪 40K–45K</span><span>人力派遣</span><span>台北內湖</span><span>週休二日</span><span>功能測試／Bug tracking</span></div> <p class="job-desc">上市集團台北內湖辦公室徵資深測試產品專員（派遣）：編寫與管理測試案例、執行功能與壓力測試、Bug 追蹤到結案、撰寫測試計畫與測試報告書，並與產品及開發部協調。月薪 40,000–45,000 元，週一至週五、週休二日。</p> <span class="job-more">查看職缺詳情 →</span> </a><a class="job" href="/jobs/bim-engineer-houli/" data-track="general" data-cat="construction"> <div class="job-industry">營建工程・高科技廠房建置</div> <h2 class="job-title">BIM 工程師（台中后里）</h2> <div class="job-meta"><span>月薪 40,833 元起，依經歷面議</span><span>正職</span><span>台中市后里區</span></div> <p class="job-desc">誠徵BIM工程師，無經驗可，公司安排完整教育訓練，進駐半導體相關產業擴產案現場，跟著設計PM與設計工程師團隊從零累積BIM實戰經驗。2026年8月起改為正職僱用，急徵，一個月內到位。</p> <span class="job-more">查看職缺詳情 →</span> </a><a class="job" href="/jobs/executive-driver-assistant-tokyo-hakuba/" data-track="fulltime" data-cat="overseas"> <div class="job-industry">不動產開發・渡假村營運</div> <h2 class="job-title">社長專屬司機兼助理（東京・白馬出差）</h2> <div class="job-meta"><span>年薪 400–700 萬日圓（日圓計價）</span><span>正職</span><span>日本東京・冬季駐白馬</span><span>中日雙語</span><span>需普通駕照</span><span>經驗 2 年以上</span></div> <p class="job-desc">社長與經營層的專屬司機兼助理：車輛接送、來賓接待、行程與出差安排，並負責日本法人與台灣總公司之間的聯繫。平日在東京九段辦公室，冬季旺季約六成時間在長野白馬的渡假據點。需要商務程度的日文與中文，以及能自行駕車。</p> <span class="job-more">查看職缺詳情 →</span> </a><a class="job" href="/jobs/construction-project-assistant-hakuba-bilingual/" data-track="fulltime" data-cat="overseas"> <div class="job-industry">建築・營造專案（日本據點）</div> <h2 class="job-title">建築專案助理（日本長野白馬・常駐／中日文）</h2> <div class="job-meta"><span>正職</span><span>日本・長野白馬（常駐）</span><span>中日文</span><span>建築／營造專案</span><span>不限科系</span><span>薪資面議</span></div> <p class="job-desc">常駐日本長野白馬的建築專案助理：協助專案經理追蹤工程進度、彙整待辦與關鍵節點，跑現場與協力廠商溝通，並負責中日文口筆譯。不限科系，有建築、營造或工程專案背景或基礎經驗即可投遞，中日文皆需可用於工作溝通。</p> <span class="job-more">查看職缺詳情 →</span> </a><a class="job" href="/jobs/construction-pm-tokyo-bilingual/" data-track="executive" data-cat="overseas"> <div class="job-industry">建設開發・日本專案</div> <h2 class="job-title">建築專案經理（日本東京・中日口筆譯）</h2> <div class="job-meta"><span>月薪 30–35 萬日圓</span><span>中高階獵才</span><span>日本東京千代田區</span><span>週休二日</span><span>中日口筆譯</span></div> <p class="job-desc">日本建設開發專案徵建築專案經理，常駐東京千代田區，負責與當地建築公司協調、會議口譯與圖面合約翻譯審核，並查核設計施工進度，是台灣總部與日本團隊之間的橋樑。</p> <span class="job-more">查看職缺詳情 →</span> </a><a class="job" href="/jobs/ai-customer-success-manager-nangang/" data-track="fulltime" data-cat="sales"> <div class="job-industry">AI 新創・電商 SaaS</div> <h2 class="job-title">AI 客戶成功經理 Customer Success Manager</h2> <div class="job-meta"><span>待遇面議（經常性薪資達 4 萬元或以上）</span><span>正職</span><span>台北南港</span><span>英文可工作溝通</span></div> <p class="job-desc">AI 新創找最早的業務團隊成員：開發大型電商商家、完成簽約、確保 AI 業務員在對方店面真的做出成效。</p> <span class="job-more">查看職缺詳情 →</span> </a><a class="job" href="/jobs/ai-agent-designer-nangang/" data-track="fulltime" data-cat="tech"> <div class="job-industry">AI 新創・產品開發</div> <h2 class="job-title">AI Agent Designer</h2> <div class="job-meta"><span>待遇面議（經常性薪資達 4 萬元或以上）</span><span>正職</span><span>台北南港</span><span>Claude Code</span></div> <p class="job-desc">AI 新創找 Agent Designer，端到端打造 AI 業務員：觀察買家行為、prompt 設計、實作到成效驗證，整條由你走完。</p> <span class="job-more">查看職缺詳情 →</span> </a><a class="job" href="/jobs/bim-engineer-tongluo/" data-track="general" data-cat="construction"> <div class="job-industry">營建工程・高科技廠房建置</div> <h2 class="job-title">BIM 工程師</h2> <div class="job-meta"><span>月薪 40,833 元起，依經歷面議</span><span>正職</span><span>苗栗縣銅鑼鄉（調派範圍：苗栗</span></div> <p class="job-desc">誠徵BIM工程師，無經驗可，公司安排完整教育訓練，進駐半導體相關產業擴產案現場，跟著設計PM與設計工程師團隊從零累積BIM實戰經驗。2026年8月起改為正職僱用，急徵，一個月內到位。</p> <span class="job-more">查看職缺詳情 →</span> </a>
@@ -386,6 +482,16 @@ h2{font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;color:#1c1f2
         </a>
       </div>
 
+      <div class="jv2-help">
+      <p class="jv2-help-lead">Step1ne 目前開放中的職缺，包含<strong>高階獵才</strong>（年薪百萬等級的主管與專業職，保密進行）與<strong>人力派遣</strong>兩種，涵蓋財務、資訊、營運供應鏈、營建工程與海外外派等領域。每個職缺都由專業顧問接洽，在職者可保密初談，從應徵、面試到到職全程協助。</p>
+      <p style="font-size:14.5px;color:#8a8d95;margin:0 0 6px;">沒看到適合的職缺？<a href="/apply/?utm_source=website&utm_medium=jobs_index&utm_campaign=general">留下履歷，跟 AI 阿財聊聊</a>，有適合機會顧問會主動通知你。</p>
+      <p style="font-size:14.5px;color:#8a8d95;margin:0;">身邊有朋友在找工作？透過<a href="/talent/">全民獵才</a>把職缺推薦給他，媒合成功到職還能領推薦獎金。</p>
+      <p style="font-size:14.5px;color:#8a8d95;margin:6px 0 0;">你是企業、正在找人？看看<a href="/commission-recruiting/">企業委託招募方案</a>：高階獵頭、正職招募與人力派遣，成功後收費、收費透明。</p>
+      <p style="margin:14px 0 0;padding:14px 18px;background:#fdf6e9;border:1px solid #e8d5ab;border-radius:12px;font-size:14.5px;">
+        <a href="/construction/" style="font-weight:700;">📐 查看 BIM 工程師／營建工程職缺專區 →</a>
+        <span style="color:#7a5a22;">　半導體與AI記憶體產業擴產帶動的職缺都集中在這裡</span>
+      </p>
+    </div>
       <div class="empty" id="empty" style="display:none;">這個產業目前沒有開放中的職缺，<a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">加入 LINE</a> 留下履歷，有新職缺會通知你。</div>
     </div>
   </section>
@@ -400,15 +506,15 @@ h2{font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;color:#1c1f2
 
 <script>
 (async function(){
+  // 2026-10-04 改版（參考 CareerOS 手機版）：搜尋放最上面、「篩選」按鈕叫出底部選單（電腦版照舊顯示在頁面上）、
+  // 加「工作地點」「薪資」兩種條件、已選條件變成可以一鍵拿掉的小標籤、可以照薪資排序。
   var CAT_LABEL = {
     finance:'財務・會計', it:'資訊・軟體', operations:'營運・供應鏈',
     construction:'營建・工程', semiconductor:'半導體・電子', overseas:'海外外派', service:'客服・行政',
-    hospitality:'餐旅・接待'
+    hospitality:'餐旅・接待', media:'媒體・社群', tech:'科技・AI', sales:'業務・客戶開發'
   };
-  // 2026-08-17 加：顧問在後台把職缺關掉是即時的，但這個列表頁是純靜態
-  // HTML——關掉之後要馬上從網站上消失，不能等改完 HTML 重新部署才生效，
-  // 所以先問一下後端「現在哪些是關的」，把對應卡片從 DOM 拿掉，
-  // 再讓下面既有的篩選邏輯照正常流程跑，數字才會算對。
+  var TRACK_LABEL = { senior:'中高階職缺', general:'一般職缺', dispatch:'派遣職缺' };
+  // 顧問在後台關掉的職缺要馬上從列表消失（列表是靜態 HTML，先問後端哪些關了）
   try {
     var closedResp = await fetch('https://step1ne-public-worker.aiagentg888.workers.dev/jobs-closed').then(function (r) { return r.json(); });
     var closedSet = new Set((closedResp && closedResp.closed) || []);
@@ -418,96 +524,145 @@ h2{font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;color:#1c1f2
         if (m && closedSet.has(m[1])) el.remove();
       });
     }
-  } catch (e) { /* 查不到就照舊全部顯示，不能讓這支失敗擋住整個職缺頁 */ }
+  } catch (e) { /* 查不到就照舊全部顯示 */ }
 
-  var jobs   = [].slice.call(document.querySelectorAll('#jobs .job'));
-  var qInput = document.getElementById('q');
-  var qBox   = qInput.parentNode;
-  var tracks = document.getElementById('tracks');
-  var cats   = document.getElementById('cats');
-  var catGrp = document.getElementById('catgroup');
-  var countEl= document.getElementById('count');
-  var resetEl= document.getElementById('reset');
-  var state  = { track:'all', cat:'all', q:'' };
-
-  jobs.forEach(function(j){ j._text = (j.textContent||'').toLowerCase(); });
-
-  // 依目前大分類，重建「產業領域」選項；選「全部」時不顯示這一層
-  function buildCats(){
-    if(state.track === 'all'){ catGrp.classList.add('is-hidden'); state.cat='all'; return; }
-    catGrp.classList.remove('is-hidden');
-    var seen = [];
-    jobs.forEach(function(j){
-      if(j.dataset.track !== state.track) return;
-      (j.dataset.cat||'').split(' ').filter(Boolean).forEach(function(c){
-        if(seen.indexOf(c) === -1) seen.push(c);
-      });
-    });
-    var html = '<button type="button" class="chip'+(state.cat==='all'?' is-active':'')+'" data-cat="all">全部</button>';
-    seen.forEach(function(c){
-      html += '<button type="button" class="chip'+(state.cat===c?' is-active':'')+'" data-cat="'+c+'">'+(CAT_LABEL[c]||c)+'</button>';
-    });
-    cats.innerHTML = html;
+  var jobs = [].slice.call(document.querySelectorAll('#jobs .job'));
+  // 預設排序（2026-10-04 Jacky）：不要讓派遣排最前面——先放顧問設成「優先找」的職缺（BIM 置頂），
+  // 再依近 60 天跟阿財面談的人數。順序由後端 /jobs-rank 算，抓不到就維持原本順序。
+  var RANK = {};
+  try {
+    var rk = await fetch('https://step1ne-public-worker.aiagentg888.workers.dev/jobs-rank').then(function (r) { return r.json(); });
+    ((rk && rk.rank) || []).forEach(function (slug, i) { RANK[slug] = i; });
+  } catch (e) { /* 抓不到就用原本順序 */ }
+  var LOCS = [['台北','台北|北市|內湖|信義|南港|中山|松山'],['新北','新北|中和|板橋|新店|三重|新莊'],['桃園','桃園'],['新竹','新竹|竹北|竹科'],
+              ['台中','台中|后里|中科'],['彰化','彰化'],['雲林','雲林|麥寮'],['苗栗','苗栗|銅鑼'],['台南','台南|南科'],['高雄','高雄'],
+              ['日本','日本|東京|長野|白馬'],['海外','柬埔寨|菲律賓|越南|海外|外派'],['在家','在家|遠端']];
+  function payYear(t){ // 換算年薪（萬台幣）；抓不到回 null
+    var m;
+    if ((m = t.match(/年薪\s*([\d.]+)\s*[–\-~～]?\s*([\d.]+)?\s*萬(日圓)?/))) { var v=+m[1]; return m[3] ? v*0.21 : v; }
+    if ((m = t.match(/月薪\s*([\d.]+)\s*K/i))) return +m[1]*0.1*14;
+    if ((m = t.match(/月薪\s*([\d.]+)\s*萬/))) return +m[1]*14;
+    if ((m = t.match(/月薪\s*([\d,]+)/))) return +m[1].replace(/,/g,'')/10000*14;
+    return null;
   }
+  // 卡片改版（版面參考 CareerOS）：左邊方形圖示＋職稱＋「產業・地點」、粗體薪資、標籤、一行摘要、底部連結。
+  // 卡片原始 HTML 是 publish_job.py 產的，這裡只在瀏覽器重排顯示，原始文字都保留（搜尋、SEO 照舊）。
+  var TRACK_SHORT = { senior:['獵','中高階獵才'], general:['正','正職'], dispatch:['派','人力派遣'] };
+  function esc(t){ return String(t).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function render(j, meta){
+    var spans = [].slice.call(j.querySelectorAll('.job-meta span')).map(function(x){ return x.textContent.trim(); });
+    var pay = spans.filter(function(t){ return /薪|面議/.test(t); })[0] || '薪資面議';
+    var loc = spans.filter(function(t){ return LOCS.some(function(l){ return new RegExp(l[1]).test(t); }); })[0] || '';
+    var others = spans.filter(function(t){ return t !== pay && t !== loc && t !== (TRACK_SHORT[j.dataset.track]||TRACK_SHORT.general)[1]; }).slice(0, 3);
+    var tr = TRACK_SHORT[j.dataset.track] || TRACK_SHORT.general;
+    var ind = ((j.querySelector('.job-industry')||{}).textContent || '').trim();
+    var title = j.querySelector('.job-title'), desc = j.querySelector('.job-desc');
+    var box = document.createElement('div');
+    box.innerHTML = '<div class="jc-top"><span class="jc-logo t-' + esc(j.dataset.track||'general') + '" aria-hidden="true">' + tr[0] + '</span><div class="jc-main"></div></div>'
+      + '<div class="jc-pay">' + esc(pay) + (/起|面議|依/.test(pay) ? '<span class="jc-est">依經歷調整</span>' : '') + '</div>'
+      + '<div class="jc-tags"><span class="hl">' + tr[1] + '</span>' + others.map(function(t){ return '<span>' + esc(t) + '</span>'; }).join('') + '</div>';
+    var mainEl = box.querySelector('.jc-main');
+    if (title) mainEl.appendChild(title);
+    var sub = document.createElement('div'); sub.className = 'jc-sub'; sub.textContent = [ind, loc].filter(Boolean).join(' · '); mainEl.appendChild(sub);
+    var foot = document.createElement('div'); foot.className = 'jc-foot'; foot.innerHTML = '<span>顧問接洽・可保密初談</span><b>查看職缺 →</b>';
+    var keepMeta = j.querySelector('.job-meta'), keepInd = j.querySelector('.job-industry'), keepMore = j.querySelector('.job-more');
+    j.innerHTML = '';
+    while (box.firstChild) j.appendChild(box.firstChild);
+    if (desc) j.appendChild(desc);
+    j.appendChild(foot);
+    [keepInd, keepMeta, keepMore].forEach(function(x){ if (x) j.appendChild(x); });   // 隱藏但保留，搜尋用得到
+  }
+  var PAYS = [['under60','60 萬以下',function(v){return v<60;}],['60to100','60–100 萬',function(v){return v>=60&&v<100;}],['over100','100 萬以上',function(v){return v>=100;}]];
+  jobs.forEach(function(j, i){
+    j._i = i;
+    j._slug = ((j.getAttribute('href') || '').match(/\/jobs\/([^/]+)/) || [])[1] || '';
+    j._text = (j.textContent||'').toLowerCase();
+    var meta = (j.querySelector('.job-meta')||{}).textContent || '';
+    var all = meta + ' ' + ((j.querySelector('.job-desc')||{}).textContent || '');
+    j._locs = LOCS.filter(function(l){ return new RegExp(l[1]).test(meta); }).map(function(l){ return l[0]; });
+    if (!j._locs.length) j._locs = LOCS.filter(function(l){ return new RegExp(l[1]).test(all); }).slice(0,1).map(function(l){ return l[0]; });
+    j._pay = payYear(meta);
+    render(j, meta);
+  });
+  // 統計：開放中職缺數、產業領域數
+  (function(){ var cs=[]; jobs.forEach(function(j){ (j.dataset.cat||'').split(' ').filter(Boolean).forEach(function(c){ if(cs.indexOf(c)<0) cs.push(c); }); });
+    document.getElementById('statJobs').textContent = jobs.length; document.getElementById('statCats').textContent = cs.length; })();
 
-  var ORDER = jobs.slice();   // 原始順序，切回「全部」時要還原
+  var $ = function(id){ return document.getElementById(id); };
+  var qInput=$('q'), qBox=qInput.parentNode, tracks=$('tracks'), cats=$('cats'), catGrp=$('catgroup'), locs=$('locs'), pays=$('pays');
+  var countEl=$('count'), resetEl=$('reset'), sheet=$('filterSheet'), mask=$('sheetMask');
+  var state = { track:'all', cat:'all', loc:'all', pay:'all', q:'', sort:'' };
+  var mobile = window.matchMedia('(max-width:760px)');
 
+  function match(j, skip){
+    return (skip==='track' || state.track==='all' || j.dataset.track===state.track)
+      && (skip==='cat' || state.cat==='all' || (j.dataset.cat||'').split(' ').indexOf(state.cat)>-1)
+      && (skip==='loc' || state.loc==='all' || j._locs.indexOf(state.loc)>-1)
+      && (skip==='pay' || state.pay==='all' || (j._pay!=null && PAYS.filter(function(p){return p[0]===state.pay;})[0][2](j._pay)))
+      && (!state.q || j._text.indexOf(state.q)>-1);
+  }
+  function chips(el, key, opts){ // opts: [[value,label]]；每個選項旁邊寫有幾個職缺
+    el.innerHTML = [['all','全部']].concat(opts).map(function(o){
+      var n = o[0]==='all' ? '' : ' <small>'+jobs.filter(function(j){ var s0=state[key]; state[key]=o[0]; var ok=match(j); state[key]=s0; return ok; }).length+'</small>';
+      return '<button type="button" class="chip'+(state[key]===o[0]?' is-active':'')+'" data-v="'+o[0]+'">'+o[1]+n+'</button>';
+    }).join('');
+  }
+  function build(){
+    chips(tracks, 'track', Object.keys(TRACK_LABEL).filter(function(k){ return jobs.some(function(j){return j.dataset.track===k;}); }).map(function(k){ return [k, TRACK_LABEL[k]]; }));
+    var seen=[]; jobs.forEach(function(j){ if(state.track!=='all' && j.dataset.track!==state.track) return; (j.dataset.cat||'').split(' ').filter(Boolean).forEach(function(c){ if(seen.indexOf(c)<0) seen.push(c); }); });
+    chips(cats, 'cat', seen.map(function(c){ return [c, CAT_LABEL[c]||c]; }));
+    catGrp.classList.toggle('is-hidden', !seen.length);
+    chips(locs, 'loc', LOCS.filter(function(l){ return jobs.some(function(j){ return j._locs.indexOf(l[0])>-1; }); }).map(function(l){ return [l[0], l[0]]; }));
+    chips(pays, 'pay', PAYS.map(function(p){ return [p[0], p[1]]; }));
+  }
+  function label(key, v){
+    if (key==='track') return TRACK_LABEL[v]; if (key==='cat') return CAT_LABEL[v]||v;
+    if (key==='pay') return PAYS.filter(function(p){return p[0]===v;})[0][1]; return v;
+  }
   function apply(){
-    var shown = 0;
-    jobs.forEach(function(j){
-      var okTrack = state.track === 'all' || j.dataset.track === state.track;
-      var okCat   = state.cat === 'all' || (j.dataset.cat||'').split(' ').indexOf(state.cat) > -1;
-      var okQ     = !state.q || j._text.indexOf(state.q) > -1;
-      var show    = okTrack && okCat && okQ;
-      j.style.display = show ? 'block' : 'none';
-      if(show) shown++;
-    });
-    // 置頂：卡片上標了 data-pin="<分類>"，選到該分類時就排到最前面。
-    // 用 DOM 順序而不是排序陣列——這一頁的職缺是靜態寫在 HTML 裡的，
-    // 沒有渲染流程可以插手。切回「全部」時要還原，不然置頂會黏著不放。
-    var list = jobs[0] && jobs[0].parentNode;
+    var shown=0, list=jobs[0] && jobs[0].parentNode;
+    jobs.forEach(function(j){ var ok=match(j); j.style.display = ok?'block':'none'; if(ok) shown++; });
     if (list) {
-      if (state.track !== 'all') {
-        jobs.forEach(function (j) {
-          if (j.dataset.pin === state.track && j.style.display !== 'none') {
-            list.insertBefore(j, list.firstChild);
-          }
-        });
-      } else {
-        // 還原成原本的順序（載入時記下來的）
-        ORDER.forEach(function (j) { list.appendChild(j); });
-      }
+      var order = jobs.slice().sort(function(a,b){
+        if (state.sort==='pay') return (b._pay||-1)-(a._pay||-1);
+        var pa = state.track!=='all' && a.dataset.pin===state.track ? -1 : 0, pb = state.track!=='all' && b.dataset.pin===state.track ? -1 : 0;
+        var ra = RANK[a._slug], rb = RANK[b._slug];
+        ra = ra == null ? 9999 : ra; rb = rb == null ? 9999 : rb;
+        return (pa-pb) || (ra-rb) || (a._i-b._i);
+      });
+      order.forEach(function(j){ list.appendChild(j); });
     }
-    document.getElementById('empty').style.display = shown ? 'none' : 'block';
-    countEl.textContent = shown === jobs.length ? ('共 ' + jobs.length + ' 個職缺') : ('符合條件：' + shown + ' / ' + jobs.length + ' 個職缺');
-    var filtering = state.track!=='all' || state.cat!=='all' || !!state.q;
-    resetEl.classList.toggle('is-hidden', !filtering);
+    $('empty').style.display = shown ? 'none' : 'block';
+    countEl.textContent = shown===jobs.length ? ('共 '+jobs.length+' 個職缺') : ('符合條件：'+shown+' / '+jobs.length+' 個職缺');
+    var act = ['track','cat','loc','pay'].filter(function(k){ return state[k]!=='all'; });
+    $('activeChips').innerHTML = act.map(function(k){ return '<button type="button" data-k="'+k+'">'+label(k,state[k])+' ×</button>'; }).join('')
+      + (act.length || state.q ? '<button type="button" class="clear-all" data-k="all">清除全部條件</button>' : '');
+    $('filterN').textContent = act.length ? ' '+act.length : '';
+    $('sheetApply').textContent = '顯示 '+shown+' 個職缺';
+    countEl.textContent = shown + ' 個職缺';
+    resetEl.classList.toggle('is-hidden', !(act.length || state.q));
     qBox.classList.toggle('has-value', !!state.q);
+    build();
   }
-
-  tracks.addEventListener('click', function(e){
-    var b = e.target.closest('.chip'); if(!b) return;
-    state.track = b.dataset.track; state.cat = 'all';
-    [].forEach.call(this.querySelectorAll('.chip'), function(x){ x.classList.toggle('is-active', x===b); });
-    buildCats(); apply();
-  });
-
-  cats.addEventListener('click', function(e){
-    var b = e.target.closest('.chip'); if(!b) return;
-    state.cat = b.dataset.cat;
-    [].forEach.call(this.querySelectorAll('.chip'), function(x){ x.classList.toggle('is-active', x===b); });
-    apply();
-  });
-
-  qInput.addEventListener('input', function(){ state.q = this.value.trim().toLowerCase(); apply(); });
-  document.getElementById('qclear').addEventListener('click', function(){ qInput.value=''; state.q=''; qInput.focus(); apply(); });
-  resetEl.addEventListener('click', function(){
-    state = { track:'all', cat:'all', q:'' }; qInput.value='';
-    [].forEach.call(tracks.querySelectorAll('.chip'), function(x){ x.classList.toggle('is-active', x.dataset.track==='all'); });
-    buildCats(); apply();
-  });
-
-  buildCats(); apply();
+  function pick(key){ return function(e){ var b=e.target.closest('.chip'); if(!b) return; state[key]=b.dataset.v; if(key==='track') state.cat='all'; apply(); }; }
+  tracks.addEventListener('click', pick('track')); cats.addEventListener('click', pick('cat'));
+  locs.addEventListener('click', pick('loc')); pays.addEventListener('click', pick('pay'));
+  qInput.addEventListener('input', function(){ state.q=this.value.trim().toLowerCase(); apply(); });
+  $('qclear').addEventListener('click', function(){ qInput.value=''; state.q=''; qInput.focus(); apply(); });
+  $('sortSel').addEventListener('change', function(){ state.sort=this.value; apply(); });
+  function resetAll(){ state.track=state.cat=state.loc=state.pay='all'; state.q=''; qInput.value=''; apply(); }
+  resetEl.addEventListener('click', resetAll);
+  $('activeChips').addEventListener('click', function(e){ var b=e.target.closest('button'); if(!b) return; var k=b.dataset.k; if(k==='all') return resetAll(); state[k]='all'; if(k==='track') state.cat='all'; apply(); });
+  function openSheet(o){ sheet.classList.toggle('is-open', o); mask.classList.toggle('is-open', o); document.body.style.overflow = o ? 'hidden' : ''; }
+  $('filterBtn').addEventListener('click', function(){ openSheet(true); });
+  $('sheetClose').addEventListener('click', function(){ openSheet(false); });
+  $('sheetApply').addEventListener('click', function(){ openSheet(false); });
+  $('sheetClear').addEventListener('click', function(){ state.track=state.cat=state.loc=state.pay='all'; apply(); });
+  mask.addEventListener('click', function(){ openSheet(false); });
+  $('qGo').addEventListener('click', function(){ state.q = qInput.value.trim().toLowerCase(); apply(); var l=$('jobs'); if(l) l.scrollIntoView({behavior:'smooth', block:'start'}); });
+  [].forEach.call(document.querySelectorAll('[data-open]'), function(b){ b.addEventListener('click', function(){
+    openSheet(true); var g = $(b.dataset.open); if (g) setTimeout(function(){ g.closest('.filter-group').scrollIntoView({block:'start'}); }, 260); }); });
+  apply();
 })();
 </script>
 
@@ -545,14 +700,14 @@ h2{font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;color:#1c1f2
     track: a.getAttribute('data-track') || 'general',
   })).filter((j) => j.title);
 
-  if (!cards.length) { box.closest('section').style.display = 'none'; return; }
+  if (!cards.length) { box.closest('.hot-wrap').style.display = 'none'; return; }
 
   const byId = Object.fromEntries(cards.map((j) => [j.slug, j]));
   const list = FIXED_SLUGS
     .map((f) => ({ j: byId[f.slug] }))
     .filter((x) => x.j)
     .map((x) => ({ ...x, t: TRACK_LABEL[x.j.track] || TRACK_LABEL.general }));
-  if (!list.length) { box.closest('section').style.display = 'none'; return; }
+  if (!list.length) { box.closest('.hot-wrap').style.display = 'none'; return; }
 
   box.innerHTML = list.map(({ t, j }) => `
     <a href="${j.href}" style="display:block;padding:16px 18px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;text-decoration:none;color:inherit;">
