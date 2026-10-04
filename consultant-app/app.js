@@ -28,6 +28,7 @@ function render() {
   if (route.legacy) navigate(route.key, route.sub, true);
   const view = views[route.key] || views.home;
   $('#app').innerHTML = shell(route.key, view(route.sub), state.sidebarCollapsed);
+  fillMeGlobal();
   if (!hasToken()) {
     openTokenModal('請先輸入目前的 ADMIN_TOKEN');
     $('#page-data').innerHTML = '<div class="state"><strong>尚未登入</strong><p>輸入 ADMIN_TOKEN 後才會讀取 Production 資料。</p></div>';
@@ -496,7 +497,7 @@ document.addEventListener('click', async (event) => {
   const slug = btn.getAttribute('data-sourcing-mode-save');
   const sel = document.querySelector(`[data-sourcing-mode="${CSS.escape(slug)}"]`);
   const me = amUi().me;
-  if (!me) { toast('先在人選中心上方選「我是」，系統才記得是誰改的', 'error'); return; }
+  if (!me) { toast('先在畫面最上方選「我是」，系統才記得是誰改的', 'error'); document.querySelector('[data-me-global]')?.focus(); return; }
   btn.disabled = true;
   try { await adapters.jobSourcingMode(slug, sel.value, me); toast('已儲存，今晚夜間找人照新設定挑職缺', 'success'); }
   catch (e) { toast((e.body && e.body.error) || e.message, 'error'); } finally { btn.disabled = false; }
@@ -509,7 +510,7 @@ document.addEventListener('click', async (event) => {
   const slug = btn.getAttribute('data-screen-tier-save');
   const sel = document.querySelector(`[data-screen-tier="${CSS.escape(slug)}"]`);
   const me = amUi().me;
-  if (!me) { toast('先在人選中心上方選「我是」，系統才記得是誰改的', 'error'); return; }
+  if (!me) { toast('先在畫面最上方選「我是」，系統才記得是誰改的', 'error'); document.querySelector('[data-me-global]')?.focus(); return; }
   btn.disabled = true;
   try { await adapters.jobScreenTier(slug, sel.value, me); toast('已改層級，下一場面談開始照新層級問', 'success'); }
   catch (e) { toast((e.body && e.body.error) || e.message, 'error'); } finally { btn.disabled = false; }
@@ -522,7 +523,7 @@ document.addEventListener('click', async (event) => {
   const appId = btn.getAttribute('data-call-confirm');
   const name = btn.getAttribute('data-call-mail-name') || '';
   const me = amUi().me;
-  if (!me) { toast('先在上面選「我是」，系統才記得是誰寄的', 'error'); return; }
+  if (!me) { toast('先在畫面最上方選「我是」，系統才記得是誰寄的', 'error'); document.querySelector('[data-me-global]')?.focus(); return; }
   const slot = window.prompt(`跟 ${name} 約好的時間（照人選給的時段寫，例如：10/6（二）下午 2:00）`);
   if (!slot || !slot.trim()) return;
   const sal = window.prompt('信的開頭怎麼稱呼？（人選信裡署名英文名就填英文名，空白＝用本名）', name) || name;
@@ -644,6 +645,22 @@ document.addEventListener('change', (event) => {
 });
 
 // 顧問／客戶名單快取（後端本來就有 45 秒快取，這裡再存一次省得每次開下拉選單都重打）。
+// 2026-10-03：「我是」放到最上方工具列，每一頁都看得到（以前只在人選中心幾個分頁裡，
+// 職缺抽屜改設定時跳「先選我是」卻找不到地方選——Jacky 回報）。跟各分頁的「我是」共用同一個值。
+async function fillMeGlobal() {
+  const sel = document.querySelector('[data-me-global]');
+  if (!sel) return;
+  const cons = (await ensureConsultants()).filter((c) => c.is_active);
+  const me = amUi().me || '';
+  sel.innerHTML = `<option value="">選擇…</option>${cons.map((c) => `<option value="${escapeHtml(c.display_name)}" ${c.display_name === me ? 'selected' : ''}>${escapeHtml(c.display_name)}</option>`).join('')}`;
+}
+document.addEventListener('change', (e) => {
+  const sel = e.target instanceof Element ? e.target.closest('[data-me-global]') : null;
+  if (!sel) return;
+  amUi().me = sel.value; amSave();
+  document.querySelectorAll('[data-am-filter="me"],[data-tri-filter="me"],[data-cm-me]').forEach((x) => { x.value = sel.value; });
+  toast(sel.value ? `已設定：我是 ${sel.value}` : '已清除「我是」', 'success');
+});
 async function ensureConsultants() {
   if (!state.consultantsCache) {
     try { state.consultantsCache = (await api.get('/admin/consultants')).consultants || []; }
