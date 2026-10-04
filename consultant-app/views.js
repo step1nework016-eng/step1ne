@@ -444,7 +444,14 @@ ${list(items, (j) => `<article class="list-row"><span><b>${text(j.title || j.slu
     const k = data.kpi || {};
     const kpi = `<div class="src-kpi"><b>AI 找人精準度：符合 ${k.fit || 0}／已評分 ${k.rated || 0}${k.rated ? `（${k.precision}%）` : '（還沒有人被評分）'}</b>
 <small>已評分＝評過「符合」或「不符合」；「不確定」${k.unsure || 0} 位不算進去。已聯絡 ${k.contacted || 0} 位${k.rejected ? `・另有 ${k.rejected} 位之前被標不合適，不列出` : ''}</small></div>`;
-    if (!rows.length) return `${kpi}<div class="notice">這個職缺目前沒有 AI 找到的人選。</div>`;
+    // 2026-10-03：外部找人選設定（夜間 AI 找人照這個挑職缺）
+    const sm = (data.sourcing && data.sourcing.mode) || 'auto';
+    const SM = { priority: '優先找（每晚先做）', auto: '一般（近 45 天有人應徵才找）', off: '不找' };
+    const modeBox = `<div class="card" style="padding:10px 12px;margin:0 0 10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <b>外部找人選：</b><select data-sourcing-mode="${escapeHtml(slug)}" aria-label="外部找人選設定" style="min-height:40px">${Object.entries(SM).map(([k, v]) => `<option value="${k}" ${sm === k ? 'selected' : ''}>${v}</option>`).join('')}</select>
+      <button type="button" class="btn sm" data-sourcing-mode-save="${escapeHtml(slug)}">儲存</button>
+      ${data.sourcing && data.sourcing.by ? `<span class="help">（${text(data.sourcing.by)} ${text(String(data.sourcing.at || '').slice(5, 16))} 設定）</span>` : ''}</div>`;
+    if (!rows.length) return `${modeBox}${kpi}<div class="notice">這個職缺目前沒有 AI 找到的人選。</div>`;
     const RES = { no_answer: '沒接／沒回', interested: '有興趣', not_interested: '沒興趣', invited: '已約阿財面談', wrong_person: '資料不對／不是本人', email_invited: '已寄邀請信', opt_out: '本人說不要再寄' };
     const safeUrl = (u) => (/^https?:\/\//i.test(String(u || '').trim()) ? String(u).trim() : '');
     const link = (u, label) => (safeUrl(u) ? `<a class="btn ghost sm" href="${escapeHtml(safeUrl(u))}" target="_blank" rel="noopener">${text(label)}</a>` : '');
@@ -478,7 +485,7 @@ ${r.transcript_review ? views.transcriptReview(r.transcript_review) : ''}
 ${rowActions([`<button type="button" class="btn primary sm" data-sc-action="open" data-sourced-id="${escapeHtml(r.id)}" data-sc-job="${escapeHtml(slug)}">看資料卡${email ? '・寄信' : ''}</button>`, views.sourcedListMailBtn(r), actionBtn('記錄聯絡', 'sourced-contact', { idParams: { id: r.id, job_slug: slug } })])}
 </article>`;
     };
-    return `${kpi}<p class="help">沒聯絡過的排前面，再依評級、分數排。有 Email 的人按「看資料卡・寄信」，看完再決定寄不寄；打完電話按「記錄聯絡」，順手評符不符合——這就是 AI 找人精準度的分母。</p>
+    return `${modeBox}${kpi}<p class="help">沒聯絡過的排前面，再依評級、分數排。有 Email 的人按「看資料卡・寄信」，看完再決定寄不寄；打完電話按「記錄聯絡」，順手評符不符合——這就是 AI 找人精準度的分母。</p>
 <div class="src-list">${rows.map(card).join('')}</div>`;
   },
 
