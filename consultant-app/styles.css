@@ -878,3 +878,12 @@ details.note-details p{margin:8px 0 0;font-size:13.5px;white-space:pre-wrap;colo
 .pc-cond p{margin:6px 0 0;font-size:13px;line-height:1.6}
 .pc-notfit{margin-top:10px;display:grid;gap:6px}
 .pc-notfit-title{font-weight:800;font-size:13px}
+
+/* 2026-10-05 電洽前準備分兩頁（radio 切換，不靠 JS） */
+.pc-view-radio{position:absolute;opacity:0;pointer-events:none}
+.pc-view-tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin:4px 0 14px;flex-wrap:wrap}
+.pc-view-tabs label{cursor:pointer;padding:10px 14px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;color:var(--muted,#667085);border-bottom:3px solid transparent;margin-bottom:-1px}
+.pc-view{display:none}
+.pv-a:checked ~ .pc-view-a,.pv-b:checked ~ .pc-view-b{display:block}
+.pv-a:checked ~ .pc-view-tabs .lab-a,.pv-b:checked ~ .pc-view-tabs .lab-b{color:var(--brand,#2f6fed);border-bottom-color:var(--brand,#2f6fed)}
+.pv-a:focus-visible ~ .pc-view-tabs .lab-a,.pv-b:focus-visible ~ .pc-view-tabs .lab-b{outline:2px solid var(--brand,#2f6fed);outline-offset:2px}

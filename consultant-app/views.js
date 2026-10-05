@@ -3413,15 +3413,24 @@ ${tg}
     const insightHtml = `
     ${vd ? `<section class="pc-verdict"><div class="pc-verdict-head">【結論】${vd.fit_level && FIT[vd.fit_level] ? `<span class="pc-status ${FIT[vd.fit_level][1]}">${FIT[vd.fit_level][0]}</span>` : ''}</div>
       <p>${text(vd.one_line)}</p></section>` : ''}
-    ${noJob && altJobs.length ? `<section class="pc-step pc-fitjobs"><div class="pc-step-head">🎯 他適合哪些職缺（還沒指定職缺，AI 先從全部開放職缺幫你挑）</div>
-      <div class="pc-step-body">${altJobs.map(altJobHtml).join('')}${notFitHtml}</div></section>` : ''}
     ${cond.length ? `<section class="pc-step"><div class="pc-step-head">📋 對照${text(vd && vd.compared_job ? '「' + vd.compared_job + '」' : '職缺')}條件</div>
       <div class="pc-step-body pc-cond-list">${cond.map((c) => { const m = COND[c.status] || COND.unknown; return `<div class="pc-cond">
         <div class="pc-gate-row"><strong>${text(c.condition)}</strong><span class="pc-status ${m[1]}">${m[0]}</span></div>
         <p>${text(c.resume_evidence || '')}${c.note ? `<br><span class="muted">→ ${text(c.note)}</span>` : ''}</p></div>`; }).join('')}</div></section>` : ''}
     ${watch.length ? `<section class="pc-step pc-watch"><div class="pc-step-head">⚠️ 要注意的地方</div>
       <div class="pc-step-body">${watch.map((w) => `<div class="pc-mini"><b>${text(w.title)}</b><small>${text(w.detail || '')}${w.ask ? `<br>☎️ 可以問：${text(w.ask)}` : ''}</small></div>`).join('')}</div></section>` : ''}
-    ${!noJob && notFit.length ? `<section class="pc-step"><div class="pc-step-body">${notFitHtml}</div></section>` : ''}`;
+`;
+    // 2026-10-05 Jacky：電洽前準備分兩頁——「對照目前職缺」「他適合哪些職缺」。
+    // 用 radio＋CSS 切換，不用另外掛 JS；沒指定職缺時預設打開第二頁。
+    const vid = 'pcv' + Math.random().toString(36).slice(2, 8);
+    const fitTabHtml = `
+      ${noJob ? `<p class="help" style="margin:0 0 10px">這位人選還沒指定職缺，AI 先從全部開放職缺幫你挑。</p>` : (vd ? `<section class="pc-step pc-fitjobs"><div class="pc-step-head">目前掛的職缺：${text(jc.title || '')}${vd.fit_level && FIT[vd.fit_level] ? `<span class="pc-status ${FIT[vd.fit_level][1]}">${FIT[vd.fit_level][0]}</span>` : ''}</div>
+        <div class="pc-step-body"><p style="margin:0;line-height:1.7">${text(vd.one_line)}</p></div></section>` : '')}
+      <section class="pc-step pc-fitjobs"><div class="pc-step-head">✅ ${noJob ? '他適合的職缺' : '其他也適合的職缺'}（${altJobs.length}）</div>
+        <div class="pc-step-body">${altJobs.length ? altJobs.map(altJobHtml).join('') : `<p class="muted" style="margin:0">${noJob ? '目前開放的職缺裡沒有對得上的' : '目前開放的職缺裡，沒有比這個職缺更合適的'}</p>`}</div></section>
+      ${notFit.length ? `<section class="pc-step pc-fitjobs"><div class="pc-step-body">${notFitHtml}</div></section>` : ''}
+      ${opts.applicationId ? `<section class="pc-step"><div class="pc-step-body"><p class="help" style="margin:0 0 8px">我們職缺裡沒有的公司，也可以拿他去開發：</p>
+        <button type="button" class="pc-tool-btn" data-cand-bd="${appIdAttr}">🧲 他適合哪些公司（去開發）</button></div></section>` : ''}`;
 
     return `
     ${opts.stale ? `<div class="notice">職缺或履歷內容已更新，這張卡可能是舊版——建議重新產生。</div>` : ''}
@@ -3448,6 +3457,15 @@ ${tg}
       </div>
     </section>
 
+    <div class="pc-views">
+    <input type="radio" name="${vid}" id="${vid}-a" class="pc-view-radio pv-a" ${noJob ? '' : 'checked'}>
+    <input type="radio" name="${vid}" id="${vid}-b" class="pc-view-radio pv-b" ${noJob ? 'checked' : ''}>
+    <div class="pc-view-tabs" role="tablist">
+      <label for="${vid}-a" class="lab-a">📋 ${noJob ? '對照最適合的職缺' : '對照目前職缺'}</label>
+      <label for="${vid}-b" class="lab-b">🎯 他適合哪些職缺${altJobs.length ? `（${altJobs.length}）` : ''}</label>
+    </div>
+    <div class="pc-view pc-view-b">${fitTabHtml}</div>
+    <div class="pc-view pc-view-a">
     ${!noJob && (jc.title || jc.salary_summary || jc.work_mode) ? `<section class="pc-jobline">
       <span>${text(jc.title || '')}</span>
       ${jc.salary_summary ? `<span>💰 ${text(jc.salary_summary)}</span>` : ''}
@@ -3478,9 +3496,6 @@ ${tg}
           ? (cf.conditions || []).map((c) => `<div class="pc-mini"><b>${text(c.label)}</b><small>${text(c.value)}</small></div>`).join('')
           : '<p class="muted" style="margin:0">職缺條件資料不足</p>'}</div></section>
 
-      ${altJobs.length && !noJob ? `<section class="pc-step" style="grid-column:1/-1">
-        <details><summary class="pc-alt-summary">✨ 如果主職缺不合，可再分享（${altJobs.length}）</summary>
-        <div class="pc-step-body">${altJobs.map(altJobHtml).join('')}</div></details></section>` : ''}
 
       <section class="pc-step" style="grid-column:1/-1"><div class="pc-step-head"><span class="pc-num">${altJobs.length ? 7 : ((cf.extra_questions || []).length ? 7 : 6)}</span>收尾｜確認意願與下一步</div>
         <div class="pc-step-body"><div class="pc-closebox">${text((cf.closing || {}).script || '')}</div></div></section>
@@ -3510,6 +3525,8 @@ ${tg}
         </section>
       </div>
     </div>
+
+    </div></div>
 
     <div class="actions-row" style="margin-top:10px">
       <button type="button" class="btn ghost sm" data-action="precall-generate" data-force="1">重新產生</button>
