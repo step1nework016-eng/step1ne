@@ -2184,7 +2184,9 @@ ${ns.length ? `<div class="bdn-list">${ns.map(item).join('')}</div>` : '<p class
         let d = null; try { d = JSON.parse(t.ai_json || 'null'); } catch { d = null; }
         const pr = d && d.prospect;
         return { at: t.created_at, html: `<article class="bdp-item bdp-ai"><div class="bdp-top"><small>${text(String(t.created_at || '').slice(5, 16))}・${text(t.caller || '顧問')}</small><span class="badge">電話逐字稿</span></div>
-        ${d && d.summary ? `<p><b>AI 整理</b>${text(d.summary)}</p>` : (t.ai_status === 'pending' ? '<small>AI 整理中，約 1～3 分鐘後重開卡片</small>' : '')}
+        ${d && Array.isArray(d.call_record) && d.call_record.length
+          ? `<div class="bdp-record"><b>AI 整理的通話紀錄</b><ul>${d.call_record.map((x) => `<li>${text(x)}</li>`).join('')}</ul></div>`
+          : (t.ai_status === 'pending' ? '<small>AI 整理中，約 1～3 分鐘後重開卡片</small>' : (d ? '<small class="muted">這通是舊版分析，沒有通話紀錄；需要的話重新上傳逐字稿</small>' : ''))}
         ${pr ? `<p><b>對方興趣</b>${text(pr.interest || '—')}${pr.interest_reason ? `（${text(pr.interest_reason)}）` : ''}</p><p><b>建議下一步</b>${text(pr.next_step || '—')}${pr.next_step_detail ? `・${text(pr.next_step_detail)}` : ''}</p>` : ''}
         ${t.transcript ? `<details class="bdp-raw"><summary>原始逐字稿（${String(t.transcript).length} 字）</summary><div class="bdp-raw-text">${text(t.transcript)}</div></details>` : ''}
         <small class="muted">講法建議與評分看「AI 建議」分頁</small></article>` };
