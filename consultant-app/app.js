@@ -187,7 +187,7 @@ async function loadCandidateTab(target) {
   const loaders = { workbench: adapters.candidates, pool: adapters.sourced, reports: adapters.reports, outreach: adapters.outreach, checkups: adapters.checkups };
   const tab = loaders[state.sub] ? state.sub : 'workbench';
   if (tab === 'workbench') {
-    await boundary(target, () => adapters.candidates(state.candidateOwner), (items) => { state.candidateRows = items; return state.candidateView === 'table' ? views.candidateTableRows(items) : views.candidateRows(items); }, 'refresh');
+    await boundary(target, () => adapters.candidates(state.candidateOwner), (items) => { state.candidateRows = items; return (state.candidateView === 'table' && !isPhone()) ? views.candidateTableRows(items) : views.candidateRows(items); }, 'refresh');
     populateOwnerFilter();
     annotateRouteFilterCounts();
     applyPendingRouteFilter();
@@ -645,6 +645,44 @@ document.addEventListener('change', (event) => {
 });
 
 // 顧問／客戶名單快取（後端本來就有 45 秒快取，這裡再存一次省得每次開下拉選單都重打）。
+// 2026-10-05 手機版（Jacky：「手機版都沒設計，不在螢幕前很難用」）——先顧 4 件事：看報告、快速判斷、約電話、記通話結果。
+// 不改每一頁的畫面程式，只在手機寬度自動加兩個東西：
+//   ① 分頁列（.tabs、職缺抽屜分頁）旁邊加一個原生下拉選單，手機上用下拉切分頁（手機篩選／分類一律用下拉的規則）
+//   ② 頁面上的篩選列收進一顆「篩選」按鈕，點了才展開
+// 其餘（按鈕加大、表格可左右滑、抽屜標題固定）都在 styles.css 的手機段落。
+function isPhone() { return window.matchMedia && matchMedia('(max-width:720px)').matches; }
+function enhanceMobile(root) {
+  if (!isPhone()) return;
+  const scope = root || document;
+  scope.querySelectorAll('.tabs:not([data-m-enh]), .drawer [data-jobtab]:not([data-m-enh-btn])').forEach((el) => {
+    const bar = el.classList.contains('tabs') ? el : el.parentElement;
+    if (!bar || bar.hasAttribute('data-m-enh')) return;
+    const btns = [...bar.querySelectorAll(':scope > button')];
+    if (btns.length < 3) return;
+    bar.setAttribute('data-m-enh', '1');
+    btns.forEach((b) => b.setAttribute('data-m-enh-btn', '1'));
+    const sel = document.createElement('select');
+    sel.className = 'm-tabsel';
+    sel.setAttribute('aria-label', '切換分頁');
+    sel.innerHTML = btns.map((b, i) => `<option value="${i}" ${b.classList.contains('active') ? 'selected' : ''}>${escapeHtml(b.textContent.trim())}</option>`).join('');
+    sel.addEventListener('change', () => { const b = btns[Number(sel.value)]; if (b) b.click(); });
+    bar.insertAdjacentElement('afterend', sel);
+    new MutationObserver(() => { const i = btns.findIndex((b) => b.classList.contains('active')); if (i >= 0) sel.value = String(i); })
+      .observe(bar, { subtree: true, attributes: true, attributeFilter: ['class'] });
+  });
+  scope.querySelectorAll('.content .filters:not([data-m-enh])').forEach((f) => {
+    if (f.children.length < 3) return;
+    f.setAttribute('data-m-enh', '1');
+    f.classList.add('m-collapsed');
+    const t = document.createElement('button');
+    t.type = 'button'; t.className = 'btn m-filter-toggle'; t.textContent = '篩選條件 ▾';
+    t.addEventListener('click', () => { const open = f.classList.toggle('m-collapsed') === false; t.textContent = open ? '收起篩選 ▴' : '篩選條件 ▾'; });
+    f.insertAdjacentElement('beforebegin', t);
+  });
+}
+new MutationObserver(() => { clearTimeout(enhanceMobile._t); enhanceMobile._t = setTimeout(() => enhanceMobile(), 80); })
+  .observe(document.body, { childList: true, subtree: true });
+
 // 2026-10-03：「我是」放到最上方工具列，每一頁都看得到（以前只在人選中心幾個分頁裡，
 // 職缺抽屜改設定時跳「先選我是」卻找不到地方選——Jacky 回報）。跟各分頁的「我是」共用同一個值。
 async function fillMeGlobal() {

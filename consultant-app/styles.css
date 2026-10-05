@@ -820,3 +820,43 @@ details.note-details p{margin:8px 0 0;font-size:13.5px;white-space:pre-wrap;colo
 
 /* 2026-10-03 最上方工具列「我是」 */
 .topbar .me-global{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);white-space:nowrap}.topbar .me-global select{min-height:38px;padding:6px 10px}.topbar .me-global+.btn{margin-left:0}@media(max-width:720px){.topbar .me-global span{display:none}.topbar input{min-width:0}}
+
+/* 2026-10-05 手機版：看報告、快速判斷、約電話、記通話結果（只動 ≤720px，電腦版不變） */
+.m-tabsel,.m-filter-toggle{display:none}
+@media(max-width:720px){
+  .topbar{gap:8px;padding:0 12px;height:58px}
+  .topbar input[data-action="global-search"]{display:none}
+  .topbar .btn[data-action="token"]{display:none}
+  .topbar .me-global{margin-left:auto}
+  .content{padding:14px 12px 40px}
+  .page-head h1{font-size:22px}
+  .page-head p{font-size:13px}
+  .btn,.chip{min-height:44px;font-size:14.5px;padding:10px 14px}
+  .btn.sm{min-height:42px;font-size:14px;padding:8px 12px}
+  input,select,textarea{font-size:16px;min-height:44px}
+  .tabs[data-m-enh],[data-m-enh]:has(> [data-jobtab]){display:none!important}
+  .m-tabsel{display:block;width:100%;margin:0 0 14px;font-weight:700;background:#fff;border:1px solid #c9d4e5}
+  .m-filter-toggle{display:inline-flex;margin:0 0 12px}
+  .filters.m-collapsed{display:none!important}
+  .filters{flex-direction:column;align-items:stretch}
+  .filters>*{width:100%}
+  /* 抽屜（人選卡片／職缺）：標題固定在上面，內容不擠 */
+  .drawer header{position:sticky;top:0;z-index:3;background:#fff;padding:14px 16px}
+  .drawer header h2{font-size:18px}
+  .drawer-body{padding:14px 14px 90px}
+  .drawer .spec,.drawer table{display:block;overflow-x:auto;max-width:100%}
+  .drawer .actions-row .btn,.drawer .actions-row a.btn{flex:1 1 calc(50% - 7px);justify-content:center}
+  /* 快速判斷：推／要打電話／不推 做成大按鈕 */
+  .tri-actions{display:grid!important;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .tri-actions .btn{min-height:52px;font-size:16px;font-weight:800}
+  .tri-actions .btn.ghost[data-tri-action="open"],.tri-actions [data-call-mail],.tri-actions [data-call-confirm]{grid-column:1/-1;min-height:46px;font-size:15px}
+  .tri-line{grid-template-columns:48px 1fr;font-size:14.5px}
+  .tri-one{font-size:16px}
+  /* 卡片列表 */
+  .candidate-card,.job-row{grid-template-columns:1fr;padding:14px}
+  .candidate-card .btn{justify-self:stretch}
+  .modal{width:calc(100vw - 16px);max-height:92vh}
+  .modal footer{position:sticky;bottom:0;background:#fff}
+  .modal footer .btn{flex:1}
+  .toast-root{left:12px;right:12px;bottom:12px}
+}
