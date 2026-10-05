@@ -122,23 +122,37 @@ const scoreHistogram = (dist) => {
 // 2026-09-17 加：申請數趨勢圖——/admin/overview.trend 是近30天每日新增應徵數
 // （date(created_at,'+8 hours') 分桶），用簡單長條圖呈現，缺的日子後端就是沒有
 // 那天的資料（GROUP BY 只會產出有資料的日期），不用前端補零裝滿30根。
-const trendChart = (trend) => {
-  if (!trend || !trend.length) return empty('近30天沒有新增應徵紀錄');
-  // 2026-10-05 改（Jacky：破版、要加星期幾）：補滿 30 天（沒人應徵的日子補 0，橫軸才是真的時間軸），
-  // 每根下面兩行小字＝日期＋星期，週末底色淡一點；0 的那天不印數字，不然 30 個 0 擠成一排。
-  const byDay = Object.fromEntries(trend.map((d) => [String(d.day || '').slice(0, 10), Number(d.n) || 0]));
+// 30 天長條圖共用（申請數、阿財面談場次）：補滿 30 天、日期＋星期、週末底色。
+// stack：有傳就畫兩段（深色 main＋淺色 rest），例如阿財「有開口」＋「進來沒講話」。
+const dayBars = (rows, { note = '', stackKey = '' } = {}) => {
+  const byDay = Object.fromEntries((rows || []).map((d) => [String(d.day || '').slice(0, 10), d]));
   const WK = ['日', '一', '二', '三', '四', '五', '六'];
   const today = new Date(Date.now() + 8 * 3600e3);
   const days = [];
   for (let i = 29; i >= 0; i--) {
     const d = new Date(today.getTime() - i * 86400e3);
     const key = d.toISOString().slice(0, 10);
-    days.push({ key, n: byDay[key] || 0, wd: d.getUTCDay(), label: `${d.getUTCMonth() + 1}/${d.getUTCDate()}` });
+    const r = byDay[key] || {};
+    const n = Number(r.n) || 0;
+    const main = stackKey ? Math.min(n, Number(r[stackKey]) || 0) : n;
+    days.push({ key, n, main, rest: n - main, wd: d.getUTCDay(), label: `${d.getUTCMonth() + 1}/${d.getUTCDate()}` });
   }
   const max = Math.max(1, ...days.map((d) => d.n));
-  const total = days.reduce((a, d) => a + d.n, 0);
-  return `<p class="help" style="margin:-6px 0 10px">每天新增的應徵單（官網／LINE 應徵＋顧問手動新增），不是阿財面談次數。30 天共 ${total} 筆。</p>
-    <div class="trend-chart">${days.map((d) => `<div class="trend-col${d.wd === 0 || d.wd === 6 ? ' wkend' : ''}${d.wd === 1 ? ' mon' : ''}" title="${d.key}（${WK[d.wd]}）${d.n} 筆"><div class="trend-n">${d.n || ''}</div><div class="trend-bar" style="height:${Math.round(d.n / max * 100)}%"></div><div class="trend-lb">${d.label}<br>${WK[d.wd]}</div></div>`).join('')}</div>`;
+  return `${note ? `<p class="help" style="margin:-6px 0 10px">${note}</p>` : ''}
+    <div class="trend-chart">${days.map((d) => `<div class="trend-col${d.wd === 0 || d.wd === 6 ? ' wkend' : ''}${d.wd === 1 ? ' mon' : ''}" title="${d.key}（${WK[d.wd]}）${d.n} 筆${stackKey && d.rest ? `，其中 ${d.rest} 位進來沒講話` : ''}"><div class="trend-n">${d.n || ''}</div>${d.rest ? `<div class="trend-bar rest" style="height:${Math.round(d.rest / max * 100)}%"></div>` : ''}<div class="trend-bar" style="height:${Math.round(d.main / max * 100)}%;${d.rest ? 'border-radius:0' : ''}"></div><div class="trend-lb">${d.label}<br>${WK[d.wd]}</div></div>`).join('')}</div>`;
+};
+// 2026-10-05 改（Jacky：破版、要加星期幾、這是不是阿財面談次數）
+const trendChart = (trend) => {
+  if (!trend || !trend.length) return empty('近30天沒有新增應徵紀錄');
+  const total = trend.reduce((a, d) => a + (Number(d.n) || 0), 0);
+  return dayBars(trend, { note: `每天新增的應徵單（官網／LINE 應徵＋顧問手動新增），不是阿財面談次數。30 天共 ${total} 筆。` });
+};
+// 2026-10-05 加：阿財面談場次——以進面談室那天算；深色＝人選有開口，淺色＝進來沒講話。
+const aiTrendChart = (rows) => {
+  if (!rows || !rows.length) return empty('近30天阿財沒有面談紀錄');
+  const total = rows.reduce((a, d) => a + (Number(d.n) || 0), 0);
+  const talked = rows.reduce((a, d) => a + (Number(d.talked) || 0), 0);
+  return dayBars(rows, { stackKey: 'talked', note: `每天有幾位人選進阿財面談室（以進來那天算）。<b style="color:var(--blue)">深色</b>＝有開口談，<b style="color:#9fb3d3">淺色</b>＝進來沒講話。30 天共 ${total} 場，有談 ${talked} 場。` });
 };
 // 2026-09-17 加：人才來源成效表——source_channel 是顧問手動加人選時填的自由
 // 文字欄位，公開應徵表單那條路徑不會寫這欄（會是「未填寫」，是資料本來就沒有，
@@ -222,7 +236,7 @@ export const views = {
   // funnel／byJob／verdicts／agree 都來自同一支 /admin/overview，是「目前」快照，不是期間趨勢——
   // 標題老實寫「目前」。2026-09-17 加 trend／bySource／aging 三個端點後，招募總覽頁全部
   // 六張卡片都是真實資料，沒有佔位卡了。
-  recruitmentData: ({ applications, jobs, overview }) => `<div class="kpi-grid"><article class="kpi"><span>目前應徵單</span><strong>${applications.length}</strong><small>tracker 當下清單，不冒充 30 天新增量</small></article><article class="kpi"><span>正式職缺</span><strong>${jobs.length}</strong><small>jobs 當下清單</small></article><article class="kpi"><span>近 7 天新進</span><strong>${text(overview?.now?.new7 ?? 0)}</strong></article><article class="kpi ${overview?.now?.need_call > 0 ? 'accent' : ''}"><span>等你電洽</span><strong>${text(overview?.now?.need_call ?? 0)}</strong></article></div><div class="dashboard-grid"><article class="card"><h2>目前招募漏斗（快照，非期間趨勢）</h2>${funnelBars(overview?.funnel || [])}</article><article class="card"><h2>阿財初篩 vs 顧問電洽，方向一致率</h2>${agreeRows(overview?.agree || [])}</article><article class="card"><h2>履歷初篩 AI 評分分佈</h2>${scoreHistogram(overview?.scoreDist || [])}</article><article class="card span-2"><h2>各職缺進度（目前快照）</h2>${byJobRows(overview?.byJob || [])}</article><article class="card span-2"><h2>申請數趨勢（近30天，每日）</h2>${trendChart(overview?.trend || [])}</article><article class="card"><h2>人才來源成效</h2>${sourceTable(overview?.bySource || [])}</article><article class="card span-2"><h2>卡關與 Aging（客戶端停留天數，由久到近）</h2>${agingRows(overview?.aging || [])}</article></div>`,
+  recruitmentData: ({ applications, jobs, overview }) => `<div class="kpi-grid"><article class="kpi"><span>目前應徵單</span><strong>${applications.length}</strong><small>tracker 當下清單，不冒充 30 天新增量</small></article><article class="kpi"><span>正式職缺</span><strong>${jobs.length}</strong><small>jobs 當下清單</small></article><article class="kpi"><span>近 7 天新進</span><strong>${text(overview?.now?.new7 ?? 0)}</strong></article><article class="kpi ${overview?.now?.need_call > 0 ? 'accent' : ''}"><span>等你電洽</span><strong>${text(overview?.now?.need_call ?? 0)}</strong></article></div><div class="dashboard-grid"><article class="card"><h2>目前招募漏斗（快照，非期間趨勢）</h2>${funnelBars(overview?.funnel || [])}</article><article class="card"><h2>阿財初篩 vs 顧問電洽，方向一致率</h2>${agreeRows(overview?.agree || [])}</article><article class="card"><h2>履歷初篩 AI 評分分佈</h2>${scoreHistogram(overview?.scoreDist || [])}</article><article class="card span-2"><h2>各職缺進度（目前快照）</h2>${byJobRows(overview?.byJob || [])}</article><article class="card span-2"><h2>申請數趨勢（近30天，每日）</h2>${trendChart(overview?.trend || [])}</article><article class="card span-2"><h2>阿財面談場次（近30天，每日）</h2>${aiTrendChart(overview?.aiTrend || [])}</article><article class="card"><h2>人才來源成效</h2>${sourceTable(overview?.bySource || [])}</article><article class="card span-2"><h2>卡關與 Aging（客戶端停留天數，由久到近）</h2>${agingRows(overview?.aging || [])}</article></div>`,
   // 2026-09-15 查證更正：「所有階段」下拉原本的選項（篩選中/待確認/客戶初審/Offer/
   // 已到職）根本不是 tab 的真實值——tab 只有 fill/decide/client/pool 四種，選那些
   // 選項永遠篩不出東西。改成真實的四分頁；另外補一個「負責顧問」篩選（對應後端
