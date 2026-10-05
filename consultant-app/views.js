@@ -2139,7 +2139,7 @@ ${ns.length ? `<div class="bdn-list">${ns.map(item).join('')}</div>` : '<p class
         const done = t.status === 'picked' ? `<span class="badge success">已加入開發進度・${text(t.decided_by || '')}</span>`
           : t.status === 'dropped' ? `<span class="badge">不要・${text(t.decided_by || '')}</span>` : '';
         return `<div class="list-row cb-row" data-cb-id="${escapeHtml(t.id)}"><span style="flex:1 1 320px"><b>${text(t.company)}</b> ${t.angle ? `<span class="badge ${ANG[t.angle] || ''}">${text(t.angle)}</span>` : ''} ${ex}
-          <small>${text(t.why || '')}${t.job_hint ? `｜可能職缺：${text(t.job_hint)}` : ''}</small></span>
+          <small>${text(t.why || '')}${t.job_hint ? `｜${t.job_url ? '104 在徵' : '可能職缺'}：${text(t.job_hint)}` : ''}${t.job_url ? ` <a href="${escapeHtml(t.job_url)}" target="_blank" rel="noopener">看 104 職缺 ↗</a>` : ''}</small></span>
           <span class="actions-row">${t.existing === 'client' ? '' : (t.status === 'dropped' ? done : `${done || `<button type="button" class="btn primary sm" data-cb-act="pick">加入開發進度</button>`}<button type="button" class="btn sm" data-cb-act="mail" data-cb-company="${escapeHtml(t.company)}" title="自動加入開發進度，打開寄信頁（已選好「手上有人選」、帶入匿名重點）">寄信</button>${done ? '' : '<button type="button" class="btn ghost sm" data-cb-act="drop">不要</button>'}`)}</span></div>`;
       };
       const st = ST[r.status] || ['', ''];
