@@ -859,4 +859,11 @@ details.note-details p{margin:8px 0 0;font-size:13.5px;white-space:pre-wrap;colo
   .modal footer{position:sticky;bottom:0;background:#fff}
   .modal footer .btn{flex:1}
   .toast-root{left:12px;right:12px;bottom:12px}
+  /* 列表列（開發進度、人選列表等）：左右兩欄改上下排，不讓右邊按鈕把畫面撐寬 */
+  .list-row,.session-row{flex-direction:column;align-items:stretch}
+  .list-row .actions-row,.bd-actions{min-width:0!important;width:100%}
+  .bd-actions{flex-direction:row!important;flex-wrap:wrap}
+  .bd-actions>*{flex:1 1 calc(50% - 6px)}
+  .bd-actions select{width:100%}
+  .content [style*="min-width"]{min-width:0!important}
 }
