@@ -3424,10 +3424,13 @@ ${tg}
     const insightHtml = `
     ${vd ? `<section class="pc-verdict"><div class="pc-verdict-head">【結論】${vd.fit_level && FIT[vd.fit_level] ? `<span class="pc-status ${FIT[vd.fit_level][1]}">${FIT[vd.fit_level][0]}</span>` : ''}</div>
       <p>${text(vd.one_line)}</p></section>` : ''}
+    ${(data.key_judgments || []).length ? `<section class="pc-judge"><div class="pc-judge-head">🎯 這通電話真正要判斷的</div><ol>${data.key_judgments.map((k) => `<li>${text(k)}</li>`).join('')}</ol></section>` : ''}
     ${cond.length ? `<section class="pc-step"><div class="pc-step-head">📋 對照${text(vd && vd.compared_job ? '「' + vd.compared_job + '」' : '職缺')}條件</div>
       <div class="pc-step-body pc-cond-list">${cond.map((c) => { const m = COND[c.status] || COND.unknown; return `<div class="pc-cond">
         <div class="pc-gate-row"><strong>${text(c.condition)}</strong><span class="pc-status ${m[1]}">${m[0]}</span></div>
-        <p>${text(c.resume_evidence || '')}${c.note ? `<br><span class="muted">→ ${text(c.note)}</span>` : ''}</p></div>`; }).join('')}</div></section>` : ''}
+        <p><span class="pc-src">📄 履歷</span>${text(c.resume_evidence || '')}</p>
+        ${c.interview_evidence ? `<p class="pc-iv"><span class="pc-src">🎙 阿財面談</span>${text(c.interview_evidence)}</p>` : ''}
+        ${c.note ? `<p class="muted">→ ${text(c.note)}</p>` : ''}</div>`; }).join('')}</div></section>` : ''}
     ${watch.length ? `<section class="pc-step pc-watch"><div class="pc-step-head">⚠️ 要注意的地方</div>
       <div class="pc-step-body">${watch.map((w) => `<div class="pc-mini"><b>${text(w.title)}</b><small>${text(w.detail || '')}${w.ask ? `<br>☎️ 可以問：${text(w.ask)}` : ''}</small></div>`).join('')}</div></section>` : ''}
 `;
