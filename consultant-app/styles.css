@@ -887,3 +887,6 @@ details.note-details p{margin:8px 0 0;font-size:13.5px;white-space:pre-wrap;colo
 .pv-a:checked ~ .pc-view-a,.pv-b:checked ~ .pc-view-b{display:block}
 .pv-a:checked ~ .pc-view-tabs .lab-a,.pv-b:checked ~ .pc-view-tabs .lab-b{color:var(--brand,#2f6fed);border-bottom-color:var(--brand,#2f6fed)}
 .pv-a:focus-visible ~ .pc-view-tabs .lab-a,.pv-b:focus-visible ~ .pc-view-tabs .lab-b{outline:2px solid var(--brand,#2f6fed);outline-offset:2px}
+
+/* 2026-10-05 推薦客戶進度那排按鈕超出框（.list-row .actions-row 原本 flex-shrink:0 不准縮）：放不下就換行 */
+.list-row .actions-row{flex-shrink:1;min-width:0;max-width:100%}
