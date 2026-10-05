@@ -2179,7 +2179,16 @@ ${ns.length ? `<div class="bdn-list">${ns.map(item).join('')}</div>` : '<p class
         ${c.note ? `<p><b>談到哪</b>${text(c.note)}</p>` : ''}
         ${[c.contact_name ? `窗口 ${text(c.contact_name)}` : '', c.hr_phone ? `電話 ${text(c.hr_phone)}` : '', c.email ? `信箱 ${text(c.email)}` : ''].filter(Boolean).length ? `<small>問到：${[c.contact_name ? `窗口 ${text(c.contact_name)}` : '', c.hr_phone ? `電話 ${text(c.hr_phone)}` : '', c.email ? `信箱 ${text(c.email)}` : ''].filter(Boolean).join('・')}</small>` : ''}
         ${c.retry_at ? `<small>系統排 ${text(md(c.retry_at))} 再打</small>` : ''}</article>` })),
-      ...ts.filter((t) => aiShort(t)).map((t) => ({ at: t.created_at, html: `<article class="bdp-item bdp-ai"><div class="bdp-top"><small>${text(String(t.created_at || '').slice(5, 16))}・${text(t.caller || '顧問')}</small><span class="badge">上傳逐字稿</span></div><small>${aiShort(t)}（完整建議看「AI 建議」分頁）</small></article>` })),
+      // 2026-10-05 Jacky：每一通要看得到「AI 整理好的紀錄」跟「原始逐字稿」，不是只有一行
+      ...ts.filter((t) => aiShort(t) || t.transcript).map((t) => {
+        let d = null; try { d = JSON.parse(t.ai_json || 'null'); } catch { d = null; }
+        const pr = d && d.prospect;
+        return { at: t.created_at, html: `<article class="bdp-item bdp-ai"><div class="bdp-top"><small>${text(String(t.created_at || '').slice(5, 16))}・${text(t.caller || '顧問')}</small><span class="badge">電話逐字稿</span></div>
+        ${d && d.summary ? `<p><b>AI 整理</b>${text(d.summary)}</p>` : (t.ai_status === 'pending' ? '<small>AI 整理中，約 1～3 分鐘後重開卡片</small>' : '')}
+        ${pr ? `<p><b>對方興趣</b>${text(pr.interest || '—')}${pr.interest_reason ? `（${text(pr.interest_reason)}）` : ''}</p><p><b>建議下一步</b>${text(pr.next_step || '—')}${pr.next_step_detail ? `・${text(pr.next_step_detail)}` : ''}</p>` : ''}
+        ${t.transcript ? `<details class="bdp-raw"><summary>原始逐字稿（${String(t.transcript).length} 字）</summary><div class="bdp-raw-text">${text(t.transcript)}</div></details>` : ''}
+        <small class="muted">講法建議與評分看「AI 建議」分頁</small></article>` };
+      }),
     ].sort((a, b) => String(b.at).localeCompare(String(a.at)));
     const noteItem = (n) => `<article class="bdn-item"><small>${text(String(n.created_at || '').slice(0, 16))}・${text(n.author || '顧問')}</small><button type="button" class="btn ghost sm bd-del" data-action="bd-delete-record" data-kind="note" data-id="${escapeHtml(n.id)}" data-company="${escapeHtml(company || '')}">刪除</button>
 ${n.learned ? `<p><b>學到什麼</b>${text(n.learned)}</p>` : ''}${n.next_time ? `<p><b>下一通怎麼講</b>${text(n.next_time)}</p>` : ''}${n.problem ? `<p class="bdn-problem"><b>遇到的問題</b>${text(n.problem)}</p>` : ''}</article>`;
