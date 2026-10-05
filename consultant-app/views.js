@@ -3432,8 +3432,17 @@ ${tg}
       ${opts.applicationId ? `<section class="pc-step"><div class="pc-step-body"><p class="help" style="margin:0 0 8px">我們職缺裡沒有的公司，也可以拿他去開發：</p>
         <button type="button" class="pc-tool-btn" data-cand-bd="${appIdAttr}">🧲 他適合哪些公司（去開發）</button></div></section>` : ''}`;
 
+    // 2026-10-05 Jacky：沒跟阿財談過、或進了面談室卻沒回答的人選，卡片上要標出來——這通就是第一輪面試。
+    const COV = {
+      none: '這位人選<b>沒有跟阿財面談過</b>。',
+      entered_only: '這位人選<b>有進阿財面談室，但一題都沒回答就離開</b>。',
+      partial: `這位人選<b>只跟阿財談了一小部分就離開</b>${data.candidate_msg_count ? `（只回了 ${Number(data.candidate_msg_count)} 句）` : ''}。`,
+    };
+    const covHtml = COV[data.interview_coverage]
+      ? `<div class="pc-coverage">⚠️ ${COV[data.interview_coverage]}這通電話就是第一輪面試，下面的補問題比較多，換工作原因、薪資、到職時間都要問。</div>` : '';
     return `
     ${opts.stale ? `<div class="notice">職缺或履歷內容已更新，這張卡可能是舊版——建議重新產生。</div>` : ''}
+    ${covHtml}
     ${opts.applicationId ? `<div class="pc-tool-row">
       <button type="button" class="pc-tool-btn primary" data-action="open-resume-summary" data-application-id="${appIdAttr}">📄 整理履歷</button>
       <button type="button" class="pc-tool-btn" data-action="open-ai-interview" data-application-id="${appIdAttr}">🧠 AI 面談</button>
