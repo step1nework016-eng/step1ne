@@ -671,13 +671,14 @@ function enhanceMobile(root) {
       .observe(bar, { subtree: true, attributes: true, attributeFilter: ['class'] });
   });
   scope.querySelectorAll('.content .filters:not([data-m-enh])').forEach((f) => {
-    if (f.children.length < 3) return;
+    if (f.children.length < 3 || f.hidden || getComputedStyle(f).display === 'none') return;   // 別的分頁藏起來的篩選列不要加按鈕
     f.setAttribute('data-m-enh', '1');
     f.classList.add('m-collapsed');
     const t = document.createElement('button');
     t.type = 'button'; t.className = 'btn m-filter-toggle'; t.textContent = '篩選條件 ▾';
     t.addEventListener('click', () => { const open = f.classList.toggle('m-collapsed') === false; t.textContent = open ? '收起篩選 ▴' : '篩選條件 ▾'; });
     f.insertAdjacentElement('beforebegin', t);
+    new MutationObserver(() => { t.hidden = f.hidden; }).observe(f, { attributes: true, attributeFilter: ['hidden'] });
   });
 }
 new MutationObserver(() => { clearTimeout(enhanceMobile._t); enhanceMobile._t = setTimeout(() => enhanceMobile(), 80); })
