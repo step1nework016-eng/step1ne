@@ -170,14 +170,17 @@ export function shell(active, content, collapsed = false) {
   // 關聯最近，還沒到「營運成長」那個分組。這樣一插，後面兩個分組標題的
   // index 要跟著往後推一格（social 從 5 變 6、system 從 7 變 8），
   // icon 陣列也要對應補一顆，不能只加 nav 項目忘了改分組判斷跟圖示。
-  const nav = [['home','首頁'],['recruitment','招募總覽'],['candidates','人選'],['jobs','職缺'],['interviews','AI 面談'],['linechat','人選面談室'],['social','社群'],['clients','客戶 / BD'],['system','系統']];
+  // 2026-10-05 加「進度看板」：插在首頁後面，後面分組標題 index 往後推一格（social 7、system 9）。
+  const nav = [['home','首頁'],['board','進度看板'],['recruitment','招募總覽'],['candidates','人選'],['jobs','職缺'],['interviews','AI 面談'],['linechat','人選面談室'],['social','社群'],['clients','客戶 / BD'],['system','系統']];
   // ⚠️ 收合按鈕不能放進 <a class="brand"> 裡面——瀏覽器不允許互動元素巢狀
   // interactive content，而且全域點擊委派會先比對 [data-route]，按鈕點下去會
   // 連帶觸發外層 <a> 的 data-route="home" 跳轉。改成跟 .brand 平行的兄弟元素。
-  return `<div class="app-shell${collapsed ? ' collapsed' : ''}"><aside class="sidebar"><div class="brand-row"><a class="brand" data-route="home"><span>S</span><div>Step1ne<small>CONSULTANT OS</small></div></a><button type="button" class="sidebar-toggle" data-action="toggle-sidebar" title="${collapsed ? '展開側欄' : '收合側欄'}">${collapsed ? '»' : '«'}</button></div><nav>${nav.map(([key,label], index) => `${index === 0 ? '<p>工作台</p>' : index === 6 ? '<p>營運成長</p>' : index === 8 ? '<p>管理</p>' : ''}<a class="${active === key ? 'active' : ''}" data-route="${key}"><i>${['⌂','▥','◉','▣','◎','✉','◁','♙','⚙'][index]}</i>${label}</a>`).join('')}</nav><footer>Production contract v2</footer></aside><main><header class="topbar"><button class="mobile-menu" data-action="toggle-menu">☰</button><input data-action="global-search" placeholder="搜尋人選、職缺、客戶…"><label class="me-global" title="寄信、核准、改設定時，系統記住是誰做的"><span>我是</span><select data-me-global aria-label="我是"><option value="">選擇…</option></select></label><button class="btn ghost" data-action="token">ADMIN TOKEN</button></header><section class="content">${content}</section></main></div>`;
+  return `<div class="app-shell${collapsed ? ' collapsed' : ''}"><aside class="sidebar"><div class="brand-row"><a class="brand" data-route="home"><span>S</span><div>Step1ne<small>CONSULTANT OS</small></div></a><button type="button" class="sidebar-toggle" data-action="toggle-sidebar" title="${collapsed ? '展開側欄' : '收合側欄'}">${collapsed ? '»' : '«'}</button></div><nav>${nav.map(([key,label], index) => `${index === 0 ? '<p>工作台</p>' : index === 7 ? '<p>營運成長</p>' : index === 9 ? '<p>管理</p>' : ''}<a class="${active === key ? 'active' : ''}" data-route="${key}"><i>${['⌂','▤','▥','◉','▣','◎','✉','◁','♙','⚙'][index]}</i>${label}</a>`).join('')}</nav><footer>Production contract v2</footer></aside><main><header class="topbar"><button class="mobile-menu" data-action="toggle-menu">☰</button><input data-action="global-search" placeholder="搜尋人選、職缺、客戶…"><label class="me-global" title="寄信、核准、改設定時，系統記住是誰做的"><span>我是</span><select data-me-global aria-label="我是"><option value="">選擇…</option></select></label><button class="btn ghost" data-action="token">ADMIN TOKEN</button></header><section class="content">${content}</section></main></div>`;
 }
 
 export const views = {
+  board: (tab = 'cand') => pageHead('進度看板', '每一欄是一個階段，每張卡是一個人選或一家客戶。左邊有紅線的＝在這關停太久，該追了。')
+    + tabbar('board', [['cand', '人選'], ['client', '客戶']], tab === 'client' ? 'client' : 'cand') + `<div id="page-data">${endpointState('進度看板')}</div>`,
   home: () => pageHead('今天先做什麼？','首頁只呈現待處理工作與風險，不用先讀整份儀表板。','<button class="btn primary" data-route="candidates">進入人選工作台</button>') + `<div id="page-data">${endpointState('今日工作')}</div>`,
   // 2026-09-15 驗證：/admin/overview 實際形狀是 {funnel,verdicts,agree,byJob,todo}，沒有
   // pending_review/client_pending/alerts 這幾個欄位（之前這三張 KPI 卡一直顯示假的 0）。
@@ -4070,3 +4073,165 @@ ${tg}
     return `<div style="margin-top:6px"><small class="muted">⚠️ 客戶回報已匯款，待確認</small>${list.map(row).join('')}</div>`;
   }
 };
+
+
+// ── 進度看板（2026-10-05 Jacky：「甘特圖還是專案管理那種」→ 選了看板）────────────
+// 資料完全沿用既有端點：人選＝/admin/pipeline/tracker 的卡片（階段後端 resolveStage 已算好），
+// 客戶＝/admin/bd/dashboard（開發中）＋/admin/portal/companies（洽談／簽約）＋上面那份卡片
+// 反推「哪家客戶手上有人選」。看板只負責「放進哪一欄」跟「停多久」，不另外算一套階段。
+const BOARD_DAY = 86400000;
+const bdDays = (ts) => {
+  if (!ts) return null;
+  const t = Date.parse(String(ts).replace(' ', 'T') + (String(ts).length <= 10 ? 'T00:00:00+08:00' : '+08:00'));
+  return Number.isFinite(t) ? Math.max(0, Math.floor((Date.now() - t) / BOARD_DAY)) : null;
+};
+const latestTs = (...xs) => xs.filter(Boolean).map(String).sort().slice(-1)[0] || null;
+const mmdd = (ts) => { const m = String(ts || '').match(/\d{4}-(\d{2})-(\d{2})(?:[ T](\d{2}:\d{2}))?/); return m ? `${+m[1]}/${+m[2]}${m[3] ? ' ' + m[3] : ''}` : ''; };
+
+export const CAND_COLS = [
+  { key: 'fill', title: '等人選面談', hint: '還沒跟阿財談完', warn: 3, bad: 7 },
+  { key: 'decide', title: '等顧問決定', hint: '談完了，要不要推', warn: 2, bad: 5 },
+  { key: 'sent', title: '已推薦・客戶看履歷', hint: '等客戶回覆', warn: 5, bad: 10 },
+  { key: 'interview', title: '客戶面試中', hint: '已排面試', warn: 7, bad: 14 },
+  { key: 'offer', title: '錄取', hint: '談 offer／等報到日', warn: 3, bad: 7 },
+  { key: 'onboard', title: '已到職・關懷', hint: '紅黃綠＝人選狀況', warn: 999, bad: 999 },
+];
+
+// 一張人選卡在各家客戶各自一張（同一人推兩家，兩家進度不同）；還沒推薦的就一張。
+export function boardCandItems(cards, { showClosed = false } = {}) {
+  const items = [];
+  for (const c of cards || []) {
+    if (c.kind && c.kind !== 'application') continue;
+    const base = { appId: c.application_id, name: c.name || '（未命名）', owner: c.owner_name || '未指派', job: c.job_title || '', silent: !!c.silent_interview };
+    if (c.tab === 'pool') { if (showClosed) items.push({ ...base, col: 'closed', since: c.created_at, sub: c.job_title, note: '已結案／不推' }); continue; }
+    if (c.tab === 'fill' || c.tab === 'decide') {
+      items.push({ ...base, col: c.tab, since: latestTs(c.created_at, c.pre_interview_note_at), sub: c.client_name && c.client_name !== '（未綁客戶）' ? `${c.client_name}｜${c.job_title || ''}` : (c.job_title || '未指定職缺'),
+        note: c.tab === 'decide' && c.route_label ? `阿財：${c.route_label}` : (c.silent_interview ? '進了面談室沒開口' : '') });
+      continue;
+    }
+    const pls = [...(c.placements || []), ...((c.extra_placements || []).flatMap((x) => x.placements || []))];
+    if (!pls.length) { items.push({ ...base, col: 'sent', since: c.created_at, sub: c.client_name || c.job_title }); continue; }
+    for (const p of pls) {
+      const ended = p.closed || p.advisor_not_recommended_at || p.candidate_withdrawn_at;
+      if (ended && !showClosed) continue;
+      const step = (p.steps || [])[p.effective_index] || {};
+      const ev = (p.stage_events || []).slice(-1)[0];
+      const since = latestTs(p.forwarded_at, ev && ev.created_at);
+      const sub = `${p.client_name || ''}｜${p.job_title || c.job_title || ''}`;
+      base.companyId = p.company_id || null;   // 每次 push 都是 {...base} 展開，當下的值會被複製進去
+      if (ended) { items.push({ ...base, col: 'closed', since, sub, note: p.client_rejected_at ? '客戶不要' : (p.candidate_withdrawn_at ? '人選放棄' : '已結案') }); continue; }
+      const k = step.key || 'confirm';
+      if (/^stage[1-4]$/.test(k)) {
+        const mine = (p.stage_events || []).filter((e) => e.stage === k).slice(-1)[0];
+        items.push({ ...base, col: 'interview', since, sub, note: `${step.lb || '面試'}${mine && mine.event_at ? '｜' + mmdd(mine.event_at) : ''}` });
+      } else if (k === 'offer') items.push({ ...base, col: 'offer', since, sub, note: p.onboard_date ? `報到日 ${mmdd(p.onboard_date)}` : '還沒有報到日' });
+      else if (k === 'onboard' || k === 'care') items.push({ ...base, col: 'onboard', since: p.onboard_date, sub, care: careLight(p) });
+      else items.push({ ...base, col: 'sent', since, sub, note: p.client_formal_report ? '' : '客戶版履歷還沒產' });
+    }
+  }
+  return items;
+}
+
+// 到職關懷紅黃綠（2026-10-05 到職關懷計畫第 1 步）。只用真的有的資料：
+// 沒報到／按了「想聊聊」＝紅；關懷卡發了但沒回＝黃；最近一次回「一切順利」＝綠；還沒到報到日＝灰。
+export function careLight(p) {
+  const onb = p.onboard_date;
+  const d = bdDays(onb);
+  const future = onb && Date.parse(String(onb).slice(0, 10) + 'T00:00:00+08:00') > Date.now();
+  let sent = []; try { sent = JSON.parse(p.care_log || '[]') || []; } catch { sent = []; }
+  const lastSent = sent.length ? Math.max(...sent) : null;
+  const g = Number(p.guarantee_days) || 90;
+  const dayTxt = future ? `${mmdd(onb)} 報到` : (d != null ? `到職第 ${d} 天／保證期 ${g} 天` : '');
+  if (p.no_show_at) return { tone: 'bad', label: '沒有報到', dayTxt };
+  if (future) return { tone: 'idle', label: '等報到', dayTxt };
+  if (p.care_signal === 'talk') return { tone: 'bad', label: `第 ${p.care_signal_point || '?'} 天按了「想聊聊」`, dayTxt };
+  if (p.care_signal === 'ok' && (!lastSent || (p.care_signal_point || 0) >= lastSent)) return { tone: 'ok', label: '回覆一切順利', dayTxt };
+  if (lastSent) return { tone: 'warn', label: `第 ${lastSent} 天關懷卡還沒回`, dayTxt };
+  return { tone: 'warn', label: '還沒收到任何回覆', dayTxt };
+}
+
+export const CLIENT_COLS = [
+  { key: 'contacted', title: '已聯繫', hint: '寄信／打過電話，還沒回' },
+  { key: 'opened', title: '已開信', hint: '有看信，還沒回' },
+  { key: 'replied', title: '有回應', hint: '回信或電話有興趣' },
+  { key: 'talking', title: '洽談中', hint: '談合作條件' },
+  { key: 'signed', title: '已簽約・找人中', hint: '還沒有人選在客戶手上' },
+  { key: 'active', title: '人選在客戶手上', hint: '推薦／面試／錄取' },
+  { key: 'won', title: '已成交', hint: '有人到職' },
+];
+const normCo = (s) => String(s || '').replace(/[（(].*?[）)]/g, '').replace(/股份有限公司|有限公司|公司|\s/g, '').toLowerCase();
+
+export function boardClientItems({ bd = [], companies = [], candItems = [] }) {
+  const byCo = new Map();
+  for (const it of candItems) {
+    const co = String(it.sub || '').split('｜')[0];
+    if (!co || it.col === 'closed') continue;
+    const k = normCo(co);
+    if (!byCo.has(k)) byCo.set(k, { active: 0, won: 0, names: [] });
+    const r = byCo.get(k);
+    if (it.col === 'onboard') r.won += 1; else if (['sent', 'interview', 'offer'].includes(it.col)) { r.active += 1; r.names.push(it.name); }
+  }
+  const items = []; const seen = new Set();
+  for (const c of companies) {
+    if (c.relation === 'past' || c.relation === 'private') continue;
+    const k = normCo(c.display_name); seen.add(k);
+    const r = byCo.get(k) || { active: 0, won: 0, names: [] };
+    const col = r.won ? 'won' : r.active ? 'active' : (c.relation === 'signed' ? 'signed' : 'talking');
+    const note = r.active ? `人選 ${r.active} 位：${r.names.slice(0, 3).join('、')}${r.names.length > 3 ? '…' : ''}` : (c.job_count ? `職缺 ${c.job_count} 個` : '還沒有職缺');
+    items.push({ kind: 'company', id: c.id, name: c.display_name, col, since: c.created_at, note, stale: false });
+  }
+  for (const b of bd) {
+    const k = normCo(b.company);
+    if (!k || seen.has(k)) continue;
+    seen.add(k);
+    const hot = b.stage === 'replied' || ['interested', 'got_contact', 'got_email'].includes(b.last_call_result);
+    const col = hot ? 'replied' : (b.stage === 'opened' ? 'opened' : 'contacted');
+    const callTxt = { interested: '電話：有興趣', got_contact: '電話：拿到窗口', got_email: '電話：拿到信箱', gatekeeper: '電話：卡總機', no_answer: '電話：沒接', not_interested: '電話：沒興趣', not_hiring: '電話：沒在找人' }[b.last_call_result] || '';
+    items.push({ kind: 'bd', id: b.company, name: b.company, col, outreachId: (b.outreach_ids || []).slice(-1)[0] || null, since: latestTs(b.last_call_at, b.contacted_at, b.first_created_at),
+      note: [b.assigned_to, callTxt || b.job_title].filter(Boolean).join('｜'), stale: !!b.next_followup_overdue, owner: b.assigned_to || '' });
+  }
+  return items;
+}
+
+function boardCardHtml(it, colDef, idx) {
+  const d = bdDays(it.since);
+  let tone = '';
+  if (it.care) tone = it.care.tone;
+  else if (it.kind === 'bd' || it.kind === 'company') tone = it.stale ? 'bad' : '';
+  else if (colDef && d != null) tone = d >= colDef.bad ? 'bad' : d >= colDef.warn ? 'warn' : '';
+  const ageTxt = it.care ? it.care.dayTxt : (it.kind === 'bd' ? (it.stale ? '該追了' : (d != null ? `${d} 天前聯繫` : '')) : (d != null && it.kind !== 'company' ? `這關 ${d} 天` : ''));
+  const attrs = it.kind === 'bd' ? `data-board-bd="${escapeHtml(it.id)}"` : it.kind === 'company' ? `data-board-co="${escapeHtml(it.id)}"` : `data-board-app="${escapeHtml(it.appId)}"`;
+  return `<button type="button" class="bk-card ${tone ? 'bk-' + tone : ''}" ${attrs} draggable="true" data-board-idx="${idx}" title="點開看詳細；按住拖到別欄可改階段">
+    <span class="bk-top"><strong>${escapeHtml(it.name)}</strong>${it.owner && it.kind !== 'company' ? `<em>${escapeHtml(it.owner)}</em>` : ''}</span>
+    ${it.sub ? `<span class="bk-sub">${escapeHtml(it.sub)}</span>` : ''}
+    ${it.care ? `<span class="bk-light bk-${it.care.tone}"><i aria-hidden="true"></i>${escapeHtml(it.care.label)}</span>` : (it.note ? `<span class="bk-note">${escapeHtml(it.note)}</span>` : '')}
+    ${ageTxt ? `<span class="bk-age">${escapeHtml(ageTxt)}</span>` : ''}
+  </button>`;
+}
+
+export function boardView(items, cols, { kind, owners = [], ui = {} }) {
+  const ownerSel = owners.length ? `<label class="bk-filter"><span>負責人</span><select data-board-filter="owner"><option value="">全部</option>${owners.map((o) => `<option ${ui.owner === o ? 'selected' : ''}>${escapeHtml(o)}</option>`).join('')}</select></label>` : '';
+  const closedChk = kind === 'cand' ? `<label class="bk-filter"><input type="checkbox" data-board-filter="closed" ${ui.showClosed ? 'checked' : ''}><span>顯示已結案</span></label>` : '';
+  const shown = ui.owner ? items.filter((x) => x.owner === ui.owner) : items;
+  const allCols = (kind === 'cand' && ui.showClosed) ? [...cols, { key: 'closed', title: '已結案', hint: '不推／客戶不要／人選放棄', warn: 999, bad: 999 }] : cols;
+  const LIMIT = 25;
+  const colHtml = allCols.map((col) => {
+    const list = shown.filter((x) => x.col === col.key).sort((a, b) => {
+      const tw = (x) => (x.care && x.care.tone === 'bad') || x.stale ? 0 : 1;
+      return tw(a) - tw(b) || String(a.since || '').localeCompare(String(b.since || ''));
+    });
+    const expanded = ui.expand && ui.expand[col.key];
+    const vis = expanded ? list : list.slice(0, LIMIT);
+    const red = list.filter((x) => (x.care && x.care.tone === 'bad') || x.stale || (kind === 'cand' && !x.care && bdDays(x.since) >= col.bad)).length;
+    return `<section class="bk-col" data-board-col="${col.key}" aria-label="${escapeHtml(col.title)}">
+      <header><h3>${escapeHtml(col.title)}<b>${list.length}</b></h3><small>${escapeHtml(col.hint)}${red ? `<span class="bk-redcount">${red} 張該追</span>` : ''}</small></header>
+      <div class="bk-list">${vis.length ? vis.map((x) => boardCardHtml(x, col, items.indexOf(x))).join('') : '<p class="bk-empty">目前沒有</p>'}
+      ${list.length > vis.length ? `<button type="button" class="btn sm bk-more" data-board-expand="${col.key}">再看 ${list.length - vis.length} 張</button>` : ''}</div>
+    </section>`;
+  }).join('');
+  const total = shown.length;
+  const colBad = Object.fromEntries(allCols.map((c) => [c.key, c.bad]));
+  const reds = shown.filter((x) => (x.care && x.care.tone === 'bad') || x.stale || (kind === 'cand' && !x.care && bdDays(x.since) >= (colBad[x.col] ?? 999))).length;
+  return `<div class="bk-bar">${ownerSel}${closedChk}<span class="bk-sum">共 ${total} 張${reds ? `｜<b class="bk-redtxt">${reds} 張該追</b>` : ''}</span></div>
+    <div class="bk-board" style="--bk-cols:${allCols.length}">${colHtml}</div>`;
+}

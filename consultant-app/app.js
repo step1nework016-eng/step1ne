@@ -4,7 +4,7 @@ import { resolveRoute, navigate } from './core/router.js';
 import { $, $$, boundary, closeOverlay, closeSubDrawer, drawer, errorState, formFields, loading, modal, openSubDrawer, toast } from './core/ui.js';
 import { escapeHtml, text } from './core/security.js';
 import { adapters, analyticsAdapter } from './adapters.js';
-import { views, actionBtn, rowActions, shell } from './views.js';
+import { views, actionBtn, rowActions, shell, boardView, boardCandItems, boardClientItems, CAND_COLS, CLIENT_COLS } from './views.js';
 import { ACTIONS } from './actions.js';
 import { jdFieldParse } from './jd_fields.js';
 
@@ -40,6 +40,7 @@ function render() {
 async function loadRoute() {
   const target = $('#page-data');
   if (!target) return;
+  if (state.route === 'board') return loadBoardTab(target);
   if (state.route === 'home') return boundary(target, adapters.home, views.homeData, 'refresh');
   if (state.route === 'recruitment') return boundary(target, async () => ({ ...(await adapters.recruitment()), analytics: await analyticsAdapter.recruitment() }), views.recruitmentData, 'refresh');
   if (state.route === 'candidates') return loadCandidateTab(target);
@@ -4127,4 +4128,147 @@ async function drawThreadsCharts(rows) {
   const jf = Object.keys(gf).filter((k) => gf[k].j > 0).sort((a, b) => gf[b].j - gf[a].j);
   put('tp-ch-fj', stacked(jf.length ? jf : ['還沒有資料'], jf.length ? gf : { '還沒有資料': { who: {} } }));
   put('tp-ch-sj', stacked(sl, gs));
+}
+
+
+// ── 進度看板（2026-10-05）────────────────────────────────────────────────
+// 篩選（負責人／顯示已結案）記在瀏覽器；資料每次進來重抓，不做自動刷新
+// （tracker 很重，見 2026-09-01 D1 額度事故，不能再放 30 秒輪詢）。
+const BOARD_KEY = 's1ne_board_ui';
+function boardUi() {
+  if (!state.board) {
+    let saved; try { saved = JSON.parse(localStorage.getItem(BOARD_KEY) || '{}') || {}; } catch { saved = {}; }
+    state.board = { owner: '', showClosed: false, clientOwner: '', ...saved, expand: {} };
+  }
+  return state.board;
+}
+async function loadBoardTab(target) {
+  const ui = boardUi();
+  const kind = state.sub === 'client' ? 'client' : 'cand';
+  await boundary(target, async () => {
+    const tracker = await api.get('/admin/pipeline/tracker');
+    const cards = (tracker && tracker.cards) || [];
+    if (kind === 'cand') return { items: boardCandItems(cards, { showClosed: ui.showClosed }) };
+    const [bdRes, coRes] = await Promise.all([adapters.bdDashboard(), api.get('/admin/portal/companies')]);
+    return { items: boardClientItems({ bd: (bdRes && bdRes.rows) || [], companies: (coRes && coRes.companies) || [], candItems: boardCandItems(cards) }) };
+  }, (data) => {
+    const items = data.items || [];
+    ui.lastItems = items;
+    const owners = [...new Set(items.map((x) => x.owner).filter((o) => o && o !== '未指派'))].sort();
+    const viewUi = kind === 'cand' ? ui : { ...ui, owner: ui.clientOwner };
+    return boardView(items, kind === 'cand' ? CAND_COLS : CLIENT_COLS, { kind, owners, ui: viewUi });
+  }, 'refresh');
+  const save = () => { try { localStorage.setItem(BOARD_KEY, JSON.stringify({ owner: ui.owner, showClosed: ui.showClosed, clientOwner: ui.clientOwner })); } catch { /* 存不了就算了 */ } };
+  target.querySelectorAll('[data-board-filter]').forEach((el) => {
+    el.onchange = () => {
+      const k = el.getAttribute('data-board-filter');
+      if (k === 'closed') ui.showClosed = el.checked;
+      else if (kind === 'client') ui.clientOwner = el.value; else ui.owner = el.value;
+      save(); loadBoardTab(target);
+    };
+  });
+  target.querySelectorAll('[data-board-expand]').forEach((el) => {
+    el.onclick = () => { ui.expand[el.getAttribute('data-board-expand')] = true; loadBoardTab(target); };
+  });
+  wireBoardDrag(target, kind);
+  target.querySelectorAll('[data-board-app]').forEach((el) => { el.onclick = () => openCandidate(el.getAttribute('data-board-app')); });
+  target.querySelectorAll('[data-board-bd]').forEach((el) => { el.onclick = () => openBdDetail(el.getAttribute('data-board-bd')); });
+  target.querySelectorAll('[data-board-co]').forEach((el) => { el.onclick = () => openCompanyManage(el.getAttribute('data-board-co')); });
+}
+
+
+// 看板拖拉（2026-10-05 Jacky：「可以讓看板能拖嗎」）。
+// 原則：拖＝開一個確認框，講清楚會發生什麼，按確認才改；預設「不通知人選」，要勾才發 LINE。
+// 系統自動算的欄（等面談／等決定、客戶的已聯繫／已開信／有回應／人選在手上／已成交）不能拖進去，
+// 跳一句話說明為什麼；需要填原因或選客戶的（結案、推薦給客戶）直接打開卡片。
+const CAND_DROP = {
+  sent: { stage: 'confirm', label: '已推薦・客戶看履歷' },
+  interview: { stage: 'stage1', label: '客戶面試中', rounds: true },
+  offer: { stage: 'offer', label: '錄取' },
+  onboard: { stage: 'onboard', label: '已到職', date: true },
+};
+function wireBoardDrag(target, kind) {
+  const ui = boardUi();
+  let dragIdx = null;
+  target.querySelectorAll('[data-board-idx]').forEach((card) => {
+    card.addEventListener('dragstart', (e) => {
+      dragIdx = Number(card.getAttribute('data-board-idx'));
+      card.classList.add('bk-dragging');
+      const it0 = (ui.lastItems || [])[dragIdx] || {};
+      const locked = kind === 'cand' ? ['fill', 'decide'] : (it0.kind === 'bd' ? ['contacted', 'opened', 'talking', 'active', 'won'] : ['contacted', 'opened', 'replied', 'active', 'won']);
+      target.querySelectorAll('[data-board-col]').forEach((c) => c.classList.toggle('bk-locked', locked.includes(c.getAttribute('data-board-col'))));
+      try { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', String(dragIdx)); } catch { /* 舊瀏覽器 */ }
+    });
+    card.addEventListener('dragend', () => { card.classList.remove('bk-dragging'); target.querySelectorAll('.bk-over,.bk-locked').forEach((c) => c.classList.remove('bk-over', 'bk-locked')); });
+  });
+  target.querySelectorAll('[data-board-col]').forEach((col) => {
+    col.addEventListener('dragover', (e) => { if (dragIdx == null) return; e.preventDefault(); col.classList.add('bk-over'); });
+    col.addEventListener('dragleave', (e) => { if (!col.contains(e.relatedTarget)) col.classList.remove('bk-over'); });
+    col.addEventListener('drop', (e) => {
+      e.preventDefault(); col.classList.remove('bk-over');
+      const it = (ui.lastItems || [])[dragIdx]; dragIdx = null;
+      const to = col.getAttribute('data-board-col');
+      if (!it || it.col === to) return;
+      if (kind === 'cand') boardDropCandidate(target, it, to); else boardDropClient(target, it, to);
+    });
+  });
+}
+function boardMe() {
+  const me = amUi().me || '';
+  if (!me) { toast('先在畫面最上方選「我是」，系統才記得是誰改的', 'error'); document.querySelector('[data-me-global]')?.focus(); }
+  return me;
+}
+function boardDropCandidate(target, it, to) {
+  if (to === 'fill' || to === 'decide') { toast('這兩欄是看阿財面談自動分的，不能拖進去', 'error'); return; }
+  if (to === 'closed') { toast('結案要填原因（會影響發給人選的訊息），請在卡片裡按「結案不續」', 'error'); openCandidate(it.appId); return; }
+  if (!it.companyId) { toast('他還沒推薦給任何客戶，請在卡片裡先按「推薦給客戶」選客戶', 'error'); openCandidate(it.appId); return; }
+  const me = boardMe(); if (!me) return;
+  const d = CAND_DROP[to]; if (!d) return;
+  const from = (CAND_COLS.find((c) => c.key === it.col) || {}).title || it.col;
+  const today = new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10);
+  const body = `<p style="margin:0 0 12px"><b>${escapeHtml(it.name)}</b>（${escapeHtml(String(it.sub || '').split('｜')[0])}）<br>${escapeHtml(from)} → <b>${escapeHtml(d.label)}</b></p>
+    ${d.rounds ? `<label class="field"><span>第幾關面試</span><select id="bk-round"><option value="stage1">第一階段</option><option value="stage2">第二階段</option><option value="stage3">第三階段</option><option value="stage4">第四階段</option></select></label>` : ''}
+    ${d.date ? `<label class="field"><span>報到日</span><input type="date" id="bk-date" value="${today}" required></label><p class="help">改成已到職後，會開始算保證期與收款期別。給人選的 LINE 關懷卡目前暫停中，不會發。</p>` : ''}
+    <label class="bk-filter" style="margin-top:8px"><input type="checkbox" id="bk-notify"><span>同時用 LINE 通知人選最新進度（不勾就只改系統，人選收不到）</span></label>`;
+  modal({ title: '改階段', subtitle: '確認後才會改', body, footer: `<button class="btn" data-close-overlay>取消</button><button class="btn primary" id="bk-go">確認</button>` });
+  $('#bk-go').onclick = async () => {
+    const btn = $('#bk-go'); btn.disabled = true;
+    const stage = d.rounds ? $('#bk-round').value : d.stage;
+    const onboard = d.date ? $('#bk-date').value : null;
+    if (d.date && !onboard) { toast('請選報到日', 'error'); btn.disabled = false; return; }
+    try {
+      await api.post('/admin/set-manual-stage', { application_id: it.appId, company_id: it.companyId, stage, by: me, note: '進度看板拖拉', onboard_date: onboard, silent: !$('#bk-notify').checked });
+      closeOverlay(); toast(`已改成「${d.label}」`, 'success'); loadBoardTab(target);
+    } catch (e) { btn.disabled = false; toast(e.message || '改不成功', 'error'); }
+  };
+}
+function boardDropClient(target, it, to) {
+  // 開發中的公司拖到「有回應」＝剛打完電話對方有興趣 → 直接開「記錄電話結果」（預選有興趣），存完就會自己跑到這欄。
+  if (to === 'replied' && it.kind === 'bd') {
+    if (!it.outreachId) { toast('這家還沒有開發紀錄，請點開卡片先記一筆', 'error'); openBdDetail(it.id); return; }
+    openAction('bd-call-result', { idParams: { id: it.outreachId }, record: { result: 'interested' } });
+    return;
+  }
+  const AUTO_WHY = {
+    contacted: '「已聯繫」是寄出開發信或記過電話後自動放進來的',
+    opened: '「已開信」只有客戶真的打開信件、系統收到開信紀錄才會放進來，手動標會失真',
+    replied: '「有回應」要記一筆電話結果才會放進來（開發中的公司拖過來就會跳出表單）',
+    active: '「人選在客戶手上」是看有沒有人選推薦給這家客戶自動算的',
+    won: '「已成交」是看有沒有人選到職自動算的',
+  };
+  if (AUTO_WHY[to]) { toast(`${AUTO_WHY[to]}，不能直接拖`, 'error'); return; }
+  const me = boardMe(); if (!me) return;
+  if (it.kind === 'bd') {
+    if (to !== 'signed') { toast('開發中的公司只能直接拖到「已簽約」；還在談的話，在卡片裡記一筆通話心得就好', 'error'); return; }
+    openAction('bd-promote-client', { idParams: { company: it.id }, record: { assigned_to: me } });
+    return;
+  }
+  const rel = to === 'signed' ? 'signed' : 'negotiating';
+  modal({ title: '改客戶狀態', subtitle: '確認後才會改', body: `<p><b>${escapeHtml(it.name)}</b> → <b>${to === 'signed' ? '已簽約' : '洽談中'}</b></p><p class="help">只改這家公司的狀態，不會寄信給客戶。</p>`,
+    footer: `<button class="btn" data-close-overlay>取消</button><button class="btn primary" id="bk-go">確認</button>` });
+  $('#bk-go').onclick = async () => {
+    $('#bk-go').disabled = true;
+    try { await api.post('/admin/portal/companies/relation', { id: it.id, relation: rel, by: me }); closeOverlay(); toast('已更新', 'success'); loadBoardTab(target); }
+    catch (e) { $('#bk-go').disabled = false; toast(e.message || '改不成功', 'error'); }
+  };
 }
