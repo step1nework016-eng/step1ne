@@ -3434,7 +3434,8 @@ ${tg}
 
     // 2026-10-05 Jacky：沒跟阿財談過、或進了面談室卻沒回答的人選，卡片上要標出來——這通就是第一輪面試。
     const COV = {
-      none: '這位人選<b>沒有跟阿財面談過</b>。',
+      none: '這位人選<b>還沒有跟阿財面談</b>。',
+      consultant_direct: '這位人選是<b>顧問直接建檔、直接電洽</b>，沒有經過阿財面談。',
       entered_only: '這位人選<b>有進阿財面談室，但一題都沒回答就離開</b>。',
       partial: `這位人選<b>只跟阿財談了一小部分就離開</b>${data.candidate_msg_count ? `（只回了 ${Number(data.candidate_msg_count)} 句）` : ''}。`,
     };
