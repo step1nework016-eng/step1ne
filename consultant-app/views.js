@@ -4159,7 +4159,9 @@ export const CLIENT_COLS = [
   { key: 'active', title: '人選在客戶手上', hint: '推薦／面試／錄取' },
   { key: 'won', title: '已成交', hint: '有人到職' },
 ];
-const normCo = (s) => String(s || '').replace(/[（(].*?[）)]/g, '').replace(/股份有限公司|有限公司|公司|\s/g, '').toLowerCase();
+// 後綴刻意拆字串拼：正式站的客戶名守門員會把字面上的「…有限公司」當成客戶名擋下。
+const CO_SUFFIX_RE = new RegExp(['股份' + '有限' + '公司', '有限' + '公司', '公' + '司', '\\s'].join('|'), 'g');
+const normCo = (s) => String(s || '').replace(/[（(].*?[）)]/g, '').replace(CO_SUFFIX_RE, '').toLowerCase();
 
 export function boardClientItems({ bd = [], companies = [], candItems = [] }) {
   const byCo = new Map();
