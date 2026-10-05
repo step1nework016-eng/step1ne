@@ -3666,7 +3666,7 @@ ${tg}
   // 欄位，不重新生成逐字稿（規格第 5 節）。
   aiInterviewBody: (body) => {
     const messages = body.transcript || [];
-    if (!messages.length) return '<p class="muted">目前沒有 AI 面談逐字稿</p>';
+    if (!messages.length) return '<p class="muted">這位人選沒有跟阿財面談過，所以沒有逐字稿。顧問手動建檔、自己打電話談的人選，談話內容在「電洽」的電洽紀錄裡。</p>';
     return `<div class="transcript">${messages.map((m) => `<div class="bubble ${String(m.role).includes('assistant') ? 'ai' : 'candidate'}"><b>${String(m.role).includes('assistant') ? '阿財' : '人選'}</b><p>${text(m.content || m.text)}</p><small>${text(m.created_at || m.at)}</small></div>`).join('')}</div>`;
   },
   // 「查看佐證」——只顯示來源片段，不顯示 AI 內部推理過程（規格第 10 節）。
