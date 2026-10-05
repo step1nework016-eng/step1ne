@@ -3392,6 +3392,36 @@ ${tg}
 
     const altJobs = data.alternative_jobs || [];
     const appIdAttr = escapeHtml(opts.applicationId || '');
+    // 2026-10-05 Jacky：顧問常在還不知道人選適合什麼時就先電洽，卡片要先給結論、
+    // 逐條對照、不適合哪些、要注意什麼；沒指定職缺時改成「他適合哪幾個職缺」。
+    const noJob = !!data.no_job_mode || data.job_slug === 'unspecified';
+    const vd = data.verdict || null;
+    const FIT = { strong: ['大致符合', 'good'], partial: ['對得上一部分', 'warn'], weak: ['不太符合', 'bad'] };
+    const COND = { matched: ['✅ 符合', 'good'], partial: ['⚠️ 部分', 'warn'], unmatched: ['❌ 不符', 'bad'], unknown: ['❓ 看不出來', 'warn'] };
+    const altJobHtml = (a) => `<div class="pc-alt-job">
+          <div class="pc-alt-job-title">${text(a.title)}<span class="badge">${a.recommendation_level === 'primary_alternative' ? (noJob ? '最適合' : '優先備案') : (noJob ? '也可以考慮' : '次要備案')}</span></div>
+          ${(a.fit_reasons || []).slice(0, 3).map((r) => `<div class="pc-alt-reason">✓ ${text(r)}</div>`).join('')}
+          ${(a.watchouts || [])[0] ? `<div class="pc-alt-watch">△ ${text(a.watchouts[0])}</div>` : ''}
+          <div class="pc-jobline" style="margin:8px 0 0;padding:0">${a.salary_summary ? `<span>💰 ${text(a.salary_summary)}</span>` : ''}${a.location_summary ? `<span>📍 ${text(a.location_summary)}</span>` : ''}</div>
+          ${a.consultant_talk_track ? `<p class="pc-quote" style="margin-top:8px">${text(a.consultant_talk_track)}</p>` : ''}
+          <button type="button" class="pc-tool-btn" style="margin-top:8px" data-action="open-alt-job-intro" data-job-slug="${escapeHtml(a.job_slug || '')}">查看職缺介紹</button>
+        </div>`;
+    const notFit = data.not_fit_jobs || [];
+    const notFitHtml = notFit.length ? `<div class="pc-notfit"><div class="pc-notfit-title">🚫 不適合的職缺</div>${notFit.map((n) => `<div class="pc-mini"><b>${text(n.title || n.job_slug)}</b><small>${text(n.reason || '')}</small></div>`).join('')}</div>` : '';
+    const cond = data.condition_table || [];
+    const watch = data.watchouts || [];
+    const insightHtml = `
+    ${vd ? `<section class="pc-verdict"><div class="pc-verdict-head">【結論】${vd.fit_level && FIT[vd.fit_level] ? `<span class="pc-status ${FIT[vd.fit_level][1]}">${FIT[vd.fit_level][0]}</span>` : ''}</div>
+      <p>${text(vd.one_line)}</p></section>` : ''}
+    ${noJob && altJobs.length ? `<section class="pc-step pc-fitjobs"><div class="pc-step-head">🎯 他適合哪些職缺（還沒指定職缺，AI 先從全部開放職缺幫你挑）</div>
+      <div class="pc-step-body">${altJobs.map(altJobHtml).join('')}${notFitHtml}</div></section>` : ''}
+    ${cond.length ? `<section class="pc-step"><div class="pc-step-head">📋 對照${text(vd && vd.compared_job ? '「' + vd.compared_job + '」' : '職缺')}條件</div>
+      <div class="pc-step-body pc-cond-list">${cond.map((c) => { const m = COND[c.status] || COND.unknown; return `<div class="pc-cond">
+        <div class="pc-gate-row"><strong>${text(c.condition)}</strong><span class="pc-status ${m[1]}">${m[0]}</span></div>
+        <p>${text(c.resume_evidence || '')}${c.note ? `<br><span class="muted">→ ${text(c.note)}</span>` : ''}</p></div>`; }).join('')}</div></section>` : ''}
+    ${watch.length ? `<section class="pc-step pc-watch"><div class="pc-step-head">⚠️ 要注意的地方</div>
+      <div class="pc-step-body">${watch.map((w) => `<div class="pc-mini"><b>${text(w.title)}</b><small>${text(w.detail || '')}${w.ask ? `<br>☎️ 可以問：${text(w.ask)}` : ''}</small></div>`).join('')}</div></section>` : ''}
+    ${!noJob && notFit.length ? `<section class="pc-step"><div class="pc-step-body">${notFitHtml}</div></section>` : ''}`;
 
     return `
     ${opts.stale ? `<div class="notice">職缺或履歷內容已更新，這張卡可能是舊版——建議重新產生。</div>` : ''}
@@ -3399,6 +3429,7 @@ ${tg}
       <button type="button" class="pc-tool-btn primary" data-action="open-resume-summary" data-application-id="${appIdAttr}">📄 整理履歷</button>
       <button type="button" class="pc-tool-btn" data-action="open-ai-interview" data-application-id="${appIdAttr}">🧠 AI 面談</button>
       <button type="button" class="pc-tool-btn" data-download-resume="${appIdAttr}">原始履歷</button>
+      <button type="button" class="pc-tool-btn" data-cand-bd="${appIdAttr}" title="AI 找可能需要這種人的公司（不在我們職缺裡的），放進「人選敲門名單」">🧲 他適合哪些公司（去開發）</button>
     </div>` : ''}
     <section class="pc-hero">
       <div class="pc-candidate">
@@ -3417,13 +3448,15 @@ ${tg}
       </div>
     </section>
 
-    ${(jc.title || jc.salary_summary || jc.work_mode) ? `<section class="pc-jobline">
+    ${!noJob && (jc.title || jc.salary_summary || jc.work_mode) ? `<section class="pc-jobline">
       <span>${text(jc.title || '')}</span>
       ${jc.salary_summary ? `<span>💰 ${text(jc.salary_summary)}</span>` : ''}
       ${jc.work_mode ? `<span>${text(jc.work_mode)}</span>` : ''}
       ${jc.work_hours ? `<span>${text(jc.work_hours)}</span>` : ''}
       ${(jc.locations || []).length ? `<span>📍 ${text(jc.locations.join('、'))}</span>` : ''}
     </section>` : ''}
+
+    ${insightHtml}
 
     <div class="pc-flow-title"><h3>☎️ 建議電洽順序</h3><span class="pc-flow-hint">左 → 右｜上 → 下</span></div>
     <div class="pc-flow">
@@ -3445,16 +3478,9 @@ ${tg}
           ? (cf.conditions || []).map((c) => `<div class="pc-mini"><b>${text(c.label)}</b><small>${text(c.value)}</small></div>`).join('')
           : '<p class="muted" style="margin:0">職缺條件資料不足</p>'}</div></section>
 
-      ${altJobs.length ? `<section class="pc-step" style="grid-column:1/-1">
+      ${altJobs.length && !noJob ? `<section class="pc-step" style="grid-column:1/-1">
         <details><summary class="pc-alt-summary">✨ 如果主職缺不合，可再分享（${altJobs.length}）</summary>
-        <div class="pc-step-body">${altJobs.map((a) => `<div class="pc-alt-job">
-          <div class="pc-alt-job-title">${text(a.title)}<span class="badge">${a.recommendation_level === 'primary_alternative' ? '優先備案' : '次要備案'}</span></div>
-          ${(a.fit_reasons || []).slice(0, 2).map((r) => `<div class="pc-alt-reason">✓ ${text(r)}</div>`).join('')}
-          ${(a.watchouts || [])[0] ? `<div class="pc-alt-watch">△ ${text(a.watchouts[0])}</div>` : ''}
-          <div class="pc-jobline" style="margin:8px 0 0;padding:0">${a.salary_summary ? `<span>💰 ${text(a.salary_summary)}</span>` : ''}${a.location_summary ? `<span>📍 ${text(a.location_summary)}</span>` : ''}</div>
-          ${a.consultant_talk_track ? `<p class="pc-quote" style="margin-top:8px">${text(a.consultant_talk_track)}</p>` : ''}
-          <button type="button" class="pc-tool-btn" style="margin-top:8px" data-action="open-alt-job-intro" data-job-slug="${escapeHtml(a.job_slug || '')}">查看職缺介紹</button>
-        </div>`).join('')}</div></details></section>` : ''}
+        <div class="pc-step-body">${altJobs.map(altJobHtml).join('')}</div></details></section>` : ''}
 
       <section class="pc-step" style="grid-column:1/-1"><div class="pc-step-head"><span class="pc-num">${altJobs.length ? 7 : ((cf.extra_questions || []).length ? 7 : 6)}</span>收尾｜確認意願與下一步</div>
         <div class="pc-step-body"><div class="pc-closebox">${text((cf.closing || {}).script || '')}</div></div></section>
