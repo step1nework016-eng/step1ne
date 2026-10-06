@@ -4293,18 +4293,42 @@ function boardMoveMenu(target, it) {
   const opts = CAND_COLS.filter((c) => c.key !== 'fill' && c.key !== 'decide' && c.key !== cur);
   const needCo = !it.companyId;
   const body = `<p style="margin:0 0 10px"><b>${escapeHtml(it.name)}</b>　目前：${escapeHtml((CAND_COLS.find((c) => c.key === cur) || {}).title || (cur === 'closed' ? '已結案' : cur))}</p>
-    ${needCo ? '<p class="help" style="margin:0 0 8px">他還沒推薦給任何客戶：要往後面的階段走，先按「推薦給客戶」；不推的話直接按「結案（不推）」。</p>' : ''}
+    ${needCo ? `<label class="field"><span>他還沒推薦給客戶，要往後走請先選客戶（推薦後這家客戶的後台看得到他）</span><select id="bk-mv-co"><option value="">載入客戶中…</option></select></label>` : ''}
     <div class="bk-move-list">
-      ${needCo ? '<button type="button" class="btn" data-mv="recommend">推薦給客戶（打開人選卡片）</button>'
-        : opts.map((c) => `<button type="button" class="btn" data-mv="${c.key}">→ ${escapeHtml(c.title)}</button>`).join('')}
+      ${opts.map((c) => `<button type="button" class="btn" data-mv="${c.key}">→ ${escapeHtml(c.title)}</button>`).join('')}
       ${cur === 'closed' ? '' : '<button type="button" class="btn danger" data-mv="close">結案（不推）</button>'}
     </div>`;
   modal({ title: '改階段', subtitle: '選了會先跳確認，不會直接改', body, footer: '<button class="btn" data-close-overlay>取消</button>' });
+  if (needCo) {
+    // 預設選這個人選應徵職缺的客戶（卡片副標題「客戶｜職缺」的前半段）
+    const guess = String(it.sub || '').split('｜')[0].trim();
+    ensureCompanies().then((cos) => {
+      const sel = $('#bk-mv-co'); if (!sel) return;
+      const rank = (c) => (c.relation === 'signed' ? 0 : c.relation === 'negotiating' ? 1 : 2);
+      const list = [...cos].sort((a, b) => rank(a) - rank(b) || String(a.display_name).localeCompare(String(b.display_name)));
+      sel.innerHTML = `<option value="">選擇客戶…</option>${list.map((c) => `<option value="${escapeHtml(c.id)}" ${guess && c.display_name === guess ? 'selected' : ''}>${escapeHtml(c.display_name)}</option>`).join('')}`;
+    });
+  }
   document.querySelectorAll('[data-mv]').forEach((b) => {
-    b.onclick = () => {
+    b.onclick = async () => {
       const to = b.getAttribute('data-mv');
+      if (needCo && to !== 'close') {
+        const coId = $('#bk-mv-co') && $('#bk-mv-co').value;
+        if (!coId) { toast('先選要推薦給哪家客戶', 'error'); return; }
+        const me = boardMe(); if (!me) return;
+        const coName = $('#bk-mv-co').selectedOptions[0].textContent;
+        if (!confirm(`把 ${it.name} 推薦給「${coName}」？\n推薦後這家客戶的後台會看得到他。`)) return;
+        b.disabled = true;
+        try {
+          await api.post('/admin/forward-candidate', { application_id: it.appId, company_id: coId, by: me, note: '進度看板改階段' });
+        } catch (e) { b.disabled = false; toast(e.message || '推薦沒成功', 'error'); return; }
+        closeOverlay();
+        if (to === 'sent') { toast(`已推薦給 ${coName}`, 'success'); loadBoardTab(target); return; }
+        // 要直接到面試／錄取／到職：推薦完接著跳同一個改階段確認框（選第幾關、報到日）
+        boardDropCandidate(target, { ...it, companyId: coId, col: 'sent', sub: coName }, to);
+        return;
+      }
       closeOverlay();
-      if (to === 'recommend') { openCandidate(it.appId); return; }
       if (to === 'close') {
         if (it.companyId) openAction('pipeline-not-recommended', { idParams: { application_id: it.appId, company_id: it.companyId } });
         else boardCloseNoCompany(target, it);
