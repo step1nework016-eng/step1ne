@@ -4266,13 +4266,13 @@ function boardCardHtml(it, colDef, idx) {
   else if (colDef && d != null) tone = d >= colDef.bad ? 'bad' : d >= colDef.warn ? 'warn' : '';
   const ageTxt = it.care ? it.care.dayTxt : (it.kind === 'bd' ? (it.stale ? '該追了' : (d != null ? `${d} 天前聯繫` : '')) : (d != null && it.kind !== 'company' ? `這關 ${d} 天` : ''));
   const attrs = it.kind === 'bd' ? `data-board-bd="${escapeHtml(it.id)}"` : it.kind === 'company' ? `data-board-co="${escapeHtml(it.id)}"` : `data-board-app="${escapeHtml(it.appId)}"`;
-  return `<button type="button" class="bk-card ${tone ? 'bk-' + tone : ''}" ${attrs} draggable="true" data-board-idx="${idx}" title="點開看詳細；按住拖到別欄可改階段">
+  // 「改階段」放在卡片按鈕外面（不能包在 <button> 裡：有些瀏覽器按到裡面的字會當成按到整張卡，直接打開人選卡片——10/6 Jacky 實際遇到）
+  return `<div class="bk-wrap"><button type="button" class="bk-card ${tone ? 'bk-' + tone : ''} bk-has-move" ${attrs} draggable="true" data-board-idx="${idx}" title="點開看詳細；按住拖到別欄可改階段">
     <span class="bk-top"><strong>${escapeHtml(it.name)}</strong>${it.owner && it.kind !== 'company' ? `<em>${escapeHtml(it.owner)}</em>` : ''}</span>
     ${it.sub ? `<span class="bk-sub">${escapeHtml(it.sub)}</span>` : ''}
     ${it.care ? `<span class="bk-light bk-${it.care.tone}"><i aria-hidden="true"></i>${escapeHtml(it.care.label)}</span>` : (it.note ? `<span class="bk-note">${escapeHtml(it.note)}</span>` : '')}
     ${ageTxt ? `<span class="bk-age">${escapeHtml(ageTxt)}</span>` : ''}
-    ${it.appId ? `<span class="bk-move" role="button" tabindex="0" data-board-move="${idx}" title="不用拖，直接選要改到哪一欄">改階段 ▾</span>` : ''}
-  </button>`;
+  </button><button type="button" class="bk-move" data-board-move="${idx}" title="不用拖，直接選要改到哪一欄">改階段 ▾</button></div>`;
 }
 
 export function boardView(items, cols, { kind, owners = [], ui = {} }) {

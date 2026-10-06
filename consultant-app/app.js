@@ -4235,9 +4235,12 @@ async function loadBoardTab(target) {
   });
   wireBoardDrag(target, kind);
   target.querySelectorAll('[data-board-move]').forEach((el) => {
-    const go = (e) => { e.preventDefault(); e.stopPropagation(); boardMoveMenu(target, (boardUi().lastItems || [])[Number(el.getAttribute('data-board-move'))]); };
+    const go = (e) => {
+      e.preventDefault(); e.stopPropagation();
+      const it = (boardUi().lastItems || [])[Number(el.getAttribute('data-board-move'))];
+      if (it && (it.kind === 'bd' || it.kind === 'company')) boardMoveMenuClient(target, it); else boardMoveMenu(target, it);
+    };
     el.addEventListener('click', go);
-    el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') go(e); });
   });
   target.querySelectorAll('[data-board-app]').forEach((el) => { el.onclick = () => openCandidate(el.getAttribute('data-board-app')); });
   target.querySelectorAll('[data-board-bd]').forEach((el) => { el.onclick = () => openBdDetail(el.getAttribute('data-board-bd')); });
@@ -4304,12 +4307,48 @@ function boardMoveMenu(target, it) {
       if (to === 'recommend') { openCandidate(it.appId); return; }
       if (to === 'close') {
         if (it.companyId) openAction('pipeline-not-recommended', { idParams: { application_id: it.appId, company_id: it.companyId } });
-        else openAction('decide-report', { idParams: { application_id: it.appId }, record: { decision: 'rejected' } });
+        else boardCloseNoCompany(target, it);
         return;
       }
       boardDropCandidate(target, it, to);
     };
   });
+}
+// 客戶卡片的「改階段」：只列能手動改的；系統自動算的欄（已聯繫／已開信／人選在客戶手上／已成交）講清楚為什麼不能選。
+function boardMoveMenuClient(target, it) {
+  if (!it) return;
+  const isBd = it.kind === 'bd';
+  const curTitle = (CLIENT_COLS.find((c) => c.key === it.col) || {}).title || it.col;
+  const opts = isBd
+    ? [['replied', '記一筆電話結果（對方有興趣 → 有回應）'], ['signed', '簽約了，轉成正式客戶 → 已簽約']]
+    : [['talking', '→ 洽談中'], ['signed', '→ 已簽約・找人中']].filter(([k]) => k !== it.col);
+  const body = `<p style="margin:0 0 10px"><b>${escapeHtml(it.name)}</b>　目前：${escapeHtml(curTitle)}</p>
+    <div class="bk-move-list">${opts.map(([k, l]) => `<button type="button" class="btn" data-mv="${k}">${escapeHtml(l)}</button>`).join('')}
+      <button type="button" class="btn ghost" data-mv="open">打開卡片看詳細</button></div>
+    <p class="help" style="margin:10px 0 0">「已聯繫／已開信」看寄信與開信紀錄、「人選在客戶手上／已成交」看人選進度，系統自動放，不能手動改。</p>`;
+  modal({ title: '改階段', subtitle: '選了會先跳確認，不會直接改', body, footer: '<button class="btn" data-close-overlay>取消</button>' });
+  document.querySelectorAll('[data-mv]').forEach((b) => {
+    b.onclick = () => {
+      const to = b.getAttribute('data-mv');
+      closeOverlay();
+      if (to === 'open') { if (isBd) openBdDetail(it.id); else openCompanyManage(it.id); return; }
+      boardDropClient(target, it, to);
+    };
+  });
+}
+function boardCloseNoCompany(target, it) {
+  const me = boardMe(); if (!me) return;
+  modal({ title: '結案（不推）', subtitle: `${it.name}・還沒推薦給任何客戶`,
+    body: `<label class="field"><span>不推的原因（內部看，不會傳給人選）</span><textarea id="bk-close-reason" rows="3" placeholder="例：沒有醫療耗材／紡織背景"></textarea></label>
+      <p class="help">只改系統狀態、移到「已結案」，不會發 LINE 或信給人選。之後要推別的職缺還是可以。</p>`,
+    footer: '<button class="btn" data-close-overlay>取消</button><button class="btn danger" id="bk-close-go">結案</button>' });
+  $('#bk-close-go').onclick = async () => {
+    const reason = ($('#bk-close-reason').value || '').trim();
+    if (!reason) { toast('請寫一句原因', 'error'); return; }
+    $('#bk-close-go').disabled = true;
+    try { await api.post('/admin/board/close', { application_id: it.appId, reason, by: me }); closeOverlay(); toast('已結案', 'success'); loadBoardTab(target); }
+    catch (e) { $('#bk-close-go').disabled = false; toast(e.message || '改不成功', 'error'); }
+  };
 }
 function boardMe() {
   const me = amUi().me || '';
