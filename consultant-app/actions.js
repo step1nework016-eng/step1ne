@@ -70,7 +70,7 @@ export const ACTIONS = {
   // env.AI.toMarkdown 轉成文字），V3 重做時前端漏掉這個欄位，只剩文字框——這裡補回來，
   // 跟 TG「📞 電洽新增人選」那條路徑（文字或檔案擇一）行為一致，不是新設計一套規則。
   'application-call-note': { label: '手動記一筆電洽重點', method: 'post', path: () => '/admin/application/call-note', fields: [{ name: 'text', label: '電洽重點（可直接貼逐字稿文字）', type: 'textarea' }, { name: 'file', label: '或上傳逐字稿檔案（txt／pdf／doc，跟文字擇一填即可）', type: 'file', accept: '.txt,.pdf,.doc,.docx' }], body: idBody, success: '已儲存' },
-  'application-call-summary': { label: '電洽摘要', method: 'post', path: () => '/admin/application/call-summary', fields: [{ name: 'content', label: '電洽摘要', type: 'textarea', required: true }], body: idBody, success: '電洽摘要已儲存' },
+  'application-call-summary': { label: '修改電洽摘要', method: 'post', path: () => '/admin/application/call-summary', fields: [{ name: 'content', label: '電洽摘要（修改 AI 整理好的摘要用；整段逐字稿請改用「貼上／上傳電洽逐字稿」，貼在這裡系統也會自動轉給 AI 整理）', type: 'textarea', required: true }], body: idBody, success: '電洽摘要已儲存' },
   // /admin/set-owner is shared by application/sourced/placement rows and keys off {kind,id}, not
   // a domain-specific id field — the caller must pass idParams:{kind:'application'|'sourced'|'placement', id}.
   // 2026-09-15 改：原本要顧問自己手打 consultants.id / 階段代碼這種內部識別碼，

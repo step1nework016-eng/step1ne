@@ -2570,7 +2570,7 @@ ${views.candidateFormsBlock(f.forms, applicationId, companyId)}
         // 查證後確認這顆對應的後端端點是 /admin/application/call-note（doCallNote），
         // 跟 call_prep_md／call-prep-generate 那條 AI 產生的路徑無關，改名消除混淆。
         actionBtn('手動記一筆電洽重點', 'application-call-note', ctxId),
-        actionBtn('電洽摘要', 'application-call-summary', ctxId),
+        actionBtn('修改電洽摘要', 'application-call-summary', ctxId),
         actionBtn('指派負責顧問', 'set-owner', { idParams: { kind: 'application', id: applicationId } }),
         actionBtn('手動調整階段', 'set-manual-stage', ctxId),
         actionBtn('編輯應徵單', 'application-update', { idParams: { application_id: applicationId }, record: application }),
@@ -3634,8 +3634,9 @@ async function submitPendingAction() {
     const path = action.path(ctx);
     const body = action.body ? action.body(ctx, values) : { ...(ctx.idParams || {}), ...values };
     const options = action.recruit ? { recruit: true } : {};
-    await api[action.method](path, body, options);
-    toast(action.success || '已完成', 'success');
+    const res = await api[action.method](path, body, options);
+    // 後端改了處理方式時（例：電洽摘要貼的其實是逐字稿→改交 AI 整理）用後端的說明
+    toast((res && res.queued && res.message) || action.success || '已完成', 'success');
     state.pendingAction = null;
     // 2026-09-29：職缺抽屜「AI 找的人」分頁的記錄聯絡，送出後重開同一個職缺、停在同一個分頁。
     if (action.reopenJobTab && ctx.idParams.job_slug) { openJobManage(ctx.idParams.job_slug, action.reopenJobTab); return; }
