@@ -2161,8 +2161,8 @@ ${ns.length ? `<div class="bdn-list">${ns.map(item).join('')}</div>` : '<p class
     const runs = (data && data.runs) || [];
     const cons = ui.consultants || [];
     const opt = (v, label, cur) => `<option value="${escapeHtml(v)}" ${String(cur || '') === String(v) ? 'selected' : ''}>${escapeHtml(label)}</option>`;
-    const ANG = { '同業': 'info', '在徵類似職缺': 'success', '擴編展店': 'warning' };
-    const head = `<div class="notice" style="margin:0 0 12px"><b>這裡的公司都還沒聯繫過。</b>是 AI 依人選背景推測「可能需要這種人」的名單（沒有上網查證），打之前先看一下 104／官網。按「加入開發進度」才會進開發進度、開始電訪。</div>
+    const ANG = { '同業': 'info', '在徵類似職缺': 'success', '擴編展店': 'warning', '經歷對得上': 'success', '人選想轉的方向': 'warning' };
+    const head = `<div class="notice" style="margin:0 0 12px"><b>這裡的公司都還沒聯繫過。</b>是 104 最近 30 天真的在徵、AI 看過職缺內容和人選電洽需求挑出來的；「經歷對得上」是主要名單，「人選想轉的方向」參考用。按「加入開發進度」才會進開發進度、開始電訪。</div>
       <div class="filters"><label class="am-me">我是 <select data-cb-me>${opt('', '選擇…', ui.me)}${cons.filter((c) => c.is_active).map((c) => opt(c.display_name, c.display_name, ui.me)).join('')}</select></label>
       <span class="help">名單從人選卡片按「拿這位人選去開發客戶」產生</span></div>`;
     if (!runs.length) return head + empty('還沒有人選敲門名單', '打開一位人選卡片，按「拿這位人選去開發客戶」。');
@@ -2185,7 +2185,13 @@ ${ns.length ? `<div class="bdn-list">${ns.map(item).join('')}</div>` : '<p class
           ${st[0] ? `<span class="badge ${st[1]}">${text(st[0])}</span>` : ''}</summary>
         ${r.error ? `<p class="notice">${text(r.error)}</p>` : ''}
         ${r.brief ? `<div class="cb-brief"><b>匿名人選重點（開口用）</b><ul>${String(r.brief).split('\n').filter(Boolean).map((x) => `<li>${text(x)}</li>`).join('')}</ul></div>` : ''}
-        ${ts.length ? `<div class="list">${ts.map(row).join('')}</div>` : ''}
+        ${(() => {
+          // 2026-10-06 Jacky：經歷對得上的是主要名單；人選自己想轉的方向另列一區，顧問自己判斷要不要打
+          const exp = ts.filter((t) => t.angle !== '人選想轉的方向'), dir = ts.filter((t) => t.angle === '人選想轉的方向');
+          if (!dir.length) return ts.length ? `<div class="list">${ts.map(row).join('')}</div>` : (r.status === 'done' ? '<p class="help">104 最近 30 天沒有經歷對得上的職缺，這次 0 家。</p>' : '');
+          return `<h4 class="cb-sec">經歷對得上（${exp.length}）</h4>${exp.length ? `<div class="list">${exp.map(row).join('')}</div>` : '<p class="help">104 最近 30 天沒有經歷直接對得上的職缺。</p>'}
+            <h4 class="cb-sec">人選想轉的方向（${dir.length}）<small class="muted">他過去沒做過這個產業，企業買單機率較低，參考用</small></h4><div class="list">${dir.map(row).join('')}</div>`;
+        })()}
       </details>`;
     };
     return head + `<div class="cb-runs">${runs.map(run).join('')}</div>`;
