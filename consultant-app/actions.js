@@ -170,6 +170,14 @@ export const ACTIONS = {
   // 2026-09-29 修：原本打 /admin/client-formal-reports/（不存在，按了一律失敗）。
   // 真正產客戶版推薦履歷的是 /admin/application/:id/client-formal-report（舊版人選追蹤頁用的那支）：
   // 有阿財結構化報告的，本機排程 1～2 分鐘產 PDF 草稿，產好 TG 會通知，卡片上就能下載。
+  // 2026-10-06：匿名履歷（範本：匿名人選推薦_A-01）——名字→代號、公司→產業描述，拿去開發還沒合作的公司
+  'anon-report': {
+    label: '製作匿名履歷（AI 草稿）', method: 'post',
+    path: (ctx) => `/admin/application/${encodeURIComponent(ctx.idParams.application_id)}/client-formal-report`,
+    fields: [], body: () => ({ anonymous: true, by: (() => { try { return JSON.parse(localStorage.getItem('s1ne_aimatch_ui') || '{}').me || '顧問'; } catch { return '顧問'; } })() }),
+    success: '已開始製作匿名履歷，草稿 1～2 分鐘後貼到 TG「客戶履歷人工確認」，你確認後就能在這裡下載',
+    confirmText: '做一份匿名履歷：名字改成代號（A-01…）、待過的公司改成產業描述、不放聯絡方式與薪資。草稿會先貼 TG 讓你確認沒有洩漏才產 PDF。',
+  },
   'client-formal-report': {
     label: '製作推薦履歷（AI 草稿）', method: 'post',
     path: (ctx) => `/admin/application/${encodeURIComponent(ctx.idParams.application_id)}/client-formal-report`,

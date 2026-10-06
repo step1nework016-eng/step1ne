@@ -2317,6 +2317,15 @@ ${n.learned ? `<p><b>學到什麼</b>${text(n.learned)}</p>` : ''}${n.next_time 
       <div class="cg-row"><b>附件</b><span class="pack-attach"><label><input type="checkbox" data-pack-intro checked> 公司介紹（STEP1NE_企業人才招募解決方案.pdf）</label>
         ${cvFiles.length ? `<span class="pack-cvs"><b>匿名履歷（可複選）</b>${cvFiles.map((f, i) => `<label><input type="checkbox" data-pack-cv value="${escapeHtml(f.id)}"${i ? '' : ' checked'}> ${text(f.filename)}<small>（${text(String(f.created_at || '').slice(5, 16))}${f.uploaded_by ? ' ' + text(f.uploaded_by) : ''}）</small></label>`).join('')}</span>` : ''}
         ${files.length ? `<select class="cg-in" data-pack-contract><option value="">不附合約</option>${files.map((f, i) => `<option value="${escapeHtml(f.id)}"${i ? '' : ' selected'}>${f.contract_type ? `【${text(f.contract_type)}】` : ''}${text(f.filename)}（${text(String(f.created_at || '').slice(5, 16))}${f.uploaded_by ? ' ' + text(f.uploaded_by) : ''}）</option>`).join('')}</select>` : '<span class="muted">合約：還沒上傳（選填）</span>'}</span></div>
+      <details class="pack-anon" data-pack-anon-box><summary><b>從人選挑匿名履歷附上</b>（系統做好的，可用姓名、負責顧問、配對過的職缺找）</summary>
+        <div class="pack-anon-filter">
+          <input class="cg-in" data-anon-q placeholder="姓名或代號（例：宋 或 A-01）" aria-label="姓名或代號">
+          <select class="cg-in" data-anon-owner aria-label="負責顧問"><option value="">所有顧問</option></select>
+          <select class="cg-in" data-anon-job aria-label="配對過的職缺"><option value="">所有職缺</option></select>
+          <button type="button" class="btn sm" data-anon-search>找</button>
+        </div>
+        <div data-anon-results class="pack-cvs"><small class="muted">按「找」列出已做好的匿名履歷。還沒做的人選要先在人選卡片按「製作匿名履歷」。</small></div>
+      </details>
       <div class="pack-upload"><label class="field"><span>上傳附件：合約或匿名履歷（選填；先選種類再選檔案，PDF／DOCX，8MB 內）</span>
         <span class="pack-upload-row"><select class="cg-in" data-pack-ctype>${[...(po.contract_types || []), '匿名履歷'].map((t) => `<option value="${escapeHtml(t)}">${t === '匿名履歷' ? '匿名履歷' : `合約：${text(t)}`}</option>`).join('')}</select>
         <input type="file" data-pack-file accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"></span></label></div>
@@ -2853,7 +2862,7 @@ ${a.note ? `<details class="note-details"><summary>顧問備註／電洽紀錄</
   // 2026-09-29 Jacky：「我要有一個製作客戶履歷的地方讓 AI 幫我生出來，我要提供給客戶」。
   // 卡片最上面固定一格：一顆按鈕做 AI 客戶版履歷（沒推薦給客戶之前也能做，會用他應徵的職缺），
   // 做好的每一份都列在這裡可下載；改好的正式版一樣用下面「推薦給客戶」那格上傳給客戶。
-  clientResumeBox: (applicationId, reports, forwards) => {
+  clientResumeBox: (applicationId, reports, forwards, anon) => {
     const nameOf = (cid) => ((forwards || []).find((f) => f.company_id === cid) || {}).company_name || '';
     const rows = (reports || []).slice().sort((a, b) => String(b.generated_at || '').localeCompare(String(a.generated_at || '')));
     const item = (r) => {
@@ -2869,6 +2878,11 @@ ${a.note ? `<details class="note-details"><summary>顧問備註／電洽紀錄</
         ${actionBtn(rows.length ? '重新製作客戶履歷（AI）' : '製作客戶履歷（AI）', 'client-formal-report', { idParams: { application_id: applicationId } }, 'primary')}</div>
       <p class="help" style="margin:6px 0 8px">按下去 → AI 用阿財報告＋履歷整理內容（約 2～3 分鐘）→ 草稿貼到 TG「客戶履歷人工確認」，你在那邊按確認 → 產出 PDF，這裡就能下載。要給客戶看，到下面「推薦給客戶」那格上傳正式版。</p>
       ${rows.length ? rows.map(item).join('') : '<p class="muted" style="margin:0">還沒做過。</p>'}
+      <div class="cr-head" style="margin-top:12px;border-top:1px solid var(--line);padding-top:10px"><h3 style="margin:0;font-size:15px">匿名履歷${anon && anon.code ? `（${text(anon.code)}）` : ''}</h3>
+        ${actionBtn(anon && anon.file_id ? '重新製作匿名履歷' : '製作匿名履歷', 'anon-report', { idParams: { application_id: applicationId } })}</div>
+      <p class="help" style="margin:6px 0 8px">拿去開發還沒合作的公司用：名字改代號、公司改產業描述、不放聯絡方式與薪資。草稿一樣先到 TG 讓你確認。</p>
+      ${anon && anon.file_id ? `<div class="list-row" style="padding:8px 10px"><span><b>${text(anon.filename || anon.code)}</b><small>${text(String(anon.updated_at || '').slice(5, 16))}</small></span><button type="button" class="btn ghost sm" data-download-file="${text(anon.file_id)}">下載</button></div>`
+        : (anon && anon.code ? '<p class="muted" style="margin:0">製作中或還沒確認。</p>' : '<p class="muted" style="margin:0">還沒做過。</p>')}
     </section>`;
   },
   // 2026-09-29 Jacky：打開人選卡片第一眼就要看到「背景經歷 × 職缺」匹配總結，不用再點進阿財初審。

@@ -2030,6 +2030,7 @@ function wireContractPack(scope) {
       candidate_brief: box.querySelector('[data-pack-brief]')?.value || '',
       ...(box.querySelector('[data-pack-to]')?.value.trim() ? { to_override: box.querySelector('[data-pack-to]').value.trim() } : {}),
       resume_ids: [...box.querySelectorAll('[data-pack-cv]:checked')].map((x) => x.value),
+      anon_app_ids: [...box.querySelectorAll('[data-pack-anon]:checked')].map((x) => x.value),
       ...(sel && sel.value ? { contract_id: sel.value } : { no_contract: true }),
     };
     if (orig && !out.hidden) {
@@ -2079,6 +2080,35 @@ function wireContractPack(scope) {
   [scSel, anSel, box.querySelector('[data-pack-style]'), box.querySelector('[data-pack-intro]'), box.querySelector('[data-pack-contract]'), ...box.querySelectorAll('[data-pack-cv]')].forEach((el) => el?.addEventListener('change', onChange));
   box.querySelector('[data-pack-brief]')?.addEventListener('change', () => { if (!out.hidden) onChange(); });
   box.querySelector('[data-pack-preview]')?.addEventListener('click', (e) => preview(e.currentTarget));
+  // 2026-10-06：從人選庫挑匿名履歷（姓名／負責顧問／配對過的職缺）
+  const anonBox = box.querySelector('[data-pack-anon-box]');
+  if (anonBox) {
+    const ownerSel = anonBox.querySelector('[data-anon-owner]');
+    const jobSel = anonBox.querySelector('[data-anon-job]');
+    const resBox = anonBox.querySelector('[data-anon-results]');
+    anonBox.addEventListener('toggle', async () => {
+      if (!anonBox.open || anonBox.dataset.loaded) return;
+      anonBox.dataset.loaded = '1';
+      try {
+        const cons = (await ensureConsultants()).filter((c) => c.is_active);
+        ownerSel.insertAdjacentHTML('beforeend', cons.map((c) => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.display_name)}</option>`).join(''));
+        const jobs = await api.get('/admin/jobs');
+        const list = (jobs.jobs || jobs.items || []).filter((j) => (j.status || 'open') !== 'closed');
+        jobSel.insertAdjacentHTML('beforeend', list.map((j) => `<option value="${escapeHtml(j.slug)}">${escapeHtml(j.title || j.slug)}</option>`).join(''));
+      } catch (err) { console.error(err); }
+    });
+    anonBox.querySelector('[data-anon-search]')?.addEventListener('click', async () => {
+      resBox.innerHTML = '<small class="muted">找尋中…</small>';
+      try {
+        const qs = new URLSearchParams({ q: anonBox.querySelector('[data-anon-q]').value.trim(), owner: ownerSel.value, job: jobSel.value });
+        const r = await api.get(`/admin/anon-reports?${qs}`);
+        const rows = r.rows || [];
+        resBox.innerHTML = rows.length
+          ? rows.map((x) => `<label><input type="checkbox" data-pack-anon value="${escapeHtml(x.application_id)}"> <b>${escapeHtml(x.code)}</b>（${escapeHtml(x.name || '')}・${escapeHtml(x.job_title || '')}${x.owner_name ? '・' + escapeHtml(x.owner_name) : ''}）<small>${escapeHtml(String(x.updated_at || '').slice(5, 16))}</small></label>`).join('')
+          : '<small class="muted">找不到已做好的匿名履歷。先到人選卡片按「製作匿名履歷」，在 TG 確認後就會出現在這裡。</small>';
+      } catch (err) { resBox.innerHTML = `<small class="muted">找不到：${escapeHtml(err.message || '')}</small>`; }
+    });
+  }
   box.querySelector('[data-pack-send]')?.addEventListener('click', async (e) => {
     const btn = e.currentTarget;
     btn.disabled = true;
@@ -2527,7 +2557,7 @@ ${views.candidateFormsBlock(f.forms, applicationId, companyId)}
       // ／trg_applications_seq_no 觸發器），一直沒搬進 V3 標題。
       title: (application.seq_no ? `#${application.seq_no} ` : '') + (application.name || '應徵單'),
       subtitle: `${application.job_title || application.job_slug || ''} · ${channelTag}`,
-      body: `<div class="drawer-section">${dupNoticeHtml}${views.socialSourceBadge(card.social_source)}${stageBar}${views.clientResumeBox(applicationId, card.client_formal_reports || [], forwards)}${views.jobMatchTop(report)}<h3>基本資料${contactBadge}${hardGateBadge}</h3>${basics}<h3>操作</h3>${rowActions([
+      body: `<div class="drawer-section">${dupNoticeHtml}${views.socialSourceBadge(card.social_source)}${stageBar}${views.clientResumeBox(applicationId, card.client_formal_reports || [], forwards, card.anon_report)}${views.jobMatchTop(report)}<h3>基本資料${contactBadge}${hardGateBadge}</h3>${basics}<h3>操作</h3>${rowActions([
         actionBtn('新增顧問備註', 'application-notes', ctxId, 'primary'),
         // 2026-09-17 改名：這顆原本也叫「電洽前準備」，但實際上是手動打字存進
         // consultant_call_notes 的表單，跟「電洽」階段格裡新加的 AI Pre-call Card
