@@ -1943,12 +1943,13 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
       ${list(detail.docs, (d) => `<div class="list-row"><span><b>${text(d.title)}</b><small>${text(d.doc_date || '')}</small></span><button type="button" class="btn sm" data-client-doc="${text(d.id)}">打開</button></div>`)}` : ''}
 
       <h3 style="margin-top:20px">客戶電洽紀錄（職缺對焦）</h3>
-      <p class="help" style="margin:0 0 6px">在 TG 客戶群組「📞 客戶電洽回饋」貼逐字稿，AI 拆到各職缺；按過 ✅ 的才會寫進職缺卡。</p>
+      <p class="help" style="margin:0 0 6px">在 TG 客戶群組「📞 客戶電洽回饋」貼逐字稿，整通紀錄自動存在這裡；「建議調整」按過 ✅ 的才會改職缺卡。</p>
       ${(detail.calls || []).length ? (detail.calls || []).map((x) => {
         const KIND = { job: '🎯', unsure: '❓', new_job: '🆕 新職缺', general: '🗂' };
-        const ST = { applied: ['已寫入', 'success'], dropped: ['不要', ''], pending: ['待確認', 'warning'] };
+        const ST = { applied: ['已套用職缺卡', 'success'], recorded: ['只留紀錄', ''], dropped: ['只留紀錄', ''], pending: ['調整待確認', 'warning'] };
+        const chg = (i) => { let c = []; try { c = JSON.parse(i.changes_json || '[]'); } catch { c = []; } return c.length ? `<small style="white-space:pre-wrap;display:block;margin-top:4px"><b>🔧 建議調整：</b>\n${text(c.map((x, k) => `${k + 1}. ${x}`).join('\n'))}</small>` : ''; };
         return `<details class="card" style="margin:0 0 8px"><summary style="cursor:pointer;padding:10px 12px"><b>${text(String(x.created_at || '').slice(5, 16))}</b>・${text(x.caller || '')}　<span class="muted">${text(x.summary || (x.status === 'queued' ? 'AI 整理中…' : ''))}</span></summary>
-          <div class="list" style="padding:0 12px 10px">${(x.items || []).map((i) => { const st = ST[i.status] || [i.status, '']; return `<div class="list-row" style="align-items:flex-start"><span style="flex:1"><b>${text(KIND[i.kind] || '')} ${text(i.job_title || '')}</b><small style="white-space:pre-wrap">${text(i.text || '')}</small></span><span class="badge ${st[1]}">${text(st[0])}${i.decided_by ? '・' + text(i.decided_by) : ''}</span></div>`; }).join('') || '<p class="muted">沒有拆出內容</p>'}</div></details>`;
+          <div class="list" style="padding:0 12px 10px">${(x.items || []).map((i) => { const st = ST[i.status] || [i.status, '']; return `<div class="list-row" style="align-items:flex-start"><span style="flex:1"><b>${text(KIND[i.kind] || '')} ${text(i.job_title || '')}</b><small style="white-space:pre-wrap">${text(i.text || '')}</small>${chg(i)}</span><span class="badge ${st[1]}">${text(st[0])}${i.decided_by ? '・' + text(i.decided_by) : ''}</span></div>`; }).join('') || '<p class="muted">沒有拆出內容</p>'}</div></details>`;
       }).join('') : '<p class="muted">還沒有客戶電洽紀錄。</p>'}
 
       <h3 style="margin-top:20px">用人需求表連結</h3>
