@@ -698,6 +698,12 @@ document.addEventListener('change', (e) => {
   const sel = e.target instanceof Element ? e.target.closest('[data-me-global]') : null;
   if (!sel) return;
   amUi().me = sel.value; amSave();
+  // 看板跟著換成這位顧問的卡片（換了「我是」就重新以他為準）
+  if (state.board) {
+    state.board.owner = sel.value; state.board.clientOwner = sel.value; state.board.ownerSet = false;
+    try { localStorage.setItem(BOARD_KEY, JSON.stringify({ owner: sel.value, showClosed: state.board.showClosed, clientOwner: sel.value, ownerSet: false })); } catch { /* 存不了就算了 */ }
+    if (state.boardTarget && document.body.contains(state.boardTarget)) loadBoardTab(state.boardTarget);
+  } else { try { localStorage.removeItem(BOARD_KEY); } catch { /* 存不了就算了 */ } }
   document.querySelectorAll('[data-am-filter="me"],[data-tri-filter="me"],[data-cm-me]').forEach((x) => { x.value = sel.value; });
   toast(sel.value ? `已設定：我是 ${sel.value}` : '已清除「我是」', 'success');
 });
@@ -4190,7 +4196,10 @@ const BOARD_KEY = 's1ne_board_ui';
 function boardUi() {
   if (!state.board) {
     let saved; try { saved = JSON.parse(localStorage.getItem(BOARD_KEY) || '{}') || {}; } catch { saved = {}; }
-    state.board = { owner: '', showClosed: false, clientOwner: '', ...saved, expand: {} };
+    // 2026-10-06 Jacky：「我是」選誰，看板就直接篩誰的卡片（不用每次進來先看全部再切）。
+    // 自己在看板上改過負責人（含「全部」）才記自己的選擇。
+    const me = amUi().me || '';
+    state.board = { owner: me, showClosed: false, clientOwner: me, ...(saved.ownerSet ? saved : { showClosed: !!saved.showClosed }), expand: {} };
   }
   return state.board;
 }
@@ -4210,19 +4219,26 @@ async function loadBoardTab(target) {
     const viewUi = kind === 'cand' ? ui : { ...ui, owner: ui.clientOwner };
     return boardView(items, kind === 'cand' ? CAND_COLS : CLIENT_COLS, { kind, owners, ui: viewUi });
   }, 'refresh');
-  const save = () => { try { localStorage.setItem(BOARD_KEY, JSON.stringify({ owner: ui.owner, showClosed: ui.showClosed, clientOwner: ui.clientOwner })); } catch { /* 存不了就算了 */ } };
+  state.boardTarget = target;
+  const save = (ownerSet) => { try { localStorage.setItem(BOARD_KEY, JSON.stringify({ owner: ui.owner, showClosed: ui.showClosed, clientOwner: ui.clientOwner, ownerSet: ownerSet || ui.ownerSet || false })); } catch { /* 存不了就算了 */ } };
   target.querySelectorAll('[data-board-filter]').forEach((el) => {
     el.onchange = () => {
       const k = el.getAttribute('data-board-filter');
+      let ownerSet = false;
       if (k === 'closed') ui.showClosed = el.checked;
-      else if (kind === 'client') ui.clientOwner = el.value; else ui.owner = el.value;
-      save(); loadBoardTab(target);
+      else { ownerSet = true; ui.ownerSet = true; if (kind === 'client') ui.clientOwner = el.value; else ui.owner = el.value; }
+      save(ownerSet); loadBoardTab(target);
     };
   });
   target.querySelectorAll('[data-board-expand]').forEach((el) => {
     el.onclick = () => { ui.expand[el.getAttribute('data-board-expand')] = true; loadBoardTab(target); };
   });
   wireBoardDrag(target, kind);
+  target.querySelectorAll('[data-board-move]').forEach((el) => {
+    const go = (e) => { e.preventDefault(); e.stopPropagation(); boardMoveMenu(target, (boardUi().lastItems || [])[Number(el.getAttribute('data-board-move'))]); };
+    el.addEventListener('click', go);
+    el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') go(e); });
+  });
   target.querySelectorAll('[data-board-app]').forEach((el) => { el.onclick = () => openCandidate(el.getAttribute('data-board-app')); });
   target.querySelectorAll('[data-board-bd]').forEach((el) => { el.onclick = () => openBdDetail(el.getAttribute('data-board-bd')); });
   target.querySelectorAll('[data-board-co]').forEach((el) => { el.onclick = () => openCompanyManage(el.getAttribute('data-board-co')); });
@@ -4265,6 +4281,36 @@ function wireBoardDrag(target, kind) {
     });
   });
 }
+// 2026-10-06 Jacky：「能不能在卡片內調整階段，拖到結案拖不過去、不然就有警示語」。
+// 不用拖：按卡片上的「改階段」選要去哪一欄，走跟拖拉同一套確認框。結案改走現行的「不推」：
+// 已推薦給客戶的＝這家客戶「標不推進」；還沒推薦的＝顧問決策「不推」（舊的「結案不續」9/15 已拔除）。
+function boardMoveMenu(target, it) {
+  if (!it || !it.appId) return;
+  const cur = it.col;
+  const opts = CAND_COLS.filter((c) => c.key !== 'fill' && c.key !== 'decide' && c.key !== cur);
+  const needCo = !it.companyId;
+  const body = `<p style="margin:0 0 10px"><b>${escapeHtml(it.name)}</b>　目前：${escapeHtml((CAND_COLS.find((c) => c.key === cur) || {}).title || (cur === 'closed' ? '已結案' : cur))}</p>
+    ${needCo ? '<p class="help" style="margin:0 0 8px">他還沒推薦給任何客戶：要往後面的階段走，先按「推薦給客戶」；不推的話直接按「結案（不推）」。</p>' : ''}
+    <div class="bk-move-list">
+      ${needCo ? '<button type="button" class="btn" data-mv="recommend">推薦給客戶（打開人選卡片）</button>'
+        : opts.map((c) => `<button type="button" class="btn" data-mv="${c.key}">→ ${escapeHtml(c.title)}</button>`).join('')}
+      ${cur === 'closed' ? '' : '<button type="button" class="btn danger" data-mv="close">結案（不推）</button>'}
+    </div>`;
+  modal({ title: '改階段', subtitle: '選了會先跳確認，不會直接改', body, footer: '<button class="btn" data-close-overlay>取消</button>' });
+  document.querySelectorAll('[data-mv]').forEach((b) => {
+    b.onclick = () => {
+      const to = b.getAttribute('data-mv');
+      closeOverlay();
+      if (to === 'recommend') { openCandidate(it.appId); return; }
+      if (to === 'close') {
+        if (it.companyId) openAction('pipeline-not-recommended', { idParams: { application_id: it.appId, company_id: it.companyId } });
+        else openAction('decide-report', { idParams: { application_id: it.appId }, record: { decision: 'rejected' } });
+        return;
+      }
+      boardDropCandidate(target, it, to);
+    };
+  });
+}
 function boardMe() {
   const me = amUi().me || '';
   if (!me) { toast('先在畫面最上方選「我是」，系統才記得是誰改的', 'error'); document.querySelector('[data-me-global]')?.focus(); }
@@ -4272,7 +4318,7 @@ function boardMe() {
 }
 function boardDropCandidate(target, it, to) {
   if (to === 'fill' || to === 'decide') { toast('這兩欄是看阿財面談自動分的，不能拖進去', 'error'); return; }
-  if (to === 'closed') { toast('結案要填原因（會影響發給人選的訊息），請在卡片裡按「結案不續」', 'error'); openCandidate(it.appId); return; }
+  if (to === 'closed') { boardMoveMenu(target, it); return; }
   if (!it.companyId) { toast('他還沒推薦給任何客戶，請在卡片裡先按「推薦給客戶」選客戶', 'error'); openCandidate(it.appId); return; }
   const me = boardMe(); if (!me) return;
   const d = CAND_DROP[to]; if (!d) return;

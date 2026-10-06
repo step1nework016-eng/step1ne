@@ -4271,6 +4271,7 @@ function boardCardHtml(it, colDef, idx) {
     ${it.sub ? `<span class="bk-sub">${escapeHtml(it.sub)}</span>` : ''}
     ${it.care ? `<span class="bk-light bk-${it.care.tone}"><i aria-hidden="true"></i>${escapeHtml(it.care.label)}</span>` : (it.note ? `<span class="bk-note">${escapeHtml(it.note)}</span>` : '')}
     ${ageTxt ? `<span class="bk-age">${escapeHtml(ageTxt)}</span>` : ''}
+    ${it.appId ? `<span class="bk-move" role="button" tabindex="0" data-board-move="${idx}" title="不用拖，直接選要改到哪一欄">改階段 ▾</span>` : ''}
   </button>`;
 }
 
