@@ -2317,7 +2317,7 @@ ${n.learned ? `<p><b>學到什麼</b>${text(n.learned)}</p>` : ''}${n.next_time 
       <div class="cg-row"><b>附件</b><span class="pack-attach"><label><input type="checkbox" data-pack-intro checked> 公司介紹（STEP1NE_企業人才招募解決方案.pdf）</label>
         ${cvFiles.length ? `<span class="pack-cvs"><b>匿名履歷（可複選）</b>${cvFiles.map((f, i) => `<label><input type="checkbox" data-pack-cv value="${escapeHtml(f.id)}"${i ? '' : ' checked'}> ${text(f.filename)}<small>（${text(String(f.created_at || '').slice(5, 16))}${f.uploaded_by ? ' ' + text(f.uploaded_by) : ''}）</small></label>`).join('')}</span>` : ''}
         ${files.length ? `<select class="cg-in" data-pack-contract><option value="">不附合約</option>${files.map((f, i) => `<option value="${escapeHtml(f.id)}"${i ? '' : ' selected'}>${f.contract_type ? `【${text(f.contract_type)}】` : ''}${text(f.filename)}（${text(String(f.created_at || '').slice(5, 16))}${f.uploaded_by ? ' ' + text(f.uploaded_by) : ''}）</option>`).join('')}</select>` : '<span class="muted">合約：還沒上傳（選填）</span>'}</span></div>
-      <details class="pack-anon" data-pack-anon-box><summary><b>從人選挑匿名履歷附上</b>（系統做好的，可用姓名、負責顧問、配對過的職缺找）</summary>
+      <details class="pack-anon" data-pack-anon-box><summary><b>從人選挑匿名履歷附上</b>（系統做好的，可用姓名、負責顧問、配對過的職缺找；一封信最多 5 位）</summary>
         <div class="pack-anon-filter">
           <input class="cg-in" data-anon-q placeholder="姓名或代號（例：宋 或 A-01）" aria-label="姓名或代號">
           <select class="cg-in" data-anon-owner aria-label="負責顧問"><option value="">所有顧問</option></select>

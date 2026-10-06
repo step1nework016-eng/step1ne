@@ -2106,6 +2106,11 @@ function wireContractPack(scope) {
         resBox.innerHTML = rows.length
           ? rows.map((x) => `<label><input type="checkbox" data-pack-anon value="${escapeHtml(x.application_id)}"> <b>${escapeHtml(x.code)}</b>（${escapeHtml(x.name || '')}・${escapeHtml(x.job_title || '')}${x.owner_name ? '・' + escapeHtml(x.owner_name) : ''}）<small>${escapeHtml(String(x.updated_at || '').slice(5, 16))}</small></label>`).join('')
           : '<small class="muted">找不到已做好的匿名履歷。先到人選卡片按「製作匿名履歷」，在 TG 確認後就會出現在這裡。</small>';
+        // 一封信最多 5 位人選（上傳的匿名履歷＋從人選挑的合計），超過就不讓勾
+        resBox.querySelectorAll('[data-pack-anon]').forEach((el) => el.addEventListener('change', () => {
+          const n = box.querySelectorAll('[data-pack-anon]:checked, [data-pack-cv]:checked').length;
+          if (n > 5) { el.checked = false; toast('一封信最多附 5 位人選的履歷', 'error'); }
+        }));
       } catch (err) { resBox.innerHTML = `<small class="muted">找不到：${escapeHtml(err.message || '')}</small>`; }
     });
   }
