@@ -1942,6 +1942,15 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
       <p class="help" style="margin:0 0 6px">之前整理過的公司介紹、人才地圖、開會紀錄，接案或跟客戶通話前先看。內部資料，不要轉給人選或客戶。</p>
       ${list(detail.docs, (d) => `<div class="list-row"><span><b>${text(d.title)}</b><small>${text(d.doc_date || '')}</small></span><button type="button" class="btn sm" data-client-doc="${text(d.id)}">打開</button></div>`)}` : ''}
 
+      <h3 style="margin-top:20px">客戶電洽紀錄（職缺對焦）</h3>
+      <p class="help" style="margin:0 0 6px">在 TG 客戶群組「📞 客戶電洽回饋」貼逐字稿，AI 拆到各職缺；按過 ✅ 的才會寫進職缺卡。</p>
+      ${(detail.calls || []).length ? (detail.calls || []).map((x) => {
+        const KIND = { job: '🎯', unsure: '❓', new_job: '🆕 新職缺', general: '🗂' };
+        const ST = { applied: ['已寫入', 'success'], dropped: ['不要', ''], pending: ['待確認', 'warning'] };
+        return `<details class="card" style="margin:0 0 8px"><summary style="cursor:pointer;padding:10px 12px"><b>${text(String(x.created_at || '').slice(5, 16))}</b>・${text(x.caller || '')}　<span class="muted">${text(x.summary || (x.status === 'queued' ? 'AI 整理中…' : ''))}</span></summary>
+          <div class="list" style="padding:0 12px 10px">${(x.items || []).map((i) => { const st = ST[i.status] || [i.status, '']; return `<div class="list-row" style="align-items:flex-start"><span style="flex:1"><b>${text(KIND[i.kind] || '')} ${text(i.job_title || '')}</b><small style="white-space:pre-wrap">${text(i.text || '')}</small></span><span class="badge ${st[1]}">${text(st[0])}${i.decided_by ? '・' + text(i.decided_by) : ''}</span></div>`; }).join('') || '<p class="muted">沒有拆出內容</p>'}</div></details>`;
+      }).join('') : '<p class="muted">還沒有客戶電洽紀錄。</p>'}
+
       <h3 style="margin-top:20px">用人需求表連結</h3>
       <p class="help" style="margin:0 0 6px">把這個連結給客戶窗口，他就能自己填職缺需求。連結不會過期；要收回舊連結的存取權，按上面的「重新產生連結」。</p>
       ${portalUrl
