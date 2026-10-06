@@ -503,19 +503,25 @@ ${list(items, (j) => `<article class="list-row"><span><b>${text(j.title || j.slu
       const cc = Number(r.call_count) || 0;
       const last = cc ? `<small class="src-last">已聯絡 ${cc} 次・上次：${text(RES[r.last_contact_result] || r.last_contact_result || '')}・${text(String(r.last_contact_at || '').slice(0, 10))}</small>` : '';
       const why = String(r.why || '').trim();
+      // 2026-10-06：有沒有人看過完整履歷——沒看過的分數只是 AI 從公開摘要推的
+      const vs = r.verify_status === 'verified' ? '<span class="badge success" title="AI 已照完整履歷重新判斷">✅ 已核對</span>'
+        : r.verify_status === 'pending' ? '<span class="badge warning">⏳ 核對中</span>'
+        : '<span class="badge" title="分數是 AI 從公開摘要推的，還沒人看過完整履歷">未核對</span>';
+      const vnote = r.verify_status === 'verified' && r.verify_note
+        ? `<details class="src-why" open><summary>履歷核對結果（${text(String(r.verified_at || '').slice(5, 16))}）</summary><p style="white-space:pre-wrap">${text(r.verify_note)}</p></details>` : '';
       return `<article class="src-card${cc ? ' contacted' : ''}">
-<div class="src-head"><span class="src-name"><b>${text(r.name || '（沒有名字）')}</b>${r.grade ? `<span class="badge info">${text(r.grade)} 級${r.score !== null && r.score !== undefined ? ` · ${text(r.score)}` : ''}</span>` : ''}${fitMark}</span></div>
+<div class="src-head"><span class="src-name"><b>${text(r.name || '（沒有名字）')}</b>${r.grade ? `<span class="badge info">${text(r.grade)} 級${r.score !== null && r.score !== undefined ? ` · ${text(r.score)}` : ''}</span>` : ''}${vs}${fitMark}</span></div>
 <small>${[r.headline, r.company, r.location].filter(Boolean).map((x) => text(x)).join(' · ')}</small>
-${why ? `<details class="src-why"><summary>為什麼符合</summary><p>${text(why)}</p></details>` : ''}
+${vnote}${why ? `<details class="src-why"><summary>${r.verify_status === 'verified' ? 'AI 原本的判斷（只看公開摘要）' : '為什麼符合'}</summary><p>${text(why)}</p></details>` : ''}
 <div class="src-how">${how.join('')}</div>
 ${(email || phone) ? `<div class="src-contact">${phone ? `<a href="tel:${escapeHtml(phone.replace(/[^0-9+#,]/g, ''))}">${text(phone)}</a>` : ''}${email ? `<a href="mailto:${escapeHtml(email)}">${text(email)}</a>` : ''}</div>` : ''}
 <div class="src-links">${srcLink}${link(r.linkedin_url, 'LinkedIn')}${otherLinks}${link(r.github_url, 'GitHub')}</div>
 ${last}
 ${r.transcript_review ? views.transcriptReview(r.transcript_review) : ''}
-${rowActions([`<button type="button" class="btn primary sm" data-sc-action="open" data-sourced-id="${escapeHtml(r.id)}" data-sc-job="${escapeHtml(slug)}">看資料卡${email ? '・寄信' : ''}</button>`, views.sourcedListMailBtn(r), actionBtn('記錄聯絡', 'sourced-contact', { idParams: { id: r.id, job_slug: slug } })])}
+${rowActions([`<button type="button" class="btn primary sm" data-sc-action="open" data-sourced-id="${escapeHtml(r.id)}" data-sc-job="${escapeHtml(slug)}">看資料卡${email ? '・寄信' : ''}</button>`, views.sourcedListMailBtn(r), actionBtn(r.verify_status === 'verified' ? '重新上傳履歷核對' : '上傳履歷核對', 'sourced-verify-pdf', { idParams: { id: r.id } }), actionBtn('記錄聯絡', 'sourced-contact', { idParams: { id: r.id, job_slug: slug } })])}
 </article>`;
     };
-    return `${modeBox}${kpi}<p class="help">沒聯絡過的排前面，再依評級、分數排。有 Email 的人按「看資料卡・寄信」，看完再決定寄不寄；打完電話按「記錄聯絡」，順手評符不符合——這就是 AI 找人精準度的分母。</p>
+    return `${modeBox}${kpi}<p class="help">沒聯絡過的排前面，再依「已核對且符合 → 未核對 → 核對後不符合」、評級、分數排。未核對＝分數是 AI 從公開摘要推的；在 LinkedIn 打開本人頁按外掛「送進 Step1ne」，或按「上傳履歷核對」傳 PDF，AI 會照完整履歷重判。有 Email 的人按「看資料卡・寄信」，看完再決定寄不寄；打完電話按「記錄聯絡」，順手評符不符合——這就是 AI 找人精準度的分母。</p>
 <div class="src-list">${rows.map(card).join('')}</div>`;
   },
 

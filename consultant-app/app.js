@@ -3030,7 +3030,23 @@ async function downloadResume(applicationId) {
     });
     if (!res.ok) { const body = await res.json().catch(() => null); throw new Error(body?.error || `下載失敗 HTTP ${res.status}`); }
     const blob = await res.blob();
-    window.open(URL.createObjectURL(blob), '_blank');
+    // 2026-10-06 修：#80 宋思潁的履歷是 Word 檔，原本一律開新分頁預覽，瀏覽器只會顯示「無法載入外掛程式」。
+    // PDF／圖片照舊開新分頁看；其他格式（Word、Excel…）直接下載成檔案。
+    const type = (blob.type || res.headers.get('content-type') || '').toLowerCase();
+    if (/pdf|image\//.test(type)) { window.open(URL.createObjectURL(blob), '_blank'); return; }
+    const cd = res.headers.get('content-disposition') || '';
+    const m = cd.match(/filename\*=UTF-8''([^;]+)/) || cd.match(/filename="?([^";]+)"?/);
+    let filename = '';
+    if (m) { try { filename = decodeURIComponent(m[1]); } catch { filename = m[1]; } }
+    if (!filename) {
+      const ext = /wordprocessingml/.test(type) ? 'docx' : /msword/.test(type) ? 'doc' : /spreadsheetml/.test(type) ? 'xlsx' : 'bin';
+      filename = `履歷.${ext}`;
+    }
+    const url = URL.createObjectURL(blob);
+    const el = document.createElement('a');
+    el.href = url; el.download = filename; document.body.appendChild(el); el.click(); el.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 30000);
+    toast(`已下載「${filename}」（Word 檔無法在瀏覽器預覽）`, 'success');
   } catch (error) { console.error(error); toast(error.message, 'error'); }
 }
 

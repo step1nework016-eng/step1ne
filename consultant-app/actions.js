@@ -256,6 +256,12 @@ export const ACTIONS = {
   // sourced_candidates 這筆存履歷檔／連結，根本不會建立 application——標籤跟實際行為
   // 完全對不上，顧問點了以為人選已經轉正，其實什麼都沒發生。改成正確標籤跟正確欄位
   // （履歷連結／備註，不是 job_slug）。真的要建 application 要用「轉入正式應徵（顧問建檔）」。
+  // 2026-10-06：AI 找的人「上傳履歷核對」——傳 PDF（LinkedIn 另存 PDF 也行），存檔後 AI 照全文重新判斷、標已核對。
+  'sourced-verify-pdf': { label: '上傳履歷核對', method: 'post', path: () => '/admin/sourced/resume',
+    fields: [{ name: 'file', label: '履歷 PDF（LinkedIn 個人頁 → 更多 → 存為 PDF）', type: 'file', required: true, wide: true }],
+    body: (ctx, values) => ({ id: ctx.idParams.id, pdf_b64: values.file_b64, filename: values.file_name, mime: values.file_mime || 'application/pdf',
+                              by: (() => { try { return JSON.parse(localStorage.getItem('s1ne_aimatch_ui') || '{}').me || '顧問'; } catch { return '顧問'; } })() }),
+    success: '已上傳，AI 正在照完整履歷重新判斷（約 1～2 分鐘），重新打開這個分頁就看得到結果' },
   'sourced-resume': { label: '上傳履歷連結', method: 'post', path: () => '/admin/sourced/resume', fields: [{ name: 'resume_url', label: '履歷連結', required: true }, { name: 'resume_note', label: '備註', type: 'textarea' }], body: idBody, success: '履歷已存檔' },
   // 同樣照抄後端 /admin/sourced/update 的真實白名單，換成中文標籤。
   'sourced-update': { label: '編輯人才池資料', method: 'post', path: () => '/admin/sourced/update', fields: (ctx) => { const r = ctx.record || {}; return [
