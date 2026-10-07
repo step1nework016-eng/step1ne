@@ -1922,7 +1922,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
     <article class="card" style="margin-top:14px"><div class="card-head"><h3 style="margin:0;font-size:14px">所有發文帳號（${(accounts || []).length}）</h3></div>
       ${list(accounts || [], (a) => `<div class="list-row"><span><b>${text(a.label || a.consultant_name || a.id)}</b><small>${text(a.platform)}</small></span></div>`)}</article>`;
   },
-  clients: (tab='clients') => pageHead('客戶 / BD','集中管理客戶關係、推薦人選與企業用人需求。','<button class="btn primary" data-action="add-client">＋ 新增客戶</button>') + tabbar('clients',[['clients','客戶'],['bd','BD Pipeline'],['bd-progress','開發進度'],['bd-ai','AI 名單（未聯繫）'],['candbd','人選敲門名單'],['bd-wrapup','客戶跟進'],['scripts','話術手冊'],['requests','BD Requests'],['hiring','企業用人需求'],['billing','收費進程']],tab) + `<div id="page-data">${endpointState('客戶與 BD')}</div>`,
+  clients: (tab='clients') => pageHead('客戶 / BD','集中管理客戶關係、推薦人選與企業用人需求。','') + tabbar('clients',[['clients','客戶'],['bd','BD Pipeline'],['bd-progress','開發進度'],['bd-ai','AI 名單（未聯繫）'],['candbd','人選敲門名單'],['bd-wrapup','客戶跟進'],['scripts','話術手冊'],['requests','BD Requests'],['hiring','企業用人需求'],['billing','收費進程']],tab) + `<div id="page-data">${endpointState('客戶與 BD')}</div>`,
   clientsData: ({ companies, bd, requests }) => `<div class="kpi-grid"><article class="kpi"><span>客戶</span><strong>${companies.length}</strong></article><article class="kpi"><span>BD 案件</span><strong>${bd.length}</strong></article><article class="kpi"><span>BD Requests</span><strong>${requests.length}</strong></article></div>
     <div class="card"><div class="card-head"><h2 style="margin:0;font-size:15px">新增客戶</h2></div>
       <p class="help" style="margin:6px 0 10px">建好之後會自動產生一組「用人需求表連結」，把連結給客戶窗口他就能自己填職缺。</p>
