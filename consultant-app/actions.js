@@ -197,7 +197,7 @@ export const ACTIONS = {
   // 2026-10-07 Jacky：「上傳履歷可以上傳很多份嗎」——後端早就支援最多 3 份（主要＋2 份額外），補前台按鈕
   'application-resume-add': {
     label: '再加一份履歷', method: 'post', path: () => '/admin/application/resume/add',
-    fields: [{ name: 'file', label: '選擇要加上去的檔案（例如英文版履歷、作品集；PDF 或 Word）。原本的履歷不會被換掉，最多 3 份。', type: 'file', accept: 'application/pdf,.pdf,.doc,.docx', required: true }],
+    fields: [{ name: 'file', label: '選擇要加上去的檔案（例如英文版履歷、作品集；PDF 或 Word）。原本的履歷不會被換掉，最多 6 份（例如中文、英文、日文、作品集）。', type: 'file', accept: 'application/pdf,.pdf,.doc,.docx', required: true }],
     body: (ctx, values) => ({ application_id: ctx.idParams.id, b64: values.file_b64, name: values.file_name,
       mime: /\.docx$/i.test(values.file_name || '') ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : /\.doc$/i.test(values.file_name || '') ? 'application/msword' : 'application/pdf' }),
     success: '已加上這份履歷',

@@ -2646,7 +2646,7 @@ ${views.candidateFormsBlock(f.forms, applicationId, companyId)}
       resumeBtns.push(`<button type="button" class="btn ghost sm" data-resume-remove="${escapeHtml(x.file_id)}" data-resume-app="${escapeHtml(applicationId)}" aria-label="拿掉履歷 ${i + 2}">拿掉履歷 ${i + 2}</button>`);
     });
     resumeBtns.push(actionBtn(application.resume_file_id ? '換一份履歷' : '上傳履歷 PDF', 'application-resume-upload', { idParams: { id: applicationId } }));
-    if (application.resume_file_id && (1 + extraResumes.length) < 3) resumeBtns.push(actionBtn('再加一份履歷', 'application-resume-add', { idParams: { id: applicationId } }));
+    if (application.resume_file_id && (1 + extraResumes.length) < 6) resumeBtns.push(actionBtn('再加一份履歷', 'application-resume-add', { idParams: { id: applicationId } }));
     if (application.resume_104_url) resumeBtns.push(`<a class="btn ghost sm" href="${escapeHtml(application.resume_104_url)}" target="_blank" rel="noopener">104 履歷</a>`);
     const contactBadge = hasContact(application) ? '' : '<span class="badge warning" style="margin-left:8px">⚠ 記得補聯絡方式</span>';
     // hard_gate 照抄後端 /admin/pipeline/tracker 的判準（a.status==='pending_screen' && !a.screen_decision）——
