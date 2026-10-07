@@ -503,6 +503,21 @@ document.addEventListener('click', async (event) => {
     openCandidate(btn.getAttribute('data-resume-app'));
   } catch (e) { btn.disabled = false; toast((e.body && e.body.error) || e.message || '沒拿掉', 'error'); }
 });
+// 2026-10-07：人選卡片「取消改談」——阿財面談前自動改談其他職缺，顧問不要就按這顆還原原應徵職缺
+document.addEventListener('click', async (event) => {
+  const btn = event.target instanceof Element ? event.target.closest('[data-job-switch-cancel]') : null;
+  if (!btn || btn.disabled) return;
+  event.preventDefault();
+  const me = amUi().me;
+  if (!me) { toast('先在畫面最上方選「我是」，系統才記得是誰取消的', 'error'); document.querySelector('[data-me-global]')?.focus(); return; }
+  if (!window.confirm('取消改談？職缺會還原成人選原本應徵的那個，阿財開場就不會提改談。')) return;
+  btn.disabled = true;
+  try {
+    await api.post('/admin/application/job-switch/cancel', { switch_id: btn.getAttribute('data-job-switch-cancel'), by: me });
+    toast('已取消改談，職缺還原成原應徵', 'success');
+    openCandidate(btn.getAttribute('data-job-switch-app'));
+  } catch (e) { btn.disabled = false; toast((e.body && e.body.error) || e.message || '沒有取消成功', 'error'); }
+});
 // 2026-10-07 Jacky：一鍵婉拒信——跟「寄信約電話」一樣，先產草稿、可以改，按確認才寄
 function dmBody(d) {
   const e = escapeHtml;
@@ -2654,6 +2669,12 @@ ${views.candidateFormsBlock(f.forms, applicationId, companyId)}
     const hardGateBadge = application.status === 'pending_screen' && !application.screen_decision
       ? '<span class="badge warning" style="margin-left:8px">硬性條件審核</span>' : '';
     const dupNoticeHtml = dupNotice ? `<div class="notice" style="background:#fdf6e9;border-left:3px solid #d9a441">⚠ 疑似同一人：${text(dupNotice)}</div>` : '';
+    // 2026-10-07：面談前阿財自動改談其他職缺（job_switch.py）。改談中且還沒開始面談 → 可以「取消改談」；
+    // 面談後顯示系統判斷結果（談的是哪個、有沒有改回原職缺）。
+    const js = card.job_switch || null;
+    const jsNotStarted = (application.interview_state || 'not_started') === 'not_started';
+    const jsStatus = js ? ({ active: jsNotStarted ? '改談中（還沒開始面談）' : '改談中（面談進行中，結束後系統會判斷要不要改回）', cancelled: `已取消改談${js.cancelled_by ? '（' + js.cancelled_by + '）' : ''}`, checking: '面談已結束，系統判斷中', kept: '人選同意改談，職缺維持新職缺', reverted: '人選談的是原職缺，已自動改回', unclear: '看不出談的是哪個職缺，請顧問確認' }[js.status] || js.status) : '';
+    const jobSwitchHtml = js ? `<div class="notice" style="border-left:3px solid var(--accent,#2f6fdb)">🔁 <b>面談前改談</b>：原應徵〈${text(js.orig_job_title || js.orig_job_slug)}〉→ 改談〈${text(js.target_job_title || js.target_job_slug)}〉・${text(jsStatus)}${js.reason ? `<br><small class="muted">理由：${text(js.reason)}</small>` : ''}${js.status === 'active' && jsNotStarted ? `<div style="margin-top:8px"><button type="button" class="btn ghost sm" data-job-switch-cancel="${escapeHtml(js.id)}" data-job-switch-app="${escapeHtml(applicationId)}">取消改談</button></div>` : ''}</div>` : '';
     // 2026-09-16 加：LINE 綁定狀態＋頭像。沒有頭像（多半是舊版文字驗證綁定的，
     // 那條路徑不會存頭像）就退回姓名前兩字的色塊，跟舊版 consultant/social-post
     // 的 .tobs-avatar 同一個 fallback 慣例，不是這裡自己發明的樣式。
@@ -2711,7 +2732,7 @@ ${views.candidateFormsBlock(f.forms, applicationId, companyId)}
       // ／trg_applications_seq_no 觸發器），一直沒搬進 V3 標題。
       title: (application.seq_no ? `#${application.seq_no} ` : '') + (application.name || '應徵單'),
       subtitle: `${application.job_title || application.job_slug || ''} · ${channelTag}`,
-      body: `<div class="drawer-section">${dupNoticeHtml}${views.socialSourceBadge(card.social_source)}${stageBar}${views.clientResumeBox(applicationId, card.client_formal_reports || [], forwards, card.anon_report)}${views.jobMatchTop(report)}<h3>基本資料${contactBadge}${hardGateBadge}</h3>${basics}<h3>操作</h3>${rowActions([
+      body: `<div class="drawer-section">${dupNoticeHtml}${jobSwitchHtml}${views.socialSourceBadge(card.social_source)}${stageBar}${views.clientResumeBox(applicationId, card.client_formal_reports || [], forwards, card.anon_report)}${views.jobMatchTop(report)}<h3>基本資料${contactBadge}${hardGateBadge}</h3>${basics}<h3>操作</h3>${rowActions([
         actionBtn('新增顧問備註', 'application-notes', ctxId, 'primary'),
         // 2026-09-17 改名：這顆原本也叫「電洽前準備」，但實際上是手動打字存進
         // consultant_call_notes 的表單，跟「電洽」階段格裡新加的 AI Pre-call Card
