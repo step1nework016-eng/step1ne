@@ -7,7 +7,7 @@ const DEFINITIONS = {
   stage2: ['客戶一面', 'info'], stage3: ['客戶二面', 'info'], stage4: ['客戶終面', 'info'],
   offer: ['Offer', 'success'], onboard: ['已到職', 'success'], care: ['到職關懷', 'success'], backup: ['備選', 'neutral'],
   client_draft: ['客戶草稿', 'neutral'], pending_review: ['待審核', 'warning'], draft: ['AI 擬稿中', 'info'],
-  open: ['招募中', 'success'], closed: ['已關閉', 'neutral'],
+  open: ['招募中', 'success'], closed: ['已關閉', 'neutral'], social_only: ['🔒 未簽約客戶職缺（只發社群）', 'warning'],
   needs_material: ['缺素材', 'warning'], drafted: ['待審稿', 'info'], blocked: ['內容封鎖', 'danger'],
   blocked_compliance: ['合規封鎖', 'danger'], approved: ['已核准', 'success'], approved_scheduled: ['已排程', 'success'],
   posting: ['發布中', 'info'], posted: ['已發布', 'success'], ready_manual: ['待手動發布', 'warning'],

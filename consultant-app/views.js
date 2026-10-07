@@ -309,8 +309,9 @@ export const views = {
     const client = (j) => j.company_display_name || j.company_name || j.client_name || '';
     const isOpen = (j) => ['open', 'active'].includes(j.status);
     const kw = String(f.q || '').trim().toLowerCase();
+    const isSo = (j) => j.status === 'social_only';
     return (jobs || []).filter((j) => j.slug !== 'unspecified' // 系統佔位用，不是真的職缺
-      && (f.status === 'all' || (f.status === 'closed' ? !isOpen(j) : isOpen(j)))
+      && (f.status === 'all' || (f.status === 'social_only' ? isSo(j) : f.status === 'closed' ? (!isOpen(j) && !isSo(j)) : isOpen(j)))
       && (f.client === 'all' || client(j) === f.client)
       && (f.line === 'all' || (j.service_line || '') === f.line)
       && (!kw || [j.title, client(j), j.slug, SL[j.service_line] || j.service_line].join(' ').toLowerCase().includes(kw)));
@@ -328,9 +329,10 @@ export const views = {
     const isOpen = (j) => ['open', 'active'].includes(j.status);
     const sScope = views.jobListFilter(jobs, { ...f, status: 'all' });
     const openN = sScope.filter(isOpen).length;
+    const soN = sScope.filter((j) => j.status === 'social_only').length;
     return `<div class="filters" style="margin-bottom:14px;flex-wrap:wrap;gap:8px">
 <input id="joblist-q" type="search" placeholder="搜尋職稱或客戶" value="${text(f.q || '')}" style="min-height:44px;flex:1 1 180px">
-<select id="joblist-status" aria-label="狀態">${opt('open', `招募中（${openN}）`, f.status)}${opt('closed', `已關閉（${sScope.length - openN}）`, f.status)}${opt('all', `全部（${sScope.length}）`, f.status)}</select>
+<select id="joblist-status" aria-label="狀態">${opt('open', `招募中（${openN}）`, f.status)}${opt('social_only', `🔒 未簽約客戶職缺（${soN}）`, f.status)}${opt('closed', `已關閉（${sScope.length - openN - soN}）`, f.status)}${opt('all', `全部（${sScope.length}）`, f.status)}</select>
 <select id="joblist-client" aria-label="客戶">${opt('all', '全部客戶', f.client)}${count('client', client).map(([k, n]) => opt(k, `${k || '（沒填客戶）'}（${n}）`, f.client)).join('')}</select>
 <select id="joblist-line" aria-label="服務類型">${opt('all', '全部類型', f.line)}${count('line', (j) => j.service_line || '').map(([k, n]) => opt(k, `${SL[k] || k || '（沒填）'}（${n}）`, f.line)).join('')}</select>
 </div><div id="joblist-results">${views.jobListResults(jobs, f)}</div>`;
@@ -339,7 +341,7 @@ export const views = {
     const rows = views.jobListFilter(jobs, f);
     return `<p class="muted" style="margin:0 0 8px">共 ${rows.length} 個職缺</p>` + (rows.length ? views.jobRows(rows) : '<p class="muted">沒有符合的職缺，換個條件試試。</p>');
   },
-  jobRows: (items) => list(items, (j) => `<article class="job-row" data-job="${text(j.slug || j.id)}"><div><h3>${text(j.title)}</h3><p>${text(j.company_display_name || j.company_name || j.client_name)} · ${text(({ dispatch: '人力派遣', direct: '正職代招', executive: '中高階獵才' })[j.service_line] || j.service_line)}</p></div><span style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">${statusBadge(j.status)}${j.sourcing_mode === 'priority' ? '<span class="badge info" title="外部找人選：每晚優先找">優先找人</span>' : j.sourcing_mode === 'off' ? '<span class="badge" title="外部找人選：不找">不找人</span>' : ''}</span><div class="metrics"><span>應徵 ${text(j.applicants ?? 0)}</span><span>篩選中 ${text(j.screening ?? 0)}</span><span>客戶階段 ${text(j.client_stage ?? 0)}</span><span>錄取 ${text(j.offered ?? 0)}</span><span class="${(j.onboard ?? 0) > 0 ? 'accent' : ''}">到職 ${text(j.onboard ?? 0)}</span><span class="${(j.closed ?? 0) > 0 ? 'warn' : ''}">結案 ${text(j.closed ?? 0)}</span></div><button class="btn">管理</button></article>`),
+  jobRows: (items) => list(items, (j) => `<article class="job-row" data-job="${text(j.slug || j.id)}"><div><h3>${text(j.title)}</h3><p>${text(j.company_display_name || j.company_name || j.client_name || j.social_only_company)} · ${j.status === 'social_only' ? '開發中・只發社群' : text(({ dispatch: '人力派遣', direct: '正職代招', executive: '中高階獵才' })[j.service_line] || j.service_line)}</p></div><span style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">${statusBadge(j.status)}${j.sourcing_mode === 'priority' ? '<span class="badge info" title="外部找人選：每晚優先找">優先找人</span>' : j.sourcing_mode === 'off' ? '<span class="badge" title="外部找人選：不找">不找人</span>' : ''}</span><div class="metrics"><span>應徵 ${text(j.applicants ?? 0)}</span><span>篩選中 ${text(j.screening ?? 0)}</span><span>客戶階段 ${text(j.client_stage ?? 0)}</span><span>錄取 ${text(j.offered ?? 0)}</span><span class="${(j.onboard ?? 0) > 0 ? 'accent' : ''}">到職 ${text(j.onboard ?? 0)}</span><span class="${(j.closed ?? 0) > 0 ? 'warn' : ''}">結案 ${text(j.closed ?? 0)}</span></div><button class="btn">管理</button></article>`),
   // 2026-09-24 重寫：收件單沒有 title 欄位（職稱要等總指揮擬完才有），原本顯示一排空白。
   //   改成客戶／服務線／進度中文／附件數，核准一樣在 TG 群組按。
   jobDraftRows: (items) => list(items, (d) => {
@@ -451,7 +453,7 @@ ${list(items, (j) => `<article class="list-row"><span><b>${text(j.title || j.slu
 <button data-jobtab="card">職缺卡${lv}</button>
 <button data-jobtab="acai">阿財的理解</button>
 </div>
-<div class="drawer-section" id="job-tab-manage"><h3>職缺狀態</h3>${rowActions([actionBtn('開啟／關閉職缺','job-status',{ idParams: { slug } }),actionBtn('刪除職缺','job-delete',{ idParams: { slug } },'danger')])}<h3>職缺內容</h3>${views.jobContentForm(content)}<button class="btn primary" data-action="submit-job-content" data-slug="${text(slug)}">儲存職缺內容（只存有改的欄位，最多 15 分鐘內上線）</button><p class="help">存檔前系統會檢查：內容突然少一大截、或頁面是客製版面，都會再問你一次。</p><h3>客製表單欄位</h3>${actionBtn('新增客製表單欄位','job-forms-create',{ idParams: {}, record: { job_slug: slug } })}</div>
+<div class="drawer-section" id="job-tab-manage">${job.status === 'social_only' ? `<div class="notice" style="margin:0 0 12px"><b>🔒 未簽約客戶職缺（只發社群）</b><br>開發中的公司：${text(job.social_only_company || '')}。只在「一鍵發文」用，不上官網、不收線上應徵、阿財不面談、不跑外部 AI 找人；人才庫配對結果只給顧問內部看，不要寄信／LINE 邀請人選。<div style="margin-top:10px">${actionBtn('已簽約，轉成正式職缺', 'social-job-convert', { idParams: { slug } }, 'primary')}</div></div>` : (job.social_only_converted_at ? `<p class="help">這個職缺原本是「🔒 未簽約客戶職缺」，${text(String(job.social_only_converted_at).slice(0, 10))} 簽約後轉成正式職缺。</p>` : '')}<h3>職缺狀態</h3>${rowActions([actionBtn('開啟／關閉職缺','job-status',{ idParams: { slug } }),actionBtn('刪除職缺','job-delete',{ idParams: { slug } },'danger')])}<h3>職缺內容</h3>${views.jobContentForm(content)}<button class="btn primary" data-action="submit-job-content" data-slug="${text(slug)}">儲存職缺內容（只存有改的欄位，最多 15 分鐘內上線）</button><p class="help">存檔前系統會檢查：內容突然少一大截、或頁面是客製版面，都會再問你一次。</p><h3>客製表單欄位</h3>${actionBtn('新增客製表單欄位','job-forms-create',{ idParams: {}, record: { job_slug: slug } })}</div>
 <div class="drawer-section" id="job-tab-preview" hidden><div class="card-head" style="margin-bottom:8px"><p class="help" style="margin:0">這就是求職者在官網看到的完整職缺頁。改完「管理」裡的職缺內容，最多 15 分鐘後這裡會更新。</p><a class="btn sm" href="https://step1ne.com/jobs/${encodeURIComponent(slug)}/" target="_blank" rel="noopener">在新分頁打開</a></div><iframe class="jd-preview-frame" title="職缺頁預覽" data-src="https://step1ne.com/jobs/${encodeURIComponent(slug)}/" style="width:100%;height:75vh;border:1px solid var(--line,#d6dde6);border-radius:10px;background:#fff" loading="lazy"></iframe><p class="help">如果上面是空白，代表這個職缺還沒上官網，或你是在測試站看（測試站不能嵌正式站的頁面），按「在新分頁打開」。</p></div>
 <div class="drawer-section" id="job-tab-sourced" hidden>${views.jobSourcedPanel(slug, sourced)}</div>
 <div class="drawer-section" id="job-tab-expertise" hidden>${views.jobExpertisePanel(slug, bank, isBuilding)}</div>
@@ -1306,12 +1308,15 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
   // 職缺下拉保留原本的 id／name，送出的程式不用改。
   // ⚠️ status 'open' 跟 'active' 意思一樣（歷史遺留），兩個都要列——只認 open 的時候，
   //    私人招待所兩個 VIP 職缺、主管特助從 9/18 起就在一鍵發文選單裡消失了。
-  clientJobPicker: (jobs, { selectAttr, label = '選擇職缺' } = {}) => {
-    const live = (jobs || []).filter((j) => ['open', 'active'].includes(String(j.status || 'open')) && j.slug !== 'unspecified');
+  clientJobPicker: (jobs, { selectAttr, label = '選擇職缺', socialOnly = false } = {}) => {
+    // socialOnly：一鍵發文才列「🔒 未簽約客戶職缺」（2026-10-07，只發社群，不上官網）
+    const okStatus = socialOnly ? ['open', 'active', 'social_only'] : ['open', 'active'];
+    const live = (jobs || []).filter((j) => okStatus.includes(String(j.status || 'open')) && j.slug !== 'unspecified');
     const byClient = {};
     live.forEach((j) => {
-      const k = j.company_display_name || j.client_name || '（未綁客戶）';
-      (byClient[k] = byClient[k] || []).push({ slug: j.slug, title: j.title || j.slug });
+      const so = j.status === 'social_only';
+      const k = so ? `🔒 未簽約客戶職缺｜${j.social_only_company || ''}` : (j.company_display_name || j.client_name || '（未綁客戶）');
+      (byClient[k] = byClient[k] || []).push({ slug: j.slug, title: so ? `🔒 ${j.title || j.slug}（未簽約客戶職缺・只發社群）` : (j.title || j.slug) });
     });
     const keys = Object.keys(byClient).sort((a, b) => a.localeCompare(b, 'zh-Hant'));
     return `<label class="field"><span>先選客戶</span>
@@ -1371,7 +1376,8 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
         <label class="field" id="sc-style-wrap" hidden><span>選擇要用哪個公式（全站共用）</span>
           <select id="sc-style"><option value="">請選擇…</option>${dialog.map((x) =>
             `<option value="${escapeHtml(x.id)}">${escapeHtml(favLabel(x))}</option>`).join('')}</select></label>
-        ${views.clientJobPicker(jobs, { selectAttr: 'id="sc-job"', label: '再選職缺（只列招募中）' })}
+        ${views.clientJobPicker(jobs, { selectAttr: 'id="sc-job"', label: '再選職缺（招募中＋🔒 未簽約客戶職缺）', socialOnly: true })}
+        <p class="help" style="margin:4px 0 0">🔒 未簽約客戶職缺＝開發中、還沒簽約的公司：貼文不寫公司名、沒有應徵連結，結尾放你的 LINE 或私訊。</p>
       </div>
 
       <div id="sc-topic-only" hidden>
@@ -2119,7 +2125,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
       const oid = (r.outreach_ids || [])[0] || '';
       return `${head}<article class="list-row bd-dash-row" data-bd-open="${escapeHtml(r.company)}" tabindex="0" aria-label="${escapeHtml(r.company)}：打開開發引導／時間軸" title="點卡片打開開發引導／時間軸" data-bd-name="${escapeHtml(String(r.company || '').toLowerCase())}" data-bd-stage="${text(r.stage)}" data-bd-has-todo="${r.todo.length ? 1 : 0}" data-bd-industry="${escapeHtml(g)}" data-bd-assignee="${escapeHtml(r.assigned_to || '')}" data-bd-phone="${phoneKind}" data-bd-contacted="${r.contacted_at ? 1 : 0}" data-bd-parked="${r.parked_at ? 1 : 0}" data-bd-qc="${(r.qc_missing || []).length ? 0 : 1}">
         <span>
-          <b>${text(r.company)}</b> ${r.industry ? `<span class="badge">${text(String(r.industry).split(/[（(]/)[0].slice(0, 18))}</span>` : ''}${r.inbound ? ' <span class="badge warning">官網詢問・1 個工作天內要回</span>' : ''}${r.industry_group === NEW_G ? ` <span class="badge info">新・${text(String(r.first_created_at || '').slice(5, 10))}</span>` : ''}${r.has_profile ? ' <span class="badge success">有介紹</span>' : ''}${r.note_count ? ` <span class="badge info">有 ${text(r.note_count)} 則心得</span>` : ''}
+          <b>${text(r.company)}</b> ${r.industry ? `<span class="badge">${text(String(r.industry).split(/[（(]/)[0].slice(0, 18))}</span>` : ''}${r.inbound ? ' <span class="badge warning">官網詢問・1 個工作天內要回</span>' : ''}${r.industry_group === NEW_G ? ` <span class="badge info">新・${text(String(r.first_created_at || '').slice(5, 10))}</span>` : ''}${r.has_profile ? ' <span class="badge success">有介紹</span>' : ''}${r.note_count ? ` <span class="badge info">有 ${text(r.note_count)} 則心得</span>` : ''}${r.social_jobs ? ` <span class="badge warning" title="只發社群的職缺，到職缺列表看">🔒 未簽約職缺 ${text(r.social_jobs)} 個</span>` : ''}
           ${(r.qc_missing || []).length && !(r.inbound || r.by_hand) ? `<small class="bd-qc-bad">不合格，補資料中：缺 ${text(r.qc_missing.join('、'))}</small>` : ''}
           ${views.bdEntry(r.trigger, r.has_candidate, false, r.job_title, r.topic)}
           ${phoneHtml}${mainHtml}${noPhone}
@@ -2136,6 +2142,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
           ${oid ? actionBtn('記錄電話結果', 'bd-call-result', { idParams: { id: oid } }, 'primary') : ''}
           ${aiMode ? `<button type="button" class="btn sm" data-bd-promote="${escapeHtml(r.company)}" title="決定要開發這家：移到開發進度，負責人是你">加入開發進度</button>` : ''}
           <button type="button" class="btn ghost sm" data-bd-mail="${escapeHtml(r.company)}" title="直接打開寄公司介紹信那一段">寄公司介紹信</button>
+          ${r.stage === 'closed' || aiMode ? '' : actionBtn('新增未簽約職缺', 'bd-social-job', { idParams: { company: r.company }, record: { assigned_to: r.assigned_to } })}
           ${r.stage === 'closed' ? '<span class="badge success">已是正式客戶</span>' : actionBtn('簽約了，轉成正式客戶', 'bd-promote-client', { idParams: { company: r.company }, record: { assigned_to: r.assigned_to } })}
           ${views.parkBtn(r.company, !!r.parked_at, r.assigned_to)}
         </div>
@@ -3170,7 +3177,7 @@ ${a.note ? `<details class="note-details"><summary>顧問備註／電洽紀錄</
     const OUT = { outreach_queued: 'LINE 排隊中', outreach_sent: 'LINE 已發出，等人選回覆', outreach_blocked: 'LINE 沒發出去',
       candidate_interested: '🟢 人選按了「想了解看看」——換你接手聯繫', candidate_declined: '人選說這次不用', candidate_question: '❓ 人選按了「我有問題」，請直接聯繫說明' };
     const opt = (v, label, cur) => `<option value="${escapeHtml(v)}" ${String(cur || '') === String(v) ? 'selected' : ''}>${escapeHtml(label)}</option>`;
-    const jobOpts = new Map(jobs.map((j) => [j.slug, j.title]));
+    const jobOpts = new Map(jobs.map((j) => [j.slug, j.status === 'social_only' ? `🔒 ${j.title}（未簽約・只能內部看）` : j.title]));
     items.forEach((r) => { if (!jobOpts.has(r.recommended_job_slug)) jobOpts.set(r.recommended_job_slug, r.job_title || r.recommended_job_slug); });
     const runInfo = (j) => j.last_run_at ? `上次 ${String(j.last_run_at).slice(5, 16)}${j.last_run_status === 'queued' ? '（排隊中）' : `・找到 ${j.last_run_saved ?? 0} 位`}` : '還沒找過';
     const head = `<div class="notice" style="margin:0 0 12px"><b>AI 只做建議。</b>這裡的名單都還沒聯絡任何人——發 LINE、寄信都要你按，寄信前會先給你看信的內容。</div>
@@ -3183,7 +3190,7 @@ ${a.note ? `<details class="note-details"><summary>顧問備註／電洽紀錄</
         <select data-am-filter="source" aria-label="來源">${opt('', '所有來源', ui.source)}${opt('reverse_job_open', '新職缺回頭找人才庫', ui.source)}${opt('post_interview', '面談後推薦其他職缺', ui.source)}</select>
       </div>
       <details class="card am-run"><summary><b>用人才庫幫一個職缺找人</b><span class="muted">&emsp;新開的職缺系統會自動找；舊職缺想重新找一次用這裡</span></summary>
-        <div class="filters" style="margin:12px 0 0"><select data-am-run-job aria-label="選職缺">${jobs.map((j) => `<option value="${escapeHtml(j.slug)}">${escapeHtml(j.title)}｜${escapeHtml(runInfo(j))}</option>`).join('')}</select>
+        <div class="filters" style="margin:12px 0 0"><select data-am-run-job aria-label="選職缺">${jobs.map((j) => `<option value="${escapeHtml(j.slug)}">${j.status === 'social_only' ? '🔒 ' : ''}${escapeHtml(j.title)}${j.status === 'social_only' ? '（未簽約・只能內部看）' : ''}｜${escapeHtml(runInfo(j))}</option>`).join('')}</select>
         <button type="button" class="btn primary" data-am-action="run">開始找人</button></div>
         <p class="help" style="margin:8px 0 0">比對最近 180 天內跟阿財面談過的人（不含已應徵這個職缺、已淘汰、已在錄取階段的人），每個職缺最多留 5 位。大約 1～3 分鐘後重新整理就看得到，也會在 TG 發一則摘要。</p>
       </details>
@@ -3196,8 +3203,11 @@ ${a.note ? `<details class="note-details"><summary>顧問備註／電洽紀錄</
       const [ml, mt] = MATCH[r.match_status] || ['無法判斷', 'warning'];
       const done = r.status === 'rejected' || r.outreach_status || r.email_status === 'sent';
       const jobOpen = ['open', 'active', ''].includes(String(r.job_status || ''));
-      const lineWhy = !jobOpen ? '這個職缺已經不是招募中' : (!r.line_bound ? '這位人選沒有綁定 LINE' : '');
-      const mailWhy = !jobOpen ? '這個職缺已經不是招募中' : (!r.has_email ? '這位人選沒有可用的 Email' : (r.email_status === 'sending' ? '寄送中' : ''));
+      // 2026-10-07 未簽約客戶職缺：只能內部看，不准寄信／LINE 邀請（先打電話問意願，別講公司名）
+      const socialOnly = r.job_status === 'social_only';
+      const soWhy = '未簽約客戶職缺只能內部看：先打電話問意願，別讓人選知道公司';
+      const lineWhy = socialOnly ? soWhy : (!jobOpen ? '這個職缺已經不是招募中' : (!r.line_bound ? '這位人選沒有綁定 LINE' : ''));
+      const mailWhy = socialOnly ? soWhy : (!jobOpen ? '這個職缺已經不是招募中' : (!r.has_email ? '這位人選沒有可用的 Email' : (r.email_status === 'sending' ? '寄送中' : '')));
       const list = (arr, cls) => (arr || []).length ? `<ul class="am-list ${cls}">${arr.map((x) => `<li>${text(x)}</li>`).join('')}</ul>` : '';
       const status = [];
       if (r.status === 'rejected') status.push(`<span class="badge">不適合</span> ${text(r.consultant_decision_by, '')}・${text(r.consultant_decision_at, '')}${r.rejection_reason ? `｜${text(r.rejection_reason)}` : ''}`);
@@ -3212,7 +3222,7 @@ ${a.note ? `<details class="note-details"><summary>顧問備註／電洽紀錄</
           </div>
           <span class="am-arrow" aria-hidden="true">→</span>
           <div class="am-job"><b>${text(r.job_title || r.recommended_job_slug)}</b>
-            <span class="muted">${text(r.job_salary_text || '')}${!jobOpen ? '・<b style="color:#a72f3a">已不是招募中</b>' : ''}</span></div>
+            <span class="muted">${text(r.job_salary_text || '')}${socialOnly ? '・<b style="color:#8a5a00">🔒 未簽約客戶職缺（只能內部看，先別讓人選知道公司）</b>' : (!jobOpen ? '・<b style="color:#a72f3a">已不是招募中</b>' : '')}</span></div>
           <div class="am-tags"><span class="badge ${mt}">${ml}</span>${CONF[r.confidence] ? `<span class="badge">信心 ${CONF[r.confidence]}</span>` : ''}
             <span class="badge ${r.match_source === 'reverse_job_open' ? 'warning' : ''}">${r.match_source === 'reverse_job_open' ? '新職缺回頭找' : '面談後推薦'}</span></div>
         </div>
@@ -3227,7 +3237,7 @@ ${a.note ? `<details class="note-details"><summary>顧問備註／電洽紀錄</
           <button type="button" class="btn primary sm" data-am-action="line" ${lineWhy ? 'disabled' : ''} title="${escapeHtml(lineWhy || '用 LINE 問人選有沒有興趣')}">發 LINE 邀請</button>
           <button type="button" class="btn sm" data-am-action="email" ${mailWhy ? 'disabled' : ''} title="${escapeHtml(mailWhy || '先看信的內容再決定要不要寄')}">寄信邀請</button>
           <button type="button" class="btn ghost sm" data-am-action="reject">不適合</button>
-          ${lineWhy && mailWhy ? '' : (lineWhy ? `<span class="help">LINE：${text(lineWhy)}</span>` : (mailWhy ? `<span class="help">Email：${text(mailWhy)}</span>` : ''))}
+          ${socialOnly ? `<span class="help">${text(soWhy)}</span>` : (lineWhy && mailWhy ? '' : (lineWhy ? `<span class="help">LINE：${text(lineWhy)}</span>` : (mailWhy ? `<span class="help">Email：${text(mailWhy)}</span>` : '')))}
         </div>`}
       </article>`;
     };
