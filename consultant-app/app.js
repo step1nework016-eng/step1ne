@@ -3222,6 +3222,9 @@ async function openCompanyManage(id) {
     const c = detail.company || detail;
     drawer({ title: c.display_name || c.name || '客戶', subtitle: c.contact_email || '', body: views.companyDrawerBody(detail) });
     // 客戶背景資料：在客戶抽屜上面再疊一層看，關掉就回到客戶抽屜。內容放進沙盒 iframe，文件裡的樣式／程式碼碰不到後台
+    $$('[data-client-file]').forEach((btn) => {
+      btn.onclick = () => downloadFileGeneric(btn.getAttribute('data-client-file'), `/admin/file/${encodeURIComponent(btn.getAttribute('data-client-file'))}`, btn.getAttribute('data-client-file-name') || '檔案');
+    });
     $$('[data-client-doc]').forEach((btn) => {
       btn.onclick = async () => {
         openSubDrawer({ title: '載入中…', body: loading() });
