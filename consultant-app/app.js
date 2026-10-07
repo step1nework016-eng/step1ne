@@ -4391,7 +4391,7 @@ function wireBoardDrag(target, kind) {
       dragIdx = Number(card.getAttribute('data-board-idx'));
       card.classList.add('bk-dragging');
       const it0 = (ui.lastItems || [])[dragIdx] || {};
-      const locked = kind === 'cand' ? ['fill', 'decide'] : (it0.kind === 'bd' ? ['contacted', 'opened', 'talking', 'active', 'won'] : ['contacted', 'opened', 'replied', 'active', 'won']);
+      const locked = kind === 'cand' ? (it0.col === 'fill' ? ['fill'] : it0.col === 'decide' ? ['decide'] : ['fill', 'decide']) : (it0.kind === 'bd' ? ['contacted', 'opened', 'talking', 'active', 'won'] : ['contacted', 'opened', 'replied', 'active', 'won']);
       target.querySelectorAll('[data-board-col]').forEach((c) => c.classList.toggle('bk-locked', locked.includes(c.getAttribute('data-board-col'))));
       try { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', String(dragIdx)); } catch { /* 舊瀏覽器 */ }
     });
@@ -4415,7 +4415,8 @@ function wireBoardDrag(target, kind) {
 function boardMoveMenu(target, it) {
   if (!it || !it.appId) return;
   const cur = it.col;
-  const opts = CAND_COLS.filter((c) => c.key !== 'fill' && c.key !== 'decide' && c.key !== cur);
+  // 2026-10-07：等人選面談 ⇄ 等顧問決定 可以互相移（顧問自己電話談完就能先移去決定）
+  const opts = CAND_COLS.filter((c) => c.key !== cur && (!['fill', 'decide'].includes(c.key) || ['fill', 'decide'].includes(cur)));
   const needCo = !it.companyId;
   const body = `<p style="margin:0 0 10px"><b>${escapeHtml(it.name)}</b>　目前：${escapeHtml((CAND_COLS.find((c) => c.key === cur) || {}).title || (cur === 'closed' ? '已結案' : cur))}</p>
     ${needCo ? `<label class="field"><span>他還沒推薦給客戶，要往後走請先選客戶（推薦後這家客戶的後台看得到他）</span><select id="bk-mv-co"><option value="">載入客戶中…</option></select></label>` : ''}
@@ -4437,6 +4438,7 @@ function boardMoveMenu(target, it) {
   document.querySelectorAll('[data-mv]').forEach((b) => {
     b.onclick = async () => {
       const to = b.getAttribute('data-mv');
+      if (to === 'fill' || to === 'decide') { closeOverlay(); boardDropCandidate(target, it, to); return; }
       if (needCo && to !== 'close') {
         const coId = $('#bk-mv-co') && $('#bk-mv-co').value;
         if (!coId) { toast('先選要推薦給哪家客戶', 'error'); return; }
@@ -4505,7 +4507,17 @@ function boardMe() {
   return me;
 }
 function boardDropCandidate(target, it, to) {
-  if (to === 'fill' || to === 'decide') { toast('這兩欄是看阿財面談自動分的，不能拖進去', 'error'); return; }
+  if (to === 'fill' || to === 'decide') {
+    // 2026-10-07 Jacky：等人選面談 ⇄ 等顧問決定 讓顧問自己移（只改看板記號，不動報告與推薦）
+    if (!['fill', 'decide'].includes(it.col)) { toast('已經推薦給客戶的人選不能移回這兩欄；要結案請用「改階段 → 結案」', 'error'); return; }
+    const me = boardMe(); if (!me) return;
+    const on = to === 'decide';
+    if (!confirm(on ? `把 ${it.name} 移到「等顧問決定」？\n（例如已經電話談完，不用等阿財報告）` : `把 ${it.name} 移回「等人選面談」？\n如果他已經有阿財報告，還是會留在「等顧問決定」。`)) return;
+    api.post('/admin/board/decide', { application_id: it.appId, on, by: me })
+      .then(() => { toast(on ? '已移到「等顧問決定」' : '已移回「等人選面談」', 'success'); loadBoardTab(target); })
+      .catch((e) => toast(e.message || '改不成功', 'error'));
+    return;
+  }
   if (to === 'closed') { boardMoveMenu(target, it); return; }
   if (!it.companyId) { toast('他還沒推薦給任何客戶，請在卡片裡先按「推薦給客戶」選客戶', 'error'); openCandidate(it.appId); return; }
   const me = boardMe(); if (!me) return;
