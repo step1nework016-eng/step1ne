@@ -490,6 +490,60 @@ async function cmOpen(appId, name, picks) {
   const body = $('#sub-overlay-root .drawer-body');
   if (body) { body.innerHTML = views.callMailPreview(d, { me: amUi().me, note: p.note, consultants: state.consultantsCache || [] }); body.scrollTop = keep; }
 }
+// 2026-10-07 Jacky：一鍵婉拒信——跟「寄信約電話」一樣，先產草稿、可以改，按確認才寄
+function dmBody(d) {
+  const e = escapeHtml;
+  if (d.error) return `<div class="notice">${e(d.error)}</div>`;
+  return `<div class="dm-wrap" style="display:grid;gap:12px">
+    ${d.already ? `<div class="notice">⚠️ ${e(d.already)}。<label style="display:inline-flex;gap:6px;align-items:center;margin-left:6px"><input type="checkbox" id="dm-again"> 再寄一次</label></div>` : ''}
+    ${d.warn ? `<div class="notice" style="border-color:var(--danger,#c0392b)">🚫 ${e(d.warn)}</div>` : ''}
+    <div class="card" style="display:grid;gap:10px">
+      <label class="field"><span>婉拒原因（選了會重新產生內文）</span>
+        <select id="dm-reason" style="min-height:44px">${(d.reasons || []).map(([k, v]) => `<option value="${e(k)}" ${k === d.reason ? 'selected' : ''}>${e(v)}</option>`).join('')}</select></label>
+      <label class="field"><span>想多加一句（選填，例如：這次需要日文商務能力）</span>
+        <input id="dm-extra" value="${e(d.extra || '')}" placeholder="不要寫年齡、性別這類原因；「客戶」請寫「用人單位」"></label>
+      <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="dm-keep" ${d.keep !== false ? 'checked' : ''}> 加一句「資料會保留，有適合的機會再聯繫」</label>
+      <button type="button" class="btn" data-dm-action="refresh" style="min-height:44px">依上面選項重新產生內文</button>
+    </div>
+    <label class="field"><span>寄給</span><input value="${e(d.to || '')}" disabled></label>
+    <label class="field"><span>主旨（可以直接改）</span><input id="dm-subject" value="${e(d.subject || '')}"></label>
+    <label class="field"><span>內文（可以直接改，按寄出就照這裡寄）</span><textarea id="dm-text" rows="16" style="width:100%;font:inherit;line-height:1.7">${e(d.text || '')}</textarea></label>
+    <p class="help">從 official@ 寄出，人選回信會接在同一串。寄出後會記在人選卡片的備註裡，系統的自動婉拒信也不會再重複寄。</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button type="button" class="btn" data-dm-action="test" style="min-height:44px">先寄測試信給我看</button>
+      <button type="button" class="btn primary" data-dm-action="send" style="min-height:44px">確認寄給人選</button>
+    </div></div>`;
+}
+async function dmOpen(appId, name, body) {
+  state.dm = { appId, name };
+  if (!document.querySelector('#sub-overlay-root .dm-wrap')) openSubDrawer({ title: '寄婉拒信', subtitle: `${name || ''}｜先看信的內容、可以改，按「確認寄給人選」才會寄`, body: loading() });
+  let d;
+  try { d = await adapters.declineMail(appId, { action: 'preview', by: amUi().me || null, ...(body || {}) }); } catch (e) { d = { ...(e.body || {}), error: (e.body && e.body.error) || e.message }; }
+  const el = $('#sub-overlay-root .drawer-body');
+  if (el) el.innerHTML = dmBody(d);
+}
+document.addEventListener('click', async (event) => {
+  const t = event.target instanceof Element ? event.target : null;
+  const open = t && t.closest('[data-decline-mail]');
+  if (open) { event.preventDefault(); document.querySelector('#sub-overlay-root .dm-wrap')?.remove(); dmOpen(open.getAttribute('data-decline-mail'), open.getAttribute('data-call-mail-name')); return; }
+  const btn = t && t.closest('[data-dm-action]');
+  if (!btn || btn.disabled || !state.dm) return;
+  event.preventDefault();
+  const act = btn.getAttribute('data-dm-action');
+  const opts = { reason: $('#dm-reason')?.value, extra: $('#dm-extra')?.value || '', keep: !!$('#dm-keep')?.checked };
+  if (act === 'refresh') { dmOpen(state.dm.appId, state.dm.name, opts); return; }
+  const me = amUi().me;
+  if (!me) { toast('請先在畫面最上方「我是」選你的名字，系統才記得是誰寄的', 'error'); document.querySelector('[data-me-global]')?.focus(); return; }
+  const payload = { action: act, by: me, ...opts, subject: $('#dm-subject')?.value || '', text: $('#dm-text')?.value || '', again: !!$('#dm-again')?.checked };
+  if (act === 'send' && !window.confirm(`確定要寄婉拒信給 ${state.dm.name || '這位人選'} 嗎？寄出就收不回來了。`)) return;
+  btn.disabled = true;
+  try {
+    const r = await adapters.declineMail(state.dm.appId, payload);
+    if (act === 'test') { toast(`測試信已寄到 ${r.to}`, 'success'); btn.disabled = false; return; }
+    toast(`已寄婉拒信給 ${state.dm.name || '人選'}`, 'success');
+    closeSubDrawer();
+  } catch (e) { toast((e.body && e.body.error) || e.message || '沒有寄出去', 'error'); btn.disabled = false; }
+});
 // 2026-10-03：職缺「AI 找的人」分頁改外部找人選設定
 document.addEventListener('click', async (event) => {
   const btn = event.target instanceof Element ? event.target.closest('[data-sourcing-mode-save]') : null;
@@ -2442,7 +2496,7 @@ function reviewLinkRow(app, applicationId) {
   const mail = String(app.email || '').trim();
   const candBdBtn = `<button type="button" class="btn sm" data-cand-bd="${escapeHtml(applicationId)}" title="AI 找可能需要這種人的公司，放進「人選敲門名單」，顧問篩過才進開發進度">🧲 拿這位人選去開發客戶</button>`;
   const callMailBtn = mail && !isPlaceholderEmail(mail)
-    ? `<button type="button" class="btn sm" data-call-mail="${escapeHtml(applicationId)}" data-call-mail-name="${escapeHtml(app.name || '')}">寄信約電話</button><button type="button" class="btn sm" data-call-confirm="${escapeHtml(applicationId)}" data-call-mail-name="${escapeHtml(app.name || '')}" title="人選回信給了時段，回一封「那就約這個時間」">回信確認電話時間</button>` : '';
+    ? `<button type="button" class="btn sm" data-call-mail="${escapeHtml(applicationId)}" data-call-mail-name="${escapeHtml(app.name || '')}">寄信約電話</button><button type="button" class="btn sm" data-call-confirm="${escapeHtml(applicationId)}" data-call-mail-name="${escapeHtml(app.name || '')}" title="人選回信給了時段，回一封「那就約這個時間」">回信確認電話時間</button><button type="button" class="btn sm" data-decline-mail="${escapeHtml(applicationId)}" data-call-mail-name="${escapeHtml(app.name || '')}" title="先看信、可以改，按確認才寄">寄婉拒信</button>` : '';
   return `<div class="actions-row" style="margin-top:8px">${callMailBtn}${candBdBtn}<button type="button" class="btn sm" data-copy-text="${escapeHtml(url)}">複製服務心得連結</button><span class="help" style="align-self:center">複製後直接貼給人選，顧問、職缺都幫他填好了</span></div>`;
 }
 

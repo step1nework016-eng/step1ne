@@ -271,6 +271,9 @@ export const adapters = {
   async callConfirm(applicationId, action, by, slot, salutation, phone) {
     return api.post(`/admin/applications/${encodeURIComponent(applicationId)}/call-confirm`, { action, by: by || null, slot, salutation: salutation || null, phone: phone || null });
   },
+  async declineMail(applicationId, body) {
+    return api.post(`/admin/applications/${encodeURIComponent(applicationId)}/decline-mail`, body);
+  },
   async callMail(applicationId, action, by, picks = {}) {
     const p = picks || {};
     return api.post(`/admin/applications/${encodeURIComponent(applicationId)}/call-mail`, { action, by: by || null, note: p.note || null,
