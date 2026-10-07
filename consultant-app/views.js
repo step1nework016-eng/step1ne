@@ -3838,6 +3838,16 @@ ${tg}
         ${job.client_intro ? `<p style="font-size:13.5px;line-height:1.7;margin:8px 0 0;white-space:pre-wrap">${text(job.client_intro)}</p>` : '<p class="muted" style="margin:8px 0 0">目前沒有公司簡介資料</p>'}
       </div>
     </section>
+    ${job.news_brief ? (() => {
+      let src = [];
+      try { src = JSON.parse(job.news_sources || '[]'); } catch { src = []; }
+      return `<section class="card pc-card"><div class="card-head"><h2 style="margin:0;font-size:15px">📰 公司近期動態（參考用，不列入評分）</h2></div>
+      <div style="padding:14px 15px;font-size:13.5px;line-height:1.7">
+        <div style="white-space:pre-wrap">${text(job.news_brief)}</div>
+        ${src.length ? `<p class="help" style="margin:10px 0 0">來源：${src.slice(0, 6).map((x) => `<a href="${escapeHtml(x.url || '')}" target="_blank" rel="noopener">${text(x.title || x.url || '')}</a>`).join('・')}</p>` : ''}
+        <p class="help" style="margin:6px 0 0">${job.news_updated_at ? `${text(String(job.news_updated_at).slice(0, 10))} 更新・` : ''}跟人選聊的時候可以拿來補充公司方向；阿財也看得到，但不會拿來打分數，也不會講出公司名稱。</p>
+      </div></section>`;
+    })() : ''}
     <section class="pc-jobline" style="margin-top:0">
       ${job.locations ? `<span>📍 ${text(formatLocations(job.locations))}</span>` : ''}
       <span>💰 ${text(salary)}</span>
