@@ -490,6 +490,19 @@ async function cmOpen(appId, name, picks) {
   const body = $('#sub-overlay-root .drawer-body');
   if (body) { body.innerHTML = views.callMailPreview(d, { me: amUi().me, note: p.note, consultants: state.consultantsCache || [] }); body.scrollTop = keep; }
 }
+// 2026-10-07：人選卡片拿掉額外的履歷（只拿掉清單上的這份，檔案本身還留在系統）
+document.addEventListener('click', async (event) => {
+  const btn = event.target instanceof Element ? event.target.closest('[data-resume-remove]') : null;
+  if (!btn || btn.disabled) return;
+  event.preventDefault();
+  if (!window.confirm('要把這份履歷從人選卡片拿掉嗎？（檔案本身不會刪，只是不再列在這裡）')) return;
+  btn.disabled = true;
+  try {
+    await api.post('/admin/application/resume/remove', { application_id: btn.getAttribute('data-resume-app'), file_id: btn.getAttribute('data-resume-remove') });
+    toast('已拿掉這份履歷', 'success');
+    openCandidate(btn.getAttribute('data-resume-app'));
+  } catch (e) { btn.disabled = false; toast((e.body && e.body.error) || e.message || '沒拿掉', 'error'); }
+});
 // 2026-10-07 Jacky：一鍵婉拒信——跟「寄信約電話」一樣，先產草稿、可以改，按確認才寄
 function dmBody(d) {
   const e = escapeHtml;
@@ -2625,7 +2638,14 @@ ${views.candidateFormsBlock(f.forms, applicationId, companyId)}
     const resumeBtns = [];
     if (application.resume_file_id) resumeBtns.push(`<button type="button" class="btn ghost sm" data-download-resume="${escapeHtml(applicationId)}">下載履歷</button>`);
     if (application.resume_url) resumeBtns.push(`<a class="btn ghost sm" href="${escapeHtml(application.resume_url)}" target="_blank" rel="noopener">履歷連結</a>`);
+    let extraResumes = [];
+    try { extraResumes = JSON.parse(application.resume_extra_files || '[]') || []; } catch { extraResumes = []; }
+    extraResumes.forEach((x, i) => {
+      resumeBtns.push(`<button type="button" class="btn ghost sm" data-download-file="${escapeHtml(x.file_id)}" title="${escapeHtml(x.filename || '')}">下載履歷 ${i + 2}${x.filename ? '：' + escapeHtml(String(x.filename).slice(0, 18)) : ''}</button>`);
+      resumeBtns.push(`<button type="button" class="btn ghost sm" data-resume-remove="${escapeHtml(x.file_id)}" data-resume-app="${escapeHtml(applicationId)}" aria-label="拿掉履歷 ${i + 2}">拿掉履歷 ${i + 2}</button>`);
+    });
     resumeBtns.push(actionBtn(application.resume_file_id ? '換一份履歷' : '上傳履歷 PDF', 'application-resume-upload', { idParams: { id: applicationId } }));
+    if (application.resume_file_id && (1 + extraResumes.length) < 3) resumeBtns.push(actionBtn('再加一份履歷', 'application-resume-add', { idParams: { id: applicationId } }));
     if (application.resume_104_url) resumeBtns.push(`<a class="btn ghost sm" href="${escapeHtml(application.resume_104_url)}" target="_blank" rel="noopener">104 履歷</a>`);
     const contactBadge = hasContact(application) ? '' : '<span class="badge warning" style="margin-left:8px">⚠ 記得補聯絡方式</span>';
     // hard_gate 照抄後端 /admin/pipeline/tracker 的判準（a.status==='pending_screen' && !a.screen_decision）——
