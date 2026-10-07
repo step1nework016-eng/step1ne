@@ -185,6 +185,7 @@ footer{background:#eef2f7!important;border-top-color:var(--jv-line)!important;}
 .jv2-help-lead{display:none;}
 @media (max-width:760px){.jv2-go{padding:0 16px;}.jv2-sub{display:block;margin:2px 0 0;}}
 </style>
+<style>html.jl-wait #jobs{opacity:0}</style><script>(function(d){d.classList.add("jl-wait");setTimeout(function(){d.classList.remove("jl-wait")},2500)})(document.documentElement)</script>
 </head>
 <body>
 
@@ -507,10 +508,13 @@ footer{background:#eef2f7!important;border-top-color:var(--jv-line)!important;}
     construction:'營建・工程', semiconductor:'半導體・電子', overseas:'海外外派', service:'客服・行政',
     hospitality:'餐旅・接待', media:'媒體・社群', tech:'科技・AI', sales:'業務・客戶開發'
   };
+  // 2026-10-07：兩個查詢同時發、最多等 1.2 秒，等不到就先照原本順序顯示（之前是一個等完才等下一個，舊版卡片會先閃出來）
+  function _get(u){ return Promise.race([fetch(u).then(function(r){ return r.json(); }), new Promise(function(res){ setTimeout(function(){ res(null); }, 1200); })]).catch(function(){ return null; }); }
+  var _pClosed = _get('https://step1ne-public-worker.aiagentg888.workers.dev/jobs-closed'), _pRank = _get('https://step1ne-public-worker.aiagentg888.workers.dev/jobs-rank');
   var TRACK_LABEL = { senior:'中高階職缺', general:'一般職缺', dispatch:'派遣職缺' };
   // 顧問在後台關掉的職缺要馬上從列表消失（列表是靜態 HTML，先問後端哪些關了）
   try {
-    var closedResp = await fetch('https://step1ne-public-worker.aiagentg888.workers.dev/jobs-closed').then(function (r) { return r.json(); });
+    var closedResp = await _pClosed;
     var closedSet = new Set((closedResp && closedResp.closed) || []);
     if (closedSet.size) {
       [].slice.call(document.querySelectorAll('#jobs .job')).forEach(function (el) {
@@ -525,7 +529,7 @@ footer{background:#eef2f7!important;border-top-color:var(--jv-line)!important;}
   // 再依近 60 天跟阿財面談的人數。順序由後端 /jobs-rank 算，抓不到就維持原本順序。
   var RANK = {};
   try {
-    var rk = await fetch('https://step1ne-public-worker.aiagentg888.workers.dev/jobs-rank').then(function (r) { return r.json(); });
+    var rk = await _pRank;
     ((rk && rk.rank) || []).forEach(function (slug, i) { RANK[slug] = i; });
   } catch (e) { /* 抓不到就用原本順序 */ }
   var LOCS = [['台北','台北|北市|內湖|信義|南港|中山|松山'],['新北','新北|中和|板橋|新店|三重|新莊'],['桃園','桃園'],['新竹','新竹|竹北|竹科'],
@@ -657,7 +661,8 @@ footer{background:#eef2f7!important;border-top-color:var(--jv-line)!important;}
   [].forEach.call(document.querySelectorAll('[data-open]'), function(b){ b.addEventListener('click', function(){
     openSheet(true); var g = $(b.dataset.open); if (g) setTimeout(function(){ g.closest('.filter-group').scrollIntoView({block:'start'}); }, 260); }); });
   apply();
-})();
+  document.documentElement.classList.remove('jl-wait');
+})().catch(function(){ document.documentElement.classList.remove('jl-wait'); });
 </script>
 
 <script src="/assets/reviews.js" defer></script>

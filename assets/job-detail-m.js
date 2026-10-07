@@ -5,6 +5,7 @@
  *   → 分頁卡（工作內容／應徵條件／為什麼選這個機會）→ 應徵流程時間軸 → 常見問題 → 相關職缺
  *   → 底部固定「LINE 洽詢＋我要應徵」（滑到「立即應徵」區塊時自動收起）
  */
+try {
 (function () {
   var main = document.querySelector('main');
   var h1 = main && main.querySelector('h1');
@@ -174,3 +175,4 @@
     }).join('') + '<a href="/jobs/" style="text-align:center;color:var(--jv-blue);font-weight:800">看全部職缺 →</a></div>');
   }).catch(function () { /* 抓不到就不顯示，不影響頁面 */ });
 })();
+} finally { document.documentElement.classList.remove('jv-wait'); }
