@@ -1318,6 +1318,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
           <option value="job">📋 職缺文</option>
           <option value="general">💼 時事話題文</option>
           <option value="ai">🤖 AI 阿財話題</option>
+          <option value="anon">🙈 匿名人選文</option>
         </select></label>
 
       <!-- 2026-09-22 加管道下拉：帳號有 22 個（Threads 12／LinkedIn 9／LINE 社群 1），
@@ -1360,6 +1361,17 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
             `<option value="${escapeHtml(x.id)}">${escapeHtml(favLabel(x))}（${x.subtype === 'pure' ? '純CTA型' : '對話討論型'}）</option>`).join('')}</select></label>
         <p class="help" style="margin:4px 0 0">列的是這個分類底下全部的話題。⚠️ 2026-09-11 Jacky 拿掉了「顧問指派」那道關卡——新增任何話題，全站顧問都能直接選，不用先去設定頁勾。</p>
         <script type="application/json" id="sc-topics-data">${JSON.stringify((topics || []).map((t) => ({ id: t.id, name: t.name || t.title, category: t.category })))}</script>
+      </div>
+
+      <div id="sc-anon-only" hidden>
+        <label class="field"><span>找人選（打姓名、職稱或負責顧問）</span>
+          <input type="search" id="sc-anon-q" placeholder="例：周亦宣、財務、Phoebe" autocomplete="off"></label>
+        <label class="field"><span>選擇人選</span>
+          <select id="sc-anon-app"><option value="">先在上面搜尋…</option></select></label>
+        <label class="field"><span>用哪個公式？（匿名人選文的公式之後由 Jacky／Phoebe 提供；不選＝基本規則）</span>
+          <select id="sc-astyle"><option value="">基本規則（不寫名字、公司、學校，邀企業私訊）</option>${[...dialog, ...pures].map((x) =>
+            `<option value="${escapeHtml(x.id)}">${escapeHtml(favLabel(x))}</option>`).join('')}</select></label>
+        <p class="help" style="margin:4px 0 0">會拿這位人選的阿財報告（沒有就用履歷）寫一篇「我手上有這樣的人才」的介紹給企業看，名字、待過的公司、學校都不會出現；出現的話系統會自動擋下重產。一樣送 Telegram 審核，你按確認才會發。</p>
       </div>
 
       <label class="field"><span>排程時間（留空＝立刻排入產稿）</span>

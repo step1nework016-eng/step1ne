@@ -1217,10 +1217,29 @@ function wireSocialComposer() {
   if (!typeSel || !go) return;
 
   const syncType = () => {
-    const isJob = typeSel.value === 'job';
+    const isJob = typeSel.value === 'job', isAnon = typeSel.value === 'anon';
     $$id('sc-job-only').hidden = !isJob;
-    $$id('sc-topic-only').hidden = isJob;
+    $$id('sc-topic-only').hidden = isJob || isAnon;
+    if ($$id('sc-anon-only')) $$id('sc-anon-only').hidden = !isAnon;
   };
+  // 2026-10-07 匿名人選文：打字搜尋人選
+  const aq = $$id('sc-anon-q');
+  if (aq) {
+    let t = null;
+    aq.oninput = () => {
+      clearTimeout(t);
+      t = setTimeout(async () => {
+        const v = aq.value.trim(); const sel = $$id('sc-anon-app');
+        if (!v) { sel.innerHTML = '<option value="">先在上面搜尋…</option>'; return; }
+        try {
+          const r = await api.get(`/admin/anon-post/candidates?q=${encodeURIComponent(v)}`);
+          const rows = (r && r.rows) || [];
+          sel.innerHTML = rows.length ? rows.map((x) => `<option value="${escapeHtml(x.id)}">${escapeHtml(x.name || '')}｜${escapeHtml(x.job_title || '')}｜${escapeHtml(x.owner_name || '未指派')}${x.code ? '｜' + escapeHtml(x.code) : ''}${Number(x.n_report) ? '' : '｜只有履歷'}</option>`).join('')
+            : '<option value="">找不到，換個關鍵字</option>';
+        } catch (e) { sel.innerHTML = '<option value="">搜尋失敗，再試一次</option>'; }
+      }, 300);
+    };
+  }
   const syncWay = () => {
     $$id('sc-style-wrap').hidden = waySel.value !== 'dialog';
     $$id('sc-pstyle-wrap').hidden = waySel.value !== 'pure';
@@ -1288,7 +1307,14 @@ function wireSocialComposer() {
     if (!accountId) return toast('請先選發文帳號', 'error');
     const isJob = typeSel.value === 'job';
     const payload = { account_id: accountId };
-    if (isJob) {
+    if (typeSel.value === 'anon') {
+      const aid = $$id('sc-anon-app').value;
+      if (!aid) return toast('請先搜尋並選一位人選', 'error');
+      payload.anon_application_id = aid;
+      const asid = Number($$id('sc-astyle').value || 0);
+      if (asid) payload.style_id = asid;
+      if ($$id('sc-date').value) return toast('匿名人選文目前只能「立刻排入產稿」，排程時間請留空', 'error');
+    } else if (isJob) {
       const slug = $$id('sc-job').value;
       if (!slug) return toast('請先選職缺', 'error');
       payload.slug = slug;
