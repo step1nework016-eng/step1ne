@@ -1386,20 +1386,34 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
   //    才看得到「這則回覆真的換到人加 LINE 了嗎」。跟貼文 CTA 連結
   //    （ctx=post）分開算，不會互相混淆歸因。這個不要改成直接貼 line_link。
   socialRepliesTab: ({ jobs, accounts }) => {
-    const withLine = (accounts || []).filter((a) => a.line_link);
+    // 2026-10-07 Jacky：「回覆欄找不到 Threads」「沒有南南的」。原本一個帳號一行（Threads、LinkedIn 各一行、連停用的都列），
+    // 看起來像平台選單。回覆文字跟平台無關、只有結尾 LINE 連結因人而異 → 改成一位顧問一行，只看在用的帳號，
+    // 用他有設 LINE 連結的那個帳號（Threads 優先）；都沒設的列出來但不能選，提示要補。
+    const active = (accounts || []).filter((a) => Number(a.is_active) !== 0 && a.platform !== 'line_community');
+    const byName = new Map();
+    active.forEach((a) => {
+      const name = a.consultant_name || a.label || String(a.id);
+      const cur = byName.get(name);
+      const score = (x) => (x.line_link ? 2 : 0) + (x.platform === 'threads' ? 1 : 0);
+      if (!cur || score(a) > score(cur)) byName.set(name, a);
+    });
+    const people = [...byName.entries()].sort((x, y) => x[0].localeCompare(y[0]));
+    const noLine = people.filter(([, a]) => !a.line_link).map(([n]) => n);
+    const withLine = people.filter(([, a]) => a.line_link).map(([, a]) => a);
     const clients = [...new Set((jobs || []).map((j) => j.client_name).filter(Boolean))].sort();
     return `<article class="card">
       <div class="card-head"><h2 style="margin:0;font-size:15px">職缺社群回覆</h2></div>
       <p class="help" style="margin:6px 0 12px">候選人在貼文下留言問，你要私訊回——這裡是每個職缺預先產好的「第一輪職缺摘要」，選好你是哪位顧問，複製貼上就能用。結尾的連結會自動換成你自己的加好友連結。</p>
       <div class="filters">
-        <select id="cs-account"><option value="">我是哪位顧問？</option>${withLine.map((a) =>
-          `<option value="${escapeHtml(a.id)}">${escapeHtml(a.label || a.consultant_name || a.id)}</option>`).join('')}</select>
+        <select id="cs-account"><option value="">我是哪位顧問？</option>${people.map(([n, a]) => a.line_link
+          ? `<option value="${escapeHtml(a.id)}" data-person="${escapeHtml(n)}">${escapeHtml(n)}</option>`
+          : `<option value="" disabled>${escapeHtml(n)}（還沒設 LINE 連結）</option>`).join('')}</select>
         <select id="cs-client"><option value="">所有客戶</option>${clients.map((c) =>
           `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('')}</select>
         <input type="search" id="cs-search" placeholder="搜尋職稱或客戶">
       </div>
-      ${withLine.length < (accounts || []).length
-        ? `<p class="help">⚠️ 有 ${(accounts || []).length - withLine.length} 個帳號還沒設定 LINE 連結，沒列出來——到「帳號」分頁補上才能用。</p>` : ''}
+      <p class="help" style="margin:4px 0 0">Threads、LinkedIn 回覆用同一份文字，選你的名字就好。</p>
+      ${noLine.length ? `<p class="help">⚠️ ${escapeHtml(noLine.join('、'))} 還沒設定 LINE 加好友連結，暫時不能選——到「設定 → 帳號」補上就能用。</p>` : ''}
       <div id="cs-list">${(jobs || []).length ? '' : '<div class="state"><strong>還沒有任何職缺的摘要</strong><p>摘要是排程（candidate_summary_tick.py）產的，還沒跑到就會是空的。</p></div>'}</div>
     </article>`;
   },

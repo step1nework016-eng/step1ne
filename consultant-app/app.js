@@ -1352,7 +1352,15 @@ async function wireSocialReplies() {
   try { data = await adapters.candidateSummaries(); } catch { return; }
   const accSel = document.getElementById('cs-account');
   const saved = localStorage.getItem(CS_ACCOUNT_KEY);
-  if (saved && accSel) accSel.value = saved;
+  if (saved && accSel) {
+    accSel.value = saved;
+    // 以前存的是某個帳號 id（可能是同一人的 LinkedIn）：換成同一位顧問現在這一行
+    if (accSel.value !== saved) {
+      const old = (data.accounts || []).find((a) => String(a.id) === String(saved));
+      const opt = old && [...accSel.options].find((o) => o.dataset.person === (old.consultant_name || old.label));
+      if (opt) accSel.value = opt.value;
+    }
+  }
   let shown = [];
   const render = () => {
     const q = (document.getElementById('cs-search')?.value || '').trim().toLowerCase();
