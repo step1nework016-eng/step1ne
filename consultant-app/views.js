@@ -468,6 +468,26 @@ ${list(items, (j) => `<article class="list-row"><span><b>${text(j.title || j.slu
   // 顧問打電話 → 阿財面談…）。AI 找到的人原本只能去「人選 → 人才池」翻，
   // 現在直接掛在職缺底下，顧問打完電話順手記錄＋評符不符合，累積「AI 找人精準度」。
   // 資料來自 GET /admin/jobs/:slug/sourced；記錄聯絡走 ACTIONS['sourced-contact']。
+  // 2026-10-07：「AI 挖角」——顧問填挖角公司＋目標職級，AI 只找這些公司的人，並寫好 LinkedIn 訊息
+  jobPoachBox: (slug, po) => {
+    const last = po.last || null;
+    const ST = { pending_poach: '排隊中', running: '正在找', done: '上次跑完', failed: '上次失敗' };
+    const lastTxt = last ? `${ST[last.status] || last.status}（${text(String(last.created_at || '').slice(5, 16))} 排入${last.status === 'done' ? `，新增 ${text(last.candidates_saved ?? 0)} 位` : ''}）` : '';
+    return `<div class="card poach-box">
+      <b>AI 挖角</b>
+      <p class="help">填你想挖的公司，AI 只找現在或最近在這些公司、這個職級的人，並幫每個人寫好兩段 LinkedIn 訊息（邀請附註＋對方接受後的私訊）。訊息你自己複製貼上送出，系統不會自動送。</p>
+      <label class="field"><span>挖角公司（一行一家）</span>
+        <textarea data-poach-companies="${escapeHtml(slug)}" rows="5" placeholder="例：&#10;聚陽 Makalot&#10;儒鴻 Eclat">${escapeHtml(po.companies || '')}</textarea></label>
+      <label class="field"><span>目標職稱／職級（例：業務或供應鏈處長以上）</span>
+        <input type="text" data-poach-titles="${escapeHtml(slug)}" value="${escapeHtml(po.titles || '')}" maxlength="300"></label>
+      <div class="poach-btns">
+        <button type="button" class="btn" data-poach-save="${escapeHtml(slug)}">儲存</button>
+        <button type="button" class="btn primary" data-poach-run="${escapeHtml(slug)}">立刻挖角</button>
+        ${po.by ? `<span class="help">（${text(po.by)} ${text(String(po.at || '').slice(5, 16))} 設定）</span>` : ''}
+        ${lastTxt ? `<span class="help">${lastTxt}</span>` : ''}
+      </div></div>`;
+  },
+
   jobSourcedPanel: (slug, data) => {
     if (!data) return '<div class="notice">AI 找的人載入失敗，關掉抽屜再開一次試試。</div>';
     const rows = Array.isArray(data.rows) ? data.rows : [];
@@ -480,7 +500,8 @@ ${list(items, (j) => `<article class="list-row"><span><b>${text(j.title || j.slu
     const modeBox = `<div class="card" style="padding:10px 12px;margin:0 0 10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
       <b>外部找人選：</b><select data-sourcing-mode="${escapeHtml(slug)}" aria-label="外部找人選設定" style="min-height:40px">${Object.entries(SM).map(([k, v]) => `<option value="${k}" ${sm === k ? 'selected' : ''}>${v}</option>`).join('')}</select>
       <button type="button" class="btn sm" data-sourcing-mode-save="${escapeHtml(slug)}">儲存</button>
-      ${data.sourcing && data.sourcing.by ? `<span class="help">（${text(data.sourcing.by)} ${text(String(data.sourcing.at || '').slice(5, 16))} 設定）</span>` : ''}</div>`;
+      ${data.sourcing && data.sourcing.by ? `<span class="help">（${text(data.sourcing.by)} ${text(String(data.sourcing.at || '').slice(5, 16))} 設定）</span>` : ''}</div>`
+      + views.jobPoachBox(slug, data.poach || {});
     if (!rows.length) return `${modeBox}${kpi}<div class="notice">這個職缺目前沒有 AI 找到的人選。</div>`;
     const RES = { no_answer: '沒接／沒回', interested: '有興趣', not_interested: '沒興趣', invited: '已約阿財面談', wrong_person: '資料不對／不是本人', email_invited: '已寄邀請信', opt_out: '本人說不要再寄' };
     const safeUrl = (u) => (/^https?:\/\//i.test(String(u || '').trim()) ? String(u).trim() : '');
@@ -497,6 +518,7 @@ ${list(items, (j) => `<article class="list-row"><span><b>${text(j.title || j.slu
       if (email) how.push('<span class="badge info">可寄信</span>');
       if (phone) how.push('<span class="badge success">可打電話</span>');
       if (!email && !phone && hasSocial && r.grade !== 'C' && r.grade !== 'D') how.push('<span class="badge warning">只能私訊</span>');
+      if (r.has_outreach) how.push('<span class="badge info" title="點「看資料卡」就能複製">已寫好 LinkedIn 訊息</span>');
       const fitMark = r.fit === 'fit' ? '<span class="badge success" title="顧問評：符合">✓ 符合</span>'
         : r.fit === 'unfit' ? '<span class="badge danger" title="顧問評：不符合">✕ 不符合</span>'
         : r.fit === 'unsure' ? '<span class="badge">？ 不確定</span>' : '';
@@ -3258,6 +3280,14 @@ ${sec('自我介紹', p.bio ? `<p>${text(p.bio)}</p>` : '')}
 ${sec('經歷', fmt(p.experience))}
 ${sec('學歷', fmt(p.education))}
 ${sec('為什麼 AI 配到這個職缺 <small>（內部評估，不會寄給人選）</small>', (p.note || p.evidence) ? `<p>${text(p.note || p.evidence)}</p>` : '')}
+${d.outreach ? sec('LinkedIn 訊息 <small>（AI 挖角寫的，自己複製貼上送出）</small>', `${d.outreach.blocked ? `<p class="notice">${text(d.outreach.blocked)}</p>` : ''}
+${d.outreach.connect_note ? `<label class="field sc-msg"><span>① 送連結邀請時的附註（${text(String(d.outreach.connect_note).length)}／180 字）</span>
+<textarea readonly rows="4" id="sc-msg-connect">${escapeHtml(d.outreach.connect_note)}</textarea></label>
+<button type="button" class="btn sm sc-copy" data-sc-copy="sc-msg-connect">複製</button>` : ''}
+${d.outreach.followup_msg ? `<label class="field sc-msg"><span>② 對方接受邀請後的第一則私訊</span>
+<textarea readonly rows="8" id="sc-msg-followup">${escapeHtml(d.outreach.followup_msg)}</textarea></label>
+<button type="button" class="btn sm sc-copy" data-sc-copy="sc-msg-followup">複製</button>` : ''}
+<p class="help">送之前再看一次：不要加上公司名稱。</p>`) : ''}
 ${sec('原始頁面', links ? `<div class="sc-links">${links}</div>` : '<p class="help">沒有可以點開的頁面</p>')}
 ${sec('履歷', resumeHtml || '<p class="help">還沒有履歷檔（外部人選通常沒有，看上面的原始頁面判斷）</p>')}
 ${sec('聯絡方式', `<p>${m.email ? `Email：${text(m.email)}${p.company_email ? ' <span class="badge warning">看起來是公司信箱</span>' : ''}` : '沒有 Email'}${p.phone ? `<br>電話：${text(p.phone)}` : ''}</p>`)}

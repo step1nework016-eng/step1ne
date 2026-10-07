@@ -89,6 +89,8 @@ export const adapters = {
   // 「阿財的理解」快照（2026-09-24），見 GET /admin/jobs/:slug/acai-view。
   async jobScreenTier(slug, tier, by) { return api.post(`/admin/jobs/${encodeURIComponent(slug)}/screen-tier`, { tier, by }); },
   async jobSourcingMode(slug, mode, by) { return api.post(`/admin/jobs/${encodeURIComponent(slug)}/sourcing-mode`, { mode, by }); },
+  async jobPoachSave(slug, companies, titles, by) { return api.post(`/admin/jobs/${encodeURIComponent(slug)}/poach-settings`, { companies, titles, by }); },
+  async jobPoachRun(slug, by) { return api.post(`/admin/jobs/${encodeURIComponent(slug)}/poach-run`, { by }); },
   async jobAcaiView(slug) { return api.get(`/admin/jobs/${encodeURIComponent(slug)}/acai-view`); },
   // 職缺抽屜「AI 找的人」分頁（2026-09-29），見 GET /admin/jobs/:slug/sourced。
   async jobSourced(slug) { return api.get(`/admin/jobs/${encodeURIComponent(slug)}/sourced`); },

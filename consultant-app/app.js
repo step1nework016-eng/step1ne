@@ -557,6 +557,40 @@ document.addEventListener('click', async (event) => {
   try { await adapters.jobSourcingMode(slug, sel.value, me); toast('已儲存，今晚夜間找人照新設定挑職缺', 'success'); }
   catch (e) { toast((e.body && e.body.error) || e.message, 'error'); } finally { btn.disabled = false; }
 });
+// 2026-10-07：「AI 挖角」——儲存挖角公司／目標職級、立刻挖角
+document.addEventListener('click', async (event) => {
+  const t = event.target instanceof Element ? event.target : null;
+  const btn = t ? t.closest('[data-poach-save],[data-poach-run]') : null;
+  if (!btn || btn.disabled) return;
+  event.preventDefault();
+  const run = btn.hasAttribute('data-poach-run');
+  const slug = btn.getAttribute(run ? 'data-poach-run' : 'data-poach-save');
+  const comp = document.querySelector(`[data-poach-companies="${CSS.escape(slug)}"]`);
+  const tit = document.querySelector(`[data-poach-titles="${CSS.escape(slug)}"]`);
+  const me = amUi().me;
+  if (!me) { toast('先在畫面最上方選「我是」，系統才記得是誰改的', 'error'); document.querySelector('[data-me-global]')?.focus(); return; }
+  const companies = (comp ? comp.value : '').split('\n').map((x) => x.trim()).filter(Boolean);
+  if (run && !companies.length) { toast('先填挖角公司（一行一家）', 'error'); comp?.focus(); return; }
+  if (run && !window.confirm(`要現在請 AI 去這 ${companies.length} 家公司找人嗎？\n\n${companies.slice(0, 12).join('、')}${companies.length > 12 ? '…' : ''}\n\n大約 20–40 分鐘，名單會傳到 TG。AI 只會寫好 LinkedIn 訊息，不會自動送出。`)) return;
+  btn.disabled = true;
+  try {
+    // 立刻挖角前一律先存一次，確保 AI 用的是畫面上這份名單
+    await adapters.jobPoachSave(slug, companies.join('\n'), tit ? tit.value : '', me);
+    if (run) { await adapters.jobPoachRun(slug, me); toast('已排入，大約 20–40 分鐘，名單會傳到 TG', 'success'); }
+    else toast(`已儲存 ${companies.length} 家挖角公司`, 'success');
+  } catch (e) { toast((e.body && e.body.error) || e.message, 'error'); } finally { btn.disabled = false; }
+});
+// 2026-10-07：資料卡的 LinkedIn 訊息「複製」
+document.addEventListener('click', (event) => {
+  const b = event.target instanceof Element ? event.target.closest('[data-sc-copy]') : null;
+  if (!b) return;
+  event.preventDefault();
+  const el = document.getElementById(b.getAttribute('data-sc-copy'));
+  const txt = el ? el.value : '';
+  (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject())
+    .then(() => toast('已複製，可以貼到 LinkedIn', 'success'))
+    .catch(() => { if (el) { el.focus(); el.select(); } toast('複製不了，已幫你選取，請按 Ctrl+C／⌘+C', 'error'); });
+});
 // 2026-10-03：職缺「阿財的理解」分頁改面談層級
 document.addEventListener('click', async (event) => {
   const btn = event.target instanceof Element ? event.target.closest('[data-screen-tier-save]') : null;
