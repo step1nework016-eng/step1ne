@@ -495,7 +495,7 @@ document.addEventListener('click', async (event) => {
   const btn = event.target instanceof Element ? event.target.closest('[data-resume-remove]') : null;
   if (!btn || btn.disabled) return;
   event.preventDefault();
-  if (!window.confirm('要把這份履歷從人選卡片拿掉嗎？（檔案本身不會刪，只是不再列在這裡）')) return;
+  if (!window.confirm('要把這份履歷從人選卡片拿掉嗎？\n（檔案本身不會刪，只是不再列在這裡；拿掉主要那份時，第 2 份會自動變成主要履歷）')) return;
   btn.disabled = true;
   try {
     await api.post('/admin/application/resume/remove', { application_id: btn.getAttribute('data-resume-app'), file_id: btn.getAttribute('data-resume-remove') });
@@ -2637,6 +2637,7 @@ ${views.candidateFormsBlock(f.forms, applicationId, companyId)}
       : '尚未測驗';
     const resumeBtns = [];
     if (application.resume_file_id) resumeBtns.push(`<button type="button" class="btn ghost sm" data-download-resume="${escapeHtml(applicationId)}">下載履歷</button>`);
+    if (application.resume_file_id) resumeBtns.push(`<button type="button" class="btn ghost sm" data-resume-remove="${escapeHtml(application.resume_file_id)}" data-resume-app="${escapeHtml(applicationId)}">拿掉主要履歷</button>`);
     if (application.resume_url) resumeBtns.push(`<a class="btn ghost sm" href="${escapeHtml(application.resume_url)}" target="_blank" rel="noopener">履歷連結</a>`);
     let extraResumes = [];
     try { extraResumes = JSON.parse(application.resume_extra_files || '[]') || []; } catch { extraResumes = []; }
