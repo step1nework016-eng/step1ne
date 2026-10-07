@@ -1368,10 +1368,11 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
           <input type="search" id="sc-anon-q" placeholder="例：周亦宣、財務、Phoebe" autocomplete="off"></label>
         <label class="field"><span>選擇人選</span>
           <select id="sc-anon-app"><option value="">先在上面搜尋…</option></select></label>
-        <label class="field"><span>用哪個公式？（匿名人選文的公式之後由 Jacky／Phoebe 提供；不選＝基本規則）</span>
-          <select id="sc-astyle"><option value="">基本規則（不寫名字、公司、學校，邀企業私訊）</option>${[...dialog, ...pures].map((x) =>
-            `<option value="${escapeHtml(x.id)}">${escapeHtml(favLabel(x))}</option>`).join('')}</select></label>
-        <p class="help" style="margin:4px 0 0">會拿這位人選的阿財報告（沒有就用履歷）寫一篇「我手上有這樣的人才」的介紹給企業看，名字、待過的公司、學校都不會出現；出現的話系統會自動擋下重產。一樣送 Telegram 審核，你按確認才會發。</p>
+        <label class="field"><span>用哪個版本？</span>
+          <select id="sc-astyle">${(styles || []).filter((x) => x.subtype === 'anon').sort((a, b) => (/B 版/.test(b.name) ? 1 : 0) - (/B 版/.test(a.name) ? 1 : 0)).map((x) =>
+            `<option value="${escapeHtml(x.id)}">${escapeHtml(x.name)}</option>`).join('')}</select></label>
+        <p class="help" style="margin:4px 0 0">人選<b>還沒同意</b>匿名推薦 → 一律用 B 版（只談「市場上這類人才」）。人選<b>已經同意</b>才能選 A 版（可以寫「手上接觸到一位」）。</p>
+        <p class="help" style="margin:4px 0 0">會拿這位人選的阿財報告（沒有就用履歷）照公式寫給企業主看，名字、待過的公司、學校都不會出現；出現的話系統會自動擋下重產。一樣送 Telegram 審核，你按確認才會發。</p>
       </div>
 
       <label class="field"><span>排程時間（留空＝立刻排入產稿）</span>
