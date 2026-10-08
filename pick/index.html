@@ -41,6 +41,9 @@ button{font:inherit;cursor:pointer}
 .lv{font-family:var(--num);font-weight:900;background:var(--vio);color:#fff;border-radius:12px;padding:6px 10px;font-size:14px;min-height:36px;display:flex;align-items:center}
 .stage{margin:12px 0 6px;display:flex;align-items:center;gap:8px}
 .stage2{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.me{min-height:36px;border-radius:999px;border:0;background:rgba(124,92,255,.25);color:var(--hud);font-size:13px;padding:0 12px;display:flex;align-items:center;gap:6px}
+.me b{font-family:var(--num);font-weight:900;font-size:15px;color:#fff}
+.me span{font-size:11.5px;color:var(--dim);text-decoration:underline}
 .lvbtn{min-height:36px;border-radius:999px;border:1px solid rgba(255,255,255,.2);background:transparent;color:var(--hud);font-weight:800;font-size:13px;padding:0 14px}
 .levels{position:absolute;inset:0;overflow-y:auto;padding:4px 2px 20px;display:flex;flex-direction:column;gap:10px}
 .levels h2{margin:6px 4px 2px;font-size:20px;font-weight:900}
@@ -171,7 +174,7 @@ button{font:inherit;cursor:pointer}
     <select id="cli" aria-label="選擇客戶"><option value="">全部客戶</option></select>
     <select id="job" aria-label="選擇職缺"><option value="">全部職缺</option></select>
   </div>
-  <div class="stage2"><button class="lvbtn" id="bLevel" type="button">選關卡</button><div class="left">這關剩 <b id="left">0</b> 張</div></div>
+  <div class="stage2"><button class="lvbtn" id="bLevel" type="button">選關卡</button><button class="me" id="bMe" type="button" aria-label="目前身分，點一下切換">我是 <b id="meName">—</b> <span>切換</span></button><div class="left">這關剩 <b id="left">0</b> 張</div></div>
   <div class="deck" id="deck"></div>
   <div class="ctrl">
     <div class="bw n"><button class="btn mid" id="bNo" aria-label="不適合"><svg viewBox="0 0 24 24" fill="none" stroke="#FF5A6E" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>不適合</div>
@@ -362,7 +365,7 @@ function showLevels(step){
   const d=$('#deck');
   if(step!=='job'){
     const cs=clients();
-    d.innerHTML=`<div class="levels"><h2>選關卡</h2><p class="s">先選客戶，再選職缺</p>
+    d.innerHTML=`<div class="levels"><h2>選關卡</h2><p class="s">目前身分：<b style="color:#fff">${esc(WHO_NAME[WHO]||"")}</b>（右滑指派的人會記在你名下）・先選客戶，再選職缺</p>
       <button class="tile all" data-all="1"><div class="t">全部一起滑<small>不分客戶、不分職缺</small></div><div class="n">${ALL.length}</div></button>
       ${cs.map(([k,n])=>`<button class="tile" data-cli="${esc(k)}"><div class="t">${esc(k)}<small>${jobsOf(k).length} 個職缺</small></div><div class="n">${n}</div></button>`).join('')}</div>`;
     d.querySelector('[data-all]').onclick=()=>{CLI='';JOB='';filter()};
@@ -387,14 +390,18 @@ async function load(keepJob){
 function needLogin(){
   $('#deck').innerHTML=`<div class="center"><h2>先登入顧問後台</h2><p>這一頁跟顧問後台共用登入。<br>登入後回到這一頁就能開始滑。</p><a class="act vio" style="max-width:240px" href="/consultant/">去登入</a></div>`;
 }
+const WHO_NAME={jacky:'Jacky',phoebe:'Phoebe'};
+function showMe(){$('#meName').textContent=WHO_NAME[WHO]||'—'}
 function askWho(){
   $('#deck').innerHTML=`<div class="center"><h2>你是哪位顧問？</h2><p>右滑「指派給我」的人選會記在你名下</p><div class="who"><button data-w="jacky">Jacky</button><button data-w="phoebe">Phoebe</button></div></div>`;
-  $('#deck').querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>{WHO=b.dataset.w;ls.set('s1ne_pick_who',WHO);load()});
+  $('#deck').querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>{WHO=b.dataset.w;ls.set('s1ne_pick_who',WHO);showMe();toast('目前身分：'+WHO_NAME[WHO]+'，指派的人會記在你名下');load()});
 }
 $('#bYes').onclick=()=>act('right');$('#bNo').onclick=()=>act('left');$('#bSkip').onclick=()=>act('skip');$('#bUndo').onclick=undo;
 $('#cli').onchange=()=>{CLI=$('#cli').value;JOB='';filter()};
 $('#job').onchange=()=>{JOB=$('#job').value;filter()};
 $('#bLevel').onclick=()=>showLevels();
+$('#bMe').onclick=()=>{if(busy)return;askWho()};
+showMe();
 function fitH(){const h=window.visualViewport?visualViewport.height:innerHeight;document.documentElement.style.setProperty('--apph',Math.round(h)+'px');window.scrollTo(0,0)}
 fitH();addEventListener('resize',fitH);window.visualViewport&&visualViewport.addEventListener('resize',fitH);addEventListener('orientationchange',()=>setTimeout(fitH,300));
 if(!TOKEN)needLogin();else if(!WHO)askWho();else load();
