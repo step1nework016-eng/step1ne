@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#1B1640">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="AI 滑卡">
 <title>AI 人選滑卡</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -116,6 +120,8 @@ button{font:inherit;cursor:pointer}
 .btn:disabled{opacity:.35}
 .bw{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12.5px;font-weight:800;color:var(--hud)}
 .bw.y{color:#7BE3A0}.bw.n{color:#FF9AA6}
+/* 10/8：還沒進到滑卡（選客戶、登入、選身分、清完一關）時，下面的按鈕跟說明不顯示 */
+body:not(.cards-on) .ctrl,body:not(.cards-on) .hint{display:none}
 .hint{text-align:center;font-size:11.5px;color:var(--dim);margin-top:8px}
 
 /* 底部抽屜 */
@@ -141,6 +147,15 @@ button{font:inherit;cursor:pointer}
 
 /* 其他畫面 */
 .center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px;padding:24px}
+.login{position:fixed;inset:0;z-index:40;background:radial-gradient(120% 80% at 50% 0%,#2A2160 0%,#1B1640 60%);background-color:#1B1640;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:14px;padding:max(72px,calc(env(safe-area-inset-top) + 48px)) 24px 24px;text-align:center;overflow-y:auto}
+.login .lock{width:56px;height:56px}
+.login h2{margin:0;font-size:22px;font-weight:900}
+.login p{margin:0;color:var(--dim);font-size:14px;line-height:1.6}
+.login input{width:100%;max-width:320px;min-height:52px;border-radius:16px;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;font-size:16px;padding:0 16px;text-align:center}
+.login input:focus{outline:none;border-color:var(--gold)}
+.login .go{width:100%;max-width:320px;min-height:54px;border:0;border-radius:16px;background:linear-gradient(135deg,#7C5CFF,#5B3FE0);color:#fff;font-size:17px;font-weight:900;box-shadow:0 10px 24px rgba(124,92,255,.45)}
+.login .go:active{transform:scale(.97)}
+.login .err{color:#FF9AA6;font-size:13.5px;font-weight:700}
 .center h2{margin:0;font-size:24px;font-weight:900}
 .center p{margin:0;color:var(--dim);line-height:1.6}
 .who{display:flex;gap:12px;margin-top:8px}
@@ -174,7 +189,7 @@ button{font:inherit;cursor:pointer}
     <select id="cli" aria-label="選擇客戶"><option value="">全部客戶</option></select>
     <select id="job" aria-label="選擇職缺"><option value="">全部職缺</option></select>
   </div>
-  <div class="stage2"><button class="lvbtn" id="bLevel" type="button">選關卡</button><button class="me" id="bMe" type="button" aria-label="目前身分，點一下切換">我是 <b id="meName">—</b> <span>切換</span></button><div class="left">這關剩 <b id="left">0</b> 張</div></div>
+  <div class="stage2"><button class="lvbtn" id="bLevel" type="button">選客戶</button><button class="me" id="bMe" type="button" aria-label="目前身分，點一下切換">我是 <b id="meName">—</b> <span>切換</span></button><div class="left">剩 <b id="left">0</b> 張</div></div>
   <div class="deck" id="deck"></div>
   <div class="ctrl">
     <div class="bw n"><button class="btn mid" id="bNo" aria-label="不適合"><svg viewBox="0 0 24 24" fill="none" stroke="#FF5A6E" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>不適合</div>
@@ -194,7 +209,7 @@ const RAR={gold:'SSR 金卡',silver:'SR 銀卡',bronze:'R 銅卡'};
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const ls={get(k){try{return localStorage.getItem(k)}catch{return null}},set(k,v){try{localStorage.setItem(k,v)}catch{}}};
-const TOKEN=ls.get('s1ne_admin_tok')||'';
+let TOKEN=ls.get('s1ne_admin_tok')||'';
 let WHO=ls.get('s1ne_pick_who')||'';
 let ALL=[],cards=[],stats={today:0,rights:0,total:0,streak:0},busy=false,pending=null;
 
@@ -243,10 +258,11 @@ function cardHTML(c){
     ${c.skills&&c.skills.length?`<div class="sec">技能</div><div class="chips">${c.skills.map(s=>`<span>${esc(s)}</span>`).join('')}</div>`:''}
   </div>`;
 }
+function cardsOn(v){document.body.classList.toggle('cards-on',!!v)}
 function render(){
-  const deck=$('#deck');deck.innerHTML='';hud();
+  const deck=$('#deck');deck.innerHTML='';hud();cardsOn(cards.length>0);
   if(!cards.length){
-    deck.innerHTML=`<div class="center"><svg class="trophy" viewBox="0 0 24 24" fill="#FFC83D"><path d="M7 3h10v3h3v2a5 5 0 01-5 5h-.3A5 5 0 0113 15v2h3v4H8v-4h3v-2a5 5 0 01-1.7-2H9a5 5 0 01-5-5V6h3zM6 8v.1A3 3 0 008.4 11 7 7 0 017 8zm12 0a7 7 0 01-1.4 3A3 3 0 0018 8.1z"/></svg><h2>這關清完了！</h2><p>${(CLI||JOB)?'按上面「選關卡」換一關繼續。':'AI 目前推薦的人選都看過了，<br>新的人選進來會自動出現在這裡。'}</p></div>`;
+    deck.innerHTML=`<div class="center"><svg class="trophy" viewBox="0 0 24 24" fill="#FFC83D"><path d="M7 3h10v3h3v2a5 5 0 01-5 5h-.3A5 5 0 0113 15v2h3v4H8v-4h3v-2a5 5 0 01-1.7-2H9a5 5 0 01-5-5V6h3zM6 8v.1A3 3 0 008.4 11 7 7 0 017 8zm12 0a7 7 0 01-1.4 3A3 3 0 0018 8.1z"/></svg><h2>這裡清完了！</h2><p>${(CLI||JOB)?'按上面「選客戶」換一個客戶或職缺繼續。':'AI 目前推薦的人選都看過了，<br>新的人選進來會自動出現在這裡。'}</p></div>`;
     return;
   }
   cards.slice(0,3).reverse().forEach((c,i,arr)=>{
@@ -259,24 +275,33 @@ function render(){
   });
 }
 function bindDrag(el,c){
-  let sx=0,sy=0,dx=0,dy=0,down=false,mode='',t0=0,pid=0;
+  // 10/8：iPhone 上卡片內容可捲動時，橫向手勢常被瀏覽器當成捲動吃掉（pointercancel），卡片卡住不動。
+  // 觸控改用 touch 事件：判定是左右滑之後 preventDefault 把手勢搶下來；滑鼠照舊用 pointer。
+  let sx=0,sy=0,dx=0,dy=0,down=false,mode='',t0=0;
   const yes=el.querySelector('.stamp.yes'),no=el.querySelector('.stamp.no');
-  el.addEventListener('pointerdown',e=>{if(busy)return;if(e.target.closest('a,button'))return;down=true;mode='';sx=e.clientX;sy=e.clientY;dx=dy=0;t0=Date.now();pid=e.pointerId});
-  el.addEventListener('pointermove',e=>{if(!down)return;dx=e.clientX-sx;dy=e.clientY-sy;
-    if(!mode){if(Math.abs(dx)>10&&Math.abs(dx)>Math.abs(dy)*1.2){mode='x';try{el.setPointerCapture(pid)}catch{}el.classList.add('drag')}else if(Math.abs(dy)>10){mode='y';down=false;return}else return}
+  const start=(x,y,t)=>{if(busy||(t&&t.closest&&t.closest('a,button')))return;down=true;mode='';sx=x;sy=y;dx=dy=0;t0=Date.now()};
+  const move=(x,y,ev)=>{if(!down)return;dx=x-sx;dy=y-sy;
+    if(!mode){if(Math.abs(dx)>8&&Math.abs(dx)>Math.abs(dy)){mode='x';el.classList.add('drag')}else if(Math.abs(dy)>8){mode='y';down=false;return}else return}
+    if(ev&&ev.cancelable)ev.preventDefault();
     el.style.transform=`translate(${dx}px,${dy*.15}px) rotate(${dx/18}deg)`;
-    yes.style.opacity=Math.max(0,Math.min(1,dx/90));no.style.opacity=Math.max(0,Math.min(1,-dx/90))});
-  const end=()=>{if(!down&&mode!=='x')return;const was=mode;down=false;mode='';el.classList.remove('drag');
+    yes.style.opacity=Math.max(0,Math.min(1,dx/90));no.style.opacity=Math.max(0,Math.min(1,-dx/90))};
+  const end=()=>{const was=mode;const wasDown=down;down=false;mode='';el.classList.remove('drag');
     if(was==='x'){const v=Math.abs(dx)/Math.max(1,Date.now()-t0);
-      if(dx>110||(dx>50&&v>.6))return fly(el,c,'right');
-      if(dx<-110||(dx<-50&&v>.6))return fly(el,c,'skip');
+      if(dx>90||(dx>40&&v>.5))return fly(el,c,'right');
+      if(dx<-90||(dx<-40&&v>.5))return fly(el,c,'skip');
       el.style.transform='';yes.style.opacity=no.style.opacity=0;return}
-    if(Math.abs(dx)<6&&Math.abs(dy)<6&&Date.now()-t0<400)openDetail(c)};
-  el.addEventListener('pointerup',end);el.addEventListener('pointercancel',()=>{if(mode==='x')return end();down=false;mode=''});
+    if(wasDown&&Math.abs(dx)<6&&Math.abs(dy)<6&&Date.now()-t0<400)openDetail(c)};
+  el.addEventListener('touchstart',e=>{const t=e.touches[0];start(t.clientX,t.clientY,e.target)},{passive:true});
+  el.addEventListener('touchmove',e=>{const t=e.touches[0];move(t.clientX,t.clientY,e)},{passive:false});
+  el.addEventListener('touchend',end);
+  el.addEventListener('touchcancel',()=>{if(mode==='x')return end();down=false;mode='';el.style.transform='';el.classList.remove('drag')});
+  el.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse')return;start(e.clientX,e.clientY,e.target);try{el.setPointerCapture(e.pointerId)}catch{}});
+  el.addEventListener('pointermove',e=>{if(e.pointerType!=='mouse')return;move(e.clientX,e.clientY,null)});
+  el.addEventListener('pointerup',e=>{if(e.pointerType!=='mouse')return;end()});
   el.addEventListener('keydown',e=>{if(e.key==='Enter')openDetail(c)});
 }
 function fly(el,c,dir){
-  busy=true;
+  busy=true;el.style.pointerEvents='none';
   el.style.transition='transform .35s ease-in';
   el.style.transform=dir==='left'?'translate(0,130%) rotate(-6deg)':`translate(${dir==='right'?'':'-'}140%,40px) rotate(${dir==='right'?24:-24}deg)`;
   setTimeout(()=>{dir==='left'?askReason(c):commit(c,dir)},260);
@@ -300,6 +325,15 @@ async function commit(c,dir,reason){
   }catch(e){busy=false;if(e.auth)return needLogin();toast('連線失敗，再試一次');render()}
 }
 function removeCard(c){cards=cards.filter(x=>!(x.kind===c.kind&&x.id===c.id));ALL=ALL.filter(x=>!(x.kind===c.kind&&x.id===c.id))}
+// 10/8：手機點 LinkedIn 要直接開 App。先試 linkedin:// ，1.2 秒內沒切走（沒裝 App）就改開網頁版
+function openLinkedIn(url){
+  const m=url.match(/linkedin\.com\/in\/([^/?#]+)/i);
+  if(!m||!/iPhone|iPad|Android/i.test(navigator.userAgent)){window.open(url,'_blank','noopener');return}
+  const t=setTimeout(()=>{if(!document.hidden)location.href=url},1200);
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)clearTimeout(t)},{once:true});
+  location.href='linkedin://in/'+m[1];
+}
+document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('a[data-li]');if(!a)return;e.preventDefault();openLinkedIn(a.dataset.li)});
 function sheet(html){$('#sheet').innerHTML=html;$('#sheet').classList.add('on');$('#sbg').classList.add('on');setTimeout(()=>{const f=$('#sheet button,#sheet a');f&&f.focus()},50)}
 function closeSheet(){$('#sheet').classList.remove('on');$('#sbg').classList.remove('on');if(pending){const p=pending;pending=null;busy=false;render()}}
 $('#sbg').onclick=closeSheet;
@@ -319,7 +353,7 @@ function contactRows(c){
   const rows=[];
   if(c.phone)rows.push(`<a class="act primary" href="tel:${esc(c.phone.replace(/[^\d+]/g,''))}">${I.phone}打電話 ${esc(c.phone)}</a>`);
   if(c.email)rows.push(`<a class="act vio" href="mailto:${esc(c.email)}">${I.mail}${esc(c.email)}</a>`);
-  if(c.link)rows.push(`<a class="act ghost" href="${esc(c.link)}" target="_blank" rel="noopener">${I.link}開個人頁面（LinkedIn 等）</a>`);
+  if(c.link)rows.push(/linkedin\.com\/in\//i.test(c.link)?`<a class="act ghost" href="${esc(c.link)}" data-li="${esc(c.link)}" target="_blank" rel="noopener">${I.link}開 LinkedIn（手機會直接開 App）</a>`:`<a class="act ghost" href="${esc(c.link)}" target="_blank" rel="noopener">${I.link}開個人頁面</a>`);
   if(c.kind==='rec'&&c.app_id)rows.push(`<a class="act ghost" href="/consultant/candidates/?tab=triage&app=${encodeURIComponent(c.app_id)}" target="_blank" rel="noopener">${I.link}開人選卡片</a>`);
   return rows.join('');
 }
@@ -361,11 +395,12 @@ function fillSelects(){
 }
 function filter(){ls.set('s1ne_pick_cli',CLI);ls.set('s1ne_pick_job',JOB);fillSelects();cards=ALL.filter(c=>(!CLI||c.client===CLI)&&(!JOB||c.job_slug===JOB));render()}
 function showLevels(step){
+  cardsOn(false);
   $('#left').textContent='-';
   const d=$('#deck');
   if(step!=='job'){
     const cs=clients();
-    d.innerHTML=`<div class="levels"><h2>選關卡</h2><p class="s">目前身分：<b style="color:#fff">${esc(WHO_NAME[WHO]||"")}</b>（右滑指派的人會記在你名下）・先選客戶，再選職缺</p>
+    d.innerHTML=`<div class="levels"><h2>選客戶</h2><p class="s">目前身分：<b style="color:#fff">${esc(WHO_NAME[WHO]||"")}</b>（右滑指派的人會記在你名下）・先選客戶，再選職缺</p>
       <button class="tile all" data-all="1"><div class="t">全部一起滑<small>不分客戶、不分職缺</small></div><div class="n">${ALL.length}</div></button>
       ${cs.map(([k,n])=>`<button class="tile" data-cli="${esc(k)}"><div class="t">${esc(k)}<small>${jobsOf(k).length} 個職缺</small></div><div class="n">${n}</div></button>`).join('')}</div>`;
     d.querySelector('[data-all]').onclick=()=>{CLI='';JOB='';filter()};
@@ -387,12 +422,28 @@ async function load(keepJob){
     if(keepJob)filter();else showLevels();
   }catch(e){if(e.auth)return needLogin();$('#deck').innerHTML='<div class="center"><h2>連不上</h2><p>網路不穩，稍後再開一次。</p></div>'}
 }
-function needLogin(){
-  $('#deck').innerHTML=`<div class="center"><h2>先登入顧問後台</h2><p>這一頁跟顧問後台共用登入。<br>登入後回到這一頁就能開始滑。</p><a class="act vio" style="max-width:240px" href="/consultant/">去登入</a></div>`;
+function needLogin(msg){
+  cardsOn(false);
+  const old=$('#loginF');if(old)old.remove();
+  $('#deck').innerHTML='';
+  document.body.insertAdjacentHTML('beforeend',`<form class="login" id="loginF" autocomplete="off">
+    <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="#FFC83D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="3"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>
+    <h2>輸入登入權杖</h2>
+    <p>跟顧問後台用的是同一組權杖。<br>輸入一次就會記住，加到手機桌面也一樣。</p>
+    <input id="tokIn" type="password" inputmode="text" autocapitalize="off" spellcheck="false" placeholder="貼上權杖" aria-label="登入權杖">
+    ${msg?`<div class="err">${esc(msg)}</div>`:''}
+    <button class="go" type="submit">開始滑卡</button>
+  </form>`);
+  $('#tokIn').focus();
+  $('#loginF').onsubmit=async e=>{e.preventDefault();const v=$('#tokIn').value.trim();if(!v)return;
+    TOKEN=v;
+    try{const d=await api('/admin/pick/deck?who=jacky');if(!d.ok)throw 0;ls.set('s1ne_admin_tok',v);document.activeElement&&document.activeElement.blur();$('#loginF').remove();[50,400,900].forEach(t=>setTimeout(fitH,t));toast('登入成功');WHO?load():askWho()}
+    catch(err){TOKEN='';needLogin('權杖不對，請再確認一次')}};
 }
 const WHO_NAME={jacky:'Jacky',phoebe:'Phoebe'};
 function showMe(){$('#meName').textContent=WHO_NAME[WHO]||'—'}
 function askWho(){
+  cardsOn(false);
   $('#deck').innerHTML=`<div class="center"><h2>你是哪位顧問？</h2><p>右滑「指派給我」的人選會記在你名下</p><div class="who"><button data-w="jacky">Jacky</button><button data-w="phoebe">Phoebe</button></div></div>`;
   $('#deck').querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>{WHO=b.dataset.w;ls.set('s1ne_pick_who',WHO);showMe();toast('目前身分：'+WHO_NAME[WHO]+'，指派的人會記在你名下');load()});
 }
@@ -402,7 +453,7 @@ $('#job').onchange=()=>{JOB=$('#job').value;filter()};
 $('#bLevel').onclick=()=>showLevels();
 $('#bMe').onclick=()=>{if(busy)return;askWho()};
 showMe();
-function fitH(){const h=window.visualViewport?visualViewport.height:innerHeight;document.documentElement.style.setProperty('--apph',Math.round(h)+'px');window.scrollTo(0,0)}
+function fitH(){const ae=document.activeElement;if(ae&&ae.tagName==='INPUT')return;const h=window.visualViewport?visualViewport.height:innerHeight;document.documentElement.style.setProperty('--apph',Math.round(h)+'px');window.scrollTo(0,0)}
 fitH();addEventListener('resize',fitH);window.visualViewport&&visualViewport.addEventListener('resize',fitH);addEventListener('orientationchange',()=>setTimeout(fitH,300));
 if(!TOKEN)needLogin();else if(!WHO)askWho();else load();
 </script>
