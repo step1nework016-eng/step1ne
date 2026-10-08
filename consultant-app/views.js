@@ -2098,7 +2098,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
     const RES = { interested: '有興趣', not_interested: '拒絕', got_email: '拿到信箱', no_answer: '沒接', gatekeeper: '被總機擋', got_contact: '問到窗口', not_hiring: '沒在徵人' };
     // 2026-10-02 Jacky：「剛新增的卡片，一打開開發進度沒辦法很直覺看到」→ 官網詢問、顧問手動新增的，7 天內還沒人聯繫就釘在最上面一組
     // （夜間 AI 名單一天幾十家，不釘，不然最上面會被淹掉）
-    const NEW_G = '🆕 新進來：官網詢問／顧問新增（7 天內，還沒聯繫）';
+    const NEW_G = '🆕 新進來：官網詢問／顧問新增／人選敲門（7 天內，還沒聯繫）';
     const weekAgo = new Date(Date.now() + 8 * 3600000 - 7 * 86400000).toISOString().slice(0, 10);
     rows.forEach((r) => { if ((r.inbound || r.by_hand) && !r.contacted_at && !r.parked_at && String(r.first_created_at || '') >= weekAgo) r.industry_group = NEW_G; });
     const sorted = rows.slice().sort((a, b) => {
@@ -2125,7 +2125,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
       const oid = (r.outreach_ids || [])[0] || '';
       return `${head}<article class="list-row bd-dash-row" data-bd-open="${escapeHtml(r.company)}" tabindex="0" aria-label="${escapeHtml(r.company)}：打開開發引導／時間軸" title="點卡片打開開發引導／時間軸" data-bd-name="${escapeHtml(String(r.company || '').toLowerCase())}" data-bd-stage="${text(r.stage)}" data-bd-has-todo="${r.todo.length ? 1 : 0}" data-bd-industry="${escapeHtml(g)}" data-bd-assignee="${escapeHtml(r.assigned_to || '')}" data-bd-phone="${phoneKind}" data-bd-contacted="${r.contacted_at ? 1 : 0}" data-bd-parked="${r.parked_at ? 1 : 0}" data-bd-qc="${(r.qc_missing || []).length ? 0 : 1}">
         <span>
-          <b>${text(r.company)}</b> ${r.industry ? `<span class="badge">${text(String(r.industry).split(/[（(]/)[0].slice(0, 18))}</span>` : ''}${r.inbound ? ' <span class="badge warning">官網詢問・1 個工作天內要回</span>' : ''}${r.industry_group === NEW_G ? ` <span class="badge info">新・${text(String(r.first_created_at || '').slice(5, 10))}</span>` : ''}${r.has_profile ? ' <span class="badge success">有介紹</span>' : ''}${r.note_count ? ` <span class="badge info">有 ${text(r.note_count)} 則心得</span>` : ''}${r.social_jobs ? ` <span class="badge warning" title="只發社群的職缺，到職缺列表看">🔒 未簽約職缺 ${text(r.social_jobs)} 個</span>` : ''}
+          <b>${text(r.company)}</b> ${({ web: '<span class="badge warning" title="企業自己在官網留需求">🌐 官網詢問</span>', manual: '<span class="badge info" title="顧問按「新增開發對象」加進來的">✍️ 顧問新增</span>', candbd: '<span class="badge success" title="從手上人選反推、系統建議去敲門的公司">🧲 人選敲門</span>', ai: '<span class="badge" title="夜間 AI 找來的名單">🤖 AI 名單</span>' })[r.source_kind] || ''} ${r.industry ? `<span class="badge">${text(String(r.industry).split(/[（(]/)[0].slice(0, 18))}</span>` : ''}${r.inbound ? ' <span class="badge warning">1 個工作天內要回</span>' : ''}${r.industry_group === NEW_G ? ` <span class="badge info">新・${text(String(r.first_created_at || '').slice(5, 10))}</span>` : ''}${r.has_profile ? ' <span class="badge success">有介紹</span>' : ''}${r.note_count ? ` <span class="badge info">有 ${text(r.note_count)} 則心得</span>` : ''}${r.social_jobs ? ` <span class="badge warning" title="只發社群的職缺，到職缺列表看">🔒 未簽約職缺 ${text(r.social_jobs)} 個</span>` : ''}
           ${(r.qc_missing || []).length && !(r.inbound || r.by_hand) ? `<small class="bd-qc-bad">不合格，補資料中：缺 ${text(r.qc_missing.join('、'))}</small>` : ''}
           ${views.bdEntry(r.trigger, r.has_candidate, false, r.job_title, r.topic)}
           ${phoneHtml}${mainHtml}${noPhone}
