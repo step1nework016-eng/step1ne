@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#1B1640">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="AI 滑卡">
 <title>AI 人選滑卡（測試版）</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -141,6 +145,15 @@ button{font:inherit;cursor:pointer}
 
 /* 其他畫面 */
 .center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px;padding:24px}
+.login{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center}
+.login .lock{width:56px;height:56px}
+.login h2{margin:0;font-size:22px;font-weight:900}
+.login p{margin:0;color:var(--dim);font-size:14px;line-height:1.6}
+.login input{width:100%;max-width:320px;min-height:52px;border-radius:16px;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;font-size:16px;padding:0 16px;text-align:center}
+.login input:focus{outline:none;border-color:var(--gold)}
+.login .go{width:100%;max-width:320px;min-height:54px;border:0;border-radius:16px;background:linear-gradient(135deg,#7C5CFF,#5B3FE0);color:#fff;font-size:17px;font-weight:900;box-shadow:0 10px 24px rgba(124,92,255,.45)}
+.login .go:active{transform:scale(.97)}
+.login .err{color:#FF9AA6;font-size:13.5px;font-weight:700}
 .center h2{margin:0;font-size:24px;font-weight:900}
 .center p{margin:0;color:var(--dim);line-height:1.6}
 .who{display:flex;gap:12px;margin-top:8px}
@@ -194,7 +207,7 @@ const RAR={gold:'SSR 金卡',silver:'SR 銀卡',bronze:'R 銅卡'};
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const ls={get(k){try{return localStorage.getItem(k)}catch{return null}},set(k,v){try{localStorage.setItem(k,v)}catch{}}};
-const TOKEN=ls.get('s1ne_admin_tok')||'';
+let TOKEN=ls.get('s1ne_admin_tok')||'';
 let WHO=ls.get('s1ne_pick_who')||'';
 let ALL=[],cards=[],stats={today:0,rights:0,total:0,streak:0},busy=false,pending=null;
 
@@ -259,24 +272,33 @@ function render(){
   });
 }
 function bindDrag(el,c){
-  let sx=0,sy=0,dx=0,dy=0,down=false,mode='',t0=0,pid=0;
+  // 10/8：iPhone 上卡片內容可捲動時，橫向手勢常被瀏覽器當成捲動吃掉（pointercancel），卡片卡住不動。
+  // 觸控改用 touch 事件：判定是左右滑之後 preventDefault 把手勢搶下來；滑鼠照舊用 pointer。
+  let sx=0,sy=0,dx=0,dy=0,down=false,mode='',t0=0;
   const yes=el.querySelector('.stamp.yes'),no=el.querySelector('.stamp.no');
-  el.addEventListener('pointerdown',e=>{if(busy)return;if(e.target.closest('a,button'))return;down=true;mode='';sx=e.clientX;sy=e.clientY;dx=dy=0;t0=Date.now();pid=e.pointerId});
-  el.addEventListener('pointermove',e=>{if(!down)return;dx=e.clientX-sx;dy=e.clientY-sy;
-    if(!mode){if(Math.abs(dx)>10&&Math.abs(dx)>Math.abs(dy)*1.2){mode='x';try{el.setPointerCapture(pid)}catch{}el.classList.add('drag')}else if(Math.abs(dy)>10){mode='y';down=false;return}else return}
+  const start=(x,y,t)=>{if(busy||(t&&t.closest&&t.closest('a,button')))return;down=true;mode='';sx=x;sy=y;dx=dy=0;t0=Date.now()};
+  const move=(x,y,ev)=>{if(!down)return;dx=x-sx;dy=y-sy;
+    if(!mode){if(Math.abs(dx)>8&&Math.abs(dx)>Math.abs(dy)){mode='x';el.classList.add('drag')}else if(Math.abs(dy)>8){mode='y';down=false;return}else return}
+    if(ev&&ev.cancelable)ev.preventDefault();
     el.style.transform=`translate(${dx}px,${dy*.15}px) rotate(${dx/18}deg)`;
-    yes.style.opacity=Math.max(0,Math.min(1,dx/90));no.style.opacity=Math.max(0,Math.min(1,-dx/90))});
-  const end=()=>{if(!down&&mode!=='x')return;const was=mode;down=false;mode='';el.classList.remove('drag');
+    yes.style.opacity=Math.max(0,Math.min(1,dx/90));no.style.opacity=Math.max(0,Math.min(1,-dx/90))};
+  const end=()=>{const was=mode;const wasDown=down;down=false;mode='';el.classList.remove('drag');
     if(was==='x'){const v=Math.abs(dx)/Math.max(1,Date.now()-t0);
-      if(dx>110||(dx>50&&v>.6))return fly(el,c,'right');
-      if(dx<-110||(dx<-50&&v>.6))return fly(el,c,'skip');
+      if(dx>90||(dx>40&&v>.5))return fly(el,c,'right');
+      if(dx<-90||(dx<-40&&v>.5))return fly(el,c,'skip');
       el.style.transform='';yes.style.opacity=no.style.opacity=0;return}
-    if(Math.abs(dx)<6&&Math.abs(dy)<6&&Date.now()-t0<400)openDetail(c)};
-  el.addEventListener('pointerup',end);el.addEventListener('pointercancel',()=>{if(mode==='x')return end();down=false;mode=''});
+    if(wasDown&&Math.abs(dx)<6&&Math.abs(dy)<6&&Date.now()-t0<400)openDetail(c)};
+  el.addEventListener('touchstart',e=>{const t=e.touches[0];start(t.clientX,t.clientY,e.target)},{passive:true});
+  el.addEventListener('touchmove',e=>{const t=e.touches[0];move(t.clientX,t.clientY,e)},{passive:false});
+  el.addEventListener('touchend',end);
+  el.addEventListener('touchcancel',()=>{if(mode==='x')return end();down=false;mode='';el.style.transform='';el.classList.remove('drag')});
+  el.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse')return;start(e.clientX,e.clientY,e.target);try{el.setPointerCapture(e.pointerId)}catch{}});
+  el.addEventListener('pointermove',e=>{if(e.pointerType!=='mouse')return;move(e.clientX,e.clientY,null)});
+  el.addEventListener('pointerup',e=>{if(e.pointerType!=='mouse')return;end()});
   el.addEventListener('keydown',e=>{if(e.key==='Enter')openDetail(c)});
 }
 function fly(el,c,dir){
-  busy=true;
+  busy=true;el.style.pointerEvents='none';
   el.style.transition='transform .35s ease-in';
   el.style.transform=dir==='left'?'translate(0,130%) rotate(-6deg)':`translate(${dir==='right'?'':'-'}140%,40px) rotate(${dir==='right'?24:-24}deg)`;
   setTimeout(()=>{dir==='left'?askReason(c):commit(c,dir)},260);
@@ -387,8 +409,20 @@ async function load(keepJob){
     if(keepJob)filter();else showLevels();
   }catch(e){if(e.auth)return needLogin();$('#deck').innerHTML='<div class="center"><h2>連不上</h2><p>網路不穩，稍後再開一次。</p></div>'}
 }
-function needLogin(){
-  $('#deck').innerHTML=`<div class="center"><h2>先登入顧問後台</h2><p>這一頁跟顧問後台共用登入。<br>登入後回到這一頁就能開始滑。</p><a class="act vio" style="max-width:240px" href="/consultant/">去登入</a></div>`;
+function needLogin(msg){
+  $('#deck').innerHTML=`<form class="login" id="loginF" autocomplete="off">
+    <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="#FFC83D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="3"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>
+    <h2>輸入登入權杖</h2>
+    <p>跟顧問後台用的是同一組權杖。<br>輸入一次就會記住，加到手機桌面也一樣。</p>
+    <input id="tokIn" type="password" inputmode="text" autocapitalize="off" spellcheck="false" placeholder="貼上權杖" aria-label="登入權杖">
+    ${msg?`<div class="err">${esc(msg)}</div>`:''}
+    <button class="go" type="submit">開始滑卡</button>
+  </form>`;
+  $('#tokIn').focus();
+  $('#loginF').onsubmit=async e=>{e.preventDefault();const v=$('#tokIn').value.trim();if(!v)return;
+    TOKEN=v;
+    try{const d=await api('/admin/pick/deck?who=jacky');if(!d.ok)throw 0;ls.set('s1ne_admin_tok',v);toast('登入成功');WHO?load():askWho()}
+    catch(err){TOKEN='';needLogin('權杖不對，請再確認一次')}};
 }
 const WHO_NAME={jacky:'Jacky',phoebe:'Phoebe'};
 function showMe(){$('#meName').textContent=WHO_NAME[WHO]||'—'}
