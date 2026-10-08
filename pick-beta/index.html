@@ -120,6 +120,8 @@ button{font:inherit;cursor:pointer}
 .btn:disabled{opacity:.35}
 .bw{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12.5px;font-weight:800;color:var(--hud)}
 .bw.y{color:#7BE3A0}.bw.n{color:#FF9AA6}
+/* 10/8：還沒進到滑卡（選關卡、登入、選身分、清完一關）時，下面的按鈕跟說明不顯示 */
+body:not(.cards-on) .ctrl,body:not(.cards-on) .hint{display:none}
 .hint{text-align:center;font-size:11.5px;color:var(--dim);margin-top:8px}
 
 /* 底部抽屜 */
@@ -256,8 +258,9 @@ function cardHTML(c){
     ${c.skills&&c.skills.length?`<div class="sec">技能</div><div class="chips">${c.skills.map(s=>`<span>${esc(s)}</span>`).join('')}</div>`:''}
   </div>`;
 }
+function cardsOn(v){document.body.classList.toggle('cards-on',!!v)}
 function render(){
-  const deck=$('#deck');deck.innerHTML='';hud();
+  const deck=$('#deck');deck.innerHTML='';hud();cardsOn(cards.length>0);
   if(!cards.length){
     deck.innerHTML=`<div class="center"><svg class="trophy" viewBox="0 0 24 24" fill="#FFC83D"><path d="M7 3h10v3h3v2a5 5 0 01-5 5h-.3A5 5 0 0113 15v2h3v4H8v-4h3v-2a5 5 0 01-1.7-2H9a5 5 0 01-5-5V6h3zM6 8v.1A3 3 0 008.4 11 7 7 0 017 8zm12 0a7 7 0 01-1.4 3A3 3 0 0018 8.1z"/></svg><h2>這關清完了！</h2><p>${(CLI||JOB)?'按上面「選關卡」換一關繼續。':'AI 目前推薦的人選都看過了，<br>新的人選進來會自動出現在這裡。'}</p></div>`;
     return;
@@ -392,6 +395,7 @@ function fillSelects(){
 }
 function filter(){ls.set('s1ne_pick_cli',CLI);ls.set('s1ne_pick_job',JOB);fillSelects();cards=ALL.filter(c=>(!CLI||c.client===CLI)&&(!JOB||c.job_slug===JOB));render()}
 function showLevels(step){
+  cardsOn(false);
   $('#left').textContent='-';
   const d=$('#deck');
   if(step!=='job'){
@@ -419,6 +423,7 @@ async function load(keepJob){
   }catch(e){if(e.auth)return needLogin();$('#deck').innerHTML='<div class="center"><h2>連不上</h2><p>網路不穩，稍後再開一次。</p></div>'}
 }
 function needLogin(msg){
+  cardsOn(false);
   const old=$('#loginF');if(old)old.remove();
   $('#deck').innerHTML='';
   document.body.insertAdjacentHTML('beforeend',`<form class="login" id="loginF" autocomplete="off">
@@ -432,12 +437,13 @@ function needLogin(msg){
   $('#tokIn').focus();
   $('#loginF').onsubmit=async e=>{e.preventDefault();const v=$('#tokIn').value.trim();if(!v)return;
     TOKEN=v;
-    try{const d=await api('/admin/pick/deck?who=jacky');if(!d.ok)throw 0;ls.set('s1ne_admin_tok',v);$('#loginF').remove();$('#tokIn')&&$('#tokIn').blur();fitH();toast('登入成功');WHO?load():askWho()}
+    try{const d=await api('/admin/pick/deck?who=jacky');if(!d.ok)throw 0;ls.set('s1ne_admin_tok',v);document.activeElement&&document.activeElement.blur();$('#loginF').remove();[50,400,900].forEach(t=>setTimeout(fitH,t));toast('登入成功');WHO?load():askWho()}
     catch(err){TOKEN='';needLogin('權杖不對，請再確認一次')}};
 }
 const WHO_NAME={jacky:'Jacky',phoebe:'Phoebe'};
 function showMe(){$('#meName').textContent=WHO_NAME[WHO]||'—'}
 function askWho(){
+  cardsOn(false);
   $('#deck').innerHTML=`<div class="center"><h2>你是哪位顧問？</h2><p>右滑「指派給我」的人選會記在你名下</p><div class="who"><button data-w="jacky">Jacky</button><button data-w="phoebe">Phoebe</button></div></div>`;
   $('#deck').querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>{WHO=b.dataset.w;ls.set('s1ne_pick_who',WHO);showMe();toast('目前身分：'+WHO_NAME[WHO]+'，指派的人會記在你名下');load()});
 }
