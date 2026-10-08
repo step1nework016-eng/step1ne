@@ -26,7 +26,8 @@ html,body{margin:0;height:100%}
 body{background:radial-gradient(120% 80% at 50% 0%,var(--bg2) 0%,var(--bg) 60%) fixed;background-color:var(--bg);color:var(--hud);font-family:var(--cjk);overflow:hidden;overscroll-behavior:none}
 button{font:inherit;cursor:pointer}
 :focus-visible{outline:3px solid var(--gold);outline-offset:3px;border-radius:12px}
-.app{max-width:480px;margin:0 auto;height:100dvh;display:flex;flex-direction:column;padding:max(10px,env(safe-area-inset-top)) 16px max(14px,env(safe-area-inset-bottom))}
+/* 10/8：iPhone Safari 下方網址列會蓋住按鈕 → 高度改用「實際看得到的範圍」（visualViewport，JS 每次變動都更新），底部再多留空間 */
+.app{max-width:520px;margin:0 auto;height:100vh;height:100svh;height:var(--apph,100svh);display:flex;flex-direction:column;padding:max(10px,env(safe-area-inset-top)) 16px calc(18px + env(safe-area-inset-bottom))}
 
 /* HUD */
 .hud{display:flex;align-items:center;gap:10px}
@@ -38,7 +39,20 @@ button{font:inherit;cursor:pointer}
 .bar{height:10px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden}
 .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--vio),var(--gold));border-radius:99px;transition:width .5s cubic-bezier(.34,1.56,.64,1)}
 .lv{font-family:var(--num);font-weight:900;background:var(--vio);color:#fff;border-radius:12px;padding:6px 10px;font-size:14px;min-height:36px;display:flex;align-items:center}
-.stage{margin:12px 0 8px;display:flex;align-items:center;gap:8px}
+.stage{margin:12px 0 6px;display:flex;align-items:center;gap:8px}
+.stage2{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.lvbtn{min-height:36px;border-radius:999px;border:1px solid rgba(255,255,255,.2);background:transparent;color:var(--hud);font-weight:800;font-size:13px;padding:0 14px}
+.levels{position:absolute;inset:0;overflow-y:auto;padding:4px 2px 20px;display:flex;flex-direction:column;gap:10px}
+.levels h2{margin:6px 4px 2px;font-size:20px;font-weight:900}
+.levels p.s{margin:0 4px 6px;color:var(--dim);font-size:13px}
+.tile{width:100%;text-align:left;border:0;border-radius:18px;padding:14px 16px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:var(--hud);display:flex;align-items:center;gap:12px;min-height:60px}
+.tile:active{transform:scale(.98)}
+.tile .t{flex:1;min-width:0;font-weight:800;font-size:16px;line-height:1.35}
+.tile .t small{display:block;font-weight:500;font-size:12.5px;color:var(--dim);margin-top:2px}
+.tile .n{font-family:var(--num);font-weight:900;font-size:18px;background:var(--vio);color:#fff;border-radius:12px;padding:4px 10px;min-width:44px;text-align:center}
+.tile.all{background:linear-gradient(135deg,#7C5CFF,#5B3FE0);border:0}
+.tile.all .n{background:rgba(255,255,255,.25)}
+.back{align-self:flex-start;min-height:40px;border:0;background:transparent;color:var(--dim);font-weight:800;padding:0 4px}
 .stage label{font-size:12px;color:var(--dim);white-space:nowrap}
 .stage select{flex:1;min-width:0;min-height:44px;border-radius:14px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:var(--hud);padding:0 12px;font:inherit;font-weight:700;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23A9A3D6' stroke-width='2' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
 .stage select option{color:#1C1733}
@@ -47,7 +61,7 @@ button{font:inherit;cursor:pointer}
 
 /* 卡片 */
 .deck{position:relative;flex:1;min-height:0;margin:6px 0 12px}
-.card{position:absolute;inset:0;background:var(--card);color:var(--ink);border-radius:26px;box-shadow:0 18px 40px rgba(0,0,0,.35);overflow:hidden;display:flex;flex-direction:column;touch-action:none;user-select:none;will-change:transform;transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+.card{position:absolute;inset:0;background:var(--card);color:var(--ink);border-radius:26px;box-shadow:0 18px 40px rgba(0,0,0,.35);overflow:hidden;display:flex;flex-direction:column;touch-action:pan-y;user-select:none;will-change:transform;transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
 .card.under{transform:scale(.94) translateY(14px);filter:brightness(.9)}
 .card.under2{transform:scale(.88) translateY(28px);filter:brightness(.8)}
 .card.drag{transition:none}
@@ -58,7 +72,9 @@ button{font:inherit;cursor:pointer}
 .card.gold{box-shadow:0 0 0 3px var(--gold),0 18px 40px rgba(0,0,0,.35)}
 .foil{position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 30%,rgba(255,226,140,.35) 45%,rgba(255,255,255,.55) 50%,rgba(255,226,140,.35) 55%,transparent 70%);background-size:250% 100%;animation:foil 3.2s ease-in-out infinite;mix-blend-mode:soft-light}
 @keyframes foil{0%{background-position:150% 0}60%,100%{background-position:-60% 0}}
-.body{padding:16px 18px 14px;flex:1;min-height:0;display:flex;flex-direction:column;gap:10px;overflow:hidden}
+.body{padding:16px 18px 28px;flex:1;min-height:0;display:flex;flex-direction:column;gap:12px;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.card::after{content:'';position:absolute;left:0;right:0;bottom:0;height:34px;background:linear-gradient(transparent,#fff);pointer-events:none;border-radius:0 0 26px 26px}
+.card .body>*{flex:none}
 .toprow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .rar{font-family:var(--num);font-weight:900;font-size:13px;border-radius:8px;padding:3px 8px;letter-spacing:.5px}
 .gold .rar{background:var(--gold);color:#5A3B00}
@@ -68,23 +84,26 @@ button{font:inherit;cursor:pointer}
 .src.pool{background:#E3F8EC;color:#11733A}
 .score{margin-left:auto;font-family:var(--num);font-weight:900;font-size:13px;color:var(--sub)}
 .name{font-size:28px;font-weight:900;line-height:1.15;letter-spacing:.5px;margin:2px 0 0}
-.subt{font-size:14px;color:var(--sub);line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.subt{font-size:14px;color:var(--sub);line-height:1.5}
 .job{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:700;color:#4B3AB8;background:#F4F1FF;border-radius:12px;padding:8px 10px}
 .job svg{flex:none;width:16px;height:16px}
-.why{font-size:15px;line-height:1.55;color:var(--ink);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.why{font-size:14.5px;line-height:1.6;color:#3A3552}
 .list{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
 .list li{display:flex;gap:8px;font-size:13.5px;line-height:1.45;color:#3A3552}
-.list li span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.list li span{display:block}
 .list svg{flex:none;width:16px;height:16px;margin-top:2px}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chips span{font-size:12px;background:#F1F0F6;color:#3A3552;border-radius:8px;padding:3px 8px}
 .more{margin-top:auto;font-size:12.5px;color:var(--sub);display:flex;align-items:center;gap:6px}
 .stamp{position:absolute;top:30px;font-family:var(--cjk);font-weight:900;font-size:26px;padding:4px 14px;border:5px solid;border-radius:12px;opacity:0;pointer-events:none;letter-spacing:2px}
 .stamp.yes{left:22px;color:var(--yes);border-color:var(--yes);transform:rotate(-14deg)}
-.stamp.no{right:22px;color:var(--no);border-color:var(--no);transform:rotate(14deg)}
+.stamp.no{right:22px;color:#8E8AA8;border-color:#8E8AA8;transform:rotate(14deg)}
+.stamp.bad{right:22px;color:var(--no);border-color:var(--no);transform:rotate(14deg)}
+.btn.mid{width:56px;height:56px}
+.btn.mid svg{width:26px;height:26px}
 
 /* 按鈕 */
-.ctrl{display:flex;justify-content:center;align-items:center;gap:22px;flex:none}
+.ctrl{display:flex;justify-content:center;align-items:flex-start;gap:16px;flex:none}
 .btn{border:0;border-radius:50%;display:grid;place-items:center;background:#fff;box-shadow:0 8px 20px rgba(0,0,0,.3);transition:transform .15s}
 .btn:active{transform:scale(.9)}
 .btn.big{width:68px;height:68px}
@@ -129,7 +148,16 @@ button{font:inherit;cursor:pointer}
 .burst{position:fixed;pointer-events:none;z-index:25;font-family:var(--num);font-weight:900;font-size:26px;color:var(--gold);text-shadow:0 2px 0 #5A3B00;animation:burst 1s ease-out forwards}
 @keyframes burst{0%{opacity:0;transform:translateY(10px) scale(.6)}20%{opacity:1;transform:translateY(0) scale(1.1)}100%{opacity:0;transform:translateY(-60px) scale(1)}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-@media (max-height:640px){.name{font-size:23px}.why{-webkit-line-clamp:2}}
+@media (max-height:640px){.name{font-size:23px}}
+.sec{font-size:12.5px;font-weight:800;color:var(--sub);margin:2px 0 -4px;letter-spacing:.5px}
+.ai{border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;border:2px solid}
+.ai.go{background:#ECFDF3;border-color:#86EFAC}.ai.maybe{background:#FFF8E6;border-color:#FCD34D}.ai.no{background:#FFF0F2;border-color:#FDA4AF}
+.ai .h{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;color:var(--sub)}
+.ai .h svg{width:18px;height:18px}
+.ai .v{font-size:18px;font-weight:900}
+.ai.go .v{color:#15803D}.ai.maybe .v{color:#B45309}.ai.no .v{color:#BE123C}
+.ai .r{font-size:14px;line-height:1.55;color:#2E2A45}
+.ai .r b{color:var(--ink)}
 </style>
 </head>
 <body>
@@ -140,17 +168,18 @@ button{font:inherit;cursor:pointer}
     <div class="lv" id="lv">Lv1</div>
   </div>
   <div class="stage">
-    <label for="job">關卡</label>
-    <select id="job" aria-label="選擇職缺關卡"><option value="">全部職缺</option></select>
-    <div class="left">剩 <b id="left">0</b></div>
+    <select id="cli" aria-label="選擇客戶"><option value="">全部客戶</option></select>
+    <select id="job" aria-label="選擇職缺"><option value="">全部職缺</option></select>
   </div>
+  <div class="stage2"><button class="lvbtn" id="bLevel" type="button">選關卡</button><div class="left">這關剩 <b id="left">0</b> 張</div></div>
   <div class="deck" id="deck"></div>
   <div class="ctrl">
-    <div class="bw n"><button class="btn big" id="bNo" aria-label="不適合"><svg viewBox="0 0 24 24" fill="none" stroke="#FF5A6E" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>不適合</div>
+    <div class="bw n"><button class="btn mid" id="bNo" aria-label="不適合"><svg viewBox="0 0 24 24" fill="none" stroke="#FF5A6E" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>不適合</div>
+    <div class="bw"><button class="btn big" id="bSkip" aria-label="跳過"><svg viewBox="0 0 24 24" fill="none" stroke="#8E8AA8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M14 6l-6 6 6 6"/></svg></button>跳過</div>
     <div class="bw"><button class="btn small" id="bUndo" aria-label="回上一張"><svg viewBox="0 0 24 24" fill="none" stroke="#ECE9FF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 010 12h-3"/></svg></button>上一張</div>
     <div class="bw y"><button class="btn big" id="bYes" aria-label="指派給我"><svg viewBox="0 0 24 24" fill="#22C55E"><path d="M12 21s-7.5-4.6-9.5-9.2C1 8.2 3.3 4.5 7 4.5c2 0 3.5 1 5 2.8 1.5-1.8 3-2.8 5-2.8 3.7 0 6 3.7 4.5 7.3C19.5 16.4 12 21 12 21z"/></svg></button>指派給我</div>
   </div>
-  <div class="hint">右滑＝指派給我・左滑＝不適合・點卡片看全部</div>
+  <div class="hint">右滑＝指派給我・左滑＝跳過（7 天內不再出現）・紅叉＝不適合</div>
 </div>
 <div class="sheet-bg" id="sbg"></div>
 <div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
@@ -188,64 +217,70 @@ const I={
   phone:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2"/></svg>',
   mail:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>',
   link:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 006 0l3-3a4 4 0 00-6-6l-1 1"/><path d="M14 10a4 4 0 00-6 0l-3 3a4 4 0 006 6l1-1"/></svg>',
+  bot:'<svg viewBox="0 0 24 24" fill="none" stroke="#7C5CFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 4v4M9 13h.01M15 13h.01M9 17h6"/></svg>',
   dots:'<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>'
 };
 function li(arr,icon){return arr&&arr.length?`<ul class="list">${arr.map(x=>`<li>${icon}<span>${esc(x)}</span></li>`).join('')}</ul>`:''}
-function cardHTML(c,full){
+function cardHTML(c){
   const src=c.kind==='rec'?'<span class="src pool">人才庫</span>':'<span class="src">AI 主動開發</span>';
   const score=c.kind==='sourced'?`<span class="score">${esc(c.grade||'')}級 ${c.score??''}分</span>`:'';
-  const pros=full?c.pros:(c.pros||[]).slice(0,2), cons=full?c.cons:(c.cons||[]).slice(0,1);
+  const a=c.ai||{};
+  const ai=a.verdict?`<div class="ai ${esc(a.level||'maybe')}"><div class="h">${I.bot}AI 建議</div><div class="v">${esc(a.verdict)}</div>
+    ${a.reason?`<div class="r"><b>為什麼：</b>${esc(a.reason)}</div>`:''}${a.check?`<div class="r"><b>先確認：</b>${esc(a.check)}</div>`:''}${a.how?`<div class="r"><b>怎麼聯繫：</b>${esc(a.how)}</div>`:''}</div>`:'';
   return `<div class="rim"></div><div class="body">
     <div class="toprow"><span class="rar">${RAR[c.rarity]}</span>${src}${score}</div>
     <div><div class="name">${esc(c.name)}</div>${c.subtitle?`<div class="subt">${esc(c.subtitle)}${c.location?'｜'+esc(c.location):''}</div>`:''}</div>
     <div class="job">${I.flag}<span>配對職缺：${esc(c.job_title)}</span></div>
-    ${c.why?`<div class="why">${esc(c.why)}</div>`:''}
-    ${li(pros,I.ok)}${li(cons,I.warn)}
-    ${c.ask&&c.ask.length?(full?'<h4>電話要問</h4>'+li(c.ask,I.q):li(c.ask.slice(0,1),I.q)):''}
-    ${c.skills&&c.skills.length?`<div class="chips">${c.skills.map(s=>`<span>${esc(s)}</span>`).join('')}</div>`:''}
-    ${full?'':`<div class="more">${I.dots}點一下看完整資料</div>`}
+    ${ai}
+    ${c.pros&&c.pros.length?'<div class="sec">符合的地方</div>'+li(c.pros,I.ok):''}
+    ${c.cons&&c.cons.length?'<div class="sec">要注意</div>'+li(c.cons,I.warn):''}
+    ${c.ask&&c.ask.length?'<div class="sec">電話要問</div>'+li(c.ask,I.q):''}
+    ${c.why&&c.kind==='sourced'?'<div class="sec">個人簡介</div><div class="why">'+esc(c.why)+'</div>':''}
+    ${c.why&&c.kind==='rec'&&!(c.ai&&c.ai.reason===c.why)?'<div class="sec">給人選看的推薦理由</div><div class="why">'+esc(c.why)+'</div>':''}
+    ${c.skills&&c.skills.length?`<div class="sec">技能</div><div class="chips">${c.skills.map(s=>`<span>${esc(s)}</span>`).join('')}</div>`:''}
   </div>`;
 }
 function render(){
   const deck=$('#deck');deck.innerHTML='';hud();
   if(!cards.length){
-    deck.innerHTML=`<div class="center"><svg class="trophy" viewBox="0 0 24 24" fill="#FFC83D"><path d="M7 3h10v3h3v2a5 5 0 01-5 5h-.3A5 5 0 0113 15v2h3v4H8v-4h3v-2a5 5 0 01-1.7-2H9a5 5 0 01-5-5V6h3zM6 8v.1A3 3 0 008.4 11 7 7 0 017 8zm12 0a7 7 0 01-1.4 3A3 3 0 0018 8.1z"/></svg><h2>這關清完了！</h2><p>${$('#job').value?'換一個關卡繼續，或回到「全部職缺」。':'AI 目前推薦的人選都看過了，<br>新的人選進來會自動出現在這裡。'}</p></div>`;
+    deck.innerHTML=`<div class="center"><svg class="trophy" viewBox="0 0 24 24" fill="#FFC83D"><path d="M7 3h10v3h3v2a5 5 0 01-5 5h-.3A5 5 0 0113 15v2h3v4H8v-4h3v-2a5 5 0 01-1.7-2H9a5 5 0 01-5-5V6h3zM6 8v.1A3 3 0 008.4 11 7 7 0 017 8zm12 0a7 7 0 01-1.4 3A3 3 0 0018 8.1z"/></svg><h2>這關清完了！</h2><p>${(CLI||JOB)?'按上面「選關卡」換一關繼續。':'AI 目前推薦的人選都看過了，<br>新的人選進來會自動出現在這裡。'}</p></div>`;
     return;
   }
   cards.slice(0,3).reverse().forEach((c,i,arr)=>{
     const depth=arr.length-1-i;
     const el=document.createElement('div');
     el.className=`card ${c.rarity}`+(depth===1?' under':depth===2?' under2':'');
-    el.innerHTML=cardHTML(c,false)+(c.rarity==='gold'?'<div class="foil"></div>':'')+'<div class="stamp yes">指派給我</div><div class="stamp no">跳過</div>';
+    el.innerHTML=cardHTML(c)+(c.rarity==='gold'?'<div class="foil"></div>':'')+'<div class="stamp yes">指派給我</div><div class="stamp no">跳過</div><div class="stamp bad">不適合</div>';
     if(depth===0){el.tabIndex=0;el.setAttribute('aria-label',`${c.name}，${c.job_title}`);bindDrag(el,c)}
     deck.appendChild(el);
   });
 }
 function bindDrag(el,c){
-  let sx=0,sy=0,dx=0,dy=0,down=false,moved=false,t0=0;
+  let sx=0,sy=0,dx=0,dy=0,down=false,mode='',t0=0,pid=0;
   const yes=el.querySelector('.stamp.yes'),no=el.querySelector('.stamp.no');
-  el.addEventListener('pointerdown',e=>{if(busy)return;down=true;moved=false;sx=e.clientX;sy=e.clientY;dx=dy=0;t0=Date.now();el.setPointerCapture(e.pointerId);el.classList.add('drag')});
-  el.addEventListener('pointermove',e=>{if(!down)return;dx=e.clientX-sx;dy=e.clientY-sy;if(Math.abs(dx)>6||Math.abs(dy)>6)moved=true;
-    el.style.transform=`translate(${dx}px,${dy*.3}px) rotate(${dx/18}deg)`;
+  el.addEventListener('pointerdown',e=>{if(busy)return;if(e.target.closest('a,button'))return;down=true;mode='';sx=e.clientX;sy=e.clientY;dx=dy=0;t0=Date.now();pid=e.pointerId});
+  el.addEventListener('pointermove',e=>{if(!down)return;dx=e.clientX-sx;dy=e.clientY-sy;
+    if(!mode){if(Math.abs(dx)>10&&Math.abs(dx)>Math.abs(dy)*1.2){mode='x';try{el.setPointerCapture(pid)}catch{}el.classList.add('drag')}else if(Math.abs(dy)>10){mode='y';down=false;return}else return}
+    el.style.transform=`translate(${dx}px,${dy*.15}px) rotate(${dx/18}deg)`;
     yes.style.opacity=Math.max(0,Math.min(1,dx/90));no.style.opacity=Math.max(0,Math.min(1,-dx/90))});
-  const end=()=>{if(!down)return;down=false;el.classList.remove('drag');
-    const v=Math.abs(dx)/Math.max(1,Date.now()-t0);
-    if(dx>110||(dx>50&&v>.6))return fly(el,c,'right');
-    if(dx<-110||(dx<-50&&v>.6))return fly(el,c,'left');
-    el.style.transform='';yes.style.opacity=no.style.opacity=0;
-    if(!moved)openDetail(c)};
-  el.addEventListener('pointerup',end);el.addEventListener('pointercancel',end);
+  const end=()=>{if(!down&&mode!=='x')return;const was=mode;down=false;mode='';el.classList.remove('drag');
+    if(was==='x'){const v=Math.abs(dx)/Math.max(1,Date.now()-t0);
+      if(dx>110||(dx>50&&v>.6))return fly(el,c,'right');
+      if(dx<-110||(dx<-50&&v>.6))return fly(el,c,'skip');
+      el.style.transform='';yes.style.opacity=no.style.opacity=0;return}
+    if(Math.abs(dx)<6&&Math.abs(dy)<6&&Date.now()-t0<400)openDetail(c)};
+  el.addEventListener('pointerup',end);el.addEventListener('pointercancel',()=>{if(mode==='x')return end();down=false;mode=''});
   el.addEventListener('keydown',e=>{if(e.key==='Enter')openDetail(c)});
 }
 function fly(el,c,dir){
   busy=true;
   el.style.transition='transform .35s ease-in';
-  el.style.transform=`translate(${dir==='right'?'':'-'}140%,40px) rotate(${dir==='right'?24:-24}deg)`;
-  setTimeout(()=>{dir==='right'?commit(c,'right'):askReason(c)},260);
+  el.style.transform=dir==='left'?'translate(0,130%) rotate(-6deg)':`translate(${dir==='right'?'':'-'}140%,40px) rotate(${dir==='right'?24:-24}deg)`;
+  setTimeout(()=>{dir==='left'?askReason(c):commit(c,dir)},260);
 }
 function topEl(){return $('#deck .card:last-child')}
 function act(dir){if(busy||!cards.length)return;const el=topEl();if(!el)return;
-  const s=el.querySelector('.stamp.'+(dir==='right'?'yes':'no'));if(s)s.style.opacity=1;fly(el,cards[0],dir)}
+  const s=el.querySelector('.stamp.'+({right:'yes',skip:'no',left:'bad'}[dir]));if(s)s.style.opacity=1;fly(el,cards[0],dir)}
 async function commit(c,dir,reason){
   try{
     const d=await api('/admin/pick/swipe',{who:WHO,kind:c.kind,id:c.id,dir,reason});
@@ -254,7 +289,8 @@ async function commit(c,dir,reason){
     if(d.gone){toast(d.error);busy=false;render();return}
     stats.today++;stats.total++;if(dir==='right')stats.rights++;if(stats.streak===0)stats.streak=1;
     const r=$('#deck').getBoundingClientRect();
-    burst(dir==='right'?'+10 XP':'+2 XP',r.left+r.width/2,r.top+r.height/2);
+    burst(dir==='right'?'+10 XP':dir==='skip'?'+1 XP':'+2 XP',r.left+r.width/2,r.top+r.height/2);
+    if(dir==='skip')toast('跳過了，7 天內不會再出現（Phoebe 那邊照樣看得到）');
     if(stats.today===10)setTimeout(()=>toast('今日任務完成！'),400);
     busy=false;render();
     if(dir==='right')openContact(c);
@@ -266,11 +302,11 @@ function closeSheet(){$('#sheet').classList.remove('on');$('#sbg').classList.rem
 $('#sbg').onclick=closeSheet;
 document.addEventListener('keydown',e=>{
   if($('#sheet').classList.contains('on')){if(e.key==='Escape')closeSheet();return}
-  if(e.key==='ArrowRight')act('right');else if(e.key==='ArrowLeft')act('left');else if(e.key==='z'||e.key==='Backspace')undo();
+  if(e.key==='ArrowRight')act('right');else if(e.key==='ArrowLeft')act('skip');else if(e.key==='x'||e.key==='Delete')act('left');else if(e.key==='z'||e.key==='Backspace')undo();
 });
 function askReason(c){
   pending=c;
-  sheet(`<h3>為什麼不適合？</h3><p class="s">${esc(c.name)} × ${esc(c.job_title)}｜選一個，AI 下次會參考</p>
+  sheet(`<h3>為什麼不適合？</h3><p class="s">${esc(c.name)} × ${esc(c.job_title)}｜選一個，AI 下次會參考。只是先不處理的話，按「取消」改用跳過。</p>
   <div class="opts">${REASONS.map(r=>`<button class="opt" data-r="${esc(r)}">${esc(r)}</button>`).join('')}</div>
   <div class="row"><button class="act ghost" id="cancelR">取消，放回去</button></div>`);
   $('#sheet').querySelectorAll('.opt').forEach(b=>b.onclick=()=>{pending=null;$('#sheet').classList.remove('on');$('#sbg').classList.remove('on');commit(c,'left',b.dataset.r)});
@@ -292,9 +328,11 @@ function openContact(c){
   $('#okC').onclick=closeSheet;
 }
 function openDetail(c){
-  sheet(`<div class="detail card ${c.rarity}" style="position:static;box-shadow:none;transform:none">${cardHTML(c,true)}</div>
-  <div class="contact">${contactRows(c)}</div>
-  <div class="row"><button class="act ghost" id="dNo">不適合</button><button class="act primary" id="dYes">指派給我</button></div>`);
+  const rows=contactRows(c);
+  sheet(`<h3>${esc(c.name)}</h3><p class="s">${esc(c.job_title)}${rows?'':'｜系統裡還沒有聯絡方式'}</p>
+  <div class="contact">${rows}</div>
+  <div class="row"><button class="act ghost" id="dNo" style="color:#E11D48">不適合</button><button class="act ghost" id="dSkip">跳過</button><button class="act primary" id="dYes">指派給我</button></div>`);
+  $('#dSkip').onclick=()=>{$('#sheet').classList.remove('on');$('#sbg').classList.remove('on');act('skip')};
   $('#dNo').onclick=()=>{$('#sheet').classList.remove('on');$('#sbg').classList.remove('on');act('left')};
   $('#dYes').onclick=()=>{$('#sheet').classList.remove('on');$('#sbg').classList.remove('on');act('right')};
 }
@@ -307,16 +345,43 @@ async function undo(){
   }catch(e){if(e.auth)return needLogin();toast('連線失敗')}
   busy=false;
 }
-function filter(){const j=$('#job').value;cards=j?ALL.filter(c=>c.job_slug===j):ALL.slice();render()}
+let CLI=ls.get('s1ne_pick_cli')||'', JOB=ls.get('s1ne_pick_job')||'';
+function clients(){const m={};ALL.forEach(c=>{m[c.client]=(m[c.client]||0)+1});return Object.entries(m).sort((a,b)=>b[1]-a[1])}
+function jobsOf(cli){const m={};ALL.filter(c=>!cli||c.client===cli).forEach(c=>{m[c.job_slug]=m[c.job_slug]||{slug:c.job_slug,title:c.job_title,client:c.client,n:0};m[c.job_slug].n++});return Object.values(m).sort((a,b)=>b.n-a.n)}
+function fillSelects(){
+  const cs=clients();if(CLI&&!cs.some(x=>x[0]===CLI))CLI='';
+  $('#cli').innerHTML=`<option value="">全部客戶（${ALL.length}）</option>`+cs.map(([k,n])=>`<option value="${esc(k)}">${esc(k)}（${n}）</option>`).join('');
+  $('#cli').value=CLI;
+  const js=jobsOf(CLI);if(JOB&&!js.some(j=>j.slug===JOB))JOB='';
+  $('#job').innerHTML=`<option value="">${CLI?'這個客戶的全部職缺':'全部職缺'}（${js.reduce((a,j)=>a+j.n,0)}）</option>`+js.map(j=>`<option value="${esc(j.slug)}">${esc(j.title)}（${j.n}）</option>`).join('');
+  $('#job').value=JOB;
+}
+function filter(){ls.set('s1ne_pick_cli',CLI);ls.set('s1ne_pick_job',JOB);fillSelects();cards=ALL.filter(c=>(!CLI||c.client===CLI)&&(!JOB||c.job_slug===JOB));render()}
+function showLevels(step){
+  $('#left').textContent='-';
+  const d=$('#deck');
+  if(step!=='job'){
+    const cs=clients();
+    d.innerHTML=`<div class="levels"><h2>選關卡</h2><p class="s">先選客戶，再選職缺</p>
+      <button class="tile all" data-all="1"><div class="t">全部一起滑<small>不分客戶、不分職缺</small></div><div class="n">${ALL.length}</div></button>
+      ${cs.map(([k,n])=>`<button class="tile" data-cli="${esc(k)}"><div class="t">${esc(k)}<small>${jobsOf(k).length} 個職缺</small></div><div class="n">${n}</div></button>`).join('')}</div>`;
+    d.querySelector('[data-all]').onclick=()=>{CLI='';JOB='';filter()};
+    d.querySelectorAll('[data-cli]').forEach(b=>b.onclick=()=>{CLI=b.dataset.cli;JOB='';showLevels('job')});
+  }else{
+    const js=jobsOf(CLI);
+    d.innerHTML=`<div class="levels"><button class="back" id="lvBack">← 換客戶</button><h2>${esc(CLI)}</h2><p class="s">選一個職缺，或整個客戶一起滑</p>
+      <button class="tile all" data-job=""><div class="t">這個客戶的全部職缺</div><div class="n">${js.reduce((a,j)=>a+j.n,0)}</div></button>
+      ${js.map(j=>`<button class="tile" data-job="${esc(j.slug)}"><div class="t">${esc(j.title)}</div><div class="n">${j.n}</div></button>`).join('')}</div>`;
+    $('#lvBack').onclick=()=>showLevels();
+    d.querySelectorAll('[data-job]').forEach(b=>b.onclick=()=>{JOB=b.dataset.job;filter()});
+  }
+}
 async function load(keepJob){
   try{
     const d=await api('/admin/pick/deck?who='+encodeURIComponent(WHO));
     if(!d.ok){$('#deck').innerHTML=`<div class="center"><h2>載入失敗</h2><p>${esc(d.error||'')}</p></div>`;return}
-    ALL=d.cards;stats=d.stats;
-    const sel=$('#job'),cur=keepJob?sel.value:'';
-    sel.innerHTML='<option value="">全部職缺（'+ALL.length+'）</option>'+d.jobs.map(j=>`<option value="${esc(j.slug)}">${esc(j.title)}（${j.n}）</option>`).join('');
-    if(cur&&d.jobs.some(j=>j.slug===cur))sel.value=cur;
-    filter();
+    ALL=d.cards;stats=d.stats;hud();fillSelects();
+    if(keepJob)filter();else showLevels();
   }catch(e){if(e.auth)return needLogin();$('#deck').innerHTML='<div class="center"><h2>連不上</h2><p>網路不穩，稍後再開一次。</p></div>'}
 }
 function needLogin(){
@@ -326,8 +391,12 @@ function askWho(){
   $('#deck').innerHTML=`<div class="center"><h2>你是哪位顧問？</h2><p>右滑「指派給我」的人選會記在你名下</p><div class="who"><button data-w="jacky">Jacky</button><button data-w="phoebe">Phoebe</button></div></div>`;
   $('#deck').querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>{WHO=b.dataset.w;ls.set('s1ne_pick_who',WHO);load()});
 }
-$('#bYes').onclick=()=>act('right');$('#bNo').onclick=()=>act('left');$('#bUndo').onclick=undo;
-$('#job').onchange=filter;
+$('#bYes').onclick=()=>act('right');$('#bNo').onclick=()=>act('left');$('#bSkip').onclick=()=>act('skip');$('#bUndo').onclick=undo;
+$('#cli').onchange=()=>{CLI=$('#cli').value;JOB='';filter()};
+$('#job').onchange=()=>{JOB=$('#job').value;filter()};
+$('#bLevel').onclick=()=>showLevels();
+function fitH(){const h=window.visualViewport?visualViewport.height:innerHeight;document.documentElement.style.setProperty('--apph',Math.round(h)+'px');window.scrollTo(0,0)}
+fitH();addEventListener('resize',fitH);window.visualViewport&&visualViewport.addEventListener('resize',fitH);addEventListener('orientationchange',()=>setTimeout(fitH,300));
 if(!TOKEN)needLogin();else if(!WHO)askWho();else load();
 </script>
 </body>
