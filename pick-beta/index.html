@@ -145,7 +145,7 @@ button{font:inherit;cursor:pointer}
 
 /* 其他畫面 */
 .center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px;padding:24px}
-.login{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center}
+.login{position:fixed;inset:0;z-index:40;background:radial-gradient(120% 80% at 50% 0%,#2A2160 0%,#1B1640 60%);background-color:#1B1640;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:14px;padding:max(72px,calc(env(safe-area-inset-top) + 48px)) 24px 24px;text-align:center;overflow-y:auto}
 .login .lock{width:56px;height:56px}
 .login h2{margin:0;font-size:22px;font-weight:900}
 .login p{margin:0;color:var(--dim);font-size:14px;line-height:1.6}
@@ -419,18 +419,20 @@ async function load(keepJob){
   }catch(e){if(e.auth)return needLogin();$('#deck').innerHTML='<div class="center"><h2>連不上</h2><p>網路不穩，稍後再開一次。</p></div>'}
 }
 function needLogin(msg){
-  $('#deck').innerHTML=`<form class="login" id="loginF" autocomplete="off">
+  const old=$('#loginF');if(old)old.remove();
+  $('#deck').innerHTML='';
+  document.body.insertAdjacentHTML('beforeend',`<form class="login" id="loginF" autocomplete="off">
     <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="#FFC83D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="3"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>
     <h2>輸入登入權杖</h2>
     <p>跟顧問後台用的是同一組權杖。<br>輸入一次就會記住，加到手機桌面也一樣。</p>
     <input id="tokIn" type="password" inputmode="text" autocapitalize="off" spellcheck="false" placeholder="貼上權杖" aria-label="登入權杖">
     ${msg?`<div class="err">${esc(msg)}</div>`:''}
     <button class="go" type="submit">開始滑卡</button>
-  </form>`;
+  </form>`);
   $('#tokIn').focus();
   $('#loginF').onsubmit=async e=>{e.preventDefault();const v=$('#tokIn').value.trim();if(!v)return;
     TOKEN=v;
-    try{const d=await api('/admin/pick/deck?who=jacky');if(!d.ok)throw 0;ls.set('s1ne_admin_tok',v);toast('登入成功');WHO?load():askWho()}
+    try{const d=await api('/admin/pick/deck?who=jacky');if(!d.ok)throw 0;ls.set('s1ne_admin_tok',v);$('#loginF').remove();$('#tokIn')&&$('#tokIn').blur();fitH();toast('登入成功');WHO?load():askWho()}
     catch(err){TOKEN='';needLogin('權杖不對，請再確認一次')}};
 }
 const WHO_NAME={jacky:'Jacky',phoebe:'Phoebe'};
@@ -445,7 +447,7 @@ $('#job').onchange=()=>{JOB=$('#job').value;filter()};
 $('#bLevel').onclick=()=>showLevels();
 $('#bMe').onclick=()=>{if(busy)return;askWho()};
 showMe();
-function fitH(){const h=window.visualViewport?visualViewport.height:innerHeight;document.documentElement.style.setProperty('--apph',Math.round(h)+'px');window.scrollTo(0,0)}
+function fitH(){const ae=document.activeElement;if(ae&&ae.tagName==='INPUT')return;const h=window.visualViewport?visualViewport.height:innerHeight;document.documentElement.style.setProperty('--apph',Math.round(h)+'px');window.scrollTo(0,0)}
 fitH();addEventListener('resize',fitH);window.visualViewport&&visualViewport.addEventListener('resize',fitH);addEventListener('orientationchange',()=>setTimeout(fitH,300));
 if(!TOKEN)needLogin();else if(!WHO)askWho();else load();
 </script>
