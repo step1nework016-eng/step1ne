@@ -1869,6 +1869,7 @@ function wireBdDashboardFilter() {
   const ph = document.getElementById('bd-dash-phone');
   const ct = document.getElementById('bd-dash-contacted');
   const qc = document.getElementById('bd-dash-qc');
+  const src = document.getElementById('bd-dash-source');
   const qbox = document.getElementById('bd-dash-q');
   const apply = () => {
     const v = sel.value;
@@ -1882,6 +1883,7 @@ function wireBdDashboardFilter() {
       else if (v.startsWith('stage:')) ok = stage === v.slice('stage:'.length);
       // 2026-10-02 Jacky：可以直接打公司名稱找
       if (ok && qbox && qbox.value.trim()) ok = (r.dataset.bdName || '').includes(qbox.value.trim().toLowerCase());
+      if (ok && src && src.value) ok = r.dataset.bdSource === src.value;
       if (ok && ind && ind.value) ok = r.dataset.bdIndustry === ind.value;
       if (ok && who && who.value) ok = who.value === '__none' ? !r.dataset.bdAssignee : r.dataset.bdAssignee === who.value;
       // 備選池（2026-09-30 Jacky）：只有選「備選池」才看得到，其他篩選一律藏起來
@@ -1902,7 +1904,7 @@ function wireBdDashboardFilter() {
     if (counter) counter.textContent = shown === total ? `顯示全部 ${total} 家` : `顯示 ${shown} 家（全部 ${total} 家）`;
   };
   sel.onchange = apply;
-  [ind, who, ph, ct, qc].forEach((x) => { if (x) x.onchange = apply; });
+  [ind, who, ph, ct, qc, src].forEach((x) => { if (x) x.onchange = apply; });
   if (qbox) qbox.oninput = apply;
   // 已聯繫打勾（2026-09-30 Jacky）：勾了就存，記錄是誰（用這列的負責人）
   for (const cb of box.querySelectorAll('[data-bd-contacted-box]')) {
