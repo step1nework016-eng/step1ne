@@ -79,7 +79,7 @@ button{font:inherit;cursor:pointer}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chips span{font-size:12px;background:#F1F0F6;color:#3A3552;border-radius:8px;padding:3px 8px}
 .more{margin-top:auto;font-size:12.5px;color:var(--sub);display:flex;align-items:center;gap:6px}
-.stamp{position:absolute;top:30px;font-family:var(--cjk);font-weight:900;font-size:30px;padding:4px 14px;border:5px solid;border-radius:12px;opacity:0;pointer-events:none;letter-spacing:2px}
+.stamp{position:absolute;top:30px;font-family:var(--cjk);font-weight:900;font-size:26px;padding:4px 14px;border:5px solid;border-radius:12px;opacity:0;pointer-events:none;letter-spacing:2px}
 .stamp.yes{left:22px;color:var(--yes);border-color:var(--yes);transform:rotate(-14deg)}
 .stamp.no{right:22px;color:var(--no);border-color:var(--no);transform:rotate(14deg)}
 
@@ -92,6 +92,8 @@ button{font:inherit;cursor:pointer}
 .btn svg{width:30px;height:30px}
 .btn.small svg{width:22px;height:22px}
 .btn:disabled{opacity:.35}
+.bw{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12.5px;font-weight:800;color:var(--hud)}
+.bw.y{color:#7BE3A0}.bw.n{color:#FF9AA6}
 .hint{text-align:center;font-size:11.5px;color:var(--dim);margin-top:8px}
 
 /* 底部抽屜 */
@@ -144,11 +146,11 @@ button{font:inherit;cursor:pointer}
   </div>
   <div class="deck" id="deck"></div>
   <div class="ctrl">
-    <button class="btn big" id="bNo" aria-label="跳過（不適合）"><svg viewBox="0 0 24 24" fill="none" stroke="#FF5A6E" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-    <button class="btn small" id="bUndo" aria-label="回上一張"><svg viewBox="0 0 24 24" fill="none" stroke="#ECE9FF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 010 12h-3"/></svg></button>
-    <button class="btn big" id="bYes" aria-label="我來聯繫"><svg viewBox="0 0 24 24" fill="#22C55E"><path d="M12 21s-7.5-4.6-9.5-9.2C1 8.2 3.3 4.5 7 4.5c2 0 3.5 1 5 2.8 1.5-1.8 3-2.8 5-2.8 3.7 0 6 3.7 4.5 7.3C19.5 16.4 12 21 12 21z"/></svg></button>
+    <div class="bw n"><button class="btn big" id="bNo" aria-label="不適合"><svg viewBox="0 0 24 24" fill="none" stroke="#FF5A6E" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>不適合</div>
+    <div class="bw"><button class="btn small" id="bUndo" aria-label="回上一張"><svg viewBox="0 0 24 24" fill="none" stroke="#ECE9FF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 010 12h-3"/></svg></button>上一張</div>
+    <div class="bw y"><button class="btn big" id="bYes" aria-label="指派給我"><svg viewBox="0 0 24 24" fill="#22C55E"><path d="M12 21s-7.5-4.6-9.5-9.2C1 8.2 3.3 4.5 7 4.5c2 0 3.5 1 5 2.8 1.5-1.8 3-2.8 5-2.8 3.7 0 6 3.7 4.5 7.3C19.5 16.4 12 21 12 21z"/></svg></button>指派給我</div>
   </div>
-  <div class="hint">右滑＝我來聯繫・左滑＝不適合・點卡片看全部</div>
+  <div class="hint">右滑＝指派給我・左滑＝不適合・點卡片看全部</div>
 </div>
 <div class="sheet-bg" id="sbg"></div>
 <div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
@@ -214,7 +216,7 @@ function render(){
     const depth=arr.length-1-i;
     const el=document.createElement('div');
     el.className=`card ${c.rarity}`+(depth===1?' under':depth===2?' under2':'');
-    el.innerHTML=cardHTML(c,false)+(c.rarity==='gold'?'<div class="foil"></div>':'')+'<div class="stamp yes">聯繫</div><div class="stamp no">跳過</div>';
+    el.innerHTML=cardHTML(c,false)+(c.rarity==='gold'?'<div class="foil"></div>':'')+'<div class="stamp yes">指派給我</div><div class="stamp no">跳過</div>';
     if(depth===0){el.tabIndex=0;el.setAttribute('aria-label',`${c.name}，${c.job_title}`);bindDrag(el,c)}
     deck.appendChild(el);
   });
@@ -284,7 +286,7 @@ function contactRows(c){
 }
 function openContact(c){
   const rows=contactRows(c);
-  sheet(`<h3>已記下：${esc(c.name)} 由你聯繫</h3><p class="s">${esc(c.job_title)}${rows?'':'｜系統裡還沒有他的電話或 Email'}</p>
+  sheet(`<h3>已指派給你：${esc(c.name)}</h3><p class="s">${esc(c.job_title)}${rows?'':'｜系統裡還沒有他的電話或 Email'}</p>
   <div class="contact">${rows}</div>${c.ask&&c.ask.length?'<div class="detail"><h4>電話要問</h4>'+li(c.ask,I.q)+'</div>':''}
   <div class="row"><button class="act ghost" id="okC">繼續滑</button></div>`);
   $('#okC').onclick=closeSheet;
@@ -292,7 +294,7 @@ function openContact(c){
 function openDetail(c){
   sheet(`<div class="detail card ${c.rarity}" style="position:static;box-shadow:none;transform:none">${cardHTML(c,true)}</div>
   <div class="contact">${contactRows(c)}</div>
-  <div class="row"><button class="act ghost" id="dNo">不適合</button><button class="act primary" id="dYes">我來聯繫</button></div>`);
+  <div class="row"><button class="act ghost" id="dNo">不適合</button><button class="act primary" id="dYes">指派給我</button></div>`);
   $('#dNo').onclick=()=>{$('#sheet').classList.remove('on');$('#sbg').classList.remove('on');act('left')};
   $('#dYes').onclick=()=>{$('#sheet').classList.remove('on');$('#sbg').classList.remove('on');act('right')};
 }
@@ -321,7 +323,7 @@ function needLogin(){
   $('#deck').innerHTML=`<div class="center"><h2>先登入顧問後台</h2><p>這一頁跟顧問後台共用登入。<br>登入後回到這一頁就能開始滑。</p><a class="act vio" style="max-width:240px" href="/consultant/">去登入</a></div>`;
 }
 function askWho(){
-  $('#deck').innerHTML=`<div class="center"><h2>你是哪位顧問？</h2><p>右滑的人選會記在你名下</p><div class="who"><button data-w="jacky">Jacky</button><button data-w="phoebe">Phoebe</button></div></div>`;
+  $('#deck').innerHTML=`<div class="center"><h2>你是哪位顧問？</h2><p>右滑「指派給我」的人選會記在你名下</p><div class="who"><button data-w="jacky">Jacky</button><button data-w="phoebe">Phoebe</button></div></div>`;
   $('#deck').querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>{WHO=b.dataset.w;ls.set('s1ne_pick_who',WHO);load()});
 }
 $('#bYes').onclick=()=>act('right');$('#bNo').onclick=()=>act('left');$('#bUndo').onclick=undo;
