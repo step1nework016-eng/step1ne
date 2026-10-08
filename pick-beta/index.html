@@ -120,7 +120,7 @@ button{font:inherit;cursor:pointer}
 .btn:disabled{opacity:.35}
 .bw{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12.5px;font-weight:800;color:var(--hud)}
 .bw.y{color:#7BE3A0}.bw.n{color:#FF9AA6}
-/* 10/8：還沒進到滑卡（選關卡、登入、選身分、清完一關）時，下面的按鈕跟說明不顯示 */
+/* 10/8：還沒進到滑卡（選客戶、登入、選身分、清完一關）時，下面的按鈕跟說明不顯示 */
 body:not(.cards-on) .ctrl,body:not(.cards-on) .hint{display:none}
 .hint{text-align:center;font-size:11.5px;color:var(--dim);margin-top:8px}
 
@@ -189,7 +189,7 @@ body:not(.cards-on) .ctrl,body:not(.cards-on) .hint{display:none}
     <select id="cli" aria-label="選擇客戶"><option value="">全部客戶</option></select>
     <select id="job" aria-label="選擇職缺"><option value="">全部職缺</option></select>
   </div>
-  <div class="stage2"><button class="lvbtn" id="bLevel" type="button">選關卡</button><button class="me" id="bMe" type="button" aria-label="目前身分，點一下切換">我是 <b id="meName">—</b> <span>切換</span></button><div class="left">這關剩 <b id="left">0</b> 張</div></div>
+  <div class="stage2"><button class="lvbtn" id="bLevel" type="button">選客戶</button><button class="me" id="bMe" type="button" aria-label="目前身分，點一下切換">我是 <b id="meName">—</b> <span>切換</span></button><div class="left">剩 <b id="left">0</b> 張</div></div>
   <div class="deck" id="deck"></div>
   <div class="ctrl">
     <div class="bw n"><button class="btn mid" id="bNo" aria-label="不適合"><svg viewBox="0 0 24 24" fill="none" stroke="#FF5A6E" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>不適合</div>
@@ -262,7 +262,7 @@ function cardsOn(v){document.body.classList.toggle('cards-on',!!v)}
 function render(){
   const deck=$('#deck');deck.innerHTML='';hud();cardsOn(cards.length>0);
   if(!cards.length){
-    deck.innerHTML=`<div class="center"><svg class="trophy" viewBox="0 0 24 24" fill="#FFC83D"><path d="M7 3h10v3h3v2a5 5 0 01-5 5h-.3A5 5 0 0113 15v2h3v4H8v-4h3v-2a5 5 0 01-1.7-2H9a5 5 0 01-5-5V6h3zM6 8v.1A3 3 0 008.4 11 7 7 0 017 8zm12 0a7 7 0 01-1.4 3A3 3 0 0018 8.1z"/></svg><h2>這關清完了！</h2><p>${(CLI||JOB)?'按上面「選關卡」換一關繼續。':'AI 目前推薦的人選都看過了，<br>新的人選進來會自動出現在這裡。'}</p></div>`;
+    deck.innerHTML=`<div class="center"><svg class="trophy" viewBox="0 0 24 24" fill="#FFC83D"><path d="M7 3h10v3h3v2a5 5 0 01-5 5h-.3A5 5 0 0113 15v2h3v4H8v-4h3v-2a5 5 0 01-1.7-2H9a5 5 0 01-5-5V6h3zM6 8v.1A3 3 0 008.4 11 7 7 0 017 8zm12 0a7 7 0 01-1.4 3A3 3 0 0018 8.1z"/></svg><h2>這裡清完了！</h2><p>${(CLI||JOB)?'按上面「選客戶」換一個客戶或職缺繼續。':'AI 目前推薦的人選都看過了，<br>新的人選進來會自動出現在這裡。'}</p></div>`;
     return;
   }
   cards.slice(0,3).reverse().forEach((c,i,arr)=>{
@@ -400,7 +400,7 @@ function showLevels(step){
   const d=$('#deck');
   if(step!=='job'){
     const cs=clients();
-    d.innerHTML=`<div class="levels"><h2>選關卡</h2><p class="s">目前身分：<b style="color:#fff">${esc(WHO_NAME[WHO]||"")}</b>（右滑指派的人會記在你名下）・先選客戶，再選職缺</p>
+    d.innerHTML=`<div class="levels"><h2>選客戶</h2><p class="s">目前身分：<b style="color:#fff">${esc(WHO_NAME[WHO]||"")}</b>（右滑指派的人會記在你名下）・先選客戶，再選職缺</p>
       <button class="tile all" data-all="1"><div class="t">全部一起滑<small>不分客戶、不分職缺</small></div><div class="n">${ALL.length}</div></button>
       ${cs.map(([k,n])=>`<button class="tile" data-cli="${esc(k)}"><div class="t">${esc(k)}<small>${jobsOf(k).length} 個職缺</small></div><div class="n">${n}</div></button>`).join('')}</div>`;
     d.querySelector('[data-all]').onclick=()=>{CLI='';JOB='';filter()};
