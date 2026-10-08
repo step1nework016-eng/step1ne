@@ -26,7 +26,8 @@ html,body{margin:0;height:100%}
 body{background:radial-gradient(120% 80% at 50% 0%,var(--bg2) 0%,var(--bg) 60%) fixed;background-color:var(--bg);color:var(--hud);font-family:var(--cjk);overflow:hidden;overscroll-behavior:none}
 button{font:inherit;cursor:pointer}
 :focus-visible{outline:3px solid var(--gold);outline-offset:3px;border-radius:12px}
-.app{max-width:520px;margin:0 auto;height:100dvh;display:flex;flex-direction:column;padding:max(10px,env(safe-area-inset-top)) 16px max(14px,env(safe-area-inset-bottom))}
+/* 10/8：iPhone Safari 下方網址列會蓋住按鈕 → 高度改用「實際看得到的範圍」（visualViewport，JS 每次變動都更新），底部再多留空間 */
+.app{max-width:520px;margin:0 auto;height:100vh;height:100svh;height:var(--apph,100svh);display:flex;flex-direction:column;padding:max(10px,env(safe-area-inset-top)) 16px calc(18px + env(safe-area-inset-bottom))}
 
 /* HUD */
 .hud{display:flex;align-items:center;gap:10px}
@@ -346,6 +347,8 @@ function askWho(){
 }
 $('#bYes').onclick=()=>act('right');$('#bNo').onclick=()=>act('left');$('#bUndo').onclick=undo;
 $('#job').onchange=filter;
+function fitH(){const h=window.visualViewport?visualViewport.height:innerHeight;document.documentElement.style.setProperty('--apph',Math.round(h)+'px');window.scrollTo(0,0)}
+fitH();addEventListener('resize',fitH);window.visualViewport&&visualViewport.addEventListener('resize',fitH);addEventListener('orientationchange',()=>setTimeout(fitH,300));
 if(!TOKEN)needLogin();else if(!WHO)askWho();else load();
 </script>
 </body>
