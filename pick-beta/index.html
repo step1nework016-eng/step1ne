@@ -322,6 +322,15 @@ async function commit(c,dir,reason){
   }catch(e){busy=false;if(e.auth)return needLogin();toast('連線失敗，再試一次');render()}
 }
 function removeCard(c){cards=cards.filter(x=>!(x.kind===c.kind&&x.id===c.id));ALL=ALL.filter(x=>!(x.kind===c.kind&&x.id===c.id))}
+// 10/8：手機點 LinkedIn 要直接開 App。先試 linkedin:// ，1.2 秒內沒切走（沒裝 App）就改開網頁版
+function openLinkedIn(url){
+  const m=url.match(/linkedin\.com\/in\/([^/?#]+)/i);
+  if(!m||!/iPhone|iPad|Android/i.test(navigator.userAgent)){window.open(url,'_blank','noopener');return}
+  const t=setTimeout(()=>{if(!document.hidden)location.href=url},1200);
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)clearTimeout(t)},{once:true});
+  location.href='linkedin://in/'+m[1];
+}
+document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('a[data-li]');if(!a)return;e.preventDefault();openLinkedIn(a.dataset.li)});
 function sheet(html){$('#sheet').innerHTML=html;$('#sheet').classList.add('on');$('#sbg').classList.add('on');setTimeout(()=>{const f=$('#sheet button,#sheet a');f&&f.focus()},50)}
 function closeSheet(){$('#sheet').classList.remove('on');$('#sbg').classList.remove('on');if(pending){const p=pending;pending=null;busy=false;render()}}
 $('#sbg').onclick=closeSheet;
@@ -341,7 +350,7 @@ function contactRows(c){
   const rows=[];
   if(c.phone)rows.push(`<a class="act primary" href="tel:${esc(c.phone.replace(/[^\d+]/g,''))}">${I.phone}打電話 ${esc(c.phone)}</a>`);
   if(c.email)rows.push(`<a class="act vio" href="mailto:${esc(c.email)}">${I.mail}${esc(c.email)}</a>`);
-  if(c.link)rows.push(`<a class="act ghost" href="${esc(c.link)}" target="_blank" rel="noopener">${I.link}開個人頁面（LinkedIn 等）</a>`);
+  if(c.link)rows.push(/linkedin\.com\/in\//i.test(c.link)?`<a class="act ghost" href="${esc(c.link)}" data-li="${esc(c.link)}" target="_blank" rel="noopener">${I.link}開 LinkedIn（手機會直接開 App）</a>`:`<a class="act ghost" href="${esc(c.link)}" target="_blank" rel="noopener">${I.link}開個人頁面</a>`);
   if(c.kind==='rec'&&c.app_id)rows.push(`<a class="act ghost" href="/consultant/candidates/?tab=triage&app=${encodeURIComponent(c.app_id)}" target="_blank" rel="noopener">${I.link}開人選卡片</a>`);
   return rows.join('');
 }
