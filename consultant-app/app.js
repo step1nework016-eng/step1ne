@@ -518,6 +518,30 @@ document.addEventListener('click', async (event) => {
     openCandidate(btn.getAttribute('data-job-switch-app'));
   } catch (e) { btn.disabled = false; toast((e.body && e.body.error) || e.message || '沒有取消成功', 'error'); }
 });
+// 2026-10-08：最上面的搜尋框原本沒接功能。打完按 Enter：人選（姓名／電話／Email／#編號／匿名代號 S-082、舊代號 A-03）、職缺、客戶。
+document.addEventListener('keydown', async (event) => {
+  const inp = event.target instanceof Element ? event.target.closest('[data-action="global-search"]') : null;
+  if (!inp || event.key !== 'Enter' || event.isComposing) return;
+  event.preventDefault();
+  const q = inp.value.trim();
+  if (!q) return;
+  let d;
+  try { d = await api.get(`/admin/search?q=${encodeURIComponent(q)}`); } catch (e) { toast(e.message || '搜尋失敗', 'error'); return; }
+  const e2 = escapeHtml;
+  const c = d.candidates || [], j = d.jobs || [], co = d.companies || [];
+  if (c.length === 1 && !j.length && !co.length) { inp.value = ''; openCandidate(c[0].id); return; }
+  const row = (attr, id, main, sub) => `<button type="button" class="btn" style="display:block;width:100%;text-align:left;min-height:48px;margin:4px 0" ${attr}="${e2(id)}"><b>${main}</b><br><small class="muted">${sub}</small></button>`;
+  const body = (c.length ? `<h3 style="margin:8px 0 4px">人選（${c.length}）</h3>` + c.map((x) => row('data-gs-cand', x.id,
+      `${x.seq_no ? '#' + e2(x.seq_no) + ' ' : ''}${e2(x.name || '')}${x.anon_code ? `　<span class="badge info">${e2(x.anon_code)}${x.anon_old_code ? '（舊 ' + e2(x.anon_old_code) + '）' : ''}</span>` : ''}`,
+      `${e2(x.job_title || '')}${x.owner ? '・' + e2(x.owner) : ''}`)).join('') : '')
+    + (j.length ? `<h3 style="margin:12px 0 4px">職缺（${j.length}）</h3>` + j.map((x) => row('data-gs-job', x.slug, e2(x.title || x.slug), `${e2(x.client_name || '')}${x.status === 'social_only' ? '・🔒 未簽約職缺' : ''}`)).join('') : '')
+    + (co.length ? `<h3 style="margin:12px 0 4px">客戶（${co.length}）</h3>` + co.map((x) => row('data-gs-co', x.id, e2(x.display_name || ''), '')).join('') : '')
+    || '<p class="muted">找不到符合的人選、職缺或客戶。可以打姓名、電話、Email、#編號、匿名代號（例如 S-082）。</p>';
+  modal({ title: `搜尋「${q}」`, subtitle: '點一下打開', body, footer: '<button class="btn" data-close-overlay>關閉</button>' });
+  document.querySelectorAll('[data-gs-cand]').forEach((b) => { b.onclick = () => { closeOverlay(); openCandidate(b.getAttribute('data-gs-cand')); }; });
+  document.querySelectorAll('[data-gs-job]').forEach((b) => { b.onclick = () => { closeOverlay(); openJobManage(b.getAttribute('data-gs-job')); }; });
+  document.querySelectorAll('[data-gs-co]').forEach((b) => { b.onclick = () => { closeOverlay(); openCompanyManage(b.getAttribute('data-gs-co')); }; });
+});
 // 2026-10-07 Jacky：一鍵婉拒信——跟「寄信約電話」一樣，先產草稿、可以改，按確認才寄
 function dmBody(d) {
   const e = escapeHtml;
