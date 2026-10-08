@@ -97,10 +97,13 @@ button{font:inherit;cursor:pointer}
 .more{margin-top:auto;font-size:12.5px;color:var(--sub);display:flex;align-items:center;gap:6px}
 .stamp{position:absolute;top:30px;font-family:var(--cjk);font-weight:900;font-size:26px;padding:4px 14px;border:5px solid;border-radius:12px;opacity:0;pointer-events:none;letter-spacing:2px}
 .stamp.yes{left:22px;color:var(--yes);border-color:var(--yes);transform:rotate(-14deg)}
-.stamp.no{right:22px;color:var(--no);border-color:var(--no);transform:rotate(14deg)}
+.stamp.no{right:22px;color:#8E8AA8;border-color:#8E8AA8;transform:rotate(14deg)}
+.stamp.bad{right:22px;color:var(--no);border-color:var(--no);transform:rotate(14deg)}
+.btn.mid{width:56px;height:56px}
+.btn.mid svg{width:26px;height:26px}
 
 /* 按鈕 */
-.ctrl{display:flex;justify-content:center;align-items:center;gap:22px;flex:none}
+.ctrl{display:flex;justify-content:center;align-items:flex-start;gap:16px;flex:none}
 .btn{border:0;border-radius:50%;display:grid;place-items:center;background:#fff;box-shadow:0 8px 20px rgba(0,0,0,.3);transition:transform .15s}
 .btn:active{transform:scale(.9)}
 .btn.big{width:68px;height:68px}
@@ -171,11 +174,12 @@ button{font:inherit;cursor:pointer}
   <div class="stage2"><button class="lvbtn" id="bLevel" type="button">選關卡</button><div class="left">這關剩 <b id="left">0</b> 張</div></div>
   <div class="deck" id="deck"></div>
   <div class="ctrl">
-    <div class="bw n"><button class="btn big" id="bNo" aria-label="不適合"><svg viewBox="0 0 24 24" fill="none" stroke="#FF5A6E" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>不適合</div>
+    <div class="bw n"><button class="btn mid" id="bNo" aria-label="不適合"><svg viewBox="0 0 24 24" fill="none" stroke="#FF5A6E" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>不適合</div>
+    <div class="bw"><button class="btn big" id="bSkip" aria-label="跳過"><svg viewBox="0 0 24 24" fill="none" stroke="#8E8AA8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M14 6l-6 6 6 6"/></svg></button>跳過</div>
     <div class="bw"><button class="btn small" id="bUndo" aria-label="回上一張"><svg viewBox="0 0 24 24" fill="none" stroke="#ECE9FF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 010 12h-3"/></svg></button>上一張</div>
     <div class="bw y"><button class="btn big" id="bYes" aria-label="指派給我"><svg viewBox="0 0 24 24" fill="#22C55E"><path d="M12 21s-7.5-4.6-9.5-9.2C1 8.2 3.3 4.5 7 4.5c2 0 3.5 1 5 2.8 1.5-1.8 3-2.8 5-2.8 3.7 0 6 3.7 4.5 7.3C19.5 16.4 12 21 12 21z"/></svg></button>指派給我</div>
   </div>
-  <div class="hint">左右滑選擇・上下滑看完整資料・點一下看聯絡方式</div>
+  <div class="hint">右滑＝指派給我・左滑＝跳過（7 天內不再出現）・紅叉＝不適合</div>
 </div>
 <div class="sheet-bg" id="sbg"></div>
 <div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
@@ -246,7 +250,7 @@ function render(){
     const depth=arr.length-1-i;
     const el=document.createElement('div');
     el.className=`card ${c.rarity}`+(depth===1?' under':depth===2?' under2':'');
-    el.innerHTML=cardHTML(c)+(c.rarity==='gold'?'<div class="foil"></div>':'')+'<div class="stamp yes">指派給我</div><div class="stamp no">跳過</div>';
+    el.innerHTML=cardHTML(c)+(c.rarity==='gold'?'<div class="foil"></div>':'')+'<div class="stamp yes">指派給我</div><div class="stamp no">跳過</div><div class="stamp bad">不適合</div>';
     if(depth===0){el.tabIndex=0;el.setAttribute('aria-label',`${c.name}，${c.job_title}`);bindDrag(el,c)}
     deck.appendChild(el);
   });
@@ -262,7 +266,7 @@ function bindDrag(el,c){
   const end=()=>{if(!down&&mode!=='x')return;const was=mode;down=false;mode='';el.classList.remove('drag');
     if(was==='x'){const v=Math.abs(dx)/Math.max(1,Date.now()-t0);
       if(dx>110||(dx>50&&v>.6))return fly(el,c,'right');
-      if(dx<-110||(dx<-50&&v>.6))return fly(el,c,'left');
+      if(dx<-110||(dx<-50&&v>.6))return fly(el,c,'skip');
       el.style.transform='';yes.style.opacity=no.style.opacity=0;return}
     if(Math.abs(dx)<6&&Math.abs(dy)<6&&Date.now()-t0<400)openDetail(c)};
   el.addEventListener('pointerup',end);el.addEventListener('pointercancel',()=>{if(mode==='x')return end();down=false;mode=''});
@@ -271,12 +275,12 @@ function bindDrag(el,c){
 function fly(el,c,dir){
   busy=true;
   el.style.transition='transform .35s ease-in';
-  el.style.transform=`translate(${dir==='right'?'':'-'}140%,40px) rotate(${dir==='right'?24:-24}deg)`;
-  setTimeout(()=>{dir==='right'?commit(c,'right'):askReason(c)},260);
+  el.style.transform=dir==='left'?'translate(0,130%) rotate(-6deg)':`translate(${dir==='right'?'':'-'}140%,40px) rotate(${dir==='right'?24:-24}deg)`;
+  setTimeout(()=>{dir==='left'?askReason(c):commit(c,dir)},260);
 }
 function topEl(){return $('#deck .card:last-child')}
 function act(dir){if(busy||!cards.length)return;const el=topEl();if(!el)return;
-  const s=el.querySelector('.stamp.'+(dir==='right'?'yes':'no'));if(s)s.style.opacity=1;fly(el,cards[0],dir)}
+  const s=el.querySelector('.stamp.'+({right:'yes',skip:'no',left:'bad'}[dir]));if(s)s.style.opacity=1;fly(el,cards[0],dir)}
 async function commit(c,dir,reason){
   try{
     const d=await api('/admin/pick/swipe',{who:WHO,kind:c.kind,id:c.id,dir,reason});
@@ -285,7 +289,8 @@ async function commit(c,dir,reason){
     if(d.gone){toast(d.error);busy=false;render();return}
     stats.today++;stats.total++;if(dir==='right')stats.rights++;if(stats.streak===0)stats.streak=1;
     const r=$('#deck').getBoundingClientRect();
-    burst(dir==='right'?'+10 XP':'+2 XP',r.left+r.width/2,r.top+r.height/2);
+    burst(dir==='right'?'+10 XP':dir==='skip'?'+1 XP':'+2 XP',r.left+r.width/2,r.top+r.height/2);
+    if(dir==='skip')toast('跳過了，7 天內不會再出現（Phoebe 那邊照樣看得到）');
     if(stats.today===10)setTimeout(()=>toast('今日任務完成！'),400);
     busy=false;render();
     if(dir==='right')openContact(c);
@@ -297,11 +302,11 @@ function closeSheet(){$('#sheet').classList.remove('on');$('#sbg').classList.rem
 $('#sbg').onclick=closeSheet;
 document.addEventListener('keydown',e=>{
   if($('#sheet').classList.contains('on')){if(e.key==='Escape')closeSheet();return}
-  if(e.key==='ArrowRight')act('right');else if(e.key==='ArrowLeft')act('left');else if(e.key==='z'||e.key==='Backspace')undo();
+  if(e.key==='ArrowRight')act('right');else if(e.key==='ArrowLeft')act('skip');else if(e.key==='x'||e.key==='Delete')act('left');else if(e.key==='z'||e.key==='Backspace')undo();
 });
 function askReason(c){
   pending=c;
-  sheet(`<h3>為什麼不適合？</h3><p class="s">${esc(c.name)} × ${esc(c.job_title)}｜選一個，AI 下次會參考</p>
+  sheet(`<h3>為什麼不適合？</h3><p class="s">${esc(c.name)} × ${esc(c.job_title)}｜選一個，AI 下次會參考。只是先不處理的話，按「取消」改用跳過。</p>
   <div class="opts">${REASONS.map(r=>`<button class="opt" data-r="${esc(r)}">${esc(r)}</button>`).join('')}</div>
   <div class="row"><button class="act ghost" id="cancelR">取消，放回去</button></div>`);
   $('#sheet').querySelectorAll('.opt').forEach(b=>b.onclick=()=>{pending=null;$('#sheet').classList.remove('on');$('#sbg').classList.remove('on');commit(c,'left',b.dataset.r)});
@@ -326,7 +331,8 @@ function openDetail(c){
   const rows=contactRows(c);
   sheet(`<h3>${esc(c.name)}</h3><p class="s">${esc(c.job_title)}${rows?'':'｜系統裡還沒有聯絡方式'}</p>
   <div class="contact">${rows}</div>
-  <div class="row"><button class="act ghost" id="dNo">不適合</button><button class="act primary" id="dYes">指派給我</button></div>`);
+  <div class="row"><button class="act ghost" id="dNo" style="color:#E11D48">不適合</button><button class="act ghost" id="dSkip">跳過</button><button class="act primary" id="dYes">指派給我</button></div>`);
+  $('#dSkip').onclick=()=>{$('#sheet').classList.remove('on');$('#sbg').classList.remove('on');act('skip')};
   $('#dNo').onclick=()=>{$('#sheet').classList.remove('on');$('#sbg').classList.remove('on');act('left')};
   $('#dYes').onclick=()=>{$('#sheet').classList.remove('on');$('#sbg').classList.remove('on');act('right')};
 }
@@ -385,7 +391,7 @@ function askWho(){
   $('#deck').innerHTML=`<div class="center"><h2>你是哪位顧問？</h2><p>右滑「指派給我」的人選會記在你名下</p><div class="who"><button data-w="jacky">Jacky</button><button data-w="phoebe">Phoebe</button></div></div>`;
   $('#deck').querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>{WHO=b.dataset.w;ls.set('s1ne_pick_who',WHO);load()});
 }
-$('#bYes').onclick=()=>act('right');$('#bNo').onclick=()=>act('left');$('#bUndo').onclick=undo;
+$('#bYes').onclick=()=>act('right');$('#bNo').onclick=()=>act('left');$('#bSkip').onclick=()=>act('skip');$('#bUndo').onclick=undo;
 $('#cli').onchange=()=>{CLI=$('#cli').value;JOB='';filter()};
 $('#job').onchange=()=>{JOB=$('#job').value;filter()};
 $('#bLevel').onclick=()=>showLevels();
