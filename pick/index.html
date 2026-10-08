@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#1B1640">
+<title>AI 人選滑卡</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@800;900&display=swap" rel="stylesheet">
+<style>
+/* 2026-10-08 顧問用「AI 推薦人選滑卡」——獨立頁，不在顧問後台裡。
+   Token：夜空靛 #1B1640（大廳）、卡面 #FFFFFF、金 #FFC83D、銀 #C9D3E6、銅 #D9905A、
+   右滑 #22C55E、左滑 #FF5A6E、主色紫 #7C5CFF。數字用 Nunito 900，中文用系統黑體。
+   Signature：金卡的流光箔片＋拖曳時蓋上的「聯繫／跳過」印章。 */
+:root{
+  --bg:#1B1640; --bg2:#2A2160; --ink:#1C1733; --sub:#5D5878; --card:#FFFFFF;
+  --gold:#FFC83D; --silver:#C9D3E6; --bronze:#D9905A; --yes:#22C55E; --no:#FF5A6E; --vio:#7C5CFF;
+  --hud:#ECE9FF; --dim:#A9A3D6;
+  --num:'Nunito',system-ui,sans-serif;
+  --cjk:'PingFang TC','Noto Sans TC','Microsoft JhengHei',system-ui,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{background:radial-gradient(120% 80% at 50% 0%,var(--bg2) 0%,var(--bg) 60%) fixed;background-color:var(--bg);color:var(--hud);font-family:var(--cjk);overflow:hidden;overscroll-behavior:none}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--gold);outline-offset:3px;border-radius:12px}
+.app{max-width:480px;margin:0 auto;height:100dvh;display:flex;flex-direction:column;padding:max(10px,env(safe-area-inset-top)) 16px max(14px,env(safe-area-inset-bottom))}
+
+/* HUD */
+.hud{display:flex;align-items:center;gap:10px}
+.pill{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:6px 12px;font-family:var(--num);font-weight:900;font-size:15px;min-height:36px}
+.pill svg{width:18px;height:18px}
+.quest{flex:1;min-width:0}
+.quest .lbl{display:flex;justify-content:space-between;font-size:12px;color:var(--dim);margin-bottom:4px}
+.quest .lbl b{font-family:var(--num);color:var(--hud)}
+.bar{height:10px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--vio),var(--gold));border-radius:99px;transition:width .5s cubic-bezier(.34,1.56,.64,1)}
+.lv{font-family:var(--num);font-weight:900;background:var(--vio);color:#fff;border-radius:12px;padding:6px 10px;font-size:14px;min-height:36px;display:flex;align-items:center}
+.stage{margin:12px 0 8px;display:flex;align-items:center;gap:8px}
+.stage label{font-size:12px;color:var(--dim);white-space:nowrap}
+.stage select{flex:1;min-width:0;min-height:44px;border-radius:14px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:var(--hud);padding:0 12px;font:inherit;font-weight:700;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23A9A3D6' stroke-width='2' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+.stage select option{color:#1C1733}
+.left{font-size:12px;color:var(--dim);white-space:nowrap}
+.left b{font-family:var(--num);color:var(--hud)}
+
+/* 卡片 */
+.deck{position:relative;flex:1;min-height:0;margin:6px 0 12px}
+.card{position:absolute;inset:0;background:var(--card);color:var(--ink);border-radius:26px;box-shadow:0 18px 40px rgba(0,0,0,.35);overflow:hidden;display:flex;flex-direction:column;touch-action:none;user-select:none;will-change:transform;transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+.card.under{transform:scale(.94) translateY(14px);filter:brightness(.9)}
+.card.under2{transform:scale(.88) translateY(28px);filter:brightness(.8)}
+.card.drag{transition:none}
+.card .rim{height:8px;flex:none}
+.card.gold .rim{background:linear-gradient(90deg,#FFB300,#FFE58A,#FFB300)}
+.card.silver .rim{background:linear-gradient(90deg,#9FB0CF,#E9EEF7,#9FB0CF)}
+.card.bronze .rim{background:linear-gradient(90deg,#B86B33,#F0B27F,#B86B33)}
+.card.gold{box-shadow:0 0 0 3px var(--gold),0 18px 40px rgba(0,0,0,.35)}
+.foil{position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 30%,rgba(255,226,140,.35) 45%,rgba(255,255,255,.55) 50%,rgba(255,226,140,.35) 55%,transparent 70%);background-size:250% 100%;animation:foil 3.2s ease-in-out infinite;mix-blend-mode:soft-light}
+@keyframes foil{0%{background-position:150% 0}60%,100%{background-position:-60% 0}}
+.body{padding:16px 18px 14px;flex:1;min-height:0;display:flex;flex-direction:column;gap:10px;overflow:hidden}
+.toprow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.rar{font-family:var(--num);font-weight:900;font-size:13px;border-radius:8px;padding:3px 8px;letter-spacing:.5px}
+.gold .rar{background:var(--gold);color:#5A3B00}
+.silver .rar{background:var(--silver);color:#2C3A57}
+.bronze .rar{background:var(--bronze);color:#4A2208}
+.src{font-size:12px;font-weight:700;border-radius:8px;padding:3px 8px;background:#EEEAFE;color:#4B3AB8}
+.src.pool{background:#E3F8EC;color:#11733A}
+.score{margin-left:auto;font-family:var(--num);font-weight:900;font-size:13px;color:var(--sub)}
+.name{font-size:28px;font-weight:900;line-height:1.15;letter-spacing:.5px;margin:2px 0 0}
+.subt{font-size:14px;color:var(--sub);line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.job{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:700;color:#4B3AB8;background:#F4F1FF;border-radius:12px;padding:8px 10px}
+.job svg{flex:none;width:16px;height:16px}
+.why{font-size:15px;line-height:1.55;color:var(--ink);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.list{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+.list li{display:flex;gap:8px;font-size:13.5px;line-height:1.45;color:#3A3552}
+.list li span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.list svg{flex:none;width:16px;height:16px;margin-top:2px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips span{font-size:12px;background:#F1F0F6;color:#3A3552;border-radius:8px;padding:3px 8px}
+.more{margin-top:auto;font-size:12.5px;color:var(--sub);display:flex;align-items:center;gap:6px}
+.stamp{position:absolute;top:30px;font-family:var(--cjk);font-weight:900;font-size:30px;padding:4px 14px;border:5px solid;border-radius:12px;opacity:0;pointer-events:none;letter-spacing:2px}
+.stamp.yes{left:22px;color:var(--yes);border-color:var(--yes);transform:rotate(-14deg)}
+.stamp.no{right:22px;color:var(--no);border-color:var(--no);transform:rotate(14deg)}
+
+/* 按鈕 */
+.ctrl{display:flex;justify-content:center;align-items:center;gap:22px;flex:none}
+.btn{border:0;border-radius:50%;display:grid;place-items:center;background:#fff;box-shadow:0 8px 20px rgba(0,0,0,.3);transition:transform .15s}
+.btn:active{transform:scale(.9)}
+.btn.big{width:68px;height:68px}
+.btn.small{width:52px;height:52px;background:rgba(255,255,255,.14);box-shadow:none}
+.btn svg{width:30px;height:30px}
+.btn.small svg{width:22px;height:22px}
+.btn:disabled{opacity:.35}
+.hint{text-align:center;font-size:11.5px;color:var(--dim);margin-top:8px}
+
+/* 底部抽屜 */
+.sheet-bg{position:fixed;inset:0;background:rgba(10,8,30,.55);opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+.sheet-bg.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;max-width:480px;margin:0 auto;background:#fff;color:var(--ink);border-radius:24px 24px 0 0;padding:18px 18px max(18px,env(safe-area-inset-bottom));transform:translateY(105%);transition:transform .3s cubic-bezier(.34,1.3,.64,1);z-index:21;max-height:85dvh;overflow:auto}
+.sheet.on{transform:none}
+.sheet h3{margin:0 0 4px;font-size:19px}
+.sheet p.s{margin:0 0 14px;color:var(--sub);font-size:13.5px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt{min-height:52px;border-radius:14px;border:2px solid #ECEAF3;background:#FAF9FD;font-weight:700;font-size:15px;color:var(--ink)}
+.opt:active{transform:scale(.97)}
+.row{display:flex;gap:10px;margin-top:12px}
+.act{flex:1;min-height:50px;border-radius:14px;border:0;font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
+.act.primary{background:var(--yes);color:#fff}
+.act.ghost{background:#F1F0F6;color:var(--ink)}
+.act.vio{background:var(--vio);color:#fff}
+.act svg{width:18px;height:18px}
+.contact{display:flex;flex-direction:column;gap:8px;margin:6px 0 4px}
+.detail h4{margin:16px 0 6px;font-size:14px;color:var(--sub)}
+.detail .why{-webkit-line-clamp:unset}
+.detail .list li span{-webkit-line-clamp:unset}
+
+/* 其他畫面 */
+.center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px;padding:24px}
+.center h2{margin:0;font-size:24px;font-weight:900}
+.center p{margin:0;color:var(--dim);line-height:1.6}
+.who{display:flex;gap:12px;margin-top:8px}
+.who button{min-width:120px;min-height:56px;border-radius:16px;border:0;background:var(--vio);color:#fff;font-weight:900;font-size:17px}
+.trophy{width:84px;height:84px}
+.toast{position:fixed;left:50%;top:max(14px,env(safe-area-inset-top));transform:translate(-50%,-140%);background:#fff;color:var(--ink);border-radius:14px;padding:10px 16px;font-weight:700;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,.3);z-index:30;transition:transform .3s cubic-bezier(.34,1.56,.64,1);max-width:90vw}
+.toast.on{transform:translate(-50%,0)}
+.burst{position:fixed;pointer-events:none;z-index:25;font-family:var(--num);font-weight:900;font-size:26px;color:var(--gold);text-shadow:0 2px 0 #5A3B00;animation:burst 1s ease-out forwards}
+@keyframes burst{0%{opacity:0;transform:translateY(10px) scale(.6)}20%{opacity:1;transform:translateY(0) scale(1.1)}100%{opacity:0;transform:translateY(-60px) scale(1)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media (max-height:640px){.name{font-size:23px}.why{-webkit-line-clamp:2}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hud">
+    <div class="pill" title="連續天數"><svg viewBox="0 0 24 24" fill="#FF8A3D"><path d="M12 2c1 4-3 5-3 9a3 3 0 006 0c0-1.5-.6-2.6-1-3.5 2.6 1 5 3.7 5 7.5a7 7 0 01-14 0c0-5 4-7.5 7-13z"/></svg><span id="streak">0</span></div>
+    <div class="quest"><div class="lbl"><span>今日任務：清 10 張</span><b id="qtxt">0/10</b></div><div class="bar"><i id="qbar"></i></div></div>
+    <div class="lv" id="lv">Lv1</div>
+  </div>
+  <div class="stage">
+    <label for="job">關卡</label>
+    <select id="job" aria-label="選擇職缺關卡"><option value="">全部職缺</option></select>
+    <div class="left">剩 <b id="left">0</b></div>
+  </div>
+  <div class="deck" id="deck"></div>
+  <div class="ctrl">
+    <button class="btn big" id="bNo" aria-label="跳過（不適合）"><svg viewBox="0 0 24 24" fill="none" stroke="#FF5A6E" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <button class="btn small" id="bUndo" aria-label="回上一張"><svg viewBox="0 0 24 24" fill="none" stroke="#ECE9FF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 010 12h-3"/></svg></button>
+    <button class="btn big" id="bYes" aria-label="我來聯繫"><svg viewBox="0 0 24 24" fill="#22C55E"><path d="M12 21s-7.5-4.6-9.5-9.2C1 8.2 3.3 4.5 7 4.5c2 0 3.5 1 5 2.8 1.5-1.8 3-2.8 5-2.8 3.7 0 6 3.7 4.5 7.3C19.5 16.4 12 21 12 21z"/></svg></button>
+  </div>
+  <div class="hint">右滑＝我來聯繫・左滑＝不適合・點卡片看全部</div>
+</div>
+<div class="sheet-bg" id="sbg"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+const API='https://step1ne-backoffice-worker.aiagentg888.workers.dev';
+const REASONS=['地點不行','資歷差太多','職類根本不對','找不到聯絡方式','已有工作或沒意願','其他'];
+const RAR={gold:'SSR 金卡',silver:'SR 銀卡',bronze:'R 銅卡'};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ls={get(k){try{return localStorage.getItem(k)}catch{return null}},set(k,v){try{localStorage.setItem(k,v)}catch{}}};
+const TOKEN=ls.get('s1ne_admin_tok')||'';
+let WHO=ls.get('s1ne_pick_who')||'';
+let ALL=[],cards=[],stats={today:0,rights:0,total:0,streak:0},busy=false,pending=null;
+
+async function api(path,body){
+  const r=await fetch(API+path,{method:body?'POST':'GET',headers:{'Content-Type':'application/json',Authorization:'Bearer '+TOKEN},body:body?JSON.stringify(body):undefined});
+  const d=await r.json().catch(()=>({ok:false,error:'連線失敗'}));
+  if(r.status===401) throw Object.assign(new Error('auth'),{auth:true});
+  return d;
+}
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),2200)}
+function burst(txt,x,y){const b=document.createElement('div');b.className='burst';b.textContent=txt;b.style.left=(x-30)+'px';b.style.top=(y-20)+'px';document.body.appendChild(b);setTimeout(()=>b.remove(),1000)}
+function hud(){
+  $('#streak').textContent=stats.streak;
+  const t=Math.min(stats.today,10);$('#qtxt').textContent=`${stats.today}/10`;$('#qbar').style.width=(t*10)+'%';
+  $('#lv').textContent='Lv'+(Math.floor(stats.total/20)+1);
+  $('#left').textContent=cards.length;
+}
+const I={
+  ok:'<svg viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>',
+  warn:'<svg viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2.6" stroke-linecap="round"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17v.5"/></svg>',
+  q:'<svg viewBox="0 0 24 24" fill="none" stroke="#7C5CFF" stroke-width="2.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 114 2c-1 .6-1.5 1-1.5 2M12 17v.5"/></svg>',
+  flag:'<svg viewBox="0 0 24 24" fill="none" stroke="#4B3AB8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4h11l-2 4 2 4H5"/></svg>',
+  phone:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2"/></svg>',
+  mail:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>',
+  link:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 006 0l3-3a4 4 0 00-6-6l-1 1"/><path d="M14 10a4 4 0 00-6 0l-3 3a4 4 0 006 6l1-1"/></svg>',
+  dots:'<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>'
+};
+function li(arr,icon){return arr&&arr.length?`<ul class="list">${arr.map(x=>`<li>${icon}<span>${esc(x)}</span></li>`).join('')}</ul>`:''}
+function cardHTML(c,full){
+  const src=c.kind==='rec'?'<span class="src pool">人才庫</span>':'<span class="src">AI 主動開發</span>';
+  const score=c.kind==='sourced'?`<span class="score">${esc(c.grade||'')}級 ${c.score??''}分</span>`:'';
+  const pros=full?c.pros:(c.pros||[]).slice(0,2), cons=full?c.cons:(c.cons||[]).slice(0,1);
+  return `<div class="rim"></div><div class="body">
+    <div class="toprow"><span class="rar">${RAR[c.rarity]}</span>${src}${score}</div>
+    <div><div class="name">${esc(c.name)}</div>${c.subtitle?`<div class="subt">${esc(c.subtitle)}${c.location?'｜'+esc(c.location):''}</div>`:''}</div>
+    <div class="job">${I.flag}<span>配對職缺：${esc(c.job_title)}</span></div>
+    ${c.why?`<div class="why">${esc(c.why)}</div>`:''}
+    ${li(pros,I.ok)}${li(cons,I.warn)}
+    ${c.ask&&c.ask.length?(full?'<h4>電話要問</h4>'+li(c.ask,I.q):li(c.ask.slice(0,1),I.q)):''}
+    ${c.skills&&c.skills.length?`<div class="chips">${c.skills.map(s=>`<span>${esc(s)}</span>`).join('')}</div>`:''}
+    ${full?'':`<div class="more">${I.dots}點一下看完整資料</div>`}
+  </div>`;
+}
+function render(){
+  const deck=$('#deck');deck.innerHTML='';hud();
+  if(!cards.length){
+    deck.innerHTML=`<div class="center"><svg class="trophy" viewBox="0 0 24 24" fill="#FFC83D"><path d="M7 3h10v3h3v2a5 5 0 01-5 5h-.3A5 5 0 0113 15v2h3v4H8v-4h3v-2a5 5 0 01-1.7-2H9a5 5 0 01-5-5V6h3zM6 8v.1A3 3 0 008.4 11 7 7 0 017 8zm12 0a7 7 0 01-1.4 3A3 3 0 0018 8.1z"/></svg><h2>這關清完了！</h2><p>${$('#job').value?'換一個關卡繼續，或回到「全部職缺」。':'AI 目前推薦的人選都看過了，<br>新的人選進來會自動出現在這裡。'}</p></div>`;
+    return;
+  }
+  cards.slice(0,3).reverse().forEach((c,i,arr)=>{
+    const depth=arr.length-1-i;
+    const el=document.createElement('div');
+    el.className=`card ${c.rarity}`+(depth===1?' under':depth===2?' under2':'');
+    el.innerHTML=cardHTML(c,false)+(c.rarity==='gold'?'<div class="foil"></div>':'')+'<div class="stamp yes">聯繫</div><div class="stamp no">跳過</div>';
+    if(depth===0){el.tabIndex=0;el.setAttribute('aria-label',`${c.name}，${c.job_title}`);bindDrag(el,c)}
+    deck.appendChild(el);
+  });
+}
+function bindDrag(el,c){
+  let sx=0,sy=0,dx=0,dy=0,down=false,moved=false,t0=0;
+  const yes=el.querySelector('.stamp.yes'),no=el.querySelector('.stamp.no');
+  el.addEventListener('pointerdown',e=>{if(busy)return;down=true;moved=false;sx=e.clientX;sy=e.clientY;dx=dy=0;t0=Date.now();el.setPointerCapture(e.pointerId);el.classList.add('drag')});
+  el.addEventListener('pointermove',e=>{if(!down)return;dx=e.clientX-sx;dy=e.clientY-sy;if(Math.abs(dx)>6||Math.abs(dy)>6)moved=true;
+    el.style.transform=`translate(${dx}px,${dy*.3}px) rotate(${dx/18}deg)`;
+    yes.style.opacity=Math.max(0,Math.min(1,dx/90));no.style.opacity=Math.max(0,Math.min(1,-dx/90))});
+  const end=()=>{if(!down)return;down=false;el.classList.remove('drag');
+    const v=Math.abs(dx)/Math.max(1,Date.now()-t0);
+    if(dx>110||(dx>50&&v>.6))return fly(el,c,'right');
+    if(dx<-110||(dx<-50&&v>.6))return fly(el,c,'left');
+    el.style.transform='';yes.style.opacity=no.style.opacity=0;
+    if(!moved)openDetail(c)};
+  el.addEventListener('pointerup',end);el.addEventListener('pointercancel',end);
+  el.addEventListener('keydown',e=>{if(e.key==='Enter')openDetail(c)});
+}
+function fly(el,c,dir){
+  busy=true;
+  el.style.transition='transform .35s ease-in';
+  el.style.transform=`translate(${dir==='right'?'':'-'}140%,40px) rotate(${dir==='right'?24:-24}deg)`;
+  setTimeout(()=>{dir==='right'?commit(c,'right'):askReason(c)},260);
+}
+function topEl(){return $('#deck .card:last-child')}
+function act(dir){if(busy||!cards.length)return;const el=topEl();if(!el)return;
+  const s=el.querySelector('.stamp.'+(dir==='right'?'yes':'no'));if(s)s.style.opacity=1;fly(el,cards[0],dir)}
+async function commit(c,dir,reason){
+  try{
+    const d=await api('/admin/pick/swipe',{who:WHO,kind:c.kind,id:c.id,dir,reason});
+    if(!d.ok&&!d.gone){toast(d.error||'沒存成功，再試一次');busy=false;render();return}
+    removeCard(c);
+    if(d.gone){toast(d.error);busy=false;render();return}
+    stats.today++;stats.total++;if(dir==='right')stats.rights++;if(stats.streak===0)stats.streak=1;
+    const r=$('#deck').getBoundingClientRect();
+    burst(dir==='right'?'+10 XP':'+2 XP',r.left+r.width/2,r.top+r.height/2);
+    if(stats.today===10)setTimeout(()=>toast('今日任務完成！'),400);
+    busy=false;render();
+    if(dir==='right')openContact(c);
+  }catch(e){busy=false;if(e.auth)return needLogin();toast('連線失敗，再試一次');render()}
+}
+function removeCard(c){cards=cards.filter(x=>!(x.kind===c.kind&&x.id===c.id));ALL=ALL.filter(x=>!(x.kind===c.kind&&x.id===c.id))}
+function sheet(html){$('#sheet').innerHTML=html;$('#sheet').classList.add('on');$('#sbg').classList.add('on');setTimeout(()=>{const f=$('#sheet button,#sheet a');f&&f.focus()},50)}
+function closeSheet(){$('#sheet').classList.remove('on');$('#sbg').classList.remove('on');if(pending){const p=pending;pending=null;busy=false;render()}}
+$('#sbg').onclick=closeSheet;
+document.addEventListener('keydown',e=>{
+  if($('#sheet').classList.contains('on')){if(e.key==='Escape')closeSheet();return}
+  if(e.key==='ArrowRight')act('right');else if(e.key==='ArrowLeft')act('left');else if(e.key==='z'||e.key==='Backspace')undo();
+});
+function askReason(c){
+  pending=c;
+  sheet(`<h3>為什麼不適合？</h3><p class="s">${esc(c.name)} × ${esc(c.job_title)}｜選一個，AI 下次會參考</p>
+  <div class="opts">${REASONS.map(r=>`<button class="opt" data-r="${esc(r)}">${esc(r)}</button>`).join('')}</div>
+  <div class="row"><button class="act ghost" id="cancelR">取消，放回去</button></div>`);
+  $('#sheet').querySelectorAll('.opt').forEach(b=>b.onclick=()=>{pending=null;$('#sheet').classList.remove('on');$('#sbg').classList.remove('on');commit(c,'left',b.dataset.r)});
+  $('#cancelR').onclick=closeSheet;
+}
+function contactRows(c){
+  const rows=[];
+  if(c.phone)rows.push(`<a class="act primary" href="tel:${esc(c.phone.replace(/[^\d+]/g,''))}">${I.phone}打電話 ${esc(c.phone)}</a>`);
+  if(c.email)rows.push(`<a class="act vio" href="mailto:${esc(c.email)}">${I.mail}${esc(c.email)}</a>`);
+  if(c.link)rows.push(`<a class="act ghost" href="${esc(c.link)}" target="_blank" rel="noopener">${I.link}開個人頁面（LinkedIn 等）</a>`);
+  if(c.kind==='rec'&&c.app_id)rows.push(`<a class="act ghost" href="/consultant/candidates/?tab=triage&app=${encodeURIComponent(c.app_id)}" target="_blank" rel="noopener">${I.link}開人選卡片</a>`);
+  return rows.join('');
+}
+function openContact(c){
+  const rows=contactRows(c);
+  sheet(`<h3>已記下：${esc(c.name)} 由你聯繫</h3><p class="s">${esc(c.job_title)}${rows?'':'｜系統裡還沒有他的電話或 Email'}</p>
+  <div class="contact">${rows}</div>${c.ask&&c.ask.length?'<div class="detail"><h4>電話要問</h4>'+li(c.ask,I.q)+'</div>':''}
+  <div class="row"><button class="act ghost" id="okC">繼續滑</button></div>`);
+  $('#okC').onclick=closeSheet;
+}
+function openDetail(c){
+  sheet(`<div class="detail card ${c.rarity}" style="position:static;box-shadow:none;transform:none">${cardHTML(c,true)}</div>
+  <div class="contact">${contactRows(c)}</div>
+  <div class="row"><button class="act ghost" id="dNo">不適合</button><button class="act primary" id="dYes">我來聯繫</button></div>`);
+  $('#dNo').onclick=()=>{$('#sheet').classList.remove('on');$('#sbg').classList.remove('on');act('left')};
+  $('#dYes').onclick=()=>{$('#sheet').classList.remove('on');$('#sbg').classList.remove('on');act('right')};
+}
+async function undo(){
+  if(busy)return;busy=true;
+  try{const d=await api('/admin/pick/undo',{who:WHO});
+    if(!d.ok){toast(d.error||'沒辦法退回');busy=false;return}
+    toast('已退回上一張');stats.today=Math.max(0,stats.today-1);stats.total=Math.max(0,stats.total-1);
+    await load(true);
+  }catch(e){if(e.auth)return needLogin();toast('連線失敗')}
+  busy=false;
+}
+function filter(){const j=$('#job').value;cards=j?ALL.filter(c=>c.job_slug===j):ALL.slice();render()}
+async function load(keepJob){
+  try{
+    const d=await api('/admin/pick/deck?who='+encodeURIComponent(WHO));
+    if(!d.ok){$('#deck').innerHTML=`<div class="center"><h2>載入失敗</h2><p>${esc(d.error||'')}</p></div>`;return}
+    ALL=d.cards;stats=d.stats;
+    const sel=$('#job'),cur=keepJob?sel.value:'';
+    sel.innerHTML='<option value="">全部職缺（'+ALL.length+'）</option>'+d.jobs.map(j=>`<option value="${esc(j.slug)}">${esc(j.title)}（${j.n}）</option>`).join('');
+    if(cur&&d.jobs.some(j=>j.slug===cur))sel.value=cur;
+    filter();
+  }catch(e){if(e.auth)return needLogin();$('#deck').innerHTML='<div class="center"><h2>連不上</h2><p>網路不穩，稍後再開一次。</p></div>'}
+}
+function needLogin(){
+  $('#deck').innerHTML=`<div class="center"><h2>先登入顧問後台</h2><p>這一頁跟顧問後台共用登入。<br>登入後回到這一頁就能開始滑。</p><a class="act vio" style="max-width:240px" href="/consultant/">去登入</a></div>`;
+}
+function askWho(){
+  $('#deck').innerHTML=`<div class="center"><h2>你是哪位顧問？</h2><p>右滑的人選會記在你名下</p><div class="who"><button data-w="jacky">Jacky</button><button data-w="phoebe">Phoebe</button></div></div>`;
+  $('#deck').querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>{WHO=b.dataset.w;ls.set('s1ne_pick_who',WHO);load()});
+}
+$('#bYes').onclick=()=>act('right');$('#bNo').onclick=()=>act('left');$('#bUndo').onclick=undo;
+$('#job').onchange=filter;
+if(!TOKEN)needLogin();else if(!WHO)askWho();else load();
+</script>
+</body>
+</html>
