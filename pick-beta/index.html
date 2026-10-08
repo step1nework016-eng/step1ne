@@ -39,7 +39,20 @@ button{font:inherit;cursor:pointer}
 .bar{height:10px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden}
 .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--vio),var(--gold));border-radius:99px;transition:width .5s cubic-bezier(.34,1.56,.64,1)}
 .lv{font-family:var(--num);font-weight:900;background:var(--vio);color:#fff;border-radius:12px;padding:6px 10px;font-size:14px;min-height:36px;display:flex;align-items:center}
-.stage{margin:12px 0 8px;display:flex;align-items:center;gap:8px}
+.stage{margin:12px 0 6px;display:flex;align-items:center;gap:8px}
+.stage2{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.lvbtn{min-height:36px;border-radius:999px;border:1px solid rgba(255,255,255,.2);background:transparent;color:var(--hud);font-weight:800;font-size:13px;padding:0 14px}
+.levels{position:absolute;inset:0;overflow-y:auto;padding:4px 2px 20px;display:flex;flex-direction:column;gap:10px}
+.levels h2{margin:6px 4px 2px;font-size:20px;font-weight:900}
+.levels p.s{margin:0 4px 6px;color:var(--dim);font-size:13px}
+.tile{width:100%;text-align:left;border:0;border-radius:18px;padding:14px 16px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:var(--hud);display:flex;align-items:center;gap:12px;min-height:60px}
+.tile:active{transform:scale(.98)}
+.tile .t{flex:1;min-width:0;font-weight:800;font-size:16px;line-height:1.35}
+.tile .t small{display:block;font-weight:500;font-size:12.5px;color:var(--dim);margin-top:2px}
+.tile .n{font-family:var(--num);font-weight:900;font-size:18px;background:var(--vio);color:#fff;border-radius:12px;padding:4px 10px;min-width:44px;text-align:center}
+.tile.all{background:linear-gradient(135deg,#7C5CFF,#5B3FE0);border:0}
+.tile.all .n{background:rgba(255,255,255,.25)}
+.back{align-self:flex-start;min-height:40px;border:0;background:transparent;color:var(--dim);font-weight:800;padding:0 4px}
 .stage label{font-size:12px;color:var(--dim);white-space:nowrap}
 .stage select{flex:1;min-width:0;min-height:44px;border-radius:14px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:var(--hud);padding:0 12px;font:inherit;font-weight:700;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23A9A3D6' stroke-width='2' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
 .stage select option{color:#1C1733}
@@ -152,10 +165,10 @@ button{font:inherit;cursor:pointer}
     <div class="lv" id="lv">Lv1</div>
   </div>
   <div class="stage">
-    <label for="job">關卡</label>
-    <select id="job" aria-label="選擇職缺關卡"><option value="">全部職缺</option></select>
-    <div class="left">剩 <b id="left">0</b></div>
+    <select id="cli" aria-label="選擇客戶"><option value="">全部客戶</option></select>
+    <select id="job" aria-label="選擇職缺"><option value="">全部職缺</option></select>
   </div>
+  <div class="stage2"><button class="lvbtn" id="bLevel" type="button">選關卡</button><div class="left">這關剩 <b id="left">0</b> 張</div></div>
   <div class="deck" id="deck"></div>
   <div class="ctrl">
     <div class="bw n"><button class="btn big" id="bNo" aria-label="不適合"><svg viewBox="0 0 24 24" fill="none" stroke="#FF5A6E" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>不適合</div>
@@ -226,7 +239,7 @@ function cardHTML(c){
 function render(){
   const deck=$('#deck');deck.innerHTML='';hud();
   if(!cards.length){
-    deck.innerHTML=`<div class="center"><svg class="trophy" viewBox="0 0 24 24" fill="#FFC83D"><path d="M7 3h10v3h3v2a5 5 0 01-5 5h-.3A5 5 0 0113 15v2h3v4H8v-4h3v-2a5 5 0 01-1.7-2H9a5 5 0 01-5-5V6h3zM6 8v.1A3 3 0 008.4 11 7 7 0 017 8zm12 0a7 7 0 01-1.4 3A3 3 0 0018 8.1z"/></svg><h2>這關清完了！</h2><p>${$('#job').value?'換一個關卡繼續，或回到「全部職缺」。':'AI 目前推薦的人選都看過了，<br>新的人選進來會自動出現在這裡。'}</p></div>`;
+    deck.innerHTML=`<div class="center"><svg class="trophy" viewBox="0 0 24 24" fill="#FFC83D"><path d="M7 3h10v3h3v2a5 5 0 01-5 5h-.3A5 5 0 0113 15v2h3v4H8v-4h3v-2a5 5 0 01-1.7-2H9a5 5 0 01-5-5V6h3zM6 8v.1A3 3 0 008.4 11 7 7 0 017 8zm12 0a7 7 0 01-1.4 3A3 3 0 0018 8.1z"/></svg><h2>這關清完了！</h2><p>${(CLI||JOB)?'按上面「選關卡」換一關繼續。':'AI 目前推薦的人選都看過了，<br>新的人選進來會自動出現在這裡。'}</p></div>`;
     return;
   }
   cards.slice(0,3).reverse().forEach((c,i,arr)=>{
@@ -326,16 +339,43 @@ async function undo(){
   }catch(e){if(e.auth)return needLogin();toast('連線失敗')}
   busy=false;
 }
-function filter(){const j=$('#job').value;cards=j?ALL.filter(c=>c.job_slug===j):ALL.slice();render()}
+let CLI=ls.get('s1ne_pick_cli')||'', JOB=ls.get('s1ne_pick_job')||'';
+function clients(){const m={};ALL.forEach(c=>{m[c.client]=(m[c.client]||0)+1});return Object.entries(m).sort((a,b)=>b[1]-a[1])}
+function jobsOf(cli){const m={};ALL.filter(c=>!cli||c.client===cli).forEach(c=>{m[c.job_slug]=m[c.job_slug]||{slug:c.job_slug,title:c.job_title,client:c.client,n:0};m[c.job_slug].n++});return Object.values(m).sort((a,b)=>b.n-a.n)}
+function fillSelects(){
+  const cs=clients();if(CLI&&!cs.some(x=>x[0]===CLI))CLI='';
+  $('#cli').innerHTML=`<option value="">全部客戶（${ALL.length}）</option>`+cs.map(([k,n])=>`<option value="${esc(k)}">${esc(k)}（${n}）</option>`).join('');
+  $('#cli').value=CLI;
+  const js=jobsOf(CLI);if(JOB&&!js.some(j=>j.slug===JOB))JOB='';
+  $('#job').innerHTML=`<option value="">${CLI?'這個客戶的全部職缺':'全部職缺'}（${js.reduce((a,j)=>a+j.n,0)}）</option>`+js.map(j=>`<option value="${esc(j.slug)}">${esc(j.title)}（${j.n}）</option>`).join('');
+  $('#job').value=JOB;
+}
+function filter(){ls.set('s1ne_pick_cli',CLI);ls.set('s1ne_pick_job',JOB);fillSelects();cards=ALL.filter(c=>(!CLI||c.client===CLI)&&(!JOB||c.job_slug===JOB));render()}
+function showLevels(step){
+  $('#left').textContent='-';
+  const d=$('#deck');
+  if(step!=='job'){
+    const cs=clients();
+    d.innerHTML=`<div class="levels"><h2>選關卡</h2><p class="s">先選客戶，再選職缺</p>
+      <button class="tile all" data-all="1"><div class="t">全部一起滑<small>不分客戶、不分職缺</small></div><div class="n">${ALL.length}</div></button>
+      ${cs.map(([k,n])=>`<button class="tile" data-cli="${esc(k)}"><div class="t">${esc(k)}<small>${jobsOf(k).length} 個職缺</small></div><div class="n">${n}</div></button>`).join('')}</div>`;
+    d.querySelector('[data-all]').onclick=()=>{CLI='';JOB='';filter()};
+    d.querySelectorAll('[data-cli]').forEach(b=>b.onclick=()=>{CLI=b.dataset.cli;JOB='';showLevels('job')});
+  }else{
+    const js=jobsOf(CLI);
+    d.innerHTML=`<div class="levels"><button class="back" id="lvBack">← 換客戶</button><h2>${esc(CLI)}</h2><p class="s">選一個職缺，或整個客戶一起滑</p>
+      <button class="tile all" data-job=""><div class="t">這個客戶的全部職缺</div><div class="n">${js.reduce((a,j)=>a+j.n,0)}</div></button>
+      ${js.map(j=>`<button class="tile" data-job="${esc(j.slug)}"><div class="t">${esc(j.title)}</div><div class="n">${j.n}</div></button>`).join('')}</div>`;
+    $('#lvBack').onclick=()=>showLevels();
+    d.querySelectorAll('[data-job]').forEach(b=>b.onclick=()=>{JOB=b.dataset.job;filter()});
+  }
+}
 async function load(keepJob){
   try{
     const d=await api('/admin/pick/deck?who='+encodeURIComponent(WHO));
     if(!d.ok){$('#deck').innerHTML=`<div class="center"><h2>載入失敗</h2><p>${esc(d.error||'')}</p></div>`;return}
-    ALL=d.cards;stats=d.stats;
-    const sel=$('#job'),cur=keepJob?sel.value:'';
-    sel.innerHTML='<option value="">全部職缺（'+ALL.length+'）</option>'+d.jobs.map(j=>`<option value="${esc(j.slug)}">${esc(j.title)}（${j.n}）</option>`).join('');
-    if(cur&&d.jobs.some(j=>j.slug===cur))sel.value=cur;
-    filter();
+    ALL=d.cards;stats=d.stats;hud();fillSelects();
+    if(keepJob)filter();else showLevels();
   }catch(e){if(e.auth)return needLogin();$('#deck').innerHTML='<div class="center"><h2>連不上</h2><p>網路不穩，稍後再開一次。</p></div>'}
 }
 function needLogin(){
@@ -346,7 +386,9 @@ function askWho(){
   $('#deck').querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>{WHO=b.dataset.w;ls.set('s1ne_pick_who',WHO);load()});
 }
 $('#bYes').onclick=()=>act('right');$('#bNo').onclick=()=>act('left');$('#bUndo').onclick=undo;
-$('#job').onchange=filter;
+$('#cli').onchange=()=>{CLI=$('#cli').value;JOB='';filter()};
+$('#job').onchange=()=>{JOB=$('#job').value;filter()};
+$('#bLevel').onclick=()=>showLevels();
 function fitH(){const h=window.visualViewport?visualViewport.height:innerHeight;document.documentElement.style.setProperty('--apph',Math.round(h)+'px');window.scrollTo(0,0)}
 fitH();addEventListener('resize',fitH);window.visualViewport&&visualViewport.addEventListener('resize',fitH);addEventListener('orientationchange',()=>setTimeout(fitH,300));
 if(!TOKEN)needLogin();else if(!WHO)askWho();else load();
