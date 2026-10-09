@@ -167,6 +167,17 @@ body:not(.cards-on) .ctrl,body:not(.cards-on) .hint{display:none}
 @keyframes burst{0%{opacity:0;transform:translateY(10px) scale(.6)}20%{opacity:1;transform:translateY(0) scale(1.1)}100%{opacity:0;transform:translateY(-60px) scale(1)}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 @media (max-height:640px){.name{font-size:23px}}
+.fb{border-top:1px dashed #E3E0EE;margin-top:4px;padding-top:12px;display:flex;flex-direction:column;gap:8px}
+.fb .q{font-size:12.5px;font-weight:800;color:var(--sub)}
+.fb .btns{display:flex;gap:8px}
+.fb button{flex:1;min-height:44px;border-radius:12px;border:2px solid #ECEAF3;background:#FAF9FD;font-weight:800;font-size:14px;color:var(--ink);display:flex;align-items:center;justify-content:center;gap:6px}
+.fb button.on.good{background:#ECFDF3;border-color:#22C55E;color:#15803D}
+.fb button.on.bad{background:#FFF0F2;border-color:#FF5A6E;color:#BE123C}
+.fb .got{font-size:12.5px;color:var(--sub);line-height:1.5}
+.chips2{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 10px}
+.chips2 button{min-height:40px;border-radius:999px;border:2px solid #ECEAF3;background:#FAF9FD;padding:0 14px;font-weight:700;font-size:14px;color:var(--ink)}
+.chips2 button.on{border-color:var(--vio);background:#F1ECFF;color:#4B3AB8}
+.fbnote{width:100%;min-height:72px;border-radius:14px;border:2px solid #ECEAF3;padding:10px 12px;font:inherit;font-size:15px;resize:vertical}
 .sec{font-size:12.5px;font-weight:800;color:var(--sub);margin:2px 0 -4px;letter-spacing:.5px}
 .ai{border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;border:2px solid}
 .ai.go{background:#ECFDF3;border-color:#86EFAC}.ai.maybe{background:#FFF8E6;border-color:#FCD34D}.ai.no{background:#FFF0F2;border-color:#FDA4AF}
@@ -256,9 +267,32 @@ function cardHTML(c){
     ${c.why&&c.kind==='sourced'?'<div class="sec">個人簡介</div><div class="why">'+esc(c.why)+'</div>':''}
     ${c.why&&c.kind==='rec'&&!(c.ai&&c.ai.reason===c.why)?'<div class="sec">給人選看的推薦理由</div><div class="why">'+esc(c.why)+'</div>':''}
     ${c.skills&&c.skills.length?`<div class="sec">技能</div><div class="chips">${c.skills.map(s=>`<span>${esc(s)}</span>`).join('')}</div>`:''}
+    ${fbHTML(c)}
   </div>`;
 }
 function cardsOn(v){document.body.classList.toggle('cards-on',!!v)}
+const FB_GOOD=['經歷很對口','產業對','職級剛好','地點可以','有聯絡方式'];
+const FB_BAD=['職類不對','產業不對','資歷太淺','太資深／職級太高','地點不行','看不到本人資料','已有工作或沒意願','其他'];
+function fbHTML(c){
+  const f=c.feedback;
+  return `<div class="fb" data-fb><div class="q">AI 找得準嗎？（給 AI 學習，不影響指派）</div>
+    <div class="btns"><button type="button" class="good ${f&&f.verdict==='good'?'on':''}" data-v="good">👍 準</button><button type="button" class="bad ${f&&f.verdict==='bad'?'on':''}" data-v="bad">👎 不準</button></div>
+    ${f?`<div class="got">${f.verdict==='good'?'你說準':'你說不準'}${f.reasons&&f.reasons.length?'：'+esc(f.reasons.join('、')):''}${f.note?'｜'+esc(f.note):''}</div>`:''}</div>`;
+}
+function askFeedback(c,v){
+  const opts=v==='good'?FB_GOOD:FB_BAD; const prev=(c.feedback&&c.feedback.verdict===v)?c.feedback:{reasons:[],note:''};
+  const sel=new Set(prev.reasons||[]);
+  sheet(`<h3>${v==='good'?'👍 哪裡準？':'👎 哪裡不準？'}</h3><p class="s">${esc(c.name)} × ${esc(c.job_title)}｜原因可複選、也可以不選</p>
+    <div class="chips2">${opts.map(o=>`<button type="button" class="${sel.has(o)?'on':''}" data-o="${esc(o)}">${esc(o)}</button>`).join('')}</div>
+    <textarea class="fbnote" id="fbNote" placeholder="補充說明（選填）：例如「做的是工業電腦採購，不是成衣」">${esc(prev.note||'')}</textarea>
+    <div class="row"><button class="act ghost" id="fbClear">${c.feedback?'清除回饋':'取消'}</button><button class="act ${v==='good'?'primary':'vio'}" id="fbSave">送出</button></div>`);
+  $('#sheet').querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{const o=b.dataset.o;sel.has(o)?sel.delete(o):sel.add(o);b.classList.toggle('on')});
+  $('#fbClear').onclick=async()=>{if(c.feedback){await api('/admin/pick/feedback',{who:WHO,kind:c.kind,id:c.id,verdict:null}).catch(()=>{});c.feedback=null;toast('已清除')}closeSheet();render()};
+  $('#fbSave').onclick=async()=>{const note=$('#fbNote').value.trim();
+    try{const d=await api('/admin/pick/feedback',{who:WHO,kind:c.kind,id:c.id,job_slug:c.job_slug,verdict:v,reasons:[...sel],note});
+      if(!d.ok)return toast(d.error||'沒存成功');c.feedback={verdict:v,reasons:[...sel],note};toast('收到，AI 下次會參考');closeSheet();render()}
+    catch(e){toast('連線失敗')}};
+}
 function render(){
   const deck=$('#deck');deck.innerHTML='';hud();cardsOn(cards.length>0);
   if(!cards.length){
@@ -279,7 +313,7 @@ function bindDrag(el,c){
   // 觸控改用 touch 事件：判定是左右滑之後 preventDefault 把手勢搶下來；滑鼠照舊用 pointer。
   let sx=0,sy=0,dx=0,dy=0,down=false,mode='',t0=0;
   const yes=el.querySelector('.stamp.yes'),no=el.querySelector('.stamp.no');
-  const start=(x,y,t)=>{if(busy||(t&&t.closest&&t.closest('a,button')))return;down=true;mode='';sx=x;sy=y;dx=dy=0;t0=Date.now()};
+  const start=(x,y,t)=>{if(busy||(t&&t.closest&&t.closest('a,button,[data-fb]')))return;down=true;mode='';sx=x;sy=y;dx=dy=0;t0=Date.now()};
   const move=(x,y,ev)=>{if(!down)return;dx=x-sx;dy=y-sy;
     if(!mode){if(Math.abs(dx)>8&&Math.abs(dx)>Math.abs(dy)){mode='x';el.classList.add('drag')}else if(Math.abs(dy)>8){mode='y';down=false;return}else return}
     if(ev&&ev.cancelable)ev.preventDefault();
@@ -299,6 +333,7 @@ function bindDrag(el,c){
   el.addEventListener('pointermove',e=>{if(e.pointerType!=='mouse')return;move(e.clientX,e.clientY,null)});
   el.addEventListener('pointerup',e=>{if(e.pointerType!=='mouse')return;end()});
   el.addEventListener('keydown',e=>{if(e.key==='Enter')openDetail(c)});
+  el.querySelectorAll('[data-fb] [data-v]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();askFeedback(c,b.dataset.v)}));
 }
 function fly(el,c,dir){
   busy=true;el.style.pointerEvents='none';
