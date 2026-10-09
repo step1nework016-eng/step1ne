@@ -394,6 +394,11 @@ function add(m, fromServer) {
   if (stick) $('log').scrollTop = $('log').scrollHeight;
 }
 
+var TRANSITION_TEXTS = [
+  '收到，我整理一下您剛剛說的，稍等我一下。',
+  '好的，我看一下您剛剛提到的內容，馬上回您。',
+  '了解，我想一下接著要聊什麼，請稍等一下。'
+];
 function typing(on) {
   var t = $('t-ind');
   if (on && !t) {
@@ -560,7 +565,9 @@ async function poll() {
         }
         add(m, true);
       });
-      if (got.some(function (m) { return m.role === 'assistant'; })) { waiting = false; }
+      // 2026-10-09 E17：阿財想太久時，程式會先送一句固定的「稍等我一下」（過渡語）。
+      // 那句不是正式回覆，「正在輸入」要繼續亮著，等真正的回覆來才關。文字要跟 interview_markers.py 的 TRANSITION_TEXTS 一致。
+      if (got.some(function (m) { return m.role === 'assistant' && TRANSITION_TEXTS.indexOf(m.content) === -1; })) { waiting = false; }
     }
     if (waiting) typing(true);
     if (d.state === 'done') setEnded();
