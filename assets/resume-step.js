@@ -413,9 +413,16 @@
         '<span>打開 LINE，送出「我要傳履歷 <span class="rs-code">#' + esc(S.code) + '</span>」</span></a>' +
         '<p><b>送出這句，再把履歷檔或截圖傳過來就好。</b>好幾頁的話，截圖可以一次選好幾張一起傳。</p>' +
         '<p class="rs-status' + (S.received ? ' ok' : '') + '" aria-live="polite">' +
-        (S.received ? '已經收到你從 LINE 傳來的履歷了。'
-          : '還沒收到——可以先繼續填表、做測驗，跟阿財面談前傳到就好。') + '</p>';
-      box.querySelector('.rs-linego').addEventListener('click', function () { track('resume_line_open', {}); });
+        (S.received ? '✅ 已經收到你從 LINE 傳來的履歷了' + (S.pages > 1 ? '（共 ' + S.pages + ' 頁）' : '') + '。'
+          : '還沒收到——可以先繼續填表、做測驗，跟阿財面談前傳到就好。') + '</p>' +
+        (S.received ? '' : '<button type="button" class="rs-link rs-check">我傳好了，檢查一下</button>');
+      box.querySelector('.rs-linego').addEventListener('click', function () {
+        track('resume_line_open', {});
+        // 2026-10-12：跳去 LINE 前立刻存草稿（不等 400ms），回來才帶得回填過的欄位
+        try { if (window.__rsSaveNow) window.__rsSaveNow(); } catch (e) {}
+      });
+      var ck = box.querySelector('.rs-check');
+      if (ck) ck.addEventListener('click', function () { ck.textContent = '檢查中⋯'; poll(10); });
     }
     function startLine() {
       lineBox();
@@ -442,13 +449,17 @@
         fetch(API + '/apply/resume-code/' + encodeURIComponent(S.code))
           .then(function (r) { return r.json(); })
           .then(function (d) {
-            if (d && d.ok && d.received && !S.received) { S.received = true; track('resume_line_received', {}); lineBox(); onChange(); }
+            if (d && d.ok && d.received && !S.received) { S.received = true; S.pages = d.pages || 1; track('resume_line_received', {}); lineBox(); onChange(); }
+            else if (d && d.ok && !d.received) { var c2 = root.querySelector('.rs-check'); if (c2) c2.textContent = '還沒收到，再檢查一次'; }
           })
           .catch(function () {})
           .then(function () { poll(); });
       }, delay || 6000);
     }
     document.addEventListener('visibilitychange', function () { if (!document.hidden && S.tab === 'line') poll(); });
+    // LINE 內建瀏覽器切回來不一定觸發 visibilitychange，pageshow／focus 也補一次
+    window.addEventListener('pageshow', function () { if (S.tab === 'line') poll(300); });
+    window.addEventListener('focus', function () { if (S.tab === 'line') poll(300); });
     root.addEventListener('input', function () { onChange(); });
 
     function quickVals() {

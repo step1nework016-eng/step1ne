@@ -435,7 +435,7 @@ details.opt>summary:focus-visible{outline:3px solid var(--ac);outline-offset:2px
 </div>
 </div>
 
-<script src="/assets/resume-step.js?v=20261012b"></script>
+<script src="/assets/resume-step.js?v=20261012c"></script>
 <script>
 
 function noteWithLeave(fd){
@@ -571,6 +571,14 @@ const DRAFT_KEY = 's1ne_apply_draft';
 const DRAFT_FIELDS = ['name', 'email', 'phone', 'expected_salary', 'available_date', 'stay_need', 'note',
   'cur_monthly', 'cur_months', 'cur_bonus', 'deal_breakers', 'applied_elsewhere'];
 let draftT = null, DRAFT_READY = false;
+window.__rsSaveNow = function () {
+  try {
+    const o = { t: Date.now(), job_slug: (f.elements.job_slug && f.elements.job_slug.value) || '',
+      areas: [...f.querySelectorAll('input[name=area]:checked')].map(x => x.value), rs: RS.getState() };
+    DRAFT_FIELDS.forEach(k => { if (f.elements[k]) o[k] = f.elements[k].value; });
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(o));
+  } catch (e) {}
+};
 function saveDraft() {
   if (!DRAFT_READY || RETURN_TOKEN) return;
   clearTimeout(draftT);
@@ -1194,6 +1202,15 @@ if (!RETURN_TOKEN && DRAFT) {
   f.querySelectorAll('input[name=area]').forEach(cb => { if ((DRAFT.areas || []).includes(cb.value)) cb.checked = true; });
   if (DRAFT.rs) RS.setState(DRAFT.rs, false);
   if (['cur_monthly', 'cur_months', 'cur_bonus', 'deal_breakers', 'applied_elsewhere'].some(k => DRAFT[k])) document.getElementById('optBox').open = true;
+}
+// 2026-10-12：從 LINE「履歷收到了」那則訊息的連結回來（?rc=代碼）→ 直接切到 LINE 分頁並顯示已收到
+{
+  const rc = (q.get('rc') || '').trim().toUpperCase();
+  if (rc && /^[A-Z0-9]{4,8}$/.test(rc) && !RETURN_TOKEN) {
+    const cur = (DRAFT && DRAFT.rs) || {};
+    RS.setState(Object.assign({}, cur, { method: 'line', code: rc,
+      line_url: cur.code === rc ? cur.line_url : '' }), false);
+  }
 }
 DRAFT_READY = true;
 f.addEventListener('input', saveDraft);
