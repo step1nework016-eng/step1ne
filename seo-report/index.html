@@ -100,6 +100,20 @@ ul.clean{margin:0;padding-left:18px} ul.clean li{margin:4px 0}
 .dom dl div{display:flex;gap:10px;min-width:0}.dom dt{color:var(--muted);font-size:13px;flex:0 0 5.5em}.dom dd{margin:0;font-size:14px;overflow-wrap:anywhere}
 .dbar{height:6px;background:var(--line);border-radius:3px;overflow:hidden}.dbar span{display:block;height:100%}
 .dnote{font-size:13.5px;color:var(--muted);margin:0;border-top:1px dashed var(--line);padding-top:8px}
+.qline{font-size:13.5px;color:var(--muted);margin:2px 0 10px}.qline b{color:var(--ink);font-family:"IBM Plex Mono",monospace}
+#dpocket td,#dpocket th{text-align:left;vertical-align:top}#dpocket td.num,#dpocket th.num{text-align:right}
+#dpocket td.pn{white-space:normal;min-width:15em;max-width:24em;font-size:13.5px}
+#dpocket td.pn small{display:block;color:var(--muted);font-size:12.5px;line-height:1.5}
+#dpocket tr.bad td{color:var(--muted)}#dpocket tr.bought td:first-child{box-shadow:inset 3px 0 0 var(--brand)}
+#dpocket .dm{font-weight:700;word-break:break-all;white-space:normal;min-width:9em}
+#dpocket .buy a{display:inline-flex;align-items:center;min-height:44px;padding:0 10px;margin:0 4px 0 0;border:1px solid var(--line);border-radius:10px;color:var(--brand);font-weight:700;text-decoration:none;font-size:13px}
+#dpocket .buy a:focus-visible,.drin:focus-visible,.cpb:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+.drin{width:4.6em;min-height:44px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font:inherit;text-align:center}
+.drwait{display:block;font-size:12px;color:var(--warn)}
+.ptools{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:10px 0 0}
+.cpb{appearance:none;border:0;border-radius:12px;background:var(--brand);color:#fff;font:inherit;font-weight:700;min-height:44px;padding:0 16px;cursor:pointer}
+.cpb[disabled]{opacity:.45;cursor:default}
+.pnote{font-size:13px;color:var(--muted);margin:0}
 </style></head><body>
 
 <div class="wrap">
@@ -196,8 +210,10 @@ ul.clean{margin:0;padding-left:18px} ul.clean li{margin:4px 0}
       <p class="lead">手上已經買的網域、到期日、放在哪個帳號，以及口袋名單。剩 60 天變黃、30 天變紅，記得續約。</p>
       <p class="meta" id="dmeta"></p></header>
     <div class="dlist" id="downed"></div>
-    <h2 style="font-size:17px;margin:26px 0 4px">口袋名單（還沒買）</h2>
+    <h2 style="font-size:17px;margin:26px 0 4px">口袋名單</h2>
+    <p class="qline" id="dqueue"></p>
     <div class="tw"><table id="dpocket"></table></div>
+    <div class="ptools"><button type="button" class="cpb" id="dcopy" disabled>複製給 Claude</button><span class="pnote" id="dcopymsg">DR 要你到 Ahrefs 免費查詢頁查（我們的工具查不到）：查完填進 DR 那格，按「複製給 Claude」，貼給任何一個 Claude 對話。</span></div>
   </div>
 </div>
 
@@ -306,11 +322,13 @@ function showTab(t){
 document.getElementById('tab-seo').onclick=()=>showTab('seo');
 document.getElementById('tab-dom').onclick=()=>showTab('dom');
 const dEsc=x=>String(x??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function pj(x){try{return JSON.parse(x||'null')}catch(e){return null}}
 async function loadDomains(){
   let st;try{st=await api('/admin/settings')}catch(e){return}
-  let D;try{D=JSON.parse(((st.settings||{}).domain_registry)||'null')}catch(e){D=null}
-  if(!D){document.getElementById('downed').innerHTML='<p class="meta">還沒有網域資料。</p>';return}
+  const S=st.settings||{}, D=pj(S.domain_registry), P=pj(S.domain_pocket);
+  if(!D&&!P){document.getElementById('downed').innerHTML='<p class="meta">還沒有網域資料。</p>';return}
   DOM_LOADED=true;
+  if(D){
   const now=new Date(), days=d=>Math.round((new Date(d+'T00:00:00+08:00')-now)/864e5), lv=n=>n<=30?'bad':n<=60?'warn':'ok';
   document.getElementById('dmeta').textContent='資料查證日：'+(D.checked||'—')+'（whois＋Cloudflare）';
   document.getElementById('downed').innerHTML=(D.owned||[]).slice().sort((a,b)=>days(a.expires)-days(b.expires)).map(d=>{
@@ -321,8 +339,57 @@ async function loadDomains(){
       <div class="dbar"><span style="width:${pct}%;background:var(--${l==='ok'?'up':l==='warn'?'warn':'down'})"></span></div>
       <dl><div><dt>註冊商</dt><dd>${dEsc(d.registrar)}</dd></div><div><dt>Cloudflare</dt><dd>${dEsc(d.cf)}</dd></div><div><dt>網站放在</dt><dd>${dEsc(d.hosting)}</dd></div><div><dt>信箱</dt><dd>${dEsc(d.mail)}</dd></div><div><dt>Google 後台</dt><dd>${dEsc(d.gsc)}</dd></div></dl>
       ${d.note?`<p class="dnote">${dEsc(d.note)}</p>`:''}</article>`}).join('');
-  document.getElementById('dpocket').innerHTML='<thead><tr><th>網域</th><th>DR</th><th>連入網站</th><th>以前是什麼</th><th>建議</th></tr></thead><tbody>'+
-    (D.pocket||[]).map(p=>`<tr><td>${dEsc(p.name)}</td><td class="num">${dEsc(p.dr)}</td><td class="num">${Number(p.refs||0).toLocaleString()}</td><td>${dEsc(p.past)}</td><td><span class="pl ${p.lv==='bad'?'bad':p.lv==='warn'?'warn':''}">${dEsc(p.advice)}</span></td></tr>`).join('')+'</tbody>';
+  }
+  renderPocket(D&&D.pocket||[],P);
+}
+// 口袋名單＝網域獵人自動找的（domain_pocket，WSL2 每天同步）＋手動記的（domain_registry.pocket），同網域只留一筆
+const PL_RANK={'乾淨':0,'待查':1,'查不到':2,'其他':2,'有前科':3};
+const isNum=v=>typeof v==='number'&&isFinite(v);
+function pocketRows(manual,P){
+  const seen=new Set(), out=[];
+  ((P&&P.rows)||[]).forEach(r=>{const k=String(r.domain||'').toLowerCase();if(!k||seen.has(k))return;seen.add(k);out.push(r)});
+  manual.forEach(m=>{const k=String(m.name||'').toLowerCase();if(!k||seen.has(k))return;seen.add(k);
+    const past=String(m.past||''), adv=String(m.advice||'');
+    const pl=m.lv==='bad'?'有前科':/沒查到|查不到/.test(past)?'查不到':'乾淨';
+    out.push({domain:m.name,batch:'手動記錄',score:null,refs:m.refs!=null&&m.refs!==''&&isNum(+m.refs)?+m.refs:null,dr:m.dr!=null&&m.dr!==''&&isNum(+m.dr)?+m.dr:null,
+      prelife:pl,prelife_note:past,verdict:/不建議|不要買/.test(adv)?'不建議':'可買',advice:adv})});
+  const vr=v=>v==='已買'?0:v==='不建議'?2:1;
+  return out.sort((a,b)=>vr(a.verdict)-vr(b.verdict)||(PL_RANK[a.prelife]??2)-(PL_RANK[b.prelife]??2)||
+    (isNum(b.score)?b.score:-1)-(isNum(a.score)?a.score:-1)||(isNum(b.dr)?b.dr:-1)-(isNum(a.dr)?a.dr:-1));
+}
+let DR_DRAFT={};try{DR_DRAFT=JSON.parse(localStorage.getItem('s1ne_dr_draft')||'{}')||{}}catch(e){DR_DRAFT={}}
+function saveDraft(){try{localStorage.setItem('s1ne_dr_draft',JSON.stringify(DR_DRAFT))}catch(e){}}
+function renderPocket(manual,P){
+  const q=(P&&P.queue_status)||null, upd=P&&P.updated||'';
+  const today=new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Taipei'}).format(new Date());
+  document.getElementById('dqueue').innerHTML=!q?'自動找網域還沒開始同步。'
+    :q.total_scored===0?`佇列 <b>${dEsc(q.queued)}</b> 個，還沒開始查。上次更新 ${dEsc(upd)}`
+    :`佇列剩 <b>${dEsc(q.queued)}</b> 個、${upd.slice(0,10)===today?'今天':dEsc(upd.slice(5,10).replace('-','/'))+' 那天'}查了 <b>${dEsc(q.scored_today)}</b> 個（累計 ${dEsc(q.total_scored)} 個）、上次更新 ${dEsc(upd)}`;
+  const rows=pocketRows(manual,P);
+  rows.forEach(r=>{if(isNum(r.dr)&&r.domain in DR_DRAFT)delete DR_DRAFT[r.domain]});saveDraft();
+  const tb=document.getElementById('dpocket');
+  if(!rows.length){tb.innerHTML='<tbody><tr><td class="pn" style="color:var(--muted)">還沒有分數夠、又確認可以註冊的網域。每天查完會自動放進來。</td></tr></tbody>';document.getElementById('dcopy').hidden=true;return}
+  document.getElementById('dcopy').hidden=false;
+  const PLC={'乾淨':'ok','有前科':'bad','查不到':'warn','待查':'','其他':'warn'}, VC={'可買':'ok','預計購買':'','已買':'','不建議':'bad'};
+  tb.innerHTML='<thead><tr><th>網域</th><th>產業批次</th><th class="num">分數</th><th class="num">連入網站</th><th>DR</th><th>前世</th><th>狀態</th><th>購買連結</th></tr></thead><tbody>'+
+    rows.map((r,i)=>{const d=String(r.domain), e=encodeURIComponent(d), bought=r.verdict==='已買';
+      const drCell=isNum(r.dr)?`<span class="num">${dEsc(r.dr)}</span>`
+        :`<label class="sr" for="dr${i}">${dEsc(d)} 的 DR</label><input class="drin num" id="dr${i}" data-d="${dEsc(d)}" type="number" inputmode="numeric" min="0" max="100" step="1" placeholder="待查" value="${dEsc(DR_DRAFT[d]??'')}"><span class="drwait">待查</span>`;
+      const note=r.prelife_note||'';
+      return `<tr class="${r.verdict==='不建議'?'bad':''}${bought?' bought':''}"><td class="dm">${dEsc(d)}</td><td>${dEsc(r.batch||'—')}</td>
+        <td class="num">${isNum(r.score)?dEsc(r.score):'—'}</td><td class="num">${isNum(r.refs)?Number(r.refs).toLocaleString():'—'}</td>
+        <td>${drCell}</td>
+        <td class="pn"><span class="pl ${PLC[r.prelife]??''}">${dEsc(r.prelife||'待查')}</span>${note?`<small>${dEsc(note)}</small>`:''}<small><a href="https://web.archive.org/web/2020*/${e}" target="_blank" rel="noopener" style="color:var(--brand)">看以前的樣子</a></small></td>
+        <td class="pn"><span class="pl ${VC[r.verdict]??''}">${dEsc(r.verdict||'可買')}</span>${r.advice?`<small>${dEsc(r.advice)}</small>`:''}${bought&&r.bought_at?`<small>在 ${dEsc(r.bought_at)} 買</small>`:''}</td>
+        <td class="buy">${bought?'—':`<a href="https://www.godaddy.com/domainsearch/find?domainToCheck=${e}" target="_blank" rel="noopener">GoDaddy</a><a href="https://domains.cloudflare.com/?domain=${e}" target="_blank" rel="noopener">Cloudflare</a>`}</td></tr>`}).join('')+'</tbody>';
+  const btn=document.getElementById('dcopy'), msg=document.getElementById('dcopymsg');
+  const refresh=()=>{btn.disabled=!Object.keys(DR_DRAFT).length;btn.textContent=btn.disabled?'複製給 Claude':`複製給 Claude（${Object.keys(DR_DRAFT).length} 個）`};
+  tb.querySelectorAll('.drin').forEach(inp=>inp.oninput=()=>{const v=inp.value.trim();if(v==='')delete DR_DRAFT[inp.dataset.d];else DR_DRAFT[inp.dataset.d]=v;saveDraft();refresh()});
+  refresh();
+  btn.onclick=async()=>{const t=Object.entries(DR_DRAFT).map(([d,v])=>`DR 更新：${d}=${v}`).join('\n');if(!t)return;
+    let ok=false;try{await navigator.clipboard.writeText(t);ok=true}catch(e){
+      try{const ta=document.createElement('textarea');ta.value=t;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();ok=document.execCommand('copy');ta.remove()}catch(e2){ok=false}}
+    if(ok){msg.textContent='已複製。貼給任何一個 Claude 對話，它會寫進名單；看板下次同步就會顯示。'}else{window.prompt('複製下面這段，貼給 Claude',t)}};
 }
 if(location.hash==='#domains')showTab('dom');
 </script>
