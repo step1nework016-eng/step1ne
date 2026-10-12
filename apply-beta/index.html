@@ -175,6 +175,7 @@ dialog.think::backdrop{background:rgba(22,32,46,.45)}
 .steps li:before{content:counter(st);display:block;margin:0 auto 3px;width:20px;height:20px;line-height:20px;border-radius:50%;
   background:var(--ac);color:#fff;font-size:11.5px;font-weight:700}
 .steps b{display:block;color:var(--tx);font-size:13.5px}
+[hidden]{display:none!important}
 .inapp{display:flex;gap:8px;align-items:flex-start;background:#fff8e6;border:1px solid #f0dca8;border-radius:10px;
   padding:10px 12px;margin:0 0 14px;font-size:13.5px;line-height:1.6;color:#5c4a1a}
 .inapp a{color:#8a5a00;font-weight:600}
@@ -357,6 +358,9 @@ details.opt>summary:focus-visible{outline:3px solid var(--ac);outline-offset:2px
         <input name="social_youtube" placeholder="YouTube">
         <input name="social_other" placeholder="其他平台（小紅書、Twitch…）">
       </div>
+      <label style="margin-top:16px" for="leaveReasons">每一段工作的離職原因（建議填）</label>
+      <p style="margin:4px 0 8px;font-size:13.5px;color:var(--tx2,#4d5c72);line-height:1.6">一段一行就好，阿財面談時就不用再問一次。</p>
+      <textarea name="leave_reasons" id="leaveReasons" rows="4" maxlength="1500" placeholder="例：&#10;A公司 業務專員（2021–2024）：想往管理職發展&#10;B公司 行政助理（2019–2021）：公司搬遷，通勤太遠"></textarea>
       <label style="margin-top:16px">想補充的事（選填）</label>
       <textarea name="note" placeholder="選填"></textarea>
     </fieldset>
@@ -433,6 +437,11 @@ details.opt>summary:focus-visible{outline:3px solid var(--ac);outline-offset:2px
 
 <script src="/assets/resume-step.js"></script>
 <script>
+
+function noteWithLeave(fd){
+  const lr=(fd.get('leave_reasons')||'').trim(), n=(fd.get('note')||'').trim();
+  return (lr?'【各段工作離職原因】\n'+lr:'')+(lr&&n?'\n\n':'')+n || null;
+}
 const API = 'https://step1ne-public-worker.aiagentg888.workers.dev';
 const q = new URLSearchParams(location.search);
 // 同一份檔案放在 /apply-beta/（給 Jacky 手機先測）跟之後的 /apply/，從哪裡來就回哪裡
@@ -749,7 +758,7 @@ async function buildBody() {
       fd.get('stay_need') || '',
     ].filter(Boolean).join('　｜　') || null,
     invite_token: INV || null,
-    note: fd.get('note'),
+    note: noteWithLeave(fd),
     // 2026-10-03 資深獵頭初談必做項：薪資結構、底線、自己投過哪些、同意推薦（都選填）
     screen_extra: (() => {
       const o = {};
@@ -896,7 +905,7 @@ document.getElementById('toAssess').addEventListener('click', async () => {
       job_slug: fd.get('job_slug') || (INVITE && INVITE.job_slug) || '', name: fd.get('name'), email: fd.get('email'),
       phone: fd.get('phone'), expected_salary: fd.get('expected_salary'),
       available_date: fd.get('available_date'), areas: fd.getAll('area'),
-      stay_need: fd.get('stay_need'), note: fd.get('note'), extra,
+      stay_need: fd.get('stay_need'), note: noteWithLeave(fd), extra,
       consent_recommend: !!fd.get('consent_recommend'), rs: RS.getState(),
     }));
     sessionStorage.setItem('s1ne_token', d.chat_token);

@@ -35,6 +35,7 @@
     '.rs-photo{border-color:var(--ac,#2f5fd8);color:var(--ac,#2f5fd8)}' +
     '.rs-sub{display:block;width:100%;min-height:44px;margin:0;padding:10px 12px;border:1px dashed #b9c3d2;border-radius:10px;' +
     '  background:#fff;color:var(--tx2,#4d5c72);font:inherit;font-size:14px;cursor:pointer}' +
+    '[hidden]{display:none!important}' +
     '.rs-picked{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;color:#1e7a4f;background:#eef8f2;' +
     '  border:1px solid #cfe9da;border-radius:10px;padding:10px 12px}' +
     '.rs-picked b{font-weight:600;word-break:break-all}' +
