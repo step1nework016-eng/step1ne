@@ -1,0 +1,235 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><title>Step1ne 搜尋成效週報</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+:root{
+  --ground:#F2F5F7; --surface:#FFFFFF; --ink:#13232E; --muted:#5A6B77; --line:#D8E1E7;
+  --brand:#1A7FB5; --brand-soft:#E1F0F8;
+  --s-ent:#1A7FB5; --s-seek:#6BA88E; --s-jobs:#C98A2B; --s-ret:#BAC5CD; --s-oth:#8E9AA6;
+  --up:#1F8A4C; --down:#B4462F; --warn-soft:#FFF3E3; --warn:#94570F;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#0E171D; --surface:#16222A; --ink:#E4ECF1; --muted:#93A4AF; --line:#283842;
+  --brand:#4BAEE0; --brand-soft:#123044;
+  --s-ent:#4BAEE0; --s-seek:#7FBFA3; --s-jobs:#DDA048; --s-ret:#3E4D57; --s-oth:#6C7A85;
+  --up:#55C083; --down:#E2775F; --warn-soft:#3A2A14; --warn:#F0B565; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --ground:#0E171D; --surface:#16222A; --ink:#E4ECF1; --muted:#93A4AF; --line:#283842;
+  --brand:#4BAEE0; --brand-soft:#123044;
+  --s-ent:#4BAEE0; --s-seek:#7FBFA3; --s-jobs:#DDA048; --s-ret:#3E4D57; --s-oth:#6C7A85;
+  --up:#55C083; --down:#E2775F; --warn-soft:#3A2A14; --warn:#F0B565; color-scheme:dark;}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font:15px/1.7 "Noto Sans TC",system-ui,sans-serif;padding-inline:16px;padding-block:22px 56px;margin:0}
+.wrap{max-width:960px;margin:0 auto;display:grid;gap:20px}
+.num{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.eyebrow{font-size:12.5px;letter-spacing:.08em;color:var(--brand);font-weight:700}
+h1{font-size:clamp(24px,4vw,32px);font-weight:900;margin:4px 0 8px;text-wrap:balance}
+.lead{font-size:16.5px;margin:0;max-width:68ch}
+.lead b{color:var(--brand)}
+.meta{color:var(--muted);font-size:13px;margin-top:6px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px}
+.kpi .k{font-size:12.5px;color:var(--muted)}
+.kpi .v{font-size:24px;font-weight:600;margin-top:2px}
+.kpi .d{font-size:12.5px;margin-top:2px}
+.up{color:var(--up)} .down{color:var(--down)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px}
+.card h2{font-size:18px;font-weight:900;margin:0 0 4px}
+.card .sub{color:var(--muted);font-size:13.5px;margin:0 0 14px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:var(--muted);margin-bottom:10px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.chart{overflow-x:auto}
+svg text{fill:var(--muted);font-size:11px;font-family:"IBM Plex Mono",monospace}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left;white-space:normal}
+th{color:var(--muted);font-weight:500;font-size:12.5px}
+.mv{font-weight:600}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+ul.clean{margin:0;padding-left:18px} ul.clean li{margin:4px 0}
+.pill{display:inline-block;font-size:12px;font-weight:700;padding:2px 9px;border-radius:999px;background:var(--brand-soft);color:var(--brand);margin-right:6px}
+.pill.w{background:var(--warn-soft);color:var(--warn)}
+.geo{display:grid;gap:10px}
+.geo .row{display:grid;grid-template-columns:1fr auto;gap:8px;padding:10px 12px;border:1px solid var(--line);border-radius:12px}
+.geo .res{font-weight:700}
+.tl{display:grid;gap:8px}
+.tl .it{display:grid;grid-template-columns:92px 1fr;gap:10px;align-items:start}
+.tl .dt{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--brand);font-weight:600}
+.foot{font-size:12.5px;color:var(--muted)}
+.login{position:fixed;inset:0;z-index:40;background:var(--ground);display:flex;flex-direction:column;align-items:center;gap:14px;padding:max(80px,calc(env(safe-area-inset-top) + 56px)) 24px 24px;text-align:center}
+.login h2{margin:0;font-size:22px;font-weight:900}.login p{margin:0;color:var(--muted);font-size:14px}
+.login input{width:100%;max-width:320px;min-height:52px;border-radius:14px;border:2px solid var(--line);background:var(--surface);color:var(--ink);font-size:16px;text-align:center}
+.login input:focus-visible{outline:3px solid var(--brand)}
+.login button{width:100%;max-width:320px;min-height:52px;border:0;border-radius:14px;background:var(--brand);color:#fff;font-size:17px;font-weight:900}
+.login .err{color:var(--down);font-weight:700;font-size:13.5px}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+.pick{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:10px}
+.pick label{font-size:13px;color:var(--muted)}
+.pick select{font:inherit;font-weight:700;min-height:44px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.pick select:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+.carried{display:inline-block;font-size:12px;padding:2px 8px;border-radius:999px;background:var(--warn-soft);color:var(--warn);margin-left:6px}
+.bars{display:grid;gap:8px}
+.bar{display:grid;grid-template-columns:110px 1fr 64px;gap:10px;align-items:center;font-size:13.5px}
+.bar .track{height:10px;border-radius:5px;background:var(--brand-soft);overflow:hidden}
+.bar .fill{height:100%;background:var(--brand)}
+@media (max-width:720px){.kpis{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}}
+</style></head><body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">STEP1NE・企業端搜尋成效</div>
+    <h1>搜尋成效週報</h1>
+    <p class="lead" id="lead"></p>
+    <div class="pick"><label for="rep">看哪一週</label><select id="rep"></select><span class="meta" id="meta"></span></div>
+  </header>
+
+  <div class="kpis" id="kpis"></div>
+
+  <section class="card" aria-labelledby="h-trend">
+    <h2 id="h-trend">每週從 Google 點進來的人，是誰在帶</h2>
+    <p class="sub">堆疊長條＝每週點擊。重點看藍色（企業端：獵頭、派遣、招募成本、關於我們等）；灰色是 9/29 已設不收錄的抖音／直播文，正在退場。</p>
+    <div class="legend" id="legend"></div>
+    <div class="chart" id="chart"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-kw">
+    <h2 id="h-kw">企業會搜的字：排名變化</h2>
+    <p class="sub" id="kwsub"></p>
+    <div class="tw"><table id="kw"></table></div>
+  </section>
+
+  <div class="grid2">
+    <section class="card" aria-labelledby="h-geo">
+      <h2 id="h-geo">AI 會不會推薦 Step1ne</h2>
+      <p class="sub">ChatGPT 人工實測（每月一次）</p>
+      <div class="geo" id="geo"></div>
+      <p class="sub" style="margin-top:12px" id="geonote"></p>
+    </section>
+
+    <section class="card" aria-labelledby="h-conv">
+      <h2 id="h-conv">來了之後有沒有行動</h2>
+      <p class="sub" id="convsub"></p>
+      <div class="tw"><table id="conv"></table></div>
+    </section>
+  </div>
+
+
+  <section class="card" aria-labelledby="h-beh">
+    <h2 id="h-beh">使用者行為（GA4）</h2>
+    <p class="sub" id="behsub"></p>
+    <div class="kpis" id="behkpi" style="margin-bottom:16px"></div>
+    <div class="grid2">
+      <div><h3 style="font-size:15px;margin:0 0 8px">從哪裡來（工作階段）</h3><div class="bars" id="channels"></div></div>
+      <div><h3 style="font-size:15px;margin:0 0 8px">用什麼裝置</h3><div class="bars" id="devices"></div></div>
+    </div>
+    <h3 style="font-size:15px;margin:18px 0 8px">企業端頁面：進來的人停多久</h3>
+    <div class="tw"><table id="entland"></table></div>
+  </section>
+
+  <div class="grid2">
+    <section class="card" aria-labelledby="h-done">
+      <h2 id="h-done">這週做了什麼<span id="carry"></span></h2>
+      <ul class="clean" id="done"></ul>
+    </section>
+
+    <section class="card" aria-labelledby="h-next">
+      <h2 id="h-next">回收日與下一步</h2>
+      <div class="tl" id="next"></div>
+    </section>
+  </div>
+
+  <p class="foot">讀法：GSC 是過去 28 天的加總，看到的問題可能已經修好、正在收斂；單週數字是雜訊，看趨勢。企業端＝文章與服務頁裡對象是企業買家的那一群（獵頭、派遣、招募成本、委託招募、關於我們等）。</p>
+</div>
+
+<script>
+const fmt=n=>Math.round(n).toLocaleString('zh-TW');
+const SEG=[['enterprise','企業端','--s-ent'],['jobseeker','求職者文章','--s-seek'],['jobs','職缺頁','--s-jobs'],['other','其他','--s-oth'],['retired','已退場（抖音／直播）','--s-ret']];
+const CH={'Organic Search':'Google 等搜尋','Direct':'直接輸入／書籤','Organic Social':'社群','Referral':'其他網站連過來','Unassigned':'未歸類','Paid Search':'搜尋廣告','Email':'Email','Paid Social':'社群廣告'};
+const DEV={mobile:'手機',desktop:'電腦',tablet:'平板'};
+const pct=(a,b)=>b?Math.round((a-b)/b*100):0;
+const arrow=(a,b,rev)=>{const p=pct(a,b);const good=rev?p<=0:p>=0;return `<span class="${good?'up':'down'}">${p>=0?'▲':'▼'} ${Math.abs(p)}%</span>`};
+function render(D){
+  const W=D.weeks, last4=W.slice(-4), prev4=W.slice(-8,-4);
+  const sum=(ws,seg,k)=>ws.reduce((a,x)=>a+((x[seg]||{})[k]||0),0);
+  const eC=sum(last4,'enterprise','c'), eCp=sum(prev4,'enterprise','c'), eI=sum(last4,'enterprise','i'), eIp=sum(prev4,'enterprise','i');
+  const kw=D.kw, find=q=>kw.find(r=>r.q===q)||{};
+  const tw=find('台灣獵頭公司推薦'), hc=find('獵頭公司');
+  document.getElementById('meta').textContent=`資料到 ${D.window.split('~')[1]}（GSC 約延遲 3 天）｜GSC＋GA4＋ChatGPT 人工實測`;
+  document.getElementById('lead').innerHTML=`企業端點擊近 4 週 <b>${fmt(eC)}</b> 次（前 4 週 ${fmt(eCp)}，${pct(eC,eCp)>=0?'多':'少'} <b>${Math.abs(pct(eC,eCp))}%</b>）`+
+    (tw.p?`；「台灣獵頭公司推薦」排第 <b>${tw.p}</b> 名${tw.pp?`（前期 ${tw.pp}）`:''}`:'')+'。';
+  const g=D.ga4;
+  document.getElementById('kpis').innerHTML=[
+    ['企業端點擊（近 4 週）',fmt(eC),arrow(eC,eCp)+` <span style="color:var(--muted)">前 4 週 ${fmt(eCp)}</span>`],
+    ['企業端曝光（近 4 週）',fmt(eI),arrow(eI,eIp)+` <span style="color:var(--muted)">前 4 週 ${fmt(eIp)}</span>`],
+    ['「獵頭公司」排名',hc.p??'—',hc.pp?`<span class="${hc.p<hc.pp?'up':'down'}">${hc.p<hc.pp?'▲':'▼'} 從 ${hc.pp}</span>`:''],
+    ['企業需求表單',fmt(g.now.employer_lead_submit||0),`<span style="color:var(--muted)">前期 ${fmt(g.prev.employer_lead_submit||0)}（9/29 上線）</span>`]
+  ].map(([k,v,d])=>`<div class="kpi"><div class="k">${k}</div><div class="v num">${v}</div><div class="d">${d}</div></div>`).join('');
+  document.getElementById('legend').innerHTML=SEG.map(([,l,c])=>`<span><i style="background:var(${c})"></i>${l}</span>`).join('');
+  {const H=220,PL=34,PB=26,bw=34,gap=14,Wd=PL+W.length*(bw+gap)+10;
+   const tot=W.map(x=>SEG.reduce((a,[s])=>a+((x[s]||{}).c||0),0)); const max=Math.max(50,Math.ceil(Math.max(...tot)/50)*50);
+   const y=v=>H-PB-(v/max)*(H-PB-10);
+   let s=`<svg viewBox="0 0 ${Wd} ${H}" width="${Wd}" height="${H}" role="img" aria-label="每週點擊依來源分類">`;
+   for(let t=0;t<=max;t+=max/4){s+=`<line x1="${PL}" x2="${Wd}" y1="${y(t)}" y2="${y(t)}" stroke="var(--line)"/><text x="${PL-6}" y="${y(t)+4}" text-anchor="end">${Math.round(t)}</text>`}
+   W.forEach((x,i)=>{let base=0;const X=PL+8+i*(bw+gap);
+     SEG.forEach(([seg,,c])=>{const v=(x[seg]||{}).c||0;if(!v)return;const y1=y(base+v),y0=y(base);s+=`<rect x="${X}" y="${y1}" width="${bw}" height="${Math.max(0,y0-y1)}" fill="var(${c})"><title>${x.week} ${seg} ${v}</title></rect>`;base+=v});
+     s+=`<text x="${X+bw/2}" y="${H-8}" text-anchor="middle">${x.week.slice(5).replace('-','/')}</text>`;
+     const e=(x.enterprise||{}).c||0; if(e&&(y(0)-y(e))>=15) s+=`<text x="${X+bw/2}" y="${(y(0)+y(e))/2+4}" text-anchor="middle" style="fill:#fff;font-weight:600">${e}</text>`;});
+   document.getElementById('chart').innerHTML=s+'</svg>';}
+  document.getElementById('kwsub').textContent=`近 28 天（${D.window}）對比前 28 天（${D.prev}）；排名數字越小越前面，第 1～10 名在 Google 第一頁。`;
+  const mv=(p,pp)=>{if(p==null)return '<span style="color:var(--muted)">消失</span>';if(pp==null)return '<span style="color:var(--muted)">新出現</span>';const d=Math.round((pp-p)*10)/10;return d>0?`<span class="mv up">▲ ${d}</span>`:d<0?`<span class="mv down">▼ ${-d}</span>`:'—'};
+  document.getElementById('kw').innerHTML='<thead><tr><th>搜尋字</th><th>排名</th><th>變化</th><th>曝光</th><th>點擊</th></tr></thead><tbody>'+
+    kw.filter(r=>r.i>0).slice(0,12).map(r=>`<tr><td>${r.q}</td><td class="num">${r.p??'—'}</td><td>${mv(r.p,r.pp)}</td><td class="num">${fmt(r.i)}</td><td class="num">${fmt(r.c)}</td></tr>`).join('')+'</tbody>';
+  document.getElementById('convsub').textContent='GA4 事件次數，近 28 天對比前 28 天。'+(D.notes.extra_leads?'｜'+D.notes.extra_leads:'');
+  const CV=[['employer_lead_submit','企業需求表單送出'],['hiring_assessment_lead','招募評估留資料'],['job_apply_landing','進到應徵頁'],['form_submit','應徵表單送出'],['line_redirect','點去 LINE']];
+  document.getElementById('conv').innerHTML='<thead><tr><th>行動</th><th>近 28 天</th><th>前 28 天</th></tr></thead><tbody>'+
+    CV.map(([k,l])=>`<tr><td>${l}</td><td class="num">${fmt(g.now[k]||0)}</td><td class="num">${fmt(g.prev[k]||0)}</td></tr>`).join('')+'</tbody>';
+  // 使用者行為
+  const B=D.behavior||{now:{},prev:{}}, bn=B.now.site||{}, bp=B.prev.site||{};
+  document.getElementById('behsub').textContent='整站，近 28 天對比前 28 天。「互動率」＝停超過 10 秒、看了兩頁以上或有轉換的比例。';
+  const mm=s=>`${Math.floor(s/60)} 分 ${Math.round(s%60)} 秒`;
+  document.getElementById('behkpi').innerHTML=[
+    ['工作階段',fmt(bn.sessions||0),arrow(bn.sessions,bp.sessions)],
+    ['使用者（新使用者）',`${fmt(bn.totalUsers||0)}`,`新 ${fmt(bn.newUsers||0)}　${arrow(bn.totalUsers,bp.totalUsers)}`],
+    ['互動率',bn.engagementRate!=null?Math.round(bn.engagementRate*100)+'%':'—',bp.engagementRate!=null?`前期 ${Math.round(bp.engagementRate*100)}%`:''],
+    ['平均停留',bn.averageSessionDuration!=null?mm(bn.averageSessionDuration):'—',bp.averageSessionDuration!=null?`前期 ${mm(bp.averageSessionDuration)}`:'']
+  ].map(([k,v,d])=>`<div class="kpi"><div class="k">${k}</div><div class="v num" style="font-size:20px">${v}</div><div class="d">${d}</div></div>`).join('');
+  const bars=(rows,key,lab)=>{const tot=rows.reduce((a,r)=>a+r.sessions,0)||1;return rows.map(r=>`<div class="bar"><span>${lab[r[key]]||r[key]}</span><span class="track"><span class="fill" style="display:block;width:${Math.round(r.sessions/tot*100)}%"></span></span><span class="num" style="text-align:right">${Math.round(r.sessions/tot*100)}%</span></div>`).join('')};
+  document.getElementById('channels').innerHTML=bars(B.now.channels||[],'sessionDefaultChannelGroup',CH);
+  document.getElementById('devices').innerHTML=bars(B.now.devices||[],'deviceCategory',DEV);
+  document.getElementById('entland').innerHTML='<thead><tr><th>到達頁</th><th>工作階段</th><th>互動率</th><th>平均停留</th></tr></thead><tbody>'+
+    (B.now.landing_ent||[]).map(r=>`<tr><td>${r.landingPage}</td><td class="num">${fmt(r.sessions)}</td><td class="num">${Math.round(r.engagementRate*100)}%</td><td class="num">${mm(r.averageSessionDuration)}</td></tr>`).join('')+'</tbody>';
+  // 人工區
+  const N=D.notes||{};
+  document.getElementById('carry').innerHTML=N.carried?'<span class="carried">本週無更新</span>':'';
+  document.getElementById('done').innerHTML=(N.done||[]).length?N.done.map(([p,t])=>`<li><span class="pill">${p}</span>${t}</li>`).join(''):'<li style="color:var(--muted)">這週沒有記錄到動作</li>';
+  document.getElementById('next').innerHTML=(N.next||[]).map(([d,t])=>`<div class="it"><span class="dt">${d}</span><span>${t}</span></div>`).join('');
+  document.getElementById('geo').innerHTML=(N.geo||[]).map(([q,r,c])=>`<div class="row"><span>${q}</span><span class="res ${c}">${r}</span></div>`).join('');
+  document.getElementById('geonote').textContent=N.geo_note||'';
+}
+const API='https://step1ne-backoffice-worker.aiagentg888.workers.dev';
+const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+let TOKEN=ls.get('s1ne_admin_tok')||'';
+const api=async p=>{const r=await fetch(API+p,{headers:{Authorization:'Bearer '+TOKEN}});if(r.status===401){login();throw new Error('auth')}return r.json()};
+async function load(date){
+  try{const d=await api('/admin/seo-report/get?date='+encodeURIComponent(date));if(!d.ok)throw 0;render(d.data)}
+  catch(e){if(e.message!=='auth')document.getElementById('lead').textContent='這一週的資料讀不到，請換一週或稍後再試。'}
+}
+async function start(){
+  const sel=document.getElementById('rep');
+  let idx;try{idx=await api('/admin/seo-report/index')}catch(e){return}
+  sel.innerHTML=(idx.reports||[]).map((d,i)=>`<option value="${d}">${d.slice(0,4)}/${d.slice(5,7)}/${d.slice(8)}（週一）${i===0?'・最新':''}</option>`).join('');
+  sel.onchange=()=>load(sel.value);
+  if((idx.reports||[]).length) load(idx.reports[0]);
+}
+function login(msg){
+  if(document.getElementById('lg'))return;
+  document.body.insertAdjacentHTML('beforeend',`<form class="login" id="lg"><h2>輸入登入權杖</h2><p>跟顧問後台同一組權杖，輸入一次就會記住。</p><label for="ti" class="sr">登入權杖</label><input id="ti" type="password" autocapitalize="off" spellcheck="false" placeholder="貼上權杖">${msg?`<div class="err">${msg}</div>`:''}<button type="submit">看週報</button></form>`);
+  document.getElementById('lg').onsubmit=async e=>{e.preventDefault();const v=document.getElementById('ti').value.trim();if(!v)return;TOKEN=v;
+    const r=await fetch(API+'/admin/seo-report/index',{headers:{Authorization:'Bearer '+v}}).catch(()=>null);
+    if(r&&r.ok){ls.set('s1ne_admin_tok',v);document.getElementById('lg').remove();start()}else{TOKEN='';document.getElementById('lg').remove();login('權杖不對，請再確認一次')}};
+}
+TOKEN?start():login();
+</script>
+</body></html>
