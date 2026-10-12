@@ -195,12 +195,10 @@
       '</div>' +
       // ── 沒有履歷：1 分鐘快速履歷 ──
       '<div class="rs-panel" role="tabpanel" id="' + uid + '-p-quick" aria-labelledby="' + uid + '-t-quick" data-panel="quick" hidden>' +
-      '  <p class="rs-lead">回答 5 個小問題就好，大約 1 分鐘。</p>' +
-      '  <div class="rs-box">' +
-      '  <label for="' + uid + '-q1">最近一份工作的公司</label><input id="' + uid + '-q1" data-q="company" maxlength="80" autocomplete="organization" placeholder="例：某某科技（沒工作過寫「無」）">' +
-      '  <label for="' + uid + '-q2">職稱</label><input id="' + uid + '-q2" data-q="title" maxlength="80" autocomplete="organization-title" placeholder="例：行政助理、作業員、工讀生">' +
-      '  <label for="' + uid + '-q3">在這份工作做了多久</label><select id="' + uid + '-q3" data-q="years"><option value="">請選擇</option>' + opt(YEARS) + '</select>' +
-      '  <label for="' + uid + '-q4">主要負責什麼（一句話）</label><input id="' + uid + '-q4" data-q="duty" maxlength="300" placeholder="例：每天處理訂單和出貨，管倉庫進出">' +
+      '  <p class="rs-lead">一段工作填一格，最近的先填，大約 1～2 分鐘。</p>' +
+      '  <div class="rs-jobs"></div>' +
+      '  <button type="button" class="rs-link rs-addjob">＋ 再加一段經歷</button>' +
+      '  <div class="rs-box" style="margin-top:12px">' +
       '  <label for="' + uid + '-q5">最高學歷</label><select id="' + uid + '-q5" data-q="edu"><option value="">請選擇</option>' + opt(EDU) + '</select>' +
       '  </div>' +
       '</div>' +
@@ -462,9 +460,53 @@
     window.addEventListener('focus', function () { if (S.tab === 'line') poll(300); });
     root.addEventListener('input', function () { onChange(); });
 
+    // 2026-10-12 Jacky：「沒有履歷」每一段經歷都要填當時的薪資 → 改成可重複的經歷區塊（最多 5 段）
+    var JOB_MAX = 5, jobSeq = 0;
+    function jobHtml(n) {
+      var id = uid + '-j' + (++jobSeq);
+      return '<div class="rs-box rs-job" style="margin-bottom:10px">' +
+        '<p style="font-weight:600;display:flex;justify-content:space-between;align-items:center">第 <span class="rs-jn">' + n + '</span> 段經歷' +
+        (n > 1 ? '<button type="button" class="rs-link rs-deljob" aria-label="刪除這段經歷">刪除</button>' : '') + '</p>' +
+        '<label for="' + id + 'a">公司</label><input id="' + id + 'a" data-j="company" maxlength="80" autocomplete="organization" placeholder="例：某某科技（沒工作過寫「無」）">' +
+        '<label for="' + id + 'b">職稱</label><input id="' + id + 'b" data-j="title" maxlength="80" placeholder="例：行政助理、作業員、工讀生">' +
+        '<label for="' + id + 'c">做了多久</label><select id="' + id + 'c" data-j="years"><option value="">請選擇</option>' + opt(YEARS) + '</select>' +
+        '<label for="' + id + 'd">主要負責什麼（一句話）</label><input id="' + id + 'd" data-j="duty" maxlength="300" placeholder="例：每天處理訂單和出貨，管倉庫進出">' +
+        '<label for="' + id + 'e">當時的月薪</label><input id="' + id + 'e" data-j="salary" maxlength="40" inputmode="text" placeholder="例：3.5 萬、月薪 42,000＋年終 2 個月">' +
+        '<label for="' + id + 'f">離職原因（選填）</label><input id="' + id + 'f" data-j="reason" maxlength="120" placeholder="例：想往管理職發展；還在職寫「在職中」">' +
+        '</div>';
+    }
+    function renumberJobs() {
+      var bs = root.querySelectorAll('.rs-job');
+      bs.forEach(function (b, i) { var n = b.querySelector('.rs-jn'); if (n) n.textContent = i + 1; });
+      var add = $('.rs-addjob'); if (add) add.hidden = bs.length >= JOB_MAX;
+    }
+    function addJob(vals) {
+      var wrap = $('.rs-jobs'); if (!wrap) return;
+      var n = wrap.querySelectorAll('.rs-job').length + 1;
+      if (n > JOB_MAX) return;
+      wrap.insertAdjacentHTML('beforeend', jobHtml(n));
+      var b = wrap.lastElementChild;
+      if (vals) b.querySelectorAll('[data-j]').forEach(function (el) { var v = vals[el.getAttribute('data-j')]; if (v) el.value = v; });
+      var del = b.querySelector('.rs-deljob');
+      if (del) del.addEventListener('click', function () { b.remove(); renumberJobs(); onChange(); });
+      renumberJobs();
+      return b;
+    }
+    if ($('.rs-jobs')) {
+      addJob();
+      $('.rs-addjob').addEventListener('click', function () { var b = addJob(); if (b) { b.querySelector('[data-j=company]').focus(); onChange(); } });
+    }
     function quickVals() {
       var o = {};
       root.querySelectorAll('[data-q]').forEach(function (el) { o[el.getAttribute('data-q')] = el.value.trim(); });
+      var jobs = [];
+      root.querySelectorAll('.rs-job').forEach(function (b) {
+        var j = {}; b.querySelectorAll('[data-j]').forEach(function (el) { j[el.getAttribute('data-j')] = el.value.trim(); });
+        if (Object.keys(j).some(function (k) { return j[k]; })) jobs.push(j);
+      });
+      o.jobs = jobs;
+      // 舊欄位（第一段）保留，後端舊版也讀得懂
+      var f = jobs[0] || {}; o.company = f.company || ''; o.title = f.title || ''; o.years = f.years || ''; o.duty = f.duty || '';
       return o;
     }
     function filesLabel() {
@@ -481,11 +523,18 @@
         if (S.submitted) return { ok: true };
         var m = method();
         if (m === 'upload' && !S.files.length) return { ok: false, field: 'resume_file', el: $('.rs-pick'),
-          message: '請交一份履歷：上傳截圖或檔案、用 LINE 傳，或在「沒有履歷」填 5 個小問題' };
+          message: '請交一份履歷：上傳截圖或檔案、用 LINE 傳，或在「沒有履歷」填經歷' };
         if (m === 'line' && !S.code) return { ok: false, field: 'resume_line', el: $('.rs-tab[data-tab=line]'), message: 'LINE 代碼還沒拿到，請檢查網路後再按一次「用 LINE 傳」' };
         if (m === 'quick') {
-          var q = quickVals(), miss = ['company', 'title', 'years', 'duty', 'edu'].filter(function (k) { return !q[k]; });
-          if (miss.length) return { ok: false, field: 'quick_' + miss[0], el: $('[data-q=' + miss[0] + ']'), message: '快速履歷還有 ' + miss.length + ' 格沒填' };
+          var bs = root.querySelectorAll('.rs-job'), need = ['company', 'title', 'years', 'duty', 'salary'];
+          for (var bi = 0; bi < bs.length; bi++) {
+            var emptyBlock = bi > 0 && need.every(function (k) { return !bs[bi].querySelector('[data-j=' + k + ']').value.trim(); });
+            if (emptyBlock) continue;
+            var mk = need.filter(function (k) { return !bs[bi].querySelector('[data-j=' + k + ']').value.trim(); });
+            if (mk.length) return { ok: false, field: 'quick_' + mk[0], el: bs[bi].querySelector('[data-j=' + mk[0] + ']'),
+              message: '第 ' + (bi + 1) + ' 段經歷還有 ' + mk.length + ' 格沒填' + (mk.indexOf('salary') >= 0 ? '（含當時的月薪）' : '') };
+          }
+          if (!$('[data-q=edu]').value) return { ok: false, field: 'quick_edu', el: $('[data-q=edu]'), message: '快速履歷還沒選最高學歷' };
         }
         if (m === 'paste' && $('.rs-paste').value.trim().length < 30) return { ok: false, field: 'resume_paste', el: $('.rs-paste'), message: '貼上的內容太短了，至少要有最近一份工作的公司、職稱和做過的事' };
         if (m === 'url') {
@@ -534,6 +583,9 @@
         S.code = s.code || ''; S.lineUrl = s.line_url || ''; S.received = !!s.received;
         var q = s.quick || {};
         root.querySelectorAll('[data-q]').forEach(function (el) { if (q[el.getAttribute('data-q')]) el.value = q[el.getAttribute('data-q')]; });
+        if (q.jobs && q.jobs.length && $('.rs-jobs')) {
+          $('.rs-jobs').innerHTML = ''; q.jobs.slice(0, JOB_MAX).forEach(function (j) { addJob(j); });
+        }
         if (s.paste) $('.rs-paste').value = s.paste;
         if (s.url) $('.rs-url').value = s.url;
         var m = s.method || '';
