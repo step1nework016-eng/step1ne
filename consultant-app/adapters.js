@@ -38,7 +38,7 @@ export const adapters = {
       applicationId: value(item, 'application_id', 'id'), name: value(item, 'name', 'candidate_name'),
       job: value(item, 'job_title', 'title'), jobSlug: value(item, 'job_slug'), owner: value(item, 'owner_name', 'owner', 'consultant_name'),
       ownerId: value(item, 'owner'), email: value(item, 'email'), phone: value(item, 'phone'),
-      source: value(item, 'source_label', 'source_channel', 'utm_source'), stage: value(item, 'tab', 'manual_stage', 'status', 'stage'),
+      source: value(item, 'origin', 'source_label', 'source_channel', 'utm_source'), stage: value(item, 'tab', 'manual_stage', 'status', 'stage'),
       updatedAt: value(item, 'created_at', 'last_activity_at', 'updated_at'),
       duplicate: value(item, 'dup_notice', 'duplicate_notice'),
       clientName: value(item, 'client_name'), seqNo: value(item, 'seq_no'), hardGate: value(item, 'hard_gate'),
