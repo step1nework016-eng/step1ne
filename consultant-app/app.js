@@ -7,6 +7,7 @@ import { adapters, analyticsAdapter } from './adapters.js';
 import { views, actionBtn, rowActions, shell, boardView, boardCandItems, boardClientItems, CAND_COLS, CLIENT_COLS } from './views.js';
 import { ACTIONS } from './actions.js';
 import { jdFieldParse } from './jd_fields.js';
+import { initMail, loadMailTab, injectMailSection } from './mail.js';
 
 // 2026-09-15 補：使用者反映「不知道要看哪個是自己的」——沒有登入系統，只能靠
 // 這組「切換選擇」記住上次選的是誰，換分頁/重新整理都不用重選（存在瀏覽器
@@ -54,6 +55,7 @@ async function loadRoute() {
   if (state.route === 'social') return loadSocialTab(target);
   if (state.route === 'clients') return loadClientsTab(target);
   if (state.route === 'system') return loadSystemTab(target);
+  if (state.route === 'mail') return loadMailTab(target);
 }
 
 // 2026-09-17 加：顧問人選面談室。owner 選單沿用跟人選工作台一樣的
@@ -2794,6 +2796,7 @@ ${views.candidateFormsBlock(f.forms, applicationId, companyId)}
       ])}<h3>顧問備註／電洽紀錄</h3>${notesHtml}<h3>推薦客戶進度</h3>${forwardRows}<h3>最近歷程</h3>${timelineHtml}</div>`,
     });
     wireCandidateDrawer(applicationId, application, forwards, report);
+    injectMailSection('candidate', applicationId);
   } catch (error) {
     console.error(error);
     drawer({ title: '應徵單載入失敗', body: errorState(error) });
@@ -3403,6 +3406,7 @@ async function openCompanyManage(id) {
     const detail = await adapters.companyDetail(id);
     const c = detail.company || detail;
     drawer({ title: c.display_name || c.name || '客戶', subtitle: c.contact_email || '', body: views.companyDrawerBody(detail) });
+    injectMailSection('client', c.id || id);
     // 客戶背景資料：在客戶抽屜上面再疊一層看，關掉就回到客戶抽屜。內容放進沙盒 iframe，文件裡的樣式／程式碼碰不到後台
     $$('[data-client-file]').forEach((btn) => {
       btn.onclick = () => downloadFileGeneric(btn.getAttribute('data-client-file'), `/admin/file/${encodeURIComponent(btn.getAttribute('data-client-file'))}`, btn.getAttribute('data-client-file-name') || '檔案');
@@ -4638,3 +4642,6 @@ function boardDropClient(target, it, to) {
     catch (e) { $('#bk-go').disabled = false; toast(e.message || '改不成功', 'error'); }
   };
 }
+
+// 2026-10-12：信箱紀錄頁點「對到的卡片」要能直接打開人選卡／客戶卡
+initMail({ openCandidate: (id) => openCandidate(id), openCompany: (id) => openCompanyManage(id) });

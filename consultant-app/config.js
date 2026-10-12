@@ -17,6 +17,7 @@ export const ROUTES = Object.freeze({
   linechat: '/consultant/linechat/',
   social: '/consultant/social/',
   clients: '/consultant/clients-workspace/',
+  mail: '/consultant/mail/',
   system: '/consultant/system/'
 });
 
