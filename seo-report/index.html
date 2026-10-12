@@ -58,6 +58,13 @@ ul.clean{margin:0;padding-left:18px} ul.clean li{margin:4px 0}
 .tl .it{display:grid;grid-template-columns:92px 1fr;gap:10px;align-items:start}
 .tl .dt{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--brand);font-weight:600}
 .foot{font-size:12.5px;color:var(--muted)}
+.kwb{all:unset;cursor:pointer;font-weight:700;color:var(--ink);min-height:32px;display:inline-flex;align-items:center}
+.kwb:focus-visible{outline:3px solid var(--brand);outline-offset:2px;border-radius:4px}
+.kpw{background:var(--ground);text-align:left;white-space:normal}
+.kpg{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;padding:6px 2px;border-bottom:1px dashed var(--line)}
+.kpg:last-of-type{border-bottom:0}.kpg a{color:var(--brand);font-weight:700;text-decoration:none}.kpg a:hover{text-decoration:underline}
+.kpg .num{color:var(--muted);font-size:12.5px}.kpn{font-size:12.5px;color:var(--warn);margin-top:6px}
+
 .login{position:fixed;inset:0;z-index:40;background:var(--ground);display:flex;flex-direction:column;align-items:center;gap:14px;padding:max(80px,calc(env(safe-area-inset-top) + 56px)) 24px 24px;text-align:center}
 .login h2{margin:0;font-size:22px;font-weight:900}.login p{margin:0;color:var(--muted);font-size:14px}
 .login input{width:100%;max-width:320px;min-height:52px;border-radius:14px;border:2px solid var(--line);background:var(--surface);color:var(--ink);font-size:16px;text-align:center}
@@ -179,8 +186,11 @@ function render(D){
    document.getElementById('chart').innerHTML=s+'</svg>';}
   document.getElementById('kwsub').textContent=`近 28 天（${D.window}）對比前 28 天（${D.prev}）；排名數字越小越前面，第 1～10 名在 Google 第一頁。`;
   const mv=(p,pp)=>{if(p==null)return '<span style="color:var(--muted)">消失</span>';if(pp==null)return '<span style="color:var(--muted)">新出現</span>';const d=Math.round((pp-p)*10)/10;return d>0?`<span class="mv up">▲ ${d}</span>`:d<0?`<span class="mv down">▼ ${-d}</span>`:'—'};
-  document.getElementById('kw').innerHTML='<thead><tr><th>搜尋字</th><th>排名</th><th>變化</th><th>曝光</th><th>點擊</th></tr></thead><tbody>'+
-    kw.filter(r=>r.i>0).slice(0,12).map(r=>`<tr><td>${r.q}</td><td class="num">${r.p??'—'}</td><td>${mv(r.p,r.pp)}</td><td class="num">${fmt(r.i)}</td><td class="num">${fmt(r.c)}</td></tr>`).join('')+'</tbody>';
+  const esc=x=>String(x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  document.getElementById('kw').innerHTML='<thead><tr><th>搜尋字（點開看是哪一頁）</th><th>排名</th><th>變化</th><th>曝光</th><th>點擊</th></tr></thead>'+
+    kw.filter(r=>r.i>0).slice(0,12).map((r,ix)=>`<tbody class="kwg"><tr><td><button class="kwb" aria-expanded="false" aria-controls="kp${ix}">▸ ${esc(r.q)}</button></td><td class="num">${r.p??'—'}</td><td>${mv(r.p,r.pp)}</td><td class="num">${fmt(r.i)}</td><td class="num">${fmt(r.c)}</td></tr>`+
+      `<tr id="kp${ix}" hidden><td colspan="5" class="kpw">${(r.pages||[]).length?(r.pages||[]).map(pg=>`<div class="kpg"><a href="${esc(pg.url)}" target="_blank" rel="noopener">${esc(pg.title)}</a><span class="num">第 ${pg.p} 名・曝光 ${fmt(pg.i)}・點擊 ${fmt(pg.c)}</span></div>`).join('')+((r.pages||[]).length>1?'<div class="kpn">同一個字有兩頁以上在搶，排名會互相拉低。</div>':''):'<span style="color:var(--muted)">這週沒有頁面資料</span>'}</td></tr></tbody>`).join('');
+  document.querySelectorAll('.kwb').forEach(b=>b.onclick=()=>{const t=document.getElementById(b.getAttribute('aria-controls'));t.hidden=!t.hidden;b.setAttribute('aria-expanded',!t.hidden);b.textContent=(t.hidden?'▸ ':'▾ ')+b.textContent.slice(2)});
   document.getElementById('convsub').textContent='GA4 事件次數，近 28 天對比前 28 天。'+(D.notes.extra_leads?'｜'+D.notes.extra_leads:'');
   const CV=[['employer_lead_submit','企業需求表單送出'],['hiring_assessment_lead','招募評估留資料'],['job_apply_landing','進到應徵頁'],['form_submit','應徵表單送出'],['line_redirect','點去 LINE']];
   document.getElementById('conv').innerHTML='<thead><tr><th>行動</th><th>近 28 天</th><th>前 28 天</th></tr></thead><tbody>'+
