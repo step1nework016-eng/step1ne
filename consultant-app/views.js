@@ -2474,6 +2474,7 @@ ${n.learned ? `<p><b>學到什麼</b>${text(n.learned)}</p>` : ''}${n.next_time 
     const item = (r) => `<div class="bd-web-item">
         <p class="bd-web-when">${text(String(r.at || '').slice(0, 16))}・從${text(pageName(r.page))}送出</p>
         <div class="bd-contact-row"><span>留言內容</span><b class="bd-web-msg">${r.message ? text(r.message) : '<span class="muted">（沒填）</span>'}</b></div>
+        ${r.detail ? `<div class="bd-contact-row"><span>補充說明</span><b class="bd-web-msg" style="white-space:pre-wrap;font-weight:400">${text(r.detail)}</b></div>` : ''}
         <div class="bd-contact-row"><span>想用的方案</span>${r.plan ? text(r.plan) : '<span class="muted">沒選（不確定）</span>'}</div>
         ${r.contact_name ? `<div class="bd-contact-row"><span>聯絡人</span>${text(r.contact_name)}</div>` : ''}
         ${r.contact ? `<div class="bd-contact-row"><span>聯絡方式</span>${r.contact.includes('@') ? `<a href="mailto:${escapeHtml(r.contact)}">${text(r.contact)}</a>` : `<a href="tel:${escapeHtml(String(r.contact).replace(/[^0-9+#,]/g, ''))}">${text(r.contact)}</a>`}<button type="button" class="btn ghost sm" data-copy-text="${escapeHtml(r.contact)}">複製</button></div>` : ''}
