@@ -343,7 +343,7 @@ details.opt>summary:focus-visible{outline:3px solid var(--ac);outline-offset:2px
 
     <fieldset>
       <legend>履歷 <span class="req">*</span></legend>
-      <!-- 2026-10-12：三條路（上傳／LINE 傳／快速履歷），畫面由 /assets/resume-step.js 產生 -->
+      <!-- 2026-10-12：三個分頁（上傳截圖或檔案／用 LINE 傳／沒有履歷），畫面由 /assets/resume-step.js 產生 -->
       <div id="resumeStep"></div>
       <div id="socialBox" hidden>
         <label>社群平台連結 <span style="color:#c0392b">*</span></label>
@@ -435,7 +435,7 @@ details.opt>summary:focus-visible{outline:3px solid var(--ac);outline-offset:2px
 </div>
 </div>
 
-<script src="/assets/resume-step.js"></script>
+<script src="/assets/resume-step.js?v=20261012b"></script>
 <script>
 
 function noteWithLeave(fd){
@@ -459,7 +459,7 @@ function ga(name, params) { try { gtag('event', name, Object.assign({ page_path:
   // LINE 支援網址加 openExternalBrowser=1 直接跳到手機的瀏覽器開
   const ext = kind === 'line'
     ? ' <a href="' + location.pathname + (location.search ? location.search + '&' : '?') + 'openExternalBrowser=1">用瀏覽器開啟</a>' : '';
-  box.innerHTML = '<span>選不到檔案？可以改用下面的「我用 LINE 傳」，或點右上角用瀏覽器開啟。' + ext + '</span>';
+  box.innerHTML = '<span>選不到檔案？可以改用下面的「用 LINE 傳」分頁，或點右上角用瀏覽器開啟。' + ext + '</span>';
   box.hidden = false;
   ga('apply_inapp_browser', { app: kind });
 })();
@@ -879,7 +879,7 @@ document.getElementById('toAssess').addEventListener('click', async () => {
     btn.disabled = true; btn.textContent = '檢查履歷連結⋯';
     const problem = await resumeLinkProblem(linkToCheck);
     btn.disabled = false; btn.textContent = '開始工作風格測驗 →';
-    if (problem) return gateErr(problem, document.getElementById('rs-url'), 'resume_url_private');
+    if (problem) return gateErr(problem, document.querySelector('#resumeStep .rs-url'), 'resume_url_private');
   }
   btn.disabled = true; btn.textContent = '處理中⋯';
   try {
@@ -954,6 +954,9 @@ let RETURN_TOKEN = null, HAD_RESUME_BEFORE = false, RETURN_FORM_DATA = null;
   // 履歷：第一次送出時已經存進資料庫了，這裡只是讓他看得到「交了什麼」，不用重選
   RS.setState(formData.rs || null, true);
   HAD_RESUME_BEFORE = !!(formData.rs && formData.rs.method);
+  // 2026-10-12：上傳的是截圖／照片的話，測驗這段時間系統已經在看圖轉文字（OCR）。
+  // 字太少（看不清楚）就在上傳區下面請他再截一次；不擋送出——第二次還是看不清楚就收下、交給顧問看。
+  if (formData.rs && formData.rs.method === 'upload') watchResumeRead(T);
 
   renderReportIntoGate(saved.scores, saved.result);
   document.getElementById('gateActions').hidden = true;
@@ -963,6 +966,17 @@ let RETURN_TOKEN = null, HAD_RESUME_BEFORE = false, RETURN_FORM_DATA = null;
   prog();
   scrollTo(0, 0);
 })();
+
+// 問後端：剛剛上傳的截圖，系統看得清楚嗎（pending＝還在轉、ok、unreadable＝字太少請重截）
+// 最多看 4 分鐘；只回狀態，不回任何內容
+function watchResumeRead(T, tries) {
+  tries = tries || 0;
+  fetch(`${API}/apply/resume-check/${encodeURIComponent(T)}`).then(r => r.json()).then(d => {
+    if (!d || !d.ok) return;
+    if (d.state === 'unreadable') { RS.showUnreadable(true); ga('resume_unreadable_shown', { tries: d.tries || 1 }); return; }
+    if (d.state === 'pending' && tries < 24) setTimeout(() => watchResumeRead(T, tries + 1), 10000);
+  }).catch(() => {});
+}
 
 // 報告直接注入「工作風格測驗」那個 fieldset 裡，取代開始按鈕——
 // 跟其餘欄位在同一份表單、同一個畫面，才能真的「一起檢查再送出」。
@@ -1043,7 +1057,7 @@ f.addEventListener('submit', async (e) => {
     btn.disabled = false; btn.textContent = '送出應徵';
     if (problem) {
       msg.className = 'msg err'; msg.textContent = problem;
-      document.getElementById('rs-url').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      document.querySelector('#resumeStep .rs-url').scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
   }
