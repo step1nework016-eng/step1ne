@@ -62,10 +62,17 @@ try {
   var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
 
   var esc = function (t) { return String(t || '').replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
-  var rows = {};
+  var rows = {}, heads = {};
   [].slice.call(spec.querySelectorAll('.spec-row')).forEach(function (r) {
     var dt = r.querySelector('dt'), dd = r.querySelector('dd');
-    if (dt && dd) rows[dt.textContent.trim()] = dd.textContent.trim();
+    if (dt && dd) {
+      // dd 裡的補充說明（span）跟主句之間補分隔，免得黏成「70,000 元薪資組成…」
+      var main = [].slice.call(dd.childNodes).filter(function (n) { return n.nodeType === 3; }).map(function (n) { return n.textContent; }).join('').trim();
+      var extra = [].slice.call(dd.children).map(function (c) { return c.textContent.trim(); }).filter(Boolean);
+      var k = dt.textContent.trim();
+      rows[k] = [main].concat(extra).filter(Boolean).join('；') || dd.textContent.trim();
+      heads[k] = (main || dd.textContent.trim()).split('｜')[0].trim();
+    }
   });
   var sub = h1.querySelector('.h1-sub');
   var summary = sub ? sub.textContent.trim() : '';
@@ -84,7 +91,8 @@ try {
   var note = gSpec ? gSpec.els.filter(function (e) { return e.tagName === 'P'; })[0] : null;
 
   var jd = document.createElement('div'); jd.className = 'wrap jd';
-  var payTxt = rows['薪資'] || '薪資面議';
+  // 2026-10-12：多數職缺頁欄位叫「薪資待遇」不是「薪資」，原本一律掉到「薪資面議」
+  var payTxt = heads['薪資'] || heads['薪資待遇'] || '薪資面議';
   var info = Object.keys(rows).filter(function (k) { return k !== '薪資'; });
   jd.innerHTML = '<nav class="jd-crumb" aria-label="導覽"><a href="/jobs/">職缺專區</a><span>›</span><span id="jdCrumbType" style="color:inherit"></span><span id="jdCrumbSep" hidden>›</span><span style="color:var(--jv-ink)">' + esc(title) + '</span></nav>'
     + '<div class="jd-type"><span class="jd-logo" id="jdLogo" aria-hidden="true">職</span><b id="jdType">Step1ne 顧問接洽</b></div>'
