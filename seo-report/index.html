@@ -1,4 +1,4 @@
-<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><title>Step1ne 搜尋成效週報</title>
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><title>Step1ne 內部看板</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=IBM+Plex+Mono:wght@500;600&display=swap">
 <style>
@@ -82,9 +82,32 @@ ul.clean{margin:0;padding-left:18px} ul.clean li{margin:4px 0}
 .bar .track{height:10px;border-radius:5px;background:var(--brand-soft);overflow:hidden}
 .bar .fill{height:100%;background:var(--brand)}
 @media (max-width:720px){.kpis{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}}
+
+.tabs{display:flex;gap:6px;margin:0 0 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.tabs button{appearance:none;background:none;border:0;border-bottom:3px solid transparent;padding:10px 14px;min-height:44px;font:inherit;font-weight:700;color:var(--muted);cursor:pointer}
+.tabs button[aria-selected="true"]{color:var(--brand);border-color:var(--brand)}
+.tabs button:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.dlist{display:grid;gap:12px;margin-top:12px}
+.dom{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;display:grid;gap:10px}
+.dom .top{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.dom .nm{font-size:18px;font-weight:700;word-break:break-all}
+.dom .nm a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--line)}
+.pl{font-size:12px;padding:2px 9px;border-radius:999px;font-weight:500;white-space:nowrap;background:var(--brand-soft);color:var(--brand)}
+.pl.ok{background:color-mix(in srgb,var(--up) 14%,transparent);color:var(--up)}
+.pl.warn{background:var(--warn-soft);color:var(--warn)}
+.pl.bad{background:color-mix(in srgb,var(--down) 14%,transparent);color:var(--down)}
+.dom dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:4px 20px;margin:0}
+.dom dl div{display:flex;gap:10px;min-width:0}.dom dt{color:var(--muted);font-size:13px;flex:0 0 5.5em}.dom dd{margin:0;font-size:14px;overflow-wrap:anywhere}
+.dbar{height:6px;background:var(--line);border-radius:3px;overflow:hidden}.dbar span{display:block;height:100%}
+.dnote{font-size:13.5px;color:var(--muted);margin:0;border-top:1px dashed var(--line);padding-top:8px}
 </style></head><body>
 
 <div class="wrap">
+  <nav class="tabs" role="tablist" aria-label="內部看板">
+    <button role="tab" id="tab-seo" aria-controls="panel-seo" aria-selected="true">搜尋成效週報</button>
+    <button role="tab" id="tab-dom" aria-controls="panel-dom" aria-selected="false">網域追蹤</button>
+  </nav>
+  <div id="panel-seo" role="tabpanel" aria-labelledby="tab-seo">
   <header>
     <div class="eyebrow">STEP1NE・企業端搜尋成效</div>
     <h1>搜尋成效週報</h1>
@@ -167,6 +190,15 @@ ul.clean{margin:0;padding-left:18px} ul.clean li{margin:4px 0}
   </div>
 
   <p class="foot">讀法：GSC 是過去 28 天的加總，看到的問題可能已經修好、正在收斂；單週數字是雜訊，看趨勢。企業端＝文章與服務頁裡對象是企業買家的那一群（獵頭、派遣、招募成本、委託招募、關於我們等）。</p>
+  </div>
+  <div id="panel-dom" role="tabpanel" aria-labelledby="tab-dom" hidden>
+    <header><div class="eyebrow">STEP1NE・內部</div><h1>網域追蹤</h1>
+      <p class="lead">手上已經買的網域、到期日、放在哪個帳號，以及口袋名單。剩 60 天變黃、30 天變紅，記得續約。</p>
+      <p class="meta" id="dmeta"></p></header>
+    <div class="dlist" id="downed"></div>
+    <h2 style="font-size:17px;margin:26px 0 4px">口袋名單（還沒買）</h2>
+    <div class="tw"><table id="dpocket"></table></div>
+  </div>
 </div>
 
 <script>
@@ -251,6 +283,7 @@ async function start(){
   sel.innerHTML=(idx.reports||[]).map((d,i)=>`<option value="${d}">${d.slice(0,4)}/${d.slice(5,7)}/${d.slice(8)}（週一）${i===0?'・最新':''}</option>`).join('');
   sel.onchange=()=>load(sel.value);
   if((idx.reports||[]).length) load(idx.reports[0]);
+  if(!document.getElementById('panel-dom').hidden&&!DOM_LOADED) loadDomains();
 }
 function login(msg){
   if(document.getElementById('lg'))return;
@@ -260,5 +293,37 @@ function login(msg){
     if(r&&r.ok){ls.set('s1ne_admin_tok',v);document.getElementById('lg').remove();start()}else{TOKEN='';document.getElementById('lg').remove();login('權杖不對，請再確認一次')}};
 }
 TOKEN?start():login();
+
+// ── 分頁：搜尋成效週報／網域追蹤（#domains 可直接開網域追蹤） ──
+let DOM_LOADED=false;
+function showTab(t){
+  const isDom=t==='dom';
+  document.getElementById('panel-seo').hidden=isDom; document.getElementById('panel-dom').hidden=!isDom;
+  document.getElementById('tab-seo').setAttribute('aria-selected',!isDom); document.getElementById('tab-dom').setAttribute('aria-selected',isDom);
+  try{history.replaceState(null,'',isDom?'#domains':location.pathname)}catch(e){}
+  if(isDom&&!DOM_LOADED&&TOKEN)loadDomains();
+}
+document.getElementById('tab-seo').onclick=()=>showTab('seo');
+document.getElementById('tab-dom').onclick=()=>showTab('dom');
+const dEsc=x=>String(x??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+async function loadDomains(){
+  let st;try{st=await api('/admin/settings')}catch(e){return}
+  let D;try{D=JSON.parse(((st.settings||{}).domain_registry)||'null')}catch(e){D=null}
+  if(!D){document.getElementById('downed').innerHTML='<p class="meta">還沒有網域資料。</p>';return}
+  DOM_LOADED=true;
+  const now=new Date(), days=d=>Math.round((new Date(d+'T00:00:00+08:00')-now)/864e5), lv=n=>n<=30?'bad':n<=60?'warn':'ok';
+  document.getElementById('dmeta').textContent='資料查證日：'+(D.checked||'—')+'（whois＋Cloudflare）';
+  document.getElementById('downed').innerHTML=(D.owned||[]).slice().sort((a,b)=>days(a.expires)-days(b.expires)).map(d=>{
+    const n=days(d.expires),l=lv(n),pct=Math.max(2,Math.min(100,n/1095*100));
+    return `<article class="dom"><div class="top"><span class="nm"><a href="${dEsc(d.url)}" target="_blank" rel="noopener">${dEsc(d.name)}</a></span><span class="pl">${dEsc(d.brand)}</span><span class="pl ok">${dEsc(d.status)}</span></div>
+      <p style="margin:0">${dEsc(d.purpose)}</p>
+      <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:13px;color:var(--muted)"><span>到期 <b style="color:var(--ink)">${dEsc(d.expires)}</b>（註冊 ${dEsc(d.created)}）</span><span class="pl ${l}">${n<0?'已過期':'還有 '+n.toLocaleString()+' 天'}</span></div>
+      <div class="dbar"><span style="width:${pct}%;background:var(--${l==='ok'?'up':l==='warn'?'warn':'down'})"></span></div>
+      <dl><div><dt>註冊商</dt><dd>${dEsc(d.registrar)}</dd></div><div><dt>Cloudflare</dt><dd>${dEsc(d.cf)}</dd></div><div><dt>網站放在</dt><dd>${dEsc(d.hosting)}</dd></div><div><dt>信箱</dt><dd>${dEsc(d.mail)}</dd></div><div><dt>Google 後台</dt><dd>${dEsc(d.gsc)}</dd></div></dl>
+      ${d.note?`<p class="dnote">${dEsc(d.note)}</p>`:''}</article>`}).join('');
+  document.getElementById('dpocket').innerHTML='<thead><tr><th>網域</th><th>DR</th><th>連入網站</th><th>以前是什麼</th><th>建議</th></tr></thead><tbody>'+
+    (D.pocket||[]).map(p=>`<tr><td>${dEsc(p.name)}</td><td class="num">${dEsc(p.dr)}</td><td class="num">${Number(p.refs||0).toLocaleString()}</td><td>${dEsc(p.past)}</td><td><span class="pl ${p.lv==='bad'?'bad':p.lv==='warn'?'warn':''}">${dEsc(p.advice)}</span></td></tr>`).join('')+'</tbody>';
+}
+if(location.hash==='#domains')showTab('dom');
 </script>
 </body></html>
