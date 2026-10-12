@@ -94,6 +94,25 @@ ul.clean{margin:0;padding-left:18px} ul.clean li{margin:4px 0}
 
   <div class="kpis" id="kpis"></div>
 
+  <section class="card" aria-labelledby="h-gloss">
+    <details>
+      <summary id="h-gloss" style="cursor:pointer;font-weight:700;font-size:16px;min-height:44px;display:flex;align-items:center">看不懂的字？點這裡（名詞小抄）</summary>
+      <dl style="display:grid;grid-template-columns:minmax(7em,auto) 1fr;gap:8px 16px;margin:12px 0 0;line-height:1.6">
+        <dt style="font-weight:700">曝光</dt><dd style="margin:0">我們的頁面在 Google 搜尋結果裡「被看到」幾次。就像店門口有多少人走過。</dd>
+        <dt style="font-weight:700">點擊</dt><dd style="margin:0">看到之後真的點進來的次數。就像走過的人有幾個推門進店。</dd>
+        <dt style="font-weight:700">點擊率</dt><dd style="margin:0">點擊 ÷ 曝光。100 人看到、3 人點進來＝3%。排名前面、標題吸引人，這個數字才會高。</dd>
+        <dt style="font-weight:700">排名</dt><dd style="margin:0">在 Google 結果排第幾個。1～10 名在第一頁，11 名以後幾乎沒人看。數字越小越好。</dd>
+        <dt style="font-weight:700">企業會搜的字</dt><dd style="margin:0">老闆或人資找人時會打的字，例如「獵頭公司推薦」「派遣公司怎麼挑」。我們主要追這些，因為會帶來客戶。</dd>
+        <dt style="font-weight:700">進站次數</dt><dd style="margin:0">（Google 後台叫「工作階段」）有人進網站一次就算一次。同一個人早上來、晚上又來＝2 次。像店裡的「來客次數」，不是「來客人數」。</dd>
+        <dt style="font-weight:700">互動率</dt><dd style="margin:0">進來的人裡，有「認真看」的比例：停超過 10 秒、看了 2 頁以上，或有按應徵／留資料。剩下的就是一進來馬上走掉的。</dd>
+        <dt style="font-weight:700">平均停留</dt><dd style="margin:0">「有認真看」的人平均停多久。一篇文章停 2～3 分鐘代表有在讀；只有幾秒代表標題跟內容對不上。</dd>
+        <dt style="font-weight:700">頁面（到達頁）</dt><dd style="margin:0">別人進網站時「第一個看到的頁面」，通常就是 Google 上點的那一頁。點標題可以直接打開那一頁。</dd>
+        <dt style="font-weight:700">行動</dt><dd style="margin:0">我們真正在乎的結果：企業留需求表單、做招募健檢、加 LINE、人選點應徵。</dd>
+        <dt style="font-weight:700">從哪裡來</dt><dd style="margin:0">自然搜尋＝從 Google 搜進來；直接進站＝直接打網址或點書籤；社群＝Threads／FB 等；推薦網站＝別的網站上的連結；AI 助手＝ChatGPT、Gemini 等推薦進來。</dd>
+        <dt style="font-weight:700">近 28 天對比前 28 天</dt><dd style="margin:0">拿最近 4 週跟再前面 4 週比，看是變好還是變差。Google 數字大約慢 2～3 天，所以最近兩天的資料還不完整。</dd>
+      </dl>
+    </details>
+  </section>
   <section class="card" aria-labelledby="h-trend">
     <h2 id="h-trend">每週從 Google 點進來的人，是誰在帶</h2>
     <p class="sub">堆疊長條＝每週點擊。重點看藍色（企業端：獵頭、派遣、招募成本、關於我們等）；灰色是 9/29 已設不收錄的抖音／直播文，正在退場。</p>
@@ -128,7 +147,7 @@ ul.clean{margin:0;padding-left:18px} ul.clean li{margin:4px 0}
     <p class="sub" id="behsub"></p>
     <div class="kpis" id="behkpi" style="margin-bottom:16px"></div>
     <div class="grid2">
-      <div><h3 style="font-size:15px;margin:0 0 8px">從哪裡來（工作階段）</h3><div class="bars" id="channels"></div></div>
+      <div><h3 style="font-size:15px;margin:0 0 8px">從哪裡來（進站次數）</h3><div class="bars" id="channels"></div></div>
       <div><h3 style="font-size:15px;margin:0 0 8px">用什麼裝置</h3><div class="bars" id="devices"></div></div>
     </div>
     <h3 style="font-size:15px;margin:18px 0 8px">企業端頁面：進來的人停多久</h3>
@@ -200,7 +219,7 @@ function render(D){
   document.getElementById('behsub').textContent='整站，近 28 天對比前 28 天。「互動率」＝停超過 10 秒、看了兩頁以上或有轉換的比例。';
   const mm=s=>`${Math.floor(s/60)} 分 ${Math.round(s%60)} 秒`;
   document.getElementById('behkpi').innerHTML=[
-    ['工作階段',fmt(bn.sessions||0),arrow(bn.sessions,bp.sessions)],
+    ['進站次數',fmt(bn.sessions||0),arrow(bn.sessions,bp.sessions)],
     ['使用者（新使用者）',`${fmt(bn.totalUsers||0)}`,`新 ${fmt(bn.newUsers||0)}　${arrow(bn.totalUsers,bp.totalUsers)}`],
     ['互動率',bn.engagementRate!=null?Math.round(bn.engagementRate*100)+'%':'—',bp.engagementRate!=null?`前期 ${Math.round(bp.engagementRate*100)}%`:''],
     ['平均停留',bn.averageSessionDuration!=null?mm(bn.averageSessionDuration):'—',bp.averageSessionDuration!=null?`前期 ${mm(bp.averageSessionDuration)}`:'']
@@ -208,8 +227,8 @@ function render(D){
   const bars=(rows,key,lab)=>{const tot=rows.reduce((a,r)=>a+r.sessions,0)||1;return rows.map(r=>`<div class="bar"><span>${lab[r[key]]||r[key]}</span><span class="track"><span class="fill" style="display:block;width:${Math.round(r.sessions/tot*100)}%"></span></span><span class="num" style="text-align:right">${Math.round(r.sessions/tot*100)}%</span></div>`).join('')};
   document.getElementById('channels').innerHTML=bars(B.now.channels||[],'sessionDefaultChannelGroup',CH);
   document.getElementById('devices').innerHTML=bars(B.now.devices||[],'deviceCategory',DEV);
-  document.getElementById('entland').innerHTML='<thead><tr><th>到達頁</th><th>工作階段</th><th>互動率</th><th>平均停留</th></tr></thead><tbody>'+
-    (B.now.landing_ent||[]).map(r=>`<tr><td>${r.landingPage}</td><td class="num">${fmt(r.sessions)}</td><td class="num">${Math.round(r.engagementRate*100)}%</td><td class="num">${mm(r.averageSessionDuration)}</td></tr>`).join('')+'</tbody>';
+  document.getElementById('entland').innerHTML='<thead><tr><th>頁面</th><th>進站次數</th><th>互動率</th><th>平均停留</th></tr></thead><tbody>'+
+    (B.now.landing_ent||[]).map(r=>`<tr><td><a href="https://step1ne.com${r.landingPage}" target="_blank" rel="noopener" style="color:inherit;font-weight:600">${r.title||r.landingPage}</a><div style="font-size:12px;color:var(--muted);word-break:break-all">${r.landingPage}</div></td><td class="num">${fmt(r.sessions)}</td><td class="num">${Math.round(r.engagementRate*100)}%</td><td class="num">${mm(r.averageSessionDuration)}</td></tr>`).join('')+'</tbody>';
   // 人工區
   const N=D.notes||{};
   document.getElementById('carry').innerHTML=N.carried?'<span class="carried">本週無更新</span>':'';
