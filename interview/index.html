@@ -367,6 +367,25 @@ function gate(title, body, btnText, url) {
   ['top', 'log', 'bar'].forEach(function (i) { $(i).hidden = true; });
 }
 
+// 2026-10-12：還沒收到履歷 → 兩條路：用 LINE 傳（同一組代碼）、或到補履歷頁補上
+function noResumeGate(d) {
+  $('boot').hidden = false;
+  var btn = 'display:flex;align-items:center;justify-content:center;max-width:340px;margin:12px auto 0;min-height:50px;' +
+    'padding:12px 20px;border-radius:999px;font-weight:700;font-size:15.5px;text-decoration:none;';
+  $('boot').innerHTML =
+    '<h1>還沒收到履歷</h1>' +
+    '<p>請先在 LINE 傳履歷，或回到應徵頁補上。AI 阿財會先讀過履歷，面談時就不用從頭講一次。</p>' +
+    (d.line_url ? '<a href="' + esc(d.line_url) + '" target="_blank" rel="noopener" style="' + btn + 'background:#06a54a;color:#fff;">' +
+      '用 LINE 傳履歷</a><p style="font-size:13px;color:#8a8d95;margin:6px 0 0;">會打開 LINE 並帶好一句「我要傳履歷 #' + esc(d.code || '') +
+      '」，送出後再把檔案或照片傳過去就好。</p>' : '') +
+    '<a href="' + esc(d.fix_url || ('/resume/?t=' + encodeURIComponent(T))) + '" style="' + btn + 'background:#fff;color:#2f5fd8;border:2px solid #2f5fd8;">' +
+      '回到應徵頁補上履歷</a>' +
+    '<p style="margin:22px 0 0;"><button type="button" id="recheck" style="background:none;border:0;color:#2f5fd8;' +
+      'text-decoration:underline;font:inherit;font-size:14.5px;min-height:44px;cursor:pointer;">已經傳好了，重新檢查</button></p>';
+  ['top', 'log', 'bar'].forEach(function (i) { $(i).hidden = true; });
+  $('recheck').onclick = function () { $('boot').innerHTML = '<p>檢查中…</p>'; boot(); };
+}
+
 function esc(s) {
   return String(s).replace(/[&<>"]/g, function (c) {
     return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
@@ -491,6 +510,15 @@ async function boot() {
   }
   if (!d.ok && d.closed) {
     return notice('這個職缺已經結束招募', '謝謝你的關注！其他開放中的職缺可以到 step1ne.com/jobs/ 看看，有興趣的直接在 LINE 留言就可以。');
+  }
+  // 2026-10-12：還沒收到履歷就不開始（Jacky 硬規則：阿財開口前一定要先讀過履歷）。
+  // 應徵時選「我用 LINE 傳」、檔案還沒傳到的人會停在這裡。
+  if (!d.ok && d.no_resume) return noResumeGate(d);
+  // 履歷剛收到，阿財事先準備的題目正在用新履歷重擬——等一下自動再試
+  if (!d.ok && d.resume_processing) {
+    notice('履歷收到了，阿財正在讀', '大約一分鐘，畫面會自動進入面談，不用重新整理。');
+    setTimeout(boot, Math.max(10, Number(d.retry_after) || 20) * 1000);
+    return;
   }
   if (!d.ok) {
     return notice('找不到這場面談', '連結可能已失效。請與顧問聯繫，或重新應徵一次。');

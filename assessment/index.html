@@ -359,7 +359,9 @@ async function submit(){
   // 因為那種情況沒有「表單」可以跳回去。
   if(new URLSearchParams(location.search).get('back')==='1'){
     sessionStorage.setItem('s1ne_assess_result_'+T, JSON.stringify({scores,result:r}));
-    location.href='/apply/?t='+encodeURIComponent(T)+'&back=1';
+    // 2026-10-12：新版應徵頁先放在 /apply-beta/ 給 Jacky 手機測，從那邊來的要跳回那邊（只認這一個值）
+    const retBeta = new URLSearchParams(location.search).get('ret')==='beta';
+    location.href=(retBeta?'/apply-beta/':'/apply/')+'?t='+encodeURIComponent(T)+'&back=1';
     return;
   }
   showReport(scores,r);

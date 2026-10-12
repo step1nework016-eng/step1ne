@@ -1,0 +1,1179 @@
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 職缺頁「立即應徵」按鈕連到這裡時會帶 ?job=xxx&utm_source=...，
+// 與其去改每一個職缺頁掛 onclick（以後新增職缺又要重做一次），
+// 直接在落地頁這裡把 job 參數獨立記一個事件，一次涵蓋所有職缺頁。
+(function () {
+  var jobSlug = new URLSearchParams(location.search).get('job');
+  if (jobSlug) gtag('event', 'job_apply_landing', { job_slug: jobSlug });
+})();
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href*="lin.ee"]');
+  if (!a) return;
+  gtag('event', 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60)
+  });
+});
+</script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>應徵職缺｜Step1ne 德仁管理顧問</title>
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Step1ne 德仁管理顧問">
+<meta property="og:title" content="應徵職缺｜Step1ne 德仁管理顧問">
+<meta property="og:description" content="填寫應徵資料並預約線上初步面談時段，我們的顧問會在收到後與您聯繫。">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta name="description" content="填寫應徵資料並預約線上初步面談時段，我們的顧問會在收到後與您聯繫。">
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<style>
+:root{--bg:#ffffff;--card:#ffffff;--line:#dfe4ec;--tx:#16202e;--tx2:#4d5c72;--tx3:#7c8899;
+      --ac:#2f5fd8;--rd:#c0392b;--soft:#f6f8fb;
+      --sans:-apple-system,"Noto Sans TC","PingFang TC",sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:var(--sans);
+     line-height:1.7;-webkit-text-size-adjust:100%}
+.top{border-bottom:1px solid var(--line);padding:14px 18px;display:flex;align-items:center;gap:12px}
+.top img{height:34px;width:auto;display:block}
+.top .brand{font-size:13px;color:var(--tx3);letter-spacing:.02em}
+.wrap{max-width:640px;margin:0 auto;padding:26px 18px 64px}
+h1{font-size:23px;margin:0 0 6px;letter-spacing:-.01em}
+.job{color:var(--ac);font-weight:600}
+.lead{color:var(--tx2);font-size:13.5px;margin:0 0 22px}
+.prog{height:3px;background:var(--line);border-radius:2px;margin-bottom:24px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--ac);width:0;transition:width .3s}
+fieldset{border:1px solid var(--line);border-radius:12px;padding:18px 16px;margin:0 0 16px;
+         background:var(--card)}
+legend{font-size:12px;color:var(--tx3);padding:0 7px;font-weight:600;letter-spacing:.04em}
+label{display:block;font-size:13px;margin:14px 0 5px;color:var(--tx2)}
+label:first-of-type{margin-top:0}
+.req{color:var(--rd)}
+input,select,textarea{width:100%;background:#fff;border:1px solid var(--line);
+  border-radius:9px;padding:11px 12px;color:var(--tx);font-size:16px;font-family:inherit}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--ac);
+  box-shadow:0 0 0 3px rgba(47,95,216,.12)}
+input::placeholder,textarea::placeholder{color:#a9b3c1}
+textarea{resize:vertical;min-height:76px}
+.areas{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:8px;margin:2px 0 0;}
+/* 手機版強制2欄，避免auto-fit在窄螢幕算成1欄疊成長條 */
+@media(max-width:520px){.areas{grid-template-columns:repeat(2,1fr)}}
+.areas label{display:flex;align-items:center;gap:9px;background:#fff;border:1px solid #dfe3e8;border-radius:10px;
+  padding:11px 13px;font-size:14.5px;font-weight:400;cursor:pointer;margin:0;min-height:46px;}
+.areas label:has(input:checked){border-color:#2f6fed;background:#f3f7ff;font-weight:600;}
+.areas input{width:17px;height:17px;flex:0 0 auto;accent-color:#2f6fed;margin:0;}
+.hint{font-size:11.5px;color:var(--tx3);margin-top:5px;line-height:1.55}
+/* 選了職缺才出現的簡要說明 */
+#jobCard{margin-top:10px;background:var(--soft);border:1px solid var(--line);
+  border-left:3px solid var(--ac);border-radius:9px;padding:12px 14px}
+#jobCard .jt{font-weight:700;font-size:14.5px;margin:0 0 8px;color:var(--tx)}
+#jobCard dl{display:grid;grid-template-columns:auto 1fr;gap:5px 12px;margin:0;font-size:13px}
+#jobCard dt{color:var(--tx3);white-space:nowrap}
+#jobCard dd{margin:0;color:var(--tx2)}
+#jobCard .rq{margin:9px 0 0;font-size:12.5px;color:var(--tx2);line-height:1.7;
+  border-top:1px dashed var(--line);padding-top:8px}
+#jobCard a{font-size:12.5px;display:inline-block;margin-top:8px}
+.notice{background:#f4f7ff;border:1px solid #d7e2fb;border-left:3px solid var(--ac);
+  border-radius:8px;padding:11px 14px;font-size:12.5px;color:#2c3a55;line-height:1.6;margin:0 0 14px}
+.notice b{color:var(--ac)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:520px){.two{grid-template-columns:1fr}}
+.consent{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;color:var(--tx2);
+         margin-top:6px;line-height:1.65}
+.consent input{width:18px;height:18px;flex:0 0 auto;margin-top:2px}
+details{margin-top:10px;font-size:12px;color:var(--tx3);background:var(--soft);
+        border:1px solid var(--line);border-radius:9px;padding:10px 13px}
+details summary{cursor:pointer;color:var(--tx2)}
+details p{margin:8px 0 0}
+button{width:100%;background:var(--ac);color:#fff;border:0;border-radius:10px;
+       padding:15px;font-size:16px;font-weight:600;cursor:pointer;margin-top:14px;font-family:inherit}
+button:disabled{opacity:.45;cursor:not-allowed}
+.msg{margin-top:14px;padding:13px 15px;border-radius:10px;font-size:13.5px;display:none;line-height:1.6}
+.msg.err{display:block;background:#fdecea;border:1px solid #f3c2bc;color:#a5312a}
+.msg{white-space:pre-line}
+.invite{display:block;margin:0 0 16px;padding:13px 15px;border-radius:10px;font-size:13.5px;line-height:1.7;
+  background:#f6efe2;border:1px solid #e6dfd1;color:#5a4a2f}
+.done{text-align:center;padding:40px 0}
+.done h2{font-size:20px;margin:0 0 10px}
+.done p{color:var(--tx2);font-size:14px;margin:0 0 8px}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:520px){.modes{grid-template-columns:1fr}}
+.mode{display:flex;gap:10px;align-items:flex-start;margin:0;padding:13px;
+  border:1px solid var(--line);border-radius:10px;cursor:pointer;background:#fff}
+.mode:has(input:checked){border-color:var(--ac);background:#f4f7ff}
+.mode input{width:18px;height:18px;flex:0 0 auto;margin-top:2px}
+.mode b{display:block;font-size:14px;color:var(--tx);font-weight:600}
+.mode i{display:block;font-style:normal;font-size:11.5px;color:var(--tx3);margin-top:2px}
+.calbtn{display:inline-block;margin-top:16px;background:var(--ac);color:#fff;
+  text-decoration:none;padding:12px 22px;border-radius:9px;font-size:14px;font-weight:600}
+
+.discgrp{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:0 0 8px}
+.discn{font-size:11px;color:var(--tx3);margin:0 0 6px;font-weight:600}
+.discrow{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;gap:8px;
+  padding:5px 0}
+.discrow + .discrow{border-top:1px dashed var(--line)}
+.discword{font-size:14px;color:var(--tx)}
+.discradio{display:flex;align-items:center;justify-content:center}
+.discradio input{width:19px;height:19px;margin:0;accent-color:var(--ac)}
+.disccap{display:flex;justify-content:space-between;font-size:10px;color:var(--tx3);
+  padding:0 0 2px;letter-spacing:.03em}
+/* 2026-08-12 補的：測驗做完「現在就開始面談／先約時間」畫面用，跟 /book/ 同一套樣式 */
+.go{display:block;text-align:center;background:var(--ac);color:#fff;text-decoration:none;
+  padding:15px;border-radius:10px;font-size:16px;font-weight:600;margin-top:16px}
+.dayh{font-size:12px;color:var(--tx3);margin:16px 0 2px;font-weight:600}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px;margin-top:10px}
+.slot{padding:10px 6px;border:1px solid var(--line);border-radius:9px;background:#fff;
+  font-size:13px;cursor:pointer;text-align:center;font-family:inherit;color:var(--tx);margin:0}
+.slot.on{border-color:var(--ac);background:#f3f7ff;color:var(--ac);font-weight:600}
+.slot:disabled{opacity:.6;cursor:default}
+.about{background:#f6f8fb;border:1px solid #e3e9f2;border-radius:10px;padding:14px 16px;margin:0 0 18px;font-size:14px;line-height:1.7}
+.about p{margin:0 0 8px}
+.about p:last-child{margin-bottom:0}
+.about .lic{font-size:12.5px;color:#5d6672;border-top:1px solid #e3e9f2;padding-top:8px;margin-top:10px}
+#jobFilter{margin-bottom:6px}
+.job-pick{display:flex;flex-direction:column;gap:6px;margin:6px 0 10px;max-height:320px;overflow-y:auto}
+.job-pick button{min-height:44px;text-align:left;padding:10px 12px;border:1px solid #c9d3e0;border-radius:10px;background:#fff;font:inherit;font-size:15px;line-height:1.4;cursor:pointer;color:#1d2a3a}
+.job-pick button:hover,.job-pick button:focus-visible{border-color:#0F5F87;background:#eef6fb;outline:2px solid #0F5F87;outline-offset:1px}
+.job-pick button small{display:block;color:#5b6b7d;font-size:13px}
+#jobFilterHint.picked{color:#0F5F87;font-weight:700}
+/* 還在考慮的人：心得＋常見疑問彈窗（2026-10-01 Jacky 選 B） */
+.think-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:46px;margin:-6px 0 22px;
+  border:1px dashed var(--ac);border-radius:10px;background:#f4f7ff;color:var(--ac);font:inherit;font-size:14.5px;font-weight:600;cursor:pointer}
+.think-btn:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+dialog.think{border:0;border-radius:14px;padding:0;width:min(560px,calc(100vw - 24px));max-height:calc(100vh - 40px);color:var(--tx)}
+dialog.think::backdrop{background:rgba(22,32,46,.45)}
+.think-head{position:sticky;top:0;background:#fff;display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line)}
+.think-head h2{font-size:17px;margin:0}
+.think-x{width:44px;height:44px;border:0;background:none;font-size:22px;cursor:pointer;color:var(--tx2)}
+.think-x:focus-visible{outline:3px solid var(--ac)}
+.think-body{padding:6px 16px 18px}
+.think-body h3{font-size:14px;color:var(--tx3);margin:16px 0 8px;letter-spacing:.03em}
+.rv-item{border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:8px}
+.rv-item .st{color:#f2a516;letter-spacing:1px}
+.rv-item p{margin:6px 0 0;font-size:14.5px;white-space:pre-line}
+.rv-item small{color:var(--tx3);font-size:12.5px}
+.think-body details{border:1px solid var(--line);border-radius:10px;margin-bottom:8px}
+.think-body summary{cursor:pointer;padding:12px;font-weight:600;font-size:14.5px;min-height:44px;list-style-position:inside}
+.think-body details p{margin:0;padding:0 12px 12px;font-size:14px;color:var(--tx2)}
+/* 2026-10-12 應徵表單流失修正：三步說明、App 內建瀏覽器提示、選填區收合、按鈕旁的錯誤訊息 */
+.steps{display:flex;align-items:stretch;gap:6px;margin:0 0 18px;padding:0;list-style:none;counter-reset:st}
+.steps li{flex:1;counter-increment:st;background:var(--soft);border:1px solid var(--line);border-radius:10px;
+  padding:8px 8px 7px;font-size:12.5px;line-height:1.35;color:var(--tx2);text-align:center}
+.steps li:before{content:counter(st);display:block;margin:0 auto 3px;width:20px;height:20px;line-height:20px;border-radius:50%;
+  background:var(--ac);color:#fff;font-size:11.5px;font-weight:700}
+.steps b{display:block;color:var(--tx);font-size:13.5px}
+.inapp{display:flex;gap:8px;align-items:flex-start;background:#fff8e6;border:1px solid #f0dca8;border-radius:10px;
+  padding:10px 12px;margin:0 0 14px;font-size:13.5px;line-height:1.6;color:#5c4a1a}
+.inapp a{color:#8a5a00;font-weight:600}
+details.opt{background:none;border:0;padding:0;margin:0 0 16px;font-size:inherit;color:inherit}
+details.opt>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:48px;
+  padding:12px 16px;border:1px solid var(--line);border-radius:12px;background:var(--card);font-size:14px;color:var(--tx2);cursor:pointer}
+details.opt>summary::-webkit-details-marker{display:none}
+details.opt>summary:after{content:"展開";font-size:12.5px;color:var(--ac);flex:0 0 auto}
+details.opt[open]>summary{border-bottom-left-radius:0;border-bottom-right-radius:0;border-bottom:0}
+details.opt[open]>summary:after{content:"收起"}
+details.opt>fieldset{border-top-left-radius:0;border-top-right-radius:0;margin:0}
+details.opt>summary:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+.gate-actions{margin:0 0 16px}
+.gate-actions .consent{margin:0 0 6px}
+.gate-actions details{margin:0 0 4px}
+#toAssess{width:100%;background:var(--ac);color:#fff;border:0;border-radius:12px;padding:15px;font-size:16.5px;
+  font-weight:700;cursor:pointer;font-family:inherit;margin-top:12px;min-height:52px}
+#toAssess:disabled{opacity:.6}
+#toAssess:focus-visible,#btn:focus-visible{outline:3px solid #16202e;outline-offset:2px}
+.gmsg{margin-top:10px;padding:12px 14px;border-radius:10px;font-size:14px;line-height:1.6;background:#fdecea;
+  border:1px solid #f3c2bc;color:#a5312a;white-space:pre-line}
+.gmsg button{all:unset;display:inline-block;margin-top:6px;color:#2f5fd8;text-decoration:underline;cursor:pointer;min-height:32px}
+.gmsg button:focus-visible{outline:2px solid #2f5fd8}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+</style>
+
+<header class="top">
+  <a href="/"><img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問"></a>
+  <span class="brand">德仁管理顧問</span>
+</header>
+
+<div class="wrap">
+<div id="form-view">
+  <h1>應徵職缺</h1>
+  <div class="inapp" id="inapp" hidden role="note"></div>
+  <ol class="steps" aria-label="應徵流程">
+    <li><b>填表</b>約 2 分鐘</li>
+    <li><b>工作風格測驗</b>約 6 分鐘</li>
+    <li><b>跟 AI 面談</b>可以現在或約時間</li>
+  </ol>
+  <!-- 2026-09-21 加：求職者從廣告或社群點進來，看到的第一個畫面只有「德仁管理
+       顧問」五個字跟一張表單，不知道這是誰、為什麼要把履歷交給他們。
+       目的是提升填寫意願，所以這段要回答的是「你們是誰、我為什麼要信你」，
+       不是公司沿革。許可證號是求職者能自己去勞動部查的唯一憑據，一定要放。 -->
+  <div class="about">
+    <p><b>關於德仁管理顧問（Step1ne）</b></p>
+    <p>我們是台灣的獵才顧問公司，替企業找人，也替求職者找到更適合的位置。
+       您填的資料只會用在推薦職缺，<b>不會未經同意轉給任何公司</b>。</p>
+    <p>接下來的線上初步面談由 AI 顧問「阿財」進行，可以用打字的、隨時停下來，
+       沒有標準答案——它只是先了解您的經歷與期待，之後由真人顧問接手。</p>
+    <p class="lic">私立就業服務機構許可證號：<b>0363</b>｜德仁管理顧問有限公司</p>
+  </div>
+  <div class="prog"><i id="bar"></i></div>
+  <button type="button" class="think-btn" id="thinkOpen" aria-haspopup="dialog">還在考慮嗎？看看常見疑問</button>
+  <dialog class="think" id="think" aria-labelledby="thinkTitle">
+    <div class="think-head"><h2 id="thinkTitle">還在考慮嗎？</h2><button type="button" class="think-x" id="thinkClose" aria-label="關閉">✕</button></div>
+    <div class="think-body">
+      <div id="rvBox" hidden><h3>其他人選怎麼說</h3><div id="rvList"></div></div>
+      <h3>常見疑問</h3>
+      <!-- 答案照抄 /faq/ 已公開的內容，不在這裡另外寫新承諾；FAQ 改了這裡要一起改 -->
+      <details><summary>面談的「阿財」是真人嗎？</summary><p>是 AI 面談顧問，這場對談就是正式面談；結束後獵頭顧問會依面談狀況評估，決定是否推薦給用人單位進行面試。</p></details>
+      <details><summary>阿財面談大概多久、要準備什麼？</summary><p>約 20–40 分鐘，找一個能專心作答的環境即可。這場面談會視為正式面談，獵頭顧問會依面談狀況評估，決定是否將您推薦給用人單位進行面試，請以正式面試的心情看待，謝謝。</p></details>
+      <details><summary>我的資料會外流嗎？</summary><p>您的履歷與面談內容僅提供給您應徵的用人單位評估使用，不會另作他用。</p></details>
+      <details><summary>應徵後多久會有回覆？</summary><p>約 1–2 天內會有初步回覆，也可以隨時透過 LINE 圖文選單「追蹤面談進度」查詢。與阿財面談結束後，如果內容沒有問題，會立即送出給用人單位；後續會依用人單位的審核進度持續追蹤，有新進度會通知您。</p></details>
+      <details><summary>如果沒有錄取，會通知我嗎？</summary><p>會。不論在哪個階段沒有通過，都會收到通知，不會讓您一直等著沒有下文。</p></details>
+      <details><summary>沒有相關經驗可以應徵嗎？</summary><p>職缺頁面上會清楚標示是否接受無經驗——如果沒有特別標示「無經驗可」，代表這個職缺需要相關經驗。</p></details>
+      <details><summary>派遣是什麼意思，跟正職差在哪？</summary><p>派遣是由人力派遣公司（Step1ne）與您簽訂勞動契約，再指派您到用人單位的工作現場提供服務；勞健保、薪資由派遣公司處理，工作內容與環境則跟用人單位溝通。是否為派遣，職缺頁面都會清楚標示。</p></details>
+      <p style="font-size:13.5px;color:var(--tx2);margin:14px 0 0">還有其他問題？<a href="/faq/" target="_blank" rel="noopener">看完整常見問題</a>，或<a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">加 LINE 直接問顧問</a>。</p>
+    </div>
+  </dialog>
+  <script src="/assets/reviews.js" defer></script>
+  <script>
+  (function () {
+    var dlg = document.getElementById('think'), opened = false;
+    // 有核准滿 3 則心得才換成「看看其他人選怎麼說」，不滿就只放常見疑問，不會出現空的心得區
+    // 評價改用全站共用的 Google 評論式元件（/assets/reviews.js）；核准滿 3 則才會有資料
+    var bootRv = function () {
+      if (!window.S1Reviews) return;
+      S1Reviews.load().then(function (d) {
+        if (!d || !d.stats) return;
+        if (S1Reviews.renderInto(document.getElementById('rvList'), d, { limit: 5, moreHref: '/reviews/' })) {
+          document.getElementById('thinkOpen').textContent = '還在考慮嗎？看看其他人選怎麼說';
+          document.getElementById('rvBox').hidden = false;
+        }
+      });
+    };
+    if (window.S1Reviews) bootRv(); else window.addEventListener('load', bootRv);
+    document.getElementById('thinkOpen').addEventListener('click', function () {
+      if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', '');
+      if (!opened && window.gtag) gtag('event', 'apply_think_open', { page_path: location.pathname });
+      opened = true;
+    });
+    document.getElementById('thinkClose').addEventListener('click', function () { dlg.close ? dlg.close() : dlg.removeAttribute('open'); });
+    dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+  })();
+  </script>
+
+  <form id="f">
+    <fieldset>
+      <legend>應徵職缺</legend>
+      <label>想應徵哪一個 <span class="req">*</span></label>
+      <!-- 2026-09-21 加：職缺變多之後選單一長串很難找。打關鍵字（例如「工程師」
+           「台中」）就只留符合的，不用一路捲。⚠️ 只是過濾顯示，不影響送出的值。 -->
+      <input type="text" id="jobFilter" placeholder="打關鍵字快速找，例如：工程師、台中" autocomplete="off">
+      <div class="hint" id="jobFilterHint" hidden></div>
+      <div class="job-pick" id="jobFilterList" hidden></div>
+      <select name="job_slug" id="jobSel" required><option value="">載入中⋯</option></select>
+      <!-- 選了職缺才展開的簡要說明。存在的理由：以前選完就只剩一片表單，
+           求職者沒辦法在填的過程中確認「我選的這個到底是什麼」——尤其從
+           廣告直接進來的人，根本沒看過職缺頁。 -->
+      <div id="jobCard" hidden></div>
+      <div class="hint">不確定的話選「請顧問幫我評估」，我們會依您的背景推薦。</div>
+    </fieldset>
+
+    <fieldset>
+      <legend>基本資料</legend>
+      <label>姓名 <span class="req">*</span></label>
+      <input name="name" required autocomplete="name">
+      <div class="two">
+        <div>
+          <label>Email <span class="req">*</span></label>
+          <input name="email" type="email" required autocomplete="email" inputmode="email">
+        </div>
+        <div>
+          <label>手機</label>
+          <input name="phone" autocomplete="tel" inputmode="tel">
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>基本條件</legend>
+      <div class="two">
+        <div>
+          <label>期望待遇 <span class="req">*</span></label>
+          <input name="expected_salary" required placeholder="例：月薪 55K，可談">
+        </div>
+        <div>
+          <label>最快可到職 <span class="req">*</span></label>
+          <input name="available_date" required placeholder="例：9/1 或 需一個月">
+        </div>
+      </div>
+      <label>可接受的工作地區 <span class="req">*</span><span style="font-weight:400;color:#8a8d95;">（可複選）</span></label>
+      <div class="areas" id="areas">
+        <label><input type="checkbox" name="area" value="台北市・新北市"><span>台北市・新北市</span></label>
+        <label><input type="checkbox" name="area" value="基隆・宜蘭"><span>基隆・宜蘭</span></label>
+        <label><input type="checkbox" name="area" value="桃園・新竹"><span>桃園・新竹</span></label>
+        <label><input type="checkbox" name="area" value="苗栗・台中・彰化"><span>苗栗・台中・彰化</span></label>
+        <label><input type="checkbox" name="area" value="雲林・嘉義・台南"><span>雲林・嘉義・台南</span></label>
+        <label><input type="checkbox" name="area" value="高雄・屏東"><span>高雄・屏東</span></label>
+        <label><input type="checkbox" name="area" value="花蓮・台東"><span>花蓮・台東</span></label>
+        <label><input type="checkbox" name="area" value="離島"><span>離島</span></label>
+        <label><input type="checkbox" name="area" value="海外外派"><span>海外外派</span></label>
+      </div>
+      <label style="margin-top:14px;">住宿與通勤</label>
+      <select name="stay_need">
+        <option value="">請選擇</option>
+        <option>可通勤，不需要宿舍</option>
+        <option>需要宿舍</option>
+        <option>需要通勤補助</option>
+        <option>想先了解細節再決定</option>
+      </select>
+      <div class="hint">這幾題先問，面談時就不會再重複問一次。</div>
+    </fieldset>
+
+    <fieldset>
+      <legend>履歷 <span class="req">*</span></legend>
+      <!-- 2026-10-12：三條路（上傳／LINE 傳／快速履歷），畫面由 /assets/resume-step.js 產生 -->
+      <div id="resumeStep"></div>
+      <div id="socialBox" hidden>
+        <label>社群平台連結 <span style="color:#c0392b">*</span></label>
+        <div class="hint" style="margin-top:0">
+          這個職缺需要看你目前的社群經營狀況，<b>至少填一個就好</b>，
+          有經營多個平台可以都填。沒有公開帳號的話，填你平常會用的那一個也可以。
+        </div>
+        <input name="social_instagram" placeholder="Instagram（網址或 @帳號）">
+        <input name="social_tiktok" placeholder="TikTok">
+        <input name="social_facebook" placeholder="Facebook">
+        <input name="social_threads" placeholder="Threads">
+        <input name="social_youtube" placeholder="YouTube">
+        <input name="social_other" placeholder="其他平台（小紅書、Twitch…）">
+      </div>
+      <label style="margin-top:16px">想補充的事（選填）</label>
+      <textarea name="note" placeholder="選填"></textarea>
+    </fieldset>
+
+    <!-- 2026-10-12：選填區預設收起來（手機上第一頁太長），電腦版自動展開 -->
+    <details class="opt" id="optBox">
+    <summary>讓顧問更快幫你媒合（選填，可跳過）</summary>
+    <fieldset>
+      <p class="hint" style="margin:0 0 10px">都是選填，不想填可以跳過；填了面談時就不用再問一次。</p>
+      <label>目前的薪資結構</label>
+      <div class="two">
+        <input name="cur_monthly" placeholder="月薪，例：55K">
+        <input name="cur_months" placeholder="一年領幾個月（含年終），例：14 個月">
+      </div>
+      <input name="cur_bonus" placeholder="其他：績效獎金、分紅、股票等（選填）" style="margin-top:8px">
+      <label>一定不能接受的條件</label>
+      <input name="deal_breakers" placeholder="例：輪大夜班、通勤超過一小時、年薪低於 80 萬">
+      <label>最近自己投過、或正在面試的公司</label>
+      <input name="applied_elsewhere" placeholder="例：A 公司（下週二面）。避免重複推薦到同一家">
+      <label style="display:flex;gap:8px;align-items:flex-start;margin-top:12px;font-weight:400">
+        <input type="checkbox" name="consent_recommend" value="1" style="margin-top:4px;width:auto">
+        <span>我同意 Step1ne 顧問在跟我確認職缺後，把我的資料推薦給用人公司（每一次推薦前都會先跟我確認）</span>
+      </label>
+    </fieldset>
+    </details>
+
+    <fieldset id="assessGate">
+      <legend>工作風格測驗 <span class="req">*</span></legend>
+      <p class="hint" style="margin:0 0 10px">
+        送出前，還需要完成一份工作風格測驗（約 6 分鐘），做完會馬上給您一份個人報告。
+        <b>這是應徵的必要步驟</b>——上面的資料先幫您存著，測驗做完會自動回到這裡。</p>
+    </fieldset>
+
+    <div class="gate-actions" id="gateActions">
+      <label class="consent">
+        <input type="checkbox" id="consent" required>
+        <span>我同意 Step1ne（德仁管理顧問有限公司）為職缺媒合目的蒐集與處理上述資料。 <span class="req">*</span></span>
+      </label>
+      <details>
+        <summary>個資使用說明</summary>
+        <p><b>蒐集目的</b>：職缺媒合與後續聯繫。</p>
+        <p><b>使用範圍</b>：僅由 Step1ne 顧問查閱。提供給用人企業前會另外徵得您的同意。</p>
+        <p><b>初步面談由 AI 進行</b>，對話內容會保留供顧問評估參考。</p>
+        <p><b>保存與刪除</b>：保存至媒合流程結束後一年。您可隨時來信要求查閱或刪除。</p>
+      </details>
+      <button type="button" id="toAssess">開始工作風格測驗 →</button>
+      <div class="gmsg" id="gateMsg" role="alert" tabindex="-1" hidden></div>
+    </div>
+
+    <fieldset>
+      <legend>初步面談</legend>
+      <div class="notice">
+        <b>這場面談等同與獵頭顧問的第一輪面試</b>，內容會直接影響是否轉給用人單位，
+        請找一個能專心作答的環境進行，避免邊處理其他事邊回覆。
+      </div>
+      <p class="hint" style="margin:0">
+        線上文字面談，約 20 到 30 分鐘，由 AI 面談顧問阿財進行，即為正式面談。獵頭顧問會依面談狀況評估，決定是否推薦給用人單位面試，並與您聯繫後續安排。
+        送出應徵後會依當下狀況直接安排面談，或請您選一個方便的時段——結果會在下一步顯示。</p>
+    </fieldset>
+
+    <!-- 2026-10-12：測驗做完回來才出現（之前那顆灰色按不動的按鈕，滑到底的人會以為是送出鍵） -->
+    <button type="submit" id="btn" hidden>送出應徵</button>
+    <div class="msg" id="msg" role="alert"></div>
+  </form>
+</div>
+
+<div id="done-view" style="display:none" class="done">
+  <h2>收到了</h2>
+  <p id="doneSlot"></p>
+  <p>我們會在 1–2 個工作天內與您聯繫。</p>
+  <p style="margin-top:22px"><a href="/jobs/" style="color:var(--ac)">看其他職缺</a></p>
+</div>
+</div>
+
+<script src="/assets/resume-step.js"></script>
+<script>
+const API = 'https://step1ne-public-worker.aiagentg888.workers.dev';
+const q = new URLSearchParams(location.search);
+// 同一份檔案放在 /apply-beta/（給 Jacky 手機先測）跟之後的 /apply/，從哪裡來就回哪裡
+const IS_BETA = location.pathname.indexOf('/apply-beta') === 0;
+// GA4 事件：只記「發生了什麼」，絕不帶姓名、信箱、電話這類個資
+function ga(name, params) { try { gtag('event', name, Object.assign({ page_path: location.pathname }, params || {})); } catch (e) { /* GA 掛了不能擋應徵 */ } }
+
+// ── App 內建瀏覽器（LINE／Threads／IG／FB）：常常選不到檔案，最上面先講白有其他路 ──
+(function () {
+  const ua = navigator.userAgent || '';
+  const kind = /\bLine\//i.test(ua) ? 'line' : /Barcelona/i.test(ua) ? 'threads'
+    : /Instagram/i.test(ua) ? 'ig' : /FBAN|FBAV|FB_IAB/i.test(ua) ? 'fb' : '';
+  if (!kind) return;
+  const box = document.getElementById('inapp');
+  // LINE 支援網址加 openExternalBrowser=1 直接跳到手機的瀏覽器開
+  const ext = kind === 'line'
+    ? ' <a href="' + location.pathname + (location.search ? location.search + '&' : '?') + 'openExternalBrowser=1">用瀏覽器開啟</a>' : '';
+  box.innerHTML = '<span>選不到檔案？可以改用下面的「我用 LINE 傳」，或點右上角用瀏覽器開啟。' + ext + '</span>';
+  box.hidden = false;
+  ga('apply_inapp_browser', { app: kind });
+})();
+// 顧問發出來的專屬邀請連結：/apply/?inv=<token>
+// 姓名、信箱、要應徵哪個職缺、履歷有沒有，全部由顧問先準備好，
+// 人選進來只剩測驗要填。每多要他做一件事就掉一批人，履歷又是最容易放棄的那一步。
+const INV = q.get('inv') || '';
+let INVITE = null;   // fetch 回來的邀請內容
+// 職缺從網址帶進來：/apply/?job=bim-engineer&title=BIM%20工程師
+const JOB = q.get('job') || '';
+const TITLE = q.get('title') || '';
+if (TITLE) document.title = `應徵 ${TITLE}｜Step1ne`;
+
+// 邀請連結：先把顧問準備好的資料抓回來，再讓下面的職缺選單套用。
+// ⚠️ 只在頁面最上方顯示一句「這是誰替你準備的」，不顯示任何內部判斷
+//    （分數、等第、評語）——那支端點也不回傳那些。
+if (INV) {
+  fetch(API + '/apply/invite/' + encodeURIComponent(INV))
+    .then(r => r.json())
+    .then(d => {
+      if (!d.ok) { showInviteErr(d.error || '這條連結已經失效，請聯繫你的顧問'); return; }
+      INVITE = d;
+      const f2 = document.getElementById('f');
+      if (d.name && !f2.name.value) f2.name.value = d.name;
+      if (d.email && !f2.email.value) f2.email.value = d.email;
+      const sel = document.getElementById('jobSel');
+      if (sel && sel.options.length > 1 && d.job_slug) { sel.value = d.job_slug; applyInvite(); }
+      prog();
+    })
+    .catch(() => showInviteErr('連結讀取失敗，請稍後再試或聯繫你的顧問'));
+}
+function showInviteErr(t) {
+  const box = document.createElement('div');
+  box.className = 'msg err';
+  box.style.margin = '0 0 16px';
+  box.textContent = t;
+  document.getElementById('f').prepend(box);
+}
+function applyInvite() {
+  if (!INVITE) return;
+  const f2 = document.getElementById('f');
+  const sel = document.getElementById('jobSel');
+  // 職缺是顧問指定的，鎖起來——人選改成別的缺，顧問準備的履歷與說法就對不上了。
+  if (sel && sel.value === INVITE.job_slug) {
+    sel.disabled = true;
+    const hid = document.createElement('input');
+    hid.type = 'hidden'; hid.name = 'job_slug'; hid.value = INVITE.job_slug;
+    sel.insertAdjacentElement('afterend', hid);
+  }
+  const banner = document.createElement('div');
+  banner.className = 'invite';
+  banner.innerHTML = '這是顧問替你準備好的應徵連結——<b>' +
+    String(INVITE.job_title || '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])) +
+    '</b>' + (INVITE.has_resume ? '，履歷也已經幫你附上了。' : '。') +
+    '<br>確認一下基本資料，填完下一頁的測驗就能開始跟 AI 阿財面談。';
+  f2.prepend(banner);
+  // 顧問已經附好履歷的話，履歷欄位就不再是必填——這是整條流程最容易讓人
+  // 放棄的一步，能省就省。他想換一份新的還是可以自己傳。
+  if (INVITE.has_resume) {
+    const rsBox = document.getElementById('resumeStep');
+    if (rsBox) {
+      const hint = document.createElement('p');
+      hint.className = 'hint';
+      hint.style.cssText = 'color:#2f8f5b;font-size:13.5px;margin:0 0 10px';
+      hint.textContent = '顧問已經幫你附上履歷了，不用重傳。要換一份新的才需要選。';
+      rsBox.insertAdjacentElement('beforebegin', hint);
+    }
+  }
+}
+
+// 進度條：填了幾成。看得到進度的表單完成率比較高。
+const f = document.getElementById('f');
+const bar = document.getElementById('bar');
+function prog() {
+  // 只算必填的那幾格（選填區、履歷那一塊另外算），不然選填欄位一多，進度條永遠走不完
+  const fields = [...f.querySelectorAll('input[required],select[required],textarea[required]')]
+    .filter(e => e.type !== 'checkbox' && !e.closest('#resumeStep'));
+  const filled = fields.filter(e => e.value.trim()).length;
+  const c = document.getElementById('consent').checked ? 1 : 0;
+  // 地區是一整組 checkbox，算成一題：勾了任何一個就算填完
+  const a = f.querySelector('input[name=area]:checked') ? 1 : 0;
+  const r = (window.RS && (RS.isDone() || (INVITE && INVITE.has_resume))) ? 1 : 0;
+  bar.style.width = Math.round((filled + c + a + r) / (fields.length + 3) * 100) + '%';
+  sectionCheck();
+}
+
+// ── 每一區填完記一次（GA：apply_section_complete），才看得出人卡在哪一區 ──
+const SECTION_DONE = {};
+function sectionCheck() {
+  const v = (n) => (f.elements[n] && String(f.elements[n].value || '').trim()) || '';
+  const done = {
+    job: !!v('job_slug') || !!(INVITE && INVITE.job_slug),
+    basic: !!v('name') && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v('email')),
+    conditions: !!v('expected_salary') && !!v('available_date') && !!f.querySelector('input[name=area]:checked'),
+    resume: !!(window.RS && RS.isDone()) || !!(INVITE && INVITE.has_resume),
+  };
+  for (const k in done) {
+    if (done[k] && !SECTION_DONE[k]) { SECTION_DONE[k] = 1; ga('apply_section_complete', { section: k }); }
+  }
+}
+
+// ── 履歷三條路 ──
+const RS = window.RS = S1Resume.mount(document.getElementById('resumeStep'), {
+  api: API, track: ga, onChange: () => { prog(); saveDraft(); },
+});
+
+// ── 草稿：去 LINE 傳履歷再回來、或不小心關掉，填過的不用重打（只存在這支手機，24 小時後作廢） ──
+const DRAFT_KEY = 's1ne_apply_draft';
+const DRAFT_FIELDS = ['name', 'email', 'phone', 'expected_salary', 'available_date', 'stay_need', 'note',
+  'cur_monthly', 'cur_months', 'cur_bonus', 'deal_breakers', 'applied_elsewhere'];
+let draftT = null, DRAFT_READY = false;
+function saveDraft() {
+  if (!DRAFT_READY || RETURN_TOKEN) return;
+  clearTimeout(draftT);
+  draftT = setTimeout(() => {
+    try {
+      const o = { t: Date.now(), job_slug: (f.elements.job_slug && f.elements.job_slug.value) || '',
+        areas: [...f.querySelectorAll('input[name=area]:checked')].map(x => x.value), rs: RS.getState() };
+      DRAFT_FIELDS.forEach(k => { if (f.elements[k]) o[k] = f.elements[k].value; });
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(o));
+    } catch (e) { /* 私密瀏覽等存不了就算了 */ }
+  }, 400);
+}
+function loadDraft() {
+  try {
+    const o = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
+    if (!o || Date.now() - o.t > 24 * 3600e3) { localStorage.removeItem(DRAFT_KEY); return null; }
+    return o;
+  } catch (e) { return null; }
+}
+function clearDraft() { try { localStorage.removeItem(DRAFT_KEY); } catch (e) {} }
+// 測驗回來（back=1）就不用草稿，那邊有自己的還原
+const DRAFT = q.get('back') === '1' ? null : loadDraft();
+
+// ── 離開時記「最後停在哪一格」（GA：apply_abandon；只記欄位名稱，不記內容） ──
+let LAST_FIELD = '', STARTED = false, LEAVING_OK = false, ABANDON_SENT = false;
+f.addEventListener('focusin', (e) => {
+  const el = e.target;
+  LAST_FIELD = el.name || el.getAttribute('data-q') || el.id || el.className || '';
+});
+f.addEventListener('input', () => { STARTED = true; });
+function sendAbandon(via) {
+  if (!STARTED || LEAVING_OK || ABANDON_SENT || RETURN_TOKEN) return;
+  ABANDON_SENT = true;
+  ga('apply_abandon', { last_field: String(LAST_FIELD).slice(0, 40) || 'none', via,
+    resume_method: RS.method() || 'none', transport_type: 'beacon' });
+}
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') sendAbandon('hidden'); });
+window.addEventListener('pagehide', () => sendAbandon('pagehide'));
+f.addEventListener('input', prog);
+f.addEventListener('change', prog);
+
+// 職缺清單：從 jobs.json 帶，跟線上實際刊登的職缺同步。
+// 寫死在 HTML 裡的話，職缺一下架這裡就會有幽靈選項。
+// 2026-08-17 加：同時問一下後端「哪些職缺被顧問關掉了」——顧問在後台按
+// 關閉是即時生效的，這裡不能只看 jobs.json（那份是手動維護、不會自動同步
+// 開關狀態），不然選單還會讓人選到已經找到人、不開放應徵的職缺。
+Promise.all([
+  fetch('/apply/jobs.json').then(r => r.json()),
+  fetch(API + '/jobs-closed').then(r => r.json()).catch(() => ({ closed: [] })),
+]).then(([listAll, closedResp]) => {
+  const closedSet = new Set((closedResp && closedResp.closed) || []);
+  const list = listAll.filter(j => !closedSet.has(j.slug));
+  const sel = document.getElementById('jobSel');
+  sel.innerHTML = '<option value="">請選擇</option>';
+  list.forEach(j => {
+    const o = document.createElement('option');
+    o.value = j.slug; o.dataset.title = j.title;
+    o.textContent = j.loc ? `${j.title}（${j.loc}）` : j.title;
+    sel.appendChild(o);
+  });
+  const other = document.createElement('option');
+  other.value = 'unspecified'; other.dataset.title = '請顧問幫我評估';
+  other.textContent = '不確定，請顧問幫我評估';
+  sel.appendChild(other);
+  // 從測驗頁跳回來的話，職缺要選回他原本選的那個——優先權比網址帶的 JOB 高。
+  // ⚠️ 這裡才能設值：選單的 <option> 是這個 fetch 回來才動態產生的，
+  // 在這之前設 .value 會因為找不到對應 option 而silently 失敗。
+  if (RETURN_FORM_DATA && RETURN_FORM_DATA.job_slug) sel.value = RETURN_FORM_DATA.job_slug;
+  else if (INVITE && INVITE.job_slug) sel.value = INVITE.job_slug;   // 顧問指定的，優先權比網址帶的高
+  else if (JOB) sel.value = JOB;      // 從職缺頁進來時預選，但仍可改
+  else if (DRAFT && DRAFT.job_slug) sel.value = DRAFT.job_slug;   // 2026-10-12：上次沒填完的草稿
+  if (INVITE) applyInvite();
+
+  // 選了職缺就把重點攤開來。從廣告直接進來的人沒看過職缺頁，
+  // 不給他地點與待遇就要他交出履歷，等於要他盲填。
+  const card = document.getElementById('jobCard');
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  function showJob() {
+    const j = list.find((x) => x.slug === sel.value);
+    if (!j) { card.hidden = true; card.innerHTML = ''; return; }
+    const row = (k, v) => v ? `<dt>${k}</dt><dd>${esc(v)}</dd>` : '';
+    card.innerHTML =
+      `<p class="jt">${esc(j.title)}</p><dl>` +
+      row('工作地點', j.loc) + row('待遇', j.pay) +
+      row('聘僱型態', j.emp) + row('經驗要求', j.exp) + '</dl>' +
+      (j.req ? `<p class="rq">${esc(j.req)}</p>` : '') +
+      `<a href="/jobs/${encodeURIComponent(j.slug)}/" target="_blank" rel="noopener">看完整職缺說明 →</a>`;
+    card.hidden = false;
+  }
+  // 哪些職缺要收社群連結，由後台設定決定（/jobs-social），不寫死在這裡。
+  // 抓不到就當作不需要——寧可少問一題，也不要因為 API 掛掉讓人送不出表單。
+  let SOCIAL_SLUGS = [];
+  fetch(API + '/jobs-social').then(r => r.json()).then(d => {
+    if (d && d.ok) { SOCIAL_SLUGS = d.slugs || []; toggleSocial(); }
+  }).catch(() => {});
+
+  function toggleSocial() {
+    const box = document.getElementById('socialBox');
+    if (!box) return;
+    box.hidden = !SOCIAL_SLUGS.includes(sel.value);
+  }
+
+  sel.addEventListener('change', () => { showJob(); toggleSocial(); });
+
+  // 關鍵字過濾。⚠️ 只動顯示，不動已選的值——使用者選好之後才打字過濾，
+  // 不可以把他選的那個弄不見。做法是把所有 <option> 留著，不符合的隱藏；
+  // 目前選中的那個一律保留可見，否則選單會顯示空白看起來像被清掉了。
+  const filterInput = document.getElementById('jobFilter');
+  const filterHint = document.getElementById('jobFilterHint');
+  // 2026-10-01 Jacky：「輸入完之後很難判斷是否有篩選可以選」——結果藏在收合的選單裡，
+  // 候選人看不到。改成：符合的職缺直接列在輸入框下面，點一下就選好；只剩一個就自動選。
+  const filterList = document.getElementById('jobFilterList');
+  const escPick = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const pick = (o) => {
+    sel.value = o.value;
+    sel.dispatchEvent(new Event('change'));
+    filterList.hidden = true; filterList.innerHTML = '';
+    filterHint.hidden = false; filterHint.classList.add('picked');
+    filterHint.textContent = `已選：${o.dataset.title || o.textContent}（要換的話再打字搜尋，或直接用下面的選單）`;
+  };
+  if (filterInput) {
+    filterInput.addEventListener('input', () => {
+      const kw = filterInput.value.trim().toLowerCase();
+      const hits = [];
+      for (const o of sel.options) {
+        if (!o.value) { o.hidden = false; continue; }          // 「請選擇」永遠在
+        if (o.value === 'unspecified') { o.hidden = false; continue; } // 「請顧問幫我評估」永遠在
+        const hit = !kw || o.textContent.toLowerCase().includes(kw);
+        o.hidden = !hit && o.value !== sel.value;
+        if (hit && kw) hits.push(o);
+      }
+      filterHint.classList.remove('picked');
+      if (!kw) { filterHint.hidden = true; filterList.hidden = true; filterList.innerHTML = ''; return; }
+      filterHint.hidden = false;
+      if (hits.length === 1) { pick(hits[0]); return; }
+      filterHint.textContent = hits.length
+        ? `找到 ${hits.length} 個符合「${filterInput.value.trim()}」的職缺，點一下就選好：`
+        : `沒有符合「${filterInput.value.trim()}」的職缺，可以換個字，或在下面選單選「不確定，請顧問幫我評估」`;
+      filterList.innerHTML = hits.map((o, i) => {
+        const t = o.dataset.title || o.textContent;
+        const where = o.textContent.slice(t.length).replace(/^（|）$/g, '');
+        return `<button type="button" data-i="${i}">${escPick(t)}${where ? `<small>${escPick(where)}</small>` : ''}</button>`;
+      }).join('');
+      filterList.hidden = !hits.length;
+      filterList.querySelectorAll('button').forEach((b) => { b.onclick = () => pick(hits[+b.dataset.i]); });
+    });
+  }
+
+  showJob();
+  prog();
+}).catch(() => {
+  document.getElementById('jobSel').innerHTML =
+    '<option value="unspecified">請顧問幫我評估</option>';
+});
+
+const readB64 = (file) => new Promise((res, rej) => {
+  const r = new FileReader();
+  r.onload = () => res(String(r.result).split(',')[1]);
+  r.onerror = rej;
+  r.readAsDataURL(file);
+});
+
+// ── 兩段式送出 ──
+// 2026-08-07 改的流程：像銀行申請表那樣，先把基本資料存起來（產生 token），
+// 跳到測驗頁；測驗做完**跳回這一頁**，看過報告才按「送出應徵」完成。
+//
+// 為什麼基本資料要在「開始測驗」那一步就先存，不是等測驗做完才一次送：
+// 1. 萬一他測驗做到一半關掉視窗，顧問還是看得到「有這個人來過」，
+//    不會整筆資料憑空消失，還能主動聯繫。
+// 2. 容量判斷是在**測驗交卷那一刻**才查的——填表當下算的到交卷時早就過期了，
+//    5–7 分鐘的測驗本身就是天然的時間差，能讓一部分人不用被排隊卡住。
+// 「送出應徵」那顆按鈕不會再查一次容量，那只是讓他看過結果再確認，
+// 真正的判斷已經在測驗交卷時做完了。
+async function buildBody() {
+  const fd = new FormData(f);
+  const jobSel = document.getElementById('jobSel');
+  const body = {
+    job_slug: fd.get('job_slug') || 'unspecified',
+    job_title: jobSel.selectedOptions[0]?.dataset.title || null,
+    name: fd.get('name'), email: fd.get('email'), phone: fd.get('phone'),
+    expected_salary: fd.get('expected_salary'), available_date: fd.get('available_date'),
+    location_ok: [
+      fd.getAll('area').join('、'),
+      fd.get('stay_need') || '',
+    ].filter(Boolean).join('　｜　') || null,
+    invite_token: INV || null,
+    note: fd.get('note'),
+    // 2026-10-03 資深獵頭初談必做項：薪資結構、底線、自己投過哪些、同意推薦（都選填）
+    screen_extra: (() => {
+      const o = {};
+      for (const k of ['cur_monthly', 'cur_months', 'cur_bonus', 'deal_breakers', 'applied_elsewhere']) {
+        const v = (fd.get(k) || '').trim();
+        if (v) o[k] = v.slice(0, 300);
+      }
+      if (fd.get('consent_recommend')) o.consent_recommend = true;
+      return Object.keys(o).length ? o : null;
+    })(),
+    // 六個平台各自一格，有填的才送——後端只要求至少一個
+    social_links: (() => {
+      const o = {};
+      for (const k of ['instagram', 'tiktok', 'facebook', 'threads', 'youtube', 'other']) {
+        const v = (fd.get('social_' + k) || '').trim();
+        if (v) o[k] = v;
+      }
+      return Object.keys(o).length ? o : null;
+    })(),
+    consent: true,
+    utm_source: q.get('utm_source'), utm_medium: q.get('utm_medium'),
+    utm_campaign: q.get('utm_campaign'),
+    // 2026-10-01 加：q=<queue_id> 這組是「哪一則社群貼文帶來這個應徵」的
+    // 唯一線索，網址帶 utm_content=q123 就原樣送回後端（後端會驗證這個
+    // queue_id 真的存在才記，這裡不用先驗證）。
+    utm_content: q.get('utm_content'), referrer: document.referrer || null,
+  };
+  // 2026-10-12：履歷改由三條路元件提供（上傳／LINE 代碼／快速履歷／貼文字／雲端連結）
+  Object.assign(body, await RS.payload());
+  return body;
+}
+
+// 2026-10-01：只貼雲端連結（沒上傳檔案）時，送出前先檢查連結是不是公開的。
+// 沒公開（要登入／申請存取權）或找不到檔案 → 回傳要顯示的說明；
+// 檢查本身失敗（逾時、網路錯）→ 回傳 null 放行，不能因為檢查壞掉擋住應徵。
+// 後端 /apply、/apply/update 送出時也會再查一次，這裡只是讓人早點知道。
+async function resumeLinkProblem(url) {
+  url = String(url || '').trim();
+  if (!url) return null;
+  try {
+    const ctl = new AbortController();
+    const timer = setTimeout(() => ctl.abort(), 10000);
+    const r = await fetch(`${API}/apply/check-resume-link`, {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ url }), signal: ctl.signal,
+    });
+    clearTimeout(timer);
+    const d = await r.json();
+    return (d && d.block && d.message) ? d.message : null;
+  } catch (e) { return null; }
+}
+
+// 欄位名稱 → 人看得懂的說法（錯誤訊息用）
+const FIELD_LABEL = { job_slug: '想應徵的職缺', name: '姓名', email: 'Email', expected_salary: '期望待遇',
+  available_date: '最快可到職', consent: '同意個資使用說明', area: '可接受的工作地區' };
+// 2026-10-12：錯誤訊息一律貼在「開始測驗」按鈕正下方並捲過去（以前在整頁最底下，手機上看不到，
+// 人以為按鈕壞了就走了）。訊息裡附一顆「帶我去填」，點了才跳到那一格。
+function gateErr(text, el, field) {
+  const box = document.getElementById('gateMsg');
+  box.textContent = text;
+  if (el) {
+    const go = document.createElement('button');
+    go.type = 'button'; go.textContent = '帶我去那一格 →';
+    go.onclick = () => {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      try { el.focus({ preventScroll: true }); } catch (e) {}
+    };
+    box.appendChild(document.createElement('br'));
+    box.appendChild(go);
+  }
+  box.hidden = false;
+  box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  try { box.focus({ preventScroll: true }); } catch (e) {}
+  ga('apply_blocked', { field: field || 'unknown' });
+}
+function netErrText(err) {
+  // fetch 斷線在 iPhone 是「Load failed」、Chrome 是「Failed to fetch」，直接秀給人看不懂
+  if (!err || err.name === 'TypeError' || /fetch|load failed|network/i.test(String(err.message || '')))
+    return '網路連線不穩，資料都還在。請確認網路後再按一次。';
+  return err.message || '送出失敗，請稍後再試';
+}
+// 第一個沒填的必填欄位（自己找，不靠瀏覽器的小泡泡——App 內建瀏覽器常常不顯示）
+function firstInvalid() {
+  for (const el of f.querySelectorAll('input[required],select[required],textarea[required]')) {
+    if (el.closest('#resumeStep') || el.disabled) continue;
+    if (!el.checkValidity()) {
+      const k = el.name || el.id;
+      let msg = `還沒填：${FIELD_LABEL[k] || '必填欄位'}`;
+      if (k === 'email' && el.value.trim()) msg = 'Email 格式看起來不對，請再檢查一次';
+      return { el: k === 'job_slug' ? (document.getElementById('jobFilter') || el) : el, field: k, msg };
+    }
+  }
+  return null;
+}
+
+document.getElementById('toAssess').addEventListener('click', async () => {
+  const btn = document.getElementById('toAssess');
+  const box = document.getElementById('gateMsg');
+  box.hidden = true; box.textContent = '';
+
+  const inv = firstInvalid();
+  if (inv && inv.field !== 'consent') return gateErr(inv.msg, inv.el, inv.field);
+  // 地區是「至少勾一個」，HTML required 表達不出來，只能自己判斷
+  if (!f.querySelector('input[name=area]:checked')) {
+    return gateErr('還沒選：可接受的工作地區（至少選一個）', document.getElementById('areas'), 'area');
+  }
+  // 履歷：三條路選一條（顧問邀請連結已經附好履歷的不用再交）
+  if (!(INVITE && INVITE.has_resume)) {
+    const v = RS.validate();
+    if (!v.ok) return gateErr(v.message, v.el, v.field);
+  }
+  if (!document.getElementById('consent').checked) {
+    return gateErr('請先勾選上面的「我同意…蒐集與處理上述資料」', document.getElementById('consent'), 'consent');
+  }
+
+  const linkToCheck = RS.urlToCheck();
+  if (linkToCheck) {
+    btn.disabled = true; btn.textContent = '檢查履歷連結⋯';
+    const problem = await resumeLinkProblem(linkToCheck);
+    btn.disabled = false; btn.textContent = '開始工作風格測驗 →';
+    if (problem) return gateErr(problem, document.getElementById('rs-url'), 'resume_url_private');
+  }
+  btn.disabled = true; btn.textContent = '處理中⋯';
+  try {
+    const body = await buildBody();
+    const r = await fetch(`${API}/apply`, {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    let d;
+    try { d = await r.json(); } catch (e) { throw new Error('伺服器暫時沒有回應，資料都還在，請過幾秒再按一次'); }
+    if (!d.ok) {
+      ga('apply_blocked', { field: 'server_' + String(d.error || 'unknown').slice(0, 30) });
+      const e = new Error(d.message || d.error || '送出失敗'); e.server = true; throw e;
+    }
+    if (!d.chat_token) throw new Error('系統沒有回傳面談連結，請聯繫我們');
+
+    // 跳去測驗前，把剛剛打的每個欄位存起來，回來時才能還原（檔案本身存不了，只記檔名；
+    // 真正的檔案內容已經在這次 /apply 存進資料庫了，回來後不用重選）
+    const fd = new FormData(f);
+    const extra = {};
+    ['cur_monthly', 'cur_months', 'cur_bonus', 'deal_breakers', 'applied_elsewhere'].forEach(k => { extra[k] = fd.get(k) || ''; });
+    sessionStorage.setItem('s1ne_form_' + d.chat_token, JSON.stringify({
+      job_slug: fd.get('job_slug') || (INVITE && INVITE.job_slug) || '', name: fd.get('name'), email: fd.get('email'),
+      phone: fd.get('phone'), expected_salary: fd.get('expected_salary'),
+      available_date: fd.get('available_date'), areas: fd.getAll('area'),
+      stay_need: fd.get('stay_need'), note: fd.get('note'), extra,
+      consent_recommend: !!fd.get('consent_recommend'), rs: RS.getState(),
+    }));
+    sessionStorage.setItem('s1ne_token', d.chat_token);
+    LEAVING_OK = true; clearDraft();
+    ga('apply_to_assessment', { resume_method: RS.method() || (INVITE && INVITE.has_resume ? 'invite' : 'none') });
+    location.href = '/assessment/?t=' + encodeURIComponent(d.chat_token) + '&back=1' + (IS_BETA ? '&ret=beta' : '');
+  } catch (err) {
+    gateErr(err && err.server ? err.message : netErrText(err), null, err && err.server ? null : 'network');
+    btn.disabled = false; btn.textContent = '開始工作風格測驗 →';
+  }
+});
+
+// ── 測驗做完跳回這一頁：還原表單、讓他檢查，不是換一個畫面 ──
+let RETURN_TOKEN = null, HAD_RESUME_BEFORE = false, RETURN_FORM_DATA = null;
+
+(function checkReturnedFromAssessment() {
+  const T = q.get('t') || sessionStorage.getItem('s1ne_token') || '';
+  if (q.get('back') !== '1' || !T) return;
+
+  const rawResult = sessionStorage.getItem('s1ne_assess_result_' + T);
+  const rawForm = sessionStorage.getItem('s1ne_form_' + T);
+  if (!rawResult || !rawForm) return;   // 不是正常跳轉回來的（例如直接改網址），維持空白表單
+  let saved, formData;
+  try { saved = JSON.parse(rawResult); formData = JSON.parse(rawForm); } catch { return; }
+
+  RETURN_TOKEN = T;
+  RETURN_FORM_DATA = formData;   // job_slug 要等 jobs.json 那個 fetch 把 <option> 生出來才能設，見下方
+
+  // 把欄位值填回去，讓他真的看得到自己剛剛打的東西
+  f.name.value = formData.name || '';
+  f.email.value = formData.email || '';
+  f.phone.value = formData.phone || '';
+  f.expected_salary.value = formData.expected_salary || '';
+  f.available_date.value = formData.available_date || '';
+  f.querySelectorAll('input[name=area]').forEach(cb => {
+    cb.checked = (formData.areas || []).includes(cb.value);
+  });
+  f.stay_need.value = formData.stay_need || '';
+  f.note.value = formData.note || '';
+  const ex = formData.extra || {};
+  let anyOpt = false;
+  Object.keys(ex).forEach(k => { if (f.elements[k]) { f.elements[k].value = ex[k] || ''; if (ex[k]) anyOpt = true; } });
+  if (formData.consent_recommend && f.elements.consent_recommend) { f.elements.consent_recommend.checked = true; anyOpt = true; }
+  if (anyOpt) document.getElementById('optBox').open = true;
+  document.getElementById('consent').checked = true;
+  // 履歷：第一次送出時已經存進資料庫了，這裡只是讓他看得到「交了什麼」，不用重選
+  RS.setState(formData.rs || null, true);
+  HAD_RESUME_BEFORE = !!(formData.rs && formData.rs.method);
+
+  renderReportIntoGate(saved.scores, saved.result);
+  document.getElementById('gateActions').hidden = true;
+  document.getElementById('btn').hidden = false;
+  document.getElementById('btn').disabled = false;
+  document.getElementById('btn').textContent = '送出應徵';
+  prog();
+  scrollTo(0, 0);
+})();
+
+// 報告直接注入「工作風格測驗」那個 fieldset 裡，取代開始按鈕——
+// 跟其餘欄位在同一份表單、同一個畫面，才能真的「一起檢查再送出」。
+function renderReportIntoGate(s, r) {
+  const pct = x => Math.round(((x - 1) / 4) * 100);
+  const DESC = {
+    C: ['盡責性', '做事的條理與收尾習慣', '您偏好把事情安排好、按部就班完成，交辦的事不太會拖。', '您做事比較彈性、隨機應變，不太受既定流程綁住。'],
+    N: ['情緒穩定度', '壓力下的起伏', '您在壓力下大致維持得住，情緒不太容易被外在影響。', '您對周遭變化比較敏感，感受得深，也容易受影響。'],
+    O: ['開放性', '面對新事物的態度', '您對沒接觸過的東西感興趣，願意學新的做法。', '您偏好用熟悉、驗證過的方式做事，穩定勝於嘗鮮。'],
+    E: ['外向性', '與人互動的能量來源', '您在人群中自在，習慣主動開口與人建立關係。', '您偏好一對一或安靜的環境，先觀察再開口。'],
+    A: ['親和性', '與人協作的傾向', '您重視和諧、會顧慮別人的感受，容易被信任。', '您講求就事論事，比較直接，不太怕表達不同意見。'],
+  };
+  const line = (k, val) => {
+    const d = DESC[k], shown = k === 'N' ? 6 - val : val, hi = shown >= 3.2;
+    return `<div style="margin:12px 0">
+      <div style="display:flex;justify-content:space-between;font-size:12.5px;color:var(--tx2);margin-bottom:5px">
+        <b style="color:var(--tx)">${d[0]}</b><span>${shown.toFixed(1)} / 5</span></div>
+      <div style="height:7px;background:#eef1f5;border-radius:4px;overflow:hidden">
+        <i style="display:block;height:100%;width:${pct(shown)}%;background:var(--ac);border-radius:4px"></i></div>
+      <div style="font-size:11.5px;color:var(--tx3);margin-top:5px">${d[1]}——${hi ? d[2] : d[3]}</div>
+    </div>`;
+  };
+  const gritTxt = s.grit.total >= 3.8 ? '您在長期目標上的續航力偏強，開始的事情傾向做完。'
+    : (s.grit.total <= 2.5 ? '您比較容易被新的機會或想法吸引，長期單一目標的持續投入是可以留意的地方。'
+      : '您在持續投入與保持彈性之間大致平衡。');
+
+  document.getElementById('assessGate').innerHTML = `
+    <legend>工作風格測驗 <span style="color:#1e8e5a">✅ 已完成</span></legend>
+    ${['C', 'N', 'O', 'E', 'A'].map(k => line(k, s.b5[k])).join('')}
+    <div style="margin:12px 0">
+      <div style="display:flex;justify-content:space-between;font-size:12.5px;color:var(--tx2);margin-bottom:5px">
+        <b style="color:var(--tx)">恆毅力</b><span>${s.grit.total.toFixed(1)} / 5</span></div>
+      <div style="height:7px;background:#eef1f5;border-radius:4px;overflow:hidden">
+        <i style="display:block;height:100%;width:${pct(s.grit.total)}%;background:var(--ac);border-radius:4px"></i></div>
+      <div style="font-size:11.5px;color:var(--tx3);margin-top:5px">面對長期目標與挫折的持續性——${gritTxt}</div>
+    </div>
+    <div class="notice" style="margin-top:10px">
+      ⚠️ 這份測驗採用公開學術題本改寫成中文職場情境，<b>不是標準化測驗，也沒有台灣常模</b>，
+      分數是相對描述而不是絕對評價，不會單獨用來決定錄取與否。
+    </div>
+    <div class="hint" style="margin-top:10px">
+      ${r.route === 'now' ? '目前面談室有空，送出應徵後可以馬上開始，也可以先約時間。'
+        : r.route === 'book' ? `目前有 ${r.busy || ''} 位候選人正在面談中，送出應徵後請選一個方便的時段。`
+        : '這個職缺需要顧問先看過您的資料，送出應徵後請留意信箱通知。'}
+    </div>`;
+}
+
+// ── 真正的送出應徵：表單最下面那顆按鈕 ──
+// 這裡才是唯一會把「使用者這次可能改過的欄位」存回資料庫的地方。
+f.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!RETURN_TOKEN) return;   // 測驗還沒做完，按鈕本來就是 disabled，這裡是防呆
+  const msg = document.getElementById('msg');
+  const btn = document.getElementById('btn');
+  msg.className = 'msg';
+
+  if (!f.reportValidity()) return;
+  if (!f.querySelector('input[name=area]:checked')) {
+    msg.className = 'msg err'; msg.textContent = '請至少選一個可接受的工作地區';
+    document.getElementById('areas').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+  // 履歷：第一次送出時已經交過的（含選 LINE 傳、還在路上的）都算；這次改選別的就照新的檢查
+  if (!(INVITE && INVITE.has_resume)) {
+    const v = RS.validate();
+    if (!v.ok && !HAD_RESUME_BEFORE) {
+      msg.className = 'msg err'; msg.textContent = v.message;
+      ga('apply_blocked', { field: 'final_' + v.field });
+      RS.focusError(v);
+      return;
+    }
+  }
+  const newLink = RS.urlToCheck();
+  const oldLink = String((RETURN_FORM_DATA && RETURN_FORM_DATA.rs && RETURN_FORM_DATA.rs.url) || '').trim();
+  if (newLink && newLink !== oldLink) {
+    btn.disabled = true; btn.textContent = '檢查履歷連結⋯';
+    const problem = await resumeLinkProblem(newLink);
+    btn.disabled = false; btn.textContent = '送出應徵';
+    if (problem) {
+      msg.className = 'msg err'; msg.textContent = problem;
+      document.getElementById('rs-url').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+  }
+  btn.disabled = true; btn.textContent = '送出中⋯';
+  let d;
+  try {
+    const body = await buildBody();
+    const r = await fetch(`${API}/apply/update/${encodeURIComponent(RETURN_TOKEN)}`, {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    d = await r.json();
+    if (!d.ok) throw new Error(
+      // 後端擋下時會附中文說明（例如社群連結至少要填一個），
+      // 直接丟 error 代碼出去人看不懂
+      d.message || d.error || '送出失敗');
+  } catch (err) {
+    msg.className = 'msg err'; msg.textContent = (d && !d.ok) ? err.message : netErrText(err);
+    msg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    btn.disabled = false; btn.textContent = '送出應徵';
+    return;
+  }
+  clearDraft();
+
+  // 額外多告訴 GA4 一次「應徵表單送出成功」，不影響上面已經存進資料庫的邏輯——
+  // 只是讓這批本來就有抓到的 UTM／來源資料，同時也進得了 GA4 報表。
+  try {
+    gtag('event', 'form_submit', {
+      form_name: 'apply',
+      job_slug: (new FormData(f)).get('job_slug') || 'unspecified',
+      utm_source: q.get('utm_source'), utm_medium: q.get('utm_medium'),
+      utm_campaign: q.get('utm_campaign'),
+    });
+  } catch (e) { /* GA4 掛了也不能擋住應徵流程 */ }
+
+  // ⚠️ 2026-08-12：這裡原本 route==='now' 是無條件直接導去面談室，
+  //    沒有給「先約時間」的選項——早上先把這個邏輯加在 /assessment/ 自己的結果頁，
+  //    但真實流程是「/apply/ → /assessment/（交卷後不show結果，直接跳回）→ /apply/
+  //    使用者在這裡按下最後的『送出應徵』才是真正決定進面談室還是約時間的地方」，
+  //    所以那次的修改是死碼，從來沒有真的生效過。這裡才是要接的地方。
+  //
+  // ⚠️ 2026-08-13 再改：這裡原本用 RETURN_ROUTE（測驗交卷那一刻存的舊結果），
+  //    填表審核資料這段期間房間可能早就滿了或空出來了。改用 d——這是剛剛
+  //    /apply/update/ 這支 API 用「這一刻」重新判斷出來的結果，不是舊快取。
+  const route = d || {};
+  if (route.route === 'now') { showNowOrBook(route); return; }
+  if (route.route === 'book') { location.href = '/book/?t=' + encodeURIComponent(RETURN_TOKEN); return; }
+  {
+    // route === 'screening'：這個職缺要顧問先看過每一位應徵者，沒有下一頁可以跳，這裡就是終點。
+    document.getElementById('form-view').innerHTML =
+      '<h2 style="font-size:20px">已收到您的應徵</h2>' +
+      '<p class="lead">顧問會先評估您的資料，若適合這個機會，會再寄信安排線上面談。</p>' +
+      '<p style="margin-top:22px"><a href="/jobs/" style="color:var(--ac)">看其他職缺</a></p>';
+  }
+});
+
+// 面談室有空時給兩條路：現在就開始，或先約時間。
+// 「有空」不等於「他現在方便」——他可能在上班、在通勤，沒有第二條路的人
+// 只會把視窗關掉，而關掉的人多半不會再回來（08-08 走掉那位就是類似情況）。
+function showNowOrBook(route) {
+  document.getElementById('form-view').innerHTML = `
+    <h2 style="font-size:20px">已收到您的應徵</h2>
+    <p class="lead">目前面談室有空，您可以現在就開始，或先約一個方便的時段。</p>
+    <a class="go" href="/interview/?t=${encodeURIComponent(RETURN_TOKEN)}"
+       style="display:block;text-align:center;text-decoration:none;font-weight:700;
+              background:var(--ac);color:#fff;border-radius:12px;padding:15px;margin-top:18px;">
+      現在就開始面談
+    </a>
+    <p style="margin:16px 0 0;text-align:center;">
+      <a href="#" id="wantbook" style="color:var(--ac);font-size:15px;">現在不方便，我要先約時間 →</a>
+    </p>
+    <div id="bookbox" hidden style="margin-top:14px;">
+      <p class="lead">選一個方便的時段，時間到之前我們會寄信提醒您。</p>
+      <div id="slotbox"></div>
+      <div class="msg" id="bmsg"></div>
+    </div>`;
+  document.getElementById('wantbook').onclick = (e) => {
+    e.preventDefault();
+    document.getElementById('bookbox').hidden = false;
+    e.target.style.display = 'none';
+    renderApplySlots(route.slots || []);
+    document.getElementById('bookbox').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  };
+  scrollTo(0, 0);
+}
+
+// 跟 /book/index.html 同一套邏輯，這裡是把它內嵌在應徵表單的結果畫面裡。
+function renderApplySlots(slots) {
+  const box = document.getElementById('slotbox');
+  if (!slots.length) { box.innerHTML = '<p class="lead">目前沒有可預約的時段，我們會另外寄信跟您安排。</p>'; return; }
+  const byDay = {};
+  slots.forEach((s) => { const [d, t] = s.slot_at.split(' '); (byDay[d] = byDay[d] || []).push({ t, left: s.left, full: s.slot_at }); });
+  const W = ['日', '一', '二', '三', '四', '五', '六'];
+  // ⚠️ 2026-08-14 修：星期幾不能用 new Date(d+'T00:00:00+08:00').getUTCDay()
+  // 算——凌晨跨日會少算一天，永遠差一天。改用年月日整數直接建構 Date.UTC()。
+  box.innerHTML = Object.entries(byDay).map(([d, list]) => {
+    const [yy, mm, ddNum] = d.split('-').map(Number);
+    const wd = W[new Date(Date.UTC(yy, mm - 1, ddNum)).getUTCDay()];
+    return `<div class="dayh">${d.slice(5)}（週${wd}）</div>
+      <div class="slots">${list.map((x) =>
+        `<button type="button" class="slot" data-slot="${x.full}">${x.t}<small>剩 ${x.left} 位</small></button>`
+      ).join('')}</div>`;
+  }).join('');
+  box.querySelectorAll('.slot').forEach((btn) => {
+    btn.addEventListener('click', () => bookApplySlot(btn, btn.dataset.slot));
+  });
+}
+
+async function bookApplySlot(btn, slot) {
+  document.querySelectorAll('#slotbox .slot').forEach((b) => b.classList.remove('on'));
+  btn.classList.add('on'); btn.disabled = true;
+  const msg = document.getElementById('bmsg'); msg.className = 'msg';
+  let r;
+  try {
+    r = await (await fetch(`${API}/book`, {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ token: RETURN_TOKEN, slot_at: slot }),
+    })).json();
+  } catch { msg.className = 'msg err'; msg.textContent = '預約失敗，請再試一次。'; btn.disabled = false; return; }
+  if (!r.ok) {
+    msg.className = 'msg err'; msg.textContent = r.error || '預約失敗';
+    if (r.slots) renderApplySlots(r.slots);
+    return;
+  }
+  document.getElementById('bookbox').innerHTML =
+    `<p class="lead">已為您預約 <b>${slot}</b>。<br>我們會在時間到之前寄信提醒您，屆時用信裡的連結進入面談室即可。</p>`;
+}
+// 2026-10-12：選填區在電腦上直接展開（螢幕夠大不用收），手機維持收起
+try { if (window.matchMedia('(min-width: 721px)').matches) document.getElementById('optBox').open = true; } catch (e) {}
+
+// 2026-10-12：上次沒填完的草稿（例如跑去 LINE 傳履歷、頁面被關掉）→ 填回去
+if (!RETURN_TOKEN && DRAFT) {
+  DRAFT_FIELDS.forEach(k => { if (DRAFT[k] && f.elements[k] && !f.elements[k].value) f.elements[k].value = DRAFT[k]; });
+  f.querySelectorAll('input[name=area]').forEach(cb => { if ((DRAFT.areas || []).includes(cb.value)) cb.checked = true; });
+  if (DRAFT.rs) RS.setState(DRAFT.rs, false);
+  if (['cur_monthly', 'cur_months', 'cur_bonus', 'deal_breakers', 'applied_elsewhere'].some(k => DRAFT[k])) document.getElementById('optBox').open = true;
+}
+DRAFT_READY = true;
+f.addEventListener('input', saveDraft);
+f.addEventListener('change', saveDraft);
+prog();
+</script>
