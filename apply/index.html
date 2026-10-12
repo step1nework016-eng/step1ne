@@ -306,11 +306,11 @@ dialog.think::backdrop{background:rgba(22,32,46,.45)}
 
     <fieldset>
       <legend>履歷 <span class="req">*</span></legend>
-      <label>上傳檔案（PDF／Word，8MB 以內）</label>
-      <input name="resume" type="file" accept=".pdf,.doc,.docx">
+      <label>上傳檔案（PDF／Word／照片／截圖，8MB 以內）</label>
+      <input name="resume" type="file" accept=".pdf,.doc,.docx,image/*">
       <div class="hint">
-        沒有現成履歷檔的話，<b>LinkedIn</b>、<b>104</b> 或 <b>CakeResume</b> 都能把個人頁面
-        匯出／下載成 PDF，存下來後從這裡上傳即可，最快也最準確。
+        用手機也可以：<b>直接拍紙本履歷</b>，或<b>截圖 104／LinkedIn 的個人頁</b>上傳，系統會自動讀出內容。
+        有 PDF 的話最清楚——<b>LinkedIn</b>、<b>104</b>、<b>CakeResume</b> 都能把個人頁面匯出成 PDF。
       </div>
       <label>或貼雲端連結</label>
       <input name="resume_url" placeholder="Google Drive／Dropbox 連結">
@@ -665,7 +665,7 @@ async function buildBody() {
   };
   const file = fd.get('resume');
   if (file && file.size) {
-    if (file.size > 8 * 1024 * 1024) throw new Error('履歷檔超過 8MB，請改用下面的雲端連結欄位');
+    if (file.size > 8 * 1024 * 1024) throw new Error('履歷檔超過 8MB，照片可以改用螢幕截圖（檔案比較小），或改用下面的雲端連結欄位');
     body.resume_b64 = await readB64(file);
     body.resume_name = file.name;
     body.resume_mime = file.type;
