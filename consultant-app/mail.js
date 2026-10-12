@@ -19,8 +19,11 @@ const ui = { mailbox: '', folder: '', from: '', to: '', q: '', hideSystem: false
 
 export function initMail(h) { hooks = { ...hooks, ...h }; }
 
-function mailKey() { try { return localStorage.getItem(KEY) || ''; } catch { return ''; } }
-function setMailKey(v) { try { if (v) localStorage.setItem(KEY, v); else localStorage.removeItem(KEY); } catch { /* 私密視窗存不了 */ } }
+// 2026-10-12：從 TG 複製常會連中文說明一起貼進來；HTTP 標頭只能放英數，夾到中文整個請求會失敗（Failed to fetch）。
+// 只取最長那段英數字（鑰匙本身），其餘丟掉。
+function cleanKey(v) { const m = String(v || '').match(/[A-Za-z0-9_\-]{16,}/g); return m ? m.sort((a, b) => b.length - a.length)[0] : ''; }
+function mailKey() { try { return cleanKey(localStorage.getItem(KEY) || ''); } catch { return ''; } }
+function setMailKey(v) { try { const k = cleanKey(v); if (k) localStorage.setItem(KEY, k); else localStorage.removeItem(KEY); } catch { /* 私密視窗存不了 */ } }
 function keyHeaders() { const k = mailKey(); return k ? { 'X-Mail-Key': k } : {}; }
 
 async function mailGet(path) {
@@ -66,7 +69,7 @@ function renderKeyBox() {
       <input type="password" id="mail-key-input" placeholder="貼上私人鑰匙" aria-label="私人鑰匙" autocomplete="off"><button class="btn sm primary" type="submit">輸入私人鑰匙</button></form>`;
     $('#mail-key-form', box).onsubmit = async (e) => {
       e.preventDefault();
-      const v = ($('#mail-key-input', box).value || '').trim();
+      const v = cleanKey($('#mail-key-input', box).value);
       if (!v) return;
       setMailKey(v);
       try {
