@@ -1,5 +1,6 @@
 // 企業端文章的「留需求」小表單（2026-09-29）。
 // 企業決策者多半不會為了問一句話去加陌生 LINE——企業端頁 30 天 257 人進站、0 人留聯絡方式。
+// 2026-10-12：加選填「想補充的需求說明」(detail，最多 1000 字)，存在 company_leads.note 的 JSON。
 // 表單送到 step1ne-recruit-api /bd/inbound-lead → company_leads ＋ TG「🏢 官網企業詢問」。
 (function () {
   var API = 'https://step1ne-recruit-api.aiagentg888.workers.dev/bd/inbound-lead';
@@ -21,11 +22,12 @@
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
           company: v('company'), job: v('job'), contact: v('contact'), plan: v('plan'),
+          detail: v('detail').slice(0, 1000),
           website: v('website'), page: location.pathname
         })
       }).then(function (r) { return r.json(); }).then(function (d) {
         if (d.ok) {
-          f.querySelectorAll('input,button').forEach(function (el) { el.disabled = true; });
+          f.querySelectorAll('input,textarea,select,button').forEach(function (el) { el.disabled = true; });
           btn.textContent = '已送出';
           msg.textContent = '收到了！顧問會在 1 個工作天內跟您聯絡。';
           msg.style.color = '#0F5F87';
