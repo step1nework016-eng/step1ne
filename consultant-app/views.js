@@ -2465,6 +2465,23 @@ ${n.learned ? `<p><b>學到什麼</b>${text(n.learned)}</p>` : ''}${n.next_time 
       <label class="field fu-memo"><span>備註（要做什麼、要注意什麼）</span><textarea class="cg-in" data-${attrPrefix}-memo rows="2" placeholder="例：寄完公司介紹，週五打去問看完沒；人資只收 Email">${escapeHtml([a.next_step, a.adjust_note].filter(Boolean).join('\n'))}</textarea></label>
     </div>`;
   },
+  // 2026-10-12 Jacky：對方在官網表單留了什麼，打電話前一眼看到（資料在 company_leads，後台用公司名對上）。
+  // 沒留過就整塊不出現；留過好幾次，新的在上面。
+  bdWebInquiryBlock: (rows) => {
+    if (!rows || !rows.length) return '';
+    const PAGE_ZH = { '/commission-recruiting/': '企業委託招募頁' };
+    const pageName = (pg) => PAGE_ZH[pg] || (String(pg || '').startsWith('/articles/') ? `文章 ${pg}` : (pg || '官網'));
+    const item = (r) => `<div class="bd-web-item">
+        <p class="bd-web-when">${text(String(r.at || '').slice(0, 16))}・從${text(pageName(r.page))}送出</p>
+        <div class="bd-contact-row"><span>留言內容</span><b class="bd-web-msg">${r.message ? text(r.message) : '<span class="muted">（沒填）</span>'}</b></div>
+        <div class="bd-contact-row"><span>想用的方案</span>${r.plan ? text(r.plan) : '<span class="muted">沒選（不確定）</span>'}</div>
+        ${r.contact_name ? `<div class="bd-contact-row"><span>聯絡人</span>${text(r.contact_name)}</div>` : ''}
+        ${r.contact ? `<div class="bd-contact-row"><span>聯絡方式</span>${r.contact.includes('@') ? `<a href="mailto:${escapeHtml(r.contact)}">${text(r.contact)}</a>` : `<a href="tel:${escapeHtml(String(r.contact).replace(/[^0-9+#,]/g, ''))}">${text(r.contact)}</a>`}<button type="button" class="btn ghost sm" data-copy-text="${escapeHtml(r.contact)}">複製</button></div>` : ''}
+        ${r.company && r.matched_by === 'email' ? `<div class="bd-contact-row"><span>表單上的公司名</span>${text(r.company)}</div>` : ''}
+        ${r.extra_note ? `<div class="bd-contact-row"><span>內部補註</span><small>${text(r.extra_note)}</small></div>` : ''}
+      </div>`;
+    return `<div class="card bd-web-card"><h3 style="font-size:14px;margin:0 0 6px">官網留言${rows.length > 1 ? `（${rows.length} 次）` : ''}</h3>${rows.map(item).join('')}</div>`;
+  },
   bdStatusBlock: (company, st, calls) => {
     const last = (calls || [])[calls ? calls.length - 1 : 0];
     const lc = last ? { at: last.created_at, who: last.caller, how: '電話', result: last.result, note: last.note } : null;
@@ -2518,7 +2535,7 @@ ${n.learned ? `<p><b>學到什麼</b>${text(n.learned)}</p>` : ''}${n.next_time 
       <div class="wu-bar"><span data-wu-picked>下一步選「寄信」的公司，勾選後可以一次擬好信：已勾 0 家</span><button type="button" class="btn" data-wu-batch-preview disabled>先預覽勾選的信</button><button type="button" class="btn primary" data-wu-batch-send disabled>擬好勾選的信，送 TG 核准</button></div>
       <div id="wu-batch-out"></div>`;
   },
-  bdDashboardDetail: ({ outreach, timeline, playbook, notes, people, assigned_to, company, profile, hr_contacts, transcripts, contract_files, company_status, pack_options, calls }) => {
+  bdDashboardDetail: ({ outreach, timeline, playbook, notes, people, assigned_to, company, profile, hr_contacts, transcripts, contract_files, company_status, pack_options, calls, web_inquiries }) => {
     const pick = (key) => outreach.map((o) => o[key]).find(Boolean) || null;
     const contactName = pick('contact_name');
     const contactEmail = pick('contact_email');
@@ -2664,7 +2681,7 @@ ${n.learned ? `<p><b>學到什麼</b>${text(n.learned)}</p>` : ''}${n.next_time 
     `;
 
     const _topic = profile && String(profile.topics || '').split('\n').map((x) => x.replace(/^[-・•\s]+/, '').trim()).find(Boolean);
-    return `${views.bdEntry(views.bdTriggerOf(outreach), outreach.some((o) => o.candidate_card), true, (outreach.find((o) => o.job_title) || {}).job_title, _topic)}${views.bdStatusBlock(company || (outreach[0] || {}).company || '', company_status, calls)}${views.bdProgressBlock(company || (outreach[0] || {}).company || '', { calls, notes, transcripts, status: company_status, people, assignedTo: assigned_to, oid: ((outreach || []).slice().reverse()[0] || {}).id })}${contactCard}
+    return `${views.bdEntry(views.bdTriggerOf(outreach), outreach.some((o) => o.candidate_card), true, (outreach.find((o) => o.job_title) || {}).job_title, _topic)}${views.bdWebInquiryBlock(web_inquiries)}${views.bdStatusBlock(company || (outreach[0] || {}).company || '', company_status, calls)}${views.bdProgressBlock(company || (outreach[0] || {}).company || '', { calls, notes, transcripts, status: company_status, people, assignedTo: assigned_to, oid: ((outreach || []).slice().reverse()[0] || {}).id })}${contactCard}
       <div class="tabs tabs-sub" id="bd-detail-tabs">
         <button type="button" class="active" data-bd-detail-tab="profile">認識客戶</button>
         <button type="button" data-bd-detail-tab="timeline">時間軸／信件</button>
