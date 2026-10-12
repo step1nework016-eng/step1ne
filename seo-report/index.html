@@ -114,6 +114,45 @@ ul.clean{margin:0;padding-left:18px} ul.clean li{margin:4px 0}
 .cpb{appearance:none;border:0;border-radius:12px;background:var(--brand);color:#fff;font:inherit;font-weight:700;min-height:44px;padding:0 16px;cursor:pointer}
 .cpb[disabled]{opacity:.45;cursor:default}
 .pnote{font-size:13px;color:var(--muted);margin:0}
+
+/* 使用者行為三張圖（漏斗／路徑／手機vs電腦） */
+.fn2{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
+.fn h3{font-size:15px;margin:0 0 10px}
+.fnr{display:grid;grid-template-columns:minmax(6.5em,9em) 1fr;gap:4px 10px;align-items:center;padding:6px 0}
+.fnr .nm{font-size:13.5px;line-height:1.35}
+.fnr .nm em{font-style:normal;display:inline-block;font-size:11px;padding:0 6px;margin-left:4px;border-radius:999px;background:var(--brand-soft);color:var(--brand);white-space:nowrap}
+.fnr .nm em.db{background:var(--warn-soft);color:var(--warn)}
+.fnb{display:flex;align-items:center;gap:8px;min-width:0}
+.fnb .bx{height:16px;border-radius:0 5px 5px 0;background:var(--brand);min-width:3px}
+.fnb .bx.db{background:var(--s-jobs)}
+.fnb .v{font-weight:600;font-size:14px;white-space:nowrap}
+.fnr .dr{grid-column:2;font-size:12px;color:var(--muted);margin-top:-2px}
+.fnr .dr b{color:var(--down);font-weight:600}
+.fnsep{font-size:12px;color:var(--muted);border-top:1px dashed var(--line);margin-top:6px;padding-top:6px}
+.rd{margin:14px 0 0;padding:10px 12px;border-radius:12px;background:var(--brand-soft);font-size:14px;line-height:1.6}
+.rd b{font-weight:700}
+.smp{display:inline-block;font-size:12px;padding:1px 8px;border-radius:999px;background:var(--warn-soft);color:var(--warn);margin-left:6px}
+.tbl{margin-top:12px;font-size:13px}.tbl summary{cursor:pointer;min-height:44px;display:flex;align-items:center;color:var(--muted)}
+.flows{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.flow{display:grid;grid-template-columns:minmax(0,1fr) minmax(70px,150px) minmax(0,1fr);gap:10px;align-items:center;padding:6px 0;border-bottom:1px dashed var(--line)}
+.flow:last-child{border-bottom:0}
+.flow a{color:var(--ink);font-weight:600;font-size:13.5px;line-height:1.4;text-decoration:none;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere;min-height:44px;align-content:center}
+.flow a:hover{text-decoration:underline}.flow a:focus-visible{outline:3px solid var(--brand);outline-offset:2px;border-radius:4px}
+.flow small{display:block;font-size:11.5px;color:var(--muted);overflow-wrap:anywhere}
+.flow .fb{display:grid;justify-items:center;gap:2px;font-size:12.5px}
+.flow .fb span{display:block;width:100%;background:var(--brand);opacity:.6;border-radius:2px}
+.flow .fb b{font-weight:600}
+.flow .rt{font-size:11px;padding:0 6px;border-radius:999px;background:var(--brand-soft);color:var(--brand)}
+.dvg{display:grid;gap:12px}
+.dvs h4{font-size:13.5px;margin:0 0 4px;font-weight:700}
+.dvb{display:grid;grid-template-columns:3.2em 1fr;gap:4px 8px;align-items:center;margin:2px 0}
+.dvb .bx{height:12px;border-radius:0 4px 4px 0;min-width:3px}
+.dvb .n{font-size:12.5px;margin-left:6px;font-weight:600}
+.dvb .t{display:flex;align-items:center;font-size:12.5px;color:var(--muted)}
+.dvb .t+.t{}
+.inapp{margin-top:14px;display:grid;gap:6px;font-size:14px}
+@media (max-width:720px){.fn2{grid-template-columns:1fr}
+  .flow{grid-template-columns:1fr;gap:2px;padding:8px 0}.flow .fb{justify-items:start}.flow .fb span{max-width:100%}}
 </style></head><body>
 
 <div class="wrap">
@@ -146,6 +185,10 @@ ul.clean{margin:0;padding-left:18px} ul.clean li{margin:4px 0}
         <dt style="font-weight:700">頁面（到達頁）</dt><dd style="margin:0">別人進網站時「第一個看到的頁面」，通常就是 Google 上點的那一頁。點標題可以直接打開那一頁。</dd>
         <dt style="font-weight:700">行動</dt><dd style="margin:0">我們真正在乎的結果：企業留需求表單、做招募健檢、加 LINE、人選點應徵。</dd>
         <dt style="font-weight:700">從哪裡來</dt><dd style="margin:0">自然搜尋＝從 Google 搜進來；直接進站＝直接打網址或點書籤；社群＝Threads／FB 等；推薦網站＝別的網站上的連結；AI 助手＝ChatGPT、Gemini 等推薦進來。</dd>
+        <dt style="font-weight:700">漏斗</dt><dd style="margin:0">一步一步往下，每一步剩幾個人。像倒三角形的濾網：100 人看職缺、40 人點應徵、10 人送出。最「瘦」的那一步就是人掉最多的地方。每一步的人數是分開算的，不是同一批人一路追蹤。</dd>
+        <dt style="font-weight:700">路徑</dt><dd style="margin:0">人在網站裡「從哪一頁走到哪一頁」。粗的線＝走的人多。像在商場看人潮動線。</dd>
+        <dt style="font-weight:700">系統紀錄</dt><dd style="margin:0">我們自己後台資料庫的數字（真的收到幾份應徵），跟 Google 分析量到的不同來源。Google 會漏算（擋廣告、不同意追蹤的人），所以兩邊數字不會剛好一樣。</dd>
+        <dt style="font-weight:700">App 內建瀏覽器</dt><dd style="margin:0">在 LINE、Threads、Instagram 裡點連結，會在 App 裡面開網頁，不是開 Safari 或 Chrome。Google 分析分不出是哪個 App，只知道「在 App 裡開的」。</dd>
         <dt style="font-weight:700">近 28 天對比前 28 天</dt><dd style="margin:0">拿最近 4 週跟再前面 4 週比，看是變好還是變差。Google 數字大約慢 2～3 天，所以最近兩天的資料還不完整。</dd>
       </dl>
     </details>
@@ -189,6 +232,28 @@ ul.clean{margin:0;padding-left:18px} ul.clean li{margin:4px 0}
     </div>
     <h3 style="font-size:15px;margin:18px 0 8px">企業端頁面：進來的人停多久</h3>
     <div class="tw"><table id="entland"></table></div>
+  </section>
+
+  <section class="card" id="c-funnel" aria-labelledby="h-funnel" hidden>
+    <h2 id="h-funnel">人從哪一步掉出去（漏斗圖）</h2>
+    <p class="sub" id="funnelsub"></p>
+    <div class="fn2"><div class="fn" id="fn-seeker"></div><div class="fn" id="fn-employer"></div></div>
+  </section>
+
+  <section class="card" id="c-paths" aria-labelledby="h-paths" hidden>
+    <h2 id="h-paths">大家在網站裡怎麼走（路徑圖）</h2>
+    <p class="sub" id="pathsub"></p>
+    <ol class="flows" id="flows"></ol>
+    <p class="rd" id="pathrd"></p>
+  </section>
+
+  <section class="card" id="c-device" aria-labelledby="h-device" hidden>
+    <h2 id="h-device">手機 vs 電腦（求職者漏斗）</h2>
+    <p class="sub" id="devsub"></p>
+    <div class="legend" id="devleg"></div>
+    <div class="dvg" id="devgrid"></div>
+    <div class="inapp" id="inapp"></div>
+    <p class="rd" id="devrd"></p>
   </section>
 
   <div class="grid2">
@@ -277,6 +342,7 @@ function render(D){
   document.getElementById('devices').innerHTML=bars(B.now.devices||[],'deviceCategory',DEV);
   document.getElementById('entland').innerHTML='<thead><tr><th>頁面</th><th>進站次數</th><th>互動率</th><th>平均停留</th></tr></thead><tbody>'+
     (B.now.landing_ent||[]).map(r=>`<tr><td><a href="https://step1ne.com${r.landingPage}" target="_blank" rel="noopener" style="color:inherit;font-weight:600">${r.title||r.landingPage}</a><div style="font-size:12px;color:var(--muted);word-break:break-all">${r.landingPage}</div></td><td class="num">${fmt(r.sessions)}</td><td class="num">${Math.round(r.engagementRate*100)}%</td><td class="num">${mm(r.averageSessionDuration)}</td></tr>`).join('')+'</tbody>';
+  try{renderFlows(B,esc)}catch(e){console.error(e)}
   // 人工區
   const N=D.notes||{};
   document.getElementById('carry').innerHTML=N.carried?'<span class="carried">本週無更新</span>':'';
@@ -359,6 +425,87 @@ function pocketRows(manual,P){
 }
 let DR_DRAFT={};try{DR_DRAFT=JSON.parse(localStorage.getItem('s1ne_dr_draft')||'{}')||{}}catch(e){DR_DRAFT={}}
 function saveDraft(){try{localStorage.setItem('s1ne_dr_draft',JSON.stringify(DR_DRAFT))}catch(e){}}
+
+// ── 使用者行為三張圖：舊週報沒有這些欄位就整張不顯示 ──
+function renderFlows(B,esc){
+  const N=B.now||{}, P=B.prev||{}, on=(id,v)=>{const e=document.getElementById(id);if(e)e.hidden=!v};
+  const nm=n=>n==null?'沒取得':fmt(n);
+  const pc=(a,b)=>b?Math.round((1-a/b)*100):null;
+  const ttl=(t,path)=>path==='/'?'首頁':(t&&t!==path?t:path);
+  // 1 漏斗
+  const fs=N.funnel_seeker, fe=N.funnel_employer;
+  on('c-funnel',!!(fs&&fs.steps&&fs.steps.length));
+  if(fs&&fs.steps&&fs.steps.length){
+    document.getElementById('funnelsub').innerHTML='近 28 天，括號是前 28 天。每一步人數是分開算的不重複人數，不是同一批人一路追蹤。<span class="pill">GA</span>＝Google 分析量到的　<span class="pill w">系統紀錄</span>＝我們後台資料庫的真實筆數。';
+    const draw=(F,Fp,title,tag)=>{
+      const st=F.steps, pv=(Fp&&Fp.steps)||[], mx=Math.max(1,...st.map(x=>x.n||0));
+      let h=`<h3>${title}</h3><div role="img" aria-label="${title}：`+st.map(x=>x.k+' '+nm(x.n)).join('，')+'">';
+      let worst=null, lastGa=null, minGa=1e9;
+      st.forEach((x,i)=>{
+        const isdb=x.src==='db', prevStep=i?st[i-1]:null;
+        if(isdb&&(!prevStep||prevStep.src!=='db')) h+='<div class="fnsep">以下是系統紀錄（後台資料庫），來源跟上面不同，不能直接相減</div>';
+        let drop='';
+        if(prevStep&&prevStep.src===x.src&&prevStep.n&&x.n!=null){
+          const d=pc(x.n,prevStep.n); drop=`比上一步少 <b>${d}%</b>`;
+          if(!isdb&&(worst==null||d>worst.d)) worst={d,from:prevStep.k,to:x.k};
+        }
+        if(!isdb&&x.n!=null) minGa=Math.min(minGa,x.n);
+        const pn=pv[i]&&pv[i].n!=null?`（${fmt(pv[i].n)}）`:'';
+        h+=`<div class="fnr"><div class="nm">${esc(x.k)}<em class="${isdb?'db':''}">${isdb?'系統紀錄':'GA'}</em></div>`+
+          `<div class="fnb"><span class="bx ${isdb?'db':''}" style="width:${x.n?Math.max(1,Math.round(x.n/mx*100)*0.62):0}%" title="${esc(x.k)} ${nm(x.n)}"></span><span class="v num">${nm(x.n)}<span style="color:var(--muted);font-weight:400"> ${pn}</span></span></div>`+
+          (drop?`<div class="dr">${drop}</div>`:'')+'</div>';
+      });
+      h+='</div>';
+      const smp=minGa<50?'<span class="smp">樣本少，看趨勢</span>':'';
+      h+=`<p class="rd">${worst?`最大的洞在「<b>${esc(worst.from)}</b> → <b>${esc(worst.to)}</b>」，少了 <b>${worst.d}%</b>。`:'這段期間資料不足，看不出哪一步最大。'}${smp}</p>`;
+      h+=`<details class="tbl"><summary>看表格</summary><div class="tw"><table><thead><tr><th>步驟</th><th>來源</th><th>近 28 天</th><th>前 28 天</th></tr></thead><tbody>`+
+        st.map((x,i)=>`<tr><td>${esc(x.k)}</td><td>${x.src==='db'?'系統紀錄':'GA'}</td><td class="num">${nm(x.n)}</td><td class="num">${pv[i]?nm(pv[i].n):'—'}</td></tr>`).join('')+'</tbody></table></div></details>';
+      return h;
+    };
+    document.getElementById('fn-seeker').innerHTML=draw(fs,P.funnel_seeker,'求職者：從看職缺到面談');
+    document.getElementById('fn-employer').innerHTML=fe&&fe.steps?draw(fe,P.funnel_employer,'企業：從看文章到留需求'):'';
+  }
+  // 2 路徑
+  const pa=N.paths, fl=pa&&pa.flows||[];
+  on('c-paths',fl.length>0);
+  if(fl.length){
+    const mxn=Math.max(...fl.map(f=>f.n)), key=f=>f.from+'>'+f.to, have=new Set(fl.map(key));
+    document.getElementById('pathsub').textContent='近 28 天站內最常見的「上一頁 → 下一頁」前 '+fl.length+' 名（至少走過 2 次才列入）。線越粗＝走的次數越多。算的是「次數」，不是人數；標題可點開那一頁。';
+    document.getElementById('flows').innerHTML=fl.map((f,i)=>{
+      const back=have.has(f.to+'>'+f.from);
+      return `<li class="flow"><div><a href="https://step1ne.com${esc(f.from)}" target="_blank" rel="noopener">${i+1}. ${esc(ttl(f.from_title,f.from))}</a><small>${esc(f.from)}</small></div>`+
+        `<div class="fb" aria-hidden="false"><span style="height:${Math.max(3,Math.round(f.n/mxn*18))}px" title="${f.n} 次、${f.u} 人"></span><b class="num">${f.n} 次</b>${back?'<em class="rt">有來有回</em>':''}</div>`+
+        `<div><a href="https://step1ne.com${esc(f.to)}" target="_blank" rel="noopener">→ ${esc(ttl(f.to_title,f.to))}</a><small>${esc(f.to)}</small></div></li>`}).join('');
+    const t=fl[0], loops=fl.filter(f=>have.has(f.to+'>'+f.from)).length/2;
+    document.getElementById('pathrd').innerHTML=`<b>最多人走的一條路</b>：${esc(ttl(t.from_title,t.from))} → ${esc(ttl(t.to_title,t.to))}（${t.n} 次）。`+
+      (loops>=1?`標「有來有回」的是兩頁之間來回跳（例如填表中途去做測驗再回來），不是兩條不同的路。`:'')+(pa.total_transitions&&pa.total_transitions<300?'<span class="smp">樣本少，看趨勢</span>':'');
+  }
+  // 3 手機 vs 電腦
+  const df=N.device_funnel;
+  on('c-device',!!(df&&df.devices&&df.devices.length));
+  if(df&&df.devices&&df.devices.length){
+    const COL={mobile:'var(--brand)',desktop:'var(--s-jobs)',tablet:'var(--s-oth)'}, steps=df.steps;
+    const devs=df.devices.filter(d=>d.sessions>=20||d.users.some(x=>x>0));
+    const mx=Math.max(1,...devs.flatMap(d=>d.users));
+    document.getElementById('devsub').textContent='近 28 天，求職者四個步驟各有幾人（不重複人數，只看 GA），依裝置分開。';
+    document.getElementById('devleg').innerHTML=devs.map(d=>`<span><i style="background:${COL[d.device]||'var(--s-oth)'}"></i>${DEV[d.device]||d.device}（進站 ${fmt(d.sessions)} 次）</span>`).join('');
+    document.getElementById('devgrid').innerHTML=steps.map((s,i)=>`<div class="dvs"><h4>${esc(s)}</h4>`+
+      devs.map(d=>{const v=d.users[i]||0;return `<div class="dvb"><span class="t">${DEV[d.device]||d.device}</span><span style="display:flex;align-items:center"><span class="bx" style="width:${Math.round(v/mx*100)*0.8}%;background:${COL[d.device]||'var(--s-oth)'};margin-bottom:2px" title="${DEV[d.device]||d.device} ${esc(s)} ${v} 人"></span><span class="n num">${fmt(v)}</span></span></div>`}).join('')+'</div>').join('');
+    const ia=df.inapp||{}, iu=ia.users||[0,0,0,0], ou=ia.others||[0,0,0,0];
+    const rate=(a,b)=>b?Math.round(a/b*100)+'%':'—';
+    document.getElementById('inapp').innerHTML=`<div><b>App 內建瀏覽器</b>（LINE／Threads／Instagram 點連結開的）：整站進站有 <b class="num">${Math.round((ia.share||0)*100)}%</b>；進應徵頁的人裡約 <b class="num">${rate(iu[1],iu[1]+ou[1])}</b>；從進應徵頁走到送出，內建瀏覽器 <b class="num">${rate(iu[3],iu[1])}</b>、其他瀏覽器 <b class="num">${rate(ou[3],ou[1])}</b>。</div>`+
+      `<div class="foot">怎麼判斷的：${esc(ia.method||'')}。</div>`;
+    const m=devs.find(d=>d.device==='mobile'), dk=devs.find(d=>d.device==='desktop');
+    const tot1=devs.reduce((a,d)=>a+(d.users[1]||0),0);
+    let rd='';
+    if(m&&dk&&tot1){
+      rd=`進應徵頁的人有 <b>${rate(m.users[1],tot1)}</b> 用手機；從進應徵頁到送出，手機 <b>${rate(m.users[3],m.users[1])}</b>、電腦 <b>${rate(dk.users[3],dk.users[1])}</b>。`;
+    }
+    if(Math.min(...devs.map(d=>d.users[3]||0))<30) rd+='<span class="smp">樣本少，看趨勢</span>';
+    document.getElementById('devrd').innerHTML=rd||'資料不足。';
+    document.getElementById('devrd').hidden=!rd;
+  }
+}
 function renderPocket(manual,P){
   const q=(P&&P.queue_status)||null, upd=P&&P.updated||'';
   const today=new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Taipei'}).format(new Date());
