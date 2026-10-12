@@ -926,16 +926,16 @@ let RETURN_TOKEN = null, HAD_RESUME_BEFORE = false, RETURN_FORM_DATA = null;
   RETURN_FORM_DATA = formData;   // job_slug 要等 jobs.json 那個 fetch 把 <option> 生出來才能設，見下方
 
   // 把欄位值填回去，讓他真的看得到自己剛剛打的東西
-  f.name.value = formData.name || '';
-  f.email.value = formData.email || '';
-  f.phone.value = formData.phone || '';
-  f.expected_salary.value = formData.expected_salary || '';
-  f.available_date.value = formData.available_date || '';
+  f.elements.name.value = formData.name || '';
+  f.elements.email.value = formData.email || '';
+  f.elements.phone.value = formData.phone || '';
+  f.elements.expected_salary.value = formData.expected_salary || '';
+  f.elements.available_date.value = formData.available_date || '';
   f.querySelectorAll('input[name=area]').forEach(cb => {
     cb.checked = (formData.areas || []).includes(cb.value);
   });
-  f.stay_need.value = formData.stay_need || '';
-  f.note.value = formData.note || '';
+  f.elements.stay_need.value = formData.stay_need || '';
+  f.elements.note.value = formData.note || '';
   const ex = formData.extra || {};
   let anyOpt = false;
   Object.keys(ex).forEach(k => { if (f.elements[k]) { f.elements[k].value = ex[k] || ''; if (ex[k]) anyOpt = true; } });
