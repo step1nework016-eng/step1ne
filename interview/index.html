@@ -489,6 +489,9 @@ async function boot() {
   } catch (e) {
     return notice('連不上伺服器', '請確認網路後重新整理，或稍後再試。');
   }
+  if (!d.ok && d.closed) {
+    return notice('這個職缺已經結束招募', '謝謝你的關注！其他開放中的職缺可以到 step1ne.com/jobs/ 看看，有興趣的直接在 LINE 留言就可以。');
+  }
   if (!d.ok) {
     return notice('找不到這場面談', '連結可能已失效。請與顧問聯繫，或重新應徵一次。');
   }
