@@ -2727,14 +2727,12 @@ ${n.learned ? `<p><b>學到什麼</b>${text(n.learned)}</p>` : ''}${n.next_time 
         <button type="button" data-bd-detail-tab="jobs">客戶提供的職缺（${(client_jobs || []).filter((j) => j.status === 'social_only').length}）</button>
         <button type="button" data-bd-detail-tab="mail">寄公司介紹信</button>
         <button type="button" data-bd-detail-tab="profile">認識公司</button>
-        <button type="button" data-bd-detail-tab="timeline">信件與時間軸</button>
         <button type="button" data-bd-detail-tab="playbook">開發引導</button>
       </div>
-      <div id="bd-detail-pane-log">${bdLogPane({ company: company || (outreach[0] || {}).company || '', company_status, calls, people, assigned_to })}${views.bdTranscriptBlock(company || (outreach[0] || {}).company || '', transcripts, notes, people, assigned_to)}</div>
+      <div id="bd-detail-pane-log">${bdLogPane({ company: company || (outreach[0] || {}).company || '', company_status, calls, people, assigned_to, timeline, markBtn: lastRow ? actionBtn('標記談到職缺／成交', 'bd-stage', { idParams: { id: lastRow.id } }, 'primary') : '' })}${views.bdTranscriptBlock(company || (outreach[0] || {}).company || '', transcripts, notes, people, assigned_to)}</div>
       <div id="bd-detail-pane-jobs" hidden>${bdJobsPane({ company: company || (outreach[0] || {}).company || '', client_jobs, assigned_to })}</div>
-      <div id="bd-detail-pane-mail" hidden>${views.bdContractPackBlock(company || (outreach[0] || {}).company || '', outreach || [], contract_files, assigned_to, pack_options)}</div>
+      <div id="bd-detail-pane-mail" hidden>${views.bdContractPackBlock(company || (outreach[0] || {}).company || '', outreach || [], contract_files, assigned_to, pack_options)}<h4 style="margin:18px 0 6px">已寄出／擬好的信件全文</h4>${letters}</div>
       <div id="bd-detail-pane-profile" hidden>${views.bdProfileModes(profile, company || (outreach[0] || {}).company || '')}</div>
-      <div id="bd-detail-pane-timeline" hidden>${timelinePane}</div>
       <div id="bd-detail-pane-playbook" hidden>${playbookPane}</div>`;
   },
   // bd_requests 真實欄位是 role_family（不是 company_name/target，這裡從沒要求填公司名——

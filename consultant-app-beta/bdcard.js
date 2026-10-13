@@ -123,8 +123,16 @@ export function bdCardTop(detail) {
 }
 
 // ───────────────────────── 進度紀錄（分頁內容） ─────────────────────────
+// 系統自動記的事件（送達、開信、對方回信、追信寄出、退信…）：唯讀，併在全部紀錄裡
+function systemEvents(detail) {
+  return (detail.timeline || [])
+    .filter((t) => !t.call_log_id && !String(t.kind || '').startsWith('☎') && !String(t.kind || '').includes('擬稿'))
+    .map((t) => ({ sys: true, at: String(t.at || '').replace('T', ' '), label: String(t.kind || '') }));
+}
+
 export function bdLogPane(detail) {
   const logs = sortedLogs(detail);
+  const sys = systemEvents(detail);
   const people = [...new Set([detail.assigned_to, 'Jacky', 'Phoebe', ...(detail.people || [])].filter(Boolean))];
   const stageOpts = ['', ...BD_STAGES.slice(1), ...BD_EXITS];
   const item = (l) => {
@@ -139,10 +147,12 @@ export function bdLogPane(detail) {
       <div class="bdc-chips">${sent}${l.stage_to ? `<span class="bdc-chip stage">階段 → ${text(l.stage_to)}</span>` : ''}${l.tag_to ? `<span class="bdc-chip stage">標籤 → ${text(l.tag_to)}</span>` : ''}</div>
       ${l.note ? `<p class="bdc-note">${text(l.note)}</p>` : ''}${l.contact_name || l.hr_phone || l.email ? `<small class="muted">問到：${[l.contact_name && `窗口 ${text(l.contact_name)}`, l.hr_phone && `電話 ${text(l.hr_phone)}`, l.email && `信箱 ${text(l.email)}`].filter(Boolean).join('・')}</small>` : ''}
       ${nxt}
-      ${(!l.mail_sent && k !== 'other') || (l.next_step && !l.next_done) ? `<div class="bdc-mini">${!l.mail_sent && k !== 'other' ? `<button type="button" data-bdc-sent="${l.id}">標記信已寄出</button>` : ''}${l.next_step && !l.next_done ? `<button type="button" data-bdc-done="${l.id}">這步做完了</button>` : ''}</div>` : ''}
+      ${(!l.mail_sent && k !== 'other') || (l.next_step && !l.next_done) || true ? `<div class="bdc-mini">${!l.mail_sent && k !== 'other' ? `<button type="button" data-bdc-sent="${l.id}">標記信已寄出</button>` : ''}${l.next_step && !l.next_done ? `<button type="button" data-bdc-done="${l.id}">這步做完了</button>` : ''}<button type="button" class="bd-del" data-action="bd-delete-record" data-kind="call" data-id="${l.id}" data-company="${escapeHtml(detail.company || '')}">刪除</button></div>` : ''}
     </div></li>`;
   };
+  const sysItem = (e) => `<li class="bdc-item sys"><span class="bdc-dot" aria-hidden="true">${ICON.mail}</span><div class="bdc-card bdc-sys"><div class="bdc-top"><span class="bdc-t">${text(e.label)}</span><span class="bdc-time">${text(mdTime(e.at))}　系統</span></div></div></li>`;
   return `<section class="bdc-logpane" data-bdc-logpane>
+    ${detail.markBtn ? `<div class="bdc-mark"><b>成交標記</b><small class="muted">談到職缺、成交時按這裡</small>${detail.markBtn}</div>` : ''}
     <h4 class="bdc-h">新增紀錄 <small>每一個動作都記一筆</small></h4>
     <div class="bdc-need" data-bdc-need hidden></div>
     <form class="bdc-form" data-bdc-form autocomplete="off">
@@ -166,7 +176,7 @@ export function bdLogPane(detail) {
       <div class="bdc-actions"><button type="submit" class="bdc-btn primary">存這筆紀錄</button></div>
     </form>
     <h4 class="bdc-h">全部紀錄 <small>共 ${logs.length} 筆</small></h4>
-    ${logs.length ? `<ol class="bdc-tl">${logs.map(item).join('')}</ol>` : '<p class="help">還沒有紀錄。打完電話或寄完信，在上面記一筆。</p>'}
+    ${logs.length || sys.length ? `<ol class="bdc-tl">${[...logs.map((l) => ({ at: logTime(l), html: item(l) })), ...sys.map((e) => ({ at: e.at, html: sysItem(e) }))].sort((a, b) => String(b.at).localeCompare(String(a.at))).map((x) => x.html).join('')}</ol>` : '<p class="help">還沒有紀錄。打完電話或寄完信，在上面記一筆。</p>'}
   </section>`;
 }
 
