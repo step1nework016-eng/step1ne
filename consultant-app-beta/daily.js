@@ -3,6 +3,8 @@
 // 今日摘要 TXT、話術複製、漏斗目標條、今日下一步——功能與資料格式都沿用原檔。
 // 資料仍存在這個瀏覽器（localStorage，鍵名與原檔相同：headhunter-v2-日期），原檔以前記的資料會直接看到。
 import { escapeHtml } from './core/security.js';
+import { api } from './core/api.js';
+import { adapters } from './adapters.js';
 
 const schedules=[['09:00–09:30','盤點與選 Top 3','確認客戶／人才待辦及三個主攻職缺'],['09:30–10:00','104 後台篩企業','建立 A/B/C 名單與開發理由'],['10:00–11:30','企業 BD 第一輪','聯繫 A 級企業，確認痛點與訪談機會'],['11:30–12:00','企業追蹤與資料寄送','更新狀態、寄資料、排下次跟進'],['12:00–13:00','午餐休息','休息；非必要不排工作'],['13:00–13:40','Top 3 人才地圖','職稱、競業、技能、地區、關鍵字'],['13:40–15:30','主動搜尋人才','跨平台新增名單並做初步匹配'],['15:30–16:30','人選接觸與分享機會','私訊／電話／Email；安排洽談'],['16:30–17:10','發布渠道決策','選渠道、發布／測試、記錄來源'],['17:10–17:30','17:30 洽談準備','履歷、轉職動機、薪資、適合職缺'],['17:30–18:10','已約人選洽談','確認條件、意願、下一步'],['18:10–18:30','洽談紀錄','更新 CRM、履歷、送件條件'],['18:30–19:20','晚間人選 Follow-up','追蹤在職人選；尊重聯絡時段'],['19:20–20:00','數據收盤','更新漏斗、卡點、明日 Top 3']];
 const schemas={bd:[['company','企業'],['job','104 職缺／來源'],['priority','優先','A|B|C'],['contact','窗口'],['method','聯繫方式'],['stage','階段','待篩選|待聯繫|已聯繫未接通|已接觸|有效對話|需求訪談已約|寄送資料|談合約|正式委託|暫不需要|停止開發'],['pain','痛點／需求'],['nextDate','跟進日','date'],['next','下一步']],candidate:[['name','人選'],['job','職缺'],['source','來源'],['contact','聯繫索引'],['stage','階段','名單建立|已聯繫|已回覆|已約洽談|已洽談|合格待同意|已同意推薦|已送件|客戶面試|Offer|到職|不適合'],['notes','條件'],['nextDate','跟進日','date'],['next','下一步']],channel:[['job','職缺'],['platform','平台'],['date','發布日','date'],['views','曝光','number'],['dm','私訊','number'],['line','LINE','number'],['talk','洽談','number'],['submit','送件','number'],['next','優化']]};
@@ -14,6 +16,54 @@ let state = null;
 let scriptIdx = 0;
 let currentTab = 'overview';
 let boundUnload = false;
+// ── 系統資料（2026-10-14）：先選顧問，再把「他名下」的開發進度與人選從後台讀進來 ──
+const OWNER_KEY = 's1ne_candidate_owner';   // 跟人選工作台共用同一個「我是誰」
+let consultants = null;
+let sys = { owner: localStorage.getItem(OWNER_KEY) || '', loading: false, error: '', bd: [], cands: [], at: '' };
+const BD_STAGE_MAP = { '還沒聯繫': '待聯繫', '已聯繫': '已接觸', '有興趣': '有效對話', '已寄資料': '寄送資料', '談需求': '需求訪談已約', '簽約': '正式委託', '沒興趣': '停止開發', '暫緩': '暫不需要' };
+const CAND_STAGE_MAP = { client: '已送件', interviewed: '已洽談', new: '名單建立' };
+const todayStr = () => new Date().toLocaleDateString('en-CA');
+const consultantName = () => { const c = (consultants || []).find((x) => x.id === sys.owner); return c ? c.display_name : ''; };
+async function loadConsultants() {
+  if (consultants) return consultants;
+  try { consultants = (await api.get('/admin/consultants')).consultants || []; } catch { consultants = []; }
+  consultants = consultants.filter((c) => c.is_active);
+  if (!sys.owner && consultants.length === 1) sys.owner = consultants[0].id;
+  return consultants;
+}
+async function loadSystem(force) {
+  if (!sys.owner) { sys.bd = []; sys.cands = []; sys.error = ''; return; }
+  if (!force && sys.at && sys.loadedFor === sys.owner) return;
+  sys.loading = true; sys.error = '';
+  try {
+    const name = consultantName();
+    const [b, c] = await Promise.all([api.get('/admin/bd/dashboard'), adapters.candidates(sys.owner)]);
+    sys.bd = (b.rows || []).filter((r) => r.assigned_to === name && !r.ai_untouched);
+    sys.cands = c || [];
+    sys.at = new Date().toLocaleTimeString('zh-TW', { hour12: false }); sys.loadedFor = sys.owner;
+  } catch (e) { sys.error = (e && e.message) || '讀取失敗'; }
+  sys.loading = false;
+}
+const dueOf = (r) => String(r.next_due || '').slice(0, 10);
+function sysBdRows() {
+  const t = todayStr();
+  return sys.bd.slice().sort((a, b) => (dueOf(a) || '9999').localeCompare(dueOf(b) || '9999')).map((r) => ({ ...r, _due: dueOf(r), _overdue: dueOf(r) && dueOf(r) <= t }));
+}
+function sysSummary() {
+  const t = todayStr();
+  const calledToday = sys.bd.filter((r) => String(r.last_call_at || '').slice(0, 10) === t).length;
+  const mailedToday = sys.bd.filter((r) => String(r.contacted_at || '').slice(0, 10) === t).length;
+  const due = sys.bd.filter((r) => dueOf(r) && dueOf(r) <= t).length;
+  const hot = sys.bd.filter((r) => r.tag === 'HOT' || r.tag === 'WARM').length;
+  const newCand = sys.cands.filter((c) => String(c.updatedAt || '').slice(0, 10) === t).length;
+  return [['開發進度公司', sys.bd.length], ['今天有通話紀錄', calledToday], ['今天寄過信', mailedToday], ['到期／逾期跟進', due], ['HOT／WARM 公司', hot], ['名下人選', sys.cands.length], ['今天新進人選', newCand]];
+}
+function sysBar() {
+  const opts = (consultants || []).map((c) => `<option value="${esc(c.id)}" ${c.id === sys.owner ? 'selected' : ''}>${esc(c.display_name)}</option>`).join('');
+  const status = !sys.owner ? '請先選顧問，才會顯示他的資料' : sys.loading ? '讀取中…' : sys.error ? `<span class="dly-danger">讀取失敗：${esc(sys.error)}</span>` : `已載入 ${esc(sys.at)}（${esc(consultantName())}）`;
+  return `<div class="card dly-row dly-sysbar"><div class="dly-field"><label>我是哪位顧問</label><select id="dly-owner"><option value="">請選擇…</option>${opts}</select></div>
+  <button class="btn" data-dly="sysRefresh" ${sys.owner ? '' : 'disabled'}>重新讀取系統資料</button><span class="dly-hint">${status}</span></div>`;
+}
 const esc = escapeHtml;
 const key = () => 'headhunter-v2-' + day;
 const fresh = () => ({ top3: '', schedule: schedules.map(() => ({ done: false, note: '' })), bd: [], candidate: [], channel: [], reviewBd: '', reviewTalent: '', reviewTomorrow: '', reviewBlock: '' });
@@ -41,7 +91,7 @@ function download(name, text, type) {
 const count = (type, fn) => state[type].filter(fn).length;
 
 function toolbar() {
-  return `<div class="card dly-row"><div class="dly-field"><label>工作日期</label><input id="dly-day" type="date" value="${esc(day)}"></div>
+  return sysBar() + `<div class="card dly-row"><div class="dly-field"><label>工作日期</label><input id="dly-day" type="date" value="${esc(day)}"></div>
   <div class="dly-field"><label>今日 Top 3 職缺（以 / 分隔）</label><input id="dly-top3" style="min-width:290px" placeholder="會計 / BIM / 營運主管" value="${esc(state.top3)}"></div>
   <button class="btn primary" data-dly="save">儲存今天</button><button class="btn" data-dly="exportJSON">匯出 JSON 備份</button>
   <button class="btn" data-dly="importPick">匯入備份</button><input id="dly-import" type="file" accept=".json" hidden>
@@ -52,9 +102,11 @@ function sectionOverview() {
   const vals = [['104 企業名單', bd.length], ['企業已接觸', count('bd', (x) => x.stage && !['待篩選', '待聯繫'].includes(x.stage))], ['有效企業對話', count('bd', (x) => ['有效對話', '需求訪談已約', '寄送資料', '談合約', '正式委託'].includes(x.stage))], ['已約需求訪談', count('bd', (x) => x.stage === '需求訪談已約')], ['人才名單', c.length], ['已接觸人才', count('candidate', (x) => x.stage && x.stage !== '名單建立')], ['已洽談人才', count('candidate', (x) => ['已洽談', '合格待同意', '已同意推薦', '已送件', '客戶面試', 'Offer', '到職'].includes(x.stage))], ['已送件人才', count('candidate', (x) => ['已送件', '客戶面試', 'Offer', '到職'].includes(x.stage))], ['渠道實驗', ch.length], ['時段完成', state.schedule.filter((x) => x.done).length + '/' + schedules.length]];
   const goals = [['新增企業名單', bd.length, 15], ['企業實際接觸', vals[1][1], 10], ['有效企業對話', vals[2][1], 3], ['人才名單', c.length, 15], ['人才接觸', vals[5][1], 10], ['人才洽談', vals[6][1], 2], ['渠道動作', ch.length, 2]];
   const pending = [...bd.filter((x) => x.nextDate && x.nextDate <= day).map((x) => '🏢 ' + (x.company || '未命名企業') + '｜' + (x.next || '待跟進')), ...c.filter((x) => x.nextDate && x.nextDate <= day).map((x) => '👤 ' + (x.name || '未命名人選') + '｜' + (x.next || '待跟進'))];
-  return `<div class="dly-grid">${vals.map(([n, v]) => `<div class="card"><div class="dly-small">${esc(n)}</div><div class="dly-metric">${esc(v)}</div></div>`).join('')}</div>
+  const sysDue = sysBdRows().filter((r) => r._overdue).map((r) => '🏢 ' + r.company + '｜' + (r.next_step || '待跟進') + (r._due ? '（' + r._due + '）' : ''));
+  const sysCard = sys.owner ? `<div class="card"><h2>系統資料｜${esc(consultantName())}</h2><div class="dly-grid">${sysSummary().map(([n, v]) => `<div class="card" style="margin:0"><div class="dly-small">${esc(n)}</div><div class="dly-metric">${esc(v)}</div></div>`).join('')}</div><p class="dly-hint">這些數字直接來自顧問後台（開發進度、人選工作台），不是手動填的。下面的「今日漏斗與目標」是你自己記的表格。</p></div>` : '';
+  return `${sysCard}<div class="dly-grid">${vals.map(([n, v]) => `<div class="card"><div class="dly-small">${esc(n)}</div><div class="dly-metric">${esc(v)}</div></div>`).join('')}</div>
   <div class="card"><h2>今日漏斗與目標</h2>${goals.map(([n, v, g]) => `<div style="margin:12px 0"><div class="dly-row"><b>${esc(n)}</b><span class="dly-right dly-small">${v} / ${g}</span></div><div class="dly-progress"><div style="width:${Math.min(100, v / g * 100)}%"></div></div></div>`).join('')}</div>
-  <div class="card"><h2>今日下一步</h2>${pending.length ? pending.map((x) => `<p>• ${esc(x)}</p>`).join('') : '<p class="dly-hint">沒有已登錄的當日到期跟進事項。請確認每筆有效對話都設定下一步日期。</p>'}</div>
+  <div class="card"><h2>今日下一步</h2>${sysDue.length ? `<p class="dly-small">系統：到期或逾期的開發跟進</p>${sysDue.map((x) => `<p>• ${esc(x)}</p>`).join('')}` : ''}${pending.length ? pending.map((x) => `<p>• ${esc(x)}</p>`).join('') : (sysDue.length ? '' : '<p class="dly-hint">沒有已登錄的當日到期跟進事項。請確認每筆有效對話都設定下一步日期。</p>')}</div>
   <p class="dly-hint">數字為起始管理目標，不代表保證轉換率；每週依實際數據調整。有效對話需有雙向互動及具體資訊，不能把未接通計入。</p>`;
 }
 function sectionSchedule() {
@@ -65,6 +117,41 @@ const TABLE_META = {
   candidate: ['人才搜尋與洽談紀錄', '＋新增人選', '只紀錄必要的工作資訊；避免在本地 HTML 放置身分證、完整履歷、敏感個資。對外推薦前確認人選同意。'],
   channel: ['職缺發布渠道實驗', '＋新增渠道', '']
 };
+function sysTableBd() {
+  if (!sys.owner) return '<div class="card"><h2>系統資料：開發進度</h2><p class="dly-hint">請先在上面選顧問。</p></div>';
+  const rows = sysBdRows();
+  return `<div class="card"><div class="dly-row"><h2>系統資料：${esc(consultantName())} 的開發進度 <span class="dly-small">${rows.length} 家</span></h2><button class="btn primary dly-right" data-dly="importBd">全部匯入我的表格（略過已有的公司）</button></div>
+  <p class="dly-hint">直接來自顧問後台「客戶 / BD → 開發進度」。依下次跟進日排序，到期或逾期的標紅。</p>
+  <div class="dly-scroll"><table class="dly-table"><thead><tr><th>公司</th><th>階段</th><th>標籤</th><th>窗口</th><th>電話</th><th>下次跟進</th><th>下一步</th><th>最近通話</th></tr></thead><tbody>${rows.map((r) => `<tr><td><b>${esc(r.company)}</b></td><td>${esc(r.bd_stage || '')}</td><td>${esc(r.tag || '')}</td><td>${esc(r.hr_contact || r.contact_name || '')}</td><td>${esc(r.call_phone || r.company_phone || '')}</td><td class="${r._overdue ? 'dly-danger' : ''}">${esc(r._due)}</td><td>${esc(r.next_step || '')}</td><td>${esc(String(r.last_call_at || '').slice(0, 16))}</td></tr>`).join('') || '<tr><td colspan="8" class="dly-hint">這位顧問目前沒有開發進度的公司。</td></tr>'}</tbody></table></div></div>`;
+}
+function sysTableCand() {
+  if (!sys.owner) return '<div class="card"><h2>系統資料：人選</h2><p class="dly-hint">請先在上面選顧問。</p></div>';
+  const rows = sys.cands;
+  return `<div class="card"><div class="dly-row"><h2>系統資料：${esc(consultantName())} 名下的人選 <span class="dly-small">${rows.length} 位</span></h2><button class="btn primary dly-right" data-dly="importCand">全部匯入我的表格（略過已有的代號）</button></div>
+  <p class="dly-hint">直接來自顧問後台「人選」工作台。人選用系統編號（S-xxx）。</p>
+  <div class="dly-scroll"><table class="dly-table"><thead><tr><th>編號</th><th>應徵職缺</th><th>推薦給</th><th>目前階段</th><th>分流</th><th>期望／備註</th></tr></thead><tbody>${rows.map((c) => `<tr><td><b>S-${esc(String(c.seqNo || '').padStart(3, '0'))}</b></td><td>${esc(c.job)}</td><td>${esc(c.clientName && c.clientName !== '（未綁客戶）' ? c.clientName : '')}</td><td>${esc(c.stage)}</td><td>${esc(c.routeLabel || '')}</td><td>${esc(c.expected || '')}</td></tr>`).join('') || '<tr><td colspan="6" class="dly-hint">這位顧問名下目前沒有人選。</td></tr>'}</tbody></table></div></div>`;
+}
+function importBd() {
+  const have = new Set(state.bd.map((x) => (x.company || '').trim()));
+  let n = 0;
+  sysBdRows().forEach((r) => {
+    if (have.has(r.company)) return;
+    state.bd.push({ company: r.company, job: r.job_title || r.topic || '', priority: r.tag === 'HOT' ? 'A' : r.tag === 'WARM' ? 'B' : 'C', contact: r.hr_contact || r.contact_name || '', method: r.call_phone || r.company_phone || '', stage: BD_STAGE_MAP[r.bd_stage] || (r.contacted_at ? '已接觸' : '待聯繫'), pain: r.topic || '', nextDate: r._due || '', next: r.next_step || '' });
+    n += 1;
+  });
+  return n;
+}
+function importCand() {
+  const have = new Set(state.candidate.map((x) => (x.name || '').trim()));
+  let n = 0;
+  sys.cands.forEach((c) => {
+    const code = 'S-' + String(c.seqNo || '').padStart(3, '0');
+    if (have.has(code)) return;
+    state.candidate.push({ name: code, job: c.job || '', source: c.source || '', contact: '', stage: CAND_STAGE_MAP[c.stage] || '已洽談', notes: c.expected || '', nextDate: '', next: '' });
+    n += 1;
+  });
+  return n;
+}
 function sectionTable(type) {
   const [title, addLabel, hint] = TABLE_META[type];
   const cols = schemas[type];
@@ -73,7 +160,8 @@ function sectionTable(type) {
     : `<input type="${kind === 'date' ? 'date' : kind === 'number' ? 'number' : 'text'}" ${kind === 'number' ? 'min="0"' : ''} placeholder="${esc(label)}" value="${esc(row[k])}" data-t="${type}" data-i="${i}" data-k="${k}">`}</td>`).join('')}<td><button class="btn dly-danger" data-dly="rm:${type}:${i}">刪除</button></td></tr>`).join('')
     || `<tr><td colspan="${cols.length + 1}" class="dly-hint">尚無資料，請點「新增」。</td></tr>`;
   const extra = type === 'channel' ? '<div class="card"><h3>渠道判斷速查</h3><p>新鮮人：Threads／IG／校園；在地工程：地方社團／專業社群；財會：同業人才地圖／LinkedIn／財會社群；中高階：競業 Mapping／LinkedIn／轉介紹；日本：在日社群／LinkedIn／日本職涯平台。先確認各平台規範及是否允許招募貼文。</p></div>' : '';
-  return `<div class="card"><div class="dly-row"><h2>${esc(title)}</h2><button class="btn primary dly-right" data-dly="add:${type}">${addLabel}</button><button class="btn" data-dly="csv:${type}">匯出 CSV</button></div>${hint ? `<p class="dly-hint">${esc(hint)}</p>` : ''}<div class="dly-scroll"><table class="dly-table"><thead><tr>${cols.map((c) => `<th>${esc(c[1])}</th>`).join('')}<th>操作</th></tr></thead><tbody>${rows}</tbody></table></div></div>${extra}`;
+  const sysBlock = type === 'bd' ? sysTableBd() : type === 'candidate' ? sysTableCand() : '';
+  return `${sysBlock}<div class="card"><div class="dly-row"><h2>${esc(title)}</h2><button class="btn primary dly-right" data-dly="add:${type}">${addLabel}</button><button class="btn" data-dly="csv:${type}">匯出 CSV</button></div>${hint ? `<p class="dly-hint">${esc(hint)}</p>` : ''}<div class="dly-scroll"><table class="dly-table"><thead><tr>${cols.map((c) => `<th>${esc(c[1])}</th>`).join('')}<th>操作</th></tr></thead><tbody>${rows}</tbody></table></div></div>${extra}`;
 }
 function sectionScripts() {
   const s = scripts[scriptIdx];
@@ -106,11 +194,14 @@ function exportSummary(root) {
 
 export const DAILY_TABS = [['overview', '📊 總覽'], ['schedule', '🕘 每日行程'], ['bd', '🏢 企業 BD'], ['candidate', '👤 人才追蹤'], ['channel', '📣 渠道追蹤'], ['scripts', '💬 分階段話術'], ['review', '📝 收盤檢討']];
 
-export function loadDailyTab(target, tab) {
+export async function loadDailyTab(target, tab) {
   currentTab = TABS.includes(tab) ? tab : 'overview';
   if (!state) load();
+  await loadConsultants();
+  if (!target.isConnected) return;
   if (!boundUnload) { boundUnload = true; window.addEventListener('beforeunload', () => { const r = document.querySelector('.dly'); if (r && state) { collect(r); persist(); } }); }
   draw(target);
+  if (sys.owner && (!sys.at || sys.loadedFor !== sys.owner)) { sys.loading = true; draw(target); loadSystem(false).then(() => { if (target.isConnected) { collect(target.querySelector('.dly')); draw(target); } }); }
   const root = () => target.querySelector('.dly');
   const refresh = () => { collect(root()); persist(); draw(target); };
   target.oninput = (e) => {
@@ -121,6 +212,12 @@ export function loadDailyTab(target, tab) {
   };
   target.onchange = (e) => {
     const t = e.target;
+    if (t.id === 'dly-owner') {
+      sys.owner = t.value; try { localStorage.setItem(OWNER_KEY, sys.owner); } catch { /* 沒關係 */ }
+      sys.at = ''; sys.loadedFor = ''; sys.bd = []; sys.cands = []; collect(root()); persist(); draw(target);
+      if (sys.owner) { sys.loading = true; draw(target); loadSystem(true).then(() => { if (target.isConnected) draw(target); }); }
+      return;
+    }
     if (t.id === 'dly-day') { collect(root()); persist(); day = t.value || day; load(); draw(target); return; }
     if (t.dataset && t.dataset.sdone !== undefined) { state.schedule[t.dataset.sdone].done = t.checked; persist(); return; }
     if (t.dataset && t.dataset.t && t.tagName === 'SELECT') { state[t.dataset.t][t.dataset.i][t.dataset.k] = t.value; persist(); return; }
@@ -144,6 +241,9 @@ export function loadDailyTab(target, tab) {
     if (act === 'save') { collect(root()); persist(); b.textContent = '已儲存 ✓'; setTimeout(() => { b.textContent = tab === 'review' ? '儲存檢討' : '儲存今天'; }, 1200); return; }
     if (act === 'exportJSON') { collect(root()); persist(); download('獵頭儀表板_' + day + '.json', JSON.stringify({ date: day, state }, null, 2), 'application/json'); return; }
     if (act === 'importPick') { target.querySelector('#dly-import').click(); return; }
+    if (act === 'sysRefresh') { sys.loading = true; collect(root()); draw(target); loadSystem(true).then(() => { if (target.isConnected) draw(target); }); return; }
+    if (act === 'importBd') { const n = importBd(); persist(); draw(target); alert('已匯入 ' + n + ' 家'); return; }
+    if (act === 'importCand') { const n = importCand(); persist(); draw(target); alert('已匯入 ' + n + ' 位'); return; }
     if (act === 'add') { state[type].push({}); refresh(); return; }
     if (act === 'rm') { if (!confirm('確定刪除此筆紀錄？')) return; state[type].splice(Number(idx), 1); refresh(); return; }
     if (act === 'csv') { exportCSV(type); return; }

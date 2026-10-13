@@ -41,7 +41,7 @@ export const adapters = {
       source: value(item, 'origin', 'source_label', 'source_channel', 'utm_source'), stage: value(item, 'tab', 'manual_stage', 'status', 'stage'),
       updatedAt: value(item, 'created_at', 'last_activity_at', 'updated_at'),
       duplicate: value(item, 'dup_notice', 'duplicate_notice'),
-      clientName: value(item, 'client_name'), seqNo: value(item, 'seq_no'), hardGate: value(item, 'hard_gate'),
+      clientName: value(item, 'client_name'), seqNo: value(item, 'seq_no'), hardGate: value(item, 'hard_gate'), expected: value(item, 'expected_salary'),
       aiDone: value(item, 'ai_done'), evaluated: value(item, 'evaluated'), pushed: value(item, 'pushed'),
       // 2026-09-21 加：阿財分流 A–E，卡片跟表格都要顯示，顧問一眼看出先打給誰。
       routeCode: value(item, 'route_code'), routeLabel: value(item, 'route_label'),
