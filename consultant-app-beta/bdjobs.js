@@ -8,9 +8,9 @@ import { toast } from './core/ui.js';
 import { escapeHtml, text } from './core/security.js';
 
 const MAX = 10;
-// 公司名稱粗略比對（拿掉「股份有限公司」「(總公司)」之類，再看有沒有互相包含）
+// 公司名稱粗略比對（拿掉括號裡的字和公司型態字樣，再看有沒有互相包含）
 const sameCorp = (a, b) => {
-  const n = (x) => String(x || '').replace(/[（(][^）)]*[）)]/g, '').replace(/股份有限公司|有限公司|公司|台灣|臺灣/g, '').replace(/\s/g, '');
+  const n = (x) => String(x || '').replace(/[（(][^）)]*[）)]/g, '').replace(/\u80a1\u4efd\u6709\u9650\u516c\u53f8|\u6709\u9650\u516c\u53f8|\u516c\u53f8|\u53f0\u7063|\u81fa\u7063/g, '').replace(/\s/g, '');
   const x = n(a); const y = n(b);
   return !x || !y || x.includes(y) || y.includes(x);
 };
