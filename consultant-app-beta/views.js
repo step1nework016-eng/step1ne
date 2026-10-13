@@ -1,3 +1,4 @@
+import { DAILY_TABS } from './daily.js';
 import { escapeHtml, text } from './core/security.js';
 import { statusBadge } from './core/status.js';
 
@@ -214,8 +215,8 @@ export const views = {
   board: (tab = 'cand') => pageHead('進度看板', '每一欄是一個階段，每張卡是一個人選或一家客戶。左邊有紅線的＝在這關停太久，該追了。')
     + tabbar('board', [['cand', '人選'], ['client', '客戶']], tab === 'client' ? 'client' : 'cand') + `<div id="page-data">${endpointState('進度看板')}</div>`,
   // 2026-10-14 Jacky：把他的「獵頭顧問每日作戰儀表板」放進顧問後台測試版當一個分頁。
-  // 內容是他給的原檔 headhunter_daily_dashboard.html，原封不動用 iframe 嵌入（保留原本 UIUX，內部 7 個分頁照舊）；之後要接後台資料再另外處理。
-  daily: (tab='orig') => pageHead('每日工作台','每天的流程、做了什麼、反思與回味。資料存在這個瀏覽器，不會上傳。') + tabbar('daily',[['orig','原版儀表板']],'orig') + `<div id="page-data" class="daily-frame"></div>`,
+  // 他的「獵頭顧問每日作戰儀表板」原檔，功能整合進後台（見 daily.js），7 個分頁就是原檔的 7 個分頁。
+  daily: (tab) => pageHead('每日工作台','每天的流程、做了什麼、反思與回味。資料存在這個瀏覽器，不會上傳。') + tabbar('daily',DAILY_TABS,tab || 'overview') + `<div id="page-data"></div>`,
   home: () => pageHead('今天先做什麼？','首頁只呈現待處理工作與風險，不用先讀整份儀表板。','<button class="btn primary" data-route="candidates">進入人選工作台</button>') + `<div id="page-data">${endpointState('今日工作')}</div>`,
   // 2026-09-15 驗證：/admin/overview 實際形狀是 {funnel,verdicts,agree,byJob,todo}，沒有
   // pending_review/client_pending/alerts 這幾個欄位（之前這三張 KPI 卡一直顯示假的 0）。

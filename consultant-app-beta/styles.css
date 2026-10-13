@@ -1149,5 +1149,21 @@ details.note-details p{margin:8px 0 0;font-size:13.5px;white-space:pre-wrap;colo
 .bdc-mark{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;border:1px solid var(--line);border-radius:12px;background:#fff;padding:10px 14px;margin:0 0 12px}
 .bdc-mini .bd-del{color:#a72f3a}
 
-/* 每日工作台：iframe 佔滿內容區 */
-.daily-frame{margin:0}.daily-iframe{width:100%;height:calc(100vh - 210px);min-height:560px;border:1px solid var(--line,#d5dee6);border-radius:12px;background:#fff;display:block}
+/* 每日工作台（原檔「獵頭顧問每日作戰儀表板」的版面，限定在 .dly 底下，不影響後台其他頁面） */
+.dly .card{background:#fff;border:1px solid #dce4ef;border-radius:13px;padding:18px;margin-bottom:16px;box-shadow:0 2px 7px #1d35570a}
+.dly h2{font-size:20px;margin:4px 0 16px}.dly h3{font-size:16px;margin:0 0 12px}
+.dly-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:13px}.dly-grid .card{margin-bottom:0}
+.dly-metric{font-size:29px;font-weight:800;color:#1d4ed8}.dly-small,.dly-hint{color:#66758c;font-size:13px}
+.dly-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.dly-right{margin-left:auto}
+.dly-field{display:flex;flex-direction:column;gap:4px}.dly-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.dly label{display:block;font-size:13px;color:#53647c;margin-bottom:5px}
+.dly input,.dly select,.dly textarea{font:inherit;border:1px solid #cbd5e1;border-radius:7px;padding:8px;background:#fff;max-width:100%}
+.dly textarea{width:100%;min-height:96px}
+.dly-scroll{overflow-x:auto}.dly-table{border-collapse:collapse;width:100%;min-width:820px;font-size:13px}
+.dly-table th,.dly-table td{border-bottom:1px solid #dce4ef;padding:10px 7px;text-align:left;vertical-align:middle}
+.dly-table th{background:#edf3ff;color:#334766}.dly-table td input,.dly-table td select{width:100%;min-width:95px}
+.dly-table td input[type=checkbox]{min-width:0;width:18px;height:18px}
+.dly-progress{height:8px;background:#e7edf6;border-radius:10px;overflow:hidden;margin:8px 0}.dly-progress>div{height:100%;background:#2563eb}
+.dly-script{white-space:pre-wrap;line-height:1.85;background:#f5f8ff;padding:16px;border-radius:9px;border:1px solid #dce4ef}
+.dly-danger{color:#b91c1c}
+@media(prefers-color-scheme:dark){.dly .card{background:#16212b;border-color:#2a3a47}.dly input,.dly select,.dly textarea{background:#16212b;color:inherit;border-color:#2a3a47}.dly-table th{background:#1c2a35;color:#b8cad6}.dly-script{background:#122029;border-color:#2a3a47}.dly-metric{color:#7fb0ff}}
