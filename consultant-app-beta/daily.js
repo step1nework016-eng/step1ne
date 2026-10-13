@@ -20,7 +20,7 @@ let boundUnload = false;
 // ── 系統資料（2026-10-14）：先選顧問，再把「他名下」的開發進度與人選從後台讀進來 ──
 const OWNER_KEY = 's1ne_candidate_owner';   // 跟人選工作台共用同一個「我是誰」
 let consultants = null;
-let sys = { owner: localStorage.getItem(OWNER_KEY) || '', loading: false, error: '', bd: [], cands: [], posts: [], at: '', postsAt: '', postsErr: '', chFilter: '' };
+let sys = { owner: localStorage.getItem(OWNER_KEY) || '', loading: false, error: '', bd: [], cands: [], posts: [], at: '', postsAt: '', postsErr: '', chFilter: '', chAccount: '', chView: 'overview' };
 const BD_STAGE_MAP = { '還沒聯繫': '待聯繫', '已聯繫': '已接觸', '有興趣': '有效對話', '已寄資料': '寄送資料', '談需求': '需求訪談已約', '簽約': '正式委託', '沒興趣': '停止開發', '暫緩': '暫不需要' };
 const CAND_STAGE_MAP = { client: '已送件', interviewed: '已洽談', new: '名單建立' };
 const todayStr = () => new Date().toLocaleDateString('en-CA');
@@ -55,7 +55,7 @@ async function loadPosts(force) {
     sys.postsAt = new Date().toLocaleTimeString('zh-TW', { hour12: false });
   } catch (e) { sys.postsErr = (e && e.message) || '讀取失敗'; }
 }
-const postsShown = () => sys.posts.filter((p) => !sys.chFilter || p.consultant_name === sys.chFilter);
+const postsShown = () => sys.posts.filter((p) => (!sys.chFilter || p.consultant_name === sys.chFilter) && (!sys.chAccount || p.account_label === sys.chAccount));
 const dueOf = (r) => String(r.next_due || '').slice(0, 10);
 function sysBdRows() {
   const t = todayStr();
@@ -149,15 +149,37 @@ function sysTableCand() {
     return `<tr data-application="${esc(c.applicationId)}" style="cursor:pointer"><td><small class="dly-small">${c.seqNo ? '#' + esc(c.seqNo) : ''}</small> <b>${esc(c.name)}</b>${c.lineBound ? ' <span class="badge success">LINE</span>' : ''}</td><td>${esc(c.job)}</td><td>${bound ? esc(c.clientName) : '—'}</td><td>${statusBadge(c.stage)}</td><td>${routeTag(c)}</td><td>${esc(contact)}</td><td>${esc(c.expected || '')}</td><td>${esc(String(c.updatedAt || '').slice(0, 16))}</td></tr>`;
   }).join('') || '<tr><td colspan="8" class="dly-hint">這位顧問名下目前沒有人選。</td></tr>'}</tbody></table></div></div>`;
 }
+const num0 = (v) => Number(v) || 0;
+const nShow = (v) => (v === null || v === undefined || v === '' ? '' : v);
+function chAggregate(list) {
+  const m = new Map();
+  list.forEach((p) => {
+    const k = p.account_label || '(未命名帳號)';
+    if (!m.has(k)) m.set(k, { account: k, consultant: p.consultant_name || '', platform: p.account_platform || '', posts: 0, views: 0, likes: 0, replies: 0, clicks: 0, line: 0, apps: 0, dm: 0, talk: 0, submit: 0 });
+    const a = m.get(k);
+    a.posts += 1; a.views += num0(p.views); a.likes += num0(p.likes); a.replies += num0(p.replies); a.clicks += num0(p.clicks); a.line += num0(p.line_adds); a.apps += num0(p.applicants_attributed); a.dm += num0(p.dm_contacts); a.talk += num0(p.valid_inquiries); a.submit += num0(p.submitted_candidates);
+  });
+  return [...m.values()].sort((x, y) => y.views - x.views);
+}
 function sysTableCh() {
-  const n = (v) => (v === null || v === undefined || v === '' ? '' : v);
+  const accounts = [...new Set(sys.posts.map((p) => p.account_label).filter(Boolean))];
   const names = [...new Set(sys.posts.map((p) => p.consultant_name).filter(Boolean))];
-  const rows = postsShown();
-  const sel = `<div class="dly-field"><label>看哪位顧問的貼文</label><select id="dly-chFilter"><option value="">全部顧問</option>${names.map((x) => `<option value="${esc(x)}" ${x === sys.chFilter ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select></div>`;
   const st = sys.postsErr ? `<span class="dly-danger">讀取失敗：${esc(sys.postsErr)}</span>` : sys.postsAt ? `已載入 ${esc(sys.postsAt)}` : '讀取中…';
-  return `<div class="card"><div class="dly-row"><h2>系統資料：社群貼文成效（全部顧問） <span class="dly-small">${rows.length} 則</span></h2>${sel}<button class="btn" data-dly="postsRefresh">重新讀取</button><span class="dly-hint">${st}</span><button class="btn primary dly-right" data-dly="importCh">全部匯入我的表格（略過已有的貼文）</button></div>
-  <p class="dly-hint">渠道追蹤是全公司的，<b>不會因為上面選的顧問而被限制</b>，所有顧問、所有帳號已發出的貼文都在這裡（後台只回傳最近 30 則）。曝光、按讚、留言是社群平台抓回來的；點擊、LINE 導入、應徵是系統用追蹤連結算的；私訊、有效洽談、送件是各顧問在「社群」那邊手動填的，沒填就空白。<b>點任何一列會開出那則貼文。</b></p>
-  <div class="dly-scroll"><table class="dly-table"><thead><tr><th>顧問</th><th>職缺</th><th>平台／帳號</th><th>發布時間</th><th>曝光</th><th>讚</th><th>留言</th><th>點擊</th><th>LINE 導入</th><th>應徵（系統歸因）</th><th>私訊</th><th>有效洽談</th><th>送件</th><th>貼文風格</th></tr></thead><tbody>${rows.map((p) => `<tr ${p.social_post_url ? `data-dly="openPost:${esc(p.queue_id)}" style="cursor:pointer"` : ''}><td>${esc(p.consultant_name)}</td><td><b>${esc(p.title)}</b></td><td>${esc(p.account_platform)}｜${esc(p.account_label)}</td><td>${esc(String(p.posted_at || p.social_post_at || '').slice(0, 16))}</td><td>${esc(n(p.views))}</td><td>${esc(n(p.likes))}</td><td>${esc(n(p.replies))}</td><td>${esc(n(p.clicks))}</td><td>${esc(n(p.line_adds))}</td><td>${esc(n(p.applicants_attributed))}</td><td>${esc(n(p.dm_contacts))}</td><td>${esc(n(p.valid_inquiries))}</td><td>${esc(n(p.submitted_candidates))}</td><td>${esc(p.style_name || '')}</td></tr>`).join('') || '<tr><td colspan="14" class="dly-hint">目前沒有已發出的社群貼文。</td></tr>'}</tbody></table></div></div>`;
+  const switcher = `<div class="dly-row" style="margin-bottom:10px"><div class="tabs dly-subtabs"><button class="${sys.chView === 'overview' ? 'active' : ''}" data-dly="chView:overview">📊 總覽（各帳號比較）</button><button class="${sys.chView === 'detail' ? 'active' : ''}" data-dly="chView:detail">🔎 帳號細項（逐則貼文）</button></div><button class="btn" data-dly="postsRefresh">重新讀取</button><span class="dly-hint">${st}</span></div>`;
+  const note = `<p class="dly-hint">渠道追蹤是全公司的，<b>不會因為上面選的顧問而被限制</b>（後台只回傳最近 30 則已發出的貼文）。曝光、按讚、留言是社群平台抓回來的；點擊、LINE 導入、應徵是系統用追蹤連結算的；私訊、有效洽談、送件是各顧問在「社群」那邊手動填的，沒填就空白。</p>`;
+  if (sys.chView === 'overview') {
+    const agg = chAggregate(sys.posts.filter((p) => !sys.chFilter || p.consultant_name === sys.chFilter));
+    const tot = agg.reduce((t, a) => { Object.keys(a).forEach((k) => { if (typeof a[k] === 'number') t[k] = (t[k] || 0) + a[k]; }); return t; }, {});
+    const filt = `<div class="dly-field" style="margin-bottom:8px"><label>只看哪位顧問的帳號</label><select id="dly-chFilter"><option value="">全部顧問</option>${names.map((x) => `<option value="${esc(x)}" ${x === sys.chFilter ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select></div>`;
+    return `<div class="card"><h2>系統資料：社群渠道總覽 <span class="dly-small">${agg.length} 個帳號、${tot.posts || 0} 則貼文</span></h2>${switcher}${note}${filt}
+    <div class="dly-scroll"><table class="dly-table"><thead><tr><th>帳號</th><th>顧問</th><th>平台</th><th>貼文數</th><th>曝光</th><th>平均曝光</th><th>讚</th><th>留言</th><th>點擊</th><th>LINE 導入</th><th>應徵（系統歸因）</th><th>私訊</th><th>有效洽談</th><th>送件</th></tr></thead><tbody>${agg.map((a) => `<tr data-dly="chAcct:${esc(a.account)}" style="cursor:pointer" title="點一下看這個帳號的逐則貼文"><td><b>${esc(a.account)}</b></td><td>${esc(a.consultant)}</td><td>${esc(a.platform)}</td><td>${a.posts}</td><td>${a.views}</td><td>${a.posts ? Math.round(a.views / a.posts) : 0}</td><td>${a.likes}</td><td>${a.replies}</td><td>${a.clicks}</td><td>${a.line}</td><td>${a.apps}</td><td>${a.dm}</td><td>${a.talk}</td><td>${a.submit}</td></tr>`).join('') || '<tr><td colspan="14" class="dly-hint">目前沒有已發出的社群貼文。</td></tr>'}${agg.length ? `<tr style="font-weight:700"><td>合計</td><td></td><td></td><td>${tot.posts}</td><td>${tot.views}</td><td>${tot.posts ? Math.round(tot.views / tot.posts) : 0}</td><td>${tot.likes}</td><td>${tot.replies}</td><td>${tot.clicks}</td><td>${tot.line}</td><td>${tot.apps}</td><td>${tot.dm}</td><td>${tot.talk}</td><td>${tot.submit}</td></tr>` : ''}</tbody></table></div>
+    <p class="dly-hint"><b>點任何一個帳號，就會切到這個帳號的逐則貼文。</b></p></div>`;
+  }
+  const rows = postsShown();
+  const selAcc = `<div class="dly-field"><label>帳號</label><select id="dly-chAccount"><option value="">全部帳號</option>${accounts.map((x) => `<option value="${esc(x)}" ${x === sys.chAccount ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select></div>`;
+  const selCon = `<div class="dly-field"><label>顧問</label><select id="dly-chFilter"><option value="">全部顧問</option>${names.map((x) => `<option value="${esc(x)}" ${x === sys.chFilter ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select></div>`;
+  return `<div class="card"><h2>系統資料：帳號細項（逐則貼文） <span class="dly-small">${rows.length} 則</span></h2>${switcher}${note}<div class="dly-row" style="margin-bottom:8px">${selAcc}${selCon}<button class="btn primary dly-right" data-dly="importCh">把這些貼文匯入我的表格（略過已有的）</button></div>
+  <div class="dly-scroll"><table class="dly-table"><thead><tr><th>顧問</th><th>職缺</th><th>平台／帳號</th><th>發布時間</th><th>曝光</th><th>讚</th><th>留言</th><th>點擊</th><th>LINE 導入</th><th>應徵（系統歸因）</th><th>私訊</th><th>有效洽談</th><th>送件</th><th>貼文風格</th></tr></thead><tbody>${rows.map((p) => `<tr ${p.social_post_url ? `data-dly="openPost:${esc(p.queue_id)}" style="cursor:pointer"` : ''}><td>${esc(p.consultant_name)}</td><td><b>${esc(p.title)}</b></td><td>${esc(p.account_platform)}｜${esc(p.account_label)}</td><td>${esc(String(p.posted_at || p.social_post_at || '').slice(0, 16))}</td><td>${esc(nShow(p.views))}</td><td>${esc(nShow(p.likes))}</td><td>${esc(nShow(p.replies))}</td><td>${esc(nShow(p.clicks))}</td><td>${esc(nShow(p.line_adds))}</td><td>${esc(nShow(p.applicants_attributed))}</td><td>${esc(nShow(p.dm_contacts))}</td><td>${esc(nShow(p.valid_inquiries))}</td><td>${esc(nShow(p.submitted_candidates))}</td><td>${esc(p.style_name || '')}</td></tr>`).join('') || '<tr><td colspan="14" class="dly-hint">這個條件下沒有已發出的貼文。</td></tr>'}</tbody></table></div><p class="dly-hint"><b>點任何一列會開出那則貼文。</b></p></div>`;
 }
 function importCh() {
   const key = (p) => String(p.title || '') + '|' + String(p.posted_at || '').slice(0, 10) + '|' + String(p.account_label || '');
@@ -253,6 +275,7 @@ export async function loadDailyTab(target, tab) {
   };
   target.onchange = (e) => {
     const t = e.target;
+    if (t.id === 'dly-chAccount') { sys.chAccount = t.value; collect(root()); draw(target); return; }
     if (t.id === 'dly-chFilter') { sys.chFilter = t.value; collect(root()); draw(target); return; }
     if (t.id === 'dly-owner') {
       sys.owner = t.value; try { localStorage.setItem(OWNER_KEY, sys.owner); } catch { /* 沒關係 */ }
@@ -285,6 +308,8 @@ export async function loadDailyTab(target, tab) {
     if (act === 'importPick') { target.querySelector('#dly-import').click(); return; }
     if (act === 'sysRefresh') { sys.loading = true; collect(root()); draw(target); loadSystem(true).then(() => { if (target.isConnected) draw(target); }); return; }
     if (act === 'importBd') { const n = importBd(); persist(); draw(target); alert('已匯入 ' + n + ' 家'); return; }
+    if (act === 'chView') { sys.chView = type; collect(root()); draw(target); return; }
+    if (act === 'chAcct') { sys.chAccount = b.getAttribute('data-dly').slice('chAcct:'.length); sys.chView = 'detail'; collect(root()); draw(target); return; }
     if (act === 'postsRefresh') { sys.postsAt = ''; draw(target); loadPosts(true).then(() => { if (target.isConnected) draw(target); }); return; }
     if (act === 'importCh') { const n = importCh(); persist(); draw(target); alert('已匯入 ' + n + ' 則'); return; }
     if (act === 'openPost') { const p = sys.posts.find((x) => String(x.queue_id) === String(type)); if (p && p.social_post_url) window.open(p.social_post_url, '_blank', 'noopener'); return; }
