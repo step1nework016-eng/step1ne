@@ -144,10 +144,15 @@ export function bdLogPane(detail) {
       <div class="bdc-seg" role="radiogroup" aria-label="做了什麼">${Object.entries(KIND_ZH).map(([v, lb], i) => `<label><input type="radio" name="kind" value="${v}"${i === 0 ? ' checked' : ''}><span>${lb}</span></label>`).join('')}</div>
       <div class="bdc-grid">
         <label class="bdc-f">時間<input type="datetime-local" name="event_at" value="${nowLocal()}" required></label>
-        <label class="bdc-f">結果<select name="result">${RESULTS.map(([v, lb]) => `<option value="${v}">${lb}</option>`).join('')}</select></label>
+        <label class="bdc-f" data-bdc-call>結果<select name="result">${RESULTS.map(([v, lb]) => `<option value="${v}">${lb}</option>`).join('')}</select></label>
         <label class="bdc-f">誰記的<select name="by">${people.map((x) => `<option${x === detail.assigned_to ? ' selected' : ''}>${text(x)}</option>`).join('')}</select></label>
         <div class="bdc-f full"><label class="bdc-check"><input type="checkbox" name="mail_sent"> 這次有寄信　<small class="muted">（勾了才記「已寄出」和時間）</small></label></div>
         <label class="bdc-f full">備註<textarea name="note" rows="3" placeholder="聊到什麼、對方說什麼"></textarea></label>
+        <div class="bdc-f full bdc-imp" data-bdc-call>
+          <div class="bdc-imp-h"><b>匯入電洽內容，讓 AI 整理</b><small class="muted">選填　AI 只用在這裡和「新增職缺」</small></div>
+          <textarea name="transcript" rows="4" placeholder="有通話逐字稿就貼這裡，AI 會整理重點和下一通的講法；上面的時間、階段、下一步照樣可以自己填"></textarea>
+          <input type="file" name="transcript_file" accept=".md,.txt,text/plain,text/markdown" aria-label="上傳逐字稿檔">
+        </div>
         <label class="bdc-f">客戶標籤調整<select name="tag"><option value="">不調整</option>${BD_TAGS.map((t) => `<option value="${t.k}">${t.k}　${text(t.zh)}</option>`).join('')}</select></label>
         <label class="bdc-f">階段調整<select name="stage">${stageOpts.map((s) => `<option value="${s}">${s || '不調整'}</option>`).join('')}</select></label>
         <label class="bdc-f">下一步到期日<input type="date" name="next_due"></label>
@@ -231,6 +236,18 @@ export function wireBdCard(root, detail, reload) {
   });
   top.querySelector('[data-bdc-newlog]')?.addEventListener('click', () => { showLogTab(); form.elements.next_step.focus(); form.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
 
+  // 選「寄信」「其他」就不顯示電洽的欄位（結果、匯入電洽內容）
+  const syncKind = () => {
+    const call = form.querySelector('[name=kind]:checked').value === 'call';
+    form.querySelectorAll('[data-bdc-call]').forEach((el) => { el.hidden = !call; });
+  };
+  form.querySelectorAll('[name=kind]').forEach((r) => { r.onchange = syncKind; });
+  syncKind();
+  form.elements.transcript_file?.addEventListener('change', async (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (f) form.elements.transcript.value = await f.text();
+  });
+
   // 下拉改了也要跟著 pending（讓顧問手動選也算）
   form.elements.stage.onchange = () => { pending.stage = form.elements.stage.value; renderNeed(); };
   form.elements.tag.onchange = () => { pending.tag = form.elements.tag.value; renderNeed(); };
@@ -244,10 +261,15 @@ export function wireBdCard(root, detail, reload) {
     const btn = form.querySelector('button[type=submit]'); btn.disabled = true;
     try {
       const r = await api.post('/admin/bd/log', {
-        company, kind: form.querySelector('[name=kind]:checked').value, event_at: f.event_at.value, result: f.result.value,
+        company, kind: form.querySelector('[name=kind]:checked').value, event_at: f.event_at.value, result: form.querySelector('[name=kind]:checked').value === 'call' ? f.result.value : '',
         mail_sent: f.mail_sent.checked, note: f.note.value.trim(), stage, tag, next_step: f.next_step.value.trim(), next_due: f.next_due.value, by: f.by.value,
       });
       void r;
+      const isCall = form.querySelector('[name=kind]:checked').value === 'call';
+      if (isCall && f.transcript.value.trim()) {
+        try { await api.post('/admin/bd/transcript', { company, caller: f.by.value, transcript: f.transcript.value, note: f.note.value.trim() }); toast('逐字稿已送去 AI 整理，約 1～3 分鐘後重開卡片就看得到', 'success'); }
+        catch (err) { toast(`紀錄已存，但逐字稿沒送成：${err.message || '失敗'}`, 'error'); }
+      }
       toast(stage || tag ? '已存這筆紀錄，階段／標籤已更新' : '已存這筆紀錄', 'success');
       await reload({ remindStage: !stage && form.querySelector('[name=kind]:checked').value !== 'other' });
     } catch (err) { toast(err.message || '儲存失敗', 'error'); btn.disabled = false; }

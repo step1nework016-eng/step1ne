@@ -9,6 +9,7 @@ import { ACTIONS } from './actions.js';
 import { jdFieldParse } from './jd_fields.js';
 import { initMail, loadMailTab, injectMailSection } from './mail.js';
 import { wireBdCard, bdShowStageRemind } from './bdcard.js';
+import { wireBdJobs } from './bdjobs.js';
 
 // 2026-09-15 補：使用者反映「不知道要看哪個是自己的」——沒有登入系統，只能靠
 // 這組「切換選擇」記住上次選的是誰，換分頁/重新整理都不用重選（存在瀏覽器
@@ -2014,10 +2015,34 @@ async function openBdDetail(company, focus) {
       if (opt.remindStage) bdShowStageRemind(document.querySelector('.drawer-body') || document.body, ((detail.company_status || {}).stage) || '');
     });
     wireBdAi(body, company);
+    wireBdJobs(body, { ...detail, company }, async (opt = {}) => {
+      await openBdDetail(company);
+      if (opt.openJobs) document.querySelector('[data-bd-detail-tab="jobs"]')?.click();
+    });
+    wireBdProfile(body);
+    const mailPane = document.getElementById('bd-detail-pane-mail');
+    if (mailPane) wireContractPack(mailPane);
   } catch (error) {
     console.error(error);
     drawer({ title: company, body: errorState(error) });
   }
+}
+
+// 2026-10-13：認識公司 預覽／設定模式
+function wireBdProfile(root) {
+  const box = root.querySelector('[data-bdk]');
+  if (!box) return;
+  const company = box.dataset.bdk;
+  const view = box.querySelector('[data-bdk-view]'); const edit = box.querySelector('[data-bdk-edit]');
+  box.querySelectorAll('[name=bdk-m]').forEach((r) => {
+    r.onchange = () => { const e = box.querySelector('[name=bdk-m]:checked').value === 'edit'; view.hidden = e; edit.hidden = !e; };
+  });
+  box.querySelectorAll('[data-bdk-k]').forEach((el) => {
+    el.onchange = async () => {
+      try { await api.post('/admin/bd/profile-update', { company, [el.dataset.bdkK]: el.value, by: document.querySelector('.cg-pack')?.dataset.packBy || '' }); toast('已儲存', 'success'); }
+      catch (err) { toast(err.message || '儲存失敗', 'error'); }
+    };
+  });
 }
 
 // 2026-10-13：匯入電洽內容讓 AI 整理（沿用原本的 /admin/bd/transcript）
@@ -2052,8 +2077,7 @@ function wireBdDetailTabs() {
     btn.onclick = () => {
       const key = btn.getAttribute('data-bd-detail-tab');
       for (const b of tabs) b.classList.toggle('active', b === btn);
-      const logPane = document.getElementById('bd-detail-pane-log');
-      if (logPane) logPane.hidden = key !== 'log';
+      for (const k of ['log', 'jobs', 'mail']) { const el = document.getElementById(`bd-detail-pane-${k}`); if (el) el.hidden = key !== k; }
       const timelinePane = document.getElementById('bd-detail-pane-timeline');
       const playbookPane = document.getElementById('bd-detail-pane-playbook');
       const profilePane = document.getElementById('bd-detail-pane-profile');

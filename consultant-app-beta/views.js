@@ -17,6 +17,7 @@ import { SCRIPTS, SCRIPT_CATS } from './scripts_data.js';
 import { JD_FIELDS, jdFieldVal } from './jd_fields.js';
 import { mailPageView } from './mail.js';
 import { bdCardTop, bdLogPane, BD_TAGS } from './bdcard.js';
+import { bdJobsPane } from './bdjobs.js';
 
 const pageHead = (title, subtitle, actions = '') => `<div class="page-head"><div><h1>${title}</h1><p>${subtitle}</p></div><div class="actions">${actions}</div></div>`;
 const tabbar = (scope, tabs, active) => `<div class="tabs">${tabs.map(([key, label]) => `<button class="${active === key ? 'active' : ''}" data-tab-scope="${scope}" data-tab="${key}">${label}</button>`).join('')}</div>`;
@@ -2208,6 +2209,20 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
       ${has(pf.updated_at) ? `<p class="help">整理時間 ${text(String(pf.updated_at).slice(0, 16))}${has(pf.updated_by) ? `・${text(pf.updated_by)}` : ''}</p>` : ''}
     </div>`;
   },
+  // 2026-10-13 Jacky：認識公司可以切「預覽模式」（打電話前快速看）和「設定模式」（直接改每一格）
+  bdProfileModes: (pf, company) => {
+    const f = pf || {};
+    const F = [['website', '官網', 'input'], ['industry', '產業', 'input'], ['scale', '規模', 'input'], ['business', '他們做什麼', 'ta'], ['org', '主管與組織', 'ta'], ['hiring', '目前徵才狀況', 'ta'], ['topics', '可以聊的話題', 'ta']];
+    const ai = String(f.updated_by || '').includes('AI');
+    return `<div class="bdk" data-bdk="${escapeHtml(company)}">
+      <div class="bdc-seg bdk-mode" role="radiogroup" aria-label="模式"><label><input type="radio" name="bdk-m" value="view" checked><span>預覽模式</span></label><label><input type="radio" name="bdk-m" value="edit"><span>設定模式</span></label></div>
+      <div data-bdk-view>${views.bdProfilePane(pf)}</div>
+      <div data-bdk-edit hidden>
+        ${ai ? '<div class="bdj-lock" style="background:#eaf1ff;border-color:#b7cdfa;color:#1d4fb8">這頁內容是 <b>AI 夜間研究</b>先查好的，可能有錯，請核對。你改過的格子存下去之後，夜間研究不會蓋掉。</div>' : ''}
+        <div class="bdj-grid">${F.map(([k, lb, t]) => `<label class="bdj-f${t === 'ta' || k === 'website' ? ' full' : ''}">${lb}${t === 'ta' ? `<textarea data-bdk-k="${k}" rows="3">${text(f[k] || '')}</textarea>` : `<input data-bdk-k="${k}" value="${escapeHtml(f[k] || '')}">`}</label>`).join('')}</div>
+        <p class="help">改完離開欄位就自動存。近期新聞與資料來源由 AI 夜間研究更新，這裡不能改。${f.updated_at ? `最後更新 ${text(String(f.updated_at).slice(0, 16))}${f.updated_by ? `・${text(f.updated_by)}` : ''}` : ''}</p>
+      </div></div>`;
+  },
   // 通話心得（2026-09-29 Jacky）：放在客戶卡片最上面的切入點下面。顧問談完一家記下
   // 學到什麼／下一通怎麼講／遇到的問題，每一則累積、新的在上面，下一個打電話的人先看這裡。
   // 2026-09-30：電洽逐字稿 AI 評分卡（客戶卡片通話心得區、AI 找的人小卡共用）
@@ -2339,12 +2354,9 @@ ${n.learned ? `<p><b>學到什麼</b>${text(n.learned)}</p>` : ''}${n.next_time 
   bdTranscriptBlock: (company, transcripts, notes, people, assignedTo) => {
     const ts = Array.isArray(transcripts) ? transcripts : [];
     const ns = Array.isArray(notes) ? notes : [];
-    return `<details class="bdc-ai" data-bdc-ai><summary>匯入電洽內容，讓 AI 整理　<small class="muted">AI 只用在這裡和「新增職缺」（${ts.length + ns.length}）</small></summary>
-      <p class="help">把通話逐字稿貼進來（或上傳 .md／.txt 檔），AI 只整理成重點和下一通的講法。其他地方都是你自己填，AI 不會動。</p>
+    if (!ts.length && !ns.length) return '';
+    return `<details class="bdc-ai" data-bdc-ai><summary>AI 整理與建議（${ts.length + ns.length}）<small class="muted">　來自上面「匯入電洽內容」</small></summary>
       <div class="actions-row">${actionBtn('＋ 新增心得', 'bd-note-create', { idParams: { company }, record: { author: assignedTo || '', _people: people || [] } })}</div>
-      <label class="field"><span>貼上逐字稿</span><textarea data-bdc-ai-text rows="5" placeholder="有錄音轉文字就貼這裡"></textarea></label>
-      <label class="field"><span>或上傳逐字稿檔</span><input type="file" accept=".md,.txt,text/plain,text/markdown" data-bdc-ai-file></label>
-      <div class="actions-row"><button type="button" class="btn primary" data-bdc-ai-go>送去讓 AI 整理</button></div>
       ${ts.map((t) => views.transcriptReview(t)).join('')}
       ${ns.length ? `<div class="bdn-list">${ns.map((n) => `<article class="bdn-item"><small>${text(String(n.created_at || '').slice(0, 16))}・${text(n.author || '顧問')}</small>${n.learned ? `<p><b>學到什麼</b>${text(n.learned)}</p>` : ''}${n.next_time ? `<p><b>下一通怎麼講</b>${text(n.next_time)}</p>` : ''}${n.problem ? `<p class="bdn-problem"><b>遇到的問題</b>${text(n.problem)}</p>` : ''}</article>`).join('')}</div>` : ''}
     </details>`;
@@ -2563,7 +2575,7 @@ ${n.learned ? `<p><b>學到什麼</b>${text(n.learned)}</p>` : ''}${n.next_time 
       <div class="wu-bar"><span data-wu-picked>下一步選「寄信」的公司，勾選後可以一次擬好信：已勾 0 家</span><button type="button" class="btn" data-wu-batch-preview disabled>先預覽勾選的信</button><button type="button" class="btn primary" data-wu-batch-send disabled>擬好勾選的信，送 TG 核准</button></div>
       <div id="wu-batch-out"></div>`;
   },
-  bdDashboardDetail: ({ outreach, timeline, playbook, notes, people, assigned_to, company, profile, hr_contacts, transcripts, contract_files, company_status, pack_options, calls, web_inquiries }) => {
+  bdDashboardDetail: ({ outreach, timeline, playbook, notes, people, assigned_to, company, profile, hr_contacts, transcripts, contract_files, company_status, pack_options, calls, web_inquiries, client_jobs }) => {
     const pick = (key) => outreach.map((o) => o[key]).find(Boolean) || null;
     const contactName = pick('contact_name');
     const contactEmail = pick('contact_email');
@@ -2712,12 +2724,16 @@ ${n.learned ? `<p><b>學到什麼</b>${text(n.learned)}</p>` : ''}${n.next_time 
     return `${views.bdEntry(views.bdTriggerOf(outreach), outreach.some((o) => o.candidate_card), true, (outreach.find((o) => o.job_title) || {}).job_title, _topic)}${views.bdWebInquiryBlock(web_inquiries)}${bdCardTop({ company: company || (outreach[0] || {}).company || '', company_status, calls, people, assigned_to })}${contactCard}
       <div class="tabs tabs-sub" id="bd-detail-tabs">
         <button type="button" class="active" data-bd-detail-tab="log">進度紀錄</button>
+        <button type="button" data-bd-detail-tab="jobs">客戶提供的職缺（${(client_jobs || []).filter((j) => j.status === 'social_only').length}）</button>
+        <button type="button" data-bd-detail-tab="mail">寄公司介紹信</button>
         <button type="button" data-bd-detail-tab="profile">認識公司</button>
         <button type="button" data-bd-detail-tab="timeline">信件與時間軸</button>
         <button type="button" data-bd-detail-tab="playbook">開發引導</button>
       </div>
       <div id="bd-detail-pane-log">${bdLogPane({ company: company || (outreach[0] || {}).company || '', company_status, calls, people, assigned_to })}${views.bdTranscriptBlock(company || (outreach[0] || {}).company || '', transcripts, notes, people, assigned_to)}</div>
-      <div id="bd-detail-pane-profile" hidden>${views.bdProfilePane(profile)}</div>
+      <div id="bd-detail-pane-jobs" hidden>${bdJobsPane({ company: company || (outreach[0] || {}).company || '', client_jobs, assigned_to })}</div>
+      <div id="bd-detail-pane-mail" hidden>${views.bdContractPackBlock(company || (outreach[0] || {}).company || '', outreach || [], contract_files, assigned_to, pack_options)}</div>
+      <div id="bd-detail-pane-profile" hidden>${views.bdProfileModes(profile, company || (outreach[0] || {}).company || '')}</div>
       <div id="bd-detail-pane-timeline" hidden>${timelinePane}</div>
       <div id="bd-detail-pane-playbook" hidden>${playbookPane}</div>`;
   },
