@@ -1980,29 +1980,12 @@ function wireBdDashboardFilter() {
 
 async function openBdDetail(company, focus) {
   state.openBdCompany = company;
-  // 寄信獨立一頁：送 TG／上傳合約之後重開，要回到寄信頁而不是整張卡片
+  // 2026-10-13 Jacky：「寄信」「新增職缺」不再開獨立頁／彈窗，一律開卡片、直接跳到那個分頁
   state.bdMailMode = focus === 'mail';
-  const sub = state.bdMailMode ? '寄公司介紹信' : '開發進度時間軸';
+  const sub = '開發進度';
   drawer({ title: company, subtitle: sub, body: loading() });
   try {
     const detail = await adapters.bdDashboardDetail(company);
-    if (state.bdMailMode) {
-      drawer({ title: company, subtitle: sub, body: views.bdMailOnly({ ...detail, company }) });
-      const root = document.querySelector('.bd-mail-only');
-      if (root) {
-        wireContractPack(root);
-        // 從人選敲門名單按「寄信」進來：預先選好「手上有人選」，帶入匿名人選重點
-        const pre = state.mailPreset; state.mailPreset = null;
-        if (pre) {
-          const sc = root.querySelector('[data-pack-scenario]');
-          const br = root.querySelector('[data-pack-brief]');
-          if (br && pre.brief) br.value = pre.brief;
-          if (sc && pre.scenario) { sc.value = pre.scenario; sc.dispatchEvent(new Event('change')); }
-        }
-        (root.querySelector('[data-pack-to]') || root.querySelector('select'))?.focus();
-      }
-      return;
-    }
     drawer({ title: company, subtitle: sub, body: views.bdDashboardDetail({ ...detail, company }) });
     wireBdDetailTabs();
     const dr = document.querySelector('.bd-status-card')?.parentElement;
@@ -2021,6 +2004,22 @@ async function openBdDetail(company, focus) {
       if (opt.openJobs) document.querySelector('[data-bd-detail-tab="jobs"]')?.click();
     });
     wireBdProfile(body);
+    if (focus === 'mail') {
+      document.querySelector('[data-bd-detail-tab="mail"]')?.click();
+      const root = document.getElementById('bd-detail-pane-mail');
+      // 從人選敲門名單按「寄信」進來：預先選好「手上有人選」，帶入匿名人選重點
+      const pre = state.mailPreset; state.mailPreset = null;
+      if (root && pre) {
+        const sc = root.querySelector('[data-pack-scenario]');
+        const br = root.querySelector('[data-pack-brief]');
+        if (br && pre.brief) br.value = pre.brief;
+        if (sc && pre.scenario) { sc.value = pre.scenario; sc.dispatchEvent(new Event('change')); }
+      }
+      root?.scrollIntoView({ block: 'start' });
+    } else if (focus === 'jobs') {
+      document.querySelector('[data-bd-detail-tab="jobs"]')?.click();
+      document.querySelector('[data-bdj-add]')?.click();
+    }
     const mailPane = document.getElementById('bd-detail-pane-mail');
     if (mailPane) wireContractPack(mailPane);
   } catch (error) {
@@ -3987,6 +3986,8 @@ document.addEventListener('click', async (event) => {
   if (clientRow) { openCompanyManage(clientRow.getAttribute('data-client')); return; }
   const bdCompany = target.closest('[data-bd-company]');
   if (bdCompany) { openBdDetail(bdCompany.getAttribute('data-bd-company')); return; }
+  const bdJobs = target.closest('[data-bd-jobs]');
+  if (bdJobs) { openBdDetail(bdJobs.getAttribute('data-bd-jobs'), 'jobs'); return; }
   const bdMail = target.closest('[data-bd-mail]');
   if (bdMail) { openBdDetail(bdMail.getAttribute('data-bd-mail'), 'mail'); return; }
   // 2026-10-02 Jacky：點開發進度卡片本身就打開開發引導／時間軸（點到按鈕、勾選、下拉、電話連結不算）
