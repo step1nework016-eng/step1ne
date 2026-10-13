@@ -43,6 +43,10 @@ function render() {
 async function loadRoute() {
   const target = $('#page-data');
   if (!target) return;
+  if (state.route === 'daily') {
+    target.innerHTML = '<iframe class="daily-iframe" src="/daily-beta/original.html" title="原版儀表板"></iframe>';
+    return;
+  }
   if (state.route === 'board') return loadBoardTab(target);
   if (state.route === 'home') return boundary(target, adapters.home, views.homeData, 'refresh');
   if (state.route === 'recruitment') return boundary(target, async () => ({ ...(await adapters.recruitment()), analytics: await analyticsAdapter.recruitment() }), views.recruitmentData, 'refresh');

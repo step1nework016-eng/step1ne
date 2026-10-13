@@ -201,11 +201,11 @@ export function shell(active, content, collapsed = false) {
   // index 要跟著往後推一格（social 從 5 變 6、system 從 7 變 8），
   // icon 陣列也要對應補一顆，不能只加 nav 項目忘了改分組判斷跟圖示。
   // 2026-10-05 加「進度看板」：插在首頁後面，後面分組標題 index 往後推一格（social 7、system 9）。
-  const nav = [['home','首頁'],['board','進度看板'],['recruitment','招募總覽'],['candidates','人選'],['jobs','職缺'],['interviews','AI 面談'],['linechat','人選面談室'],['social','社群'],['clients','客戶 / BD'],['mail','信箱紀錄'],['system','系統']];
+  const nav = [['home','首頁'],['board','進度看板'],['daily','每日工作台'],['recruitment','招募總覽'],['candidates','人選'],['jobs','職缺'],['interviews','AI 面談'],['linechat','人選面談室'],['social','社群'],['clients','客戶 / BD'],['mail','信箱紀錄'],['system','系統']];
   // ⚠️ 收合按鈕不能放進 <a class="brand"> 裡面——瀏覽器不允許互動元素巢狀
   // interactive content，而且全域點擊委派會先比對 [data-route]，按鈕點下去會
   // 連帶觸發外層 <a> 的 data-route="home" 跳轉。改成跟 .brand 平行的兄弟元素。
-  return `<div class="app-shell${collapsed ? ' collapsed' : ''}"><aside class="sidebar"><div class="brand-row"><a class="brand" data-route="home"><span>S</span><div>Step1ne<small>CONSULTANT OS</small></div></a><button type="button" class="sidebar-toggle" data-action="toggle-sidebar" title="${collapsed ? '展開側欄' : '收合側欄'}">${collapsed ? '»' : '«'}</button></div><nav>${nav.map(([key,label], index) => `${index === 0 ? '<p>工作台</p>' : index === 7 ? '<p>營運成長</p>' : index === 10 ? '<p>管理</p>' : ''}<a class="${active === key ? 'active' : ''}" data-route="${key}"><i>${['⌂','▤','▥','◉','▣','◎','✉','◁','♙','✉','⚙'][index]}</i>${label}</a>`).join('')}</nav><footer>Production contract v2</footer></aside><main><header class="topbar"><button class="mobile-menu" data-action="toggle-menu">☰</button><input data-action="global-search" placeholder="搜尋人選、職缺、客戶…"><label class="me-global" title="寄信、核准、改設定時，系統記住是誰做的"><span>我是</span><select data-me-global aria-label="我是"><option value="">選擇…</option></select></label><button class="btn ghost" data-action="token">ADMIN TOKEN</button></header><section class="content">${content}</section></main></div>`;
+  return `<div class="app-shell${collapsed ? ' collapsed' : ''}"><aside class="sidebar"><div class="brand-row"><a class="brand" data-route="home"><span>S</span><div>Step1ne<small>CONSULTANT OS</small></div></a><button type="button" class="sidebar-toggle" data-action="toggle-sidebar" title="${collapsed ? '展開側欄' : '收合側欄'}">${collapsed ? '»' : '«'}</button></div><nav>${nav.map(([key,label], index) => `${index === 0 ? '<p>工作台</p>' : index === 8 ? '<p>營運成長</p>' : index === 11 ? '<p>管理</p>' : ''}<a class="${active === key ? 'active' : ''}" data-route="${key}"><i>${['⌂','▤','☑','▥','◉','▣','◎','✉','◁','♙','✉','⚙'][index]}</i>${label}</a>`).join('')}</nav><footer>Production contract v2</footer></aside><main><header class="topbar"><button class="mobile-menu" data-action="toggle-menu">☰</button><input data-action="global-search" placeholder="搜尋人選、職缺、客戶…"><label class="me-global" title="寄信、核准、改設定時，系統記住是誰做的"><span>我是</span><select data-me-global aria-label="我是"><option value="">選擇…</option></select></label><button class="btn ghost" data-action="token">ADMIN TOKEN</button></header><section class="content">${content}</section></main></div>`;
 }
 
 export const views = {
@@ -213,6 +213,9 @@ export const views = {
   mail: () => mailPageView(),
   board: (tab = 'cand') => pageHead('進度看板', '每一欄是一個階段，每張卡是一個人選或一家客戶。左邊有紅線的＝在這關停太久，該追了。')
     + tabbar('board', [['cand', '人選'], ['client', '客戶']], tab === 'client' ? 'client' : 'cand') + `<div id="page-data">${endpointState('進度看板')}</div>`,
+  // 2026-10-14 Jacky：把他的「獵頭顧問每日作戰儀表板」放進顧問後台測試版當一個分頁。
+  // 內容是他給的原檔 headhunter_daily_dashboard.html，原封不動用 iframe 嵌入（保留原本 UIUX，內部 7 個分頁照舊）；之後要接後台資料再另外處理。
+  daily: (tab='orig') => pageHead('每日工作台','每天的流程、做了什麼、反思與回味。資料存在這個瀏覽器，不會上傳。') + tabbar('daily',[['orig','原版儀表板']],'orig') + `<div id="page-data" class="daily-frame"></div>`,
   home: () => pageHead('今天先做什麼？','首頁只呈現待處理工作與風險，不用先讀整份儀表板。','<button class="btn primary" data-route="candidates">進入人選工作台</button>') + `<div id="page-data">${endpointState('今日工作')}</div>`,
   // 2026-09-15 驗證：/admin/overview 實際形狀是 {funnel,verdicts,agree,byJob,todo}，沒有
   // pending_review/client_pending/alerts 這幾個欄位（之前這三張 KPI 卡一直顯示假的 0）。
