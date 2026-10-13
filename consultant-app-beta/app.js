@@ -8,7 +8,7 @@ import { views, actionBtn, rowActions, shell, boardView, boardCandItems, boardCl
 import { ACTIONS } from './actions.js';
 import { jdFieldParse } from './jd_fields.js';
 import { initMail, loadMailTab, injectMailSection } from './mail.js';
-import { wireBdCard, bdShowStageRemind } from './bdcard.js';
+import { wireBdCard, bdShowStageRemind, bdShowTagRemind } from './bdcard.js';
 import { wireBdJobs } from './bdjobs.js';
 
 // 2026-09-15 補：使用者反映「不知道要看哪個是自己的」——沒有登入系統，只能靠
@@ -2012,6 +2012,7 @@ async function openBdDetail(company, focus) {
     wireBdCard(body, { ...detail, company }, async (opt = {}) => {
       await openBdDetail(company);
       if (opt.openLog) document.querySelector('[data-bd-detail-tab="log"]')?.click();
+      if (opt.remindTag) bdShowTagRemind(document.querySelector('.drawer-body') || document.body, opt.remindTag);
       if (opt.remindStage) bdShowStageRemind(document.querySelector('.drawer-body') || document.body, ((detail.company_status || {}).stage) || '');
     });
     wireBdAi(body, company);

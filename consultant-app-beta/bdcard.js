@@ -93,7 +93,7 @@ export function bdCardTop(detail) {
 
   // 客戶標籤
   const cur = BD_TAGS.find((t) => t.k === tag);
-  const tagsHtml = `<section class="bdc-sec"><h4>客戶標籤 <small>每家公司只能選一個</small></h4>
+  const tagsHtml = `<section class="bdc-sec"><h4>客戶標籤 <small>每家公司只能選一個，點了就存</small></h4>
     <div class="bdc-tagrow" role="radiogroup" aria-label="客戶標籤">${BD_TAGS.map((t) => `<button type="button" class="bdc-tg${tag === t.k ? ' on' : ''}" role="radio" aria-checked="${tag === t.k}" data-bdc-tag="${t.k}" style="${tag === t.k ? `border-color:${t.color}` : ''}"><b><i style="background:${t.color}"></i>${t.k}</b><span>${text(t.zh)}</span></button>`).join('')}</div>
     <p class="bdc-rule">${cur ? `目前標籤：<b>${cur.k}</b>。規則：${text(cur.rule)}` : '還沒分類。電話打完請選一個標籤。'}</p></section>`;
 
@@ -205,16 +205,17 @@ export function wireBdCard(root, detail, reload) {
       focusForm();
     };
   });
-  // 點標籤 → 跳到紀錄，順便帶入建議的下一步
+  // 點標籤 → 直接存（不用寫紀錄；時間軸會自動留一筆）
   top.querySelectorAll('[data-bdc-tag]').forEach((b) => {
-    b.onclick = () => {
+    b.onclick = async () => {
       const t = BD_TAGS.find((x) => x.k === b.dataset.bdcTag);
-      pending.tag = t.k;
-      form.elements.tag.value = t.k;
-      if (!form.elements.next_step.value.trim()) form.elements.next_step.value = t.act;
-      if (t.days !== null) form.elements.next_due.value = addDays(t.days);
-      if (t.k === 'NO') { pending.stage = '暫緩'; form.elements.stage.value = '暫緩'; }
-      focusForm();
+      const same = (detail.company_status || {}).tag === t.k;
+      b.disabled = true;
+      try {
+        await api.post('/admin/bd/tag', { company, tag: same ? '' : t.k, by: form.elements.by.value });
+        toast(same ? '已清除標籤' : `標籤已改成 ${t.k}`, 'success');
+        await reload({ remindTag: same ? '' : t.k });
+      } catch (err) { toast(err.message || '失敗', 'error'); b.disabled = false; }
     };
   });
   // 下一步：做完／延期
@@ -283,6 +284,15 @@ export function wireBdCard(root, detail, reload) {
       catch (err) { toast(err.message || '失敗', 'error'); b.disabled = false; }
     };
   });
+}
+
+export function bdShowTagRemind(root, tag) {
+  if (tag !== 'NO') return;
+  const box = root.querySelector('[data-bdc-remind]');
+  if (!box) return;
+  box.hidden = false;
+  box.innerHTML = '<div>標籤已改成 NO，這家之後不會再提醒。如果客戶也不再往來，記得在下面把階段改成「沒興趣」或「暫緩」。　<button type="button" class="bdc-btn sm" data-bdc-remind-x>知道了</button></div>';
+  box.querySelector('[data-bdc-remind-x]').onclick = () => { box.hidden = true; };
 }
 
 export function bdShowStageRemind(root, stage) {
