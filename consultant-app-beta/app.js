@@ -1898,7 +1898,14 @@ function wireBdDashboardFilter() {
   const qc = document.getElementById('bd-dash-qc');
   const src = document.getElementById('bd-dash-source');
   const qbox = document.getElementById('bd-dash-q');
+  // 2026-10-13 Jacky：總攬最上面「今天要處理」四格＋客戶標籤，點了篩選，再點一次取消
+  let quick = ''; let tagSel = '';
+  const paintOverview = () => {
+    for (const b of document.querySelectorAll('[data-bdo-quick]')) b.classList.toggle('on', b.dataset.bdoQuick === quick);
+    for (const b of document.querySelectorAll('[data-bdo-tag]')) { const on = b.dataset.bdoTag === tagSel; b.classList.toggle('on', on); b.setAttribute('aria-checked', String(on)); }
+  };
   const apply = () => {
+    paintOverview();
     const v = sel.value;
     let shown = 0;
     for (const r of box.querySelectorAll('.bd-dash-row')) {
@@ -1910,6 +1917,8 @@ function wireBdDashboardFilter() {
       else if (v.startsWith('stage:')) ok = stage === v.slice('stage:'.length);
       // 2026-10-02 Jacky：可以直接打公司名稱找
       if (ok && qbox && qbox.value.trim()) ok = (r.dataset.bdName || '').includes(qbox.value.trim().toLowerCase());
+      if (ok && quick) ok = quick === 'late' ? r.dataset.bdLate === '1' : quick === 'today' ? r.dataset.bdToday === '1' : quick === 'hot' ? r.dataset.bdTag === 'HOT' : r.dataset.bdTag === 'MATERIAL';
+      if (ok && tagSel) ok = r.dataset.bdTag === tagSel;
       if (ok && src && src.value) ok = r.dataset.bdSource === src.value;
       if (ok && ind && ind.value) ok = r.dataset.bdIndustry === ind.value;
       if (ok && who && who.value) ok = who.value === '__none' ? !r.dataset.bdAssignee : r.dataset.bdAssignee === who.value;
@@ -1933,6 +1942,8 @@ function wireBdDashboardFilter() {
   sel.onchange = apply;
   [ind, who, ph, ct, qc, src].forEach((x) => { if (x) x.onchange = apply; });
   if (qbox) qbox.oninput = apply;
+  for (const b of document.querySelectorAll('[data-bdo-quick]')) b.onclick = () => { quick = quick === b.dataset.bdoQuick ? '' : b.dataset.bdoQuick; apply(); };
+  for (const b of document.querySelectorAll('[data-bdo-tag]')) b.onclick = () => { tagSel = tagSel === b.dataset.bdoTag ? '' : b.dataset.bdoTag; apply(); };
   // 已聯繫打勾（2026-09-30 Jacky）：勾了就存，記錄是誰（用這列的負責人）
   for (const cb of box.querySelectorAll('[data-bd-contacted-box]')) {
     cb.onchange = async () => {

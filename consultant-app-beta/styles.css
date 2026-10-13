@@ -1073,3 +1073,16 @@ details.note-details p{margin:8px 0 0;font-size:13.5px;white-space:pre-wrap;colo
 @media (max-width:640px){.bdc-grid{grid-template-columns:1fr}.bdc-tagrow{grid-template-columns:repeat(2,1fr)}.bdc-steps{grid-template-columns:repeat(3,1fr)}.bdc-stats{grid-template-columns:repeat(2,1fr)}}
 .bdc-ai{border:1px dashed #b7cdfa;border-radius:14px;padding:4px 14px 12px;background:#f7faff;margin:14px 0 0}
 .bdc-ai summary{min-height:48px;display:flex;align-items:center;gap:8px;font-weight:800;cursor:pointer;color:var(--blue)}
+/* 總攬：今天要處理＋客戶標籤（2026-10-13） */
+.bdo-today{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:0 0 12px}
+.bdo-t{background:#fff;border:1px solid #e5eaf2;border-radius:14px;padding:12px 14px;box-shadow:var(--shadow);cursor:pointer;text-align:left;min-height:76px}
+.bdo-t b{display:block;font-size:26px;line-height:1.2}.bdo-t span{font-size:13px;color:var(--muted)}
+.bdo-t.late{background:#a72f3a;border-color:#a72f3a;color:#fff}.bdo-t.late span{color:#ffd9dd}
+.bdo-t.on{outline:3px solid #7aa2ff}
+.bdo-tagbar{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:0 0 12px}
+.bdo-tg{border:1px solid var(--line);border-radius:12px;background:#fff;min-height:64px;padding:8px 4px;cursor:pointer;text-align:center}
+.bdo-tg b{display:flex;align-items:center;justify-content:center;gap:6px;font-size:14px}
+.bdo-tg span{display:block;font-size:12px;color:var(--muted)}
+.bdo-tg i{width:12px;height:12px;border-radius:50%;display:inline-block}
+.bdo-tg.on{border-width:2px;border-color:var(--blue);background:#f7faff}
+@media (max-width:760px){.bdo-today{grid-template-columns:repeat(2,1fr)}.bdo-tagbar{grid-template-columns:repeat(3,1fr)}}

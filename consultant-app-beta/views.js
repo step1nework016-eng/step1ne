@@ -16,7 +16,7 @@ import { empty } from './core/ui.js';
 import { SCRIPTS, SCRIPT_CATS } from './scripts_data.js';
 import { JD_FIELDS, jdFieldVal } from './jd_fields.js';
 import { mailPageView } from './mail.js';
-import { bdCardTop, bdLogPane } from './bdcard.js';
+import { bdCardTop, bdLogPane, BD_TAGS } from './bdcard.js';
 
 const pageHead = (title, subtitle, actions = '') => `<div class="page-head"><div><h1>${title}</h1><p>${subtitle}</p></div><div class="actions">${actions}</div></div>`;
 const tabbar = (scope, tabs, active) => `<div class="tabs">${tabs.map(([key, label]) => `<button class="${active === key ? 'active' : ''}" data-tab-scope="${scope}" data-tab="${key}">${label}</button>`).join('')}</div>`;
@@ -2082,6 +2082,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
     </div>`;
     // 2026-09-29 Jacky：依產業分類、可以指派給誰打、電話分「人資電話／公司總機」標清楚
     const groups = {};
+    const todayStr = new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 10);
     rows.forEach((r) => { const g = r.industry_group || '未分類'; groups[g] = (groups[g] || 0) + 1; });
     const people = [...new Set(['Jacky', 'Phoebe', ...(consultants || []), ...rows.map((r) => r.assigned_to).filter(Boolean)])];
     const filterBar = `<div class="filter-row">
@@ -2128,9 +2129,9 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
       const phoneKind = r.hr_phone ? 'hr' : (r.company_phone ? 'main' : 'none');
       const lastCall = r.last_call_result ? `<small>${r.call_count ? `已打 ${r.call_count} 通・` : ''}上次電訪：${text(RES[r.last_call_result] || r.last_call_result)}（${text(String(r.last_call_at || '').slice(5, 10))}）${r.call_retry_at ? `・建議 ${text(String(r.call_retry_at).slice(5, 10))} 再打` : ''}${r.last_call_note ? `・${text(r.last_call_note)}` : ''}</small>` : '';
       const oid = (r.outreach_ids || [])[0] || '';
-      return `${head}<article class="list-row bd-dash-row" data-bd-open="${escapeHtml(r.company)}" tabindex="0" aria-label="${escapeHtml(r.company)}：打開開發引導／時間軸" title="點卡片打開開發引導／時間軸" data-bd-source="${escapeHtml(r.source_kind || '')}" data-bd-name="${escapeHtml(String(r.company || '').toLowerCase())}" data-bd-stage="${text(r.stage)}" data-bd-has-todo="${r.todo.length ? 1 : 0}" data-bd-industry="${escapeHtml(g)}" data-bd-assignee="${escapeHtml(r.assigned_to || '')}" data-bd-phone="${phoneKind}" data-bd-contacted="${r.contacted_at ? 1 : 0}" data-bd-parked="${r.parked_at ? 1 : 0}" data-bd-qc="${(r.qc_missing || []).length ? 0 : 1}">
+      return `${head}<article class="list-row bd-dash-row" data-bd-open="${escapeHtml(r.company)}" tabindex="0" aria-label="${escapeHtml(r.company)}：打開開發引導／時間軸" title="點卡片打開開發引導／時間軸" data-bd-source="${escapeHtml(r.source_kind || '')}" data-bd-name="${escapeHtml(String(r.company || '').toLowerCase())}" data-bd-stage="${text(r.stage)}" data-bd-has-todo="${r.todo.length ? 1 : 0}" data-bd-industry="${escapeHtml(g)}" data-bd-assignee="${escapeHtml(r.assigned_to || '')}" data-bd-phone="${phoneKind}" data-bd-contacted="${r.contacted_at ? 1 : 0}" data-bd-parked="${r.parked_at ? 1 : 0}" data-bd-qc="${(r.qc_missing || []).length ? 0 : 1}" data-bd-tag="${escapeHtml(r.tag || 'none')}" data-bd-late="${(!r.parked_at && r.tag !== 'NO' && r.next_due && r.next_due < todayStr) ? 1 : 0}" data-bd-today="${(!r.parked_at && r.tag !== 'NO' && r.next_due === todayStr) ? 1 : 0}">
         <span>
-          <b>${text(r.company)}</b> ${({ web: '<span class="badge warning" title="企業自己在官網留需求">🌐 官網詢問</span>', manual: '<span class="badge info" title="顧問按「新增開發對象」加進來的">✍️ 顧問新增</span>', candbd: '<span class="badge success" title="從手上人選反推、系統建議去敲門的公司">🧲 人選敲門</span>', ai: '<span class="badge" title="夜間 AI 找來的名單">🤖 AI 名單</span>' })[r.source_kind] || ''} ${r.industry ? `<span class="badge">${text(String(r.industry).split(/[（(]/)[0].slice(0, 18))}</span>` : ''}${r.inbound ? ' <span class="badge warning">1 個工作天內要回</span>' : ''}${r.industry_group === NEW_G ? ` <span class="badge info">新・${text(String(r.first_created_at || '').slice(5, 10))}</span>` : ''}${r.has_profile ? ' <span class="badge success">有介紹</span>' : ''}${r.note_count ? ` <span class="badge info">有 ${text(r.note_count)} 則心得</span>` : ''}${r.social_jobs ? ` <span class="badge warning" title="只發社群的職缺，到職缺列表看">🔒 未簽約職缺 ${text(r.social_jobs)} 個</span>` : ''}
+          <b>${text(r.company)}</b> ${r.tag ? `<span class="bdc-chip tagchip" style="background:${(BD_TAGS.find((t) => t.k === r.tag) || {}).color || '#9aa5b8'};color:#fff">${text(r.tag)}</span>` : ''}${r.bd_stage ? `<span class="bdc-chip stage">${text(r.bd_stage)}</span>` : ''} ${({ web: '<span class="badge warning" title="企業自己在官網留需求">🌐 官網詢問</span>', manual: '<span class="badge info" title="顧問按「新增開發對象」加進來的">✍️ 顧問新增</span>', candbd: '<span class="badge success" title="從手上人選反推、系統建議去敲門的公司">🧲 人選敲門</span>', ai: '<span class="badge" title="夜間 AI 找來的名單">🤖 AI 名單</span>' })[r.source_kind] || ''} ${r.industry ? `<span class="badge">${text(String(r.industry).split(/[（(]/)[0].slice(0, 18))}</span>` : ''}${r.inbound ? ' <span class="badge warning">1 個工作天內要回</span>' : ''}${r.industry_group === NEW_G ? ` <span class="badge info">新・${text(String(r.first_created_at || '').slice(5, 10))}</span>` : ''}${r.has_profile ? ' <span class="badge success">有介紹</span>' : ''}${r.note_count ? ` <span class="badge info">有 ${text(r.note_count)} 則心得</span>` : ''}${r.social_jobs ? ` <span class="badge warning" title="只發社群的職缺，到職缺列表看">🔒 未簽約職缺 ${text(r.social_jobs)} 個</span>` : ''}
           ${(r.qc_missing || []).length && !(r.inbound || r.by_hand) ? `<small class="bd-qc-bad">不合格，補資料中：缺 ${text(r.qc_missing.join('、'))}</small>` : ''}
           ${views.bdEntry(r.trigger, r.has_candidate, false, r.job_title, r.topic)}
           ${phoneHtml}${mainHtml}${noPhone}
@@ -2153,7 +2154,15 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
         </div>
       </article>`;
     }).join('')}</div>` : empty('目前沒有已經接觸過的公司');
-    return `<div class="page-head" style="align-items:flex-start"><div><h2>${aiMode ? 'AI 名單（還沒聯繫）' : '開發進度看板'}</h2><p>${aiMode ? '夜間 AI 自動找來、<b>還沒有任何人打過或寄過</b>的公司。打完一通電話（就算沒接）、寄過信，或按「加入開發進度」，就會移到開發進度。' : '寄出、電訪、追信、回信、談到職缺、成交——同一家公司合併成一列，不用分頭看。只放顧問碰過的公司；夜間 AI 找來還沒聯繫的在「AI 名單」分頁。'}</p>${cached_at ? `<p class="help">資料時間 ${text(String(cached_at).slice(11, 16))}（為了省資料庫額度，每 5 分鐘更新一次；你們按按鈕改的資料會立刻更新）</p>` : ''}</div>${actionBtn('＋ 新增開發對象', 'bd-add-company', {}, 'primary')}</div>${funnelCard}${filterBar}${rowsHtml}`;
+    // 2026-10-13 Jacky：總攬最上面——今天要處理＋客戶標籤篩選
+    const openRow = (r) => !r.parked_at && r.tag !== 'NO';
+    const lateN = rows.filter((r) => openRow(r) && r.next_due && r.next_due < todayStr).length;
+    const todayN = rows.filter((r) => openRow(r) && r.next_due === todayStr).length;
+    const hotN = rows.filter((r) => r.tag === 'HOT' && !r.parked_at).length;
+    const matN = rows.filter((r) => r.tag === 'MATERIAL' && !r.parked_at).length;
+    const todayStrip = aiMode ? '' : `<div class="bdo-today" id="bd-today">${[['late', '逾期沒做', lateN, 'late'], ['today', '今天要做', todayN, ''], ['hot', 'HOT 要追蹤', hotN, ''], ['mat', '要寄介紹／合約', matN, '']].map(([k, l, n, c]) => `<button type="button" class="bdo-t ${c}" data-bdo-quick="${k}"><b>${n}</b><span>${l}</span></button>`).join('')}</div>
+      <div class="bdo-tagbar" id="bd-tagbar" role="radiogroup" aria-label="客戶標籤">${[...BD_TAGS, { k: 'none', zh: '還沒分類', color: '#9aa5b8' }].map((t) => `<button type="button" class="bdo-tg" role="radio" aria-checked="false" data-bdo-tag="${t.k}"><b><i style="background:${t.color}"></i>${t.k === 'none' ? '未分類' : t.k} ${rows.filter((r) => (r.tag || 'none') === t.k && !r.parked_at).length}</b><span>${text(t.zh)}</span></button>`).join('')}</div>`;
+    return `<div class="page-head" style="align-items:flex-start"><div><h2>${aiMode ? 'AI 名單（還沒聯繫）' : '開發進度看板'}</h2><p>${aiMode ? '夜間 AI 自動找來、<b>還沒有任何人打過或寄過</b>的公司。打完一通電話（就算沒接）、寄過信，或按「加入開發進度」，就會移到開發進度。' : '寄出、電訪、追信、回信、談到職缺、成交——同一家公司合併成一列，不用分頭看。只放顧問碰過的公司；夜間 AI 找來還沒聯繫的在「AI 名單」分頁。'}</p>${cached_at ? `<p class="help">資料時間 ${text(String(cached_at).slice(11, 16))}（為了省資料庫額度，每 5 分鐘更新一次；你們按按鈕改的資料會立刻更新）</p>` : ''}</div>${actionBtn('＋ 新增開發對象', 'bd-add-company', {}, 'primary')}</div>${funnelCard}${todayStrip}${filterBar}${rowsHtml}`;
   },
   // 職缺內容逐欄位編輯（2026-09-29 修：原本一個大文字框讀不到結構化 JD，每個職缺都顯示空白）
   jobContentForm: (content) => {
