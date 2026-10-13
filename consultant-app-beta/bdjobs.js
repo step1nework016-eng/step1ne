@@ -2,12 +2,23 @@
 // 規則：未簽約職缺「可以拿去發社群」，但「不上官網、阿財不面談」；客戶簽約、轉成正式職缺後才會上官網與阿財。
 // 後端沿用既有的未簽約職缺機制（jobs.status='social_only'、job_social_only），這裡只是新的介面：
 //   一次最多新增 10 個（貼 104 連結／貼文字／上傳截圖或 PDF）、每個欄位直接編輯、每個職缺有「客戶額外備註」。
-// 104 連結：後端 /admin/bd/read-104 直接讀職缺內容（結構化資料，不用 AI）；文字／截圖／PDF 的 AI 讀取下一版接上。
+// 104 連結：後端 /admin/bd/read-104 直接讀職缺內容（結構化資料，不用 AI）。
+// 貼文字／截圖／PDF：後端存檔排工作，本機 ai_worker（job_read.py）用 AI 讀出欄位，這裡輪詢結果。
 import { api } from './core/api.js';
 import { toast } from './core/ui.js';
 import { escapeHtml, text } from './core/security.js';
 
 const MAX = 10;
+const readAsB64 = (blob) => new Promise((resolve, reject) => { const r = new FileReader(); r.onload = () => resolve(String(r.result).split(',')[1] || ''); r.onerror = reject; r.readAsDataURL(blob); });
+// 截圖先縮到長邊 1800px 的 JPG（手機截圖很大，縮了 AI 一樣讀得到、上傳也快）
+async function prepFile(f) {
+  if (f.type === 'application/pdf') return { name: f.name, mime: 'application/pdf', b64: await readAsB64(f) };
+  const bmp = await createImageBitmap(f);
+  const k = Math.min(1, 1800 / Math.max(bmp.width, bmp.height));
+  const c = document.createElement('canvas'); c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+  c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+  return { name: f.name, mime: 'image/jpeg', b64: c.toDataURL('image/jpeg', 0.85).split(',')[1] };
+}
 // 公司名稱粗略比對（拿掉括號裡的字和公司型態字樣，再看有沒有互相包含）
 const sameCorp = (a, b) => {
   const n = (x) => String(x || '').replace(/[（(][^）)]*[）)]/g, '').replace(/\u80a1\u4efd\u6709\u9650\u516c\u53f8|\u6709\u9650\u516c\u53f8|\u516c\u53f8|\u53f0\u7063|\u81fa\u7063/g, '').replace(/\s/g, '');
@@ -50,7 +61,7 @@ export function bdJobsPane(detail) {
       <textarea data-bdj-paste rows="6" class="bdj-paste" aria-label="貼在這裡"></textarea>
       <div class="bdj-file" data-bdj-filebox hidden><input type="file" data-bdj-files accept="image/*,application/pdf" multiple aria-label="選擇截圖或 PDF"><p class="help">一次最多選 ${MAX} 個檔案（截圖或 PDF），一個檔案算一個職缺。</p><ul class="bdj-filelist" data-bdj-filelist></ul></div>
       <div class="bdj-counter" data-bdj-counter><span data-bdj-n>0 個</span><span>最多 ${MAX} 個</span></div>
-      <div class="bdj-notice"><b>貼 104 連結</b>：系統會直接讀出職缺內容，你核對、修改後再新增。<b>貼文字、截圖、PDF</b>的自動讀取下一版上線，現在先由你自己填職缺名稱和工作內容（貼文字會自動帶入）。</div>
+      <div class="bdj-notice"><b>貼 104 連結</b>：系統直接讀出職缺內容。<b>貼文字、截圖、PDF</b>：由 AI 讀出（約 1～3 分鐘）。讀出來的每個職缺你都可以逐格修改，確認後才會新增。</div>
       <button type="button" class="bdj-btn primary" data-bdj-make>整理成清單</button>
       <div class="bdj-draft" data-bdj-draft></div>
       <div class="bdj-foot"><span class="muted" data-bdj-dcount></span><button type="button" class="bdj-btn" data-bdj-cancel>取消</button><button type="button" class="bdj-btn primary" data-bdj-ok disabled>確認新增</button></div>
@@ -123,7 +134,7 @@ export function wireBdJobs(root, detail, reload) {
   };
   const drawDraft = () => {
     box.querySelector('[data-bdj-draft]').innerHTML = draft.map((d, i) => `<article class="bdj-job">
-      <div class="bdj-top"><div>${d.read ? '<span class="bdj-chip no">讀自 104，請核對</span> ' : ''}<span class="bdj-src">${text({ 104: '104 連結', text: '貼文字', file: '截圖／PDF' }[d.src_kind])}${d.src_url ? `　${text(d.src_url.slice(0, 60))}` : ''}</span>${d.err ? `<div class="bdj-err">${text(d.err)}</div>` : ''}${d.read && d.corp && !sameCorp(d.corp, company) ? `<div class="bdj-err">⚠ 這個職缺是「${text(d.corp)}」刊登的，跟這家客戶「${text(company)}」名稱不同，請確認連結有沒有貼錯。</div>` : ''}${(d.law5 || []).length ? `<div class="bdj-err">內容有不能寫的字：${text(d.law5.join('、'))}（年齡、性別、婚姻、國籍、外貌等違反就業服務法第 5 條），請改掉才能新增。</div>` : ''}</div><button type="button" class="bdj-btn sm" data-bdj-rm="${i}">不要這個</button></div>
+      <div class="bdj-top"><div>${d.read ? `<span class="bdj-chip no">${d.src_kind === '104' ? '讀自 104，請核對' : 'AI 讀的，請核對'}</span> ` : ''}<span class="bdj-src">${text({ 104: '104 連結', text: '貼文字', file: '截圖／PDF' }[d.src_kind])}${d.src_url ? `　${text(d.src_url.slice(0, 60))}` : ''}${d.file_name && d.src_kind === 'file' ? `　${text(d.file_name)}` : ''}</span>${d.err ? `<div class="bdj-err">${text(d.err)}</div>` : ''}${d.read && d.corp && !sameCorp(d.corp, company) ? `<div class="bdj-err">⚠ 這個職缺是「${text(d.corp)}」刊登的，跟這家客戶「${text(company)}」名稱不同，請確認連結有沒有貼錯。</div>` : ''}${(d.law5 || []).length ? `<div class="bdj-err">內容有不能寫的字：${text(d.law5.join('、'))}（年齡、性別、婚姻、國籍、外貌等違反就業服務法第 5 條），請改掉才能新增。</div>` : ''}</div><button type="button" class="bdj-btn sm" data-bdj-rm="${i}">不要這個</button></div>
       <div class="bdj-grid">
         <label class="bdj-f full">職缺名稱<input data-d="${i}" data-dk="title" value="${escapeHtml(d.title)}" maxlength="80"></label>
         <label class="bdj-f full">工作內容（社群文要靠這段寫）<textarea data-d="${i}" data-dk="main_duties" rows="4">${text(d.main_duties)}</textarea></label>
@@ -152,7 +163,36 @@ export function wireBdJobs(root, detail, reload) {
       btn.disabled = false; btn.textContent = '整理成清單';
       drawDraft(); return;
     }
-    draft = items; drawDraft();
+    // 貼文字／截圖／PDF：交給 AI 讀（本機 ai_worker），輪詢到讀完
+    const btn = e.currentTarget; btn.disabled = true;
+    try {
+      const mode = how() === 'text' ? 'text' : 'files';
+      btn.textContent = '上傳中…';
+      const payload = mode === 'text'
+        ? { company, mode, texts: items.map((x) => x.main_duties), by }
+        : { company, mode, files: await Promise.all(Array.from(files.files).map(prepFile)), by };
+      const r = await api.post('/admin/bd/read-jobs', payload);
+      const t0 = Date.now(); let st = { status: 'queued', items: [], total: items.length };
+      while (Date.now() - t0 < 6 * 60 * 1000) {
+        btn.textContent = `AI 讀取中… ${(st.items || []).length}／${st.total || items.length}`;
+        await new Promise((res) => setTimeout(res, 3000));
+        st = await api.get(`/admin/bd/read-jobs/status?id=${encodeURIComponent(r.task_id)}`);
+        if (st.status === 'done' || st.status === 'error') break;
+      }
+      if (st.status !== 'done' && st.status !== 'error') toast('讀取比較久，先把讀到的列出來；沒讀到的請自己填', 'error');
+      const got = new Map((st.items || []).map((it) => [it.idx, it]));
+      draft = items.map((x, i) => {
+        const it = got.get(i);
+        if (it && it.ok) {
+          return { src_kind: x.src_kind, src_url: '', file_name: x.title, title: it.title || '', main_duties: [it.main_duties, it.extra ? `其他：${it.extra}` : ''].filter(Boolean).join('\n\n'),
+            locations: it.locations || '', salary_min: it.salary_min || '', salary_max: it.salary_max || '', required_conditions: [it.required_conditions, it.pay_text && !it.salary_min ? `薪資：${it.pay_text}` : ''].filter(Boolean).join('\n'),
+            corp: it.company || '', law5: it.law5 || [], read: true };
+        }
+        return { ...x, file_name: x.title, err: (it && it.error) || 'AI 沒有讀到這個，請自己填', title: mode === 'text' ? x.title : '', main_duties: mode === 'text' ? x.main_duties : '' };
+      });
+    } catch (err) { toast(err.message || '讀取失敗，請自己填', 'error'); draft = items; }
+    btn.disabled = false; btn.textContent = '整理成清單';
+    drawDraft();
   };
   box.querySelector('[data-bdj-ok]').onclick = async (e) => {
     const btn = e.currentTarget; btn.disabled = true;
