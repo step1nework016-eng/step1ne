@@ -5,6 +5,7 @@
 import { escapeHtml } from './core/security.js';
 import { api } from './core/api.js';
 import { adapters } from './adapters.js';
+import { statusBadge } from './core/status.js';
 
 const schedules=[['09:00–09:30','盤點與選 Top 3','確認客戶／人才待辦及三個主攻職缺'],['09:30–10:00','104 後台篩企業','建立 A/B/C 名單與開發理由'],['10:00–11:30','企業 BD 第一輪','聯繫 A 級企業，確認痛點與訪談機會'],['11:30–12:00','企業追蹤與資料寄送','更新狀態、寄資料、排下次跟進'],['12:00–13:00','午餐休息','休息；非必要不排工作'],['13:00–13:40','Top 3 人才地圖','職稱、競業、技能、地區、關鍵字'],['13:40–15:30','主動搜尋人才','跨平台新增名單並做初步匹配'],['15:30–16:30','人選接觸與分享機會','私訊／電話／Email；安排洽談'],['16:30–17:10','發布渠道決策','選渠道、發布／測試、記錄來源'],['17:10–17:30','17:30 洽談準備','履歷、轉職動機、薪資、適合職缺'],['17:30–18:10','已約人選洽談','確認條件、意願、下一步'],['18:10–18:30','洽談紀錄','更新 CRM、履歷、送件條件'],['18:30–19:20','晚間人選 Follow-up','追蹤在職人選；尊重聯絡時段'],['19:20–20:00','數據收盤','更新漏斗、卡點、明日 Top 3']];
 const schemas={bd:[['company','企業'],['job','104 職缺／來源'],['priority','優先','A|B|C'],['contact','窗口'],['method','聯繫方式'],['stage','階段','待篩選|待聯繫|已聯繫未接通|已接觸|有效對話|需求訪談已約|寄送資料|談合約|正式委託|暫不需要|停止開發'],['pain','痛點／需求'],['nextDate','跟進日','date'],['next','下一步']],candidate:[['name','人選'],['job','職缺'],['source','來源'],['contact','聯繫索引'],['stage','階段','名單建立|已聯繫|已回覆|已約洽談|已洽談|合格待同意|已同意推薦|已送件|客戶面試|Offer|到職|不適合'],['notes','條件'],['nextDate','跟進日','date'],['next','下一步']],channel:[['job','職缺'],['platform','平台'],['date','發布日','date'],['views','曝光','number'],['dm','私訊','number'],['line','LINE','number'],['talk','洽談','number'],['submit','送件','number'],['next','優化']]};
@@ -22,7 +23,6 @@ let consultants = null;
 let sys = { owner: localStorage.getItem(OWNER_KEY) || '', loading: false, error: '', bd: [], cands: [], at: '' };
 const BD_STAGE_MAP = { '還沒聯繫': '待聯繫', '已聯繫': '已接觸', '有興趣': '有效對話', '已寄資料': '寄送資料', '談需求': '需求訪談已約', '簽約': '正式委託', '沒興趣': '停止開發', '暫緩': '暫不需要' };
 const CAND_STAGE_MAP = { client: '已送件', interviewed: '已洽談', new: '名單建立' };
-const CAND_STAGE_LABEL = { new: '新進，還沒面談', interviewed: '已完成 AI 面談', client: '已推薦給客戶', ready: '待顧問處理', pending_screen: '待篩選' };
 const todayStr = () => new Date().toLocaleDateString('en-CA');
 const consultantName = () => { const c = (consultants || []).find((x) => x.id === sys.owner); return c ? c.display_name : ''; };
 async function loadConsultants() {
@@ -122,15 +122,21 @@ function sysTableBd() {
   if (!sys.owner) return '<div class="card"><h2>系統資料：開發進度</h2><p class="dly-hint">請先在上面選顧問。</p></div>';
   const rows = sysBdRows();
   return `<div class="card"><div class="dly-row"><h2>系統資料：${esc(consultantName())} 的開發進度 <span class="dly-small">${rows.length} 家</span></h2><button class="btn primary dly-right" data-dly="importBd">全部匯入我的表格（略過已有的公司）</button></div>
-  <p class="dly-hint">直接來自顧問後台「客戶 / BD → 開發進度」。依下次跟進日排序，到期或逾期的標紅。</p>
-  <div class="dly-scroll"><table class="dly-table"><thead><tr><th>公司</th><th>階段</th><th>標籤</th><th>窗口</th><th>電話</th><th>下次跟進</th><th>下一步</th><th>最近通話</th></tr></thead><tbody>${rows.map((r) => `<tr><td><b>${esc(r.company)}</b></td><td>${esc(r.bd_stage || '')}</td><td>${esc(r.tag || '')}</td><td>${esc(r.hr_contact || r.contact_name || '')}</td><td>${esc(r.call_phone || r.company_phone || '')}</td><td class="${r._overdue ? 'dly-danger' : ''}">${esc(r._due)}</td><td>${esc(r.next_step || '')}</td><td>${esc(String(r.last_call_at || '').slice(0, 16))}</td></tr>`).join('') || '<tr><td colspan="8" class="dly-hint">這位顧問目前沒有開發進度的公司。</td></tr>'}</tbody></table></div></div>`;
+  <p class="dly-hint">直接來自顧問後台「客戶 / BD → 開發進度」。依下次跟進日排序，到期或逾期的標紅。<b>點任何一列，就會開出該公司的開發卡片。</b></p>
+  <div class="dly-scroll"><table class="dly-table"><thead><tr><th>公司</th><th>階段</th><th>標籤</th><th>窗口</th><th>電話</th><th>下次跟進</th><th>下一步</th><th>最近通話</th></tr></thead><tbody>${rows.map((r) => `<tr data-bd-company="${esc(r.company)}" style="cursor:pointer"><td><b>${esc(r.company)}</b></td><td>${esc(r.bd_stage || '')}</td><td>${esc(r.tag || '')}</td><td>${esc(r.hr_contact || r.contact_name || '')}</td><td>${esc(r.call_phone || r.company_phone || '')}</td><td class="${r._overdue ? 'dly-danger' : ''}">${esc(r._due)}</td><td>${esc(r.next_step || '')}</td><td>${esc(String(r.last_call_at || '').slice(0, 16))}</td></tr>`).join('') || '<tr><td colspan="8" class="dly-hint">這位顧問目前沒有開發進度的公司。</td></tr>'}</tbody></table></div></div>`;
 }
+function routeTag(c) { return c.routeCode ? `<span class="badge info" title="阿財分流">${esc(c.routeCode)} ${esc(c.routeLabel || '')}</span>` : ''; }
 function sysTableCand() {
   if (!sys.owner) return '<div class="card"><h2>系統資料：人選</h2><p class="dly-hint">請先在上面選顧問。</p></div>';
   const rows = sys.cands;
-  return `<div class="card"><div class="dly-row"><h2>系統資料：${esc(consultantName())} 名下的人選 <span class="dly-small">${rows.length} 位</span></h2><button class="btn primary dly-right" data-dly="importCand">全部匯入我的表格（略過已有的代號）</button></div>
-  <p class="dly-hint">直接來自顧問後台「人選」工作台。人選用系統編號（S-xxx）。</p>
-  <div class="dly-scroll"><table class="dly-table"><thead><tr><th>編號</th><th>應徵職缺</th><th>推薦給</th><th>目前階段</th><th>分流</th><th>期望／備註</th></tr></thead><tbody>${rows.map((c) => `<tr><td><b>S-${esc(String(c.seqNo || '').padStart(3, '0'))}</b></td><td>${esc(c.job)}</td><td>${esc(c.clientName && c.clientName !== '（未綁客戶）' ? c.clientName : '')}</td><td>${esc(CAND_STAGE_LABEL[c.stage] || c.stage)}</td><td>${esc(c.routeLabel || '')}</td><td>${esc(c.expected || '')}</td></tr>`).join('') || '<tr><td colspan="6" class="dly-hint">這位顧問名下目前沒有人選。</td></tr>'}</tbody></table></div></div>`;
+  return `<div class="card"><div class="dly-row"><h2>系統資料：${esc(consultantName())} 名下的人選 <span class="dly-small">${rows.length} 位</span></h2><button class="btn primary dly-right" data-dly="importCand">全部匯入我的表格（略過已有的編號）</button></div>
+  <p class="dly-hint">直接來自顧問後台「人選」工作台，階段是後台正式的分頁階段。<b>點任何一列，就會開出該人選的卡片。</b></p>
+  <div class="dly-scroll"><table class="dly-table"><thead><tr><th>人選</th><th>應徵職缺</th><th>推薦給</th><th>目前階段</th><th>阿財分流</th><th>聯絡方式</th><th>期望待遇</th><th>進件時間</th></tr></thead><tbody>${rows.map((c) => {
+    const placeholder = c.email && /@no-email\.step1ne\.local$/i.test(String(c.email).trim());
+    const contact = [c.phone, (c.email && !placeholder) ? c.email : null].filter(Boolean).join(' · ') || '未留聯絡方式';
+    const bound = c.clientName && c.clientName !== '（未綁客戶）';
+    return `<tr data-application="${esc(c.applicationId)}" style="cursor:pointer"><td><small class="dly-small">${c.seqNo ? '#' + esc(c.seqNo) : ''}</small> <b>${esc(c.name)}</b>${c.lineBound ? ' <span class="badge success">LINE</span>' : ''}</td><td>${esc(c.job)}</td><td>${bound ? esc(c.clientName) : '—'}</td><td>${statusBadge(c.stage)}</td><td>${routeTag(c)}</td><td>${esc(contact)}</td><td>${esc(c.expected || '')}</td><td>${esc(String(c.updatedAt || '').slice(0, 16))}</td></tr>`;
+  }).join('') || '<tr><td colspan="8" class="dly-hint">這位顧問名下目前沒有人選。</td></tr>'}</tbody></table></div></div>`;
 }
 function importBd() {
   const have = new Set(state.bd.map((x) => (x.company || '').trim()));
@@ -143,12 +149,12 @@ function importBd() {
   return n;
 }
 function importCand() {
-  const have = new Set(state.candidate.map((x) => (x.name || '').trim()));
+  const have = new Set(state.candidate.map((x) => (x.name || '').trim().split(' ')[0]));
   let n = 0;
   sys.cands.forEach((c) => {
     const code = 'S-' + String(c.seqNo || '').padStart(3, '0');
     if (have.has(code)) return;
-    state.candidate.push({ name: code, job: c.job || '', source: c.source || '', contact: '', stage: CAND_STAGE_MAP[c.stage] || '已洽談', notes: c.expected || '', nextDate: '', next: '' });
+    state.candidate.push({ name: code + ' ' + (c.name || ''), job: c.job || '', source: c.source || '', contact: '', stage: CAND_STAGE_MAP[c.stage] || '已洽談', notes: c.expected || '', nextDate: '', next: '' });
     n += 1;
   });
   return n;
