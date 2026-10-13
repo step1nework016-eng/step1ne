@@ -2149,7 +2149,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
           ${oid ? actionBtn('記錄電話結果', 'bd-call-result', { idParams: { id: oid } }, 'primary') : ''}
           ${aiMode ? `<button type="button" class="btn sm" data-bd-promote="${escapeHtml(r.company)}" title="決定要開發這家：移到開發進度，負責人是你">加入開發進度</button>` : ''}
           <button type="button" class="btn ghost sm" data-bd-mail="${escapeHtml(r.company)}" title="直接打開寄公司介紹信那一段">寄公司介紹信</button>
-          ${r.stage === 'closed' || aiMode ? '' : actionBtn('新增未簽約職缺', 'bd-social-job', { idParams: { company: r.company }, record: { assigned_to: r.assigned_to } })}
+          ${r.stage === 'closed' || aiMode ? '' : `<button type="button" class="btn ghost sm" data-bd-jobs="${escapeHtml(r.company)}" title="打開客戶卡片的「客戶提供的職缺」分頁">新增未簽約職缺</button>`}
           ${r.stage === 'closed' ? '<span class="badge success">已是正式客戶</span>' : actionBtn('簽約了，轉成正式客戶', 'bd-promote-client', { idParams: { company: r.company }, record: { assigned_to: r.assigned_to } })}
           ${views.parkBtn(r.company, !!r.parked_at, r.assigned_to)}
         </div>
