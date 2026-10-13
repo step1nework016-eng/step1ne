@@ -22,6 +22,7 @@ let consultants = null;
 let sys = { owner: localStorage.getItem(OWNER_KEY) || '', loading: false, error: '', bd: [], cands: [], at: '' };
 const BD_STAGE_MAP = { '還沒聯繫': '待聯繫', '已聯繫': '已接觸', '有興趣': '有效對話', '已寄資料': '寄送資料', '談需求': '需求訪談已約', '簽約': '正式委託', '沒興趣': '停止開發', '暫緩': '暫不需要' };
 const CAND_STAGE_MAP = { client: '已送件', interviewed: '已洽談', new: '名單建立' };
+const CAND_STAGE_LABEL = { new: '新進，還沒面談', interviewed: '已完成 AI 面談', client: '已推薦給客戶', ready: '待顧問處理', pending_screen: '待篩選' };
 const todayStr = () => new Date().toLocaleDateString('en-CA');
 const consultantName = () => { const c = (consultants || []).find((x) => x.id === sys.owner); return c ? c.display_name : ''; };
 async function loadConsultants() {
@@ -129,7 +130,7 @@ function sysTableCand() {
   const rows = sys.cands;
   return `<div class="card"><div class="dly-row"><h2>系統資料：${esc(consultantName())} 名下的人選 <span class="dly-small">${rows.length} 位</span></h2><button class="btn primary dly-right" data-dly="importCand">全部匯入我的表格（略過已有的代號）</button></div>
   <p class="dly-hint">直接來自顧問後台「人選」工作台。人選用系統編號（S-xxx）。</p>
-  <div class="dly-scroll"><table class="dly-table"><thead><tr><th>編號</th><th>應徵職缺</th><th>推薦給</th><th>目前階段</th><th>分流</th><th>期望／備註</th></tr></thead><tbody>${rows.map((c) => `<tr><td><b>S-${esc(String(c.seqNo || '').padStart(3, '0'))}</b></td><td>${esc(c.job)}</td><td>${esc(c.clientName && c.clientName !== '（未綁客戶）' ? c.clientName : '')}</td><td>${esc(c.stage)}</td><td>${esc(c.routeLabel || '')}</td><td>${esc(c.expected || '')}</td></tr>`).join('') || '<tr><td colspan="6" class="dly-hint">這位顧問名下目前沒有人選。</td></tr>'}</tbody></table></div></div>`;
+  <div class="dly-scroll"><table class="dly-table"><thead><tr><th>編號</th><th>應徵職缺</th><th>推薦給</th><th>目前階段</th><th>分流</th><th>期望／備註</th></tr></thead><tbody>${rows.map((c) => `<tr><td><b>S-${esc(String(c.seqNo || '').padStart(3, '0'))}</b></td><td>${esc(c.job)}</td><td>${esc(c.clientName && c.clientName !== '（未綁客戶）' ? c.clientName : '')}</td><td>${esc(CAND_STAGE_LABEL[c.stage] || c.stage)}</td><td>${esc(c.routeLabel || '')}</td><td>${esc(c.expected || '')}</td></tr>`).join('') || '<tr><td colspan="6" class="dly-hint">這位顧問名下目前沒有人選。</td></tr>'}</tbody></table></div></div>`;
 }
 function importBd() {
   const have = new Set(state.bd.map((x) => (x.company || '').trim()));
