@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>顧問每日工作台</title>
+<style>
+:root{--bg:#eef3f6;--card:#fff;--ink:#12212e;--mute:#566878;--line:#d5dee6;--pri:#0e6f7a;--pri-d:#0a525b;--hdr:#0f2a3d;--amber:#c75c00;--amber-bg:#fff1e3;--ok:#0a7a4a;--bad:#b3261e;--soft:#e6f2f4}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:128px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif}
+.top{position:sticky;top:0;z-index:20;background:var(--hdr);color:#fff;box-shadow:0 2px 10px #0003}
+.top-in{max-width:1180px;margin:auto;padding:10px 16px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.top h1{margin:0;font-size:18px;font-weight:700}
+.top .meta{font-size:13px;opacity:.85}
+.bar{height:6px;background:#ffffff30;border-radius:6px;overflow:hidden;flex:1;min-width:120px}
+.bar>i{display:block;height:100%;background:#4fd1c5;width:0}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:8px 0 2px;scrollbar-width:thin}
+.chips a{white-space:nowrap;color:#fff;text-decoration:none;font-size:14px;padding:6px 12px;border-radius:20px;background:#ffffff1c;min-height:34px;display:inline-flex;align-items:center}
+.chips a:hover{background:#ffffff38}
+.w{max-width:1180px;margin:auto;padding:14px 16px 80px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:14px 0}
+h2{margin:0 0 4px;font-size:19px}
+h2 small{font-weight:400;color:var(--mute);font-size:14px;margin-left:8px}
+.hint{color:var(--mute);font-size:14px;margin:2px 0 10px}
+label{display:block;font-size:13px;color:var(--mute);margin-bottom:3px}
+input,select,textarea,button{font:inherit}
+input,select,textarea{width:100%;border:1px solid #bccad5;border-radius:8px;padding:9px 10px;background:#fff;color:var(--ink);min-height:44px}
+textarea{min-height:84px;resize:vertical}
+.btn{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:9px;padding:9px 14px;cursor:pointer;font-weight:600;min-height:44px}
+.btn.pri{background:var(--pri);border-color:var(--pri);color:#fff}
+.btn.pri:hover{background:var(--pri-d)}
+.btn.sm{min-height:36px;padding:5px 10px;font-size:14px}
+.btn.del{color:var(--bad)}
+:focus-visible{outline:3px solid #f2a900;outline-offset:2px}
+.grid{display:grid;gap:10px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}
+.kpi{background:var(--soft);border-radius:10px;padding:10px 12px}
+.kpi b{display:block;font-size:26px;color:var(--pri-d);line-height:1.1}
+.kpi span{font-size:13px;color:var(--mute)}
+.split{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}
+@media(max-width:860px){.split{grid-template-columns:1fr}}
+.slot{display:grid;grid-template-columns:28px 108px 1fr;gap:8px;align-items:start;padding:8px 6px;border-bottom:1px solid var(--line)}
+.slot:last-child{border-bottom:0}
+.slot input[type=checkbox]{width:22px;height:22px;min-height:0;margin-top:3px}
+.slot .t{font-weight:700;font-size:14px}
+.slot .w2{font-size:15px}
+.slot .d{font-size:13px;color:var(--mute)}
+.slot.now{background:var(--amber-bg);border-radius:10px;border:1px solid #f0b377}
+.slot.now .t::after{content:" ← 現在";color:var(--amber);font-weight:700}
+.slot.done .w2{text-decoration:line-through;color:var(--mute)}
+.slot input.note{grid-column:3;min-height:36px;font-size:14px;margin-top:4px}
+.log-row{display:flex;gap:10px;padding:9px 4px;border-bottom:1px solid var(--line);align-items:flex-start}
+.log-row .tm{font-weight:700;font-size:14px;min-width:46px;color:var(--pri-d)}
+.tag{display:inline-block;font-size:12px;background:var(--soft);color:var(--pri-d);border-radius:6px;padding:1px 8px;margin-right:6px}
+.empty{color:var(--mute);font-size:14px;padding:8px 2px}
+details.sec{border:1px solid var(--line);border-radius:12px;background:#fff;margin:10px 0;padding:0}
+details.sec>summary{cursor:pointer;font-weight:700;padding:12px 16px;min-height:44px;display:flex;align-items:center;gap:8px;list-style:none}
+details.sec>summary::-webkit-details-marker{display:none}
+details.sec>summary::before{content:"▸";color:var(--pri);transition:transform .15s}
+details.sec[open]>summary::before{transform:rotate(90deg)}
+details.sec .in{padding:4px 16px 16px}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:760px;font-size:14px}
+th,td{border-bottom:1px solid var(--line);padding:6px 5px;text-align:left;vertical-align:middle}
+th{background:#eef4f7;color:#38505f;font-size:13px}
+td input,td select{min-height:38px;padding:5px 7px;min-width:92px}
+.script{white-space:pre-wrap;background:#f3f8fa;border:1px solid var(--line);border-radius:10px;padding:14px;line-height:1.8}
+.chk{display:flex;gap:10px;align-items:flex-start;min-height:44px;padding:5px 0;cursor:pointer}
+.chk input{width:22px;height:22px;min-height:0;margin-top:2px;flex:none}
+.warn{background:var(--amber-bg);border-left:4px solid var(--amber);padding:8px 12px;border-radius:8px;font-size:14px;margin:8px 0}
+.day{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:10px 0;background:#fff}
+.day h3{margin:0 0 4px;font-size:16px}
+.day .nums{font-size:13px;color:var(--mute);margin-bottom:6px}
+.day blockquote{margin:6px 0;padding:6px 12px;border-left:4px solid var(--pri);background:var(--soft);border-radius:6px;font-size:15px}
+.fab{position:fixed;right:16px;bottom:16px;z-index:25;box-shadow:0 4px 14px #0004}
+.saved{font-size:13px;color:#bfe9e4}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+@media print{.top,.fab,.no-print{display:none!important}details.sec{display:block}details.sec>summary{display:none}}
+@media(prefers-color-scheme:dark){:root{--bg:#0d151c;--card:#16212b;--ink:#e8eef3;--mute:#9db0bf;--line:#2a3a47;--soft:#183a40;--amber-bg:#3a2a12}
+input,select,textarea,.btn,details.sec,.day{background:#16212b;color:var(--ink)}th{background:#1c2a35;color:#b8cad6}.script{background:#122029}.day blockquote{background:#183a40}.slot.now{border-color:#8a5a22}}
+</style>
+</head>
+<body>
+
+<div class="top no-print">
+  <div class="top-in">
+    <div class="row">
+      <h1>🎯 顧問每日工作台</h1>
+      <span class="meta">一頁做完：流程、紀錄、反思、回味</span>
+      <span class="saved" id="savedAt"></span>
+    </div>
+    <div class="row" style="margin-top:6px">
+      <div style="min-width:150px"><input id="day" type="date" aria-label="工作日期"></div>
+      <div class="bar" title="今日時段完成度"><i id="bar"></i></div>
+      <span class="meta" id="barTxt">0/0</span>
+      <span class="meta" id="actTxt">今天 0 件事</span>
+    </div>
+    <nav class="chips" aria-label="頁面快速跳轉">
+      <a href="#flow">① 今日流程</a><a href="#log">② 做了什麼</a><a href="#pipe">③ 開發與人選</a><a href="#call">④ 電洽前後</a><a href="#script">⑤ 話術</a><a href="#close">⑥ 收盤反思</a><a href="#recall">⑦ 回味</a>
+    </nav>
+  </div>
+</div>
+
+<div class="w">
+
+<section class="card" id="flow">
+  <h2>① 今日流程 <small>跟著時間走，打勾就算完成</small></h2>
+  <div class="grid g2" style="margin:8px 0 12px">
+    <div><label>今日 Top 3（用 / 分隔）</label><input id="top3" placeholder="例：財務主管 / 供應鏈副總 / 金邊辦公室"></div>
+    <div><label>今天最重要的一件事</label><input id="mustDo" placeholder="只寫一件，做完就算今天有交代"></div>
+  </div>
+  <div class="split">
+    <div id="slots"></div>
+    <div>
+      <div class="grid g4" id="kpis"></div>
+      <h3 style="margin:14px 0 4px;font-size:15px">今天要跟進（到期或逾期）</h3>
+      <div id="due"></div>
+    </div>
+  </div>
+</section>
+
+<section class="card" id="log">
+  <h2>② 今天做了什麼 <small>做完一件就記一行，10 秒</small></h2>
+  <p class="hint">這是回味的原料。一行就好：誰、做了什麼、結果、下一步。</p>
+  <div class="grid g2">
+    <div><label>類型</label><select id="lgType"><option>電話</option><option>寄信</option><option>LinkedIn／LINE 訊息</option><option>面談／會議</option><option>推薦人選</option><option>找人／研究</option><option>跟客戶</option><option>行政／系統</option><option>其他</option></select></div>
+    <div><label>對象（公司或人選代號）</label><input id="lgWho" placeholder="例：S-097、大魯閣"></div>
+  </div>
+  <div class="grid g2" style="margin-top:8px">
+    <div><label>做了什麼、結果</label><input id="lgWhat" placeholder="例：電話約到 10/16 14:00 面談"></div>
+    <div><label>下一步（選填）</label><input id="lgNext" placeholder="例：明天寄匿名摘要"></div>
+  </div>
+  <div class="row" style="margin-top:10px"><button class="btn pri" id="lgAdd">＋ 記一筆</button><span class="hint" style="margin:0">按 Enter 也可以</span></div>
+  <div id="lgList" style="margin-top:10px"></div>
+</section>
+
+<section class="card" id="pipe">
+  <h2>③ 開發與人選 <small>全部在這頁，不用切換</small></h2>
+  <details class="sec" open><summary>🏢 企業開發紀錄 <span class="tag" id="cBd">0</span></summary><div class="in">
+    <div class="row"><button class="btn pri sm" data-add="bd">＋新增企業</button><button class="btn sm" data-csv="bd">匯出 CSV</button></div>
+    <div class="scroll"><table id="tbBd"><thead></thead><tbody></tbody></table></div></div></details>
+  <details class="sec" open><summary>👤 人選追蹤 <span class="tag" id="cCand">0</span></summary><div class="in">
+    <p class="hint">只記工作需要的資訊，不放身分證與完整履歷。對外推薦前確認人選同意。人選用系統代號（S-xxx）。</p>
+    <div class="row"><button class="btn pri sm" data-add="candidate">＋新增人選</button><button class="btn sm" data-csv="candidate">匯出 CSV</button></div>
+    <div class="scroll"><table id="tbCand"><thead></thead><tbody></tbody></table></div></div></details>
+  <details class="sec"><summary>📣 渠道實驗 <span class="tag" id="cCh">0</span></summary><div class="in">
+    <div class="row"><button class="btn pri sm" data-add="channel">＋新增渠道</button><button class="btn sm" data-csv="channel">匯出 CSV</button></div>
+    <div class="scroll"><table id="tbCh"><thead></thead><tbody></tbody></table></div></div></details>
+</section>
+
+<section class="card" id="call">
+  <h2>④ 電洽前後 <small>你的四條原則：獵頭技巧、人資長視角帶好奇、先做功課、深問</small></h2>
+  <div class="grid g2">
+    <div>
+      <h3 style="font-size:16px;margin:6px 0">📞 打之前（預留 20 分鐘）</h3>
+      <label class="chk"><input type="checkbox" data-pre="hard"><span>職缺<b>硬條件</b>寫成 3～5 條</span></label>
+      <label class="chk"><input type="checkbox" data-pre="resume"><span>履歷讀完，標出<b>對得上／對不上</b></span></label>
+      <label class="chk"><input type="checkbox" data-pre="ai"><span>看過 AI 面談報告與表單（薪資期望、動機）</span></label>
+      <label class="chk"><input type="checkbox" data-pre="q3"><span>寫下 <b>3 個要問的問題</b>，其中 1 個是「最可能讓他出局的」</span></label>
+      <label class="chk"><input type="checkbox" data-pre="mind"><span>心態：用<b>人資長的眼睛</b>、帶著好奇，不急著推薦</span></label>
+      <div class="warn">不談對方年齡。時間盒：5 分鐘確認硬條件、15 分鐘深問、5 分鐘談後續。</div>
+    </div>
+    <div>
+      <h3 style="font-size:16px;margin:6px 0">📝 打完 3 分鐘：記一張反思卡</h3>
+      <div class="grid g2">
+        <div><label>人選／公司</label><input id="cWho" placeholder="S-093"></div>
+        <div><label>判斷</label><select id="cVerdict"><option>先補問</option><option>推</option><option>不推</option></select></div>
+      </div>
+      <label style="margin-top:8px">硬條件逐條：符合／不符合／還沒問到</label>
+      <textarea id="cHard" placeholder="15 年紡織：不符合&#10;英文：還沒問到"></textarea>
+      <label style="margin-top:8px">這通我<b>該追問卻沒追問</b>的地方</label>
+      <textarea id="cMiss"></textarea>
+      <label style="margin-top:8px">下次一定要做的一件事</label>
+      <input id="cNext">
+      <div class="row" style="margin-top:8px"><button class="btn pri" id="cAdd">存這張反思卡</button></div>
+    </div>
+  </div>
+  <h3 style="font-size:16px;margin:14px 0 4px">今天的反思卡</h3>
+  <div id="cList"></div>
+</section>
+
+<section class="card" id="script">
+  <h2>⑤ 話術 <small>選一個、複製、貼上</small></h2>
+  <div class="grid g2">
+    <div><label>情境</label><select id="scSel"></select></div>
+    <div style="display:flex;align-items:end"><button class="btn pri" id="scCopy">複製話術</button></div>
+  </div>
+  <p class="hint" id="scTip" style="margin-top:8px"></p>
+  <div class="script" id="scText"></div>
+  <div class="warn">公開場合（臉書社團、公開留言）不放統編、許可證字號、信箱、職缺內容。柬埔寨相關外聯先講「請教、不是帶人出去」。</div>
+</section>
+
+<section class="card" id="close">
+  <h2>⑥ 收盤反思 <small>19:20–20:00，寫 5 分鐘就好</small></h2>
+  <div class="grid g2">
+    <div><label>今天最有價值的一場對話</label><textarea id="rBd"></textarea></div>
+    <div><label>卡點與人才突破</label><textarea id="rTalent"></textarea></div>
+    <div><label>我今天學到什麼（一句話，會出現在回味）</label><textarea id="rLearn"></textarea></div>
+    <div><label>明天優先 3 件事</label><textarea id="rTomorrow"></textarea></div>
+    <div><label>需要老闆或客戶決策的事</label><textarea id="rBlock"></textarea></div>
+    <div><label>今天最想感謝或最值得保留的一件事</label><textarea id="rGood"></textarea></div>
+  </div>
+  <div class="row" style="margin-top:10px"><button class="btn pri" id="rSave">儲存今天</button><button class="btn" id="rTxt">匯出今日摘要 TXT</button></div>
+</section>
+
+<section class="card" id="recall">
+  <h2>⑦ 回味 <small>翻過去的日子，看自己怎麼長大的</small></h2>
+  <div class="row" style="margin-bottom:8px">
+    <div style="flex:1;min-width:200px"><input id="rcSearch" placeholder="搜尋：公司、人選、學到的事、反思卡…"></div>
+    <button class="btn" id="rcRandom">🎲 隨機回味一則</button>
+    <button class="btn" id="rcExport">匯出全部備份</button>
+    <button class="btn" id="rcImport">匯入備份</button>
+    <input id="rcFile" type="file" accept=".json" hidden>
+  </div>
+  <div id="rcWeek" class="hint"></div>
+  <div id="rcPick"></div>
+  <div id="rcList"></div>
+  <p class="hint">資料存在這個瀏覽器，不會上傳。換電腦或手機前請先「匯出全部備份」。</p>
+</section>
+
+</div>
+<button class="btn pri fab no-print" id="fabSave">儲存今天</button>
+
+<script>
+const SLOTS=[['09:00','09:30','盤點與選 Top 3','看昨天的下一步與今天要跟進的，定 3 個主攻'],['09:30','10:00','104／系統篩企業與人選','建立 A/B/C 名單與開發理由'],['10:00','11:30','企業開發第一輪','打電話或寄信，確認需求與窗口'],['11:30','12:00','追蹤與寄資料','更新狀態、寄資料、排下次跟進'],['12:00','13:00','午餐休息','休息；非必要不排工作'],['13:00','13:40','人才地圖','職稱、競業、技能、地區、關鍵字'],['13:40','15:30','主動找人','跨平台新增名單並做初步匹配'],['15:30','16:30','接觸人選','訊息／電話／Email，安排洽談'],['16:30','17:10','渠道決策','選渠道、發布或測試、記錄來源'],['17:10','17:30','電洽前功課（20 分鐘）','硬條件、履歷對照、3 個問題'],['17:30','18:10','電洽／面談','人資長視角、好奇、深問'],['18:10','18:30','電洽後 3 分鐘','逐條對硬條件、寫判斷與反思卡'],['18:30','19:20','晚間跟進','追蹤在職人選，尊重聯絡時段'],['19:20','20:00','收盤','更新漏斗、卡點、學到什麼、明日 3 件事']];
+const TYPES=['電話','寄信','LinkedIn／LINE 訊息','面談／會議','推薦人選','找人／研究','跟客戶','行政／系統','其他'];
+const SCHEMAS={
+ bd:[['company','企業'],['source','來源／職缺'],['priority','優先','A|B|C'],['contact','窗口'],['phone','電話或信箱'],['stage','階段','待聯繫|已聯繫未接通|已接觸|有效對話|已約需求訪談|寄送資料|談合約|正式委託|暫不需要|停止開發'],['pain','痛點／需求'],['nextDate','跟進日','date'],['next','下一步']],
+ candidate:[['name','人選代號'],['job','目標職缺'],['source','來源'],['contact','聯繫索引'],['stage','階段','名單建立|已聯繫|已回覆|已約洽談|已洽談|合格待同意|已同意推薦|已送件|客戶面試|Offer|到職|不適合'],['notes','薪資／動機／條件'],['nextDate','跟進日','date'],['next','下一步']],
+ channel:[['job','職缺'],['platform','平台'],['date','發布日','date'],['views','曝光','number'],['dm','私訊','number'],['line','LINE','number'],['talk','洽談','number'],['submit','送件','number'],['next','下一次優化']]
+};
+const TB={bd:'tbBd',candidate:'tbCand',channel:'tbCh'};
+const SCRIPTS=[
+['企業｜總機轉接','您好，我是 Step1ne 的獵才顧問。我留意到貴公司目前有招募【職稱】，想向負責該職缺的窗口確認目前需求。方便協助轉接人資，或提供適合聯繫的窗口嗎？','目標：取得正確窗口；不要求不必要的個人資訊。'],
+['企業｜首次聯繫 HR','您好，我是 Step1ne 的獵才顧問。我看到貴公司目前在招募【職稱】，想先確認這個職缺是否仍在招募？\n\n我們主要協助企業接觸尚未積極投遞履歷的在職人才。想請教目前招募比較困難的是履歷數量、專業經驗匹配，還是面試後的留任意願？\n\n若有招募瓶頸，我希望約 15 分鐘了解職務與需求，再評估是否有適合的協助方式。','先問現況與痛點；不預設企業一定缺人。104 的缺多半是對方自己在找，先承認他們自己在找，價值放在「難補、開很久的缺」與「多一個人才池」。'],
+['企業｜已有配合的獵頭','了解，貴公司已經有配合的夥伴很好。我們找的是另外一個人才池，不同池子多看一次機會，大部分公司也都會同時跟兩三家配合。想請教，目前有沒有比較難補、開很久的缺，可以讓我們協助多看看？','不說取代，說「多一個池子」。'],
+['企業｜確認需求訪談','為避免推薦方向有落差，想先確認：這次是補人還是擴編、主要任務、必備條件、薪資預算、工作地點、面試流程、預計到職時間。\n\n另外，這個職位目前最難找到的是哪一項能力？','會後整理 JD、必備與加分條件、決策者。'],
+['企業｜寄服務介紹','您好，感謝剛才的交流。依我們討論的【職缺】，先提供服務流程與合作條款供您內部評估。方便安排【日期／時段】約 15 到 20 分鐘，進一步確認工作內容、薪資與招募時程嗎？謝謝。','只承諾實際可提供的資料與服務；寄合約只說「供參考」，不催簽。'],
+['企業｜已自行找到人','了解，恭喜貴公司順利找到合適的人才。我先不打擾目前的安排。未來若遇到較難補齊的專業職或主管職，歡迎把我們當作備援資源。','不硬推。'],
+['企業｜暫不使用獵頭','了解，現階段以內部招募為主很合理。未來若有特定職位招募超過預期時間，貴公司是否會考慮外部協助？若可以，我會在適當時間簡短確認，不會頻繁打擾。','取得追蹤許可，尊重拒絕。'],
+['企業｜7–14 天跟進','您好，我是之前聯繫過您的 Step1ne 顧問。上次提到【職稱】仍在招募，想確認目前進度是否順利？如果人選品質或時程仍有挑戰，我可以先針對這個職缺整理人才搜尋方向，供您判斷是否需要額外支援。','跟進要有上次談話的脈絡。'],
+['人選｜首次主動接觸','您好，我是 Step1ne 的獵才顧問，目前協助企業尋找【職稱／領域】人才。留意到您有【相關專長】的背景，想問您近期是否願意了解合適的職涯機會？\n\n方便的話，我先分享職務方向、工作地點與薪資區間，您評估有興趣再安排簡短交流。','不虛構對方經歷。若職缺要求英文，開頭就講「英文需能獨立開會與談判」，先篩掉不符的。'],
+['人選｜分享職缺與邀約','這次機會主要負責【工作重點】，地點在【地區】，薪資約【區間】，核心條件是【必備能力】，英文需能獨立開會。想先了解這類工作是否符合您下一階段的方向？有興趣的話，可以安排 15 到 20 分鐘電話，確認工作內容與雙方期待。','資訊未經確認時標示「待確認」。'],
+['人選｜電話洽談（深問版）','想先從您目前的工作內容開始：這份工作你每天實際做什麼？舉最近一個專案，從頭講到尾。你向誰報告、底下幾人、自己能拍板的是哪些事？\n\n為什麼現在想看機會？下一份最看重職務、薪資、地點或發展的哪幾項？最快何時可到職？','用人資長的眼睛。追問三層：什麼 → 多少 → 怎麼做與結果。不談年齡。'],
+['人選｜取得推薦同意','依剛才討論，您與【職缺】的匹配點是【具體能力】，需要再確認的是【差距】。若您願意，我會先提供職缺資訊供您評估；取得您的同意後，再依約定範圍提交履歷或匿名摘要。可以嗎？','未取得同意前，不向企業傳送可識別的資料。'],
+['人選｜未回覆追蹤','您好，前幾天有分享【職稱】的機會，不確定您是否有看到。若目前沒有轉職規劃也完全沒關係；有興趣的話，我可以提供更完整的內容供您評估。謝謝。','追蹤 1 到 2 次後暫停。'],
+['人選｜洽談後結尾','謝謝今天的交流。整理一下共識：您優先考慮【方向】、期望【薪資／地點】、預計【時間】。下一步我會在【日期】前提供【資訊／待確認問題】，若您決定參與推薦，我們再確認履歷提交範圍。','不說「一定推薦」，承諾的是「回覆」。寫明雙方下一步與日期。'],
+['人選｜婉拒（不適合這個缺）','謝謝您撥空聊。我把您的資料與職缺逐條對照後，這個缺對【條件】要求比較高，與您的背景重點不太一樣，所以先不往下推。您的【強項】我先留著，有適合的缺會再聯絡您。謝謝。','誠實、具體、留後路；不提年齡與性別。'],
+['企業｜人才反向開發','您好，我是 Step1ne 的獵才顧問。近期我們觀察到【領域】具備【能力組合】的人才流動，想了解貴公司是否有相關團隊擴編或關鍵職位規劃？若有需求，我可以先協助釐清人才條件與市場可行性。','若指向特定人選，須先確認對外揭露同意與匿名程度。']
+];
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const PRE='hh-daily-v3-', OLD='headhunter-v2-';
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+let S=null;
+function fresh(){return {top3:'',mustDo:'',slots:SLOTS.map(()=>({done:false,note:''})),pre:{},log:[],calls:[],bd:[],candidate:[],channel:[],rBd:'',rTalent:'',rLearn:'',rTomorrow:'',rBlock:'',rGood:''}}
+function rd(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}}
+function wr(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}
+function load(){
+  const day=$('day').value;
+  let st=rd(PRE+day);
+  if(!st){const o=rd(OLD+day);st=fresh();if(o){st.top3=o.top3||'';st.bd=o.bd||[];st.candidate=o.candidate||[];st.channel=o.channel||[];st.rBd=o.reviewBd||'';st.rTalent=o.reviewTalent||'';st.rTomorrow=o.reviewTomorrow||'';st.rBlock=o.reviewBlock||'';if(o.schedule&&o.schedule.length===st.slots.length)st.slots=o.schedule}}
+  const f=fresh();for(const k in f){if(st[k]===undefined)st[k]=f[k]}
+  if(!Array.isArray(st.slots)||st.slots.length!==SLOTS.length)st.slots=f.slots;
+  S=st;
+  $('top3').value=S.top3;$('mustDo').value=S.mustDo;
+  ['rBd','rTalent','rLearn','rTomorrow','rBlock','rGood'].forEach(k=>$(k).value=S[k]||'');
+  document.querySelectorAll('[data-pre]').forEach(c=>c.checked=!!S.pre[c.dataset.pre]);
+  renderAll();
+}
+function collect(){S.top3=$('top3').value;S.mustDo=$('mustDo').value;['rBd','rTalent','rLearn','rTomorrow','rBlock','rGood'].forEach(k=>S[k]=$(k).value)}
+let tmr=null;
+function save(now){collect();const ok=wr(PRE+$('day').value,S);const t=new Date();$('savedAt').textContent=ok?('已儲存 '+String(t.getHours()).padStart(2,'0')+':'+String(t.getMinutes()).padStart(2,'0')):'⚠ 儲存失敗（瀏覽器不讓寫入）';renderHead();if(now)renderAll()}
+function saveSoon(){clearTimeout(tmr);tmr=setTimeout(()=>save(false),400)}
+
+function nowMin(){const d=new Date();return d.getHours()*60+d.getMinutes()}
+const tm=s=>{const [h,m]=s.split(':').map(Number);return h*60+m};
+function renderSlots(){
+  const isToday=$('day').value===today(), n=nowMin();
+  $('slots').innerHTML=SLOTS.map((r,i)=>{
+    const cur=isToday&&n>=tm(r[0])&&n<tm(r[1]);
+    const dn=S.slots[i].done;
+    return `<div class="slot${cur?' now':''}${dn?' done':''}"><input type="checkbox" ${dn?'checked':''} data-slot="${i}" aria-label="完成 ${esc(r[2])}"><div class="t">${r[0]}–${r[1]}</div><div><div class="w2"><b>${esc(r[2])}</b></div><div class="d">${esc(r[3])}</div></div><input class="note" data-snote="${i}" placeholder="成果或備註" value="${esc(S.slots[i].note)}"></div>`}).join('');
+}
+function cnt(t,fn){return S[t].filter(fn).length}
+function renderKpi(){
+  const k=[['今天做了幾件事',S.log.length],['時段完成',S.slots.filter(x=>x.done).length+'/'+SLOTS.length],['企業已接觸',cnt('bd',x=>x.stage&&!['待聯繫'].includes(x.stage))],['有效企業對話',cnt('bd',x=>['有效對話','已約需求訪談','寄送資料','談合約','正式委託'].includes(x.stage))],['人選已接觸',cnt('candidate',x=>x.stage&&x.stage!=='名單建立')],['人選已洽談',cnt('candidate',x=>['已洽談','合格待同意','已同意推薦','已送件','客戶面試','Offer','到職'].includes(x.stage))],['已送件',cnt('candidate',x=>['已送件','客戶面試','Offer','到職'].includes(x.stage))],['反思卡',S.calls.length]];
+  $('kpis').innerHTML=k.map(([n,v])=>`<div class="kpi"><b>${v}</b><span>${n}</span></div>`).join('');
+}
+function renderDue(){
+  const d=$('day').value;
+  const items=[...S.bd.filter(x=>x.nextDate&&x.nextDate<=d).map(x=>'🏢 '+(x.company||'未命名企業')+'｜'+(x.next||'待跟進')),...S.candidate.filter(x=>x.nextDate&&x.nextDate<=d).map(x=>'👤 '+(x.name||'未命名人選')+'｜'+(x.next||'待跟進'))];
+  // 前一天留下的「下一步」
+  const prev=lastDays(1,d)[0];
+  const carry=prev&&prev.data.rTomorrow?('<div class="warn"><b>昨天寫的明日 3 件事：</b><br>'+esc(prev.data.rTomorrow).replace(/\n/g,'<br>')+'</div>'):'';
+  $('due').innerHTML=carry+(items.length?items.map(x=>`<div class="log-row">${esc(x)}</div>`).join(''):'<div class="empty">沒有已登錄的到期跟進。每筆有效對話都要設下一步日期。</div>');
+}
+function renderLog(){
+  const rows=S.log.slice().sort((a,b)=>a.t<b.t?-1:1);
+  $('lgList').innerHTML=rows.length?rows.map(r=>{const i=S.log.indexOf(r);return `<div class="log-row"><div class="tm">${esc(r.t)}</div><div style="flex:1"><span class="tag">${esc(r.type)}</span><b>${esc(r.who)}</b> ${esc(r.what)}${r.next?`<div class="hint" style="margin:2px 0 0">→ ${esc(r.next)}</div>`:''}</div><button class="btn sm del" data-lgdel="${i}" aria-label="刪除">✕</button></div>`}).join(''):'<div class="empty">今天還沒記任何事。做完第一件，就記一行。</div>';
+  $('actTxt').textContent='今天 '+S.log.length+' 件事';
+}
+function tableHead(type){return '<tr>'+SCHEMAS[type].map(c=>`<th>${c[1]}</th>`).join('')+'<th></th></tr>'}
+function renderTable(type){
+  const el=$(TB[type]);
+  el.querySelector('thead').innerHTML=tableHead(type);
+  el.querySelector('tbody').innerHTML=S[type].map((row,i)=>'<tr>'+SCHEMAS[type].map(([key,label,kind])=>{
+    if(kind&&kind.includes('|'))return `<td><select data-t="${type}" data-i="${i}" data-k="${key}">${kind.split('|').map(v=>`<option ${row[key]===v?'selected':''}>${esc(v)}</option>`).join('')}</select></td>`;
+    const ty=kind==='date'?'date':kind==='number'?'number':'text';
+    return `<td><input type="${ty}" ${kind==='number'?'min="0"':''} placeholder="${esc(label)}" value="${esc(row[key])}" data-t="${type}" data-i="${i}" data-k="${key}"></td>`}).join('')+`<td><button class="btn sm del" data-rm="${type}:${i}">刪除</button></td></tr>`).join('')||`<tr><td colspan="${SCHEMAS[type].length+1}" class="empty">還沒有資料，按上面的「新增」。</td></tr>`;
+}
+function renderCalls(){
+  $('cList').innerHTML=S.calls.length?S.calls.map((c,i)=>`<div class="day"><h3>${esc(c.who)} <span class="tag">${esc(c.verdict)}</span> <button class="btn sm del" data-cdel="${i}" style="float:right">刪除</button></h3><div class="hint">${esc(c.t)}</div><div><b>硬條件：</b>${esc(c.hard).replace(/\n/g,'<br>')}</div><div style="margin-top:4px"><b>該追問沒追問：</b>${esc(c.miss).replace(/\n/g,'<br>')}</div>${c.next?`<blockquote>下次一定做：${esc(c.next)}</blockquote>`:''}</div>`).join(''):'<div class="empty">打完電話，在這裡記一張反思卡。</div>';
+}
+function renderHead(){
+  const dn=S.slots.filter(x=>x.done).length;
+  $('bar').style.width=(dn/SLOTS.length*100)+'%';
+  $('barTxt').textContent=dn+'/'+SLOTS.length+' 時段';
+  $('cBd').textContent=S.bd.length;$('cCand').textContent=S.candidate.length;$('cCh').textContent=S.channel.length;
+}
+function renderAll(){renderSlots();renderKpi();renderDue();renderLog();Object.keys(TB).forEach(renderTable);renderCalls();renderHead();renderRecall()}
+
+/* 回味 */
+function allDays(){
+  const out=[];
+  for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith(PRE)){const d=rd(k);if(d)out.push({day:k.slice(PRE.length),data:d})}}
+  return out.sort((a,b)=>a.day<b.day?1:-1);
+}
+function lastDays(n,before){return allDays().filter(x=>x.day<before).slice(0,n)}
+function dayText(x){const d=x.data;return [x.day,d.top3,d.mustDo,d.rLearn,d.rBd,d.rTalent,d.rGood,(d.log||[]).map(l=>l.type+l.who+l.what).join(' '),(d.calls||[]).map(c=>c.who+c.hard+c.miss+c.next).join(' '),(d.bd||[]).map(b=>b.company).join(' '),(d.candidate||[]).map(b=>b.name).join(' ')].join(' ').toLowerCase()}
+function dayCard(x){
+  const d=x.data,l=d.log||[],c=d.calls||[];
+  const types={};l.forEach(e=>types[e.type]=(types[e.type]||0)+1);
+  const tt=Object.entries(types).map(([k,v])=>k+' '+v).join('、');
+  const dn=(d.slots||[]).filter(s=>s.done).length;
+  return `<div class="day"><h3>${esc(x.day)} <span class="tag">${l.length} 件事</span><span class="tag">${dn}/${SLOTS.length} 時段</span>${c.length?`<span class="tag">${c.length} 張反思卡</span>`:''}</h3>
+  <div class="nums">${tt?esc(tt):'沒有活動紀錄'}${d.top3?'｜Top 3：'+esc(d.top3):''}</div>
+  ${d.rLearn?`<blockquote>學到：${esc(d.rLearn)}</blockquote>`:''}
+  ${d.rGood?`<div>✨ ${esc(d.rGood)}</div>`:''}
+  ${l.length?'<details><summary class="hint" style="cursor:pointer">展開當天紀錄</summary>'+l.slice().sort((a,b)=>a.t<b.t?-1:1).map(e=>`<div class="log-row"><div class="tm">${esc(e.t)}</div><div><span class="tag">${esc(e.type)}</span><b>${esc(e.who)}</b> ${esc(e.what)}${e.next?' → '+esc(e.next):''}</div></div>`).join('')+'</details>':''}
+  ${c.length?c.map(k=>`<div class="hint">📞 ${esc(k.who)}（${esc(k.verdict)}）追問缺口：${esc(k.miss)}</div>`).join(''):''}</div>`;
+}
+function renderRecall(){
+  const q=($('rcSearch').value||'').trim().toLowerCase();
+  let days=allDays();
+  // 今天的資料用目前畫面狀態
+  const td=$('day').value;
+  days=days.filter(x=>x.day!==td);days.unshift({day:td,data:S});
+  if(q)days=days.filter(x=>dayText(x).includes(q));
+  const wk=days.slice(0,7);
+  const tot=wk.reduce((a,x)=>a+(x.data.log||[]).length,0), calls=wk.reduce((a,x)=>a+(x.data.calls||[]).length,0);
+  $('rcWeek').innerHTML=`最近 ${wk.length} 個有紀錄的日子：共 <b>${tot}</b> 件事、<b>${calls}</b> 張反思卡。`;
+  $('rcList').innerHTML=days.length?days.map(dayCard).join(''):'<div class="empty">還沒有任何紀錄，或搜尋沒有結果。</div>';
+}
+function randomRecall(){
+  const pool=[];
+  allDays().forEach(x=>{const d=x.data;if(d.rLearn)pool.push({day:x.day,txt:'學到：'+d.rLearn});if(d.rGood)pool.push({day:x.day,txt:'✨ '+d.rGood});(d.calls||[]).forEach(c=>{if(c.next)pool.push({day:x.day,txt:'下次一定做：'+c.next+'（'+c.who+'）'})})});
+  $('rcPick').innerHTML=pool.length?(()=>{const p=pool[Math.floor(Math.random()*pool.length)];return `<div class="day"><h3>🎲 ${esc(p.day)}</h3><blockquote>${esc(p.txt)}</blockquote></div>`})():'<div class="empty">還沒有可以回味的內容。先在收盤寫一句「今天學到什麼」。</div>';
+}
+
+/* 事件 */
+document.addEventListener('input',e=>{
+  const t=e.target;
+  if(t.dataset.snote!==undefined){S.slots[t.dataset.snote].note=t.value;saveSoon()}
+  else if(t.dataset.t){S[t.dataset.t][t.dataset.i][t.dataset.k]=t.value;saveSoon();renderKpi();renderDue()}
+  else if(['top3','mustDo','rBd','rTalent','rLearn','rTomorrow','rBlock','rGood'].includes(t.id)){saveSoon()}
+  else if(t.id==='rcSearch'){renderRecall()}
+});
+document.addEventListener('change',e=>{
+  const t=e.target;
+  if(t.dataset.slot!==undefined){S.slots[t.dataset.slot].done=t.checked;save(true)}
+  else if(t.dataset.pre){S.pre[t.dataset.pre]=t.checked;saveSoon()}
+  else if(t.dataset.t&&t.tagName==='SELECT'){S[t.dataset.t][t.dataset.i][t.dataset.k]=t.value;save(false);renderKpi()}
+  else if(t.id==='day'){load()}
+});
+document.addEventListener('click',e=>{
+  const t=e.target.closest('button');if(!t)return;
+  if(t.dataset.add){S[t.dataset.add].push({});save(false);renderTable(t.dataset.add);renderHead();return}
+  if(t.dataset.rm){const [ty,i]=t.dataset.rm.split(':');if(confirm('確定刪除這一筆？')){S[ty].splice(Number(i),1);save(false);renderTable(ty);renderHead();renderKpi();renderDue()}return}
+  if(t.dataset.csv){exportCSV(t.dataset.csv);return}
+  if(t.dataset.lgdel!==undefined){S.log.splice(Number(t.dataset.lgdel),1);save(false);renderLog();renderKpi();return}
+  if(t.dataset.cdel!==undefined){S.calls.splice(Number(t.dataset.cdel),1);save(false);renderCalls();renderKpi();return}
+});
+function hhmm(){const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
+function addLog(){
+  const what=$('lgWhat').value.trim(),who=$('lgWho').value.trim();
+  if(!what&&!who){$('lgWhat').focus();return}
+  S.log.push({t:hhmm(),type:$('lgType').value,who,what,next:$('lgNext').value.trim()});
+  ['lgWho','lgWhat','lgNext'].forEach(i=>$(i).value='');
+  save(false);renderLog();renderKpi();$('lgWho').focus();
+}
+$('lgAdd').onclick=addLog;
+['lgWho','lgWhat','lgNext'].forEach(i=>$(i).addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addLog()}}));
+$('cAdd').onclick=()=>{
+  const who=$('cWho').value.trim();if(!who){$('cWho').focus();return}
+  S.calls.push({t:hhmm(),who,verdict:$('cVerdict').value,hard:$('cHard').value.trim(),miss:$('cMiss').value.trim(),next:$('cNext').value.trim()});
+  ['cWho','cHard','cMiss','cNext'].forEach(i=>$(i).value='');
+  S.log.push({t:hhmm(),type:'電話',who,what:'電洽後反思卡（判斷：'+S.calls[S.calls.length-1].verdict+'）',next:''});
+  save(false);renderCalls();renderLog();renderKpi();
+};
+$('rSave').onclick=()=>{save(true);alert('已儲存今天')};
+$('fabSave').onclick=()=>save(true);
+$('rcRandom').onclick=randomRecall;
+function csvEsc(v){v=String(v==null?'':v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
+function dl(name,text,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
+function exportCSV(type){const cols=SCHEMAS[type];const rows=[cols.map(c=>csvEsc(c[1])).join(',')].concat(S[type].map(r=>cols.map(c=>csvEsc(r[c[0]])).join(',')));dl('headhunter_'+type+'_'+$('day').value+'.csv','﻿'+rows.join('\n'),'text/csv')}
+$('rTxt').onclick=()=>{collect();const d=$('day').value;const L=['【'+d+' 每日摘要】','Top 3：'+S.top3,'最重要的一件事：'+S.mustDo,'','今天做了什麼（'+S.log.length+' 件）：'].concat(S.log.slice().sort((a,b)=>a.t<b.t?-1:1).map(l=>'  '+l.t+' ['+l.type+'] '+l.who+' '+l.what+(l.next?' → '+l.next:'')),['','電洽反思：'],...S.calls.map(c=>['  '+c.who+'（'+c.verdict+'）','    硬條件：'+c.hard,'    該追問沒追問：'+c.miss,'    下次：'+c.next]),['','學到：'+S.rLearn,'值得保留：'+S.rGood,'有價值的對話：'+S.rBd,'卡點與突破：'+S.rTalent,'明日 3 件事：'+S.rTomorrow,'需要決策：'+S.rBlock]).flat();dl('daily_'+d+'.txt',L.join('\n'),'text/plain')};
+$('rcExport').onclick=()=>{const all={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&(k.startsWith(PRE)||k.startsWith(OLD)))all[k]=localStorage.getItem(k)}dl('headhunter_backup_'+today()+'.json',JSON.stringify(all),'application/json')};
+$('rcImport').onclick=()=>$('rcFile').click();
+$('rcFile').onchange=ev=>{const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const o=JSON.parse(r.result);let n=0;Object.keys(o).forEach(k=>{if(k.startsWith(PRE)||k.startsWith(OLD)){localStorage.setItem(k,o[k]);n++}});alert('已匯入 '+n+' 天');load()}catch(e){alert('這個檔案讀不了')}};r.readAsText(f)};
+$('scSel').innerHTML=SCRIPTS.map((s,i)=>`<option value="${i}">${esc(s[0])}</option>`).join('');
+function showScript(){const s=SCRIPTS[Number($('scSel').value)];$('scText').textContent=s[1];$('scTip').textContent='提醒：'+s[2]}
+$('scSel').onchange=showScript;
+$('scCopy').onclick=async()=>{const t=$('scText').textContent;try{await navigator.clipboard.writeText(t);$('scCopy').textContent='已複製 ✓'}catch(e){const r=document.createRange();r.selectNodeContents($('scText'));const s=getSelection();s.removeAllRanges();s.addRange(r);$('scCopy').textContent='請按 Ctrl/Cmd+C'}setTimeout(()=>$('scCopy').textContent='複製話術',1500)};
+$('day').value=today();showScript();load();
+setInterval(()=>{if($('day').value===today())renderSlots()},60000);
+</script>
+</body>
+</html>
