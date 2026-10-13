@@ -2,12 +2,18 @@
 // 規則：未簽約職缺「可以拿去發社群」，但「不上官網、阿財不面談」；客戶簽約、轉成正式職缺後才會上官網與阿財。
 // 後端沿用既有的未簽約職缺機制（jobs.status='social_only'、job_social_only），這裡只是新的介面：
 //   一次最多新增 10 個（貼 104 連結／貼文字／上傳截圖或 PDF）、每個欄位直接編輯、每個職缺有「客戶額外備註」。
-// AI 讀取 104／截圖／PDF 的功能下一版接上；現在由顧問在清單上自己填名稱與工作內容。
+// 104 連結：後端 /admin/bd/read-104 直接讀職缺內容（結構化資料，不用 AI）；文字／截圖／PDF 的 AI 讀取下一版接上。
 import { api } from './core/api.js';
 import { toast } from './core/ui.js';
 import { escapeHtml, text } from './core/security.js';
 
 const MAX = 10;
+// 公司名稱粗略比對（拿掉「股份有限公司」「(總公司)」之類，再看有沒有互相包含）
+const sameCorp = (a, b) => {
+  const n = (x) => String(x || '').replace(/[（(][^）)]*[）)]/g, '').replace(/股份有限公司|有限公司|公司|台灣|臺灣/g, '').replace(/\s/g, '');
+  const x = n(a); const y = n(b);
+  return !x || !y || x.includes(y) || y.includes(x);
+};
 
 export function bdJobsPane(detail) {
   const jobs = detail.client_jobs || [];
@@ -18,7 +24,7 @@ export function bdJobsPane(detail) {
     const pay = (a, b) => (a || b) ? `${a || ''}${a && b ? '～' : ''}${b || ''}` : '';
     void pay;
     return `<article class="bdj-job" data-bdj-slug="${escapeHtml(j.slug)}">
-      <div class="bdj-top"><div>${j.ai_read && !j.checked ? '<span class="bdj-chip no">AI 讀的，請核對</span> ' : ''}<span class="bdj-src">${text({ 104: '104 連結', text: '貼文字', file: '截圖／PDF', manual: '手動新增' }[j.src_kind] || '手動新增')}${j.src_url ? `　<a href="${escapeHtml(j.src_url)}" target="_blank" rel="noopener">${text(j.src_url.slice(0, 50))}</a>` : ''}</span></div>
+      <div class="bdj-top"><div>${j.ai_read && !j.checked ? `<span class="bdj-chip no">${j.src_kind === '104' ? '讀自 104，請核對' : 'AI 讀的，請核對'}</span> ` : ''}<span class="bdj-src">${text({ 104: '104 連結', text: '貼文字', file: '截圖／PDF', manual: '手動新增' }[j.src_kind] || '手動新增')}${j.src_url ? `　<a href="${escapeHtml(j.src_url)}" target="_blank" rel="noopener">${text(j.src_url.slice(0, 50))}</a>` : ''}</span></div>
         ${live ? '' : `<button type="button" class="bdj-btn sm" data-bdj-convert>轉成正式職缺</button>`}</div>
       ${live ? '<p class="help">這個職缺已轉成正式職缺，請到「職缺」管理修改。</p>' : `<div class="bdj-grid">
         <label class="bdj-f full">職缺名稱<input data-bdj-k="title" value="${escapeHtml(j.title)}" maxlength="80"></label>
@@ -44,8 +50,8 @@ export function bdJobsPane(detail) {
       <textarea data-bdj-paste rows="6" class="bdj-paste" aria-label="貼在這裡"></textarea>
       <div class="bdj-file" data-bdj-filebox hidden><input type="file" data-bdj-files accept="image/*,application/pdf" multiple><p class="help">一個檔案算一個職缺。</p></div>
       <div class="bdj-counter" data-bdj-counter><span data-bdj-n>0 個</span><span>最多 ${MAX} 個</span></div>
-      <div class="bdj-notice">AI 自動讀取 104／截圖／PDF 的功能下一版上線。現在先幫你把每個職缺列成清單，<b>職缺名稱和工作內容請自己填好</b>（貼文字的話會自動帶入），確認後再新增。</div>
-      <button type="button" class="bdj-btn" data-bdj-make>整理成清單</button>
+      <div class="bdj-notice"><b>貼 104 連結</b>：系統會直接讀出職缺內容，你核對、修改後再新增。<b>貼文字、截圖、PDF</b>的自動讀取下一版上線，現在先由你自己填職缺名稱和工作內容（貼文字會自動帶入）。</div>
+      <button type="button" class="bdj-btn primary" data-bdj-make>整理成清單</button>
       <div class="bdj-draft" data-bdj-draft></div>
       <div class="bdj-foot"><span class="muted" data-bdj-dcount></span><button type="button" class="bdj-btn" data-bdj-cancel>取消</button><button type="button" class="bdj-btn primary" data-bdj-ok disabled>確認新增</button></div>
     </div>
@@ -95,22 +101,35 @@ export function wireBdJobs(root, detail, reload) {
   };
   const drawDraft = () => {
     box.querySelector('[data-bdj-draft]').innerHTML = draft.map((d, i) => `<article class="bdj-job">
-      <div class="bdj-top"><div><span class="bdj-src">${text({ 104: '104 連結', text: '貼文字', file: '截圖／PDF' }[d.src_kind])}${d.src_url ? `　${text(d.src_url.slice(0, 60))}` : ''}</span>${d.err ? `<div class="bdj-err">${text(d.err)}</div>` : ''}</div><button type="button" class="bdj-btn sm" data-bdj-rm="${i}">不要這個</button></div>
+      <div class="bdj-top"><div>${d.read ? '<span class="bdj-chip no">讀自 104，請核對</span> ' : ''}<span class="bdj-src">${text({ 104: '104 連結', text: '貼文字', file: '截圖／PDF' }[d.src_kind])}${d.src_url ? `　${text(d.src_url.slice(0, 60))}` : ''}</span>${d.err ? `<div class="bdj-err">${text(d.err)}</div>` : ''}${d.read && d.corp && !sameCorp(d.corp, company) ? `<div class="bdj-err">⚠ 這個職缺是「${text(d.corp)}」刊登的，跟這家客戶「${text(company)}」名稱不同，請確認連結有沒有貼錯。</div>` : ''}${(d.law5 || []).length ? `<div class="bdj-err">內容有不能寫的字：${text(d.law5.join('、'))}（年齡、性別、婚姻、國籍、外貌等違反就業服務法第 5 條），請改掉才能新增。</div>` : ''}</div><button type="button" class="bdj-btn sm" data-bdj-rm="${i}">不要這個</button></div>
       <div class="bdj-grid">
         <label class="bdj-f full">職缺名稱<input data-d="${i}" data-dk="title" value="${escapeHtml(d.title)}" maxlength="80"></label>
         <label class="bdj-f full">工作內容（社群文要靠這段寫）<textarea data-d="${i}" data-dk="main_duties" rows="4">${text(d.main_duties)}</textarea></label>
         <label class="bdj-f">地點<input data-d="${i}" data-dk="locations" value="${escapeHtml(d.locations || '')}"></label>
         <label class="bdj-f">月薪（低～高，元）<span class="bdj-pay"><input data-d="${i}" data-dk="salary_min" inputmode="numeric" value="${escapeHtml(d.salary_min || '')}" aria-label="月薪下限"><i>～</i><input data-d="${i}" data-dk="salary_max" inputmode="numeric" value="${escapeHtml(d.salary_max || '')}" aria-label="月薪上限"></span></label>
+        <label class="bdj-f full">條件<textarea data-d="${i}" data-dk="required_conditions" rows="3">${text(d.required_conditions || '')}</textarea></label>
         <label class="bdj-f full">客戶額外備註<textarea data-d="${i}" data-dk="client_note" rows="2" placeholder="客戶特別交代的事">${text(d.client_note || '')}</textarea></label>
       </div></article>`).join('');
     box.querySelectorAll('[data-d]').forEach((el) => { el.oninput = () => { draft[el.dataset.d][el.dataset.dk] = el.value; chk(); }; });
     box.querySelectorAll('[data-bdj-rm]').forEach((b) => { b.onclick = () => { draft.splice(Number(b.dataset.bdjRm), 1); drawDraft(); }; });
     chk();
   };
-  box.querySelector('[data-bdj-make]').onclick = () => {
+  box.querySelector('[data-bdj-make]').onclick = async (e) => {
     const items = parse();
     if (!items.length) { toast('先貼上內容或選檔案', 'error'); return; }
     if (items.length > MAX) { toast(`一次最多 ${MAX} 個`, 'error'); return; }
+    if (how() === '104') {
+      const btn = e.currentTarget; btn.disabled = true; btn.textContent = '讀取中…';
+      try {
+        const r = await api.post('/admin/bd/read-104', { urls: items.map((x) => x.src_url) });
+        draft = (r.items || []).map((it, i) => (it.ok
+          ? { src_kind: '104', src_url: it.url, title: it.title, main_duties: it.main_duties, locations: it.locations, salary_min: it.salary_min || '', salary_max: it.salary_max || '',
+              required_conditions: it.required_conditions, pay_text: it.pay_text, corp: it.company, law5: it.law5 || [], read: true }
+          : { src_kind: '104', src_url: items[i].src_url, title: '', main_duties: '', err: it.error || '讀不到' }));
+      } catch (err) { toast(err.message || '讀取失敗，請改貼文字', 'error'); draft = items; }
+      btn.disabled = false; btn.textContent = '整理成清單';
+      drawDraft(); return;
+    }
     draft = items; drawDraft();
   };
   box.querySelector('[data-bdj-ok]').onclick = async (e) => {
@@ -120,7 +139,8 @@ export function wireBdJobs(root, detail, reload) {
       try {
         await api.post('/admin/bd/social-job', {
           company, by, title: d.title.trim(), main_duties: d.main_duties.trim(), locations: d.locations || '', client_note: d.client_note || '',
-          salary_min: d.salary_min || '', salary_max: d.salary_max || '', salary_unit: 'MONTH', src_kind: d.src_kind, src_url: d.src_url || '', ai_read: false,
+          salary_min: d.salary_min || '', salary_max: d.salary_max || '', salary_unit: 'MONTH', required_conditions: d.required_conditions || '',
+          src_kind: d.src_kind, src_url: d.src_url || '', ai_read: !!d.read,
         });
         okN += 1;
       } catch (err) { d.err = err.message || '新增失敗'; rest.push(d); }
