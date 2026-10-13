@@ -8,6 +8,8 @@ import { views, actionBtn, rowActions, shell, boardView, boardCandItems, boardCl
 import { ACTIONS } from './actions.js';
 import { jdFieldParse } from './jd_fields.js';
 import { initMail, loadMailTab, injectMailSection } from './mail.js';
+import { wireBdCard, bdShowStageRemind, bdShowTagRemind } from './bdcard.js';
+import { wireBdJobs } from './bdjobs.js';
 
 // 2026-09-15 補：使用者反映「不知道要看哪個是自己的」——沒有登入系統，只能靠
 // 這組「切換選擇」記住上次選的是誰，換分頁/重新整理都不用重選（存在瀏覽器
@@ -1897,7 +1899,14 @@ function wireBdDashboardFilter() {
   const qc = document.getElementById('bd-dash-qc');
   const src = document.getElementById('bd-dash-source');
   const qbox = document.getElementById('bd-dash-q');
+  // 2026-10-13 Jacky：總攬最上面「今天要處理」四格＋客戶標籤，點了篩選，再點一次取消
+  let quick = ''; let tagSel = '';
+  const paintOverview = () => {
+    for (const b of document.querySelectorAll('[data-bdo-quick]')) b.classList.toggle('on', b.dataset.bdoQuick === quick);
+    for (const b of document.querySelectorAll('[data-bdo-tag]')) { const on = b.dataset.bdoTag === tagSel; b.classList.toggle('on', on); b.setAttribute('aria-checked', String(on)); }
+  };
   const apply = () => {
+    paintOverview();
     const v = sel.value;
     let shown = 0;
     for (const r of box.querySelectorAll('.bd-dash-row')) {
@@ -1909,6 +1918,8 @@ function wireBdDashboardFilter() {
       else if (v.startsWith('stage:')) ok = stage === v.slice('stage:'.length);
       // 2026-10-02 Jacky：可以直接打公司名稱找
       if (ok && qbox && qbox.value.trim()) ok = (r.dataset.bdName || '').includes(qbox.value.trim().toLowerCase());
+      if (ok && quick) ok = quick === 'late' ? r.dataset.bdLate === '1' : quick === 'today' ? r.dataset.bdToday === '1' : quick === 'hot' ? r.dataset.bdTag === 'HOT' : r.dataset.bdTag === 'MATERIAL';
+      if (ok && tagSel) ok = r.dataset.bdTag === tagSel;
       if (ok && src && src.value) ok = r.dataset.bdSource === src.value;
       if (ok && ind && ind.value) ok = r.dataset.bdIndustry === ind.value;
       if (ok && who && who.value) ok = who.value === '__none' ? !r.dataset.bdAssignee : r.dataset.bdAssignee === who.value;
@@ -1932,6 +1943,8 @@ function wireBdDashboardFilter() {
   sel.onchange = apply;
   [ind, who, ph, ct, qc, src].forEach((x) => { if (x) x.onchange = apply; });
   if (qbox) qbox.oninput = apply;
+  for (const b of document.querySelectorAll('[data-bdo-quick]')) b.onclick = () => { quick = quick === b.dataset.bdoQuick ? '' : b.dataset.bdoQuick; apply(); };
+  for (const b of document.querySelectorAll('[data-bdo-tag]')) b.onclick = () => { tagSel = tagSel === b.dataset.bdoTag ? '' : b.dataset.bdoTag; apply(); };
   // 已聯繫打勾（2026-09-30 Jacky）：勾了就存，記錄是誰（用這列的負責人）
   for (const cb of box.querySelectorAll('[data-bd-contacted-box]')) {
     cb.onchange = async () => {
@@ -1990,14 +2003,69 @@ async function openBdDetail(company, focus) {
       }
       return;
     }
-    drawer({ title: company, subtitle: sub, body: views.bdDashboardDetail(detail) });
+    drawer({ title: company, subtitle: sub, body: views.bdDashboardDetail({ ...detail, company }) });
     wireBdDetailTabs();
     const dr = document.querySelector('.bd-status-card')?.parentElement;
     if (dr) wireCompanyStatus(dr);
+    // 2026-10-13 客戶開發卡片改版：下一步／標籤／階段／進度紀錄
+    const body = document.querySelector('.drawer-body') || document.body;
+    wireBdCard(body, { ...detail, company }, async (opt = {}) => {
+      await openBdDetail(company);
+      if (opt.openLog) document.querySelector('[data-bd-detail-tab="log"]')?.click();
+      if (opt.remindTag) bdShowTagRemind(document.querySelector('.drawer-body') || document.body, opt.remindTag);
+      if (opt.remindStage) bdShowStageRemind(document.querySelector('.drawer-body') || document.body, ((detail.company_status || {}).stage) || '');
+    });
+    wireBdAi(body, company);
+    wireBdJobs(body, { ...detail, company }, async (opt = {}) => {
+      await openBdDetail(company);
+      if (opt.openJobs) document.querySelector('[data-bd-detail-tab="jobs"]')?.click();
+    });
+    wireBdProfile(body);
+    const mailPane = document.getElementById('bd-detail-pane-mail');
+    if (mailPane) wireContractPack(mailPane);
   } catch (error) {
     console.error(error);
     drawer({ title: company, body: errorState(error) });
   }
+}
+
+// 2026-10-13：認識公司 預覽／設定模式
+function wireBdProfile(root) {
+  const box = root.querySelector('[data-bdk]');
+  if (!box) return;
+  const company = box.dataset.bdk;
+  const view = box.querySelector('[data-bdk-view]'); const edit = box.querySelector('[data-bdk-edit]');
+  box.querySelectorAll('[name=bdk-m]').forEach((r) => {
+    r.onchange = () => { const e = box.querySelector('[name=bdk-m]:checked').value === 'edit'; view.hidden = e; edit.hidden = !e; };
+  });
+  box.querySelectorAll('[data-bdk-k]').forEach((el) => {
+    el.onchange = async () => {
+      try { await api.post('/admin/bd/profile-update', { company, [el.dataset.bdkK]: el.value, by: document.querySelector('.cg-pack')?.dataset.packBy || '' }); toast('已儲存', 'success'); }
+      catch (err) { toast(err.message || '儲存失敗', 'error'); }
+    };
+  });
+}
+
+// 2026-10-13：匯入電洽內容讓 AI 整理（沿用原本的 /admin/bd/transcript）
+function wireBdAi(root, company) {
+  const box = root.querySelector('[data-bdc-ai]');
+  if (!box) return;
+  const ta = box.querySelector('[data-bdc-ai-text]');
+  box.querySelector('[data-bdc-ai-file]')?.addEventListener('change', async (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (f) ta.value = await f.text();
+  });
+  box.querySelector('[data-bdc-ai-go]')?.addEventListener('click', async (e) => {
+    const btn = e.currentTarget;
+    if (!ta.value.trim()) { toast('先貼上逐字稿', 'error'); return; }
+    btn.disabled = true;
+    try {
+      await api.post('/admin/bd/transcript', { company, transcript: ta.value });
+      toast('已送去 AI 整理，約 1～3 分鐘後重開卡片就看得到', 'success');
+      ta.value = '';
+    } catch (err) { toast(err.message || '送出失敗', 'error'); }
+    btn.disabled = false;
+  });
 }
 
 // 企業卡片裡「時間軸／信件」跟「開發引導」兩個分頁——drawer 內容是整段
@@ -2010,6 +2078,7 @@ function wireBdDetailTabs() {
     btn.onclick = () => {
       const key = btn.getAttribute('data-bd-detail-tab');
       for (const b of tabs) b.classList.toggle('active', b === btn);
+      for (const k of ['log', 'jobs', 'mail']) { const el = document.getElementById(`bd-detail-pane-${k}`); if (el) el.hidden = key !== k; }
       const timelinePane = document.getElementById('bd-detail-pane-timeline');
       const playbookPane = document.getElementById('bd-detail-pane-playbook');
       const profilePane = document.getElementById('bd-detail-pane-profile');

@@ -16,6 +16,8 @@ import { empty } from './core/ui.js';
 import { SCRIPTS, SCRIPT_CATS } from './scripts_data.js';
 import { JD_FIELDS, jdFieldVal } from './jd_fields.js';
 import { mailPageView } from './mail.js';
+import { bdCardTop, bdLogPane, BD_TAGS } from './bdcard.js';
+import { bdJobsPane } from './bdjobs.js';
 
 const pageHead = (title, subtitle, actions = '') => `<div class="page-head"><div><h1>${title}</h1><p>${subtitle}</p></div><div class="actions">${actions}</div></div>`;
 const tabbar = (scope, tabs, active) => `<div class="tabs">${tabs.map(([key, label]) => `<button class="${active === key ? 'active' : ''}" data-tab-scope="${scope}" data-tab="${key}">${label}</button>`).join('')}</div>`;
@@ -2081,6 +2083,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
     </div>`;
     // 2026-09-29 Jacky：依產業分類、可以指派給誰打、電話分「人資電話／公司總機」標清楚
     const groups = {};
+    const todayStr = new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 10);
     rows.forEach((r) => { const g = r.industry_group || '未分類'; groups[g] = (groups[g] || 0) + 1; });
     const people = [...new Set(['Jacky', 'Phoebe', ...(consultants || []), ...rows.map((r) => r.assigned_to).filter(Boolean)])];
     const filterBar = `<div class="filter-row">
@@ -2127,9 +2130,9 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
       const phoneKind = r.hr_phone ? 'hr' : (r.company_phone ? 'main' : 'none');
       const lastCall = r.last_call_result ? `<small>${r.call_count ? `已打 ${r.call_count} 通・` : ''}上次電訪：${text(RES[r.last_call_result] || r.last_call_result)}（${text(String(r.last_call_at || '').slice(5, 10))}）${r.call_retry_at ? `・建議 ${text(String(r.call_retry_at).slice(5, 10))} 再打` : ''}${r.last_call_note ? `・${text(r.last_call_note)}` : ''}</small>` : '';
       const oid = (r.outreach_ids || [])[0] || '';
-      return `${head}<article class="list-row bd-dash-row" data-bd-open="${escapeHtml(r.company)}" tabindex="0" aria-label="${escapeHtml(r.company)}：打開開發引導／時間軸" title="點卡片打開開發引導／時間軸" data-bd-source="${escapeHtml(r.source_kind || '')}" data-bd-name="${escapeHtml(String(r.company || '').toLowerCase())}" data-bd-stage="${text(r.stage)}" data-bd-has-todo="${r.todo.length ? 1 : 0}" data-bd-industry="${escapeHtml(g)}" data-bd-assignee="${escapeHtml(r.assigned_to || '')}" data-bd-phone="${phoneKind}" data-bd-contacted="${r.contacted_at ? 1 : 0}" data-bd-parked="${r.parked_at ? 1 : 0}" data-bd-qc="${(r.qc_missing || []).length ? 0 : 1}">
+      return `${head}<article class="list-row bd-dash-row" data-bd-open="${escapeHtml(r.company)}" tabindex="0" aria-label="${escapeHtml(r.company)}：打開開發引導／時間軸" title="點卡片打開開發引導／時間軸" data-bd-source="${escapeHtml(r.source_kind || '')}" data-bd-name="${escapeHtml(String(r.company || '').toLowerCase())}" data-bd-stage="${text(r.stage)}" data-bd-has-todo="${r.todo.length ? 1 : 0}" data-bd-industry="${escapeHtml(g)}" data-bd-assignee="${escapeHtml(r.assigned_to || '')}" data-bd-phone="${phoneKind}" data-bd-contacted="${r.contacted_at ? 1 : 0}" data-bd-parked="${r.parked_at ? 1 : 0}" data-bd-qc="${(r.qc_missing || []).length ? 0 : 1}" data-bd-tag="${escapeHtml(r.tag || 'none')}" data-bd-late="${(!r.parked_at && r.tag !== 'NO' && r.next_due && r.next_due < todayStr) ? 1 : 0}" data-bd-today="${(!r.parked_at && r.tag !== 'NO' && r.next_due === todayStr) ? 1 : 0}">
         <span>
-          <b>${text(r.company)}</b> ${({ web: '<span class="badge warning" title="企業自己在官網留需求">🌐 官網詢問</span>', manual: '<span class="badge info" title="顧問按「新增開發對象」加進來的">✍️ 顧問新增</span>', candbd: '<span class="badge success" title="從手上人選反推、系統建議去敲門的公司">🧲 人選敲門</span>', ai: '<span class="badge" title="夜間 AI 找來的名單">🤖 AI 名單</span>' })[r.source_kind] || ''} ${r.industry ? `<span class="badge">${text(String(r.industry).split(/[（(]/)[0].slice(0, 18))}</span>` : ''}${r.inbound ? ' <span class="badge warning">1 個工作天內要回</span>' : ''}${r.industry_group === NEW_G ? ` <span class="badge info">新・${text(String(r.first_created_at || '').slice(5, 10))}</span>` : ''}${r.has_profile ? ' <span class="badge success">有介紹</span>' : ''}${r.note_count ? ` <span class="badge info">有 ${text(r.note_count)} 則心得</span>` : ''}${r.social_jobs ? ` <span class="badge warning" title="只發社群的職缺，到職缺列表看">🔒 未簽約職缺 ${text(r.social_jobs)} 個</span>` : ''}
+          <b>${text(r.company)}</b> ${r.tag ? `<span class="bdc-chip tagchip" style="background:${(BD_TAGS.find((t) => t.k === r.tag) || {}).color || '#9aa5b8'};color:#fff">${text(r.tag)}</span>` : ''}${r.bd_stage ? `<span class="bdc-chip stage">${text(r.bd_stage)}</span>` : ''} ${({ web: '<span class="badge warning" title="企業自己在官網留需求">🌐 官網詢問</span>', manual: '<span class="badge info" title="顧問按「新增開發對象」加進來的">✍️ 顧問新增</span>', candbd: '<span class="badge success" title="從手上人選反推、系統建議去敲門的公司">🧲 人選敲門</span>', ai: '<span class="badge" title="夜間 AI 找來的名單">🤖 AI 名單</span>' })[r.source_kind] || ''} ${r.industry ? `<span class="badge">${text(String(r.industry).split(/[（(]/)[0].slice(0, 18))}</span>` : ''}${r.inbound ? ' <span class="badge warning">1 個工作天內要回</span>' : ''}${r.industry_group === NEW_G ? ` <span class="badge info">新・${text(String(r.first_created_at || '').slice(5, 10))}</span>` : ''}${r.has_profile ? ' <span class="badge success">有介紹</span>' : ''}${r.note_count ? ` <span class="badge info">有 ${text(r.note_count)} 則心得</span>` : ''}${r.social_jobs ? ` <span class="badge warning" title="只發社群的職缺，到職缺列表看">🔒 未簽約職缺 ${text(r.social_jobs)} 個</span>` : ''}
           ${(r.qc_missing || []).length && !(r.inbound || r.by_hand) ? `<small class="bd-qc-bad">不合格，補資料中：缺 ${text(r.qc_missing.join('、'))}</small>` : ''}
           ${views.bdEntry(r.trigger, r.has_candidate, false, r.job_title, r.topic)}
           ${phoneHtml}${mainHtml}${noPhone}
@@ -2152,7 +2155,15 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
         </div>
       </article>`;
     }).join('')}</div>` : empty('目前沒有已經接觸過的公司');
-    return `<div class="page-head" style="align-items:flex-start"><div><h2>${aiMode ? 'AI 名單（還沒聯繫）' : '開發進度看板'}</h2><p>${aiMode ? '夜間 AI 自動找來、<b>還沒有任何人打過或寄過</b>的公司。打完一通電話（就算沒接）、寄過信，或按「加入開發進度」，就會移到開發進度。' : '寄出、電訪、追信、回信、談到職缺、成交——同一家公司合併成一列，不用分頭看。只放顧問碰過的公司；夜間 AI 找來還沒聯繫的在「AI 名單」分頁。'}</p>${cached_at ? `<p class="help">資料時間 ${text(String(cached_at).slice(11, 16))}（為了省資料庫額度，每 5 分鐘更新一次；你們按按鈕改的資料會立刻更新）</p>` : ''}</div>${actionBtn('＋ 新增開發對象', 'bd-add-company', {}, 'primary')}</div>${funnelCard}${filterBar}${rowsHtml}`;
+    // 2026-10-13 Jacky：總攬最上面——今天要處理＋客戶標籤篩選
+    const openRow = (r) => !r.parked_at && r.tag !== 'NO';
+    const lateN = rows.filter((r) => openRow(r) && r.next_due && r.next_due < todayStr).length;
+    const todayN = rows.filter((r) => openRow(r) && r.next_due === todayStr).length;
+    const hotN = rows.filter((r) => r.tag === 'HOT' && !r.parked_at).length;
+    const matN = rows.filter((r) => r.tag === 'MATERIAL' && !r.parked_at).length;
+    const todayStrip = aiMode ? '' : `<div class="bdo-today" id="bd-today">${[['late', '逾期沒做', lateN, 'late'], ['today', '今天要做', todayN, ''], ['hot', 'HOT 要追蹤', hotN, ''], ['mat', '要寄介紹／合約', matN, '']].map(([k, l, n, c]) => `<button type="button" class="bdo-t ${c}" data-bdo-quick="${k}"><b>${n}</b><span>${l}</span></button>`).join('')}</div>
+      <div class="bdo-tagbar" id="bd-tagbar" role="radiogroup" aria-label="客戶標籤">${[...BD_TAGS, { k: 'none', zh: '還沒分類', color: '#9aa5b8' }].map((t) => `<button type="button" class="bdo-tg" role="radio" aria-checked="false" data-bdo-tag="${t.k}"><b><i style="background:${t.color}"></i>${t.k === 'none' ? '未分類' : t.k} ${rows.filter((r) => (r.tag || 'none') === t.k && !r.parked_at).length}</b><span>${text(t.zh)}</span></button>`).join('')}</div>`;
+    return `<div class="page-head" style="align-items:flex-start"><div><h2>${aiMode ? 'AI 名單（還沒聯繫）' : '開發進度看板'}</h2><p>${aiMode ? '夜間 AI 自動找來、<b>還沒有任何人打過或寄過</b>的公司。打完一通電話（就算沒接）、寄過信，或按「加入開發進度」，就會移到開發進度。' : '寄出、電訪、追信、回信、談到職缺、成交——同一家公司合併成一列，不用分頭看。只放顧問碰過的公司；夜間 AI 找來還沒聯繫的在「AI 名單」分頁。'}</p>${cached_at ? `<p class="help">資料時間 ${text(String(cached_at).slice(11, 16))}（為了省資料庫額度，每 5 分鐘更新一次；你們按按鈕改的資料會立刻更新）</p>` : ''}</div>${actionBtn('＋ 新增開發對象', 'bd-add-company', {}, 'primary')}</div>${funnelCard}${todayStrip}${filterBar}${rowsHtml}`;
   },
   // 職缺內容逐欄位編輯（2026-09-29 修：原本一個大文字框讀不到結構化 JD，每個職缺都顯示空白）
   jobContentForm: (content) => {
@@ -2197,6 +2208,20 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
       ${has(pf.sources) ? row('來源', ul(pf.sources, true)) : ''}
       ${has(pf.updated_at) ? `<p class="help">整理時間 ${text(String(pf.updated_at).slice(0, 16))}${has(pf.updated_by) ? `・${text(pf.updated_by)}` : ''}</p>` : ''}
     </div>`;
+  },
+  // 2026-10-13 Jacky：認識公司可以切「預覽模式」（打電話前快速看）和「設定模式」（直接改每一格）
+  bdProfileModes: (pf, company) => {
+    const f = pf || {};
+    const F = [['website', '官網', 'input'], ['industry', '產業', 'input'], ['scale', '規模', 'input'], ['business', '他們做什麼', 'ta'], ['org', '主管與組織', 'ta'], ['hiring', '目前徵才狀況', 'ta'], ['topics', '可以聊的話題', 'ta']];
+    const ai = String(f.updated_by || '').includes('AI');
+    return `<div class="bdk" data-bdk="${escapeHtml(company)}">
+      <div class="bdc-seg bdk-mode" role="radiogroup" aria-label="模式"><label><input type="radio" name="bdk-m" value="view" checked><span>預覽模式</span></label><label><input type="radio" name="bdk-m" value="edit"><span>設定模式</span></label></div>
+      <div data-bdk-view>${views.bdProfilePane(pf)}</div>
+      <div data-bdk-edit hidden>
+        ${ai ? '<div class="bdj-lock" style="background:#eaf1ff;border-color:#b7cdfa;color:#1d4fb8">這頁內容是 <b>AI 夜間研究</b>先查好的，可能有錯，請核對。你改過的格子存下去之後，夜間研究不會蓋掉。</div>' : ''}
+        <div class="bdj-grid">${F.map(([k, lb, t]) => `<label class="bdj-f${t === 'ta' || k === 'website' ? ' full' : ''}">${lb}${t === 'ta' ? `<textarea data-bdk-k="${k}" rows="3">${text(f[k] || '')}</textarea>` : `<input data-bdk-k="${k}" value="${escapeHtml(f[k] || '')}">`}</label>`).join('')}</div>
+        <p class="help">改完離開欄位就自動存。近期新聞與資料來源由 AI 夜間研究更新，這裡不能改。${f.updated_at ? `最後更新 ${text(String(f.updated_at).slice(0, 16))}${f.updated_by ? `・${text(f.updated_by)}` : ''}` : ''}</p>
+      </div></div>`;
   },
   // 通話心得（2026-09-29 Jacky）：放在客戶卡片最上面的切入點下面。顧問談完一家記下
   // 學到什麼／下一通怎麼講／遇到的問題，每一則累積、新的在上面，下一個打電話的人先看這裡。
@@ -2324,6 +2349,17 @@ ${n.learned ? `<p><b>學到什麼</b>${text(n.learned)}</p>` : ''}${n.next_time 
         ${!aiCount ? '<p class="help">記電話時附上逐字稿，AI 會評分、給下一通更好的講法；也可以自己寫心得。</p>' : ''}
       </div>
     </section>`;
+  },
+  // 2026-10-13 Jacky：AI 只用在「匯入電洽內容」——把原本進度卡片裡的「AI 建議」分頁獨立成一塊放在進度紀錄下面
+  bdTranscriptBlock: (company, transcripts, notes, people, assignedTo) => {
+    const ts = Array.isArray(transcripts) ? transcripts : [];
+    const ns = Array.isArray(notes) ? notes : [];
+    if (!ts.length && !ns.length) return '';
+    return `<details class="bdc-ai" data-bdc-ai><summary>AI 整理與建議（${ts.length + ns.length}）<small class="muted">　來自上面「匯入電洽內容」</small></summary>
+      <div class="actions-row">${actionBtn('＋ 新增心得', 'bd-note-create', { idParams: { company }, record: { author: assignedTo || '', _people: people || [] } })}</div>
+      ${ts.map((t) => views.transcriptReview(t)).join('')}
+      ${ns.length ? `<div class="bdn-list">${ns.map((n) => `<article class="bdn-item"><small>${text(String(n.created_at || '').slice(0, 16))}・${text(n.author || '顧問')}</small>${n.learned ? `<p><b>學到什麼</b>${text(n.learned)}</p>` : ''}${n.next_time ? `<p><b>下一通怎麼講</b>${text(n.next_time)}</p>` : ''}${n.problem ? `<p class="bdn-problem"><b>遇到的問題</b>${text(n.problem)}</p>` : ''}</article>`).join('')}</div>` : ''}
+    </details>`;
   },
   // 切入點（2026-09-29 Jacky：本週計畫表寫的切入點，卡片上也要看得到）：新消息＞人選敲門＞104 職缺
   bdTriggerOf: (rows) => {
@@ -2539,7 +2575,7 @@ ${n.learned ? `<p><b>學到什麼</b>${text(n.learned)}</p>` : ''}${n.next_time 
       <div class="wu-bar"><span data-wu-picked>下一步選「寄信」的公司，勾選後可以一次擬好信：已勾 0 家</span><button type="button" class="btn" data-wu-batch-preview disabled>先預覽勾選的信</button><button type="button" class="btn primary" data-wu-batch-send disabled>擬好勾選的信，送 TG 核准</button></div>
       <div id="wu-batch-out"></div>`;
   },
-  bdDashboardDetail: ({ outreach, timeline, playbook, notes, people, assigned_to, company, profile, hr_contacts, transcripts, contract_files, company_status, pack_options, calls, web_inquiries }) => {
+  bdDashboardDetail: ({ outreach, timeline, playbook, notes, people, assigned_to, company, profile, hr_contacts, transcripts, contract_files, company_status, pack_options, calls, web_inquiries, client_jobs }) => {
     const pick = (key) => outreach.map((o) => o[key]).find(Boolean) || null;
     const contactName = pick('contact_name');
     const contactEmail = pick('contact_email');
@@ -2685,14 +2721,18 @@ ${n.learned ? `<p><b>學到什麼</b>${text(n.learned)}</p>` : ''}${n.next_time 
     `;
 
     const _topic = profile && String(profile.topics || '').split('\n').map((x) => x.replace(/^[-・•\s]+/, '').trim()).find(Boolean);
-    return `${views.bdEntry(views.bdTriggerOf(outreach), outreach.some((o) => o.candidate_card), true, (outreach.find((o) => o.job_title) || {}).job_title, _topic)}${views.bdWebInquiryBlock(web_inquiries)}${views.bdStatusBlock(company || (outreach[0] || {}).company || '', company_status, calls)}${views.bdProgressBlock(company || (outreach[0] || {}).company || '', { calls, notes, transcripts, status: company_status, people, assignedTo: assigned_to, oid: ((outreach || []).slice().reverse()[0] || {}).id })}${contactCard}
+    return `${views.bdEntry(views.bdTriggerOf(outreach), outreach.some((o) => o.candidate_card), true, (outreach.find((o) => o.job_title) || {}).job_title, _topic)}${views.bdWebInquiryBlock(web_inquiries)}${bdCardTop({ company: company || (outreach[0] || {}).company || '', company_status, calls, people, assigned_to })}${contactCard}
       <div class="tabs tabs-sub" id="bd-detail-tabs">
-        <button type="button" class="active" data-bd-detail-tab="profile">認識客戶</button>
-        <button type="button" data-bd-detail-tab="timeline">時間軸／信件</button>
+        <button type="button" class="active" data-bd-detail-tab="log">進度紀錄</button>
+        <button type="button" data-bd-detail-tab="jobs">客戶提供的職缺（${(client_jobs || []).filter((j) => j.status === 'social_only').length}）</button>
+        <button type="button" data-bd-detail-tab="mail">寄公司介紹信</button>
+        <button type="button" data-bd-detail-tab="profile">認識公司</button>
         <button type="button" data-bd-detail-tab="playbook">開發引導</button>
       </div>
-      <div id="bd-detail-pane-profile">${views.bdProfilePane(profile)}</div>
-      <div id="bd-detail-pane-timeline" hidden>${timelinePane}</div>
+      <div id="bd-detail-pane-log">${bdLogPane({ company: company || (outreach[0] || {}).company || '', company_status, calls, people, assigned_to, timeline, markBtn: lastRow ? actionBtn('標記談到職缺／成交', 'bd-stage', { idParams: { id: lastRow.id } }, 'primary') : '' })}${views.bdTranscriptBlock(company || (outreach[0] || {}).company || '', transcripts, notes, people, assigned_to)}</div>
+      <div id="bd-detail-pane-jobs" hidden>${bdJobsPane({ company: company || (outreach[0] || {}).company || '', client_jobs, assigned_to })}</div>
+      <div id="bd-detail-pane-mail" hidden>${views.bdContractPackBlock(company || (outreach[0] || {}).company || '', outreach || [], contract_files, assigned_to, pack_options)}<h4 style="margin:18px 0 6px">已寄出／擬好的信件全文</h4>${letters}</div>
+      <div id="bd-detail-pane-profile" hidden>${views.bdProfileModes(profile, company || (outreach[0] || {}).company || '')}</div>
       <div id="bd-detail-pane-playbook" hidden>${playbookPane}</div>`;
   },
   // bd_requests 真實欄位是 role_family（不是 company_name/target，這裡從沒要求填公司名——
