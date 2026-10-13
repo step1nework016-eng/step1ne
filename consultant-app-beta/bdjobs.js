@@ -48,7 +48,7 @@ export function bdJobsPane(detail) {
       </div>
       <p class="help" data-bdj-help>一行放一個 104 職缺連結。</p>
       <textarea data-bdj-paste rows="6" class="bdj-paste" aria-label="貼在這裡"></textarea>
-      <div class="bdj-file" data-bdj-filebox hidden><input type="file" data-bdj-files accept="image/*,application/pdf" multiple><p class="help">一個檔案算一個職缺。</p></div>
+      <div class="bdj-file" data-bdj-filebox hidden><input type="file" data-bdj-files accept="image/*,application/pdf" multiple aria-label="選擇截圖或 PDF"><p class="help">一次最多選 ${MAX} 個檔案（截圖或 PDF），一個檔案算一個職缺。</p><ul class="bdj-filelist" data-bdj-filelist></ul></div>
       <div class="bdj-counter" data-bdj-counter><span data-bdj-n>0 個</span><span>最多 ${MAX} 個</span></div>
       <div class="bdj-notice"><b>貼 104 連結</b>：系統會直接讀出職缺內容，你核對、修改後再新增。<b>貼文字、截圖、PDF</b>的自動讀取下一版上線，現在先由你自己填職缺名稱和工作內容（貼文字會自動帶入）。</div>
       <button type="button" class="bdj-btn primary" data-bdj-make>整理成清單</button>
@@ -90,7 +90,29 @@ export function wireBdJobs(root, detail, reload) {
     counter();
   };
   box.querySelectorAll('[name=bdj-how]').forEach((r) => { r.onchange = setHow; });
-  paste.oninput = counter; files.onchange = counter;
+  // 選的檔案列出來，可以一個一個拿掉（用 DataTransfer 重組，最多 10 個）
+  const drawFiles = () => {
+    const ul = box.querySelector('[data-bdj-filelist]');
+    const list = Array.from(files.files || []);
+    ul.innerHTML = list.map((f, i) => `<li><span class="fn">${text(f.name)}</span><button type="button" data-bdj-fx="${i}" aria-label="拿掉 ${escapeHtml(f.name)}">×</button></li>`).join('');
+    ul.querySelectorAll('[data-bdj-fx]').forEach((b) => {
+      b.onclick = () => {
+        const dt = new DataTransfer();
+        list.forEach((f, i) => { if (i !== Number(b.dataset.bdjFx)) dt.items.add(f); });
+        files.files = dt.files; drawFiles(); counter();
+      };
+    });
+  };
+  paste.oninput = counter;
+  files.onchange = () => {
+    if ((files.files || []).length > MAX) {
+      const dt = new DataTransfer();
+      Array.from(files.files).slice(0, MAX).forEach((f) => dt.items.add(f));
+      files.files = dt.files;
+      toast(`一次最多 ${MAX} 個，已留下前 ${MAX} 個`, 'error');
+    }
+    drawFiles(); counter();
+  };
   box.querySelector('[data-bdj-add]').onclick = () => { panel.hidden = !panel.hidden; if (!panel.hidden) { setHow(); paste.focus(); } };
   box.querySelector('[data-bdj-cancel]').onclick = () => { panel.hidden = true; draft = []; box.querySelector('[data-bdj-draft]').innerHTML = ''; };
 

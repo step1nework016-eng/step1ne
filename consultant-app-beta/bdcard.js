@@ -22,6 +22,11 @@ const RESULTS = [['no_answer', '沒接／沒人'], ['gatekeeper', '被擋在總�
 const RESULT_ZH = Object.fromEntries(RESULTS);
 const KIND_ZH = { call: '電話', mail: '寄信', other: '其他' };
 const WD = '日一二三四五六';
+const ICON = {
+  call: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>',
+  mail: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>',
+  other: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>',
+};
 
 const taipeiNow = () => new Date(Date.now() + 8 * 3600e3);
 const todayStr = () => taipeiNow().toISOString().slice(0, 10);
@@ -129,12 +134,12 @@ export function bdLogPane(detail) {
       : (k === 'mail' ? '<span class="bdc-chip no">信還沒寄</span>' : '');
     const nxt = l.next_step
       ? `<div class="bdc-nxt${l.next_done ? ' done' : ''}">下一步：${text(l.next_step)}${l.next_due ? `（${text(md(l.next_due))}）` : ''}${l.next_done ? '　已完成' : ''}</div>` : '';
-    return `<li class="bdc-item ${k}"><div class="bdc-card">
+    return `<li class="bdc-item ${k}"><span class="bdc-dot" aria-hidden="true">${ICON[k]}</span><div class="bdc-card">
       <div class="bdc-top"><span class="bdc-t">${KIND_ZH[k]}${l.result ? `　${text(RESULT_ZH[l.result] || l.result)}` : ''}</span><span class="bdc-time">${text(mdTime(logTime(l)))}　${text(l.caller || '顧問')}</span></div>
       <div class="bdc-chips">${sent}${l.stage_to ? `<span class="bdc-chip stage">階段 → ${text(l.stage_to)}</span>` : ''}${l.tag_to ? `<span class="bdc-chip stage">標籤 → ${text(l.tag_to)}</span>` : ''}</div>
       ${l.note ? `<p class="bdc-note">${text(l.note)}</p>` : ''}${l.contact_name || l.hr_phone || l.email ? `<small class="muted">問到：${[l.contact_name && `窗口 ${text(l.contact_name)}`, l.hr_phone && `電話 ${text(l.hr_phone)}`, l.email && `信箱 ${text(l.email)}`].filter(Boolean).join('・')}</small>` : ''}
       ${nxt}
-      ${!l.mail_sent && k === 'mail' ? `<div class="bdc-mini"><button type="button" data-bdc-sent="${l.id}">標記信已寄出</button></div>` : ''}
+      ${(!l.mail_sent && k !== 'other') || (l.next_step && !l.next_done) ? `<div class="bdc-mini">${!l.mail_sent && k !== 'other' ? `<button type="button" data-bdc-sent="${l.id}">標記信已寄出</button>` : ''}${l.next_step && !l.next_done ? `<button type="button" data-bdc-done="${l.id}">這步做完了</button>` : ''}</div>` : ''}
     </div></li>`;
   };
   return `<section class="bdc-logpane" data-bdc-logpane>
@@ -275,6 +280,15 @@ export function wireBdCard(root, detail, reload) {
       await reload({ remindStage: !stage && form.querySelector('[name=kind]:checked').value !== 'other' });
     } catch (err) { toast(err.message || '儲存失敗', 'error'); btn.disabled = false; }
   };
+
+  // 事後標「這步做完了」
+  pane.querySelectorAll('[data-bdc-done]').forEach((b) => {
+    b.onclick = async () => {
+      b.disabled = true;
+      try { await api.post('/admin/bd/log-update', { id: Number(b.dataset.bdcDone), next_done: true }); toast('這步標成完成了', 'success'); await reload({ openLog: true }); }
+      catch (err) { toast(err.message || '失敗', 'error'); b.disabled = false; }
+    };
+  });
 
   // 事後補標信已寄出
   pane.querySelectorAll('[data-bdc-sent]').forEach((b) => {

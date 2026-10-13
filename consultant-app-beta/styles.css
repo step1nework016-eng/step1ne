@@ -1126,3 +1126,20 @@ details.note-details p{margin:8px 0 0;font-size:13.5px;white-space:pre-wrap;colo
 .bdj-empty{border:1px dashed #cbd6e6;border-radius:12px;padding:22px;text-align:center;color:var(--muted)}
 .bdk-mode{margin:0 0 12px}
 @media (max-width:640px){.bdj-grid{grid-template-columns:1fr}}
+/* 全部紀錄：時間軸（圓形圖示＋垂直線＋卡片，照示意頁） */
+.bdc-tl{position:relative}
+.bdc-tl:before{content:"";position:absolute;left:19px;top:8px;bottom:8px;width:2px;background:var(--line)}
+.bdc-item{position:relative;padding:0 0 14px 52px}
+.bdc-dot{position:absolute;left:0;top:2px;width:40px;height:40px;border-radius:50%;background:#fff;border:2px solid var(--line);display:grid;place-items:center;color:var(--muted)}
+.bdc-item.call .bdc-dot{color:#2867ed;border-color:#b7cdfa;background:#eaf1ff}
+.bdc-item.mail .bdc-dot{color:#14794c;border-color:#a8e3c5;background:#e2f8ed}
+.bdc-item.call .bdc-card,.bdc-item.mail .bdc-card{border-left:1px solid var(--line)}
+.bdc-mini{display:flex;gap:6px;flex-wrap:wrap}
+@media (max-width:640px){.bdc-tl:before{left:15px}.bdc-item{padding-left:42px}.bdc-dot{width:32px;height:32px}.bdc-dot svg{width:15px;height:15px}}
+/* 上傳截圖／PDF：不再破版，可選 10 張 */
+.bdj-file{margin:0 0 8px;min-width:0}
+.bdj-file input[type=file]{display:block;width:100%;max-width:100%;min-height:44px;padding:8px;border:1px solid #cfd9ea;border-radius:10px;background:#fff;font-size:14px;box-sizing:border-box}
+.bdj-filelist{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:6px}
+.bdj-filelist li{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:6px 10px;background:#fff;min-width:0}
+.bdj-filelist .fn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13.5px}
+.bdj-filelist button{min-width:44px;min-height:36px;border:0;background:none;color:#a72f3a;font-size:20px;cursor:pointer}
