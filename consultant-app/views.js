@@ -319,8 +319,9 @@ export const views = {
     const isOpen = (j) => ['open', 'active'].includes(j.status);
     const kw = String(f.q || '').trim().toLowerCase();
     const isSo = (j) => j.status === 'social_only';
+    const isDraft = (j) => ['draft', 'client_draft', 'pending_review'].includes(j.status);
     return (jobs || []).filter((j) => j.slug !== 'unspecified' // 系統佔位用，不是真的職缺
-      && (f.status === 'all' || (f.status === 'social_only' ? isSo(j) : f.status === 'closed' ? (!isOpen(j) && !isSo(j)) : isOpen(j)))
+      && (f.status === 'all' || (f.status === 'social_only' ? isSo(j) : f.status === 'draft' ? isDraft(j) : f.status === 'closed' ? (!isOpen(j) && !isSo(j) && !isDraft(j)) : isOpen(j)))
       && (f.client === 'all' || client(j) === f.client)
       && (f.line === 'all' || (j.service_line || '') === f.line)
       && (!kw || [j.title, client(j), j.slug, SL[j.service_line] || j.service_line].join(' ').toLowerCase().includes(kw)));
@@ -339,18 +340,19 @@ export const views = {
     const sScope = views.jobListFilter(jobs, { ...f, status: 'all' });
     const openN = sScope.filter(isOpen).length;
     const soN = sScope.filter((j) => j.status === 'social_only').length;
+    const drN = sScope.filter((j) => ['draft', 'client_draft', 'pending_review'].includes(j.status)).length;
     return `<div class="filters" style="margin-bottom:14px;flex-wrap:wrap;gap:8px">
 <input id="joblist-q" type="search" placeholder="搜尋職稱或客戶" value="${text(f.q || '')}" style="min-height:44px;flex:1 1 180px">
-<select id="joblist-status" aria-label="狀態">${opt('open', `招募中（${openN}）`, f.status)}${opt('social_only', `🔒 未簽約客戶職缺（${soN}）`, f.status)}${opt('closed', `已關閉（${sScope.length - openN - soN}）`, f.status)}${opt('all', `全部（${sScope.length}）`, f.status)}</select>
+<select id="joblist-status" aria-label="狀態">${opt('open', `招募中（${openN}）`, f.status)}${opt('draft', `📝 草稿・待上架（${drN}）`, f.status)}${opt('social_only', `🔒 未簽約客戶職缺（${soN}）`, f.status)}${opt('closed', `已關閉（${sScope.length - openN - soN - drN}）`, f.status)}${opt('all', `全部（${sScope.length}）`, f.status)}</select>
 <select id="joblist-client" aria-label="客戶">${opt('all', '全部客戶', f.client)}${count('client', client).map(([k, n]) => opt(k, `${k || '（沒填客戶）'}（${n}）`, f.client)).join('')}</select>
 <select id="joblist-line" aria-label="服務類型">${opt('all', '全部類型', f.line)}${count('line', (j) => j.service_line || '').map(([k, n]) => opt(k, `${SL[k] || k || '（沒填）'}（${n}）`, f.line)).join('')}</select>
-</div><div id="joblist-results">${views.jobListResults(jobs, f)}</div>`;
+</div>${drN && f.status !== 'draft' ? `<div class="notice" style="margin:0 0 12px"><b>有 ${drN} 個職缺還是草稿，沒有上架。</b>　<button type="button" class="btn sm primary" data-joblist-showdraft>看草稿、一鍵上架</button></div>` : ''}<div id="joblist-results">${views.jobListResults(jobs, f)}</div>`;
   },
   jobListResults: (jobs, f) => {
     const rows = views.jobListFilter(jobs, f);
     return `<p class="muted" style="margin:0 0 8px">共 ${rows.length} 個職缺</p>` + (rows.length ? views.jobRows(rows) : '<p class="muted">沒有符合的職缺，換個條件試試。</p>');
   },
-  jobRows: (items) => list(items, (j) => `<article class="job-row" data-job="${text(j.slug || j.id)}"><div><h3>${text(j.title)}</h3><p>${text(j.company_display_name || j.company_name || j.client_name || j.social_only_company)} · ${j.status === 'social_only' ? '開發中・只發社群' : text(({ dispatch: '人力派遣', direct: '正職代招', executive: '中高階獵才' })[j.service_line] || j.service_line)}</p></div><span style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">${statusBadge(j.status)}${j.sourcing_mode === 'priority' ? '<span class="badge info" title="外部找人選：每晚優先找">優先找人</span>' : j.sourcing_mode === 'off' ? '<span class="badge" title="外部找人選：不找">不找人</span>' : ''}</span><div class="metrics"><span>應徵 ${text(j.applicants ?? 0)}</span><span>篩選中 ${text(j.screening ?? 0)}</span><span>客戶階段 ${text(j.client_stage ?? 0)}</span><span>錄取 ${text(j.offered ?? 0)}</span><span class="${(j.onboard ?? 0) > 0 ? 'accent' : ''}">到職 ${text(j.onboard ?? 0)}</span><span class="${(j.closed ?? 0) > 0 ? 'warn' : ''}">結案 ${text(j.closed ?? 0)}</span></div><button class="btn">管理</button></article>`),
+  jobRows: (items) => list(items, (j) => `<article class="job-row" data-job="${text(j.slug || j.id)}"><div><h3>${text(j.title)}</h3><p>${text(j.company_display_name || j.company_name || j.client_name || j.social_only_company)} · ${j.status === 'social_only' ? '開發中・只發社群' : text(({ dispatch: '人力派遣', direct: '正職代招', executive: '中高階獵才' })[j.service_line] || j.service_line)}</p></div><span style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">${statusBadge(j.status)}${j.sourcing_mode === 'priority' ? '<span class="badge info" title="外部找人選：每晚優先找">優先找人</span>' : j.sourcing_mode === 'off' ? '<span class="badge" title="外部找人選：不找">不找人</span>' : ''}</span><div class="metrics"><span>應徵 ${text(j.applicants ?? 0)}</span><span>篩選中 ${text(j.screening ?? 0)}</span><span>客戶階段 ${text(j.client_stage ?? 0)}</span><span>錄取 ${text(j.offered ?? 0)}</span><span class="${(j.onboard ?? 0) > 0 ? 'accent' : ''}">到職 ${text(j.onboard ?? 0)}</span><span class="${(j.closed ?? 0) > 0 ? 'warn' : ''}">結案 ${text(j.closed ?? 0)}</span></div>${['draft', 'client_draft', 'pending_review'].includes(j.status) ? `<span class="badge warning">草稿</span>${actionBtn('上架', 'job-publish', { idParams: { slug: j.slug } }, 'primary')}` : ''}<button class="btn">管理</button></article>`),
   // 2026-09-24 重寫：收件單沒有 title 欄位（職稱要等總指揮擬完才有），原本顯示一排空白。
   //   改成客戶／服務線／進度中文／附件數，核准一樣在 TG 群組按。
   jobDraftRows: (items) => list(items, (d) => {
