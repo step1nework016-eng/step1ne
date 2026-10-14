@@ -2804,6 +2804,16 @@ async function loadSystemTab(target) {
   if (state.sub === 'token') return boundary(target, adapters.tokenUsage, views.systemTokenTab, 'refresh');
   if (state.sub === 'spec') return boundary(target, async () => null, views.systemSpecTab, 'refresh');
   if (state.sub === 'health') return boundary(target, adapters.featureUsage, views.systemHealthTab, 'refresh');
+  if (state.sub === 'codes') {
+    const res = await boundary(target, async () => { const [c, j] = await Promise.all([api.get('/admin/job-codes'), api.get('/admin/jobs')]); window.__JOB_CODES = c.codes || window.__JOB_CODES; return { codes: c.codes, clients: c.clients, jobs: j.jobs || j.items || [] }; }, views.systemCodesTab, 'refresh');
+    const q = $('#codes-q');
+    if (q) q.oninput = () => {
+      const k = q.value.trim().toLowerCase();
+      document.querySelectorAll('[data-codes-row]').forEach((r) => { r.hidden = !!k && !r.getAttribute('data-q').includes(k); });
+      document.querySelectorAll('[data-codes-block]').forEach((b) => { b.hidden = ![...b.querySelectorAll('[data-codes-row]')].some((r) => !r.hidden); });
+    };
+    return res;
+  }
   if (state.sub === 'line') {
     const res = await boundary(target, async () => { const s = await adapters.system(); return { overdue: s.line, bindings: s.bindings }; }, views.systemLineTab, 'refresh');
     wireBindFilter();

@@ -3036,7 +3036,22 @@ ${a.note ? `<details class="note-details"><summary>顧問備註／電洽紀錄</
   linechatMessages: (messages) => messages.length
     ? messages.map((m) => `<div class="bubble ${m.direction === 'out' ? 'candidate' : ''}"><p>${text(m.content)}</p><small>${text((m.created_at || '').slice(5, 16))}${m.direction === 'out' ? ' · 你' : ''}</small></div>`).join('')
     : `<p class="muted" style="text-align:center;margin-top:20px">還沒有對話紀錄</p>`,
-  system: (tab='line') => pageHead('系統','LINE、阿財 KPI、Token、顧問設定與系統健康集中管理。') + tabbar('system',[['line','LINE'],['kpi','阿財 KPI'],['token','Token Usage'],['settings','顧問設定'],['spec','面談規格'],['health','系統健康']],tab) + `<div id="page-data">${endpointState('系統資料')}</div>`,
+  // 編號查詢：客戶編號（A 已簽約／B 未簽約）＋職缺編號。2026-10-14 Jacky：編號要有一張列表可以查。
+  systemCodesTab: ({ codes, clients, jobs }) => {
+    const jb = Object.fromEntries((jobs || []).map((j) => [j.slug, j]));
+    const ST = { open: '招募中', closed: '已關閉', draft: '草稿', client_draft: '客戶草稿', pending_review: '待審', social_only: '只發社群' };
+    const byClient = {};
+    Object.entries(codes || {}).forEach(([slug, code]) => { const cc = code.split('-')[0]; (byClient[cc] = byClient[cc] || []).push([code, slug]); });
+    const nameOf = Object.fromEntries(Object.entries(clients || {}).map(([k, c]) => [c, k]));
+    const order = Object.keys(byClient).sort((a, b) => (a[0] === b[0] ? Number(a.slice(1)) - Number(b.slice(1)) : a[0].localeCompare(b[0])));
+    const block = (cc) => `<section class="codes-block" data-codes-block>
+      <h3><span class="jobcode">${text(cc)}</span> ${text(nameOf[cc] || '')}<small class="muted">　${cc[0] === 'A' ? '已簽約' : '未簽約'}・${byClient[cc].length} 個職缺</small></h3>
+      <table class="codes-table"><tbody>${byClient[cc].sort().map(([code, slug]) => { const j = jb[slug] || {}; return `<tr data-codes-row data-q="${escapeHtml((code + ' ' + (j.title || '') + ' ' + (nameOf[cc] || '')).toLowerCase())}"><td class="c"><b>${text(code)}</b></td><td>${text(j.title || slug)}</td><td class="s">${text(ST[j.status] || j.status || '')}</td></tr>`; }).join('')}</tbody></table></section>`;
+    return `<div class="filters" style="margin-bottom:12px"><input id="codes-q" type="search" placeholder="搜尋編號、職缺名稱或客戶（例如 A11、BIM、弘昌）" style="min-height:44px;flex:1 1 260px"></div>
+      <p class="help" style="margin:0 0 10px">A＝已簽約（含私人合作）、B＝還沒簽約。客戶簽約後，B 的編號會換成 A 的下一號，底下職缺編號（001…）不變。</p>
+      ${order.map(block).join('')}<style>.codes-table{width:100%;border-collapse:collapse;margin:0 0 14px}.codes-table td{padding:7px 8px;border-top:1px solid var(--line,#d9e2e8)}.codes-table td.c{white-space:nowrap;width:1%}.codes-table td.s{white-space:nowrap;color:var(--muted,#586a77);font-size:14px}.codes-block h3{margin:16px 0 4px;font-size:17px}</style>`;
+  },
+  system: (tab='line') => pageHead('系統','LINE、阿財 KPI、Token、顧問設定與系統健康集中管理。') + tabbar('system',[['line','LINE'],['kpi','阿財 KPI'],['token','Token Usage'],['settings','顧問設定'],['spec','面談規格'],['health','系統健康'],['codes','編號查詢']],tab) + `<div id="page-data">${endpointState('系統資料')}</div>`,
   systemData: ({ bindings, consultants, token }) => `<div class="kpi-grid"><article class="kpi"><span>LINE 綁定</span><strong>${bindings.length}</strong></article><article class="kpi"><span>顧問</span><strong>${consultants.length}</strong></article></div><div class="two-col"><article class="card"><h2>Token Usage</h2><p class="notice">此數字是若改走 API 計費的估算，不是實際帳單；後端價格公式可能需要更新。</p><pre class="compact-json">${escapeHtml(JSON.stringify(token, null, 2))}</pre></article><article class="card"><h2>權限邊界</h2><p>目前全站沿用單一 ADMIN_TOKEN。顧問篩選只是畫面篩選，不是 RBAC。</p></article></div>`,
   // line-followup-overdue 真實主鍵是 click_id（不是 id）。
   // ── LINE 綁定（2026-09-22 第二版）──────────────────────────────
