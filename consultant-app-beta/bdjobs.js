@@ -46,9 +46,10 @@ export function bdJobsPane(detail) {
         <label class="bdj-f full">條件<textarea data-bdj-k="required_conditions" rows="3">${text(j.required_conditions || '')}</textarea></label>
       </div>`}
       <div class="bdj-perm"><span class="bdj-chip ok">可發社群</span>${live ? '<span class="bdj-chip ok">上官網</span><span class="bdj-chip ok">阿財面談</span>' : '<span class="bdj-chip lock">不上官網</span><span class="bdj-chip lock">阿財不面談</span><span class="bdj-chip no">未簽約</span>'}</div>
+      <div class="bdm" data-bdm><button type="button" class="bdj-btn" data-bdm-go title="AI 在現有人選裡挑最適合這個職缺的 5 位，列出符合與落差">🔍 從現有人選配對</button><div class="bdm-out" data-bdm-out hidden></div></div>
     </article>`;
   };
-  return `<section class="bdj" data-bdj>
+  return `<section class="bdj" data-bdj data-bdj-company="${escapeHtml(detail.company || '')}">
     ${lock}
     <div class="bdj-head"><h4>客戶先給我們找的職缺 <small>（${open.length}）</small></h4><button type="button" class="bdj-btn primary" data-bdj-add>＋ 新增職缺（一次最多 ${MAX} 個）</button></div>
     <div class="bdj-panel" data-bdj-panel hidden>

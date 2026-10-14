@@ -114,20 +114,23 @@ function yesterdayTomorrow() {
 function todayItems() {
   const t = todayStr();
   const items = [];
-  (sys.calls || []).filter((c) => String(c.call_at || '').slice(0, 10) === t).forEach((c) => items.push({ g: 'call', pri: 1, rid: c.id, time: String(c.call_at || '').slice(11, 16), icon: '📞', title: (c.candidate_name || '電話／面談'), text: String(c.message || '').replace(/\s+/g, ' ').replace(/^電話／面談\s*/, '').slice(0, 90), attr: c.application_id ? `data-application="${esc(c.application_id)}"` : '' }));
-  sysBdRows().filter((r) => r._overdue).forEach((r) => items.push({ g: 'bd', pri: r._due < t ? 0 : 2, time: r._due === t ? '今天' : '逾期 ' + r._due.slice(5), icon: '🏢', title: r.company, text: r.next_step || '待跟進', sub: r.call_phone || r.company_phone || '', attr: `data-bd-company="${esc(r.company)}"` }));
-  sys.cands.filter((c) => c.stage === 'decide').forEach((c) => items.push({ g: 'decide', pri: 3, time: '等你決定', icon: '👤', title: (c.seqNo ? '#' + c.seqNo + ' ' : '') + c.name, text: c.job || '', attr: `data-application="${esc(c.applicationId)}"` }));
-  state.bd.filter((x) => x.nextDate && x.nextDate <= t).forEach((x) => items.push({ g: 'mine', pri: 2, time: x.nextDate === t ? '今天' : '逾期 ' + x.nextDate.slice(5), icon: '📝', title: x.company || '未命名企業', text: x.next || '待跟進', attr: '' }));
-  state.candidate.filter((x) => x.nextDate && x.nextDate <= t).forEach((x) => items.push({ g: 'mine', pri: 2, time: x.nextDate === t ? '今天' : '逾期 ' + x.nextDate.slice(5), icon: '📝', title: x.name || '未命名人選', text: x.next || '待跟進', attr: '' }));
-  return items.sort((a, b) => (a.pri - b.pri) || String(a.time).localeCompare(String(b.time)));
+  (sys.calls || []).filter((c) => String(c.call_at || '').slice(0, 10) === t).forEach((c) => items.push({ g: 'call', pri: 1, k: 'call:' + c.id, rid: c.id, reply: (c.reply_at && !(state.seenReply || {})[c.id]) ? (c.reply_text || '（無內文）') : '', time: String(c.call_at || '').slice(11, 16), icon: '📞', title: (c.candidate_name || '電話／面談'), text: String(c.message || '').replace(/\s+/g, ' ').replace(/^電話／面談\s*/, '').slice(0, 90), attr: (() => { const id = c.application_id || ((sys.cands || []).find((x) => x.name && String(c.candidate_name || '').includes(x.name)) || {}).applicationId; return id ? `data-application="${esc(id)}"` : ''; })() }));
+  sysBdRows().filter((r) => r._overdue).forEach((r) => items.push({ g: 'bd', pri: r._due < t ? 0 : 2, k: 'bd:' + r.company, time: r._due === t ? '今天' : '逾期 ' + r._due.slice(5), icon: '🏢', title: r.company, text: r.next_step || '待跟進', sub: r.call_phone || r.company_phone || '', attr: `data-bd-company="${esc(r.company)}"` }));
+  sys.cands.filter((c) => c.stage === 'decide').forEach((c) => items.push({ g: 'decide', pri: 3, k: 'decide:' + c.applicationId, time: '等你決定', icon: '👤', title: (c.seqNo ? '#' + c.seqNo + ' ' : '') + c.name, text: c.job || '', attr: `data-application="${esc(c.applicationId)}"` }));
+  state.bd.filter((x) => x.nextDate && x.nextDate <= t).forEach((x) => items.push({ g: 'mine', pri: 2, k: 'minebd:' + (x.company || '') + (x.next || ''), time: x.nextDate === t ? '今天' : '逾期 ' + x.nextDate.slice(5), icon: '📝', title: x.company || '未命名企業', text: x.next || '待跟進', attr: '' }));
+  state.candidate.filter((x) => x.nextDate && x.nextDate <= t).forEach((x) => items.push({ g: 'mine', pri: 2, k: 'minecd:' + (x.name || '') + (x.next || ''), time: x.nextDate === t ? '今天' : '逾期 ' + x.nextDate.slice(5), icon: '📝', title: x.name || '未命名人選', text: x.next || '待跟進', attr: '' }));
+  const dn = (state.done || {});
+  items.forEach((x) => { x.done = !!dn[x.k]; });
+  return items.sort((a, b) => (a.done - b.done) || (a.pri - b.pri) || String(a.time).localeCompare(String(b.time)));
 }
 function todayPanel() {
   const items = todayItems();
   const carry = yesterdayTomorrow();
   const g = (k) => items.filter((x) => x.g === k).length;
-  const chips = [['📞 今天的電話／面談', g('call')], ['🏢 開發跟進（到期／逾期）', g('bd')], ['👤 等你決定的人選', g('decide')], ['📝 我自己記的跟進', g('mine')], ['昨天寫的明日事項', carry.length]].map(([n, v]) => `<span class="dly-chip ${v ? 'on' : ''}">${n} <b>${v}</b></span>`).join('');
+  const nDone = items.filter((x) => x.done).length;
+  const chips = [['✅ 已完成', nDone + '／' + items.length], ['📞 今天的電話／面談', g('call')], ['🏢 開發跟進（到期／逾期）', g('bd')], ['👤 等你決定的人選', g('decide')], ['📝 我自己記的跟進', g('mine')], ['昨天寫的明日事項', carry.length]].map(([n, v]) => `<span class="dly-chip ${v ? 'on' : ''}">${n} <b>${v}</b></span>`).join('');
   const shown = items.slice(0, sys.todayAll ? 999 : 8);
-  const rows = shown.map((x) => `<div class="dly-todo ${x.pri === 0 ? 'late' : ''}" ${x.attr} ${x.attr ? 'style="cursor:pointer"' : ''}><span class="dly-todo-t">${esc(x.time)}</span><span>${x.icon}</span><div style="flex:1"><b>${esc(x.title)}</b>${x.text ? `<div class="dly-small" style="margin-top:1px">${esc(x.text)}${x.sub ? '｜' + esc(x.sub) : ''}</div>` : ''}</div>${x.rid ? `<button class="btn dly-danger" style="min-height:32px;padding:2px 9px;font-size:13px" data-dly="cancelCall:${esc(x.rid)}" title="取消這筆預約與提醒">取消</button>` : ''}</div>`).join('');
+  const rows = shown.map((x) => `<div class="dly-todo ${x.pri === 0 && !x.done ? 'late' : ''}${x.done ? ' done' : ''}${x.reply && !x.done ? ' replied' : ''}" ${x.attr} ${x.attr ? 'style="cursor:pointer"' : ''}><span class="dly-todo-t">${esc(x.time)}</span><span>${x.icon}</span><div style="flex:1"><b>${esc(x.title)}</b>${x.text ? `<div class="dly-small" style="margin-top:1px">${esc(x.text)}${x.sub ? '｜' + esc(x.sub) : ''}</div>` : ''}${x.reply ? `<div class="dly-replied">⚠️ 對方回信了：「${esc(x.reply)}」→ 先回信確認時間，確認了才打。<button class="btn" style="min-height:28px;padding:1px 8px;font-size:12px;margin-left:6px" data-dly="seenReply:${esc(x.rid)}">我看過了</button></div>` : ''}</div><button class="btn ${x.done ? '' : 'primary'}" style="min-height:32px;padding:2px 10px;font-size:13px" data-dly="doneItem:${encodeURIComponent(x.k || '')}" title="${x.done ? '還沒做完，放回待辦' : '做完了'}">${x.done ? '↩ 還原' : '✓ 完成'}</button>${x.rid && !x.done ? `<button class="btn dly-danger" style="min-height:32px;padding:2px 9px;font-size:13px" data-dly="cancelCall:${esc(x.rid)}" title="取消這筆預約與提醒">取消</button>` : ''}</div>`).join('');
   const empty = !sys.owner ? '<div class="dly-hint">請先在上面選顧問：選了之後，這裡會列出你今天的電話與面談、到期的開發跟進、等你決定的人選。</div>' : (items.length || carry.length ? '' : '<div class="dly-hint">目前沒有到期或今天要做的事。去「② 企業 BD」或「③ 人才追蹤」挑下一步，並設定下次跟進日。</div>');
   const more = items.length > 8 ? `<button class="btn" data-dly="todayMore">${sys.todayAll ? '只看前 8 件' : '顯示全部 ' + items.length + ' 件'}</button>` : '';
   const up = (sys.calls || []).filter((c) => String(c.call_at || '').slice(0, 10) > todayStr());
@@ -373,6 +376,8 @@ export async function loadDailyTab(target, tab) {
       api.post('/admin/consultant-reminders/cancel', { id: type, by: consultantName() }).then(() => { sys.at = ''; loadSystem(true).then(() => { if (target.isConnected) { collect(root()); draw(target); } }); }).catch(() => alert('取消失敗'));
       return;
     }
+    if (act === 'seenReply') { state.seenReply = state.seenReply || {}; state.seenReply[type] = 1; persist(); collect(root()); draw(target); return; }
+    if (act === 'doneItem') { const k = decodeURIComponent(type || ''); state.done = state.done || {}; if (state.done[k]) delete state.done[k]; else state.done[k] = new Date().toISOString().slice(11, 16); persist(); collect(root()); draw(target); return; }
     if (act === 'todayMore') { sys.todayAll = !sys.todayAll; collect(root()); draw(target); return; }
     if (act === 'chView') { sys.chView = type; collect(root()); draw(target); return; }
     if (act === 'chAcct') { sys.chAccount = b.getAttribute('data-dly').slice('chAcct:'.length); sys.chView = 'detail'; collect(root()); draw(target); return; }

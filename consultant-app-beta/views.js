@@ -2251,7 +2251,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
     const li = (a) => `<ul class="rs-ul">${(a || []).map((x) => `<li>${T(x)}</li>`).join('')}</ul>`;
     const plan = r.plan || {};
     const src = (r.sources || []).map((u) => { const s = safeUrl(u); return `<li>${s ? `<a href="${escapeHtml(s)}" target="_blank" rel="noopener">${T(s)}</a>` : T(u)}</li>`; }).join('');
-    const tabs = [['key', '先看這裡'], ['chart', '圖表'], ['talk', '可以聊什麼'], ['view', '外界怎麼看'], ['gap', '查不到的'], ['act', '行動＋讀懂了嗎']];
+    const tabs = [['key', '先看這裡'], ['chart', '圖表'], ['jobs', '有價值的職缺'], ['talk', '可以聊什麼'], ['view', '外界怎麼看'], ['gap', '查不到的'], ['act', '行動＋讀懂了嗎']];
     return `<div class="rs" data-rs="${escapeHtml(company || '')}">
       <div class="rs-meta">AI 研究，${T(r.generated_at)}　${T(r.by)}｜目標職缺：${T(r.target_job)}</div>
       <div class="rs-tabs" role="tablist">${tabs.map(([k, l], i) => `<button type="button" role="tab" class="${i ? '' : 'active'}" data-rs-tab="${k}" aria-selected="${i ? 'false' : 'true'}">${l}</button>`).join('')}</div>
@@ -2262,13 +2262,24 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
         <div class="rs-keyq"><small>這通電話最重要的一個問題</small><b>${T(r.key_question)}</b></div>
       </div>
       <div data-rs-pane="chart" hidden>${(r.charts || []).map(chart).join('')}${tl}${cov}</div>
+      <div data-rs-pane="jobs" hidden>
+        <h4 class="rs-h">這家公司現在在徵的，哪些值得看</h4>
+        ${r.jobs_summary ? `<div class="rs-read">${T(r.jobs_summary)}</div>` : ''}
+        <div class="rs-jobs">${(r.jobs || []).map((j) => { const u = safeUrl(j.url); return `<div class="rs-job ${T(j.level)}"><div class="rs-job-h"><b>${T(j.title)}</b><span class="rs-lv">${j.level === 'high' ? '優先看' : '參考'}</span></div><small>${T(String(j.date || '').replace(/^(\d{4})(\d{2})(\d{2})$/, '$1/$2/$3'))}${j.area ? '・' + T(j.area) : ''}・${T(j.salary || '薪資面議')}</small><p>${T(j.why)}</p>${u ? `<a href="${escapeHtml(u)}" target="_blank" rel="noopener">看 104 職缺 ↗</a>` : ''}</div>`; }).join('') || '<p class="rs-sub">這次沒有挑出值得看的職缺。</p>'}</div>
+        <p class="rs-sub">只當開口理由：公司自己在 104 刊的缺，對方多半是自己在找人，價值放在難補、開很久的缺。</p>
+      </div>
       <div data-rs-pane="talk" hidden>
         <h4 class="rs-h">可以跟人資聊的話題</h4><div class="rs-topics">${topics}</div>
         <h4 class="rs-h">事實 → 推論 → 要問的</h4>${facts}
         <h4 class="rs-h">60 秒開場</h4><div class="rs-say">${T(r.opening)}</div>
         <h4 class="rs-h">三個一定要問的</h4><ul class="rs-ul">${(r.questions || []).map((x) => `<li><b>${T(x.q)}</b><br><small>要驗證：${T(x.verify)}</small></li>`).join('')}</ul>
       </div>
-      <div data-rs-pane="view" hidden><h4 class="rs-h">外界與員工怎麼看</h4>${rep}<p class="rs-sub">匿名評論和單一事件不能代表整家公司，這裡只列出來讓你知道，不是拿來質疑對方。</p></div>
+      <div data-rs-pane="view" hidden>
+        <h4 class="rs-h">員工與面試者怎麼看（每個平台都有查）</h4>
+        <div class="rs-plat">${(r.platforms || []).map((p) => `<span class="${p.status === '有資料' ? 'y' : p.status === '部分' ? 'p' : 'n'}" title="${T(p.note)}"><b>${T(p.name)}</b>${T(p.status)}<small>${T(p.note)}</small></span>`).join('') || '<p class="rs-sub">這次沒有平台紀錄。</p>'}</div>
+        ${(r.employee || []).length ? `<table class="rs-tbl"><thead><tr><th>日期／來源</th><th>職務／地點</th><th>看到什麼</th><th>要小心</th></tr></thead><tbody>${(r.employee || []).map((x) => `<tr><td>${T(x.date)}<br><small>${T(x.src)}</small></td><td>${T(x.role)}<br><small>${T(x.place)}</small></td><td><span class="rs-tone ${x.tone === '正面' ? 'y' : x.tone === '負面' ? 'n' : ''}">${T(x.tone)}</span> ${T(x.obs)}</td><td>${T(x.limit)}</td></tr>`).join('')}</tbody></table>` : ''}
+        ${r.employee_note ? `<div class="rs-read">${T(r.employee_note)}</div>` : ''}
+        <h4 class="rs-h">外界評價與可驗證的事件</h4>${rep}<p class="rs-sub">匿名評論和單一事件不能代表整家公司，這裡只列出來讓你知道，不是拿來質疑對方。</p></div>
       <div data-rs-pane="gap" hidden>
         <h4 class="rs-h">這些 AI 沒查到，請自己補</h4>${li(r.unknowns)}
         <h4 class="rs-h">對我們開發的風險</h4><div class="rs-risk">${li(r.risks)}</div>
@@ -2281,6 +2292,17 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
       </div>
     </div>`;
   },
+
+  // 認識公司頂端：「請 AI 研究這家公司」按鈕＋狀態（每家公司都一樣，不限特定職缺）
+  bdResearchBar: (pf, company) => {
+    const st = pf && pf.research_status;
+    const busy = st === 'queued' || st === 'working';
+    const has = !!(pf && pf.research_json);
+    const msg = busy ? `AI 正在查（${st === 'queued' ? '排隊中' : '研究中'}），約 10～20 分鐘，好了 TG 客戶群組會通知；重開這張卡片就看得到。`
+      : st === 'error' ? `上次沒成功：${text(pf.research_error || '')}。可以再按一次。`
+      : has ? `上次研究：${text(String(pf.research_at || pf.updated_at || '').slice(0, 16))}` : '還沒有研究卡。按下去，AI 會去查這家公司的公開資料和 104 職缺。';
+    return `<div class="rs-bar"><button type="button" class="btn ${has ? '' : 'primary'}" data-rs-go="${escapeHtml(company || '')}" ${busy ? 'disabled' : ''}>${busy ? '研究中…' : (has ? '🔄 重新研究這家公司' : '🔍 請 AI 研究這家公司')}</button><span class="rs-sub">${msg}</span></div>`;
+  },
   // 2026-10-13 Jacky：認識公司可以切「預覽模式」（打電話前快速看）和「設定模式」（直接改每一格）
   bdProfileModes: (pf, company) => {
     const f = pf || {};
@@ -2288,7 +2310,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
     const ai = String(f.updated_by || '').includes('AI');
     return `<div class="bdk" data-bdk="${escapeHtml(company)}">
       <div class="bdc-seg bdk-mode" role="radiogroup" aria-label="模式"><label><input type="radio" name="bdk-m" value="view" checked><span>預覽模式</span></label><label><input type="radio" name="bdk-m" value="edit"><span>設定模式</span></label></div>
-      <div data-bdk-view>${views.bdResearchCard(pf, company)}${views.bdResearchCard(pf, company) ? `<details class="rs-old"><summary>舊版文字介紹（每行一項）</summary>${views.bdProfilePane(pf)}</details>` : views.bdProfilePane(pf)}</div>
+      <div data-bdk-view>${views.bdResearchBar(pf, company)}${views.bdResearchCard(pf, company)}${views.bdResearchCard(pf, company) ? `<details class="rs-old"><summary>舊版文字介紹（每行一項）</summary>${views.bdProfilePane(pf)}</details>` : views.bdProfilePane(pf)}</div>
       <div data-bdk-edit hidden>
         ${ai ? '<div class="bdj-lock" style="background:#eaf1ff;border-color:#b7cdfa;color:#1d4fb8">這頁內容是 <b>AI 夜間研究</b>先查好的，可能有錯，請核對。你改過的格子存下去之後，夜間研究不會蓋掉。</div>' : ''}
         <div class="bdj-grid">${F.map(([k, lb, t]) => `<label class="bdj-f${t === 'ta' || k === 'website' ? ' full' : ''}">${lb}${t === 'ta' ? `<textarea data-bdk-k="${k}" rows="3">${text(f[k] || '')}</textarea>` : `<input data-bdk-k="${k}" value="${escapeHtml(f[k] || '')}">`}</label>`).join('')}</div>
@@ -2700,7 +2722,7 @@ ${n.learned ? `<p><b>學到什麼</b>${text(n.learned)}</p>` : ''}${n.next_time 
     const okMark = (ok, label) => `<span class="bd-qc ${ok ? 'ok' : 'miss'}">${ok ? '✓' : '✗'} ${label}${ok ? '' : '（缺）'}</span>`;
     const qc = `<div class="bd-qc-row"><b>資料合格檢查</b>${okMark(!!(hrPhone || mainPhone), '電話')}${okMark(!!url104, '104 企業頁')}${okMark(!!website, '官網')}</div>`;
     const contactCard = `<div class="card bd-contact-card">
-      <div class="card-head"><h3 style="font-size:14px;margin:0 0 8px">聯絡方式</h3><button type="button" class="btn ghost sm" data-action="bd-phone-edit" data-company="${escapeHtml(company || (outreach[0] || {}).company || '')}" data-hr="${escapeHtml(hrPhone)}" data-hrname="${escapeHtml(hrContact)}" data-main="${escapeHtml(mainPhone)}">更新電話</button></div>
+      <div class="card-head"><h3 style="font-size:14px;margin:0 0 8px">聯絡方式</h3><button type="button" class="btn ghost sm" data-action="bd-phone-edit" data-company="${escapeHtml(company || (outreach[0] || {}).company || '')}" data-hr="${escapeHtml(hrPhone)}" data-hrname="${escapeHtml(hrContact)}" data-main="${escapeHtml(mainPhone)}" data-email="${escapeHtml(contactEmail || '')}">更新電話／Email</button></div>
       ${qc}
       ${contactName ? `<div class="bd-contact-row"><span>窗口</span><b>${text(contactName)}</b></div>` : ''}
       ${hrPhone ? telRow('人資電話', hrPhone, hrContact) : ''}
