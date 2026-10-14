@@ -3047,7 +3047,7 @@ ${a.note ? `<details class="note-details"><summary>顧問備註／電洽紀錄</
     const block = (cc) => `<section class="codes-block" data-codes-block>
       <h3><span class="jobcode">${text(cc)}</span> ${text(nameOf[cc] || '')}<small class="muted">　${cc[0] === 'A' ? '已簽約' : '未簽約'}・${byClient[cc].length} 個職缺</small></h3>
       <table class="codes-table"><tbody>${byClient[cc].sort().map(([code, slug]) => { const j = jb[slug] || {}; return `<tr data-codes-row data-q="${escapeHtml((code + ' ' + (j.title || '') + ' ' + (nameOf[cc] || '')).toLowerCase())}"><td class="c"><b>${text(code)}</b></td><td>${text(j.title || slug)}</td><td class="s">${text(ST[j.status] || j.status || '')}</td></tr>`; }).join('')}</tbody></table></section>`;
-    return `<div class="filters" style="margin-bottom:12px"><input id="codes-q" type="search" placeholder="搜尋編號、職缺名稱或客戶（例如 A11、BIM、弘昌）" style="min-height:44px;flex:1 1 260px"></div>
+    return `<div class="filters" style="margin-bottom:12px"><input id="codes-q" type="search" placeholder="搜尋編號、職缺名稱或客戶（例如 A11、BIM）" style="min-height:44px;flex:1 1 260px"></div>
       <p class="help" style="margin:0 0 10px">A＝已簽約（含私人合作）、B＝還沒簽約。客戶簽約後，B 的編號會換成 A 的下一號，底下職缺編號（001…）不變。</p>
       ${order.map(block).join('')}<style>.codes-table{width:100%;border-collapse:collapse;margin:0 0 14px}.codes-table td{padding:7px 8px;border-top:1px solid var(--line,#d9e2e8)}.codes-table td.c{white-space:nowrap;width:1%}.codes-table td.s{white-space:nowrap;color:var(--muted,#586a77);font-size:14px}.codes-block h3{margin:16px 0 4px;font-size:17px}</style>`;
   },
