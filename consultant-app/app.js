@@ -1140,6 +1140,13 @@ async function loadJobTab(target) {
   return res;
 }
 
+// 職缺代號（J-0001…）：載入一次，職缺列表與社群選單用。職缺名稱可以重複，代號不會。
+async function loadJobCodes() {
+  try { const r = await api.get('/admin/job-codes'); window.__JOB_CODES = r.codes || {}; } catch { /* 沒有代號就不顯示 */ }
+}
+loadJobCodes();
+setInterval(loadJobCodes, 120000);
+
 // 職缺總覽的篩選（2026-10-01）：選單一換就整頁重畫（選項數字要跟著變），
 // 打字只換結果區，游標不會跳掉。
 function jobListState() {
@@ -1148,6 +1155,7 @@ function jobListState() {
 }
 function wireJobList(jobs) {
   const f = jobListState();
+  if (!window.__JOB_CODES) loadJobCodes().then(() => { const out = $('#joblist-results'); if (out) out.innerHTML = views.jobListResults(jobs, f); });
   const redraw = () => {
     const box = $('#page-data');
     if (box) box.innerHTML = views.jobListTab(jobs, f);

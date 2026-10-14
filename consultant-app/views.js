@@ -190,6 +190,7 @@ export const GATE_STATUS_META = {
   unmatched: { label: '⛔ 明確不符', cls: 'bad' },
 };
 
+const jobCode = (slug) => ((typeof window !== 'undefined' && window.__JOB_CODES) || {})[slug] || '';
 export const actionBtn = (label, actionId, ctx = {}, extraClass = '') => `<button type="button" class="btn ghost sm ${extraClass}" data-open-action="${escapeHtml(actionId)}" data-ctx='${escapeHtml(JSON.stringify(ctx))}'>${text(label)}</button>`;
 export const rowActions = (buttons) => `<div class="actions-row">${buttons.join('')}</div>`;
 
@@ -324,7 +325,7 @@ export const views = {
       && (f.status === 'all' || (f.status === 'social_only' ? isSo(j) : f.status === 'draft' ? isDraft(j) : f.status === 'closed' ? (!isOpen(j) && !isSo(j) && !isDraft(j)) : isOpen(j)))
       && (f.client === 'all' || client(j) === f.client)
       && (f.line === 'all' || (j.service_line || '') === f.line)
-      && (!kw || [j.title, client(j), j.slug, SL[j.service_line] || j.service_line].join(' ').toLowerCase().includes(kw)));
+      && (!kw || [j.title, client(j), j.slug, jobCode(j.slug), SL[j.service_line] || j.service_line].join(' ').toLowerCase().includes(kw)));
   },
   jobListTab: (jobs, f) => {
     jobs = jobs || [];
@@ -352,7 +353,7 @@ export const views = {
     const rows = views.jobListFilter(jobs, f);
     return `<p class="muted" style="margin:0 0 8px">共 ${rows.length} 個職缺</p>` + (rows.length ? views.jobRows(rows) : '<p class="muted">沒有符合的職缺，換個條件試試。</p>');
   },
-  jobRows: (items) => list(items, (j) => `<article class="job-row" data-job="${text(j.slug || j.id)}"><div><h3>${text(j.title)}</h3><p>${text(j.company_display_name || j.company_name || j.client_name || j.social_only_company)} · ${j.status === 'social_only' ? '開發中・只發社群' : text(({ dispatch: '人力派遣', direct: '正職代招', executive: '中高階獵才' })[j.service_line] || j.service_line)}</p></div><span style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">${statusBadge(j.status)}${['draft', 'client_draft', 'pending_review'].includes(j.status) ? actionBtn('上架', 'job-publish', { idParams: { slug: j.slug } }, 'primary') : ''}${j.sourcing_mode === 'priority' ? '<span class="badge info" title="外部找人選：每晚優先找">優先找人</span>' : j.sourcing_mode === 'off' ? '<span class="badge" title="外部找人選：不找">不找人</span>' : ''}</span><div class="metrics"><span>應徵 ${text(j.applicants ?? 0)}</span><span>篩選中 ${text(j.screening ?? 0)}</span><span>客戶階段 ${text(j.client_stage ?? 0)}</span><span>錄取 ${text(j.offered ?? 0)}</span><span class="${(j.onboard ?? 0) > 0 ? 'accent' : ''}">到職 ${text(j.onboard ?? 0)}</span><span class="${(j.closed ?? 0) > 0 ? 'warn' : ''}">結案 ${text(j.closed ?? 0)}</span></div><button class="btn">管理</button></article>`),
+  jobRows: (items) => list(items, (j) => `<article class="job-row" data-job="${text(j.slug || j.id)}"><div><h3>${jobCode(j.slug) ? `<small class="jobcode">${text(jobCode(j.slug))}</small> ` : ''}${text(j.title)}</h3><p>${text(j.company_display_name || j.company_name || j.client_name || j.social_only_company)} · ${j.status === 'social_only' ? '開發中・只發社群' : text(({ dispatch: '人力派遣', direct: '正職代招', executive: '中高階獵才' })[j.service_line] || j.service_line)}</p></div><span style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">${statusBadge(j.status)}${['draft', 'client_draft', 'pending_review'].includes(j.status) ? actionBtn('上架', 'job-publish', { idParams: { slug: j.slug } }, 'primary') : ''}${j.sourcing_mode === 'priority' ? '<span class="badge info" title="外部找人選：每晚優先找">優先找人</span>' : j.sourcing_mode === 'off' ? '<span class="badge" title="外部找人選：不找">不找人</span>' : ''}</span><div class="metrics"><span>應徵 ${text(j.applicants ?? 0)}</span><span>篩選中 ${text(j.screening ?? 0)}</span><span>客戶階段 ${text(j.client_stage ?? 0)}</span><span>錄取 ${text(j.offered ?? 0)}</span><span class="${(j.onboard ?? 0) > 0 ? 'accent' : ''}">到職 ${text(j.onboard ?? 0)}</span><span class="${(j.closed ?? 0) > 0 ? 'warn' : ''}">結案 ${text(j.closed ?? 0)}</span></div><button class="btn">管理</button></article>`),
   // 2026-09-24 重寫：收件單沒有 title 欄位（職稱要等總指揮擬完才有），原本顯示一排空白。
   //   改成客戶／服務線／進度中文／附件數，核准一樣在 TG 群組按。
   jobDraftRows: (items) => list(items, (d) => {
@@ -1327,7 +1328,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
     live.forEach((j) => {
       const so = j.status === 'social_only';
       const k = so ? `🔒 未簽約客戶職缺｜${j.social_only_company || ''}` : (j.company_display_name || j.client_name || '（未綁客戶）');
-      (byClient[k] = byClient[k] || []).push({ slug: j.slug, title: so ? `🔒 ${j.title || j.slug}（未簽約客戶職缺・只發社群）` : (j.title || j.slug) });
+      (byClient[k] = byClient[k] || []).push({ slug: j.slug, title: (jobCode(j.slug) ? `[${jobCode(j.slug)}] ` : '') + (so ? `🔒 ${j.title || j.slug}（未簽約客戶職缺・只發社群）` : (j.title || j.slug)) });
     });
     const keys = Object.keys(byClient).sort((a, b) => a.localeCompare(b, 'zh-Hant'));
     return `<label class="field"><span>先選客戶</span>
