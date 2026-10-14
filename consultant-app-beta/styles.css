@@ -1262,3 +1262,11 @@ svg .rs-val{font-size:15px;font-weight:700;fill:#14232e}svg .rs-lab{font-size:13
 .bdm-ok,.bdm-gap{margin:4px 0;padding-left:0;list-style:none;font-size:14px}.bdm-ok li{color:#1d5a33}.bdm-gap li{color:#7a4b00}
 .bdm-note{background:#eef6f8;border-radius:6px;padding:4px 9px;font-size:14px}
 .bdm-act{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
+
+/* 2026-10-14 職缺收合列（多個職缺時一眼看完） */
+.bdj-acc>summary{list-style:none;cursor:pointer;display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center;min-height:44px;padding:4px 0}
+.bdj-acc>summary::-webkit-details-marker{display:none}
+.bdj-acc>summary::before{content:"▸";color:#0b5f73;font-weight:700}.bdj-acc[open]>summary::before{content:"▾"}
+.bdj-sum-t{font-weight:700;font-size:16px;flex:1 1 220px}.bdj-sum-m{color:#586a77;font-size:13.5px}
+.bdj-mchip{font-size:12.5px;border-radius:99px;padding:1px 10px;background:#eef1f3;color:#586a77}.bdj-mchip:empty{display:none}.bdj-mchip.on{background:#dff1e6;color:#1d5a33;font-weight:700}
+.bdj-acc[open]>summary{border-bottom:1px dashed #c5d1d9;margin-bottom:8px}
