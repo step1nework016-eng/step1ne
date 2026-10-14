@@ -2213,6 +2213,74 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
       ${has(pf.updated_at) ? `<p class="help">整理時間 ${text(String(pf.updated_at).slice(0, 16))}${has(pf.updated_by) ? `・${text(pf.updated_by)}` : ''}</p>` : ''}
     </div>`;
   },
+
+  // 2026-10-14 認識公司「研究卡」（Jacky：要讓顧問認真理解，不是偷懶；ADHD 版——先講結論、分頁、圖表、可以聊的話題）
+  // 資料是 bd_company_profiles.research_json（AI 依「企業開發前深度研究指令」整理）。沒有就不顯示。
+  bdResearchCard: (pf, company) => {
+    let r = null;
+    try { r = pf && pf.research_json ? JSON.parse(pf.research_json) : null; } catch { r = null; }
+    if (!r) return '';
+    const T = (x) => text(x == null ? '' : x);
+    const safeUrl = (u) => (/^https?:\/\//i.test(String(u || '').trim()) ? String(u).trim() : '');
+    const vd = r.verdict || {};
+    const kpis = (r.kpis || []).map((k) => `<div class="rs-kpi ${T(k.state)}"><small>${T(k.label)}</small><b>${T(k.value)}<em>${T(k.unit)}</em></b><span>${T(k.sub)}</span></div>`).join('');
+    const finds = (r.findings || []).map((f, i) => `<li><span class="rs-n">${i + 1}</span><div><b>${T(f.t)}</b><p>${T(f.d)}</p></div></li>`).join('');
+    const chart = (c) => {
+      const it = c.items || []; const max = Math.max(1, ...it.map((x) => Number(x.value) || 0));
+      const W = 640, H = 250, padL = 8, base = 196, top = 34, bw = Math.min(64, (W - 16) / it.length - 16), gap = (W - 16 - bw * it.length) / Math.max(1, it.length);
+      const bars = it.map((x, i) => {
+        const h = Math.max(3, ((Number(x.value) || 0) / max) * (base - top)); const xx = padL + gap / 2 + i * (bw + gap);
+        const tg = x.kind === 'target';
+        return `<rect x="${xx}" y="${base - h}" width="${bw}" height="${h}" rx="5" class="${tg ? 'rs-bar-t' : 'rs-bar'}"/>
+          <text x="${xx + bw / 2}" y="${base - h - 8}" text-anchor="middle" class="rs-val">${T(x.value)}</text>
+          <text x="${xx + bw / 2}" y="${base + 20}" text-anchor="middle" class="rs-lab">${T(x.label)}</text>
+          <text x="${xx + bw / 2}" y="${base + 38}" text-anchor="middle" class="rs-note">${T(x.kind === 'target' ? '目標' : '報導')}</text>`;
+      }).join('');
+      return `<div class="rs-chart"><h4>${T(c.title)}</h4><p class="rs-sub">${T(c.sub)}（單位：${T(c.unit)}）</p>
+        <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${T(c.title)}">${bars}</svg>
+        <ul class="rs-legend"><li><i class="rs-bar"></i>公開報導的數字</li><li><i class="rs-bar-t"></i>公司說的目標（還沒發生）</li></ul>
+        <ul class="rs-notes">${it.map((x) => `<li><b>${T(x.label)}</b>　${T(x.note)}</li>`).join('')}</ul>
+        ${c.read ? `<div class="rs-read">${T(c.read)}</div>` : ''}</div>`;
+    };
+    const ST = { done: '已發生', watch: '進行中', plan: '預計' };
+    const tl = `<div class="rs-chart"><h4>這家公司正在忙的事（時間線）</h4><ol class="rs-tl">${(r.timeline || []).map((x) => `<li class="${T(x.state)}"><time>${T(x.when)}</time><span>${T(x.what)}</span><em>${T(ST[x.state] || '')}</em></li>`).join('')}</ol></div>`;
+    const cov = `<div class="rs-chart"><h4>這份研究查到多少？</h4><p class="rs-sub">灰色＝查不到，不要在電話裡假裝知道</p><div class="rs-cov">${(r.coverage || []).map((c) => `<span class="${c.state === '有' ? 'y' : c.state === '部分' ? 'p' : 'n'}">${T(c.label)}<em>${T(c.state)}</em></span>`).join('')}</div></div>`;
+    const topics = (r.topics || []).map((x) => `<div class="rs-topic"><b>${T(x.t)}</b><small>為什麼可以聊：${T(x.why)}</small><p>${T(x.how)}</p></div>`).join('');
+    const facts = `<table class="rs-tbl"><thead><tr><th>已確認的事實</th><th>我的推論</th><th>要問人資的</th></tr></thead><tbody>${(r.facts || []).map((x) => `<tr><td>${T(x.fact)}</td><td>${T(x.infer)}</td><td><b>${T(x.ask)}</b></td></tr>`).join('')}</tbody></table>`;
+    const rep = `<table class="rs-tbl"><thead><tr><th>日期／來源</th><th>看到什麼</th><th>要小心</th></tr></thead><tbody>${(r.reputation || []).map((x) => `<tr><td>${T(x.date)}<br><small>${T(x.src)}</small></td><td>${T(x.obs)}</td><td>${T(x.limit)}</td></tr>`).join('')}</tbody></table>`;
+    const li = (a) => `<ul class="rs-ul">${(a || []).map((x) => `<li>${T(x)}</li>`).join('')}</ul>`;
+    const plan = r.plan || {};
+    const src = (r.sources || []).map((u) => { const s = safeUrl(u); return `<li>${s ? `<a href="${escapeHtml(s)}" target="_blank" rel="noopener">${T(s)}</a>` : T(u)}</li>`; }).join('');
+    const tabs = [['key', '先看這裡'], ['chart', '圖表'], ['talk', '可以聊什麼'], ['view', '外界怎麼看'], ['gap', '查不到的'], ['act', '行動＋讀懂了嗎']];
+    return `<div class="rs" data-rs="${escapeHtml(company || '')}">
+      <div class="rs-meta">AI 研究，${T(r.generated_at)}　${T(r.by)}｜目標職缺：${T(r.target_job)}</div>
+      <div class="rs-tabs" role="tablist">${tabs.map(([k, l], i) => `<button type="button" role="tab" class="${i ? '' : 'active'}" data-rs-tab="${k}" aria-selected="${i ? 'false' : 'true'}">${l}</button>`).join('')}</div>
+      <div data-rs-pane="key">
+        <div class="rs-verdict ${T(vd.level)}"><b>${T(vd.label)}</b><p>${T(vd.text)}</p></div>
+        <div class="rs-kpis">${kpis}</div>
+        <h4 class="rs-h">五個重點</h4><ol class="rs-find">${finds}</ol>
+        <div class="rs-keyq"><small>這通電話最重要的一個問題</small><b>${T(r.key_question)}</b></div>
+      </div>
+      <div data-rs-pane="chart" hidden>${(r.charts || []).map(chart).join('')}${tl}${cov}</div>
+      <div data-rs-pane="talk" hidden>
+        <h4 class="rs-h">可以跟人資聊的話題</h4><div class="rs-topics">${topics}</div>
+        <h4 class="rs-h">事實 → 推論 → 要問的</h4>${facts}
+        <h4 class="rs-h">60 秒開場</h4><div class="rs-say">${T(r.opening)}</div>
+        <h4 class="rs-h">三個一定要問的</h4><ul class="rs-ul">${(r.questions || []).map((x) => `<li><b>${T(x.q)}</b><br><small>要驗證：${T(x.verify)}</small></li>`).join('')}</ul>
+      </div>
+      <div data-rs-pane="view" hidden><h4 class="rs-h">外界與員工怎麼看</h4>${rep}<p class="rs-sub">匿名評論和單一事件不能代表整家公司，這裡只列出來讓你知道，不是拿來質疑對方。</p></div>
+      <div data-rs-pane="gap" hidden>
+        <h4 class="rs-h">這些 AI 沒查到，請自己補</h4>${li(r.unknowns)}
+        <h4 class="rs-h">對我們開發的風險</h4><div class="rs-risk">${li(r.risks)}</div>
+      </div>
+      <div data-rs-pane="act" hidden>
+        <div class="rs-plan"><div><h4>今天</h4>${li(plan.today)}</div><div><h4>七天內</h4>${li(plan.week)}</div><div><h4>三十天內</h4>${li(plan.month)}</div></div>
+        <h4 class="rs-h">我讀懂了嗎？（打電話前，用自己的話寫，寫完才算準備好）</h4>
+        ${(r.selfcheck || []).map((q, i) => `<label class="rs-q">${T(q)}<textarea rows="2" data-rs-sc="${i}" placeholder="寫在這裡（只存在這台瀏覽器，不會送出）"></textarea></label>`).join('')}
+        <details class="rs-src"><summary>資料來源（${(r.sources || []).length}）</summary><ul class="rs-ul">${src}</ul></details>
+      </div>
+    </div>`;
+  },
   // 2026-10-13 Jacky：認識公司可以切「預覽模式」（打電話前快速看）和「設定模式」（直接改每一格）
   bdProfileModes: (pf, company) => {
     const f = pf || {};
@@ -2220,7 +2288,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
     const ai = String(f.updated_by || '').includes('AI');
     return `<div class="bdk" data-bdk="${escapeHtml(company)}">
       <div class="bdc-seg bdk-mode" role="radiogroup" aria-label="模式"><label><input type="radio" name="bdk-m" value="view" checked><span>預覽模式</span></label><label><input type="radio" name="bdk-m" value="edit"><span>設定模式</span></label></div>
-      <div data-bdk-view>${views.bdProfilePane(pf)}</div>
+      <div data-bdk-view>${views.bdResearchCard(pf, company)}${views.bdResearchCard(pf, company) ? `<details class="rs-old"><summary>舊版文字介紹（每行一項）</summary>${views.bdProfilePane(pf)}</details>` : views.bdProfilePane(pf)}</div>
       <div data-bdk-edit hidden>
         ${ai ? '<div class="bdj-lock" style="background:#eaf1ff;border-color:#b7cdfa;color:#1d4fb8">這頁內容是 <b>AI 夜間研究</b>先查好的，可能有錯，請核對。你改過的格子存下去之後，夜間研究不會蓋掉。</div>' : ''}
         <div class="bdj-grid">${F.map(([k, lb, t]) => `<label class="bdj-f${t === 'ta' || k === 'website' ? ' full' : ''}">${lb}${t === 'ta' ? `<textarea data-bdk-k="${k}" rows="3">${text(f[k] || '')}</textarea>` : `<input data-bdk-k="${k}" value="${escapeHtml(f[k] || '')}">`}</label>`).join('')}</div>

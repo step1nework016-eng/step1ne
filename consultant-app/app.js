@@ -436,6 +436,29 @@ document.addEventListener('click', async (e) => {
   } catch (err) { toast(err.message || '沒有成功', 'error'); act.disabled = false; }
 });
 
+// 2026-10-14 認識公司研究卡：分頁切換＋「我讀懂了嗎」暫存在這台瀏覽器
+document.addEventListener('click', (e) => {
+  const b = e.target instanceof Element ? e.target.closest('[data-rs-tab]') : null;
+  if (!b) return;
+  const box = b.closest('[data-rs]');
+  if (!box) return;
+  const key = b.getAttribute('data-rs-tab');
+  box.querySelectorAll('[data-rs-tab]').forEach((x) => { const on = x === b; x.classList.toggle('active', on); x.setAttribute('aria-selected', on ? 'true' : 'false'); });
+  box.querySelectorAll('[data-rs-pane]').forEach((x) => { x.hidden = x.getAttribute('data-rs-pane') !== key; });
+});
+document.addEventListener('input', (e) => {
+  const ta = e.target instanceof Element ? e.target.closest('[data-rs-sc]') : null;
+  if (!ta) return;
+  const box = ta.closest('[data-rs]');
+  try { localStorage.setItem(`rs-sc:${box.getAttribute('data-rs')}:${ta.getAttribute('data-rs-sc')}`, ta.value); } catch { /* 瀏覽器不給存就算了 */ }
+});
+document.addEventListener('focusin', (e) => {
+  const ta = e.target instanceof Element ? e.target.closest('[data-rs-sc]') : null;
+  if (!ta || ta.dataset.rsLoaded) return;
+  ta.dataset.rsLoaded = '1';
+  try { const v = localStorage.getItem(`rs-sc:${ta.closest('[data-rs]').getAttribute('data-rs')}:${ta.getAttribute('data-rs-sc')}`); if (v && !ta.value) ta.value = v; } catch { /* 同上 */ }
+});
+
 // 2026-10-02 人選敲門：人選卡片按鈕＋名單頁的「加入開發進度／不要」
 document.addEventListener('change', (e) => {
   const sel = e.target instanceof Element ? e.target.closest('[data-cb-me]') : null;
