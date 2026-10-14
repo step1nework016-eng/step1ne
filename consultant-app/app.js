@@ -436,6 +436,21 @@ document.addEventListener('click', async (e) => {
   } catch (err) { toast(err.message || '沒有成功', 'error'); act.disabled = false; }
 });
 
+// 2026-10-14 認識公司「請 AI 研究這家公司」按鈕
+document.addEventListener('click', async (e) => {
+  const b = e.target instanceof Element ? e.target.closest('[data-rs-go]') : null;
+  if (!b || b.disabled) return;
+  e.preventDefault();
+  const company = b.getAttribute('data-rs-go');
+  const me = amUi().me || document.querySelector('.cg-pack')?.dataset.packBy || '';
+  if (!window.confirm(`要讓 AI 研究「${company}」嗎？\n\nAI 會去查公開資料、員工評價、104 職缺，約 10～20 分鐘；好了 TG 會通知，結果放在這張卡片的「認識公司」。`)) return;
+  b.disabled = true;
+  try {
+    const r = await api.post('/admin/bd/company-research', { company, by: me });
+    b.textContent = '研究中…';
+    toast(r.already ? '這家已經在研究了，好了會通知' : '已開始研究，約 10～20 分鐘，好了 TG 會通知', 'success');
+  } catch (err) { toast(err.message || '沒有排進去', 'error'); b.disabled = false; }
+});
 // 2026-10-14 認識公司研究卡：分頁切換＋「我讀懂了嗎」暫存在這台瀏覽器
 document.addEventListener('click', (e) => {
   const b = e.target instanceof Element ? e.target.closest('[data-rs-tab]') : null;
