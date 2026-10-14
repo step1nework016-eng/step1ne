@@ -448,7 +448,7 @@ function bdmRender(out, data) {
   const FIT = { '高': 'success', '中': 'warning', '低': '' };
   const rows = picks.map((p) => {
     const bf = briefs[p.application_id];
-    const bs = bf ? (bf.status === 'done' ? `<span class="badge success">匿名摘要已做好，已加入這家的匿名履歷清單</span>` : bf.status === 'error' ? `<span class="badge danger">做失敗：${bdmEsc(bf.error)}</span>` : `<span class="badge info">產生中…</span>`) : '';
+    const bs = bf ? (bf.status === 'done' ? `<span class="badge success">匿名摘要已做好</span> ${bf.file_id ? `<button type="button" class="bdj-btn sm primary" data-download-file="${bdmEsc(bf.file_id)}">預覽／下載</button>` : ''}` : bf.status === 'error' ? `<span class="badge danger">做失敗：${bdmEsc(bf.error)}</span>` : `<span class="badge info">產生中…</span>`) : '';
     return `<label class="bdm-row"><input type="checkbox" data-bdm-pick value="${bdmEsc(p.application_id)}" ${bf && bf.status !== 'error' ? 'disabled checked' : ''}>
       <div><b>${bdmEsc(p.code)}</b> ${bdmEsc(p.name)} <span class="badge ${FIT[p.fit] || ''}">符合度：${bdmEsc(p.fit)}</span> ${bs}
       <small class="muted">原應徵：${bdmEsc(p.applied_for)}｜期望：${bdmEsc(p.expected || '未填')}｜到職：${bdmEsc(p.available || '未填')}</small>
