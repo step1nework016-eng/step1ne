@@ -443,7 +443,7 @@ function bdmRender(out, data) {
   const picks = res.picks || [];
   const briefs = Object.fromEntries((data.briefs || []).map((x) => [x.application_id, x]));
   if (data.run.status === 'error') { out.innerHTML = `<div class="notice">配對失敗：${bdmEsc(data.run.error)}。可以再按一次。</div>`; return; }
-  if (data.run.status !== 'done') { out.innerHTML = `<p class="help">AI 正在現有人選裡找，約 3～8 分鐘（${data.run.status === 'queued' ? '排隊中' : '比對中'}）…這個畫面不用等，做好後重開這張卡片按一次「從現有人選配對」會直接看到結果。</p>`; return; }
+  if (data.run.status !== 'done') { out.innerHTML = `<p class="help">AI 正在現有人選裡找，約 3～8 分鐘（${data.run.status === 'queued' ? '排隊中' : '比對中'}）…這個畫面不用等，做好後重開這張卡片就會自動看到結果。</p>`; return; }
   if (!picks.length) { out.innerHTML = `<p class="help">${bdmEsc(res.note || '現有人選裡沒有適合的人。')}（比對了 ${bdmEsc(res.pool_size || 0)} 位）</p>`; return; }
   const FIT = { '高': 'success', '中': 'warning', '低': '' };
   const rows = picks.map((p) => {
@@ -467,8 +467,24 @@ async function bdmPoll(out, runId, tries) {
   try { data = await api.get(`/admin/bd/job-match?run_id=${encodeURIComponent(runId)}`); } catch (err) { out.innerHTML = `<div class="notice">${bdmEsc(err.message || '讀不到結果')}</div>`; return; }
   out.dataset.run = runId;
   bdmRender(out, data);
+  const chip = out.closest('[data-bdj-slug]')?.querySelector('[data-bdm-chip]');
+  if (chip) { const n = ((data.result || {}).picks || []).length; chip.textContent = data.run.status === 'done' ? (n ? `配對到 ${n} 人` : '配對：沒有合適') : data.run.status === 'error' ? '配對失敗' : '配對中…'; chip.className = 'bdj-mchip ' + (data.run.status === 'done' && n ? 'on' : ''); }
   const pending = data.run.status === 'queued' || data.run.status === 'working' || (data.briefs || []).some((x) => x.status === 'queued' || x.status === 'working');
   if (pending && tries < 200 && out.isConnected) setTimeout(() => bdmPoll(out, runId, tries + 1), 5000);
+}
+// 開客戶卡片時，把每個職缺最近一次配對結果自動帶出來（不用再按一次按鈕）
+async function bdmAutoload(root, company) {
+  let data;
+  try { data = await api.get(`/admin/bd/job-match-latest?company=${encodeURIComponent(company)}`); } catch { return; }
+  for (const r of (data.runs || [])) {
+    const art = [...root.querySelectorAll('[data-bdj-slug]')].find((a) => a.getAttribute('data-bdj-slug') === r.job_ref);
+    if (!art) continue;
+    const chip = art.querySelector('[data-bdm-chip]');
+    const out = art.querySelector('[data-bdm-out]');
+    if (chip) chip.textContent = r.status === 'done' ? (r.picks ? `配對到 ${r.picks} 人` : '配對：沒有合適') : (r.status === 'error' ? '配對失敗' : '配對中…');
+    if (chip) chip.className = 'bdj-mchip ' + (r.status === 'done' && r.picks ? 'on' : '');
+    if (out) { out.hidden = false; bdmPoll(out, r.run_id, 0); }
+  }
 }
 document.addEventListener('click', async (e) => {
   const t = e.target instanceof Element ? e.target : null;
@@ -2150,6 +2166,7 @@ async function openBdDetail(company, focus) {
       await openBdDetail(company);
       if (opt.openJobs) document.querySelector('[data-bd-detail-tab="jobs"]')?.click();
     });
+    bdmAutoload(body, company);
     wireBdProfile(body);
     if (focus === 'mail') {
       document.querySelector('[data-bd-detail-tab="mail"]')?.click();

@@ -33,8 +33,8 @@ export function bdJobsPane(detail) {
   const card = (j) => {
     const live = j.status !== 'social_only';
     const pay = (a, b) => (a || b) ? `${a || ''}${a && b ? '～' : ''}${b || ''}` : '';
-    void pay;
     return `<article class="bdj-job" data-bdj-slug="${escapeHtml(j.slug)}">
+      <details class="bdj-acc" ${jobs.length <= 1 ? 'open' : ''}><summary class="bdj-sum"><span class="bdj-sum-t">${text(j.title || '（未命名職缺）')}</span><span class="bdj-sum-m">${text([j.locations, pay(j.salary_min, j.salary_max) ? '月薪 ' + pay(j.salary_min, j.salary_max) : ''].filter(Boolean).join('｜'))}</span><span class="bdj-mchip" data-bdm-chip></span></summary>
       <div class="bdj-top"><div>${j.ai_read && !j.checked ? `<span class="bdj-chip no">${j.src_kind === '104' ? '讀自 104，請核對' : 'AI 讀的，請核對'}</span> ` : ''}<span class="bdj-src">${text({ 104: '104 連結', text: '貼文字', file: '截圖／PDF', manual: '手動新增' }[j.src_kind] || '手動新增')}${j.src_url ? `　<a href="${escapeHtml(j.src_url)}" target="_blank" rel="noopener">${text(j.src_url.slice(0, 50))}</a>` : ''}</span></div>
         ${live ? '' : `<button type="button" class="bdj-btn sm" data-bdj-convert>轉成正式職缺</button>`}</div>
       ${live ? '<p class="help">這個職缺已轉成正式職缺，請到「職缺」管理修改。</p>' : `<div class="bdj-grid">
@@ -47,7 +47,7 @@ export function bdJobsPane(detail) {
       </div>`}
       <div class="bdj-perm"><span class="bdj-chip ok">可發社群</span>${live ? '<span class="bdj-chip ok">上官網</span><span class="bdj-chip ok">阿財面談</span>' : '<span class="bdj-chip lock">不上官網</span><span class="bdj-chip lock">阿財不面談</span><span class="bdj-chip no">未簽約</span>'}</div>
       <div class="bdm" data-bdm><button type="button" class="bdj-btn" data-bdm-go title="AI 在現有人選裡挑最適合這個職缺的 5 位，列出符合與落差">🔍 從現有人選配對</button><div class="bdm-out" data-bdm-out hidden></div></div>
-    </article>`;
+    </details></article>`;
   };
   return `<section class="bdj" data-bdj data-bdj-company="${escapeHtml(detail.company || '')}">
     ${lock}
