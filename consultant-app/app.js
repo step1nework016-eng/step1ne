@@ -3593,6 +3593,7 @@ async function openJobManage(slug, initialTab = 'manage') {
       // 「AI 找的人」分頁（2026-09-29）：失敗不擋抽屜，分頁裡顯示載入失敗。
       adapters.jobSourced(slug).catch(() => null)]);
     const job = jobsData.jobs.find((j) => (j.slug || j.id) === slug) || { slug };
+    try { const fr = await api.get(`/admin/jobs/${encodeURIComponent(slug)}/full`); job.__facts = (fr && fr.job) || {}; } catch { job.__facts = {}; }
     // 2026-09-21：題庫加進職缺抽屜。adapters.jobs() 本來就會一併抓
     // /admin/expertise，這裡直接從同一包資料撈，不用為了抽屜再打一次 API。
     const raw = (jobsData.expertise || []).find((e) => e.job_slug === slug);
@@ -4003,6 +4004,10 @@ async function submitJobContent(slug) {
       const now = jdFieldParse(kind, el.value), before = jdFieldParse(kind, el.dataset.orig);
       if (JSON.stringify(now) !== JSON.stringify(before)) fields[el.name] = now;
     }
+    // 官網「顯示／隱藏」開關：沒勾的區塊存進 hidden，發布時不產生那一段
+    const hiddenNow = [...form.querySelectorAll('[data-show]')].filter((x) => !x.checked).map((x) => x.getAttribute('data-show')).sort();
+    let hiddenOrig = []; try { hiddenOrig = JSON.parse(form.querySelector('#jd-hidden-orig')?.value || '[]').slice().sort(); } catch { hiddenOrig = []; }
+    if (JSON.stringify(hiddenNow) !== JSON.stringify(hiddenOrig)) fields.hidden = hiddenNow;
     if (!Object.keys(fields).length) { toast('沒有改到任何欄位', 'error'); return; }
     const result = await saveJobContent(slug, { fields });
     if (result !== null) { toast('職缺內容已儲存', 'success'); openJobManage(slug); }
@@ -4335,6 +4340,15 @@ document.addEventListener('click', async (event) => {
     catch (error) { console.error(error); toast(error.message, 'error'); }
   }
   if (action === 'submit-job-content') submitJobContent(target.closest('[data-slug]').getAttribute('data-slug'));
+  if (action === 'save-job-facts') {
+    const box = target.closest('[data-facts-box]'); const slug = box.getAttribute('data-slug');
+    const facts = {};
+    box.querySelectorAll('[data-fact]').forEach((el) => { if (el.value !== el.getAttribute('data-orig')) facts[el.getAttribute('data-fact')] = el.getAttribute('data-json') === '1' ? JSON.stringify(el.value) : el.value; });
+    if (!Object.keys(facts).length) { toast('沒有改到任何選項', 'error'); return; }
+    target.disabled = true;
+    api.post(`/admin/jobs/${encodeURIComponent(slug)}/content`, { facts }).then(() => { toast('已儲存（不經 AI，馬上生效）', 'success'); openJobManage(slug); }).catch((err) => { toast(err.message || '沒有儲存成功', 'error'); target.disabled = false; });
+    return;
+  }
   if (action === 'submit-job-card-feedback') submitJobCardFeedback(target.closest('[data-slug]').getAttribute('data-slug'));
   if (action === 'reopen-interview') {
     try { await api.post('/admin/reopen-interview', { application_id: target.closest('[data-id]').getAttribute('data-id') }); toast('面談已重新開啟', 'success'); loadRoute(); }

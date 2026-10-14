@@ -465,7 +465,7 @@ ${list(items, (j) => `<article class="list-row"><span><b>${text(j.title || j.slu
 <button data-jobtab="card">職缺卡${lv}</button>
 <button data-jobtab="acai">阿財的理解</button>
 </div>
-<div class="drawer-section" id="job-tab-manage">${job.status === 'social_only' ? `<div class="notice" style="margin:0 0 12px"><b>🔒 未簽約客戶職缺（只發社群）</b><br>開發中的公司：${text(job.social_only_company || '')}。只在「一鍵發文」用，不上官網、不收線上應徵、阿財不面談、不跑外部 AI 找人；人才庫配對結果只給顧問內部看，不要寄信／LINE 邀請人選。<div style="margin-top:10px">${actionBtn('已簽約，轉成正式職缺', 'social-job-convert', { idParams: { slug } }, 'primary')}</div></div>` : (job.social_only_converted_at ? `<p class="help">這個職缺原本是「🔒 未簽約客戶職缺」，${text(String(job.social_only_converted_at).slice(0, 10))} 簽約後轉成正式職缺。</p>` : '')}<h3>職缺狀態</h3>${rowActions([actionBtn('開啟／關閉職缺','job-status',{ idParams: { slug } }),actionBtn('刪除職缺','job-delete',{ idParams: { slug } },'danger')])}<h3>職缺內容</h3>${views.jobContentForm(content)}<button class="btn primary" data-action="submit-job-content" data-slug="${text(slug)}">儲存職缺內容（只存有改的欄位，最多 15 分鐘內上線）</button><p class="help">存檔前系統會檢查：內容突然少一大截、或頁面是客製版面，都會再問你一次。</p><h3>客製表單欄位</h3>${actionBtn('新增客製表單欄位','job-forms-create',{ idParams: {}, record: { job_slug: slug } })}</div>
+<div class="drawer-section" id="job-tab-manage">${job.status === 'social_only' ? `<div class="notice" style="margin:0 0 12px"><b>🔒 未簽約客戶職缺（只發社群）</b><br>開發中的公司：${text(job.social_only_company || '')}。只在「一鍵發文」用，不上官網、不收線上應徵、阿財不面談、不跑外部 AI 找人；人才庫配對結果只給顧問內部看，不要寄信／LINE 邀請人選。<div style="margin-top:10px">${actionBtn('已簽約，轉成正式職缺', 'social-job-convert', { idParams: { slug } }, 'primary')}</div></div>` : (job.social_only_converted_at ? `<p class="help">這個職缺原本是「🔒 未簽約客戶職缺」，${text(String(job.social_only_converted_at).slice(0, 10))} 簽約後轉成正式職缺。</p>` : '')}<h3>職缺狀態</h3>${rowActions([actionBtn('開啟／關閉職缺','job-status',{ idParams: { slug } }),actionBtn('刪除職缺','job-delete',{ idParams: { slug } },'danger')])}${views.jobFactsPanel(job)}<h3>職缺內容</h3>${views.jobContentForm(content)}<button class="btn primary" data-action="submit-job-content" data-slug="${text(slug)}">儲存職缺內容（只存有改的欄位，最多 15 分鐘內上線）</button><p class="help">存檔前系統會檢查：內容突然少一大截、或頁面是客製版面，都會再問你一次。</p><h3>客製表單欄位</h3>${actionBtn('新增客製表單欄位','job-forms-create',{ idParams: {}, record: { job_slug: slug } })}</div>
 <div class="drawer-section" id="job-tab-preview" hidden><div class="card-head" style="margin-bottom:8px"><p class="help" style="margin:0">這就是求職者在官網看到的完整職缺頁。改完「管理」裡的職缺內容，最多 15 分鐘後這裡會更新。</p><a class="btn sm" href="https://step1ne.com/jobs/${encodeURIComponent(slug)}/" target="_blank" rel="noopener">在新分頁打開</a></div><iframe class="jd-preview-frame" title="職缺頁預覽" data-src="https://step1ne.com/jobs/${encodeURIComponent(slug)}/" style="width:100%;height:75vh;border:1px solid var(--line,#d6dde6);border-radius:10px;background:#fff" loading="lazy"></iframe><p class="help">如果上面是空白，代表這個職缺還沒上官網，或你是在測試站看（測試站不能嵌正式站的頁面），按「在新分頁打開」。</p></div>
 <div class="drawer-section" id="job-tab-sourced" hidden>${views.jobSourcedPanel(slug, sourced)}</div>
 <div class="drawer-section" id="job-tab-expertise" hidden>${views.jobExpertisePanel(slug, bank, isBuilding)}</div>
@@ -2173,6 +2173,28 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
     return `<div class="page-head" style="align-items:flex-start"><div><h2>${aiMode ? 'AI 名單（還沒聯繫）' : '開發進度看板'}</h2><p>${aiMode ? '夜間 AI 自動找來、<b>還沒有任何人打過或寄過</b>的公司。打完一通電話（就算沒接）、寄過信，或按「加入開發進度」，就會移到開發進度。' : '寄出、電訪、追信、回信、談到職缺、成交——同一家公司合併成一列，不用分頭看。只放顧問碰過的公司；夜間 AI 找來還沒聯繫的在「AI 名單」分頁。'}</p>${cached_at ? `<p class="help">資料時間 ${text(String(cached_at).slice(11, 16))}（為了省資料庫額度，每 5 分鐘更新一次；你們按按鈕改的資料會立刻更新）</p>` : ''}</div>${actionBtn('＋ 新增開發對象', 'bd-add-company', {}, 'primary')}</div>${funnelCard}${todayStrip}${filterBar}${rowsHtml}`;
   },
   // 職缺內容逐欄位編輯（2026-09-29 修：原本一個大文字框讀不到結構化 JD，每個職缺都顯示空白）
+  // 基本條件：答案固定的欄位改成下拉選單（2026-10-14 Jacky）。目前的值若不在選項內，保留在選單最前面（「目前：…」），沒改就不會被覆蓋。
+  jobFactsPanel: (job) => {
+    const f = job.__facts || {};
+    const FIELDS = [
+      ['employment', '僱用型態', [['FULL_TIME', '正職'], ['PART_TIME', '兼職'], ['CONTRACTOR', '約聘'], ['TEMPORARY', '派遣'], ['INTERN', '實習']], true],
+      ['education_level', '學歷要求', [['不限', '不限'], ['高中職', '高中職'], ['專科', '專科'], ['大學', '大學'], ['碩士以上', '碩士以上']]],
+      ['work_mode', '工作型態', [['全實體到班', '全實體到班'], ['彈性上班', '彈性上班'], ['混合（部分在家）', '混合（部分在家）'], ['遠端', '遠端']]],
+      ['urgency', '急迫度', [['一般', '一般'], ['急徵（一個月內到位）', '急徵（一個月內到位）'], ['長期徵才', '長期徵才']]],
+      ['hiring_reason', '徵才原因', [['離職補缺', '離職補缺'], ['新增編制', '新增編制'], ['專案需求', '專案需求']]],
+      ['leads_team', '需不需要帶人', [['不需帶人', '不需帶人'], ['需要帶人', '需要帶人']]],
+      ['salary_unit', '薪資單位', [['MONTH', '月薪'], ['YEAR', '年薪'], ['HOUR', '時薪']]],
+    ];
+    const rows = FIELDS.map(([k, lb, opts, json]) => {
+      let cur = f[k] == null ? '' : String(f[k]);
+      if (json && cur.startsWith('"')) { try { cur = JSON.parse(cur); } catch { /* 原樣 */ } }
+      const has = opts.some(([val]) => val === cur);
+      const extra = cur && !has ? `<option value="${escapeHtml(cur)}" selected>目前：${text(cur)}</option>` : (!cur ? '<option value="" selected>（沒填）</option>' : '');
+      return `<label class="field"><span>${text(lb)}</span><select data-fact="${k}" data-orig="${escapeHtml(cur)}" ${json ? 'data-json="1"' : ''}>${extra}${opts.map(([val, name]) => `<option value="${escapeHtml(val)}"${val === cur ? ' selected' : ''}>${text(name)}</option>`).join('')}</select></label>`;
+    }).join('');
+    return `<div data-facts-box data-slug="${text(job.slug)}"><h3>基本條件（用選的）</h3><div class="form-grid">${rows}</div>
+      <button type="button" class="btn" data-action="save-job-facts">儲存基本條件</button><p class="help">用選的，不用打字；存了馬上生效，不經 AI。目前不是選項裡的寫法，會顯示「目前：…」，沒改就不會被覆蓋。</p></div>`;
+  },
   jobContentForm: (content) => {
     const spec = (content && content.spec) || {};
     const src = { saved: '已存檔的版本', backfilled_from_intake: '收件單底稿', scraped_live_page: '目前網站上的職缺頁' }[content && content.source] || '';
@@ -2184,8 +2206,12 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
         const el = kind === 'line'
           ? `<input name="${k}" value="${escapeHtml(v)}" data-orig="${escapeHtml(v)}" data-kind="${kind}">`
           : `<textarea name="${k}" rows="${kind === 'text' ? 3 : Math.min(14, Math.max(4, v.split('\n').length + 1))}" data-orig="${escapeHtml(v)}" data-kind="${kind}">${escapeHtml(v)}</textarea>`;
-        return `<label class="field span-2"><span>${text(lb)}</span>${el}</label>`;
+        const hideable = ['subtitle', 'intro', 'duties', 'must', 'plus', 'why', 'benefits', 'faq'].includes(k);
+        const shown = !(Array.isArray(spec.hidden) && spec.hidden.includes(k));
+        const tog = hideable ? `<label class="show-tog"><input type="checkbox" data-show="${k}" ${shown ? 'checked' : ''}> 官網顯示</label>` : '';
+        return `<label class="field span-2"><span class="fld-head">${text(lb)}${tog}</span>${el}</label>`;
       }).join('')}
+      <input type="hidden" id="jd-hidden-orig" value="${escapeHtml(JSON.stringify(Array.isArray(spec.hidden) ? spec.hidden : []))}">
     </form>`;
   },
   // 「認識客戶」分頁（2026-09-29 Jacky）：顧問不用自己上網研究客戶背景。資料是 bd_company_profiles
