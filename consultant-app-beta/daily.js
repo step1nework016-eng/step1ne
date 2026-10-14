@@ -24,6 +24,7 @@ let sys = { owner: localStorage.getItem(OWNER_KEY) || '', loading: false, error:
 const BD_STAGE_MAP = { '還沒聯繫': '待聯繫', '已聯繫': '已接觸', '有興趣': '有效對話', '已寄資料': '寄送資料', '談需求': '需求訪談已約', '簽約': '正式委託', '沒興趣': '停止開發', '暫緩': '暫不需要' };
 const CAND_STAGE_MAP = { client: '已送件', interviewed: '已洽談', new: '名單建立' };
 const todayStr = () => new Date().toLocaleDateString('en-CA');
+const plusDays = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return d.toLocaleDateString('en-CA'); };
 const consultantName = () => { const c = (consultants || []).find((x) => x.id === sys.owner); return c ? c.display_name : ''; };
 async function loadConsultants() {
   if (consultants) return consultants;
@@ -38,7 +39,7 @@ async function loadSystem(force) {
   sys.loading = true; sys.error = '';
   try {
     const name = consultantName();
-    const [b, c, rm] = await Promise.all([api.get('/admin/bd/dashboard'), adapters.candidates(sys.owner), api.get('/admin/consultant-reminders?for=' + encodeURIComponent(name) + '&day=' + encodeURIComponent(todayStr())).catch(() => ({ items: [] }))]);
+    const [b, c, rm] = await Promise.all([api.get('/admin/bd/dashboard'), adapters.candidates(sys.owner), api.get('/admin/consultant-reminders?for=' + encodeURIComponent(name) + '&day=' + encodeURIComponent(todayStr()) + '&to=' + encodeURIComponent(plusDays(7))).catch(() => ({ items: [] }))]);
     sys.calls = (rm && rm.items) || [];
     sys.bd = (b.rows || []).filter((r) => r.assigned_to === name && !r.ai_untouched);
     sys.cands = c || [];
@@ -113,7 +114,7 @@ function yesterdayTomorrow() {
 function todayItems() {
   const t = todayStr();
   const items = [];
-  (sys.calls || []).forEach((c) => items.push({ g: 'call', pri: 1, rid: c.id, time: String(c.call_at || '').slice(11, 16), icon: '📞', title: (c.candidate_name || '電話／面談'), text: String(c.message || '').replace(/\s+/g, ' ').replace(/^電話／面談\s*/, '').slice(0, 90), attr: c.application_id ? `data-application="${esc(c.application_id)}"` : '' }));
+  (sys.calls || []).filter((c) => String(c.call_at || '').slice(0, 10) === t).forEach((c) => items.push({ g: 'call', pri: 1, rid: c.id, time: String(c.call_at || '').slice(11, 16), icon: '📞', title: (c.candidate_name || '電話／面談'), text: String(c.message || '').replace(/\s+/g, ' ').replace(/^電話／面談\s*/, '').slice(0, 90), attr: c.application_id ? `data-application="${esc(c.application_id)}"` : '' }));
   sysBdRows().filter((r) => r._overdue).forEach((r) => items.push({ g: 'bd', pri: r._due < t ? 0 : 2, time: r._due === t ? '今天' : '逾期 ' + r._due.slice(5), icon: '🏢', title: r.company, text: r.next_step || '待跟進', sub: r.call_phone || r.company_phone || '', attr: `data-bd-company="${esc(r.company)}"` }));
   sys.cands.filter((c) => c.stage === 'decide').forEach((c) => items.push({ g: 'decide', pri: 3, time: '等你決定', icon: '👤', title: (c.seqNo ? '#' + c.seqNo + ' ' : '') + c.name, text: c.job || '', attr: `data-application="${esc(c.applicationId)}"` }));
   state.bd.filter((x) => x.nextDate && x.nextDate <= t).forEach((x) => items.push({ g: 'mine', pri: 2, time: x.nextDate === t ? '今天' : '逾期 ' + x.nextDate.slice(5), icon: '📝', title: x.company || '未命名企業', text: x.next || '待跟進', attr: '' }));
@@ -129,8 +130,10 @@ function todayPanel() {
   const rows = shown.map((x) => `<div class="dly-todo ${x.pri === 0 ? 'late' : ''}" ${x.attr} ${x.attr ? 'style="cursor:pointer"' : ''}><span class="dly-todo-t">${esc(x.time)}</span><span>${x.icon}</span><div style="flex:1"><b>${esc(x.title)}</b>${x.text ? `<div class="dly-small" style="margin-top:1px">${esc(x.text)}${x.sub ? '｜' + esc(x.sub) : ''}</div>` : ''}</div>${x.rid ? `<button class="btn dly-danger" style="min-height:32px;padding:2px 9px;font-size:13px" data-dly="cancelCall:${esc(x.rid)}" title="取消這筆預約與提醒">取消</button>` : ''}</div>`).join('');
   const empty = !sys.owner ? '<div class="dly-hint">請先在上面選顧問：選了之後，這裡會列出你今天的電話與面談、到期的開發跟進、等你決定的人選。</div>' : (items.length || carry.length ? '' : '<div class="dly-hint">目前沒有到期或今天要做的事。去「② 企業 BD」或「③ 人才追蹤」挑下一步，並設定下次跟進日。</div>');
   const more = items.length > 8 ? `<button class="btn" data-dly="todayMore">${sys.todayAll ? '只看前 8 件' : '顯示全部 ' + items.length + ' 件'}</button>` : '';
+  const up = (sys.calls || []).filter((c) => String(c.call_at || '').slice(0, 10) > todayStr());
+  const upHtml = up.length ? `<div class="dly-carry"><b>接下來 7 天已約好（${up.length}）</b>${up.map((c) => `<div class="dly-todo" ${c.application_id ? `data-application="${esc(c.application_id)}" style="cursor:pointer"` : ''}><span class="dly-todo-t">${esc(String(c.call_at).slice(5, 16))}</span><span>📞</span><div style="flex:1"><b>${esc(c.candidate_name || '')}</b><div class="dly-small">${esc(String(c.message || '').replace(/^電話／面談\s*/, '').replace(/^電話\s*/, '').slice(0, 80))}</div></div><button class="btn dly-danger" style="min-height:32px;padding:2px 9px;font-size:13px" data-dly="cancelCall:${esc(c.id)}">取消</button></div>`).join('')}</div>` : '';
   const carryHtml = carry.length ? `<div class="dly-carry"><b>昨天寫的「明日 3 件事」</b><ol>${carry.map((x) => `<li>${esc(x)}</li>`).join('')}</ol></div>` : '';
-  return `<div class="card dly-today"><div class="dly-row"><h2 style="margin:0">🎯 今日下一步</h2><span class="dly-small">${esc(day)}${sys.at ? '｜系統資料 ' + esc(sys.at) : ''}</span></div><div class="dly-chips">${chips}</div>${carryHtml}${rows || ''}${empty}${more}${bookForm()}</div>`;
+  return `<div class="card dly-today"><div class="dly-row"><h2 style="margin:0">🎯 今日下一步</h2><span class="dly-small">${esc(day)}${sys.at ? '｜系統資料 ' + esc(sys.at) : ''}</span></div><div class="dly-chips">${chips}</div>${carryHtml}${rows || ''}${empty}${more}${upHtml}${bookForm()}</div>`;
 }
 
 function bookForm() {
