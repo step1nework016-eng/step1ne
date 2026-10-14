@@ -448,7 +448,7 @@ function bdmRender(out, data) {
   const FIT = { '高': 'success', '中': 'warning', '低': '' };
   const rows = picks.map((p) => {
     const bf = briefs[p.application_id];
-    const bs = bf ? (bf.status === 'done' ? `<span class="badge success">匿名摘要已做好</span> ${bf.file_id ? `<button type="button" class="bdj-btn sm primary" data-download-file="${bdmEsc(bf.file_id)}">預覽／下載</button>` : ''}` : bf.status === 'error' ? `<span class="badge danger">做失敗：${bdmEsc(bf.error)}</span>` : `<span class="badge info">產生中…</span>`) : '';
+    const bs = bf ? (bf.status === 'done' ? `<span class="badge success">匿名履歷已做好</span> ${bf.file_id ? `<button type="button" class="bdj-btn sm primary" data-bdm-preview="${bdmEsc(bf.file_id)}">預覽</button> <button type="button" class="bdj-btn sm" data-download-file="${bdmEsc(bf.file_id)}">下載</button>` : ''}` : bf.status === 'error' ? `<span class="badge danger">做失敗：${bdmEsc(bf.error)}</span>` : `<span class="badge info">產生中…</span>`) : `<button type="button" class="bdj-btn sm primary" data-bdm-one="${bdmEsc(p.application_id)}">產生匿名履歷</button>`;
     return `<label class="bdm-row"><input type="checkbox" data-bdm-pick value="${bdmEsc(p.application_id)}" ${bf && bf.status !== 'error' ? 'disabled checked' : ''}>
       <div><b>${bdmEsc(p.code)}</b> ${bdmEsc(p.name)} <span class="badge ${FIT[p.fit] || ''}">符合度：${bdmEsc(p.fit)}</span> ${bs}
       <small class="muted">原應徵：${bdmEsc(p.applied_for)}｜期望：${bdmEsc(p.expected || '未填')}｜到職：${bdmEsc(p.available || '未填')}</small>
@@ -500,6 +500,27 @@ document.addEventListener('click', async (e) => {
       bdmPoll(out, r.run_id, 0);
     } catch (err) { out.innerHTML = `<div class="notice">${bdmEsc(err.message || '沒有排進去')}</div>`; }
     go.disabled = false;
+    return;
+  }
+  const pv = t.closest('[data-bdm-preview]');
+  if (pv) {
+    e.preventDefault();
+    const id = pv.getAttribute('data-bdm-preview');
+    try {
+      const res = await fetch(`${CONFIG.apiBase}/admin/file/${encodeURIComponent(id)}`, { headers: { authorization: `Bearer ${localStorage.getItem(CONFIG.tokenKey) || ''}` } });
+      if (!res.ok) throw new Error(`預覽失敗 HTTP ${res.status}`);
+      const blob = await res.blob();
+      window.open(URL.createObjectURL(new Blob([blob], { type: 'application/pdf' })), '_blank');
+    } catch (err) { toast(err.message || '預覽失敗', 'error'); }
+    return;
+  }
+  const one = t.closest('[data-bdm-one]');
+  if (one) {
+    e.preventDefault();
+    const out = one.closest('[data-bdm-out]');
+    one.disabled = true;
+    try { await api.post('/admin/bd/job-brief', { run_id: out.dataset.run, application_ids: [one.getAttribute('data-bdm-one')] }); toast('已開始做這位的匿名履歷，約 3～6 分鐘', 'success'); bdmPoll(out, out.dataset.run, 0); }
+    catch (err) { toast(err.message || '沒有排進去', 'error'); one.disabled = false; }
     return;
   }
   const br = t.closest('[data-bdm-brief]');
