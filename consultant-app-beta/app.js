@@ -1135,6 +1135,8 @@ function wireJobList(jobs) {
     const el = $(sel);
     if (el) el.onchange = () => { f[key] = el.value; redraw(); };
   });
+  const sd = document.querySelector('[data-joblist-showdraft]');
+  if (sd) sd.onclick = () => { f.status = 'draft'; f.client = 'all'; f.line = 'all'; f.q = ''; redraw(); };
   const q = $('#joblist-q');
   if (q) q.oninput = () => {
     f.q = q.value;
