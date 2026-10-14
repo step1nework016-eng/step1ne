@@ -436,6 +436,76 @@ document.addEventListener('click', async (e) => {
   } catch (err) { toast(err.message || '沒有成功', 'error'); act.disabled = false; }
 });
 
+// 2026-10-14 客戶卡片「從現有人選配對」＋「針對這個職缺的匿名摘要」
+function bdmEsc(x) { return escapeHtml(String(x == null ? '' : x)); }
+function bdmRender(out, data) {
+  const res = data.result || {};
+  const picks = res.picks || [];
+  const briefs = Object.fromEntries((data.briefs || []).map((x) => [x.application_id, x]));
+  if (data.run.status === 'error') { out.innerHTML = `<div class="notice">配對失敗：${bdmEsc(data.run.error)}。可以再按一次。</div>`; return; }
+  if (data.run.status !== 'done') { out.innerHTML = `<p class="help">AI 正在現有人選裡找，約 3～8 分鐘（${data.run.status === 'queued' ? '排隊中' : '比對中'}）…這個畫面不用等，做好後重開這張卡片按一次「從現有人選配對」會直接看到結果。</p>`; return; }
+  if (!picks.length) { out.innerHTML = `<p class="help">${bdmEsc(res.note || '現有人選裡沒有適合的人。')}（比對了 ${bdmEsc(res.pool_size || 0)} 位）</p>`; return; }
+  const FIT = { '高': 'success', '中': 'warning', '低': '' };
+  const rows = picks.map((p) => {
+    const bf = briefs[p.application_id];
+    const bs = bf ? (bf.status === 'done' ? `<span class="badge success">匿名摘要已做好，已加入這家的匿名履歷清單</span>` : bf.status === 'error' ? `<span class="badge danger">做失敗：${bdmEsc(bf.error)}</span>` : `<span class="badge info">產生中…</span>`) : '';
+    return `<label class="bdm-row"><input type="checkbox" data-bdm-pick value="${bdmEsc(p.application_id)}" ${bf && bf.status !== 'error' ? 'disabled checked' : ''}>
+      <div><b>${bdmEsc(p.code)}</b> ${bdmEsc(p.name)} <span class="badge ${FIT[p.fit] || ''}">符合度：${bdmEsc(p.fit)}</span> ${bs}
+      <small class="muted">原應徵：${bdmEsc(p.applied_for)}｜期望：${bdmEsc(p.expected || '未填')}｜到職：${bdmEsc(p.available || '未填')}</small>
+      <ul class="bdm-ok">${(p.matches || []).map((x) => `<li>✓ ${bdmEsc(x)}</li>`).join('')}</ul>
+      <ul class="bdm-gap">${(p.gaps || []).map((x) => `<li>△ ${bdmEsc(x)}</li>`).join('')}</ul>
+      ${p.note ? `<div class="bdm-note">建議：${bdmEsc(p.note)}</div>` : ''}</div></label>`;
+  }).join('');
+  const anyDone = (data.briefs || []).some((x) => x.status === 'done');
+  out.innerHTML = `<div class="bdm-head">配對結果（比對了 ${bdmEsc(res.pool_size || 0)} 位；<b>✓</b>＝符合、<b>△</b>＝落差或要確認）</div>${rows}
+    <div class="bdm-act"><button type="button" class="bdj-btn primary" data-bdm-brief>替勾選的人選產生「針對這個職缺」匿名摘要</button>
+    ${anyDone ? '<button type="button" class="bdj-btn" data-bdm-tomail>到「寄公司介紹信」勾選附上</button>' : ''}
+    <small class="muted">摘要不含姓名、公司名、學校名、薪資、年齡，做好會放進這家客戶的匿名履歷清單；寄出仍要 TG 核准。</small></div>`;
+}
+async function bdmPoll(out, runId, tries) {
+  let data;
+  try { data = await api.get(`/admin/bd/job-match?run_id=${encodeURIComponent(runId)}`); } catch (err) { out.innerHTML = `<div class="notice">${bdmEsc(err.message || '讀不到結果')}</div>`; return; }
+  out.dataset.run = runId;
+  bdmRender(out, data);
+  const pending = data.run.status === 'queued' || data.run.status === 'working' || (data.briefs || []).some((x) => x.status === 'queued' || x.status === 'working');
+  if (pending && tries < 200 && out.isConnected) setTimeout(() => bdmPoll(out, runId, tries + 1), 5000);
+}
+document.addEventListener('click', async (e) => {
+  const t = e.target instanceof Element ? e.target : null;
+  if (!t) return;
+  const go = t.closest('[data-bdm-go]');
+  if (go) {
+    e.preventDefault();
+    const sec = go.closest('[data-bdj]'); const art = go.closest('[data-bdj-slug]'); const out = go.closest('[data-bdm]').querySelector('[data-bdm-out]');
+    const company = sec ? sec.getAttribute('data-bdj-company') : '';
+    out.hidden = false; out.innerHTML = '<p class="help">送出中…</p>'; go.disabled = true;
+    try {
+      const r = await api.post('/admin/bd/job-match', { company, job_slug: art.getAttribute('data-bdj-slug'), by: amUi().me || '' });
+      bdmPoll(out, r.run_id, 0);
+    } catch (err) { out.innerHTML = `<div class="notice">${bdmEsc(err.message || '沒有排進去')}</div>`; }
+    go.disabled = false;
+    return;
+  }
+  const br = t.closest('[data-bdm-brief]');
+  if (br) {
+    e.preventDefault();
+    const out = br.closest('[data-bdm-out]');
+    const ids = [...out.querySelectorAll('[data-bdm-pick]:checked:not(:disabled)')].map((x) => x.value);
+    if (!ids.length) { toast('請先勾選要做摘要的人選', 'error'); return; }
+    if (!window.confirm(`替 ${ids.length} 位人選各做一份「針對這個職缺」的匿名摘要？\n\n約 3～6 分鐘；做好會放進這家客戶的匿名履歷清單，不會自動寄出。`)) return;
+    br.disabled = true;
+    try { await api.post('/admin/bd/job-brief', { run_id: out.dataset.run, application_ids: ids }); toast('已開始產生，做好會顯示在這裡', 'success'); bdmPoll(out, out.dataset.run, 0); }
+    catch (err) { toast(err.message || '沒有排進去', 'error'); br.disabled = false; }
+    return;
+  }
+  const tm = t.closest('[data-bdm-tomail]');
+  if (tm) {
+    e.preventDefault();
+    document.querySelector('#bd-detail-tabs [data-bd-detail-tab="mail"]')?.click();
+    toast('已切到「寄公司介紹信」，在「匿名履歷」清單勾選剛做好的摘要', 'info');
+  }
+});
+
 // 2026-10-14 認識公司「請 AI 研究這家公司」按鈕
 document.addEventListener('click', async (e) => {
   const b = e.target instanceof Element ? e.target.closest('[data-rs-go]') : null;
