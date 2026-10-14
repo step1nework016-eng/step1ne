@@ -406,6 +406,36 @@ document.addEventListener('click', (e) => {
   box.querySelectorAll('[data-bdp-pane]').forEach((x) => { x.hidden = x.getAttribute('data-bdp-pane') !== key; });
 });
 
+// 2026-10-14 依職缺開發：篩選與「加入開發進度／不要」
+document.addEventListener('change', (e) => {
+  const t = e.target instanceof Element ? e.target : null;
+  const f = t && t.closest('[data-hl-cat],[data-hl-show],[data-hl-age],[data-hl-assignee]');
+  if (!f) return;
+  const u = amUi();
+  if (f.hasAttribute('data-hl-cat')) u.hlCat = f.value;
+  if (f.hasAttribute('data-hl-show')) u.hlShow = f.value;
+  if (f.hasAttribute('data-hl-age')) u.hlAge = f.value;
+  if (f.hasAttribute('data-hl-assignee')) u.hlAssignee = f.value;
+  amSave();
+  loadClientsTab($('#page-data'));
+});
+document.addEventListener('click', async (e) => {
+  const t = e.target instanceof Element ? e.target : null;
+  const act = t && t.closest('[data-hl-act]');
+  if (!act) return;
+  e.preventDefault();
+  const u = amUi();
+  if (!u.me) { toast('請先在上方「我是」選你的名字', 'error'); document.querySelector('[data-cb-me]')?.focus(); return; }
+  const row = act.closest('[data-hl-id]');
+  act.disabled = true;
+  try {
+    const pick = act.getAttribute('data-hl-act') === 'pick';
+    const r = await adapters.hiringLeadDecide(row.getAttribute('data-hl-id'), act.getAttribute('data-hl-act'), u.me, u.hlAssignee);
+    toast(pick ? (r.existed ? '這家原本就在開發進度，已補上職缺資訊' : `已加入開發進度（負責人：${u.hlAssignee || u.me}）`) : '已標記不要', 'success');
+    loadClientsTab($('#page-data'));
+  } catch (err) { toast(err.message || '沒有成功', 'error'); act.disabled = false; }
+});
+
 // 2026-10-02 人選敲門：人選卡片按鈕＋名單頁的「加入開發進度／不要」
 document.addEventListener('change', (e) => {
   const sel = e.target instanceof Element ? e.target.closest('[data-cb-me]') : null;
@@ -1788,6 +1818,11 @@ async function loadClientsTab(target) {
     target.innerHTML = views.scriptsTab();
     wireScripts(target);
     return null;
+  }
+  if (state.sub === 'hiringleads') {
+    await ensureConsultants();
+    const u = amUi();
+    return boundary(target, () => adapters.hiringLeads(u.hlCat), (d) => views.hiringLeadsTab(d, { me: u.me, consultants: state.consultantsCache || [], hlShow: u.hlShow, hlAge: u.hlAge, hlAssignee: u.hlAssignee }), 'refresh');
   }
   if (state.sub === 'candbd') {
     await ensureConsultants();

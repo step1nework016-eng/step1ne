@@ -268,6 +268,8 @@ export const adapters = {
     return api.get(`/admin/triage${q ? '?' + q : ''}`);
   },
   async candBd() { return api.get('/admin/cand-bd'); },
+  async hiringLeads(category) { return api.get(`/admin/hiring-leads?category=${encodeURIComponent(category || '財務會計')}`); },
+  async hiringLeadDecide(id, act, by, assignee) { return api.post(`/admin/hiring-leads/${encodeURIComponent(id)}/${act}`, { by, assignee: assignee || by }); },
   async candBdRun(applicationId, by) { return api.post('/admin/cand-bd/run', { application_id: applicationId, by }); },
   async candBdDecide(targetId, act, by) { return api.post(`/admin/cand-bd/target/${encodeURIComponent(targetId)}/${act}`, { by }); },
   async callConfirm(applicationId, action, by, slot, salutation, phone) {

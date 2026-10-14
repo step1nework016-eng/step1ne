@@ -1960,7 +1960,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
     <article class="card" style="margin-top:14px"><div class="card-head"><h3 style="margin:0;font-size:14px">所有發文帳號（${(accounts || []).length}）</h3></div>
       ${list(accounts || [], (a) => `<div class="list-row"><span><b>${text(a.label || a.consultant_name || a.id)}</b><small>${text(a.platform)}</small></span></div>`)}</article>`;
   },
-  clients: (tab='clients') => pageHead('客戶 / BD','集中管理客戶關係、推薦人選與企業用人需求。','') + tabbar('clients',[['clients','客戶'],['bd','BD Pipeline'],['bd-progress','開發進度'],['bd-ai','AI 名單（未聯繫）'],['candbd','人選敲門名單'],['bd-wrapup','客戶跟進'],['scripts','話術手冊'],['requests','BD Requests'],['hiring','企業用人需求'],['billing','收費進程']],tab) + `<div id="page-data">${endpointState('客戶與 BD')}</div>`,
+  clients: (tab='clients') => pageHead('客戶 / BD','集中管理客戶關係、推薦人選與企業用人需求。','') + tabbar('clients',[['clients','客戶'],['bd','BD Pipeline'],['bd-progress','開發進度'],['hiringleads','依職缺開發'],['bd-ai','AI 名單（未聯繫）'],['candbd','人選敲門名單'],['bd-wrapup','客戶跟進'],['scripts','話術手冊'],['requests','BD Requests'],['hiring','企業用人需求'],['billing','收費進程']],tab) + `<div id="page-data">${endpointState('客戶與 BD')}</div>`,
   clientsData: ({ companies, bd, requests }) => `<div class="kpi-grid"><article class="kpi"><span>客戶</span><strong>${companies.length}</strong></article><article class="kpi"><span>BD 案件</span><strong>${bd.length}</strong></article><article class="kpi"><span>BD Requests</span><strong>${requests.length}</strong></article></div>
     <div class="card"><div class="card-head"><h2 style="margin:0;font-size:15px">新增客戶</h2></div>
       <p class="help" style="margin:6px 0 10px">建好之後會自動產生一組「用人需求表連結」，把連結給客戶窗口他就能自己填職缺。</p>
@@ -2092,7 +2092,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
     const people = [...new Set(['Jacky', 'Phoebe', ...(consultants || []), ...rows.map((r) => r.assigned_to).filter(Boolean)])];
     const filterBar = `<div class="filter-row">
       <input id="bd-dash-q" type="search" placeholder="搜尋公司名稱" style="min-height:44px;flex:1 1 200px" aria-label="搜尋公司名稱">
-      <select id="bd-dash-source" aria-label="來源"><option value="">來源：全部</option><option value="web">🌐 官網詢問（${rows.filter((r) => r.source_kind === 'web' && !r.parked_at).length}）</option><option value="manual">✍️ 顧問新增（${rows.filter((r) => r.source_kind === 'manual' && !r.parked_at).length}）</option><option value="candbd">🧲 人選敲門（${rows.filter((r) => r.source_kind === 'candbd' && !r.parked_at).length}）</option><option value="ai">🤖 AI 名單（${rows.filter((r) => r.source_kind === 'ai' && !r.parked_at).length}）</option></select>
+      <select id="bd-dash-source" aria-label="來源"><option value="">來源：全部</option><option value="web">🌐 官網詢問（${rows.filter((r) => r.source_kind === 'web' && !r.parked_at).length}）</option><option value="manual">✍️ 顧問新增（${rows.filter((r) => r.source_kind === 'manual' && !r.parked_at).length}）</option><option value="hiring">📋 職缺開發（${rows.filter((r) => r.source_kind === 'hiring' && !r.parked_at).length}）</option><option value="candbd">🧲 人選敲門（${rows.filter((r) => r.source_kind === 'candbd' && !r.parked_at).length}）</option><option value="ai">🤖 AI 名單（${rows.filter((r) => r.source_kind === 'ai' && !r.parked_at).length}）</option></select>
       <select id="bd-dash-industry"><option value="">全部產業（${rows.length}）</option>${Object.entries(groups).sort((a, b) => b[1] - a[1]).map(([g, n]) => `<option value="${escapeHtml(g)}">${text(g)}（${n}）</option>`).join('')}</select>
       <select id="bd-dash-assignee"><option value="">全部負責人</option><option value="__none">未指派</option>${people.map((x) => `<option value="${escapeHtml(x)}">${text(x)}</option>`).join('')}</select>
       <select id="bd-dash-contacted"><option value="">聯繫：全部</option><option value="no">還沒聯繫</option><option value="yes">已聯繫</option><option value="parked">備選池（${rows.filter((r) => r.parked_at).length}）</option></select>
@@ -2136,7 +2136,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
       const oid = (r.outreach_ids || [])[0] || '';
       return `${head}<article class="list-row bd-dash-row" data-bd-open="${escapeHtml(r.company)}" tabindex="0" aria-label="${escapeHtml(r.company)}：打開開發引導／時間軸" title="點卡片打開開發引導／時間軸" data-bd-source="${escapeHtml(r.source_kind || '')}" data-bd-name="${escapeHtml(String(r.company || '').toLowerCase())}" data-bd-stage="${text(r.stage)}" data-bd-has-todo="${r.todo.length ? 1 : 0}" data-bd-industry="${escapeHtml(g)}" data-bd-assignee="${escapeHtml(r.assigned_to || '')}" data-bd-phone="${phoneKind}" data-bd-contacted="${r.contacted_at ? 1 : 0}" data-bd-parked="${r.parked_at ? 1 : 0}" data-bd-qc="${(r.qc_missing || []).length ? 0 : 1}" data-bd-tag="${escapeHtml(r.tag || 'none')}" data-bd-late="${(!r.parked_at && r.tag !== 'NO' && r.next_due && r.next_due < todayStr) ? 1 : 0}" data-bd-today="${(!r.parked_at && r.tag !== 'NO' && r.next_due === todayStr) ? 1 : 0}">
         <span>
-          <b>${text(r.company)}</b> ${r.tag ? `<span class="bdc-chip tagchip" style="background:${(BD_TAGS.find((t) => t.k === r.tag) || {}).color || '#9aa5b8'};color:#fff">${text(r.tag)}</span>` : ''}${r.bd_stage ? `<span class="bdc-chip stage">${text(r.bd_stage)}</span>` : ''} ${({ web: '<span class="badge warning" title="企業自己在官網留需求">🌐 官網詢問</span>', manual: '<span class="badge info" title="顧問按「新增開發對象」加進來的">✍️ 顧問新增</span>', candbd: '<span class="badge success" title="從手上人選反推、系統建議去敲門的公司">🧲 人選敲門</span>', ai: '<span class="badge" title="夜間 AI 找來的名單">🤖 AI 名單</span>' })[r.source_kind] || ''} ${r.industry ? `<span class="badge">${text(String(r.industry).split(/[（(]/)[0].slice(0, 18))}</span>` : ''}${r.inbound ? ' <span class="badge warning">1 個工作天內要回</span>' : ''}${r.industry_group === NEW_G ? ` <span class="badge info">新・${text(String(r.first_created_at || '').slice(5, 10))}</span>` : ''}${r.has_profile ? ' <span class="badge success">有介紹</span>' : ''}${r.note_count ? ` <span class="badge info">有 ${text(r.note_count)} 則心得</span>` : ''}${r.social_jobs ? ` <span class="badge warning" title="只發社群的職缺，到職缺列表看">🔒 未簽約職缺 ${text(r.social_jobs)} 個</span>` : ''}
+          <b>${text(r.company)}</b> ${r.tag ? `<span class="bdc-chip tagchip" style="background:${(BD_TAGS.find((t) => t.k === r.tag) || {}).color || '#9aa5b8'};color:#fff">${text(r.tag)}</span>` : ''}${r.bd_stage ? `<span class="bdc-chip stage">${text(r.bd_stage)}</span>` : ''} ${({ web: '<span class="badge warning" title="企業自己在官網留需求">🌐 官網詢問</span>', manual: '<span class="badge info" title="顧問按「新增開發對象」加進來的">✍️ 顧問新增</span>', hiring: '<span class="badge success" title="從「依職缺開發」挑進來的，104 最近有在徵">📋 職缺開發</span>', candbd: '<span class="badge success" title="從手上人選反推、系統建議去敲門的公司">🧲 人選敲門</span>', ai: '<span class="badge" title="夜間 AI 找來的名單">🤖 AI 名單</span>' })[r.source_kind] || ''} ${r.industry ? `<span class="badge">${text(String(r.industry).split(/[（(]/)[0].slice(0, 18))}</span>` : ''}${r.inbound ? ' <span class="badge warning">1 個工作天內要回</span>' : ''}${r.industry_group === NEW_G ? ` <span class="badge info">新・${text(String(r.first_created_at || '').slice(5, 10))}</span>` : ''}${r.has_profile ? ' <span class="badge success">有介紹</span>' : ''}${r.note_count ? ` <span class="badge info">有 ${text(r.note_count)} 則心得</span>` : ''}${r.social_jobs ? ` <span class="badge warning" title="只發社群的職缺，到職缺列表看">🔒 未簽約職缺 ${text(r.social_jobs)} 個</span>` : ''}
           ${(r.qc_missing || []).length && !(r.inbound || r.by_hand) ? `<small class="bd-qc-bad">不合格，補資料中：缺 ${text(r.qc_missing.join('、'))}</small>` : ''}
           ${views.bdEntry(r.trigger, r.has_candidate, false, r.job_title, r.topic)}
           ${phoneHtml}${mainHtml}${noPhone}
@@ -2259,6 +2259,44 @@ ${ns.length ? `<div class="bdn-list">${ns.map(item).join('')}</div>` : '<p class
   // 2026-10-02 Jacky：「通話心得除了改進建議，也要能持續新增通話紀錄，讓顧問知道目前跟客戶的進度」
   // →「通話紀錄與進度」兩個分頁：進度（每一通的結果、談到哪、下一步，新的在上）／AI 建議（逐字稿評分＋心得）。
   // 最上面一行「目前進度」：最新一通談到哪＋這家的下一步（跟「跟進」卡片同一份資料）。
+
+  // 2026-10-14 依職缺開發：104 最近有刊某類職缺的公司，顧問挑過才進開發進度（Jacky：ph 要針對有發布財務職缺的企業開發）
+  hiringLeadsTab: (data, ui) => {
+    const leads = (data && data.leads) || [];
+    const cats = (data && data.categories) || [];
+    const cur = (data && data.category) || '財務會計';
+    const cons = ui.consultants || [];
+    const opt = (v, label, c) => `<option value="${escapeHtml(v)}" ${String(c || '') === String(v) ? 'selected' : ''}>${escapeHtml(label)}</option>`;
+    const fmt = (d) => String(d || '').replace(/^(\d{4})(\d{2})(\d{2})$/, '$2/$3');
+    const names = cons.filter((c) => c.is_active).map((c) => c.display_name);
+    const show = ui.hlShow || 'new';
+    const age = ui.hlAge || '';
+    const cutoff = age ? new Date(Date.now() - Number(age) * 864e5).toISOString().slice(0, 10).replace(/-/g, '') : '';
+    const rows = leads.filter((l) => {
+      if (cutoff && String(l.latest_date || '') < cutoff) return false;
+      if (show === 'new') return l.status === 'new' && !l.existing;
+      if (show === 'done') return l.status !== 'new' || l.existing;
+      return true;
+    });
+    const nNew = leads.filter((l) => l.status === 'new' && !l.existing).length;
+    const head = `<div class="notice" style="margin:0 0 12px"><b>這裡的公司都還沒聯繫過。</b>是 104 最近 30 天有刊「${text(cur)}」主管級職缺的公司；已排除人力公司、已在開發進度和客戶名單的。<b>對方多半是自己在找人</b>，職缺只當開口理由，話術先承認他們自己在找，再講我們另一個人選池。</div>
+      <div class="filters"><label class="am-me">我是 <select data-cb-me>${opt('', '選擇…', ui.me)}${names.map((n) => opt(n, n, ui.me)).join('')}</select></label>
+      <label>職缺類別 <select data-hl-cat>${(cats.length ? cats : [{ category: cur }]).map((c) => opt(c.category, `${c.category}${c.n ? `（${c.n}）` : ''}`, cur)).join('')}</select></label>
+      <label>負責人 <select data-hl-assignee>${opt('', '＝我自己', ui.hlAssignee)}${names.map((n) => opt(n, n, ui.hlAssignee)).join('')}</select></label>
+      <label>顯示 <select data-hl-show>${opt('new', `還沒處理（${nNew}）`, show)}${opt('done', '已處理／已在開發中', show)}${opt('all', '全部', show)}</select></label>
+      <label>刊登時間 <select data-hl-age>${opt('', '30 天內', age)}${opt('7', '7 天內', age)}${opt('3', '3 天內', age)}</select></label>
+      <span class="help">名單每天自動更新一次${cats.length && cats[0].updated ? `（最後更新 ${text(String(cats[0].updated).slice(5, 16))}）` : ''}</span></div>`;
+    if (!rows.length) return head + empty('這個條件下沒有公司', show === 'new' ? '全部都處理過了，或把「刊登時間」放寬。' : '換個條件看看。');
+    const row = (l) => {
+      const jobs = l.jobs || [];
+      const tag = l.existing === 'client' ? '<span class="badge danger">已經是客戶</span>' : l.existing === 'bd' ? '<span class="badge">已在開發進度</span>' : '';
+      const done = l.status === 'picked' ? `<span class="badge success">已加入開發進度・${text(l.decided_by || '')}</span>` : l.status === 'dropped' ? `<span class="badge">不要・${text(l.decided_by || '')}</span>` : '';
+      return `<div class="list-row cb-row" data-hl-id="${escapeHtml(l.id)}"><span style="flex:1 1 360px"><b>${text(l.company)}</b> ${tag}
+        <small>${jobs.slice(0, 3).map((j) => `${j.url ? `<a href="${escapeHtml(j.url)}" target="_blank" rel="noopener">${text(j.job)} ↗</a>` : text(j.job)}（${text(fmt(j.date))}${j.area ? `・${text(j.area)}` : ''}${j.salary ? `・${text(j.salary)}` : ''}）`).join('<br>')}${l.job_count > 3 ? `<br><span class="muted">另外還有 ${text(l.job_count - 3)} 個</span>` : ''}</small></span>
+        <span class="actions-row">${l.existing ? '' : (l.status === 'dropped' ? done : `${done || '<button type="button" class="btn primary sm" data-hl-act="pick">加入開發進度</button>'}${l.status === 'new' ? '<button type="button" class="btn sm" data-hl-act="drop">不要</button>' : ''}`)}</span></div>`;
+    };
+    return head + `<div class="card"><div class="list">${rows.map(row).join('')}</div></div>`;
+  },
   // 2026-10-02 人選敲門名單：AI 依人選找的公司，顧問篩過才進開發進度（Jacky：不要讓人以為電洽過）
   candBdTab: (data, ui) => {
     const runs = (data && data.runs) || [];
