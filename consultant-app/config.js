@@ -10,6 +10,7 @@ export const CONFIG = Object.freeze({
 export const ROUTES = Object.freeze({
   home: '/consultant/',
   board: '/consultant/board/',
+  daily: '/consultant/daily/',
   recruitment: '/consultant/recruitment/',
   candidates: '/consultant/candidates/',
   jobs: '/consultant/jobs/',

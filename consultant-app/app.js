@@ -10,6 +10,7 @@ import { jdFieldParse } from './jd_fields.js';
 import { initMail, loadMailTab, injectMailSection } from './mail.js';
 import { wireBdCard, bdShowStageRemind, bdShowTagRemind } from './bdcard.js';
 import { wireBdJobs } from './bdjobs.js';
+import { loadDailyTab } from './daily.js';
 
 // 2026-09-15 補：使用者反映「不知道要看哪個是自己的」——沒有登入系統，只能靠
 // 這組「切換選擇」記住上次選的是誰，換分頁/重新整理都不用重選（存在瀏覽器
@@ -43,6 +44,9 @@ function render() {
 async function loadRoute() {
   const target = $('#page-data');
   if (!target) return;
+  if (state.route === 'daily') {
+    return loadDailyTab(target, state.sub);
+  }
   if (state.route === 'board') return loadBoardTab(target);
   if (state.route === 'home') return boundary(target, adapters.home, views.homeData, 'refresh');
   if (state.route === 'recruitment') return boundary(target, async () => ({ ...(await adapters.recruitment()), analytics: await analyticsAdapter.recruitment() }), views.recruitmentData, 'refresh');
