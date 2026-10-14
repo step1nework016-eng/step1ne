@@ -4182,7 +4182,8 @@ document.addEventListener('click', async (event) => {
   }
   if (action === 'bd-phone-edit') {
     const d = target.dataset;
-    modal({ title: '更新電話', subtitle: d.company, body: `<form id="bd-phone-form" class="form-grid">
+    modal({ title: '更新電話／Email', subtitle: d.company, body: `<form id="bd-phone-form" class="form-grid">
+      <label class="field"><span>窗口 Email</span><input name="contact_email" type="email" inputmode="email" value="${escapeHtml(d.email || '')}" placeholder="例：name@company.com（要跟對方確認過拼法）"></label>
       <label class="field"><span>人資／招募電話</span><input name="hr_phone" value="${escapeHtml(d.hr || '')}" placeholder="例：06-5837608"></label>
       <label class="field"><span>人資窗口／哪個廠</span><input name="hr_contact" value="${escapeHtml(d.hrname || '')}" placeholder="例：招募（善化廠）王小姐"></label>
       <label class="field"><span>公司總機</span><input name="company_phone" value="${escapeHtml(d.main || '')}"></label>
@@ -4194,7 +4195,7 @@ document.addEventListener('click', async (event) => {
     const b = Object.fromEntries(new FormData(f).entries());
     try {
       await api.post('/admin/bd/phone', { company: target.dataset.company, ...b, source: b.source ? `${b.source}（顧問補登）` : '顧問補登' });
-      closeOverlay(); toast('電話已更新', 'success'); openBdDetail(target.dataset.company);
+      closeOverlay(); toast('聯絡方式已更新', 'success'); openBdDetail(target.dataset.company);
     } catch (e) { toast(`更新失敗：${e.message || e}`, 'error'); }
   }
   if (action === 'confirm-job-content') {

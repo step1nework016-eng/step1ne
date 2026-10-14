@@ -2722,7 +2722,7 @@ ${n.learned ? `<p><b>學到什麼</b>${text(n.learned)}</p>` : ''}${n.next_time 
     const okMark = (ok, label) => `<span class="bd-qc ${ok ? 'ok' : 'miss'}">${ok ? '✓' : '✗'} ${label}${ok ? '' : '（缺）'}</span>`;
     const qc = `<div class="bd-qc-row"><b>資料合格檢查</b>${okMark(!!(hrPhone || mainPhone), '電話')}${okMark(!!url104, '104 企業頁')}${okMark(!!website, '官網')}</div>`;
     const contactCard = `<div class="card bd-contact-card">
-      <div class="card-head"><h3 style="font-size:14px;margin:0 0 8px">聯絡方式</h3><button type="button" class="btn ghost sm" data-action="bd-phone-edit" data-company="${escapeHtml(company || (outreach[0] || {}).company || '')}" data-hr="${escapeHtml(hrPhone)}" data-hrname="${escapeHtml(hrContact)}" data-main="${escapeHtml(mainPhone)}">更新電話</button></div>
+      <div class="card-head"><h3 style="font-size:14px;margin:0 0 8px">聯絡方式</h3><button type="button" class="btn ghost sm" data-action="bd-phone-edit" data-company="${escapeHtml(company || (outreach[0] || {}).company || '')}" data-hr="${escapeHtml(hrPhone)}" data-hrname="${escapeHtml(hrContact)}" data-main="${escapeHtml(mainPhone)}" data-email="${escapeHtml(contactEmail || '')}">更新電話／Email</button></div>
       ${qc}
       ${contactName ? `<div class="bd-contact-row"><span>窗口</span><b>${text(contactName)}</b></div>` : ''}
       ${hrPhone ? telRow('人資電話', hrPhone, hrContact) : ''}
