@@ -447,9 +447,11 @@ function bdmRender(out, data) {
   if (!picks.length) { out.innerHTML = `<p class="help">${bdmEsc(res.note || '現有人選裡沒有適合的人。')}（比對了 ${bdmEsc(res.pool_size || 0)} 位）</p>`; return; }
   const FIT = { '高': 'success', '中': 'warning', '低': '' };
   const rows = picks.map((p) => {
-    const bf = briefs[p.application_id];
-    const bs = bf ? (bf.status === 'done' ? `<span class="badge success">匿名履歷已做好</span> ${bf.file_id ? `<button type="button" class="bdj-btn sm primary" data-bdm-preview="${bdmEsc(bf.file_id)}">預覽</button> <button type="button" class="bdj-btn sm" data-download-file="${bdmEsc(bf.file_id)}">下載</button>` : ''}` : bf.status === 'error' ? `<span class="badge danger">做失敗：${bdmEsc(bf.error)}</span>` : `<span class="badge info">產生中…</span>`) : `<button type="button" class="bdj-btn sm primary" data-bdm-one="${bdmEsc(p.application_id)}">產生匿名履歷</button>`;
-    return `<label class="bdm-row"><input type="checkbox" data-bdm-pick value="${bdmEsc(p.application_id)}" ${bf && bf.status !== 'error' ? 'disabled checked' : ''}>
+    const an = (data.anon || {})[p.application_id];
+    const bs = an && an.file_id
+      ? `<span class="badge success">匿名履歷已做好（${bdmEsc(an.code)}）</span> <button type="button" class="bdj-btn sm primary" data-bdm-preview="${bdmEsc(an.file_id)}">預覽</button> <button type="button" class="bdj-btn sm" data-download-file="${bdmEsc(an.file_id)}">下載</button>`
+      : `<button type="button" class="bdj-btn sm primary" data-bdm-one="${bdmEsc(p.application_id)}">產生匿名履歷</button>`;
+    return `<label class="bdm-row">
       <div><b>${bdmEsc(p.code)}</b> ${bdmEsc(p.name)} <span class="badge ${FIT[p.fit] || ''}">符合度：${bdmEsc(p.fit)}</span> ${bs}
       <small class="muted">原應徵：${bdmEsc(p.applied_for)}｜期望：${bdmEsc(p.expected || '未填')}｜到職：${bdmEsc(p.available || '未填')}</small>
       <ul class="bdm-ok">${(p.matches || []).map((x) => `<li>✓ ${bdmEsc(x)}</li>`).join('')}</ul>
@@ -458,14 +460,13 @@ function bdmRender(out, data) {
   }).join('');
   const anyDone = (data.briefs || []).some((x) => x.status === 'done');
   out.innerHTML = `<div class="bdm-head">配對結果（比對了 ${bdmEsc(res.pool_size || 0)} 位；<b>✓</b>＝符合、<b>△</b>＝落差或要確認）</div>${rows}
-    <div class="bdm-act"><button type="button" class="bdj-btn primary" data-bdm-brief>替勾選的人選產生「針對這個職缺」匿名摘要</button>
-    ${anyDone ? '<button type="button" class="bdj-btn" data-bdm-tomail>到「寄公司介紹信」勾選附上</button>' : ''}
-    <small class="muted">摘要不含姓名、公司名、學校名、薪資、年齡，做好會放進這家客戶的匿名履歷清單；寄出仍要 TG 核准。</small></div>`;
+    <div class="bdm-act"><small class="muted">匿名履歷用你平常那一套：名字改代號、公司改產業描述；按「產生」後草稿會貼到 TG「客戶履歷人工確認」，你確認才會做出 PDF。做好後這裡就有預覽／下載，寄信時也能在「從人選挑匿名履歷附上」選到。</small></div>`;
 }
 async function bdmPoll(out, runId, tries) {
   let data;
   try { data = await api.get(`/admin/bd/job-match?run_id=${encodeURIComponent(runId)}`); } catch (err) { out.innerHTML = `<div class="notice">${bdmEsc(err.message || '讀不到結果')}</div>`; return; }
   out.dataset.run = runId;
+  try { const ar = await api.get('/admin/anon-reports'); data.anon = Object.fromEntries((ar.rows || []).map((x) => [x.application_id, x])); } catch { data.anon = {}; }
   bdmRender(out, data);
   const chip = out.closest('[data-bdj-slug]')?.querySelector('[data-bdm-chip]');
   if (chip) { const n = ((data.result || {}).picks || []).length; chip.textContent = data.run.status === 'done' ? (n ? `配對到 ${n} 人` : '配對：沒有合適') : data.run.status === 'error' ? '配對失敗' : '配對中…'; chip.className = 'bdj-mchip ' + (data.run.status === 'done' && n ? 'on' : ''); }
@@ -519,7 +520,7 @@ document.addEventListener('click', async (e) => {
     e.preventDefault();
     const out = one.closest('[data-bdm-out]');
     one.disabled = true;
-    try { await api.post('/admin/bd/job-brief', { run_id: out.dataset.run, application_ids: [one.getAttribute('data-bdm-one')] }); toast('已開始做這位的匿名履歷，約 3～6 分鐘', 'success'); bdmPoll(out, out.dataset.run, 0); }
+    try { await api.post(`/admin/application/${encodeURIComponent(one.getAttribute('data-bdm-one'))}/client-formal-report`, { anonymous: true, by: amUi().me || '顧問' }); toast('已開始製作，草稿 1～2 分鐘後貼到 TG「客戶履歷人工確認」，你確認後這裡就能預覽下載', 'success'); one.textContent = '已送出，等 TG 確認'; }
     catch (err) { toast(err.message || '沒有排進去', 'error'); one.disabled = false; }
     return;
   }
