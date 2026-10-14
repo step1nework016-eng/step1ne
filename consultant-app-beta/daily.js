@@ -20,7 +20,7 @@ let boundUnload = false;
 // ── 系統資料（2026-10-14）：先選顧問，再把「他名下」的開發進度與人選從後台讀進來 ──
 const OWNER_KEY = 's1ne_candidate_owner';   // 跟人選工作台共用同一個「我是誰」
 let consultants = null;
-let sys = { owner: localStorage.getItem(OWNER_KEY) || '', loading: false, error: '', bd: [], cands: [], posts: [], at: '', postsAt: '', postsErr: '', chFilter: '', chAccount: '', chView: 'overview' };
+let sys = { owner: localStorage.getItem(OWNER_KEY) || '', loading: false, error: '', bd: [], cands: [], posts: [], calls: [], at: '', postsAt: '', postsErr: '', chFilter: '', chAccount: '', chView: 'overview' };
 const BD_STAGE_MAP = { '還沒聯繫': '待聯繫', '已聯繫': '已接觸', '有興趣': '有效對話', '已寄資料': '寄送資料', '談需求': '需求訪談已約', '簽約': '正式委託', '沒興趣': '停止開發', '暫緩': '暫不需要' };
 const CAND_STAGE_MAP = { client: '已送件', interviewed: '已洽談', new: '名單建立' };
 const todayStr = () => new Date().toLocaleDateString('en-CA');
@@ -33,12 +33,13 @@ async function loadConsultants() {
   return consultants;
 }
 async function loadSystem(force) {
-  if (!sys.owner) { sys.bd = []; sys.cands = []; sys.error = ''; return; }
+  if (!sys.owner) { sys.bd = []; sys.cands = []; sys.calls = []; sys.error = ''; return; }
   if (!force && sys.at && sys.loadedFor === sys.owner) return;
   sys.loading = true; sys.error = '';
   try {
     const name = consultantName();
-    const [b, c] = await Promise.all([api.get('/admin/bd/dashboard'), adapters.candidates(sys.owner)]);
+    const [b, c, rm] = await Promise.all([api.get('/admin/bd/dashboard'), adapters.candidates(sys.owner), api.get('/admin/consultant-reminders?for=' + encodeURIComponent(name) + '&day=' + encodeURIComponent(todayStr())).catch(() => ({ items: [] }))]);
+    sys.calls = (rm && rm.items) || [];
     sys.bd = (b.rows || []).filter((r) => r.assigned_to === name && !r.ai_untouched);
     sys.cands = c || [];
     sys.at = new Date().toLocaleTimeString('zh-TW', { hour12: false }); sys.loadedFor = sys.owner;
@@ -102,8 +103,54 @@ function download(name, text, type) {
 }
 const count = (type, fn) => state[type].filter(fn).length;
 
+
+// ── 今日下一步（放在最上面，顧問一看就知道今天要做什麼）──
+function yesterdayTomorrow() {
+  const d = new Date(day + 'T00:00:00'); d.setDate(d.getDate() - 1);
+  const k = 'headhunter-v2-' + d.toLocaleDateString('en-CA');
+  try { const o = JSON.parse(localStorage.getItem(k) || 'null'); return String((o && o.reviewTomorrow) || '').split('\n').map((x) => x.trim()).filter(Boolean); } catch { return []; }
+}
+function todayItems() {
+  const t = todayStr();
+  const items = [];
+  (sys.calls || []).forEach((c) => items.push({ g: 'call', pri: 1, rid: c.id, time: String(c.call_at || '').slice(11, 16), icon: '📞', title: (c.candidate_name || '電話／面談'), text: String(c.message || '').replace(/\s+/g, ' ').replace(/^電話／面談\s*/, '').slice(0, 90), attr: c.application_id ? `data-application="${esc(c.application_id)}"` : '' }));
+  sysBdRows().filter((r) => r._overdue).forEach((r) => items.push({ g: 'bd', pri: r._due < t ? 0 : 2, time: r._due === t ? '今天' : '逾期 ' + r._due.slice(5), icon: '🏢', title: r.company, text: r.next_step || '待跟進', sub: r.call_phone || r.company_phone || '', attr: `data-bd-company="${esc(r.company)}"` }));
+  sys.cands.filter((c) => c.stage === 'decide').forEach((c) => items.push({ g: 'decide', pri: 3, time: '等你決定', icon: '👤', title: (c.seqNo ? '#' + c.seqNo + ' ' : '') + c.name, text: c.job || '', attr: `data-application="${esc(c.applicationId)}"` }));
+  state.bd.filter((x) => x.nextDate && x.nextDate <= t).forEach((x) => items.push({ g: 'mine', pri: 2, time: x.nextDate === t ? '今天' : '逾期 ' + x.nextDate.slice(5), icon: '📝', title: x.company || '未命名企業', text: x.next || '待跟進', attr: '' }));
+  state.candidate.filter((x) => x.nextDate && x.nextDate <= t).forEach((x) => items.push({ g: 'mine', pri: 2, time: x.nextDate === t ? '今天' : '逾期 ' + x.nextDate.slice(5), icon: '📝', title: x.name || '未命名人選', text: x.next || '待跟進', attr: '' }));
+  return items.sort((a, b) => (a.pri - b.pri) || String(a.time).localeCompare(String(b.time)));
+}
+function todayPanel() {
+  const items = todayItems();
+  const carry = yesterdayTomorrow();
+  const g = (k) => items.filter((x) => x.g === k).length;
+  const chips = [['📞 今天的電話／面談', g('call')], ['🏢 開發跟進（到期／逾期）', g('bd')], ['👤 等你決定的人選', g('decide')], ['📝 我自己記的跟進', g('mine')], ['昨天寫的明日事項', carry.length]].map(([n, v]) => `<span class="dly-chip ${v ? 'on' : ''}">${n} <b>${v}</b></span>`).join('');
+  const shown = items.slice(0, sys.todayAll ? 999 : 8);
+  const rows = shown.map((x) => `<div class="dly-todo ${x.pri === 0 ? 'late' : ''}" ${x.attr} ${x.attr ? 'style="cursor:pointer"' : ''}><span class="dly-todo-t">${esc(x.time)}</span><span>${x.icon}</span><div style="flex:1"><b>${esc(x.title)}</b>${x.text ? `<div class="dly-small" style="margin-top:1px">${esc(x.text)}${x.sub ? '｜' + esc(x.sub) : ''}</div>` : ''}</div>${x.rid ? `<button class="btn dly-danger" style="min-height:32px;padding:2px 9px;font-size:13px" data-dly="cancelCall:${esc(x.rid)}" title="取消這筆預約與提醒">取消</button>` : ''}</div>`).join('');
+  const empty = !sys.owner ? '<div class="dly-hint">請先在上面選顧問：選了之後，這裡會列出你今天的電話與面談、到期的開發跟進、等你決定的人選。</div>' : (items.length || carry.length ? '' : '<div class="dly-hint">目前沒有到期或今天要做的事。去「② 企業 BD」或「③ 人才追蹤」挑下一步，並設定下次跟進日。</div>');
+  const more = items.length > 8 ? `<button class="btn" data-dly="todayMore">${sys.todayAll ? '只看前 8 件' : '顯示全部 ' + items.length + ' 件'}</button>` : '';
+  const carryHtml = carry.length ? `<div class="dly-carry"><b>昨天寫的「明日 3 件事」</b><ol>${carry.map((x) => `<li>${esc(x)}</li>`).join('')}</ol></div>` : '';
+  return `<div class="card dly-today"><div class="dly-row"><h2 style="margin:0">🎯 今日下一步</h2><span class="dly-small">${esc(day)}${sys.at ? '｜系統資料 ' + esc(sys.at) : ''}</span></div><div class="dly-chips">${chips}</div>${carryHtml}${rows || ''}${empty}${more}${bookForm()}</div>`;
+}
+
+function bookForm() {
+  if (!sys.owner) return '';
+  const opts = sys.cands.map((c) => `<option value="${esc((c.seqNo ? '#' + c.seqNo + ' ' : '') + c.name)}"></option>`).join('');
+  const d = new Date(); d.setMinutes(0, 0, 0); d.setHours(d.getHours() + 1);
+  const pad = (n) => String(n).padStart(2, '0');
+  const dv = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:00`;
+  return `<details class="dly-book"${sys.bookOpen ? ' open' : ''}><summary>＋ 記錄跟人選約好的面談／電話時間（會 TG 提醒你、同步到發財基地行事曆）</summary>
+  <div class="dly-fields" style="margin-top:10px">
+    <div class="dly-field"><label>人選（可直接打字找，或手動填對象）</label><input id="dly-bk-who" list="dly-bk-list" placeholder="例：#93 沈蓓芬"><datalist id="dly-bk-list">${opts}</datalist></div>
+    <div class="dly-field"><label>約好的日期與時間</label><input id="dly-bk-at" type="datetime-local" value="${dv}"></div>
+    <div class="dly-field"><label>提前多久提醒我</label><select id="dly-bk-before"><option value="30" selected>30 分鐘前</option><option value="60">1 小時前</option><option value="10">10 分鐘前</option><option value="1440">前一天</option></select></div>
+    <div class="dly-field"><label>備註（要談什麼、推哪個職缺）</label><input id="dly-bk-note" placeholder="例：推美德供應鏈副總，先問紡織年資"></div>
+  </div>
+  <div class="dly-row" style="margin-top:8px"><button class="btn primary" data-dly="bookCall">記下並提醒我</button><span class="dly-hint" id="dly-bk-msg"></span></div></details>`;
+}
+
 function toolbar() {
-  return sysBar() + `<div class="card dly-row"><div class="dly-field"><label>工作日期</label><input id="dly-day" type="date" value="${esc(day)}"></div>
+  return sysBar() + todayPanel() + `<div class="card dly-row"><div class="dly-field"><label>工作日期</label><input id="dly-day" type="date" value="${esc(day)}"></div>
   <div class="dly-field"><label>今日 Top 3 職缺（以 / 分隔）</label><input id="dly-top3" style="min-width:290px" placeholder="會計 / BIM / 營運主管" value="${esc(state.top3)}"></div>
   <button class="btn primary" data-dly="save">儲存今天</button><button class="btn" data-dly="exportJSON">匯出 JSON 備份</button>
   <button class="btn" data-dly="importPick">匯入備份</button><input id="dly-import" type="file" accept=".json" hidden>
@@ -279,7 +326,7 @@ export async function loadDailyTab(target, tab) {
     if (t.id === 'dly-chFilter') { sys.chFilter = t.value; collect(root()); draw(target); return; }
     if (t.id === 'dly-owner') {
       sys.owner = t.value; try { localStorage.setItem(OWNER_KEY, sys.owner); } catch { /* 沒關係 */ }
-      sys.at = ''; sys.loadedFor = ''; sys.bd = []; sys.cands = []; collect(root()); persist(); draw(target);
+      sys.at = ''; sys.loadedFor = ''; sys.bd = []; sys.cands = []; sys.calls = []; collect(root()); persist(); draw(target);
       if (sys.owner) { sys.loading = true; draw(target); loadSystem(true).then(() => { if (target.isConnected) draw(target); }); }
       return;
     }
@@ -308,6 +355,22 @@ export async function loadDailyTab(target, tab) {
     if (act === 'importPick') { target.querySelector('#dly-import').click(); return; }
     if (act === 'sysRefresh') { sys.loading = true; collect(root()); draw(target); loadSystem(true).then(() => { if (target.isConnected) draw(target); }); return; }
     if (act === 'importBd') { const n = importBd(); persist(); draw(target); alert('已匯入 ' + n + ' 家'); return; }
+    if (act === 'bookCall') {
+      const who = (target.querySelector('#dly-bk-who').value || '').trim(), at = target.querySelector('#dly-bk-at').value, msg = target.querySelector('#dly-bk-msg');
+      if (!who) { msg.textContent = '請填人選或對象'; return; }
+      const c = sys.cands.find((x) => ((x.seqNo ? '#' + x.seqNo + ' ' : '') + x.name) === who || x.name === who);
+      msg.textContent = '儲存中…';
+      api.post('/admin/consultant-reminders', { for: consultantName(), application_id: c ? c.applicationId : '', candidate_name: c ? c.name : who, call_at: at, note: target.querySelector('#dly-bk-note').value, remind_before: Number(target.querySelector('#dly-bk-before').value) })
+        .then((r) => { sys.bookOpen = false; sys.at = ''; loadSystem(true).then(() => { if (target.isConnected) { collect(root()); draw(target); const m = target.querySelector('.dly-today .dly-hint'); alert('已記下：' + (r.call_at || at) + '，會在 ' + (r.remind_at || '') + ' 用 TG 提醒你'); } }); })
+        .catch((err) => { msg.textContent = '失敗：' + ((err && err.message) || '請稍後再試'); });
+      return;
+    }
+    if (act === 'cancelCall') {
+      if (!confirm('取消這筆預約與提醒？')) return;
+      api.post('/admin/consultant-reminders/cancel', { id: type, by: consultantName() }).then(() => { sys.at = ''; loadSystem(true).then(() => { if (target.isConnected) { collect(root()); draw(target); } }); }).catch(() => alert('取消失敗'));
+      return;
+    }
+    if (act === 'todayMore') { sys.todayAll = !sys.todayAll; collect(root()); draw(target); return; }
     if (act === 'chView') { sys.chView = type; collect(root()); draw(target); return; }
     if (act === 'chAcct') { sys.chAccount = b.getAttribute('data-dly').slice('chAcct:'.length); sys.chView = 'detail'; collect(root()); draw(target); return; }
     if (act === 'postsRefresh') { sys.postsAt = ''; draw(target); loadPosts(true).then(() => { if (target.isConnected) draw(target); }); return; }
