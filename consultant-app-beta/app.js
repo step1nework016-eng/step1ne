@@ -2008,7 +2008,8 @@ async function loadClientsTab(target) {
     return res;
   }
   if (state.sub === 'bd-progress') {
-    const res = await boundary(target, adapters.bdDashboard, (d) => views.bdDashboard({ ...d, rows: (d.rows || []).filter((r) => !r.ai_untouched) }), 'refresh');
+    const res = await boundary(target, async () => { const [d, bd] = await Promise.all([adapters.bdDashboard(), api.get('/admin/bd').catch(() => null)]); return { ...d, _drafts: bd ? (bd.rows || bd.items || bd.opportunities || []) : [] }; },
+      (d) => views.bdDraftsBlock(d._drafts) + views.bdDashboard({ ...d, rows: (d.rows || []).filter((r) => !r.ai_untouched) }), 'refresh');
     wireBdDashboardFilter();
     return res;
   }

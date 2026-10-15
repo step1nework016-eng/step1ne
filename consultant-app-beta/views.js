@@ -1964,7 +1964,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
     <article class="card" style="margin-top:14px"><div class="card-head"><h3 style="margin:0;font-size:14px">所有發文帳號（${(accounts || []).length}）</h3></div>
       ${list(accounts || [], (a) => `<div class="list-row"><span><b>${text(a.label || a.consultant_name || a.id)}</b><small>${text(a.platform)}</small></span></div>`)}</article>`;
   },
-  clients: (tab='clients') => pageHead('客戶 / BD','集中管理客戶關係、推薦人選與企業用人需求。','') + tabbar('clients',[['clients','客戶'],['bd','BD Pipeline'],['bd-progress','開發進度'],['hiringleads','依職缺開發'],['bd-ai','AI 名單（未聯繫）'],['candbd','人選敲門名單'],['bd-wrapup','客戶跟進'],['scripts','話術手冊'],['requests','BD Requests'],['hiring','企業用人需求'],['billing','收費進程']],tab) + `<div id="page-data">${endpointState('客戶與 BD')}</div>`,
+  clients: (tab='clients') => pageHead('客戶 / BD','集中管理客戶關係、推薦人選與企業用人需求。','') + tabbar('clients',[['clients','客戶'],['bd-progress','開發進度'],['bd-ai','AI 名單（未聯繫）'],['hiringleads','依職缺開發'],['candbd','人選敲門名單'],['bd-wrapup','客戶跟進'],['scripts','話術手冊'],['hiring','企業用人需求'],['billing','收費進程']],tab) + `<div id="page-data">${endpointState('客戶與 BD')}</div>`,
   clientsData: ({ companies, bd, requests }) => `<div class="kpi-grid"><article class="kpi"><span>客戶</span><strong>${companies.length}</strong></article><article class="kpi"><span>BD 案件</span><strong>${bd.length}</strong></article><article class="kpi"><span>BD Requests</span><strong>${requests.length}</strong></article></div>
     <div class="card"><div class="card-head"><h2 style="margin:0;font-size:15px">新增客戶</h2></div>
       <p class="help" style="margin:6px 0 10px">建好之後會自動產生一組「用人需求表連結」，把連結給客戶窗口他就能自己填職缺。</p>
@@ -2054,6 +2054,17 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
   // 顧問核准／駁回是走 Telegram 群組的 /admin/bd/:id/decide，這頁不重做那個流程。
   // 待補窗口＝status=pending 又沒填 contact_email 的——這幾封在群組按核准也寄不出去，
   // 顧問要有地方補，不然只能卡住。
+  // 2026-10-15 Jacky：BD Pipeline 分頁拿掉（跟開發進度重複），還沒寄出的開發信草稿收到開發進度最上面，預設收起
+  bdDraftsBlock: (bd) => {
+    const pend = (bd || []).filter((b) => b.status === 'pending' || b.status === 'draft');
+    if (!pend.length) return '';
+    const need = pend.filter((b) => !b.contact_email);
+    const ready = pend.filter((b) => b.contact_email);
+    const row = (b) => `<div class="list-row"><span><b>${text(b.company)}</b><small>${text(b.why_company || '')} · ${text(String(b.created_at || '').slice(0, 16))}</small></span>${b.contact_email ? '<span class="badge warning">等核准</span>' : actionBtn('補窗口 email', 'bd-fill-email', { idParams: { id: b.id } }, 'primary')}</div>`;
+    return `<details class="card bd-drafts"><summary><b>還沒寄出的開發信草稿（${pend.length} 封）</b>　<span class="muted">缺窗口信箱 ${need.length}、等核准 ${ready.length}</span></summary>
+      ${need.length ? `<h3 style="font-size:15px;margin:12px 0 4px">缺窗口信箱（補上才寄得出去）</h3>${list(need, row)}` : ''}
+      ${ready.length ? `<h3 style="font-size:15px;margin:12px 0 4px">等核准（到 TG 群組按核准）</h3>${list(ready, row)}` : ''}</details>`;
+  },
   clientsBdTab: ({ bd, talentPool }) => {
     const BD_ST = { pending: ['待處理', 'warning'], draft: ['草稿', 'neutral'], sent: ['已寄出', 'success'], rejected: ['已婉拒', 'neutral'], blocked: ['⛔ 客戶名單擋下', 'danger'] };
     const badge = (s) => { const [lb, tone] = BD_ST[s] || [s || '未知', 'neutral']; return `<span class="badge ${tone}">${text(lb)}</span>`; };
