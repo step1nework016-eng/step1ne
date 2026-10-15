@@ -4210,6 +4210,8 @@ document.addEventListener('click', async (event) => {
     openAction(actionId, ctx);
     return;
   }
+  // 2026-10-15 Jacky：今日下一步那列按「✓ 完成／取消／我看過了」不要連帶打開人選卡片（按鈕在整列可點的區塊裡）
+  if (target.closest('[data-dly]')) return;
   const application = target.closest('[data-application]');
   if (application) { openCandidate(application.getAttribute('data-application')); return; }
   const session = target.closest('[data-session]');
