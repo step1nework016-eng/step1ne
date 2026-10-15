@@ -182,7 +182,7 @@ function sectionOverview() {
     newCand: sys.cands.filter((x) => today(x.updatedAt)).length,
     touchCand: (sys.calls || []).filter((x) => today(x.call_at)).length,
     talkCand: (sys.calls || []).filter((x) => today(x.call_at) && String(x.call_at).slice(11, 16) <= nowHM).length,
-    posts: (sys.posts || []).filter((p) => p.consultant_name === consultantName() && today(p.posted_at || p.updated_at)).length,
+    posts: (sys.posts || []).filter((p) => p.consultant_name === consultantName() && today(p.posted_at || p.social_post_at)).length,
   };
   const goals = [['新增企業名單', bd.length, 15, S.newBd], ['企業實際接觸', vals[1][1], 10, S.touchBd], ['有效企業對話', vals[2][1], 3, S.talkBd], ['人才名單', c.length, 15, S.newCand], ['人才接觸', vals[5][1], 10, S.touchCand], ['人才洽談', vals[6][1], 2, S.talkCand], ['渠道動作', ch.length, 2, S.posts]]
     .map(([n, manual, g, s]) => [n, manual + s, g, s, manual]);
