@@ -16,10 +16,22 @@ const COLS = [
 ];
 const KINDS = ['訓練機構', '學校／系所', '職訓局／公部門', '社群／社團', '人力平台', '其他'];
 let hooks = { openCandidate: null };
+// 2026-10-15 Jacky：負責人預設 Phoebe（電訪是她在打），可以改選別人
+const DEFAULT_OWNER = 'Phoebe';
+let consultantNames = null;
+async function loadConsultantNames() {
+  if (consultantNames) return consultantNames;
+  try { consultantNames = ((await api.get('/admin/consultants')).consultants || []).filter((c) => c.is_active).map((c) => c.display_name); } catch { consultantNames = []; }
+  return consultantNames;
+}
+function ownerOptions(cur) {
+  const names = [...new Set([...(consultantNames || []), cur].filter(Boolean))];
+  return names.map((n) => `<option ${n === cur ? 'selected' : ''}>${esc(n)}</option>`).join('');
+}
 let data = { channels: [], jobs: [], statuses: {} };
 let target = null;
 const VIEW_KEY = 's1ne_channels_view';
-const ui = { owner: '', q: '', view: (() => { try { return localStorage.getItem(VIEW_KEY) || 'board'; } catch { return 'board'; } })() };
+const ui = { tab: 'log', owner: '', q: '', view: (() => { try { return localStorage.getItem(VIEW_KEY) || 'board'; } catch { return 'board'; } })() };
 
 export function initChannels(h) { hooks = { ...hooks, ...h }; }
 const me = () => (document.querySelector('[data-me-global]') || {}).value || '';
@@ -136,7 +148,7 @@ function formHtml(c) {
       <label class="field"><span>狀態</span><select name="status">${sel('status', COLS.map(([k, t]) => [k, t]))}</select></label>
       <label class="field"><span>類型</span><select name="kind">${sel('kind', KINDS.map((k) => [k, k]))}</select></label>
       <label class="field"><span>下次追蹤日</span><input type="date" name="next_follow_at" value="${v('next_follow_at')}"></label>
-      <label class="field"><span>負責顧問</span><input name="owner" value="${v('owner') || esc(me())}" maxlength="40"></label>
+      <label class="field"><span>負責顧問</span><select name="owner">${ownerOptions(c.owner || DEFAULT_OWNER)}</select></label>
       <label class="field span-2"><span>下一步要做什麼</span><input name="next_step" value="${v('next_step')}" maxlength="200" placeholder="例：寄職缺說明給窗口、約下週去說明會"></label>
       <label class="field"><span>窗口</span><input name="contact_name" value="${v('contact_name')}" maxlength="60"></label>
       <label class="field"><span>電話</span><input name="phone" value="${v('phone')}" maxlength="60" inputmode="tel"></label>
@@ -158,26 +170,114 @@ function stageOf(r) {
   if (r.interview_ended_at || r.consultant_call_at) return '談過';
   return '剛推來';
 }
-function detailHtml(d) {
+// 2026-10-15 Jacky：聯絡紀錄比照「開發進度」卡片（下一步大色塊、統計、進度階段、新增紀錄表單、時間軸），沿用 bdc-* 樣式
+const RESULTS = [['no_answer', '沒接／沒人'], ['gatekeeper', '被擋在總機'], ['got_contact', '問到承辦人'], ['got_email', '拿到信箱'], ['will_forward', '願意轉發職缺'], ['evaluating', '要再評估'], ['has_students', '有學員可推'], ['declined', '不接受合作'], ['other', '其他']];
+const RESULT_ZH = Object.fromEntries(RESULTS);
+const KIND_ZH = { call: '電話', mail: '寄信', other: '其他' };
+const WD = '日一二三四五六';
+const ICON = {
+  call: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>',
+  mail: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>',
+  other: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>',
+};
+const taipeiNow = () => new Date(Date.now() + 8 * 3600e3);
+const nowLocal = () => taipeiNow().toISOString().slice(0, 16);
+const md = (t) => { t = String(t || ''); if (!/^\d{4}-\d{2}-\d{2}/.test(t)) return ''; const d = new Date(`${t.slice(0, 10)}T00:00:00Z`); return `${d.getUTCMonth() + 1}/${d.getUTCDate()}（${WD[d.getUTCDay()]}）`; };
+const mdTime = (s) => { const t = String(s || '').replace('T', ' '); return t.length >= 16 ? `${md(t)} ${t.slice(11, 16)}` : md(t); };
+const logTime = (l) => String(l.event_at || l.at || '').replace('T', ' ');
+function dueInfo(due) {
+  if (!due) return { t: '沒有設期限', late: false };
+  const diff = Math.round((Date.parse(`${due}T00:00:00Z`) - Date.parse(`${today()}T00:00:00Z`)) / 86400000);
+  if (diff < 0) return { t: `已逾期 ${-diff} 天（原定 ${md(due)}）`, late: true };
+  if (diff === 0) return { t: `今天要做（${md(due)}）`, late: false };
+  if (diff === 1) return { t: `明天（${md(due)}）`, late: false };
+  return { t: `${diff} 天後（${md(due)}）`, late: false };
+}
+function topHtml(d) {
+  const c = d.channel; const logs = d.logs || [];
+  const userLogs = logs.filter((l) => ['call', 'mail', 'other'].includes(l.kind));
+  let next;
+  if (c.next_step || c.next_follow_at) {
+    const di = dueInfo(c.next_follow_at);
+    const src = logs.find((l) => l.id === c.next_log_id);
+    const from = src ? `這是 ${esc(mdTime(logTime(src)))} ${esc(src.by || '顧問')} 寫的${src.result || src.text ? `　·　當時狀況：${esc(RESULT_ZH[src.result] || KIND_ZH[src.kind] || '')}${src.text ? '：' + esc(String(src.text).slice(0, 40)) + (String(src.text).length > 40 ? '…' : '') : ''}` : ''}` : '';
+    next = `<section class="bdc-next${di.late ? ' late' : ''}"><div class="bdc-lbl">下一步</div><div class="bdc-what">${esc(c.next_step || '（沒寫要做什麼）')}</div><div class="bdc-when">${esc(di.t)}</div>${from ? `<div class="bdc-from">${from}</div>` : ''}
+      <div class="bdc-row"><button type="button" class="bdc-btn solid" data-ch-next="done">做完了，記一筆</button><button type="button" class="bdc-btn" data-ch-next="snooze">延 1 天</button></div></section>`;
+  } else {
+    const last = userLogs[0];
+    next = `<section class="bdc-next none"><div class="bdc-lbl">下一步</div><div class="bdc-what">目前沒有待辦</div><div class="bdc-from">${last ? `上一次紀錄：${esc(mdTime(logTime(last)))}　${esc(last.by || '')}　${esc(RESULT_ZH[last.result] || KIND_ZH[last.kind] || '')}` : '還沒有任何紀錄'}</div>
+      <div class="bdc-row"><button type="button" class="bdc-btn" data-ch-newlog>新增紀錄</button></div></section>`;
+  }
   const s = d.stats || {};
-  const kpi = [['推來', s.referred], ['談過', s.talked], ['推給客戶', s.forwarded], ['錄取／到職', s.hired]].map(([l, n]) => `<div class="kpi"><span>${l}</span><strong>${n || 0}</strong></div>`).join('');
+  const calls = userLogs.filter((l) => l.kind === 'call').length;
+  const mails = userLogs.filter((l) => l.mail_sent || l.kind === 'mail').length;
+  const last = userLogs[0];
+  const stat = `<section class="bdc-sec"><p class="bdc-statline">📞 <b>${calls}</b> 通電話　✉ <b>${mails}</b> 封信　🗓 最後聯繫 <b>${last ? esc(md(logTime(last))) : '—'}</b>${last ? `（${esc(last.by || '')}）` : ''}　👥 推來 <b>${s.referred || 0}</b>・談過 <b>${s.talked || 0}</b>・送客戶 <b>${s.forwarded || 0}</b>・錄取 <b>${s.hired || 0}</b></p></section>`;
+  const cnt = {}; const lastAt = {};
+  logs.slice().reverse().forEach((l) => { if (l.status_to) { cnt[l.status_to] = (cnt[l.status_to] || 0) + 1; lastAt[l.status_to] = logTime(l); } });
+  const sub = (k) => (cnt[k] ? `${cnt[k] > 1 ? `×${cnt[k]}　` : ''}${esc(md(lastAt[k]))}` : '—');
+  const main = COLS.filter(([k]) => k !== 'paused'); const ci = main.findIndex(([k]) => k === c.status);
+  const steps = `<section class="bdc-sec"><h4>開發進度 <small>要換階段，在這裡點，再記一筆</small></h4>
+    <div class="bdc-steps" role="radiogroup" aria-label="合作階段">${main.map(([k, t], i) => `<button type="button" class="bdc-step${i < ci ? ' past' : ''}${i === ci ? ' now' : ''}" role="radio" aria-checked="${i === ci}" data-ch-stage="${k}"><b>${esc(t)}</b><span>${sub(k)}</span></button>`).join('')}</div>
+    <div class="bdc-exits"><button type="button" class="bdc-step${c.status === 'paused' ? ' now red' : ''}" data-ch-stage="paused"><b>暫停／不合作</b><span>${sub('paused')}</span></button><span class="bdc-hint">對方不接受合作或先擱著，按左邊。</span></div></section>`;
+  return `<div class="bdc">${next}${stat}${steps}</div>`;
+}
+function logPaneHtml(d) {
+  const c = d.channel; const logs = d.logs || [];
+  const people = [...new Set([c.owner, ...(consultantNames || []), me()].filter(Boolean))];
+  const item = (l) => {
+    const k = ['call', 'mail', 'other'].includes(l.kind) ? l.kind : null;
+    if (!k) return `<li class="bdc-item sys"><span class="bdc-dot" aria-hidden="true">${ICON.other}</span><div class="bdc-card bdc-sys"><div class="bdc-top"><span class="bdc-t">${esc(l.text || '')}</span><span class="bdc-time">${esc(mdTime(logTime(l)))}　${esc(l.by || '系統')}</span></div></div></li>`;
+    const sent = l.mail_sent ? `<span class="bdc-chip ok">信已寄出 ${esc(mdTime(l.mail_sent_at || logTime(l)))}</span>` : (k === 'mail' ? '<span class="bdc-chip no">信還沒寄</span>' : '');
+    const nxt = l.next_step || l.next_due ? `<div class="bdc-nxt${l.next_done ? ' done' : ''}">下一步：${esc(l.next_step || '')}${l.next_due ? `（${esc(md(l.next_due))}）` : ''}${l.next_done ? '　已完成' : ''}</div>` : '';
+    return `<li class="bdc-item ${k}"><span class="bdc-dot" aria-hidden="true">${ICON[k]}</span><div class="bdc-card">
+      <div class="bdc-top"><span class="bdc-t">${KIND_ZH[k]}${l.result ? `　${esc(RESULT_ZH[l.result] || l.result)}` : ''}</span><span class="bdc-time">${esc(mdTime(logTime(l)))}　${esc(l.by || '')}</span></div>
+      <div class="bdc-chips">${sent}${l.status_to ? `<span class="bdc-chip stage">階段 → ${esc(data.statuses[l.status_to] || l.status_to)}</span>` : ''}</div>
+      ${l.text ? `<p class="bdc-note">${esc(l.text)}</p>` : ''}${l.contact_name ? `<small class="muted">問到：${esc(l.contact_name)}</small>` : ''}${nxt}
+      <div class="bdc-mini">${!l.mail_sent && k !== 'other' ? `<button type="button" data-ch-sent="${l.id}">標記信已寄出</button>` : ''}${(l.next_step || l.next_due) && !l.next_done ? `<button type="button" data-ch-done="${l.id}">這步做完了</button>` : ''}<button type="button" class="bd-del" data-ch-logdel="${l.id}">刪除</button></div>
+    </div></li>`;
+  };
+  return `<section class="bdc-logpane">
+    <h4 class="bdc-h">新增紀錄 <small>每一個動作都記一筆</small></h4>
+    <div class="bdc-need" data-ch-need hidden></div>
+    <form class="bdc-form" data-ch-logform autocomplete="off">
+      <div class="bdc-seg" role="radiogroup" aria-label="做了什麼">${Object.entries(KIND_ZH).map(([v, lb], i) => `<label><input type="radio" name="kind" value="${v}"${i === 0 ? ' checked' : ''}><span>${lb}</span></label>`).join('')}</div>
+      <div class="bdc-grid">
+        <label class="bdc-f">時間<input type="datetime-local" name="event_at" value="${nowLocal()}" required></label>
+        <label class="bdc-f" data-ch-call>結果<select name="result">${RESULTS.map(([v, lb]) => `<option value="${v}">${lb}</option>`).join('')}</select></label>
+        <label class="bdc-f">誰記的<select name="by">${people.map((x) => `<option${x === (me() || c.owner) ? ' selected' : ''}>${esc(x)}</option>`).join('')}</select></label>
+        <label class="bdc-f" data-ch-call>問到的窗口（選填）<input name="contact_name" maxlength="60" placeholder="例：曾小姐 分機1621"></label>
+        <div class="bdc-f full"><label class="bdc-check"><input type="checkbox" name="mail_sent"> 這次有寄信　<small class="muted">（勾了才記「已寄出」和時間）</small></label></div>
+        <label class="bdc-f full">備註<textarea name="note" rows="3" placeholder="聊到什麼、對方說什麼（例：承辦人說下週一把職缺發給 AutoCAD 班學員）"></textarea></label>
+        <label class="bdc-f">階段調整<select name="status_to"><option value="">不調整</option>${COLS.map(([k, t]) => `<option value="${k}">${esc(t)}</option>`).join('')}</select></label>
+        <label class="bdc-f">下一步到期日<input type="date" name="next_due"></label>
+        <label class="bdc-f full">下一步要做什麼<input type="text" name="next_step" maxlength="200" placeholder="例：寄 BIM 職缺說明給曾小姐，週五再打電話確認有沒有轉發"></label>
+      </div>
+      <div class="bdc-actions"><button type="submit" class="bdc-btn primary">存這筆紀錄</button></div>
+    </form>
+    <h4 class="bdc-h">全部紀錄 <small>共 ${logs.length} 筆</small></h4>
+    ${logs.length ? `<ol class="bdc-tl">${logs.map(item).join('')}</ol>` : '<p class="help">還沒有紀錄。打完電話或寄完信，在上面記一筆。</p>'}
+  </section>`;
+}
+function refsHtml(d) {
   const refs = (d.refs || []).map((r) => `<div class="list-row"><span><b class="ch-link" data-ch-cand="${esc(r.application_id)}" role="button" tabindex="0">${r.seq_no ? '#' + r.seq_no + ' ' : ''}${esc(r.name || '（找不到人選）')}</b><small>${esc(r.job_title || '')}${r.owner ? '｜' + esc(r.owner) : ''}｜${esc(String(r.created_at || '').slice(0, 10))} 加入</small></span><span class="badge info">${esc(stageOf(r))}</span><button class="btn sm" data-ch-unref="${esc(r.application_id)}" title="不是這家推來的，移掉">移除</button></div>`).join('');
-  const logs = (d.logs || []).map((l) => `<div class="ch-log"><small>${esc(String(l.at || '').slice(0, 16))}｜${esc(l.by || '')}</small><div>${esc(l.text || '')}</div></div>`).join('');
-  return `<div class="kpi-grid ch-kpi">${kpi}</div>
-    <h3 class="ch-h">基本資料</h3>${formHtml(d.channel)}
-    <h3 class="ch-h">聯絡紀錄</h3>
-    <form data-ch-logform class="ch-logform"><textarea name="text" rows="2" maxlength="2000" placeholder="這次聯絡談了什麼（例：已寄 BIM 職缺說明，對方說下週發給學員）" required></textarea>
-      <div class="form-grid"><label class="field"><span>下次追蹤日（選填）</span><input type="date" name="next_follow_at"></label><label class="field"><span>下一步（選填）</span><input name="next_step" maxlength="200"></label></div>
-      <div class="actions-row"><button class="btn primary" type="submit">記下這次聯絡</button></div></form>
-    <div class="ch-logs">${logs || '<p class="help">還沒有紀錄</p>'}</div>
-    <h3 class="ch-h">這家推來的人選（${(d.refs || []).length}）</h3>
-    <p class="help">人選要先在系統裡（應徵或手動新增過），打名字或編號找到後按「加入」。成效數字會自動算。</p>
+  return `<p class="help">人選要先在系統裡（應徵或手動新增過），打名字或編號找到後按「加入」。上面的推來／談過／送客戶／錄取會自動算。</p>
     <div class="ch-search"><input data-ch-q placeholder="打人選名字、編號或電話" style="flex:1"><button class="btn" type="button" data-ch-find>找</button></div>
     <div data-ch-results class="list"></div>
     <div class="list" style="margin-top:8px">${refs || '<p class="help">還沒有連到任何人選</p>'}</div>`;
 }
+function detailHtml(d) {
+  const tab = ui.tab || 'log';
+  const tabs = [['log', '進度紀錄'], ['refs', `推來的人選（${(d.refs || []).length}）`], ['info', '基本資料']];
+  return `${topHtml(d)}
+    <div class="tabs ch-tabs" role="tablist">${tabs.map(([k, t]) => `<button type="button" role="tab" class="${tab === k ? 'active' : ''}" aria-selected="${tab === k}" data-ch-tab="${k}">${esc(t)}</button>`).join('')}</div>
+    <div data-ch-pane="log" ${tab === 'log' ? '' : 'hidden'}>${logPaneHtml(d)}</div>
+    <div data-ch-pane="refs" ${tab === 'refs' ? '' : 'hidden'}>${refsHtml(d)}</div>
+    <div data-ch-pane="info" ${tab === 'info' ? '' : 'hidden'}>${formHtml(d.channel)}</div>`;
+}
 
 export async function openChannel(id) {
+  await loadConsultantNames();
   if (!id) {
     drawer({ title: '新增招募管道', subtitle: '例如訓練機構、學校、職訓局', body: formHtml({ status: 'todo', kind: '訓練機構', jobs: [] }) });
     wireForm(null);
@@ -224,12 +324,53 @@ function wireForm(id) {
 function wireDetail(id) {
   const body = $('#overlay-root .drawer-body'); if (!body) return;
   const lf = body.querySelector('[data-ch-logform]');
-  lf.addEventListener('submit', async (e) => {
-    e.preventDefault(); if (needMe()) return;
-    const fd = new FormData(lf);
-    try { await api.post('/admin/channels/log', { id, by: me(), text: fd.get('text'), next_follow_at: fd.get('next_follow_at') || null, next_step: fd.get('next_step') || null }); toast('已記下', 'success'); await refreshBoard(); openChannel(id); }
-    catch (err) { toast(err.message || '記錄失敗', 'error'); }
+  const need = body.querySelector('[data-ch-need]');
+  const showTab = (k) => { ui.tab = k; body.querySelectorAll('[data-ch-tab]').forEach((b) => { const on = b.getAttribute('data-ch-tab') === k; b.classList.toggle('active', on); b.setAttribute('aria-selected', String(on)); }); body.querySelectorAll('[data-ch-pane]').forEach((p) => { p.hidden = p.getAttribute('data-ch-pane') !== k; }); };
+  body.querySelectorAll('[data-ch-tab]').forEach((b) => b.addEventListener('click', () => showTab(b.getAttribute('data-ch-tab'))));
+  const focusForm = () => { showTab('log'); lf.elements.note.focus(); lf.scrollIntoView({ behavior: 'smooth', block: 'center' }); };
+  const renderNeed = () => {
+    const v = lf.elements.status_to.value;
+    if (!v) { need.hidden = true; need.innerHTML = ''; return; }
+    need.hidden = false;
+    need.innerHTML = `<div>你要把階段改成「<b>${esc(data.statuses[v] || v)}</b>」。<b>填完下面這筆紀錄、按「存這筆紀錄」之後，才會真的改。</b>${v === 'paused' ? '　請在備註寫原因。' : ''}　<button type="button" class="bdc-btn sm" data-ch-need-x>先不改</button></div>`;
+    need.querySelector('[data-ch-need-x]').onclick = () => { lf.elements.status_to.value = ''; renderNeed(); };
+  };
+  body.querySelectorAll('[data-ch-stage]').forEach((b) => b.addEventListener('click', () => { lf.elements.status_to.value = b.getAttribute('data-ch-stage'); renderNeed(); focusForm(); }));
+  lf.elements.status_to.addEventListener('change', renderNeed);
+  const syncKind = () => { const call = lf.querySelector('[name=kind]:checked').value === 'call'; lf.querySelectorAll('[data-ch-call]').forEach((el) => { el.hidden = !call; }); if (lf.querySelector('[name=kind]:checked').value === 'mail') lf.elements.mail_sent.checked = true; };
+  lf.querySelectorAll('[name=kind]').forEach((r) => r.addEventListener('change', syncKind)); syncKind();
+  body.querySelector('[data-ch-newlog]')?.addEventListener('click', focusForm);
+  body.querySelector('[data-ch-next="done"]')?.addEventListener('click', async (e) => {
+    e.currentTarget.disabled = true;
+    try { await api.post('/admin/channels/next', { id, action: 'done' }); toast('這一步標成完成了，請記下結果', 'success'); await refreshBoard(); await openChannel(id); const b2 = $('#overlay-root .drawer-body'); b2?.querySelector('[data-ch-logform] [name=note]')?.focus(); }
+    catch (err) { toast(err.message || '失敗', 'error'); e.currentTarget.disabled = false; }
   });
+  body.querySelector('[data-ch-next="snooze"]')?.addEventListener('click', async (e) => {
+    e.currentTarget.disabled = true;
+    try { await api.post('/admin/channels/next', { id, action: 'snooze', days: 1 }); toast('已延 1 天', 'success'); await refreshBoard(); openChannel(id); }
+    catch (err) { toast(err.message || '失敗', 'error'); e.currentTarget.disabled = false; }
+  });
+  lf.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const f = lf.elements; const kind = lf.querySelector('[name=kind]:checked').value;
+    if (f.status_to.value && !f.note.value.trim()) { toast('要改階段，請先在備註寫這次發生了什麼', 'error'); f.note.focus(); return; }
+    if (!f.note.value.trim() && !f.next_step.value.trim() && kind !== 'call') { toast('請寫備註或下一步', 'error'); f.note.focus(); return; }
+    const btn = lf.querySelector('[type=submit]'); btn.disabled = true;
+    try {
+      await api.post('/admin/channels/log', { id, by: f.by.value, kind, event_at: f.event_at.value, result: kind === 'call' ? f.result.value : '', contact_name: kind === 'call' ? f.contact_name.value.trim() : '',
+        mail_sent: f.mail_sent.checked, text: f.note.value.trim(), status_to: f.status_to.value, next_step: f.next_step.value.trim(), next_due: f.next_due.value });
+      toast(f.status_to.value ? '已存這筆紀錄，階段已更新' : '已存這筆紀錄', 'success'); await refreshBoard(); openChannel(id);
+    } catch (err) { toast(err.message || '儲存失敗', 'error'); btn.disabled = false; }
+  });
+  const upd = (sel, body2, msg) => body.querySelectorAll(sel).forEach((b) => b.addEventListener('click', async () => {
+    if (body2.delete && !window.confirm('刪除這筆紀錄？')) return;
+    b.disabled = true;
+    try { await api.post('/admin/channels/log-update', { log_id: Number(b.getAttribute(sel.slice(1, -1))), ...body2 }); toast(msg, 'success'); await refreshBoard(); openChannel(id); }
+    catch (err) { toast(err.message || '失敗', 'error'); b.disabled = false; }
+  }));
+  upd('[data-ch-done]', { next_done: true }, '這步標成完成了');
+  upd('[data-ch-sent]', { mail_sent: true }, '已記下寄出時間');
+  upd('[data-ch-logdel]', { delete: true }, '已刪除');
   const q = body.querySelector('[data-ch-q]'); const out = body.querySelector('[data-ch-results]');
   const find = async () => {
     const v = q.value.trim(); if (!v) return;
