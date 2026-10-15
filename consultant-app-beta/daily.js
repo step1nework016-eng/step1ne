@@ -129,14 +129,19 @@ function todayPanel() {
   const g = (k) => items.filter((x) => x.g === k).length;
   const nDone = items.filter((x) => x.done).length;
   const chips = [['✅ 已完成', nDone + '／' + items.length], ['📞 今天的電話／面談', g('call')], ['🏢 開發跟進（到期／逾期）', g('bd')], ['👤 等你決定的人選', g('decide')], ['📝 我自己記的跟進', g('mine')], ['昨天寫的明日事項', carry.length]].map(([n, v]) => `<span class="dly-chip ${v ? 'on' : ''}">${n} <b>${v}</b></span>`).join('');
-  const shown = items.slice(0, sys.todayAll ? 999 : 8);
+  // 2026-10-15 Jacky：預設收起，只顯示最近一個要處理的；下拉展開看全部，再按一次收起
+  const open = !!sys.todayAll;
+  const firstTodo = items.find((x) => !x.done);
+  const shown = open ? items : (firstTodo ? [firstTodo] : []);
   const rows = shown.map((x) => `<div class="dly-todo ${x.pri === 0 && !x.done ? 'late' : ''}${x.done ? ' done' : ''}${x.reply && !x.done ? ' replied' : ''}" ${x.attr} ${x.attr ? 'style="cursor:pointer"' : ''}><span class="dly-todo-t">${esc(x.time)}</span><span>${x.icon}</span><div style="flex:1"><b>${esc(x.title)}</b>${x.text ? `<div class="dly-small" style="margin-top:1px">${esc(x.text)}${x.sub ? '｜' + esc(x.sub) : ''}</div>` : ''}${x.reply ? `<div class="dly-replied">⚠️ 對方回信了：「${esc(x.reply)}」→ 先回信確認時間，確認了才打。<button class="btn" style="min-height:28px;padding:1px 8px;font-size:12px;margin-left:6px" data-dly="seenReply:${esc(x.rid)}">我看過了</button></div>` : ''}</div><button class="btn ${x.done ? '' : 'primary'}" style="min-height:32px;padding:2px 10px;font-size:13px" data-dly="doneItem:${encodeURIComponent(x.k || '')}" title="${x.done ? '還沒做完，放回待辦' : '做完了'}">${x.done ? '↩ 還原' : '✓ 完成'}</button>${x.rid && !x.done ? `<button class="btn dly-danger" style="min-height:32px;padding:2px 9px;font-size:13px" data-dly="cancelCall:${esc(x.rid)}" title="取消這筆預約與提醒">取消</button>` : ''}</div>`).join('');
   const empty = !sys.owner ? '<div class="dly-hint">請先在上面選顧問：選了之後，這裡會列出你今天的電話與面談、到期的開發跟進、等你決定的人選。</div>' : (items.length || carry.length ? '' : '<div class="dly-hint">目前沒有到期或今天要做的事。去「② 企業 BD」或「③ 人才追蹤」挑下一步，並設定下次跟進日。</div>');
-  const more = items.length > 8 ? `<button class="btn" data-dly="todayMore">${sys.todayAll ? '只看前 8 件' : '顯示全部 ' + items.length + ' 件'}</button>` : '';
+  const hasMore = items.length > 1 || carry.length || (sys.calls || []).some((c) => String(c.call_at || '').slice(0, 10) > todayStr());
+  const more = hasMore ? `<button type="button" class="btn dly-fold" data-dly="todayMore" aria-expanded="${open}">${open ? '收起 ▴' : `展開全部 ${items.length} 件 ▾`}</button>` : '';
+  const allDone = !open && items.length && !firstTodo ? '<div class="dly-hint">今天的下一步都完成了 ✓</div>' : '';
   const up = (sys.calls || []).filter((c) => String(c.call_at || '').slice(0, 10) > todayStr());
   const upHtml = up.length ? `<div class="dly-carry"><b>接下來 7 天已約好（${up.length}）</b>${up.map((c) => `<div class="dly-todo" ${c.application_id ? `data-application="${esc(c.application_id)}" style="cursor:pointer"` : ''}><span class="dly-todo-t">${esc(String(c.call_at).slice(5, 16))}</span><span>📞</span><div style="flex:1"><b>${esc(c.candidate_name || '')}</b><div class="dly-small">${esc(String(c.message || '').replace(/^電話／面談\s*/, '').replace(/^電話\s*/, '').slice(0, 80))}</div></div><button class="btn dly-danger" style="min-height:32px;padding:2px 9px;font-size:13px" data-dly="cancelCall:${esc(c.id)}">取消</button></div>`).join('')}</div>` : '';
   const carryHtml = carry.length ? `<div class="dly-carry"><b>昨天寫的「明日 3 件事」</b><ol>${carry.map((x) => `<li>${esc(x)}</li>`).join('')}</ol></div>` : '';
-  return `<div class="card dly-today"><div class="dly-row"><h2 style="margin:0">🎯 今日下一步</h2><span class="dly-small">${esc(day)}${sys.at ? '｜系統資料 ' + esc(sys.at) : ''}</span></div><div class="dly-chips">${chips}</div>${carryHtml}${rows || ''}${empty}${more}${upHtml}${bookForm()}</div>`;
+  return `<div class="card dly-today"><div class="dly-row"><h2 style="margin:0">🎯 今日下一步</h2><span class="dly-small">${esc(day)}${sys.at ? '｜系統資料 ' + esc(sys.at) : ''}</span></div><div class="dly-chips">${chips}</div>${open ? carryHtml : ''}${rows || ''}${allDone}${empty}${more}${open ? upHtml + bookForm() : ''}</div>`;
 }
 
 function bookForm() {
