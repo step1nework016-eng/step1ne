@@ -7,8 +7,11 @@ function normalize(path) { return path.endsWith('/') ? path : `${path}/`; }
 export function resolveRoute() {
   const path = normalize(location.pathname);
   const legacy = LEGACY_ROUTES[path];
-  if (legacy) return { key: routeToKey[legacy[0]] || 'home', sub: legacy[1], legacy: true };
-  return { key: routeToKey[path] || 'home', sub: new URLSearchParams(location.search).get('tab') || '', legacy: false };
+  if (legacy) { const k = routeToKey[legacy[0]] || 'daily'; return { key: k === 'home' ? 'daily' : k, sub: legacy[1], legacy: true }; }
+  // 2026-10-15 Jacky：首頁拿掉，打開後台直接進每日工作台
+  let key = routeToKey[path] || 'daily';
+  if (key === 'home') key = 'daily';
+  return { key, sub: new URLSearchParams(location.search).get('tab') || '', legacy: false };
 }
 
 export function navigate(key, sub = '', replace = false) {

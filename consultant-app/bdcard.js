@@ -99,15 +99,15 @@ export function bdCardTop(detail) {
   // 客戶標籤
   const cur = BD_TAGS.find((t) => t.k === tag);
   const tagsHtml = `<section class="bdc-sec"><h4>客戶標籤 <small>每家公司只能選一個，點了就存</small></h4>
-    <div class="bdc-tagrow" role="radiogroup" aria-label="客戶標籤">${BD_TAGS.map((t) => `<button type="button" class="bdc-tg${tag === t.k ? ' on' : ''}" role="radio" aria-checked="${tag === t.k}" data-bdc-tag="${t.k}" style="${tag === t.k ? `border-color:${t.color}` : ''}"><b><i style="background:${t.color}"></i>${t.k}</b><span>${text(t.zh)}</span></button>`).join('')}</div>
+    <div class="bdc-tagrow" role="radiogroup" aria-label="客戶標籤">${BD_TAGS.map((t) => `<button type="button" class="bdc-tg${tag === t.k ? ' on' : ''}" role="radio" aria-checked="${tag === t.k}" data-bdc-tag="${t.k}" title="${escapeHtml(t.zh)}" style="${tag === t.k ? `border-color:${t.color}` : ''}"><b><i style="background:${t.color}"></i>${t.k}</b><span>${text(t.zh)}</span></button>`).join('')}</div>
     <p class="bdc-rule">${cur ? `目前標籤：<b>${cur.k}</b>。規則：${text(cur.rule)}` : '還沒分類。電話打完請選一個標籤。'}</p></section>`;
 
   // 統計
   const calls = logs.filter((l) => logKind(l) === 'call').length;
   const mails = logs.filter((l) => l.mail_sent).length;
   const last = logs[0];
-  const statsHtml = `<div class="bdc-stats"><div><b>${calls}</b><span>通電話</span></div><div><b>${mails}</b><span>封信已寄出</span></div><div><b>${last ? text(md(logTime(last))) : '—'}</b><span>最後一次聯繫</span></div><div><b>${(detail.client_jobs || []).length}</b><span>個客戶給的職缺</span></div></div>
-    <p class="bdc-stay">${last ? `目前停在「${text(stage)}」。最近一次是 ${text(mdTime(logTime(last)))} ${text(last.caller || '顧問')} 的${KIND_ZH[logKind(last)]}。` : ''}</p>`;
+  // 2026-10-15 Jacky：統計四格太佔版面，改成一行
+  const statsHtml = `<p class="bdc-statline">📞 <b>${calls}</b> 通電話　✉ <b>${mails}</b> 封信　🗓 最後聯繫 <b>${last ? text(md(logTime(last))) : '—'}</b>${last ? `（${text(last.caller || '顧問')}）` : ''}　💼 客戶職缺 <b>${(detail.client_jobs || []).length}</b></p>`;
 
   // 開發進度（階段）
   const cnt = {}; const lastAt = {};

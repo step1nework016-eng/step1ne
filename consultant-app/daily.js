@@ -129,14 +129,21 @@ function todayPanel() {
   const g = (k) => items.filter((x) => x.g === k).length;
   const nDone = items.filter((x) => x.done).length;
   const chips = [['✅ 已完成', nDone + '／' + items.length], ['📞 今天的電話／面談', g('call')], ['🏢 開發跟進（到期／逾期）', g('bd')], ['👤 等你決定的人選', g('decide')], ['📝 我自己記的跟進', g('mine')], ['昨天寫的明日事項', carry.length]].map(([n, v]) => `<span class="dly-chip ${v ? 'on' : ''}">${n} <b>${v}</b></span>`).join('');
-  const shown = items.slice(0, sys.todayAll ? 999 : 8);
+  // 2026-10-15 Jacky：預設收起，只顯示最近一個要處理的；下拉展開看全部，再按一次收起
+  const open = !!sys.todayAll;
+  const firstTodo = items.find((x) => !x.done);
+  // 收起時：剛按完成的那件留著顯示「已完成」（可還原），下面接著下一件
+  const justDone = !open && sys.lastDoneK ? items.find((x) => x.k === sys.lastDoneK && x.done) : null;
+  const shown = open ? items : [justDone, firstTodo].filter(Boolean);
   const rows = shown.map((x) => `<div class="dly-todo ${x.pri === 0 && !x.done ? 'late' : ''}${x.done ? ' done' : ''}${x.reply && !x.done ? ' replied' : ''}" ${x.attr} ${x.attr ? 'style="cursor:pointer"' : ''}><span class="dly-todo-t">${esc(x.time)}</span><span>${x.icon}</span><div style="flex:1"><b>${esc(x.title)}</b>${x.text ? `<div class="dly-small" style="margin-top:1px">${esc(x.text)}${x.sub ? '｜' + esc(x.sub) : ''}</div>` : ''}${x.reply ? `<div class="dly-replied">⚠️ 對方回信了：「${esc(x.reply)}」→ 先回信確認時間，確認了才打。<button class="btn" style="min-height:28px;padding:1px 8px;font-size:12px;margin-left:6px" data-dly="seenReply:${esc(x.rid)}">我看過了</button></div>` : ''}</div><button class="btn ${x.done ? '' : 'primary'}" style="min-height:32px;padding:2px 10px;font-size:13px" data-dly="doneItem:${encodeURIComponent(x.k || '')}" title="${x.done ? '還沒做完，放回待辦' : '做完了'}">${x.done ? '↩ 還原' : '✓ 完成'}</button>${x.rid && !x.done ? `<button class="btn dly-danger" style="min-height:32px;padding:2px 9px;font-size:13px" data-dly="cancelCall:${esc(x.rid)}" title="取消這筆預約與提醒">取消</button>` : ''}</div>`).join('');
   const empty = !sys.owner ? '<div class="dly-hint">請先在上面選顧問：選了之後，這裡會列出你今天的電話與面談、到期的開發跟進、等你決定的人選。</div>' : (items.length || carry.length ? '' : '<div class="dly-hint">目前沒有到期或今天要做的事。去「② 企業 BD」或「③ 人才追蹤」挑下一步，並設定下次跟進日。</div>');
-  const more = items.length > 8 ? `<button class="btn" data-dly="todayMore">${sys.todayAll ? '只看前 8 件' : '顯示全部 ' + items.length + ' 件'}</button>` : '';
+  const hasMore = items.length > 1 || carry.length || (sys.calls || []).some((c) => String(c.call_at || '').slice(0, 10) > todayStr());
+  const more = hasMore ? `<button type="button" class="btn dly-fold" data-dly="todayMore" aria-expanded="${open}">${open ? '收起 ▴' : `展開全部 ${items.length} 件 ▾`}</button>` : '';
+  const allDone = !open && items.length && !firstTodo ? '<div class="dly-hint">今天的下一步都完成了 ✓</div>' : '';
   const up = (sys.calls || []).filter((c) => String(c.call_at || '').slice(0, 10) > todayStr());
   const upHtml = up.length ? `<div class="dly-carry"><b>接下來 7 天已約好（${up.length}）</b>${up.map((c) => `<div class="dly-todo" ${c.application_id ? `data-application="${esc(c.application_id)}" style="cursor:pointer"` : ''}><span class="dly-todo-t">${esc(String(c.call_at).slice(5, 16))}</span><span>📞</span><div style="flex:1"><b>${esc(c.candidate_name || '')}</b><div class="dly-small">${esc(String(c.message || '').replace(/^電話／面談\s*/, '').replace(/^電話\s*/, '').slice(0, 80))}</div></div><button class="btn dly-danger" style="min-height:32px;padding:2px 9px;font-size:13px" data-dly="cancelCall:${esc(c.id)}">取消</button></div>`).join('')}</div>` : '';
   const carryHtml = carry.length ? `<div class="dly-carry"><b>昨天寫的「明日 3 件事」</b><ol>${carry.map((x) => `<li>${esc(x)}</li>`).join('')}</ol></div>` : '';
-  return `<div class="card dly-today"><div class="dly-row"><h2 style="margin:0">🎯 今日下一步</h2><span class="dly-small">${esc(day)}${sys.at ? '｜系統資料 ' + esc(sys.at) : ''}</span></div><div class="dly-chips">${chips}</div>${carryHtml}${rows || ''}${empty}${more}${upHtml}${bookForm()}</div>`;
+  return `<div class="card dly-today"><div class="dly-row"><h2 style="margin:0">🎯 今日下一步</h2><span class="dly-small">${esc(day)}${sys.at ? '｜系統資料 ' + esc(sys.at) : ''}</span></div><div class="dly-chips">${chips}</div>${open ? carryHtml : ''}${rows || ''}${allDone}${empty}${more}${open ? upHtml + bookForm() : ''}</div>`;
 }
 
 function bookForm() {
@@ -165,12 +172,25 @@ function toolbar() {
 function sectionOverview() {
   const bd = state.bd, c = state.candidate, ch = state.channel;
   const vals = [['104 企業名單', bd.length], ['企業已接觸', count('bd', (x) => x.stage && !['待篩選', '待聯繫'].includes(x.stage))], ['有效企業對話', count('bd', (x) => ['有效對話', '需求訪談已約', '寄送資料', '談合約', '正式委託'].includes(x.stage))], ['已約需求訪談', count('bd', (x) => x.stage === '需求訪談已約')], ['人才名單', c.length], ['已接觸人才', count('candidate', (x) => x.stage && x.stage !== '名單建立')], ['已洽談人才', count('candidate', (x) => ['已洽談', '合格待同意', '已同意推薦', '已送件', '客戶面試', 'Offer', '到職'].includes(x.stage))], ['已送件人才', count('candidate', (x) => ['已送件', '客戶面試', 'Offer', '到職'].includes(x.stage))], ['渠道實驗', ch.length], ['時段完成', state.schedule.filter((x) => x.done).length + '/' + schedules.length]];
-  const goals = [['新增企業名單', bd.length, 15], ['企業實際接觸', vals[1][1], 10], ['有效企業對話', vals[2][1], 3], ['人才名單', c.length, 15], ['人才接觸', vals[5][1], 10], ['人才洽談', vals[6][1], 2], ['渠道動作', ch.length, 2]];
+  // 2026-10-15 Jacky：進度條自動抓系統資料（今天、這位顧問），再加上表格手填的，不用重複填
+  const t = todayStr(); const nowHM = new Date().toTimeString().slice(0, 5);
+  const today = (v) => String(v || '').slice(0, 10) === t;
+  const S = {
+    newBd: sys.bd.filter((r) => today(r.first_created_at)).length,
+    touchBd: sys.bd.filter((r) => today(r.last_call_at) || today(r.contacted_at)).length,
+    talkBd: sys.bd.filter((r) => today(r.last_call_at) && ['interested', 'got_contact', 'got_email'].includes(r.last_call_result)).length,
+    newCand: sys.cands.filter((x) => today(x.updatedAt)).length,
+    touchCand: (sys.calls || []).filter((x) => today(x.call_at)).length,
+    talkCand: (sys.calls || []).filter((x) => today(x.call_at) && String(x.call_at).slice(11, 16) <= nowHM).length,
+    posts: (sys.posts || []).filter((p) => p.consultant_name === consultantName() && today(p.posted_at || p.social_post_at)).length,
+  };
+  const goals = [['新增企業名單', bd.length, 15, S.newBd], ['企業實際接觸', vals[1][1], 10, S.touchBd], ['有效企業對話', vals[2][1], 3, S.talkBd], ['人才名單', c.length, 15, S.newCand], ['人才接觸', vals[5][1], 10, S.touchCand], ['人才洽談', vals[6][1], 2, S.talkCand], ['渠道動作', ch.length, 2, S.posts]]
+    .map(([n, manual, g, s]) => [n, manual + s, g, s, manual]);
   const pending = [...bd.filter((x) => x.nextDate && x.nextDate <= day).map((x) => '🏢 ' + (x.company || '未命名企業') + '｜' + (x.next || '待跟進')), ...c.filter((x) => x.nextDate && x.nextDate <= day).map((x) => '👤 ' + (x.name || '未命名人選') + '｜' + (x.next || '待跟進'))];
   const sysDue = sysBdRows().filter((r) => r._overdue).map((r) => '🏢 ' + r.company + '｜' + (r.next_step || '待跟進') + (r._due ? '（' + r._due + '）' : ''));
   const sysCard = sys.owner ? `<div class="card"><h2>系統資料｜${esc(consultantName())}</h2><div class="dly-grid">${sysSummary().map(([n, v]) => `<div class="card" style="margin:0"><div class="dly-small">${esc(n)}</div><div class="dly-metric">${esc(v)}</div></div>`).join('')}</div><p class="dly-hint">這些數字直接來自顧問後台（開發進度、人選工作台），不是手動填的。下面的「今日漏斗與目標」是你自己記的表格。</p></div>` : '';
-  return `${sysCard}<div class="dly-grid">${vals.map(([n, v]) => `<div class="card"><div class="dly-small">${esc(n)}</div><div class="dly-metric">${esc(v)}</div></div>`).join('')}</div>
-  <div class="card"><h2>今日漏斗與目標</h2>${goals.map(([n, v, g]) => `<div style="margin:12px 0"><div class="dly-row"><b>${esc(n)}</b><span class="dly-right dly-small">${v} / ${g}</span></div><div class="dly-progress"><div style="width:${Math.min(100, v / g * 100)}%"></div></div></div>`).join('')}</div>
+  return `<div data-daily-live></div>${sysCard}<div class="dly-grid">${vals.map(([n, v]) => `<div class="card"><div class="dly-small">${esc(n)}</div><div class="dly-metric">${esc(v)}</div></div>`).join('')}</div>
+  <div class="card"><h2>今日漏斗與目標</h2>${sys.owner ? '' : '<p class="dly-hint">先在上面選「我是哪位顧問」，進度條才會自動抓你今天的系統資料。</p>'}${goals.map(([n, v, g, s, m]) => `<div style="margin:12px 0"><div class="dly-row"><b>${esc(n)}</b><span class="dly-right dly-small">${v} / ${g}　<span style="color:#586a77">（系統 ${s}＋手填 ${m}）</span></span></div><div class="dly-progress"><div style="width:${Math.min(100, v / g * 100)}%"></div></div></div>`).join('')}</div>
   <div class="card"><h2>今日下一步</h2>${sysDue.length ? `<p class="dly-small">系統：到期或逾期的開發跟進</p>${sysDue.map((x) => `<p>• ${esc(x)}</p>`).join('')}` : ''}${pending.length ? pending.map((x) => `<p>• ${esc(x)}</p>`).join('') : (sysDue.length ? '' : '<p class="dly-hint">沒有已登錄的當日到期跟進事項。請確認每筆有效對話都設定下一步日期。</p>')}</div>
   <p class="dly-hint">數字為起始管理目標，不代表保證轉換率；每週依實際數據調整。有效對話需有雙向互動及具體資訊，不能把未接通計入。</p>`;
 }
@@ -267,7 +287,27 @@ function importCand() {
   });
   return n;
 }
+// 2026-10-15 Jacky：企業 BD／人才追蹤可以切「表格」或「看板」（看板＝進度看板，同一套資料與拖拉）
+const VIEW_KEY = (t) => 'dly_view_' + t;
+function viewOf(type) { try { return localStorage.getItem(VIEW_KEY(type)) === 'board' ? 'board' : 'table'; } catch { return 'table'; } }
+function viewSwitch(type) {
+  const v = viewOf(type);
+  return `<div class="dly-viewsw" role="tablist" aria-label="顯示方式"><button type="button" role="tab" aria-selected="${v === 'table'}" class="${v === 'table' ? 'on' : ''}" data-dly="view:${type}:table">表格</button><button type="button" role="tab" aria-selected="${v === 'board'}" class="${v === 'board' ? 'on' : ''}" data-dly="view:${type}:board">看板</button></div>`;
+}
+function mountBoards(root) {
+  root.querySelectorAll('[data-daily-live]').forEach((el) => {
+    if (el.dataset.mounted) return; el.dataset.mounted = '1';
+    window.dispatchEvent(new CustomEvent('step1ne:daily-live', { detail: { target: el } }));
+  });
+  root.querySelectorAll('[data-daily-board]').forEach((el) => {
+    if (el.dataset.mounted) return; el.dataset.mounted = '1';
+    window.dispatchEvent(new CustomEvent('step1ne:daily-board', { detail: { target: el, kind: el.getAttribute('data-daily-board') } }));
+  });
+}
 function sectionTable(type) {
+  if ((type === 'bd' || type === 'candidate') && viewOf(type) === 'board') {
+    return `${viewSwitch(type)}<div class="dly-board" data-daily-board="${type === 'bd' ? 'client' : 'cand'}"></div>`;
+  }
   const [title, addLabel, hint] = TABLE_META[type];
   const cols = schemas[type];
   const rows = state[type].map((row, i) => `<tr>${cols.map(([k, label, kind]) => `<td>${kind && kind.includes('|')
@@ -276,7 +316,7 @@ function sectionTable(type) {
     || `<tr><td colspan="${cols.length + 1}" class="dly-hint">尚無資料，請點「新增」。</td></tr>`;
   const extra = type === 'channel' ? '<div class="card"><h3>渠道判斷速查</h3><p>新鮮人：Threads／IG／校園；在地工程：地方社團／專業社群；財會：同業人才地圖／LinkedIn／財會社群；中高階：競業 Mapping／LinkedIn／轉介紹；日本：在日社群／LinkedIn／日本職涯平台。先確認各平台規範及是否允許招募貼文。</p></div>' : '';
   const sysBlock = type === 'bd' ? sysTableBd() : type === 'candidate' ? sysTableCand() : type === 'channel' ? sysTableCh() : '';
-  return `${sysBlock}<div class="card"><div class="dly-row"><h2>${esc(title)}</h2><button class="btn primary dly-right" data-dly="add:${type}">${addLabel}</button><button class="btn" data-dly="csv:${type}">匯出 CSV</button></div>${hint ? `<p class="dly-hint">${esc(hint)}</p>` : ''}<div class="dly-scroll"><table class="dly-table"><thead><tr>${cols.map((c) => `<th>${esc(c[1])}</th>`).join('')}<th>操作</th></tr></thead><tbody>${rows}</tbody></table></div></div>${extra}`;
+  return `${(type === 'bd' || type === 'candidate') ? viewSwitch(type) : ''}${sysBlock}<div class="card"><div class="dly-row"><h2>${esc(title)}</h2><button class="btn primary dly-right" data-dly="add:${type}">${addLabel}</button><button class="btn" data-dly="csv:${type}">匯出 CSV</button></div>${hint ? `<p class="dly-hint">${esc(hint)}</p>` : ''}<div class="dly-scroll"><table class="dly-table"><thead><tr>${cols.map((c) => `<th>${esc(c[1])}</th>`).join('')}<th>操作</th></tr></thead><tbody>${rows}</tbody></table></div></div>${extra}`;
 }
 function sectionScripts() {
   const s = scripts[scriptIdx];
@@ -295,6 +335,7 @@ const SECTIONS = { overview: sectionOverview, schedule: sectionSchedule, bd: () 
 
 function draw(root) {
   root.innerHTML = `<div class="dly">${toolbar()}${(SECTIONS[currentTab] || sectionOverview)()}</div>`;
+  mountBoards(root);
 }
 function exportCSV(type) {
   const heads = schemas[type].map((x) => x[1]);
@@ -356,6 +397,7 @@ export async function loadDailyTab(target, tab) {
   target.onclick = (e) => {
     const b = e.target.closest('[data-dly]'); if (!b) return;
     const [act, type, idx] = b.getAttribute('data-dly').split(':');
+    if (act === 'view') { try { localStorage.setItem(VIEW_KEY(type), idx); } catch { /* 沒關係 */ } collect(root()); persist(); draw(target); return; }
     if (act === 'save') { collect(root()); persist(); b.textContent = '已儲存 ✓'; setTimeout(() => { b.textContent = tab === 'review' ? '儲存檢討' : '儲存今天'; }, 1200); return; }
     if (act === 'exportJSON') { collect(root()); persist(); download('獵頭儀表板_' + day + '.json', JSON.stringify({ date: day, state }, null, 2), 'application/json'); return; }
     if (act === 'importPick') { target.querySelector('#dly-import').click(); return; }
@@ -377,7 +419,7 @@ export async function loadDailyTab(target, tab) {
       return;
     }
     if (act === 'seenReply') { state.seenReply = state.seenReply || {}; state.seenReply[type] = 1; persist(); collect(root()); draw(target); return; }
-    if (act === 'doneItem') { const k = decodeURIComponent(type || ''); state.done = state.done || {}; if (state.done[k]) delete state.done[k]; else state.done[k] = new Date().toISOString().slice(11, 16); persist(); collect(root()); draw(target); return; }
+    if (act === 'doneItem') { const k = decodeURIComponent(type || ''); state.done = state.done || {}; if (state.done[k]) { delete state.done[k]; if (sys.lastDoneK === k) sys.lastDoneK = ''; } else { state.done[k] = new Date().toISOString().slice(11, 16); sys.lastDoneK = k; } persist(); collect(root()); draw(target); return; }
     if (act === 'todayMore') { sys.todayAll = !sys.todayAll; collect(root()); draw(target); return; }
     if (act === 'chView') { sys.chView = type; collect(root()); draw(target); return; }
     if (act === 'chAcct') { sys.chAccount = b.getAttribute('data-dly').slice('chAcct:'.length); sys.chView = 'detail'; collect(root()); draw(target); return; }
