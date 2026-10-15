@@ -16,6 +16,18 @@ const COLS = [
 ];
 const KINDS = ['訓練機構', '學校／系所', '職訓局／公部門', '社群／社團', '人力平台', '其他'];
 let hooks = { openCandidate: null };
+// 2026-10-15 Jacky：負責人預設 Phoebe（電訪是她在打），可以改選別人
+const DEFAULT_OWNER = 'Phoebe';
+let consultantNames = null;
+async function loadConsultantNames() {
+  if (consultantNames) return consultantNames;
+  try { consultantNames = ((await api.get('/admin/consultants')).consultants || []).filter((c) => c.is_active).map((c) => c.display_name); } catch { consultantNames = []; }
+  return consultantNames;
+}
+function ownerOptions(cur) {
+  const names = [...new Set([...(consultantNames || []), cur].filter(Boolean))];
+  return names.map((n) => `<option ${n === cur ? 'selected' : ''}>${esc(n)}</option>`).join('');
+}
 let data = { channels: [], jobs: [], statuses: {} };
 let target = null;
 const VIEW_KEY = 's1ne_channels_view';
@@ -136,7 +148,7 @@ function formHtml(c) {
       <label class="field"><span>狀態</span><select name="status">${sel('status', COLS.map(([k, t]) => [k, t]))}</select></label>
       <label class="field"><span>類型</span><select name="kind">${sel('kind', KINDS.map((k) => [k, k]))}</select></label>
       <label class="field"><span>下次追蹤日</span><input type="date" name="next_follow_at" value="${v('next_follow_at')}"></label>
-      <label class="field"><span>負責顧問</span><input name="owner" value="${v('owner') || esc(me())}" maxlength="40"></label>
+      <label class="field"><span>負責顧問</span><select name="owner">${ownerOptions(c.owner || DEFAULT_OWNER)}</select></label>
       <label class="field span-2"><span>下一步要做什麼</span><input name="next_step" value="${v('next_step')}" maxlength="200" placeholder="例：寄職缺說明給窗口、約下週去說明會"></label>
       <label class="field"><span>窗口</span><input name="contact_name" value="${v('contact_name')}" maxlength="60"></label>
       <label class="field"><span>電話</span><input name="phone" value="${v('phone')}" maxlength="60" inputmode="tel"></label>
@@ -178,6 +190,7 @@ function detailHtml(d) {
 }
 
 export async function openChannel(id) {
+  await loadConsultantNames();
   if (!id) {
     drawer({ title: '新增招募管道', subtitle: '例如訓練機構、學校、職訓局', body: formHtml({ status: 'todo', kind: '訓練機構', jobs: [] }) });
     wireForm(null);
