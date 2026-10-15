@@ -41,6 +41,8 @@ async function loadSystem(force) {
     const name = consultantName();
     const [b, c, rm] = await Promise.all([api.get('/admin/bd/dashboard'), adapters.candidates(sys.owner), api.get('/admin/consultant-reminders?for=' + encodeURIComponent(name) + '&day=' + encodeURIComponent(todayStr()) + '&to=' + encodeURIComponent(plusDays(7))).catch(() => ({ items: [] }))]);
     sys.calls = (rm && rm.items) || [];
+    // 2026-10-15：招募管道（訓練機構等）到了追蹤日也放進今日下一步
+    try { const ch = await api.get('/admin/channels'); sys.channels = ((ch && ch.channels) || []).filter((x) => x.owner === name && x.status !== 'paused' && x.next_follow_at && x.next_follow_at <= todayStr()); } catch { sys.channels = []; }
     sys.bd = (b.rows || []).filter((r) => r.assigned_to === name && !r.ai_untouched);
     sys.cands = c || [];
     sys.at = new Date().toLocaleTimeString('zh-TW', { hour12: false }); sys.loadedFor = sys.owner;
@@ -119,6 +121,7 @@ function todayItems() {
   sys.cands.filter((c) => c.stage === 'decide').forEach((c) => items.push({ g: 'decide', pri: 3, k: 'decide:' + c.applicationId, time: '等你決定', icon: '👤', title: (c.seqNo ? '#' + c.seqNo + ' ' : '') + c.name, text: c.job || '', attr: `data-application="${esc(c.applicationId)}"` }));
   state.bd.filter((x) => x.nextDate && x.nextDate <= t).forEach((x) => items.push({ g: 'mine', pri: 2, k: 'minebd:' + (x.company || '') + (x.next || ''), time: x.nextDate === t ? '今天' : '逾期 ' + x.nextDate.slice(5), icon: '📝', title: x.company || '未命名企業', text: x.next || '待跟進', attr: '' }));
   state.candidate.filter((x) => x.nextDate && x.nextDate <= t).forEach((x) => items.push({ g: 'mine', pri: 2, k: 'minecd:' + (x.name || '') + (x.next || ''), time: x.nextDate === t ? '今天' : '逾期 ' + x.nextDate.slice(5), icon: '📝', title: x.name || '未命名人選', text: x.next || '待跟進', attr: '' }));
+  (sys.channels || []).forEach((x) => items.push({ g: 'bd', pri: x.next_follow_at < t ? 0 : 2, k: 'ch:' + x.id + ':' + x.next_follow_at, time: x.next_follow_at === t ? '今天' : '逾期 ' + x.next_follow_at.slice(5), icon: '🏫', title: x.name, text: x.next_step || '招募管道待跟進', attr: `data-channel-id="${x.id}"` }));
   const dn = (state.done || {});
   items.forEach((x) => { x.done = !!dn[x.k]; });
   return items.sort((a, b) => (a.done - b.done) || (a.pri - b.pri) || String(a.time).localeCompare(String(b.time)));
