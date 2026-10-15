@@ -132,7 +132,9 @@ function todayPanel() {
   // 2026-10-15 Jacky：預設收起，只顯示最近一個要處理的；下拉展開看全部，再按一次收起
   const open = !!sys.todayAll;
   const firstTodo = items.find((x) => !x.done);
-  const shown = open ? items : (firstTodo ? [firstTodo] : []);
+  // 收起時：剛按完成的那件留著顯示「已完成」（可還原），下面接著下一件
+  const justDone = !open && sys.lastDoneK ? items.find((x) => x.k === sys.lastDoneK && x.done) : null;
+  const shown = open ? items : [justDone, firstTodo].filter(Boolean);
   const rows = shown.map((x) => `<div class="dly-todo ${x.pri === 0 && !x.done ? 'late' : ''}${x.done ? ' done' : ''}${x.reply && !x.done ? ' replied' : ''}" ${x.attr} ${x.attr ? 'style="cursor:pointer"' : ''}><span class="dly-todo-t">${esc(x.time)}</span><span>${x.icon}</span><div style="flex:1"><b>${esc(x.title)}</b>${x.text ? `<div class="dly-small" style="margin-top:1px">${esc(x.text)}${x.sub ? '｜' + esc(x.sub) : ''}</div>` : ''}${x.reply ? `<div class="dly-replied">⚠️ 對方回信了：「${esc(x.reply)}」→ 先回信確認時間，確認了才打。<button class="btn" style="min-height:28px;padding:1px 8px;font-size:12px;margin-left:6px" data-dly="seenReply:${esc(x.rid)}">我看過了</button></div>` : ''}</div><button class="btn ${x.done ? '' : 'primary'}" style="min-height:32px;padding:2px 10px;font-size:13px" data-dly="doneItem:${encodeURIComponent(x.k || '')}" title="${x.done ? '還沒做完，放回待辦' : '做完了'}">${x.done ? '↩ 還原' : '✓ 完成'}</button>${x.rid && !x.done ? `<button class="btn dly-danger" style="min-height:32px;padding:2px 9px;font-size:13px" data-dly="cancelCall:${esc(x.rid)}" title="取消這筆預約與提醒">取消</button>` : ''}</div>`).join('');
   const empty = !sys.owner ? '<div class="dly-hint">請先在上面選顧問：選了之後，這裡會列出你今天的電話與面談、到期的開發跟進、等你決定的人選。</div>' : (items.length || carry.length ? '' : '<div class="dly-hint">目前沒有到期或今天要做的事。去「② 企業 BD」或「③ 人才追蹤」挑下一步，並設定下次跟進日。</div>');
   const hasMore = items.length > 1 || carry.length || (sys.calls || []).some((c) => String(c.call_at || '').slice(0, 10) > todayStr());
@@ -400,7 +402,7 @@ export async function loadDailyTab(target, tab) {
       return;
     }
     if (act === 'seenReply') { state.seenReply = state.seenReply || {}; state.seenReply[type] = 1; persist(); collect(root()); draw(target); return; }
-    if (act === 'doneItem') { const k = decodeURIComponent(type || ''); state.done = state.done || {}; if (state.done[k]) delete state.done[k]; else state.done[k] = new Date().toISOString().slice(11, 16); persist(); collect(root()); draw(target); return; }
+    if (act === 'doneItem') { const k = decodeURIComponent(type || ''); state.done = state.done || {}; if (state.done[k]) { delete state.done[k]; if (sys.lastDoneK === k) sys.lastDoneK = ''; } else { state.done[k] = new Date().toISOString().slice(11, 16); sys.lastDoneK = k; } persist(); collect(root()); draw(target); return; }
     if (act === 'todayMore') { sys.todayAll = !sys.todayAll; collect(root()); draw(target); return; }
     if (act === 'chView') { sys.chView = type; collect(root()); draw(target); return; }
     if (act === 'chAcct') { sys.chAccount = b.getAttribute('data-dly').slice('chAcct:'.length); sys.chView = 'detail'; collect(root()); draw(target); return; }
