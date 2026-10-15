@@ -18,7 +18,8 @@ const KINDS = ['訓練機構', '學校／系所', '職訓局／公部門', '社�
 let hooks = { openCandidate: null };
 let data = { channels: [], jobs: [], statuses: {} };
 let target = null;
-const ui = { owner: '', q: '' };
+const VIEW_KEY = 's1ne_channels_view';
+const ui = { owner: '', q: '', view: (() => { try { return localStorage.getItem(VIEW_KEY) || 'board'; } catch { return 'board'; } })() };
 
 export function initChannels(h) { hooks = { ...hooks, ...h }; }
 const me = () => (document.querySelector('[data-me-global]') || {}).value || '';
@@ -50,18 +51,31 @@ function boardHtml() {
   const shown = data.channels.filter((c) => (!ui.owner || c.owner === ui.owner) && (!q || [c.name, c.contact_name, c.note].join(' ').toLowerCase().includes(q)));
   const due = shown.filter((c) => dueTone(c)).length;
   const tot = shown.reduce((a, c) => { const s = c.stats || {}; a[0] += s.referred || 0; a[1] += s.talked || 0; a[2] += s.forwarded || 0; a[3] += s.hired || 0; return a; }, [0, 0, 0, 0]);
+  const bar = `<div class="bk-bar">
+      <div class="ch-viewsw" role="group" aria-label="顯示方式"><button type="button" class="btn sm ${ui.view === 'board' ? 'primary' : ''}" data-ch-view="board" aria-pressed="${ui.view === 'board'}">看板</button><button type="button" class="btn sm ${ui.view === 'table' ? 'primary' : ''}" data-ch-view="table" aria-pressed="${ui.view === 'table'}">表格</button></div>
+      <label class="bk-filter"><span>負責人</span><select data-ch-filter="owner"><option value="">全部</option>${owners.map((o) => `<option ${ui.owner === o ? 'selected' : ''}>${esc(o)}</option>`).join('')}</select></label>
+      <label class="bk-filter"><span>搜尋</span><input data-ch-filter="q" value="${esc(ui.q)}" placeholder="機構名、窗口…" style="min-height:40px"></label>
+      <span class="bk-sum">共 ${shown.length} 家${due ? `｜<b class="bk-redtxt">${due} 家該追</b>` : ''}｜合計 推 ${tot[0]}・談 ${tot[1]}・送客戶 ${tot[2]}・錄取 ${tot[3]}</span>
+    </div>`;
+  if (ui.view === 'table') {
+    const order = Object.fromEntries(COLS.map(([k], i) => [k, i]));
+    const rows = shown.slice().sort((a, b) => (dueTone(b) ? 1 : 0) - (dueTone(a) ? 1 : 0) || (order[a.status] - order[b.status]) || String(a.next_follow_at || '9999').localeCompare(String(b.next_follow_at || '9999')));
+    return bar + `<div class="ch-tablewrap"><table class="ch-table"><thead><tr><th>機構</th><th>狀態</th><th>類型</th><th>窗口</th><th>電話</th><th>下次追蹤</th><th>下一步</th><th>推／談／送／錄</th><th>負責</th></tr></thead><tbody>${rows.map((c) => {
+      const tone = dueTone(c); const st = c.stats || {};
+      return `<tr data-ch-row="${c.id}" tabindex="0"><td><b>${esc(c.name)}</b></td>
+        <td><select data-ch-status="${c.id}" aria-label="${esc(c.name)} 狀態">${COLS.map(([k, t]) => `<option value="${k}" ${c.status === k ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select></td>
+        <td>${esc(c.kind || '')}</td><td>${esc(c.contact_name || '')}</td><td class="ch-nowrap">${esc(c.phone || '')}</td>
+        <td class="ch-nowrap ${tone === 'bad' ? 'aging-bad' : tone === 'warn' ? 'aging-warn' : ''}">${esc(c.next_follow_at || '—')}${tone === 'bad' ? '（逾期）' : tone === 'warn' ? '（今天）' : ''}</td>
+        <td>${esc(c.next_step || '')}</td><td class="ch-nowrap">${st.referred || 0}／${st.talked || 0}／${st.forwarded || 0}／${st.hired || 0}</td><td>${esc(c.owner || '')}</td></tr>`;
+    }).join('') || '<tr><td colspan="9" class="help">目前沒有</td></tr>'}</tbody></table></div>`;
+  }
   const cols = COLS.map(([k, title, hint]) => {
     const list = shown.filter((c) => c.status === k).sort((a, b) => (dueTone(b) ? 1 : 0) - (dueTone(a) ? 1 : 0) || String(a.next_follow_at || '9999').localeCompare(String(b.next_follow_at || '9999')));
     const red = list.filter((c) => dueTone(c)).length;
     return `<section class="bk-col" data-ch-col="${k}" aria-label="${esc(title)}"><header><h3>${esc(title)}<b>${list.length}</b></h3><small>${esc(hint)}${red ? `<span class="bk-redcount">${red} 家該追</span>` : ''}</small></header>
       <div class="bk-list">${list.length ? list.map(cardHtml).join('') : '<p class="bk-empty">目前沒有</p>'}</div></section>`;
   }).join('');
-  return `<div class="bk-bar">
-      <label class="bk-filter"><span>負責人</span><select data-ch-filter="owner"><option value="">全部</option>${owners.map((o) => `<option ${ui.owner === o ? 'selected' : ''}>${esc(o)}</option>`).join('')}</select></label>
-      <label class="bk-filter"><span>搜尋</span><input data-ch-filter="q" value="${esc(ui.q)}" placeholder="機構名、窗口…" style="min-height:40px"></label>
-      <span class="bk-sum">共 ${shown.length} 家${due ? `｜<b class="bk-redtxt">${due} 家該追</b>` : ''}｜合計 推 ${tot[0]}・談 ${tot[1]}・送客戶 ${tot[2]}・錄取 ${tot[3]}</span>
-    </div>
-    <div class="bk-board" style="--bk-cols:${COLS.length}">${cols}</div>`;
+  return bar + `<div class="bk-board" style="--bk-cols:${COLS.length}">${cols}</div>`;
 }
 
 export async function loadChannelsTab(el) {
@@ -80,6 +94,17 @@ function draw() {
       if (k === 'q') { const pos = el.selectionStart; draw(); const n = target.querySelector('[data-ch-filter="q"]'); if (n) { n.focus(); n.setSelectionRange(pos, pos); } } else draw();
     });
   });
+  target.querySelectorAll('[data-ch-view]').forEach((b) => b.addEventListener('click', () => { ui.view = b.getAttribute('data-ch-view'); try { localStorage.setItem(VIEW_KEY, ui.view); } catch { /* 存不了就算了 */ } draw(); }));
+  target.querySelectorAll('[data-ch-row]').forEach((tr) => {
+    const open = (e) => { if (e.target.closest('select')) return; openChannel(Number(tr.getAttribute('data-ch-row'))); };
+    tr.addEventListener('click', open); tr.addEventListener('keydown', (e) => { if (e.key === 'Enter') open(e); });
+  });
+  target.querySelectorAll('[data-ch-status]').forEach((sel) => sel.addEventListener('change', async () => {
+    const id = Number(sel.getAttribute('data-ch-status')); const c = data.channels.find((x) => x.id === id);
+    if (needMe()) { sel.value = c.status; return; }
+    try { await api.post('/admin/channels/save', { id, status: sel.value, by: me() }); c.status = sel.value; toast(`已改成「${data.statuses[sel.value] || sel.value}」`, 'success'); draw(); }
+    catch (err) { sel.value = c.status; toast(err.message || '改狀態失敗', 'error'); }
+  }));
   target.querySelectorAll('[data-ch-id]').forEach((card) => {
     card.addEventListener('click', () => openChannel(Number(card.getAttribute('data-ch-id'))));
     card.addEventListener('dragstart', (e) => { card.classList.add('bk-dragging'); try { e.dataTransfer.setData('text/plain', card.getAttribute('data-ch-id')); e.dataTransfer.effectAllowed = 'move'; } catch { /* 舊瀏覽器 */ } });
