@@ -1298,3 +1298,22 @@ svg .rs-val{font-size:15px;font-weight:700;fill:#14232e}svg .rs-lab{font-size:13
 .bdc .bdc-exits{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .bdc .bdc-hint{font-size:12px}
 #bd-detail-tabs{position:sticky;top:0;z-index:5;background:#fff;padding-top:6px;box-shadow:0 2px 0 rgba(0,0,0,.04)}
+/* 2026-10-15 招募管道（channels.js） */
+.ch-stats{font-size:12.5px;color:#33405a}
+.ch-stats b{color:#235fcb}
+.ch-h{font-size:15px;margin:22px 0 10px;padding-top:14px;border-top:1px solid var(--line)}
+.ch-kpi{grid-template-columns:repeat(4,minmax(0,1fr))}
+.ch-kpi .kpi{padding:12px}
+.ch-kpi .kpi strong{font-size:22px;margin:4px 0 0}
+.ch-jobs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 10px;max-height:200px;overflow-y:auto;border:1px solid var(--line);border-radius:9px;padding:8px}
+.ch-job{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:400;min-height:32px;cursor:pointer}
+.ch-job input{width:17px;height:17px;flex-shrink:0}
+.ch-job span{font-size:13px;font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ch-logform textarea{width:100%;margin-bottom:10px}
+.ch-logs{display:grid;gap:8px;margin-top:12px;max-height:320px;overflow-y:auto}
+.ch-log{background:#f7f9fc;border-radius:9px;padding:8px 11px;font-size:13.5px;white-space:pre-wrap}
+.ch-log small{display:block;color:var(--muted);font-size:12px;margin-bottom:2px}
+.ch-search{display:flex;gap:8px;margin:8px 0}
+.ch-link{cursor:pointer;color:var(--blue)}
+.ch-link:focus-visible{outline:3px solid #8fb0ff;outline-offset:2px}
+@media(max-width:760px){.ch-kpi{grid-template-columns:repeat(2,1fr)}.ch-jobs{grid-template-columns:1fr}}

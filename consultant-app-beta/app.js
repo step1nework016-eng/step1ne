@@ -8,6 +8,7 @@ import { views, actionBtn, rowActions, shell, boardView, boardCandItems, boardCl
 import { ACTIONS } from './actions.js';
 import { jdFieldParse } from './jd_fields.js';
 import { initMail, loadMailTab, injectMailSection } from './mail.js';
+import { initChannels, loadChannelsTab, openChannel } from './channels.js';
 import { wireBdCard, bdShowStageRemind, bdShowTagRemind } from './bdcard.js';
 import { wireBdJobs } from './bdjobs.js';
 import { loadDailyTab } from './daily.js';
@@ -65,6 +66,7 @@ async function loadRoute() {
   if (state.route === 'clients') return loadClientsTab(target);
   if (state.route === 'system') return loadSystemTab(target);
   if (state.route === 'mail') return loadMailTab(target);
+  if (state.route === 'channels') return loadChannelsTab(target);
 }
 
 // 2026-09-17 加：顧問人選面談室。owner 選單沿用跟人選工作台一樣的
@@ -4216,6 +4218,8 @@ document.addEventListener('click', async (event) => {
   if (jobRow) { openJobManage(jobRow.getAttribute('data-job')); return; }
   const clientRow = target.closest('[data-client]');
   if (clientRow) { openCompanyManage(clientRow.getAttribute('data-client')); return; }
+  const chRow = target.closest('[data-channel-id]');
+  if (chRow && !target.closest('[data-dly]')) { openChannel(Number(chRow.getAttribute('data-channel-id'))); return; }
   const bdCompany = target.closest('[data-bd-company]');
   if (bdCompany) { openBdDetail(bdCompany.getAttribute('data-bd-company')); return; }
   const bdJobs = target.closest('[data-bd-jobs]');
@@ -4961,3 +4965,6 @@ function boardDropClient(target, it, to) {
 
 // 2026-10-12：信箱紀錄頁點「對到的卡片」要能直接打開人選卡／客戶卡
 initMail({ openCandidate: (id) => openCandidate(id), openCompany: (id) => openCompanyManage(id) });
+initChannels({ openCandidate: (id) => openCandidate(id) });
+document.addEventListener('click', (e) => { if (e.target instanceof Element && e.target.closest('[data-action="channel-new"]')) openChannel(null); });
+window.addEventListener('step1ne:open-channel', (e) => { const id = e.detail && e.detail.id; if (state.route !== 'channels') navigate('channels'); setTimeout(() => openChannel(id), 300); });

@@ -204,17 +204,20 @@ export function shell(active, content, collapsed = false) {
   // icon 陣列也要對應補一顆，不能只加 nav 項目忘了改分組判斷跟圖示。
   // 2026-10-05 加「進度看板」：插在首頁後面，後面分組標題 index 往後推一格（social 7、system 9）。
   // 2026-10-15 Jacky：進度看板已整合進每日工作台（企業 BD／人才追蹤切「看板」），左側選單拿掉；/board 網址仍可用。
+  // 2026-10-15 Jacky：加「招募管道」（訓練機構等推人管道的看板），插在客戶/BD 後面；管理分組 index 9→10、icon 補一顆
   // 2026-10-15 Jacky：首頁拿掉（內容跟每日工作台、招募總覽重複）；獨有的「正在 AI 面談」搬到每日工作台總覽、「阿財分流」搬到 AI 面談頁
-  const nav = [['daily','每日工作台'],['recruitment','招募總覽'],['candidates','人選'],['jobs','職缺'],['interviews','AI 面談'],['linechat','人選面談室'],['social','社群'],['clients','客戶 / BD'],['mail','信箱紀錄'],['system','系統']];
+  const nav = [['daily','每日工作台'],['recruitment','招募總覽'],['candidates','人選'],['jobs','職缺'],['interviews','AI 面談'],['linechat','人選面談室'],['social','社群'],['clients','客戶 / BD'],['channels','招募管道'],['mail','信箱紀錄'],['system','系統']];
   // ⚠️ 收合按鈕不能放進 <a class="brand"> 裡面——瀏覽器不允許互動元素巢狀
   // interactive content，而且全域點擊委派會先比對 [data-route]，按鈕點下去會
   // 連帶觸發外層 <a> 的 data-route="home" 跳轉。改成跟 .brand 平行的兄弟元素。
-  return `<div class="app-shell${collapsed ? ' collapsed' : ''}"><aside class="sidebar"><div class="brand-row"><a class="brand" data-route="daily"><span>S</span><div>Step1ne<small>CONSULTANT OS</small></div></a><button type="button" class="sidebar-toggle" data-action="toggle-sidebar" title="${collapsed ? '展開側欄' : '收合側欄'}">${collapsed ? '»' : '«'}</button></div><nav>${nav.map(([key,label], index) => `${index === 0 ? '<p>工作台</p>' : index === 6 ? '<p>營運成長</p>' : index === 9 ? '<p>管理</p>' : ''}<a class="${active === key ? 'active' : ''}" data-route="${key}"><i>${['☑','▥','◉','▣','◎','✉','◁','♙','✉','⚙'][index]}</i>${label}</a>`).join('')}</nav><footer>Production contract v2</footer></aside><main><header class="topbar"><button class="mobile-menu" data-action="toggle-menu">☰</button><input data-action="global-search" placeholder="搜尋人選、職缺、客戶…"><label class="me-global" title="寄信、核准、改設定時，系統記住是誰做的"><span>我是</span><select data-me-global aria-label="我是"><option value="">選擇…</option></select></label><button class="btn ghost" data-action="token">ADMIN TOKEN</button></header><section class="content">${content}</section></main></div>`;
+  return `<div class="app-shell${collapsed ? ' collapsed' : ''}"><aside class="sidebar"><div class="brand-row"><a class="brand" data-route="daily"><span>S</span><div>Step1ne<small>CONSULTANT OS</small></div></a><button type="button" class="sidebar-toggle" data-action="toggle-sidebar" title="${collapsed ? '展開側欄' : '收合側欄'}">${collapsed ? '»' : '«'}</button></div><nav>${nav.map(([key,label], index) => `${index === 0 ? '<p>工作台</p>' : index === 6 ? '<p>營運成長</p>' : index === 10 ? '<p>管理</p>' : ''}<a class="${active === key ? 'active' : ''}" data-route="${key}"><i>${['☑','▥','◉','▣','◎','✉','◁','♙','⇄','✉','⚙'][index]}</i>${label}</a>`).join('')}</nav><footer>Production contract v2</footer></aside><main><header class="topbar"><button class="mobile-menu" data-action="toggle-menu">☰</button><input data-action="global-search" placeholder="搜尋人選、職缺、客戶…"><label class="me-global" title="寄信、核准、改設定時，系統記住是誰做的"><span>我是</span><select data-me-global aria-label="我是"><option value="">選擇…</option></select></label><button class="btn ghost" data-action="token">ADMIN TOKEN</button></header><section class="content">${content}</section></main></div>`;
 }
 
 export const views = {
   // 2026-10-12 加：信箱紀錄（畫面與邏輯在 mail.js）
   mail: () => mailPageView(),
+  // 2026-10-15 加：招募管道（畫面與邏輯在 channels.js）
+  channels: () => pageHead('招募管道', '請訓練機構、學校等幫忙推人的管道，一家一張卡。拖到別欄＝改狀態；點卡片看聯絡紀錄、推來的人選與成效。左邊紅線＝到了該追的日子。', '<button class="btn primary" data-action="channel-new">＋ 新增管道</button>') + `<div id="page-data"></div>`,
   board: (tab = 'cand') => pageHead('進度看板', '每一欄是一個階段，每張卡是一個人選或一家客戶。左邊有紅線的＝在這關停太久，該追了。')
     + tabbar('board', [['cand', '人選'], ['client', '客戶']], tab === 'client' ? 'client' : 'cand') + `<div id="page-data">${endpointState('進度看板')}</div>`,
   // 2026-10-14 Jacky：把他的「獵頭顧問每日作戰儀表板」放進顧問後台測試版當一個分頁。
