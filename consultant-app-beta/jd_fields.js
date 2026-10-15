@@ -15,6 +15,7 @@ export const JD_FIELDS = [
   ['plus', '加分條件（一行一項）', 'list'],
   ['why', '為什麼值得看（第一行標題、下面接說明，項目之間空一行）', 'why'],
   ['benefits', '福利（一行一項）', 'list'],
+  ['faq', '常見問答（一題一組：第一行寫問題、下面接答案，題目之間空一行）', 'faq'],
   ['card_desc', '職缺卡描述', 'text'],
   ['description', 'SEO 描述', 'text'],
 ];
@@ -27,6 +28,7 @@ export function jdFieldVal(kind, v) {
   if (kind === 'kv') return (Array.isArray(v) ? v : []).map((r) => `${r[0] || ''}：${r[1] || ''}`).join('\n');
   if (kind === 'duties') return (Array.isArray(v) ? v : []).map((g) => (g.h ? `## ${g.h}\n` : '') + (g.items || []).join('\n')).join('\n\n');
   if (kind === 'why') return (Array.isArray(v) ? v : []).map((w) => `${w.h || ''}\n${w.p || ''}`).join('\n\n');
+  if (kind === 'faq') return (Array.isArray(v) ? v : []).map((x) => `${(x && x[0]) || ''}\n${(x && x[1]) || ''}`).join('\n\n');
   return v == null ? '' : String(v);
 }
 
@@ -38,5 +40,6 @@ export function jdFieldParse(kind, s) {
   }).filter(Boolean);
   if (kind === 'duties') return blocks(s).map((l) => (l[0].startsWith('## ') ? { h: l[0].slice(3).trim(), items: l.slice(1) } : { h: '', items: l }));
   if (kind === 'why') return blocks(s).map((l) => ({ h: l[0], p: l.slice(1).join(' ') }));
+  if (kind === 'faq') return blocks(s).map((l) => [l[0], l.slice(1).join(' ')]);
   return String(s || '');
 }

@@ -267,7 +267,23 @@ function importCand() {
   });
   return n;
 }
+// 2026-10-15 Jacky：企業 BD／人才追蹤可以切「表格」或「看板」（看板＝進度看板，同一套資料與拖拉）
+const VIEW_KEY = (t) => 'dly_view_' + t;
+function viewOf(type) { try { return localStorage.getItem(VIEW_KEY(type)) === 'board' ? 'board' : 'table'; } catch { return 'table'; } }
+function viewSwitch(type) {
+  const v = viewOf(type);
+  return `<div class="dly-viewsw" role="tablist" aria-label="顯示方式"><button type="button" role="tab" aria-selected="${v === 'table'}" class="${v === 'table' ? 'on' : ''}" data-dly="view:${type}:table">表格</button><button type="button" role="tab" aria-selected="${v === 'board'}" class="${v === 'board' ? 'on' : ''}" data-dly="view:${type}:board">看板</button></div>`;
+}
+function mountBoards(root) {
+  root.querySelectorAll('[data-daily-board]').forEach((el) => {
+    if (el.dataset.mounted) return; el.dataset.mounted = '1';
+    window.dispatchEvent(new CustomEvent('step1ne:daily-board', { detail: { target: el, kind: el.getAttribute('data-daily-board') } }));
+  });
+}
 function sectionTable(type) {
+  if ((type === 'bd' || type === 'candidate') && viewOf(type) === 'board') {
+    return `${viewSwitch(type)}<div class="dly-board" data-daily-board="${type === 'bd' ? 'client' : 'cand'}"></div>`;
+  }
   const [title, addLabel, hint] = TABLE_META[type];
   const cols = schemas[type];
   const rows = state[type].map((row, i) => `<tr>${cols.map(([k, label, kind]) => `<td>${kind && kind.includes('|')
@@ -276,7 +292,7 @@ function sectionTable(type) {
     || `<tr><td colspan="${cols.length + 1}" class="dly-hint">尚無資料，請點「新增」。</td></tr>`;
   const extra = type === 'channel' ? '<div class="card"><h3>渠道判斷速查</h3><p>新鮮人：Threads／IG／校園；在地工程：地方社團／專業社群；財會：同業人才地圖／LinkedIn／財會社群；中高階：競業 Mapping／LinkedIn／轉介紹；日本：在日社群／LinkedIn／日本職涯平台。先確認各平台規範及是否允許招募貼文。</p></div>' : '';
   const sysBlock = type === 'bd' ? sysTableBd() : type === 'candidate' ? sysTableCand() : type === 'channel' ? sysTableCh() : '';
-  return `${sysBlock}<div class="card"><div class="dly-row"><h2>${esc(title)}</h2><button class="btn primary dly-right" data-dly="add:${type}">${addLabel}</button><button class="btn" data-dly="csv:${type}">匯出 CSV</button></div>${hint ? `<p class="dly-hint">${esc(hint)}</p>` : ''}<div class="dly-scroll"><table class="dly-table"><thead><tr>${cols.map((c) => `<th>${esc(c[1])}</th>`).join('')}<th>操作</th></tr></thead><tbody>${rows}</tbody></table></div></div>${extra}`;
+  return `${(type === 'bd' || type === 'candidate') ? viewSwitch(type) : ''}${sysBlock}<div class="card"><div class="dly-row"><h2>${esc(title)}</h2><button class="btn primary dly-right" data-dly="add:${type}">${addLabel}</button><button class="btn" data-dly="csv:${type}">匯出 CSV</button></div>${hint ? `<p class="dly-hint">${esc(hint)}</p>` : ''}<div class="dly-scroll"><table class="dly-table"><thead><tr>${cols.map((c) => `<th>${esc(c[1])}</th>`).join('')}<th>操作</th></tr></thead><tbody>${rows}</tbody></table></div></div>${extra}`;
 }
 function sectionScripts() {
   const s = scripts[scriptIdx];
@@ -295,6 +311,7 @@ const SECTIONS = { overview: sectionOverview, schedule: sectionSchedule, bd: () 
 
 function draw(root) {
   root.innerHTML = `<div class="dly">${toolbar()}${(SECTIONS[currentTab] || sectionOverview)()}</div>`;
+  mountBoards(root);
 }
 function exportCSV(type) {
   const heads = schemas[type].map((x) => x[1]);
@@ -356,6 +373,7 @@ export async function loadDailyTab(target, tab) {
   target.onclick = (e) => {
     const b = e.target.closest('[data-dly]'); if (!b) return;
     const [act, type, idx] = b.getAttribute('data-dly').split(':');
+    if (act === 'view') { try { localStorage.setItem(VIEW_KEY(type), idx); } catch { /* 沒關係 */ } collect(root()); persist(); draw(target); return; }
     if (act === 'save') { collect(root()); persist(); b.textContent = '已儲存 ✓'; setTimeout(() => { b.textContent = tab === 'review' ? '儲存檢討' : '儲存今天'; }, 1200); return; }
     if (act === 'exportJSON') { collect(root()); persist(); download('獵頭儀表板_' + day + '.json', JSON.stringify({ date: day, state }, null, 2), 'application/json'); return; }
     if (act === 'importPick') { target.querySelector('#dly-import').click(); return; }

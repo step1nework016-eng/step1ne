@@ -447,9 +447,11 @@ function bdmRender(out, data) {
   if (!picks.length) { out.innerHTML = `<p class="help">${bdmEsc(res.note || '現有人選裡沒有適合的人。')}（比對了 ${bdmEsc(res.pool_size || 0)} 位）</p>`; return; }
   const FIT = { '高': 'success', '中': 'warning', '低': '' };
   const rows = picks.map((p) => {
-    const bf = briefs[p.application_id];
-    const bs = bf ? (bf.status === 'done' ? `<span class="badge success">匿名摘要已做好，已加入這家的匿名履歷清單</span>` : bf.status === 'error' ? `<span class="badge danger">做失敗：${bdmEsc(bf.error)}</span>` : `<span class="badge info">產生中…</span>`) : '';
-    return `<label class="bdm-row"><input type="checkbox" data-bdm-pick value="${bdmEsc(p.application_id)}" ${bf && bf.status !== 'error' ? 'disabled checked' : ''}>
+    const an = (data.anon || {})[p.application_id];
+    const bs = an && an.file_id
+      ? `<span class="badge success">匿名履歷已做好（${bdmEsc(an.code)}）</span> <button type="button" class="bdj-btn sm primary" data-bdm-preview="${bdmEsc(an.file_id)}">預覽</button> <button type="button" class="bdj-btn sm" data-download-file="${bdmEsc(an.file_id)}">下載</button>`
+      : `<button type="button" class="bdj-btn sm primary" data-bdm-one="${bdmEsc(p.application_id)}">產生匿名履歷</button>`;
+    return `<label class="bdm-row">
       <div><b>${bdmEsc(p.code)}</b> ${bdmEsc(p.name)} <span class="badge ${FIT[p.fit] || ''}">符合度：${bdmEsc(p.fit)}</span> ${bs}
       <small class="muted">原應徵：${bdmEsc(p.applied_for)}｜期望：${bdmEsc(p.expected || '未填')}｜到職：${bdmEsc(p.available || '未填')}</small>
       <ul class="bdm-ok">${(p.matches || []).map((x) => `<li>✓ ${bdmEsc(x)}</li>`).join('')}</ul>
@@ -458,14 +460,13 @@ function bdmRender(out, data) {
   }).join('');
   const anyDone = (data.briefs || []).some((x) => x.status === 'done');
   out.innerHTML = `<div class="bdm-head">配對結果（比對了 ${bdmEsc(res.pool_size || 0)} 位；<b>✓</b>＝符合、<b>△</b>＝落差或要確認）</div>${rows}
-    <div class="bdm-act"><button type="button" class="bdj-btn primary" data-bdm-brief>替勾選的人選產生「針對這個職缺」匿名摘要</button>
-    ${anyDone ? '<button type="button" class="bdj-btn" data-bdm-tomail>到「寄公司介紹信」勾選附上</button>' : ''}
-    <small class="muted">摘要不含姓名、公司名、學校名、薪資、年齡，做好會放進這家客戶的匿名履歷清單；寄出仍要 TG 核准。</small></div>`;
+    <div class="bdm-act"><small class="muted">匿名履歷用你平常那一套：名字改代號、公司改產業描述；按「產生」後草稿會貼到 TG「客戶履歷人工確認」，你確認才會做出 PDF。做好後這裡就有預覽／下載，寄信時也能在「從人選挑匿名履歷附上」選到。</small></div>`;
 }
 async function bdmPoll(out, runId, tries) {
   let data;
   try { data = await api.get(`/admin/bd/job-match?run_id=${encodeURIComponent(runId)}`); } catch (err) { out.innerHTML = `<div class="notice">${bdmEsc(err.message || '讀不到結果')}</div>`; return; }
   out.dataset.run = runId;
+  try { const ar = await api.get('/admin/anon-reports'); data.anon = Object.fromEntries((ar.rows || []).map((x) => [x.application_id, x])); } catch { data.anon = {}; }
   bdmRender(out, data);
   const chip = out.closest('[data-bdj-slug]')?.querySelector('[data-bdm-chip]');
   if (chip) { const n = ((data.result || {}).picks || []).length; chip.textContent = data.run.status === 'done' ? (n ? `配對到 ${n} 人` : '配對：沒有合適') : data.run.status === 'error' ? '配對失敗' : '配對中…'; chip.className = 'bdj-mchip ' + (data.run.status === 'done' && n ? 'on' : ''); }
@@ -500,6 +501,27 @@ document.addEventListener('click', async (e) => {
       bdmPoll(out, r.run_id, 0);
     } catch (err) { out.innerHTML = `<div class="notice">${bdmEsc(err.message || '沒有排進去')}</div>`; }
     go.disabled = false;
+    return;
+  }
+  const pv = t.closest('[data-bdm-preview]');
+  if (pv) {
+    e.preventDefault();
+    const id = pv.getAttribute('data-bdm-preview');
+    try {
+      const res = await fetch(`${CONFIG.apiBase}/admin/file/${encodeURIComponent(id)}`, { headers: { authorization: `Bearer ${localStorage.getItem(CONFIG.tokenKey) || ''}` } });
+      if (!res.ok) throw new Error(`預覽失敗 HTTP ${res.status}`);
+      const blob = await res.blob();
+      window.open(URL.createObjectURL(new Blob([blob], { type: 'application/pdf' })), '_blank');
+    } catch (err) { toast(err.message || '預覽失敗', 'error'); }
+    return;
+  }
+  const one = t.closest('[data-bdm-one]');
+  if (one) {
+    e.preventDefault();
+    const out = one.closest('[data-bdm-out]');
+    one.disabled = true;
+    try { await api.post(`/admin/application/${encodeURIComponent(one.getAttribute('data-bdm-one'))}/client-formal-report`, { anonymous: true, by: amUi().me || '顧問' }); toast('已開始製作，草稿 1～2 分鐘後貼到 TG「客戶履歷人工確認」，你確認後這裡就能預覽下載', 'success'); one.textContent = '已送出，等 TG 確認'; }
+    catch (err) { toast(err.message || '沒有排進去', 'error'); one.disabled = false; }
     return;
   }
   const br = t.closest('[data-bdm-brief]');
@@ -1118,6 +1140,13 @@ async function loadJobTab(target) {
   return res;
 }
 
+// 職缺代號（J-0001…）：載入一次，職缺列表與社群選單用。職缺名稱可以重複，代號不會。
+async function loadJobCodes() {
+  try { const r = await api.get('/admin/job-codes'); window.__JOB_CODES = r.codes || {}; } catch { /* 沒有代號就不顯示 */ }
+}
+loadJobCodes();
+setInterval(loadJobCodes, 120000);
+
 // 職缺總覽的篩選（2026-10-01）：選單一換就整頁重畫（選項數字要跟著變），
 // 打字只換結果區，游標不會跳掉。
 function jobListState() {
@@ -1126,6 +1155,7 @@ function jobListState() {
 }
 function wireJobList(jobs) {
   const f = jobListState();
+  if (!window.__JOB_CODES) loadJobCodes().then(() => { const out = $('#joblist-results'); if (out) out.innerHTML = views.jobListResults(jobs, f); });
   const redraw = () => {
     const box = $('#page-data');
     if (box) box.innerHTML = views.jobListTab(jobs, f);
@@ -2774,6 +2804,16 @@ async function loadSystemTab(target) {
   if (state.sub === 'token') return boundary(target, adapters.tokenUsage, views.systemTokenTab, 'refresh');
   if (state.sub === 'spec') return boundary(target, async () => null, views.systemSpecTab, 'refresh');
   if (state.sub === 'health') return boundary(target, adapters.featureUsage, views.systemHealthTab, 'refresh');
+  if (state.sub === 'codes') {
+    const res = await boundary(target, async () => { const [c, j] = await Promise.all([api.get('/admin/job-codes'), api.get('/admin/jobs')]); window.__JOB_CODES = c.codes || window.__JOB_CODES; return { codes: c.codes, clients: c.clients, jobs: j.jobs || j.items || [] }; }, views.systemCodesTab, 'refresh');
+    const q = $('#codes-q');
+    if (q) q.oninput = () => {
+      const k = q.value.trim().toLowerCase();
+      document.querySelectorAll('[data-codes-row]').forEach((r) => { r.hidden = !!k && !r.getAttribute('data-q').includes(k); });
+      document.querySelectorAll('[data-codes-block]').forEach((b) => { b.hidden = ![...b.querySelectorAll('[data-codes-row]')].some((r) => !r.hidden); });
+    };
+    return res;
+  }
   if (state.sub === 'line') {
     const res = await boundary(target, async () => { const s = await adapters.system(); return { overdue: s.line, bindings: s.bindings }; }, views.systemLineTab, 'refresh');
     wireBindFilter();
@@ -3553,6 +3593,7 @@ async function openJobManage(slug, initialTab = 'manage') {
       // 「AI 找的人」分頁（2026-09-29）：失敗不擋抽屜，分頁裡顯示載入失敗。
       adapters.jobSourced(slug).catch(() => null)]);
     const job = jobsData.jobs.find((j) => (j.slug || j.id) === slug) || { slug };
+    try { const fr = await api.get(`/admin/jobs/${encodeURIComponent(slug)}/full`); job.__facts = (fr && fr.job) || {}; } catch { job.__facts = {}; }
     // 2026-09-21：題庫加進職缺抽屜。adapters.jobs() 本來就會一併抓
     // /admin/expertise，這裡直接從同一包資料撈，不用為了抽屜再打一次 API。
     const raw = (jobsData.expertise || []).find((e) => e.job_slug === slug);
@@ -3963,6 +4004,10 @@ async function submitJobContent(slug) {
       const now = jdFieldParse(kind, el.value), before = jdFieldParse(kind, el.dataset.orig);
       if (JSON.stringify(now) !== JSON.stringify(before)) fields[el.name] = now;
     }
+    // 官網「顯示／隱藏」開關：沒勾的區塊存進 hidden，發布時不產生那一段
+    const hiddenNow = [...form.querySelectorAll('[data-show]')].filter((x) => !x.checked).map((x) => x.getAttribute('data-show')).sort();
+    let hiddenOrig = []; try { hiddenOrig = JSON.parse(form.querySelector('#jd-hidden-orig')?.value || '[]').slice().sort(); } catch { hiddenOrig = []; }
+    if (JSON.stringify(hiddenNow) !== JSON.stringify(hiddenOrig)) fields.hidden = hiddenNow;
     if (!Object.keys(fields).length) { toast('沒有改到任何欄位', 'error'); return; }
     const result = await saveJobContent(slug, { fields });
     if (result !== null) { toast('職缺內容已儲存', 'success'); openJobManage(slug); }
@@ -4295,6 +4340,15 @@ document.addEventListener('click', async (event) => {
     catch (error) { console.error(error); toast(error.message, 'error'); }
   }
   if (action === 'submit-job-content') submitJobContent(target.closest('[data-slug]').getAttribute('data-slug'));
+  if (action === 'save-job-facts') {
+    const box = target.closest('[data-facts-box]'); const slug = box.getAttribute('data-slug');
+    const facts = {};
+    box.querySelectorAll('[data-fact]').forEach((el) => { if (el.value !== el.getAttribute('data-orig')) facts[el.getAttribute('data-fact')] = el.getAttribute('data-json') === '1' ? JSON.stringify(el.value) : el.value; });
+    if (!Object.keys(facts).length) { toast('沒有改到任何選項', 'error'); return; }
+    target.disabled = true;
+    api.post(`/admin/jobs/${encodeURIComponent(slug)}/content`, { facts }).then(() => { toast('已儲存（不經 AI，馬上生效）', 'success'); openJobManage(slug); }).catch((err) => { toast(err.message || '沒有儲存成功', 'error'); target.disabled = false; });
+    return;
+  }
   if (action === 'submit-job-card-feedback') submitJobCardFeedback(target.closest('[data-slug]').getAttribute('data-slug'));
   if (action === 'reopen-interview') {
     try { await api.post('/admin/reopen-interview', { application_id: target.closest('[data-id]').getAttribute('data-id') }); toast('面談已重新開啟', 'success'); loadRoute(); }
@@ -4624,6 +4678,8 @@ async function drawThreadsCharts(rows) {
 
 
 // ── 進度看板（2026-10-05）────────────────────────────────────────────────
+// 2026-10-15：每日工作台的企業 BD／人才追蹤切到「看板」時，借用同一套看板。
+window.addEventListener('step1ne:daily-board', (e) => { const { target, kind } = e.detail || {}; if (target) loadBoardTab(target, kind); });
 // 篩選（負責人／顯示已結案）記在瀏覽器；資料每次進來重抓，不做自動刷新
 // （tracker 很重，見 2026-09-01 D1 額度事故，不能再放 30 秒輪詢）。
 const BOARD_KEY = 's1ne_board_ui';
@@ -4637,9 +4693,10 @@ function boardUi() {
   }
   return state.board;
 }
-async function loadBoardTab(target) {
+async function loadBoardTab(target, kindOverride) {
   const ui = boardUi();
-  const kind = state.sub === 'client' ? 'client' : 'cand';
+  if (kindOverride) target.dataset.boardKind = kindOverride;
+  const kind = target.dataset.boardKind || (state.sub === 'client' ? 'client' : 'cand');
   await boundary(target, async () => {
     const tracker = await api.get('/admin/pipeline/tracker');
     const cards = (tracker && tracker.cards) || [];
