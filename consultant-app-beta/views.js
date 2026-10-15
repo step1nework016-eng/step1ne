@@ -3038,8 +3038,9 @@ ${a.note ? `<details class="note-details"><summary>顧問備註／電洽紀錄</
     return `這個月還剩 ${remain} / ${q.limit} 則`;
   },
   linechatEmptyOwner: () => empty('先選一位顧問', '選完會列出他名下已經綁定 LIFF 的人選。'),
+  // 2026-10-15 Jacky：人選有新回訊、你還沒點開看，就標「未讀」（記在這台瀏覽器）
   linechatCandList: (candidates, activeAppId) => candidates.length
-    ? candidates.map((c) => `<button type="button" class="linechat-row ${c.application_id === activeAppId ? 'active' : ''}" data-linechat-select="${escapeHtml(c.application_id)}">
+    ? candidates.map((c) => `<button type="button" class="linechat-row ${c.application_id === activeAppId ? 'active' : ''}${c._unread ? ' unread' : ''}" data-linechat-select="${escapeHtml(c.application_id)}">${c._unread ? '<span class="linechat-unread" aria-label="未讀">未讀</span>' : ''}
         <span class="linechat-avatar">${c.picture_url ? `<img src="${escapeHtml(c.picture_url)}" alt="">` : text((c.display_name || c.name || '?').slice(0, 2))}</span>
         <span class="linechat-meta"><b>${text(c.name)}</b><small>${text(c.job_title || c.job_slug)}</small>${c.last_message ? `<small class="linechat-preview">${c.last_message.direction === 'out' ? '你：' : ''}${text((c.last_message.content || '').slice(0, 24))}</small>` : ''}</span>
       </button>`).join('')

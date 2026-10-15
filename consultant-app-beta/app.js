@@ -101,7 +101,23 @@ async function loadLinechatTab(target) {
   }
 }
 
+// 未讀：人選最後一則是「對方傳來」且比你上次點開這位的時間新。第一次使用時，現有的全部當已讀，之後新來的才標。
+const LC_SEEN_KEY = 's1ne_linechat_seen';
+function lcSeen() { try { return JSON.parse(localStorage.getItem(LC_SEEN_KEY) || 'null'); } catch { return null; } }
+function lcSaveSeen(m) { try { localStorage.setItem(LC_SEEN_KEY, JSON.stringify(m)); } catch { /* 沒關係 */ } }
+function lcMarkUnread(cands) {
+  let seen = lcSeen();
+  const nowIso = new Date().toISOString();
+  if (!seen) { seen = {}; cands.forEach((c) => { seen[c.application_id] = nowIso; }); lcSaveSeen(seen); }
+  cands.forEach((c) => {
+    const m = c.last_message;
+    const t = m && m.created_at ? new Date(String(m.created_at).replace(' ', 'T') + (/[zZ+]/.test(String(m.created_at).slice(10)) ? '' : '+08:00')).toISOString() : '';
+    c._unread = !!(m && m.direction !== 'out' && t && (!seen[c.application_id] || t > seen[c.application_id]) && c.application_id !== state.linechat.activeAppId);
+  });
+  if (state.linechat.activeAppId) { seen[state.linechat.activeAppId] = nowIso; lcSaveSeen(seen); }
+}
 function renderLinechatLayout(target) {
+  lcMarkUnread(state.linechat.candidates || []);
   const active = state.linechat.candidates.find((c) => c.application_id === state.linechat.activeAppId) || null;
   target.innerHTML = `<div class="linechat-grid"><aside class="linechat-list">${views.linechatCandList(state.linechat.candidates, state.linechat.activeAppId)}</aside><div class="linechat-panel">${views.linechatPanel(active)}</div></div>`;
   $$('[data-linechat-select]', target).forEach((btn) => {
@@ -159,6 +175,7 @@ function wireLinechatPanel(target, cand) {
           state.linechat.candidates = await adapters.linechatCandidates(state.linechat.owner);
           const listEl = $('.linechat-list', target);
           if (listEl) {
+            lcMarkUnread(state.linechat.candidates || []);
             listEl.innerHTML = views.linechatCandList(state.linechat.candidates, state.linechat.activeAppId);
             $$('[data-linechat-select]', target).forEach((b) => {
               b.onclick = () => { state.linechat.activeAppId = b.getAttribute('data-linechat-select'); openLinechat(target); };
