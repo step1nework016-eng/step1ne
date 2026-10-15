@@ -204,11 +204,12 @@ export function shell(active, content, collapsed = false) {
   // icon 陣列也要對應補一顆，不能只加 nav 項目忘了改分組判斷跟圖示。
   // 2026-10-05 加「進度看板」：插在首頁後面，後面分組標題 index 往後推一格（social 7、system 9）。
   // 2026-10-15 Jacky：進度看板已整合進每日工作台（企業 BD／人才追蹤切「看板」），左側選單拿掉；/board 網址仍可用。
-  const nav = [['home','首頁'],['daily','每日工作台'],['recruitment','招募總覽'],['candidates','人選'],['jobs','職缺'],['interviews','AI 面談'],['linechat','人選面談室'],['social','社群'],['clients','客戶 / BD'],['mail','信箱紀錄'],['system','系統']];
+  // 2026-10-15 Jacky：首頁拿掉（內容跟每日工作台、招募總覽重複）；獨有的「正在 AI 面談」搬到每日工作台總覽、「阿財分流」搬到 AI 面談頁
+  const nav = [['daily','每日工作台'],['recruitment','招募總覽'],['candidates','人選'],['jobs','職缺'],['interviews','AI 面談'],['linechat','人選面談室'],['social','社群'],['clients','客戶 / BD'],['mail','信箱紀錄'],['system','系統']];
   // ⚠️ 收合按鈕不能放進 <a class="brand"> 裡面——瀏覽器不允許互動元素巢狀
   // interactive content，而且全域點擊委派會先比對 [data-route]，按鈕點下去會
   // 連帶觸發外層 <a> 的 data-route="home" 跳轉。改成跟 .brand 平行的兄弟元素。
-  return `<div class="app-shell${collapsed ? ' collapsed' : ''}"><aside class="sidebar"><div class="brand-row"><a class="brand" data-route="home"><span>S</span><div>Step1ne<small>CONSULTANT OS</small></div></a><button type="button" class="sidebar-toggle" data-action="toggle-sidebar" title="${collapsed ? '展開側欄' : '收合側欄'}">${collapsed ? '»' : '«'}</button></div><nav>${nav.map(([key,label], index) => `${index === 0 ? '<p>工作台</p>' : index === 7 ? '<p>營運成長</p>' : index === 10 ? '<p>管理</p>' : ''}<a class="${active === key ? 'active' : ''}" data-route="${key}"><i>${['⌂','☑','▥','◉','▣','◎','✉','◁','♙','✉','⚙'][index]}</i>${label}</a>`).join('')}</nav><footer>Production contract v2</footer></aside><main><header class="topbar"><button class="mobile-menu" data-action="toggle-menu">☰</button><input data-action="global-search" placeholder="搜尋人選、職缺、客戶…"><label class="me-global" title="寄信、核准、改設定時，系統記住是誰做的"><span>我是</span><select data-me-global aria-label="我是"><option value="">選擇…</option></select></label><button class="btn ghost" data-action="token">ADMIN TOKEN</button></header><section class="content">${content}</section></main></div>`;
+  return `<div class="app-shell${collapsed ? ' collapsed' : ''}"><aside class="sidebar"><div class="brand-row"><a class="brand" data-route="daily"><span>S</span><div>Step1ne<small>CONSULTANT OS</small></div></a><button type="button" class="sidebar-toggle" data-action="toggle-sidebar" title="${collapsed ? '展開側欄' : '收合側欄'}">${collapsed ? '»' : '«'}</button></div><nav>${nav.map(([key,label], index) => `${index === 0 ? '<p>工作台</p>' : index === 6 ? '<p>營運成長</p>' : index === 9 ? '<p>管理</p>' : ''}<a class="${active === key ? 'active' : ''}" data-route="${key}"><i>${['☑','▥','◉','▣','◎','✉','◁','♙','✉','⚙'][index]}</i>${label}</a>`).join('')}</nav><footer>Production contract v2</footer></aside><main><header class="topbar"><button class="mobile-menu" data-action="toggle-menu">☰</button><input data-action="global-search" placeholder="搜尋人選、職缺、客戶…"><label class="me-global" title="寄信、核准、改設定時，系統記住是誰做的"><span>我是</span><select data-me-global aria-label="我是"><option value="">選擇…</option></select></label><button class="btn ghost" data-action="token">ADMIN TOKEN</button></header><section class="content">${content}</section></main></div>`;
 }
 
 export const views = {
@@ -226,6 +227,25 @@ export const views = {
   // 這個 API 目前真的沒有，誠實顯示「—」而不是造一個假的 0。
   // 2026-09-15 用真實 token 核對 /admin/overview.now，7 個 KPI 全部是真實欄位
   // （jobs_open/cands/new7/done/need_call/waiting/lang_missing），跟正式舊版首頁同一批資料。
+  // 阿財分流 A–E（原首頁，2026-10-15 搬到 AI 面談頁最上面）
+  routeBlock: (overview) => {
+    const ROUTE_ORDER = [['A', '優先聯繫'], ['B', '需顧問判斷'], ['C', '可轉其他職缺'],
+                         ['D', '人才池'], ['E', 'Hard Gate 沒過']];
+    const routeMap = new Map((overview?.routes || []).map((r) => [String(r.code || '').toUpperCase(), r]));
+    const routeTotal = (overview?.routes || []).reduce((sum, r) => sum + Number(r.n || 0), 0);
+    // ⚠️ 一份報告都還沒有的時候整塊不顯示，不要畫五個 0——那看起來像壞掉。
+    const routeBlock = routeTotal ? `<article class="card"><div class="card-head"><h2>阿財分流（共 ${routeTotal} 位談過的人選）</h2></div>
+      <div class="kpi-grid">${ROUTE_ORDER.map(([code, label]) => {
+        const n = Number((routeMap.get(code) || {}).n || 0);
+        const tone = code === 'A' && n > 0 ? 'accent' : '';
+        return `<button class="kpi ${tone}" data-action="home-route" data-route-code="${code}" style="text-align:left;cursor:pointer"><span>${code}｜${label}</span><strong>${n}</strong></button>`;
+      }).join('')}</div>
+      <p class="help" style="margin:8px 0 0">點任一格會跳到人選中心並自動篩選。A 是阿財判斷「硬條件沒問題、分數夠高」的人，建議今天先打。
+      <a href="#" data-action="open-route-spec" style="margin-left:4px">分流規則怎麼算？</a></p></article>` : '';
+    return routeBlock;
+  },
+  // 正在 AI 面談（原首頁，2026-10-15 搬到每日工作台總覽最上面）
+  liveInterviews: (live) => (live && live.length) ? `<article class="card"><h2>正在 AI 面談（${live.length}）</h2>${list(live, (i) => `<button class="list-row" data-route="interviews"><span><b>${text(i.candidate_name || i.name)}</b><small>${text(i.job_title || i.job)}</small></span>${hostBadge(i.interview_host)}${statusBadge(i.interview_state || i.state || 'active')}</button>`)}</article>` : '',
   homeData: ({ overview, live }) => { const now = overview?.now || {};
     // 2026-09-21 加：阿財分流 A–E。顧問每天打開後台第一個問題是「今天先打給誰」，
     // 在這之前首頁八張卡沒有一張回答得了。A 那格點下去直接跳到人選中心並套好篩選。

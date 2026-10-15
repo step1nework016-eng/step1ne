@@ -18,7 +18,7 @@ import { loadDailyTab } from './daily.js';
 const OWNER_KEY = 's1ne_candidate_owner';
 const VIEW_KEY = 's1ne_candidate_view';
 const SIDEBAR_KEY = 's1ne_sidebar_collapsed';
-const state = { route: 'home', sub: '', candidateRows: [], poll: null, sourcedItems: [], sourcedSelected: new Set(), pendingAction: null, pendingRouteFilter: null, jobContentRetry: null, social: { month: null, data: null }, candidateOwner: localStorage.getItem(OWNER_KEY) || '', candidateView: localStorage.getItem(VIEW_KEY) || 'card', sidebarCollapsed: localStorage.getItem(SIDEBAR_KEY) === '1', consultantsCache: null, companiesCache: null, jobsCache: null, openCandidateId: null, precallCardCache: null, linechat: { owner: localStorage.getItem('s1ne_linechat_owner') || '', candidates: [], activeAppId: null, poll: null } };
+const state = { route: 'daily', sub: '', candidateRows: [], poll: null, sourcedItems: [], sourcedSelected: new Set(), pendingAction: null, pendingRouteFilter: null, jobContentRetry: null, social: { month: null, data: null }, candidateOwner: localStorage.getItem(OWNER_KEY) || '', candidateView: localStorage.getItem(VIEW_KEY) || 'card', sidebarCollapsed: localStorage.getItem(SIDEBAR_KEY) === '1', consultantsCache: null, companiesCache: null, jobsCache: null, openCandidateId: null, precallCardCache: null, linechat: { owner: localStorage.getItem('s1ne_linechat_owner') || '', candidates: [], activeAppId: null, poll: null } };
 
 function hasToken() { return Boolean(localStorage.getItem(CONFIG.tokenKey)); }
 
@@ -53,7 +53,10 @@ async function loadRoute() {
   if (state.route === 'candidates') return loadCandidateTab(target);
   if (state.route === 'jobs') return loadJobTab(target);
   if (state.route === 'interviews') {
-    await boundary(target, adapters.interviews, (data) => views.interviewRows(filterSessions(data)), 'refresh');
+    // 阿財分流（原首頁）：/admin/overview 較重，10 分鐘內共用同一份，不跟著面談輪詢一直重抓（D1 額度）
+    const ov = state.routeOverview && Date.now() - state.routeOverview.at < 600000 ? state.routeOverview.data
+      : await api.get('/admin/overview').then((d) => { state.routeOverview = { at: Date.now(), data: d }; return d; }).catch(() => null);
+    await boundary(target, adapters.interviews, (data) => views.routeBlock(ov) + views.interviewRows(filterSessions(data)), 'refresh');
     startPolling();
     return;
   }
@@ -4697,6 +4700,7 @@ async function drawThreadsCharts(rows) {
 
 // ── 進度看板（2026-10-05）────────────────────────────────────────────────
 // 2026-10-15：每日工作台的企業 BD／人才追蹤切到「看板」時，借用同一套看板。
+window.addEventListener('step1ne:daily-live', async (e) => { const el = e.detail && e.detail.target; if (!el) return; try { const r = await api.get('/admin/interviews/live'); const live = r.items || r.interviews || r.sessions || (Array.isArray(r) ? r : []); el.innerHTML = views.liveInterviews(live); } catch { el.innerHTML = ''; } });
 window.addEventListener('step1ne:daily-board', (e) => { const { target, kind } = e.detail || {}; if (target) loadBoardTab(target, kind); });
 // 篩選（負責人／顯示已結案）記在瀏覽器；資料每次進來重抓，不做自動刷新
 // （tracker 很重，見 2026-09-01 D1 額度事故，不能再放 30 秒輪詢）。
