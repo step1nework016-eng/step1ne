@@ -135,10 +135,11 @@ function renderProgress(rows) {
 var LIFF_ID = '2011631457-WcDji8Bx';
 var IDT = null;
 // 2026-10-16：已綁定的人點選單打開這頁就直接看到進度（用 LINE 登入身分查，第一次綁定時對好兩組 ID）
+var DIAG = {};
 async function fetchProgress() {
   try {
     var r = await fetch(RECRUIT_API + '/progress-liff', { method: 'POST', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ id_token: IDT || '', k: K || '' }) });
+      body: JSON.stringify({ id_token: IDT || '', k: K || '', diag: DIAG }) });
     return await r.json();
   } catch (e) { return null; }
 }
@@ -159,10 +160,12 @@ async function boot() {
   try {
     if (typeof liff !== 'undefined') {
       await liff.init({ liffId: LIFF_ID });
+      DIAG.inClient = liff.isInClient(); DIAG.loggedIn = liff.isLoggedIn();
       if (liff.isLoggedIn()) IDT = liff.getIDToken();
-    }
-  } catch (e) { /* 不在 LINE 裡開也照常往下走 */ }
-  var d = (IDT || K) ? await fetchProgress() : null;
+      DIAG.hasIdt = !!IDT;
+    } else DIAG.noSdk = true;
+  } catch (e) { DIAG.err = String(e && e.message || e).slice(0, 200); }
+  var d = await fetchProgress();
   if (d && d.error === 'token_expired') { goChat('這個查詢連結已經過期，請回聊天室再送一次「查詢我的面試進度」，會收到新的連結。'); return; }
   if (d && d.ok && d.bound) {
     $('loading').hidden = true; $('f').hidden = true; $('hint').hidden = true;
