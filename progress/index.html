@@ -9,35 +9,191 @@ function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', 'G-DNPMMRDEC0');
 </script>
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="robots" content="noindex">
 <title>查詢面試進度｜Step1ne 德仁管理顧問</title>
-<!--
-  2026-10-16 改：查進度不再用網頁表單綁定。
-  原因：這頁的 LINE 登入掛在另一組 LINE 帳號底下，綁到的 ID 官方帳號「全民獵才」推不到通知
-  （liff_progress 綁的 6 筆全部推播失敗）。改成直接打開官方帳號聊天室、帶好「查詢我的面試進度」，
-  在聊天室一則一則核對姓名、信箱、手機，綁到的就是官方帳號認得的 ID。舊版存在 git 歷史裡。
--->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Step1ne 德仁管理顧問">
+<meta property="og:title" content="查詢面試進度｜Step1ne 德仁管理顧問">
+<meta property="og:description" content="Step1ne 德仁管理顧問｜AI 精準媒合・高階獵頭・正職招募">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<!-- 只給從 LINE 圖文選單 LIFF 入口進來的人用，不需要被搜尋引擎收錄 -->
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta name="theme-color" content="#ffffff">
+<!-- 2026-09-16 建：給「從沒收過面談連結、直接在 LINE 冒出來問查詢進度」的陌生
+     候選人用的 LIFF 表單頁。跟 /interview/ 的 LIFF 綁定不一樣——那支已經知道
+     要綁哪個 application_id（從網址上的 chat_token 查得到），這支完全不知道，
+     LINE 身分本身不足以配對到應徵紀錄，一定要姓名+信箱+電話三項一起比對
+     （後端 /progress-liff-bind 沿用跟 LINE OA 對話裡三步驟驗證同一套比對邏輯）。 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-body{margin:0;font:16px/1.7 -apple-system,"Noto Sans TC",sans-serif;background:#f6f9fa;color:#14283a}
-.box{max-width:420px;margin:0 auto;padding:40px 20px;text-align:center}
-h1{font-size:22px;margin:0 0 12px}
-p{margin:0 0 20px;color:#3d5566}
-.btn{display:flex;align-items:center;justify-content:center;min-height:52px;border-radius:12px;background:#06C755;color:#fff;font-weight:700;font-size:17px;text-decoration:none}
-.btn:focus-visible{outline:3px solid #F59E0B;outline-offset:3px}
-small{display:block;margin-top:16px;color:#6b7f8c}
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+html,body{margin:0;padding:0;min-height:100%}
+body{font-family:'Noto Sans TC',system-ui,sans-serif;color:#23262d;background:#fafafa;
+  display:flex;align-items:center;justify-content:center;padding:24px}
+.card{max-width:420px;width:100%;background:#fff;border:1px solid #e6e6e6;border-radius:16px;
+  padding:28px 24px;box-shadow:0 6px 24px rgba(0,0,0,.05)}
+h1{font-size:19px;margin:0 0 6px}
+p.sub{color:#6b7280;font-size:13.5px;margin:0 0 22px;line-height:1.6}
+label{display:block;font-size:13px;color:#374151;margin:14px 0 6px;font-weight:700}
+input{width:100%;padding:11px 12px;border:1px solid #d8dbe2;border-radius:9px;font-size:15px;font-family:inherit}
+input:focus{outline:2px solid #2563eb;outline-offset:1px}
+button{width:100%;margin-top:22px;padding:13px;border:0;border-radius:10px;background:#111;color:#fff;
+  font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+button:disabled{opacity:.5;cursor:default}
+.msg{margin-top:16px;font-size:13.5px;line-height:1.7;padding:12px 14px;border-radius:9px}
+.msg.err{background:#fef2f2;color:#b91c1c}
+.msg.ok{background:#f0fdf4;color:#15803d}
+.oa-nudge{margin-top:14px;padding:16px;border:2px solid #06C755;border-radius:12px;background:#fff}
+.oa-nudge b{display:block;font-size:17px;margin-bottom:6px}.oa-nudge p{margin:0 0 12px;line-height:1.7}
+.oa-btn{display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:10px;background:#06C755;color:#fff;font-weight:700;text-decoration:none;font-size:16px}
+.hint{font-size:12px;color:#9ca3af;margin-top:18px;line-height:1.6}
+/* 2026-09-17 加：已綁定的人直接在網頁上看進度，不用跳回 LINE 對話視窗——
+   一張卡對應一筆應徵紀錄，格式盡量貼近 LINE 那邊的 Flex 卡片，讓候選人
+   兩邊看到的東西感覺是同一套系統，不是兩種不同體驗。 */
+.progress-list{display:grid;gap:12px;margin-top:6px}
+.progress-card{border:1px solid #e6e6e6;border-radius:12px;padding:14px 16px;background:#fafbfc}
+.progress-card.closed{background:#fff7ed;border-color:#fed7aa}
+.progress-card .job{font-size:14px;font-weight:700;margin:0 0 6px}
+.progress-card .body{font-size:13.5px;color:#374151;line-height:1.6;margin:0}
+.progress-card .date{font-size:11.5px;color:#9ca3af;margin:8px 0 0}
 </style>
 </head>
 <body>
-<div class="box">
+
+<div class="card">
   <h1>查詢面試進度</h1>
-  <p>按下面的按鈕會打開 Step1ne 聊天室，並幫你帶好「查詢我的面試進度」，直接按送出就可以。第一次會在聊天室核對姓名、信箱、手機，之後就不用再填。</p>
-  <a class="btn" id="go" href="https://line.me/R/oaMessage/@930yldgp/?%E6%9F%A5%E8%A9%A2%E6%88%91%E7%9A%84%E9%9D%A2%E8%A9%A6%E9%80%B2%E5%BA%A6">打開聊天室查詢</a>
-  <small>沒有自動跳轉的話，請按上面的綠色按鈕。</small>
+  <p class="sub" id="sub">請填應徵時留下的姓名、信箱、電話，核對成功後會直接顯示目前進度。</p>
+  <div class="progress-list" id="progressList" hidden></div>
+  <p class="hint" id="loading">載入中…</p>
+
+  <form id="f" hidden>
+    <label for="nm">姓名</label>
+    <input id="nm" name="nm" autocomplete="name" required>
+    <label for="em">信箱</label>
+    <input id="em" name="em" type="email" autocomplete="email" required>
+    <label for="ph">電話</label>
+    <input id="ph" name="ph" type="tel" autocomplete="tel" required>
+    <button id="submitBtn" type="submit">查詢進度</button>
+  </form>
+
+  <div class="msg err" id="err" hidden></div>
+  <div class="msg ok" id="ok" hidden></div>
+
+  <p class="hint" id="hint" hidden>找不到您的應徵紀錄嗎？可能是三項資訊跟當初填寫的不完全一樣，請直接留言給顧問，我們會盡快協助您。</p>
 </div>
+
 <script>
-setTimeout(function () { location.replace(document.getElementById('go').href); }, 600);
+// 2026-10-16 改：不再用 LINE 登入（LIFF）認人——那組 LINE 登入掛在另一個 LINE 帳號底下，
+// 認到的 ID 官方帳號「全民獵才」推不到通知。改成官方帳號在聊天室回的連結帶通行證（?k=），
+// 通行證裡就是官方帳號認得的 ID；沒有通行證的人先送去聊天室拿。
+var API = 'https://step1ne-public-worker.aiagentg888.workers.dev';
+// 進度資料在 step1ne-recruit-api（跟 LINE 對話裡查進度共用同一個 deriveApplicationProgress()）
+var RECRUIT_API = 'https://step1ne-recruit-api.aiagentg888.workers.dev';
+var CHAT_URL = 'https://line.me/R/oaMessage/@930yldgp/?%E6%9F%A5%E8%A9%A2%E6%88%91%E7%9A%84%E9%9D%A2%E8%A9%A6%E9%80%B2%E5%BA%A6';
+var $ = function (id) { return document.getElementById(id); };
+var K = new URLSearchParams(location.search).get('k') || '';
+
+function renderProgress(rows) {
+  var list = $('progressList');
+  list.innerHTML = '';
+  if (!rows || !rows.length) { list.hidden = true; return false; }
+  rows.forEach(function (r) {
+    var el = document.createElement('div');
+    el.className = 'progress-card' + (r.closed ? ' closed' : '');
+    var dateLine = r.secondStageDate ? ('面試時間：' + r.secondStageDate)
+      : (r.interviewDate ? '應徵日期：' + r.interviewDate : '');
+    el.innerHTML = '<p class="job">' + (r.jobTitle || '').replace(/</g, '&lt;') + '</p>'
+      + '<p class="body">' + (r.message || '').replace(/</g, '&lt;') + '</p>'
+      + (dateLine ? '<p class="date">' + dateLine + '</p>' : '');
+    list.appendChild(el);
+  });
+  list.hidden = false;
+  return true;
+}
+
+async function loadAndShowProgress() {
+  try {
+    var r = await fetch(RECRUIT_API + '/progress-data?k=' + encodeURIComponent(K));
+    var d = await r.json();
+    if (d && d.ok && d.bound && renderProgress(d.rows)) { $('sub').textContent = '以下是目前的應徵進度：'; return true; }
+  } catch (e) { /* 拿不到就照舊顯示文字提示 */ }
+  return false;
+}
+
+function goChat(msg) {
+  $('loading').hidden = true;
+  $('f').hidden = true;
+  $('ok').hidden = false;
+  $('ok').innerHTML = msg + '<br><a href="' + CHAT_URL + '" style="display:inline-block;margin-top:10px;font-weight:700">打開 Step1ne 聊天室</a>';
+}
+
+function boot() {
+  if (!K) {
+    // 直接打開這頁（例如舊的圖文選單按鈕）：送去聊天室，自動帶好「查詢我的面試進度」，官方帳號會回表單連結
+    goChat('正在打開 Step1ne 聊天室，按送出「查詢我的面試進度」後，會收到查詢表單的連結。');
+    setTimeout(function () { location.replace(CHAT_URL); }, 600);
+    return;
+  }
+  $('loading').hidden = true;
+  $('f').hidden = false;
+  $('hint').hidden = false;
+}
+boot();
+
+$('f').addEventListener('submit', function (e) {
+  e.preventDefault();
+  if (!K) return;
+  var btn = $('submitBtn');
+  btn.disabled = true; btn.textContent = '查詢中…';
+  $('err').hidden = true; $('ok').hidden = true;
+
+  fetch(API + '/progress-liff-bind', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      k: K,
+      name: $('nm').value.trim(),
+      email: $('em').value.trim(),
+      phone: $('ph').value.trim(),
+    }),
+  }).then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); })
+    .then(async function (res) {
+      btn.disabled = false; btn.textContent = '查詢進度';
+      if (res.d && res.d.ok) {
+        $('f').hidden = true;
+        $('hint').hidden = true;
+        // 2026-09-17 改：綁定成功後直接秀進度，不要叫使用者跳回 LINE 對話視窗
+        // 再問一次——理由同上面 boot() 那段。
+        var shown = await loadAndShowProgress();
+        $('ok').hidden = false;
+        $('ok').textContent = shown
+          ? '✅ 綁定成功！以下是您目前的應徵進度：'
+          : '✅ 綁定成功！請回到 LINE 對話視窗，再打一次「查詢我的面試進度」，就會看到目前最新進度。';
+      } else {
+        if (res.d && res.d.error === 'token_expired') { goChat('這個查詢連結已經過期，請回聊天室再送一次「查詢我的面試進度」，會收到新的連結。'); return; }
+        $('err').hidden = false;
+        $('err').textContent = (res.d && res.d.error === 'no_match')
+          ? '沒有找到符合的應徵紀錄。請確認電話跟應徵時填的一樣，另外信箱或姓名至少要有一項相同（信箱大小寫不影響）。'
+          : '查詢失敗，請稍後再試一次。';
+      }
+    })
+    .catch(function () {
+      btn.disabled = false; btn.textContent = '查詢進度';
+      $('err').hidden = false; $('err').textContent = '連不上伺服器，請確認網路後再試一次。';
+    });
+});
 </script>
 </body>
 </html>
