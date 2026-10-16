@@ -184,6 +184,12 @@ const agreeRows = (agree) => { if (!agree.length) return empty('還沒有同時�
 // 字樣一致——matched 是「履歷有明確證據符合」，不是「可能」，用「可能符合」這種
 // 模稜兩可的講法違反規格說的「不可虛假精準／不可過度保守」；unmatched 也要講清楚
 // 是「明確不符」，不是含糊的「不符合」。每個狀態都配一個 icon，不能只靠顏色分辨。
+// 2026-10-16 Jacky：跟阿財面談完的人選標 NEW，直到有指派顧問為止
+// 2026-10-16 Jacky：跟阿財面談完的人選標 NEW，直到有顧問手動指派為止（系統不會自動指派）
+const isNewCand = (i) => !!(i && i.aiDone && !i.ownerId);
+// NEW 的人選一律排最上面，其餘照原本順序（穩定排序）
+const newFirst = (items) => (items || []).slice().sort((a, b) => (isNewCand(b) ? 1 : 0) - (isNewCand(a) ? 1 : 0));
+
 export const GATE_STATUS_META = {
   matched: { label: '✅ 已符合', cls: 'good' },
   unknown: { label: '❓ 待確認', cls: 'warn' },
@@ -193,6 +199,8 @@ export const GATE_STATUS_META = {
 const jobCode = (slug) => ((typeof window !== 'undefined' && window.__JOB_CODES) || {})[slug] || '';
 export const actionBtn = (label, actionId, ctx = {}, extraClass = '') => `<button type="button" class="btn ghost sm ${extraClass}" data-open-action="${escapeHtml(actionId)}" data-ctx='${escapeHtml(JSON.stringify(ctx))}'>${text(label)}</button>`;
 export const rowActions = (buttons) => `<div class="actions-row">${buttons.join('')}</div>`;
+// 2026-10-16 Jacky：人選卡片的操作改成下拉選單（按「操作」才展開），卡片上不再一排按鈕
+export const actionMenu = (buttons, label = '操作') => `<details class="act-menu"><summary class="btn primary">${label} ▾</summary><div class="act-menu-list" role="menu">${buttons.filter(Boolean).join('')}</div></details>`;
 
 // 2026-09-15 加 collapsed 參數：使用者要求側欄要能收合展開（表格式看多欄資料時
 // 想多擠一點寬度出來），跟手機版那顆漢堡選單（.mobile-menu／toggle-menu）是
@@ -287,11 +295,11 @@ export const views = {
   // 職缺）、D 紫（人才池）、E 紅（Hard Gate 沒過）。
   // ⚠️ 只有阿財談完、報告產出來才會有值；還在面談中或沒面談的一律不顯示，
   //    不要用「—」佔位——那會讓顧問以為系統判過了只是沒分出來。
-  candidateRows: (items) => list(items, (i) => {
+  candidateRows: (items) => list(newFirst(items), (i) => {
     const placeholder = i.email && /@no-email\.step1ne\.local$/i.test(String(i.email).trim());
     const contact = [i.phone, (i.email && !placeholder) ? i.email : null].filter(Boolean).join(' · ') || '未留聯絡方式';
     const boundClient = i.clientName && i.clientName !== '（未綁客戶）';
-    return `<article class="candidate-card" data-application="${text(i.applicationId)}"><div><h3>${i.seqNo ? `<small class="muted">#${text(i.seqNo)}</small> ` : ''}${text(i.name)} ${routeBadge(i.routeCode, i.routeLabel)}${i.lineBound ? ' <span class="badge success" title="已綁定 LINE，可以直接用 LINE 聯絡">LINE</span>' : ''}${i.hardGate ? ' <span class="badge warning">硬性條件審核</span>' : ''}</h3><p>${text(i.job)}${boundClient ? ` → ${text(i.clientName)}` : ''} · ${text(i.owner)}</p></div>${statusBadge(i.stage)}<dl><div><dt>聯絡方式</dt><dd>${text(contact)}</dd></div><div><dt>來源</dt><dd>${text(i.source || '—')}</dd></div><div><dt>最後活動</dt><dd>${text(i.updatedAt)}</dd></div></dl>${i.duplicate ? `<div class="notice">${text(i.duplicate)}</div>` : ''}<button class="btn primary">查看應徵單</button></article>`;
+    return `<article class="candidate-card" data-application="${text(i.applicationId)}"><div><h3>${isNewCand(i) ? '<span class="badge new-cand" title="跟阿財面談完、還沒指派顧問">NEW</span> ' : ''}${i.seqNo ? `<small class="muted">#${text(i.seqNo)}</small> ` : ''}${text(i.name)} ${routeBadge(i.routeCode, i.routeLabel)}${i.lineBound ? ' <span class="badge success" title="已綁定 LINE，可以直接用 LINE 聯絡">LINE</span>' : ''}${i.hardGate ? ' <span class="badge warning">硬性條件審核</span>' : ''}</h3><p>${text(i.job)}${boundClient ? ` → ${text(i.clientName)}` : ''} · ${text(i.owner)}</p></div>${statusBadge(i.stage)}<dl><div><dt>聯絡方式</dt><dd>${text(contact)}</dd></div><div><dt>來源</dt><dd>${text(i.source || '—')}</dd></div><div><dt>最後活動</dt><dd>${text(i.updatedAt)}</dd></div></dl>${i.duplicate ? `<div class="notice">${text(i.duplicate)}</div>` : ''}<button class="btn primary">查看應徵單</button></article>`;
   }),
   // 表格式——照抄舊版 consultant/tracker 的欄位精神（人選／職缺／客戶／顧問／
   // 階段／聯絡方式／最後活動），縮成一行方便一次掃過大量人選；點列一樣開抽屜。
@@ -299,17 +307,17 @@ export const views = {
   // （職缺名稱）硬撐到 1200px 寬，整張表被拉到 2500px 需要橫向捲動——改成
   // table-layout:fixed + colgroup 固定每欄比例，內容過長用 ellipsis 截斷
   // （標題屬性可以之後補 hover 顯示全文，這輪先求版面不再暴衝）。
-  candidateTableRows: (items) => items.length ? `<div class="table-wrap"><table class="spec"><colgroup><col class="col-name"><col class="col-job"><col class="col-client"><col class="col-owner"><col class="col-stage"><col class="col-stage"><col class="col-contact"><col class="col-updated"></colgroup><tr><th>人選</th><th>目前應徵職缺</th><th>客戶</th><th>顧問</th><th>阿財分流</th><th>階段</th><th>聯絡方式</th><th>最後活動</th></tr>${items.map((i) => {
+  candidateTableRows: (rawItems) => { const items = newFirst(rawItems); return items.length ? `<div class="table-wrap"><table class="spec"><colgroup><col class="col-name"><col class="col-job"><col class="col-client"><col class="col-owner"><col class="col-stage"><col class="col-stage"><col class="col-contact"><col class="col-updated"></colgroup><tr><th>人選</th><th>目前應徵職缺</th><th>客戶</th><th>顧問</th><th>阿財分流</th><th>階段</th><th>聯絡方式</th><th>最後活動</th></tr>${items.map((i) => {
     const placeholder = i.email && /@no-email\.step1ne\.local$/i.test(String(i.email).trim());
     const contact = [i.phone, (i.email && !placeholder) ? i.email : null].filter(Boolean).join(' · ') || '—';
     const boundClient = i.clientName && i.clientName !== '（未綁客戶）';
     return `<tr data-application="${text(i.applicationId)}" style="cursor:pointer">
-      <td>${i.seqNo ? `<small class="muted">#${text(i.seqNo)}</small> ` : ''}${text(i.name)}${i.duplicate ? ' ⚠' : ''}${i.hardGate ? ' <span class="badge warning">硬性條件</span>' : ''}</td>
+      <td>${isNewCand(i) ? '<span class="badge new-cand" title="跟阿財面談完、還沒指派顧問">NEW</span> ' : ''}${i.seqNo ? `<small class="muted">#${text(i.seqNo)}</small> ` : ''}${text(i.name)}${i.duplicate ? ' ⚠' : ''}${i.hardGate ? ' <span class="badge warning">硬性條件</span>' : ''}</td>
       <td title="${escapeHtml(i.job || '')}">${text(i.job)}</td><td title="${escapeHtml(boundClient ? i.clientName : '')}">${boundClient ? text(i.clientName) : '—'}</td><td>${text(i.owner)}</td>
       <td>${i.lineBound ? '<span class="badge success" title="已綁定 LINE">LINE</span> ' : ''}${routeBadge(i.routeCode, i.routeLabel) || '<span class="muted">—</span>'}${i.silentInterview ? ' <small class="muted" title="阿財面談室沒有對話紀錄，不代表沒談過——顧問可能是自己打電話談的">無阿財紀錄</small>' : ''}</td>
       <td>${statusBadge(i.stage)}</td><td>${text(contact)}</td><td>${text(i.updatedAt)}</td>
     </tr>`;
-  }).join('')}</table></div>` : empty('目前沒有資料', '可調整篩選條件或建立新項目。'),
+  }).join('')}</table></div>` : empty('目前沒有資料', '可調整篩選條件或建立新項目。'); },
   // 阿財初篩報告清單。r.app_id 是這份報告所屬的 application_id——整列點擊會開既有的
   // candidateRows 那個豐富抽屜（data-application 是全域點擊委派已經在聽的屬性，
   // 不用另外接線）。決策徽章照 reports.consultant_decision 的三個真實值＋null＝待處置。

@@ -4,7 +4,7 @@ import { resolveRoute, navigate } from './core/router.js';
 import { $, $$, boundary, closeOverlay, closeSubDrawer, drawer, errorState, formFields, loading, modal, openSubDrawer, toast } from './core/ui.js';
 import { escapeHtml, text } from './core/security.js';
 import { adapters, analyticsAdapter } from './adapters.js';
-import { views, actionBtn, rowActions, shell, boardView, boardCandItems, boardClientItems, CAND_COLS, CLIENT_COLS } from './views.js';
+import { views, actionBtn, rowActions, actionMenu, shell, boardView, boardCandItems, boardClientItems, CAND_COLS, CLIENT_COLS } from './views.js';
 import { ACTIONS } from './actions.js';
 import { jdFieldParse } from './jd_fields.js';
 import { initMail, loadMailTab, injectMailSection } from './mail.js';
@@ -2905,11 +2905,22 @@ document.addEventListener('change', (e) => {
   target.dispatchEvent(new Event('change', { bubbles: true }));
 });
 
-async function openCandidate(applicationId) {
+// 2026-10-16 Jacky：人選卡片每次打開、每次設定完都要轉一圈載入。
+// 改成：同一張卡片重新整理時不清空（停在原本捲動位置）；打開過的卡片先用上次的資料立刻顯示，背景再抓最新的換上。
+const cardCache = new Map();
+async function openCandidate(applicationId, opts = {}) {
+  const sameOpen = state.openCandidateId === applicationId && !!document.querySelector('#overlay-root .drawer [data-cand-card]');
   state.openCandidateId = applicationId;
-  drawer({ title: '載入應徵單…', body: loading() });
+  const cached = cardCache.get(applicationId);
+  const keepScroll = sameOpen ? (document.querySelector('#overlay-root .drawer') || {}).scrollTop || 0 : 0;
+  if (sameOpen) document.querySelector('#overlay-root .drawer')?.classList.add('is-refreshing');
+  else if (!cached) drawer({ title: '載入應徵單…', body: loading() });
   try {
-    const card = await adapters.candidateCard(applicationId);
+    const useCache = !!cached && !sameOpen && !opts.fresh;
+    const card = useCache ? cached : await adapters.candidateCard(applicationId);
+    if (state.openCandidateId !== applicationId) return;   // 等資料的時候已經換看別人了
+    cardCache.set(applicationId, card);
+    if (useCache) setTimeout(() => { if (state.openCandidateId === applicationId) openCandidate(applicationId, { fresh: true }); }, 0);
     const application = card.application || card;
     const forwards = card.forwards || [];
     const notes = card.notes || [];
@@ -3053,14 +3064,22 @@ ${views.candidateFormsBlock(f.forms, applicationId, companyId)}
     // 所以「有值＝顧問新增或人才池來的」「沒值＝阿財面談自己應徵進來的」，不用另外
     // 存一個「管道」欄位，用既有資料就能標出三條管道的差異，秀在標題旁邊一眼看到，
     // 不用點進「基本資料」的「來源」那格才看得到。
+    // 2026-10-16 Jacky：常用設定不要每次跳彈窗——顧問、階段直接在卡片上選，選完就存；備註直接打字存。
+    const consList = await ensureConsultants();
+    const STAGE_OPTS = [['screening', '阿財初審'], ['confirm', '顧問確認'], ['stage1', '第一階段'], ['stage2', '第二階段'], ['stage3', '第三階段'], ['stage4', '第四階段'], ['offer', '錄取'], ['onboard', '報到'], ['care', '到職關懷'], ['backup', '備選']];
+    const quickSet = `<div class="quick-set" data-qs-app="${escapeHtml(applicationId)}">
+      <label>負責顧問<select data-qs-owner><option value="">未指派</option>${(consList || []).filter((c) => c.is_active || c.id === application.owner).map((c) => `<option value="${escapeHtml(c.id)}"${c.id === application.owner ? ' selected' : ''}>${escapeHtml(c.display_name)}</option>`).join('')}</select></label>
+      <label>階段<select data-qs-stage>${application.manual_stage ? '' : '<option value="" selected disabled>（系統自動判斷）</option>'}${STAGE_OPTS.map(([v, l]) => `<option value="${v}"${v === application.manual_stage ? ' selected' : ''}>${l}</option>`).join('')}</select></label>
+      <span class="qs-status" data-qs-status aria-live="polite"></span>
+      <div class="quick-note"><select data-qn-type aria-label="備註類型"><option>評估</option><option>聯繫紀錄</option><option>客戶回饋</option><option>其他</option></select><textarea data-qn-text rows="2" placeholder="直接打一筆顧問備註…"></textarea><button type="button" class="btn sm primary" data-qn-save>存備註</button></div>
+    </div>`;
     const channelTag = application.source_channel ? text(application.source_channel) : '阿財面談應徵';
     drawer({
       // seq_no 是舊版拿來防止顧問誤刪錯人時比對用的固定流水編號（見 applications.seq_no
       // ／trg_applications_seq_no 觸發器），一直沒搬進 V3 標題。
       title: (application.seq_no ? `#${application.seq_no} ` : '') + (application.name || '應徵單'),
       subtitle: `${application.job_title || application.job_slug || ''} · ${channelTag}`,
-      body: `<div class="drawer-section">${dupNoticeHtml}${jobSwitchHtml}${views.socialSourceBadge(card.social_source)}${stageBar}${views.clientResumeBox(applicationId, card.client_formal_reports || [], forwards, card.anon_report)}${views.jobMatchTop(report)}<h3>基本資料${contactBadge}${hardGateBadge}</h3>${basics}<h3>操作</h3>${rowActions([
-        actionBtn('新增顧問備註', 'application-notes', ctxId, 'primary'),
+      body: `<div class="drawer-section">${dupNoticeHtml}${jobSwitchHtml}${views.socialSourceBadge(card.social_source)}${stageBar}${quickSet}${views.clientResumeBox(applicationId, card.client_formal_reports || [], forwards, card.anon_report)}${views.jobMatchTop(report)}<h3>基本資料${contactBadge}${hardGateBadge}</h3>${basics}<h3>操作</h3>${actionMenu([
         // 2026-09-17 改名：這顆原本也叫「電洽前準備」，但實際上是手動打字存進
         // consultant_call_notes 的表單，跟「電洽」階段格裡新加的 AI Pre-call Card
         // （PRECALL_PHASE1）是完全不同兩個功能，同名會讓人以為是同一顆——
@@ -3068,8 +3087,6 @@ ${views.candidateFormsBlock(f.forms, applicationId, companyId)}
         // 跟 call_prep_md／call-prep-generate 那條 AI 產生的路徑無關，改名消除混淆。
         actionBtn('手動記一筆電洽重點', 'application-call-note', ctxId),
         actionBtn('修改電洽摘要', 'application-call-summary', ctxId),
-        actionBtn('指派負責顧問', 'set-owner', { idParams: { kind: 'application', id: applicationId } }),
-        actionBtn('手動調整階段', 'set-manual-stage', ctxId),
         actionBtn('編輯應徵單', 'application-update', { idParams: { application_id: applicationId }, record: application }),
         // 2026-09-15 拔除這裡的「AI 初篩報告決策」跟「推薦給客戶」——使用者要求
         // 進度條格子裡已經有的操作不要在操作列表重複一份，這兩顆只留在
@@ -3092,8 +3109,9 @@ ${views.candidateFormsBlock(f.forms, applicationId, companyId)}
         // 用途（把同一位人選轉去另一個職缺重開一筆）跟「推薦給客戶」是不同語意，
         // 這輪先拔掉避免顧問點到一顆壞按鈕，之後真的要做再照 doManualForward 的
         // 真實欄位重建。
-      ])}<h3>顧問備註／電洽紀錄</h3>${notesHtml}<h3>推薦客戶進度</h3>${forwardRows}<h3>最近歷程</h3>${timelineHtml}</div>`,
+      ])}<h3>顧問備註／電洽紀錄</h3>${notesHtml}<h3>推薦客戶進度</h3>${forwardRows}<h3>最近歷程</h3>${timelineHtml}<i data-cand-card hidden></i></div>`,
     });
+    if (keepScroll) { const dr = document.querySelector('#overlay-root .drawer'); if (dr) dr.scrollTop = keepScroll; }
     wireCandidateDrawer(applicationId, application, forwards, report);
     injectMailSection('candidate', applicationId);
   } catch (error) {
@@ -3891,7 +3909,7 @@ async function submitForwardCandidate(applicationId) {
       note: form.querySelector('[name="note"]').value.trim() || undefined,
     });
     toast(`已推薦給 ${result.company || '客戶'}`, 'success');
-    if (state.openCandidateId) openCandidate(state.openCandidateId);
+    if (state.openCandidateId) openCandidate(state.openCandidateId, { fresh: true });
     else { closeOverlay(); refreshCurrentView(); }
   } catch (error) {
     console.error(error); toast(error.message, 'error');
@@ -4078,6 +4096,63 @@ async function submitJobCardFeedback(slug) {
 }
 
 // ---- generic mutation drawer for the ACTIONS registry ----
+// 2026-10-16：列表上這位人選的「顧問」欄與 NEW 標示，指派後立刻改（列表資料與畫面都改，背景更新回來會再對齊一次）
+function patchCandidateOwner(applicationId, ownerId) {
+  const name = ownerId ? (((state.consultantsCache || []).find((c) => c.id === ownerId) || {}).display_name || ownerId) : '';
+  (state.candidateRows || []).forEach((r) => { if (r.applicationId === applicationId) { r.ownerId = ownerId || null; r.owner = name || null; } });
+  document.querySelectorAll(`#page-data [data-application="${CSS.escape(applicationId)}"]`).forEach((row) => {
+    if (ownerId) row.querySelectorAll('.badge.new-cand').forEach((b) => b.remove());
+    if (row.tagName === 'TR' && row.cells && row.cells[3]) row.cells[3].textContent = name || '—';
+  });
+}
+
+document.addEventListener('click', (e) => {
+  const inMenu = e.target.closest('.act-menu');
+  if (e.target.closest('.act-menu-list button, .act-menu-list a')) { inMenu?.removeAttribute('open'); return; }
+  document.querySelectorAll('.act-menu[open]').forEach((d) => { if (d !== inMenu) d.removeAttribute('open'); });
+});
+
+// 2026-10-16：卡片上的「快速設定」——改了就存，不跳彈窗
+async function quickSave(appId, label, fn) {
+  const box = document.querySelector(`[data-qs-app="${CSS.escape(appId)}"] [data-qs-status]`);
+  if (box) box.textContent = '儲存中…';
+  try {
+    await fn();
+    if (box) box.textContent = `✓ ${label}已儲存`;
+    toast(`${label}已儲存`, 'success');
+    openCandidate(appId, { fresh: true });
+    if (state.route === 'candidates') refreshCurrentView();
+  } catch (error) {
+    console.error(error);
+    if (box) box.textContent = '';
+    toast(`${label}沒存成功：${error.message || error}`, 'error');
+  }
+}
+document.addEventListener('change', (e) => {
+  const wrap = e.target.closest('[data-qs-app]');
+  if (!wrap) return;
+  const appId = wrap.getAttribute('data-qs-app');
+  if (e.target.matches('[data-qs-owner]')) {
+    const owner = e.target.value;
+    patchCandidateOwner(appId, owner);
+    quickSave(appId, '負責顧問', () => api.post('/admin/set-owner', { kind: 'application', id: appId, owner }));
+  } else if (e.target.matches('[data-qs-stage]') && e.target.value) {
+    const stage = e.target.value;
+    quickSave(appId, '階段', () => api.post('/admin/set-manual-stage', { application_id: appId, stage, note: '' }));
+  }
+});
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-qn-save]');
+  if (!btn) return;
+  const wrap = btn.closest('[data-qs-app]');
+  const appId = wrap.getAttribute('data-qs-app');
+  const content = (wrap.querySelector('[data-qn-text]').value || '').trim();
+  if (!content) { toast('先打備註內容', 'error'); return; }
+  const type = wrap.querySelector('[data-qn-type]').value;
+  btn.disabled = true;
+  quickSave(appId, '備註', () => api.post('/admin/application/notes', { application_id: appId, type, content })).finally(() => { btn.disabled = false; });
+});
+
 function refreshCurrentView() {
   if (state.route === 'candidates' && state.sub !== 'workbench' && state.sub !== 'pool') return loadRoute();
   loadRoute();
@@ -4160,7 +4235,13 @@ async function submitPendingAction() {
     // 如果這個操作是在人選卡片裡點出來的（state.openCandidateId 有值），
     // 送出後重新打開同一位人選的卡片（拿到最新資料），不要被丟回列表；
     // 其他情境（職缺／客戶等其他抽屜或跟卡片無關的操作）維持原本行為。
-    if (state.openCandidateId) openCandidate(state.openCandidateId);
+    // 2026-10-16 Jacky：卡片裡指派完，後面的列表要馬上變（顧問名字出現、NEW 消失），不用等整份重抓。
+    if (action === ACTIONS['set-owner'] && ctx.idParams && ctx.idParams.kind === 'application') patchCandidateOwner(ctx.idParams.id, values.owner || '');
+    if (state.openCandidateId) {
+      openCandidate(state.openCandidateId, { fresh: true });
+      // 卡片開著時，後面的列表也在背景悄悄更新（不清空畫面，見 core/ui.js boundary）
+      if (state.route === 'candidates') refreshCurrentView();
+    }
     else { closeOverlay(); refreshCurrentView(); }
   } catch (error) {
     console.error(error);
@@ -4195,7 +4276,7 @@ document.addEventListener('click', async (event) => {
     // 用「目前蓋在最上面的是不是 .modal」判斷，不只認 pendingAction 那一種子彈窗；
     // 卡片自己的 .drawer 被關（沒有 .modal 疊在上面），才是真的要整個關閉。
     const subModalOpen = !!document.querySelector('#overlay-root .modal');
-    if (subModalOpen && state.openCandidateId) { state.pendingAction = null; openCandidate(state.openCandidateId); return; }
+    if (subModalOpen && state.openCandidateId) { state.pendingAction = null; openCandidate(state.openCandidateId, { fresh: true }); return; }
     state.openCandidateId = null;
     closeOverlay();
     return;
@@ -4568,7 +4649,7 @@ render();
       await api.post('/admin/client-formal-reports/confirm-upload',
         { application_id: z.dataset.cfrApp, company_id: z.dataset.cfrCo, pdf_b64, filename: file.name });
       toast('已上傳，客戶在企業後台看得到了', 'success');
-      if (state.openCandidateId) openCandidate(state.openCandidateId);
+      if (state.openCandidateId) openCandidate(state.openCandidateId, { fresh: true });
     } catch (err) {
       z.classList.remove('uploading');
       toast(`上傳失敗：${err.message || err}`, 'error');
