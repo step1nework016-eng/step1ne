@@ -185,7 +185,8 @@ const agreeRows = (agree) => { if (!agree.length) return empty('還沒有同時�
 // 模稜兩可的講法違反規格說的「不可虛假精準／不可過度保守」；unmatched 也要講清楚
 // 是「明確不符」，不是含糊的「不符合」。每個狀態都配一個 icon，不能只靠顏色分辨。
 // 2026-10-16 Jacky：跟阿財面談完的人選標 NEW，直到有指派顧問為止
-const isNewCand = (i) => !!(i && i.aiDone && !i.ownerId);
+// 2026-10-16 改：系統會自動指派顧問（例如 BIM 職缺預設 Phoebe），只看有沒有指派會漏掉——改成「面談完、顧問還沒決定（還在等顧問決定）或還沒指派」
+const isNewCand = (i) => !!(i && i.aiDone && (!i.ownerId || i.stage === 'decide'));
 // NEW 的人選一律排最上面，其餘照原本順序（穩定排序）
 const newFirst = (items) => (items || []).slice().sort((a, b) => (isNewCand(b) ? 1 : 0) - (isNewCand(a) ? 1 : 0));
 
@@ -296,7 +297,7 @@ export const views = {
     const placeholder = i.email && /@no-email\.step1ne\.local$/i.test(String(i.email).trim());
     const contact = [i.phone, (i.email && !placeholder) ? i.email : null].filter(Boolean).join(' · ') || '未留聯絡方式';
     const boundClient = i.clientName && i.clientName !== '（未綁客戶）';
-    return `<article class="candidate-card" data-application="${text(i.applicationId)}"><div><h3>${isNewCand(i) ? '<span class="badge new-cand" title="跟阿財面談完、還沒指派顧問">NEW</span> ' : ''}${i.seqNo ? `<small class="muted">#${text(i.seqNo)}</small> ` : ''}${text(i.name)} ${routeBadge(i.routeCode, i.routeLabel)}${i.lineBound ? ' <span class="badge success" title="已綁定 LINE，可以直接用 LINE 聯絡">LINE</span>' : ''}${i.hardGate ? ' <span class="badge warning">硬性條件審核</span>' : ''}</h3><p>${text(i.job)}${boundClient ? ` → ${text(i.clientName)}` : ''} · ${text(i.owner)}</p></div>${statusBadge(i.stage)}<dl><div><dt>聯絡方式</dt><dd>${text(contact)}</dd></div><div><dt>來源</dt><dd>${text(i.source || '—')}</dd></div><div><dt>最後活動</dt><dd>${text(i.updatedAt)}</dd></div></dl>${i.duplicate ? `<div class="notice">${text(i.duplicate)}</div>` : ''}<button class="btn primary">查看應徵單</button></article>`;
+    return `<article class="candidate-card" data-application="${text(i.applicationId)}"><div><h3>${isNewCand(i) ? '<span class="badge new-cand" title="跟阿財面談完、顧問還沒處理">NEW</span> ' : ''}${i.seqNo ? `<small class="muted">#${text(i.seqNo)}</small> ` : ''}${text(i.name)} ${routeBadge(i.routeCode, i.routeLabel)}${i.lineBound ? ' <span class="badge success" title="已綁定 LINE，可以直接用 LINE 聯絡">LINE</span>' : ''}${i.hardGate ? ' <span class="badge warning">硬性條件審核</span>' : ''}</h3><p>${text(i.job)}${boundClient ? ` → ${text(i.clientName)}` : ''} · ${text(i.owner)}</p></div>${statusBadge(i.stage)}<dl><div><dt>聯絡方式</dt><dd>${text(contact)}</dd></div><div><dt>來源</dt><dd>${text(i.source || '—')}</dd></div><div><dt>最後活動</dt><dd>${text(i.updatedAt)}</dd></div></dl>${i.duplicate ? `<div class="notice">${text(i.duplicate)}</div>` : ''}<button class="btn primary">查看應徵單</button></article>`;
   }),
   // 表格式——照抄舊版 consultant/tracker 的欄位精神（人選／職缺／客戶／顧問／
   // 階段／聯絡方式／最後活動），縮成一行方便一次掃過大量人選；點列一樣開抽屜。
@@ -309,7 +310,7 @@ export const views = {
     const contact = [i.phone, (i.email && !placeholder) ? i.email : null].filter(Boolean).join(' · ') || '—';
     const boundClient = i.clientName && i.clientName !== '（未綁客戶）';
     return `<tr data-application="${text(i.applicationId)}" style="cursor:pointer">
-      <td>${isNewCand(i) ? '<span class="badge new-cand" title="跟阿財面談完、還沒指派顧問">NEW</span> ' : ''}${i.seqNo ? `<small class="muted">#${text(i.seqNo)}</small> ` : ''}${text(i.name)}${i.duplicate ? ' ⚠' : ''}${i.hardGate ? ' <span class="badge warning">硬性條件</span>' : ''}</td>
+      <td>${isNewCand(i) ? '<span class="badge new-cand" title="跟阿財面談完、顧問還沒處理">NEW</span> ' : ''}${i.seqNo ? `<small class="muted">#${text(i.seqNo)}</small> ` : ''}${text(i.name)}${i.duplicate ? ' ⚠' : ''}${i.hardGate ? ' <span class="badge warning">硬性條件</span>' : ''}</td>
       <td title="${escapeHtml(i.job || '')}">${text(i.job)}</td><td title="${escapeHtml(boundClient ? i.clientName : '')}">${boundClient ? text(i.clientName) : '—'}</td><td>${text(i.owner)}</td>
       <td>${i.lineBound ? '<span class="badge success" title="已綁定 LINE">LINE</span> ' : ''}${routeBadge(i.routeCode, i.routeLabel) || '<span class="muted">—</span>'}${i.silentInterview ? ' <small class="muted" title="阿財面談室沒有對話紀錄，不代表沒談過——顧問可能是自己打電話談的">無阿財紀錄</small>' : ''}</td>
       <td>${statusBadge(i.stage)}</td><td>${text(contact)}</td><td>${text(i.updatedAt)}</td>
