@@ -69,6 +69,7 @@ button:disabled{opacity:.5;cursor:default}
 .progress-card .body{font-size:13.5px;color:#374151;line-height:1.6;margin:0}
 .progress-card .date{font-size:11.5px;color:#9ca3af;margin:8px 0 0}
 </style>
+<script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 </head>
 <body>
 
@@ -131,12 +132,19 @@ function renderProgress(rows) {
   return true;
 }
 
-async function loadAndShowProgress() {
+var LIFF_ID = '2011631457-WcDji8Bx';
+var IDT = null;
+// 2026-10-16：已綁定的人點選單打開這頁就直接看到進度（用 LINE 登入身分查，第一次綁定時對好兩組 ID）
+async function fetchProgress() {
   try {
-    var r = await fetch(RECRUIT_API + '/progress-data?k=' + encodeURIComponent(K));
-    var d = await r.json();
-    if (d && d.ok && d.bound && renderProgress(d.rows)) { $('sub').textContent = '以下是目前的應徵進度：'; return true; }
-  } catch (e) { /* 拿不到就照舊顯示文字提示 */ }
+    var r = await fetch(RECRUIT_API + '/progress-liff', { method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ id_token: IDT || '', k: K || '' }) });
+    return await r.json();
+  } catch (e) { return null; }
+}
+async function loadAndShowProgress() {
+  var d = await fetchProgress();
+  if (d && d.ok && d.bound && renderProgress(d.rows)) { $('sub').textContent = '以下是目前的應徵進度：'; return true; }
   return false;
 }
 
@@ -147,16 +155,25 @@ function goChat(msg) {
   $('ok').innerHTML = msg + '<br><a href="' + CHAT_URL + '" style="display:inline-block;margin-top:10px;font-weight:700">打開 Step1ne 聊天室</a>';
 }
 
-function boot() {
-  if (!K) {
-    // 直接打開這頁（例如舊的圖文選單按鈕）：送去聊天室，自動帶好「查詢我的面試進度」，官方帳號會回表單連結
-    goChat('正在打開 Step1ne 聊天室，按送出「查詢我的面試進度」後，會收到查詢表單的連結。');
-    setTimeout(function () { location.replace(CHAT_URL); }, 600);
+async function boot() {
+  try {
+    if (typeof liff !== 'undefined') {
+      await liff.init({ liffId: LIFF_ID });
+      if (liff.isLoggedIn()) IDT = liff.getIDToken();
+    }
+  } catch (e) { /* 不在 LINE 裡開也照常往下走 */ }
+  var d = (IDT || K) ? await fetchProgress() : null;
+  if (d && d.error === 'token_expired') { goChat('這個查詢連結已經過期，請回聊天室再送一次「查詢我的面試進度」，會收到新的連結。'); return; }
+  if (d && d.ok && d.bound) {
+    $('loading').hidden = true; $('f').hidden = true; $('hint').hidden = true;
+    if (!renderProgress(d.rows)) { $('ok').hidden = false; $('ok').textContent = '已綁定，目前查不到進行中的應徵紀錄。'; }
+    else $('sub').textContent = '以下是目前的應徵進度：';
     return;
   }
-  $('loading').hidden = true;
-  $('f').hidden = false;
-  $('hint').hidden = false;
+  if (K) { $('loading').hidden = true; $('f').hidden = false; $('hint').hidden = false; return; }
+  // 沒綁定、也沒有通行證：送去聊天室，自動帶好「查詢我的面試進度」，官方帳號會回表單連結
+  goChat('第一次查詢需要先核對身分。正在打開 Step1ne 聊天室，按送出「查詢我的面試進度」後，會收到查詢表單的連結。');
+  setTimeout(function () { location.replace(CHAT_URL); }, 900);
 }
 boot();
 
