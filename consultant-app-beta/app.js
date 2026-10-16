@@ -4078,6 +4078,16 @@ async function submitJobCardFeedback(slug) {
 }
 
 // ---- generic mutation drawer for the ACTIONS registry ----
+// 2026-10-16：列表上這位人選的「顧問」欄與 NEW 標示，指派後立刻改（列表資料與畫面都改，背景更新回來會再對齊一次）
+function patchCandidateOwner(applicationId, ownerId) {
+  const name = ownerId ? (((state.consultantsCache || []).find((c) => c.id === ownerId) || {}).display_name || ownerId) : '';
+  (state.candidateRows || []).forEach((r) => { if (r.applicationId === applicationId) { r.ownerId = ownerId || null; r.owner = name || null; } });
+  document.querySelectorAll(`#page-data [data-application="${CSS.escape(applicationId)}"]`).forEach((row) => {
+    if (ownerId) row.querySelectorAll('.badge.new-cand').forEach((b) => b.remove());
+    if (row.tagName === 'TR' && row.cells && row.cells[3]) row.cells[3].textContent = name || '—';
+  });
+}
+
 function refreshCurrentView() {
   if (state.route === 'candidates' && state.sub !== 'workbench' && state.sub !== 'pool') return loadRoute();
   loadRoute();
@@ -4160,7 +4170,13 @@ async function submitPendingAction() {
     // 如果這個操作是在人選卡片裡點出來的（state.openCandidateId 有值），
     // 送出後重新打開同一位人選的卡片（拿到最新資料），不要被丟回列表；
     // 其他情境（職缺／客戶等其他抽屜或跟卡片無關的操作）維持原本行為。
-    if (state.openCandidateId) openCandidate(state.openCandidateId);
+    // 2026-10-16 Jacky：卡片裡指派完，後面的列表要馬上變（顧問名字出現、NEW 消失），不用等整份重抓。
+    if (action === ACTIONS['set-owner'] && ctx.idParams && ctx.idParams.kind === 'application') patchCandidateOwner(ctx.idParams.id, values.owner || '');
+    if (state.openCandidateId) {
+      openCandidate(state.openCandidateId);
+      // 卡片開著時，後面的列表也在背景悄悄更新（不清空畫面，見 core/ui.js boundary）
+      if (state.route === 'candidates') refreshCurrentView();
+    }
     else { closeOverlay(); refreshCurrentView(); }
   } catch (error) {
     console.error(error);
