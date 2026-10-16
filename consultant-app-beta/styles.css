@@ -1348,3 +1348,11 @@ svg .rs-val{font-size:15px;font-weight:700;fill:#14232e}svg .rs-lab{font-size:13
 .act-menu-list .btn:hover,.act-menu-list .btn:focus-visible{background:#eef3fb}
 .act-menu-list .btn.danger{color:#a72f3a}
 .drawer.is-refreshing header h2::after{content:" · 更新中…";font-size:12px;color:var(--muted);font-weight:600}
+/* 2026-10-16 人選卡片快速設定：直接選、直接存 */
+.quick-set{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 14px;background:#f5f8fd;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:12px 0}
+.quick-set>label{display:grid;gap:4px;font-size:12px;font-weight:700;color:#4b5870}
+.quick-set select{min-height:40px;min-width:150px}
+.qs-status{font-size:12px;color:#14794c;font-weight:700;min-height:16px}
+.quick-note{flex:1 1 100%;display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:start}
+.quick-note textarea{min-height:40px}
+@media(max-width:560px){.quick-note{grid-template-columns:1fr}.quick-set select{min-width:0;width:100%}.quick-set>label{flex:1 1 45%}}
