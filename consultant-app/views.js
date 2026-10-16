@@ -3129,10 +3129,11 @@ ${a.note ? `<details class="note-details"><summary>顧問備註／電洽紀錄</
     const rows = bindings || [];
     const ST = {
       bound: ['✅ 已綁定', 'success', '查得到是誰，可以直接通知'],
+      needs_rebind: ['⚠️ 需重新綁定', 'warning', '舊方式綁的，通知送不到；請人選在 LINE 點「追蹤面試進度」重填表單'],
       ask_name: ['⚠️ 綁到一半', 'warning', '系統問了名字，他還沒回'],
       pending_phone: ['⬜ 只加好友', 'neutral', '還沒開始綁，對不到是哪位應徵者'],
     };
-    const order = { bound: 0, ask_name: 1, pending_phone: 2 };
+    const order = { bound: 0, needs_rebind: 1, ask_name: 2, pending_phone: 3 };
     const sorted = rows.slice().sort((a, b) => (order[a.state] ?? 9) - (order[b.state] ?? 9)
       || String(b.bound_at || b.updated_at || '').localeCompare(String(a.bound_at || a.updated_at || '')));
     const from = (b) => (b.source_kind === 'post_link' ? '從社群貼文連結'

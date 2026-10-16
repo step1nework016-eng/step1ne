@@ -3008,7 +3008,9 @@ ${views.candidateFormsBlock(f.forms, applicationId, companyId)}
           ? `<img src="${escapeHtml(lineBinding.picture_url)}" alt="">`
           : text((lineBinding.display_name || '?').slice(0, 2))}</span> `
         + `<span class="badge success">已綁定</span>${lineBinding.display_name ? ' ' + text(lineBinding.display_name) : ''}`
-      : `<span class="muted">未綁定 LINE</span>`;
+      : card.line_rebind
+        ? `<span class="badge warning">需重新綁定</span> <span class="muted">舊方式綁的，LINE 通知送不到；請人選在 LINE 點「追蹤面試進度」重填表單</span>`
+        : `<span class="muted">未綁定 LINE</span>`;
     const basics = `<div class="two-col"><div><dl class="kv-grid">
       <dt>聯絡方式</dt><dd>${text(application.email || '—')}${application.phone ? ' · ' + text(application.phone) : ''}</dd>
       <dt>期望薪資</dt><dd>${text(application.expected_salary || '—')}</dd>
