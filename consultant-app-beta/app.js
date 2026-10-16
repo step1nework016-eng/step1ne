@@ -3008,7 +3008,9 @@ ${views.candidateFormsBlock(f.forms, applicationId, companyId)}
           ? `<img src="${escapeHtml(lineBinding.picture_url)}" alt="">`
           : text((lineBinding.display_name || '?').slice(0, 2))}</span> `
         + `<span class="badge success">已綁定</span>${lineBinding.display_name ? ' ' + text(lineBinding.display_name) : ''}`
-      : `<span class="muted">未綁定 LINE</span>`;
+      : card.line_rebind
+        ? `<span class="badge warning">需重新綁定</span> <span class="muted">舊方式綁的，LINE 通知送不到；請人選在 LINE 點「追蹤面試進度」重填表單</span>`
+        : `<span class="muted">未綁定 LINE</span>`;
     const basics = `<div class="two-col"><div><dl class="kv-grid">
       <dt>聯絡方式</dt><dd>${text(application.email || '—')}${application.phone ? ' · ' + text(application.phone) : ''}</dd>
       <dt>期望薪資</dt><dd>${text(application.expected_salary || '—')}</dd>
@@ -4210,6 +4212,8 @@ document.addEventListener('click', async (event) => {
     openAction(actionId, ctx);
     return;
   }
+  // 2026-10-15 Jacky：今日下一步那列按「✓ 完成／取消／我看過了」不要連帶打開人選卡片（按鈕在整列可點的區塊裡）
+  if (target.closest('[data-dly]')) return;
   const application = target.closest('[data-application]');
   if (application) { openCandidate(application.getAttribute('data-application')); return; }
   const session = target.closest('[data-session]');
