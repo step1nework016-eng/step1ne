@@ -1339,3 +1339,12 @@ svg .rs-val{font-size:15px;font-weight:700;fill:#14232e}svg .rs-lab{font-size:13
 #page-data{position:relative}
 #page-data.is-refreshing::before{content:"更新中…";position:sticky;top:8px;float:right;z-index:5;background:#1f3b73;color:#fff;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;box-shadow:0 4px 12px rgba(0,0,0,.15)}
 @media(prefers-reduced-motion:no-preference){#page-data.is-refreshing{transition:opacity .2s}#page-data.is-refreshing>*{opacity:.75}}
+/* 2026-10-16 人選卡片操作下拉選單 */
+.act-menu{position:relative;display:inline-block;margin-top:8px}
+.act-menu>summary{list-style:none;cursor:pointer;min-height:40px;display:inline-flex;align-items:center}
+.act-menu>summary::-webkit-details-marker{display:none}
+.act-menu-list{position:absolute;left:0;top:calc(100% + 6px);z-index:30;min-width:240px;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 16px 40px rgba(20,35,60,.18);padding:6px;display:grid;gap:2px}
+.act-menu-list .btn{width:100%;justify-content:flex-start;text-align:left;border:0;background:none;color:#33405a;padding:10px 12px;min-height:40px;display:flex}
+.act-menu-list .btn:hover,.act-menu-list .btn:focus-visible{background:#eef3fb}
+.act-menu-list .btn.danger{color:#a72f3a}
+.drawer.is-refreshing header h2::after{content:" · 更新中…";font-size:12px;color:var(--muted);font-weight:600}

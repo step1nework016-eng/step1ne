@@ -199,6 +199,8 @@ export const GATE_STATUS_META = {
 const jobCode = (slug) => ((typeof window !== 'undefined' && window.__JOB_CODES) || {})[slug] || '';
 export const actionBtn = (label, actionId, ctx = {}, extraClass = '') => `<button type="button" class="btn ghost sm ${extraClass}" data-open-action="${escapeHtml(actionId)}" data-ctx='${escapeHtml(JSON.stringify(ctx))}'>${text(label)}</button>`;
 export const rowActions = (buttons) => `<div class="actions-row">${buttons.join('')}</div>`;
+// 2026-10-16 Jacky：人選卡片的操作改成下拉選單（按「操作」才展開），卡片上不再一排按鈕
+export const actionMenu = (buttons, label = '操作') => `<details class="act-menu"><summary class="btn primary">${label} ▾</summary><div class="act-menu-list" role="menu">${buttons.filter(Boolean).join('')}</div></details>`;
 
 // 2026-09-15 加 collapsed 參數：使用者要求側欄要能收合展開（表格式看多欄資料時
 // 想多擠一點寬度出來），跟手機版那顆漢堡選單（.mobile-menu／toggle-menu）是

@@ -2905,11 +2905,22 @@ document.addEventListener('change', (e) => {
   target.dispatchEvent(new Event('change', { bubbles: true }));
 });
 
-async function openCandidate(applicationId) {
+// 2026-10-16 Jacky：人選卡片每次打開、每次設定完都要轉一圈載入。
+// 改成：同一張卡片重新整理時不清空（停在原本捲動位置）；打開過的卡片先用上次的資料立刻顯示，背景再抓最新的換上。
+const cardCache = new Map();
+async function openCandidate(applicationId, opts = {}) {
+  const sameOpen = state.openCandidateId === applicationId && !!document.querySelector('#overlay-root .drawer [data-cand-card]');
   state.openCandidateId = applicationId;
-  drawer({ title: '載入應徵單…', body: loading() });
+  const cached = cardCache.get(applicationId);
+  const keepScroll = sameOpen ? (document.querySelector('#overlay-root .drawer') || {}).scrollTop || 0 : 0;
+  if (sameOpen) document.querySelector('#overlay-root .drawer')?.classList.add('is-refreshing');
+  else if (!cached) drawer({ title: '載入應徵單…', body: loading() });
   try {
-    const card = await adapters.candidateCard(applicationId);
+    const useCache = !!cached && !sameOpen && !opts.fresh;
+    const card = useCache ? cached : await adapters.candidateCard(applicationId);
+    if (state.openCandidateId !== applicationId) return;   // 等資料的時候已經換看別人了
+    cardCache.set(applicationId, card);
+    if (useCache) setTimeout(() => { if (state.openCandidateId === applicationId) openCandidate(applicationId, { fresh: true }); }, 0);
     const application = card.application || card;
     const forwards = card.forwards || [];
     const notes = card.notes || [];
@@ -3059,8 +3070,8 @@ ${views.candidateFormsBlock(f.forms, applicationId, companyId)}
       // ／trg_applications_seq_no 觸發器），一直沒搬進 V3 標題。
       title: (application.seq_no ? `#${application.seq_no} ` : '') + (application.name || '應徵單'),
       subtitle: `${application.job_title || application.job_slug || ''} · ${channelTag}`,
-      body: `<div class="drawer-section">${dupNoticeHtml}${jobSwitchHtml}${views.socialSourceBadge(card.social_source)}${stageBar}${views.clientResumeBox(applicationId, card.client_formal_reports || [], forwards, card.anon_report)}${views.jobMatchTop(report)}<h3>基本資料${contactBadge}${hardGateBadge}</h3>${basics}<h3>操作</h3>${rowActions([
-        actionBtn('新增顧問備註', 'application-notes', ctxId, 'primary'),
+      body: `<div class="drawer-section">${dupNoticeHtml}${jobSwitchHtml}${views.socialSourceBadge(card.social_source)}${stageBar}${views.clientResumeBox(applicationId, card.client_formal_reports || [], forwards, card.anon_report)}${views.jobMatchTop(report)}<h3>基本資料${contactBadge}${hardGateBadge}</h3>${basics}<h3>操作</h3>${views.actionMenu([
+        actionBtn('新增顧問備註', 'application-notes', ctxId),
         // 2026-09-17 改名：這顆原本也叫「電洽前準備」，但實際上是手動打字存進
         // consultant_call_notes 的表單，跟「電洽」階段格裡新加的 AI Pre-call Card
         // （PRECALL_PHASE1）是完全不同兩個功能，同名會讓人以為是同一顆——
@@ -3092,8 +3103,9 @@ ${views.candidateFormsBlock(f.forms, applicationId, companyId)}
         // 用途（把同一位人選轉去另一個職缺重開一筆）跟「推薦給客戶」是不同語意，
         // 這輪先拔掉避免顧問點到一顆壞按鈕，之後真的要做再照 doManualForward 的
         // 真實欄位重建。
-      ])}<h3>顧問備註／電洽紀錄</h3>${notesHtml}<h3>推薦客戶進度</h3>${forwardRows}<h3>最近歷程</h3>${timelineHtml}</div>`,
+      ])}<h3>顧問備註／電洽紀錄</h3>${notesHtml}<h3>推薦客戶進度</h3>${forwardRows}<h3>最近歷程</h3>${timelineHtml}<i data-cand-card hidden></i></div>`,
     });
+    if (keepScroll) { const dr = document.querySelector('#overlay-root .drawer'); if (dr) dr.scrollTop = keepScroll; }
     wireCandidateDrawer(applicationId, application, forwards, report);
     injectMailSection('candidate', applicationId);
   } catch (error) {
@@ -3891,7 +3903,7 @@ async function submitForwardCandidate(applicationId) {
       note: form.querySelector('[name="note"]').value.trim() || undefined,
     });
     toast(`已推薦給 ${result.company || '客戶'}`, 'success');
-    if (state.openCandidateId) openCandidate(state.openCandidateId);
+    if (state.openCandidateId) openCandidate(state.openCandidateId, { fresh: true });
     else { closeOverlay(); refreshCurrentView(); }
   } catch (error) {
     console.error(error); toast(error.message, 'error');
@@ -4088,6 +4100,12 @@ function patchCandidateOwner(applicationId, ownerId) {
   });
 }
 
+document.addEventListener('click', (e) => {
+  const inMenu = e.target.closest('.act-menu');
+  if (e.target.closest('.act-menu-list button, .act-menu-list a')) { inMenu?.removeAttribute('open'); return; }
+  document.querySelectorAll('.act-menu[open]').forEach((d) => { if (d !== inMenu) d.removeAttribute('open'); });
+});
+
 function refreshCurrentView() {
   if (state.route === 'candidates' && state.sub !== 'workbench' && state.sub !== 'pool') return loadRoute();
   loadRoute();
@@ -4173,7 +4191,7 @@ async function submitPendingAction() {
     // 2026-10-16 Jacky：卡片裡指派完，後面的列表要馬上變（顧問名字出現、NEW 消失），不用等整份重抓。
     if (action === ACTIONS['set-owner'] && ctx.idParams && ctx.idParams.kind === 'application') patchCandidateOwner(ctx.idParams.id, values.owner || '');
     if (state.openCandidateId) {
-      openCandidate(state.openCandidateId);
+      openCandidate(state.openCandidateId, { fresh: true });
       // 卡片開著時，後面的列表也在背景悄悄更新（不清空畫面，見 core/ui.js boundary）
       if (state.route === 'candidates') refreshCurrentView();
     }
@@ -4211,7 +4229,7 @@ document.addEventListener('click', async (event) => {
     // 用「目前蓋在最上面的是不是 .modal」判斷，不只認 pendingAction 那一種子彈窗；
     // 卡片自己的 .drawer 被關（沒有 .modal 疊在上面），才是真的要整個關閉。
     const subModalOpen = !!document.querySelector('#overlay-root .modal');
-    if (subModalOpen && state.openCandidateId) { state.pendingAction = null; openCandidate(state.openCandidateId); return; }
+    if (subModalOpen && state.openCandidateId) { state.pendingAction = null; openCandidate(state.openCandidateId, { fresh: true }); return; }
     state.openCandidateId = null;
     closeOverlay();
     return;
@@ -4584,7 +4602,7 @@ render();
       await api.post('/admin/client-formal-reports/confirm-upload',
         { application_id: z.dataset.cfrApp, company_id: z.dataset.cfrCo, pdf_b64, filename: file.name });
       toast('已上傳，客戶在企業後台看得到了', 'success');
-      if (state.openCandidateId) openCandidate(state.openCandidateId);
+      if (state.openCandidateId) openCandidate(state.openCandidateId, { fresh: true });
     } catch (err) {
       z.classList.remove('uploading');
       toast(`上傳失敗：${err.message || err}`, 'error');
