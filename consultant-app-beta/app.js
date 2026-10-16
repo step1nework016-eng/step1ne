@@ -4,7 +4,7 @@ import { resolveRoute, navigate } from './core/router.js';
 import { $, $$, boundary, closeOverlay, closeSubDrawer, drawer, errorState, formFields, loading, modal, openSubDrawer, toast } from './core/ui.js';
 import { escapeHtml, text } from './core/security.js';
 import { adapters, analyticsAdapter } from './adapters.js';
-import { views, actionBtn, rowActions, shell, boardView, boardCandItems, boardClientItems, CAND_COLS, CLIENT_COLS } from './views.js';
+import { views, actionBtn, rowActions, actionMenu, shell, boardView, boardCandItems, boardClientItems, CAND_COLS, CLIENT_COLS } from './views.js';
 import { ACTIONS } from './actions.js';
 import { jdFieldParse } from './jd_fields.js';
 import { initMail, loadMailTab, injectMailSection } from './mail.js';
@@ -3070,7 +3070,7 @@ ${views.candidateFormsBlock(f.forms, applicationId, companyId)}
       // ／trg_applications_seq_no 觸發器），一直沒搬進 V3 標題。
       title: (application.seq_no ? `#${application.seq_no} ` : '') + (application.name || '應徵單'),
       subtitle: `${application.job_title || application.job_slug || ''} · ${channelTag}`,
-      body: `<div class="drawer-section">${dupNoticeHtml}${jobSwitchHtml}${views.socialSourceBadge(card.social_source)}${stageBar}${views.clientResumeBox(applicationId, card.client_formal_reports || [], forwards, card.anon_report)}${views.jobMatchTop(report)}<h3>基本資料${contactBadge}${hardGateBadge}</h3>${basics}<h3>操作</h3>${views.actionMenu([
+      body: `<div class="drawer-section">${dupNoticeHtml}${jobSwitchHtml}${views.socialSourceBadge(card.social_source)}${stageBar}${views.clientResumeBox(applicationId, card.client_formal_reports || [], forwards, card.anon_report)}${views.jobMatchTop(report)}<h3>基本資料${contactBadge}${hardGateBadge}</h3>${basics}<h3>操作</h3>${actionMenu([
         actionBtn('新增顧問備註', 'application-notes', ctxId),
         // 2026-09-17 改名：這顆原本也叫「電洽前準備」，但實際上是手動打字存進
         // consultant_call_notes 的表單，跟「電洽」階段格裡新加的 AI Pre-call Card
