@@ -36,7 +36,7 @@ export function bdJobsPane(detail) {
     return `<article class="bdj-job" data-bdj-slug="${escapeHtml(j.slug)}">
       <details class="bdj-acc" ${jobs.length <= 1 ? 'open' : ''}><summary class="bdj-sum"><span class="bdj-sum-t">${text(j.title || '（未命名職缺）')}</span><span class="bdj-sum-m">${text([j.locations, pay(j.salary_min, j.salary_max) ? '月薪 ' + pay(j.salary_min, j.salary_max) : ''].filter(Boolean).join('｜'))}</span><span class="bdj-mchip" data-bdm-chip></span></summary>
       <div class="bdj-top"><div>${j.ai_read && !j.checked ? `<span class="bdj-chip no">${j.src_kind === '104' ? '讀自 104，請核對' : 'AI 讀的，請核對'}</span> ` : ''}<span class="bdj-src">${text({ 104: '104 連結', text: '貼文字', file: '截圖／PDF', manual: '手動新增' }[j.src_kind] || '手動新增')}${j.src_url ? `　<a href="${escapeHtml(j.src_url)}" target="_blank" rel="noopener">${text(j.src_url.slice(0, 50))}</a>` : ''}</span></div>
-        ${live ? '' : `<button type="button" class="bdj-btn sm" data-bdj-convert>轉成正式職缺</button>`}</div>
+        ${live ? '' : `<div class="bdj-acts"><button type="button" class="bdj-btn sm" data-bdj-convert>轉成正式職缺</button><button type="button" class="bdj-btn sm bdj-del" data-bdj-del>刪除職缺</button></div>`}</div>
       ${live ? '<p class="help">這個職缺已轉成正式職缺，請到「職缺」管理修改。</p>' : `<div class="bdj-grid">
         <label class="bdj-f full">職缺名稱<input data-bdj-k="title" value="${escapeHtml(j.title)}" maxlength="80"></label>
         <label class="bdj-f">地點<input data-bdj-k="locations" value="${escapeHtml(j.locations || '')}" maxlength="200"></label>
@@ -219,6 +219,18 @@ export function wireBdJobs(root, detail, reload) {
       const slug = el.closest('[data-bdj-slug]').dataset.bdjSlug;
       try { await api.post('/admin/bd/client-job-update', { slug, [el.dataset.bdjK]: el.value }); toast('已儲存', 'success'); }
       catch (err) { toast(err.message || '儲存失敗', 'error'); }
+    };
+  });
+  // 2026-10-16 Jacky：客戶提供的職缺要能刪。走既有的 DELETE /admin/jobs/:slug（有人應徵過的職缺後端會擋，不會弄丟人選進度）。
+  box.querySelectorAll('[data-bdj-del]').forEach((b) => {
+    b.onclick = async () => {
+      const art = b.closest('[data-bdj-slug]');
+      const slug = art.dataset.bdjSlug;
+      const title = (art.querySelector('.bdj-sum-t') || {}).textContent || '這個職缺';
+      if (!window.confirm(`確定要刪除「${title}」嗎？刪除後就不能再用這個職缺發社群。`)) return;
+      b.disabled = true;
+      try { await api.del(`/admin/jobs/${encodeURIComponent(slug)}`); toast('已刪除職缺', 'success'); await reload({ openJobs: true }); }
+      catch (err) { toast(err.message || '刪除失敗', 'error'); b.disabled = false; }
     };
   });
   box.querySelectorAll('[data-bdj-convert]').forEach((b) => {
