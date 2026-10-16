@@ -1335,3 +1335,7 @@ svg .rs-val{font-size:15px;font-weight:700;fill:#14232e}svg .rs-lab{font-size:13
 .bdj-btn.bdj-del:hover{background:#fef3f2}
 /* 2026-10-16 人選 NEW：跟阿財面談完、還沒指派顧問 */
 .badge.new-cand{background:#e11d48;color:#fff;font-weight:800;letter-spacing:.04em}
+/* 2026-10-16 重新整理不清空畫面：右上角小標示「更新中…」 */
+#page-data{position:relative}
+#page-data.is-refreshing::before{content:"更新中…";position:sticky;top:8px;float:right;z-index:5;background:#1f3b73;color:#fff;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+@media(prefers-reduced-motion:no-preference){#page-data.is-refreshing{transition:opacity .2s}#page-data.is-refreshing>*{opacity:.75}}

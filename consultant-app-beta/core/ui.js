@@ -66,11 +66,24 @@ export function formFields(fields, values = {}) {
   }).join('')}</div>`;
 }
 
+// 2026-10-16 Jacky：做完一個動作畫面就整頁清空、跳回最上面、等好幾秒才出現最新狀態。
+// 改成：同一個畫面「重新整理」時，舊內容留著（右上角顯示「更新中…」），資料回來才換掉，捲動位置保留；
+// 只有第一次打開這個畫面（新的 #page-data）才顯示載入中。更新失敗時保留舊畫面、跳提示，不把畫面換成錯誤頁。
 export async function boundary(target, task, render, retryAction = '') {
-  target.innerHTML = loading();
-  try { target.innerHTML = render(await task()); }
-  catch (error) {
+  const refresh = target.dataset.ready === '1' && target.childElementCount > 0;
+  if (!refresh) target.innerHTML = loading();
+  else target.classList.add('is-refreshing');
+  const y = window.scrollY;
+  try {
+    const html = render(await task());
+    target.innerHTML = html;
+    target.dataset.ready = '1';
+    if (refresh) window.scrollTo(0, y);
+  } catch (error) {
     console.error(error);
-    target.innerHTML = errorState(error, retryAction);
+    if (refresh) toast('更新失敗，畫面顯示的是上一次的資料：' + (error && error.message || ''), 'error');
+    else target.innerHTML = errorState(error, retryAction);
+  } finally {
+    target.classList.remove('is-refreshing');
   }
 }

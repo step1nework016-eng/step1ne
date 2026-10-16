@@ -92,9 +92,15 @@ function boardHtml() {
 
 export async function loadChannelsTab(el) {
   target = el;
-  target.innerHTML = loading();
-  try { data = await api.get('/admin/channels'); } catch (e) { target.innerHTML = errorState(e); return; }
+  // 2026-10-16：已經顯示過的看板重新整理時不清空畫面（同 core/ui.js boundary 的做法）
+  const refresh = target.dataset.ready === '1' && target.childElementCount > 0;
+  const y = window.scrollY;
+  if (!refresh) target.innerHTML = loading(); else target.classList.add('is-refreshing');
+  try { data = await api.get('/admin/channels'); } catch (e) { target.classList.remove('is-refreshing'); if (!refresh) target.innerHTML = errorState(e); return; }
+  target.classList.remove('is-refreshing');
   draw();
+  target.dataset.ready = '1';
+  if (refresh) window.scrollTo(0, y);
 }
 function draw() {
   if (!target || !document.body.contains(target)) return;
