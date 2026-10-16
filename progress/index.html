@@ -103,7 +103,15 @@ var API = 'https://step1ne-public-worker.aiagentg888.workers.dev';
 var RECRUIT_API = 'https://step1ne-recruit-api.aiagentg888.workers.dev';
 var CHAT_URL = 'https://line.me/R/oaMessage/@930yldgp/?%E6%9F%A5%E8%A9%A2%E6%88%91%E7%9A%84%E9%9D%A2%E8%A9%A6%E9%80%B2%E5%BA%A6';
 var $ = function (id) { return document.getElementById(id); };
-var K = new URLSearchParams(location.search).get('k') || '';
+// 從 LIFF 網址（liff.line.me/...?k=）進來時，k 可能直接在網址上，也可能包在 liff.state 裡
+function readK() {
+  var q = new URLSearchParams(location.search);
+  if (q.get('k')) return q.get('k');
+  var st = q.get('liff.state');
+  if (st) { try { var i = st.indexOf('?'); var q2 = new URLSearchParams(i >= 0 ? st.slice(i + 1) : st); if (q2.get('k')) return q2.get('k'); } catch (e) {} }
+  return '';
+}
+var K = readK();
 
 function renderProgress(rows) {
   var list = $('progressList');
