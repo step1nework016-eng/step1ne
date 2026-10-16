@@ -56,6 +56,9 @@ button:disabled{opacity:.5;cursor:default}
 .msg{margin-top:16px;font-size:13.5px;line-height:1.7;padding:12px 14px;border-radius:9px}
 .msg.err{background:#fef2f2;color:#b91c1c}
 .msg.ok{background:#f0fdf4;color:#15803d}
+.oa-nudge{margin-top:14px;padding:16px;border:2px solid #06C755;border-radius:12px;background:#fff}
+.oa-nudge b{display:block;font-size:17px;margin-bottom:6px}.oa-nudge p{margin:0 0 12px;line-height:1.7}
+.oa-btn{display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:10px;background:#06C755;color:#fff;font-weight:700;text-decoration:none;font-size:16px}
 .hint{font-size:12px;color:#9ca3af;margin-top:18px;line-height:1.6}
 /* 2026-09-17 加：已綁定的人直接在網頁上看進度，不用跳回 LINE 對話視窗——
    一張卡對應一筆應徵紀錄，格式盡量貼近 LINE 那邊的 Flex 卡片，讓候選人
@@ -88,6 +91,13 @@ button:disabled{opacity:.5;cursor:default}
 
   <div class="msg err" id="err" hidden></div>
   <div class="msg ok" id="ok" hidden></div>
+
+  <!-- 2026-10-16：查進度頁綁定拿到的 LINE ID 官方帳號認不得，人選要加官方帳號好友並傳一句話，系統才能自動對上、通知才送得到 -->
+  <div class="oa-nudge" id="oaNudge" hidden>
+    <b>最後一步：加入 Step1ne 官方帳號</b>
+    <p>請按下面的按鈕加入好友，並傳一句「你好」。完成後，面談邀約與進度通知才會送到你的 LINE。</p>
+    <a class="oa-btn" href="https://lin.ee/XcSWPzM">加入官方帳號並打聲招呼</a>
+  </div>
 
   <p class="hint" id="hint" hidden>找不到您的應徵紀錄嗎？可能是三項資訊跟當初填寫的不完全一樣，請直接留言給顧問，我們會盡快協助您。</p>
 </div>
@@ -156,6 +166,7 @@ async function boot() {
         // 那句提示（fallback，不讓畫面空白或卡住）。表單維持預設隱藏
         // （HTML 一開始就是 hidden），已綁定的人從頭到尾不會看到表單閃一下。
         var shown = await loadAndShowProgress(profile.userId);
+        $('oaNudge').hidden = false;
         if (!shown) {
           $('ok').hidden = false;
           $('ok').textContent = '您已經綁定過囉！請回到 LINE 對話視窗，再打一次「查詢我的面試進度」，就會看到目前最新進度。';
@@ -209,6 +220,7 @@ $('f').addEventListener('submit', function (e) {
         // 2026-09-17 改：綁定成功後直接秀進度，不要叫使用者跳回 LINE 對話視窗
         // 再問一次——理由同上面 boot() 那段。
         var shown = await loadAndShowProgress(profile.userId);
+        $('oaNudge').hidden = false;
         $('ok').hidden = false;
         $('ok').textContent = shown
           ? '✅ 綁定成功！以下是您目前的應徵進度：'
