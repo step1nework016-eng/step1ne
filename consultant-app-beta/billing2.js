@@ -10,6 +10,44 @@ const ME_KEY = 's1ne_bill_me';
 const fmt = (n) => (n === null || n === undefined || n === '' || !Number.isFinite(Number(n)) ? '—' : Math.round(Number(n)).toLocaleString('en-US'));
 const getMe = () => { try { return localStorage.getItem(ME_KEY) || ''; } catch { return ''; } };
 const setMe = (v) => { try { localStorage.setItem(ME_KEY, v); } catch { /* 無痕模式存不了就算了 */ } };
+// 2026-10-19 Jacky：檔案框太小不好拖 → 頁面上所有選檔框自動變成「把檔案拖到這裡」的大區塊（點一下也能選）。
+function enhanceDropZone(input) {
+  if (!input || input.dataset.dz) return;
+  input.dataset.dz = '1';
+  const zone = document.createElement('div');
+  zone.className = 'bill2-dz';
+  zone.setAttribute('role', 'button');
+  zone.tabIndex = 0;
+  zone.style.cssText = 'border:2px dashed #9aa6b2;border-radius:12px;padding:22px 14px;text-align:center;cursor:pointer;color:#475569;background:#f8fafc;min-height:44px;transition:background .15s,border-color .15s';
+  const label = () => {
+    const fs = [...(input.files || [])];
+    zone.innerHTML = fs.length
+      ? `<b>已選 ${fs.length} 個檔</b><div style="font-size:13px;margin-top:4px">${fs.map((f) => escapeHtml(f.name)).join('<br>')}</div><div style="font-size:12px;margin-top:6px;color:#64748b">可再拖其他檔進來替換</div>`
+      : '📄 <b>把檔案拖到這裡</b><div style="font-size:13px;margin-top:4px">或點一下選檔' + (input.multiple ? '（可一次放多個）' : '') + '</div>';
+  };
+  input.style.display = 'none';
+  input.insertAdjacentElement('afterend', zone);
+  label();
+  const on = (v) => { zone.style.background = v ? '#e0f2fe' : '#f8fafc'; zone.style.borderColor = v ? '#0284c7' : '#9aa6b2'; };
+  zone.addEventListener('click', () => input.click());
+  zone.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); } });
+  ['dragenter', 'dragover'].forEach((ev) => zone.addEventListener(ev, (e) => { e.preventDefault(); on(true); }));
+  ['dragleave', 'drop'].forEach((ev) => zone.addEventListener(ev, (e) => { e.preventDefault(); on(false); }));
+  zone.addEventListener('drop', (e) => {
+    const dt = e.dataTransfer; if (!dt || !dt.files || !dt.files.length) return;
+    const keep = new DataTransfer();
+    [...dt.files].slice(0, input.multiple ? 50 : 1).forEach((f) => keep.items.add(f));
+    input.files = keep.files;
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+  });
+  input.addEventListener('change', label);
+}
+if (typeof document !== 'undefined' && typeof MutationObserver !== 'undefined') {
+  const scan = () => document.querySelectorAll('input[type="file"]:not([data-dz])').forEach((el) => {
+    if (el.closest('.bill2-scope, #bill2-root') || el.id === 'bill2-files' || el.classList.contains('i-file')) enhanceDropZone(el);
+  });
+  new MutationObserver(scan).observe(document.documentElement, { childList: true, subtree: true });
+}
 const readB64 = (f) => new Promise((ok, bad) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(',')[1]); r.onerror = bad; r.readAsDataURL(f); });
 
 async function download(path, label) {
