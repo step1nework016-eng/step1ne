@@ -86,6 +86,8 @@ function termsBlock(pack, kind, meta) {
 ${manual}
 <div class="actions-row" style="margin-top:10px">
   <button type="button" class="btn" data-bill2-edit="${kind}">✏️ 修改規則</button>
+  <button type="button" class="btn" data-bill2-custom="${kind}" data-cat="">🧱 ＋新增自訂算法</button>
+  ${(t.categories || []).filter((c) => c.fee_type === 'custom').map((c) => `<button type="button" class="btn" data-bill2-custom="${kind}" data-cat="${text(c.name)}">🧱 用積木修改「${text(c.name)}」</button>`).join('')}
   ${kind === 'draft' ? `<label style="display:inline-flex;gap:6px;align-items:center;min-height:44px"><input type="checkbox" id="bill2-apply-schedule" checked> 分期規則套用到之後報到的人選</label>
   <button type="button" class="btn primary" data-bill2-confirm>✅ 確認生效</button>` : ''}
 </div></div>`;
@@ -202,6 +204,8 @@ function placementBody(g, cats) {
 <div class="form-grid" style="margin-top:6px">
 <label class="field"><span>計費月薪（${escapeHtml(src)}）</span><input id="bill2-ms" inputmode="numeric" value="${r.fee_monthly_salary != null ? text(r.fee_monthly_salary) : ''}" placeholder="例：40833"></label>
 <label class="field"><span>年薪（年薪百分比類才需要）</span><input id="bill2-as" inputmode="numeric" value="${r.fee_annual_salary != null ? text(r.fee_annual_salary) : ''}"></label>
+<label class="field"><span>約聘月數（約聘案才需要）</span><input id="bill2-cm" inputmode="decimal" value="${r.fee_contract_months != null ? text(r.fee_contract_months) : ''}" placeholder="例：8"></label>
+${(cats || []).some((c) => (c.needs || []).includes('bonus_months')) ? `<label class="field"><span>年終月數</span><input id="bill2-bm" inputmode="decimal" value="${r.fee_bonus_months != null ? text(r.fee_bonus_months) : ''}"></label>` : ''}
 ${catOpts ? `<label class="field"><span>收費類別</span><select id="bill2-cat">${catOpts}</select></label>` : ''}
 ${lvOpts ? `<label class="field"><span>職級</span><select id="bill2-lv">${lvOpts}</select></label>` : ''}
 </div>
@@ -219,6 +223,7 @@ function catToText(c) {
   if (c.fee_type === 'monthly_multiple') return (c.levels || []).map((l) => `${l.name}=${l.months}`).join('，');
   if (c.fee_type === 'annual_percent') return (c.brackets || []).map((b) => `${b.min ?? ''}-${b.max ?? ''}:${b.percent}${b.min_fee ? `:${b.min_fee}` : ''}`).join('；');
   if (c.fee_type === 'fixed_amount') return String(c.amount || '');
+  if (c.fee_type === 'contract_total_percent') return (c.brackets || []).map((b) => `${b.min ?? ''}-${b.max ?? ''}:${b.percent}${b.months_override ? `:${b.months_override}` : ''}`).join('；');
   return '';
 }
 const instToText = (c) => (c.installments || []).map((x) => `${x.label} ${x.percent}% ${x.trigger_value}${x.trigger_unit === 'months' ? '個月' : '天'}`).join('；');
@@ -228,6 +233,8 @@ function parseCat(name, type, feeText, instText) {
   if (type === 'monthly_multiple') c.levels = parts.map((p) => { const [n, m] = p.split(/[=＝:：]/); return { name: (n || '').trim(), months: Number(m) }; });
   if (type === 'annual_percent') c.brackets = parts.map((p) => { const [rng, pct, mf] = p.split(/[:：]/); const [mi, ma] = String(rng || '').split(/[-～~]/); return { min: mi ? Number(mi.replace(/,/g, '')) : null, max: ma ? Number(ma.replace(/,/g, '')) : null, percent: Number(pct), min_fee: mf ? Number(mf.replace(/,/g, '')) : null }; });
   if (type === 'fixed_amount') c.amount = Number(String(feeText).replace(/[,\s]/g, ''));
+  // 約聘：下限-上限:百分比:計費月數（含下限、不含上限）
+  if (type === 'contract_total_percent') c.brackets = parts.map((p) => { const [rng, pct, mo] = p.split(/[:：]/); const [mi, ma] = String(rng || '').split(/[-～~]/); return { min: mi ? Number(mi) : null, max: ma ? Number(ma) : null, min_inclusive: true, max_inclusive: false, percent: Number(pct), months_override: mo ? Number(mo) : null }; });
   c.installments = String(instText || '').split(/[；;\n]/).map((s) => s.trim()).filter(Boolean).map((s) => {
     const m = s.match(/^(.*?)\s*([\d.]+)\s*%\s*(\d+)\s*(個月|月|天|日)/);
     return m ? { label: m[1].trim() || undefined, percent: Number(m[2]), trigger_value: Number(m[3]), trigger_unit: /月/.test(m[4]) ? 'months' : 'days' } : { label: s, percent: null };
@@ -236,12 +243,12 @@ function parseCat(name, type, feeText, instText) {
 }
 function editorBody(t) {
   const cats = (t.categories && t.categories.length ? t.categories : [{ name: '正職代招', fee_type: 'monthly_multiple', levels: [], installments: [] }]);
-  const typeOpts = (v) => [['monthly_multiple', '月薪倍數（依職級）'], ['annual_percent', '固定年薪百分比（依級距）'], ['fixed_amount', '固定金額'], ['manual', '需人工設定（系統不算）']]
+  const typeOpts = (v) => [['monthly_multiple', '月薪倍數（依職級）'], ['annual_percent', '固定年薪百分比（依級距）'], ['fixed_amount', '固定金額'], ['contract_total_percent', '約聘總薪資比例（依約聘月數）'], ...(v === 'custom' ? [['custom', '自訂算法（積木）']] : []), ['manual', '需人工設定（系統不算）']]
     .map(([k, l]) => `<option value="${k}"${v === k ? ' selected' : ''}>${l}</option>`).join('');
   const catRows = cats.map((c, i) => `<div class="bill2-cat" style="border:1px dashed #ccc;border-radius:8px;padding:8px;margin-bottom:8px">
 <div class="form-grid"><label class="field"><span>類別名稱</span><input class="c-name" value="${text(c.name, '')}"></label>
 <label class="field"><span>收費型態</span><select class="c-type">${typeOpts(c.fee_type)}</select></label>
-<label class="field span-2"><span>收費內容（月薪倍數：一般職員=1.5，管理職=2｜年薪百分比：0-1399999:20:200000；1400000-2000000:25；2000001-:26（下限-上限:百分比:最低服務費）｜固定金額：50000）</span><input class="c-fee" value="${text(catToText(c), '')}"></label>
+${c.fee_type === 'custom' ? `<div class="field span-2"><span>自訂算法（要改請關掉這個視窗，在規則區塊按「🧱 用積木修改」）</span><div class="muted">${escapeHtml(c.explain_text || '')}</div><textarea class="c-json" hidden>${escapeHtml(JSON.stringify(c))}</textarea></div>` : `<label class="field span-2"><span>收費內容（月薪倍數：一般職員=1.5，管理職=2｜年薪百分比：0-1399999:20:200000；1400000-2000000:25；2000001-:26（下限-上限:百分比:最低服務費）｜固定金額：50000｜約聘：6-9:30:6；9-12:25；12-:20（約聘月數下限-上限（含下限、不含上限）:百分比:以幾個月計））</span><input class="c-fee" value="${text(catToText(c), '')}"></label>`}
 <label class="field span-2"><span>分期（例：第一期 50% 30天；第二期 25% 3個月；第三期 25% 6個月｜一次付清 100% 30天）</span><input class="c-inst" value="${text(instToText(c), '')}"></label></div>
 ${i ? '<button type="button" class="btn danger sm c-del">刪除這類</button>' : ''}</div>`).join('');
   const b = t.bank || {};
@@ -263,7 +270,14 @@ ${i ? '<button type="button" class="btn danger sm c-del">刪除這類</button>' 
 </div></div>`;
 }
 function collectEditor(base) {
-  const cats = $$('#bill2-editor .bill2-cat').map((el) => parseCat($('.c-name', el).value.trim(), $('.c-type', el).value, $('.c-fee', el).value, $('.c-inst', el).value));
+  const cats = $$('#bill2-editor .bill2-cat').map((el) => {
+    if ($('.c-json', el) && $('.c-type', el).value === 'custom') {
+      const c = JSON.parse($('.c-json', el).value);
+      const p = parseCat('', 'custom', '', $('.c-inst', el).value);
+      return { ...c, name: $('.c-name', el).value.trim() || c.name, installments: p.installments };
+    }
+    return parseCat($('.c-name', el).value.trim(), $('.c-type', el).value, $('.c-fee', el) ? $('.c-fee', el).value : '', $('.c-inst', el).value);
+  });
   const capType = $('#e-cap-type').value;
   return { ...base, categories: cats, pay_within_days: $('#e-days').value, pay_from: $('#e-from').value, tax_rate: $('#e-tax').value,
     late_fee: { ...(base.late_fee || {}), text: $('#e-late').value || null, type: $('#e-late').value ? ((base.late_fee && base.late_fee.type !== 'none' && base.late_fee.type) || 'other') : 'none' },
@@ -271,6 +285,85 @@ function collectEditor(base) {
     invoice_title: $('#e-title').value, tax_id: $('#e-taxid').value, legal_cap: $('#e-cap').checked,
     legal_cap_rule: capType ? { type: capType, value: $('#e-cap-val').value } : null,
     manual_items: [] };
+}
+
+// ───────── 自訂算法（積木）：只能從固定清單選，不能寫公式 ─────────
+const FACTOR_OPTS = [['monthly', '月薪'], ['annual', '年薪（固定年度薪資總額）'], ['contract_months', '約聘月數'], ['bonus_months', '年終月數'], ['fixed', '固定金額']];
+const VAR_OPTS = [['', '不分級距（只有一級）'], ['annual', '年薪'], ['monthly', '月薪'], ['contract_months', '約聘月數'], ['level', '職級']];
+function cbRow(b = {}) {
+  const v = (x) => (x === null || x === undefined ? '' : escapeHtml(String(x)));
+  return `<tr class="cb-row">
+<td><input class="cb-min" inputmode="decimal" value="${v(b.min)}" style="width:90px"><label style="font-size:12px"><input type="checkbox" class="cb-mini" ${b.min_inclusive === false ? '' : 'checked'}>含</label></td>
+<td><input class="cb-max" inputmode="decimal" value="${v(b.max)}" style="width:90px"><label style="font-size:12px"><input type="checkbox" class="cb-maxi" ${b.max_inclusive ? 'checked' : ''}>含</label></td>
+<td><input class="cb-level" value="${v(b.level)}" style="width:90px" placeholder="職級名稱"></td>
+<td><select class="cb-mode"><option value="percent"${b.mode !== 'multiple' ? ' selected' : ''}>百分比 %</option><option value="multiple"${b.mode === 'multiple' ? ' selected' : ''}>倍數（幾個月／幾倍）</option></select><input class="cb-value" inputmode="decimal" value="${v(b.value)}" style="width:70px"></td>
+<td><input class="cb-mo" inputmode="decimal" value="${v(b.months_override)}" style="width:60px" placeholder="—"></td>
+<td><input class="cb-minfee" inputmode="numeric" value="${v(b.min_fee)}" style="width:90px" placeholder="—"></td>
+<td><input class="cb-maxfee" inputmode="numeric" value="${v(b.max_fee)}" style="width:90px" placeholder="—"></td>
+<td><button type="button" class="btn danger sm cb-del">刪</button></td></tr>`;
+}
+function openCustomBuilder({ pack, catName, cid, reload, me }) {
+  const terms = (pack && pack.terms) || {};
+  const cur = (terms.categories || []).find((c) => c.name === catName && c.fee_type === 'custom') || { name: '', base: ['monthly'], bracket_var: '', brackets: [{ mode: 'percent' }], installments: [{ label: '一次付清', percent: 100, trigger_unit: 'days', trigger_value: 30 }] };
+  const body = `<div id="cb-root">
+<p class="help">用積木組出收費算法：<b>計費基礎</b>（勾的項目相乘）×<b>這一級的倍數或百分比</b>。不用寫公式，系統只會照這些格子算。存檔後是草稿，要在規則區塊按「確認生效」才會用來算錢。</p>
+<div class="form-grid"><label class="field"><span>類別名稱</span><input id="cb-name" value="${text(cur.name, '')}" placeholder="例：約聘、顧問案"></label>
+<label class="field"><span>級距依據</span><select id="cb-var">${VAR_OPTS.map(([k, l]) => `<option value="${k}"${(cur.bracket_var || '') === k ? ' selected' : ''}>${l}</option>`).join('')}</select></label></div>
+<div class="field"><span>① 計費基礎（勾選的項目相乘）</span><div style="display:flex;flex-wrap:wrap;gap:12px">${FACTOR_OPTS.map(([k, l]) => `<label style="min-height:44px;display:inline-flex;gap:6px;align-items:center"><input type="checkbox" class="cb-f" value="${k}" ${(cur.base || []).includes(k) ? 'checked' : ''}>${l}</label>`).join('')}
+<label style="display:inline-flex;gap:6px;align-items:center">固定金額 <input id="cb-fixed" inputmode="numeric" value="${cur.fixed_value ?? ''}" style="width:100px"></label></div></div>
+<div class="field"><span>② 每一級（範圍是「級距依據」的數字；依職級時填職級名稱；計費月數＝約聘月數改用幾個月算）</span>
+<div style="overflow-x:auto"><table><thead><tr><th>下限</th><th>上限</th><th>職級</th><th>倍數／百分比</th><th>計費月數</th><th>最低收費</th><th>最高收費</th><th></th></tr></thead><tbody id="cb-rows">${(cur.brackets || []).map(cbRow).join('')}</tbody></table></div>
+<button type="button" class="btn sm" id="cb-add">＋ 加一級</button></div>
+<label class="field"><span>③ 分期（例：一次付清 100% 10天｜第一期 50% 30天；第二期 25% 3個月；第三期 25% 6個月）</span><input id="cb-inst" value="${text(instToText(cur), '')}"></label>
+<div class="card" style="padding:10px;margin-top:8px"><b>④ 試算（存檔前檢查）</b>
+<div class="form-grid"><label class="field"><span>月薪</span><input class="cb-s" data-k="monthly" value="40000"></label><label class="field"><span>年薪</span><input class="cb-s" data-k="annual" value="1500000"></label>
+<label class="field"><span>約聘月數</span><input class="cb-s" data-k="contract_months" value="8"></label><label class="field"><span>年終月數</span><input class="cb-s" data-k="bonus_months" value="2"></label>
+<label class="field"><span>職級</span><input class="cb-s" data-k="level" value="${text(((cur.brackets || [])[0] || {}).level, '')}"></label></div>
+<div id="cb-preview" class="help">填好會自動試算</div></div></div>`;
+  modal({ title: catName ? `用積木修改「${catName}」` : '新增自訂算法', subtitle: '只能從固定項目選，不能寫公式——系統不會算錯', body, footer: '<button type="button" class="btn primary" id="cb-save">存成草稿</button>' });
+  const collect = () => ({
+    name: $('#cb-name').value.trim() || '自訂算法', fee_type: 'custom', bracket_var: $('#cb-var').value || null,
+    base: $$('.cb-f').filter((x) => x.checked).map((x) => x.value), fixed_value: $('#cb-fixed').value,
+    brackets: $$('#cb-rows .cb-row').map((tr) => ({
+      min: $('.cb-min', tr).value || null, max: $('.cb-max', tr).value || null, min_inclusive: $('.cb-mini', tr).checked, max_inclusive: $('.cb-maxi', tr).checked,
+      level: $('.cb-level', tr).value || null, mode: $('.cb-mode', tr).value, value: $('.cb-value', tr).value,
+      months_override: $('.cb-mo', tr).value || null, min_fee: $('.cb-minfee', tr).value || null, max_fee: $('.cb-maxfee', tr).value || null,
+    })),
+    installments: parseCat('', 'custom', '', $('#cb-inst').value).installments,
+  });
+  let timer = null;
+  const preview = () => {
+    clearTimeout(timer);
+    timer = setTimeout(async () => {
+      const sample = Object.fromEntries($$('.cb-s').map((x) => [x.dataset.k, x.value]));
+      try {
+        const r = await api.post('/admin/billing2/calc-preview', { category: collect(), sample, tax_rate: terms.tax_rate ?? 5 });
+        $('#cb-preview').innerHTML = r.ok
+          ? `<div>規則：${escapeHtml(r.explain || '')}</div><div style="font-weight:600;margin-top:4px">${escapeHtml(r.formula)}</div>${(r.notes || []).map((n) => `<div style="color:#b26a00">${escapeHtml(n)}</div>`).join('')}
+<div style="margin-top:4px">${r.parts.map((x) => `${escapeHtml(x.label)}：${escapeHtml(x.formula)}`).join('<br>')}</div>${r.installments_ok ? '' : '<div style="color:#b26a00">分期還沒填好（各期加起來要 100%），先當一次付清試算</div>'}
+<div class="muted" style="margin-top:6px">${(r.trial || []).map((l) => escapeHtml(l)).join('<br>')}</div>`
+          : `<div style="color:#c62828">${escapeHtml(r.error || '還算不出來')}</div>${r.explain ? `<div>${escapeHtml(r.explain)}</div>` : ''}`;
+      } catch (e) { $('#cb-preview').innerHTML = `<div style="color:#c62828">${escapeHtml(e.message)}</div>`; }
+    }, 350);
+  };
+  const root = $('#cb-root');
+  root.addEventListener('input', preview);
+  root.addEventListener('change', preview);
+  root.addEventListener('click', (e) => {
+    if (e.target.closest('.cb-del')) { e.target.closest('tr').remove(); preview(); }
+    if (e.target.closest('#cb-add')) { $('#cb-rows').insertAdjacentHTML('beforeend', cbRow({ mode: 'percent' })); }
+  });
+  preview();
+  $('#cb-save').onclick = async () => {
+    const cat = collect();
+    const cats = (terms.categories || []).filter((c) => c.name !== (catName || cat.name));
+    try {
+      const r = await api.post('/admin/billing2/terms-save', { company_id: cid, terms: { ...terms, categories: [...cats, cat], manual_items: [] }, by: me() });
+      const bad = (r.terms.categories || []).find((c) => c.name === cat.name && c.fee_type === 'manual');
+      if (bad) { toast('這個算法還不完整，被存成「需人工設定」，請再檢查格子', 'error'); return; }
+      closeOverlay(); toast('已存成草稿，請檢查試算後按「確認生效」', 'success'); reload();
+    } catch (e) { toast(e.message, 'error'); }
+  };
 }
 
 // ───────── 互動 ─────────
@@ -313,6 +406,10 @@ export function wireBillingV2({ state, reload, client, rows, cats }) {
       toast(r.message || '已生效', 'success'); reload();
     } catch (e) { toast(e.message, 'error'); confirmBtn.disabled = false; }
   };
+  $$('[data-bill2-custom]').forEach((b) => { b.onclick = () => {
+    const pack = b.dataset.bill2Custom === 'confirmed' ? client.confirmed : client.draft;
+    openCustomBuilder({ pack, catName: b.dataset.cat || '', cid, reload, me });
+  }; });
   $$('[data-bill2-edit]').forEach((b) => { b.onclick = () => {
     const pack = b.dataset.bill2Edit === 'confirmed' ? client.confirmed : client.draft;
     const base = (pack && pack.terms) || {};
@@ -386,7 +483,8 @@ function openPlacement(pid, rows, cats, reload) {
   };
   const save = $('#bill2-fee-save');
   if (save) save.onclick = async () => {
-    const body = { placement_id: Number(pid), monthly_salary: $('#bill2-ms').value, annual_salary: $('#bill2-as').value };
+    const body = { placement_id: Number(pid), monthly_salary: $('#bill2-ms').value, annual_salary: $('#bill2-as').value, contract_months: $('#bill2-cm').value };
+    if ($('#bill2-bm')) body.bonus_months = $('#bill2-bm').value;
     if ($('#bill2-cat')) body.category = $('#bill2-cat').value;
     if ($('#bill2-lv')) body.level = $('#bill2-lv').value;
     try {
