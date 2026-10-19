@@ -3088,22 +3088,13 @@ ${views.candidateFormsBlock(f.forms, applicationId, companyId)}
       <span class="qs-status" data-qs-status aria-live="polite"></span>
       <div class="quick-note"><select data-qn-type aria-label="備註類型"><option>評估</option><option>聯繫紀錄</option><option>客戶回饋</option><option>其他</option></select><textarea data-qn-text rows="2" placeholder="直接打一筆顧問備註…"></textarea><button type="button" class="btn sm primary" data-qn-save>存備註</button></div>
     </div>`;
-    // 2026-10-19 Jacky：打開卡片第一眼就能看原始履歷，不用先做電洽前卡片、也不用往下捲到基本資料。
-    // PDF／圖片會開新分頁直接看（downloadResume 已處理），Word 檔才會下載。
-    const topResumeBtns = [];
-    if (application.resume_file_id) topResumeBtns.push(`<button type="button" class="btn primary sm" data-download-resume="${escapeHtml(applicationId)}">📄 看原始履歷</button>`);
-    if (application.resume_104_url) topResumeBtns.push(`<a class="btn ghost sm" href="${escapeHtml(application.resume_104_url)}" target="_blank" rel="noopener">104 履歷</a>`);
-    if (application.resume_url) topResumeBtns.push(`<a class="btn ghost sm" href="${escapeHtml(application.resume_url)}" target="_blank" rel="noopener">履歷連結</a>`);
-    const topResumeRow = topResumeBtns.length
-      ? `<div class="actions-row" style="margin:0 0 10px">${topResumeBtns.join('')}</div>`
-      : '<p class="muted" style="margin:0 0 10px">這位人選沒有上傳履歷檔案</p>';
     const channelTag = application.source_channel ? text(application.source_channel) : '阿財面談應徵';
     drawer({
       // seq_no 是舊版拿來防止顧問誤刪錯人時比對用的固定流水編號（見 applications.seq_no
       // ／trg_applications_seq_no 觸發器），一直沒搬進 V3 標題。
       title: (application.seq_no ? `#${application.seq_no} ` : '') + (application.name || '應徵單'),
       subtitle: `${application.job_title || application.job_slug || ''} · ${channelTag}`,
-      body: `<div class="drawer-section">${topResumeRow}${dupNoticeHtml}${jobSwitchHtml}${views.socialSourceBadge(card.social_source)}${stageBar}${quickSet}${views.clientResumeBox(applicationId, card.client_formal_reports || [], forwards, card.anon_report)}${views.jobMatchTop(report)}<h3>基本資料${contactBadge}${hardGateBadge}</h3>${basics}<h3>操作</h3>${actionMenu([
+      body: `<div class="drawer-section">${dupNoticeHtml}${jobSwitchHtml}${views.socialSourceBadge(card.social_source)}${stageBar}${quickSet}${views.clientResumeBox(applicationId, card.client_formal_reports || [], forwards, card.anon_report)}${views.jobMatchTop(report)}<h3>基本資料${contactBadge}${hardGateBadge}</h3>${basics}<h3>操作</h3>${actionMenu([
         // 2026-09-17 改名：這顆原本也叫「電洽前準備」，但實際上是手動打字存進
         // consultant_call_notes 的表單，跟「電洽」階段格裡新加的 AI Pre-call Card
         // （PRECALL_PHASE1）是完全不同兩個功能，同名會讓人以為是同一顆——
