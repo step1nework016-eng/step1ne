@@ -63,6 +63,33 @@ async function download(path, label) {
   } catch (e) { toast(e.message, 'error'); }
 }
 
+// 預覽：帶登入碼抓檔案 → 在頁面上開一層視窗看（PDF 用瀏覽器內建檢視、圖片用 img），不用下載。
+// 用 #sub-overlay-root，蓋在人選明細視窗上面，關掉後明細還在。
+async function preview(path, title) {
+  const root = document.getElementById('sub-overlay-root') || document.body.appendChild(Object.assign(document.createElement('div'), { id: 'sub-overlay-root' }));
+  root.innerHTML = `<div class="mask sub-mask" data-bill2-pv-close style="z-index:1000"></div><section role="dialog" aria-modal="true" aria-label="${escapeHtml(title)}" style="position:fixed;inset:3vh 3vw;z-index:1001;background:var(--panel,#fff);border-radius:12px;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,.3)">
+<header style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;gap:8px"><b style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(title)}</b>
+<span><a href="#" class="bill2-pv-dl">下載</a>&emsp;<button type="button" class="icon-btn" data-bill2-pv-close aria-label="關閉" style="min-width:44px;min-height:44px">×</button></span></header>
+<div class="bill2-pv-body" style="flex:1;min-height:0;display:flex;align-items:center;justify-content:center;background:#f1f3f5;border-radius:0 0 12px 12px;overflow:auto"><p class="help">讀取中…</p></div></section>`;
+  let url = null;
+  const close = () => { root.innerHTML = ''; if (url) URL.revokeObjectURL(url); document.removeEventListener('keydown', onKey); };
+  const onKey = (e) => { if (e.key === 'Escape') close(); };
+  document.addEventListener('keydown', onKey);
+  root.querySelectorAll('[data-bill2-pv-close]').forEach((x) => { x.onclick = close; });
+  root.querySelector('.bill2-pv-dl').onclick = (e) => { e.preventDefault(); download(path, title); };
+  try {
+    const res = await fetch(`${CONFIG.apiBase}${path}`, { headers: { authorization: `Bearer ${localStorage.getItem(CONFIG.tokenKey) || ''}` } });
+    if (!res.ok) { const b = await res.json().catch(() => null); throw new Error(b?.error || `讀取失敗 HTTP ${res.status}`); }
+    const blob = await res.blob();
+    url = URL.createObjectURL(blob);
+    const body = root.querySelector('.bill2-pv-body');
+    if (!body) { URL.revokeObjectURL(url); return; }
+    if (/^image\//.test(blob.type)) body.innerHTML = `<img src="${url}" alt="${escapeHtml(title)}" style="max-width:100%;max-height:100%;object-fit:contain">`;
+    else if (/pdf/.test(blob.type)) body.innerHTML = `<iframe src="${url}" title="${escapeHtml(title)}" style="width:100%;height:100%;border:0"></iframe>`;
+    else body.innerHTML = '<p class="help">這種檔案沒辦法預覽，請按右上角「下載」</p>';
+  } catch (e) { const body = root.querySelector('.bill2-pv-body'); if (body) body.innerHTML = `<p class="help" style="color:#c62828">${escapeHtml(e.message)}</p>`; }
+}
+
 export const billing2Api = {
   client: (id) => api.get(`/admin/billing2/client?company_id=${encodeURIComponent(id)}`),
   placements: (id) => api.get(`/admin/billing2/placements${id ? `?company_id=${encodeURIComponent(id)}` : ''}`),
@@ -102,7 +129,7 @@ export function billingV2View({ companies, companyId, planHtml, client, rows }) 
     const files = client.files || [];
     const dt = client.doc_types || {};
     const fileList = files.length ? files.map((f) => `<div class="list-row"><span><b>${text(dt[f.doc_type] || f.doc_type)}</b>｜${text(f.filename)}<br><small class="muted">${text(f.uploaded_by, '—')}・${text(String(f.created_at || '').slice(0, 16))}</small></span>
-<span><a href="#" data-bill2-dl="${text(f.id)}">下載</a>&emsp;<a href="#" data-bill2-del="${text(f.id)}" style="color:#c62828">移除</a></span></div>`).join('') : empty('還沒上傳已簽合約');
+<span><a href="#" data-bill2-pv="contract" data-id="${text(f.id)}" data-name="${text(f.filename)}">預覽</a>&emsp;<a href="#" data-bill2-dl="${text(f.id)}">下載</a>&emsp;<a href="#" data-bill2-del="${text(f.id)}" style="color:#c62828">移除</a></span></div>`).join('') : empty('還沒上傳已簽合約');
     const rt = client.read_task;
     const rtLine = rt ? `<p class="help">最近一次 AI 讀合約：${text(String(rt.created_at || '').slice(0, 16))}（${text(rt.created_by, '—')}）— ${rt.status === 'done' ? '已讀完' : rt.status === 'error' ? `失敗：${text(rt.error)}` : '讀取中…'}</p>` : '';
     contractCard = `<div class="card" style="margin-top:14px"><h2>已簽合約與收費規則｜${text(client.company.display_name)}</h2>
@@ -173,7 +200,7 @@ function instRow(r) {
     : '<div class="muted">金額還沒算出來（要先有計費月薪＋已生效的合約規則）</div>';
   const inv = r.invoice_no
     ? `<div>發票 ${text(r.invoice_no)}・${text(r.invoice_date)}・金額 ${fmt(r.invoice_amount)}${r.invoice_amount != null && r.amount_taxed != null && Number(r.invoice_amount) !== Number(r.amount_taxed) ? ' <b style="color:#c62828">（跟系統算的不一樣）</b>' : ''}
- <a href="#" data-bill2-inv-dl="${text(r.id)}">下載發票</a><br><small class="muted">${text(r.invoice_uploaded_by, '—')} 上傳於 ${text(String(r.invoice_uploaded_at || '').slice(0, 16))}</small></div>` : '';
+ <a href="#" data-bill2-pv="invoice" data-id="${text(r.id)}" data-name="發票 ${text(r.invoice_no)}">預覽發票</a>&emsp;<a href="#" data-bill2-inv-dl="${text(r.id)}">下載發票</a><br><small class="muted">${text(r.invoice_uploaded_by, '—')} 上傳於 ${text(String(r.invoice_uploaded_at || '').slice(0, 16))}</small></div>` : '';
   const mail = r.invoice_mail_action_id ? `<div class="muted" style="font-size:13px">請款信確認卡：${{ pending: '等人按確認寄出', sending: '寄送中', done: '已寄出', cancelled: '已取消', expired: '已過期', failed: '失敗' }[r.invoice_mail_status] || text(r.invoice_mail_status)}</div>` : '';
   const dun = r.dun_mail_action_id ? `<div class="muted" style="font-size:13px">催款信確認卡：${{ pending: '等人按確認寄出', done: '已寄出', cancelled: '已取消', expired: '已過期', failed: '失敗' }[r.dun_mail_status] || text(r.dun_mail_status)}</div>` : '';
   const rem = [r.reminded_pre7_at && `到期前提醒 ${String(r.reminded_pre7_at).slice(5, 10)}`, r.reminded_due_at && `到期提醒 ${String(r.reminded_due_at).slice(5, 10)}`, r.reminded_overdue_at && `逾期提醒 ${r.overdue_remind_count || 1} 次`].filter(Boolean).join('・');
@@ -199,7 +226,7 @@ function placementBody(g, cats) {
   const cur = (cats || []).find((c) => c.name === (r.fee_category || cats[0]?.name));
   const lvOpts = cur && cur.levels && cur.levels.length ? cur.levels.map((l) => `<option${r.fee_level === l ? ' selected' : ''}>${text(l)}</option>`).join('') : '';
   const src = { offer_ai: 'AI 從聘書讀的', manual: '顧問手動填的' }[r.fee_salary_source] || '還沒有';
-  return `<p class="muted" style="margin:0 0 6px">報到 ${text(r.onboard_date)}・聘書：${r.offer_file_id ? text(r.offer_file_name || '有') : '還沒上傳'}</p>
+  return `<p class="muted" style="margin:0 0 6px">報到 ${text(r.onboard_date)}・聘書：${r.offer_file_id ? `${text(r.offer_file_name || '有')} <a href="#" data-bill2-pv="offer" data-id="${text(r.placement_id)}" data-name="${text(r.offer_file_name || '聘書')}">預覽</a>` : '還沒上傳'}</p>
 <div class="card" style="padding:12px"><b>計費基礎</b>
 <div class="form-grid" style="margin-top:6px">
 <label class="field"><span>計費月薪（${escapeHtml(src)}）</span><input id="bill2-ms" inputmode="numeric" value="${r.fee_monthly_salary != null ? text(r.fee_monthly_salary) : ''}" placeholder="例：40833"></label>
@@ -367,6 +394,15 @@ function openCustomBuilder({ pack, catName, cid, reload, me }) {
 }
 
 // ───────── 互動 ─────────
+if (typeof document !== 'undefined' && !globalThis.__bill2PvWired) {
+  globalThis.__bill2PvWired = true;
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest && e.target.closest('[data-bill2-pv]');
+    if (!a) return;
+    e.preventDefault();
+    preview(`/admin/billing2/file?kind=${encodeURIComponent(a.dataset.bill2Pv)}&id=${encodeURIComponent(a.dataset.id)}`, a.dataset.name || '檔案');
+  });
+}
 export function wireBillingV2({ state, reload, client, rows, cats }) {
   const me = () => getMe() || '顧問';
   const meSel = $('#bill2-me');
