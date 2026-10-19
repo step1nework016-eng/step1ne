@@ -239,6 +239,14 @@ async function loadCandidateTab(target) {
 // 篩選條件跟「我是誰」記在瀏覽器（沒有登入系統，跟人選工作台的顧問選擇同一套做法）。
 // 「我是誰」會寫進資料庫的 email_sent_by／outreach_sent_by，沒選就不准發。
 const AM_KEY = 's1ne_aimatch_ui';
+// 推薦人顯示：舊資料寫「顧問」「consultant」或空白，看不出是誰，就老實寫「未記錄」。
+function forwarderName(by) {
+  const v = String(by || '').trim().toLowerCase();
+  if (!v || v === '顧問' || v === 'consultant' || v === 'backfill') return '未記錄';
+  if (v.includes('jacky')) return 'Jacky';
+  if (v.includes('phoebe') || v === 'behe10' || v === 'ph') return 'Phoebe';
+  return String(by).trim();
+}
 function amUi() {
   if (!state.aiMatch) {
     let saved;
@@ -2982,7 +2990,7 @@ async function openCandidate(applicationId, opts = {}) {
       // 觸發——所以只在這一列強制換行（span 佔滿一整行、按鈕另起一行），
       // 不依賴視窗寬度，也不去動全站 .list-row 這個共用類別去影響到別的地方。
       return `<div>
-<div class="list-row cfr-drop" style="flex-wrap:wrap;row-gap:8px" data-cfr-app="${escapeHtml(applicationId)}" data-cfr-co="${escapeHtml(companyId)}" data-cfr-name="${escapeHtml(f.company_name || '')}" data-cfr-has="${cfr && cfr.consultant_confirmed_at ? '1' : ''}"><span style="flex:1 1 100%"><b>${text(f.company_name)}</b><small>${text(f.job_title || f.job_slug)}${f.stage_label ? ' · ' + text(f.stage_label) : ''}${f.client_note ? ' · ' + text(f.client_note) : ''}${lineIdLine}${cfrLine}${nr ? ' · ⚠ 不推進：' + text(f.advisor_not_recommended_reason || '') : ''}${f.no_show_at ? ' · ⚠ 不報到：' + text(f.no_show_reason || '') : ''}${f.candidate_withdrawn_at ? ' · 🚪 人選已放棄：' + text(f.candidate_withdraw_reason || '') : ''}</small></span>${rowActions([
+<div class="list-row cfr-drop" style="flex-wrap:wrap;row-gap:8px" data-cfr-app="${escapeHtml(applicationId)}" data-cfr-co="${escapeHtml(companyId)}" data-cfr-name="${escapeHtml(f.company_name || '')}" data-cfr-has="${cfr && cfr.consultant_confirmed_at ? '1' : ''}"><span style="flex:1 1 100%"><b>${text(f.company_name)}</b><small>${text(f.job_title || f.job_slug)} · 推薦人：${text(forwarderName(f.forwarded_by))}${f.stage_label ? ' · ' + text(f.stage_label) : ''}${f.client_note ? ' · ' + text(f.client_note) : ''}${lineIdLine}${cfrLine}${nr ? ' · ⚠ 不推進：' + text(f.advisor_not_recommended_reason || '') : ''}${f.no_show_at ? ' · ⚠ 不報到：' + text(f.no_show_reason || '') : ''}${f.candidate_withdrawn_at ? ' · 🚪 人選已放棄：' + text(f.candidate_withdraw_reason || '') : ''}</small></span>${rowActions([
         toggleBtn,
         withdrawBtn,
         editBtn,
@@ -3002,7 +3010,7 @@ ${views.candidateFormsBlock(f.forms, applicationId, companyId)}
       ? `D${text(application.disc_d ?? '—')} I${text(application.disc_i ?? '—')} S${text(application.disc_s ?? '—')} C${text(application.disc_c ?? '—')}${application.disc_primary ? `（主型 ${text(application.disc_primary)}）` : ''}`
       : '尚未測驗';
     const resumeBtns = [];
-    if (application.resume_file_id) resumeBtns.push(`<button type="button" class="btn ghost sm" data-download-resume="${escapeHtml(applicationId)}">下載履歷</button>`);
+    if (application.resume_file_id) resumeBtns.push(`<button type="button" class="btn ghost sm" data-download-resume="${escapeHtml(applicationId)}">看原始履歷</button>`);
     if (application.resume_file_id) resumeBtns.push(`<button type="button" class="btn ghost sm" data-resume-remove="${escapeHtml(application.resume_file_id)}" data-resume-app="${escapeHtml(applicationId)}">拿掉主要履歷</button>`);
     if (application.resume_url) resumeBtns.push(`<a class="btn ghost sm" href="${escapeHtml(application.resume_url)}" target="_blank" rel="noopener">履歷連結</a>`);
     let extraResumes = [];
@@ -3089,6 +3097,11 @@ ${views.candidateFormsBlock(f.forms, applicationId, companyId)}
       <div class="quick-note"><select data-qn-type aria-label="備註類型"><option>評估</option><option>聯繫紀錄</option><option>客戶回饋</option><option>其他</option></select><textarea data-qn-text rows="2" placeholder="直接打一筆顧問備註…"></textarea><button type="button" class="btn sm primary" data-qn-save>存備註</button></div>
     </div>`;
     const channelTag = application.source_channel ? text(application.source_channel) : '阿財面談應徵';
+    // 2026-10-19 Jacky：滑到下面會突然跳回最上面。原因是捲動位置在「開始抓資料前」就記下來了，
+    // 抓資料這 1～2 秒內往下滑，重畫時又被拉回舊位置（常常是 0）。改成重畫前一刻才讀目前位置。
+    const liveDr = document.querySelector('#overlay-root .drawer');
+    const liveCard = liveDr && liveDr.querySelector('[data-cand-card]');
+    const liveScroll = (liveCard && liveCard.getAttribute('data-cand-card') === applicationId) ? liveDr.scrollTop : keepScroll;
     drawer({
       // seq_no 是舊版拿來防止顧問誤刪錯人時比對用的固定流水編號（見 applications.seq_no
       // ／trg_applications_seq_no 觸發器），一直沒搬進 V3 標題。
@@ -3124,9 +3137,9 @@ ${views.candidateFormsBlock(f.forms, applicationId, companyId)}
         // 用途（把同一位人選轉去另一個職缺重開一筆）跟「推薦給客戶」是不同語意，
         // 這輪先拔掉避免顧問點到一顆壞按鈕，之後真的要做再照 doManualForward 的
         // 真實欄位重建。
-      ])}<h3>顧問備註／電洽紀錄</h3>${notesHtml}<h3>推薦客戶進度</h3>${forwardRows}<h3>最近歷程</h3>${timelineHtml}<i data-cand-card hidden></i></div>`,
+      ])}<h3>顧問備註／電洽紀錄</h3>${notesHtml}<h3>推薦客戶進度</h3>${forwardRows}<h3>最近歷程</h3>${timelineHtml}<i data-cand-card="${escapeHtml(applicationId)}" hidden></i></div>`,
     });
-    if (keepScroll) { const dr = document.querySelector('#overlay-root .drawer'); if (dr) dr.scrollTop = keepScroll; }
+    if (liveScroll) { const dr = document.querySelector('#overlay-root .drawer'); if (dr) dr.scrollTop = liveScroll; }
     wireCandidateDrawer(applicationId, application, forwards, report);
     injectMailSection('candidate', applicationId);
   } catch (error) {
@@ -3401,7 +3414,7 @@ function stageDetailHtml(key, application, forwards, report, applicationId) {
     const listHtml = forwards.length ? forwards.map((f) => {
       const cfr = f.client_formal_report;
       const ids = { idParams: { application_id: applicationId, company_id: f.company_id } };
-      return `<div class="list-row cfr-drop" style="flex-wrap:wrap;row-gap:8px" data-cfr-app="${escapeHtml(applicationId)}" data-cfr-co="${escapeHtml(f.company_id)}" data-cfr-name="${escapeHtml(f.company_name || '')}" data-cfr-has="${cfr && cfr.consultant_confirmed_at ? '1' : ''}"><span style="flex:1 1 100%"><b>${text(f.company_name)}</b><small>${text(f.job_title || f.job_slug)}${f.stage_label ? ' · ' + text(f.stage_label) : ''}</small><span style="display:block;margin-top:6px">${cfrStatus(cfr)}</span><small class="cfr-drop-hint">也可以直接把推薦履歷 PDF 拖進這一格</small></span>${rowActions([
+      return `<div class="list-row cfr-drop" style="flex-wrap:wrap;row-gap:8px" data-cfr-app="${escapeHtml(applicationId)}" data-cfr-co="${escapeHtml(f.company_id)}" data-cfr-name="${escapeHtml(f.company_name || '')}" data-cfr-has="${cfr && cfr.consultant_confirmed_at ? '1' : ''}"><span style="flex:1 1 100%"><b>${text(f.company_name)}</b><small>${text(f.job_title || f.job_slug)} · 推薦人：${text(forwarderName(f.forwarded_by))}${f.stage_label ? ' · ' + text(f.stage_label) : ''}</small><span style="display:block;margin-top:6px">${cfrStatus(cfr)}</span><small class="cfr-drop-hint">也可以直接把推薦履歷 PDF 拖進這一格</small></span>${rowActions([
         cfr && cfr.pdf_pending ? '' : actionBtn(cfr ? '重新製作 AI 草稿' : '製作推薦履歷（AI 草稿）', 'client-formal-report', ids),
         cfr && !cfr.consultant_confirmed_at && !cfr.pdf_pending && cfr.file_id ? `<button type="button" class="btn ghost sm" data-download-file="${text(cfr.file_id)}">下載 AI 草稿</button>` : '',
         actionBtn(cfr && cfr.consultant_confirmed_at ? '換一份推薦履歷' : '上傳推薦履歷', 'client-formal-report-upload', ids, cfr && cfr.consultant_confirmed_at ? '' : 'primary'),
@@ -3918,8 +3931,11 @@ async function submitForwardCandidate(applicationId) {
   const button = $('[data-action="submit-forward-candidate"]');
   if (button) button.disabled = true;
   try {
+    // 2026-10-19 Jacky：卡片每一筆推薦要看得出是誰推的——推薦當下記「我是」選的那個人。
+    const me = amUi().me;
+    if (!me) { toast('先在畫面最上方選「我是」，系統才記得是誰推薦的', 'error'); document.querySelector('[data-me-global]')?.focus(); if (button) button.disabled = false; return; }
     const result = await api.post('/admin/forward-candidate', {
-      application_id: applicationId, company_id: companyId,
+      application_id: applicationId, company_id: companyId, by: me,
       job_slug: $('#fc-job')?.value || undefined,
       note: form.querySelector('[name="note"]').value.trim() || undefined,
     });
