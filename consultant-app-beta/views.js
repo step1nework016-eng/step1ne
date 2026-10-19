@@ -3035,7 +3035,7 @@ ${actionCol}</div>`;
     if (!list.length) return empty('目前沒有人選卡在硬條件審核', '所有應徵都已經處理過，不用等你決定。');
     return `<div class="notice">這裡列的是「職缺有客戶硬性條件、還沒送進阿財面談前」卡住等你決定的應徵。一般職缺（沒有硬條件）不會出現在這裡，會直接進阿財面談。</div>
 <div class="list">${list.map((a) => {
-      const resumeBtn = a.resume_file_id ? `<button type="button" class="btn ghost sm" data-download-resume="${text(a.id)}">下載履歷</button>`
+      const resumeBtn = a.resume_file_id ? `<button type="button" class="btn ghost sm" data-download-resume="${text(a.id)}">看原始履歷</button>`
         : (a.resume_url ? `<a class="btn ghost sm" href="${escapeHtml(a.resume_url)}" target="_blank" rel="noopener">履歷連結</a>` : '');
       return `<div class="list-row"><span>
 <b>${text(a.name)}</b><small>${text(a.job_title || a.job_slug)}${a.client_name ? ' · ' + text(a.client_name) : ''} · 應徵於 ${text(String(a.created_at || '').slice(0, 10))}</small>
