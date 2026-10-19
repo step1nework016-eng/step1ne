@@ -239,6 +239,14 @@ async function loadCandidateTab(target) {
 // 篩選條件跟「我是誰」記在瀏覽器（沒有登入系統，跟人選工作台的顧問選擇同一套做法）。
 // 「我是誰」會寫進資料庫的 email_sent_by／outreach_sent_by，沒選就不准發。
 const AM_KEY = 's1ne_aimatch_ui';
+// 推薦人顯示：舊資料寫「顧問」「consultant」或空白，看不出是誰，就老實寫「未記錄」。
+function forwarderName(by) {
+  const v = String(by || '').trim().toLowerCase();
+  if (!v || v === '顧問' || v === 'consultant' || v === 'backfill') return '未記錄';
+  if (v.includes('jacky')) return 'Jacky';
+  if (v.includes('phoebe') || v === 'behe10' || v === 'ph') return 'Phoebe';
+  return String(by).trim();
+}
 function amUi() {
   if (!state.aiMatch) {
     let saved;
@@ -2982,7 +2990,7 @@ async function openCandidate(applicationId, opts = {}) {
       // 觸發——所以只在這一列強制換行（span 佔滿一整行、按鈕另起一行），
       // 不依賴視窗寬度，也不去動全站 .list-row 這個共用類別去影響到別的地方。
       return `<div>
-<div class="list-row cfr-drop" style="flex-wrap:wrap;row-gap:8px" data-cfr-app="${escapeHtml(applicationId)}" data-cfr-co="${escapeHtml(companyId)}" data-cfr-name="${escapeHtml(f.company_name || '')}" data-cfr-has="${cfr && cfr.consultant_confirmed_at ? '1' : ''}"><span style="flex:1 1 100%"><b>${text(f.company_name)}</b><small>${text(f.job_title || f.job_slug)}${f.stage_label ? ' · ' + text(f.stage_label) : ''}${f.client_note ? ' · ' + text(f.client_note) : ''}${lineIdLine}${cfrLine}${nr ? ' · ⚠ 不推進：' + text(f.advisor_not_recommended_reason || '') : ''}${f.no_show_at ? ' · ⚠ 不報到：' + text(f.no_show_reason || '') : ''}${f.candidate_withdrawn_at ? ' · 🚪 人選已放棄：' + text(f.candidate_withdraw_reason || '') : ''}</small></span>${rowActions([
+<div class="list-row cfr-drop" style="flex-wrap:wrap;row-gap:8px" data-cfr-app="${escapeHtml(applicationId)}" data-cfr-co="${escapeHtml(companyId)}" data-cfr-name="${escapeHtml(f.company_name || '')}" data-cfr-has="${cfr && cfr.consultant_confirmed_at ? '1' : ''}"><span style="flex:1 1 100%"><b>${text(f.company_name)}</b><small>${text(f.job_title || f.job_slug)} · 推薦人：${text(forwarderName(f.forwarded_by))}${f.stage_label ? ' · ' + text(f.stage_label) : ''}${f.client_note ? ' · ' + text(f.client_note) : ''}${lineIdLine}${cfrLine}${nr ? ' · ⚠ 不推進：' + text(f.advisor_not_recommended_reason || '') : ''}${f.no_show_at ? ' · ⚠ 不報到：' + text(f.no_show_reason || '') : ''}${f.candidate_withdrawn_at ? ' · 🚪 人選已放棄：' + text(f.candidate_withdraw_reason || '') : ''}</small></span>${rowActions([
         toggleBtn,
         withdrawBtn,
         editBtn,
@@ -3401,7 +3409,7 @@ function stageDetailHtml(key, application, forwards, report, applicationId) {
     const listHtml = forwards.length ? forwards.map((f) => {
       const cfr = f.client_formal_report;
       const ids = { idParams: { application_id: applicationId, company_id: f.company_id } };
-      return `<div class="list-row cfr-drop" style="flex-wrap:wrap;row-gap:8px" data-cfr-app="${escapeHtml(applicationId)}" data-cfr-co="${escapeHtml(f.company_id)}" data-cfr-name="${escapeHtml(f.company_name || '')}" data-cfr-has="${cfr && cfr.consultant_confirmed_at ? '1' : ''}"><span style="flex:1 1 100%"><b>${text(f.company_name)}</b><small>${text(f.job_title || f.job_slug)}${f.stage_label ? ' · ' + text(f.stage_label) : ''}</small><span style="display:block;margin-top:6px">${cfrStatus(cfr)}</span><small class="cfr-drop-hint">也可以直接把推薦履歷 PDF 拖進這一格</small></span>${rowActions([
+      return `<div class="list-row cfr-drop" style="flex-wrap:wrap;row-gap:8px" data-cfr-app="${escapeHtml(applicationId)}" data-cfr-co="${escapeHtml(f.company_id)}" data-cfr-name="${escapeHtml(f.company_name || '')}" data-cfr-has="${cfr && cfr.consultant_confirmed_at ? '1' : ''}"><span style="flex:1 1 100%"><b>${text(f.company_name)}</b><small>${text(f.job_title || f.job_slug)} · 推薦人：${text(forwarderName(f.forwarded_by))}${f.stage_label ? ' · ' + text(f.stage_label) : ''}</small><span style="display:block;margin-top:6px">${cfrStatus(cfr)}</span><small class="cfr-drop-hint">也可以直接把推薦履歷 PDF 拖進這一格</small></span>${rowActions([
         cfr && cfr.pdf_pending ? '' : actionBtn(cfr ? '重新製作 AI 草稿' : '製作推薦履歷（AI 草稿）', 'client-formal-report', ids),
         cfr && !cfr.consultant_confirmed_at && !cfr.pdf_pending && cfr.file_id ? `<button type="button" class="btn ghost sm" data-download-file="${text(cfr.file_id)}">下載 AI 草稿</button>` : '',
         actionBtn(cfr && cfr.consultant_confirmed_at ? '換一份推薦履歷' : '上傳推薦履歷', 'client-formal-report-upload', ids, cfr && cfr.consultant_confirmed_at ? '' : 'primary'),
@@ -3918,8 +3926,11 @@ async function submitForwardCandidate(applicationId) {
   const button = $('[data-action="submit-forward-candidate"]');
   if (button) button.disabled = true;
   try {
+    // 2026-10-19 Jacky：卡片每一筆推薦要看得出是誰推的——推薦當下記「我是」選的那個人。
+    const me = amUi().me;
+    if (!me) { toast('先在畫面最上方選「我是」，系統才記得是誰推薦的', 'error'); document.querySelector('[data-me-global]')?.focus(); if (button) button.disabled = false; return; }
     const result = await api.post('/admin/forward-candidate', {
-      application_id: applicationId, company_id: companyId,
+      application_id: applicationId, company_id: companyId, by: me,
       job_slug: $('#fc-job')?.value || undefined,
       note: form.querySelector('[name="note"]').value.trim() || undefined,
     });
