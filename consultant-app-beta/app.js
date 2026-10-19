@@ -3097,6 +3097,11 @@ ${views.candidateFormsBlock(f.forms, applicationId, companyId)}
       <div class="quick-note"><select data-qn-type aria-label="備註類型"><option>評估</option><option>聯繫紀錄</option><option>客戶回饋</option><option>其他</option></select><textarea data-qn-text rows="2" placeholder="直接打一筆顧問備註…"></textarea><button type="button" class="btn sm primary" data-qn-save>存備註</button></div>
     </div>`;
     const channelTag = application.source_channel ? text(application.source_channel) : '阿財面談應徵';
+    // 2026-10-19 Jacky：滑到下面會突然跳回最上面。原因是捲動位置在「開始抓資料前」就記下來了，
+    // 抓資料這 1～2 秒內往下滑，重畫時又被拉回舊位置（常常是 0）。改成重畫前一刻才讀目前位置。
+    const liveDr = document.querySelector('#overlay-root .drawer');
+    const liveCard = liveDr && liveDr.querySelector('[data-cand-card]');
+    const liveScroll = (liveCard && liveCard.getAttribute('data-cand-card') === applicationId) ? liveDr.scrollTop : keepScroll;
     drawer({
       // seq_no 是舊版拿來防止顧問誤刪錯人時比對用的固定流水編號（見 applications.seq_no
       // ／trg_applications_seq_no 觸發器），一直沒搬進 V3 標題。
@@ -3132,9 +3137,9 @@ ${views.candidateFormsBlock(f.forms, applicationId, companyId)}
         // 用途（把同一位人選轉去另一個職缺重開一筆）跟「推薦給客戶」是不同語意，
         // 這輪先拔掉避免顧問點到一顆壞按鈕，之後真的要做再照 doManualForward 的
         // 真實欄位重建。
-      ])}<h3>顧問備註／電洽紀錄</h3>${notesHtml}<h3>推薦客戶進度</h3>${forwardRows}<h3>最近歷程</h3>${timelineHtml}<i data-cand-card hidden></i></div>`,
+      ])}<h3>顧問備註／電洽紀錄</h3>${notesHtml}<h3>推薦客戶進度</h3>${forwardRows}<h3>最近歷程</h3>${timelineHtml}<i data-cand-card="${escapeHtml(applicationId)}" hidden></i></div>`,
     });
-    if (keepScroll) { const dr = document.querySelector('#overlay-root .drawer'); if (dr) dr.scrollTop = keepScroll; }
+    if (liveScroll) { const dr = document.querySelector('#overlay-root .drawer'); if (dr) dr.scrollTop = liveScroll; }
     wireCandidateDrawer(applicationId, application, forwards, report);
     injectMailSection('candidate', applicationId);
   } catch (error) {
