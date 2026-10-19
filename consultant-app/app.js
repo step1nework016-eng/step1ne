@@ -12,6 +12,7 @@ import { initChannels, loadChannelsTab, openChannel } from './channels.js';
 import { wireBdCard, bdShowStageRemind, bdShowTagRemind } from './bdcard.js';
 import { wireBdJobs } from './bdjobs.js';
 import { loadDailyTab } from './daily.js';
+import { billingV2View, wireBillingV2, billing2Api } from './billing2.js';
 
 // 2026-09-15 補：使用者反映「不知道要看哪個是自己的」——沒有登入系統，只能靠
 // 這組「切換選擇」記住上次選的是誰，換分頁/重新整理都不用重選（存在瀏覽器
@@ -2032,16 +2033,30 @@ async function loadClientsTab(target) {
 // 收費進程（2026-09-29，總指揮交辦）：company_id 存在 state 裡，切公司不用
 // 重新整理整頁——跟卡片牆的篩選器同一種模式（select onchange → loadRoute()）。
 async function loadBillingTab(target) {
+  // 2026-10-19 收費進程第二版：TG 提醒卡連過來會帶 ?company=…&inst=…
+  if (state.billingCompany === undefined) {
+    const qc = new URLSearchParams(location.search).get('company');
+    state.billingCompany = qc || '';
+  }
   const companyId = state.billingCompany || '';
+  let ctx = {};
   const res = await boundary(target, async () => {
-    const [companiesResp, plan, installments] = await Promise.all([
+    const [companiesResp, plan, client, list] = await Promise.all([
       adapters.clients(),
       companyId ? adapters.billingPlan(companyId) : Promise.resolve(null),
-      adapters.billingInstallments(companyId),
+      companyId ? billing2Api.client(companyId) : Promise.resolve(null),
+      billing2Api.placements(companyId),
     ]);
-    return { companies: companiesResp.companies, plan, installments: installments.installments || [] };
-  }, ({ companies, plan, installments }) => views.billingTab(companies, companyId, plan, installments), 'refresh');
+    ctx = { client, rows: list.installments || [], cats: list.categories || [] };
+    const tiers = (plan && plan.tiers) || [];
+    const planHtml = `<div id="billing-plan-box"><table><thead><tr><th>名稱</th><th>比例</th><th>觸發時機</th><th></th></tr></thead>
+<tbody id="billing-plan-rows">${tiers.map((t, i) => views.billingPlanRow(t, i)).join('')}</tbody></table>
+<div class="actions-row"><button type="button" class="btn" id="billing-add-row">＋ 加一期</button>
+<button type="button" class="btn primary" id="billing-save-plan">儲存範本</button></div></div>`;
+    return { companies: companiesResp.companies, planHtml, client, rows: ctx.rows };
+  }, ({ companies, planHtml, client, rows }) => billingV2View({ companies, companyId, planHtml, client, rows }), 'refresh');
   wireBillingTab();
+  wireBillingV2({ state, reload: () => loadRoute(), client: ctx.client, rows: ctx.rows, cats: ctx.cats });
   return res;
 }
 
