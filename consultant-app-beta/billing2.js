@@ -430,33 +430,56 @@ function openPlacement(pid, rows, cats, reload) {
     };
     $('.i-amt', box).addEventListener('input', renderChecks);
     renderChecks();
+    const flash = (el) => { el.style.transition = 'background-color .2s'; el.style.backgroundColor = '#c8e6c9'; setTimeout(() => { el.style.transition = 'background-color 1.6s'; el.style.backgroundColor = ''; }, 900); };
+    const applyResult = (x, label) => {
+      const filled = [];
+      if (x.invoice_no) { $('.i-no', box).value = x.invoice_no; filled.push($('.i-no', box)); }
+      if (x.invoice_date) { $('.i-date', box).value = x.invoice_date; filled.push($('.i-date', box)); }
+      if (x.total != null) { $('.i-amt', box).value = x.total; filled.push($('.i-amt', box)); }
+      filled.forEach(flash);
+      aiChecks = x.checks || [];
+      aiBox.innerHTML = `<p class="help" style="color:#2e7d32;font-weight:600">✅ 已自動帶入${escapeHtml(label || '')}，請看一眼再按存檔</p><p class="help">AI 讀到：${escapeHtml([x.invoice_no, x.invoice_date, x.buyer, x.buyer_tax_id && `統編 ${x.buyer_tax_id}`, x.untaxed != null && `未稅 ${fmt(x.untaxed)}`, x.tax != null && `稅 ${fmt(x.tax)}`, x.total != null && `含稅 ${fmt(x.total)}`].filter(Boolean).join('｜'))}</p>`;
+      renderChecks();
+    };
+    let pollGen = 0;
+    const startPoll = (taskId, startedMs, label) => {
+      const gen = ++pollGen;
+      const timer = setInterval(() => {
+        if (!box.isConnected || gen !== pollGen) { clearInterval(timer); return; }
+        const sec = Math.max(0, Math.round((Date.now() - startedMs) / 1000));
+        const el = $('.i-wait', box);
+        if (el) el.textContent = `🤖 AI 讀發票中…（大約 1 分鐘，已等 ${sec} 秒）讀完會自動填進下面的欄位；讀不出來也可以自己填，不影響存檔。關掉這個視窗也沒關係，下次打開會自動帶入。`;
+      }, 1000);
+      aiBox.innerHTML = '<p class="help i-wait">🤖 AI 讀發票中…（大約 1 分鐘）</p>';
+      let n = 0;
+      const tick = async () => {
+        if (!box.isConnected || gen !== pollGen) { clearInterval(timer); return; }
+        n++;
+        const st = await api.get(`/admin/billing2/read-status?id=${encodeURIComponent(taskId)}`).catch(() => null);
+        if (st && st.status === 'done' && st.result) { clearInterval(timer); applyResult(st.result, label); return; }
+        if (st && st.status === 'error') { clearInterval(timer); aiBox.innerHTML = `<p class="help" style="color:#b26a00">AI 沒讀出來（${escapeHtml(st.error || '')}），請自己填，檔案已經收到了</p>`; return; }
+        if (n < 90) setTimeout(tick, 3000); else { clearInterval(timer); aiBox.innerHTML = '<p class="help" style="color:#b26a00">AI 讀太久了，請自己填，檔案已經收到了</p>'; }
+      };
+      tick();
+    };
+    // 上次讀過（例如讀到一半關掉視窗）→ 直接帶入或接著等
+    api.get(`/admin/billing2/invoice-read-latest?id=${encodeURIComponent(id)}`).then((lr) => {
+      const t = lr && lr.task;
+      if (!t || !t.file_id || uploadedFileId || $('.i-file', box).files.length) return;
+      uploadedFileId = t.file_id;
+      const started = Date.parse(String(t.created_at).replace(' ', 'T') + '+08:00') || Date.now();
+      if (t.status === 'done' || t.status === 'queued' || t.status === 'working') startPoll(t.task_id, started, `（上次讀的「${t.name || '發票'}」）`);
+    }).catch(() => {});
     $('.i-file', box).addEventListener('change', async () => {
       const f = $('.i-file', box).files[0];
       if (!f) return;
-      uploadedFileId = null; aiChecks = [];
-      aiBox.innerHTML = '<p class="help">🤖 AI 讀發票中…（約 1～3 分鐘；讀不出來也可以自己填，不影響存檔）</p>';
+      uploadedFileId = null; aiChecks = []; pollGen++;
+      aiBox.innerHTML = '<p class="help">⬆️ 上傳發票檔中…</p>';
       try {
+        const t0 = Date.now();
         const r = await api.post('/admin/billing2/invoice-read', { id: Number(id), file: { name: f.name, mime: f.type || 'application/pdf', b64: await readB64(f) }, by: me() });
         uploadedFileId = r.file_id;
-        let n = 0;
-        const tick = async () => {
-          if (!box.isConnected) return;
-          n++;
-          const st = await api.get(`/admin/billing2/read-status?id=${encodeURIComponent(r.task_id)}`).catch(() => null);
-          if (st && st.status === 'done' && st.result) {
-            const x = st.result;
-            if (x.invoice_no) $('.i-no', box).value = x.invoice_no;
-            if (x.invoice_date) $('.i-date', box).value = x.invoice_date;
-            if (x.total != null) $('.i-amt', box).value = x.total;
-            aiChecks = x.checks || [];
-            aiBox.innerHTML = `<p class="help">🤖 AI 讀到：${escapeHtml([x.invoice_no, x.invoice_date, x.buyer, x.buyer_tax_id && `統編 ${x.buyer_tax_id}`, x.untaxed != null && `未稅 ${fmt(x.untaxed)}`, x.tax != null && `稅 ${fmt(x.tax)}`, x.total != null && `含稅 ${fmt(x.total)}`].filter(Boolean).join('｜'))}&emsp;已幫你填好，請看一眼</p>`;
-            renderChecks();
-            return;
-          }
-          if (st && st.status === 'error') { aiBox.innerHTML = `<p class="help" style="color:#b26a00">AI 沒讀出來（${escapeHtml(st.error || '')}），請自己填，檔案已經收到了</p>`; return; }
-          if (n < 50) setTimeout(tick, 5000); else aiBox.innerHTML = '<p class="help" style="color:#b26a00">AI 讀太久了，請自己填，檔案已經收到了</p>';
-        };
-        tick();
+        startPoll(r.task_id, t0, '');
       } catch (e) { aiBox.innerHTML = `<p class="help" style="color:#b26a00">檔案沒送出去：${escapeHtml(e.message)}。可以重選一次，或存檔時直接附上</p>`; }
     });
     $('.i-cancel', box).onclick = () => { box.innerHTML = ''; };
