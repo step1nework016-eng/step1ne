@@ -67,7 +67,7 @@ export function billingV2View({ companies, companyId, planHtml, client, rows }) 
     const rtLine = rt ? `<p class="help">最近一次 AI 讀合約：${text(String(rt.created_at || '').slice(0, 16))}（${text(rt.created_by, '—')}）— ${rt.status === 'done' ? '已讀完' : rt.status === 'error' ? `失敗：${text(rt.error)}` : '讀取中…'}</p>` : '';
     contractCard = `<div class="card" style="margin-top:14px"><h2>已簽合約與收費規則｜${text(client.company.display_name)}</h2>
 <p class="help">上傳合約正本、補充約定、更名確認書（PDF 或圖片，掃描檔也可以）。按「請 AI 讀合約」後約 2～5 分鐘，結果會貼到這家客戶的 TG 主題請你確認，也會出現在下面。收費規則只認三種型態：月薪倍數（依職級）、固定年薪百分比（依年薪級距）、固定金額；看不懂或不屬於這三種的，會標「需人工設定」，系統不猜。</p>
-<p class="help">發票抬頭：${text(client.company.legal_name || client.company.display_name)}${client.company.tax_id ? `／統編 ${text(client.company.tax_id)}` : ''}&emsp;請款信收件人：${client.company.contact_email ? text(client.company.contact_email) : '<b style="color:#c62828">沒有設定聯絡信箱</b>'}</p>
+<p class="help">發票抬頭：${text(client.confirmed?.terms?.invoice_title || client.company.legal_name || client.company.display_name)}${(client.confirmed?.terms?.tax_id || client.company.tax_id) ? `／統編 ${text(client.confirmed?.terms?.tax_id || client.company.tax_id)}` : ''}&emsp;請款信收件人：${client.company.contact_email ? text(client.company.contact_email) : '<b style="color:#c62828">沒有設定聯絡信箱</b>'}</p>
 <div class="list">${fileList}</div>
 <div class="form-grid" style="margin-top:10px">
 <label class="field"><span>文件類型</span><select id="bill2-doc-type">${Object.entries(dt).map(([k, v]) => `<option value="${text(k)}">${text(v)}</option>`).join('')}</select></label>
