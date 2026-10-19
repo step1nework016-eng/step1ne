@@ -129,13 +129,38 @@ ${client.draft && (!client.confirmed || (client.draft_at || '') > (client.confir
     return `<div class="list-row bill2-row" style="cursor:pointer" data-pid="${text(r.placement_id)}">
 <span><b>${text(r.candidate_name)}</b><small>${text(r.company_name || r.client_name)}・${text(r.job_title || r.offer_title)}・報到 ${text(r.onboard_date)}</small>
 <small>${r.fee_total_taxed != null ? `服務報酬 ${fmt(r.fee_total_untaxed)}（未稅）／${fmt(r.fee_total_taxed)}（含稅）` : `<span style="color:#b26a00">${text(r.fee_note || '金額還沒算出來', '金額還沒算出來')}</span>`}</small></span>
+<small>收費類別：${text(r.fee_category, '—')}${r.fee_category_status === 'uncertain' ? ' <b style="color:#b26a00">⚠️ 類別待確認</b>' : r.fee_category_status === 'manual' ? '（顧問指定）' : r.fee_category ? '（依薪資自動判定）' : ''}${r.fee_schedule_note ? ` <b style="color:#c62828">⚠️ ${text(r.fee_schedule_note)}</b>` : ''}</small></span>
 <span>${paid}/${g.length} 期已收・${inv} 期已開票</span></div>`;
   }).join('');
   return `<div class="notice">收費進程：選客戶 → 上傳已簽合約、讓 AI 讀出收費規則並確認 → 系統依人選的計費月薪自動算每期金額 → 每期開好發票上傳，系統擬好請款信貼到 TG，按「確認寄出」才會寄。到期前 7 天、當天、逾期每週會在客戶的 TG 主題提醒。</div>
 <div class="card"><h2>選客戶</h2><div class="form-grid"><label class="field"><span>客戶</span><select id="billing-company-select"><option value="">－－選一家客戶（不選＝看全部人選）－－</option>${opts}</select></label>${meSel}</div></div>
 ${contractCard}
-${companyId ? `<div class="card" style="margin-top:14px"><h2>分期範本（之後報到的人選照這個自動排期）</h2><p class="help">合約規則按「確認生效」時會自動帶入；也可以在這裡手動改。改範本不會回頭改已經排好的人選。</p>${planHtml}</div>` : ''}
+${companyId ? scheduleCard(client, planHtml) : ''}
 <div class="card" style="margin-top:14px"><h2>收費進度</h2><p class="help">點一列看每一期的金額、算式、發票，以及上傳發票、擬請款信。</p><div class="list">${list}</div></div>`;
+}
+
+const UNIT = { days: '天', months: '個月' };
+function schedRow(t, i) {
+  return `<tr><td><input type="text" class="s-label" value="${text(t.label, '')}" placeholder="第${i + 1}期"></td>
+<td><input type="number" class="s-pct" value="${text(t.percent, '')}" min="0" max="100" step="0.1" style="width:80px"> %</td>
+<td>報到滿 <input type="number" class="s-val" value="${text(t.trigger_value, '')}" min="0" style="width:70px">
+<select class="s-unit">${Object.entries(UNIT).map(([k, v]) => `<option value="${k}"${t.trigger_unit === k ? ' selected' : ''}>${v}</option>`).join('')}</select></td>
+<td><button type="button" class="btn danger sm s-del">刪除</button></td></tr>`;
+}
+// 分期範本：依合約的收費類別各一份（例：一般職員及管理職 50/25/25、高階人才一次付清）；客戶沒有類別資料才顯示舊的單一範本
+function scheduleCard(client, planHtml) {
+  const sch = (client && client.schedules) || {};
+  const names = Object.keys(sch);
+  if (!names.length) {
+    return `<div class="card" style="margin-top:14px"><h2>分期範本（之後報到的人選照這個自動排期）</h2><p class="help">這家客戶還沒有已確認的合約收費類別，先用這份共用範本。合約確認生效後，會改成依收費類別各一份。改範本不會回頭改已經排好的人選。</p>${planHtml}</div>`;
+  }
+  const src = { manual: '顧問改過', contract: '照合約', none: '合約沒寫清楚，需人工設定' };
+  return `<div class="card" style="margin-top:14px"><h2>分期範本（依收費類別各一份）</h2>
+<p class="help">人選報到時，系統依這位人選的收費類別（薪資對照合約級距自動判定，或顧問指定）套對應那份分期。改範本只影響之後報到的人選，已經排好的不會改。${client.schedules_from === 'draft' ? '<b>合約規則還沒確認生效，確認後才會開始套用。</b>' : ''}</p>
+${names.map((n) => `<div class="bill2-sched" data-cat="${text(n)}" style="border:1px dashed #ccc;border-radius:8px;padding:8px;margin-top:8px">
+<b>${text(n)}</b> <small class="muted">（${text(src[sch[n].source] || '')}）</small>
+<table><thead><tr><th>名稱</th><th>比例</th><th>觸發時機</th><th></th></tr></thead><tbody>${(sch[n].tiers || []).map((t, i) => schedRow(t, i)).join('')}</tbody></table>
+<div class="actions-row"><button type="button" class="btn sm s-add">＋ 加一期</button><button type="button" class="btn primary sm s-save">儲存「${text(n)}」的分期</button></div></div>`).join('')}</div>`;
 }
 
 function instRow(r) {
@@ -166,7 +191,9 @@ ${r.paid_at ? `<button type="button" class="btn sm" data-bill2-paid="${text(r.id
 
 function placementBody(g, cats) {
   const r = g[0];
-  const catOpts = (cats || []).map((c) => `<option${(r.fee_category || cats[0]?.name) === c.name ? ' selected' : ''}>${text(c.name)}</option>`).join('');
+  const manual = r.fee_category_status === 'manual';
+  const catOpts = (cats || []).length ? `<option value=""${manual ? '' : ' selected'}>自動判定（目前：${text(r.fee_category, '—')}${r.fee_category_status === 'uncertain' ? '，待確認' : ''}）</option>`
+    + cats.map((c) => `<option value="${text(c.name)}"${manual && r.fee_category === c.name ? ' selected' : ''}>${text(c.name)}</option>`).join('') : '';
   const cur = (cats || []).find((c) => c.name === (r.fee_category || cats[0]?.name));
   const lvOpts = cur && cur.levels && cur.levels.length ? cur.levels.map((l) => `<option${r.fee_level === l ? ' selected' : ''}>${text(l)}</option>`).join('') : '';
   const src = { offer_ai: 'AI 從聘書讀的', manual: '顧問手動填的' }[r.fee_salary_source] || '還沒有';
@@ -181,7 +208,9 @@ ${lvOpts ? `<label class="field"><span>職級</span><select id="bill2-lv">${lvOp
 <div class="actions-row"><button type="button" class="btn primary" id="bill2-fee-save">儲存並重算</button>
 ${r.offer_file_id ? '<button type="button" class="btn" id="bill2-offer-read">🤖 AI 讀聘書月薪</button>' : ''}<span id="bill2-offer-status" class="muted"></span></div>
 <div style="margin-top:6px">${r.fee_formula ? `服務報酬：${text(r.fee_formula)}<br>總額 未稅 ${fmt(r.fee_total_untaxed)}＋稅 ${fmt(r.fee_tax)}＝含稅 <b>${fmt(r.fee_total_taxed)}</b>` : ''}
-${r.fee_note ? `<div style="color:#b26a00">${text(r.fee_note)}</div>` : ''}</div></div>
+${r.fee_note ? `<div style="color:#b26a00">${text(r.fee_note)}</div>` : ''}
+${r.fee_schedule_note ? `<div style="color:#c62828;font-weight:600">⚠️ ${text(r.fee_schedule_note)}</div>` : ''}
+<div class="muted" style="font-size:13px">收費類別改了（例如補上年薪變成高階）：期別都還沒開票、收款的話，系統會自動依新類別重排分期；已有開票或收款就不動，會提示要人工調整。</div></div></div>
 <div class="list" style="margin-top:10px">${g.map((x) => instRow(x)).join('')}</div>`;
 }
 
@@ -306,6 +335,17 @@ export function wireBillingV2({ state, reload, client, rows, cats }) {
       } catch (e) { toast(e.message, 'error'); }
     };
   }; });
+  $$('.bill2-sched').forEach((box) => {
+    box.addEventListener('click', async (e) => {
+      if (e.target.closest('.s-del')) { e.target.closest('tr').remove(); return; }
+      if (e.target.closest('.s-add')) { const tb = $('tbody', box); tb.insertAdjacentHTML('beforeend', schedRow({ trigger_unit: 'days', trigger_value: 30 }, tb.children.length)); return; }
+      if (e.target.closest('.s-save')) {
+        const tiers = $$('tbody tr', box).map((tr, i) => ({ label: $('.s-label', tr).value.trim() || `第${i + 1}期`, percent: Number($('.s-pct', tr).value) || 0, trigger_unit: $('.s-unit', tr).value, trigger_value: Number($('.s-val', tr).value) || 0 }));
+        try { await api.post('/admin/billing2/schedule-save', { company_id: cid, category: box.dataset.cat, tiers }); toast(`「${box.dataset.cat}」的分期已儲存（只影響之後報到的人選）`, 'success'); reload(); }
+        catch (err) { toast(err.message, 'error'); }
+      }
+    });
+  });
   $$('.bill2-row').forEach((row) => { row.onclick = () => openPlacement(row.dataset.pid, rows, cats, reload); });
   // 從 TG 提醒卡的「上傳發票」連過來：?company=…&inst=…
   const qs = new URLSearchParams(location.search);
@@ -371,17 +411,60 @@ function openPlacement(pid, rows, cats, reload) {
     const it = g.find((x) => String(x.id) === id) || {};
     const box = $(`[data-inline-for="${id}"]`);
     box.innerHTML = `<div class="card" style="padding:10px;margin-top:6px"><b>${it.invoice_no ? '改發票' : '上傳發票'}（${text(it.label)}）</b>
+<p class="help" style="margin:4px 0">先把發票 PDF／圖片拖進來，AI 會自動讀出號碼、日期、金額填好，你看一眼再按存檔。系統算的這一期：含稅 <b>${fmt(it.amount_taxed)}</b>（未稅 ${fmt(it.amount_untaxed)}＋稅 ${fmt(it.amount_tax)}）</p>
+<label class="field span-2"><span>發票檔（PDF 或圖片）${it.invoice_file_id ? '，不選＝沿用原檔' : ''}</span><input type="file" class="i-file" accept=".pdf,image/png,image/jpeg"></label>
+<div class="i-ai"></div>
 <div class="form-grid"><label class="field"><span>發票號碼</span><input class="i-no" value="${text(it.invoice_no, '')}" placeholder="EC51601555"></label>
 <label class="field"><span>開立日期</span><input type="date" class="i-date" value="${text(it.invoice_date, '')}"></label>
-<label class="field"><span>發票金額（含稅）</span><input class="i-amt" inputmode="numeric" value="${it.invoice_amount ?? it.amount_taxed ?? ''}"></label>
-<label class="field"><span>發票檔（PDF 或圖片）${it.invoice_file_id ? '，不選＝沿用原檔' : ''}</span><input type="file" class="i-file" accept=".pdf,image/png,image/jpeg"></label></div>
+<label class="field"><span>發票金額（含稅）</span><input class="i-amt" inputmode="numeric" value="${it.invoice_amount ?? it.amount_taxed ?? ''}"></label></div>
+<div class="i-check"></div>
 <label style="display:flex;gap:6px;align-items:center;min-height:44px"><input type="checkbox" class="i-card" checked> 存好後擬請款信、貼確認卡到客戶的 TG 主題（按「確認寄出」才會寄）</label>
 <div class="actions-row"><button type="button" class="btn primary i-save">存檔</button><button type="button" class="btn i-cancel">取消</button></div></div>`;
+    let uploadedFileId = null; let aiChecks = [];
+    const checkBox = $('.i-check', box); const aiBox = $('.i-ai', box);
+    const renderChecks = () => {
+      const amt = Number(String($('.i-amt', box).value || '').replace(/[,\s]/g, ''));
+      const lines = aiChecks.filter((c) => !/^金額/.test(c.text));
+      if (amt && it.amount_taxed != null) lines.unshift(amt === Number(it.amount_taxed) ? { ok: true, text: `金額對得上：含稅 ${fmt(amt)}` } : { ok: false, text: `金額對不上：發票 ${fmt(amt)}／系統 ${fmt(it.amount_taxed)}` });
+      checkBox.innerHTML = lines.map((c) => `<div style="color:${c.ok ? '#2e7d32' : '#c62828'};font-weight:600">${c.ok ? '✅' : '🔴'} ${escapeHtml(c.text)}</div>`).join('');
+    };
+    $('.i-amt', box).addEventListener('input', renderChecks);
+    renderChecks();
+    $('.i-file', box).addEventListener('change', async () => {
+      const f = $('.i-file', box).files[0];
+      if (!f) return;
+      uploadedFileId = null; aiChecks = [];
+      aiBox.innerHTML = '<p class="help">🤖 AI 讀發票中…（約 1～3 分鐘；讀不出來也可以自己填，不影響存檔）</p>';
+      try {
+        const r = await api.post('/admin/billing2/invoice-read', { id: Number(id), file: { name: f.name, mime: f.type || 'application/pdf', b64: await readB64(f) }, by: me() });
+        uploadedFileId = r.file_id;
+        let n = 0;
+        const tick = async () => {
+          if (!box.isConnected) return;
+          n++;
+          const st = await api.get(`/admin/billing2/read-status?id=${encodeURIComponent(r.task_id)}`).catch(() => null);
+          if (st && st.status === 'done' && st.result) {
+            const x = st.result;
+            if (x.invoice_no) $('.i-no', box).value = x.invoice_no;
+            if (x.invoice_date) $('.i-date', box).value = x.invoice_date;
+            if (x.total != null) $('.i-amt', box).value = x.total;
+            aiChecks = x.checks || [];
+            aiBox.innerHTML = `<p class="help">🤖 AI 讀到：${escapeHtml([x.invoice_no, x.invoice_date, x.buyer, x.buyer_tax_id && `統編 ${x.buyer_tax_id}`, x.untaxed != null && `未稅 ${fmt(x.untaxed)}`, x.tax != null && `稅 ${fmt(x.tax)}`, x.total != null && `含稅 ${fmt(x.total)}`].filter(Boolean).join('｜'))}&emsp;已幫你填好，請看一眼</p>`;
+            renderChecks();
+            return;
+          }
+          if (st && st.status === 'error') { aiBox.innerHTML = `<p class="help" style="color:#b26a00">AI 沒讀出來（${escapeHtml(st.error || '')}），請自己填，檔案已經收到了</p>`; return; }
+          if (n < 50) setTimeout(tick, 5000); else aiBox.innerHTML = '<p class="help" style="color:#b26a00">AI 讀太久了，請自己填，檔案已經收到了</p>';
+        };
+        tick();
+      } catch (e) { aiBox.innerHTML = `<p class="help" style="color:#b26a00">檔案沒送出去：${escapeHtml(e.message)}。可以重選一次，或存檔時直接附上</p>`; }
+    });
     $('.i-cancel', box).onclick = () => { box.innerHTML = ''; };
     $('.i-save', box).onclick = async () => {
       const f = $('.i-file', box).files[0];
       const body = { id: Number(id), invoice_no: $('.i-no', box).value, invoice_date: $('.i-date', box).value, amount: $('.i-amt', box).value, by: me(), post_card: $('.i-card', box).checked };
-      if (f) body.file = { name: f.name, mime: f.type || 'application/pdf', b64: await readB64(f) };
+      if (uploadedFileId) body.file_id = uploadedFileId;
+      else if (f) body.file = { name: f.name, mime: f.type || 'application/pdf', b64: await readB64(f) };
       $('.i-save', box).disabled = true;
       try {
         const x = await api.post('/admin/billing2/invoice', body);
