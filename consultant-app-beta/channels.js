@@ -256,11 +256,13 @@ function logPaneHtml(d) {
         <div class="bdc-f full"><label class="bdc-check"><input type="checkbox" name="mail_sent"> 這次有寄信　<small class="muted">（勾了才記「已寄出」和時間）</small></label></div>
         <label class="bdc-f full">備註<textarea name="note" rows="3" placeholder="聊到什麼、對方說什麼（例：承辦人說下週一把職缺發給 AutoCAD 班學員）"></textarea></label>
         <div class="bdc-f full ch-ai" data-ch-mail data-email="${esc(c.email || '')}" hidden>
-          <div class="ch-ai-row"><button type="button" class="bdc-btn" data-ch-ai>AI 幫我擬信</button><small class="muted" data-ch-ai-msg>會參考上面「備註」寫的內容（例：洪先生不在，請我把職缺寄到信箱），約 1～2 分鐘擬好</small></div>
+          <div class="ch-ai-row"><button type="button" class="bdc-btn" data-ch-ai>AI 幫我擬信</button><button type="button" class="bdc-btn" data-ch-self>自己寫</button><small class="muted" data-ch-ai-msg>會參考上面「備註」寫的內容（例：洪先生不在，請我把職缺寄到信箱），約 1～2 分鐘擬好</small></div>
           <div class="ch-draft" data-ch-draft hidden>
             <label class="bdc-f">收件人<input type="email" name="m_to" maxlength="120" placeholder="對方的 Email"></label>
             <label class="bdc-f">主旨<input type="text" name="m_subject" maxlength="200"></label>
             <label class="bdc-f">內文（可以直接改）<textarea name="m_text" rows="16"></textarea></label>
+            <label class="bdc-f">附加檔案（選填，最多 5 個、每個 8MB 內；pdf、word、excel、ppt、圖片）<input type="file" name="m_files" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg,.odt,.ods"></label>
+            <div class="ch-files muted" data-ch-files></div>
             <div class="bdc-actions"><button type="button" class="bdc-btn primary" data-ch-send>寄出這封信</button><small class="muted">從 official@step1ne.com 寄出，署名是「誰記的」那位；寄出後自動記一筆「信已寄出」</small></div>
           </div>
         </div>
@@ -391,14 +393,23 @@ function wireDetail(id) {
         throw new Error('等太久了，請再按一次');
       } catch (err) { msg.textContent = '擬信失敗：' + (err.message || '請再試一次'); aiBtn.disabled = false; }
     });
+    mbox.querySelector('[data-ch-self]').addEventListener('click', () => { const f = lf.elements; dbox.hidden = false; if (!f.m_to.value) f.m_to.value = origEmail; (f.m_to.value ? f.m_subject : f.m_to).focus(); });
+    const fin = lf.elements.m_files; const flist = mbox.querySelector('[data-ch-files]');
+    fin.addEventListener('change', () => { const xs = [...(fin.files || [])]; flist.textContent = xs.length ? '會附上：' + xs.map((x) => `${x.name}（${Math.max(1, Math.round(x.size / 1024))} KB）`).join('、') : ''; });
     mbox.querySelector('[data-ch-send]').addEventListener('click', async (ev) => {
       const f = lf.elements; const to = f.m_to.value.trim(); const sb = ev.currentTarget;
       if (!f.by.value) { toast('請先選「誰記的」', 'error'); return; }
       if (!to || !f.m_subject.value.trim() || !f.m_text.value.trim()) { toast('收件人、主旨、內文都要有', 'error'); return; }
-      if (!window.confirm(`確定從 official@step1ne.com 寄給 ${to}？`)) return;
+      const picked = [...(f.m_files.files || [])];
+      if (picked.length > 5) { toast('附件最多 5 個', 'error'); return; }
+      const big = picked.find((x) => x.size > 8 * 1024 * 1024); if (big) { toast(`「${big.name}」超過 8MB`, 'error'); return; }
+      if (!window.confirm(`確定從 official@step1ne.com 寄給 ${to}？` + (picked.length ? `\n附件：${picked.map((x) => x.name).join('、')}` : ''))) return;
       sb.disabled = true;
       try {
-        await api.post('/admin/channels/send-mail', { id, by: f.by.value, to, subject: f.m_subject.value.trim(), text: f.m_text.value,
+        const toB64 = (file) => new Promise((ok, no) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(',')[1] || ''); r.onerror = () => no(new Error(`讀不到「${file.name}」`)); r.readAsDataURL(file); });
+        const attachments = [];
+        for (const x of picked) attachments.push({ name: x.name, mime: x.type || 'application/octet-stream', b64: await toB64(x) });
+        await api.post('/admin/channels/send-mail', { id, by: f.by.value, to, subject: f.m_subject.value.trim(), text: f.m_text.value, attachments,
           note: f.note.value.trim(), status_to: f.status_to.value, next_step: f.next_step.value.trim(), next_due: f.next_due.value, save_email: !origEmail });
         toast('信已排入寄送（約 1 分鐘內寄出），也記好一筆紀錄了', 'success'); await refreshBoard(); openChannel(id);
       } catch (err) { toast(err.message || '寄出失敗', 'error'); sb.disabled = false; }
