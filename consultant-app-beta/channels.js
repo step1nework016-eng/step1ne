@@ -258,7 +258,8 @@ function logPaneHtml(d) {
         <div class="bdc-f full ch-ai" data-ch-mail data-email="${esc(c.email || '')}" hidden>
           <div class="ch-pre">
             <label class="bdc-f">信上署名的顧問<select name="m_sign">${[...new Set(['Phoebe', ...people])].map((x) => `<option${x === 'Phoebe' ? ' selected' : ''}>${esc(x)}</option>`).join('')}</select></label>
-            <label class="bdc-f">附加檔案（選填，最多 5 個、每個 8MB 內；pdf、word、excel、ppt、圖片）<input type="file" name="m_files" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg,.odt,.ods"></label>
+            <div class="bdc-f"><span>附加檔案（選填，最多 5 個、每個 8MB 內；pdf、word、excel、ppt、圖片）</span>
+              <label class="ch-drop" data-ch-drop>把檔案拖到這裡，或點這裡選檔案<input class="ch-drop-input" type="file" name="m_files" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg,.odt,.ods"></label></div>
             <div class="ch-files muted" data-ch-files></div>
           </div>
           <div class="ch-ai-row"><button type="button" class="bdc-btn" data-ch-ai>AI 幫我擬信</button><button type="button" class="bdc-btn" data-ch-self>自己寫</button><details class="ch-help"><summary aria-label="怎麼用">?</summary><div class="ch-help-box">
@@ -410,7 +411,21 @@ function wireDetail(id) {
     mbox.querySelector('[data-ch-self]').addEventListener('click', () => { const f = lf.elements; dbox.hidden = false; if (!f.m_to.value) f.m_to.value = origEmail; if (!f.m_text.value) f.m_text.value = `\n\nStep1ne 德仁管理顧問\n顧問：${f.m_sign.value}\n電話：02-6605-7111\nEmail：official@step1ne.com\n就業服務許可證：北市就服字第 0363 號`; (f.m_to.value ? f.m_subject : f.m_to).focus(); });
     lf.elements.m_sign.addEventListener('change', () => { const f = lf.elements; f.m_text.value = f.m_text.value.replace(/^顧問：.*$/m, '顧問：' + f.m_sign.value); });
     const fin = lf.elements.m_files; const flist = mbox.querySelector('[data-ch-files]');
-    fin.addEventListener('change', () => { const xs = [...(fin.files || [])]; flist.textContent = xs.length ? '會附上：' + xs.map((x) => `${x.name}（${Math.max(1, Math.round(x.size / 1024))} KB）`).join('、') : ''; });
+    // 拖拉附件：把拖進來的檔案跟已選的合併，塞回 input（寄出時照樣從 input 讀）
+    const drop = mbox.querySelector('[data-ch-drop]');
+    ['dragenter', 'dragover'].forEach((t) => drop.addEventListener(t, (e) => { e.preventDefault(); drop.classList.add('over'); }));
+    ['dragleave', 'drop'].forEach((t) => drop.addEventListener(t, () => drop.classList.remove('over')));
+    drop.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const dt = new DataTransfer();
+      [...(fin.files || []), ...(e.dataTransfer.files || [])].forEach((x) => dt.items.add(x));
+      fin.files = dt.files; fin.dispatchEvent(new Event('change'));
+    });
+    fin.addEventListener('change', () => {
+      const xs = [...(fin.files || [])];
+      flist.innerHTML = xs.length ? '會附上：' + xs.map((x) => esc(`${x.name}（${Math.max(1, Math.round(x.size / 1024))} KB）`)).join('、') + '　<button type="button" class="bdc-btn sm" data-ch-fclear>清除附件</button>' : '';
+      const cl = flist.querySelector('[data-ch-fclear]'); if (cl) cl.onclick = () => { fin.value = ''; fin.dispatchEvent(new Event('change')); };
+    });
     mbox.querySelector('[data-ch-send]').addEventListener('click', async (ev) => {
       const f = lf.elements; const to = f.m_to.value.trim(); const sb = ev.currentTarget;
       if (!f.by.value) { toast('請先選「誰記的」', 'error'); return; }
