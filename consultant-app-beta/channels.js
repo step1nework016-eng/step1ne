@@ -256,14 +256,16 @@ function logPaneHtml(d) {
         <div class="bdc-f full"><label class="bdc-check"><input type="checkbox" name="mail_sent"> 這次有寄信　<small class="muted">（勾了才記「已寄出」和時間）</small></label></div>
         <label class="bdc-f full">備註<textarea name="note" rows="3" placeholder="聊到什麼、對方說什麼（例：承辦人說下週一把職缺發給 AutoCAD 班學員）"></textarea></label>
         <div class="bdc-f full ch-ai" data-ch-mail data-email="${esc(c.email || '')}" hidden>
-          <div class="ch-ai-row"><button type="button" class="bdc-btn" data-ch-ai>AI 幫我擬信</button><button type="button" class="bdc-btn" data-ch-self>自己寫</button><small class="muted" data-ch-ai-msg>會照上面「備註」寫的目的擬信（例：回傳填好的表單、洪先生請我把職缺寄到信箱）；要附檔可以先按「自己寫」選好附件再按 AI 擬信，約 1～2 分鐘</small></div>
-          <div class="ch-draft" data-ch-draft hidden>
+          <div class="ch-pre">
             <label class="bdc-f">信上署名的顧問<select name="m_sign">${[...new Set(['Phoebe', ...people])].map((x) => `<option${x === 'Phoebe' ? ' selected' : ''}>${esc(x)}</option>`).join('')}</select></label>
+            <label class="bdc-f">附加檔案（選填，最多 5 個、每個 8MB 內；pdf、word、excel、ppt、圖片）<input type="file" name="m_files" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg,.odt,.ods"></label>
+            <div class="ch-files muted" data-ch-files></div>
+          </div>
+          <div class="ch-ai-row"><button type="button" class="bdc-btn" data-ch-ai>AI 幫我擬信</button><button type="button" class="bdc-btn" data-ch-self>自己寫</button><small class="muted" data-ch-ai-msg>AI 會照「備註」寫的目的擬信（例：回傳填好的表單、洪先生請我把職缺寄到信箱）；有選附件會在信裡寫「附件是…請查收」。AI 只看得到檔名、看不到檔案內容。約 1～2 分鐘</small></div>
+          <div class="ch-draft" data-ch-draft hidden>
             <label class="bdc-f">收件人<input type="email" name="m_to" maxlength="120" placeholder="對方的 Email"></label>
             <label class="bdc-f">主旨<input type="text" name="m_subject" maxlength="200"></label>
             <label class="bdc-f">內文（可以直接改）<textarea name="m_text" rows="16"></textarea></label>
-            <label class="bdc-f">附加檔案（選填，最多 5 個、每個 8MB 內；pdf、word、excel、ppt、圖片）<input type="file" name="m_files" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg,.odt,.ods"></label>
-            <div class="ch-files muted" data-ch-files></div>
             <div class="bdc-actions"><button type="button" class="bdc-btn primary" data-ch-send>寄出這封信</button><small class="muted">從 official@step1ne.com 寄出，署名是「誰記的」那位；寄出後自動記一筆「信已寄出」</small></div>
           </div>
         </div>
