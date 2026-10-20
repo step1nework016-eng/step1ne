@@ -261,7 +261,18 @@ function logPaneHtml(d) {
             <label class="bdc-f">附加檔案（選填，最多 5 個、每個 8MB 內；pdf、word、excel、ppt、圖片）<input type="file" name="m_files" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg,.odt,.ods"></label>
             <div class="ch-files muted" data-ch-files></div>
           </div>
-          <div class="ch-ai-row"><button type="button" class="bdc-btn" data-ch-ai>AI 幫我擬信</button><button type="button" class="bdc-btn" data-ch-self>自己寫</button><small class="muted" data-ch-ai-msg>AI 會照「備註」寫的目的擬信（例：回傳填好的表單、洪先生請我把職缺寄到信箱）；有選附件會在信裡寫「附件是…請查收」。AI 只看得到檔名、看不到檔案內容。約 1～2 分鐘</small></div>
+          <div class="ch-ai-row"><button type="button" class="bdc-btn" data-ch-ai>AI 幫我擬信</button><button type="button" class="bdc-btn" data-ch-self>自己寫</button><details class="ch-help"><summary aria-label="怎麼用">?</summary><div class="ch-help-box">
+            <b>寄信怎麼用</b>
+            <ol><li>「備註」打這封信要做什麼（例：回傳填好的 BIM 招募表、洪先生請我把職缺寄到信箱）</li>
+            <li>選「信上署名的顧問」（預設 Phoebe）</li>
+            <li>有附件就先選好（最多 5 個，每個 8MB 內）</li>
+            <li>按「AI 幫我擬信」等 1～2 分鐘；不想用 AI 就按「自己寫」</li>
+            <li>看過信、要改直接改，按「寄出這封信」</li></ol>
+            <p>・從 official@step1ne.com 寄出，寄出後自動記一筆「信已寄出」，不用再按「存這筆紀錄」</p>
+            <p>・AI 只看得到附件檔名，看不到檔案內容</p>
+            <p>・職缺清單、簽名是系統自動帶的；回傳表單這類信不會附職缺清單</p>
+            <p>・這個管道還沒填 Email 的，寄出時會順便存進管道資料</p>
+          </div></details><small class="muted" data-ch-ai-msg>AI 會照「備註」寫的目的擬信（例：回傳填好的表單、洪先生請我把職缺寄到信箱）；有選附件會在信裡寫「附件是…請查收」。AI 只看得到檔名、看不到檔案內容。約 1～2 分鐘</small></div>
           <div class="ch-draft" data-ch-draft hidden>
             <label class="bdc-f">收件人<input type="email" name="m_to" maxlength="120" placeholder="對方的 Email"></label>
             <label class="bdc-f">主旨<input type="text" name="m_subject" maxlength="200"></label>

@@ -1362,3 +1362,13 @@ svg .rs-val{font-size:15px;font-weight:700;fill:#14232e}svg .rs-lab{font-size:13
 .ch-draft{display:grid;gap:10px;margin-top:12px}
 .ch-draft textarea{font:inherit;line-height:1.6}
 .ch-pre{display:grid;gap:10px;margin-bottom:12px}
+.ch-help{position:relative}
+.ch-help summary{list-style:none;width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+.ch-help summary::-webkit-details-marker{display:none}
+.ch-help summary::before{content:"";position:absolute}
+.ch-help summary{font-weight:700;color:#33405a}
+.ch-help summary:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:50%}
+.ch-help summary{background:radial-gradient(circle,#eef2f8 0 13px,transparent 14px)}
+.ch-help-box{position:absolute;z-index:20;right:0;top:48px;width:min(360px,80vw);background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 16px;box-shadow:0 6px 20px rgba(20,30,50,.12);font-size:13.5px;line-height:1.6;color:#33405a}
+.ch-help-box ol{margin:6px 0 8px;padding-left:20px}
+.ch-help-box p{margin:2px 0}
