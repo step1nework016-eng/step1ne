@@ -181,6 +181,7 @@ html{scroll-behavior:smooth}
 .pills span{font-size:14px;font-weight:700;background:#EAF4FA;color:var(--brand-deep);border-radius:999px;padding:6px 12px}
 .grid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-top:28px}
 .tc{background:var(--white);border:1px solid var(--rule);border-radius:12px;padding:20px;display:flex;flex-direction:column}
+.tc[hidden]{display:none}
 .tc.isfull{opacity:.72}
 .tc-hd{display:flex;gap:10px;justify-content:space-between;align-items:flex-start}
 .tc h3{font-size:18px}
@@ -191,6 +192,14 @@ html{scroll-behavior:smooth}
 .go{margin-top:auto;display:flex;align-items:center;justify-content:center;min-height:44px;border-radius:8px;background:var(--brand);color:#fff;font-weight:700}
 .go.off{background:var(--paper);color:var(--slate-dim);border:1px solid var(--rule);font-weight:500;font-size:14px}
 article a.go,article a.go:hover{color:#fff;border-bottom:0}
+.rtabs{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 10px}
+.rtab{min-height:44px;padding:0 18px;border-radius:999px;border:1px solid var(--rule);background:#fff;color:var(--slate);font:inherit;font-size:15px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.rtab span{font-size:12px;background:var(--paper);color:var(--brand-deep);border-radius:999px;padding:2px 8px}
+.rtab.on{background:var(--brand-deep);color:#fff;border-color:var(--brand-deep)}.rtab.on span{background:#fff;color:var(--brand-deep)}
+.rtab:focus-visible,.rsel select:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.rsel{display:none}
+.rnote{font-size:13.5px;color:var(--slate-dim);margin:0 0 18px}
+@media (max-width:640px){.rtabs{display:none}.rsel{display:grid;gap:6px;margin-bottom:10px;font-size:14px;color:var(--slate)}.rsel select{min-height:46px;border:1px solid var(--rule);border-radius:10px;padding:0 12px;font:inherit;font-size:16px;background:#fff;color:var(--ink,#16202e)}}
 .sec2{margin-top:44px}.sec2 h2{font-size:24px}
 .sec2 p,.sec2 li{color:var(--slate)}
 .sharebox{margin-top:14px;background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:18px 20px;white-space:pre-line;font-size:15.5px;line-height:1.8}
@@ -222,33 +231,36 @@ article a.go,article a.go:hover{color:#fff;border-bottom:0}
   <p>台灣半導體與高科技廠房持續擴建，建廠工程需要大量會畫圖、懂工地的人。下面這些職缺都<strong>接受沒有經驗的人，由公司安排培訓</strong>，適合工程、設計、建築、土木相關科系同學，也適合想轉職的社會人士。</p>
   <div class="pills"><span>無經驗可</span><span>公司提供培訓</span><span>正職僱用</span><span>新竹・苗栗・台中・雲林</span></div>
 </section>
+<div class="rtabs" role="tablist" aria-label="選擇地區"><button type="button" class="rtab on" data-r="all" role="tab" aria-selected="true">全部<span>5</span></button><button type="button" class="rtab" data-r="hsinchu" role="tab" aria-selected="false">新竹<span>4</span></button><button type="button" class="rtab" data-r="miaoli" role="tab" aria-selected="false">苗栗<span>2</span></button><button type="button" class="rtab" data-r="taichung" role="tab" aria-selected="false">台中<span>3</span></button><button type="button" class="rtab" data-r="yunlin" role="tab" aria-selected="false">雲林<span>2</span></button></div>
+<label class="rsel"><span>選擇地區</span><select id="rsel"><option value="all">全部（5 個招募中）</option><option value="hsinchu">新竹（4 個招募中）</option><option value="miaoli">苗栗（2 個招募中）</option><option value="taichung">台中（3 個招募中）</option><option value="yunlin">雲林（2 個招募中）</option></select></label>
+<p class="rnote">跨區派案的職缺（工程設計、半導體專案）會同時出現在新竹、苗栗、台中、雲林。</p>
 <div class="grid2">
-<article class="tc">
+<article class="tc" data-r="taichung">
   <div class="tc-hd"><h3>BIM 工程師（台中后里）</h3><span class="st open">招募中</span></div>
   <dl><dt>地點</dt><dd>台中市后里區</dd><dt>月薪</dt><dd>平均 4 萬起（依學歷與科系核定，年終已攤入月薪）</dd><dt>培訓</dt><dd>公司安排完整教育訓練，進駐大型科技廠建廠專案，跟著設計團隊從零累積 BIM 實戰經驗</dd><dt>適合</dt><dd>無經驗可；具 AutoCAD、Revit 經驗尤佳</dd><dt>型態</dt><dd>正職・不輪班・週休二日</dd></dl>
   <a class="go" href="/jobs/bim-engineer-houli/">看職缺與報名</a>
 </article>
-<article class="tc isfull">
+<article class="tc isfull" data-r="miaoli">
   <div class="tc-hd"><h3>BIM 工程師（苗栗銅鑼）</h3><span class="st full">額滿</span></div>
   <dl><dt>地點</dt><dd>苗栗縣銅鑼鄉（調派苗栗、台中）</dd><dt>月薪</dt><dd>平均 4 萬起</dd><dt>培訓</dt><dd>公司安排完整教育訓練，進駐半導體擴產專案現場</dd><dt>適合</dt><dd>無經驗可</dd><dt>型態</dt><dd>正職</dd></dl>
   <span class="go off">本職缺已額滿，歡迎看其他職缺</span>
 </article>
-<article class="tc">
+<article class="tc" data-r="hsinchu">
   <div class="tc-hd"><h3>半導體廠務 BIM／機電繪圖助理工程師</h3><span class="st open">招募中</span></div>
   <dl><dt>地點</dt><dd>新竹（半導體廠區駐點）</dd><dt>月薪</dt><dd>4 萬 833～5 萬 167 元</dd><dt>培訓</dt><dd>提供 AutoCAD、Revit 培訓，從 2D 圖面學起，逐步進階 3D 建模</dd><dt>適合</dt><dd>大學以上，科系不限（相關科系優先）；需機車駕照</dd><dt>型態</dt><dd>全職</dd></dl>
   <a class="go" href="/jobs/semiconductor-bim-mep-drafting-trainee-hsinchu/">看職缺與報名</a>
 </article>
-<article class="tc">
+<article class="tc" data-r="hsinchu">
   <div class="tc-hd"><h3>半導體廠繪圖師</h3><span class="st open">招募中</span></div>
   <dl><dt>地點</dt><dd>新竹（半導體廠區駐點）</dd><dt>月薪</dt><dd>4 萬 833～5 萬 167 元</dd><dt>培訓</dt><dd>提供 AutoCAD、Revit 培訓，從 2D 圖面學起，逐步進階 3D 建模</dd><dt>適合</dt><dd>大學以上，科系不限（相關科系優先）；需機車駕照</dd><dt>型態</dt><dd>全職</dd></dl>
   <a class="go" href="/jobs/bim-mep-drafting-engineer-hsinchu/">看職缺與報名</a>
 </article>
-<article class="tc">
+<article class="tc" data-r="hsinchu miaoli taichung yunlin">
   <div class="tc-hd"><h3>工程設計工程師（儲備培訓）</h3><span class="st open">招募中</span></div>
   <dl><dt>地點</dt><dd>桃竹苗、台中、雲林（依派案安排）</dd><dt>月薪</dt><dd>3.5～4.5 萬元</dd><dt>培訓</dt><dd>加入半導體與高科技廠房工程設計團隊，提供完整軟體繪圖培訓</dd><dt>適合</dt><dd>專科以上，工業設計、土木營建、建築室內設計相關科系；社會新鮮人可</dd><dt>型態</dt><dd>正職・外縣市提供宿舍</dd></dl>
   <a class="go" href="/jobs/trainee-engineering-design-engineer/">看職缺與報名</a>
 </article>
-<article class="tc">
+<article class="tc" data-r="hsinchu miaoli taichung yunlin">
   <div class="tc-hd"><h3>半導體專案工程師（全額免費培訓）</h3><span class="st open">招募中</span></div>
   <dl><dt>地點</dt><dd>桃竹苗、台中、雲林（依專案調派）</dd><dt>月薪</dt><dd>3.5～4.5 萬元，另有年終與節慶獎金</dd><dt>培訓</dt><dd>參與半導體廠房新建／擴建工程，提供專案團隊指導與外部教育訓練</dd><dt>適合</dt><dd>社會新鮮人、轉職者皆可</dd><dt>型態</dt><dd>正職・外縣市提供免費宿舍</dd></dl>
   <a class="go" href="/jobs/trainee-semiconductor-project-engineer/">看職缺與報名</a>
@@ -278,5 +290,16 @@ article a.go,article a.go:hover{color:#fff;border-bottom:0}
 <p style="margin-top:30px;font-size:13.5px;color:var(--slate-dim)">職缺內容依各職缺頁為準，實際待遇與工作條件依面試後雙方確認。Step1ne 德仁管理顧問有限公司，臺北市就業服務許可北市就服字第 0363 號。</p>
 </main>
 <footer><div class="fw">德仁管理顧問有限公司　臺北市內湖區康寧路三段 54 之 7 號 3 樓</div></footer>
+<script>
+(function(){
+  var tabs=[].slice.call(document.querySelectorAll('.rtab')),cards=[].slice.call(document.querySelectorAll('.grid2 .tc')),sel=document.getElementById('rsel');
+  function show(r){tabs.forEach(function(b){var on=b.dataset.r===r;b.classList.toggle('on',on);b.setAttribute('aria-selected',on)});
+    cards.forEach(function(c){c.hidden=r!=='all'&&(' '+c.dataset.r+' ').indexOf(' '+r+' ')<0});
+    if(sel)sel.value=r;try{history.replaceState(null,'',r==='all'?location.pathname:'#'+r)}catch(e){}}
+  tabs.forEach(function(b){b.addEventListener('click',function(){show(b.dataset.r)})});
+  if(sel)sel.addEventListener('change',function(){show(sel.value)});
+  var h=location.hash.slice(1);if(tabs.some(function(b){return b.dataset.r===h}))show(h);
+})();
+</script>
 </body>
 </html>
