@@ -256,7 +256,7 @@ function logPaneHtml(d) {
         <div class="bdc-f full"><label class="bdc-check"><input type="checkbox" name="mail_sent"> 這次有寄信　<small class="muted">（勾了才記「已寄出」和時間）</small></label></div>
         <label class="bdc-f full">備註<textarea name="note" rows="3" placeholder="聊到什麼、對方說什麼（例：承辦人說下週一把職缺發給 AutoCAD 班學員）"></textarea></label>
         <div class="bdc-f full ch-ai" data-ch-mail data-email="${esc(c.email || '')}" hidden>
-          <div class="ch-ai-row"><button type="button" class="bdc-btn" data-ch-ai>AI 幫我擬信</button><button type="button" class="bdc-btn" data-ch-self>自己寫</button><small class="muted" data-ch-ai-msg>會參考上面「備註」寫的內容（例：洪先生不在，請我把職缺寄到信箱），約 1～2 分鐘擬好</small></div>
+          <div class="ch-ai-row"><button type="button" class="bdc-btn" data-ch-ai>AI 幫我擬信</button><button type="button" class="bdc-btn" data-ch-self>自己寫</button><small class="muted" data-ch-ai-msg>會照上面「備註」寫的目的擬信（例：回傳填好的表單、洪先生請我把職缺寄到信箱）；要附檔可以先按「自己寫」選好附件再按 AI 擬信，約 1～2 分鐘</small></div>
           <div class="ch-draft" data-ch-draft hidden>
             <label class="bdc-f">信上署名的顧問<select name="m_sign">${[...new Set(['Phoebe', ...people])].map((x) => `<option${x === 'Phoebe' ? ' selected' : ''}>${esc(x)}</option>`).join('')}</select></label>
             <label class="bdc-f">收件人<input type="email" name="m_to" maxlength="120" placeholder="對方的 Email"></label>
@@ -377,7 +377,7 @@ function wireDetail(id) {
       const f = lf.elements; if (!f.by.value) { toast('請先選「誰記的」', 'error'); return; }
       aiBtn.disabled = true; msg.textContent = 'AI 擬信中……約 1～2 分鐘，可以先做別的事，別關掉這個視窗';
       try {
-        const r = await api.post('/admin/channels/ai-draft', { id, note: f.note.value.trim(), by: f.m_sign.value || 'Phoebe' });
+        const r = await api.post('/admin/channels/ai-draft', { id, note: f.note.value.trim(), by: f.m_sign.value || 'Phoebe', files: [...(f.m_files.files || [])].map((x) => x.name) });
         const t0 = Date.now();
         while (Date.now() - t0 < 8 * 60 * 1000) {
           await new Promise((ok) => setTimeout(ok, 4000));
