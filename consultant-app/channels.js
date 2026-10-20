@@ -257,6 +257,7 @@ function logPaneHtml(d) {
         <label class="bdc-f full">備註<textarea name="note" rows="3" placeholder="聊到什麼、對方說什麼（例：承辦人說下週一把職缺發給 AutoCAD 班學員）"></textarea></label>
         <div class="bdc-f full ch-ai" data-ch-mail data-email="${esc(c.email || '')}" hidden>
           <div class="ch-pre">
+            <label class="bdc-f">信要請對方轉給誰<select name="m_aud"><option value="school">大專院校學員（連到培訓專區 /training/）</option><option value="construction">一般求職民眾（連到營造專區 /construction/）</option></select></label>
             <label class="bdc-f">信上署名的顧問<select name="m_sign">${[...new Set(['Phoebe', ...people])].map((x) => `<option${x === 'Phoebe' ? ' selected' : ''}>${esc(x)}</option>`).join('')}</select></label>
             <div class="bdc-f"><span>附加檔案（選填，最多 5 個、每個 8MB 內；pdf、word、excel、ppt、圖片）</span>
               <label class="ch-drop" data-ch-drop>把檔案拖到這裡，或點這裡選檔案<input class="ch-drop-input" type="file" name="m_files" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg,.odt,.ods"></label></div>
@@ -391,7 +392,7 @@ function wireDetail(id) {
       const f = lf.elements; if (!f.by.value) { toast('請先選「誰記的」', 'error'); return; }
       aiBtn.disabled = true; msg.textContent = 'AI 擬信中……約 1～2 分鐘，可以先做別的事，別關掉這個視窗';
       try {
-        const r = await api.post('/admin/channels/ai-draft', { id, note: f.note.value.trim(), by: f.m_sign.value || 'Phoebe', files: [...(f.m_files.files || [])].map((x) => x.name) });
+        const r = await api.post('/admin/channels/ai-draft', { id, note: f.note.value.trim(), by: f.m_sign.value || 'Phoebe', files: [...(f.m_files.files || [])].map((x) => x.name), audience: f.m_aud.value });
         const t0 = Date.now();
         while (Date.now() - t0 < 8 * 60 * 1000) {
           await new Promise((ok) => setTimeout(ok, 4000));
@@ -409,6 +410,10 @@ function wireDetail(id) {
       } catch (err) { msg.textContent = '擬信失敗：' + (err.message || '請再試一次'); aiBtn.disabled = false; }
     });
     mbox.querySelector('[data-ch-self]').addEventListener('click', () => { const f = lf.elements; dbox.hidden = false; if (!f.m_to.value) f.m_to.value = origEmail; if (!f.m_text.value) f.m_text.value = `\n\nStep1ne 德仁管理顧問\n顧問：${f.m_sign.value}\n電話：02-6605-7111\nEmail：official@step1ne.com\n就業服務許可證：北市就服字第 0363 號`; (f.m_to.value ? f.m_subject : f.m_to).focus(); });
+    // 擬好之後才換對象：信裡的連結跟「轉貼給誰」一起換
+    lf.elements.m_aud.addEventListener('change', () => { const f = lf.elements; const toC = f.m_aud.value === 'construction';
+      f.m_text.value = toC ? f.m_text.value.split('step1ne.com/training/').join('step1ne.com/construction/').replace('直接轉貼給大專院校學員', '直接轉貼給求職民眾')
+                           : f.m_text.value.split('step1ne.com/construction/').join('step1ne.com/training/').replace('直接轉貼給求職民眾', '直接轉貼給大專院校學員'); });
     lf.elements.m_sign.addEventListener('change', () => { const f = lf.elements; f.m_text.value = f.m_text.value.replace(/^顧問：.*$/m, '顧問：' + f.m_sign.value); });
     const fin = lf.elements.m_files; const flist = mbox.querySelector('[data-ch-files]');
     // 拖拉附件：把拖進來的檔案跟已選的合併，塞回 input（寄出時照樣從 input 讀）
