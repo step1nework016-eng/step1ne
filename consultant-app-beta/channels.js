@@ -255,6 +255,15 @@ function logPaneHtml(d) {
         <label class="bdc-f" data-ch-call>問到的窗口（選填）<input name="contact_name" maxlength="60" placeholder="例：曾小姐 分機1621"></label>
         <div class="bdc-f full"><label class="bdc-check"><input type="checkbox" name="mail_sent"> 這次有寄信　<small class="muted">（勾了才記「已寄出」和時間）</small></label></div>
         <label class="bdc-f full">備註<textarea name="note" rows="3" placeholder="聊到什麼、對方說什麼（例：承辦人說下週一把職缺發給 AutoCAD 班學員）"></textarea></label>
+        <div class="bdc-f full ch-ai" data-ch-mail data-email="${esc(c.email || '')}" hidden>
+          <div class="ch-ai-row"><button type="button" class="bdc-btn" data-ch-ai>AI 幫我擬信</button><small class="muted" data-ch-ai-msg>會參考上面「備註」寫的內容（例：洪先生不在，請我把職缺寄到信箱），約 1～2 分鐘擬好</small></div>
+          <div class="ch-draft" data-ch-draft hidden>
+            <label class="bdc-f">收件人<input type="email" name="m_to" maxlength="120" placeholder="對方的 Email"></label>
+            <label class="bdc-f">主旨<input type="text" name="m_subject" maxlength="200"></label>
+            <label class="bdc-f">內文（可以直接改）<textarea name="m_text" rows="16"></textarea></label>
+            <div class="bdc-actions"><button type="button" class="bdc-btn primary" data-ch-send>寄出這封信</button><small class="muted">從 official@step1ne.com 寄出，署名是「誰記的」那位；寄出後自動記一筆「信已寄出」</small></div>
+          </div>
+        </div>
         <label class="bdc-f">階段調整<select name="status_to"><option value="">不調整</option>${COLS.map(([k, t]) => `<option value="${k}">${esc(t)}</option>`).join('')}</select></label>
         <label class="bdc-f">下一步到期日<input type="date" name="next_due"></label>
         <label class="bdc-f full">下一步要做什麼<input type="text" name="next_step" maxlength="200" placeholder="例：寄 BIM 職缺說明給曾小姐，週五再打電話確認有沒有轉發"></label>
@@ -343,7 +352,7 @@ function wireDetail(id) {
   };
   body.querySelectorAll('[data-ch-stage]').forEach((b) => b.addEventListener('click', () => { lf.elements.status_to.value = b.getAttribute('data-ch-stage'); renderNeed(); focusForm(); }));
   lf.elements.status_to.addEventListener('change', renderNeed);
-  const syncKind = () => { const call = lf.querySelector('[name=kind]:checked').value === 'call'; lf.querySelectorAll('[data-ch-call]').forEach((el) => { el.hidden = !call; }); if (lf.querySelector('[name=kind]:checked').value === 'mail') lf.elements.mail_sent.checked = true; };
+  const syncKind = () => { const k = lf.querySelector('[name=kind]:checked').value; const call = k === 'call'; lf.querySelectorAll('[data-ch-call]').forEach((el) => { el.hidden = !call; }); lf.querySelectorAll('[data-ch-mail]').forEach((el) => { el.hidden = k !== 'mail'; }); if (k === 'mail') lf.elements.mail_sent.checked = true; };
   lf.querySelectorAll('[name=kind]').forEach((r) => r.addEventListener('change', syncKind)); syncKind();
   body.querySelector('[data-ch-newlog]')?.addEventListener('click', focusForm);
   body.querySelector('[data-ch-next="done"]')?.addEventListener('click', async (e) => {
@@ -356,6 +365,45 @@ function wireDetail(id) {
     try { await api.post('/admin/channels/next', { id, action: 'snooze', days: 1 }); toast('已延 1 天', 'success'); await refreshBoard(); openChannel(id); }
     catch (err) { toast(err.message || '失敗', 'error'); e.currentTarget.disabled = false; }
   });
+  // 2026-10-20：AI 擬信 → 頁面上看過、可改 → 寄出（寄出同時自動記一筆已寄信）
+  const mbox = lf.querySelector('[data-ch-mail]');
+  if (mbox) {
+    const aiBtn = mbox.querySelector('[data-ch-ai]'); const msg = mbox.querySelector('[data-ch-ai-msg]'); const dbox = mbox.querySelector('[data-ch-draft]');
+    const origEmail = mbox.getAttribute('data-email') || '';
+    aiBtn.addEventListener('click', async () => {
+      const f = lf.elements; if (!f.by.value) { toast('請先選「誰記的」', 'error'); return; }
+      aiBtn.disabled = true; msg.textContent = 'AI 擬信中……約 1～2 分鐘，可以先做別的事，別關掉這個視窗';
+      try {
+        const r = await api.post('/admin/channels/ai-draft', { id, note: f.note.value.trim(), by: f.by.value });
+        const t0 = Date.now();
+        while (Date.now() - t0 < 8 * 60 * 1000) {
+          await new Promise((ok) => setTimeout(ok, 4000));
+          if (!document.body.contains(mbox)) return;
+          const g = await api.get('/admin/channels/ai-draft?job=' + encodeURIComponent(r.job_id));
+          if (g.status === 'done' && g.draft) {
+            f.m_to.value = g.draft.to || origEmail; f.m_subject.value = g.draft.subject || ''; f.m_text.value = g.draft.text || '';
+            dbox.hidden = false; msg.textContent = '擬好了，請看過、需要就直接改，再按「寄出這封信」。想重擬可以改備註再按一次。';
+            if (!f.m_to.value) { msg.textContent += '　⚠️ 這個管道還沒有 Email，請先填收件人（寄出後會順便存進管道資料）。'; f.m_to.focus(); }
+            aiBtn.disabled = false; aiBtn.textContent = '重新擬一次'; return;
+          }
+          if (g.status === 'failed' || g.status === 'error') throw new Error(g.error || 'AI 擬信失敗');
+        }
+        throw new Error('等太久了，請再按一次');
+      } catch (err) { msg.textContent = '擬信失敗：' + (err.message || '請再試一次'); aiBtn.disabled = false; }
+    });
+    mbox.querySelector('[data-ch-send]').addEventListener('click', async (ev) => {
+      const f = lf.elements; const to = f.m_to.value.trim(); const sb = ev.currentTarget;
+      if (!f.by.value) { toast('請先選「誰記的」', 'error'); return; }
+      if (!to || !f.m_subject.value.trim() || !f.m_text.value.trim()) { toast('收件人、主旨、內文都要有', 'error'); return; }
+      if (!window.confirm(`確定從 official@step1ne.com 寄給 ${to}？`)) return;
+      sb.disabled = true;
+      try {
+        await api.post('/admin/channels/send-mail', { id, by: f.by.value, to, subject: f.m_subject.value.trim(), text: f.m_text.value,
+          note: f.note.value.trim(), status_to: f.status_to.value, next_step: f.next_step.value.trim(), next_due: f.next_due.value, save_email: !origEmail });
+        toast('信已排入寄送（約 1 分鐘內寄出），也記好一筆紀錄了', 'success'); await refreshBoard(); openChannel(id);
+      } catch (err) { toast(err.message || '寄出失敗', 'error'); sb.disabled = false; }
+    });
+  }
   lf.addEventListener('submit', async (e) => {
     e.preventDefault();
     const f = lf.elements; const kind = lf.querySelector('[name=kind]:checked').value;
