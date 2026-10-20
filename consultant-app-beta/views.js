@@ -4474,13 +4474,13 @@ ${tg}
         statusTag = '<span class="badge warning">已寄送，等填寫</span>';
         actions = [
           actionBtn('催填', 'candidate-form-resend', { idParams: { id: f.id } }),
-          actionBtn('代為上傳', 'candidate-form-upload', idParams),
+          actionBtn('代為上傳', 'candidate-form-upload', { idParams }),
         ];
       } else {
         statusTag = '<span class="badge">尚未寄送</span>';
         actions = [
-          actionBtn('寄送表單', 'candidate-form-trigger', idParams),
-          actionBtn('代為上傳', 'candidate-form-upload', idParams),
+          actionBtn('寄送表單', 'candidate-form-trigger', { idParams }),
+          actionBtn('代為上傳', 'candidate-form-upload', { idParams }),
         ];
       }
       return `<div class="list-row" style="padding:8px 10px;margin-top:4px"><span style="font-size:13px">${text(f.form_name)} ${statusTag}</span>${rowActions(actions)}</div>`;
