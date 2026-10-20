@@ -258,6 +258,7 @@ function logPaneHtml(d) {
         <div class="bdc-f full ch-ai" data-ch-mail data-email="${esc(c.email || '')}" hidden>
           <div class="ch-ai-row"><button type="button" class="bdc-btn" data-ch-ai>AI 幫我擬信</button><button type="button" class="bdc-btn" data-ch-self>自己寫</button><small class="muted" data-ch-ai-msg>會參考上面「備註」寫的內容（例：洪先生不在，請我把職缺寄到信箱），約 1～2 分鐘擬好</small></div>
           <div class="ch-draft" data-ch-draft hidden>
+            <label class="bdc-f">信上署名的顧問<select name="m_sign">${[...new Set(['Phoebe', ...people])].map((x) => `<option${x === 'Phoebe' ? ' selected' : ''}>${esc(x)}</option>`).join('')}</select></label>
             <label class="bdc-f">收件人<input type="email" name="m_to" maxlength="120" placeholder="對方的 Email"></label>
             <label class="bdc-f">主旨<input type="text" name="m_subject" maxlength="200"></label>
             <label class="bdc-f">內文（可以直接改）<textarea name="m_text" rows="16"></textarea></label>
@@ -376,7 +377,7 @@ function wireDetail(id) {
       const f = lf.elements; if (!f.by.value) { toast('請先選「誰記的」', 'error'); return; }
       aiBtn.disabled = true; msg.textContent = 'AI 擬信中……約 1～2 分鐘，可以先做別的事，別關掉這個視窗';
       try {
-        const r = await api.post('/admin/channels/ai-draft', { id, note: f.note.value.trim(), by: f.by.value });
+        const r = await api.post('/admin/channels/ai-draft', { id, note: f.note.value.trim(), by: f.m_sign.value || 'Phoebe' });
         const t0 = Date.now();
         while (Date.now() - t0 < 8 * 60 * 1000) {
           await new Promise((ok) => setTimeout(ok, 4000));
@@ -393,7 +394,8 @@ function wireDetail(id) {
         throw new Error('等太久了，請再按一次');
       } catch (err) { msg.textContent = '擬信失敗：' + (err.message || '請再試一次'); aiBtn.disabled = false; }
     });
-    mbox.querySelector('[data-ch-self]').addEventListener('click', () => { const f = lf.elements; dbox.hidden = false; if (!f.m_to.value) f.m_to.value = origEmail; (f.m_to.value ? f.m_subject : f.m_to).focus(); });
+    mbox.querySelector('[data-ch-self]').addEventListener('click', () => { const f = lf.elements; dbox.hidden = false; if (!f.m_to.value) f.m_to.value = origEmail; if (!f.m_text.value) f.m_text.value = `\n\nStep1ne 德仁管理顧問\n顧問：${f.m_sign.value}\n電話：02-6605-7111\nEmail：official@step1ne.com\n就業服務許可證：北市就服字第 0363 號`; (f.m_to.value ? f.m_subject : f.m_to).focus(); });
+    lf.elements.m_sign.addEventListener('change', () => { const f = lf.elements; f.m_text.value = f.m_text.value.replace(/^顧問：.*$/m, '顧問：' + f.m_sign.value); });
     const fin = lf.elements.m_files; const flist = mbox.querySelector('[data-ch-files]');
     fin.addEventListener('change', () => { const xs = [...(fin.files || [])]; flist.textContent = xs.length ? '會附上：' + xs.map((x) => `${x.name}（${Math.max(1, Math.round(x.size / 1024))} KB）`).join('、') : ''; });
     mbox.querySelector('[data-ch-send]').addEventListener('click', async (ev) => {
@@ -409,7 +411,7 @@ function wireDetail(id) {
         const toB64 = (file) => new Promise((ok, no) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(',')[1] || ''); r.onerror = () => no(new Error(`讀不到「${file.name}」`)); r.readAsDataURL(file); });
         const attachments = [];
         for (const x of picked) attachments.push({ name: x.name, mime: x.type || 'application/octet-stream', b64: await toB64(x) });
-        await api.post('/admin/channels/send-mail', { id, by: f.by.value, to, subject: f.m_subject.value.trim(), text: f.m_text.value, attachments,
+        await api.post('/admin/channels/send-mail', { id, by: f.by.value, sign: f.m_sign.value || f.by.value, to, subject: f.m_subject.value.trim(), text: f.m_text.value, attachments,
           note: f.note.value.trim(), status_to: f.status_to.value, next_step: f.next_step.value.trim(), next_due: f.next_due.value, save_email: !origEmail });
         toast('信已排入寄送（約 1 分鐘內寄出），也記好一筆紀錄了', 'success'); await refreshBoard(); openChannel(id);
       } catch (err) { toast(err.message || '寄出失敗', 'error'); sb.disabled = false; }
