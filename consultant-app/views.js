@@ -3373,6 +3373,87 @@ ${a.note ? `<details class="note-details"><summary>顧問備註／電洽紀錄</
       ${todo.length ? `<h4 style="margin:18px 0 6px">阿財沒問到、要你補問的</h4><ul style="margin:0;padding-left:20px">${todo.map((x) => `<li style="margin:4px 0">${text(x)}</li>`).join('')}</ul>` : ''}
       ${full}`;
   },
+  // ── 2026-10-21 快速應徵版初篩報告 ─────────────────────────────
+  // Jacky：原本報告太流水帳，要表格、要區塊。照 step1ne-recruit/render_quick_report.py
+  // （Jacky 看過拍板的版型）移植。只給快速應徵進來的人選用，其他人選照舊走 interviewResult。
+  isQuickApply: (application = {}) => application.origin === 'quick_apply' || /^【快速應徵/.test(String(application.note || '')),
+  quickApplyResult: (report, application = {}) => {
+    let d = null;
+    try { d = report && report.content_json ? JSON.parse(report.content_json) : null; } catch { d = null; }
+    const full = `<details class="note-details" style="margin-top:12px"><summary><b>報告全文</b>（備查）</summary><p style="white-space:pre-wrap">${text(report.content_md || '（沒有內容）')}</p></details>`;
+    if (!d) return `<div class="notice">這份報告沒有結構化資料，只能看原文。</div>${full}`;
+    const E = (v) => escapeHtml(v ?? '');
+    const BADGE = { 符合: ['ok', '符合'], 部分符合: ['wa', '部分符合'], 缺: ['bad', '不符'], 未確認: ['mu', '未確認'], 待確認: ['mu', '待確認'] };
+    const pill = (v) => { const [c, t] = BADGE[v] || ['mu', v || '—']; return `<span class="qa-pill ${c}">${E(t)}</span>`; };
+    // 快速應徵表單：note 每行「鍵：值」，【…】開頭的是標題行
+    const q = {};
+    String(application.note || '').split(/\r?\n/).forEach((line) => {
+      const i = line.indexOf('：');
+      if (i > 0 && !line.startsWith('【')) q[line.slice(0, i).trim()] = line.slice(i + 1).trim();
+    });
+    const hasResume = !!(application.resume_file_id || String(application.resume_url || '').trim());
+    const hasTest = application.has_assessment === null || application.has_assessment === undefined ? !!application.disc_primary : !!application.has_assessment;
+    let mins = '';
+    const t0 = Date.parse(String(application.interview_started_at || '').replace(' ', 'T'));
+    const t1 = Date.parse(String(application.interview_ended_at || '').replace(' ', 'T'));
+    if (Number.isFinite(t0) && Number.isFinite(t1) && t1 >= t0) mins = Math.floor((t1 - t0) / 60000);
+    const route = d.route || {};
+    const mot = d.motivation || {};
+    const jm = (d.job_match || {}).items || [];
+    const sk = d.skill_ladder || {};
+    const basics = [['最高學歷', q['最高學歷'] || '（表單未填）'], ['學校與科系', q['學校與科系'] || q['科系'] || '—'],
+      ['相關經驗', q['相關經驗']], ['會用的軟體', q['會用的軟體']], ['相關證照', q['相關證照']],
+      ['機車駕照', q['機車駕照']], ['期望工作城市', q['期望工作城市'] || q['居住縣市']],
+      ['期望待遇', String(mot.salary_gap || '').split('，')[0] || '—'], ['可到職', mot.notice_period || '—']];
+    const rowsBasic = basics.map(([k, v]) => `<tr><th scope="row">${E(k)}</th><td>${E(v || '—')}</td></tr>`).join('');
+    const rowsMatch = jm.map((i) => `<tr><td>${E(i.requirement)}</td><td class="vd">${pill(i.verdict)}</td><td>${E(i.evidence)}</td></tr>`).join('');
+    const expLv = Number(sk.expected) || 0;
+    const rowsLadder = (sk.topics || []).map((t) => {
+      const lv = Number(t.level) || 0;
+      const bars = [1, 2, 3, 4, 5].map((n) => `<i class="${lv >= n ? 'on' : ''}${n === expLv ? ' exp' : ''}"></i>`).join('');
+      return `<tr><td>${E(t.topic)}</td><td><div class="qa-lv" role="img" aria-label="第 ${lv || 0} 級，職缺期待第 ${expLv} 級">${bars}</div></td><td>${E(t.level_name || (lv ? '' : '沒問到'))}</td></tr>`;
+    }).join('');
+    // 顧問要補問：consultant_followups ＋ not_covered，重複的（雙字詞重疊 ≥ 0.5）不再列一次
+    const follow = (d.consultant_followups || []).filter(Boolean).map(String);
+    const bi = (s) => { const out = new Set(); for (let i = 0; i < s.length - 1; i += 1) out.add(s.slice(i, i + 2)); return out; };
+    const sim = (a, b) => { const A = bi(a); const B = bi(b); let n = 0; A.forEach((x) => { if (B.has(x)) n += 1; }); return n / Math.max(1, Math.min(A.size, B.size)); };
+    (d.not_covered || []).forEach((x) => {
+      const it = String((x && x.item) || '').trim();
+      if (it && !follow.some((f) => { const h = f.split('（')[0]; return f.includes(it) || it.includes(h) || sim(it, h) >= 0.5; })) follow.push(`${it}（${x.kind ?? ''}）`);
+    });
+    const fc = d.for_client || {};
+    const dirs = d.career_directions || [];
+    const verdict = String(d.verdict || '');
+    const vcls = verdict.includes('推') && !verdict.includes('不') ? 'ok' : (verdict.includes('不符') ? 'bad' : 'wa');
+    const obs = d.observations || {};
+    const li = (arr) => (arr || []).map((x) => `<li>${E(x)}</li>`).join('') || '<li>無</li>';
+    return `<div class="qa-rep">
+      <div class="qa-head"><div><span class="qa-tag">快速應徵</span>
+        <p class="qa-sub">${E(application.job_title || application.job_slug)}｜面談 ${E(String(application.interview_started_at || '').slice(0, 16))}${mins !== '' ? `｜約 ${mins} 分鐘` : ''}</p></div>
+        <div class="qa-status"><span class="qa-pill ${hasResume ? 'ok' : 'bad'}">履歷 ${hasResume ? '已交' : '未交'}</span><span class="qa-pill ${hasTest ? 'ok' : 'mu'}">測驗 ${hasTest ? '已做' : '未做'}</span></div></div>
+      <section class="qa-hero ${vcls}"><div class="v">${E(d.verdict)}</div><p class="one">${E(d.one_liner)}</p>
+        <div class="qa-two"><div><b>最大亮點</b><p>${E(d.top_selling_point)}</p></div><div><b>最大風險</b><p>${E(d.top_risk)}</p></div></div>
+        <p class="route">系統分流：${E(route.label)}（${E(route.reason)}）</p></section>
+      <div class="qa-grid">
+        <section class="qa-card"><h4>快速應徵資料</h4><table class="qa-kv">${rowsBasic}</table></section>
+        <section class="qa-card"><h4>顧問要補問</h4><ol class="qa-list">${follow.map((x) => `<li>${E(x)}</li>`).join('') || '<li>無</li>'}</ol></section>
+      </div>
+      <section class="qa-card"><h4>職缺條件逐條比對</h4><div class="qa-tw"><table class="qa-tb"><tr><th>職缺條件</th><th>判定</th><th>根據</th></tr>${rowsMatch || '<tr><td colspan="3">無</td></tr>'}</table></div></section>
+      <div class="qa-grid">
+        <section class="qa-card"><h4>專業程度（1～5 級，框線＝職缺期待）</h4><table class="qa-tb">${rowsLadder || '<tr><td>無</td></tr>'}</table></section>
+        <section class="qa-card"><h4>動機與意願</h4><table class="qa-kv"><tr><th scope="row">想做這份工作的原因</th><td>${E(mot.why_this_role)}</td></tr>
+          <tr><th scope="row">職涯方向</th><td>${E((d.motive || {}).direction)}</td></tr><tr><th scope="row">猶豫點</th><td>${E(mot.blockers || (d.move_risk || {}).hesitation || '—')}</td></tr>
+          <tr><th scope="row">薪資</th><td>${E(mot.salary_gap)}</td></tr></table></section>
+      </div>
+      <div class="qa-grid">
+        <section class="qa-card"><h4>推給客戶的理由</h4><ul class="qa-list">${li(fc.reasons)}</ul></section>
+        <section class="qa-card"><h4>推之前要先講的風險</h4><ul class="qa-list">${li(fc.risks_to_disclose)}</ul></section>
+      </div>
+      <section class="qa-card"><h4>適合的職務方向</h4><div class="qa-dirs">${dirs.map((x) => `<div class="qa-dir"><h5>${E(x.direction)}</h5><p><b>為什麼</b>${E(x.why)}</p><p><b>要注意</b>${E(x.watch_out)}</p></div>`).join('') || '<p>無</p>'}</div></section>
+      <section class="qa-card"><h4>面談觀察</h4><p>${E(obs.communication_style)}</p><p>${E(obs.engagement)}</p></section>
+      <p class="qa-foot">資料來源：快速應徵表單＋AI 阿財面談（${E(String(report.created_at || '').slice(0, 16))} 產出）。判定標準：每項條件拆小項，全部有證據＝符合、部分有＝部分符合、明確沒有＝不符、沒問到＝未確認。</p>
+      ${full}</div>`;
+  },
   // 2026-10-01 AI 配對頁。資料就是 P3 的 candidate_job_recommendations，兩種來源：
   // 面談後找替代職缺（post_interview）、職缺開出來回頭找人才庫（reverse_job_open）。
   // 最上面固定講清楚：這裡的名單沒有聯絡任何人，要顧問按、而且寄信會先給預覽。
