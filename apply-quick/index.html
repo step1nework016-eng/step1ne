@@ -164,9 +164,13 @@ a.btn{text-decoration:none}
       <div class="err">請至少選一個（沒有也可以選「都沒有」）</div></div>
     <div class="f" data-req data-chip="moto" data-k="moto"><span>有機車駕照嗎<em>*</em> <small style="font-weight:400;color:var(--mu)">這個職缺要騎車到廠區</small></span>
       <div class="chips" role="group" aria-label="機車駕照"><button type="button">有</button><button type="button">沒有</button></div><div class="err">請選一個</div></div>
-    <div class="f" data-req data-chip="edu" data-k="edu"><span>最高學歷<em>*</em></span>
-      <div class="chips" role="group" aria-label="最高學歷"><button type="button">高中職</button><button type="button">五專／二專</button><button type="button">二技／大學</button><button type="button">碩士以上</button></div><div class="err">請選一個</div></div>
-    <label class="f"><span>學校與科系（選填）</span><input name="major" placeholder="例：逢甲大學 土木系"></label>
+    <div class="f" data-req data-k="edu"><label for="edu"><span>最高學歷<em>*</em></span></label>
+      <select name="edu" id="edu"><option value="">請選擇</option><option>國中以下</option><option>高中職</option><option>五專</option><option>二專</option><option>二技</option><option>大學</option><option>研究所（碩士）</option><option>博士</option></select>
+      <div class="err">請選最高學歷</div>
+      <div id="eduMore" hidden style="margin-top:10px;display:grid;gap:10px">
+        <input name="school" maxlength="40" placeholder="學校（選填），例：逢甲大學" aria-label="學校（選填）">
+        <input name="dept" maxlength="40" placeholder="科系（選填），例：土木工程學系" aria-label="科系（選填）">
+      </div></div>
     <div class="f" data-req data-chip="start" data-k="start"><span>最快什麼時候可以上班<em>*</em></span>
       <div class="chips" role="group" aria-label="可到職時間"><button type="button">馬上</button><button type="button">2 週內</button><button type="button">1 個月內</button><button type="button">再看看</button><button type="button" data-pickdate>指定日期…</button></div>
       <input type="date" name="start_date" id="startDate" hidden aria-label="指定可到職日期" style="margin-top:10px">
@@ -293,6 +297,9 @@ function pressed(k){return Array.prototype.map.call(document.querySelectorAll('[
 function markBad(f){f.classList.add('bad'); f.scrollIntoView({block:'center',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'}); var t=f.querySelector('input:not([hidden]),select,button'); if(t) t.focus({preventScroll:true});}
 function b64(file){return new Promise(function(ok,no){var r=new FileReader(); r.onload=function(){ok(String(r.result).split(',')[1]||'')}; r.onerror=function(){no(new Error('讀不到檔案'))}; r.readAsDataURL(file)})}
 var TOKEN=null, SLOTS=[];
+(function(){var e=document.getElementById('edu'),m=document.getElementById('eduMore');
+  var show=function(){var on=/二技|大學|研究所|博士/.test(e.value); m.hidden=!on; m.style.display=on?'grid':'none';};
+  e.addEventListener('change',show); show();})();
 (function(){var c=document.getElementById('city'),o=document.getElementById('cityOther');
   c.addEventListener('change',function(){var on=c.value==='__other'; o.hidden=!on; if(on) o.focus(); else o.value='';});})();
 document.getElementById('go').addEventListener('click',async function(){
@@ -310,7 +317,7 @@ document.getElementById('go').addEventListener('click',async function(){
   var btn=this; btn.disabled=true; btn.textContent='送出中…'; var se=document.getElementById('servererr'); se.style.display='none';
   var start=pressed('start')[0]||''; if(start.indexOf('指定日期')===0) start='';
   var body={anon_id:(window.S1F&&S1F.aid)||null,job_slug:JOB,name:F.elements.name.value.trim(),phone:F.elements.phone.value.trim(),email:F.elements.email.value.trim(),city:(F.elements.city.value==='__other'?document.getElementById('cityOther').value.trim():F.elements.city.value),
-    exp:pressed('exp')[0],sw:pressed('sw'),cert:pressed('cert').filter(function(x){return x.indexOf('其他（自己填）')!==0}).concat(document.getElementById('certOther').value.trim()?['其他：'+document.getElementById('certOther').value.trim()]:[]),moto:pressed('moto')[0],edu:pressed('edu')[0],major:F.elements.major.value.trim(),start:start,start_date:document.getElementById('startDate').value,
+    exp:pressed('exp')[0],sw:pressed('sw'),cert:pressed('cert').filter(function(x){return x.indexOf('其他（自己填）')!==0}).concat(document.getElementById('certOther').value.trim()?['其他：'+document.getElementById('certOther').value.trim()]:[]),moto:pressed('moto')[0],edu:F.elements.edu.value,school:(document.getElementById('eduMore').hidden?'':F.elements.school.value.trim()),dept:(document.getElementById('eduMore').hidden?'':F.elements.dept.value.trim()),start:start,start_date:document.getElementById('startDate').value,
     consent:true,also_other:PICK&&document.getElementById('also').checked,resume_url:F.elements.resume_url.value.trim(),utm_source:Q.get('utm_source')||'',utm_medium:Q.get('utm_medium')||'',utm_campaign:Q.get('utm_campaign')||'',utm_content:Q.get('utm_content')||'',referrer:document.referrer||''};
   try{
     var file=document.getElementById('rfile').files[0];
