@@ -128,9 +128,15 @@ a.btn{text-decoration:none}
 .dates button[aria-checked="true"] b{color:var(--ac)}
 .dates button:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
 #eduMore input{border-color:var(--line)!important}
+.sw{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 8px;font-size:13px;color:var(--mu)}
+.sw[hidden]{display:none}
+.sw a,.sw b{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:#fff;font-weight:700;color:var(--mu);text-decoration:none}
+.sw b{background:var(--tx);color:#fff;border-color:var(--tx)}
+.sw a:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
 </style></head><body>
 <div class="wrap">
   <header><img src="/assets/step1ne-logo.png" alt="" width="22" height="22" style="border-radius:6px" onerror="this.style.display='none'">Step1ne 德仁管理顧問</header>
+  <nav class="sw" id="sw" aria-label="切換語言" hidden><span>語言：</span></nav>
   <form id="f" novalidate>
   <div class="job" id="jobone">
     <h1 id="jt">職缺載入中…</h1>
@@ -388,5 +394,13 @@ async function bookSlot(b){
     m.className='ok-line'; m.textContent='已為你預約 '+b.getAttribute('data-slot')+'，時間到之前會寄信提醒你，用信裡的連結進入面談室即可。';
   }catch(e){m.className='msg err'; m.textContent='預約失敗，請再試一次'; document.querySelectorAll('#slots button').forEach(function(x){x.disabled=false});}
 }
+</script>
+<script>
+// 有印尼文／越南文版的職缺才顯示語言切換（從外語表單切回中文時，才切得回去）
+(function(){try{var T=['bim-engineer-houli','bim-mep-drafting-engineer-hsinchu','semiconductor-bim-mep-drafting-trainee-hsinchu'];
+var q=new URLSearchParams(location.search),j=q.get('job')||'',n=document.getElementById('sw');if(!n||T.indexOf(j)<0)return;
+var s=location.search||'';[['zh','中文',''],['id','Bahasa Indonesia','/id/apply-quick/'],['vi','Tiếng Việt','/vi/apply-quick/']].forEach(function(x){
+var e=document.createElement(x[0]==='zh'?'b':'a');e.textContent=x[1];e.setAttribute('lang',x[0]==='zh'?'zh-Hant':x[0]);
+if(x[0]==='zh')e.setAttribute('aria-current','page');else e.href=x[2]+s;n.appendChild(e)});n.hidden=false}catch(e){}})();
 </script>
 </body></html>
