@@ -112,7 +112,7 @@ textarea[aria-invalid="true"]{border-color:var(--err)}
 
 /* 結果區 */
 #out{min-height:2px}
-.status{background:var(--white);border:1.5px dashed var(--brand);border-radius:8px;padding:16px 18px;color:var(--ink);font-size:15px}
+.status{background:var(--white);border:1.5px dashed var(--brand);border-radius:8px;padding:16px 18px;color:var(--ink);font-size:15px;margin:0 0 28px}
 .status b{display:block;margin-bottom:2px}
 .status span{color:var(--slate);font-size:14px}
 .stages{margin:12px 0 0;padding:0;list-style:none;display:grid;gap:6px;font-size:14px;color:var(--slate)}
@@ -123,10 +123,12 @@ textarea[aria-invalid="true"]{border-color:var(--err)}
 .busy .stages li.now i{animation:pulse 1.6s ease-out infinite}
 .res-h{font-size:15px;font-weight:700;margin:0 0 10px;color:var(--ink)}
 .res-h small{font-weight:400;color:var(--slate);font-size:14px;margin-left:6px}
-.job{background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:8px;padding:18px 18px 18px 20px;margin:0 0 14px}
+.job{background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:8px;padding:20px 20px 20px 22px;margin:0 0 22px}
 .job h3{margin:0 0 4px;font-size:18px;line-height:1.5}
 .meta{display:flex;flex-wrap:wrap;gap:4px 14px;margin:0 0 12px;padding:0;list-style:none;font-size:14px;color:var(--slate)}
 .meta li{display:flex;align-items:center;gap:5px}
+.meta li.sal{flex-basis:100%;align-items:flex-start;color:var(--ink)}.meta li.sal svg{margin-top:3px;flex:none}
+.res-h{margin-top:8px}
 .meta svg{width:15px;height:15px;color:var(--brand)}
 .why,.gap{display:flex;gap:9px;border-radius:6px;padding:10px 12px;margin:0 0 8px;font-size:15px;line-height:1.65}
 .why svg,.gap svg{width:18px;height:18px;flex:none;margin-top:3px}
@@ -299,7 +301,7 @@ var MID=null,POLL=null,PRE=null,LAST='';
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){
   return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 
-var I={
+var I={pay:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15 9.5c-.5-1-1.6-1.5-3-1.5-1.7 0-3 .8-3 2s1.3 1.7 3 2 3 .8 3 2-1.3 2-3 2c-1.4 0-2.5-.5-3-1.5M12 6.5v11"/></svg>',
  pin:'<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 18s6-5.2 6-9.5A6 6 0 0 0 4 8.5C4 12.8 10 18 10 18z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="10" cy="8.5" r="2" fill="currentColor"/></svg>',
  tag:'<svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="5" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3 9h14" stroke="currentColor" stroke-width="1.8"/></svg>',
  ok:'<svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M6.5 10.3l2.4 2.4 4.6-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -340,7 +342,7 @@ function card(j,fit,gap,waiting){
   if(loc) meta.push('<li>'+I.pin+esc(loc)+'</li>');
   if(emp) meta.push('<li>'+I.tag+esc(emp)+'</li>');
   if(j.company) meta.push('<li>'+esc(j.company)+'</li>');
-  if(sal) meta.push('<li>'+esc(sal)+'</li>');
+  if(sal) meta.push('<li class="sal">'+I.pay+esc(sal)+'</li>');
   return '<article class="job"><h3>'+esc(j.title)+'</h3>'
     +(meta.length?'<ul class="meta">'+meta.join('')+'</ul>':'')
     +'<div class="why'+(waiting?' wait':'')+'">'+I.ok+'<div><b>為什麼適合</b><p style="margin:0">'+esc(fit)+'</p></div></div>'
