@@ -60,11 +60,11 @@ a{color:var(--brand-deep)}
 .skip{position:absolute;left:-999px;top:8px;background:var(--ink);color:#fff;padding:10px 14px;border-radius:6px;z-index:9}
 .skip:focus{left:8px}
 
-header{background:var(--white);border-bottom:1px solid var(--rule)}
-header .in{max-width:760px;margin:0 auto;padding:6px var(--gut);display:flex;align-items:center;gap:10px;min-height:56px}
-header img{height:26px;display:block}
-header a.all{margin-left:auto;display:inline-flex;align-items:center;min-height:44px;padding:0 4px;font-size:14px;font-weight:500;color:var(--slate);text-decoration:none}
-header a.all:hover{color:var(--ink);text-decoration:underline}
+
+
+
+
+
 
 /* 全站左側軌：跟首頁同一套語言，節點＝這一頁的三個階段 */
 .spine{position:relative;max-width:760px;margin:0 auto;padding:36px var(--gut) 72px calc(var(--gut) + 34px)}
@@ -175,13 +175,43 @@ footer .in{max-width:760px;margin:0 auto;padding:0 var(--gut)}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
 }
+
+.hd{--wrap:1200px;position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd a,.mnav a{text-decoration:none;color:var(--slate)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;gap:22px;font-size:15px}
+.hd-nav a{padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.hd .btn-line{display:inline-flex;align-items:center;min-height:44px;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:0 17px;border-radius:6px}
+.hd-burger{display:none;width:44px;height:44px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
+.hd a:focus-visible,.hd-burger:focus-visible,.mnav a:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+@media (max-width:760px){.hd-nav,.hd .btn-line{display:none}.hd-burger{display:flex}}
 </style>
 
 <a class="skip" href="#t">跳到輸入框</a>
-<header><div class="in">
-  <a href="/" aria-label="Step1ne 首頁"><img src="/assets/step1ne-logo.png" alt="Step1ne"></a>
-  <a class="all" href="/jobs/">看所有職缺 →</a>
-</div></header>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/"><img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問"><b>Step1ne</b></a>
+    <nav class="hd-nav" aria-label="主選單">
+      <a href="/commission-recruiting/">企業服務</a><a class="on" href="/jobs/">職缺專區</a><a href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
+    <button class="hd-burger" type="button" aria-label="開啟選單" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/commission-recruiting/">企業服務</a><a href="/jobs/">職缺專區</a><a href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
+    <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINE 洽詢</a>
+  </div>
+</header>
 
 <main class="spine" id="main">
   <section class="sec" id="tool">
