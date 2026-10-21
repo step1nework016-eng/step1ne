@@ -262,7 +262,7 @@ dialog#rdlg::backdrop{background:var(--backdrop);}
 .rec b{font-variant-numeric:tabular-nums;font-size:calc(15px * var(--fz));}
 .rec button{margin-left:auto;border:0;background:var(--rec-btn);color:#fff;border-radius:9px;
   padding:8px 14px;font:inherit;font-size:calc(13.5px * var(--fz));font-weight:700;cursor:pointer;}
-.kbd-hint{display:none}@media (hover:hover) and (pointer:fine){.kbd-hint{display:inline}}
+.kbd-hint{display:none}@media (hover:hover) and (pointer:fine) and (min-width:768px){.kbd-hint{display:inline}}@media (any-pointer:coarse){.kbd-hint{display:none!important}}
 @media (prefers-reduced-motion:reduce){
   .spin,.typing i,#mic[data-rec="1"]{animation:none;}
   .liff-toast,.stars button{transition:none;}
