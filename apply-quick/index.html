@@ -80,6 +80,23 @@ a.btn{text-decoration:none}
 .f.bad .jobs button{border-color:#efb6b0}
 .also{display:flex;gap:10px;align-items:center;font-size:14px;color:var(--mu);margin-top:12px}
 .also input{width:22px;height:22px;min-height:0;flex:0 0 22px}
+.lbl{display:flex;align-items:baseline;gap:8px}
+.lbl .cnt{font-weight:400;color:var(--mu);font-size:12.5px;margin-left:auto}
+.lbl .cnt.on{color:var(--ac);font-weight:700}
+.checks{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.checks button{display:flex;align-items:center;gap:10px;text-align:left;font:inherit;font-size:14.5px;line-height:1.35;min-height:52px;padding:10px 12px;border:1.5px solid var(--line);border-radius:12px;background:#fff;color:var(--tx);cursor:pointer}
+.checks button .ck{flex:0 0 20px;width:20px;height:20px}
+.checks button .ck rect{fill:#fff;stroke:#b8c2d1;stroke-width:1.5}
+.checks button .ck path{fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;opacity:0}
+.checks button[aria-checked="true"]{border-color:var(--ac);background:var(--ac-soft);font-weight:600}
+.checks button[aria-checked="true"] .ck rect{fill:var(--ac);stroke:var(--ac)}
+.checks button[aria-checked="true"] .ck path{opacity:1}
+.checks button[data-none]{grid-column:1/-1;justify-content:center;color:var(--mu)}
+.checks button[data-none] .ck{display:none}
+.checks button[data-none][aria-checked="true"]{color:var(--ac)}
+.checks button:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+.f.bad .checks button{border-color:#efb6b0}
+@media (max-width:340px){.checks{grid-template-columns:1fr}}
 </style></head><body>
 <div class="wrap">
   <header><img src="/assets/step1ne-logo.png" alt="" width="22" height="22" style="border-radius:6px" onerror="this.style.display='none'">Step1ne 德仁管理顧問</header>
@@ -107,8 +124,12 @@ a.btn{text-decoration:none}
     <h2 id="s2">你的背景 <small>點選就好，不用打字</small></h2>
     <div class="f" data-req data-chip="exp" data-k="exp"><span>相關經驗<em>*</em></span>
       <div class="chips" role="group" aria-label="相關經驗"><button type="button">還沒有</button><button type="button">學校作品</button><button type="button">1 年內</button><button type="button">1～3 年</button><button type="button">3 年以上</button></div><div class="err">請選一個</div></div>
-    <div class="f" data-req data-chip="sw" data-multi data-k="sw"><span>會用的軟體<em>*</em> <small style="font-weight:400;color:var(--mu)">可複選</small></span>
-      <div class="chips" role="group" aria-label="會用的軟體"><button type="button">AutoCAD</button><button type="button">Revit</button><button type="button">Navisworks</button><button type="button">SketchUp</button><button type="button" data-none>都還沒用過</button></div><div class="err">請至少選一個（沒用過也可以選）</div></div>
+    <div class="f" data-req data-chip="sw" data-multi data-k="sw"><span class="lbl">會用的軟體<em>*</em><small class="cnt" aria-live="polite">可複選</small></span>
+      <div class="checks" role="group" aria-label="會用的軟體"><button type="button" role="checkbox" aria-checked="false"><svg class="ck" viewBox="0 0 20 20" aria-hidden="true"><rect x="1.5" y="1.5" width="17" height="17" rx="4"/><path d="M5.5 10.5l3 3 6-7"/></svg><span>AutoCAD</span></button><button type="button" role="checkbox" aria-checked="false"><svg class="ck" viewBox="0 0 20 20" aria-hidden="true"><rect x="1.5" y="1.5" width="17" height="17" rx="4"/><path d="M5.5 10.5l3 3 6-7"/></svg><span>Revit</span></button><button type="button" role="checkbox" aria-checked="false"><svg class="ck" viewBox="0 0 20 20" aria-hidden="true"><rect x="1.5" y="1.5" width="17" height="17" rx="4"/><path d="M5.5 10.5l3 3 6-7"/></svg><span>Navisworks</span></button><button type="button" role="checkbox" aria-checked="false"><svg class="ck" viewBox="0 0 20 20" aria-hidden="true"><rect x="1.5" y="1.5" width="17" height="17" rx="4"/><path d="M5.5 10.5l3 3 6-7"/></svg><span>SketchUp</span></button><button type="button" role="checkbox" aria-checked="false" data-none><svg class="ck" viewBox="0 0 20 20" aria-hidden="true"><rect x="1.5" y="1.5" width="17" height="17" rx="4"/><path d="M5.5 10.5l3 3 6-7"/></svg><span>都還沒用過</span></button></div><div class="err">請至少選一個（沒用過也可以選）</div></div>
+    <div class="f" data-req data-chip="cert" data-multi data-k="cert"><span class="lbl">相關證照<em>*</em><small class="cnt" aria-live="polite">可複選</small></span>
+      <div class="checks" role="group" aria-label="相關證照"><button type="button" role="checkbox" aria-checked="false"><svg class="ck" viewBox="0 0 20 20" aria-hidden="true"><rect x="1.5" y="1.5" width="17" height="17" rx="4"/><path d="M5.5 10.5l3 3 6-7"/></svg><span>Autodesk 原廠認證（Revit／AutoCAD）</span></button><button type="button" role="checkbox" aria-checked="false"><svg class="ck" viewBox="0 0 20 20" aria-hidden="true"><rect x="1.5" y="1.5" width="17" height="17" rx="4"/><path d="M5.5 10.5l3 3 6-7"/></svg><span>建築製圖 技術士</span></button><button type="button" role="checkbox" aria-checked="false"><svg class="ck" viewBox="0 0 20 20" aria-hidden="true"><rect x="1.5" y="1.5" width="17" height="17" rx="4"/><path d="M5.5 10.5l3 3 6-7"/></svg><span>電腦輔助製圖 技術士</span></button><button type="button" role="checkbox" aria-checked="false"><svg class="ck" viewBox="0 0 20 20" aria-hidden="true"><rect x="1.5" y="1.5" width="17" height="17" rx="4"/><path d="M5.5 10.5l3 3 6-7"/></svg><span>職安衛業務主管（營造業）</span></button><button type="button" role="checkbox" aria-checked="false"><svg class="ck" viewBox="0 0 20 20" aria-hidden="true"><rect x="1.5" y="1.5" width="17" height="17" rx="4"/><path d="M5.5 10.5l3 3 6-7"/></svg><span>職業安全衛生管理員</span></button><button type="button" role="checkbox" aria-checked="false"><svg class="ck" viewBox="0 0 20 20" aria-hidden="true"><rect x="1.5" y="1.5" width="17" height="17" rx="4"/><path d="M5.5 10.5l3 3 6-7"/></svg><span>其他證照（自己填）</span></button><button type="button" role="checkbox" aria-checked="false" data-none><svg class="ck" viewBox="0 0 20 20" aria-hidden="true"><rect x="1.5" y="1.5" width="17" height="17" rx="4"/><path d="M5.5 10.5l3 3 6-7"/></svg><span>都沒有</span></button></div>
+      <input name="cert_other" id="certOther" hidden maxlength="60" placeholder="填證照名稱，例：室內裝修工程管理" aria-label="其他證照名稱" style="margin-top:10px">
+      <div class="err">請至少選一個（沒有也可以選「都沒有」）</div></div>
     <div class="f" data-req data-chip="moto" data-k="moto"><span>有機車駕照嗎<em>*</em> <small style="font-weight:400;color:var(--mu)">這個職缺要騎車到廠區</small></span>
       <div class="chips" role="group" aria-label="機車駕照"><button type="button">有</button><button type="button">沒有</button></div><div class="err">請選一個</div></div>
     <label class="f"><span>科系（選填）</span><input name="major" placeholder="例：土木、建築、機械"></label>
@@ -178,6 +199,20 @@ fetch('/apply/jobs.json').then(function(r){return r.json()}).then(function(list)
   if(!document.getElementById('jl').textContent) document.getElementById('jl').style.display='none';
 }).catch(function(){document.getElementById('jt').textContent='BIM／繪圖職缺'});
 var started=false;function st(){if(!started){started=true;ga('quick_form_start')}}
+function syncCnt(g){var f=g.closest('.f'),c=f&&f.querySelector('.cnt'); if(!c) return;
+  var on=g.querySelectorAll('[aria-checked="true"]:not([data-none])').length, none=g.querySelector('[data-none][aria-checked="true"]');
+  c.textContent=none?'已選：'+none.textContent.trim():on?'已選 '+on+' 項':'可複選'; c.classList.toggle('on',!!(on||none));}
+document.querySelectorAll('.checks').forEach(function(g){
+  g.addEventListener('click',function(e){
+    var b=e.target.closest('button'); if(!b) return; st();
+    var turnOn=b.getAttribute('aria-checked')!=='true';
+    if(b.hasAttribute('data-none')){g.querySelectorAll('button').forEach(function(x){x.setAttribute('aria-checked',x===b&&turnOn?'true':'false')});}
+    else{var n=g.querySelector('[data-none]'); if(n) n.setAttribute('aria-checked','false'); b.setAttribute('aria-checked',turnOn?'true':'false');}
+    var co=document.getElementById('certOther');
+    if(g.closest('[data-chip="cert"]')){var other=Array.prototype.some.call(g.querySelectorAll('[aria-checked="true"]'),function(x){return x.textContent.indexOf('其他證照')===0}); co.hidden=!other; if(other&&b.textContent.indexOf('其他證照')===0&&turnOn) co.focus(); if(!other) co.value='';}
+    var f=g.closest('.f'); if(f) f.classList.remove('bad'); syncCnt(g);
+  });
+});
 document.querySelectorAll('.chips').forEach(function(g){
   var multi=g.closest('[data-multi]');
   g.querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed','false')});
@@ -194,7 +229,7 @@ document.querySelectorAll('.chips').forEach(function(g){
   });
 });
 document.querySelectorAll('input,select').forEach(function(i){i.addEventListener('input',function(){st(); var f=i.closest('.f'); if(f) f.classList.remove('bad')})});
-function pressed(k){return Array.prototype.map.call(document.querySelectorAll('[data-chip="'+k+'"] [aria-pressed="true"]'),function(b){return b.textContent.trim()})}
+function pressed(k){return Array.prototype.map.call(document.querySelectorAll('[data-chip="'+k+'"] [aria-pressed="true"],[data-chip="'+k+'"] [aria-checked="true"]'),function(b){return b.textContent.trim()})}
 function markBad(f){f.classList.add('bad'); f.scrollIntoView({block:'center',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'}); var t=f.querySelector('input:not([hidden]),select,button'); if(t) t.focus({preventScroll:true});}
 function b64(file){return new Promise(function(ok,no){var r=new FileReader(); r.onload=function(){ok(String(r.result).split(',')[1]||'')}; r.onerror=function(){no(new Error('讀不到檔案'))}; r.readAsDataURL(file)})}
 var TOKEN=null, SLOTS=[];
@@ -205,6 +240,7 @@ document.getElementById('go').addEventListener('click',async function(){
   document.querySelectorAll('[data-req]').forEach(function(f){
     var ok;
     if(f.getAttribute('data-k')==='job'){ if(f.closest('[hidden]')) return; var okj=!!JOB; f.classList.toggle('bad',!okj); if(!okj&&!first) first=f; return; }
+    if(f.hasAttribute('data-multi')){var any=f.querySelector('[aria-checked="true"]'); var oth=f.getAttribute('data-k')==='cert'&&!document.getElementById('certOther').hidden&&!document.getElementById('certOther').value.trim(); ok=!!any&&!oth; f.classList.toggle('bad',!ok); if(!ok&&!first) first=f; return;}
     if(f.hasAttribute('data-chip')){var on=f.querySelector('[aria-pressed="true"]'); ok=!!on&&!(on.hasAttribute('data-pickdate')&&!document.getElementById('startDate').value);}
     else{var i=f.querySelector('input,select'),v=i.value.trim(); ok=i.name==='city'?(i.value==='__other'?!!document.getElementById('cityOther').value.trim():!!i.value):i.name==='phone'?/^09\d{8}$/.test(v.replace(/\D/g,'')):i.name==='email'?/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v):!!v;}
     f.classList.toggle('bad',!ok); if(!ok&&!first) first=f;
@@ -214,7 +250,7 @@ document.getElementById('go').addEventListener('click',async function(){
   var btn=this; btn.disabled=true; btn.textContent='送出中…'; var se=document.getElementById('servererr'); se.style.display='none';
   var start=pressed('start')[0]||''; if(start.indexOf('指定日期')===0) start='';
   var body={job_slug:JOB,name:F.elements.name.value.trim(),phone:F.elements.phone.value.trim(),email:F.elements.email.value.trim(),city:(F.elements.city.value==='__other'?document.getElementById('cityOther').value.trim():F.elements.city.value),
-    exp:pressed('exp')[0],sw:pressed('sw'),moto:pressed('moto')[0],major:F.elements.major.value.trim(),start:start,start_date:document.getElementById('startDate').value,
+    exp:pressed('exp')[0],sw:pressed('sw'),cert:pressed('cert').filter(function(x){return x.indexOf('其他證照')!==0}).concat(document.getElementById('certOther').value.trim()?['其他：'+document.getElementById('certOther').value.trim()]:[]),moto:pressed('moto')[0],major:F.elements.major.value.trim(),start:start,start_date:document.getElementById('startDate').value,
     consent:true,also_other:PICK&&document.getElementById('also').checked,resume_url:F.elements.resume_url.value.trim(),utm_source:Q.get('utm_source')||'',utm_medium:Q.get('utm_medium')||'',utm_campaign:Q.get('utm_campaign')||'',utm_content:Q.get('utm_content')||'',referrer:document.referrer||''};
   try{
     var file=document.getElementById('rfile').files[0];
