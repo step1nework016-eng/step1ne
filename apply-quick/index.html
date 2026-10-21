@@ -70,14 +70,29 @@ details.resume .in{padding:0 16px 16px}
 .rin{display:none;margin-top:12px}.rin.on{display:block}
 .btn[disabled]{opacity:.6;cursor:wait}
 a.btn{text-decoration:none}
+.jobs{display:grid;gap:10px}
+.jobs button{display:block;width:100%;text-align:left;font:inherit;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;min-height:64px;cursor:pointer;color:var(--tx)}
+.jobs button b{display:block;font-size:15.5px}
+.jobs button span{display:block;font-size:13px;color:var(--mu);margin-top:2px}
+.jobs button[aria-checked="true"]{border-color:var(--ac);background:var(--ac-soft)}
+.jobs button[aria-checked="true"] b{color:var(--ac)}
+.jobs button:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+.f.bad .jobs button{border-color:#efb6b0}
+.also{display:flex;gap:10px;align-items:center;font-size:14px;color:var(--mu);margin-top:12px}
+.also input{width:22px;height:22px;min-height:0;flex:0 0 22px}
 </style></head><body>
 <div class="wrap">
   <header><img src="/assets/step1ne-logo.png" alt="" width="22" height="22" style="border-radius:6px" onerror="this.style.display='none'">Step1ne 德仁管理顧問</header>
   <form id="f" novalidate>
-  <div class="job">
+  <div class="job" id="jobone">
     <h1 id="jt">職缺載入中…</h1>
     <div class="meta"><span class="hi">無經驗可・公司培訓</span><span id="jl"></span><span id="js"></span></div>
   </div>
+  <section class="sec" id="jobpick" hidden aria-labelledby="s0">
+    <h2 id="s0">想應徵哪一個 <small>都是無經驗可、公司培訓</small></h2>
+    <div class="f" data-req data-k="job"><div class="jobs" id="joblist" role="radiogroup" aria-label="選擇職缺"></div><div class="err">請選一個職缺</div></div>
+    <label class="also"><input type="checkbox" id="also"> <span>其他培訓職缺我也願意考慮</span></label>
+  </section>
   <p class="lead">留下基本資料就完成應徵，<b>約 1 分鐘</b>。履歷可以之後再補。</p>
 
   <section class="sec" aria-labelledby="s1">
@@ -139,11 +154,23 @@ a.btn{text-decoration:none}
 <script>
 var API='https://step1ne-public-worker.aiagentg888.workers.dev';
 var Q=new URLSearchParams(location.search);
-var JOB=Q.get('job')||'bim-mep-drafting-engineer-hsinchu';
+var QUICK=['bim-mep-drafting-engineer-hsinchu','semiconductor-bim-mep-drafting-trainee-hsinchu','bim-engineer-houli','trainee-engineering-design-engineer'];
+var JOB=QUICK.indexOf(Q.get('job'))>=0?Q.get('job'):'';
+var PICK=!JOB;
 var PAY={'bim-mep-drafting-engineer-hsinchu':'月薪 4.1～5 萬','semiconductor-bim-mep-drafting-trainee-hsinchu':'月薪 4.1～5 萬','bim-engineer-houli':'月薪 4.1～5 萬','trainee-engineering-design-engineer':'月薪 3.5～4.5 萬'};
 function ga(n,p){try{gtag('event',n,Object.assign({job:JOB,page_path:location.pathname},p||{}))}catch(e){}}
-ga('quick_apply_landing',{utm_source:Q.get('utm_source')||''});
+ga('quick_apply_landing',{utm_source:Q.get('utm_source')||'',picker:PICK?'1':'0'});
 fetch('/apply/jobs.json').then(function(r){return r.json()}).then(function(list){
+  if(PICK){
+    document.getElementById('jobone').hidden=true; document.getElementById('jobpick').hidden=false;
+    var box=document.getElementById('joblist');
+    box.innerHTML=QUICK.map(function(sl){var j=(list||[]).filter(function(x){return x.slug===sl})[0]; if(!j) return '';
+      return '<button type="button" role="radio" aria-checked="false" data-job="'+sl+'"><b>'+j.title+'</b><span>'+String(j.loc||'').split(/[，,、]/)[0]+'｜'+(PAY[sl]||'')+'</span></button>'}).join('');
+    box.querySelectorAll('button').forEach(function(b){b.addEventListener('click',function(){st(); JOB=b.getAttribute('data-job');
+      box.querySelectorAll('button').forEach(function(x){x.setAttribute('aria-checked',x===b?'true':'false')});
+      b.closest('.f').classList.remove('bad'); ga('quick_job_pick',{picked:JOB});})});
+    return;
+  }
   var j=(list||[]).filter(function(x){return x.slug===JOB})[0];
   document.getElementById('jt').textContent=j?j.title:'BIM／繪圖職缺';
   document.getElementById('jl').textContent=j&&j.loc?String(j.loc).split(/[，,、]/)[0]:'';
@@ -175,6 +202,7 @@ document.getElementById('go').addEventListener('click',async function(){
   var first=null, F=document.getElementById('f');
   document.querySelectorAll('[data-req]').forEach(function(f){
     var ok;
+    if(f.getAttribute('data-k')==='job'){ if(f.closest('[hidden]')) return; var okj=!!JOB; f.classList.toggle('bad',!okj); if(!okj&&!first) first=f; return; }
     if(f.hasAttribute('data-chip')){var on=f.querySelector('[aria-pressed="true"]'); ok=!!on&&!(on.hasAttribute('data-pickdate')&&!document.getElementById('startDate').value);}
     else{var i=f.querySelector('input,select'),v=i.value.trim(); ok=i.name==='phone'?/^09\d{8}$/.test(v.replace(/\D/g,'')):i.name==='email'?/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v):!!v;}
     f.classList.toggle('bad',!ok); if(!ok&&!first) first=f;
@@ -185,7 +213,7 @@ document.getElementById('go').addEventListener('click',async function(){
   var start=pressed('start')[0]||''; if(start.indexOf('指定日期')===0) start='';
   var body={job_slug:JOB,name:F.elements.name.value.trim(),phone:F.elements.phone.value.trim(),email:F.elements.email.value.trim(),city:F.elements.city.value,
     exp:pressed('exp')[0],sw:pressed('sw'),moto:pressed('moto')[0],major:F.elements.major.value.trim(),start:start,start_date:document.getElementById('startDate').value,
-    consent:true,resume_url:F.elements.resume_url.value.trim(),utm_source:Q.get('utm_source')||'',utm_medium:Q.get('utm_medium')||'',utm_campaign:Q.get('utm_campaign')||'',utm_content:Q.get('utm_content')||'',referrer:document.referrer||''};
+    consent:true,also_other:PICK&&document.getElementById('also').checked,resume_url:F.elements.resume_url.value.trim(),utm_source:Q.get('utm_source')||'',utm_medium:Q.get('utm_medium')||'',utm_campaign:Q.get('utm_campaign')||'',utm_content:Q.get('utm_content')||'',referrer:document.referrer||''};
   try{
     var file=document.getElementById('rfile').files[0];
     if(file && document.querySelector('[data-rin="file"]').classList.contains('on')){
