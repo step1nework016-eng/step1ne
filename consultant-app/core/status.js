@@ -2,6 +2,8 @@ const DEFINITIONS = {
   active: ['面談中', 'success'], paused: ['等待候選人回來', 'warning'], done: ['已完成', 'info'],
   new: ['新進件', 'info'], ready: ['可開始', 'info'], awaiting_booking: ['待預約', 'warning'],
   scheduled: ['已預約', 'info'], pending_assessment: ['待顧問評估', 'warning'], interviewed: ['已面談', 'info'],
+  // 2026-10-21「先送出，晚點再聊」：applications.status 的兩個新值
+  later: ['已應徵、還沒面談', 'warning'], no_interview: ['沒完成面談', 'danger'],
   redirected: ['已轉介', 'neutral'], rejected: ['不適合', 'danger'],
   screening: ['篩選中', 'info'], confirm: ['待確認', 'warning'], stage1: ['客戶初審', 'info'],
   stage2: ['客戶一面', 'info'], stage3: ['客戶二面', 'info'], stage4: ['客戶終面', 'info'],

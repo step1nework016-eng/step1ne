@@ -51,6 +51,8 @@ export const adapters = {
       lineBound: value(item, 'line_bound'), lineName: value(item, 'line_display_name'),
       // 進了面談室但一句話都沒說（逾時自動收尾），跟「談完了」是兩件事。
       silentInterview: value(item, 'silent_interview'),
+      // 2026-10-21「先送出，晚點再聊」：waiting／expired（見 views.js laterBadge）
+      laterState: value(item, 'later_state'),
     }));
   },
   async candidateCard(applicationId) { return api.get(`/admin/application/${encodeURIComponent(applicationId)}/card`); },

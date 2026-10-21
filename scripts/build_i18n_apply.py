@@ -4,10 +4,12 @@
 # 中文版檔案本身一個字都不動。
 import os, sys, json, re
 sys.path.insert(0, os.path.dirname(__file__))
-from i18n_apply_data import F, ZH
+from i18n_apply_data import F, ZH, LATER
 
 ROOT = os.path.join(os.path.dirname(__file__), '..')
 SRC = open(os.path.join(ROOT, 'apply-quick', 'index.html'), encoding='utf-8').read()
+# 2026-10-21 測試版（「先送出，晚點再聊」）：python3 scripts/build_i18n_apply.py --beta → 只產 /id/、/vi/apply-quick-beta/，正式版不動
+SRC_BETA_PATH = os.path.join(ROOT, 'apply-quick-beta', 'index.html')
 JOBS = ['bim-engineer-houli', 'semiconductor-bim-mep-drafting-trainee-hsinchu', 'bim-mep-drafting-engineer-hsinchu']
 OLD_QUICK = "var QUICK=['bim-mep-drafting-engineer-hsinchu','semiconductor-bim-mep-drafting-trainee-hsinchu','bim-engineer-houli','trainee-engineering-design-engineer'];"
 OLD_PAY = "var PAY={'bim-mep-drafting-engineer-hsinchu':'月薪 4.1～5 萬','semiconductor-bim-mep-drafting-trainee-hsinchu':'月薪 4.1～5 萬','bim-engineer-houli':'月薪 4.1～5 萬','trainee-engineering-design-engineer':'月薪 3.5～4.5 萬'};"
@@ -17,9 +19,13 @@ def esc(s):
     return s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;')
 
 
-def build(lang):
+def build(lang, beta=False):
     T = F[lang]
-    t = SRC
+    t = open(SRC_BETA_PATH, encoding='utf-8').read() if beta else SRC
+    # 中文版 2026-10-21 自己加了語言切換（隱藏的 nav＋底部一段 script）。外語版有自己的切換，
+    # 兩套同時在會出現兩個 id="sw"、連結重複——外語版一律拿掉中文那套。
+    t = re.sub(r'\n  <nav class="sw" id="sw" aria-label="切換語言" hidden><span>語言：</span></nav>', '', t)
+    t = re.sub(r'<script>\n// 有印尼文／越南文版的職缺才顯示語言切換.*?</script>\n', '', t, flags=re.S)
 
     def R(old, new, n=1):
         nonlocal t
@@ -199,12 +205,18 @@ ga('quick_apply_landing',""")
       "%s+b.getAttribute('data-slot')+%s" % (J(T['booked1']), J(T['booked2'])))
     R("m.textContent='預約失敗，請再試一次'", "m.textContent=MSG.bookfail")
 
-    out = os.path.join(ROOT, lang, 'apply-quick')
+    if beta:
+        R('<link rel="canonical" href="https://step1ne.com/%s/apply-quick/">' % lang, '<meta name="robots" content="noindex,nofollow">')
+        R("['zh','中文','/apply-quick/'],['id','Bahasa Indonesia','/id/apply-quick/'],['vi','Tiếng Việt','/vi/apply-quick/']",
+          "['zh','中文','/apply-quick-beta/'],['id','Bahasa Indonesia','/id/apply-quick-beta/'],['vi','Tiếng Việt','/vi/apply-quick-beta/']")
+        R("var LATER_T=null,", "var LATER_T=%s," % J(LATER[lang]))
+    out = os.path.join(ROOT, lang, 'apply-quick-beta' if beta else 'apply-quick')
     os.makedirs(out, exist_ok=True)
     open(os.path.join(out, 'index.html'), 'w', encoding='utf-8').write(t)
     return out
 
 
 if __name__ == '__main__':
+    beta = '--beta' in sys.argv
     for lg in ('id', 'vi'):
-        print(build(lg))
+        print(build(lg, beta=beta))

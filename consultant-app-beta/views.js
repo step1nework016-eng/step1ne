@@ -187,6 +187,12 @@ const agreeRows = (agree) => { if (!agree.length) return empty('還沒有同時�
 // 2026-10-16 Jacky：跟阿財面談完的人選標 NEW，直到有指派顧問為止
 // 2026-10-16 Jacky：跟阿財面談完的人選標 NEW，直到有顧問手動指派為止（系統不會自動指派）
 const isNewCand = (i) => !!(i && i.aiDone && !i.ownerId);
+// 2026-10-21「先送出，晚點再聊」：選了這個選項的人（後端 later_state：waiting＝7 天內還沒聊、expired＝7 天到期沒聊）。
+// 顧問看這個決定要不要先打電話。
+const laterBadge = (i) => i && i.laterState === 'waiting'
+  ? ' <span class="badge warning" title="應徵時選了「先送出，晚點再聊」，7 天內還沒跟阿財聊">已應徵、還沒面談</span>'
+  : i && i.laterState === 'expired'
+    ? ' <span class="badge danger" title="選了「先送出，晚點再聊」，7 天都沒跟阿財聊，面談連結已過期">沒完成面談</span>' : '';
 // NEW 的人選一律排最上面，其餘照原本順序（穩定排序）
 const newFirst = (items) => (items || []).slice().sort((a, b) => (isNewCand(b) ? 1 : 0) - (isNewCand(a) ? 1 : 0));
 
@@ -300,7 +306,7 @@ export const views = {
     const placeholder = i.email && /@no-email\.step1ne\.local$/i.test(String(i.email).trim());
     const contact = [i.phone, (i.email && !placeholder) ? i.email : null].filter(Boolean).join(' · ') || '未留聯絡方式';
     const boundClient = i.clientName && i.clientName !== '（未綁客戶）';
-    return `<article class="candidate-card" data-application="${text(i.applicationId)}"><div><h3>${isNewCand(i) ? '<span class="badge new-cand" title="跟阿財面談完、還沒指派顧問">NEW</span> ' : ''}${i.seqNo ? `<small class="muted">#${text(i.seqNo)}</small> ` : ''}${text(i.name)} ${routeBadge(i.routeCode, i.routeLabel)}${i.lineBound ? ' <span class="badge success" title="已綁定 LINE，可以直接用 LINE 聯絡">LINE</span>' : ''}${i.hardGate ? ' <span class="badge warning">硬性條件審核</span>' : ''}</h3><p>${text(i.job)}${boundClient ? ` → ${text(i.clientName)}` : ''} · ${text(i.owner)}</p></div>${statusBadge(i.stage)}<dl><div><dt>聯絡方式</dt><dd>${text(contact)}</dd></div><div><dt>來源</dt><dd>${text(i.source || '—')}</dd></div><div><dt>最後活動</dt><dd>${text(i.updatedAt)}</dd></div></dl>${i.duplicate ? `<div class="notice">${text(i.duplicate)}</div>` : ''}<button class="btn primary">查看應徵單</button></article>`;
+    return `<article class="candidate-card" data-application="${text(i.applicationId)}"><div><h3>${isNewCand(i) ? '<span class="badge new-cand" title="跟阿財面談完、還沒指派顧問">NEW</span> ' : ''}${i.seqNo ? `<small class="muted">#${text(i.seqNo)}</small> ` : ''}${text(i.name)} ${routeBadge(i.routeCode, i.routeLabel)}${i.lineBound ? ' <span class="badge success" title="已綁定 LINE，可以直接用 LINE 聯絡">LINE</span>' : ''}${i.hardGate ? ' <span class="badge warning">硬性條件審核</span>' : ''}</h3><p>${text(i.job)}${boundClient ? ` → ${text(i.clientName)}` : ''} · ${text(i.owner)}</p></div>${statusBadge(i.stage)}${laterBadge(i)}<dl><div><dt>聯絡方式</dt><dd>${text(contact)}</dd></div><div><dt>來源</dt><dd>${text(i.source || '—')}</dd></div><div><dt>最後活動</dt><dd>${text(i.updatedAt)}</dd></div></dl>${i.duplicate ? `<div class="notice">${text(i.duplicate)}</div>` : ''}<button class="btn primary">查看應徵單</button></article>`;
   }),
   // 表格式——照抄舊版 consultant/tracker 的欄位精神（人選／職缺／客戶／顧問／
   // 階段／聯絡方式／最後活動），縮成一行方便一次掃過大量人選；點列一樣開抽屜。
@@ -316,7 +322,7 @@ export const views = {
       <td>${isNewCand(i) ? '<span class="badge new-cand" title="跟阿財面談完、還沒指派顧問">NEW</span> ' : ''}${i.seqNo ? `<small class="muted">#${text(i.seqNo)}</small> ` : ''}${text(i.name)}${i.duplicate ? ' ⚠' : ''}${i.hardGate ? ' <span class="badge warning">硬性條件</span>' : ''}</td>
       <td title="${escapeHtml(i.job || '')}">${text(i.job)}</td><td title="${escapeHtml(boundClient ? i.clientName : '')}">${boundClient ? text(i.clientName) : '—'}</td><td>${text(i.owner)}</td>
       <td>${i.lineBound ? '<span class="badge success" title="已綁定 LINE">LINE</span> ' : ''}${routeBadge(i.routeCode, i.routeLabel) || '<span class="muted">—</span>'}${i.silentInterview ? ' <small class="muted" title="阿財面談室沒有對話紀錄，不代表沒談過——顧問可能是自己打電話談的">無阿財紀錄</small>' : ''}</td>
-      <td>${statusBadge(i.stage)}</td><td>${text(contact)}</td><td>${text(i.updatedAt)}</td>
+      <td>${statusBadge(i.stage)}${laterBadge(i)}</td><td>${text(contact)}</td><td>${text(i.updatedAt)}</td>
     </tr>`;
   }).join('')}</table></div>` : empty('目前沒有資料', '可調整篩選條件或建立新項目。'); },
   // 阿財初篩報告清單。r.app_id 是這份報告所屬的 application_id——整列點擊會開既有的
@@ -4631,7 +4637,7 @@ export function boardCandItems(cards, { showClosed = false } = {}) {
     if (c.tab === 'pool') { if (showClosed) items.push({ ...base, col: 'closed', since: c.created_at, sub: c.job_title, note: '已結案／不推' }); continue; }
     if (c.tab === 'fill' || c.tab === 'decide') {
       items.push({ ...base, col: c.tab, since: latestTs(c.created_at, c.pre_interview_note_at), sub: c.client_name && c.client_name !== '（未綁客戶）' ? `${c.client_name}｜${c.job_title || ''}` : (c.job_title || '未指定職缺'),
-        note: c.tab === 'decide' && c.route_label ? `阿財：${c.route_label}` : (c.silent_interview ? '進了面談室沒開口' : '') });
+        note: c.tab === 'decide' && c.route_label ? `阿財：${c.route_label}` : (c.silent_interview ? '進了面談室沒開口' : c.later_state === 'waiting' ? '已應徵、還沒面談' : c.later_state === 'expired' ? '沒完成面談（7 天沒聊）' : '') });
       continue;
     }
     const pls = [...(c.placements || []), ...((c.extra_placements || []).flatMap((x) => x.placements || []))];

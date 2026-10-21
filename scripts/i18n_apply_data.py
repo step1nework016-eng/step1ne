@@ -190,3 +190,44 @@ ZH = dict(
  edus=['國中以下', '高中職', '五專', '二專', '二技', '大學', '研究所（碩士）', '博士'],
  starts=['馬上', '2 週內', '1 個月內', '再看看'],
 )
+
+# 2026-10-21「先送出，晚點再聊」（只用在 /id/、/vi/apply-quick-beta/，由 /assets/apply-later.js 畫）。
+# s1／s2 可以含 <b>；其他是純文字。{job}／{url} 會被換成職缺名稱與面談連結。
+LATER = {
+ 'id': dict(
+  opt_title='Kirim dulu, ngobrol nanti',
+  opt_sub='Lamaran langsung tercatat. Dalam 7 hari, klik tautan kapan saja untuk ngobrol dengan A-Cai',
+  sending='Mengirim…',
+  err='Gagal mengirim, silakan tekan sekali lagi',
+  done_h='Lamaran terkirim!',
+  next_h='Langkah berikutnya',
+  s1='<b>Lamaran terkirim</b>, data Anda sudah diterima',
+  s2='<b>Dalam 7 hari</b>, klik tautan untuk ngobrol dengan A-Cai 15–25 menit dalam bahasa Mandarin (kapan saja, tengah malam pun bisa)',
+  s3='Setelah ngobrol, Anda akan dihubungi dalam 1–2 hari kerja',
+  line_btn='Kirim tautan wawancara ke LINE saya',
+  copy_btn='Salin tautan',
+  now_btn='Sebenarnya saya ada waktu sekarang, mulai ngobrol',
+  fine='Tautan wawancara juga sudah dikirim ke email Anda. Jika besok belum ngobrol, Anda akan diingatkan satu kali.',
+  copied='Tautan sudah disalin',
+  copy_fail='Tidak bisa menyalin. Tekan lama tautan di bawah untuk menyalin sendiri.',
+  share_text='Tautan wawancara Step1ne | {job}\nKlik dalam 7 hari untuk ngobrol dengan A-Cai 15–25 menit:\n{url}',
+ ),
+ 'vi': dict(
+  opt_title='Gửi trước, trò chuyện sau',
+  opt_sub='Hồ sơ được ghi nhận ngay. Trong 7 ngày, bấm đường link bất cứ lúc nào để trò chuyện với A-Cai',
+  sending='Đang gửi…',
+  err='Gửi chưa thành công, vui lòng bấm lại',
+  done_h='Đã gửi hồ sơ ứng tuyển!',
+  next_h='Các bước tiếp theo',
+  s1='<b>Đã gửi hồ sơ</b>, thông tin của bạn đã được nhận',
+  s2='<b>Trong 7 ngày</b>, bấm đường link để trò chuyện bằng tiếng Trung với A-Cai 15–25 phút (lúc nào cũng được, nửa đêm cũng được)',
+  s3='Sau khi trò chuyện, bạn sẽ được liên hệ trong 1–2 ngày làm việc',
+  line_btn='Gửi link phỏng vấn vào LINE của tôi',
+  copy_btn='Sao chép link',
+  now_btn='Thật ra bây giờ tôi rảnh, bắt đầu trò chuyện',
+  fine='Link phỏng vấn cũng đã được gửi vào email của bạn. Nếu ngày mai chưa trò chuyện, bạn sẽ được nhắc một lần.',
+  copied='Đã sao chép link',
+  copy_fail='Không sao chép được. Hãy nhấn giữ đường link bên dưới để tự sao chép.',
+  share_text='Link phỏng vấn Step1ne | {job}\nBấm trong 7 ngày để trò chuyện với A-Cai 15–25 phút:\n{url}',
+ ),
+}

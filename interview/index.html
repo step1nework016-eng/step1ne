@@ -605,6 +605,18 @@ function gate(title, body, btnText, url) {
 }
 
 // 2026-10-12：還沒收到履歷 → 兩條路：用 LINE 傳（同一組代碼）、或到補履歷頁補上
+function expiredGate(d) {
+  $('boot').hidden = false;
+  $('boot').innerHTML =
+    '<h1>這個面談連結已經過期了</h1>' +
+    '<p>面談連結開放 7 天，現在已經超過了。別擔心，您的應徵資料都還在。</p>' +
+    '<p>想繼續的話，在 LINE 留言「我想面談」' + (d.job_title ? '並附上職缺「' + esc(d.job_title) + '」' : '') +
+    '，就會重新安排一個新的面談連結給您。</p>' +
+    '<a class="gbtn line" href="' + esc(d.line_url || 'https://lin.ee/XcSWPzM') + '" target="_blank" rel="noopener">加 LINE 留言</a>' +
+    '<a class="gbtn alt" href="/jobs/">看其他職缺</a>';
+  ['top', 'log', 'bar', 'prog', 'save'].forEach(function (i) { if ($(i)) $(i).hidden = true; });
+}
+
 function noResumeGate(d) {
   $('boot').hidden = false;
   $('boot').innerHTML =
@@ -792,6 +804,8 @@ async function boot() {
   } catch (e) {
     return notice('連不上伺服器', '請確認網路後重新整理，或稍後再試。');
   }
+  // 2026-10-21「先送出，晚點再聊」超過 7 天還沒開始：連結過期，給 LINE（只有選了那個選項的人會遇到）
+  if (!d.ok && d.expired) return expiredGate(d);
   if (!d.ok && d.closed) {
     return notice('這個職缺已經結束招募', '謝謝你的關注！其他開放中的職缺可以到 step1ne.com/jobs/ 看看，有興趣的直接在 LINE 留言就可以。');
   }

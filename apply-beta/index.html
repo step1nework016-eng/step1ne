@@ -195,6 +195,7 @@ details.opt>summary:focus-visible{outline:3px solid var(--ac);outline-offset:2px
   font-weight:700;cursor:pointer;font-family:inherit;margin-top:12px;min-height:52px}
 #toAssess:disabled{opacity:.6}
 #toAssess:focus-visible,#btn:focus-visible{outline:3px solid #16202e;outline-offset:2px}
+#wantbook:focus-visible,a.go:focus-visible{outline:3px solid #16202e;outline-offset:2px}
 .gmsg{margin-top:10px;padding:12px 14px;border-radius:10px;font-size:14px;line-height:1.6;background:#fdecea;
   border:1px solid #f3c2bc;color:#a5312a;white-space:pre-line}
 .gmsg button{all:unset;display:inline-block;margin-top:6px;color:#2f5fd8;text-decoration:underline;cursor:pointer;min-height:32px}
@@ -436,6 +437,7 @@ details.opt>summary:focus-visible{outline:3px solid var(--ac);outline-offset:2px
 </div>
 
 <script src="/assets/resume-step.js?v=20261012d"></script>
+<script src="/assets/apply-later.js?v=20261021"></script>
 <script>
 
 function noteWithLeave(fd){
@@ -1128,24 +1130,33 @@ f.addEventListener('submit', async (e) => {
 function showNowOrBook(route) {
   document.getElementById('form-view').innerHTML = `
     <h2 style="font-size:20px">已收到您的應徵</h2>
-    <p class="lead">目前面談室有空，您可以現在就開始，或先約一個方便的時段。</p>
+    <p class="lead">接下來跟阿財聊 15～25 分鐘，您想怎麼安排？</p>
     <a class="go" href="/interview/?t=${encodeURIComponent(RETURN_TOKEN)}"
-       style="display:block;text-align:center;text-decoration:none;font-weight:700;
+       style="display:flex;align-items:center;justify-content:center;min-height:52px;text-align:center;text-decoration:none;font-weight:700;
               background:var(--ac);color:#fff;border-radius:12px;padding:15px;margin-top:18px;">
       現在就開始面談
     </a>
-    <p style="margin:16px 0 0;text-align:center;">
-      <a href="#" id="wantbook" style="color:var(--ac);font-size:15px;">現在不方便，我要先約時間 →</a>
-    </p>
+    <button type="button" id="wantbook" style="display:block;width:100%;min-height:48px;margin:10px 0 0;border:1.5px solid var(--ac);
+       border-radius:12px;background:#fff;color:var(--ac);font:inherit;font-size:15.5px;font-weight:700;cursor:pointer;">約一個時間</button>
+    <div id="laterAnchor"></div>
     <div id="bookbox" hidden style="margin-top:14px;">
       <p class="lead">選一個方便的時段，時間到之前我們會寄信提醒您。</p>
       <div id="slotbox"></div>
       <div class="msg" id="bmsg"></div>
     </div>`;
+  // 2026-10-21「先送出，晚點再聊」（測試版先上 /apply-beta/）：第三個選項放最下面，不搶「現在就開始」
+  let laterOpt = null;
+  try {
+    const sel = document.getElementById('jobSel');
+    const jt = (sel && sel.selectedIndex > 0) ? sel.options[sel.selectedIndex].text.trim() : '';
+    if (window.ApplyLater) laterOpt = ApplyLater.attach({ api: API, token: RETURN_TOKEN, jobTitle: jt,
+      after: document.getElementById('laterAnchor'), screen: document.getElementById('form-view') });
+  } catch (e) { /* 這個選項掛了也不能擋住原本兩條路 */ }
   document.getElementById('wantbook').onclick = (e) => {
     e.preventDefault();
     document.getElementById('bookbox').hidden = false;
     e.target.style.display = 'none';
+    if (laterOpt) laterOpt.style.display = 'none';
     renderApplySlots(route.slots || []);
     document.getElementById('bookbox').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   };

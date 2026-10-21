@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>快速應徵｜Step1ne 德仁管理顧問</title>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-DNPMMRDEC0');</script>
+<style>
+:root{--ac:#2f5fd8;--ac-soft:#eaf0ff;--tx:#16202e;--mu:#5d6878;--line:#dfe4ec;--soft:#f6f8fb;--bg:#fff;--ok:#1e7a46;--ok-soft:#e5f5ec;--rd:#c0392b}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--soft);color:var(--tx);font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif;line-height:1.55}
+.wrap{max-width:480px;margin:0 auto;padding:0 16px 120px}
+header{display:flex;align-items:center;gap:8px;padding:14px 0;font-weight:700;color:var(--mu);font-size:14px}
+header i{width:22px;height:22px;border-radius:6px;background:var(--ac);display:inline-block}
+/* 職缺卡：一眼知道在應徵什麼 */
+.job{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.job h1{font-size:19px;margin:0 0 6px;line-height:1.35}
+.job .meta{display:flex;flex-wrap:wrap;gap:6px}
+.job .meta span{font-size:13px;background:var(--soft);border-radius:99px;padding:3px 10px;color:var(--mu)}
+.job .meta span.hi{background:var(--ok-soft);color:var(--ok);font-weight:700}
+.lead{font-size:14px;color:var(--mu);margin:14px 2px 6px}
+.lead b{color:var(--tx)}
+/* 區塊 */
+.sec{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:12px}
+.sec h2{font-size:15px;margin:0 0 12px;display:flex;justify-content:space-between;align-items:baseline}
+.sec h2 small{font-weight:400;color:var(--mu);font-size:12.5px}
+.f{display:block;margin-bottom:14px}
+.f:last-child{margin-bottom:0}
+.f>span{display:block;font-size:14px;font-weight:600;margin-bottom:6px}
+.f>span em{font-style:normal;color:var(--rd);margin-left:2px}
+input,select{width:100%;font:inherit;font-size:16px;color:var(--tx);background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:12px;min-height:48px}
+input:focus,select:focus{outline:none;border-color:var(--ac);box-shadow:0 0 0 3px var(--ac-soft)}
+.err{display:none;color:var(--rd);font-size:13px;margin-top:5px}
+.f.bad input,.f.bad select{border-color:var(--rd)}
+.f.bad .err{display:block}
+/* 點選題：取代打字 */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{font:inherit;font-size:15px;min-height:44px;padding:8px 14px;border-radius:99px;border:1.5px solid var(--line);background:#fff;color:var(--tx);cursor:pointer}
+.chips button[aria-pressed="true"]{border-color:var(--ac);background:var(--ac-soft);color:var(--ac);font-weight:700}
+.chips button:focus-visible,.btn:focus-visible,summary:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+.f.bad .chips button{border-color:#efb6b0}
+/* 履歷：收起來，選填 */
+details.resume{margin-top:12px;background:var(--bg);border:1px dashed var(--line);border-radius:14px}
+details.resume summary{list-style:none;cursor:pointer;padding:14px 16px;font-size:15px;font-weight:600;display:flex;justify-content:space-between;align-items:center;min-height:48px}
+details.resume summary::-webkit-details-marker{display:none}
+details.resume summary small{font-weight:400;color:var(--mu);font-size:12.5px}
+details.resume .in{padding:0 16px 16px}
+.consent{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--mu);margin:16px 4px 0}
+.consent input{width:22px;height:22px;min-height:0;margin-top:1px;flex:0 0 22px}
+/* 底部固定按鈕 */
+.bar{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.96);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom))}
+.bar .in{max-width:480px;margin:0 auto}
+.btn{display:flex;align-items:center;justify-content:center;width:100%;min-height:52px;border:0;border-radius:12px;background:var(--ac);color:#fff;font:inherit;font-size:17px;font-weight:700;cursor:pointer}
+.btn.ghost{background:#fff;color:var(--ac);border:1.5px solid var(--ac)}
+.bar small{display:block;text-align:center;color:var(--mu);font-size:12.5px;margin-top:6px}
+/* 送出後 */
+.done{display:none}
+.done .ok{font-size:40px;line-height:1}
+.done h2{font-size:21px;margin:10px 0 6px}
+.done p{color:var(--mu);margin:0 0 14px;font-size:15px}
+.choice{display:grid;gap:10px;margin-top:14px}
+.slots{display:none;margin-top:14px}
+.slots .day{font-size:13px;color:var(--mu);margin:12px 0 6px}
+.note{font-size:13px;color:var(--mu);background:var(--soft);border-radius:10px;padding:10px 12px;margin-top:14px}
+@media (prefers-reduced-motion:no-preference){.chips button,.btn{transition:background .15s,border-color .15s}}
+.slots .chips button small{display:block;font-size:11px;color:var(--mu);font-weight:400}
+.msg{font-size:14px;margin-top:10px;color:var(--mu)}.msg.err{color:var(--rd)}
+.ok-line{background:var(--ok-soft);color:var(--ok);border-radius:10px;padding:10px 12px;font-size:14px;margin-top:12px}
+.rin{display:none;margin-top:12px}.rin.on{display:block}
+.btn[disabled]{opacity:.6;cursor:wait}
+a.btn{text-decoration:none}
+.jobs{display:grid;gap:10px}
+.jobs button{display:block;width:100%;text-align:left;font:inherit;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;min-height:64px;cursor:pointer;color:var(--tx)}
+.jobs button b{display:block;font-size:15.5px}
+.jobs button span{display:block;font-size:13px;color:var(--mu);margin-top:2px}
+.jobs button[aria-checked="true"]{border-color:var(--ac);background:var(--ac-soft)}
+.jobs button[aria-checked="true"] b{color:var(--ac)}
+.jobs button:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+.f.bad .jobs button{border-color:#efb6b0}
+.also{display:flex;gap:10px;align-items:center;font-size:14px;color:var(--mu);margin-top:12px}
+.also input{width:22px;height:22px;min-height:0;flex:0 0 22px}
+.f>span.lbl{display:flex;align-items:baseline;gap:4px}
+.lbl .cnt{font-weight:400;color:var(--mu);font-size:12.5px;margin-left:auto}
+.lbl .cnt.on{color:var(--ac);font-weight:700}
+.checks{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.checks button{display:flex;align-items:center;gap:10px;text-align:left;font:inherit;font-size:14.5px;line-height:1.35;min-height:52px;padding:10px 12px;border:1.5px solid var(--line);border-radius:12px;background:#fff;color:var(--tx);cursor:pointer}
+.checks button .ck{flex:0 0 20px;width:20px;height:20px}
+.checks button .ck rect{fill:#fff;stroke:#b8c2d1;stroke-width:1.5}
+.checks button .ck path{fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;opacity:0}
+.checks button[aria-checked="true"]{border-color:var(--ac);background:var(--ac-soft);font-weight:600}
+.checks button[aria-checked="true"] .ck rect{fill:var(--ac);stroke:var(--ac)}
+.checks button[aria-checked="true"] .ck path{opacity:1}
+.checks button[data-none]{grid-column:1/-1;justify-content:center;color:var(--mu)}
+.checks button[data-none] .ck{display:none}
+.checks button[data-none][aria-checked="true"]{color:var(--ac)}
+.checks button:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+.f.bad .checks button{border-color:#efb6b0}
+@media (max-width:340px){.checks{grid-template-columns:1fr}}
+.more{display:inline-flex;align-items:center;gap:6px;margin-top:10px;min-height:40px;padding:0 2px;border:0;background:none;color:var(--ac);font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.more::after{content:"";width:8px;height:8px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);margin-top:-4px}
+.more[aria-expanded="true"]::after{transform:rotate(-135deg);margin-top:4px}
+.more:focus-visible{outline:3px solid var(--ac);outline-offset:2px;border-radius:6px}
+.detail{margin-top:6px;padding:12px 14px;background:var(--soft);border-radius:10px;font-size:14px;line-height:1.6}
+.detail h3{font-size:13px;color:var(--mu);margin:0 0 4px;font-weight:600}
+.detail ul{margin:0 0 10px;padding-left:18px}.detail li{margin:2px 0}
+.detail a{color:var(--ac);font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.jlist{display:grid;gap:10px}
+.jcard{border:1.5px solid var(--line);border-radius:12px;background:#fff;padding:2px 12px 6px}
+.jcard.on{border-color:var(--ac);background:var(--ac-soft)}
+.jcard .pick{display:flex;align-items:flex-start;gap:10px;width:100%;text-align:left;font:inherit;background:none;border:0;padding:10px 0 2px;cursor:pointer;color:var(--tx)}
+.jcard .pick .rd{flex:0 0 20px;width:20px;height:20px;border-radius:50%;border:1.5px solid #b8c2d1;background:#fff;margin-top:2px;position:relative}
+.jcard.on .pick .rd{border-color:var(--ac)}
+.jcard.on .pick .rd::after{content:"";position:absolute;inset:4px;border-radius:50%;background:var(--ac)}
+.jcard .pick b{display:block;font-size:15.5px}
+.jcard.on .pick b{color:var(--ac)}
+.jcard .pick small{display:block;font-size:13px;color:var(--mu);margin-top:2px}
+.jcard .pick:focus-visible{outline:3px solid var(--ac);outline-offset:2px;border-radius:8px}
+.jcard .more{margin:0 0 0 30px}
+.jcard .detail{margin:0 0 8px}
+.f.bad .jcard{border-color:#efb6b0}
+.dates{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 8px;scroll-snap-type:x proximity}
+.dates button{flex:0 0 auto;scroll-snap-align:start;min-width:86px;min-height:60px;padding:8px 12px;border:1.5px solid var(--line);border-radius:12px;background:#fff;font:inherit;color:var(--tx);cursor:pointer;text-align:center}
+.dates button span{display:block;font-size:13px;color:var(--mu)}
+.dates button b{display:block;font-size:16px;color:var(--tx)}
+.dates button small{display:block;font-size:11.5px;color:var(--mu);margin-top:2px}
+.dates button[aria-checked="true"]{border-color:var(--ac);background:var(--ac-soft)}
+.dates button[aria-checked="true"] b{color:var(--ac)}
+.dates button:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+#eduMore input{border-color:var(--line)!important}
+.sw{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 8px;font-size:13px;color:var(--mu)}
+.sw[hidden]{display:none}
+.sw a,.sw b{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:#fff;font-weight:700;color:var(--mu);text-decoration:none}
+.sw b{background:var(--tx);color:#fff;border-color:var(--tx)}
+.sw a:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+</style></head><body>
+<div class="wrap">
+  <header><img src="/assets/step1ne-logo.png" alt="" width="22" height="22" style="border-radius:6px" onerror="this.style.display='none'">Step1ne 德仁管理顧問</header>
+  <nav class="sw" id="sw" aria-label="切換語言" hidden><span>語言：</span></nav>
+  <form id="f" novalidate>
+  <div class="job" id="jobone">
+    <h1 id="jt">職缺載入中…</h1>
+    <div class="meta"><span class="hi">無經驗可・公司培訓</span><span id="jl"></span><span id="js"></span></div>
+    <button type="button" class="more" id="onemore" aria-expanded="false" hidden>看工作內容</button>
+    <div class="detail" id="onedetail" hidden></div>
+  </div>
+  <section class="sec" id="jobpick" hidden aria-labelledby="s0">
+    <h2 id="s0">想應徵哪一個 <small>都是無經驗可、公司培訓</small></h2>
+    <div class="f" data-req data-k="job"><div class="jlist" id="joblist" role="radiogroup" aria-label="選擇職缺"></div><div class="err">請選一個職缺</div></div>
+    <label class="also"><input type="checkbox" id="also"> <span>其他培訓職缺我也願意考慮</span></label>
+  </section>
+  <p class="lead">留下基本資料就完成應徵，<b>約 1 分鐘</b>。履歷可以之後再補。</p>
+
+  <section class="sec" aria-labelledby="s1">
+    <h2 id="s1">怎麼聯絡你</h2>
+    <label class="f" data-req data-k="name"><span>姓名<em>*</em></span><input name="name" autocomplete="name"><div class="err">請填姓名</div></label>
+    <label class="f" data-req data-k="phone"><span>手機<em>*</em></span><input name="phone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="09xx-xxx-xxx"><div class="err">請填 10 碼手機號碼</div></label>
+    <label class="f" data-req data-k="email"><span>Email<em>*</em></span><input name="email" type="email" inputmode="email" autocomplete="email" placeholder="面談連結會寄到這裡"><div class="err">Email 格式不對</div></label>
+    <div class="f" data-req data-k="city"><label for="city"><span>期望在哪個城市工作<em>*</em></span></label><select name="city" id="city"><option value="">請選擇</option><option>新竹市</option><option>新竹縣</option><option>苗栗縣</option><option>桃園市</option><option>台中市</option><option>台北市</option><option>新北市</option><option value="__other">其他（自己填）</option></select><input name="city_other" id="cityOther" hidden maxlength="20" placeholder="例：彰化、雲林、都可以" aria-label="其他期望工作城市" style="margin-top:10px"><div class="err">請選城市，選「其他」要填寫</div></div>
+  </section>
+
+  <section class="sec" aria-labelledby="s2">
+    <h2 id="s2">你的背景 <small>點選就好，不用打字</small></h2>
+    <div class="f" data-req data-chip="exp" data-k="exp"><span>相關經驗<em>*</em></span>
+      <div class="chips" role="group" aria-label="相關經驗"><button type="button">還沒有</button><button type="button">學校作品</button><button type="button">1 年內</button><button type="button">1～3 年</button><button type="button">3 年以上</button></div><div class="err">請選一個</div></div>
+    <div class="f" data-req data-chip="sw" data-multi data-k="sw"><span class="lbl">會用的軟體<em>*</em><small class="cnt" aria-live="polite">可複選</small></span>
+      <div class="checks" role="group" aria-label="會用的軟體"><button type="button" role="checkbox" aria-checked="false"><svg class="ck" viewBox="0 0 20 20" aria-hidden="true"><rect x="1.5" y="1.5" width="17" height="17" rx="4"/><path d="M5.5 10.5l3 3 6-7"/></svg><span>AutoCAD</span></button><button type="button" role="checkbox" aria-checked="false"><svg class="ck" viewBox="0 0 20 20" aria-hidden="true"><rect x="1.5" y="1.5" width="17" height="17" rx="4"/><path d="M5.5 10.5l3 3 6-7"/></svg><span>Revit</span></button><button type="button" role="checkbox" aria-checked="false"><svg class="ck" viewBox="0 0 20 20" aria-hidden="true"><rect x="1.5" y="1.5" width="17" height="17" rx="4"/><path d="M5.5 10.5l3 3 6-7"/></svg><span>Navisworks</span></button><button type="button" role="checkbox" aria-checked="false"><svg class="ck" viewBox="0 0 20 20" aria-hidden="true"><rect x="1.5" y="1.5" width="17" height="17" rx="4"/><path d="M5.5 10.5l3 3 6-7"/></svg><span>SketchUp</span></button><button type="button" role="checkbox" aria-checked="false" data-none><svg class="ck" viewBox="0 0 20 20" aria-hidden="true"><rect x="1.5" y="1.5" width="17" height="17" rx="4"/><path d="M5.5 10.5l3 3 6-7"/></svg><span>都還沒用過</span></button></div><div class="err">請至少選一個（沒用過也可以選）</div></div>
+    <div class="f" data-req data-chip="cert" data-multi data-k="cert"><span class="lbl">相關證照<em>*</em><small class="cnt" aria-live="polite">可複選</small></span>
+      <div class="checks" role="group" aria-label="相關證照"><button type="button" role="checkbox" aria-checked="false"><svg class="ck" viewBox="0 0 20 20" aria-hidden="true"><rect x="1.5" y="1.5" width="17" height="17" rx="4"/><path d="M5.5 10.5l3 3 6-7"/></svg><span>Autodesk 原廠認證</span></button><button type="button" role="checkbox" aria-checked="false"><svg class="ck" viewBox="0 0 20 20" aria-hidden="true"><rect x="1.5" y="1.5" width="17" height="17" rx="4"/><path d="M5.5 10.5l3 3 6-7"/></svg><span>建築製圖技術士</span></button><button type="button" role="checkbox" aria-checked="false"><svg class="ck" viewBox="0 0 20 20" aria-hidden="true"><rect x="1.5" y="1.5" width="17" height="17" rx="4"/><path d="M5.5 10.5l3 3 6-7"/></svg><span>電腦輔助製圖技術士</span></button><button type="button" role="checkbox" aria-checked="false"><svg class="ck" viewBox="0 0 20 20" aria-hidden="true"><rect x="1.5" y="1.5" width="17" height="17" rx="4"/><path d="M5.5 10.5l3 3 6-7"/></svg><span>營造業職安衛主管</span></button><button type="button" role="checkbox" aria-checked="false"><svg class="ck" viewBox="0 0 20 20" aria-hidden="true"><rect x="1.5" y="1.5" width="17" height="17" rx="4"/><path d="M5.5 10.5l3 3 6-7"/></svg><span>職安衛管理員</span></button><button type="button" role="checkbox" aria-checked="false" data-other><svg class="ck" viewBox="0 0 20 20" aria-hidden="true"><rect x="1.5" y="1.5" width="17" height="17" rx="4"/><path d="M5.5 10.5l3 3 6-7"/></svg><span>其他（自己填）</span></button><button type="button" role="checkbox" aria-checked="false" data-none><svg class="ck" viewBox="0 0 20 20" aria-hidden="true"><rect x="1.5" y="1.5" width="17" height="17" rx="4"/><path d="M5.5 10.5l3 3 6-7"/></svg><span>都沒有</span></button></div>
+      <input name="cert_other" id="certOther" hidden maxlength="60" placeholder="填證照名稱，例：室內裝修工程管理" aria-label="其他證照名稱" style="margin-top:10px">
+      <div class="err">請至少選一個（沒有也可以選「都沒有」）</div></div>
+    <div class="f" data-req data-chip="moto" data-k="moto"><span>有機車駕照嗎<em>*</em> <small style="font-weight:400;color:var(--mu)">這個職缺要騎車到廠區</small></span>
+      <div class="chips" role="group" aria-label="機車駕照"><button type="button">有</button><button type="button">沒有</button></div><div class="err">請選一個</div></div>
+    <div class="f" data-req data-k="edu"><label for="edu"><span>最高學歷<em>*</em></span></label>
+      <select name="edu" id="edu"><option value="">請選擇</option><option>國中以下</option><option>高中職</option><option>五專</option><option>二專</option><option>二技</option><option>大學</option><option>研究所（碩士）</option><option>博士</option></select>
+      <div class="err">請選最高學歷</div>
+      <div id="eduMore" hidden style="margin-top:10px;display:grid;gap:10px">
+        <input name="school" maxlength="40" placeholder="學校（選填），例：逢甲大學" aria-label="學校（選填）">
+        <input name="dept" maxlength="40" placeholder="科系（選填），例：土木工程學系" aria-label="科系（選填）">
+      </div></div>
+    <div class="f" data-req data-chip="start" data-k="start"><span>最快什麼時候可以上班<em>*</em></span>
+      <div class="chips" role="group" aria-label="可到職時間"><button type="button">馬上</button><button type="button">2 週內</button><button type="button">1 個月內</button><button type="button">再看看</button><button type="button" data-pickdate>指定日期…</button></div>
+      <input type="date" name="start_date" id="startDate" hidden aria-label="指定可到職日期" style="margin-top:10px">
+      <div class="err">請選一個，或指定日期</div></div>
+  </section>
+
+  <details class="resume" id="rs">
+    <summary><span>有履歷想先附上嗎？</span><small>選填・可以之後再補</small></summary>
+    <div class="in">
+      <div class="chips" role="group" aria-label="附履歷方式" id="rway"><button type="button" data-r="file">上傳檔案</button><button type="button" data-r="link">貼連結</button><button type="button" data-r="later">之後用 LINE 傳</button></div>
+      <div class="rin" data-rin="file"><input type="file" id="rfile" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"><p class="msg">PDF、Word 或圖片，8MB 以內</p></div>
+      <div class="rin" data-rin="link"><input name="resume_url" type="url" inputmode="url" placeholder="Google Drive、104、Cake 履歷連結（要設成公開）"></div>
+      <p class="msg" id="rerr" style="display:none"></p>
+      <p class="msg">沒有履歷也沒關係，面談時阿財會問你的經歷。</p>
+    </div>
+  </details>
+
+  <label class="consent"><input type="checkbox" name="ok"> <span>我同意 Step1ne 用這些資料聯絡我、推薦適合的職缺。不會未經同意轉給任何公司。</span></label>
+  <p class="err" id="okerr" style="margin:6px 4px 0;display:none">請勾選同意</p>
+  <p class="msg err" id="servererr" style="display:none;margin:10px 4px 0"></p>
+  </form>
+
+  <section class="done" id="done" aria-live="polite">
+    <div class="sec" style="margin-top:20px">
+      <h2 id="dh">應徵完成！</h2>
+      <p id="dp">下一步是跟 AI 顧問「阿財」線上聊聊，用打字或語音都可以，大約 20 分鐘，隨時可以中斷再回來。</p>
+      <div class="choice" id="choice">
+        <a class="btn" id="now" href="#">現在開始聊</a>
+        <button class="btn ghost" type="button" id="book">改約其他時間</button>
+      </div>
+      <div class="slots" id="slots"></div>
+      <p class="msg" id="bmsg"></p>
+      <p class="note">面談連結也寄到你的 Email 了，關掉這頁也找得回來。</p>
+    </div>
+  </section>
+</div>
+
+<div class="bar" id="bar"><div class="in"><button class="btn" type="button" id="go">送出應徵</button><small>送出後就能跟阿財聊，名額滿會讓你選時段</small></div></div>
+
+<script src="/assets/apply-funnel.js"></script>
+<script src="/assets/apply-later.js?v=20261021"></script>
+<script>
+var API='https://step1ne-public-worker.aiagentg888.workers.dev';
+// 2026-10-21 測試版：「先送出，晚點再聊」。外語版（/id/、/vi/apply-quick-beta/）由 build_i18n_apply.py 把 LATER_T 換成翻好的文字
+var LATER_T=null,LATER_EL=null;
+var Q=new URLSearchParams(location.search);
+var QUICK=['bim-mep-drafting-engineer-hsinchu','semiconductor-bim-mep-drafting-trainee-hsinchu','bim-engineer-houli','trainee-engineering-design-engineer'];
+var JOB=QUICK.indexOf(Q.get('job'))>=0?Q.get('job'):'';
+var PICK=!JOB;
+var PAY={'bim-mep-drafting-engineer-hsinchu':'月薪 4.1～5 萬','semiconductor-bim-mep-drafting-trainee-hsinchu':'月薪 4.1～5 萬','bim-engineer-houli':'月薪 4.1～5 萬','trainee-engineering-design-engineer':'月薪 3.5～4.5 萬'};
+function ga(n,p){try{gtag('event',n,Object.assign({job:JOB,page_path:location.pathname},p||{}))}catch(e){} ft(n,p)}
+// 漏斗追蹤（D1，正式結算以這份為準；GA4 照舊）
+var FT={quick_apply_landing:'apply_landing',quick_form_start:'apply_form_start',quick_validation_error:'apply_validation_error'};
+function ft(n,p){try{if(FT[n]&&window.S1F)S1F.track(FT[n],{flow:'quick',job:JOB||null,props:n==='quick_validation_error'?{field:(p&&p.field)||''}:(n==='quick_apply_landing'?{picker:PICK?1:0}:{})})}catch(e){}}
+function fx(ev,props){try{if(window.S1F)S1F.track(ev,{flow:'quick',job:JOB||null,props:props||{}})}catch(e){}}
+ga('quick_apply_landing',{utm_source:Q.get('utm_source')||'',picker:PICK?'1':'0'});
+fetch('/apply/jobs.json').then(function(r){return r.json()}).then(function(list){
+  if(PICK){
+    document.getElementById('jobone').hidden=true; document.getElementById('jobpick').hidden=false;
+    var box=document.getElementById('joblist');
+    box.innerHTML=QUICK.map(function(sl){var j=(list||[]).filter(function(x){return x.slug===sl})[0]; if(!j) return '';
+      return '<div class="jcard" data-card="'+sl+'"><button type="button" class="pick" role="radio" aria-checked="false" data-job="'+sl+'"><span class="rd" aria-hidden="true"></span><span><b>'+esc(j.title)+'</b><small>'+esc(String(j.loc||'').split(/[，,、]/)[0])+'｜'+(PAY[sl]||'')+'</small></span></button>'
+        +'<button type="button" class="more" aria-expanded="false" data-more="'+sl+'">看工作內容</button><div class="detail" hidden data-detail="'+sl+'"></div></div>'}).join('');
+    box.querySelectorAll('.pick').forEach(function(b){b.addEventListener('click',function(){st(); JOB=b.getAttribute('data-job');
+      box.querySelectorAll('.pick').forEach(function(x){x.setAttribute('aria-checked',x===b?'true':'false'); x.closest('.jcard').classList.toggle('on',x===b)});
+      b.closest('.f').classList.remove('bad'); ga('quick_job_pick',{picked:JOB});})});
+    box.querySelectorAll('[data-more]').forEach(function(b){wireMore(b, box.querySelector('[data-detail="'+b.getAttribute('data-more')+'"]'), b.getAttribute('data-more'))});
+    return;
+  }
+  var j=(list||[]).filter(function(x){return x.slug===JOB})[0];
+  document.getElementById('jt').textContent=j?j.title:'BIM／繪圖職缺';
+  document.getElementById('jl').textContent=j&&j.loc?String(j.loc).split(/[，,、]/)[0]:'';
+  document.getElementById('js').textContent=PAY[JOB]||'';
+  if(!document.getElementById('jl').textContent) document.getElementById('jl').style.display='none';
+  var om=document.getElementById('onemore'); om.hidden=false; wireMore(om, document.getElementById('onedetail'), JOB);
+}).catch(function(){document.getElementById('jt').textContent='BIM／繪圖職缺'});
+function esc(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+var JD=null; function jobDetail(){ if(!JD) JD=fetch(API+'/apply-quick/jobs').then(function(r){return r.json()}).then(function(d){var m={};(d.jobs||[]).forEach(function(j){m[j.slug]=j});return m}).catch(function(){return {}}); return JD; }
+function wireMore(btn, panel, slug){
+  btn.addEventListener('click',function(){
+    var open=btn.getAttribute('aria-expanded')==='true';
+    if(open){btn.setAttribute('aria-expanded','false'); btn.textContent='看工作內容'; panel.hidden=true; return;}
+    btn.setAttribute('aria-expanded','true'); btn.textContent='收起'; panel.hidden=false; ga('quick_job_detail',{detail_job:slug});
+    if(panel.getAttribute('data-loaded')) return; panel.textContent='載入中…';
+    jobDetail().then(function(m){var j=m[slug]||{};
+      var h=(j.duties&&j.duties.length?'<h3>主要工作</h3><ul>'+j.duties.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul>':'')
+        +(j.reqs&&j.reqs.length?'<h3>條件</h3><ul>'+j.reqs.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul>':'')
+        +'<a href="/jobs/'+encodeURIComponent(slug)+'/" target="_blank" rel="noopener">看完整職缺介紹（另開新頁）</a>';
+      panel.innerHTML=h; panel.setAttribute('data-loaded','1');});
+  });
+}
+var started=false;function st(){if(!started){started=true;ga('quick_form_start')}}
+var SENT=false,LASTK='';function lk(e){try{var k=e.target&&e.target.closest&&e.target.closest('[data-k]');if(k)LASTK=k.getAttribute('data-k')||''}catch(x){}}
+document.addEventListener('focusin',lk,true);document.addEventListener('click',lk,true);
+if(window.S1F)S1F.onLeave(function(){if(!started||SENT)return false;fx('apply_abandon',{section:LASTK});return true});
+function syncCnt(g){var f=g.closest('.f'),c=f&&f.querySelector('.cnt'); if(!c) return;
+  var on=g.querySelectorAll('[aria-checked="true"]:not([data-none])').length, none=g.querySelector('[data-none][aria-checked="true"]');
+  c.textContent=none?'已選：'+none.textContent.trim():on?'已選 '+on+' 項':'可複選'; c.classList.toggle('on',!!(on||none));}
+document.querySelectorAll('.checks').forEach(function(g){
+  g.addEventListener('click',function(e){
+    var b=e.target.closest('button'); if(!b) return; st();
+    var turnOn=b.getAttribute('aria-checked')!=='true';
+    if(b.hasAttribute('data-none')){g.querySelectorAll('button').forEach(function(x){x.setAttribute('aria-checked',x===b&&turnOn?'true':'false')});}
+    else{var n=g.querySelector('[data-none]'); if(n) n.setAttribute('aria-checked','false'); b.setAttribute('aria-checked',turnOn?'true':'false');}
+    var co=document.getElementById('certOther');
+    if(g.closest('[data-chip="cert"]')){var other=Array.prototype.some.call(g.querySelectorAll('[aria-checked="true"]'),function(x){return x.hasAttribute('data-other')}); co.hidden=!other; if(other&&b.hasAttribute('data-other')&&turnOn) co.focus(); if(!other) co.value='';}
+    var f=g.closest('.f'); if(f) f.classList.remove('bad'); syncCnt(g);
+  });
+});
+document.querySelectorAll('.chips').forEach(function(g){
+  var multi=g.closest('[data-multi]');
+  g.querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed','false')});
+  g.addEventListener('click',function(e){
+    var b=e.target.closest('button'); if(!b||g.closest('#slots')) return; st();
+    if(multi){
+      if(b.hasAttribute('data-none')){g.querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});}
+      else{var n=g.querySelector('[data-none]'); if(n) n.setAttribute('aria-pressed','false'); b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')==='true'?'false':'true');}
+    } else g.querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});
+    var f=g.closest('.f'); if(f) f.classList.remove('bad');
+    var sd=document.getElementById('startDate');
+    if(g.closest('[data-chip="start"]')){var pick=b.hasAttribute('data-pickdate'); sd.hidden=!pick; if(pick){var t=new Date(Date.now()+864e5); sd.min=t.toISOString().slice(0,10); sd.focus(); try{sd.showPicker&&sd.showPicker()}catch(e){}} else sd.value='';}
+    if(g.id==='rway'){var w=b.getAttribute('data-r'); document.querySelectorAll('[data-rin]').forEach(function(x){x.classList.toggle('on',x.getAttribute('data-rin')===w)});}
+  });
+});
+document.querySelectorAll('input,select').forEach(function(i){i.addEventListener('input',function(){st(); var f=i.closest('.f'); if(f) f.classList.remove('bad')})});
+function pressed(k){return Array.prototype.map.call(document.querySelectorAll('[data-chip="'+k+'"] [aria-pressed="true"],[data-chip="'+k+'"] [aria-checked="true"]'),function(b){return b.textContent.trim()})}
+function markBad(f){f.classList.add('bad'); f.scrollIntoView({block:'center',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'}); var t=f.querySelector('input:not([hidden]),select,button'); if(t) t.focus({preventScroll:true});}
+function b64(file){return new Promise(function(ok,no){var r=new FileReader(); r.onload=function(){ok(String(r.result).split(',')[1]||'')}; r.onerror=function(){no(new Error('讀不到檔案'))}; r.readAsDataURL(file)})}
+var TOKEN=null, SLOTS=[];
+(function(){var e=document.getElementById('edu'),m=document.getElementById('eduMore');
+  var show=function(){var on=/二技|大學|研究所|博士/.test(e.value); m.hidden=!on; m.style.display=on?'grid':'none';};
+  e.addEventListener('change',function(){show(); e.closest('.f').classList.remove('bad');}); show();})();
+(function(){var c=document.getElementById('city'),o=document.getElementById('cityOther');
+  c.addEventListener('change',function(){var on=c.value==='__other'; o.hidden=!on; if(on) o.focus(); else o.value='';});})();
+document.getElementById('go').addEventListener('click',async function(){
+  var first=null, F=document.getElementById('f');
+  document.querySelectorAll('[data-req]').forEach(function(f){
+    var ok;
+    if(f.getAttribute('data-k')==='job'){ if(f.closest('[hidden]')) return; var okj=!!JOB; f.classList.toggle('bad',!okj); if(!okj&&!first) first=f; return; }
+    if(f.hasAttribute('data-multi')){var any=f.querySelector('[aria-checked="true"]'); var oth=f.getAttribute('data-k')==='cert'&&!document.getElementById('certOther').hidden&&!document.getElementById('certOther').value.trim(); ok=!!any&&!oth; f.classList.toggle('bad',!ok); if(!ok&&!first) first=f; return;}
+    if(f.hasAttribute('data-chip')){var on=f.querySelector('[aria-pressed="true"]'); ok=!!on&&!(on.hasAttribute('data-pickdate')&&!document.getElementById('startDate').value);}
+    else{var i=f.querySelector('input,select'),v=i.value.trim(); ok=i.name==='city'?(i.value==='__other'?!!document.getElementById('cityOther').value.trim():!!i.value):i.name==='phone'?/^09\d{8}$/.test(v.replace(/\D/g,'')):i.name==='email'?/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v):!!v;}
+    f.classList.toggle('bad',!ok); if(!ok&&!first) first=f;
+  });
+  var c=F.querySelector('[name=ok]'),oe=document.getElementById('okerr'); oe.style.display=c.checked?'none':'block'; if(!c.checked&&!first) first=c.closest('.consent');
+  if(first){ga('quick_validation_error',{field:first.getAttribute('data-k')||'consent'}); first.classList&&first.classList.contains('f')?markBad(first):first.scrollIntoView({block:'center'}); return;}
+  var btn=this; btn.disabled=true; btn.textContent='送出中…'; var se=document.getElementById('servererr'); se.style.display='none';
+  var start=pressed('start')[0]||''; if(start.indexOf('指定日期')===0) start='';
+  var body={anon_id:(window.S1F&&S1F.aid)||null,job_slug:JOB,name:F.elements.name.value.trim(),phone:F.elements.phone.value.trim(),email:F.elements.email.value.trim(),city:(F.elements.city.value==='__other'?document.getElementById('cityOther').value.trim():F.elements.city.value),
+    exp:pressed('exp')[0],sw:pressed('sw'),cert:pressed('cert').filter(function(x){return x.indexOf('其他（自己填）')!==0}).concat(document.getElementById('certOther').value.trim()?['其他：'+document.getElementById('certOther').value.trim()]:[]),moto:pressed('moto')[0],edu:F.elements.edu.value,school:(document.getElementById('eduMore').hidden?'':F.elements.school.value.trim()),dept:(document.getElementById('eduMore').hidden?'':F.elements.dept.value.trim()),start:start,start_date:document.getElementById('startDate').value,
+    consent:true,also_other:PICK&&document.getElementById('also').checked,resume_url:F.elements.resume_url.value.trim(),utm_source:Q.get('utm_source')||'',utm_medium:Q.get('utm_medium')||'',utm_campaign:Q.get('utm_campaign')||'',utm_content:Q.get('utm_content')||'',referrer:document.referrer||''};
+  try{
+    var file=document.getElementById('rfile').files[0];
+    if(file && document.querySelector('[data-rin="file"]').classList.contains('on')){
+      fx('resume_upload_start',{size:file.size>8388608?'>8MB':file.size>2097152?'2-8MB':'<2MB'});
+      if(file.size>8*1024*1024){fx('resume_upload_fail',{reason:'too_big'}); throw new Error('履歷檔超過 8MB，可以改貼連結或之後用 LINE 傳');}
+      body.resume_b64=await b64(file); body.resume_name=file.name; body.resume_mime=file.type||'application/octet-stream';
+    }
+    if(!document.querySelector('[data-rin="link"]').classList.contains('on')) body.resume_url='';
+    var r=await (await fetch(API+'/apply-quick',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)})).json();
+    if(!r.ok){
+      ga('quick_server_block',{reason:r.field||'other'});
+      var ff=r.field&&document.querySelector('[data-k="'+r.field+'"]');
+      if(ff){ff.querySelector('.err').textContent=r.error; markBad(ff);} else {se.textContent=r.error||'送出失敗，請再試一次'; se.style.display='block';}
+      btn.disabled=false; btn.textContent='送出應徵'; return;
+    }
+    SENT=true; ga('quick_submit_ok',{route:r.route||r.duplicate||''});
+    TOKEN=r.chat_token; SLOTS=r.slots||[]; showDone(r);
+  }catch(e){se.textContent=e.message||'網路不穩，請再按一次'; se.style.display='block'; btn.disabled=false; btn.textContent='送出應徵';}
+});
+function showDone(r){
+  document.getElementById('f').style.display='none'; document.getElementById('bar').style.display='none';
+  document.getElementById('done').style.display='block'; scrollTo(0,0);
+  var now=document.getElementById('now'); now.href='/interview/?t='+encodeURIComponent(TOKEN);
+  if(r.duplicate==='in_progress'){
+    document.getElementById('dh').textContent='你已經在面談中了';
+    document.getElementById('dp').textContent='這個職缺你剛剛已經應徵、也開始跟阿財聊了，不用重新填。按下面回到面談室就能接著聊。';
+    now.textContent='回到面談室'; document.getElementById('book').style.display='none'; return;
+  }
+  if(r.route==='book'){
+    document.getElementById('dh').textContent='應徵完成！選一個面談時段';
+    document.getElementById('dp').textContent='現在面談室有 '+(r.busy||'幾')+' 位在聊，名額滿了。選一個方便的時間，時間到之前會寄信提醒你。';
+    document.getElementById('choice').style.display='none'; renderSlots();
+  } else if(r.route==='scheduled'){
+    document.getElementById('dp').textContent='你已經約好面談時間了，時間到之前會寄信提醒你。'; document.getElementById('choice').style.display='none';
+  } else if(r.route==='screening'){
+    document.getElementById('dp').textContent='顧問會先看過你的資料，適合的話會再寄信安排面談。'; document.getElementById('choice').style.display='none';
+  }
+  // 「現在開始聊／改約其他時間」那個畫面才多第三個選項：先送出，晚點再聊（放最下面，不搶「現在開始聊」）
+  try{ if(!r.route||r.route==='now'){ var pk=document.querySelector('.pick[aria-checked="true"] b');
+    if(window.ApplyLater) LATER_EL=ApplyLater.attach({api:API,token:TOKEN,jobTitle:(pk||document.getElementById('jt')).textContent.trim(),
+      after:document.getElementById('choice'),screen:document.querySelector('#done .sec'),T:LATER_T||undefined}); } }catch(e){}
+}
+document.getElementById('book').addEventListener('click',function(){this.style.display='none'; if(LATER_EL) LATER_EL.style.display='none'; renderSlots()});
+function renderSlots(){
+  var box=document.getElementById('slots'); box.style.display='block';
+  if(!SLOTS.length && !renderSlots.tried){renderSlots.tried=true; box.innerHTML='<p class="note">時段載入中…</p>';
+    fetch(API+'/slots').then(function(r){return r.json()}).then(function(d){SLOTS=(d&&d.slots)||[]; renderSlots();}).catch(function(){renderSlots();}); return;}
+  if(!SLOTS.length){box.innerHTML='<p class="note">目前沒有可預約的時段，我們會另外寄信跟你安排。</p>';return;}
+  var by={},W='日一二三四五六',days=[]; SLOTS.forEach(function(x){var p=x.slot_at.split(' '); if(!by[p[0]]){by[p[0]]=[];days.push(p[0]);} by[p[0]].push(x)});
+  var lab=function(d){var a=d.split('-').map(Number),wd=W[new Date(Date.UTC(a[0],a[1]-1,a[2])).getUTCDay()];var t=new Date(Date.now()+8*36e5).toISOString().slice(0,10);
+    var tm=new Date(Date.now()+32*36e5).toISOString().slice(0,10);return (d===t?'今天':d===tm?'明天':'')+'<b>'+a[1]+'/'+a[2]+'</b>（'+wd+'）';};
+  box.innerHTML='<div class="day">先選日期</div><div class="dates" role="radiogroup" aria-label="選日期">'+days.map(function(d){
+      var left=by[d].reduce(function(n,x){return n+(x.left||0)},0);
+      return '<button type="button" role="radio" aria-checked="false" data-day="'+d+'"><span>'+lab(d)+'</span><small>'+by[d].length+' 個時段</small></button>'}).join('')+'</div>'
+    +'<div id="times"></div><p class="note">約好的時間前會寄信提醒你。</p>';
+  box.querySelectorAll('[data-day]').forEach(function(b){b.addEventListener('click',function(){
+    box.querySelectorAll('[data-day]').forEach(function(x){x.setAttribute('aria-checked',x===b?'true':'false')});
+    var d=b.getAttribute('data-day'), tb=document.getElementById('times');
+    tb.innerHTML='<div class="day">再選時間</div><div class="chips">'+by[d].map(function(x){return '<button type="button" data-slot="'+x.slot_at+'">'+x.slot_at.split(' ')[1]+'<small>剩 '+x.left+' 位</small></button>'}).join('')+'</div>';
+    tb.querySelectorAll('[data-slot]').forEach(function(sb){sb.addEventListener('click',function(){bookSlot(sb)})});
+    tb.scrollIntoView({block:'nearest',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+  })});
+}
+async function bookSlot(b){
+  var m=document.getElementById('bmsg'); m.className='msg'; m.textContent='預約中…';
+  document.querySelectorAll('#slots button').forEach(function(x){x.disabled=true});
+  try{var r=await (await fetch(API+'/book',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({token:TOKEN,slot_at:b.getAttribute('data-slot')})})).json();
+    if(!r.ok){m.className='msg err'; m.textContent=r.error||'預約失敗'; if(r.slots){SLOTS=r.slots;} renderSlots(); return;}
+    ga('quick_booked'); document.getElementById('slots').innerHTML=''; document.getElementById('choice').style.display='none';
+    m.className='ok-line'; m.textContent='已為你預約 '+b.getAttribute('data-slot')+'，時間到之前會寄信提醒你，用信裡的連結進入面談室即可。';
+  }catch(e){m.className='msg err'; m.textContent='預約失敗，請再試一次'; document.querySelectorAll('#slots button').forEach(function(x){x.disabled=false});}
+}
+</script>
+<script>
+// 有印尼文／越南文版的職缺才顯示語言切換（從外語表單切回中文時，才切得回去）
+(function(){try{var T=['bim-engineer-houli','bim-mep-drafting-engineer-hsinchu','semiconductor-bim-mep-drafting-trainee-hsinchu'];
+var q=new URLSearchParams(location.search),j=q.get('job')||'',n=document.getElementById('sw');if(!n||T.indexOf(j)<0)return;
+var s=location.search||'';[['zh','中文',''],['id','Bahasa Indonesia','/id/apply-quick-beta/'],['vi','Tiếng Việt','/vi/apply-quick-beta/']].forEach(function(x){
+var e=document.createElement(x[0]==='zh'?'b':'a');e.textContent=x[1];e.setAttribute('lang',x[0]==='zh'?'zh-Hant':x[0]);
+if(x[0]==='zh')e.setAttribute('aria-current','page');else e.href=x[2]+s;n.appendChild(e)});n.hidden=false}catch(e){}})();
+</script>
+</body></html>
