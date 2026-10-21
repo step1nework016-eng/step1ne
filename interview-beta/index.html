@@ -77,25 +77,25 @@ document.addEventListener('click', function (e) {
    對比都算過（一般文字 ≥4.5:1）。淺色版為了達標，把原本偏淡的灰字與金色按鈕略為加深。 */
 :root{
   --fz:1;
-  --bg:#ffffff;--ink:#23262d;--muted:#656972;--line:#eee7db;--line2:#e0d9cb;
-  --soft:#f6f2ea;--soft-line:#eee7db;--fin-bg:#fbfaf7;--sub-ink:#5a5d64;
-  --me-bg:#23262d;--me-ink:#ffffff;--stamp:#656972;--dot:#8a8d95;
-  --accent-line:#a67c3d;--accent-bg:#8a6425;--accent-ink:#ffffff;--link:#8a6425;
-  --dis-bg:#dcd6c9;--dis-ink:#ffffff;--mic-ink:#4d5563;--close-bg:#f2efe8;
+  --bg:#ffffff;--ink:#0D1B24;--muted:#4A5A66;--line:#D9E0E6;--line2:#C9D3DB;
+  --soft:#EEF3F7;--soft-line:#D9E0E6;--fin-bg:#F4F6F8;--sub-ink:#4A5A66;
+  --me-bg:#0F5F87;--me-ink:#ffffff;--stamp:#5F6F7B;--dot:#7A8A96;
+  --accent-line:#167EB2;--accent-bg:#0F5F87;--accent-ink:#ffffff;--link:#0F5F87;
+  --dis-bg:#C9D3DB;--dis-ink:#ffffff;--mic-ink:#4A5A66;--close-bg:#EEF3F7;
   --rec-bg:#fff5f3;--rec-line:#f0c9bd;--rec-ink:#8c3b1e;--rec-btn:#b03226;
   --cta-bg:#f2f9f3;--cta-line:#cfe7d3;--cta-title:#1f4d2c;--cta-ink:#4a6153;--line-btn:#067a37;
-  --blue:#2f5fd8;--toast-bg:#23262d;--toast-ink:#ffffff;--shadow:rgba(0,0,0,.18);--backdrop:rgba(20,18,14,.45);
+  --blue:#167EB2;--toast-bg:#0D1B24;--toast-ink:#ffffff;--shadow:rgba(0,0,0,.18);--backdrop:rgba(13,27,36,.45);
   color-scheme:light;
 }
 html[data-scheme="dark"]{
-  --bg:#15191e;--ink:#e7eaee;--muted:#9aa3ad;--line:#2a3038;--line2:#3a424c;
-  --soft:#222831;--soft-line:#2e3640;--fin-bg:#1b2026;--sub-ink:#b7bec6;
-  --me-bg:#2f6f9a;--me-ink:#ffffff;--stamp:#9aa3ad;--dot:#7b8591;
-  --accent-line:#d4a65c;--accent-bg:#d4a65c;--accent-ink:#15191e;--link:#e0b86e;
-  --dis-bg:#2f3640;--dis-ink:#8b95a0;--mic-ink:#c3cad2;--close-bg:#2a3038;
+  --bg:#0F1A21;--ink:#E6EDF2;--muted:#9FB0BC;--line:#24343F;--line2:#33454F;
+  --soft:#18262F;--soft-line:#25363F;--fin-bg:#13212A;--sub-ink:#B8C6D0;
+  --me-bg:#167EB2;--me-ink:#ffffff;--stamp:#9FB0BC;--dot:#7A8A96;
+  --accent-line:#5BB8E6;--accent-bg:#5BB8E6;--accent-ink:#0D1B24;--link:#7CC7EE;
+  --dis-bg:#2A3B45;--dis-ink:#8597A3;--mic-ink:#C3D0D9;--close-bg:#24343F;
   --rec-bg:#3a1f1a;--rec-line:#6b3328;--rec-ink:#f2b8a6;--rec-btn:#b03226;
   --cta-bg:#16281d;--cta-line:#2b4a35;--cta-title:#9fe0b4;--cta-ink:#b4c7ba;--line-btn:#067a37;
-  --blue:#8fb2ff;--toast-bg:#e7eaee;--toast-ink:#15191e;--shadow:rgba(0,0,0,.5);--backdrop:rgba(0,0,0,.65);
+  --blue:#7CC7EE;--toast-bg:#E6EDF2;--toast-ink:#0D1B24;--shadow:rgba(0,0,0,.5);--backdrop:rgba(0,0,0,.65);
   color-scheme:dark;
 }
 html[data-size="l"]{--fz:1.16}
@@ -138,7 +138,7 @@ header .who span{display:block;font-size:12.5px;color:var(--muted);overflow:hidd
 .dseg button[aria-pressed="true"]{border-color:var(--accent-line);background:var(--soft);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent-line);}
 .dseg .big{font-weight:700;line-height:1;}
 .sw{width:22px;height:22px;border-radius:50%;border:1px solid #8a8d95;}
-.sw.light{background:linear-gradient(135deg,#fff 50%,#F6F2EA 50%);}
+.sw.light{background:linear-gradient(135deg,#fff 50%,var(--soft) 50%);}
 .sw.dark{background:linear-gradient(135deg,#15191E 50%,#3B82B0 50%);}
 .sw.auto{background:linear-gradient(135deg,#fff 50%,#15191E 50%);}
 .dsaved{font-size:12px;color:var(--muted);margin:0;line-height:1.5;}
@@ -181,7 +181,7 @@ footer{
   font:inherit;font-size:calc(16px * var(--fz));/* 16px 以下 iOS 會自動放大整頁 */
   resize:none;max-height:130px;line-height:1.6;outline:0;background:var(--bg);color:var(--ink);
 }
-#say:focus{border-color:var(--accent-line);box-shadow:0 0 0 3px rgba(166,124,61,.25);}
+#say:focus{border-color:var(--accent-line);box-shadow:0 0 0 3px rgba(22,126,178,.25);}
 #go{
   flex:0 0 auto;height:46px;min-width:46px;padding:0 18px 0 15px;border:0;border-radius:23px;
   display:inline-flex;align-items:center;justify-content:center;gap:6px;
