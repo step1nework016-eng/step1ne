@@ -164,7 +164,9 @@ a.btn{text-decoration:none}
       <div class="err">請至少選一個（沒有也可以選「都沒有」）</div></div>
     <div class="f" data-req data-chip="moto" data-k="moto"><span>有機車駕照嗎<em>*</em> <small style="font-weight:400;color:var(--mu)">這個職缺要騎車到廠區</small></span>
       <div class="chips" role="group" aria-label="機車駕照"><button type="button">有</button><button type="button">沒有</button></div><div class="err">請選一個</div></div>
-    <label class="f"><span>科系（選填）</span><input name="major" placeholder="例：土木、建築、機械"></label>
+    <div class="f" data-req data-chip="edu" data-k="edu"><span>最高學歷<em>*</em></span>
+      <div class="chips" role="group" aria-label="最高學歷"><button type="button">高中職</button><button type="button">五專／二專</button><button type="button">二技／大學</button><button type="button">碩士以上</button></div><div class="err">請選一個</div></div>
+    <label class="f"><span>學校與科系（選填）</span><input name="major" placeholder="例：逢甲大學 土木系"></label>
     <div class="f" data-req data-chip="start" data-k="start"><span>最快什麼時候可以上班<em>*</em></span>
       <div class="chips" role="group" aria-label="可到職時間"><button type="button">馬上</button><button type="button">2 週內</button><button type="button">1 個月內</button><button type="button">再看看</button><button type="button" data-pickdate>指定日期…</button></div>
       <input type="date" name="start_date" id="startDate" hidden aria-label="指定可到職日期" style="margin-top:10px">
@@ -308,7 +310,7 @@ document.getElementById('go').addEventListener('click',async function(){
   var btn=this; btn.disabled=true; btn.textContent='送出中…'; var se=document.getElementById('servererr'); se.style.display='none';
   var start=pressed('start')[0]||''; if(start.indexOf('指定日期')===0) start='';
   var body={anon_id:(window.S1F&&S1F.aid)||null,job_slug:JOB,name:F.elements.name.value.trim(),phone:F.elements.phone.value.trim(),email:F.elements.email.value.trim(),city:(F.elements.city.value==='__other'?document.getElementById('cityOther').value.trim():F.elements.city.value),
-    exp:pressed('exp')[0],sw:pressed('sw'),cert:pressed('cert').filter(function(x){return x.indexOf('其他（自己填）')!==0}).concat(document.getElementById('certOther').value.trim()?['其他：'+document.getElementById('certOther').value.trim()]:[]),moto:pressed('moto')[0],major:F.elements.major.value.trim(),start:start,start_date:document.getElementById('startDate').value,
+    exp:pressed('exp')[0],sw:pressed('sw'),cert:pressed('cert').filter(function(x){return x.indexOf('其他（自己填）')!==0}).concat(document.getElementById('certOther').value.trim()?['其他：'+document.getElementById('certOther').value.trim()]:[]),moto:pressed('moto')[0],edu:pressed('edu')[0],major:F.elements.major.value.trim(),start:start,start_date:document.getElementById('startDate').value,
     consent:true,also_other:PICK&&document.getElementById('also').checked,resume_url:F.elements.resume_url.value.trim(),utm_source:Q.get('utm_source')||'',utm_medium:Q.get('utm_medium')||'',utm_campaign:Q.get('utm_campaign')||'',utm_content:Q.get('utm_content')||'',referrer:document.referrer||''};
   try{
     var file=document.getElementById('rfile').files[0];
