@@ -439,6 +439,10 @@ function showReport(s,r){
     next = `<div class="sect"><h2>接下來：顧問審閱中</h2>
       <p class="sh">這個職缺客戶有指定的條件，需要我們的顧問先看過您的資料。
       通過之後我們會寄信給您安排面談，請留意信箱。</p></div>`;
+  } else if(r.route==='after'){
+    // 2026-10-21：快速應徵面談後補做的測驗——面談已經談過了，這裡就是最後一步
+    next = `<div class="sect"><h2>都完成了，謝謝您</h2>
+      <p class="sh">面談和工作風格測驗都收到了。顧問看完內容後，會再跟您聯繫後續安排。</p></div>`;
   } else if(r.route==='book'){
     next = `<div class="sect"><h2>接下來：預約面談時間</h2>
       <p class="sh">目前有 ${r.busy} 位候選人正在面談中，為了不讓您久等，請先選一個方便的時段。
