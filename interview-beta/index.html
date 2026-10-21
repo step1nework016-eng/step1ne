@@ -708,6 +708,8 @@ function setEnded() {
   fillTimeline();
   $('fin').hidden = false;
   $('log').scrollTop = $('log').scrollHeight;
+  // 2026-10-21 阿財推薦職缺卡片（/assets/interview-recs.js；沒開功能就什麼都不畫）
+  window.__acaiRecsPending = [API, T]; if (window.AcaiRecs) window.AcaiRecs.start(API, T);
 }
 
 // ── 5 結束畫面時間軸 ──
@@ -1254,5 +1256,6 @@ if (T.length >= 32) {
 function u(){g.classList.toggle('empty',!t.value.trim())}t.addEventListener('input',u);
 new MutationObserver(u).observe(t,{attributes:true});setInterval(u,800);u()})();
 </script>
+<script src="/assets/interview-recs.js" defer></script>
 </body>
 </html>
