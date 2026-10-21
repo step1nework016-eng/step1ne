@@ -239,7 +239,8 @@ function logPaneHtml(d) {
     return `<li class="bdc-item ${k}"><span class="bdc-dot" aria-hidden="true">${ICON[k]}</span><div class="bdc-card">
       <div class="bdc-top"><span class="bdc-t">${KIND_ZH[k]}${l.result ? `　${esc(RESULT_ZH[l.result] || l.result)}` : ''}</span><span class="bdc-time">${esc(mdTime(logTime(l)))}　${esc(l.by || '')}</span></div>
       <div class="bdc-chips">${sent}${l.status_to ? `<span class="bdc-chip stage">階段 → ${esc(data.statuses[l.status_to] || l.status_to)}</span>` : ''}</div>
-      ${l.text ? `<p class="bdc-note">${esc(l.text)}</p>` : ''}${l.contact_name ? `<small class="muted">問到：${esc(l.contact_name)}</small>` : ''}${nxt}
+      ${l.text ? `<p class="bdc-note">${esc(l.text)}</p>` : ''}${l.contact_name ? `<small class="muted">窗口：${esc(l.contact_name)}</small>` : ''}${nxt}
+      ${l.transcript ? `<details class="ch-tsview"><summary>看逐字稿</summary><div class="ch-tstext">${esc(l.transcript)}</div></details>` : ''}
       <div class="bdc-mini">${!l.mail_sent && k !== 'other' ? `<button type="button" data-ch-sent="${l.id}">標記信已寄出</button>` : ''}${(l.next_step || l.next_due) && !l.next_done ? `<button type="button" data-ch-done="${l.id}">這步做完了</button>` : ''}<button type="button" class="bd-del" data-ch-logdel="${l.id}">刪除</button></div>
     </div></li>`;
   };
@@ -248,6 +249,12 @@ function logPaneHtml(d) {
     <div class="bdc-need" data-ch-need hidden></div>
     <form class="bdc-form" data-ch-logform autocomplete="off">
       <div class="bdc-seg" role="radiogroup" aria-label="做了什麼">${Object.entries(KIND_ZH).map(([v, lb], i) => `<label><input type="radio" name="kind" value="${v}"${i === 0 ? ' checked' : ''}><span>${lb}</span></label>`).join('')}</div>
+      <div class="ch-ts" data-ch-call>
+        <div class="ch-ts-head"><b>有通話逐字稿？讓 AI 幫你填</b><small>上傳或貼上逐字稿，AI 會填好下面的備註、窗口、下一步和期限，你看過再存。</small></div>
+        <label class="ch-drop" data-ch-tsdrop>把逐字稿檔拖到這裡，或點這裡選檔案（.txt）<input class="ch-drop-input" type="file" accept=".txt,.md,text/plain" data-ch-tsfile></label>
+        <label class="bdc-f">或直接貼上逐字稿<textarea name="transcript" rows="4" placeholder="把通話逐字稿貼在這裡"></textarea></label>
+        <div class="ch-ai-row"><button type="button" class="bdc-btn solid" data-ch-tsai>AI 整理摘要</button><small class="muted" data-ch-tsmsg role="status">約 1 分鐘</small></div>
+      </div>
       <div class="bdc-grid">
         <label class="bdc-f">時間<input type="datetime-local" name="event_at" value="${nowLocal()}" required></label>
         <label class="bdc-f" data-ch-call>結果<select name="result">${RESULTS.map(([v, lb]) => `<option value="${v}">${lb}</option>`).join('')}</select></label>
@@ -383,6 +390,50 @@ function wireDetail(id) {
     try { await api.post('/admin/channels/next', { id, action: 'snooze', days: 1 }); toast('已延 1 天', 'success'); await refreshBoard(); openChannel(id); }
     catch (err) { toast(err.message || '失敗', 'error'); e.currentTarget.disabled = false; }
   });
+  // 2026-10-21 Jacky：通話逐字稿 → AI 摘要 → 填進表單（談了什麼／對方答應→備註；窗口；下一步；期限），顧問按存才存
+  const tsBox = lf.querySelector('.ch-ts');
+  if (tsBox) {
+    const tf = lf.elements.transcript; const tsMsg = tsBox.querySelector('[data-ch-tsmsg]'); const tsBtn = tsBox.querySelector('[data-ch-tsai]');
+    const tsDrop = tsBox.querySelector('[data-ch-tsdrop]'); const tsFile = tsBox.querySelector('[data-ch-tsfile]');
+    const loadFile = async (file) => {
+      if (!file) return;
+      if (file.size > 2 * 1024 * 1024) { toast('逐字稿檔超過 2MB，請改貼文字', 'error'); return; }
+      tf.value = (await file.text()).trim(); tsMsg.textContent = `已讀入「${file.name}」，按「AI 整理摘要」`;
+    };
+    tsFile.addEventListener('change', () => loadFile(tsFile.files[0]));
+    ['dragenter', 'dragover'].forEach((t) => tsDrop.addEventListener(t, (e) => { e.preventDefault(); tsDrop.classList.add('over'); }));
+    ['dragleave', 'drop'].forEach((t) => tsDrop.addEventListener(t, () => tsDrop.classList.remove('over')));
+    tsDrop.addEventListener('drop', (e) => { e.preventDefault(); loadFile(e.dataTransfer.files[0]); });
+    const mark = (el) => { el.classList.add('ch-filled'); setTimeout(() => el.classList.remove('ch-filled'), 6000); };
+    tsBtn.addEventListener('click', async () => {
+      const t = tf.value.trim();
+      if (t.length < 20) { toast('請先上傳或貼上逐字稿', 'error'); tf.focus(); return; }
+      tsBtn.disabled = true; tsMsg.textContent = 'AI 整理中……約 1 分鐘，別關掉這個視窗';
+      try {
+        const r = await api.post('/admin/channels/ai-summary', { id, transcript: t });
+        const t0 = Date.now();
+        while (Date.now() - t0 < 6 * 60 * 1000) {
+          await new Promise((ok) => setTimeout(ok, 3000));
+          if (!document.body.contains(tsBox)) return;
+          const g = await api.get('/admin/channels/ai-summary?job=' + encodeURIComponent(r.job_id));
+          if (g.status === 'done' && g.summary) {
+            const s = g.summary; const f = lf.elements;
+            const sum = `談了什麼：${s.talked || ''}\n對方答應：${s.promised || '沒有明確答應'}`;
+            f.note.value = f.note.value.trim() ? `${f.note.value.trim()}\n\n${sum}` : sum; mark(f.note);
+            if (s.contact) { f.contact_name.value = s.contact; mark(f.contact_name); }
+            if (s.next_step) { f.next_step.value = s.next_step; mark(f.next_step); }
+            if (s.next_due) { f.next_due.value = s.next_due; mark(f.next_due); }
+            tsMsg.textContent = '已填好下面標黃色的欄位，看過、需要就改，再按「存這筆紀錄」';
+            tsBtn.disabled = false; tsBtn.textContent = '重新整理一次';
+            f.note.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
+            return;
+          }
+          if (g.status === 'failed' || g.status === 'error') throw new Error(g.error || 'AI 整理失敗');
+        }
+        throw new Error('等太久了，請再按一次');
+      } catch (err) { tsMsg.textContent = '整理失敗：' + (err.message || '請再試一次'); tsBtn.disabled = false; }
+    });
+  }
   // 2026-10-20：AI 擬信 → 頁面上看過、可改 → 寄出（寄出同時自動記一筆已寄信）
   const mbox = lf.querySelector('[data-ch-mail]');
   if (mbox) {
@@ -458,7 +509,8 @@ function wireDetail(id) {
     const btn = lf.querySelector('[type=submit]'); btn.disabled = true;
     try {
       await api.post('/admin/channels/log', { id, by: f.by.value, kind, event_at: f.event_at.value, result: kind === 'call' ? f.result.value : '', contact_name: kind === 'call' ? f.contact_name.value.trim() : '',
-        mail_sent: f.mail_sent.checked, text: f.note.value.trim(), status_to: f.status_to.value, next_step: f.next_step.value.trim(), next_due: f.next_due.value });
+        mail_sent: f.mail_sent.checked, text: f.note.value.trim(), status_to: f.status_to.value, next_step: f.next_step.value.trim(), next_due: f.next_due.value,
+        transcript: kind === 'call' ? f.transcript.value.trim() : '' });
       toast(f.status_to.value ? '已存這筆紀錄，階段已更新' : '已存這筆紀錄', 'success'); await refreshBoard(); openChannel(id);
     } catch (err) { toast(err.message || '儲存失敗', 'error'); btn.disabled = false; }
   });
