@@ -46,7 +46,8 @@ if os.path.exists('_redirects'):
         redirected.add(src if src.endswith('/') else src+'/')
 
 added=[]
-for pat,cf,pr in [('articles/*/index.html','monthly','0.8'),('jobs/*/index.html','weekly','0.8')]:
+for pat,cf,pr in [('articles/*/index.html','monthly','0.8'),('jobs/*/index.html','weekly','0.8'),
+                  ('id/jobs/*/index.html','weekly','0.7'),('vi/jobs/*/index.html','weekly','0.7')]:
     for f in sorted(glob.glob(pat)):
         u='/'+f.rsplit('/index.html',1)[0]+'/'
         if u in redirected: continue
@@ -57,12 +58,23 @@ for pat,cf,pr in [('articles/*/index.html','monthly','0.8'),('jobs/*/index.html'
 for u in [x for x in urls if x in redirected]:
     del urls[u]; print(f'  － 略過（線上是 301）：{u}')
 
+# 2026-10-21：有印尼文／越南文翻譯的職缺，三個版本互相用 hreflang 指向（x-default＝中文）。
+# 看檔案存在與否決定，跟 jobtpl/i18n_links.py（職缺頁 <head> 的 hreflang）判斷方式一致。
+def alt_links(u):
+    m=re.match(r'^/(?:(id|vi)/)?jobs/([^/]+)/$',u)
+    if not m: return ''
+    slug=m.group(2)
+    langs=[('zh-Hant','/jobs/%s/'%slug)]+[(c,'/%s/jobs/%s/'%(c,slug)) for c in ('id','vi') if os.path.exists('%s/jobs/%s/index.html'%(c,slug))]
+    if len(langs)<2: return ''
+    ls=''.join('<xhtml:link rel="alternate" hreflang="%s" href="%s%s"/>'%(c,BASE,p) for c,p in langs)
+    return ls+'<xhtml:link rel="alternate" hreflang="x-default" href="%s/jobs/%s/"/>'%(BASE,slug)
+
 def key(u): return (0 if u=='/' else 1, u)
-out=['<?xml version="1.0" encoding="UTF-8"?>','<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+out=['<?xml version="1.0" encoding="UTF-8"?>','<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">']
 for u in sorted(urls,key=key):
     cf,pr,lm=urls[u]
     lmx=f'<lastmod>{lm}</lastmod>' if lm else ''
-    out.append(f'  <url><loc>{BASE}{u}</loc>{lmx}<changefreq>{cf}</changefreq><priority>{pr}</priority></url>')
+    out.append(f'  <url><loc>{BASE}{u}</loc>{lmx}<changefreq>{cf}</changefreq><priority>{pr}</priority>{alt_links(u)}</url>')
 out.append('</urlset>')
 io.open('sitemap.xml','w',encoding='utf-8').write('\n'.join(out)+'\n')
 print(f"總網址 {len(urls)}（原本 {len(keep)}）　新增 {len(added)} 筆：")

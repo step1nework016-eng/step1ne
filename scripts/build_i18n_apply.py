@@ -30,6 +30,7 @@ def build(lang):
 
     # ── head
     R('<html lang="zh-Hant">', '<html lang="%s">' % lang)
+    R('<meta name="robots" content="noindex,nofollow">', '<link rel="canonical" href="https://step1ne.com/%s/apply-quick/">' % lang)
     R('<title>快速應徵｜Step1ne 德仁管理顧問</title>', '<title>%s</title>' % esc(T['title']))
     R('</style></head><body>', """.sw{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 8px;font-size:13px;color:var(--mu)}
 .sw a,.sw b{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:#fff;font-weight:700;color:var(--mu);text-decoration:none}

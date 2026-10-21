@@ -2,7 +2,7 @@
 # 產生印尼文／越南文職缺頁（隱藏測試路徑 /id/jobs/<slug>/、/vi/jobs/<slug>/）。
 # 用法：python3 scripts/build_i18n_jobs.py   （從專案根目錄）
 # 這些頁面故意：noindex、不進 sitemap／llms.txt／任何列表與導覽，等 Jacky 核准才公開。
-import os, sys, html, urllib.parse
+import os, sys, re, html, urllib.parse
 sys.path.insert(0, os.path.dirname(__file__))
 from i18n_data import L, SLUGS
 
@@ -121,16 +121,17 @@ def build(lang, slug):
     steps = ''.join('<li>%s</li>' % e(s) for s in U['steps'])
     faq = ''.join('<details><summary><span>%s</span><i aria-hidden="true">+</i></summary><p>%s</p></details>' % (e(q), e(a)) for q, a in C['faq'])
 
+    hreflang = '<!--i18n-hreflang-->\n' + ''.join('<link rel="alternate" hreflang="%s" href="https://step1ne.com%s">\n' % (c, pth % slug) for c, _, pth in (('zh-Hant', '', '/jobs/%s/'), ('id', '', '/id/jobs/%s/'), ('vi', '', '/vi/jobs/%s/'))) + '<link rel="alternate" hreflang="x-default" href="https://step1ne.com/jobs/%s/">\n<!--/i18n-hreflang-->\n' % slug
     page = """<!DOCTYPE html>
 <html lang="%(hl)s">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex,nofollow">
+<meta name="robots" content="index,follow">
 <title>%(page_title)s | Step1ne</title>
 <meta name="description" content="%(desc)s">
 <link rel="canonical" href="%(canon)s">
-<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+%(hreflang)s<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
 <meta name="theme-color" content="#ffffff">
@@ -193,7 +194,7 @@ if(a&&b&&'IntersectionObserver' in window){new IntersectionObserver(function(es)
 </script>
 </body>
 </html>
-""" % dict(hl=D['html_lang'], page_title=e(page_title), desc=e(desc), canon=canon, css=CSS, apply=e(apply_url),
+""" % dict(hl=D['html_lang'], page_title=e(page_title), desc=e(desc), canon=canon, hreflang=hreflang, css=CSS, apply=e(apply_url),
            apply_btn=e(U['apply_btn']), sw=sw, h1=e(title), sub=e(C['sub']), t1=e(U['tag_fulltime']), t2=e(U['tag_conf']),
            req_main=e(U['req_main']), req_sub=e(U['req_sub']), spec_h=e(U['spec_h']), spec_html=spec_html,
            duties_h=e(U['duties_h']), duties=duties, req_h=e(U['req_h']), reqs=reqs, elig_h=e(U['elig_h']),
@@ -202,6 +203,13 @@ if(a&&b&&'IntersectionObserver' in window){new IntersectionObserver(function(es)
            faq_h=e(U['faq_h']), faq=faq, footer_home=e(U['footer_home']), bar_line=e(U['bar_line']), bar_apply=e(U['bar_apply']))
     out = os.path.join(ROOT, lang, 'jobs', slug)
     os.makedirs(out, exist_ok=True)
+    # ⚠️ 「誰可以應徵／工作許可」已由 Jacky 依查證結果填好（commit 5c03110），重跑產生器不能洗掉它
+    prev = os.path.join(out, 'index.html')
+    if os.path.exists(prev):
+        m = re.search(r'<div class="elig">.*?</div>', open(prev, encoding='utf-8').read(), re.S)
+        if m and 'ELIGIBILITY_PLACEHOLDER' not in m.group(0) and '[' not in m.group(0)[:30]:
+            page = re.sub(r'<!-- ELIGIBILITY_PLACEHOLDER -->\n<div class="elig">.*?</div>', lambda _: m.group(0), page, count=1, flags=re.S)
+            page = re.sub(r'<div class="elig">\[.*?</div>', lambda _: m.group(0), page, count=1, flags=re.S)
     with open(os.path.join(out, 'index.html'), 'w', encoding='utf-8') as f:
         f.write(page)
     return out
