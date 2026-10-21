@@ -204,6 +204,7 @@ a.btn{text-decoration:none}
 
 <div class="bar" id="bar"><div class="in"><button class="btn" type="button" id="go">送出應徵</button><small>送出後就能跟阿財聊，名額滿會讓你選時段</small></div></div>
 
+<script src="/assets/apply-funnel.js"></script>
 <script>
 var API='https://step1ne-public-worker.aiagentg888.workers.dev';
 var Q=new URLSearchParams(location.search);
@@ -211,7 +212,11 @@ var QUICK=['bim-mep-drafting-engineer-hsinchu','semiconductor-bim-mep-drafting-t
 var JOB=QUICK.indexOf(Q.get('job'))>=0?Q.get('job'):'';
 var PICK=!JOB;
 var PAY={'bim-mep-drafting-engineer-hsinchu':'月薪 4.1～5 萬','semiconductor-bim-mep-drafting-trainee-hsinchu':'月薪 4.1～5 萬','bim-engineer-houli':'月薪 4.1～5 萬','trainee-engineering-design-engineer':'月薪 3.5～4.5 萬'};
-function ga(n,p){try{gtag('event',n,Object.assign({job:JOB,page_path:location.pathname},p||{}))}catch(e){}}
+function ga(n,p){try{gtag('event',n,Object.assign({job:JOB,page_path:location.pathname},p||{}))}catch(e){} ft(n,p)}
+// 漏斗追蹤（D1，正式結算以這份為準；GA4 照舊）
+var FT={quick_apply_landing:'apply_landing',quick_form_start:'apply_form_start',quick_validation_error:'apply_validation_error'};
+function ft(n,p){try{if(FT[n]&&window.S1F)S1F.track(FT[n],{flow:'quick',job:JOB||null,props:n==='quick_validation_error'?{field:(p&&p.field)||''}:(n==='quick_apply_landing'?{picker:PICK?1:0}:{})})}catch(e){}}
+function fx(ev,props){try{if(window.S1F)S1F.track(ev,{flow:'quick',job:JOB||null,props:props||{}})}catch(e){}}
 ga('quick_apply_landing',{utm_source:Q.get('utm_source')||'',picker:PICK?'1':'0'});
 fetch('/apply/jobs.json').then(function(r){return r.json()}).then(function(list){
   if(PICK){
@@ -249,6 +254,9 @@ function wireMore(btn, panel, slug){
   });
 }
 var started=false;function st(){if(!started){started=true;ga('quick_form_start')}}
+var SENT=false,LASTK='';function lk(e){try{var k=e.target&&e.target.closest&&e.target.closest('[data-k]');if(k)LASTK=k.getAttribute('data-k')||''}catch(x){}}
+document.addEventListener('focusin',lk,true);document.addEventListener('click',lk,true);
+if(window.S1F)S1F.onLeave(function(){if(!started||SENT)return false;fx('apply_abandon',{section:LASTK});return true});
 function syncCnt(g){var f=g.closest('.f'),c=f&&f.querySelector('.cnt'); if(!c) return;
   var on=g.querySelectorAll('[aria-checked="true"]:not([data-none])').length, none=g.querySelector('[data-none][aria-checked="true"]');
   c.textContent=none?'已選：'+none.textContent.trim():on?'已選 '+on+' 項':'可複選'; c.classList.toggle('on',!!(on||none));}
@@ -299,13 +307,14 @@ document.getElementById('go').addEventListener('click',async function(){
   if(first){ga('quick_validation_error',{field:first.getAttribute('data-k')||'consent'}); first.classList&&first.classList.contains('f')?markBad(first):first.scrollIntoView({block:'center'}); return;}
   var btn=this; btn.disabled=true; btn.textContent='送出中…'; var se=document.getElementById('servererr'); se.style.display='none';
   var start=pressed('start')[0]||''; if(start.indexOf('指定日期')===0) start='';
-  var body={job_slug:JOB,name:F.elements.name.value.trim(),phone:F.elements.phone.value.trim(),email:F.elements.email.value.trim(),city:(F.elements.city.value==='__other'?document.getElementById('cityOther').value.trim():F.elements.city.value),
+  var body={anon_id:(window.S1F&&S1F.aid)||null,job_slug:JOB,name:F.elements.name.value.trim(),phone:F.elements.phone.value.trim(),email:F.elements.email.value.trim(),city:(F.elements.city.value==='__other'?document.getElementById('cityOther').value.trim():F.elements.city.value),
     exp:pressed('exp')[0],sw:pressed('sw'),cert:pressed('cert').filter(function(x){return x.indexOf('其他（自己填）')!==0}).concat(document.getElementById('certOther').value.trim()?['其他：'+document.getElementById('certOther').value.trim()]:[]),moto:pressed('moto')[0],major:F.elements.major.value.trim(),start:start,start_date:document.getElementById('startDate').value,
     consent:true,also_other:PICK&&document.getElementById('also').checked,resume_url:F.elements.resume_url.value.trim(),utm_source:Q.get('utm_source')||'',utm_medium:Q.get('utm_medium')||'',utm_campaign:Q.get('utm_campaign')||'',utm_content:Q.get('utm_content')||'',referrer:document.referrer||''};
   try{
     var file=document.getElementById('rfile').files[0];
     if(file && document.querySelector('[data-rin="file"]').classList.contains('on')){
-      if(file.size>8*1024*1024) throw new Error('履歷檔超過 8MB，可以改貼連結或之後用 LINE 傳');
+      fx('resume_upload_start',{size:file.size>8388608?'>8MB':file.size>2097152?'2-8MB':'<2MB'});
+      if(file.size>8*1024*1024){fx('resume_upload_fail',{reason:'too_big'}); throw new Error('履歷檔超過 8MB，可以改貼連結或之後用 LINE 傳');}
       body.resume_b64=await b64(file); body.resume_name=file.name; body.resume_mime=file.type||'application/octet-stream';
     }
     if(!document.querySelector('[data-rin="link"]').classList.contains('on')) body.resume_url='';
@@ -316,7 +325,7 @@ document.getElementById('go').addEventListener('click',async function(){
       if(ff){ff.querySelector('.err').textContent=r.error; markBad(ff);} else {se.textContent=r.error||'送出失敗，請再試一次'; se.style.display='block';}
       btn.disabled=false; btn.textContent='送出應徵'; return;
     }
-    ga('quick_submit_ok',{route:r.route||r.duplicate||''});
+    SENT=true; ga('quick_submit_ok',{route:r.route||r.duplicate||''});
     TOKEN=r.chat_token; SLOTS=r.slots||[]; showDone(r);
   }catch(e){se.textContent=e.message||'網路不穩，請再按一次'; se.style.display='block'; btn.disabled=false; btn.textContent='送出應徵';}
 });

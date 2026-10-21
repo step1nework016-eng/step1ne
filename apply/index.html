@@ -404,6 +404,7 @@ dialog.think::backdrop{background:rgba(22,32,46,.45)}
 </div>
 </div>
 
+<script src="/assets/apply-funnel.js"></script>
 <script>
 const API = 'https://step1ne-public-worker.aiagentg888.workers.dev';
 const q = new URLSearchParams(location.search);
@@ -625,6 +626,7 @@ async function buildBody() {
   const fd = new FormData(f);
   const jobSel = document.getElementById('jobSel');
   const body = {
+    anon_id: (window.S1F && S1F.aid) || null,   // 漏斗追蹤用的匿名編號（不是個資）
     job_slug: fd.get('job_slug') || 'unspecified',
     job_title: jobSel.selectedOptions[0]?.dataset.title || null,
     name: fd.get('name'), email: fd.get('email'), phone: fd.get('phone'),
@@ -1030,4 +1032,55 @@ async function bookApplySlot(btn, slot) {
     `<p class="lead">已為您預約 <b>${slot}</b>。<br>我們會在時間到之前寄信提醒您，屆時用信裡的連結進入面談室即可。</p>`;
 }
 prog();
+</script>
+<script>
+// ── 應徵漏斗追蹤（2026-10-21）：只記事件，不改畫面、不改驗證 ──
+(function () {
+  if (!window.S1F) return;
+  try {
+    var flow = 'original';
+    var jobOf = function () { try { return (document.getElementById('jobSel') || {}).value || JOB || null; } catch (e) { return JOB || null; } };
+    var stage = function () { return RETURN_TOKEN ? 'final' : 'step1'; };
+    S1F.track('apply_landing', { flow: flow, job: JOB || null,
+      props: { back: q.get('back') === '1' ? 1 : 0, inv: INV ? 1 : 0 } });
+    var started = false, last = '';
+    var onField = function (e) {
+      var n = e.target && e.target.name; if (n) last = n;
+      if (!started && e.isTrusted) { started = true; S1F.track('apply_form_start', { flow: flow, job: jobOf(), props: { stage: stage() } }); }
+    };
+    f.addEventListener('input', onField, true);
+    f.addEventListener('change', onField, true);
+    // 瀏覽器原生驗證擋下的欄位（invalid 不會冒泡，用 capture）
+    f.addEventListener('invalid', function (e) {
+      S1F.track('apply_validation_error', { flow: flow, job: jobOf(), props: { field: (e.target && e.target.name) || 'unknown', stage: stage() } });
+    }, true);
+    // 頁面自己判斷的錯誤（地區／履歷／同意…）：看 #msg 變成錯誤時記一個代碼
+    var msgEl = document.getElementById('msg');
+    if (msgEl && window.MutationObserver) {
+      var code = function (t) {
+        return /資料夾/.test(t) ? 'resume_folder' : /地區/.test(t) ? 'area' : /履歷/.test(t) ? 'resume'
+          : /同意/.test(t) ? 'consent' : 'other';
+      };
+      new MutationObserver(function () {
+        if (msgEl.className.indexOf('err') >= 0 && msgEl.textContent) {
+          S1F.track('apply_validation_error', { flow: flow, job: jobOf(), props: { field: code(msgEl.textContent), stage: stage() } });
+        }
+      }).observe(msgEl, { attributes: true, childList: true, characterData: true, subtree: true });
+    }
+    var rf = f.querySelector('input[name=resume]');
+    if (rf) rf.addEventListener('change', function () {
+      var x = rf.files && rf.files[0]; if (!x) return;
+      S1F.track('resume_upload_start', { flow: flow, job: jobOf(),
+        props: { size: x.size > 8388608 ? '>8MB' : x.size > 2097152 ? '2-8MB' : '<2MB' } });
+    });
+    // 中途離開：表單還在畫面上、送出鈕沒在處理中，才算離開
+    S1F.onLeave(function () {
+      if (!started || !document.contains(f)) return false;
+      var a = document.getElementById('toAssess'), b = document.getElementById('btn');
+      if ((a && a.disabled && !RETURN_TOKEN) || (b && b.disabled && RETURN_TOKEN)) return false;
+      S1F.track('apply_abandon', { flow: flow, job: jobOf(), props: { section: last, stage: stage() } });
+      return true;
+    });
+  } catch (e) { /* 追蹤壞掉不能影響應徵 */ }
+})();
 </script>
