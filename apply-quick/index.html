@@ -105,6 +105,7 @@ a.btn{text-decoration:none}
 .detail h3{font-size:13px;color:var(--mu);margin:0 0 4px;font-weight:600}
 .detail ul{margin:0 0 10px;padding-left:18px}.detail li{margin:2px 0}
 .detail a{color:var(--ac);font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.jlist{display:grid;gap:10px}
 .jcard{border:1.5px solid var(--line);border-radius:12px;background:#fff;padding:2px 12px 6px}
 .jcard.on{border-color:var(--ac);background:var(--ac-soft)}
 .jcard .pick{display:flex;align-items:flex-start;gap:10px;width:100%;text-align:left;font:inherit;background:none;border:0;padding:10px 0 2px;cursor:pointer;color:var(--tx)}
@@ -130,7 +131,7 @@ a.btn{text-decoration:none}
   </div>
   <section class="sec" id="jobpick" hidden aria-labelledby="s0">
     <h2 id="s0">想應徵哪一個 <small>都是無經驗可、公司培訓</small></h2>
-    <div class="f" data-req data-k="job"><div class="jobs" id="joblist" role="radiogroup" aria-label="選擇職缺"></div><div class="err">請選一個職缺</div></div>
+    <div class="f" data-req data-k="job"><div class="jlist" id="joblist" role="radiogroup" aria-label="選擇職缺"></div><div class="err">請選一個職缺</div></div>
     <label class="also"><input type="checkbox" id="also"> <span>其他培訓職缺我也願意考慮</span></label>
   </section>
   <p class="lead">留下基本資料就完成應徵，<b>約 1 分鐘</b>。履歷可以之後再補。</p>
