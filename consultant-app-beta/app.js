@@ -3850,7 +3850,7 @@ async function openAddCandidate() {
     companyOrder.map((cid) => `<option value="${escapeHtml(cid)}">${escapeHtml(companyNames[cid])}</option>`).join('');
   companySelect.onchange = () => {
     const cid = companySelect.value;
-    // 2026-10-21 Jacky：只有這家客戶有「會自動寄的表單」（目前只有弘昌）才顯示勾選，預設勾起來
+    // 2026-10-21 Jacky：只有這家客戶有「會自動寄的表單」才顯示勾選，預設勾起來
     const fRow = $('#fc-forms-row'), fBox = $('#fc-send-forms'), fTxt = $('#fc-forms-text');
     if (fRow) fRow.hidden = true;  // [hidden] 被 display:flex 蓋掉，下面用 style 一起控制
     if (fRow) fRow.style.display = 'none';
