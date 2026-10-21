@@ -126,6 +126,15 @@
       box.appendChild(job);
     });
     box.appendChild(el('p', 'ar-fine', card.footer));
+    // 2026-10-21 Jacky 測試：結束面板（時間軸）會蓋住對話，卡片放在對話裡根本看不到——
+    // 頁面有 #fin_recs（新版結束面板）就放進面板最上面，沒有才放回對話裡
+    var slot = document.getElementById('fin_recs');
+    if (slot) {
+      box.id = 'acai-rec'; box.style.margin = '0 0 18px'; box.style.maxWidth = 'none';
+      slot.appendChild(box); slot.hidden = false;
+      var fin = document.getElementById('fin'); if (fin) fin.scrollTop = 0;
+      return;
+    }
     row.appendChild(av); row.appendChild(box);
     log.appendChild(row);
     log.scrollTop = log.scrollHeight;
