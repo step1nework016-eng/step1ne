@@ -290,12 +290,27 @@ document.querySelectorAll('.chip').forEach(function(b){
 
 function busy(on){ $('res-sec').classList.toggle('busy',on); }
 
+// 後端回傳的欄位有時是 "['新竹']" 這種清單字串，薪資欄位有時夾帶只給顧問看的口頭說明。
+// 這裡只拿「對求職者可以看的第一句」，其餘一律不顯示（完整內容在職缺頁）。
+function tidy(s){
+  s=String(s==null?'':s).trim();
+  var parts=s.replace(/^\[|\]$/g,'').split(/['"]\s*,\s*['"]/).map(function(x){return x.replace(/^['"\s]+|['"\s]+$/g,'')}).filter(Boolean);
+  if(parts.length>3) parts=parts.slice(0,3).concat(['等']);
+  return parts.join('、').replace('、等','等');
+}
+function where(s){ s=tidy(s); var p=s.split('、'); return p.length>3?p.slice(0,3).join('、')+'等':s; }
+function pay(s){
+  s=String(s==null?'':s);
+  if(/不得|僅供|口頭|不要|內部/.test(s.split(/⚠/)[0].split('\n')[0].replace(/^【[^】]*】/,'')) ) return '';
+  var f=s.split(/⚠/)[0].split('\n')[0].replace(/^【[^】]*】/,'').split(/[；。]/)[0].trim();
+  return (f.length>=4&&f.length<=60)?f:'';
+}
 function card(j,fit,gap,waiting){
-  var meta=[];
-  if(j.locations) meta.push('<li>'+I.pin+esc(j.locations)+'</li>');
-  if(j.employment) meta.push('<li>'+I.tag+esc(j.employment)+'</li>');
+  var meta=[], loc=where(j.locations), emp=tidy(j.employment), sal=pay(j.salary_note);
+  if(loc) meta.push('<li>'+I.pin+esc(loc)+'</li>');
+  if(emp) meta.push('<li>'+I.tag+esc(emp)+'</li>');
   if(j.company) meta.push('<li>'+esc(j.company)+'</li>');
-  if(j.salary_note) meta.push('<li>'+esc(j.salary_note)+'</li>');
+  if(sal) meta.push('<li>'+esc(sal)+'</li>');
   return '<article class="job"><h3>'+esc(j.title)+'</h3>'
     +(meta.length?'<ul class="meta">'+meta.join('')+'</ul>':'')
     +'<div class="why'+(waiting?' wait':'')+'">'+I.ok+'<div><b>為什麼適合</b><p style="margin:0">'+esc(fit)+'</p></div></div>'
