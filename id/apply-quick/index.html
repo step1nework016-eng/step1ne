@@ -129,6 +129,11 @@ a.btn{text-decoration:none}
 .dates button:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
 #eduMore input{border-color:var(--line)!important}
 .sw{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 8px;font-size:13px;color:var(--mu)}
+.sw[hidden]{display:none}
+.sw a,.sw b{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:#fff;font-weight:700;color:var(--mu);text-decoration:none}
+.sw b{background:var(--tx);color:#fff;border-color:var(--tx)}
+.sw a:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+.sw{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 8px;font-size:13px;color:var(--mu)}
 .sw a,.sw b{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:#fff;font-weight:700;color:var(--mu);text-decoration:none}
 .sw b{background:var(--tx);color:#fff;border-color:var(--tx)}
 .sw a:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
@@ -219,8 +224,11 @@ a.btn{text-decoration:none}
 <div class="bar" id="bar"><div class="in"><button class="btn" type="button" id="go">Kirim lamaran</button><small>Setelah terkirim, Anda bisa langsung mengobrol dengan A-Cai; jika penuh, Anda bisa memilih jadwal</small></div></div>
 
 <script src="/assets/apply-funnel.js"></script>
+<script src="/assets/apply-later.js?v=20261021"></script>
 <script>
 var API='https://step1ne-public-worker.aiagentg888.workers.dev';
+// 2026-10-21 測試版：「先送出，晚點再聊」。外語版（/id/、/vi/apply-quick/）由 build_i18n_apply.py 把 LATER_T 換成翻好的文字
+var LATER_T={"opt_title": "Kirim dulu, ngobrol nanti", "opt_sub": "Lamaran langsung tercatat. Dalam 7 hari, klik tautan kapan saja untuk ngobrol dengan A-Cai", "sending": "Mengirim…", "err": "Gagal mengirim, silakan tekan sekali lagi", "done_h": "Lamaran terkirim!", "next_h": "Langkah berikutnya", "s1": "<b>Lamaran terkirim</b>, data Anda sudah diterima", "s2": "<b>Dalam 7 hari</b>, klik tautan untuk ngobrol dengan A-Cai 15–25 menit dalam bahasa Mandarin (kapan saja, tengah malam pun bisa)", "s3": "Setelah ngobrol, Anda akan dihubungi dalam 1–2 hari kerja", "line_btn": "Kirim tautan wawancara ke LINE saya", "copy_btn": "Salin tautan", "now_btn": "Sebenarnya saya ada waktu sekarang, mulai ngobrol", "fine": "Tautan wawancara juga sudah dikirim ke email Anda. Jika besok belum ngobrol, Anda akan diingatkan satu kali.", "copied": "Tautan sudah disalin", "copy_fail": "Tidak bisa menyalin. Tekan lama tautan di bawah untuk menyalin sendiri.", "share_text": "Tautan wawancara Step1ne | {job}\nKlik dalam 7 hari untuk ngobrol dengan A-Cai 15–25 menit:\n{url}"},LATER_EL=null;
 var Q=new URLSearchParams(location.search);
 var QUICK=["bim-engineer-houli", "semiconductor-bim-mep-drafting-trainee-hsinchu", "bim-mep-drafting-engineer-hsinchu"];
 var JOB=QUICK.indexOf(Q.get('job'))>=0?Q.get('job'):'';
@@ -370,8 +378,12 @@ function showDone(r){
   } else if(r.route==='screening'){
     document.getElementById('dp').textContent="Konsultan akan melihat data Anda dulu; jika cocok, kami akan mengirim email untuk mengatur wawancara."; document.getElementById('choice').style.display='none';
   }
+  // 「現在開始聊／改約其他時間」那個畫面才多第三個選項：先送出，晚點再聊（放最下面，不搶「現在開始聊」）
+  try{ if(!r.route||r.route==='now'){ var pk=document.querySelector('.pick[aria-checked="true"] b');
+    if(window.ApplyLater) LATER_EL=ApplyLater.attach({api:API,token:TOKEN,jobTitle:(pk||document.getElementById('jt')).textContent.trim(),
+      after:document.getElementById('choice'),screen:document.querySelector('#done .sec'),T:LATER_T||undefined}); } }catch(e){}
 }
-document.getElementById('book').addEventListener('click',function(){this.style.display='none'; renderSlots()});
+document.getElementById('book').addEventListener('click',function(){this.style.display='none'; if(LATER_EL) LATER_EL.style.display='none'; renderSlots()});
 function renderSlots(){
   var box=document.getElementById('slots'); box.style.display='block';
   if(!SLOTS.length && !renderSlots.tried){renderSlots.tried=true; box.innerHTML='<p class="note">Memuat jadwal…</p>';

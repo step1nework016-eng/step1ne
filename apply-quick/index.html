@@ -218,8 +218,11 @@ a.btn{text-decoration:none}
 <div class="bar" id="bar"><div class="in"><button class="btn" type="button" id="go">送出應徵</button><small>送出後就能跟阿財聊，名額滿會讓你選時段</small></div></div>
 
 <script src="/assets/apply-funnel.js"></script>
+<script src="/assets/apply-later.js?v=20261021"></script>
 <script>
 var API='https://step1ne-public-worker.aiagentg888.workers.dev';
+// 2026-10-21 測試版：「先送出，晚點再聊」。外語版（/id/、/vi/apply-quick/）由 build_i18n_apply.py 把 LATER_T 換成翻好的文字
+var LATER_T=null,LATER_EL=null;
 var Q=new URLSearchParams(location.search);
 var QUICK=['bim-mep-drafting-engineer-hsinchu','semiconductor-bim-mep-drafting-trainee-hsinchu','bim-engineer-houli','trainee-engineering-design-engineer'];
 var JOB=QUICK.indexOf(Q.get('job'))>=0?Q.get('job'):'';
@@ -363,8 +366,12 @@ function showDone(r){
   } else if(r.route==='screening'){
     document.getElementById('dp').textContent='顧問會先看過你的資料，適合的話會再寄信安排面談。'; document.getElementById('choice').style.display='none';
   }
+  // 「現在開始聊／改約其他時間」那個畫面才多第三個選項：先送出，晚點再聊（放最下面，不搶「現在開始聊」）
+  try{ if(!r.route||r.route==='now'){ var pk=document.querySelector('.pick[aria-checked="true"] b');
+    if(window.ApplyLater) LATER_EL=ApplyLater.attach({api:API,token:TOKEN,jobTitle:(pk||document.getElementById('jt')).textContent.trim(),
+      after:document.getElementById('choice'),screen:document.querySelector('#done .sec'),T:LATER_T||undefined}); } }catch(e){}
 }
-document.getElementById('book').addEventListener('click',function(){this.style.display='none'; renderSlots()});
+document.getElementById('book').addEventListener('click',function(){this.style.display='none'; if(LATER_EL) LATER_EL.style.display='none'; renderSlots()});
 function renderSlots(){
   var box=document.getElementById('slots'); box.style.display='block';
   if(!SLOTS.length && !renderSlots.tried){renderSlots.tried=true; box.innerHTML='<p class="note">時段載入中…</p>';

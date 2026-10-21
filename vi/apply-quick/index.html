@@ -129,6 +129,11 @@ a.btn{text-decoration:none}
 .dates button:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
 #eduMore input{border-color:var(--line)!important}
 .sw{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 8px;font-size:13px;color:var(--mu)}
+.sw[hidden]{display:none}
+.sw a,.sw b{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:#fff;font-weight:700;color:var(--mu);text-decoration:none}
+.sw b{background:var(--tx);color:#fff;border-color:var(--tx)}
+.sw a:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+.sw{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 8px;font-size:13px;color:var(--mu)}
 .sw a,.sw b{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:#fff;font-weight:700;color:var(--mu);text-decoration:none}
 .sw b{background:var(--tx);color:#fff;border-color:var(--tx)}
 .sw a:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
@@ -219,8 +224,11 @@ a.btn{text-decoration:none}
 <div class="bar" id="bar"><div class="in"><button class="btn" type="button" id="go">Gửi ứng tuyển</button><small>Sau khi gửi bạn có thể trò chuyện ngay với A-Cai; nếu hết chỗ bạn sẽ được chọn khung giờ</small></div></div>
 
 <script src="/assets/apply-funnel.js"></script>
+<script src="/assets/apply-later.js?v=20261021"></script>
 <script>
 var API='https://step1ne-public-worker.aiagentg888.workers.dev';
+// 2026-10-21 測試版：「先送出，晚點再聊」。外語版（/id/、/vi/apply-quick/）由 build_i18n_apply.py 把 LATER_T 換成翻好的文字
+var LATER_T={"opt_title": "Gửi trước, trò chuyện sau", "opt_sub": "Hồ sơ được ghi nhận ngay. Trong 7 ngày, bấm đường link bất cứ lúc nào để trò chuyện với A-Cai", "sending": "Đang gửi…", "err": "Gửi chưa thành công, vui lòng bấm lại", "done_h": "Đã gửi hồ sơ ứng tuyển!", "next_h": "Các bước tiếp theo", "s1": "<b>Đã gửi hồ sơ</b>, thông tin của bạn đã được nhận", "s2": "<b>Trong 7 ngày</b>, bấm đường link để trò chuyện bằng tiếng Trung với A-Cai 15–25 phút (lúc nào cũng được, nửa đêm cũng được)", "s3": "Sau khi trò chuyện, bạn sẽ được liên hệ trong 1–2 ngày làm việc", "line_btn": "Gửi link phỏng vấn vào LINE của tôi", "copy_btn": "Sao chép link", "now_btn": "Thật ra bây giờ tôi rảnh, bắt đầu trò chuyện", "fine": "Link phỏng vấn cũng đã được gửi vào email của bạn. Nếu ngày mai chưa trò chuyện, bạn sẽ được nhắc một lần.", "copied": "Đã sao chép link", "copy_fail": "Không sao chép được. Hãy nhấn giữ đường link bên dưới để tự sao chép.", "share_text": "Link phỏng vấn Step1ne | {job}\nBấm trong 7 ngày để trò chuyện với A-Cai 15–25 phút:\n{url}"},LATER_EL=null;
 var Q=new URLSearchParams(location.search);
 var QUICK=["bim-engineer-houli", "semiconductor-bim-mep-drafting-trainee-hsinchu", "bim-mep-drafting-engineer-hsinchu"];
 var JOB=QUICK.indexOf(Q.get('job'))>=0?Q.get('job'):'';
@@ -370,8 +378,12 @@ function showDone(r){
   } else if(r.route==='screening'){
     document.getElementById('dp').textContent="Tư vấn viên sẽ xem hồ sơ của bạn trước; nếu phù hợp sẽ gửi email sắp xếp phỏng vấn."; document.getElementById('choice').style.display='none';
   }
+  // 「現在開始聊／改約其他時間」那個畫面才多第三個選項：先送出，晚點再聊（放最下面，不搶「現在開始聊」）
+  try{ if(!r.route||r.route==='now'){ var pk=document.querySelector('.pick[aria-checked="true"] b');
+    if(window.ApplyLater) LATER_EL=ApplyLater.attach({api:API,token:TOKEN,jobTitle:(pk||document.getElementById('jt')).textContent.trim(),
+      after:document.getElementById('choice'),screen:document.querySelector('#done .sec'),T:LATER_T||undefined}); } }catch(e){}
 }
-document.getElementById('book').addEventListener('click',function(){this.style.display='none'; renderSlots()});
+document.getElementById('book').addEventListener('click',function(){this.style.display='none'; if(LATER_EL) LATER_EL.style.display='none'; renderSlots()});
 function renderSlots(){
   var box=document.getElementById('slots'); box.style.display='block';
   if(!SLOTS.length && !renderSlots.tried){renderSlots.tried=true; box.innerHTML='<p class="note">Đang tải khung giờ…</p>';
