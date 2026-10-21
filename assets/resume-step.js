@@ -17,7 +17,7 @@
  *   resume_pages：總共幾張
  * 後端會把整組截圖一起交給 OCR（parse_resumes.py），合成一份文字給阿財讀。
  *
- * 用在：/apply-beta/、/resume/（面談前補履歷）。正式版 /apply/ 目前沒用這支。
+ * 用在：/apply/、/apply-beta/（10/21 起兩邊同一份）、/resume/（面談前補履歷）。
  * 用法：var rs = S1Resume.mount(el, { api, track(name, params), onChange() });
  *       rs.validate() → { ok, field, message }；await rs.payload() → 要併進送出 body 的欄位
  *       rs.getState()／rs.setState(s, submitted)：存草稿、測驗回來還原（檔案本身存不了，只記檔名）
@@ -184,7 +184,7 @@
       '    <textarea id="' + uid + '-paste" class="rs-paste" rows="7" maxlength="20000" placeholder="最近的工作、職稱、做過的事、學歷…"></textarea></div>' +
       '  <div class="rs-box rs-urlbox" hidden><label for="' + uid + '-url">Google Drive／Dropbox 的「檔案」分享連結</label>' +
       '    <input id="' + uid + '-url" class="rs-url" name="resume_url" inputmode="url" placeholder="https://drive.google.com/file/d/…">' +
-      '    <p class="rs-status" style="margin-top:8px">分享設定要開「知道連結的任何人都能檢視」；資料夾連結系統讀不到。</p></div>' +
+      '    <p class="rs-status" style="margin-top:8px"><b style="color:#b4552e">要貼「檔案」的分享連結，不能貼資料夾連結</b>（網址裡有 /folders/ 的就是資料夾，系統讀不到裡面的履歷）。分享設定要開「知道連結的任何人都能檢視」。</p></div>' +
       '  <p class="rs-more"><button type="button" class="rs-link" data-x="paste">改成貼上文字</button>　' +
       '    <button type="button" class="rs-link" data-x="url">貼雲端連結</button></p>' +
       '</div>' +

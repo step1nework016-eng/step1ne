@@ -191,8 +191,8 @@ details.opt>summary:focus-visible{outline:3px solid var(--ac);outline-offset:2px
 .gate-actions{margin:0 0 16px}
 .gate-actions .consent{margin:0 0 6px}
 .gate-actions details{margin:0 0 4px}
-#toAssess{width:100%;background:var(--ac);color:#fff;border:0;border-radius:12px;padding:15px;font-size:16.5px;
-  font-weight:700;cursor:pointer;font-family:inherit;margin-top:12px;min-height:52px}
+#toAssess{width:100%;background:#fff;color:var(--ac);border:2px solid var(--ac);border-radius:10px;padding:14px;font-size:15.5px;
+  font-weight:600;cursor:pointer;font-family:inherit;margin-top:12px;min-height:52px}
 #toAssess:disabled{opacity:.6}
 #toAssess:focus-visible,#btn:focus-visible{outline:3px solid #16202e;outline-offset:2px}
 #wantbook:focus-visible,a.go:focus-visible{outline:3px solid #16202e;outline-offset:2px}
@@ -436,7 +436,8 @@ details.opt>summary:focus-visible{outline:3px solid var(--ac);outline-offset:2px
 </div>
 </div>
 
-<script src="/assets/resume-step.js?v=20261012d"></script>
+<script src="/assets/apply-funnel.js"></script>
+<script src="/assets/resume-step.js?v=20261021"></script>
 <script src="/assets/apply-later.js?v=20261021"></script>
 <script>
 
@@ -570,7 +571,7 @@ const RS = window.RS = S1Resume.mount(document.getElementById('resumeStep'), {
 
 // ── 草稿：去 LINE 傳履歷再回來、或不小心關掉，填過的不用重打（只存在這支手機，24 小時後作廢） ──
 const DRAFT_KEY = 's1ne_apply_draft';
-const DRAFT_FIELDS = ['name', 'email', 'phone', 'expected_salary', 'available_date', 'stay_need', 'note',
+const DRAFT_FIELDS = ['name', 'email', 'phone', 'expected_salary', 'available_date', 'stay_need', 'note', 'leave_reasons',
   'cur_monthly', 'cur_months', 'cur_bonus', 'deal_breakers', 'applied_elsewhere'];
 let draftT = null, DRAFT_READY = false;
 window.__rsSaveNow = function () {
@@ -759,6 +760,7 @@ async function buildBody() {
   const fd = new FormData(f);
   const jobSel = document.getElementById('jobSel');
   const body = {
+    anon_id: (window.S1F && S1F.aid) || null,   // 漏斗追蹤用的匿名編號（不是個資）
     job_slug: fd.get('job_slug') || 'unspecified',
     job_title: jobSel.selectedOptions[0]?.dataset.title || null,
     name: fd.get('name'), email: fd.get('email'), phone: fd.get('phone'),
@@ -1227,4 +1229,66 @@ DRAFT_READY = true;
 f.addEventListener('input', saveDraft);
 f.addEventListener('change', saveDraft);
 prog();
+</script>
+<script>
+// ── 應徵漏斗追蹤（2026-10-21，從正式版搬過來；10/21 合併新版表單時改成也看「按鈕旁的錯誤訊息」）：只記事件，不改畫面、不改驗證 ──
+(function () {
+  if (!window.S1F) return;
+  try {
+    var flow = 'original';
+    var jobOf = function () { try { return (document.getElementById('jobSel') || {}).value || JOB || null; } catch (e) { return JOB || null; } };
+    var stage = function () { return RETURN_TOKEN ? 'final' : 'step1'; };
+    S1F.track('apply_landing', { flow: flow, job: JOB || null,
+      props: { back: q.get('back') === '1' ? 1 : 0, inv: INV ? 1 : 0 } });
+    var started = false, last = '';
+    var onField = function (e) {
+      var n = e.target && e.target.name; if (n) last = n;
+      if (!started && e.isTrusted) { started = true; S1F.track('apply_form_start', { flow: flow, job: jobOf(), props: { stage: stage() } }); }
+    };
+    f.addEventListener('input', onField, true);
+    f.addEventListener('change', onField, true);
+    // 瀏覽器原生驗證擋下的欄位（invalid 不會冒泡，用 capture；新版用 checkValidity 自己找第一格，一樣會觸發）
+    f.addEventListener('invalid', function (e) {
+      S1F.track('apply_validation_error', { flow: flow, job: jobOf(), props: { field: (e.target && e.target.name) || 'unknown', stage: stage() } });
+    }, true);
+    // 頁面自己判斷的錯誤（地區／履歷／同意…）：錯誤訊息出現時記一個代碼
+    // 新版第一步的錯誤在「開始測驗」按鈕旁（#gateMsg），最後送出的錯誤在 #msg
+    var code = function (t) {
+      return /資料夾/.test(t) ? 'resume_folder' : /地區/.test(t) ? 'area'
+        : /履歷|截圖|LINE|檔案|連結|經歷|學歷/.test(t) ? 'resume'
+        : /同意/.test(t) ? 'consent' : /網路|伺服器/.test(t) ? 'network' : 'other';
+    };
+    // 「還沒填：○○」「Email 格式」這兩種，上面 invalid 已經記過欄位名，這裡不重複記
+    var skip = function (t) { return /^還沒填：|^Email 格式/.test(t); };
+    var watch = function (el, isErr) {
+      if (!el || !window.MutationObserver) return;
+      new MutationObserver(function () {
+        var t = el.textContent || '';
+        if (isErr() && t && !skip(t)) {
+          S1F.track('apply_validation_error', { flow: flow, job: jobOf(), props: { field: code(t), stage: stage() } });
+        }
+      }).observe(el, { attributes: true, childList: true, characterData: true, subtree: true });
+    };
+    var msgEl = document.getElementById('msg');
+    watch(msgEl, function () { return msgEl.className.indexOf('err') >= 0; });
+    var gateEl = document.getElementById('gateMsg');
+    watch(gateEl, function () { return !gateEl.hidden; });
+    // 履歷檔大小（新版可一次選好幾張截圖，記整組加起來的大小）
+    var rsBox = document.getElementById('resumeStep');
+    if (rsBox) rsBox.addEventListener('change', function (e) {
+      var rf = e.target; if (!rf || rf.type !== 'file' || !rf.files || !rf.files.length) return;
+      var size = 0; for (var i = 0; i < rf.files.length; i++) size += rf.files[i].size || 0;
+      S1F.track('resume_upload_start', { flow: flow, job: jobOf(),
+        props: { size: size > 8388608 ? '>8MB' : size > 2097152 ? '2-8MB' : '<2MB', count: rf.files.length } });
+    }, true);
+    // 中途離開：表單還在畫面上、送出鈕沒在處理中，才算離開
+    S1F.onLeave(function () {
+      if (!started || !document.contains(f)) return false;
+      var a = document.getElementById('toAssess'), b = document.getElementById('btn');
+      if ((a && a.disabled && !RETURN_TOKEN) || (b && b.disabled && RETURN_TOKEN)) return false;
+      S1F.track('apply_abandon', { flow: flow, job: jobOf(), props: { section: last, stage: stage() } });
+      return true;
+    });
+  } catch (e) { /* 追蹤壞掉不能影響應徵 */ }
+})();
 </script>
