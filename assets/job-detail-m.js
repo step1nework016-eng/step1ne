@@ -50,7 +50,7 @@ try {
     + '.jd-tl li:before{content:"";position:absolute;left:4px;top:5px;width:10px;height:10px;border-radius:50%;border:2px solid var(--jv-green);background:#fff}'
     + '.jd-tl li:after{content:"";position:absolute;left:9px;top:19px;bottom:0;width:2px;background:#d6e4e1}.jd-tl li:last-child:after{display:none}'
     + '.jd-tl small{display:block;font-weight:500;color:var(--jv-mut);font-size:12.5px}'
-    + '.jd-apply a[href^="/apply/"]{background:var(--jv-ink)!important;border-radius:12px!important}.jd-apply a[href*="lin.ee"]{color:var(--jv-blue)!important}'
+    + '.jd-apply a[href^="/apply"]{background:var(--jv-ink)!important;border-radius:12px!important}.jd-apply a[href*="lin.ee"]{color:var(--jv-blue)!important}'
     + '.jd-faq details{border-color:var(--jv-line)!important}.jd-faq .faq-icon{color:var(--jv-blue)!important;font-family:inherit!important}'
     + '.jd-rel a{display:block;padding:14px 16px;margin:0 0 10px;background:#fff;border:1px solid var(--jv-line);border-radius:12px;color:var(--jv-ink)}'
     + '.jd-rel b{display:block;font-size:15.5px;margin:0 0 4px}.jd-rel small{font-size:14px;font-weight:800}.jd-rel em{display:block;font-style:normal;font-size:12.5px;color:var(--jv-mut);margin-top:2px}'
@@ -142,7 +142,7 @@ try {
   main.appendChild(jd);
 
   // 底部固定按鈕
-  var applyA = document.querySelector('header a[href^="/apply/"]') || jd.querySelector('a[href^="/apply/"]');
+  var applyA = document.querySelector('header a[href^="/apply"]') || jd.querySelector('a[href^="/apply"]');
   var lineA = document.querySelector('a[href*="lin.ee"]');
   var barEl = document.createElement('div'); barEl.className = 'jd-bar';
   barEl.innerHTML = '<div><a class="line" href="' + (lineA ? lineA.getAttribute('href') : 'https://lin.ee/XcSWPzM') + '" target="_blank" rel="noopener">LINE 洽詢</a>'
