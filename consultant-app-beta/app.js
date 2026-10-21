@@ -3850,6 +3850,16 @@ async function openAddCandidate() {
     companyOrder.map((cid) => `<option value="${escapeHtml(cid)}">${escapeHtml(companyNames[cid])}</option>`).join('');
   companySelect.onchange = () => {
     const cid = companySelect.value;
+    // 2026-10-21 Jacky：只有這家客戶有「會自動寄的表單」（目前只有弘昌）才顯示勾選，預設勾起來
+    const fRow = $('#fc-forms-row'), fBox = $('#fc-send-forms'), fTxt = $('#fc-forms-text');
+    if (fRow) fRow.hidden = true;  // [hidden] 被 display:flex 蓋掉，下面用 style 一起控制
+    if (fRow) fRow.style.display = 'none';
+    if (cid && fRow) api.get('/admin/job-forms?company_id=' + encodeURIComponent(cid)).then((r) => {
+      const forms = ((r && (r.data || r).forms) || []);
+      if (companySelect.value !== cid || !forms.length) return;
+      fRow.hidden = false; fRow.style.display = 'flex'; fBox.checked = true;
+      fTxt.textContent = `會寄：${forms.map((f) => f.name).join('、')}。不勾＝先不寄，之後可在人選卡片按「寄送表單」手動寄。`;
+    }).catch(() => {});
     if (!cid) { jobSelect.innerHTML = '<option value="">（不指定，將建立為未配對職缺的人選）</option>'; jobSelect.disabled = true; return; }
     jobSelect.disabled = false;
     jobSelect.innerHTML = '<option value="">選一個職缺…</option>' + (jobsByCompany[cid] || []).map((j) => `<option value="${escapeHtml(j.slug)}">${escapeHtml(j.title)}</option>`).join('');
@@ -3937,7 +3947,7 @@ async function submitForwardCandidate(applicationId) {
     const me = amUi().me;
     if (!me) { toast('先在畫面最上方選「我是」，系統才記得是誰推薦的', 'error'); document.querySelector('[data-me-global]')?.focus(); if (button) button.disabled = false; return; }
     const result = await api.post('/admin/forward-candidate', {
-      send_forms: !!(document.getElementById('fc-send-forms') || { checked: true }).checked,
+      send_forms: ($('#fc-forms-row') && !$('#fc-forms-row').hidden) ? !!$('#fc-send-forms').checked : true,
       application_id: applicationId, company_id: companyId, by: me,
       job_slug: $('#fc-job')?.value || undefined,
       note: form.querySelector('[name="note"]').value.trim() || undefined,

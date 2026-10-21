@@ -3716,7 +3716,13 @@ ${tg}
     ${field('客戶 *', '<select id="fc-company" name="company_id" required><option value="">載入中…</option></select>')}
     ${field('職缺（不選＝沿用人選原本應徵的職缺）', '<select id="fc-job" name="job_slug" disabled><option value="">請先選客戶</option></select>')}
     <label class="field span-2"><span>推薦說明</span><textarea name="note" rows="3"></textarea></label>
-    <label class="field span-2" style="flex-direction:row;align-items:flex-start;gap:8px"><input type="checkbox" id="fc-send-forms" name="send_forms" checked style="width:auto;margin-top:3px"><span>推薦後自動寄人事資料表給人選（客戶有指定表單時）。不勾＝先不寄，之後可在人選卡片按「寄送表單」手動寄。</span></label>
+    <label id="fc-forms-row" hidden class="span-2" style="display:none;align-items:flex-start;gap:12px;padding:12px 14px;border:1px solid #d6dde6;border-radius:12px;background:#f7f9fb;cursor:pointer">
+      <input type="checkbox" id="fc-send-forms" name="send_forms" style="width:18px;height:18px;margin:2px 0 0;flex:0 0 18px;accent-color:#2563eb;cursor:pointer">
+      <span style="display:flex;flex-direction:column;gap:3px;flex:1;min-width:0;text-align:left">
+        <b style="font-size:14px">推薦後自動寄人事資料表給人選</b>
+        <small id="fc-forms-text" style="font-size:12.5px;color:#64748b;line-height:1.5">不勾＝先不寄，之後可在人選卡片按「寄送表單」手動寄。</small>
+      </span>
+    </label>
   </form>`,
   // 2026-09-15 加：人才池「轉正」的顧問建檔路徑，照抄新增人選那顆（同一支後端
   // /admin/pipeline/manual-forward，差別只在 source_kind:'sourced' + source_id 帶
