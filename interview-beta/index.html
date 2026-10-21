@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href*="lin.ee"]');
+  if (!a) return;
+  gtag('event', 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60)
+  });
+});
+</script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>初步面談｜Step1ne 德仁管理顧問</title>
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Step1ne 德仁管理顧問">
+<meta property="og:title" content="初步面談｜Step1ne 德仁管理顧問">
+<meta property="og:description" content="Step1ne 德仁管理顧問｜AI 精準媒合・高階獵頭・正職招募">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<!-- 面談室不需要被搜尋引擎收錄，而且網址本身就是憑證 -->
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta name="theme-color" content="#ffffff">
+<script>
+/* 顯示設定（字的大小、淺色/深色）：在畫面畫出來之前先套用，避免先閃白再變黑。
+   localStorage 被擋（無痕、封鎖網站資料）時一律 try/catch，頁面照常運作。 */
+(function(){
+  var KEY='s1n_iv_display',d=document.documentElement,mq=null;
+  try{mq=window.matchMedia('(prefers-color-scheme: dark)');}catch(e){}
+  function load(){
+    var p={size:'m',theme:'auto'};
+    try{var o=JSON.parse(localStorage.getItem(KEY)||'null');
+      if(o){ if(/^(m|l|xl)$/.test(o.size))p.size=o.size; if(/^(light|dark|auto)$/.test(o.theme))p.theme=o.theme; }}catch(e){}
+    return p;
+  }
+  function apply(p){
+    var dark=p.theme==='dark'||(p.theme==='auto'&&mq&&mq.matches);
+    d.setAttribute('data-size',p.size); d.setAttribute('data-theme',p.theme); d.setAttribute('data-scheme',dark?'dark':'light');
+    try{var m=document.querySelector('meta[name="theme-color"]'); if(m)m.setAttribute('content',dark?'#15191e':'#ffffff');}catch(e){}
+  }
+  function save(p){ try{localStorage.setItem(KEY,JSON.stringify(p));}catch(e){} }
+  window.ivDisplay={load:load,apply:apply,save:save};
+  var cur=load(); apply(cur);
+  function onSys(){ apply(load()); }
+  if(mq){ if(mq.addEventListener)mq.addEventListener('change',onSys); else if(mq.addListener)mq.addListener(onSys); }
+})();
+</script>
+<!-- 2026-09-16 加：LIFF SDK，讓候選人從圖文選單的 LIFF 入口打開這頁時可以
+     自動抓 LINE 身分完成綁定，不用再走 LINE OA 對話裡打字驗證姓名/信箱/電話
+     三步驟。一般瀏覽器直接開這個連結（不是透過 LIFF）時，這支 SDK 載入了也
+     不會做任何事——liff.init() 在非 LINE App 環境會失敗，程式碼有 try/catch
+     接住，不影響原本的面談流程。 -->
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ── 2026-10-21 顯示設定：字的大小 + 淺色/深色 ──
+   所有顏色都走下面的變數，深色只是換一組變數，不用逐條覆蓋。
+   對比都算過（一般文字 ≥4.5:1）。淺色版為了達標，把原本偏淡的灰字與金色按鈕略為加深。 */
+:root{
+  --fz:1;
+  --bg:#ffffff;--ink:#23262d;--muted:#656972;--line:#eee7db;--line2:#e0d9cb;
+  --soft:#f6f2ea;--soft-line:#eee7db;--fin-bg:#fbfaf7;--sub-ink:#5a5d64;
+  --me-bg:#23262d;--me-ink:#ffffff;--stamp:#656972;--dot:#8a8d95;
+  --accent-line:#a67c3d;--accent-bg:#8a6425;--accent-ink:#ffffff;--link:#8a6425;
+  --dis-bg:#dcd6c9;--dis-ink:#ffffff;--mic-ink:#4d5563;--close-bg:#f2efe8;
+  --rec-bg:#fff5f3;--rec-line:#f0c9bd;--rec-ink:#8c3b1e;--rec-btn:#b03226;
+  --cta-bg:#f2f9f3;--cta-line:#cfe7d3;--cta-title:#1f4d2c;--cta-ink:#4a6153;--line-btn:#067a37;
+  --blue:#2f5fd8;--toast-bg:#23262d;--toast-ink:#ffffff;--shadow:rgba(0,0,0,.18);--backdrop:rgba(20,18,14,.45);
+  color-scheme:light;
+}
+html[data-scheme="dark"]{
+  --bg:#15191e;--ink:#e7eaee;--muted:#9aa3ad;--line:#2a3038;--line2:#3a424c;
+  --soft:#222831;--soft-line:#2e3640;--fin-bg:#1b2026;--sub-ink:#b7bec6;
+  --me-bg:#2f6f9a;--me-ink:#ffffff;--stamp:#9aa3ad;--dot:#7b8591;
+  --accent-line:#d4a65c;--accent-bg:#d4a65c;--accent-ink:#15191e;--link:#e0b86e;
+  --dis-bg:#2f3640;--dis-ink:#8b95a0;--mic-ink:#c3cad2;--close-bg:#2a3038;
+  --rec-bg:#3a1f1a;--rec-line:#6b3328;--rec-ink:#f2b8a6;--rec-btn:#b03226;
+  --cta-bg:#16281d;--cta-line:#2b4a35;--cta-title:#9fe0b4;--cta-ink:#b4c7ba;--line-btn:#067a37;
+  --blue:#8fb2ff;--toast-bg:#e7eaee;--toast-ink:#15191e;--shadow:rgba(0,0,0,.5);--backdrop:rgba(0,0,0,.65);
+  color-scheme:dark;
+}
+html[data-size="l"]{--fz:1.16}
+html[data-size="xl"]{--fz:1.355}
+*{box-sizing:border-box;}
+[hidden]{display:none !important;}  /* 作者樣式的 display 會蓋掉 hidden 屬性，這條要放最前面 */
+html,body{margin:0;padding:0;height:100%;}
+body{
+  font-family:'Noto Sans TC',system-ui,sans-serif;color:var(--ink);background:var(--bg);
+  -webkit-font-smoothing:antialiased;line-height:1.75;
+  display:flex;flex-direction:column;height:100dvh;overflow:hidden;
+}
+a{color:var(--link);}
+button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid var(--accent-line);outline-offset:2px;}
+::placeholder{color:var(--muted);opacity:1;}
+
+header{
+  flex:0 0 auto;display:flex;align-items:center;gap:12px;position:relative;
+  padding:12px 18px;border-bottom:1px solid var(--line);background:var(--bg);
+  padding-top:calc(12px + env(safe-area-inset-top));
+}
+header img{height:30px;width:auto;}
+html[data-scheme="dark"] header>img:not(.hav){background:#fff;border-radius:8px;padding:2px;}  /* logo 是透明底的深藍字，深色底上要墊白 */
+header .who{min-width:0;flex:1 1 auto;}
+header .who b{display:block;font-size:14.5px;line-height:1.3;}
+header .who span{display:block;font-size:12.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+/* 顯示設定按鈕與面板 */
+.aa{flex:none;box-sizing:border-box;width:44px;height:44px;border-radius:12px;display:grid;place-items:center;cursor:pointer;
+  background:var(--bg);color:var(--ink);border:1px solid var(--line2);font:inherit;font-weight:700;font-size:16px;line-height:1;padding:0;}
+.aa[aria-expanded="true"]{border-color:var(--accent-line);background:var(--soft);}
+.dpanel{position:absolute;top:100%;right:12px;width:min(340px,calc(100vw - 24px));margin-top:6px;background:var(--bg);color:var(--ink);
+  border:1px solid var(--line2);border-radius:16px;padding:14px;box-shadow:0 12px 32px var(--shadow);z-index:40;}
+.dpanel h3{margin:0 0 10px;font-size:15px;}
+.dgrp{margin:0 0 14px;}
+.dgrp p{margin:0 0 6px;font-size:13px;color:var(--muted);line-height:1.5;}
+.dseg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:6px;}
+.dseg button{font:inherit;box-sizing:border-box;min-height:48px;border:1.5px solid var(--line2);border-radius:12px;background:var(--bg);color:var(--ink);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;font-size:13px;line-height:1.3;text-align:center;padding:4px;}
+.dseg button[aria-pressed="true"]{border-color:var(--accent-line);background:var(--soft);font-weight:700;box-shadow:inset 0 0 0 1px var(--accent-line);}
+.dseg .big{font-weight:700;line-height:1;}
+.sw{width:22px;height:22px;border-radius:50%;border:1px solid #8a8d95;}
+.sw.light{background:linear-gradient(135deg,#fff 50%,#F6F2EA 50%);}
+.sw.dark{background:linear-gradient(135deg,#15191E 50%,#3B82B0 50%);}
+.sw.auto{background:linear-gradient(135deg,#fff 50%,#15191E 50%);}
+.dsaved{font-size:12px;color:var(--muted);margin:0;line-height:1.5;}
+
+.firsthint{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:40px 30px;text-align:center;}
+.firsthint p{color:var(--muted);font-size:calc(14.5px * var(--fz));margin:0;max-width:280px;line-height:1.8;}
+.spin{width:26px;height:26px;border:2.5px solid var(--line);border-top-color:var(--accent-line);border-radius:50%;animation:sp .9s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg);}}
+#log{flex:1 1 auto;overflow-y:auto;padding:20px 18px 8px;-webkit-overflow-scrolling:touch;}
+.airow{display:flex;align-items:flex-end;gap:8px;margin:0 0 14px}.airow .msg{margin:0}
+.airow .av{width:32px;height:32px;border-radius:50%;flex:none;object-fit:cover;background:var(--soft);border:1px solid var(--soft-line)}
+.stamp.ai{margin-left:40px}
+header .hav{width:36px;height:36px;border-radius:50%;object-fit:cover;flex:none;background:var(--soft);border:1px solid var(--soft-line)}
+.msg{max-width:min(78%,540px);margin:0 0 14px;padding:12px 16px;border-radius:18px;font-size:calc(15.5px * var(--fz));white-space:pre-wrap;word-break:break-word;}
+.msg.ai{background:var(--soft);border:1px solid var(--soft-line);border-bottom-left-radius:6px;}
+.msg.me{background:var(--me-bg);color:var(--me-ink);margin-left:auto;border-bottom-right-radius:6px;}
+.stamp{font-family:'Space Mono',monospace;font-size:calc(10.5px * var(--fz));color:var(--stamp);margin:-8px 0 14px;}
+.stamp.me{text-align:right;}
+
+.typing{display:flex;gap:7px;align-items:center;padding:14px 18px;color:var(--muted);font-size:calc(13.5px * var(--fz));}
+.typing b{font-weight:500;}
+.typing i{width:6px;height:6px;border-radius:50%;background:var(--dot);animation:b 1.2s infinite;}
+.typing i:nth-child(2){animation-delay:.18s;} .typing i:nth-child(3){animation-delay:.36s;}
+@keyframes b{0%,60%,100%{opacity:.3;transform:translateY(0);}30%{opacity:1;transform:translateY(-3px);}}
+
+/* 2026-09-17 加：LIFF 綁定成功的小提示——不能用 notice() 那個全頁替換，
+   會把正在進行的聊天畫面蓋掉，改成一個自動消失的小條，不擋任何操作。 */
+.liff-toast{position:fixed;top:14px;left:50%;transform:translateX(-50%);background:var(--toast-bg);color:var(--toast-ink);
+  padding:9px 16px;border-radius:99px;font-size:calc(12.5px * var(--fz));z-index:50;opacity:0;transition:opacity .3s;
+  box-shadow:0 6px 18px var(--shadow);}
+.liff-toast.show{opacity:1;}
+
+footer{
+  flex:0 0 auto;border-top:1px solid var(--line);background:var(--bg);
+  padding:12px 14px calc(12px + env(safe-area-inset-bottom));
+}
+.bar{display:flex;gap:10px;align-items:flex-end;}
+#say{
+  flex:1;border:1px solid var(--line2);border-radius:22px;padding:11px 16px;
+  font:inherit;font-size:calc(16px * var(--fz));/* 16px 以下 iOS 會自動放大整頁 */
+  resize:none;max-height:130px;line-height:1.6;outline:0;background:var(--bg);color:var(--ink);
+}
+#say:focus{border-color:var(--accent-line);box-shadow:0 0 0 3px rgba(166,124,61,.25);}
+#go{
+  flex:0 0 auto;width:46px;height:46px;border:0;border-radius:50%;
+  background:var(--accent-bg);color:var(--accent-ink);font-size:19px;cursor:pointer;
+}
+#go:disabled{background:var(--dis-bg);color:var(--dis-ink);cursor:default;}
+.hint{font-size:calc(11.5px * var(--fz));color:var(--muted);margin:8px 4px 0;text-align:center;}
+
+.fin{flex:0 0 auto;border-top:1px solid var(--line);background:var(--fin-bg);padding:22px 20px calc(22px + env(safe-area-inset-bottom));text-align:center;}
+.fin b{display:block;font-size:calc(16px * var(--fz));margin-bottom:6px;}
+.fin p{color:var(--muted);font-size:calc(14px * var(--fz));margin:0 auto 16px;max-width:340px;line-height:1.75;}
+.fin button{font:inherit;font-size:calc(15px * var(--fz));font-weight:700;background:var(--me-bg);color:var(--me-ink);border:0;border-radius:999px;padding:13px 34px;cursor:pointer;min-height:48px;}
+.fin a{display:block;margin-top:14px;font-size:calc(14px * var(--fz));}
+/* 談完之後的 LINE CTA。用 LINE 綠當底色讓它跳出來，但不要比「關閉頁面」還搶——
+   這是邀請不是強迫，看完評分自然往下就會看到。 */
+.lineCta{margin:20px auto 4px;max-width:360px;background:var(--cta-bg);border:1px solid var(--cta-line);
+ border-radius:14px;padding:16px 18px;}
+.lineCta b{font-size:calc(15px * var(--fz));margin-bottom:5px;color:var(--cta-title);}
+.lineCta p{color:var(--cta-ink);font-size:calc(13px * var(--fz));margin:0 0 13px;line-height:1.7;max-width:none;}
+.lineCta a.lineBtn{display:inline-block;margin:0;background:var(--line-btn);color:#fff;
+ font-size:calc(15px * var(--fz));font-weight:700;border-radius:999px;padding:12px 28px;text-decoration:none;
+ min-height:46px;line-height:22px;}
+.lineCta a.lineBtn:hover{filter:brightness(.95);}
+dialog#rdlg{border:0;border-radius:18px;padding:0;max-width:420px;width:calc(100% - 36px);background:var(--bg);color:var(--ink);}
+dialog#rdlg::backdrop{background:var(--backdrop);}
+.rhead{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line);}
+.rhead b{font-size:calc(16px * var(--fz));}
+.rhead button{border:0;background:var(--close-bg);color:var(--ink);border-radius:9px;width:32px;height:32px;font-size:16px;cursor:pointer;}
+.rbody{padding:18px 20px 22px;}
+.rnote{font-size:calc(13px * var(--fz));color:var(--muted);margin:0 0 14px;line-height:1.7;}
+.ropts{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
+.ropt{font:inherit;font-size:calc(14.5px * var(--fz));text-align:left;background:var(--bg);border:1px solid var(--line2);border-radius:11px;padding:13px 15px;cursor:pointer;min-height:48px;color:var(--ink);}
+.ropt.on{background:var(--soft);border-color:var(--accent-line);font-weight:700;}
+#rtext{width:100%;font:inherit;font-size:calc(16px * var(--fz));border:1px solid var(--line2);border-radius:11px;padding:11px 13px;resize:none;outline:0;background:var(--bg);color:var(--ink);}
+#rtext:focus{border-color:var(--accent-line);}
+.rsend{width:100%;margin-top:14px;font:inherit;font-size:calc(15.5px * var(--fz));font-weight:700;background:var(--accent-bg);color:var(--accent-ink);border:0;border-radius:999px;padding:14px;cursor:pointer;min-height:50px;}
+.rsend:disabled{background:var(--dis-bg);color:var(--dis-ink);cursor:default;}
+.rdone{font-size:calc(17px * var(--fz));font-weight:700;margin:0 0 10px;}
+#rate{margin:4px auto 20px;max-width:340px;}
+.rq{font-size:calc(14px * var(--fz));color:var(--sub-ink);margin:0 0 10px;}
+.stars{display:flex;justify-content:center;gap:6px;margin-bottom:12px;}
+.stars button{font-size:26px;line-height:1;background:none;border:0;padding:6px 8px;cursor:pointer;
+  border-radius:12px;filter:grayscale(1);opacity:.6;transition:filter .15s,opacity .15s,transform .15s;min-height:46px;}
+.stars button:hover{filter:none;opacity:1;transform:scale(1.12);}
+.stars button.on{filter:none;opacity:1;transform:scale(1.18);background:var(--soft);}
+#rcomment{width:100%;font:inherit;font-size:calc(16px * var(--fz));border:1px solid var(--line2);border-radius:11px;padding:10px 12px;resize:none;outline:0;background:var(--bg);color:var(--ink);}
+#rcomment:focus{border-color:var(--accent-line);}
+.notice{max-width:560px;margin:14vh auto;padding:0 26px;text-align:center;}
+.notice h1{font-size:calc(20px * var(--fz));margin:0 0 12px;}
+.notice p{color:var(--sub-ink);font-size:calc(15.5px * var(--fz));margin:0 0 10px;}
+.pill{display:inline-block;background:var(--soft);border:1px solid var(--soft-line);border-radius:999px;padding:6px 14px;font-size:calc(13px * var(--fz));color:var(--link);margin-bottom:16px;}
+
+/* 擋下來的畫面（流程還沒到／還沒收到履歷）用的按鈕與小字——原本寫在 JS 字串裡的行內樣式，改成 class 才能跟著深淺色走 */
+.gbtn{display:flex;align-items:center;justify-content:center;max-width:340px;margin:12px auto 0;min-height:50px;padding:12px 20px;
+  border-radius:999px;font-weight:700;font-size:calc(15.5px * var(--fz));text-decoration:none;}
+.gbtn.main{display:inline-flex;margin:0;min-height:48px;padding:14px 32px;background:var(--accent-bg);color:var(--accent-ink);}
+.gbtn.line{background:var(--line-btn);color:#fff;}
+.gbtn.alt{background:var(--bg);color:var(--blue);border:2px solid var(--blue);}
+.gnote{font-size:calc(13px * var(--fz));color:var(--muted);}
+.glink{background:none;border:0;color:var(--blue);text-decoration:underline;font:inherit;font-size:calc(14.5px * var(--fz));min-height:44px;cursor:pointer;}
+
+/* 語音回覆：外語驗證用。文字擋不住翻譯，一段錄音同時測口說與即時性 */
+#mic{flex:none;width:44px;height:44px;border-radius:50%;border:1px solid var(--line2);background:var(--bg);
+  cursor:pointer;color:var(--mic-ink);padding:0;display:grid;place-items:center;}
+#mic[data-rec="1"]{background:var(--rec-btn);border-color:var(--rec-btn);color:#fff;animation:pulse 1.2s infinite;}
+#mic:disabled{opacity:.5;cursor:default;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+.rec{display:none;align-items:center;gap:10px;background:var(--rec-bg);border:1px solid var(--rec-line);
+  border-radius:12px;padding:9px 13px;margin:0 0 8px;font-size:calc(13.5px * var(--fz));color:var(--rec-ink);}
+.rec.on{display:flex;}
+.rec b{font-variant-numeric:tabular-nums;font-size:calc(15px * var(--fz));}
+.rec button{margin-left:auto;border:0;background:var(--rec-btn);color:#fff;border-radius:9px;
+  padding:8px 14px;font:inherit;font-size:calc(13.5px * var(--fz));font-weight:700;cursor:pointer;}
+.kbd-hint{display:none}@media (hover:hover) and (pointer:fine){.kbd-hint{display:inline}}
+@media (prefers-reduced-motion:reduce){
+  .spin,.typing i,#mic[data-rec="1"]{animation:none;}
+  .liff-toast,.stars button{transition:none;}
+  .typing i{opacity:.7;}
+}
+</style>
+</head>
+<body>
+
+<div id="boot" class="notice"><p>載入中…</p></div>
+
+<header id="top" hidden>
+  <img src="/assets/step1ne-logo.png" alt="Step1ne">
+  <img class="hav" src="/assets/acai-avatar-96.webp" alt="" width="36" height="36">
+  <div class="who">
+    <b>阿財・AI 面談顧問</b>
+    <span id="sub">—</span>
+  </div>
+  <button class="aa" id="aa" type="button" aria-expanded="false" aria-controls="dpanel" aria-label="調整字體大小與顏色">Aa</button>
+  <div class="dpanel" id="dpanel" role="dialog" aria-label="顯示設定" hidden>
+    <h3>調整畫面</h3>
+    <div class="dgrp">
+      <p id="dl-size">字的大小</p>
+      <div class="dseg" data-key="size" role="group" aria-labelledby="dl-size">
+        <button type="button" data-v="m" aria-pressed="true"><span class="big" style="font-size:15px">字</span>標準</button>
+        <button type="button" data-v="l" aria-pressed="false"><span class="big" style="font-size:19px">字</span>大</button>
+        <button type="button" data-v="xl" aria-pressed="false"><span class="big" style="font-size:23px">字</span>特大</button>
+      </div>
+    </div>
+    <div class="dgrp">
+      <p id="dl-theme">顏色</p>
+      <div class="dseg" data-key="theme" role="group" aria-labelledby="dl-theme">
+        <button type="button" data-v="light" aria-pressed="false"><span class="sw light"></span>淺色</button>
+        <button type="button" data-v="dark" aria-pressed="false"><span class="sw dark"></span>深色</button>
+        <button type="button" data-v="auto" aria-pressed="true"><span class="sw auto"></span>跟手機一樣</button>
+      </div>
+    </div>
+    <p class="dsaved">選好會自動記住，下次進來還是一樣。</p>
+  </div>
+</header>
+
+<div id="hint" class="firsthint" hidden>
+  <div class="spin"></div>
+  <p>阿財正在看您的履歷與應徵資料<br>大約需要半分鐘…</p>
+</div>
+<div id="log" hidden></div>
+
+<div id="fin" class="fin" hidden>
+  <b>面談已結束</b>
+  <p>謝謝您撥時間。這場對話的紀錄會交給我們的顧問，不管有沒有下一步都會通知您。</p>
+
+  <div id="rate">
+    <p class="rq">這次面談的體驗如何？</p>
+    <div class="stars" id="stars">
+      <button type="button" data-v="1" aria-label="1 分">😞</button>
+      <button type="button" data-v="2" aria-label="2 分">😕</button>
+      <button type="button" data-v="3" aria-label="3 分">😐</button>
+      <button type="button" data-v="4" aria-label="4 分">🙂</button>
+      <button type="button" data-v="5" aria-label="5 分">😄</button>
+    </div>
+    <div id="rate2" hidden>
+      <textarea id="rcomment" rows="2" placeholder="有什麼可以做得更好？（選填）"></textarea>
+      <button id="rsub" type="button" class="rsend">送出</button>
+    </div>
+    <p id="rthx" class="rq" hidden>謝謝您的回饋 🙏</p>
+  </div>
+
+  <!-- 2026-08-04 補。原本正常談完只有「謝謝」＋評分就沒了——
+       剛談完二十分鐘、對這個機會最有感覺的那一刻，沒給人任何可以做的事。
+       （中途離開那條路本來就有 LINE 連結，反而是談完的沒有。）
+       刻意寫「真人顧問」：他剛跟 AI 聊完，會想知道後面有沒有人。 -->
+  <div class="lineCta">
+    <b>想直接跟真人顧問聊？</b>
+    <p>加 LINE 找我們的獵頭顧問。問薪資行情、問這家公司實際狀況、
+       或想看看其他還沒公開的職缺，都可以直接問。</p>
+    <a class="lineBtn" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">加 LINE 找顧問</a>
+  </div>
+
+  <button id="closebtn" type="button">關閉頁面</button>
+  <a href="/jobs/">看看其他職缺 →</a>
+</div>
+
+<dialog id="rdlg">
+  <div class="rhead">
+    <b>回報問題</b>
+    <button id="rx" type="button" aria-label="關閉">✕</button>
+  </div>
+  <div class="rbody">
+    <div id="rform">
+      <p class="rnote">選一個最接近的，我們的顧問會馬上收到通知並與您聯繫。</p>
+      <div class="ropts">
+        <button type="button" class="ropt" data-r="阿財沒有回應">阿財一直沒有回應</button>
+        <button type="button" class="ropt" data-r="聽不懂問題">聽不懂他在問什麼</button>
+        <button type="button" class="ropt" data-r="想改時間">現在不方便，想改時間</button>
+        <button type="button" class="ropt" data-r="想直接跟真人談">想直接跟真人顧問談</button>
+        <button type="button" class="ropt" data-r="其他">其他狀況</button>
+      </div>
+      <textarea id="rtext" rows="3" placeholder="想補充的話寫在這裡（選填）"></textarea>
+      <button id="rgo" type="button" class="rsend" disabled>送出</button>
+      <p class="rnote" style="text-align:center;margin-top:14px;">
+        也可以直接<a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">加 LINE 找顧問</a>
+      </p>
+    </div>
+    <div id="rok" hidden>
+      <p class="rdone">✅ 已通知顧問</p>
+      <p class="rnote">我們會盡快與您聯繫。這個視窗可以關掉，也可以繼續跟阿財聊。</p>
+      <button id="rclose" type="button" class="rsend">好</button>
+    </div>
+  </div>
+</dialog>
+
+<footer id="bar" hidden>
+  <div class="rec" id="recbar">🔴 錄音中　<b id="rectime">0:00</b>　<span style="font-size:12.5px">最長 60 秒</span><button id="recstop" type="button">停止並送出</button></div>
+  <div class="bar">
+    <!-- ⚠️ 用 SVG 不用 emoji。2026-08-12 上線後發現 🎙（U+1F399）在按鈕上畫不出來——
+     按鈕不繼承 body 字體，回退到 Arial，而 Arial 沒有這個字符，變成一顆空圓圈。
+     這個 emoji 本來覆蓋率就差（需要變體選擇符），候選人手機上一樣會空白。
+     SVG 不依賴任何字體，而且跟著 currentColor 走，錄音中變白色也自動對。 -->
+    <button id="mic" type="button" aria-label="語音回覆" title="用語音回覆"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10v1a7 7 0 0 0 14 0v-1"/><path d="M12 18v4"/></svg></button>
+    <textarea id="say" rows="1" placeholder="輸入訊息…" autocomplete="off"></textarea>
+    <button id="go" type="button" aria-label="送出">↑</button>
+  </div>
+  <p class="hint">這是正式面談，結束後由顧問評估推薦。<span class="kbd-hint">⌘/Ctrl＋Enter 送出。</span>　<a href="#" id="rep_open">有問題？</a></p>
+  <!-- 錄音是敏感資料。按下麥克風之前就要讓他知道用途，不能等他錄完才說。
+       只有他自己按才會啟動，不會背景錄音——這句也要講，不然有人會擔心整場都被錄。 -->
+  <p class="hint" id="michint" hidden>只在按下麥克風時錄音，僅用於這次應徵評估。</p>
+</footer>
+
+<script>
+// 面談室。網址上的 token 就是憑證，不做登入——多一道註冊就少一半的人願意進來。
+var API = 'https://step1ne-public-worker.aiagentg888.workers.dev';
+
+  /* ── 投入度追蹤（2026-08-06 加）──
+     顧問的原話：「就像我們打電話給他，但他在另一端不知道在幹嘛，有沒有認真很難判斷。」
+     逐字稿看得到「答得認不認真」（字數），看不到「人在不在」。這段補後者。
+
+     只記三件事，都不牽涉內容：切走幾次／離開多久／有沒有整段貼上。
+     ⚠️ 送的是**累計值**不是增量——重送、斷線重連都不會重複累加。
+     ⚠️ 這是給顧問判斷用的行為訊號，不做任何自動刷人。 */
+  var EG = { away_count: 0, away_seconds: 0, longest_away: 0,
+             paste_count: 0, paste_chars: 0, active_seconds: 0 };
+  var _hidAt = null, _lastTick = Date.now(), _egDirty = false;
+
+  setInterval(function () {                       // 前景時間，每秒累加
+    var now = Date.now();
+    if (!document.hidden) EG.active_seconds += Math.round((now - _lastTick) / 1000);
+    _lastTick = now;
+  }, 1000);
+
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) { _hidAt = Date.now(); }
+    else if (_hidAt) {
+      var away = Math.round((Date.now() - _hidAt) / 1000);
+      // 一秒以內不算——切輸入法、通知跳出來都會觸發，那不是分心
+      if (away >= 2) {
+        EG.away_count++; EG.away_seconds += away;
+        if (away > EG.longest_away) EG.longest_away = away;
+        _egDirty = true;
+      }
+      _hidAt = null;
+    }
+  });
+
+  document.addEventListener('paste', function (e) {
+    var t = (e.clipboardData || window.clipboardData);
+    var n = t ? String(t.getData('text') || '').length : 0;
+    if (n > 0) { EG.paste_count++; EG.paste_chars += n; _egDirty = true; }
+  }, true);
+
+  function egSend(useBeacon) {
+    if (!T) return;
+    var url = API + '/chat/' + encodeURIComponent(T) + '/focus';
+    var body = JSON.stringify(EG);
+    try {
+      if (useBeacon && navigator.sendBeacon) {
+        navigator.sendBeacon(url, new Blob([body], { type: 'application/json' }));
+      } else {
+        fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: body })
+          .catch(function () {});
+      }
+      _egDirty = false;
+    } catch (e) {}
+  }
+  setInterval(function () { if (_egDirty || EG.active_seconds) egSend(false); }, 60000);
+  window.addEventListener('pagehide', function () { egSend(true); });   // 關掉視窗那一刻也要送到
+
+var T = new URLSearchParams(location.search).get('t') || '';
+var lastId = 0, polling = null, waiting = false, ended = false;
+// 送出時會先在本地顯示一顆泡泡（不然按了沒反應很怪），但那則稍後也會從
+// 伺服器輪詢回來。沒有這個清單的話，同一句話會出現兩次。
+var optimistic = [];
+// 開場那句是給後端用的暗號，任何地方都不該顯示給候選人看。
+// 之前只在輪詢時過濾，重新整理走 boot() 那條路就漏出來了。
+var SENTINEL = '（候選人已進入面談室）';
+function realMsgs(list) {
+  return (list || []).filter(function (m) { return m.content !== SENTINEL; });
+}
+
+var $ = function (id) { return document.getElementById(id); };
+
+function notice(title, body) {
+  $('boot').hidden = false;
+  $('boot').innerHTML = '<h1>' + title + '</h1><p>' + body + '</p>';
+  ['top', 'log', 'bar'].forEach(function (i) { $(i).hidden = true; });
+}
+
+// 流程還沒到（還沒做測驗、或現在額滿要先預約）時顯示的畫面。
+//
+// ⚠️ 2026-08-08 有位候選人就是死在這裡：原本的做法是在對話框插一行
+// 「正在帶您過去…」然後 1.8 秒後自動跳頁。他剛按完送出、眼睛還在自己那句話上，
+// 那行字閃過去他根本沒讀到，看到的是「我打了字、阿財沒回、畫面自己變成測驗」，
+// 於是回報「阿財沒有回應」就走了。
+//
+// 所以改成：整頁擋下來、字大、**不自動跳**，讓他自己按按鈕。
+// 慢一點沒關係，被誤會成當機才是真的流失。
+function gate(title, body, btnText, url) {
+  $('boot').hidden = false;
+  $('boot').innerHTML =
+    '<h1>' + esc(title) + '</h1><p>' + esc(body) + '</p>' +
+    '<p style="margin:22px 0 0;"><a class="gbtn main" href="' + url + '">' +
+    esc(btnText) + '</a></p>' +
+    '<p class="gnote" style="margin:16px 0 0;">' +
+    '這一步完成之後，回到這個連結就能開始面談。</p>';
+  ['top', 'log', 'bar'].forEach(function (i) { $(i).hidden = true; });
+}
+
+// 2026-10-12：還沒收到履歷 → 兩條路：用 LINE 傳（同一組代碼）、或到補履歷頁補上
+function noResumeGate(d) {
+  $('boot').hidden = false;
+  $('boot').innerHTML =
+    '<h1>還沒收到履歷</h1>' +
+    '<p>請先在 LINE 傳履歷，或回到應徵頁補上。AI 阿財會先讀過履歷，面談時就不用從頭講一次。</p>' +
+    (d.line_url ? '<a class="gbtn line" href="' + esc(d.line_url) + '" target="_blank" rel="noopener">' +
+      '用 LINE 傳履歷</a><p class="gnote" style="margin:6px 0 0;">會打開 LINE 並帶好一句「我要傳履歷 #' + esc(d.code || '') +
+      '」，送出後再把檔案或照片傳過去就好。</p>' : '') +
+    '<a class="gbtn alt" href="' + esc(d.fix_url || ('/resume/?t=' + encodeURIComponent(T))) + '">' +
+      '回到應徵頁補上履歷</a>' +
+    '<p style="margin:22px 0 0;"><button type="button" id="recheck" class="glink">已經傳好了，重新檢查</button></p>';
+  ['top', 'log', 'bar'].forEach(function (i) { $(i).hidden = true; });
+  $('recheck').onclick = function () { $('boot').innerHTML = '<p>檢查中…</p>'; boot(); };
+}
+
+function esc(s) {
+  return String(s).replace(/[&<>"]/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+  });
+}
+
+function atBottom() {
+  var l = $('log');
+  return l.scrollHeight - l.scrollTop - l.clientHeight < 80;
+}
+
+function add(m, fromServer) {
+  if (!$('hint').hidden) { $('hint').hidden = true; $('log').hidden = false; }
+  var stick = atBottom();
+  var mine = m.role === 'candidate';
+  var d = document.createElement('div');
+  d.className = 'msg ' + (mine ? 'me' : 'ai');
+  d.textContent = m.content;
+  if (mine) { $('log').appendChild(d); }
+  else {
+    var r = document.createElement('div'); r.className = 'airow';
+    var prev = $('log').lastElementChild && $('log').lastElementChild.previousElementSibling;
+    var av = document.createElement('img'); av.className = 'av'; av.alt = ''; av.src = '/assets/acai-avatar-96.webp';
+    if (prev && prev.classList.contains('airow')) av.style.visibility = 'hidden';   // 連續幾句只在第一句放頭像
+    r.appendChild(av); r.appendChild(d); $('log').appendChild(r);
+  }
+  var s = document.createElement('div');
+  s.className = 'stamp' + (mine ? ' me' : ' ai');
+  s.textContent = (m.created_at || '').slice(11, 16);
+  $('log').appendChild(s);
+  if (fromServer && m.id > lastId) lastId = m.id;
+  if (stick) $('log').scrollTop = $('log').scrollHeight;
+}
+
+var TRANSITION_TEXTS = [
+  '收到，我整理一下您剛剛說的，稍等我一下。',
+  '好的，我看一下您剛剛提到的內容，馬上回您。',
+  '了解，我想一下接著要聊什麼，請稍等一下。'
+];
+function typing(on) {
+  var t = $('t-ind');
+  if (on && !t) {
+    t = document.createElement('div');
+    t.id = 't-ind'; t.className = 'typing';
+    // 純三個點看起來像「正在打字」，但實際上是在想——講清楚比較不會焦躁
+    t.innerHTML = '<b>阿財思考中</b><i></i><i></i><i></i>';
+    $('log').appendChild(t);
+    $('log').scrollTop = $('log').scrollHeight;
+  } else if (!on && t) { t.remove(); }
+}
+
+function setEnded() {
+  if (ended) return;
+  ended = true; waiting = false; typing(false);
+  clearInterval(polling);
+  // 面談結束後留著輸入框只會讓人繼續打字然後沒人回，直接換成結束面板
+  $('bar').hidden = true;
+  $('fin').hidden = false;
+  $('log').scrollTop = $('log').scrollHeight;
+}
+
+// 2026-09-16 加：LIFF 綁定。
+//
+// ⚠️ 2026-09-16 實測踩到的坑：在 LINE App 的原生 webview 裡開，網址列從一開始
+// 就帶著 ?t=...，沒問題；但透過「外部瀏覽器」開 liff.line.me 連結時（例如從
+// Telegram、或其他不是 LINE 原生 webview 的地方點開），LIFF 是先導到
+// liff.line.me 自己的頁面、把原始網址參數包進 liff.state，再由 liff.init()
+// 執行到一半時用 history.replaceState() 把 ?t=... 寫回網址列——這件事是
+// **非同步**發生在 liff.init() 內部，如果程式碼在頁面一載入就同步讀
+// location.search 取 t（像原本那版），liff.init() 根本還沒跑完，讀到的會是
+// 空的，導致「連結不完整」。修法：一律先 await liff.init()（不管有沒有
+// liffId context 都安全，失敗會被 catch 住），跑完之後才重新讀一次
+// location.search，這樣不管是哪種開法都讀得到正確的 t。
+var LIFF_ID = '2011631457-YcRRVX0v';
+function readTokenFromUrl() {
+  return new URLSearchParams(location.search).get('t') || '';
+}
+async function liffBootstrap() {
+  try {
+    if (typeof liff === 'undefined') return;
+    await liff.init({ liffId: LIFF_ID });
+    // liff.init() 跑完後，如果原本網址沒帶到 t（外部瀏覽器那種情況），
+    // 這裡重新讀一次就會抓到 LIFF 剛剛用 history.replaceState 寫回去的版本。
+    if (T.length < 32) T = readTokenFromUrl();
+    if (!liff.isLoggedIn() || T.length < 32) return;
+    var profile = await liff.getProfile();
+    var r = await fetch(API + '/chat/' + encodeURIComponent(T) + '/liff-bind', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        userId: profile.userId,
+        displayName: profile.displayName || '',
+        pictureUrl: profile.pictureUrl || '',
+      }),
+    });
+    // 2026-09-17 加：原本綁定成功候選人這邊完全沒有任何「已經綁定」的
+    // 明講（跟舊版三項文字驗證比，那邊 LINE 對話裡會回一句「綁定成功」，
+    // 這裡候選人只會看到面談照常開始，容易誤以為什麼都沒發生）。
+    // 這是網頁本身，不用走 LINE reply，直接在畫面上顯示一個小提示。
+    if (r.ok) showLiffToast('✅ 已透過 LINE 綁定，之後查詢進度不用再重新輸入資料');
+  } catch (e) {
+    // 非 LIFF 環境、liff.init 失敗、或候選人不同意 LINE Login 授權，
+    // 都會落到這裡——安靜跳過，讓原本的面談流程繼續走。
+  }
+}
+
+function showLiffToast(text) {
+  var el = document.createElement('div');
+  el.className = 'liff-toast';
+  el.textContent = text;
+  document.body.appendChild(el);
+  requestAnimationFrame(function () { el.classList.add('show'); });
+  setTimeout(function () {
+    el.classList.remove('show');
+    setTimeout(function () { el.remove(); }, 350);
+  }, 4000);
+}
+
+async function boot() {
+  if (T.length < 32) {
+    return notice('連結不完整', '請從應徵完成後的頁面或我們寄給您的連結進入。');
+  }
+  var r, d;
+  try {
+    r = await fetch(API + '/chat/' + encodeURIComponent(T));
+    d = await r.json();
+  } catch (e) {
+    return notice('連不上伺服器', '請確認網路後重新整理，或稍後再試。');
+  }
+  if (!d.ok && d.closed) {
+    return notice('這個職缺已經結束招募', '謝謝你的關注！其他開放中的職缺可以到 step1ne.com/jobs/ 看看，有興趣的直接在 LINE 留言就可以。');
+  }
+  // 2026-10-12：還沒收到履歷就不開始（Jacky 硬規則：阿財開口前一定要先讀過履歷）。
+  // 應徵時選「我用 LINE 傳」、檔案還沒傳到的人會停在這裡。
+  if (!d.ok && d.no_resume) return noResumeGate(d);
+  // 履歷剛收到，阿財事先準備的題目正在用新履歷重擬——等一下自動再試
+  if (!d.ok && d.resume_processing) {
+    notice('履歷收到了，阿財正在讀', '大約一分鐘，畫面會自動進入面談，不用重新整理。');
+    setTimeout(boot, Math.max(10, Number(d.retry_after) || 20) * 1000);
+    return;
+  }
+  if (!d.ok) {
+    return notice('找不到這場面談', '連結可能已失效。請與顧問聯繫，或重新應徵一次。');
+  }
+
+  $('boot').hidden = true;
+  ['top', 'log', 'bar'].forEach(function (i) { $(i).hidden = false; });
+  $('sub').textContent = (d.name ? d.name + '　' : '') + (d.job_title || '');
+
+  var real = realMsgs(d.messages);
+  // 用「真的訊息」來判斷要不要顯示載入畫面。拿原始陣列判斷的話，
+  // 只有暗號那一筆時會被當成「已經有對話」，載入提示與開場請求都不會出現。
+  if (!real.length) { $('log').hidden = true; $('hint').hidden = false; }
+  real.forEach(function (m) { add(m, true); });
+
+  if (d.state === 'done') return setEnded();
+
+  // 第一次進來、還沒有任何對話：先送一個空的開場請求，讓阿財主動開口。
+  // 讓候選人先講話的話，多數人會愣在那裡不知道要打什麼。
+  // 還沒有真的對話就送暗號讓阿財開口。重新整理時如果阿財還在想，
+  // 這裡不會重送（暗號已存在），但要把等待指示打開。
+  if (!real.length) {
+    waiting = true; typing(true);
+    if (!(d.messages || []).length) { optimistic.push(SENTINEL);
+    fetch(API + '/chat/' + encodeURIComponent(T) + '/send', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ text: SENTINEL }),
+    }).then(function (r) {
+      return r.json().then(function (d2) { return { r: r, d: d2 }; });
+    }).then(function (res) {
+      // ⚠️ 2026-08-13 補：這支開場暗號原本完全沒檢查回應狀態，只要撞到
+      // 428（還沒做測驗）或 429（面談室額滿）就是無限轉圈圈的「阿財思考中」，
+      // 候選人畫面上什麼提示都沒有——跟 send() 早就有的處理方式不一致，
+      // 補成一樣的邏輯（見下面 send() 裡幾乎一樣的區塊）。
+      if (!res.d.ok && (res.r.status === 428 || res.r.status === 429)) {
+        typing(false); waiting = false;
+        clearInterval(polling);
+        if (res.r.status === 428) {
+          gate('先完成工作風格測驗',
+               '開始面談之前，還有一份工作風格測驗要請您完成，大約 5 到 7 分鐘。'
+               + '沒有標準答案，照直覺選就好，做完會馬上給您一份個人的工作風格報告。',
+               '開始測驗', res.d.assessment_url || '/assessment/?t=' + encodeURIComponent(T));
+        } else {
+          gate('目前面談室滿了，先選個時段',
+               res.d.message || '現在有其他候選人正在面談中。請選一個方便的時段，'
+               + '時間到之前我們會再寄信提醒您。',
+               '選擇面談時段', res.d.book_url || '/book/?t=' + encodeURIComponent(T));
+        }
+      }
+    }).catch(function () {});
+    }
+  }
+
+  polling = setInterval(poll, 2000);
+  poll();
+}
+
+async function poll() {
+  if (ended) return;
+  try {
+    var r = await fetch(API + '/chat/' + encodeURIComponent(T) + '/poll?after=' + lastId);
+    var d = await r.json();
+    if (!d.ok) return;
+    var got = d.messages || [];
+    if (got.length) {
+      typing(false);
+      got.forEach(function (m) {
+        if (m.id > lastId) lastId = m.id;
+        // 開場那句是給後端用的暗號，不要顯示給候選人看
+        if (m.content === SENTINEL) return;
+        // 本地已經顯示過的那一則，不要再畫一次
+        if (m.role === 'candidate') {
+          var k = optimistic.indexOf(m.content);
+          if (k > -1) { optimistic.splice(k, 1); return; }
+        }
+        add(m, true);
+      });
+      // 2026-10-09 E17：阿財想太久時，程式會先送一句固定的「稍等我一下」（過渡語）。
+      // 那句不是正式回覆，「正在輸入」要繼續亮著，等真正的回覆來才關。文字要跟 interview_markers.py 的 TRANSITION_TEXTS 一致。
+      if (got.some(function (m) { return m.role === 'assistant' && TRANSITION_TEXTS.indexOf(m.content) === -1; })) { waiting = false; }
+    }
+    if (waiting) typing(true);
+    if (d.state === 'done') setEnded();
+  } catch (e) { /* 網路瞬斷不用打擾候選人，下一輪會補回來 */ }
+}
+
+var sending = false;
+async function send() {
+  var v = $('say').value.trim();
+  if (!v || ended || sending) return;   // 連點兩下送出鍵也不會送兩次
+  sending = true; $('go').disabled = true;
+  setTimeout(function () { sending = false; $('go').disabled = ended; }, 600);
+  $('say').value = ''; $('say').style.height = 'auto';
+  optimistic.push(v);
+  add({ id: 0, role: 'candidate', content: v,
+        created_at: '           ' + new Date().toTimeString().slice(0, 5) });
+  waiting = true; typing(true);
+  try {
+    var r = await fetch(API + '/chat/' + encodeURIComponent(T) + '/send', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ text: v }),
+    });
+    var d = await r.json();
+    if (!d.ok && r.status === 409) setEnded();
+    // 428＝還沒做測驗、429＝目前額滿要先預約。
+    // 這兩種都不是錯誤，是流程還沒到——但也**不要自動跳頁**，
+    // 原因寫在 gate() 上面那段註解裡（有人因此以為是當機而流失）。
+    if (!d.ok && (r.status === 428 || r.status === 429)) {
+      typing(false); waiting = false;
+      clearInterval(polling);
+      if (r.status === 428) {
+        gate('先完成工作風格測驗',
+             '開始面談之前，還有一份工作風格測驗要請您完成，大約 5 到 7 分鐘。'
+             + '沒有標準答案，照直覺選就好，做完會馬上給您一份個人的工作風格報告。',
+             '開始測驗', d.assessment_url || '/assessment/?t=' + encodeURIComponent(T));
+      } else {
+        gate('目前面談室滿了，先選個時段',
+             d.message || '現在有其他候選人正在面談中。請選一個方便的時段，'
+             + '時間到之前我們會再寄信提醒您。',
+             '選擇面談時段', d.book_url || '/book/?t=' + encodeURIComponent(T));
+      }
+      return;
+    }
+  } catch (e) {
+    typing(false); waiting = false;
+    add({ id: 0, role: 'assistant', content: '（訊息沒送出去，請確認網路後再試一次）', created_at: '' });
+  }
+}
+
+
+
+// ── 語音回覆（外語口說驗證）──
+//
+// 為什麼要有：文字面談擋不住 Google 翻譯。文字層只能讓作弊留下痕跡
+// （回覆時間、切走視窗、貼上），真正解法是語音——一段 60 秒的錄音
+// 同時解決三件事：翻譯貼上不可能、口說能力直接聽到、即時性看得出來。
+// 客戶要的正是這個（日方會議即時溝通），JLPT 證書證明不了。
+//
+// ⚠️ 錄音是敏感資料。按下去之前要讓他知道用途，而且**不能偷錄**——
+//    只有他自己按下麥克風才會啟動，停止之後才上傳。
+var MAXSEC = 60;
+var rec = null, chunks = [], recTimer = null, recStart = 0;
+
+function recUI(on) {
+  $('mic').dataset.rec = on ? '1' : '';
+  $('recbar').className = 'rec' + (on ? ' on' : '');
+  $('say').disabled = on; $('go').disabled = on || ended;
+}
+
+function stopRec() {
+  if (rec && rec.state === 'recording') rec.stop();
+}
+
+async function startRec() {
+  if (ended || sending) return;
+  var stream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch (e) {
+    // 拒絕授權不是錯誤，是他的選擇。給他文字的路走，不要卡住整場面談。
+    add({ id: 0, role: 'assistant',
+          content: '（沒有取得麥克風權限，這一題用打字回覆也可以）', created_at: '' });
+    return;
+  }
+  chunks = [];
+  rec = new MediaRecorder(stream);
+  rec.ondataavailable = function (e) { if (e.data && e.data.size) chunks.push(e.data); };
+  rec.onstop = async function () {
+    clearInterval(recTimer); recUI(false);
+    stream.getTracks().forEach(function (t) { t.stop(); });
+    var secs = Math.round((Date.now() - recStart) / 1000);
+    if (secs < 2 || !chunks.length) {
+      add({ id: 0, role: 'assistant', content: '（錄音太短了，請再試一次）', created_at: '' });
+      return;
+    }
+    var blob = new Blob(chunks, { type: rec.mimeType || 'audio/webm' });
+    var b64 = await new Promise(function (res) {
+      var fr = new FileReader();
+      fr.onload = function () { res(String(fr.result).split(',')[1] || ''); };
+      fr.readAsDataURL(blob);
+    });
+    add({ id: 0, role: 'candidate', content: '🎙 語音回覆 ' + secs + ' 秒（轉寫中…）',
+          created_at: '           ' + new Date().toTimeString().slice(0, 5) });
+    waiting = true; typing(true);
+    try {
+      var r = await fetch(API + '/chat/' + encodeURIComponent(T) + '/voice', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ audio_b64: b64, mime: blob.type, seconds: secs }),
+      });
+      var d = await r.json();
+      if (!d.ok) {
+        typing(false); waiting = false;
+        add({ id: 0, role: 'assistant',
+              content: '（' + (d.error || '語音處理失敗') + '，這一題改用打字也可以）',
+              created_at: '' });
+      }
+    } catch (e) {
+      typing(false); waiting = false;
+      add({ id: 0, role: 'assistant', content: '（語音沒送出去，請確認網路後再試一次）', created_at: '' });
+    }
+  };
+  rec.start();
+  recStart = Date.now();
+  recUI(true);
+  $('rectime').textContent = '0:00';
+  recTimer = setInterval(function () {
+    var s = Math.round((Date.now() - recStart) / 1000);
+    $('rectime').textContent = '0:' + (s < 10 ? '0' : '') + s;
+    if (s >= MAXSEC) stopRec();   // 硬上限，不讓他錄成十分鐘的獨白
+  }, 250);
+}
+
+if ($('michint')) $('michint').hidden = false;
+$('mic').addEventListener('click', function () {
+  if (rec && rec.state === 'recording') stopRec(); else startRec();
+});
+$('recstop').addEventListener('click', stopRec);
+
+$('closebtn').addEventListener('click', function () {
+  window.close();
+  // 沒關掉代表這個分頁不是程式開的（大多數情況），改成導回首頁
+  setTimeout(function () {
+    if (!document.hidden) location.href = '/';
+  }, 350);
+});
+
+// ── 回報問題 ──
+// 面談中出狀況時，候選人原本只有兩個選擇：乾等或關掉視窗。兩個都是流失。
+var rReason = null;
+$('rep_open').addEventListener('click', function (e) {
+  e.preventDefault();
+  rReason = null; $('rtext').value = '';
+  document.querySelectorAll('.ropt').forEach(function (b) { b.classList.remove('on'); });
+  $('rgo').disabled = true;
+  $('rform').hidden = false; $('rok').hidden = true;
+  $('rdlg').showModal();
+});
+$('rx').addEventListener('click', function () { $('rdlg').close(); });
+$('rclose').addEventListener('click', function () { $('rdlg').close(); });
+document.querySelectorAll('.ropt').forEach(function (b) {
+  b.addEventListener('click', function () {
+    document.querySelectorAll('.ropt').forEach(function (x) { x.classList.toggle('on', x === b); });
+    rReason = b.dataset.r;
+    $('rgo').disabled = false;
+  });
+});
+$('rgo').addEventListener('click', async function () {
+  if (!rReason) return;
+  this.disabled = true; this.textContent = '送出中…';
+  try {
+    await fetch(API + '/chat/' + encodeURIComponent(T) + '/report', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ reason: rReason, detail: $('rtext').value.trim() }),
+    });
+  } catch (e) { /* 送不出去也不要卡住他，顧問還有其他管道 */ }
+  $('rform').hidden = true; $('rok').hidden = false;
+  this.disabled = false; this.textContent = '送出';
+});
+
+// ── 面談結束後的體驗評分 ──
+// 一點就送，補充是選填。剛談完 20 分鐘的人不會填問卷，
+// 所以第一次點擊就先把分數存起來，之後他寫不寫都沒差。
+var myRating = null;
+async function sendRating() {
+  if (!myRating) return;
+  try {
+    await fetch(API + '/chat/' + encodeURIComponent(T) + '/feedback', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ rating: myRating, comment: ($('rcomment').value || '').trim() }),
+    });
+  } catch (e) { /* 送不出去不要卡住他，這不是他的責任 */ }
+}
+document.querySelectorAll('#stars button').forEach(function (b) {
+  b.addEventListener('click', function () {
+    document.querySelectorAll('#stars button').forEach(function (x) { x.classList.toggle('on', x === b); });
+    myRating = Number(b.dataset.v);
+    $('rate2').hidden = false;
+    sendRating();          // 先存分數，不等他寫文字
+  });
+});
+$('rsub').addEventListener('click', async function () {
+  this.disabled = true; this.textContent = '送出中…';
+  await sendRating();
+  $('stars').hidden = true; $('rate2').hidden = true; $('rthx').hidden = false;
+});
+
+$('go').addEventListener('click', send);
+// 中文輸入法選字時按 Enter 也會觸發 keydown，不擋掉的話一句話會被送出兩次
+var composing = false;
+$('say').addEventListener('compositionstart', function () { composing = true; });
+$('say').addEventListener('compositionend', function () { composing = false; });
+$('say').addEventListener('keydown', function (e) {
+  // ⚠️ 2026-08-12 改過：原本桌機按 Enter 就直接送出，Jacky 反應「打到一半常常
+  // 不小心按到 Enter 就送出去了」——那是因為多數人打字打到一句中間會習慣性
+  // 按 Enter 換行/停頓，跟這裡的「送出」快捷鍵衝突。改成要 Cmd/Ctrl+Enter
+  // 才送出，單純 Enter 一律當作換行（跟手機上的行為一致），不會誤送。
+  if (e.key !== 'Enter' || !(e.metaKey || e.ctrlKey)) return;
+  if (composing || e.isComposing || e.keyCode === 229) return;   // 還在選字，不是要送出
+  e.preventDefault();
+  send();
+});
+$('say').addEventListener('input', function () {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 130) + 'px';
+});
+
+// 2026-09-16 加：啟動順序依 T 一開始有沒有帶到分兩條路走——
+// 有帶到（LINE App 原生 webview、或一般瀏覽器直接開帶 ?t= 的連結）：
+// 不等 LIFF，馬上進面談室，LIFF 綁定在背景做，不拖畫面出現的時間；
+// 沒帶到（外部瀏覽器開 liff.line.me 連結，t 被包進 liff.state 裡）：
+// 一定要先等 liffBootstrap() 把 t 從 liff.state 救回來，才能進面談室，
+// 不然會誤判成「連結不完整」。
+if (T.length >= 32) {
+  liffBootstrap();
+  boot();
+} else {
+  liffBootstrap().then(boot);
+}
+</script>
+<script>
+/* 顯示設定面板：只改外觀，不碰面談流程與任何 API。 */
+(function(){
+  var D=window.ivDisplay; if(!D)return;
+  var aa=document.getElementById('aa'),panel=document.getElementById('dpanel');
+  if(!aa||!panel)return;
+  var cur=D.load();
+  function sync(){
+    panel.querySelectorAll('.dseg').forEach(function(seg){
+      var v=cur[seg.getAttribute('data-key')];
+      seg.querySelectorAll('button').forEach(function(b){ b.setAttribute('aria-pressed',b.getAttribute('data-v')===v?'true':'false'); });
+    });
+  }
+  function open(on){ panel.hidden=!on; aa.setAttribute('aria-expanded',on?'true':'false'); }
+  aa.addEventListener('click',function(e){ e.stopPropagation(); open(panel.hidden); });
+  panel.addEventListener('click',function(e){
+    var b=e.target.closest&&e.target.closest('.dseg button'); if(!b)return;
+    cur[b.parentNode.getAttribute('data-key')]=b.getAttribute('data-v');
+    D.apply(cur); D.save(cur); sync();
+  });
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape'&&!panel.hidden){ open(false); aa.focus(); }
+  });
+  document.addEventListener('click',function(e){
+    if(!panel.hidden&&!panel.contains(e.target)&&e.target!==aa&&!aa.contains(e.target)) open(false);
+  });
+  sync();
+})();
+</script>
+</body>
+</html>
