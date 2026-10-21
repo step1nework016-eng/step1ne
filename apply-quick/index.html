@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>快速應徵｜Step1ne 德仁管理顧問</title>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-DNPMMRDEC0');</script>
+<style>
+:root{--ac:#2f5fd8;--ac-soft:#eaf0ff;--tx:#16202e;--mu:#5d6878;--line:#dfe4ec;--soft:#f6f8fb;--bg:#fff;--ok:#1e7a46;--ok-soft:#e5f5ec;--rd:#c0392b}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--soft);color:var(--tx);font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif;line-height:1.55}
+.wrap{max-width:480px;margin:0 auto;padding:0 16px 120px}
+header{display:flex;align-items:center;gap:8px;padding:14px 0;font-weight:700;color:var(--mu);font-size:14px}
+header i{width:22px;height:22px;border-radius:6px;background:var(--ac);display:inline-block}
+/* 職缺卡：一眼知道在應徵什麼 */
+.job{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.job h1{font-size:19px;margin:0 0 6px;line-height:1.35}
+.job .meta{display:flex;flex-wrap:wrap;gap:6px}
+.job .meta span{font-size:13px;background:var(--soft);border-radius:99px;padding:3px 10px;color:var(--mu)}
+.job .meta span.hi{background:var(--ok-soft);color:var(--ok);font-weight:700}
+.lead{font-size:14px;color:var(--mu);margin:14px 2px 6px}
+.lead b{color:var(--tx)}
+/* 區塊 */
+.sec{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:12px}
+.sec h2{font-size:15px;margin:0 0 12px;display:flex;justify-content:space-between;align-items:baseline}
+.sec h2 small{font-weight:400;color:var(--mu);font-size:12.5px}
+.f{display:block;margin-bottom:14px}
+.f:last-child{margin-bottom:0}
+.f>span{display:block;font-size:14px;font-weight:600;margin-bottom:6px}
+.f>span em{font-style:normal;color:var(--rd);margin-left:2px}
+input,select{width:100%;font:inherit;font-size:16px;color:var(--tx);background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:12px;min-height:48px}
+input:focus,select:focus{outline:none;border-color:var(--ac);box-shadow:0 0 0 3px var(--ac-soft)}
+.err{display:none;color:var(--rd);font-size:13px;margin-top:5px}
+.f.bad input,.f.bad select{border-color:var(--rd)}
+.f.bad .err{display:block}
+/* 點選題：取代打字 */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{font:inherit;font-size:15px;min-height:44px;padding:8px 14px;border-radius:99px;border:1.5px solid var(--line);background:#fff;color:var(--tx);cursor:pointer}
+.chips button[aria-pressed="true"]{border-color:var(--ac);background:var(--ac-soft);color:var(--ac);font-weight:700}
+.chips button:focus-visible,.btn:focus-visible,summary:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+.f.bad .chips button{border-color:#efb6b0}
+/* 履歷：收起來，選填 */
+details.resume{margin-top:12px;background:var(--bg);border:1px dashed var(--line);border-radius:14px}
+details.resume summary{list-style:none;cursor:pointer;padding:14px 16px;font-size:15px;font-weight:600;display:flex;justify-content:space-between;align-items:center;min-height:48px}
+details.resume summary::-webkit-details-marker{display:none}
+details.resume summary small{font-weight:400;color:var(--mu);font-size:12.5px}
+details.resume .in{padding:0 16px 16px}
+.consent{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--mu);margin:16px 4px 0}
+.consent input{width:22px;height:22px;min-height:0;margin-top:1px;flex:0 0 22px}
+/* 底部固定按鈕 */
+.bar{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.96);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom))}
+.bar .in{max-width:480px;margin:0 auto}
+.btn{display:flex;align-items:center;justify-content:center;width:100%;min-height:52px;border:0;border-radius:12px;background:var(--ac);color:#fff;font:inherit;font-size:17px;font-weight:700;cursor:pointer}
+.btn.ghost{background:#fff;color:var(--ac);border:1.5px solid var(--ac)}
+.bar small{display:block;text-align:center;color:var(--mu);font-size:12.5px;margin-top:6px}
+/* 送出後 */
+.done{display:none}
+.done .ok{font-size:40px;line-height:1}
+.done h2{font-size:21px;margin:10px 0 6px}
+.done p{color:var(--mu);margin:0 0 14px;font-size:15px}
+.choice{display:grid;gap:10px;margin-top:14px}
+.slots{display:none;margin-top:14px}
+.slots .day{font-size:13px;color:var(--mu);margin:12px 0 6px}
+.note{font-size:13px;color:var(--mu);background:var(--soft);border-radius:10px;padding:10px 12px;margin-top:14px}
+@media (prefers-reduced-motion:no-preference){.chips button,.btn{transition:background .15s,border-color .15s}}
+.slots .chips button small{display:block;font-size:11px;color:var(--mu);font-weight:400}
+.msg{font-size:14px;margin-top:10px;color:var(--mu)}.msg.err{color:var(--rd)}
+.ok-line{background:var(--ok-soft);color:var(--ok);border-radius:10px;padding:10px 12px;font-size:14px;margin-top:12px}
+.rin{display:none;margin-top:12px}.rin.on{display:block}
+.btn[disabled]{opacity:.6;cursor:wait}
+a.btn{text-decoration:none}
+</style></head><body>
+<div class="wrap">
+  <header><img src="/assets/step1ne-logo.png" alt="" width="22" height="22" style="border-radius:6px" onerror="this.style.display='none'">Step1ne 德仁管理顧問</header>
+  <form id="f" novalidate>
+  <div class="job">
+    <h1 id="jt">職缺載入中…</h1>
+    <div class="meta"><span class="hi">無經驗可・公司培訓</span><span id="jl"></span><span id="js"></span></div>
+  </div>
+  <p class="lead">留下基本資料就完成應徵，<b>約 1 分鐘</b>。履歷可以之後再補。</p>
+
+  <section class="sec" aria-labelledby="s1">
+    <h2 id="s1">怎麼聯絡你</h2>
+    <label class="f" data-req data-k="name"><span>姓名<em>*</em></span><input name="name" autocomplete="name"><div class="err">請填姓名</div></label>
+    <label class="f" data-req data-k="phone"><span>手機<em>*</em></span><input name="phone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="09xx-xxx-xxx"><div class="err">請填 10 碼手機號碼</div></label>
+    <label class="f" data-req data-k="email"><span>Email<em>*</em></span><input name="email" type="email" inputmode="email" autocomplete="email" placeholder="面談連結會寄到這裡"><div class="err">Email 格式不對</div></label>
+    <label class="f" data-req data-k="city"><span>住哪個縣市<em>*</em></span><select name="city"><option value="">請選擇</option><option>新竹市</option><option>新竹縣</option><option>苗栗縣</option><option>桃園市</option><option>台中市</option><option>台北市</option><option>新北市</option><option>其他</option></select><div class="err">請選縣市</div></label>
+  </section>
+
+  <section class="sec" aria-labelledby="s2">
+    <h2 id="s2">你的背景 <small>點選就好，不用打字</small></h2>
+    <div class="f" data-req data-chip="exp" data-k="exp"><span>相關經驗<em>*</em></span>
+      <div class="chips" role="group" aria-label="相關經驗"><button type="button">還沒有</button><button type="button">學校作品</button><button type="button">1 年內</button><button type="button">1～3 年</button><button type="button">3 年以上</button></div><div class="err">請選一個</div></div>
+    <div class="f" data-req data-chip="sw" data-multi data-k="sw"><span>會用的軟體<em>*</em> <small style="font-weight:400;color:var(--mu)">可複選</small></span>
+      <div class="chips" role="group" aria-label="會用的軟體"><button type="button">AutoCAD</button><button type="button">Revit</button><button type="button">Navisworks</button><button type="button">SketchUp</button><button type="button" data-none>都還沒用過</button></div><div class="err">請至少選一個（沒用過也可以選）</div></div>
+    <div class="f" data-req data-chip="moto" data-k="moto"><span>有機車駕照嗎<em>*</em> <small style="font-weight:400;color:var(--mu)">這個職缺要騎車到廠區</small></span>
+      <div class="chips" role="group" aria-label="機車駕照"><button type="button">有</button><button type="button">沒有</button></div><div class="err">請選一個</div></div>
+    <label class="f"><span>科系（選填）</span><input name="major" placeholder="例：土木、建築、機械"></label>
+    <div class="f" data-req data-chip="start" data-k="start"><span>最快什麼時候可以上班<em>*</em></span>
+      <div class="chips" role="group" aria-label="可到職時間"><button type="button">馬上</button><button type="button">2 週內</button><button type="button">1 個月內</button><button type="button">再看看</button><button type="button" data-pickdate>指定日期…</button></div>
+      <input type="date" name="start_date" id="startDate" hidden aria-label="指定可到職日期" style="margin-top:10px">
+      <div class="err">請選一個，或指定日期</div></div>
+  </section>
+
+  <details class="resume" id="rs">
+    <summary><span>有履歷想先附上嗎？</span><small>選填・可以之後再補</small></summary>
+    <div class="in">
+      <div class="chips" role="group" aria-label="附履歷方式" id="rway"><button type="button" data-r="file">上傳檔案</button><button type="button" data-r="link">貼連結</button><button type="button" data-r="later">之後用 LINE 傳</button></div>
+      <div class="rin" data-rin="file"><input type="file" id="rfile" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"><p class="msg">PDF、Word 或圖片，8MB 以內</p></div>
+      <div class="rin" data-rin="link"><input name="resume_url" type="url" inputmode="url" placeholder="Google Drive、104、Cake 履歷連結（要設成公開）"></div>
+      <p class="msg" id="rerr" style="display:none"></p>
+      <p class="msg">沒有履歷也沒關係，面談時阿財會問你的經歷。</p>
+    </div>
+  </details>
+
+  <label class="consent"><input type="checkbox" name="ok"> <span>我同意 Step1ne 用這些資料聯絡我、推薦適合的職缺。不會未經同意轉給任何公司。</span></label>
+  <p class="err" id="okerr" style="margin:6px 4px 0;display:none">請勾選同意</p>
+  <p class="msg err" id="servererr" style="display:none;margin:10px 4px 0"></p>
+  </form>
+
+  <section class="done" id="done" aria-live="polite">
+    <div class="sec" style="margin-top:20px">
+      <h2 id="dh">應徵完成！</h2>
+      <p id="dp">下一步是跟 AI 顧問「阿財」線上聊聊，用打字的，大約 15 分鐘，隨時可以中斷再回來。</p>
+      <div class="choice" id="choice">
+        <a class="btn" id="now" href="#">現在開始聊</a>
+        <button class="btn ghost" type="button" id="book">改約其他時間</button>
+      </div>
+      <div class="slots" id="slots"></div>
+      <p class="msg" id="bmsg"></p>
+      <p class="note">面談連結也寄到你的 Email 了，關掉這頁也找得回來。</p>
+    </div>
+  </section>
+</div>
+
+<div class="bar" id="bar"><div class="in"><button class="btn" type="button" id="go">送出應徵</button><small>送出後就能跟阿財聊，名額滿會讓你選時段</small></div></div>
+
+<script>
+var API='https://step1ne-public-worker.aiagentg888.workers.dev';
+var Q=new URLSearchParams(location.search);
+var JOB=Q.get('job')||'bim-mep-drafting-engineer-hsinchu';
+var PAY={'bim-mep-drafting-engineer-hsinchu':'月薪 4.1～5 萬','semiconductor-bim-mep-drafting-trainee-hsinchu':'月薪 4.1～5 萬','bim-engineer-houli':'月薪 4.1～5 萬','trainee-engineering-design-engineer':'月薪 3.5～4.5 萬'};
+function ga(n,p){try{gtag('event',n,Object.assign({job:JOB,page_path:location.pathname},p||{}))}catch(e){}}
+ga('quick_apply_landing',{utm_source:Q.get('utm_source')||''});
+fetch('/apply/jobs.json').then(function(r){return r.json()}).then(function(list){
+  var j=(list||[]).filter(function(x){return x.slug===JOB})[0];
+  document.getElementById('jt').textContent=j?j.title:'BIM／繪圖職缺';
+  document.getElementById('jl').textContent=j&&j.loc?String(j.loc).split(/[，,、]/)[0]:'';
+  document.getElementById('js').textContent=PAY[JOB]||'';
+  if(!document.getElementById('jl').textContent) document.getElementById('jl').style.display='none';
+}).catch(function(){document.getElementById('jt').textContent='BIM／繪圖職缺'});
+var started=false;function st(){if(!started){started=true;ga('quick_form_start')}}
+document.querySelectorAll('.chips').forEach(function(g){
+  var multi=g.closest('[data-multi]');
+  g.querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed','false')});
+  g.addEventListener('click',function(e){
+    var b=e.target.closest('button'); if(!b||g.closest('#slots')) return; st();
+    if(multi){
+      if(b.hasAttribute('data-none')){g.querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});}
+      else{var n=g.querySelector('[data-none]'); if(n) n.setAttribute('aria-pressed','false'); b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')==='true'?'false':'true');}
+    } else g.querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});
+    var f=g.closest('.f'); if(f) f.classList.remove('bad');
+    var sd=document.getElementById('startDate');
+    if(g.closest('[data-chip="start"]')){var pick=b.hasAttribute('data-pickdate'); sd.hidden=!pick; if(pick){var t=new Date(Date.now()+864e5); sd.min=t.toISOString().slice(0,10); sd.focus(); try{sd.showPicker&&sd.showPicker()}catch(e){}} else sd.value='';}
+    if(g.id==='rway'){var w=b.getAttribute('data-r'); document.querySelectorAll('[data-rin]').forEach(function(x){x.classList.toggle('on',x.getAttribute('data-rin')===w)});}
+  });
+});
+document.querySelectorAll('input,select').forEach(function(i){i.addEventListener('input',function(){st(); var f=i.closest('.f'); if(f) f.classList.remove('bad')})});
+function pressed(k){return Array.prototype.map.call(document.querySelectorAll('[data-chip="'+k+'"] [aria-pressed="true"]'),function(b){return b.textContent.trim()})}
+function markBad(f){f.classList.add('bad'); f.scrollIntoView({block:'center',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'}); var t=f.querySelector('input:not([hidden]),select,button'); if(t) t.focus({preventScroll:true});}
+function b64(file){return new Promise(function(ok,no){var r=new FileReader(); r.onload=function(){ok(String(r.result).split(',')[1]||'')}; r.onerror=function(){no(new Error('讀不到檔案'))}; r.readAsDataURL(file)})}
+var TOKEN=null, SLOTS=[];
+document.getElementById('go').addEventListener('click',async function(){
+  var first=null, F=document.getElementById('f');
+  document.querySelectorAll('[data-req]').forEach(function(f){
+    var ok;
+    if(f.hasAttribute('data-chip')){var on=f.querySelector('[aria-pressed="true"]'); ok=!!on&&!(on.hasAttribute('data-pickdate')&&!document.getElementById('startDate').value);}
+    else{var i=f.querySelector('input,select'),v=i.value.trim(); ok=i.name==='phone'?/^09\d{8}$/.test(v.replace(/\D/g,'')):i.name==='email'?/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v):!!v;}
+    f.classList.toggle('bad',!ok); if(!ok&&!first) first=f;
+  });
+  var c=F.querySelector('[name=ok]'),oe=document.getElementById('okerr'); oe.style.display=c.checked?'none':'block'; if(!c.checked&&!first) first=c.closest('.consent');
+  if(first){ga('quick_validation_error',{field:first.getAttribute('data-k')||'consent'}); first.classList&&first.classList.contains('f')?markBad(first):first.scrollIntoView({block:'center'}); return;}
+  var btn=this; btn.disabled=true; btn.textContent='送出中…'; var se=document.getElementById('servererr'); se.style.display='none';
+  var start=pressed('start')[0]||''; if(start.indexOf('指定日期')===0) start='';
+  var body={job_slug:JOB,name:F.elements.name.value.trim(),phone:F.elements.phone.value.trim(),email:F.elements.email.value.trim(),city:F.elements.city.value,
+    exp:pressed('exp')[0],sw:pressed('sw'),moto:pressed('moto')[0],major:F.elements.major.value.trim(),start:start,start_date:document.getElementById('startDate').value,
+    consent:true,resume_url:F.elements.resume_url.value.trim(),utm_source:Q.get('utm_source')||'',utm_medium:Q.get('utm_medium')||'',utm_campaign:Q.get('utm_campaign')||'',utm_content:Q.get('utm_content')||'',referrer:document.referrer||''};
+  try{
+    var file=document.getElementById('rfile').files[0];
+    if(file && document.querySelector('[data-rin="file"]').classList.contains('on')){
+      if(file.size>8*1024*1024) throw new Error('履歷檔超過 8MB，可以改貼連結或之後用 LINE 傳');
+      body.resume_b64=await b64(file); body.resume_name=file.name; body.resume_mime=file.type||'application/octet-stream';
+    }
+    if(!document.querySelector('[data-rin="link"]').classList.contains('on')) body.resume_url='';
+    var r=await (await fetch(API+'/apply-quick',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)})).json();
+    if(!r.ok){
+      ga('quick_server_block',{reason:r.field||'other'});
+      var ff=r.field&&document.querySelector('[data-k="'+r.field+'"]');
+      if(ff){ff.querySelector('.err').textContent=r.error; markBad(ff);} else {se.textContent=r.error||'送出失敗，請再試一次'; se.style.display='block';}
+      btn.disabled=false; btn.textContent='送出應徵'; return;
+    }
+    ga('quick_submit_ok',{route:r.route||r.duplicate||''});
+    TOKEN=r.chat_token; SLOTS=r.slots||[]; showDone(r);
+  }catch(e){se.textContent=e.message||'網路不穩，請再按一次'; se.style.display='block'; btn.disabled=false; btn.textContent='送出應徵';}
+});
+function showDone(r){
+  document.getElementById('f').style.display='none'; document.getElementById('bar').style.display='none';
+  document.getElementById('done').style.display='block'; scrollTo(0,0);
+  var now=document.getElementById('now'); now.href='/interview/?t='+encodeURIComponent(TOKEN);
+  if(r.route==='book'){
+    document.getElementById('dh').textContent='應徵完成！選一個面談時段';
+    document.getElementById('dp').textContent='現在面談室有 '+(r.busy||'幾')+' 位在聊，名額滿了。選一個方便的時間，時間到之前會寄信提醒你。';
+    document.getElementById('choice').style.display='none'; renderSlots();
+  } else if(r.route==='scheduled'){
+    document.getElementById('dp').textContent='你已經約好面談時間了，時間到之前會寄信提醒你。'; document.getElementById('choice').style.display='none';
+  } else if(r.route==='screening'){
+    document.getElementById('dp').textContent='顧問會先看過你的資料，適合的話會再寄信安排面談。'; document.getElementById('choice').style.display='none';
+  }
+}
+document.getElementById('book').addEventListener('click',function(){this.style.display='none'; renderSlots()});
+function renderSlots(){
+  var box=document.getElementById('slots'); box.style.display='block';
+  if(!SLOTS.length){box.innerHTML='<p class="note">目前沒有可預約的時段，我們會另外寄信跟你安排。</p>';return;}
+  var by={},W='日一二三四五六'; SLOTS.forEach(function(s){var p=s.slot_at.split(' ');(by[p[0]]=by[p[0]]||[]).push(s)});
+  box.innerHTML=Object.keys(by).map(function(d){var a=d.split('-').map(Number),wd=W[new Date(Date.UTC(a[0],a[1]-1,a[2])).getUTCDay()];
+    return '<div class="day">'+a[1]+'/'+a[2]+'（'+wd+'）</div><div class="chips">'+by[d].map(function(s){return '<button type="button" data-slot="'+s.slot_at+'">'+s.slot_at.split(' ')[1]+'<small>剩 '+s.left+' 位</small></button>'}).join('')+'</div>'}).join('')+'<p class="note">約好的時間前會寄信提醒你。</p>';
+  box.querySelectorAll('[data-slot]').forEach(function(b){b.addEventListener('click',function(){bookSlot(b)})});
+}
+async function bookSlot(b){
+  var m=document.getElementById('bmsg'); m.className='msg'; m.textContent='預約中…';
+  document.querySelectorAll('#slots button').forEach(function(x){x.disabled=true});
+  try{var r=await (await fetch(API+'/book',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({token:TOKEN,slot_at:b.getAttribute('data-slot')})})).json();
+    if(!r.ok){m.className='msg err'; m.textContent=r.error||'預約失敗'; if(r.slots){SLOTS=r.slots;} renderSlots(); return;}
+    ga('quick_booked'); document.getElementById('slots').innerHTML=''; document.getElementById('choice').style.display='none';
+    m.className='ok-line'; m.textContent='已為你預約 '+b.getAttribute('data-slot')+'，時間到之前會寄信提醒你，用信裡的連結進入面談室即可。';
+  }catch(e){m.className='msg err'; m.textContent='預約失敗，請再試一次'; document.querySelectorAll('#slots button').forEach(function(x){x.disabled=false});}
+}
+</script>
+</body></html>
