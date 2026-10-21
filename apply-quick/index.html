@@ -127,6 +127,7 @@ a.btn{text-decoration:none}
 .dates button[aria-checked="true"]{border-color:var(--ac);background:var(--ac-soft)}
 .dates button[aria-checked="true"] b{color:var(--ac)}
 .dates button:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+#eduMore input{border-color:var(--line)!important}
 </style></head><body>
 <div class="wrap">
   <header><img src="/assets/step1ne-logo.png" alt="" width="22" height="22" style="border-radius:6px" onerror="this.style.display='none'">Step1ne 德仁管理顧問</header>
@@ -299,7 +300,7 @@ function b64(file){return new Promise(function(ok,no){var r=new FileReader(); r.
 var TOKEN=null, SLOTS=[];
 (function(){var e=document.getElementById('edu'),m=document.getElementById('eduMore');
   var show=function(){var on=/二技|大學|研究所|博士/.test(e.value); m.hidden=!on; m.style.display=on?'grid':'none';};
-  e.addEventListener('change',show); show();})();
+  e.addEventListener('change',function(){show(); e.closest('.f').classList.remove('bad');}); show();})();
 (function(){var c=document.getElementById('city'),o=document.getElementById('cityOther');
   c.addEventListener('change',function(){var on=c.value==='__other'; o.hidden=!on; if(on) o.focus(); else o.value='';});})();
 document.getElementById('go').addEventListener('click',async function(){
