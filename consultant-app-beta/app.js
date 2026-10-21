@@ -3850,16 +3850,6 @@ async function openAddCandidate() {
     companyOrder.map((cid) => `<option value="${escapeHtml(cid)}">${escapeHtml(companyNames[cid])}</option>`).join('');
   companySelect.onchange = () => {
     const cid = companySelect.value;
-    // 2026-10-21 Jacky：只有這家客戶有「會自動寄的表單」才顯示勾選，預設勾起來
-    const fRow = $('#fc-forms-row'), fBox = $('#fc-send-forms'), fTxt = $('#fc-forms-text');
-    if (fRow) fRow.hidden = true;  // [hidden] 被 display:flex 蓋掉，下面用 style 一起控制
-    if (fRow) fRow.style.display = 'none';
-    if (cid && fRow) api.get('/admin/job-forms?company_id=' + encodeURIComponent(cid)).then((r) => {
-      const forms = ((r && (r.data || r).forms) || []);
-      if (companySelect.value !== cid || !forms.length) return;
-      fRow.hidden = false; fRow.style.display = 'flex'; fBox.checked = true;
-      fTxt.textContent = `會寄：${forms.map((f) => f.name).join('、')}。不勾＝先不寄，之後可在人選卡片按「寄送表單」手動寄。`;
-    }).catch(() => {});
     if (!cid) { jobSelect.innerHTML = '<option value="">（不指定，將建立為未配對職缺的人選）</option>'; jobSelect.disabled = true; return; }
     jobSelect.disabled = false;
     jobSelect.innerHTML = '<option value="">選一個職缺…</option>' + (jobsByCompany[cid] || []).map((j) => `<option value="${escapeHtml(j.slug)}">${escapeHtml(j.title)}</option>`).join('');
@@ -3928,6 +3918,16 @@ async function openForwardCandidate(applicationId) {
   companySelect.innerHTML = '<option value="">選一家客戶…</option>' + companies.map((c) => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.display_name)}</option>`).join('');
   companySelect.onchange = () => {
     const cid = companySelect.value;
+    // 2026-10-21 Jacky：只有這家客戶有「會自動寄的表單」才顯示勾選，預設勾起來
+    const fRow = $('#fc-forms-row'), fBox = $('#fc-send-forms'), fTxt = $('#fc-forms-text');
+    if (fRow) fRow.hidden = true;  // [hidden] 被 display:flex 蓋掉，下面用 style 一起控制
+    if (fRow) fRow.style.display = 'none';
+    if (cid && fRow) api.get('/admin/job-forms?company_id=' + encodeURIComponent(cid)).then((r) => {
+      const forms = ((r && (r.data || r).forms) || []);
+      if (companySelect.value !== cid || !forms.length) return;
+      fRow.hidden = false; fRow.style.display = 'flex'; fBox.checked = true;
+      fTxt.textContent = `會寄：${forms.map((f) => f.name).join('、')}。不勾＝先不寄，之後可在人選卡片按「寄送表單」手動寄。`;
+    }).catch(() => {});
     const list = jobsByCompany[cid] || [];
     if (!cid || !list.length) { jobSelect.innerHTML = '<option value="">（沿用原本應徵的職缺）</option>'; jobSelect.disabled = true; return; }
     jobSelect.disabled = false;
