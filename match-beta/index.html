@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="zh-Hant">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href*="lin.ee"]');
+  if (!a) return;
+  gtag('event', 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60)
+  });
+});
+</script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- 測試版：正式取代 /match/ 時，把下面這行 robots 刪掉 -->
+<meta name="robots" content="noindex,nofollow">
+<link rel="canonical" href="https://step1ne.com/match/">
+<title>幫你配職缺｜Step1ne 全民獵才</title>
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Step1ne 德仁管理顧問">
+<meta property="og:title" content="幫你配職缺｜Step1ne 全民獵才">
+<meta property="og:description" content="說說你的經歷與想找的工作，我們從實際在招的職缺裡告訴你哪個適合、為什麼適合、還缺什麼。">
+<meta property="og:url" content="https://step1ne.com/match/">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta name="description" content="說說你的經歷與想找的工作，我們從實際在招的職缺裡告訴你哪個適合、為什麼適合、還缺什麼。免費使用、不用註冊，配對的對象只有我們目前真實開放中的職缺。">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "這是什麼？", "acceptedAnswer": {"@type": "Answer", "text": "「幫你配職缺」是 Step1ne 全民獵才提供的職缺配對工具：你用自己的話寫下經歷和想找的工作，我們從目前實際在招的職缺裡，告訴你哪些適合、為什麼適合、還缺什麼。"}}, {"@type": "Question", "name": "怎麼配？", "acceptedAnswer": {"@type": "Answer", "text": "系統會讀你寫的內容（做過什麼、會什麼技能、想去哪個地區、年資、期望薪資），逐項跟實際在招的職缺條件比對，先給你初步結果；接著 AI 再細看一次，把「為什麼適合、還缺什麼」改寫成白話。比對的對象只有站上真實開放中的職缺。"}}, {"@type": "Question", "name": "要不要錢？", "acceptedAnswer": {"@type": "Answer", "text": "使用職缺配對不用付費，也不用註冊帳號。"}}, {"@type": "Question", "name": "配到之後會怎樣？", "acceptedAnswer": {"@type": "Answer", "text": "每個配對結果都有「看職缺／我要應徵」，點進去就是完整職缺頁，可以直接應徵。應徵後由 AI 面談顧問「阿財」做初步面談，再由獵頭顧問依面談狀況評估與跟進。如果你另外留下聯絡方式，有合適的機會顧問會主動通知你。"}}, {"@type": "Question", "name": "我寫的資料會怎麼處理？", "acceptedAnswer": {"@type": "Answer", "text": "你寫的內容會被儲存，用來產生配對結果，並交給 AI 協助判斷。只有在你主動留下聯絡方式時，顧問才會看到你寫的內容並與你聯繫；聯絡方式只用來通知合適的機會。你寫的內容不會顯示在網站上。建議不要寫身分證字號、完整住址這類不必要的個資。"}}, {"@type": "Question", "name": "適合哪些人？", "acceptedAnswer": {"@type": "Answer", "text": "不確定自己適合哪個職缺的人、想轉換跑道的人、沒有經驗但想知道有沒有入門機會的人，以及只想找特定地區工作的人。不限職類，但能不能配到，取決於我們目前有在招哪些職缺；職缺頁會標示是否接受無經驗。"}}]}</script>
+<style>
+/* 色票全部取自首頁（step1ne.com/）的變數，不另造 */
+:root{
+  --paper:#F4F6F8; --white:#FFFFFF; --ink:#0D1B24; --slate:#4A5A66; --rule:#D9E0E6;
+  --brand:#167EB2; --brand-deep:#0F5F87; --live:#2EA9DF; --line:#06C755;
+  --ok:#0B6B4F; --ok-bg:#E6F4EE; --warn:#8A5200; --warn-bg:#FDF1DC; --err:#A3262A; --err-bg:#FBEAEA;
+  --rail:2px; --gut:20px;
+  --f-disp:"Archivo","Noto Sans TC",sans-serif;
+  --f-text:"Noto Sans TC",-apple-system,"PingFang TC",sans-serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.75 var(--f-text);overflow-wrap:anywhere}
+a{color:var(--brand-deep)}
+:focus-visible{outline:3px solid var(--brand);outline-offset:2px;border-radius:4px}
+.skip{position:absolute;left:-999px;top:8px;background:var(--ink);color:#fff;padding:10px 14px;border-radius:6px;z-index:9}
+.skip:focus{left:8px}
+
+header{background:var(--white);border-bottom:1px solid var(--rule)}
+header .in{max-width:760px;margin:0 auto;padding:6px var(--gut);display:flex;align-items:center;gap:10px;min-height:56px}
+header img{height:26px;display:block}
+header a.all{margin-left:auto;display:inline-flex;align-items:center;min-height:44px;padding:0 4px;font-size:14px;font-weight:500;color:var(--slate);text-decoration:none}
+header a.all:hover{color:var(--ink);text-decoration:underline}
+
+/* 全站左側軌：跟首頁同一套語言，節點＝這一頁的三個階段 */
+.spine{position:relative;max-width:760px;margin:0 auto;padding:36px var(--gut) 72px calc(var(--gut) + 34px)}
+.spine::before{content:"";position:absolute;left:calc(var(--gut) + 6px);top:0;bottom:0;width:var(--rail);
+  background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.14))}
+.sec{position:relative;padding-bottom:44px}
+.node{position:absolute;left:-34px;top:8px;width:14px;height:14px;border-radius:50%;background:var(--paper);
+  border:var(--rail) solid var(--brand)}
+.node.live{background:var(--live);border-color:var(--live)}
+.busy .node.live{animation:pulse 1.6s ease-out infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(46,169,223,.55)}100%{box-shadow:0 0 0 12px rgba(46,169,223,0)}}
+.step{font:600 13px/1 var(--f-disp);color:var(--brand-deep);margin:0 0 10px}
+
+h1{font-size:clamp(25px,5.4vw,36px);line-height:1.35;margin:0 0 12px;letter-spacing:-.01em}
+h2{font-size:clamp(21px,4.2vw,26px);line-height:1.4;margin:0 0 12px}
+.lead{color:var(--slate);font-size:16px;margin:0 0 22px;max-width:60ch}
+
+.box{background:var(--white);border:1px solid var(--rule);border-radius:8px;padding:20px}
+label.big{display:block;font-weight:700;margin-bottom:4px}
+.guide{margin:0 0 10px;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:14px;color:var(--slate)}
+.guide li{display:flex;align-items:center;gap:6px}
+.guide svg{width:16px;height:16px;flex:none;color:var(--brand)}
+textarea{display:block;width:100%;font:inherit;font-size:16px;line-height:1.7;padding:13px 15px;border:1.5px solid #8795A1;
+  border-radius:8px;background:var(--white);color:var(--ink);min-height:168px;resize:vertical}
+textarea::placeholder{color:#5F6E7A}
+textarea:focus-visible{outline:3px solid var(--brand);outline-offset:1px;border-color:var(--brand)}
+textarea[aria-invalid="true"]{border-color:var(--err)}
+.under{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin:8px 0 14px;font-size:14px;color:var(--slate)}
+.count{white-space:nowrap;font-variant-numeric:tabular-nums}
+.verr{color:var(--err);font-weight:500;margin:-6px 0 12px;font-size:14.5px}
+.chips-h{font-size:14px;font-weight:700;margin:18px 0 8px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0}
+.chip{font:inherit;font-size:14.5px;font-weight:500;color:var(--ink);background:var(--white);border:1.5px solid var(--rule);
+  min-height:44px;padding:0 16px;border-radius:6px;cursor:pointer}
+.chip:hover{border-color:var(--brand);color:var(--brand-deep)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font:inherit;font-weight:700;font-size:16px;
+  min-height:52px;padding:0 24px;border-radius:6px;border:1.5px solid transparent;cursor:pointer;text-decoration:none}
+.btn-p{background:var(--brand-deep);color:#fff;width:100%}
+.btn-p:hover{background:#0B4E70}
+.btn-p:disabled{opacity:.6;cursor:not-allowed}
+.btn-s{background:var(--white);color:var(--ink);border-color:#8795A1;min-height:46px;font-size:15px}
+.btn-s:hover{border-color:var(--brand);color:var(--brand-deep)}
+.btn-line{background:var(--line);color:#04210F;font-size:15px;min-height:46px}
+.btn svg{width:18px;height:18px;flex:none}
+
+/* 結果區 */
+#out{min-height:2px}
+.status{background:var(--white);border:1.5px dashed var(--brand);border-radius:8px;padding:16px 18px;color:var(--ink);font-size:15px}
+.status b{display:block;margin-bottom:2px}
+.status span{color:var(--slate);font-size:14px}
+.stages{margin:12px 0 0;padding:0;list-style:none;display:grid;gap:6px;font-size:14px;color:var(--slate)}
+.stages li{display:flex;align-items:center;gap:8px}
+.stages i{width:10px;height:10px;border-radius:50%;border:2px solid var(--rule);flex:none}
+.stages li.done{color:var(--ink)} .stages li.done i{background:var(--brand);border-color:var(--brand)}
+.stages li.now{color:var(--ink);font-weight:700} .stages li.now i{background:var(--live);border-color:var(--live)}
+.busy .stages li.now i{animation:pulse 1.6s ease-out infinite}
+.res-h{font-size:15px;font-weight:700;margin:0 0 10px;color:var(--ink)}
+.res-h small{font-weight:400;color:var(--slate);font-size:14px;margin-left:6px}
+.job{background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:8px;padding:18px 18px 18px 20px;margin:0 0 14px}
+.job h3{margin:0 0 4px;font-size:18px;line-height:1.5}
+.meta{display:flex;flex-wrap:wrap;gap:4px 14px;margin:0 0 12px;padding:0;list-style:none;font-size:14px;color:var(--slate)}
+.meta li{display:flex;align-items:center;gap:5px}
+.meta svg{width:15px;height:15px;color:var(--brand)}
+.why,.gap{display:flex;gap:9px;border-radius:6px;padding:10px 12px;margin:0 0 8px;font-size:15px;line-height:1.65}
+.why svg,.gap svg{width:18px;height:18px;flex:none;margin-top:3px}
+.why{background:var(--ok-bg);color:#0A3D2D}.why svg{color:var(--ok)}
+.gap{background:var(--warn-bg);color:#5C3700}.gap svg{color:var(--warn)}
+.why b,.gap b{display:block;font-size:13px;margin-bottom:1px}
+.why.wait{background:var(--paper);color:var(--slate)}
+.why.wait svg{color:var(--slate)}
+.wait p{animation:fade 1.6s ease-in-out infinite alternate}
+@keyframes fade{from{opacity:.55}to{opacity:1}}
+.job .apply{margin-top:6px;background:var(--brand-deep);color:#fff;min-height:46px;font-size:15px;padding:0 20px}
+.job .apply:hover{background:#0B4E70}
+.note{background:var(--white);border-left:4px solid var(--brand);border-radius:0 8px 8px 0;padding:14px 16px;
+  font-size:15px;color:var(--ink);margin:0 0 14px}
+.note.err{border-left-color:var(--err);background:var(--err-bg);color:#5A1417}
+.next{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 14px}
+.contact{background:var(--white);border:1px solid var(--rule);border-radius:8px;padding:18px 20px;margin-top:6px}
+.contact b{font-size:16px}
+.contact .sub{font-size:14px;color:var(--slate);margin:4px 0 10px}
+.contact input{display:block;width:100%;font:inherit;font-size:16px;min-height:48px;padding:0 13px;border:1.5px solid #8795A1;border-radius:6px;margin:0 0 10px;background:#fff;color:var(--ink)}
+.contact .btn{width:100%}
+.ok{font-size:14.5px;color:var(--ok);font-weight:500;margin-top:10px}
+.bad{font-size:14.5px;color:var(--err);font-weight:500;margin-top:10px}
+
+/* 說明與常見問題 */
+.how{display:grid;gap:12px;margin:0 0 22px;padding:0;list-style:none;counter-reset:s}
+.how li{counter-increment:s;background:var(--white);border:1px solid var(--rule);border-radius:8px;padding:14px 16px 14px 52px;position:relative}
+.how li::before{content:counter(s);position:absolute;left:14px;top:14px;width:26px;height:26px;border-radius:50%;
+  background:var(--brand-deep);color:#fff;font:700 14px/26px var(--f-disp);text-align:center}
+.how b{display:block}
+.how span{color:var(--slate);font-size:15px}
+.who{margin:0;padding-left:1.2em;color:var(--slate)}
+.who li{margin:2px 0}
+.qa{background:var(--white);border:1px solid var(--rule);border-radius:8px;margin:0 0 10px}
+.qa summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;
+  min-height:52px;padding:10px 16px;font-weight:700}
+.qa summary::-webkit-details-marker{display:none}
+.qa .chev{width:20px;height:20px;flex:none;color:var(--brand-deep);transition:transform .2s}
+.qa[open] .chev{transform:rotate(180deg)}
+.qa p{margin:0;padding:0 16px 16px;color:var(--slate)}
+
+footer{border-top:1px solid var(--rule);background:var(--white);padding:18px 0;font-size:14px;color:var(--slate)}
+footer .in{max-width:760px;margin:0 auto;padding:0 var(--gut)}
+
+@media (max-width:420px){:root{--gut:16px}.spine{padding-left:calc(var(--gut) + 30px)}.node{left:-30px}.box{padding:16px}}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+
+<a class="skip" href="#t">跳到輸入框</a>
+<header><div class="in">
+  <a href="/" aria-label="Step1ne 首頁"><img src="/assets/step1ne-logo.png" alt="Step1ne"></a>
+  <a class="all" href="/jobs/">看所有職缺 →</a>
+</div></header>
+
+<main class="spine" id="main">
+  <section class="sec" id="tool">
+    <span class="node" aria-hidden="true"></span>
+    <p class="step">第 1 步　說說你的情況</p>
+    <h1>不確定哪個職缺適合你？<br>說說你的情況，我們幫你看。</h1>
+    <p class="lead">
+      我們手上正在招的職缺，不是每個都會出現在你搜尋的關鍵字裡。
+      講一下你的經歷跟想找什麼樣的工作，顧問這邊會直接告訴你哪個對得上、還缺什麼。
+    </p>
+
+    <div class="box">
+      <label class="big" for="t">你的經歷與想找的工作</label>
+      <ul class="guide" aria-label="可以寫的三件事">
+        <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10.5l4 4 8-9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>做過什麼、會什麼</li>
+        <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10.5l4 4 8-9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>想在哪個地區</li>
+        <li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10.5l4 4 8-9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>期望月薪（可不寫）</li>
+      </ul>
+      <textarea id="t" maxlength="3000" aria-describedby="hint cnt err" placeholder="例如：我做過三年 BIM，會 Revit 跟 AutoCAD，想找苗栗附近的工作，月薪希望五萬以上。&#10;&#10;或者：我在餐飲業做了五年，帶過六個人的班，想轉內勤但不知道能做什麼。"></textarea>
+      <div class="under">
+        <span id="hint">說得越具體，配得越準。可以直接貼履歷的一段。</span>
+        <span class="count" id="cnt" aria-live="off">0 / 3000</span>
+      </div>
+      <div id="err" class="verr" role="alert" hidden></div>
+      <button id="go" class="btn btn-p" type="button">幫我看看</button>
+
+      <p class="chips-h" id="chips-h">不知道怎麼開頭？點一句，再改成你的情況：</p>
+      <div class="chips" role="group" aria-labelledby="chips-h">
+        <button class="chip" type="button" data-t="我做過三年 BIM，會 Revit 跟 AutoCAD，想找苗栗附近的工作，月薪希望五萬以上。">BIM／工程</button>
+        <button class="chip" type="button" data-t="我是護理師，在診所待過兩年，想找台北內湖的工作，希望固定上白班。">護理</button>
+        <button class="chip" type="button" data-t="我想在家直播，沒有經驗，希望月收入三萬以上，每天可以投入四小時。">直播</button>
+        <button class="chip" type="button" data-t="我有財務會計經驗兩年，會做帳務和報稅，想找台北的工作，月薪四萬左右。">財會</button>
+        <button class="chip" type="button" data-t="我在餐飲業做了五年，帶過六個人的班，想轉內勤但不知道能做什麼，地點在台中。">想轉職</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="res-sec">
+    <span class="node live" aria-hidden="true"></span>
+    <p class="step">第 2 步　看配對結果</p>
+    <div id="out" aria-live="polite">
+      <div class="note" id="idle">按下「幫我看看」之後，配到的職缺會出現在這裡，每一個都會寫清楚為什麼適合、還缺什麼。</div>
+    </div>
+  </section>
+
+  <section class="sec" id="about">
+    <span class="node" aria-hidden="true"></span>
+    <p class="step">第 3 步　配到之後</p>
+    <h2>這是什麼：用講的，配我們真的在招的職缺</h2>
+    <ol class="how">
+      <li><b>你用自己的話寫</b><span>不用填一長串表格，講經歷、地區、期望待遇就好。</span></li>
+      <li><b>我們跟真實職缺比對</b><span>只比對目前開放中的職缺，先給初步結果，AI 再細看並寫出為什麼適合、還缺什麼。</span></li>
+      <li><b>你決定要不要應徵</b><span>每個結果都能直接點進職缺頁應徵；也能留下聯絡方式，有合適機會由顧問通知你。</span></li>
+    </ol>
+    <h2>適合哪些人</h2>
+    <ul class="who">
+      <li>不確定自己適合哪個職缺</li>
+      <li>想轉換跑道，但不知道能做什麼</li>
+      <li>沒有經驗，想知道有沒有入門機會</li>
+      <li>只想找特定地區的工作</li>
+    </ul>
+  </section>
+
+  <section class="sec" id="faq">
+    <span class="node" aria-hidden="true"></span>
+    <h2>常見問題</h2>
+<details class="qa"><summary><span>這是什麼？</span><svg class="chev" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><p>「幫你配職缺」是 Step1ne 全民獵才提供的職缺配對工具：你用自己的話寫下經歷和想找的工作，我們從目前實際在招的職缺裡，告訴你哪些適合、為什麼適合、還缺什麼。</p></details>
+<details class="qa"><summary><span>怎麼配？</span><svg class="chev" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><p>系統會讀你寫的內容（做過什麼、會什麼技能、想去哪個地區、年資、期望薪資），逐項跟實際在招的職缺條件比對，先給你初步結果；接著 AI 再細看一次，把「為什麼適合、還缺什麼」改寫成白話。比對的對象只有站上真實開放中的職缺。</p></details>
+<details class="qa"><summary><span>要不要錢？</span><svg class="chev" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><p>使用職缺配對不用付費，也不用註冊帳號。</p></details>
+<details class="qa"><summary><span>配到之後會怎樣？</span><svg class="chev" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><p>每個配對結果都有「看職缺／我要應徵」，點進去就是完整職缺頁，可以直接應徵。應徵後由 AI 面談顧問「阿財」做初步面談，再由獵頭顧問依面談狀況評估與跟進。如果你另外留下聯絡方式，有合適的機會顧問會主動通知你。</p></details>
+<details class="qa"><summary><span>我寫的資料會怎麼處理？</span><svg class="chev" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><p>你寫的內容會被儲存，用來產生配對結果，並交給 AI 協助判斷。只有在你主動留下聯絡方式時，顧問才會看到你寫的內容並與你聯繫；聯絡方式只用來通知合適的機會。你寫的內容不會顯示在網站上。建議不要寫身分證字號、完整住址這類不必要的個資。</p></details>
+<details class="qa"><summary><span>適合哪些人？</span><svg class="chev" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><p>不確定自己適合哪個職缺的人、想轉換跑道的人、沒有經驗但想知道有沒有入門機會的人，以及只想找特定地區工作的人。不限職類，但能不能配到，取決於我們目前有在招哪些職缺；職缺頁會標示是否接受無經驗。</p></details>
+  </section>
+</main>
+
+<footer><div class="in">
+  Step1ne 德仁管理顧問　·　這裡列出的都是我們實際在招的職缺，不是廣告。
+</div></footer>
+
+<script>
+var API='https://step1ne-public-worker.aiagentg888.workers.dev';
+var LINE='https://lin.ee/XcSWPzM';
+var $=function(i){return document.getElementById(i)};
+var MID=null,POLL=null,PRE=null,LAST='';
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+
+var I={
+ pin:'<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 18s6-5.2 6-9.5A6 6 0 0 0 4 8.5C4 12.8 10 18 10 18z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="10" cy="8.5" r="2" fill="currentColor"/></svg>',
+ tag:'<svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="5" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3 9h14" stroke="currentColor" stroke-width="1.8"/></svg>',
+ ok:'<svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M6.5 10.3l2.4 2.4 4.6-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+ gap:'<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2.5l8 14H2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M10 8v4M10 14.2v.1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+ arrow:'<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+ chat:'<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 4h14v10H8l-4 3v-3H3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>'
+};
+
+var ta=$('t');
+function updCount(){ $('cnt').textContent=ta.value.length+' / 3000'; if(ta.value.trim().length>=8) showErr(''); }
+ta.addEventListener('input',updCount);
+function showErr(m){ var e=$('err'); e.textContent=m; e.hidden=!m; ta.setAttribute('aria-invalid',m?'true':'false'); }
+
+document.querySelectorAll('.chip').forEach(function(b){
+  b.onclick=function(){ ta.value=b.dataset.t; updCount(); ta.focus();
+    ta.setSelectionRange(ta.value.length,ta.value.length); };
+});
+
+function busy(on){ $('res-sec').classList.toggle('busy',on); }
+
+function card(j,fit,gap,waiting){
+  var meta=[];
+  if(j.locations) meta.push('<li>'+I.pin+esc(j.locations)+'</li>');
+  if(j.employment) meta.push('<li>'+I.tag+esc(j.employment)+'</li>');
+  if(j.company) meta.push('<li>'+esc(j.company)+'</li>');
+  if(j.salary_note) meta.push('<li>'+esc(j.salary_note)+'</li>');
+  return '<article class="job"><h3>'+esc(j.title)+'</h3>'
+    +(meta.length?'<ul class="meta">'+meta.join('')+'</ul>':'')
+    +'<div class="why'+(waiting?' wait':'')+'">'+I.ok+'<div><b>為什麼適合</b><p style="margin:0">'+esc(fit)+'</p></div></div>'
+    +(gap?'<div class="gap">'+I.gap+'<div><b>還缺什麼</b><p style="margin:0">'+esc(gap)+'</p></div></div>':'')
+    +'<a class="btn apply" href="'+esc(j.url)+'">看職缺／我要應徵 '+I.arrow+'</a></article>';
+}
+
+function stages(n){
+  var L=['讀取你寫的內容','比對我們目前開放中的職缺','AI 細看每個職缺，寫出適合與否'];
+  return '<ul class="stages">'+L.map(function(s,i){
+    return '<li class="'+(i<n?'done':i===n?'now':'')+'"><i></i>'+s+'</li>'}).join('')+'</ul>';
+}
+
+function nextBox(){
+  return '<div class="next"><a class="btn btn-s" href="/jobs/">'+'逛逛所有職缺'+'</a>'
+    +'<a class="btn btn-line" href="'+LINE+'">'+I.chat+'用 LINE 問顧問</a></div>';
+}
+
+function contactBox(){
+  return '<div class="contact"><b>想讓顧問直接幫你留意？</b>'
+    +'<div class="sub">留一個聯絡方式，有合適的機會我們主動通知你，不會拿去做別的事。</div>'
+    +'<label for="ct" style="position:absolute;left:-999px">聯絡方式</label>'
+    +'<input id="ct" autocomplete="off" placeholder="LINE ID／Email／手機，擇一即可">'
+    +'<button type="button" class="btn btn-s" id="ctb">留給顧問</button>'
+    +'<div id="ctok" class="ok" role="status" hidden>已收到，我們會主動聯繫你。</div>'
+    +'<div id="ctbad" class="bad" role="alert" hidden>送出失敗了，請稍後再試，或直接用 LINE 跟顧問說。</div></div>';
+}
+function bindContact(){ var b=$('ctb'); if(b) b.onclick=sendContact; }
+function sendContact(){
+  var v=($('ct').value||'').trim(); if(!v) { $('ct').focus(); return }
+  if(!MID){ $('ctbad').hidden=false; return }
+  $('ctbad').hidden=true;
+  fetch(API+'/match/contact',{method:'POST',headers:{'content-type':'application/json'},
+    body:JSON.stringify({id:MID,contact:v})}).then(function(r){
+      if(!r.ok) throw 0;
+      $('ctok').hidden=false; $('ct').value='';
+    }).catch(function(){ $('ctbad').hidden=false; });
+}
+function put(html){ $('out').innerHTML=html; bindContact(); }
+
+function errorBox(msg){
+  busy(false);
+  put('<div class="note err"><b>'+esc(msg)+'</b><br>你寫的內容還在輸入框裡，不用重寫。</div>'
+    +'<div class="next"><button type="button" class="btn btn-s" id="retry">再試一次</button>'
+    +'<a class="btn btn-line" href="'+LINE+'">'+I.chat+'直接用 LINE 問顧問</a></div>');
+  $('retry').onclick=run;
+}
+
+function emptyBox(note){
+  busy(false);
+  put('<div class="note"><b>目前站上的職缺跟你說的方向沒有很吻合。</b><br>'+esc(note||'')+'</div>'
+    +'<p class="res-h">接下來可以這樣做</p>'+nextBox()
+    +'<p style="font-size:14.5px;color:var(--slate);margin:0 0 14px">也可以換個方式再寫一次：多寫一點做過的工作內容、會的工具，或把地區放寬。</p>'
+    +contactBox());
+}
+
+function fallbackList(note){
+  busy(false);
+  put((note?'<div class="note">'+esc(note)+'</div>':'')
+    +'<p class="res-h">配到的職缺<small>（初步結果）</small></p>'
+    +PRE.jobs.map(function(j){
+      return card(j,'這個職缺跟你提到的條件有對到，點進去看完整內容。','');
+    }).join('')+nextBox()+contactBox());
+}
+
+function renderPre(d){
+  PRE=d;
+  put('<div class="status"><b>找到 '+d.jobs.length+' 個可能適合的職缺</b><span>AI 正在逐一細看，好了會自動更新這裡，最久約 2 分鐘。你可以先往下看。</span>'+stages(2)+'</div>'
+    + d.jobs.map(function(j){
+        // 規則版的理由只是暫時墊著，等模型回來會整段換掉——
+        // 所以這裡刻意不顯示那些關鍵字，只給職缺本身，避免出現怪句子
+        return card(j,'AI 正在判斷這個職缺合不合適…','',true);
+      }).join(''));
+}
+
+function renderFinal(res){
+  if(POLL){clearInterval(POLL);POLL=null}
+  busy(false);
+  var byslug={}; (PRE&&PRE.jobs||[]).forEach(function(j){byslug[j.slug]=j});
+  var list=(res.jobs||[]).map(function(x){
+    var j=byslug[x.slug]; if(!j) return '';
+    return card(j,x.fit,x.gap);
+  }).join('');
+  if(!list){ fallbackList(res.note); return }
+  put((res.note?'<div class="note">'+esc(res.note)+'</div>':'')
+    +'<p class="res-h">配到的職缺<small>AI 已細看完成</small></p>'
+    + list + nextBox() + contactBox());
+}
+
+function run(){
+  var t=(ta.value||'').trim();
+  if(t.length<8){ showErr('再多說一點，我們才配得準。至少寫一句：你做過什麼，或想找什麼樣的工作。'); ta.focus(); return }
+  showErr('');
+  if(POLL){clearInterval(POLL);POLL=null}
+  LAST=t;
+  $('go').disabled=true; $('go').textContent='比對中…';
+  busy(true);
+  $('out').innerHTML='<div class="status"><b>正在比對我們手上的職缺</b><span>通常幾秒鐘就有初步結果。</span>'+stages(1)+'</div>';
+  $('res-sec').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
+  fetch(API+'/match',{method:'POST',headers:{'content-type':'application/json'},
+    body:JSON.stringify({text:t})})
+    .then(function(r){return r.json()})
+    .then(function(d){
+      $('go').disabled=false; $('go').textContent='重新配一次';
+      if(!d.ok){ errorBox(d.error||'出了點狀況，請再試一次。'); return }
+      MID=d.id;
+      if(!d.jobs.length){ PRE=d; emptyBox(d.note); return }
+      renderPre(d);
+      var n=0;
+      POLL=setInterval(function(){
+        n++;
+        if(n>20){ // 兩分鐘還沒好就放棄等，至少讓他看得到職缺本身
+          clearInterval(POLL);POLL=null;
+          fallbackList('AI 這次比較慢，先給你初步結果，點進職缺頁看完整內容。');
+          return;
+        }
+        fetch(API+'/match/'+MID).then(function(r){return r.json()}).then(function(x){
+          if(x.ok&&x.stage==='done'&&x.result) renderFinal(x.result);
+          else if(x.ok&&x.stage==='failed'){ clearInterval(POLL);POLL=null;
+            fallbackList('AI 這次沒有順利完成，先給你初步結果。'); }
+        }).catch(function(){});
+      },5000);
+    })
+    .catch(function(){
+      $('go').disabled=false; $('go').textContent='幫我看看';
+      errorBox('連線出了點狀況，可能是網路不穩。');
+    });
+}
+$('go').onclick=run;
+</script>
+</html>

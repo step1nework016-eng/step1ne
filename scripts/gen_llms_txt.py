@@ -12,7 +12,7 @@ import re, glob, os, sys, datetime
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE = 'https://step1ne.com'
-SKIP_DIRS = ('consultant',)          # 顧問後台，noindex，不對外
+SKIP_DIRS = ('consultant', 'match-beta')          # 顧問後台，noindex，不對外
 SKIP_PAGES = ('interview', 'book')   # 功能頁，內容對 AI 無意義
 
 SECTIONS = [
