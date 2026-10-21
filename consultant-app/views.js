@@ -3716,6 +3716,7 @@ ${tg}
     ${field('客戶 *', '<select id="fc-company" name="company_id" required><option value="">載入中…</option></select>')}
     ${field('職缺（不選＝沿用人選原本應徵的職缺）', '<select id="fc-job" name="job_slug" disabled><option value="">請先選客戶</option></select>')}
     <label class="field span-2"><span>推薦說明</span><textarea name="note" rows="3"></textarea></label>
+    <label class="field span-2" style="flex-direction:row;align-items:flex-start;gap:8px"><input type="checkbox" id="fc-send-forms" name="send_forms" checked style="width:auto;margin-top:3px"><span>推薦後自動寄人事資料表給人選（客戶有指定表單時）。不勾＝先不寄，之後可在人選卡片按「寄送表單」手動寄。</span></label>
   </form>`,
   // 2026-09-15 加：人才池「轉正」的顧問建檔路徑，照抄新增人選那顆（同一支後端
   // /admin/pipeline/manual-forward，差別只在 source_kind:'sourced' + source_id 帶
@@ -4213,6 +4214,14 @@ ${tg}
       return `<div class="pc-empty state"><strong>電洽摘要</strong><p style="white-space:pre-wrap;text-align:left">${text(md)}</p></div>`;
     }
     return sections.map((s) => `<section class="card pc-card"><div class="card-head"><h2 style="margin:0;font-size:15px">${text(s.title)}</h2></div><div style="padding:14px 15px;font-size:13.5px;line-height:1.7;white-space:pre-wrap">${text(s.body || '未提及')}</div></section>`).join('');
+  },
+  // 2026-10-21 Jacky：電洽要能記多筆、不覆蓋。每一通都列出來，最上面永遠有「新增一通」。
+  callHistory: (applicationId, calls) => {
+    const list = (calls || []).map((c, i) => `<details class="card" style="padding:10px 14px;margin:6px 0"><summary style="cursor:pointer"><b>第 ${(calls.length - i)} 通</b>　<small class="muted">${text(String(c.time || '').slice(0, 16))}</small></summary><div style="white-space:pre-wrap;font-size:13px;line-height:1.7;margin-top:8px">${text(c.detail || '')}</div></details>`).join('');
+    return `<section class="card pc-card" style="margin-top:12px"><div class="card-head"><h2 style="margin:0;font-size:15px">電洽紀錄（${(calls || []).length} 通）</h2>
+      <div class="actions-row">${applicationId ? actionBtn('＋新增一通電洽紀錄', 'application-call-note', { idParams: { application_id: applicationId } }, 'primary') : ''}<button type="button" class="btn ghost sm" data-action="postcall-generate" data-force="1">用全部紀錄重新整理電洽結果</button></div></div>
+      <p class="help" style="margin:4px 15px 8px">每一通都會留著，不會被新的蓋掉；AI 電洽結果會用全部紀錄一起整理。</p>
+      <div style="padding:0 12px 10px">${list || '<p class="help">還沒有電洽紀錄</p>'}</div></section>`;
   },
   postcallResultLoading: () => `<div class="pc-loading"><div class="pc-skel pc-skel-hero"></div><div class="pc-skel pc-skel-row"></div><p class="help" style="text-align:center">AI 正在整理電洽結果，通常 1-2 分鐘…</p></div>`,
   // 2026-09-29 Jacky：電洽結果這格只有「產生／重試」，沒有電洽紀錄時顧問卡在這裡不知道去哪匯入。

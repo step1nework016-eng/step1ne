@@ -2948,6 +2948,7 @@ async function openCandidate(applicationId, opts = {}) {
     const forwards = card.forwards || [];
     const notes = card.notes || [];
     const timeline = card.timeline || [];
+    state.callHist = timeline.filter((t) => t.type === '電洽紀錄');
     const report = card.report || null;
     const dupNotice = card.dup_notice || null;
     const lineBinding = card.line_binding || null;
@@ -3227,6 +3228,7 @@ async function loadPostcallResult(applicationId, box) {
         + `<div class="actions-row" style="margin-top:10px"><button type="button" class="btn ghost sm" data-action="postcall-generate">升級成結構化電洽結果（含 Gate Result／下一步建議）</button></div>`;
     }
     else box.innerHTML = views.postcallResultEmpty(applicationId);
+    if ((state.callHist || []).length) box.insertAdjacentHTML('beforeend', views.callHistory(applicationId, state.callHist));
     return data;
   } catch (error) {
     box.innerHTML = views.postcallResultTimeout(error, applicationId);
@@ -3935,6 +3937,7 @@ async function submitForwardCandidate(applicationId) {
     const me = amUi().me;
     if (!me) { toast('先在畫面最上方選「我是」，系統才記得是誰推薦的', 'error'); document.querySelector('[data-me-global]')?.focus(); if (button) button.disabled = false; return; }
     const result = await api.post('/admin/forward-candidate', {
+      send_forms: !!(document.getElementById('fc-send-forms') || { checked: true }).checked,
       application_id: applicationId, company_id: companyId, by: me,
       job_slug: $('#fc-job')?.value || undefined,
       note: form.querySelector('[name="note"]').value.trim() || undefined,
