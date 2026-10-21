@@ -183,9 +183,17 @@ footer{
 }
 #say:focus{border-color:var(--accent-line);box-shadow:0 0 0 3px rgba(166,124,61,.25);}
 #go{
-  flex:0 0 auto;width:46px;height:46px;border:0;border-radius:50%;
-  background:var(--accent-bg);color:var(--accent-ink);font-size:19px;cursor:pointer;
+  flex:0 0 auto;height:46px;min-width:46px;padding:0 18px 0 15px;border:0;border-radius:23px;
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  background:var(--accent-bg);color:var(--accent-ink);font:inherit;font-weight:700;font-size:calc(15px * var(--fz));cursor:pointer;
+  transition:opacity .15s,transform .1s;
 }
+#go:hover:not(:disabled){filter:brightness(1.06)}
+#go:active:not(:disabled){transform:scale(.96)}
+#go:focus-visible{outline:3px solid var(--accent-line);outline-offset:2px}
+#go.empty:not(:disabled){opacity:.45}
+@media (max-width:480px){#go{padding:0;width:46px}#go .gotx{display:none}}
+@media (prefers-reduced-motion:reduce){#go{transition:none}#go:active:not(:disabled){transform:none}}
 #go:disabled{background:var(--dis-bg);color:var(--dis-ink);cursor:default;}
 .hint{font-size:calc(11.5px * var(--fz));color:var(--muted);margin:8px 4px 0;text-align:center;}
 
@@ -375,7 +383,7 @@ dialog#rdlg::backdrop{background:var(--backdrop);}
      SVG 不依賴任何字體，而且跟著 currentColor 走，錄音中變白色也自動對。 -->
     <button id="mic" type="button" aria-label="語音回覆" title="用語音回覆"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10v1a7 7 0 0 0 14 0v-1"/><path d="M12 18v4"/></svg></button>
     <textarea id="say" rows="1" placeholder="輸入訊息…" autocomplete="off"></textarea>
-    <button id="go" type="button" aria-label="送出">↑</button>
+    <button id="go" type="button" aria-label="送出"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12l16-8-6 16-2.5-6.5z"/><path d="M11.5 13.5L20 4"/></svg><span class="gotx">送出</span></button>
   </div>
   <p class="hint">這是正式面談，結束後由顧問評估推薦。<span class="kbd-hint">⌘/Ctrl＋Enter 送出。</span>　<a href="#" id="rep_open">有問題？</a></p>
   <!-- 錄音是敏感資料。按下麥克風之前就要讓他知道用途，不能等他錄完才說。
@@ -984,6 +992,12 @@ if (T.length >= 32) {
   });
   sync();
 })();
+</script>
+<script>
+// 輸入框沒字時送出鈕變淡（不鎖住，原本的送出邏輯不動）
+(function(){var t=document.getElementById('say'),g=document.getElementById('go');if(!t||!g)return;
+function u(){g.classList.toggle('empty',!t.value.trim())}t.addEventListener('input',u);
+new MutationObserver(u).observe(t,{attributes:true});setInterval(u,800);u()})();
 </script>
 </body>
 </html>
