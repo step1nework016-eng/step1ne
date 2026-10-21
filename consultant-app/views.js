@@ -3376,6 +3376,18 @@ ${a.note ? `<details class="note-details"><summary>顧問備註／電洽紀錄</
   // ── 2026-10-21 快速應徵版初篩報告 ─────────────────────────────
   // Jacky：原本報告太流水帳，要表格、要區塊。照 step1ne-recruit/render_quick_report.py
   // （Jacky 看過拍板的版型）移植。只給快速應徵進來的人選用，其他人選照舊走 interviewResult。
+  // 2026-10-21 阿財面談結尾在對話裡推薦過的職缺（step1ne-recruit/acai_job_recs.py），人選按了「也幫我推這個」的標出來
+  acaiJobRecs: (application = {}) => {
+    const recs = application.acai_job_recs || [];
+    if (!recs.length) return '';
+    const E = (v) => escapeHtml(v ?? '');
+    const rows = recs.map((r, i) => `<tr><td>${i + 1}</td><td><a href="https://step1ne.com/jobs/${encodeURIComponent(r.slug)}/" target="_blank" rel="noopener">${E(r.title)}</a>
+        ${r.wanted_at ? `<br><b style="color:var(--ok,#2F7A4D)">✓ 人選按了「也幫我推這個」（${E(String(r.wanted_at).slice(5, 16))}）</b>` : ''}</td>
+        <td>${E(r.why)}<br><span style="color:var(--muted,#7A808A)">還要確認：${E(r.confirm)}</span>${r.evidence ? `<br><small style="color:var(--muted,#7A808A)">人選原話：「${E(r.evidence)}」</small>` : ''}</td></tr>`).join('');
+    return `<section class="qa-card" style="margin-top:12px"><h4>阿財跟他提過的職缺</h4>
+      <p class="help" style="margin:0 0 6px">面談結尾在對話裡給人選看的（方向接近、還沒確認）。按了「也幫我推這個」的同時有 TG 通知。</p>
+      <div class="qa-tw"><table class="qa-tb"><tr><th>#</th><th>職缺</th><th>為什麼／還要確認</th></tr>${rows}</table></div></section>`;
+  },
   isQuickApply: (application = {}) => application.origin === 'quick_apply' || /^【快速應徵/.test(String(application.note || '')),
   quickApplyResult: (report, application = {}) => {
     let d = null;

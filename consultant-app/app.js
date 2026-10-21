@@ -3375,6 +3375,7 @@ function stageDetailHtml(key, application, forwards, report, applicationId) {
     return `<div class="stage-detail-panel"><h4>阿財面談結果</h4>
       <p class="help" style="margin:0 0 10px">${text(report.created_at)} 產出・目前決策：${text(decisionLabel)}</p>
       ${views.isQuickApply(application) ? views.quickApplyResult(report, application) : views.interviewResult(report, application)}
+      ${views.acaiJobRecs ? views.acaiJobRecs(application) : ''}
       <p class="help" style="margin:14px 0 6px">有興趣就直接按下面「推薦給客戶」，會自動記錄為會推；這顆是還沒決定推薦給誰、但想先記錄再看看／不推時用。</p>
       <div>${actionBtn('AI 初篩報告決策', 'decide-report', { idParams: { application_id: applicationId } }, 'primary')}</div></div>`;
   }

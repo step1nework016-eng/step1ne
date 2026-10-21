@@ -451,6 +451,8 @@ function setEnded() {
   $('bar').hidden = true;
   $('fin').hidden = false;
   $('log').scrollTop = $('log').scrollHeight;
+  // 2026-10-21 阿財推薦職缺卡片（/assets/interview-recs.js；沒開功能就什麼都不畫）
+  window.__acaiRecsPending = [API, T]; if (window.AcaiRecs) window.AcaiRecs.start(API, T);
 }
 
 // 2026-09-16 加：LIFF 綁定。
@@ -851,5 +853,6 @@ if (T.length >= 32) {
   liffBootstrap().then(boot);
 }
 </script>
+<script src="/assets/interview-recs.js" defer></script>
 </body>
 </html>
