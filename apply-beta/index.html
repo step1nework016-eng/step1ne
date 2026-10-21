@@ -168,39 +168,6 @@ dialog.think::backdrop{background:rgba(22,32,46,.45)}
 .think-body details{border:1px solid var(--line);border-radius:10px;margin-bottom:8px}
 .think-body summary{cursor:pointer;padding:12px;font-weight:600;font-size:14.5px;min-height:44px;list-style-position:inside}
 .think-body details p{margin:0;padding:0 12px 12px;font-size:14px;color:var(--tx2)}
-/* 2026-10-12 應徵表單流失修正：三步說明、App 內建瀏覽器提示、選填區收合、按鈕旁的錯誤訊息 */
-.steps{display:flex;align-items:stretch;gap:6px;margin:0 0 18px;padding:0;list-style:none;counter-reset:st}
-.steps li{flex:1;counter-increment:st;background:var(--soft);border:1px solid var(--line);border-radius:10px;
-  padding:8px 8px 7px;font-size:12.5px;line-height:1.35;color:var(--tx2);text-align:center}
-.steps li:before{content:counter(st);display:block;margin:0 auto 3px;width:20px;height:20px;line-height:20px;border-radius:50%;
-  background:var(--ac);color:#fff;font-size:11.5px;font-weight:700}
-.steps b{display:block;color:var(--tx);font-size:13.5px}
-[hidden]{display:none!important}
-.inapp{display:flex;gap:8px;align-items:flex-start;background:#fff8e6;border:1px solid #f0dca8;border-radius:10px;
-  padding:10px 12px;margin:0 0 14px;font-size:13.5px;line-height:1.6;color:#5c4a1a}
-.inapp a{color:#8a5a00;font-weight:600}
-details.opt{background:none;border:0;padding:0;margin:0 0 16px;font-size:inherit;color:inherit}
-details.opt>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:48px;
-  padding:12px 16px;border:1px solid var(--line);border-radius:12px;background:var(--card);font-size:14px;color:var(--tx2);cursor:pointer}
-details.opt>summary::-webkit-details-marker{display:none}
-details.opt>summary:after{content:"展開";font-size:12.5px;color:var(--ac);flex:0 0 auto}
-details.opt[open]>summary{border-bottom-left-radius:0;border-bottom-right-radius:0;border-bottom:0}
-details.opt[open]>summary:after{content:"收起"}
-details.opt>fieldset{border-top-left-radius:0;border-top-right-radius:0;margin:0}
-details.opt>summary:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
-.gate-actions{margin:0 0 16px}
-.gate-actions .consent{margin:0 0 6px}
-.gate-actions details{margin:0 0 4px}
-#toAssess{width:100%;background:var(--ac);color:#fff;border:0;border-radius:12px;padding:15px;font-size:16.5px;
-  font-weight:700;cursor:pointer;font-family:inherit;margin-top:12px;min-height:52px}
-#toAssess:disabled{opacity:.6}
-#toAssess:focus-visible,#btn:focus-visible{outline:3px solid #16202e;outline-offset:2px}
-#wantbook:focus-visible,a.go:focus-visible{outline:3px solid #16202e;outline-offset:2px}
-.gmsg{margin-top:10px;padding:12px 14px;border-radius:10px;font-size:14px;line-height:1.6;background:#fdecea;
-  border:1px solid #f3c2bc;color:#a5312a;white-space:pre-line}
-.gmsg button{all:unset;display:inline-block;margin-top:6px;color:#2f5fd8;text-decoration:underline;cursor:pointer;min-height:32px}
-.gmsg button:focus-visible{outline:2px solid #2f5fd8}
-@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 </style>
 
 <header class="top">
@@ -211,12 +178,7 @@ details.opt>summary:focus-visible{outline:3px solid var(--ac);outline-offset:2px
 <div class="wrap">
 <div id="form-view">
   <h1>應徵職缺</h1>
-  <div class="inapp" id="inapp" hidden role="note"></div>
-  <ol class="steps" aria-label="應徵流程">
-    <li><b>填表</b>約 2 分鐘</li>
-    <li><b>工作風格測驗</b>約 6 分鐘</li>
-    <li><b>跟 AI 面談</b>可以現在或約時間</li>
-  </ol>
+  <p class="lead">填完約 2 分鐘，接著做一段線上初步面談。我們會依您的條件推薦適合的機會。</p>
   <!-- 2026-09-21 加：求職者從廣告或社群點進來，看到的第一個畫面只有「德仁管理
        顧問」五個字跟一張表單，不知道這是誰、為什麼要把履歷交給他們。
        目的是提升填寫意願，所以這段要回答的是「你們是誰、我為什麼要信你」，
@@ -344,8 +306,20 @@ details.opt>summary:focus-visible{outline:3px solid var(--ac);outline-offset:2px
 
     <fieldset>
       <legend>履歷 <span class="req">*</span></legend>
-      <!-- 2026-10-12：三個分頁（上傳截圖或檔案／用 LINE 傳／沒有履歷），畫面由 /assets/resume-step.js 產生 -->
-      <div id="resumeStep"></div>
+      <label>上傳檔案（PDF／Word／照片／截圖，8MB 以內）</label>
+      <input name="resume" type="file" accept=".pdf,.doc,.docx,image/*">
+      <div class="hint">
+        用手機也可以：<b>直接拍紙本履歷</b>，或<b>截圖 104／LinkedIn 的個人頁</b>上傳，系統會自動讀出內容。
+        有 PDF 的話最清楚——<b>LinkedIn</b>、<b>104</b>、<b>CakeResume</b> 都能把個人頁面匯出成 PDF。
+      </div>
+      <label>或貼雲端連結</label>
+      <input name="resume_url" placeholder="Google Drive／Dropbox 連結">
+      <div class="hint">
+        檔案較大再用這個，並確認分享設定是「知道連結的任何人都能檢視」（沒公開的連結會被擋下，送出前會自動檢查）。
+        <b style="color:#b4552e;">要貼「檔案」的分享連結，不能貼資料夾連結</b>
+        （網址裡有 <code>/folders/</code> 的就是資料夾，系統讀不到裡面的履歷）。
+        上傳檔案跟貼連結<b>擇一即可</b>，能上傳檔案就盡量用上傳，最快也最準確。
+      </div>
       <div id="socialBox" hidden>
         <label>社群平台連結 <span style="color:#c0392b">*</span></label>
         <div class="hint" style="margin-top:0">
@@ -359,17 +333,12 @@ details.opt>summary:focus-visible{outline:3px solid var(--ac);outline-offset:2px
         <input name="social_youtube" placeholder="YouTube">
         <input name="social_other" placeholder="其他平台（小紅書、Twitch…）">
       </div>
-      <label style="margin-top:16px" for="leaveReasons">每一段工作的離職原因（建議填）</label>
-      <p style="margin:4px 0 8px;font-size:13.5px;color:var(--tx2,#4d5c72);line-height:1.6">一段一行就好，阿財面談時就不用再問一次。</p>
-      <textarea name="leave_reasons" id="leaveReasons" rows="4" maxlength="1500" placeholder="例：&#10;A公司 業務專員（2021–2024）：想往管理職發展&#10;B公司 行政助理（2019–2021）：公司搬遷，通勤太遠"></textarea>
-      <label style="margin-top:16px">想補充的事（選填）</label>
+      <label>想補充的事</label>
       <textarea name="note" placeholder="選填"></textarea>
     </fieldset>
 
-    <!-- 2026-10-12：選填區預設收起來（手機上第一頁太長），電腦版自動展開 -->
-    <details class="opt" id="optBox">
-    <summary>讓顧問更快幫你媒合（選填，可跳過）</summary>
     <fieldset>
+      <legend>讓顧問更快幫你媒合（選填）</legend>
       <p class="hint" style="margin:0 0 10px">都是選填，不想填可以跳過；填了面談時就不用再問一次。</p>
       <label>目前的薪資結構</label>
       <div class="two">
@@ -386,30 +355,18 @@ details.opt>summary:focus-visible{outline:3px solid var(--ac);outline-offset:2px
         <span>我同意 Step1ne 顧問在跟我確認職缺後，把我的資料推薦給用人公司（每一次推薦前都會先跟我確認）</span>
       </label>
     </fieldset>
-    </details>
 
     <fieldset id="assessGate">
       <legend>工作風格測驗 <span class="req">*</span></legend>
       <p class="hint" style="margin:0 0 10px">
-        送出前，還需要完成一份工作風格測驗（約 6 分鐘），做完會馬上給您一份個人報告。
+        送出前，還需要完成一份工作風格測驗（約 5–7 分鐘），做完會馬上給您一份個人報告。
         <b>這是應徵的必要步驟</b>——上面的資料先幫您存著，測驗做完會自動回到這裡。</p>
+      <button type="button" id="toAssess" style="width:100%;background:#fff;color:var(--ac);
+        border:2px solid var(--ac);border-radius:10px;padding:14px;font-size:15.5px;
+        font-weight:600;cursor:pointer;font-family:inherit">開始工作風格測驗 →</button>
+      <div class="hint" id="assessDoneHint" style="display:none;color:#1e8e5a;margin-top:10px">
+        ✅ 測驗已完成，可以送出應徵了。</div>
     </fieldset>
-
-    <div class="gate-actions" id="gateActions">
-      <label class="consent">
-        <input type="checkbox" id="consent" required>
-        <span>我同意 Step1ne（德仁管理顧問有限公司）為職缺媒合目的蒐集與處理上述資料。 <span class="req">*</span></span>
-      </label>
-      <details>
-        <summary>個資使用說明</summary>
-        <p><b>蒐集目的</b>：職缺媒合與後續聯繫。</p>
-        <p><b>使用範圍</b>：僅由 Step1ne 顧問查閱。提供給用人企業前會另外徵得您的同意。</p>
-        <p><b>初步面談由 AI 進行</b>，對話內容會保留供顧問評估參考。</p>
-        <p><b>保存與刪除</b>：保存至媒合流程結束後一年。您可隨時來信要求查閱或刪除。</p>
-      </details>
-      <button type="button" id="toAssess">開始工作風格測驗 →</button>
-      <div class="gmsg" id="gateMsg" role="alert" tabindex="-1" hidden></div>
-    </div>
 
     <fieldset>
       <legend>初步面談</legend>
@@ -422,9 +379,20 @@ details.opt>summary:focus-visible{outline:3px solid var(--ac);outline-offset:2px
         送出應徵後會依當下狀況直接安排面談，或請您選一個方便的時段——結果會在下一步顯示。</p>
     </fieldset>
 
-    <!-- 2026-10-12：測驗做完回來才出現（之前那顆灰色按不動的按鈕，滑到底的人會以為是送出鍵） -->
-    <button type="submit" id="btn" hidden>送出應徵</button>
-    <div class="msg" id="msg" role="alert"></div>
+    <label class="consent">
+      <input type="checkbox" id="consent" required>
+      <span>我同意 Step1ne（德仁管理顧問有限公司）為職缺媒合目的蒐集與處理上述資料。 <span class="req">*</span></span>
+    </label>
+    <details>
+      <summary>個資使用說明</summary>
+      <p><b>蒐集目的</b>：職缺媒合與後續聯繫。</p>
+      <p><b>使用範圍</b>：僅由 Step1ne 顧問查閱。提供給用人企業前會另外徵得您的同意。</p>
+      <p><b>初步面談由 AI 進行</b>，對話內容會保留供顧問評估參考。</p>
+      <p><b>保存與刪除</b>：保存至媒合流程結束後一年。您可隨時來信要求查閱或刪除。</p>
+    </details>
+
+    <button type="submit" id="btn" disabled>先完成工作風格測驗</button>
+    <div class="msg" id="msg"></div>
   </form>
 </div>
 
@@ -436,35 +404,13 @@ details.opt>summary:focus-visible{outline:3px solid var(--ac);outline-offset:2px
 </div>
 </div>
 
-<script src="/assets/resume-step.js?v=20261012d"></script>
+<script src="/assets/apply-funnel.js"></script>
 <script src="/assets/apply-later.js?v=20261021"></script>
 <script>
-
-function noteWithLeave(fd){
-  const lr=(fd.get('leave_reasons')||'').trim(), n=(fd.get('note')||'').trim();
-  return (lr?'【各段工作離職原因】\n'+lr:'')+(lr&&n?'\n\n':'')+n || null;
-}
 const API = 'https://step1ne-public-worker.aiagentg888.workers.dev';
-const q = new URLSearchParams(location.search);
-// 同一份檔案放在 /apply-beta/（給 Jacky 手機先測）跟之後的 /apply/，從哪裡來就回哪裡
+// 同一份檔案也放在 /apply-beta/（給 Jacky 手機先測），從哪裡來就回哪裡
 const IS_BETA = location.pathname.indexOf('/apply-beta') === 0;
-// GA4 事件：只記「發生了什麼」，絕不帶姓名、信箱、電話這類個資
-function ga(name, params) { try { gtag('event', name, Object.assign({ page_path: location.pathname }, params || {})); } catch (e) { /* GA 掛了不能擋應徵 */ } }
-
-// ── App 內建瀏覽器（LINE／Threads／IG／FB）：常常選不到檔案，最上面先講白有其他路 ──
-(function () {
-  const ua = navigator.userAgent || '';
-  const kind = /\bLine\//i.test(ua) ? 'line' : /Barcelona/i.test(ua) ? 'threads'
-    : /Instagram/i.test(ua) ? 'ig' : /FBAN|FBAV|FB_IAB/i.test(ua) ? 'fb' : '';
-  if (!kind) return;
-  const box = document.getElementById('inapp');
-  // LINE 支援網址加 openExternalBrowser=1 直接跳到手機的瀏覽器開
-  const ext = kind === 'line'
-    ? ' <a href="' + location.pathname + (location.search ? location.search + '&' : '?') + 'openExternalBrowser=1">用瀏覽器開啟</a>' : '';
-  box.innerHTML = '<span>選不到檔案？可以改用下面的「用 LINE 傳」分頁，或點右上角用瀏覽器開啟。' + ext + '</span>';
-  box.hidden = false;
-  ga('apply_inapp_browser', { app: kind });
-})();
+const q = new URLSearchParams(location.search);
 // 顧問發出來的專屬邀請連結：/apply/?inv=<token>
 // 姓名、信箱、要應徵哪個職缺、履歷有沒有，全部由顧問先準備好，
 // 人選進來只剩測驗要填。每多要他做一件事就掉一批人，履歷又是最容易放棄的那一步。
@@ -521,13 +467,13 @@ function applyInvite() {
   // 顧問已經附好履歷的話，履歷欄位就不再是必填——這是整條流程最容易讓人
   // 放棄的一步，能省就省。他想換一份新的還是可以自己傳。
   if (INVITE.has_resume) {
-    const rsBox = document.getElementById('resumeStep');
-    if (rsBox) {
+    const fi = f2.querySelector('input[name=resume]');
+    if (fi) {
       const hint = document.createElement('p');
       hint.className = 'hint';
-      hint.style.cssText = 'color:#2f8f5b;font-size:13.5px;margin:0 0 10px';
-      hint.textContent = '顧問已經幫你附上履歷了，不用重傳。要換一份新的才需要選。';
-      rsBox.insertAdjacentElement('beforebegin', hint);
+      hint.style.color = '#2f8f5b';
+      hint.textContent = '✅ 顧問已經幫你附上履歷了，不用重傳。要換一份新的才需要選檔。';
+      fi.insertAdjacentElement('afterend', hint);
     }
   }
 }
@@ -536,89 +482,14 @@ function applyInvite() {
 const f = document.getElementById('f');
 const bar = document.getElementById('bar');
 function prog() {
-  // 只算必填的那幾格（選填區、履歷那一塊另外算），不然選填欄位一多，進度條永遠走不完
-  const fields = [...f.querySelectorAll('input[required],select[required],textarea[required]')]
-    .filter(e => e.type !== 'checkbox' && !e.closest('#resumeStep'));
+  const fields = [...f.querySelectorAll('input,select,textarea')]
+    .filter(e => e.type !== 'file' && e.type !== 'checkbox' && e.type !== 'radio');
   const filled = fields.filter(e => e.value.trim()).length;
   const c = document.getElementById('consent').checked ? 1 : 0;
   // 地區是一整組 checkbox，算成一題：勾了任何一個就算填完
   const a = f.querySelector('input[name=area]:checked') ? 1 : 0;
-  const r = (window.RS && (RS.isDone() || (INVITE && INVITE.has_resume))) ? 1 : 0;
-  bar.style.width = Math.round((filled + c + a + r) / (fields.length + 3) * 100) + '%';
-  sectionCheck();
+  bar.style.width = Math.round((filled + c + a) / (fields.length + 2) * 100) + '%';
 }
-
-// ── 每一區填完記一次（GA：apply_section_complete），才看得出人卡在哪一區 ──
-const SECTION_DONE = {};
-function sectionCheck() {
-  const v = (n) => (f.elements[n] && String(f.elements[n].value || '').trim()) || '';
-  const done = {
-    job: !!v('job_slug') || !!(INVITE && INVITE.job_slug),
-    basic: !!v('name') && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v('email')),
-    conditions: !!v('expected_salary') && !!v('available_date') && !!f.querySelector('input[name=area]:checked'),
-    resume: !!(window.RS && RS.isDone()) || !!(INVITE && INVITE.has_resume),
-  };
-  for (const k in done) {
-    if (done[k] && !SECTION_DONE[k]) { SECTION_DONE[k] = 1; ga('apply_section_complete', { section: k }); }
-  }
-}
-
-// ── 履歷三條路 ──
-const RS = window.RS = S1Resume.mount(document.getElementById('resumeStep'), {
-  api: API, track: ga, onChange: () => { prog(); saveDraft(); },
-});
-
-// ── 草稿：去 LINE 傳履歷再回來、或不小心關掉，填過的不用重打（只存在這支手機，24 小時後作廢） ──
-const DRAFT_KEY = 's1ne_apply_draft';
-const DRAFT_FIELDS = ['name', 'email', 'phone', 'expected_salary', 'available_date', 'stay_need', 'note',
-  'cur_monthly', 'cur_months', 'cur_bonus', 'deal_breakers', 'applied_elsewhere'];
-let draftT = null, DRAFT_READY = false;
-window.__rsSaveNow = function () {
-  try {
-    const o = { t: Date.now(), job_slug: (f.elements.job_slug && f.elements.job_slug.value) || '',
-      areas: [...f.querySelectorAll('input[name=area]:checked')].map(x => x.value), rs: RS.getState() };
-    DRAFT_FIELDS.forEach(k => { if (f.elements[k]) o[k] = f.elements[k].value; });
-    localStorage.setItem(DRAFT_KEY, JSON.stringify(o));
-  } catch (e) {}
-};
-function saveDraft() {
-  if (!DRAFT_READY || RETURN_TOKEN) return;
-  clearTimeout(draftT);
-  draftT = setTimeout(() => {
-    try {
-      const o = { t: Date.now(), job_slug: (f.elements.job_slug && f.elements.job_slug.value) || '',
-        areas: [...f.querySelectorAll('input[name=area]:checked')].map(x => x.value), rs: RS.getState() };
-      DRAFT_FIELDS.forEach(k => { if (f.elements[k]) o[k] = f.elements[k].value; });
-      localStorage.setItem(DRAFT_KEY, JSON.stringify(o));
-    } catch (e) { /* 私密瀏覽等存不了就算了 */ }
-  }, 400);
-}
-function loadDraft() {
-  try {
-    const o = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
-    if (!o || Date.now() - o.t > 24 * 3600e3) { localStorage.removeItem(DRAFT_KEY); return null; }
-    return o;
-  } catch (e) { return null; }
-}
-function clearDraft() { try { localStorage.removeItem(DRAFT_KEY); } catch (e) {} }
-// 測驗回來（back=1）就不用草稿，那邊有自己的還原
-const DRAFT = q.get('back') === '1' ? null : loadDraft();
-
-// ── 離開時記「最後停在哪一格」（GA：apply_abandon；只記欄位名稱，不記內容） ──
-let LAST_FIELD = '', STARTED = false, LEAVING_OK = false, ABANDON_SENT = false;
-f.addEventListener('focusin', (e) => {
-  const el = e.target;
-  LAST_FIELD = el.name || el.getAttribute('data-q') || el.id || el.className || '';
-});
-f.addEventListener('input', () => { STARTED = true; });
-function sendAbandon(via) {
-  if (!STARTED || LEAVING_OK || ABANDON_SENT || RETURN_TOKEN) return;
-  ABANDON_SENT = true;
-  ga('apply_abandon', { last_field: String(LAST_FIELD).slice(0, 40) || 'none', via,
-    resume_method: RS.method() || 'none', transport_type: 'beacon' });
-}
-document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') sendAbandon('hidden'); });
-window.addEventListener('pagehide', () => sendAbandon('pagehide'));
 f.addEventListener('input', prog);
 f.addEventListener('change', prog);
 
@@ -651,7 +522,6 @@ Promise.all([
   if (RETURN_FORM_DATA && RETURN_FORM_DATA.job_slug) sel.value = RETURN_FORM_DATA.job_slug;
   else if (INVITE && INVITE.job_slug) sel.value = INVITE.job_slug;   // 顧問指定的，優先權比網址帶的高
   else if (JOB) sel.value = JOB;      // 從職缺頁進來時預選，但仍可改
-  else if (DRAFT && DRAFT.job_slug) sel.value = DRAFT.job_slug;   // 2026-10-12：上次沒填完的草稿
   if (INVITE) applyInvite();
 
   // 選了職缺就把重點攤開來。從廣告直接進來的人沒看過職缺頁，
@@ -759,6 +629,7 @@ async function buildBody() {
   const fd = new FormData(f);
   const jobSel = document.getElementById('jobSel');
   const body = {
+    anon_id: (window.S1F && S1F.aid) || null,   // 漏斗追蹤用的匿名編號（不是個資）
     job_slug: fd.get('job_slug') || 'unspecified',
     job_title: jobSel.selectedOptions[0]?.dataset.title || null,
     name: fd.get('name'), email: fd.get('email'), phone: fd.get('phone'),
@@ -767,8 +638,9 @@ async function buildBody() {
       fd.getAll('area').join('、'),
       fd.get('stay_need') || '',
     ].filter(Boolean).join('　｜　') || null,
+    resume_url: fd.get('resume_url'),
     invite_token: INV || null,
-    note: noteWithLeave(fd),
+    note: fd.get('note'),
     // 2026-10-03 資深獵頭初談必做項：薪資結構、底線、自己投過哪些、同意推薦（都選填）
     screen_extra: (() => {
       const o = {};
@@ -796,8 +668,13 @@ async function buildBody() {
     // queue_id 真的存在才記，這裡不用先驗證）。
     utm_content: q.get('utm_content'), referrer: document.referrer || null,
   };
-  // 2026-10-12：履歷改由三條路元件提供（上傳／LINE 代碼／快速履歷／貼文字／雲端連結）
-  Object.assign(body, await RS.payload());
+  const file = fd.get('resume');
+  if (file && file.size) {
+    if (file.size > 8 * 1024 * 1024) throw new Error('履歷檔超過 8MB，照片可以改用螢幕截圖（檔案比較小），或改用下面的雲端連結欄位');
+    body.resume_b64 = await readB64(file);
+    body.resume_name = file.name;
+    body.resume_mime = file.type;
+  }
   return body;
 }
 
@@ -821,75 +698,57 @@ async function resumeLinkProblem(url) {
   } catch (e) { return null; }
 }
 
-// 欄位名稱 → 人看得懂的說法（錯誤訊息用）
-const FIELD_LABEL = { job_slug: '想應徵的職缺', name: '姓名', email: 'Email', expected_salary: '期望待遇',
-  available_date: '最快可到職', consent: '同意個資使用說明', area: '可接受的工作地區' };
-// 2026-10-12：錯誤訊息一律貼在「開始測驗」按鈕正下方並捲過去（以前在整頁最底下，手機上看不到，
-// 人以為按鈕壞了就走了）。訊息裡附一顆「帶我去填」，點了才跳到那一格。
-function gateErr(text, el, field) {
-  const box = document.getElementById('gateMsg');
-  box.textContent = text;
-  if (el) {
-    const go = document.createElement('button');
-    go.type = 'button'; go.textContent = '帶我去那一格 →';
-    go.onclick = () => {
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      try { el.focus({ preventScroll: true }); } catch (e) {}
-    };
-    box.appendChild(document.createElement('br'));
-    box.appendChild(go);
-  }
-  box.hidden = false;
-  box.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  try { box.focus({ preventScroll: true }); } catch (e) {}
-  ga('apply_blocked', { field: field || 'unknown' });
-}
-function netErrText(err) {
-  // fetch 斷線在 iPhone 是「Load failed」、Chrome 是「Failed to fetch」，直接秀給人看不懂
-  if (!err || err.name === 'TypeError' || /fetch|load failed|network/i.test(String(err.message || '')))
-    return '網路連線不穩，資料都還在。請確認網路後再按一次。';
-  return err.message || '送出失敗，請稍後再試';
-}
-// 第一個沒填的必填欄位（自己找，不靠瀏覽器的小泡泡——App 內建瀏覽器常常不顯示）
-function firstInvalid() {
-  for (const el of f.querySelectorAll('input[required],select[required],textarea[required]')) {
-    if (el.closest('#resumeStep') || el.disabled) continue;
-    if (!el.checkValidity()) {
-      const k = el.name || el.id;
-      let msg = `還沒填：${FIELD_LABEL[k] || '必填欄位'}`;
-      if (k === 'email' && el.value.trim()) msg = 'Email 格式看起來不對，請再檢查一次';
-      return { el: k === 'job_slug' ? (document.getElementById('jobFilter') || el) : el, field: k, msg };
-    }
-  }
-  return null;
-}
-
 document.getElementById('toAssess').addEventListener('click', async () => {
   const btn = document.getElementById('toAssess');
-  const box = document.getElementById('gateMsg');
-  box.hidden = true; box.textContent = '';
+  const msg = document.getElementById('msg');
+  msg.className = 'msg';
 
-  const inv = firstInvalid();
-  if (inv && inv.field !== 'consent') return gateErr(inv.msg, inv.el, inv.field);
-  // 地區是「至少勾一個」，HTML required 表達不出來，只能自己判斷
+  // 用原生驗證檢查必填欄位（name/email/job_slug、期望待遇、可到職等）
+  if (!f.reportValidity()) return;
+  // 地區是「至少勾一個」，不是「全部都要勾」——checkbox 跟 radio 不一樣，
+  // 每個 checkbox 都加 required 的話瀏覽器會要求全部勾選，只能自己判斷。
   if (!f.querySelector('input[name=area]:checked')) {
-    return gateErr('還沒選：可接受的工作地區（至少選一個）', document.getElementById('areas'), 'area');
+    msg.className = 'msg err';
+    msg.textContent = '請至少選一個可接受的工作地區';
+    document.getElementById('areas').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
   }
-  // 履歷：三條路選一條（顧問邀請連結已經附好履歷的不用再交）
-  if (!(INVITE && INVITE.has_resume)) {
-    const v = RS.validate();
-    if (!v.ok) return gateErr(v.message, v.el, v.field);
+  // 履歷是「上傳檔案」跟「貼連結」擇一即可，HTML required 表達不出這種或關係，只能自己判斷
+  const hasFile = f.querySelector('input[name=resume]').files.length > 0;
+  const hasUrl = f.querySelector('input[name=resume_url]').value.trim();
+  // 顧問已經附好履歷的，不用再要一次
+  const hasInviteResume = !!(INVITE && INVITE.has_resume);
+  if (!hasFile && !hasUrl && !hasInviteResume) {
+    msg.className = 'msg err';
+    msg.textContent = '請上傳履歷檔案，或貼上雲端連結（擇一即可）';
+    f.querySelector('input[name=resume]').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+  // 2026-08-26 加：資料夾連結當場擋下來。廖若辰連貼三次 Google Drive 的
+  // /folders/ 連結，系統抓不到裡面的履歷檔，等到阿財要面談了才發警告給顧問，
+  // 那時候才回頭請人重傳已經來不及。這裡在送出當下就講清楚該怎麼改。
+  if (!hasFile && /drive\.google\.com\/drive\/folders\//i.test(hasUrl)) {
+    msg.className = 'msg err';
+    msg.textContent = '這是「資料夾」連結，系統讀不到裡面的履歷。請直接上傳 PDF 檔（最推薦），或改貼單一檔案的分享連結。';
+    f.querySelector('input[name=resume]').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
   }
   if (!document.getElementById('consent').checked) {
-    return gateErr('請先勾選上面的「我同意…蒐集與處理上述資料」', document.getElementById('consent'), 'consent');
+    msg.className = 'msg err';
+    msg.textContent = '請先勾選同意個資使用說明';
+    document.getElementById('consent').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
   }
 
-  const linkToCheck = RS.urlToCheck();
-  if (linkToCheck) {
+  if (!hasFile && hasUrl) {
     btn.disabled = true; btn.textContent = '檢查履歷連結⋯';
-    const problem = await resumeLinkProblem(linkToCheck);
+    const problem = await resumeLinkProblem(hasUrl);
     btn.disabled = false; btn.textContent = '開始工作風格測驗 →';
-    if (problem) return gateErr(problem, document.querySelector('#resumeStep .rs-url'), 'resume_url_private');
+    if (problem) {
+      msg.className = 'msg err'; msg.textContent = problem;
+      f.querySelector('input[name=resume_url]').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
   }
   btn.disabled = true; btn.textContent = '處理中⋯';
   try {
@@ -898,32 +757,32 @@ document.getElementById('toAssess').addEventListener('click', async () => {
       method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify(body),
     });
-    let d;
-    try { d = await r.json(); } catch (e) { throw new Error('伺服器暫時沒有回應，資料都還在，請過幾秒再按一次'); }
-    if (!d.ok) {
-      ga('apply_blocked', { field: 'server_' + String(d.error || 'unknown').slice(0, 30) });
-      const e = new Error(d.message || d.error || '送出失敗'); e.server = true; throw e;
-    }
+    const d = await r.json();
+    if (!d.ok) throw new Error(
+      // 後端擋下時會附中文說明（例如社群連結至少要填一個），
+      // 直接丟 error 代碼出去人看不懂
+      d.message || d.error || '送出失敗');
     if (!d.chat_token) throw new Error('系統沒有回傳面談連結，請聯繫我們');
 
-    // 跳去測驗前，把剛剛打的每個欄位存起來，回來時才能還原（檔案本身存不了，只記檔名；
-    // 真正的檔案內容已經在這次 /apply 存進資料庫了，回來後不用重選）
+    // ⚠️ 2026-08-07 改：這裡要跳回的是「這份表單本身」讓他檢查資料，
+    // 不是另一個報告畫面——所以要把他剛剛打的每個欄位存起來，回來時才能還原。
+    // 檔案本身（File 物件）沒辦法存進 sessionStorage，只記檔名讓他看得到「已上傳」；
+    // 真正的檔案內容已經在這次 /apply 存進資料庫了，回來後不用重選。
     const fd = new FormData(f);
-    const extra = {};
-    ['cur_monthly', 'cur_months', 'cur_bonus', 'deal_breakers', 'applied_elsewhere'].forEach(k => { extra[k] = fd.get(k) || ''; });
+    const file = fd.get('resume');
     sessionStorage.setItem('s1ne_form_' + d.chat_token, JSON.stringify({
-      job_slug: fd.get('job_slug') || (INVITE && INVITE.job_slug) || '', name: fd.get('name'), email: fd.get('email'),
+      job_slug: fd.get('job_slug'), name: fd.get('name'), email: fd.get('email'),
       phone: fd.get('phone'), expected_salary: fd.get('expected_salary'),
       available_date: fd.get('available_date'), areas: fd.getAll('area'),
-      stay_need: fd.get('stay_need'), note: noteWithLeave(fd), extra,
-      consent_recommend: !!fd.get('consent_recommend'), rs: RS.getState(),
+      stay_need: fd.get('stay_need'), resume_url: fd.get('resume_url'),
+      resume_name: (file && file.size) ? file.name : null,
+      note: fd.get('note'),
     }));
     sessionStorage.setItem('s1ne_token', d.chat_token);
-    LEAVING_OK = true; clearDraft();
-    ga('apply_to_assessment', { resume_method: RS.method() || (INVITE && INVITE.has_resume ? 'invite' : 'none') });
     location.href = '/assessment/?t=' + encodeURIComponent(d.chat_token) + '&back=1' + (IS_BETA ? '&ret=beta' : '');
   } catch (err) {
-    gateErr(err && err.server ? err.message : netErrText(err), null, err && err.server ? null : 'network');
+    msg.className = 'msg err';
+    msg.textContent = err.message || '送出失敗，請稍後再試';
     btn.disabled = false; btn.textContent = '開始工作風格測驗 →';
   }
 });
@@ -943,50 +802,35 @@ let RETURN_TOKEN = null, HAD_RESUME_BEFORE = false, RETURN_FORM_DATA = null;
 
   RETURN_TOKEN = T;
   RETURN_FORM_DATA = formData;   // job_slug 要等 jobs.json 那個 fetch 把 <option> 生出來才能設，見下方
+  HAD_RESUME_BEFORE = !!(formData.resume_name || formData.resume_url);
 
   // 把欄位值填回去，讓他真的看得到自己剛剛打的東西
-  f.elements.name.value = formData.name || '';
-  f.elements.email.value = formData.email || '';
-  f.elements.phone.value = formData.phone || '';
-  f.elements.expected_salary.value = formData.expected_salary || '';
-  f.elements.available_date.value = formData.available_date || '';
+  f.name.value = formData.name || '';
+  f.email.value = formData.email || '';
+  f.phone.value = formData.phone || '';
+  f.expected_salary.value = formData.expected_salary || '';
+  f.available_date.value = formData.available_date || '';
   f.querySelectorAll('input[name=area]').forEach(cb => {
     cb.checked = (formData.areas || []).includes(cb.value);
   });
-  f.elements.stay_need.value = formData.stay_need || '';
-  f.elements.note.value = formData.note || '';
-  const ex = formData.extra || {};
-  let anyOpt = false;
-  Object.keys(ex).forEach(k => { if (f.elements[k]) { f.elements[k].value = ex[k] || ''; if (ex[k]) anyOpt = true; } });
-  if (formData.consent_recommend && f.elements.consent_recommend) { f.elements.consent_recommend.checked = true; anyOpt = true; }
-  if (anyOpt) document.getElementById('optBox').open = true;
+  f.stay_need.value = formData.stay_need || '';
+  f.resume_url.value = formData.resume_url || '';
+  f.note.value = formData.note || '';
   document.getElementById('consent').checked = true;
-  // 履歷：第一次送出時已經存進資料庫了，這裡只是讓他看得到「交了什麼」，不用重選
-  RS.setState(formData.rs || null, true);
-  HAD_RESUME_BEFORE = !!(formData.rs && formData.rs.method);
-  // 2026-10-12：上傳的是截圖／照片的話，測驗這段時間系統已經在看圖轉文字（OCR）。
-  // 字太少（看不清楚）就在上傳區下面請他再截一次；不擋送出——第二次還是看不清楚就收下、交給顧問看。
-  if (formData.rs && formData.rs.method === 'upload') watchResumeRead(T);
+
+  if (formData.resume_name) {
+    const hint = document.createElement('div');
+    hint.className = 'hint'; hint.style.color = '#1e8e5a';
+    hint.textContent = `✅ 已上傳：${formData.resume_name}（不用重新選檔）`;
+    f.querySelector('input[name=resume]').insertAdjacentElement('afterend', hint);
+  }
 
   renderReportIntoGate(saved.scores, saved.result);
-  document.getElementById('gateActions').hidden = true;
-  document.getElementById('btn').hidden = false;
   document.getElementById('btn').disabled = false;
   document.getElementById('btn').textContent = '送出應徵';
   prog();
   scrollTo(0, 0);
 })();
-
-// 問後端：剛剛上傳的截圖，系統看得清楚嗎（pending＝還在轉、ok、unreadable＝字太少請重截）
-// 最多看 4 分鐘；只回狀態，不回任何內容
-function watchResumeRead(T, tries) {
-  tries = tries || 0;
-  fetch(`${API}/apply/resume-check/${encodeURIComponent(T)}`).then(r => r.json()).then(d => {
-    if (!d || !d.ok) return;
-    if (d.state === 'unreadable') { RS.showUnreadable(true); ga('resume_unreadable_shown', { tries: d.tries || 1 }); return; }
-    if (d.state === 'pending' && tries < 24) setTimeout(() => watchResumeRead(T, tries + 1), 10000);
-  }).catch(() => {});
-}
 
 // 報告直接注入「工作風格測驗」那個 fieldset 裡，取代開始按鈕——
 // 跟其餘欄位在同一份表單、同一個畫面，才能真的「一起檢查再送出」。
@@ -1049,25 +893,22 @@ f.addEventListener('submit', async (e) => {
     document.getElementById('areas').scrollIntoView({ behavior: 'smooth', block: 'center' });
     return;
   }
-  // 履歷：第一次送出時已經交過的（含選 LINE 傳、還在路上的）都算；這次改選別的就照新的檢查
-  if (!(INVITE && INVITE.has_resume)) {
-    const v = RS.validate();
-    if (!v.ok && !HAD_RESUME_BEFORE) {
-      msg.className = 'msg err'; msg.textContent = v.message;
-      ga('apply_blocked', { field: 'final_' + v.field });
-      RS.focusError(v);
-      return;
-    }
+  const file = f.querySelector('input[name=resume]');
+  const hasUrl = f.resume_url.value.trim();
+  // 回來這一趟檔案輸入框一定是空的（瀏覽器不會保留），有上傳過或現在補連結都算過
+  if (!(file.files.length > 0) && !hasUrl && !HAD_RESUME_BEFORE) {
+    msg.className = 'msg err'; msg.textContent = '請上傳履歷檔案，或貼上雲端連結（擇一即可）';
+    file.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
   }
-  const newLink = RS.urlToCheck();
-  const oldLink = String((RETURN_FORM_DATA && RETURN_FORM_DATA.rs && RETURN_FORM_DATA.rs.url) || '').trim();
-  if (newLink && newLink !== oldLink) {
+
+  if (!(file.files.length > 0) && hasUrl && hasUrl !== String((RETURN_FORM_DATA && RETURN_FORM_DATA.resume_url) || '').trim()) {
     btn.disabled = true; btn.textContent = '檢查履歷連結⋯';
-    const problem = await resumeLinkProblem(newLink);
+    const problem = await resumeLinkProblem(hasUrl);
     btn.disabled = false; btn.textContent = '送出應徵';
     if (problem) {
       msg.className = 'msg err'; msg.textContent = problem;
-      document.querySelector('#resumeStep .rs-url').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      f.resume_url.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
   }
@@ -1085,12 +926,10 @@ f.addEventListener('submit', async (e) => {
       // 直接丟 error 代碼出去人看不懂
       d.message || d.error || '送出失敗');
   } catch (err) {
-    msg.className = 'msg err'; msg.textContent = (d && !d.ok) ? err.message : netErrText(err);
-    msg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    msg.className = 'msg err'; msg.textContent = err.message || '送出失敗，請稍後再試';
     btn.disabled = false; btn.textContent = '送出應徵';
     return;
   }
-  clearDraft();
 
   // 額外多告訴 GA4 一次「應徵表單送出成功」，不影響上面已經存進資料庫的邏輯——
   // 只是讓這批本來就有抓到的 UTM／來源資料，同時也進得了 GA4 報表。
@@ -1130,21 +969,22 @@ f.addEventListener('submit', async (e) => {
 function showNowOrBook(route) {
   document.getElementById('form-view').innerHTML = `
     <h2 style="font-size:20px">已收到您的應徵</h2>
-    <p class="lead">接下來跟阿財聊 15～25 分鐘，您想怎麼安排？</p>
+    <p class="lead">目前面談室有空，您可以現在就開始，或先約一個方便的時段。</p>
     <a class="go" href="/interview/?t=${encodeURIComponent(RETURN_TOKEN)}"
-       style="display:flex;align-items:center;justify-content:center;min-height:52px;text-align:center;text-decoration:none;font-weight:700;
+       style="display:block;text-align:center;text-decoration:none;font-weight:700;
               background:var(--ac);color:#fff;border-radius:12px;padding:15px;margin-top:18px;">
       現在就開始面談
     </a>
-    <button type="button" id="wantbook" style="display:block;width:100%;min-height:48px;margin:10px 0 0;border:1.5px solid var(--ac);
-       border-radius:12px;background:#fff;color:var(--ac);font:inherit;font-size:15.5px;font-weight:700;cursor:pointer;">約一個時間</button>
+    <p style="margin:16px 0 0;text-align:center;">
+      <a href="#" id="wantbook" style="color:var(--ac);font-size:15px;">現在不方便，我要先約時間 →</a>
+    </p>
     <div id="laterAnchor"></div>
     <div id="bookbox" hidden style="margin-top:14px;">
       <p class="lead">選一個方便的時段，時間到之前我們會寄信提醒您。</p>
       <div id="slotbox"></div>
       <div class="msg" id="bmsg"></div>
     </div>`;
-  // 2026-10-21「先送出，晚點再聊」（測試版先上 /apply-beta/）：第三個選項放最下面，不搶「現在就開始」
+  // 2026-10-21「先送出，晚點再聊」（Jacky 核准上線）：第三個選項放最下面，不搶「現在就開始」
   let laterOpt = null;
   try {
     const sel = document.getElementById('jobSel');
@@ -1204,27 +1044,56 @@ async function bookApplySlot(btn, slot) {
   document.getElementById('bookbox').innerHTML =
     `<p class="lead">已為您預約 <b>${slot}</b>。<br>我們會在時間到之前寄信提醒您，屆時用信裡的連結進入面談室即可。</p>`;
 }
-// 2026-10-12：選填區在電腦上直接展開（螢幕夠大不用收），手機維持收起
-try { if (window.matchMedia('(min-width: 721px)').matches) document.getElementById('optBox').open = true; } catch (e) {}
-
-// 2026-10-12：上次沒填完的草稿（例如跑去 LINE 傳履歷、頁面被關掉）→ 填回去
-if (!RETURN_TOKEN && DRAFT) {
-  DRAFT_FIELDS.forEach(k => { if (DRAFT[k] && f.elements[k] && !f.elements[k].value) f.elements[k].value = DRAFT[k]; });
-  f.querySelectorAll('input[name=area]').forEach(cb => { if ((DRAFT.areas || []).includes(cb.value)) cb.checked = true; });
-  if (DRAFT.rs) RS.setState(DRAFT.rs, false);
-  if (['cur_monthly', 'cur_months', 'cur_bonus', 'deal_breakers', 'applied_elsewhere'].some(k => DRAFT[k])) document.getElementById('optBox').open = true;
-}
-// 2026-10-12：從 LINE「履歷收到了」那則訊息的連結回來（?rc=代碼）→ 直接切到 LINE 分頁並顯示已收到
-{
-  const rc = (q.get('rc') || '').trim().toUpperCase();
-  if (rc && /^[A-Z0-9]{4,8}$/.test(rc) && !RETURN_TOKEN) {
-    const cur = (DRAFT && DRAFT.rs) || {};
-    RS.setState(Object.assign({}, cur, { method: 'line', code: rc,
-      line_url: cur.code === rc ? cur.line_url : '' }), false);
-  }
-}
-DRAFT_READY = true;
-f.addEventListener('input', saveDraft);
-f.addEventListener('change', saveDraft);
 prog();
+</script>
+<script>
+// ── 應徵漏斗追蹤（2026-10-21）：只記事件，不改畫面、不改驗證 ──
+(function () {
+  if (!window.S1F) return;
+  try {
+    var flow = 'original';
+    var jobOf = function () { try { return (document.getElementById('jobSel') || {}).value || JOB || null; } catch (e) { return JOB || null; } };
+    var stage = function () { return RETURN_TOKEN ? 'final' : 'step1'; };
+    S1F.track('apply_landing', { flow: flow, job: JOB || null,
+      props: { back: q.get('back') === '1' ? 1 : 0, inv: INV ? 1 : 0 } });
+    var started = false, last = '';
+    var onField = function (e) {
+      var n = e.target && e.target.name; if (n) last = n;
+      if (!started && e.isTrusted) { started = true; S1F.track('apply_form_start', { flow: flow, job: jobOf(), props: { stage: stage() } }); }
+    };
+    f.addEventListener('input', onField, true);
+    f.addEventListener('change', onField, true);
+    // 瀏覽器原生驗證擋下的欄位（invalid 不會冒泡，用 capture）
+    f.addEventListener('invalid', function (e) {
+      S1F.track('apply_validation_error', { flow: flow, job: jobOf(), props: { field: (e.target && e.target.name) || 'unknown', stage: stage() } });
+    }, true);
+    // 頁面自己判斷的錯誤（地區／履歷／同意…）：看 #msg 變成錯誤時記一個代碼
+    var msgEl = document.getElementById('msg');
+    if (msgEl && window.MutationObserver) {
+      var code = function (t) {
+        return /資料夾/.test(t) ? 'resume_folder' : /地區/.test(t) ? 'area' : /履歷/.test(t) ? 'resume'
+          : /同意/.test(t) ? 'consent' : 'other';
+      };
+      new MutationObserver(function () {
+        if (msgEl.className.indexOf('err') >= 0 && msgEl.textContent) {
+          S1F.track('apply_validation_error', { flow: flow, job: jobOf(), props: { field: code(msgEl.textContent), stage: stage() } });
+        }
+      }).observe(msgEl, { attributes: true, childList: true, characterData: true, subtree: true });
+    }
+    var rf = f.querySelector('input[name=resume]');
+    if (rf) rf.addEventListener('change', function () {
+      var x = rf.files && rf.files[0]; if (!x) return;
+      S1F.track('resume_upload_start', { flow: flow, job: jobOf(),
+        props: { size: x.size > 8388608 ? '>8MB' : x.size > 2097152 ? '2-8MB' : '<2MB' } });
+    });
+    // 中途離開：表單還在畫面上、送出鈕沒在處理中，才算離開
+    S1F.onLeave(function () {
+      if (!started || !document.contains(f)) return false;
+      var a = document.getElementById('toAssess'), b = document.getElementById('btn');
+      if ((a && a.disabled && !RETURN_TOKEN) || (b && b.disabled && RETURN_TOKEN)) return false;
+      S1F.track('apply_abandon', { flow: flow, job: jobOf(), props: { section: last, stage: stage() } });
+      return true;
+    });
+  } catch (e) { /* 追蹤壞掉不能影響應徵 */ }
+})();
 </script>

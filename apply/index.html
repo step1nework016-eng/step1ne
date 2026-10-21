@@ -405,8 +405,11 @@ dialog.think::backdrop{background:rgba(22,32,46,.45)}
 </div>
 
 <script src="/assets/apply-funnel.js"></script>
+<script src="/assets/apply-later.js?v=20261021"></script>
 <script>
 const API = 'https://step1ne-public-worker.aiagentg888.workers.dev';
+// 同一份檔案也放在 /apply-beta/（給 Jacky 手機先測），從哪裡來就回哪裡
+const IS_BETA = location.pathname.indexOf('/apply-beta') === 0;
 const q = new URLSearchParams(location.search);
 // 顧問發出來的專屬邀請連結：/apply/?inv=<token>
 // 姓名、信箱、要應徵哪個職缺、履歷有沒有，全部由顧問先準備好，
@@ -776,7 +779,7 @@ document.getElementById('toAssess').addEventListener('click', async () => {
       note: fd.get('note'),
     }));
     sessionStorage.setItem('s1ne_token', d.chat_token);
-    location.href = '/assessment/?t=' + encodeURIComponent(d.chat_token) + '&back=1';
+    location.href = '/assessment/?t=' + encodeURIComponent(d.chat_token) + '&back=1' + (IS_BETA ? '&ret=beta' : '');
   } catch (err) {
     msg.className = 'msg err';
     msg.textContent = err.message || '送出失敗，請稍後再試';
@@ -975,15 +978,25 @@ function showNowOrBook(route) {
     <p style="margin:16px 0 0;text-align:center;">
       <a href="#" id="wantbook" style="color:var(--ac);font-size:15px;">現在不方便，我要先約時間 →</a>
     </p>
+    <div id="laterAnchor"></div>
     <div id="bookbox" hidden style="margin-top:14px;">
       <p class="lead">選一個方便的時段，時間到之前我們會寄信提醒您。</p>
       <div id="slotbox"></div>
       <div class="msg" id="bmsg"></div>
     </div>`;
+  // 2026-10-21「先送出，晚點再聊」（Jacky 核准上線）：第三個選項放最下面，不搶「現在就開始」
+  let laterOpt = null;
+  try {
+    const sel = document.getElementById('jobSel');
+    const jt = (sel && sel.selectedIndex > 0) ? sel.options[sel.selectedIndex].text.trim() : '';
+    if (window.ApplyLater) laterOpt = ApplyLater.attach({ api: API, token: RETURN_TOKEN, jobTitle: jt,
+      after: document.getElementById('laterAnchor'), screen: document.getElementById('form-view') });
+  } catch (e) { /* 這個選項掛了也不能擋住原本兩條路 */ }
   document.getElementById('wantbook').onclick = (e) => {
     e.preventDefault();
     document.getElementById('bookbox').hidden = false;
     e.target.style.display = 'none';
+    if (laterOpt) laterOpt.style.display = 'none';
     renderApplySlots(route.slots || []);
     document.getElementById('bookbox').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   };
