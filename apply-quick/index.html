@@ -119,6 +119,14 @@ a.btn{text-decoration:none}
 .jcard .more{margin:0 0 0 30px}
 .jcard .detail{margin:0 0 8px}
 .f.bad .jcard{border-color:#efb6b0}
+.dates{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 8px;scroll-snap-type:x proximity}
+.dates button{flex:0 0 auto;scroll-snap-align:start;min-width:86px;min-height:60px;padding:8px 12px;border:1.5px solid var(--line);border-radius:12px;background:#fff;font:inherit;color:var(--tx);cursor:pointer;text-align:center}
+.dates button span{display:block;font-size:13px;color:var(--mu)}
+.dates button b{display:block;font-size:16px;color:var(--tx)}
+.dates button small{display:block;font-size:11.5px;color:var(--mu);margin-top:2px}
+.dates button[aria-checked="true"]{border-color:var(--ac);background:var(--ac-soft)}
+.dates button[aria-checked="true"] b{color:var(--ac)}
+.dates button:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
 </style></head><body>
 <div class="wrap">
   <header><img src="/assets/step1ne-logo.png" alt="" width="22" height="22" style="border-radius:6px" onerror="this.style.display='none'">Step1ne 德仁管理顧問</header>
@@ -337,10 +345,20 @@ function renderSlots(){
   if(!SLOTS.length && !renderSlots.tried){renderSlots.tried=true; box.innerHTML='<p class="note">時段載入中…</p>';
     fetch(API+'/slots').then(function(r){return r.json()}).then(function(d){SLOTS=(d&&d.slots)||[]; renderSlots();}).catch(function(){renderSlots();}); return;}
   if(!SLOTS.length){box.innerHTML='<p class="note">目前沒有可預約的時段，我們會另外寄信跟你安排。</p>';return;}
-  var by={},W='日一二三四五六'; SLOTS.forEach(function(s){var p=s.slot_at.split(' ');(by[p[0]]=by[p[0]]||[]).push(s)});
-  box.innerHTML=Object.keys(by).map(function(d){var a=d.split('-').map(Number),wd=W[new Date(Date.UTC(a[0],a[1]-1,a[2])).getUTCDay()];
-    return '<div class="day">'+a[1]+'/'+a[2]+'（'+wd+'）</div><div class="chips">'+by[d].map(function(s){return '<button type="button" data-slot="'+s.slot_at+'">'+s.slot_at.split(' ')[1]+'<small>剩 '+s.left+' 位</small></button>'}).join('')+'</div>'}).join('')+'<p class="note">約好的時間前會寄信提醒你。</p>';
-  box.querySelectorAll('[data-slot]').forEach(function(b){b.addEventListener('click',function(){bookSlot(b)})});
+  var by={},W='日一二三四五六',days=[]; SLOTS.forEach(function(x){var p=x.slot_at.split(' '); if(!by[p[0]]){by[p[0]]=[];days.push(p[0]);} by[p[0]].push(x)});
+  var lab=function(d){var a=d.split('-').map(Number),wd=W[new Date(Date.UTC(a[0],a[1]-1,a[2])).getUTCDay()];var t=new Date(Date.now()+8*36e5).toISOString().slice(0,10);
+    var tm=new Date(Date.now()+32*36e5).toISOString().slice(0,10);return (d===t?'今天':d===tm?'明天':'')+'<b>'+a[1]+'/'+a[2]+'</b>（'+wd+'）';};
+  box.innerHTML='<div class="day">先選日期</div><div class="dates" role="radiogroup" aria-label="選日期">'+days.map(function(d){
+      var left=by[d].reduce(function(n,x){return n+(x.left||0)},0);
+      return '<button type="button" role="radio" aria-checked="false" data-day="'+d+'"><span>'+lab(d)+'</span><small>'+by[d].length+' 個時段</small></button>'}).join('')+'</div>'
+    +'<div id="times"></div><p class="note">約好的時間前會寄信提醒你。</p>';
+  box.querySelectorAll('[data-day]').forEach(function(b){b.addEventListener('click',function(){
+    box.querySelectorAll('[data-day]').forEach(function(x){x.setAttribute('aria-checked',x===b?'true':'false')});
+    var d=b.getAttribute('data-day'), tb=document.getElementById('times');
+    tb.innerHTML='<div class="day">再選時間</div><div class="chips">'+by[d].map(function(x){return '<button type="button" data-slot="'+x.slot_at+'">'+x.slot_at.split(' ')[1]+'<small>剩 '+x.left+' 位</small></button>'}).join('')+'</div>';
+    tb.querySelectorAll('[data-slot]').forEach(function(sb){sb.addEventListener('click',function(){bookSlot(sb)})});
+    tb.scrollIntoView({block:'nearest',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+  })});
 }
 async function bookSlot(b){
   var m=document.getElementById('bmsg'); m.className='msg'; m.textContent='預約中…';
