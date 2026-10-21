@@ -332,7 +332,7 @@ document.getElementById('go').addEventListener('click',async function(){
   var start=pressed('start')[0]||''; if(start.indexOf('指定日期')===0) start='';
   var body={anon_id:(window.S1F&&S1F.aid)||null,job_slug:JOB,name:F.elements.name.value.trim(),phone:F.elements.phone.value.trim(),email:F.elements.email.value.trim(),city:(F.elements.city.value==='__other'?document.getElementById('cityOther').value.trim():F.elements.city.value),
     exp:pressed('exp')[0],sw:pressed('sw'),cert:pressed('cert').filter(function(x){return x.indexOf('其他（自己填）')!==0}).concat(document.getElementById('certOther').value.trim()?['其他：'+document.getElementById('certOther').value.trim()]:[]),moto:pressed('moto')[0],edu:F.elements.edu.value,school:(document.getElementById('eduMore').hidden?'':F.elements.school.value.trim()),dept:(document.getElementById('eduMore').hidden?'':F.elements.dept.value.trim()),start:start,start_date:document.getElementById('startDate').value,
-    consent:true,also_other:PICK&&document.getElementById('also').checked,resume_url:F.elements.resume_url.value.trim(),utm_source:Q.get('utm_source')||'',utm_medium:Q.get('utm_medium')||'',utm_campaign:Q.get('utm_campaign')||'',utm_content:Q.get('utm_content')||'',referrer:document.referrer||''};
+    consent:true,lang:'vi',also_other:PICK&&document.getElementById('also').checked,resume_url:F.elements.resume_url.value.trim(),utm_source:Q.get('utm_source')||'',utm_medium:Q.get('utm_medium')||'',utm_campaign:Q.get('utm_campaign')||'',utm_content:Q.get('utm_content')||'',referrer:document.referrer||''};
   try{
     var file=document.getElementById('rfile').files[0];
     if(file && document.querySelector('[data-rin="file"]').classList.contains('on')){

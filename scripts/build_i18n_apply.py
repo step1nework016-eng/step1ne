@@ -30,6 +30,8 @@ def build(lang):
 
     # ── head
     R('<html lang="zh-Hant">', '<html lang="%s">' % lang)
+    # 2026-10-21 外語人選模式：多送一個 lang，後端寫進 note「應徵頁語言：…（id）」，阿財據此開場用他的語言歡迎、之後用中文談並評估中文能力
+    R("consent:true,also_other:", "consent:true,lang:'%s',also_other:" % lang)
     R('<meta name="robots" content="noindex,nofollow">', '<link rel="canonical" href="https://step1ne.com/%s/apply-quick/">' % lang)
     R('<title>快速應徵｜Step1ne 德仁管理顧問</title>', '<title>%s</title>' % esc(T['title']))
     R('</style></head><body>', """.sw{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 8px;font-size:13px;color:var(--mu)}

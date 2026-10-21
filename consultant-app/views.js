@@ -3427,6 +3427,17 @@ ${a.note ? `<details class="note-details"><summary>顧問備註／電洽紀錄</
     const vcls = verdict.includes('推') && !verdict.includes('不') ? 'ok' : (verdict.includes('不符') ? 'bad' : 'wa');
     const obs = d.observations || {};
     const li = (arr) => (arr || []).map((x) => `<li>${E(x)}</li>`).join('') || '<li>無</li>';
+    // 2026-10-21 外語人選模式（印尼文／越南文職缺頁來的）才有 chinese_ability；中文人選這塊不會出現
+    const ca = d.chinese_ability || null;
+    const caLv = ca ? String(ca.level || '') : '';
+    const caHtml = ca ? `<section class="qa-card"><h4>中文能力</h4>
+        <p><span class="qa-pill ${({ 流利: 'ok', 可日常溝通: 'wa' })[caLv] || 'bad'}">${E(caLv || '—')}</span>
+        ${['勉強', '不足'].includes(caLv) ? '<b style="color:var(--bad,#B3261E);margin-left:8px">中文不足、不建議推薦（客戶要求中文流利）</b>' : (caLv === '可日常溝通' ? '<b style="margin-left:8px">客戶要求中文流利，目前只到可日常溝通，推薦前要先確認</b>' : '')}</p>
+        <table class="qa-kv"><tr><th scope="row">判斷依據</th><td>${E(ca.basis || '—')}</td></tr>
+        <tr><th scope="row">原話佐證</th><td><ul class="qa-list">${li(ca.evidence)}</ul></td></tr>
+        <tr><th scope="row">提醒改用中文</th><td>${E(ca.reminded || '—')}</td></tr>
+        <tr><th scope="row">工作許可身分</th><td>${E(ca.work_permit || '—')}（人選自述）</td></tr>
+        ${ca.audio_check ? `<tr><th scope="row">錄音</th><td>${E(ca.audio_check)}</td></tr>` : ''}</table></section>` : '';
     return `<div class="qa-rep">
       <div class="qa-head"><div><span class="qa-tag">快速應徵</span>
         <p class="qa-sub">${E(application.job_title || application.job_slug)}｜面談 ${E(String(application.interview_started_at || '').slice(0, 16))}${mins !== '' ? `｜約 ${mins} 分鐘` : ''}</p></div>
@@ -3434,6 +3445,7 @@ ${a.note ? `<details class="note-details"><summary>顧問備註／電洽紀錄</
       <section class="qa-hero ${vcls}"><div class="v">${E(d.verdict)}</div><p class="one">${E(d.one_liner)}</p>
         <div class="qa-two"><div><b>最大亮點</b><p>${E(d.top_selling_point)}</p></div><div><b>最大風險</b><p>${E(d.top_risk)}</p></div></div>
         <p class="route">系統分流：${E(route.label)}（${E(route.reason)}）</p></section>
+      ${caHtml}
       <div class="qa-grid">
         <section class="qa-card"><h4>快速應徵資料</h4><table class="qa-kv">${rowsBasic}</table></section>
         <section class="qa-card"><h4>顧問要補問</h4><ol class="qa-list">${follow.map((x) => `<li>${E(x)}</li>`).join('') || '<li>無</li>'}</ol></section>
