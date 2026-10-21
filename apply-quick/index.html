@@ -316,6 +316,11 @@ function showDone(r){
   document.getElementById('f').style.display='none'; document.getElementById('bar').style.display='none';
   document.getElementById('done').style.display='block'; scrollTo(0,0);
   var now=document.getElementById('now'); now.href='/interview/?t='+encodeURIComponent(TOKEN);
+  if(r.duplicate==='in_progress'){
+    document.getElementById('dh').textContent='你已經在面談中了';
+    document.getElementById('dp').textContent='這個職缺你剛剛已經應徵、也開始跟阿財聊了，不用重新填。按下面回到面談室就能接著聊。';
+    now.textContent='回到面談室'; document.getElementById('book').style.display='none'; return;
+  }
   if(r.route==='book'){
     document.getElementById('dh').textContent='應徵完成！選一個面談時段';
     document.getElementById('dp').textContent='現在面談室有 '+(r.busy||'幾')+' 位在聊，名額滿了。選一個方便的時間，時間到之前會寄信提醒你。';
@@ -329,6 +334,8 @@ function showDone(r){
 document.getElementById('book').addEventListener('click',function(){this.style.display='none'; renderSlots()});
 function renderSlots(){
   var box=document.getElementById('slots'); box.style.display='block';
+  if(!SLOTS.length && !renderSlots.tried){renderSlots.tried=true; box.innerHTML='<p class="note">時段載入中…</p>';
+    fetch(API+'/slots').then(function(r){return r.json()}).then(function(d){SLOTS=(d&&d.slots)||[]; renderSlots();}).catch(function(){renderSlots();}); return;}
   if(!SLOTS.length){box.innerHTML='<p class="note">目前沒有可預約的時段，我們會另外寄信跟你安排。</p>';return;}
   var by={},W='日一二三四五六'; SLOTS.forEach(function(s){var p=s.slot_at.split(' ');(by[p[0]]=by[p[0]]||[]).push(s)});
   box.innerHTML=Object.keys(by).map(function(d){var a=d.split('-').map(Number),wd=W[new Date(Date.UTC(a[0],a[1]-1,a[2])).getUTCDay()];
