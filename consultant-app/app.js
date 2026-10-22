@@ -10,6 +10,7 @@ import { jdFieldParse } from './jd_fields.js';
 import { initMail, loadMailTab, injectMailSection } from './mail.js';
 import { initChannels, loadChannelsTab, openChannel } from './channels.js';
 import { wireBdCard, bdShowStageRemind, bdShowTagRemind } from './bdcard.js';
+import { loadDealTerms } from './dealterms.js';
 import { wireBdJobs } from './bdjobs.js';
 import { loadDailyTab } from './daily.js';
 import { billingV2View, wireBillingV2, billing2Api } from './billing2.js';
@@ -2239,6 +2240,7 @@ async function openBdDetail(company, focus) {
       if (opt.remindTag) bdShowTagRemind(document.querySelector('.drawer-body') || document.body, opt.remindTag);
       if (opt.remindStage) bdShowStageRemind(document.querySelector('.drawer-body') || document.body, ((detail.company_status || {}).stage) || '');
     });
+    loadDealTerms(body, { ...detail, company });
     wireBdAi(body, company);
     wireBdJobs(body, { ...detail, company }, async (opt = {}) => {
       await openBdDetail(company);

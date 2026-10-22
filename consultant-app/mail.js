@@ -236,11 +236,22 @@ export async function injectMailSection(kind, id) {
 
 // 2026-10-22 Jacky：開發客戶卡片「進度紀錄」底下的「信箱裡的往來信件」。
 // 用收件人 Email／公司網域對到這家（後端 /admin/mail-archive/bd），包含 Jacky 以前從自己信箱寄的合約。
+// 同一張卡片「成交條件」跟「信箱裡的往來信件」都要這份資料：同一家 20 秒內只打一次
+const bdArchiveCache = new Map();
+export function fetchBdArchive(company) {
+  const hit = bdArchiveCache.get(company);
+  if (hit && Date.now() - hit.at < 20000) return hit.p;
+  const p = mailGet(`/admin/mail-archive/bd?company=${encodeURIComponent(company)}`);
+  bdArchiveCache.set(company, { at: Date.now(), p });
+  p.catch(() => bdArchiveCache.delete(company));
+  return p;
+}
+
 export async function loadBdMailArchive(box, company) {
   if (!box || !company) return;
   box.innerHTML = loading('讀取信箱裡的往來信件');
   try {
-    const r = await mailGet(`/admin/mail-archive/bd?company=${encodeURIComponent(company)}`);
+    const r = await fetchBdArchive(company);
     const items = r.items || [];
     const hidden = r.hidden_private
       ? `<p class="help mail-hint">還有 <b>${escapeHtml(String(r.hidden_private))}</b> 封在 Jacky 信箱（jackychen@），要先到左邊「信箱紀錄」頁輸入私人鑰匙才看得到。</p>` : '';
