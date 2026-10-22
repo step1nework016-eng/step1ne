@@ -227,7 +227,7 @@ footer{background:#eef2f7!important;border-top-color:var(--jv-line)!important;}
     <div class="jv2-eyebrow">職缺專區 Jobs</div>
     <h1>找職缺</h1>
     <p class="jv2-lead">Step1ne 顧問親自接洽的職缺：高階獵才、正職與人力派遣，依類型、地區、薪資一次篩完。</p>
-    <p class="jv2-stats"><b id="statJobs">–</b> 個開放中職缺　<b id="statCats">–</b> 個產業領域<br><span>每個職缺都由顧問確認過需求，在職可保密初談</span></p>
+    <p class="jv2-stats"><span>每個職缺都由顧問確認過需求，在職可保密初談</span></p>
     <div class="jv2-search">
       <div class="search-box"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input type="search" id="q" placeholder="職稱、地點或關鍵字，例如 BIM、會計、客服" aria-label="搜尋職缺" autocomplete="off"><button type="button" id="qclear" aria-label="清除搜尋">×</button></div>
       <button type="button" id="qGo" class="jv2-go">搜尋</button>
@@ -570,9 +570,6 @@ footer{background:#eef2f7!important;border-top-color:var(--jv-line)!important;}
     j._pay = payYear(meta);
     render(j, meta);
   });
-  // 統計：開放中職缺數、產業領域數
-  (function(){ var cs=[]; jobs.forEach(function(j){ (j.dataset.cat||'').split(' ').filter(Boolean).forEach(function(c){ if(cs.indexOf(c)<0) cs.push(c); }); });
-    document.getElementById('statJobs').textContent = jobs.length; document.getElementById('statCats').textContent = cs.length; })();
 
   var $ = function(id){ return document.getElementById(id); };
   var qInput=$('q'), qBox=qInput.parentNode, tracks=$('tracks'), cats=$('cats'), catGrp=$('catgroup'), locs=$('locs'), pays=$('pays');
@@ -589,7 +586,7 @@ footer{background:#eef2f7!important;border-top-color:var(--jv-line)!important;}
   }
   function chips(el, key, opts){ // opts: [[value,label]]；每個選項旁邊寫有幾個職缺
     el.innerHTML = [['all','全部']].concat(opts).map(function(o){
-      var n = o[0]==='all' ? '' : ' <small>'+jobs.filter(function(j){ var s0=state[key]; state[key]=o[0]; var ok=match(j); state[key]=s0; return ok; }).length+'</small>';
+      var n = ''; // 2026-10-23：不顯示各選項職缺數（官網不透露規模）
       return '<button type="button" class="chip'+(state[key]===o[0]?' is-active':'')+'" data-v="'+o[0]+'">'+o[1]+n+'</button>';
     }).join('');
   }
@@ -619,13 +616,13 @@ footer{background:#eef2f7!important;border-top-color:var(--jv-line)!important;}
       order.forEach(function(j){ list.appendChild(j); });
     }
     $('empty').style.display = shown ? 'none' : 'block';
-    countEl.textContent = shown===jobs.length ? ('共 '+jobs.length+' 個職缺') : ('符合條件：'+shown+' / '+jobs.length+' 個職缺');
     var act = ['track','cat','loc','pay'].filter(function(k){ return state[k]!=='all'; });
     $('activeChips').innerHTML = act.map(function(k){ return '<button type="button" data-k="'+k+'">'+label(k,state[k])+' ×</button>'; }).join('')
       + (act.length || state.q ? '<button type="button" class="clear-all" data-k="all">清除全部條件</button>' : '');
     $('filterN').textContent = act.length ? ' '+act.length : '';
-    $('sheetApply').textContent = '顯示 '+shown+' 個職缺';
-    countEl.textContent = shown + ' 個職缺';
+    var filtered = act.length || state.q;
+    $('sheetApply').textContent = filtered ? ('顯示 '+shown+' 個符合的職缺') : '顯示職缺';
+    countEl.textContent = filtered ? ('符合條件：'+shown+' 個職缺') : '目前開放中的職缺';
     resetEl.classList.toggle('is-hidden', !(act.length || state.q));
     qBox.classList.toggle('has-value', !!state.q);
     build();
