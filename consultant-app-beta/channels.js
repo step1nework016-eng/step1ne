@@ -264,6 +264,7 @@ function logPaneHtml(d) {
         <div class="bdc-f full" data-ch-notmail><label class="bdc-check"><input type="checkbox" name="mail_sent"> 這次有寄信　<small class="muted">（勾了才記「已寄出」和時間）</small></label></div>
         <label class="bdc-f full">備註<textarea name="note" rows="3" placeholder="聊到什麼、對方說什麼（例：承辦人說下週一把職缺發給 AutoCAD 班學員）"></textarea></label>
         <div class="bdc-f full ch-ai" data-ch-mail data-email="${esc(c.email || '')}" hidden>
+          <div style="background:#E8F2FA;border:1px solid #B9D7EE;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:14px;line-height:1.7"><b>這裡會真的從 official@ 寄出信</b><br>① 上面「備註」寫這封信要做什麼　② 按藍色「AI 幫我擬信」（或「自己寫」）　③ 看過內容，按「寄出這封信」</div>
           <div class="ch-pre">
             <label class="bdc-f">信要請對方轉給誰<select name="m_aud"><option value="school">大專院校學員（連到培訓專區 /training/）</option><option value="construction">一般求職民眾（連到營造專區 /construction/）</option></select></label>
             <label class="bdc-f">信上署名的顧問<select name="m_sign">${[...new Set(['Phoebe', ...people])].map((x) => `<option${x === 'Phoebe' ? ' selected' : ''}>${esc(x)}</option>`).join('')}</select></label>
@@ -289,7 +290,7 @@ function logPaneHtml(d) {
             <label class="bdc-f">內文（可以直接改）<textarea name="m_text" rows="16"></textarea></label>
             <div class="bdc-actions"><button type="button" class="bdc-btn primary" data-ch-send>寄出這封信</button><small class="muted">從 official@step1ne.com 寄出，署名是「誰記的」那位；寄出後自動記一筆「信已寄出」</small></div>
           </div>
-          <details class="ch-selfsent" style="margin-top:12px"><summary class="muted" style="cursor:pointer">已經用別的信箱寄了？只記錄這筆</summary>
+          <details class="ch-selfsent" style="margin-top:14px;border:1px dashed #D9A35B;border-radius:10px;padding:8px 12px;background:#FFF8EE"><summary style="cursor:pointer;color:#8A5A12">已經用別的信箱寄了？點這裡只記錄（系統不會寄）</summary>
             <p class="help">系統<b>不會</b>寄信，只在紀錄裡記一筆「只有記錄・系統沒寄」。官方信箱不會有備份。</p>
             <button type="button" class="bdc-btn" data-ch-selflog>只記錄（系統不寄信）</button>
           </details>
