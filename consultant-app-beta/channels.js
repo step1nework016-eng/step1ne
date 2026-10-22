@@ -234,14 +234,15 @@ function logPaneHtml(d) {
   const item = (l) => {
     const k = ['call', 'mail', 'other'].includes(l.kind) ? l.kind : null;
     if (!k) return `<li class="bdc-item sys"><span class="bdc-dot" aria-hidden="true">${ICON.other}</span><div class="bdc-card bdc-sys"><div class="bdc-top"><span class="bdc-t">${esc(l.text || '')}</span><span class="bdc-time">${esc(mdTime(logTime(l)))}　${esc(l.by || '系統')}</span></div></div></li>`;
-    const sent = l.mail_sent ? `<span class="bdc-chip ok">信已寄出 ${esc(mdTime(l.mail_sent_at || logTime(l)))}</span>` : (k === 'mail' ? '<span class="bdc-chip no">信還沒寄</span>' : '');
+    const bySys = String(l.text || '').startsWith('📧') || (l.mail_sent_at && String(l.at || '').slice(0, 16) === String(l.mail_sent_at).slice(0, 16));
+    const sent = l.mail_sent ? (bySys ? `<span class="bdc-chip ok">official@ 已寄出 ${esc(mdTime(l.mail_sent_at || logTime(l)))}</span>` : `<span class="bdc-chip no">只有記錄・系統沒寄（填的時間 ${esc(mdTime(l.mail_sent_at || logTime(l)))}）</span>`) : (k === 'mail' ? '<span class="bdc-chip no">信還沒寄</span>' : '');
     const nxt = l.next_step || l.next_due ? `<div class="bdc-nxt${l.next_done ? ' done' : ''}">下一步：${esc(l.next_step || '')}${l.next_due ? `（${esc(md(l.next_due))}）` : ''}${l.next_done ? '　已完成' : ''}</div>` : '';
     return `<li class="bdc-item ${k}"><span class="bdc-dot" aria-hidden="true">${ICON[k]}</span><div class="bdc-card">
       <div class="bdc-top"><span class="bdc-t">${KIND_ZH[k]}${l.result ? `　${esc(RESULT_ZH[l.result] || l.result)}` : ''}</span><span class="bdc-time">${esc(mdTime(logTime(l)))}　${esc(l.by || '')}</span></div>
       <div class="bdc-chips">${sent}${l.status_to ? `<span class="bdc-chip stage">階段 → ${esc(data.statuses[l.status_to] || l.status_to)}</span>` : ''}</div>
       ${l.text ? `<p class="bdc-note">${esc(l.text)}</p>` : ''}${l.contact_name ? `<small class="muted">窗口：${esc(l.contact_name)}</small>` : ''}${nxt}
       ${l.transcript ? `<details class="ch-tsview"><summary>看逐字稿</summary><div class="ch-tstext">${esc(l.transcript)}</div></details>` : ''}
-      <div class="bdc-mini">${!l.mail_sent && k !== 'other' ? `<button type="button" data-ch-sent="${l.id}">標記信已寄出</button>` : ''}${(l.next_step || l.next_due) && !l.next_done ? `<button type="button" data-ch-done="${l.id}">這步做完了</button>` : ''}<button type="button" class="bd-del" data-ch-logdel="${l.id}">刪除</button></div>
+      <div class="bdc-mini">${!l.mail_sent && k !== 'other' ? `<button type="button" data-ch-sent="${l.id}">我已用別的信箱寄出</button>` : ''}${(l.next_step || l.next_due) && !l.next_done ? `<button type="button" data-ch-done="${l.id}">這步做完了</button>` : ''}<button type="button" class="bd-del" data-ch-logdel="${l.id}">刪除</button></div>
     </div></li>`;
   };
   return `<section class="bdc-logpane">
@@ -260,7 +261,7 @@ function logPaneHtml(d) {
         <label class="bdc-f" data-ch-call>結果<select name="result">${RESULTS.map(([v, lb]) => `<option value="${v}">${lb}</option>`).join('')}</select></label>
         <label class="bdc-f">誰記的<select name="by">${people.map((x) => `<option${x === (me() || c.owner) ? ' selected' : ''}>${esc(x)}</option>`).join('')}</select></label>
         <label class="bdc-f" data-ch-call>問到的窗口（選填）<input name="contact_name" maxlength="60" placeholder="例：曾小姐 分機1621"></label>
-        <div class="bdc-f full"><label class="bdc-check"><input type="checkbox" name="mail_sent"> 這次有寄信　<small class="muted">（勾了才記「已寄出」和時間）</small></label></div>
+        <div class="bdc-f full" data-ch-notmail><label class="bdc-check"><input type="checkbox" name="mail_sent"> 這次有寄信　<small class="muted">（勾了才記「已寄出」和時間）</small></label></div>
         <label class="bdc-f full">備註<textarea name="note" rows="3" placeholder="聊到什麼、對方說什麼（例：承辦人說下週一把職缺發給 AutoCAD 班學員）"></textarea></label>
         <div class="bdc-f full ch-ai" data-ch-mail data-email="${esc(c.email || '')}" hidden>
           <div class="ch-pre">
@@ -270,7 +271,7 @@ function logPaneHtml(d) {
               <label class="ch-drop" data-ch-drop>把檔案拖到這裡，或點這裡選檔案<input class="ch-drop-input" type="file" name="m_files" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg,.odt,.ods"></label></div>
             <div class="ch-files muted" data-ch-files></div>
           </div>
-          <div class="ch-ai-row"><button type="button" class="bdc-btn" data-ch-ai>AI 幫我擬信</button><button type="button" class="bdc-btn" data-ch-self>自己寫</button><details class="ch-help"><summary aria-label="怎麼用">?</summary><div class="ch-help-box">
+          <div class="ch-ai-row"><button type="button" class="bdc-btn primary" data-ch-ai>AI 幫我擬信</button><button type="button" class="bdc-btn" data-ch-self>自己寫</button><details class="ch-help"><summary aria-label="怎麼用">?</summary><div class="ch-help-box">
             <b>寄信怎麼用</b>
             <ol><li>「備註」打這封信要做什麼（例：回傳填好的 BIM 招募表、洪先生請我把職缺寄到信箱）</li>
             <li>選「信上署名的顧問」（預設 Phoebe）</li>
@@ -288,12 +289,16 @@ function logPaneHtml(d) {
             <label class="bdc-f">內文（可以直接改）<textarea name="m_text" rows="16"></textarea></label>
             <div class="bdc-actions"><button type="button" class="bdc-btn primary" data-ch-send>寄出這封信</button><small class="muted">從 official@step1ne.com 寄出，署名是「誰記的」那位；寄出後自動記一筆「信已寄出」</small></div>
           </div>
+          <details class="ch-selfsent" style="margin-top:12px"><summary class="muted" style="cursor:pointer">已經用別的信箱寄了？只記錄這筆</summary>
+            <p class="help">系統<b>不會</b>寄信，只在紀錄裡記一筆「只有記錄・系統沒寄」。官方信箱不會有備份。</p>
+            <button type="button" class="bdc-btn" data-ch-selflog>只記錄（系統不寄信）</button>
+          </details>
         </div>
         <label class="bdc-f">階段調整<select name="status_to"><option value="">不調整</option>${COLS.map(([k, t]) => `<option value="${k}">${esc(t)}</option>`).join('')}</select></label>
         <label class="bdc-f">下一步到期日<input type="date" name="next_due"></label>
         <label class="bdc-f full">下一步要做什麼<input type="text" name="next_step" maxlength="200" placeholder="例：寄 BIM 職缺說明給曾小姐，週五再打電話確認有沒有轉發"></label>
       </div>
-      <div class="bdc-actions"><button type="submit" class="bdc-btn primary">存這筆紀錄</button></div>
+      <div class="bdc-actions" data-ch-submitrow><button type="submit" class="bdc-btn primary">存這筆紀錄</button></div>
     </form>
     <h4 class="bdc-h">全部紀錄 <small>共 ${logs.length} 筆</small></h4>
     ${logs.length ? `<ol class="bdc-tl">${logs.map(item).join('')}</ol>` : '<p class="help">還沒有紀錄。打完電話或寄完信，在上面記一筆。</p>'}
@@ -377,7 +382,8 @@ function wireDetail(id) {
   };
   body.querySelectorAll('[data-ch-stage]').forEach((b) => b.addEventListener('click', () => { lf.elements.status_to.value = b.getAttribute('data-ch-stage'); renderNeed(); focusForm(); }));
   lf.elements.status_to.addEventListener('change', renderNeed);
-  const syncKind = () => { const k = lf.querySelector('[name=kind]:checked').value; const call = k === 'call'; lf.querySelectorAll('[data-ch-call]').forEach((el) => { el.hidden = !call; }); lf.querySelectorAll('[data-ch-mail]').forEach((el) => { el.hidden = k !== 'mail'; }); if (k === 'mail') lf.elements.mail_sent.checked = true; };
+  const syncKind = () => { const k = lf.querySelector('[name=kind]:checked').value; const call = k === 'call'; lf.querySelectorAll('[data-ch-call]').forEach((el) => { el.hidden = !call; }); lf.querySelectorAll('[data-ch-mail]').forEach((el) => { el.hidden = k !== 'mail'; }); const mail = k === 'mail'; lf.querySelectorAll('[data-ch-notmail],[data-ch-submitrow]').forEach((el) => { el.hidden = mail; }); lf.elements.mail_sent.checked = false; };
+  lf.querySelector('[data-ch-selflog]')?.addEventListener('click', () => { if (!lf.elements.note.value.trim()) { toast('請在備註寫寄了什麼、用哪個信箱寄的', 'error'); lf.elements.note.focus(); return; } lf.elements.mail_sent.checked = true; lf.requestSubmit(); });
   lf.querySelectorAll('[name=kind]').forEach((r) => r.addEventListener('change', syncKind)); syncKind();
   body.querySelector('[data-ch-newlog]')?.addEventListener('click', focusForm);
   body.querySelector('[data-ch-next="done"]')?.addEventListener('click', async (e) => {
