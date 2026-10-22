@@ -1419,3 +1419,29 @@ svg .rs-val{font-size:15px;font-weight:700;fill:#14232e}svg .rs-lab{font-size:13
 .qa-dir p{margin:4px 0;font-size:13.5px}.qa-dir b{display:block;font-size:12px;color:var(--muted)}
 .qa-foot{font-size:12.5px;color:var(--muted)}
 .qa-rep summary:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+/* 2026-10-22 開發客戶：系統寄的信＋附件預覽／下載＋信箱往來信件 */
+.bdc-mailjump{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border:1px solid #c9d8f5;background:#f3f7ff;border-radius:11px}
+.bdc-mailjump>div{display:grid;gap:3px;flex:1;min-width:220px}
+.bdc-mailjump .bdc-btn{min-height:44px}
+.bdc-mailhead{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:8px 0;font-size:13px}
+.bdc-mailhead dt{color:var(--muted)}.bdc-mailhead dd{margin:0;word-break:break-all}
+.bdc-mailbody summary{cursor:pointer;color:var(--blue);font-size:13px;min-height:32px;display:flex;align-items:center}
+.bdc-archive{margin-top:6px}
+.fp-atts{display:grid;gap:6px;margin-top:8px}
+.fp-att{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;border:1px solid var(--line);border-radius:9px;padding:7px 10px;background:#fff}
+.fp-att-name{display:inline-flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:13px;word-break:break-all;min-width:0;flex:1}
+.fp-att-name small{color:var(--muted)}
+.fp-btns{display:inline-flex;gap:6px;flex-shrink:0}
+.fp-btns .btn{min-height:36px;min-width:52px}
+.fp-mask{position:fixed;inset:0;background:rgba(12,21,37,.55);z-index:50}
+.fp-box{position:fixed;z-index:51;inset:4vh 4vw;background:#fff;border-radius:14px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.3)}
+.fp-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line)}
+.fp-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.fp-acts{display:flex;gap:6px;flex-shrink:0}.fp-acts .btn{min-height:40px}
+.fp-body{flex:1;min-height:0;display:flex;flex-direction:column;background:#f4f7fb}
+.fp-body .state{margin:20px;background:#fff}
+.fp-frame{flex:1;width:100%;border:0;background:#fff;min-height:0}
+.fp-tip{margin:0;padding:6px 12px;background:#fff}
+.fp-img{flex:1;overflow:auto;display:grid;place-items:center;padding:12px}.fp-img img{max-width:100%;height:auto}
+.fp-btns .btn:focus-visible,.fp-acts .btn:focus-visible,.bdc-mailjump .bdc-btn:focus-visible{outline:3px solid #2867ed;outline-offset:2px}
+@media (max-width:640px){.fp-box{inset:0;border-radius:0}.fp-head{flex-wrap:wrap}.fp-name{flex-basis:100%}}

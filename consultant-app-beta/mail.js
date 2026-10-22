@@ -7,6 +7,7 @@ import { CONFIG } from './config.js';
 import { request } from './core/api.js';
 import { $, $$, loading, errorState, empty, openSubDrawer, toast } from './core/ui.js';
 import { escapeHtml, text } from './core/security.js';
+import { fileButtons, wireFileButtons } from './filepreview.js';
 
 const KEY = 's1ne_mail_key';
 const PRIVATE_BOX = 'jackychen@step1ne.com';
@@ -24,9 +25,9 @@ export function initMail(h) { hooks = { ...hooks, ...h }; }
 function cleanKey(v) { const m = String(v || '').match(/[A-Za-z0-9_\-]{16,}/g); return m ? m.sort((a, b) => b.length - a.length)[0] : ''; }
 function mailKey() { try { return cleanKey(localStorage.getItem(KEY) || ''); } catch { return ''; } }
 function setMailKey(v) { try { const k = cleanKey(v); if (k) localStorage.setItem(KEY, k); else localStorage.removeItem(KEY); } catch { /* 私密視窗存不了 */ } }
-function keyHeaders() { const k = mailKey(); return k ? { 'X-Mail-Key': k } : {}; }
+export function keyHeaders() { const k = mailKey(); return k ? { 'X-Mail-Key': k } : {}; }
 
-async function mailGet(path) {
+export async function mailGet(path) {
   try {
     return await request(path, { method: 'GET', headers: keyHeaders() });
   } catch (e) {
@@ -138,7 +139,7 @@ function linkBadge(m) {
   return `<span class="badge info" title="自動對到的卡片">${escapeHtml(LINK_LABEL[m.link_type] || m.link_type)}｜${text(m.link_name)}</span>`;
 }
 
-function mailRows(items, { lockedHint = false, compact = false } = {}) {
+export function mailRows(items, { lockedHint = false, compact = false } = {}) {
   const hint = lockedHint ? `<p class="help mail-hint">Jacky 信箱（jackychen@）的信沒有列出來——要先在上方輸入私人鑰匙才看得到。</p>` : '';
   if (!items.length) return hint + empty('沒有符合的信', compact ? '' : '換個條件再查一次');
   return hint + `<div class="list mail-list">${items.map((m) => {
@@ -153,11 +154,11 @@ function mailRows(items, { lockedHint = false, compact = false } = {}) {
   }).join('')}</div>`;
 }
 
-function wireRows(root) {
+export function wireRows(root) {
   $$('[data-mail-id]', root).forEach((b) => { b.onclick = () => openMail(b.getAttribute('data-mail-id')); });
 }
 
-async function openMail(id) {
+export async function openMail(id) {
   openSubDrawer({ title: '載入信件…', body: loading() });
   try {
     const r = await mailGet(`/admin/mail-archive/item/${encodeURIComponent(id)}`);
@@ -170,7 +171,8 @@ async function openMail(id) {
       if (l.link_type === 'client' && hooks.openCompany) return `<button type="button" class="btn sm" data-mail-open-co="${escapeHtml(l.link_id)}">${escapeHtml(label)}</button>`;
       return `<span class="badge">${escapeHtml(label)}</span>`;
     }).join('');
-    const attHtml = atts.length ? atts.map((a) => `<button type="button" class="btn sm" data-mail-file="${escapeHtml(a.file_id)}" data-mail-file-name="${escapeHtml(a.filename || '附件')}">⬇ ${escapeHtml(a.filename || '附件')}（${escapeHtml(fmtSize(a.size))}）</button>`).join('') : '<span class="help">沒有附件</span>';
+    // 2026-10-22：附件可以預覽（PDF 直接看、Word／Excel 轉成網頁）也可以下載
+    const attHtml = atts.length ? atts.map((a) => `<div class="fp-att"><span class="fp-att-name">${escapeHtml(a.filename || '附件')}<small>（${escapeHtml(fmtSize(a.size))}）</small></span>${fileButtons(`/admin/mail-archive/file/${encodeURIComponent(a.file_id)}`, a.filename || '附件')}</div>`).join('') : '<span class="help">沒有附件</span>';
     const skipped = m.att_skipped ? `<p class="notice">${escapeHtml(m.att_skipped)}</p>` : '';
     const missing = (m.att_count || 0) > atts.length ? `<p class="help">有 ${escapeHtml(String(m.att_count - atts.length))} 個附件還沒存好，下一輪會自動補。</p>` : '';
     openSubDrawer({
@@ -182,13 +184,14 @@ async function openMail(id) {
           ${m.cc_addrs ? `<dt>副本</dt><dd>${text(m.cc_addrs)}</dd>` : ''}
         </dl>
         ${links.length ? `<h3>對到的卡片</h3><div class="actions-row">${linkBtns}</div>` : ''}
-        <h3>附件</h3><div class="actions-row">${attHtml}</div>${skipped}${missing}
+        <h3>附件</h3><div class="fp-atts">${attHtml}</div>${skipped}${missing}
         <h3>內文</h3><pre class="mail-body">${escapeHtml(m.body_text || '（沒有文字內容）')}</pre>
         ${m.body_truncated ? '<p class="help">內文太長，只存了前面約 5 萬字。</p>' : ''}
         ${m.is_system_copy ? '<p class="help">這封是系統自動寄出的信放進寄件備份的副本。</p>' : ''}`,
     });
     const root = $('#sub-overlay-root');
     $$('[data-mail-file]', root).forEach((b) => { b.onclick = () => downloadMailFile(b.getAttribute('data-mail-file'), b.getAttribute('data-mail-file-name')); });
+    wireFileButtons(root, () => keyHeaders());
     $$('[data-mail-open-cand]', root).forEach((b) => { b.onclick = () => { $('#sub-overlay-root').innerHTML = ''; hooks.openCandidate(b.getAttribute('data-mail-open-cand')); }; });
     $$('[data-mail-open-co]', root).forEach((b) => { b.onclick = () => { $('#sub-overlay-root').innerHTML = ''; hooks.openCompany(b.getAttribute('data-mail-open-co')); }; });
   } catch (e) {
@@ -228,5 +231,25 @@ export async function injectMailSection(kind, id) {
   } catch (e) {
     const box = $('.mail-card-list', sec);
     if (box) box.innerHTML = `<p class="help">信件讀不到：${escapeHtml(e.message || '')}</p>`;
+  }
+}
+
+// 2026-10-22 Jacky：開發客戶卡片「進度紀錄」底下的「信箱裡的往來信件」。
+// 用收件人 Email／公司網域對到這家（後端 /admin/mail-archive/bd），包含 Jacky 以前從自己信箱寄的合約。
+export async function loadBdMailArchive(box, company) {
+  if (!box || !company) return;
+  box.innerHTML = loading('讀取信箱裡的往來信件');
+  try {
+    const r = await mailGet(`/admin/mail-archive/bd?company=${encodeURIComponent(company)}`);
+    const items = r.items || [];
+    const hidden = r.hidden_private
+      ? `<p class="help mail-hint">還有 <b>${escapeHtml(String(r.hidden_private))}</b> 封在 Jacky 信箱（jackychen@），要先到左邊「信箱紀錄」頁輸入私人鑰匙才看得到。</p>` : '';
+    const keys = (r.keys && (r.keys.domains || []).length) ? `<p class="help">用這家的信箱網域對：${(r.keys.domains || []).map((d) => `@${escapeHtml(d)}`).join('、')}${(r.keys.emails || []).length ? `，以及 ${escapeHtml(String(r.keys.emails.length))} 個聯絡信箱` : ''}</p>`
+      : ((r.keys && (r.keys.emails || []).length) ? `<p class="help">用這家的 ${escapeHtml(String(r.keys.emails.length))} 個聯絡信箱對</p>` : '<p class="help">這家還沒有任何聯絡信箱，系統對不到信。記紀錄時填上對方信箱，之後就會自動帶入。</p>');
+    box.innerHTML = (items.length ? mailRows(items, { compact: true }) : `<p class="help">信箱裡還沒有跟這家來回的信。</p>`) + hidden + keys
+      + (r.total > items.length ? `<p class="help">只列最近 ${escapeHtml(String(items.length))} 封，其他到「信箱紀錄」頁搜尋。</p>` : '');
+    wireRows(box);
+  } catch (e) {
+    box.innerHTML = `<p class="help">信件讀不到：${escapeHtml(e.message || '')}</p>`;
   }
 }

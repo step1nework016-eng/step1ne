@@ -8,6 +8,8 @@
 import { api } from './core/api.js';
 import { toast } from './core/ui.js';
 import { escapeHtml, text } from './core/security.js';
+import { fileButtons, wireFileButtons } from './filepreview.js';
+import { loadBdMailArchive } from './mail.js';
 
 export const BD_STAGES = ['還沒聯繫', '已聯繫', '有興趣', '已寄資料', '談需求', '簽約'];
 export const BD_EXITS = ['沒興趣', '暫緩'];
@@ -125,14 +127,34 @@ export function bdCardTop(detail) {
 // ───────────────────────── 進度紀錄（分頁內容） ─────────────────────────
 // 系統自動記的事件（送達、開信、對方回信、追信寄出、退信…）：唯讀，併在全部紀錄裡
 function systemEvents(detail) {
+  // 2026-10-22：系統寄的信改成下面 mailItem 一封一張完整卡片（主旨、內文、收件人、附件），這裡不再重複「已寄出」那一行
+  const hasMails = (detail.mails || []).length > 0;
   return (detail.timeline || [])
     .filter((t) => !t.call_log_id && !String(t.kind || '').startsWith('☎') && !String(t.kind || '').includes('擬稿'))
+    .filter((t) => !hasMails || !(String(t.kind || '').startsWith('已寄公司介紹') || /·寄出$/.test(String(t.kind || ''))))
     .map((t) => ({ sys: true, at: String(t.at || '').replace('T', ' '), label: String(t.kind || '') }));
+}
+
+// 2026-10-22 Jacky：系統寄出的信（公司介紹／合約／開發信）在紀錄裡一封一張卡：
+// 收件人、時間、誰署名、誰核准、主旨、內文（點開）、附件（預覽／下載）
+const MAIL_ST = { pending: ['等 Jacky／Phoebe 在 TG 核准', 'no'], sending: ['寄送中', 'no'], sent: ['已寄出', 'ok'], draft: ['被退回，沒寄', 'no'], rejected: ['決定不寄', 'no'], blocked: ['被擋下，沒寄', 'no'] };
+const ATT_KIND = { company_intro: '公司介紹', contract: '合約', anon_cv: '匿名履歷' };
+function mailItem(m) {
+  const [st, cls] = MAIL_ST[m.status] || [m.status || '', 'no'];
+  const atts = (m.attachments || []).map((a) => `<div class="fp-att"><span class="fp-att-name">${ATT_KIND[a.kind] ? `<span class="bdc-chip stage">${ATT_KIND[a.kind]}</span>` : ''}${text(a.filename)}</span>${fileButtons(`/admin/file/${encodeURIComponent(a.file_id)}`, a.filename)}</div>`).join('');
+  return `<li class="bdc-item mail sysmail"><span class="bdc-dot" aria-hidden="true">${ICON.mail}</span><div class="bdc-card">
+    <div class="bdc-top"><span class="bdc-t">系統寄信${m.pack ? '　公司介紹／合約' : '　開發信'}</span><span class="bdc-time">${text(mdTime(m.at))}</span></div>
+    <div class="bdc-chips"><span class="bdc-chip ${cls}">${text(st)}${m.status === 'sent' && m.sent_at ? ` ${text(mdTime(m.sent_at))}` : ''}</span>${m.opened_at ? `<span class="bdc-chip ok">對方開過信 ${text(mdTime(m.opened_at))}</span>` : ''}</div>
+    <dl class="bdc-mailhead"><dt>收件人</dt><dd>${text(m.to || '（沒有信箱）')}</dd><dt>署名</dt><dd>${text(m.signer || '—')}</dd>${m.approved_by ? `<dt>${m.status === 'sent' ? '核准寄出' : '處理人'}</dt><dd>${text(m.approved_by)}</dd>` : ''}<dt>主旨</dt><dd><b>${text(m.subject || '（無主旨）')}</b></dd></dl>
+    <details class="bdc-mailbody"><summary>看信件內文</summary><pre class="bd-letter-body">${text(m.body)}</pre></details>
+    ${atts ? `<div class="fp-atts"><small class="muted">附件</small>${atts}</div>` : '<small class="muted">沒有附件</small>'}
+  </div></li>`;
 }
 
 export function bdLogPane(detail) {
   const logs = sortedLogs(detail);
   const sys = systemEvents(detail);
+  const mails = detail.mails || [];
   const people = [...new Set([detail.assigned_to, 'Jacky', 'Phoebe', ...(detail.people || [])].filter(Boolean))];
   const stageOpts = ['', ...BD_STAGES.slice(1), ...BD_EXITS];
   const item = (l) => {
@@ -161,7 +183,11 @@ export function bdLogPane(detail) {
         <label class="bdc-f">時間<input type="datetime-local" name="event_at" value="${nowLocal()}" required></label>
         <label class="bdc-f" data-bdc-call>結果<select name="result">${RESULTS.map(([v, lb]) => `<option value="${v}">${lb}</option>`).join('')}</select></label>
         <label class="bdc-f">誰記的<select name="by">${people.map((x) => `<option${x === detail.assigned_to ? ' selected' : ''}>${text(x)}</option>`).join('')}</select></label>
-        <div class="bdc-f full"><label class="bdc-check"><input type="checkbox" name="mail_sent"> 這次有寄信　<small class="muted">（勾了才記「已寄出」和時間）</small></label></div>
+        <div class="bdc-f full bdc-mailjump" data-bdc-mailjump>
+          <div><b>要寄合約／公司簡介給對方？</b><small class="muted">從系統寄：信會先送 TG，Jacky 或 Phoebe 按核准才寄出；寄出後信件全文和附件會自動出現在下面紀錄，不用另外記。</small></div>
+          <button type="button" class="bdc-btn" data-bdc-gomail>開寄信畫面（附合約／公司簡介供參考）→</button>
+        </div>
+        <div class="bdc-f full"><label class="bdc-check"><input type="checkbox" name="mail_sent"> 這次有寄信（從自己信箱寄的）　<small class="muted">（勾了才記「已寄出」和時間）</small></label></div>
         <label class="bdc-f full">備註<textarea name="note" rows="3" placeholder="聊到什麼、對方說什麼"></textarea></label>
         <div class="bdc-f full bdc-imp" data-bdc-call>
           <div class="bdc-imp-h"><b>匯入電洽內容，讓 AI 整理</b><small class="muted">選填　AI 只用在這裡和「新增職缺」</small></div>
@@ -175,8 +201,10 @@ export function bdLogPane(detail) {
       </div>
       <div class="bdc-actions"><button type="submit" class="bdc-btn primary">存這筆紀錄</button></div>
     </form>
-    <h4 class="bdc-h">全部紀錄 <small>共 ${logs.length} 筆</small></h4>
-    ${logs.length || sys.length ? `<ol class="bdc-tl">${[...logs.map((l) => ({ at: logTime(l), html: item(l) })), ...sys.map((e) => ({ at: e.at, html: sysItem(e) }))].sort((a, b) => String(b.at).localeCompare(String(a.at))).map((x) => x.html).join('')}</ol>` : '<p class="help">還沒有紀錄。打完電話或寄完信，在上面記一筆。</p>'}
+    <h4 class="bdc-h">全部紀錄 <small>共 ${logs.length} 筆${mails.length ? `＋系統寄的信 ${mails.length} 封` : ''}</small></h4>
+    ${logs.length || sys.length || mails.length ? `<ol class="bdc-tl">${[...logs.map((l) => ({ at: logTime(l), html: item(l) })), ...sys.map((e) => ({ at: e.at, html: sysItem(e) })), ...mails.map((m) => ({ at: String(m.at || '').replace('T', ' '), html: mailItem(m) }))].sort((a, b) => String(b.at).localeCompare(String(a.at))).map((x) => x.html).join('')}</ol>` : '<p class="help">還沒有紀錄。打完電話或寄完信，在上面記一筆。</p>'}
+    <h4 class="bdc-h">信箱裡的往來信件 <small>official@ 與 Jacky 信箱的寄件／收件，包含以前從自己信箱寄的合約，用對方信箱自動對到這家</small></h4>
+    <div class="bdc-archive" data-bdc-archive></div>
   </section>`;
 }
 
@@ -256,9 +284,28 @@ export function wireBdCard(root, detail, reload) {
   const syncKind = () => {
     const call = form.querySelector('[name=kind]:checked').value === 'call';
     form.querySelectorAll('[data-bdc-call]').forEach((el) => { el.hidden = !call; });
+    const mj = form.querySelector('[data-bdc-mailjump]');
+    if (mj) mj.hidden = form.querySelector('[name=kind]:checked').value === 'other';
   };
   form.querySelectorAll('[name=kind]').forEach((r) => { r.onchange = syncKind; });
   syncKind();
+
+  // 2026-10-22 Jacky：記完電話可以直接寄信——跳到同一張卡片的「寄公司介紹信」分頁，預設「電話後補資料」＋附公司介紹
+  //（「電話後補資料」這版信只寫「附上資料給您參考」，不催簽、不寫用印回傳）
+  pane.querySelector('[data-bdc-gomail]')?.addEventListener('click', () => {
+    /** @type {HTMLElement|null} */ (document.querySelector('[data-bd-detail-tab="mail"]'))?.click();
+    const mp = document.getElementById('bd-detail-pane-mail');
+    if (!mp) return;
+    const sc = /** @type {HTMLSelectElement|null} */ (mp.querySelector('[data-pack-scenario]'));
+    if (sc && sc.value !== 'inbound') { sc.value = 'followup'; sc.dispatchEvent(new Event('change')); }
+    const intro = /** @type {HTMLInputElement|null} */ (mp.querySelector('[data-pack-intro]'));
+    if (intro) intro.checked = true;
+    mp.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+  // 系統寄的信的附件：預覽／下載（帶後台登入，不是公開連結）
+  wireFileButtons(pane);
+  // 信箱裡的往來信件（含 jackychen@，要私人鑰匙）
+  loadBdMailArchive(pane.querySelector('[data-bdc-archive]'), company);
   form.elements.transcript_file?.addEventListener('change', async (e) => {
     const f = e.target.files && e.target.files[0];
     if (f) form.elements.transcript.value = await f.text();
