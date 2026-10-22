@@ -2932,7 +2932,8 @@ ${n.learned ? `<p><b>學到什麼</b>${text(n.learned)}</p>` : ''}${n.next_time 
     `;
 
     const _topic = profile && String(profile.topics || '').split('\n').map((x) => x.replace(/^[-・•\s]+/, '').trim()).find(Boolean);
-    return `${views.bdEntry(views.bdTriggerOf(outreach), outreach.some((o) => o.candidate_card), true, (outreach.find((o) => o.job_title) || {}).job_title, _topic)}${views.bdWebInquiryBlock(web_inquiries)}${bdCardTop({ company: company || (outreach[0] || {}).company || '', company_status, calls, people, assigned_to })}${contactCard}
+    // 2026-10-22 Jacky：最上面原本的「切入點・先問需求」換成「成交條件」（給過哪一版合約／簡介／人選），內容由 dealterms.js 補上
+    return `<section class="dt" data-dt-box aria-live="polite"><h4 class="dt-h">成交條件</h4><p class="dt-note">讀取中…</p></section>${views.bdWebInquiryBlock(web_inquiries)}${bdCardTop({ company: company || (outreach[0] || {}).company || '', company_status, calls, people, assigned_to })}${contactCard}
       <div class="tabs tabs-sub" id="bd-detail-tabs">
         <button type="button" class="active" data-bd-detail-tab="log">進度紀錄</button>
         <button type="button" data-bd-detail-tab="jobs">客戶提供的職缺（${(client_jobs || []).filter((j) => j.status === 'social_only').length}）</button>
