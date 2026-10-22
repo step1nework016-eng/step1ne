@@ -172,7 +172,7 @@ export async function openMail(id) {
       return `<span class="badge">${escapeHtml(label)}</span>`;
     }).join('');
     // 2026-10-22：附件可以預覽（PDF 直接看、Word／Excel 轉成網頁）也可以下載
-    const attHtml = atts.length ? atts.map((a) => `<div class="fp-att"><span class="fp-att-name">${escapeHtml(a.filename || '附件')}<small>（${escapeHtml(fmtSize(a.size))}）</small></span>${fileButtons(`/admin/mail-archive/file/${encodeURIComponent(a.file_id)}`, a.filename || '附件')}</div>`).join('') : '<span class="help">沒有附件</span>';
+    const attHtml = atts.length ? atts.map((a) => `<div class="fp-att"><span class="fp-att-name"><span class="fp-fn" title="${escapeHtml(a.filename || '附件')}">${escapeHtml(a.filename || '附件')}</span><small>（${escapeHtml(fmtSize(a.size))}）</small></span>${fileButtons(`/admin/mail-archive/file/${encodeURIComponent(a.file_id)}`, a.filename || '附件')}</div>`).join('') : '<span class="help">沒有附件</span>';
     const skipped = m.att_skipped ? `<p class="notice">${escapeHtml(m.att_skipped)}</p>` : '';
     const missing = (m.att_count || 0) > atts.length ? `<p class="help">有 ${escapeHtml(String(m.att_count - atts.length))} 個附件還沒存好，下一輪會自動補。</p>` : '';
     openSubDrawer({

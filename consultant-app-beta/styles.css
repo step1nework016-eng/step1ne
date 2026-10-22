@@ -1445,3 +1445,24 @@ svg .rs-val{font-size:15px;font-weight:700;fill:#14232e}svg .rs-lab{font-size:13
 .fp-img{flex:1;overflow:auto;display:grid;place-items:center;padding:12px}.fp-img img{max-width:100%;height:auto}
 .fp-btns .btn:focus-visible,.fp-acts .btn:focus-visible,.bdc-mailjump .bdc-btn:focus-visible{outline:3px solid #2867ed;outline-offset:2px}
 @media (max-width:640px){.fp-box{inset:0;border-radius:0}.fp-head{flex-wrap:wrap}.fp-name{flex-basis:100%}}
+/* 2026-10-22 開發進度抽屜版面修正：信箱往來信件列不再撐破抽屜、長主旨／檔名省略、信件內文預設收合 */
+.bdc-archive .mail-list{grid-template-columns:minmax(0,1fr)}
+.bdc-archive .mail-row{flex-wrap:wrap;min-width:0;gap:6px 12px}
+.bdc-archive .mail-meta{flex:0 0 96px!important}
+.bdc-archive .mail-main{flex:1 1 0;min-width:0}
+.bdc-archive .mail-main small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bdc-archive .mail-tags{flex:1 1 100%;max-width:100%;justify-content:flex-start;padding-left:108px;min-width:0}
+.bdc-archive .mail-tags .badge{display:inline-block;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.bdc-card{min-width:0}
+.bdc-mailhead dd{min-width:0;word-break:normal;overflow-wrap:anywhere}
+.bdc-mailhead dd.bdc-subj{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bdc-mailbody summary{list-style:none;gap:4px}.bdc-mailbody summary::-webkit-details-marker{display:none}
+.bdc-mailbody summary:before{content:"▸";font-size:11px}.bdc-mailbody[open] summary:before{content:"▾"}
+.bdc-mailbody .bdc-close,.bdc-mailbody[open] .bdc-open{display:none}.bdc-mailbody[open] .bdc-close{display:inline}
+.bdc-mailbody summary:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.bdc-mailbody .bd-letter-body{max-height:40vh;overflow:auto;background:#f7f9fc;border-radius:8px;padding:10px 12px}
+.fp-att{flex-wrap:nowrap}
+.fp-att-name{flex-wrap:nowrap;min-width:0;word-break:normal}
+.fp-fn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.fp-att-name .bdc-chip,.fp-att-name small{flex-shrink:0}
+@media (max-width:640px){.bdc-archive .mail-tags{padding-left:0}.fp-att{flex-wrap:wrap}.fp-att-name{flex-basis:100%}}

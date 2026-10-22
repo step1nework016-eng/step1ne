@@ -141,12 +141,12 @@ const MAIL_ST = { pending: ['等 Jacky／Phoebe 在 TG 核准', 'no'], sending: 
 const ATT_KIND = { company_intro: '公司介紹', contract: '合約', anon_cv: '匿名履歷' };
 function mailItem(m) {
   const [st, cls] = MAIL_ST[m.status] || [m.status || '', 'no'];
-  const atts = (m.attachments || []).map((a) => `<div class="fp-att"><span class="fp-att-name">${ATT_KIND[a.kind] ? `<span class="bdc-chip stage">${ATT_KIND[a.kind]}</span>` : ''}${text(a.filename)}</span>${fileButtons(`/admin/file/${encodeURIComponent(a.file_id)}`, a.filename)}</div>`).join('');
+  const atts = (m.attachments || []).map((a) => `<div class="fp-att"><span class="fp-att-name">${ATT_KIND[a.kind] ? `<span class="bdc-chip stage">${ATT_KIND[a.kind]}</span>` : ''}<span class="fp-fn" title="${escapeHtml(a.filename || '')}">${text(a.filename)}</span></span>${fileButtons(`/admin/file/${encodeURIComponent(a.file_id)}`, a.filename)}</div>`).join('');
   return `<li class="bdc-item mail sysmail"><span class="bdc-dot" aria-hidden="true">${ICON.mail}</span><div class="bdc-card">
     <div class="bdc-top"><span class="bdc-t">系統寄信${m.pack ? '　公司介紹／合約' : '　開發信'}</span><span class="bdc-time">${text(mdTime(m.at))}</span></div>
     <div class="bdc-chips"><span class="bdc-chip ${cls}">${text(st)}${m.status === 'sent' && m.sent_at ? ` ${text(mdTime(m.sent_at))}` : ''}</span>${m.opened_at ? `<span class="bdc-chip ok">對方開過信 ${text(mdTime(m.opened_at))}</span>` : ''}</div>
-    <dl class="bdc-mailhead"><dt>收件人</dt><dd>${text(m.to || '（沒有信箱）')}</dd><dt>署名</dt><dd>${text(m.signer || '—')}</dd>${m.approved_by ? `<dt>${m.status === 'sent' ? '核准寄出' : '處理人'}</dt><dd>${text(m.approved_by)}</dd>` : ''}<dt>主旨</dt><dd><b>${text(m.subject || '（無主旨）')}</b></dd></dl>
-    <details class="bdc-mailbody"><summary>看信件內文</summary><pre class="bd-letter-body">${text(m.body)}</pre></details>
+    <dl class="bdc-mailhead"><dt>收件人</dt><dd>${text(m.to || '（沒有信箱）')}</dd><dt>署名</dt><dd>${text(m.signer || '—')}</dd>${m.approved_by ? `<dt>${m.status === 'sent' ? '核准寄出' : '處理人'}</dt><dd>${text(m.approved_by)}</dd>` : ''}<dt>主旨</dt><dd class="bdc-subj" title="${escapeHtml(m.subject || '')}"><b>${text(m.subject || '（無主旨）')}</b></dd></dl>
+    <details class="bdc-mailbody"><summary><span class="bdc-open">展開信件內文</span><span class="bdc-close">收合信件內文</span></summary><pre class="bd-letter-body">${text(m.body)}</pre></details>
     ${atts ? `<div class="fp-atts"><small class="muted">附件</small>${atts}</div>` : '<small class="muted">沒有附件</small>'}
   </div></li>`;
 }
