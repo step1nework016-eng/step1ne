@@ -1524,9 +1524,11 @@ function wireTopicsToday() {
         if (!acSel.value) { msg.textContent = '先選一位顧問的口吻。'; return; }
         goBtn.disabled = true; msg.textContent = '排入產稿中…';
         try {
+          const hookV = (document.getElementById('tp-hook')?.value || '').trim();
           const r = await adapters.socialPostRequest({
             topic_id: topicId, account_id: acSel.value,
             style_id: stSel.value || undefined,
+            ...(hookV ? { topic_hook: hookV.slice(0, 40) } : {}),
           });
           msg.textContent = (r && r.message) || '已排入產稿，1–2 分鐘後到 Telegram「社群發文審核」按確認才會發。';
           toast('已排入產稿');
@@ -1625,6 +1627,7 @@ function wireSocialComposer() {
   waySel.onchange = () => { syncWay(); unlock(); };
   $$id('sc-job').onchange = unlock;
   $$id('sc-tstyle').onchange = unlock;
+  if ($$id('sc-hook')) $$id('sc-hook').oninput = unlock;   // 換話題＝另一篇，按鈕重新亮
   $$id('sc-date').onchange = syncPreview;
   $$id('sc-hour').onchange = syncPreview;
   $$id('sc-min').onchange = syncPreview;
@@ -1707,6 +1710,9 @@ function wireSocialComposer() {
     }
     const date = $$id('sc-date').value;
     const h = $$id('sc-hour').value, m = $$id('sc-min').value;
+    // 2026-10-22：今天想搭的話題（選填）。立刻排入跟排程都會帶；空的就不送，行為跟以前一樣。
+    const hook = ($$id('sc-hook')?.value || '').trim();
+    if (hook) payload.topic_hook = hook.slice(0, 40);
     go.disabled = true; go.textContent = '排入中⋯';
     try {
       if (date) {

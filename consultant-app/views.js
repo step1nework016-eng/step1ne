@@ -1329,6 +1329,9 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
         <select id="tp-account"><option value="">請選擇…</option></select></label>
       <label class="field"><span>用哪個公式（不選＝顧問預設語氣）</span>
         <select id="tp-style"><option value="">原始格式（顧問預設語氣）</option></select></label>
+      <label class="field"><span>今天想搭的話題／關鍵字（選填）</span>
+        <input type="text" id="tp-hook" maxlength="40" autocomplete="off" placeholder="例：颱風天看職缺"></label>
+      <p class="help" style="margin:4px 0 0">有填就當開頭的切入點，不會編造這件事的細節；空著＝跟平常一樣。</p>
       <div id="tp-msg" class="help" style="margin-top:6px"></div>
     </div>`,
   // /admin/social-post-queue 真實主鍵是 queue_id（不是 id），狀態欄位是 social_post_status
@@ -1453,6 +1456,11 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
         <p class="help" style="margin:4px 0 0">人選<b>還沒同意</b>匿名推薦 → 一律用 B 版（只談「市場上這類人才」）。人選<b>已經同意</b>才能選 A 版（可以寫「手上接觸到一位」）。</p>
         <p class="help" style="margin:4px 0 0">會拿這位人選的阿財報告（沒有就用履歷）照公式寫給企業主看，名字、待過的公司、學校都不會出現；出現的話系統會自動擋下重產。一樣送 Telegram 審核，你按確認才會發。</p>
       </div>
+
+      <!-- 2026-10-22 Jacky 核准上正式：今天想搭的話題（選填）。立刻排入跟排程都會帶。 -->
+      <label class="field"><span>今天想搭的話題／關鍵字（選填）</span>
+        <input type="text" id="sc-hook" maxlength="40" autocomplete="off" placeholder="例：颱風天看職缺"></label>
+      <p class="help" style="margin:4px 0 0">有填，AI 會把它自然放進開頭當切入點，公式跟你的語氣照舊；只當情境用，不會替這件事編時間、數字或新聞。空著＝跟平常一樣。按 Telegram「🔄 重新產一次」也會沿用。</p>
 
       <label class="field"><span>排程時間（留空＝立刻排入產稿）</span>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
@@ -1706,7 +1714,7 @@ ${view.confidential_client ? '<p class="help">⚠️ 這個職缺標了「客戶
         >用這篇的寫法再排一則</button>`);
     }
     return `<article class="list-row"><span><b>#${text(q.queue_id)}　${text(q.title || q.content_formula || q.slug)}</b>`
-      + `<small>${text(q.account_label)} · 發文時間 ${postedLabel}</small><small>${stats}</small></span>`
+      + `<small>${text(q.account_label)} · 發文時間 ${postedLabel}${q.topic_hook ? ` · 🌀 搭的話題：${text(q.topic_hook)}` : ''}</small><small>${stats}</small></span>`
       + `${statusBadge(q.social_post_status)}${viewLink}${rowActions(btns)}</article>`;
   }),
   // 排程行事曆——照抄舊版 consultant/social-post 的月曆邏輯（renderCal/renderKpi），

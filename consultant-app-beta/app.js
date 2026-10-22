@@ -1710,12 +1710,9 @@ function wireSocialComposer() {
     }
     const date = $$id('sc-date').value;
     const h = $$id('sc-hour').value, m = $$id('sc-min').value;
-    // 2026-10-22 測試版：今天想搭的話題（選填）。排程那條路還沒接，先只支援立刻排入。
+    // 2026-10-22：今天想搭的話題（選填）。立刻排入跟排程都會帶；空的就不送，行為跟以前一樣。
     const hook = ($$id('sc-hook')?.value || '').trim();
-    if (hook) {
-      if (date) return toast('「今天想搭的話題」目前只能立刻排入產稿，排程時間請留空', 'error');
-      payload.topic_hook = hook.slice(0, 40);
-    }
+    if (hook) payload.topic_hook = hook.slice(0, 40);
     go.disabled = true; go.textContent = '排入中⋯';
     try {
       if (date) {
