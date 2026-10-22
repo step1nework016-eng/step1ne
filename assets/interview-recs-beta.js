@@ -45,6 +45,7 @@
     '.acai-rec .ar-btn:focus-visible{outline:3px solid var(--ink,#23262d);outline-offset:2px}',
     '.acai-rec .ar-btn.done,.acai-rec .ar-btn:disabled{background:var(--ar-ok-soft);color:var(--ar-ok);cursor:default}',
     '.acai-rec .ar-fine{font-size:.8em;color:var(--muted,#656972);margin:6px 4px 0}',
+    '.acai-rec .ar-btn.lim:disabled{background:var(--soft,#f6f2ea);color:var(--muted,#656972);border:1px dashed var(--line,#eee7db)}',
     '.acai-rec .ar-cnt{font-size:.88em;font-weight:700;color:var(--ar-brand);margin:4px 4px 0}',
     '.acai-rec .ar-err{font-size:.86em;color:var(--ar-warn);margin:6px 4px 0}',
     '@media (prefers-reduced-motion:reduce){.acai-rec .ar-chev{transition:none}}'
@@ -118,7 +119,7 @@
             method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ slug: j.slug })
           }).then(function (r) { return r.json(); }).then(function (d) {
             if (d && d.ok) { want.textContent = '✓ 已應徵'; want.classList.add('done'); j.wanted = true; syncPicks(box, card); }
-            else if (d && d.limit) { want.textContent = '最多選 ' + card.max + ' 個'; syncPicks(box, card); }
+            else if (d && d.limit) { want.classList.add('lim'); want.textContent = '已選滿 ' + card.max + ' 個'; syncPicks(box, card); }
             else { want.disabled = false; want.textContent = '我要應徵這個'; if (d && d.error) note(box, d.error); }
           }).catch(function () { want.disabled = false; want.textContent = '我要應徵這個'; });
         });
@@ -168,7 +169,7 @@
     if (c) c.textContent = n >= card.max ? '已選 ' + n + ' 個（最多 ' + card.max + ' 個），之後會有專人跟您聯絡' : '已選 ' + n + '／' + card.max + ' 個';
     box.querySelectorAll('.ar-btn.ar-pri').forEach(function (b) {
       if (b.classList.contains('done')) return;
-      if (n >= card.max) { b.disabled = true; b.textContent = '最多選 ' + card.max + ' 個'; }
+      if (n >= card.max) { b.disabled = true; b.classList.add('lim'); b.textContent = '已選滿 ' + card.max + ' 個'; }
     });
   }
   function note(box, msg) {
