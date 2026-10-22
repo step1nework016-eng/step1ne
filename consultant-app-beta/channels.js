@@ -240,7 +240,7 @@ function logPaneHtml(d) {
     return `<li class="bdc-item ${k}"><span class="bdc-dot" aria-hidden="true">${ICON[k]}</span><div class="bdc-card">
       <div class="bdc-top"><span class="bdc-t">${KIND_ZH[k]}${l.result ? `　${esc(RESULT_ZH[l.result] || l.result)}` : ''}</span><span class="bdc-time">${esc(mdTime(logTime(l)))}　${esc(l.by || '')}</span></div>
       <div class="bdc-chips">${sent}${l.status_to ? `<span class="bdc-chip stage">階段 → ${esc(data.statuses[l.status_to] || l.status_to)}</span>` : ''}</div>
-      ${l.text ? `<p class="bdc-note">${esc(l.text)}</p>` : ''}${l.contact_name ? `<small class="muted">窗口：${esc(l.contact_name)}</small>` : ''}${nxt}
+      ${l.text ? `<p class="bdc-note">${esc(String(l.text).replace(/^📧\s*/, ''))}</p>` : ''}${l.contact_name ? `<small class="muted">窗口：${esc(l.contact_name)}</small>` : ''}${nxt}
       ${l.transcript ? `<details class="ch-tsview"><summary>看逐字稿</summary><div class="ch-tstext">${esc(l.transcript)}</div></details>` : ''}
       <div class="bdc-mini">${!l.mail_sent && k !== 'other' ? `<button type="button" data-ch-sent="${l.id}">我已用別的信箱寄出</button>` : ''}${(l.next_step || l.next_due) && !l.next_done ? `<button type="button" data-ch-done="${l.id}">這步做完了</button>` : ''}<button type="button" class="bd-del" data-ch-logdel="${l.id}">刪除</button></div>
     </div></li>`;
@@ -266,7 +266,7 @@ function logPaneHtml(d) {
         <div class="bdc-f full ch-ai" data-ch-mail data-email="${esc(c.email || '')}" hidden>
           <div style="background:#E8F2FA;border:1px solid #B9D7EE;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:14px;line-height:1.7"><b>這裡會真的從 official@ 寄出信</b><br>① 上面「備註」寫這封信要做什麼　② 按藍色「AI 幫我擬信」（或「自己寫」）　③ 看過內容，按「寄出這封信」</div>
           <div class="ch-pre">
-            <label class="bdc-f">信要請對方轉給誰<select name="m_aud"><option value="school">大專院校學員（連到培訓專區 /training/）</option><option value="construction">一般求職民眾（連到營造專區 /construction/）</option></select></label>
+            <label class="bdc-f">信裡要放哪個職缺連結？（給學員／給一般求職者）<select name="m_aud"><option value="school">大專院校學員（連到培訓專區 /training/）</option><option value="construction">一般求職民眾（連到營造專區 /construction/）</option></select></label>
             <label class="bdc-f">信上署名的顧問<select name="m_sign">${[...new Set(['Phoebe', ...people])].map((x) => `<option${x === 'Phoebe' ? ' selected' : ''}>${esc(x)}</option>`).join('')}</select></label>
             <div class="bdc-f"><span>附加檔案（選填，最多 5 個、每個 8MB 內；pdf、word、excel、ppt、圖片）</span>
               <label class="ch-drop" data-ch-drop>把檔案拖到這裡，或點這裡選檔案<input class="ch-drop-input" type="file" name="m_files" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg,.odt,.ods"></label></div>
