@@ -182,7 +182,7 @@ a.btn{text-decoration:none}
 <div class="bar" id="bar"><div class="in"><button class="btn" type="button" id="go">開始跟阿財聊</button><small>送出後就能聊，名額滿會讓你選時段</small></div></div>
 
 <script>
-// 2026-10-22 測試版：無經驗通用面談（先跟阿財聊，再幫你選職缺）。POST /apply-general；面談室用 /interview-beta/。
+// 2026-10-22 正式版（由 /apply-general-beta/ 轉正）：無經驗通用面談（先跟阿財聊，再幫你選職缺）。POST /apply-general；面談室用 /interview/。
 var API='https://step1ne-public-worker.aiagentg888.workers.dev';
 var Q=new URLSearchParams(location.search);
 function ga(n,p){try{gtag('event',n,Object.assign({flow:'general',page_path:location.pathname},p||{}))}catch(e){}}
@@ -211,7 +211,7 @@ document.getElementById('go').addEventListener('click',async function(){
 function showDone(r){
   document.getElementById('f').style.display='none'; document.getElementById('bar').style.display='none';
   document.getElementById('done').style.display='block'; scrollTo(0,0);
-  var now=document.getElementById('now'); now.href='/interview-beta/?t='+encodeURIComponent(TOKEN);
+  var now=document.getElementById('now'); now.href='/interview/?t='+encodeURIComponent(TOKEN);
   if(r.duplicate==='in_progress'){document.getElementById('dh').textContent='你已經在跟阿財聊了';
     document.getElementById('dp').textContent='剛剛已經開始聊了，不用重新填。按下面回到面談室就能接著聊。';
     now.textContent='回到面談室'; document.getElementById('book').style.display='none'; return;}

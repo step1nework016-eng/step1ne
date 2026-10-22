@@ -1,4 +1,7 @@
-/* 面談室：阿財面談結尾的「您可能也適合這些職缺」卡片（2026-10-21，Jacky 核准樣板）。
+/* 2026-10-22 起正式版也有「無經驗通用面談」模式（2026-10-22）——
+ *   GET /recs 回 mode='general' 時：最多 4 個、按鈕是「我要應徵這個」、最多選 2 個（POST /chat/<t>/general-pick），
+ *   選滿 2 個其他按鈕變灰；一個都沒挑到（status=none）就畫一張「之後會有專人跟您聯絡」的小卡。
+ * 面談室：阿財面談結尾的「您可能也適合這些職缺」卡片（2026-10-21，Jacky 核准樣板）。
  *
  * 頁面只要在面談結束（setEnded）時呼叫 AcaiRecs.start(API, T)，或先設 window.__acaiRecsPending = [API, T]。
  * 這支自己輪詢 GET /chat/<token>/recs（面談結束後阿財要幾十秒挑職缺，頁面原本的輪詢已經停了）：
@@ -42,6 +45,9 @@
     '.acai-rec .ar-btn:focus-visible{outline:3px solid var(--ink,#23262d);outline-offset:2px}',
     '.acai-rec .ar-btn.done,.acai-rec .ar-btn:disabled{background:var(--ar-ok-soft);color:var(--ar-ok);cursor:default}',
     '.acai-rec .ar-fine{font-size:.8em;color:var(--muted,#656972);margin:6px 4px 0}',
+    '.acai-rec .ar-btn.lim:disabled{background:var(--soft,#f6f2ea);color:var(--muted,#656972);border:1px dashed var(--line,#eee7db)}',
+    '.acai-rec .ar-cnt{font-size:.88em;font-weight:700;color:var(--ar-brand);margin:4px 4px 0}',
+    '.acai-rec .ar-err{font-size:.86em;color:var(--ar-warn);margin:6px 4px 0}',
     '@media (prefers-reduced-motion:reduce){.acai-rec .ar-chev{transition:none}}'
   ].join('\n');
 
@@ -100,10 +106,25 @@
       var acts = el('div', 'ar-acts');
       var a = el('a', 'ar-btn ar-sec', '看完整職缺');
       a.href = j.url; a.target = '_blank'; a.rel = 'noopener';
-      var want = el('button', 'ar-btn ar-pri', j.wanted ? '✓ 已告訴顧問' : '也幫我推這個');
+      var G = card.general;
+      var want = el('button', 'ar-btn ar-pri', j.wanted ? (G ? '✓ 已應徵' : '✓ 已告訴顧問') : (G ? '我要應徵這個' : '也幫我推這個'));
       want.type = 'button';
+      want.setAttribute('data-slug', j.slug);
       if (j.wanted) { want.disabled = true; want.classList.add('done'); }
-      want.addEventListener('click', function () {
+      if (G) {
+        want.addEventListener('click', function () {
+          if (want.disabled) return;
+          want.disabled = true; want.textContent = '送出中…';
+          fetch(api + '/chat/' + encodeURIComponent(token) + '/general-pick', {
+            method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ slug: j.slug })
+          }).then(function (r) { return r.json(); }).then(function (d) {
+            if (d && d.ok) { want.textContent = '✓ 已應徵'; want.classList.add('done'); j.wanted = true; syncPicks(box, card); }
+            else if (d && d.limit) { want.classList.add('lim'); want.textContent = '已選滿 ' + card.max + ' 個'; syncPicks(box, card); }
+            else { want.disabled = false; want.textContent = '我要應徵這個'; if (d && d.error) note(box, d.error); }
+          }).catch(function () { want.disabled = false; want.textContent = '我要應徵這個'; });
+        });
+      }
+      if (!G) want.addEventListener('click', function () {
         if (want.disabled) return;
         want.disabled = true; want.textContent = '送出中…';
         fetch(api + '/chat/' + encodeURIComponent(token) + '/recs-want', {
@@ -125,6 +146,7 @@
       job.appendChild(head); job.appendChild(det);
       box.appendChild(job);
     });
+    if (card.general) { var cnt = el('p', 'ar-cnt'); cnt.setAttribute('aria-live', 'polite'); box.appendChild(cnt); syncPicks(box, card); }
     box.appendChild(el('p', 'ar-fine', card.footer));
     // 2026-10-21 Jacky 測試：結束面板（時間軸）會蓋住對話，卡片放在對話裡根本看不到——
     // 頁面有 #fin_recs（新版結束面板）就放進面板最上面，沒有才放回對話裡
@@ -140,6 +162,41 @@
     log.scrollTop = log.scrollHeight;
   }
 
+  // 通用面談：已選幾個／選滿就把其他「我要應徵這個」變灰
+  function syncPicks(box, card) {
+    var n = card.jobs.filter(function (j) { return j.wanted; }).length;
+    var c = box.querySelector('.ar-cnt');
+    if (c) c.textContent = n >= card.max ? '已選 ' + n + ' 個（最多 ' + card.max + ' 個），之後會有專人跟您聯絡' : '已選 ' + n + '／' + card.max + ' 個';
+    box.querySelectorAll('.ar-btn.ar-pri').forEach(function (b) {
+      if (b.classList.contains('done')) return;
+      if (n >= card.max) { b.disabled = true; b.classList.add('lim'); b.textContent = '已選滿 ' + card.max + ' 個'; }
+    });
+  }
+  function note(box, msg) {
+    var p = box.querySelector('.ar-err') || box.insertBefore(el('p', 'ar-err'), box.querySelector('.ar-fine'));
+    p.textContent = msg;
+  }
+  function renderNone(card) {   // 通用面談一個都沒挑到：不畫空卡片，給一句交代
+    if (document.getElementById('acai-rec')) return;
+    injectCss();
+    var box = el('section', 'acai-rec'); box.id = 'acai-rec';
+    box.appendChild(el('h4', null, card.title));
+    box.appendChild(el('p', 'ar-sub', card.sub));
+    var slot = document.getElementById('fin_recs');
+    if (slot) { box.style.margin = '0 0 18px'; box.style.maxWidth = 'none'; slot.appendChild(box); slot.hidden = false; return; }
+    var log = document.getElementById('log'); if (log) log.appendChild(box);
+  }
+
+  var GCARD = {
+    title: '依您今天聊的，這幾個職缺比較適合',
+    sub: '點職缺看摘要。想應徵的按「我要應徵這個」，最多選 2 個，面談內容會一起帶過去，不用重新面談',
+    footer: '這是依面談內容初步挑的，不代表一定錄取。都不想選也沒關係，之後會有專人跟您聯絡，再一起看有沒有更適合的。'
+  };
+  var GNONE = {
+    title: '今天先聊到這裡',
+    sub: '這次沒有挑到特別合適的無經驗職缺。之後會有專人跟您聯絡，有適合的職缺會再通知您。'
+  };
+
   var CARD = {
     title: '您可能也適合這些職缺',
     sub: '依您今天聊的內容挑的，方向接近，顧問會再確認。點職缺看摘要',
@@ -154,6 +211,14 @@
       fetch(api + '/chat/' + encodeURIComponent(token) + '/recs').then(function (r) { return r.json(); }).then(function (d) {
         var st = d && d.status;
         var recs = (d && d.recs) || [];
+        if (d && d.mode === 'general') {
+          if (recs.length) {
+            render(api, token, { title: GCARD.title, sub: GCARD.sub, footer: GCARD.footer, jobs: recs.slice(0, 4),
+              general: true, max: d.max_picks || 2 });
+            return;
+          }
+          if (st === 'none' || st === 'error') { renderNone(GNONE); return; }
+        }
         if (recs.length) {
           render(api, token, { title: CARD.title, sub: CARD.sub, footer: CARD.footer, jobs: recs.slice(0, 3) });
           return;
