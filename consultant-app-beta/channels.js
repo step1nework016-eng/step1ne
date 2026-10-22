@@ -480,7 +480,9 @@ function wireDetail(id) {
     drop.addEventListener('drop', (e) => {
       e.preventDefault();
       const dt = new DataTransfer();
-      [...(fin.files || []), ...(e.dataTransfer.files || [])].forEach((x) => dt.items.add(x));
+      // 檔案框在拖放區裡，瀏覽器自己也會放一次，同名同大小的只留一份（10/22 中彰投那封附件重複就是這樣來的）
+      const seen = new Set();
+      [...(fin.files || []), ...(e.dataTransfer.files || [])].forEach((x) => { const k = x.name + '|' + x.size; if (seen.has(k)) return; seen.add(k); dt.items.add(x); });
       fin.files = dt.files; fin.dispatchEvent(new Event('change'));
     });
     fin.addEventListener('change', () => {
