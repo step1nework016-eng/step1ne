@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>先跟阿財聊聊（無經驗職缺）｜Step1ne 德仁管理顧問</title>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-DNPMMRDEC0');</script>
+<style>
+:root{--ac:#2f5fd8;--ac-soft:#eaf0ff;--tx:#16202e;--mu:#5d6878;--line:#dfe4ec;--soft:#f6f8fb;--bg:#fff;--ok:#1e7a46;--ok-soft:#e5f5ec;--rd:#c0392b}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--soft);color:var(--tx);font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif;line-height:1.55}
+.wrap{max-width:480px;margin:0 auto;padding:0 16px 120px}
+header{display:flex;align-items:center;gap:8px;padding:14px 0;font-weight:700;color:var(--mu);font-size:14px}
+header i{width:22px;height:22px;border-radius:6px;background:var(--ac);display:inline-block}
+/* 職缺卡：一眼知道在應徵什麼 */
+.job{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.job h1{font-size:19px;margin:0 0 6px;line-height:1.35}
+.job .meta{display:flex;flex-wrap:wrap;gap:6px}
+.job .meta span{font-size:13px;background:var(--soft);border-radius:99px;padding:3px 10px;color:var(--mu)}
+.job .meta span.hi{background:var(--ok-soft);color:var(--ok);font-weight:700}
+.lead{font-size:14px;color:var(--mu);margin:14px 2px 6px}
+.lead b{color:var(--tx)}
+/* 區塊 */
+.sec{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:12px}
+.sec h2{font-size:15px;margin:0 0 12px;display:flex;justify-content:space-between;align-items:baseline}
+.sec h2 small{font-weight:400;color:var(--mu);font-size:12.5px}
+.f{display:block;margin-bottom:14px}
+.f:last-child{margin-bottom:0}
+.f>span{display:block;font-size:14px;font-weight:600;margin-bottom:6px}
+.f>span em{font-style:normal;color:var(--rd);margin-left:2px}
+input,select{width:100%;font:inherit;font-size:16px;color:var(--tx);background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:12px;min-height:48px}
+input:focus,select:focus{outline:none;border-color:var(--ac);box-shadow:0 0 0 3px var(--ac-soft)}
+.err{display:none;color:var(--rd);font-size:13px;margin-top:5px}
+.f.bad input,.f.bad select{border-color:var(--rd)}
+.f.bad .err{display:block}
+/* 點選題：取代打字 */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{font:inherit;font-size:15px;min-height:44px;padding:8px 14px;border-radius:99px;border:1.5px solid var(--line);background:#fff;color:var(--tx);cursor:pointer}
+.chips button[aria-pressed="true"]{border-color:var(--ac);background:var(--ac-soft);color:var(--ac);font-weight:700}
+.chips button:focus-visible,.btn:focus-visible,summary:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+.f.bad .chips button{border-color:#efb6b0}
+/* 履歷：收起來，選填 */
+details.resume{margin-top:12px;background:var(--bg);border:1px dashed var(--line);border-radius:14px}
+details.resume summary{list-style:none;cursor:pointer;padding:14px 16px;font-size:15px;font-weight:600;display:flex;justify-content:space-between;align-items:center;min-height:48px}
+details.resume summary::-webkit-details-marker{display:none}
+details.resume summary small{font-weight:400;color:var(--mu);font-size:12.5px}
+details.resume .in{padding:0 16px 16px}
+.consent{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--mu);margin:16px 4px 0}
+.consent input{width:22px;height:22px;min-height:0;margin-top:1px;flex:0 0 22px}
+/* 底部固定按鈕 */
+.bar{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.96);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom))}
+.bar .in{max-width:480px;margin:0 auto}
+.btn{display:flex;align-items:center;justify-content:center;width:100%;min-height:52px;border:0;border-radius:12px;background:var(--ac);color:#fff;font:inherit;font-size:17px;font-weight:700;cursor:pointer}
+.btn.ghost{background:#fff;color:var(--ac);border:1.5px solid var(--ac)}
+.bar small{display:block;text-align:center;color:var(--mu);font-size:12.5px;margin-top:6px}
+/* 送出後 */
+.done{display:none}
+.done .ok{font-size:40px;line-height:1}
+.done h2{font-size:21px;margin:10px 0 6px}
+.done p{color:var(--mu);margin:0 0 14px;font-size:15px}
+.choice{display:grid;gap:10px;margin-top:14px}
+.slots{display:none;margin-top:14px}
+.slots .day{font-size:13px;color:var(--mu);margin:12px 0 6px}
+.note{font-size:13px;color:var(--mu);background:var(--soft);border-radius:10px;padding:10px 12px;margin-top:14px}
+@media (prefers-reduced-motion:no-preference){.chips button,.btn{transition:background .15s,border-color .15s}}
+.slots .chips button small{display:block;font-size:11px;color:var(--mu);font-weight:400}
+.msg{font-size:14px;margin-top:10px;color:var(--mu)}.msg.err{color:var(--rd)}
+.ok-line{background:var(--ok-soft);color:var(--ok);border-radius:10px;padding:10px 12px;font-size:14px;margin-top:12px}
+.rin{display:none;margin-top:12px}.rin.on{display:block}
+.btn[disabled]{opacity:.6;cursor:wait}
+a.btn{text-decoration:none}
+.jobs{display:grid;gap:10px}
+.jobs button{display:block;width:100%;text-align:left;font:inherit;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;min-height:64px;cursor:pointer;color:var(--tx)}
+.jobs button b{display:block;font-size:15.5px}
+.jobs button span{display:block;font-size:13px;color:var(--mu);margin-top:2px}
+.jobs button[aria-checked="true"]{border-color:var(--ac);background:var(--ac-soft)}
+.jobs button[aria-checked="true"] b{color:var(--ac)}
+.jobs button:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+.f.bad .jobs button{border-color:#efb6b0}
+.also{display:flex;gap:10px;align-items:center;font-size:14px;color:var(--mu);margin-top:12px}
+.also input{width:22px;height:22px;min-height:0;flex:0 0 22px}
+.f>span.lbl{display:flex;align-items:baseline;gap:4px}
+.lbl .cnt{font-weight:400;color:var(--mu);font-size:12.5px;margin-left:auto}
+.lbl .cnt.on{color:var(--ac);font-weight:700}
+.checks{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.checks button{display:flex;align-items:center;gap:10px;text-align:left;font:inherit;font-size:14.5px;line-height:1.35;min-height:52px;padding:10px 12px;border:1.5px solid var(--line);border-radius:12px;background:#fff;color:var(--tx);cursor:pointer}
+.checks button .ck{flex:0 0 20px;width:20px;height:20px}
+.checks button .ck rect{fill:#fff;stroke:#b8c2d1;stroke-width:1.5}
+.checks button .ck path{fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;opacity:0}
+.checks button[aria-checked="true"]{border-color:var(--ac);background:var(--ac-soft);font-weight:600}
+.checks button[aria-checked="true"] .ck rect{fill:var(--ac);stroke:var(--ac)}
+.checks button[aria-checked="true"] .ck path{opacity:1}
+.checks button[data-none]{grid-column:1/-1;justify-content:center;color:var(--mu)}
+.checks button[data-none] .ck{display:none}
+.checks button[data-none][aria-checked="true"]{color:var(--ac)}
+.checks button:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+.f.bad .checks button{border-color:#efb6b0}
+@media (max-width:340px){.checks{grid-template-columns:1fr}}
+.more{display:inline-flex;align-items:center;gap:6px;margin-top:10px;min-height:40px;padding:0 2px;border:0;background:none;color:var(--ac);font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.more::after{content:"";width:8px;height:8px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);margin-top:-4px}
+.more[aria-expanded="true"]::after{transform:rotate(-135deg);margin-top:4px}
+.more:focus-visible{outline:3px solid var(--ac);outline-offset:2px;border-radius:6px}
+.detail{margin-top:6px;padding:12px 14px;background:var(--soft);border-radius:10px;font-size:14px;line-height:1.6}
+.detail h3{font-size:13px;color:var(--mu);margin:0 0 4px;font-weight:600}
+.detail ul{margin:0 0 10px;padding-left:18px}.detail li{margin:2px 0}
+.detail a{color:var(--ac);font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.jlist{display:grid;gap:10px}
+.jcard{border:1.5px solid var(--line);border-radius:12px;background:#fff;padding:2px 12px 6px}
+.jcard.on{border-color:var(--ac);background:var(--ac-soft)}
+.jcard .pick{display:flex;align-items:flex-start;gap:10px;width:100%;text-align:left;font:inherit;background:none;border:0;padding:10px 0 2px;cursor:pointer;color:var(--tx)}
+.jcard .pick .rd{flex:0 0 20px;width:20px;height:20px;border-radius:50%;border:1.5px solid #b8c2d1;background:#fff;margin-top:2px;position:relative}
+.jcard.on .pick .rd{border-color:var(--ac)}
+.jcard.on .pick .rd::after{content:"";position:absolute;inset:4px;border-radius:50%;background:var(--ac)}
+.jcard .pick b{display:block;font-size:15.5px}
+.jcard.on .pick b{color:var(--ac)}
+.jcard .pick small{display:block;font-size:13px;color:var(--mu);margin-top:2px}
+.jcard .pick:focus-visible{outline:3px solid var(--ac);outline-offset:2px;border-radius:8px}
+.jcard .more{margin:0 0 0 30px}
+.jcard .detail{margin:0 0 8px}
+.f.bad .jcard{border-color:#efb6b0}
+.dates{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 8px;scroll-snap-type:x proximity}
+.dates button{flex:0 0 auto;scroll-snap-align:start;min-width:86px;min-height:60px;padding:8px 12px;border:1.5px solid var(--line);border-radius:12px;background:#fff;font:inherit;color:var(--tx);cursor:pointer;text-align:center}
+.dates button span{display:block;font-size:13px;color:var(--mu)}
+.dates button b{display:block;font-size:16px;color:var(--tx)}
+.dates button small{display:block;font-size:11.5px;color:var(--mu);margin-top:2px}
+.dates button[aria-checked="true"]{border-color:var(--ac);background:var(--ac-soft)}
+.dates button[aria-checked="true"] b{color:var(--ac)}
+.dates button:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+#eduMore input{border-color:var(--line)!important}
+.sw{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 8px;font-size:13px;color:var(--mu)}
+.sw[hidden]{display:none}
+.sw a,.sw b{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:#fff;font-weight:700;color:var(--mu);text-decoration:none}
+.sw b{background:var(--tx);color:#fff;border-color:var(--tx)}
+.sw a:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+.steps{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:10px}
+.steps li{display:flex;gap:10px;align-items:flex-start;font-size:14.5px;color:var(--tx)}
+.steps li span{flex:0 0 24px;width:24px;height:24px;border-radius:50%;background:var(--ac-soft);color:var(--ac);font-weight:700;font-size:13px;display:grid;place-items:center}
+.steps li small{display:block;color:var(--mu);font-size:13px}
+</style></head><body>
+<div class="wrap">
+  <header><img src="/assets/step1ne-logo.png" alt="" width="22" height="22" style="border-radius:6px" onerror="this.style.display='none'">Step1ne 德仁管理顧問</header>
+  <form id="f" novalidate>
+  <div class="job">
+    <h1>不知道選哪個？先跟阿財聊聊</h1>
+    <div class="meta"><span class="hi">無經驗可</span><span>約 10 分鐘</span><span>打字或語音都可以</span></div>
+    <ol class="steps" aria-label="怎麼進行">
+      <li><span>1</span><div>留下聯絡方式<small>約 30 秒，履歷可以之後再補</small></div></li>
+      <li><span>2</span><div>跟 AI 顧問「阿財」聊聊<small>住哪裡、交通、科系、喜歡畫圖還是跑現場⋯⋯</small></div></li>
+      <li><span>3</span><div>阿財挑 2～4 個適合的無經驗職缺<small>你自己決定要應徵哪幾個，最多選 2 個，不用重新面談</small></div></li>
+    </ol>
+  </div>
+
+  <section class="sec" aria-labelledby="s1">
+    <h2 id="s1">怎麼聯絡你</h2>
+    <label class="f" data-req data-k="name"><span>姓名<em>*</em></span><input name="name" autocomplete="name"><div class="err">請填姓名</div></label>
+    <label class="f" data-req data-k="phone"><span>手機<em>*</em></span><input name="phone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="09xx-xxx-xxx"><div class="err">請填 10 碼手機號碼</div></label>
+    <label class="f" data-req data-k="email"><span>Email<em>*</em></span><input name="email" type="email" inputmode="email" autocomplete="email" placeholder="面談連結會寄到這裡"><div class="err">Email 格式不對</div></label>
+    <label class="f" data-k="line_id"><span>LINE ID <small style="font-weight:400;color:var(--mu)">選填</small></span><input name="line_id" autocomplete="off" maxlength="40" placeholder="方便之後用 LINE 通知你"></label>
+  </section>
+
+  <label class="consent"><input type="checkbox" name="ok"> <span>我同意 Step1ne 用這些資料聯絡我、推薦適合的職缺。不會未經同意轉給任何公司。</span></label>
+  <p class="err" id="okerr" style="margin:6px 4px 0;display:none">請勾選同意</p>
+  <p class="msg err" id="servererr" style="display:none;margin:10px 4px 0"></p>
+  </form>
+
+  <section class="done" id="done" aria-live="polite">
+    <div class="sec" style="margin-top:20px">
+      <h2 id="dh">資料收到了！</h2>
+      <p id="dp">下一步是跟 AI 顧問「阿財」線上聊聊，用打字或語音都可以，大約 10 分鐘。聊完畫面上會出現幾個比較適合的無經驗職缺，你再自己選要應徵哪幾個。</p>
+      <div class="choice" id="choice">
+        <a class="btn" id="now" href="#">現在開始聊</a>
+        <button class="btn ghost" type="button" id="book">改約其他時間</button>
+      </div>
+      <div class="slots" id="slots"></div>
+      <p class="msg" id="bmsg"></p>
+      <p class="note">面談連結也寄到你的 Email 了，關掉這頁也找得回來。</p>
+    </div>
+  </section>
+</div>
+
+<div class="bar" id="bar"><div class="in"><button class="btn" type="button" id="go">開始跟阿財聊</button><small>送出後就能聊，名額滿會讓你選時段</small></div></div>
+
+<script>
+// 2026-10-22 測試版：無經驗通用面談（先跟阿財聊，再幫你選職缺）。POST /apply-general；面談室用 /interview-beta/。
+var API='https://step1ne-public-worker.aiagentg888.workers.dev';
+var Q=new URLSearchParams(location.search);
+function ga(n,p){try{gtag('event',n,Object.assign({flow:'general',page_path:location.pathname},p||{}))}catch(e){}}
+ga('general_apply_landing',{utm_source:Q.get('utm_source')||''});
+var TOKEN=null,SLOTS=[],started=false;
+document.querySelectorAll('input').forEach(function(i){i.addEventListener('input',function(){if(!started){started=true;ga('general_form_start')} var f=i.closest('.f'); if(f) f.classList.remove('bad')})});
+function markBad(f){f.classList.add('bad'); f.scrollIntoView({block:'center',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'}); var t=f.querySelector('input'); if(t) t.focus({preventScroll:true});}
+document.getElementById('go').addEventListener('click',async function(){
+  var first=null,F=document.getElementById('f');
+  document.querySelectorAll('[data-req]').forEach(function(f){var i=f.querySelector('input'),v=i.value.trim();
+    var ok=i.name==='phone'?/^09\d{8}$/.test(v.replace(/\D/g,'')):i.name==='email'?/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v):!!v;
+    f.classList.toggle('bad',!ok); if(!ok&&!first) first=f;});
+  var c=F.querySelector('[name=ok]'),oe=document.getElementById('okerr'); oe.style.display=c.checked?'none':'block'; if(!c.checked&&!first) first=c.closest('.consent');
+  if(first){ga('general_validation_error',{field:first.getAttribute('data-k')||'consent'}); first.classList.contains('f')?markBad(first):first.scrollIntoView({block:'center'}); return;}
+  var btn=this; btn.disabled=true; btn.textContent='送出中…'; var se=document.getElementById('servererr'); se.style.display='none';
+  var body={name:F.elements.name.value.trim(),phone:F.elements.phone.value.trim(),email:F.elements.email.value.trim(),line_id:F.elements.line_id.value.trim(),consent:true,
+    utm_source:Q.get('utm_source')||'',utm_medium:Q.get('utm_medium')||'',utm_campaign:Q.get('utm_campaign')||'',utm_content:Q.get('utm_content')||'',referrer:document.referrer||''};
+  try{
+    var r=await (await fetch(API+'/apply-general',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)})).json();
+    if(!r.ok){var ff=r.field&&document.querySelector('[data-k="'+r.field+'"]');
+      if(ff&&ff.querySelector('.err')){ff.querySelector('.err').textContent=r.error; markBad(ff);} else {se.textContent=r.error||'送出失敗，請再試一次'; se.style.display='block';}
+      btn.disabled=false; btn.textContent='開始跟阿財聊'; return;}
+    ga('general_submit_ok',{route:r.route||r.duplicate||''}); TOKEN=r.chat_token; SLOTS=r.slots||[]; showDone(r);
+  }catch(e){se.textContent='網路不穩，請再按一次'; se.style.display='block'; btn.disabled=false; btn.textContent='開始跟阿財聊';}
+});
+function showDone(r){
+  document.getElementById('f').style.display='none'; document.getElementById('bar').style.display='none';
+  document.getElementById('done').style.display='block'; scrollTo(0,0);
+  var now=document.getElementById('now'); now.href='/interview-beta/?t='+encodeURIComponent(TOKEN);
+  if(r.duplicate==='in_progress'){document.getElementById('dh').textContent='你已經在跟阿財聊了';
+    document.getElementById('dp').textContent='剛剛已經開始聊了，不用重新填。按下面回到面談室就能接著聊。';
+    now.textContent='回到面談室'; document.getElementById('book').style.display='none'; return;}
+  if(r.route==='book'){document.getElementById('dh').textContent='資料收到了！選一個聊天時段';
+    document.getElementById('dp').textContent='現在面談室有 '+(r.busy||'幾')+' 位在聊，名額滿了。選一個方便的時間，時間到之前會寄信提醒你。';
+    document.getElementById('choice').style.display='none'; renderSlots();}
+}
+document.getElementById('book').addEventListener('click',function(){this.style.display='none'; renderSlots()});
+function renderSlots(){
+  var box=document.getElementById('slots'); box.style.display='block';
+  if(!SLOTS.length && !renderSlots.tried){renderSlots.tried=true; box.innerHTML='<p class="note">時段載入中…</p>';
+    fetch(API+'/slots').then(function(r){return r.json()}).then(function(d){SLOTS=(d&&d.slots)||[]; renderSlots();}).catch(function(){renderSlots();}); return;}
+  if(!SLOTS.length){box.innerHTML='<p class="note">目前沒有可預約的時段，會另外寄信跟你安排。</p>';return;}
+  box.innerHTML='<div class="day">選一個時段</div><div class="chips">'+SLOTS.slice(0,12).map(function(x){return '<button type="button" data-slot="'+x.slot_at+'">'+x.slot_at.slice(5)+'<small>剩 '+x.left+' 位</small></button>'}).join('')+'</div>';
+  box.querySelectorAll('[data-slot]').forEach(function(sb){sb.addEventListener('click',function(){bookSlot(sb)})});
+}
+async function bookSlot(b){
+  var m=document.getElementById('bmsg'); m.className='msg'; m.textContent='預約中…';
+  document.querySelectorAll('#slots button').forEach(function(x){x.disabled=true});
+  try{var r=await (await fetch(API+'/book',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({token:TOKEN,slot_at:b.getAttribute('data-slot')})})).json();
+    if(!r.ok){m.className='msg err'; m.textContent=r.error||'預約失敗'; if(r.slots){SLOTS=r.slots;} renderSlots(); return;}
+    document.getElementById('slots').innerHTML=''; document.getElementById('choice').style.display='none';
+    m.className='ok-line'; m.textContent='已為你預約 '+b.getAttribute('data-slot')+'，時間到之前會寄信提醒你，用信裡的連結進入面談室即可。';
+  }catch(e){m.className='msg err'; m.textContent='預約失敗，請再試一次'; document.querySelectorAll('#slots button').forEach(function(x){x.disabled=false});}
+}
+</script>
+</body></html>
