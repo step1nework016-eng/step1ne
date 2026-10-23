@@ -14,6 +14,7 @@ import { loadDealTerms } from './dealterms.js';
 import { wireBdJobs } from './bdjobs.js';
 import { loadDailyTab } from './daily.js';
 import { billingV2View, wireBillingV2, billing2Api } from './billing2.js';
+import { initResumeLink, resumeLinkButtons } from './resumelink.js';
 
 // 2026-09-15 補：使用者反映「不知道要看哪個是自己的」——沒有登入系統，只能靠
 // 這組「切換選擇」記住上次選的是誰，換分頁/重新整理都不用重選（存在瀏覽器
@@ -248,6 +249,7 @@ function forwarderName(by) {
   if (v.includes('phoebe') || v === 'behe10' || v === 'ph') return 'Phoebe';
   return String(by).trim();
 }
+initResumeLink(() => amUi().me);
 function amUi() {
   if (!state.aiMatch) {
     let saved;
@@ -2915,7 +2917,9 @@ function reviewLinkRow(app, applicationId) {
   const candBdBtn = `<button type="button" class="btn sm" data-cand-bd="${escapeHtml(applicationId)}" title="AI 找可能需要這種人的公司，放進「人選敲門名單」，顧問篩過才進開發進度">🧲 拿這位人選去開發客戶</button>`;
   const callMailBtn = mail && !isPlaceholderEmail(mail)
     ? `<button type="button" class="btn sm" data-call-mail="${escapeHtml(applicationId)}" data-call-mail-name="${escapeHtml(app.name || '')}">寄信約電話</button><button type="button" class="btn sm" data-call-confirm="${escapeHtml(applicationId)}" data-call-mail-name="${escapeHtml(app.name || '')}" title="人選回信給了時段，回一封「那就約這個時間」">回信確認電話時間</button><button type="button" class="btn sm" data-decline-mail="${escapeHtml(applicationId)}" data-call-mail-name="${escapeHtml(app.name || '')}" title="先看信、可以改，按確認才寄">寄婉拒信</button>` : '';
-  return `<div class="actions-row" style="margin-top:8px">${callMailBtn}${candBdBtn}<button type="button" class="btn sm" data-copy-text="${escapeHtml(url)}">複製服務心得連結</button><span class="help" style="align-self:center">複製後直接貼給人選，顧問、職缺都幫他填好了</span></div>`;
+  return `<div class="actions-row" style="margin-top:8px">${callMailBtn}${candBdBtn}<button type="button" class="btn sm" data-copy-text="${escapeHtml(url)}">複製服務心得連結</button><span class="help" style="align-self:center">複製後直接貼給人選，顧問、職缺都幫他填好了</span></div>`
+    // 2026-10-23 測試版：寄／複製「上傳履歷」連結（人選自己上傳履歷，不經阿財）
+    + `<div class="actions-row" style="margin-top:6px">${resumeLinkButtons({ appId: applicationId, email: mail && !isPlaceholderEmail(mail) ? mail : '', name: app.name || '', jobSlug: app.job_slug || '', jobTitle: app.job_title || '' })}</div>`;
 }
 
 // 先選客戶 → 再選職缺（views.clientJobPicker）。全站共用一個監聽，哪個畫面用到都會動。
@@ -3690,6 +3694,11 @@ async function openJobManage(slug, initialTab = 'manage') {
     const isBuilding = (jobsData.expertiseBuilding || []).includes(slug);
     drawer({ title: job.title || slug, subtitle: job.company_name || job.client_name || '',
              body: views.jobManageBody(job, content, bank, isBuilding, card, acai, sourced) });
+    // 2026-10-23 測試版：這個職缺的「上傳履歷」連結（公開招募中的職缺才給）
+    if (!['closed', 'social_only', 'draft'].includes(String(job.status || ''))) {
+      document.querySelector('#overlay-root .drawer-body')?.insertAdjacentHTML('afterbegin',
+        `<div class="actions-row" style="margin-bottom:10px">${resumeLinkButtons({ jobSlug: job.slug || slug, jobTitle: job.title || '' })}<span class="help" style="align-self:center">人選打開就能上傳履歷，不經阿財面談</span></div>`);
+    }
     // 分頁切換。四個面板都已經 render 好，純顯示／隱藏，不 lazy-load
     // ——題庫／職缺卡／阿財理解資料上面已經拿到了，再延遲載入只是多一次往返。
     const PANELS = ['manage', 'preview', 'sourced', 'expertise', 'card', 'acai'];
