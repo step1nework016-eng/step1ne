@@ -175,8 +175,8 @@ input:focus,select:focus{outline:none;border-color:var(--ac);box-shadow:0 0 0 3p
     sel.appendChild(opt('', '請選擇'));
     var has = {};
     JOBS.forEach(function (j) { has[j.cat] = (has[j.cat] || 0) + 1; });
-    Object.keys(CAT_LABEL).forEach(function (k) { if (has[k]) sel.appendChild(opt(k, CAT_LABEL[k] + '（' + has[k] + '）')); });
-    sel.appendChild(opt(OTHER, '其他' + (has[OTHER] ? '（' + has[OTHER] + '）' : '')));
+    Object.keys(CAT_LABEL).forEach(function (k) { if (has[k]) sel.appendChild(opt(k, CAT_LABEL[k])); });
+    sel.appendChild(opt(OTHER, '其他'));
   }
   function fillJobs(cat) {
     var sel = $('job'); sel.innerHTML = '';
