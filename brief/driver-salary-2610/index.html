@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<title>主管司機薪資行情</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+:root{color-scheme:light}body{margin:0}img{max-width:100%}
+/* Layout: 單欄手機閱讀；標誌元素＝依年資的薪資「車道條」（同一把 30K–75K 尺） */
+:root{
+  --bg:#f3f5f7; --surface:#ffffff; --ink:#18212b; --muted:#5d6a78; --line:#dde3ea;
+  --lane:#e6ebf0; --accent:#0e7c86; --accent-soft:#d8eff1; --mark:#c2410c; --mark-soft:#fde9df;
+  --ours:#1d4ed8; --ours-soft:#e3ebff;
+  --display:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  --body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f151c; --surface:#16202a; --ink:#e7edf3; --muted:#9aa8b6; --line:#263341;
+  --lane:#22303d; --accent:#3fc1cb; --accent-soft:#123b40; --mark:#fb8a5a; --mark-soft:#3a2216;
+  --ours:#7aa2ff; --ours-soft:#1c2a4a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f151c; --surface:#16202a; --ink:#e7edf3; --muted:#9aa8b6; --line:#263341;
+  --lane:#22303d; --accent:#3fc1cb; --accent-soft:#123b40; --mark:#fb8a5a; --mark-soft:#3a2216;
+  --ours:#7aa2ff; --ours-soft:#1c2a4a; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.7}
+.wrap{max-width:720px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px;display:flex;flex-direction:column;gap:28px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.12em;color:var(--accent);text-transform:uppercase}
+h1{font-family:var(--display);font-weight:900;font-size:clamp(26px,7vw,36px);line-height:1.25;margin:6px 0 10px;text-wrap:balance}
+h2{font-family:var(--display);font-weight:700;font-size:20px;margin:0 0 4px;text-wrap:balance}
+p{margin:0}
+.lede{color:var(--muted);font-size:15px}
+.meta{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--muted);margin-top:12px}
+.verdict{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 18px 16px;display:flex;flex-direction:column;gap:8px}
+.verdict b{color:var(--accent)}
+section{display:flex;flex-direction:column;gap:14px}
+.sub{color:var(--muted);font-size:14px}
+/* 車道條 */
+.lanes{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 16px 14px;display:flex;flex-direction:column;gap:18px}
+.lane{display:grid;grid-template-columns:1fr;gap:6px}
+.lane-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.lane-head strong{font-size:15px}
+.lane-head span{font-family:var(--mono);font-size:14px;font-variant-numeric:tabular-nums;color:var(--ink)}
+.track{position:relative;height:14px;border-radius:7px;background:var(--lane)}
+.band{position:absolute;top:0;bottom:0;border-radius:7px;background:var(--accent)}
+.dot{position:absolute;top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:var(--mark);border:2px solid var(--surface)}
+.ours{position:absolute;top:-5px;bottom:-5px;width:2px;background:var(--ours)}
+.lane small{font-size:12.5px;color:var(--muted)}
+.axis{position:relative;height:18px;font-family:var(--mono);font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.axis span{position:absolute;transform:translateX(-50%)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:12.5px;color:var(--muted)}
+.legend i{display:inline-block;vertical-align:middle;margin-right:6px}
+.lg-band{width:18px;height:8px;border-radius:4px;background:var(--accent)}
+.lg-dot{width:10px;height:10px;border-radius:50%;background:var(--mark)}
+.lg-ours{width:2px;height:12px;background:var(--ours)}
+/* 條件比較 */
+.compare{display:flex;flex-direction:column;gap:10px}
+.row{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:grid;grid-template-columns:1fr;gap:6px}
+.row-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.row-top strong{font-size:15px}
+.pill{font-size:12px;font-weight:700;padding:2px 10px;border-radius:999px;white-space:nowrap}
+.good{background:var(--accent-soft);color:var(--accent)}
+.watch{background:var(--mark-soft);color:var(--mark)}
+.row p{font-size:14px;color:var(--muted)}
+ol.tips{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:10px}
+ol.tips li{padding-left:4px}
+ol.tips b{color:var(--ink)}
+.sources{font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--line);padding-top:16px}
+.sources a{color:var(--accent);word-break:break-all}
+.sources a:focus-visible,.row:focus-visible{outline:2px solid var(--ours);outline-offset:2px}
+footer{font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:2px}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Market brief · 2026.10</div>
+    <h1>主管司機薪資行情</h1>
+    <p class="lede">雙北（台北市為主）主管／家庭專屬司機的月薪行情，整理自全民獵才顧問的實際面談經驗與公開市場資料，提供貴公司訂定薪資與招募條件時參考。</p>
+    <div class="meta"><span>整理：全民獵才｜Step1ne 德仁管理顧問</span><span>資料日期：2026-10-23</span></div>
+  </header>
+
+  <div class="verdict">
+    <p><b>重點一句話：</b>主管司機的月薪大致依年資落在 <b>3.5 萬～7 萬</b>。貴公司「月薪 4 萬起」對無經驗或年資較淺的人選有吸引力；要找 5 年以上、開過豪華商務車的資深人選，建議預留到 <b>5～6 萬</b> 的談薪空間。</p>
+  </div>
+
+  <section aria-labelledby="h-lanes">
+    <div>
+      <h2 id="h-lanes">依年資的月薪區間</h2>
+      <p class="sub">同一把尺（3 萬～7.5 萬）比較，越長代表區間越寬。</p>
+    </div>
+    <div class="lanes" role="img" aria-label="依年資的月薪區間：無經驗3.5萬到4.5萬，3年以上約5萬，5年以上4.5萬到6萬，10年以上5萬到7萬；藍線為貴公司起薪4萬">
+      <div class="lane">
+        <div class="lane-head"><strong>無經驗</strong><span>35,000–45,000</span></div>
+        <div class="track"><div class="band" style="left:11.1%;width:22.2%"></div><div class="dot" style="left:28.1%"></div><div class="ours" style="left:22.2%"></div></div>
+        <small>人選接受度高；市場上最接近的商務接送新人約 42,650。</small>
+      </div>
+      <div class="lane">
+        <div class="lane-head"><strong>3 年以上</strong><span>約 50,000</span></div>
+        <div class="track"><div class="band" style="left:42.2%;width:8.9%"></div><div class="dot" style="left:44.4%"></div><div class="ours" style="left:22.2%"></div></div>
+        <small>接受度較高；商務接送司機 3～5 年可突破 5 萬。</small>
+      </div>
+      <div class="lane">
+        <div class="lane-head"><strong>5 年以上</strong><span>45,000–60,000</span></div>
+        <div class="track"><div class="band" style="left:33.3%;width:33.3%"></div><div class="dot" style="left:44.4%"></div><div class="ours" style="left:22.2%"></div></div>
+        <small>視工時與福利可談，部分人選願意用較低月薪換固定班表。</small>
+      </div>
+      <div class="lane">
+        <div class="lane-head"><strong>10 年以上</strong><span>50,000–70,000</span></div>
+        <div class="track"><div class="band" style="left:44.4%;width:44.4%"></div><div class="dot" style="left:66.7%"></div><div class="ours" style="left:22.2%"></div></div>
+        <small>資深商務接送司機可超過 6 萬；高階主管座車、豪華車款經驗者偏高。</small>
+      </div>
+      <div class="axis" aria-hidden="true"><span style="left:0%;transform:none">30K</span><span style="left:22.2%">40K</span><span style="left:44.4%">50K</span><span style="left:66.7%">60K</span><span style="left:88.9%">70K</span></div>
+      <div class="legend"><span><i class="lg-band"></i>顧問實際面談區間</span><span><i class="lg-dot"></i>公開市場參考值</span><span><i class="lg-ours"></i>貴公司起薪 4 萬</span></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-care">
+    <div>
+      <h2 id="h-care">除了薪水，人選最在意什麼</h2>
+      <p class="sub">面談中常見讓人選接受或婉拒的條件，以及貴公司目前的條件。</p>
+    </div>
+    <div class="compare">
+      <div class="row"><div class="row-top"><strong>班表是否固定</strong><span class="pill good">貴公司加分</span></div><p>市場上不少私人司機是 12～14 小時、隨時待命。貴公司兩班輪調（07–15／12–20），班表可預期，是很好的賣點。</p></div>
+      <div class="row"><div class="row-top"><strong>年終與三節</strong><span class="pill good">貴公司加分</span></div><p>多數私人司機職缺沒有寫明獎金。貴公司年終 1 個月＋三節寫清楚，人選比較安心。</p></div>
+      <div class="row"><div class="row-top"><strong>加班費</strong><span class="pill good">已依法給付</span></div><p>加班費被取消是司機離職最常見的導火線之一，依法給付並事先說明計算方式，能降低後續爭議。</p></div>
+      <div class="row"><div class="row-top"><strong>工作範圍會不會擴大</strong><span class="pill watch">建議事先講清楚</span></div><p>司機被要求兼做買菜、管家等雜務，是滿意度下降的主因。建議面談時就說明「接送以外」會做哪些事。</p></div>
+      <div class="row"><div class="row-top"><strong>晚間、週末出勤</strong><span class="pill watch">建議說明頻率</span></div><p>「視需求出勤」容易讓人選擔心隨時被叫。若能說明大約每月幾次、怎麼補休或計薪，接受度會提高。</p></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-tips">
+    <h2 id="h-tips">給貴公司的建議</h2>
+    <ol class="tips">
+      <li><b>無經驗或 3 年內的人選：</b>維持 4 萬起，主打固定班表和年終三節，接受度高。</li>
+      <li><b>5 年以上、有主管座車經驗的人選：</b>預留 5～6 萬的談薪空間，避免好人選在薪資這關流失。</li>
+      <li><b>開過 Lexus LM、Alphard 等大型豪華車：</b>可以列為加薪條件，這類經驗在市場上比較少。</li>
+      <li><b>面談時說清楚三件事：</b>晚間週末出勤頻率、有沒有接送以外的雜務、加班費怎麼算，能大幅減少到職後的落差。</li>
+    </ol>
+  </section>
+
+  <section class="sources" aria-labelledby="h-src">
+    <strong id="h-src" style="color:var(--ink)">資料來源與說明</strong>
+    <p>顧問面談區間：全民獵才顧問實際面談人選的經驗整理。</p>
+    <p>商務接送司機行情：1111 人力銀行「薪資公秤」2021～2024 年統計（新聞報導引用）。</p>
+    <p>私人司機工作條件案例：公開新聞報導的個案整理。</p>
+    <p>主管司機的公開薪資統計很少，以上為區間參考，實際薪資仍依人選經歷、車款與工時調整。</p>
+  </section>
+
+  <footer>
+    <span>德仁管理顧問有限公司（全民獵才｜Step1ne）</span>
+    <span>就業服務許可證：北市就服字第 0363 號｜02-6605-7111｜step1ne.com</span>
+  </footer>
+</div>
+
+</body>
+</html>
