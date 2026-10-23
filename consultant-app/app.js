@@ -13,6 +13,7 @@ import { wireBdCard, bdShowStageRemind, bdShowTagRemind } from './bdcard.js';
 import { loadDealTerms } from './dealterms.js';
 import { wireBdJobs } from './bdjobs.js';
 import { loadDailyTab } from './daily.js';
+import { loadSpecialCheck } from './special_check.js';
 import { billingV2View, wireBillingV2, billing2Api } from './billing2.js';
 
 // 2026-09-15 補：使用者反映「不知道要看哪個是自己的」——沒有登入系統，只能靠
@@ -3116,7 +3117,7 @@ ${views.candidateFormsBlock(f.forms, applicationId, companyId)}
       // ／trg_applications_seq_no 觸發器），一直沒搬進 V3 標題。
       title: (application.seq_no ? `#${application.seq_no} ` : '') + (application.name || '應徵單'),
       subtitle: `${application.job_title || application.job_slug || ''} · ${channelTag}`,
-      body: `<div class="drawer-section">${dupNoticeHtml}${jobSwitchHtml}${views.socialSourceBadge(card.social_source)}${stageBar}${quickSet}${views.clientResumeBox(applicationId, card.client_formal_reports || [], forwards, card.anon_report)}${views.jobMatchTop(report)}<h3>基本資料${contactBadge}${hardGateBadge}</h3>${basics}<h3>操作</h3>${actionMenu([
+      body: `<div class="drawer-section">${dupNoticeHtml}${jobSwitchHtml}${views.socialSourceBadge(card.social_source)}${stageBar}${quickSet}${views.clientResumeBox(applicationId, card.client_formal_reports || [], forwards, card.anon_report)}${views.jobMatchTop(report)}<div id="special-check-box"></div><h3>基本資料${contactBadge}${hardGateBadge}</h3>${basics}<h3>操作</h3>${actionMenu([
         // 2026-09-17 改名：這顆原本也叫「電洽前準備」，但實際上是手動打字存進
         // consultant_call_notes 的表單，跟「電洽」階段格裡新加的 AI Pre-call Card
         // （PRECALL_PHASE1）是完全不同兩個功能，同名會讓人以為是同一顆——
@@ -3151,6 +3152,8 @@ ${views.candidateFormsBlock(f.forms, applicationId, companyId)}
     if (liveScroll) { const dr = document.querySelector('#overlay-root .drawer'); if (dr) dr.scrollTop = liveScroll; }
     wireCandidateDrawer(applicationId, application, forwards, report);
     injectMailSection('candidate', applicationId);
+    // 2026-10-23 特殊職缺檢查卡（只有 special_check_jobs 清單內職缺的人選才會出現）
+    loadSpecialCheck(applicationId, application.job_slug, () => state.openCandidateId === applicationId);
   } catch (error) {
     console.error(error);
     drawer({ title: '應徵單載入失敗', body: errorState(error) });
