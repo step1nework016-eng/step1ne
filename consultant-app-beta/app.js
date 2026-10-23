@@ -4356,6 +4356,10 @@ document.addEventListener('click', async (event) => {
   }
   // 2026-10-15 Jacky：今日下一步那列按「✓ 完成／取消／我看過了」不要連帶打開人選卡片（按鈕在整列可點的區塊裡）
   if (target.closest('[data-dly]')) return;
+  // 2026-10-23：人選卡片上的「📄 看履歷」在整張可點的卡片裡——先攔下來開履歷，不要連帶打開應徵單
+  const cardResumeBtn = target.closest('[data-application] [data-download-resume]');
+  if (cardResumeBtn) { downloadResume(cardResumeBtn.getAttribute('data-download-resume')); return; }
+  if (target.closest('[data-application] a.cc-resume')) return;
   const application = target.closest('[data-application]');
   if (application) { openCandidate(application.getAttribute('data-application')); return; }
   const session = target.closest('[data-session]');
