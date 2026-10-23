@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href*="lin.ee"]');
+  if (!a) return;
+  gtag('event', 'line_cta_click', { page_path: location.pathname, link_text: (a.textContent || '').trim().slice(0, 60) });
+});
+</script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI 履歷健檢對談｜Step1ne 德仁管理顧問</title>
+<!-- 測試版（2026-10-23）：外觀換成跟阿財面談室 /interview/（10/21 新版）同一套——共用 /assets/chatroom.css、
+     /assets/chatroom-display.js（Aa 字級、深淺色、送出鈕）、/assets/interview-quick.js（快速回覆按鈕）。
+     阿福的開場、角色、對談邏輯、API 跟正式版 /checkup-chat/ 一模一樣，只換外觀。 -->
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta name="theme-color" content="#ffffff">
+<script src="/assets/chatroom-display.js?v=20261023"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/chatroom.css?v=20261023">
+<style>
+/* 阿福這頁才有的：結束畫面的「查看報告／下載 PDF」按鈕（顏色一樣走共用變數，深淺色、字級一起生效） */
+.fin{text-align:center;}
+.fin .done{margin:0 0 14px;}
+.fin a.btn{display:inline-flex;align-items:center;justify-content:center;margin:6px 4px 0;min-height:48px;padding:12px 28px;border-radius:999px;
+  background:var(--accent-bg);color:var(--accent-ink);font-weight:700;font-size:calc(15px * var(--fz));text-decoration:none;}
+.fin a.btn.alt{background:var(--bg);color:var(--link);border:2px solid var(--accent-line);}
+.fin .closebtn{display:block;margin:14px auto 0;background:transparent;color:var(--muted);font-weight:500;padding:8px;}
+</style>
+</head>
+<body>
+
+<div id="boot" class="notice"><p>載入中…</p></div>
+
+<header id="top" hidden>
+  <img src="/assets/step1ne-logo.png" alt="Step1ne">
+  <img class="hav" src="/assets/afu-avatar.svg" alt="" width="36" height="36">
+  <div class="who">
+    <b>阿福・AI 履歷健檢助理</b>
+    <span id="sub">—</span>
+  </div>
+  <button class="aa" id="aa" type="button" aria-expanded="false" aria-controls="dpanel" aria-label="調整字體大小與顏色">Aa</button>
+  <div class="dpanel" id="dpanel" role="dialog" aria-label="顯示設定" hidden>
+    <h3>調整畫面</h3>
+    <div class="dgrp">
+      <p id="dl-size">字的大小</p>
+      <div class="dseg" data-key="size" role="group" aria-labelledby="dl-size">
+        <button type="button" data-v="m" aria-pressed="true"><span class="big" style="font-size:15px">字</span>標準</button>
+        <button type="button" data-v="l" aria-pressed="false"><span class="big" style="font-size:19px">字</span>大</button>
+        <button type="button" data-v="xl" aria-pressed="false"><span class="big" style="font-size:23px">字</span>特大</button>
+      </div>
+    </div>
+    <div class="dgrp">
+      <p id="dl-theme">顏色</p>
+      <div class="dseg" data-key="theme" role="group" aria-labelledby="dl-theme">
+        <button type="button" data-v="light" aria-pressed="false"><span class="sw light"></span>淺色</button>
+        <button type="button" data-v="dark" aria-pressed="false"><span class="sw dark"></span>深色</button>
+        <button type="button" data-v="auto" aria-pressed="true"><span class="sw auto"></span>跟手機一樣</button>
+      </div>
+    </div>
+    <p class="dsaved">選好會自動記住，下次進來還是一樣。</p>
+  </div>
+</header>
+
+<div id="hint" class="firsthint" hidden>
+  <div class="spin"></div>
+  <p>阿福正在讀您的履歷與附件<br>大約需要幾十秒…</p>
+</div>
+<div id="log" hidden></div>
+
+<div id="fin" class="fin" hidden>
+  <div class="done">
+    <img src="/assets/afu-avatar.svg" alt="" width="56" height="56">
+    <b>健檢對談已完成</b>
+    <p id="finNote">您的健檢報告正在整理中，完成後會由顧問跟您聯繫。</p>
+  </div>
+  <a id="reportLink" class="btn" href="#" target="_blank" rel="noopener" hidden>查看健檢報告</a>
+  <a id="reportPdfLink" class="btn alt" href="#" hidden>下載 PDF 帶走</a>
+
+  <div id="rate">
+    <p class="rq">這次健檢的體驗如何？</p>
+    <div class="stars" id="stars">
+      <button type="button" data-v="1" aria-label="1 分">😞</button>
+      <button type="button" data-v="2" aria-label="2 分">😕</button>
+      <button type="button" data-v="3" aria-label="3 分">😐</button>
+      <button type="button" data-v="4" aria-label="4 分">🙂</button>
+      <button type="button" data-v="5" aria-label="5 分">😄</button>
+    </div>
+    <div id="rate2" hidden>
+      <textarea id="rcomment" rows="2" placeholder="有什麼可以做得更好？（選填）"></textarea>
+      <button id="rsub" type="button" class="rsend">送出</button>
+    </div>
+    <p id="rthx" class="rq" hidden>謝謝您的回饋 🙏</p>
+  </div>
+
+  <div class="lineCta">
+    <b>想直接跟真人顧問聊？</b>
+    <p>加 LINE 找我們的獵頭顧問，問問這份報告裡沒展開的部分，
+       或聊聊接下來要往哪個方向找機會。</p>
+    <a class="lineBtn" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">加 LINE 找顧問</a>
+  </div>
+
+  <button id="closebtn" type="button" class="closebtn">關閉頁面</button>
+</div>
+
+<footer id="bar" hidden>
+  <!-- 快速回覆按鈕由 /assets/interview-quick.js 畫在對話裡（開關：site_settings afu_quick_replies） -->
+  <div class="bar">
+    <textarea id="say" rows="1" placeholder="輸入訊息…" autocomplete="off" aria-label="輸入訊息"></textarea>
+    <button id="go" type="button" aria-label="送出"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12l16-8-6 16-2.5-6.5z"/><path d="M11.5 13.5L20 4"/></svg><span class="gotx">送出</span></button>
+  </div>
+  <p class="hint">這是 AI 履歷健檢助理，對話內容僅供產出您的健檢報告使用，不會對外公開。<span class="kbd-hint">Enter 換行，⌘/Ctrl＋Enter 送出。</span></p>
+</footer>
+
+<script>
+// 對談室。網址上的 token 就是憑證，不做登入。
+// 跟 /interview/ 完全獨立的一份程式碼，讀的是 /checkup-chat/ 系列端點，
+// 不共用 /chat/ 那組（阿財），也不共用同一支檔案。
+var API = 'https://step1ne-public-worker.aiagentg888.workers.dev';
+var T = new URLSearchParams(location.search).get('t') || '';
+var lastId = 0, polling = null, waiting = false, ended = false, reportPollTimer = null;
+var optimistic = [];
+// 開場那句是給後端用的暗號，觸發阿福主動開口，不該顯示給本人看。
+var SENTINEL = '（本人已進入健檢對談室）';
+function realMsgs(list) {
+  return (list || []).filter(function (m) { return m.content !== SENTINEL; });
+}
+
+var $ = function (id) { return document.getElementById(id); };
+
+function notice(title, body) {
+  $('boot').hidden = false;
+  $('boot').innerHTML = '<h1>' + title + '</h1><p>' + body + '</p>';
+  ['top', 'log', 'bar'].forEach(function (i) { $(i).hidden = true; });
+}
+
+function esc(s) {
+  return String(s).replace(/[&<>"]/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+  });
+}
+
+function atBottom() {
+  var l = $('log');
+  return l.scrollHeight - l.scrollTop - l.clientHeight < 80;
+}
+
+function add(m, fromServer) {
+  if (!$('hint').hidden) { $('hint').hidden = true; $('log').hidden = false; }
+  var stick = atBottom();
+  var mine = m.role === 'user';
+  var d = document.createElement('div');
+  d.className = 'msg ' + (mine ? 'me' : 'ai');
+  d.textContent = m.content;
+  // 2026-10-23 版面比照阿財面談室：阿福的訊息左邊放頭像，連續幾句只在第一句放
+  if (mine) { $('log').appendChild(d); }
+  else {
+    var r = document.createElement('div'); r.className = 'airow';
+    var prev = $('log').lastElementChild && $('log').lastElementChild.previousElementSibling;
+    var av = document.createElement('img'); av.className = 'av'; av.alt = ''; av.src = '/assets/afu-avatar.svg';
+    if (prev && prev.classList.contains('airow')) av.style.visibility = 'hidden';
+    r.appendChild(av); r.appendChild(d); $('log').appendChild(r);
+  }
+  var s = document.createElement('div');
+  s.className = 'stamp' + (mine ? ' me' : ' ai');
+  s.textContent = (m.created_at || '').slice(11, 16);
+  $('log').appendChild(s);
+  if (fromServer && m.id > lastId) lastId = m.id;
+  if (stick) $('log').scrollTop = $('log').scrollHeight;
+}
+
+function typing(on) {
+  var t = $('t-ind');
+  if (on && !t) {
+    t = document.createElement('div');
+    t.id = 't-ind'; t.className = 'typing';
+    t.innerHTML = '<b>阿福整理中</b><i></i><i></i><i></i>';
+    $('log').appendChild(t);
+    $('log').scrollTop = $('log').scrollHeight;
+  } else if (!on && t) { t.remove(); }
+}
+
+function setEnded(reportReady) {
+  if (ended) return;
+  ended = true; waiting = false; typing(false);
+  clearInterval(polling);
+  $('bar').hidden = true;
+  $('fin').hidden = false;
+  if (reportReady) {
+    $('finNote').textContent = '謝謝您撥時間對談。報告已經產出，點下面按鈕可以直接看，或下載 PDF 帶走。';
+    var a = $('reportLink');
+    a.hidden = false;
+    a.href = API + '/checkup-chat/' + encodeURIComponent(T) + '/report';
+    var p = $('reportPdfLink');
+    p.hidden = false;
+    p.href = API + '/checkup-chat/' + encodeURIComponent(T) + '/report.pdf';
+  } else {
+    // 報告通常在對談結束後幾分鐘內就會好（要等一次模型呼叫＋排版），
+    // 這裡每 15 秒問一次要不要顯示連結，不用整頁重新整理。
+    reportPollTimer = setInterval(pollReport, 15000);
+  }
+  $('log').scrollTop = $('log').scrollHeight;
+}
+
+async function pollReport() {
+  try {
+    var r = await fetch(API + '/checkup-chat/' + encodeURIComponent(T));
+    var d = await r.json();
+    if (d.ok && d.report_ready) {
+      clearInterval(reportPollTimer);
+      $('finNote').textContent = '報告已經產出，點下面按鈕可以直接看，或下載 PDF 帶走。';
+      var a = $('reportLink');
+      a.hidden = false;
+      a.href = API + '/checkup-chat/' + encodeURIComponent(T) + '/report';
+      var p = $('reportPdfLink');
+      p.hidden = false;
+      p.href = API + '/checkup-chat/' + encodeURIComponent(T) + '/report.pdf';
+    }
+  } catch (e) { /* 下一輪再試 */ }
+}
+
+async function boot() {
+  if (T.length < 32) {
+    return notice('連結不完整', '請從健檢申請完成後的頁面，或我們寄給您的連結進入。');
+  }
+  var r, d;
+  try {
+    r = await fetch(API + '/checkup-chat/' + encodeURIComponent(T));
+    d = await r.json();
+  } catch (e) {
+    return notice('連不上伺服器', '請確認網路後重新整理，或稍後再試。');
+  }
+  if (!d.ok) {
+    return notice('找不到這場健檢對談', '連結可能已失效。請與顧問聯繫，或重新填寫健檢申請表。');
+  }
+
+  $('boot').hidden = true;
+  ['top', 'log', 'bar'].forEach(function (i) { $(i).hidden = false; });
+  $('sub').textContent = d.name ? d.name + ' 的履歷健檢' : '履歷健檢';
+
+  if (d.state === 'done') return setEnded(d.report_ready);
+
+  // 履歷還沒解析完：checkup_parse.py 通常幾秒到一分鐘內就會跑到。
+  // 這裡先顯示等待畫面，每 5 秒重新檢查一次，好了才進對談。
+  if (!d.resume_ready) {
+    $('log').hidden = true; $('hint').hidden = false;
+    $('hint').querySelector('p').innerHTML = '阿福正在讀您的履歷與附件<br>大約需要幾十秒…';
+    setTimeout(boot, 5000);
+    return;
+  }
+
+  var real = realMsgs(d.messages);
+  if (!real.length) { $('log').hidden = true; $('hint').hidden = false;
+    $('hint').querySelector('p').innerHTML = '阿福正在準備開場白…'; }
+  real.forEach(function (m) { add(m, true); });
+
+  // 第一次進來、還沒有任何對話：送一個暗號讓阿福主動開口。
+  // ⚠️ 2026-08-14 加：一律要先做完工作風格測驗——這裡一定要接住 428，
+  // 不然沒做測驗的人會卡在「阿福正在準備開場白…」永遠沒下文。
+  if (!real.length) {
+    waiting = true; typing(true);
+    if (!(d.messages || []).length) {
+      optimistic.push(SENTINEL);
+      fetch(API + '/checkup-chat/' + encodeURIComponent(T) + '/send', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ text: SENTINEL }),
+      }).then(function (r) {
+        if (r.status === 428) {
+          location.href = '/checkup-assessment-beta/?t=' + encodeURIComponent(T);
+        }
+      }).catch(function () {});
+    }
+  }
+
+  polling = setInterval(poll, 2500);
+  poll();
+}
+
+async function poll() {
+  if (ended) return;
+  try {
+    var r = await fetch(API + '/checkup-chat/' + encodeURIComponent(T) + '/poll?after=' + lastId);
+    var d = await r.json();
+    if (!d.ok) return;
+    var got = d.messages || [];
+    if (got.length) {
+      typing(false);
+      got.forEach(function (m) {
+        if (m.id > lastId) lastId = m.id;
+        if (m.content === SENTINEL) return;
+        if (m.role === 'user') {
+          var k = optimistic.indexOf(m.content);
+          if (k > -1) { optimistic.splice(k, 1); return; }
+        }
+        add(m, true);
+      });
+      if (got.some(function (m) { return m.role === 'afu'; })) { waiting = false; }
+    }
+    if (waiting) typing(true);
+    if (d.state === 'done') setEnded(d.report_ready);
+  } catch (e) { /* 網路瞬斷不用打擾使用者，下一輪會補回來 */ }
+}
+
+var sending = false;
+// opt：快速回覆按鈕送 { text }；按送出鈕／快捷鍵時是 click 事件或沒有參數，就讀輸入框
+async function send(opt) {
+  if (opt && opt.type) opt = null;
+  var v = opt ? String(opt.text || '').trim() : $('say').value.trim();
+  if (!v || ended || sending) return;
+  sending = true; $('go').disabled = true;
+  setTimeout(function () { sending = false; $('go').disabled = ended; }, 600);
+  if (!opt) { $('say').value = ''; $('say').style.height = 'auto'; }
+  optimistic.push(v);
+  add({ id: 0, role: 'user', content: v,
+        created_at: '           ' + new Date().toTimeString().slice(0, 5) });
+  waiting = true; typing(true);
+  try {
+    var r = await fetch(API + '/checkup-chat/' + encodeURIComponent(T) + '/send', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ text: v }),
+    });
+    var d = await r.json();
+    if (!d.ok && r.status === 409) setEnded(false);
+    if (!d.ok && r.status === 428) location.href = '/checkup-assessment-beta/?t=' + encodeURIComponent(T);
+  } catch (e) {
+    typing(false); waiting = false;
+    add({ id: 0, role: 'afu', content: '（訊息沒送出去，請確認網路後再試一次）', created_at: '' });
+  }
+}
+
+$('go').addEventListener('click', function () { send(); });
+// ⚠️ 2026-08-12 比照 /interview/ 改過：原本純 Enter 就送出，打字打到一半
+// 常常不小心按到 Enter 就送出去了。改成要 Cmd/Ctrl+Enter 才送出，
+// 單純 Enter 一律換行；同時補上中文輸入法選字保護（原本沒有，選字時
+// 按 Enter 會被誤判成送出，導致一句話送兩次）。
+var composing = false;
+$('say').addEventListener('compositionstart', function () { composing = true; });
+$('say').addEventListener('compositionend', function () { composing = false; });
+$('say').addEventListener('keydown', function (e) {
+  if (e.key !== 'Enter' || !(e.metaKey || e.ctrlKey)) return;
+  if (composing || e.isComposing || e.keyCode === 229) return;
+  e.preventDefault();
+  send();
+});
+$('say').addEventListener('input', function () {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 130) + 'px';
+});
+$('closebtn').addEventListener('click', function () {
+  window.close();
+  // 有些瀏覽器不讓 script 關掉不是自己開的分頁，關不掉就導回首頁
+  setTimeout(function () { location.href = '/'; }, 300);
+});
+
+// ── 健檢結束後的體驗評分——照 /interview/ 同一套：一點星星就先送分數，
+// 意見欄選填，不填也能送出，不會卡住剛聊完的人。
+var myRating = null;
+async function sendRating() {
+  if (!myRating) return;
+  try {
+    await fetch(API + '/checkup-chat/' + encodeURIComponent(T) + '/feedback', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ rating: myRating, comment: ($('rcomment').value || '').trim() }),
+    });
+  } catch (e) { /* 送不出去不要卡住他 */ }
+}
+document.querySelectorAll('#stars button').forEach(function (b) {
+  b.addEventListener('click', function () {
+    document.querySelectorAll('#stars button').forEach(function (x) { x.classList.toggle('on', x === b); });
+    myRating = Number(b.dataset.v);
+    $('rate2').hidden = false;
+    sendRating();
+  });
+});
+$('rsub').addEventListener('click', async function () {
+  this.disabled = true; this.textContent = '送出中…';
+  await sendRating();
+  $('stars').hidden = true; $('rate2').hidden = true; $('rthx').hidden = false;
+});
+
+boot();
+</script>
+<script>window.QUICK_CFG = { path: '/checkup-chat/', me: 'user', bot: 'afu' };</script>
+<script src="/assets/interview-quick.js?v=20261023" defer></script>
+</body>
+</html>

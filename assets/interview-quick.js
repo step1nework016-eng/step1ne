@@ -32,6 +32,12 @@
     '@media (prefers-reduced-motion:reduce){.acai-qr button{transition:none}}'
   ].join('');
 
+  // 2026-10-23 加：阿福對談室（/checkup-chat-beta/）共用同一支。頁面在載入這支之前設
+  //   window.QUICK_CFG = { path: '/checkup-chat/', me: 'user', bot: 'afu' }
+  // 沒設就是阿財面談室原本的值，/interview/ 行為不變。
+  var CFG = window.QUICK_CFG || {};
+  var PATH = CFG.path || '/chat/', ME = CFG.me || 'candidate', BOT = CFG.bot || 'assistant';
+
   var seq = 0;          // 人選每送出一次 +1，晚到的查詢結果就作廢
   var timer = null;
   var shownAfter = null;
@@ -98,7 +104,7 @@
     var A = api(), t = token();
     if (!A || !t || t.length < 32 || isEnded()) return;
     var mine = seq;
-    fetch(A + '/chat/' + encodeURIComponent(t) + '/quick').then(function (r) { return r.json(); }).then(function (d) {
+    fetch(A + PATH + encodeURIComponent(t) + '/quick').then(function (r) { return r.json(); }).then(function (d) {
       if (mine !== seq || isEnded()) return;                 // 查的時候人選已經送出了
       var opts = (d && d.options) || [];
       if (opts.length >= 2) {
@@ -121,8 +127,8 @@
     var wrapped = function (m) {
       var r = orig.apply(this, arguments);
       try {
-        if (m && m.role === 'candidate') { seq++; clearTimeout(timer); clear(); }
-        else if (m && m.role === 'assistant') schedule();
+        if (m && m.role === ME) { seq++; clearTimeout(timer); clear(); }
+        else if (m && m.role === BOT) schedule();
       } catch (e) {}
       return r;
     };
