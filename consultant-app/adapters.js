@@ -53,6 +53,9 @@ export const adapters = {
       silentInterview: value(item, 'silent_interview'),
       // 2026-10-21「先送出，晚點再聊」：waiting／expired（見 views.js laterBadge）
       laterState: value(item, 'later_state'),
+      // 2026-10-23：卡片上直接「📄 看履歷」（104 下載匯入的人選，Phoebe 要一點就開 PDF）。
+      // 後端 tracker 本來就有回 resume_file_id／resume_url，只是卡片沒接。
+      resumeFileId: value(item, 'resume_file_id'), resumeUrl: value(item, 'resume_url'),
     }));
   },
   async candidateCard(applicationId) { return api.get(`/admin/application/${encodeURIComponent(applicationId)}/card`); },
