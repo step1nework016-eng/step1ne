@@ -110,8 +110,13 @@ export const adapters = {
     return api.post('/admin/applications/reassign-job', { application_id: applicationId, job_slug: jobSlug, by });
   },
   async interviews() {
-    const [live, sessions] = await Promise.all([api.get('/admin/interviews/live'), api.get('/admin/sessions')]);
-    return { live: rows(live, 'items', 'interviews', 'sessions'), sessions: rows(sessions, 'items', 'sessions') };
+    // 2026-10-23：/admin/sessions 預設只回「最新建檔的 50 筆」——一次匯入 70 位 104 人選（都還沒面談）就把已完成的擠出去，
+    // 「已完成」分頁只剩 1 位。改成另外各撈「已完成／暫停」的人，跟最新 50 筆合併去重。
+    const [live, sessions, done, paused] = await Promise.all([api.get('/admin/interviews/live'), api.get('/admin/sessions'),
+      api.get('/admin/sessions?istate=done&limit=100'), api.get('/admin/sessions?istate=paused&limit=100')]);
+    const seen = new Set(); const merged = [];
+    [sessions, done, paused].forEach((r) => rows(r, 'items', 'sessions').forEach((x) => { const k = x.id || x.application_id; if (!seen.has(k)) { seen.add(k); merged.push(x); } }));
+    return { live: rows(live, 'items', 'interviews', 'sessions'), sessions: merged };
   },
   async interviewDetail(id) { return api.get(`/admin/session/${encodeURIComponent(id)}`); },
   async social() {
