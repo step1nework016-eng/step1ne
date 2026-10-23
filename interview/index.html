@@ -617,6 +617,20 @@ function expiredGate(d) {
   ['top', 'log', 'bar', 'prog', 'save'].forEach(function (i) { if ($(i)) $(i).hidden = true; });
 }
 
+function callFirstGate(d) {
+  if (d.stage === 'preparing') {
+    notice('阿財正在讀您的履歷', '也會一起看今天電話裡聊到的內容，大約 1～2 分鐘，畫面會自動進入面談，不用重新整理。');
+    setTimeout(boot, Math.max(10, Number(d.retry_after) || 20) * 1000);
+    return;
+  }
+  $('boot').hidden = false;
+  $('boot').innerHTML =
+    '<h1>先上傳履歷，阿財再接著聊</h1>' +
+    '<p>接續今天電話裡聊的內容。AI 阿財會先讀過您的履歷，電話裡說過的不會再問一次。</p>' +
+    '<a class="gbtn main" href="' + esc(d.fix_url || ('/resume-upload-call-beta/?t=' + encodeURIComponent(T))) + '">上傳履歷</a>';
+  ['top', 'log', 'bar', 'prog', 'save'].forEach(function (i) { if ($(i)) $(i).hidden = true; });
+}
+
 function noResumeGate(d) {
   $('boot').hidden = false;
   $('boot').innerHTML =
@@ -811,6 +825,8 @@ async function boot() {
   }
   // 2026-10-12：還沒收到履歷就不開始（Jacky 硬規則：阿財開口前一定要先讀過履歷）。
   // 應徵時選「我用 LINE 傳」、檔案還沒傳到的人會停在這裡。
+  // 2026-10-23 電洽先行→阿財接手（測試版）：先上傳履歷、阿財讀完才開始（只有 call_first 應徵會收到這個）
+  if (!d.ok && d.call_first) return callFirstGate(d);
   if (!d.ok && d.no_resume) return noResumeGate(d);
   // 履歷剛收到，阿財事先準備的題目正在用新履歷重擬——等一下自動再試
   if (!d.ok && d.resume_processing) {
