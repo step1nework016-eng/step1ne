@@ -4631,7 +4631,8 @@ document.addEventListener('input', (event) => {
     if (route === 'SILENT') return !!item.silentInterview;
     return String(item.routeCode || '').toUpperCase() === route;
   };
-  const filtered = state.candidateRows.filter((item) => (!query || [item.name,item.job,item.source,item.owner].some((value) => String(value || '').toLowerCase().includes(query))) && (!stage || item.stage === stage) && matchRoute(item));
+  const terms = query.split(/\s+/).filter(Boolean);  // 2026-10-23：可打多個關鍵字（例：「104 BIM」），每個字都要對到
+  const filtered = state.candidateRows.filter((item) => (!terms.length || terms.every((w) => [item.name,item.job,item.source,item.owner].some((value) => String(value || '').toLowerCase().includes(w)))) && (!stage || item.stage === stage) && matchRoute(item));
   $('#page-data').innerHTML = state.candidateView === 'table' ? views.candidateTableRows(filtered) : views.candidateRows(filtered);
 });
 
