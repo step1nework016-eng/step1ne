@@ -3945,8 +3945,9 @@ async function openForwardCandidate(applicationId) {
     if (cid && fRow) api.get('/admin/job-forms?company_id=' + encodeURIComponent(cid)).then((r) => {
       const forms = ((r && (r.data || r).forms) || []);
       if (companySelect.value !== cid || !forms.length) return;
-      fRow.hidden = false; fRow.style.display = 'flex'; fBox.checked = true;
-      fTxt.textContent = `會寄：${forms.map((f) => f.name).join('、')}。不勾＝先不寄，之後可在人選卡片按「寄送表單」手動寄。`;
+      // 2026-10-24 Jacky：推薦≠客戶要面談。推薦時一律不寄，客戶在後台按「推進」才自動寄；這裡只做提示、不給勾。
+      fRow.hidden = false; fRow.style.display = 'flex'; fBox.checked = false; fBox.disabled = true; fBox.style.display = 'none';
+      fTxt.textContent = `推薦時不會寄給人選。客戶在後台選擇要面談後，系統才會寄：${forms.map((f) => f.name).join('、')}。`;
     }).catch(() => {});
     const list = jobsByCompany[cid] || [];
     if (!cid || !list.length) { jobSelect.innerHTML = '<option value="">（沿用原本應徵的職缺）</option>'; jobSelect.disabled = true; return; }
@@ -3967,7 +3968,7 @@ async function submitForwardCandidate(applicationId) {
     const me = amUi().me;
     if (!me) { toast('先在畫面最上方選「我是」，系統才記得是誰推薦的', 'error'); document.querySelector('[data-me-global]')?.focus(); if (button) button.disabled = false; return; }
     const result = await api.post('/admin/forward-candidate', {
-      send_forms: ($('#fc-forms-row') && !$('#fc-forms-row').hidden) ? !!$('#fc-send-forms').checked : true,
+      send_forms: false,  // 2026-10-24：推薦時一律不寄表單
       application_id: applicationId, company_id: companyId, by: me,
       job_slug: $('#fc-job')?.value || undefined,
       note: form.querySelector('[name="note"]').value.trim() || undefined,
