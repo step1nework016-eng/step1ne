@@ -10,6 +10,7 @@
 import { api } from './core/api.js';
 import { toast } from './core/ui.js';
 import { escapeHtml } from './core/security.js';
+import { CONFIG } from './config.js';
 
 const e = (v) => escapeHtml(v == null ? '' : String(v));
 const ICON_PHONE = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>';
@@ -84,7 +85,9 @@ function rowHead(it) {
   if (S.cfg.kind === 'cand') {
     const m = it.meta || {};
     const sub = [m.edu, district(m.live) ? `住 ${district(m.live)}` : '', m.sent_at ? `${mdDay(m.sent_at)} 寄信` : ''].filter(Boolean).map(e).join('<i>｜</i>');
-    return `<div class="cl-top"><h3>${e(it.name || '（找不到這位人選）')}</h3>${m.loc ? `<span class="cl-tag">${e(m.loc)}</span>` : ''}<span class="cl-status">${e(curStatus(it))}</span></div>
+    // 2026-10-27 Jacky：打電話時要能直接看履歷——姓名旁邊加「📄 履歷」，開新分頁預覽
+    const cv = it.application_id ? `<button type="button" class="cl-cv" data-cl-resume="${e(it.application_id)}" title="開新分頁看履歷">📄 履歷</button>` : '';
+    return `<div class="cl-top"><h3>${e(it.name || '（找不到這位人選）')}</h3>${cv}${m.loc ? `<span class="cl-tag">${e(m.loc)}</span>` : ''}<span class="cl-status">${e(curStatus(it))}</span></div>
       <p class="cl-sub">${sub}</p>
       ${it.job_title ? `<p class="cl-job">應徵：${e(it.job_title)}</p>` : ''}
       <div class="cl-phones">${telLink(it.phone) || '<span class="cl-phone-txt">沒有電話</span>'}</div>`;
@@ -206,6 +209,19 @@ async function submitRow(id) {
   }
 }
 
+async function openResume(appId) {
+  const w = window.open('', '_blank');   // 先開分頁，避免等下載完才開被瀏覽器擋
+  try {
+    const res = await fetch(`${CONFIG.apiBase}/admin/resume/${encodeURIComponent(appId)}`, {
+      headers: { authorization: `Bearer ${localStorage.getItem(CONFIG.tokenKey) || ''}` },
+    });
+    if (!res.ok) throw new Error(res.status === 404 ? '這位人選沒有履歷檔' : `打不開履歷（${res.status}）`);
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    if (w) w.location.href = url; else window.open(url, '_blank');
+  } catch (err) { if (w) w.close(); toast(err.message || '打不開履歷', 'error'); }
+}
+
 function wire(t) {
   t.onclick = (ev) => {
     const el = ev.target instanceof Element ? ev.target : null; if (!el) return;
@@ -213,6 +229,7 @@ function wire(t) {
     if (row) markUnsentExcept(row.dataset.clId);
     const tab = el.closest('[data-cl-tab]'); if (tab) { S.tab = tab.dataset.clTab; saveUi(); renderAll(); return; }
     const f = el.closest('[data-cl-filter]'); if (f) { S.filter = f.dataset.clFilter; saveUi(); renderAll(); return; }
+    const cvBtn = el.closest('[data-cl-resume]'); if (cvBtn) { openResume(cvBtn.dataset.clResume); return; }
     if (!row) return;
     const id = row.dataset.clId;
     const res = el.closest('[data-cl-res]');
