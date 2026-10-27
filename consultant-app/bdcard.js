@@ -21,7 +21,8 @@ export const BD_TAGS = [
   { k: 'MATERIAL', zh: '要求寄介紹／合約', act: '當天寄出服務介紹或合約', days: 0, color: '#7c3aed', rule: '要求寄服務介紹或合約 → 當天寄，不要拖到明天' },
 ];
 const RESULTS = [['no_answer', '沒接／沒人'], ['gatekeeper', '被擋在總機'], ['got_contact', '問到窗口'], ['got_email', '拿到信箱'], ['interested', '有興趣'], ['not_hiring', '沒在徵人'], ['not_interested', '沒興趣'], ['other', '其他']];
-const RESULT_ZH = Object.fromEntries(RESULTS);
+// 2026-10-27 公司開發名單頁多了「請寄資料」「再約時間」兩種結果（只在那一頁點，下拉不列）
+const RESULT_ZH = { ...Object.fromEntries(RESULTS), send_info: '請寄資料', callback: '再約時間' };
 const KIND_ZH = { call: '電話', mail: '寄信', other: '其他' };
 const WD = '日一二三四五六';
 const ICON = {

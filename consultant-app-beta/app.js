@@ -13,6 +13,7 @@ import { wireBdCard, bdShowStageRemind, bdShowTagRemind } from './bdcard.js';
 import { loadDealTerms } from './dealterms.js';
 import { wireBdJobs } from './bdjobs.js';
 import { loadDailyTab } from './daily.js';
+import { loadCallList, loadBdCalls } from './calllist.js';
 import { billingV2View, wireBillingV2, billing2Api } from './billing2.js';
 import { initResumeLink, resumeLinkButtons } from './resumelink.js';
 import { loadSpecialCheck } from './special_check.js';
@@ -52,6 +53,8 @@ async function loadRoute() {
   if (state.route === 'daily') {
     return loadDailyTab(target, state.sub);
   }
+  if (state.route === 'calllist') return loadCallList(target);
+  if (state.route === 'bdcalls') return loadBdCalls(target);
   if (state.route === 'board') return loadBoardTab(target);
   if (state.route === 'home') return boundary(target, adapters.home, views.homeData, 'refresh');
   if (state.route === 'recruitment') return boundary(target, async () => ({ ...(await adapters.recruitment()), analytics: await analyticsAdapter.recruitment() }), views.recruitmentData, 'refresh');
