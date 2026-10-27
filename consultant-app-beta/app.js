@@ -253,7 +253,13 @@ function forwarderName(by) {
   if (v.includes('phoebe') || v === 'behe10' || v === 'ph') return 'Phoebe';
   return String(by).trim();
 }
-initResumeLink(() => amUi().me);
+// 2026-10-27 RU_LINK_V2：寄上傳履歷連結——「我是」顯示名稱→顧問 id（連結的 by=，人選上傳後自動指派）
+initResumeLink({
+  me: () => amUi().me || '',
+  meId: () => { const me = amUi().me || ''; const c = (state.consultantsCache || []).find((x) => x.display_name === me); return c ? c.id : ''; },
+  jobs: () => ensureJobs(),
+  jobLabel: (j) => jobOptLabel(j),
+});
 function amUi() {
   if (!state.aiMatch) {
     let saved;
@@ -2910,7 +2916,7 @@ function hasContact(a) { return !!((a.phone && a.phone.trim()) || (a.email && !i
 // ref＝應徵單 id，收到的心得就知道是哪一張應徵單。
 // 2026-10-27 Jacky：人選卡片「總覽」的基本資料區——
 // ① 期望薪資／可上班日／來源／LINE／DISC 排成小格子；LINE 沒綁時給「複製綁定說明」貼給人選
-// ② 按鈕分三組：聯絡人選（寄信約電話＝主按鈕、回信確認時間、上傳履歷連結下拉）／其他（更多動作下拉）／結案（寄婉拒信，最右、淡色）
+// ② 按鈕分三組：聯絡人選（寄信約電話＝主按鈕、回信確認時間、寄上傳履歷連結）／其他（更多動作下拉）／結案（寄婉拒信，最右、淡色）
 // ③ DISC 格子點了才展開分數＋測驗連結（原本「風格測驗」單獨一大格）
 // 按鈕的 data-* 屬性跟原本 reviewLinkRow 一樣，沿用既有的全站點擊處理，不另寫一套。
 const LINE_BIND_HOWTO = '加入 Step1ne LINE 官方帳號（https://lin.ee/XcSWPzM），點下方選單「追蹤面試進度」填一下表單，之後面試進度就會直接用 LINE 通知你。';
@@ -2937,7 +2943,7 @@ function candBasicsBlock(app, applicationId, { channelTag, lineHtml, lineBound, 
   const contact = `<div class="ag"><small>聯絡人選</small><div class="ag-btns">${hasMail
       ? `<button type="button" class="btn sm primary" data-call-mail="${e(applicationId)}" data-call-mail-name="${nm}">寄信約電話</button><button type="button" class="btn sm" data-call-confirm="${e(applicationId)}" data-call-mail-name="${nm}" title="人選回信給了時段，回一封「那就約這個時間」">回信確認電話時間</button>`
       : '<span class="help">沒有 Email，用電話或 LINE 聯絡</span>'}
-    <details class="cand-dd"><summary class="btn sm">上傳履歷連結 ▾</summary><div class="cand-dd-menu">${ruMenu}</div></details></div></div>`;
+    ${ruMenu}</div></div>`;
   const more = `<div class="ag"><small>其他</small><div class="ag-btns"><details class="cand-dd"><summary class="btn sm">更多動作 ▾</summary><div class="cand-dd-menu">
       ${actionBtn('編輯應徵單', 'application-update', { idParams: { application_id: applicationId }, record: app })}
       <button type="button" class="btn sm" data-cand-bd="${e(applicationId)}" title="AI 找可能需要這種人的公司，放進「人選敲門名單」，顧問篩過才進開發進度">🧲 拿這位人選去開發客戶</button>

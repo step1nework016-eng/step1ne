@@ -14,8 +14,9 @@ import { loadDealTerms } from './dealterms.js';
 import { wireBdJobs } from './bdjobs.js';
 import { loadDailyTab } from './daily.js';
 import { loadCallList, loadBdCalls } from './calllist.js';
-import { loadSpecialCheck } from './special_check.js';
 import { billingV2View, wireBillingV2, billing2Api } from './billing2.js';
+import { initResumeLink, resumeLinkButtons } from './resumelink.js';
+import { loadSpecialCheck } from './special_check.js';
 
 // 2026-09-15 補：使用者反映「不知道要看哪個是自己的」——沒有登入系統，只能靠
 // 這組「切換選擇」記住上次選的是誰，換分頁/重新整理都不用重選（存在瀏覽器
@@ -252,6 +253,13 @@ function forwarderName(by) {
   if (v.includes('phoebe') || v === 'behe10' || v === 'ph') return 'Phoebe';
   return String(by).trim();
 }
+// 2026-10-27 RU_LINK_V2：寄上傳履歷連結——「我是」顯示名稱→顧問 id（連結的 by=，人選上傳後自動指派）
+initResumeLink({
+  me: () => amUi().me || '',
+  meId: () => { const me = amUi().me || ''; const c = (state.consultantsCache || []).find((x) => x.display_name === me); return c ? c.id : ''; },
+  jobs: () => ensureJobs(),
+  jobLabel: (j) => jobOptLabel(j),
+});
 function amUi() {
   if (!state.aiMatch) {
     let saved;
@@ -2908,7 +2916,7 @@ function hasContact(a) { return !!((a.phone && a.phone.trim()) || (a.email && !i
 // ref＝應徵單 id，收到的心得就知道是哪一張應徵單。
 // 2026-10-27 Jacky：人選卡片「總覽」的基本資料區——
 // ① 期望薪資／可上班日／來源／LINE／DISC 排成小格子；LINE 沒綁時給「複製綁定說明」貼給人選
-// ② 按鈕分三組：聯絡人選（寄信約電話＝主按鈕、回信確認時間、上傳履歷連結下拉）／其他（更多動作下拉）／結案（寄婉拒信，最右、淡色）
+// ② 按鈕分三組：聯絡人選（寄信約電話＝主按鈕、回信確認時間、寄上傳履歷連結）／其他（更多動作下拉）／結案（寄婉拒信，最右、淡色）
 // ③ DISC 格子點了才展開分數＋測驗連結（原本「風格測驗」單獨一大格）
 // 按鈕的 data-* 屬性跟原本 reviewLinkRow 一樣，沿用既有的全站點擊處理，不另寫一套。
 const LINE_BIND_HOWTO = '加入 Step1ne LINE 官方帳號（https://lin.ee/XcSWPzM），點下方選單「追蹤面試進度」填一下表單，之後面試進度就會直接用 LINE 通知你。';
@@ -2931,10 +2939,11 @@ function candBasicsBlock(app, applicationId, { channelTag, lineHtml, lineBound, 
     lineBound ? '' : `<button type="button" class="cf-link" data-copy-text="${e(LINE_BIND_HOWTO)}"><small>複製綁定說明</small></button>`);
   const facts = `<div class="cand-facts">${cell('期望薪資', text(app.expected_salary || '—'))}${cell('可上班日', text(app.available_date || '—'))}${cell('來源', channelTag + (app.resume_source ? `<small class="muted">履歷：${text(app.resume_source)}</small>` : ''))}${lineCell}${discCell}</div>
     <div class="cf-disc-detail" data-cf-disc-detail hidden><p class="help" style="margin:0 0 6px">分數：${disc}</p>${styleHtml}</div>`;
-  // 正式版還沒有「寄／複製上傳履歷連結」（resumelink.js 只在測試版，信件文字等 Jacky 確認），這裡先不放那個下拉
+  const ruMenu = resumeLinkButtons({ appId: applicationId, email: hasMail ? mail : '', name: app.name || '', jobSlug: app.job_slug || '', jobTitle: app.job_title || '' });
   const contact = `<div class="ag"><small>聯絡人選</small><div class="ag-btns">${hasMail
       ? `<button type="button" class="btn sm primary" data-call-mail="${e(applicationId)}" data-call-mail-name="${nm}">寄信約電話</button><button type="button" class="btn sm" data-call-confirm="${e(applicationId)}" data-call-mail-name="${nm}" title="人選回信給了時段，回一封「那就約這個時間」">回信確認電話時間</button>`
-      : '<span class="help">沒有 Email，用電話或 LINE 聯絡</span>'}</div></div>`;
+      : '<span class="help">沒有 Email，用電話或 LINE 聯絡</span>'}
+    ${ruMenu}</div></div>`;
   const more = `<div class="ag"><small>其他</small><div class="ag-btns"><details class="cand-dd"><summary class="btn sm">更多動作 ▾</summary><div class="cand-dd-menu">
       ${actionBtn('編輯應徵單', 'application-update', { idParams: { application_id: applicationId }, record: app })}
       <button type="button" class="btn sm" data-cand-bd="${e(applicationId)}" title="AI 找可能需要這種人的公司，放進「人選敲門名單」，顧問篩過才進開發進度">🧲 拿這位人選去開發客戶</button>
@@ -2969,7 +2978,9 @@ function reviewLinkRow(app, applicationId) {
   const candBdBtn = `<button type="button" class="btn sm" data-cand-bd="${escapeHtml(applicationId)}" title="AI 找可能需要這種人的公司，放進「人選敲門名單」，顧問篩過才進開發進度">🧲 拿這位人選去開發客戶</button>`;
   const callMailBtn = mail && !isPlaceholderEmail(mail)
     ? `<button type="button" class="btn sm" data-call-mail="${escapeHtml(applicationId)}" data-call-mail-name="${escapeHtml(app.name || '')}">寄信約電話</button><button type="button" class="btn sm" data-call-confirm="${escapeHtml(applicationId)}" data-call-mail-name="${escapeHtml(app.name || '')}" title="人選回信給了時段，回一封「那就約這個時間」">回信確認電話時間</button><button type="button" class="btn sm" data-decline-mail="${escapeHtml(applicationId)}" data-call-mail-name="${escapeHtml(app.name || '')}" title="先看信、可以改，按確認才寄">寄婉拒信</button>` : '';
-  return `<div class="actions-row" style="margin-top:8px">${callMailBtn}${candBdBtn}<button type="button" class="btn sm" data-copy-text="${escapeHtml(url)}">複製服務心得連結</button><span class="help" style="align-self:center">複製後直接貼給人選，顧問、職缺都幫他填好了</span></div>`;
+  return `<div class="actions-row" style="margin-top:8px">${callMailBtn}${candBdBtn}<button type="button" class="btn sm" data-copy-text="${escapeHtml(url)}">複製服務心得連結</button><span class="help" style="align-self:center">複製後直接貼給人選，顧問、職缺都幫他填好了</span></div>`
+    // 2026-10-23 寄／複製「上傳履歷」連結（人選自己上傳履歷，不經阿財）
+    + `<div class="actions-row" style="margin-top:6px">${resumeLinkButtons({ appId: applicationId, email: mail && !isPlaceholderEmail(mail) ? mail : '', name: app.name || '', jobSlug: app.job_slug || '', jobTitle: app.job_title || '' })}</div>`;
 }
 
 // 先選客戶 → 再選職缺（views.clientJobPicker）。全站共用一個監聽，哪個畫面用到都會動。
@@ -3826,6 +3837,11 @@ async function openJobManage(slug, initialTab = 'manage') {
     const isBuilding = (jobsData.expertiseBuilding || []).includes(slug);
     drawer({ title: job.title || slug, subtitle: job.company_name || job.client_name || '',
              body: views.jobManageBody(job, content, bank, isBuilding, card, acai, sourced) });
+    // 2026-10-23 這個職缺的「上傳履歷」連結（公開招募中的職缺才給）
+    if (!['closed', 'social_only', 'draft'].includes(String(job.status || ''))) {
+      document.querySelector('#overlay-root .drawer-body')?.insertAdjacentHTML('afterbegin',
+        `<div class="actions-row" style="margin-bottom:10px">${resumeLinkButtons({ jobSlug: job.slug || slug, jobTitle: job.title || '' })}<span class="help" style="align-self:center">人選打開就能上傳履歷，不經阿財面談</span></div>`);
+    }
     // 分頁切換。四個面板都已經 render 好，純顯示／隱藏，不 lazy-load
     // ——題庫／職缺卡／阿財理解資料上面已經拿到了，再延遲載入只是多一次往返。
     const PANELS = ['manage', 'preview', 'sourced', 'expertise', 'card', 'acai'];

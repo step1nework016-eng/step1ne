@@ -11,6 +11,7 @@ gtag('config', 'G-DNPMMRDEC0');
   所有職缺通用、不經過阿財面談：顧問用 Email 或 LINE 把這頁連結給人選，人選填姓名／Email／職缺／履歷就送出。
   網址：/resume-upload-beta/（通用）、/resume-upload-beta/?job=<slug>（自動帶入職類＋職缺，人選仍可改）。
   ?src=email|line 標記連結從哪裡來（後台按鈕產生的連結會帶）。
+  ?by=<顧問 id> 是給連結的顧問（2026-10-27）：新人選自動指派給他；後端對不上 consultants 就忽略。
   職類跟職缺清單直接讀官網 /jobs/ 的職缺卡片（data-cat ＋ 卡片標題），再拿掉 /jobs-closed 回報已關閉的——
   跟職缺專區用同一套分類與中文名稱（CAT_LABEL 抄自 jobs/index.html），data-cat 空白的歸「其他」。
   後端：POST /resume-upload（step1ne-public-worker）。只建應徵資料，不建面談、不寄面談邀請。
@@ -292,7 +293,7 @@ input:focus,select:focus{outline:none;border-color:var(--ac);box-shadow:0 0 0 3p
     var body = {
       name: F.elements.name.value.trim(), email: F.elements.email.value.trim(),
       job_slug: $('job').value, cat_label: catLabel(), consent: true,
-      src: Q.get('src') || '', utm_source: Q.get('utm_source') || '', utm_medium: Q.get('utm_medium') || '',
+      src: Q.get('src') || '', by: Q.get('by') || '', utm_source: Q.get('utm_source') || '', utm_medium: Q.get('utm_medium') || '',
       utm_campaign: Q.get('utm_campaign') || '', utm_content: Q.get('utm_content') || '', referrer: document.referrer || ''
     };
     var ready = mode === 'file'
