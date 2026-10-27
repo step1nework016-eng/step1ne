@@ -3821,7 +3821,7 @@ ${tg}
     <label id="fc-forms-row" hidden class="span-2" style="display:none;align-items:flex-start;gap:12px;padding:12px 14px;border:1px solid #d6dde6;border-radius:12px;background:#f7f9fb;cursor:pointer">
       <input type="checkbox" id="fc-send-forms" name="send_forms" style="width:18px;height:18px;margin:2px 0 0;flex:0 0 18px;accent-color:#2563eb;cursor:pointer">
       <span style="display:flex;flex-direction:column;gap:3px;flex:1;min-width:0;text-align:left">
-        <b style="font-size:14px">人事資料表什麼時候寄？</b>
+        <b style="font-size:14px">一起寄人事資料表給人選</b>
         <small id="fc-forms-text" style="font-size:12.5px;color:#64748b;line-height:1.5">不勾＝先不寄，之後可在人選卡片按「寄送表單」手動寄。</small>
       </span>
     </label>
