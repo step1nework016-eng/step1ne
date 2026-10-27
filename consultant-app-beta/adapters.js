@@ -56,6 +56,8 @@ export const adapters = {
       // 2026-10-23：卡片上直接「📄 看履歷」（104 下載匯入的人選，Phoebe 要一點就開 PDF）。
       // 後端 tracker 本來就有回 resume_file_id／resume_url，只是卡片沒接。
       resumeFileId: value(item, 'resume_file_id'), resumeUrl: value(item, 'resume_url'),
+      // 2026-10-27 B 方案：同一人的其他應徵單（後端已依 email／電話併組，extra_placements），人選卡片小檔頭要列出來
+      origin: value(item, 'origin'), sourceChannel: value(item, 'source_channel'), siblings: Array.isArray(item.extra_placements) ? item.extra_placements : [],
     }));
   },
   async candidateCard(applicationId) { return api.get(`/admin/application/${encodeURIComponent(applicationId)}/card`); },

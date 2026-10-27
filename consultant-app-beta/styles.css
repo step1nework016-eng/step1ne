@@ -1532,3 +1532,37 @@ svg .rs-val{font-size:15px;font-weight:700;fill:#14232e}svg .rs-lab{font-size:13
 .cl-reopen,.cl-cancel{justify-self:start;min-height:44px;border:1px dashed #b6c3d6;background:#fff;border-radius:10px;padding:0 14px;color:#33405a;cursor:pointer;font-size:13px}.cl-cancel{border-style:solid}
 @media (max-width:640px){.cl-btns{grid-template-columns:repeat(3,minmax(0,1fr))}.cl-status,.cl-104{margin-left:0}.cl-top h3{font-size:17px}}
 @media (prefers-reduced-motion:reduce){.cl-bar i{transition:none}}
+
+/* 2026-10-27 人選卡片 B 方案：小檔頭＋5 分頁 */
+.cand-head{display:grid;gap:8px;margin:0 0 6px}
+.cand-chips{display:flex;flex-wrap:wrap;gap:6px}
+.cand-contact{font-size:13px;color:#33405a;word-break:break-all}
+.cand-next{display:flex;gap:10px;align-items:baseline;text-align:left;width:100%;min-height:44px;border:1px solid #bfe3c8;background:#e2f8ed;color:#14794c;border-radius:10px;padding:10px 12px;cursor:pointer;font-weight:600}
+.cand-next b{flex:none;font-size:12px;background:#14794c;color:#fff;border-radius:6px;padding:2px 7px}
+.cand-next:hover{border-color:#14794c}
+.cand-sibs{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13px;color:#775b08;background:#fff7dd;border:1px solid #f2d98a;border-radius:9px;padding:8px 10px}
+.cand-tabs{position:sticky;top:0;z-index:3;background:#fff;margin:8px -20px 14px;padding:0 14px}
+.cand-tabs button{min-height:44px}
+.cand-pane h3{margin:18px 0 8px;font-size:15px}
+.cand-pane>h3:first-child{margin-top:4px}
+.cand-steps{list-style:none;margin:0 0 6px;padding:0;border-left:2px solid var(--line)}
+.cand-steps li{display:flex;justify-content:space-between;gap:10px;padding:5px 0 5px 12px;font-size:13.5px;position:relative}
+.cand-steps li::before{content:"";position:absolute;left:-6px;top:11px;width:10px;height:10px;border-radius:50%;background:#14794c}
+.cand-steps small{color:var(--muted);flex:none}
+.fw-card{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:0 0 12px;background:#fff}
+.fw-title{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}
+.fw-title span{color:var(--muted);font-size:13px}
+.fw-warn{font-size:13px;color:#a72f3a;margin-top:4px}
+.fw-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:10px 0}
+.fw-step{font-size:12px;text-align:center;padding:6px 4px;border-radius:7px;background:#f1f4f8;color:#556276}
+.fw-step.done{background:#e2f8ed;color:#14794c}
+.fw-step.now{background:#fff0d5;color:#9b5b00;font-weight:700}
+.fw-step.bad{background:#ffe5e7;color:#a72f3a}
+.fw-row{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-top:1px solid #eef2f6}
+.fw-row>span{flex:1 1 220px;min-width:0}
+.fw-row small{display:block;color:var(--muted);font-size:12px}
+.fw-row .actions-row{margin-top:0}
+.fw-more{margin-top:6px}
+.fw-more summary{cursor:pointer;min-height:36px;display:flex;align-items:center;font-size:13px;color:var(--muted)}
+.fw-card .cfr-drop-hint{display:block;margin-top:6px}
+@media(max-width:860px){.cand-tabs{margin-left:-20px;margin-right:-20px}}

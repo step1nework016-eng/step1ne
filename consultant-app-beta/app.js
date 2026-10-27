@@ -2961,7 +2961,13 @@ async function openCandidate(applicationId, opts = {}) {
   const cached = cardCache.get(applicationId);
   const keepScroll = sameOpen ? (document.querySelector('#overlay-root .drawer') || {}).scrollTop || 0 : 0;
   if (sameOpen) document.querySelector('#overlay-root .drawer')?.classList.add('is-refreshing');
-  else if (!cached) drawer({ title: '載入應徵單…', body: loading() });
+  else if (!cached) {
+    // 2026-10-27 B 方案：打開先秀封面（姓名／職缺），不要整片空白等全部資料到齊
+    const row = (state.candidateRows || []).find((r) => r.applicationId === applicationId);
+    drawer({ title: row ? ((row.seqNo ? `#${row.seqNo} ` : '') + (row.name || '應徵單')) : '載入應徵單…', subtitle: row ? (row.job || '') : '', body: loading('人選資料載入中') });
+  }
+  // 顧問名單跟人選資料同時抓，不再一個等完才抓下一個
+  const consListP = ensureConsultants().catch(() => []);
   try {
     const useCache = !!cached && !sameOpen && !opts.fresh;
     const card = useCache ? cached : await adapters.candidateCard(applicationId);
@@ -2980,57 +2986,54 @@ async function openCandidate(applicationId, opts = {}) {
     // 逐客戶推進／不推進：/admin/pipeline/forward-decision 的真實語意是「顧問自己
     // 標記不推薦」，不是客戶決策（見 actions.js 的查證更正）——依目前狀態顯示
     // 對應那一顆按鈕，不是兩顆都show。
-    const forwardRows = forwards.length ? forwards.map((f) => {
+    // 2026-10-27 Jacky 選 B 方案（分頁資料夾）：「推薦客戶」分頁每家客戶一張小卡。
+    // 原本一列最多疊 10 顆按鈕，「寄送表單」壓在最底下的小字裡找不到——改成三步
+    // （推薦履歷 → 人事資料表 → 客戶回覆）看得到哪步還沒做，常用的放主按鈕，
+    // 不常用的（標不推進／已放棄／傳訊息／改 LINE ID／不報到／取消推薦）收進「其他動作」。
+    // 推薦人：後端 /card 的 forwards 沒有回 forwarded_by（查證 2026-10-27），所以舊版永遠顯示
+    // 「未記錄」——這裡改顯示推薦日期，不再顯示一個必定是錯的欄位。
+    const fwCards = forwards.length ? forwards.map((f) => {
       const companyId = f.company_id;
+      const ids = { idParams: { application_id: applicationId, company_id: companyId } };
       const nr = f.advisor_not_recommended_at;
-      const toggleBtn = nr
-        ? actionBtn('改回推進', 'pipeline-recommended-again', { idParams: { application_id: applicationId, company_id: companyId } })
-        : actionBtn('標不推進', 'pipeline-not-recommended', { idParams: { application_id: applicationId, company_id: companyId } }, 'danger');
-      // 不報到只有真的走到「報到」這一關（有 onboard_date）才能標；已經標過的顯示原因，不重複顯示按鈕。
-      const noShowBtn = f.onboard_date && !f.no_show_at
-        ? actionBtn('標記不報到', 'placement-no-show', { idParams: { application_id: applicationId, company_id: companyId } }, 'danger') : '';
-      // 2026-09-21 加：人選自己放棄。跟上面「標不推進」是不同的事——那是我們／
-      // 客戶的決定，這是人選自己走了。所以任何階段都能標，不受「已確認推進」擋。
-      const withdrawBtn = f.candidate_withdrawn_at
-        ? actionBtn('收回「已放棄」', 'pipeline-candidate-withdraw-undo', { idParams: { application_id: applicationId, company_id: companyId } })
-        : actionBtn('人選已放棄', 'pipeline-candidate-withdraw', { idParams: { application_id: applicationId, company_id: companyId } }, 'danger');
-      // 2026-09-29 加：LINE ID／客戶備註可以改了，見 forward-detail-update；
-      // 客製表單狀態（寄送/催填/上傳/下載）＋收費待確認，見 views.candidateFormsBlock／
-      // candidateBillingPendingBlock——資料早就有，這裡才第一次真的畫出來。
-      const editBtn = actionBtn('編輯 LINE ID／客戶備註', 'forward-detail-update',
-        { idParams: { application_id: applicationId, company_id: companyId },
-          record: { line_id_given: f.line_id_given || '', client_note: f.client_note || '' } });
-      const lineIdLine = f.line_id_given ? ` · LINE ID：${text(f.line_id_given)}` : '';
       const cfr = f.client_formal_report;
-      const cfrLine = !cfr ? ' · 推薦履歷：還沒上傳'
-        : cfr.pdf_pending ? ' · 推薦履歷：AI 產生中'
-        : cfr.consultant_confirmed_at ? ` · ✅ 推薦履歷：客戶看得到（${text(String(cfr.consultant_confirmed_at).slice(5, 16))} 上傳）`
-        : ' · 推薦履歷：只有 AI 草稿，客戶還看不到';
-      // ⚠️ 2026-09-29 真實撞到、瀏覽器實測才抓到的版面 bug：這一列現在最多會
-      // 疊到 8 顆操作按鈕，.actions-row 有 flex-shrink:0（不准縮），按鈕多到
-      // 加總寬度超過 .drawer 本身的寬度（650px）時，同一個 flex row 裡的
-      // <span> 會被擠到 0 寬，文字被迫一字一行。抽屜寬度固定又窄，跟手機版
-      // 會撞到同一種問題，但既有的 @media(max-width:860px) 换行修法是看
-      // 「瀏覽器視窗」寬度，不是看抽屜這個容器的寬度，桌機開瀏覽器時完全不會
-      // 觸發——所以只在這一列強制換行（span 佔滿一整行、按鈕另起一行），
-      // 不依賴視窗寬度，也不去動全站 .list-row 這個共用類別去影響到別的地方。
-      return `<div>
-<div class="list-row cfr-drop" style="flex-wrap:wrap;row-gap:8px" data-cfr-app="${escapeHtml(applicationId)}" data-cfr-co="${escapeHtml(companyId)}" data-cfr-name="${escapeHtml(f.company_name || '')}" data-cfr-has="${cfr && cfr.consultant_confirmed_at ? '1' : ''}"><span style="flex:1 1 100%"><b>${text(f.company_name)}</b><small>${text(f.job_title || f.job_slug)} · 推薦人：${text(forwarderName(f.forwarded_by))}${f.stage_label ? ' · ' + text(f.stage_label) : ''}${f.client_note ? ' · ' + text(f.client_note) : ''}${lineIdLine}${cfrLine}${nr ? ' · ⚠ 不推進：' + text(f.advisor_not_recommended_reason || '') : ''}${f.no_show_at ? ' · ⚠ 不報到：' + text(f.no_show_reason || '') : ''}${f.candidate_withdrawn_at ? ' · 🚪 人選已放棄：' + text(f.candidate_withdraw_reason || '') : ''}</small></span>${rowActions([
-        toggleBtn,
-        withdrawBtn,
-        editBtn,
-        actionBtn('傳訊息給客戶', 'pipeline-message-client', { idParams: { application_id: applicationId, company_id: companyId } }),
-        cfr && cfr.pdf_pending ? '' : actionBtn(cfr ? '重新製作 AI 草稿' : '製作推薦履歷（AI 草稿）', 'client-formal-report', { idParams: { application_id: applicationId, company_id: companyId } }),
-        cfr && !cfr.consultant_confirmed_at && !cfr.pdf_pending && cfr.file_id ? `<button type="button" class="btn ghost sm" data-download-file="${text(cfr.file_id)}">下載 AI 草稿</button>` : '',
-        actionBtn(cfr && cfr.consultant_confirmed_at ? '換一份推薦履歷' : '上傳推薦履歷', 'client-formal-report-upload', { idParams: { application_id: applicationId, company_id: companyId } }),
-        cfr && cfr.consultant_confirmed_at && cfr.file_id ? `<button type="button" class="btn ghost sm" data-download-file="${text(cfr.file_id)}">下載推薦履歷</button>` : '',
-        noShowBtn,
-        actionBtn('取消推薦', 'pipeline-unforward-candidate', { idParams: { application_id: applicationId, company_id: companyId } }, 'danger')
-      ].filter(Boolean))}</div>
-${views.candidateBillingPendingBlock(f.billing_pending)}
-${views.candidateFormsBlock(f.forms, applicationId, companyId)}
-</div>`;
-    }).join('') : '<p class="muted">尚未推薦客戶</p>';
+      const forms = f.forms || [];
+      const cfrDone = !!(cfr && cfr.consultant_confirmed_at);
+      const formsDone = forms.length > 0 && forms.every((x) => x.status === 'submitted');
+      const formsNow = forms.some((x) => x.status !== 'submitted');
+      const step = (lb, cls) => `<div class="fw-step ${cls}">${text(lb)}</div>`;
+      const steps = `<div class="fw-steps">${step(cfrDone ? '推薦履歷 ✓' : '推薦履歷', cfrDone ? 'done' : 'now')}${step(!forms.length ? '人事資料表（未設定）' : formsDone ? '人事資料表 ✓' : '人事資料表', formsDone ? 'done' : (cfrDone && formsNow ? 'now' : ''))}${step('客戶：' + (f.stage_label || '等回覆'), f.client_rejected_at ? 'bad' : '')}</div>`;
+      const cfrRow = `<div class="fw-row"><span><b>推薦履歷</b><small>${!cfr ? '還沒上傳，客戶看不到' : cfr.pdf_pending ? 'AI 產生中（1～2 分鐘）' : cfrDone ? `客戶看得到（${text(String(cfr.consultant_confirmed_at).slice(5, 16))} 上傳）` : '只有 AI 草稿，客戶還看不到'}</small></span>${rowActions([
+        cfr && cfr.pdf_pending ? '' : actionBtn(cfr ? '重新製作 AI 草稿' : '製作 AI 草稿', 'client-formal-report', ids),
+        cfr && !cfrDone && !cfr.pdf_pending && cfr.file_id ? `<button type="button" class="btn ghost sm" data-download-file="${text(cfr.file_id)}">下載 AI 草稿</button>` : '',
+        actionBtn(cfrDone ? '換一份' : '上傳推薦履歷', 'client-formal-report-upload', ids, cfrDone ? '' : 'primary'),
+        cfrDone && cfr.file_id ? `<button type="button" class="btn ghost sm" data-download-file="${text(cfr.file_id)}">下載</button>` : '',
+      ].filter(Boolean))}</div>`;
+      const formsRows = forms.length ? views.candidateFormsBlock(forms, applicationId, companyId)
+        : '<div class="fw-row"><span><b>人事資料表</b><small>這個職缺還沒設定要人選填的表單（到職缺頁「客戶指定表單」設定後，這裡就會出現「寄送表單」）</small></span></div>';
+      const warn = [
+        nr ? `⚠ 標了不推進：${text(f.advisor_not_recommended_reason || '')}` : '',
+        f.client_rejected_at ? `✕ 客戶婉拒：${text(f.client_reject_reason || '')}` : '',
+        f.no_show_at ? `⚠ 不報到：${text(f.no_show_reason || '')}` : '',
+        f.candidate_withdrawn_at ? `人選已放棄：${text(f.candidate_withdraw_reason || '')}` : '',
+      ].filter(Boolean).map((w) => `<div class="fw-warn">${w}</div>`).join('');
+      const more = [
+        nr ? actionBtn('改回推進', 'pipeline-recommended-again', ids) : actionBtn('標不推進', 'pipeline-not-recommended', ids, 'danger'),
+        f.candidate_withdrawn_at ? actionBtn('收回「已放棄」', 'pipeline-candidate-withdraw-undo', ids) : actionBtn('人選已放棄', 'pipeline-candidate-withdraw', ids, 'danger'),
+        actionBtn('傳訊息給客戶', 'pipeline-message-client', ids),
+        actionBtn('編輯 LINE ID／客戶備註', 'forward-detail-update', { idParams: ids.idParams, record: { line_id_given: f.line_id_given || '', client_note: f.client_note || '' } }),
+        f.onboard_date && !f.no_show_at ? actionBtn('標記不報到', 'placement-no-show', ids, 'danger') : '',
+        actionBtn('取消推薦', 'pipeline-unforward-candidate', ids, 'danger'),
+      ].filter(Boolean);
+      const meta = [`推薦於 ${text(String(f.forwarded_at || '').slice(0, 10) || '—')}`, f.client_note ? '客戶備註：' + text(f.client_note) : '', f.line_id_given ? 'LINE ID：' + text(f.line_id_given) : ''].filter(Boolean).join('　');
+      return `<div class="fw-card cfr-drop" data-cfr-app="${escapeHtml(applicationId)}" data-cfr-co="${escapeHtml(companyId)}" data-cfr-name="${escapeHtml(f.company_name || '')}" data-cfr-has="${cfrDone ? '1' : ''}">
+        <div class="fw-title"><b>${text(f.company_name)}</b><span>${text(f.job_title || f.job_slug)}</span></div>
+        <small class="muted">${meta}</small>${warn}${steps}
+        ${views.candidateBillingPendingBlock(f.billing_pending)}${cfrRow}${formsRows}
+        <details class="fw-more"><summary>其他動作</summary><div class="actions-row">${more.join('')}</div></details>
+        <small class="cfr-drop-hint">也可以直接把推薦履歷 PDF 拖進這張卡</small>
+      </div>`;
+    }).join('') : '<p class="muted">還沒推薦給任何客戶。</p>';
     const disc = [application.disc_d, application.disc_i, application.disc_s, application.disc_c].some((v) => v != null)
       ? `D${text(application.disc_d ?? '—')} I${text(application.disc_i ?? '—')} S${text(application.disc_s ?? '—')} C${text(application.disc_c ?? '—')}${application.disc_primary ? `（主型 ${text(application.disc_primary)}）` : ''}`
       : '尚未測驗';
@@ -3093,27 +3096,12 @@ ${views.candidateFormsBlock(f.forms, applicationId, companyId)}
     const timelineHtml = timeline.length
       ? timeline.slice(0, 8).map((a) => `<p><b>${text(a.type)}</b>&#12288;${a.type === '電洽紀錄' ? '已匯入電洽內容' : text(a.detail)}<br><small class="muted">${text(a.time)}</small></p>`).join('')
       : '<p class="muted">沒有歷程資料</p>';
-    // 整體進度：照抄舊版四格（風格測驗／阿財初審／電洽／推薦給客戶），跳過舊版
-    // 「初篩決定」那一格——那格讀的是 reports.consultant_decision，這支 card
-    // 端點沒有回傳、要另外打一支 API 才拿得到，這輪先不加，避免多一次往返。
-    const stages = [
-      { key: 'style', lb: '風格測驗', done: !!application.disc_primary },
-      { key: 'interview', lb: '阿財初審', done: application.interview_state === 'done' },
-      { key: 'call', lb: '電洽', done: !!application.call_summary_md },
-      { key: 'forward', lb: '推薦給客戶', done: forwards.length > 0 },
-    ];
-    let nowSet = false;
-    stages.forEach((s) => { if (!s.done && !nowSet) { s.now = true; nowSet = true; } });
-    // 跟舊版一樣：進度條只是導覽，點哪一格才展開哪一格的內容，不是全部攤平
-    // 常駐顯示——「風格測驗」「電洽」底下才藏著 DISC 連結／安排面談表單。
-    const stageBar = `<div class="stage-bar">${stages.map((s) => `<div class="stage-dot ${s.done ? 'done' : (s.now ? 'now' : '')}" data-stage-dot="${s.key}"><span></span><small>${text(s.lb)}</small></div>`).join('')}</div><div id="stage-detail"></div>`;
-    // 2026-09-15 加：source_channel 只有「顧問手動新增」／「人才池轉正」這兩條路徑
-    // 才會寫值（見 doManualForward），阿財面談那條公開應徵頁流程從來不寫這個欄位——
-    // 所以「有值＝顧問新增或人才池來的」「沒值＝阿財面談自己應徵進來的」，不用另外
-    // 存一個「管道」欄位，用既有資料就能標出三條管道的差異，秀在標題旁邊一眼看到，
-    // 不用點進「基本資料」的「來源」那格才看得到。
-    // 2026-10-16 Jacky：常用設定不要每次跳彈窗——顧問、階段直接在卡片上選，選完就存；備註直接打字存。
-    const consList = await ensureConsultants();
+    // ── 2026-10-27 Jacky 選 B 方案「分頁資料夾」──────────────────────────────
+    // 原本：上面 4 格進度條（看「有沒有資料」自己打勾）跟下面 10 種「階段」下拉是兩套各走各的，
+    // 抽屜一路往下疊 14 個區塊，阿財原始對話只能從電洽準備卡裡的小按鈕進去。
+    // 現在：上面固定一條小檔頭（階段・負責顧問・聯絡・下一步・同一人的其他卡），
+    // 下面 5 個分頁，每樣東西只住一個地方；進度條拿掉，階段只剩下拉那一套。
+    const consList = await consListP;
     const STAGE_OPTS = [['screening', '阿財初審'], ['confirm', '顧問確認'], ['stage1', '第一階段'], ['stage2', '第二階段'], ['stage3', '第三階段'], ['stage4', '第四階段'], ['offer', '錄取'], ['onboard', '報到'], ['care', '到職關懷'], ['backup', '備選']];
     const quickSet = `<div class="quick-set" data-qs-app="${escapeHtml(applicationId)}">
       <label>負責顧問<select data-qs-owner><option value="">未指派</option>${(consList || []).filter((c) => c.is_active || c.id === application.owner).map((c) => `<option value="${escapeHtml(c.id)}"${c.id === application.owner ? ' selected' : ''}>${escapeHtml(c.display_name)}</option>`).join('')}</select></label>
@@ -3122,6 +3110,74 @@ ${views.candidateFormsBlock(f.forms, applicationId, companyId)}
       <div class="quick-note"><select data-qn-type aria-label="備註類型"><option>評估</option><option>聯繫紀錄</option><option>客戶回饋</option><option>其他</option></select><textarea data-qn-text rows="2" placeholder="直接打一筆顧問備註…"></textarea><button type="button" class="btn sm primary" data-qn-save>存備註</button></div>
     </div>`;
     const channelTag = application.source_channel ? text(application.source_channel) : '阿財面談應徵';
+    const ownerName = ((consList || []).find((c) => c.id === application.owner) || {}).display_name || '';
+    const liveFw = forwards.filter((f) => !f.advisor_not_recommended_at && !f.candidate_withdrawn_at && !f.client_rejected_at);
+    // 階段：顧問手動選的優先；沒選就用資料推（只顯示一個，不再兩套）
+    const stageText = application.manual_stage
+      ? ((STAGE_OPTS.find(([v]) => v === application.manual_stage) || [])[1] || application.manual_stage)
+      : liveFw.length ? `已推薦 ${liveFw.length} 家客戶`
+      : application.call_summary_md ? '電洽完成'
+      : application.interview_state === 'done' ? '阿財面談完成'
+      : (application.interview_state && application.interview_state !== 'not_started') ? '阿財面談中' : '新進';
+    // 下一步：照真實資料一條一條往下比，比到第一個沒做完的就是下一步
+    const nextStep = (() => {
+      for (const f of liveFw) if ((f.billing_pending || []).length) return { t: `確認 ${f.company_name} 的匯款`, tab: 'fw' };
+      for (const f of liveFw) if (!(f.client_formal_report && f.client_formal_report.consultant_confirmed_at)) return { t: `上傳推薦履歷給 ${f.company_name}`, tab: 'fw' };
+      for (const f of liveFw) if ((f.forms || []).some((x) => x.status === 'not_sent')) return { t: `寄人事資料表給人選（${f.company_name}）`, tab: 'fw' };
+      for (const f of liveFw) if ((f.forms || []).some((x) => x.status === 'sent')) return { t: `等人選填人事資料表（${f.company_name}），可以催填`, tab: 'fw' };
+      if (liveFw.length) return { t: `等客戶回覆（${liveFw.map((f) => `${f.company_name}：${f.stage_label || '等回覆'}`).join('、')}）`, tab: 'fw' };
+      if (application.call_summary_md) return { t: '電洽完了，決定要不要推薦給客戶', tab: 'fw' };
+      if (application.interview_state === 'done') return { t: '阿財談完了，打電話給人選（電洽）', tab: 'call' };
+      if (application.interview_state && application.interview_state !== 'not_started') return { t: '人選正在跟阿財面談，等談完', tab: 'ai' };
+      return { t: '人選還沒跟阿財面談；可以直接打電話', tab: 'call' };
+    })();
+    // 同一人的其他卡：人選清單（/admin/pipeline/tracker）本來就把同 email／電話的應徵單併成一組
+    // （extra_placements），這裡直接拿來用，不另外猜；清單沒載入過就退回後端那行黃字提示。
+    const sibs = siblingCards(applicationId);
+    const sibBar = sibs.length
+      ? `<div class="cand-sibs"><span>同一人還有 ${sibs.length} 張卡：</span>${sibs.map((x) => `<button type="button" class="btn sm" data-application="${escapeHtml(x.applicationId)}">${x.seqNo ? '#' + text(x.seqNo) + ' ' : ''}${text(x.originLabel)}${x.job ? '・' + text(x.job) : ''}</button>`).join('')}</div>`
+      : (dupNotice ? `<div class="notice" style="margin:8px 0 0">⚠ 疑似同一人：${text(dupNotice)}</div>` : '');
+    const contact = [application.phone, application.email && !isPlaceholderEmail(application.email) ? application.email : ''].filter(Boolean).map((v) => text(v)).join('　');
+    const head = `<div class="cand-head">
+      <div class="cand-chips"><span class="badge info">階段：${text(stageText)}${application.manual_stage ? '' : '（自動）'}</span><span class="badge">負責：${text(ownerName || '未指派')}</span>${lineBinding ? '<span class="badge success">LINE 已綁定</span>' : ''}${hardGateBadge}${contactBadge}</div>
+      ${contact ? `<div class="cand-contact">${contact}</div>` : ''}
+      <button type="button" class="cand-next" data-cand-goto="${nextStep.tab}"><b>下一步</b>${text(nextStep.t)}</button>
+      ${sibBar}${jobSwitchHtml}${views.socialSourceBadge(card.social_source)}
+    </div>`;
+    const TABS = [['ov', '總覽'], ['ai', '阿財面談'], ['call', '電洽'], ['fw', `推薦客戶${forwards.length ? `（${forwards.length}）` : ''}`], ['cv', '履歷檔案']];
+    const curTab = (state.candTab && state.candTab.app === applicationId) ? state.candTab.tab : 'ov';
+    const tabBar = `<div class="tabs cand-tabs" role="tablist">${TABS.map(([k, l]) => `<button type="button" role="tab" data-cand-tab="${k}" aria-selected="${k === curTab}" class="${k === curTab ? 'active' : ''}">${l}</button>`).join('')}</div>`;
+    // 總覽：職缺匹配、走到哪了、快速設定（顧問／階段／備註）、基本資料與聯絡動作、歷程、信件
+    const milestones = [
+      application.created_at ? ['建立應徵單', application.created_at] : null,
+      application.interview_ended_at ? ['跟阿財面談完', application.interview_ended_at] : (application.interview_state && application.interview_state !== 'not_started' && application.interview_state !== 'done' ? ['阿財面談中', ''] : null),
+      application.disc_primary ? [`風格測驗完成（主型 ${application.disc_primary}）`, ''] : null,
+      application.call_summary_md ? ['電洽完成', (state.callHist[0] || {}).time || ''] : null,
+      ...forwards.map((f) => [`推薦給 ${f.company_name}・${f.job_title || f.job_slug}（客戶：${f.stage_label || '等回覆'}）`, f.forwarded_at]),
+    ].filter(Boolean);
+    const milestonesHtml = `<ul class="cand-steps">${milestones.map(([t, at]) => `<li><span>${text(t)}</span><small>${text(String(at || '').slice(0, 16))}</small></li>`).join('')}</ul>`;
+    const basicsOv = `<dl class="kv-grid">
+      <dt>期望薪資</dt><dd>${text(application.expected_salary || '—')}</dd>
+      <dt>可上班日</dt><dd>${text(application.available_date || '—')}</dd>
+      <dt>來源</dt><dd>${channelTag}${application.resume_source ? '・履歷來源 ' + text(application.resume_source) : ''}</dd>
+      <dt>LINE</dt><dd>${lineHtml}</dd>
+      <dt>DISC</dt><dd>${disc}</dd>
+    </dl>`;
+    const paneOv = `${views.jobMatchTop(report)}<h3>走到哪了</h3>${milestonesHtml}${quickSet}<div id="special-check-box"></div>
+      <h3>基本資料</h3>${basicsOv}<div class="actions-row">${actionBtn('編輯應徵單', 'application-update', { idParams: { application_id: applicationId }, record: application })}</div>${reviewLinkRow(application, applicationId)}
+      ${stageDetailHtml('style', application, forwards, report, applicationId)}
+      <details class="note-details" style="margin-top:14px"><summary><b>最近歷程</b></summary>${timelineHtml}</details>
+      <div data-cand-mail></div>`;
+    const paneAi = `<div data-cand-lazy="ai"></div>
+      <h3>阿財跟人選的原始對話</h3><div data-cand-transcript>${loading('讀取對話中')}</div>
+      <div class="actions-row" style="margin-top:14px">${actionBtn('AI 篩選決策', 'screen-decide', ctxId)}${actionBtn('清除決策', 'clear-decision', ctxId, 'danger')}</div>`;
+    const paneCall = `<div data-cand-lazy="call"></div>
+      <h3>顧問備註／電洽紀錄</h3><div class="actions-row">${actionBtn('手動記一筆電洽重點', 'application-call-note', ctxId)}${actionBtn('修改電洽摘要', 'application-call-summary', ctxId)}</div>${notesHtml}`;
+    const paneFw = `${fwCards}<div style="margin-top:12px"><button type="button" class="btn primary" data-action="open-forward-candidate" data-application-id="${escapeHtml(applicationId)}">＋ 推薦給${forwards.length ? '另一家' : ''}客戶</button></div>`;
+    const sibResumes = sibs.filter((x) => x.resumeFileId).map((x) => `<button type="button" class="btn ghost sm" data-download-resume="${escapeHtml(x.applicationId)}">看另一張卡（${text(x.originLabel)}）的履歷</button>`).join('');
+    const paneCv = `<h3>這位人選的履歷</h3>${resumeBtns.length ? `<div class="actions-row">${resumeBtns.join('')}</div>` : '<p class="muted">這張卡沒有履歷檔案或連結</p>'}${sibResumes ? `<div class="actions-row">${sibResumes}</div>` : ''}
+      <h3 style="margin-top:20px">要給別人看的版本</h3>${views.clientResumeBox(applicationId, card.client_formal_reports || [], forwards, card.anon_report)}`;
+    const pane = (k, html) => `<section class="cand-pane" data-cand-pane="${k}"${k === curTab ? '' : ' hidden'}>${html}</section>`;
     // 2026-10-19 Jacky：滑到下面會突然跳回最上面。原因是捲動位置在「開始抓資料前」就記下來了，
     // 抓資料這 1～2 秒內往下滑，重畫時又被拉回舊位置（常常是 0）。改成重畫前一刻才讀目前位置。
     const liveDr = document.querySelector('#overlay-root .drawer');
@@ -3132,41 +3188,11 @@ ${views.candidateFormsBlock(f.forms, applicationId, companyId)}
       // ／trg_applications_seq_no 觸發器），一直沒搬進 V3 標題。
       title: (application.seq_no ? `#${application.seq_no} ` : '') + (application.name || '應徵單'),
       subtitle: `${application.job_title || application.job_slug || ''} · ${channelTag}`,
-      body: `<div class="drawer-section">${dupNoticeHtml}${jobSwitchHtml}${views.socialSourceBadge(card.social_source)}${stageBar}${quickSet}${views.clientResumeBox(applicationId, card.client_formal_reports || [], forwards, card.anon_report)}${views.jobMatchTop(report)}<div id="special-check-box"></div><h3>基本資料${contactBadge}${hardGateBadge}</h3>${basics}<h3>操作</h3>${actionMenu([
-        // 2026-09-17 改名：這顆原本也叫「電洽前準備」，但實際上是手動打字存進
-        // consultant_call_notes 的表單，跟「電洽」階段格裡新加的 AI Pre-call Card
-        // （PRECALL_PHASE1）是完全不同兩個功能，同名會讓人以為是同一顆——
-        // 查證後確認這顆對應的後端端點是 /admin/application/call-note（doCallNote），
-        // 跟 call_prep_md／call-prep-generate 那條 AI 產生的路徑無關，改名消除混淆。
-        actionBtn('手動記一筆電洽重點', 'application-call-note', ctxId),
-        actionBtn('修改電洽摘要', 'application-call-summary', ctxId),
-        actionBtn('編輯應徵單', 'application-update', { idParams: { application_id: applicationId }, record: application }),
-        // 2026-09-15 拔除這裡的「AI 初篩報告決策」跟「推薦給客戶」——使用者要求
-        // 進度條格子裡已經有的操作不要在操作列表重複一份，這兩顆只留在
-        // 「阿財初審」／「推薦給客戶」那兩格裡。
-        actionBtn('AI 篩選決策', 'screen-decide', ctxId),
-        actionBtn('清除決策', 'clear-decision', ctxId, 'danger')
-        // 2026-09-15 拔除「標記已結案不續」：doMarkClosed() 查 placements 沒有
-        // client_id/company_id 過濾，抓到的是任一筆（不分客戶），而且 notify=true
-        // 時會把 reports.consultant_decision 設成 rejected，擋住這位人選之後被
-        // 推薦給其他客戶——但「結案」講的其實只是這家客戶的職缺結束，人選本身
-        // 沒問題，後續可能有新職缺。已查證用人單位 /portal/* 完全不讀
-        // placements.stage=CLOSED_LOST/CLOSED_INTERNAL（resolveStage() 只認
-        // OFFER/OFFER_ACCEPTED/HIRED，client 端的「不推進」狀態靠的是
-        // candidate_forwards.client_rejected_at，跟這個按鈕無關），可以安全拔掉。
-        // 「不推進」交給下面推薦客戶進度那格既有、正確 per-client scope 的
-        // 「標不推進」（advisor_not_recommended_at，走 pipeline-not-recommended）。
-        // 2026-09-15 拔除「手動推薦」：查證發現它送的欄位（company_id）跟真正呼叫的
-        // /admin/pipeline/manual-forward（實為 doManualForward）要的欄位（source_kind/
-        // source_id/job_slug/consent_confirmed）完全對不上，點下去必定失敗。它原本的
-        // 用途（把同一位人選轉去另一個職缺重開一筆）跟「推薦給客戶」是不同語意，
-        // 這輪先拔掉避免顧問點到一顆壞按鈕，之後真的要做再照 doManualForward 的
-        // 真實欄位重建。
-      ])}<h3>顧問備註／電洽紀錄</h3>${notesHtml}<h3>推薦客戶進度</h3>${forwardRows}<h3>最近歷程</h3>${timelineHtml}<i data-cand-card="${escapeHtml(applicationId)}" hidden></i></div>`,
+      body: `<div class="drawer-section cand-folder">${head}${tabBar}${pane('ov', paneOv)}${pane('ai', paneAi)}${pane('call', paneCall)}${pane('fw', paneFw)}${pane('cv', paneCv)}<i data-cand-card="${escapeHtml(applicationId)}" hidden></i></div>`,
     });
     if (liveScroll) { const dr = document.querySelector('#overlay-root .drawer'); if (dr) dr.scrollTop = liveScroll; }
-    wireCandidateDrawer(applicationId, application, forwards, report);
-    injectMailSection('candidate', applicationId);
+    wireCandidateDrawer(applicationId, application, forwards, report, { sibs: sibs.filter((x) => x.aiDone), curTab });
+    injectMailSection('candidate', applicationId, document.querySelector('#overlay-root [data-cand-mail]'));
     // 2026-10-23 特殊職缺檢查卡（只有 special_check_jobs 清單內職缺的人選才會出現）
     loadSpecialCheck(applicationId, application.job_slug, () => state.openCandidateId === applicationId);
   } catch (error) {
@@ -3454,7 +3480,7 @@ function stageDetailHtml(key, application, forwards, report, applicationId) {
   return '';
 }
 
-function wireCandidateDrawer(applicationId, application, forwards, report) {
+function wireCandidateDrawer(applicationId, application, forwards, report, opts = {}) {
   const bindApptRow = (row) => {
     const fmtSel = row.querySelector('.appt-fmt');
     const urlField = row.querySelector('.appt-url-field');
@@ -3566,23 +3592,74 @@ function wireCandidateDrawer(applicationId, application, forwards, report) {
       };
     }
   };
-  $$('.stage-dot[data-stage-dot]').forEach((dot) => {
-    dot.onclick = () => {
-      const key = dot.getAttribute('data-stage-dot');
-      const box = $('#stage-detail');
-      if (!box) return;
-      // 再點同一格就收起來，跟舊版手風琴行為一致。
-      if (dot.classList.contains('active')) {
-        $$('.stage-dot').forEach((d) => d.classList.remove('active'));
-        box.innerHTML = '';
-        return;
-      }
-      $$('.stage-dot').forEach((d) => d.classList.remove('active'));
-      dot.classList.add('active');
-      box.innerHTML = stageDetailHtml(key, application, forwards, report, applicationId);
+  // 2026-10-27 B 方案：5 個分頁。阿財面談／電洽兩頁的內容要打 API，點到才載入（只載一次）；
+  // 每次動作完卡片會整張重畫，記住目前在哪一頁（state.candTab），重畫後停在同一頁。
+  const loaded = new Set();
+  const ensurePane = (k) => {
+    if (loaded.has(k)) return;
+    loaded.add(k);
+    if (k === 'ai') {
+      const box = $('#overlay-root [data-cand-lazy="ai"]');
+      if (box) box.innerHTML = stageDetailHtml('interview', application, forwards, report, applicationId);
+      loadCandTranscript(applicationId, opts.sibs || []);
+    }
+    if (k === 'call') {
+      const box = $('#overlay-root [data-cand-lazy="call"]');
+      if (box) box.innerHTML = stageDetailHtml('call', application, forwards, report, applicationId);
       wireDetailPanel();
-    };
-  });
+    }
+  };
+  const showTab = (k) => {
+    $$('#overlay-root [data-cand-tab]').forEach((b) => { const on = b.getAttribute('data-cand-tab') === k; b.classList.toggle('active', on); b.setAttribute('aria-selected', String(on)); });
+    $$('#overlay-root [data-cand-pane]').forEach((p) => { p.hidden = p.getAttribute('data-cand-pane') !== k; });
+    state.candTab = { app: applicationId, tab: k };
+    ensurePane(k);
+  };
+  $$('#overlay-root [data-cand-tab]').forEach((b) => { b.onclick = () => showTab(b.getAttribute('data-cand-tab')); });
+  const goto = $('#overlay-root [data-cand-goto]');
+  if (goto) goto.onclick = () => {
+    showTab(goto.getAttribute('data-cand-goto'));
+    $('#overlay-root .cand-tabs')?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  };
+  wireDetailPanel();   // 總覽頁的「風格測驗連結」按鈕
+  ensurePane(opts.curTab || 'ov');
+}
+
+// 2026-10-27 B 方案：阿財面談分頁直接看原始對話（原本只能從電洽準備卡裡的小按鈕進去，卡沒產生就沒入口）。
+// 這張卡沒跟阿財談過、但同一人的另一張卡有 → 直接顯示那張的對話，並標明是哪一張。
+async function loadCandTranscript(applicationId, sibs) {
+  const box = $('#overlay-root [data-cand-transcript]');
+  if (!box) return;
+  try {
+    const body = await adapters.interviewDetail(applicationId);
+    if (state.openCandidateId !== applicationId) return;
+    if ((body.transcript || []).length || !sibs.length) { box.innerHTML = views.aiInterviewBody(body); return; }
+    const sib = sibs[0];
+    const other = await adapters.interviewDetail(sib.applicationId);
+    if (state.openCandidateId !== applicationId) return;
+    box.innerHTML = `<p class="help" style="margin:0 0 6px">這張卡沒有跟阿財面談；下面是同一人另一張卡（${text(sib.originLabel)}${sib.seqNo ? ' #' + text(sib.seqNo) : ''}）的對話。</p>${views.aiInterviewBody(other)}`;
+  } catch (error) {
+    box.innerHTML = errorState(error);
+  }
+}
+
+// 同一人的其他應徵單：/admin/pipeline/tracker 已經把同 email／電話的併成一組（主卡＋extra_placements），
+// 前端存在 state.candidateRows（siblings）。從清單打開才有；沒載入過清單就回空陣列。
+function siblingCards(applicationId) {
+  const lb = (x) => {
+    const o = String(x.origin || '').trim();
+    if (o === '104') return '104 匯入';
+    if (o && o !== '不明') return o;
+    return x.source_channel ? String(x.source_channel) : '自己應徵';
+  };
+  for (const r of state.candidateRows || []) {
+    const group = [{ application_id: r.applicationId, seq_no: r.seqNo, job_title: r.job, origin: r.origin, source_channel: r.sourceChannel, resume_file_id: r.resumeFileId, ai_done: r.aiDone }, ...(r.siblings || [])];
+    if (group.length < 2 || !group.some((x) => x.application_id === applicationId)) continue;
+    return group.filter((x) => x.application_id && x.application_id !== applicationId).map((x) => ({
+      applicationId: x.application_id, seqNo: x.seq_no, job: x.job_title, originLabel: lb(x), resumeFileId: x.resume_file_id, aiDone: !!x.ai_done,
+    }));
+  }
+  return [];
 }
 
 async function showAssessmentLink(applicationId) {

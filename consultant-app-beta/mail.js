@@ -214,8 +214,9 @@ async function downloadMailFile(fileId, name) {
 }
 
 // 人選卡／客戶卡底下的「信件」區塊：抽屜畫好之後呼叫，接在抽屜內容最後面。
-export async function injectMailSection(kind, id) {
-  const body = $('#overlay-root .drawer .drawer-body');
+export async function injectMailSection(kind, id, container) {
+  // 2026-10-27：人選卡片改分頁後，信件放進「總覽」那頁的指定位置（container），不再接在整個抽屜最底下
+  const body = container || $('#overlay-root .drawer .drawer-body');
   if (!body || !id) return;
   const sec = document.createElement('section');
   sec.className = 'mail-card-section';
