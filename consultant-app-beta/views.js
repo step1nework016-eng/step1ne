@@ -4600,7 +4600,7 @@ ${tg}
       } else {
         statusTag = '<span class="badge">尚未寄送</span>';
         actions = [
-          actionBtn('寄送表單', 'candidate-form-trigger', { idParams }),
+          actionBtn('寄送表單', 'candidate-form-trigger', { idParams }, 'primary'),  // 2026-10-27 B 方案：推薦後最常找不到的那顆，改主按鈕
           actionBtn('代為上傳', 'candidate-form-upload', { idParams }),
         ];
       }
