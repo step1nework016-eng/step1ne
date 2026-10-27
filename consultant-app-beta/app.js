@@ -3068,20 +3068,21 @@ async function openCandidate(applicationId, opts = {}) {
         f.no_show_at ? `⚠ 不報到：${text(f.no_show_reason || '')}` : '',
         f.candidate_withdrawn_at ? `人選已放棄：${text(f.candidate_withdraw_reason || '')}` : '',
       ].filter(Boolean).map((w) => `<div class="fw-warn">${w}</div>`).join('');
+      // 2026-10-27 Jacky：原本收在 <details>「其他動作」裡，沒展開看起來是空的——改成直接攤開。
+      // 標不推進用醒目但非危險色；取消推薦（真的刪紀錄）單獨放最右、紅字。
       const more = [
-        nr ? actionBtn('改回推進', 'pipeline-recommended-again', ids) : actionBtn('標不推進', 'pipeline-not-recommended', ids, 'danger'),
-        f.candidate_withdrawn_at ? actionBtn('收回「已放棄」', 'pipeline-candidate-withdraw-undo', ids) : actionBtn('人選已放棄', 'pipeline-candidate-withdraw', ids, 'danger'),
+        nr ? actionBtn('改回推進', 'pipeline-recommended-again', ids) : actionBtn('標不推進', 'pipeline-not-recommended', ids, 'warn'),
+        f.candidate_withdrawn_at ? actionBtn('收回「已放棄」', 'pipeline-candidate-withdraw-undo', ids) : actionBtn('人選已放棄', 'pipeline-candidate-withdraw', ids),
         actionBtn('傳訊息給客戶', 'pipeline-message-client', ids),
         actionBtn('編輯 LINE ID／客戶備註', 'forward-detail-update', { idParams: ids.idParams, record: { line_id_given: f.line_id_given || '', client_note: f.client_note || '' } }),
-        f.onboard_date && !f.no_show_at ? actionBtn('標記不報到', 'placement-no-show', ids, 'danger') : '',
-        actionBtn('取消推薦', 'pipeline-unforward-candidate', ids, 'danger'),
+        f.onboard_date && !f.no_show_at ? actionBtn('標記不報到', 'placement-no-show', ids) : '',
       ].filter(Boolean);
       const meta = [`推薦於 ${text(String(f.forwarded_at || '').slice(0, 10) || '—')}`, f.client_note ? '客戶備註：' + text(f.client_note) : '', f.line_id_given ? 'LINE ID：' + text(f.line_id_given) : ''].filter(Boolean).join('　');
       return `<div class="fw-card cfr-drop" data-cfr-app="${escapeHtml(applicationId)}" data-cfr-co="${escapeHtml(companyId)}" data-cfr-name="${escapeHtml(f.company_name || '')}" data-cfr-has="${cfrDone ? '1' : ''}">
         <div class="fw-title"><b>${text(f.company_name)}</b><span>${text(f.job_title || f.job_slug)}</span></div>
         <small class="muted">${meta}</small>${warn}${steps}
         ${views.candidateBillingPendingBlock(f.billing_pending)}${cfrRow}${formsRows}
-        <details class="fw-more"><summary>其他動作</summary><div class="actions-row">${more.join('')}</div></details>
+        <div class="fw-actions"><small>這家客戶這個職缺</small><div class="ag-btns">${more.join('')}<span class="fw-gap"></span>${actionBtn('取消推薦', 'pipeline-unforward-candidate', ids, 'danger')}</div></div>
         <small class="cfr-drop-hint">也可以直接把推薦履歷 PDF 拖進這張卡</small>
       </div>`;
     }).join('') : '<p class="muted">還沒推薦給任何客戶。</p>';
@@ -4067,6 +4068,15 @@ async function openForwardCandidate(applicationId) {
   const companySelect = $('#fc-company');
   const jobSelect = $('#fc-job');
   if (!companySelect || !jobSelect) return;
+  // 2026-10-27：「只留面試紀錄，不推薦」——勾了要填原因、不寄表單、按鈕字跟著換
+  const nrBox = $('#fc-not-rec');
+  if (nrBox) nrBox.onchange = () => {
+    const on = nrBox.checked;
+    const wrap = $('#fc-nr-reason-wrap'); if (wrap) wrap.hidden = !on;
+    const sf = $('#fc-send-forms'); if (sf) { if (on) sf.checked = false; sf.disabled = on; }
+    const btn = $('[data-action="submit-forward-candidate"]'); if (btn) btn.textContent = on ? '確認（只留紀錄，不推薦）' : '確認推薦';
+    if (on) $('#fc-nr-reason')?.focus();
+  };
   companySelect.innerHTML = '<option value="">選一家客戶…</option>' + companies.map((c) => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.display_name)}</option>`).join('');
   companySelect.onchange = () => {
     const cid = companySelect.value;
@@ -4079,7 +4089,7 @@ async function openForwardCandidate(applicationId) {
       if (companySelect.value !== cid || !forms.length) return;
       // 2026-10-24 Jacky：推薦≠客戶要面談。推薦時一律不寄，客戶在後台按「推進」才自動寄；這裡只做提示、不給勾。
       // 2026-10-27 Jacky：加回勾選框，預設不勾；勾了推薦時一起寄（信裡寫「填完先給用人單位看，有意願才約面談」）。
-      fRow.hidden = false; fRow.style.display = 'flex'; fBox.checked = false; fBox.disabled = false; fBox.style.display = '';
+      fRow.hidden = false; fRow.style.display = 'flex'; fBox.checked = false; fBox.disabled = !!$('#fc-not-rec')?.checked; fBox.style.display = '';
       fTxt.textContent = `勾了才會寄：${forms.map((f) => f.name).join('、')}。信裡會寫「填好先給用人單位看，有意願才約面談」。不勾就不寄。`;
     }).catch(() => {});
     const list = jobsByCompany[cid] || [];
@@ -4100,12 +4110,29 @@ async function submitForwardCandidate(applicationId) {
     // 2026-10-19 Jacky：卡片每一筆推薦要看得出是誰推的——推薦當下記「我是」選的那個人。
     const me = amUi().me;
     if (!me) { toast('先在畫面最上方選「我是」，系統才記得是誰推薦的', 'error'); document.querySelector('[data-me-global]')?.focus(); if (button) button.disabled = false; return; }
+    const notRec = !!$('#fc-not-rec')?.checked;
+    const nrReason = ($('#fc-nr-reason')?.value || '').trim();
+    if (notRec && !nrReason) { toast('勾了「只留面試紀錄」要填不推進原因（客戶看得到）', 'error'); $('#fc-nr-reason')?.focus(); if (button) button.disabled = false; return; }
     const result = await api.post('/admin/forward-candidate', {
-      send_forms: !!$('#fc-send-forms')?.checked,  // 2026-10-27：預設不勾，勾了才寄
+      send_forms: notRec ? false : !!$('#fc-send-forms')?.checked,  // 2026-10-27：預設不勾，勾了才寄；只留紀錄一律不寄
       application_id: applicationId, company_id: companyId, by: me,
       job_slug: $('#fc-job')?.value || undefined,
       note: form.querySelector('[name="note"]').value.trim() || undefined,
     });
+    if (notRec) {
+      // 第二步：標「顧問不推進」。第一步已建好紀錄，這步失敗要講清楚，讓顧問去卡片上補按
+      try {
+        await api.post('/admin/pipeline/forward-decision', { application_id: applicationId, company_id: companyId, not_recommended: true, reason: nrReason });
+      } catch (err2) {
+        toast(`紀錄已建立，但「顧問不推進」沒標上（${err2.message}）——到推薦客戶分頁那家客戶按「標不推進」補上`, 'error');
+        if (state.openCandidateId) openCandidate(state.openCandidateId, { fresh: true });
+        return;
+      }
+      toast(`已留紀錄給 ${result.company || '客戶'}（顧問不推進）`, 'success');
+      if (state.openCandidateId) openCandidate(state.openCandidateId, { fresh: true });
+      else { closeOverlay(); refreshCurrentView(); }
+      return;
+    }
     toast(`已推薦給 ${result.company || '客戶'}`, 'success');
     if (state.openCandidateId) openCandidate(state.openCandidateId, { fresh: true });
     else { closeOverlay(); refreshCurrentView(); }
