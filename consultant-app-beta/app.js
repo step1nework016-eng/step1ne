@@ -2934,7 +2934,7 @@ document.addEventListener('change', (e) => {
   try { map = JSON.parse(sel.dataset.jobs || '{}'); } catch { map = {}; }
   const list = map[sel.value] || [];
   target.innerHTML = sel.value
-    ? `<option value="">請選擇職缺…</option>${list.map((j) => `<option value="${escapeHtml(j.slug)}">${escapeHtml(j.title)}</option>`).join('')}`
+    ? `<option value="">請選擇職缺…</option>${list.map((j) => `<option value="${escapeHtml(j.slug)}">${escapeHtml(jobOptLabel(j))}</option>`).join('')}`
     : '<option value="">先選上面的客戶</option>';
   target.disabled = !sel.value;
   if (list.length === 1) target.value = list[0].slug;   // 只有一個職缺就直接選好
@@ -2944,6 +2944,14 @@ document.addEventListener('change', (e) => {
 // 2026-10-16 Jacky：人選卡片每次打開、每次設定完都要轉一圈載入。
 // 改成：同一張卡片重新整理時不清空（停在原本捲動位置）；打開過的卡片先用上次的資料立刻顯示，背景再抓最新的換上。
 const cardCache = new Map();
+// 2026-10-27 Jacky：同一家客戶有三個「BIM 工程師(儲備培訓)」同名，推薦選單分不出哪個地區——職缺名稱後面補地點。
+function jobOptLabel(j) {
+  const s = String(j.slug || '');
+  let loc = String(j.locations || j.location || '').replace(/[\[\]'"]/g, '').split(/[、,，;；\n（(]/)[0].trim();
+  if (!loc) loc = /houli/.test(s) ? '台中后里' : /tongluo/.test(s) ? '苗栗銅鑼' : /hsinchu/.test(s) ? '新竹' : '';
+  return loc ? `${j.title}｜${loc}` : j.title;
+}
+
 async function openCandidate(applicationId, opts = {}) {
   const sameOpen = state.openCandidateId === applicationId && !!document.querySelector('#overlay-root .drawer [data-cand-card]');
   state.openCandidateId = applicationId;
@@ -3861,7 +3869,7 @@ async function openAddCandidate() {
   jobs.forEach((j) => {
     if (!j.company_id) return;
     if (!companyNames[j.company_id]) { companyNames[j.company_id] = j.company_display_name || j.company_name || '（未命名客戶）'; companyOrder.push(j.company_id); }
-    (jobsByCompany[j.company_id] = jobsByCompany[j.company_id] || []).push({ slug: j.slug, title: j.title });
+    (jobsByCompany[j.company_id] = jobsByCompany[j.company_id] || []).push({ slug: j.slug, title: j.title, locations: j.locations || j.location || '' });
   });
   const companySelect = $('#ac-company');
   const jobSelect = $('#ac-job');
@@ -3872,7 +3880,7 @@ async function openAddCandidate() {
     const cid = companySelect.value;
     if (!cid) { jobSelect.innerHTML = '<option value="">（不指定，將建立為未配對職缺的人選）</option>'; jobSelect.disabled = true; return; }
     jobSelect.disabled = false;
-    jobSelect.innerHTML = '<option value="">選一個職缺…</option>' + (jobsByCompany[cid] || []).map((j) => `<option value="${escapeHtml(j.slug)}">${escapeHtml(j.title)}</option>`).join('');
+    jobSelect.innerHTML = '<option value="">選一個職缺…</option>' + (jobsByCompany[cid] || []).map((j) => `<option value="${escapeHtml(j.slug)}">${escapeHtml(jobOptLabel(j))}</option>`).join('');
   };
 }
 
@@ -3931,7 +3939,7 @@ async function openForwardCandidate(applicationId) {
   });
   const [companies, jobs] = await Promise.all([ensureCompanies(), ensureJobs()]);
   const jobsByCompany = {};
-  jobs.forEach((j) => { if (j.company_id) (jobsByCompany[j.company_id] = jobsByCompany[j.company_id] || []).push({ slug: j.slug, title: j.title }); });
+  jobs.forEach((j) => { if (j.company_id) (jobsByCompany[j.company_id] = jobsByCompany[j.company_id] || []).push({ slug: j.slug, title: j.title, locations: j.locations || j.location || '' }); });
   const companySelect = $('#fc-company');
   const jobSelect = $('#fc-job');
   if (!companySelect || !jobSelect) return;
@@ -3952,7 +3960,7 @@ async function openForwardCandidate(applicationId) {
     const list = jobsByCompany[cid] || [];
     if (!cid || !list.length) { jobSelect.innerHTML = '<option value="">（沿用原本應徵的職缺）</option>'; jobSelect.disabled = true; return; }
     jobSelect.disabled = false;
-    jobSelect.innerHTML = '<option value="">（沿用原本應徵的職缺）</option>' + list.map((j) => `<option value="${escapeHtml(j.slug)}">${escapeHtml(j.title)}</option>`).join('');
+    jobSelect.innerHTML = '<option value="">（沿用原本應徵的職缺）</option>' + list.map((j) => `<option value="${escapeHtml(j.slug)}">${escapeHtml(jobOptLabel(j))}</option>`).join('');
   };
 }
 
@@ -3995,7 +4003,7 @@ async function openConvertSourced(sourcedId) {
   });
   const [companies, jobs] = await Promise.all([ensureCompanies(), ensureJobs()]);
   const jobsByCompany = {};
-  jobs.forEach((j) => { if (j.company_id) (jobsByCompany[j.company_id] = jobsByCompany[j.company_id] || []).push({ slug: j.slug, title: j.title }); });
+  jobs.forEach((j) => { if (j.company_id) (jobsByCompany[j.company_id] = jobsByCompany[j.company_id] || []).push({ slug: j.slug, title: j.title, locations: j.locations || j.location || '' }); });
   const companySelect = $('#cs-company');
   const jobSelect = $('#cs-job');
   if (!companySelect || !jobSelect) return;
@@ -4005,7 +4013,7 @@ async function openConvertSourced(sourcedId) {
     const list2 = jobsByCompany[cid] || [];
     if (!cid || !list2.length) { jobSelect.innerHTML = '<option value="">（先選客戶）</option>'; jobSelect.disabled = true; return; }
     jobSelect.disabled = false;
-    jobSelect.innerHTML = '<option value="">選一個職缺…</option>' + list2.map((j) => `<option value="${escapeHtml(j.slug)}">${escapeHtml(j.title)}</option>`).join('');
+    jobSelect.innerHTML = '<option value="">選一個職缺…</option>' + list2.map((j) => `<option value="${escapeHtml(j.slug)}">${escapeHtml(jobOptLabel(j))}</option>`).join('');
   };
 }
 
