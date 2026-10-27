@@ -1533,3 +1533,71 @@ svg .rs-val{font-size:15px;font-weight:700;fill:#14232e}svg .rs-lab{font-size:13
 @media (prefers-reduced-motion:reduce){.cl-bar i{transition:none}}
 
 .cl-cv{min-height:36px;padding:2px 10px;margin-left:6px;border:1px solid #c9d6e6;border-radius:8px;background:#fff;font:inherit;font-size:14px;cursor:pointer}.cl-cv:focus-visible{outline:3px solid #f0b429}
+/* 2026-10-27 人選卡片 B 方案：小檔頭＋5 分頁 */
+.cand-head{display:grid;gap:8px;margin:0 0 6px}
+.cand-chips{display:flex;flex-wrap:wrap;gap:6px}
+.cand-contact{font-size:13px;color:#33405a;word-break:break-all}
+.cand-next{display:flex;gap:10px;align-items:baseline;text-align:left;width:100%;min-height:44px;border:1px solid #bfe3c8;background:#e2f8ed;color:#14794c;border-radius:10px;padding:10px 12px;cursor:pointer;font-weight:600}
+.cand-next b{flex:none;font-size:12px;background:#14794c;color:#fff;border-radius:6px;padding:2px 7px}
+.cand-next:hover{border-color:#14794c}
+.cand-sibs{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13px;color:#775b08;background:#fff7dd;border:1px solid #f2d98a;border-radius:9px;padding:8px 10px}
+.cand-tabs{position:sticky;top:0;z-index:3;background:#fff;margin:8px -20px 14px;padding:0 14px}
+.cand-tabs button{min-height:44px}
+.cand-pane h3{margin:18px 0 8px;font-size:15px}
+.cand-pane>h3:first-child{margin-top:4px}
+.cand-steps{list-style:none;margin:0 0 6px;padding:0;border-left:2px solid var(--line)}
+.cand-steps li{display:flex;justify-content:space-between;gap:10px;padding:5px 0 5px 12px;font-size:13.5px;position:relative}
+.cand-steps li::before{content:"";position:absolute;left:-6px;top:11px;width:10px;height:10px;border-radius:50%;background:#14794c}
+.cand-steps small{color:var(--muted);flex:none}
+.fw-card{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:0 0 12px;background:#fff}
+.fw-title{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}
+.fw-title span{color:var(--muted);font-size:13px}
+.fw-warn{font-size:13px;color:#a72f3a;margin-top:4px}
+.fw-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:10px 0}
+.fw-step{font-size:12px;text-align:center;padding:6px 4px;border-radius:7px;background:#f1f4f8;color:#556276}
+.fw-step.done{background:#e2f8ed;color:#14794c}
+.fw-step.now{background:#fff0d5;color:#9b5b00;font-weight:700}
+.fw-step.bad{background:#ffe5e7;color:#a72f3a}
+.fw-row{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-top:1px solid #eef2f6}
+.fw-row>span{flex:1 1 220px;min-width:0}
+.fw-row small{display:block;color:var(--muted);font-size:12px}
+.fw-row .actions-row{margin-top:0}
+.fw-more{margin-top:6px}
+.fw-more summary{cursor:pointer;min-height:36px;display:flex;align-items:center;font-size:13px;color:var(--muted)}
+.fw-card .cfr-drop-hint{display:block;margin-top:6px}
+@media(max-width:860px){.cand-tabs{margin-left:-20px;margin-right:-20px}}
+
+/* 2026-10-27 人選卡片總覽：基本資料小格子＋按鈕分組 */
+.cand-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.cf-cell{border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-width:0;background:#fafbfd}
+.cf-cell>span{display:block;font-size:12px;color:var(--muted)}
+.cf-cell>b{display:block;font-weight:600;font-size:14px;word-break:break-word}
+.cf-cell small{display:block;font-weight:400}
+.cf-link{border:0;background:none;padding:0;min-height:28px;color:var(--blue);cursor:pointer;font:inherit;font-weight:600;text-align:left}
+.cf-link small{color:var(--blue);font-size:12px;text-decoration:underline}
+.cf-disc-detail{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:8px}
+.cf-disc-detail .stage-detail-panel h4{display:none}
+.cand-actgroups{display:flex;flex-wrap:wrap;gap:12px 18px;align-items:flex-start;margin:14px 0 4px}
+.ag>small{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+.ag-btns{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.ag-end{margin-left:auto}
+.btn.cf-quiet{color:#8a95a8;border-color:#e3e8f0;background:#fff}
+.btn.cf-quiet:hover{color:#a72f3a;border-color:#eab8bc}
+.cand-dd{position:relative}
+.cand-dd>summary{list-style:none;display:inline-flex;align-items:center}
+.cand-dd>summary::-webkit-details-marker{display:none}
+.cand-dd-menu{position:absolute;z-index:6;top:calc(100% + 4px);left:0;min-width:220px;display:grid;gap:4px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px;box-shadow:var(--shadow)}
+.cand-dd-menu .btn{width:100%;text-align:left;justify-content:flex-start;white-space:normal}
+@media(max-width:560px){.cand-facts{grid-template-columns:repeat(2,minmax(0,1fr))}.ag-end{margin-left:0}.cand-dd[open]{flex-basis:100%}.cand-dd-menu{position:static;margin-top:6px;min-width:0;box-shadow:none}}
+
+
+/* 2026-10-27 推薦客戶小卡動作攤開＋推薦視窗「只留紀錄」 */
+.fw-actions{border-top:1px solid #eef2f6;padding-top:8px;margin-top:4px}
+.fw-actions>small{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+.fw-gap{flex:1 1 auto}
+.btn.warn{background:#fff4d6;border-color:#f0c56a;color:#8a5a00;font-weight:700}
+.btn.warn:hover{border-color:#c98a00}
+.fc-nr-row{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border:1px solid #f0c56a;border-radius:12px;background:#fffaf0;cursor:pointer}
+.fc-nr-row input{width:18px;height:18px;margin:2px 0 0;flex:0 0 18px;accent-color:#c98a00}
+.fc-nr-row span{display:flex;flex-direction:column;gap:3px}
+.fc-nr-row small{font-size:12.5px;color:#64748b;line-height:1.5}

@@ -3852,6 +3852,12 @@ ${tg}
         <small id="fc-forms-text" style="font-size:12.5px;color:#64748b;line-height:1.5">不勾＝先不寄，之後可在人選卡片按「寄送表單」手動寄。</small>
       </span>
     </label>
+    <!-- 2026-10-27 Jacky：面試過但不推薦的人，也要在客戶那邊留一筆紀錄（客戶看到「顧問不推進」＋原因）。不寄任何東西給人選。 -->
+    <label class="span-2 fc-nr-row">
+      <input type="checkbox" id="fc-not-rec">
+      <span><b>只留面試紀錄，不推薦</b><small>客戶會看到這位人選標著「顧問不推進」和下面的原因；不會寄任何東西給人選。</small></span>
+    </label>
+    <label class="field span-2" id="fc-nr-reason-wrap" hidden><span>不推進原因（客戶看得到，請用給對方看的措辭）*</span><textarea id="fc-nr-reason" rows="2" placeholder="例如：顧問電洽後評估，與職缺需求不符"></textarea></label>
   </form>`,
   // 2026-09-15 加：人才池「轉正」的顧問建檔路徑，照抄新增人選那顆（同一支後端
   // /admin/pipeline/manual-forward，差別只在 source_kind:'sourced' + source_id 帶
@@ -4624,7 +4630,7 @@ ${tg}
       } else {
         statusTag = '<span class="badge">尚未寄送</span>';
         actions = [
-          actionBtn('寄送表單', 'candidate-form-trigger', { idParams }),
+          actionBtn('寄送表單', 'candidate-form-trigger', { idParams }, 'primary'),  // 2026-10-27 B 方案：推薦後最常找不到的那顆，改主按鈕
           actionBtn('代為上傳', 'candidate-form-upload', { idParams }),
         ];
       }
