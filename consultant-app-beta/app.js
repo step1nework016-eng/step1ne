@@ -2908,6 +2908,57 @@ function hasContact(a) { return !!((a.phone && a.phone.trim()) || (a.email && !i
 // 服務心得連結（2026-10-01 Jacky：「網址後面那一串不可能自己打，人選卡片要能直接產生」）。
 // 帶好顧問、面試職缺、人選稱呼；階段是錄取／到職的，錄取職缺也先填成同一個。
 // ref＝應徵單 id，收到的心得就知道是哪一張應徵單。
+// 2026-10-27 Jacky：人選卡片「總覽」的基本資料區——
+// ① 期望薪資／可上班日／來源／LINE／DISC 排成小格子；LINE 沒綁時給「複製綁定說明」貼給人選
+// ② 按鈕分三組：聯絡人選（寄信約電話＝主按鈕、回信確認時間、上傳履歷連結下拉）／其他（更多動作下拉）／結案（寄婉拒信，最右、淡色）
+// ③ DISC 格子點了才展開分數＋測驗連結（原本「風格測驗」單獨一大格）
+// 按鈕的 data-* 屬性跟原本 reviewLinkRow 一樣，沿用既有的全站點擊處理，不另寫一套。
+const LINE_BIND_HOWTO = '加入 Step1ne LINE 官方帳號（https://lin.ee/XcSWPzM），點下方選單「追蹤面試進度」填一下表單，之後面試進度就會直接用 LINE 通知你。';
+function candBasicsBlock(app, applicationId, { channelTag, lineHtml, lineBound, disc, styleHtml }) {
+  const e = escapeHtml;
+  const mail = String(app.email || '').trim();
+  const hasMail = !!mail && !isPlaceholderEmail(mail);
+  const nm = e(app.name || '');
+  const qs = new URLSearchParams();
+  if (app.owner) qs.set('c', app.owner);
+  const job = app.job_title && app.job_slug !== 'unspecified' ? app.job_title : '';
+  if (job) qs.set('j', job);
+  if (job && /錄取|到職|offer|onboard|hired/i.test(String(app.manual_stage || ''))) qs.set('o', job);
+  if (app.name) qs.set('n', app.name);
+  qs.set('ref', applicationId);
+  const reviewUrl = `https://step1ne.com/review/?${qs.toString()}`;
+  const cell = (lb, val, extra = '') => `<div class="cf-cell"><span>${lb}</span><b>${val}</b>${extra}</div>`;
+  const discCell = `<div class="cf-cell"><span>DISC</span><button type="button" class="cf-link" data-cf-disc aria-expanded="false">${app.disc_primary ? `主型 ${text(app.disc_primary)}` : '還沒測'}<small>${app.disc_primary ? '看詳情' : '產生測驗連結'}</small></button></div>`;
+  const lineCell = cell('LINE', lineBound ? lineHtml : (lineHtml.includes('需重新綁定') ? '<span class="badge warning">需重新綁定</span>' : '<span class="muted">未綁定</span>'),
+    lineBound ? '' : `<button type="button" class="cf-link" data-copy-text="${e(LINE_BIND_HOWTO)}"><small>複製綁定說明</small></button>`);
+  const facts = `<div class="cand-facts">${cell('期望薪資', text(app.expected_salary || '—'))}${cell('可上班日', text(app.available_date || '—'))}${cell('來源', channelTag + (app.resume_source ? `<small class="muted">履歷：${text(app.resume_source)}</small>` : ''))}${lineCell}${discCell}</div>
+    <div class="cf-disc-detail" data-cf-disc-detail hidden><p class="help" style="margin:0 0 6px">分數：${disc}</p>${styleHtml}</div>`;
+  const ruMenu = resumeLinkButtons({ appId: applicationId, email: hasMail ? mail : '', name: app.name || '', jobSlug: app.job_slug || '', jobTitle: app.job_title || '' });
+  const contact = `<div class="ag"><small>聯絡人選</small><div class="ag-btns">${hasMail
+      ? `<button type="button" class="btn sm primary" data-call-mail="${e(applicationId)}" data-call-mail-name="${nm}">寄信約電話</button><button type="button" class="btn sm" data-call-confirm="${e(applicationId)}" data-call-mail-name="${nm}" title="人選回信給了時段，回一封「那就約這個時間」">回信確認電話時間</button>`
+      : '<span class="help">沒有 Email，用電話或 LINE 聯絡</span>'}
+    <details class="cand-dd"><summary class="btn sm">上傳履歷連結 ▾</summary><div class="cand-dd-menu">${ruMenu}</div></details></div></div>`;
+  const more = `<div class="ag"><small>其他</small><div class="ag-btns"><details class="cand-dd"><summary class="btn sm">更多動作 ▾</summary><div class="cand-dd-menu">
+      ${actionBtn('編輯應徵單', 'application-update', { idParams: { application_id: applicationId }, record: app })}
+      <button type="button" class="btn sm" data-cand-bd="${e(applicationId)}" title="AI 找可能需要這種人的公司，放進「人選敲門名單」，顧問篩過才進開發進度">🧲 拿這位人選去開發客戶</button>
+      <button type="button" class="btn sm" data-copy-text="${e(reviewUrl)}" title="複製後直接貼給人選，顧問、職缺都幫他填好了">複製服務心得連結</button>
+    </div></details></div></div>`;
+  const close = hasMail ? `<div class="ag ag-end"><small>結案</small><div class="ag-btns"><button type="button" class="btn sm cf-quiet" data-decline-mail="${e(applicationId)}" data-call-mail-name="${nm}" title="先看信、可以改，按確認才寄">寄婉拒信</button></div></div>` : '';
+  return `${facts}<div class="cand-actgroups">${contact}${more}${close}</div>`;
+}
+// 下拉選單：點選單外面就收起來；選單裡按了按鈕也收起來
+document.addEventListener('click', (ev) => {
+  const t = ev.target instanceof Element ? ev.target : null;
+  document.querySelectorAll('details.cand-dd[open]').forEach((d) => {
+    if (!t || !d.contains(t) || (t.closest('.cand-dd-menu') && t.closest('button'))) d.open = false;
+  });
+  const discBtn = t && t.closest('[data-cf-disc]');
+  if (discBtn) {
+    const box = document.querySelector('#overlay-root [data-cf-disc-detail]');
+    if (box) { box.hidden = !box.hidden; discBtn.setAttribute('aria-expanded', String(!box.hidden)); }
+  }
+});
+
 function reviewLinkRow(app, applicationId) {
   const qs = new URLSearchParams();
   if (app.owner) qs.set('c', app.owner);
@@ -3156,16 +3207,9 @@ async function openCandidate(applicationId, opts = {}) {
       ...forwards.map((f) => [`推薦給 ${f.company_name}・${f.job_title || f.job_slug}（客戶：${f.stage_label || '等回覆'}）`, f.forwarded_at]),
     ].filter(Boolean);
     const milestonesHtml = `<ul class="cand-steps">${milestones.map(([t, at]) => `<li><span>${text(t)}</span><small>${text(String(at || '').slice(0, 16))}</small></li>`).join('')}</ul>`;
-    const basicsOv = `<dl class="kv-grid">
-      <dt>期望薪資</dt><dd>${text(application.expected_salary || '—')}</dd>
-      <dt>可上班日</dt><dd>${text(application.available_date || '—')}</dd>
-      <dt>來源</dt><dd>${channelTag}${application.resume_source ? '・履歷來源 ' + text(application.resume_source) : ''}</dd>
-      <dt>LINE</dt><dd>${lineHtml}</dd>
-      <dt>DISC</dt><dd>${disc}</dd>
-    </dl>`;
+    // 2026-10-27 Jacky（看測試版後）：基本資料改成小格子一眼看完；按鈕依用途分組；風格測驗併成 DISC 一格，點了才展開
     const paneOv = `${views.jobMatchTop(report)}<h3>走到哪了</h3>${milestonesHtml}${quickSet}<div id="special-check-box"></div>
-      <h3>基本資料</h3>${basicsOv}<div class="actions-row">${actionBtn('編輯應徵單', 'application-update', { idParams: { application_id: applicationId }, record: application })}</div>${reviewLinkRow(application, applicationId)}
-      ${stageDetailHtml('style', application, forwards, report, applicationId)}
+      <h3>基本資料</h3>${candBasicsBlock(application, applicationId, { channelTag, lineHtml, lineBound: !!lineBinding, disc, styleHtml: stageDetailHtml('style', application, forwards, report, applicationId) })}
       <details class="note-details" style="margin-top:14px"><summary><b>最近歷程</b></summary>${timelineHtml}</details>
       <div data-cand-mail></div>`;
     const paneAi = `<div data-cand-lazy="ai"></div>

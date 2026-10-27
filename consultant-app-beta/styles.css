@@ -1566,3 +1566,26 @@ svg .rs-val{font-size:15px;font-weight:700;fill:#14232e}svg .rs-lab{font-size:13
 .fw-more summary{cursor:pointer;min-height:36px;display:flex;align-items:center;font-size:13px;color:var(--muted)}
 .fw-card .cfr-drop-hint{display:block;margin-top:6px}
 @media(max-width:860px){.cand-tabs{margin-left:-20px;margin-right:-20px}}
+
+/* 2026-10-27 人選卡片總覽：基本資料小格子＋按鈕分組 */
+.cand-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.cf-cell{border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-width:0;background:#fafbfd}
+.cf-cell>span{display:block;font-size:12px;color:var(--muted)}
+.cf-cell>b{display:block;font-weight:600;font-size:14px;word-break:break-word}
+.cf-cell small{display:block;font-weight:400}
+.cf-link{border:0;background:none;padding:0;min-height:28px;color:var(--blue);cursor:pointer;font:inherit;font-weight:600;text-align:left}
+.cf-link small{color:var(--blue);font-size:12px;text-decoration:underline}
+.cf-disc-detail{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:8px}
+.cf-disc-detail .stage-detail-panel h4{display:none}
+.cand-actgroups{display:flex;flex-wrap:wrap;gap:12px 18px;align-items:flex-start;margin:14px 0 4px}
+.ag>small{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+.ag-btns{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.ag-end{margin-left:auto}
+.btn.cf-quiet{color:#8a95a8;border-color:#e3e8f0;background:#fff}
+.btn.cf-quiet:hover{color:#a72f3a;border-color:#eab8bc}
+.cand-dd{position:relative}
+.cand-dd>summary{list-style:none;display:inline-flex;align-items:center}
+.cand-dd>summary::-webkit-details-marker{display:none}
+.cand-dd-menu{position:absolute;z-index:6;top:calc(100% + 4px);left:0;min-width:220px;display:grid;gap:4px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px;box-shadow:var(--shadow)}
+.cand-dd-menu .btn{width:100%;text-align:left;justify-content:flex-start;white-space:normal}
+@media(max-width:560px){.cand-facts{grid-template-columns:repeat(2,minmax(0,1fr))}.ag-end{margin-left:0}.cand-dd-menu{left:auto;right:0}}
