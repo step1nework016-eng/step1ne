@@ -8,6 +8,7 @@ import { views, actionBtn, rowActions, actionMenu, shell, boardView, boardCandIt
 import { ACTIONS } from './actions.js';
 import { jdFieldParse } from './jd_fields.js';
 import { initMail, loadMailTab, injectMailSection } from './mail.js';
+import { initConsultantSetup, loadConsultantSetupTab } from './consultant_setup.js';
 import { initChannels, loadChannelsTab, openChannel } from './channels.js';
 import { wireBdCard, bdShowStageRemind, bdShowTagRemind } from './bdcard.js';
 import { loadDealTerms } from './dealterms.js';
@@ -53,6 +54,7 @@ async function loadRoute() {
   if (state.route === 'daily') {
     return loadDailyTab(target, state.sub);
   }
+  if (state.route === 'casestatus' || state.route === 'roles') return;   // 帶案狀況：畫面裡就是嵌入的外部儀表板，不用另外抓資料
   if (state.route === 'calllist') return loadCallList(target);
   if (state.route === 'bdcalls') return loadBdCalls(target);
   if (state.route === 'board') return loadBoardTab(target);
@@ -73,6 +75,7 @@ async function loadRoute() {
   if (state.route === 'clients') return loadClientsTab(target);
   if (state.route === 'system') return loadSystemTab(target);
   if (state.route === 'mail') return loadMailTab(target);
+  if (state.route === 'onboarding') return loadConsultantSetupTab(target);
   if (state.route === 'channels') return loadChannelsTab(target);
 }
 
@@ -1006,6 +1009,11 @@ document.addEventListener('click', (event) => {
   if (!btn || btn.disabled) return;
   event.preventDefault();
   scHandle(btn);
+});
+// 2026-10-28：左側大項底下的分頁列，手機寬度是原生下拉選單，選了就換頁（桌機是按鈕，走 data-route）。
+document.addEventListener('change', (event) => {
+  const sel = event.target instanceof Element ? event.target.closest('[data-grp-select]') : null;
+  if (sel && sel.value) navigate(sel.value);
 });
 document.addEventListener('change', (event) => {
   const el = event.target instanceof Element ? event.target.closest('[data-sc-me]') : null;
@@ -5287,6 +5295,8 @@ function boardDropClient(target, it, to) {
 
 // 2026-10-12：信箱紀錄頁點「對到的卡片」要能直接打開人選卡／客戶卡
 initMail({ openCandidate: (id) => openCandidate(id), openCompany: (id) => openCompanyManage(id) });
+// 顧問上工設定新增／停用顧問後，其他畫面的顧問下拉選單要重抓
+initConsultantSetup({ onConsultantsChanged: () => { state.consultantsCache = null; } });
 initChannels({ openCandidate: (id) => openCandidate(id) });
 document.addEventListener('click', (e) => { if (e.target instanceof Element && e.target.closest('[data-action="channel-new"]')) openChannel(null); });
 window.addEventListener('step1ne:open-channel', (e) => { const id = e.detail && e.detail.id; if (state.route !== 'channels') navigate('channels'); setTimeout(() => openChannel(id), 300); });
