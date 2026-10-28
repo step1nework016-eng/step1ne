@@ -627,7 +627,7 @@ function callFirstGate(d) {
   $('boot').innerHTML =
     '<h1>先上傳履歷，阿財再接著聊</h1>' +
     '<p>接續今天電話裡聊的內容。AI 阿財會先讀過您的履歷，電話裡說過的不會再問一次。</p>' +
-    '<a class="gbtn main" href="' + esc(d.fix_url || ('/resume-upload-call-beta/?t=' + encodeURIComponent(T))) + '">上傳履歷</a>';
+    '<a class="gbtn main" href="' + esc(d.fix_url || ('/resume-upload-call/?t=' + encodeURIComponent(T))) + '">上傳履歷</a>';
   ['top', 'log', 'bar', 'prog', 'save'].forEach(function (i) { if ($(i)) $(i).hidden = true; });
 }
 
