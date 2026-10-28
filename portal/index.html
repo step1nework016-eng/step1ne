@@ -526,6 +526,29 @@ header .beta-tag{white-space:nowrap}
 .payflow summary{cursor:pointer;font-weight:700;min-height:32px;display:flex;align-items:center}
 .payflow ol{margin:8px 0 0;padding-left:22px;display:grid;gap:6px;font-size:14.5px}
 
+/* 2026-10-28 付款流程圖：桌機橫排＋箭頭，手機直排 */
+.pf{list-style:none;margin:12px 0 0;padding:0;display:grid;grid-template-columns:repeat(5,1fr);gap:22px}
+.pf-step{position:relative;display:grid;justify-items:center;text-align:center;gap:4px;padding:14px 10px;border-radius:12px;background:var(--soft)}
+.pf-step:not(:last-child)::after{content:"";position:absolute;right:-17px;top:38px;width:12px;height:12px;border-top:2.5px solid var(--primary);border-right:2.5px solid var(--primary);transform:rotate(45deg)}
+.pf-ic{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:var(--surface);color:var(--primary);border:2px solid var(--primary)}
+.pf-ic svg{width:24px;height:24px}
+.pf-n{font-family:var(--f-num);font-size:12px;font-weight:700;color:var(--ink3)}
+.pf-step b{font-size:15px}
+.pf-d{font-size:13px;color:var(--ink2);line-height:1.5}
+.pf-src{font-size:12px;color:var(--ink3);overflow-wrap:anywhere}
+.pf-step.opt{background:var(--surface);border:2px dashed var(--line)}
+.pf-step.opt .pf-ic{border-style:dashed}
+.pf-opt{font-size:11.5px;font-weight:700;color:var(--attn);background:var(--attn-soft);border-radius:999px;padding:0 8px}
+.pf-step.done{background:var(--ok-soft)}
+.pf-step.done .pf-ic{color:var(--ok);border-color:var(--ok)}
+.pf-note{margin:12px 0 0;font-size:13.5px;color:var(--ink3)}
+@media (max-width:820px){
+  .pf{grid-template-columns:1fr;gap:18px}
+  .pf-step{grid-template-columns:48px 1fr;justify-items:start;text-align:left;column-gap:12px;align-items:center}
+  .pf-step .pf-ic{grid-row:span 4}
+  .pf-step:not(:last-child)::after{right:auto;left:30px;top:auto;bottom:-14px;transform:rotate(135deg)}
+}
+
 </style>
 
 <header><div class="wrap" style="position:relative">
@@ -1797,12 +1820,8 @@ function openInstModal(gi, id){
   document.getElementById('billModalMask').classList.add('show');
   document.querySelectorAll('#billModalBody .bu-go').forEach(btn => btn.addEventListener('click', () => submitBillProof(btn.closest('.bill-upload'))));
 }
-const PAY_STEPS_HTML = `<details class="payflow" open><summary>付款怎麼走</summary><ol>
-  <li><b>人選報到後</b>，這裡會列出每一期的金額和到期日</li>
-  <li><b>到期前</b>，你會收到請款信和發票（寄件人 official@step1ne.com）</li>
-  <li><b>匯款</b></li>
-  <li>匯完點那一期，按「我已匯款，上傳證明」（選填，可以加快確認；沒上傳也可以，我們對帳到了一樣會標記）</li>
-  <li>我們確認收到後，那一期會變成「✓ 已確認收到」</li></ol></details>`;
+// 2026-10-28 Jacky：「建議用圖像化的流程圖解釋」——五步驟圖示＋箭頭，第 4 步虛線＝選填
+const PAY_STEPS_HTML = `<details class="payflow" open><summary>付款怎麼走</summary><ol class="pf"><li class="pf-step "><span class="pf-ic"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></span><span class="pf-n">1</span><b>人選報到</b><span class="pf-d">這裡列出每一期的金額和到期日</span></li><li class="pf-step "><span class="pf-ic"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span><span class="pf-n">2</span><b>收到請款信</b><span class="pf-d">到期前寄來請款信和發票<br><span class="pf-src">寄件人 official@step1ne.com</span></span></li><li class="pf-step "><span class="pf-ic"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10 12 4l9 6"/><path d="M5 10v8M9.5 10v8M14.5 10v8M19 10v8"/><path d="M3 20h18"/></svg></span><span class="pf-n">3</span><b>匯款</b><span class="pf-d">照請款信上的金額匯款</span></li><li class="pf-step opt"><span class="pf-ic"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="m6 10 6-6 6 6"/><path d="M4 20h16"/></svg></span><span class="pf-n">4</span><b>上傳證明</b><span class="pf-opt">選填</span><span class="pf-d">點那一期，按「我已匯款，上傳證明」</span></li><li class="pf-step done"><span class="pf-ic"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg></span><span class="pf-n">5</span><b>確認收到</b><span class="pf-d">那一期變成「✓ 已確認收到」</span></li></ol><p class="pf-note">第 4 步可以跳過：沒上傳證明也沒關係，我們對帳到款項一樣會幫你標記「已確認收到」。</p></details>`;
 async function loadBilling(){
   BILLING_LOADED = true;
   const el = document.getElementById('billingList');
