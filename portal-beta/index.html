@@ -577,6 +577,9 @@ header .beta-tag{white-space:nowrap}
 .cmeta-form{color:var(--attn);background:var(--attn-soft);border-radius:999px;padding:0 8px}
 a.cmeta-form.ok{color:var(--ok);background:var(--ok-soft);text-decoration:none;font-weight:700}
 
+.trk-lb span{display:grid;line-height:1.3}
+.trk-d{font-style:normal;font-size:11.5px;color:var(--ink3);font-weight:500}
+
 </style>
 
 <header><div class="wrap" style="position:relative">
@@ -2117,15 +2120,23 @@ function candState(c){
     next: ap && ap.confirmed_slot ? `${stageLabelOf(c, cur)}（${fmtSlot(ap.confirmed_slot)}）結束了，結果如何？` : `${stageLabelOf(c, cur)}結束了嗎？結果如何？` };
 }
 
-function trackHtml(st){
+// 2026-10-28 Jacky：每個階段下面要看得到日期（推薦日／第一關面試／錄取／報到）
+function stepDates(c){
+  const sd = c.stage_dates || {};
+  const md = (s) => { s = String(s || ''); return s.length >= 10 ? `${Number(s.slice(5, 7))}/${Number(s.slice(8, 10))}` : ''; };
+  const firstAppt = (c.appts || []).filter(a => a.status === 'confirmed' && a.confirmed_slot && Number(a.stage) > 0).map(a => a.confirmed_slot).sort()[0];
+  return [md(c.forwarded_at), md(sd.stage1 || firstAppt || ''), md(sd.offer), md(c.onboard_date || sd.onboard)];
+}
+function trackHtml(st, c){
   const lbs = ['推薦', '面試', '錄取', '報到'];
+  const dates = c ? stepDates(c) : [];
   const stopCls = st.stop === 'bad' ? 'x' : st.stop === 'gray' ? 'g' : 'n';
   const cells = lbs.map((_, i) => {
     if (i < st.trackAt || (st.kind === 'onboarded')) return '<i class="d"></i>';
     if (i === st.trackAt) return `<i class="${stopCls}"></i>`;
     return '<i></i>';
   }).join('');
-  const labels = lbs.map((lb, i) => `<span class="${i === st.trackAt && st.kind !== 'onboarded' ? stopCls : ''}">${lb}${i === st.trackAt && st.stop === 'bad' ? ' ✕' : ''}</span>`).join('');
+  const labels = lbs.map((lb, i) => `<span class="${i === st.trackAt && st.kind !== 'onboarded' ? stopCls : ''}">${lb}${i === st.trackAt && st.stop === 'bad' ? ' ✕' : ''}${dates[i] && (i <= st.trackAt || st.kind === 'onboarded') ? `<em class="trk-d num">${dates[i]}</em>` : ''}</span>`).join('');
   return `<div class="trk" aria-hidden="true">${cells}</div><div class="trk-lb">${labels}</div>`;
 }
 
@@ -2174,8 +2185,8 @@ function renderCandList(){
   if (!list.length) { box.innerHTML = '<div class="cl-empty">找不到符合的人選，換個關鍵字試試。</div>'; return; }
   const card = ({ c, st }) => `<button type="button" class="cc" data-app="${esc(c.application_id)}">
       <div><div class="nm">${esc(c.candidate_name)}</div><div class="cjob">${esc(c.job_title || c.job_slug || '')}</div>
-        <div class="cmeta"><span>推薦 ${esc(fmtSlot((c.forwarded_at || '').slice(0, 10)))}</span>${c.line_id_given ? `<span>LINE：${esc(c.line_id_given)}</span>` : ''}${formsHtml(c)}</div></div>
-      <div>${trackHtml(st)}</div>
+        <div class="cmeta"><span>推薦 ${esc(fmtSlot((c.forwarded_at || '').slice(0, 10)))}</span><span>LINE：${c.line_id_given ? esc(c.line_id_given) : '尚未提供'}</span>${formsHtml(c)}</div></div>
+      <div>${trackHtml(st, c)}</div>
       <div class="nx"><span class="lb">${st.group === 'ended' ? '狀態' : '下一步'}</span>${st.nextHtml ? st.next : esc(st.next)}</div>
       <span class="go">${st.group === 'todo' ? '去處理' : '打開'}</span>
     </button>`;
