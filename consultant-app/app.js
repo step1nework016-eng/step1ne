@@ -2924,7 +2924,7 @@ function hasContact(a) { return !!((a.phone && a.phone.trim()) || (a.email && !i
 // ref＝應徵單 id，收到的心得就知道是哪一張應徵單。
 // 2026-10-27 Jacky：人選卡片「總覽」的基本資料區——
 // ① 期望薪資／可上班日／來源／LINE／DISC 排成小格子；LINE 沒綁時給「複製綁定說明」貼給人選
-// ② 按鈕分三組：聯絡人選（寄信約電話＝主按鈕、回信確認時間、寄上傳履歷連結）／其他（更多動作下拉）／結案（寄婉拒信，最右、淡色）
+// ② 按鈕分三組：聯絡人選（寄信約電話＝主按鈕、回信確認時間、給人選連結）／其他（更多動作下拉）／結案（寄婉拒信，最右、淡色）
 // ③ DISC 格子點了才展開分數＋測驗連結（原本「風格測驗」單獨一大格）
 // 按鈕的 data-* 屬性跟原本 reviewLinkRow 一樣，沿用既有的全站點擊處理，不另寫一套。
 const LINE_BIND_HOWTO = '加入 Step1ne LINE 官方帳號（https://lin.ee/XcSWPzM），點下方選單「追蹤面試進度」填一下表單，之後面試進度就會直接用 LINE 通知你。';
@@ -3848,7 +3848,7 @@ async function openJobManage(slug, initialTab = 'manage') {
     // 2026-10-23 這個職缺的「上傳履歷」連結（公開招募中的職缺才給）
     if (!['closed', 'social_only', 'draft'].includes(String(job.status || ''))) {
       document.querySelector('#overlay-root .drawer-body')?.insertAdjacentHTML('afterbegin',
-        `<div class="actions-row" style="margin-bottom:10px">${resumeLinkButtons({ jobSlug: job.slug || slug, jobTitle: job.title || '' })}<span class="help" style="align-self:center">人選打開就能上傳履歷，不經阿財面談</span></div>`);
+        `<div class="actions-row" style="margin-bottom:10px">${resumeLinkButtons({ jobSlug: job.slug || slug, jobTitle: job.title || '', tab: 'apply' })}<span class="help" style="align-self:center">這個職缺的應徵連結／上傳履歷連結</span></div>`);
     }
     // 分頁切換。四個面板都已經 render 好，純顯示／隱藏，不 lazy-load
     // ——題庫／職缺卡／阿財理解資料上面已經拿到了，再延遲載入只是多一次往返。
