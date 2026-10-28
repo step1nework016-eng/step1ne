@@ -549,6 +549,20 @@ header .beta-tag{white-space:nowrap}
   .pf-step:not(:last-child)::after{right:auto;left:30px;top:auto;bottom:-14px;transform:rotate(135deg)}
 }
 
+/* 職缺地點、小鈴鐺動態 */
+.jc-loc{display:inline-flex;align-items:center;gap:4px;font-size:14px;color:var(--ink2)}
+.jc-loc svg{width:16px;height:16px;color:var(--primary);flex-shrink:0}
+.jc-loc .muted-loc{color:var(--attn)}
+.notify-menu{width:340px;max-height:70vh;overflow:auto}
+.bell-head{font-weight:700;font-size:13px;color:var(--ink3);padding:6px 10px}
+.notify-item{all:unset;box-sizing:border-box;display:grid;gap:2px;width:100%;padding:10px;border-radius:9px;cursor:pointer;border-top:1px solid var(--line);font-size:13.5px;min-height:44px}
+.notify-item:hover{background:var(--soft)}
+.notify-item.fresh{background:var(--primary-soft)}
+.notify-item.fresh .bell-t::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--bad);margin-right:6px;vertical-align:middle}
+.notify-item span{font-size:12.5px;color:var(--ink3)}
+.notify-item .bell-t{font-size:13.5px;color:var(--ink)}
+.bell-at{font-size:11.5px!important}
+
 </style>
 
 <header><div class="wrap" style="position:relative">
@@ -1174,6 +1188,18 @@ function jobMissingRequired(job){
   }));
   return out;
 }
+// 2026-10-28 Jacky：「每一個職缺名稱下方要顯示工作地點」——同名職缺（兩個 BIM 工程師）也靠地點分得出來。
+// locations 有的是純文字、有的是 ['新竹'] 這種清單格式，統一成「新竹、台中」。
+function jobLocText(v){
+  let s = String(v || '').trim();
+  if (!s) return '';
+  try { const p = JSON.parse(s.replace(/'/g, '"')); if (Array.isArray(p)) s = p.map(String).join('、'); } catch {}
+  return s.replace(/^\[|\]$/g, '').replace(/['"]/g, '').trim();
+}
+function jobLocHtml(job){
+  const loc = jobLocText(job.locations);
+  return `<span class="jc-loc"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>${loc ? esc(loc) : '<span class="muted-loc">工作地點還沒填</span>'}</span>`;
+}
 function renderPicklist(){
   const fields = PORTAL_DATA.fields;
   const q = document.getElementById('q').value.trim().toLowerCase();
@@ -1207,7 +1233,7 @@ function renderPicklist(){
       : staging ? '<span class="pl act">顧問準備刊登中</span>'
       : '<span class="pl ok">招募中</span>';
     return `<div class="jc" data-slug="${esc(job.slug)}" role="button" tabindex="0" aria-label="打開職缺 ${title}">
-      <div class="jc-top"><div style="display:grid;gap:4px"><b>${title}</b>${statusPill}</div>
+      <div class="jc-top"><div style="display:grid;gap:4px"><b>${title}</b>${jobLocHtml(job)}${statusPill}</div>
         <div class="btns">
           <button type="button" class="${miss.length ? '' : 'sec'} open-job-btn">${miss.length ? '繼續填' : '查看／修改'}</button>
           ${(draft || staging) ? '' : `<button type="button" class="sec hire-toggle-btn" data-slug="${esc(job.slug)}" data-action="${closed ? 'reopen' : 'close'}">${closed ? '重新招募' : '結束招募'}</button>`}
@@ -2728,32 +2754,68 @@ document.getElementById('cmChatSend').addEventListener('click', async () => {
 });
 
 // ── 通知鈴鐺：跨人選的未讀訊息角標 ──
+// 2026-10-28 Jacky：「小鈴鐺感覺沒有用到」——原本只列顧問回的未讀訊息，幾乎永遠是空的。
+// 改成「上次看之後發生了什麼」：新推薦人選、人選選好面試時間、視訊連結已寄、人選放棄、顧問回覆、款項已確認。
+// 「上次看」記在這台瀏覽器（localStorage）；顧問未讀訊息照舊以後台數字為準。
+const BELL_SEEN_KEY = 'portal_bell_seen_' + token;
+function bellSeen(){ try { return localStorage.getItem(BELL_SEEN_KEY) || ''; } catch { return ''; } }
+function bellMarkSeen(){ try { localStorage.setItem(BELL_SEEN_KEY, taipeiNow()); } catch {} }
+let BELL_BILL = null;
 async function refreshNotifications(){
   try{
     const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/notifications`);
     const data = await res.json();
     if (!data.ok) return;
-    const badge = document.getElementById('notifyBadge');
-    badge.textContent = data.total_unread;
-    badge.classList.toggle('show', data.total_unread > 0);
-    const listEl = document.getElementById('notifyList');
-    const items = data.items || [];
-    listEl.innerHTML = items.length
-      ? items.map(it => `<div class="notify-item" data-app="${esc(it.application_id)}">
-          <b>${esc(it.name)} <span class="unread-dot">${it.unread_count}</span></b>
-          <span>${esc((it.last_message || '').slice(0, 40))}</span>
-        </div>`).join('')
-      : '<div class="notify-empty">目前沒有未讀訊息</div>';
-    listEl.querySelectorAll('.notify-item').forEach(el => {
-      el.addEventListener('click', () => openFromNotification(el.dataset.app));
+    if (BELL_BILL === null) {
+      try { const b = await (await fetch(`${API}/portal/${encodeURIComponent(token)}/billing`)).json(); BELL_BILL = (b.ok && b.installments) || []; } catch { BELL_BILL = []; }
+    }
+    const seen = bellSeen();
+    const since = new Date(Date.now() + 8 * 3600e3 - 30 * 86400e3).toISOString().slice(0, 10);  // 只列 30 天內
+    const ev = [];
+    (data.items || []).forEach(it => ev.push({ at: '9999', app: it.application_id, unread: true,
+      text: `<b>${esc(it.name)}</b>：顧問回覆了（${it.unread_count} 則）`, sub: (it.last_message || '').slice(0, 40) }));
+    (CAND_LIST || []).forEach(c => {
+      const nm = `<b>${esc(c.candidate_name)}</b>`;
+      if (c.forwarded_at) ev.push({ at: c.forwarded_at, app: c.application_id, text: `${nm}：顧問推薦了新人選`, sub: c.job_title || '' });
+      (c.appts || []).forEach(a => {
+        if (a.confirmed_at) ev.push({ at: a.confirmed_at, app: c.application_id, text: `${nm}：選好面試時間了`, sub: fmtSlot(a.confirmed_slot) });
+        if (a.link_sent_at) ev.push({ at: a.link_sent_at, app: c.application_id, text: `${nm}：視訊連結已寄給人選`, sub: '' });
+      });
+      if (c.candidate_withdrawn_at) ev.push({ at: c.candidate_withdrawn_at, app: c.application_id, text: `${nm}：人選決定不繼續`, sub: c.candidate_withdraw_reason || '' });
     });
+    (BELL_BILL || []).forEach(r => {
+      const d = (r.confirmed_received === 'yes' || r.paid) && (r.paid_date || r.confirmed_date);
+      if (d) ev.push({ at: d, bill: true, text: `<b>${esc(r.candidate_name)}</b>・${esc(r.label)}：款項已確認收到`, sub: '' });
+    });
+    const list = ev.filter(x => x.unread || String(x.at) >= since).sort((a, b) => String(b.at).localeCompare(String(a.at))).slice(0, 20);
+    list.forEach(x => { x.fresh = x.unread || (seen ? String(x.at) > seen : String(x.at).slice(0, 10) >= since && false); });
+    // 第一次打開（沒有「上次看」）：不把 30 天內全部標成新的，只標 3 天內的
+    if (!seen) { const d3 = new Date(Date.now() + 8 * 3600e3 - 3 * 86400e3).toISOString().slice(0, 10); list.forEach(x => { if (!x.unread) x.fresh = String(x.at) >= d3; }); }
+    const n = list.filter(x => x.fresh).length;
+    const badge = document.getElementById('notifyBadge');
+    badge.textContent = n > 99 ? '99+' : n;
+    badge.classList.toggle('show', n > 0);
+    const listEl = document.getElementById('notifyList');
+    listEl.innerHTML = '<div class="bell-head">最新動態</div>' + (list.length
+      ? list.map((x, i) => `<button type="button" class="notify-item${x.fresh ? ' fresh' : ''}" data-i="${i}">
+          <span class="bell-t">${x.text}</span>${x.sub ? `<span>${esc(x.sub)}</span>` : ''}
+          ${x.unread ? '' : `<span class="bell-at num">${esc(fmtSlot(String(x.at).slice(0, 16)))}</span>`}</button>`).join('')
+      : '<div class="notify-empty">最近 30 天沒有新動態</div>');
+    listEl.querySelectorAll('.notify-item').forEach(el => el.addEventListener('click', () => {
+      const x = list[Number(el.dataset.i)];
+      document.getElementById('notifyMenu').classList.remove('show');
+      if (x.bill) showTopView('billing'); else if (x.app) openFromNotification(x.app);
+    }));
   }catch{
     // 通知輪詢失敗不打斷使用
   }
 }
 document.getElementById('notifyBtn').addEventListener('click', (e) => {
   e.stopPropagation();
-  document.getElementById('notifyMenu').classList.toggle('show');
+  const m = document.getElementById('notifyMenu');
+  m.classList.toggle('show');
+  // 打開看過＝這些都不算新的了（顧問未讀訊息除外，要點進去讀才會消）
+  if (m.classList.contains('show')) { bellMarkSeen(); setTimeout(refreshNotifications, 1500); }
 });
 document.addEventListener('click', (e) => {
   if (!e.target.closest('.notify-wrap')) document.getElementById('notifyMenu').classList.remove('show');
