@@ -1237,7 +1237,9 @@ function wireStageConfigBox(root, slug){
       try{
         const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/jobs/${encodeURIComponent(slug)}`, {
           method: 'PUT', headers: {'content-type':'application/json'},
-          body: JSON.stringify({ interview_stage_config: hidden.value }),
+          // 2026-10-28 修：後端存檔會把 '["stage2"]' 這種陣列「整理」成 'stage2'（sanitizeFactValue），
+          // 讀的那邊認不得，勾了第二階段卻一直只有一關（10/20 兩個職缺就這樣）。多包一層字串，整理完剛好還原成陣列。
+          body: JSON.stringify({ interview_stage_config: JSON.stringify(hidden.value) }),
         });
         const data = await res.json();
         if (!data.ok){ alert(data.error || '儲存失敗，請重新勾選一次'); }
