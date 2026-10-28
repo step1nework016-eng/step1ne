@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta name="robots" content="noindex,nofollow"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>收費流程（顧問版）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=IBM+Plex+Sans:wght@600&display=swap" rel="stylesheet">
+<style>
+/* 2026-10-28 Jacky：「把收費流程畫張圖，讓顧問知道後台流程是什麼」。
+   第一性原理：顧問要的是「錢有沒有收到、下一步輪到誰、在哪裡按」——所以一列一個步驟、一欄一個角色，
+   顧問那欄寫「去哪裡按什麼」，最常漏的那格標橘色。資料都對過 billing_v2.js 與 portal 的實際行為。 */
+:root{--bg:#F1F5F8;--card:#FFFFFF;--ink:#132235;--muted:#56677C;--line:#D6E0E8;
+  --you:#0D6670;--you-bg:#E2F1F2;--sys:#3B5B8C;--sys-bg:#E6EDF7;--cli:#6A4C93;--cli-bg:#EFE9F7;--warn:#9A5A06;--warn-bg:#FFF2DB;--ok:#1D7448}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans TC",system-ui,sans-serif;line-height:1.65;font-size:15.5px}
+.wrap{max-width:1180px;margin:0 auto;padding:24px 16px 64px;display:grid;gap:18px}
+h1{font-size:clamp(24px,4vw,32px);font-weight:900;margin:0}
+.lead{margin:0;color:var(--muted)}
+.key{display:flex;gap:10px;flex-wrap:wrap;font-size:14px}
+.key span{display:inline-flex;align-items:center;gap:6px}
+.key i{width:14px;height:14px;border-radius:4px;display:inline-block}
+.grid{display:grid;grid-template-columns:150px repeat(3,1fr);gap:8px}
+.hd{font-weight:900;font-size:15px;padding:8px 12px;border-radius:10px;text-align:center}
+.hd.you{background:var(--you);color:#fff}.hd.sys{background:var(--sys);color:#fff}.hd.cli{background:var(--cli);color:#fff}
+.step{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;align-content:start;gap:2px}
+.step b{font-size:16px}
+.step .n{font-family:"IBM Plex Sans",sans-serif;font-weight:600;color:var(--muted);font-size:13px}
+.step .when{font-size:13px;color:var(--muted)}
+.cell{border-radius:12px;padding:12px;font-size:14.5px;display:grid;gap:6px;align-content:start;min-width:0}
+.cell.you{background:var(--you-bg)}.cell.sys{background:var(--sys-bg)}.cell.cli{background:var(--cli-bg)}
+.cell.empty{background:transparent;border:1px dashed var(--line);color:var(--muted);font-size:13px}
+.cell .where{font-size:12.5px;color:var(--muted)}
+.cell.miss{outline:3px solid var(--warn);background:var(--warn-bg)}
+.tag{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:1px 9px;background:var(--warn);color:#fff;justify-self:start}
+.cell ul{margin:0;padding-left:18px}
+.lbl{display:none;font-size:12px;font-weight:900;letter-spacing:.06em}
+.done{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.done b{color:var(--ok)}
+@media (max-width:820px){
+  .grid{grid-template-columns:1fr}
+  .hd{display:none}
+  .step{margin-top:14px;border-color:var(--ink)}
+  .lbl{display:block}
+  .cell.you .lbl{color:var(--you)}.cell.sys .lbl{color:var(--sys)}.cell.cli .lbl{color:var(--cli)}
+  .cell.empty{display:none}
+}
+</style></head><body>
+<div class="wrap">
+  <header style="display:grid;gap:6px">
+    <h1>收費流程：誰、在哪裡、做什麼</h1>
+    <p class="lead">從人選報到到錢入帳，一列一個步驟。綠色欄是顧問要動手的，<b style="color:var(--warn)">橘框是最常漏掉的那一步</b>。</p>
+    <div class="key"><span><i style="background:var(--you)"></i>顧問（你／Phoebe）</span><span><i style="background:var(--sys)"></i>系統自動做</span><span><i style="background:var(--cli)"></i>客戶</span></div>
+  </header>
+
+  <div class="grid" role="table" aria-label="收費流程">
+    <div></div><div class="hd you">顧問</div><div class="hd sys">系統</div><div class="hd cli">客戶</div>
+
+    <div class="step"><span class="n">STEP 1</span><b>談好合約</b><span class="when">每家客戶做一次</span></div>
+    <div class="cell you"><span class="lbl">顧問</span>上傳已簽的合約，按「請 AI 讀合約」；TG 跳出確認卡，看過收費規則按確認。<span class="where">後台：客戶 / BD → 收費進程 → 選客戶</span></div>
+    <div class="cell sys"><span class="lbl">系統</span>讀出收費方式（例：月薪 1.5 個月）和分期（例：50%／25%／25%）。看不懂的不猜，標「需人工設定」。</div>
+    <div class="cell empty">客戶不用做事</div>
+
+    <div class="step"><span class="n">STEP 2</span><b>人選報到</b><span class="when">報到當天前後</span></div>
+    <div class="cell you miss"><span class="lbl">顧問</span><span class="tag">常漏</span>記報到日期，並<b>上傳聘書或填月薪</b>。沒有月薪，系統算不出金額，客戶頁會一直顯示「金額確認中」。<span class="where">後台：收費進程（真實發生過：一直顯示「金額確認中」，就是卡在這一步）</span></div>
+    <div class="cell sys"><span class="lbl">系統</span>依合約自動列出每一期的到期日，算好每期金額（未稅／稅／含稅），客戶頁跟著顯示。</div>
+    <div class="cell cli"><span class="lbl">客戶</span>客戶頁「付款」看得到每一期金額和到期日。</div>
+
+    <div class="step"><span class="n">STEP 3</span><b>請款</b><span class="when">到期前 7 天</span></div>
+    <div class="cell you"><span class="lbl">顧問</span>開發票、上傳發票；系統擬好請款信後，在 TG 按「確認寄出」才會寄（Jacky／Phoebe 才能按）。<span class="where">TG：該客戶的主題「收費提醒」卡 →「上傳發票」</span></div>
+    <div class="cell sys"><span class="lbl">系統</span>到期前 7 天在該客戶的 TG 主題發「收費提醒」卡；你按確認後，從 official@step1ne.com 寄請款信＋發票給客戶。</div>
+    <div class="cell cli"><span class="lbl">客戶</span>收到請款信和發票。</div>
+
+    <div class="step"><span class="n">STEP 4</span><b>客戶付款</b><span class="when">客戶匯款後</span></div>
+    <div class="cell you miss"><span class="lbl">顧問</span><span class="tag">常漏</span>對帳，確認錢進來了，就按「✅ 已收到款」。
+      <ul><li>客戶有上傳匯款證明：TG 會跳卡片，按「已收到」或「還沒收到」</li><li><b>客戶直接匯款、沒上傳</b>：要自己到 TG 提醒卡或收費進程按「已收到款」</li></ul>
+      <span class="where">真實發生過：客戶早就付了，沒人按，客戶頁一直顯示「已過期」、TG 也一直提醒</span></div>
+    <div class="cell sys"><span class="lbl">系統</span>你按「還沒收到」時，客戶頁會請客戶重新上傳證明。</div>
+    <div class="cell cli"><span class="lbl">客戶</span>匯款；可以在客戶頁按「我已匯款，上傳證明」（選填）。</div>
+
+    <div class="step"><span class="n">STEP 5</span><b>還沒收到錢</b><span class="when">到期當天起</span></div>
+    <div class="cell you"><span class="lbl">顧問</span>先查是不是已經入帳只是忘了按（回 STEP 4）；真的沒付，按 TG 卡擬催款信，一樣要按「確認寄出」才寄。</div>
+    <div class="cell sys"><span class="lbl">系統</span>到期當天提醒一次，之後每週提醒一次，直到有人按「已收到款」。</div>
+    <div class="cell cli"><span class="lbl">客戶</span>客戶頁該期顯示「已過期 N 天」。</div>
+  </div>
+
+  <div class="done"><b>完成的樣子：</b>你按了「已收到款」→ 客戶頁該期打勾「✓ 顧問已確認收到」→ TG 不再提醒。每一期都要按一次。</div>
+</div>
+</body></html>

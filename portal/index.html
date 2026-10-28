@@ -514,6 +514,18 @@ header .beta-tag{white-space:nowrap}
 .jc .del{min-height:44px}
 .bu-go{width:auto;justify-self:start}
 
+/* 2026-10-28 付款：每一期一張可點的卡＋「付款怎麼走」 */
+.inst-card{all:unset;box-sizing:border-box;cursor:pointer;border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;gap:2px;font-size:14px;color:var(--ink);background:var(--surface);min-height:44px}
+.inst-card:hover{border-color:var(--primary)}
+.inst-card:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+.inst-card.paid{background:var(--ok-soft);border-color:transparent}
+.inst-card.sent{background:var(--primary-soft);border-color:transparent}
+.inst-card.due{background:var(--attn-soft);border-color:transparent}
+.inst-go{font-size:13px;color:var(--primary);font-weight:700;margin-top:4px}
+.payflow{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-bottom:18px}
+.payflow summary{cursor:pointer;font-weight:700;min-height:32px;display:flex;align-items:center}
+.payflow ol{margin:8px 0 0;padding-left:22px;display:grid;gap:6px;font-size:14.5px}
+
 </style>
 
 <header><div class="wrap" style="position:relative">
@@ -1758,6 +1770,39 @@ function billAmountHtml(r, ok){
   if (!ok) return '<span class="meet-state">金額確認中</span>';
   return `<span class="num" style="font-size:16px;font-weight:700">${NT(r.amount_taxed)}</span><span class="meet-state num" style="font-size:12.5px">未稅 ${Number(r.amount_untaxed).toLocaleString('en-US')}＋稅 ${Number(r.amount_tax).toLocaleString('en-US')}${r.invoice_no ? '・發票 ' + esc(r.invoice_no) : ''}</span>`;
 }
+// 2026-10-28 Jacky：「點第一期可以看到上傳證明」——每一期自己一張卡，點了看這一期的細節：
+// 已付的看收款日、發票、匯款證明；還沒付的就在這裡上傳（原本整個人選只有一顆「上傳匯款證明」，不知道是哪一期）。
+function openInstModal(gi, id){
+  const rows = BILL_GROUPS[gi] || [];
+  const r = rows.find(x => String(x.id) === String(id));
+  if (!r) return;
+  const ok = billAmountsOk(rows);
+  const b = billStatusBlock(r);
+  const paid = r.confirmed_received === 'yes' || r.paid;
+  const facts = [
+    ['到期日', fmtSlot(r.due_date)],
+    paid && (r.paid_date || r.confirmed_date) ? ['顧問確認收款', fmtSlot(r.confirmed_date || r.paid_date)] : null,
+    r.client_transfer_date ? ['你回報的匯款日', fmtSlot(r.client_transfer_date)] : null,
+    r.invoice_no ? ['發票號碼', r.invoice_no] : null,
+  ].filter(Boolean);
+  document.getElementById('billModalBody').innerHTML =
+    `<h3 style="margin:0 0 2px">${esc(r.candidate_name)}・${esc(r.label)}（${esc(r.percent)}%）</h3>` +
+    `<p class="meet-state" style="margin:0 0 12px">${esc(r.job_title || '')}</p>` +
+    `<div style="display:grid;gap:2px;margin-bottom:12px">${billAmountHtml(r, ok)}</div>` +
+    `<dl style="display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0 0 12px">${facts.map(([k, v]) => `<dt class="meet-state">${esc(k)}</dt><dd style="margin:0" class="num">${esc(v)}</dd>`).join('')}</dl>` +
+    `<div>${b.status}</div>` +
+    (r.has_proof ? `<div style="margin-top:10px"><a class="cm-fbtn" href="${API}/portal/${encodeURIComponent(token)}/billing/${encodeURIComponent(r.id)}/proof" target="_blank" rel="noopener">看你上傳的匯款證明</a></div>`
+      : (paid ? '<div class="meet-state" style="margin-top:8px">這一期沒有上傳匯款證明，是顧問對帳後直接確認的。</div>' : '')) +
+    b.action;
+  document.getElementById('billModalMask').classList.add('show');
+  document.querySelectorAll('#billModalBody .bu-go').forEach(btn => btn.addEventListener('click', () => submitBillProof(btn.closest('.bill-upload'))));
+}
+const PAY_STEPS_HTML = `<details class="payflow" open><summary>付款怎麼走</summary><ol>
+  <li><b>人選報到後</b>，這裡會列出每一期的金額和到期日</li>
+  <li><b>到期前</b>，你會收到請款信和發票（寄件人 official@step1ne.com）</li>
+  <li><b>匯款</b></li>
+  <li>匯完點那一期，按「我已匯款，上傳證明」（選填，可以加快確認；沒上傳也可以，我們對帳到了一樣會標記）</li>
+  <li>我們確認收到後，那一期會變成「✓ 已確認收到」</li></ol></details>`;
 async function loadBilling(){
   BILLING_LOADED = true;
   const el = document.getElementById('billingList');
@@ -1770,7 +1815,7 @@ async function loadBilling(){
   if (!data.ok) { el.textContent = data.error || '讀取失敗'; return; }
   const items = data.installments || [];
   el.className = '';
-  if (!items.length) { el.innerHTML = '<div class="cl-empty">目前沒有要付款的項目。人選報到後，這裡會依合約列出每一期的金額比例和到期日。</div>'; return; }
+  if (!items.length) { el.innerHTML = PAY_STEPS_HTML + '<div class="cl-empty">目前沒有要付款的項目。人選報到後，這裡會依合約列出每一期的金額和到期日。</div>'; return; }
   const byPlacement = {};
   items.forEach(r => { (byPlacement[r.placement_id] = byPlacement[r.placement_id] || []).push(r); });
   BILL_GROUPS = Object.keys(byPlacement).map(k => byPlacement[k]);
@@ -1785,15 +1830,15 @@ async function loadBilling(){
     : ['', '還沒付款'];
   const dueRows = [];
   BILL_GROUPS.forEach((rows, gi) => rows.forEach(r => { if (instState(r)[0] === 'due') dueRows.push({ r, gi }); }));
-  let html = '';
+  let html = PAY_STEPS_HTML.replace('<details class="payflow" open>', '<details class="payflow">');  // 有資料時預設收起，想看再點開
   if (dueRows.length) {
-    // 已經過期的不能寫「快到期」（陳其寬第一期 10/18 到期，10/28 還寫快到期）
+    // 已經過期的不能寫「快到期」（10/28 實例：10/18 到期的那期還寫快到期）
     const overdueDays = (d) => Math.floor((Date.parse(today) - Date.parse(d)) / 86400000);
     html += `<section class="cl-group todo"><h2>該付款了 <span class="n">${dueRows.length}</span></h2>${dueRows.map(({ r, gi }) => `
       <div class="pay" style="border-color:#F0D3A3"><div class="pay-top"><div><b>${esc(r.candidate_name)}</b>　${esc(r.label)}・${esc(r.percent)}%</div>
       <span class="pl todo num">${r.due_date < today ? `已過期 ${overdueDays(r.due_date)} 天（${esc(fmtSlot(r.due_date))} 到期）` : `${esc(fmtSlot(r.due_date))} 到期`}</span></div>
       <div style="display:grid;gap:2px">${billAmountHtml(r, AMT_OK[gi])}</div>
-      <div class="btns"><button type="button" class="bill-open" data-gi="${gi}">我已匯款，上傳證明</button></div></div>`).join('')}</section>`;
+      <div class="btns"><button type="button" class="inst-open" data-gi="${gi}" data-id="${esc(r.id)}">我已匯款，上傳證明</button></div></div>`).join('')}</section>`;
   }
   html += `<section class="cl-group"><h2>已報到人選的付款 <span class="n">${BILL_GROUPS.length}</span></h2>` + BILL_GROUPS.map((rows, gi) => {
     const r0 = rows[0];
@@ -1804,12 +1849,11 @@ async function loadBilling(){
       <div class="pay-top"><div><b>${esc(r0.candidate_name)}</b><div class="meet-state">${esc(r0.job_title)}・<span class="num">${esc(fmtSlot(r0.onboard_date))}</span> 報到・${esc(billTenureText(r0.onboard_date))}</div></div>
         <div style="display:grid;gap:4px;justify-items:end"><span class="pl ${allPaid ? 'ok' : 'act'} num">${allPaid ? '全部付清' : `已付 ${paidN} / ${rows.length} 期`}</span>
         ${AMT_OK[gi] ? `<span class="meet-state num">總額 ${NT(rows.reduce((s, r) => s + Number(r.amount_taxed), 0))}（含稅）</span>` : ''}</div></div>
-      <div class="inst">${rows.map(r => { const s = instState(r); return `<div class="${s[0]}"><b>${esc(r.label)}・${esc(r.percent)}%</b>${billAmountHtml(r, AMT_OK[gi])}<span class="num">到期 ${esc(fmtSlot(r.due_date))}</span><span style="font-weight:700">${esc(s[1])}</span></div>`; }).join('')}</div>
-      ${hasOpen ? `<div class="btns"><button type="button" class="sec bill-open" data-gi="${gi}">上傳匯款證明</button></div>` : ''}
+      <div class="inst">${rows.map(r => { const s = instState(r); return `<button type="button" class="inst-card inst-open ${s[0]}" data-gi="${gi}" data-id="${esc(r.id)}"><b>${esc(r.label)}・${esc(r.percent)}%</b>${billAmountHtml(r, AMT_OK[gi])}<span class="num">到期 ${esc(fmtSlot(r.due_date))}</span><span style="font-weight:700">${esc(s[1])}</span><span class="inst-go">${s[0] === 'paid' ? '看明細 ›' : s[0] === 'sent' ? '看明細 ›' : '上傳證明／看明細 ›'}</span></button>`; }).join('')}</div>
     </div>`;
   }).join('') + `</section>`;
   el.innerHTML = html;
-  el.querySelectorAll('.bill-open').forEach(b => b.addEventListener('click', () => openBillModal(BILL_GROUPS[Number(b.dataset.gi)])));
+  el.querySelectorAll('.inst-open').forEach(b => b.addEventListener('click', () => openInstModal(Number(b.dataset.gi), b.dataset.id)));
 }
 
 // 2026-09-15 加：每一期改成可以直接上傳匯款證明＋選匯款日期，按「確認送出」＝
@@ -1982,7 +2026,7 @@ function candState(c){
       return { ...base, trackAt: at, stop: 'bad', group: 'ended', kind: 'rej', pill: ['end', lb],
         next: `<b>${lb}</b>` + (why ? '・原因：' + esc(why) : ''), nextHtml: true }; }
   if (onS.done || onS.now) {
-    // 報到日還沒到就不能說「已報到」（邱萬豪 11/10 才到職）
+    // 報到日還沒到就不能說「已報到」（10/28 實例：報到日在下個月，人選頁卻寫已報到）
     if (c.onboard_date && c.onboard_date > taipeiNow().slice(0, 10))
       return { ...base, trackAt: 3, group: 'active', kind: 'onboard_soon', pill: ['act', '等報到'], next: `預計 <b class="num">${esc(fmtSlot(c.onboard_date))}</b> 報到`, nextHtml: true };
     return { ...base, group: 'ended', kind: 'onboarded', pill: ['ok', '已報到'], next: '已報到，恭喜！' + (c.onboard_date ? `（${fmtSlot(c.onboard_date)}）` : '') };
@@ -1996,7 +2040,7 @@ function candState(c){
     return { ...base, group: 'todo', kind: 'decide', pill: ['todo', '等你決定'],
       next: '看完資料，決定要不要面試' + (days >= 3 ? `（已推薦 ${days} 天）` : '') };
   }
-  // 舊的邀請沒被收掉時（例：10/27 張家昌邀了兩次才確認），同一關已經有確認時間就不算「等人選選時段」
+  // 舊的邀請沒被收掉時（10/27 實例：同一位邀了兩次才確認），同一關已經有確認時間就不算「等人選選時段」
   const confirmedStages = (c.appts || []).filter(a => a.status === 'confirmed').map(a => Number(a.stage));
   const pendingAny = (c.appts || []).filter(a => a.status === 'pending' && Number(a.stage) > 0
     && !confirmedStages.some(s => s >= Number(a.stage))).slice(-1)[0];

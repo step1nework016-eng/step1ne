@@ -54,7 +54,7 @@ async function loadRoute() {
   if (state.route === 'daily') {
     return loadDailyTab(target, state.sub);
   }
-  if (state.route === 'casestatus' || state.route === 'roles' || state.route === 'paths') return;   // 帶案狀況：畫面裡就是嵌入的外部儀表板，不用另外抓資料
+  if (state.route === 'casestatus' || state.route === 'roles' || state.route === 'paths' || state.route === 'billflow') return;   // 帶案狀況：畫面裡就是嵌入的外部儀表板，不用另外抓資料
   if (state.route === 'calllist') return loadCallList(target);
   if (state.route === 'bdcalls') return loadBdCalls(target);
   if (state.route === 'board') return loadBoardTab(target);
@@ -2089,7 +2089,7 @@ async function loadBillingTab(target) {
 <div class="actions-row"><button type="button" class="btn" id="billing-add-row">＋ 加一期</button>
 <button type="button" class="btn primary" id="billing-save-plan">儲存範本</button></div></div>`;
     return { companies: companiesResp.companies, planHtml, client, rows: ctx.rows };
-  }, ({ companies, planHtml, client, rows }) => billingV2View({ companies, companyId, planHtml, client, rows }), 'refresh');
+  }, ({ companies, planHtml, client, rows }) => `<div class="notice" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px">客戶付款後記得按「✅ 已收到款」——不知道下一步輪到誰，看流程圖。<a class="btn" href="/consultant-app-beta/billing-flow.html" target="_blank" rel="noopener" style="min-height:44px;display:inline-flex;align-items:center;text-decoration:none">看收費流程圖 ↗</a></div>` + billingV2View({ companies, companyId, planHtml, client, rows }), 'refresh');
   wireBillingTab();
   wireBillingV2({ state, reload: () => loadRoute(), client: ctx.client, rows: ctx.rows, cats: ctx.cats });
   return res;
