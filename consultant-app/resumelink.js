@@ -1,5 +1,5 @@
 // 「上傳履歷」連結：人選打開就能上傳履歷，不經阿財面談。
-// 公開頁 /resume-upload-beta/，後端 public-worker POST /resume-upload。
+// 公開頁 /resume-upload/（舊 /resume-upload-beta/ 保留），後端 public-worker POST /resume-upload。
 // 2026-10-27 Jacky 核准信件文字、正式上線（RU_LINK_V2）：
 //   入口①：人選中心頁首「給人選連結」（原「寄上傳履歷連結」）——LINE 來、還不在系統裡的人選，填姓名＋（Email）＋職缺。
 //   入口②：人選卡片「總覽 → 聯絡人選」——帶好這位人選的姓名、Email、職缺。
@@ -16,7 +16,7 @@ import { api } from './core/api.js';
 import { $, loading, openSubDrawer, closeSubDrawer, toast } from './core/ui.js';
 import { escapeHtml } from './core/security.js';
 
-const PAGE = 'https://step1ne.com/resume-upload-beta/';
+const PAGE = 'https://step1ne.com/resume-upload/';  // 2026-10-28 正式版（舊的 -beta 網址保留可用）
 // 系統用的空殼職缺，連結裡不能帶
 const NO_JOB = new Set(['', 'unspecified', 'other', 'resume-upload-unspecified', 'entry-general-match']);
 const CLOSED = new Set(['closed', 'social_only', 'draft']);
