@@ -1959,8 +1959,13 @@ function candState(c){
     return { ...base, group: 'ended', kind: 'onboarded', pill: ['ok', '已報到'], next: '已報到，恭喜！' };
   if (offerS.done || offerS.now)
     return { ...base, group: 'active', kind: 'offered', pill: ['act', '已錄取'], next: '人選報到後，按「已報到」' };
-  if (!advanced)
-    return { ...base, group: 'todo', kind: 'decide', pill: ['todo', '等你決定'], next: '看完資料，決定要不要面試' };
+  if (!advanced) {
+    // 等越久的人選越可能被別家錄取，讓客戶看得到已經等幾天
+    const fwd = String(c.forwarded_at || '').slice(0, 10);
+    const days = fwd ? Math.floor((Date.parse(taipeiNow().slice(0, 10)) - Date.parse(fwd)) / 86400000) : 0;
+    return { ...base, group: 'todo', kind: 'decide', pill: ['todo', '等你決定'],
+      next: '看完資料，決定要不要面試' + (days >= 3 ? `（已推薦 ${days} 天）` : '') };
+  }
   // 舊的邀請沒被收掉時（例：10/27 張家昌邀了兩次才確認），同一關已經有確認時間就不算「等人選選時段」
   const confirmedStages = (c.appts || []).filter(a => a.status === 'confirmed').map(a => Number(a.stage));
   const pendingAny = (c.appts || []).filter(a => a.status === 'pending' && Number(a.stage) > 0
