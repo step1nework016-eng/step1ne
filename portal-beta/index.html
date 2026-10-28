@@ -1336,7 +1336,7 @@ function renderStageConfigBox(job){
       <b>這個職缺有幾階段面試？</b>
       <span class="stage-config-summary">${esc(summary)}</span>
     </div>
-    <div class="stage-config-sub">第一階段面談是每個職缺都有的基本關卡，不用勾選。如果實際上還有更多輪面試，在這裡勾起來——「人選進度」表格的面試階段欄位才會出現對應的選項。</div>
+    <div class="stage-config-sub">第一階段面談是每個職缺都有的基本關卡，不用勾選。還有更多輪面試的話在這裡勾起來；也可以在人選面板面完一關時，直接按「還要再面一關」。</div>
     <div class="stage-config-opts">
       ${order.map(k => `<label><input type="checkbox" class="stage-chk" value="${k}"${stages.includes(k) ? ' checked' : ''}> ${labelOf[k]}</label>`).join('')}
     </div>
@@ -2070,6 +2070,31 @@ async function saveMeetLink(){
   btn.disabled = false;
 }
 
+// 2026-10-28 Jacky：「第二次面談以上要在哪設定？」——原本只能到「職缺需求」那個職缺裡勾，
+// 客戶面完第一關不會想到要去別頁。改成面板上直接一顆「還要再面一關」，按了就幫這個職缺多開一關。
+const ROUND_CN = { 2: '第二階段', 3: '第三階段', 4: '第四階段' };
+function addRoundBtn(c, id){
+  const n = interviewStageOptsFor(c).length;
+  return n >= 1 && n < 4 ? `<button type="button" class="sec" data-act="addround" data-app="${id}">還要再面一關（${ROUND_CN[n + 1]}）</button>` : '';
+}
+async function actAddRound(appId){
+  const c = CAND_LIST.find(x => x.application_id === appId);
+  if (!c) return;
+  const n = interviewStageOptsFor(c).length;
+  const cfg = ['stage2', 'stage3', 'stage4'].slice(0, n);
+  try {
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/jobs/${encodeURIComponent(c.job_slug)}`, {
+      method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ interview_stage_config: JSON.stringify(cfg) }),
+    });
+    const data = await res.json();
+    if (!data.ok) { toast('這個職缺沒辦法從這裡加關，請在下面傳訊息請顧問幫忙加'); return; }
+    const jr = PORTAL_DATA.jobs.find(j => j.slug === c.job_slug);
+    if (jr) jr.interview_stage_config = JSON.stringify(cfg);
+    await loadCandidates();
+    openCandModal(appId);
+    toast(`已加上${ROUND_CN[n + 1]}，可以約時間了（這個職缺之後的人選也都會有這一關）`);
+  } catch { toast('連線失敗，請稍後再試'); }
+}
 function nextBoxHtml(c, st){
   const id = esc(c.application_id);
   const nk = nextStageKey(c);
@@ -2086,12 +2111,12 @@ function nextBoxHtml(c, st){
       <div class="meet-state">人選選好後，時間會自動出現在這裡，不用回來填。</div>`;
     case 'upcoming': return `<h4>下一步</h4><div class="big when">${esc(fmtSlot(st.slot))}</div><div>${esc(stageLabelOf(c, st.stageKey))}・人選已確認這個時間</div>
       <div class="sub-act"><div class="meet-state">面試完之後：</div><div class="btns">
-        ${nk ? `<button type="button" class="sec" data-act="propose" data-stage="${esc(nk)}" data-app="${id}">約${esc(nkLb)}</button>` : ''}
+        ${nk ? `<button type="button" class="sec" data-act="propose" data-stage="${esc(nk)}" data-app="${id}">約${esc(nkLb)}</button>` : addRoundBtn(c, id)}
         <button type="button" class="sec" data-act="offer" data-app="${id}">錄取</button>
         <button type="button" class="danger" data-act="reject-offer" data-app="${id}">不錄取</button></div></div>`;
     case 'result': return `<h4>下一步</h4><div class="big">${esc(st.next)}</div>
       <div class="btns">
-        ${nk ? `<button type="button" data-act="propose" data-stage="${esc(nk)}" data-app="${id}">約${esc(nkLb)}</button>` : ''}
+        ${nk ? `<button type="button" data-act="propose" data-stage="${esc(nk)}" data-app="${id}">約${esc(nkLb)}</button>` : addRoundBtn(c, id)}
         <button type="button" ${nk ? 'class="sec"' : ''} data-act="offer" data-app="${id}">錄取</button>
         <button type="button" class="danger" data-act="reject-offer" data-app="${id}">不錄取</button></div>
       ${nk ? `<div class="sub-act"><button type="button" class="sec" data-act="setstage" data-stage="${esc(nk)}" data-app="${id}">${esc(nkLb)}已經約好了，直接填時間</button></div>` : ''}`;
@@ -2125,6 +2150,7 @@ function openCandModal(appId){
       else if (a === 'setstage') await actSetStage(id, b.dataset.stage, stageLabelOf(c, b.dataset.stage) + '的時間');
       else if (a === 'offer') await actSetStage(id, 'offer', '錄取時間', '錄取原因（選填，顧問會看到）');
       else if (a === 'onboard') await actSetStage(id, 'onboard', '報到日期');
+      else if (a === 'addround') await actAddRound(id);
     } finally { b.disabled = false; }
   }));
 
