@@ -2,6 +2,8 @@
 // 版面照 ~/Desktop/104/顧問上工設定_示意_20261028.html（Jacky 核准的示意圖）。只接在測試版。
 // ⚠️ 這階段「只是設定」：還沒有任何地方依這裡的角色／助手去擋資料；不會去 Cloudflare 開登入、不會寄邀請信。
 // 後端：GET/POST /admin/consultant-settings、PATCH /admin/consultant-settings/<id>、POST …/<id>/avatar
+// 2026-10-28 加「社群帳號」區：Threads／LinkedIn 綁定狀態卡＋綁定按鈕（GET …/<id>/oauth/<平台> 拿授權網址）、
+// LINE OA 連結、貼文風格（存 social_accounts.skill_prompt；語氣卡由 social_post_agent.py 自動重抽）。
 import { CONFIG } from './config.js';
 import { api } from './core/api.js';
 import { $, $$, loading, errorState, toast } from './core/ui.js';
@@ -99,8 +101,6 @@ function sw(attrs, on, disabled, label) {
 function detail(c) {
   if (!c) return '<p class="muted">還沒有顧問，按左邊「＋ 新增顧問」。</p>';
   const isAdmin = c.role !== 'consultant';
-  const soc = (c.social_accounts || []).filter((s) => s.is_active);
-  const socTxt = soc.length ? soc.map((s) => escapeHtml(PLATFORM_ZH[s.platform] || s.platform)).join('／') : '尚未綁定（之後第一次登入時設定）';
   const jobsTxt = c.open_jobs ? `${c.open_jobs} 個開放中` : `0 個（還沒有，管理員在職缺頁指派${ui.data.open_jobs_unassigned ? `；目前有 ${ui.data.open_jobs_unassigned} 個開放職缺還沒指定負責顧問` : ''}）`;
   const log = (c.change_log || []).slice(0, 5);
   return `<div class="cs-head">${avatarHtml(c, 64)}<div><h2>${escapeHtml(c.display_name)}</h2>
@@ -108,7 +108,7 @@ function detail(c) {
     <div class="cs-row"><b>登入 Gmail</b><div class="cs-inline"><input type="email" id="cs-mail" value="${escapeHtml(c.login_email || '')}" placeholder="例如 xxx@gmail.com" autocomplete="off"><button type="button" class="btn sm" data-cs-save-mail>儲存</button></div></div>
     <div class="cs-row"><b>角色</b><select id="cs-role">${ROLES.map(([v, l]) => `<option value="${v}" ${v === c.role ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
     <div class="cs-row"><b>名下職缺</b><span>${jobsTxt}</span></div>
-    <div class="cs-row"><b>社群帳號</b><span>${socTxt}</span></div>
+    ${socialSection(c)}
     <div class="cs-sec">配給他的 AI 助手（9 個崗位）</div>
     <div class="cs-grid">${HELPERS.map(([id, t, d]) => { const on = (c.helpers || []).includes(id); return `<div class="cs-agent${on ? ' on' : ''}">${sw(`data-cs-helper="${id}"`, on, false, t)}<div><div class="t">${t}</div><div class="d">${d}</div></div></div>`; }).join('')}</div>
     <div class="cs-sec">全公司共用（不能取消）</div>
@@ -117,6 +117,44 @@ function detail(c) {
     <div class="cs-scope">${isAdmin ? '管理員：看得到全部顧問的職缺、人選、成果，也可以替別人配 AI 助手。' : '顧問：登入後只看得到自己名下的職缺、人選、社群帳號；AI 助手的成果也只送給他。'}<br><small>（這是之後要做到的樣子；測試版現在還不會真的擋。）</small></div>
     <div class="cs-foot"><button type="button" class="btn sm ${c.is_active ? 'ghost' : ''}" data-cs-active="${c.is_active ? 0 : 1}">${c.is_active ? '停用這位顧問' : '重新啟用'}</button>
       ${log.length ? `<details class="cs-log"><summary>最近改了什麼（${log.length}）</summary><ul>${log.map((l) => `<li><time>${escapeHtml(l.at || '')}</time> ${escapeHtml(l.text || '')}<span class="muted">（${escapeHtml(l.by || '')}）</span></li>`).join('')}</ul></details>` : ''}</div>`;
+}
+
+// ── 社群帳號區 ───────────────────────────────────────────────
+const day = (s) => String(s || '').slice(0, 10);
+function socCard(c, plat) {
+  const s = c.social || {}; const a = s[plat] || { bound: false };
+  const name = PLATFORM_ZH[plat];
+  const who = a.username ? '@' + a.username : (a.label || name);
+  let status, sub = '';
+  if (a.bound) {
+    status = `<span class="cs-ok">✅ 已綁定 ${escapeHtml(who)}${a.expires_at ? ` · 到期 ${escapeHtml(day(a.expires_at))}` : ''}</span>`;
+    sub = plat === 'threads' ? '系統每週自動續期，不用管' : '到期前要再按一次「重新綁定」';
+  } else if (a.id) {
+    status = '<span class="cs-no">未綁定</span>'; sub = '卡片已建好（風格、LINE 連結有存），還沒授權帳號';
+  } else {
+    status = '<span class="cs-no">未綁定</span>';
+  }
+  const tOff = plat === 'threads' && !(ui.data.threads_oauth || {}).ready;
+  const btn = `<button type="button" class="btn sm${a.bound ? ' ghost' : ' primary'}" data-cs-bind="${plat}">${a.bound ? '重新綁定' : '綁定 ' + name}</button>`;
+  return `<div class="cs-soc-card${a.bound ? ' on' : ''}"><div class="t">${name}</div><div>${status}</div>${sub ? `<div class="d">${sub}</div>` : ''}
+    <div class="cs-inline">${btn}</div>${tOff ? `<div class="cs-meta" data-cs-meta hidden></div>` : ''}</div>`;
+}
+function socialSection(c) {
+  const s = c.social || {};
+  const names = (ui.data.social_names || []).filter((n) => !n.claimed_by || n.claimed_by === c.display_name);
+  const opts = [`<option value="">用顯示名稱「${escapeHtml(c.display_name)}」</option>`]
+    .concat(names.filter((n) => n.name.toLowerCase() !== String(c.display_name).toLowerCase())
+      .map((n) => `<option value="${escapeHtml(n.name)}" ${s.explicit && s.name === n.name ? 'selected' : ''}>${escapeHtml(n.name)}</option>`)).join('');
+  const vc = s.voice_card ? `<details class="cs-log"><summary>AI 抓出來的語氣卡（產稿時用）</summary><p class="cs-vc">${escapeHtml(s.voice_card)}</p>
+      <p class="cs-hint">${s.voice_card_manual ? '這張語氣卡是手改過的，改上面的風格不會自動更新它（要改請到「社群」頁的顧問卡片）。' : '改了上面的風格後，下次產稿 AI 會自動重抽這張語氣卡。'}</p></details>` : '';
+  return `<div class="cs-sec">社群帳號</div>
+    <div class="cs-row"><b><label for="cs-socname">對應社群名稱</label></b><div><select id="cs-socname">${opts}</select>
+      <div class="cs-hint">社群自動發文用的名字。舊顧問的社群名字跟顯示名稱不一樣時（例如 Dan H），在這裡選。</div></div></div>
+    <div class="cs-soc">${socCard(c, 'threads')}${socCard(c, 'linkedin')}</div>
+    <div class="cs-row"><b>審核通知</b><span>${s.tg_topic ? '✅ 已有 TG 審核主題' : '還沒有 TG 審核主題（第一次綁定 Threads 時會自動開）'}</span></div>
+    <div class="cs-row"><b><label for="cs-line">LINE OA 連結</label></b><div class="cs-inline"><input id="cs-line" type="url" inputmode="url" value="${escapeHtml(s.line_link || '')}" placeholder="例如 https://lin.ee/xxxx" autocomplete="off"><button type="button" class="btn sm" data-cs-save-line>儲存</button></div></div>
+    <div class="cs-row cs-top"><b><label for="cs-style">貼文風格</label></b><div><textarea id="cs-style" rows="7" placeholder="貼上他的 Threads 貼文風格說明（口吻、自稱、常用句型、emoji 習慣…）">${escapeHtml(s.skill_prompt || '')}</textarea>
+      <div class="cs-inline"><button type="button" class="btn sm" data-cs-save-style>儲存風格</button><span class="cs-hint">${s.skill_prompt ? `目前 ${s.skill_prompt.length} 字` : '還沒有風格，AI 會用公司預設寫法'}</span></div>${vc}</div></div>`;
 }
 
 function addForm() {
@@ -209,6 +247,54 @@ function wire(t) {
   if (avRm) avRm.onclick = async () => {
     try { await api.post(`/admin/consultant-settings/${encodeURIComponent(c.id)}/avatar`, { remove: true, by: me() }); toast('頭像已拿掉', 'success'); await reload(c.id); }
     catch (e) { toast(e.message || '失敗', 'error'); }
+  };
+
+  // 社群帳號
+  const socName = $('#cs-socname', t);
+  if (socName) socName.onchange = async () => {
+    socName.disabled = true;
+    await patch(c.id, { social_name: socName.value }, `${c.display_name} 的社群帳號對應改成「${socName.value || c.display_name}」`);
+  };
+  $$('[data-cs-bind]', t).forEach((b) => {
+    b.onclick = async () => {
+      const plat = b.getAttribute('data-cs-bind');
+      // 先同步開分頁（等 API 回來才開會被瀏覽器當成彈出視窗擋掉）
+      const w = (plat === 'linkedin' || (ui.data.threads_oauth || {}).ready) ? window.open('', '_blank') : null;
+      b.disabled = true;
+      try {
+        const r = await api.get(`/admin/consultant-settings/${encodeURIComponent(c.id)}/oauth/${plat}`);
+        if (r.ready && r.url) {
+          if (w) w.location.href = r.url; else window.open(r.url, '_blank', 'noopener');
+          toast(`已開新分頁：請${c.display_name}本人登入${PLATFORM_ZH[plat]}按「允許」，完成後回來重新整理`, 'success');
+        } else {
+          if (w) w.close();
+          const box = b.closest('.cs-soc-card').querySelector('[data-cs-meta]');
+          if (box) {
+            box.hidden = false;
+            box.innerHTML = `<b>需要 Jacky 先在 Meta 設定回傳網址</b>，設好之前這顆按鈕還不能用。要貼到 Meta 的網址：
+              <div class="cs-inline"><code>${escapeHtml(r.redirect_uri || '')}</code><button type="button" class="btn sm ghost" data-cs-copy>複製</button></div>`;
+            const cp = box.querySelector('[data-cs-copy]');
+            cp.onclick = async () => { try { await navigator.clipboard.writeText(r.redirect_uri || ''); toast('網址已複製', 'success'); } catch { toast('複製失敗，請手動選取', 'error'); } };
+            cp.focus();
+          }
+        }
+      } catch (e) { if (w) w.close(); toast(e.message || '拿不到綁定網址', 'error'); }
+      b.disabled = false;
+    };
+  });
+  const saveLine = $('[data-cs-save-line]', t);
+  if (saveLine) saveLine.onclick = async () => {
+    const v = ($('#cs-line', t).value || '').trim();
+    if (v && !/^https:\/\/\S+$/.test(v)) { toast('LINE 連結要是 https:// 開頭，例如 https://lin.ee/xxxx', 'error'); return; }
+    saveLine.disabled = true;
+    await patch(c.id, { social: { line_link: v } }, `${c.display_name} 的 LINE 連結已儲存`);
+  };
+  const saveStyle = $('[data-cs-save-style]', t);
+  if (saveStyle) saveStyle.onclick = async () => {
+    const v = ($('#cs-style', t).value || '').trim();
+    if (!v) { toast('貼文風格不能是空的', 'error'); return; }
+    saveStyle.disabled = true;
+    await patch(c.id, { social: { skill_prompt: v } }, `${c.display_name} 的貼文風格已儲存（AI 下次產稿會照新風格）`);
   };
 
   const nav = $('#cs-new-av', t);
