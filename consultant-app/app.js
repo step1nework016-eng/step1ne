@@ -2088,8 +2088,8 @@ async function loadBillingTab(target) {
 <tbody id="billing-plan-rows">${tiers.map((t, i) => views.billingPlanRow(t, i)).join('')}</tbody></table>
 <div class="actions-row"><button type="button" class="btn" id="billing-add-row">＋ 加一期</button>
 <button type="button" class="btn primary" id="billing-save-plan">儲存範本</button></div></div>`;
-    return { companies: companiesResp.companies, planHtml, client, rows: ctx.rows };
-  }, ({ companies, planHtml, client, rows }) => `<div class="notice" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px">客戶付款後記得按「✅ 已收到款」——不知道下一步輪到誰，看流程圖。<a class="btn" href="/consultant-app/billing-flow.html" target="_blank" rel="noopener" style="min-height:44px;display:inline-flex;align-items:center;text-decoration:none">看收費流程圖 ↗</a></div>` + billingV2View({ companies, companyId, planHtml, client, rows }), 'refresh');
+    return { companies: companiesResp.companies, planHtml, client, rows: ctx.rows, noSched: list.no_schedule || [] };
+  }, ({ companies, planHtml, client, rows, noSched }) => (noSched && noSched.length ? `<div class="notice" style="margin-bottom:12px;border-color:#e0a03a">⚠️ 已報到但還沒有分期（不會被請款）：${noSched.map((x) => escapeHtml(`${x.candidate_name}（${x.company_name || ''}，${x.onboard_date} 報到）`)).join('、')}。請到該客戶設定分期範本，存檔時系統會自動補排。</div>` : '') + `<div class="notice" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px">客戶付款後記得按「✅ 已收到款」——不知道下一步輪到誰，看流程圖。<a class="btn" href="/consultant-app/billing-flow.html" target="_blank" rel="noopener" style="min-height:44px;display:inline-flex;align-items:center;text-decoration:none">看收費流程圖 ↗</a></div>` + billingV2View({ companies, companyId, planHtml, client, rows }), 'refresh');
   wireBillingTab();
   wireBillingV2({ state, reload: () => loadRoute(), client: ctx.client, rows: ctx.rows, cats: ctx.cats });
   return res;
