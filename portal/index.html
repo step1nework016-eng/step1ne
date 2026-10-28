@@ -1938,7 +1938,7 @@ function candState(c){
     && !confirmedStages.some(s => s >= Number(a.stage))).slice(-1)[0];
   const curN = Number(String(cur).replace('stage', '')) || 0;
   if (pendingAny && Number(pendingAny.stage) >= (curN || 1))
-    return { ...base, group: 'active', kind: 'wait_slot', stageKey: 'stage' + pendingAny.stage, pill: ['act', '等人選選時段'],
+    return { ...base, group: 'active', kind: 'wait_slot', stageKey: 'stage' + pendingAny.stage, pending: pendingAny, pill: ['act', '等人選選時段'],
       next: `${stageLabelOf(c, 'stage' + pendingAny.stage)}：已請人選選時段，選好會顯示在這裡` };
   if (!cur)
     return { ...base, group: 'todo', kind: 'schedule', stageKey: nextStageKey(c), pill: ['todo', '約面試時間'], next: `約${stageLabelOf(c, nextStageKey(c))}的時間` };
@@ -2042,9 +2042,11 @@ async function actSetStage(appId, stageKey, title, noteLabel){
   if (stageKey === 'onboard') extra.onboard_date = picked.event_at.slice(0, 10);
   await tblSetStage(appId, stageKey, extra, null, '');
 }
-async function actPropose(appId, stageKey){
+async function actPropose(appId, stageKey, replace){
   const c = CAND_LIST.find(x => x.application_id === appId);
-  if (c) await tblPropose(appId, c, stageKey);
+  if (c) await tblPropose(appId, c, stageKey, replace);
+  // 送出後面板要跟著換成「等人選選時段」（原本停在舊畫面，看起來像沒送出去）
+  if (ACTIVE_APP === appId) openCandModal(appId);
 }
 
 // 視訊連結：沿用「跟顧問討論」那支後端（認得 Teams／Meet／Zoom／Webex／Whereby 連結，存進這場面試，
@@ -2141,9 +2143,17 @@ function nextBoxHtml(c, st){
       <div class="btns"><button type="button" data-act="propose" data-stage="${esc(st.stageKey)}" data-app="${id}">給人選幾個時段挑</button>
       <button type="button" class="sec" data-act="setstage" data-stage="${esc(st.stageKey)}" data-app="${id}">已經約好了，直接填時間</button></div>
       <div class="sub-act"><button type="button" class="danger" data-act="reject" data-app="${id}">不考慮這位</button></div>`;
-    case 'wait_slot': return `<h4>下一步</h4><div class="big">等人選選時段</div>
-      <div class="meet-state">人選選好後，時間會自動出現在這裡，不用回來填。</div>`;
+    case 'wait_slot': {
+      const ps = (st.pending && st.pending.proposed_slots) || [];
+      return `<h4>下一步</h4><div class="big">等人選選${esc(stageLabelOf(c, st.stageKey))}的時間</div>
+      ${ps.length ? `<div>你給人選挑的時段：</div><ul style="margin:0;padding-left:20px">${ps.map(s => `<li class="num">${esc(fmtSlot(s.slot_at))}${s.format ? '・' + esc(s.format) : ''}</li>`).join('')}</ul>` : ''}
+      <div class="meet-state">${st.pending && st.pending.invited_at ? `${esc(fmtSlot(st.pending.invited_at.slice(0, 16)))} 已用 LINE／Email 通知人選。` : ''}人選選好後，時間會自動出現在這裡，不用回來填。</div>
+      <div class="btns"><button type="button" class="sec" data-act="propose" data-stage="${esc(st.stageKey)}" data-app="${id}">改時段（重新給人選挑）</button>
+        <button type="button" class="sec" data-act="setstage" data-stage="${esc(st.stageKey)}" data-app="${id}">已經跟人選約好了，直接填時間</button></div>
+      <div class="sub-act"><button type="button" class="danger" data-act="reject" data-app="${id}">不考慮這位</button></div>`;
+    }
     case 'upcoming': return `<h4>下一步</h4><div class="big when">${esc(fmtSlot(st.slot))}</div><div>${esc(stageLabelOf(c, st.stageKey))}・人選已確認這個時間</div>
+      <div class="btns"><button type="button" class="sec" data-act="repropose" data-stage="${esc(st.stageKey)}" data-app="${id}">要改面試時間</button></div>
       <div class="sub-act"><div class="meet-state">面試完之後：</div><div class="btns">
         ${nk ? `<button type="button" class="sec" data-act="propose" data-stage="${esc(nk)}" data-app="${id}">約${esc(nkLb)}</button>` : addRoundBtn(c, id)}
         <button type="button" class="sec" data-act="offer" data-app="${id}">錄取</button>
@@ -2181,6 +2191,7 @@ function openCandModal(appId){
       else if (a === 'reject-offer') await actReject(id, '不錄取的原因（顧問會看到）', 'not_hired');
       else if (a === 'reject-onboard') await actReject(id, '沒有來報到的原因（顧問會看到）', 'no_show');
       else if (a === 'propose') await actPropose(id, b.dataset.stage);
+      else if (a === 'repropose') await actPropose(id, b.dataset.stage, true);
       else if (a === 'setstage') await actSetStage(id, b.dataset.stage, stageLabelOf(c, b.dataset.stage) + '的時間');
       else if (a === 'offer') await actSetStage(id, 'offer', '錄取時間', '錄取原因（選填，顧問會看到）');
       else if (a === 'onboard') await actSetStage(id, 'onboard', '報到日期');
@@ -2330,7 +2341,7 @@ function promptThreeSlots(title){
     cancelBtn.addEventListener('click', onCancel);
   });
 }
-async function tblPropose(appId, c, stageOverride){
+async function tblPropose(appId, c, stageOverride, replace){
   const opts = interviewStageOptsFor(c);
   const stage = stageOverride || currentInterviewStage(c) || (opts[0] || [])[0];
   if (!stage) { alert('這個職缺還沒設定面試輪次，請聯繫顧問先設定'); return; }
@@ -2340,7 +2351,7 @@ async function tblPropose(appId, c, stageOverride){
   try{
     const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(appId)}/propose-slots`, {
       method: 'POST', headers: {'content-type':'application/json'},
-      body: JSON.stringify({ stage, slots: picked.slots, interviewer: picked.interviewer || undefined,
+      body: JSON.stringify({ stage, replace: replace === true || undefined, slots: picked.slots, interviewer: picked.interviewer || undefined,
         location: picked.location || undefined, note: picked.note || undefined }),
     });
     const data = await res.json();
