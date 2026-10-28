@@ -71,9 +71,9 @@ function telLink(p, label) {
 }
 
 // ── 共用狀態 ──
-const S = { cfg: null, items: [], tab: '', filter: 'all', pending: {}, open: {}, unsent: new Set(), active: null, target: null, listId: '', lists: [], batch: '', batches: [] };
+const S = { cfg: null, items: [], tab: '', filter: 'all', major: '', pending: {}, open: {}, unsent: new Set(), active: null, target: null, listId: '', lists: [], batch: '', batches: [] };
 const LS = 's1ne_calllist_ui';
-function saveUi() { try { localStorage.setItem(LS, JSON.stringify({ tab: S.tab, filter: S.filter })); } catch { /* 私密視窗存不了就算了 */ } }
+function saveUi() { try { localStorage.setItem(LS, JSON.stringify({ tab: S.tab, filter: S.filter, major: S.major })); } catch { /* 私密視窗存不了就算了 */ } }
 function loadUi() { try { return JSON.parse(localStorage.getItem(LS) || '{}') || {}; } catch { return {}; } }
 
 const pend = (id) => (S.pending[id] = S.pending[id] || { result: '', note: '', cb: '' });
@@ -133,7 +133,28 @@ function counts(rows) {
   rows.forEach((it) => { if (it.last_result) { c.called += 1; c[it.last_result] = (c[it.last_result] || 0) + 1; } else c.todo += 1; });
   return c;
 }
-function tabRows() { return S.items.filter((it) => assigneeOf(it) === S.tab); }
+// 2026-10-28 Jacky：「相關科系的讓 Phoebe 打電話好打，名單可以篩科系」。學歷欄是「學校 科系」，取最後一段分類。
+const MAJORS = [
+  ['arch', '建築／室內', /建築|室內|空間設計/], ['civil', '土木／營建', /土木|營建|營造|測量|結構|空間資訊|水利|防災/],
+  ['mech', '機械', /機械|機電|自動化/], ['ee', '電機／電子', /電機|電子|光電|通訊|冷凍|空調|能源|電力|控制/],
+  ['env', '環境', /環境|環工|環安/], ['urban', '都市計劃', /都市|地政|景觀/], ['chem', '化工／材料', /化學|化工|材料/],
+  ['it', '資訊', /資訊|資工|多媒體|數位|軟體/], ['design', '設計', /設計|美術|藝術/],
+  ['biz', '管理／商科', /管理|企業|行銷|國際|流通|財金|財務|會計|經濟|商/],
+];
+const RELATED = ['arch', 'civil', 'mech', 'ee', 'env', 'urban'];
+function majorOf(it) {
+  const edu = String((it.meta || {}).edu || '').trim();
+  if (!edu) return 'none';
+  const dept = edu.split(/\s+/).slice(1).join(' ') || edu;
+  const hit = MAJORS.find(([, , re]) => re.test(dept));
+  return hit ? hit[0] : 'other';
+}
+function majorMatch(it) {
+  if (!S.major) return true;
+  const k = majorOf(it);
+  return S.major === 'related' ? RELATED.includes(k) : k === S.major;
+}
+function tabRows() { return S.items.filter((it) => assigneeOf(it) === S.tab && majorMatch(it)); }
 function visibleRows() {
   const rows = tabRows();
   if (S.filter === 'all') return rows;
@@ -146,6 +167,17 @@ function renderAll() {
   const people = [...new Set(S.items.map(assigneeOf))].sort((a, b) => (a === '未指派') - (b === '未指派') || a.localeCompare(b));
   if (!people.includes(S.tab)) S.tab = people.includes(me()) ? me() : people[0] || '';
   const c = counts(tabRows());
+  // 科系下拉（只有人選名單、而且有學歷資料才出現）；手機用原生 select
+  const allMine = S.items.filter((it) => assigneeOf(it) === S.tab);
+  const hasEdu = S.cfg.kind === 'cand' && allMine.some((it) => (it.meta || {}).edu);
+  const mc = (pred) => allMine.filter(pred).length;
+  const majorSel = !hasEdu ? '' : `<label class="cl-pick">科系<select data-cl-major>
+      <option value="" ${!S.major ? 'selected' : ''}>全部科系（${allMine.length}）</option>
+      <option value="related" ${S.major === 'related' ? 'selected' : ''}>相關科系：建築・土木・機電・環境（${mc((it) => RELATED.includes(majorOf(it)))}）</option>
+      ${MAJORS.map(([k, lb]) => { const n = mc((it) => majorOf(it) === k); return n ? `<option value="${k}" ${S.major === k ? 'selected' : ''}>${lb}（${n}）</option>` : ''; }).join('')}
+      ${mc((it) => majorOf(it) === 'other') ? `<option value="other" ${S.major === 'other' ? 'selected' : ''}>其他科系（${mc((it) => majorOf(it) === 'other')}）</option>` : ''}
+      ${mc((it) => majorOf(it) === 'none') ? `<option value="none" ${S.major === 'none' ? 'selected' : ''}>沒寫學歷（${mc((it) => majorOf(it) === 'none')}）</option>` : ''}
+    </select></label>`;
   const head = S.cfg.kind === 'cand'
     ? (S.lists.length > 1 ? `<label class="cl-pick">名單<select data-cl-list>${S.lists.map((l) => `<option value="${e(l.id)}" ${l.id === S.listId ? 'selected' : ''}>${e(l.title)}（${e(l.done)}/${e(l.n)}）</option>`).join('')}</select></label>` : (S.lists[0] ? `<p class="cl-listname">名單：${e(S.lists[0].title)}</p>` : ''))
     : (S.batches.length > 1 ? `<label class="cl-pick">批次<select data-cl-batch>${S.batches.map((b) => `<option value="${e(b.batch_id)}" ${b.batch_id === S.batch ? 'selected' : ''}>${e(b.batch_id)}（${e(b.n)} 家）</option>`).join('')}</select></label>` : `<p class="cl-listname">批次：${e(S.batch)}</p>`);
@@ -153,6 +185,7 @@ function renderAll() {
   const rows = visibleRows();
   t.innerHTML = `<div class="cl-wrap">${head}
     <div class="cl-tabs" role="tablist">${people.map((p) => `<button type="button" role="tab" aria-selected="${p === S.tab}" class="${p === S.tab ? 'on' : ''}" data-cl-tab="${e(p)}">${e(p)} <small>${e(S.items.filter((it) => assigneeOf(it) === p).length)}</small></button>`).join('')}</div>
+    ${majorSel}
     <div class="cl-progress"><span>已打 <b>${e(c.called)}</b> / ${e(c.all)}</span><div class="cl-bar"><i style="width:${c.all ? Math.round(c.called / c.all * 100) : 0}%"></i></div></div>
     <div class="cl-chips">${chip('all', '全部')}${chip('todo', '還沒打')}${S.cfg.results.map(([v, lb]) => chip(v, lb)).join('')}</div>
     <div class="cl-list">${rows.length ? rows.map(rowHtml).join('') : '<div class="state"><strong>這裡沒有名單</strong><p>換個篩選看看。</p></div>'}</div></div>`;
@@ -254,6 +287,7 @@ function wire(t) {
     const el = ev.target;
     if (el.matches('[data-cl-cb]')) { const id = el.closest('[data-cl-id]').dataset.clId; pend(id).cb = el.value.replace('T', ' ').slice(0, 16); rerenderRow(id); return; }
     if (el.matches('[data-cl-list]')) { S.listId = el.value; loadCandidates(); }
+    if (el.matches('[data-cl-major]')) { S.major = el.value; saveUi(); renderAll(); return; }
     if (el.matches('[data-cl-batch]')) { S.batch = el.value; loadBd(); }
   };
 }
@@ -262,7 +296,7 @@ window.addEventListener('beforeunload', (ev) => { if (Object.keys(S.pending).som
 function resetFor(cfg, target) {
   const ui = loadUi();
   if (S.cfg !== cfg) { S.pending = {}; S.open = {}; S.unsent = new Set(); }
-  S.cfg = cfg; S.target = target; S.tab = ui.tab || me() || ''; S.filter = ui.filter || 'all';
+  S.cfg = cfg; S.target = target; S.tab = ui.tab || me() || ''; S.filter = ui.filter || 'all'; S.major = ui.major || '';
   if (S.filter !== 'all' && S.filter !== 'todo' && !cfg.results.some((r) => r[0] === S.filter)) S.filter = 'all';
   wire(target);
 }
