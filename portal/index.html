@@ -1768,9 +1768,11 @@ async function loadBilling(){
   BILL_GROUPS.forEach((rows, gi) => rows.forEach(r => { if (instState(r)[0] === 'due') dueRows.push({ r, gi }); }));
   let html = '';
   if (dueRows.length) {
-    html += `<section class="cl-group todo"><h2>快到期 <span class="n">${dueRows.length}</span></h2>${dueRows.map(({ r, gi }) => `
+    // 已經過期的不能寫「快到期」（陳其寬第一期 10/18 到期，10/28 還寫快到期）
+    const overdueDays = (d) => Math.floor((Date.parse(today) - Date.parse(d)) / 86400000);
+    html += `<section class="cl-group todo"><h2>該付款了 <span class="n">${dueRows.length}</span></h2>${dueRows.map(({ r, gi }) => `
       <div class="pay" style="border-color:#F0D3A3"><div class="pay-top"><div><b>${esc(r.candidate_name)}</b>　${esc(r.label)}・${esc(r.percent)}%</div>
-      <span class="pl todo num">到期 ${esc(fmtSlot(r.due_date))}</span></div>
+      <span class="pl todo num">${r.due_date < today ? `已過期 ${overdueDays(r.due_date)} 天（${esc(fmtSlot(r.due_date))} 到期）` : `${esc(fmtSlot(r.due_date))} 到期`}</span></div>
       <div class="btns"><button type="button" class="bill-open" data-gi="${gi}">我已匯款，上傳證明</button></div></div>`).join('')}</section>`;
   }
   html += `<section class="cl-group"><h2>已報到人選的付款 <span class="n">${BILL_GROUPS.length}</span></h2>` + BILL_GROUPS.map((rows, gi) => {
@@ -1923,7 +1925,9 @@ function fmtSlot(s){
   s = String(s || '');
   if (s.length < 10) return s;
   const d = new Date(s.slice(0, 10) + 'T00:00:00');
-  return `${Number(s.slice(5, 7))}/${Number(s.slice(8, 10))}（${WEEKDAY[d.getDay()]}）${s.length >= 16 ? ' ' + s.slice(11, 16) : ''}`;
+  // 不是今年的日期要寫年份（付款第三期 2027/3/18 原本只寫 3/18，容易看錯）
+  const yr = s.slice(0, 4) !== taipeiNow().slice(0, 4) ? s.slice(0, 4) + '/' : '';
+  return `${yr}${Number(s.slice(5, 7))}/${Number(s.slice(8, 10))}（${WEEKDAY[d.getDay()]}）${s.length >= 16 ? ' ' + s.slice(11, 16) : ''}`;
 }
 function taipeiNow(minusHours){
   return new Date(Date.now() + 8 * 3600e3 - (minusHours || 0) * 3600e3).toISOString().slice(0, 16).replace('T', ' ');
@@ -1955,8 +1959,12 @@ function candState(c){
       const why = r.replace(/^(不錄取|沒有報到)：/, '');
       return { ...base, trackAt: at, stop: 'bad', group: 'ended', kind: 'rej', pill: ['end', lb],
         next: `<b>${lb}</b>` + (why ? '・原因：' + esc(why) : ''), nextHtml: true }; }
-  if (onS.done || onS.now)
-    return { ...base, group: 'ended', kind: 'onboarded', pill: ['ok', '已報到'], next: '已報到，恭喜！' };
+  if (onS.done || onS.now) {
+    // 報到日還沒到就不能說「已報到」（邱萬豪 11/10 才到職）
+    if (c.onboard_date && c.onboard_date > taipeiNow().slice(0, 10))
+      return { ...base, trackAt: 3, group: 'active', kind: 'onboard_soon', pill: ['act', '等報到'], next: `預計 <b class="num">${esc(fmtSlot(c.onboard_date))}</b> 報到`, nextHtml: true };
+    return { ...base, group: 'ended', kind: 'onboarded', pill: ['ok', '已報到'], next: '已報到，恭喜！' + (c.onboard_date ? `（${fmtSlot(c.onboard_date)}）` : '') };
+  }
   if (offerS.done || offerS.now)
     return { ...base, group: 'active', kind: 'offered', pill: ['act', '已錄取'], next: '人選報到後，按「已報到」' };
   if (!advanced) {
