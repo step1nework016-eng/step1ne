@@ -477,9 +477,13 @@ function needLogin(msg){
 }
 const WHO_NAME={jacky:'Jacky',phoebe:'Phoebe'};
 function showMe(){$('#meName').textContent=WHO_NAME[WHO]||'—'}
-function askWho(){
+async function loadWhoNames(){try{const d=await api('/admin/consultant-settings');if(d&&d.ok)(d.consultants||[]).filter(c=>c.is_active).forEach(c=>{WHO_NAME[c.id]=c.display_name})}catch(e){}}
+async function askWho(){
+  await loadWhoNames();
   cardsOn(false);
-  $('#deck').innerHTML=`<div class="center"><h2>你是哪位顧問？</h2><p>右滑「指派給我」的人選會記在你名下</p><div class="who"><button data-w="jacky">Jacky</button><button data-w="phoebe">Phoebe</button></div></div>`;
+  // 2026-10-28：顧問名單改讀後台在職顧問（新顧問 Anna 也能用）；讀不到才退回 Jacky／Phoebe
+  const btns=Object.entries(WHO_NAME).map(([k,v])=>`<button data-w="${k}">${v}</button>`).join('');
+  $('#deck').innerHTML=`<div class="center"><h2>你是哪位顧問？</h2><p>右滑「指派給我」的人選會記在你名下</p><div class="who">${btns}</div></div>`;
   $('#deck').querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>{WHO=b.dataset.w;ls.set('s1ne_pick_who',WHO);showMe();toast('目前身分：'+WHO_NAME[WHO]+'，指派的人會記在你名下');load()});
 }
 $('#bYes').onclick=()=>act('right');$('#bNo').onclick=()=>act('left');$('#bSkip').onclick=()=>act('skip');$('#bUndo').onclick=undo;
@@ -491,6 +495,7 @@ showMe();
 function fitH(){const ae=document.activeElement;if(ae&&ae.tagName==='INPUT')return;const h=window.visualViewport?visualViewport.height:innerHeight;document.documentElement.style.setProperty('--apph',Math.round(h)+'px');window.scrollTo(0,0)}
 fitH();addEventListener('resize',fitH);window.visualViewport&&visualViewport.addEventListener('resize',fitH);addEventListener('orientationchange',()=>setTimeout(fitH,300));
 if(!TOKEN)needLogin();else if(!WHO)askWho();else load();
+if(TOKEN&&WHO)loadWhoNames().then(showMe);
 </script>
 </body>
 </html>

@@ -39,7 +39,7 @@ async function loadSystem(force) {
   sys.loading = true; sys.error = '';
   try {
     const name = consultantName();
-    const [b, c, rm] = await Promise.all([api.get('/admin/bd/dashboard'), adapters.candidates(sys.owner), api.get('/admin/consultant-reminders?for=' + encodeURIComponent(name) + '&day=' + encodeURIComponent(todayStr()) + '&to=' + encodeURIComponent(plusDays(7))).catch(() => ({ items: [] }))]);
+    const [b, c, rm] = await Promise.all([api.get('/admin/bd/dashboard'), adapters.candidates(sys.owner), api.get('/admin/consultant-reminders?for=' + encodeURIComponent(name) + '&day=' + encodeURIComponent(todayStr()) + '&to=' + encodeURIComponent(plusDays(7)) + '&back=3').catch(() => ({ items: [] }))]);
     sys.calls = (rm && rm.items) || [];
     // 2026-10-15：招募管道（訓練機構等）到了追蹤日也放進今日下一步
     try { const ch = await api.get('/admin/channels'); sys.channels = ((ch && ch.channels) || []).filter((x) => x.owner === name && x.status !== 'paused' && x.next_follow_at && x.next_follow_at <= todayStr()); } catch { sys.channels = []; }
@@ -116,7 +116,8 @@ function yesterdayTomorrow() {
 function todayItems() {
   const t = todayStr();
   const items = [];
-  (sys.calls || []).filter((c) => String(c.call_at || '').slice(0, 10) === t).forEach((c) => items.push({ g: 'call', pri: 1, k: 'call:' + c.id, rid: c.id, reply: (c.reply_at && !(state.seenReply || {})[c.id]) ? (c.reply_text || '（無內文）') : '', time: String(c.call_at || '').slice(11, 16), icon: '📞', title: (c.candidate_name || '電話／面談'), text: String(c.message || '').replace(/\s+/g, ' ').replace(/^電話／面談\s*/, '').slice(0, 90), attr: (() => { const id = c.application_id || ((sys.cands || []).find((x) => x.name && String(c.candidate_name || '').includes(x.name)) || {}).applicationId; return id ? `data-application="${esc(id)}"` : ''; })() }));
+  // 2026-10-28 檢查：昨天沒打成的電話（之後沒記電洽紀錄）也列出來、標逾期，不會隔天就消失
+  (sys.calls || []).filter((c) => String(c.call_at || '').slice(0, 10) === t || c.overdue).forEach((c) => items.push({ g: 'call', pri: c.overdue ? 0 : 1, k: 'call:' + c.id, rid: c.id, reply: (c.reply_at && !(state.seenReply || {})[c.id]) ? (c.reply_text || '（無內文）') : '', time: c.overdue ? '逾期 ' + String(c.call_at || '').slice(5, 16) : String(c.call_at || '').slice(11, 16), icon: '📞', title: (c.candidate_name || '電話／面談'), text: String(c.message || '').replace(/\s+/g, ' ').replace(/^電話／面談\s*/, '').slice(0, 90), attr: (() => { const id = c.application_id || ((sys.cands || []).find((x) => x.name && String(c.candidate_name || '').includes(x.name)) || {}).applicationId; return id ? `data-application="${esc(id)}"` : ''; })() }));
   sysBdRows().filter((r) => r._overdue).forEach((r) => items.push({ g: 'bd', pri: r._due < t ? 0 : 2, k: 'bd:' + r.company, time: r._due === t ? '今天' : '逾期 ' + r._due.slice(5), icon: '🏢', title: r.company, text: r.next_step || '待跟進', sub: r.call_phone || r.company_phone || '', attr: `data-bd-company="${esc(r.company)}"` }));
   sys.cands.filter((c) => c.stage === 'decide').forEach((c) => items.push({ g: 'decide', pri: 3, k: 'decide:' + c.applicationId, time: '等你決定', icon: '👤', title: (c.seqNo ? '#' + c.seqNo + ' ' : '') + c.name, text: c.job || '', attr: `data-application="${esc(c.applicationId)}"` }));
   state.bd.filter((x) => x.nextDate && x.nextDate <= t).forEach((x) => items.push({ g: 'mine', pri: 2, k: 'minebd:' + (x.company || '') + (x.next || ''), time: x.nextDate === t ? '今天' : '逾期 ' + x.nextDate.slice(5), icon: '📝', title: x.company || '未命名企業', text: x.next || '待跟進', attr: '' }));

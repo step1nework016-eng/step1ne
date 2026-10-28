@@ -371,7 +371,9 @@ function triUi() {
   if (!state.triage) {
     let saved;
     try { saved = JSON.parse(localStorage.getItem(TRI_KEY) || '{}') || {}; } catch { saved = {}; }
-    state.triage = { view: 'todo', job: '', days: '7', ...saved, items: [] };
+    // 2026-10-28 檢查：預設只看 7 天，更早還沒決定的報告（例：10/12 的）就看不到。預設改 30 天；之前存過 7 天的也改成 30 一次
+    state.triage = { view: 'todo', job: '', days: '30', ...saved, items: [] };
+    if (!saved.days30 && state.triage.days === '7') state.triage.days = '30';
   }
   return state.triage;
 }
@@ -390,7 +392,7 @@ async function loadTriageTab(target) {
       const k = el.getAttribute('data-tri-filter');
       if (k === 'me') { amUi().me = el.value; amSave(); return; }
       ui[k] = el.value;
-      try { localStorage.setItem(TRI_KEY, JSON.stringify({ view: ui.view, job: ui.job, days: ui.days })); } catch { /* 存不了就算了 */ }
+      try { localStorage.setItem(TRI_KEY, JSON.stringify({ view: ui.view, job: ui.job, days: ui.days, days30: true })); } catch { /* 存不了就算了 */ }
       loadTriageTab(target);
     };
   });
@@ -3487,7 +3489,7 @@ function stageDetailHtml(key, application, forwards, report, applicationId) {
       <p class="help" style="margin:0 0 10px">${text(report.created_at)} 產出・目前決策：${text(decisionLabel)}</p>
       ${views.isQuickApply(application) ? views.quickApplyResult(report, application) : views.interviewResult(report, application)}
       <p class="help" style="margin:14px 0 6px">有興趣就直接按下面「推薦給客戶」，會自動記錄為會推；這顆是還沒決定推薦給誰、但想先記錄再看看／不推時用。</p>
-      <div>${actionBtn('AI 初篩報告決策', 'decide-report', { idParams: { application_id: applicationId } }, 'primary')}</div></div>`;
+      <div>${actionBtn('AI 初篩報告決策', 'decide-report', { idParams: { application_id: applicationId, id: report.id } }, 'primary')}</div></div>`;
   }
   if (key === 'call') {
     // 2026-09-17 加：PRECALL_PHASE1。Pre-call Card 放在這一格最上面——這是
@@ -4132,7 +4134,14 @@ async function submitForwardCandidate(applicationId) {
       application_id: applicationId, company_id: companyId, by: me,
       job_slug: $('#fc-job')?.value || undefined,
       note: form.querySelector('[name="note"]').value.trim() || undefined,
+      record_only: notRec || undefined,
     });
+    // 2026-10-28：已經推薦給這家過了 → 這次什麼都沒建，不能接著把那筆正在進行的推薦標成「顧問不推進」
+    if (result && result.already_forwarded) {
+      toast(result.message || '已經推薦給這家客戶過了，這次沒有新增', 'error');
+      if (button) button.disabled = false;
+      return;
+    }
     if (notRec) {
       // 第二步：標「顧問不推進」。第一步已建好紀錄，這步失敗要講清楚，讓顧問去卡片上補按
       try {

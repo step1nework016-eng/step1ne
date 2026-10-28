@@ -3563,7 +3563,7 @@ ${a.note ? `<details class="note-details"><summary>顧問備註／電洽紀錄</
     const head = `<div class="filters tri-filters">
         <label class="am-me">我是 <select data-tri-filter="me">${opt('', '選擇…', ui.me)}${cons.filter((c) => c.is_active).map((c) => opt(c.display_name, c.display_name, ui.me)).join('')}</select></label>
         <select data-tri-filter="job" aria-label="職缺">${opt('', '所有職缺', ui.job)}${[...jobOpts].map(([v, l]) => opt(v, l, ui.job)).join('')}</select>
-        <select data-tri-filter="days" aria-label="期間">${[['3', '近 3 天'], ['7', '近 7 天'], ['14', '近 14 天'], ['30', '近 30 天']].map(([v, l]) => opt(v, l, ui.days)).join('')}</select>
+        <select data-tri-filter="days" aria-label="期間">${[['3', '近 3 天'], ['7', '近 7 天'], ['14', '近 14 天'], ['30', '近 30 天'], ['90', '近 90 天']].map(([v, l]) => opt(v, l, ui.days)).join('')}</select>
         <select data-tri-filter="view" aria-label="狀態">${opt('todo', '還沒決定', ui.view)}${opt('done', '已判斷', ui.view)}</select>
       </div>
       <p class="help" style="margin:0 0 10px">按下去只是內部記號，不會通知人選。「推」之後要送用人單位，照舊在人選卡片裡按；「要打電話」會在 TG 通知負責顧問。共 ${items.length} 位</p>`;
