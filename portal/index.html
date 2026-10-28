@@ -1740,6 +1740,24 @@ function billTenureText(onboardDate){
   return `已到職約 ${Math.floor(days/30)} 個月（${days} 天）`;
 }
 // ===== 2026-10-28 改版（測試版）：收費改成一人一張卡，每一期直接攤開；快到期的放最上面提醒 =====
+// 2026-10-28 Jacky：付款頁要顯示金額，「但金額要正確」——同一位人選的每一期都要有金額，而且驗算得過
+// （未稅＋稅＝含稅、稅是 5%、各期金額比例跟百分比對得上、百分比加起來 100）才顯示；任何一項對不上就不顯示數字，
+// 寫「金額確認中」，寧可不給也不能給錯。
+const NT = (n) => 'NT$ ' + Number(n).toLocaleString('en-US');
+function billAmountsOk(rows){
+  if (!rows.length || rows.some(r => [r.amount_untaxed, r.amount_tax, r.amount_taxed].some(v => v === null || v === undefined || isNaN(Number(v))))) return false;
+  const total = rows.reduce((s, r) => s + Number(r.amount_untaxed), 0);
+  const pctSum = rows.reduce((s, r) => s + Number(r.percent), 0);
+  if (!total || Math.abs(pctSum - 100) > 0.01) return false;
+  return rows.every(r => {
+    const u = Number(r.amount_untaxed), x = Number(r.amount_tax), t = Number(r.amount_taxed);
+    return u + x === t && Math.abs(x - u * 0.05) <= 1 && Math.abs(u / total * 100 - Number(r.percent)) <= 0.5;
+  });
+}
+function billAmountHtml(r, ok){
+  if (!ok) return '<span class="meet-state">金額確認中</span>';
+  return `<span class="num" style="font-size:16px;font-weight:700">${NT(r.amount_taxed)}</span><span class="meet-state num" style="font-size:12.5px">未稅 ${Number(r.amount_untaxed).toLocaleString('en-US')}＋稅 ${Number(r.amount_tax).toLocaleString('en-US')}${r.invoice_no ? '・發票 ' + esc(r.invoice_no) : ''}</span>`;
+}
 async function loadBilling(){
   BILLING_LOADED = true;
   const el = document.getElementById('billingList');
@@ -1756,6 +1774,7 @@ async function loadBilling(){
   const byPlacement = {};
   items.forEach(r => { (byPlacement[r.placement_id] = byPlacement[r.placement_id] || []).push(r); });
   BILL_GROUPS = Object.keys(byPlacement).map(k => byPlacement[k]);
+  const AMT_OK = BILL_GROUPS.map(rows => billAmountsOk(rows));
   const today = taipeiNow().slice(0, 10);
   const soon = new Date(Date.now() + 8 * 3600e3 + 14 * 86400e3).toISOString().slice(0, 10);
   // 2026-10-28：手動標已收（paid）也算已付；顧問按「還沒收到」（'no'）要回到可上傳狀態，不能永遠卡在「等確認」
@@ -1773,6 +1792,7 @@ async function loadBilling(){
     html += `<section class="cl-group todo"><h2>該付款了 <span class="n">${dueRows.length}</span></h2>${dueRows.map(({ r, gi }) => `
       <div class="pay" style="border-color:#F0D3A3"><div class="pay-top"><div><b>${esc(r.candidate_name)}</b>　${esc(r.label)}・${esc(r.percent)}%</div>
       <span class="pl todo num">${r.due_date < today ? `已過期 ${overdueDays(r.due_date)} 天（${esc(fmtSlot(r.due_date))} 到期）` : `${esc(fmtSlot(r.due_date))} 到期`}</span></div>
+      <div style="display:grid;gap:2px">${billAmountHtml(r, AMT_OK[gi])}</div>
       <div class="btns"><button type="button" class="bill-open" data-gi="${gi}">我已匯款，上傳證明</button></div></div>`).join('')}</section>`;
   }
   html += `<section class="cl-group"><h2>已報到人選的付款 <span class="n">${BILL_GROUPS.length}</span></h2>` + BILL_GROUPS.map((rows, gi) => {
@@ -1782,8 +1802,9 @@ async function loadBilling(){
     const hasOpen = rows.some(r => instState(r)[0] === '' || instState(r)[0] === 'due');
     return `<div class="pay">
       <div class="pay-top"><div><b>${esc(r0.candidate_name)}</b><div class="meet-state">${esc(r0.job_title)}・<span class="num">${esc(fmtSlot(r0.onboard_date))}</span> 報到・${esc(billTenureText(r0.onboard_date))}</div></div>
-        <span class="pl ${allPaid ? 'ok' : 'act'} num">${allPaid ? '全部付清' : `已付 ${paidN} / ${rows.length} 期`}</span></div>
-      <div class="inst">${rows.map(r => { const s = instState(r); return `<div class="${s[0]}"><b>${esc(r.label)}・${esc(r.percent)}%</b><span class="num">到期 ${esc(fmtSlot(r.due_date))}</span><span style="font-weight:700">${esc(s[1])}</span></div>`; }).join('')}</div>
+        <div style="display:grid;gap:4px;justify-items:end"><span class="pl ${allPaid ? 'ok' : 'act'} num">${allPaid ? '全部付清' : `已付 ${paidN} / ${rows.length} 期`}</span>
+        ${AMT_OK[gi] ? `<span class="meet-state num">總額 ${NT(rows.reduce((s, r) => s + Number(r.amount_taxed), 0))}（含稅）</span>` : ''}</div></div>
+      <div class="inst">${rows.map(r => { const s = instState(r); return `<div class="${s[0]}"><b>${esc(r.label)}・${esc(r.percent)}%</b>${billAmountHtml(r, AMT_OK[gi])}<span class="num">到期 ${esc(fmtSlot(r.due_date))}</span><span style="font-weight:700">${esc(s[1])}</span></div>`; }).join('')}</div>
       ${hasOpen ? `<div class="btns"><button type="button" class="sec bill-open" data-gi="${gi}">上傳匯款證明</button></div>` : ''}
     </div>`;
   }).join('') + `</section>`;
@@ -1813,6 +1834,7 @@ function billStatusBlock(r){
 }
 function openBillModal(rows){
   const r0 = rows[0];
+  const amtOk = (typeof billAmountsOk === 'function') && billAmountsOk(rows);
   document.getElementById('billModalBody').innerHTML =
     `<h3 style="margin:0 0 4px">${esc(r0.candidate_name)}</h3>` +
     `<p style="margin:0 0 4px;color:var(--ink3);font-size:13px">${esc(r0.job_title)}</p>` +
@@ -1821,8 +1843,8 @@ function openBillModal(rows){
       const b = billStatusBlock(r);
       return `<div style="border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px">` +
         `<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">` +
-        `<b>${esc(r.label)}</b><span style="color:var(--ink3);font-size:13px">${esc(r.percent)}%　·　到期 ${esc(r.due_date)}</span>` +
-        `</div><div style="margin-top:6px">${b.status}</div>${b.action}</div>`;
+        `<b>${esc(r.label)}</b><span style="color:var(--ink3);font-size:13px">${esc(r.percent)}%　·　到期 ${esc(fmtSlot(r.due_date))}</span>` +
+        `</div><div style="margin-top:6px;display:grid;gap:2px">${billAmountHtml(r, amtOk)}</div><div style="margin-top:6px">${b.status}</div>${b.action}</div>`;
     }).join('');
   document.getElementById('billModalMask').classList.add('show');
   document.querySelectorAll('.bu-go').forEach(btn => {
