@@ -220,7 +220,7 @@ export const NAV_GROUPS = [
   { id: 'progress', label: '帶案進度', icon: '▥', tabs: [['recruitment', '招募總覽'], ['casestatus', '帶案狀況']] },
   { id: 'clients', label: '客戶／BD', icon: '♙', tabs: [['clients', '客戶／BD'], ['mail', '信箱紀錄']] },
   { id: 'social', label: '社群', icon: '◁', tabs: [['social', '社群'], ['channels', '招募管道']] },
-  { id: 'system', label: '系統', icon: '⚙', tabs: [['system', '系統'], ['onboarding', '顧問上工設定']] },
+  { id: 'system', label: '系統', icon: '⚙', tabs: [['system', '系統'], ['onboarding', '顧問上工設定'], ['roles', 'AI 職務說明書']] },
 ];
 export function navGroupOf(key) {
   return NAV_GROUPS.find((grp) => grp.tabs.some(([k]) => k === key) || (grp.extra || []).includes(key)) || null;
@@ -269,6 +269,8 @@ export const views = {
   mail: () => mailPageView(),
   // 2026-10-28 加：顧問上工設定（畫面與邏輯在 consultant_setup.js）
   onboarding: () => consultantSetupView(),
+  // 2026-10-28 Jacky「職務說明書幫我放在系統裡面，以後我可以自己查看」：9 個崗位＋共用＋開發者工具的說明書（原檔 ~/Desktop/104/Step1ne_agent職務說明書_20261028.html）
+  roles: () => pageHead('AI 職務說明書', '每個 AI 助手負責什麼、交什麼成果、誰負責驗收。新顧問上工前，照這份決定要配給他哪些助手。', '<a class="btn primary" href="/consultant-app-beta/agent-roles.html" target="_blank" rel="noopener" style="min-height:44px;display:inline-flex;align-items:center;text-decoration:none">另開分頁看 ↗</a>') + `<div id="page-data"><iframe class="casestatus-frame" src="/consultant-app-beta/agent-roles.html" title="AI 職務說明書" loading="lazy"></iframe></div>`,
   // 2026-10-15 加：招募管道（畫面與邏輯在 channels.js）
   channels: () => pageHead('招募管道', '請訓練機構、學校等幫忙推人的管道，一家一張卡。拖到別欄＝改狀態；點卡片看聯絡紀錄、推來的人選與成效。左邊紅線＝到了該追的日子。', '<button class="btn primary" data-action="channel-new">＋ 新增管道</button>') + `<div id="page-data"></div>`,
   board: (tab = 'cand') => pageHead('進度看板', '每一欄是一個階段，每張卡是一個人選或一家客戶。左邊有紅線的＝在這關停太久，該追了。')

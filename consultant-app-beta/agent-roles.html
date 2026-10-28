@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta name="robots" content="noindex,nofollow"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agent 職務說明書</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EEF4F7;--card:#FFFFFF;--ink:#12303D;--muted:#4A6170;--line:#C9D9E2;
+--c:#6D28D9;--c-bg:#F1EAFE;--k:#0E7490;--k-bg:#E0F4F8;--m:#047857;--m-bg:#DDF5EA;--d:#9A3412;--d-bg:#FCEBDD;--s:#1D4ED8;--s-bg:#E3ECFE;
+--no:#B42318;--no-bg:#FDECEA;--ring:#F59E0B}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans TC",system-ui,sans-serif;line-height:1.6;font-size:16px}
+.wrap{max-width:1180px;margin:0 auto;padding:24px 16px 64px}
+.top h1{font-size:clamp(24px,4vw,34px);font-weight:900;margin:0;letter-spacing:.02em}
+.top p{margin:4px 0 0;color:var(--muted)}
+.draft{display:inline-block;background:var(--no-bg);color:var(--no);font-weight:700;font-size:13px;padding:2px 10px;border-radius:999px;margin-bottom:8px}
+.mapbox{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px 16px 10px;margin:18px 0}
+.mapbox h2{margin:0 0 2px;font-size:20px}
+.mapbox .hint{margin:0 0 8px;color:var(--muted);font-size:14px}
+.flow{width:100%;height:auto;display:block}
+.flow-m{display:none;max-width:420px;margin:0 auto}
+@media (max-width:760px){.flow-d{display:none}.flow-m{display:block}}
+.node rect{stroke-width:2}
+.node.c rect{fill:var(--c-bg);stroke:var(--c)}.node.k rect{fill:var(--k-bg);stroke:var(--k)}
+.node.m rect{fill:var(--m-bg);stroke:var(--m);stroke-width:3}.node.d rect{fill:var(--d-bg);stroke:var(--d)}.node.s rect{fill:var(--s-bg);stroke:var(--s)}
+.node text{fill:var(--ink)}.tn{font-weight:900;font-size:18px}.tt{font-weight:700;font-size:16px}.tp{font-size:13px;fill:var(--muted)!important}
+.node:hover rect{filter:brightness(.96)}
+.node:focus{outline:none}.node:focus-visible rect{stroke:var(--ring);stroke-width:4}
+.node.on rect{stroke-width:4}
+.e path{fill:none;stroke:#5B7686;stroke-width:2;marker-end:url(#ah)}
+.flow-m .e path{marker-end:none}
+.e.dash path{stroke-dasharray:6 6;stroke:#8AA3B1}
+.ahp{fill:#5B7686}
+.lanel{font-weight:900;font-size:15px}.lanel.c{fill:var(--c)}.lanel.k{fill:var(--k)}
+.el{font-size:12px;fill:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:13px;color:var(--muted);margin:6px 0 4px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.side{display:grid;grid-template-columns:1.2fr 1fr;gap:14px;margin:0 0 18px}
+@media (max-width:760px){.side{grid-template-columns:1fr}}
+.box{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+.box h2{font-size:17px;margin:0 0 8px}
+.q3{border:2px solid var(--k)}
+.q3 ol{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.q3 li{display:flex;gap:10px;align-items:center;font-weight:700}
+.q3 li span{flex:0 0 30px;height:30px;border-radius:50%;background:var(--k);color:#fff;display:grid;place-items:center;font-weight:900}
+.q3 p{margin:8px 0 0;font-size:14px;color:var(--muted)}
+.unc ul{margin:0;padding-left:18px;font-size:14px}
+.unc li{margin:2px 0}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}
+.tabs button{font:inherit;font-size:15px;min-height:44px;padding:6px 12px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:6px}
+.tabs button .n{font-weight:900;color:var(--muted)}
+.tabs button[aria-selected=true]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.tabs button[aria-selected=true] .n{color:#BFE3EE}
+.pick{display:none;width:100%;min-height:48px;font:inherit;font-size:16px;padding:8px 12px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);margin-bottom:12px}
+@media (max-width:760px){.tabs{display:none}.pick{display:block}}
+:focus-visible{outline:3px solid var(--ring);outline-offset:2px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px 16px}
+.phead{display:grid;grid-template-columns:minmax(180px,1fr) 2.4fr;gap:14px;align-items:start;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:14px}
+@media (max-width:760px){.phead{grid-template-columns:1fr}}
+.phead h2{font-size:28px;margin:2px 0 0;font-weight:900}
+.lane{font-size:13px;font-weight:700;padding:2px 10px;border-radius:999px;background:var(--k-bg);color:var(--k)}
+.lane-客戶線{background:var(--c-bg);color:var(--c)}.lane-匯流{background:var(--m-bg);color:var(--m)}
+.lane-成交後{background:var(--d-bg);color:var(--d)}.lane-帶流量{background:var(--s-bg);color:var(--s)}
+.meta{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:0}
+@media (max-width:760px){.meta{grid-template-columns:1fr}}
+.meta div{background:var(--bg);border-radius:12px;padding:8px 12px}
+.meta dt{font-size:12px;color:var(--muted);font-weight:700}
+.meta dd{margin:0;font-size:14px}
+.meta dd b{display:block;font-size:18px}
+.meta dd span{display:block;color:var(--muted);font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media (max-width:980px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:600px){.grid{grid-template-columns:1fr}}
+.field{border:1px solid var(--line);border-radius:14px;padding:10px 14px}
+.field h3{margin:0 0 4px;font-size:15px;color:var(--muted)}
+.field ul{margin:0;padding-left:18px}
+.field li{margin:2px 0}
+.field.never{background:var(--no-bg);border-color:#F3B8B1}.field.never h3{color:var(--no)}
+.field.ok{background:var(--m-bg);border-color:#A7DEC6}.field.ok h3{color:var(--m)}
+.note{margin:14px 0 0;font-size:14px;background:#FFF6DB;border-radius:12px;padding:8px 12px}
+.note b{margin-right:8px;color:#8A5A00}
+.foot{margin-top:22px;font-size:13px;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+</style></head>
+<body><div class="wrap">
+<header class="top"><span class="draft">草稿｜什麼都還沒動</span>
+<h1>Step1ne agent 職務說明書</h1>
+<p>2026/10/28｜第 4 步｜9 個崗位＋個人 SEO＋後勤，每個崗位一個主責、一張說明書</p></header>
+
+<section class="mapbox" aria-labelledby="map-h">
+<h2 id="map-h">交接總圖：工作怎麼一棒傳一棒</h2>
+<p class="hint">點任何一格，下面就打開那個崗位的說明書。實線＝主要交棒，虛線＝支線。</p>
+<svg class="flow flow-d" viewBox="0 0 1180 400" role="img" aria-labelledby="fd-t">
+<title id="fd-t">交接總圖：客戶線 1→2→6，人選線 9→3→4→5→6，匯流到 6 之後 →7→8</title>
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ahp"/></marker></defs>
+<text x="0" y="64" class="lanel c">客戶線</text><text x="0" y="284" class="lanel k">人選線</text>
+<g class="e">
+<path d="M230,59 H266"/>
+<path d="M420,59 C640,59 760,90 818,150"/>
+<path d="M230,279 H266"/>
+<path d="M420,279 H456"/>
+<path d="M610,279 H646"/>
+<path d="M800,279 C820,260 830,230 860,200"/>
+<path d="M970,169 H996"/>
+<path d="M1075,198 V246"/>
+</g>
+<g class="e dash">
+<path d="M345,88 V246"/>
+<path d="M330,88 C300,160 200,190 160,246"/>
+<path d="M360,88 C420,160 500,190 530,246"/>
+<path d="M155,308 C210,350 470,350 525,310"/>
+<path d="M345,308 C400,385 670,385 715,310"/>
+</g>
+<text x="352" y="170" class="el">職缺資料</text>
+<text x="160" y="364" class="el">社群→點應徵（路線一）</text>
+<text x="460" y="394" class="el">找到的人→顧問先聊（路線二）</text>
+<text x="1085" y="228" class="el">錄取後</text>
+<a href="#p-r1" data-k="r1" class="node c" aria-label="崗位 1 開發客戶，看說明書"><rect x="80" y="30" width="150" height="58" rx="12"/><text x="94" y="54" class="tn">1</text><text x="114" y="54" class="tt">開發客戶</text><text x="94" y="75" class="tp">小開（暫名）</text></a><a href="#p-r2" data-k="r2" class="node c" aria-label="崗位 2 職缺上架，看說明書"><rect x="270" y="30" width="150" height="58" rx="12"/><text x="284" y="54" class="tn">2</text><text x="304" y="54" class="tt">職缺上架</text><text x="284" y="75" class="tp">小稿</text></a><a href="#p-r9" data-k="r9" class="node s" aria-label="崗位 9 社群經營，看說明書"><rect x="80" y="250" width="150" height="58" rx="12"/><text x="94" y="274" class="tn">9</text><text x="114" y="274" class="tt">社群經營</text><text x="94" y="295" class="tp">小推</text></a><a href="#p-r3" data-k="r3" class="node k" aria-label="崗位 3 找人，看說明書"><rect x="270" y="250" width="150" height="58" rx="12"/><text x="284" y="274" class="tn">3</text><text x="304" y="274" class="tt">找人</text><text x="284" y="295" class="tp">小獵</text></a><a href="#p-r4" data-k="r4" class="node k" aria-label="崗位 4 阿財初篩，看說明書"><rect x="460" y="250" width="150" height="58" rx="12"/><text x="474" y="274" class="tn">4</text><text x="494" y="274" class="tt">阿財初篩</text><text x="474" y="295" class="tp">阿財</text></a><a href="#p-r5" data-k="r5" class="node k" aria-label="崗位 5 電洽助理，看說明書"><rect x="650" y="250" width="150" height="58" rx="12"/><text x="664" y="274" class="tn">5</text><text x="684" y="274" class="tt">電洽助理</text><text x="664" y="295" class="tp">顧問助理</text></a><a href="#p-r6" data-k="r6" class="node m" aria-label="崗位 6 推薦給客戶，看說明書"><rect x="820" y="140" width="150" height="58" rx="12"/><text x="834" y="164" class="tn">6</text><text x="854" y="164" class="tt">推薦給客戶</text><text x="834" y="185" class="tp">小函</text></a><a href="#p-r7" data-k="r7" class="node d" aria-label="崗位 7 錄取後關懷，看說明書"><rect x="1000" y="140" width="150" height="58" rx="12"/><text x="1014" y="164" class="tn">7</text><text x="1034" y="164" class="tt">錄取後關懷</text><text x="1014" y="185" class="tp">小暖（暫名）</text></a><a href="#p-r8" data-k="r8" class="node d" aria-label="崗位 8 請款收費，看說明書"><rect x="1000" y="250" width="150" height="58" rx="12"/><text x="1014" y="274" class="tn">8</text><text x="1034" y="274" class="tt">請款收費</text><text x="1014" y="295" class="tp">小帳（暫名）</text></a>
+</svg><svg class="flow flow-m" viewBox="0 0 380 700" role="img" aria-labelledby="fm-t">
+<title id="fm-t">交接總圖（直式）</title>
+<text x="10" y="24" class="lanel c">客戶線</text><text x="200" y="24" class="lanel k">人選線</text>
+<g class="e">
+<path d="M85,98 V136"/>
+<path d="M85,198 C85,330 110,400 150,446"/>
+<path d="M275,98 V136"/>
+<path d="M275,198 V236"/>
+<path d="M275,298 V336"/>
+<path d="M275,398 C275,420 250,440 220,446"/>
+<path d="M180,508 V536"/>
+<path d="M180,598 V626"/>
+</g>
+<g class="e dash">
+<path d="M160,169 H196"/>
+<path d="M350,80 C372,150 372,220 352,262"/>
+<path d="M352,180 C374,250 374,320 352,362"/>
+</g>
+<a href="#p-r1" data-k="r1" class="node c" aria-label="崗位 1 開發客戶，看說明書"><rect x="10" y="40" width="150" height="58" rx="12"/><text x="24" y="64" class="tn">1</text><text x="44" y="64" class="tt">開發客戶</text><text x="24" y="85" class="tp">小開（暫名）</text></a><a href="#p-r9" data-k="r9" class="node s" aria-label="崗位 9 社群經營，看說明書"><rect x="200" y="40" width="150" height="58" rx="12"/><text x="214" y="64" class="tn">9</text><text x="234" y="64" class="tt">社群經營</text><text x="214" y="85" class="tp">小推</text></a><a href="#p-r2" data-k="r2" class="node c" aria-label="崗位 2 職缺上架，看說明書"><rect x="10" y="140" width="150" height="58" rx="12"/><text x="24" y="164" class="tn">2</text><text x="44" y="164" class="tt">職缺上架</text><text x="24" y="185" class="tp">小稿</text></a><a href="#p-r3" data-k="r3" class="node k" aria-label="崗位 3 找人，看說明書"><rect x="200" y="140" width="150" height="58" rx="12"/><text x="214" y="164" class="tn">3</text><text x="234" y="164" class="tt">找人</text><text x="214" y="185" class="tp">小獵</text></a><a href="#p-r4" data-k="r4" class="node k" aria-label="崗位 4 阿財初篩，看說明書"><rect x="200" y="240" width="150" height="58" rx="12"/><text x="214" y="264" class="tn">4</text><text x="234" y="264" class="tt">阿財初篩</text><text x="214" y="285" class="tp">阿財</text></a><a href="#p-r5" data-k="r5" class="node k" aria-label="崗位 5 電洽助理，看說明書"><rect x="200" y="340" width="150" height="58" rx="12"/><text x="214" y="364" class="tn">5</text><text x="234" y="364" class="tt">電洽助理</text><text x="214" y="385" class="tp">顧問助理</text></a><a href="#p-r6" data-k="r6" class="node m" aria-label="崗位 6 推薦給客戶，看說明書"><rect x="105" y="450" width="150" height="58" rx="12"/><text x="119" y="474" class="tn">6</text><text x="139" y="474" class="tt">推薦給客戶</text><text x="119" y="495" class="tp">小函</text></a><a href="#p-r7" data-k="r7" class="node d" aria-label="崗位 7 錄取後關懷，看說明書"><rect x="105" y="540" width="150" height="58" rx="12"/><text x="119" y="564" class="tn">7</text><text x="139" y="564" class="tt">錄取後關懷</text><text x="119" y="585" class="tp">小暖（暫名）</text></a><a href="#p-r8" data-k="r8" class="node d" aria-label="崗位 8 請款收費，看說明書"><rect x="105" y="630" width="150" height="58" rx="12"/><text x="119" y="654" class="tn">8</text><text x="139" y="654" class="tt">請款收費</text><text x="119" y="675" class="tp">小帳（暫名）</text></a>
+</svg>
+<div class="legend"><span><i style="background:var(--c)"></i>客戶線</span><span><i style="background:var(--k)"></i>人選線</span><span><i style="background:var(--s)"></i>帶流量</span><span><i style="background:var(--m)"></i>兩線匯流</span><span><i style="background:var(--d)"></i>成交後</span><span>另外兩區不在流水線上：個人 SEO、後勤</span></div>
+</section>
+
+<div class="side">
+<section class="box q3" aria-labelledby="q3-h"><h2 id="q3-h">新增功能前，先問這 3 題</h2><ol><li><span>1</span>屬於哪個崗位？</li><li><span>2</span>那個崗位的主責已經能做嗎？</li><li><span>3</span>會不會跟別的崗位重疊？</li></ol>
+<p>三題有一題答不出來，就先不加。能交給現有主責做的，就不另開一支。</p></section>
+<section class="box unc" aria-labelledby="unc-h"><h2 id="unc-h">對號入座沒講清楚的（要你認）</h2><ul><li>崗位 7：對號入座寫 LINE 關懷卡當主責，但它關著；改成雲端保證期 TG 提醒，要你認</li><li>崗位 8：有程式、沒有人負責催款開發票</li><li>崗位 1：主責是一份名單，沒有角色名（先給暫名）</li><li>後勤：早晨摘要跟開發日報重疊，要先問 Phoebe 看哪一則</li></ul></section>
+</div>
+
+<label class="pick-l" for="pick" style="position:absolute;left:-9999px">選崗位</label>
+<select id="pick" class="pick"><option value="r1">崗位 1｜開發客戶</option><option value="r2">崗位 2｜職缺上架</option><option value="r3">崗位 3｜找人</option><option value="r4">崗位 4｜阿財初篩</option><option value="r5">崗位 5｜電洽助理</option><option value="r6">崗位 6｜推薦給客戶</option><option value="r7">崗位 7｜錄取後關懷</option><option value="r8">崗位 8｜請款收費</option><option value="r9">崗位 9｜社群經營</option><option value="seo">個人｜SEO／AEO／GEO</option><option value="ops">後勤｜監控／摘要</option></select>
+<div class="tabs" role="tablist" aria-label="崗位"><button role="tab" id="t-r1" aria-controls="p-r1" aria-selected="false" tabindex="-1" data-k="r1"><span class="n">1</span>開發客戶</button><button role="tab" id="t-r2" aria-controls="p-r2" aria-selected="false" tabindex="-1" data-k="r2"><span class="n">2</span>職缺上架</button><button role="tab" id="t-r3" aria-controls="p-r3" aria-selected="false" tabindex="-1" data-k="r3"><span class="n">3</span>找人</button><button role="tab" id="t-r4" aria-controls="p-r4" aria-selected="false" tabindex="-1" data-k="r4"><span class="n">4</span>阿財初篩</button><button role="tab" id="t-r5" aria-controls="p-r5" aria-selected="false" tabindex="-1" data-k="r5"><span class="n">5</span>電洽助理</button><button role="tab" id="t-r6" aria-controls="p-r6" aria-selected="false" tabindex="-1" data-k="r6"><span class="n">6</span>推薦給客戶</button><button role="tab" id="t-r7" aria-controls="p-r7" aria-selected="false" tabindex="-1" data-k="r7"><span class="n">7</span>錄取後關懷</button><button role="tab" id="t-r8" aria-controls="p-r8" aria-selected="false" tabindex="-1" data-k="r8"><span class="n">8</span>請款收費</button><button role="tab" id="t-r9" aria-controls="p-r9" aria-selected="false" tabindex="-1" data-k="r9"><span class="n">9</span>社群經營</button><button role="tab" id="t-seo" aria-controls="p-seo" aria-selected="false" tabindex="-1" data-k="seo"><span class="n">個人</span>SEO／AEO／GEO</button><button role="tab" id="t-ops" aria-controls="p-ops" aria-selected="false" tabindex="-1" data-k="ops"><span class="n">後勤</span>監控／摘要</button></div>
+<section class="panel" role="tabpanel" id="p-r1" aria-labelledby="t-r1" tabindex="0" hidden>
+  <header class="phead">
+    <div><span class="lane lane-客戶線">崗位 1｜客戶線</span><h2>開發客戶</h2></div>
+    <dl class="meta">
+      <div><dt>主責</dt><dd><b>小開（暫名）</b><span>今天要打的 45 家</span></dd></div>
+      <div><dt>在哪跑</dt><dd>WSL2 每天 08:15 推 TG；追信提醒在雲端</dd></div>
+      <div><dt>人類負責人</dt><dd>Phoebe 打電話；Jacky／Phoebe 按核准</dd></div>
+    </dl>
+  </header>
+  <div class="grid"><div class="field"><h3>① 負責什麼</h3><ul><li>每天排出今天要打的公司名單（附 104 在徵職缺、公司近況）</li><li>追信、「明天要做」提醒只發一則</li></ul></div><div class="field"><h3>② 不負責什麼</h3><ul><li>寫職缺頁 → 崗位 2 職缺上架</li><li>找人選 → 崗位 3 找人</li></ul></div><div class="field"><h3>③ 從誰手上接</h3><ul><li>104 在徵職缺線索、小拓的「沒缺可推的人選」</li><li>顧問打完電話的結果</li></ul></div><div class="field"><h3>④ 做完交給誰</h3><ul><li>客戶答應合作、給需求表 → 崗位 2（小匯接需求表）</li></ul></div><div class="field never"><h3>⑤ 絕對不能做</h3><ul><li>寄信要 Jacky 或 Phoebe 明確說「寄」；「好」不算</li><li>寄前 14 天內親查 104／官網確認還在徵；客戶名用查核過的正式名稱</li></ul></div><div class="field ok"><h3>⑥ 怎樣算做對</h3><ul><li>08:15 名單已進 TG，每家附「查過的職缺連結＋查的日期」</li><li>同一封追信只提醒一次（現在會提醒兩次）</li></ul></div></div>
+  <p class="note"><b>要注意</b>主責是一份名單、不是一個角色，所以先給暫名「小開」。小拓（人選反找客戶）也在這格，要改名掛回 Step1ne。</p>
+</section><section class="panel" role="tabpanel" id="p-r2" aria-labelledby="t-r2" tabindex="0" hidden>
+  <header class="phead">
+    <div><span class="lane lane-客戶線">崗位 2｜客戶線</span><h2>職缺上架</h2></div>
+    <dl class="meta">
+      <div><dt>主責</dt><dd><b>小稿</b><span>小稿｜職缺文案草稿</span></dd></div>
+      <div><dt>在哪跑</dt><dd>Mac＋WSL2 兩台都有（整理後只留 WSL2，先確認推得上官網）</dd></div>
+      <div><dt>人類負責人</dt><dd>帶案顧問；Jacky 核准上線</dd></div>
+    </dl>
+  </header>
+  <div class="grid"><div class="field"><h3>① 負責什麼</h3><ul><li>把客戶需求表變成官網職缺頁（小匯收需求表、小稿寫文案）</li><li>職缺一改就重算「阿財的理解」；關閉就把網站收乾淨</li></ul></div><div class="field"><h3>② 不負責什麼</h3><ul><li>找人 → 崗位 3</li><li>發社群文 → 崗位 9；跟客戶談條件 → 顧問</li></ul></div><div class="field"><h3>③ 從誰手上接</h3><ul><li>崗位 1：客戶給需求表</li><li>顧問丟需求表給小匯</li></ul></div><div class="field"><h3>④ 做完交給誰</h3><ul><li>職缺上線 → 崗位 3 找人、4 阿財、9 社群都拿這份資料</li></ul></div><div class="field never"><h3>⑤ 絕對不能做</h3><ul><li>職缺頁不寫客戶名（守門員沒過不准推）；不寫年齡性別等條件</li><li>窗口電話、保護名單、合約條款、客戶私下條件不進 AI、不上網頁；不主動寫「不是派遣」</li></ul></div><div class="field ok"><h3>⑥ 怎樣算做對</h3><ul><li>需求表進來當天有草稿；上線前守門員零警告</li><li>職缺關閉後 1 天內應徵按鈕收掉</li></ul></div></div>
+  
+</section><section class="panel" role="tabpanel" id="p-r3" aria-labelledby="t-r3" tabindex="0" hidden>
+  <header class="phead">
+    <div><span class="lane lane-人選線">崗位 3｜人選線</span><h2>找人</h2></div>
+    <dl class="meta">
+      <div><dt>主責</dt><dd><b>小獵</b><span>小獵｜TG 打關鍵字找人</span></dd></div>
+      <div><dt>在哪跑</dt><dd>WSL2（白天顧問下單＋每晚自動）</dd></div>
+      <div><dt>人類負責人</dt><dd>下單的顧問</dd></div>
+    </dl>
+  </header>
+  <div class="grid"><div class="field"><h3>① 負責什麼</h3><ul><li>照職缺找符合的人（TG 下單、每晚自動）</li><li>新職缺回頭翻人才庫（配對引擎）</li></ul></div><div class="field"><h3>② 不負責什麼</h3><ul><li>跟人選面談 → 崗位 4 阿財</li><li>打電話 → 崗位 5；開發公司 → 崗位 1</li></ul></div><div class="field"><h3>③ 從誰手上接</h3><ul><li>崗位 2 的職缺資料；顧問 TG 下單</li><li>崗位 9 社群帶來的有意願名單</li></ul></div><div class="field"><h3>④ 做完交給誰</h3><ul><li>有信箱 → 邀請信 → 人選點連結 → 崗位 4（路線一）</li><li>沒信箱 → 待判斷卡給顧問 → 聊過走路線二</li></ul></div><div class="field never"><h3>⑤ 絕對不能做</h3><ul><li>沒有個人頁的不收；不用年齡、性別、容貌篩</li><li>邀請信要顧問按核准才寄；重活不在 Mac 跑</li></ul></div><div class="field ok"><h3>⑥ 怎樣算做對</h3><ul><li>每位人選附個人頁連結＋等第＋必要條件逐條對照</li><li>找到就推卡到 TG；產量突然掉一半，當天有人知道</li></ul></div></div>
+  <p class="note"><b>要注意</b>產量從 10/19 的 52 人掉到每天 1～3 人，原因還沒查。</p>
+</section><section class="panel" role="tabpanel" id="p-r4" aria-labelledby="t-r4" tabindex="0" hidden>
+  <header class="phead">
+    <div><span class="lane lane-人選線">崗位 4｜人選線</span><h2>阿財初篩</h2></div>
+    <dl class="meta">
+      <div><dt>主責</dt><dd><b>阿財</b><span>阿財｜面談</span></dd></div>
+      <div><dt>在哪跑</dt><dd>WSL2 主力；Mac 留一份備援</dd></div>
+      <div><dt>人類負責人</dt><dd>Jacky（管阿財）；顧問看報告</dd></div>
+    </dl>
+  </header>
+  <div class="grid"><div class="field"><h3>① 負責什麼</h3><ul><li>路線一：自己點連結應徵的人 → 完整面談</li><li>路線二：顧問聊過的人 → 10 分鐘確認 4 件事（離職原因、期望待遇、經歷屬實、履歷疑點）</li></ul></div><div class="field"><h3>② 不負責什麼</h3><ul><li>決定推不推 → 顧問</li><li>打電話 → 崗位 5；寫客戶版履歷 → 崗位 6</li></ul></div><div class="field"><h3>③ 從誰手上接</h3><ul><li>人選自己應徵（官網、LINE、Threads、104 信、邀請信）</li><li>顧問寄的上傳履歷連結</li></ul></div><div class="field"><h3>④ 做完交給誰</h3><ul><li>面談報告 → 崗位 5 電洽助理（做成電洽準備卡）</li></ul></div><div class="field never"><h3>⑤ 絕對不能做</h3><ul><li>不問、不用年齡性別婚育容貌，客戶要求也一樣；對人選不說「客戶」、不外流內部備註</li><li>人選還在等回覆，不准自己收尾關掉對話</li></ul></div><div class="field ok"><h3>⑥ 怎樣算做對</h3><ul><li>面談完 10 分鐘內有報告，報告列出「沒問到的」</li><li>面談中斷 0 次；婉拒信 0 次出現保護條件字眼</li></ul></div></div>
+  <p class="note"><b>要注意</b>背後的 AI 師傅 10/26 卡住約 25 小時，原因還沒找到；今天已有雲端看門狗在看。</p>
+</section><section class="panel" role="tabpanel" id="p-r5" aria-labelledby="t-r5" tabindex="0" hidden>
+  <header class="phead">
+    <div><span class="lane lane-人選線">崗位 5｜人選線</span><h2>電洽助理</h2></div>
+    <dl class="meta">
+      <div><dt>主責</dt><dd><b>顧問助理</b><span>顧問助理（TG）</span></dd></div>
+      <div><dt>在哪跑</dt><dd>WSL2；電洽準備卡＋電話提醒在雲端</dd></div>
+      <div><dt>人類負責人</dt><dd>顧問（Phoebe 負責電訪）</dd></div>
+    </dl>
+  </header>
+  <div class="grid"><div class="field"><h3>① 負責什麼</h3><ul><li>電洽準備卡、電話提醒、登記行事曆</li><li>電訪內容寫成報告（小電）；擬約電話／婉拒信預覽</li></ul></div><div class="field"><h3>② 不負責什麼</h3><ul><li>面談 → 崗位 4</li><li>寄客戶版履歷 → 崗位 6；決定推薦 → 顧問</li></ul></div><div class="field"><h3>③ 從誰手上接</h3><ul><li>崗位 4 阿財報告</li><li>崗位 3 待判斷人選；顧問自己聊到的人</li></ul></div><div class="field"><h3>④ 做完交給誰</h3><ul><li>顧問決定要推 → 崗位 6 推薦給客戶</li></ul></div><div class="field never"><h3>⑤ 絕對不能做</h3><ul><li>不改人選約好的時間：撞行程只回報、問先打誰</li><li>信要按確認卡才寄；日期星期用程式算；11 點前不排電話</li></ul></div><div class="field ok"><h3>⑥ 怎樣算做對</h3><ul><li>約好的電話 10 分鐘內進發財基地行事曆，提前 30 分鐘 TG 提醒</li><li>提醒附要推的職缺；BIM 小抄最上面有紅框</li></ul></div></div>
+  
+</section><section class="panel" role="tabpanel" id="p-r6" aria-labelledby="t-r6" tabindex="0" hidden>
+  <header class="phead">
+    <div><span class="lane lane-匯流">崗位 6｜匯流</span><h2>推薦給客戶</h2></div>
+    <dl class="meta">
+      <div><dt>主責</dt><dd><b>小函</b><span>小函｜客戶版履歷</span></dd></div>
+      <div><dt>在哪跑</dt><dd>Mac（WSL2 那份 10/21 後空轉，修好才換）</dd></div>
+      <div><dt>人類負責人</dt><dd>Jacky（客戶信他自己寄）</dd></div>
+    </dl>
+  </header>
+  <div class="grid"><div class="field"><h3>① 負責什麼</h3><ul><li>產客戶版履歷、推薦信草稿</li><li>送件後追進度到錄取（小蹤送件追蹤、小報進度回報）</li></ul></div><div class="field"><h3>② 不負責什麼</h3><ul><li>錄取後關心 → 崗位 7</li><li>收錢 → 崗位 8；跟人選面談 → 崗位 4</li></ul></div><div class="field"><h3>③ 從誰手上接</h3><ul><li>崗位 5：顧問決定推薦這位人選</li></ul></div><div class="field"><h3>④ 做完交給誰</h3><ul><li>錄取 → 崗位 7 錄取後關懷＋崗位 8 請款收費</li></ul></div><div class="field never"><h3>⑤ 絕對不能做</h3><ul><li>客戶名用查核過的正式名稱，守門員沒過不寄</li><li>客戶信 Jacky 自己寄，系統只擬稿；說「寄」才寄</li></ul></div><div class="field ok"><h3>⑥ 怎樣算做對</h3><ul><li>顧問按推薦後當天有客戶版履歷，檔名「職缺名_姓名_客戶名_德仁管理顧問公司.pdf」</li><li>客戶回覆後 1 天內進度表更新</li></ul></div></div>
+  
+</section><section class="panel" role="tabpanel" id="p-r7" aria-labelledby="t-r7" tabindex="0" hidden>
+  <header class="phead">
+    <div><span class="lane lane-成交後">崗位 7｜成交後</span><h2>錄取後關懷</h2></div>
+    <dl class="meta">
+      <div><dt>主責</dt><dd><b>小暖（暫名）</b><span>雲端：保證期 TG 提醒</span></dd></div>
+      <div><dt>在哪跑</dt><dd>雲端（每天早上 9 點檢查一次）</dd></div>
+      <div><dt>人類負責人</dt><dd>帶這位人選的顧問</dd></div>
+    </dl>
+  </header>
+  <div class="grid"><div class="field"><h3>① 負責什麼</h3><ul><li>只管已錄取的人選</li><li>到職第 7／30／60／80 天提醒顧問去關心（90 天保證期）</li></ul></div><div class="field"><h3>② 不負責什麼</h3><ul><li>直接發 LINE 給人選：關懷卡維持關閉</li><li>收錢 → 崗位 8；還沒錄取的 → 崗位 6</li></ul></div><div class="field"><h3>③ 從誰手上接</h3><ul><li>崗位 6：人選錄取、填好到職日</li></ul></div><div class="field"><h3>④ 做完交給誰</h3><ul><li>保證期平安過 → 結案</li><li>人選要走 → 顧問處理補人（回崗位 3）</li></ul></div><div class="field never"><h3>⑤ 絕對不能做</h3><ul><li>不代替顧問聯繫人選或客戶</li><li>LINE 關懷卡不准自己打開</li></ul></div><div class="field ok"><h3>⑥ 怎樣算做對</h3><ul><li>每位已到職的人，第 7／30／60／80 天早上 9 點 TG 有提醒</li><li>到職日沒填的，列出來給顧問補</li></ul></div></div>
+  <p class="note"><b>要注意</b>對號入座寫的主責是 LINE 關懷卡，但今天定案它維持關閉；實際上班的是雲端保證期提醒，所以主責改寫成它。</p>
+</section><section class="panel" role="tabpanel" id="p-r8" aria-labelledby="t-r8" tabindex="0" hidden>
+  <header class="phead">
+    <div><span class="lane lane-成交後">崗位 8｜成交後</span><h2>請款收費</h2></div>
+    <dl class="meta">
+      <div><dt>主責</dt><dd><b>小帳（暫名）</b><span>收費進程（分期／匯款證明）</span></dd></div>
+      <div><dt>在哪跑</dt><dd>雲端（後台＋TG 按鈕）；週五對帳在 Mac 桌面排程</dd></div>
+      <div><dt>人類負責人</dt><dd>Phoebe（催款、開發票為主；Jacky 核准）</dd></div>
+    </dl>
+  </header>
+  <div class="grid"><div class="field"><h3>① 負責什麼</h3><ul><li>分期帳款、到期提醒、客戶上傳匯款證明、顧問確認收款</li><li>每週五對業績</li></ul></div><div class="field"><h3>② 不負責什麼</h3><ul><li>改合約條款：合約審閱只給意見</li><li>聯繫人選 → 崗位 7 由顧問處理</li></ul></div><div class="field"><h3>③ 從誰手上接</h3><ul><li>崗位 6：人選錄取、合約條件</li></ul></div><div class="field"><h3>④ 做完交給誰</h3><ul><li>收齊 → 結案</li><li>逾期 → TG 給 Jacky 決定要不要催</li></ul></div><div class="field never"><h3>⑤ 絕對不能做</h3><ul><li>催款信 Jacky 說「寄」才寄（陳其寬第一期現在是「等確認」）</li><li>呂書帆、陳亭瑾是合作朋友不收費：不開票、不催</li></ul></div><div class="field ok"><h3>⑥ 怎樣算做對</h3><ul><li>每筆分期到期前有提醒，逾期當天 TG 有通知</li><li>發票號碼有登記；週五對帳數字跟系統一致</li></ul></div></div>
+  <p class="note"><b>要注意</b>有程式、沒人催款；到期提醒最後一次發是哪天也查不到。</p>
+</section><section class="panel" role="tabpanel" id="p-r9" aria-labelledby="t-r9" tabindex="0" hidden>
+  <header class="phead">
+    <div><span class="lane lane-帶流量">崗位 9｜帶流量</span><h2>社群經營</h2></div>
+    <dl class="meta">
+      <div><dt>主責</dt><dd><b>小推</b><span>小推｜社群貼文</span></dd></div>
+      <div><dt>在哪跑</dt><dd>WSL2 產稿；雲端到點自動發；今日話題菜單暫留 Mac</dd></div>
+      <div><dt>人類負責人</dt><dd>各顧問（自己的帳號）；Jacky 審</dd></div>
+    </dl>
+  </header>
+  <div class="grid"><div class="field"><h3>① 負責什麼</h3><ul><li>產職缺文、話題文、匿名人選文；排程發文</li><li>成效回填、Threads 權杖續期</li></ul></div><div class="field"><h3>② 不負責什麼</h3><ul><li>改職缺頁 → 崗位 2</li><li>官網 SEO 文章 → 個人 SEO；跟應徵者面談 → 崗位 4</li></ul></div><div class="field"><h3>③ 從誰手上接</h3><ul><li>崗位 2 的職缺資料</li><li>今日話題菜單、顧問挑題</li></ul></div><div class="field"><h3>④ 做完交給誰</h3><ul><li>點應徵的人 → 崗位 4 阿財（路線一）</li><li>留言／私訊有意願的 → 崗位 3／顧問</li></ul></div><div class="field never"><h3>⑤ 絕對不能做</h3><ul><li>不寫客戶名、統編、門牌地址；不提年齡性別</li><li>薪資寫區間；不寫客戶數、場數等規模；只發核准過的</li></ul></div><div class="field ok"><h3>⑥ 怎樣算做對</h3><ul><li>排好的貼文準時發出；權杖到期前已續</li><li>WSL2 罷工當天有人知道（雲端看門狗已在看）</li></ul></div></div>
+  <p class="note"><b>要注意</b>今日話題菜單 WSL2 那份 10/27、10/28 都失敗，修好才停 Mac 那份。</p>
+</section><section class="panel" role="tabpanel" id="p-seo" aria-labelledby="t-seo" tabindex="0" hidden>
+  <header class="phead">
+    <div><span class="lane lane-Jacky 專用">個人｜Jacky 專用</span><h2>SEO／AEO／GEO</h2></div>
+    <dl class="meta">
+      <div><dt>主責</dt><dd><b>SEO 分析師</b><span>對話助手：SEO 分析師</span></dd></div>
+      <div><dt>在哪跑</dt><dd>對話時叫用；每日數據在 Mac、週報在 WSL2</dd></div>
+      <div><dt>人類負責人</dt><dd>Jacky（只有你用）</dd></div>
+    </dl>
+  </header>
+  <div class="grid"><div class="field"><h3>① 負責什麼</h3><ul><li>Step1ne 官網排名、AI 有沒有引用我們</li><li>改標題、寫文章上線</li></ul></div><div class="field"><h3>② 不負責什麼</h3><ul><li>社群貼文 → 崗位 9</li><li>職缺頁 → 崗位 2；不跟 AIJOB 混用</li></ul></div><div class="field"><h3>③ 從誰手上接</h3><ul><li>Jacky 的指示</li><li>每日數據（小追）、每週週報</li></ul></div><div class="field"><h3>④ 做完交給誰</h3><ul><li>改完 → 回報 Jacky，附改前改後對照</li></ul></div><div class="field never"><h3>⑤ 絕對不能做</h3><ul><li>動手前先查現況（重導向做過沒、改過沒），不只信報表</li><li>新文章先給 Jacky 看；會自己改網站的（小審、小測）修好前不准動</li></ul></div><div class="field ok"><h3>⑥ 怎樣算做對</h3><ul><li>每週一份週報；每個改動有前後對照</li><li>AI 引用實測列出每個平台測了沒，沒測到要講</li></ul></div></div>
+  
+</section><section class="panel" role="tabpanel" id="p-ops" aria-labelledby="t-ops" tabindex="0" hidden>
+  <header class="phead">
+    <div><span class="lane lane-管全場">後勤｜管全場</span><h2>監控／摘要</h2></div>
+    <dl class="meta">
+      <div><dt>主責</dt><dd><b>阿守（暫名）</b><span>雲端看門狗</span></dd></div>
+      <div><dt>在哪跑</dt><dd>雲端（每 10 分鐘看一次）；收信寄信在 Mac＋WSL2</dd></div>
+      <div><dt>人類負責人</dt><dd>Jacky</dd></div>
+    </dl>
+  </header>
+  <div class="grid"><div class="field"><h3>① 負責什麼</h3><ul><li>看大家有沒有在上班（AI 師傅、社群發文）</li><li>收信、早晨摘要、阿財週報、儀表板</li></ul></div><div class="field"><h3>② 不負責什麼</h3><ul><li>任何崗位的正事：只通知、不代做</li></ul></div><div class="field"><h3>③ 從誰手上接</h3><ul><li>各崗位的上班紀錄</li></ul></div><div class="field"><h3>④ 做完交給誰</h3><ul><li>誰掛了 → TG 通知 Jacky</li><li>早晨摘要 → Jacky／Phoebe</li></ul></div><div class="field never"><h3>⑤ 絕對不能做</h3><ul><li>不准自己改各崗位的設定</li><li>直接寄給真人選的寄信員不准動；同一件事不重複提醒</li></ul></div><div class="field ok"><h3>⑥ 怎樣算做對</h3><ul><li>主力卡住超過 30 分鐘有警報（不能再有卡 25 小時沒人知道）</li><li>早上 8:30 摘要準時到</li></ul></div></div>
+  <p class="note"><b>要注意</b>早晨摘要跟「開發日報」都推給 Phoebe，合併前要先問 Phoebe 她實際看哪一則。</p>
+</section>
+
+<p class="foot">依據：對號入座、盤點、整理計畫、人選路線圖、記憶裡的硬規則。標「暫名」的角色名可以改。同一份內容的資料檔：Step1ne_agent職務說明書_20261028.json</p>
+</div>
+<script>
+(function(){
+ var tabs=[].slice.call(document.querySelectorAll('[role=tab]'));
+ var pick=document.getElementById('pick');
+ function show(k,focusTab){
+  tabs.forEach(function(t){var on=t.dataset.k===k;t.setAttribute('aria-selected',on);t.tabIndex=on?0:-1;if(on&&focusTab)t.focus();});
+  document.querySelectorAll('.panel').forEach(function(p){p.hidden=p.id!=='p-'+k;});
+  document.querySelectorAll('.node').forEach(function(n){n.classList.toggle('on',n.dataset.k===k);});
+  pick.value=k; try{localStorage.setItem('jd-tab',k)}catch(e){}
+ }
+ tabs.forEach(function(t,i){
+  t.addEventListener('click',function(){show(t.dataset.k)});
+  t.addEventListener('keydown',function(e){
+   var j=null;if(e.key==='ArrowRight')j=(i+1)%tabs.length;if(e.key==='ArrowLeft')j=(i-1+tabs.length)%tabs.length;
+   if(e.key==='Home')j=0;if(e.key==='End')j=tabs.length-1;
+   if(j!==null){e.preventDefault();show(tabs[j].dataset.k,true)}
+  });
+ });
+ pick.addEventListener('change',function(){show(pick.value)});
+ document.querySelectorAll('.node').forEach(function(n){
+  n.addEventListener('click',function(e){e.preventDefault();show(n.dataset.k);var p=document.getElementById('p-'+n.dataset.k);p.scrollIntoView({block:'start'});p.focus({preventScroll:true});});
+ });
+ var k='r1';try{k=localStorage.getItem('jd-tab')||'r1'}catch(e){}
+ if(!document.getElementById('p-'+k))k='r1';
+ show(k);
+})();
+</script>
+</body></html>

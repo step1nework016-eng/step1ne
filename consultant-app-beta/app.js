@@ -54,7 +54,7 @@ async function loadRoute() {
   if (state.route === 'daily') {
     return loadDailyTab(target, state.sub);
   }
-  if (state.route === 'casestatus') return;   // 帶案狀況：畫面裡就是嵌入的外部儀表板，不用另外抓資料
+  if (state.route === 'casestatus' || state.route === 'roles') return;   // 帶案狀況：畫面裡就是嵌入的外部儀表板，不用另外抓資料
   if (state.route === 'calllist') return loadCallList(target);
   if (state.route === 'bdcalls') return loadBdCalls(target);
   if (state.route === 'board') return loadBoardTab(target);
