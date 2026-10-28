@@ -1,4 +1,5 @@
 import { DAILY_TABS } from './daily.js';
+import { ROUTES } from './config.js';
 import { escapeHtml, text } from './core/security.js';
 import { statusBadge } from './core/status.js';
 
@@ -209,6 +210,30 @@ export const rowActions = (buttons) => `<div class="actions-row">${buttons.join(
 // 2026-10-16 Jacky：人選卡片的操作改成下拉選單（按「操作」才展開），卡片上不再一排按鈕
 export const actionMenu = (buttons, label = '操作') => `<details class="act-menu"><summary class="btn primary">${label} ▾</summary><div class="act-menu-list" role="menu">${buttons.filter(Boolean).join('')}</div></details>`;
 
+// 2026-10-28 Jacky：左側選單 8 大項。tabs 的 key 就是原本的頁面（ROUTES 的 key），
+// 第一個是點大項時預設開的。'board'（舊進度看板）跟 'home' 已併進每日工作台，算「今日」。
+export const NAV_GROUPS = [
+  { id: 'today', label: '今日', icon: '☑', tabs: [['daily', '每日工作台']], extra: ['board', 'home'] },
+  { id: 'calls', label: '電話名單', icon: '☏', tabs: [['calllist', '人選'], ['bdcalls', '公司']] },
+  { id: 'people', label: '人選', icon: '◉', tabs: [['candidates', '人選列表'], ['interviews', 'AI 面談'], ['linechat', '人選面談室']] },
+  { id: 'jobs', label: '職缺', icon: '▣', tabs: [['jobs', '職缺']] },
+  { id: 'progress', label: '帶案進度', icon: '▥', tabs: [['recruitment', '招募總覽'], ['casestatus', '帶案狀況']] },
+  { id: 'clients', label: '客戶／BD', icon: '♙', tabs: [['clients', '客戶／BD'], ['mail', '信箱紀錄']] },
+  { id: 'social', label: '社群', icon: '◁', tabs: [['social', '社群'], ['channels', '招募管道']] },
+  { id: 'system', label: '系統', icon: '⚙', tabs: [['system', '系統'], ['onboarding', '顧問上工設定']] },
+];
+export function navGroupOf(key) {
+  return NAV_GROUPS.find((grp) => grp.tabs.some(([k]) => k === key) || (grp.extra || []).includes(key)) || null;
+}
+// 大項底下的分頁列（只有 2 個以上分頁才出現）。桌機是一排按鈕，手機寬度改成原生下拉選單（styles.css 切換）。
+// 刻意不用 .tabs class：那個 class 在手機會被 enhanceMobile 自動加下拉，這裡自己已經有一個。
+function groupTabbar(active) {
+  const grp = navGroupOf(active);
+  if (!grp || grp.tabs.length < 2) return '';
+  const cur = grp.tabs.some(([k]) => k === active) ? active : grp.tabs[0][0];
+  return `<nav class="grp-tabs" aria-label="${grp.label}分頁"><div class="grp-tabs-row" role="tablist">${grp.tabs.map(([k, label]) => `<button type="button" role="tab" aria-selected="${k === cur}" class="${k === cur ? 'active' : ''}" data-route="${k}">${label}</button>`).join('')}</div><label class="grp-tabs-sel"><span>${grp.label}：</span><select data-grp-select aria-label="${grp.label}分頁">${grp.tabs.map(([k, label]) => `<option value="${k}"${k === cur ? ' selected' : ''}>${label}</option>`).join('')}</select></label></nav>`;
+}
+
 // 2026-09-15 加 collapsed 參數：使用者要求側欄要能收合展開（表格式看多欄資料時
 // 想多擠一點寬度出來），跟手機版那顆漢堡選單（.mobile-menu／toggle-menu）是
 // 兩件不同的事——那個是小螢幕的疊層選單，這個是桌機版「收起側欄多留內容區寬度」。
@@ -222,15 +247,21 @@ export function shell(active, content, collapsed = false) {
   // 2026-10-15 Jacky：加「招募管道」（訓練機構等推人管道的看板），插在客戶/BD 後面；管理分組 index 9→10、icon 補一顆
   // 2026-10-15 Jacky：首頁拿掉（內容跟每日工作台、招募總覽重複）；獨有的「正在 AI 面談」搬到每日工作台總覽、「阿財分流」搬到 AI 面談頁
   // 2026-10-20 Jacky：加「帶案狀況」外部連結（pipeline.step1ne.com，另開分頁），放在招募總覽下面
-  const nav = [['daily','每日工作台'],['recruitment','招募總覽'],['candidates','人選'],['jobs','職缺'],['interviews','AI 面談'],['linechat','人選面談室'],['social','社群'],['clients','客戶 / BD'],['channels','招募管道'],['mail','信箱紀錄'],['onboarding','顧問上工設定'],['system','系統']];
-  // 2026-10-28 Jacky：加「顧問上工設定」（畫面與邏輯在 consultant_setup.js），放管理分組第一個；分組 index 10 不變、icon 補一顆
+  // 2026-10-28 Jacky「可以，先改在測試版」：左側選單 15 項併成 8 大項，每項點進去上面一排分頁切換。
+  // 只改導覽：每個分頁還是原本那一頁、原本的網址（?tab= 也照舊），所以舊連結全部照樣能開，
+  // 開進去會自動亮對應的大項＋分頁。分組定義在 NAV_GROUPS。
   // ⚠️ 收合按鈕不能放進 <a class="brand"> 裡面——瀏覽器不允許互動元素巢狀
   // interactive content，而且全域點擊委派會先比對 [data-route]，按鈕點下去會
   // 連帶觸發外層 <a> 的 data-route="home" 跳轉。改成跟 .brand 平行的兄弟元素。
-  return `<div class="app-shell${collapsed ? ' collapsed' : ''}"><aside class="sidebar"><div class="brand-row"><a class="brand" data-route="daily"><span>S</span><div>Step1ne<small>CONSULTANT OS</small></div></a><button type="button" class="sidebar-toggle" data-action="toggle-sidebar" title="${collapsed ? '展開側欄' : '收合側欄'}">${collapsed ? '»' : '«'}</button></div><nav>${nav.map(([key,label], index) => `${index === 0 ? '<p>工作台</p>' : index === 6 ? '<p>營運成長</p>' : index === 10 ? '<p>管理</p>' : ''}<a class="${active === key ? 'active' : ''}" data-route="${key}"><i>${['☑','▥','◉','▣','◎','✉','◁','♙','⇄','✉','☺','⚙'][index]}</i>${label}</a>${key === 'daily' ? `<a class="${active === 'calllist' ? 'active' : ''}" data-route="calllist"><i>☏</i>人選電話名單</a><a class="${active === 'bdcalls' ? 'active' : ''}" data-route="bdcalls"><i>☏</i>公司開發名單</a>` : ''}${key === 'recruitment' ? '<a href="https://pipeline.step1ne.com/" target="_blank" rel="noopener" title="給 Jim 看的帶案儀表板（另開分頁，需通行碼）"><i>▤</i>帶案狀況 ↗</a>' : ''}`).join('')}</nav><footer>Production contract v2</footer></aside><main><header class="topbar"><button class="mobile-menu" data-action="toggle-menu">☰</button><input data-action="global-search" placeholder="搜尋人選、職缺、客戶…"><label class="me-global" title="寄信、核准、改設定時，系統記住是誰做的"><span>我是</span><select data-me-global aria-label="我是"><option value="">選擇…</option></select></label><button class="btn ghost" data-action="token">ADMIN TOKEN</button></header><section class="content">${content}</section></main></div>`;
+  const g = navGroupOf(active);
+  const navHtml = NAV_GROUPS.map((grp) => `<a href="${ROUTES[grp.tabs[0][0]] || ROUTES.daily}" class="${g && g.id === grp.id ? 'active' : ''}" data-route="${grp.tabs[0][0]}" title="${grp.label}"${g && g.id === grp.id ? ' aria-current="page"' : ''}><i aria-hidden="true">${grp.icon}</i>${grp.label}</a>`).join('');
+  return `<div class="app-shell${collapsed ? ' collapsed' : ''}"><aside class="sidebar"><div class="brand-row"><a class="brand" data-route="daily"><span>S</span><div>Step1ne<small>CONSULTANT OS</small></div></a><button type="button" class="sidebar-toggle" data-action="toggle-sidebar" title="${collapsed ? '展開側欄' : '收合側欄'}">${collapsed ? '»' : '«'}</button></div><nav>${navHtml}</nav><footer>Production contract v2</footer></aside><main><header class="topbar"><button class="mobile-menu" data-action="toggle-menu">☰</button><input data-action="global-search" placeholder="搜尋人選、職缺、客戶…"><label class="me-global" title="寄信、核准、改設定時，系統記住是誰做的"><span>我是</span><select data-me-global aria-label="我是"><option value="">選擇…</option></select></label><button class="btn ghost" data-action="token">ADMIN TOKEN</button></header><section class="content">${groupTabbar(active)}${content}</section></main></div>`;
 }
 
 export const views = {
+  // 2026-10-28：帶案狀況（給 Jim 看的帶案儀表板 pipeline.step1ne.com，原本是左側選單的外部連結↗）。
+  // 那邊要通行碼；嵌在下面試著直接看，看不到（空白／被擋）就按按鈕另開分頁，功能完全一樣。
+  casestatus: () => pageHead('帶案狀況', '給 Jim 看的帶案儀表板，需要通行碼。下面看不到的話，按右邊按鈕另開分頁。', '<a class="btn primary" href="https://pipeline.step1ne.com/" target="_blank" rel="noopener" style="min-height:44px;display:inline-flex;align-items:center;text-decoration:none">另開分頁看帶案狀況 ↗</a>') + `<div id="page-data"><iframe class="casestatus-frame" src="https://pipeline.step1ne.com/" title="帶案狀況儀表板" loading="lazy" referrerpolicy="no-referrer"></iframe></div>`,
   // 2026-10-27 Jacky：電話名單（畫面與邏輯在 calllist.js）
   calllist: () => pageHead('人選電話名單', '一列一位：①點結果 ②備註可留空 ③按「送出」才會存進系統（人選卡片時間軸看得到）。不會寄任何東西給人選。') + `<div id="page-data"></div>`,
   bdcalls: () => pageHead('公司開發名單', '一列一家：①點結果 ②備註可留空 ③按「送出」才會存進系統（客戶/BD → 開發進度、帶案看板都看得到）。') + `<div id="page-data"></div>`,

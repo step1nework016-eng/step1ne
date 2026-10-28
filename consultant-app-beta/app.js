@@ -54,6 +54,7 @@ async function loadRoute() {
   if (state.route === 'daily') {
     return loadDailyTab(target, state.sub);
   }
+  if (state.route === 'casestatus') return;   // 帶案狀況：畫面裡就是嵌入的外部儀表板，不用另外抓資料
   if (state.route === 'calllist') return loadCallList(target);
   if (state.route === 'bdcalls') return loadBdCalls(target);
   if (state.route === 'board') return loadBoardTab(target);
@@ -1008,6 +1009,11 @@ document.addEventListener('click', (event) => {
   if (!btn || btn.disabled) return;
   event.preventDefault();
   scHandle(btn);
+});
+// 2026-10-28：左側大項底下的分頁列，手機寬度是原生下拉選單，選了就換頁（桌機是按鈕，走 data-route）。
+document.addEventListener('change', (event) => {
+  const sel = event.target instanceof Element ? event.target.closest('[data-grp-select]') : null;
+  if (sel && sel.value) navigate(sel.value);
 });
 document.addEventListener('change', (event) => {
   const el = event.target instanceof Element ? event.target.closest('[data-sc-me]') : null;

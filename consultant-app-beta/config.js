@@ -14,6 +14,7 @@ export const ROUTES = Object.freeze({
   calllist: '/consultant-beta/calllist/',
   bdcalls: '/consultant-beta/bdcalls/',
   recruitment: '/consultant-beta/recruitment/',
+  casestatus: '/consultant-beta/case-status/',
   candidates: '/consultant-beta/candidates/',
   jobs: '/consultant-beta/jobs/',
   interviews: '/consultant-beta/interviews/',
