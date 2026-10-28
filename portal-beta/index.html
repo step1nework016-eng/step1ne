@@ -1781,7 +1781,7 @@ function openInstModal(gi, id){
   const paid = r.confirmed_received === 'yes' || r.paid;
   const facts = [
     ['到期日', fmtSlot(r.due_date)],
-    paid && (r.paid_date || r.confirmed_date) ? ['顧問確認收款', fmtSlot(r.confirmed_date || r.paid_date)] : null,
+    paid && (r.paid_date || r.confirmed_date) ? ['收款日', fmtSlot(r.paid_date || r.confirmed_date)] : null,
     r.client_transfer_date ? ['你回報的匯款日', fmtSlot(r.client_transfer_date)] : null,
     r.invoice_no ? ['發票號碼', r.invoice_no] : null,
   ].filter(Boolean);
