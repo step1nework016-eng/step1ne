@@ -565,6 +565,18 @@ header .beta-tag{white-space:nowrap}
 .notify-item .bell-t b{display:inline;font-size:13.5px}
 .notify-item .bell-t{display:block}
 
+/* 2026-10-28 補回舊版：階段統計列、卡片上的推薦日／LINE ID／人事資料表 */
+.cstats{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 18px}
+.cstat{min-height:44px;border-radius:999px;background:var(--surface);color:var(--ink2);border:1px solid var(--line);padding:0 14px;font-size:14px;display:inline-flex;align-items:center;gap:6px}
+.cstat b{font-family:var(--f-num);font-weight:600;color:var(--ink)}
+.cstat.on{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.cstat.on b{color:var(--surface)}
+.cstats-m{display:none;width:100%;margin:0 0 16px;padding:0 10px}
+@media (max-width:640px){.cstats{display:none}.cstats-m{display:block}}
+.cmeta{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:12.5px;color:var(--ink3);margin-top:4px}
+.cmeta-form{color:var(--attn);background:var(--attn-soft);border-radius:999px;padding:0 8px}
+a.cmeta-form.ok{color:var(--ok);background:var(--ok-soft);text-decoration:none;font-weight:700}
+
 </style>
 
 <header><div class="wrap" style="position:relative">
@@ -2118,6 +2130,23 @@ function trackHtml(st){
 }
 
 let CAND_JOB_FILTER = '';
+// 2026-10-28 Jacky：舊版上面那排「全部 32／顧問階段 13／不推進 6／錄取 2…」統計、推送日、LINE ID、人事資料表狀態，新版也要有。
+let CAND_STAGE_FILTER = 'all';
+const STAGE_BUCKETS = [['all', '全部'], ['decide', '等你決定'], ['interview', '面試中'], ['offer', '已錄取'], ['onboard', '已報到'], ['ended', '不推進／已結束']];
+function stageBucket(st){
+  if (st.kind === 'decide') return 'decide';
+  if (['schedule', 'wait_slot', 'upcoming', 'result'].includes(st.kind)) return 'interview';
+  if (['offered', 'onboard_soon'].includes(st.kind)) return 'offer';
+  if (st.kind === 'onboarded') return 'onboard';
+  return 'ended';
+}
+function formsHtml(c){
+  const fs = c.forms || [];
+  if (!fs.length) return '';
+  return fs.map(f => f.status === 'submitted'
+    ? `<a class="cmeta-form ok" href="${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(c.application_id)}/form/${encodeURIComponent(f.id)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${esc(f.form_name || '人事資料表')}：已交・下載</a>`
+    : `<span class="cmeta-form">${esc(f.form_name || '人事資料表')}：等人選填</span>`).join('');
+}
 function renderCandList(){
   const box = document.getElementById('candList');
   LAST_CAND_SIG = candSig(CAND_LIST);
@@ -2134,25 +2163,40 @@ function renderCandList(){
     if (q && !`${c.candidate_name} ${c.job_title || ''}`.toLowerCase().includes(q)) return false;
     return true;
   }).map(c => ({ c, st: candState(c) }));
+  // 統計列（數字算的是目前職缺／搜尋條件下的人）
+  const cnt = { all: list.length };
+  list.forEach(x => { const b = stageBucket(x.st); cnt[b] = (cnt[b] || 0) + 1; });
+  const statsHtml = `<div class="cstats" role="group" aria-label="依階段篩選">${STAGE_BUCKETS.map(([k, lb]) =>
+      `<button type="button" class="cstat${CAND_STAGE_FILTER === k ? ' on' : ''}" data-stage="${k}" aria-pressed="${CAND_STAGE_FILTER === k}">${lb}<b class="num">${cnt[k] || 0}</b></button>`).join('')}</div>
+    <select class="cstats-m" data-stage-sel aria-label="依階段篩選">${STAGE_BUCKETS.map(([k, lb]) => `<option value="${k}" ${CAND_STAGE_FILTER === k ? 'selected' : ''}>${lb}（${cnt[k] || 0}）</option>`).join('')}</select>`;
+  const shown = CAND_STAGE_FILTER === 'all' ? list : list.filter(x => stageBucket(x.st) === CAND_STAGE_FILTER);
   if (!CAND_LIST.length) { box.innerHTML = '<div class="cl-empty">顧問還沒有推薦人選給你。有新人選時，這裡會出現，也會通知你。</div>'; return; }
   if (!list.length) { box.innerHTML = '<div class="cl-empty">找不到符合的人選，換個關鍵字試試。</div>'; return; }
   const card = ({ c, st }) => `<button type="button" class="cc" data-app="${esc(c.application_id)}">
-      <div><div class="nm">${esc(c.candidate_name)}</div><div class="cjob">${esc(c.job_title || c.job_slug || '')}</div></div>
+      <div><div class="nm">${esc(c.candidate_name)}</div><div class="cjob">${esc(c.job_title || c.job_slug || '')}</div>
+        <div class="cmeta"><span>推薦 ${esc(fmtSlot((c.forwarded_at || '').slice(0, 10)))}</span>${c.line_id_given ? `<span>LINE：${esc(c.line_id_given)}</span>` : ''}${formsHtml(c)}</div></div>
       <div>${trackHtml(st)}</div>
       <div class="nx"><span class="lb">${st.group === 'ended' ? '狀態' : '下一步'}</span>${st.nextHtml ? st.next : esc(st.next)}</div>
       <span class="go">${st.group === 'todo' ? '去處理' : '打開'}</span>
     </button>`;
-  const todo = list.filter(x => x.st.group === 'todo');
-  const act = list.filter(x => x.st.group === 'active');
-  const end = list.filter(x => x.st.group === 'ended');
-  let html = '';
+  const todo = shown.filter(x => x.st.group === 'todo');
+  const act = shown.filter(x => x.st.group === 'active');
+  const end = shown.filter(x => x.st.group === 'ended');
+  let html = statsHtml;
+  if (!shown.length) { box.innerHTML = statsHtml + '<div class="cl-empty">這個階段目前沒有人選。</div>'; wireStats(box); return; }
   html += todo.length
     ? `<section class="cl-group todo"><h2>等你處理 <span class="n">${todo.length}</span></h2><p class="hint">這幾位在等你回覆，點開就能直接處理。</p>${todo.map(card).join('')}</section>`
-    : `<section class="cl-group todo"><h2>等你處理 <span class="n">0</span></h2><div class="cl-empty">目前沒有要你處理的事。</div></section>`;
+    : (CAND_STAGE_FILTER === 'all' ? `<section class="cl-group todo"><h2>等你處理 <span class="n">0</span></h2><div class="cl-empty">目前沒有要你處理的事。</div></section>` : '');
   if (act.length) html += `<section class="cl-group"><h2>進行中 <span class="n">${act.length}</span></h2>${act.map(card).join('')}</section>`;
-  if (end.length) html += `<details class="cl-group ended"${(!todo.length && !act.length) ? ' open' : ''}><summary>已結束 <span class="n num">${end.length}</span></summary>${end.map(card).join('')}</details>`;
+  if (end.length) html += `<details class="cl-group ended"${(!todo.length && !act.length) || CAND_STAGE_FILTER === 'ended' ? ' open' : ''}><summary>已結束 <span class="n num">${end.length}</span></summary>${end.map(card).join('')}</details>`;
   box.innerHTML = html;
   box.querySelectorAll('.cc').forEach(b => b.addEventListener('click', () => openCandModal(b.dataset.app)));
+  wireStats(box);
+}
+function wireStats(box){
+  box.querySelectorAll('[data-stage]').forEach(b => b.addEventListener('click', () => { CAND_STAGE_FILTER = b.dataset.stage; renderCandList(); }));
+  const sel = box.querySelector('[data-stage-sel]');
+  if (sel) sel.addEventListener('change', () => { CAND_STAGE_FILTER = sel.value; renderCandList(); });
 }
 document.getElementById('candSearch').addEventListener('input', renderCandList);
 document.getElementById('candJob').addEventListener('change', (e) => { CAND_JOB_FILTER = e.target.value; renderCandList(); });
