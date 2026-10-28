@@ -1932,7 +1932,10 @@ function candState(c){
     return { ...base, group: 'active', kind: 'offered', pill: ['act', '已錄取'], next: '人選報到後，按「已報到」' };
   if (!advanced)
     return { ...base, group: 'todo', kind: 'decide', pill: ['todo', '等你決定'], next: '看完資料，決定要不要面試' };
-  const pendingAny = (c.appts || []).filter(a => a.status === 'pending' && Number(a.stage) > 0).slice(-1)[0];
+  // 舊的邀請沒被收掉時（例：10/27 張家昌邀了兩次才確認），同一關已經有確認時間就不算「等人選選時段」
+  const confirmedStages = (c.appts || []).filter(a => a.status === 'confirmed').map(a => Number(a.stage));
+  const pendingAny = (c.appts || []).filter(a => a.status === 'pending' && Number(a.stage) > 0
+    && !confirmedStages.some(s => s >= Number(a.stage))).slice(-1)[0];
   const curN = Number(String(cur).replace('stage', '')) || 0;
   if (pendingAny && Number(pendingAny.stage) >= (curN || 1))
     return { ...base, group: 'active', kind: 'wait_slot', stageKey: 'stage' + pendingAny.stage, pill: ['act', '等人選選時段'],
