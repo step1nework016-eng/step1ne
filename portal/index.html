@@ -508,6 +508,12 @@ header .beta-tag{white-space:nowrap}
 @media (max-width:640px){header b{font-size:15px;white-space:nowrap}header #coname{font-size:12px;line-height:1.4;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
 [hidden]{display:none!important}
 
+/* 2026-10-28 檢查補：職缺表單的選項 chip、刪除連結手指點得到 */
+.fcChip{min-height:44px;display:inline-flex;align-items:center;padding:0 14px;font-size:14px}
+.fcChip.picked{background:var(--primary);border-color:var(--primary)}
+.jc .del{min-height:44px}
+.bu-go{width:auto;justify-self:start}
+
 </style>
 
 <header><div class="wrap" style="position:relative">
@@ -803,7 +809,12 @@ function fcApplyImported(parsed) {
   var n = 0;
   Object.keys(parsed || {}).forEach(function (key) {
     if (!fcFieldByKey(key)) return;
-    FC_VALUES[key] = parsed[key];
+    // 2026-10-28：AI 解析可能回陣列或數字，原樣塞進來會讓福利欄 split 壞掉、存檔被後端拒收
+    var v = parsed[key];
+    if (Array.isArray(v)) v = v.map(String).join('、');
+    else if (v !== null && typeof v === 'object') return;
+    else if (v !== null && v !== undefined) v = String(v);
+    FC_VALUES[key] = v;
     FC_AI_FILLED[key] = true;
     n++;
   });
@@ -1073,7 +1084,7 @@ function fcConfirmAction() {
   var goBtn = document.getElementById('fcPvGoBtn');
   if (goBtn) { goBtn.disabled = true; goBtn.textContent = '處理中…'; }
   var done = function () { if (goBtn) goBtn.disabled = false; fcClosePreview(); };
-  if (typeof FC_ON_SUBMIT === 'function') { Promise.resolve(FC_ON_SUBMIT(fcCollectValues())).then(done).catch(done); }
+  if (typeof FC_ON_SUBMIT === 'function') { Promise.resolve(FC_ON_SUBMIT(fcCollectValues())).then(done).catch(function () { done(); toast('連線失敗，內容可能還沒送出，請稍後再按一次'); }); }
   else { done(); }
 }
 
@@ -1105,8 +1116,9 @@ async function load(){
   document.getElementById('content').hidden = false;
 
   if (!data.jobs.length){
-    document.getElementById('picklist').innerHTML = '<div class="state">目前還沒有職缺掛在這個入口，請聯繫顧問。</div>';
-    document.querySelector('.bar').hidden = true;
+    // 2026-10-28：原本把整條工具列藏起來，「＋新增職缺」也一起不見，新客戶沒辦法自己開第一個職缺
+    document.getElementById('picklist').innerHTML = '<div class="cl-empty">還沒有職缺。按右上「＋ 新增職缺」開始填第一個，或請顧問幫你建立。</div>';
+    document.getElementById('q').hidden = true; document.getElementById('fl').hidden = true;
   } else {
     renderPicklist();
   }
@@ -1152,15 +1164,18 @@ function renderPicklist(){
     const miss = jobMissingRequired(job);
     const closed = job.status === 'closed';
     const draft = job.status === 'client_draft';
+    // 2026-10-28：顧問核准了但還沒刊登（status='draft'）原本被當成「招募中」，還給了按了會出錯的「結束招募」
+    const staging = job.status === 'draft';
     const statusPill = closed
       ? `<span class="pl end">${job.closed_by === 'client' ? '已結束招募' : '顧問已關閉'}</span>`
       : draft ? '<span class="pl todo">還沒送出給顧問</span>'
+      : staging ? '<span class="pl act">顧問準備刊登中</span>'
       : '<span class="pl ok">招募中</span>';
     return `<div class="jc" data-slug="${esc(job.slug)}" role="button" tabindex="0" aria-label="打開職缺 ${title}">
       <div class="jc-top"><div style="display:grid;gap:4px"><b>${title}</b>${statusPill}</div>
         <div class="btns">
           <button type="button" class="${miss.length ? '' : 'sec'} open-job-btn">${miss.length ? '繼續填' : '查看／修改'}</button>
-          ${draft ? '' : `<button type="button" class="sec hire-toggle-btn" data-slug="${esc(job.slug)}" data-action="${closed ? 'reopen' : 'close'}">${closed ? '重新招募' : '結束招募'}</button>`}
+          ${(draft || staging) ? '' : `<button type="button" class="sec hire-toggle-btn" data-slug="${esc(job.slug)}" data-action="${closed ? 'reopen' : 'close'}">${closed ? '重新招募' : '結束招募'}</button>`}
         </div></div>
       <div><div class="jc-prog"><i style="width:${pct}%"></i></div><div class="meet-state num" style="margin-top:4px">已填 ${filled} / ${fields.length} 項${filled >= fields.length ? '・全部填好了' : ''}</div></div>
       ${miss.length ? `<div class="jc-miss"><span style="background:none;color:var(--ink3);padding:0">還缺必填：</span>${miss.map(m => `<span>${esc(m)}</span>`).join('')}</div>` : ''}
@@ -1188,7 +1203,7 @@ function renderPicklist(){
       e.stopPropagation();
       const slug = btn.dataset.slug;
       const job = PORTAL_DATA.jobs.find(j => j.slug === slug);
-      if (!confirm(`確定要刪除「${(job && (job.title || job.slug)) || slug}」這個職缺嗎？如果已經有人應徵過會刪不掉，系統會告訴你原因。`)) return;
+      if (!(await confirmBox(`確定要刪除「${(job && (job.title || job.slug)) || slug}」這個職缺嗎？如果已經有人應徵過會刪不掉，系統會告訴你原因。`, '刪除'))) return;
       btn.disabled = true;
       try{
         const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/jobs/${encodeURIComponent(slug)}`, { method: 'DELETE' });
@@ -1227,7 +1242,13 @@ document.getElementById('newJobSubmit').addEventListener('click', async () => {
     if (!data.ok){ errEl.textContent = data.error || '送出失敗'; errEl.hidden = false; btn.disabled = false; return; }
     document.getElementById('newJobBox').hidden = true;
     document.getElementById('newJobTitle').value = '';
-    PORTAL_DATA.jobs.push({ slug: data.slug, title, status: 'client_draft' });
+    // 2026-10-28：後端建立時會帶入公司簡介／聯絡窗口，前端要重抓，不然第一次存檔會把它們蓋成空白
+    try {
+      const r2 = await fetch(`${API}/portal/${encodeURIComponent(token)}`);
+      const d2 = await r2.json();
+      if (d2.ok) PORTAL_DATA.jobs = d2.jobs; else PORTAL_DATA.jobs.push({ slug: data.slug, title, status: 'client_draft' });
+    } catch { PORTAL_DATA.jobs.push({ slug: data.slug, title, status: 'client_draft' }); }
+    document.getElementById('q').hidden = false; document.getElementById('fl').hidden = false;
     openJob(data.slug);
   }catch{
     errEl.textContent = '連線失敗，請稍後再試'; errEl.hidden = false;
@@ -1288,7 +1309,7 @@ async function loadJobForms(slug){
     </div>`;
   box.querySelectorAll('.jfDel').forEach(btn => {
     btn.addEventListener('click', async () => {
-      if (!confirm('確定要刪除這份表單嗎？已經寄出的不受影響，只是之後不會再自動附上。')) return;
+      if (!(await confirmBox('確定要刪除這份表單嗎？已經寄出的不受影響，只是之後不會再自動附上。', '刪除'))) return;
       await fetch(`${API}/portal/${encodeURIComponent(token)}/jobs/${encodeURIComponent(slug)}/forms/${encodeURIComponent(btn.dataset.id)}/delete`, { method: 'POST' });
       loadJobForms(slug);
     });
@@ -1378,7 +1399,7 @@ function wireStageConfigBox(root, slug){
           body: JSON.stringify({ interview_stage_config: JSON.stringify(hidden.value) }),
         });
         const data = await res.json();
-        if (!data.ok){ alert(data.error || '儲存失敗，請重新勾選一次'); }
+        if (!data.ok){ alert(data.error || '儲存失敗，請重新勾選一次'); if (summaryEl) summaryEl.textContent = '沒有存成功，請重新勾選一次'; box.querySelectorAll('.stage-chk').forEach(c => { c.disabled = false; }); return; }
         const jobRecord = PORTAL_DATA.jobs.find(j => j.slug === slug);
         if (jobRecord) jobRecord.interview_stage_config = hidden.value;
       }catch{
@@ -1399,22 +1420,24 @@ function renderJob(job, fields){
   div.innerHTML = `
     <h2>${esc(job.title || job.slug)}<span class="cnt fcProgBar" id="fcProg" style="margin:0"></span></h2>
     ${renderStageConfigBox(job)}
-    ${renderImportBox(job.slug)}
+    ${job.status === 'client_draft' ? renderImportBox(job.slug) : ''}
     ${renderHireStateBox(job)}
     <div id="fcMissBanner"></div>
     <div id="fcWrap"></div>
     <div id="jobFormsBox"></div>
     <div class="savebar">
-      <button type="button" class="sec save-btn">存檔（不送審，隨時可以回來改）</button>
-      <button type="button" class="submit-btn">看預覽，再送出審核 →</button>
+      ${job.status === 'client_draft'
+        ? `<button type="button" class="sec save-btn">存檔（不送審，隨時可以回來改）</button>
+      <button type="button" class="submit-btn">看預覽，再送出審核 →</button>`
+        : `<button type="button" class="save-btn">儲存修改</button><span class="meet-state">這個職缺已經在顧問那邊，存了就會更新，顧問會收到通知。</span>`}
     </div>`;
 
   div.querySelector('.save-btn').addEventListener('click', (e) => quickSaveJob(job.slug, e.target));
-  div.querySelector('.submit-btn').addEventListener('click', () => {
+  if (div.querySelector('.submit-btn')) div.querySelector('.submit-btn').addEventListener('click', () => {
     FC_ON_SUBMIT = (values) => submitJobWithFacts(job.slug, values);
     fcOpenPreview();
   });
-  wireImportBox(div, job.slug);
+  if (job.status === 'client_draft') wireImportBox(div, job.slug);
   wireHireStateBox(div, job.slug);
   wireStageConfigBox(div, job.slug);
   return div;
@@ -1423,7 +1446,12 @@ function renderJob(job, fields){
 // 「存檔」——不經過預覽，隨時存、隨時可以離開再回來改，client_draft 階段本來就是這樣。
 async function quickSaveJob(slug, btn){
   btn.disabled = true;
-  const payload = fcCollectValues();
+  const all = fcCollectValues();
+  const jobRec = PORTAL_DATA.jobs.find(j => j.slug === slug) || {};
+  const norm = (v) => (v === null || v === undefined) ? '' : String(v);
+  const payload = {};
+  Object.keys(all).forEach(k => { if (norm(all[k]) !== norm(jobRec[k])) payload[k] = all[k]; });
+  if (!Object.keys(payload).length) { btn.disabled = false; showSavedModal(); return; }
   try{
     const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/jobs/${encodeURIComponent(slug)}`, {
       method: 'PUT', headers: {'content-type':'application/json'}, body: JSON.stringify(payload),
@@ -1487,9 +1515,8 @@ function wireHireStateBox(jobEl, slug){
   if (reopenBtn) reopenBtn.addEventListener('click', () => reopenHire(slug, () => openJob(slug)));
 }
 async function closeHire(slug, refreshFn){
-  const reason = prompt('請簡單說明結束招募的原因（例如：已透過其他管道找到人選）');
-  if (reason === null) return;
-  if (!reason.trim()){ alert('請填寫原因'); return; }
+  const reason = await promptReason('結束招募的原因（例如：已透過其他管道找到人選）');
+  if (!reason) return;
   try{
     const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/jobs/${encodeURIComponent(slug)}/close-hire`, {
       method: 'POST', headers: {'content-type':'application/json'}, body: JSON.stringify({ reason: reason.trim() }),
@@ -1504,9 +1531,8 @@ async function closeHire(slug, refreshFn){
   }
 }
 async function reopenHire(slug, refreshFn){
-  const reason = prompt('請簡單說明重新招募的原因');
-  if (reason === null) return;
-  if (!reason.trim()){ alert('請填寫原因'); return; }
+  const reason = await promptReason('重新招募的原因');
+  if (!reason) return;
   try{
     const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/jobs/${encodeURIComponent(slug)}/reopen`, {
       method: 'POST', headers: {'content-type':'application/json'}, body: JSON.stringify({ reason: reason.trim() }),
@@ -1732,7 +1758,9 @@ async function loadBilling(){
   BILL_GROUPS = Object.keys(byPlacement).map(k => byPlacement[k]);
   const today = taipeiNow().slice(0, 10);
   const soon = new Date(Date.now() + 8 * 3600e3 + 14 * 86400e3).toISOString().slice(0, 10);
-  const instState = (r) => r.confirmed_received === 'yes' ? ['paid', '✓ 顧問已確認收到']
+  // 2026-10-28：手動標已收（paid）也算已付；顧問按「還沒收到」（'no'）要回到可上傳狀態，不能永遠卡在「等確認」
+  const instState = (r) => (r.confirmed_received === 'yes' || r.paid) ? ['paid', '✓ 顧問已確認收到']
+    : r.confirmed_received === 'no' ? ['due', '顧問還沒收到，請重新上傳證明']
     : r.client_submitted_at ? ['sent', '已回報匯款，等顧問確認']
     : (r.due_date && r.due_date <= soon) ? ['due', r.due_date < today ? '已過到期日，還沒付款' : '快到期，還沒付款']
     : ['', '還沒付款'];
@@ -1765,20 +1793,21 @@ async function loadBilling(){
 // 「我已經匯款了」，會通知顧問到 Telegram 按已收到／還沒收到。已經回報過的（不管
 // 待確認還是已確認）不能重複送出，避免同一期送兩次搞混顧問要看哪一份證明。
 function billStatusBlock(r){
-  if (r.confirmed_received === 'yes') {
-    return { status: `<span style="color:#2f8f5b;font-weight:700">✅ 顧問已收到</span>`, action: '' };
+  // 2026-10-28：手動標已收（paid）也算；顧問按「還沒收到」（confirmed_received='no'）要讓客戶能重新上傳
+  if (r.confirmed_received === 'yes' || r.paid) {
+    return { status: `<span style="color:var(--ok);font-weight:700">✓ 顧問已確認收到</span>`, action: '' };
   }
-  if (r.client_submitted_at) {
-    return { status: `<span style="color:#8a6100;font-weight:700">⏳ 已回報匯款，待顧問確認</span><br>` +
-      `<span style="color:var(--ink3);font-size:12px">匯款日期 ${esc(r.client_transfer_date || '')}</span>`, action: '' };
+  if (r.client_submitted_at && r.confirmed_received !== 'no') {
+    return { status: `<span style="color:var(--attn);font-weight:700">已回報匯款，等顧問確認</span><br>` +
+      `<span style="color:var(--ink3);font-size:13px">匯款日期 ${esc(r.client_transfer_date || '')}</span>`, action: '' };
   }
-  return { status: `<span style="color:var(--ink3)">未收款</span>`, action:
-    `<div class="bill-upload" data-id="${esc(r.id)}" style="margin-top:8px;padding:10px;background:var(--soft);border-radius:10px">` +
-    `<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">` +
-    `<input type="date" class="bu-date" max="${new Date().toISOString().slice(0,10)}" style="font:inherit;font-size:13px;padding:6px 8px;border:1px solid var(--line);border-radius:8px">` +
-    `<input type="file" class="bu-file" accept="image/*,.pdf" style="font-size:12.5px;max-width:160px">` +
+  const again = r.confirmed_received === 'no';
+  return { status: again ? `<span style="color:var(--bad);font-weight:700">顧問還沒收到這筆款項，請確認後重新上傳證明</span>` : `<span style="color:var(--ink3)">還沒付款</span>`, action:
+    `<div class="bill-upload" data-id="${esc(r.id)}" style="margin-top:8px;padding:12px;background:var(--soft);border-radius:10px;display:grid;gap:8px">` +
+    `<label style="display:grid;gap:4px;font-size:14px">匯款日期<input type="date" class="bu-date" max="${taipeiNow().slice(0, 10)}"></label>` +
+    `<label style="display:grid;gap:4px;font-size:14px">匯款單照片或 PDF（選填）<input type="file" class="bu-file" accept="image/*,.pdf" style="min-height:44px"></label>` +
     `<button type="button" class="bu-go">我已匯款，送出</button>` +
-    `</div><div class="bu-msg" style="font-size:12px;color:var(--ink3);margin-top:6px"></div></div>` };
+    `<div class="bu-msg" style="font-size:13px;color:var(--ink3)"></div></div>` };
 }
 function openBillModal(rows){
   const r0 = rows[0];
@@ -2019,6 +2048,21 @@ function promptReason(title){
     const done = (v) => { g('reasonMask').classList.remove('show'); g('reasonOk').onclick = null; g('reasonCancel').onclick = null; resolve(v); };
     g('reasonOk').onclick = () => { const v = g('reasonInput').value.trim(); if (!v) { g('reasonErr').textContent = '請寫一句原因'; return; } done(v); };
     g('reasonCancel').onclick = () => done(null);
+  });
+}
+
+// confirm() 在 LINE 內建瀏覽器會直接回 false（按了沒反應），改頁面內小視窗；沿用原因視窗、藏起輸入框
+function confirmBox(msg, okLabel){
+  return new Promise((resolve) => {
+    const g = (id) => document.getElementById(id);
+    g('reasonTitle').textContent = msg;
+    g('reasonInput').hidden = true; g('reasonErr').textContent = '';
+    g('reasonOk').textContent = okLabel || '確認';
+    g('reasonMask').classList.add('show');
+    const done = (v) => { g('reasonMask').classList.remove('show'); g('reasonInput').hidden = false; g('reasonOk').textContent = '確認'; g('reasonOk').onclick = null; g('reasonCancel').onclick = null; resolve(v); };
+    g('reasonOk').onclick = () => done(true);
+    g('reasonCancel').onclick = () => done(false);
+    setTimeout(() => g('reasonCancel').focus(), 50);
   });
 }
 
