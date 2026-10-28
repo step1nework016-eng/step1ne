@@ -1148,14 +1148,16 @@ function renderPicklist(){
     const pct = Math.round(filled / Math.max(1, fields.length) * 100);
     const miss = jobMissingRequired(job);
     const closed = job.status === 'closed';
+    const draft = job.status === 'client_draft';
     const statusPill = closed
       ? `<span class="pl end">${job.closed_by === 'client' ? '已結束招募' : '顧問已關閉'}</span>`
+      : draft ? '<span class="pl todo">還沒送出給顧問</span>'
       : '<span class="pl ok">招募中</span>';
     return `<div class="jc" data-slug="${esc(job.slug)}" role="button" tabindex="0" aria-label="打開職缺 ${title}">
       <div class="jc-top"><div style="display:grid;gap:4px"><b>${title}</b>${statusPill}</div>
         <div class="btns">
           <button type="button" class="${miss.length ? '' : 'sec'} open-job-btn">${miss.length ? '繼續填' : '查看／修改'}</button>
-          <button type="button" class="sec hire-toggle-btn" data-slug="${esc(job.slug)}" data-action="${closed ? 'reopen' : 'close'}">${closed ? '重新招募' : '結束招募'}</button>
+          ${draft ? '' : `<button type="button" class="sec hire-toggle-btn" data-slug="${esc(job.slug)}" data-action="${closed ? 'reopen' : 'close'}">${closed ? '重新招募' : '結束招募'}</button>`}
         </div></div>
       <div><div class="jc-prog"><i style="width:${pct}%"></i></div><div class="meet-state num" style="margin-top:4px">已填 ${filled} / ${fields.length} 項${filled >= fields.length ? '・全部填好了' : ''}</div></div>
       ${miss.length ? `<div class="jc-miss"><span style="background:none;color:var(--ink3);padding:0">還缺必填：</span>${miss.map(m => `<span>${esc(m)}</span>`).join('')}</div>` : ''}
