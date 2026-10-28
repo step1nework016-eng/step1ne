@@ -2419,7 +2419,8 @@ function openCandModal(appId){
       else if (a === 'propose') await actPropose(id, b.dataset.stage);
       else if (a === 'repropose') await actPropose(id, b.dataset.stage, true);
       else if (a === 'setstage') await actSetStage(id, b.dataset.stage, stageLabelOf(c, b.dataset.stage) + '的時間');
-      else if (a === 'offer') await actSetStage(id, 'offer', '錄取時間', '錄取原因（選填，顧問會看到）');
+      // 2026-10-28：有客戶把到職日 12/1 填進「錄取時間」——標題講清楚填的是哪一天，預計到職日寫在備註
+      else if (a === 'offer') await actSetStage(id, 'offer', '哪一天通知錄取？（不是到職日）', '預計到職日／錄取原因（選填，顧問會看到）');
       else if (a === 'onboard') await actSetStage(id, 'onboard', '報到日期');
       else if (a === 'addround') await actAddRound(id);
     } finally { b.disabled = false; }
