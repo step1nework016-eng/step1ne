@@ -1916,7 +1916,9 @@ function candState(c){
   if (c.candidate_withdrawn_at)
     return { ...base, group: 'ended', kind: 'wd', pill: ['end', '人選放棄'], next: c.candidate_withdraw_reason ? '原因：' + c.candidate_withdraw_reason : '人選決定不繼續' };
   if (c.client_rejected_at)
-    return { ...base, group: 'ended', kind: 'rej', pill: ['end', '已不考慮'], next: c.client_reject_reason ? '你的原因：' + c.client_reject_reason : '你已決定不考慮' };
+    { const r = c.client_reject_reason || '';
+      const lb = r.startsWith('不錄取：') ? '不錄取' : r.startsWith('沒有報到：') ? '沒有報到' : '不推進';
+      return { ...base, group: 'ended', kind: 'rej', pill: ['end', lb], next: r ? '你的原因：' + r.replace(/^(不錄取|沒有報到)：/, '') : '你已決定不考慮' }; }
   if (onS.done || onS.now)
     return { ...base, group: 'ended', kind: 'onboarded', pill: ['ok', '已報到'], next: '已報到，恭喜！' };
   if (offerS.done || offerS.now)
@@ -2017,10 +2019,10 @@ async function actAdvance(appId){
   if (c2 && (c2.client_advanced_at || (stepOf(c2, 'matched') || {}).done)) toast('已通知顧問，接下來約面試時間');
   else if (c) openCandModal(appId);
 }
-async function actReject(appId, title){
+async function actReject(appId, title, kind){
   const reason = await promptReason(title);
   if (!reason) return;
-  await tblReject(appId, reason, null, '');
+  await tblReject(appId, reason, null, '', kind);
   toast('已記錄，顧問會看到你的原因');
 }
 async function actSetStage(appId, stageKey, title, noteLabel){
@@ -2148,8 +2150,8 @@ function openCandModal(appId){
     try {
       if (a === 'advance') await actAdvance(id);
       else if (a === 'reject') await actReject(id, '不考慮的原因（顧問會看到，幫我們調整之後推薦的方向）');
-      else if (a === 'reject-offer') await actReject(id, '不錄取的原因（顧問會看到）');
-      else if (a === 'reject-onboard') await actReject(id, '沒有來報到的原因（顧問會看到）');
+      else if (a === 'reject-offer') await actReject(id, '不錄取的原因（顧問會看到）', 'not_hired');
+      else if (a === 'reject-onboard') await actReject(id, '沒有來報到的原因（顧問會看到）', 'no_show');
       else if (a === 'propose') await actPropose(id, b.dataset.stage);
       else if (a === 'setstage') await actSetStage(id, b.dataset.stage, stageLabelOf(c, b.dataset.stage) + '的時間');
       else if (a === 'offer') await actSetStage(id, 'offer', '錄取時間', '錄取原因（選填，顧問會看到）');
@@ -2349,7 +2351,8 @@ async function tblHandleChange(appId, role, value, sel){
     if (value === 'decline') {
       const reason = prompt('請說明不錄取的原因（顧問會看到，這會幫助我們調整後續推薦方向）');
       if (reason === null || !reason.trim()) { sel.value = prevValue; return; }
-      await tblReject(appId, reason.trim(), sel, prevValue);
+      // 2026-10-28：帶 kind，後端才知道這是面試後不錄取，不是面試前不推進（之前一律被擋）
+      await tblReject(appId, reason.trim(), sel, prevValue, 'not_hired');
     } else if (value === 'offer') {
       const picked = await promptDateTime('錄取時間', '錄取原因（選填，顧問會看到）');
       if (!picked) { sel.value = prevValue; return; }
@@ -2361,7 +2364,7 @@ async function tblHandleChange(appId, role, value, sel){
     if (value === 'decline') {
       const reason = prompt('請說明不報到的原因（顧問會看到，這會幫助我們調整後續推薦方向）');
       if (reason === null || !reason.trim()) { sel.value = prevValue; return; }
-      await tblReject(appId, reason.trim(), sel, prevValue);
+      await tblReject(appId, reason.trim(), sel, prevValue, 'no_show');
     } else if (value === 'onboard') {
       const picked = await promptDateTime('預計報到時間', '備註（選填，顧問會看到）');
       if (!picked) { sel.value = prevValue; return; }
@@ -2441,10 +2444,10 @@ function wireOfferUpload(appId){
   });
 }
 
-async function tblReject(appId, reason, sel, prevValue){
+async function tblReject(appId, reason, sel, prevValue, kind){
   try{
     const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(appId)}/reject`, {
-      method: 'POST', headers: {'content-type':'application/json'}, body: JSON.stringify({ reason }),
+      method: 'POST', headers: {'content-type':'application/json'}, body: JSON.stringify({ reason, kind: kind || undefined }),
     });
     const data = await res.json();
     if (!data.ok){ alert(data.error || '送出失敗'); if (sel) sel.value = prevValue; return; }
