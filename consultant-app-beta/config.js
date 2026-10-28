@@ -25,6 +25,7 @@ export const ROUTES = Object.freeze({
   mail: '/consultant-beta/mail/',
   onboarding: '/consultant-beta/onboarding/',
   roles: '/consultant-beta/agent-roles/',
+  paths: '/consultant-beta/candidate-paths/',
   system: '/consultant-beta/system/'
 });
 

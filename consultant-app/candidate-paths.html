@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>人選路線圖</title>
+<style>
+:root{--bg:#f3f6fa;--card:#fff;--ink:#16243a;--muted:#5b6b82;--line:#d9e2ee;
+--p:#3C3489;--pbg:#EEEDFE;--pb:#534AB7;--t:#085041;--tbg:#E1F5EE;--tb:#0F6E56;--g:#444441;--gbg:#F1EFE8;--gb:#888780;--r:#791F1F;--rbg:#FCEBEB;--rb:#A32D2D;--y:#633806;--ybg:#FAEEDA;--yb:#854F0B}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 "PingFang TC","Noto Sans TC",system-ui,sans-serif;padding:20px max(16px,env(safe-area-inset-left)) 40px max(16px,env(safe-area-inset-right))}
+.wrap{max-width:960px;margin:0 auto}
+h1{font-size:24px;margin:0 0 4px}.sub{color:var(--muted);margin:0 0 16px;font-size:14px}
+h2{font-size:18px;margin:22px 0 10px}
+.ask{background:var(--card);border:2px solid var(--ink);border-radius:14px;padding:14px 18px;font-size:18px;text-align:center;margin-bottom:14px}
+.ask b{font-weight:700}
+.routes{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.route{border-radius:14px;padding:16px;border:1px solid}
+.route h3{margin:0 0 2px;font-size:18px}.route .who{font-size:13px;margin-bottom:10px;opacity:.85}
+.P{background:var(--pbg);color:var(--p);border-color:var(--pb)}
+.T{background:var(--tbg);color:var(--t);border-color:var(--tb)}
+.G{background:var(--gbg);color:var(--g);border-color:var(--gb)}
+.chips{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:14px}
+.c{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:4px 10px}
+.c.P,.c.T,.c.G{border:1px solid}
+.ar{opacity:.6}
+.doors{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.door{background:var(--card);color:var(--ink);border-radius:10px;padding:8px 10px;font-size:14px;border:1px solid var(--line)}
+.door b{display:block}
+.four{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
+.four div{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:5px 10px;font-size:14px}
+.ch{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 16px;margin-bottom:10px}
+.ch h4{margin:0 0 6px;font-size:16px}
+.row{display:grid;grid-template-columns:130px 1fr;gap:8px;align-items:center;padding:4px 0;font-size:14px}
+.row .k{color:var(--muted);font-size:13px}
+.end{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center;margin:14px 0}
+.cut{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:14px}
+.x{background:var(--rbg);color:var(--r);border:1px solid var(--rb);border-radius:8px;padding:3px 10px;text-decoration:line-through}
+.m{background:var(--ybg);color:var(--y);border:1px solid var(--yb);border-radius:8px;padding:3px 10px}
+.rel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 18px}
+.rel table{border-collapse:collapse;width:100%;font-size:14px}
+.rel td,.rel th{border-bottom:1px solid var(--line);padding:8px;text-align:left;vertical-align:top}
+.rel th{color:var(--muted);font-weight:600}
+@media (max-width:560px){.row{grid-template-columns:1fr}.doors,.four{grid-template-columns:1fr}}
+</style></head><body><div class="wrap">
+<h1>人選路線圖</h1>
+<p class="sub">2026/10/27｜兩張圖合併：上面是「兩條路」，下面是「每個管道的人走哪條路」</p>
+
+<div class="ask">顧問只問自己一句：<b>「我有沒有先跟他講過話？」</b>　沒有 → 路線一　｜　有 → 路線二</div>
+
+<div class="routes">
+<div class="route P"><h3>路線一：人選自己點連結應徵</h3><div class="who">還沒跟顧問講過話的人</div>
+<div class="doors">
+<div class="door"><b>有履歷 → 一般應徵</b>傳履歷 → 阿財完整面談</div>
+<div class="door"><b>沒履歷 → 快速應徵</b>（BIM／培訓缺）填幾題 → 阿財 → 再補履歷</div>
+</div>
+<div class="chips"><span>兩個門都接 →</span><span class="c">電洽準備卡</span><span class="ar">→</span><span class="c">顧問打電話</span></div>
+</div>
+<div class="route T"><h3>路線二：顧問先跟他聊過了</h3><div class="who">電話、LINE、LinkedIn 已經聊過的人　← 這次要改的</div>
+<div class="chips"><span class="c">顧問先聊</span><span class="ar">→</span><span class="c">寄上傳履歷連結</span><span class="ar">→</span><span class="c">人選傳履歷</span><span class="ar">→</span><span class="c">阿財 10 分鐘確認</span></div>
+<div class="four"><div>① 離職原因</div><div>② 期望待遇</div><div>③ 經歷屬不屬實</div><div>④ 履歷怪的地方</div></div>
+</div>
+</div>
+
+<h2>每個管道的人，走哪條路</h2>
+<div class="ch"><h4>官網／Threads 職缺頁</h4>
+<div class="row"><span class="k">人選自己應徵</span><span class="chips"><span class="c">按應徵</span><span class="ar">→</span><span class="c P">路線一</span></span></div></div>
+<div class="ch"><h4>LINE 官方帳號</h4>
+<div class="row"><span class="k">點選單／職缺連結</span><span class="chips"><span class="c">按應徵</span><span class="ar">→</span><span class="c P">路線一</span></span></div>
+<div class="row"><span class="k">傳訊息來問</span><span class="chips"><span class="c">顧問 LINE／電話聊</span><span class="ar">→</span><span class="c">「複製連結」貼 LINE</span><span class="ar">→</span><span class="c T">路線二</span></span></div></div>
+<div class="ch"><h4>104</h4>
+<div class="row"><span class="k">寄 BIM 信</span><span class="chips"><span class="c">人選點信裡的應徵</span><span class="ar">→</span><span class="c P">路線一</span></span></div>
+<div class="row"><span class="k">回信／接電話</span><span class="chips"><span class="c">顧問聊</span><span class="ar">→</span><span class="c">寄上傳連結</span><span class="ar">→</span><span class="c T">路線二</span></span></div>
+<div class="row"><span class="k">都沒回</span><span class="chips"><span class="c">進電話名單打</span><span class="ar">→</span><span class="c">接通就聊</span><span class="ar">→</span><span class="c T">路線二</span></span></div></div>
+<div class="ch"><h4>LinkedIn</h4>
+<div class="row"><span class="k">顧問私訊</span><span class="chips"><span class="c">他回覆</span><span class="ar">→</span><span class="c">電話聊</span><span class="ar">→</span><span class="c">寄上傳連結</span><span class="ar">→</span><span class="c T">路線二</span></span></div></div>
+<div class="ch"><h4>AI 找到的名單</h4>
+<div class="row"><span class="k">有信箱</span><span class="chips"><span class="c">系統寄邀請信</span><span class="ar">→</span><span class="c">人選點應徵</span><span class="ar">→</span><span class="c P">路線一</span></span></div>
+<div class="row"><span class="k">沒信箱</span><span class="chips"><span class="c">顧問 LinkedIn／電話</span><span class="ar">→</span><span class="c">聊到了</span><span class="ar">→</span><span class="c T">路線二</span></span></div></div>
+
+<div class="end"><span>兩條路都匯到 →</span><span class="c G">顧問看報告</span><span class="ar">→</span><span class="c G">推薦客戶</span><span class="ar">→</span><span class="c G">客戶回覆</span><span class="ar">→</span><span class="c G">錄取／到職</span></div>
+<div class="cut"><span>這次收掉：</span><span class="x">無經驗通用阿財（0 人用）</span><span>合併：</span><span class="m">TG 建人選 → 併進「寄上傳履歷連結」</span></div>
+
+<h2>兩張舊圖的關係</h2>
+<div class="rel"><table>
+<tr><th>舊圖（A／B／C）</th><th>這張圖</th><th>差在哪</th></tr>
+<tr><td>A 自己來應徵</td><td>路線一</td><td>一樣。但 104 寄信、AI 邀請信的人「點連結應徵」也算路線一</td></tr>
+<tr><td>B 顧問先聊過</td><td>路線二</td><td>一樣</td></tr>
+<tr><td>C 我們主動找</td><td>不是一條路，拆進各管道</td><td>C 是「人從哪來」，不是「人怎麼走」；主動找的人最後一定走路線一或路線二</td></tr>
+</table></div>
+</div></body></html>
