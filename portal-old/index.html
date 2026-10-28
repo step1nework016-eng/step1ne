@@ -1,0 +1,2449 @@
+<!doctype html>
+<html lang="zh-Hant">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>用人需求表｜STEP1NE</title>
+<meta name="description" content="Step1ne 德仁管理顧問｜貴司專屬的用人需求表，填好職缺條件後由顧問為您媒合人選。">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Step1ne 德仁管理顧問">
+<meta property="og:title" content="用人需求表｜Step1ne 德仁管理顧問">
+<meta property="og:description" content="貴司專屬的用人需求表，填好職缺條件後由顧問為您媒合人選。">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://step1ne.com/assets/og-talent-brand.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-talent-brand.jpg">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<style>
+:root{--gold:#a67c3d;--ink:#23262d;--ink2:#4d5563;--ink3:#8a8d95;--line:#eee7db;--soft:#faf8f3;--bg:#f4f1ea;--ok:#2f8f5b;--bad:#c0392b;--warn:#c98a1e}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 -apple-system,"Noto Sans TC",sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:0 16px}
+/* 人選進度儀表板內容比較寬（漏斗+表格），不該被用人需求表那個 900px 窄版型鎖住——
+   跳出 .wrap 的寬度限制，改用自己的寬版容器。 */
+#candidatesView{max-width:1400px;width:100vw;margin-left:calc(50% - 50vw);margin-right:calc(50% - 50vw);padding:0 24px}
+@media(max-width:640px){#candidatesView{padding:0 12px}}
+header{background:#fff;border-bottom:1px solid var(--line);padding:16px 0}
+header .wrap{display:flex;align-items:center;gap:10px}
+header b{font-size:16px}
+header span{color:var(--ink3);font-size:13px}
+main{padding:24px 0 80px}
+.state{max-width:420px;margin:16vh auto;text-align:center;color:var(--ink2)}
+.job{background:#fff;border:1px solid var(--line);border-radius:14px;margin-bottom:20px;overflow:hidden}
+.job > h2{margin:0;padding:16px 18px;font-size:16px;border-bottom:1px solid var(--line);background:var(--soft);
+ display:flex;align-items:center;gap:10px}
+.job > h2 .cnt{margin-left:auto;font-size:12.5px;color:var(--ink3);font-weight:400}
+table{width:100%;border-collapse:collapse}
+td{padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top;font-size:14px}
+tr:last-child td{border-bottom:0}
+td.lb{width:170px;color:var(--ink2);font-weight:600;white-space:nowrap;padding-top:13px}
+td.vv{width:100%}
+td.st{width:70px;text-align:right;padding-top:13px}
+textarea,input[type=text]{width:100%;font:inherit;font-size:13.5px;padding:8px 10px;border:1px solid var(--line);
+ border-radius:8px;background:#fff;resize:vertical;min-height:38px}
+textarea{min-height:56px}
+.pill{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px}
+.pill.ok{background:#e3f3e9;color:var(--ok)}
+.pill.warn{background:#fdf1de;color:var(--warn)}
+.savebar{padding:14px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--soft);border-top:1px solid var(--line)}
+button{font:inherit;font-weight:700;background:var(--gold);color:#fff;border:0;border-radius:999px;padding:10px 22px;cursor:pointer}
+button:disabled{opacity:.5;cursor:default}
+button.sec{background:#fff;color:var(--ink2);border:1px solid var(--line)}
+.savebar .saved{font-size:13px;color:var(--ok);opacity:0;transition:opacity .2s}
+.savebar .saved.on{opacity:1}
+/* 一鍵匯入 */
+.import-box{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:20px}
+.import-box h3{margin:0 0 4px;font-size:15px}
+.import-box p.hint{margin:0 0 12px;font-size:13px;color:var(--ink3)}
+.import-tabs{display:flex;gap:6px;margin-bottom:12px}
+.import-tab{font:inherit;font-size:13px;font-weight:600;background:#fff;color:var(--ink2);
+ border:1px solid var(--line);border-radius:999px;padding:6px 14px;cursor:pointer}
+.import-tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.import-pane{display:none}
+.import-pane.on{display:block}
+.import-pane input[type=file]{width:100%;font-size:13.5px}
+.import-pane input[type=text],.import-pane textarea{width:100%;font:inherit;font-size:13.5px;
+ padding:9px 11px;border:1px solid var(--line);border-radius:8px}
+.import-pane textarea{min-height:100px}
+.import-status{margin-top:10px;font-size:13px;color:var(--ink2)}
+.import-status.err{color:var(--bad)}
+[data-k].imported{border-color:var(--gold)!important;background:#fdf6e9}
+.note{background:#fff;border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:0 12px 12px 0;
+ padding:13px 16px;font-size:13.5px;color:var(--ink2);margin-bottom:20px}
+.hire-box{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+ background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:13.5px;color:var(--ink2)}
+.hire-box button{padding:7px 16px;font-size:13px}
+/* 面試輪數設定——2026-09-01 從 53 個欄位的表格裡搬出來，獨立成職缺頁最上面
+   一個醒目卡片，跟其他純文字欄位在視覺上區分開，不用滑很久才找到。 */
+.stage-config-box{background:#fff;border:1.5px solid var(--gold);border-radius:12px;padding:14px 16px;margin-bottom:16px}
+.stage-config-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.stage-config-head b{font-size:14.5px}
+.stage-config-summary{font-size:12.5px;font-weight:700;color:var(--gold);background:#fbf2e2;border-radius:999px;padding:3px 11px}
+.stage-config-sub{font-size:12.5px;color:var(--ink3);margin-bottom:10px}
+.stage-config-opts{display:flex;gap:18px;flex-wrap:wrap;font-size:14px}
+.stage-config-opts label{display:flex;align-items:center;gap:6px;cursor:pointer}
+.stage-config-opts input[type=checkbox]{width:16px;height:16px;accent-color:var(--gold);cursor:pointer}
+.stage-config-opts input[type=checkbox]:disabled{cursor:default;opacity:.5}
+.bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.bar input[type=search]{flex:1 1 220px;font:inherit;font-size:14px;padding:9px 13px;border:1px solid var(--line);
+ border-radius:10px;background:#fff}
+.bar select{font:inherit;font-size:13.5px;padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.picklist{display:flex;flex-direction:column;gap:8px}
+.pick{background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 16px;display:flex;
+ justify-content:space-between;align-items:center;gap:12px;cursor:pointer}
+.pick:hover{border-color:var(--gold)}
+.pick b{font-size:14.5px}
+.pick .cnt{font-size:12.5px;color:var(--ink3);white-space:nowrap}
+.back{background:transparent;color:var(--ink2);font-weight:600;padding:6px 0;margin-bottom:14px;
+ border:0;cursor:pointer;font-size:13.5px}
+.back:hover{color:var(--gold)}
+.toptabs{display:flex;gap:8px;margin-bottom:18px}
+.toptab{font:inherit;font-size:14px;font-weight:700;background:#fff;color:var(--ink2);
+ border:1px solid var(--line);border-radius:999px;padding:9px 18px;cursor:pointer}
+.toptab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.cand{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.cand .row1{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.cand b{font-size:15px}
+.cand .meta{font-size:12.5px;color:var(--ink3)}
+.cand .row2{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap}
+.cand select{font:inherit;font-size:13.5px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:#fff}
+.cand button{padding:7px 16px;font-size:13px}
+.cand .upd-msg{font-size:12.5px;color:var(--ok);margin-left:4px}
+.cand .add-round{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap;padding-top:12px;border-top:1px solid var(--line)}
+.cand .add-round input[type=text]{width:160px;font:inherit;font-size:13.5px;padding:7px 10px;border:1px solid var(--line);border-radius:8px}
+.cand .add-round .hint{font-size:12px;color:var(--ink3);width:100%}
+.cand .info-row{display:flex;gap:8px;align-items:baseline;font-size:13px;margin-top:8px}
+.cand .info-row .k{color:var(--ink3);font-weight:600;flex:none}
+.cand .info-row .v.mut{color:var(--ink3)}
+.cand .client-note{background:var(--soft,#faf8f3);border-radius:9px;padding:10px 13px;margin-top:8px;font-size:13.5px}
+.cand .client-note .k{font-size:11.5px;font-weight:700;letter-spacing:.04em;color:var(--gold,#a67c3d);text-transform:uppercase;margin-bottom:4px}
+.cand .filebtn{font:inherit;font-size:13px;font-weight:600;color:var(--gold,#a67c3d);background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 14px;cursor:pointer;text-decoration:none}
+.cand .report-box{margin-top:10px}
+.cand .report-md{background:var(--soft,#faf8f3);border-radius:9px;padding:14px 16px;font-size:13.5px;line-height:1.8;white-space:pre-wrap;max-height:360px;overflow-y:auto}
+/* 進度條（跟顧問後台階段條同一套畫法） */
+.steps{display:flex;overflow-x:auto;gap:0;padding:10px 4px 4px}
+.step{position:relative;flex:1 1 0;min-width:84px;text-align:center}
+.step .ln{position:absolute;top:15px;left:-50%;width:100%;height:3px;background:var(--line);z-index:0;border-radius:999px}
+.step:first-child .ln{display:none}
+.step.done .ln{background:var(--gold)}
+.step .dot{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;width:30px;height:30px;
+ margin:0 auto 9px;border-radius:50%;background:#fff;border:2.5px solid var(--line);font-size:13px;font-weight:900;color:#fff}
+.step.done .dot{background:var(--gold);border-color:var(--gold)}
+.step.now .dot{border-color:var(--gold);background:#fff;box-shadow:0 0 0 5px #fdf1de}
+.step .lb{font-size:11.5px;color:var(--ink3);margin-top:0;line-height:1.4;font-weight:600}
+.step.now .lb{color:var(--gold);font-weight:800}
+.step.done .lb{color:var(--ink2);font-weight:700}
+.step.done .lb{color:var(--ink2)}
+#mask{position:fixed;inset:0;background:rgba(35,38,45,.45);z-index:40}
+#savedModal{position:fixed;z-index:41;left:50%;top:50%;transform:translate(-50%,-50%);
+ width:min(360px,90vw);background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.25);
+ padding:28px 24px;text-align:center}
+#savedModal .ico{font-size:34px;color:var(--ok);margin-bottom:10px}
+#savedModal h3{margin:0 0 8px;font-size:17px}
+#savedModal p{margin:0 0 20px;font-size:13.5px;color:var(--ink2)}
+#savedModal .row{display:flex;gap:8px;justify-content:center}
+#savedModal button.sec{background:#fff;color:var(--ink2);border:1px solid var(--line)}
+/* 通知鈴鐺 */
+.notify-wrap{position:relative;margin-left:auto}
+.notify-btn{position:relative;width:34px;height:34px;flex-shrink:0;border:1px solid var(--line);background:#fff;border-radius:9px;cursor:pointer;color:var(--ink2);display:flex;align-items:center;justify-content:center}
+.notify-btn svg{width:17px;height:17px;flex-shrink:0}
+.notify-badge{position:absolute;right:-5px;top:-5px;min-width:17px;height:17px;padding:0 4px;border-radius:999px;background:var(--bad);color:#fff;font-size:10px;font-weight:800;display:none;align-items:center;justify-content:center;border:2px solid #fff}
+.notify-badge.show{display:flex}
+.notify-menu{position:absolute;right:0;top:42px;width:300px;max-width:80vw;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 16px 40px rgba(35,30,15,.16);padding:8px;z-index:60;display:none}
+.notify-menu.show{display:block}
+.notify-item{padding:9px 10px;border-radius:9px;cursor:pointer;border-top:1px solid var(--line);font-size:13px}
+.notify-item:first-of-type{border-top:0}
+.notify-item:hover{background:var(--soft)}
+.notify-item b{display:block;font-size:13px}
+.notify-item span{font-size:12px;color:var(--ink3);display:block;margin-top:2px}
+.notify-empty{padding:16px 10px;text-align:center;color:var(--ink3);font-size:13px}
+/* 人選訊息串 */
+.chat-box{margin-top:10px;border:1px solid var(--line);border-radius:9px;background:var(--soft);padding:10px}
+.chat-window{max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
+.chat-msg{max-width:82%;padding:8px 10px;border-radius:11px;font-size:13px;line-height:1.55}
+.chat-msg.client{align-self:flex-end;background:#fdf1de}
+.chat-msg.consultant{align-self:flex-start;background:#fff;border:1px solid var(--line)}
+.chat-msg .t{font-size:10.5px;color:var(--ink3);margin-top:3px;text-align:right}
+.chat-compose{display:flex;gap:6px}
+.chat-compose textarea{flex:1;min-height:38px;font:inherit;font-size:13px;padding:7px 9px;border:1px solid var(--line);border-radius:8px;resize:vertical}
+.chat-compose button{padding:7px 14px;font-size:12.5px}
+.unread-dot{display:inline-flex;min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:var(--bad);color:#fff;font-size:10px;font-weight:800;align-items:center;justify-content:center;margin-left:6px;vertical-align:middle}
+
+/* 人選進度儀表板 */
+.dash-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:16px}
+.dash-stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}
+.dash-stat .lb{font-size:12px;color:var(--ink3);margin-bottom:5px}
+.dash-stat .vv{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}
+.dash-layout{display:grid;grid-template-columns:240px 1fr;gap:14px;align-items:start}
+.dash-layout>*{min-width:0}
+@media(max-width:900px){.dash-layout{grid-template-columns:1fr}}
+.dash-panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px}
+.dash-helper{font-size:12px;color:var(--ink3);line-height:1.6;margin-bottom:12px}
+.dash-job-block{margin-bottom:14px}
+.dash-job-block:last-child{margin-bottom:0}
+.dash-job-block h4{margin:0 0 8px;font-size:13px;color:var(--ink2)}
+.dash-funnel-row{margin:8px 0}
+.dash-funnel-head{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px}
+.dash-bar{height:8px;border-radius:999px;background:var(--soft);overflow:hidden}
+.dash-bar span{display:block;height:100%;background:linear-gradient(90deg,var(--gold),#e0c592);border-radius:999px}
+.dash-main-top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.dash-chips{display:flex;flex-wrap:wrap;gap:7px}
+.dash-chip{border:1px solid var(--line);background:var(--soft);color:var(--ink2);padding:7px 12px;border-radius:999px;cursor:pointer;font-weight:700;font-size:12.5px}
+.dash-chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.dash-search-area{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.dash-search{min-width:200px;border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 11px;font:inherit;font-size:13px}
+.dash-view-switch{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+.dash-view-btn{border:0;background:#fff;padding:8px 13px;cursor:pointer;font-weight:700;color:var(--ink2);font-size:12.5px}
+.dash-view-btn.on{background:var(--ink);color:#fff}
+.dash-table-wrap{border:1px solid var(--line);border-radius:12px;overflow-x:auto}
+.dash-table{width:100%;border-collapse:collapse;min-width:960px}
+.dash-table td:first-child,.dash-table td:first-child b{white-space:nowrap}
+.dash-table th{background:var(--soft);color:var(--ink2);font-size:12.5px;font-weight:800;padding:11px;text-align:left;white-space:nowrap}
+.dash-table td{padding:11px;border-top:1px solid var(--line);vertical-align:middle}
+.dash-table td:not(:first-child){white-space:nowrap}
+.dash-table tr{cursor:pointer}
+.dash-table tr:hover td{background:var(--soft)}
+.dash-pill{display:inline-block;border-radius:999px;padding:5px 10px;font-size:11.5px;font-weight:800;white-space:nowrap;background:var(--soft);color:var(--gold)}
+.dash-pill.now{background:#fdf1de;color:var(--warn)}
+.dash-pill.done{background:#e3f3e9;color:var(--ok)}
+.dash-pill.rejected{background:#fbeaea;color:var(--bad)}
+.dash-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.dash-card{border:1px solid var(--line);border-radius:12px;padding:12px;cursor:pointer;min-width:0}
+.dash-card:hover{border-color:var(--gold)}
+.dash-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.dash-card-top>div:first-child{min-width:0}
+.dash-card-meta{font-size:11.5px;color:var(--ink3);margin-top:8px}
+.dash-card-info{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;margin-top:12px}
+.dash-card-info .lb{font-size:11px;color:var(--ink3);margin-bottom:2px}
+.dash-card-info .vv{font-size:13px}
+.dash-card-progress{display:flex;align-items:center;gap:5px;margin-top:14px}
+.dash-card-progress .dot{width:9px;height:9px;border-radius:50%;background:var(--line);flex-shrink:0}
+.dash-card-progress .dot.done{background:var(--gold)}
+.dash-card-progress .ln{flex:1;height:2px;background:var(--line)}
+.dash-card-foot{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:10px;border-top:1px solid var(--line);font-size:11.5px;color:var(--ink3)}
+.dash-card-foot .hint{font-weight:800;color:var(--gold)}
+.dash-empty{padding:36px 16px;text-align:center;color:var(--ink3);border:1px dashed var(--line);border-radius:12px}
+/* 人選詳情彈窗 */
+#candModalMask{position:fixed;inset:0;background:rgba(35,32,20,.4);z-index:70;display:none;align-items:center;justify-content:center;padding:16px}
+#candModalMask.show{display:flex}
+#dtModalMask{position:fixed;inset:0;background:rgba(35,32,20,.45);z-index:80;display:none;align-items:center;justify-content:center;padding:16px}
+#dtModalMask.show{display:flex}
+#slotsModalMask{position:fixed;inset:0;background:rgba(35,32,20,.45);z-index:80;display:none;align-items:center;justify-content:center;padding:16px}
+#slotsModalMask.show{display:flex}
+.dt-modal{width:min(360px,92vw);background:#fff;border-radius:16px;border:1px solid var(--line);padding:18px 20px}
+#billModalMask{position:fixed;inset:0;background:rgba(35,32,20,.45);z-index:80;display:none;align-items:center;justify-content:center;padding:16px}
+#billModalMask.show{display:flex}
+.bill-modal{width:min(480px,94vw);max-height:88vh;overflow:auto;background:#fff;border-radius:16px;border:1px solid var(--line);padding:20px 22px}
+.bill-modal .close{float:right;width:28px;height:28px;min-width:28px;padding:0;border-radius:50%;border:1px solid var(--line);background:var(--soft);cursor:pointer;font-size:16px;line-height:1;display:flex;align-items:center;justify-content:center;color:var(--ink);font-family:inherit}
+tr.billRow{cursor:pointer}
+tr.billRow:hover td{background:var(--soft)}
+/* 收費進程表只有 5 欄，不像人選進度表需要 8 欄橫向捲動的寬度——沿用
+   .dash-table 的 min-width:960px 會讓手機版把「到職多久」「收款進度」
+   擠到螢幕外，還看不出來可以滑。這裡蓋掉，讓它照內容自然寬度排版。 */
+.dash-table.bill-table{min-width:0}
+@media(max-width:640px){
+  .dash-table.bill-table td:not(:first-child),.dash-table.bill-table th{white-space:normal}
+  .bill-table th,.bill-table td{font-size:12.5px;padding:9px 6px}
+}
+.progress{display:inline-block;width:70px;height:6px;border-radius:999px;background:#eee7db;overflow:hidden;vertical-align:middle;margin-right:6px}
+.progress i{display:block;height:100%;background:#2f8f5b}
+.cand-modal{width:min(760px,96vw);max-height:92vh;overflow:auto;background:#fff;border-radius:18px;border:1px solid var(--line)}
+.cand-modal-top{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:16px 18px;display:flex;justify-content:space-between;gap:10px;z-index:2}
+.cand-modal-body{padding:16px 18px 20px}
+.cand-modal-close{width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:var(--soft);color:var(--ink);cursor:pointer;font-size:17px;line-height:1}
+.cm-section{border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+.cm-section h4{margin:0 0 10px;font-size:14px}
+.cm-info-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px 14px}
+.cm-info-grid .lb{font-size:11px;color:var(--ink3);margin-bottom:2px}
+.cm-info-grid .vv{font-size:13px;font-weight:600}
+.cm-fbtn{font:inherit;font-size:12.5px;font-weight:700;color:var(--gold);background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:8px 13px;cursor:pointer;text-decoration:none}
+.cm-file-grid{display:flex;flex-wrap:wrap;gap:10px}
+.cm-file-item{display:flex;flex-direction:column;gap:5px;min-width:120px}
+.cm-file-item .lb{font-size:11px;color:var(--ink3);display:flex;align-items:center;gap:4px}
+.cm-file-item .lb .ic{font-size:12.5px}
+.cm-file-item .wait{font-size:12px;color:var(--ink3);background:var(--bg);border:1px dashed var(--line);border-radius:8px;padding:6px 10px}
+.cm-update-grid{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.cm-update-grid select,.cm-update-grid input[type=text]{font:inherit;font-size:13px;padding:7px 9px;border:1px solid var(--line);border-radius:8px}
+.cm-update-grid button{padding:7px 14px;font-size:12.5px}
+.cm-hint{font-size:11.5px;color:var(--ink3);width:100%;margin-top:2px}
+/* ── 用人事實卡片式編輯器（2026-09-03 加，取代原本逐欄表格） ── */
+#fcWrap{display:flex;flex-direction:column;gap:10px}
+.fcProgBar{font-size:12.5px;color:var(--ink3);font-weight:700;margin-bottom:10px}
+.fcCard{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.fcCardHead{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer}
+.fcMid{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.fcMid b{font-size:14.5px}
+.fcMid span{font-size:12.5px;color:var(--ink3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fcDot{width:22px;height:22px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex:none}
+.fcDot.done{background:#e5f4ea;color:var(--ok)}
+.fcDot.warn{background:#fbf1e1;color:var(--warn)}
+.fcDot.empty{background:var(--soft);color:var(--ink3)}
+.fcChev{color:var(--ink3);transition:transform .15s;flex:none}
+.fcCard.open .fcChev{transform:rotate(180deg)}
+.fcCardBody{max-height:0;overflow:hidden;transition:max-height .2s ease}
+.fcCard.open .fcCardBody{max-height:4000px}
+.fcCardInner{padding:2px 16px 16px}
+.fcBlock{margin-top:12px}
+.fcBlock:first-child{margin-top:0}
+.fcBlock label{display:block;font-size:12.5px;font-weight:700;color:var(--ink2);margin-bottom:6px}
+.fcReq{color:var(--bad);font-weight:700}
+.fcBlock input[type=text],.fcBlock input:not([type]),.fcBlock textarea{width:100%;box-sizing:border-box;font:inherit;font-size:14px;
+  border:1px solid var(--line);border-radius:9px;padding:9px 11px;background:#fff;color:var(--ink)}
+.fcBlock textarea{min-height:72px;resize:vertical;line-height:1.6}
+.fcBlock.miss input,.fcBlock.miss textarea{border-color:var(--bad)}
+.fcHint{font-size:12px;color:var(--ink3);margin-bottom:6px;line-height:1.6}
+.fcBlock input.aiFilled,.fcBlock textarea.aiFilled{border-color:var(--gold);background:#fdf6e9}
+.fcAiBadge{margin-top:5px;font-size:11.5px;color:var(--gold);font-weight:700}
+.fcTimeRow{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.fcTimeRow input[type=time]{width:auto;flex:1}
+.fcTimeDash{color:var(--ink3)}
+.fcTimeFallback{font-size:12.5px!important;padding:7px 10px!important}
+.fcFlag{margin-top:6px;background:#fbf1e1;border:1px solid #e8d5ab;border-radius:9px;padding:8px 11px;font-size:12px;color:#7a5a22;line-height:1.6}
+.fcChipRow{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:6px}
+.fcChip{font-size:13px;padding:6px 13px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--ink2);cursor:pointer;user-select:none}
+.fcChip.picked{background:var(--gold);border-color:var(--gold);color:#fff;font-weight:700}
+.fcMoreToggle{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--gold);font-weight:700;cursor:pointer;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.fcN{background:var(--soft);color:var(--ink3);border-radius:999px;padding:1px 7px;font-size:11px;font-weight:700}
+.fcMoreWrap{display:none}
+.fcMoreWrap.open{display:block}
+@keyframes fcJumpFlash{0%{box-shadow:0 0 0 3px var(--gold)}100%{box-shadow:0 0 0 0 rgba(166,124,61,0)}}
+.fcJump{animation:fcJumpFlash 1.1s ease}
+.fcJump input,.fcJump textarea{border-color:var(--gold)}
+#fcMissBanner{display:none;background:#fbeaea;border:1px solid #f3cdc7;color:var(--bad);border-radius:10px;padding:11px 14px;font-size:13px;margin-bottom:12px}
+.fcPvMask{position:fixed;inset:0;background:rgba(35,38,45,.5);display:flex;align-items:center;justify-content:center;z-index:9000;opacity:0;pointer-events:none;transition:opacity .15s}
+.fcPvMask.show{opacity:1;pointer-events:auto}
+.fcPvBox{background:#fff;border-radius:16px;width:min(520px,92vw);max-height:84vh;display:flex;flex-direction:column;overflow:hidden}
+.fcPvHead{padding:16px 20px;border-bottom:1px solid var(--line);font-weight:700;font-size:15px}
+.fcPvScroll{padding:16px 20px;overflow-y:auto;flex:1}
+.fcPvIssues{background:#fbf1e1;border:1px solid #e8d5ab;border-radius:10px;padding:11px 14px;font-size:12.5px;color:#7a5a22;margin-bottom:14px}
+.fcPvIssues ul{margin:6px 0 0;padding-left:18px}
+.fcPvNote{font-size:12.5px;color:var(--ink3);margin-bottom:14px}
+.fcPvNote-amber{background:#fbf1e1;border:1px solid #e8d5ab;color:#7a5a22;border-radius:10px;padding:10px 13px}
+.fcPvJob .fcHero{margin-bottom:14px}
+.fcTag{font-size:11.5px;font-weight:700;color:var(--gold);background:#fbf2e2;border-radius:999px;padding:3px 11px}
+.fcPvJob h2{margin:8px 0 4px;font-size:19px}
+.fcPvJob .fcHero p{margin:0;color:var(--ink3);font-size:13px}
+.fcSpecRow{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.fcSpecRow dt{color:var(--ink3);margin:0}
+.fcSpecRow dd{margin:0;font-weight:700}
+.fcPvSection{margin-top:14px}
+.fcPvSection h4{margin:0 0 4px;font-size:12.5px;color:var(--ink3)}
+.fcPvSection p{margin:0;font-size:13.5px;white-space:pre-wrap}
+.fcPvRow{display:flex;gap:8px;padding:3px 0;font-size:13px;align-items:baseline}
+.fcPvRow b{color:var(--ink3);font-weight:600;flex:0 0 auto;white-space:nowrap}
+.fcPvRow span{white-space:pre-wrap;overflow-wrap:anywhere}
+.fcPvFoot{padding:14px 20px;border-top:1px solid var(--line);display:flex;gap:10px;justify-content:flex-end}
+.fcPvFoot button.sec{background:#fff;color:var(--ink2);border:1px solid var(--line)}
+.nrec{background:#fdf3e7;border-left:3px solid #8a4b12;border-radius:0 10px 10px 0;
+  padding:12px 15px;margin:0 0 14px}
+.nrec h4{margin:0 0 6px;font-size:14px;color:#8a4b12}
+.nrec-why{font-size:13.5px;line-height:1.7;color:#5c3a12}
+.nrec-when{margin-top:7px;font-size:11.5px;color:#9a7a52}
+</style>
+
+<header><div class="wrap" style="position:relative">
+  <b>STEP1NE 用人需求表</b><span id="coname"></span>
+  <div class="notify-wrap">
+    <button class="notify-btn" id="notifyBtn" title="人選訊息通知">
+      <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span class="notify-badge" id="notifyBadge">0</span>
+    </button>
+    <div class="notify-menu" id="notifyMenu"><div id="notifyList"></div></div>
+  </div>
+</div></header>
+
+<main class="wrap">
+  <div id="loading" class="state">讀取中…</div>
+  <div id="content" hidden>
+    <div class="toptabs">
+      <button type="button" class="toptab on" id="tabCandidates">人選進度</button>
+      <button type="button" class="toptab" id="tabBilling">收費進程</button>
+      <button type="button" class="toptab" id="tabJobs">用人需求表</button>
+    </div>
+    <div id="billingView" hidden>
+      <div class="dash-helper" style="margin:14px 0">每位人選報到後依合約分期比例自動列出到期日；「已收款」是 Step1ne 內部標記，僅供對帳參考。</div>
+      <div id="billingList" class="state">讀取中…</div>
+    </div>
+    <div id="candidatesView">
+      <section class="dash-stats" id="dashStats"></section>
+      <div class="dash-layout">
+        <aside class="dash-panel">
+          <h2 style="margin:0 0 6px;font-size:16px">招募漏斗</h2>
+          <div class="dash-helper">依職缺分別統計，顧問接觸中到已到職各階段的人數。</div>
+          <div id="dashFunnel"></div>
+        </aside>
+        <main class="dash-panel">
+          <div class="dash-main-top">
+            <div class="dash-chips" id="dashChips"></div>
+            <div class="dash-search-area">
+              <div class="dash-view-switch">
+                <button class="dash-view-btn on" id="dashTableBtn" type="button">表格式</button>
+                <button class="dash-view-btn" id="dashCardBtn" type="button">卡片式</button>
+              </div>
+              <input class="dash-search" id="dashSearch" placeholder="搜尋人選 / LINE ID">
+            </div>
+          </div>
+          <div id="dashTableView"></div>
+          <div id="dashCardView" hidden></div>
+        </main>
+      </div>
+    </div>
+    <div id="pickView" hidden>
+      <div class="note">請先從下面選一個職缺開始填寫。黃色標籤代表這格還有資料還沒補上。</div>
+      <div class="bar">
+        <input type="search" id="q" placeholder="搜尋職缺名稱…">
+        <select id="fl">
+          <option value="">全部職缺</option>
+          <option value="incomplete">尚有欄位待補</option>
+          <option value="complete">已全部填寫</option>
+        </select>
+        <button class="sec" id="newJobBtn" type="button">＋ 新增職缺</button>
+      </div>
+      <div id="newJobBox" hidden style="background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:14px">
+        <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px">新職缺名稱</label>
+        <input type="text" id="newJobTitle" placeholder="例如：業務專員">
+        <p style="font-size:12.5px;color:var(--ink3);margin:8px 0 0">建立後直接開始填寫，填完再送出審核——顧問看到的會是完整內容。</p>
+        <div style="margin-top:10px;display:flex;gap:8px">
+          <button id="newJobSubmit" type="button">送出</button>
+          <button class="sec" id="newJobCancel" type="button">取消</button>
+        </div>
+        <div id="newJobErr" class="err2" hidden style="color:var(--bad);font-size:13px;margin-top:8px"></div>
+      </div>
+      <div id="picklist" class="picklist"></div>
+    </div>
+    <div id="jobView" hidden>
+      <button class="back" id="backBtn">← 回到職缺清單</button>
+      <div id="jobs"></div>
+    </div>
+  </div>
+</main>
+
+<div id="mask" hidden></div>
+<div id="savedModal" hidden>
+  <div class="ico">✓</div>
+  <h3>已儲存</h3>
+  <p>這個職缺的內容已經更新，顧問也會收到通知。</p>
+  <div class="row">
+    <button class="sec" id="savedStay">繼續編輯</button>
+    <button id="savedBack">返回主選單</button>
+  </div>
+</div>
+
+<div class="fcPvMask" id="fcPvMask">
+  <div class="fcPvBox">
+    <div class="fcPvHead" id="fcPvTitle">預覽</div>
+    <div class="fcPvScroll" id="fcPvScroll"></div>
+    <div class="fcPvFoot">
+      <button class="sec" type="button" onclick="fcClosePreview()">再看一下</button>
+      <button type="button" id="fcPvGoBtn" onclick="fcConfirmAction()">確認</button>
+    </div>
+  </div>
+</div>
+
+<div id="billModalMask">
+  <div class="bill-modal">
+    <button type="button" class="close" id="billModalClose">×</button>
+    <div id="billModalBody"></div>
+  </div>
+</div>
+
+<div id="candModalMask">
+  <div class="cand-modal">
+    <div class="cand-modal-top">
+      <div>
+        <h3 id="cmName" style="margin:0 0 4px;font-size:20px"></h3>
+        <div id="cmSub" style="font-size:13px;color:var(--ink3)"></div>
+      </div>
+      <button type="button" class="cand-modal-close" id="cmClose">×</button>
+    </div>
+    <div class="cand-modal-body">
+      <div class="steps" id="cmSteps" style="margin-bottom:16px"></div>
+
+      <div class="chat-box" style="margin-top:0">
+        <h4 style="margin:0 0 8px;font-size:14px">💬 跟顧問討論這位人選</h4>
+        <div class="chat-window" id="cmChatWindow"></div>
+        <div class="chat-compose">
+          <textarea id="cmChatInput" placeholder="輸入要傳給顧問的訊息…"></textarea>
+          <button type="button" id="cmChatSend">送出</button>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px">
+        <div>
+          <div class="cm-section">
+            <h4>基本資料</h4>
+            <div class="cm-info-grid" id="cmInfo"></div>
+          </div>
+          <div class="cm-section">
+            <h4>文件與表單</h4>
+            <div class="cm-file-grid" id="cmFiles"></div>
+          </div>
+        </div>
+        <div>
+          <div class="cm-section" id="cmNoteBlock"></div>
+          <div class="cm-section">
+            <h4>更新進度</h4>
+            <div id="cmUpdateBox"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 2026-09-03 加：面談/錄取/報到要留實際年月日時分，原生 prompt() 沒辦法
+     顯示 datetime-local 輸入框，所以另外做一個輕量小視窗，樣式比照 candModalMask。 -->
+<div id="dtModalMask">
+  <div class="dt-modal">
+    <h4 id="dtModalTitle" style="margin:0 0 12px;font-size:15px"></h4>
+    <label style="display:block;font-size:12.5px;color:var(--ink3);margin-bottom:4px">實際（或預計）時間</label>
+    <input type="datetime-local" id="dtModalInput" style="width:100%;font:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:12px">
+    <label id="dtModalNoteLabel" style="display:block;font-size:12.5px;color:var(--ink3);margin-bottom:4px"></label>
+    <textarea id="dtModalNote" rows="2" style="width:100%;font:inherit;font-size:13px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:14px;resize:vertical"></textarea>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button type="button" id="dtModalCancel" class="cm-fbtn">取消</button>
+      <button type="button" id="dtModalOk" class="cm-fbtn" style="background:var(--gold);color:#fff;border-color:var(--gold)">確認</button>
+    </div>
+  </div>
+</div>
+<div id="slotsModalMask">
+  <div class="dt-modal" style="max-width:460px;width:100%">
+    <h4 id="slotsModalTitle" style="margin:0 0 6px;font-size:15px"></h4>
+    <p style="margin:0 0 14px;font-size:12.5px;color:var(--ink3)">填 1 個以上的候選時段，系統會直接用 LINE 官方帳號＋Email 通知人選，人選選定後這裡會自動顯示確認的時間，不用再手動回填。給 2 個以上人選比較好配合，但只有一個確定的時間也可以直接送出。</p>
+    <div id="slotsModalRows"></div>
+    <button type="button" id="slotsModalAddRow" style="margin:6px 0 14px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px">＋ 加一個時段</button>
+    <label style="display:block;font-size:12.5px;color:var(--ink3);margin-bottom:4px">面談對象（選填）</label>
+    <input type="text" id="slotsModalInterviewer" style="width:100%;font:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:12px">
+    <label style="display:block;font-size:12.5px;color:var(--ink3);margin-bottom:4px">面談地點（現場面談才需要）</label>
+    <input type="text" id="slotsModalLocation" style="width:100%;font:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:12px">
+    <label style="display:block;font-size:12.5px;color:var(--ink3);margin-bottom:4px">給人選看的備註（選填）</label>
+    <textarea id="slotsModalNote" rows="2" style="width:100%;font:inherit;font-size:13px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:14px;resize:vertical"></textarea>
+    <div id="slotsModalMsg" style="font-size:12.5px;color:var(--ink3);margin-bottom:10px"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button type="button" id="slotsModalCancel" class="cm-fbtn">取消</button>
+      <button type="button" id="slotsModalOk" class="cm-fbtn" style="background:var(--gold);color:#fff;border-color:var(--gold)">送出邀請</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================================
+// 用人事實卡片式編輯器 —— 跟 consultant/jobs/index.html 那邊逐字同步，
+// 改一邊要記得另一邊也要改。interview_stage_config 不在這裡管，那個欄位
+// 有自己既有的專屬 UI（renderStageConfigBox／wireStageConfigBox，見下面）。
+// benefits_common 不是真實欄位，是「常見福利點一下」的小幫手，選中的項目
+// 併回 benefits_detail 這個真正的欄位。
+// ============================================================================
+var FC_LAW5_WORDS = [
+  '性別', '男性', '女性', '男生', '女生', '限男', '限女',
+  '幾歲', '年齡', '歲以下', '歲以上',
+  '已婚', '未婚', '懷孕', '生育',
+  '國籍', '外籍', '原住民',
+  '身心障礙', '殘障', '宗教', '政黨', '容貌', '長相', '星座', '血型',
+];
+function fcLaw5Hits(text) {
+  var t = String(text || '');
+  return FC_LAW5_WORDS.filter(function (w) { return t.indexOf(w) >= 0; });
+}
+var FC_BENEFIT_PRESETS = ['三節獎金', '員工旅遊', '健康檢查', '停車位', '團保', '生日禮金', '部門聚餐', '年終獎金'];
+var FC_CARDS = [
+  { ic: 'building', key: 'company', title: '公司與聯絡窗口',
+    core: [
+      { k: 'client_name', l: '客戶公司全名', lClient: '公司全名', type: 'text', required: true },
+      { k: 'title', l: '職缺名稱', type: 'text', required: true },
+    ],
+    more: [
+      { k: 'client_intro', l: '公司簡介', type: 'textarea' },
+      { k: 'hiring_manager', l: '用人主管是誰', type: 'text' },
+      { k: 'client_contact_name', l: '客戶聯絡窗口姓名', lClient: '聯絡窗口姓名', type: 'text' },
+      { k: 'client_contact_phone', l: '客戶聯絡窗口電話', lClient: '聯絡窗口電話', type: 'text' },
+      { k: 'client_screen_conditions', l: '客戶指定的篩選條件', lClient: '特別的篩選條件', type: 'textarea' },
+      { k: 'faq_notes', l: '常見問題怎麼回答', type: 'textarea' },
+    ] },
+  { ic: 'dollar', key: 'salary', title: '薪水與加班',
+    core: [
+      { k: 'salary_min', l: '薪資下限', type: 'text', required: true },
+      { k: 'salary_max', l: '薪資上限', type: 'text' },
+      { k: 'salary_unit', l: '薪資單位', type: 'chips', opts: ['月薪', '日薪', '年薪'] },
+      { k: 'overtime_policy', l: '加班規則', type: 'chips', opts: ['依勞基法', '責任制', '固定加班費', '無加班'] },
+    ],
+    more: [
+      { k: 'salary_note', l: '薪資怎麼跟人選說', hint: '這欄是給顧問參考的完整口徑，發佈時會自動整理成對外能講的版本', type: 'textarea' },
+      { k: 'salary_tier_table', l: '薪資分級表', type: 'textarea' },
+      { k: 'salary_structure_note', l: '薪資結構說明', type: 'textarea' },
+      { k: 'overtime_detail', l: '加班細項（平日／假日時數）', type: 'textarea' },
+    ] },
+  { ic: 'mapPin', key: 'place', title: '地點與工作型態',
+    core: [
+      { k: 'locations', l: '工作地點', type: 'text', required: true },
+      { k: 'employment', l: '聘僱型態', type: 'chips', opts: ['正職', '兼職', '派遣', '約聘'], required: true },
+    ],
+    more: [
+      { k: 'work_mode', l: '辦公型態', type: 'chips', opts: ['實體', '遠端', '混合'] },
+      { k: 'work_hours', l: '上班時間', type: 'timerange' },
+      { k: 'employment_period', l: '工作期間', type: 'chips', opts: ['長期', '專案制'] },
+      { k: 'attendance_method', l: '出勤紀錄方式', type: 'chips', opts: ['打卡機', 'App打卡', 'LINE回報', '紙本簽到'] },
+      { k: 'dispatch_range', l: '派遣調派範圍', type: 'text' },
+      { k: 'dispatch_client', l: '實際要派單位／業主', hint: '跟客戶公司不同的話才要填（例如業主的工地／專案現場）', type: 'text' },
+      { k: 'dispatch_to_permanent_policy', l: '派遣轉正條件', type: 'textarea' },
+    ] },
+  { ic: 'users', key: 'who', title: '用人條件',
+    core: [
+      { k: 'must_skills', l: '必要技能', type: 'text' },
+      { k: 'education_level', l: '學歷要求', type: 'chips', opts: ['不限', '高中職', '大學', '碩士', '博士'] },
+    ],
+    more: [
+      { k: 'years_min', l: '最低年資', type: 'chips', opts: ['不拘', '1年以上', '3年以上', '5年以上', '10年以上'] },
+      { k: 'required_conditions', l: '必備條件', type: 'textarea' },
+      { k: 'language_requirement', l: '語言能力要求', type: 'chips', opts: ['中文即可', '需英文', '需日文', '其他語言'] },
+      { k: 'nice_to_have_skills', l: '加分技能', type: 'text' },
+      { k: 'preferred_background', l: '偏好背景', type: 'text' },
+      { k: 'personality_traits', l: '期望人格特質', type: 'textarea' },
+      { k: 'off_limits_note', l: '不考慮的同業／公司', type: 'text' },
+    ] },
+  { ic: 'fileText', key: 'duties', title: '工作內容與團隊',
+    core: [
+      { k: 'main_duties', l: '主要工作內容', hint: '用大白話講就好，例如「畫圖」「跟工地開會」', type: 'textarea', required: true },
+    ],
+    more: [
+      { k: 'reports_to', l: '直屬主管／匯報對象', type: 'text' },
+      { k: 'leads_team', l: '需不需要帶團隊', type: 'chips', opts: ['不用', '需要'] },
+      { k: 'department', l: '所屬部門', type: 'text' },
+      { k: 'work_environment_ratio', l: '工作環境比重', type: 'chips',
+        opts: ['全辦公室', '多辦公室少現場', '各半', '多現場少辦公室', '全現場'] },
+      { k: 'team_size', l: '團隊人數', type: 'text' },
+    ] },
+  { ic: 'target', key: 'process', title: '面試與到職流程',
+    core: [
+      { k: 'onboard_by', l: '希望到職日', type: 'chips', opts: ['越快越好', '1個月內', '2-3個月', '依人選現況'] },
+    ],
+    more: [
+      { k: 'interview_rounds', l: '面試輪數說明（備註用）', type: 'text' },
+      { k: 'interview_who', l: '誰會面試', type: 'text' },
+      { k: 'has_test', l: '有沒有筆試／測驗', type: 'chips', opts: ['沒有', '有'] },
+      { k: 'interview_process', l: '面試流程說明', type: 'textarea' },
+      { k: 'onboarding_prep_note', l: '錄取後前置作業', type: 'textarea' },
+    ] },
+  { ic: 'gift', key: 'perks', title: '福利與其他',
+    core: [
+      { k: 'benefits_detail', l: '福利', hint: '點下面常見項目快速加入，或直接打字／整段貼上，不用重打成一樣的格式', type: 'benefits' },
+      { k: 'headcount', l: '需求人數', type: 'text', required: true },
+      { k: 'leave_policy', l: '休假制度', type: 'chips', opts: ['週休二日', '排班制', '依公司行事曆'] },
+      { k: 'hiring_reason', l: '招募原因', type: 'chips', opts: ['新增職缺', '離職遞補', '擴編', '專案需求'], required: true },
+      { k: 'urgency', l: '急迫程度', type: 'chips', opts: ['不急', '一般', '急徵'] },
+    ],
+    more: [
+      { k: 'hiring_reason_note', l: '招募原因補充', hint: '選了「專案需求」的話，寫一下是哪個專案／怎麼來的，電洽時常會被人選問到', type: 'textarea' },
+      { k: 'contract_terms_note', l: '合約條款備註', type: 'textarea' },
+    ] },
+];
+
+var FC_VALUES = {};
+var FC_OPEN_MORE = {};
+var FC_LABEL_MODE = 'client';
+var FC_ON_SUBMIT = null;
+var FC_WRAP_ID = 'fcWrap';
+var FC_AI_FILLED = {};   // {key: true} —— 一鍵匯入剛帶進來、還沒被使用者確認過的欄位
+function fcEsc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function fcInit(values, labelMode) {
+  FC_VALUES = {};
+  FC_CARDS.forEach(function (d) { d.core.concat(d.more).forEach(function (q) { FC_VALUES[q.k] = (values && values[q.k] != null) ? values[q.k] : ''; }); });
+  FC_OPEN_MORE = {};
+  FC_AI_FILLED = {};
+  FC_LABEL_MODE = labelMode || 'client';
+}
+// 一鍵匯入解析完之後呼叫這個，把結果灌進卡片並標成「AI幫你抓的」——
+// 取代舊版直接找 DOM [data-k] 塞 .value 的做法（chips 類型欄位沒有對應的
+// input 元素，舊做法會塞不進去）。
+function fcApplyImported(parsed) {
+  var n = 0;
+  Object.keys(parsed || {}).forEach(function (key) {
+    if (!fcFieldByKey(key)) return;
+    FC_VALUES[key] = parsed[key];
+    FC_AI_FILLED[key] = true;
+    n++;
+  });
+  fcRender();
+  return n;
+}
+function fcFieldByKey(key) {
+  for (var i = 0; i < FC_CARDS.length; i++) {
+    var all = FC_CARDS[i].core.concat(FC_CARDS[i].more);
+    for (var j = 0; j < all.length; j++) if (all[j].k === key) return all[j];
+  }
+  return null;
+}
+function fcVal(key) { return FC_VALUES[key] || ''; }
+function fcIsFieldEmpty(q) { return !fcVal(q.k); }
+function fcRerenderKeepOpen() {
+  var openIdx = [];
+  document.querySelectorAll('#' + FC_WRAP_ID + ' .fcCard.open').forEach(function (el) { openIdx.push(el.dataset.i); });
+  fcRender();
+  openIdx.forEach(function (i) {
+    var el = document.querySelector('#' + FC_WRAP_ID + ' .fcCard[data-i="' + i + '"]');
+    if (el) el.classList.add('open');
+  });
+}
+function fcTextChange(key, val) { FC_VALUES[key] = val; delete FC_AI_FILLED[key]; fcRerenderKeepOpen(); }
+function fcChipClick(key, opt) { FC_VALUES[key] = (FC_VALUES[key] === opt) ? '' : opt; delete FC_AI_FILLED[key]; fcRerenderKeepOpen(); }
+function fcBenefitToggle(preset) {
+  var cur = fcVal('benefits_detail');
+  var parts = cur.split(/[、,，]/).map(function (s) { return s.trim(); }).filter(Boolean);
+  var idx = parts.indexOf(preset);
+  if (idx >= 0) parts.splice(idx, 1); else parts.push(preset);
+  FC_VALUES.benefits_detail = parts.join('、');
+  delete FC_AI_FILLED.benefits_detail;
+  fcRerenderKeepOpen();
+}
+// work_hours 這種「時段」欄位改用時間選擇器，減少手動打字的格式亂象
+// （之前出現過「8:00–9:00」這種一看就是選錯格式的輸入）。但排班制／
+// 責任制這種本來就不是固定時段的職缺還是要能打字，兩個控制項並存，
+// 存的都是同一個 key，不是各存各的。
+function fcTimeParts(val) {
+  var s = String(val || '').trim();
+  var m = s.match(/(\d{1,2}:\d{2})\s*[-–~]\s*(\d{1,2}:\d{2})/);
+  if (m) return [m[1], m[2]];
+  // 只設了開始時間、還沒設結束時間的中間狀態——不是這種格式就會被當成
+  // 空值，剛填的開始時間下一次改結束時間時就會不見（真的發生過一次）。
+  var single = s.match(/^(\d{1,2}:\d{2})$/);
+  return single ? [single[1], ''] : ['', ''];
+}
+function fcTimeRangeChange(key, part, val) {
+  var cur = fcTimeParts(fcVal(key));
+  if (part === 'start') cur[0] = val; else cur[1] = val;
+  var combined = (cur[0] && cur[1]) ? (cur[0] + '–' + cur[1]) : (cur[0] || cur[1] || '');
+  fcTextChange(key, combined);
+}
+function fcStateDotHtml(s) {
+  if (s === 'done') return '<div class="fcDot done">✓</div>';
+  if (s === 'warn') return '<div class="fcDot warn">!</div>';
+  return '<div class="fcDot empty">·</div>';
+}
+function fcComputeState(d) {
+  var all = d.core.concat(d.more);
+  var hasFlag = FC_LABEL_MODE === 'consultant' && all.some(function (q) {
+    return (q.type === 'text' || q.type === 'textarea') && fcLaw5Hits(fcVal(q.k)).length;
+  });
+  if (hasFlag) return 'warn';
+  var allEmpty = d.core.every(function (q) { return fcIsFieldEmpty(q); });
+  if (allEmpty) return 'empty';
+  return 'done';
+}
+function fcComputeSummary(d) {
+  var vals = d.core.map(function (q) { return fcIsFieldEmpty(q) ? null : fcVal(q.k); }).filter(Boolean);
+  return vals.length ? vals.slice(0, 3).join('・') : '還沒填';
+}
+function fcFieldHtml(q) {
+  var body = '';
+  var aiCls = FC_AI_FILLED[q.k] ? ' aiFilled' : '';
+  if (q.type === 'text') {
+    body = '<input class="' + aiCls.trim() + '" value="' + fcEsc(fcVal(q.k)) + '" placeholder="還沒填，點這裡輸入" onchange="fcTextChange(\'' + q.k + '\',this.value)">';
+  } else if (q.type === 'textarea') {
+    body = '<textarea class="' + aiCls.trim() + '" placeholder="還沒填，點這裡輸入" onchange="fcTextChange(\'' + q.k + '\',this.value)">' + fcEsc(fcVal(q.k)) + '</textarea>';
+  } else if (q.type === 'chips') {
+    body = '<div class="fcChipRow">' + q.opts.map(function (o) {
+      return '<span class="fcChip' + (o === fcVal(q.k) ? ' picked' : '') + '" onclick="fcChipClick(\'' + q.k + '\',\'' + o + '\')">' + fcEsc(o) + '</span>';
+    }).join('') + '</div>';
+  } else if (q.type === 'timerange') {
+    var tp = fcTimeParts(fcVal(q.k));
+    var rawTr = fcVal(q.k);
+    var notParsedTr = rawTr && !tp[0] && !tp[1];
+    body = '<div class="fcTimeRow">'
+      + '<input type="time" value="' + fcEsc(tp[0]) + '" onchange="fcTimeRangeChange(\'' + q.k + '\',\'start\',this.value)">'
+      + '<span class="fcTimeDash">–</span>'
+      + '<input type="time" value="' + fcEsc(tp[1]) + '" onchange="fcTimeRangeChange(\'' + q.k + '\',\'end\',this.value)">'
+      + '</div>'
+      + '<input class="fcTimeFallback" placeholder="不是固定時段？直接打字，例如「輪班制」「依公司排班」"'
+      + ' value="' + (notParsedTr ? fcEsc(rawTr) : '') + '" onchange="fcTextChange(\'' + q.k + '\',this.value)">';
+  } else if (q.type === 'benefits') {
+    var cur = fcVal('benefits_detail');
+    var parts = cur.split(/[、,，]/).map(function (s) { return s.trim(); }).filter(Boolean);
+    body = '<div class="fcChipRow">' + FC_BENEFIT_PRESETS.map(function (o) {
+      return '<span class="fcChip' + (parts.indexOf(o) >= 0 ? ' picked' : '') + '" onclick="fcBenefitToggle(\'' + o + '\')">' + o + '</span>';
+    }).join('') + '</div>'
+      + '<textarea placeholder="還沒填，點這裡輸入或直接貼上" onchange="fcTextChange(\'benefits_detail\',this.value)">' + fcEsc(cur) + '</textarea>';
+  }
+  var hint = q.hint ? '<div class="fcHint">' + fcEsc(q.hint) + '</div>' : '';
+  var aiTag = FC_AI_FILLED[q.k] ? '<div class="fcAiBadge">✨ AI 幫你抓的，看一眼對不對</div>' : '';
+  var flag = '';
+  if (FC_LABEL_MODE === 'consultant' && (q.type === 'text' || q.type === 'textarea')) {
+    var hits = fcLaw5Hits(fcVal(q.k));
+    if (hits.length) {
+      flag = '<div class="fcFlag">⚠️ 這欄提到「' + hits.join('、') + '」，就業服務法不能拿來當篩選條件——'
+        + '發佈時系統會自動幫你拿掉，不用自己改，這裡只是先讓你知道。</div>';
+    }
+  }
+  var showLabel = (FC_LABEL_MODE === 'client' && q.lClient) ? q.lClient : q.l;
+  var reqMark = q.required ? ' <span class="fcReq">＊必填</span>' : '';
+  var missCls = (q.required && fcIsFieldEmpty(q)) ? ' class="fcBlock miss"' : ' class="fcBlock"';
+  return '<div' + missCls + ' data-k="' + q.k + '"><label>' + fcEsc(showLabel) + reqMark + '</label>' + hint + body + aiTag + flag + '</div>';
+}
+function fcRender() {
+  var wrap = document.getElementById(FC_WRAP_ID); if (!wrap) return;
+  var doneCount = FC_CARDS.filter(function (d) { return fcComputeState(d) === 'done'; }).length;
+  var progEl = document.getElementById('fcProg');
+  if (progEl) progEl.textContent = doneCount + '/' + FC_CARDS.length + ' 已完成';
+  wrap.innerHTML = FC_CARDS.map(function (d, i) {
+    var moreOpen = !!FC_OPEN_MORE[i];
+    return '<div class="fcCard" data-i="' + i + '">'
+      + '<div class="fcCardHead" onclick="fcToggleCard(' + i + ')">'
+        + '<div class="fcMid"><b>' + fcEsc(d.title) + '</b><span>' + fcEsc(fcComputeSummary(d)) + '</span></div>'
+        + fcStateDotHtml(fcComputeState(d))
+        + '<span class="fcChev">▾</span>'
+      + '</div>'
+      + '<div class="fcCardBody"><div class="fcCardInner">'
+        + d.core.map(function (q) { return fcFieldHtml(q); }).join('')
+        + (d.more.length ? (
+            '<div class="fcMoreToggle" onclick="event.stopPropagation();fcToggleMore(' + i + ')">'
+              + (moreOpen ? '收起 ▴' : '顯示更多欄位 ▾') + '<span class="fcN">' + d.more.length + '</span></div>'
+            + '<div class="fcMoreWrap' + (moreOpen ? ' open' : '') + '">'
+              + d.more.map(function (q) { return fcFieldHtml(q); }).join('')
+            + '</div>'
+          ) : '')
+      + '</div></div>'
+    + '</div>';
+  }).join('');
+}
+function fcToggleCard(i) {
+  var el = document.querySelector('#' + FC_WRAP_ID + ' .fcCard[data-i="' + i + '"]');
+  if (el) el.classList.toggle('open');
+}
+function fcToggleMore(i) {
+  FC_OPEN_MORE[i] = !FC_OPEN_MORE[i];
+  var wasOpen = document.querySelector('#' + FC_WRAP_ID + ' .fcCard[data-i="' + i + '"]').classList.contains('open');
+  fcRender();
+  if (wasOpen) document.querySelector('#' + FC_WRAP_ID + ' .fcCard[data-i="' + i + '"]').classList.add('open');
+}
+function fcMissingRequired() {
+  var out = [];
+  FC_CARDS.forEach(function (d) { d.core.concat(d.more).forEach(function (q) { if (q.required && fcIsFieldEmpty(q)) out.push({ card: d, q: q }); }); });
+  return out;
+}
+function fcCollectFlags() {
+  var out = [];
+  if (FC_LABEL_MODE !== 'consultant') return out;
+  FC_CARDS.forEach(function (d) {
+    d.core.concat(d.more).forEach(function (q) {
+      if ((q.type === 'text' || q.type === 'textarea')) {
+        var hits = fcLaw5Hits(fcVal(q.k));
+        if (hits.length) out.push((FC_LABEL_MODE === 'client' && q.lClient ? q.lClient : q.l) + '：' + hits.join('、'));
+      }
+    });
+  });
+  return out;
+}
+function fcCollectValues() {
+  var out = {};
+  FC_CARDS.forEach(function (d) { d.core.concat(d.more).forEach(function (q) { out[q.k] = fcVal(q.k); }); });
+  return out;
+}
+function fcOpenPreview() {
+  var missing = fcMissingRequired();
+  var banner = document.getElementById('fcMissBanner');
+  if (missing.length) {
+    FC_OPEN_MORE = {};
+    missing.forEach(function (m) {
+      var i = FC_CARDS.indexOf(m.card);
+      var inMore = m.card.more.indexOf(m.q) >= 0;
+      if (inMore) FC_OPEN_MORE[i] = true;
+    });
+    fcRender();
+    missing.forEach(function (m) {
+      var i = FC_CARDS.indexOf(m.card);
+      var el = document.querySelector('#' + FC_WRAP_ID + ' .fcCard[data-i="' + i + '"]');
+      if (el) el.classList.add('open');
+    });
+    if (banner) {
+      banner.innerHTML = '<b>還有 ' + missing.length + ' 個必填欄位沒填：</b>'
+        + missing.map(function (m) { return fcEsc((FC_LABEL_MODE === 'client' && m.q.lClient) ? m.q.lClient : m.q.l); }).join('、')
+        + '——先帶你去第一個';
+      banner.style.display = 'block';
+    }
+    var firstKey = missing[0].q.k;
+    setTimeout(function () {
+      var target = document.querySelector('#' + FC_WRAP_ID + ' .fcBlock[data-k="' + firstKey + '"]');
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        target.classList.remove('fcJump'); void target.offsetWidth; target.classList.add('fcJump');
+        var input = target.querySelector('input,textarea');
+        if (input) setTimeout(function () { input.focus(); }, 400);
+      }
+    }, 50);
+    return;
+  }
+  if (banner) banner.style.display = 'none';
+  var flags = fcCollectFlags();
+  var mask = document.getElementById('fcPvMask');
+  var head = document.getElementById('fcPvTitle');
+  if (head) head.textContent = FC_LABEL_MODE === 'client' ? '預覽：交給顧問看之前，先確認一次' : '預覽：存檔後這份資料會長這樣';
+  var issuesHtml = '';
+  if (flags.length) {
+    issuesHtml = FC_LABEL_MODE === 'consultant'
+      ? ('<div class="fcPvIssues"><b>⚠️ 系統會自動處理 ' + flags.length + ' 處合規問題（發佈時自動拿掉，這裡列出來給你確認）</b><ul>'
+          + flags.map(function (t) { return '<li>' + fcEsc(t) + '</li>'; }).join('') + '</ul></div>')
+      : '<div class="fcPvNote fcPvNote-amber">有內容顧問會幫你看過調整，不用你自己改，正常送出就好。</div>';
+  }
+  var salaryLine = (fcVal('salary_min') && fcVal('salary_max')) ? (fcVal('salary_min') + '–' + fcVal('salary_max') + ' 元') : (fcVal('salary_min') ? fcVal('salary_min') + ' 元以上' : '面議');
+  // 2026-09-07 加：這裡原本只挑 9 個欄位硬寫死顯示，其他已經收集到的~40個欄位
+  // （招募原因、實際要派單位/業主、學歷/年資/必備條件等）完全不會出現在預覽——
+  // 顧問反映電洽時看預覽看不到 HR 填的全部內容。改成上面固定顯示核心 6 項
+  // （職缺/地點/時間/薪資/人數/到職日/工作內容/必要技能/福利，原樣不動），
+  // 下面依卡片分組把「其他有填的欄位」全部列出來，沒填的不顯示，不會有一堆空白。
+  var FC_PV_ALREADY_SHOWN = ['employment', 'title', 'locations', 'work_hours', 'salary_min', 'salary_max', 'headcount', 'onboard_by', 'main_duties', 'must_skills', 'benefits_detail'];
+  var extraHtml = FC_CARDS.map(function (d) {
+    var rows = d.core.concat(d.more).filter(function (q) {
+      return FC_PV_ALREADY_SHOWN.indexOf(q.k) < 0 && fcVal(q.k);
+    });
+    if (!rows.length) return '';
+    return '<div class="fcPvSection"><h4>' + fcEsc(d.title) + '</h4>'
+      + rows.map(function (q) {
+          var lbl = (FC_LABEL_MODE === 'client' && q.lClient) ? q.lClient : q.l;
+          return '<div class="fcPvRow"><b>' + fcEsc(lbl) + '：</b><span>' + fcEsc(fcVal(q.k)) + '</span></div>';
+        }).join('')
+      + '</div>';
+  }).join('');
+  var scroll = document.getElementById('fcPvScroll');
+  if (scroll) {
+    scroll.innerHTML = issuesHtml + '<div class="fcPvJob">'
+      + '<div class="fcHero"><span class="fcTag">' + fcEsc(fcVal('employment') || '職缺') + '</span>'
+        + '<h2>' + fcEsc(fcVal('title') || '（尚未命名）') + '</h2>'
+        + '<p>' + fcEsc(fcVal('locations') || '地點未填') + '・' + fcEsc(fcVal('work_hours') || '時間未填') + '</p></div>'
+      + '<div class="fcSpecRow"><dt>薪資</dt><dd>' + fcEsc(salaryLine) + '</dd></div>'
+      + '<div class="fcSpecRow"><dt>需求人數</dt><dd>' + fcEsc(fcVal('headcount') || '—') + '</dd></div>'
+      + '<div class="fcSpecRow"><dt>到職日</dt><dd>' + fcEsc(fcVal('onboard_by') || '—') + '</dd></div>'
+      + '<div class="fcPvSection"><h4>工作內容</h4><p>' + fcEsc(fcVal('main_duties') || '（還沒填）') + '</p></div>'
+      + '<div class="fcPvSection"><h4>必要技能</h4><p>' + fcEsc(fcVal('must_skills') || '—') + '</p></div>'
+      + '<div class="fcPvSection"><h4>福利</h4><p>' + fcEsc(fcVal('benefits_detail') || '（還沒填）') + '</p></div>'
+      + extraHtml
+      + '</div>';
+  }
+  var goBtn = document.getElementById('fcPvGoBtn');
+  if (goBtn) goBtn.textContent = FC_LABEL_MODE === 'client' ? '確認沒問題，交給顧問' : '確認沒問題，存檔';
+  if (mask) mask.classList.add('show');
+}
+function fcClosePreview() {
+  var mask = document.getElementById('fcPvMask');
+  if (mask) mask.classList.remove('show');
+}
+function fcConfirmAction() {
+  var goBtn = document.getElementById('fcPvGoBtn');
+  if (goBtn) { goBtn.disabled = true; goBtn.textContent = '處理中…'; }
+  var done = function () { if (goBtn) goBtn.disabled = false; fcClosePreview(); };
+  if (typeof FC_ON_SUBMIT === 'function') { Promise.resolve(FC_ON_SUBMIT(fcCollectValues())).then(done).catch(done); }
+  else { done(); }
+}
+
+const API = 'https://step1ne-backoffice-worker.aiagentg888.workers.dev';
+const token = new URLSearchParams(location.search).get('t') || '';
+
+
+function esc(s){return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+let PORTAL_DATA = null;
+
+async function load(){
+  if (!token){ document.getElementById('loading').textContent = '這個連結不完整，請跟顧問確認。'; return; }
+  let data;
+  try{
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}`);
+    data = await res.json();
+  }catch{
+    document.getElementById('loading').textContent = '連線失敗，請稍後再試。';
+    return;
+  }
+  if (!data.ok){
+    document.getElementById('loading').textContent = data.error || '連結無效，請聯繫顧問重新發送。';
+    return;
+  }
+  PORTAL_DATA = data;
+  document.getElementById('coname').textContent = data.company.displayName;
+  document.getElementById('loading').hidden = true;
+  document.getElementById('content').hidden = false;
+
+  if (!data.jobs.length){
+    document.getElementById('picklist').innerHTML = '<div class="state">目前還沒有職缺掛在這個入口，請聯繫顧問。</div>';
+    document.querySelector('.bar').hidden = true;
+  } else {
+    renderPicklist();
+  }
+  // 用人單位進來第一眼要看到的是「人選進度」，不是內部填表用的「用人需求表」——
+  // 兩個分頁對調後，這裡改成預設就把人選資料載進來，不用等使用者自己點分頁。
+  loadCandidates();
+}
+
+function jobFilled(job, fields){
+  return fields.filter(k => job[k] !== null && job[k] !== '').length;
+}
+
+function renderPicklist(){
+  const fields = PORTAL_DATA.fields;
+  const q = document.getElementById('q').value.trim().toLowerCase();
+  const fl = document.getElementById('fl').value;
+  const listEl = document.getElementById('picklist');
+
+  const rows = PORTAL_DATA.jobs.filter(job => {
+    if (q && !(job.title || job.slug || '').toLowerCase().includes(q)) return false;
+    const filled = jobFilled(job, fields);
+    if (fl === 'incomplete' && filled >= fields.length) return false;
+    if (fl === 'complete' && filled < fields.length) return false;
+    return true;
+  });
+
+  if (!rows.length){ listEl.innerHTML = '<div class="state">找不到符合條件的職缺。</div>'; return; }
+
+  listEl.innerHTML = rows.map(job => {
+    const pending = job.status === 'pending_review';
+    if (pending){
+      return `<div class="pick" data-slug="${esc(job.slug)}" data-pending="1" style="opacity:.7">
+        <b>${esc(job.title || job.slug)}</b>
+        <span class="cnt" style="color:#c98a1e;font-weight:700">審核中</span>
+      </div>`;
+    }
+    // 2026-08-25 加：職缺清單這裡原本完全看不出目前是招募中還是已結束——
+    // 點進去才看得到結束招募／重新招募按鈕，客戶不點進去根本不知道有這個功能。
+    // 清單就要看得到狀態，不用先猜哪個職缺可能被關掉了才點進去確認。
+    let statusBadge = '<span class="cnt" style="color:var(--ok)">● 招募中</span>';
+    let hireBtn = job.status === 'open'
+      ? `<button type="button" class="sec hire-toggle-btn" data-slug="${esc(job.slug)}" data-action="close" style="padding:4px 10px;font-size:11.5px;margin-top:4px">結束招募</button>`
+      : '';
+    // 2026-08-25 改：不管是客戶自己關的還是顧問關的，都給「重新招募」按鈕——
+    // 兩種情況都要讓客戶能自己重啟。
+    if (job.status === 'closed'){
+      statusBadge = job.closed_by === 'client'
+        ? '<span class="cnt" style="color:#c98a1e;font-weight:700">已結束招募（可重新開啟）</span>'
+        : '<span class="cnt" style="color:#c98a1e;font-weight:700">顧問已關閉（可重新開啟）</span>';
+      hireBtn = `<button type="button" class="sec hire-toggle-btn" data-slug="${esc(job.slug)}" data-action="reopen" style="padding:4px 10px;font-size:11.5px;margin-top:4px">重新招募</button>`;
+    }
+    const filled = jobFilled(job, fields);
+    // 2026-09-02 加：刪除職缺——只在清單上出現按鈕，實際准不准刪由後端判斷
+    // （已經有人應徵過就一律擋下來，不讓客戶自己刪，避免弄丟人選進度紀錄）。
+    // 前端不用先猜「這筆有沒有應徵紀錄」才要不要顯示按鈕，按了送出去讓後端
+    // 說清楚原因就好，這樣邏輯只有一份、不會前後端各自維護一套判斷標準。
+    return `<div class="pick" data-slug="${esc(job.slug)}">
+      <b>${esc(job.title || job.slug)}</b>
+      <span class="cnt" style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
+        ${statusBadge}
+        <span style="font-size:11.5px;color:var(--ink3)">已填 ${filled} / ${fields.length}</span>
+        ${hireBtn}
+        <button type="button" class="sec delete-job-btn" data-slug="${esc(job.slug)}" style="padding:4px 10px;font-size:11.5px;margin-top:4px;color:#c0392b;border-color:#c0392b">🗑 刪除職缺</button>
+      </span>
+    </div>`;
+  }).join('');
+  listEl.querySelectorAll('.pick').forEach(el => {
+    el.addEventListener('click', (e) => {
+      if (e.target.closest('.hire-toggle-btn') || e.target.closest('.delete-job-btn')) return; // 這些按鈕自己處理，不要連帶打開職缺
+      if (el.dataset.pending) { alert('這個職缺還在等顧問確認，核准後才能編輯內容。'); return; }
+      openJob(el.dataset.slug);
+    });
+  });
+  // 2026-08-25 加：結束招募／重新招募直接在清單上就能按，不用先點進職缺才看得到——
+  // 客戶之前就是因為這個按鈕藏在職缺內頁，才會覺得「怎麼都沒有」。
+  listEl.querySelectorAll('.hire-toggle-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const slug = btn.dataset.slug;
+      if (btn.dataset.action === 'close') closeHire(slug, renderPicklist);
+      else reopenHire(slug, renderPicklist);
+    });
+  });
+  listEl.querySelectorAll('.delete-job-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const slug = btn.dataset.slug;
+      const job = PORTAL_DATA.jobs.find(j => j.slug === slug);
+      if (!confirm(`確定要刪除「${(job && (job.title || job.slug)) || slug}」這個職缺嗎？如果已經有人應徵過會刪不掉，系統會告訴你原因。`)) return;
+      btn.disabled = true;
+      try{
+        const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/jobs/${encodeURIComponent(slug)}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (!data.ok){ alert(data.error || '刪除失敗'); btn.disabled = false; return; }
+        PORTAL_DATA.jobs = PORTAL_DATA.jobs.filter(j => j.slug !== slug);
+        renderPicklist();
+      }catch{
+        alert('連線失敗，請稍後再試'); btn.disabled = false;
+      }
+    });
+  });
+}
+
+document.getElementById('newJobBtn').addEventListener('click', () => {
+  document.getElementById('newJobBox').hidden = false;
+  document.getElementById('newJobTitle').focus();
+});
+document.getElementById('newJobCancel').addEventListener('click', () => {
+  document.getElementById('newJobBox').hidden = true;
+  document.getElementById('newJobTitle').value = '';
+});
+document.getElementById('newJobSubmit').addEventListener('click', async () => {
+  const title = document.getElementById('newJobTitle').value.trim();
+  const errEl = document.getElementById('newJobErr');
+  errEl.hidden = true;
+  if (!title){ errEl.textContent = '請填職缺名稱'; errEl.hidden = false; return; }
+  const btn = document.getElementById('newJobSubmit');
+  btn.disabled = true;
+  try{
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}`, {
+      method: 'POST', headers: {'content-type':'application/json'}, body: JSON.stringify({ title }),
+    });
+    const data = await res.json();
+    if (!data.ok){ errEl.textContent = data.error || '送出失敗'; errEl.hidden = false; btn.disabled = false; return; }
+    document.getElementById('newJobBox').hidden = true;
+    document.getElementById('newJobTitle').value = '';
+    PORTAL_DATA.jobs.push({ slug: data.slug, title, status: 'client_draft' });
+    openJob(data.slug);
+  }catch{
+    errEl.textContent = '連線失敗，請稍後再試'; errEl.hidden = false;
+  }
+  btn.disabled = false;
+});
+
+document.getElementById('q').addEventListener('input', renderPicklist);
+document.getElementById('fl').addEventListener('change', renderPicklist);
+document.getElementById('backBtn').addEventListener('click', () => {
+  document.getElementById('jobView').hidden = true;
+  document.getElementById('pickView').hidden = false;
+});
+
+function openJob(slug){
+  const job = PORTAL_DATA.jobs.find(j => j.slug === slug);
+  if (!job) return;
+  const jobsEl = document.getElementById('jobs');
+  jobsEl.innerHTML = '';
+  jobsEl.appendChild(renderJob(job, PORTAL_DATA.fields));
+  document.getElementById('pickView').hidden = true;
+  document.getElementById('jobView').hidden = false;
+  // fcRender() 要在 #fcWrap 真的掛進 document 之後才能找到它——renderJob()
+  // 回傳的是還沒 append 的 detached 節點，這裡才是它變成活的 DOM 的時間點。
+  fcInit(job, 'client');
+  fcRender();
+  loadJobForms(job.slug);
+}
+
+// 2026-09-03 加：面試前要先給人選填的資料／測驗，讓用人單位自己上傳，
+// 不用先傳給顧問再讓顧問手動上傳。跟顧問後台「客製表單」寫的是同一張
+// job_forms 表，推薦人選時觸發寄送的邏輯完全共用，這裡只負責上傳／列表／刪除。
+async function loadJobForms(slug){
+  const box = document.getElementById('jobFormsBox');
+  if (!box) return;
+  box.innerHTML = '<p class="mut">載入中…</p>';
+  let forms = [];
+  try{
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/jobs/${encodeURIComponent(slug)}/forms`);
+    const data = await res.json();
+    forms = (data.ok && data.forms) || [];
+  }catch{}
+  box.innerHTML = `
+    <div class="import-box">
+      <h3>面試前要給人選填的資料／測驗（選填）</h3>
+      <p class="hint">如果面試前需要人選先填寫某份資料或測驗，直接上傳在這裡——推薦人選給你們的時候，顧問會自動一起寄出，不用你們再傳一次給顧問。</p>
+      ${forms.length
+        ? '<div style="margin-bottom:12px">' + forms.map(f => `
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--soft);border-radius:10px;padding:11px 14px;margin-bottom:8px;font-size:13.5px">
+              <b>${esc(f.name)}</b>
+              <button type="button" class="jfDel" data-id="${esc(f.id)}" style="border:0;background:none;color:var(--bad);font-size:13px;cursor:pointer">刪除</button>
+            </div>`).join('') + '</div>'
+        : '<p class="mut" style="margin:0 0 12px">目前還沒有上傳任何表單。</p>'}
+      <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px">新增一份</label>
+      <input type="text" id="jfName" placeholder="表單名稱，例如：職前測驗、保密協議">
+      <input type="file" id="jfFile" style="margin-top:8px">
+      <div style="margin-top:10px"><button type="button" class="sec" id="jfGo">＋ 新增</button> <span id="jfMsg" style="font-size:12.5px;margin-left:8px"></span></div>
+    </div>`;
+  box.querySelectorAll('.jfDel').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('確定要刪除這份表單嗎？已經寄出的不受影響，只是之後不會再自動附上。')) return;
+      await fetch(`${API}/portal/${encodeURIComponent(token)}/jobs/${encodeURIComponent(slug)}/forms/${encodeURIComponent(btn.dataset.id)}/delete`, { method: 'POST' });
+      loadJobForms(slug);
+    });
+  });
+  document.getElementById('jfGo').addEventListener('click', async () => {
+    const name = document.getElementById('jfName').value.trim();
+    const fileInput = document.getElementById('jfFile');
+    const msg = document.getElementById('jfMsg');
+    if (!name){ msg.textContent = '請填表單名稱'; msg.style.color = 'var(--bad)'; return; }
+    const go = document.getElementById('jfGo');
+    go.disabled = true; msg.style.color = 'var(--ink3)'; msg.textContent = '處理中…';
+    const submit = async (fileB64, fileName, fileMime) => {
+      try{
+        const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/jobs/${encodeURIComponent(slug)}/forms`, {
+          method: 'POST', headers: {'content-type':'application/json'},
+          body: JSON.stringify({ name, file_b64: fileB64, file_name: fileName, file_mime: fileMime }),
+        });
+        const data = await res.json();
+        if (!data.ok){ go.disabled = false; msg.style.color = 'var(--bad)'; msg.textContent = data.error || '新增失敗'; return; }
+        loadJobForms(slug);
+      }catch{
+        go.disabled = false; msg.style.color = 'var(--bad)'; msg.textContent = '連不上伺服器';
+      }
+    };
+    if (fileInput.files[0]){
+      const reader = new FileReader();
+      reader.onload = () => submit(String(reader.result).split(',')[1], fileInput.files[0].name, fileInput.files[0].type);
+      reader.readAsDataURL(fileInput.files[0]);
+    } else {
+      submit(null, null, null);
+    }
+  });
+}
+
+// 2026-09-01 改：面試輪數設定原本混在下面 53 個欄位的表格裡，長得跟其他
+// 純文字欄位一模一樣，Jacky 反映「不直覺，都是填寫文字的設定」——這是
+// 結構性設定（決定進度表格長什麼樣），不是職缺描述文字，理應一進來就
+// 看得到、跟其他欄位分開，不用往下滑好幾輪才找到。獨立成職缺頁最上面
+// 一個醒目區塊，不算進下面「已填 X/Y」那個純文字欄位的完成度統計。
+function renderStageConfigBox(job){
+  let stages = [];
+  try { stages = JSON.parse(job.interview_stage_config || '[]'); } catch { stages = []; }
+  const order = ['stage2', 'stage3', 'stage4'];
+  const labelOf = { stage2: '第二階段', stage3: '第三階段', stage4: '第四階段' };
+  const summary = stages.length
+    ? `目前設定：面試到「${labelOf[stages[stages.length - 1]]}」`
+    : '目前設定：只有第一階段面談';
+  return `<div class="stage-config-box">
+    <div class="stage-config-head">
+      <b>這個職缺有幾階段面試？</b>
+      <span class="stage-config-summary">${esc(summary)}</span>
+    </div>
+    <div class="stage-config-sub">第一階段面談是每個職缺都有的基本關卡，不用勾選。如果實際上還有更多輪面試，在這裡勾起來——「人選進度」表格的面試階段欄位才會出現對應的選項。</div>
+    <div class="stage-config-opts">
+      ${order.map(k => `<label><input type="checkbox" class="stage-chk" value="${k}"${stages.includes(k) ? ' checked' : ''}> ${labelOf[k]}</label>`).join('')}
+    </div>
+    <input type="hidden" data-k="interview_stage_config" value='${esc(JSON.stringify(stages))}'>
+  </div>`;
+}
+
+// 勾選就立刻存檔，不等使用者滑到表單最下面按「儲存這個職缺」——2026-09-01
+// 修：Jacky 勾完切走頁面又跳回去，是因為這格原本跟其他 52 個文字欄位一樣
+// 只更新畫面上的隱藏欄位，要按最下面的儲存鍵才真的送出。現在這格已經獨立
+// 成一個醒目卡片、長得像表格上「選了就生效」的下拉選單，使用者會預期勾了
+// 就算數——改成勾選當下直接呼叫 PUT，跟其他欄位的「先填、最後一次存」
+// 分開處理。
+// 勾第三/四階段時自動連帶勾前面幾關——面試關卡是線性往前推進的，不可能只有
+// 第四階段卻沒有第二三階段，中間斷層會讓 resolveStage() 判斷錯亂。
+function wireStageConfigBox(root, slug){
+  root.querySelectorAll('.stage-config-box').forEach(box => {
+    const hidden = box.querySelector('input[type=hidden]');
+    const summaryEl = box.querySelector('.stage-config-summary');
+    const order = ['stage2', 'stage3', 'stage4'];
+    const labelOf = { stage2: '第二階段', stage3: '第三階段', stage4: '第四階段' };
+    const sync = async () => {
+      const checked = Array.from(box.querySelectorAll('.stage-chk:checked')).map(c => c.value);
+      const maxIdx = Math.max(-1, ...checked.map(k => order.indexOf(k)));
+      const normalized = order.slice(0, maxIdx + 1);
+      box.querySelectorAll('.stage-chk').forEach(c => { c.checked = normalized.includes(c.value); c.disabled = true; });
+      hidden.value = JSON.stringify(normalized);
+      if (summaryEl) summaryEl.textContent = '儲存中…';
+      try{
+        const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/jobs/${encodeURIComponent(slug)}`, {
+          method: 'PUT', headers: {'content-type':'application/json'},
+          // 2026-10-28 修：後端存檔會把 '["stage2"]' 這種陣列「整理」成 'stage2'（sanitizeFactValue），
+          // 讀的那邊認不得，勾了第二階段卻一直只有一關（10/20 兩個職缺就這樣）。多包一層字串，整理完剛好還原成陣列。
+          body: JSON.stringify({ interview_stage_config: JSON.stringify(hidden.value) }),
+        });
+        const data = await res.json();
+        if (!data.ok){ alert(data.error || '儲存失敗，請重新勾選一次'); }
+        const jobRecord = PORTAL_DATA.jobs.find(j => j.slug === slug);
+        if (jobRecord) jobRecord.interview_stage_config = hidden.value;
+      }catch{
+        alert('連線失敗，請確認網路連線後重新勾選一次');
+      }
+      if (summaryEl) summaryEl.textContent = normalized.length
+        ? `目前設定：面試到「${labelOf[normalized[normalized.length - 1]]}」`
+        : '目前設定：只有第一階段面談';
+      box.querySelectorAll('.stage-chk').forEach(c => { c.disabled = false; });
+    };
+    box.querySelectorAll('.stage-chk').forEach(c => c.addEventListener('change', sync));
+  });
+}
+
+function renderJob(job, fields){
+  const div = document.createElement('div');
+  div.className = 'job';
+  div.innerHTML = `
+    <h2>${esc(job.title || job.slug)}<span class="cnt fcProgBar" id="fcProg" style="margin:0"></span></h2>
+    ${renderStageConfigBox(job)}
+    ${renderImportBox(job.slug)}
+    ${renderHireStateBox(job)}
+    <div id="fcMissBanner"></div>
+    <div id="fcWrap"></div>
+    <div id="jobFormsBox"></div>
+    <div class="savebar">
+      <button type="button" class="sec save-btn">存檔（不送審，隨時可以回來改）</button>
+      <button type="button" class="submit-btn">看預覽，再送出審核 →</button>
+    </div>`;
+
+  div.querySelector('.save-btn').addEventListener('click', (e) => quickSaveJob(job.slug, e.target));
+  div.querySelector('.submit-btn').addEventListener('click', () => {
+    FC_ON_SUBMIT = (values) => submitJobWithFacts(job.slug, values);
+    fcOpenPreview();
+  });
+  wireImportBox(div, job.slug);
+  wireHireStateBox(div, job.slug);
+  wireStageConfigBox(div, job.slug);
+  return div;
+}
+
+// 「存檔」——不經過預覽，隨時存、隨時可以離開再回來改，client_draft 階段本來就是這樣。
+async function quickSaveJob(slug, btn){
+  btn.disabled = true;
+  const payload = fcCollectValues();
+  try{
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/jobs/${encodeURIComponent(slug)}`, {
+      method: 'PUT', headers: {'content-type':'application/json'}, body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    btn.disabled = false;
+    if (!data.ok){ alert(data.error || '儲存失敗'); return; }
+    const jobRecord = PORTAL_DATA.jobs.find(j => j.slug === slug);
+    if (jobRecord) Object.assign(jobRecord, payload);
+    showSavedModal();
+  }catch{
+    btn.disabled = false;
+    alert('連線失敗，請稍後再試');
+  }
+}
+
+// 「看預覽，再送出審核」——預覽彈窗確認後才真的存檔＋送審，兩件事綁在一起，
+// 呼應「送出前一定要看過一次」這個設計，不是盲送。
+async function submitJobWithFacts(slug, values){
+  const putRes = await fetch(`${API}/portal/${encodeURIComponent(token)}/jobs/${encodeURIComponent(slug)}`, {
+    method: 'PUT', headers: {'content-type':'application/json'}, body: JSON.stringify(values),
+  });
+  const putData = await putRes.json();
+  if (!putData.ok){ alert(putData.error || '儲存失敗'); return; }
+  const subRes = await fetch(`${API}/portal/${encodeURIComponent(token)}/jobs/${encodeURIComponent(slug)}/submit`, {
+    method: 'POST', headers: {'content-type':'application/json'},
+  });
+  const subData = await subRes.json();
+  if (!subData.ok){ alert(subData.error || '送出失敗'); return; }
+  const jobRecord = PORTAL_DATA.jobs.find(j => j.slug === slug);
+  if (jobRecord){ Object.assign(jobRecord, values); jobRecord.status = 'pending_review'; }
+  alert('已送出審核，顧問確認後會通知你。');
+  document.getElementById('jobView').hidden = true;
+  document.getElementById('pickView').hidden = false;
+  renderPicklist();
+}
+
+// ── 結束招募／重新招募 ──
+function renderHireStateBox(job){
+  if (job.status === 'open'){
+    return `<div class="hire-box">
+      <span>這個職缺目前招募中。</span>
+      <button type="button" class="sec close-hire-btn">✓ 已找到人・結束招募</button>
+    </div>`;
+  }
+  // 2026-08-25 改：不管是客戶自己按「結束招募」關的，還是顧問後台關的，
+  // 都給客戶「重新招募」按鈕——兩種情況都要讓客戶能自己重啟。
+  if (job.status === 'closed'){
+    const byLabel = job.closed_by === 'client' ? '你' : '顧問';
+    return `<div class="hire-box">
+      <span>${byLabel}已標記這個職缺「結束招募」${job.closed_reason ? '（原因：' + esc(job.closed_reason) + '）' : ''}，公開頁面已隱藏、暫不安排新面試。</span>
+      <button type="button" class="reopen-btn">重新招募</button>
+    </div>`;
+  }
+  return '';
+}
+function wireHireStateBox(jobEl, slug){
+  const closeBtn = jobEl.querySelector('.close-hire-btn');
+  if (closeBtn) closeBtn.addEventListener('click', () => closeHire(slug, () => openJob(slug)));
+  const reopenBtn = jobEl.querySelector('.reopen-btn');
+  if (reopenBtn) reopenBtn.addEventListener('click', () => reopenHire(slug, () => openJob(slug)));
+}
+async function closeHire(slug, refreshFn){
+  const reason = prompt('請簡單說明結束招募的原因（例如：已透過其他管道找到人選）');
+  if (reason === null) return;
+  if (!reason.trim()){ alert('請填寫原因'); return; }
+  try{
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/jobs/${encodeURIComponent(slug)}/close-hire`, {
+      method: 'POST', headers: {'content-type':'application/json'}, body: JSON.stringify({ reason: reason.trim() }),
+    });
+    const data = await res.json();
+    if (!data.ok){ alert(data.error || '送出失敗'); return; }
+    const jobRecord = PORTAL_DATA.jobs.find(j => j.slug === slug);
+    if (jobRecord){ jobRecord.status = 'closed'; jobRecord.closed_by = 'client'; jobRecord.closed_reason = reason.trim(); }
+    (refreshFn || (() => openJob(slug)))();
+  }catch{
+    alert('連線失敗，請稍後再試');
+  }
+}
+async function reopenHire(slug, refreshFn){
+  const reason = prompt('請簡單說明重新招募的原因');
+  if (reason === null) return;
+  if (!reason.trim()){ alert('請填寫原因'); return; }
+  try{
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/jobs/${encodeURIComponent(slug)}/reopen`, {
+      method: 'POST', headers: {'content-type':'application/json'}, body: JSON.stringify({ reason: reason.trim() }),
+    });
+    const data = await res.json();
+    if (!data.ok){ alert(data.error || '送出失敗'); return; }
+    const jobRecord = PORTAL_DATA.jobs.find(j => j.slug === slug);
+    if (jobRecord){ jobRecord.status = 'open'; jobRecord.closed_by = null; jobRecord.closed_reason = null; }
+    (refreshFn || (() => openJob(slug)))();
+  }catch{
+    alert('連線失敗，請稍後再試');
+  }
+}
+
+// ── 一鍵匯入 ──
+// 三種來源共用同一套流程：POST 建立匯入紀錄 → 輪詢直到本機排程解析完成
+// → 把解析出來的值填進表單對應欄位並反白，讓客戶自己確認/修改，
+// 不會解析完就自動蓋掉客戶可能已經手動填過的內容而不讓人發現。
+function renderImportBox(slug){
+  return `
+    <div class="import-box" data-slug="${esc(slug)}">
+      <h3>一鍵匯入（選填）</h3>
+      <p class="hint">有現成的 JD 檔案或連結嗎？上傳或貼上，AI 會自動幫你把內容對應填進下面的表單——填完記得檢查一下對不對。</p>
+      <div class="import-tabs">
+        <button type="button" class="import-tab on" data-pane="file">上傳檔案</button>
+        <button type="button" class="import-tab" data-pane="url">貼連結</button>
+        <button type="button" class="import-tab" data-pane="text">貼文字</button>
+      </div>
+      <div class="import-pane on" data-pane="file">
+        <input type="file" class="import-file" multiple accept=".pdf,.docx,.doc,.xlsx,.xls,.txt,.rtf">
+        <p class="hint" style="margin:8px 0 0">支援 PDF／Word／Excel，單檔 8MB 以內。</p>
+      </div>
+      <div class="import-pane" data-pane="url">
+        <input type="text" class="import-url" placeholder="貼職缺頁網址，或 Google Docs／Sheets 連結（需設為「知道連結的人可檢視」）">
+      </div>
+      <div class="import-pane" data-pane="text">
+        <textarea class="import-text" placeholder="把 JD 內容直接貼在這裡"></textarea>
+      </div>
+      <div style="margin-top:12px">
+        <button type="button" class="import-submit sec">開始匯入</button>
+      </div>
+      <div class="import-status" hidden></div>
+    </div>`;
+}
+
+function wireImportBox(rootEl, slug){
+  const box = rootEl.querySelector('.import-box');
+  box.querySelectorAll('.import-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      box.querySelectorAll('.import-tab').forEach(t => t.classList.remove('on'));
+      box.querySelectorAll('.import-pane').forEach(p => p.classList.remove('on'));
+      tab.classList.add('on');
+      box.querySelector(`.import-pane[data-pane="${tab.dataset.pane}"]`).classList.add('on');
+    });
+  });
+  box.querySelector('.import-submit').addEventListener('click', () => startImport(rootEl, box, slug));
+}
+
+function fileToBase64(file){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result).split(',')[1] || '');
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function startImport(rootEl, box, slug){
+  const statusEl = box.querySelector('.import-status');
+  const btn = box.querySelector('.import-submit');
+  const activePane = box.querySelector('.import-tab.on').dataset.pane;
+  statusEl.hidden = false; statusEl.className = 'import-status'; statusEl.textContent = '';
+  let payload = null;
+
+  if (activePane === 'file'){
+    const input = box.querySelector('.import-file');
+    const files = Array.from(input.files || []);
+    if (!files.length){ statusEl.className = 'import-status err'; statusEl.textContent = '請先選擇檔案'; return; }
+    const tooBig = files.find(f => f.size > 8 * 1024 * 1024);
+    if (tooBig){ statusEl.className = 'import-status err';
+      statusEl.textContent = `「${tooBig.name}」超過 8MB，請改貼雲端連結或分成多個檔案`; return; }
+    btn.disabled = true; statusEl.textContent = '讀取檔案中…';
+    const encoded = await Promise.all(files.map(async f => ({ b64: await fileToBase64(f), name: f.name, mime: f.type })));
+    payload = { sourceType: 'file', files: encoded };
+  } else if (activePane === 'url'){
+    const url = box.querySelector('.import-url').value.trim();
+    if (!url){ statusEl.className = 'import-status err'; statusEl.textContent = '請貼上連結'; return; }
+    payload = { sourceType: 'url', url };
+  } else {
+    const text = box.querySelector('.import-text').value.trim();
+    if (!text){ statusEl.className = 'import-status err'; statusEl.textContent = '請貼上文字內容'; return; }
+    payload = { sourceType: 'text', text };
+  }
+
+  btn.disabled = true;
+  statusEl.textContent = '匯入中，AI 正在讀取內容（通常 1-2 分鐘，可以先做別的事，等一下回來看）…';
+  try{
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/jobs/${encodeURIComponent(slug)}/import`, {
+      method: 'POST', headers: {'content-type':'application/json'}, body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!data.ok){ statusEl.className = 'import-status err'; statusEl.textContent = data.error || '匯入失敗'; btn.disabled = false; return; }
+    pollImport(rootEl, box, slug, data.importId, statusEl, btn);
+  }catch{
+    statusEl.className = 'import-status err'; statusEl.textContent = '連線失敗，請稍後再試'; btn.disabled = false;
+  }
+}
+
+async function pollImport(rootEl, box, slug, importId, statusEl, btn, attempt){
+  attempt = attempt || 0;
+  if (attempt > 40){ // 本機排程每 2 分鐘跑一次，等超過 6 分鐘就請客戶自己重整
+    statusEl.className = 'import-status err';
+    statusEl.textContent = '處理時間比預期久，稍後重新整理頁面看看，或改用「貼文字」試試。';
+    btn.disabled = false;
+    return;
+  }
+  try{
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/imports/${encodeURIComponent(importId)}`);
+    const data = await res.json();
+    if (!data.ok){ statusEl.className = 'import-status err'; statusEl.textContent = data.error || '查詢失敗'; btn.disabled = false; return; }
+    if (data.status === 'parsed'){
+      const n = fcApplyImported(data.parsed || {});
+      statusEl.className = 'import-status';
+      statusEl.textContent = n
+        ? `已匯入 ${n} 個欄位（下面金色標「AI 幫你抓的」那些），檢查沒問題後記得存檔。`
+        : '沒有解析出可用的欄位，麻煩手動填寫。';
+      btn.disabled = false;
+      return;
+    }
+    if (data.status === 'failed'){
+      statusEl.className = 'import-status err';
+      statusEl.textContent = data.errorNote || '匯入解析失敗，請改手動填寫';
+      btn.disabled = false;
+      return;
+    }
+    setTimeout(() => pollImport(rootEl, box, slug, importId, statusEl, btn, attempt + 1), 9000);
+  }catch{
+    setTimeout(() => pollImport(rootEl, box, slug, importId, statusEl, btn, attempt + 1), 9000);
+  }
+}
+
+
+
+function showSavedModal(){
+  document.getElementById('mask').hidden = false;
+  document.getElementById('savedModal').hidden = false;
+}
+function hideSavedModal(){
+  document.getElementById('mask').hidden = true;
+  document.getElementById('savedModal').hidden = true;
+}
+document.getElementById('mask').addEventListener('click', hideSavedModal);
+document.getElementById('savedStay').addEventListener('click', hideSavedModal);
+document.getElementById('savedBack').addEventListener('click', () => {
+  hideSavedModal();
+  renderPicklist();
+  document.getElementById('jobView').hidden = true;
+  document.getElementById('pickView').hidden = false;
+});
+
+// ── 人選進度分頁：招募儀表板 ──
+let CANDIDATES_LOADED = false;
+let CAND_LIST = [];
+let CAND_VIEW = 'table';
+let CAND_FILTER = '全部';
+let ACTIVE_APP = null;
+let CHAT_POLL_TIMER = null;
+
+const FUNNEL_STAGES = [
+  ['shortlisted', '顧問接觸中'],
+  ['interviewed', '進入 AI 面談'],
+  ['passed_screening', '顧問審核通過'],
+  ['client_stage', '客戶面談中'],
+  ['offered', '已錄取'],
+  ['onboard', '已到職'],
+];
+
+let BILLING_LOADED = false;
+function showTopView(view){
+  document.getElementById('tabJobs').classList.toggle('on', view === 'jobs');
+  document.getElementById('tabCandidates').classList.toggle('on', view === 'candidates');
+  document.getElementById('tabBilling').classList.toggle('on', view === 'billing');
+  document.getElementById('candidatesView').hidden = view !== 'candidates';
+  document.getElementById('billingView').hidden = view !== 'billing';
+  document.getElementById('pickView').hidden = view !== 'jobs';
+  document.getElementById('jobView').hidden = true;
+  if (view === 'candidates' && !CANDIDATES_LOADED) loadCandidates();
+  if (view === 'billing' && !BILLING_LOADED) loadBilling();
+}
+document.getElementById('tabJobs').addEventListener('click', () => showTopView('jobs'));
+document.getElementById('tabCandidates').addEventListener('click', () => showTopView('candidates'));
+document.getElementById('tabBilling').addEventListener('click', () => showTopView('billing'));
+
+// 2026-09-15 改：原本一人拆好幾列很難讀，改成一人一行（報到日期／到職多久／收款
+// 進度一眼看完），點進去才看單期明細。欄位跟顧問後台那份刻意不同（不給是誰標記的，
+// 不給範本編輯介面），客戶只需要知道「這位、這期、多少比例、什麼時候到期、收了沒」。
+let BILL_GROUPS = [];
+function billTenureText(onboardDate){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const od = new Date(onboardDate + 'T00:00:00');
+  const days = Math.round((today - od) / 86400000);
+  if (days < 0) return `尚未到職（還有 ${-days} 天）`;
+  if (days === 0) return '今天到職';
+  if (days < 30) return `已到職 ${days} 天`;
+  return `已到職約 ${Math.floor(days/30)} 個月（${days} 天）`;
+}
+async function loadBilling(){
+  BILLING_LOADED = true;
+  const el = document.getElementById('billingList');
+  el.className = 'state'; el.textContent = '讀取中…';
+  let data;
+  try {
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/billing`);
+    data = await res.json();
+  } catch {
+    el.textContent = '連線失敗，請稍後再試。';
+    return;
+  }
+  if (!data.ok) { el.textContent = data.error || '讀取失敗'; return; }
+  const items = data.installments || [];
+  if (!items.length) { el.textContent = '目前沒有收費排程資料。'; return; }
+  const byPlacement = {};
+  items.forEach(r => { (byPlacement[r.placement_id] = byPlacement[r.placement_id] || []).push(r); });
+  BILL_GROUPS = Object.keys(byPlacement).map(k => byPlacement[k]);
+  el.className = '';
+  el.innerHTML = `<div class="dash-table-wrap"><table class="dash-table bill-table"><thead><tr>` +
+    `<th>人選</th><th>職缺</th><th>報到日期</th><th>到職多久</th><th>收款進度</th></tr></thead><tbody>` +
+    BILL_GROUPS.map((rows, gi) => {
+      const r0 = rows[0];
+      const paidN = rows.filter(x => x.paid).length;
+      const paidPct = Math.round(rows.filter(x => x.paid).reduce((s, x) => s + Number(x.percent), 0));
+      return `<tr class="billRow" data-gi="${gi}"><td>${esc(r0.candidate_name)}</td><td>${esc(r0.job_title)}</td>` +
+        `<td>${esc(r0.onboard_date)}</td><td>${esc(billTenureText(r0.onboard_date))}</td>` +
+        `<td><span class="progress"><i style="width:${paidPct}%"></i></span>${paidN}/${rows.length} 期已收（${paidPct}%）</td></tr>`;
+    }).join('') + `</tbody></table></div>`;
+  document.querySelectorAll('.billRow').forEach(tr => {
+    tr.addEventListener('click', () => openBillModal(BILL_GROUPS[Number(tr.dataset.gi)]));
+  });
+}
+// 2026-09-15 加：每一期改成可以直接上傳匯款證明＋選匯款日期，按「確認送出」＝
+// 「我已經匯款了」，會通知顧問到 Telegram 按已收到／還沒收到。已經回報過的（不管
+// 待確認還是已確認）不能重複送出，避免同一期送兩次搞混顧問要看哪一份證明。
+function billStatusBlock(r){
+  if (r.confirmed_received === 'yes') {
+    return { status: `<span style="color:#2f8f5b;font-weight:700">✅ 顧問已收到</span>`, action: '' };
+  }
+  if (r.client_submitted_at) {
+    return { status: `<span style="color:#8a6100;font-weight:700">⏳ 已回報匯款，待顧問確認</span><br>` +
+      `<span style="color:var(--ink3);font-size:12px">匯款日期 ${esc(r.client_transfer_date || '')}</span>`, action: '' };
+  }
+  return { status: `<span style="color:var(--ink3)">未收款</span>`, action:
+    `<div class="bill-upload" data-id="${esc(r.id)}" style="margin-top:8px;padding:10px;background:var(--soft);border-radius:10px">` +
+    `<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">` +
+    `<input type="date" class="bu-date" max="${new Date().toISOString().slice(0,10)}" style="font:inherit;font-size:13px;padding:6px 8px;border:1px solid var(--line);border-radius:8px">` +
+    `<input type="file" class="bu-file" accept="image/*,.pdf" style="font-size:12.5px;max-width:160px">` +
+    `<button type="button" class="bu-go" style="font:inherit;font-size:13px;font-weight:700;background:var(--gold);color:#fff;border:0;border-radius:999px;padding:7px 14px;cursor:pointer">我已匯款，確認送出</button>` +
+    `</div><div class="bu-msg" style="font-size:12px;color:var(--ink3);margin-top:6px"></div></div>` };
+}
+function openBillModal(rows){
+  const r0 = rows[0];
+  document.getElementById('billModalBody').innerHTML =
+    `<h3 style="margin:0 0 4px">${esc(r0.candidate_name)}</h3>` +
+    `<p style="margin:0 0 4px;color:var(--ink3);font-size:13px">${esc(r0.job_title)}</p>` +
+    `<p style="margin:0 0 16px;color:var(--ink3);font-size:13px">報到日期 ${esc(r0.onboard_date)}　·　${esc(billTenureText(r0.onboard_date))}</p>` +
+    rows.map(r => {
+      const b = billStatusBlock(r);
+      return `<div style="border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px">` +
+        `<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">` +
+        `<b>${esc(r.label)}</b><span style="color:var(--ink3);font-size:13px">${esc(r.percent)}%　·　到期 ${esc(r.due_date)}</span>` +
+        `</div><div style="margin-top:6px">${b.status}</div>${b.action}</div>`;
+    }).join('');
+  document.getElementById('billModalMask').classList.add('show');
+  document.querySelectorAll('.bu-go').forEach(btn => {
+    btn.addEventListener('click', () => submitBillProof(btn.closest('.bill-upload')));
+  });
+}
+async function submitBillProof(box){
+  const id = box.dataset.id;
+  const dateInput = box.querySelector('.bu-date');
+  const fileInput = box.querySelector('.bu-file');
+  const msg = box.querySelector('.bu-msg');
+  const btn = box.querySelector('.bu-go');
+  const transferDate = dateInput.value;
+  if (!transferDate) { msg.style.color = 'var(--bad)'; msg.textContent = '請選匯款日期'; return; }
+  btn.disabled = true; msg.style.color = 'var(--ink3)'; msg.textContent = '送出中…';
+  const send = async (fileB64, filename, mime) => {
+    try {
+      const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/billing/${encodeURIComponent(id)}`, {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ transfer_date: transferDate, file_b64: fileB64, filename, mime }),
+      });
+      const data = await res.json();
+      if (!data.ok) { btn.disabled = false; msg.style.color = 'var(--bad)'; msg.textContent = data.error || '送出失敗'; return; }
+      msg.style.color = '#2f8f5b'; msg.textContent = '已送出，等顧問確認';
+      BILLING_LOADED = false;
+      loadBilling();
+    } catch {
+      btn.disabled = false; msg.style.color = 'var(--bad)'; msg.textContent = '連不上伺服器，請稍後再試';
+    }
+  };
+  if (fileInput.files[0]) {
+    const reader = new FileReader();
+    reader.onload = () => send(String(reader.result).split(',')[1], fileInput.files[0].name, fileInput.files[0].type);
+    reader.readAsDataURL(fileInput.files[0]);
+  } else {
+    send(null, null, null);
+  }
+}
+document.getElementById('billModalClose').addEventListener('click', () => document.getElementById('billModalMask').classList.remove('show'));
+document.getElementById('billModalMask').addEventListener('click', (e) => { if (e.target.id === 'billModalMask') document.getElementById('billModalMask').classList.remove('show'); });
+
+function currentStageOf(c){
+  // 2026-09-01 改：客戶端字眼統一用「不推進」，跟表格「用人單位」欄的下拉選項
+  // （推進／不推進）對齊——「婉拒」聽起來像另一套獨立動作，容易讓人以為
+  // 這是分頁跟下拉選單是兩件不同的事。
+  if (c.client_rejected_at) return { key:'rejected', lb:'不推進' };
+  const steps = c.steps || [];
+  return steps.find(s => s.now) || [...steps].reverse().find(s => s.done) || { lb: '尚未開始' };
+}
+// 卡片/表格的狀態標籤空間有限，顧問回填面試輪次時組出來的完整標籤
+// 「人資面談（高階主管）（第二階段）」太長會把版面撐壞——這種窄空間只需要
+// 「第幾階段面談」，完整內容還是留在彈窗的「目前狀態」文字裡看得到。
+function shortStageLabel(lb){
+  const m = String(lb || '').match(/第[一二三四]階段/);
+  return m ? `${m[0]}面談` : lb;
+}
+
+async function loadCandidates(){
+  document.getElementById('dashTableView').innerHTML = '<div class="state">讀取中…</div>';
+  try{
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates`);
+    const data = await res.json();
+    if (!data.ok){ document.getElementById('dashTableView').innerHTML = `<div class="state">${esc(data.error || '讀取失敗')}</div>`; return; }
+    CANDIDATES_LOADED = true;
+    CAND_LIST = data.candidates || [];
+    renderChips();
+    renderTable();
+    renderCards();
+    loadFunnels();
+    refreshNotifications();
+  }catch{
+    document.getElementById('dashTableView').innerHTML = '<div class="state">連線失敗，請稍後再試。</div>';
+  }
+}
+
+async function loadFunnels(){
+  const slugs = [...new Set(CAND_LIST.map(c => c.job_slug).filter(Boolean))];
+  const statsEl = document.getElementById('dashStats');
+  const funnelEl = document.getElementById('dashFunnel');
+  if (!slugs.length){ statsEl.innerHTML = ''; funnelEl.innerHTML = '<div class="dash-helper">目前還沒有人選，漏斗數字會在有推薦後出現。</div>'; return; }
+  const results = await Promise.all(slugs.map(async slug => {
+    try{
+      const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/jobs/${encodeURIComponent(slug)}/funnel`);
+      const data = await res.json();
+      const title = (CAND_LIST.find(c => c.job_slug === slug) || {}).job_title || slug;
+      return data.ok ? { slug, title, funnel: data.funnel } : null;
+    }catch{ return null; }
+  }));
+  const rows = results.filter(Boolean);
+  if (!rows.length){ statsEl.innerHTML = ''; funnelEl.innerHTML = ''; return; }
+
+  // 總覽數字卡：多個職缺就加總，單一職缺就直接顯示
+  const totals = {};
+  FUNNEL_STAGES.forEach(([k]) => { totals[k] = rows.reduce((sum, r) => sum + (r.funnel[k] || 0), 0); });
+  statsEl.innerHTML = FUNNEL_STAGES.map(([k, lb]) =>
+    `<div class="dash-stat"><div class="lb">${esc(lb)}</div><div class="vv">${totals[k]}</div></div>`).join('');
+
+  funnelEl.innerHTML = rows.map(r => {
+    const max = Math.max(1, ...FUNNEL_STAGES.map(([k]) => r.funnel[k] || 0));
+    const barsHtml = FUNNEL_STAGES.map(([k, lb]) => `
+      <div class="dash-funnel-row">
+        <div class="dash-funnel-head"><span>${esc(lb)}</span><strong>${r.funnel[k] || 0}</strong></div>
+        <div class="dash-bar"><span style="width:${Math.max(4, (r.funnel[k] || 0) / max * 100)}%"></span></div>
+      </div>`).join('');
+    return `<div class="dash-job-block">${rows.length > 1 ? `<h4>${esc(r.title)}</h4>` : ''}${barsHtml}</div>`;
+  }).join('');
+}
+
+function renderChips(){
+  const labels = [...new Set(CAND_LIST.map(c => currentStageOf(c).lb))];
+  const chips = ['全部', ...labels];
+  document.getElementById('dashChips').innerHTML = chips.map(c => {
+    const count = c === '全部' ? CAND_LIST.length : CAND_LIST.filter(x => currentStageOf(x).lb === c).length;
+    return `<button type="button" class="dash-chip ${CAND_FILTER === c ? 'on' : ''}" data-chip="${esc(c)}">${esc(shortStageLabel(c))} ${count}</button>`;
+  }).join('');
+  document.getElementById('dashChips').querySelectorAll('.dash-chip').forEach(btn => {
+    btn.addEventListener('click', () => { CAND_FILTER = btn.dataset.chip; renderChips(); renderTable(); renderCards(); });
+  });
+}
+
+function filteredCandidates(){
+  const q = document.getElementById('dashSearch').value.trim().toLowerCase();
+  return CAND_LIST.filter(c => {
+    if (CAND_FILTER !== '全部' && currentStageOf(c).lb !== CAND_FILTER) return false;
+    if (q && !`${c.candidate_name} ${c.line_id_given || ''}`.toLowerCase().includes(q)) return false;
+    return true;
+  });
+}
+document.getElementById('dashSearch').addEventListener('input', () => { renderTable(); renderCards(); });
+document.getElementById('dashTableBtn').addEventListener('click', () => setCandView('table'));
+document.getElementById('dashCardBtn').addEventListener('click', () => setCandView('card'));
+function setCandView(v){
+  CAND_VIEW = v;
+  document.getElementById('dashTableBtn').classList.toggle('on', v === 'table');
+  document.getElementById('dashCardBtn').classList.toggle('on', v === 'card');
+  document.getElementById('dashTableView').hidden = v !== 'table';
+  document.getElementById('dashCardView').hidden = v !== 'card';
+}
+
+function stagePillClass(s){ return s.key==='rejected' ? 'rejected' : s.now ? 'now' : (s.done ? 'done' : ''); }
+
+// 2026-09-01 改：原本表格欄位是「所有人選 steps.key 的聯集」動態長出來的，
+// 面試進度到哪就多長哪一格——Jacky 要的是固定 8 欄，而且「用人單位」以後
+// （面試階段／錄取／報到）三格直接在表格上用下拉選單操作，企業自己就能填，
+// 不用另外點開人選卡片。「顧問階段」維持唯讀（那是我們自己內部審核的紀錄，
+// 不是企業要填的東西）。
+const TABLE_COLS = [
+  ['confirm', '顧問階段'],
+  ['matched', '用人單位'],
+  ['interview', '面試階段'],
+  ['offer', '錄取'],
+  ['onboard', '報到'],
+];
+const INTERVIEW_STAGE_KEYS = ['stage1', 'stage2', 'stage3', 'stage4'];
+// 2026-09-01 改：面試關數是「職缺」的設定（見用人需求表的「面試輪數設定」），
+// 不是這裡寫死的固定清單——後端 resolveStage() 已經只把這個職缺實際有設定
+// 的關卡放進 c.steps，這裡直接照 steps 帶出來就對了，不用另外猜或另外打
+// 一支 API 查職缺設定，兩邊資料來源永遠是同一份，不會兜不起來。
+function interviewStageOptsFor(c){
+  return (c.steps || []).filter(s => INTERVIEW_STAGE_KEYS.includes(s.key)).map(s => [s.key, s.lb]);
+}
+
+function stepOf(c, key){ return (c.steps || []).find(s => s.key === key) || null; }
+function currentInterviewStage(c){
+  // 面試階段欄位收斂 stage1~stage4 成一格——取目前「進行中」的那一關，
+  // 沒有進行中的就取已完成裡最後一關（表示上一輪已經過了、等下一輪安排）。
+  const steps = c.steps || [];
+  const now = steps.find(s => INTERVIEW_STAGE_KEYS.includes(s.key) && s.now);
+  if (now) return now.key;
+  const done = [...steps].reverse().find(s => INTERVIEW_STAGE_KEYS.includes(s.key) && s.done);
+  return done ? done.key : '';
+}
+
+function renderTable(){
+  const list = filteredCandidates();
+  const el = document.getElementById('dashTableView');
+  if (!list.length){ el.innerHTML = '<div class="dash-empty">目前沒有符合條件的人選</div>'; return; }
+  el.innerHTML = `<div class="dash-table-wrap"><table class="dash-table">
+    <thead><tr><th>人選</th><th>LINE ID</th><th>推送日</th><th>人事資料表</th>${TABLE_COLS.map(([, lb]) => `<th>${esc(lb)}</th>`).join('')}</tr></thead>
+    <tbody>${list.map(c => {
+      const rejected = !!c.client_rejected_at;
+      // 2026-09-01 修：跟 offer/onboard 同一種bug——原本只看 .now（現在卡在
+      // 這關），沒看 .done。顧問確認完（阿財面談結束/顧問下決定）之後，如果
+      // 還沒有更後面的動作（沒推薦客戶/沒面試進度），這一關正好停在
+      // effective_index 本身，.done 是 false、.now 才是 true，畫面因此顯示
+      // 「進行中」——但顧問確認這件事本身已經做完了，資料是對的，純粹是判斷
+      // 只看了一半（陳其寬案例撞到的：報告已推薦、面談已結束，這關卻顯示
+      // 進行中不是已完成）。改成 done || now 才算完成，跟 offerDone/onboardDone
+      // 用同一套邏輯。
+      // 2026-09-02 改：Jacky 重新定義三態——阿財面談結束／顧問下「需補問」都還
+      // 是「進行中」；顧問下「推薦給客戶」才是「已完成」；顧問下「婉拒／不推薦」
+      // 是獨立第三態「不推進」。改成直接讀 decision 原始值判斷，不能再用
+      // done||now 那套（那套只代表「有沒有走到這一關」，只要走到就一律是
+      // now=true，不管 decision 是 forwarded／need_more／null 都一樣會是
+      // now=true——用 done||now 判斷會讓「需補問」也顯示已完成，違反新規格）。
+      const confirmS = stepOf(c, 'confirm');
+      const confirmCell = !confirmS ? '—'
+        : confirmS.decision === 'forwarded' ? '<span class="dash-pill done">已完成</span>'
+        : confirmS.decision === 'rejected' ? '<span class="dash-pill" style="background:#fbeaea;color:#c0392b">不推進</span>'
+        : '<span class="dash-pill now">進行中</span>';
+
+      const matchedS = stepOf(c, 'matched');
+      // 2026-09-07 加：顧問下「不推進」的人選，根本沒有送到用人單位手上，
+      // 後面四欄（用人單位／面試階段／錄取／報到）都不該讓客戶做決定——
+      // 原本只檢查 client_rejected_at（客戶自己拒絕），漏了顧問這一關，
+      // 結果顧問已經不推進的人，客戶端還是看到「尚未決定」的下拉。
+      const consultantRejected = !!(confirmS && confirmS.decision === 'rejected');
+      // 2026-09-01 加：「用人單位」欄要先明確選過「推進」，後面三欄（面試階段／
+      // 錄取／報到）才能填——不然還沒決定要不要推進，先填了後面幾欄也沒意義。
+      // matchedS.done（已經有真實面試進度）也算數，是給舊資料相容：這個功能
+      // 上線前就已經進到第一階段以後的人選，不該因為沒補點過「推進」而被鎖住。
+      const advanced = !!c.client_advanced_at || (matchedS && matchedS.done);
+      let matchedCell;
+      if (consultantRejected) {
+        matchedCell = '<span class="dash-pill" style="opacity:.55">—</span>';
+      } else if (rejected) {
+        matchedCell = `<span class="dash-pill rejected" title="${esc(c.client_reject_reason || '')}">不推進</span>`;
+      } else if (advanced) {
+        matchedCell = `<span class="dash-pill done">已推進</span>`;
+      } else {
+        // 2026-09-01 改：原本預設就選著「推進」，看起來像已經確認過的狀態，
+        // 其實只是預設值——改成一個不能選的「尚未決定」佔位選項，跟面試階段／
+        // 錄取／報到那三欄同一個邏輯，選了「推進」或「不推進」才算真的做了決定。
+        matchedCell = `<select class="dash-tbl-sel" data-app="${esc(c.application_id)}" data-role="advance">
+          <option value="" selected disabled>尚未決定</option>
+          <option value="advance">推進</option>
+          <option value="decline">不推進</option>
+        </select>`;
+      }
+
+      const lockedCell = '<span class="dash-pill" style="opacity:.55">請先選推進</span>';
+
+      const curInterview = currentInterviewStage(c);
+      const interviewCell = (consultantRejected || rejected) ? '—' : !advanced ? lockedCell : `<select class="dash-tbl-sel" data-app="${esc(c.application_id)}" data-role="interview">
+        <option value="" ${!curInterview ? 'selected' : ''} disabled>尚未決定</option>
+        ${interviewStageOptsFor(c).map(([k, lb]) => `<option value="${k}" ${curInterview === k ? 'selected' : ''}>${esc(lb)}</option>`).join('')}
+      </select>`;
+      // 2026-09-10 修：漏擋 stage=0（顧問電話洽談，內部電洽——不是客戶面談）。
+      // 這格是給用人單位看的，stage=0 的確認時段是顧問自己跟人選喬電洽時間，
+      // 客戶不該看到，之前只看 status/confirmed_slot 沒看 stage，導致洩漏。
+      const confirmedAppt = (c.appts || []).filter(a => a.status === 'confirmed' && a.confirmed_slot && Number(a.stage) > 0).sort((a, b) => b.stage - a.stage)[0];
+      const confirmedLine = confirmedAppt
+        ? `<div style="margin-top:4px;font-size:11.5px;color:var(--good,#2f8f5b)">✅ 人選已確認：${esc(confirmedAppt.confirmed_slot)}</div>` : '';
+      const proposeBtn = (consultantRejected || rejected || !advanced) ? '' :
+        `<button type="button" class="cm-fbtn" style="font-size:11.5px;padding:4px 8px;margin-top:4px" data-propose="${esc(c.application_id)}">📅 邀請人選選時段</button>`;
+
+      // 2026-09-01 修：原本只看 .done（已經走過這關），沒看 .now（現在正卡在
+      // 這一關）——選了「錄取」之後，這關通常正好是 effective_index 本身
+      // （還沒有下一關把它蓋過去），.done 是 false、.now 才是 true，
+      // 下拉因此顯示回「尚未決定」，資料其實是對的，純粹是畫面判斷漏了一半。
+      const offerStep = stepOf(c, 'offer') || {};
+      const offerDone = !!(offerStep.done || offerStep.now);
+      const offerCell = (consultantRejected || rejected) ? '—' : !advanced ? lockedCell : `<select class="dash-tbl-sel" data-app="${esc(c.application_id)}" data-role="offer">
+        <option value="" ${!offerDone ? 'selected' : ''} disabled>尚未決定</option>
+        <option value="offer" ${offerDone ? 'selected' : ''}>錄取</option>
+        <option value="decline">不錄取</option>
+      </select>`;
+
+      const onboardStep = stepOf(c, 'onboard') || {};
+      const onboardDone = !!(onboardStep.done || onboardStep.now);
+      const onboardCell = (consultantRejected || rejected) ? '—' : !advanced ? lockedCell : `<select class="dash-tbl-sel" data-app="${esc(c.application_id)}" data-role="onboard">
+        <option value="" ${!onboardDone ? 'selected' : ''} disabled>尚未決定</option>
+        <option value="onboard" ${onboardDone ? 'selected' : ''}>報到</option>
+        <option value="decline">不報到</option>
+      </select>`;
+
+      // 2026-09-03 加：人事資料表狀態要在表格上一眼看到，不用逐一點開人選
+      // 彈窗才看得到——不管顧問是叫人選填、還是直接代為上傳，狀態都算數，
+      // 這裡不分來源，只看 status。一個職缺可能掛多份表單，全部列出來。
+      // 欄位標題已經寫「人事資料表」了，儲存格裡不用再重複表單名稱——
+      // 一個職缺掛多份表單才需要靠名稱分是哪一份，只有一份就單純顯示狀態。
+      const multiForm = (c.forms || []).length > 1;
+      const formsCell = !(c.forms || []).length ? '<span style="color:var(--ink3)">—</span>'
+        : c.forms.map(f => f.status === 'submitted'
+            ? `<a class="dash-pill done" style="text-decoration:none;display:inline-block;margin:2px 0" href="${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(c.application_id)}/form/${encodeURIComponent(f.id)}" target="_blank" rel="noopener">↓ 下載${multiForm ? esc(f.form_name) : ''}</a>`
+            : `<span class="dash-pill now" style="display:inline-block;margin:2px 0">等待中${multiForm ? '・' + esc(f.form_name) : ''}</span>`
+          ).join('<br>');
+
+      return `<tr data-app="${esc(c.application_id)}">
+        <td><b>${esc(c.candidate_name)}</b><div style="font-size:12px;color:var(--ink3)">${esc(c.job_title || c.job_slug)}</div></td>
+        <td>${esc(c.line_id_given || '尚未提供')}</td>
+        <td>${esc((c.forwarded_at || '').slice(0, 10))}</td>
+        <td>${formsCell}</td>
+        <td>${confirmCell}</td>
+        <td>${matchedCell}</td>
+        <td>${interviewCell}${confirmedLine}${proposeBtn}</td>
+        <td>${offerCell}</td>
+        <td>${onboardCell}</td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table></div>`;
+  wireOpenButtons(el);
+  wireTableSelects(el);
+  wireProposeButtons(el);
+}
+
+// 表格上的下拉選單是企業自己操作進度用的，不能點了反而順便打開人選彈窗
+// （彈窗裡也有一樣的操作，兩邊會互相蓋掉彼此還沒送出的選擇）。
+function wireTableSelects(root){
+  root.querySelectorAll('select.dash-tbl-sel').forEach(sel => {
+    sel.addEventListener('click', (e) => e.stopPropagation());
+    sel.addEventListener('change', (e) => {
+      e.stopPropagation();
+      tblHandleChange(sel.dataset.app, sel.dataset.role, sel.value, sel);
+    });
+  });
+}
+
+// 2026-09-09 加：「邀請人選選時段」按鈕，跟下拉選單同一套 stopPropagation
+// 理由——按鈕在表格列裡，不能點了順便觸發列本身的「打開人選彈窗」。
+function wireProposeButtons(root){
+  root.querySelectorAll('[data-propose]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const appId = btn.dataset.propose;
+      const c = CAND_LIST.find(x => x.application_id === appId);
+      if (c) tblPropose(appId, c);
+    });
+  });
+}
+
+// 2026-09-03 加：跟 prompt() 一樣是「跳出來要一個值，取消就回 null」，
+// 只是多了 datetime-local 輸入框跟一個選填備註。
+function promptDateTime(title, noteLabel, defaultDate){
+  return new Promise((resolve) => {
+    const g = (id) => document.getElementById(id);
+    const mask = g('dtModalMask'), input = g('dtModalInput'), note = g('dtModalNote');
+    const okBtn = g('dtModalOk'), cancelBtn = g('dtModalCancel');
+    g('dtModalTitle').textContent = title;
+    g('dtModalNoteLabel').textContent = noteLabel;
+    input.value = defaultDate || '';
+    note.value = '';
+    mask.classList.add('show');
+    function cleanup(result){
+      mask.classList.remove('show');
+      okBtn.removeEventListener('click', onOk);
+      cancelBtn.removeEventListener('click', onCancel);
+      resolve(result);
+    }
+    function onOk(){
+      if (!input.value) { alert('請選擇時間'); return; }
+      cleanup({ event_at: input.value, note: note.value.trim() });
+    }
+    function onCancel(){ cleanup(null); }
+    okBtn.addEventListener('click', onOk);
+    cancelBtn.addEventListener('click', onCancel);
+  });
+}
+
+// ── 2026-09-09 加：邀請人選選時段（用人單位還沒喬好確定時間時用）──
+function slotRowHtml(){
+  return '<div class="slot-row" style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap;align-items:center;">' +
+    '<input type="date" class="slot-date" style="border:1px solid var(--line);border-radius:8px;padding:6px;font:inherit;font-size:13px">' +
+    '<input type="time" class="slot-time" style="border:1px solid var(--line);border-radius:8px;padding:6px;font:inherit;font-size:13px">' +
+    '<select class="slot-fmt" style="border:1px solid var(--line);border-radius:8px;padding:6px;font:inherit;font-size:13px">' +
+      '<option value="現場面談">現場面談</option><option value="視訊面談">視訊面談</option><option value="電話面談">電話面談</option>' +
+    '</select>' +
+    '<input type="url" class="slot-url" placeholder="視訊連結（選視訊面談才需要）" hidden ' +
+      'style="border:1px solid var(--line);border-radius:8px;padding:6px;font:inherit;font-size:13px;flex:1 1 160px;min-width:140px">' +
+    '<button type="button" class="slot-rm cm-fbtn" style="padding:4px 8px;font-size:12px">移除</button>' +
+  '</div>';
+}
+function slotsAddRow(){
+  const wrap = document.createElement('div');
+  wrap.innerHTML = slotRowHtml();
+  const row = wrap.firstChild;
+  row.querySelector('.slot-rm').addEventListener('click', () => row.remove());
+  const fmtSel = row.querySelector('.slot-fmt'), urlInp = row.querySelector('.slot-url');
+  const syncUrl = () => { urlInp.hidden = fmtSel.value !== '視訊面談'; };
+  fmtSel.addEventListener('change', syncUrl); syncUrl();
+  document.getElementById('slotsModalRows').appendChild(row);
+}
+function promptThreeSlots(title){
+  return new Promise((resolve) => {
+    const g = (id) => document.getElementById(id);
+    const mask = g('slotsModalMask');
+    g('slotsModalTitle').textContent = title;
+    g('slotsModalRows').innerHTML = '';
+    g('slotsModalInterviewer').value = ''; g('slotsModalLocation').value = ''; g('slotsModalNote').value = '';
+    g('slotsModalMsg').textContent = '';
+    slotsAddRow(); slotsAddRow();
+    mask.classList.add('show');
+    const addBtn = g('slotsModalAddRow'), okBtn = g('slotsModalOk'), cancelBtn = g('slotsModalCancel');
+    function cleanup(result){
+      mask.classList.remove('show');
+      addBtn.removeEventListener('click', slotsAddRow);
+      okBtn.removeEventListener('click', onOk);
+      cancelBtn.removeEventListener('click', onCancel);
+      resolve(result);
+    }
+    function onOk(){
+      const slots = [];
+      document.querySelectorAll('#slotsModalRows .slot-row').forEach(row => {
+        const d = row.querySelector('.slot-date').value, t = row.querySelector('.slot-time').value;
+        const f = row.querySelector('.slot-fmt').value, u = row.querySelector('.slot-url').value.trim();
+        if (d && t) slots.push(u ? { slot_at: d + ' ' + t, format: f, meeting_url: u } : { slot_at: d + ' ' + t, format: f });
+      });
+      // 2026-09-21 改：原本硬性要求 2 個。實際上用人單位常常就是「我只有這個
+      // 時間」——逼他補第二個，他要嘛亂填一個不打算用的，要嘛乾脆不用這個功能
+      // 改回頭用電話約，兩種都比讓他送出一個時段糟。改成至少 1 個。
+      if (!slots.length) { g('slotsModalMsg').textContent = '至少要填 1 個完整的候選時段（日期＋時間都要選）'; return; }
+      cleanup({
+        slots,
+        interviewer: g('slotsModalInterviewer').value.trim(),
+        location: g('slotsModalLocation').value.trim(),
+        note: g('slotsModalNote').value.trim(),
+      });
+    }
+    function onCancel(){ cleanup(null); }
+    addBtn.addEventListener('click', slotsAddRow);
+    okBtn.addEventListener('click', onOk);
+    cancelBtn.addEventListener('click', onCancel);
+  });
+}
+async function tblPropose(appId, c){
+  const opts = interviewStageOptsFor(c);
+  const stage = currentInterviewStage(c) || (opts[0] || [])[0];
+  if (!stage) { alert('這個職缺還沒設定面試輪次，請聯繫顧問先設定'); return; }
+  const stageLb = (opts.find(([k]) => k === stage) || [null, '這一階段面試'])[1];
+  const picked = await promptThreeSlots(stageLb + '的候選時段');
+  if (!picked) return;
+  try{
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(appId)}/propose-slots`, {
+      method: 'POST', headers: {'content-type':'application/json'},
+      body: JSON.stringify({ stage, slots: picked.slots, interviewer: picked.interviewer || undefined,
+        location: picked.location || undefined, note: picked.note || undefined }),
+    });
+    const data = await res.json();
+    if (!data.ok){ alert(data.error || '送出失敗'); return; }
+    const via = [data.notified_line ? 'LINE' : null, data.notified_email ? 'Email' : null].filter(Boolean).join('＋');
+    alert(via ? `已經用 ${via} 通知人選選時段了。` : '時段已存好，但這位人選還沒有可通知的管道（沒綁 LINE、也沒有 Email），麻煩自己聯繫他。');
+    await loadCandidates();
+  }catch{
+    alert('連線失敗，請稍後再試');
+  }
+}
+
+async function tblHandleChange(appId, role, value, sel){
+  const prevValue = [...sel.options].find(o => o.defaultSelected)?.value ?? '';
+  if (role === 'advance') {
+    if (value === 'advance') { await tblAdvance(appId, sel, prevValue); return; }
+    const reason = prompt('請說明不推進的原因（顧問會看到，這會幫助我們調整後續推薦方向）');
+    if (reason === null || !reason.trim()) { sel.value = prevValue; return; }
+    await tblReject(appId, reason.trim(), sel, prevValue);
+    return;
+  }
+  if (role === 'interview') {
+    // 2026-09-01 拿掉 confirm() 彈窗——選面試階段是往前推進的低風險動作
+    // （後端本來就擋倒退），不需要多一層確認對話框；而且部分瀏覽器/嵌入
+    // 環境對 confirm() 支援不穩，選了卻沒反應最常見的原因就是這個。
+    // 2026-09-03 加：改成一定要留面試實際/預計的年月日時分，後端也會擋
+    // 沒帶這個值的請求。
+    if (!value) return;
+    const stageLabel = sel.options[sel.selectedIndex]?.textContent || '這一階段面試';
+    const picked = await promptDateTime(stageLabel + '的時間', '備註（選填，顧問會看到）');
+    if (!picked) { sel.value = prevValue; return; }
+    await tblSetStage(appId, value, { event_at: picked.event_at, note: picked.note || undefined }, sel, prevValue);
+    return;
+  }
+  if (role === 'offer') {
+    if (value === 'decline') {
+      const reason = prompt('請說明不錄取的原因（顧問會看到，這會幫助我們調整後續推薦方向）');
+      if (reason === null || !reason.trim()) { sel.value = prevValue; return; }
+      // 2026-10-28：帶 kind，後端才知道這是面試後不錄取，不是面試前不推進（之前一律被擋）
+      await tblReject(appId, reason.trim(), sel, prevValue, 'not_hired');
+    } else if (value === 'offer') {
+      const picked = await promptDateTime('錄取時間', '錄取原因（選填，顧問會看到）');
+      if (!picked) { sel.value = prevValue; return; }
+      await tblSetStage(appId, 'offer', { event_at: picked.event_at, note: picked.note || undefined }, sel, prevValue);
+    }
+    return;
+  }
+  if (role === 'onboard') {
+    if (value === 'decline') {
+      const reason = prompt('請說明不報到的原因（顧問會看到，這會幫助我們調整後續推薦方向）');
+      if (reason === null || !reason.trim()) { sel.value = prevValue; return; }
+      await tblReject(appId, reason.trim(), sel, prevValue, 'no_show');
+    } else if (value === 'onboard') {
+      const picked = await promptDateTime('預計報到時間', '備註（選填，顧問會看到）');
+      if (!picked) { sel.value = prevValue; return; }
+      await tblSetStage(appId, 'onboard', {
+        event_at: picked.event_at, note: picked.note || undefined,
+        onboard_date: picked.event_at.slice(0, 10),
+      }, sel, prevValue);
+    }
+    return;
+  }
+}
+
+async function tblSetStage(appId, stage, extra, sel, prevValue){
+  try{
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(appId)}/stage`, {
+      method: 'POST', headers: {'content-type':'application/json'}, body: JSON.stringify({ stage, ...extra }),
+    });
+    const data = await res.json();
+    if (!data.ok){ alert(data.error || '更新失敗'); if (sel) sel.value = prevValue; return; }
+    await loadCandidates();
+    if (ACTIVE_APP === appId) openCandModal(appId);
+  }catch{
+    alert('連線失敗，請稍後再試');
+    if (sel) sel.value = prevValue;
+  }
+}
+
+// 選「推進」——不再是no-op，會通知顧問（TG）並解鎖面試階段／錄取／報到三欄。
+async function tblAdvance(appId, sel, prevValue){
+  try{
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(appId)}/advance`, {
+      method: 'POST', headers: {'content-type':'application/json'},
+    });
+    const data = await res.json();
+    if (!data.ok){ alert(data.error || '送出失敗'); if (sel) sel.value = prevValue; return; }
+    await loadCandidates();
+    if (ACTIVE_APP === appId) openCandModal(appId);
+  }catch{
+    alert('連線失敗，請稍後再試');
+    if (sel) sel.value = prevValue;
+  }
+}
+
+// 2026-09-10 加：offer信上傳——選檔案後直接base64送出（跟後端saveUpload()
+// 同一套，不是multipart），成功後重整這個人選的資料讓按鈕變「重新上傳」＋
+// 顯示檔名。8MB上限跟後端一致，前端先擋一次省得選了大檔案傳到一半才報錯。
+function wireOfferUpload(appId){
+  const btn = document.getElementById('cmOfferBtn');
+  const input = document.getElementById('cmOfferFile');
+  if (!btn || !input) return;
+  btn.addEventListener('click', () => input.click());
+  input.addEventListener('change', async () => {
+    const file = input.files && input.files[0];
+    if (!file) return;
+    if (file.size > 8 * 1024 * 1024) { alert('檔案超過 8MB，麻煩壓縮後再傳'); input.value = ''; return; }
+    btn.disabled = true; btn.textContent = '上傳中…';
+    try {
+      const b64 = await new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(String(r.result).split(',')[1] || '');
+        r.onerror = reject;
+        r.readAsDataURL(file);
+      });
+      const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(appId)}/offer-upload`, {
+        method: 'POST', headers: {'content-type':'application/json'},
+        body: JSON.stringify({ b64, name: file.name, mime: file.type || 'application/octet-stream' }),
+      });
+      const data = await res.json();
+      if (!data.ok) { alert(data.error || '上傳失敗'); btn.disabled = false; btn.textContent = '⬆ 上傳'; return; }
+      alert('已上傳，系統同步寄給人選了');
+      await loadCandidates();
+      if (ACTIVE_APP === appId) openCandModal(appId);
+    } catch {
+      alert('連線失敗，請稍後再試');
+      btn.disabled = false; btn.textContent = '⬆ 上傳';
+    }
+  });
+}
+
+async function tblReject(appId, reason, sel, prevValue, kind){
+  try{
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(appId)}/reject`, {
+      method: 'POST', headers: {'content-type':'application/json'}, body: JSON.stringify({ reason, kind: kind || undefined }),
+    });
+    const data = await res.json();
+    if (!data.ok){ alert(data.error || '送出失敗'); if (sel) sel.value = prevValue; return; }
+    await loadCandidates();
+    if (ACTIVE_APP === appId) openCandModal(appId);
+  }catch{
+    alert('連線失敗，請稍後再試');
+    if (sel) sel.value = prevValue;
+  }
+}
+
+function renderCards(){
+  const list = filteredCandidates();
+  const el = document.getElementById('dashCardView');
+  if (!list.length){ el.innerHTML = '<div class="dash-empty">目前沒有符合條件的人選</div>'; return; }
+  el.innerHTML = `<div class="dash-cards">${list.map(c => {
+    const cur = currentStageOf(c);
+    const steps = c.steps || [];
+    const dotsHtml = steps.map((s, i) => `<span class="dot ${s.done ? 'done' : ''}"></span>${i < steps.length - 1 ? '<span class="ln"></span>' : ''}`).join('');
+    return `<div class="dash-card cm-openbtn" data-app="${esc(c.application_id)}">
+      <div class="dash-card-top">
+        <div><b>${esc(c.candidate_name)}</b><div style="font-size:12px;color:var(--ink3)">${esc(c.job_title || c.job_slug)}</div></div>
+        <span class="dash-pill ${stagePillClass(cur)}">${esc(shortStageLabel(cur.lb))}</span>
+      </div>
+      <div class="dash-card-info">
+        <div><div class="lb">首次聯繫</div><div class="vv">${esc((c.forwarded_at || '').slice(0, 10)) || '—'}</div></div>
+        <div><div class="lb">LINE ID</div><div class="vv">${esc(c.line_id_given || '尚未提供')}</div></div>
+      </div>
+      <div class="dash-card-progress">${dotsHtml}</div>
+      <div class="dash-card-foot">
+        <span>目前狀態：${esc(shortStageLabel(cur.lb))}</span>
+        <span class="hint">點擊查看完整人選資料 →</span>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+  wireOpenButtons(el);
+}
+
+function wireOpenButtons(root){
+  root.querySelectorAll('.cm-openbtn').forEach(el => {
+    el.addEventListener('click', (e) => { e.stopPropagation(); openCandModal(el.dataset.app); });
+  });
+  // 表格的整列、卡片本身也要能點（不是只有「查看」按鈕才能開），跟 demo 的
+  // <tr onclick="openModal(...)"> 行為一致。
+  root.querySelectorAll('tr[data-app]').forEach(el => {
+    el.addEventListener('click', () => openCandModal(el.dataset.app));
+  });
+}
+
+// ── 人選詳情彈窗 ──
+function openCandModal(appId){
+  const c = CAND_LIST.find(x => x.application_id === appId);
+  if (!c) return;
+  ACTIVE_APP = appId;
+  document.getElementById('cmName').textContent = c.candidate_name;
+  document.getElementById('cmSub').textContent = `${c.job_title || c.job_slug}　/　目前狀態：${currentStageOf(c).lb}`;
+  document.getElementById('cmSteps').innerHTML = (c.steps || []).map(s => `
+    <div class="step ${s.done ? 'done' : ''} ${s.now ? 'now' : ''}"><div class="ln"></div><div class="dot">${s.done ? '✓' : ''}</div><div class="lb">${esc(s.lb)}</div></div>
+  `).join('');
+  document.getElementById('cmInfo').innerHTML = [
+    ['LINE ID', c.line_id_given || '尚未提供'],
+    ['推送日', (c.forwarded_at || '').slice(0, 10) || '—'],
+    ['職缺', c.job_title || c.job_slug || '—'],
+    ['目前狀態', currentStageOf(c).lb],
+  ].map(([k, v]) => `<div><div class="lb">${esc(k)}</div><div class="vv">${esc(v)}</div></div>`).join('');
+  // 2026-09-08 加：顧問標「不推薦」時客戶完全看不到，只看到人選卡在那裡，
+  // 不知道是我們評估後決定不推，還是流程卡住。這一塊放在「顧問給你的說明」
+  // 前面，因為它會直接改變客戶要不要繼續等這位人選。
+  // ⚠️ 原因已在後端過 scrubForClient()，濾光時回 null——這裡就顯示
+  //    「未提供說明」，不要露出半截句子。
+  var nrHtml = '';
+  if (c.advisor_not_recommended_at) {
+    var when = String(c.advisor_not_recommended_at).slice(0, 10);
+    var why = c.advisor_not_recommended_reason
+      ? esc(c.advisor_not_recommended_reason).replace(/\n/g, '<br>')
+      : '顧問評估後決定不推薦，未提供進一步說明。';
+    nrHtml = '<div class="nrec">'
+      + '<h4>這位人選我們不推薦</h4>'
+      + '<div class="nrec-why">' + why + '</div>'
+      + '<div class="nrec-when">顧問於 ' + esc(when) + ' 標記・這位人選不會再往下推進</div>'
+      + '</div>';
+  }
+  document.getElementById('cmNoteBlock').innerHTML = nrHtml + (c.client_note
+    ? `<h4>顧問給你的說明</h4><div class="note" style="margin:0">${esc(c.client_note).replace(/\n/g, '<br>')}</div>`
+    : `<h4>顧問給你的說明</h4><div style="color:var(--ink3);font-size:13px">尚未提供</div>`);
+  // 2026-09-02 加：人選客製表單（例：用人事資料表）——只有這個職缺真的有掛
+  // 表單、且人選已經填完的才會出現下載按鈕；還在等人選填的顯示狀態文字，
+  // 不給下載（還沒有檔案）。
+  // ⚠️ 2026-09-03 改：原本履歷／報告／表單三顆按鈕長得一模一樣，擠在一排，
+  // 只能靠讀按鈕文字分——客戶反映分不清楚哪個是哪個。改成每一項都先給一行
+  // 小標籤（帶圖示）再放操作，跟基本資料那格用同一套「標籤在上、內容在下」
+  // 的視覺語言，不用讀完整句按鈕文字也知道自己在點什麼。
+  const fileItem = (icon, label, inner) =>
+    `<div class="cm-file-item"><div class="lb"><span class="ic">${icon}</span>${esc(label)}</div>${inner}</div>`;
+  // 2026-09-07 拿掉：企業客戶不該直接下載到人選原始履歷（104格式、聯絡方式
+  // 等未經篩選的資訊）——客戶要看的內容一律走「初篩報告摘要」（顧問確認過、
+  // 整理過的版本），原始履歷只留在顧問後台。
+  const filesHtml = [
+    // 2026-09-07 改：原本按鈕會 fetch 內容再展開文字框，讀的是舊版
+    // reports.content_client_md（新版PDF管線上線後沒人寫入，永遠是空的）。
+    // 改成跟履歷下載同一種直接連結，指向顧問上傳確認過的 PDF——見
+    // /portal/:token/candidates/:id/report 端點的改動說明。
+    fileItem('📊', '初篩報告摘要', c.has_client_report
+      ? `<a class="cm-fbtn" href="${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(c.application_id)}/report" target="_blank" rel="noopener">👁 查看</a>`
+      : `<span class="wait">顧問還在準備</span>`),
+    ...(c.forms || []).map(f => fileItem('📋', f.form_name, f.status === 'submitted'
+      ? `<a class="cm-fbtn" href="${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(c.application_id)}/form/${encodeURIComponent(f.id)}" target="_blank" rel="noopener">↓ 下載</a>`
+      : `<span class="wait">等人選填寫中</span>`)),
+    // 2026-09-10 加：offer信上傳——只有到「錄取」階段才出現，上傳後同步寄給
+    // 人選跟用人單位自己的信箱各一份，不用另外轉寄。已經傳過的顯示檔名＋
+    // 重新上傳（覆蓋，寄送邏輯不變，每次都會重寄一次給雙方）。
+    c.offer_stage_reached
+      ? fileItem('📨', 'Offer 信',
+          `<input type="file" id="cmOfferFile" style="display:none" accept=".pdf,.jpg,.jpeg,.png">` +
+          `<button type="button" class="cm-fbtn" id="cmOfferBtn">${c.offer_file_name ? '🔄 重新上傳' : '⬆ 上傳'}</button>` +
+          `<div class="mut" style="font-size:11px;margin-top:3px">限PDF／JPG／PNG，檔案大小8MB以內</div>` +
+          (c.offer_file_name ? `<div class="mut" style="font-size:11.5px;margin-top:4px">${esc(c.offer_file_name)}・已同步寄給人選</div>` : ''))
+      : '',
+  ].join('');
+  document.getElementById('cmFiles').innerHTML = filesHtml;
+  wireOfferUpload(appId);
+
+  if (c.client_rejected_at){
+    document.getElementById('cmUpdateBox').innerHTML = `
+      <div class="cm-update-grid" style="flex-direction:column;align-items:stretch;background:#fbeaea;border-radius:8px;padding:10px">
+        <b style="color:var(--bad);font-size:13px">已標記不推進此人選</b>
+        <div style="font-size:13px;margin-top:4px">${esc(c.client_reject_reason || '')}</div>
+        <div class="mut" style="font-size:11.5px;margin-top:4px">${esc((c.client_rejected_at||'').slice(0,16))}</div>
+      </div>`;
+  } else {
+    // 2026-09-01 拿掉：「新增下一輪面試」整組控制項搬走了——面試有幾關是
+    // 這個職缺的設定（用人需求表的「面試輪數設定」），不是候選人卡片上
+    // 臨時決定的事，放在這裡容易誤按、又跟職缺設定各講各的兜不起來。
+    // cmStagePick／cmStageUpd 這組下拉本來跟表格的下拉寫的是同一個後端
+    // 動作，兩個介面都能設同一件事，一樣的理由拿掉。這裡只留純提示文字，
+    // 表格是唯一操作入口。
+    document.getElementById('cmUpdateBox').innerHTML = `
+      <p class="cm-hint">要推進階段（第一階段／錄取／報到）或不推進，回到表格用對應那欄的下拉選單。這個職缺實際有幾階段面試，到「用人需求表」該職缺的「面試輪數設定」調整。</p>
+      `;
+  }
+
+  document.getElementById('candModalMask').classList.add('show');
+  cmLoadChat();
+  if (CHAT_POLL_TIMER) clearInterval(CHAT_POLL_TIMER);
+  // 彈窗開著時本來就有範圍限制（關閉會 clearInterval），這裡順手也補上
+  // 分頁不可見就不打，跟其他輪詢統一標準。
+  CHAT_POLL_TIMER = setInterval(function () { if (!document.hidden) cmLoadChat(); }, 10000);
+}
+function closeCandModal(){
+  document.getElementById('candModalMask').classList.remove('show');
+  if (CHAT_POLL_TIMER){ clearInterval(CHAT_POLL_TIMER); CHAT_POLL_TIMER = null; }
+  ACTIVE_APP = null;
+}
+document.getElementById('cmClose').addEventListener('click', closeCandModal);
+document.getElementById('candModalMask').addEventListener('click', (e) => { if (e.target.id === 'candModalMask') closeCandModal(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeCandModal(); });
+
+async function cmLoadChat(){
+  if (!ACTIVE_APP) return;
+  const win = document.getElementById('cmChatWindow');
+  try{
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(ACTIVE_APP)}/messages`);
+    const data = await res.json();
+    if (!data.ok) return;
+    const msgs = data.messages || [];
+    win.innerHTML = msgs.length
+      ? msgs.map(m => `<div class="chat-msg ${m.from_role === 'client' ? 'client' : 'consultant'}">
+          ${esc(m.content)}<div class="t">${m.from_role === 'client' ? '你' : esc(m.from_name || 'STEP1NE 顧問')}・${esc((m.created_at || '').slice(5, 16))}</div>
+        </div>`).join('')
+      : '<div class="state" style="margin:8px 0">還沒有訊息，直接在下面輸入傳給顧問。</div>';
+    win.scrollTop = win.scrollHeight;
+    refreshNotifications();
+  }catch{
+    // 輪詢失敗不用打斷使用者，下一輪再試
+  }
+}
+document.getElementById('cmChatSend').addEventListener('click', async () => {
+  const textarea = document.getElementById('cmChatInput');
+  const btn = document.getElementById('cmChatSend');
+  const content = textarea.value.trim();
+  if (!content || !ACTIVE_APP) return;
+  btn.disabled = true;
+  try{
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(ACTIVE_APP)}/messages`, {
+      method: 'POST', headers: {'content-type':'application/json'}, body: JSON.stringify({ content }),
+    });
+    const data = await res.json();
+    if (!data.ok){ alert(data.error || '傳送失敗'); btn.disabled = false; return; }
+    textarea.value = '';
+    await cmLoadChat();
+  }catch{
+    alert('連線失敗，請稍後再試');
+  }
+  btn.disabled = false;
+});
+
+// ── 通知鈴鐺：跨人選的未讀訊息角標 ──
+async function refreshNotifications(){
+  try{
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/notifications`);
+    const data = await res.json();
+    if (!data.ok) return;
+    const badge = document.getElementById('notifyBadge');
+    badge.textContent = data.total_unread;
+    badge.classList.toggle('show', data.total_unread > 0);
+    const listEl = document.getElementById('notifyList');
+    const items = data.items || [];
+    listEl.innerHTML = items.length
+      ? items.map(it => `<div class="notify-item" data-app="${esc(it.application_id)}">
+          <b>${esc(it.name)} <span class="unread-dot">${it.unread_count}</span></b>
+          <span>${esc((it.last_message || '').slice(0, 40))}</span>
+        </div>`).join('')
+      : '<div class="notify-empty">目前沒有未讀訊息</div>';
+    listEl.querySelectorAll('.notify-item').forEach(el => {
+      el.addEventListener('click', () => openFromNotification(el.dataset.app));
+    });
+  }catch{
+    // 通知輪詢失敗不打斷使用
+  }
+}
+document.getElementById('notifyBtn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  document.getElementById('notifyMenu').classList.toggle('show');
+});
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.notify-wrap')) document.getElementById('notifyMenu').classList.remove('show');
+});
+function openFromNotification(appId){
+  document.getElementById('notifyMenu').classList.remove('show');
+  showTopView('candidates');
+  const tryOpen = () => {
+    if (CAND_LIST.find(c => c.application_id === appId)) openCandModal(appId);
+    else setTimeout(tryOpen, 300);
+  };
+  tryOpen();
+}
+// 2026-09-01 加：分頁不在前景時不打這支——20 秒一次、客戶開著這頁掛一整天
+// 是背景常態流量，跟顧問後台 tracker 頁同一批問題（見 D1 額度打滿那次的
+// 修復註解），沒必要在看不到的分頁還一直刷。
+setInterval(function () { if (!document.hidden) refreshNotifications(); }, 40000);
+document.addEventListener('visibilitychange', function () { if (!document.hidden) refreshNotifications(); });
+refreshNotifications();
+
+load();
+</script>
+</html>
