@@ -88,8 +88,12 @@ async function reload(keepId) {
 function paint() {
   const t = ui.target; if (!t || !ui.data) return;
   const list = ui.data.consultants || [];
-  t.innerHTML = `<div class="cs-layout"><nav class="cs-card cs-people" aria-label="顧問名單">${list.map((c) => `<button type="button" class="cs-person${c.is_active ? '' : ' off'}" data-cs-sel="${escapeHtml(c.id)}" aria-current="${!ui.adding && c.id === ui.cur}">${avatarHtml(c)}<span><span class="cs-pn">${escapeHtml(c.display_name)}</span><span class="cs-role">${escapeHtml(c.role_zh || '顧問')}${c.is_active ? '' : '（已停用）'}</span></span></button>`).join('')}
-    <button type="button" class="cs-person cs-add" data-cs-add aria-current="${ui.adding}">＋ 新增顧問</button></nav>
+  // 2026-10-28 Jacky：移除的顧問（is_active=0）資料保留，名單上收進最下面「已移除的顧問」
+  const personBtn = (c) => `<button type="button" class="cs-person${c.is_active ? '' : ' off'}" data-cs-sel="${escapeHtml(c.id)}" aria-current="${!ui.adding && c.id === ui.cur}">${avatarHtml(c)}<span><span class="cs-pn">${escapeHtml(c.display_name)}</span><span class="cs-role">${escapeHtml(c.role_zh || '顧問')}${c.is_active ? '' : '（已停用）'}</span></span></button>`;
+  const live = list.filter((c) => c.is_active), gone = list.filter((c) => !c.is_active);
+  t.innerHTML = `<div class="cs-layout"><nav class="cs-card cs-people" aria-label="顧問名單">${live.map(personBtn).join('')}
+    <button type="button" class="cs-person cs-add" data-cs-add aria-current="${ui.adding}">＋ 新增顧問</button>
+    ${gone.length ? `<details class="cs-gone"${gone.some((c) => c.id === ui.cur) ? ' open' : ''}><summary>已移除的顧問（${gone.length}）</summary>${gone.map(personBtn).join('')}</details>` : ''}</nav>
     <section class="cs-card" id="cs-detail">${ui.adding ? addForm() : detail(list.find((c) => c.id === ui.cur))}</section></div>`;
   wire(t);
 }
@@ -115,7 +119,10 @@ function detail(c) {
     <div class="cs-grid">${SHARED.map(([t, d]) => `<div class="cs-agent lock">${sw('', true, true, t + '（共用，不能取消）')}<div><div class="t">${t}<span class="cs-tag l">共用</span></div><div class="d">${d}</div></div></div>`).join('')}</div>
     ${c.role === 'admin_dev' ? `<div class="cs-sec">開發者工具</div><div class="cs-grid">${DEV.map(([t, d]) => `<div class="cs-agent on">${sw('', true, true, t)}<div><div class="t">${t}<span class="cs-tag dev">開發者</span></div><div class="d">${d}</div></div></div>`).join('')}</div>` : ''}
     <div class="cs-scope">${isAdmin ? '管理員：看得到全部顧問的職缺、人選、成果，也可以替別人配 AI 助手。' : '顧問：登入後只看得到自己名下的職缺、人選、社群帳號；AI 助手的成果也只送給他。'}<br><small>（這是之後要做到的樣子；測試版現在還不會真的擋。）</small></div>
-    <div class="cs-foot"><button type="button" class="btn sm ${c.is_active ? 'ghost' : ''}" data-cs-active="${c.is_active ? 0 : 1}">${c.is_active ? '停用這位顧問' : '重新啟用'}</button>
+    ${c.is_active ? '' : `<div class="notice" style="margin-top:12px">${escapeHtml(c.display_name)} 已移除：不會出現在指派名單、社群自動發文已暫停。人選、職缺、發文紀錄都還在，按下面「恢復」就回來。</div>`}
+    <div class="cs-foot">${!c.is_active ? `<button type="button" class="btn sm" data-cs-active="1">恢復這位顧問</button>`
+      : (isAdmin || ['jacky', 'phoebe'].includes(c.id)) ? `<span class="muted" style="font-size:13px">管理員不能移除</span>`
+      : `<button type="button" class="btn sm ghost" data-cs-active="0" style="color:var(--bad,#b4322a)">移除這位顧問</button>`}
       ${log.length ? `<details class="cs-log"><summary>最近改了什麼（${log.length}）</summary><ul>${log.map((l) => `<li><time>${escapeHtml(l.at || '')}</time> ${escapeHtml(l.text || '')}<span class="muted">（${escapeHtml(l.by || '')}）</span></li>`).join('')}</ul></details>` : ''}</div>`;
 }
 
@@ -234,8 +241,8 @@ function wire(t) {
   const act = $('[data-cs-active]', t);
   if (act) act.onclick = async () => {
     const on = act.getAttribute('data-cs-active') === '1';
-    if (!on && !window.confirm(`停用 ${c.display_name}？他手上的人選紀錄都會留著，只是名單上會標「已停用」。`)) return;
-    await patch(c.id, { is_active: on ? 1 : 0 }, on ? `${c.display_name} 已重新啟用` : `${c.display_name} 已停用`);
+    if (!on && !window.confirm(`移除 ${c.display_name}？\n\n・名單上收到「已移除的顧問」，不能再被指派職缺\n・他的社群帳號自動發文會暫停\n・人選、職缺、發文紀錄全部保留，之後可以按「恢復」`)) return;
+    await patch(c.id, { is_active: on ? 1 : 0 }, on ? `${c.display_name} 已恢復` : `${c.display_name} 已移除（資料保留）`);
   };
   const av = $('[data-cs-avatar]', t);
   if (av) av.onchange = async () => {
