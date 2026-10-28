@@ -265,7 +265,16 @@ function wire(t) {
         const r = await api.get(`/admin/consultant-settings/${encodeURIComponent(c.id)}/oauth/${plat}`);
         if (r.ready && r.url) {
           if (w) w.location.href = r.url; else window.open(r.url, '_blank', 'noopener');
-          toast(`已開新分頁：請${c.display_name}本人登入${PLATFORM_ZH[plat]}按「允許」，完成後回來重新整理`, 'success');
+          toast(`已開新分頁：請${c.display_name}本人登入${PLATFORM_ZH[plat]}按「允許」，完成後切回這頁會自動更新`, 'success');
+          // 2026-10-28 Jacky：綁完切回來要自己顯示「已綁定」，不用手動重新整理
+          // 要先真的離開過這頁（切去授權分頁）再回來才更新，避免一按下去就立刻重抓
+          let left = document.visibilityState !== 'visible' || !document.hasFocus();
+          const away = () => { left = true; };
+          const back = () => { if (!left || document.visibilityState !== 'visible') return;
+            document.removeEventListener('visibilitychange', back); window.removeEventListener('focus', back); window.removeEventListener('blur', away);
+            reload(c.id).catch(() => {}); };
+          window.addEventListener('blur', away);
+          document.addEventListener('visibilitychange', back); window.addEventListener('focus', back);
         } else {
           if (w) w.close();
           const box = b.closest('.cs-soc-card').querySelector('[data-cs-meta]');
