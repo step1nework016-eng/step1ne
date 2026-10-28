@@ -29,6 +29,7 @@ export const QUICK_APPLY_SLUGS = new Set([
   'semiconductor-bim-mep-drafting-trainee-hsinchu',
   'bim-engineer-houli',
   'trainee-engineering-design-engineer',
+  'engineering-drafting-trainee-tongluo',
 ]);
 export const GENERAL = '__general__';
 const SITE = 'https://step1ne.com';

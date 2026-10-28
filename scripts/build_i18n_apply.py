@@ -11,8 +11,8 @@ SRC = open(os.path.join(ROOT, 'apply-quick', 'index.html'), encoding='utf-8').re
 # 2026-10-21 測試版（「先送出，晚點再聊」）：python3 scripts/build_i18n_apply.py --beta → 只產 /id/、/vi/apply-quick-beta/，正式版不動
 SRC_BETA_PATH = os.path.join(ROOT, 'apply-quick-beta', 'index.html')
 JOBS = ['bim-engineer-houli', 'semiconductor-bim-mep-drafting-trainee-hsinchu', 'bim-mep-drafting-engineer-hsinchu']
-OLD_QUICK = "var QUICK=['bim-mep-drafting-engineer-hsinchu','semiconductor-bim-mep-drafting-trainee-hsinchu','bim-engineer-houli','trainee-engineering-design-engineer'];"
-OLD_PAY = "var PAY={'bim-mep-drafting-engineer-hsinchu':'月薪 4.1～5 萬','semiconductor-bim-mep-drafting-trainee-hsinchu':'月薪 4.1～5 萬','bim-engineer-houli':'月薪 4.1～5 萬','trainee-engineering-design-engineer':'月薪 3.5～4.5 萬'};"
+OLD_QUICK = "var QUICK=['bim-mep-drafting-engineer-hsinchu','semiconductor-bim-mep-drafting-trainee-hsinchu','bim-engineer-houli','trainee-engineering-design-engineer','engineering-drafting-trainee-tongluo'];"
+OLD_PAY = "var PAY={'bim-mep-drafting-engineer-hsinchu':'月薪 4.1～5 萬','semiconductor-bim-mep-drafting-trainee-hsinchu':'月薪 4.1～5 萬','bim-engineer-houli':'月薪 4.1～5 萬','trainee-engineering-design-engineer':'月薪 3.5～4.5 萬','engineering-drafting-trainee-tongluo':'月薪 4～6 萬'};"
 
 
 def esc(s):

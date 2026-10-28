@@ -224,10 +224,10 @@ var API='https://step1ne-public-worker.aiagentg888.workers.dev';
 // 2026-10-21 測試版：「先送出，晚點再聊」。外語版（/id/、/vi/apply-quick/）由 build_i18n_apply.py 把 LATER_T 換成翻好的文字
 var LATER_T=null,LATER_EL=null;
 var Q=new URLSearchParams(location.search);
-var QUICK=['bim-mep-drafting-engineer-hsinchu','semiconductor-bim-mep-drafting-trainee-hsinchu','bim-engineer-houli','trainee-engineering-design-engineer'];
+var QUICK=['bim-mep-drafting-engineer-hsinchu','semiconductor-bim-mep-drafting-trainee-hsinchu','bim-engineer-houli','trainee-engineering-design-engineer','engineering-drafting-trainee-tongluo'];
 var JOB=QUICK.indexOf(Q.get('job'))>=0?Q.get('job'):'';
 var PICK=!JOB;
-var PAY={'bim-mep-drafting-engineer-hsinchu':'月薪 4.1～5 萬','semiconductor-bim-mep-drafting-trainee-hsinchu':'月薪 4.1～5 萬','bim-engineer-houli':'月薪 4.1～5 萬','trainee-engineering-design-engineer':'月薪 3.5～4.5 萬'};
+var PAY={'bim-mep-drafting-engineer-hsinchu':'月薪 4.1～5 萬','semiconductor-bim-mep-drafting-trainee-hsinchu':'月薪 4.1～5 萬','bim-engineer-houli':'月薪 4.1～5 萬','trainee-engineering-design-engineer':'月薪 3.5～4.5 萬','engineering-drafting-trainee-tongluo':'月薪 4～6 萬'};
 function ga(n,p){try{gtag('event',n,Object.assign({job:JOB,page_path:location.pathname},p||{}))}catch(e){} ft(n,p)}
 // 漏斗追蹤（D1，正式結算以這份為準；GA4 照舊）
 var FT={quick_apply_landing:'apply_landing',quick_form_start:'apply_form_start',quick_validation_error:'apply_validation_error'};
