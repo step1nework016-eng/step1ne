@@ -1965,6 +1965,7 @@ function trackHtml(st){
 let CAND_JOB_FILTER = '';
 function renderCandList(){
   const box = document.getElementById('candList');
+  LAST_CAND_SIG = candSig(CAND_LIST);
   const q = (document.getElementById('candSearch').value || '').trim().toLowerCase();
   const jobs = [...new Set(CAND_LIST.map(c => c.job_title || c.job_slug).filter(Boolean))];
   const jobSel = document.getElementById('candJob');
@@ -2247,6 +2248,42 @@ function openCandModal(appId){
   if (CHAT_POLL_TIMER) clearInterval(CHAT_POLL_TIMER);
   CHAT_POLL_TIMER = setInterval(function () { if (!document.hidden) cmLoadChat(); }, 10000);
 }
+
+// 2026-10-28 Jacky：人選在 LINE／Email 選好時段、顧問在 TG 寄出連結，客戶頁要自己更新，
+// 不能停在舊畫面等客戶手動重新整理。畫面開著才抓（看不到的分頁不打，D1 額度事件的教訓），
+// 回到這個分頁時立刻抓一次；資料沒變就什麼都不做。客戶正在打字的連結欄、對話框不會被清掉。
+let LAST_CAND_SIG = '';
+function candSig(list){
+  return JSON.stringify((list || []).map(c => [c.application_id, c.client_advanced_at, c.client_rejected_at, c.candidate_withdrawn_at,
+    (c.steps || []).map(s => (s.done ? 'd' : '') + (s.now ? 'n' : '')).join(''),
+    (c.appts || []).map(a => [a.stage, a.status, a.confirmed_slot, a.meeting_url, a.link_sent_at].join('|')).join(',')]));
+}
+async function silentRefreshCandidates(){
+  if (document.hidden || !CANDIDATES_LOADED) return;
+  if (['reasonMask', 'dtModalMask', 'slotsModalMask'].some(id => document.getElementById(id).classList.contains('show'))) return;
+  try {
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates`);
+    const data = await res.json();
+    if (!data.ok) return;
+    const list = data.candidates || [];
+    const sig = candSig(list);
+    if (sig === LAST_CAND_SIG) return;
+    LAST_CAND_SIG = sig;
+    CAND_LIST = list;
+    renderCandList();
+    if (ACTIVE_APP && document.getElementById('candModalMask').classList.contains('show')) {
+      const mi = document.getElementById('cmMeetInput');
+      const typed = mi ? mi.value : '';
+      openCandModal(ACTIVE_APP);
+      const mi2 = document.getElementById('cmMeetInput');
+      if (mi2 && typed) mi2.value = typed;
+      toast('畫面已更新');
+    }
+  } catch { /* 下一輪再試 */ }
+}
+setInterval(silentRefreshCandidates, 40000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) silentRefreshCandidates(); });
+window.addEventListener('focus', silentRefreshCandidates);
 
 // 2026-09-03 加：跟 prompt() 一樣是「跳出來要一個值，取消就回 null」，
 // 只是多了 datetime-local 輸入框跟一個選填備註。
