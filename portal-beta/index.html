@@ -1942,7 +1942,7 @@ function candState(c){
   const ap = apptFor(c, cur, 'confirmed');
   if (ap && ap.confirmed_slot && ap.confirmed_slot >= taipeiNow(3))
     return { ...base, group: 'active', kind: 'upcoming', stageKey: cur, slot: ap.confirmed_slot, pill: ['act', '已約面試'],
-      next: `${stageLabelOf(c, cur)} <b class="num">${esc(fmtSlot(ap.confirmed_slot))}</b>`, nextHtml: true };
+      next: `${stageLabelOf(c, cur)} <b class="num">${esc(fmtSlot(ap.confirmed_slot))}</b>` + (ap.meeting_url ? (ap.link_sent_at ? '・視訊連結已寄給人選' : '・視訊連結等顧問寄出') : ''), nextHtml: true };
   return { ...base, group: 'todo', kind: 'result', stageKey: cur, slot: ap && ap.confirmed_slot, pill: ['todo', '等你回覆結果'],
     next: ap && ap.confirmed_slot ? `${stageLabelOf(c, cur)}（${fmtSlot(ap.confirmed_slot)}）結束了，結果如何？` : `${stageLabelOf(c, cur)}結束了嗎？結果如何？` };
 }
@@ -2048,9 +2048,26 @@ async function actPropose(appId, stageKey){
 // TG 出「寄視訊連結給人選」卡片）。這裡只是給它一個正式入口，不再讓客戶自己想到要貼在對話框。
 const MEET_RE = /https?:\/\/[^\s<>"'）)]*(?:teams\.microsoft\.com|teams\.live\.com|meet\.google\.com|zoom\.us|webex\.com|whereby\.com)[^\s<>"'）)]*/i;
 let CHAT_MSGS = [];
+// 這場面試後台記到的連結＋顧問有沒有寄出（後端 appts.meeting_url／link_sent_at）
+function meetApptOf(c){
+  const st = candState(c);
+  const n = Number(String(st.stageKey || '').replace('stage', '')) || 0;
+  const list = (c.appts || []).filter(a => a.meeting_url && (a.status === 'confirmed' || a.status === 'pending') && (!n || Number(a.stage) === n));
+  return list[list.length - 1] || null;
+}
 function updateMeetState(){
   const el = document.getElementById('cmMeetState');
   if (!el) return;
+  const c = CAND_LIST.find(x => x.application_id === ACTIVE_APP);
+  const ap = c && meetApptOf(c);
+  if (ap) {
+    el.className = 'meet-state ok';
+    el.innerHTML = (ap.link_sent_at
+      ? `✓ 已寄給人選（${esc(fmtSlot(ap.link_sent_at.slice(0, 16)))}，Email＋LINE），前一天的提醒也會帶這個連結。`
+      : `已交給顧問，顧問確認後會寄給人選。`)
+      + `<br><span style="font-weight:400;color:var(--ink3);overflow-wrap:anywhere">${esc(ap.meeting_url)}</span>`;
+    return;
+  }
   const mine = CHAT_MSGS.filter(m => m.from_role === 'client' && MEET_RE.test(m.content || ''));
   if (mine.length) {
     const last = mine[mine.length - 1];
@@ -2078,7 +2095,8 @@ async function saveMeetLink(){
     if (!data.ok) { el.className = 'meet-state err'; el.textContent = data.error || '沒有存成功，請再按一次'; btn.disabled = false; return; }
     input.value = '';
     toast('連結已交給顧問');
-    await cmLoadChat();
+    await loadCandidates();
+    openCandModal(ACTIVE_APP);
   } catch { el.className = 'meet-state err'; el.textContent = '連線失敗，請稍後再按一次'; }
   btn.disabled = false;
 }
