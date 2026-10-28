@@ -393,7 +393,7 @@ details.cl-group[open] > summary::before{transform:rotate(90deg)}
 .cc:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
 .cl-group.todo .cc{border-color:#F0D3A3}
 .cc .nm{font-weight:700;font-size:16px}
-.cc .job{font-size:13px;color:var(--ink3);overflow-wrap:anywhere}
+.cc .cjob{font-size:13px;color:var(--ink3);overflow-wrap:anywhere}
 .cc .nx{font-size:14.5px;min-width:0;overflow-wrap:anywhere}
 .cc .nx .lb{display:block;font-size:12px;color:var(--ink3);letter-spacing:.04em}
 .cc .go{min-height:44px;display:inline-flex;align-items:center;padding:0 16px;border-radius:10px;border:1px solid var(--line);font-weight:700;font-size:14px;white-space:nowrap}
@@ -1961,7 +1961,7 @@ function renderCandList(){
   if (!CAND_LIST.length) { box.innerHTML = '<div class="cl-empty">顧問還沒有推薦人選給你。有新人選時，這裡會出現，也會通知你。</div>'; return; }
   if (!list.length) { box.innerHTML = '<div class="cl-empty">找不到符合的人選，換個關鍵字試試。</div>'; return; }
   const card = ({ c, st }) => `<button type="button" class="cc" data-app="${esc(c.application_id)}">
-      <div><div class="nm">${esc(c.candidate_name)}</div><div class="job">${esc(c.job_title || c.job_slug || '')}</div></div>
+      <div><div class="nm">${esc(c.candidate_name)}</div><div class="cjob">${esc(c.job_title || c.job_slug || '')}</div></div>
       <div>${trackHtml(st)}</div>
       <div class="nx"><span class="lb">${st.group === 'ended' ? '狀態' : '下一步'}</span>${st.nextHtml ? st.next : esc(st.next)}</div>
       <span class="go">${st.group === 'todo' ? '去處理' : '打開'}</span>
