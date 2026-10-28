@@ -17,6 +17,7 @@ import { empty } from './core/ui.js';
 import { SCRIPTS, SCRIPT_CATS } from './scripts_data.js';
 import { JD_FIELDS, jdFieldVal } from './jd_fields.js';
 import { mailPageView } from './mail.js';
+import { consultantSetupView } from './consultant_setup.js';
 import { bdCardTop, bdLogPane, BD_TAGS } from './bdcard.js';
 import { bdJobsPane } from './bdjobs.js';
 
@@ -221,11 +222,12 @@ export function shell(active, content, collapsed = false) {
   // 2026-10-15 Jacky：加「招募管道」（訓練機構等推人管道的看板），插在客戶/BD 後面；管理分組 index 9→10、icon 補一顆
   // 2026-10-15 Jacky：首頁拿掉（內容跟每日工作台、招募總覽重複）；獨有的「正在 AI 面談」搬到每日工作台總覽、「阿財分流」搬到 AI 面談頁
   // 2026-10-20 Jacky：加「帶案狀況」外部連結（pipeline.step1ne.com，另開分頁），放在招募總覽下面
-  const nav = [['daily','每日工作台'],['recruitment','招募總覽'],['candidates','人選'],['jobs','職缺'],['interviews','AI 面談'],['linechat','人選面談室'],['social','社群'],['clients','客戶 / BD'],['channels','招募管道'],['mail','信箱紀錄'],['system','系統']];
+  const nav = [['daily','每日工作台'],['recruitment','招募總覽'],['candidates','人選'],['jobs','職缺'],['interviews','AI 面談'],['linechat','人選面談室'],['social','社群'],['clients','客戶 / BD'],['channels','招募管道'],['mail','信箱紀錄'],['onboarding','顧問上工設定'],['system','系統']];
+  // 2026-10-28 Jacky：加「顧問上工設定」（畫面與邏輯在 consultant_setup.js），放管理分組第一個；分組 index 10 不變、icon 補一顆
   // ⚠️ 收合按鈕不能放進 <a class="brand"> 裡面——瀏覽器不允許互動元素巢狀
   // interactive content，而且全域點擊委派會先比對 [data-route]，按鈕點下去會
   // 連帶觸發外層 <a> 的 data-route="home" 跳轉。改成跟 .brand 平行的兄弟元素。
-  return `<div class="app-shell${collapsed ? ' collapsed' : ''}"><aside class="sidebar"><div class="brand-row"><a class="brand" data-route="daily"><span>S</span><div>Step1ne<small>CONSULTANT OS</small></div></a><button type="button" class="sidebar-toggle" data-action="toggle-sidebar" title="${collapsed ? '展開側欄' : '收合側欄'}">${collapsed ? '»' : '«'}</button></div><nav>${nav.map(([key,label], index) => `${index === 0 ? '<p>工作台</p>' : index === 6 ? '<p>營運成長</p>' : index === 10 ? '<p>管理</p>' : ''}<a class="${active === key ? 'active' : ''}" data-route="${key}"><i>${['☑','▥','◉','▣','◎','✉','◁','♙','⇄','✉','⚙'][index]}</i>${label}</a>${key === 'daily' ? `<a class="${active === 'calllist' ? 'active' : ''}" data-route="calllist"><i>☏</i>人選電話名單</a><a class="${active === 'bdcalls' ? 'active' : ''}" data-route="bdcalls"><i>☏</i>公司開發名單</a>` : ''}${key === 'recruitment' ? '<a href="https://pipeline.step1ne.com/" target="_blank" rel="noopener" title="給 Jim 看的帶案儀表板（另開分頁，需通行碼）"><i>▤</i>帶案狀況 ↗</a>' : ''}`).join('')}</nav><footer>Production contract v2</footer></aside><main><header class="topbar"><button class="mobile-menu" data-action="toggle-menu">☰</button><input data-action="global-search" placeholder="搜尋人選、職缺、客戶…"><label class="me-global" title="寄信、核准、改設定時，系統記住是誰做的"><span>我是</span><select data-me-global aria-label="我是"><option value="">選擇…</option></select></label><button class="btn ghost" data-action="token">ADMIN TOKEN</button></header><section class="content">${content}</section></main></div>`;
+  return `<div class="app-shell${collapsed ? ' collapsed' : ''}"><aside class="sidebar"><div class="brand-row"><a class="brand" data-route="daily"><span>S</span><div>Step1ne<small>CONSULTANT OS</small></div></a><button type="button" class="sidebar-toggle" data-action="toggle-sidebar" title="${collapsed ? '展開側欄' : '收合側欄'}">${collapsed ? '»' : '«'}</button></div><nav>${nav.map(([key,label], index) => `${index === 0 ? '<p>工作台</p>' : index === 6 ? '<p>營運成長</p>' : index === 10 ? '<p>管理</p>' : ''}<a class="${active === key ? 'active' : ''}" data-route="${key}"><i>${['☑','▥','◉','▣','◎','✉','◁','♙','⇄','✉','☺','⚙'][index]}</i>${label}</a>${key === 'daily' ? `<a class="${active === 'calllist' ? 'active' : ''}" data-route="calllist"><i>☏</i>人選電話名單</a><a class="${active === 'bdcalls' ? 'active' : ''}" data-route="bdcalls"><i>☏</i>公司開發名單</a>` : ''}${key === 'recruitment' ? '<a href="https://pipeline.step1ne.com/" target="_blank" rel="noopener" title="給 Jim 看的帶案儀表板（另開分頁，需通行碼）"><i>▤</i>帶案狀況 ↗</a>' : ''}`).join('')}</nav><footer>Production contract v2</footer></aside><main><header class="topbar"><button class="mobile-menu" data-action="toggle-menu">☰</button><input data-action="global-search" placeholder="搜尋人選、職缺、客戶…"><label class="me-global" title="寄信、核准、改設定時，系統記住是誰做的"><span>我是</span><select data-me-global aria-label="我是"><option value="">選擇…</option></select></label><button class="btn ghost" data-action="token">ADMIN TOKEN</button></header><section class="content">${content}</section></main></div>`;
 }
 
 export const views = {
@@ -234,6 +236,8 @@ export const views = {
   bdcalls: () => pageHead('公司開發名單', '一列一家：①點結果 ②備註可留空 ③按「送出」才會存進系統（客戶/BD → 開發進度、帶案看板都看得到）。') + `<div id="page-data"></div>`,
   // 2026-10-12 加：信箱紀錄（畫面與邏輯在 mail.js）
   mail: () => mailPageView(),
+  // 2026-10-28 加：顧問上工設定（畫面與邏輯在 consultant_setup.js）
+  onboarding: () => consultantSetupView(),
   // 2026-10-15 加：招募管道（畫面與邏輯在 channels.js）
   channels: () => pageHead('招募管道', '請訓練機構、學校等幫忙推人的管道，一家一張卡。拖到別欄＝改狀態；點卡片看聯絡紀錄、推來的人選與成效。左邊紅線＝到了該追的日子。', '<button class="btn primary" data-action="channel-new">＋ 新增管道</button>') + `<div id="page-data"></div>`,
   board: (tab = 'cand') => pageHead('進度看板', '每一欄是一個階段，每張卡是一個人選或一家客戶。左邊有紅線的＝在這關停太久，該追了。')
