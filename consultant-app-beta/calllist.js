@@ -98,8 +98,38 @@ function rowHead(it) {
   const why = String(it.why_company || '').trim();
   return `<div class="cl-top"><h3>${e(it.company)}</h3>${it.industry ? `<span class="cl-tag">${e(it.industry)}</span>` : ''}${it.company_104_url ? `<a class="cl-104" href="${e(it.company_104_url)}" target="_blank" rel="noopener">104 公司頁 ↗</a>` : ''}</div>
     <p class="cl-sub">${[it.job_title ? `職缺：${e(it.job_title)}` : '', contact ? `聯絡人：${e(contact)}` : ''].filter(Boolean).join('<i>｜</i>')}</p>
+    ${bdBrief(it)}
     ${why ? `<details class="cl-why"><summary>為什麼打這家</summary><p>${e(why)}</p></details>` : ''}
+    ${bdHistory(it)}
     <div class="cl-phones">${phones || '<span class="cl-phone-txt">沒有電話</span>'}</div>`;
+}
+// 2026-10-29 Jacky：Phoebe 打開就要知道「上次聯繫到哪、今天要做什麼」，點卡片看完整聯繫紀錄
+const AI_ACT = { call: '打電話追進度', email: '寄信追進度', mail: '寄信追進度', wait: '等對方回覆', visit: '約拜訪', none: '' };
+const today = () => nowLocal().slice(0, 10);
+export function bdTodo(it) {
+  const st = it.status_info || {};
+  if (it.callback_at) return { text: `約好 ${md(it.callback_at)} 回撥`, due: String(it.callback_at).slice(0, 10) };
+  if (st.next_step) return { text: st.next_step, due: st.next_due || '' };
+  if (it.last_next_step) return { text: it.last_next_step, due: it.last_next_due || '' };
+  if (st.ai_action || st.ai_memo) return { text: [AI_ACT[st.ai_action] ?? st.ai_action, st.ai_memo].filter(Boolean).join('：'), due: st.ai_due || '' };
+  const d = { got_email: '確認對方收到資料、問主管評估結果', interested: '約時間談需求／合約', send_info: '寄公司介紹資料', got_contact: '打給問到的窗口', no_answer: '再打一次', gatekeeper: '換時段或改找人資分機' }[it.last_result];
+  return d ? { text: d, due: '' } : null;
+}
+function isDueToday(it) { const t = bdTodo(it); return !!(t && t.due && t.due <= today()); }
+function bdBrief(it) {
+  if (!it.last_result && !(it.history || []).length) return '';
+  const st = it.status_info || {};
+  const sum = st.ai_summary || it.last_note || '';
+  const last = it.last_at ? `<b>上次</b> ${e(mdDay(it.last_at))} ${e(labelOf(it.last_result) || '聯繫')}${it.last_by ? `（${e(it.last_by)}）` : ''}${sum ? `：${e(sum)}` : ''}` : '';
+  const t = bdTodo(it);
+  const due = t && t.due ? (t.due < today() ? `<span class="cl-due late">已過 ${e(mdDay(t.due))}</span>` : t.due === today() ? '<span class="cl-due now">今天</span>' : `<span class="cl-due">${e(mdDay(t.due))}</span>`) : '';
+  return `<div class="cl-brief">${last ? `<p>${last}</p>` : ''}${t ? `<p class="cl-todo"><b>今天要做</b> ${due}${e(t.text)}</p>` : ''}</div>`;
+}
+function bdHistory(it) {
+  const h = it.history || [];
+  if (!h.length) return '';
+  const lines = h.map((x) => `<li><time>${e(md(x.at))}</time> <b>${e(labelOf(x.result) || (x.kind === 'mail' ? '寄信' : x.kind === 'note' ? '備註' : '紀錄'))}</b>${x.caller ? `（${e(x.caller)}）` : ''}${x.note ? `<div>${e(x.note)}</div>` : ''}${x.next_step ? `<div class="cl-hist-next">下一步：${e(x.next_step)}${x.next_due ? `（${e(mdDay(x.next_due))}）` : ''}</div>` : ''}</li>`).join('');
+  return `<details class="cl-hist"><summary>聯繫紀錄（${e(h.length)}${Number(it.call_count) > h.length ? `／共 ${e(it.call_count)} 通電話` : ''}）</summary><ul>${lines}</ul></details>`;
 }
 
 function rowHtml(it) {
@@ -131,6 +161,7 @@ function counts(rows) {
   const c = { all: rows.length, todo: 0, called: 0 };
   S.cfg.results.forEach(([v]) => { c[v] = 0; });
   rows.forEach((it) => { if (it.last_result) { c.called += 1; c[it.last_result] = (c[it.last_result] || 0) + 1; } else c.todo += 1; });
+  if (S.cfg.kind === 'bd') c.due = rows.filter(isDueToday).length;
   return c;
 }
 // 2026-10-28 Jacky：「相關科系的讓 Phoebe 打電話好打，名單可以篩科系」。學歷欄是「學校 科系」，取最後一段分類。
@@ -159,6 +190,7 @@ function visibleRows() {
   const rows = tabRows();
   if (S.filter === 'all') return rows;
   if (S.filter === 'todo') return rows.filter((it) => !it.last_result || S.open[String(it.id)]);
+  if (S.filter === 'due') return rows.filter(isDueToday);
   return rows.filter((it) => it.last_result === S.filter);
 }
 
@@ -180,15 +212,22 @@ function renderAll() {
     </select></label>`;
   const head = S.cfg.kind === 'cand'
     ? (S.lists.length > 1 ? `<label class="cl-pick">名單<select data-cl-list>${S.lists.map((l) => `<option value="${e(l.id)}" ${l.id === S.listId ? 'selected' : ''}>${e(l.title)}（${e(l.done)}/${e(l.n)}）</option>`).join('')}</select></label>` : (S.lists[0] ? `<p class="cl-listname">名單：${e(S.lists[0].title)}</p>` : ''))
-    : (S.batches.length > 1 ? `<label class="cl-pick">批次<select data-cl-batch>${S.batches.map((b) => `<option value="${e(b.batch_id)}" ${b.batch_id === S.batch ? 'selected' : ''}>${e(b.batch_id)}（${e(b.n)} 家）</option>`).join('')}</select></label>` : `<p class="cl-listname">批次：${e(S.batch)}</p>`);
+    : (S.batches.length > 1 ? `<label class="cl-pick">批次<select data-cl-batch>${S.batches.map((b) => `<option value="${e(b.batch_id)}" ${b.batch_id === S.batch ? 'selected' : ''}>${e(b.label || b.batch_id)}（${e(b.n)} 家）</option>`).join('')}</select></label>` : `<p class="cl-listname">批次：${e(S.batch)}</p>`);
   const chip = (k, lb) => `<button type="button" class="cl-chip${S.filter === k ? ' on' : ''}" data-cl-filter="${k}" aria-pressed="${S.filter === k}">${e(lb)} <b>${e(c[k] || 0)}</b></button>`;
   const rows = visibleRows();
   t.innerHTML = `<div class="cl-wrap">${head}
     <div class="cl-tabs" role="tablist">${people.map((p) => `<button type="button" role="tab" aria-selected="${p === S.tab}" class="${p === S.tab ? 'on' : ''}" data-cl-tab="${e(p)}">${e(p)} <small>${e(S.items.filter((it) => assigneeOf(it) === p).length)}</small></button>`).join('')}</div>
     ${majorSel}
     <div class="cl-progress"><span>已打 <b>${e(c.called)}</b> / ${e(c.all)}</span><div class="cl-bar"><i style="width:${c.all ? Math.round(c.called / c.all * 100) : 0}%"></i></div></div>
-    <div class="cl-chips">${chip('all', '全部')}${chip('todo', '還沒打')}${S.cfg.results.map(([v, lb]) => chip(v, lb)).join('')}</div>
+    ${S.cfg.kind === 'bd' ? dueBox(tabRows()) : ''}
+    <div class="cl-chips">${S.cfg.kind === 'bd' ? chip('due', '今天要做') : ''}${chip('all', '全部')}${chip('todo', '還沒打')}${S.cfg.results.map(([v, lb]) => chip(v, lb)).join('')}</div>
     <div class="cl-list">${rows.length ? rows.map(rowHtml).join('') : '<div class="state"><strong>這裡沒有名單</strong><p>換個篩選看看。</p></div>'}</div></div>`;
+}
+// 2026-10-29：頁面最上面「今天要確認」——到期（含已過期）的公司一行一家，點了跳到那張卡
+function dueBox(rows) {
+  const due = rows.filter(isDueToday).sort((a, b) => String(bdTodo(a).due).localeCompare(String(bdTodo(b).due)));
+  if (!due.length) return '<div class="cl-duebox ok">今天沒有到期要確認的公司 👍</div>';
+  return `<div class="cl-duebox"><b>今天要確認（${e(due.length)} 家）</b><ol>${due.map((it) => `<li><a href="#" data-cl-jump="${e(it.id)}">${e(it.company)}</a>：${e(bdTodo(it).text)}</li>`).join('')}</ol></div>`;
 }
 function rerenderRow(id) {
   const el = S.target && S.target.querySelector(`[data-cl-id="${CSS.escape(id)}"]`);
@@ -263,6 +302,7 @@ function wire(t) {
     const tab = el.closest('[data-cl-tab]'); if (tab) { S.tab = tab.dataset.clTab; saveUi(); renderAll(); return; }
     const f = el.closest('[data-cl-filter]'); if (f) { S.filter = f.dataset.clFilter; saveUi(); renderAll(); return; }
     const cvBtn = el.closest('[data-cl-resume]'); if (cvBtn) { openResume(cvBtn.dataset.clResume); return; }
+    const jump = el.closest('[data-cl-jump]'); if (jump) { ev.preventDefault(); const card = S.target.querySelector(`[data-cl-id="${CSS.escape(jump.dataset.clJump)}"]`); if (card) { card.scrollIntoView({ behavior: 'smooth', block: 'start' }); card.classList.add('flash'); setTimeout(() => card.classList.remove('flash'), 1500); } else { S.filter = 'all'; renderAll(); } return; }
     if (!row) return;
     const id = row.dataset.clId;
     const res = el.closest('[data-cl-res]');
@@ -297,7 +337,7 @@ function resetFor(cfg, target) {
   const ui = loadUi();
   if (S.cfg !== cfg) { S.pending = {}; S.open = {}; S.unsent = new Set(); }
   S.cfg = cfg; S.target = target; S.tab = ui.tab || me() || ''; S.filter = ui.filter || 'all'; S.major = ui.major || '';
-  if (S.filter !== 'all' && S.filter !== 'todo' && !cfg.results.some((r) => r[0] === S.filter)) S.filter = 'all';
+  if (S.filter !== 'all' && S.filter !== 'todo' && !(S.filter === 'due' && cfg.kind === 'bd') && !cfg.results.some((r) => r[0] === S.filter)) S.filter = 'all';
   wire(target);
 }
 async function loadCandidates() {
