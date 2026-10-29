@@ -96,7 +96,8 @@ function rowHead(it) {
   const phones = [telLink(it.hr_phone, it.hr_phone && it.company_phone && it.hr_phone !== it.company_phone ? '人資' : ''),
     it.company_phone && it.company_phone !== it.hr_phone ? telLink(it.company_phone, it.hr_phone ? '總機' : '') : ''].filter(Boolean).join('');
   const why = String(it.why_company || '').trim();
-  return `<div class="cl-top"><h3>${e(it.company)}</h3>${it.industry ? `<span class="cl-tag">${e(it.industry)}</span>` : ''}${it.company_104_url ? `<a class="cl-104" href="${e(it.company_104_url)}" target="_blank" rel="noopener">104 公司頁 ↗</a>` : ''}</div>
+  // 2026-10-29 Jacky：要有地方點開客戶卡片（跟「客戶/BD」頁同一張抽屜卡，全站點擊監聽看 data-bd-company）
+  return `<div class="cl-top"><h3>${e(it.company)}</h3>${it.industry ? `<span class="cl-tag">${e(it.industry)}</span>` : ''}<button type="button" class="cl-cv" data-bd-company="${e(it.company)}" title="打開這家的客戶卡片">🗂 客戶卡片</button>${it.company_104_url ? `<a class="cl-104" href="${e(it.company_104_url)}" target="_blank" rel="noopener">104 公司頁 ↗</a>` : ''}</div>
     <p class="cl-sub">${[it.job_title ? `職缺：${e(it.job_title)}` : '', contact ? `聯絡人：${e(contact)}` : ''].filter(Boolean).join('<i>｜</i>')}</p>
     ${bdBrief(it)}
     ${why ? `<details class="cl-why"><summary>為什麼打這家</summary><p>${e(why)}</p></details>` : ''}
