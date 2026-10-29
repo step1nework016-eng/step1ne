@@ -35,6 +35,14 @@ export function modal({ title, subtitle = '', body, footer = '', dangerous = fal
 }
 
 export function drawer({ title, subtitle = '', body }) {
+  // 2026-10-29 Jacky：電話名單改左右兩欄——在電話名單頁時，客戶卡片／人選卡片直接畫在右欄（#cl-dock），不再蓋一層抽屜
+  const dock = document.getElementById('cl-dock');
+  if (dock) {
+    dock.innerHTML = `<header class="cl-dock-head"><button type="button" class="cl-dock-back" data-cl-dock-close aria-label="回到名單">← 名單</button><div><h2>${escapeHtml(title)}</h2>${subtitle ? `<p>${escapeHtml(subtitle)}</p>` : ''}</div></header><div class="drawer-body">${body}</div>`;
+    dock.classList.add('open');
+    document.querySelector('.cl-split')?.classList.add('has-dock');
+    return;
+  }
   const root = $('#overlay-root');
   root.innerHTML = `<div class="mask" data-close-overlay></div><aside class="drawer" role="dialog" aria-modal="true" aria-label="${escapeHtml(title)}"><header><div><h2>${escapeHtml(title)}</h2><p>${escapeHtml(subtitle)}</p></div><button class="icon-btn" data-close-overlay aria-label="關閉">×</button></header><div class="drawer-body">${body}</div></aside>`;
 }

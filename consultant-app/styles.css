@@ -1706,3 +1706,44 @@ svg .rs-val{font-size:15px;font-weight:700;fill:#14232e}svg .rs-lab{font-size:13
 .cl-duebox.ok{background:#ecfdf5;border-color:#a7f3d0;color:#065f46}
 .cl-duebox ol{margin:6px 0 0;padding-left:20px;display:grid;gap:4px}.cl-duebox a{color:#1d4ed8;font-weight:700}
 .cl-row.flash{box-shadow:0 0 0 3px #f59e0b}
+/* 2026-10-29 Jacky：電話名單左右兩欄——左＝名單（今日作戰＋自動排今天要打），右＝完整客戶／人選卡片（原本抽屜的內容直接畫在這裡） */
+.cl-split{display:grid;grid-template-columns:minmax(400px,500px) minmax(0,1fr);gap:18px;align-items:start}
+.cl-split .cl-wrap{max-width:none}
+.cl-left{min-width:0}
+.cl-dock{position:sticky;top:78px;max-height:calc(100vh - 96px);overflow:auto;overscroll-behavior:contain;background:#fff;border:1px solid #e5eaf2;border-radius:16px;box-shadow:var(--shadow);min-width:0}
+.cl-dock .drawer-body{padding:16px 18px 28px}
+.cl-dock-head{display:flex;align-items:flex-start;gap:12px;padding:16px 18px 12px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:3}
+.cl-dock-head h2{margin:0;font-size:20px;overflow-wrap:anywhere}.cl-dock-head p{margin:4px 0 0;color:var(--muted);font-size:13px}.cl-dock-head>div{min-width:0;flex:1}
+.cl-dock-back{display:none;min-height:44px;border:1px solid var(--line);background:#fff;border-radius:10px;padding:0 14px;cursor:pointer;flex:none}
+.cl-dock-empty{min-height:320px;margin:16px}
+/* 今日作戰 */
+.cl-war{background:#0f1f3a;color:#e6edf9;border-radius:16px;padding:16px;margin:0 0 14px;display:grid;gap:12px}
+.cl-war-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.cl-war-head b{font-size:17px;color:#fff;margin-right:8px}.cl-war-head span{font-size:13px;color:#9fb0cf}
+.cl-war .btn.sm{background:#1d3157;border-color:#2c4675;color:#e6edf9;min-height:40px}
+.cl-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.cl-kpi{background:#172a4d;border-radius:12px;padding:10px 12px;display:grid;gap:2px;min-width:0}
+.cl-kpi span{font-size:12px;color:#9fb0cf}.cl-kpi strong{font-size:26px;color:#fff;font-variant-numeric:tabular-nums;line-height:1.2}.cl-kpi strong small{font-size:13px;color:#9fb0cf;font-weight:600}.cl-kpi>small{font-size:11.5px;color:#9fb0cf}
+.cl-war-bar{background:#22385f}
+.cl-mix{display:flex;flex-wrap:wrap;align-items:center;gap:8px}.cl-mix>span{background:#172a4d;border-radius:999px;padding:5px 11px;font-size:12.5px;color:#c8d4ea}.cl-mix>span b{color:#fff;margin-right:4px;font-size:14px}
+.cl-goalset{margin-left:auto;font-size:12.5px;color:#c8d4ea;display:flex;align-items:center;gap:6px}.cl-goalset input{width:64px;min-height:40px;padding:4px 8px;background:#0f1f3a;color:#fff;border-color:#2c4675;text-align:center}
+.cl-war-rule{margin:0;font-size:12px;color:#9fb0cf;line-height:1.55}
+/* 今天要確認：可收合 */
+.cl-due-fold{padding:0}.cl-due-fold>summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;min-height:44px}
+.cl-due-fold>summary::-webkit-details-marker{display:none}.cl-due-fold[open]>summary{border-bottom:1px solid #f5d38a}
+.cl-due-t{font-size:12.5px;color:#1d4ed8;font-weight:700}.cl-due-t:after{content:" ▾"}.cl-due-fold[open] .cl-due-t:after{content:" ▴"}
+.cl-due-fold ol{padding:10px 14px 12px 34px;margin:0}
+/* 卡片：自動排序號、今天打過、選取中 */
+.cl-q{display:flex;align-items:center;flex-wrap:wrap;gap:8px}.cl-qn{font-weight:800;color:var(--blue);font-variant-numeric:tabular-nums}.cl-qok{font-size:12.5px;font-weight:800;color:#14794c}
+.cl-row.cl-today{background:#f3fbf6;border-color:#bfe6cf}
+.cl-split .cl-row{cursor:pointer}.cl-split .cl-row:hover{border-color:#b7cdfa}
+.cl-row.cl-sel{border-color:var(--blue);box-shadow:0 0 0 2px #b7cdfa}
+@media (max-width:1100px){
+  .cl-split{grid-template-columns:1fr}
+  .cl-dock{display:none}
+  .cl-dock.open{display:block;position:fixed;inset:0;max-height:none;border-radius:0;z-index:30;padding-bottom:env(safe-area-inset-bottom,0px)}
+  .cl-dock-head{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+  .cl-dock-back{display:inline-flex;align-items:center}
+}
+@media (max-width:640px){.cl-kpi strong{font-size:21px}.cl-goalset{margin-left:0}}
+@media (prefers-reduced-motion:reduce){.cl-war-bar i{transition:none}}
