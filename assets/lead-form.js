@@ -61,4 +61,13 @@
       });
     });
   });
+  // 2026-10-29：文章開頭那塊「你是企業、正在找人？」（.employer-cta）原本沒有自己的事件，
+  // 只能從 GA 的 click（外連）猜，站內連到委託招募頁的點擊完全看不到。補上才分得出
+  // 「看到按鈕不點」還是「根本沒人來」——11/02 回收企業文章時要用。
+  document.querySelectorAll('.employer-cta a').forEach(function (a) {
+    a.addEventListener('click', function () {
+      if (window.gtag) gtag('event', 'employer_cta_click', {
+        cta: /lin\.ee|line\.me/.test(a.href) ? 'top-line' : 'top-plans', page_path: location.pathname });
+    });
+  });
 })();
