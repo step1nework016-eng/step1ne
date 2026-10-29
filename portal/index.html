@@ -2156,7 +2156,8 @@ function formsHtml(c){
   if (!fs.length) return '';
   return fs.map(f => f.status === 'submitted'
     ? `<a class="cmeta-form ok" href="${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(c.application_id)}/form/${encodeURIComponent(f.id)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${esc(f.form_name || '人事資料表')}：已交・下載</a>`
-    : `<span class="cmeta-form">${esc(f.form_name || '人事資料表')}：等人選填</span>`).join('');
+    // 2026-10-29 Jacky：沒交就要有標籤寫「未提供」；已寄給人選的補一句，客戶才知道不用催顧問寄
+    : `<span class="cmeta-form">${esc(f.form_name || '人事資料表')}：未提供${f.status === 'not_sent' ? '' : '（已請人選填寫）'}</span>`).join('');
 }
 function renderCandList(){
   const box = document.getElementById('candList');
@@ -2453,7 +2454,7 @@ function openCandModal(appId){
       : `<span class="wait">顧問還在整理</span>`),
     ...(c.forms || []).map(f => fileItem(f.form_name, f.status === 'submitted'
       ? `<a class="cm-fbtn" href="${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(c.application_id)}/form/${encodeURIComponent(f.id)}" target="_blank" rel="noopener">下載</a>`
-      : `<span class="wait">等人選填寫</span>`)),
+      : `<span class="wait">${f.status === 'not_sent' ? '未提供' : '未提供（已請人選填寫）'}</span>`)),
     c.offer_stage_reached ? fileItem('錄取通知（Offer 信）',
       `<input type="file" id="cmOfferFile" style="display:none" accept=".pdf,.jpg,.jpeg,.png">` +
       `<button type="button" class="cm-fbtn" id="cmOfferBtn">${c.offer_file_name ? '重新上傳' : '上傳'}</button>` +
