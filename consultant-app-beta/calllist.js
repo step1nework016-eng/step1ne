@@ -219,7 +219,7 @@ function warRoom(rows) {
 function tgText(rows) {
   const q = S.queue, t = today();
   const done = q.filter((x) => touchedToday(x.it)).length;
-  const by = (k) => rows.filter((it) => String(it.last_at || '').startsWith(t) && it.last_result === k).map((it) => String(it.company || it.name || '').replace(/股份有限公司|有限公司/, ''));
+  const by = (k) => rows.filter((it) => String(it.last_at || '').startsWith(t) && it.last_result === k).map((it) => String(it.company || it.name || '').replace(/(\u80a1\u4efd)?\u6709\u9650\u516c\u53f8$/, ''));
   return `${S.tab}｜${mdDay(t)} ${S.cfg.kind === 'bd' ? '公司開發' : '人選電話'}進度\n・今天要打 ${q.length}，打完 ${done}\n・${S.cfg.kind === 'bd' ? '有興趣' : '有意願'}：${by('interested').join('、') || '—'}\n${S.cfg.kind === 'bd' ? `・要資料／拿到信箱：${[...by('send_info'), ...by('got_email')].join('、') || '—'}\n` : ''}・沒接：${by('no_answer').length}`;
 }
 
