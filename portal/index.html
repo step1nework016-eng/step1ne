@@ -3,9 +3,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>客戶專區｜STEP1NE</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Sans:wght@500;600&display=swap">
+<title>用人需求表｜STEP1NE</title>
 <meta name="description" content="Step1ne 德仁管理顧問｜貴司專屬的用人需求表，填好職缺條件後由顧問為您媒合人選。">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Step1ne 德仁管理顧問">
@@ -343,247 +341,10 @@ tr.billRow:hover td{background:var(--soft)}
 .nrec h4{margin:0 0 6px;font-size:14px;color:#8a4b12}
 .nrec-why{font-size:13.5px;line-height:1.7;color:#5c3a12}
 .nrec-when{margin-top:7px;font-size:11.5px;color:#9a7a52}
-/* ===== 2026-10-28 客戶頁改版（測試版）=====
-   版面：頂部品牌列＋三個分頁 → 人選依「等你處理／進行中／已結束」分組成卡片 → 點卡片從右側滑出人選面板（手機全螢幕）
-   顏色：冷灰底、深青色主按鈕、橘色只用在「等你處理」；不用米色＋金色 */
-:root{
-  --bg:#F3F6F9; --surface:#FFFFFF; --ink:#132235; --ink2:#334458; --ink3:#5B6B7E; --line:#DAE2EA; --soft:#EEF3F7;
-  --gold:#0D6670; --primary:#0D6670; --primary-ink:#FFFFFF; --primary-soft:#E2F1F2;
-  --attn:#9A5A06; --attn-soft:#FFF2DB; --ok:#1D7448; --ok-soft:#E3F3EA; --bad:#B4322A; --bad-soft:#FBE7E5; --warn:#9A5A06;
-  --f-body:"Noto Sans TC",-apple-system,"PingFang TC",sans-serif; --f-num:"IBM Plex Sans","Noto Sans TC",sans-serif;
-}
-body{background:var(--bg);color:var(--ink);font:15.5px/1.7 var(--f-body)}
-.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
-:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
-@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
-button{border-radius:10px;min-height:44px;padding:0 18px;background:var(--primary);color:var(--primary-ink)}
-button.sec{background:var(--surface);color:var(--ink);border:1px solid var(--line)}
-button.danger{background:var(--surface);color:var(--bad);border:1px solid var(--line)}
-input[type=text],input[type=search],input[type=url],input[type=date],input[type=time],input[type=datetime-local],select,textarea{min-height:44px;border-radius:10px;border:1px solid var(--line);font:inherit;font-size:15px;background:var(--surface);color:var(--ink)}
-header{background:var(--surface);border-bottom:1px solid var(--line);padding:12px 0}
-header .wrap{max-width:1180px}
-header b{font-size:17px;letter-spacing:.02em}
-header .beta-tag{font-size:12px;font-weight:700;color:var(--attn);background:var(--attn-soft);border-radius:999px;padding:2px 10px}
-.notify-btn{width:44px;height:44px;border-radius:10px;min-height:44px;padding:0}
-.wrap{max-width:1180px}
-main{padding:0 0 80px}
-.toptabs{display:flex;gap:4px;margin:0 0 20px;border-bottom:1px solid var(--line);overflow-x:auto}
-.toptab{min-height:48px;border-radius:0;background:transparent;color:var(--ink3);border:0;border-bottom:3px solid transparent;padding:0 16px;font-size:15.5px;white-space:nowrap}
-.toptab.on{background:transparent;color:var(--primary);border-color:var(--primary)}
-.toptab:hover{color:var(--ink)}
-#candidatesView{max-width:none;width:auto;margin:0;padding:0}
-
-/* 人選清單 */
-.cl-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
-.cl-bar input{flex:1 1 220px;padding:0 12px}
-.cl-bar select{flex:0 1 260px;padding:0 10px;max-width:100%}
-.cl-group{display:grid;gap:10px;margin-bottom:26px}
-.cl-group > h2{margin:0;font-size:17px;display:flex;align-items:center;gap:8px}
-.cl-group > h2 .n{font-family:var(--f-num);font-size:13px;font-weight:700;border-radius:999px;padding:1px 10px;background:var(--soft);color:var(--ink3)}
-.cl-group.todo > h2{color:var(--attn)}
-.cl-group.todo > h2 .n{background:var(--attn-soft);color:var(--attn)}
-.cl-group .hint{font-size:13.5px;color:var(--ink3);margin:-4px 0 2px}
-details.cl-group > summary{cursor:pointer;list-style:none;min-height:44px;display:flex;align-items:center;gap:8px;font-weight:700;font-size:17px;color:var(--ink3)}
-details.cl-group > summary::-webkit-details-marker{display:none}
-details.cl-group > summary::before{content:"▸";display:inline-block;transition:transform .15s}
-details.cl-group[open] > summary::before{transform:rotate(90deg)}
-.cc{all:unset;box-sizing:border-box;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;
-  display:grid;grid-template-columns:minmax(150px,1.1fr) minmax(190px,1.2fr) minmax(220px,1.8fr) auto;gap:16px;align-items:center;width:100%;color:var(--ink)}
-.cc:hover{border-color:var(--primary)}
-.cc:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
-.cl-group.todo .cc{border-color:#F0D3A3}
-.cc .nm{font-weight:700;font-size:16px}
-.cc .cjob{font-size:13px;color:var(--ink3);overflow-wrap:anywhere}
-.cc .nx{font-size:14.5px;min-width:0;overflow-wrap:anywhere}
-.cc .nx .lb{display:block;font-size:12px;color:var(--ink3);letter-spacing:.04em}
-.cc .go{min-height:44px;display:inline-flex;align-items:center;padding:0 16px;border-radius:10px;border:1px solid var(--line);font-weight:700;font-size:14px;white-space:nowrap}
-.cl-group.todo .cc .go{background:var(--primary);color:var(--primary-ink);border-color:var(--primary)}
-.cl-group.ended .cc{opacity:.78}
-@media (max-width:820px){.cc{grid-template-columns:1fr;gap:10px}.cc .go{justify-self:start}}
-.trk{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
-.trk i{height:8px;border-radius:4px;background:var(--line)}
-.trk i.d{background:var(--ok)}
-.trk i.n{background:var(--primary)}
-.trk i.x{background:var(--bad)}
-.trk i.g{background:#C9D2DB}
-.trk-lb .x{color:var(--bad);font-weight:700}
-.trk-lb .g{font-weight:700}
-.trk-lb{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;font-size:11.5px;color:var(--ink3);margin-top:4px}
-.trk-lb .n{color:var(--primary);font-weight:700}
-.pl{display:inline-block;font-size:12.5px;font-weight:700;border-radius:999px;padding:2px 10px;white-space:nowrap}
-.pl.todo{background:var(--attn-soft);color:var(--attn)}
-.pl.act{background:var(--primary-soft);color:var(--primary)}
-.pl.ok{background:var(--ok-soft);color:var(--ok)}
-.pl.end{background:var(--soft);color:var(--ink3)}
-.cl-empty{background:var(--surface);border:1px dashed var(--line);border-radius:12px;padding:28px 16px;text-align:center;color:var(--ink3)}
-
-/* 人選面板（右側滑出；手機全螢幕） */
-#candModalMask{align-items:stretch;justify-content:flex-end;padding:0;background:rgba(15,25,35,.45)}
-.drawer{width:min(560px,100%);height:100%;background:var(--surface);display:flex;flex-direction:column;box-shadow:-16px 0 40px rgba(15,25,35,.18);animation:dwIn .2s ease-out}
-@keyframes dwIn{from{transform:translateX(30px);opacity:.6}to{transform:none;opacity:1}}
-.dw-top{padding:14px 16px;padding-top:max(14px,env(safe-area-inset-top,0px));border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;align-items:start}
-.dw-top h3{margin:0;font-size:20px}
-.dw-top #cmSub{font-size:13.5px;color:var(--ink3)}
-.dw-x{width:44px;height:44px;min-height:44px;padding:0;border-radius:10px;background:var(--surface);color:var(--ink);border:1px solid var(--line);font-size:22px;line-height:1;flex-shrink:0}
-.dw-body{flex:1;overflow:auto;padding:16px;display:grid;gap:14px;align-content:start;padding-bottom:max(24px,env(safe-area-inset-bottom,0px))}
-.bx{border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:10px;min-width:0}
-.bx > h4,.bx h4{margin:0;font-size:13.5px;color:var(--ink3);font-weight:700;letter-spacing:.04em}
-.bx.next{background:var(--primary-soft);border-color:transparent}
-.bx.next.todo{background:var(--attn-soft)}
-.bx.next .big{font-size:19px;font-weight:700;line-height:1.45}
-.bx.next .when{font-family:var(--f-num);font-variant-numeric:tabular-nums}
-.btns{display:flex;gap:8px;flex-wrap:wrap}
-.btns button{flex:0 1 auto}
-.sub-act{border-top:1px dashed var(--line);padding-top:10px;display:grid;gap:8px}
-.meet-row{display:flex;gap:8px;flex-wrap:wrap}
-.meet-row input{flex:1 1 220px;padding:0 12px;min-width:0}
-.meet-state{font-size:13.5px;color:var(--ink3)}
-.meet-state.ok{color:var(--ok);font-weight:700}
-.meet-state.err{color:var(--bad);font-weight:700}
-.nrec{background:var(--bad-soft);border-radius:10px;padding:12px}
-.nrec h4{color:var(--bad)!important}
-.cm-file-grid{display:flex;flex-wrap:wrap;gap:10px}
-.cm-file-item{display:grid;gap:6px;min-width:140px}
-.cm-file-item .lb{font-size:12.5px;color:var(--ink3)}
-.cm-fbtn{min-height:44px;display:inline-flex;align-items:center;justify-content:center;padding:0 14px;border-radius:10px;font-size:14px;color:var(--primary);background:var(--surface);border:1px solid var(--line);text-decoration:none;font-weight:700}
-.cm-file-item .wait{font-size:13px;color:var(--ink3);background:var(--soft);border-radius:8px;padding:8px 10px}
-.chat-window{max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:8px}
-.chat-msg{max-width:86%;padding:8px 12px;border-radius:12px;font-size:14px;overflow-wrap:anywhere}
-.chat-msg.client{align-self:flex-end;background:var(--primary-soft)}
-.chat-msg.consultant{align-self:flex-start;background:var(--soft);border:0}
-.chat-msg .t{font-size:11px;color:var(--ink3)}
-.chat-compose{display:flex;gap:8px;align-items:flex-end}
-.chat-compose textarea{flex:1;min-height:44px;font-size:15px;padding:10px 12px}
-.chat-compose button{min-height:44px;padding:0 18px;font-size:15px}
-.steps{display:flex;gap:0;margin:0}
-.step .dot{width:26px;height:26px}
-.step.done .dot{background:var(--ok);border-color:var(--ok)}
-.step.now .dot{border-color:var(--primary)}
-#cmSteps .ln{top:13px}
-.toast{position:fixed;left:50%;bottom:max(20px,env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:10px;padding:12px 18px;font-size:14.5px;z-index:9999;max-width:calc(100vw - 32px);box-shadow:0 10px 30px rgba(0,0,0,.2)}
-#reasonMask{position:fixed;inset:0;background:rgba(15,25,35,.45);z-index:85;display:none;align-items:center;justify-content:center;padding:16px}
-#reasonMask.show{display:flex}
-#reasonMask textarea{width:100%;padding:10px 12px;min-height:96px}
-.dt-modal{width:min(440px,94vw);border-radius:14px;padding:20px;background:var(--surface)}
-.dt-modal input,.dt-modal textarea{min-height:44px}
-.dt-modal .cm-fbtn{min-height:44px}
-#slotsModalAddRow{color:var(--primary)!important;min-height:44px;font-weight:700}
-.slot-row input,.slot-row select{min-height:44px}
-.slot-row .slot-rm{min-height:44px}
-
-/* 職缺需求 */
-.note{background:var(--surface);border:1px solid var(--line);border-left:0;border-radius:12px}
-.bar input,.bar select{min-height:44px}
-.picklist{display:grid;gap:10px}
-.jc{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:grid;gap:10px;cursor:pointer}
-.jc:hover{border-color:var(--primary)}
-.jc-top{display:flex;justify-content:space-between;align-items:start;gap:10px;flex-wrap:wrap}
-.jc-top b{font-size:16px}
-.jc-prog{height:8px;border-radius:4px;background:var(--line);overflow:hidden}
-.jc-prog i{display:block;height:100%;background:var(--primary)}
-.jc-miss{display:flex;gap:6px;flex-wrap:wrap;font-size:13px;align-items:center}
-.jc-miss span{background:var(--attn-soft);color:var(--attn);border-radius:999px;padding:2px 10px}
-.jc .btns button{min-height:44px;font-size:14px;padding:0 14px}
-.jc .del{background:transparent;border:0;color:var(--ink3);text-decoration:underline;font-weight:500;padding:0 8px}
-.job{border-radius:14px;border-color:var(--line)}
-.job > h2{background:var(--soft)}
-.savebar{background:var(--soft)}
-.back{min-height:44px}
-
-/* 收費 */
-.pay{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:grid;gap:10px;margin-bottom:10px}
-.pay-top{display:flex;justify-content:space-between;align-items:start;gap:10px;flex-wrap:wrap}
-.pay-top b{font-size:16px}
-.inst{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px}
-.inst > div{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;gap:2px;font-size:14px}
-.inst .paid{background:var(--ok-soft);border-color:transparent}
-.inst .sent{background:var(--primary-soft);border-color:transparent}
-.inst .due{background:var(--attn-soft);border-color:transparent}
-.bill-modal{border-radius:14px}
-.bill-modal .close{width:44px;height:44px;min-width:44px;min-height:44px}
-.bu-go{min-height:44px;border-radius:10px!important;background:var(--primary)!important}
-@media (max-width:640px){.wrap{padding:0 16px}}
-.jc-top .pl{justify-self:start}
-header .beta-tag{white-space:nowrap}
-@media (max-width:640px){header b{font-size:15px;white-space:nowrap}header #coname{font-size:12px;line-height:1.4;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
-[hidden]{display:none!important}
-
-/* 2026-10-28 檢查補：職缺表單的選項 chip、刪除連結手指點得到 */
-.fcChip{min-height:44px;display:inline-flex;align-items:center;padding:0 14px;font-size:14px}
-.fcChip.picked{background:var(--primary);border-color:var(--primary)}
-.jc .del{min-height:44px}
-.bu-go{width:auto;justify-self:start}
-
-/* 2026-10-28 付款：每一期一張可點的卡＋「付款怎麼走」 */
-.inst-card{all:unset;box-sizing:border-box;cursor:pointer;border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;gap:2px;font-size:14px;color:var(--ink);background:var(--surface);min-height:44px}
-.inst-card:hover{border-color:var(--primary)}
-.inst-card:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
-.inst-card.paid{background:var(--ok-soft);border-color:transparent}
-.inst-card.sent{background:var(--primary-soft);border-color:transparent}
-.inst-card.due{background:var(--attn-soft);border-color:transparent}
-.inst-go{font-size:13px;color:var(--primary);font-weight:700;margin-top:4px}
-.payflow{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-bottom:18px}
-.payflow summary{cursor:pointer;font-weight:700;min-height:32px;display:flex;align-items:center}
-.payflow ol{margin:8px 0 0;padding-left:22px;display:grid;gap:6px;font-size:14.5px}
-
-/* 2026-10-28 付款流程圖：桌機橫排＋箭頭，手機直排 */
-.pf{list-style:none;margin:12px 0 0;padding:0;display:grid;grid-template-columns:repeat(5,1fr);gap:22px}
-.pf-step{position:relative;display:grid;justify-items:center;text-align:center;gap:4px;padding:14px 10px;border-radius:12px;background:var(--soft)}
-.pf-step:not(:last-child)::after{content:"";position:absolute;right:-17px;top:38px;width:12px;height:12px;border-top:2.5px solid var(--primary);border-right:2.5px solid var(--primary);transform:rotate(45deg)}
-.pf-ic{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:var(--surface);color:var(--primary);border:2px solid var(--primary)}
-.pf-ic svg{width:24px;height:24px}
-.pf-n{font-family:var(--f-num);font-size:12px;font-weight:700;color:var(--ink3)}
-.pf-step b{font-size:15px}
-.pf-d{font-size:13px;color:var(--ink2);line-height:1.5}
-.pf-src{font-size:12px;color:var(--ink3);overflow-wrap:anywhere}
-.pf-step.opt{background:var(--surface);border:2px dashed var(--line)}
-.pf-step.opt .pf-ic{border-style:dashed}
-.pf-opt{font-size:11.5px;font-weight:700;color:var(--attn);background:var(--attn-soft);border-radius:999px;padding:0 8px}
-.pf-step.done{background:var(--ok-soft)}
-.pf-step.done .pf-ic{color:var(--ok);border-color:var(--ok)}
-.pf-note{margin:12px 0 0;font-size:13.5px;color:var(--ink3)}
-@media (max-width:820px){
-  .pf{grid-template-columns:1fr;gap:18px}
-  .pf-step{grid-template-columns:48px 1fr;justify-items:start;text-align:left;column-gap:12px;align-items:center}
-  .pf-step .pf-ic{grid-row:span 4}
-  .pf-step:not(:last-child)::after{right:auto;left:30px;top:auto;bottom:-14px;transform:rotate(135deg)}
-}
-
-/* 職缺地點、小鈴鐺動態 */
-.jc-loc{display:inline-flex;align-items:center;gap:4px;font-size:14px;color:var(--ink2)}
-.jc-loc svg{width:16px;height:16px;color:var(--primary);flex-shrink:0}
-.jc-loc .muted-loc{color:var(--attn)}
-.notify-menu{width:340px;max-height:70vh;overflow:auto}
-.bell-head{font-weight:700;font-size:13px;color:var(--ink3);padding:6px 10px}
-.notify-item{all:unset;box-sizing:border-box;display:grid;gap:2px;width:100%;padding:10px;border-radius:9px;cursor:pointer;border-top:1px solid var(--line);font-size:13.5px;min-height:44px}
-.notify-item:hover{background:var(--soft)}
-.notify-item.fresh{background:var(--primary-soft)}
-.notify-item.fresh .bell-t::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--bad);margin-right:6px;vertical-align:middle}
-.notify-item span{font-size:12.5px;color:var(--ink3)}
-.notify-item .bell-t{font-size:13.5px;color:var(--ink)}
-.bell-at{font-size:11.5px!important}
-.notify-item .bell-t b{display:inline;font-size:13.5px}
-.notify-item .bell-t{display:block}
-
-/* 2026-10-28 補回舊版：階段統計列、卡片上的推薦日／LINE ID／人事資料表 */
-.cstats{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 18px}
-.cstat{min-height:44px;border-radius:999px;background:var(--surface);color:var(--ink2);border:1px solid var(--line);padding:0 14px;font-size:14px;display:inline-flex;align-items:center;gap:6px}
-.cstat b{font-family:var(--f-num);font-weight:600;color:var(--ink)}
-.cstat.on{background:var(--ink);color:var(--surface);border-color:var(--ink)}
-.cstat.on b{color:var(--surface)}
-.cstats-m{display:none;width:100%;margin:0 0 16px;padding:0 10px}
-@media (max-width:640px){.cstats{display:none}.cstats-m{display:block}}
-.cmeta{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:12.5px;color:var(--ink3);margin-top:4px}
-.cmeta-form{color:var(--attn);background:var(--attn-soft);border-radius:999px;padding:0 8px}
-a.cmeta-form.ok{color:var(--ok);background:var(--ok-soft);text-decoration:none;font-weight:700}
-
-.trk-lb span{display:grid;line-height:1.3}
-.trk-d{font-style:normal;font-size:11.5px;color:var(--ink3);font-weight:500}
-
 </style>
 
 <header><div class="wrap" style="position:relative">
-  <b>STEP1NE 客戶專區</b><span id="coname"></span>
+  <b>STEP1NE 用人需求表</b><span id="coname"></span>
   <div class="notify-wrap">
     <button class="notify-btn" id="notifyBtn" title="人選訊息通知">
       <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
@@ -597,23 +358,40 @@ a.cmeta-form.ok{color:var(--ok);background:var(--ok-soft);text-decoration:none;f
   <div id="loading" class="state">讀取中…</div>
   <div id="content" hidden>
     <div class="toptabs">
-      <button type="button" class="toptab on" id="tabCandidates">推薦人選</button>
-      <button type="button" class="toptab" id="tabJobs">職缺需求</button>
-      <button type="button" class="toptab" id="tabBilling">付款</button>
+      <button type="button" class="toptab on" id="tabCandidates">人選進度</button>
+      <button type="button" class="toptab" id="tabBilling">收費進程</button>
+      <button type="button" class="toptab" id="tabJobs">用人需求表</button>
     </div>
     <div id="billingView" hidden>
-      
+      <div class="dash-helper" style="margin:14px 0">每位人選報到後依合約分期比例自動列出到期日；「已收款」是 Step1ne 內部標記，僅供對帳參考。</div>
       <div id="billingList" class="state">讀取中…</div>
     </div>
     <div id="candidatesView">
-      <div class="cl-bar">
-        <input type="search" id="candSearch" placeholder="搜尋人選姓名" aria-label="搜尋人選姓名">
-        <select id="candJob" aria-label="只看某個職缺" hidden></select>
+      <section class="dash-stats" id="dashStats"></section>
+      <div class="dash-layout">
+        <aside class="dash-panel">
+          <h2 style="margin:0 0 6px;font-size:16px">招募漏斗</h2>
+          <div class="dash-helper">依職缺分別統計，顧問接觸中到已到職各階段的人數。</div>
+          <div id="dashFunnel"></div>
+        </aside>
+        <main class="dash-panel">
+          <div class="dash-main-top">
+            <div class="dash-chips" id="dashChips"></div>
+            <div class="dash-search-area">
+              <div class="dash-view-switch">
+                <button class="dash-view-btn on" id="dashTableBtn" type="button">表格式</button>
+                <button class="dash-view-btn" id="dashCardBtn" type="button">卡片式</button>
+              </div>
+              <input class="dash-search" id="dashSearch" placeholder="搜尋人選 / LINE ID">
+            </div>
+          </div>
+          <div id="dashTableView"></div>
+          <div id="dashCardView" hidden></div>
+        </main>
       </div>
-      <div id="candList"><div class="state">讀取中…</div></div>
     </div>
     <div id="pickView" hidden>
-      <div class="meet-state" style="margin-bottom:12px">填得越完整，顧問找的人越準。橘色標籤是還沒填的必填項目。</div>
+      <div class="note">請先從下面選一個職缺開始填寫。黃色標籤代表這格還有資料還沒補上。</div>
       <div class="bar">
         <input type="search" id="q" placeholder="搜尋職缺名稱…">
         <select id="fl">
@@ -636,7 +414,7 @@ a.cmeta-form.ok{color:var(--ok);background:var(--ok-soft);text-decoration:none;f
       <div id="picklist" class="picklist"></div>
     </div>
     <div id="jobView" hidden>
-      <button class="back sec" id="backBtn">← 回到職缺清單</button>
+      <button class="back" id="backBtn">← 回到職缺清單</button>
       <div id="jobs"></div>
     </div>
   </div>
@@ -672,37 +450,45 @@ a.cmeta-form.ok{color:var(--ok);background:var(--ok-soft);text-decoration:none;f
 </div>
 
 <div id="candModalMask">
-  <aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="cmName">
-    <div class="dw-top">
-      <div><h3 id="cmName"></h3><div id="cmSub"></div></div>
-      <button type="button" class="dw-x" id="cmClose" aria-label="關閉">×</button>
+  <div class="cand-modal">
+    <div class="cand-modal-top">
+      <div>
+        <h3 id="cmName" style="margin:0 0 4px;font-size:20px"></h3>
+        <div id="cmSub" style="font-size:13px;color:var(--ink3)"></div>
+      </div>
+      <button type="button" class="cand-modal-close" id="cmClose">×</button>
     </div>
-    <div class="dw-body">
-      <div class="bx next" id="cmNext"></div>
-      <div class="bx" id="cmMeet" hidden></div>
-      <div class="bx" id="cmNoteBlock"></div>
-      <div class="bx"><h4>資料</h4><div class="cm-file-grid" id="cmFiles"></div></div>
-      <div class="bx">
-        <h4>跟顧問討論這位人選</h4>
+    <div class="cand-modal-body">
+      <div class="steps" id="cmSteps" style="margin-bottom:16px"></div>
+
+      <div class="chat-box" style="margin-top:0">
+        <h4 style="margin:0 0 8px;font-size:14px">💬 跟顧問討論這位人選</h4>
         <div class="chat-window" id="cmChatWindow"></div>
         <div class="chat-compose">
-          <textarea id="cmChatInput" placeholder="輸入要傳給顧問的訊息…" aria-label="傳給顧問的訊息"></textarea>
+          <textarea id="cmChatInput" placeholder="輸入要傳給顧問的訊息…"></textarea>
           <button type="button" id="cmChatSend">送出</button>
         </div>
       </div>
-      <div class="bx"><h4>進度</h4><div class="steps" id="cmSteps"></div><div class="meet-state" id="cmInfo"></div></div>
-    </div>
-  </aside>
-</div>
 
-<div id="reasonMask">
-  <div class="dt-modal" role="dialog" aria-modal="true" aria-labelledby="reasonTitle">
-    <h4 id="reasonTitle" style="margin:0 0 10px;font-size:16px"></h4>
-    <textarea id="reasonInput" rows="3" aria-labelledby="reasonTitle"></textarea>
-    <div id="reasonErr" class="meet-state err" style="min-height:1.5em"></div>
-    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px">
-      <button type="button" class="sec" id="reasonCancel">取消</button>
-      <button type="button" id="reasonOk">確認</button>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px">
+        <div>
+          <div class="cm-section">
+            <h4>基本資料</h4>
+            <div class="cm-info-grid" id="cmInfo"></div>
+          </div>
+          <div class="cm-section">
+            <h4>文件與表單</h4>
+            <div class="cm-file-grid" id="cmFiles"></div>
+          </div>
+        </div>
+        <div>
+          <div class="cm-section" id="cmNoteBlock"></div>
+          <div class="cm-section">
+            <h4>更新進度</h4>
+            <div id="cmUpdateBox"></div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -875,12 +661,7 @@ function fcApplyImported(parsed) {
   var n = 0;
   Object.keys(parsed || {}).forEach(function (key) {
     if (!fcFieldByKey(key)) return;
-    // 2026-10-28：AI 解析可能回陣列或數字，原樣塞進來會讓福利欄 split 壞掉、存檔被後端拒收
-    var v = parsed[key];
-    if (Array.isArray(v)) v = v.map(String).join('、');
-    else if (v !== null && typeof v === 'object') return;
-    else if (v !== null && v !== undefined) v = String(v);
-    FC_VALUES[key] = v;
+    FC_VALUES[key] = parsed[key];
     FC_AI_FILLED[key] = true;
     n++;
   });
@@ -1150,7 +931,7 @@ function fcConfirmAction() {
   var goBtn = document.getElementById('fcPvGoBtn');
   if (goBtn) { goBtn.disabled = true; goBtn.textContent = '處理中…'; }
   var done = function () { if (goBtn) goBtn.disabled = false; fcClosePreview(); };
-  if (typeof FC_ON_SUBMIT === 'function') { Promise.resolve(FC_ON_SUBMIT(fcCollectValues())).then(done).catch(function () { done(); toast('連線失敗，內容可能還沒送出，請稍後再按一次'); }); }
+  if (typeof FC_ON_SUBMIT === 'function') { Promise.resolve(FC_ON_SUBMIT(fcCollectValues())).then(done).catch(done); }
   else { done(); }
 }
 
@@ -1182,9 +963,8 @@ async function load(){
   document.getElementById('content').hidden = false;
 
   if (!data.jobs.length){
-    // 2026-10-28：原本把整條工具列藏起來，「＋新增職缺」也一起不見，新客戶沒辦法自己開第一個職缺
-    document.getElementById('picklist').innerHTML = '<div class="cl-empty">還沒有職缺。按右上「＋ 新增職缺」開始填第一個，或請顧問幫你建立。</div>';
-    document.getElementById('q').hidden = true; document.getElementById('fl').hidden = true;
+    document.getElementById('picklist').innerHTML = '<div class="state">目前還沒有職缺掛在這個入口，請聯繫顧問。</div>';
+    document.querySelector('.bar').hidden = true;
   } else {
     renderPicklist();
   }
@@ -1197,31 +977,12 @@ function jobFilled(job, fields){
   return fields.filter(k => job[k] !== null && job[k] !== '').length;
 }
 
-// ===== 2026-10-28 改版（測試版）：職缺清單改卡片，直接寫「還缺哪幾項必填」=====
-function jobMissingRequired(job){
-  const out = [];
-  FC_CARDS.forEach(d => d.core.concat(d.more).forEach(q => {
-    if (q.required && (job[q.k] === null || job[q.k] === undefined || job[q.k] === '')) out.push(q.lClient || q.l);
-  }));
-  return out;
-}
-// 2026-10-28 Jacky：「每一個職缺名稱下方要顯示工作地點」——同名職缺（兩個 BIM 工程師）也靠地點分得出來。
-// locations 有的是純文字、有的是 ['新竹'] 這種清單格式，統一成「新竹、台中」。
-function jobLocText(v){
-  let s = String(v || '').trim();
-  if (!s) return '';
-  try { const p = JSON.parse(s.replace(/'/g, '"')); if (Array.isArray(p)) s = p.map(String).join('、'); } catch {}
-  return s.replace(/^\[|\]$/g, '').replace(/['"]/g, '').trim();
-}
-function jobLocHtml(job){
-  const loc = jobLocText(job.locations);
-  return `<span class="jc-loc"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>${loc ? esc(loc) : '<span class="muted-loc">工作地點還沒填</span>'}</span>`;
-}
 function renderPicklist(){
   const fields = PORTAL_DATA.fields;
   const q = document.getElementById('q').value.trim().toLowerCase();
   const fl = document.getElementById('fl').value;
   const listEl = document.getElementById('picklist');
+
   const rows = PORTAL_DATA.jobs.filter(job => {
     if (q && !(job.title || job.slug || '').toLowerCase().includes(q)) return false;
     const filled = jobFilled(job, fields);
@@ -1229,51 +990,62 @@ function renderPicklist(){
     if (fl === 'complete' && filled < fields.length) return false;
     return true;
   });
-  if (!rows.length){ listEl.innerHTML = '<div class="cl-empty">找不到符合條件的職缺。</div>'; return; }
+
+  if (!rows.length){ listEl.innerHTML = '<div class="state">找不到符合條件的職缺。</div>'; return; }
+
   listEl.innerHTML = rows.map(job => {
-    const title = esc(job.title || job.slug);
-    if (job.status === 'pending_review'){
-      return `<div class="jc" data-slug="${esc(job.slug)}" data-pending="1" style="cursor:default">
-        <div class="jc-top"><b>${title}</b><span class="pl todo">顧問確認中</span></div>
-        <div class="meet-state">顧問確認後就能修改，通常一個工作天內。</div></div>`;
+    const pending = job.status === 'pending_review';
+    if (pending){
+      return `<div class="pick" data-slug="${esc(job.slug)}" data-pending="1" style="opacity:.7">
+        <b>${esc(job.title || job.slug)}</b>
+        <span class="cnt" style="color:#c98a1e;font-weight:700">審核中</span>
+      </div>`;
+    }
+    // 2026-08-25 加：職缺清單這裡原本完全看不出目前是招募中還是已結束——
+    // 點進去才看得到結束招募／重新招募按鈕，客戶不點進去根本不知道有這個功能。
+    // 清單就要看得到狀態，不用先猜哪個職缺可能被關掉了才點進去確認。
+    let statusBadge = '<span class="cnt" style="color:var(--ok)">● 招募中</span>';
+    let hireBtn = job.status === 'open'
+      ? `<button type="button" class="sec hire-toggle-btn" data-slug="${esc(job.slug)}" data-action="close" style="padding:4px 10px;font-size:11.5px;margin-top:4px">結束招募</button>`
+      : '';
+    // 2026-08-25 改：不管是客戶自己關的還是顧問關的，都給「重新招募」按鈕——
+    // 兩種情況都要讓客戶能自己重啟。
+    if (job.status === 'closed'){
+      statusBadge = job.closed_by === 'client'
+        ? '<span class="cnt" style="color:#c98a1e;font-weight:700">已結束招募（可重新開啟）</span>'
+        : '<span class="cnt" style="color:#c98a1e;font-weight:700">顧問已關閉（可重新開啟）</span>';
+      hireBtn = `<button type="button" class="sec hire-toggle-btn" data-slug="${esc(job.slug)}" data-action="reopen" style="padding:4px 10px;font-size:11.5px;margin-top:4px">重新招募</button>`;
     }
     const filled = jobFilled(job, fields);
-    const pct = Math.round(filled / Math.max(1, fields.length) * 100);
-    const miss = jobMissingRequired(job);
-    const closed = job.status === 'closed';
-    const draft = job.status === 'client_draft';
-    // 2026-10-28：顧問核准了但還沒刊登（status='draft'）原本被當成「招募中」，還給了按了會出錯的「結束招募」
-    const staging = job.status === 'draft';
-    const statusPill = closed
-      ? `<span class="pl end">${job.closed_by === 'client' ? '已結束招募' : '顧問已關閉'}</span>`
-      : draft ? '<span class="pl todo">還沒送出給顧問</span>'
-      : staging ? '<span class="pl act">顧問準備刊登中</span>'
-      : '<span class="pl ok">招募中</span>';
-    return `<div class="jc" data-slug="${esc(job.slug)}" role="button" tabindex="0" aria-label="打開職缺 ${title}">
-      <div class="jc-top"><div style="display:grid;gap:4px"><b>${title}</b>${jobLocHtml(job)}${statusPill}</div>
-        <div class="btns">
-          <button type="button" class="${miss.length ? '' : 'sec'} open-job-btn">${miss.length ? '繼續填' : '查看／修改'}</button>
-          ${(draft || staging) ? '' : `<button type="button" class="sec hire-toggle-btn" data-slug="${esc(job.slug)}" data-action="${closed ? 'reopen' : 'close'}">${closed ? '重新招募' : '結束招募'}</button>`}
-        </div></div>
-      <div><div class="jc-prog"><i style="width:${pct}%"></i></div><div class="meet-state num" style="margin-top:4px">已填 ${filled} / ${fields.length} 項${filled >= fields.length ? '・全部填好了' : ''}</div></div>
-      ${miss.length ? `<div class="jc-miss"><span style="background:none;color:var(--ink3);padding:0">還缺必填：</span>${miss.map(m => `<span>${esc(m)}</span>`).join('')}</div>` : ''}
-      <div><button type="button" class="del delete-job-btn" data-slug="${esc(job.slug)}">刪除這個職缺</button></div>
+    // 2026-09-02 加：刪除職缺——只在清單上出現按鈕，實際准不准刪由後端判斷
+    // （已經有人應徵過就一律擋下來，不讓客戶自己刪，避免弄丟人選進度紀錄）。
+    // 前端不用先猜「這筆有沒有應徵紀錄」才要不要顯示按鈕，按了送出去讓後端
+    // 說清楚原因就好，這樣邏輯只有一份、不會前後端各自維護一套判斷標準。
+    return `<div class="pick" data-slug="${esc(job.slug)}">
+      <b>${esc(job.title || job.slug)}</b>
+      <span class="cnt" style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
+        ${statusBadge}
+        <span style="font-size:11.5px;color:var(--ink3)">已填 ${filled} / ${fields.length}</span>
+        ${hireBtn}
+        <button type="button" class="sec delete-job-btn" data-slug="${esc(job.slug)}" style="padding:4px 10px;font-size:11.5px;margin-top:4px;color:#c0392b;border-color:#c0392b">🗑 刪除職缺</button>
+      </span>
     </div>`;
   }).join('');
-  listEl.querySelectorAll('.jc').forEach(el => {
-    const open = (e) => {
-      if (e.target.closest('.hire-toggle-btn') || e.target.closest('.delete-job-btn')) return;
-      if (el.dataset.pending) return;
+  listEl.querySelectorAll('.pick').forEach(el => {
+    el.addEventListener('click', (e) => {
+      if (e.target.closest('.hire-toggle-btn') || e.target.closest('.delete-job-btn')) return; // 這些按鈕自己處理，不要連帶打開職缺
+      if (el.dataset.pending) { alert('這個職缺還在等顧問確認，核准後才能編輯內容。'); return; }
       openJob(el.dataset.slug);
-    };
-    el.addEventListener('click', open);
-    el.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target === el) open(e); });
+    });
   });
+  // 2026-08-25 加：結束招募／重新招募直接在清單上就能按，不用先點進職缺才看得到——
+  // 客戶之前就是因為這個按鈕藏在職缺內頁，才會覺得「怎麼都沒有」。
   listEl.querySelectorAll('.hire-toggle-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
-      if (btn.dataset.action === 'close') closeHire(btn.dataset.slug, renderPicklist);
-      else reopenHire(btn.dataset.slug, renderPicklist);
+      const slug = btn.dataset.slug;
+      if (btn.dataset.action === 'close') closeHire(slug, renderPicklist);
+      else reopenHire(slug, renderPicklist);
     });
   });
   listEl.querySelectorAll('.delete-job-btn').forEach(btn => {
@@ -1281,7 +1053,7 @@ function renderPicklist(){
       e.stopPropagation();
       const slug = btn.dataset.slug;
       const job = PORTAL_DATA.jobs.find(j => j.slug === slug);
-      if (!(await confirmBox(`確定要刪除「${(job && (job.title || job.slug)) || slug}」這個職缺嗎？如果已經有人應徵過會刪不掉，系統會告訴你原因。`, '刪除'))) return;
+      if (!confirm(`確定要刪除「${(job && (job.title || job.slug)) || slug}」這個職缺嗎？如果已經有人應徵過會刪不掉，系統會告訴你原因。`)) return;
       btn.disabled = true;
       try{
         const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/jobs/${encodeURIComponent(slug)}`, { method: 'DELETE' });
@@ -1295,7 +1067,6 @@ function renderPicklist(){
     });
   });
 }
-
 
 document.getElementById('newJobBtn').addEventListener('click', () => {
   document.getElementById('newJobBox').hidden = false;
@@ -1320,13 +1091,7 @@ document.getElementById('newJobSubmit').addEventListener('click', async () => {
     if (!data.ok){ errEl.textContent = data.error || '送出失敗'; errEl.hidden = false; btn.disabled = false; return; }
     document.getElementById('newJobBox').hidden = true;
     document.getElementById('newJobTitle').value = '';
-    // 2026-10-28：後端建立時會帶入公司簡介／聯絡窗口，前端要重抓，不然第一次存檔會把它們蓋成空白
-    try {
-      const r2 = await fetch(`${API}/portal/${encodeURIComponent(token)}`);
-      const d2 = await r2.json();
-      if (d2.ok) PORTAL_DATA.jobs = d2.jobs; else PORTAL_DATA.jobs.push({ slug: data.slug, title, status: 'client_draft' });
-    } catch { PORTAL_DATA.jobs.push({ slug: data.slug, title, status: 'client_draft' }); }
-    document.getElementById('q').hidden = false; document.getElementById('fl').hidden = false;
+    PORTAL_DATA.jobs.push({ slug: data.slug, title, status: 'client_draft' });
     openJob(data.slug);
   }catch{
     errEl.textContent = '連線失敗，請稍後再試'; errEl.hidden = false;
@@ -1387,7 +1152,7 @@ async function loadJobForms(slug){
     </div>`;
   box.querySelectorAll('.jfDel').forEach(btn => {
     btn.addEventListener('click', async () => {
-      if (!(await confirmBox('確定要刪除這份表單嗎？已經寄出的不受影響，只是之後不會再自動附上。', '刪除'))) return;
+      if (!confirm('確定要刪除這份表單嗎？已經寄出的不受影響，只是之後不會再自動附上。')) return;
       await fetch(`${API}/portal/${encodeURIComponent(token)}/jobs/${encodeURIComponent(slug)}/forms/${encodeURIComponent(btn.dataset.id)}/delete`, { method: 'POST' });
       loadJobForms(slug);
     });
@@ -1440,7 +1205,7 @@ function renderStageConfigBox(job){
       <b>這個職缺有幾階段面試？</b>
       <span class="stage-config-summary">${esc(summary)}</span>
     </div>
-    <div class="stage-config-sub">第一階段面談是每個職缺都有的基本關卡，不用勾選。還有更多輪面試的話在這裡勾起來；也可以在人選面板面完一關時，直接按「還要再面一關」。</div>
+    <div class="stage-config-sub">第一階段面談是每個職缺都有的基本關卡，不用勾選。如果實際上還有更多輪面試，在這裡勾起來——「人選進度」表格的面試階段欄位才會出現對應的選項。</div>
     <div class="stage-config-opts">
       ${order.map(k => `<label><input type="checkbox" class="stage-chk" value="${k}"${stages.includes(k) ? ' checked' : ''}> ${labelOf[k]}</label>`).join('')}
     </div>
@@ -1477,7 +1242,7 @@ function wireStageConfigBox(root, slug){
           body: JSON.stringify({ interview_stage_config: JSON.stringify(hidden.value) }),
         });
         const data = await res.json();
-        if (!data.ok){ alert(data.error || '儲存失敗，請重新勾選一次'); if (summaryEl) summaryEl.textContent = '沒有存成功，請重新勾選一次'; box.querySelectorAll('.stage-chk').forEach(c => { c.disabled = false; }); return; }
+        if (!data.ok){ alert(data.error || '儲存失敗，請重新勾選一次'); }
         const jobRecord = PORTAL_DATA.jobs.find(j => j.slug === slug);
         if (jobRecord) jobRecord.interview_stage_config = hidden.value;
       }catch{
@@ -1498,24 +1263,22 @@ function renderJob(job, fields){
   div.innerHTML = `
     <h2>${esc(job.title || job.slug)}<span class="cnt fcProgBar" id="fcProg" style="margin:0"></span></h2>
     ${renderStageConfigBox(job)}
-    ${job.status === 'client_draft' ? renderImportBox(job.slug) : ''}
+    ${renderImportBox(job.slug)}
     ${renderHireStateBox(job)}
     <div id="fcMissBanner"></div>
     <div id="fcWrap"></div>
     <div id="jobFormsBox"></div>
     <div class="savebar">
-      ${job.status === 'client_draft'
-        ? `<button type="button" class="sec save-btn">存檔（不送審，隨時可以回來改）</button>
-      <button type="button" class="submit-btn">看預覽，再送出審核 →</button>`
-        : `<button type="button" class="save-btn">儲存修改</button><span class="meet-state">這個職缺已經在顧問那邊，存了就會更新，顧問會收到通知。</span>`}
+      <button type="button" class="sec save-btn">存檔（不送審，隨時可以回來改）</button>
+      <button type="button" class="submit-btn">看預覽，再送出審核 →</button>
     </div>`;
 
   div.querySelector('.save-btn').addEventListener('click', (e) => quickSaveJob(job.slug, e.target));
-  if (div.querySelector('.submit-btn')) div.querySelector('.submit-btn').addEventListener('click', () => {
+  div.querySelector('.submit-btn').addEventListener('click', () => {
     FC_ON_SUBMIT = (values) => submitJobWithFacts(job.slug, values);
     fcOpenPreview();
   });
-  if (job.status === 'client_draft') wireImportBox(div, job.slug);
+  wireImportBox(div, job.slug);
   wireHireStateBox(div, job.slug);
   wireStageConfigBox(div, job.slug);
   return div;
@@ -1524,12 +1287,7 @@ function renderJob(job, fields){
 // 「存檔」——不經過預覽，隨時存、隨時可以離開再回來改，client_draft 階段本來就是這樣。
 async function quickSaveJob(slug, btn){
   btn.disabled = true;
-  const all = fcCollectValues();
-  const jobRec = PORTAL_DATA.jobs.find(j => j.slug === slug) || {};
-  const norm = (v) => (v === null || v === undefined) ? '' : String(v);
-  const payload = {};
-  Object.keys(all).forEach(k => { if (norm(all[k]) !== norm(jobRec[k])) payload[k] = all[k]; });
-  if (!Object.keys(payload).length) { btn.disabled = false; showSavedModal(); return; }
+  const payload = fcCollectValues();
   try{
     const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/jobs/${encodeURIComponent(slug)}`, {
       method: 'PUT', headers: {'content-type':'application/json'}, body: JSON.stringify(payload),
@@ -1593,8 +1351,9 @@ function wireHireStateBox(jobEl, slug){
   if (reopenBtn) reopenBtn.addEventListener('click', () => reopenHire(slug, () => openJob(slug)));
 }
 async function closeHire(slug, refreshFn){
-  const reason = await promptReason('結束招募的原因（例如：已透過其他管道找到人選）');
-  if (!reason) return;
+  const reason = prompt('請簡單說明結束招募的原因（例如：已透過其他管道找到人選）');
+  if (reason === null) return;
+  if (!reason.trim()){ alert('請填寫原因'); return; }
   try{
     const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/jobs/${encodeURIComponent(slug)}/close-hire`, {
       method: 'POST', headers: {'content-type':'application/json'}, body: JSON.stringify({ reason: reason.trim() }),
@@ -1609,8 +1368,9 @@ async function closeHire(slug, refreshFn){
   }
 }
 async function reopenHire(slug, refreshFn){
-  const reason = await promptReason('重新招募的原因');
-  if (!reason) return;
+  const reason = prompt('請簡單說明重新招募的原因');
+  if (reason === null) return;
+  if (!reason.trim()){ alert('請填寫原因'); return; }
   try{
     const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/jobs/${encodeURIComponent(slug)}/reopen`, {
       method: 'POST', headers: {'content-type':'application/json'}, body: JSON.stringify({ reason: reason.trim() }),
@@ -1817,54 +1577,6 @@ function billTenureText(onboardDate){
   if (days < 30) return `已到職 ${days} 天`;
   return `已到職約 ${Math.floor(days/30)} 個月（${days} 天）`;
 }
-// ===== 2026-10-28 改版（測試版）：收費改成一人一張卡，每一期直接攤開；快到期的放最上面提醒 =====
-// 2026-10-28 Jacky：付款頁要顯示金額，「但金額要正確」——同一位人選的每一期都要有金額，而且驗算得過
-// （未稅＋稅＝含稅、稅是 5%、各期金額比例跟百分比對得上、百分比加起來 100）才顯示；任何一項對不上就不顯示數字，
-// 寫「金額確認中」，寧可不給也不能給錯。
-const NT = (n) => 'NT$ ' + Number(n).toLocaleString('en-US');
-function billAmountsOk(rows){
-  if (!rows.length || rows.some(r => [r.amount_untaxed, r.amount_tax, r.amount_taxed].some(v => v === null || v === undefined || isNaN(Number(v))))) return false;
-  const total = rows.reduce((s, r) => s + Number(r.amount_untaxed), 0);
-  const pctSum = rows.reduce((s, r) => s + Number(r.percent), 0);
-  if (!total || Math.abs(pctSum - 100) > 0.01) return false;
-  return rows.every(r => {
-    const u = Number(r.amount_untaxed), x = Number(r.amount_tax), t = Number(r.amount_taxed);
-    return u + x === t && Math.abs(x - u * 0.05) <= 1 && Math.abs(u / total * 100 - Number(r.percent)) <= 0.5;
-  });
-}
-function billAmountHtml(r, ok){
-  if (!ok) return '<span class="meet-state">金額確認中</span>';
-  return `<span class="num" style="font-size:16px;font-weight:700">${NT(r.amount_taxed)}</span><span class="meet-state num" style="font-size:12.5px">未稅 ${Number(r.amount_untaxed).toLocaleString('en-US')}＋稅 ${Number(r.amount_tax).toLocaleString('en-US')}${r.invoice_no ? '・發票 ' + esc(r.invoice_no) : ''}</span>`;
-}
-// 2026-10-28 Jacky：「點第一期可以看到上傳證明」——每一期自己一張卡，點了看這一期的細節：
-// 已付的看收款日、發票、匯款證明；還沒付的就在這裡上傳（原本整個人選只有一顆「上傳匯款證明」，不知道是哪一期）。
-function openInstModal(gi, id){
-  const rows = BILL_GROUPS[gi] || [];
-  const r = rows.find(x => String(x.id) === String(id));
-  if (!r) return;
-  const ok = billAmountsOk(rows);
-  const b = billStatusBlock(r);
-  const paid = r.confirmed_received === 'yes' || r.paid;
-  const facts = [
-    ['到期日', fmtSlot(r.due_date)],
-    paid && (r.paid_date || r.confirmed_date) ? ['收款日', fmtSlot(r.paid_date || r.confirmed_date)] : null,
-    r.client_transfer_date ? ['你回報的匯款日', fmtSlot(r.client_transfer_date)] : null,
-    r.invoice_no ? ['發票號碼', r.invoice_no] : null,
-  ].filter(Boolean);
-  document.getElementById('billModalBody').innerHTML =
-    `<h3 style="margin:0 0 2px">${esc(r.candidate_name)}・${esc(r.label)}（${esc(r.percent)}%）</h3>` +
-    `<p class="meet-state" style="margin:0 0 12px">${esc(r.job_title || '')}</p>` +
-    `<div style="display:grid;gap:2px;margin-bottom:12px">${billAmountHtml(r, ok)}</div>` +
-    `<dl style="display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0 0 12px">${facts.map(([k, v]) => `<dt class="meet-state">${esc(k)}</dt><dd style="margin:0" class="num">${esc(v)}</dd>`).join('')}</dl>` +
-    `<div>${b.status}</div>` +
-    (r.has_proof ? `<div style="margin-top:10px"><a class="cm-fbtn" href="${API}/portal/${encodeURIComponent(token)}/billing/${encodeURIComponent(r.id)}/proof" target="_blank" rel="noopener">看你上傳的匯款證明</a></div>`
-      : (paid ? '<div class="meet-state" style="margin-top:8px">這一期沒有上傳匯款證明，是顧問對帳後直接確認的。</div>' : '')) +
-    b.action;
-  document.getElementById('billModalMask').classList.add('show');
-  document.querySelectorAll('#billModalBody .bu-go').forEach(btn => btn.addEventListener('click', () => submitBillProof(btn.closest('.bill-upload'))));
-}
-// 2026-10-28 Jacky：「建議用圖像化的流程圖解釋」——五步驟圖示＋箭頭，第 4 步虛線＝選填
-const PAY_STEPS_HTML = `<details class="payflow" open><summary>付款怎麼走</summary><ol class="pf"><li class="pf-step "><span class="pf-ic"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></span><span class="pf-n">1</span><b>人選報到</b><span class="pf-d">這裡列出每一期的金額和到期日</span></li><li class="pf-step "><span class="pf-ic"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span><span class="pf-n">2</span><b>收到請款信</b><span class="pf-d">到期前寄來請款信和發票<br><span class="pf-src">寄件人 official@step1ne.com</span></span></li><li class="pf-step "><span class="pf-ic"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10 12 4l9 6"/><path d="M5 10v8M9.5 10v8M14.5 10v8M19 10v8"/><path d="M3 20h18"/></svg></span><span class="pf-n">3</span><b>匯款</b><span class="pf-d">照請款信上的金額匯款</span></li><li class="pf-step opt"><span class="pf-ic"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="m6 10 6-6 6 6"/><path d="M4 20h16"/></svg></span><span class="pf-n">4</span><b>上傳證明</b><span class="pf-opt">選填</span><span class="pf-d">點那一期，按「我已匯款，上傳證明」</span></li><li class="pf-step done"><span class="pf-ic"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg></span><span class="pf-n">5</span><b>確認收到</b><span class="pf-d">那一期變成「✓ 已確認收到」</span></li></ol><p class="pf-note">第 4 步可以跳過：沒上傳證明也沒關係，我們對帳到款項一樣會幫你標記「已確認收到」。</p></details>`;
 async function loadBilling(){
   BILLING_LOADED = true;
   const el = document.getElementById('billingList');
@@ -1873,74 +1585,52 @@ async function loadBilling(){
   try {
     const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/billing`);
     data = await res.json();
-  } catch { el.textContent = '連線失敗，請稍後再試。'; return; }
+  } catch {
+    el.textContent = '連線失敗，請稍後再試。';
+    return;
+  }
   if (!data.ok) { el.textContent = data.error || '讀取失敗'; return; }
   const items = data.installments || [];
-  el.className = '';
-  if (!items.length) { el.innerHTML = PAY_STEPS_HTML + '<div class="cl-empty">目前沒有要付款的項目。人選報到後，這裡會依合約列出每一期的金額和到期日。</div>'; return; }
+  if (!items.length) { el.textContent = '目前沒有收費排程資料。'; return; }
   const byPlacement = {};
   items.forEach(r => { (byPlacement[r.placement_id] = byPlacement[r.placement_id] || []).push(r); });
   BILL_GROUPS = Object.keys(byPlacement).map(k => byPlacement[k]);
-  const AMT_OK = BILL_GROUPS.map(rows => billAmountsOk(rows));
-  const today = taipeiNow().slice(0, 10);
-  const soon = new Date(Date.now() + 8 * 3600e3 + 14 * 86400e3).toISOString().slice(0, 10);
-  // 2026-10-28：手動標已收（paid）也算已付；顧問按「還沒收到」（'no'）要回到可上傳狀態，不能永遠卡在「等確認」
-  const instState = (r) => (r.confirmed_received === 'yes' || r.paid) ? ['paid', '✓ 顧問已確認收到']
-    : r.confirmed_received === 'no' ? ['due', '顧問還沒收到，請重新上傳證明']
-    : r.client_submitted_at ? ['sent', '已回報匯款，等顧問確認']
-    : (r.due_date && r.due_date <= soon) ? ['due', r.due_date < today ? '已過到期日，還沒付款' : '快到期，還沒付款']
-    : ['', '還沒付款'];
-  const dueRows = [];
-  BILL_GROUPS.forEach((rows, gi) => rows.forEach(r => { if (instState(r)[0] === 'due') dueRows.push({ r, gi }); }));
-  let html = PAY_STEPS_HTML.replace('<details class="payflow" open>', '<details class="payflow">');  // 有資料時預設收起，想看再點開
-  if (dueRows.length) {
-    // 已經過期的不能寫「快到期」（10/28 實例：10/18 到期的那期還寫快到期）
-    const overdueDays = (d) => Math.floor((Date.parse(today) - Date.parse(d)) / 86400000);
-    html += `<section class="cl-group todo"><h2>該付款了 <span class="n">${dueRows.length}</span></h2>${dueRows.map(({ r, gi }) => `
-      <div class="pay" style="border-color:#F0D3A3"><div class="pay-top"><div><b>${esc(r.candidate_name)}</b>　${esc(r.label)}・${esc(r.percent)}%</div>
-      <span class="pl todo num">${r.due_date < today ? `已過期 ${overdueDays(r.due_date)} 天（${esc(fmtSlot(r.due_date))} 到期）` : `${esc(fmtSlot(r.due_date))} 到期`}</span></div>
-      <div style="display:grid;gap:2px">${billAmountHtml(r, AMT_OK[gi])}</div>
-      <div class="btns"><button type="button" class="inst-open" data-gi="${gi}" data-id="${esc(r.id)}">我已匯款，上傳證明</button></div></div>`).join('')}</section>`;
-  }
-  html += `<section class="cl-group"><h2>已報到人選的付款 <span class="n">${BILL_GROUPS.length}</span></h2>` + BILL_GROUPS.map((rows, gi) => {
-    const r0 = rows[0];
-    const paidN = rows.filter(x => x.confirmed_received === 'yes' || x.paid).length;
-    const allPaid = paidN === rows.length;
-    const hasOpen = rows.some(r => instState(r)[0] === '' || instState(r)[0] === 'due');
-    return `<div class="pay">
-      <div class="pay-top"><div><b>${esc(r0.candidate_name)}</b><div class="meet-state">${esc(r0.job_title)}・<span class="num">${esc(fmtSlot(r0.onboard_date))}</span> 報到・${esc(billTenureText(r0.onboard_date))}</div></div>
-        <div style="display:grid;gap:4px;justify-items:end"><span class="pl ${allPaid ? 'ok' : 'act'} num">${allPaid ? '全部付清' : `已付 ${paidN} / ${rows.length} 期`}</span>
-        ${AMT_OK[gi] ? `<span class="meet-state num">總額 ${NT(rows.reduce((s, r) => s + Number(r.amount_taxed), 0))}（含稅）</span>` : ''}</div></div>
-      <div class="inst">${rows.map(r => { const s = instState(r); return `<button type="button" class="inst-card inst-open ${s[0]}" data-gi="${gi}" data-id="${esc(r.id)}"><b>${esc(r.label)}・${esc(r.percent)}%</b>${billAmountHtml(r, AMT_OK[gi])}<span class="num">到期 ${esc(fmtSlot(r.due_date))}</span><span style="font-weight:700">${esc(s[1])}</span><span class="inst-go">${s[0] === 'paid' ? '看明細 ›' : s[0] === 'sent' ? '看明細 ›' : '上傳證明／看明細 ›'}</span></button>`; }).join('')}</div>
-    </div>`;
-  }).join('') + `</section>`;
-  el.innerHTML = html;
-  el.querySelectorAll('.inst-open').forEach(b => b.addEventListener('click', () => openInstModal(Number(b.dataset.gi), b.dataset.id)));
+  el.className = '';
+  el.innerHTML = `<div class="dash-table-wrap"><table class="dash-table bill-table"><thead><tr>` +
+    `<th>人選</th><th>職缺</th><th>報到日期</th><th>到職多久</th><th>收款進度</th></tr></thead><tbody>` +
+    BILL_GROUPS.map((rows, gi) => {
+      const r0 = rows[0];
+      const paidN = rows.filter(x => x.paid).length;
+      const paidPct = Math.round(rows.filter(x => x.paid).reduce((s, x) => s + Number(x.percent), 0));
+      return `<tr class="billRow" data-gi="${gi}"><td>${esc(r0.candidate_name)}</td><td>${esc(r0.job_title)}</td>` +
+        `<td>${esc(r0.onboard_date)}</td><td>${esc(billTenureText(r0.onboard_date))}</td>` +
+        `<td><span class="progress"><i style="width:${paidPct}%"></i></span>${paidN}/${rows.length} 期已收（${paidPct}%）</td></tr>`;
+    }).join('') + `</tbody></table></div>`;
+  document.querySelectorAll('.billRow').forEach(tr => {
+    tr.addEventListener('click', () => openBillModal(BILL_GROUPS[Number(tr.dataset.gi)]));
+  });
 }
-
 // 2026-09-15 加：每一期改成可以直接上傳匯款證明＋選匯款日期，按「確認送出」＝
 // 「我已經匯款了」，會通知顧問到 Telegram 按已收到／還沒收到。已經回報過的（不管
 // 待確認還是已確認）不能重複送出，避免同一期送兩次搞混顧問要看哪一份證明。
 function billStatusBlock(r){
-  // 2026-10-28：手動標已收（paid）也算；顧問按「還沒收到」（confirmed_received='no'）要讓客戶能重新上傳
-  if (r.confirmed_received === 'yes' || r.paid) {
-    return { status: `<span style="color:var(--ok);font-weight:700">✓ 顧問已確認收到</span>`, action: '' };
+  if (r.confirmed_received === 'yes') {
+    return { status: `<span style="color:#2f8f5b;font-weight:700">✅ 顧問已收到</span>`, action: '' };
   }
-  if (r.client_submitted_at && r.confirmed_received !== 'no') {
-    return { status: `<span style="color:var(--attn);font-weight:700">已回報匯款，等顧問確認</span><br>` +
-      `<span style="color:var(--ink3);font-size:13px">匯款日期 ${esc(r.client_transfer_date || '')}</span>`, action: '' };
+  if (r.client_submitted_at) {
+    return { status: `<span style="color:#8a6100;font-weight:700">⏳ 已回報匯款，待顧問確認</span><br>` +
+      `<span style="color:var(--ink3);font-size:12px">匯款日期 ${esc(r.client_transfer_date || '')}</span>`, action: '' };
   }
-  const again = r.confirmed_received === 'no';
-  return { status: again ? `<span style="color:var(--bad);font-weight:700">顧問還沒收到這筆款項，請確認後重新上傳證明</span>` : `<span style="color:var(--ink3)">還沒付款</span>`, action:
-    `<div class="bill-upload" data-id="${esc(r.id)}" style="margin-top:8px;padding:12px;background:var(--soft);border-radius:10px;display:grid;gap:8px">` +
-    `<label style="display:grid;gap:4px;font-size:14px">匯款日期<input type="date" class="bu-date" max="${taipeiNow().slice(0, 10)}"></label>` +
-    `<label style="display:grid;gap:4px;font-size:14px">匯款單照片或 PDF（選填）<input type="file" class="bu-file" accept="image/*,.pdf" style="min-height:44px"></label>` +
-    `<button type="button" class="bu-go">我已匯款，送出</button>` +
-    `<div class="bu-msg" style="font-size:13px;color:var(--ink3)"></div></div>` };
+  return { status: `<span style="color:var(--ink3)">未收款</span>`, action:
+    `<div class="bill-upload" data-id="${esc(r.id)}" style="margin-top:8px;padding:10px;background:var(--soft);border-radius:10px">` +
+    `<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">` +
+    `<input type="date" class="bu-date" max="${new Date().toISOString().slice(0,10)}" style="font:inherit;font-size:13px;padding:6px 8px;border:1px solid var(--line);border-radius:8px">` +
+    `<input type="file" class="bu-file" accept="image/*,.pdf" style="font-size:12.5px;max-width:160px">` +
+    `<button type="button" class="bu-go" style="font:inherit;font-size:13px;font-weight:700;background:var(--gold);color:#fff;border:0;border-radius:999px;padding:7px 14px;cursor:pointer">我已匯款，確認送出</button>` +
+    `</div><div class="bu-msg" style="font-size:12px;color:var(--ink3);margin-top:6px"></div></div>` };
 }
 function openBillModal(rows){
   const r0 = rows[0];
-  const amtOk = (typeof billAmountsOk === 'function') && billAmountsOk(rows);
   document.getElementById('billModalBody').innerHTML =
     `<h3 style="margin:0 0 4px">${esc(r0.candidate_name)}</h3>` +
     `<p style="margin:0 0 4px;color:var(--ink3);font-size:13px">${esc(r0.job_title)}</p>` +
@@ -1949,8 +1639,8 @@ function openBillModal(rows){
       const b = billStatusBlock(r);
       return `<div style="border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px">` +
         `<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">` +
-        `<b>${esc(r.label)}</b><span style="color:var(--ink3);font-size:13px">${esc(r.percent)}%　·　到期 ${esc(fmtSlot(r.due_date))}</span>` +
-        `</div><div style="margin-top:6px;display:grid;gap:2px">${billAmountHtml(r, amtOk)}</div><div style="margin-top:6px">${b.status}</div>${b.action}</div>`;
+        `<b>${esc(r.label)}</b><span style="color:var(--ink3);font-size:13px">${esc(r.percent)}%　·　到期 ${esc(r.due_date)}</span>` +
+        `</div><div style="margin-top:6px">${b.status}</div>${b.action}</div>`;
     }).join('');
   document.getElementById('billModalMask').classList.add('show');
   document.querySelectorAll('.bu-go').forEach(btn => {
@@ -2009,508 +1699,268 @@ function shortStageLabel(lb){
 }
 
 async function loadCandidates(){
-  
+  document.getElementById('dashTableView').innerHTML = '<div class="state">讀取中…</div>';
   try{
     const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates`);
     const data = await res.json();
-    if (!data.ok){ document.getElementById('candList').innerHTML = `<div class="state">${esc(data.error || '讀取失敗')}</div>`; return; }
+    if (!data.ok){ document.getElementById('dashTableView').innerHTML = `<div class="state">${esc(data.error || '讀取失敗')}</div>`; return; }
     CANDIDATES_LOADED = true;
     CAND_LIST = data.candidates || [];
-    renderCandList();
+    renderChips();
+    renderTable();
+    renderCards();
+    loadFunnels();
     refreshNotifications();
   }catch{
-    document.getElementById('candList').innerHTML = '<div class="state">連線失敗，請稍後再試。</div>';
+    document.getElementById('dashTableView').innerHTML = '<div class="state">連線失敗，請稍後再試。</div>';
   }
 }
 
-// ===== 2026-10-28 改版（測試版）：人選改成「等你處理／進行中／已結束」三組卡片 =====
-// 原本是 9 欄表格＋下拉選單，客戶要自己橫向找欄位、自己判斷輪到誰；彈窗裡又不能操作。
-// 現在每位人選算出一個「下一步」，卡片上直接寫；點開右側面板，操作按鈕就在「下一步」那格裡。
-// 後端動作完全沿用原本的 tblAdvance／tblSetStage／tblReject／tblPropose，只換前端入口。
+async function loadFunnels(){
+  const slugs = [...new Set(CAND_LIST.map(c => c.job_slug).filter(Boolean))];
+  const statsEl = document.getElementById('dashStats');
+  const funnelEl = document.getElementById('dashFunnel');
+  if (!slugs.length){ statsEl.innerHTML = ''; funnelEl.innerHTML = '<div class="dash-helper">目前還沒有人選，漏斗數字會在有推薦後出現。</div>'; return; }
+  const results = await Promise.all(slugs.map(async slug => {
+    try{
+      const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/jobs/${encodeURIComponent(slug)}/funnel`);
+      const data = await res.json();
+      const title = (CAND_LIST.find(c => c.job_slug === slug) || {}).job_title || slug;
+      return data.ok ? { slug, title, funnel: data.funnel } : null;
+    }catch{ return null; }
+  }));
+  const rows = results.filter(Boolean);
+  if (!rows.length){ statsEl.innerHTML = ''; funnelEl.innerHTML = ''; return; }
+
+  // 總覽數字卡：多個職缺就加總，單一職缺就直接顯示
+  const totals = {};
+  FUNNEL_STAGES.forEach(([k]) => { totals[k] = rows.reduce((sum, r) => sum + (r.funnel[k] || 0), 0); });
+  statsEl.innerHTML = FUNNEL_STAGES.map(([k, lb]) =>
+    `<div class="dash-stat"><div class="lb">${esc(lb)}</div><div class="vv">${totals[k]}</div></div>`).join('');
+
+  funnelEl.innerHTML = rows.map(r => {
+    const max = Math.max(1, ...FUNNEL_STAGES.map(([k]) => r.funnel[k] || 0));
+    const barsHtml = FUNNEL_STAGES.map(([k, lb]) => `
+      <div class="dash-funnel-row">
+        <div class="dash-funnel-head"><span>${esc(lb)}</span><strong>${r.funnel[k] || 0}</strong></div>
+        <div class="dash-bar"><span style="width:${Math.max(4, (r.funnel[k] || 0) / max * 100)}%"></span></div>
+      </div>`).join('');
+    return `<div class="dash-job-block">${rows.length > 1 ? `<h4>${esc(r.title)}</h4>` : ''}${barsHtml}</div>`;
+  }).join('');
+}
+
+function renderChips(){
+  const labels = [...new Set(CAND_LIST.map(c => currentStageOf(c).lb))];
+  const chips = ['全部', ...labels];
+  document.getElementById('dashChips').innerHTML = chips.map(c => {
+    const count = c === '全部' ? CAND_LIST.length : CAND_LIST.filter(x => currentStageOf(x).lb === c).length;
+    return `<button type="button" class="dash-chip ${CAND_FILTER === c ? 'on' : ''}" data-chip="${esc(c)}">${esc(shortStageLabel(c))} ${count}</button>`;
+  }).join('');
+  document.getElementById('dashChips').querySelectorAll('.dash-chip').forEach(btn => {
+    btn.addEventListener('click', () => { CAND_FILTER = btn.dataset.chip; renderChips(); renderTable(); renderCards(); });
+  });
+}
+
+function filteredCandidates(){
+  const q = document.getElementById('dashSearch').value.trim().toLowerCase();
+  return CAND_LIST.filter(c => {
+    if (CAND_FILTER !== '全部' && currentStageOf(c).lb !== CAND_FILTER) return false;
+    if (q && !`${c.candidate_name} ${c.line_id_given || ''}`.toLowerCase().includes(q)) return false;
+    return true;
+  });
+}
+document.getElementById('dashSearch').addEventListener('input', () => { renderTable(); renderCards(); });
+document.getElementById('dashTableBtn').addEventListener('click', () => setCandView('table'));
+document.getElementById('dashCardBtn').addEventListener('click', () => setCandView('card'));
+function setCandView(v){
+  CAND_VIEW = v;
+  document.getElementById('dashTableBtn').classList.toggle('on', v === 'table');
+  document.getElementById('dashCardBtn').classList.toggle('on', v === 'card');
+  document.getElementById('dashTableView').hidden = v !== 'table';
+  document.getElementById('dashCardView').hidden = v !== 'card';
+}
+
+function stagePillClass(s){ return s.key==='rejected' ? 'rejected' : s.now ? 'now' : (s.done ? 'done' : ''); }
+
+// 2026-09-01 改：原本表格欄位是「所有人選 steps.key 的聯集」動態長出來的，
+// 面試進度到哪就多長哪一格——Jacky 要的是固定 8 欄，而且「用人單位」以後
+// （面試階段／錄取／報到）三格直接在表格上用下拉選單操作，企業自己就能填，
+// 不用另外點開人選卡片。「顧問階段」維持唯讀（那是我們自己內部審核的紀錄，
+// 不是企業要填的東西）。
+const TABLE_COLS = [
+  ['confirm', '顧問階段'],
+  ['matched', '用人單位'],
+  ['interview', '面試階段'],
+  ['offer', '錄取'],
+  ['onboard', '報到'],
+];
 const INTERVIEW_STAGE_KEYS = ['stage1', 'stage2', 'stage3', 'stage4'];
+// 2026-09-01 改：面試關數是「職缺」的設定（見用人需求表的「面試輪數設定」），
+// 不是這裡寫死的固定清單——後端 resolveStage() 已經只把這個職缺實際有設定
+// 的關卡放進 c.steps，這裡直接照 steps 帶出來就對了，不用另外猜或另外打
+// 一支 API 查職缺設定，兩邊資料來源永遠是同一份，不會兜不起來。
 function interviewStageOptsFor(c){
   return (c.steps || []).filter(s => INTERVIEW_STAGE_KEYS.includes(s.key)).map(s => [s.key, s.lb]);
 }
+
 function stepOf(c, key){ return (c.steps || []).find(s => s.key === key) || null; }
 function currentInterviewStage(c){
+  // 面試階段欄位收斂 stage1~stage4 成一格——取目前「進行中」的那一關，
+  // 沒有進行中的就取已完成裡最後一關（表示上一輪已經過了、等下一輪安排）。
   const steps = c.steps || [];
   const now = steps.find(s => INTERVIEW_STAGE_KEYS.includes(s.key) && s.now);
   if (now) return now.key;
   const done = [...steps].reverse().find(s => INTERVIEW_STAGE_KEYS.includes(s.key) && s.done);
   return done ? done.key : '';
 }
-function stageLabelOf(c, key){ return shortStageLabel((interviewStageOptsFor(c).find(([k]) => k === key) || [null, '面試'])[1]); }
-function nextStageKey(c){
-  const keys = interviewStageOptsFor(c).map(o => o[0]);
-  const cur = currentInterviewStage(c);
-  if (!cur) return keys[0] || null;
-  const i = keys.indexOf(cur);
-  return (i >= 0 && i < keys.length - 1) ? keys[i + 1] : null;
-}
-const WEEKDAY = '日一二三四五六';
-// 'YYYY-MM-DD HH:MM' → '10/30（五）15:00'；星期用 Date 算，不心算
-function fmtSlot(s){
-  s = String(s || '');
-  if (s.length < 10) return s;
-  const d = new Date(s.slice(0, 10) + 'T00:00:00');
-  // 不是今年的日期要寫年份（付款第三期 2027/3/18 原本只寫 3/18，容易看錯）
-  const yr = s.slice(0, 4) !== taipeiNow().slice(0, 4) ? s.slice(0, 4) + '/' : '';
-  return `${yr}${Number(s.slice(5, 7))}/${Number(s.slice(8, 10))}（${WEEKDAY[d.getDay()]}）${s.length >= 16 ? ' ' + s.slice(11, 16) : ''}`;
-}
-function taipeiNow(minusHours){
-  return new Date(Date.now() + 8 * 3600e3 - (minusHours || 0) * 3600e3).toISOString().slice(0, 16).replace('T', ' ');
-}
-function apptFor(c, stageKey, status){
-  const n = Number(String(stageKey || '').replace('stage', ''));
-  const list = (c.appts || []).filter(a => Number(a.stage) === n && (!status || a.status === status));
-  return list[list.length - 1] || null;
+
+function renderTable(){
+  const list = filteredCandidates();
+  const el = document.getElementById('dashTableView');
+  if (!list.length){ el.innerHTML = '<div class="dash-empty">目前沒有符合條件的人選</div>'; return; }
+  el.innerHTML = `<div class="dash-table-wrap"><table class="dash-table">
+    <thead><tr><th>人選</th><th>LINE ID</th><th>推送日</th><th>人事資料表</th>${TABLE_COLS.map(([, lb]) => `<th>${esc(lb)}</th>`).join('')}</tr></thead>
+    <tbody>${list.map(c => {
+      const rejected = !!c.client_rejected_at;
+      // 2026-09-01 修：跟 offer/onboard 同一種bug——原本只看 .now（現在卡在
+      // 這關），沒看 .done。顧問確認完（阿財面談結束/顧問下決定）之後，如果
+      // 還沒有更後面的動作（沒推薦客戶/沒面試進度），這一關正好停在
+      // effective_index 本身，.done 是 false、.now 才是 true，畫面因此顯示
+      // 「進行中」——但顧問確認這件事本身已經做完了，資料是對的，純粹是判斷
+      // 只看了一半（之前實例撞到的：報告已推薦、面談已結束，這關卻顯示
+      // 進行中不是已完成）。改成 done || now 才算完成，跟 offerDone/onboardDone
+      // 用同一套邏輯。
+      // 2026-09-02 改：Jacky 重新定義三態——阿財面談結束／顧問下「需補問」都還
+      // 是「進行中」；顧問下「推薦給客戶」才是「已完成」；顧問下「婉拒／不推薦」
+      // 是獨立第三態「不推進」。改成直接讀 decision 原始值判斷，不能再用
+      // done||now 那套（那套只代表「有沒有走到這一關」，只要走到就一律是
+      // now=true，不管 decision 是 forwarded／need_more／null 都一樣會是
+      // now=true——用 done||now 判斷會讓「需補問」也顯示已完成，違反新規格）。
+      const confirmS = stepOf(c, 'confirm');
+      const confirmCell = !confirmS ? '—'
+        : confirmS.decision === 'forwarded' ? '<span class="dash-pill done">已完成</span>'
+        : confirmS.decision === 'rejected' ? '<span class="dash-pill" style="background:#fbeaea;color:#c0392b">不推進</span>'
+        : '<span class="dash-pill now">進行中</span>';
+
+      const matchedS = stepOf(c, 'matched');
+      // 2026-09-07 加：顧問下「不推進」的人選，根本沒有送到用人單位手上，
+      // 後面四欄（用人單位／面試階段／錄取／報到）都不該讓客戶做決定——
+      // 原本只檢查 client_rejected_at（客戶自己拒絕），漏了顧問這一關，
+      // 結果顧問已經不推進的人，客戶端還是看到「尚未決定」的下拉。
+      const consultantRejected = !!(confirmS && confirmS.decision === 'rejected');
+      // 2026-09-01 加：「用人單位」欄要先明確選過「推進」，後面三欄（面試階段／
+      // 錄取／報到）才能填——不然還沒決定要不要推進，先填了後面幾欄也沒意義。
+      // matchedS.done（已經有真實面試進度）也算數，是給舊資料相容：這個功能
+      // 上線前就已經進到第一階段以後的人選，不該因為沒補點過「推進」而被鎖住。
+      const advanced = !!c.client_advanced_at || (matchedS && matchedS.done);
+      let matchedCell;
+      if (consultantRejected) {
+        matchedCell = '<span class="dash-pill" style="opacity:.55">—</span>';
+      } else if (rejected) {
+        matchedCell = `<span class="dash-pill rejected" title="${esc(c.client_reject_reason || '')}">不推進</span>`;
+      } else if (advanced) {
+        matchedCell = `<span class="dash-pill done">已推進</span>`;
+      } else {
+        // 2026-09-01 改：原本預設就選著「推進」，看起來像已經確認過的狀態，
+        // 其實只是預設值——改成一個不能選的「尚未決定」佔位選項，跟面試階段／
+        // 錄取／報到那三欄同一個邏輯，選了「推進」或「不推進」才算真的做了決定。
+        matchedCell = `<select class="dash-tbl-sel" data-app="${esc(c.application_id)}" data-role="advance">
+          <option value="" selected disabled>尚未決定</option>
+          <option value="advance">推進</option>
+          <option value="decline">不推進</option>
+        </select>`;
+      }
+
+      const lockedCell = '<span class="dash-pill" style="opacity:.55">請先選推進</span>';
+
+      const curInterview = currentInterviewStage(c);
+      const interviewCell = (consultantRejected || rejected) ? '—' : !advanced ? lockedCell : `<select class="dash-tbl-sel" data-app="${esc(c.application_id)}" data-role="interview">
+        <option value="" ${!curInterview ? 'selected' : ''} disabled>尚未決定</option>
+        ${interviewStageOptsFor(c).map(([k, lb]) => `<option value="${k}" ${curInterview === k ? 'selected' : ''}>${esc(lb)}</option>`).join('')}
+      </select>`;
+      // 2026-09-10 修：漏擋 stage=0（顧問電話洽談，內部電洽——不是客戶面談）。
+      // 這格是給用人單位看的，stage=0 的確認時段是顧問自己跟人選喬電洽時間，
+      // 客戶不該看到，之前只看 status/confirmed_slot 沒看 stage，導致洩漏。
+      const confirmedAppt = (c.appts || []).filter(a => a.status === 'confirmed' && a.confirmed_slot && Number(a.stage) > 0).sort((a, b) => b.stage - a.stage)[0];
+      const confirmedLine = confirmedAppt
+        ? `<div style="margin-top:4px;font-size:11.5px;color:var(--good,#2f8f5b)">✅ 人選已確認：${esc(confirmedAppt.confirmed_slot)}</div>` : '';
+      const proposeBtn = (consultantRejected || rejected || !advanced) ? '' :
+        `<button type="button" class="cm-fbtn" style="font-size:11.5px;padding:4px 8px;margin-top:4px" data-propose="${esc(c.application_id)}">📅 邀請人選選時段</button>`;
+
+      // 2026-09-01 修：原本只看 .done（已經走過這關），沒看 .now（現在正卡在
+      // 這一關）——選了「錄取」之後，這關通常正好是 effective_index 本身
+      // （還沒有下一關把它蓋過去），.done 是 false、.now 才是 true，
+      // 下拉因此顯示回「尚未決定」，資料其實是對的，純粹是畫面判斷漏了一半。
+      const offerStep = stepOf(c, 'offer') || {};
+      const offerDone = !!(offerStep.done || offerStep.now);
+      const offerCell = (consultantRejected || rejected) ? '—' : !advanced ? lockedCell : `<select class="dash-tbl-sel" data-app="${esc(c.application_id)}" data-role="offer">
+        <option value="" ${!offerDone ? 'selected' : ''} disabled>尚未決定</option>
+        <option value="offer" ${offerDone ? 'selected' : ''}>錄取</option>
+        <option value="decline">不錄取</option>
+      </select>`;
+
+      const onboardStep = stepOf(c, 'onboard') || {};
+      const onboardDone = !!(onboardStep.done || onboardStep.now);
+      const onboardCell = (consultantRejected || rejected) ? '—' : !advanced ? lockedCell : `<select class="dash-tbl-sel" data-app="${esc(c.application_id)}" data-role="onboard">
+        <option value="" ${!onboardDone ? 'selected' : ''} disabled>尚未決定</option>
+        <option value="onboard" ${onboardDone ? 'selected' : ''}>報到</option>
+        <option value="decline">不報到</option>
+      </select>`;
+
+      // 2026-09-03 加：人事資料表狀態要在表格上一眼看到，不用逐一點開人選
+      // 彈窗才看得到——不管顧問是叫人選填、還是直接代為上傳，狀態都算數，
+      // 這裡不分來源，只看 status。一個職缺可能掛多份表單，全部列出來。
+      // 欄位標題已經寫「人事資料表」了，儲存格裡不用再重複表單名稱——
+      // 一個職缺掛多份表單才需要靠名稱分是哪一份，只有一份就單純顯示狀態。
+      const multiForm = (c.forms || []).length > 1;
+      const formsCell = !(c.forms || []).length ? '<span style="color:var(--ink3)">—</span>'
+        : c.forms.map(f => f.status === 'submitted'
+            ? `<a class="dash-pill done" style="text-decoration:none;display:inline-block;margin:2px 0" href="${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(c.application_id)}/form/${encodeURIComponent(f.id)}" target="_blank" rel="noopener">↓ 下載${multiForm ? esc(f.form_name) : ''}</a>`
+            : `<span class="dash-pill now" style="display:inline-block;margin:2px 0">等待中${multiForm ? '・' + esc(f.form_name) : ''}</span>`
+          ).join('<br>');
+
+      return `<tr data-app="${esc(c.application_id)}">
+        <td><b>${esc(c.candidate_name)}</b><div style="font-size:12px;color:var(--ink3)">${esc(c.job_title || c.job_slug)}</div></td>
+        <td>${esc(c.line_id_given || '尚未提供')}</td>
+        <td>${esc((c.forwarded_at || '').slice(0, 10))}</td>
+        <td>${formsCell}</td>
+        <td>${confirmCell}</td>
+        <td>${matchedCell}</td>
+        <td>${interviewCell}${confirmedLine}${proposeBtn}</td>
+        <td>${offerCell}</td>
+        <td>${onboardCell}</td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table></div>`;
+  wireOpenButtons(el);
+  wireTableSelects(el);
+  wireProposeButtons(el);
 }
 
-// 每位人選目前在哪一組、卡片要寫什麼、面板要給哪些按鈕
-function candState(c){
-  const confirmS = stepOf(c, 'confirm');
-  const offerS = stepOf(c, 'offer') || {};
-  const onS = stepOf(c, 'onboard') || {};
-  const advanced = !!c.client_advanced_at || !!(stepOf(c, 'matched') || {}).done;
-  const cur = currentInterviewStage(c);
-  const curIdx = !advanced ? 0 : (onS.done || onS.now) ? 3 : (offerS.done || offerS.now) ? 2 : 1;
-  const base = { trackAt: curIdx, ended: false };
-  // 結束的人：進度條停在哪一格、那格標紅（stopAt），狀態文字開頭直接寫是哪一種結束
-  if (c.advisor_not_recommended_at || (confirmS && confirmS.decision === 'rejected'))
-    return { ...base, trackAt: 0, stop: 'bad', group: 'ended', kind: 'nr', pill: ['end', '顧問不推薦'], next: '<b>顧問不推薦</b>・顧問評估後，這位不往下推薦', nextHtml: true };
-  if (c.candidate_withdrawn_at)
-    return { ...base, stop: 'gray', group: 'ended', kind: 'wd', pill: ['end', '人選放棄'], next: '<b>人選放棄</b>・' + esc(c.candidate_withdraw_reason ? '原因：' + c.candidate_withdraw_reason : '人選決定不繼續'), nextHtml: true };
-  if (c.client_rejected_at)
-    { const r = c.client_reject_reason || '';
-      const lb = r.startsWith('不錄取：') ? '不錄取' : r.startsWith('沒有報到：') ? '沒有報到' : '不推進';
-      const at = lb === '不錄取' ? 2 : lb === '沒有報到' ? 3 : 1;
-      const why = r.replace(/^(不錄取|沒有報到)：/, '');
-      return { ...base, trackAt: at, stop: 'bad', group: 'ended', kind: 'rej', pill: ['end', lb],
-        next: `<b>${lb}</b>` + (why ? '・原因：' + esc(why) : ''), nextHtml: true }; }
-  if (onS.done || onS.now) {
-    // 報到日還沒到就不能說「已報到」（10/28 實例：報到日在下個月，人選頁卻寫已報到）
-    if (c.onboard_date && c.onboard_date > taipeiNow().slice(0, 10))
-      return { ...base, trackAt: 3, group: 'active', kind: 'onboard_soon', pill: ['act', '等報到'], next: `預計 <b class="num">${esc(fmtSlot(c.onboard_date))}</b> 報到`, nextHtml: true };
-    return { ...base, group: 'ended', kind: 'onboarded', pill: ['ok', '已報到'], next: '已報到，恭喜！' + (c.onboard_date ? `（${fmtSlot(c.onboard_date)}）` : '') };
-  }
-  if (offerS.done || offerS.now)
-    return { ...base, group: 'active', kind: 'offered', pill: ['act', '已錄取'], next: '人選報到後，按「已報到」' };
-  if (!advanced) {
-    // 等越久的人選越可能被別家錄取，讓客戶看得到已經等幾天
-    const fwd = String(c.forwarded_at || '').slice(0, 10);
-    const days = fwd ? Math.floor((Date.parse(taipeiNow().slice(0, 10)) - Date.parse(fwd)) / 86400000) : 0;
-    return { ...base, group: 'todo', kind: 'decide', pill: ['todo', '等你決定'],
-      next: '看完資料，決定要不要面試' + (days >= 3 ? `（已推薦 ${days} 天）` : '') };
-  }
-  // 舊的邀請沒被收掉時（10/27 實例：同一位邀了兩次才確認），同一關已經有確認時間就不算「等人選選時段」
-  const confirmedStages = (c.appts || []).filter(a => a.status === 'confirmed').map(a => Number(a.stage));
-  const pendingAny = (c.appts || []).filter(a => a.status === 'pending' && Number(a.stage) > 0
-    && !confirmedStages.some(s => s >= Number(a.stage))).slice(-1)[0];
-  const curN = Number(String(cur).replace('stage', '')) || 0;
-  if (pendingAny && Number(pendingAny.stage) >= (curN || 1))
-    return { ...base, group: 'active', kind: 'wait_slot', stageKey: 'stage' + pendingAny.stage, pending: pendingAny, pill: ['act', '等人選選時段'],
-      next: `${stageLabelOf(c, 'stage' + pendingAny.stage)}：已請人選選時段，選好會顯示在這裡` };
-  if (!cur)
-    return { ...base, group: 'todo', kind: 'schedule', stageKey: nextStageKey(c), pill: ['todo', '約面試時間'], next: `約${stageLabelOf(c, nextStageKey(c))}的時間` };
-  const ap = apptFor(c, cur, 'confirmed');
-  if (ap && ap.confirmed_slot && ap.confirmed_slot >= taipeiNow(3))
-    return { ...base, group: 'active', kind: 'upcoming', stageKey: cur, slot: ap.confirmed_slot, pill: ['act', '已約面試'],
-      next: `${stageLabelOf(c, cur)} <b class="num">${esc(fmtSlot(ap.confirmed_slot))}</b>` + (ap.meeting_url ? (ap.link_sent_at ? '・視訊連結已寄給人選' : '・視訊連結等顧問寄出') : ''), nextHtml: true };
-  return { ...base, group: 'todo', kind: 'result', stageKey: cur, slot: ap && ap.confirmed_slot, pill: ['todo', '等你回覆結果'],
-    next: ap && ap.confirmed_slot ? `${stageLabelOf(c, cur)}（${fmtSlot(ap.confirmed_slot)}）結束了，結果如何？` : `${stageLabelOf(c, cur)}結束了嗎？結果如何？` };
-}
-
-// 2026-10-28 Jacky：每個階段下面要看得到日期（推薦日／第一關面試／錄取／報到）
-function stepDates(c){
-  const sd = c.stage_dates || {};
-  const md = (s) => { s = String(s || ''); return s.length >= 10 ? `${Number(s.slice(5, 7))}/${Number(s.slice(8, 10))}` : ''; };
-  const firstAppt = (c.appts || []).filter(a => a.status === 'confirmed' && a.confirmed_slot && Number(a.stage) > 0).map(a => a.confirmed_slot).sort()[0];
-  return [md(c.forwarded_at), md(sd.stage1 || firstAppt || ''), md(sd.offer), md(c.onboard_date || sd.onboard)];
-}
-function trackHtml(st, c){
-  const lbs = ['推薦', '面試', '錄取', '報到'];
-  const dates = c ? stepDates(c) : [];
-  const stopCls = st.stop === 'bad' ? 'x' : st.stop === 'gray' ? 'g' : 'n';
-  const cells = lbs.map((_, i) => {
-    if (i < st.trackAt || (st.kind === 'onboarded')) return '<i class="d"></i>';
-    if (i === st.trackAt) return `<i class="${stopCls}"></i>`;
-    return '<i></i>';
-  }).join('');
-  const labels = lbs.map((lb, i) => `<span class="${i === st.trackAt && st.kind !== 'onboarded' ? stopCls : ''}">${lb}${i === st.trackAt && st.stop === 'bad' ? ' ✕' : ''}${dates[i] && (i <= st.trackAt || st.kind === 'onboarded') ? `<em class="trk-d num">${dates[i]}</em>` : ''}</span>`).join('');
-  return `<div class="trk" aria-hidden="true">${cells}</div><div class="trk-lb">${labels}</div>`;
-}
-
-let CAND_JOB_FILTER = '';
-// 2026-10-28 Jacky：舊版上面那排「全部 32／顧問階段 13／不推進 6／錄取 2…」統計、推送日、LINE ID、人事資料表狀態，新版也要有。
-let CAND_STAGE_FILTER = 'all';
-const STAGE_BUCKETS = [['all', '全部'], ['decide', '等你決定'], ['interview', '面試中'], ['offer', '已錄取'], ['onboard', '已報到'], ['ended', '不推進／已結束']];
-function stageBucket(st){
-  if (st.kind === 'decide') return 'decide';
-  if (['schedule', 'wait_slot', 'upcoming', 'result'].includes(st.kind)) return 'interview';
-  if (['offered', 'onboard_soon'].includes(st.kind)) return 'offer';
-  if (st.kind === 'onboarded') return 'onboard';
-  return 'ended';
-}
-function formsHtml(c){
-  const fs = c.forms || [];
-  if (!fs.length) return '';
-  return fs.map(f => f.status === 'submitted'
-    ? `<a class="cmeta-form ok" href="${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(c.application_id)}/form/${encodeURIComponent(f.id)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${esc(f.form_name || '人事資料表')}：已交・下載</a>`
-    // 2026-10-29 Jacky：沒交就要有標籤寫「未提供」；已寄給人選的補一句，客戶才知道不用催顧問寄
-    : `<span class="cmeta-form">${esc(f.form_name || '人事資料表')}：未提供${f.status === 'not_sent' ? '' : '（已請人選填寫）'}</span>`).join('');
-}
-function renderCandList(){
-  const box = document.getElementById('candList');
-  LAST_CAND_SIG = candSig(CAND_LIST);
-  const q = (document.getElementById('candSearch').value || '').trim().toLowerCase();
-  const jobs = [...new Set(CAND_LIST.map(c => c.job_title || c.job_slug).filter(Boolean))];
-  const jobSel = document.getElementById('candJob');
-  if (jobs.length > 1) {
-    jobSel.hidden = false;
-    jobSel.innerHTML = `<option value="">全部職缺（${CAND_LIST.length} 位）</option>` +
-      jobs.map(j => `<option value="${esc(j)}" ${CAND_JOB_FILTER === j ? 'selected' : ''}>${esc(j)}（${CAND_LIST.filter(c => (c.job_title || c.job_slug) === j).length}）</option>`).join('');
-  } else jobSel.hidden = true;
-  const list = CAND_LIST.filter(c => {
-    if (CAND_JOB_FILTER && (c.job_title || c.job_slug) !== CAND_JOB_FILTER) return false;
-    if (q && !`${c.candidate_name} ${c.job_title || ''}`.toLowerCase().includes(q)) return false;
-    return true;
-  }).map(c => ({ c, st: candState(c) }));
-  // 統計列（數字算的是目前職缺／搜尋條件下的人）
-  const cnt = { all: list.length };
-  list.forEach(x => { const b = stageBucket(x.st); cnt[b] = (cnt[b] || 0) + 1; });
-  const statsHtml = `<div class="cstats" role="group" aria-label="依階段篩選">${STAGE_BUCKETS.map(([k, lb]) =>
-      `<button type="button" class="cstat${CAND_STAGE_FILTER === k ? ' on' : ''}" data-stage="${k}" aria-pressed="${CAND_STAGE_FILTER === k}">${lb}<b class="num">${cnt[k] || 0}</b></button>`).join('')}</div>
-    <select class="cstats-m" data-stage-sel aria-label="依階段篩選">${STAGE_BUCKETS.map(([k, lb]) => `<option value="${k}" ${CAND_STAGE_FILTER === k ? 'selected' : ''}>${lb}（${cnt[k] || 0}）</option>`).join('')}</select>`;
-  const shown = CAND_STAGE_FILTER === 'all' ? list : list.filter(x => stageBucket(x.st) === CAND_STAGE_FILTER);
-  if (!CAND_LIST.length) { box.innerHTML = '<div class="cl-empty">顧問還沒有推薦人選給你。有新人選時，這裡會出現，也會通知你。</div>'; return; }
-  if (!list.length) { box.innerHTML = '<div class="cl-empty">找不到符合的人選，換個關鍵字試試。</div>'; return; }
-  const card = ({ c, st }) => `<button type="button" class="cc" data-app="${esc(c.application_id)}">
-      <div><div class="nm">${esc(c.candidate_name)}</div><div class="cjob">${esc(c.job_title || c.job_slug || '')}</div>
-        <div class="cmeta"><span>推薦 ${esc(fmtSlot((c.forwarded_at || '').slice(0, 10)))}</span><span>LINE：${c.line_id_given ? esc(c.line_id_given) : '尚未提供'}</span>${formsHtml(c)}</div></div>
-      <div>${trackHtml(st, c)}</div>
-      <div class="nx"><span class="lb">${st.group === 'ended' ? '狀態' : '下一步'}</span>${st.nextHtml ? st.next : esc(st.next)}</div>
-      <span class="go">${st.group === 'todo' ? '去處理' : '打開'}</span>
-    </button>`;
-  const todo = shown.filter(x => x.st.group === 'todo');
-  const act = shown.filter(x => x.st.group === 'active');
-  const end = shown.filter(x => x.st.group === 'ended');
-  let html = statsHtml;
-  if (!shown.length) { box.innerHTML = statsHtml + '<div class="cl-empty">這個階段目前沒有人選。</div>'; wireStats(box); return; }
-  html += todo.length
-    ? `<section class="cl-group todo"><h2>等你處理 <span class="n">${todo.length}</span></h2><p class="hint">這幾位在等你回覆，點開就能直接處理。</p>${todo.map(card).join('')}</section>`
-    : (CAND_STAGE_FILTER === 'all' ? `<section class="cl-group todo"><h2>等你處理 <span class="n">0</span></h2><div class="cl-empty">目前沒有要你處理的事。</div></section>` : '');
-  if (act.length) html += `<section class="cl-group"><h2>進行中 <span class="n">${act.length}</span></h2>${act.map(card).join('')}</section>`;
-  if (end.length) html += `<details class="cl-group ended"${(!todo.length && !act.length) || CAND_STAGE_FILTER === 'ended' ? ' open' : ''}><summary>已結束 <span class="n num">${end.length}</span></summary>${end.map(card).join('')}</details>`;
-  box.innerHTML = html;
-  box.querySelectorAll('.cc').forEach(b => b.addEventListener('click', () => openCandModal(b.dataset.app)));
-  wireStats(box);
-}
-function wireStats(box){
-  box.querySelectorAll('[data-stage]').forEach(b => b.addEventListener('click', () => { CAND_STAGE_FILTER = b.dataset.stage; renderCandList(); }));
-  const sel = box.querySelector('[data-stage-sel]');
-  if (sel) sel.addEventListener('change', () => { CAND_STAGE_FILTER = sel.value; renderCandList(); });
-}
-document.getElementById('candSearch').addEventListener('input', renderCandList);
-document.getElementById('candJob').addEventListener('change', (e) => { CAND_JOB_FILTER = e.target.value; renderCandList(); });
-
-function toast(msg){
-  const t = document.createElement('div');
-  t.className = 'toast'; t.setAttribute('role', 'status'); t.textContent = msg;
-  document.body.appendChild(t);
-  setTimeout(() => t.remove(), 3600);
-}
-// 原本用 prompt() 問原因，有些手機瀏覽器／內嵌環境會直接跳過——改成頁面內的小視窗
-function promptReason(title){
-  return new Promise((resolve) => {
-    const g = (id) => document.getElementById(id);
-    g('reasonTitle').textContent = title;
-    g('reasonInput').value = ''; g('reasonErr').textContent = '';
-    g('reasonMask').classList.add('show');
-    setTimeout(() => g('reasonInput').focus(), 50);
-    const done = (v) => { g('reasonMask').classList.remove('show'); g('reasonOk').onclick = null; g('reasonCancel').onclick = null; resolve(v); };
-    g('reasonOk').onclick = () => { const v = g('reasonInput').value.trim(); if (!v) { g('reasonErr').textContent = '請寫一句原因'; return; } done(v); };
-    g('reasonCancel').onclick = () => done(null);
+// 表格上的下拉選單是企業自己操作進度用的，不能點了反而順便打開人選彈窗
+// （彈窗裡也有一樣的操作，兩邊會互相蓋掉彼此還沒送出的選擇）。
+function wireTableSelects(root){
+  root.querySelectorAll('select.dash-tbl-sel').forEach(sel => {
+    sel.addEventListener('click', (e) => e.stopPropagation());
+    sel.addEventListener('change', (e) => {
+      e.stopPropagation();
+      tblHandleChange(sel.dataset.app, sel.dataset.role, sel.value, sel);
+    });
   });
 }
 
-// confirm() 在 LINE 內建瀏覽器會直接回 false（按了沒反應），改頁面內小視窗；沿用原因視窗、藏起輸入框
-function confirmBox(msg, okLabel){
-  return new Promise((resolve) => {
-    const g = (id) => document.getElementById(id);
-    g('reasonTitle').textContent = msg;
-    g('reasonInput').hidden = true; g('reasonErr').textContent = '';
-    g('reasonOk').textContent = okLabel || '確認';
-    g('reasonMask').classList.add('show');
-    const done = (v) => { g('reasonMask').classList.remove('show'); g('reasonInput').hidden = false; g('reasonOk').textContent = '確認'; g('reasonOk').onclick = null; g('reasonCancel').onclick = null; resolve(v); };
-    g('reasonOk').onclick = () => done(true);
-    g('reasonCancel').onclick = () => done(false);
-    setTimeout(() => g('reasonCancel').focus(), 50);
+// 2026-09-09 加：「邀請人選選時段」按鈕，跟下拉選單同一套 stopPropagation
+// 理由——按鈕在表格列裡，不能點了順便觸發列本身的「打開人選彈窗」。
+function wireProposeButtons(root){
+  root.querySelectorAll('[data-propose]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const appId = btn.dataset.propose;
+      const c = CAND_LIST.find(x => x.application_id === appId);
+      if (c) tblPropose(appId, c);
+    });
   });
 }
-
-// ── 面板裡的動作 ──
-async function actAdvance(appId){
-  const c = CAND_LIST.find(x => x.application_id === appId);
-  await tblAdvance(appId, null, '');
-  const c2 = CAND_LIST.find(x => x.application_id === appId);
-  if (c2 && (c2.client_advanced_at || (stepOf(c2, 'matched') || {}).done)) toast('已通知顧問，接下來約面試時間');
-  else if (c) openCandModal(appId);
-}
-async function actReject(appId, title, kind){
-  const reason = await promptReason(title);
-  if (!reason) return;
-  await tblReject(appId, reason, null, '', kind);
-  toast('已記錄，顧問會看到你的原因');
-}
-async function actSetStage(appId, stageKey, title, noteLabel){
-  const picked = await promptDateTime(title, noteLabel || '備註（選填，顧問會看到）');
-  if (!picked) return;
-  const extra = { event_at: picked.event_at, note: picked.note || undefined };
-  if (stageKey === 'onboard') extra.onboard_date = picked.event_at.slice(0, 10);
-  await tblSetStage(appId, stageKey, extra, null, '');
-}
-async function actPropose(appId, stageKey, replace){
-  const c = CAND_LIST.find(x => x.application_id === appId);
-  if (c) await tblPropose(appId, c, stageKey, replace);
-  // 送出後面板要跟著換成「等人選選時段」（原本停在舊畫面，看起來像沒送出去）
-  if (ACTIVE_APP === appId) openCandModal(appId);
-}
-
-// 視訊連結：沿用「跟顧問討論」那支後端（認得 Teams／Meet／Zoom／Webex／Whereby 連結，存進這場面試，
-// TG 出「寄視訊連結給人選」卡片）。這裡只是給它一個正式入口，不再讓客戶自己想到要貼在對話框。
-const MEET_RE = /https?:\/\/[^\s<>"'）)]*(?:teams\.microsoft\.com|teams\.live\.com|meet\.google\.com|zoom\.us|webex\.com|whereby\.com)[^\s<>"'）)]*/i;
-let CHAT_MSGS = [];
-// 這場面試後台記到的連結＋顧問有沒有寄出（後端 appts.meeting_url／link_sent_at）
-function meetApptOf(c){
-  const st = candState(c);
-  const n = Number(String(st.stageKey || '').replace('stage', '')) || 0;
-  const list = (c.appts || []).filter(a => a.meeting_url && (a.status === 'confirmed' || a.status === 'pending') && (!n || Number(a.stage) === n));
-  return list[list.length - 1] || null;
-}
-function updateMeetState(){
-  const el = document.getElementById('cmMeetState');
-  if (!el) return;
-  const c = CAND_LIST.find(x => x.application_id === ACTIVE_APP);
-  const ap = c && meetApptOf(c);
-  if (ap) {
-    el.className = 'meet-state ok';
-    el.innerHTML = (ap.link_sent_at
-      ? `✓ 已寄給人選（${esc(fmtSlot(ap.link_sent_at.slice(0, 16)))}，Email＋LINE），前一天的提醒也會帶這個連結。`
-      : `已交給顧問，顧問確認後會寄給人選。`)
-      + `<br><span style="font-weight:400;color:var(--ink3);overflow-wrap:anywhere">${esc(ap.meeting_url)}</span>`;
-    return;
-  }
-  const mine = CHAT_MSGS.filter(m => m.from_role === 'client' && MEET_RE.test(m.content || ''));
-  if (mine.length) {
-    const last = mine[mine.length - 1];
-    const url = (last.content.match(MEET_RE) || [''])[0];
-    el.className = 'meet-state ok';
-    el.innerHTML = `已交給顧問（${esc((last.created_at || '').slice(5, 16))}）：顧問確認後會用 Email＋LINE 寄給人選。<br><span style="font-weight:400;color:var(--ink3);overflow-wrap:anywhere">${esc(url)}</span>`;
-  } else {
-    el.className = 'meet-state';
-    el.textContent = '還沒貼。貼上 Teams／Google Meet／Zoom 連結，顧問確認後會寄給人選，前一天的提醒也會帶這個連結。';
-  }
-}
-async function saveMeetLink(){
-  const input = document.getElementById('cmMeetInput');
-  const btn = document.getElementById('cmMeetSave');
-  const el = document.getElementById('cmMeetState');
-  const v = input.value.trim();
-  const url = (v.match(MEET_RE) || [''])[0];
-  if (!url) { el.className = 'meet-state err'; el.textContent = '這不像視訊會議連結。系統認得 Teams、Google Meet、Zoom、Webex、Whereby；其他連結請直接在下面「跟顧問討論」貼給顧問。'; return; }
-  btn.disabled = true;
-  try {
-    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(ACTIVE_APP)}/messages`, {
-      method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ content: '視訊面試連結：' + url }),
-    });
-    const data = await res.json();
-    if (!data.ok) { el.className = 'meet-state err'; el.textContent = data.error || '沒有存成功，請再按一次'; btn.disabled = false; return; }
-    input.value = '';
-    toast('連結已交給顧問');
-    await loadCandidates();
-    openCandModal(ACTIVE_APP);
-  } catch { el.className = 'meet-state err'; el.textContent = '連線失敗，請稍後再按一次'; }
-  btn.disabled = false;
-}
-
-// 2026-10-28 Jacky：「第二次面談以上要在哪設定？」——原本只能到「職缺需求」那個職缺裡勾，
-// 客戶面完第一關不會想到要去別頁。改成面板上直接一顆「還要再面一關」，按了就幫這個職缺多開一關。
-const ROUND_CN = { 2: '第二階段', 3: '第三階段', 4: '第四階段' };
-function addRoundBtn(c, id){
-  const n = interviewStageOptsFor(c).length;
-  return n >= 1 && n < 4 ? `<button type="button" class="sec" data-act="addround" data-app="${id}">還要再面一關（${ROUND_CN[n + 1]}）</button>` : '';
-}
-async function actAddRound(appId){
-  const c = CAND_LIST.find(x => x.application_id === appId);
-  if (!c) return;
-  const n = interviewStageOptsFor(c).length;
-  const cfg = ['stage2', 'stage3', 'stage4'].slice(0, n);
-  try {
-    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/jobs/${encodeURIComponent(c.job_slug)}`, {
-      method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ interview_stage_config: JSON.stringify(JSON.stringify(cfg)) }), // 多包一層：後端存檔會把陣列整理成純文字
-    });
-    const data = await res.json();
-    if (!data.ok) { toast('這個職缺沒辦法從這裡加關，請在下面傳訊息請顧問幫忙加'); return; }
-    const jr = PORTAL_DATA.jobs.find(j => j.slug === c.job_slug);
-    if (jr) jr.interview_stage_config = JSON.stringify(cfg);
-    await loadCandidates();
-    openCandModal(appId);
-    toast(`已加上${ROUND_CN[n + 1]}，可以約時間了（這個職缺之後的人選也都會有這一關）`);
-  } catch { toast('連線失敗，請稍後再試'); }
-}
-function nextBoxHtml(c, st){
-  const id = esc(c.application_id);
-  const nk = nextStageKey(c);
-  const nkLb = nk ? stageLabelOf(c, nk) : '';
-  switch (st.kind) {
-    case 'decide': return `<h4>下一步</h4><div class="big">要不要約他面試？</div>
-      <div class="meet-state">先看下面顧問的說明和初篩報告。按「要面試」會通知顧問，接著選幾個時段給人選挑。</div>
-      <div class="btns"><button type="button" data-act="advance" data-app="${id}">要面試這位</button><button type="button" class="danger" data-act="reject" data-app="${id}">不考慮</button></div>`;
-    case 'schedule': return `<h4>下一步</h4><div class="big">約${esc(stageLabelOf(c, st.stageKey))}的時間</div>
-      <div class="btns"><button type="button" data-act="propose" data-stage="${esc(st.stageKey)}" data-app="${id}">給人選幾個時段挑</button>
-      <button type="button" class="sec" data-act="setstage" data-stage="${esc(st.stageKey)}" data-app="${id}">已經約好了，直接填時間</button></div>
-      <div class="sub-act"><button type="button" class="danger" data-act="reject" data-app="${id}">不考慮這位</button></div>`;
-    case 'wait_slot': {
-      const ps = (st.pending && st.pending.proposed_slots) || [];
-      return `<h4>下一步</h4><div class="big">等人選選${esc(stageLabelOf(c, st.stageKey))}的時間</div>
-      ${ps.length ? `<div>你給人選挑的時段：</div><ul style="margin:0;padding-left:20px">${ps.map(s => `<li class="num">${esc(fmtSlot(s.slot_at))}${s.format ? '・' + esc(s.format) : ''}</li>`).join('')}</ul>` : ''}
-      <div class="meet-state">${st.pending && st.pending.invited_at ? `${esc(fmtSlot(st.pending.invited_at.slice(0, 16)))} 已用 LINE／Email 通知人選。` : ''}人選選好後，時間會自動出現在這裡，不用回來填。</div>
-      <div class="btns"><button type="button" class="sec" data-act="propose" data-stage="${esc(st.stageKey)}" data-app="${id}">改時段（重新給人選挑）</button>
-        <button type="button" class="sec" data-act="setstage" data-stage="${esc(st.stageKey)}" data-app="${id}">已經跟人選約好了，直接填時間</button></div>
-      <div class="sub-act"><button type="button" class="danger" data-act="reject" data-app="${id}">不考慮這位</button></div>`;
-    }
-    case 'upcoming': return `<h4>下一步</h4><div class="big when">${esc(fmtSlot(st.slot))}</div><div>${esc(stageLabelOf(c, st.stageKey))}・人選已確認這個時間</div>
-      <div class="btns"><button type="button" class="sec" data-act="repropose" data-stage="${esc(st.stageKey)}" data-app="${id}">要改面試時間</button></div>
-      <div class="sub-act"><div class="meet-state">面試完之後：</div><div class="btns">
-        ${nk ? `<button type="button" class="sec" data-act="propose" data-stage="${esc(nk)}" data-app="${id}">約${esc(nkLb)}</button>` : addRoundBtn(c, id)}
-        <button type="button" class="sec" data-act="offer" data-app="${id}">錄取</button>
-        <button type="button" class="danger" data-act="reject-offer" data-app="${id}">不錄取</button></div></div>`;
-    case 'result': return `<h4>下一步</h4><div class="big">${esc(st.next)}</div>
-      <div class="btns">
-        ${nk ? `<button type="button" data-act="propose" data-stage="${esc(nk)}" data-app="${id}">約${esc(nkLb)}</button>` : addRoundBtn(c, id)}
-        <button type="button" ${nk ? 'class="sec"' : ''} data-act="offer" data-app="${id}">錄取</button>
-        <button type="button" class="danger" data-act="reject-offer" data-app="${id}">不錄取</button></div>
-      ${nk ? `<div class="sub-act"><button type="button" class="sec" data-act="setstage" data-stage="${esc(nk)}" data-app="${id}">${esc(nkLb)}已經約好了，直接填時間</button></div>` : ''}`;
-    case 'offered': return `<h4>下一步</h4><div class="big">人選報到了嗎？</div>
-      <div class="btns"><button type="button" data-act="onboard" data-app="${id}">已報到</button><button type="button" class="danger" data-act="reject-onboard" data-app="${id}">沒有來報到</button></div>
-      <div class="meet-state">錄取通知（Offer 信）可以在下面「資料」上傳，系統會同步寄給人選。</div>`;
-    default: return `<h4>狀態</h4><div class="big">${esc(st.pill[1])}</div><div>${st.nextHtml ? st.next.replace(/^<b>[^<]*<\/b>・?/, '') : esc(st.next)}</div>`;
-  }
-}
-
-function openCandModal(appId){
-  const c = CAND_LIST.find(x => x.application_id === appId);
-  if (!c) return;
-  const st = candState(c);
-  const sameApp = ACTIVE_APP === appId;
-  ACTIVE_APP = appId;
-  document.getElementById('cmName').textContent = c.candidate_name;
-  document.getElementById('cmSub').textContent = `${c.job_title || c.job_slug || ''}　・　推薦日 ${(c.forwarded_at || '').slice(0, 10)}`;
-  const nb = document.getElementById('cmNext');
-  nb.className = 'bx next' + (st.group === 'todo' ? ' todo' : '');
-  nb.innerHTML = nextBoxHtml(c, st);
-  nb.querySelectorAll('[data-act]').forEach(b => b.addEventListener('click', async () => {
-    const a = b.dataset.act, id = b.dataset.app;
-    b.disabled = true;
-    try {
-      if (a === 'advance') await actAdvance(id);
-      else if (a === 'reject') await actReject(id, '不考慮的原因（顧問會看到，幫我們調整之後推薦的方向）');
-      else if (a === 'reject-offer') await actReject(id, '不錄取的原因（顧問會看到）', 'not_hired');
-      else if (a === 'reject-onboard') await actReject(id, '沒有來報到的原因（顧問會看到）', 'no_show');
-      else if (a === 'propose') await actPropose(id, b.dataset.stage);
-      else if (a === 'repropose') await actPropose(id, b.dataset.stage, true);
-      else if (a === 'setstage') await actSetStage(id, b.dataset.stage, stageLabelOf(c, b.dataset.stage) + '的時間');
-      // 2026-10-28：有客戶把到職日 12/1 填進「錄取時間」——標題講清楚填的是哪一天，預計到職日寫在備註
-      else if (a === 'offer') await actSetStage(id, 'offer', '哪一天通知錄取？（不是到職日）', '預計到職日／錄取原因（選填，顧問會看到）');
-      else if (a === 'onboard') await actSetStage(id, 'onboard', '報到日期');
-      else if (a === 'addround') await actAddRound(id);
-    } finally { b.disabled = false; }
-  }));
-
-  // 視訊連結：已約好（或在等人選選時段）的面試才出現
-  const meet = document.getElementById('cmMeet');
-  if (st.kind === 'upcoming' || st.kind === 'wait_slot') {
-    meet.hidden = false;
-    meet.innerHTML = `<h4>視訊會議連結</h4>
-      <label for="cmMeetInput" class="meet-state" style="color:var(--ink)">如果是視訊面試，把連結貼在這：</label>
-      <div class="meet-row"><input type="url" id="cmMeetInput" inputmode="url" placeholder="https://teams.microsoft.com/…"><button type="button" id="cmMeetSave">交給顧問</button></div>
-      <div class="meet-state" id="cmMeetState" aria-live="polite">讀取中…</div>`;
-    document.getElementById('cmMeetSave').addEventListener('click', saveMeetLink);
-    updateMeetState();
-  } else { meet.hidden = true; meet.innerHTML = ''; }
-
-  let nrHtml = '';
-  if (c.advisor_not_recommended_at) {
-    const why = c.advisor_not_recommended_reason ? esc(c.advisor_not_recommended_reason).replace(/\n/g, '<br>') : '顧問評估後決定不推薦，未提供進一步說明。';
-    nrHtml = `<div class="nrec"><h4>這位人選我們不推薦</h4><div>${why}</div><div class="meet-state">顧問於 ${esc(String(c.advisor_not_recommended_at).slice(0, 10))} 標記</div></div>`;
-  }
-  document.getElementById('cmNoteBlock').innerHTML = nrHtml + `<h4>顧問給你的說明</h4>` + (c.client_note
-    ? `<div>${esc(c.client_note).replace(/\n/g, '<br>')}</div>` : `<div class="meet-state">顧問還沒寫說明</div>`);
-
-  const fileItem = (label, inner) => `<div class="cm-file-item"><div class="lb">${esc(label)}</div>${inner}</div>`;
-  document.getElementById('cmFiles').innerHTML = [
-    fileItem('初篩報告', c.has_client_report
-      ? `<a class="cm-fbtn" href="${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(c.application_id)}/report" target="_blank" rel="noopener">打開報告</a>`
-      : `<span class="wait">顧問還在整理</span>`),
-    ...(c.forms || []).map(f => fileItem(f.form_name, f.status === 'submitted'
-      ? `<a class="cm-fbtn" href="${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(c.application_id)}/form/${encodeURIComponent(f.id)}" target="_blank" rel="noopener">下載</a>`
-      : `<span class="wait">${f.status === 'not_sent' ? '未提供' : '未提供（已請人選填寫）'}</span>`)),
-    c.offer_stage_reached ? fileItem('錄取通知（Offer 信）',
-      `<input type="file" id="cmOfferFile" style="display:none" accept=".pdf,.jpg,.jpeg,.png">` +
-      `<button type="button" class="cm-fbtn" id="cmOfferBtn">${c.offer_file_name ? '重新上傳' : '上傳'}</button>` +
-      `<span class="meet-state" style="font-size:12px">PDF／JPG／PNG，8MB 以內${c.offer_file_name ? '・已寄給人選：' + esc(c.offer_file_name) : ''}</span>`) : '',
-  ].join('');
-  wireOfferUpload(appId);
-
-  document.getElementById('cmSteps').innerHTML = (c.steps || []).map(s => `
-    <div class="step ${s.done ? 'done' : ''} ${s.now ? 'now' : ''}"><div class="ln"></div><div class="dot">${s.done ? '✓' : ''}</div><div class="lb">${esc(s.key === 'confirm' ? '顧問推薦' : s.key === 'matched' ? '你決定面試' : shortStageLabel(s.lb))}</div></div>`).join('');
-  document.getElementById('cmInfo').textContent = c.line_id_given ? `人選 LINE ID：${c.line_id_given}` : '';
-
-  const mask = document.getElementById('candModalMask');
-  const wasOpen = mask.classList.contains('show');
-  mask.classList.add('show');
-  if (!wasOpen) { document.body.style.overflow = 'hidden'; setTimeout(() => document.getElementById('cmClose').focus(), 30); }
-  if (!sameApp || !wasOpen) { CHAT_MSGS = []; document.getElementById('cmChatWindow').innerHTML = '<div class="meet-state">讀取中…</div>'; }
-  cmLoadChat();
-  if (CHAT_POLL_TIMER) clearInterval(CHAT_POLL_TIMER);
-  CHAT_POLL_TIMER = setInterval(function () { if (!document.hidden) cmLoadChat(); }, 10000);
-}
-
-// 2026-10-28 Jacky：人選在 LINE／Email 選好時段、顧問在 TG 寄出連結，客戶頁要自己更新，
-// 不能停在舊畫面等客戶手動重新整理。畫面開著才抓（看不到的分頁不打，D1 額度事件的教訓），
-// 回到這個分頁時立刻抓一次；資料沒變就什麼都不做。客戶正在打字的連結欄、對話框不會被清掉。
-let LAST_CAND_SIG = '';
-function candSig(list){
-  return JSON.stringify((list || []).map(c => [c.application_id, c.client_advanced_at, c.client_rejected_at, c.candidate_withdrawn_at,
-    (c.steps || []).map(s => (s.done ? 'd' : '') + (s.now ? 'n' : '')).join(''),
-    (c.appts || []).map(a => [a.stage, a.status, a.confirmed_slot, a.meeting_url, a.link_sent_at].join('|')).join(',')]));
-}
-async function silentRefreshCandidates(){
-  if (document.hidden || !CANDIDATES_LOADED) return;
-  if (['reasonMask', 'dtModalMask', 'slotsModalMask'].some(id => document.getElementById(id).classList.contains('show'))) return;
-  try {
-    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates`);
-    const data = await res.json();
-    if (!data.ok) return;
-    const list = data.candidates || [];
-    const sig = candSig(list);
-    if (sig === LAST_CAND_SIG) return;
-    LAST_CAND_SIG = sig;
-    CAND_LIST = list;
-    renderCandList();
-    if (ACTIVE_APP && document.getElementById('candModalMask').classList.contains('show')) {
-      const mi = document.getElementById('cmMeetInput');
-      const typed = mi ? mi.value : '';
-      openCandModal(ACTIVE_APP);
-      const mi2 = document.getElementById('cmMeetInput');
-      if (mi2 && typed) mi2.value = typed;
-      toast('畫面已更新');
-    }
-  } catch { /* 下一輪再試 */ }
-}
-setInterval(silentRefreshCandidates, 40000);
-document.addEventListener('visibilitychange', () => { if (!document.hidden) silentRefreshCandidates(); });
-window.addEventListener('focus', silentRefreshCandidates);
 
 // 2026-09-03 加：跟 prompt() 一樣是「跳出來要一個值，取消就回 null」，
 // 只是多了 datetime-local 輸入框跟一個選填備註。
@@ -2605,9 +2055,9 @@ function promptThreeSlots(title){
     cancelBtn.addEventListener('click', onCancel);
   });
 }
-async function tblPropose(appId, c, stageOverride, replace){
+async function tblPropose(appId, c){
   const opts = interviewStageOptsFor(c);
-  const stage = stageOverride || currentInterviewStage(c) || (opts[0] || [])[0];
+  const stage = currentInterviewStage(c) || (opts[0] || [])[0];
   if (!stage) { alert('這個職缺還沒設定面試輪次，請聯繫顧問先設定'); return; }
   const stageLb = (opts.find(([k]) => k === stage) || [null, '這一階段面試'])[1];
   const picked = await promptThreeSlots(stageLb + '的候選時段');
@@ -2615,13 +2065,13 @@ async function tblPropose(appId, c, stageOverride, replace){
   try{
     const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(appId)}/propose-slots`, {
       method: 'POST', headers: {'content-type':'application/json'},
-      body: JSON.stringify({ stage, replace: replace === true || undefined, slots: picked.slots, interviewer: picked.interviewer || undefined,
+      body: JSON.stringify({ stage, slots: picked.slots, interviewer: picked.interviewer || undefined,
         location: picked.location || undefined, note: picked.note || undefined }),
     });
     const data = await res.json();
     if (!data.ok){ alert(data.error || '送出失敗'); return; }
     const via = [data.notified_line ? 'LINE' : null, data.notified_email ? 'Email' : null].filter(Boolean).join('＋');
-    toast(via ? `已經用 ${via} 通知人選選時段了` : '時段已存好，但這位人選沒綁 LINE 也沒有 Email，請聯繫顧問');
+    alert(via ? `已經用 ${via} 通知人選選時段了。` : '時段已存好，但這位人選還沒有可通知的管道（沒綁 LINE、也沒有 Email），麻煩自己聯繫他。');
     await loadCandidates();
   }catch{
     alert('連線失敗，請稍後再試');
@@ -2762,15 +2212,151 @@ async function tblReject(appId, reason, sel, prevValue, kind){
   }
 }
 
+function renderCards(){
+  const list = filteredCandidates();
+  const el = document.getElementById('dashCardView');
+  if (!list.length){ el.innerHTML = '<div class="dash-empty">目前沒有符合條件的人選</div>'; return; }
+  el.innerHTML = `<div class="dash-cards">${list.map(c => {
+    const cur = currentStageOf(c);
+    const steps = c.steps || [];
+    const dotsHtml = steps.map((s, i) => `<span class="dot ${s.done ? 'done' : ''}"></span>${i < steps.length - 1 ? '<span class="ln"></span>' : ''}`).join('');
+    return `<div class="dash-card cm-openbtn" data-app="${esc(c.application_id)}">
+      <div class="dash-card-top">
+        <div><b>${esc(c.candidate_name)}</b><div style="font-size:12px;color:var(--ink3)">${esc(c.job_title || c.job_slug)}</div></div>
+        <span class="dash-pill ${stagePillClass(cur)}">${esc(shortStageLabel(cur.lb))}</span>
+      </div>
+      <div class="dash-card-info">
+        <div><div class="lb">首次聯繫</div><div class="vv">${esc((c.forwarded_at || '').slice(0, 10)) || '—'}</div></div>
+        <div><div class="lb">LINE ID</div><div class="vv">${esc(c.line_id_given || '尚未提供')}</div></div>
+      </div>
+      <div class="dash-card-progress">${dotsHtml}</div>
+      <div class="dash-card-foot">
+        <span>目前狀態：${esc(shortStageLabel(cur.lb))}</span>
+        <span class="hint">點擊查看完整人選資料 →</span>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+  wireOpenButtons(el);
+}
+
+function wireOpenButtons(root){
+  root.querySelectorAll('.cm-openbtn').forEach(el => {
+    el.addEventListener('click', (e) => { e.stopPropagation(); openCandModal(el.dataset.app); });
+  });
+  // 表格的整列、卡片本身也要能點（不是只有「查看」按鈕才能開），跟 demo 的
+  // <tr onclick="openModal(...)"> 行為一致。
+  root.querySelectorAll('tr[data-app]').forEach(el => {
+    el.addEventListener('click', () => openCandModal(el.dataset.app));
+  });
+}
+
+// ── 人選詳情彈窗 ──
+function openCandModal(appId){
+  const c = CAND_LIST.find(x => x.application_id === appId);
+  if (!c) return;
+  ACTIVE_APP = appId;
+  document.getElementById('cmName').textContent = c.candidate_name;
+  document.getElementById('cmSub').textContent = `${c.job_title || c.job_slug}　/　目前狀態：${currentStageOf(c).lb}`;
+  document.getElementById('cmSteps').innerHTML = (c.steps || []).map(s => `
+    <div class="step ${s.done ? 'done' : ''} ${s.now ? 'now' : ''}"><div class="ln"></div><div class="dot">${s.done ? '✓' : ''}</div><div class="lb">${esc(s.lb)}</div></div>
+  `).join('');
+  document.getElementById('cmInfo').innerHTML = [
+    ['LINE ID', c.line_id_given || '尚未提供'],
+    ['推送日', (c.forwarded_at || '').slice(0, 10) || '—'],
+    ['職缺', c.job_title || c.job_slug || '—'],
+    ['目前狀態', currentStageOf(c).lb],
+  ].map(([k, v]) => `<div><div class="lb">${esc(k)}</div><div class="vv">${esc(v)}</div></div>`).join('');
+  // 2026-09-08 加：顧問標「不推薦」時客戶完全看不到，只看到人選卡在那裡，
+  // 不知道是我們評估後決定不推，還是流程卡住。這一塊放在「顧問給你的說明」
+  // 前面，因為它會直接改變客戶要不要繼續等這位人選。
+  // ⚠️ 原因已在後端過 scrubForClient()，濾光時回 null——這裡就顯示
+  //    「未提供說明」，不要露出半截句子。
+  var nrHtml = '';
+  if (c.advisor_not_recommended_at) {
+    var when = String(c.advisor_not_recommended_at).slice(0, 10);
+    var why = c.advisor_not_recommended_reason
+      ? esc(c.advisor_not_recommended_reason).replace(/\n/g, '<br>')
+      : '顧問評估後決定不推薦，未提供進一步說明。';
+    nrHtml = '<div class="nrec">'
+      + '<h4>這位人選我們不推薦</h4>'
+      + '<div class="nrec-why">' + why + '</div>'
+      + '<div class="nrec-when">顧問於 ' + esc(when) + ' 標記・這位人選不會再往下推進</div>'
+      + '</div>';
+  }
+  document.getElementById('cmNoteBlock').innerHTML = nrHtml + (c.client_note
+    ? `<h4>顧問給你的說明</h4><div class="note" style="margin:0">${esc(c.client_note).replace(/\n/g, '<br>')}</div>`
+    : `<h4>顧問給你的說明</h4><div style="color:var(--ink3);font-size:13px">尚未提供</div>`);
+  // 2026-09-02 加：人選客製表單（例：用人事資料表）——只有這個職缺真的有掛
+  // 表單、且人選已經填完的才會出現下載按鈕；還在等人選填的顯示狀態文字，
+  // 不給下載（還沒有檔案）。
+  // ⚠️ 2026-09-03 改：原本履歷／報告／表單三顆按鈕長得一模一樣，擠在一排，
+  // 只能靠讀按鈕文字分——客戶反映分不清楚哪個是哪個。改成每一項都先給一行
+  // 小標籤（帶圖示）再放操作，跟基本資料那格用同一套「標籤在上、內容在下」
+  // 的視覺語言，不用讀完整句按鈕文字也知道自己在點什麼。
+  const fileItem = (icon, label, inner) =>
+    `<div class="cm-file-item"><div class="lb"><span class="ic">${icon}</span>${esc(label)}</div>${inner}</div>`;
+  // 2026-09-07 拿掉：企業客戶不該直接下載到人選原始履歷（104格式、聯絡方式
+  // 等未經篩選的資訊）——客戶要看的內容一律走「初篩報告摘要」（顧問確認過、
+  // 整理過的版本），原始履歷只留在顧問後台。
+  const filesHtml = [
+    // 2026-09-07 改：原本按鈕會 fetch 內容再展開文字框，讀的是舊版
+    // reports.content_client_md（新版PDF管線上線後沒人寫入，永遠是空的）。
+    // 改成跟履歷下載同一種直接連結，指向顧問上傳確認過的 PDF——見
+    // /portal/:token/candidates/:id/report 端點的改動說明。
+    fileItem('📊', '初篩報告摘要', c.has_client_report
+      ? `<a class="cm-fbtn" href="${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(c.application_id)}/report" target="_blank" rel="noopener">👁 查看</a>`
+      : `<span class="wait">顧問還在準備</span>`),
+    ...(c.forms || []).map(f => fileItem('📋', f.form_name, f.status === 'submitted'
+      ? `<a class="cm-fbtn" href="${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(c.application_id)}/form/${encodeURIComponent(f.id)}" target="_blank" rel="noopener">↓ 下載</a>`
+      : `<span class="wait">等人選填寫中</span>`)),
+    // 2026-09-10 加：offer信上傳——只有到「錄取」階段才出現，上傳後同步寄給
+    // 人選跟用人單位自己的信箱各一份，不用另外轉寄。已經傳過的顯示檔名＋
+    // 重新上傳（覆蓋，寄送邏輯不變，每次都會重寄一次給雙方）。
+    c.offer_stage_reached
+      ? fileItem('📨', 'Offer 信',
+          `<input type="file" id="cmOfferFile" style="display:none" accept=".pdf,.jpg,.jpeg,.png">` +
+          `<button type="button" class="cm-fbtn" id="cmOfferBtn">${c.offer_file_name ? '🔄 重新上傳' : '⬆ 上傳'}</button>` +
+          `<div class="mut" style="font-size:11px;margin-top:3px">限PDF／JPG／PNG，檔案大小8MB以內</div>` +
+          (c.offer_file_name ? `<div class="mut" style="font-size:11.5px;margin-top:4px">${esc(c.offer_file_name)}・已同步寄給人選</div>` : ''))
+      : '',
+  ].join('');
+  document.getElementById('cmFiles').innerHTML = filesHtml;
+  wireOfferUpload(appId);
+
+  if (c.client_rejected_at){
+    document.getElementById('cmUpdateBox').innerHTML = `
+      <div class="cm-update-grid" style="flex-direction:column;align-items:stretch;background:#fbeaea;border-radius:8px;padding:10px">
+        <b style="color:var(--bad);font-size:13px">已標記不推進此人選</b>
+        <div style="font-size:13px;margin-top:4px">${esc(c.client_reject_reason || '')}</div>
+        <div class="mut" style="font-size:11.5px;margin-top:4px">${esc((c.client_rejected_at||'').slice(0,16))}</div>
+      </div>`;
+  } else {
+    // 2026-09-01 拿掉：「新增下一輪面試」整組控制項搬走了——面試有幾關是
+    // 這個職缺的設定（用人需求表的「面試輪數設定」），不是候選人卡片上
+    // 臨時決定的事，放在這裡容易誤按、又跟職缺設定各講各的兜不起來。
+    // cmStagePick／cmStageUpd 這組下拉本來跟表格的下拉寫的是同一個後端
+    // 動作，兩個介面都能設同一件事，一樣的理由拿掉。這裡只留純提示文字，
+    // 表格是唯一操作入口。
+    document.getElementById('cmUpdateBox').innerHTML = `
+      <p class="cm-hint">要推進階段（第一階段／錄取／報到）或不推進，回到表格用對應那欄的下拉選單。這個職缺實際有幾階段面試，到「用人需求表」該職缺的「面試輪數設定」調整。</p>
+      `;
+  }
+
+  document.getElementById('candModalMask').classList.add('show');
+  cmLoadChat();
+  if (CHAT_POLL_TIMER) clearInterval(CHAT_POLL_TIMER);
+  // 彈窗開著時本來就有範圍限制（關閉會 clearInterval），這裡順手也補上
+  // 分頁不可見就不打，跟其他輪詢統一標準。
+  CHAT_POLL_TIMER = setInterval(function () { if (!document.hidden) cmLoadChat(); }, 10000);
+}
 function closeCandModal(){
   document.getElementById('candModalMask').classList.remove('show');
-  document.body.style.overflow = '';
   if (CHAT_POLL_TIMER){ clearInterval(CHAT_POLL_TIMER); CHAT_POLL_TIMER = null; }
   ACTIVE_APP = null;
 }
 document.getElementById('cmClose').addEventListener('click', closeCandModal);
 document.getElementById('candModalMask').addEventListener('click', (e) => { if (e.target.id === 'candModalMask') closeCandModal(); });
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !document.getElementById('reasonMask').classList.contains('show') && !document.getElementById('dtModalMask').classList.contains('show') && !document.getElementById('slotsModalMask').classList.contains('show')) closeCandModal(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeCandModal(); });
 
 async function cmLoadChat(){
   if (!ACTIVE_APP) return;
@@ -2780,12 +2366,11 @@ async function cmLoadChat(){
     const data = await res.json();
     if (!data.ok) return;
     const msgs = data.messages || [];
-    CHAT_MSGS = msgs; updateMeetState();
     win.innerHTML = msgs.length
       ? msgs.map(m => `<div class="chat-msg ${m.from_role === 'client' ? 'client' : 'consultant'}">
           ${esc(m.content)}<div class="t">${m.from_role === 'client' ? '你' : esc(m.from_name || 'STEP1NE 顧問')}・${esc((m.created_at || '').slice(5, 16))}</div>
         </div>`).join('')
-      : '<div class="meet-state">還沒有訊息。有問題直接在下面問顧問。</div>';
+      : '<div class="state" style="margin:8px 0">還沒有訊息，直接在下面輸入傳給顧問。</div>';
     win.scrollTop = win.scrollHeight;
     refreshNotifications();
   }catch{
@@ -2813,68 +2398,32 @@ document.getElementById('cmChatSend').addEventListener('click', async () => {
 });
 
 // ── 通知鈴鐺：跨人選的未讀訊息角標 ──
-// 2026-10-28 Jacky：「小鈴鐺感覺沒有用到」——原本只列顧問回的未讀訊息，幾乎永遠是空的。
-// 改成「上次看之後發生了什麼」：新推薦人選、人選選好面試時間、視訊連結已寄、人選放棄、顧問回覆、款項已確認。
-// 「上次看」記在這台瀏覽器（localStorage）；顧問未讀訊息照舊以後台數字為準。
-const BELL_SEEN_KEY = 'portal_bell_seen_' + token;
-function bellSeen(){ try { return localStorage.getItem(BELL_SEEN_KEY) || ''; } catch { return ''; } }
-function bellMarkSeen(){ try { localStorage.setItem(BELL_SEEN_KEY, taipeiNow()); } catch {} }
-let BELL_BILL = null;
 async function refreshNotifications(){
   try{
     const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/notifications`);
     const data = await res.json();
     if (!data.ok) return;
-    if (BELL_BILL === null) {
-      try { const b = await (await fetch(`${API}/portal/${encodeURIComponent(token)}/billing`)).json(); BELL_BILL = (b.ok && b.installments) || []; } catch { BELL_BILL = []; }
-    }
-    const seen = bellSeen();
-    const since = new Date(Date.now() + 8 * 3600e3 - 30 * 86400e3).toISOString().slice(0, 10);  // 只列 30 天內
-    const ev = [];
-    (data.items || []).forEach(it => ev.push({ at: '9999', app: it.application_id, unread: true,
-      text: `<b>${esc(it.name)}</b>：顧問回覆了（${it.unread_count} 則）`, sub: (it.last_message || '').slice(0, 40) }));
-    (CAND_LIST || []).forEach(c => {
-      const nm = `<b>${esc(c.candidate_name)}</b>`;
-      if (c.forwarded_at) ev.push({ at: c.forwarded_at, app: c.application_id, text: `${nm}：顧問推薦了新人選`, sub: c.job_title || '' });
-      (c.appts || []).forEach(a => {
-        if (a.confirmed_at) ev.push({ at: a.confirmed_at, app: c.application_id, text: `${nm}：選好面試時間了`, sub: fmtSlot(a.confirmed_slot) });
-        if (a.link_sent_at) ev.push({ at: a.link_sent_at, app: c.application_id, text: `${nm}：視訊連結已寄給人選`, sub: '' });
-      });
-      if (c.candidate_withdrawn_at) ev.push({ at: c.candidate_withdrawn_at, app: c.application_id, text: `${nm}：人選決定不繼續`, sub: c.candidate_withdraw_reason || '' });
-    });
-    (BELL_BILL || []).forEach(r => {
-      const d = (r.confirmed_received === 'yes' || r.paid) && (r.paid_date || r.confirmed_date);
-      if (d) ev.push({ at: d, bill: true, text: `<b>${esc(r.candidate_name)}</b>・${esc(r.label)}：款項已確認收到`, sub: '' });
-    });
-    const list = ev.filter(x => x.unread || String(x.at) >= since).sort((a, b) => String(b.at).localeCompare(String(a.at))).slice(0, 20);
-    list.forEach(x => { x.fresh = x.unread || (seen ? String(x.at) > seen : String(x.at).slice(0, 10) >= since && false); });
-    // 第一次打開（沒有「上次看」）：不把 30 天內全部標成新的，只標 3 天內的
-    if (!seen) { const d3 = new Date(Date.now() + 8 * 3600e3 - 3 * 86400e3).toISOString().slice(0, 10); list.forEach(x => { if (!x.unread) x.fresh = String(x.at) >= d3; }); }
-    const n = list.filter(x => x.fresh).length;
     const badge = document.getElementById('notifyBadge');
-    badge.textContent = n > 99 ? '99+' : n;
-    badge.classList.toggle('show', n > 0);
+    badge.textContent = data.total_unread;
+    badge.classList.toggle('show', data.total_unread > 0);
     const listEl = document.getElementById('notifyList');
-    listEl.innerHTML = '<div class="bell-head">最新動態</div>' + (list.length
-      ? list.map((x, i) => `<button type="button" class="notify-item${x.fresh ? ' fresh' : ''}" data-i="${i}">
-          <span class="bell-t">${x.text}</span>${x.sub ? `<span>${esc(x.sub)}</span>` : ''}
-          ${x.unread ? '' : `<span class="bell-at num">${esc(fmtSlot(String(x.at).slice(0, 16)))}</span>`}</button>`).join('')
-      : '<div class="notify-empty">最近 30 天沒有新動態</div>');
-    listEl.querySelectorAll('.notify-item').forEach(el => el.addEventListener('click', () => {
-      const x = list[Number(el.dataset.i)];
-      document.getElementById('notifyMenu').classList.remove('show');
-      if (x.bill) showTopView('billing'); else if (x.app) openFromNotification(x.app);
-    }));
+    const items = data.items || [];
+    listEl.innerHTML = items.length
+      ? items.map(it => `<div class="notify-item" data-app="${esc(it.application_id)}">
+          <b>${esc(it.name)} <span class="unread-dot">${it.unread_count}</span></b>
+          <span>${esc((it.last_message || '').slice(0, 40))}</span>
+        </div>`).join('')
+      : '<div class="notify-empty">目前沒有未讀訊息</div>';
+    listEl.querySelectorAll('.notify-item').forEach(el => {
+      el.addEventListener('click', () => openFromNotification(el.dataset.app));
+    });
   }catch{
     // 通知輪詢失敗不打斷使用
   }
 }
 document.getElementById('notifyBtn').addEventListener('click', (e) => {
   e.stopPropagation();
-  const m = document.getElementById('notifyMenu');
-  m.classList.toggle('show');
-  // 打開看過＝這些都不算新的了（顧問未讀訊息除外，要點進去讀才會消）
-  if (m.classList.contains('show')) { bellMarkSeen(); setTimeout(refreshNotifications, 1500); }
+  document.getElementById('notifyMenu').classList.toggle('show');
 });
 document.addEventListener('click', (e) => {
   if (!e.target.closest('.notify-wrap')) document.getElementById('notifyMenu').classList.remove('show');
