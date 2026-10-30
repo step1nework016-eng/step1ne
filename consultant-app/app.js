@@ -3040,11 +3040,12 @@ async function openCandidate(applicationId, opts = {}) {
   // 顧問名單跟人選資料同時抓，不再一個等完才抓下一個
   const consListP = ensureConsultants().catch(() => []);
   try {
-    const useCache = !!cached && !sameOpen && !opts.fresh;
+    // opts.patch：剛存完的小改動已經寫進快取，直接用快取重畫，不再重抓整張卡（/card 要 4～5 秒）
+    const useCache = !!cached && (opts.patch || (!sameOpen && !opts.fresh));
     const card = useCache ? cached : await adapters.candidateCard(applicationId);
     if (state.openCandidateId !== applicationId) return;   // 等資料的時候已經換看別人了
     cardCache.set(applicationId, card);
-    if (useCache) setTimeout(() => { if (state.openCandidateId === applicationId) openCandidate(applicationId, { fresh: true }); }, 0);
+    if (useCache && !opts.patch) setTimeout(() => { if (state.openCandidateId === applicationId) openCandidate(applicationId, { fresh: true }); }, 0);
     const application = card.application || card;
     const forwards = card.forwards || [];
     const notes = card.notes || [];
@@ -4500,7 +4501,14 @@ async function submitPendingAction() {
     // 其他情境（職缺／客戶等其他抽屜或跟卡片無關的操作）維持原本行為。
     // 2026-10-16 Jacky：卡片裡指派完，後面的列表要馬上變（顧問名字出現、NEW 消失），不用等整份重抓。
     if (action === ACTIONS['set-owner'] && ctx.idParams && ctx.idParams.kind === 'application') patchCandidateOwner(ctx.idParams.id, values.owner || '');
-    if (state.openCandidateId) {
+    // 2026-10-30 Jacky「還是卡卡的」：LINE ID 存完直接改快取重畫，不重抓 4～5 秒的整張卡
+    const lineCached = action === ACTIONS['cand-line-id'] && state.openCandidateId ? cardCache.get(state.openCandidateId) : null;
+    if (lineCached) {
+      const v = String(values.line_id || '').trim() || null;
+      lineCached.line_id_manual = v;
+      (lineCached.forwards || []).forEach((f) => { f.line_id_given = v; });
+      openCandidate(state.openCandidateId, { patch: true });
+    } else if (state.openCandidateId) {
       openCandidate(state.openCandidateId, { fresh: true });
       // 卡片開著時，後面的列表也在背景悄悄更新（不清空畫面，見 core/ui.js boundary）
       if (state.route === 'candidates' && action !== ACTIONS['cand-line-id']) refreshCurrentView();   // 2026-10-30 LINE ID 不在列表上，不用重抓整份列表（卡頓）
