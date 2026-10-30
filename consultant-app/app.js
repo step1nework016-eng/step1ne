@@ -10,6 +10,7 @@ import { jdFieldParse } from './jd_fields.js';
 import { initMail, loadMailTab, injectMailSection } from './mail.js';
 import { initConsultantSetup, loadConsultantSetupTab } from './consultant_setup.js';
 import { initChannels, loadChannelsTab, openChannel } from './channels.js';
+import { loadLibraryTab } from './library.js';
 import { wireBdCard, bdShowStageRemind, bdShowTagRemind } from './bdcard.js';
 import { loadDealTerms } from './dealterms.js';
 import { wireBdJobs } from './bdjobs.js';
@@ -77,6 +78,7 @@ async function loadRoute() {
   if (state.route === 'mail') return loadMailTab(target);
   if (state.route === 'onboarding') return loadConsultantSetupTab(target);
   if (state.route === 'channels') return loadChannelsTab(target);
+  if (state.route === 'library') return loadLibraryTab(target);
 }
 
 // 2026-09-17 加：顧問人選面談室。owner 選單沿用跟人選工作台一樣的

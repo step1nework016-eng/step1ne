@@ -219,6 +219,7 @@ export const NAV_GROUPS = [
   { id: 'jobs', label: '職缺', icon: '▣', tabs: [['jobs', '職缺']] },
   { id: 'progress', label: '帶案進度', icon: '▥', tabs: [['recruitment', '招募總覽'], ['casestatus', '帶案狀況']] },
   { id: 'clients', label: '客戶／BD', icon: '♙', tabs: [['clients', '客戶／BD'], ['mail', '信箱紀錄']] },
+  { id: 'library', label: '書櫃', icon: '▤', tabs: [['library', '文件書櫃']] },
   { id: 'social', label: '社群', icon: '◁', tabs: [['social', '社群'], ['channels', '招募管道']] },
   { id: 'system', label: '系統', icon: '⚙', tabs: [['system', '系統'], ['onboarding', '顧問上工設定'], ['roles', 'AI 職務說明書'], ['paths', '人選路線圖'], ['billflow', '收費流程']] },
 ];
@@ -275,6 +276,8 @@ export const views = {
   paths: () => pageHead('人選路線圖', '人選從哪個管道進來、各走哪一條路。跟 Phoebe 對流程時看這張。', '<a class="btn primary" href="/consultant-app-beta/candidate-paths.html" target="_blank" rel="noopener" style="min-height:44px;display:inline-flex;align-items:center;text-decoration:none">另開分頁看 ↗</a>') + `<div id="page-data"><iframe class="casestatus-frame" src="/consultant-app-beta/candidate-paths.html" title="人選路線圖" loading="lazy"></iframe></div>`,
   // 2026-10-28 Jacky「把收費流程畫張圖，讓顧問知道後台流程是什麼」：一列一步驟、一欄一角色，常漏的標橘
   billflow: () => pageHead('收費流程', '從人選報到到錢入帳：誰、在哪裡、做什麼。橘框是最常漏的一步（客戶直接匯款後沒按「已收到款」）。', '<a class="btn primary" href="/consultant-app-beta/billing-flow.html" target="_blank" rel="noopener" style="min-height:44px;display:inline-flex;align-items:center;text-decoration:none">另開分頁看 ↗</a>') + `<div id="page-data"><iframe class="casestatus-frame" src="/consultant-app-beta/billing-flow.html" title="收費流程" loading="lazy"></iframe></div>`,
+  // 2026-10-30 加：文件書櫃（畫面與邏輯在 library.js）
+  library: () => pageHead('文件書櫃', '公司範本（合約、簡介、客戶給的範本）每一層一本「使用中」，系統寄信自動附那本；客戶文件櫃依合作階段放每家客戶的文件。') + `<div id="page-data"></div>`,
   // 2026-10-15 加：招募管道（畫面與邏輯在 channels.js）
   channels: () => pageHead('招募管道', '請訓練機構、學校等幫忙推人的管道，一家一張卡。拖到別欄＝改狀態；點卡片看聯絡紀錄、推來的人選與成效。左邊紅線＝到了該追的日子。', '<button class="btn primary" data-action="channel-new">＋ 新增管道</button>') + `<div id="page-data"></div>`,
   board: (tab = 'cand') => pageHead('進度看板', '每一欄是一個階段，每張卡是一個人選或一家客戶。左邊有紅線的＝在這關停太久，該追了。')

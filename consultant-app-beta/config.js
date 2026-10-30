@@ -23,6 +23,7 @@ export const ROUTES = Object.freeze({
   clients: '/consultant-beta/clients-workspace/',
   channels: '/consultant-beta/channels/',
   mail: '/consultant-beta/mail/',
+  library: '/consultant-beta/library/',
   onboarding: '/consultant-beta/onboarding/',
   roles: '/consultant-beta/agent-roles/',
   paths: '/consultant-beta/candidate-paths/',
