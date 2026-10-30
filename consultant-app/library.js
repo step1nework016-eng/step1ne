@@ -66,7 +66,7 @@ function detailHtml(b) {
   const L = LAYERS.find((x) => x.k === b.layer) || {};
   const same = books.filter((x) => x.layer === b.layer && (b.layer !== 'client_tpl' || (x.company_id === b.company_id && x.short === b.short)));
   const tag = b.is_active ? '<span class="lib-pill on">📌 使用中</span>' : b.company_id && b.layer !== 'client_tpl' ? '<span class="lib-pill cl">客戶專用</span>' : '<span class="lib-pill">舊版</span>';
-  return `<div class="lib-dr">${tag} <span class="lib-pill">${esc(L.name || '')}</span>${b.company_name ? ` <span class="lib-pill">${esc(b.company_name)}</span>` : ''}</div>
+  return `<div class="lib-dr"><div class="lib-tags">${tag} <span class="lib-pill">${esc(L.name || '')}</span>${b.company_name ? ` <span class="lib-pill">${esc(b.company_name)}</span>` : ''}</div>
     <p class="muted">${esc(day(b.uploaded_at))}${b.uploaded_by ? `・${esc(b.uploaded_by)} 上傳` : ''}${b.note ? `<br>${esc(b.note)}` : ''}</p>
     <div class="lib-acts">${fileButtons(fpath(b.file_id), b.filename || `${b.title}.pdf`)}${b.is_active ? '' : `<button type="button" class="btn sm" data-lib-activate="${esc(b.id)}">設成使用中</button>`}</div>
     ${same.length > 1 ? `<div class="lib-vers"><b>同一層的版本</b>${same.map((x) => `<button type="button" data-book="${esc(x.id)}" class="${x.id === b.id ? 'cur' : ''}"><span>${esc(day(x.uploaded_at))}</span><span>${esc(x.short || x.title)}${x.is_active ? '・使用中' : ''}</span></button>`).join('')}</div>` : ''}</div>`;
