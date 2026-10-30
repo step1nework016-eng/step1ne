@@ -456,9 +456,9 @@ export const views = {
       || d.source_url || '（沒有職缺資料）';
     return `<article class="list-row"><span><b>${text(String(what).slice(0, 60))}</b>
       <small>客戶：${text(d.client_name || '（沒填）')}${d.draft_title ? '' : '　（職稱等 AI 擬完會換成正式的）'}</small>
-      <small>送出：<b>${text(d.submitted_by || '（沒填）')}</b>　指派顧問：<b>${text(d.job_owner || d.assigned_to || d.submitted_by || '未指派')}</b></small>
+      <small>送出：<b>${text(d.submitted_by || '（沒填）')}</b>　指派顧問：<b>${text(d.job_owner || d.assigned_to || (/^總指揮/.test(d.submitted_by || '') ? '' : d.submitted_by) || '未指派')}</b></small>
       <small>${text(SL[d.service_line] || d.service_line || '')} · ${text(ST[d.status] || d.status)} · 附件 ${text(d.file_count ?? 0)} 個 · ${text(d.created_at)}${d.published_slug ? ` · 職缺：${text(d.published_slug)}` : ''}</small></span>
-      ${rowActions([actionBtn('改指派顧問','job-draft-assign',{ idParams: { id: d.id }, record: { assigned_to: d.job_owner || d.assigned_to || d.submitted_by || '' } }), ...(done ? [] : [actionBtn('刪除收件單','job-draft-delete',{ idParams: { id: d.id } },'danger')])])}</article>`;
+      ${rowActions([actionBtn('改指派顧問','job-draft-assign',{ idParams: { id: d.id }, record: { assigned_to: d.job_owner || d.assigned_to || '' } }), ...(done ? [] : [actionBtn('刪除收件單','job-draft-delete',{ idParams: { id: d.id } },'danger')])])}</article>`;
   }),
   jobCheckRows: (items) => list(items, (j) => `<article class="list-row"><span><b>${text(j.title || j.job_title)}</b><small>${text(j.slug || j.job_slug)} · ${text(j.missing || j.note)}</small></span>${rowActions([actionBtn('確認必要條件','must-check-confirm',{ idParams: { slug: j.slug || j.job_slug } })])}</article>`),
   // /admin/expertise 回傳 {banks, missing} 兩個陣列；banks 每筆是 title/job_slug/questions_json
