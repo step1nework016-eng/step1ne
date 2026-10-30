@@ -2931,7 +2931,7 @@ function hasContact(a) { return !!((a.phone && a.phone.trim()) || (a.email && !i
 // ② 按鈕分三組：聯絡人選（寄信約電話＝主按鈕、回信確認時間、給人選連結）／其他（更多動作下拉）／結案（寄婉拒信，最右、淡色）
 // ③ DISC 格子點了才展開分數＋測驗連結（原本「風格測驗」單獨一大格）
 // 按鈕的 data-* 屬性跟原本 reviewLinkRow 一樣，沿用既有的全站點擊處理，不另寫一套。
-const LINE_BIND_HOWTO = '加入 Step1ne LINE 官方帳號（https://lin.ee/XcSWPzM），點下方選單「追蹤面試進度」填一下表單，之後面試進度就會直接用 LINE 通知你。';
+const LINE_BIND_HOWTO = '加入全民獵才 LINE 官方帳號（https://lin.ee/XcSWPzM），點下方選單「追蹤面試進度」填一下表單，之後面試進度就會直接用 LINE 通知你。';
 function candBasicsBlock(app, applicationId, { channelTag, lineHtml, lineBound, disc, styleHtml, lineId = '' }) {
   const e = escapeHtml;
   const mail = String(app.email || '').trim();
