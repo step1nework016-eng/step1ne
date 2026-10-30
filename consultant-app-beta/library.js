@@ -3,7 +3,7 @@
 // ②客戶文件櫃：左邊選客戶、上方 7 個合作階段，點階段列出文件。手動上傳的放 client_files，
 //   其餘（開發信附件、推薦報告、人事資料表、offer、發票／匯款證明）後端自動帶出，不用重複上傳。
 import { api } from './core/api.js';
-import { toast, loading, errorState } from './core/ui.js';
+import { toast, loading, errorState, drawer, closeOverlay } from './core/ui.js';
 import { escapeHtml } from './core/security.js';
 import { fileButtons, wireFileButtons } from './filepreview.js';
 
@@ -50,9 +50,8 @@ function render() {
 
 // ── 公司範本 ─────────────────────────────
 function libHtml() {
-  const cur = books.find((b) => b.id === ui.book) || books[0];
   return `<div class="lib-legend"><span><b style="background:var(--lib-contract)"></b>合約</span><span><b style="background:var(--lib-profile)"></b>公司簡介</span><span><b style="background:var(--lib-client)"></b>客戶給的範本／客戶專用</span><span><b style="background:var(--lib-old)"></b>舊版（留著查）</span><span><b style="background:var(--lib-ribbon)"></b>書籤＝使用中（系統寄信自動附這本）</span></div>
-  <div class="lib-grid"><div class="lib-shelves">${LAYERS.map((L) => {
+  <div class="lib-shelves">${LAYERS.map((L) => {
     const xs = books.filter((b) => b.layer === L.k);
     return `<section class="lib-shelf"><h2><i style="background:${L.color}"></i>${esc(L.name)}<span class="lib-pill">${xs.length} 本</span></h2>
       <div class="lib-row">${xs.map((b) => {
@@ -61,17 +60,32 @@ function libHtml() {
         return `<button type="button" class="lib-book${old ? ' old' : ''}" style="background:${color};height:${b.is_active ? 178 : 162}px" aria-pressed="${b.id === ui.book}" data-book="${esc(b.id)}" aria-label="${esc(b.title)}${b.is_active ? '（使用中）' : old ? '（舊版）' : ''}">${b.is_active ? '<i class="rib"></i>' : ''}<span class="t">${esc(b.short || b.title.slice(0, 6))}</span><span class="y">${esc(String(b.uploaded_at || '').slice(5, 10).replace('-', '/'))}</span></button>`;
       }).join('')}<button type="button" class="lib-book add" data-lib-up="${L.k}" aria-label="上傳新版本到${esc(L.name)}"><span class="t">＋ 新版本</span></button></div><div class="lib-board"></div></section>`;
   }).join('')}</div>
-  <aside class="lib-detail" aria-live="polite">${cur ? detailHtml(cur) : '<p class="muted">書櫃還是空的，按「＋ 新版本」放第一本。</p>'}</aside></div>`;
+  </div>${books.length ? '' : '<p class="muted">書櫃還是空的，按「＋ 新版本」放第一本。</p>'}`;
 }
 function detailHtml(b) {
   const L = LAYERS.find((x) => x.k === b.layer) || {};
   const same = books.filter((x) => x.layer === b.layer && (b.layer !== 'client_tpl' || (x.company_id === b.company_id && x.short === b.short)));
   const tag = b.is_active ? '<span class="lib-pill on">📌 使用中</span>' : b.company_id && b.layer !== 'client_tpl' ? '<span class="lib-pill cl">客戶專用</span>' : '<span class="lib-pill">舊版</span>';
-  return `<div>${tag} <span class="lib-pill">${esc(L.name || '')}</span>${b.company_name ? ` <span class="lib-pill">${esc(b.company_name)}</span>` : ''}</div>
-    <h3>${esc(b.title)}</h3>
+  return `<div class="lib-dr">${tag} <span class="lib-pill">${esc(L.name || '')}</span>${b.company_name ? ` <span class="lib-pill">${esc(b.company_name)}</span>` : ''}</div>
     <p class="muted">${esc(day(b.uploaded_at))}${b.uploaded_by ? `・${esc(b.uploaded_by)} 上傳` : ''}${b.note ? `<br>${esc(b.note)}` : ''}</p>
     <div class="lib-acts">${fileButtons(fpath(b.file_id), b.filename || `${b.title}.pdf`)}${b.is_active ? '' : `<button type="button" class="btn sm" data-lib-activate="${esc(b.id)}">設成使用中</button>`}</div>
-    ${same.length > 1 ? `<div class="lib-vers"><b>同一層的版本</b>${same.map((x) => `<button type="button" data-book="${esc(x.id)}" class="${x.id === b.id ? 'cur' : ''}"><span>${esc(day(x.uploaded_at))}</span><span>${esc(x.short || x.title)}${x.is_active ? '・使用中' : ''}</span></button>`).join('')}</div>` : ''}`;
+    ${same.length > 1 ? `<div class="lib-vers"><b>同一層的版本</b>${same.map((x) => `<button type="button" data-book="${esc(x.id)}" class="${x.id === b.id ? 'cur' : ''}"><span>${esc(day(x.uploaded_at))}</span><span>${esc(x.short || x.title)}${x.is_active ? '・使用中' : ''}</span></button>`).join('')}</div>` : ''}</div>`;
+}
+// 2026-10-30 Jacky：點書要從右邊抽屜打開，不要顯示在書架下面
+function openBook(id) {
+  const b = books.find((x) => x.id === id);
+  if (!b) return;
+  ui.book = id;
+  root.querySelectorAll('[data-book]').forEach((x) => x.setAttribute('aria-pressed', x.dataset.book === id));
+  drawer({ title: b.title, subtitle: (LAYERS.find((x) => x.k === b.layer) || {}).name || '', body: detailHtml(b) });
+  const box = document.getElementById('overlay-root');
+  box.querySelectorAll('[data-book]').forEach((x) => x.onclick = () => openBook(x.dataset.book));
+  box.querySelectorAll('[data-lib-activate]').forEach((x) => x.onclick = async () => {
+    x.disabled = true;
+    try { await api.post(`/admin/library/${encodeURIComponent(x.dataset.libActivate)}/activate`, {}); toast('已設成使用中，之後系統寄信改附這本', 'success'); closeOverlay(); await loadLibraryTab(root); }
+    catch (e) { toast(e.message, 'error'); x.disabled = false; }
+  });
+  wireFileButtons(box);
 }
 
 // ── 客戶文件櫃 ─────────────────────────────
@@ -158,7 +172,7 @@ function openUpload(mode) {
 
 function wire() {
   root.querySelectorAll('[data-lib-tab]').forEach((b) => b.onclick = async () => { ui.tab = b.dataset.libTab; render(); if (ui.tab === 'cab') await loadDocs(); });
-  root.querySelectorAll('[data-book]').forEach((b) => b.onclick = () => { ui.book = b.dataset.book; render(); });
+  root.querySelectorAll('[data-book]').forEach((b) => b.onclick = () => openBook(b.dataset.book));
   root.querySelectorAll('[data-lib-up]').forEach((b) => b.onclick = () => openUpload(b.dataset.libUp));
   root.querySelectorAll('[data-lib-activate]').forEach((b) => b.onclick = async () => {
     b.disabled = true;
