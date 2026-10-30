@@ -14,7 +14,8 @@ const LAYERS = [
   { k: 'profile', name: '公司簡介', color: 'var(--lib-profile)' },
   { k: 'client_tpl', name: '客戶給的範本', color: 'var(--lib-client)' },
 ];
-const ui = { tab: 'lib', book: null, co: null, stage: null };
+const ui = { tab: 'lib', book: null, co: null, stage: null, q: '' };
+let counts = {};
 let books = [];
 let companies = [];
 let docs = [];
@@ -27,9 +28,12 @@ export async function loadLibraryTab(target) {
   root = target;
   root.innerHTML = loading('書櫃整理中');
   try {
-    const [lib, cos] = await Promise.all([api.get('/admin/library'), api.get('/admin/portal/companies')]);
+    const [lib, cos, sum] = await Promise.all([api.get('/admin/library'), api.get('/admin/portal/companies'), api.get('/admin/client-docs-summary').catch(() => ({ counts: {} }))]);
     books = lib.books || [];
-    companies = (cos.items || cos.companies || []).filter((c) => c && c.id && !/測試/.test(c.display_name || ''));
+    counts = sum.counts || {};
+    // 2026-10-30 Jacky：有文件的客戶排上面、沒有的排下面（同樣多照名稱）
+    companies = (cos.items || cos.companies || []).filter((c) => c && c.id && !/測試/.test(c.display_name || ''))
+      .sort((a, b) => (counts[b.id] || 0) - (counts[a.id] || 0) || String(a.display_name).localeCompare(String(b.display_name), 'zh-Hant'));
     if (!ui.book && books.length) ui.book = (books.find((b) => b.is_active && b.layer === 'contract') || books[0]).id;
     if (!ui.co && companies.length) ui.co = companies[0].id;
     render();
@@ -89,13 +93,24 @@ function openBook(id) {
 }
 
 // ── 客戶文件櫃 ─────────────────────────────
+function coListHtml() {
+  const q = ui.q.trim().toLowerCase();
+  const xs = companies.filter((c) => !q || String(c.display_name).toLowerCase().includes(q));
+  if (!xs.length) return '<p class="muted" style="padding:8px 12px">找不到這家客戶</p>';
+  let hadEmpty = false;
+  return xs.map((c) => {
+    const n = counts[c.id] || 0;
+    const sep = !n && !hadEmpty && xs.some((x) => counts[x.id]) ? (hadEmpty = true, '<p class="lib-sep">還沒有文件</p>') : '';
+    return `${sep}<button type="button" aria-current="${c.id === ui.co}" data-lib-co="${esc(c.id)}" class="${n ? '' : 'none'}"><span>${esc(c.display_name)}<small>${esc(c.relation === 'signed' ? '已簽約' : c.relation === 'private' ? '私人協助' : '未簽約')}</small></span>${n ? `<span class="lib-pill">${n}</span>` : ''}</button>`;
+  }).join('');
+}
 function cabHtml() {
   const co = companies.find((c) => c.id === ui.co);
   const by = Object.fromEntries(STAGES.map((s) => [s, docs.filter((d) => d.stage === s)]));
   if (!ui.stage) ui.stage = [...STAGES].reverse().find((s) => by[s].length) || STAGES[0];
   const xs = by[ui.stage] || [];
   return `<div class="lib-cab">
-    <nav class="lib-clients" aria-label="客戶">${companies.map((c) => `<button type="button" aria-current="${c.id === ui.co}" data-lib-co="${esc(c.id)}"><span>${esc(c.display_name)}<small>${esc(c.relation === 'signed' ? '已簽約' : c.relation === 'private' ? '私人協助' : '未簽約')}</small></span></button>`).join('')}</nav>
+    <nav class="lib-clients" aria-label="客戶"><label class="lib-search"><span class="sr-only">搜尋客戶</span><input type="search" placeholder="搜尋客戶名稱" value="${esc(ui.q)}" data-lib-q></label><div data-lib-colist>${coListHtml()}</div></nav>
     <div class="lib-main">
       <label class="lib-mcli"><span class="sr-only">選客戶</span><select data-lib-co-sel>${companies.map((c) => `<option value="${esc(c.id)}" ${c.id === ui.co ? 'selected' : ''}>${esc(c.display_name)}</option>`).join('')}</select></label>
       <div class="lib-steps" role="tablist" aria-label="合作階段">${STAGES.map((s) => `<button type="button" role="tab" class="lib-step${by[s].length ? ' has' : ''}" aria-selected="${s === ui.stage}" data-lib-stage="${s}"><i>${by[s].length}</i><span>${s}</span></button>`).join('')}</div>
@@ -179,7 +194,10 @@ function wire() {
     try { await api.post(`/admin/library/${encodeURIComponent(b.dataset.libActivate)}/activate`, {}); toast('已設成使用中，之後系統寄信改附這本', 'success'); await loadLibraryTab(root); }
     catch (e) { toast(e.message, 'error'); b.disabled = false; }
   });
-  root.querySelectorAll('[data-lib-co]').forEach((b) => b.onclick = async () => { ui.co = b.dataset.libCo; ui.stage = null; await loadDocs(); });
+  const bindCo = () => root.querySelectorAll('[data-lib-co]').forEach((b) => b.onclick = async () => { ui.co = b.dataset.libCo; ui.stage = null; await loadDocs(); });
+  bindCo();
+  const qi = root.querySelector('[data-lib-q]');
+  if (qi) qi.oninput = () => { ui.q = qi.value; root.querySelector('[data-lib-colist]').innerHTML = coListHtml(); bindCo(); };
   const sel = root.querySelector('[data-lib-co-sel]');
   if (sel) sel.onchange = async () => { ui.co = sel.value; ui.stage = null; await loadDocs(); };
   root.querySelectorAll('[data-lib-stage]').forEach((b) => b.onclick = () => { ui.stage = b.dataset.libStage; render(); });
