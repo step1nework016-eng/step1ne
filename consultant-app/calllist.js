@@ -80,6 +80,8 @@ const pend = (id) => (S.pending[id] = S.pending[id] || { result: '', note: '', c
 const isDirty = (id) => { const p = S.pending[id]; return !!(p && (p.result || p.note.trim())); };
 const labelOf = (code) => (S.cfg.results.find((r) => r[0] === code) || [])[1] || BD_OLD[code] || code || '';
 const assigneeOf = (it) => (S.cfg.kind === 'cand' ? it.assignee : it.assigned_to) || '未指派';
+// 2026-10-30 Jacky：同一家公司在兩位顧問的名單上（例如 Jacky 打過、Phoebe 也有），兩個人的分頁都看得到、都能追蹤
+const inTab = (it, tab) => assigneeOf(it) === tab || (S.cfg.kind === 'bd' && String(it.assignees || '').split(',').map((x) => x.trim()).includes(tab));
 
 function rowHead(it) {
   if (S.cfg.kind === 'cand') {
@@ -152,7 +154,7 @@ function rowHtml(it) {
       ${cbBox}
       <div class="cl-send-row"><input type="text" data-cl-note placeholder="${done ? '這次聊了什麼（會追加一筆，不蓋掉上一筆）' : '備註（可留空）'}" maxlength="300" value="${e(p.note)}" enterkeyhint="done"><button type="button" class="cl-send" data-cl-send ${canSend ? '' : 'disabled'}>儲存</button></div>`;
   return `<article class="cl-row${doneToday ? ' cl-today' : ''}${unsent ? ' unsent' : ''}${S.sel === id ? ' cl-sel' : ''}" data-cl-id="${e(id)}">
-    ${qi ? `<div class="cl-q"><span class="cl-qn">#${e(qi.n)}</span><span class="cl-due ${qi.tag === 'due' ? 'late' : qi.tag === 'retry' ? 'now' : ''}">${e(qi.why)}</span>${doneToday ? '<span class="cl-qok">✓ 今天打過了</span>' : ''}</div>` : ''}
+    ${qi ? `<div class="cl-q"><span class="cl-qn">#${e(qi.n)}</span><span class="cl-due ${qi.tag === 'prio' ? 'prio' : qi.tag === 'due' ? 'late' : qi.tag === 'retry' ? 'now' : ''}">${e(qi.why)}</span>${doneToday ? '<span class="cl-qok">✓ 今天打過了</span>' : ''}</div>` : ''}
     ${unsent ? '<div class="cl-unsent" role="status">還沒儲存——選了狀態或打了備註，要按「儲存」才會存進系統</div>' : ''}
     ${rowHead(it)}${lastLine}${form}</article>`;
 }
@@ -182,6 +184,10 @@ const NEWCAT = { 1: '新名單｜BIM／繪圖', 2: '新名單｜營造機電', 3
 function buildQueue(rows) {
   const kind = S.cfg.kind, goal = goalOf(kind), t = today(), q = [];
   const add = (it, why, tag) => { if (!q.some((x) => x.it === it)) q.push({ it, why, tag }); };
+  // 2026-10-30 Jacky：他給的名單（priority_rank）照他的順序放最上面——還沒打的、打過要追蹤的都算；只有「不需要」的拿掉
+  if (kind === 'bd') rows.filter((it) => (it.status_info || {}).priority_rank && it.last_result !== 'not_interested')
+    .sort((a, b) => a.status_info.priority_rank - b.status_info.priority_rank)
+    .forEach((it) => add(it, `優先名單 #${it.status_info.priority_rank}｜${it.last_result ? `上次${labelOf(it.last_result)}，要追蹤` : '還沒打'}`, 'prio'));
   if (kind === 'bd') rows.filter(isDueToday).sort((a, b) => String(bdTodo(a).due).localeCompare(String(bdTodo(b).due))).forEach((it) => add(it, bdTodo(it).due < t ? `已過期 ${mdDay(bdTodo(it).due)}` : '今天到期', 'due'));
   else rows.filter((it) => it.callback_at && String(it.callback_at).slice(0, 10) <= t).forEach((it) => add(it, `約好 ${md(it.callback_at)} 回撥`, 'due'));
   rows.filter((it) => { const m = morningState(it); return m.last === 'no_answer' && workdaysBetween(m.at.slice(0, 10), t) >= 2; })
@@ -211,9 +217,9 @@ function warRoom(rows) {
       <div class="cl-kpi"><span>${kind === 'bd' ? '有效進展' : '有意願'}</span><strong>${leads}<small> ${kind === 'bd' ? '家' : '位'}</small></strong><small>${kind === 'bd' ? '有興趣・要資料・拿到信箱' : '今天說有意願的'}</small></div>
     </div>
     <div class="cl-bar cl-war-bar"><i style="width:${pct}%"></i></div>
-    <div class="cl-mix"><span><b>${cnt('due')}</b>${kind === 'bd' ? '到期追蹤' : '約好回撥'}</span><span><b>${cnt('retry')}</b>沒接重打</span><span><b>${cnt('new')}</b>新名單補滿</span>
+    <div class="cl-mix">${kind === 'bd' && cnt('prio') ? `<span><b>${cnt('prio')}</b>優先名單</span>` : ''}<span><b>${cnt('due')}</b>${kind === 'bd' ? '到期追蹤' : '約好回撥'}</span><span><b>${cnt('retry')}</b>沒接重打</span><span><b>${cnt('new')}</b>新名單補滿</span>
       <label class="cl-goalset">每天目標<input type="number" min="5" max="80" value="${goalOf(kind)}" data-cl-goal aria-label="每天目標通數">通</label></div>
-    <p class="cl-war-rule">排法：①${kind === 'bd' ? '之前聯繫過、今天到期（含已過期）' : '約好今天回撥的'}全部排 → ②沒接滿 2 個工作天的重打 → ③${kind === 'bd' ? '新名單（BIM／繪圖 → 營造機電 → 其他，有電話的先）' : '寄信未回，早寄的先'}補到每天目標。</p>
+    <p class="cl-war-rule">排法：${kind === 'bd' ? '⓪ Jacky 指定的優先名單照順序放最上面 → ' : ''}①${kind === 'bd' ? '之前聯繫過、今天到期（含已過期）' : '約好今天回撥的'}全部排 → ②沒接滿 2 個工作天的重打 → ③${kind === 'bd' ? '新名單（BIM／繪圖 → 營造機電 → 其他，有電話的先）' : '寄信未回，早寄的先'}補到每天目標。</p>
   </section>`;
 }
 function tgText(rows) {
@@ -251,7 +257,7 @@ function majorMatch(it) {
   const k = majorOf(it);
   return S.major === 'related' ? RELATED.includes(k) : k === S.major;
 }
-function tabRows() { return S.items.filter((it) => assigneeOf(it) === S.tab && majorMatch(it)); }
+function tabRows() { return S.items.filter((it) => inTab(it, S.tab) && majorMatch(it)); }
 function visibleRows() {
   const rows = tabRows();
   if (S.filter === 'queue') return S.queue.map((x) => x.it);
@@ -264,7 +270,7 @@ function visibleRows() {
 
 function renderAll() {
   const t = S.target; if (!t) return;
-  const people = [...new Set(S.items.map(assigneeOf))].sort((a, b) => (a === '未指派') - (b === '未指派') || a.localeCompare(b));
+  const people = [...new Set(S.items.flatMap((it) => [assigneeOf(it), ...String(it.assignees || '').split(',').map((x) => x.trim()).filter(Boolean)]))].sort((a, b) => (a === '未指派') - (b === '未指派') || a.localeCompare(b));
   if (!people.includes(S.tab)) S.tab = people.includes(me()) ? me() : people[0] || '';
   S.queue = buildQueue(tabRows());
   const c = counts(tabRows());
@@ -291,7 +297,7 @@ function renderAll() {
   }
   t.querySelector('#cl-left').innerHTML = `<div class="cl-wrap">${head}
     ${warRoom(tabRows())}
-    <div class="cl-tabs" role="tablist">${people.map((p) => `<button type="button" role="tab" aria-selected="${p === S.tab}" class="${p === S.tab ? 'on' : ''}" data-cl-tab="${e(p)}">${e(p)} <small>${e(S.items.filter((it) => assigneeOf(it) === p).length)}</small></button>`).join('')}</div>
+    <div class="cl-tabs" role="tablist">${people.map((p) => `<button type="button" role="tab" aria-selected="${p === S.tab}" class="${p === S.tab ? 'on' : ''}" data-cl-tab="${e(p)}">${e(p)} <small>${e(S.items.filter((it) => inTab(it, p)).length)}</small></button>`).join('')}</div>
     ${majorSel}
     <div class="cl-progress"><span>已打 <b>${e(c.called)}</b> / ${e(c.all)}</span><div class="cl-bar"><i style="width:${c.all ? Math.round(c.called / c.all * 100) : 0}%"></i></div></div>
     ${S.cfg.kind === 'bd' ? dueBox(tabRows()) : ''}
@@ -461,7 +467,7 @@ async function loadBd() {
       const more = await Promise.all(others.map((b) => api.get(`/admin/bd-batch-calls?batch=${encodeURIComponent(b.batch_id)}`).catch(() => ({ items: [] }))));
       const byCo = new Map();
       (r.items || []).forEach((it, i) => byCo.set(it.company, { ...it, _ord: i }));
-      more.forEach((m, bi) => (m.items || []).forEach((it, i) => { if (!byCo.has(it.company)) byCo.set(it.company, { ...it, _ord: 1000 * (bi + 1) + i }); }));
+      more.forEach((m, bi) => (m.items || []).forEach((it, i) => { const had = byCo.get(it.company); if (!had) byCo.set(it.company, { ...it, _ord: 1000 * (bi + 1) + i }); else if (it.assigned_to && !String(had.assignees || had.assigned_to || '').split(',').includes(it.assigned_to)) had.assignees = [had.assignees || had.assigned_to, it.assigned_to].filter(Boolean).join(','); }));
       S.batch = '*'; S.items = [...byCo.values()];
     }
     if (!S.items.length) { t.innerHTML = '<div class="state"><strong>目前沒有開發名單</strong></div>'; return; }
