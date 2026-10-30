@@ -107,7 +107,7 @@ function rowHead(it) {
     <div class="cl-phones">${phones || '<span class="cl-phone-txt">沒有電話</span>'}</div>`;
 }
 // 2026-10-29 Jacky：Phoebe 打開就要知道「上次聯繫到哪、今天要做什麼」，點卡片看完整聯繫紀錄
-const AI_ACT = { call: '打電話追進度', email: '寄信追進度', mail: '寄信追進度', wait: '等對方回覆', visit: '約拜訪', none: '' };
+const AI_ACT = { call: '打電話追進度', email: '寄信追進度', mail: '寄信追進度', wait: '等對方回覆', visit: '約拜訪', pause: '先暫停', none: '' };
 const today = () => nowLocal().slice(0, 10);
 export function bdTodo(it) {
   const st = it.status_info || {};
