@@ -223,9 +223,9 @@ export const ACTIONS = {
     body: (ctx, values) => ({ line_id: values.line_id }), success: '已更新 LINE ID',
   },
   'forward-detail-update': {
-    label: '編輯 LINE ID／客戶備註', method: 'post', path: () => '/admin/pipeline/forward-detail',
+    // 2026-10-30：LINE ID 改到卡片「基本資料」LINE 那格（cand-line-id），這裡只留客戶備註，不重複
+    label: '編輯客戶備註', method: 'post', path: () => '/admin/pipeline/forward-detail',
     fields: [
-      { name: 'line_id_given', label: 'LINE ID（顧問自己跟人選要來的）' },
       { name: 'client_note', label: '給客戶看的備註', type: 'textarea' },
     ],
     body: idBody, success: '已更新',

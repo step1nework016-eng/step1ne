@@ -3094,7 +3094,7 @@ async function openCandidate(applicationId, opts = {}) {
         nr ? actionBtn('改回推進', 'pipeline-recommended-again', ids) : actionBtn('標不推進', 'pipeline-not-recommended', ids, 'warn'),
         f.candidate_withdrawn_at ? actionBtn('收回「已放棄」', 'pipeline-candidate-withdraw-undo', ids) : actionBtn('人選已放棄', 'pipeline-candidate-withdraw', ids),
         actionBtn('傳訊息給客戶', 'pipeline-message-client', ids),
-        actionBtn('編輯 LINE ID／客戶備註', 'forward-detail-update', { idParams: ids.idParams, record: { line_id_given: f.line_id_given || '', client_note: f.client_note || '' } }),
+        actionBtn('編輯客戶備註', 'forward-detail-update', { idParams: ids.idParams, record: { client_note: f.client_note || '' } }),
         f.onboard_date && !f.no_show_at ? actionBtn('標記不報到', 'placement-no-show', ids) : '',
       ].filter(Boolean);
       const meta = [`推薦於 ${text(String(f.forwarded_at || '').slice(0, 10) || '—')}`, f.client_note ? '客戶備註：' + text(f.client_note) : '', f.line_id_given ? 'LINE ID：' + text(f.line_id_given) : ''].filter(Boolean).join('　');
@@ -3215,12 +3215,10 @@ async function openCandidate(applicationId, opts = {}) {
     const lineIdGiven = card.line_id_manual || (forwards.find((f) => f.line_id_given) || {}).line_id_given || '';
     const pendForm = (() => { for (const f of forwards) { const x = (f.forms || []).find((m) => m.status !== 'submitted'); if (x) return { f, x }; } return null; })();
     const formsAllDone = forwards.some((f) => (f.forms || []).length) && !pendForm;
-    const quickBar = `<div class="cand-quickbar">
-        <span><b>LINE ID</b> ${lineIdGiven ? text(lineIdGiven) : '<span class="muted">未填</span>'}</span>
-        ${actionBtn(lineIdGiven ? '修改 LINE ID' : '輸入 LINE ID', 'cand-line-id', { idParams: { application_id: applicationId }, record: { line_id: lineIdGiven } })}
-        ${pendForm ? actionBtn(`上傳人事資料表（${pendForm.f.company_name || '客戶'}）`, 'candidate-form-upload', { idParams: { application_id: applicationId, company_id: pendForm.f.company_id, job_form_id: pendForm.x.job_form_id } })
-          : formsAllDone ? '<span class="badge success">人事資料表 ✓</span>' : ''}
-      </div>`;
+    const quickBar = (pendForm || formsAllDone) ? `<div class="cand-quickbar">
+        ${pendForm ? actionBtn(`上傳人事資料表（${pendForm.f.company_name || '客戶'}）`, 'candidate-form-upload', { idParams: { application_id: applicationId, company_id: pendForm.f.company_id, job_form_id: pendForm.x.job_form_id } }, 'primary')
+          : '<span class="badge success">人事資料表 ✓</span>'}
+      </div>` : '';
     const head = `<div class="cand-head">
       <div class="cand-chips"><span class="badge info">階段：${text(stageText)}${application.manual_stage ? '' : '（自動）'}</span><span class="badge">負責：${text(ownerName || '未指派')}</span>${lineBinding ? '<span class="badge success">LINE 已綁定</span>' : ''}${hardGateBadge}${contactBadge}</div>
       ${contact ? `<div class="cand-contact">${contact}</div>` : ''}
@@ -4505,7 +4503,7 @@ async function submitPendingAction() {
     if (state.openCandidateId) {
       openCandidate(state.openCandidateId, { fresh: true });
       // 卡片開著時，後面的列表也在背景悄悄更新（不清空畫面，見 core/ui.js boundary）
-      if (state.route === 'candidates') refreshCurrentView();
+      if (state.route === 'candidates' && action !== ACTIONS['cand-line-id']) refreshCurrentView();   // 2026-10-30 LINE ID 不在列表上，不用重抓整份列表（卡頓）
     }
     else { closeOverlay(); refreshCurrentView(); }
   } catch (error) {
