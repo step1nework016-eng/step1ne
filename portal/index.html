@@ -1860,7 +1860,7 @@ function renderTable(){
       } else if (rejected) {
         matchedCell = `<span class="dash-pill rejected" title="${esc(c.client_reject_reason || '')}">不推進</span><button type="button" class="undo-rej" data-undo-reject="${esc(c.application_id)}" data-name="${esc(c.candidate_name)}">按錯了，改回</button>`;
       } else if (advanced) {
-        matchedCell = `<span class="dash-pill done">已推進</span>`;
+        matchedCell = `<span class="dash-pill done">已推進</span>${currentInterviewStage(c) ? '' : `<button type="button" class="undo-rej" data-undo-reject="${esc(c.application_id)}" data-undo-kind="advance" data-name="${esc(c.candidate_name)}">按錯了，改回</button>`}`;
       } else {
         // 2026-09-01 改：原本預設就選著「推進」，看起來像已經確認過的狀態，
         // 其實只是預設值——改成一個不能選的「尚未決定」佔位選項，跟面試階段／
@@ -2199,16 +2199,19 @@ function wireOfferUpload(appId){
   });
 }
 
-// 2026-10-30 Jacky：客戶按錯「不推進／不錄取」可以自己改回。改回後回到原本狀態，顧問會收到通知。
+// 2026-10-30 Jacky：雙向——按錯「推進」或「不推進／不錄取」都可以自己改回（推進後已排面試就不行）。改回後回到原本狀態，顧問會收到通知。
 document.addEventListener('click', async (e) => {
   const b = e.target.closest('[data-undo-reject]');
   if (!b) return;
   e.preventDefault(); e.stopPropagation();
   const appId = b.dataset.undoReject;
-  if (!confirm(`確定要把「${b.dataset.name || '這位人選'}」改回來嗎？\n會取消剛剛的「不推進／不錄取」，回到原本的進度。`)) return;
+  const isAdv = b.dataset.undoKind === 'advance';
+  if (!confirm(isAdv
+    ? `確定要把「${b.dataset.name || '這位人選'}」改回來嗎？\n會取消剛剛的「推進」，回到「尚未決定」，可以重新選。`
+    : `確定要把「${b.dataset.name || '這位人選'}」改回來嗎？\n會取消剛剛的「不推進／不錄取」，回到原本的進度。`)) return;
   b.disabled = true; b.textContent = '改回中…';
   try{
-    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(appId)}/undo-reject`, { method: 'POST', headers: {'content-type':'application/json'}, body: '{}' });
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(appId)}/${isAdv ? 'undo-advance' : 'undo-reject'}`, { method: 'POST', headers: {'content-type':'application/json'}, body: '{}' });
     const data = await res.json();
     if (!data.ok){ alert(data.error || '改回失敗'); b.disabled = false; b.textContent = '按錯了，改回'; return; }
     await loadCandidates();
