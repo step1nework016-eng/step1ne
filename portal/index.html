@@ -1819,7 +1819,7 @@ function renderTable(){
   const el = document.getElementById('dashTableView');
   if (!list.length){ el.innerHTML = '<div class="dash-empty">目前沒有符合條件的人選</div>'; return; }
   el.innerHTML = `<div class="dash-table-wrap"><table class="dash-table">
-    <thead><tr><th>人選</th><th>LINE ID</th><th>推送日</th><th>人事資料表</th>${TABLE_COLS.map(([, lb]) => `<th>${esc(lb)}</th>`).join('')}</tr></thead>
+    <thead><tr><th>人選</th><th>LINE ID</th><th>推送日</th><th>負責顧問</th><th>人事資料表</th>${TABLE_COLS.map(([, lb]) => `<th>${esc(lb)}</th>`).join('')}</tr></thead>
     <tbody>${list.map(c => {
       const rejected = !!c.client_rejected_at;
       // 2026-09-01 修：跟 offer/onboard 同一種bug——原本只看 .now（現在卡在
@@ -1923,6 +1923,7 @@ function renderTable(){
         <td><b>${esc(c.candidate_name)}</b><div style="font-size:12px;color:var(--ink3)">${esc(c.job_title || c.job_slug)}</div></td>
         <td>${esc(c.line_id_given || '尚未提供')}</td>
         <td>${esc((c.forwarded_at || '').slice(0, 10))}</td>
+        <td>${esc(c.consultant_name || '—')}</td>
         <td>${formsCell}</td>
         <td>${confirmCell}</td>
         <td>${matchedCell}</td>
