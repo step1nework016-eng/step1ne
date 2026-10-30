@@ -2932,7 +2932,7 @@ function hasContact(a) { return !!((a.phone && a.phone.trim()) || (a.email && !i
 // ③ DISC 格子點了才展開分數＋測驗連結（原本「風格測驗」單獨一大格）
 // 按鈕的 data-* 屬性跟原本 reviewLinkRow 一樣，沿用既有的全站點擊處理，不另寫一套。
 const LINE_BIND_HOWTO = '加入 Step1ne LINE 官方帳號（https://lin.ee/XcSWPzM），點下方選單「追蹤面試進度」填一下表單，之後面試進度就會直接用 LINE 通知你。';
-function candBasicsBlock(app, applicationId, { channelTag, lineHtml, lineBound, disc, styleHtml }) {
+function candBasicsBlock(app, applicationId, { channelTag, lineHtml, lineBound, disc, styleHtml, lineId = '' }) {
   const e = escapeHtml;
   const mail = String(app.email || '').trim();
   const hasMail = !!mail && !isPlaceholderEmail(mail);
@@ -2948,7 +2948,9 @@ function candBasicsBlock(app, applicationId, { channelTag, lineHtml, lineBound, 
   const cell = (lb, val, extra = '') => `<div class="cf-cell"><span>${lb}</span><b>${val}</b>${extra}</div>`;
   const discCell = `<div class="cf-cell"><span>DISC</span><button type="button" class="cf-link" data-cf-disc aria-expanded="false">${app.disc_primary ? `主型 ${text(app.disc_primary)}` : '還沒測'}<small>${app.disc_primary ? '看詳情' : '產生測驗連結'}</small></button></div>`;
   const lineCell = cell('LINE', lineBound ? lineHtml : (lineHtml.includes('需重新綁定') ? '<span class="badge warning">需重新綁定</span>' : '<span class="muted">未綁定</span>'),
-    lineBound ? '' : `<button type="button" class="cf-link" data-copy-text="${e(LINE_BIND_HOWTO)}"><small>複製綁定說明</small></button>`);
+    (lineBound ? '' : `<button type="button" class="cf-link" data-copy-text="${e(LINE_BIND_HOWTO)}"><small>複製綁定說明</small></button>`)
+    + `<small style="display:block;margin-top:4px">ID：${lineId ? text(lineId) : '<span class="muted">未填</span>'}</small>`
+    + actionBtn(lineId ? '修改 ID' : '輸入 ID', 'cand-line-id', { idParams: { application_id: applicationId }, record: { line_id: lineId } }));
   const facts = `<div class="cand-facts">${cell('期望薪資', text(app.expected_salary || '—'))}${cell('可上班日', text(app.available_date || '—'))}${cell('來源', channelTag + (app.resume_source ? `<small class="muted">履歷：${text(app.resume_source)}</small>` : ''))}${lineCell}${discCell}</div>
     <div class="cf-disc-detail" data-cf-disc-detail hidden><p class="help" style="margin:0 0 6px">分數：${disc}</p>${styleHtml}</div>`;
   const ruMenu = resumeLinkButtons({ appId: applicationId, email: hasMail ? mail : '', name: app.name || '', jobSlug: app.job_slug || '', jobTitle: app.job_title || '' });
@@ -3210,15 +3212,15 @@ async function openCandidate(applicationId, opts = {}) {
     const contact = [application.phone, application.email && !isPlaceholderEmail(application.email) ? application.email : ''].filter(Boolean).map((v) => text(v)).join('　');
     // 2026-10-30 Jacky：「人選卡片上面有一個地方可以去改」——LINE ID 跟人事資料表放最上面，
     // 不用進「推薦客戶」分頁找。LINE ID 推過的每家客戶一起改；人事資料表挑第一份還沒交回的。
-    const lineIdGiven = (forwards.find((f) => f.line_id_given) || {}).line_id_given || '';
+    const lineIdGiven = card.line_id_manual || (forwards.find((f) => f.line_id_given) || {}).line_id_given || '';
     const pendForm = (() => { for (const f of forwards) { const x = (f.forms || []).find((m) => m.status !== 'submitted'); if (x) return { f, x }; } return null; })();
     const formsAllDone = forwards.some((f) => (f.forms || []).length) && !pendForm;
-    const quickBar = forwards.length ? `<div class="cand-quickbar">
+    const quickBar = `<div class="cand-quickbar">
         <span><b>LINE ID</b> ${lineIdGiven ? text(lineIdGiven) : '<span class="muted">未填</span>'}</span>
-        ${actionBtn(lineIdGiven ? '修改 LINE ID' : '填寫 LINE ID', 'cand-line-id', { idParams: { application_id: applicationId }, record: { line_id_given: lineIdGiven } })}
+        ${actionBtn(lineIdGiven ? '修改 LINE ID' : '輸入 LINE ID', 'cand-line-id', { idParams: { application_id: applicationId }, record: { line_id: lineIdGiven } })}
         ${pendForm ? actionBtn(`上傳人事資料表（${pendForm.f.company_name || '客戶'}）`, 'candidate-form-upload', { idParams: { application_id: applicationId, company_id: pendForm.f.company_id, job_form_id: pendForm.x.job_form_id } })
           : formsAllDone ? '<span class="badge success">人事資料表 ✓</span>' : ''}
-      </div>` : '';
+      </div>`;
     const head = `<div class="cand-head">
       <div class="cand-chips"><span class="badge info">階段：${text(stageText)}${application.manual_stage ? '' : '（自動）'}</span><span class="badge">負責：${text(ownerName || '未指派')}</span>${lineBinding ? '<span class="badge success">LINE 已綁定</span>' : ''}${hardGateBadge}${contactBadge}</div>
       ${contact ? `<div class="cand-contact">${contact}</div>` : ''}
@@ -3240,7 +3242,7 @@ async function openCandidate(applicationId, opts = {}) {
     const milestonesHtml = `<ul class="cand-steps">${milestones.map(([t, at]) => `<li><span>${text(t)}</span><small>${text(String(at || '').slice(0, 16))}</small></li>`).join('')}</ul>`;
     // 2026-10-27 Jacky（看測試版後）：基本資料改成小格子一眼看完；按鈕依用途分組；風格測驗併成 DISC 一格，點了才展開
     const paneOv = `${views.jobMatchTop(report)}<h3>走到哪了</h3>${milestonesHtml}${quickSet}<div id="special-check-box"></div>
-      <h3>基本資料</h3>${candBasicsBlock(application, applicationId, { channelTag, lineHtml, lineBound: !!lineBinding, disc, styleHtml: stageDetailHtml('style', application, forwards, report, applicationId) })}
+      <h3>基本資料</h3>${candBasicsBlock(application, applicationId, { channelTag, lineHtml, lineBound: !!lineBinding, lineId: lineIdGiven, disc, styleHtml: stageDetailHtml('style', application, forwards, report, applicationId) })}
       <details class="note-details" style="margin-top:14px"><summary><b>最近歷程</b></summary>${timelineHtml}</details>
       <div data-cand-mail></div>`;
     const paneAi = `<div data-cand-lazy="ai"></div>

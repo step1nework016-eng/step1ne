@@ -218,9 +218,9 @@ export const ACTIONS = {
   // 寫入這兩個欄位（見 index.js 對應段落的查證註解），只是前端一直沒接。
   // 2026-10-30 Jacky：卡片最上面就能填 LINE ID（不用進「推薦客戶」分頁找），推過的每家客戶一起改
   'cand-line-id': {
-    label: '填寫／修改 LINE ID', method: 'post', path: () => '/admin/pipeline/forward-detail',
-    fields: [{ name: 'line_id_given', label: 'LINE ID（跟人選要來的）' }],
-    body: idBody, success: '已更新 LINE ID',
+    label: '輸入／修改 LINE ID', method: 'post', path: (ctx) => `/admin/application/${encodeURIComponent(ctx.idParams.application_id)}/line-id`,
+    fields: [{ name: 'line_id', label: 'LINE ID（跟人選要來的）' }],
+    body: (ctx, values) => ({ line_id: values.line_id }), success: '已更新 LINE ID',
   },
   'forward-detail-update': {
     label: '編輯 LINE ID／客戶備註', method: 'post', path: () => '/admin/pipeline/forward-detail',
