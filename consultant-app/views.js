@@ -456,8 +456,9 @@ export const views = {
       || d.source_url || '（沒有職缺資料）';
     return `<article class="list-row"><span><b>${text(String(what).slice(0, 60))}</b>
       <small>客戶：${text(d.client_name || '（沒填）')}${d.draft_title ? '' : '　（職稱等 AI 擬完會換成正式的）'}</small>
+      <small>送出：<b>${text(d.submitted_by || '（沒填）')}</b>　指派顧問：<b>${text(d.job_owner || d.assigned_to || d.submitted_by || '未指派')}</b></small>
       <small>${text(SL[d.service_line] || d.service_line || '')} · ${text(ST[d.status] || d.status)} · 附件 ${text(d.file_count ?? 0)} 個 · ${text(d.created_at)}${d.published_slug ? ` · 職缺：${text(d.published_slug)}` : ''}</small></span>
-      ${done ? '' : rowActions([actionBtn('刪除收件單','job-draft-delete',{ idParams: { id: d.id } },'danger')])}</article>`;
+      ${rowActions([actionBtn('改指派顧問','job-draft-assign',{ idParams: { id: d.id }, record: { assigned_to: d.job_owner || d.assigned_to || d.submitted_by || '' } }), ...(done ? [] : [actionBtn('刪除收件單','job-draft-delete',{ idParams: { id: d.id } },'danger')])])}</article>`;
   }),
   jobCheckRows: (items) => list(items, (j) => `<article class="list-row"><span><b>${text(j.title || j.job_title)}</b><small>${text(j.slug || j.job_slug)} · ${text(j.missing || j.note)}</small></span>${rowActions([actionBtn('確認必要條件','must-check-confirm',{ idParams: { slug: j.slug || j.job_slug } })])}</article>`),
   // /admin/expertise 回傳 {banks, missing} 兩個陣列；banks 每筆是 title/job_slug/questions_json
@@ -3852,6 +3853,8 @@ ${tg}
     <label class="field span-2"><span>職缺名稱 ＊</span><input name="title" required maxlength="80" placeholder="例：建築專案助理（常駐白馬）——清單上顯示這個，AI 也會照這個訂標題"></label>
     ${field('送件人 ＊', `<select name="submitted_by" required><option value="">請選擇</option>${consultants.filter((c) => c.is_active !== 0).map((c) => {
       const n = c.name || c.display_name || c; return `<option value="${escapeHtml(n)}" ${n === me ? 'selected' : ''}>${escapeHtml(n)}</option>`; }).join('')}</select>`)}
+    ${field('指派顧問 ＊（誰負責這個職缺）', `<select name="assigned_to" required><option value="">請選擇</option>${consultants.filter((c) => c.is_active !== 0).map((c) => {
+      const n = c.name || c.display_name || c; return `<option value="${escapeHtml(n)}" ${n === me ? 'selected' : ''}>${escapeHtml(c.display_name || n)}</option>`; }).join('')}</select>`)}
     ${field('客戶 ＊',`<select name="client_pick" required><option value="">請選擇客戶</option>${companies.map((c) =>
       `<option value="${escapeHtml(c.display_name)}" data-relation="${escapeHtml(c.relation || '')}">${escapeHtml(c.display_name)}</option>`).join('')}<option value="__new__">＋ 不在清單裡的新客戶</option></select>`)}
     <label class="field" id="ji-newname-wrap" hidden><span>新客戶公司全名 ＊</span><input name="client_new" placeholder="真實公司全名（只進內部，不會上職缺頁）"></label>

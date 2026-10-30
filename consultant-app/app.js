@@ -4536,7 +4536,7 @@ document.addEventListener('click', async (event) => {
     const ctx = JSON.parse(openAct.getAttribute('data-ctx') || '{}');
     // 指派顧問／推薦客戶這幾顆需要真實名單才能做成下拉選單，openAction 本身是
     // 同步的沒辦法自己發 async 請求——先在這裡抓好名單塞進 ctx.record 再開。
-    if (actionId === 'set-owner' || actionId === 'sourced-assign-owner') { ensureConsultants().then((list) => openAction(actionId, { ...ctx, record: { ...(ctx.record || {}), _consultants: list } })); return; }
+    if (actionId === 'set-owner' || actionId === 'sourced-assign-owner' || actionId === 'job-draft-assign') { ensureConsultants().then((list) => openAction(actionId, { ...ctx, record: { ...(ctx.record || {}), _consultants: list } })); return; }
     if (actionId === 'sourced-invite') { ensureJobs().then((list) => openAction(actionId, { ...ctx, record: { ...(ctx.record || {}), _jobs: list.filter((j) => j.slug !== 'unspecified') } })); return; }
     if (actionId === 'application-update') { ensureJobs().then((list) => openAction(actionId, { ...ctx, record: { ...(ctx.record || {}), _jobs: list.filter((j) => j.slug !== 'unspecified') } })); return; }
     openAction(actionId, ctx);

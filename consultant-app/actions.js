@@ -300,6 +300,8 @@ export const ACTIONS = {
   // ---- 職缺 ----
   'job-draft-patch': { label: '編輯 AI 草稿', method: 'post', path: (ctx) => `/admin/job-draft/${encodeURIComponent(ctx.idParams.id)}/patch`, fields: (ctx) => objectFields(ctx.record), body: (ctx, values) => values, success: '草稿已更新' },
   'job-draft-delete': { label: '刪除草稿', method: 'post', path: (ctx) => `/admin/job-draft/${encodeURIComponent(ctx.idParams.id)}/delete`, fields: [], body: () => ({}), success: '草稿已刪除', dangerous: true, confirmText: '確定要刪除此 AI 草稿？此動作無法復原。' },
+  // 2026-10-30 Jacky：用人需求要看得出指派哪位顧問；已發布的職缺會一起改負責顧問
+  'job-draft-assign': { label: '指派顧問', method: 'post', path: (ctx) => `/admin/job-draft/${encodeURIComponent(ctx.idParams.id)}/assign`, fields: (ctx) => [{ name: 'assigned_to', label: '指派顧問', type: 'select', required: true, value: ctx.record?.assigned_to || '', options: [{ value: '', label: '請選擇' }, ...((ctx.record?._consultants || []).filter((c) => c.is_active !== 0).map((c) => { const n = c.name || c.display_name; return { value: n, label: c.display_name || n }; }))] }], body: (ctx, values) => ({ assigned_to: values.assigned_to }), success: '指派顧問已更新' },
   'must-check-confirm': { label: '確認必要條件', method: 'post', path: (ctx) => `/admin/jobs/${encodeURIComponent(ctx.idParams.slug)}/must-check-confirm`, fields: [], body: () => ({}), success: '必要條件已確認' },
   // 後端要的是 questions 陣列（每題 q/topic/why/kind/good_signs/red_flags/followup），不是扁平
   // 物件——這套 form 框架沒有巢狀陣列編輯器，用「整份 JSON 貼上」當務實解法，不是理想 UI。
