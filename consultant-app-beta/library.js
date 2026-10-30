@@ -93,6 +93,7 @@ function openBook(id) {
 }
 
 // ── 客戶文件櫃 ─────────────────────────────
+const relLabel = (c) => /^舊客戶/.test(c.relation_note || '') ? '舊客戶' : c.relation === 'signed' ? '已簽約' : c.relation === 'private' ? '私人協助' : '未簽約';
 function coListHtml() {
   const q = ui.q.trim().toLowerCase();
   const xs = companies.filter((c) => !q || String(c.display_name).toLowerCase().includes(q));
@@ -101,7 +102,7 @@ function coListHtml() {
   return xs.map((c) => {
     const n = counts[c.id] || 0;
     const sep = !n && !hadEmpty && xs.some((x) => counts[x.id]) ? (hadEmpty = true, '<p class="lib-sep">還沒有文件</p>') : '';
-    return `${sep}<button type="button" aria-current="${c.id === ui.co}" data-lib-co="${esc(c.id)}" class="${n ? '' : 'none'}"><span>${esc(c.display_name)}<small>${esc(c.relation === 'signed' ? '已簽約' : c.relation === 'private' ? '私人協助' : '未簽約')}</small></span>${n ? `<span class="lib-pill">${n}</span>` : ''}</button>`;
+    return `${sep}<button type="button" aria-current="${c.id === ui.co}" data-lib-co="${esc(c.id)}" class="${n ? '' : 'none'}"><span>${esc(c.display_name)}<small>${esc(relLabel(c))}</small></span>${n ? `<span class="lib-pill">${n}</span>` : ''}</button>`;
   }).join('');
 }
 function cabHtml() {
