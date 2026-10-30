@@ -3208,9 +3208,21 @@ async function openCandidate(applicationId, opts = {}) {
       ? `<div class="cand-sibs"><span>同一人還有 ${sibs.length} 張卡：</span>${sibs.map((x) => `<button type="button" class="btn sm" data-application="${escapeHtml(x.applicationId)}">${x.seqNo ? '#' + text(x.seqNo) + ' ' : ''}${text(x.originLabel)}${x.job ? '・' + text(x.job) : ''}</button>`).join('')}</div>`
       : (dupNotice ? `<div class="notice" style="margin:8px 0 0">⚠ 疑似同一人：${text(dupNotice)}</div>` : '');
     const contact = [application.phone, application.email && !isPlaceholderEmail(application.email) ? application.email : ''].filter(Boolean).map((v) => text(v)).join('　');
+    // 2026-10-30 Jacky：「人選卡片上面有一個地方可以去改」——LINE ID 跟人事資料表放最上面，
+    // 不用進「推薦客戶」分頁找。LINE ID 推過的每家客戶一起改；人事資料表挑第一份還沒交回的。
+    const lineIdGiven = (forwards.find((f) => f.line_id_given) || {}).line_id_given || '';
+    const pendForm = (() => { for (const f of forwards) { const x = (f.forms || []).find((m) => m.status !== 'submitted'); if (x) return { f, x }; } return null; })();
+    const formsAllDone = forwards.some((f) => (f.forms || []).length) && !pendForm;
+    const quickBar = forwards.length ? `<div class="cand-quickbar">
+        <span><b>LINE ID</b> ${lineIdGiven ? text(lineIdGiven) : '<span class="muted">未填</span>'}</span>
+        ${actionBtn(lineIdGiven ? '修改 LINE ID' : '填寫 LINE ID', 'cand-line-id', { idParams: { application_id: applicationId }, record: { line_id_given: lineIdGiven } })}
+        ${pendForm ? actionBtn(`上傳人事資料表（${pendForm.f.company_name || '客戶'}）`, 'candidate-form-upload', { idParams: { application_id: applicationId, company_id: pendForm.f.company_id, job_form_id: pendForm.x.job_form_id } })
+          : formsAllDone ? '<span class="badge success">人事資料表 ✓</span>' : ''}
+      </div>` : '';
     const head = `<div class="cand-head">
       <div class="cand-chips"><span class="badge info">階段：${text(stageText)}${application.manual_stage ? '' : '（自動）'}</span><span class="badge">負責：${text(ownerName || '未指派')}</span>${lineBinding ? '<span class="badge success">LINE 已綁定</span>' : ''}${hardGateBadge}${contactBadge}</div>
       ${contact ? `<div class="cand-contact">${contact}</div>` : ''}
+      ${quickBar}
       <button type="button" class="cand-next" data-cand-goto="${nextStep.tab}"><b>下一步</b>${text(nextStep.t)}</button>
       ${sibBar}${jobSwitchHtml}${views.socialSourceBadge(card.social_source)}
     </div>`;
