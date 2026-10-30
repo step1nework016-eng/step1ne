@@ -341,6 +341,7 @@ tr.billRow:hover td{background:var(--soft)}
 .nrec h4{margin:0 0 6px;font-size:14px;color:#8a4b12}
 .nrec-why{font-size:13.5px;line-height:1.7;color:#5c3a12}
 .nrec-when{margin-top:7px;font-size:11.5px;color:#9a7a52}
+.undo-rej{display:inline-block;margin-left:6px;min-height:32px;padding:4px 10px;border:1px solid var(--line,#ddd);border-radius:999px;background:transparent;color:var(--ink2,#555);font-size:12px;cursor:pointer}.undo-rej:hover{background:rgba(0,0,0,.04)}.undo-rej:focus-visible{outline:2px solid currentColor;outline-offset:2px}
 </style>
 
 <header><div class="wrap" style="position:relative">
@@ -1857,7 +1858,7 @@ function renderTable(){
       if (consultantRejected) {
         matchedCell = '<span class="dash-pill" style="opacity:.55">—</span>';
       } else if (rejected) {
-        matchedCell = `<span class="dash-pill rejected" title="${esc(c.client_reject_reason || '')}">不推進</span>`;
+        matchedCell = `<span class="dash-pill rejected" title="${esc(c.client_reject_reason || '')}">不推進</span><button type="button" class="undo-rej" data-undo-reject="${esc(c.application_id)}" data-name="${esc(c.candidate_name)}">按錯了，改回</button>`;
       } else if (advanced) {
         matchedCell = `<span class="dash-pill done">已推進</span>`;
       } else {
@@ -2198,6 +2199,23 @@ function wireOfferUpload(appId){
   });
 }
 
+// 2026-10-30 Jacky：客戶按錯「不推進／不錄取」可以自己改回（律准葉珮伶事件）。改回後回到原本狀態，顧問會收到通知。
+document.addEventListener('click', async (e) => {
+  const b = e.target.closest('[data-undo-reject]');
+  if (!b) return;
+  e.preventDefault(); e.stopPropagation();
+  const appId = b.dataset.undoReject;
+  if (!confirm(`確定要把「${b.dataset.name || '這位人選'}」改回來嗎？\n會取消剛剛的「不推進／不錄取」，回到原本的進度。`)) return;
+  b.disabled = true; b.textContent = '改回中…';
+  try{
+    const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(appId)}/undo-reject`, { method: 'POST', headers: {'content-type':'application/json'}, body: '{}' });
+    const data = await res.json();
+    if (!data.ok){ alert(data.error || '改回失敗'); b.disabled = false; b.textContent = '按錯了，改回'; return; }
+    await loadCandidates();
+    if (ACTIVE_APP === appId) openCandModal(appId);
+  }catch{ alert('連線失敗，請稍後再試'); b.disabled = false; b.textContent = '按錯了，改回'; }
+}, true);
+
 async function tblReject(appId, reason, sel, prevValue, kind){
   try{
     const res = await fetch(`${API}/portal/${encodeURIComponent(token)}/candidates/${encodeURIComponent(appId)}/reject`, {
@@ -2330,6 +2348,7 @@ function openCandModal(appId){
         <b style="color:var(--bad);font-size:13px">已標記不推進此人選</b>
         <div style="font-size:13px;margin-top:4px">${esc(c.client_reject_reason || '')}</div>
         <div class="mut" style="font-size:11.5px;margin-top:4px">${esc((c.client_rejected_at||'').slice(0,16))}</div>
+        <button type="button" class="undo-rej" style="align-self:flex-start;margin-top:8px" data-undo-reject="${esc(c.application_id)}" data-name="${esc(c.candidate_name)}">按錯了，改回</button>
       </div>`;
   } else {
     // 2026-09-01 拿掉：「新增下一輪面試」整組控制項搬走了——面試有幾關是
