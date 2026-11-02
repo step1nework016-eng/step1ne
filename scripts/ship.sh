@@ -19,4 +19,15 @@ for f in $(git diff --name-only "$BASE" HEAD); do
   if cmp -s "$TMP/live" "$f"; then echo "✅ 線上已是新版：$f"; else echo "❌ 線上還是舊的：$f（$code）"; fail=1; fi
 done
 rm -rf "$TMP"
+# 2026-11-02：上線後跑一次系統巡檢（客戶專區、顧問後台網頁、人選名單…）；有問題巡檢會私訊 Jacky。沒有 patrol.env 就跳過。
+if [ -f ~/.config/workflow-os/patrol.env ]; then
+  source ~/.config/workflow-os/patrol.env
+  sleep 5
+  curl -s -m 120 -X POST "$PATROL_URL/run?why=deploy-site" -H "X-Patrol-Key: $PATROL_RUN_KEY" | python3 -c '
+import json, sys
+try: d = json.load(sys.stdin)
+except Exception: print("⚠️ 上線後巡檢沒跑成功，請手動確認"); sys.exit()
+p = [x["what"] for r in d.get("results", []) for x in r.get("problems", [])]
+print("✅ 上線後巡檢全部通過" if not p else "❌ 上線後巡檢發現問題（已私訊 Jacky）：\n" + "\n".join("   - " + x for x in p))' || true
+fi
 exit $fail
