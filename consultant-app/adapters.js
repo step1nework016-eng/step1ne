@@ -8,6 +8,40 @@ const rows = (body, ...keys) => {
 };
 const value = (source, ...keys) => keys.map((key) => source?.[key]).find((item) => item !== undefined && item !== null);
 
+// 人選列表／搜尋共用：後端卡片 → 工作台列（views.candidateRows／candidateTableRows 吃的形狀）
+function mapCandidateCards(body) {
+  // 2026-09-15 補：client_name 其實一直都有給（後端算的是「推薦給哪家客戶」，
+  // 推薦之前是「（未綁客戶）」，推薦之後會自動換成真實客戶名）——原本沒接進來，
+  // 工作台卡片一直只顯示人選自己原本應徵的職缺，推薦之後畫面完全看不出來。
+  // seq_no／hard_gate 同理，後端早就算好，只是沒被讀出來。
+  return rows(body, 'cards', 'items', 'applications', 'rows').map((item) => ({
+    applicationId: value(item, 'application_id', 'id'), name: value(item, 'name', 'candidate_name'),
+    job: value(item, 'job_title', 'title'), jobSlug: value(item, 'job_slug'), owner: value(item, 'owner_name', 'owner', 'consultant_name'),
+    ownerId: value(item, 'owner'), email: value(item, 'email'), phone: value(item, 'phone'),
+    source: value(item, 'origin', 'source_label', 'source_channel', 'utm_source'), stage: value(item, 'tab', 'manual_stage', 'status', 'stage'),
+    updatedAt: value(item, 'created_at', 'last_activity_at', 'updated_at'),
+    duplicate: value(item, 'dup_notice', 'duplicate_notice'),
+    clientName: value(item, 'client_name'), seqNo: value(item, 'seq_no'), hardGate: value(item, 'hard_gate'), expected: value(item, 'expected_salary'),
+    aiDone: value(item, 'ai_done'), evaluated: value(item, 'evaluated'), pushed: value(item, 'pushed'),
+    // 2026-09-21 加：阿財分流 A–E，卡片跟表格都要顯示，顧問一眼看出先打給誰。
+    routeCode: value(item, 'route_code'), routeLabel: value(item, 'route_label'),
+    // 2026-09-22：LINE 綁定狀態。後端 /admin/pipeline/tracker 本來就有回
+    // line_bound／line_display_name，只是前端從來沒接——顧問要跑到
+    // 「系統 → LINE」那一頁才查得到這個人能不能用 LINE 聯絡。
+    lineBound: value(item, 'line_bound'), lineName: value(item, 'line_display_name'),
+    // 進了面談室但一句話都沒說（逾時自動收尾），跟「談完了」是兩件事。
+    silentInterview: value(item, 'silent_interview'),
+    // 2026-10-21「先送出，晚點再聊」：waiting／expired（見 views.js laterBadge）
+    laterState: value(item, 'later_state'),
+    // 2026-10-23：卡片上直接「📄 看履歷」（104 下載匯入的人選，Phoebe 要一點就開 PDF）。
+    // 後端 tracker 本來就有回 resume_file_id／resume_url，只是卡片沒接。
+    resumeFileId: value(item, 'resume_file_id'), resumeUrl: value(item, 'resume_url'),
+    // 2026-10-27 B 方案：同一人的其他應徵單（後端已依 email／電話併組，extra_placements），人選卡片小檔頭要列出來
+    origin: value(item, 'origin'), sourceChannel: value(item, 'source_channel'), siblings: Array.isArray(item.extra_placements) ? item.extra_placements : [],
+    sourcedId: value(item, 'sourced_id'),
+  }));
+}
+
 export const adapters = {
   async home() {
     const [overview, live] = await Promise.all([api.get('/admin/overview'), api.get('/admin/interviews/live')]);
@@ -29,36 +63,13 @@ export const adapters = {
   // ?owner=<consultants.id> 篩選（也接受 'unassigned'），對應顧問後台想篩「誰負責的」。
   async candidates(owner) {
     const q = owner ? `?owner=${encodeURIComponent(owner)}` : '';
-    const body = await api.get(`/admin/pipeline/tracker${q}`);
-    // 2026-09-15 補：client_name 其實一直都有給（後端算的是「推薦給哪家客戶」，
-    // 推薦之前是「（未綁客戶）」，推薦之後會自動換成真實客戶名）——原本沒接進來，
-    // 工作台卡片一直只顯示人選自己原本應徵的職缺，推薦之後畫面完全看不出來。
-    // seq_no／hard_gate 同理，後端早就算好，只是沒被讀出來。
-    return rows(body, 'cards', 'items', 'applications', 'rows').map((item) => ({
-      applicationId: value(item, 'application_id', 'id'), name: value(item, 'name', 'candidate_name'),
-      job: value(item, 'job_title', 'title'), jobSlug: value(item, 'job_slug'), owner: value(item, 'owner_name', 'owner', 'consultant_name'),
-      ownerId: value(item, 'owner'), email: value(item, 'email'), phone: value(item, 'phone'),
-      source: value(item, 'origin', 'source_label', 'source_channel', 'utm_source'), stage: value(item, 'tab', 'manual_stage', 'status', 'stage'),
-      updatedAt: value(item, 'created_at', 'last_activity_at', 'updated_at'),
-      duplicate: value(item, 'dup_notice', 'duplicate_notice'),
-      clientName: value(item, 'client_name'), seqNo: value(item, 'seq_no'), hardGate: value(item, 'hard_gate'), expected: value(item, 'expected_salary'),
-      aiDone: value(item, 'ai_done'), evaluated: value(item, 'evaluated'), pushed: value(item, 'pushed'),
-      // 2026-09-21 加：阿財分流 A–E，卡片跟表格都要顯示，顧問一眼看出先打給誰。
-      routeCode: value(item, 'route_code'), routeLabel: value(item, 'route_label'),
-      // 2026-09-22：LINE 綁定狀態。後端 /admin/pipeline/tracker 本來就有回
-      // line_bound／line_display_name，只是前端從來沒接——顧問要跑到
-      // 「系統 → LINE」那一頁才查得到這個人能不能用 LINE 聯絡。
-      lineBound: value(item, 'line_bound'), lineName: value(item, 'line_display_name'),
-      // 進了面談室但一句話都沒說（逾時自動收尾），跟「談完了」是兩件事。
-      silentInterview: value(item, 'silent_interview'),
-      // 2026-10-21「先送出，晚點再聊」：waiting／expired（見 views.js laterBadge）
-      laterState: value(item, 'later_state'),
-      // 2026-10-23：卡片上直接「📄 看履歷」（104 下載匯入的人選，Phoebe 要一點就開 PDF）。
-      // 後端 tracker 本來就有回 resume_file_id／resume_url，只是卡片沒接。
-      resumeFileId: value(item, 'resume_file_id'), resumeUrl: value(item, 'resume_url'),
-      // 2026-10-27 B 方案：同一人的其他應徵單（後端已依 email／電話併組，extra_placements），人選卡片小檔頭要列出來
-      origin: value(item, 'origin'), sourceChannel: value(item, 'source_channel'), siblings: Array.isArray(item.extra_placements) ? item.extra_placements : [],
-    }));
+    return mapCandidateCards(await api.get(`/admin/pipeline/tracker${q}`));
+  },
+  // 2026-11-02：搜尋直接問伺服器（姓名／信箱／電話／職缺／來源，最多 50 筆），不用等整份列表載完，
+  // 也不受列表上限影響（Phoebe 搜不到馬若喬）。回來的卡片形狀跟列表一樣。
+  async searchCandidates(query, owner) {
+    const qs = `?q=${encodeURIComponent(query)}${owner ? `&owner=${encodeURIComponent(owner)}` : ''}`;
+    return mapCandidateCards(await api.get(`/admin/applications/search${qs}`));
   },
   async candidateCard(applicationId) { return api.get(`/admin/application/${encodeURIComponent(applicationId)}/card`); },
   async sourced() { return rows(await api.get('/admin/sourced'), 'items', 'candidates', 'rows'); },
