@@ -118,7 +118,8 @@ export function bdTodo(it) {
   const d = { got_email: '確認對方收到資料、問主管評估結果', interested: '約時間談需求／合約', send_info: '寄公司介紹資料', got_contact: '打給問到的窗口', no_answer: '再打一次', gatekeeper: '換時段或改找人資分機' }[it.last_result];
   return d ? { text: d, due: '' } : null;
 }
-function isDueToday(it) { const t = bdTodo(it); return !!(t && t.due && t.due <= today()); }
+// 2026-11-02 Jacky：「今天要確認」只放聯繫過的客戶（已聯繫打勾，或電話有接通／對方回信會自動打勾）；沒聯繫過的走「新名單補滿」
+function isDueToday(it) { if (S.cfg && S.cfg.kind === 'bd' && !it.contacted_at) return false; const t = bdTodo(it); return !!(t && t.due && t.due <= today()); }
 function bdBrief(it) {
   if (!it.last_result && !(it.history || []).length) return '';
   const st = it.status_info || {};
