@@ -4849,7 +4849,7 @@ document.addEventListener('input', (event) => {
     return String(item.routeCode || '').toUpperCase() === route;
   };
   const terms = query.split(/\s+/).filter(Boolean);  // 2026-10-23：可打多個關鍵字（例：「104 BIM」），每個字都要對到
-  const pass = (item) => (!terms.length || terms.every((w) => [item.name,item.job,item.source,item.owner,item.sourceChannel,item.email,item.phone].some((value) => String(value || '').toLowerCase().includes(w)))) && (!stage || item.stage === stage) && matchRoute(item);
+  const pass = (item) => (!terms.length || terms.every((w) => [item.name,item.job,item.source,item.owner,item.sourceChannel,item.email,item.phone,String(item.phone || '').replace(/\D/g, '')].some((value) => String(value || '').toLowerCase().includes(w)))) && (!stage || item.stage === stage) && matchRoute(item);
   const paint = (list) => { $('#page-data').innerHTML = state.candidateView === 'table' ? views.candidateTableRows(list) : views.candidateRows(list); };
   // 2026-11-02：搜尋直接問伺服器（打 2 個字以上、停 0.25 秒就查），不用等整份列表載完、也不受列表上限影響。
   // 伺服器只拿最長的那個關鍵字去查，回來後再用全部關鍵字＋階段／分流篩一次；跟已載入列表的結果合併去重。
@@ -4862,6 +4862,7 @@ document.addEventListener('input', (event) => {
     return [...local, ...(serverRows || []).filter((item) => pass(item) && !seen.has(key(item)))];
   };
   clearTimeout(state.candSearchTimer);
+  const mySeq = (state.candSearchSeq = (state.candSearchSeq || 0) + 1);   // 每次輸入都換號，還在路上的舊結果回來就作廢
   if (longest.length < 2) {
     if (state.candidateLoading && query.trim()) {
       $('#page-data').innerHTML = `<div class="empty-state" style="padding:24px">人選資料載入中…多打幾個字就會直接搜尋</div>`;
@@ -4875,7 +4876,6 @@ document.addEventListener('input', (event) => {
   if (cached) { paint(merged(cached)); return; }
   if (!state.candidateLoading) paint(state.candidateRows.filter(pass));   // 先秀已載入的，伺服器回來再補
   else $('#page-data').innerHTML = `<div class="empty-state" style="padding:24px">搜尋「${escapeHtml(query)}」中…</div>`;
-  const mySeq = (state.candSearchSeq = (state.candSearchSeq || 0) + 1);
   state.candSearchTimer = setTimeout(async () => {
     let found = [];
     try { found = await adapters.searchCandidates(longest, state.candidateOwner); }
