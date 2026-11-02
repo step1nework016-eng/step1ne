@@ -218,7 +218,7 @@ export const NAV_GROUPS = [
   { id: 'people', label: '人選', icon: '◉', tabs: [['candidates', '人選列表'], ['interviews', 'AI 面談'], ['linechat', '人選面談室']] },
   { id: 'jobs', label: '職缺', icon: '▣', tabs: [['jobs', '職缺']] },
   { id: 'progress', label: '帶案進度', icon: '▥', tabs: [['recruitment', '招募總覽'], ['casestatus', '帶案狀況']] },
-  { id: 'clients', label: '客戶／BD', icon: '♙', tabs: [['clients', '客戶／BD'], ['mail', '信箱紀錄']] },
+  { id: 'clients', label: '客戶／BD', icon: '♙', tabs: [['clientboard', '客戶總表'], ['clients', '客戶／BD'], ['mail', '信箱紀錄']] },
   { id: 'library', label: '書櫃', icon: '▤', tabs: [['library', '文件書櫃']] },
   { id: 'social', label: '社群', icon: '◁', tabs: [['social', '社群'], ['channels', '招募管道']] },
   { id: 'system', label: '系統', icon: '⚙', tabs: [['system', '系統'], ['onboarding', '顧問上工設定'], ['roles', 'AI 職務說明書'], ['paths', '人選路線圖'], ['billflow', '收費流程']] },
@@ -276,6 +276,8 @@ export const views = {
   paths: () => pageHead('人選路線圖', '人選從哪個管道進來、各走哪一條路。跟 Phoebe 對流程時看這張。', '<a class="btn primary" href="/consultant-app/candidate-paths.html" target="_blank" rel="noopener" style="min-height:44px;display:inline-flex;align-items:center;text-decoration:none">另開分頁看 ↗</a>') + `<div id="page-data"><iframe class="casestatus-frame" src="/consultant-app/candidate-paths.html" title="人選路線圖" loading="lazy"></iframe></div>`,
   // 2026-10-28 Jacky「把收費流程畫張圖，讓顧問知道後台流程是什麼」：一列一步驟、一欄一角色，常漏的標橘
   billflow: () => pageHead('收費流程', '從人選報到到錢入帳：誰、在哪裡、做什麼。橘框是最常漏的一步（客戶直接匯款後沒按「已收到款」）。', '<a class="btn primary" href="/consultant-app/billing-flow.html" target="_blank" rel="noopener" style="min-height:44px;display:inline-flex;align-items:center;text-decoration:none">另開分頁看 ↗</a>') + `<div id="page-data"><iframe class="casestatus-frame" src="/consultant-app/billing-flow.html" title="收費流程" loading="lazy"></iframe></div>`,
+  // 2026-11-02 加：主力客戶狀態總表（唯一真相，畫面與邏輯在 clientboard.js）
+  clientboard: () => pageHead('主力客戶總表', '每家客戶一張卡：合約、窗口、找人中的職缺（客戶確認了沒）、已拿掉／暫停、管道限制、下一步。Jacky、Phoebe、AI 都讀這一份。') + `<div id="page-data"></div>`,
   // 2026-10-30 加：文件書櫃（畫面與邏輯在 library.js）
   library: () => pageHead('文件書櫃', '公司範本（合約、簡介、客戶給的範本）每一層一本「使用中」，系統寄信自動附那本；客戶文件櫃依合作階段放每家客戶的文件。') + `<div id="page-data"></div>`,
   // 2026-10-15 加：招募管道（畫面與邏輯在 channels.js）
