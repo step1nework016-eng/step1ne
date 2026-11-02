@@ -3261,7 +3261,7 @@ async function openCandidate(applicationId, opts = {}) {
     const formsAllDone = forwards.some((f) => (f.forms || []).length) && !pendForm;
     const quickBar = (pendForm || formsAllDone) ? `<div class="cand-quickbar">
         ${pendForm ? actionBtn(`上傳人事資料表（${pendForm.f.company_name || '客戶'}）`, 'candidate-form-upload', { idParams: { application_id: applicationId, company_id: pendForm.f.company_id, job_form_id: pendForm.x.job_form_id } }, 'primary')
-          : '<span class="badge success">人事資料表 ✓</span>'}
+          : (() => { for (const f of forwards) { const x = (f.forms || []).find((m) => m.status === 'submitted'); if (x) return `<span class="badge success">人事資料表 ✓</span> ${actionBtn('換一份人事資料表', 'candidate-form-upload', { idParams: { application_id: applicationId, company_id: f.company_id, job_form_id: x.job_form_id } })}`; } return '<span class="badge success">人事資料表 ✓</span>'; })()}
       </div>` : '';
     const head = `<div class="cand-head">
       <div class="cand-chips"><span class="badge info">階段：${text(stageText)}${application.manual_stage ? '' : '（自動）'}</span><span class="badge">負責：${text(ownerName || '未指派')}</span>${lineBinding ? '<span class="badge success">LINE 已綁定</span>' : ''}${hardGateBadge}${contactBadge}</div>

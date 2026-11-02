@@ -4670,7 +4670,9 @@ ${tg}
       let statusTag, actions;
       if (f.status === 'submitted') {
         statusTag = '<span class="badge success">已填完</span>';
-        actions = [`<button type="button" class="btn ghost sm" data-download-form-submission="${text(f.id)}">下載</button>`];
+        // 2026-11-02 Jacky：交回之後也要能讓顧問重新上傳（後端同一支會用新檔蓋掉舊的）
+        actions = [`<button type="button" class="btn ghost sm" data-download-form-submission="${text(f.id)}">下載</button>`,
+          actionBtn('換一份（重新上傳）', 'candidate-form-upload', { idParams })];
       } else if (f.status === 'sent') {
         statusTag = '<span class="badge warning">已寄送，等填寫</span>';
         actions = [
