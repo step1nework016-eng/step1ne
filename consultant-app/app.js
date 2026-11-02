@@ -4886,6 +4886,13 @@ document.addEventListener('input', (event) => {
   }, 250);
 });
 
+// 2026-11-02：點進搜尋框就先送一個空查詢，讓瀏覽器把跨網域預檢先做掉，真正打字時少等一趟。
+document.addEventListener('focusin', (event) => {
+  if (event.target?.id !== 'candidate-search' || state.candSearchWarm) return;
+  state.candSearchWarm = true;
+  adapters.searchCandidates('', '').catch(() => {});
+});
+
 window.addEventListener('popstate', render);
 window.addEventListener('step1ne:navigate', render);
 window.addEventListener('step1ne:unauthorized', () => { localStorage.removeItem(CONFIG.tokenKey); openTokenModal('憑證無效或已過期'); });

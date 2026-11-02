@@ -67,9 +67,9 @@ export const adapters = {
   },
   // 2026-11-02：搜尋直接問伺服器（姓名／信箱／電話／職缺／來源，最多 50 筆），不用等整份列表載完，
   // 也不受列表上限影響（Phoebe 搜不到馬若喬）。回來的卡片形狀跟列表一樣。
+  // 用 POST 打固定網址：網址不變，瀏覽器的跨網域預檢只要問一次（GET 每換一個關鍵字就要多等一趟）。
   async searchCandidates(query, owner) {
-    const qs = `?q=${encodeURIComponent(query)}${owner ? `&owner=${encodeURIComponent(owner)}` : ''}`;
-    return mapCandidateCards(await api.get(`/admin/applications/search${qs}`));
+    return mapCandidateCards(await api.post('/admin/applications/search', { q: query, owner: owner || '' }));
   },
   async candidateCard(applicationId) { return api.get(`/admin/application/${encodeURIComponent(applicationId)}/card`); },
   async sourced() { return rows(await api.get('/admin/sourced'), 'items', 'candidates', 'rows'); },
