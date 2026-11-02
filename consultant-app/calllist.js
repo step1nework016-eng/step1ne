@@ -320,12 +320,15 @@ function listHtml(rows) {
   return rows.length ? rows.map(rowHtml).join('') : '<div class="state"><strong>這裡沒有名單</strong><p>換個篩選看看。</p></div>';
 }
 // 2026-10-29：頁面最上面「今天要確認」——到期（含已過期）的公司一行一家，點了跳到那張卡
+// 2026-11-02 Jacky：寄過匿名人選的客戶＝顧問優先追，「今天要確認」一律放最上面（不管有沒有到期）
+const anonSent = (it) => /匿名/.test(String((it.status_info || {}).priority_list || ''));
 function dueBox(rows) {
-  const due = rows.filter(isDueToday).sort((a, b) => String(bdTodo(a).due).localeCompare(String(bdTodo(b).due)));
+  const due = rows.filter((it) => anonSent(it) || isDueToday(it))
+    .sort((a, b) => (anonSent(b) - anonSent(a)) || String((bdTodo(a) || {}).due || '9').localeCompare(String((bdTodo(b) || {}).due || '9')));
   if (!due.length) return '<div class="cl-duebox ok">今天沒有到期要確認的公司 👍</div>';
   // 2026-10-29 Jacky：「今天要確認」可以收起、展開（記在這台瀏覽器）
   const open = loadUi().dueOpen !== false;
-  return `<details class="cl-duebox cl-due-fold" ${open ? 'open' : ''}><summary><b>今天要確認（${e(due.length)} 家）</b><span class="cl-due-t">${open ? '收起' : '展開'}</span></summary><ol>${due.map((it) => `<li><a href="#" data-cl-jump="${e(it.id)}">${e(it.company)}</a>：${bdTodo(it).due < today() ? `<span class="cl-due late">已過 ${e(mdDay(bdTodo(it).due))}</span>` : ''}${e(bdTodo(it).text)}</li>`).join('')}</ol></details>`;
+  return `<details class="cl-duebox cl-due-fold" ${open ? 'open' : ''}><summary><b>今天要確認（${e(due.length)} 家）</b><span class="cl-due-t">${open ? '收起' : '展開'}</span></summary><ol>${due.map((it) => `<li><a href="#" data-cl-jump="${e(it.id)}">${e(it.company)}</a>：${anonSent(it) ? `<span class="cl-due anon">📎 ${e(String(it.status_info.priority_list).replace(/^匿名人選已寄\s*/, '已寄匿名 '))}</span>` : ''}${(bdTodo(it) || {}).due && bdTodo(it).due < today() ? `<span class="cl-due late">已過 ${e(mdDay(bdTodo(it).due))}</span>` : ''}${e((bdTodo(it) || {}).text || '系統正在照最新紀錄排下一步')}</li>`).join('')}</ol></details>`;
 }
 function rerenderRow(id) {
   const el = S.target && S.target.querySelector(`[data-cl-id="${CSS.escape(id)}"]`);
