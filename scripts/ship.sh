@@ -16,6 +16,8 @@ TMP=$(mktemp -d)
 fail=0
 for f in $(git diff --name-only "$BASE" HEAD); do
   [ -f "$f" ] || continue
+  # 內部程式與草稿不上線（deploy_direct.sh 排除），不用比對
+  case "$f" in scripts/*|*.py|*.sh|CLAUDE.md|DEPLOY.md|_tmp_preview.html|redesign-*.html|缺圖清單.html) continue;; esac
   url="https://step1ne.com/${f%index.html}"
   code=$(curl -s -o "$TMP/live" -w '%{http_code}' "$url?nc=$RANDOM")
   if [ "$code" = "302" ] || [ "$code" = "403" ]; then echo "⚠️ 要登入，沒驗到：$f"; continue; fi
