@@ -217,7 +217,7 @@ export const NAV_GROUPS = [
   { id: 'calls', label: '電話名單', icon: '☏', tabs: [['calllist', '人選'], ['bdcalls', '公司']] },
   { id: 'people', label: '人選', icon: '◉', tabs: [['candidates', '人選列表'], ['interviews', 'AI 面談'], ['linechat', '人選面談室']] },
   { id: 'jobs', label: '職缺', icon: '▣', tabs: [['jobs', '職缺']] },
-  { id: 'progress', label: '帶案進度', icon: '▥', tabs: [['recruitment', '招募總覽'], ['casestatus', '帶案狀況']] },
+  { id: 'progress', label: '帶案進度', icon: '▥', tabs: [['recruitment', '招募總覽'], ['casestatus', '帶案狀況'], ['seoreport', '搜尋成效週報']] },
   { id: 'clients', label: '客戶／BD', icon: '♙', tabs: [['clientboard', '客戶總表'], ['clients', '客戶／BD'], ['mail', '信箱紀錄']] },
   { id: 'library', label: '書櫃', icon: '▤', tabs: [['library', '文件書櫃']] },
   { id: 'social', label: '社群', icon: '◁', tabs: [['social', '社群'], ['channels', '招募管道']] },
@@ -271,6 +271,7 @@ export const views = {
   // 2026-10-28 加：顧問上工設定（畫面與邏輯在 consultant_setup.js）
   onboarding: () => consultantSetupView(),
   // 2026-10-28 Jacky「職務說明書幫我放在系統裡面，以後我可以自己查看」：9 個崗位＋共用＋開發者工具的說明書（原檔 ~/Desktop/104/Step1ne_agent職務說明書_20261028.html）
+  seoreport: () => pageHead('搜尋成效週報', '官網在 Google 的曝光、點擊、排名，每週一更新。看不到的話，按右邊按鈕另開分頁。', '<a class="btn primary" href="https://step1ne.com/seo-report/" target="_blank" rel="noopener" style="min-height:44px;display:inline-flex;align-items:center;text-decoration:none">另開分頁看週報 ↗</a>') + `<div id="page-data"><iframe class="casestatus-frame" src="https://step1ne.com/seo-report/" title="搜尋成效週報" loading="lazy"></iframe></div>`,
   roles: () => pageHead('AI 職務說明書', '每個 AI 助手負責什麼、交什麼成果、誰負責驗收。新顧問上工前，照這份決定要配給他哪些助手。', '<a class="btn primary" href="/consultant-app/agent-roles.html" target="_blank" rel="noopener" style="min-height:44px;display:inline-flex;align-items:center;text-decoration:none">另開分頁看 ↗</a>') + `<div id="page-data"><iframe class="casestatus-frame" src="/consultant-app/agent-roles.html" title="AI 職務說明書" loading="lazy"></iframe></div>`,
   // 2026-10-28 Jacky「那個路徑圖是否可以放在系統也可以參考」：人選從哪來、走哪條路（原檔 ~/Desktop/104/人選路線圖_20261027.html）
   paths: () => pageHead('人選路線圖', '人選從哪個管道進來、各走哪一條路。跟 Phoebe 對流程時看這張。', '<a class="btn primary" href="/consultant-app/candidate-paths.html" target="_blank" rel="noopener" style="min-height:44px;display:inline-flex;align-items:center;text-decoration:none">另開分頁看 ↗</a>') + `<div id="page-data"><iframe class="casestatus-frame" src="/consultant-app/candidate-paths.html" title="人選路線圖" loading="lazy"></iframe></div>`,

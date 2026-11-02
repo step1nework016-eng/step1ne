@@ -15,6 +15,7 @@ export const ROUTES = Object.freeze({
   bdcalls: '/consultant/bdcalls/',
   recruitment: '/consultant/recruitment/',
   casestatus: '/consultant/case-status/',
+  seoreport: '/consultant/seo-report/',   // 2026-11-02 Jacky：搜尋成效週報放進帶案進度
   candidates: '/consultant/candidates/',
   jobs: '/consultant/jobs/',
   interviews: '/consultant/interviews/',
