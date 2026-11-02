@@ -39,6 +39,8 @@ function mapCandidateCards(body) {
     // 2026-10-27 B 方案：同一人的其他應徵單（後端已依 email／電話併組，extra_placements），人選卡片小檔頭要列出來
     origin: value(item, 'origin'), sourceChannel: value(item, 'source_channel'), siblings: Array.isArray(item.extra_placements) ? item.extra_placements : [],
     sourcedId: value(item, 'sourced_id'),
+    // 2026-11-02 四顆燈（阿財／履歷／電洽／推薦），後端從真實紀錄當場算好
+    lights: item.lights || null,
   }));
 }
 

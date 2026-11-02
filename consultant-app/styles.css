@@ -1865,3 +1865,22 @@ svg .rs-val{font-size:15px;font-weight:700;fill:#14232e}svg .rs-lab{font-size:13
 
 /* 2026-11-02 寄過匿名人選的客戶（優先追） */
 .cl-due.anon{background:#e8f0ff;color:#1f4fbf;font-weight:700}
+/* 2026-11-02 四顆燈（阿財／履歷／電洽／推薦）——fourlights.js。顏色沿用全站 badge 的綠黃紅灰，字本身就看得懂 */
+.fl-lights{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 0}
+.fl-light{display:inline-flex;align-items:center;gap:6px;border-radius:999px;border:1px solid transparent;font-size:12.5px;font-weight:700;line-height:1.2;padding:4px 10px;background:#edf1f6;color:#556276;white-space:nowrap;max-width:100%}
+.fl-light>span{overflow:hidden;text-overflow:ellipsis}
+.fl-light>i{width:8px;height:8px;border-radius:50%;background:currentColor;flex-shrink:0}
+.fl-light.fl-ok{background:#e2f8ed;color:#14794c;border-color:#b5e6cc}
+.fl-light.fl-mid{background:#fff0d5;color:#8a5100;border-color:#f2d98a}
+.fl-light.fl-bad{background:#ffe5e7;color:#a72f3a;border-color:#f3b9be}
+.fl-light.fl-none{background:#f3f5f9;color:#5b6678;border-color:#dfe6f1}
+.fl-light.fl-none>i{background:transparent;border:1.5px solid currentColor}
+.fl-lights.fl-list{grid-column:1/-1}
+.fl-lights.fl-card{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:10px 0 4px}
+.fl-lights.fl-card .fl-light{min-height:44px;justify-content:center;border-radius:11px;font-size:13.5px;padding:6px 8px;cursor:pointer;white-space:normal;text-align:center}
+.fl-lights.fl-card .fl-light:hover{filter:brightness(.97);border-color:currentColor}
+.fl-light:focus-visible{outline:3px solid #2867ed;outline-offset:2px}
+td .fl-lights{margin-top:5px;gap:4px}
+td .fl-light{font-size:11.5px;padding:3px 7px}
+@media (max-width:640px){.fl-lights.fl-card{grid-template-columns:repeat(2,minmax(0,1fr))}.fl-light{font-size:13px}}
+@media (prefers-reduced-motion:reduce){.fl-light{transition:none}}

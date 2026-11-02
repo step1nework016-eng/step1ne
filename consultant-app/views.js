@@ -18,6 +18,7 @@ import { empty } from './core/ui.js';
 import { SCRIPTS, SCRIPT_CATS } from './scripts_data.js';
 import { JD_FIELDS, jdFieldVal } from './jd_fields.js';
 import { mailPageView } from './mail.js';
+import { fourLightsHtml } from './fourlights.js';
 import { consultantSetupView } from './consultant_setup.js';
 import { bdCardTop, bdLogPane, BD_TAGS } from './bdcard.js';
 import { bdJobsPane } from './bdjobs.js';
@@ -363,7 +364,7 @@ export const views = {
     // 列表上不放履歷按鈕，點卡片一律開抽屜；要看履歷到抽屜裡「看原始履歷」。
     const cardResume = '';
     void rUrl;
-    return `<article class="candidate-card" data-application="${text(i.applicationId)}">${cardResume}<div><h3>${src104}${isNewCand(i) ? '<span class="badge new-cand" title="跟阿財面談完、還沒指派顧問">NEW</span> ' : ''}${i.seqNo ? `<small class="muted">#${text(i.seqNo)}</small> ` : ''}${text(i.name)} ${routeBadge(i.routeCode, i.routeLabel)}${i.lineBound ? ' <span class="badge success" title="已綁定 LINE，可以直接用 LINE 聯絡">LINE</span>' : ''}${i.hardGate ? ' <span class="badge warning">硬性條件審核</span>' : ''}</h3><p>${text(i.job)}${boundClient ? ` → ${text(i.clientName)}` : ''} · ${text(i.owner)}</p></div>${statusBadge(i.stage)}${laterBadge(i)}<dl><div><dt>聯絡方式</dt><dd>${text(contact)}</dd></div><div><dt>來源</dt><dd>${text(i.source || '—')}</dd></div><div><dt>最後活動</dt><dd>${text(i.updatedAt)}</dd></div></dl>${i.duplicate ? `<div class="notice">${text(i.duplicate)}</div>` : ''}<button class="btn primary">查看應徵單</button></article>`;
+    return `<article class="candidate-card" data-application="${text(i.applicationId)}">${cardResume}<div><h3>${src104}${isNewCand(i) ? '<span class="badge new-cand" title="跟阿財面談完、還沒指派顧問">NEW</span> ' : ''}${i.seqNo ? `<small class="muted">#${text(i.seqNo)}</small> ` : ''}${text(i.name)} ${routeBadge(i.routeCode, i.routeLabel)}${i.lineBound ? ' <span class="badge success" title="已綁定 LINE，可以直接用 LINE 聯絡">LINE</span>' : ''}${i.hardGate ? ' <span class="badge warning">硬性條件審核</span>' : ''}</h3><p>${text(i.job)}${boundClient ? ` → ${text(i.clientName)}` : ''} · ${text(i.owner)}</p></div>${statusBadge(i.stage)}${laterBadge(i)}${fourLightsHtml(i.lights, 'list')}<dl><div><dt>聯絡方式</dt><dd>${text(contact)}</dd></div><div><dt>來源</dt><dd>${text(i.source || '—')}</dd></div><div><dt>最後活動</dt><dd>${text(i.updatedAt)}</dd></div></dl>${i.duplicate ? `<div class="notice">${text(i.duplicate)}</div>` : ''}<button class="btn primary">查看應徵單</button></article>`;
   }),
   // 表格式——照抄舊版 consultant/tracker 的欄位精神（人選／職缺／客戶／顧問／
   // 階段／聯絡方式／最後活動），縮成一行方便一次掃過大量人選；點列一樣開抽屜。
@@ -376,7 +377,7 @@ export const views = {
     const contact = [i.phone, (i.email && !placeholder) ? i.email : null].filter(Boolean).join(' · ') || '—';
     const boundClient = i.clientName && i.clientName !== '（未綁客戶）';
     return `<tr data-application="${text(i.applicationId)}" style="cursor:pointer">
-      <td>${String(i.source || '').trim() === '104' ? '<span class="badge src-104" title="從 104 下載履歷匯入">104</span> ' : ''}${isNewCand(i) ? '<span class="badge new-cand" title="跟阿財面談完、還沒指派顧問">NEW</span> ' : ''}${i.seqNo ? `<small class="muted">#${text(i.seqNo)}</small> ` : ''}${text(i.name)}${i.duplicate ? ' ⚠' : ''}${i.hardGate ? ' <span class="badge warning">硬性條件</span>' : ''}</td>
+      <td>${String(i.source || '').trim() === '104' ? '<span class="badge src-104" title="從 104 下載履歷匯入">104</span> ' : ''}${isNewCand(i) ? '<span class="badge new-cand" title="跟阿財面談完、還沒指派顧問">NEW</span> ' : ''}${i.seqNo ? `<small class="muted">#${text(i.seqNo)}</small> ` : ''}${text(i.name)}${i.duplicate ? ' ⚠' : ''}${i.hardGate ? ' <span class="badge warning">硬性條件</span>' : ''}${fourLightsHtml(i.lights, 'list')}</td>
       <td title="${escapeHtml(i.job || '')}">${text(i.job)}</td><td title="${escapeHtml(boundClient ? i.clientName : '')}">${boundClient ? text(i.clientName) : '—'}</td><td>${text(i.owner)}</td>
       <td>${i.lineBound ? '<span class="badge success" title="已綁定 LINE">LINE</span> ' : ''}${routeBadge(i.routeCode, i.routeLabel) || '<span class="muted">—</span>'}${i.silentInterview ? ' <small class="muted" title="阿財面談室沒有對話紀錄，不代表沒談過——顧問可能是自己打電話談的">無阿財紀錄</small>' : ''}</td>
       <td>${statusBadge(i.stage)}${laterBadge(i)}</td><td>${text(contact)}</td><td>${text(i.updatedAt)}</td>

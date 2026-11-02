@@ -20,6 +20,7 @@ import { loadCallList, loadBdCalls } from './calllist.js';
 import { billingV2View, wireBillingV2, billing2Api } from './billing2.js';
 import { initResumeLink, resumeLinkButtons } from './resumelink.js';
 import { loadSpecialCheck } from './special_check.js';
+import { fourLightsHtml } from './fourlights.js';
 
 // 2026-09-15 補：使用者反映「不知道要看哪個是自己的」——沒有登入系統，只能靠
 // 這組「切換選擇」記住上次選的是誰，換分頁/重新整理都不用重選（存在瀏覽器
@@ -3265,6 +3266,7 @@ async function openCandidate(applicationId, opts = {}) {
       </div>` : '';
     const head = `<div class="cand-head">
       <div class="cand-chips"><span class="badge info">階段：${text(stageText)}${application.manual_stage ? '' : '（自動）'}</span><span class="badge">負責：${text(ownerName || '未指派')}</span>${lineBinding ? '<span class="badge success">LINE 已綁定</span>' : ''}${hardGateBadge}${contactBadge}</div>
+      ${fourLightsHtml(card.lights, 'card')}
       ${contact ? `<div class="cand-contact">${contact}</div>` : ''}
       ${quickBar}
       <button type="button" class="cand-next" data-cand-goto="${nextStep.tab}"><b>下一步</b>${text(nextStep.t)}</button>
@@ -3736,6 +3738,11 @@ function wireCandidateDrawer(applicationId, application, forwards, report, opts 
     ensurePane(k);
   };
   $$('#overlay-root [data-cand-tab]').forEach((b) => { b.onclick = () => showTab(b.getAttribute('data-cand-tab')); });
+  // 2026-11-02 四顆燈：點哪顆就切到那個分頁（阿財→阿財面談、履歷→履歷檔案、電洽→電洽、推薦→推薦客戶）
+  $$('#overlay-root [data-light-goto]').forEach((b) => { b.onclick = () => {
+    showTab(b.getAttribute('data-light-goto'));
+    $('#overlay-root .cand-tabs')?.scrollIntoView({ block: 'start', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  }; });
   const goto = $('#overlay-root [data-cand-goto]');
   if (goto) goto.onclick = () => {
     showTab(goto.getAttribute('data-cand-goto'));
