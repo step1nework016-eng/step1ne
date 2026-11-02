@@ -236,6 +236,11 @@ async function loadCandidateTab(target) {
     populateOwnerFilter();
     annotateRouteFilterCounts();
     applyPendingRouteFilter();
+    // 2026-11-02：列表要載 5～7 秒，顧問常在載完前就打字搜尋，載完重畫會把篩選結果蓋回全部（Phoebe 搜馬若喬「找不到」）。
+    // 載完後只要搜尋框／篩選有值，就重新套一次。
+    if (($('#candidate-search')?.value || '').trim() || $('#candidate-stage')?.value) {
+      $('#candidate-search')?.dispatchEvent(new Event('input', { bubbles: true }));
+    }
     return;
   }
   if (tab === 'pool') {
