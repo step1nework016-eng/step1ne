@@ -30,13 +30,24 @@ def meta(path):
     desc = (d.group(1) if d else '').strip()
     return title, desc
 
+def live_job_urls():
+    """sitemap.xml 上的網址＝還在徵的頁面（關閉的職缺 close_sync 會從 sitemap 拿掉）。"""
+    try:
+        return set(re.findall(r'<loc>([^<]+)</loc>', open(os.path.join(ROOT, 'sitemap.xml'), encoding='utf-8').read()))
+    except OSError:
+        return None
+
 def collect():
     pages = {}
+    live = live_job_urls()
     for f in sorted(glob.glob(os.path.join(ROOT, '**/index.html'), recursive=True)):
         rel = os.path.relpath(os.path.dirname(f), ROOT).replace(os.sep, '/')
         rel = '' if rel == '.' else rel
         top = rel.split('/')[0]
         if top in SKIP_DIRS or rel in SKIP_PAGES:
+            continue
+        # 2026-11-02：已關閉的職缺不推給 AI——只收 sitemap 上還在的職缺頁
+        if top == 'jobs' and rel != 'jobs' and live is not None and f'{BASE}/{rel}/' not in live:
             continue
         pages[rel] = meta(f)
     return pages

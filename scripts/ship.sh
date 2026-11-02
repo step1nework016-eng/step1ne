@@ -5,7 +5,10 @@
 # 用法：./scripts/ship.sh [比對基準 commit，預設 HEAD~1]
 set -e
 cd "$(dirname "$0")/.."
-BASE="${1:-HEAD~1}"
+BASE=$(git rev-parse "${1:-HEAD~1}")
+# 2026-11-02 Jacky「職缺要讓 AI 抓得到」：每次上線前重產給 AI 看的目錄（llms.txt），有變就一起帶上去
+python3 scripts/gen_llms_txt.py >/dev/null
+if ! git diff --quiet -- llms.txt; then git add llms.txt && git commit -qm "llms.txt 自動更新（上線前重產）"; fi
 ./scripts/predeploy.sh
 git push -q deploy HEAD:main
 ./deploy_direct.sh >/dev/null 2>&1 || { echo '❌ 直接上傳失敗'; exit 1; }
