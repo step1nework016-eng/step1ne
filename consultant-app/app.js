@@ -232,7 +232,9 @@ async function loadCandidateTab(target) {
   const loaders = { workbench: adapters.candidates, pool: adapters.sourced, reports: adapters.reports, outreach: adapters.outreach, checkups: adapters.checkups };
   const tab = loaders[state.sub] ? state.sub : 'workbench';
   if (tab === 'workbench') {
-    await boundary(target, () => adapters.candidates(state.candidateOwner), (items) => { state.candidateRows = items; return (state.candidateView === 'table' && !isPhone()) ? views.candidateTableRows(items) : views.candidateRows(items); }, 'refresh');
+    state.candidateLoading = true;
+    await boundary(target, () => adapters.candidates(state.candidateOwner), (items) => { state.candidateLoading = false; state.candidateRows = items; return (state.candidateView === 'table' && !isPhone()) ? views.candidateTableRows(items) : views.candidateRows(items); }, 'refresh');
+    state.candidateLoading = false;   // 載入失敗也要解除，不然搜尋一直顯示「載入中」
     populateOwnerFilter();
     annotateRouteFilterCounts();
     applyPendingRouteFilter();
@@ -4845,6 +4847,11 @@ document.addEventListener('input', (event) => {
     if (route === 'SILENT') return !!item.silentInterview;
     return String(item.routeCode || '').toUpperCase() === route;
   };
+  // 2026-11-02：資料還在載（5～7 秒）時打字，先告訴顧問「載完會自動顯示」，不要讓他以為搜不到。
+  if (state.candidateLoading && target.id === 'candidate-search') {
+    $('#page-data').innerHTML = `<div class="empty-state" style="padding:24px">人選資料載入中…載完會自動顯示「${escapeHtml(query)}」的搜尋結果</div>`;
+    return;
+  }
   const terms = query.split(/\s+/).filter(Boolean);  // 2026-10-23：可打多個關鍵字（例：「104 BIM」），每個字都要對到
   const filtered = state.candidateRows.filter((item) => (!terms.length || terms.every((w) => [item.name,item.job,item.source,item.owner].some((value) => String(value || '').toLowerCase().includes(w)))) && (!stage || item.stage === stage) && matchRoute(item));
   $('#page-data').innerHTML = state.candidateView === 'table' ? views.candidateTableRows(filtered) : views.candidateRows(filtered);
