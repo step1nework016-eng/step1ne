@@ -71,7 +71,7 @@ function telLink(p, label) {
 }
 
 // ── 共用狀態 ──
-const S = { cfg: null, items: [], tab: '', filter: 'all', major: '', pending: {}, open: {}, unsent: new Set(), active: null, target: null, listId: '', lists: [], batch: '', batches: [], queue: [], sel: '' };
+const S = { q: '', cfg: null, items: [], tab: '', filter: 'all', major: '', pending: {}, open: {}, unsent: new Set(), active: null, target: null, listId: '', lists: [], batch: '', batches: [], queue: [], sel: '' };
 const LS = 's1ne_calllist_ui';
 function saveUi(extra = {}) { try { localStorage.setItem(LS, JSON.stringify({ ...loadUi(), tab: S.tab, filter: S.filter, major: S.major, ...extra })); } catch { /* 私密視窗存不了就算了 */ } }
 function loadUi() { try { return JSON.parse(localStorage.getItem(LS) || '{}') || {}; } catch { return {}; } }
@@ -258,7 +258,16 @@ function majorMatch(it) {
   return S.major === 'related' ? RELATED.includes(k) : k === S.major;
 }
 function tabRows() { return S.items.filter((it) => inTab(it, S.tab) && majorMatch(it)); }
+// 2026-11-02 Jacky：兩頁各自一個搜尋框（不共用）——公司頁搜公司名／聯絡人，人選頁搜姓名／電話；
+// 有打字就搜整份名單（不管上面選誰的分頁、哪個篩選），清掉就回原本的篩選
+const norm = (v) => String(v == null ? '' : v).toLowerCase().replace(/[\s\-()（）]/g, '');
+function qMatch(it) {
+  const q = norm(S.q); if (!q) return true;
+  const hay = S.cfg.kind === 'bd' ? [it.company, it.hr_contact, it.contact_name, it.job_title] : [it.name, it.phone, it.job_title];
+  return hay.some((v) => norm(v).includes(q));
+}
 function visibleRows() {
+  if (norm(S.q)) return S.items.filter(qMatch);
   const rows = tabRows();
   if (S.filter === 'queue') return S.queue.map((x) => x.it);
   if (S.filter === 'today') return rows.filter(touchedToday);
@@ -301,8 +310,13 @@ function renderAll() {
     ${majorSel}
     <div class="cl-progress"><span>已打 <b>${e(c.called)}</b> / ${e(c.all)}</span><div class="cl-bar"><i style="width:${c.all ? Math.round(c.called / c.all * 100) : 0}%"></i></div></div>
     ${S.cfg.kind === 'bd' ? dueBox(tabRows()) : ''}
+    <label class="cl-search"><span class="sr-only">${S.cfg.kind === 'bd' ? '搜尋公司' : '搜尋人選'}</span><input type="search" data-cl-q value="${e(S.q)}" placeholder="${S.cfg.kind === 'bd' ? '搜尋公司名、聯絡人…' : '搜尋人選姓名、電話…'}" autocomplete="off"></label>
     <div class="cl-chips">${chip('queue', '今天要打')}${chip('today', '今天打過')}${S.cfg.kind === 'bd' ? chip('due', '到期追蹤') : ''}${chip('todo', '還沒打')}${chip('all', '全部')}${S.cfg.results.map(([v, lb]) => chip(v, lb)).join('')}</div>
-    <div class="cl-list">${rows.length ? rows.map(rowHtml).join('') : '<div class="state"><strong>這裡沒有名單</strong><p>換個篩選看看。</p></div>'}</div></div>`;
+    <div class="cl-list">${listHtml(rows)}</div></div>`;
+}
+function listHtml(rows) {
+  if (norm(S.q)) return rows.length ? `<p class="cl-q-hint">搜「${e(S.q)}」：整份名單找到 ${e(rows.length)} 筆</p>${rows.map(rowHtml).join('')}` : `<div class="state"><strong>找不到「${e(S.q)}」</strong><p>換個字再試，或把搜尋框清掉。</p></div>`;
+  return rows.length ? rows.map(rowHtml).join('') : '<div class="state"><strong>這裡沒有名單</strong><p>換個篩選看看。</p></div>';
 }
 // 2026-10-29：頁面最上面「今天要確認」——到期（含已過期）的公司一行一家，點了跳到那張卡
 function dueBox(rows) {
@@ -411,6 +425,7 @@ function wire(t) {
   };
   t.oninput = (ev) => {
     const el = ev.target;
+    if (el.matches && el.matches('[data-cl-q]')) { S.q = el.value; const l = S.target.querySelector('.cl-list'); if (l) l.innerHTML = listHtml(visibleRows()); return; }
     if (el.matches && el.matches('[data-cl-goal]')) { const n = parseInt(el.value, 10); if (n >= 5 && n <= 80) setGoal(S.cfg.kind, n); return; }
     const row = el.closest && el.closest('[data-cl-id]'); if (!row) return;
     const id = row.dataset.clId; const p = pend(id);

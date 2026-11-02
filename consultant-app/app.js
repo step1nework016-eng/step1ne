@@ -2227,6 +2227,14 @@ function wireBdDashboardFilter() {
   if (qbox) qbox.oninput = apply;
   for (const b of document.querySelectorAll('[data-bdo-quick]')) b.onclick = () => { quick = quick === b.dataset.bdoQuick ? '' : b.dataset.bdoQuick; apply(); };
   for (const b of document.querySelectorAll('[data-bdo-tag]')) b.onclick = () => { tagSel = tagSel === b.dataset.bdoTag ? '' : b.dataset.bdoTag; apply(); };
+  wireBdRowControls(box);
+  for (const btn of $$('.bd-funnel-step')) {
+    btn.onclick = () => { sel.value = `stage:${btn.getAttribute('data-bd-filter-stage')}`; apply(); };
+  }
+  apply();
+}
+// 開發進度那張卡上的「已聯繫」勾選、「負責」下拉：看板和電話名單右欄（2026-11-02）共用
+function wireBdRowControls(box) {
   // 已聯繫打勾（2026-09-30 Jacky）：勾了就存，記錄是誰（用這列的負責人）
   for (const cb of box.querySelectorAll('[data-bd-contacted-box]')) {
     cb.onchange = async () => {
@@ -2254,10 +2262,34 @@ function wireBdDashboardFilter() {
       s2.disabled = false;
     };
   }
-  for (const btn of $$('.bd-funnel-step')) {
-    btn.onclick = () => { sel.value = `stage:${btn.getAttribute('data-bd-filter-stage')}`; apply(); };
+}
+// 2026-11-02 Jacky：電話名單右欄的客戶卡片，最上面要有「開發進度」那張卡的全部資訊
+// （切入點、人資電話／總機、窗口、打了幾通、下一步、AI 建議、已聯繫、負責、記錄電話結果…）。
+// 直接用開發進度看板同一段畫法（views.bdDashboard）只取這一家那張，不另外設計。看板資料 30 秒內重用，不重打。
+let bdDashCache = { at: 0, p: null };
+function bdDashRows() {
+  if (!bdDashCache.p || Date.now() - bdDashCache.at > 30000) {
+    bdDashCache = { at: Date.now(), p: adapters.bdDashboard().catch((e) => { bdDashCache.p = null; throw e; }) };
   }
-  apply();
+  return bdDashCache.p;
+}
+async function dockBdSummary(company) {
+  const body = document.querySelector('#cl-dock .drawer-body');
+  if (!body) return;
+  let html = '';
+  try {
+    const d = await bdDashRows();
+    const r = (d.rows || []).find((x) => x.company === company);
+    if (r) {
+      const doc = new DOMParser().parseFromString(views.bdDashboard({ ...d, rows: [r] }, r.ai_untouched ? 'ai' : undefined), 'text/html');
+      const art = doc.querySelector('.bd-dash-row');
+      if (art) { art.removeAttribute('data-bd-open'); art.removeAttribute('tabindex'); html = art.outerHTML; }
+    }
+  } catch { /* 看板讀不到就只顯示下面的完整卡片 */ }
+  if (state.openBdCompany !== company || !html) return;
+  const old = body.querySelector('.cl-dock-summary'); if (old) old.remove();
+  body.insertAdjacentHTML('afterbegin', `<div class="cl-dock-summary" id="cl-dock-summary">${html}</div>`);
+  wireBdRowControls(body.querySelector('.cl-dock-summary'));
 }
 
 async function openBdDetail(company, focus) {
@@ -2269,6 +2301,7 @@ async function openBdDetail(company, focus) {
   try {
     const detail = await adapters.bdDashboardDetail(company);
     drawer({ title: company, subtitle: sub, body: views.bdDashboardDetail({ ...detail, company }) });
+    if (document.getElementById('cl-dock')) dockBdSummary(company);
     wireBdDetailTabs();
     const dr = document.querySelector('.bd-status-card')?.parentElement;
     if (dr) wireCompanyStatus(dr);
