@@ -34,7 +34,7 @@ BASE = 'https://step1ne.com'
 LANGS = ('ja', 'en')
 # 預覽模式：日英頁先上線給 Jacky 看手機版，但 Google 不收（noindex）、中文頁不放切換、不進 sitemap。
 # Jacky 看過說可以 → 改成 False 再跑一次 ship.sh，就是正式公開。
-PREVIEW = True
+PREVIEW = False
 HTML_LANG = {'ja': 'ja', 'en': 'en'}
 OG_LOCALE = {'ja': 'ja_JP', 'en': 'en_US'}
 CJK = re.compile(r'[㐀-鿿豈-﫿]')
