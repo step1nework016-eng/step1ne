@@ -8,6 +8,8 @@ cd "$(dirname "$0")/.."
 BASE=$(git rev-parse "${1:-HEAD~1}")
 # 2026-11-02 Jacky「職缺要讓 AI 抓得到」：每次上線前重產給 AI 看的目錄（llms.txt），有變就一起帶上去
 python3 scripts/gen_llms_txt.py >/dev/null
+python3 scripts/add_sticky_cta.py >/dev/null
+if ! git diff --quiet -- articles; then git add articles && git commit -qm "文章頁補底部常駐按鈕（上線前自動補）"; fi
 if ! git diff --quiet -- llms.txt; then git add llms.txt && git commit -qm "llms.txt 自動更新（上線前重產）"; fi
 ./scripts/predeploy.sh
 git push -q deploy HEAD:main
