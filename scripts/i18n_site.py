@@ -418,10 +418,17 @@ def switch_block(rel, avail, cur):
 
 
 def insert_after_header(s, block):
-    i = s.find('</header>')
-    if i >= 0:
-        i += len('</header>')
-        return s[:i] + '\n' + block + '\n' + s[i:]
+    """放在頁首導覽列下面。頁首有的頁是 <header>，有的是 <nav class="nav">（企業服務頁的 <header> 其實是大標題區），
+    看 <body> 之後先出現哪一個就用哪一個。"""
+    bi = s.find('<body')
+    bi = 0 if bi < 0 else bi
+    m = re.search(r'<(header|nav)\b', s[bi:])
+    if m:
+        close = '</%s>' % m.group(1)
+        i = s.find(close, bi + m.start())
+        if i >= 0:
+            i += len(close)
+            return s[:i] + '\n' + block + '\n' + s[i:]
     j = s.find('>', s.find('<body')) + 1
     return s[:j] + '\n' + block + '\n' + s[j:]
 
@@ -663,8 +670,12 @@ def run(mode, arg=None):
     if not PREVIEW and update_sitemap(pages):
         touched.append('sitemap.xml')
     touched += ['scripts/i18n_tm/ja.json', 'scripts/i18n_tm/en.json']
-    # ship.sh 只 commit 這份清單上的檔案，別人還沒 commit 的改動不會被一起帶走
-    open(os.path.join(TMDIR, 'last_changed.txt'), 'w', encoding='utf-8').write('\n'.join(touched) + '\n')
+    # ship.sh 只 commit 這份清單上的檔案，別人還沒 commit 的改動不會被一起帶走。
+    # 列「這支管的所有檔案」而不只這一次改到的：上一次產了沒 commit 的，下一次也要帶上（11/3 第二批漏 commit 過中文頁）
+    managed = set(touched) | set(pages) | {'sitemap.xml'}
+    for l in LANGS:
+        managed |= {os.path.join(l, r) for r in pages if os.path.exists(os.path.join(ROOT, l, r))}
+    open(os.path.join(TMDIR, 'last_changed.txt'), 'w', encoding='utf-8').write('\n'.join(sorted(managed)) + '\n')
     print('✅ 日英版已產生（%d 頁 × 2 語言），這次有變動 %d 個檔案' % (len(pages), changed))
     return 0
 
