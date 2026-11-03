@@ -300,6 +300,13 @@ def langs_of(rel):
     return out
 
 
+def add_head(s, block):
+    """放進 <head>。有些頁（例如 /apply/）原始碼沒有 <html><head>，直接放最前面，瀏覽器會歸到 head。"""
+    if '</head>' in s:
+        return s.replace('</head>', block + '</head>', 1)
+    return block + s
+
+
 def strip_i18n(s):
     # 跟加的時候對稱：head 那塊是「區塊＋換行」、切換列與說明是「換行＋區塊＋換行」
     s = re.sub(re.escape(HEAD_A) + r'.*?' + re.escape(HEAD_B) + r'\n?', '', s, flags=re.S)
@@ -346,21 +353,24 @@ def inject(s, rel, cur):
     avail = langs_of(rel)
     if len(avail) < 2:
         return s
-    s = s.replace('</head>', head_block(rel, avail) + '</head>', 1)
+    s = add_head(s, head_block(rel, avail))
     s = insert_after_header(s, switch_block(rel, avail, cur))
     return s
 
 
 def set_head(s, rel, lang):
-    s = re.sub(r'<html lang="[^"]*"', '<html lang="%s"' % HTML_LANG[lang], s, count=1)
+    if '<html' in s:
+        s = re.sub(r'<html lang="[^"]*"', '<html lang="%s"' % HTML_LANG[lang], s, count=1)
+    else:
+        s = '<html lang="%s">\n' % HTML_LANG[lang] + s
     url = BASE + page_url(rel, lang)
     s = re.sub(r'<link rel="canonical"[^>]*>', '<link rel="canonical" href="%s">' % url, s)
     if 'rel="canonical"' not in s:
-        s = s.replace('</head>', '<link rel="canonical" href="%s">\n</head>' % url, 1)
+        s = add_head(s, '<link rel="canonical" href="%s">\n' % url)
     s = re.sub(r'<meta property="og:url"[^>]*>', '<meta property="og:url" content="%s">' % url, s)
     s = re.sub(r'<meta property="og:locale"[^>]*>', '<meta property="og:locale" content="%s">' % OG_LOCALE[lang], s)
     if 'og:locale' not in s:
-        s = s.replace('</head>', '<meta property="og:locale" content="%s">\n</head>' % OG_LOCALE[lang], 1)
+        s = add_head(s, '<meta property="og:locale" content="%s">\n' % OG_LOCALE[lang])
     s = re.sub(r'<link rel="alternate" hreflang="[^"]*"[^>]*>\n?', '', s)
     # 職缺頁先把整頁藏起來、等 job-detail-m.js 排好版才顯示；日英版不載那支，要一起拿掉，不然會空白 2.5 秒
     s = re.sub(r'<style>html\.jv-wait body\{opacity:0\}</style><script>.*?</script>', '', s, flags=re.S)
@@ -394,6 +404,7 @@ def page_fixups(s, rel, lang):
             slug = m.group(1)
             return m.group(0) if slug in keep else ''
         s = re.sub(r'\s*<a class="job" href="/(?:ja/|en/)?jobs/([^/]+)/".*?</a>', card, s, flags=re.S)
+
         # 列表頁的篩選程式（第二段 inline script，含 '財務・會計' 那些中文對照）拿掉
         s = re.sub(r'<script>(?:(?!</script>).)*?(?:jv2|filterSheet|hotJobs|jobs-rank)(?:(?!</script>).)*?</script>\n?', '', s, flags=re.S)
     return s
@@ -409,10 +420,15 @@ def build_page(rel, lang, tr):
     s = process(src, tr, option_values=rel.startswith('apply'))
     s = set_head(s, rel, lang)
     s = rewrite_links(s, lang)
+    if rel == 'jobs/index.html':
+        # 還沒翻的職缺照實說在中文頁（第 2 批會補齊）。翻譯之後才加，免得被當成要翻的中文段落
+        more = {'ja': 'その他の求人は<a href="/jobs/" lang="zh-Hant">中国語の求人一覧</a>でご覧いただけます。',
+                'en': 'More openings are listed on our <a href="/jobs/" lang="zh-Hant">Chinese job board</a>.'}[lang]
+        s = s.replace('<div class="jobs" id="jobs">', '<p class="s1-more" style="margin:0 0 14px;font-size:14.5px;color:#55585f">%s</p>\n      <div class="jobs" id="jobs">' % more, 1)
     s = inject(s, rel, lang)
     if PREVIEW:
         s = re.sub(r'<meta name="robots"[^>]*>\n?', '', s)
-        s = s.replace('</head>', '<meta name="robots" content="noindex,nofollow">\n</head>', 1)
+        s = add_head(s, '<meta name="robots" content="noindex,nofollow">\n')
     if needs_note(rel):
         s = insert_after_header(s, '%s<div class="s1-note"><p>%s</p></div>%s' % (NOTE_A, NOTE[lang], NOTE_B)) \
             if SW_B not in s else s.replace(SW_B, SW_B + '\n%s<div class="s1-note"><p>%s</p></div>%s' % (NOTE_A, NOTE[lang], NOTE_B), 1)
