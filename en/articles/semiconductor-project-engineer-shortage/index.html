@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  if (!e.target.closest) return;
+  // 2026-08-06：原本只抓 lin.ee。BIM 那群的下一步是「直接應徵」不是加 LINE，
+  // 不一起記的話，等於把那條路做出來卻量不到，實驗就白做了。
+  var a = e.target.closest('a[href*="lin.ee"], a[href^="/apply"]');
+  if (!a) return;
+  var isApply = (a.getAttribute('href') || '').indexOf('/apply') === 0;
+  gtag('event', isApply ? 'apply_click' : 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60),
+    // mid＝這次新加的文章中段；沒有標的就是原本頁首／頁尾那些
+    cta_slot: a.getAttribute('data-cta') || 'legacy'
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why Are Semiconductor Fabs Always Short of Construction Project Talent? The Staffing Gap in High-Tech Plant Construction | Step1ne</title>
+<meta name="description" content="Semiconductor makers such as TSMC are expanding fabs faster than talent can be added, and the jobs-to-applicants ratio for construction and site supervision roles has reached 12.5. We break down what kind of people semiconductor project engineer roles actually need, and whether you can apply without a related background.">
+<meta name="keywords" content="semiconductor project engineer,high-tech fab construction,fab construction engineer,Hsinchu Science Park jobs,Central Taiwan Science Park jobs,contract engineer,switching to the semiconductor industry">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/en/articles/semiconductor-project-engineer-shortage/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Step1ne Referrals">
+<meta property="og:title" content="Why are semiconductor fabs always short of construction project talent? The workforce gap in high-tech plant construction">
+<meta property="og:description" content="TSMC is building 13 fabs at the same time, and the demand-to-supply ratio for fab construction workers has reached 12.5:1. We break down what kind of people the semiconductor project engineer role is really short of, and whether you can do it without a related degree.">
+<meta property="og:url" content="https://step1ne.com/en/articles/semiconductor-project-engineer-shortage/">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta name="theme-color" content="#F4F6F8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Why are semiconductor fabs always short of construction project talent? The workforce gap in high-tech plant construction",
+  "description": "Semiconductor makers such as TSMC are expanding fabs faster than talent can be added, and the jobs-to-applicants ratio for construction and site supervision roles has reached 12.5. We break down what kind of people semiconductor project engineer roles actually need, and whether you can apply without a related background.",
+  "datePublished": "2026-09-23",
+  "dateModified": "2026-09-23",
+  "inLanguage": "zh-TW",
+  "author": {
+    "@type": "Organization",
+    "name": "Step1ne 德仁管理顧問有限公司",
+    "url": "https://step1ne.com/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "德仁管理顧問有限公司 (Step1ne)",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://step1ne.com/assets/step1ne-logo.png"
+    }
+  }
+}
+</script>
+
+<style>
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;
+  --wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:17px;line-height:1.95;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.35;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,select,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* 導覽 */
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+/* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
+
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
+.crumb{grid-column:1/-1;padding:22px 0 6px;font-size:13.5px;color:var(--slate-dim)}
+.crumb a{color:var(--slate)}
+.crumb a:hover{color:var(--brand-deep)}
+.crumb span{margin:0 8px;color:var(--rule)}
+
+/* 目錄軌：沿用全站 signature */
+.toc{position:sticky;top:92px;padding:8px 0 40px}
+.toc h2{font-size:13px;font-weight:700;color:var(--slate-dim);letter-spacing:.02em;margin-bottom:16px}
+.tns{position:relative;padding-left:22px}
+.tns::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.14))}
+.tn{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:14px;color:var(--slate);line-height:1.6;position:relative}
+.tn i{position:absolute;left:-22px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--rule);flex:0 0 auto}
+.tn:hover{color:var(--brand-deep)}
+.tn:hover i{border-color:var(--brand)}
+.tn.on{color:var(--ink);font-weight:700}
+.tn.on i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 4px rgba(46,169,223,.2)}
+.mtoc{display:none;margin:20px 0 0;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.mtoc summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15.5px;position:relative}
+.mtoc summary::-webkit-details-marker{display:none}
+.mtoc summary::after{content:"";position:absolute;right:20px;top:24px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.mtoc[open] summary::after{transform:rotate(-135deg)}
+.mtoc div{padding:0 18px 14px}
+.mtoc a{display:block;padding:9px 0;font-size:15px;color:var(--slate);border-top:1px solid var(--rule)}
+
+/* 文章本體 */
+article{padding:14px 0 60px;max-width:70ch}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--brand-deep);background:rgba(22,126,178,.07);border:1px solid rgba(22,126,178,.25);border-radius:5px;padding:4px 11px}
+article h1{margin-top:16px;font-size:clamp(28px,4.2vw,42px);line-height:1.28;letter-spacing:-.02em}
+.by{margin-top:18px;padding-bottom:20px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14px;color:var(--slate-dim)}
+.by a{color:var(--slate);border-bottom:1px solid var(--rule)}
+.by .d{font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+
+/* ★ Signature：直接答案 */
+.ans{margin-top:30px;background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:26px 30px}
+.ans .lab{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:10px}
+.ans p{font-size:19.5px;line-height:1.85;font-weight:500}
+.ans strong{font-weight:900}
+
+article h2{margin:52px 0 16px;font-size:25px;scroll-margin-top:92px}
+article h3{margin:34px 0 10px;font-size:19px}
+article h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-right:12px;border-radius:8px;background:var(--brand);color:#fff;font-family:var(--f-disp);font-size:17px;font-weight:700;vertical-align:2px}
+article p{margin-top:16px}
+article strong{font-weight:700}
+article a:not(.tn){color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.32)}
+article a:not(.tn):hover{border-bottom-color:var(--brand-deep)}
+article ul,article ol{margin:16px 0 0;padding-left:1.4em}
+article li{margin-top:9px}
+article table{width:100%;border-collapse:collapse;margin-top:22px;font-size:15.5px;background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+article th{text-align:left;background:var(--paper);font-weight:700;font-size:14px;color:var(--slate);padding:12px 14px;border-bottom:1px solid var(--rule)}
+article td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.75}
+article tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+article details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+article details summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+article details summary::-webkit-details-marker{display:none}
+article details summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+article details[open] summary::after{transform:rotate(-135deg)}
+article details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid var(--rule);color:var(--slate)}
+
+.foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
+.cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
+.cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
+footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+.fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.note{max-width:var(--wrap);margin:0 auto 46px;padding-inline:var(--gut)}
+.note div{background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid #B45309;border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.note b{color:#5A3D0C}
+
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .mtoc{display:block}
+}
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  body{font-size:16.5px}
+  .ans{padding:22px;border-radius:0 8px 8px 0}
+  .ans p{font-size:18px}
+  article h2{font-size:22px;margin-top:42px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+<!--i18n-hreflang-->
+<link rel="alternate" hreflang="zh-Hant" href="https://step1ne.com/articles/semiconductor-project-engineer-shortage/">
+<link rel="alternate" hreflang="ja" href="https://step1ne.com/ja/articles/semiconductor-project-engineer-shortage/">
+<link rel="alternate" hreflang="en" href="https://step1ne.com/en/articles/semiconductor-project-engineer-shortage/">
+<link rel="alternate" hreflang="x-default" href="https://step1ne.com/articles/semiconductor-project-engineer-shortage/">
+<style>.s1-lang{max-width:1100px;margin:0 auto;padding:10px 16px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.s1-lang a,.s1-lang b{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid #d9dce3;background:#fff;font-size:14px;font-weight:600;color:#4a5060;text-decoration:none}.s1-lang b{background:#23262d;border-color:#23262d;color:#fff}.s1-lang a:hover{color:#23262d;border-color:#9aa0ad}.s1-lang a:focus-visible{outline:3px solid #1880B4;outline-offset:2px}.s1-note{max-width:1100px;margin:10px auto 0;padding:0 16px}.s1-note p{margin:0;padding:12px 14px;border-radius:12px;background:#eef4fb;border:1px solid #c9dcef;color:#1d3a57;font-size:14.5px;line-height:1.7}</style>
+<!--/i18n-hreflang-->
+</head>
+
+<body>
+<div id="bar"></div>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/en/"><img src="/assets/step1ne-logo.png" alt="Step1ne"><b>Step1ne</b></a>
+    <nav class="hd-nav">
+      <a href="/en/commission-recruiting/">For Employers</a><a href="/en/jobs/">Jobs</a><a class="on" href="/en/articles/">Headhunting Insights</a><a href="/en/talent/">Step1ne Referrals</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">Ask on LINE</a>
+    <button class="hd-burger" type="button" aria-label="Open menu" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/en/commission-recruiting/">For Employers</a><a href="/en/jobs/">Jobs</a><a href="/en/articles/">Articles</a><a href="/en/talent/">Step1ne Referrals</a> <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">Contact on LINE</a>
+  </div>
+</header>
+<!--i18n-switch--><nav class="s1-lang" aria-label="Change language"><a href="/articles/semiconductor-project-engineer-shortage/" hreflang="zh-Hant" lang="zh-Hant">中文</a><a href="/ja/articles/semiconductor-project-engineer-shortage/" hreflang="ja" lang="ja">日本語</a><b lang="en" aria-current="true">English</b></nav><!--/i18n-switch-->
+
+
+<main class="shell">
+  <nav class="crumb" aria-label="Breadcrumb"><a href="/en/">Home</a><span>/</span><a href="/en/articles/">Insights</a><span>/</span>Why are semiconductor fabs always short of project engineering talent? The workforce gap in high-tech plant construction</nav>
+
+  <aside class="toc" aria-label="Contents">
+    <h2>This article has 7 sections</h2>
+    <div class="tns"><a class="tn" href="#sec-1" data-s="sec-1"><i></i><span>How short are semiconductor fabs on construction engineering talent?</span></a> <a class="tn" href="#sec-2" data-s="sec-2"><i></i><span>Is this "shortage" the same as the semiconductor engineer shortage everyone talks about?</span></a> <a class="tn" href="#sec-3" data-s="sec-3"><i></i><span>Why are these roles so hard to fill?</span></a> <a class="tn" href="#sec-4" data-s="sec-4"><i></i><span>What do semiconductor project engineers actually do? Senior vs. trainee roles</span></a> <a class="tn" href="#sec-5" data-s="sec-5"><i></i><span>What are the real conditions of an on-site assignment?</span></a> <a class="tn" href="#sec-6" data-s="sec-6"><i></i><span>Can you apply without relevant certifications or experience?</span></a> <a class="tn" href="#sec-7" data-s="sec-7"><i></i><span>FAQ</span></a></div>
+  </aside>
+
+  <div>
+    <details class="mtoc"><summary>Contents (7 sections)</summary><div><a href="#sec-1">How short are semiconductor fabs on construction engineering talent?</a> <a href="#sec-2">Is this "shortage" the same as the semiconductor engineer shortage you often hear about?</a> <a href="#sec-3">Why are these positions so hard to fill?</a> <a href="#sec-4">What do semiconductor project engineers actually do? Senior vs. trainee positions</a> <a href="#sec-5">What are the actual conditions for on-site assignments?</a> <a href="#sec-6">Can you apply without relevant certifications or experience?</a> <a href="#sec-7">FAQ</a></div></details>
+    <article>
+      <span class="tag">Industry Insights</span>
+      <h1>Why are semiconductor fabs always short of construction project talent? The workforce gap in high-tech plant construction</h1>
+      <div class="by">
+        <span>By: <a href="/en/about/">Step1ne Executive Search Consultants</a></span> <time class="d" datetime="2026-09-23">Published 2026-09-23</time>
+      </div>
+
+      <div class="ans"><div class="lab">Short answer</div><p>What semiconductor fabs are short of now isn't chip design engineers but "fab construction project talent": people who can be on site to track progress, manage contractors, and check quality. The "2026 Semiconductor Talent Report" from 104 (a Taiwanese job site) shows that construction and drafting roles have a job-to-applicant ratio of 12.5 (meaning each job seeker can choose from 12.5 openings on average). During SEMICON TAIWAN, Cliff Hou, TSMC's Senior Vice President and Co-COO, also acknowledged that the bottleneck in fab construction and expansion is a "shortage of construction workers." The gap exists because this work requires a cross-disciplinary background (electrical, mechanical, civil engineering, and architecture all count as relevant), requires accepting on-site assignments, and doesn't fit the image of an office-based engineer. As a result, qualified people don't realize they can apply, and the roles stay unfilled for long periods.</p></div>
+
+<h2 id="sec-1">How short are semiconductor fabs on construction engineering talent?</h2>
+<p>In September 2026, the "2026 Semiconductor Talent Report" published by 104 (a Taiwanese job site) gave a concrete figure: construction and drafting roles have a job-to-applicant ratio of 12.5, meaning each job seeker in this category can choose from 12.5 openings on average. It is one of the most severely imbalanced job categories in the semiconductor industry.</p>
+<p>TSMC Senior Vice President and Co-COO Cliff Hou put it bluntly during SEMICON TAIWAN: TSMC currently has 13 fabs under construction in Taiwan at the same time, and the real bottleneck in expanding capacity isn't equipment or capital — it's "a shortage of construction workers," a problem playing out in both the US and Taiwan. When the industry leader's expansion has reached the point of 13 fabs breaking ground simultaneously, demand for project engineering talent across the upstream and downstream supply chain will only get tighter; it isn't just TSMC's problem.</p>
+
+<h2 id="sec-2">Is the shortage discussed here the same thing as the semiconductor engineer shortage you often hear about?</h2>
+<p>They're not the same thing, and many people mix them up. When the media talks about semiconductors' most-wanted talent, it usually means roles like IC design and process R&D—for example, analog IC design engineers have a median annual salary of NT$1.72 million. That's a different talent track, typically requiring a master's degree or above in electronics, electrical engineering or physics, and it's about designing the chips themselves.</p>
+<p>Fab construction project talent does something completely different: whether the plant gets built, whether the MEP systems are installed correctly, whether construction keeps pace with the mass-production timeline. The report also notes strong market demand for project managers, with a median salary of NT$1.31 million—reflecting a scarcity of people who can coordinate hardware and software and drive projects forward, not a scarcity of chip design skills. These two kinds of talent can't substitute for each other: if the fab isn't built properly, there's nowhere to mass-produce even the best-designed chip.</p>
+
+<h2 id="sec-3">Why can't these roles ever be filled?</h2>
+<p>The gap isn't because the pay isn't attractive enough, but because three structural factors overlap:</p>
+<ul>
+<li><strong>The work isn't the "engineer" job people imagine</strong>: these roles are based mainly at project site offices and construction sites, not in an office. You track construction progress, check quality and coordinate interfaces with subcontractors. Many people assume engineers sit in an office drawing plans or writing code, and rule themselves out.</li>
+<li><strong>You need to accept relocation between regions</strong>: semiconductor plants are spread across Taoyuan, Hsinchu, Miaoli, Taichung, Yunlin and elsewhere, and openings require "willingness to be assigned to the company's current project locations." Even with company dormitories and allowances, being stationed on site is a hurdle for many people.</li>
+<li><strong>Qualified people don't realize they qualify</strong>: the eligible degrees span five fields — electrical engineering, mechanical engineering (including refrigeration/HVAC and energy), industrial design, civil engineering (including construction), and architecture. Covering so many majors actually makes people in each one think "this probably isn't for me," when in fact anything closely related counts.</li>
+</ul>
+
+<h2 id="sec-4">What do semiconductor project engineers actually do? How the senior and trainee openings differ</h2>
+<p>Taking semiconductor project engineer openings in the Taoyuan–Hsinchu–Miaoli, Taichung, and Yunlin areas as an example, the core duties include: on-site construction progress control, quality inspection, coordination of engineering interfaces, and contractor management; supervising the planning, design, and construction of fab process piping; supervising the planning, design, and construction of MEP systems; preparing and keeping construction records and other documents; and site surveys.</p>
+<p>Openings come through two channels:</p>
+<ul>
+<li><strong>Senior semiconductor project engineer</strong>: monthly salary of about NT$50,000 to NT$60,000, set according to past experience, expertise and interview performance, with raises based on performance afterward. Suited to people who already have experience supervising construction of semiconductor plants or office buildings, or in mechanical and electrical work.</li>
+<li><strong>Trainee Semiconductor Project Engineer</strong>: Monthly salary about NT$35,000 to NT$45,000. No related experience required — just a strong willingness to learn and flexibility about assignments. Suited to people without relevant work experience who want to move into this field.</li>
+</ul>
+<p>The hard requirements shared by both are basic document skills, the ability to communicate and coordinate with internal teams and subcontractors, willingness to be assigned to project locations, and a regular heavy motorcycle license for everyday commuting — staff from other cities and counties are provided with a dormitory, usually not far from the plant site.</p>
+
+<h2 id="sec-5">What are the actual terms for postings and on-site assignments?</h2>
+<p>Because the role explicitly requires "being willing to relocate to project sites," here are the actual support arrangements so that anyone considering applying knows what to expect:</p>
+<ul>
+<li>Working hours are 08:30 to 17:30, with two days off per week (following the calendar announced by Taiwan's Executive Yuan).</li>
+<li>Remote site assignments come with employee dormitories, a monthly travel-home allowance, and fuel subsidies for project transfers.</li>
+<li>Bonuses include a year-end bonus, mid-year bonus, Dragon Boat Festival bonus, Mid-Autumn Festival bonus, Labor Day gift, birthday gift, and referral bonus.</li>
+<li>Full subsidy for certifications and training, plus group insurance, business travel insurance, and an annual employee health checkup.</li>
+<li>Statutory leave (menstrual leave, prenatal checkup leave, maternity leave, paternity leave, pregnancy rest leave, parental leave, family care leave, etc.) and contributions under the new pension system are provided in accordance with the law.</li>
+</ul>
+
+<h2 id="sec-6">Can I apply without a relevant certification or experience?</h2>
+<p>Yes, but you need to separate two things: your degree field is a hard requirement (one of five: electrical engineering, mechanical engineering, industrial design, civil engineering or architecture), but work experience isn't—the training track is designed precisely for people without relevant experience.</p>
+<p>If you already have any of the following, your pay offer will be better: a Public Construction Quality Management Personnel certificate, a Class A Occupational Safety and Health Supervisor certificate for the construction industry, or basic AutoCAD drafting skills / the ability to read civil, architectural, MEP, and plumbing/electrical drawings. Experience supervising high-tech fab construction on site or handling construction procurement is also a plus, but not required to apply.</p>
+<p>If you're still unsure whether your major counts, we recommend sending your résumé and letting the employer decide, rather than assuming you don't qualify and giving up; that's exactly one of the reasons these roles stay unfilled for so long.</p>
+
+<p>Related openings: <a href="/en/jobs/semiconductor-site-engineer-hsinchu/">Senior Semiconductor Project Engineer</a> and <a href="/en/jobs/trainee-semiconductor-project-engineer/">Trainee Semiconductor Project Engineer</a>, covering Taoyuan–Hsinchu–Miaoli, Taichung, and Yunlin in Taiwan.</p>
+
+## FAQ **Q1. How is a semiconductor project engineer different from a site manager in general construction?** A1. The main difference is what you are building. A semiconductor project engineer supervises construction and inspects quality at high-tech fabs (cleanrooms, process piping, MEP systems), and on top of what a normal building site involves, has to coordinate process-related interfaces. For example, a fab's MEP systems must be built to match the specifications of semiconductor equipment, so the requirements for precision and cleanliness are higher than on ordinary construction projects. **Q2. Do I need a civil engineering or architecture degree to apply?** A2. Not necessarily. The education requirement covers five fields: electrical engineering, mechanical engineering (including HVAC/refrigeration and energy programs), industrial design, civil engineering (including construction), and architecture. Any junior college or higher degree in one of these counts; it is not limited to civil engineering or architecture backgrounds. **Q3. Is the work different between the trainee and senior positions?** A3. The core duties are the same (on-site schedule control, quality inspection, subcontractor coordination, MEP supervision). The differences are the starting pay and the experience required: the senior position pays NT$50,000–60,000 a month and requires prior experience supervising semiconductor fab or fab-office construction and MEP work; the trainee position pays NT$35,000–45,000 a month, requires no related experience, but does require a strong willingness to learn. **Q4. Will I be reassigned often? Will I have to move a lot?** A4. Assignments follow current project locations in Taoyuan/Hsinchu/Miaoli, Taichung, and Yunlin. Staff from other counties are provided with dormitories, usually not far from the site, plus a monthly home-visit travel allowance and a fuel allowance for project assignments to reduce the actual burden of working away from home. The exact frequency and location of assignments depend on the projects underway at the time, so we recommend asking the hiring department directly about current project locations when you apply. **Q5. Am I at a disadvantage without the relevant certificates?** A5. Certificates such as Public Works Quality Management Personnel and Class A Occupational Safety and Health Supervisor for the construction industry, as well as AutoCAD drafting or drawing-reading skills, are pluses, not requirements. Having them will improve your salary offer, but you can still apply without them; the trainee track in particular is designed for people without related experience or certificates. **Q6. Is the salary fixed with no raises?** A6. No. Your starting salary is set based on your past experience, professional skills, and interview performance, and after you join, raises are based on performance. It is not a fixed pay structure. ## Sources - 104 (a Taiwanese job site), "2026 Semiconductor Talent Report," as reported by the Commercial Times (Taiwan) in "Semiconductor Expansion Sparks Scramble for Construction Workers; Average Annual Pay for This Role Tops NT$1.72 Million," 2026-09-13: https://www.ctee.com.tw/news/20260913700008-431003 (verified 2026-09-23; report published 2026-09-08) - Job requirements, pay, benefits, and duties: data from the semiconductor project engineer position Step1ne is currently recruiting for, verified 2026-09-23
+
+      <h2 id="sec-7">FAQ</h2>
+      <div>
+      </div>
+
+      <div class="cta"><p>Interested in this role, or want to learn more first?</p><a class="btn-alt" href="/en/jobs/semiconductor-site-engineer-hsinchu/">View job details</a></div>
+    </article>
+  </div>
+</main>
+
+
+<footer><div class="fw">德仁管理顧問有限公司, 3F, No. 54-7, Sec. 3, Kangning Rd., Neihu Dist., Taipei City</div></footer>
+
+<script>
+// 表格加水平捲動外框，避免手機橫向溢位
+document.querySelectorAll('article table').forEach(function(t){
+  var w=document.createElement('div'); w.className='tw';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
+// 閱讀進度
+var bar=document.getElementById('bar');
+function prog(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',prog,{passive:true}); prog();
+// 目錄跟隨
+var tns=[].slice.call(document.querySelectorAll('.tn'));
+var secs=tns.map(function(a){return document.getElementById(a.dataset.s)}).filter(Boolean);
+if('IntersectionObserver' in window && secs.length){
+  var cur=null;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) cur=e.target.id; });
+    tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  },{rootMargin:'-88px 0px -70% 0px'}).observe && secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===e.target.id)}); }
+      });
+    },{rootMargin:'-88px 0px -70% 0px'}).observe(s);
+  });
+}
+</script>
+
+<style>
+.s1ne-sc{position:fixed;z-index:60;left:0;right:0;bottom:0;display:flex;gap:10px;padding:10px max(14px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));background:rgba(255,255,255,.96);box-shadow:0 -6px 24px rgba(40,30,10,.12);transform:translateY(120%);transition:transform .25s ease}
+.s1ne-sc.on{transform:none}
+.s1ne-sc a{flex:1;display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:999px;font-weight:700;font-size:15px;text-decoration:none;white-space:nowrap}
+.s1ne-sc .p{background:#111827;color:#fff}
+.s1ne-sc .l{background:#fff;color:#111827;border:1.5px solid #d1d5db}
+.s1ne-sc a:focus-visible{outline:3px solid #1f2937;outline-offset:2px}
+@media (min-width:760px){.s1ne-sc{left:auto;right:24px;bottom:24px;border-radius:999px;padding:8px;box-shadow:0 8px 28px rgba(40,30,10,.18)}.s1ne-sc a{flex:none;padding:0 22px}}
+@media (prefers-reduced-motion:reduce){.s1ne-sc{transition:none}}
+body{padding-bottom:84px}
+@media (min-width:760px){body{padding-bottom:0}}
+</style>
+<div class="s1ne-sc" id="s1neSc" role="region" aria-label="Fast action">
+  <a class="l" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">Ask on LINE</a> <a class="p" href="/en/jobs/" data-cta="jobs_cta_click">See current openings</a>
+</div>
+<script>
+(function(){var b=document.getElementById('s1neSc');if(!b)return;
+function t(){b.classList.toggle('on',window.scrollY>380);}
+window.addEventListener('scroll',t,{passive:true});t();
+b.querySelector('.p').addEventListener('click',function(){try{gtag('event',this.getAttribute('data-cta'),{page_path:location.pathname,placement:'sticky'});}catch(e){}});})();
+</script>
+<!-- /s1ne-sticky-cta -->
+
+</body>
+</html>

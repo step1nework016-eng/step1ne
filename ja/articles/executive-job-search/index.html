@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href*="lin.ee"]');
+  if (!a) return;
+  gtag('event', 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60)
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>年収100万台湾ドル級の管理職求人は、なぜ求人サイトに載っていないのか？｜Step1ne</title>
+<meta name="description" content="エグゼクティブ求人の多くは公開されません。それは秘密主義だからではなく、公開するコストが高すぎるからです。この記事では、エグゼクティブ求人が非公開で動く理由、管理職の履歴書の直し方、面接で聞かれること、そしてヘッドハンターに見つけてもらう方法を解説します。">
+<meta name="keywords" content="年収100万台湾ドルの仕事,エグゼクティブ求人,管理職 転職活動,エグゼクティブ・ヘッドハンティング,executive search,潜在層の求職者,管理職 履歴書">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/ja/articles/executive-job-search/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Step1ne 紹介プログラム">
+<meta property="og:title" content="年収100万台湾ドルの管理職が、求人サイトに出てこないのはなぜ？">
+<meta property="og:description" content="エグゼクティブ求人が公開されないのは秘密主義だからではなく、公開のコストが高すぎるからです。ヘッドハンターの視点からこの市場の仕組みを解説します。">
+<meta property="og:url" content="https://step1ne.com/ja/articles/executive-job-search/">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta name="theme-color" content="#F4F6F8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "年収100万台湾ドルの管理職が、求人サイトに出てこないのはなぜ？",
+  "description": "エグゼクティブ職の求人がなぜ多くの場合公開されないのか、企業が非公開で進める4つの実務的理由、管理職の履歴書と一般職の選考ロジックの違い、エグゼクティブ面接の質問の重点、そして求職者がヘッドハンターに見つけてもらえるキャリアの体質をどう築くかを解説します。",
+  "datePublished": "2026-07-27",
+  "dateModified": "2026-07-27",
+  "inLanguage": "zh-TW",
+  "author": {
+    "@type": "Organization",
+    "name": "Step1ne 德仁管理顧問有限公司",
+    "url": "https://step1ne.com/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "德仁管理顧問有限公司（Step1ne）",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://step1ne.com/assets/step1ne-logo.png"
+    }
+  }
+}
+</script>
+
+<style>
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;
+  --wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:17px;line-height:1.95;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.35;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,select,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* 導覽 */
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+/* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
+
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
+.crumb{grid-column:1/-1;padding:22px 0 6px;font-size:13.5px;color:var(--slate-dim)}
+.crumb a{color:var(--slate)}
+.crumb a:hover{color:var(--brand-deep)}
+.crumb span{margin:0 8px;color:var(--rule)}
+
+/* 目錄軌：沿用全站 signature */
+.toc{position:sticky;top:92px;padding:8px 0 40px}
+.toc h2{font-size:13px;font-weight:700;color:var(--slate-dim);letter-spacing:.02em;margin-bottom:16px}
+.tns{position:relative;padding-left:22px}
+.tns::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.14))}
+.tn{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:14px;color:var(--slate);line-height:1.6;position:relative}
+.tn i{position:absolute;left:-22px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--rule);flex:0 0 auto}
+.tn:hover{color:var(--brand-deep)}
+.tn:hover i{border-color:var(--brand)}
+.tn.on{color:var(--ink);font-weight:700}
+.tn.on i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 4px rgba(46,169,223,.2)}
+.mtoc{display:none;margin:20px 0 0;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.mtoc summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15.5px;position:relative}
+.mtoc summary::-webkit-details-marker{display:none}
+.mtoc summary::after{content:"";position:absolute;right:20px;top:24px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.mtoc[open] summary::after{transform:rotate(-135deg)}
+.mtoc div{padding:0 18px 14px}
+.mtoc a{display:block;padding:9px 0;font-size:15px;color:var(--slate);border-top:1px solid var(--rule)}
+
+/* 文章本體 */
+article{padding:14px 0 60px;max-width:70ch}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--brand-deep);background:rgba(22,126,178,.07);border:1px solid rgba(22,126,178,.25);border-radius:5px;padding:4px 11px}
+article h1{margin-top:16px;font-size:clamp(28px,4.2vw,42px);line-height:1.28;letter-spacing:-.02em}
+.by{margin-top:18px;padding-bottom:20px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14px;color:var(--slate-dim)}
+.by a{color:var(--slate);border-bottom:1px solid var(--rule)}
+.by .d{font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+
+/* ★ Signature：直接答案 */
+.ans{margin-top:30px;background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:26px 30px}
+.ans .lab{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:10px}
+.ans p{font-size:19.5px;line-height:1.85;font-weight:500}
+.ans strong{font-weight:900}
+
+article h2{margin:52px 0 16px;font-size:25px;scroll-margin-top:92px}
+article h3{margin:34px 0 10px;font-size:19px}
+article h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-right:12px;border-radius:8px;background:var(--brand);color:#fff;font-family:var(--f-disp);font-size:17px;font-weight:700;vertical-align:2px}
+article p{margin-top:16px}
+article strong{font-weight:700}
+article a:not(.tn){color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.32)}
+article a:not(.tn):hover{border-bottom-color:var(--brand-deep)}
+article ul,article ol{margin:16px 0 0;padding-left:1.4em}
+article li{margin-top:9px}
+article table{width:100%;border-collapse:collapse;margin-top:22px;font-size:15.5px;background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+article th{text-align:left;background:var(--paper);font-weight:700;font-size:14px;color:var(--slate);padding:12px 14px;border-bottom:1px solid var(--rule)}
+article td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.75}
+article tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+article details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+article details summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+article details summary::-webkit-details-marker{display:none}
+article details summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+article details[open] summary::after{transform:rotate(-135deg)}
+article details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid var(--rule);color:var(--slate)}
+
+.foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
+.cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
+.cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
+footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+.fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.note{max-width:var(--wrap);margin:0 auto 46px;padding-inline:var(--gut)}
+.note div{background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid #B45309;border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.note b{color:#5A3D0C}
+
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .mtoc{display:block}
+}
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  body{font-size:16.5px}
+  .ans{padding:22px;border-radius:0 8px 8px 0}
+  .ans p{font-size:18px}
+  article h2{font-size:22px;margin-top:42px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+<!--i18n-hreflang-->
+<link rel="alternate" hreflang="zh-Hant" href="https://step1ne.com/articles/executive-job-search/">
+<link rel="alternate" hreflang="ja" href="https://step1ne.com/ja/articles/executive-job-search/">
+<link rel="alternate" hreflang="en" href="https://step1ne.com/en/articles/executive-job-search/">
+<link rel="alternate" hreflang="x-default" href="https://step1ne.com/articles/executive-job-search/">
+<style>.s1-lang{max-width:1100px;margin:0 auto;padding:10px 16px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.s1-lang a,.s1-lang b{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid #d9dce3;background:#fff;font-size:14px;font-weight:600;color:#4a5060;text-decoration:none}.s1-lang b{background:#23262d;border-color:#23262d;color:#fff}.s1-lang a:hover{color:#23262d;border-color:#9aa0ad}.s1-lang a:focus-visible{outline:3px solid #1880B4;outline-offset:2px}.s1-note{max-width:1100px;margin:10px auto 0;padding:0 16px}.s1-note p{margin:0;padding:12px 14px;border-radius:12px;background:#eef4fb;border:1px solid #c9dcef;color:#1d3a57;font-size:14.5px;line-height:1.7}</style>
+<!--/i18n-hreflang-->
+</head>
+
+<body>
+<div id="bar"></div>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/ja/"><img src="/assets/step1ne-logo.png" alt="Step1ne"><b>Step1ne</b></a>
+    <nav class="hd-nav">
+      <a href="/ja/commission-recruiting/">企業向けサービス</a><a href="/ja/jobs/">求人一覧</a><a class="on" href="/ja/articles/">ヘッドハンティングコラム</a><a href="/ja/talent/">Step1ne 紹介プログラム</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">LINEで問い合わせ</a>
+    <button class="hd-burger" type="button" aria-label="メニューを開く" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/ja/commission-recruiting/">法人向けサービス</a><a href="/ja/jobs/">求人一覧</a><a href="/ja/articles/">ヘッドハンティングコラム</a><a href="/ja/talent/">Step1ne 紹介プログラム</a> <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINEで問い合わせ</a>
+  </div>
+</header>
+<!--i18n-switch--><nav class="s1-lang" aria-label="言語を切り替える"><a href="/articles/executive-job-search/" hreflang="zh-Hant" lang="zh-Hant">中文</a><b lang="ja" aria-current="true">日本語</b><a href="/en/articles/executive-job-search/" hreflang="en" lang="en">English</a></nav><!--/i18n-switch-->
+
+
+<main class="shell">
+  <nav class="crumb" aria-label="パンくずリスト"><a href="/ja/">ホーム</a><span>/</span><a href="/ja/articles/">ヘッドハンティングコラム</a><span>/</span>年収100万台湾ドル級の管理職求人は、なぜ求人サイトに載っていないのか？</nav>
+
+  <aside class="toc" aria-label="目次">
+    <h2>本記事は全8セクションです</h2>
+    <div class="tns"><a class="tn" href="#sec-1" data-s="sec-1"><i></i><span>まず確認：管理職で年収100万台湾ドルは珍しくない</span></a> <a class="tn" href="#sec-2" data-s="sec-2"><i></i><span>ハイクラス求人が公開されない4つの実務的な理由</span></a> <a class="tn" href="#sec-3" data-s="sec-3"><i></i><span>管理職の選考ロジックは一般職と違う</span></a> <a class="tn" href="#sec-4" data-s="sec-4"><i></i><span>職務経歴書で変えるべきは形式ではなく「語りの単位」</span></a> <a class="tn" href="#sec-5" data-s="sec-5"><i></i><span>ハイクラス面接では何を聞かれるのか</span></a> <a class="tn" href="#sec-6" data-s="sec-6"><i></i><span>ヘッドハンターに見つけてもらうには</span></a> <a class="tn" href="#sec-7" data-s="sec-7"><i></i><span>よくある質問</span></a> <a class="tn" href="#sec-8" data-s="sec-8"><i></i><span>現在募集中のエグゼクティブ求人</span></a></div>
+  </aside>
+
+  <div>
+    <details class="mtoc"><summary>この記事の目次（8セクション）</summary><div><a href="#sec-1">まず確認：管理職の年収100万台湾ドルは珍しくない</a> <a href="#sec-2">エグゼクティブ求人が非公開になる4つの実務的理由</a> <a href="#sec-3">管理職の選考ロジックは一般職とは違う</a> <a href="#sec-4">直すべきは履歴書の形式ではなく、語る単位</a> <a href="#sec-5">エグゼクティブ面接では何を聞かれる？</a> <a href="#sec-6">ヘッドハンターに見つけてもらうには？</a> <a href="#sec-7">よくある質問</a> <a href="#sec-8">現在募集中のエグゼクティブ求人</a></div></details>
+    <article>
+      <span class="tag">求職者ガイド・ヘッドハンターの視点</span>
+      <h1>年収100万台湾ドルの管理職が、求人サイトに出てこないのはなぜ？</h1>
+      <div class="by">
+        <span>著者：<a href="/ja/about/">Step1ne ヘッドハンティングコンサルタントチーム</a></span> <time class="d" datetime="2026-07-27">2026-07-27 公開</time> <span class="d">約9分</span>
+      </div>
+
+      <div class="ans">
+        <div class="lab">端的な答え</div>
+        <p>エグゼクティブ求人の多くが非公開なのは、秘密主義だからではなく、<strong>公開するコストが高すぎる</strong>からです。現職者がまだ退職しておらず、競合に組織の動きを知られ、応募は大量に来るのに合う人はごくわずか。だからこうした求人は「掲載して応募を待つ」のではなく、「コンサルタントが特定のリストに直接アプローチする」形で進みます。求職者にとっての意味は、毎日求人を眺めていても見つからない、ということです。やるべきことは、自分がそのリストに載るようにすることです。</p>
+      </div>
+
+      <h2 id="sec-1">まず確認：管理職で年収100万台湾ドルは珍しくない</h2>
+    <p>多くの人は「年収100万台湾ドル」を遠いラベルのように考えていますが、管理職の層では、それは実は市場の中央値付近であって、頂点ではありません。</p>
+    <p>台湾労働部の「民国114年 職種別賃金調査」（2026年5月公表、有効回答9,977事業所）によると、民国113年の年間平均給与所得は<strong>管理職・監督職が131.7万台湾ドルで最も高く</strong>、専門職が106.2万台湾ドルで続きます。つまり、管理職に就けば年収100万台湾ドルは例外ではなく標準的な水準ということです。</p>
+    <p>この数字には2つの意味があります。1つ目は、すでにチームを率いているのにこの水準に届いていないなら、業界の要因なのか個人の交渉の問題なのかを見直す価値があるということ。2つ目は、より重要なことですが、<strong>この給与帯に入ったら、仕事の探し方をこれまでとは変えなければならない</strong>ということです。</p>
+
+    <h2 id="sec-2">エグゼクティブ求人はなぜ公開されない？4つの実務的理由</h2>
+    <p>当社が実際に受託したハイクラスの案件を見ると、企業が採用を公開しない理由は、通常次の4つのいずれか、またはその組み合わせです：</p>
+
+    <h3>1. 現職者がまだそのポジションにいる</h3>
+    <p>これが最もよくあるケースです。会社はある管理職の交代をすでに決めているものの、引き継ぎ、プロジェクトの進捗、法的リスクの関係で、本人にはまだ知らせられない。こうした案件は最初から最後までどの公開チャネルにも出ることはなく、社内で知っている人も3人以下です。</p>
+
+    <h3>2. 競合にシグナルを読まれたくない</h3>
+    <p>「東南アジア地域オペレーション統括を募集」という公開求人は、「この会社は東南アジアに進出する」と同業他社に知らせるのと同じです。進出の準備を進めている企業にとって、この情報自体に価値があり、みすみす外に出すことはしません。</p>
+
+    <h3>3. 公開すると社内に動揺を生む</h3>
+    <p>社内にもともと昇進を待っているベテランのマネージャーが何人かいるところで、突然その上のポジションを社外に公開募集すれば、その人たちはその日のうちに履歴書を更新し始めます。多くの企業は、まず静かに探し、見つかってから発表するほうを選びます。</p>
+
+    <h3>4. 公開募集の選考コストが割に合わない</h3>
+    <p>年収200万台湾ドルのポジションを公開募集すると、300〜400通の履歴書が届くかもしれませんが、本当に条件に合うのは5人にも満たないことがあります。人事は選考に何週間もかかり、しかもその5人の多くは市場で最も優秀な人材ではありません。最も優秀な人たちは今の職場でうまくいっていて、そもそも求人を見ていないからです。</p>
+
+    <div class="insight">
+      <div class="label">ヘッドハンターの視点</div>
+      <p>これがエグゼクティブ採用の最も核心的な一言です：<strong>あなたが探している人は、たいてい仕事を探していない。</strong></p>
+      <p>私たちがエグゼクティブ層の依頼を受けるとき、仕事の出発点は「データベースを開いて履歴書を集める」ことではなく、「この業界で似た仕事をしてきたのは誰かを描き出す」ことです。通常は30～50人ほどの名前が挙がり、そのうち話をしてくれるのは5～8人程度かもしれません。このリストの多くは、業界インタビュー、過去の協力関係、同業者の評判から少しずつ積み上げたもので、検索で出てくるものではありません。</p>
+      <p>言い換えれば、<strong>見つけてもらえるかどうかは、履歴書の出来ではなく、同業者の間でのあなたの存在感で決まります。</strong>履歴書は、見つけてもらった後で初めて効果を発揮するものです。</p>
+    </div>
+
+    <h2 id="sec-3">管理職の評価基準は、一般の求人とは違う</h2>
+    <p>多くの人が「シニアエンジニアの履歴書の強化版」を持って管理職に応募し、なぜ連絡が来ないのか理解できずにいます。問題は、評価の軸そのものが変わっていることにあります。</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>観点</th><th>一般的な求人</th><th>上級管理職</th></tr></thead>
+        <tbody>
+          <tr><td data-label="面向"><strong>核心となる問題</strong></td><td data-label="一般職缺">あなたはこれができる？</td><td data-label="高階主管職">あなたは私たちの課題を解決できるか？</td></tr>
+          <tr><td data-label="面向"><strong>見る根拠</strong></td><td data-label="一般職缺">スキル、ツール、経験年数</td><td data-label="高階主管職">下した意思決定と、それがもたらした結果</td></tr>
+          <tr><td data-label="面向"><strong>失敗のコスト</strong></td><td data-label="一般職缺">数か月、挽回可能</td><td data-label="高階主管職">1～2年、部門全体の足を引っ張る可能性も</td></tr>
+          <tr><td data-label="面向"><strong>意思決定者</strong></td><td data-label="一般職缺">採用担当の管理職</td><td data-label="高階主管職">社長、取締役会、場合によっては株主も</td></tr>
+          <tr><td data-label="面向"><strong>面接回数</strong></td><td data-label="一般職缺">1～2回</td><td data-label="高階主管職">3〜5回、プレゼンやバックグラウンドチェックを含むことも</td></tr>
+          <tr><td data-label="面向"><strong>成否の鍵</strong></td><td data-label="一般職缺">スキルの適合度</td><td data-label="高階主管職">適合度——組織の現状や経営者のスタイルとの相性</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>最後の行は、最も多くの人が過小評価している項目です。このレベルになると、能力で落ちる割合は実はそれほど高くなく、<strong>不採用の大半は「フィットしない」ことが理由</strong>です。慣れている意思決定のスピードがその会社と違いすぎる、前職のリソース規模が違う、あるいは将来の上司との話し方が噛み合わない。これらは良し悪しの問題ではなく、合うか合わないかの問題です。</p>
+
+    <h2 id="sec-4">履歴書で変えるべきは形式ではなく、語りの単位</h2>
+    <p>一般職から管理職へ移るとき、履歴書で最も変えるべき点は一つだけです：<strong>語りの単位を「自分が何をしたか」から「自分が何を変えたか」に切り替えること</strong>。</p>
+    <p>具体的には：</p>
+    <ul>
+      <li><strong>職責ではなく、意思決定を書く</strong>。「財務諸表と税務を担当」は職責であり、その席に座る人なら誰でも書けます。「3拠点の子会社の決裁権限を再編し、月次決算を12営業日から6日に短縮」こそが、あなたがしたことです</li>
+      <li><strong>規模を書き、相手が照らし合わせられるようにする</strong>——何人を率い、どれだけの予算を管理し、売上いくらの部門か。規模の数字がなければ、相手はあなたの経験が自社の組織に合うかを判断できません</li>
+      <li><strong>成果だけでなく、トレードオフを書く</strong>。ハイクラスの面接では「当時ほかの選択肢はあったか、なぜそれを選んだのか」がよく聞かれます。職務経歴書にトレードオフの背景を一言添えられれば、数字だけより説得力が増します</li>
+      <li><strong>失敗の経験を正直に扱う</strong>——このレベルになれば、全勝のキャリアの人などいません。製品ラインを畳んだ、チームを縮小した、そこから何を学んだかを語れる方が、完璧な履歴書よりかえって信頼されます</li>
+    </ul>
+
+    <div class="warn">
+      <div class="label">よくある誤解</div>
+      <p><strong>履歴書は長ければ長いほどよいと考える。</strong>十数ページに及ぶエグゼクティブの履歴書を見たことがあります。中身はしっかりしていましたが、意思決定者は読みません。</p>
+      <p>実務上は2ページが妥当な上限です。最初の半ページで「あなたは何者で、どんな課題を解くのが得意か」を伝え、残りは3～4つの具体的な実績で裏付けます。それ以上の細部は面接で話しましょう。面接とはもともと細部を聞くためにあるのですから。</p>
+    </div>
+
+    <h2 id="sec-5">エグゼクティブの面接では何を聞かれる？</h2>
+    <p>技術的な質問と経歴の確認は、通常1回目の面接で終わります。結果を本当に決めるのはその後の数回で、そこでの質問はおおむね4つの方向に分かれます：</p>
+    <ul>
+      <li><strong>この業界の今後3年をどう見ているか</strong>——見ているのは予測が当たるかではなく、自分のポジション以外のことまで考えているかどうかです</li>
+      <li><strong>最近下した難しい決断は何か</strong>——責任を負う姿勢を見ています。答えられない人は、たいていまだ本当の意味で意思決定者になったことがありません</li>
+      <li><strong>成果が出ていないがベテランのメンバーをどう扱うか</strong>。マネジメントの実際の手腕を見る質問で、正解はありませんが、はぐらかす人は減点されます</li>
+      <li><strong>なぜ今のポジションを離れたいのか</strong>——動機の真剣さを測る質問です。「自分に挑戦したい」といった答えは、このレベルでは準備不足と見なされます</li>
+    </ul>
+    <p>もう1つ、多くの人が気づいていないことがあります。<strong>エグゼクティブの面接は双方向で、相手はあなたが質問することを期待しています</strong>。最初から最後まで会社の戦略やチームの現状、なぜこのポジションが空いているのかを一度も聞かない候補者は、「この問題を解きたい人」ではなく「仕事を探しているだけの人」と受け取られます。</p>
+
+    <h2 id="sec-6">ヘッドハンターに見つけてもらうには？</h2>
+    <p>最初の問いに戻りましょう。こうした求人が公開されないなら、求職者が実際にできることは何でしょうか？4つあります：</p>
+    <ol>
+      <li><strong>専門家としての存在を同業者の間で見えるようにする</strong>：講演、業界コミュニティ、専門記事、LinkedInで分かりやすく書かれた経歴など。インフルエンサーになる必要はありませんが、「この分野で誰が優秀か」と聞かれたときに、あなたを思い出してもらえるようにしましょう</li>
+      <li><strong>今は転職しなくても、声をかけてきたコンサルタントとの関係を保つ</strong>——これは最も過小評価されているポイントです。ハイクラスのマッチングの多くは初回の接触で起きるのではなく、2年後にそのコンサルタントの手元にちょうどより合う案件が来たときに起きます。<a href="/ja/articles/headhunter-contacted-you/">ヘッドハンターから連絡が来たときの対応</a>の記事でさらに詳しく説明しています</li>
+      <li><strong>成果をこまめに書き留める</strong>——大きなプロジェクトが終わったら10分かけて、背景、自分の判断、結果を書いておきましょう。職務経歴書が必要になってから思い出そうとしても、細部はもうぼやけています</li>
+      <li><strong>自分が何を求めているかを先にはっきりさせる</strong>——より大きな舞台か、より良い報酬か、短い通勤か、それとも社内政治の少なさか。チャンスが来た時、決断までに数日しかないことが多く、事前に考えていなかった人はたいてい機会を逃すか選択を誤ります</li>
+    </ol>
+
+    <div class="insight">
+      <div class="label">ヘッドハンターの視点</div>
+      <p>最後に、少し現実的な話をします：<strong>エグゼクティブ求人のマッチングに長い時間がかかるのは普通のことで、あなたに力が足りないからではありません。</strong></p>
+      <p>エグゼクティブ案件は、委任から入社まで3〜6か月かかることがよくあります。途中で会社の戦略が変わって一時停止したり、取締役会の顔ぶれが変わって再開したりすることもあります。あなたが評価されている最中に「今月はまだ進展がありません」という返事を受け取るのはごく普通のことで、選考から外れたという意味ではありません。</p>
+      <p>裏を返せば、これが私たちがこうおすすめする理由でもあります。<strong>1つのチャンスのために手元の仕事を止めないでください</strong>。今の職場で成果を出し続け、実績を積み重ねることこそ、このレベルでの最良の交渉材料です。</p>
+    </div>
+
+    <h2 id="sec-7">よくある質問</h2>
+<div><details>
+        <summary><span>ヘッドハンターに自分から履歴書を送るのは意味がある？</span><span class="faq-icon">+</span></summary>
+        <p>役に立ちますが、その効果は多くの人が思っているものとは違います。自分から応募しても、コンサルタントが「すぐに仕事を探してくれる」わけではなく、そのコンサルタントのリストに入り、条件の合う依頼が来たときに思い出してもらえるようになる、ということです。だから重要なのは数を送ることではなく的確に送ること。自分の業界や職種を専門とするコンサルタントを選び、具体的な成果と希望の方向性を添えるほうが、履歴書を一斉送信するよりずっと効果的です。</p>
+      </details><details>
+        <summary><span>ヘッドハンターを使うのにお金はかかる？</span><span class="faq-icon">+</span></summary>
+        <p>正規のヘッドハンティングサービスは求職者には完全に無料で、費用は依頼した企業が支払います。「マッチング保証」「優先推薦」「データ登録」などの名目で求職者から費用を取る業者がいたら警戒してください。これは台湾の就業サービスの規範上、問題があります。</p>
+      </details><details>
+        <summary><span>今の会社に、転職先を探していることが知られない？</span><span class="faq-icon">+</span></summary>
+        <p>本来、正規のエグゼクティブサーチは機密保持が前提です。コンサルタントはあなたの同意なしに履歴書を送ることはなく、第三者にあなたの転職意向を明かすこともありません。リファレンスチェック（reference check）はあなたの同意を得たうえで、あなたが指定した相手に行う必要があり、通常は最終段階で実施されます。最初の接触の時点で機密保持の希望をはっきり伝えて構いません。それは妥当で、よくあることです。</p>
+      </details><details>
+        <summary><span>年収100万台湾ドルの管理職には、名門校や大企業の経歴が必須？</span><span class="faq-icon">+</span></summary>
+        <p>必ずしもそうではありませんが、経歴は検索で見つけてもらえる確率に影響します。大企業の経歴が有利なのは、意思決定者があなたの扱った規模や制度の成熟度を当てはめやすいからです。中小企業出身なら、規模の数字と実際の成果をはっきり書くことで補えます。「ゼロから30人のチームを立ち上げた」は、多くの場面で「1,000人規模の組織で10人を管理した」より説得力があります。</p>
+      </details><details>
+        <summary><span>希望年収はいつ伝えるべき？</span><span class="faq-icon">+</span></summary>
+        <p>最初にコンサルタントと話す段階でレンジを伝え、最後まで先延ばしにしないことをおすすめします。上位職の予算は通常、依頼の時点で決まっているので、早めにすり合わせれば、5回の面接を終えてから大きな差に気づくといった事態を避けられます。レンジを伝える際は現在の内訳（基本給、賞与、株式、その他）もあわせて説明し、相手が同じ基準で比較できるようにしましょう。</p>
+      </details><details>
+        <summary><span>ヘッドハンターから連絡を受けてから、結果が出るまでどのくらい？</span><span class="faq-icon">+</span></summary>
+        <p>エグゼクティブ求人では、最初の接触から入社まで3～6か月がよくある期間で、途中で数週間止まるのもごく普通です。それはたいてい企業内部の意思決定のリズム（取締役会の日程、年度予算、組織再編）を反映したもので、あなたへの評価ではありません。コンサルタントに定期的な進捗報告を頼むのはよいですが、一つの機会のために手元の計画を止めることはおすすめしません。</p>
+      </details></div><div>
+      <h2 id="sec-8">現在、エグゼクティブの求人を募集中</h2>
+      <p>事業開発責任者（年収120–250万台湾ドル）、グループIT責任者（年収100–200万台湾ドル）、財務責任者（海外駐在、年収100–200万台湾ドル）をいずれも募集中です。ポジションの背景や組織の現状を先に知ってから決めたい場合は、コンサルタントと直接お話しいただけます。やり取りは完全に秘密厳守です。</p>
+      <p><a href="/ja/jobs/">すべての中・上級職の求人を見る →</a></p>
+      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">LINEでコンサルタントに相談する</a>
+    </div>
+
+    <p>関連記事：<a href="/ja/articles/headhunter-contacted-you/">ヘッドハンターから連絡が来たらどう対応する？まず5つの質問を</a> · <a href="/ja/articles/executive-hiring-guide/">（企業向け）幹部ポジションが半年たっても埋まらない？</a> · <a href="/ja/jobs/business-operations-manager/">事業運営マネージャーの求人</a></p>
+
+      
+<div class="cta">
+        <p>こうした非公開の機会に見つけてもらいたいなら、履歴書をコンサルタントに預けて登録しておきましょう。合う案件があれば直接ご連絡します。</p>
+          <a class="btn-alt" href="/ja/jobs/">または先に公開求人を見る</a> <a class="btn-line" href="https://lin.ee/XcSWPzM">LINEでコンサルタントに質問</a>
+      </div>
+    
+<div class="related-jobs-box" style="margin:26px 0;padding:18px 20px;border:1px solid #D9E0E6;border-radius:14px;background:#EAF4FA"><strong style="display:block;margin-bottom:9px;color:#0F5F87;font-size:15px">🔎 関連求人</strong><div style="display:flex;flex-wrap:wrap;gap:8px 14px;font-size:14.5px"><a href="/ja/jobs/group-it-head/">グループ情報システム責任者</a>  ·  <a href="/jobs/finance-group-treasury-head-xinyi/">グループ財務責任者</a>  ·  <a href="/ja/jobs/">すべての求人を見る</a></div></div>
+</article>
+  </div>
+</main>
+
+
+<footer><div class="fw">德仁管理顧問有限公司 台北市内湖区康寧路三段54之7号3階</div></footer>
+
+<script>
+// 表格加水平捲動外框，避免手機橫向溢位
+document.querySelectorAll('article table').forEach(function(t){
+  var w=document.createElement('div'); w.className='tw';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
+// 閱讀進度
+var bar=document.getElementById('bar');
+function prog(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',prog,{passive:true}); prog();
+// 目錄跟隨
+var tns=[].slice.call(document.querySelectorAll('.tn'));
+var secs=tns.map(function(a){return document.getElementById(a.dataset.s)}).filter(Boolean);
+if('IntersectionObserver' in window && secs.length){
+  var cur=null;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) cur=e.target.id; });
+    tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  },{rootMargin:'-88px 0px -70% 0px'}).observe && secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===e.target.id)}); }
+      });
+    },{rootMargin:'-88px 0px -70% 0px'}).observe(s);
+  });
+}
+</script>
+
+<style>
+.s1ne-sc{position:fixed;z-index:60;left:0;right:0;bottom:0;display:flex;gap:10px;padding:10px max(14px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));background:rgba(255,255,255,.96);box-shadow:0 -6px 24px rgba(40,30,10,.12);transform:translateY(120%);transition:transform .25s ease}
+.s1ne-sc.on{transform:none}
+.s1ne-sc a{flex:1;display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:999px;font-weight:700;font-size:15px;text-decoration:none;white-space:nowrap}
+.s1ne-sc .p{background:#111827;color:#fff}
+.s1ne-sc .l{background:#fff;color:#111827;border:1.5px solid #d1d5db}
+.s1ne-sc a:focus-visible{outline:3px solid #1f2937;outline-offset:2px}
+@media (min-width:760px){.s1ne-sc{left:auto;right:24px;bottom:24px;border-radius:999px;padding:8px;box-shadow:0 8px 28px rgba(40,30,10,.18)}.s1ne-sc a{flex:none;padding:0 22px}}
+@media (prefers-reduced-motion:reduce){.s1ne-sc{transition:none}}
+body{padding-bottom:84px}
+@media (min-width:760px){body{padding-bottom:0}}
+</style>
+<div class="s1ne-sc" id="s1neSc" role="region" aria-label="迅速に動く">
+  <a class="l" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">LINEで問い合わせ</a> <a class="p" href="/ja/jobs/" data-cta="jobs_cta_click">現在の求人を見る</a>
+</div>
+<script>
+(function(){var b=document.getElementById('s1neSc');if(!b)return;
+function t(){b.classList.toggle('on',window.scrollY>380);}
+window.addEventListener('scroll',t,{passive:true});t();
+b.querySelector('.p').addEventListener('click',function(){try{gtag('event',this.getAttribute('data-cta'),{page_path:location.pathname,placement:'sticky'});}catch(e){}});})();
+</script>
+<!-- /s1ne-sticky-cta -->
+
+</body>
+</html>

@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href*="lin.ee"]');
+  if (!a) return;
+  gtag('event', 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60)
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>事業計画書の書き方：構成、例、最も減点されやすい章｜Step1ne</title>
+<meta name="description" content="事業計画書の構成は実はかなり標準的で、本当に差がつくのは「チームと人員」の章です。そして、そこが最も適当に書かれがちな章でもあります。この記事では全体の構成を示し、審査と採用の観点から人員計画の書き方を説明します。">
+<meta name="keywords" content="事業計画書,事業計画書 例,創業計画書,SBIR 計画書,政府補助金 計画書,人員配置,チーム紹介 書き方">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/ja/articles/business-plan-writing/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Step1ne 紹介プログラム">
+<meta property="og:title" content="事業計画書の書き方：構成、例、そして最も減点されやすい章">
+<meta property="og:description" content="構成は標準的なもので、差がつくのはチームと人材の章です。そして最も多くの人がいい加減に書く章でもあります。">
+<meta property="og:url" content="https://step1ne.com/ja/articles/business-plan-writing/">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta name="theme-color" content="#F4F6F8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "事業計画書の書き方：構成、例、そして最も減点されやすい章",
+  "description": "事業計画書の8つの標準ブロックとそれぞれの書き方のポイントを説明し、審査と実際の採用の観点から「チームと人員」の章でよくある誤り、審査委員の評価基準、チームがまだ揃っていない場合の誠実な書き方を詳しく解説します。あわせて、事業計画書と政府補助金の計画書の違いも整理します。",
+  "datePublished": "2026-07-27",
+  "dateModified": "2026-07-27",
+  "inLanguage": "zh-TW",
+  "author": {
+    "@type": "Organization",
+    "name": "Step1ne 德仁管理顧問有限公司",
+    "url": "https://step1ne.com/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "德仁管理顧問有限公司（Step1ne）",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://step1ne.com/assets/step1ne-logo.png"
+    }
+  }
+}
+</script>
+
+<style>
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;
+  --wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:17px;line-height:1.95;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.35;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,select,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* 導覽 */
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+/* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
+
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
+.crumb{grid-column:1/-1;padding:22px 0 6px;font-size:13.5px;color:var(--slate-dim)}
+.crumb a{color:var(--slate)}
+.crumb a:hover{color:var(--brand-deep)}
+.crumb span{margin:0 8px;color:var(--rule)}
+
+/* 目錄軌：沿用全站 signature */
+.toc{position:sticky;top:92px;padding:8px 0 40px}
+.toc h2{font-size:13px;font-weight:700;color:var(--slate-dim);letter-spacing:.02em;margin-bottom:16px}
+.tns{position:relative;padding-left:22px}
+.tns::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.14))}
+.tn{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:14px;color:var(--slate);line-height:1.6;position:relative}
+.tn i{position:absolute;left:-22px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--rule);flex:0 0 auto}
+.tn:hover{color:var(--brand-deep)}
+.tn:hover i{border-color:var(--brand)}
+.tn.on{color:var(--ink);font-weight:700}
+.tn.on i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 4px rgba(46,169,223,.2)}
+.mtoc{display:none;margin:20px 0 0;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.mtoc summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15.5px;position:relative}
+.mtoc summary::-webkit-details-marker{display:none}
+.mtoc summary::after{content:"";position:absolute;right:20px;top:24px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.mtoc[open] summary::after{transform:rotate(-135deg)}
+.mtoc div{padding:0 18px 14px}
+.mtoc a{display:block;padding:9px 0;font-size:15px;color:var(--slate);border-top:1px solid var(--rule)}
+
+/* 文章本體 */
+article{padding:14px 0 60px;max-width:70ch}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--brand-deep);background:rgba(22,126,178,.07);border:1px solid rgba(22,126,178,.25);border-radius:5px;padding:4px 11px}
+article h1{margin-top:16px;font-size:clamp(28px,4.2vw,42px);line-height:1.28;letter-spacing:-.02em}
+.by{margin-top:18px;padding-bottom:20px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14px;color:var(--slate-dim)}
+.by a{color:var(--slate);border-bottom:1px solid var(--rule)}
+.by .d{font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+
+/* ★ Signature：直接答案 */
+.ans{margin-top:30px;background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:26px 30px}
+.ans .lab{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:10px}
+.ans p{font-size:19.5px;line-height:1.85;font-weight:500}
+.ans strong{font-weight:900}
+
+article h2{margin:52px 0 16px;font-size:25px;scroll-margin-top:92px}
+article h3{margin:34px 0 10px;font-size:19px}
+article h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-right:12px;border-radius:8px;background:var(--brand);color:#fff;font-family:var(--f-disp);font-size:17px;font-weight:700;vertical-align:2px}
+article p{margin-top:16px}
+article strong{font-weight:700}
+article a:not(.tn){color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.32)}
+article a:not(.tn):hover{border-bottom-color:var(--brand-deep)}
+article ul,article ol{margin:16px 0 0;padding-left:1.4em}
+article li{margin-top:9px}
+article table{width:100%;border-collapse:collapse;margin-top:22px;font-size:15.5px;background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+article th{text-align:left;background:var(--paper);font-weight:700;font-size:14px;color:var(--slate);padding:12px 14px;border-bottom:1px solid var(--rule)}
+article td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.75}
+article tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+article details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+article details summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+article details summary::-webkit-details-marker{display:none}
+article details summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+article details[open] summary::after{transform:rotate(-135deg)}
+article details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid var(--rule);color:var(--slate)}
+
+.foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
+.cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
+.cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
+footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+.fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.note{max-width:var(--wrap);margin:0 auto 46px;padding-inline:var(--gut)}
+.note div{background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid #B45309;border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.note b{color:#5A3D0C}
+
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .mtoc{display:block}
+}
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  body{font-size:16.5px}
+  .ans{padding:22px;border-radius:0 8px 8px 0}
+  .ans p{font-size:18px}
+  article h2{font-size:22px;margin-top:42px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+<!--i18n-hreflang-->
+<link rel="alternate" hreflang="zh-Hant" href="https://step1ne.com/articles/business-plan-writing/">
+<link rel="alternate" hreflang="ja" href="https://step1ne.com/ja/articles/business-plan-writing/">
+<link rel="alternate" hreflang="en" href="https://step1ne.com/en/articles/business-plan-writing/">
+<link rel="alternate" hreflang="x-default" href="https://step1ne.com/articles/business-plan-writing/">
+<style>.s1-lang{max-width:1100px;margin:0 auto;padding:10px 16px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.s1-lang a,.s1-lang b{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid #d9dce3;background:#fff;font-size:14px;font-weight:600;color:#4a5060;text-decoration:none}.s1-lang b{background:#23262d;border-color:#23262d;color:#fff}.s1-lang a:hover{color:#23262d;border-color:#9aa0ad}.s1-lang a:focus-visible{outline:3px solid #1880B4;outline-offset:2px}.s1-note{max-width:1100px;margin:10px auto 0;padding:0 16px}.s1-note p{margin:0;padding:12px 14px;border-radius:12px;background:#eef4fb;border:1px solid #c9dcef;color:#1d3a57;font-size:14.5px;line-height:1.7}</style>
+<!--/i18n-hreflang-->
+</head>
+
+<body>
+<div id="bar"></div>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/ja/"><img src="/assets/step1ne-logo.png" alt="Step1ne"><b>Step1ne</b></a>
+    <nav class="hd-nav">
+      <a href="/ja/commission-recruiting/">企業向けサービス</a><a href="/ja/jobs/">求人一覧</a><a class="on" href="/ja/articles/">ヘッドハンティングコラム</a><a href="/ja/talent/">Step1ne 紹介プログラム</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">LINEで問い合わせ</a>
+    <button class="hd-burger" type="button" aria-label="メニューを開く" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/ja/commission-recruiting/">法人向けサービス</a><a href="/ja/jobs/">求人一覧</a><a href="/ja/articles/">ヘッドハンティングコラム</a><a href="/ja/talent/">Step1ne 紹介プログラム</a> <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINEで問い合わせ</a>
+  </div>
+</header>
+<!--i18n-switch--><nav class="s1-lang" aria-label="言語を切り替える"><a href="/articles/business-plan-writing/" hreflang="zh-Hant" lang="zh-Hant">中文</a><b lang="ja" aria-current="true">日本語</b><a href="/en/articles/business-plan-writing/" hreflang="en" lang="en">English</a></nav><!--/i18n-switch-->
+
+
+<main class="shell">
+  <nav class="crumb" aria-label="パンくずリスト"><a href="/ja/">ホーム</a><span>/</span><a href="/ja/articles/">ヘッドハンティング・コラム</a><span>/</span>事業計画書の書き方：構成、例、そして最も減点されやすい章</nav>
+
+  <aside class="toc" aria-label="目次">
+    <h2>本記事は全7セクション</h2>
+    <div class="tns"><a class="tn" href="#sec-1" data-s="sec-1"><i></i><span>まず全体像：8つのブロックとそれぞれの要点</span></a> <a class="tn" href="#sec-2" data-s="sec-2"><i></i><span>なぜ「チーム」の章が最も減点されやすいのか？</span></a> <a class="tn" href="#sec-3" data-s="sec-3"><i></i><span>審査員や投資家は人材の章で何を見るか？</span></a> <a class="tn" href="#sec-4" data-s="sec-4"><i></i><span>事業計画書と政府補助金の計画書は別物</span></a> <a class="tn" href="#sec-5" data-s="sec-5"><i></i><span>書き始める前にやるべき3つのこと</span></a> <a class="tn" href="#sec-6" data-s="sec-6"><i></i><span>よくある質問</span></a> <a class="tn" href="#sec-7" data-s="sec-7"><i></i><span>人材の章で行き詰まっていませんか？</span></a></div>
+  </aside>
+
+  <div>
+    <details class="mtoc"><summary>この記事の目次（7 項目）</summary><div><a href="#sec-1">まず全体構成：8つのブロックとそれぞれの要点</a> <a href="#sec-2">なぜ「チーム」の章が最も減点されやすいのか？</a> <a href="#sec-3">審査員や投資家は人材の章で何を見ている？</a> <a href="#sec-4">事業計画書と政府補助金の計画書は別の書類</a> <a href="#sec-5">書く前にやるべき3つのこと</a> <a href="#sec-6">よくある質問</a> <a href="#sec-7">人材の章で行き詰まっていますか？</a></div></details>
+    <article>
+      <span class="tag">企業向けガイド・ヘッドハンターの視点</span>
+      <h1>事業計画書の書き方：構成、例、そして最も減点されやすい章</h1>
+      <div class="by">
+        <span>著者：<a href="/ja/about/">Step1ne ヘッドハンティング・コンサルタントチーム</a></span> <time class="d" datetime="2026-07-27">公開日 2026-07-27</time> <span class="d">約8分</span>
+      </div>
+
+      <div class="ans">
+        <div class="lab">端的な答え</div>
+        <p>事業計画書の構成は実はかなり標準的で、要約、市場、製品、運営、<strong>チーム</strong>、財務、スケジュール、リスクの8ブロックがあり、ネット上にもテンプレートが大量にあります。本当に差がつくのは<strong>「チームと人員」の章で、しかもそこが最も適当に書かれがちな章です</strong>。台湾の政府補助金計画を例にすると、審査では「人員と経費配分の妥当性」が評価の重点として明記されており、見られるのは学歴だけでなく、研究開発人員の実際の経歴も重要な考慮要素です。構成は写せても、人員の章は写せません。</p>
+      </div>
+
+      <h2 id="sec-1">まず構成から：8つのブロックとそれぞれのポイント</h2>
+    <p>投資家に出すにしても、銀行に出すにしても、政府の補助金に出すにしても、骨組みはほぼ同じです。違うのは<strong>誰が読むのか、その人がどの部分を最も気にするのか</strong>です（以下で分けて説明します）。</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>ブロック</th><th>答えるべき問い</th><th>最もよくある質問</th></tr></thead>
+        <tbody>
+          <tr><td data-label="區塊"><strong>1. エグゼクティブサマリー</strong></td><td data-label="要回答">1ページで伝える：何をするのか、誰に向けてか、なぜあなたなのか、いくら必要か</td><td data-label="常見問題">会社紹介になってしまい、読み終えても何をしたいのかわからない</td></tr>
+          <tr><td data-label="區塊"><strong>2. 課題と市場</strong></td><td data-label="要回答">誰がどんな課題を抱えていて、市場はどれくらいで、今はどう解決されているか</td><td data-label="常見問題">世界の市場規模を引用しているが、実際にはそのパイを取れない</td></tr>
+          <tr><td data-label="區塊"><strong>3. 製品またはサービス</strong></td><td data-label="要回答">何をしているか、既存のやり方とどう違うか、今どの段階にあるか</td><td data-label="常見問題">機能だけを語って違いを語らず、なぜあなたでなければならないのかが見えない</td></tr>
+          <tr><td data-label="區塊"><strong>4. 運営とビジネスモデル</strong></td><td data-label="要回答">どう売るか、どう収益を得るか、コスト構造、主要パートナー</td><td data-label="常見問題">価格の話を避ける、または価格にコストの根拠がない</td></tr>
+          <tr><td data-label="區塊"><strong>5. チームと人員</strong></td><td data-label="要回答"><strong>誰がやるのか、なぜやり遂げられるのか、足りない人をどう補うのか</strong></td><td data-label="常見問題"><strong>学歴や職名を並べても、誰が本当に実行できるかはわからない</strong></td></tr>
+          <tr><td data-label="區塊"><strong>6. 資金計画</strong></td><td data-label="要回答">収支の見通し、資金の使途、いつ損益分岐点に達するか</td><td data-label="常見問題">売上曲線が右肩上がりで、前提の説明が一切ない</td></tr>
+          <tr><td data-label="區塊"><strong>7. スケジュールとマイルストーン</strong></td><td data-label="要回答">何期に分けるか、各期に何を納品し、どう検収するか</td><td data-label="常見問題">スケジュールが詰め込みすぎで、一目で無理だとわかる</td></tr>
+          <tr><td data-label="區塊"><strong>8. リスクと対応策</strong></td><td data-label="要回答">最も失敗しそうな3つのことと、その対処法</td><td data-label="常見問題">「重大なリスクなし」と書く——この一文は直接減点されます</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>8つのセクションのうち、第1・2・3・6は公開されたテンプレートが多数あり、それに沿って埋めれば基本的な水準になります。<strong>第5はテンプレートでは救えません</strong>。そこに書くのは、実際に手元に誰がいて、誰が足りず、どう補うつもりかだからです。</p>
+
+    <h2 id="sec-2">なぜ「チーム」の章が最も減点されやすいのか？</h2>
+    <p>それは<strong>文章のテクニックではごまかせない唯一の章</strong>だからです。</p>
+    <p>市場分析はうまく書けば、読む側が裏を取るのは難しいものです。財務予測も少し楽観的に書いたところで、どうせ予測です。しかしチームの章に書くのは、具体的な人、具体的な経歴、具体的な工数配分です。<strong>聞けばすぐ、あるかないかわかります</strong>。</p>
+    <p>しかも審査員や投資家の論理はシンプルです。計画がどれほど良くても、実行する人ができなければゼロ。だから彼らがこの章にかける時間は、申請者が思っているよりずっと長いのが普通です。</p>
+
+    <div class="insight">
+      <div class="label">ヘッドハンターの視点</div>
+      <p>企業からよく聞かれる質問があります。<strong>「計画書をもうすぐ出すのに、人がまだ見つかっていない。この章はどう書けばいい？」</strong></p>
+      <p>この問題自体は間違っていません。多くの会社は申請時点でチームが揃っておらず、それは例外ではなく普通のことです。間違っているのはその後の対応で、多くの人が<strong>まだ入社していない人をすでに在籍しているように書く</strong>、あるいは1人の工数を3つの計画に重複して計上してしまうのです。</p>
+      <p>この2つのやり方のリスクは、「人手不足を正直に書く」よりはるかに大きいです。前者は精算や監査の段階で問題になり、後者は審査委員が数件の計画書を並べて見比べれば、その場で見抜かれます。</p>
+      <p>正直な書き方のほうがかえって説得力があります。<strong>「本計画ではX職能の人員を2名増員する必要があり、承認後2か月以内に着任見込み。すでにヘッドハンティングのコンサルタントに委託して探索を開始しており、市場の給与帯はAからB。」</strong>この一文で、不足、スケジュール、実現可能性、コストの根拠がすべて伝わります。無理にチームを取り繕うよりずっと完成度が高いのです。</p>
+    </div>
+
+    <h2 id="sec-3">審査員や投資家は人材の章で何を見ている？</h2>
+    <p>4つのポイントにまとめると、順番がそのまま重要度です：</p>
+
+    <h3>1. この人たちは本当に似たことをやったことがあるか？</h3>
+    <p>見られるのは学歴だけでなく<strong>経歴</strong>です。修士でも関連プロジェクトの経験がない人と、学歴は普通でも実際に3回納品した人なら、ここでは後者のほうが高く評価されます。</p>
+    <p>書き方としては、「X大学X学科卒、現在Xの職位」と並べるだけではいけません。<strong>「Xプロジェクトを主導し、Yを担当し、成果はZ」</strong>と書き、その人とこの計画とのつながりを示しましょう。</p>
+
+    <h3>2. 業務時間の配分は妥当か？</h3>
+    <p>これが最も指摘されやすい項目です。ある人が計画書で80%の工数を投入するなら、こう問われます：その人の本来の仕事は誰がやるのか？会社で2つの計画が同時に進んでいるとき、その人は二重にカウントされていないか？</p>
+    <p><strong>工数の合計が100%を超える人がいると、計画全体の信頼性がまとめて下がります</strong>。ほかの数字も同じように見積もられているのではと思われるからです。</p>
+
+    <h3>3. 不足している人員は補充できるか？</h3>
+    <p>チームが揃ってから計画書を書く会社などありません。大事なのは「足りているかどうか」ではなく、<strong>「自分たちに何が足りないかを分かっているか、それを補う方法があるか」</strong>です。</p>
+    <p>「どんな職能が足りないのか、市場にそうした人材は多いのか、給与帯はどのくらいか、着任までどれくらいかかる見込みか」をはっきり説明できる申請者は、下調べをしてきたと受け取られます。逆に、採用について一言も触れていない計画書は、実行計画が半分しか考えられていないのではと疑われます。</p>
+
+    <h3>4. 人件費の見積もりは適切か？</h3>
+    <p>人件費を低く見積もりすぎるのはよくある問題です。節約にはならず、<strong>市場相場を分かっていないのではと疑われ</strong>、ほかのコスト見積もりまで疑われることになります。高く見積もる場合は理由（希少な職能、海外駐在、特定の資格が必要など）を説明する必要があります。</p>
+    <p>妥当なやり方は、検証可能な相場の基準を引用し、自分の数字がなぜその位置にあるのかを説明することです。</p>
+
+    <div class="warn">
+      <div class="label">それだけで減点される3つの書き方</div>
+      <p><strong>1. 顧問や外部協力者を正社員チームのメンバーとして書く。</strong>顧問として載せるのは構いませんが、立場と関与の仕方を明記し、コアチームと混ぜないでください。</p>
+      <p><strong>2. 同じ人の工数が複数の計画書で重複してカウントされている。</strong>これは審査で最もよく指摘される項目です。</p>
+      <p><strong>3.「当社は必要に応じて所要人員を増員する」。</strong>この一文は何も書いていないのと同じで、実行についてまだ真剣に考えていないと受け取られます。</p>
+    </div>
+
+    <h2 id="sec-4">事業計画書 vs 政府補助金の計画書：同じ文書ではない</h2>
+    <p>同じ履歴書をあちこちに送る人は多く、効率を考えれば理解できます。ただ、どこに違いがあるかは知っておきましょう：</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>観点</th><th>投資家向け</th><th>政府補助版</th></tr></thead>
+        <tbody>
+          <tr><td data-label="面向"><strong>核心となる問題</strong></td><td data-label="投資人版">このビジネスはどこまで大きくなれる？</td><td data-label="政府補助版">この計画は実現できるのか？</td></tr>
+          <tr><td data-label="面向"><strong>最も重い章</strong></td><td data-label="投資人版">市場規模とビジネスモデル</td><td data-label="政府補助版">技術の革新性、実施方法、スケジュール</td></tr>
+          <tr><td data-label="面向"><strong>リスクに対する姿勢</strong></td><td data-label="投資人版">ハイリスク・ハイリターンを受け入れる</td><td data-label="政府補助版">リスクをコントロールできることを示す必要がある</td></tr>
+          <tr><td data-label="面向"><strong>人員の章</strong></td><td data-label="投資人版">創業チームの実力と連携を見る</td><td data-label="政府補助版"><strong>積算の妥当性を見て、項目ごとに照合する</strong></td></tr>
+          <tr><td data-label="面向"><strong>財務</strong></td><td data-label="投資人版">成長曲線とイグジットの見通し</td><td data-label="政府補助版">経費の使途の分類と自己資金の調達力</td></tr>
+          <tr><td data-label="面向"><strong>形式</strong></td><td data-label="投資人版">自由形式、読みやすさを重視</td><td data-label="政府補助版">所定の書式とページ数の上限があり、超えると差し戻される</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>最も実務的な違いは、<strong>政府補助金の計画書に書いた人員と経費は精算の対象になる</strong>ということです。書いた数字は後で辻褄が合わなければならないため、積算時の慎重さは投資家向けの版とはまったく違います。</p>
+
+    <div class="insight">
+      <div class="label">ヘッドハンターの視点</div>
+      <p>もう一つ、あまり注意されることはないものの、実際に問題になる点があります：<strong>すでに完了し、すでに代金を受け取った仕事は、通常同じ内容で研究開発の補助金を申請することはできません。</strong></p>
+      <p>政府の入札案件や学校の案件を手がけたことのある会社は特につまずきやすい点です。そうした実績を「過去の経験」に書くのはプラスですが、すでに納品済みの同じ成果を「本計画で開発する」と見せかけると、重複補助の問題になります。</p>
+      <p>申請するなら、線引きを明確にする必要があります：<strong>これまで何をしてきたのか、今回新たに何をするのか、両者の技術的な違いはどこにあるのか。</strong>違いを説明できないなら、そのテーマで申請すべきではないのかもしれません。</p>
+    </div>
+
+    <h2 id="sec-5">書く前にやっておく3つのこと</h2>
+    <ol>
+      <li><strong>応募する制度の公式フォーマットをダウンロードしましょう。</strong>制度によって章立ての順序、ページ数の上限、必須の添付書類が異なります。最初からその構成に沿って書くほうが、書き終えてから直すよりずっと楽です</li>
+      <li><strong>チームの現状を正直に一度洗い出す。</strong>誰がいて、誰がいないか、誰の工数がすでにほかの仕事で埋まっているか。この表が人員の章の下書きになり、スケジュールの実現可能性にも直接影響します</li>
+      <li><strong>先にスケジュールを書き、それから製品に戻る。</strong>多くの計画書は製品の章が壮大に書かれていますが、スケジュールと照らし合わせると到底終わりません。逆の順で書けば、このずれを防げます</li>
+    </ol>
+
+    <h2 id="sec-6">よくある質問</h2>
+<div><details>
+        <summary><span>事業計画書はどのくらいの長さで書けばいい？</span><span class="faq-icon">+</span></summary>
+        <p>投資家向けなら15–25ページに1ページのエグゼクティブサマリーを付けるのがおすすめです。長すぎると最後まで読まれません。政府補助金の計画書は、その計画の規定を確認する必要があり、多くは明確なページ数の上限（添付資料を除く）があります。超えると修正を求められたり、差し戻されたりするので、必ず先に公式フォーマットをダウンロードして確認しましょう。共通の原則は、細部は添付資料に回し、本文には意思決定者に必要な情報だけを残すことです。</p>
+      </details><details>
+        <summary><span>チームがそろっていなくても申請できる？</span><span class="faq-icon">+</span></summary>
+        <p>はい、それはごく普通のことです。カギは不足を明確に書くことです。どの職能が足りないのか、なぜこの計画に必要なのか、いつ着任見込みか、どの方法で補うのか（自社採用かヘッドハンティング委託か）、給与の計上根拠は何か。不足を正直に挙げ、実現可能な補充計画を添えるほうが、完全なチームを架空で作るよりはるかに安全です。後者は精算や監査の段階で問題になります。</p>
+      </details><details>
+        <summary><span>コンサルタントをチームに含めて書いてよい？</span><span class="faq-icon">+</span></summary>
+        <p>できますが、立場と関与の仕方を明記し、「顧問」や「外部支援」の欄に載せて、コアチームと混ぜないでください。プロジェクト顧問であること、おおよその関与時間、担当範囲を書き添えます。外部顧問を正社員チームのように見せると、突っ込まれた時に計画書全体の信頼性が損なわれます。</p>
+      </details><details>
+        <summary><span>人件費はどう積算すれば妥当？</span><span class="faq-icon">+</span></summary>
+        <p>検証可能な市場相場を基準にし、自社の数字がなぜその位置にあるのかを説明しましょう。低すぎると相場を理解していないのではと疑われ、ほかのコスト見積もりまで疑問視されます。高すぎる場合は、職能の希少性、海外派遣が必要、特定の資格が必要など、理由を説明する必要があります。また、一人ひとりの総工数の配分が 100% を超えていないかも確認してください。最もよく指摘される項目です。</p>
+      </details><details>
+        <summary><span>過去に受注した政府案件は計画書に書いてよい？</span><span class="faq-icon">+</span></summary>
+        <p>「過去の実績」に書くのはプラスで、実行力と納品の記録を示せます。ただし注意が必要です。すでに完了し入金済みの仕事は、通常同じ内容で研究開発補助金に申請し直すことはできません。これは重複補助の問題にあたります。関連するテーマで申請するなら、「過去に納品したもの」と「本計画で新たに開発するもの」をはっきり区別し、両者の技術的な違いを説明しなければなりません。違いを説明できないなら、そのテーマは申請に向いていない可能性があります。</p>
+      </details><details>
+        <summary><span>リスクの章はどこまで率直に書くべき？</span><span class="faq-icon">+</span></summary>
+        <p>正直に書くべきですが、どのリスクにも対応策を組み合わせてください。「重大なリスクなし」と書くとそのまま減点されます。経験ある審査員なら誰でも、リスクのない計画など存在しないことを知っており、この一文は真剣に評価していないことを示すだけです。最も起こりうる3つ（例：主要人員の着任遅延、技術検証の失敗、顧客の採用スピードが想定を下回る）を選び、それぞれ影響の大きさと代替案を明確に書くことをおすすめします。</p>
+      </details></div><div>
+      <h2 id="sec-7">人材の章で行き詰まっていますか？</h2>
+      <p>計画書の提出が迫っているのに主要な人材がまだそろっていない場合は、まず市場の棚卸しをお手伝いできます。その職能の人材が市場にいるのか、相場はどのあたりか、採用までにどれくらいかかりそうかを確認します。これらの情報は計画書の人員計画と経費積算にそのまま書き込めますし、スケジュールが妥当かどうかの判断材料にもなります。この段階は無料で、事前の契約も不要です。</p>
+      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">LINEでコンサルタントに相談する</a>
+    </div>
+
+    <p>関連記事：<a href="/ja/articles/executive-hiring-guide/">幹部ポジションが半年たっても埋まらない？5つのボトルネックと解決策</a> · <a href="/ja/articles/work-with-headhunters/">台湾企業はヘッドハンターとどう組むべきか？</a> · <a href="/ja/articles/dispatch-legal-risks/">企業が派遣を使う際の法的な落とし穴</a></p>
+
+      
+<div class="cta">
+        <p>計画書は書き上げたのに、実行する人が足りない？求人の条件を教えていただければ、ヘッドハンターを使うべきか判断します。</p>
+          <a class="btn-alt" href="/ja/hiring-assessment/">まず採用形態の診断をする</a> <a class="btn-line" href="https://lin.ee/XcSWPzM">LINEでコンサルタントに相談</a>
+      </div>
+    </article>
+  </div>
+</main>
+
+
+<footer><div class="fw">德仁管理顧問有限公司 台北市内湖区康寧路三段54之7号3階</div></footer>
+
+<script>
+// 表格加水平捲動外框，避免手機橫向溢位
+document.querySelectorAll('article table').forEach(function(t){
+  var w=document.createElement('div'); w.className='tw';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
+// 閱讀進度
+var bar=document.getElementById('bar');
+function prog(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',prog,{passive:true}); prog();
+// 目錄跟隨
+var tns=[].slice.call(document.querySelectorAll('.tn'));
+var secs=tns.map(function(a){return document.getElementById(a.dataset.s)}).filter(Boolean);
+if('IntersectionObserver' in window && secs.length){
+  var cur=null;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) cur=e.target.id; });
+    tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  },{rootMargin:'-88px 0px -70% 0px'}).observe && secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===e.target.id)}); }
+      });
+    },{rootMargin:'-88px 0px -70% 0px'}).observe(s);
+  });
+}
+</script>
+
+<style>
+.s1ne-sc{position:fixed;z-index:60;left:0;right:0;bottom:0;display:flex;gap:10px;padding:10px max(14px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));background:rgba(255,255,255,.96);box-shadow:0 -6px 24px rgba(40,30,10,.12);transform:translateY(120%);transition:transform .25s ease}
+.s1ne-sc.on{transform:none}
+.s1ne-sc a{flex:1;display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:999px;font-weight:700;font-size:15px;text-decoration:none;white-space:nowrap}
+.s1ne-sc .p{background:#111827;color:#fff}
+.s1ne-sc .l{background:#fff;color:#111827;border:1.5px solid #d1d5db}
+.s1ne-sc a:focus-visible{outline:3px solid #1f2937;outline-offset:2px}
+@media (min-width:760px){.s1ne-sc{left:auto;right:24px;bottom:24px;border-radius:999px;padding:8px;box-shadow:0 8px 28px rgba(40,30,10,.18)}.s1ne-sc a{flex:none;padding:0 22px}}
+@media (prefers-reduced-motion:reduce){.s1ne-sc{transition:none}}
+body{padding-bottom:84px}
+@media (min-width:760px){body{padding-bottom:0}}
+</style>
+<div class="s1ne-sc" id="s1neSc" role="region" aria-label="迅速に動く">
+  <a class="l" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">LINEで問い合わせ</a> <a class="p" href="/ja/jobs/" data-cta="jobs_cta_click">現在の求人を見る</a>
+</div>
+<script>
+(function(){var b=document.getElementById('s1neSc');if(!b)return;
+function t(){b.classList.toggle('on',window.scrollY>380);}
+window.addEventListener('scroll',t,{passive:true});t();
+b.querySelector('.p').addEventListener('click',function(){try{gtag('event',this.getAttribute('data-cta'),{page_path:location.pathname,placement:'sticky'});}catch(e){}});})();
+</script>
+<!-- /s1ne-sticky-cta -->
+
+</body>
+</html>

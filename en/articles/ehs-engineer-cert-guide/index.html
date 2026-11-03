@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  if (!e.target.closest) return;
+  // 2026-08-06：原本只抓 lin.ee。BIM 那群的下一步是「直接應徵」不是加 LINE，
+  // 不一起記的話，等於把那條路做出來卻量不到，實驗就白做了。
+  var a = e.target.closest('a[href*="lin.ee"], a[href^="/apply"]');
+  if (!a) return;
+  var isApply = (a.getAttribute('href') || '').indexOf('/apply') === 0;
+  gtag('event', isApply ? 'apply_click' : 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60),
+    // mid＝這次新加的文章中段；沒有標的就是原本頁首／頁尾那些
+    cta_slot: a.getAttribute('data-cta') || 'legacy'
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to Get Certified as an Occupational Safety and Health Engineer, and What the Job Involves on Site | Step1ne</title>
+<meta name="description" content="What does an occupational safety and health engineer do on a construction site? How does a Class B technician certificate differ from a Class A supervisor certificate? Can you apply before getting certified? We explain using a real job opening in Huwei, Yunlin.">
+<meta name="keywords" content="occupational safety and health engineer,OSH certification,Class B OSH Management Technician,construction Class A OSH supervisor,construction site OSH,semiconductor fab OSH,OSH career change">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/en/articles/ehs-engineer-cert-guide/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Step1ne Referrals">
+<meta property="og:title" content="How do you get an occupational safety and health engineer certificate? What the job actually involves on site">
+<meta property="og:description" content="What does an occupational safety and health engineer do on a construction site? How does a Class B technician certificate differ from a Class A supervisor certificate? Can you apply before getting certified? We explain using a real job opening in Huwei, Yunlin.">
+<meta property="og:url" content="https://step1ne.com/en/articles/ehs-engineer-cert-guide/">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta name="theme-color" content="#F4F6F8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "How do you get an occupational safety and health engineer certificate? What the job actually involves on site",
+  "description": "What does an occupational safety and health engineer do on a construction site? How does a Class B technician certificate differ from a Class A supervisor certificate? Can you apply before getting certified? We explain using a real job opening in Huwei, Yunlin.",
+  "datePublished": "2026-09-23",
+  "dateModified": "2026-09-23",
+  "inLanguage": "zh-TW",
+  "author": {
+    "@type": "Organization",
+    "name": "Step1ne 德仁管理顧問有限公司",
+    "url": "https://step1ne.com/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "德仁管理顧問有限公司 (Step1ne)",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://step1ne.com/assets/step1ne-logo.png"
+    }
+  }
+}
+</script>
+
+<style>
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;
+  --wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:17px;line-height:1.95;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.35;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,select,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* 導覽 */
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+/* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
+
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
+.crumb{grid-column:1/-1;padding:22px 0 6px;font-size:13.5px;color:var(--slate-dim)}
+.crumb a{color:var(--slate)}
+.crumb a:hover{color:var(--brand-deep)}
+.crumb span{margin:0 8px;color:var(--rule)}
+
+/* 目錄軌：沿用全站 signature */
+.toc{position:sticky;top:92px;padding:8px 0 40px}
+.toc h2{font-size:13px;font-weight:700;color:var(--slate-dim);letter-spacing:.02em;margin-bottom:16px}
+.tns{position:relative;padding-left:22px}
+.tns::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.14))}
+.tn{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:14px;color:var(--slate);line-height:1.6;position:relative}
+.tn i{position:absolute;left:-22px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--rule);flex:0 0 auto}
+.tn:hover{color:var(--brand-deep)}
+.tn:hover i{border-color:var(--brand)}
+.tn.on{color:var(--ink);font-weight:700}
+.tn.on i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 4px rgba(46,169,223,.2)}
+.mtoc{display:none;margin:20px 0 0;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.mtoc summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15.5px;position:relative}
+.mtoc summary::-webkit-details-marker{display:none}
+.mtoc summary::after{content:"";position:absolute;right:20px;top:24px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.mtoc[open] summary::after{transform:rotate(-135deg)}
+.mtoc div{padding:0 18px 14px}
+.mtoc a{display:block;padding:9px 0;font-size:15px;color:var(--slate);border-top:1px solid var(--rule)}
+
+/* 文章本體 */
+article{padding:14px 0 60px;max-width:70ch}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--brand-deep);background:rgba(22,126,178,.07);border:1px solid rgba(22,126,178,.25);border-radius:5px;padding:4px 11px}
+article h1{margin-top:16px;font-size:clamp(28px,4.2vw,42px);line-height:1.28;letter-spacing:-.02em}
+.by{margin-top:18px;padding-bottom:20px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14px;color:var(--slate-dim)}
+.by a{color:var(--slate);border-bottom:1px solid var(--rule)}
+.by .d{font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+
+/* ★ Signature：直接答案 */
+.ans{margin-top:30px;background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:26px 30px}
+.ans .lab{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:10px}
+.ans p{font-size:19.5px;line-height:1.85;font-weight:500}
+.ans strong{font-weight:900}
+
+article h2{margin:52px 0 16px;font-size:25px;scroll-margin-top:92px}
+article h3{margin:34px 0 10px;font-size:19px}
+article h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-right:12px;border-radius:8px;background:var(--brand);color:#fff;font-family:var(--f-disp);font-size:17px;font-weight:700;vertical-align:2px}
+article p{margin-top:16px}
+article strong{font-weight:700}
+article a:not(.tn){color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.32)}
+article a:not(.tn):hover{border-bottom-color:var(--brand-deep)}
+article ul,article ol{margin:16px 0 0;padding-left:1.4em}
+article li{margin-top:9px}
+article table{width:100%;border-collapse:collapse;margin-top:22px;font-size:15.5px;background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+article th{text-align:left;background:var(--paper);font-weight:700;font-size:14px;color:var(--slate);padding:12px 14px;border-bottom:1px solid var(--rule)}
+article td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.75}
+article tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+article details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+article details summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+article details summary::-webkit-details-marker{display:none}
+article details summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+article details[open] summary::after{transform:rotate(-135deg)}
+article details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid var(--rule);color:var(--slate)}
+
+.foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
+.cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
+.cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
+footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+.fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.note{max-width:var(--wrap);margin:0 auto 46px;padding-inline:var(--gut)}
+.note div{background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid #B45309;border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.note b{color:#5A3D0C}
+
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .mtoc{display:block}
+}
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  body{font-size:16.5px}
+  .ans{padding:22px;border-radius:0 8px 8px 0}
+  .ans p{font-size:18px}
+  article h2{font-size:22px;margin-top:42px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+<!--i18n-hreflang-->
+<link rel="alternate" hreflang="zh-Hant" href="https://step1ne.com/articles/ehs-engineer-cert-guide/">
+<link rel="alternate" hreflang="ja" href="https://step1ne.com/ja/articles/ehs-engineer-cert-guide/">
+<link rel="alternate" hreflang="en" href="https://step1ne.com/en/articles/ehs-engineer-cert-guide/">
+<link rel="alternate" hreflang="x-default" href="https://step1ne.com/articles/ehs-engineer-cert-guide/">
+<style>.s1-lang{max-width:1100px;margin:0 auto;padding:10px 16px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.s1-lang a,.s1-lang b{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid #d9dce3;background:#fff;font-size:14px;font-weight:600;color:#4a5060;text-decoration:none}.s1-lang b{background:#23262d;border-color:#23262d;color:#fff}.s1-lang a:hover{color:#23262d;border-color:#9aa0ad}.s1-lang a:focus-visible{outline:3px solid #1880B4;outline-offset:2px}.s1-note{max-width:1100px;margin:10px auto 0;padding:0 16px}.s1-note p{margin:0;padding:12px 14px;border-radius:12px;background:#eef4fb;border:1px solid #c9dcef;color:#1d3a57;font-size:14.5px;line-height:1.7}</style>
+<!--/i18n-hreflang-->
+</head>
+
+<body>
+<div id="bar"></div>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/en/"><img src="/assets/step1ne-logo.png" alt="Step1ne"><b>Step1ne</b></a>
+    <nav class="hd-nav">
+      <a href="/en/commission-recruiting/">For Employers</a><a href="/en/jobs/">Jobs</a><a class="on" href="/en/articles/">Headhunting Insights</a><a href="/en/talent/">Step1ne Referrals</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">Ask on LINE</a>
+    <button class="hd-burger" type="button" aria-label="Open menu" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/en/commission-recruiting/">For Employers</a><a href="/en/jobs/">Jobs</a><a href="/en/articles/">Articles</a><a href="/en/talent/">Step1ne Referrals</a> <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">Contact on LINE</a>
+  </div>
+</header>
+<!--i18n-switch--><nav class="s1-lang" aria-label="Change language"><a href="/articles/ehs-engineer-cert-guide/" hreflang="zh-Hant" lang="zh-Hant">中文</a><a href="/ja/articles/ehs-engineer-cert-guide/" hreflang="ja" lang="ja">日本語</a><b lang="en" aria-current="true">English</b></nav><!--/i18n-switch-->
+
+
+<main class="shell">
+  <nav class="crumb" aria-label="Breadcrumb"><a href="/en/">Home</a><span>/</span><a href="/en/articles/">Recruiting Insights</a><span>/</span>How to Get Certified as an Occupational Safety and Health Engineer, and What the Job Involves on Site</nav>
+
+  <aside class="toc" aria-label="Contents">
+    <h2>This article has 7 sections</h2>
+    <div class="tns"><a class="tn" href="#sec-1" data-s="sec-1"><i></i><span>What does an occupational safety and health engineer actually do on a construction site?</span></a> <a class="tn" href="#sec-2" data-s="sec-2"><i></i><span>Are an "OSH administrator" and an "OSH supervisor" the same thing?</span></a> <a class="tn" href="#sec-3" data-s="sec-3"><i></i><span>How do you get the Class B OSH Administrator certification?</span></a> <a class="tn" href="#sec-4" data-s="sec-4"><i></i><span>What does the Class A OSH Supervisor training for the construction industry cover?</span></a> <a class="tn" href="#sec-5" data-s="sec-5"><i></i><span>Without a certificate, can I apply first and get certified later?</span></a> <a class="tn" href="#sec-6" data-s="sec-6"><i></i><span>How does pay for OSH engineers on high-tech fab projects differ from typical site jobs?</span></a> <a class="tn" href="#sec-7" data-s="sec-7"><i></i><span>FAQ</span></a></div>
+  </aside>
+
+  <div>
+    <details class="mtoc"><summary>Contents (7 sections)</summary><div><a href="#sec-1">What does an occupational safety and health engineer actually do on a construction site?</a> <a href="#sec-2">Are an "OSH Administrator" and an "OSH Supervisor" the same thing?</a> <a href="#sec-3">How do you take the Class B OSH Administrator exam?</a> <a href="#sec-4">What does Class A OSH Supervisor training for the construction industry cover?</a> <a href="#sec-5">Without a certificate, can you apply first and take the exam later?</a> <a href="#sec-6">How does pay for OSH engineers on high-tech fab projects differ from typical site roles?</a> <a href="#sec-7">FAQ</a></div></details>
+    <article>
+      <span class="tag">Job Seeker Guide · Certifications</span>
+      <h1>How do you get an occupational safety and health engineer certificate? What the job actually involves on site</h1>
+      <div class="by">
+        <span>By: <a href="/en/about/">Step1ne Executive Search Consultants</a></span> <time class="d" datetime="2026-09-23">Published 2026-09-23</time>
+      </div>
+
+      <div class="ans"><div class="lab">Short answer</div><p>On site, an occupational safety and health engineer's core job is risk management, not paperwork: running daily toolbox meetings, reviewing contractors' site-entry permits, patrolling the site and managing contractors, and making quick judgment calls and reporting to a supervisor when something goes wrong. On the certification side, the basic threshold is the Class B Occupational Safety and Health Management Technician certificate; workplaces above a certain headcount must also appoint a Class A Occupational Safety and Health Supervisor. These are two separate qualifications and one cannot substitute for the other. In practice, though, certificates are usually a plus rather than a hard requirement when you apply; employers care more about whether you can accept on-site assignments. For new high-tech fab construction projects in places like Huwei, Yunlin (Taiwan), starting pay has risen to NT$50,000–60,000 a month, well above typical construction-site jobs.</p></div>
+
+<h2 id="sec-1">What does an occupational safety and health engineer actually do on site?</h2>
+<p>Going by the title alone, it's easy to assume this is an office job writing reports. In reality, frontline occupational safety and health engineers spend most of the day on the construction site, mainly doing the following:</p>
+<ul>
+<li>Run the daily "toolbox meeting," reviewing the day's work hazards and precautions with site crews before work begins</li>
+<li>Review contractors' work permits and site-entry permits to ensure every subcontractor team entering the site meets the rules</li>
+<li>Prepare occupational safety and health forms and keep records of patrol and audit results</li>
+<li>Conduct site safety and health patrols and manage contractors entering the site</li>
+<li>Conduct site surveys and handle tasks assigned by supervisors in line with company project schedules</li>
+</ul>
+<p>Take a new high-tech fab project we're working on in Huwei, Yunlin: the engineering department has 10 people, but only 1 safety position. That means this role has to handle occupational safety and health for the entire site on its own, not as part of a team, and hiring managers more often judge candidates on communication, coordination, and on-site judgment than on the certificates themselves.</p>
+
+<h2 id="sec-2">Are an "Occupational Safety and Health Administrator" and a "Supervisor" the same thing?</h2>
+<p>No. This is where job seekers most often get confused. "Occupational Safety and Health Administrator" and "Occupational Safety and Health Supervisor" are two different qualification systems, used in different situations:</p>
+<ul>
+<li><strong>Administrator</strong>: corresponds to the "Level B Occupational Safety and Health Management Technician" certificate, part of the skills certification system</li>
+<li><strong>OSH Supervisor</strong>: Comes in Classes A, B, C, and D. Which one is required depends on the employer's workforce size and industry. It belongs to the training system, not the skills certification system</li>
+</ul>
+<p>Under current rules, a completion certificate for Occupational Safety and Health Administrator cannot be used directly to serve as a Class A, B, or C Supervisor for the construction industry; each requires separate training or the corresponding qualification. This means that if one person has to carry both the "administrator" and "supervisor" responsibilities, they usually need both certificates and can't use one for both. For the actual rules, refer to the latest announcements from the Occupational Safety and Health Administration of Taiwan's Ministry of Labor; these classifications have changed before and may change again.</p>
+
+<h2 id="sec-3">How do you get the Class B OSH Administrator certification?</h2>
+<p>The Class B Occupational Safety and Health Management Technician is a skills certification with two stages: a written exam and a practical exam. There are several common routes to eligibility, such as completing designated occupational safety and health training and obtaining a certificate of completion, or having a degree in a related field; in practice, your eligibility route depends on your own background.</p>
+<p>Because eligibility, exam subjects, and exam schedules change from time to time, we recommend checking announcements from the Skills Evaluation Center of the Workforce Development Agency under Taiwan's Ministry of Labor directly, or confirming with a training provider which eligibility category you fall under before registering. Don't rely only on old information online.</p>
+
+<h2 id="sec-4">What does training for the Class A Occupational Safety and Health Supervisor (construction) certificate cover?</h2>
+<p>The Class A supervisor credential falls under the training system. Public information indicates about 42 hours of training, covering OSH regulations, an introduction to construction OSH management systems, construction risk assessment, collapse hazard prevention in practice, fall hazard prevention in practice, and safety management of construction machinery — each mapped to high-risk situations that really happen on site, not pure theory.</p>
+<p>Whether a Class A supervisor is required depends on the workplace's headcount. A common threshold in the published rules is that a Class A supervisor is required once headcount reaches a certain size (for example, 100 or more employees), while smaller workplaces need Class B or Class C. This training is usually arranged by the employer for current staff; it isn't something job seekers must pass before they can apply. We'll expand on this in the next section.</p>
+
+<h2 id="sec-5">Without a certification, can I apply first and get certified later?</h2>
+<p>Yes, and given the actual requirements of this Huwei, Yunlin opening, the answer is even clearer. The listing puts "Class B Occupational Safety and Health Administrator, Construction Class A (or General Industry) Occupational Safety and Health Supervisor, and Class B Occupational Safety and Health Management Technician" under <strong>preferred qualifications</strong>, stating that "candidates with the above certificates will receive better pay." They are not a prerequisite for applying.</p>
+<p>What's actually listed as required is this:</p>
+<ul>
+<li>Associate degree or above; graduates in occupational safety and health preferred ("preferred," not required)</li>
+<li>Able to communicate and coordinate with internal teams and subcontractors; a team player</li>
+<li>Able to relocate to the company's current project sites (currently Huwei, Yunlin)</li>
+<li>Holds a standard heavy motorcycle license for daily commuting</li>
+</ul>
+<p>In other words, companies would rather first find people willing to work on site and able to communicate and coordinate, then keep them on and get them certified through “full subsidies for certification and training,” than lock the door with “certification required before interview.” This matches the logic of other construction openings that welcome career changers from other majors. If you're not yet familiar with the overall entry path, start with <a href="/en/articles/how-to-enter-construction-industry/">How to get into the construction industry: a complete guide for newcomers from other majors</a>.</p>
+
+<h2 id="sec-6">How does pay for OSH engineers on high-tech fab projects differ from typical site roles?</h2>
+<p>Semiconductor and high-tech fabs have been expanding rapidly in recent years, and demand for on-site occupational safety and health staff has risen with them, which shows in the pay structure. Taking this role as an example:</p>
+<ul>
+<li>NT$50,000–60,000 a month (set based on past experience, professional skills, and interview performance, with performance-based raises after that)</li>
+<li>Pay structure includes a variable base salary, a NT$3,000 meal allowance, and a NT$2,500 safety allowance, plus a supervisory allowance for management roles</li>
+<li>Staff stationed away from home get employee dormitories (usually near the plant), a monthly trip-home allowance, and a fuel allowance for project assignments</li>
+<li>Full subsidy for certifications and training, with encouragement to earn the relevant certificates while employed</li>
+<li>Fixed hours 08:30–17:30, two days off a week; the company says “almost no overtime”</li>
+</ul>
+<p>"Almost no overtime" differs from the common impression that site jobs mean "constant overtime." Such differences usually come from how the project is scheduled; we recommend confirming the actual situation directly with the hiring manager in the interview rather than treating the job page description as a guarantee.</p>
+<p>If you want to work in site safety management on new high-tech plant construction, this occupational safety and health engineer opening in Huwei, Yunlin, Taiwan is still recruiting.</p>
+<p><a href="/en/jobs/ehs-engineer-yunlin/">View the occupational safety and health engineer opening →</a></p>
+
+      <h2 id="sec-7">FAQ</h2>
+      <div>
+<details><summary><span>Can I apply for these roles without an occupational safety and health degree?</span><span class="faq-icon">+</span></summary><p>Yes. This role in Huwei, Yunlin lists "junior college or above in an occupational safety and health field" as a plus, not a hard requirement. The actual requirements are communication and coordination skills, willingness to accept site assignments, and a regular heavy motorcycle license; certificates such as the Level B occupational safety and health technician certificate earn a higher salary but aren't a prerequisite for applying.</p></details>
+<details><summary><span>Can the OSH Administrator and OSH Supervisor certificates substitute for each other?</span><span class="faq-icon">+</span></summary><p>No. Under Taiwan's current rules, an occupational safety and health administrator training certificate does not qualify you to serve concurrently as a Class A, B or C construction safety supervisor. They are separate qualification systems, so you need to take the respective training or obtain the matching qualification. For the exact rules, refer to the latest announcements from the Occupational Safety and Health Administration of Taiwan's Ministry of Labor.</p></details>
+<details><summary><span>What does the Class B Occupational Safety and Health Administrator exam cover?</span><span class="faq-icon">+</span></summary><p>It's a type of skills certification with a written and a practical stage. There are several routes to eligibility, such as completing designated occupational safety and health training and obtaining a completion certificate, or holding a degree in a related field. For detailed eligibility, exam subjects, and schedules, please refer to announcements from the Skills Evaluation Center of the Workforce Development Agency, Taiwan Ministry of Labor; these rules are revised from time to time.</p></details>
+<details><summary><span>Does every construction site need a Class A occupational safety and health supervisor?</span><span class="faq-icon">+</span></summary><p>Not every site requires one — it depends on the size of the employer's workforce. A common threshold in published rules is that once a business reaches a certain headcount (e.g., 100 or more employees), it must appoint a Class A supervisor, while smaller businesses correspond to Class B or C. For the actual standards that apply, refer to the latest version of Taiwan's Occupational Safety and Health Management Regulations.</p></details>
+<details><summary><span>These jobs often require relocating to another city or county. What about my family?</span><span class="faq-icon">+</span></summary><p>Take the job in Huwei, Yunlin as an example: the company provides employee dormitories (usually not far from the plant) for staff relocating from other cities and counties, plus a monthly allowance for trips home and a fuel allowance for project assignments. The aim is to lower the cost of living while stationed away from home, and benefits like these are common in project-based jobs at high-tech plants.</p></details>
+<details><summary><span>How much time and money does certification take?</span><span class="faq-icon">+</span></summary><p>This varies by training provider, class, and your individual eligibility. Check the latest fees and hours directly with the Skills Evaluation Center of Taiwan's Workforce Development Agency (Ministry of Labor) or the training provider you plan to enroll with, and don't rely on figures from a single article as your only source.</p></details>
+      </div>
+
+      <div class="cta"><p>Interested in this role, or want to learn more first?</p><a class="btn-alt" href="/en/jobs/ehs-engineer-yunlin/">View job details</a></div>
+    </article>
+  </div>
+</main>
+
+
+<footer><div class="fw">德仁管理顧問有限公司, 3F, No. 54-7, Sec. 3, Kangning Rd., Neihu Dist., Taipei City</div></footer>
+
+<script>
+// 表格加水平捲動外框，避免手機橫向溢位
+document.querySelectorAll('article table').forEach(function(t){
+  var w=document.createElement('div'); w.className='tw';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
+// 閱讀進度
+var bar=document.getElementById('bar');
+function prog(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',prog,{passive:true}); prog();
+// 目錄跟隨
+var tns=[].slice.call(document.querySelectorAll('.tn'));
+var secs=tns.map(function(a){return document.getElementById(a.dataset.s)}).filter(Boolean);
+if('IntersectionObserver' in window && secs.length){
+  var cur=null;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) cur=e.target.id; });
+    tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  },{rootMargin:'-88px 0px -70% 0px'}).observe && secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===e.target.id)}); }
+      });
+    },{rootMargin:'-88px 0px -70% 0px'}).observe(s);
+  });
+}
+</script>
+
+<style>
+.s1ne-sc{position:fixed;z-index:60;left:0;right:0;bottom:0;display:flex;gap:10px;padding:10px max(14px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));background:rgba(255,255,255,.96);box-shadow:0 -6px 24px rgba(40,30,10,.12);transform:translateY(120%);transition:transform .25s ease}
+.s1ne-sc.on{transform:none}
+.s1ne-sc a{flex:1;display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:999px;font-weight:700;font-size:15px;text-decoration:none;white-space:nowrap}
+.s1ne-sc .p{background:#111827;color:#fff}
+.s1ne-sc .l{background:#fff;color:#111827;border:1.5px solid #d1d5db}
+.s1ne-sc a:focus-visible{outline:3px solid #1f2937;outline-offset:2px}
+@media (min-width:760px){.s1ne-sc{left:auto;right:24px;bottom:24px;border-radius:999px;padding:8px;box-shadow:0 8px 28px rgba(40,30,10,.18)}.s1ne-sc a{flex:none;padding:0 22px}}
+@media (prefers-reduced-motion:reduce){.s1ne-sc{transition:none}}
+body{padding-bottom:84px}
+@media (min-width:760px){body{padding-bottom:0}}
+</style>
+<div class="s1ne-sc" id="s1neSc" role="region" aria-label="Fast action">
+  <a class="l" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">Ask on LINE</a> <a class="p" href="/en/jobs/" data-cta="jobs_cta_click">See current openings</a>
+</div>
+<script>
+(function(){var b=document.getElementById('s1neSc');if(!b)return;
+function t(){b.classList.toggle('on',window.scrollY>380);}
+window.addEventListener('scroll',t,{passive:true});t();
+b.querySelector('.p').addEventListener('click',function(){try{gtag('event',this.getAttribute('data-cta'),{page_path:location.pathname,placement:'sticky'});}catch(e){}});})();
+</script>
+<!-- /s1ne-sticky-cta -->
+
+</body>
+</html>

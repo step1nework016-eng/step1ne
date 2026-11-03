@@ -295,7 +295,7 @@ def check_numbers(zh, out, lang):
         v = a * 10000 + (int(b) * 1000 if len(b) == 1 else int(b))
         if str(v) in have:
             combo_ok.update({m.group(1), b})
-    toks = list(re.finditer(r'(\d[\d,]*(?:\.\d+)?)\s*(萬|K|成|月)?', zt))
+    toks = list(re.finditer(r'(\d[\d,]*(?:\.\d+)?)\s*(萬|億|K|成|月)?', zt))
     for i, m in enumerate(toks):
         n = m.group(1).replace(',', '')
         unit = m.group(2)
@@ -308,6 +308,8 @@ def check_numbers(zh, out, lang):
         except ValueError:
             return n
         if unit == '萬' and (_fmt(v * 10000) in have or _fmt(v / 100) in have):
+            continue
+        if unit == '億' and (_fmt(v * 100000000) in have or _fmt(v * 100) in have or _fmt(v / 10) in have):
             continue
         if unit == 'K' and _fmt(v * 1000) in have:
             continue
@@ -330,8 +332,20 @@ def page_url(rel, lang=None):
     return ('/%s%s' % (lang, p)) if lang else p
 
 
+def article_pages():
+    """第 3 批（11/3）：獵才專欄全部文章＋列表頁。中文設成 noindex 的（抖音／直播 4 篇）不做。
+    新文章由 article_publish_tick.py 發布時呼叫 i18n_sync，自動多出日英版。"""
+    out = ['articles/index.html']
+    for p in sorted(glob.glob(os.path.join(ROOT, 'articles', '*', 'index.html'))):
+        s = open(p, encoding='utf-8').read()
+        if re.search(r'<meta name="robots" content="noindex', s):
+            continue
+        out.append(os.path.relpath(p, ROOT))
+    return out
+
+
 def all_pages():
-    return PAGES + ['jobs/%s/index.html' % s for s in job_slugs()]
+    return PAGES + ['jobs/%s/index.html' % s for s in job_slugs()] + article_pages()
 
 
 def has_version(path, lang):
@@ -604,6 +618,11 @@ def run(mode, arg=None):
         json.dump(sorted(missing), open(os.path.join(arg, 'missing.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
         print('缺翻譯 %d 段 → %s/missing.json' % (len(missing), arg))
         return 0
+    if mode == 'auto' and len(missing) > 200:
+        # 一次缺這麼多＝整批新頁面還沒翻（例如新加一整類頁面），不要在上線途中叫 claude -p 翻幾千段（Mac 會撐不住）。
+        # 這種要另外分批翻：--dump 切份給譯者，翻好 --load。這次日英版維持原樣，中文照常上線。
+        print('⚠️ 缺翻譯 %d 段，太多不自動翻（請用 --dump／--load 分批翻）。日英版這次不更新。' % len(missing))
+        return 1
     if mode == 'auto' and missing:
         print('缺翻譯 %d 段，叫 claude -p 翻…' % len(missing))
         auto_translate(missing, tm)

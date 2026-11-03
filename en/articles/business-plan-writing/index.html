@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href*="lin.ee"]');
+  if (!a) return;
+  gtag('event', 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60)
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to write a business plan: structure, examples, and the section most likely to lose points | Step1ne</title>
+<meta name="description" content="A business plan&#x27;s structure is actually quite standard; what really sets plans apart is the “team and staffing” chapter, which is also the one most people write carelessly. This article gives the full structure and explains, from the perspective of reviewers and hiring, how to write the staffing plan.">
+<meta name="keywords" content="business plan,business plan example,startup plan,SBIR proposal,government grant proposal,staffing plan,how to write team introduction">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/en/articles/business-plan-writing/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Step1ne Referrals">
+<meta property="og:title" content="How to Write a Business Plan: Structure, Examples, and the Section That Loses the Most Points">
+<meta property="og:description" content="The structure is standard; what sets plans apart is the team and people section, which is also the one most people write carelessly.">
+<meta property="og:url" content="https://step1ne.com/en/articles/business-plan-writing/">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta name="theme-color" content="#F4F6F8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "How to Write a Business Plan: Structure, Examples, and the Section That Loses the Most Points",
+  "description": "Covers the eight standard sections of a business plan and what to focus on in each, then digs into the “team and staffing” chapter from the perspective of reviewers and real-world hiring: common mistakes, how reviewers evaluate it, and how to write it honestly when your team isn't complete yet. It also explains how a business plan differs from a government grant proposal.",
+  "datePublished": "2026-07-27",
+  "dateModified": "2026-07-27",
+  "inLanguage": "zh-TW",
+  "author": {
+    "@type": "Organization",
+    "name": "Step1ne 德仁管理顧問有限公司",
+    "url": "https://step1ne.com/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "德仁管理顧問有限公司 (Step1ne)",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://step1ne.com/assets/step1ne-logo.png"
+    }
+  }
+}
+</script>
+
+<style>
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;
+  --wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:17px;line-height:1.95;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.35;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,select,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* 導覽 */
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+/* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
+
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
+.crumb{grid-column:1/-1;padding:22px 0 6px;font-size:13.5px;color:var(--slate-dim)}
+.crumb a{color:var(--slate)}
+.crumb a:hover{color:var(--brand-deep)}
+.crumb span{margin:0 8px;color:var(--rule)}
+
+/* 目錄軌：沿用全站 signature */
+.toc{position:sticky;top:92px;padding:8px 0 40px}
+.toc h2{font-size:13px;font-weight:700;color:var(--slate-dim);letter-spacing:.02em;margin-bottom:16px}
+.tns{position:relative;padding-left:22px}
+.tns::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.14))}
+.tn{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:14px;color:var(--slate);line-height:1.6;position:relative}
+.tn i{position:absolute;left:-22px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--rule);flex:0 0 auto}
+.tn:hover{color:var(--brand-deep)}
+.tn:hover i{border-color:var(--brand)}
+.tn.on{color:var(--ink);font-weight:700}
+.tn.on i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 4px rgba(46,169,223,.2)}
+.mtoc{display:none;margin:20px 0 0;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.mtoc summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15.5px;position:relative}
+.mtoc summary::-webkit-details-marker{display:none}
+.mtoc summary::after{content:"";position:absolute;right:20px;top:24px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.mtoc[open] summary::after{transform:rotate(-135deg)}
+.mtoc div{padding:0 18px 14px}
+.mtoc a{display:block;padding:9px 0;font-size:15px;color:var(--slate);border-top:1px solid var(--rule)}
+
+/* 文章本體 */
+article{padding:14px 0 60px;max-width:70ch}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--brand-deep);background:rgba(22,126,178,.07);border:1px solid rgba(22,126,178,.25);border-radius:5px;padding:4px 11px}
+article h1{margin-top:16px;font-size:clamp(28px,4.2vw,42px);line-height:1.28;letter-spacing:-.02em}
+.by{margin-top:18px;padding-bottom:20px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14px;color:var(--slate-dim)}
+.by a{color:var(--slate);border-bottom:1px solid var(--rule)}
+.by .d{font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+
+/* ★ Signature：直接答案 */
+.ans{margin-top:30px;background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:26px 30px}
+.ans .lab{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:10px}
+.ans p{font-size:19.5px;line-height:1.85;font-weight:500}
+.ans strong{font-weight:900}
+
+article h2{margin:52px 0 16px;font-size:25px;scroll-margin-top:92px}
+article h3{margin:34px 0 10px;font-size:19px}
+article h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-right:12px;border-radius:8px;background:var(--brand);color:#fff;font-family:var(--f-disp);font-size:17px;font-weight:700;vertical-align:2px}
+article p{margin-top:16px}
+article strong{font-weight:700}
+article a:not(.tn){color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.32)}
+article a:not(.tn):hover{border-bottom-color:var(--brand-deep)}
+article ul,article ol{margin:16px 0 0;padding-left:1.4em}
+article li{margin-top:9px}
+article table{width:100%;border-collapse:collapse;margin-top:22px;font-size:15.5px;background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+article th{text-align:left;background:var(--paper);font-weight:700;font-size:14px;color:var(--slate);padding:12px 14px;border-bottom:1px solid var(--rule)}
+article td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.75}
+article tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+article details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+article details summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+article details summary::-webkit-details-marker{display:none}
+article details summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+article details[open] summary::after{transform:rotate(-135deg)}
+article details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid var(--rule);color:var(--slate)}
+
+.foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
+.cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
+.cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
+footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+.fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.note{max-width:var(--wrap);margin:0 auto 46px;padding-inline:var(--gut)}
+.note div{background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid #B45309;border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.note b{color:#5A3D0C}
+
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .mtoc{display:block}
+}
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  body{font-size:16.5px}
+  .ans{padding:22px;border-radius:0 8px 8px 0}
+  .ans p{font-size:18px}
+  article h2{font-size:22px;margin-top:42px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+<!--i18n-hreflang-->
+<link rel="alternate" hreflang="zh-Hant" href="https://step1ne.com/articles/business-plan-writing/">
+<link rel="alternate" hreflang="ja" href="https://step1ne.com/ja/articles/business-plan-writing/">
+<link rel="alternate" hreflang="en" href="https://step1ne.com/en/articles/business-plan-writing/">
+<link rel="alternate" hreflang="x-default" href="https://step1ne.com/articles/business-plan-writing/">
+<style>.s1-lang{max-width:1100px;margin:0 auto;padding:10px 16px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.s1-lang a,.s1-lang b{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid #d9dce3;background:#fff;font-size:14px;font-weight:600;color:#4a5060;text-decoration:none}.s1-lang b{background:#23262d;border-color:#23262d;color:#fff}.s1-lang a:hover{color:#23262d;border-color:#9aa0ad}.s1-lang a:focus-visible{outline:3px solid #1880B4;outline-offset:2px}.s1-note{max-width:1100px;margin:10px auto 0;padding:0 16px}.s1-note p{margin:0;padding:12px 14px;border-radius:12px;background:#eef4fb;border:1px solid #c9dcef;color:#1d3a57;font-size:14.5px;line-height:1.7}</style>
+<!--/i18n-hreflang-->
+</head>
+
+<body>
+<div id="bar"></div>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/en/"><img src="/assets/step1ne-logo.png" alt="Step1ne"><b>Step1ne</b></a>
+    <nav class="hd-nav">
+      <a href="/en/commission-recruiting/">For Employers</a><a href="/en/jobs/">Jobs</a><a class="on" href="/en/articles/">Headhunting Insights</a><a href="/en/talent/">Step1ne Referrals</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">Ask on LINE</a>
+    <button class="hd-burger" type="button" aria-label="Open menu" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/en/commission-recruiting/">For Employers</a><a href="/en/jobs/">Jobs</a><a href="/en/articles/">Articles</a><a href="/en/talent/">Step1ne Referrals</a> <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">Contact on LINE</a>
+  </div>
+</header>
+<!--i18n-switch--><nav class="s1-lang" aria-label="Change language"><a href="/articles/business-plan-writing/" hreflang="zh-Hant" lang="zh-Hant">中文</a><a href="/ja/articles/business-plan-writing/" hreflang="ja" lang="ja">日本語</a><b lang="en" aria-current="true">English</b></nav><!--/i18n-switch-->
+
+
+<main class="shell">
+  <nav class="crumb" aria-label="Breadcrumb"><a href="/en/">Home</a><span>/</span><a href="/en/articles/">Recruiting Insights</a><span>/</span>How to write a business plan: structure, examples and the chapter that loses the most points</nav>
+
+  <aside class="toc" aria-label="Contents">
+    <h2>This article has 7 sections</h2>
+    <div class="tns"><a class="tn" href="#sec-1" data-s="sec-1"><i></i><span>The structure first: eight sections and what each needs</span></a> <a class="tn" href="#sec-2" data-s="sec-2"><i></i><span>Why the "team" section loses the most points</span></a> <a class="tn" href="#sec-3" data-s="sec-3"><i></i><span>What reviewers and investors look for in the people section</span></a> <a class="tn" href="#sec-4" data-s="sec-4"><i></i><span>Business plan vs. government grant proposal: not the same document</span></a> <a class="tn" href="#sec-5" data-s="sec-5"><i></i><span>Three things to do before you start writing</span></a> <a class="tn" href="#sec-6" data-s="sec-6"><i></i><span>FAQ</span></a> <a class="tn" href="#sec-7" data-s="sec-7"><i></i><span>Stuck on the people section?</span></a></div>
+  </aside>
+
+  <div>
+    <details class="mtoc"><summary>Contents (7 sections)</summary><div><a href="#sec-1">The structure first: eight sections and what matters in each</a> <a href="#sec-2">Why does the "team" section lose the most points?</a> <a href="#sec-3">What reviewers and investors look for in the people section</a> <a href="#sec-4">Business plan vs. government grant proposal: not the same document</a> <a href="#sec-5">Three things to do before you start writing</a> <a href="#sec-6">FAQ</a> <a href="#sec-7">Stuck on the people section?</a></div></details>
+    <article>
+      <span class="tag">Employer Guide · A Headhunter's View</span>
+      <h1>How to write a business plan: structure, examples and the chapter that loses the most points</h1>
+      <div class="by">
+        <span>By: <a href="/en/about/">Step1ne Executive Search Consultant Team</a></span> <time class="d" datetime="2026-07-27">Published 2026-07-27</time> <span class="d">About 8 min</span>
+      </div>
+
+      <div class="ans">
+        <div class="lab">Short answer</div>
+        <p>The structure of a business plan is actually quite standard: executive summary, market, product, operations, <strong>team</strong>, financials, timeline, and risks — eight sections, with plenty of templates online. What really sets plans apart is <strong>the “team and staffing” chapter, which is exactly the one most people write carelessly</strong>. Take Taiwan's government grant programs: reviewers explicitly list “the reasonableness of staffing and budget allocation” as a key criterion, and they look not only at degrees but also at the actual experience of R&D staff. You can copy the structure; you can't copy the staffing chapter.</p>
+      </div>
+
+      <h2 id="sec-1">Start with the structure: eight sections and what matters in each</h2>
+    <p>Whether it's going to investors, a bank or a government grant program, the skeleton is much the same. What differs is <strong>who is reading it and which part they care about most</strong> (covered separately below).</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Section</th><th>Questions to answer</th><th>Most common questions</th></tr></thead>
+        <tbody>
+          <tr><td data-label="區塊"><strong>1. Executive summary</strong></td><td data-label="要回答">One page: what you do, who it's for, why you, and how much you need</td><td data-label="常見問題">It reads like a company profile, and after reading it nobody knows what you plan to do</td></tr>
+          <tr><td data-label="區塊"><strong>2. Problem and market</strong></td><td data-label="要回答">Who has what pain point, how big the market is, and how it's solved today</td><td data-label="常見問題">Citing the global market size when you can't actually capture that share</td></tr>
+          <tr><td data-label="區塊"><strong>3. Products or Services</strong></td><td data-label="要回答">What you do, how it differs from existing approaches, and what stage you're at</td><td data-label="常見問題">Describing only what you did, not what sets you apart, so it's unclear why it has to be you</td></tr>
+          <tr><td data-label="區塊"><strong>4. Operations and business model</strong></td><td data-label="要回答">How you sell, how you get paid, cost structure, key partners</td><td data-label="常見問題">Avoids talking about pricing, or the pricing has no cost basis</td></tr>
+          <tr><td data-label="區塊"><strong>5. Team and staffing</strong></td><td data-label="要回答"><strong>Who will do it, why they can pull it off, and how you'll fill the gaps</strong></td><td data-label="常見問題"><strong>Listing degrees and job titles doesn't tell you who can actually deliver</strong></td></tr>
+          <tr><td data-label="區塊"><strong>6. Financial planning</strong></td><td data-label="要回答">Revenue and expense projections, use of funds, and when you'll break even</td><td data-label="常見問題">Revenue curve rising all the way, with no assumptions explained</td></tr>
+          <tr><td data-label="區塊"><strong>7. Timeline and milestones</strong></td><td data-label="要回答">How many phases, what's delivered in each, and how it's accepted</td><td data-label="常見問題">The timeline is so packed it's obviously not achievable</td></tr>
+          <tr><td data-label="區塊"><strong>8. Risks and Mitigation</strong></td><td data-label="要回答">The three things most likely to fail, and how you plan to handle them</td><td data-label="常見問題">Writing “no major risks” — this line alone costs you points</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>Of the eight sections, sections 1, 2, 3, and 6 have plenty of public templates; follow them and you'll reach a basic standard. <strong>Section 5 can't be saved by a template</strong>, because it describes who you actually have, who you're missing, and how you plan to fill the gap.</p>
+
+    <h2 id="sec-2">Why is the "team" section the easiest place to lose points?</h2>
+    <p>Because it's the only <strong>section that writing skill can't cover up</strong>.</p>
+    <p>A well-written market analysis is hard for readers to fact-check; a slightly optimistic financial forecast is still just a forecast. But the team section describes specific people, specific experience, and specific time allocations: <strong>one question and it's obvious whether they're real</strong>.</p>
+    <p>And the logic of reviewers and investors is simple: however good the plan, if the people executing it can't deliver, it's worth nothing. So they usually spend far more time on this section than applicants assume.</p>
+
+    <div class="insight">
+      <div class="label">A headhunter's view</div>
+      <p>Companies often ask us one question: <strong>"Our proposal is due and we haven't found the people yet — how do we write this section?"</strong></p>
+      <p>The issue itself isn't the problem—most companies' teams really are incomplete when they apply; that's the norm, not the exception. What goes wrong is how people handle it: many choose to <strong>list people who haven't joined yet as if they're already on board</strong>, or count one person's hours in three different projects.</p>
+      <p>Both of these approaches are far riskier than “honestly saying you're short-staffed.” The former causes trouble at the reimbursement or audit stage; the latter gets caught on the spot once reviewers lay several proposals side by side.</p>
+      <p>An honest version is actually more persuasive: <strong>“This project needs to add 2 staff with X capabilities, expected to be in place within 2 months of approval. We have engaged an executive search consultant to begin the search; the market salary band is A to B.”</strong> That one passage covers the gap, the timeline, feasibility, and the cost basis—far more complete than forcing a team together on paper.</p>
+    </div>
+
+    <h2 id="sec-3">What do reviewers and investors look for in the team section?</h2>
+    <p>Boiled down to four points, in order of importance:</p>
+
+    <h3>1. Have these people really done similar work before?</h3>
+    <p>What counts is <strong>experience</strong>, not just education. Between someone with a master's degree but no relevant project work and someone with an ordinary degree who has actually delivered three times, the latter scores higher here.</p>
+    <p>Don't just list "X University, Department of X, currently X position." Write <strong>"led Project X, responsible for Y, with result Z"</strong>, spelling out how the person connects to this plan.</p>
+
+    <h3>2. Is the workload allocation reasonable?</h3>
+    <p>This is the item most often flagged. If someone is committed at 80% of their working hours in the proposal, the question is: who does their original job? When the company has two projects running at once, is that person being counted twice?</p>
+    <p><strong>Anyone whose total time allocation exceeds 100% drags down the credibility of the entire plan</strong>—because it suggests the other numbers may have been estimated the same way.</p>
+
+    <h3>3. Can you actually fill the missing roles?</h3>
+    <p>No company writes its plan only after its team is complete. The point isn't whether you're missing people, but <strong>whether you know what you're missing and have a way to fill the gap</strong>.</p>
+    <p>Applicants who can clearly explain "what skills are missing, how many such people are on the market, roughly what salary band they command, and how long it'll take to bring them on board" come across as having done their homework. Conversely, a proposal that never mentions hiring makes reviewers suspect the execution plan is only half thought through.</p>
+
+    <h3>4. Are personnel costs budgeted correctly?</h3>
+    <p>Budgeting salaries too low is a common problem. It doesn't save money; it <strong>makes reviewers suspect you don't understand market rates</strong>, and then doubt your other cost estimates too. If you budget high, explain why (scarce skills, overseas assignment, specific qualifications required).</p>
+    <p>The sensible approach is to cite a verifiable market benchmark and explain why your number sits where it does.</p>
+
+    <div class="warn">
+      <div class="label">Three ways of writing that cost you points outright</div>
+      <p><strong>1. Listing advisors or outside collaborators as full-time team members.</strong> You can list them as advisors, but state their role and level of involvement and don't mix them into the core team.</p>
+      <p><strong>2. The same person's hours are double-counted across multiple proposals.</strong> This is the item most often flagged in reviews.</p>
+      <p><strong>3. "The company will hire additional staff as needed."</strong> This sentence says nothing, and it will be read as a sign you haven't seriously thought about execution.</p>
+    </div>
+
+    <h2 id="sec-4">Business Plan vs. Government Grant Proposal: Not the Same Document</h2>
+    <p>Many people send the same résumé everywhere. That's understandable for efficiency, but you should know where the differences lie:</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Aspect</th><th>Investor version</th><th>Government-subsidized version</th></tr></thead>
+        <tbody>
+          <tr><td data-label="面向"><strong>Core issue</strong></td><td data-label="投資人版">How big can this business grow?</td><td data-label="政府補助版">Can this plan actually be delivered?</td></tr>
+          <tr><td data-label="面向"><strong>The heaviest section</strong></td><td data-label="投資人版">Market size and business model</td><td data-label="政府補助版">Technical innovation, implementation approach, timeline</td></tr>
+          <tr><td data-label="面向"><strong>Attitude toward risk</strong></td><td data-label="投資人版">Willing to accept high risk for high reward</td><td data-label="政府補助版">You need to show you can control risk</td></tr>
+          <tr><td data-label="面向"><strong>The staffing section</strong></td><td data-label="投資人版">Look at the founding team's capability and chemistry</td><td data-label="政府補助版"><strong>They check whether the budget is reasonable, line by line</strong></td></tr>
+          <tr><td data-label="面向"><strong>Finance</strong></td><td data-label="投資人版">Growth curve and exit outlook</td><td data-label="政府補助版">Breakdown of fund use and ability to self-finance</td></tr>
+          <tr><td data-label="面向"><strong>Format</strong></td><td data-label="投資人版">Free format, with an emphasis on readability</td><td data-label="政府補助版">There's a required format and page limit; exceed it and it gets returned</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>The most practical difference: <strong>staffing and budgets in a government grant proposal have to be reconciled against actual spending.</strong> The numbers you write must hold up later, so the level of care in budgeting is completely different from an investor version.</p>
+
+    <div class="insight">
+      <div class="label">A headhunter's view</div>
+      <p>There's one more thing that rarely gets mentioned but really does cause trouble: <strong>work that's already finished and already paid for usually can't be used again, with the same content, to apply for an R&D grant.</strong></p>
+      <p>Companies that have done government tenders or school projects are especially prone to this. Listing that work under "past experience" is a plus, but packaging the same already-delivered results as "to be developed under this project" is a double-funding problem.</p>
+      <p>If you do apply, draw the line clearly: <strong>what you've done before, what you'll newly do this time, and the technical difference between the two.</strong> If you can't explain the difference, perhaps you really shouldn't apply with that topic.</p>
+    </div>
+
+    <h2 id="sec-5">Three things to do before you start writing</h2>
+    <ol>
+      <li><strong>Download the official template for the program you're applying to.</strong> Section order, page limits, and required attachments differ by program; writing to its structure from the start is far easier than revising afterward</li>
+      <li><strong>Take an honest inventory of the team.</strong> Who's here, who isn't, and whose hours are already filled by other work. This table becomes the draft for the staffing section and directly affects whether your timeline is feasible</li>
+      <li><strong>Write the timeline first, then go back to the product.</strong> Many proposals describe the product grandly, but against the timeline it could never be finished. Writing in reverse avoids that gap</li>
+    </ol>
+
+    <h2 id="sec-6">FAQ</h2>
+<div><details>
+        <summary><span>How long should a business plan be?</span><span class="faq-icon">+</span></summary>
+        <p>For investors, aim for 15–25 pages plus a one-page executive summary; anything longer won't get read through. Government grant proposals must follow the program's rules, and most set a clear page limit (excluding appendices) — going over can get your proposal sent back for revision or even rejected, so always download the official template first. The common principle: put the details in the appendices and keep only what decision-makers need in the main text.</p>
+      </details><details>
+        <summary><span>Can we submit if the team isn't complete yet?</span><span class="faq-icon">+</span></summary>
+        <p>Yes, and that's the norm. The key is to describe the gap clearly: which capability is missing, why this project needs it, when the person is expected to be in place, how you'll fill it (hiring yourself or engaging a headhunter), and what the salary budget is based on. Honestly listing the gap with a workable hiring plan is far safer than inventing a complete team—the latter causes problems at the reimbursement or audit stage.</p>
+      </details><details>
+        <summary><span>Can consultants be listed as part of the team?</span><span class="faq-icon">+</span></summary>
+        <p>You can, but state their role and level of involvement, and list them under "advisors" or "external support" rather than mixing them into the core team. Note that they're project advisors, roughly how many hours they contribute, and which part they cover. Presenting outside advisors as full-time team members will hurt the credibility of the whole plan the moment someone asks.</p>
+      </details><details>
+        <summary><span>How should personnel costs be budgeted to be reasonable?</span><span class="faq-icon">+</span></summary>
+        <p>Use verifiable market rates as your baseline and explain why your figures fall where they do. Budget too low and reviewers will doubt that you understand the market, which casts doubt on your other cost estimates too. Budget too high and you need to justify it — scarce skills, overseas assignments, specific qualifications, and so on. Also make sure no one's total time allocation exceeds 100%; that's the item most often flagged.</p>
+      </details><details>
+        <summary><span>Can past government contracts go into the proposal?</span><span class="faq-icon">+</span></summary>
+        <p>Listing it under “past track record” helps, since it shows execution capability and a delivery history. But be careful: work that's already completed and paid for usually can't be used again with the same content to apply for an R&D grant—that counts as double funding. If you apply on a related topic, you must clearly separate “what was delivered before” from “what this project will newly develop,” and explain the technical difference between them. If you can't explain the difference, the topic may not be suitable for the application.</p>
+      </details><details>
+        <summary><span>How candid should the risk section be?</span><span class="faq-icon">+</span></summary>
+        <p>Be candid, but pair every risk with a response. Writing "no major risks" will cost you points outright. Any experienced reviewer knows there's no such thing as a risk-free plan, and that sentence only shows you didn't assess it seriously. We suggest picking the three most likely risks (for example, delays in bringing key staff on board, failed technical validation, or slower-than-expected customer adoption) and clearly describing the impact and your backup plan for each.</p>
+      </details></div><div>
+      <h2 id="sec-7">Stuck on the people section?</h2>
+      <p>If your proposal is due but key staff aren't in place yet, we can start by helping you take stock of the market: whether people with this skill set are available, where the pay range sits, and roughly how long it would take to hire. You can write this information straight into the staffing plan and budget of your proposal, and it also helps you judge whether your timeline is realistic. There's no charge at this stage and no contract required.</p>
+      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">Talk with a consultant on LINE</a>
+    </div>
+
+    <p>Further reading: <a href="/en/articles/executive-hiring-guide/">Executive role open for six months and still unfilled? Five bottlenecks and fixes</a> · <a href="/en/articles/work-with-headhunters/">How should Taiwanese companies work with headhunters?</a> · <a href="/en/articles/dispatch-legal-risks/">Legal pitfalls for companies using staffing</a></p>
+
+      
+<div class="cta">
+        <p>Finished your proposal but short of people to execute it? Tell us the role requirements and we'll assess whether a headhunter makes sense.</p>
+          <a class="btn-alt" href="/en/hiring-assessment/">Take the hiring-model assessment first</a> <a class="btn-line" href="https://lin.ee/XcSWPzM">Ask a consultant on LINE</a>
+      </div>
+    </article>
+  </div>
+</main>
+
+
+<footer><div class="fw">德仁管理顧問有限公司, 3F, No. 54-7, Sec. 3, Kangning Rd., Neihu Dist., Taipei City</div></footer>
+
+<script>
+// 表格加水平捲動外框，避免手機橫向溢位
+document.querySelectorAll('article table').forEach(function(t){
+  var w=document.createElement('div'); w.className='tw';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
+// 閱讀進度
+var bar=document.getElementById('bar');
+function prog(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',prog,{passive:true}); prog();
+// 目錄跟隨
+var tns=[].slice.call(document.querySelectorAll('.tn'));
+var secs=tns.map(function(a){return document.getElementById(a.dataset.s)}).filter(Boolean);
+if('IntersectionObserver' in window && secs.length){
+  var cur=null;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) cur=e.target.id; });
+    tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  },{rootMargin:'-88px 0px -70% 0px'}).observe && secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===e.target.id)}); }
+      });
+    },{rootMargin:'-88px 0px -70% 0px'}).observe(s);
+  });
+}
+</script>
+
+<style>
+.s1ne-sc{position:fixed;z-index:60;left:0;right:0;bottom:0;display:flex;gap:10px;padding:10px max(14px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));background:rgba(255,255,255,.96);box-shadow:0 -6px 24px rgba(40,30,10,.12);transform:translateY(120%);transition:transform .25s ease}
+.s1ne-sc.on{transform:none}
+.s1ne-sc a{flex:1;display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:999px;font-weight:700;font-size:15px;text-decoration:none;white-space:nowrap}
+.s1ne-sc .p{background:#111827;color:#fff}
+.s1ne-sc .l{background:#fff;color:#111827;border:1.5px solid #d1d5db}
+.s1ne-sc a:focus-visible{outline:3px solid #1f2937;outline-offset:2px}
+@media (min-width:760px){.s1ne-sc{left:auto;right:24px;bottom:24px;border-radius:999px;padding:8px;box-shadow:0 8px 28px rgba(40,30,10,.18)}.s1ne-sc a{flex:none;padding:0 22px}}
+@media (prefers-reduced-motion:reduce){.s1ne-sc{transition:none}}
+body{padding-bottom:84px}
+@media (min-width:760px){body{padding-bottom:0}}
+</style>
+<div class="s1ne-sc" id="s1neSc" role="region" aria-label="Fast action">
+  <a class="l" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">Ask on LINE</a> <a class="p" href="/en/jobs/" data-cta="jobs_cta_click">See current openings</a>
+</div>
+<script>
+(function(){var b=document.getElementById('s1neSc');if(!b)return;
+function t(){b.classList.toggle('on',window.scrollY>380);}
+window.addEventListener('scroll',t,{passive:true});t();
+b.querySelector('.p').addEventListener('click',function(){try{gtag('event',this.getAttribute('data-cta'),{page_path:location.pathname,placement:'sticky'});}catch(e){}});})();
+</script>
+<!-- /s1ne-sticky-cta -->
+
+</body>
+</html>

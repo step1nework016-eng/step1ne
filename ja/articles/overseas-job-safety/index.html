@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href*="lin.ee"]');
+  if (!a) return;
+  gtag('event', 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60)
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>東南アジアの海外駐在求人、本物と偽物の見分け方は？詐欺の手口と確認の5ステップ｜Step1ne</title>
+<meta name="description" content="カンボジアの求人詐欺は 2026 年も続いています。この記事では、詐欺に共通する5つの特徴、出発前に必ず行うべき5つの確認ステップ、絶対に承諾してはいけない3つのこと、そして合法的な海外赴任の実態とその価値を解説します。">
+<meta name="keywords" content="カンボジア 仕事,海外求人詐欺,東南アジア 駐在,海外駐在の仕事,カンボジア 求職,海外就職 安全,海外駐在 価値はある">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/ja/articles/overseas-job-safety/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Step1ne 紹介プログラム">
+<meta property="og:title" content="東南アジアの海外赴任の仕事、本物と偽物をどう見分ける？詐欺の手口と確認の5ステップ">
+<meta property="og:description" content="正規の海外派遣は「あなたを選考」しますが、詐欺はしません。これが最も見分けやすいサインです。">
+<meta property="og:url" content="https://step1ne.com/ja/articles/overseas-job-safety/">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta name="theme-color" content="#F4F6F8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "東南アジアの海外赴任の仕事、本物と偽物をどう見分ける？詐欺の手口と確認の5ステップ",
+  "description": "カンボジアや東南アジアでの海外求人詐欺に共通する5つの特徴、出発前に済ませるべき5つの確認ステップ（会社の実在性、就業サービス許可証、費用請求の有無、正式な面接、書面の労働契約）、絶対に応じてはいけない要求、そして合法な海外駐在求人の実態と検討すべきメリット・デメリットを解説します。",
+  "datePublished": "2026-07-27",
+  "dateModified": "2026-07-27",
+  "inLanguage": "zh-TW",
+  "author": {
+    "@type": "Organization",
+    "name": "Step1ne 德仁管理顧問有限公司",
+    "url": "https://step1ne.com/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "德仁管理顧問有限公司（Step1ne）",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://step1ne.com/assets/step1ne-logo.png"
+    }
+  }
+}
+</script>
+
+<style>
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;
+  --wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:17px;line-height:1.95;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.35;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,select,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* 導覽 */
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+/* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
+
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
+.crumb{grid-column:1/-1;padding:22px 0 6px;font-size:13.5px;color:var(--slate-dim)}
+.crumb a{color:var(--slate)}
+.crumb a:hover{color:var(--brand-deep)}
+.crumb span{margin:0 8px;color:var(--rule)}
+
+/* 目錄軌：沿用全站 signature */
+.toc{position:sticky;top:92px;padding:8px 0 40px}
+.toc h2{font-size:13px;font-weight:700;color:var(--slate-dim);letter-spacing:.02em;margin-bottom:16px}
+.tns{position:relative;padding-left:22px}
+.tns::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.14))}
+.tn{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:14px;color:var(--slate);line-height:1.6;position:relative}
+.tn i{position:absolute;left:-22px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--rule);flex:0 0 auto}
+.tn:hover{color:var(--brand-deep)}
+.tn:hover i{border-color:var(--brand)}
+.tn.on{color:var(--ink);font-weight:700}
+.tn.on i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 4px rgba(46,169,223,.2)}
+.mtoc{display:none;margin:20px 0 0;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.mtoc summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15.5px;position:relative}
+.mtoc summary::-webkit-details-marker{display:none}
+.mtoc summary::after{content:"";position:absolute;right:20px;top:24px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.mtoc[open] summary::after{transform:rotate(-135deg)}
+.mtoc div{padding:0 18px 14px}
+.mtoc a{display:block;padding:9px 0;font-size:15px;color:var(--slate);border-top:1px solid var(--rule)}
+
+/* 文章本體 */
+article{padding:14px 0 60px;max-width:70ch}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--brand-deep);background:rgba(22,126,178,.07);border:1px solid rgba(22,126,178,.25);border-radius:5px;padding:4px 11px}
+article h1{margin-top:16px;font-size:clamp(28px,4.2vw,42px);line-height:1.28;letter-spacing:-.02em}
+.by{margin-top:18px;padding-bottom:20px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14px;color:var(--slate-dim)}
+.by a{color:var(--slate);border-bottom:1px solid var(--rule)}
+.by .d{font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+
+/* ★ Signature：直接答案 */
+.ans{margin-top:30px;background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:26px 30px}
+.ans .lab{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:10px}
+.ans p{font-size:19.5px;line-height:1.85;font-weight:500}
+.ans strong{font-weight:900}
+
+article h2{margin:52px 0 16px;font-size:25px;scroll-margin-top:92px}
+article h3{margin:34px 0 10px;font-size:19px}
+article h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-right:12px;border-radius:8px;background:var(--brand);color:#fff;font-family:var(--f-disp);font-size:17px;font-weight:700;vertical-align:2px}
+article p{margin-top:16px}
+article strong{font-weight:700}
+article a:not(.tn){color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.32)}
+article a:not(.tn):hover{border-bottom-color:var(--brand-deep)}
+article ul,article ol{margin:16px 0 0;padding-left:1.4em}
+article li{margin-top:9px}
+article table{width:100%;border-collapse:collapse;margin-top:22px;font-size:15.5px;background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+article th{text-align:left;background:var(--paper);font-weight:700;font-size:14px;color:var(--slate);padding:12px 14px;border-bottom:1px solid var(--rule)}
+article td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.75}
+article tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+article details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+article details summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+article details summary::-webkit-details-marker{display:none}
+article details summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+article details[open] summary::after{transform:rotate(-135deg)}
+article details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid var(--rule);color:var(--slate)}
+
+.foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
+.cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
+.cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
+footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+.fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.note{max-width:var(--wrap);margin:0 auto 46px;padding-inline:var(--gut)}
+.note div{background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid #B45309;border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.note b{color:#5A3D0C}
+
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .mtoc{display:block}
+}
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  body{font-size:16.5px}
+  .ans{padding:22px;border-radius:0 8px 8px 0}
+  .ans p{font-size:18px}
+  article h2{font-size:22px;margin-top:42px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+<!--i18n-hreflang-->
+<link rel="alternate" hreflang="zh-Hant" href="https://step1ne.com/articles/overseas-job-safety/">
+<link rel="alternate" hreflang="ja" href="https://step1ne.com/ja/articles/overseas-job-safety/">
+<link rel="alternate" hreflang="en" href="https://step1ne.com/en/articles/overseas-job-safety/">
+<link rel="alternate" hreflang="x-default" href="https://step1ne.com/articles/overseas-job-safety/">
+<style>.s1-lang{max-width:1100px;margin:0 auto;padding:10px 16px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.s1-lang a,.s1-lang b{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid #d9dce3;background:#fff;font-size:14px;font-weight:600;color:#4a5060;text-decoration:none}.s1-lang b{background:#23262d;border-color:#23262d;color:#fff}.s1-lang a:hover{color:#23262d;border-color:#9aa0ad}.s1-lang a:focus-visible{outline:3px solid #1880B4;outline-offset:2px}.s1-note{max-width:1100px;margin:10px auto 0;padding:0 16px}.s1-note p{margin:0;padding:12px 14px;border-radius:12px;background:#eef4fb;border:1px solid #c9dcef;color:#1d3a57;font-size:14.5px;line-height:1.7}</style>
+<!--/i18n-hreflang-->
+</head>
+
+<body>
+<div id="bar"></div>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/ja/"><img src="/assets/step1ne-logo.png" alt="Step1ne"><b>Step1ne</b></a>
+    <nav class="hd-nav">
+      <a href="/ja/commission-recruiting/">企業向けサービス</a><a href="/ja/jobs/">求人一覧</a><a class="on" href="/ja/articles/">ヘッドハンティングコラム</a><a href="/ja/talent/">Step1ne 紹介プログラム</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">LINEで問い合わせ</a>
+    <button class="hd-burger" type="button" aria-label="メニューを開く" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/ja/commission-recruiting/">法人向けサービス</a><a href="/ja/jobs/">求人一覧</a><a href="/ja/articles/">ヘッドハンティングコラム</a><a href="/ja/talent/">Step1ne 紹介プログラム</a> <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINEで問い合わせ</a>
+  </div>
+</header>
+<!--i18n-switch--><nav class="s1-lang" aria-label="言語を切り替える"><a href="/articles/overseas-job-safety/" hreflang="zh-Hant" lang="zh-Hant">中文</a><b lang="ja" aria-current="true">日本語</b><a href="/en/articles/overseas-job-safety/" hreflang="en" lang="en">English</a></nav><!--/i18n-switch-->
+
+
+<main class="shell">
+  <nav class="crumb" aria-label="パンくずリスト"><a href="/ja/">ホーム</a><span>/</span><a href="/ja/articles/">採用コラム</a><span>/</span>東南アジアの海外勤務、本物と偽物をどう見分ける？</nav>
+
+  <aside class="toc" aria-label="目次">
+    <h2>本記事は全6セクション</h2>
+    <div class="tns"><a class="tn" href="#sec-1" data-s="sec-1"><i></i><span>詐欺の公式：5つの特徴がそろったら赤信号</span></a> <a class="tn" href="#sec-2" data-s="sec-2"><i></i><span>海外求人が本物かどうか、どう確かめる？</span></a> <a class="tn" href="#sec-3" data-s="sec-3"><i></i><span>では、合法的な東南アジア駐在とは実際どんなものか？</span></a> <a class="tn" href="#sec-4" data-s="sec-4"><i></i><span>合法的な海外駐在に行く価値はある？正直な評価</span></a> <a class="tn" href="#sec-5" data-s="sec-5"><i></i><span>よくある質問</span></a> <a class="tn" href="#sec-6" data-s="sec-6"><i></i><span>手元の海外オファー、本物か確かめたいですか？</span></a></div>
+  </aside>
+
+  <div>
+    <details class="mtoc"><summary>目次（6セクション）</summary><div><a href="#sec-1">詐欺の方程式：5つの特徴が同時にそろえば赤信号</a> <a href="#sec-2">海外求人が本物かどうか、どう確認する？</a> <a href="#sec-3">では合法的な東南アジア駐在は、実際どんなもの？</a> <a href="#sec-4">合法的な駐在に価値はある？率直な評価</a> <a href="#sec-5">よくある質問</a> <a href="#sec-6">海外のオファーを受けていて、本物か確かめたい？</a></div></details>
+    <article>
+      <span class="tag">求職者ガイド・ヘッドハンターの視点</span>
+      <h1>東南アジアの海外赴任の仕事、本物と偽物をどう見分ける？</h1>
+      <div class="by">
+        <span>著者：<a href="/ja/about/">Step1neヘッドハンティングコンサルタントチーム</a></span> <time class="d" datetime="2026-07-27">公開日 2026-07-27</time> <span class="d">約6分</span>
+      </div>
+
+      <div class="ans">
+        <div class="lab">端的な答え</div>
+        <p>カンボジアの求人詐欺は過去の話ではありません。<strong>2026年4月にカンボジア警察が摘発した詐欺拠点では、逮捕された外国人311人のうち182人が台湾人でした</strong>。ですから海外の仕事の話を見たら、まずやるべきは待遇の検討ではなく、本物かどうかの確認です。最も見分けやすいサインはこれです。<strong>正規の海外派遣はコストが高いため、企業はあなたを厳しく「選考」します。詐欺はあなたが何をできるかは気にせず、あなたが現地に来られるかどうかだけを気にします。</strong></p>
+      </div>
+
+      <div class="warn">
+      <div class="label">⚠ まず一番大事なこと</div>
+      <p>カンボジアの求人詐欺は<strong>過去の話ではなく、今まさに起きていること</strong>です。2026年4月、カンボジア警察がプノンペンのホテルにあった詐欺拠点を摘発し、逮捕された外国人311人のうち、台湾人が182人いました。</p>
+      <p>ですから、カンボジア（あるいは東南アジアの他の国）の仕事を見かけたら、<strong>まずやるべきは待遇の検討ではなく、本物かどうかの確認</strong>です。この記事の前半では確認方法を、後半で合法な海外派遣の姿を説明します。この順番を逆にしてはいけません。</p>
+    </div>
+
+    <h2 id="sec-1">詐欺の公式：5つの特徴が同時にそろったら赤信号</h2>
+    <p>海外求人詐欺のほとんどは同じテンプレートに当てはまります。見分けられれば、リスクの9割は避けられます：</p>
+    <ol>
+      <li><strong>高給＋食事・住居付き＋未経験可＋学歴不問</strong>——まともな求人がこの4つを同時に備えることはありません。本当に能力が要らない仕事が、相場をはるかに上回る給料を出すことはありません</li>
+      <li><strong>仕事内容をはっきり説明できない</strong>。具体的に何をするのか聞いても「カスタマーサポート」「タイピング」「オンラインチャット」としか答えず、流れや職責を説明できない</li>
+      <li><strong>会社の人に一度も会っていない</strong>——やり取りはすべてメッセージアプリだけで、正式な面接もなく、採用責任者にも会えない</li>
+      <li><strong>あなたの能力にはあまり関心がないのに、すぐに採用が決まる</strong>。通常の採用では適性を評価しますが、詐欺はあなたが現地に来られるかどうかしか気にしません</li>
+      <li><strong>すぐに出発するよう急かす</strong>——検討の時間が極端に短く、航空券の手配や空港への出迎えまで用意してしまう</li>
+    </ol>
+
+    <div class="warn">
+      <div class="label">⚠ これだけは絶対に受け入れてはいけない</div>
+      <p><strong>パスポート、身分証明書、クレジットカード、携帯電話を渡すこと</strong>——これは身体の自由を奪う第一歩で、まともな雇用主は求めません。<br> <strong>債務や借用の書類に署名すること</strong>。よくある口実は「航空券や仲介料は立て替えておくから、あとで給料から引く」というもので、署名すると借金で縛られます。<br> <strong>寮での集団生活と専用車での送迎を受け入れ、自由に外出できないこと</strong>。これは事実上の監禁の前兆です。</p>
+      <p>あなたやご家族・知人がすでに海外でトラブルに遭っている場合は、<strong>台湾外交部の緊急連絡センター 0800-085-095</strong>（台湾国内から）に電話するか、現地の台湾在外公館の24時間緊急電話に連絡してください。</p>
+    </div>
+
+    <h2 id="sec-2">海外求人が本物かどうか、どう確認する？</h2>
+    <p>この5つの動作をすべて終えてから決めましょう。数日を急ぐ必要はありません：</p>
+    <ol>
+      <li><strong>会社が実在するかを確認する</strong>。会社の正式名称で検索し、公式サイト、ニュース、SNS上に他の社員の痕跡があるかを確かめます。LINEアカウントが一つあるだけなら即除外です</li>
+      <li><strong>統一番号と就業サービス許可証番号を求める</strong>——台湾で人材仲介を行うには主管機関の許可が必要です。統一番号を経済部の商工登記公示資料検索システムで照合し、営業状態を確認します</li>
+      <li><strong>あなたに費用を請求しないことを確認する</strong>——まっとうな人材紹介会社は企業から料金を受け取ります。台湾の法律では、求職者の財物を留め置いたり、就職紹介の保証金を受け取ったりしてはいけません</li>
+      <li><strong>正式な面接を求める</strong>。オンラインでも対面でも、採用部門の人と話せること、そしてチームの規模、報告先、実際の業務内容を聞き出せることが必要です</li>
+      <li><strong>労働契約を確認する</strong>。出発前に書面の契約があり、職務、給与、労働時間、契約期間、台湾への帰国の取り決めが明記されているべきです。口約束だけなら行かないでください</li>
+    </ol>
+
+    <div class="insight">
+      <div class="label">ヘッドハンターの視点</div>
+      <p>最も見分けやすいサインは、<strong>正規の採用プロセスは「あなたを選考する」が、詐欺はしない</strong>ということです。</p>
+      <p>合法的な海外赴任の求人は、たいてい条件が厳しいものです。関連業界での経験、特定の専門スキル、さらには面接での試験や二次面接まで求められます。赴任にはコストがかかるため、企業が誰でも送り出すことはありません。逆に言えば、ある海外の仕事があなたの経歴をほとんど問わないのに高給を約束しているなら、それ自体が不自然です。</p>
+    </div>
+
+    <h2 id="sec-3">では、合法的な東南アジア駐在とは実際どんなものか？</h2>
+    <p>台湾企業は東南アジア（ベトナム、カンボジア、フィリピン、タイなど）に製造業やサービス業の拠点を数多く持っており、正規の海外駐在求人は確かに存在します。こうした求人の特徴は詐欺とは正反対です：</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th></th><th>合法な海外赴任</th><th>詐欺</th></tr></thead>
+        <tbody>
+          <tr><td data-label=""><strong>職種のタイプ</strong></td><td data-label="合法外派">財務、ファシリティ、エンジニアリング、生産管理など、専門性が明確な職能</td><td data-label="詐騙">説明があいまいな「カスタマーサポート」「タイピング」</td></tr>
+          <tr><td data-label=""><strong>応募資格</strong></td><td data-label="合法外派">厳しい、長年の関連経験を求められることが多い</td><td data-label="詐騙">ほとんど要求なし</td></tr>
+          <tr><td data-label=""><strong>面接の流れ</strong></td><td data-label="合法外派">しっかりしており、一次・二次面接がある場合も</td><td data-label="詐騙">短いか、まったくない</td></tr>
+          <tr><td data-label=""><strong>契約</strong></td><td data-label="合法外派">出発前に書面の労働契約を締結する</td><td data-label="詐騙">口約束、または借金の書類への署名を求められる</td></tr>
+          <tr><td data-label=""><strong>資格</strong></td><td data-label="合法外派">自社で保管</td><td data-label="詐騙">求める成果物</td></tr>
+          <tr><td data-label=""><strong>行動の自由</strong></td><td data-label="合法外派">退勤後は自由</td><td data-label="詐騙">集団管理、外出制限</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="sec-4">合法な海外赴任は価値がある？率直な評価</h2>
+    <h3>得られるもの</h3>
+    <ul>
+      <li><strong>実質的な可処分所得が高い</strong>。基本給のほかに駐在手当、住居・交通補助、年次の一時帰国休暇がつくことが多く、現地の生活費も台湾より低いため、同じ職位の国内求人より貯蓄のペースが明らかに速いのが一般的です</li>
+      <li><strong>担当範囲が広い</strong>：海外拠点は人員が少なく、一人が担当する範囲が本社の同じ職位より広いため、経験が速く積み上がります</li>
+      <li><strong>国際的なマネジメント経験</strong>：現地チームを率いた経験や本社と協働した経験は、上を目指すうえで希少な経歴になります</li>
+    </ul>
+    <h3>払うもの</h3>
+    <ul>
+      <li><strong>生活圏の再構築</strong>。言語、食事、医療、人付き合いのすべてに改めて慣れる必要があり、これは最も多くの人が過小評価する部分です</li>
+      <li><strong>家族との距離</strong>：年間の一時帰国休暇の日数と頻度は、オファーの交渉時にはっきり確認しておくこと</li>
+      <li><strong>帰任時の不確実性</strong>：海外赴任が終わって台湾に戻った後のポジションについて、帰る段になって初めて何も決めていなかったと気づく人が多くいます</li>
+    </ul>
+
+    <div class="insight">
+      <div class="label">ヘッドハンターの視点</div>
+      <p>海外赴任のオファーを交渉するとき、最も聞き漏らしが多く、後から最も後悔しやすいのが<strong>「帰任後の処遇」</strong>です。3年の赴任が終わったら、台湾に戻ってどのポジションに就き、給与はどうつながるのか？</p>
+      <p>この点はオファーの交渉で盛り上がっているときにはほとんど誰も持ち出しませんが、その海外赴任があなたのキャリアにとってプラスになるか断絶になるかを左右します。はっきり確認し、できれば契約に書き込むか、少なくとも書面でのやり取りを残しておくことをおすすめします。</p>
+    </div>
+
+    <h2 id="sec-5">よくある質問</h2>
+<div><details>
+        <summary><span>カンボジアの仕事はすべて詐欺？</span><span class="faq-icon">+</span></summary>
+        <p>いいえ。台湾企業は現地で製造業やサービス業に実際に投資しており、正規の求人も存在します。ただ、詐欺事件が多発し続けているため（2026年4月にも大規模な事件があり、逮捕された外国人の多くが台湾人でした）、カンボジアや東南アジアの仕事の話はどれも、まず確認の手順を済ませてから検討すべきです。条件が魅力的だからといって確認を省かないでください。</p>
+      </details><details>
+        <summary><span>本物か偽物か、ひと言で見分けるには？</span><span class="faq-icon">+</span></summary>
+        <p>その仕事が「あなたを選考しているか」を見てください。正規の海外駐在はコストが高いため、企業は関連経験や専門能力を厳しく求め、面接のプロセスもきちんとしています。詐欺はあなたの経歴をほとんど問わないのに高給を出すと言います。あなたが何をできるかには関心がなく、現地に来られるかどうかだけを気にしているなら、それは危険信号です。</p>
+      </details><details>
+        <summary><span>すでに海外にいて、おかしいと感じたらどうする？</span><span class="faq-icon">+</span></summary>
+        <p>ただちに現地の台湾在外公館の24時間緊急電話に連絡するか、台湾にいる家族や友人に外交部緊急連絡センター 0800-085-095 へ電話してもらってください。できる限り自分の身分証を手元に保管し、家族と定期的に連絡を取り、居場所を記録しておきましょう。債務に関する書類には一切署名しないでください。</p>
+      </details><details>
+        <summary><span>海外駐在の給与は国内より通常どれくらい高い？</span><span class="faq-icon">+</span></summary>
+        <p>決まった倍率はなく、職位と地域によります。よくある構成は「本給＋駐在手当＋住居・交通補助＋年1回の一時帰国休暇」で、現地の生活費が比較的安いこともあり、実質的な可処分所得は通常、同じ職位の台湾国内の求人より明らかに高くなります。評価するときは月給の数字だけでなく、年間の総現金収入で計算しましょう。</p>
+      </details><details>
+        <summary><span>ヘッドハンター経由で海外の求人に応募するほうが安全？</span><span class="faq-icon">+</span></summary>
+        <p>比較的安全ですが、自分でも確認は必要です。合法な人材紹介業者は職業紹介の許可証を取得していなければならず、求職者から料金を取ることも、身分証を預かることもできません。統一編号と許可証番号の提示を求め、自分で照合できます。どのルートを通すにしても、出発前に書面の労働契約を受け取ることは省けないステップです。</p>
+      </details></div><div>
+      <h2 id="sec-6">海外のオファーを受けていて、本物かどうか確かめたい方へ</h2>
+      <p>当社の求人かどうかに関係なく質問できます。会社名と求人内容をコンサルタントに伝えていただければ、不審な点がないか判断するお手伝いをします。これは無料で、だからといって何かの機会を受けるよう求めることもありません。</p>
+      <p><a href="/ja/jobs/">現在募集中の海外求人を見る →</a></p>
+      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">LINEでコンサルタントに相談する</a>
+    </div>
+
+    <p>関連記事：<a href="/ja/articles/headhunter-contacted-you/">ヘッドハンターから連絡が来たらどう対応する？</a> · <a href="/ja/jobs/">現在募集中の求人を見る</a></p>
+
+      
+<div class="cta">
+        <p>海外の求人が本物か確認したいときは、LINEで情報をコンサルタントに送ってください。私たちが判断をお手伝いします。</p>
+          <a class="btn-alt" href="/ja/jobs/">現在募集中の求人を見る</a> <a class="btn-line" href="https://lin.ee/XcSWPzM">LINEでコンサルタントに質問する</a>
+      </div>
+    </article>
+  </div>
+</main>
+
+
+<footer><div class="fw">德仁管理顧問有限公司 台北市内湖区康寧路三段54之7号3階</div></footer>
+
+<script>
+// 表格加水平捲動外框，避免手機橫向溢位
+document.querySelectorAll('article table').forEach(function(t){
+  var w=document.createElement('div'); w.className='tw';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
+// 閱讀進度
+var bar=document.getElementById('bar');
+function prog(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',prog,{passive:true}); prog();
+// 目錄跟隨
+var tns=[].slice.call(document.querySelectorAll('.tn'));
+var secs=tns.map(function(a){return document.getElementById(a.dataset.s)}).filter(Boolean);
+if('IntersectionObserver' in window && secs.length){
+  var cur=null;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) cur=e.target.id; });
+    tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  },{rootMargin:'-88px 0px -70% 0px'}).observe && secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===e.target.id)}); }
+      });
+    },{rootMargin:'-88px 0px -70% 0px'}).observe(s);
+  });
+}
+</script>
+
+<style>
+.s1ne-sc{position:fixed;z-index:60;left:0;right:0;bottom:0;display:flex;gap:10px;padding:10px max(14px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));background:rgba(255,255,255,.96);box-shadow:0 -6px 24px rgba(40,30,10,.12);transform:translateY(120%);transition:transform .25s ease}
+.s1ne-sc.on{transform:none}
+.s1ne-sc a{flex:1;display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:999px;font-weight:700;font-size:15px;text-decoration:none;white-space:nowrap}
+.s1ne-sc .p{background:#111827;color:#fff}
+.s1ne-sc .l{background:#fff;color:#111827;border:1.5px solid #d1d5db}
+.s1ne-sc a:focus-visible{outline:3px solid #1f2937;outline-offset:2px}
+@media (min-width:760px){.s1ne-sc{left:auto;right:24px;bottom:24px;border-radius:999px;padding:8px;box-shadow:0 8px 28px rgba(40,30,10,.18)}.s1ne-sc a{flex:none;padding:0 22px}}
+@media (prefers-reduced-motion:reduce){.s1ne-sc{transition:none}}
+body{padding-bottom:84px}
+@media (min-width:760px){body{padding-bottom:0}}
+</style>
+<div class="s1ne-sc" id="s1neSc" role="region" aria-label="迅速に動く">
+  <a class="l" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">LINEで問い合わせ</a> <a class="p" href="/ja/jobs/" data-cta="jobs_cta_click">現在の求人を見る</a>
+</div>
+<script>
+(function(){var b=document.getElementById('s1neSc');if(!b)return;
+function t(){b.classList.toggle('on',window.scrollY>380);}
+window.addEventListener('scroll',t,{passive:true});t();
+b.querySelector('.p').addEventListener('click',function(){try{gtag('event',this.getAttribute('data-cta'),{page_path:location.pathname,placement:'sticky'});}catch(e){}});})();
+</script>
+<!-- /s1ne-sticky-cta -->
+
+</body>
+</html>

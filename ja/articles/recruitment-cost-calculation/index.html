@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+document.addEventListener('click', function (e) {
+  if (!e.target.closest) return;
+  var a = e.target.closest('a[href*="lin.ee"], a[href^="/apply"]');
+  if (!a) return;
+  var isApply = (a.getAttribute('href') || '').indexOf('/apply') === 0;
+  gtag('event', isApply ? 'apply_click' : 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60),
+    cta_slot: a.getAttribute('data-cta') || 'legacy'
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>採用コストはどう計算する？計算式、内訳と試算｜Step1ne</title>
+<meta name="description" content="採用コスト＝外部コスト＋内部コスト、1人あたりコスト＝総コスト÷採用人数。本記事では掲載費、採用代行・ヘッドハンティング費、人事の時間コスト、欠員コスト、採用ミスの代償を分解し、「デモ用の仮定」と明記した試算例を添えて、1つの求人に実際いくらかかったかを算出する方法を解説します。">
+
+
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/ja/articles/recruitment-cost-calculation/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Step1ne 紹介プログラム">
+<meta property="og:title" content="採用コストはどう計算する？計算式、内訳、試算">
+<meta property="og:description" content="採用コスト＝外部コスト＋内部コスト、1人あたりコスト＝総コスト÷採用人数。本記事では掲載費、採用代行・ヘッドハンティング費、人事の時間コスト、欠員コスト、採用ミスの代償を分解し、「デモ用の仮定」と明記した試算例を添えて、1つの求人に実際いくらかかったかを算出する方法を解説します。">
+<meta property="og:url" content="https://step1ne.com/ja/articles/recruitment-cost-calculation/">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta name="theme-color" content="#F4F6F8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "採用コストはどう計算する？計算式、内訳、試算",
+  "description": "採用コスト＝外部コスト＋内部コスト、1人あたりコスト＝総コスト÷採用人数。本記事では掲載費、採用代行・ヘッドハンティング費、人事の時間コスト、欠員コスト、採用ミスの代償を分解し、「デモ用の仮定」と明記した試算例を添えて、1つの求人に実際いくらかかったかを算出する方法を解説します。",
+  "datePublished": "2026-10-10",
+  "dateModified": "2026-10-10",
+  "inLanguage": "zh-TW",
+  "author": {
+    "@type": "Organization",
+    "name": "Step1ne 德仁管理顧問有限公司",
+    "url": "https://step1ne.com/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "德仁管理顧問有限公司（Step1ne）",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://step1ne.com/assets/step1ne-logo.png"
+    }
+  },
+  "mainEntityOfPage": "https://step1ne.com/articles/recruitment-cost-calculation/"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "ホーム",
+      "item": "https://step1ne.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "ヘッドハンティングコラム",
+      "item": "https://step1ne.com/articles/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "採用コストはどう計算する？計算式、内訳、試算",
+      "item": "https://step1ne.com/articles/recruitment-cost-calculation/"
+    }
+  ]
+}
+</script>
+
+<style>
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;
+  --wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:17px;line-height:1.95;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.35;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,select,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
+
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
+.crumb{grid-column:1/-1;padding:22px 0 6px;font-size:13.5px;color:var(--slate-dim)}
+.crumb a{color:var(--slate)}
+.crumb a:hover{color:var(--brand-deep)}
+.crumb span{margin:0 8px;color:var(--rule)}
+
+.toc{position:sticky;top:92px;padding:8px 0 40px}
+.toc h2{font-size:13px;font-weight:700;color:var(--slate-dim);letter-spacing:.02em;margin-bottom:16px}
+.tns{position:relative;padding-left:22px}
+.tns::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.14))}
+.tn{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:14px;color:var(--slate);line-height:1.6;position:relative}
+.tn i{position:absolute;left:-22px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--rule);flex:0 0 auto}
+.tn:hover{color:var(--brand-deep)}
+.tn:hover i{border-color:var(--brand)}
+.tn.on{color:var(--ink);font-weight:700}
+.tn.on i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 4px rgba(46,169,223,.2)}
+.mtoc{display:none;margin:20px 0 0;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.mtoc summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15.5px;position:relative}
+.mtoc summary::-webkit-details-marker{display:none}
+.mtoc summary::after{content:"";position:absolute;right:20px;top:24px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.mtoc[open] summary::after{transform:rotate(-135deg)}
+.mtoc div{padding:0 18px 14px}
+.mtoc a{display:block;padding:9px 0;font-size:15px;color:var(--slate);border-top:1px solid var(--rule)}
+
+article{padding:14px 0 60px;max-width:70ch}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--brand-deep);background:rgba(22,126,178,.07);border:1px solid rgba(22,126,178,.25);border-radius:5px;padding:4px 11px}
+article h1{margin-top:16px;font-size:clamp(28px,4.2vw,42px);line-height:1.28;letter-spacing:-.02em}
+.by{margin-top:18px;padding-bottom:20px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14px;color:var(--slate-dim)}
+.by a{color:var(--slate);border-bottom:1px solid var(--rule)}
+.by .d{font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+
+.ans{margin-top:30px;background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:26px 30px}
+.ans .lab{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:10px}
+.ans p{font-size:19.5px;line-height:1.85;font-weight:500}
+.ans strong{font-weight:900}
+
+article h2{margin:52px 0 16px;font-size:25px;scroll-margin-top:92px}
+article h3{margin:34px 0 10px;font-size:19px}
+article h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-right:12px;border-radius:8px;background:var(--brand);color:#fff;font-family:var(--f-disp);font-size:17px;font-weight:700;vertical-align:2px}
+article p{margin-top:16px}
+article strong{font-weight:700}
+article a:not(.tn){color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.32)}
+article a:not(.tn):hover{border-bottom-color:var(--brand-deep)}
+article ul,article ol{margin:16px 0 0;padding-left:1.4em}
+article li{margin-top:9px}
+article table{width:100%;border-collapse:collapse;margin-top:22px;font-size:15.5px;background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+article th{text-align:left;background:var(--paper);font-weight:700;font-size:14px;color:var(--slate);padding:12px 14px;border-bottom:1px solid var(--rule)}
+article td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.75}
+article tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+article details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+article details summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+article details summary::-webkit-details-marker{display:none}
+article details summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+article details[open] summary::after{transform:rotate(-135deg)}
+article details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid var(--rule);color:var(--slate)}
+
+.foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
+.cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
+.cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
+footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+.fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.note{max-width:var(--wrap);margin:0 auto 46px;padding-inline:var(--gut)}
+.note div{background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid #B45309;border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.note b{color:#5A3D0C}
+.law{margin-top:22px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-left:3px solid var(--brand-deep);border-radius:0 8px 8px 0}
+.law .label{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:8px}
+.law ul{margin-top:8px}
+.insight{margin-top:22px;padding:18px 20px;background:var(--wash,#EAF4FA);border-radius:8px}
+.insight .label{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:6px}
+.tbl-wrap{overflow-x:auto}
+
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .mtoc{display:block}
+}
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  body{font-size:16.5px}
+  .ans{padding:22px;border-radius:0 8px 8px 0}
+  .ans p{font-size:18px}
+  article h2{font-size:22px;margin-top:42px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+<!--i18n-hreflang-->
+<link rel="alternate" hreflang="zh-Hant" href="https://step1ne.com/articles/recruitment-cost-calculation/">
+<link rel="alternate" hreflang="ja" href="https://step1ne.com/ja/articles/recruitment-cost-calculation/">
+<link rel="alternate" hreflang="en" href="https://step1ne.com/en/articles/recruitment-cost-calculation/">
+<link rel="alternate" hreflang="x-default" href="https://step1ne.com/articles/recruitment-cost-calculation/">
+<style>.s1-lang{max-width:1100px;margin:0 auto;padding:10px 16px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.s1-lang a,.s1-lang b{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid #d9dce3;background:#fff;font-size:14px;font-weight:600;color:#4a5060;text-decoration:none}.s1-lang b{background:#23262d;border-color:#23262d;color:#fff}.s1-lang a:hover{color:#23262d;border-color:#9aa0ad}.s1-lang a:focus-visible{outline:3px solid #1880B4;outline-offset:2px}.s1-note{max-width:1100px;margin:10px auto 0;padding:0 16px}.s1-note p{margin:0;padding:12px 14px;border-radius:12px;background:#eef4fb;border:1px solid #c9dcef;color:#1d3a57;font-size:14.5px;line-height:1.7}</style>
+<!--/i18n-hreflang-->
+</head>
+
+<body>
+<div id="bar"></div>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/ja/"><img src="/assets/step1ne-logo.png" alt="Step1ne"><b>Step1ne</b></a>
+    <nav class="hd-nav">
+      <a href="/ja/commission-recruiting/">企業向けサービス</a><a href="/ja/jobs/">求人一覧</a><a class="on" href="/ja/articles/">ヘッドハンティングコラム</a><a href="/ja/talent/">Step1ne 紹介プログラム</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">LINEで問い合わせ</a>
+    <button class="hd-burger" type="button" aria-label="メニューを開く" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/ja/commission-recruiting/">法人向けサービス</a><a href="/ja/jobs/">求人一覧</a><a href="/ja/articles/">ヘッドハンティングコラム</a><a href="/ja/talent/">Step1ne 紹介プログラム</a> <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINEで問い合わせ</a>
+  </div>
+</header>
+<!--i18n-switch--><nav class="s1-lang" aria-label="言語を切り替える"><a href="/articles/recruitment-cost-calculation/" hreflang="zh-Hant" lang="zh-Hant">中文</a><b lang="ja" aria-current="true">日本語</b><a href="/en/articles/recruitment-cost-calculation/" hreflang="en" lang="en">English</a></nav><!--/i18n-switch-->
+
+
+<main class="shell">
+  <nav class="crumb" aria-label="パンくずリスト"><a href="/ja/">ホーム</a><span>/</span><a href="/ja/articles/">ヘッドハンティング・コラム</a><span>/</span>採用コストはどう計算する？計算式・内訳・試算</nav>
+
+  <aside class="toc" aria-label="目次">
+    <h2>本記事は全6セクション</h2>
+    <div class="tns"><a class="tn" href="#sec-1" data-s="sec-1"><i></i><span>試算例：1つの求人に実際いくらかかったのか？</span></a> <a class="tn" href="#sec-2" data-s="sec-2"><i></i><span>社内の時間コストはどう換算する？</span></a> <a class="tn" href="#sec-3" data-s="sec-3"><i></i><span>ポジションが空いている間のコストはどう見積もる？</span></a> <a class="tn" href="#sec-4" data-s="sec-4"><i></i><span>採用ミスのコストには何がある？</span></a> <a class="tn" href="#sec-5" data-s="sec-5"><i></i><span>採用コストを下げるには？</span></a> <a class="tn" href="#sec-6" data-s="sec-6"><i></i><span>よくある質問</span></a></div>
+  </aside>
+
+  <div>
+    <details class="mtoc"><summary>目次（6セクション）</summary><div><a href="#sec-1">試算例：1つの求人に実際いくらかかった？</a> <a href="#sec-2">社内の時間コストはどう換算する？</a> <a href="#sec-3">ポジションが空いている間のコストはどう見積もる？</a> <a href="#sec-4">採用を誤ったときのコストには何がある？</a> <a href="#sec-5">採用コストを下げるには？</a> <a href="#sec-6">よくある質問</a></div></details>
+    <article>
+      <span class="tag">企業のための採用ガイド・採用コスト</span>
+      <h1>採用コストはどう計算する？計算式、内訳、試算</h1>
+      <div class="by">
+        <span>著者：<a href="/ja/about/">Step1ne ヘッドハンティング・コンサルタントチーム</a></span> <time class="d" datetime="2026-10-10">公開日 2026-10-10</time> <span class="d">約7分</span>
+      </div>
+
+      <div class="ans">
+        <div class="lab">端的な答え</div>
+        <p><strong>採用コスト ＝ 外部コスト ＋ 内部コスト。</strong> 外部コストは実際に出ていく現金で、求人サイトの掲載料、採用代行やヘッドハンティングのサービス料、広告や採用イベントの費用などです。内部コストは社内の人が使った時間をお金に換算したもので、人事による書類選考、面接の調整、上司による面接の工数、そして入社後の新人研修の時間が含まれます。この2つを合計し、最終的な採用人数で割ったものが<strong>1人あたりの採用コスト</strong>です：</p>
+        <div class="ask"><strong>1人あたりの採用コスト＝（外部コスト＋内部コスト）÷採用人数</strong></div>
+        <p>多くの企業は外部コスト（「掲載費／採用代行費をいくら払ったか」）しか計算しません。これでは数字が常に実際より低くなります。HRや上司が使った時間は無料ではなく、請求書がないだけだからです。</p>
+        <div class="ask"><strong>こう計算できます：</strong>まず「現金で出ていったもの」と「時間で消えたもの」を2列に分けます。現金の列には請求書や契約金額を、時間の列には「誰が、何をして、何時間かかったか」を入れ、2列を合計したものが本当のコストです。</div>
+      </div>
+      <div class="employer-cta" style="margin:24px 0;padding:22px 24px;border-radius:16px;background:linear-gradient(135deg,#0F5F87,#167EB2);color:#fff">
+        <div style="font-size:18px;font-weight:800;margin-bottom:6px">企業の方で、人材をお探しですか？</div>
+        <div style="font-size:14.5px;opacity:.92;margin-bottom:15px;line-height:1.6">正社員採用代行・エグゼクティブサーチ・人材派遣。成功報酬型で、入社しなければ費用はかかりません。料金体系は明瞭です。</div>
+        <a href="/ja/commission-recruiting/" style="display:inline-block;background:#fff;color:#0F5F87;font-weight:700;padding:11px 20px;border-radius:10px;text-decoration:none;margin:0 8px 8px 0">企業向け採用代行プランを見る →</a><a href="https://lin.ee/XcSWPzM" style="display:inline-block;background:#06C755;color:#fff;font-weight:700;padding:11px 20px;border-radius:10px;text-decoration:none">LINEで問い合わせる</a>
+      </div>
+
+    <h2 id="sec-1"><span class="num">1</span>試算例：1つの求人に実際いくらかかった？</h2>
+    <p><strong>以下の数字はすべて例示のための仮定であり、相場ではありません。実際の金額は会社の給与体系、求人の難易度、採用方法によって異なります。</strong></p>
+    <p>前提条件：</p>
+    <ul>
+      <li>求人：月給40,000台湾ドルの中堅事務職</li>
+      <li>人事担当者の時給（月給45,000台湾ドル、月の労働時間約176時間で換算）：約256台湾ドル／時</li>
+      <li>管理職の時給（月給70,000台湾ドルで換算）：約398台湾ドル／時間</li>
+      <li>採用方法：求人サイトに掲載し、自社で採用</li>
+    </ul>
+    <div class="tw" style="overflow-x:auto"><table><thead><tr><th>項目</th><th>想定の工数／金額</th><th>小計（例）</th></tr></thead><tbody><tr><td>求人サイトの掲載費</td><td>—</td><td>5,000台湾ドル</td></tr><tr><td>人事が書類選考＋面接設定</td><td>20時間 × 256台湾ドル</td><td>5,120台湾ドル</td></tr><tr><td>人事による面接の手配と同席</td><td>8時間 × 256台湾ドル</td><td>2,048台湾ドル</td></tr><tr><td>管理職面接</td><td>6時間 × 398台湾ドル</td><td>2,388台湾ドル</td></tr><tr><td>入社研修（HR＋指導担当の上司）</td><td>16時間×約320台湾ドル（平均）</td><td>5,120台湾ドル</td></tr><tr><td><strong>外部コスト小計</strong></td><td></td><td>5,000台湾ドル</td></tr><tr><td><strong>社内コスト小計</strong></td><td></td><td>14,676台湾ドル</td></tr><tr><td><strong>採用総コスト（例）</strong></td><td></td><td><strong>約19,676台湾ドル</strong></td></tr></tbody></table></div>
+    <p>このラウンドで1人だけ採用した場合、1人あたりの採用コストは約19,676台湾ドルです。同じ募集で2人を同時に採用すれば、1人あたりのコストは約9,838台湾ドルまで下がります。<strong>同じ職種で一度に複数人を採用すると、1人ずつ補充するより1人あたりのコストが下がりやすいのはこのためです</strong>。</p>
+    <div class="ask"><strong>自分にこう問いかけてみてください：</strong>前回の求人で、HRは何時間、上司は何時間使いましたか？その2つの数字にそれぞれの時給を掛け、掲載費や採用代行費を足したものが本当の採用コストです。請求書に載っている数字だけではありません。</div>
+
+    <h2 id="sec-2"><span class="num">2</span>社内の時間コストはどう換算する？</h2>
+    <p><strong>計算式は、費やした工数 × その人の時給です。</strong> 時給は「月給 ÷ 月平均労働時間」でざっくり見積もれます（例えば月22営業日、1日8時間で約176時間として計算）。小数点以下まで厳密に計算する必要はありません。大事なのは「見えない時間」を数字にすることで、そうして初めて外部コストと同じ表に並べて比較できます。</p>
+    <p>計上すべき工数には通常、次が含まれます：</p>
+    <ul>
+      <li>人事による書類選考、電話での一次選考</li>
+      <li>面接の設定、候補者との連絡</li>
+      <li>面接官（人事＋上司、場合によってはさらに上の層）の実際の面接時間</li>
+      <li>内定後から入社前までの事務手続き（契約、労働・健康保険の加入変更）</li>
+      <li>入社後の研修や指導の時間（新人が成果を出す前は、指導する人も自分の仕事が減る）</li>
+    </ul>
+    <div class="ask"><strong>こう計算できます：</strong>毎回細かく計算する必要はありません。まず「典型的な求人」1件分の工数を基準として出し（たとえば上の例の20+8+6+16時間）、以後は同じ種類の求人に同じ数字を当てはめれば、計算を繰り返す手間が省けます。</div>
+
+    <aside data-exp="cta-mid-2026-10-10">
+      <p>企業の人事担当者の方はこちら</p>
+      <h3>あなたの求人は、自社採用と外部委託のどちらが得か知りたいですか？</h3>
+      <p>職種名、人数、給与レンジを教えてください。コンサルタントが社内の時間コストと委託費用を並べて計算し、自社採用で十分な求人はどれかも率直にお伝えします。</p>
+      <form class="s1-lead" novalidate style="display:grid;gap:8px;margin-top:14px;position:relative">
+<input name="company" aria-label="会社名" placeholder="会社名" autocomplete="organization" style="min-height:44px;padding:0 12px;border:1px solid #D9E0E6;border-radius:10px;font-size:15px;background:#fff;color:#0D1B24">
+<input name="job" aria-label="探している求人" placeholder="どんな求人をお探しですか？（例：営業マネージャー 1名）" style="min-height:44px;padding:0 12px;border:1px solid #D9E0E6;border-radius:10px;font-size:15px;background:#fff;color:#0D1B24">
+<label style="display:grid;gap:4px;font-size:13.5px;color:#4A5A66">補足したいご要望（任意）<textarea name="detail" rows="3" maxlength="1000" placeholder="例：長く募集しても採用できない、来月入社してほしい、台湾語が話せる／シフトに対応できる人が必要…" style="min-height:88px;padding:10px 12px;border:1px solid #D9E0E6;border-radius:10px;font-size:15px;font-family:inherit;line-height:1.5;background:#fff;color:#0D1B24;resize:vertical"></textarea></label>
+<input name="contact" aria-label="メールアドレスまたは電話番号" placeholder="メールアドレスまたは電話番号" autocomplete="email" style="min-height:44px;padding:0 12px;border:1px solid #D9E0E6;border-radius:10px;font-size:15px;background:#fff;color:#0D1B24">
+<input name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
+<button type="submit" data-cta="mid-recruitment-cost-calculation-form" style="min-height:46px;border:0;border-radius:10px;background:#167EB2;color:#fff;font-size:15.5px;font-weight:700;cursor:pointer">無料でお見積りとご提案を受け取る</button>
+<p class="s1-lead-msg" role="status" aria-live="polite" style="margin:0;font-size:14px"></p>
+<p style="margin:0;font-size:13px;opacity:.85">1営業日以内にコンサルタントが返信します。事前の契約は不要です。または <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-recruitment-cost-calculation">LINEでコンサルタントに質問</a></p>
+</form>
+    </aside>
+
+    <h2 id="sec-3"><span class="num">3</span>求人が空いたままのコスト、どう見積もる？</h2>
+    <p><strong>欠員コストに公式の統一計算式はありませんが、よくある見積もりの考え方は、このポストが埋まっていれば1日／1か月あたりどれだけの価値を生み出すか、または外注コストをどれだけ節約できるかに、欠員の日数を掛けるというものです。</strong>  たとえば営業職が1か月空けば、その月に見込んでいた売上貢献がそのまま失われます。事務職や技術職の欠員なら、「代わりの人や外注にかかった追加費用」で見積もるのが一般的です。</p>
+    <p>台湾には「空席1件あたり1日いくらの損失か」を示す公的統計はありません。職務の性質によって差が大きすぎ、一律には当てはめられないからです。ただし、<strong>採用にどれだけ時間がかかるか</strong>については参考になる公開データがあります。台湾の求人サイト104の《2026 人資 FBI 報告》（2026-08-12公表）によると、企業が1人を採用するまでの平均日数は<strong>44.9日</strong>、管理職は平均<strong>77日</strong>、一般社員は平均<strong>40日</strong>で、最も長いのは電子・IT業の平均<strong>61日</strong>です。この日数に先ほどの「1日あたりの生産額または代替要員コスト」を掛ければ、その求人の空席コストの概算になります。</p>
+    <div class="ask"><strong>自分にこう問いかけてみてください：</strong>このポジションが1日空いていると、会社は何ができなくなるか？答えが「売上が1件減る」「残業で穴埋めする」なら、まずその金額を出し、見込みの採用日数（まずは104の報告の平均値を起点にしてかまいません）を掛ければ、おおよその欠員コストがわかります。</div>
+
+    <h2 id="sec-4"><span class="num">4</span>採用ミスにはどんなコストがある？</h2>
+    <p><strong>採用ミスのコストは、採用をもう一度やり直すだけでは済まず、いくつもの損失が積み重なります。</strong> よくある項目は次のとおりです：</p>
+    <ol>
+      <li><strong>採用をやり直すコストのすべて</strong>：上の試算表をもう一度まるごと回すのと同じです</li>
+      <li><strong>研修期間への投資が無駄になる</strong>：指導役の上司や同僚が費やした時間は、退職後には回収できません</li>
+      <li><strong>残される空白期間</strong>：その人が辞めてから後任が見つかるまで、ポジションは再び空いたままになります</li>
+      <li><strong>チームの士気と引き継ぎコスト</strong>：ほかの同僚が業務を代行することになり、引き継ぎミスのリスクも高まる</li>
+      <li><strong>解雇・退職に関連して発生しうる費用</strong>：個別の事情と労働契約による</li>
+    </ol>
+    <p>104の同じ報告では、2025年の新入社員の入社半年後の定着率はわずか<strong>62.2%</strong>で、2024年より4ポイント低下しています。一般サービス業はさらに低く、半年定着率は<strong>56.6%</strong>にとどまります。つまり台湾では「採用ミス」や「定着しない」ことは例外ではなく、企業が採用コストを見積もる際に必ず織り込むべき日常的なリスクであり、極端なケースではありません。</p>
+    <div class="ask"><strong>こう計算できます：</strong>「採用ミス1回の総損失」をざっくり見積もり、「選考に少し時間をかけ、行動面接の質問をいくつか増やす」追加コストと比べてみてください。たいていは、選考段階で余分にかける時間のほうが、採用ミスからやり直すよりずっと安いと分かります。</div>
+
+    <h2 id="sec-5"><span class="num">5</span>採用コストを下げるには？</h2>
+    <p>採用コストを下げるポイントは最も安い方法を探すことではなく、<strong>やり直しの回数を減らす</strong>ことです。やり直し（採用ミス、埋まらない、入社前の辞退）こそが本当にコストを押し上げるところだからです。いくつかの方向性：</p>
+    <ul>
+      <li><strong>求人の仕様を先に明確にする</strong>：給与帯、必須条件、仕事内容を一度にはっきり伝え、条件のすり合わせ不足による選考のやり直しを減らします</li>
+      <li><strong>選考の前段を外に任せる</strong>：人事の時間が主に書類選考や面接調整で詰まっているなら、採用委託や人材派遣で、その時間コストを一度きり、または固定の外部費用に置き換えられます。社内の工数を延々と食い続けることはなくなります</li>
+      <li><strong>定着率を長い目で見る</strong>：104のデータでは半年後の定着率がわずか62.2%とされている以上、採用時に動機と期待の確認に少し時間をかけるほうが、後から人を補充するより安上がりです</li>
+      <li><strong>同一職種のまとめ処理</strong>：同じ職種で複数名を採用する場合、面接をまとめて行い、通知も一括で出すことで1人あたりのコストを下げられます（当サイトの別記事〈<a href="/ja/articles/mass-hiring-guide/">大量採用の進め方</a>〉も参照）</li>
+    </ul>
+    <p>採用方法（自社採用／採用代行／人材派遣）ごとの費用構造と向いている場面は、〈<a href="/ja/articles/entry-level-recruitment-outsourcing/">一般職・若手ポジションの採用アウトソーシングの選び方</a>〉で詳しく解説しているため、ここでは数字を繰り返しません。ヘッドハンティングの料金体系の詳細は〈<a href="/ja/articles/headhunter-fees/">ヘッドハンティング会社の料金はどう決まる？</a>〉、人材派遣の法定雇用主コスト（労働保険、健康保険、退職金積立6%など）の内訳は〈<a href="/ja/articles/dispatch-cost-breakdown/">人材派遣の費用はどう計算する？</a>〉をご覧ください。簡単に言えば、法定雇用主コストは給与の約18%～19%で、これは相場ではなく決まった計算式です。詳しい料率と法的根拠はそちらの記事をご参照ください。</p>
+    <div class="ask"><strong>こう聞いてみてください：</strong>採用を委託するなら、「最初の候補者を推薦するまでに平均何営業日かかるか」「保証期間内に退職した場合どう補填するか」を直接聞いてみましょう——この2つの質問のほうが、単純な価格比較よりも本当のコストの差を映し出します。</div>
+    <p>Step1ne の例では、正社員の採用代行は成功報酬制で、候補者が入社して初めて費用が発生し、入社しなければ原則として費用はかかりません。<strong>平均して月給の約1.5か月分から</strong>です（これは Step1ne 自身の料金基準であり市場相場ではありません。実際の料率は職務の難易度と委託契約の取り決めによります）。他社の料金相場については、本記事では比較しません。</p>
+
+    <h2 id="sec-6">よくある質問</h2>
+    <div>
+      <details>
+        <summary><span>採用コストに社内の時間コストまで必ず含めるべき？掲載費と採用代行費だけではダメ？</span><span class="faq-icon">+</span></summary>
+        <p>現金支出だけで計算すると本当のコストを過小評価します。特に人事や管理職が長時間、履歴書の選考や面接の調整に追われていると、その時間は本来やるべき仕事を圧迫しています。「自社採用」と「委託採用」のどちらが得かをきちんと比較するなら、社内の時間コストを必ず含めてください。そうしないと、自社採用はいつまでも「タダ」に見えてしまいます。</p>
+      </details>
+      <details>
+        <summary><span>欠員コストはどう計算すれば正確？</span><span class="faq-icon">+</span></summary>
+        <p>すべての職種に当てはまる正確な公式はありません。職種によって会社への貢献度があまりに違うからです。現実的なやり方は、まず「このポジションが空いていることで、会社が具体的に何を失っているか」（売上、対応件数、代替要員のコスト）を押さえ、それに想定される採用日数を掛けて大まかな範囲とすることです。1の位まで正確に出す必要はありません。</p>
+      </details>
+    </div>
+
+<div class="cta">
+        <p>正社員を探していますか？職種と人数を教えていただければ、採用代行が割に合うか試算します。</p>
+          <a class="btn-alt" href="/ja/hiring-assessment/">まず採用形態の診断をする</a> <a class="btn-line" href="https://lin.ee/XcSWPzM">LINEでコンサルタントに相談</a>
+      </div>
+<div class="related-jobs-box" style="margin:26px 0;padding:18px 20px;border:1px solid #D9E0E6;border-radius:14px;background:#EAF4FA"><strong style="display:block;margin-bottom:9px;color:#0F5F87;font-size:15px">🔎 関連</strong><div style="display:flex;flex-wrap:wrap;gap:8px 14px;font-size:14.5px"><a href="/ja/commission-recruiting/">企業向け採用委託プラン</a> · <a href="/ja/jobs/">すべての求人を見る</a></div></div>
+
+<div class="foot-note"><strong>参考資料</strong><br> ・<a href="https://blog.104.com.tw/104data-fbi-report-2026/" target="_blank" rel="noopener">104人材銀行『2026 人資 FBI 報告』</a>（2026-08-12 発表）：平均採用日数、新入社員の半年定着率<br> ・法定の雇用主コストの料率と法的根拠：当サイト〈<a href="/ja/articles/dispatch-cost-breakdown/">人材派遣の費用の計算方法</a>〉を参照<br> ・Step1ne の料金体系：当サイト〈<a href="/ja/commission-recruiting/">企業向け採用委託プラン</a>〉を参照<br> （閲覧日 2026-10-10）
+</div>
+</article>
+  </div>
+</main>
+
+
+<footer><div class="fw">德仁管理顧問有限公司 台北市内湖区康寧路三段54之7号3階</div></footer>
+
+<script>
+document.querySelectorAll('article table').forEach(function(t){
+  var w=document.createElement('div'); w.className='tw';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
+var bar=document.getElementById('bar');
+function prog(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',prog,{passive:true}); prog();
+var tns=[].slice.call(document.querySelectorAll('.tn'));
+var secs=tns.map(function(a){return document.getElementById(a.dataset.s)}).filter(Boolean);
+if('IntersectionObserver' in window && secs.length){
+  var cur=null;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) cur=e.target.id; });
+    tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  },{rootMargin:'-88px 0px -70% 0px'}).observe && secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===e.target.id)}); }
+      });
+    },{rootMargin:'-88px 0px -70% 0px'}).observe(s);
+  });
+}
+</script>
+<script src="/assets/lead-form.js" defer></script>
+
+<style>
+.s1ne-sc{position:fixed;z-index:60;left:0;right:0;bottom:0;display:flex;gap:10px;padding:10px max(14px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));background:rgba(255,255,255,.96);box-shadow:0 -6px 24px rgba(40,30,10,.12);transform:translateY(120%);transition:transform .25s ease}
+.s1ne-sc.on{transform:none}
+.s1ne-sc a{flex:1;display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:999px;font-weight:700;font-size:15px;text-decoration:none;white-space:nowrap}
+.s1ne-sc .p{background:#111827;color:#fff}
+.s1ne-sc .l{background:#fff;color:#111827;border:1.5px solid #d1d5db}
+.s1ne-sc a:focus-visible{outline:3px solid #1f2937;outline-offset:2px}
+@media (min-width:760px){.s1ne-sc{left:auto;right:24px;bottom:24px;border-radius:999px;padding:8px;box-shadow:0 8px 28px rgba(40,30,10,.18)}.s1ne-sc a{flex:none;padding:0 22px}}
+@media (prefers-reduced-motion:reduce){.s1ne-sc{transition:none}}
+body{padding-bottom:84px}
+@media (min-width:760px){body{padding-bottom:0}}
+</style>
+<div class="s1ne-sc" id="s1neSc" role="region" aria-label="迅速に動く">
+  <a class="l" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">LINEで問い合わせ</a> <a class="p" href="/ja/jobs/" data-cta="jobs_cta_click">現在の求人を見る</a>
+</div>
+<script>
+(function(){var b=document.getElementById('s1neSc');if(!b)return;
+function t(){b.classList.toggle('on',window.scrollY>380);}
+window.addEventListener('scroll',t,{passive:true});t();
+b.querySelector('.p').addEventListener('click',function(){try{gtag('event',this.getAttribute('data-cta'),{page_path:location.pathname,placement:'sticky'});}catch(e){}});})();
+</script>
+<!-- /s1ne-sticky-cta -->
+
+</body>
+</html>

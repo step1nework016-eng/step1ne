@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+document.addEventListener('click', function (e) {
+  if (!e.target.closest) return;
+  var a = e.target.closest('a[href*="lin.ee"], a[href^="/apply"]');
+  if (!a) return;
+  var isApply = (a.getAttribute('href') || '').indexOf('/apply') === 0;
+  gtag('event', isApply ? 'apply_click' : 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60),
+    cta_slot: a.getAttribute('data-cta') || 'legacy'
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to calculate recruitment costs: formula, breakdown and worked example｜Step1ne</title>
+<meta name="description" content="Recruiting cost = external cost + internal cost; cost per hire = total cost ÷ number of hires. This article breaks down posting fees, agency and headhunting fees, HR time, vacancy cost, and the price of a bad hire, with a worked example clearly labeled “illustrative assumptions,” to show you how to calculate what a role actually cost.">
+
+
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/en/articles/recruitment-cost-calculation/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Step1ne Referrals">
+<meta property="og:title" content="How to calculate hiring costs: formula, breakdown and worked example">
+<meta property="og:description" content="Recruiting cost = external cost + internal cost; cost per hire = total cost ÷ number of hires. This article breaks down posting fees, agency and headhunting fees, HR time, vacancy cost, and the price of a bad hire, with a worked example clearly labeled “illustrative assumptions,” to show you how to calculate what a role actually cost.">
+<meta property="og:url" content="https://step1ne.com/en/articles/recruitment-cost-calculation/">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta name="theme-color" content="#F4F6F8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "How to calculate hiring costs: formula, breakdown and worked example",
+  "description": "Recruiting cost = external cost + internal cost; cost per hire = total cost ÷ number of hires. This article breaks down posting fees, agency and headhunting fees, HR time, vacancy cost, and the price of a bad hire, with a worked example clearly labeled “illustrative assumptions,” to show you how to calculate what a role actually cost.",
+  "datePublished": "2026-10-10",
+  "dateModified": "2026-10-10",
+  "inLanguage": "zh-TW",
+  "author": {
+    "@type": "Organization",
+    "name": "Step1ne 德仁管理顧問有限公司",
+    "url": "https://step1ne.com/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "德仁管理顧問有限公司 (Step1ne)",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://step1ne.com/assets/step1ne-logo.png"
+    }
+  },
+  "mainEntityOfPage": "https://step1ne.com/articles/recruitment-cost-calculation/"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://step1ne.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Headhunting Insights",
+      "item": "https://step1ne.com/articles/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "How to calculate hiring costs: formula, breakdown and worked example",
+      "item": "https://step1ne.com/articles/recruitment-cost-calculation/"
+    }
+  ]
+}
+</script>
+
+<style>
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;
+  --wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:17px;line-height:1.95;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.35;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,select,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
+
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
+.crumb{grid-column:1/-1;padding:22px 0 6px;font-size:13.5px;color:var(--slate-dim)}
+.crumb a{color:var(--slate)}
+.crumb a:hover{color:var(--brand-deep)}
+.crumb span{margin:0 8px;color:var(--rule)}
+
+.toc{position:sticky;top:92px;padding:8px 0 40px}
+.toc h2{font-size:13px;font-weight:700;color:var(--slate-dim);letter-spacing:.02em;margin-bottom:16px}
+.tns{position:relative;padding-left:22px}
+.tns::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.14))}
+.tn{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:14px;color:var(--slate);line-height:1.6;position:relative}
+.tn i{position:absolute;left:-22px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--rule);flex:0 0 auto}
+.tn:hover{color:var(--brand-deep)}
+.tn:hover i{border-color:var(--brand)}
+.tn.on{color:var(--ink);font-weight:700}
+.tn.on i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 4px rgba(46,169,223,.2)}
+.mtoc{display:none;margin:20px 0 0;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.mtoc summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15.5px;position:relative}
+.mtoc summary::-webkit-details-marker{display:none}
+.mtoc summary::after{content:"";position:absolute;right:20px;top:24px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.mtoc[open] summary::after{transform:rotate(-135deg)}
+.mtoc div{padding:0 18px 14px}
+.mtoc a{display:block;padding:9px 0;font-size:15px;color:var(--slate);border-top:1px solid var(--rule)}
+
+article{padding:14px 0 60px;max-width:70ch}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--brand-deep);background:rgba(22,126,178,.07);border:1px solid rgba(22,126,178,.25);border-radius:5px;padding:4px 11px}
+article h1{margin-top:16px;font-size:clamp(28px,4.2vw,42px);line-height:1.28;letter-spacing:-.02em}
+.by{margin-top:18px;padding-bottom:20px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14px;color:var(--slate-dim)}
+.by a{color:var(--slate);border-bottom:1px solid var(--rule)}
+.by .d{font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+
+.ans{margin-top:30px;background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:26px 30px}
+.ans .lab{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:10px}
+.ans p{font-size:19.5px;line-height:1.85;font-weight:500}
+.ans strong{font-weight:900}
+
+article h2{margin:52px 0 16px;font-size:25px;scroll-margin-top:92px}
+article h3{margin:34px 0 10px;font-size:19px}
+article h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-right:12px;border-radius:8px;background:var(--brand);color:#fff;font-family:var(--f-disp);font-size:17px;font-weight:700;vertical-align:2px}
+article p{margin-top:16px}
+article strong{font-weight:700}
+article a:not(.tn){color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.32)}
+article a:not(.tn):hover{border-bottom-color:var(--brand-deep)}
+article ul,article ol{margin:16px 0 0;padding-left:1.4em}
+article li{margin-top:9px}
+article table{width:100%;border-collapse:collapse;margin-top:22px;font-size:15.5px;background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+article th{text-align:left;background:var(--paper);font-weight:700;font-size:14px;color:var(--slate);padding:12px 14px;border-bottom:1px solid var(--rule)}
+article td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.75}
+article tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+article details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+article details summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+article details summary::-webkit-details-marker{display:none}
+article details summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+article details[open] summary::after{transform:rotate(-135deg)}
+article details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid var(--rule);color:var(--slate)}
+
+.foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
+.cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
+.cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
+footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+.fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.note{max-width:var(--wrap);margin:0 auto 46px;padding-inline:var(--gut)}
+.note div{background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid #B45309;border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.note b{color:#5A3D0C}
+.law{margin-top:22px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-left:3px solid var(--brand-deep);border-radius:0 8px 8px 0}
+.law .label{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:8px}
+.law ul{margin-top:8px}
+.insight{margin-top:22px;padding:18px 20px;background:var(--wash,#EAF4FA);border-radius:8px}
+.insight .label{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:6px}
+.tbl-wrap{overflow-x:auto}
+
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .mtoc{display:block}
+}
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  body{font-size:16.5px}
+  .ans{padding:22px;border-radius:0 8px 8px 0}
+  .ans p{font-size:18px}
+  article h2{font-size:22px;margin-top:42px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+<!--i18n-hreflang-->
+<link rel="alternate" hreflang="zh-Hant" href="https://step1ne.com/articles/recruitment-cost-calculation/">
+<link rel="alternate" hreflang="ja" href="https://step1ne.com/ja/articles/recruitment-cost-calculation/">
+<link rel="alternate" hreflang="en" href="https://step1ne.com/en/articles/recruitment-cost-calculation/">
+<link rel="alternate" hreflang="x-default" href="https://step1ne.com/articles/recruitment-cost-calculation/">
+<style>.s1-lang{max-width:1100px;margin:0 auto;padding:10px 16px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.s1-lang a,.s1-lang b{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid #d9dce3;background:#fff;font-size:14px;font-weight:600;color:#4a5060;text-decoration:none}.s1-lang b{background:#23262d;border-color:#23262d;color:#fff}.s1-lang a:hover{color:#23262d;border-color:#9aa0ad}.s1-lang a:focus-visible{outline:3px solid #1880B4;outline-offset:2px}.s1-note{max-width:1100px;margin:10px auto 0;padding:0 16px}.s1-note p{margin:0;padding:12px 14px;border-radius:12px;background:#eef4fb;border:1px solid #c9dcef;color:#1d3a57;font-size:14.5px;line-height:1.7}</style>
+<!--/i18n-hreflang-->
+</head>
+
+<body>
+<div id="bar"></div>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/en/"><img src="/assets/step1ne-logo.png" alt="Step1ne"><b>Step1ne</b></a>
+    <nav class="hd-nav">
+      <a href="/en/commission-recruiting/">For Employers</a><a href="/en/jobs/">Jobs</a><a class="on" href="/en/articles/">Headhunting Insights</a><a href="/en/talent/">Step1ne Referrals</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">Ask on LINE</a>
+    <button class="hd-burger" type="button" aria-label="Open menu" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/en/commission-recruiting/">For Employers</a><a href="/en/jobs/">Jobs</a><a href="/en/articles/">Articles</a><a href="/en/talent/">Step1ne Referrals</a> <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">Contact on LINE</a>
+  </div>
+</header>
+<!--i18n-switch--><nav class="s1-lang" aria-label="Change language"><a href="/articles/recruitment-cost-calculation/" hreflang="zh-Hant" lang="zh-Hant">中文</a><a href="/ja/articles/recruitment-cost-calculation/" hreflang="ja" lang="ja">日本語</a><b lang="en" aria-current="true">English</b></nav><!--/i18n-switch-->
+
+
+<main class="shell">
+  <nav class="crumb" aria-label="Breadcrumb"><a href="/en/">Home</a><span>/</span><a href="/en/articles/">Recruiting Insights</a><span>/</span>How to Calculate Recruiting Costs: Formula, Breakdown, and Worked Example</nav>
+
+  <aside class="toc" aria-label="Contents">
+    <h2>This article has 6 sections</h2>
+    <div class="tns"><a class="tn" href="#sec-1" data-s="sec-1"><i></i><span>Worked example: how much did one opening actually cost?</span></a> <a class="tn" href="#sec-2" data-s="sec-2"><i></i><span>How do you convert internal time into cost?</span></a> <a class="tn" href="#sec-3" data-s="sec-3"><i></i><span>How do you estimate the cost of a vacant position?</span></a> <a class="tn" href="#sec-4" data-s="sec-4"><i></i><span>What does a bad hire cost?</span></a> <a class="tn" href="#sec-5" data-s="sec-5"><i></i><span>How to lower recruiting costs</span></a> <a class="tn" href="#sec-6" data-s="sec-6"><i></i><span>FAQ</span></a></div>
+  </aside>
+
+  <div>
+    <details class="mtoc"><summary>Contents (6 sections)</summary><div><a href="#sec-1">Worked example: how much did one position actually cost?</a> <a href="#sec-2">How do you convert internal time into cost?</a> <a href="#sec-3">How do you estimate the cost of an unfilled position?</a> <a href="#sec-4">What does a bad hire cost?</a> <a href="#sec-5">How can you lower recruitment costs?</a> <a href="#sec-6">FAQ</a></div></details>
+    <article>
+      <span class="tag">Hiring guide for companies · Recruiting costs</span>
+      <h1>How to calculate hiring costs: formula, breakdown and worked example</h1>
+      <div class="by">
+        <span>By: <a href="/en/about/">Step1ne Executive Search Consultant Team</a></span> <time class="d" datetime="2026-10-10">Published 2026-10-10</time> <span class="d">About 7 min</span>
+      </div>
+
+      <div class="ans">
+        <div class="lab">Short answer</div>
+        <p><strong>Recruitment cost = external cost + internal cost.</strong> External cost is the cash you spend, such as job board posting fees, recruitment outsourcing or headhunting fees, and advertising and recruiting event costs. Internal cost is the time your own people spend, converted into money, including HR's time screening résumés and scheduling interviews, managers' interview hours, and training time after the new hire starts. Add these two together and divide by the number of people hired, and you get the <strong>cost per hire</strong>:</p>
+        <div class="ask"><strong>Cost per hire = (external costs + internal costs) ÷ number of hires</strong></div>
+        <p>Many companies only count external costs ("how much we paid in listing or agency fees"), which always makes the number lower than reality—because the time HR and managers spend isn't free; it just doesn't come with an invoice.</p>
+        <div class="ask"><strong>Here's how to calculate it:</strong> split costs into two columns — "cash paid out" and "time spent." For cash, use invoices and contract amounts; for time, record "who did what and how many hours it took." Only the sum of both columns is the full cost.</div>
+      </div>
+      <div class="employer-cta" style="margin:24px 0;padding:22px 24px;border-radius:16px;background:linear-gradient(135deg,#0F5F87,#167EB2);color:#fff">
+        <div style="font-size:18px;font-weight:800;margin-bottom:6px">Are you an employer looking to hire?</div>
+        <div style="font-size:14.5px;opacity:.92;margin-bottom:15px;line-height:1.6">Permanent recruitment, executive search, and temporary staffing. Success-based fees — nothing charged unless the hire starts. Transparent pricing.</div>
+        <a href="/en/commission-recruiting/" style="display:inline-block;background:#fff;color:#0F5F87;font-weight:700;padding:11px 20px;border-radius:10px;text-decoration:none;margin:0 8px 8px 0">See our corporate recruiting plans →</a><a href="https://lin.ee/XcSWPzM" style="display:inline-block;background:#06C755;color:#fff;font-weight:700;padding:11px 20px;border-radius:10px;text-decoration:none">Ask us on LINE</a>
+      </div>
+
+    <h2 id="sec-1"><span class="num">1</span>Worked example: how much did one position actually cost?</h2>
+    <p><strong>All figures below are illustrative assumptions, not market rates. Actual amounts depend on the company's pay structure, how hard the role is to fill, and the recruiting method.</strong></p>
+    <p>Assumptions:</p>
+    <ul>
+      <li>Role: mid-level administrative staff at a monthly salary of NT$40,000</li>
+      <li>HR hourly cost (based on a monthly salary of NT$45,000 and about 176 working hours per month): about NT$256/hour</li>
+      <li>Manager's hourly rate (based on a monthly salary of NT$70,000): about NT$398/hour</li>
+      <li>Recruiting method: post on job sites and hire yourself</li>
+    </ul>
+    <div class="tw" style="overflow-x:auto"><table><thead><tr><th>Item</th><th>Assumed hours / amount</th><th>Subtotal (example)</th></tr></thead><tbody><tr><td>Job site posting fees</td><td>—</td><td>NT$5,000</td></tr><tr><td>HR screens résumés + schedules interviews</td><td>20 hours × NT$256</td><td>NT$5,120</td></tr><tr><td>HR arranges and sits in on interviews</td><td>8 hours × NT$256</td><td>NT$2,048</td></tr><tr><td>Manager interview</td><td>6 hours × NT$398</td><td>NT$2,388</td></tr><tr><td>Onboarding training (HR + supervising manager)</td><td>16 hours × about NT$320 (average)</td><td>NT$5,120</td></tr><tr><td><strong>External cost subtotal</strong></td><td></td><td>NT$5,000</td></tr><tr><td><strong>Internal cost subtotal</strong></td><td></td><td>NT$14,676</td></tr><tr><td><strong>Total recruiting cost (example)</strong></td><td></td><td><strong>About NT$19,676</strong></td></tr></tbody></table></div>
+    <p>If only 1 person is hired in this round, the cost per hire is about NT$19,676; if the same posting results in 2 hires, the cost per hire drops to about NT$9,838. <strong>This is why hiring several people for the same role at once usually costs less per hire than filling seats one at a time</strong>.</p>
+    <div class="ask"><strong>Ask yourself directly:</strong> For your last opening, how many hours did HR spend, and how many did the manager spend? Multiply each by their hourly rate, add the listing or agency fee, and that's your real cost of hiring—not just the number on the invoice.</div>
+
+    <h2 id="sec-2"><span class="num">2</span>How do you convert internal time into cost?</h2>
+    <p><strong>The formula: hours spent × that person's hourly rate.</strong> You can roughly estimate the hourly rate as “monthly salary ÷ average monthly working hours” (for example, 22 working days a month at 8 hours a day, about 176 hours). There's no need for decimal-point precision; the point is to turn “invisible time” into a number so it can sit on the same sheet as external costs for comparison.</p>
+    <p>The hours to count usually include:</p>
+    <ul>
+      <li>HR résumé screening and phone pre-screening</li>
+      <li>Scheduling interviews, contacting candidates</li>
+      <li>Actual interview time for interviewers (HR + manager, sometimes senior leadership)</li>
+      <li>Administrative work between offer and start date (contracts, labor and health insurance enrollment changes)</li>
+      <li>Training and onboarding time after the hire starts (until the newcomer is productive, whoever trains them gets less of their own work done)</li>
+    </ul>
+    <div class="ask"><strong>Here's how to calculate it:</strong> you don't need to work it out precisely every time. Estimate the hours for one "typical role" once as a baseline (for example, the 20+8+6+16 hours shown above), then apply the same figures to similar roles and save yourself from recalculating.</div>
+
+    <aside data-exp="cta-mid-2026-10-10">
+      <p>For company HR teams</p>
+      <h3>Want to know whether it's cheaper to fill your role yourself or outsource it?</h3>
+      <p>Tell us the job title, headcount and salary band, and a consultant will put your internal time costs and commission fees side by side—and tell you plainly which roles you can fill well enough on your own.</p>
+      <form class="s1-lead" novalidate style="display:grid;gap:8px;margin-top:14px;position:relative">
+<input name="company" aria-label="Company name" placeholder="Company name" autocomplete="organization" style="min-height:44px;padding:0 12px;border:1px solid #D9E0E6;border-radius:10px;font-size:15px;background:#fff;color:#0D1B24">
+<input name="job" aria-label="Jobs I&#x27;m looking for" placeholder="What role are you hiring for? (e.g., 1 sales manager)" style="min-height:44px;padding:0 12px;border:1px solid #D9E0E6;border-radius:10px;font-size:15px;background:#fff;color:#0D1B24">
+<label style="display:grid;gap:4px;font-size:13.5px;color:#4A5A66">Additional requirements (optional)<textarea name="detail" rows="3" maxlength="1000" placeholder="e.g. the role has been open a long time, we need someone to start next month, they must speak Taiwanese Hokkien / work shifts…" style="min-height:88px;padding:10px 12px;border:1px solid #D9E0E6;border-radius:10px;font-size:15px;font-family:inherit;line-height:1.5;background:#fff;color:#0D1B24;resize:vertical"></textarea></label>
+<input name="contact" aria-label="Email or phone" placeholder="Email or phone" autocomplete="email" style="min-height:44px;padding:0 12px;border:1px solid #D9E0E6;border-radius:10px;font-size:15px;background:#fff;color:#0D1B24">
+<input name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
+<button type="submit" data-cta="mid-recruitment-cost-calculation-form" style="min-height:46px;border:0;border-radius:10px;background:#167EB2;color:#fff;font-size:15.5px;font-weight:700;cursor:pointer">Get a free quote and recommendations</button>
+<p class="s1-lead-msg" role="status" aria-live="polite" style="margin:0;font-size:14px"></p>
+<p style="margin:0;font-size:13px;opacity:.85">A consultant will reply within 1 business day — no contract needed upfront. You can also <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-recruitment-cost-calculation">ask a consultant on LINE</a></p>
+</form>
+    </aside>
+
+    <h2 id="sec-3"><span class="num">3</span>How do you estimate the cost of an unfilled role?</h2>
+    <p><strong>There's no official, standard formula for the cost of a vacancy, but a common way to estimate it is: how much value the role would create (or how much outsourcing cost it would save) per day or month if filled, multiplied by the number of days it stays empty.</strong>  For example, a sales role left open for a month means losing the revenue contribution you expected that month; for administrative or technical vacancies, the estimate is usually based on the extra cost of temps or outsourcing to cover the work.</p>
+    <p>Taiwan has no public statistic telling you "how much an average vacancy costs per day," because it varies too much by role to apply across the board. But there is public data on <strong>how long hiring takes</strong>: according to the "2026 HR FBI Report" from 104 Job Bank (a Taiwanese job site), published 2026-08-12, companies take an average of <strong>44.9 days</strong> to hire one employee, <strong>77 days</strong> on average for managerial roles, and <strong>40 days</strong> for general staff; electronics and IT take the longest, averaging <strong>61 days</strong>. Multiply that number of days by the "daily output value or cover cost" mentioned above, and you have an estimate of the vacancy cost for your role.</p>
+    <div class="ask"><strong>Ask yourself this:</strong> for every day this role sits empty, what does the company fail to get done? If the answer is "one fewer sale" or "someone covers it with overtime," put a number on that and multiply it by the expected days to hire (you can start with the average from the 104 report), and you'll have a rough cost of the vacancy.</div>
+
+    <h2 id="sec-4"><span class="num">4</span>What does a bad hire cost?</h2>
+    <p><strong>The cost of a bad hire isn't just recruiting again; it stacks up several layers of loss.</strong> Common items include:</p>
+    <ol>
+      <li><strong>The full cost of re-hiring</strong>: the same as running the entire cost table above all over again</li>
+      <li><strong>Training investment goes to waste</strong>: the time trainers and colleagues spent can't be recovered after the person leaves</li>
+      <li><strong>The vacancy left behind</strong>: between that person leaving and a replacement arriving, the role sits empty again</li>
+      <li><strong>Team morale and handover costs</strong>: Other colleagues have to cover the work, and the risk of handover mistakes rises</li>
+      <li><strong>Possible severance or layoff-related costs</strong>: depend on the case and the employment contract</li>
+    </ol>
+    <p>The same 104 report also shows that in 2025, only <strong>62.2%</strong> of new hires were still in the job six months later, down 4 percentage points from 2024; general services were even lower, at <strong>56.6%</strong>. In Taiwan, then, "hiring the wrong person" or "not keeping people" is not rare. It is a routine risk companies must factor in when estimating hiring costs, not an extreme case.</p>
+    <div class="ask"><strong>Here's how to calculate it:</strong> Roughly estimate the total loss from one bad hire, then compare it with the extra cost of spending a bit more time screening and asking a few more behavioral interview questions. You'll usually find the extra screening time is far cheaper than a bad hire and starting over.</div>
+
+    <h2 id="sec-5"><span class="num">5</span>How can you lower hiring costs?</h2>
+    <p>The key to lowering hiring costs isn't finding the cheapest channel but <strong>reducing how often you have to start over</strong>, because redoing the work (wrong hires, roles left unfilled, candidates dropping out before day one) is what really drives costs up. A few approaches:</p>
+    <ul>
+      <li><strong>Spell out the role spec first</strong>: state the pay band, hard requirements, and job content clearly up front, cutting the time lost to re-screening because conditions weren't aligned</li>
+      <li><strong>Hand off the front end of screening</strong>: if HR's time is mostly tied up screening résumés and scheduling interviews, recruitment outsourcing or temporary staffing can turn that time cost into a one-time or fixed external fee, instead of something that keeps eating into internal hours</li>
+      <li><strong>Take a longer view of retention</strong>: since 104's data shows a six-month retention rate of only 62.2%, spending a little more time confirming motivation and expectations during hiring is cheaper than refilling the role later</li>
+      <li><strong>Batch processing for the same role</strong>: if you need several people for the same role, holding interviews together and sending notices in batches lowers the cost per hire (see our other article, "<a href="/en/articles/mass-hiring-guide/">How to do mass hiring</a>")</li>
+    </ul>
+    <p>The cost structures and best-fit scenarios for each hiring approach (hiring yourself / outsourced recruitment / temporary staffing) are broken down in "<a href="/en/articles/entry-level-recruitment-outsourcing/">How to Choose Recruitment Outsourcing for Entry- and Mid-Level Roles</a>," so we won't repeat the numbers here. Details on headhunting fee models are in "<a href="/en/articles/headhunter-fees/">How Are Headhunter Fees Calculated?</a>", and a full breakdown of the statutory employer costs of staffing (labor insurance, health insurance, the 6% pension contribution, etc.) is in "<a href="/en/articles/dispatch-cost-breakdown/">How Are Staffing Costs Calculated?</a>". In short, statutory employer costs come to about 18%–19% of salary. That is a fixed formula, not a market rate; see that article for the detailed rates and legal basis.</p>
+    <div class="ask"><strong>Just ask directly:</strong> If you're outsourcing recruitment, ask "How many business days on average until you send the first candidate?" and "How do you handle a replacement if someone leaves during the guarantee period?" These two questions reveal the real cost difference better than comparing prices alone.</div>
+    <p>Taking Step1ne as an example, permanent recruitment outsourcing is success-based: fees apply only when the candidate starts, and in principle there's no charge if they don't. <strong>On average, fees start at about 1.5 months' salary</strong> (this is Step1ne's own fee standard, not a market rate; the actual rate depends on role difficulty and the engagement contract). This article does not compare other providers' fees.</p>
+
+    <h2 id="sec-6">FAQ</h2>
+    <div>
+      <details>
+        <summary><span>Do hiring costs have to include internal time? Can't I just count posting and agency fees?</span><span class="faq-icon">+</span></summary>
+        <p>Counting only cash spending underestimates the real cost, especially when HR or managers spend long stretches stuck screening résumés and scheduling interviews; that time crowds out the work they should be doing. To properly compare whether in-house hiring or commissioned recruitment is worth it, you have to include internal time costs, or in-house hiring will always look "free."</p>
+      </details>
+      <details>
+        <summary><span>How do you accurately calculate the cost of a vacancy?</span><span class="faq-icon">+</span></summary>
+        <p>There's no formula that works for every role, because the value different roles contribute varies too much. The practical approach is to first pin down "what the company is concretely losing while this seat is empty" (sales, service volume, cover costs), then multiply by the expected days to hire to get a rough range. You don't need to be accurate to the last digit.</p>
+      </details>
+    </div>
+
+<div class="cta">
+        <p>Looking for permanent hires? Tell us the role and headcount, and we'll work out whether recruitment outsourcing is worth it.</p>
+          <a class="btn-alt" href="/en/hiring-assessment/">Take the hiring-model assessment first</a> <a class="btn-line" href="https://lin.ee/XcSWPzM">Ask a consultant on LINE</a>
+      </div>
+<div class="related-jobs-box" style="margin:26px 0;padding:18px 20px;border:1px solid #D9E0E6;border-radius:14px;background:#EAF4FA"><strong style="display:block;margin-bottom:9px;color:#0F5F87;font-size:15px">🔎 Related</strong><div style="display:flex;flex-wrap:wrap;gap:8px 14px;font-size:14.5px"><a href="/en/commission-recruiting/">Recruitment Commission Plan for Businesses</a> · <a href="/en/jobs/">View all openings</a></div></div>
+
+<div class="foot-note"><strong>References</strong><br> ・<a href="https://blog.104.com.tw/104data-fbi-report-2026/" target="_blank" rel="noopener">104 Job Bank, "2026 HR FBI Report"</a> (published 2026-08-12): average time to hire, six-month retention of new hires<br> ・Rates and legal basis for statutory employer costs: see our article "<a href="/en/articles/dispatch-cost-breakdown/">How staffing costs are calculated</a>"<br> ・Step1ne's fees: see our "<a href="/en/commission-recruiting/">Recruitment Commission Plan for Businesses</a>" page<br> (accessed 2026-10-10)
+</div>
+</article>
+  </div>
+</main>
+
+
+<footer><div class="fw">德仁管理顧問有限公司, 3F, No. 54-7, Sec. 3, Kangning Rd., Neihu Dist., Taipei City</div></footer>
+
+<script>
+document.querySelectorAll('article table').forEach(function(t){
+  var w=document.createElement('div'); w.className='tw';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
+var bar=document.getElementById('bar');
+function prog(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',prog,{passive:true}); prog();
+var tns=[].slice.call(document.querySelectorAll('.tn'));
+var secs=tns.map(function(a){return document.getElementById(a.dataset.s)}).filter(Boolean);
+if('IntersectionObserver' in window && secs.length){
+  var cur=null;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) cur=e.target.id; });
+    tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  },{rootMargin:'-88px 0px -70% 0px'}).observe && secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===e.target.id)}); }
+      });
+    },{rootMargin:'-88px 0px -70% 0px'}).observe(s);
+  });
+}
+</script>
+<script src="/assets/lead-form.js" defer></script>
+
+<style>
+.s1ne-sc{position:fixed;z-index:60;left:0;right:0;bottom:0;display:flex;gap:10px;padding:10px max(14px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));background:rgba(255,255,255,.96);box-shadow:0 -6px 24px rgba(40,30,10,.12);transform:translateY(120%);transition:transform .25s ease}
+.s1ne-sc.on{transform:none}
+.s1ne-sc a{flex:1;display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:999px;font-weight:700;font-size:15px;text-decoration:none;white-space:nowrap}
+.s1ne-sc .p{background:#111827;color:#fff}
+.s1ne-sc .l{background:#fff;color:#111827;border:1.5px solid #d1d5db}
+.s1ne-sc a:focus-visible{outline:3px solid #1f2937;outline-offset:2px}
+@media (min-width:760px){.s1ne-sc{left:auto;right:24px;bottom:24px;border-radius:999px;padding:8px;box-shadow:0 8px 28px rgba(40,30,10,.18)}.s1ne-sc a{flex:none;padding:0 22px}}
+@media (prefers-reduced-motion:reduce){.s1ne-sc{transition:none}}
+body{padding-bottom:84px}
+@media (min-width:760px){body{padding-bottom:0}}
+</style>
+<div class="s1ne-sc" id="s1neSc" role="region" aria-label="Fast action">
+  <a class="l" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">Ask on LINE</a> <a class="p" href="/en/jobs/" data-cta="jobs_cta_click">See current openings</a>
+</div>
+<script>
+(function(){var b=document.getElementById('s1neSc');if(!b)return;
+function t(){b.classList.toggle('on',window.scrollY>380);}
+window.addEventListener('scroll',t,{passive:true});t();
+b.querySelector('.p').addEventListener('click',function(){try{gtag('event',this.getAttribute('data-cta'),{page_path:location.pathname,placement:'sticky'});}catch(e){}});})();
+</script>
+<!-- /s1ne-sticky-cta -->
+
+</body>
+</html>

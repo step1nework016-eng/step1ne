@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href*="lin.ee"]');
+  if (!a) return;
+  gtag('event', 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60)
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI面接は人間との面接より緊張する？正直にお話しします｜Step1ne</title>
+<meta name="description" content="AI面接官・阿財（アツァイ）との面接の緊張は、人間との面接の緊張とは違います。大きいか小さいかではなく、緊張の出どころが違うのです。この記事では2種類の緊張がそれぞれどこから来るのかを正直に分解し、面接中に中断されたときに阿財がどう対応するかをデモ場面で紹介します。">
+<meta name="keywords" content="AI面談 緊張する,AI面接 不安,阿財 面談 緊張,AI面談 プレッシャー,Step1ne AI 阿財">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/ja/articles/ai-interview-anxiety/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Step1ne 紹介プログラム">
+<meta property="og:title" content="AI面接は人間との面接より緊張する？正直に話します">
+<meta property="og:description" content="2種類の緊張は原因が違うだけで、どちらがより怖いということではありません。事例を一つ挙げ、面談の途中で中断されたときに阿財がどう対応するかを紹介します。">
+<meta property="og:url" content="https://step1ne.com/ja/articles/ai-interview-anxiety/">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta name="theme-color" content="#F4F6F8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "AI面接は人間との面接より緊張する？正直に話します",
+  "description": "AI面接官・阿財との面接と人間による面接の緊張感の違いを分解します。緊張の原因もプレッシャーのポイントも異なり、どちらが怖いかという単純な比較ではありません。架空のサンプル場面を使い、面接中に邪魔が入ったときや候補者が緊張しているときに阿財が実際にどう対応するかも説明します。",
+  "datePublished": "2026-09-03",
+  "dateModified": "2026-09-03",
+  "inLanguage": "zh-TW",
+  "author": {
+    "@type": "Organization",
+    "name": "Step1ne 德仁管理顧問有限公司",
+    "url": "https://step1ne.com/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "德仁管理顧問有限公司（Step1ne）",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://step1ne.com/assets/step1ne-logo.png"
+    }
+  }
+}
+</script>
+
+<style>
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;
+  --wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:17px;line-height:1.95;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.35;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,select,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* 導覽 */
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+/* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
+
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
+.crumb{grid-column:1/-1;padding:22px 0 6px;font-size:13.5px;color:var(--slate-dim)}
+.crumb a{color:var(--slate)}
+.crumb a:hover{color:var(--brand-deep)}
+.crumb span{margin:0 8px;color:var(--rule)}
+
+/* 目錄軌：沿用全站 signature */
+.toc{position:sticky;top:92px;padding:8px 0 40px}
+.toc h2{font-size:13px;font-weight:700;color:var(--slate-dim);letter-spacing:.02em;margin-bottom:16px}
+.tns{position:relative;padding-left:22px}
+.tns::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.14))}
+.tn{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:14px;color:var(--slate);line-height:1.6;position:relative}
+.tn i{position:absolute;left:-22px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--rule);flex:0 0 auto}
+.tn:hover{color:var(--brand-deep)}
+.tn:hover i{border-color:var(--brand)}
+.tn.on{color:var(--ink);font-weight:700}
+.tn.on i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 4px rgba(46,169,223,.2)}
+.mtoc{display:none;margin:20px 0 0;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.mtoc summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15.5px;position:relative}
+.mtoc summary::-webkit-details-marker{display:none}
+.mtoc summary::after{content:"";position:absolute;right:20px;top:24px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.mtoc[open] summary::after{transform:rotate(-135deg)}
+.mtoc div{padding:0 18px 14px}
+.mtoc a{display:block;padding:9px 0;font-size:15px;color:var(--slate);border-top:1px solid var(--rule)}
+
+/* 文章本體 */
+article{padding:14px 0 60px;max-width:70ch}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--brand-deep);background:rgba(22,126,178,.07);border:1px solid rgba(22,126,178,.25);border-radius:5px;padding:4px 11px}
+article h1{margin-top:16px;font-size:clamp(28px,4.2vw,42px);line-height:1.28;letter-spacing:-.02em}
+.by{margin-top:18px;padding-bottom:20px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14px;color:var(--slate-dim)}
+.by a{color:var(--slate);border-bottom:1px solid var(--rule)}
+.by .d{font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+
+/* ★ Signature：直接答案 */
+.ans{margin-top:30px;background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:26px 30px}
+.ans .lab{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:10px}
+.ans p{font-size:19.5px;line-height:1.85;font-weight:500}
+.ans strong{font-weight:900}
+
+article h2{margin:52px 0 16px;font-size:25px;scroll-margin-top:92px}
+article h3{margin:34px 0 10px;font-size:19px}
+article h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-right:12px;border-radius:8px;background:var(--brand);color:#fff;font-family:var(--f-disp);font-size:17px;font-weight:700;vertical-align:2px}
+article p{margin-top:16px}
+article strong{font-weight:700}
+article a:not(.tn){color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.32)}
+article a:not(.tn):hover{border-bottom-color:var(--brand-deep)}
+article ul,article ol{margin:16px 0 0;padding-left:1.4em}
+article li{margin-top:9px}
+article table{width:100%;border-collapse:collapse;margin-top:22px;font-size:15.5px;background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+article th{text-align:left;background:var(--paper);font-weight:700;font-size:14px;color:var(--slate);padding:12px 14px;border-bottom:1px solid var(--rule)}
+article td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.75}
+article tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+article details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+article details summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+article details summary::-webkit-details-marker{display:none}
+article details summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+article details[open] summary::after{transform:rotate(-135deg)}
+article details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid var(--rule);color:var(--slate)}
+
+.foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
+.cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
+.cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
+footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+.fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.note{max-width:var(--wrap);margin:0 auto 46px;padding-inline:var(--gut)}
+.note div{background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid #B45309;border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.note b{color:#5A3D0C}
+
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .mtoc{display:block}
+}
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  body{font-size:16.5px}
+  .ans{padding:22px;border-radius:0 8px 8px 0}
+  .ans p{font-size:18px}
+  article h2{font-size:22px;margin-top:42px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+<!--i18n-hreflang-->
+<link rel="alternate" hreflang="zh-Hant" href="https://step1ne.com/articles/ai-interview-anxiety/">
+<link rel="alternate" hreflang="ja" href="https://step1ne.com/ja/articles/ai-interview-anxiety/">
+<link rel="alternate" hreflang="en" href="https://step1ne.com/en/articles/ai-interview-anxiety/">
+<link rel="alternate" hreflang="x-default" href="https://step1ne.com/articles/ai-interview-anxiety/">
+<style>.s1-lang{max-width:1100px;margin:0 auto;padding:10px 16px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.s1-lang a,.s1-lang b{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid #d9dce3;background:#fff;font-size:14px;font-weight:600;color:#4a5060;text-decoration:none}.s1-lang b{background:#23262d;border-color:#23262d;color:#fff}.s1-lang a:hover{color:#23262d;border-color:#9aa0ad}.s1-lang a:focus-visible{outline:3px solid #1880B4;outline-offset:2px}.s1-note{max-width:1100px;margin:10px auto 0;padding:0 16px}.s1-note p{margin:0;padding:12px 14px;border-radius:12px;background:#eef4fb;border:1px solid #c9dcef;color:#1d3a57;font-size:14.5px;line-height:1.7}</style>
+<!--/i18n-hreflang-->
+</head>
+
+<body>
+<div id="bar"></div>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/ja/"><img src="/assets/step1ne-logo.png" alt="Step1ne"><b>Step1ne</b></a>
+    <nav class="hd-nav">
+      <a href="/ja/commission-recruiting/">企業向けサービス</a><a href="/ja/jobs/">求人一覧</a><a class="on" href="/ja/articles/">ヘッドハンティングコラム</a><a href="/ja/talent/">Step1ne 紹介プログラム</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">LINEで問い合わせ</a>
+    <button class="hd-burger" type="button" aria-label="メニューを開く" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/ja/commission-recruiting/">法人向けサービス</a><a href="/ja/jobs/">求人一覧</a><a href="/ja/articles/">ヘッドハンティングコラム</a><a href="/ja/talent/">Step1ne 紹介プログラム</a> <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINEで問い合わせ</a>
+  </div>
+</header>
+<!--i18n-switch--><nav class="s1-lang" aria-label="言語を切り替える"><a href="/articles/ai-interview-anxiety/" hreflang="zh-Hant" lang="zh-Hant">中文</a><b lang="ja" aria-current="true">日本語</b><a href="/en/articles/ai-interview-anxiety/" hreflang="en" lang="en">English</a></nav><!--/i18n-switch-->
+
+
+<main class="shell">
+  <nav class="crumb" aria-label="パンくずリスト"><a href="/ja/">ホーム</a><span>/</span><a href="/ja/articles/">ヘッドハンティングコラム</a><span>/</span>AI面接は人間との面接より緊張する？</nav>
+
+  <aside class="toc" aria-label="目次">
+    <h2>本記事は全5セクション</h2>
+    <div class="tns"><a class="tn" href="#sec-1" data-s="sec-1"><i></i><span>2種類の緊張、その出どころは違う</span></a> <a class="tn" href="#sec-2" data-s="sec-2"><i></i><span>例：面接が途中で中断されたとき、阿財はどう対応するか</span></a> <a class="tn" href="#sec-3" data-s="sec-3"><i></i><span>面接中に本当に詰まってしまったら</span></a> <a class="tn" href="#sec-4" data-s="sec-4"><i></i><span>よくある質問</span></a> <a class="tn" href="#sec-5" data-s="sec-5"><i></i><span>緊張するのは当たり前。一度話してみればわかります</span></a></div>
+  </aside>
+
+  <div>
+    <details class="mtoc"><summary>目次（5セクション）</summary><div><a href="#sec-1">2種類の緊張、原因はそれぞれ違う</a> <a href="#sec-2">事例：面談の途中で中断されたら、阿財はどう対応する？</a> <a href="#sec-3">面談中に本当に詰まってしまったら</a> <a href="#sec-4">よくある質問</a> <a href="#sec-5">緊張するのは当たり前。一度話してみればわかります</a></div></details>
+    <article>
+      <span class="tag">AI と転職・心の準備</span>
+      <h1>AI面談は人間の面接より緊張する？</h1>
+      <div class="by">
+        <span>著者：<a href="/ja/about/">Step1ne ヘッドハンティング・コンサルタントチーム</a></span> <time class="d" datetime="2026-09-03">公開日 2026-09-03</time> <span class="d">約3分</span>
+      </div>
+
+      <div class="ans">
+        <div class="lab">端的な答え</div>
+        <p>必ずしも緊張が増すわけではありませんが、緊張の種類が違います。人間との面接のプレッシャーは主に「相手が自分の表情や間を見ている」ことから来ます。阿財との面談にはそれがない代わりに、「どこまで詳しく入力すればいいのか」「相手が本当に理解したのかわからない」という別のプレッシャーがあります。どちらも本物の心理的コストです。この記事では正直に分けて説明し、AI面談の方が必ず楽だとは断言しません。</p>
+      </div>
+
+      <h2 id="sec-1">2種類の緊張、その原因は違う</h2>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th></th><th>人間による面接</th><th>阿財との面談</th></tr></thead>
+        <tbody>
+          <tr><td data-label=""><strong>プレッシャーの原因</strong></td><td data-label="真人面試">相手の表情、口調、沈黙の秒数まで、自分で過剰に深読みしてしまう</td><td data-label="阿財面談">相手の反応が見えないので、「この書き方で足りているか」と不安になりやすい</td></tr>
+          <tr><td data-label=""><strong>考える時間</strong></td><td data-label="真人面試">現場では即座の反応が求められ、間が長すぎると気まずくなる</td><td data-label="阿財面談">入力前によく考えてから送信できるので、時間のプレッシャーがずっと少ない</td></tr>
+          <tr><td data-label=""><strong>ミスをしたときの感覚</strong></td><td data-label="真人面試">言い間違えるとその場で相手の反応が見えて、すぐに不安になる</td><td data-label="阿財面談">入力して送信したらそれで終わりなので、後からの後悔はむしろ強くなるかもしれません。その場で「さっきの意味は……」と付け足す機会がないからです（実際には付け足せるのですが、多くの人はそこまで思いつきません）</td></tr>
+          <tr><td data-label=""><strong>中断されたり気が散ったりする</strong></td><td data-label="真人面試">周囲の環境が気になって気まずく、自分から中断を言い出しにくい</td><td data-label="阿財面談">今は都合が悪いと伝えれば、阿財は待ってくれます</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="sec-2">デモ場面：面接の途中で中断されたら、阿財はどう対応する？</h2>
+    <p>以下は阿財の実際の対応を説明するための架空のデモ会話で、<strong>実際の面談の書き起こしではありません</strong>。マーケティング職に応募した求職者が、夜に自宅でスマートフォンから阿財と面談していたところ、途中で家族がドアを開けて入ってきて、急に周りが少し騒がしくなったという想定です：</p>
+    <div class="demo">
+      <div class="demo-tag">デモ場面・実際の面接記録ではありません</div>
+      <div class="demo-body">
+        <div class="bub ai"><b>阿財</b>ありがとうございます。では次に、これまでのマーケティング企画の仕事で、いちばん達成感のあったプロジェクトについてお聞かせください。</div>
+        <div class="bub me"><b>求職者（例）</b>ちょっと待ってください、すみません、家族がちょうど帰ってきて少しうるさくて、先に…</div>
+        <div class="bub ai"><b>阿財</b>問題ありませんよ。先にそちらを済ませてください。ここでお待ちしていますので、急がなくて大丈夫です。準備ができたら、また入力してください。</div>
+        <div class="bub me"><b>求職者（例）</b>お待たせしてすみません。さっきどこまで話しましたっけ？</div>
+        <div class="bub ai"><b>阿財</b>大丈夫ですよ。先ほどは一番やりがいを感じたプロジェクトの話をしていましたね。そのまま続けて話していただいても、もう一度質問を繰り返してもかまいません。</div>
+      </div>
+    </div>
+    <p class="note">阿財は、候補者が途中で中断したり周囲に雑音があったりしても、減点したり急かしたりしないように設計されています。何かあればまずあなたが対応し終えるのを待ちます。この点は、多くの人が心配する「AIは融通が利かず、詰まったらどうにもならない」とは違います。</p>
+
+    <div class="insight">
+      <div class="label">ヘッドハンターの視点</div>
+      <p>私たちが実際に見てきたのは、初めて面接ルームを開いたときは多くの人が緊張するものの、10分ほど話すと人間との面接よりむしろリラックスしているという様子です。相手に眉をひそめる人がいないと分かるからです。本当に注意すべきなのは逆のリスク、つまり<strong>リラックスしすぎて回答が短く、雑になること</strong>です。この面接は正式な一次面接に相当し、記録は人間のコンサルタントが確認します。内容の充実度はやはりコンサルタントの判断に影響します。チャットルームではないので緊張する必要はありませんが、どうでもいい雑談と思う必要もありません。</p>
+    </div>
+
+    <h2 id="sec-3">面接中に本当に行き詰まったらどうする？</h2>
+    <p>面談画面には常に「質問がありますか？」ボタンがあり、よくある状況をそのまま伝えられます。阿財からずっと応答がない、質問の意味がわからない、今は都合が悪いので日時を変えたい、人間のコンサルタントと直接話したい、などです。押すとすぐにコンサルタントに通知が届くので、一人で待ち続けたり、ウィンドウを閉じてあきらめたりする必要はありません。</p>
+
+    <h2 id="sec-4">よくある質問</h2>
+    <div>
+      <details>
+        <summary><span>文字で回答すると、誠意がないように見える？</span><span class="faq-icon">+</span></summary>
+        <p>いいえ。「流暢に話せるか」より、内容がそろっていることのほうが大切です。人間のコンサルタントが確認するときに見るのは回答の具体性であって、タイピングの速さや言葉の華やかさではありません。</p>
+      </details>
+      <details>
+        <summary><span>途中で抜けて、あとで戻って続けることはできる？</span><span class="faq-icon">+</span></summary>
+        <p>急に都合が悪くなった場合は、画面上の「問題がありますか？」ボタンから「今は都合が悪いので日時を変更したい」を選んでください。コンサルタントに通知が届き、改めて日程を調整します。</p>
+      </details>
+      <details>
+        <summary><span>答えを間違えたり要点を言い忘れたりしたら、補足できる？</span><span class="faq-icon">+</span></summary>
+        <p>できます。次のメッセージでそのまま補足してください。「送信したらもう直せない」と心配する必要はありません。記録は対話全体を残しており、コンサルタントは面接全体の流れを見ます。</p>
+      </details>
+    </div>
+
+    <div>
+      <h2 id="sec-5">緊張するのは当たり前。一度話してみればわかります</h2>
+      <p>まず画面の様子を見てみたい方は、<a href="https://step1ne.com/interview/">阿財の面接ルーム</a>を開いてみてください。準備ができたら現在募集中の求人をご覧ください。応募すればすぐに始められます。</p>
+      <p><a href="/ja/jobs/">現在募集中の求人を見る →</a></p>
+      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">LINEでまずコンサルタントに質問する</a>
+    </div>
+
+    <p>関連記事：<a href="/ja/articles/ai-interview-guide/">AI面接官・阿財（アツァイ）とは？人間のコンサルタントとの面談と何が違う？</a> · <a href="/ja/articles/ai-interview-fairness/">AI面談は誤った判断をしない？</a> · <a href="/ja/articles/ai-interview-vs-consultant/">先に阿財と話す？それとも直接コンサルタントに相談する？</a></p>
+
+      
+<div class="cta">
+        <p>緊張するかどうか想像するより、実際に一度話してみるほうが早いです。興味のある求人に応募すれば、20～40分でわかります。</p>
+          <a class="btn-alt" href="/ja/jobs/">求人から探す</a> <a class="btn-line" href="https://lin.ee/XcSWPzM">LINEでコンサルタントに質問</a>
+      </div>
+    </article>
+  </div>
+</main>
+
+
+<footer><div class="fw">德仁管理顧問有限公司 台北市内湖区康寧路三段54之7号3階</div></footer>
+
+<script>
+// 表格加水平捲動外框，避免手機橫向溢位
+document.querySelectorAll('article table').forEach(function(t){
+  var w=document.createElement('div'); w.className='tw';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
+// 閱讀進度
+var bar=document.getElementById('bar');
+function prog(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',prog,{passive:true}); prog();
+// 目錄跟隨
+var tns=[].slice.call(document.querySelectorAll('.tn'));
+var secs=tns.map(function(a){return document.getElementById(a.dataset.s)}).filter(Boolean);
+if('IntersectionObserver' in window && secs.length){
+  var cur=null;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) cur=e.target.id; });
+    tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  },{rootMargin:'-88px 0px -70% 0px'}).observe && secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===e.target.id)}); }
+      });
+    },{rootMargin:'-88px 0px -70% 0px'}).observe(s);
+  });
+}
+</script>
+
+<style>
+.s1ne-sc{position:fixed;z-index:60;left:0;right:0;bottom:0;display:flex;gap:10px;padding:10px max(14px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));background:rgba(255,255,255,.96);box-shadow:0 -6px 24px rgba(40,30,10,.12);transform:translateY(120%);transition:transform .25s ease}
+.s1ne-sc.on{transform:none}
+.s1ne-sc a{flex:1;display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:999px;font-weight:700;font-size:15px;text-decoration:none;white-space:nowrap}
+.s1ne-sc .p{background:#111827;color:#fff}
+.s1ne-sc .l{background:#fff;color:#111827;border:1.5px solid #d1d5db}
+.s1ne-sc a:focus-visible{outline:3px solid #1f2937;outline-offset:2px}
+@media (min-width:760px){.s1ne-sc{left:auto;right:24px;bottom:24px;border-radius:999px;padding:8px;box-shadow:0 8px 28px rgba(40,30,10,.18)}.s1ne-sc a{flex:none;padding:0 22px}}
+@media (prefers-reduced-motion:reduce){.s1ne-sc{transition:none}}
+body{padding-bottom:84px}
+@media (min-width:760px){body{padding-bottom:0}}
+</style>
+<div class="s1ne-sc" id="s1neSc" role="region" aria-label="迅速に動く">
+  <a class="l" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">LINEで問い合わせ</a> <a class="p" href="/ja/jobs/" data-cta="jobs_cta_click">現在の求人を見る</a>
+</div>
+<script>
+(function(){var b=document.getElementById('s1neSc');if(!b)return;
+function t(){b.classList.toggle('on',window.scrollY>380);}
+window.addEventListener('scroll',t,{passive:true});t();
+b.querySelector('.p').addEventListener('click',function(){try{gtag('event',this.getAttribute('data-cta'),{page_path:location.pathname,placement:'sticky'});}catch(e){}});})();
+</script>
+<!-- /s1ne-sticky-cta -->
+
+</body>
+</html>

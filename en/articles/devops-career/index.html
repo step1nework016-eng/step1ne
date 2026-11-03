@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href*="lin.ee"]');
+  if (!a) return;
+  gtag('event', 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60)
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What do operations engineers do? Four types of operations roles, pay differences, and paths up | Step1ne</title>
+<meta name="description" content="What do operations engineers (systems ops, IT ops) actually do? Four types of ops roles differ widely in work, pay and career ceiling. This article explains how to tell job types apart, how to evaluate on-call, and three paths upward from operations.">
+<meta name="keywords" content="operations engineer,DevOps career,SRE,cloud operations,on-call,operations to development,operations salary">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/en/articles/devops-career/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Step1ne Referrals">
+<meta property="og:title" content="What do operations engineers do? Four types of operations roles, pay differences, and paths upward">
+<meta property="og:description" content="What do operations engineers (systems ops, IT ops) actually do? Four types of ops roles differ widely in work, pay and career ceiling. This article explains how to tell job types apart, how to evaluate on-call, and three paths upward from operations.">
+<meta property="og:url" content="https://step1ne.com/en/articles/devops-career/">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta name="theme-color" content="#F4F6F8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Operations Engineer Careers: How They Differ from Development and How to Move Up",
+  "description": "Explains how four types of operations roles—system operations, ops support, cloud operations and SRE—differ in day-to-day work, core skills and career ceiling; how to tell from a JD what the role really is; four things to evaluate in an on-call setup; and three paths from operations into cloud automation, development or architecture.",
+  "datePublished": "2026-07-27",
+  "dateModified": "2026-07-27",
+  "inLanguage": "zh-TW",
+  "author": {
+    "@type": "Organization",
+    "name": "Step1ne 德仁管理顧問有限公司",
+    "url": "https://step1ne.com/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "德仁管理顧問有限公司 (Step1ne)",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://step1ne.com/assets/step1ne-logo.png"
+    }
+  }
+}
+</script>
+
+<style>
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;
+  --wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:17px;line-height:1.95;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.35;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,select,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* 導覽 */
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+/* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
+
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
+.crumb{grid-column:1/-1;padding:22px 0 6px;font-size:13.5px;color:var(--slate-dim)}
+.crumb a{color:var(--slate)}
+.crumb a:hover{color:var(--brand-deep)}
+.crumb span{margin:0 8px;color:var(--rule)}
+
+/* 目錄軌：沿用全站 signature */
+.toc{position:sticky;top:92px;padding:8px 0 40px}
+.toc h2{font-size:13px;font-weight:700;color:var(--slate-dim);letter-spacing:.02em;margin-bottom:16px}
+.tns{position:relative;padding-left:22px}
+.tns::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.14))}
+.tn{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:14px;color:var(--slate);line-height:1.6;position:relative}
+.tn i{position:absolute;left:-22px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--rule);flex:0 0 auto}
+.tn:hover{color:var(--brand-deep)}
+.tn:hover i{border-color:var(--brand)}
+.tn.on{color:var(--ink);font-weight:700}
+.tn.on i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 4px rgba(46,169,223,.2)}
+.mtoc{display:none;margin:20px 0 0;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.mtoc summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15.5px;position:relative}
+.mtoc summary::-webkit-details-marker{display:none}
+.mtoc summary::after{content:"";position:absolute;right:20px;top:24px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.mtoc[open] summary::after{transform:rotate(-135deg)}
+.mtoc div{padding:0 18px 14px}
+.mtoc a{display:block;padding:9px 0;font-size:15px;color:var(--slate);border-top:1px solid var(--rule)}
+
+/* 文章本體 */
+article{padding:14px 0 60px;max-width:70ch}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--brand-deep);background:rgba(22,126,178,.07);border:1px solid rgba(22,126,178,.25);border-radius:5px;padding:4px 11px}
+article h1{margin-top:16px;font-size:clamp(28px,4.2vw,42px);line-height:1.28;letter-spacing:-.02em}
+.by{margin-top:18px;padding-bottom:20px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14px;color:var(--slate-dim)}
+.by a{color:var(--slate);border-bottom:1px solid var(--rule)}
+.by .d{font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+
+/* ★ Signature：直接答案 */
+.ans{margin-top:30px;background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:26px 30px}
+.ans .lab{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:10px}
+.ans p{font-size:19.5px;line-height:1.85;font-weight:500}
+.ans strong{font-weight:900}
+
+article h2{margin:52px 0 16px;font-size:25px;scroll-margin-top:92px}
+article h3{margin:34px 0 10px;font-size:19px}
+article h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-right:12px;border-radius:8px;background:var(--brand);color:#fff;font-family:var(--f-disp);font-size:17px;font-weight:700;vertical-align:2px}
+article p{margin-top:16px}
+article strong{font-weight:700}
+article a:not(.tn){color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.32)}
+article a:not(.tn):hover{border-bottom-color:var(--brand-deep)}
+article ul,article ol{margin:16px 0 0;padding-left:1.4em}
+article li{margin-top:9px}
+article table{width:100%;border-collapse:collapse;margin-top:22px;font-size:15.5px;background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+article th{text-align:left;background:var(--paper);font-weight:700;font-size:14px;color:var(--slate);padding:12px 14px;border-bottom:1px solid var(--rule)}
+article td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.75}
+article tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+article details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+article details summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+article details summary::-webkit-details-marker{display:none}
+article details summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+article details[open] summary::after{transform:rotate(-135deg)}
+article details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid var(--rule);color:var(--slate)}
+
+.foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
+.cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
+.cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
+footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+.fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.note{max-width:var(--wrap);margin:0 auto 46px;padding-inline:var(--gut)}
+.note div{background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid #B45309;border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.note b{color:#5A3D0C}
+
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .mtoc{display:block}
+}
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  body{font-size:16.5px}
+  .ans{padding:22px;border-radius:0 8px 8px 0}
+  .ans p{font-size:18px}
+  article h2{font-size:22px;margin-top:42px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+<!--i18n-hreflang-->
+<link rel="alternate" hreflang="zh-Hant" href="https://step1ne.com/articles/devops-career/">
+<link rel="alternate" hreflang="ja" href="https://step1ne.com/ja/articles/devops-career/">
+<link rel="alternate" hreflang="en" href="https://step1ne.com/en/articles/devops-career/">
+<link rel="alternate" hreflang="x-default" href="https://step1ne.com/articles/devops-career/">
+<style>.s1-lang{max-width:1100px;margin:0 auto;padding:10px 16px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.s1-lang a,.s1-lang b{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid #d9dce3;background:#fff;font-size:14px;font-weight:600;color:#4a5060;text-decoration:none}.s1-lang b{background:#23262d;border-color:#23262d;color:#fff}.s1-lang a:hover{color:#23262d;border-color:#9aa0ad}.s1-lang a:focus-visible{outline:3px solid #1880B4;outline-offset:2px}.s1-note{max-width:1100px;margin:10px auto 0;padding:0 16px}.s1-note p{margin:0;padding:12px 14px;border-radius:12px;background:#eef4fb;border:1px solid #c9dcef;color:#1d3a57;font-size:14.5px;line-height:1.7}</style>
+<!--/i18n-hreflang-->
+</head>
+
+<body>
+<div id="bar"></div>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/en/"><img src="/assets/step1ne-logo.png" alt="Step1ne"><b>Step1ne</b></a>
+    <nav class="hd-nav">
+      <a href="/en/commission-recruiting/">For Employers</a><a href="/en/jobs/">Jobs</a><a class="on" href="/en/articles/">Headhunting Insights</a><a href="/en/talent/">Step1ne Referrals</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">Ask on LINE</a>
+    <button class="hd-burger" type="button" aria-label="Open menu" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/en/commission-recruiting/">For Employers</a><a href="/en/jobs/">Jobs</a><a href="/en/articles/">Articles</a><a href="/en/talent/">Step1ne Referrals</a> <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">Contact on LINE</a>
+  </div>
+</header>
+<!--i18n-switch--><nav class="s1-lang" aria-label="Change language"><a href="/articles/devops-career/" hreflang="zh-Hant" lang="zh-Hant">中文</a><a href="/ja/articles/devops-career/" hreflang="ja" lang="ja">日本語</a><b lang="en" aria-current="true">English</b></nav><!--/i18n-switch-->
+
+
+<main class="shell">
+  <nav class="crumb" aria-label="Breadcrumb"><a href="/en/">Home</a><span>/</span><a href="/en/articles/">Talent Insights</a><span>/</span>Operations Engineer Careers: How Do They Compare with Development?</nav>
+
+  <aside class="toc" aria-label="Contents">
+    <h2>This article has 7 sections</h2>
+    <div class="tns"><a class="tn" href="#sec-1" data-s="sec-1"><i></i><span>Operations is not "where people go when they fail at development"</span></a> <a class="tn" href="#sec-2" data-s="sec-2"><i></i><span>Four types of operations jobs</span></a> <a class="tn" href="#sec-3" data-s="sec-3"><i></i><span>How should you evaluate on-call?</span></a> <a class="tn" href="#sec-4" data-s="sec-4"><i></i><span>How do you move up from operations?</span></a> <a class="tn" href="#sec-5" data-s="sec-5"><i></i><span>What do managers look for in operations interviews?</span></a> <a class="tn" href="#sec-6" data-s="sec-6"><i></i><span>FAQ</span></a> <a class="tn" href="#sec-7" data-s="sec-7"><i></i><span>Operations positions are open now</span></a></div>
+  </aside>
+
+  <div>
+    <details class="mtoc"><summary>Contents (7 sections)</summary><div><a href="#sec-1">Operations is not "what you do when you can't cut it in development"</a> <a href="#sec-2">Four types of operations roles</a> <a href="#sec-3">How should you evaluate on-call?</a> <a href="#sec-4">How to move up from operations</a> <a href="#sec-5">What hiring managers look for in operations interviews</a> <a href="#sec-6">FAQ</a> <a href="#sec-7">Operations roles currently open</a></div></details>
+    <article>
+      <span class="tag">Job seeker guide · A headhunter's view</span>
+      <h1>Operations Engineer Careers: How Do They Compare with Development?</h1>
+      <div class="by">
+        <span>By: <a href="/en/about/">Step1ne Executive Search Consultants</a></span> <time class="d" datetime="2026-07-27">Published 2026-07-27</time> <span class="d">About 5 min</span>
+      </div>
+
+      <div class="ans">
+        <div class="lab">Short answer</div>
+        <p>Operations is not a second-class alternative to development, but the career ceiling really is very different. The key is whether you are <strong>"the person who handles incidents" or "the person who designs systems so incidents don't happen."</strong> Operations roles that only respond to alerts tend to sit in a lower pay band; people with automation, cloud architecture, and reliability engineering skills are worth as much as senior developers on the market, or more. When you see the title "operations engineer," check whether the JD mentions automation, CI/CD, or IaC to tell which kind it is.</p>
+      </div>
+
+      <h2 id="sec-1">Operations is not "the job for people who couldn't make it in development"</h2>
+    <p>Let's clear up a misconception first. Taiwan's tech community has long seen operations as second-tier to development, but that image comes from one specific kind of ops work: restarting machines, watching monitoring dashboards, and handling alerts by the SOP.</p>
+    <p>What really sets the ceiling of an operations career is whether you are <strong>"handling incidents" or "designing systems so incidents don't happen"</strong>. The former does tend to keep you in a lower pay band; the latter (automation, observability, architecture improvements) is worth as much on the market as senior development work, sometimes more, because fewer people can do it.</p>
+
+    <h2 id="sec-2">Four types of operations roles</h2>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Type</th><th>Core work</th><th>Skill focus</th><th>Career ceiling</th></tr></thead>
+        <tbody>
+          <tr><td data-label="型態"><strong>Systems operations</strong></td><td data-label="核心工作">Server, network, and operating system maintenance</td><td data-label="技能重心">Linux/Windows, networking, monitoring tools</td><td data-label="職涯天花板">Medium: need to expand into automation or cloud</td></tr>
+          <tr><td data-label="型態"><strong>Operations support</strong></td><td data-label="核心工作">Log analysis, incident response, version control</td><td data-label="技能重心">Logging tools (such as ELK), Git, CI/CD</td><td data-label="職涯天花板">Medium-high—close to development, with plenty of career flexibility</td></tr>
+          <tr><td data-label="型態"><strong>Cloud operations</strong></td><td data-label="核心工作">Cloud resource management, deployment, performance optimization</td><td data-label="技能重心">AWS/GCP/Azure, IaC, containers</td><td data-label="職涯天花板">High: market demand keeps growing</td></tr>
+          <tr><td data-label="型態"><strong>SRE</strong></td><td data-label="核心工作">Reliability engineering, automation, capacity planning</td><td data-label="技能重心">Coding skills + system design + observability</td><td data-label="職涯天花板">Highest — on par with or above senior developers</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>These four types often sit under the same job title. When you see "operations engineer," you can't tell which type it is from the title alone — check whether the JD mentions keywords like automation, IaC or CI/CD.</p>
+
+    <div class="insight">
+      <div class="label">A headhunter's view</div>
+      <p>The most important question to ask when applying for an operations role is: <strong>"How much of this job is spent handling alerts, and how much on improvements?"</strong></p>
+      <p>If the answer is "mostly handling alerts," it's a burn-out seat—you'll be busy, but two years later you'll have nothing to put on your résumé. If, on the other hand, the team lets you spend time automating repetitive work, those automation results become your bargaining chips for your next job.</p>
+      <p>We've seen many operations engineers stuck in the same salary band for years, and the reason is almost always the same: <strong>they're too busy to do the work that would make them less busy</strong>.</p>
+    </div>
+
+    <h2 id="sec-3">How should you evaluate on-call?</h2>
+    <p>Operations roles often come with on-call duty. It's key to your quality of life, yet many people are afraid to ask about it in detail during interviews. Make sure you clarify these four things:</p>
+    <ol>
+      <li><strong>Rotation frequency</strong> — how often, and for how long each time? "One week on, once every six weeks" and "once every two weeks" are completely different lives</li>
+      <li><strong>How often you actually get called</strong>: being on standby on paper and actually being woken up every night are two different things. Ask directly: "Roughly how many times were people paged last month?"</li>
+      <li><strong>Compensation</strong> — is there an on-call allowance? How is time spent responding counted as overtime? Can you take time off in lieu the next day?</li>
+      <li><strong>Escalation path</strong> — if you hit a problem in the middle of the night that you can't solve, is there someone to call? On-call without backup is far more stressful</li>
+    </ol>
+    <p>On-call isn't bad in itself; having on-call usually means the system matters, and experience with important systems is valuable. The problem is <strong>when the frequency is unreasonable and there is no matching compensation</strong>.</p>
+
+    <h2 id="sec-4">How do you move up from operations?</h2>
+    <p>Three paths that actually work:</p>
+    <ul>
+      <li><strong>Go deeper into cloud and automation</strong>: script repetitive work, learn IaC and container orchestration, and move toward cloud operations or SRE. This is currently the direction with the strongest market demand</li>
+      <li><strong>Moving into development</strong>: ops support roles already involve code and CI/CD, so moving into development after building experience isn't unusual—and developers who understand operations are more pragmatic about system design</li>
+      <li><strong>The architecture or management path</strong>: ops has seen more ways systems break than anyone, which is a rare instinct when designing architecture</li>
+    </ul>
+    <p>The common key is <strong>building a record of "what you improved," not "how many incidents you handled."</strong> On a résumé, "Automated the deployment process, cutting release time from 2 hours to 15 minutes" beats "Maintained 200 servers."</p>
+
+    <h2 id="sec-5">What do managers look for when interviewing for operations roles?</h2>
+    <p>Based on real feedback from hiring teams, interviews for operations roles focus on somewhat different things than development roles:</p>
+    <ul>
+      <li><strong>Troubleshooting approach</strong>—you'll be asked, "How would you investigate if the system slowed down?" The point isn't to give the right answer but to lay out a systematic order of investigation</li>
+      <li><strong>Sensitivity to risk</strong>: for example, when asked whether to deploy before the end of the day, the answer itself doesn't matter; what matters is showing that you weigh the risks</li>
+      <li><strong>Communication skills</strong>: operations has to coordinate with development, security, PMs and even customers, and people who are technical but can't explain a situation clearly struggle in the role</li>
+      <li><strong>Willingness to learn</strong> — cloud and tooling change fast, so managers want to see that you keep your skills up to date</li>
+    </ul>
+
+    <h2 id="sec-6">FAQ</h2>
+<div><details>
+        <summary><span>Do operations engineers earn less than developers?</span><span class="faq-icon">+</span></summary>
+        <p>Entry-level operations roles do often pay less than entry-level development, but the gap widens or narrows depending on your skill direction. Operations engineers with automation, cloud architecture, and reliability engineering skills can earn as much as or more than senior developers, because such talent is scarcer in the market. The key isn't the job title but whether you're "the person who handles incidents" or "the person who designs systems so incidents don't happen."</p>
+      </details><details>
+        <summary><span>Can I apply for cloud operations without cloud experience?</span><span class="faq-icon">+</span></summary>
+        <p>For some roles, yes. If you have solid Linux/Windows operations fundamentals, scripting skills, and networking knowledge, quite a few companies are willing to let you learn cloud on the job. In practice, the required qualifications for these roles are often "OS and networking fundamentals," with cloud experience as a plus. Earning an entry-level certification from a cloud vendor first will make your case stronger.</p>
+      </details><details>
+        <summary><span>Is on-call as scary as it sounds?</span><span class="faq-icon">+</span></summary>
+        <p>It depends on how the system is designed. Ask about rotation frequency, how often you actually get paged, how allowances and comp time work, and whether there's an escalation path at night. A reasonable setup (e.g., one-week shifts about once every six weeks, with an on-call allowance) is acceptable to most people; frequent pages with no compensation call for caution.</p>
+      </details><details>
+        <summary><span>Can you move from operations into development?</span><span class="faq-icon">+</span></summary>
+        <p>Yes, and it's not unusual. Operations support roles already involve code, CI/CD, and troubleshooting, so moving into development after building experience is a natural path. The advantage is that developers who understand operations have a real feel for system stability and deployment risk, which makes their designs more practical. We recommend building up a portfolio of code you can show while you're in the operations role.</p>
+      </details><details>
+        <summary><span>How do you tell whether an operations role is worth taking?</span><span class="faq-icon">+</span></summary>
+        <p>Look at two things: first, whether the team sets aside time for improvement (rather than spending all its time firefighting); second, whether it uses a modern toolchain (CI/CD, IaC, observability platforms). These two points determine what you'll be able to put on your résumé two years from now.</p>
+      </details></div><div>
+      <h2 id="sec-7">Operations positions are open now</h2>
+      <p>We're hiring for both an operations support engineer (electronic payments) and a cloud operations engineer (cloud services). A consultant can check the on-call arrangements and actual workload with the hiring team for you before you decide.</p>
+      <p><a href="/en/jobs/">See all engineering openings →</a></p>
+      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">Talk with a consultant on LINE</a>
+    </div>
+
+    <p>Further reading: <a href="/en/articles/software-engineer-salary/">Software engineer salaries: why the same experience can differ by NT$20,000 across industries</a> · <a href="/en/jobs/">See current engineering openings</a></p>
+
+      
+<div class="cta">
+        <p>Want to move up from operations, or switch to a place with reasonable on-call terms? Chat with us on LINE.</p>
+          <a class="btn-alt" href="/en/jobs/">View open technical roles</a> <a class="btn-line" href="https://lin.ee/XcSWPzM">Ask a consultant on LINE</a>
+      </div>
+    
+<div class="related-jobs-box" style="margin:26px 0;padding:18px 20px;border:1px solid #D9E0E6;border-radius:14px;background:#EAF4FA"><strong style="display:block;margin-bottom:9px;color:#0F5F87;font-size:15px">🔎 Related openings</strong><div style="display:flex;flex-wrap:wrap;gap:8px 14px;font-size:14.5px"><a href="/en/jobs/cloud-ops-engineer/">Cloud Operations Engineer</a> · <a href="/jobs/ops-support-engineer-fintech/">Systems Operations Engineer</a> · <a href="/en/jobs/">View all openings</a></div></div>
+</article>
+  </div>
+</main>
+
+
+<footer><div class="fw">德仁管理顧問有限公司, 3F, No. 54-7, Sec. 3, Kangning Rd., Neihu Dist., Taipei City</div></footer>
+
+<script>
+// 表格加水平捲動外框，避免手機橫向溢位
+document.querySelectorAll('article table').forEach(function(t){
+  var w=document.createElement('div'); w.className='tw';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
+// 閱讀進度
+var bar=document.getElementById('bar');
+function prog(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',prog,{passive:true}); prog();
+// 目錄跟隨
+var tns=[].slice.call(document.querySelectorAll('.tn'));
+var secs=tns.map(function(a){return document.getElementById(a.dataset.s)}).filter(Boolean);
+if('IntersectionObserver' in window && secs.length){
+  var cur=null;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) cur=e.target.id; });
+    tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  },{rootMargin:'-88px 0px -70% 0px'}).observe && secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===e.target.id)}); }
+      });
+    },{rootMargin:'-88px 0px -70% 0px'}).observe(s);
+  });
+}
+</script>
+
+<style>
+.s1ne-sc{position:fixed;z-index:60;left:0;right:0;bottom:0;display:flex;gap:10px;padding:10px max(14px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));background:rgba(255,255,255,.96);box-shadow:0 -6px 24px rgba(40,30,10,.12);transform:translateY(120%);transition:transform .25s ease}
+.s1ne-sc.on{transform:none}
+.s1ne-sc a{flex:1;display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:999px;font-weight:700;font-size:15px;text-decoration:none;white-space:nowrap}
+.s1ne-sc .p{background:#111827;color:#fff}
+.s1ne-sc .l{background:#fff;color:#111827;border:1.5px solid #d1d5db}
+.s1ne-sc a:focus-visible{outline:3px solid #1f2937;outline-offset:2px}
+@media (min-width:760px){.s1ne-sc{left:auto;right:24px;bottom:24px;border-radius:999px;padding:8px;box-shadow:0 8px 28px rgba(40,30,10,.18)}.s1ne-sc a{flex:none;padding:0 22px}}
+@media (prefers-reduced-motion:reduce){.s1ne-sc{transition:none}}
+body{padding-bottom:84px}
+@media (min-width:760px){body{padding-bottom:0}}
+</style>
+<div class="s1ne-sc" id="s1neSc" role="region" aria-label="Fast action">
+  <a class="l" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">Ask on LINE</a> <a class="p" href="/en/jobs/" data-cta="jobs_cta_click">See current openings</a>
+</div>
+<script>
+(function(){var b=document.getElementById('s1neSc');if(!b)return;
+function t(){b.classList.toggle('on',window.scrollY>380);}
+window.addEventListener('scroll',t,{passive:true});t();
+b.querySelector('.p').addEventListener('click',function(){try{gtag('event',this.getAttribute('data-cta'),{page_path:location.pathname,placement:'sticky'});}catch(e){}});})();
+</script>
+<!-- /s1ne-sticky-cta -->
+
+</body>
+</html>

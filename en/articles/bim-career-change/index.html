@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  if (!e.target.closest) return;
+  // 2026-08-06：原本只抓 lin.ee。BIM 那群的下一步是「直接應徵」不是加 LINE，
+  // 不一起記的話，等於把那條路做出來卻量不到，實驗就白做了。
+  var a = e.target.closest('a[href*="lin.ee"], a[href^="/apply"]');
+  if (!a) return;
+  var isApply = (a.getAttribute('href') || '').indexOf('/apply') === 0;
+  gtag('event', isApply ? 'apply_click' : 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60),
+    // mid＝這次新加的文章中段；沒有標的就是原本頁首／頁尾那些
+    cta_slot: a.getAttribute('data-cta') || 'legacy'
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Can you become a BIM engineer without a related degree? A headhunter's view｜Step1ne</title>
+<meta name="description" content="Can you switch into BIM engineering without a related degree? Yes. This article explains what companies actually look for, which software to learn, how to use government subsidies, and the three most common reasons non-majors get rejected.">
+<meta name="keywords" content="BIM engineer career change,BIM without related degree,getting into BIM,how to learn Revit,BIM engineer no experience,career change architecture,BIM beginner">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/en/articles/bim-career-change/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Step1ne Referrals">
+<meta property="og:title" content="Can I switch careers to BIM engineering without a related degree?">
+<meta property="og:description" content="Yes, but you need to know what employers actually look at. Drawing on our submission experience, a headhunter explains the three most common reasons candidates from unrelated majors get rejected.">
+<meta property="og:url" content="https://step1ne.com/en/articles/bim-career-change/">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta name="theme-color" content="#F4F6F8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Can you become a BIM engineer without a related degree? Observations from headhunting practice",
+  "description": "A complete guide to switching into BIM engineering from an unrelated field: what employers actually look for, which software to learn, how to use government training subsidies, and the three most common reasons non-major résumés get rejected, with what to do about each.",
+  "datePublished": "2026-07-27",
+  "dateModified": "2026-10-24",
+  "inLanguage": "zh-TW",
+  "author": {
+    "@type": "Organization",
+    "name": "Step1ne 德仁管理顧問有限公司",
+    "url": "https://step1ne.com/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "德仁管理顧問有限公司 (Step1ne)",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://step1ne.com/assets/step1ne-logo.png"
+    }
+  }
+}
+</script>
+
+<style>
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;
+  --wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:17px;line-height:1.95;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.35;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,select,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* 導覽 */
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+/* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
+
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
+.crumb{grid-column:1/-1;padding:22px 0 6px;font-size:13.5px;color:var(--slate-dim)}
+.crumb a{color:var(--slate)}
+.crumb a:hover{color:var(--brand-deep)}
+.crumb span{margin:0 8px;color:var(--rule)}
+
+/* 目錄軌：沿用全站 signature */
+.toc{position:sticky;top:92px;padding:8px 0 40px}
+.toc h2{font-size:13px;font-weight:700;color:var(--slate-dim);letter-spacing:.02em;margin-bottom:16px}
+.tns{position:relative;padding-left:22px}
+.tns::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.14))}
+.tn{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:14px;color:var(--slate);line-height:1.6;position:relative}
+.tn i{position:absolute;left:-22px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--rule);flex:0 0 auto}
+.tn:hover{color:var(--brand-deep)}
+.tn:hover i{border-color:var(--brand)}
+.tn.on{color:var(--ink);font-weight:700}
+.tn.on i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 4px rgba(46,169,223,.2)}
+.mtoc{display:none;margin:20px 0 0;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.mtoc summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15.5px;position:relative}
+.mtoc summary::-webkit-details-marker{display:none}
+.mtoc summary::after{content:"";position:absolute;right:20px;top:24px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.mtoc[open] summary::after{transform:rotate(-135deg)}
+.mtoc div{padding:0 18px 14px}
+.mtoc a{display:block;padding:9px 0;font-size:15px;color:var(--slate);border-top:1px solid var(--rule)}
+
+/* 文章本體 */
+article{padding:14px 0 60px;max-width:70ch}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--brand-deep);background:rgba(22,126,178,.07);border:1px solid rgba(22,126,178,.25);border-radius:5px;padding:4px 11px}
+article h1{margin-top:16px;font-size:clamp(28px,4.2vw,42px);line-height:1.28;letter-spacing:-.02em}
+.by{margin-top:18px;padding-bottom:20px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14px;color:var(--slate-dim)}
+.by a{color:var(--slate);border-bottom:1px solid var(--rule)}
+.by .d{font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+
+/* ★ Signature：直接答案 */
+.ans{margin-top:30px;background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:26px 30px}
+.ans .lab{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:10px}
+.ans p{font-size:19.5px;line-height:1.85;font-weight:500}
+.ans strong{font-weight:900}
+
+article h2{margin:52px 0 16px;font-size:25px;scroll-margin-top:92px}
+article h3{margin:34px 0 10px;font-size:19px}
+article h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-right:12px;border-radius:8px;background:var(--brand);color:#fff;font-family:var(--f-disp);font-size:17px;font-weight:700;vertical-align:2px}
+article p{margin-top:16px}
+article strong{font-weight:700}
+article a:not(.tn){color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.32)}
+article a:not(.tn):hover{border-bottom-color:var(--brand-deep)}
+article ul,article ol{margin:16px 0 0;padding-left:1.4em}
+article li{margin-top:9px}
+article table{width:100%;border-collapse:collapse;margin-top:22px;font-size:15.5px;background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+article th{text-align:left;background:var(--paper);font-weight:700;font-size:14px;color:var(--slate);padding:12px 14px;border-bottom:1px solid var(--rule)}
+article td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.75}
+article tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+article details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+article details summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+article details summary::-webkit-details-marker{display:none}
+article details summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+article details[open] summary::after{transform:rotate(-135deg)}
+article details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid var(--rule);color:var(--slate)}
+
+.foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
+.cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
+.cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
+footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+.fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.note{max-width:var(--wrap);margin:0 auto 46px;padding-inline:var(--gut)}
+.note div{background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid #B45309;border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.note b{color:#5A3D0C}
+
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .mtoc{display:block}
+}
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  body{font-size:16.5px}
+  .ans{padding:22px;border-radius:0 8px 8px 0}
+  .ans p{font-size:18px}
+  article h2{font-size:22px;margin-top:42px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+<!--i18n-hreflang-->
+<link rel="alternate" hreflang="zh-Hant" href="https://step1ne.com/articles/bim-career-change/">
+<link rel="alternate" hreflang="ja" href="https://step1ne.com/ja/articles/bim-career-change/">
+<link rel="alternate" hreflang="en" href="https://step1ne.com/en/articles/bim-career-change/">
+<link rel="alternate" hreflang="x-default" href="https://step1ne.com/articles/bim-career-change/">
+<style>.s1-lang{max-width:1100px;margin:0 auto;padding:10px 16px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.s1-lang a,.s1-lang b{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid #d9dce3;background:#fff;font-size:14px;font-weight:600;color:#4a5060;text-decoration:none}.s1-lang b{background:#23262d;border-color:#23262d;color:#fff}.s1-lang a:hover{color:#23262d;border-color:#9aa0ad}.s1-lang a:focus-visible{outline:3px solid #1880B4;outline-offset:2px}.s1-note{max-width:1100px;margin:10px auto 0;padding:0 16px}.s1-note p{margin:0;padding:12px 14px;border-radius:12px;background:#eef4fb;border:1px solid #c9dcef;color:#1d3a57;font-size:14.5px;line-height:1.7}</style>
+<!--/i18n-hreflang-->
+</head>
+
+<body>
+<div id="bar"></div>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/en/"><img src="/assets/step1ne-logo.png" alt="Step1ne"><b>Step1ne</b></a>
+    <nav class="hd-nav">
+      <a href="/en/commission-recruiting/">For Employers</a><a href="/en/jobs/">Jobs</a><a class="on" href="/en/articles/">Headhunting Insights</a><a href="/en/talent/">Step1ne Referrals</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">Ask on LINE</a>
+    <button class="hd-burger" type="button" aria-label="Open menu" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/en/commission-recruiting/">For Employers</a><a href="/en/jobs/">Jobs</a><a href="/en/articles/">Articles</a><a href="/en/talent/">Step1ne Referrals</a> <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">Contact on LINE</a>
+  </div>
+</header>
+<!--i18n-switch--><nav class="s1-lang" aria-label="Change language"><a href="/articles/bim-career-change/" hreflang="zh-Hant" lang="zh-Hant">中文</a><a href="/ja/articles/bim-career-change/" hreflang="ja" lang="ja">日本語</a><b lang="en" aria-current="true">English</b></nav><!--/i18n-switch-->
+
+
+<main class="shell">
+  <nav class="crumb" aria-label="Breadcrumb"><a href="/en/">Home</a><span>/</span><a href="/en/articles/">Recruiting Insights</a><span>/</span>Can You Become a BIM Engineer Without a Related Degree?</nav>
+
+  <aside class="toc" aria-label="Contents">
+    <h2>This article has 7 sections</h2>
+    <div class="tns"><a class="tn" href="#sec-1" data-s="sec-1"><i></i><span>Why does BIM hire people from unrelated fields?</span></a> <a class="tn" href="#sec-2" data-s="sec-2"><i></i><span>The three things employers actually look at</span></a> <a class="tn" href="#sec-3" data-s="sec-3"><i></i><span>Which software to learn, and to what level?</span></a> <a class="tn" href="#sec-4" data-s="sec-4"><i></i><span>Two entry paths: how to choose</span></a> <a class="tn" href="#sec-5" data-s="sec-5"><i></i><span>Three top reasons career-changer resumes get rejected</span></a> <a class="tn" href="#sec-6" data-s="sec-6"><i></i><span>FAQ</span></a> <a class="tn" href="#sec-7" data-s="sec-7"><i></i><span>BIM openings that currently offer training</span></a></div>
+  </aside>
+
+  <div>
+    <details class="mtoc"><summary>Contents (7 sections)</summary><div><a href="#sec-1">Why is BIM open to people from other majors?</a> <a href="#sec-2">Three things employers actually look at</a> <a href="#sec-3">Which software to learn, and how far?</a> <a href="#sec-4">Two ways in—how to choose?</a> <a href="#sec-5">Three top reasons résumés from other majors get rejected</a> <a href="#sec-6">FAQ</a> <a href="#sec-7">BIM openings that provide training</a></div></details>
+    <article>
+      <span class="tag">Job seeker guide · A headhunter's view</span>
+      <h1>Can I switch careers to BIM engineering without a related degree?</h1>
+      <div class="by">
+        <span>By <a href="/en/about/">the Step1ne executive search consulting team</a></span> <time class="d" datetime="2026-07-27">Published 2026-07-27</time> <span class="d">About 7 min read</span>
+      </div>
+
+      <div class="ans">
+        <div class="lab">Short answer</div>
+        <p>Yes. BIM currently has a large talent gap, and many companies have relaxed requirements to accept any major and provide in-house training, with starting pay of about NT$35,000–45,000. The real barrier isn't your major but three things: whether you can use Revit, whether you can read drawings, and whether you're willing to work at the pace of a construction site or fab. The most common reason non-majors get screened out isn't their education either. It's that their résumé has nothing proving "I can actually build a model."</p>
+      </div>
+
+      <h2 id="sec-1">Why does BIM accept people from unrelated majors?</h2>
+    <p>(Still not sure what BIM engineers actually do? Start with <a href="/en/articles/what-is-bim-engineer/">What is a BIM engineer, and how is it different from a drafter?</a>)</p>
+    <p>It's not charity; it's supply and demand. BIM (Building Information Modeling) has only been adopted at scale in Taiwan in the past few years. Public works and high-tech fab projects have increasingly required BIM deliverables, but university training hasn't kept pace, creating a gap where demand arrived first and talent is still catching up.</p>
+    <p>As a result, rather than waiting for graduates in the field, companies train people themselves. Especially for <strong>large fab construction projects</strong> that need to bring in many people at once, they almost always post roles with "any major, training provided," because in the labor market you simply cannot find enough candidates who have both the right degree and experience.</p>
+
+    <div class="insight">
+      <div class="label">A headhunter's view</div>
+      <p>The hiring managers we work with are usually far more open to candidates from other majors than job seekers expect. What you'll really be asked isn't "Why didn't you study civil engineering?" but <strong>"Why do you want to do this, and how long do you plan to stay?"</strong>—because training a newcomer is expensive, and what managers fear most is teaching someone everything only to see them leave.</p>
+      <p>In other words, the disadvantage of coming from an unrelated field is at the resume stage (no keywords for HR to spot at a glance); once you reach the interview, it's something you can turn around. The hard part is getting to the interview.</p>
+    </div>
+
+    <h2 id="sec-2">Three things employers actually look at</h2>
+
+    <h3>1. Can you actually produce work in Revit?</h3>
+    <p>This is the one hard requirement with no room for negotiation. The core of BIM work is turning designs into models with software such as Revit, so if you can't use it, you can't do the job. But the required level is lower than you might think: entry-level roles need you to "build components according to the standards," not "master every advanced feature."</p>
+
+    <h3>2. Can you read drawings?</h3>
+    <p>Models are built from design drawings. If you can't read floor plans, sections, and MEP system drawings, you can't turn 2D drawings into a 3D model. Graduates in the field do have an advantage here, but it's also the easiest gap to close quickly — most BIM courses on the market teach it alongside the software.</p>
+
+    <h3>3. Willingness to work on site</h3>
+    <p>BIM isn't a pure desk job. Fab projects usually require you to be physically on site, complete safety training, and follow on-site work rules, and overtime is normal during drawing crunches. This isn't about ability but willingness, yet hiring managers care a lot about it, because many people quit after discovering they can't handle it.</p>
+
+    <h2 id="sec-3">Which software should you learn, and to what level?</h2>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Software</th><th>Priority</th><th>What level you need to reach to get in</th></tr></thead>
+        <tbody>
+          <tr><td data-label="軟體"><strong>Revit</strong></td><td data-label="優先序">Must-learn</td><td data-label="入行需要到什麼程度">Able to independently build a single-discipline model, name and layer it according to standards, and output drawings. This is the only hard requirement at entry level</td></tr>
+          <tr><td data-label="軟體"><strong>AutoCAD</strong></td><td data-label="優先序">Must-learn</td><td data-label="入行需要到什麼程度">Reading and working with 2D drawings—most projects' source drawings are still CAD</td></tr>
+          <tr><td data-label="軟體">Navisworks</td><td data-label="優先序">Advanced</td><td data-label="入行需要到什麼程度">Clash detection. It's fine if you can't do it when you start, but it's the key tool for moving up a level</td></tr>
+          <tr><td data-label="軟體">Dynamo / Tekla</td><td data-label="優先序">Pluses</td><td data-label="入行需要到什麼程度">Used for automation and structural steel — needed at the senior stage, so newcomers don't need to rush</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">At the entry stage, getting solid at Revit + AutoCAD is enough. For the skills and salaries at each level, see <a href="/en/articles/bim-engineer-salary/">BIM engineer salaries: how do the numbers jump from entry level to senior?</a></p>
+
+    <div class="insight">
+      <div class="label">A headhunter's view</div>
+      <p>The most common mistake career changers from other fields make is <strong>spending their time on certificates instead of building a portfolio</strong>. When we submit candidates, hiring managers almost never grant an interview because of a certificate alone; what they ask is "what models have you built, how big were they, and how did you solve problems along the way?"</p>
+      <p>Rather than signing up for another course, turn the project model you built in class into a three-to-five-page portfolio write-up: what the original drawings looked like, what you built, where you got stuck, and how you solved it. This does far more than a certificate, and it also solves the résumé-screening problem of “no keywords because I'm from another major.”</p>
+    </div>
+
+    <h2 id="sec-4">Two ways in: how to choose?</h2>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th></th><th>Route A: Take a course first, then job hunt</th><th>Path B: Apply directly to jobs that offer training</th></tr></thead>
+        <tbody>
+          <tr><td data-label=""><strong>Best for</strong></td><td data-label="路徑 A：先上課再求職">Currently unemployed and 29 or under? Government subsidies are available</td><td data-label="路徑 B：直接找有訓練的職缺">Want income soon, and learn quickly</td></tr>
+          <tr><td data-label=""><strong>Time</strong></td><td data-label="路徑 A：先上課再求職">Job search after a course of about 3–6 months</td><td data-label="路徑 B：直接找有訓練的職缺">Paid from the day you're hired</td></tr>
+          <tr><td data-label=""><strong>Cost</strong></td><td data-label="路徑 A：先上課再求職">Can be nearly free (see subsidies below)</td><td data-label="路徑 B：直接找有訓練的職缺">Zero cost—and you get paid</td></tr>
+          <tr><td data-label=""><strong>Risk</strong></td><td data-label="路徑 A：先上課再求職">You still have to land a job after finishing the course</td><td data-label="路徑 B：直接找有訓練的職缺">Fewer openings and stiffer competition</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>If you qualify for government subsidies and have the time, <strong>pursuing both paths at once is the most practical approach</strong>: take courses to build your software skills while watching for jobs with training programs, and go straight in if you're hired.</p>
+
+    <div class="callout">
+      <h3>Age 29 and under: you can use government subsidies first</h3>
+      <p>Taiwan's Ministry of Labor runs the Industry New Elite Program (產業新尖兵計畫), which subsidizes training costs of up to NT$100,000 for unemployed (or job-seeking) young people aged 15–29 (you pay NT$10,000 upfront and can apply for a refund if you find a job within 90 days of completing the course). Trainees who meet the attendance requirement also receive a learning allowance of NT$8,000 per month for up to 12 months, and the designated courses include BIM/Revit classes. For the current course list and eligibility, please refer to the announcements on the <a href="https://elite.taiwanjobs.gov.tw/" target="_blank" rel="noopener">Industry New Elite Program official website</a>.</p>
+    </div>
+
+    <h2 id="sec-5">The three most common reasons career-changer résumés get rejected</h2>
+    <ol>
+      <li><strong>No verifiable work samples</strong>: just "proficient in Revit," with no model or project to back it up. HR can't judge your level, and the easiest thing for them to do is skip you</li>
+      <li><strong>Not explaining why you're switching</strong>: hiring managers worry about a "just trying it out" mindset. A clear, specific reason for changing careers does more than taking one more course</li>
+      <li><strong>Not addressing the "on-site" concern</strong>: if all your past jobs were in an office, managers will worry you won't cope with a plant or construction site. Explain proactively on your résumé or in the interview that you understand this and can adapt, and the concern goes away</li>
+    </ol>
+
+    <aside data-exp="cta-mid-2026-08-28"><p>STEP1NE Now Hiring</p><h3>Hiring in Hsinchu and Houli, Taichung: no experience needed, permanent employment</h3><p>BIM engineers for semiconductor fab expansion projects are currently being hired at two locations: <strong>Hsinchu Science Park</strong> and <strong>Houli, Taichung</strong>, as <strong>full-time employees</strong> (not staffing-agency or contract positions). Monthly salary is <strong>NT$40,833–50,167</strong> (based on education and how related your major is). A bachelor's degree or above in any field is required, <strong>no experience needed</strong>. The company provides full training, and once you are on site, a team of design PMs and design engineers will guide you until you can work independently. Hours are 08:30–17:30, five days a week. Houli, Taichung also offers a housing allowance of NT$5,000 per month. Today's AI demand is driving capacity expansion in the memory industry, and building this hands-on experience early is an asset you can factor into your long-term career plans. If you'd like to ask questions before deciding, that's fine too. No need to send a résumé first.</p><div><a href="/apply-quick/?job=semiconductor-bim-mep-drafting-trainee-hsinchu&amp;utm_source=website&amp;utm_medium=article_cta&amp;utm_campaign=mid-bim" data-cta="mid-bim">Apply for Hsinchu</a><a href="/apply-quick/?job=bim-engineer-houli&amp;utm_source=website&amp;utm_medium=article_cta&amp;utm_campaign=mid-bim" data-cta="mid-bim">Apply for Houli, Taichung</a><a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-bim">Ask us on LINE first</a></div></aside><h2 id="sec-6">FAQ</h2>
+    <div>
+      <details>
+        <summary>
+          <span>With no engineering background at all, can I really do this?</span><span class="faq-icon">+</span>
+        </summary>
+        <p>Yes, you can. Entry-level BIM modeling is essentially "building components according to the drawings"; what it takes is attention to detail and spatial sense, not structural calculation. The stages that really require engineering judgment are the more senior coordination and integration work, and by then you'll have built up hands-on experience on the job. Career changers from design, drafting or drawing backgrounds usually pick it up fastest, but people from unrelated fields have a chance too if they're willing to learn.</p>
+      </details>
+      <details>
+        <summary>
+          <span>Will my starting salary be very low if I switch to BIM?</span><span class="faq-icon">+</span>
+        </summary>
+        <p>Entry-level starting pay is about NT$35,000–45,000 a month, and some openings also offer a guaranteed year-end bonus (commonly 1–2 months), so actual annual income is higher than the monthly figure suggests. This starting point is above average among no-experience jobs, and BIM pay growth comes mainly from moving up job levels rather than piling up years, so after 2–4 years the range widens noticeably.</p>
+      </details>
+      <details>
+        <summary>
+          <span>Can I still switch if I'm older?</span><span class="faq-icon">+</span>
+        </summary>
+        <p>Yes. Taiwan's Employment Service Act prohibits age limits in job ads, and in practice employers assess willingness to learn and stability. If you have experience in manufacturing, construction-related work, or jobs that involve reading drawings, that's actually a plus—people who understand how a site runs have an edge over those with a purely technical background when coordinating across departments.</p>
+      </details>
+      <details>
+        <summary>
+          <span>Should I teach myself first and then apply, or apply right away?</span><span class="faq-icon">+</span>
+        </summary>
+        <p>We recommend doing both at once. Openings that offer "full training, any major" are limited and get snapped up quickly, so they may be closed by the time you finish a course. But applying without ever having touched the software also means a low pass rate at the résumé stage. A workable approach: spend a few weeks going through Revit basics and build one or two models you can talk about, while starting to apply at the same time — filling gaps as you go.</p>
+      </details>
+    </div>
+
+    <div>
+      <h2 id="sec-7">BIM openings with training currently available</h2>
+      <p>We have BIM engineer openings that are "no experience required, with full training from scratch" (a semiconductor fab expansion project, hiring in Hsinchu Science Park and Houli, Taichung; permanent employment), paying NT$40,833–50,167 a month, plus a NT$5,000 monthly housing allowance in Houli, Taichung.</p>
+      <p><a href="/en/jobs/semiconductor-bim-mep-drafting-trainee-hsinchu/">View the Hsinchu BIM opening →</a></p><p><a href="/en/jobs/bim-engineer-houli/">View BIM openings in Houli, Taichung →</a></p><p><a href="/en/construction/">See more construction engineering openings →</a></p><p>Related reading: <a href="/en/articles/how-to-enter-construction-industry/">How to get into construction: a beginner's guide for people from other fields</a></p>
+      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">Chat with a consultant on LINE</a>
+    </div>
+
+      
+<div class="cta">
+        <p>Want to break in with no experience? Permanent BIM roles with training are currently open.</p>
+          <a class="btn-alt" href="/en/construction/">See BIM engineer jobs (no experience needed)</a> <a class="btn-line" href="https://lin.ee/XcSWPzM">Ask a consultant on LINE</a>
+      </div>
+    
+<div class="related-jobs-box" style="margin:26px 0;padding:18px 20px;border:1px solid #D9E0E6;border-radius:14px;background:#EAF4FA"><strong style="display:block;margin-bottom:9px;color:#0F5F87;font-size:15px">🔎 Related openings</strong><div style="display:flex;flex-wrap:wrap;gap:8px 14px;font-size:14.5px"><a href="/en/jobs/semiconductor-bim-mep-drafting-trainee-hsinchu/">BIM Engineer (Hsinchu)</a> · <a href="/en/jobs/bim-engineer-houli/">BIM Engineer (Houli, Taichung)</a> · <a href="/en/jobs/">See all openings</a></div></div>
+</article>
+  </div>
+</main>
+
+
+<footer><div class="fw">德仁管理顧問有限公司, 3F, No. 54-7, Sec. 3, Kangning Rd., Neihu Dist., Taipei City</div></footer>
+
+<script>
+// 表格加水平捲動外框，避免手機橫向溢位
+document.querySelectorAll('article table').forEach(function(t){
+  var w=document.createElement('div'); w.className='tw';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
+// 閱讀進度
+var bar=document.getElementById('bar');
+function prog(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',prog,{passive:true}); prog();
+// 目錄跟隨
+var tns=[].slice.call(document.querySelectorAll('.tn'));
+var secs=tns.map(function(a){return document.getElementById(a.dataset.s)}).filter(Boolean);
+if('IntersectionObserver' in window && secs.length){
+  var cur=null;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) cur=e.target.id; });
+    tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  },{rootMargin:'-88px 0px -70% 0px'}).observe && secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===e.target.id)}); }
+      });
+    },{rootMargin:'-88px 0px -70% 0px'}).observe(s);
+  });
+}
+</script>
+
+<style>
+.s1ne-sc{position:fixed;z-index:60;left:0;right:0;bottom:0;display:flex;gap:10px;padding:10px max(14px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));background:rgba(255,255,255,.96);box-shadow:0 -6px 24px rgba(40,30,10,.12);transform:translateY(120%);transition:transform .25s ease}
+.s1ne-sc.on{transform:none}
+.s1ne-sc a{flex:1;display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:999px;font-weight:700;font-size:15px;text-decoration:none;white-space:nowrap}
+.s1ne-sc .p{background:#111827;color:#fff}
+.s1ne-sc .l{background:#fff;color:#111827;border:1.5px solid #d1d5db}
+.s1ne-sc a:focus-visible{outline:3px solid #1f2937;outline-offset:2px}
+@media (min-width:760px){.s1ne-sc{left:auto;right:24px;bottom:24px;border-radius:999px;padding:8px;box-shadow:0 8px 28px rgba(40,30,10,.18)}.s1ne-sc a{flex:none;padding:0 22px}}
+@media (prefers-reduced-motion:reduce){.s1ne-sc{transition:none}}
+body{padding-bottom:84px}
+@media (min-width:760px){body{padding-bottom:0}}
+</style>
+<div class="s1ne-sc" id="s1neSc" role="region" aria-label="Fast action">
+  <a class="l" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">Ask on LINE</a> <a class="p" href="/en/jobs/" data-cta="jobs_cta_click">See current openings</a>
+</div>
+<script>
+(function(){var b=document.getElementById('s1neSc');if(!b)return;
+function t(){b.classList.toggle('on',window.scrollY>380);}
+window.addEventListener('scroll',t,{passive:true});t();
+b.querySelector('.p').addEventListener('click',function(){try{gtag('event',this.getAttribute('data-cta'),{page_path:location.pathname,placement:'sticky'});}catch(e){}});})();
+</script>
+<!-- /s1ne-sticky-cta -->
+
+</body>
+</html>

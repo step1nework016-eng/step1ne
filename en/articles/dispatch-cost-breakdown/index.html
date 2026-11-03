@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  if (!e.target.closest) return;
+  // 2026-08-06：原本只抓 lin.ee。BIM 那群的下一步是「直接應徵」不是加 LINE，
+  // 不一起記的話，等於把那條路做出來卻量不到，實驗就白做了。
+  var a = e.target.closest('a[href*="lin.ee"], a[href^="/apply"]');
+  if (!a) return;
+  var isApply = (a.getAttribute('href') || '').indexOf('/apply') === 0;
+  gtag('event', isApply ? 'apply_click' : 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60),
+    // mid＝這次新加的文章中段；沒有標的就是原本頁首／頁尾那些
+    cta_slot: a.getAttribute('data-cta') || 'legacy'
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How are staffing fees calculated? A full breakdown of management fees and cost structure (2026) | Step1ne</title>
+<meta name="description" content="Staffing cost = worker&#x27;s wages + statutory employer costs (about 18% of wages) + management service fee. Using Taiwan&#x27;s latest 2026 labor and health insurance rates, this article works through the actual numbers, breaks down a company&#x27;s total cost for staff earning NT$30,000 to NT$50,000 a month, and explains what a reasonable management fee is and how to read a quote.">
+<meta name="keywords" content="staffing costs,how staffing fees are calculated,staffing management fee,temporary staffing labor cost,staffing agency fees,staffing quote,staffing cost calculation">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/en/articles/dispatch-cost-breakdown/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Step1ne Referrals">
+<meta property="og:title" content="How Are Staffing Costs Calculated? A Full Breakdown of Management Fees and Cost Structure (2026)">
+<meta property="og:description" content="Using the latest 2026 rates, we calculate the total cost to a company of dispatched workers earning NT$30,000 to NT$50,000 a month, and explain what a reasonable management fee looks like and how to read a quote.">
+<meta property="og:url" content="https://step1ne.com/en/articles/dispatch-cost-breakdown/">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta name="theme-color" content="#F4F6F8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "How are staffing costs calculated? A full breakdown of 2026 management fees and cost structure",
+  "description": "Using the latest 2026 labor and health insurance rates, we calculate a company's total staffing cost for monthly salaries of NT$30,000 to NT$50,000, break down statutory employer costs versus the management service fee, and explain how to read a quote.",
+  "datePublished": "2026-08-06",
+  "dateModified": "2026-08-06",
+  "inLanguage": "zh-TW",
+  "author": {
+    "@type": "Organization",
+    "name": "Step1ne 德仁管理顧問有限公司",
+    "url": "https://step1ne.com/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "德仁管理顧問有限公司 (Step1ne)",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://step1ne.com/assets/step1ne-logo.png"
+    }
+  }
+}
+</script>
+
+<style>
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;
+  --wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:17px;line-height:1.95;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.35;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,select,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* 導覽 */
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+/* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
+
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
+.crumb{grid-column:1/-1;padding:22px 0 6px;font-size:13.5px;color:var(--slate-dim)}
+.crumb a{color:var(--slate)}
+.crumb a:hover{color:var(--brand-deep)}
+.crumb span{margin:0 8px;color:var(--rule)}
+
+/* 目錄軌：沿用全站 signature */
+.toc{position:sticky;top:92px;padding:8px 0 40px}
+.toc h2{font-size:13px;font-weight:700;color:var(--slate-dim);letter-spacing:.02em;margin-bottom:16px}
+.tns{position:relative;padding-left:22px}
+.tns::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.14))}
+.tn{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:14px;color:var(--slate);line-height:1.6;position:relative}
+.tn i{position:absolute;left:-22px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--rule);flex:0 0 auto}
+.tn:hover{color:var(--brand-deep)}
+.tn:hover i{border-color:var(--brand)}
+.tn.on{color:var(--ink);font-weight:700}
+.tn.on i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 4px rgba(46,169,223,.2)}
+.mtoc{display:none;margin:20px 0 0;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.mtoc summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15.5px;position:relative}
+.mtoc summary::-webkit-details-marker{display:none}
+.mtoc summary::after{content:"";position:absolute;right:20px;top:24px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.mtoc[open] summary::after{transform:rotate(-135deg)}
+.mtoc div{padding:0 18px 14px}
+.mtoc a{display:block;padding:9px 0;font-size:15px;color:var(--slate);border-top:1px solid var(--rule)}
+
+/* 文章本體 */
+article{padding:14px 0 60px;max-width:70ch}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--brand-deep);background:rgba(22,126,178,.07);border:1px solid rgba(22,126,178,.25);border-radius:5px;padding:4px 11px}
+article h1{margin-top:16px;font-size:clamp(28px,4.2vw,42px);line-height:1.28;letter-spacing:-.02em}
+.by{margin-top:18px;padding-bottom:20px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14px;color:var(--slate-dim)}
+.by a{color:var(--slate);border-bottom:1px solid var(--rule)}
+.by .d{font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+
+/* ★ Signature：直接答案 */
+.ans{margin-top:30px;background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:26px 30px}
+.ans .lab{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:10px}
+.ans p{font-size:19.5px;line-height:1.85;font-weight:500}
+.ans strong{font-weight:900}
+
+article h2{margin:52px 0 16px;font-size:25px;scroll-margin-top:92px}
+article h3{margin:34px 0 10px;font-size:19px}
+article h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-right:12px;border-radius:8px;background:var(--brand);color:#fff;font-family:var(--f-disp);font-size:17px;font-weight:700;vertical-align:2px}
+article p{margin-top:16px}
+article strong{font-weight:700}
+article a:not(.tn){color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.32)}
+article a:not(.tn):hover{border-bottom-color:var(--brand-deep)}
+article ul,article ol{margin:16px 0 0;padding-left:1.4em}
+article li{margin-top:9px}
+article table{width:100%;border-collapse:collapse;margin-top:22px;font-size:15.5px;background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+article th{text-align:left;background:var(--paper);font-weight:700;font-size:14px;color:var(--slate);padding:12px 14px;border-bottom:1px solid var(--rule)}
+article td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.75}
+article tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+article details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+article details summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+article details summary::-webkit-details-marker{display:none}
+article details summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+article details[open] summary::after{transform:rotate(-135deg)}
+article details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid var(--rule);color:var(--slate)}
+
+.foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
+.cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
+.cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
+footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+.fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.note{max-width:var(--wrap);margin:0 auto 46px;padding-inline:var(--gut)}
+.note div{background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid #B45309;border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.note b{color:#5A3D0C}
+
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .mtoc{display:block}
+}
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  body{font-size:16.5px}
+  .ans{padding:22px;border-radius:0 8px 8px 0}
+  .ans p{font-size:18px}
+  article h2{font-size:22px;margin-top:42px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+<!--i18n-hreflang-->
+<link rel="alternate" hreflang="zh-Hant" href="https://step1ne.com/articles/dispatch-cost-breakdown/">
+<link rel="alternate" hreflang="ja" href="https://step1ne.com/ja/articles/dispatch-cost-breakdown/">
+<link rel="alternate" hreflang="en" href="https://step1ne.com/en/articles/dispatch-cost-breakdown/">
+<link rel="alternate" hreflang="x-default" href="https://step1ne.com/articles/dispatch-cost-breakdown/">
+<style>.s1-lang{max-width:1100px;margin:0 auto;padding:10px 16px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.s1-lang a,.s1-lang b{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid #d9dce3;background:#fff;font-size:14px;font-weight:600;color:#4a5060;text-decoration:none}.s1-lang b{background:#23262d;border-color:#23262d;color:#fff}.s1-lang a:hover{color:#23262d;border-color:#9aa0ad}.s1-lang a:focus-visible{outline:3px solid #1880B4;outline-offset:2px}.s1-note{max-width:1100px;margin:10px auto 0;padding:0 16px}.s1-note p{margin:0;padding:12px 14px;border-radius:12px;background:#eef4fb;border:1px solid #c9dcef;color:#1d3a57;font-size:14.5px;line-height:1.7}</style>
+<!--/i18n-hreflang-->
+</head>
+
+<body>
+<div id="bar"></div>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/en/"><img src="/assets/step1ne-logo.png" alt="Step1ne"><b>Step1ne</b></a>
+    <nav class="hd-nav">
+      <a href="/en/commission-recruiting/">For Employers</a><a href="/en/jobs/">Jobs</a><a class="on" href="/en/articles/">Headhunting Insights</a><a href="/en/talent/">Step1ne Referrals</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">Ask on LINE</a>
+    <button class="hd-burger" type="button" aria-label="Open menu" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/en/commission-recruiting/">For Employers</a><a href="/en/jobs/">Jobs</a><a href="/en/articles/">Articles</a><a href="/en/talent/">Step1ne Referrals</a> <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">Contact on LINE</a>
+  </div>
+</header>
+<!--i18n-switch--><nav class="s1-lang" aria-label="Change language"><a href="/articles/dispatch-cost-breakdown/" hreflang="zh-Hant" lang="zh-Hant">中文</a><a href="/ja/articles/dispatch-cost-breakdown/" hreflang="ja" lang="ja">日本語</a><b lang="en" aria-current="true">English</b></nav><!--/i18n-switch-->
+
+
+<main class="shell">
+  <nav class="crumb" aria-label="Breadcrumb"><a href="/en/">Home</a><span>/</span><a href="/en/articles/">Insights</a><span>/</span>How are staffing fees calculated? A full breakdown of management fees and cost structure</nav>
+
+  <aside class="toc" aria-label="Contents">
+    
+<div style="font-size:14.5px;opacity:.92;margin-bottom:15px;line-height:1.6">Executive search, permanent hiring, staffing: fees only on success, nothing if no one starts, with transparent pricing.</div><a href="/en/commission-recruiting/" style="display:inline-block;background:#fff;color:#0F5F87;font-weight:700;padding:11px 20px;border-radius:10px;text-decoration:none;margin:0 8px 8px 0">See staffing pricing plans →</a><a href="https://lin.ee/XcSWPzM" style="display:inline-block;background:#06C755;color:#fff;font-weight:700;padding:11px 20px;border-radius:10px;text-decoration:none">Contact us on LINE</a></div>
+<h2>This article has 10 sections</h2>
+    <div class="tns"><a class="tn" href="#sec-1" data-s="sec-1"><i></i><span>The three components of staffing fees</span></a> <a class="tn" href="#sec-2" data-s="sec-2"><i></i><span>How are statutory employer costs calculated in 2026?</span></a> <a class="tn" href="#sec-3" data-s="sec-3"><i></i><span>For a monthly salary of NT$30,000 to NT$50,000, what does the company actually pay?</span></a> <a class="tn" href="#sec-4" data-s="sec-4"><i></i><span>How much do staffing agencies typically charge as a management fee?</span></a> <a class="tn" href="#sec-5" data-s="sec-5"><i></i><span>Staffing vs. hiring directly: how big is the cost gap?</span></a> <a class="tn" href="#sec-6" data-s="sec-6"><i></i><span>How to read the numbers on a staffing quote</span></a> <a class="tn" href="#sec-7" data-s="sec-7"><i></i><span>When does staffing make sense, and when doesn't it?</span></a> <a class="tn" href="#sec-8" data-s="sec-8"><i></i><span>The legal framework of staffing: who is the employer, and who is responsible for what?</span></a> <a class="tn" href="#sec-9" data-s="sec-9"><i></i><span>FAQ</span></a> <a class="tn" href="#sec-10" data-s="sec-10"><i></i><span>Need a specific staffing quote?</span></a></div>
+  </aside>
+
+  <div>
+    <details class="mtoc"><summary>Contents (10 sections)</summary><div><a href="#sec-1">The three components of staffing fees</a> <a href="#sec-2">How to calculate statutory employer costs in 2026</a> <a href="#sec-3">For monthly salaries of NT$30,000 to NT$50,000, what does the company actually pay?</a> <a href="#sec-4">How much do staffing agencies usually charge as a management fee?</a> <a href="#sec-5">Staffing vs. hiring directly: how big is the cost difference?</a> <a href="#sec-6">How to read the numbers on a staffing quote</a> <a href="#sec-7">When does staffing make sense, and when doesn't it?</a> <a href="#sec-8">The legal framework of staffing: who is the employer and who is responsible for what?</a> <a href="#sec-9">FAQ</a> <a href="#sec-10">Need a concrete staffing quote?</a></div></details>
+    <article>
+      <span class="tag">Employer guide to executive search · Staffing in practice</span>
+      <h1>How are staffing costs calculated? A full breakdown of management fees and cost structure</h1>
+      <div class="by">
+        <span>By <a href="/en/about/">the Step1ne executive search consultant team</a></span> <time class="d" datetime="2026-08-06">Published 2026-08-06</time> <span class="d">About 9 min read</span>
+      </div>
+
+      <div class="ans">
+        <div class="lab">Short answer</div>
+        <p>A company's monthly cost for a dispatched worker = employee salary + statutory employer costs (about 18% of salary) + management service fee. With a monthly salary of NT$35,000 and a 20% management fee, the company actually pays about <strong>NT$48,300</strong> per month. The statutory costs are fixed; what really drives differences between quotes is the management fee — there's no legal standard for it, it's set by the market.</p>
+<div class="employer-cta" style="margin:24px 0;padding:22px 24px;border-radius:16px;background:linear-gradient(135deg,#167EB2,#0F5F87);color:#fff"><div style="font-size:18px;font-weight:800;margin-bottom:6px">Are you an employer looking to hire?</div><div style="font-size:14.5px;opacity:.92;margin-bottom:15px;line-height:1.6">Executive search, permanent hiring, staffing: fees only on success, nothing if no one starts, with transparent pricing.</div><a href="/en/commission-recruiting/" style="display:inline-block;background:#fff;color:#0F5F87;font-weight:700;padding:11px 20px;border-radius:10px;text-decoration:none;margin:0 8px 8px 0">See staffing pricing plans →</a><a href="https://lin.ee/XcSWPzM" style="display:inline-block;background:#06C755;color:#fff;font-weight:700;padding:11px 20px;border-radius:10px;text-decoration:none">Contact us on LINE</a></div>
+
+      </div>
+
+      <h2 id="sec-1">The three components of staffing costs</h2>
+    <p>Break down a staffing agency's quote to a company and there are only three parts:</p>
+    <ol>
+      <li><strong>Worker's salary</strong> — the monthly pay the temp worker actually receives, agreed between the company and the staffing agency</li>
+      <li><strong>Statutory employer costs</strong>: labor insurance, health insurance, labor pension and occupational accident insurance — the portions the law requires the employer (the staffing agency) to pay</li>
+      <li><strong>Management service fee</strong>: the staffing agency's service fee and margin, covering recruiting, payroll, labor and health insurance administration, HR paperwork, compliance and more</li>
+    </ol>
+    <p>The first two are transparent: you set the salary, and statutory costs follow a formula. The third is where quotes from different staffing agencies differ.</p>
+
+    <h2 id="sec-2">How are statutory employer costs calculated in 2026?</h2>
+    <p>Below are the rates that apply in 2026 (ROC year 115). Each one affects staffing quotes:</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Item</th><th>Rate</th><th>Employer's share</th><th>Actual employer cost</th><th>Legal basis</th></tr></thead>
+        <tbody>
+          <tr><td data-label="項目"><strong>Labor insurance (incl. employment insurance)</strong></td><td data-label="費率">12.5%</td><td data-label="雇主負擔比例">70%</td><td data-label="雇主實際負擔"><strong>Salary × 8.75%</strong></td><td data-label="法規依據">Labor Insurance Act</td></tr>
+          <tr><td data-label="項目"><strong>National health insurance</strong></td><td data-label="費率">5.17%</td><td data-label="雇主負擔比例">60%</td><td data-label="雇主實際負擔"><strong>Salary × 3.10%</strong></td><td data-label="法規依據">National Health Insurance Act</td></tr>
+          <tr><td data-label="項目"><strong>Pension contributions</strong></td><td data-label="費率">6% (statutory minimum)</td><td data-label="雇主負擔比例">100%</td><td data-label="雇主實際負擔"><strong>Salary × 6%</strong></td><td data-label="法規依據">Article 14 of Taiwan's Labor Pension Act</td></tr>
+          <tr><td data-label="項目"><strong>Occupational accident insurance</strong></td><td data-label="費率">0.12%–0.96%</td><td data-label="雇主負擔比例">100%</td><td data-label="雇主實際負擔"><strong>Salary × 0.12%–0.96%</strong></td><td data-label="法規依據">Occupational accident insurance and protection act</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">In Taiwan, the Labor Insurance ordinary-accident rate of 11.5% + employment insurance of 1% = 12.5%, effective January 2025. The National Health Insurance rate of 5.17% has been frozen since 2021. Occupational accident insurance rates vary by industry: about 0.12% for office-type businesses, higher for manufacturing. The employer's health insurance column covers only the employee's own share; if the employee has dependents enrolled under them, the employer must pay the dependents' portion separately.</p>
+
+    <p><strong>Total: statutory employer costs come to about 18%–19% of the employee's monthly salary.</strong> This ratio barely changes across salary levels, because every rate is calculated as a percentage of salary.</p>
+
+    <div class="law">
+      <strong>Taiwan's 2026 minimum wage: </strong>NT$29,500 per month and NT$196 per hour (effective January 1, 2026, ROC year 115). Dispatched workers' pay may not fall below this.<br> <small>Source: Taiwan Ministry of Labor announcement on 2026 labor policy changes</small>
+    </div>
+
+    <h2 id="sec-3">For monthly pay of NT$30,000 to NT$50,000, what does a company actually pay?</h2>
+    <p>Below are worked examples for three common salary levels. Statutory costs are calculated directly from each rate, and the management fee is assumed at 20% (for illustration only; actual rates vary case by case):</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Item</th><th>Monthly salary NT$29,500<br>(minimum wage)</th><th>Monthly salary NT$35,000</th><th>Monthly salary NT$50,000</th></tr></thead>
+        <tbody>
+          <tr><td data-label="項目"><strong>Employee monthly salary</strong></td><td data-label="月薪 29,500">29,500</td><td data-label="月薪 35,000">35,000</td><td data-label="月薪 50,000">50,000</td></tr>
+          <tr><td data-label="項目">Labor Insurance, employer share (8.75%)</td><td data-label="月薪 29,500">2,581</td><td data-label="月薪 35,000">3,063</td><td data-label="月薪 50,000">4,375</td></tr>
+          <tr><td data-label="項目">Employer health insurance contribution (3.10%)</td><td data-label="月薪 29,500">915</td><td data-label="月薪 35,000">1,085</td><td data-label="月薪 50,000">1,550</td></tr>
+          <tr><td data-label="項目">Pension contribution (6%)</td><td data-label="月薪 29,500">1,770</td><td data-label="月薪 35,000">2,100</td><td data-label="月薪 50,000">3,000</td></tr>
+          <tr><td data-label="項目">Occupational accident insurance (0.21%)</td><td data-label="月薪 29,500">62</td><td data-label="月薪 35,000">74</td><td data-label="月薪 50,000">105</td></tr>
+          <tr><td data-label="項目"><strong>Statutory costs subtotal</strong></td><td data-label="月薪 29,500"><strong>5,328</strong></td><td data-label="月薪 35,000"><strong>6,322</strong></td><td data-label="月薪 50,000"><strong>9,030</strong></td></tr>
+          <tr><td data-label="項目">Management service fee (20%)</td><td data-label="月薪 29,500">5,900</td><td data-label="月薪 35,000">7,000</td><td data-label="月薪 50,000">10,000</td></tr>
+          <tr><td data-label="項目"><strong>Total monthly cost to the company</strong></td><td data-label="月薪 29,500"><strong>40,728</strong></td><td data-label="月薪 35,000"><strong>48,322</strong></td><td data-label="月薪 50,000"><strong>69,030</strong></td></tr>
+          <tr><td data-label="項目">Equivalent to</td><td data-label="月薪 29,500">1.38x</td><td data-label="月薪 35,000">1.38x</td><td data-label="月薪 50,000">1.38x</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">Notes on the estimate: Statutory costs are calculated using 2026 rates. The occupational accident insurance rate uses the all-industry average of 0.21% (industry-specific 0.14% + commuting 0.07%). National health insurance covers the employee only, not dependents. The 20% management fee is an assumption for illustration; the actual rate is negotiated between both parties based on job type, headcount, dispatch period and other factors. Formulas used: Labor insurance = monthly salary × 12.5% × 70%; Health insurance = monthly salary × 5.17% × 60%; Labor pension = monthly salary × 6%.</p>
+
+    <h2 id="sec-4">How much do staffing agencies usually charge as a management fee?</h2>
+    <p>There is no legal standard for the management fee. Taiwan's current law sets no ceiling or floor on service fees for domestic staffing, unlike migrant worker brokerage (which has a legal cap under the "Standards for Fee Items and Amounts Charged by Private Employment Services Institutions"). The management fee for domestic staffing is purely a market rate, negotiated between the company and the staffing agency.</p>
+
+    <p>Factors that affect the management fee:</p>
+    <ul>
+      <li><strong>Job type</strong>: highly replaceable roles such as general admin or warehouse work usually carry a lower management fee; technical roles (IT, engineering) or those requiring specific certifications carry higher rates</li>
+      <li><strong>Number of dispatched staff</strong>: larger volumes usually leave room to negotiate</li>
+      <li><strong>Assignment length</strong> — stable long-term arrangements have lower rates than short-term rush jobs</li>
+      <li><strong>Replacement commitments</strong>: terms such as how many days to fill a gap and free replacement for unsuitable workers are reflected in the rate</li>
+      <li><strong>Scope of service</strong>: whether it's just supplying staff, or also includes attendance management, performance reporting and labor dispute handling</li>
+    </ul>
+
+    <div class="insight">
+      <div class="label">A staffing consultant's view</div>
+      <p>Many companies' first reaction to a quote is "the management fee is too high—if I hired directly I wouldn't pay this." But the management fee isn't just profit. Job ad costs, interviewing and screening staff, monthly payroll calculation and payment, enrolling and withdrawing workers from labor and health insurance, workplace-safety compliance, and the buffer cost of replacing people are all absorbed by the staffing agency.</p>
+      <p><strong>What you should really compare isn't "what percent is the management fee," but "after adding these hidden costs, is hiring directly or using staffing the better deal?"</strong></p>
+    </div>
+
+    <h2 id="sec-5">Staffing vs. hiring directly: how much do costs differ?</h2>
+    <p>On paper, hiring directly is always cheaper than staffing, since there's no management fee. But direct hiring has several costs that don't show up on the books:</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Cost item</th><th>Use staffing</th><th>Hire directly</th></tr></thead>
+        <tbody>
+          <tr><td data-label="成本項目"><strong>Worker's salary</strong></td><td data-label="用派遣">Included in the quote</td><td data-label="自己聘">Paid by you</td></tr>
+          <tr><td data-label="成本項目"><strong>Labor insurance, health insurance and labor pension</strong></td><td data-label="用派遣">Handled by the staffing agency</td><td data-label="自己聘">Enroll in insurance yourself and calculate monthly</td></tr>
+          <tr><td data-label="成本項目"><strong>Recruiting cost</strong></td><td data-label="用派遣">None (borne by the staffing agency)</td><td data-label="自己聘">Job ads + HR screening time</td></tr>
+          <tr><td data-label="成本項目"><strong>Turnover cost</strong></td><td data-label="用派遣">Replacement by the staffing agency</td><td data-label="自己聘">Severance pay + re-hiring</td></tr>
+          <tr><td data-label="成本項目"><strong>HR & administration</strong></td><td data-label="用派遣">Handled by the staffing agency</td><td data-label="自己聘">Attendance management, leave, overtime pay calculations</td></tr>
+          <tr><td data-label="成本項目"><strong>Compliance risk</strong></td><td data-label="用派遣">Borne by the staffing agency</td><td data-label="自己聘">Handle labor inspections and labor disputes yourself</td></tr>
+          <tr><td data-label="成本項目"><strong>Flexibility</strong></td><td data-label="用派遣">Simply don't renew when the contract ends</td><td data-label="自己聘">Dismissal requires legally valid grounds and procedures</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>Bottom line: short-term needs (6 months or less), seasonal staffing, a headcount freeze despite rising workload, or a need to fill seats fast — in these cases staffing is usually cheaper than hiring directly. </strong>For long-term, stable core roles, direct hiring usually has the lower total cost.</p>
+
+    <h2 id="sec-6">How to read the numbers on a staffing quote</h2>
+    <p>When you receive a quote, check these points:</p>
+    <h3>Items that should be clearly listed</h3>
+    <ul>
+      <li>Employee's monthly salary</li>
+      <li>How statutory employer costs (labor insurance, health insurance, pension, occupational accident insurance) are calculated</li>
+      <li>How the management service fee is calculated — as a percentage of salary, or a fixed amount</li>
+      <li>How overtime and public-holiday work are paid</li>
+      <li>Contract term and termination terms</li>
+    </ul>
+
+    <h3>Follow-up questions to ask</h3>
+    <ul>
+      <li><strong>The basis for the management fee</strong> — is it charged on base pay only, or on overtime pay too? This affects the actual amount</li>
+      <li><strong>Handling unsuitable workers</strong> — replaced within how many days? How is billing handled during the replacement period?</li>
+      <li><strong>Flexibility to change headcount</strong>—if you suddenly need to add or cut people, how much notice is required? Are there penalties?</li>
+      <li><strong>Conditions for converting dispatched workers to full-time employees</strong>—some agencies charge a conversion fee, so agree on the amount and terms in advance</li>
+    </ul>
+
+    <div class="warn">
+      <div class="label">Quote red flags</div>
+      <p>If a quote is unreasonably low—say the management fee is only a few percent of salary—check whether the savings come out of employees' statutory benefits. Common tactics are <strong>under-reporting the insured salary</strong> (an employee actually earns NT$35,000 a month but is insured at minimum wage) or <strong>shifting pension contributions onto employees</strong>. This is not only illegal; if something goes wrong, the client company also shares liability.</p>
+      <p><small>Under Article 22-1 of Taiwan's Labor Standards Act, if a staffing agency fails to pay wages, the client company bears supplementary liability for payment. Under Article 63-1, the client company and the staffing agency are jointly liable for occupational injury compensation.</small></p>
+    </div>
+
+    <h2 id="sec-7">When does staffing make sense, and when doesn't it?</h2>
+    <h3>Suited to staffing</h3>
+    <ul>
+      <li><strong>Seasonal or project-based needs</strong> — year-end stocktaking, production rushes, trade shows: no longer needed once they're over</li>
+      <li><strong>Headcount is frozen but workload is growing</strong> — official headcount won't be approved, but the work is already piling up</li>
+      <li><strong>Fast fill</strong> — the operational loss from a position sitting empty for two weeks or more is often greater than the management fee</li>
+      <li><strong>Trial evaluation</strong> — use staffing for 3–6 months first, then convert to a permanent hire once the fit is confirmed</li>
+    </ul>
+    <h3>When staffing isn't a good fit</h3>
+    <ul>
+      <li><strong>Core roles</strong>: positions that require building expertise over time or handling confidential information</li>
+      <li><strong>Roles that need extensive training</strong>: training is costly, and when someone leaves you start over</li>
+      <li><strong>Long-term, fixed frontline roles</strong>—for steady needs lasting more than a year, hiring directly usually costs less overall</li>
+    </ul>
+
+    <aside data-exp="cta-mid-2026-08-06">
+      <p>For company HR teams</p>
+      <h3>Need a staffing quote? Tell us about the role and we'll work it out for you</h3>
+      <p>Tell us the type of role, headcount and expected start and end dates, and we'll reply with a full quote breakdown including statutory costs — and if staffing isn't a good fit, we'll say so directly. Quotes are free, and you don't need to sign anything first.</p>
+      <form class="s1-lead" novalidate style="display:grid;gap:8px;margin-top:14px;position:relative">
+<input name="company" aria-label="Company name" placeholder="Company name" autocomplete="organization" style="min-height:44px;padding:0 12px;border:1px solid #D9E0E6;border-radius:10px;font-size:15px;background:#fff;color:#0D1B24">
+<input name="job" aria-label="Jobs I&#x27;m looking for" placeholder="Which role and how many people? (e.g., 5 warehouse staff)" style="min-height:44px;padding:0 12px;border:1px solid #D9E0E6;border-radius:10px;font-size:15px;background:#fff;color:#0D1B24">
+<label style="display:grid;gap:4px;font-size:13.5px;color:#4A5A66">Additional requirements (optional)<textarea name="detail" rows="3" maxlength="1000" placeholder="e.g. the role has been open a long time, we need someone to start next month, they must speak Taiwanese Hokkien / work shifts…" style="min-height:88px;padding:10px 12px;border:1px solid #D9E0E6;border-radius:10px;font-size:15px;font-family:inherit;line-height:1.5;background:#fff;color:#0D1B24;resize:vertical"></textarea></label>
+<input name="contact" aria-label="Email or phone" placeholder="Email or phone" autocomplete="email" style="min-height:44px;padding:0 12px;border:1px solid #D9E0E6;border-radius:10px;font-size:15px;background:#fff;color:#0D1B24">
+<input name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
+<button type="submit" data-cta="mid-dispatch-form" style="min-height:46px;border:0;border-radius:10px;background:#167EB2;color:#fff;font-size:15.5px;font-weight:700;cursor:pointer">Get a free quote and recommendations</button>
+<p class="s1-lead-msg" role="status" aria-live="polite" style="margin:0;font-size:14px"></p>
+<p style="margin:0;font-size:13px;opacity:.85">A consultant will reply within 1 business day—no contract needed first. You can also <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-dispatch">ask a consultant on LINE</a></p>
+</form>
+    </aside>
+
+    <h2 id="sec-8">The legal framework of staffing: who is the employer, and who is responsible for what?</h2>
+    <p>Taiwan currently has no standalone "Dispatch Act." In 2019, the Legislative Yuan passed amendments to the Labor Standards Act that placed dispatch-related provisions directly into the Act. The main rules are spread across the following articles:</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Legal provision</th><th>What it requires</th><th>What it means for employers</th></tr></thead>
+        <tbody>
+          <tr><td data-label="法條"><strong>Article 17-1 of Taiwan's Labor Standards Act</strong></td><td data-label="規定什麼">The client company is prohibited from interviewing and selecting specific dispatched workers; if it does, the worker can demand that a direct employment contract be established</td><td data-label="對企業的意義">Interviewing dispatched workers carries legal risk; they should be recommended by the staffing agency</td></tr>
+          <tr><td data-label="法條"><strong>Taiwan Labor Standards Act, Article 22-1</strong></td><td data-label="規定什麼">If a staffing agency fails to pay wages, the client company is secondarily liable for payment</td><td data-label="對企業的意義">Choosing a financially sound staffing agency matters</td></tr>
+          <tr><td data-label="法條"><strong>Article 63-1 of Taiwan's Labor Standards Act</strong></td><td data-label="規定什麼">If a dispatched worker suffers an occupational injury, the client company and staffing agency are jointly liable</td><td data-label="對企業的意義">Workplace safety is the company's own responsibility and can't all be pushed onto the staffing agency</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">All of the above articles were added and promulgated on May 20, ROC year 108 (2019). In addition, the "Guidelines on the Rights of Dispatched Workers" (administrative guidance from Taiwan's Ministry of Labor, not binding law) set out the items that dispatch contracts should specify.</p>
+
+    <p><strong>In short: a dispatched worker's legal employer is the staffing agency</strong>, which handles and pays labor insurance, health insurance, and pension contributions. But the client company (where the worker is placed) shares joint liability for supplementary wage payments and occupational injury compensation; if the agency runs into trouble, the company can't say “that's not our problem.”</p>
+
+    <h2 id="sec-9">FAQ</h2>
+    <div>
+      <details>
+        <summary>
+          <span>Do staffing agencies deduct a management fee from workers' pay?</span> <span class="faq-icon">+</span>
+        </summary>
+        <p>No. The management fee is a service fee the company pays the staffing agency; it is not deducted from the worker's pay. The worker's monthly salary is the amount shown on the quote, paid in full. If a staffing agency deducts a management fee or any other charge from the worker's wages, that violates the full-payment-of-wages principle in Taiwan's Labor Standards Act.</p>
+      </details>
+      <details>
+        <summary>
+          <span>Who is responsible for a dispatched worker's labor and health insurance?</span> <span class="faq-icon">+</span>
+        </summary>
+        <p>The staffing agency. The legal employer of a dispatched worker is the dispatch business (the staffing agency), which handles enrollment and the employer's share of labor insurance, national health insurance, employment insurance, and occupational accident insurance, as well as pension contributions. Legal basis: Taiwan's Labor Insurance Act Articles 6 and 10, National Health Insurance Act Article 15, and Labor Pension Act Article 14.</p>
+      </details>
+      <details>
+        <summary>
+          <span>Is there a fee to convert a temp worker to permanent?</span> <span class="faq-icon">+</span>
+        </summary>
+        <p>Check the contract. Most staffing agencies specify a "conversion fee" or "buyout fee" in the dispatch agreement, commonly 1–2 months' salary, or a fee that decreases over the service period (for example, no fee for conversion after one year of dispatch). This isn't required by law. It's a commercial term you can negotiate before signing. Also, if a company violates Article 17-1 of Taiwan's Labor Standards Act (by interviewing and selecting specific dispatched workers), the dispatched worker has the right to demand a direct employment contract with the company without the staffing agency's consent.</p>
+      </details>
+      <details>
+        <summary>
+          <span>If a dispatched worker has a workplace accident, who is responsible?</span> <span class="faq-icon">+</span>
+        </summary>
+        <p>Under Article 63-1 of Taiwan's Labor Standards Act, the client company is jointly liable with the staffing agency for occupational injury compensation. And under Article 25 of the Occupational Safety and Health Act, the client company must handle occupational safety and health for dispatched workers the same way as for its own employees. Simply put: workplace safety is the company's responsibility, and it can't be ignored just because the worker is dispatched.</p>
+      </details>
+      <details>
+        <summary>
+          <span>Are short-term and long-term staffing rates the same?</span> <span class="faq-icon">+</span>
+        </summary>
+        <p>Usually not. For short-term assignments (3 months or less), recruiting costs can't be spread out and turnover risk is higher, so the management fee rate is usually higher than for long-term arrangements. With stable long-term arrangements (a year or more, fixed headcount), the agency's management costs are predictable, leaving more room to negotiate the rate.</p>
+      </details>
+    </div>
+
+    <div>
+      <h2 id="sec-10">Need a specific staffing quote?</h2>
+      <p>Tell us the job duties, headcount and expected duration, and a consultant will provide a complete quote with a breakdown of statutory costs. The fee structure is transparent, and we'll tell you plainly if staffing isn't the right fit.</p>
+      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">Talk with a consultant on LINE</a>
+    </div>
+
+    <p>Related reading: <a href="/en/articles/dispatch-legal-risks/">Legal risks and precautions in temporary staffing</a> · <a href="/en/articles/headhunter-fees/">How do headhunting firms charge?</a></p>
+
+      
+<div class="cta">
+        <p>Want to know what staffing would actually cost for your position? Tell us the job title, salary range and headcount, and we'll calculate it for you.</p>
+          <a class="btn-alt" href="/en/hiring-assessment/">Take the hiring-model assessment first</a> <a class="btn-line" href="https://lin.ee/XcSWPzM">Ask a consultant on LINE</a>
+      </div>
+    
+<div class="related-jobs-box" style="margin:26px 0;padding:18px 20px;border:1px solid #D9E0E6;border-radius:14px;background:#EAF4FA"><strong style="display:block;margin-bottom:9px;color:#0F5F87;font-size:15px">🔎 Related openings</strong><div style="display:flex;flex-wrap:wrap;gap:8px 14px;font-size:14.5px"><a href="/en/commission-recruiting/">Recruitment Commission Plan for Businesses</a> · <a href="/en/jobs/">View all openings</a></div></div>
+</article>
+  </div>
+</main>
+
+
+<footer><div class="fw">德仁管理顧問有限公司, 3F, No. 54-7, Sec. 3, Kangning Rd., Neihu Dist., Taipei City</div></footer>
+
+<script>
+// 表格加水平捲動外框，避免手機橫向溢位
+document.querySelectorAll('article table').forEach(function(t){
+  var w=document.createElement('div'); w.className='tw';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
+// 閱讀進度
+var bar=document.getElementById('bar');
+function prog(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',prog,{passive:true}); prog();
+// 目錄跟隨
+var tns=[].slice.call(document.querySelectorAll('.tn'));
+var secs=tns.map(function(a){return document.getElementById(a.dataset.s)}).filter(Boolean);
+if('IntersectionObserver' in window && secs.length){
+  var cur=null;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) cur=e.target.id; });
+    tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  },{rootMargin:'-88px 0px -70% 0px'}).observe && secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===e.target.id)}); }
+      });
+    },{rootMargin:'-88px 0px -70% 0px'}).observe(s);
+  });
+}
+</script>
+<script src="/assets/lead-form.js" defer></script>
+
+<style>
+.s1ne-sc{position:fixed;z-index:60;left:0;right:0;bottom:0;display:flex;gap:10px;padding:10px max(14px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));background:rgba(255,255,255,.96);box-shadow:0 -6px 24px rgba(40,30,10,.12);transform:translateY(120%);transition:transform .25s ease}
+.s1ne-sc.on{transform:none}
+.s1ne-sc a{flex:1;display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:999px;font-weight:700;font-size:15px;text-decoration:none;white-space:nowrap}
+.s1ne-sc .p{background:#111827;color:#fff}
+.s1ne-sc .l{background:#fff;color:#111827;border:1.5px solid #d1d5db}
+.s1ne-sc a:focus-visible{outline:3px solid #1f2937;outline-offset:2px}
+@media (min-width:760px){.s1ne-sc{left:auto;right:24px;bottom:24px;border-radius:999px;padding:8px;box-shadow:0 8px 28px rgba(40,30,10,.18)}.s1ne-sc a{flex:none;padding:0 22px}}
+@media (prefers-reduced-motion:reduce){.s1ne-sc{transition:none}}
+body{padding-bottom:84px}
+@media (min-width:760px){body{padding-bottom:0}}
+</style>
+<div class="s1ne-sc" id="s1neSc" role="region" aria-label="Fast action">
+  <a class="l" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">Ask on LINE</a> <a class="p" href="/en/jobs/" data-cta="jobs_cta_click">See current openings</a>
+</div>
+<script>
+(function(){var b=document.getElementById('s1neSc');if(!b)return;
+function t(){b.classList.toggle('on',window.scrollY>380);}
+window.addEventListener('scroll',t,{passive:true});t();
+b.querySelector('.p').addEventListener('click',function(){try{gtag('event',this.getAttribute('data-cta'),{page_path:location.pathname,placement:'sticky'});}catch(e){}});})();
+</script>
+<!-- /s1ne-sticky-cta -->
+
+</body>
+</html>

@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+document.addEventListener('click', function (e) {
+  if (!e.target.closest) return;
+  var a = e.target.closest('a[href*="lin.ee"], a[href^="/apply"], a[href^="/construction"]');
+  if (!a) return;
+  var href = a.getAttribute('href') || '';
+  var kind = href.indexOf('/apply') === 0 ? 'apply_click' : (href.indexOf('/construction') === 0 ? 'construction_click' : 'line_cta_click');
+  gtag('event', kind, {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60),
+    cta_slot: a.getAttribute('data-cta') || 'legacy'
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Is Taiwan's Construction Industry Really Short of Workers? Why BIM Engineers Are in Demand | Step1ne</title>
+<meta name="description" content="The latest figures from Taiwan&#x27;s National Land Management Agency put the construction industry&#x27;s nationwide labor shortage at over 46,000, with entry-level workers making up more than 70% of vacancies (reported August 2026). But the shortage is mainly in on-site labor; technical-transition roles such as BIM are actually in short supply relative to demand. This article explains how both can be true at once.">
+<meta name="keywords" content="construction labor shortage,construction engineer,BIM talent shortage,construction workforce shortage,BIM engineer demand,building industry labor shortage">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/en/articles/construction-labor-shortage-bim/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Step1ne Referrals">
+<meta property="og:title" content="Is construction really short of workers? Why BIM engineers are in demand anyway">
+<meta property="og:description" content="The labor shortage is real, but it&#x27;s a shortage of specific types of workers. This article unpacks the gap between official statistics and the high demand for BIM roles.">
+<meta property="og:url" content="https://step1ne.com/en/articles/construction-labor-shortage-bim/">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta name="theme-color" content="#F4F6F8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Is construction really short of workers? Why BIM engineers are in demand anyway",
+  "description": "Taiwan's National Land Management Agency reports a nationwide construction labor shortage of over 46,000 workers, with frontline labor vacancies accounting for more than 70% (reported August 2026). We break down how this gap relates to the equally strong demand for BIM and other tech-transition roles, and why the two don't contradict each other.",
+  "datePublished": "2026-09-03",
+  "dateModified": "2026-10-24",
+  "inLanguage": "zh-TW",
+  "author": {
+    "@type": "Organization",
+    "name": "Step1ne 德仁管理顧問有限公司",
+    "url": "https://step1ne.com/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "德仁管理顧問有限公司 (Step1ne)",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://step1ne.com/assets/step1ne-logo.png"
+    }
+  }
+}
+</script>
+
+<style>
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;
+  --wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:17px;line-height:1.95;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.35;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,select,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* 導覽 */
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+/* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
+
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
+.crumb{grid-column:1/-1;padding:22px 0 6px;font-size:13.5px;color:var(--slate-dim)}
+.crumb a{color:var(--slate)}
+.crumb a:hover{color:var(--brand-deep)}
+.crumb span{margin:0 8px;color:var(--rule)}
+
+/* 目錄軌：沿用全站 signature */
+.toc{position:sticky;top:92px;padding:8px 0 40px}
+.toc h2{font-size:13px;font-weight:700;color:var(--slate-dim);letter-spacing:.02em;margin-bottom:16px}
+.tns{position:relative;padding-left:22px}
+.tns::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.14))}
+.tn{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:14px;color:var(--slate);line-height:1.6;position:relative}
+.tn i{position:absolute;left:-22px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--rule);flex:0 0 auto}
+.tn:hover{color:var(--brand-deep)}
+.tn:hover i{border-color:var(--brand)}
+.tn.on{color:var(--ink);font-weight:700}
+.tn.on i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 4px rgba(46,169,223,.2)}
+.mtoc{display:none;margin:20px 0 0;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.mtoc summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15.5px;position:relative}
+.mtoc summary::-webkit-details-marker{display:none}
+.mtoc summary::after{content:"";position:absolute;right:20px;top:24px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.mtoc[open] summary::after{transform:rotate(-135deg)}
+.mtoc div{padding:0 18px 14px}
+.mtoc a{display:block;padding:9px 0;font-size:15px;color:var(--slate);border-top:1px solid var(--rule)}
+
+/* 文章本體 */
+article{padding:14px 0 60px;max-width:70ch}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--brand-deep);background:rgba(22,126,178,.07);border:1px solid rgba(22,126,178,.25);border-radius:5px;padding:4px 11px}
+article h1{margin-top:16px;font-size:clamp(28px,4.2vw,42px);line-height:1.28;letter-spacing:-.02em}
+.by{margin-top:18px;padding-bottom:20px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14px;color:var(--slate-dim)}
+.by a{color:var(--slate);border-bottom:1px solid var(--rule)}
+.by .d{font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+
+/* ★ Signature：直接答案 */
+.ans{margin-top:30px;background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:26px 30px}
+.ans .lab{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:10px}
+.ans p{font-size:19.5px;line-height:1.85;font-weight:500}
+.ans strong{font-weight:900}
+
+article h2{margin:52px 0 16px;font-size:25px;scroll-margin-top:92px}
+article h3{margin:34px 0 10px;font-size:19px}
+article h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-right:12px;border-radius:8px;background:var(--brand);color:#fff;font-family:var(--f-disp);font-size:17px;font-weight:700;vertical-align:2px}
+article p{margin-top:16px}
+article strong{font-weight:700}
+article a:not(.tn){color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.32)}
+article a:not(.tn):hover{border-bottom-color:var(--brand-deep)}
+article ul,article ol{margin:16px 0 0;padding-left:1.4em}
+article li{margin-top:9px}
+article table{width:100%;border-collapse:collapse;margin-top:22px;font-size:15.5px;background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+article th{text-align:left;background:var(--paper);font-weight:700;font-size:14px;color:var(--slate);padding:12px 14px;border-bottom:1px solid var(--rule)}
+article td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.75}
+article tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+article details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+article details summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+article details summary::-webkit-details-marker{display:none}
+article details summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+article details[open] summary::after{transform:rotate(-135deg)}
+article details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid var(--rule);color:var(--slate)}
+
+.foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
+.cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
+.cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
+footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+.fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.note{max-width:var(--wrap);margin:0 auto 46px;padding-inline:var(--gut)}
+.note div{background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid #B45309;border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.note b{color:#5A3D0C}
+
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .mtoc{display:block}
+}
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  body{font-size:16.5px}
+  .ans{padding:22px;border-radius:0 8px 8px 0}
+  .ans p{font-size:18px}
+  article h2{font-size:22px;margin-top:42px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+<!--i18n-hreflang-->
+<link rel="alternate" hreflang="zh-Hant" href="https://step1ne.com/articles/construction-labor-shortage-bim/">
+<link rel="alternate" hreflang="ja" href="https://step1ne.com/ja/articles/construction-labor-shortage-bim/">
+<link rel="alternate" hreflang="en" href="https://step1ne.com/en/articles/construction-labor-shortage-bim/">
+<link rel="alternate" hreflang="x-default" href="https://step1ne.com/articles/construction-labor-shortage-bim/">
+<style>.s1-lang{max-width:1100px;margin:0 auto;padding:10px 16px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.s1-lang a,.s1-lang b{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid #d9dce3;background:#fff;font-size:14px;font-weight:600;color:#4a5060;text-decoration:none}.s1-lang b{background:#23262d;border-color:#23262d;color:#fff}.s1-lang a:hover{color:#23262d;border-color:#9aa0ad}.s1-lang a:focus-visible{outline:3px solid #1880B4;outline-offset:2px}.s1-note{max-width:1100px;margin:10px auto 0;padding:0 16px}.s1-note p{margin:0;padding:12px 14px;border-radius:12px;background:#eef4fb;border:1px solid #c9dcef;color:#1d3a57;font-size:14.5px;line-height:1.7}</style>
+<!--/i18n-hreflang-->
+</head>
+
+<body>
+<div id="bar"></div>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/en/"><img src="/assets/step1ne-logo.png" alt="Step1ne"><b>Step1ne</b></a>
+    <nav class="hd-nav">
+      <a href="/en/commission-recruiting/">For Employers</a><a href="/en/jobs/">Jobs</a><a class="on" href="/en/articles/">Headhunting Insights</a><a href="/en/talent/">Step1ne Referrals</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">Ask on LINE</a>
+    <button class="hd-burger" type="button" aria-label="Open menu" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/en/commission-recruiting/">For Employers</a><a href="/en/jobs/">Jobs</a><a href="/en/articles/">Articles</a><a href="/en/talent/">Step1ne Referrals</a> <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">Contact on LINE</a>
+  </div>
+</header>
+<!--i18n-switch--><nav class="s1-lang" aria-label="Change language"><a href="/articles/construction-labor-shortage-bim/" hreflang="zh-Hant" lang="zh-Hant">中文</a><a href="/ja/articles/construction-labor-shortage-bim/" hreflang="ja" lang="ja">日本語</a><b lang="en" aria-current="true">English</b></nav><!--/i18n-switch-->
+
+
+<main class="shell">
+  <nav class="crumb" aria-label="Breadcrumb"><a href="/en/">Home</a><span>/</span><a href="/en/articles/">Talent Insights</a><span>/</span>Is Construction Really Short of Workers? Why BIM Engineers Are in Demand Anyway</nav>
+
+  <aside class="toc" aria-label="Contents">
+    <h2>This article has 7 sections</h2>
+    <div class="tns"><a class="tn" href="#sec-1" data-s="sec-1"><i></i><span>The official numbers: how short-staffed is construction really?</span></a> <a class="tn" href="#sec-2" data-s="sec-2"><i></i><span>Why the shortage got this bad: what the Legislative Yuan's research report says</span></a> <a class="tn" href="#sec-3" data-s="sec-3"><i></i><span>Why BIM engineers aren't counted in this gap yet are just as sought after</span></a> <a class="tn" href="#sec-4" data-s="sec-4"><i></i><span>How a labor shortage and high BIM demand can both be true</span></a> <a class="tn" href="#sec-5" data-s="sec-5"><i></i><span>What this means if you're considering this career path</span></a> <a class="tn" href="#sec-6" data-s="sec-6"><i></i><span>FAQ</span></a> <a class="tn" href="#sec-7" data-s="sec-7"><i></i><span>Want to know if this path suits you?</span></a></div>
+  </aside>
+
+  <div>
+    <details class="mtoc"><summary>Contents (7 sections)</summary><div><a href="#sec-1">The official numbers: how short is Taiwan's construction workforce?</a> <a href="#sec-2">Why the shortage is this severe: what a Legislative Yuan research report says</a> <a href="#sec-3">Why BIM engineers are in high demand despite not being in the shortage figures</a> <a href="#sec-4">How a labor shortage and a BIM talent war can both be true</a> <a href="#sec-5">What this means if you're considering this path</a> <a href="#sec-6">FAQ</a> <a href="#sec-7">Want to know if this path suits you?</a></div></details>
+    <article>
+      <span class="tag">Industry insight · A headhunter's view</span>
+      <h1>Is construction really short of workers? Why BIM engineers are in demand anyway</h1>
+      <div class="by">
+        <span>By <a href="/en/about/">the Step1ne Executive Search Consultant Team</a></span> <time class="d" datetime="2026-09-03">Published 2026-09-03</time> <span class="d">About 7 min read</span>
+      </div>
+
+      <div class="ans">
+        <div class="lab">Short answer</div>
+        <p>The shortage is real, but what's missing is mainly <strong>frontline site labor</strong>. Statistics from Taiwan's National Land Management Agency (Ministry of the Interior) put the nationwide construction labor shortage at over 46,000 people, with frontline worker vacancies making up more than 70% (Commercial Times report, August 3, 2026). Office-based technical and coordination roles like BIM engineers aren't counted in that figure, yet in our work with hiring companies, competition for these roles is no less intense than for site labor, because the two have completely different supply-and-demand structures.</p>
+      </div>
+
+      <h2 id="sec-1">The official numbers: how many workers is construction really short?</h2>
+    <p>Let's get the numbers straight first, rather than repeating figures that circulate in the industry by impression. According to the "Construction Industry Economic Overview" published by the National Land Management Agency under Taiwan's Ministry of the Interior, as reported by the Commercial Times on August 3, 2026:</p>
+    <ul>
+      <li>Taiwan's construction industry is short an estimated <strong>more than 46,000 workers</strong></li>
+      <li>Of these, <strong>frontline worker vacancies number 32,525</strong>, more than <strong>70%</strong> of the total shortage and its main source</li>
+      <li>Broken down, unfilled general-labor positions number about  <strong>9,917</strong>, and unfilled skilled-trade positions about  <strong>22,000</strong></li>
+      <li>Regional breakdown: central Taiwan has the most at 10,248, followed by northern Taiwan at 9,977, then southern Taiwan at 8,082</li>
+      <li>Migrant worker employment: <strong>92.7% of construction companies do not employ migrant workers</strong>. The share rises with company size; among companies with 300 or more employees, 81.6% employ migrant workers — the highest of any size bracket</li>
+    </ul>
+    <p class="note">Source: the "Construction Industry Economic Overview" survey by Taiwan's National Land Management Agency, Ministry of the Interior, as cited in a <a href="https://www.ctee.com.tw/news/20260803700087-439901" target="_blank" rel="noopener">Commercial Times report on August 3, 2026</a>. The official release remains authoritative for methodology and sample; this article only summarizes it and makes no projections of its own.</p>
+
+    <h2 id="sec-2">Why the shortage got this bad: what the Legislative Yuan's research report says</h2>
+    <p>The labor shortage didn't happen overnight. A research report published in August 2023 by the research and evaluation unit of Taiwan's Legislative Yuan found that the job vacancy rate in construction rose from 2.26% in 2018 (ROC year 107) to 5.14% in 2021 (ROC year 110). The causes it cited include a shrinking workforce due to low birth rates, young people being put off by the industry's high occupational injury rate, and a wave of simultaneous demand — Taiwanese companies reshoring and building plants, the Forward-Looking Infrastructure Program, urban renewal and rebuilding of aging structures — all concentrating labor demand into the same period.</p>
+    <p class="note">Source: <a href="https://www.ly.gov.tw/Pages/Detail.aspx?nodeid=6590&pid=230956" target="_blank" rel="noopener">Legislative Yuan (Taiwan), "Analysis of Labor Shortages in the Construction Industry"</a>, written August 2023. This provides background on structural causes and is not the latest shortage data; for the actual gap, refer to the 2026 figures in the previous section.</p>
+
+    <h2 id="sec-3">Why BIM engineers aren't part of this shortage, yet are just as much in demand</h2>
+    <p>Seeing the statistics above, it's easy to assume "the whole construction industry is short of people, so any job is easy to get." But the gap is clearly defined: it counts <strong>frontline site labor</strong> (general laborers and skilled tradespeople), not the technical and management roles in the office that do planning, modeling and coordination. BIM engineers belong to the latter and don't appear in the "frontline labor vacancies" statistic.</p>
+    <p>Yet among the employers we actually work with, competition for BIM talent is no less intense than for on-site staff, and some positions even offer "any major, company-provided training" (see <a href="/en/articles/bim-career-change/">Can you switch to a BIM engineer career without a related degree?</a>). That is usually a direct sign of a supply-demand imbalance, not corporate generosity. There are two reasons:</p>
+    <ul>
+      <li><strong>The fab construction boom in semiconductors and AI-related industries is driving two kinds of talent demand at once.</strong> The tech plant projects breaking ground in quick succession in recent years need both on-site workers to get the buildings built and BIM teams to integrate the MEP, structural, and architectural models across disciplines. Both needs have surged at the same time, but the number of BIM-related graduates schools produce each year can't keep up</li>
+      <li><strong>Some developers treat BIM as a way to reduce their reliance on site labor, and in doing so they have actually driven up demand for BIM staff.</strong> According to public reports, Highwealth Construction (興富發建設) invested about NT$500 million in 2022 and spent ten years building a BIM team of more than 100 people, running the construction process on computer first, with the goal of cutting labor needs by 20–30%. This logic is not unusual in the industry: to use technology to depend less on frontline labor, you first need enough BIM staff to build that process. In effect, part of the pressure of "finding workers" has turned into the pressure of "finding BIM engineers"</li>
+    </ul>
+    <p class="note">Source for the 興富發 case: <a href="https://www.ctwant.com/article/176353/" target="_blank" rel="noopener">CTWANT, report dated April 5, 2022</a>. This is a single company's public case, used to illustrate industry thinking. It is not industry-wide data, and it dates from several years ago, so please treat it as reference only.</p>
+
+    <div class="insight">
+      <div class="label">A headhunter's view</div>
+      <p>Among the construction and building-related openings we see, on-site entry-level roles and BIM/technical roles are two completely different levels of difficulty. On-site entry-level roles usually stall because of a <strong>willingness problem</strong>: the pay and working conditions aren't attractive enough to the local workforce. BIM roles usually stall because of a <strong>supply problem</strong>: people with the required profile (Revit skills, cross-discipline coordination, willingness to work on site) are simply scarce in the market. The two bottlenecks call for completely different solutions, and lumping them together as a “labor shortage” easily leads to the wrong diagnosis.</p>
+    </div>
+
+    <h2 id="sec-4">How a labor shortage and fierce demand for BIM talent can both be true</h2>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th></th><th>Frontline site workers</th><th>BIM / technology-transition roles</th></tr></thead>
+        <tbody>
+          <tr><td data-label=""><strong>Nature of the gap</strong></td><td data-label="現場基層人力">The gap explicitly counted in official statistics: over 32,000 people</td><td data-label="BIM／技術轉型職能">Not counted in frontline labor statistics, but just as hard to hire in practice</td></tr>
+          <tr><td data-label=""><strong>Main cause of shortage</strong></td><td data-label="現場基層人力">Working conditions and pay aren't attractive enough to the local workforce, and young people stay away</td><td data-label="BIM／技術轉型職能">Talent development can't keep pace with the growth in demand from the fab construction boom</td></tr>
+          <tr><td data-label=""><strong>How companies respond</strong></td><td data-label="現場基層人力">Apply for migrant worker quotas (though overall hiring rates remain low)</td><td data-label="BIM／技術轉型職能">Relax degree requirements, train in-house, post openings and compete for people</td></tr>
+          <tr><td data-label=""><strong>What it means for job seekers</strong></td><td data-label="現場基層人力">Plenty of openings, but you need to judge for yourself whether the working style and pay are acceptable</td><td data-label="BIM／技術轉型職能">The bar is relatively clear (software skills can be learned), and employers are willing to invest in training</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>These two things don't contradict each other; they are two completely different kinds of labor shortage within the same industry. The overall labor shortage in construction is real, but if you conclude that "all construction-related jobs are hard to fill," you'll miss a different supply-demand imbalance happening in technology-transition roles like BIM.</p>
+
+    <aside data-exp="cta-mid-2026-09-03"><p>STEP1NE Now Hiring</p><h3>Hiring in Hsinchu and Houli, Taichung: no experience needed, permanent employment</h3><p>BIM engineers for a semiconductor fab expansion project are now being recruited in two locations: <strong>Hsinchu Science Park</strong> and <strong>Houli, Taichung</strong>, as <strong>permanent full-time employees</strong> (not staffing, not fixed-term contracts). The monthly salary is <strong>NT$40,833–50,167</strong> (set according to education and relevance of your major). A bachelor's degree or above in any field is required, <strong>no experience needed</strong>. The company provides full training, and once you're stationed at the fab, a team of design PMs and design engineers will coach you until you can work independently. Hours are 08:30–17:30, five days a week; the Houli, Taichung site also offers a housing allowance of NT$5,000 per month. This is exactly the technology-transition gap discussed in this article: companies are willing to train people themselves rather than wait for ready-made candidates to appear. You're welcome to ask questions before deciding, with no need to send a résumé first.</p><div><a href="/apply-quick/?job=semiconductor-bim-mep-drafting-trainee-hsinchu&amp;utm_source=website&amp;utm_medium=article_cta&amp;utm_campaign=mid-construction-shortage" data-cta="mid-construction-shortage">Apply for Hsinchu</a><a href="/apply-quick/?job=bim-engineer-houli&amp;utm_source=website&amp;utm_medium=article_cta&amp;utm_campaign=mid-construction-shortage" data-cta="mid-construction-shortage">Apply for Houli, Taichung</a><a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-construction-shortage">Ask first on LINE</a></div></aside>
+
+    <h2 id="sec-5">If you're considering this direction, what this means for you</h2>
+    <p>An imbalance between supply and demand is a neutral fact for job seekers, not a guarantee. It means companies are currently more willing to invest in training and relax degree requirements to fill these roles, so the barrier to entry is relatively friendly. It does not mean pay will keep rising, or that the job suits everyone; adaptability on site, willingness to learn and the ability to communicate across disciplines are still what actually get people hired. To learn how to prepare for entry, see <a href="/en/articles/bim-career-change/">Can you switch to BIM engineering without a related degree?</a>; if you already work in BIM and want to know where to go next, see <a href="/en/articles/bim-career-path/">Where can a BIM engineer go after 3 years?</a>.</p>
+
+    <h2 id="sec-6">FAQ</h2>
+    <div>
+      <details>
+        <summary>
+          <span>Does the construction labor shortage mean BIM engineers are scarce too?</span><span class="faq-icon">+</span>
+        </summary>
+        <p>They are separate statistics, but they point the same way. Official labor-shortage figures count frontline workers on site (general laborers and skilled trades) and don't include technical roles like BIM. But from a hands-on recruiting perspective, BIM openings are just as hard to fill — only for a different reason: it's not a willingness problem, it's that talent development can't keep pace with demand from the fab construction boom.</p>
+      </details>
+      <details>
+        <summary>
+          <span>Why do BIM job ads often say "any major, training provided"?</span><span class="faq-icon">+</span>
+        </summary>
+        <p>Because companies have done the math: waiting for "related degree + experience" candidates won't get them the headcount they need from the market. Training people themselves beats waiting, and large fab construction projects that need many people at once almost always post roles like this.</p>
+      </details>
+      <details>
+        <summary>
+          <span>Will the labor shortage keep pushing BIM engineer salaries up?</span><span class="faq-icon">+</span>
+        </summary>
+        <p>The supply-demand imbalance does support salaries, but that doesn't mean they'll rise without limit, and pay depends heavily on level. For actual salary bands, see <a href="/en/articles/bim-engineer-salary/">BIM engineer salary ranges</a>. We can't guarantee where salaries will go; all we can say is that what companies are offering now reflects the current balance of supply and demand.</p>
+      </details>
+      <details>
+        <summary>
+          <span>Is now a good time to move into construction or BIM?</span><span class="faq-icon">+</span>
+        </summary>
+        <p>From a supply-and-demand standpoint, companies are indeed more willing right now to invest in training and relax degree requirements, so the barrier to entry is relatively friendly. But whether it's a “good time” also depends on whether it suits you: adaptability on site, willingness to learn, and cross-disciplinary communication remain the keys to lasting. This article doesn't promise it's “definitely worth it”; it only offers a basis for judging the current situation.</p>
+      </details>
+    </div>
+
+    <div>
+      <h2 id="sec-7">Want to know if this path is right for you?</h2>
+      <p>Add us on LINE and tell a consultant about your background and thoughts. We'll give you direction based on your actual situation, and you can also browse our current construction and BIM openings.</p>
+      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">Ask us via our LINE official account</a>
+      <p><a href="/en/jobs/semiconductor-bim-mep-drafting-trainee-hsinchu/">View the Hsinchu BIM opening →</a></p><p><a href="/en/jobs/bim-engineer-houli/">View BIM openings in Houli, Taichung →</a></p><p><a href="/en/construction/">See more construction engineering openings →</a></p>
+    </div>
+  <p>Further reading: <a href="/en/articles/how-to-enter-construction-industry/">How to get into the construction industry: a guide for newcomers without a related degree</a> · <a href="/en/articles/bim-career-change/">Can you switch to a BIM engineer career without a related degree?</a> · <a href="/en/articles/bim-engineer-salary/">BIM engineer salaries: how pay rises from entry level to senior</a> · <a href="/en/articles/bim-career-path/">Where can a BIM engineer go after 3 years?</a></p>
+
+      
+<div class="cta">
+        <p>Can't fill the role, but the project can't wait? Tell us about the opening and your time pressure, and we'll tell you straight which approach fits.</p>
+          <a class="btn-alt" href="/en/hiring-assessment/">Take the hiring-model assessment first</a> <a class="btn-line" href="https://lin.ee/XcSWPzM">Ask a consultant on LINE</a>
+      </div>
+    
+<div class="related-jobs-box" style="margin:26px 0;padding:18px 20px;border:1px solid #D9E0E6;border-radius:14px;background:#EAF4FA"><strong style="display:block;margin-bottom:9px;color:#0F5F87;font-size:15px">🔎 Related openings</strong><div style="display:flex;flex-wrap:wrap;gap:8px 14px;font-size:14.5px"><a href="/en/jobs/semiconductor-bim-mep-drafting-trainee-hsinchu/">BIM Engineer (Hsinchu)</a> · <a href="/en/jobs/bim-engineer-houli/">BIM Engineer (Houli, Taichung)</a> · <a href="/en/jobs/semiconductor-site-engineer-hsinchu/">Semiconductor Site Engineer (Hsinchu)</a> · <a href="/en/jobs/">See all jobs</a></div></div>
+</article>
+  </div>
+</main>
+
+
+<footer><div class="fw">德仁管理顧問有限公司, 3F, No. 54-7, Sec. 3, Kangning Rd., Neihu Dist., Taipei City</div></footer>
+
+<script>
+// 表格加水平捲動外框，避免手機橫向溢位
+document.querySelectorAll('article table').forEach(function(t){
+  var w=document.createElement('div'); w.className='tw';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
+// 閱讀進度
+var bar=document.getElementById('bar');
+function prog(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',prog,{passive:true}); prog();
+// 目錄跟隨
+var tns=[].slice.call(document.querySelectorAll('.tn'));
+var secs=tns.map(function(a){return document.getElementById(a.dataset.s)}).filter(Boolean);
+if('IntersectionObserver' in window && secs.length){
+  var cur=null;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) cur=e.target.id; });
+    tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  },{rootMargin:'-88px 0px -70% 0px'}).observe && secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===e.target.id)}); }
+      });
+    },{rootMargin:'-88px 0px -70% 0px'}).observe(s);
+  });
+}
+</script>
+
+<style>
+.s1ne-sc{position:fixed;z-index:60;left:0;right:0;bottom:0;display:flex;gap:10px;padding:10px max(14px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));background:rgba(255,255,255,.96);box-shadow:0 -6px 24px rgba(40,30,10,.12);transform:translateY(120%);transition:transform .25s ease}
+.s1ne-sc.on{transform:none}
+.s1ne-sc a{flex:1;display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:999px;font-weight:700;font-size:15px;text-decoration:none;white-space:nowrap}
+.s1ne-sc .p{background:#111827;color:#fff}
+.s1ne-sc .l{background:#fff;color:#111827;border:1.5px solid #d1d5db}
+.s1ne-sc a:focus-visible{outline:3px solid #1f2937;outline-offset:2px}
+@media (min-width:760px){.s1ne-sc{left:auto;right:24px;bottom:24px;border-radius:999px;padding:8px;box-shadow:0 8px 28px rgba(40,30,10,.18)}.s1ne-sc a{flex:none;padding:0 22px}}
+@media (prefers-reduced-motion:reduce){.s1ne-sc{transition:none}}
+body{padding-bottom:84px}
+@media (min-width:760px){body{padding-bottom:0}}
+</style>
+<div class="s1ne-sc" id="s1neSc" role="region" aria-label="Fast action">
+  <a class="l" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">Ask on LINE</a> <a class="p" href="/en/jobs/" data-cta="jobs_cta_click">See current openings</a>
+</div>
+<script>
+(function(){var b=document.getElementById('s1neSc');if(!b)return;
+function t(){b.classList.toggle('on',window.scrollY>380);}
+window.addEventListener('scroll',t,{passive:true});t();
+b.querySelector('.p').addEventListener('click',function(){try{gtag('event',this.getAttribute('data-cta'),{page_path:location.pathname,placement:'sticky'});}catch(e){}});})();
+</script>
+<!-- /s1ne-sticky-cta -->
+
+</body>
+</html>

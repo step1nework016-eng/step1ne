@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  if (!e.target.closest) return;
+  // 2026-08-06：原本只抓 lin.ee。BIM 那群的下一步是「直接應徵」不是加 LINE，
+  // 不一起記的話，等於把那條路做出來卻量不到，實驗就白做了。
+  var a = e.target.closest('a[href*="lin.ee"], a[href^="/apply"]');
+  if (!a) return;
+  var isApply = (a.getAttribute('href') || '').indexOf('/apply') === 0;
+  gtag('event', isApply ? 'apply_click' : 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60),
+    // mid＝這次新加的文章中段；沒有標的就是原本頁首／頁尾那些
+    cta_slot: a.getAttribute('data-cta') || 'legacy'
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What Is a BIM Engineer, and How Is It Different from a Drafter? The Job Explained | Step1ne</title>
+<meta name="description" content="BIM engineers don&#x27;t just draw. A CAD drafter delivers drawings; a BIM engineer integrates models from every discipline and catches clashes before construction starts. This article breaks down what each LOD level means, how five types of BIM jobs differ, and the one thing you must ask before an interview.">
+<meta name="keywords" content="what is a BIM engineer,BIM job description,BIM vs drafter difference,what is BIM,BIM engineer duties,LOD,Revit jobs,BIM coordinator">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/en/articles/what-is-bim-engineer/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Step1ne Referrals">
+<meta property="og:title" content="What is a BIM engineer, and how is it different from a drafter?">
+<meta property="og:description" content="What BIM engineers actually do, how they differ from CAD drafters, and why jobs with the same &quot;BIM engineer&quot; title can be worlds apart.">
+<meta property="og:url" content="https://step1ne.com/en/articles/what-is-bim-engineer/">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta name="theme-color" content="#F4F6F8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "What is a BIM engineer? How is it different from a drafter? The job explained",
+  "description": "Explains what BIM engineers actually do, the core difference from CAD drafters, what LOD levels mean, and the five common types of BIM openings in Taiwan's market and how job seekers can tell them apart.",
+  "datePublished": "2026-07-27",
+  "dateModified": "2026-10-24",
+  "inLanguage": "zh-TW",
+  "author": {
+    "@type": "Organization",
+    "name": "Step1ne 德仁管理顧問有限公司",
+    "url": "https://step1ne.com/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "德仁管理顧問有限公司 (Step1ne)",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://step1ne.com/assets/step1ne-logo.png"
+    }
+  }
+}
+</script>
+
+<style>
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;
+  --wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:17px;line-height:1.95;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.35;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,select,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* 導覽 */
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+/* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
+
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
+.crumb{grid-column:1/-1;padding:22px 0 6px;font-size:13.5px;color:var(--slate-dim)}
+.crumb a{color:var(--slate)}
+.crumb a:hover{color:var(--brand-deep)}
+.crumb span{margin:0 8px;color:var(--rule)}
+
+/* 目錄軌：沿用全站 signature */
+.toc{position:sticky;top:92px;padding:8px 0 40px}
+.toc h2{font-size:13px;font-weight:700;color:var(--slate-dim);letter-spacing:.02em;margin-bottom:16px}
+.tns{position:relative;padding-left:22px}
+.tns::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.14))}
+.tn{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:14px;color:var(--slate);line-height:1.6;position:relative}
+.tn i{position:absolute;left:-22px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--rule);flex:0 0 auto}
+.tn:hover{color:var(--brand-deep)}
+.tn:hover i{border-color:var(--brand)}
+.tn.on{color:var(--ink);font-weight:700}
+.tn.on i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 4px rgba(46,169,223,.2)}
+.mtoc{display:none;margin:20px 0 0;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.mtoc summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15.5px;position:relative}
+.mtoc summary::-webkit-details-marker{display:none}
+.mtoc summary::after{content:"";position:absolute;right:20px;top:24px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.mtoc[open] summary::after{transform:rotate(-135deg)}
+.mtoc div{padding:0 18px 14px}
+.mtoc a{display:block;padding:9px 0;font-size:15px;color:var(--slate);border-top:1px solid var(--rule)}
+
+/* 文章本體 */
+article{padding:14px 0 60px;max-width:70ch}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--brand-deep);background:rgba(22,126,178,.07);border:1px solid rgba(22,126,178,.25);border-radius:5px;padding:4px 11px}
+article h1{margin-top:16px;font-size:clamp(28px,4.2vw,42px);line-height:1.28;letter-spacing:-.02em}
+.by{margin-top:18px;padding-bottom:20px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14px;color:var(--slate-dim)}
+.by a{color:var(--slate);border-bottom:1px solid var(--rule)}
+.by .d{font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+
+/* ★ Signature：直接答案 */
+.ans{margin-top:30px;background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:26px 30px}
+.ans .lab{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:10px}
+.ans p{font-size:19.5px;line-height:1.85;font-weight:500}
+.ans strong{font-weight:900}
+
+article h2{margin:52px 0 16px;font-size:25px;scroll-margin-top:92px}
+article h3{margin:34px 0 10px;font-size:19px}
+article h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-right:12px;border-radius:8px;background:var(--brand);color:#fff;font-family:var(--f-disp);font-size:17px;font-weight:700;vertical-align:2px}
+article p{margin-top:16px}
+article strong{font-weight:700}
+article a:not(.tn){color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.32)}
+article a:not(.tn):hover{border-bottom-color:var(--brand-deep)}
+article ul,article ol{margin:16px 0 0;padding-left:1.4em}
+article li{margin-top:9px}
+article table{width:100%;border-collapse:collapse;margin-top:22px;font-size:15.5px;background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+article th{text-align:left;background:var(--paper);font-weight:700;font-size:14px;color:var(--slate);padding:12px 14px;border-bottom:1px solid var(--rule)}
+article td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.75}
+article tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+article details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+article details summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+article details summary::-webkit-details-marker{display:none}
+article details summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+article details[open] summary::after{transform:rotate(-135deg)}
+article details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid var(--rule);color:var(--slate)}
+
+.foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
+.cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
+.cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
+footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+.fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.note{max-width:var(--wrap);margin:0 auto 46px;padding-inline:var(--gut)}
+.note div{background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid #B45309;border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.note b{color:#5A3D0C}
+
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .mtoc{display:block}
+}
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  body{font-size:16.5px}
+  .ans{padding:22px;border-radius:0 8px 8px 0}
+  .ans p{font-size:18px}
+  article h2{font-size:22px;margin-top:42px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+<!--i18n-hreflang-->
+<link rel="alternate" hreflang="zh-Hant" href="https://step1ne.com/articles/what-is-bim-engineer/">
+<link rel="alternate" hreflang="ja" href="https://step1ne.com/ja/articles/what-is-bim-engineer/">
+<link rel="alternate" hreflang="en" href="https://step1ne.com/en/articles/what-is-bim-engineer/">
+<link rel="alternate" hreflang="x-default" href="https://step1ne.com/articles/what-is-bim-engineer/">
+<style>.s1-lang{max-width:1100px;margin:0 auto;padding:10px 16px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.s1-lang a,.s1-lang b{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid #d9dce3;background:#fff;font-size:14px;font-weight:600;color:#4a5060;text-decoration:none}.s1-lang b{background:#23262d;border-color:#23262d;color:#fff}.s1-lang a:hover{color:#23262d;border-color:#9aa0ad}.s1-lang a:focus-visible{outline:3px solid #1880B4;outline-offset:2px}.s1-note{max-width:1100px;margin:10px auto 0;padding:0 16px}.s1-note p{margin:0;padding:12px 14px;border-radius:12px;background:#eef4fb;border:1px solid #c9dcef;color:#1d3a57;font-size:14.5px;line-height:1.7}</style>
+<!--/i18n-hreflang-->
+</head>
+
+<body>
+<div id="bar"></div>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/en/"><img src="/assets/step1ne-logo.png" alt="Step1ne"><b>Step1ne</b></a>
+    <nav class="hd-nav">
+      <a href="/en/commission-recruiting/">For Employers</a><a href="/en/jobs/">Jobs</a><a class="on" href="/en/articles/">Headhunting Insights</a><a href="/en/talent/">Step1ne Referrals</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">Ask on LINE</a>
+    <button class="hd-burger" type="button" aria-label="Open menu" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/en/commission-recruiting/">For Employers</a><a href="/en/jobs/">Jobs</a><a href="/en/articles/">Articles</a><a href="/en/talent/">Step1ne Referrals</a> <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">Contact on LINE</a>
+  </div>
+</header>
+<!--i18n-switch--><nav class="s1-lang" aria-label="Change language"><a href="/articles/what-is-bim-engineer/" hreflang="zh-Hant" lang="zh-Hant">中文</a><a href="/ja/articles/what-is-bim-engineer/" hreflang="ja" lang="ja">日本語</a><b lang="en" aria-current="true">English</b></nav><!--/i18n-switch-->
+
+
+<main class="shell">
+  <nav class="crumb" aria-label="Breadcrumb"><a href="/en/">Home</a><span>/</span><a href="/en/articles/">Recruiting Insights</a><span>/</span>What Is a BIM Engineer, and How Is It Different from a Drafter?</nav>
+
+  <aside class="toc" aria-label="Contents">
+    <h2>This article has 7 sections</h2>
+    <div class="tns"><a class="tn" href="#sec-1" data-s="sec-1"><i></i><span>BIM in one sentence</span></a> <a class="tn" href="#sec-2" data-s="sec-2"><i></i><span>BIM engineer vs. CAD drafter: five real differences</span></a> <a class="tn" href="#sec-3" data-s="sec-3"><i></i><span>So what is LOD?</span></a> <a class="tn" href="#sec-4" data-s="sec-4"><i></i><span>Why is Taiwan suddenly so short of BIM talent?</span></a> <a class="tn" href="#sec-5" data-s="sec-5"><i></i><span>Where does a BIM career lead?</span></a> <a class="tn" href="#sec-6" data-s="sec-6"><i></i><span>FAQ</span></a> <a class="tn" href="#sec-7" data-s="sec-7"><i></i><span>Want to see what real BIM job openings look like?</span></a></div>
+  </aside>
+
+  <div>
+    <details class="mtoc"><summary>Contents (7 sections)</summary><div><a href="#sec-1">BIM in one sentence</a> <a href="#sec-2">BIM engineer vs. CAD drafter: five real differences</a> <a href="#sec-3">And what is LOD?</a> <a href="#sec-4">Why is Taiwan suddenly so short of BIM talent?</a> <a href="#sec-5">Where does a BIM career lead?</a> <a href="#sec-6">FAQ</a> <a href="#sec-7">Want to see what BIM openings actually look like?</a></div></details>
+    <article>
+      <span class="tag">Job seeker guide · A headhunter's view</span>
+      <h1>What is a BIM engineer, and how is it different from a drafter?</h1>
+      <div class="by">
+        <span>By:<a href="/en/about/">Step1ne Executive Search Consultant Team</a></span> <time class="d" datetime="2026-07-27">Published 2026-07-27</time> <span class="d">About 6 min read</span>
+      </div>
+
+      <div class="ans">
+        <div class="lab">Short answer</div>
+        <p>A BIM engineer uses software such as Revit to build a building or plant as an "information-rich 3D model," so that design, construction, and MEP teams can find clashes on the computer before work begins on site. The core difference from a CAD drafter: a drafter produces "drawings," while a BIM engineer produces a "database" — every pipe and every wall in the model carries dimensions, materials, specifications, and other data that can be queried and tallied. That's why BIM work is not just about drawing; it centers on <strong>coordination</strong>.</p>
+      </div>
+
+      <h2 id="sec-1">BIM in one sentence</h2>
+    <p>The traditional process: the architect draws one set of drawings, the structural engineer another, and the MEP engineer yet another. The three sets are independent, and only during construction does someone notice "this duct runs right through that beam" — then work stops, drawings get revised, things get redone, and time and money go up in smoke.</p>
+    <p>BIM's approach is to overlay the three disciplines' models in the same 3D space and let them collide on the computer first. This is called <strong>Clash Detection</strong>, usually run with tools like Navisworks; conflicts are listed and each discipline meets to decide how to fix them. This is where a BIM engineer's value lies: moving problems from the construction site to the office, ahead of time.</p>
+
+    <h2 id="sec-2">BIM engineer vs. CAD drafter: five real differences</h2>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th></th><th>CAD drafter</th><th>BIM Engineer</th></tr></thead>
+        <tbody>
+          <tr><td data-label=""><strong>Outputs</strong></td><td data-label="CAD 繪圖員">2D drawings</td><td data-label="BIM 工程師">An information-rich 3D model, with drawings generated automatically as a by-product</td></tr>
+          <tr><td data-label=""><strong>Tools</strong></td><td data-label="CAD 繪圖員">Mainly AutoCAD</td><td data-label="BIM 工程師">Mainly Revit, plus collaboration tools such as Navisworks</td></tr>
+          <tr><td data-label=""><strong>Change one spot</strong></td><td data-label="CAD 繪圖員">Every related drawing has to be revised by hand</td><td data-label="BIM 工程師">Change the model, and every drawing that references it updates automatically</td></tr>
+          <tr><td data-label=""><strong>Cross-disciplinary</strong></td><td data-label="CAD 繪圖員">Each draws separately, then checks by hand</td><td data-label="BIM 工程師">Models are integrated, and the system flags the conflicts</td></tr>
+          <tr><td data-label=""><strong>Core skills</strong></td><td data-label="CAD 繪圖員">Drafting speed and accuracy</td><td data-label="BIM 工程師">Spatial understanding, compliance with codes, <strong>cross-discipline communication</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">In practice, one doesn't replace the other. Most BIM projects still start from CAD drawings, so BIM engineers usually need to know both.</p>
+
+    <h2 id="sec-3">So what is LOD?</h2>
+    <p>LOD (Level of Development) is the grading standard that describes "how detailed this model is," and one of the terms that appears most often in job descriptions:</p>
+    <ul>
+      <li><strong>LOD 100</strong> — conceptual massing, with only approximate volume and location</li>
+      <li><strong>LOD 200</strong>—approximate geometry; elements have rough dimensions but aren't yet precise</li>
+      <li><strong>LOD 300</strong>—precise geometry and positioning, usable for construction drawings and cross-discipline coordination</li>
+      <li><strong>LOD 350</strong>: adds interface details between systems</li>
+      <li><strong>LOD 400</strong> — detailed enough to fabricate and precast from</li>
+      <li><strong>LOD 500</strong>: as-built model, verified against the actual completed conditions on site</li>
+    </ul>
+    <p>Entry-level jobs usually involve modeling at LOD 100–300. When a listing says "LOD 350 or above experience required," it means the project needs you to handle system interfaces, and both difficulty and pay jump up a level.</p>
+
+    <div class="insight">
+      <div class="label">A headhunter's view</div>
+      <p><strong>In Taiwan's market, the title “BIM engineer” covers at least five completely different jobs. </strong>Every time we take on a search, we first clarify this with the hiring manager, because under the same title the actual mix of work could be:</p>
+      <ul>
+        <li>Modeling only (one of MEP, structural, or architectural), with almost no meetings</li>
+        <li>Mostly clash reviews, running lots of reports and tracking fixes</li>
+        <li>On-site drawings: producing construction drawings in step with site progress</li>
+        <li>Construction coordination: spending your days in meetings resolving disputes among parties</li>
+        <li>Build in-house BIM standards and templates; more about setting up systems</li>
+      </ul>
+      <p>These five require very different skills and lead to different careers. <strong>In the interview, be sure to ask: "In this role's daily work, roughly what share is modeling, meetings, and site visits?"</strong> The question also shows the manager that you know the field.</p>
+    </div>
+
+    <h2 id="sec-4">Why is Taiwan suddenly so short of BIM talent?</h2>
+    <p>Two factors overlap. First, public works and large building projects are increasingly making BIM a delivery requirement, turning it from "nice to have" into "must have." Second, in recent years large semiconductor and tech fab construction projects have broken ground in quick succession; the MEP and piping systems in these plants are extremely complex — exactly where BIM delivers the most value — so they absorb a huge amount of talent.</p>
+    <p>But schools can't train people fast enough, creating a gap where “demand arrives first and talent catches up later.” That's why the market has BIM openings that say “any major, training provided”—rather than wait for graduates in the field, companies would rather train people themselves.</p>
+
+    <h2 id="sec-5">Where does a BIM career lead?</h2>
+    <p>BIM isn't a dead-end modeling job; it has a clear career ladder: BIM modeler (modeling individual components) → BIM engineer (leading a single discipline's model and producing clash reports) → BIM coordinator (cross-discipline integration, setting standards, leading people) → BIM Lead → BIM manager/VDC director.</p>
+    <p>The key turning point is <strong>going from “the person who draws the model” to “the person who manages model standards and coordinates clashes”</strong>. For the years of experience, tools, and salary bands at each level, see  <a href="/en/articles/bim-engineer-salary/">BIM Engineer Salaries: How the Numbers Rise from Entry Level to Senior</a></p>
+
+    <aside data-exp="cta-mid-2026-08-28"><p>STEP1NE Now Hiring</p><h3>Hiring in Hsinchu and Houli, Taichung: no experience needed, permanent employment</h3><p>BIM engineers for semiconductor fab expansion projects are currently being hired at two locations: <strong>Hsinchu Science Park</strong> and <strong>Houli, Taichung</strong>, as <strong>full-time employees</strong> (not staffing-agency or contract positions). Monthly salary is <strong>NT$40,833–50,167</strong> (based on education and how related your major is). A bachelor's degree or above in any field is required, <strong>no experience needed</strong>. The company provides full training, and once you are on site, a team of design PMs and design engineers will guide you until you can work independently. Hours are 08:30–17:30, five days a week. Houli, Taichung also offers a housing allowance of NT$5,000 per month. Today's AI demand is driving capacity expansion in the memory industry, and building this hands-on experience early is an asset you can factor into your long-term career plans. If you'd like to ask questions before deciding, that's fine too. No need to send a résumé first.</p><div><a href="/apply-quick/?job=semiconductor-bim-mep-drafting-trainee-hsinchu&amp;utm_source=website&amp;utm_medium=article_cta&amp;utm_campaign=mid-bim" data-cta="mid-bim">Apply for Hsinchu</a><a href="/apply-quick/?job=bim-engineer-houli&amp;utm_source=website&amp;utm_medium=article_cta&amp;utm_campaign=mid-bim" data-cta="mid-bim">Apply for Houli, Taichung</a><a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-bim">Ask us on LINE first</a></div></aside><h2 id="sec-6">FAQ</h2>
+    <div>
+      <details>
+        <summary>
+          <span>What do BIM engineers actually do every day?</span><span class="faq-icon">+</span>
+        </summary>
+        <p>At the entry level, the work is mainly building models in Revit from design drawings, naming and layering them to standard, and outputting the required drawings. As you gain experience, the work shifts from “modeling” to “checking and coordinating”: running clash detection, compiling clash lists, and joining cross-discipline meetings. The actual mix varies a lot between companies, so ask about it in the interview.</p>
+      </details>
+      <details>
+        <summary>
+          <span>Do BIM engineers need to be on the construction site?</span><span class="faq-icon">+</span>
+        </summary>
+        <p>It depends on the role. Pure modeling jobs are mostly office-based, but plant-site or construction-coordination roles usually require you to report in person at the project site and follow safety training and site work rules. Be sure to ask about this in the interview, because it directly affects your commute and lifestyle.</p>
+      </details>
+      <details>
+        <summary>
+          <span>Is knowing only Revit enough?</span><span class="faq-icon">+</span>
+        </summary>
+        <p>It's enough to get started. Revit plus the ability to read CAD drawings will cover most junior modeling roles. Moving up requires experience with Navisworks (clash detection) and cloud collaboration platforms; Dynamo (automation) or Tekla (structural steel) come in at more senior levels. Beginners don't need to learn everything at once.</p>
+      </details>
+      <details>
+        <summary>
+          <span>Will BIM be replaced by AI?</span><span class="faq-icon">+</span>
+        </summary>
+        <p>Repetitive modeling work is indeed becoming more automated, which is why pure modeling roles have a lower pay ceiling. But the real value of BIM lies in cross-discipline coordination — deciding whether a clash should be resolved by moving the MEP or adjusting the structure, and bringing all parties to agreement. That work involves professional judgment and communication. If you want to lower the risk of being replaced, move toward coordination and integration rather than just modeling faster.</p>
+      </details>
+    </div>
+
+    <div>
+      <h2 id="sec-7">Want to see what BIM openings actually look like?</h2>
+      <p>We currently have BIM engineer openings on a large plant construction project (a semiconductor fab expansion, hiring in Hsinchu Science Park and Houli, Taichung). These are permanent positions open to candidates without experience, with full training from scratch provided by the company, and a monthly salary of NT$40,833–50,167.</p>
+      <p><a href="/en/jobs/semiconductor-bim-mep-drafting-trainee-hsinchu/">View the Hsinchu BIM opening →</a></p><p><a href="/en/jobs/bim-engineer-houli/">View BIM openings in Houli, Taichung →</a></p><p><a href="/en/construction/">See more construction engineering openings →</a></p>
+      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">Chat with a consultant on LINE</a>
+    </div>
+
+    <p>Further reading: <a href="/en/articles/bim-career-change/">Can you switch to a BIM engineer career without a related degree?</a> · <a href="/en/articles/how-to-enter-construction-industry/">How to get into the construction industry: a guide for newcomers without a related degree</a></p>
+
+      
+<div class="cta">
+        <p>If this sounds like work you'd like to try, there are BIM openings now that accept no experience and come with company training.</p>
+          <a class="btn-alt" href="/en/construction/">See BIM engineer jobs (no experience needed)</a> <a class="btn-line" href="https://lin.ee/XcSWPzM">Ask a consultant on LINE</a>
+      </div>
+    
+<div class="related-jobs-box" style="margin:26px 0;padding:18px 20px;border:1px solid #D9E0E6;border-radius:14px;background:#EAF4FA"><strong style="display:block;margin-bottom:9px;color:#0F5F87;font-size:15px">🔎 Related openings</strong><div style="display:flex;flex-wrap:wrap;gap:8px 14px;font-size:14.5px"><a href="/en/jobs/semiconductor-bim-mep-drafting-trainee-hsinchu/">BIM Engineer (Hsinchu)</a> · <a href="/en/jobs/bim-engineer-houli/">BIM Engineer (Houli, Taichung)</a> · <a href="/en/jobs/">See all openings</a></div></div>
+</article>
+  </div>
+</main>
+
+
+<footer><div class="fw">德仁管理顧問有限公司, 3F, No. 54-7, Sec. 3, Kangning Rd., Neihu Dist., Taipei City</div></footer>
+
+<script>
+// 表格加水平捲動外框，避免手機橫向溢位
+document.querySelectorAll('article table').forEach(function(t){
+  var w=document.createElement('div'); w.className='tw';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
+// 閱讀進度
+var bar=document.getElementById('bar');
+function prog(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',prog,{passive:true}); prog();
+// 目錄跟隨
+var tns=[].slice.call(document.querySelectorAll('.tn'));
+var secs=tns.map(function(a){return document.getElementById(a.dataset.s)}).filter(Boolean);
+if('IntersectionObserver' in window && secs.length){
+  var cur=null;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) cur=e.target.id; });
+    tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  },{rootMargin:'-88px 0px -70% 0px'}).observe && secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===e.target.id)}); }
+      });
+    },{rootMargin:'-88px 0px -70% 0px'}).observe(s);
+  });
+}
+</script>
+
+<style>
+.s1ne-sc{position:fixed;z-index:60;left:0;right:0;bottom:0;display:flex;gap:10px;padding:10px max(14px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));background:rgba(255,255,255,.96);box-shadow:0 -6px 24px rgba(40,30,10,.12);transform:translateY(120%);transition:transform .25s ease}
+.s1ne-sc.on{transform:none}
+.s1ne-sc a{flex:1;display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:999px;font-weight:700;font-size:15px;text-decoration:none;white-space:nowrap}
+.s1ne-sc .p{background:#111827;color:#fff}
+.s1ne-sc .l{background:#fff;color:#111827;border:1.5px solid #d1d5db}
+.s1ne-sc a:focus-visible{outline:3px solid #1f2937;outline-offset:2px}
+@media (min-width:760px){.s1ne-sc{left:auto;right:24px;bottom:24px;border-radius:999px;padding:8px;box-shadow:0 8px 28px rgba(40,30,10,.18)}.s1ne-sc a{flex:none;padding:0 22px}}
+@media (prefers-reduced-motion:reduce){.s1ne-sc{transition:none}}
+body{padding-bottom:84px}
+@media (min-width:760px){body{padding-bottom:0}}
+</style>
+<div class="s1ne-sc" id="s1neSc" role="region" aria-label="Fast action">
+  <a class="l" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">Ask on LINE</a> <a class="p" href="/en/jobs/" data-cta="jobs_cta_click">See current openings</a>
+</div>
+<script>
+(function(){var b=document.getElementById('s1neSc');if(!b)return;
+function t(){b.classList.toggle('on',window.scrollY>380);}
+window.addEventListener('scroll',t,{passive:true});t();
+b.querySelector('.p').addEventListener('click',function(){try{gtag('event',this.getAttribute('data-cta'),{page_path:location.pathname,placement:'sticky'});}catch(e){}});})();
+</script>
+<!-- /s1ne-sticky-cta -->
+
+</body>
+</html>

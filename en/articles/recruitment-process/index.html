@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+document.addEventListener('click', function (e) {
+  if (!e.target.closest) return;
+  var a = e.target.closest('a[href*="lin.ee"], a[href^="/apply"]');
+  if (!a) return;
+  var isApply = (a.getAttribute('href') || '').indexOf('/apply') === 0;
+  gtag('event', isApply ? 'apply_click' : 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60),
+    cta_slot: a.getAttribute('data-cta') || 'legacy'
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to run a hiring process: a 7-step framework and bottleneck self-check for employers (2026) | Step1ne</title>
+<meta name="description" content="A company&#x27;s hiring process breaks down into 7 steps: define the need, write the job description and pay range, choose channels, source proactively, screen and do first interviews, interview and decide, and offer through start date. This article walks through how to do each step and the signs you&#x27;re stuck, with a self-check to decide whether to hire in-house or bring in a consultant.">
+<meta name="keywords" content="talent recruitment,recruitment process,recruitment flowchart,talent acquisition process,corporate hiring,recruitment channels,how to recruit talent">
+
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/en/articles/recruitment-process/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Step1ne Referrals">
+<meta property="og:title" content="How should a company run its hiring process? A 7-step framework that shows at a glance where you&#x27;re stuck">
+<meta property="og:description" content="A company&#x27;s hiring process breaks down into 7 steps: define the need, write the job description and pay range, choose channels, source proactively, screen and do first interviews, interview and decide, and offer through start date. This article walks through how to do each step and the signs you&#x27;re stuck, with a self-check to decide whether to hire in-house or bring in a consultant.">
+<meta property="og:url" content="https://step1ne.com/en/articles/recruitment-process/">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta name="theme-color" content="#F4F6F8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "How should a company run its hiring process? A 7-step framework that shows at a glance where you're stuck",
+  "description": "A company's hiring process breaks down into 7 steps: define the need, write the job description and pay range, choose channels, source proactively, screen and do first interviews, interview and decide, and offer through start date. This article walks through how to do each step and the signs you're stuck, with a self-check to decide whether to hire in-house or bring in a consultant.",
+  "datePublished": "2026-10-19",
+  "dateModified": "2026-10-19",
+  "inLanguage": "zh-TW",
+  "author": {
+    "@type": "Organization",
+    "name": "Step1ne 德仁管理顧問有限公司",
+    "url": "https://step1ne.com/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "德仁管理顧問有限公司 (Step1ne)",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://step1ne.com/assets/step1ne-logo.png"
+    }
+  },
+  "mainEntityOfPage": "https://step1ne.com/articles/recruitment-process/"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://step1ne.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Headhunting Insights",
+      "item": "https://step1ne.com/articles/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "How should a company run its hiring process? A 7-step framework that shows at a glance where you're stuck",
+      "item": "https://step1ne.com/articles/recruitment-process/"
+    }
+  ]
+}
+</script>
+
+<style>
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;
+  --wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:17px;line-height:1.95;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.35;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,select,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
+
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
+.crumb{grid-column:1/-1;padding:22px 0 6px;font-size:13.5px;color:var(--slate-dim)}
+.crumb a{color:var(--slate)}
+.crumb a:hover{color:var(--brand-deep)}
+.crumb span{margin:0 8px;color:var(--rule)}
+
+.toc{position:sticky;top:92px;padding:8px 0 40px}
+.toc h2{font-size:13px;font-weight:700;color:var(--slate-dim);letter-spacing:.02em;margin-bottom:16px}
+.tns{position:relative;padding-left:22px}
+.tns::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.14))}
+.tn{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:14px;color:var(--slate);line-height:1.6;position:relative}
+.tn i{position:absolute;left:-22px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--rule);flex:0 0 auto}
+.tn:hover{color:var(--brand-deep)}
+.tn:hover i{border-color:var(--brand)}
+.tn.on{color:var(--ink);font-weight:700}
+.tn.on i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 4px rgba(46,169,223,.2)}
+.mtoc{display:none;margin:20px 0 0;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.mtoc summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15.5px;position:relative}
+.mtoc summary::-webkit-details-marker{display:none}
+.mtoc summary::after{content:"";position:absolute;right:20px;top:24px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.mtoc[open] summary::after{transform:rotate(-135deg)}
+.mtoc div{padding:0 18px 14px}
+.mtoc a{display:block;padding:9px 0;font-size:15px;color:var(--slate);border-top:1px solid var(--rule)}
+
+article{padding:14px 0 60px;max-width:70ch}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--brand-deep);background:rgba(22,126,178,.07);border:1px solid rgba(22,126,178,.25);border-radius:5px;padding:4px 11px}
+article h1{margin-top:16px;font-size:clamp(28px,4.2vw,42px);line-height:1.28;letter-spacing:-.02em}
+.by{margin-top:18px;padding-bottom:20px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14px;color:var(--slate-dim)}
+.by a{color:var(--slate);border-bottom:1px solid var(--rule)}
+.by .d{font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+
+.ans{margin-top:30px;background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:26px 30px}
+.ans .lab{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:10px}
+.ans p{font-size:19.5px;line-height:1.85;font-weight:500}
+.ans strong{font-weight:900}
+
+article h2{margin:52px 0 16px;font-size:25px;scroll-margin-top:92px}
+article h3{margin:34px 0 10px;font-size:19px}
+article h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-right:12px;border-radius:8px;background:var(--brand);color:#fff;font-family:var(--f-disp);font-size:17px;font-weight:700;vertical-align:2px}
+article p{margin-top:16px}
+article strong{font-weight:700}
+article a:not(.tn){color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.32)}
+article a:not(.tn):hover{border-bottom-color:var(--brand-deep)}
+article ul,article ol{margin:16px 0 0;padding-left:1.4em}
+article li{margin-top:9px}
+article table{width:100%;border-collapse:collapse;margin-top:22px;font-size:15.5px;background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+article th{text-align:left;background:var(--paper);font-weight:700;font-size:14px;color:var(--slate);padding:12px 14px;border-bottom:1px solid var(--rule)}
+article td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.75}
+article tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+article details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+article details summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+article details summary::-webkit-details-marker{display:none}
+article details summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+article details[open] summary::after{transform:rotate(-135deg)}
+article details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid var(--rule);color:var(--slate)}
+
+.foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
+.cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
+.cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
+footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+.fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.note{max-width:var(--wrap);margin:0 auto 46px;padding-inline:var(--gut)}
+.note div{background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid #B45309;border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.note b{color:#5A3D0C}
+.law{margin-top:22px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-left:3px solid var(--brand-deep);border-radius:0 8px 8px 0}
+.law .label{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:8px}
+.law ul{margin-top:8px}
+.insight{margin-top:22px;padding:18px 20px;background:var(--wash,#EAF4FA);border-radius:8px}
+.insight .label{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:6px}
+.tbl-wrap{overflow-x:auto}
+
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .mtoc{display:block}
+}
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  body{font-size:16.5px}
+  .ans{padding:22px;border-radius:0 8px 8px 0}
+  .ans p{font-size:18px}
+  article h2{font-size:22px;margin-top:42px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+<!--i18n-hreflang-->
+<link rel="alternate" hreflang="zh-Hant" href="https://step1ne.com/articles/recruitment-process/">
+<link rel="alternate" hreflang="ja" href="https://step1ne.com/ja/articles/recruitment-process/">
+<link rel="alternate" hreflang="en" href="https://step1ne.com/en/articles/recruitment-process/">
+<link rel="alternate" hreflang="x-default" href="https://step1ne.com/articles/recruitment-process/">
+<style>.s1-lang{max-width:1100px;margin:0 auto;padding:10px 16px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.s1-lang a,.s1-lang b{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid #d9dce3;background:#fff;font-size:14px;font-weight:600;color:#4a5060;text-decoration:none}.s1-lang b{background:#23262d;border-color:#23262d;color:#fff}.s1-lang a:hover{color:#23262d;border-color:#9aa0ad}.s1-lang a:focus-visible{outline:3px solid #1880B4;outline-offset:2px}.s1-note{max-width:1100px;margin:10px auto 0;padding:0 16px}.s1-note p{margin:0;padding:12px 14px;border-radius:12px;background:#eef4fb;border:1px solid #c9dcef;color:#1d3a57;font-size:14.5px;line-height:1.7}</style>
+<!--/i18n-hreflang-->
+</head>
+
+<body>
+<div id="bar"></div>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/en/"><img src="/assets/step1ne-logo.png" alt="Step1ne"><b>Step1ne</b></a>
+    <nav class="hd-nav">
+      <a href="/en/commission-recruiting/">For Employers</a><a href="/en/jobs/">Jobs</a><a class="on" href="/en/articles/">Headhunting Insights</a><a href="/en/talent/">Step1ne Referrals</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">Ask on LINE</a>
+    <button class="hd-burger" type="button" aria-label="Open menu" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/en/commission-recruiting/">For Employers</a><a href="/en/jobs/">Jobs</a><a href="/en/articles/">Articles</a><a href="/en/talent/">Step1ne Referrals</a> <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">Contact on LINE</a>
+  </div>
+</header>
+<!--i18n-switch--><nav class="s1-lang" aria-label="Change language"><a href="/articles/recruitment-process/" hreflang="zh-Hant" lang="zh-Hant">中文</a><a href="/ja/articles/recruitment-process/" hreflang="ja" lang="ja">日本語</a><b lang="en" aria-current="true">English</b></nav><!--/i18n-switch-->
+
+
+<main class="shell">
+  <nav class="crumb" aria-label="Breadcrumb"><a href="/en/">Home</a><span>/</span><a href="/en/articles/">Recruiting Insights</a><span>/</span>How should a company run its hiring process? A 7-step framework that shows exactly where you're stuck</nav>
+
+  <aside class="toc" aria-label="Contents">
+    <h2>This article has 10 sections</h2>
+    <div class="tns"><a class="tn" href="#sec-1" data-s="sec-1"><i></i><span>Hiring process overview: 7 steps in one table</span></a> <a class="tn" href="#sec-2" data-s="sec-2"><i></i><span>Steps 1–2: Requirements and the job description decide whether you'll find anyone</span></a> <a class="tn" href="#sec-3" data-s="sec-3"><i></i><span>Step 3: Choose your channels—don't just wait for applications</span></a> <a class="tn" href="#sec-4" data-s="sec-4"><i></i><span>Step 4: Direct search, where headhunters put in the most effort</span></a> <a class="tn" href="#sec-5" data-s="sec-5"><i></i><span>Step 5: Screening and first conversations—confirm three things first</span></a> <a class="tn" href="#sec-6" data-s="sec-6"><i></i><span>Step 6: Interviews and decisions—speed is your competitive edge</span></a> <a class="tn" href="#sec-7" data-s="sec-7"><i></i><span>Step 7: From offer to start date—the last mile where candidates drop out most</span></a> <a class="tn" href="#sec-8" data-s="sec-8"><i></i><span>Self-check: should you hire for this role yourself or get help?</span></a> <a class="tn" href="#sec-9" data-s="sec-9"><i></i><span>FAQ</span></a> <a class="tn" href="#sec-10" data-s="sec-10"><i></i><span>Not sure where you're stuck? Let a consultant take a look</span></a></div>
+  </aside>
+
+  <div>
+    <details class="mtoc"><summary>Contents (10 sections)</summary><div><a href="#sec-1">The hiring process at a glance: 7 steps in one table</a> <a href="#sec-2">Steps 1–2: Requirements and the job description decide whether you can find anyone</a> <a href="#sec-3">Step 3: Choosing channels, don't just wait for applications</a> <a href="#sec-4">Step 4: Active search, the hardest part of a headhunting consultant's work</a> <a href="#sec-5">Step 5: Screening and first conversations, confirm three things first</a> <a href="#sec-6">Step 6: Interviews and decisions, speed is your competitive edge</a> <a href="#sec-7">Step 7: From offer to start date, the last mile is where you lose the most people</a> <a href="#sec-8">Self-check: should you fill this role yourself or get help?</a> <a href="#sec-9">FAQ</a> <a href="#sec-10">Not sure where you're stuck? Let a consultant take a look</a></div></details>
+    <article>
+      <span class="tag">Executive Search Guide for Employers · Hiring Process</span>
+      <h1>How should a company run its hiring process? A 7-step framework that shows at a glance where you're stuck</h1>
+      <div class="by">
+        <span>By <a href="/en/about/">Step1ne Executive Search Team</a></span> <time class="d" datetime="2026-10-19">Published 2026-10-19</time> <span class="d">About 7 min</span>
+      </div>
+
+      <div class="ans">
+        <div class="lab">Short answer</div>
+        <p>Corporate recruiting can be broken into 7 steps: <strong>define the need → write the job description and salary band → choose channels → proactive sourcing → screening and first conversations → interviews and decision → offer to onboarding</strong>. Most roles go unfilled not because the whole process is broken, but because <strong>it's stuck at one or two of these steps</strong>. Walk through the framework below step by step and you'll see where you're stuck, which steps to handle yourself, and which are quicker to hand to a professional consultant.</p>
+      </div>
+
+      <div class="employer-cta" style="margin:24px 0;padding:22px 24px;border-radius:16px;background:linear-gradient(135deg,#0F5F87,#167EB2);color:#fff">
+        <div style="font-size:18px;font-weight:800;margin-bottom:6px">Role open for ages and still not filled?</div>
+        <div style="font-size:14.5px;opacity:.92;margin-bottom:15px;line-height:1.6">Tell us about the opening, and a consultant will help you see which step you're stuck on. Success-based fees — nothing charged if no one starts.</div>
+        <a href="#lead" style="display:inline-block;background:#fff;color:#0F5F87;font-weight:700;padding:11px 20px;border-radius:10px;text-decoration:none;margin:0 8px 8px 0">Get a free diagnosis of my opening →</a><a href="https://lin.ee/XcSWPzM" style="display:inline-block;background:#06C755;color:#fff;font-weight:700;padding:11px 20px;border-radius:10px;text-decoration:none">Contact us on LINE</a>
+      </div>
+
+    <h2 id="sec-1"><span class="num">1</span>Hiring process overview: 7 steps in one table</h2>
+    <table><thead><tr><th>Step</th><th>What this step should produce</th><th>Where people get stuck most</th></tr></thead><tbody>
+    <tr><td>1. Define the need</td><td>What problem this person needs to solve; must-have and nice-to-have requirements</td><td>The manager can't explain it clearly and the requirements keep changing</td></tr>
+    <tr><td>2. Job description and salary range</td><td>Job descriptions and salary ranges written for job seekers</td><td>Pay below market, or only listed as “negotiable”</td></tr>
+    <tr><td>3. Choose channels</td><td>Decide which channels to use to find people</td><td>Relying on a single channel, you'll be waiting forever</td></tr>
+    <tr><td>4. Proactive sourcing</td><td>The list: who might fit and how to reach them</td><td>You don't know where the people are, or they don't reply when contacted</td></tr>
+    <tr><td>5. Screening and first conversation</td><td>Confirm interest, terms, and salary expectations</td><td>Lots of résumés but none fit, and screening wears you out</td></tr>
+    <tr><td>6. Interviews and decision</td><td>The hire/no-hire decision</td><td>Decisions are too slow, and good candidates get snapped up by others</td></tr>
+    <tr><td>7. From offer to start date</td><td>Salary and start date agreed, and the person actually shows up to work</td><td>Salary talks break down, or the candidate backs out before starting</td></tr>
+    </tbody></table>
+    <p>As you read, ask yourself: <strong>which step is your opening stuck on right now?</strong> Below we go through how to do each step and the signs that tell you it's stuck.</p>
+
+    <h2 id="sec-2"><span class="num">2</span>Steps 1–2: Requirements and the job description decide whether you'll find anyone</h2>
+    <p><strong>Define the need</strong>: first confirm with the hiring manager <strong>what this person must achieve in their first year</strong>, then work backward to the must-haves. The fewer must-haves the better—three to five is usually enough, and everything else is a plus. List too many, and the person may simply not exist in the market.</p>
+    <p><strong>Job description and salary band</strong>: A job description is written for job seekers. It needs to clearly cover the work, the team, growth, and terms — it isn't an internal job specification. Research the market before setting the salary band; an opening priced too low will get stuck at every later step of the process. In Taiwan, for openings with regular wages below NT$40,000, the salary range must by law be published or disclosed — you can't just write "negotiable" (Taiwan's Employment Service Act, Article 5, Paragraph 2, Subparagraph 6).</p>
+    <p><strong>Signs you're stuck</strong>: the requirements have changed two or more times since the role opened, interviewers use different standards, and candidates go quiet after reading the job post.</p>
+
+    <h2 id="sec-3"><span class="num">3</span>Step 3: Choose channels — don't just wait for applications</h2>
+    <p>Common channels fall into three tiers: free channels (internal referrals, social media, and Taiwan Jobs, the government job portal), paid listings (104, 1111, LinkedIn, etc.), and outsourcing to professionals (recruitment agencies, headhunters, staffing firms). We've compiled the costs and best-fit situations for each in <a href="/en/articles/how-to-find-talent/">How companies find talent</a>, including the official listing prices for 104, 1111 and LinkedIn.</p>
+    <p><strong>Signs you're stuck</strong>: the same opening has been posted for over a month and most résumés you receive don't fit. This usually means the right people <strong>aren't applying at all</strong>, and you need to switch to proactive sourcing.</p>
+
+    <h2 id="sec-4"><span class="num">4</span>Step 4: Proactive sourcing — where headhunting consultants put in the most effort</h2>
+    <p>Proactive sourcing means not waiting for people to come to you but going out and finding them. Professional headhunting consultants generally do it like this:</p>
+    <ol>
+      <li><strong>Draw a talent map</strong>: list which companies and positions this kind of talent is likely in right now.</li>
+      <li><strong>Multi-channel outreach</strong>: talent databases, professional networks such as LinkedIn, industry referrals and public industry information.</li>
+      <li><strong>A compelling first message</strong>: the person isn't looking for a job, so the message has to make them want to talk, not just drop a job link.</li>
+      <li><strong>Ongoing follow-up</strong>: Many people say "not right now" the first time, but their situation changes a few months later.</li>
+    </ol>
+    <p>This stage takes the most time and requires the most experience and connections. For the full headhunting search process, see <a href="/en/articles/find-headhunter-consultant/">How headhunters find people</a>.</p>
+    <p><strong>Signs you're stuck</strong>: you don't know where to start looking, you've messaged a dozen-plus people with no replies, or HR is juggling too many openings to get to it.</p>
+
+    <aside data-exp="cta-mid-2026-10-19-flow" id="lead">
+      <p>For company HR teams</p>
+      <h3>Stuck on proactive search? Leave this step to us</h3>
+      <p>Tell us the job title, headcount, and pay band, and a consultant will explain where this kind of talent is and how soon we can recommend the first candidates. You pay only when a candidate starts.</p>
+      <form class="s1-lead" novalidate style="display:grid;gap:8px;margin-top:14px;position:relative">
+<input name="company" aria-label="Company name" placeholder="Company name" autocomplete="organization" style="min-height:44px;padding:0 12px;border:1px solid #D9E0E6;border-radius:10px;font-size:15px;background:#fff;color:#0D1B24">
+<input name="job" aria-label="Jobs I&#x27;m looking for" placeholder="What role are you hiring for? (e.g. sales manager ×1)" style="min-height:44px;padding:0 12px;border:1px solid #D9E0E6;border-radius:10px;font-size:15px;background:#fff;color:#0D1B24">
+<label style="display:grid;gap:4px;font-size:13.5px;color:#4A5A66">Where are you stuck right now? (optional)<textarea name="detail" rows="3" maxlength="1000" placeholder="e.g., no suitable applicants after two months of posting, every interviewed candidate turned the offer down, not sure what salary to offer…" style="min-height:88px;padding:10px 12px;border:1px solid #D9E0E6;border-radius:10px;font-size:15px;font-family:inherit;line-height:1.5;background:#fff;color:#0D1B24;resize:vertical"></textarea></label>
+<input name="contact" aria-label="Email or phone" placeholder="Email or phone" autocomplete="email" style="min-height:44px;padding:0 12px;border:1px solid #D9E0E6;border-radius:10px;font-size:15px;background:#fff;color:#0D1B24">
+<input name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
+<button type="submit" data-cta="mid-recruitment-process-form" style="min-height:46px;border:0;border-radius:10px;background:#167EB2;color:#fff;font-size:15.5px;font-weight:700;cursor:pointer">Get a free diagnosis of my opening</button>
+<p class="s1-lead-msg" role="status" aria-live="polite" style="margin:0;font-size:14px"></p>
+<p style="margin:0;font-size:13px;opacity:.85">A consultant will reply within 1 business day, no contract needed first. You can also <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-recruitment-process">ask a consultant on LINE</a></p>
+</form>
+    </aside>
+
+    <h2 id="sec-5"><span class="num">5</span>Step 5: Screening and first conversations, confirm three things first</h2>
+    <p>A résumé that looks right doesn't mean the candidate will come. In the first conversation, confirm three things: <strong>why they're considering a move, their expected salary and terms, and when they can start</strong>. If any one of these clearly doesn't fit, don't move on to interviews. It saves time for both sides.</p>
+    <p><strong>Signs you're stuck</strong>: you've scheduled lots of interviews but terms never come together, or candidates say halfway through that they don't really want to move after all.</p>
+
+    <h2 id="sec-6"><span class="num">6</span>Step 6: Interviews and decisions—speed is your competitive edge</h2>
+    <p>Good candidates are usually weighing several opportunities at once. Don't add more interview rounds than necessary, and give feedback as quickly as possible after each one. Interviewers should agree on scoring criteria in advance, so they don't each focus on different things and end up unable to convince one another.</p>
+    <p><strong>Signs you're stuck</strong>: more than two weeks from the first interview to a response, managers who can't make a decision, and candidates who have already accepted another offer by the time yours goes out.</p>
+
+    <h2 id="sec-7"><span class="num">7</span>Step 7: From offer to start date—the last mile is where you most easily lose people</h2>
+    <p>Salary negotiations should look at <strong>total compensation</strong>, including the year-end bonus, other bonuses and allowances, not just monthly pay. Between the offer and the start date, keep in touch with the candidate, because their current employer will often make a counteroffer during this period. After they start, set clear goals and feedback for the probation period; the job isn't done the day someone joins.</p>
+    <p><strong>Signs you're stuck</strong>: candidates backing out after accepting an offer, or leaving shortly after starting.</p>
+
+    <h2 id="sec-8"><span class="num">8</span>Self-check: should you hire for this role yourself, or get help?</h2>
+    <p>If two or more of the five questions below apply, handing this role to a professional consultant is usually more cost-effective than continuing to struggle on your own:</p>
+    <ul>
+      <li>The role has been open for over a month and no candidates have reached the interview stage</li>
+      <li>Most résumés received don't meet the requirements</li>
+      <li>Candidates have declined after interviews or backed out before starting more than once</li>
+      <li>HR is juggling many openings and has no time to search for people proactively</li>
+      <li>This role is confidential and can't be advertised publicly</li>
+    </ul>
+    <p>Conversely, if the role is attractive enough and the right people apply once you post it, just hire yourself—there's no need to pay extra.</p>
+
+    <h2 id="sec-9"><span class="num">9</span>FAQ</h2>
+    <div>
+      <details>
+        <summary><span>How long does a typical hiring process take?</span><span class="faq-icon">+</span></summary>
+        <p>There's no fixed timeline; it mainly depends on the role's difficulty, salary competitiveness, and decision speed. Entry-level roles may be filled within weeks, while senior or rare roles can take several months. The most common causes of delay are an unclear need at step 1 and slow decisions at step 6.</p>
+      </details>
+      <details>
+        <summary><span>How can a small company without dedicated HR run its hiring process?</span><span class="faq-icon">+</span></summary>
+        <p>Get steps 1 and 2 right first, with the owner or manager defining the need and the salary range themselves. Steps 3 and 4 take the most time and can be handed to a recruitment agency or headhunter. For steps 5 to 7, the manager takes part in interviews and salary negotiation personally.</p>
+      </details>
+      <details>
+        <summary><span>How do you calculate hiring costs?</span><span class="faq-icon">+</span></summary>
+        <p>Beyond posting or agency fees, you also need to count the time HR and managers spend and the cost of the position sitting empty. For the full calculation, see <a href="/en/articles/recruitment-cost-calculation/">How to calculate recruitment costs</a>.</p>
+      </details>
+      <details>
+        <summary><span>When do I pay if I hire a consultant to find someone?</span><span class="faq-icon">+</span></summary>
+        <p>Most recruitment outsourcing and headhunting is contingency-based, charged only when the candidate starts. Under Taiwanese regulations, placement fees can only be collected after the employment contract takes effect (Article 4 of Taiwan's Regulations on the Permission and Management of Private Employment Service Institutions).</p>
+      </details>
+    </div>
+
+    <div>
+      <h2 id="sec-10">Not sure which step you're stuck on? Let a consultant take a look first</h2>
+      <p>Tell us about the role, and a consultant will tell you plainly where things are stuck and whether to hire in-house or outsource. If doing it yourself is enough, we'll say so.</p>
+      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">Talk with a consultant on LINE</a>
+    </div>
+
+    <p>Related reading: <a href="/en/articles/how-to-find-talent/">How employers find talent</a> · <a href="/en/articles/find-headhunter-consultant/">How headhunters find candidates</a> · <a href="/en/articles/recruitment-agency-guide/">What is recruitment outsourcing?</a> · <a href="/en/articles/recruitment-cost-calculation/">How to calculate recruitment costs</a></p>
+
+<div class="cta">
+        <p>Stuck on a hire? Tell us the role and headcount, and we'll help you see which step it's stuck at.</p>
+          <a class="btn-alt" href="/en/hiring-assessment/">Take the hiring-model assessment first</a> <a class="btn-line" href="https://lin.ee/XcSWPzM">Ask a consultant on LINE</a>
+      </div>
+<div class="related-jobs-box" style="margin:26px 0;padding:18px 20px;border:1px solid #D9E0E6;border-radius:14px;background:#EAF4FA"><strong style="display:block;margin-bottom:9px;color:#0F5F87;font-size:15px">🔎 Related</strong><div style="display:flex;flex-wrap:wrap;gap:8px 14px;font-size:14.5px"><a href="/en/commission-recruiting/">Recruitment Commission Plan for Businesses</a> · <a href="/en/jobs/">View all openings</a></div></div>
+
+<div class="foot-note"><strong>References</strong><br> ・Taiwan's Employment Service Act, Article 5 (Laws & Regulations Database) (accessed 2026-10-19)<br> ・<a href="https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0090002" target="_blank" rel="noopener">Regulations on the Permission and Management of Private Employment Services Institutions (Taiwan Laws & Regulations Database)</a> (accessed 2026-10-19)
+</div>
+</article>
+  </div>
+</main>
+
+
+<footer><div class="fw">德仁管理顧問有限公司, 3F, No. 54-7, Sec. 3, Kangning Rd., Neihu Dist., Taipei City</div></footer>
+
+<script>
+document.querySelectorAll('article table').forEach(function(t){
+  var w=document.createElement('div'); w.className='tw';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
+var bar=document.getElementById('bar');
+function prog(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',prog,{passive:true}); prog();
+var tns=[].slice.call(document.querySelectorAll('.tn'));
+var secs=tns.map(function(a){return document.getElementById(a.dataset.s)}).filter(Boolean);
+if('IntersectionObserver' in window && secs.length){
+  var cur=null;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) cur=e.target.id; });
+    tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  },{rootMargin:'-88px 0px -70% 0px'}).observe && secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===e.target.id)}); }
+      });
+    },{rootMargin:'-88px 0px -70% 0px'}).observe(s);
+  });
+}
+</script>
+<script src="/assets/lead-form.js" defer></script>
+
+<style>
+.s1ne-sc{position:fixed;z-index:60;left:0;right:0;bottom:0;display:flex;gap:10px;padding:10px max(14px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));background:rgba(255,255,255,.96);box-shadow:0 -6px 24px rgba(40,30,10,.12);transform:translateY(120%);transition:transform .25s ease}
+.s1ne-sc.on{transform:none}
+.s1ne-sc a{flex:1;display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:999px;font-weight:700;font-size:15px;text-decoration:none;white-space:nowrap}
+.s1ne-sc .p{background:#111827;color:#fff}
+.s1ne-sc .l{background:#fff;color:#111827;border:1.5px solid #d1d5db}
+.s1ne-sc a:focus-visible{outline:3px solid #1f2937;outline-offset:2px}
+@media (min-width:760px){.s1ne-sc{left:auto;right:24px;bottom:24px;border-radius:999px;padding:8px;box-shadow:0 8px 28px rgba(40,30,10,.18)}.s1ne-sc a{flex:none;padding:0 22px}}
+@media (prefers-reduced-motion:reduce){.s1ne-sc{transition:none}}
+body{padding-bottom:84px}
+@media (min-width:760px){body{padding-bottom:0}}
+</style>
+<div class="s1ne-sc" id="s1neSc" role="region" aria-label="Fast action">
+  <a class="l" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">Ask on LINE</a> <a class="p" href="/en/jobs/" data-cta="jobs_cta_click">See current openings</a>
+</div>
+<script>
+(function(){var b=document.getElementById('s1neSc');if(!b)return;
+function t(){b.classList.toggle('on',window.scrollY>380);}
+window.addEventListener('scroll',t,{passive:true});t();
+b.querySelector('.p').addEventListener('click',function(){try{gtag('event',this.getAttribute('data-cta'),{page_path:location.pathname,placement:'sticky'});}catch(e){}});})();
+</script>
+<!-- /s1ne-sticky-cta -->
+
+</body>
+</html>

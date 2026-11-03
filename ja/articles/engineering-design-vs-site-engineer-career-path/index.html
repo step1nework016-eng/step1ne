@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  if (!e.target.closest) return;
+  // 2026-08-06：原本只抓 lin.ee。BIM 那群的下一步是「直接應徵」不是加 LINE，
+  // 不一起記的話，等於把那條路做出來卻量不到，實驗就白做了。
+  var a = e.target.closest('a[href*="lin.ee"], a[href^="/apply"]');
+  if (!a) return;
+  var isApply = (a.getAttribute('href') || '').indexOf('/apply') === 0;
+  gtag('event', isApply ? 'apply_click' : 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60),
+    // mid＝這次新加的文章中段；沒有標的就是原本頁首／頁尾那些
+    cta_slot: a.getAttribute('data-cta') || 'legacy'
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>設計エンジニア vs 現場エンジニア：2つの異なるキャリア、どちらを選ぶ？｜Step1ne</title>
+<meta name="description" content="同じハイテク工場の工事系求人でも、設計エンジニアと現場（プロジェクト）エンジニアの仕事はまったく違います。職務内容、給与、資格要件、キャリアの方向性の実際の違いを解説します。">
+<meta name="keywords" content="設計エンジニア,現場エンジニア,施工監理エンジニア,工場建設エンジニア 転職,AutoCAD Revit エンジニア,半導体工場 キャリア,エンジニア キャリア比較,現場監督">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/ja/articles/engineering-design-vs-site-engineer-career-path/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Step1ne 紹介プログラム">
+<meta property="og:title" content="設計エンジニア vs 現場エンジニア：2つの異なるキャリアパス、どちらを選ぶ？">
+<meta property="og:description" content="同じ「エンジニア」でも、図面を描く人と現場を見る人では仕事がまったく違います。実際の求人をもとに職務内容、給与、資格要件の違いを分解し、どちらの道が自分に合うかの判断を手助けします。">
+<meta property="og:url" content="https://step1ne.com/ja/articles/engineering-design-vs-site-engineer-career-path/">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta name="theme-color" content="#F4F6F8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "設計エンジニア vs 現場エンジニア：2つの異なるキャリアパス、どちらを選ぶ？",
+  "description": "同じハイテク工場の工事系求人でも、設計エンジニアと現場（プロジェクト）エンジニアの仕事はまったく違います。職務内容、給与、資格要件、キャリアの方向性の実際の違いを解説します。",
+  "datePublished": "2026-09-30",
+  "dateModified": "2026-09-30",
+  "inLanguage": "zh-TW",
+  "author": {
+    "@type": "Organization",
+    "name": "Step1ne 德仁管理顧問有限公司",
+    "url": "https://step1ne.com/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "德仁管理顧問有限公司（Step1ne）",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://step1ne.com/assets/step1ne-logo.png"
+    }
+  }
+}
+</script>
+
+<style>
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;
+  --wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:17px;line-height:1.95;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.35;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,select,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* 導覽 */
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+/* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
+
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
+.crumb{grid-column:1/-1;padding:22px 0 6px;font-size:13.5px;color:var(--slate-dim)}
+.crumb a{color:var(--slate)}
+.crumb a:hover{color:var(--brand-deep)}
+.crumb span{margin:0 8px;color:var(--rule)}
+
+/* 目錄軌：沿用全站 signature */
+.toc{position:sticky;top:92px;padding:8px 0 40px}
+.toc h2{font-size:13px;font-weight:700;color:var(--slate-dim);letter-spacing:.02em;margin-bottom:16px}
+.tns{position:relative;padding-left:22px}
+.tns::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.14))}
+.tn{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:14px;color:var(--slate);line-height:1.6;position:relative}
+.tn i{position:absolute;left:-22px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--rule);flex:0 0 auto}
+.tn:hover{color:var(--brand-deep)}
+.tn:hover i{border-color:var(--brand)}
+.tn.on{color:var(--ink);font-weight:700}
+.tn.on i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 4px rgba(46,169,223,.2)}
+.mtoc{display:none;margin:20px 0 0;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.mtoc summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15.5px;position:relative}
+.mtoc summary::-webkit-details-marker{display:none}
+.mtoc summary::after{content:"";position:absolute;right:20px;top:24px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.mtoc[open] summary::after{transform:rotate(-135deg)}
+.mtoc div{padding:0 18px 14px}
+.mtoc a{display:block;padding:9px 0;font-size:15px;color:var(--slate);border-top:1px solid var(--rule)}
+
+/* 文章本體 */
+article{padding:14px 0 60px;max-width:70ch}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--brand-deep);background:rgba(22,126,178,.07);border:1px solid rgba(22,126,178,.25);border-radius:5px;padding:4px 11px}
+article h1{margin-top:16px;font-size:clamp(28px,4.2vw,42px);line-height:1.28;letter-spacing:-.02em}
+.by{margin-top:18px;padding-bottom:20px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14px;color:var(--slate-dim)}
+.by a{color:var(--slate);border-bottom:1px solid var(--rule)}
+.by .d{font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+
+/* ★ Signature：直接答案 */
+.ans{margin-top:30px;background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:26px 30px}
+.ans .lab{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:10px}
+.ans p{font-size:19.5px;line-height:1.85;font-weight:500}
+.ans strong{font-weight:900}
+
+article h2{margin:52px 0 16px;font-size:25px;scroll-margin-top:92px}
+article h3{margin:34px 0 10px;font-size:19px}
+article h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-right:12px;border-radius:8px;background:var(--brand);color:#fff;font-family:var(--f-disp);font-size:17px;font-weight:700;vertical-align:2px}
+article p{margin-top:16px}
+article strong{font-weight:700}
+article a:not(.tn){color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.32)}
+article a:not(.tn):hover{border-bottom-color:var(--brand-deep)}
+article ul,article ol{margin:16px 0 0;padding-left:1.4em}
+article li{margin-top:9px}
+article table{width:100%;border-collapse:collapse;margin-top:22px;font-size:15.5px;background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+article th{text-align:left;background:var(--paper);font-weight:700;font-size:14px;color:var(--slate);padding:12px 14px;border-bottom:1px solid var(--rule)}
+article td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.75}
+article tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+article details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+article details summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+article details summary::-webkit-details-marker{display:none}
+article details summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+article details[open] summary::after{transform:rotate(-135deg)}
+article details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid var(--rule);color:var(--slate)}
+
+.foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
+.cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
+.cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
+footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+.fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.note{max-width:var(--wrap);margin:0 auto 46px;padding-inline:var(--gut)}
+.note div{background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid #B45309;border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.note b{color:#5A3D0C}
+
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .mtoc{display:block}
+}
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  body{font-size:16.5px}
+  .ans{padding:22px;border-radius:0 8px 8px 0}
+  .ans p{font-size:18px}
+  article h2{font-size:22px;margin-top:42px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+<!--i18n-hreflang-->
+<link rel="alternate" hreflang="zh-Hant" href="https://step1ne.com/articles/engineering-design-vs-site-engineer-career-path/">
+<link rel="alternate" hreflang="ja" href="https://step1ne.com/ja/articles/engineering-design-vs-site-engineer-career-path/">
+<link rel="alternate" hreflang="en" href="https://step1ne.com/en/articles/engineering-design-vs-site-engineer-career-path/">
+<link rel="alternate" hreflang="x-default" href="https://step1ne.com/articles/engineering-design-vs-site-engineer-career-path/">
+<style>.s1-lang{max-width:1100px;margin:0 auto;padding:10px 16px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.s1-lang a,.s1-lang b{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid #d9dce3;background:#fff;font-size:14px;font-weight:600;color:#4a5060;text-decoration:none}.s1-lang b{background:#23262d;border-color:#23262d;color:#fff}.s1-lang a:hover{color:#23262d;border-color:#9aa0ad}.s1-lang a:focus-visible{outline:3px solid #1880B4;outline-offset:2px}.s1-note{max-width:1100px;margin:10px auto 0;padding:0 16px}.s1-note p{margin:0;padding:12px 14px;border-radius:12px;background:#eef4fb;border:1px solid #c9dcef;color:#1d3a57;font-size:14.5px;line-height:1.7}</style>
+<!--/i18n-hreflang-->
+</head>
+
+<body>
+<div id="bar"></div>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/ja/"><img src="/assets/step1ne-logo.png" alt="Step1ne"><b>Step1ne</b></a>
+    <nav class="hd-nav">
+      <a href="/ja/commission-recruiting/">企業向けサービス</a><a href="/ja/jobs/">求人一覧</a><a class="on" href="/ja/articles/">ヘッドハンティングコラム</a><a href="/ja/talent/">Step1ne 紹介プログラム</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">LINEで問い合わせ</a>
+    <button class="hd-burger" type="button" aria-label="メニューを開く" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/ja/commission-recruiting/">法人向けサービス</a><a href="/ja/jobs/">求人一覧</a><a href="/ja/articles/">ヘッドハンティングコラム</a><a href="/ja/talent/">Step1ne 紹介プログラム</a> <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINEで問い合わせ</a>
+  </div>
+</header>
+<!--i18n-switch--><nav class="s1-lang" aria-label="言語を切り替える"><a href="/articles/engineering-design-vs-site-engineer-career-path/" hreflang="zh-Hant" lang="zh-Hant">中文</a><b lang="ja" aria-current="true">日本語</b><a href="/en/articles/engineering-design-vs-site-engineer-career-path/" hreflang="en" lang="en">English</a></nav><!--/i18n-switch-->
+
+
+<main class="shell">
+  <nav class="crumb" aria-label="パンくずリスト"><a href="/ja/">ホーム</a><span>/</span><a href="/ja/articles/">採用コラム</a><span>/</span>設計エンジニア vs 現場エンジニア：2つの異なるキャリア、どちらを選ぶ？</nav>
+
+  <aside class="toc" aria-label="目次">
+    <h2>本記事は全7セクション</h2>
+    <div class="tns"><a class="tn" href="#sec-1" data-s="sec-1"><i></i><span>工事設計エンジニアと現場エンジニア、職種名は似ていても実際の仕事は同じ？</span></a> <a class="tn" href="#sec-2" data-s="sec-2"><i></i><span>どちらも「100%現場」とあるけれど、工事設計エンジニアはオフィスで図面を描く仕事では？</span></a> <a class="tn" href="#sec-3" data-s="sec-3"><i></i><span>給与と学歴要件、2つの道はどう違う？</span></a> <a class="tn" href="#sec-4" data-s="sec-4"><i></i><span>どちらの道に応募するにも、必要なスキルや資格は？</span></a> <a class="tn" href="#sec-5" data-s="sec-5"><i></i><span>長期的なキャリアとして、2つの道はどこへつながる？</span></a> <a class="tn" href="#sec-6" data-s="sec-6"><i></i><span>自分にどちらが合うかわからないとき、どう判断する？</span></a> <a class="tn" href="#sec-7" data-s="sec-7"><i></i><span>よくある質問</span></a></div>
+  </aside>
+
+  <div>
+    <details class="mtoc"><summary>この記事の目次（7 項目）</summary><div><a href="#sec-1">設計エンジニアと現場エンジニア、職名は似ていますが仕事内容は同じ？</a> <a href="#sec-2">どちらも「100%現場」と書いてあるけど、設計エンジニアはオフィスで図面を描く仕事では？</a> <a href="#sec-3">給与と学歴要件、2つの道はどう違う？</a> <a href="#sec-4">どちらに応募するにしても、必要なスキルや資格は？</a> <a href="#sec-5">長期的なキャリアとして、2つの道はどこにつながる？</a> <a href="#sec-6">どちらが向いているかわからない時の判断方法</a> <a href="#sec-7">よくある質問</a></div></details>
+    <article>
+      <span class="tag">キャリアパス</span>
+      <h1>設計エンジニア vs 現場エンジニア：2つの異なるキャリアパス、どちらを選ぶ？</h1>
+      <div class="by">
+        <span>執筆：<a href="/ja/about/">Step1ne ヘッドハンティングコンサルタントチーム</a></span> <time class="d" datetime="2026-09-30">公開日 2026-09-30</time>
+      </div>
+
+      <div class="ans"><div class="lab">端的な答え</div><p>エンジニアリング設計エンジニアと現場（プロジェクト）エンジニアは、どちらもエンジニアと呼ばれ給与レンジも重なりますが（いずれも研修期間3.5万～4.5万台湾ドル、シニアで5万～6万台湾ドル）、実際の仕事内容は異なります。設計エンジニアは主にAutoCADやRevitで図面を作成し、仕事の中心は「図面」です。現場（プロジェクト）エンジニアは主に施工の進捗管理、品質検査、協力会社との調整を担い、仕事の中心は「人と現場」です。どちらも工事現場に出向きます（完全なデスクワークではありません）が、設計エンジニアは図面と照合するために、現場エンジニアは進捗を管理するために現場へ行く、という違いがあります。どちらを選ぶかは、細部を正確に描くのが好きか、現場で人と調整して問題を解決するのが好きかで決まります。</p></div>
+
+<h2 id="sec-1">工事設計エンジニアと現場エンジニア、職種名は似ていても実際の仕事は同じ？</h2>
+<p>違います。ハイテク工場の工事求人を例にとると、この2つの職務は別々の部署に属しており、職掌の設計そのものが分かれています。</p>
+<p>工事設計エンジニアは「設計部」に所属し、主な仕事はハイテク工場の各システム工事のCAD作図（AutoCAD、Revit）です。ほかに現場調査の補助で図面と現場の一致を確認したり、プロジェクトの進捗に合わせて上司から指示された業務を行ったりします。簡単に言えば、成果物は「図面」で、現場調査は図面を正確に描くためのものであり、現場の管理に行くわけではありません。</p>
+<p>現場（プロジェクト）エンジニアは「工事部」に所属し、主な仕事は現場の工程管理、品質検査、工事の取り合い調整、協力会社の管理です。加えて、工場のプロセス配管や電気・機械設備システムの計画・設計・施工の監督管理、施工記録の作成と保管も担当します。成果は「現場が予定どおり、品質どおりに完成すること」で、図面は現場と照らし合わせるためのツールであり、主な成果物ではありません。</p>
+
+<h2 id="sec-2">どちらも「100%現場」と書いてありますが、工事設計エンジニアはオフィスで図面を描く仕事ではないのですか？</h2>
+<p>ここが最も誤解されやすいポイントです。一般の人は「図面を描く」と聞くとオフィスワークを連想しがちですが、ハイテク工場工事の設計エンジニアは実は現場エンジニアと同じく、プロジェクト現場の工事事務所に駐在する働き方で、勤務環境の比率も同じく「100%現場」と表示されています。</p>
+<p>違いは「現場に行くかどうか」ではなく、「現場で何をするか」にあります。設計エンジニアが現場に行くのは、図面と実際の施工が一致しているかを確認するため（現地調査）で、大半の時間は現場事務所でパソコンに向かって図面を描いています。一方、現場エンジニアは現場で工程管理、品質検査、協力会社との調整に直接携わり、工事現場そのものが職場です。図面は判断を助けるツールであって、自分が作り出す成果物ではありません。</p>
+<p>もし工事設計エンジニアを「オフィス勤務で現場に行かなくていい」と思ってこの道を選んだなら、入社後にギャップを感じることになります。この点は必ず事前に確認してください。</p>
+
+<h2 id="sec-3">給与と学歴要件、2つの道はどう違う？</h2>
+<p>給与のレンジは実は重なっていて、「現場のほうが高い」「設計のほうが高い」というわけではありません：</p>
+<ul>
+<li><strong>研修職のエンジニアリング設計エンジニア</strong>：月給3.5万〜4.5万台湾ドル。関連経験は不要ですが、AutoCADまたはRevitの基本的な作図能力、土木／建築／機電／水電の図面を読める力、強い学習意欲が必要です。</li>
+<li><strong>シニア・エンジニアリング設計エンジニア</strong>：月給5万～6万台湾ドル。AutoCAD・Revitの上級作図スキルと、工場・エンジニアリング設計関連の経験が求められます。</li>
+<li><strong>研修付き半導体プロジェクトエンジニア（現場側）</strong>：月給3.5万～4.5万台湾ドル。関連経験は不要ですが、基本的な事務処理能力、コミュニケーション・調整能力、強い学習意欲が必要です。</li>
+<li><strong>シニア半導体プロジェクトエンジニア（現場側）</strong>：月給5万～6万台湾ドル。半導体工場やオフィス棟の施工監理、電気・機械系の業務経験が求められます。</li>
+</ul>
+<p>学歴要件はどちらも専科（短大相当）以上ですが、対象学科の範囲は同じではありません。設計エンジニアは工業デザイン、土木工学（建設を含む）、建築（またはインテリアデザイン）系が中心です。現場エンジニアは学科の範囲がより広く、電気工学、機械工学（冷凍空調・エネルギー系を含む）も加わります。現場で扱う機電システムの計画・監督の範囲がより広いためです。</p>
+
+<h2 id="sec-4">どの道に応募するにしても、どんなスキルや資格が必要？</h2>
+<p>エンジニアリング設計エンジニアの中核要件はソフトウェアスキルです。AutoCADやRevitの作図の習熟度が、すぐに戦力になれるかを直接左右します。シニア職では「上級」の作図能力が明確に求められ、これがこのルートで最も高い技術的なハードルです。AutoCADやRevitの国際認定資格、工事発注・施工図作成・竣工図作成の経験があれば加点となります。</p>
+<p>現場（プロジェクト）エンジニアの中核となる要件はコミュニケーション・調整力と現場での判断力です。求人条件ではCADソフトは必須ではなく加点項目とされています。公共工事品質管理者、営造業甲種労働安全衛生主管などの資格や、基本的なAutoCADの作図・図面読解力があれば、より良い給与査定につながりますが、応募要件ではありません。本当の必須条件は、会社の既存プロジェクト所在地への配属に対応できること、そして社内や協力会社とのコミュニケーション・調整ができることです。</p>
+<p>どちらのルートも関連経験のない人を受け入れ、研修ルートを通じて入職できます。違いは「何を研修するか」です。設計側ではソフトの操作と図面を読む力を、現場側では現場調整と施工管理の実務経験を身につけます。</p>
+
+<h2 id="sec-5">長期的なキャリアとして、2つの道はどこにつながる？</h2>
+<p>業界で一般的な分担の考え方はこうです。設計側は建築家や施主の設計図を詳細な施工図に落とし込む役割に近く、経験を積むと図面の精度、BIM統合、設計調整の方向に深まっていきます。現場側は施工監理／プロジェクト管理に近い役割で、施工会社が図面どおりに施工しているかを監督し、工程と品質を管理します。経験を積むと現場責任者やプロジェクトマネージャーの方向に進みやすくなります（Source: [一次盤點工程師6大種類](https://www.hnl-consultants.com/%E5%B7%A5%E7%A8%8B%E5%B8%AB/)、[建築工程監造全解析](https://twprobe.com/jianzhu-gongcheng-jianzao-zhineng-zongjian-zhinan/)）。</p>
+<p>注意したいのは、「監造（施工監理）」は法規上明確に定義された役割（施主が指名する独立した第三者で、施工会社が図面どおりに施工しているかを監督する）であり、一般的な民間の建設会社内の「工事設計エンジニア」「現場（プロジェクト）エンジニア」といった職名とは、法的な立場が完全に同じではないという点です。ここで述べているのは実際の職務内容の分担の考え方であり、法規上の監造資格の話ではありません。応募前にこの違いが気になる場合は、採用部門に職務の実際の位置づけを直接確認することをおすすめします。</p>
+
+<h2 id="sec-6">どのルートが自分に合うか分からないとき、どう判断する？</h2>
+<p>自分に問いかけられる判断のポイント：</p>
+<ul>
+<li>パソコンの前で長時間集中してミリ単位まで正確に図面を描くほうが得意ですか？それとも、じっと座っているのは苦手で、現場で実際の状況を見たり、いろいろな人と調整したりするほうが好きですか？</li>
+<li>AutoCADやRevitといった作図ソフトに興味や基礎はありますか？まったく触れたことがなく、学ぶ気もないなら、現場側のほうが現実的なスタート地点になります。</li>
+<li>長時間の現場環境（日差し、騒音、協力会社とのやり取り）を受け入れられるか、それとも現場事務所での決まった業務のほうが好みか？設計側は比較的、現場管理の責任が軽めです。</li>
+<li>どちらの道も他県市への駐在・配置に応じる必要があり、この点に違いはないので、選ぶ際の判断材料にはなりません。</li>
+</ul>
+
+<p>関連求人：<a href="/ja/jobs/engineering-design-engineer-hsinchu/">シニア工事設計エンジニア</a>、<a href="/ja/jobs/trainee-engineering-design-engineer/">研修生・工事設計エンジニア</a>（設計側）；<a href="/ja/jobs/semiconductor-site-engineer-hsinchu/">シニア半導体プロジェクトエンジニア</a>、<a href="/ja/jobs/trainee-semiconductor-project-engineer/">研修生・半導体プロジェクトエンジニア</a>（現場側）。台湾の桃園・新竹・苗栗、台中、雲林エリアが対象です。</p>
+
+## FAQ **Q1. 設計エンジニアは現場にまったく行かなくてよいのですか？** A1. いいえ。設計エンジニアも勤務環境は「100%現場」と明記されており、プロジェクト現場の工事事務所に常駐します。現場調査や、図面と実際の施工が一致しているかの確認もサポートします。ただし主な成果物はあくまで図面で、現場管理ではありません。 **Q2. 現場（プロジェクト）エンジニアはAutoCADが必須ですか？** A2. 必須ではありません。求人条件ではAutoCADでの作図や図面読解力は加点要素で、必須条件ではありません。本当の必須条件は、コミュニケーション・調整力、プロジェクト地への異動に対応できること、基本的な事務処理能力です。ソフトが使えれば給与査定で有利になりますが、応募の条件ではありません。 **Q3. 2つの道、給与が高いのはどちらですか？** A3. 給与レンジは重なっており、単純にどちらが高いとは言えません。研修コースはどちらも月給3.5万～4.5万台湾ドル、経験者コースはどちらも月給5万～6万台湾ドルで、実際の給与は過去の経歴、専門能力、面接での評価で決まります。違いは職務内容であり、初任給の構造ではありません。 **Q4. 関連学科の出身でなくても、どちらにも応募できますか？** A4. 研修コースはどちらも関連する職務経験を求めていませんが、学歴・学科には条件があります。設計側は工業デザイン、土木工学（建設を含む）、建築（または室内設計）系が中心です。現場側はもっと幅広く、電気工学、機械工学（冷凍空調・エネルギー系を含む）も対象です。学科が範囲内であれば、実務経験がなくても研修ポジションに応募できます。 **Q5. 設計側と現場側は、将来お互いに転向できますか？** A5. 求人自体に転向の制限はありませんが、実務上、両者で身につく能力は異なります。設計側は作図と図面統合の力、現場側は工事現場の管理と調整の実務が蓄積されます。方向転換するには、通常相手側の道で求められる中核スキルを補う必要があります（例：設計側から現場側へ移るなら現場管理の経験、現場側から設計側へ移るなら高度な作図能力）。 **Q6. 「監造（工事監理）」とここで言う現場（プロジェクト）エンジニアは同じものですか？** A6. 完全に同じではありません。「監造」は台湾の法規上、発注者が指名する独立した第三者の役割で、施工会社が図面どおりに施工しているかを監督します。ここで言う現場（プロジェクト）エンジニアは民間エンジニアリング会社の社内職名で、職務は現場の進捗管理、品質検査、協力会社との調整が中心です。職務の性質は似ていますが法的な立場は異なります。この違いが気になる場合は、応募時に採用部門へ職務の位置づけを直接確認することをおすすめします。 ## 出典 - 設計エンジニア／現場（半導体プロジェクト）エンジニアの職務内容、給与、学歴・資格条件：Step1ne 募集中求人「経験者 設計エンジニア」「研修 設計エンジニア」「経験者 半導体プロジェクトエンジニア」「研修 半導体プロジェクトエンジニア」の求人データ、Step1ne D1 データベース、確認日2026-09-30 - 設計側と現場側のキャリア分担に関する一般的な説明：〈エンジニアの6大種類を総まとめ！企業と求職者が知っておくべきエンジニア職務マップ〉、HNL Consultants：https://www.hnl-consultants.com/%E5%B7%A5%E7%A8%8B%E5%B8%AB/（確認日2026-09-30） - 監造の法的定義と職責の範囲：〈建築工事監理の完全解説：品質管理・進捗・安全の職責〉、TWProbe房產觀測站：https://twprobe.com/jianzhu-gongcheng-jianzao-zhineng-zongjian-zhinan/（確認日2026-09-30）
+
+      <h2 id="sec-7">よくある質問</h2>
+      <div>
+      </div>
+
+      <div class="cta"><p>この求人に興味がある、またはまず詳細を知りたい方へ</p><a class="btn-alt" href="/ja/jobs/engineering-design-engineer-hsinchu/">求人の詳細を見る</a></div>
+    </article>
+  </div>
+</main>
+
+
+<footer><div class="fw">德仁管理顧問有限公司 台北市内湖区康寧路三段54之7号3階</div></footer>
+
+<script>
+// 表格加水平捲動外框，避免手機橫向溢位
+document.querySelectorAll('article table').forEach(function(t){
+  var w=document.createElement('div'); w.className='tw';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
+// 閱讀進度
+var bar=document.getElementById('bar');
+function prog(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',prog,{passive:true}); prog();
+// 目錄跟隨
+var tns=[].slice.call(document.querySelectorAll('.tn'));
+var secs=tns.map(function(a){return document.getElementById(a.dataset.s)}).filter(Boolean);
+if('IntersectionObserver' in window && secs.length){
+  var cur=null;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) cur=e.target.id; });
+    tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  },{rootMargin:'-88px 0px -70% 0px'}).observe && secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===e.target.id)}); }
+      });
+    },{rootMargin:'-88px 0px -70% 0px'}).observe(s);
+  });
+}
+</script>
+
+<style>
+.s1ne-sc{position:fixed;z-index:60;left:0;right:0;bottom:0;display:flex;gap:10px;padding:10px max(14px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));background:rgba(255,255,255,.96);box-shadow:0 -6px 24px rgba(40,30,10,.12);transform:translateY(120%);transition:transform .25s ease}
+.s1ne-sc.on{transform:none}
+.s1ne-sc a{flex:1;display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:999px;font-weight:700;font-size:15px;text-decoration:none;white-space:nowrap}
+.s1ne-sc .p{background:#111827;color:#fff}
+.s1ne-sc .l{background:#fff;color:#111827;border:1.5px solid #d1d5db}
+.s1ne-sc a:focus-visible{outline:3px solid #1f2937;outline-offset:2px}
+@media (min-width:760px){.s1ne-sc{left:auto;right:24px;bottom:24px;border-radius:999px;padding:8px;box-shadow:0 8px 28px rgba(40,30,10,.18)}.s1ne-sc a{flex:none;padding:0 22px}}
+@media (prefers-reduced-motion:reduce){.s1ne-sc{transition:none}}
+body{padding-bottom:84px}
+@media (min-width:760px){body{padding-bottom:0}}
+</style>
+<div class="s1ne-sc" id="s1neSc" role="region" aria-label="迅速に動く">
+  <a class="l" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">LINEで問い合わせ</a> <a class="p" href="/ja/jobs/" data-cta="jobs_cta_click">現在の求人を見る</a>
+</div>
+<script>
+(function(){var b=document.getElementById('s1neSc');if(!b)return;
+function t(){b.classList.toggle('on',window.scrollY>380);}
+window.addEventListener('scroll',t,{passive:true});t();
+b.querySelector('.p').addEventListener('click',function(){try{gtag('event',this.getAttribute('data-cta'),{page_path:location.pathname,placement:'sticky'});}catch(e){}});})();
+</script>
+<!-- /s1ne-sticky-cta -->
+
+</body>
+</html>

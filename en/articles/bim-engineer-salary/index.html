@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  if (!e.target.closest) return;
+  // 2026-08-06：原本只抓 lin.ee。BIM 那群的下一步是「直接應徵」不是加 LINE，
+  // 不一起記的話，等於把那條路做出來卻量不到，實驗就白做了。
+  var a = e.target.closest('a[href*="lin.ee"], a[href^="/apply"]');
+  if (!a) return;
+  var isApply = (a.getAttribute('href') || '').indexOf('/apply') === 0;
+  gtag('event', isApply ? 'apply_click' : 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60),
+    // mid＝這次新加的文章中段；沒有標的就是原本頁首／頁尾那些
+    cta_slot: a.getAttribute('data-cta') || 'legacy'
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BIM Engineer Salaries: How Pay Grows from Entry Level to Senior, a Headhunter's View | Step1ne</title>
+<meta name="description" content="Modeler 35-45K, BIM engineer 38-60K, coordinator 50-70K, manager NT$900,000–1.2 million a year. This article breaks down salary bands across six levels, from Lv1 modeler to Lv6 VDC director, and explains what to add to get past the level where most people get stuck.">
+<meta name="keywords" content="BIM engineer salary,BIM engineer pay,BIM engineer starting salary,BIM salary,Revit salary,BIM engineer annual salary,BIM engineer compensation">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/en/articles/bim-engineer-salary/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Step1ne Referrals">
+<meta property="og:title" content="BIM engineer salaries: how pay rises from entry level to senior">
+<meta property="og:description" content="A full breakdown of monthly pay bands across six levels, from Lv1 modeler to Lv6 VDC director — and how to get past the step where most people get stuck.">
+<meta property="og:url" content="https://step1ne.com/en/articles/bim-engineer-salary/">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta name="theme-color" content="#F4F6F8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "BIM Engineer Salaries: How Pay Rises from Entry Level to Senior, from a Headhunter's View",
+  "description": "BIM engineer pay levels in Taiwan, broken into six tiers: Lv1 modeler (35-45K), Lv2 engineer (38-60K), Lv3 coordinator (50-70K), Lv4 Lead, and Lv5-6 manager (NT$900,000-1,200,000 a year), plus how to get past the Lv2-to-Lv3 divide where most people get stuck.",
+  "datePublished": "2026-07-27",
+  "dateModified": "2026-10-24",
+  "inLanguage": "zh-TW",
+  "author": {
+    "@type": "Organization",
+    "name": "Step1ne 德仁管理顧問有限公司",
+    "url": "https://step1ne.com/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "德仁管理顧問有限公司 (Step1ne)",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://step1ne.com/assets/step1ne-logo.png"
+    }
+  }
+}
+</script>
+
+<style>
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;
+  --wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:17px;line-height:1.95;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.35;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,select,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* 導覽 */
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+/* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
+
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
+.crumb{grid-column:1/-1;padding:22px 0 6px;font-size:13.5px;color:var(--slate-dim)}
+.crumb a{color:var(--slate)}
+.crumb a:hover{color:var(--brand-deep)}
+.crumb span{margin:0 8px;color:var(--rule)}
+
+/* 目錄軌：沿用全站 signature */
+.toc{position:sticky;top:92px;padding:8px 0 40px}
+.toc h2{font-size:13px;font-weight:700;color:var(--slate-dim);letter-spacing:.02em;margin-bottom:16px}
+.tns{position:relative;padding-left:22px}
+.tns::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.14))}
+.tn{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:14px;color:var(--slate);line-height:1.6;position:relative}
+.tn i{position:absolute;left:-22px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--rule);flex:0 0 auto}
+.tn:hover{color:var(--brand-deep)}
+.tn:hover i{border-color:var(--brand)}
+.tn.on{color:var(--ink);font-weight:700}
+.tn.on i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 4px rgba(46,169,223,.2)}
+.mtoc{display:none;margin:20px 0 0;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.mtoc summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15.5px;position:relative}
+.mtoc summary::-webkit-details-marker{display:none}
+.mtoc summary::after{content:"";position:absolute;right:20px;top:24px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.mtoc[open] summary::after{transform:rotate(-135deg)}
+.mtoc div{padding:0 18px 14px}
+.mtoc a{display:block;padding:9px 0;font-size:15px;color:var(--slate);border-top:1px solid var(--rule)}
+
+/* 文章本體 */
+article{padding:14px 0 60px;max-width:70ch}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--brand-deep);background:rgba(22,126,178,.07);border:1px solid rgba(22,126,178,.25);border-radius:5px;padding:4px 11px}
+article h1{margin-top:16px;font-size:clamp(28px,4.2vw,42px);line-height:1.28;letter-spacing:-.02em}
+.by{margin-top:18px;padding-bottom:20px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14px;color:var(--slate-dim)}
+.by a{color:var(--slate);border-bottom:1px solid var(--rule)}
+.by .d{font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+
+/* ★ Signature：直接答案 */
+.ans{margin-top:30px;background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:26px 30px}
+.ans .lab{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:10px}
+.ans p{font-size:19.5px;line-height:1.85;font-weight:500}
+.ans strong{font-weight:900}
+
+article h2{margin:52px 0 16px;font-size:25px;scroll-margin-top:92px}
+article h3{margin:34px 0 10px;font-size:19px}
+article h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-right:12px;border-radius:8px;background:var(--brand);color:#fff;font-family:var(--f-disp);font-size:17px;font-weight:700;vertical-align:2px}
+article p{margin-top:16px}
+article strong{font-weight:700}
+article a:not(.tn){color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.32)}
+article a:not(.tn):hover{border-bottom-color:var(--brand-deep)}
+article ul,article ol{margin:16px 0 0;padding-left:1.4em}
+article li{margin-top:9px}
+article table{width:100%;border-collapse:collapse;margin-top:22px;font-size:15.5px;background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+article th{text-align:left;background:var(--paper);font-weight:700;font-size:14px;color:var(--slate);padding:12px 14px;border-bottom:1px solid var(--rule)}
+article td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.75}
+article tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+article details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+article details summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+article details summary::-webkit-details-marker{display:none}
+article details summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+article details[open] summary::after{transform:rotate(-135deg)}
+article details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid var(--rule);color:var(--slate)}
+
+.foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
+.cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
+.cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
+footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+.fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.note{max-width:var(--wrap);margin:0 auto 46px;padding-inline:var(--gut)}
+.note div{background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid #B45309;border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.note b{color:#5A3D0C}
+
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .mtoc{display:block}
+}
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  body{font-size:16.5px}
+  .ans{padding:22px;border-radius:0 8px 8px 0}
+  .ans p{font-size:18px}
+  article h2{font-size:22px;margin-top:42px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+<!--i18n-hreflang-->
+<link rel="alternate" hreflang="zh-Hant" href="https://step1ne.com/articles/bim-engineer-salary/">
+<link rel="alternate" hreflang="ja" href="https://step1ne.com/ja/articles/bim-engineer-salary/">
+<link rel="alternate" hreflang="en" href="https://step1ne.com/en/articles/bim-engineer-salary/">
+<link rel="alternate" hreflang="x-default" href="https://step1ne.com/articles/bim-engineer-salary/">
+<style>.s1-lang{max-width:1100px;margin:0 auto;padding:10px 16px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.s1-lang a,.s1-lang b{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid #d9dce3;background:#fff;font-size:14px;font-weight:600;color:#4a5060;text-decoration:none}.s1-lang b{background:#23262d;border-color:#23262d;color:#fff}.s1-lang a:hover{color:#23262d;border-color:#9aa0ad}.s1-lang a:focus-visible{outline:3px solid #1880B4;outline-offset:2px}.s1-note{max-width:1100px;margin:10px auto 0;padding:0 16px}.s1-note p{margin:0;padding:12px 14px;border-radius:12px;background:#eef4fb;border:1px solid #c9dcef;color:#1d3a57;font-size:14.5px;line-height:1.7}</style>
+<!--/i18n-hreflang-->
+</head>
+
+<body>
+<div id="bar"></div>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/en/"><img src="/assets/step1ne-logo.png" alt="Step1ne"><b>Step1ne</b></a>
+    <nav class="hd-nav">
+      <a href="/en/commission-recruiting/">For Employers</a><a href="/en/jobs/">Jobs</a><a class="on" href="/en/articles/">Headhunting Insights</a><a href="/en/talent/">Step1ne Referrals</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">Ask on LINE</a>
+    <button class="hd-burger" type="button" aria-label="Open menu" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/en/commission-recruiting/">For Employers</a><a href="/en/jobs/">Jobs</a><a href="/en/articles/">Articles</a><a href="/en/talent/">Step1ne Referrals</a> <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">Contact on LINE</a>
+  </div>
+</header>
+<!--i18n-switch--><nav class="s1-lang" aria-label="Change language"><a href="/articles/bim-engineer-salary/" hreflang="zh-Hant" lang="zh-Hant">中文</a><a href="/ja/articles/bim-engineer-salary/" hreflang="ja" lang="ja">日本語</a><b lang="en" aria-current="true">English</b></nav><!--/i18n-switch-->
+
+
+<main class="shell">
+  <nav class="crumb" aria-label="Breadcrumb"><a href="/en/">Home</a><span>/</span><a href="/en/articles/">Recruiting Insights</a><span>/</span>BIM engineer salaries: how do the numbers jump from entry level to senior?</nav>
+
+  <aside class="toc" aria-label="Contents">
+    <h2>This article has 6 sections</h2>
+    <div class="tns"><a class="tn" href="#sec-1" data-s="sec-1"><i></i><span>The six BIM job levels — pay moves with them</span></a> <a class="tn" href="#sec-2" data-s="sec-2"><i></i><span>Why does the same "NT$40,000 a month" mean very different take-home pay?</span></a> <a class="tn" href="#sec-3" data-s="sec-3"><i></i><span>Which qualifications actually show up in your pay?</span></a> <a class="tn" href="#sec-4" data-s="sec-4"><i></i><span>Entering the field with no experience: how to choose your first job</span></a> <a class="tn" href="#sec-5" data-s="sec-5"><i></i><span>FAQ</span></a> <a class="tn" href="#sec-6" data-s="sec-6"><i></i><span>Want to know what your profile is worth?</span></a></div>
+  </aside>
+
+  <div>
+    <details class="mtoc"><summary>Contents (6 sections)</summary><div><a href="#sec-1">The six BIM levels—this is how pay steps up</a> <a href="#sec-2">Why does the same "NT$40,000 a month" mean very different take-home pay?</a> <a href="#sec-3">Which qualifications actually show up in your pay?</a> <a href="#sec-4">New to the field: how to choose your first job</a> <a href="#sec-5">FAQ</a> <a href="#sec-6">Want to know what your profile is worth?</a></div></details>
+    <article>
+      <span class="tag">Job seeker guide · A headhunter's view</span>
+      <h1>BIM Engineer Salaries: How the Numbers Rise from Entry Level to Senior</h1>
+      <div class="by">
+        <span>By: <a href="/en/about/">Step1ne Executive Search Consultant Team</a></span> <time class="d" datetime="2026-07-27">Published 2026-07-27</time> <span class="d">About 8 min</span>
+      </div>
+
+      <div class="ans">
+        <div class="lab">Short answer</div>
+        <p>In Taiwan, BIM engineer pay depends on level rather than years of experience alone. BIM modelers (0–2 years) earn about 35–45K; BIM engineers (2–4 years) about 38–60K, with the median at 48–55K; BIM coordinators (4–6 years) about 50–70K; and above that, BIM managers / VDC directors move into the NT$900,000–1.2 million annual range. Two jobs both titled "BIM engineer" can actually be a full level apart.</p>
+      </div>
+
+      <h2 id="sec-1">BIM's six job levels: this is how pay rises</h2>
+    <p>Most salary articles give a single range like "NT$35,000 to NT$55,000," but that doesn't help you plan a career. What really determines your pay is not years of experience but which level you're at. BIM roles in Taiwan's industry can be roughly divided into six levels (based on Autodesk's certification framework and common practice):</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Level</th><th>Common job titles</th><th>Years of experience</th><th>Monthly pay band</th><th>What it actually involves</th></tr></thead>
+        <tbody>
+          <tr><td data-label="級距"><strong>Lv1</strong></td><td data-label="常見職稱">BIM modeler / drafter</td><td data-label="年資">0–2 years</td><td data-label="月薪帶"><strong>35–45K</strong></td><td data-label="實際在做什麼">Single-component modeling (LOD 100–300), no direct reports. Tools are mainly Revit basics + AutoCAD</td></tr>
+          <tr><td data-label="級距"><strong>Lv2</strong></td><td data-label="常見職稱">BIM Engineer</td><td data-label="年資">2–4 years</td><td data-label="月薪帶"><strong>38–60K</strong><br>Median 48–55K</td><td data-label="實際在做什麼">Leads models for a single discipline (MEP / architecture / structure) and starts producing clash detection reports. Requires advanced Revit + basic Navisworks</td></tr>
+          <tr><td data-label="級距"><strong>Lv3</strong></td><td data-label="常見職稱">BIM Coordinator</td><td data-label="年資">4–6 years</td><td data-label="月薪帶"><strong>50–70K</strong></td><td data-label="實際在做什麼">Cross-discipline integration and coordination, setting LOD standards, leading 1–2 people, running clash detection meetings. Requires BIM 360/ACC collaboration experience</td></tr>
+          <tr><td data-label="級距"><strong>Lv4</strong></td><td data-label="常見職稱">BIM Lead / Senior coordinator</td><td data-label="年資">6–9 years</td><td data-label="月薪帶"><strong>50–70K and up</strong></td><td data-label="實際在做什麼">Writes the project-wide BEP, acts as the communication point between owner, designer and contractor, and leads 3–5 people. Dynamo automation is a plus; steel-structure projects require Tekla</td></tr>
+          <tr><td data-label="級距"><strong>Lv5–6</strong></td><td data-label="常見職稱">BIM Manager / VDC Director</td><td data-label="年資">9+ years</td><td data-label="月薪帶"><strong>Annual salary NT$900,000–1.2 million</strong></td><td data-label="實際在做什麼">Department management; setting company-level BIM standards</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">These figures combine public salary reports from 104, 1111, 比薪水, GoodJob and others, cross-checked against terms from openings we've actually handled. BIM roles have relatively few salary disclosures to begin with, and companies define "BIM engineer" very differently, so treat the above as directional reference only — actual pay depends on each individual offer.</p>
+
+    <div class="insight">
+      <div class="label">A headhunter's view</div>
+      <p><strong>Going from Lv2 to Lv3 brings the biggest pay jump on the whole path, and it's where the most people get stuck.</strong> The difference isn't how fast you draw in Revit. It's whether you can work "across disciplines": putting the MEP, structural and architectural models together, finding clashes, calling everyone to a meeting, and turning disputes into decisions.</p>
+      <p>What we see most often when we submit candidates: someone has five years of experience, but all five were spent modeling the same type of component. On paper it looks like Lv3 tenure, but the actual skill is still Lv2, which hurts badly in salary negotiations. If you've been at Lv2 for two years or more, what you should push for isn't a raise—it's <strong>the chance to take part in coordination meetings</strong>. That's what lets your next job jump a level.</p>
+    </div>
+
+    <h2 id="sec-2">Why does the same “NT$40,000 monthly salary” leave such different take-home pay?</h2>
+    <p>Don't judge BIM openings by the monthly salary alone — these three items often affect your actual annual take-home more than the base salary itself:</p>
+
+    <h3>1. Months of year-end bonus</h3>
+    <p>Construction and plant-building project roles commonly include a fixed year-end bonus of 1–2 months' pay. At a monthly salary of NT$40,000, a 2-month bonus adds NT$80,000 a year, the equivalent of about NT$6,600 more per month. So when negotiating an offer, “NT$40,000 a month + 2 months' year-end bonus” is effectively higher than “NT$43,000 a month with no bonus.”</p>
+
+    <h3>2. How is overtime calculated?</h3>
+    <p>In BIM, overtime during project crunch periods is the norm. Whether overtime is paid for actual hours, converted to comp time, and whether there's a cap directly determines your real hourly wage. Be sure to ask about this clearly in the interview, and ask how it actually works in practice, not just what the policy says.</p>
+
+    <h3>3. Transportation and housing</h3>
+    <p>Plant-based projects are often in Miaoli, Taichung, Tainan, and similar areas. If the company provides shuttle buses and dormitories, that's effectively thousands saved every month on commuting and rent. Applicants from outside the area should factor this in when evaluating an offer, or they'll underestimate the real compensation.</p>
+
+    <div class="insight">
+      <div class="label">A headhunter's view</div>
+      <p>In our actual placement experience, the most common misjudgment is <strong>turning down an interview by comparing monthly salary alone</strong>. One candidate declined a job offering "NT$38,000 per month + 2 months' year-end bonus + company dormitory" and chose a company offering "NT$42,000 per month, no year-end bonus, find your own housing." Their actual annual take-home ended up nearly NT$100,000 lower, before even counting the cost of commuting time.</p>
+      <p>When negotiating an offer, we suggest asking the company directly to convert it into "total annual cash." Companies are usually willing to answer this, and it lets you truly compare two offers.</p>
+    </div>
+
+    <h2 id="sec-3">Which factors actually show up in your pay?</h2>
+    <p>Based on placements we've actually closed, these four factors most often push the number up, ranked by impact:</p>
+    <ul>
+      <li><strong>Being able to build a model and produce drawings on your own</strong>, without someone watching over you — this is the dividing line between "assistant" and "engineer," and the step with the biggest pay jump</li>
+      <li><strong>Experience on similar projects</strong>: Fab construction and facilities project experience translates directly into the offer for other fab construction roles</li>
+      <li><strong>Cross-discipline coordination</strong> — the ability to talk with structural, MEP, and construction teams and converge on solutions to clashes; this is what mid- and senior-level roles are really paying for</li>
+      <li><strong>Tools beyond Revit</strong> — Navisworks, Dynamo, or other collaboration platforms — are a plus, not a requirement</li>
+    </ul>
+
+    <div class="insight">
+      <div class="label">A headhunter's view</div>
+      <p>On the other hand, <strong>certifications do much less for BIM salaries than most people think</strong>. In interviews, employers almost always ask "What projects have you worked on, how large were the models, how did you handle clashes?" Very few hiring managers treat a certificate as grounds for negotiating pay. If you really want a raise, turning your past projects into a clear portfolio you can talk through is far more effective than earning another certificate.</p>
+    </div>
+
+    <h2 id="sec-4">Breaking in with no experience: how to choose your first job</h2>
+    <p>If you have no BIM background at all, the starting salary isn't what matters most in your first job. The gap between NT$35,000 and NT$38,000 will be completely wiped out once you have two years of experience. What you should really look at are these three things:</p>
+    <ul>
+      <li><strong>Whether there's a formal training program</strong>: is there someone to guide you and training material, or are you left to figure it out yourself?</li>
+      <li><strong>How much of the full project workflow you'll touch</strong>: only modeling versus taking part in coordination, checking, and drawing output makes for a completely different résumé two years later</li>
+      <li><strong>How long the projects run</strong>: a long-term fab construction project lets you go through the full process; constantly switching between short, small jobs leaves your experience fragmented</li>
+    </ul>
+    <p>That's why jobs offering "a large fab construction project plus full company training" are usually a better starting point for career changers—even if the starting pay isn't the highest. For a full guide to entering the field from an unrelated major, see <a href="/en/articles/bim-career-change/">No related degree—can I still switch careers to BIM engineering?</a></p>
+
+    <div class="callout">
+      <h3>Note: if you're 29 or under and want to change careers, government subsidies are available first</h3>
+      <p>Taiwan's Ministry of Labor runs the "Industry Elite Program" (產業新尖兵計畫), which subsidizes training costs of up to NT$100,000 for unemployed (or job-seeking) young people aged 15–29 (you pay NT$10,000 upfront, which can be refunded if you find a job within 90 days of completing the course). Trainees who meet the attendance requirement also receive a learning incentive of NT$8,000 per month for up to 12 months. The designated courses include BIM/Revit classes, so you can build software skills at almost no cost before entering the job market. For the actual course list and eligibility, please refer to the announcements on the <a href="https://elite.taiwanjobs.gov.tw/" target="_blank" rel="noopener">Industry Elite Program website</a>.</p>
+    </div>
+
+    <aside data-exp="cta-mid-2026-08-28"><p>STEP1NE Now Hiring</p><h3>Hiring in Hsinchu and Houli, Taichung: no experience needed, permanent employment</h3><p>BIM engineers for semiconductor fab expansion projects are currently being hired at two locations: <strong>Hsinchu Science Park</strong> and <strong>Houli, Taichung</strong>, as <strong>full-time employees</strong> (not staffing-agency or contract positions). Monthly salary is <strong>NT$40,833–50,167</strong> (based on education and how related your major is). A bachelor's degree or above in any field is required, <strong>no experience needed</strong>. The company provides full training, and once you are on site, a team of design PMs and design engineers will guide you until you can work independently. Hours are 08:30–17:30, five days a week. Houli, Taichung also offers a housing allowance of NT$5,000 per month. Today's AI demand is driving capacity expansion in the memory industry, and building this hands-on experience early is an asset you can factor into your long-term career plans. If you'd like to ask questions before deciding, that's fine too. No need to send a résumé first.</p><div><a href="/apply-quick/?job=semiconductor-bim-mep-drafting-trainee-hsinchu&amp;utm_source=website&amp;utm_medium=article_cta&amp;utm_campaign=mid-bim" data-cta="mid-bim">Apply for Hsinchu</a><a href="/apply-quick/?job=bim-engineer-houli&amp;utm_source=website&amp;utm_medium=article_cta&amp;utm_campaign=mid-bim" data-cta="mid-bim">Apply for Houli, Taichung</a><a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-bim">Ask us on LINE first</a></div></aside><h2 id="sec-5">FAQ</h2>
+    <div>
+      <details>
+        <summary>
+          <span>What's the starting salary for a BIM engineer?</span><span class="faq-icon">+</span>
+        </summary>
+        <p>Career changers without experience typically start at NT$35,000–45,000 a month, with the exact figure usually set by education level and how related your major is. If the role also has a fixed year-end bonus (commonly 1–2 months), annual pay is noticeably higher than the monthly figure suggests.</p>
+      </details>
+      <details>
+        <summary>
+          <span>Can I become a BIM engineer without a related degree?</span><span class="faq-icon">+</span>
+        </summary>
+        <p>Yes. Some companies with large hiring needs open roles to any major and provide in-house training, teaching BIM software like Revit from scratch. These openings focus on willingness to learn and on following site work rules. Starting pay for non-related majors may be slightly lower, but growth after you start depends mainly on the projects you actually work on.</p>
+      </details>
+      <details>
+        <summary>
+          <span>Where is the salary ceiling for BIM engineers?</span><span class="faq-icon">+</span>
+        </summary>
+        <p>Modeling-focused roles (Lv1–Lv2) top out at roughly NT$50,000-something to NT$60,000 a month. To go further you need to shift roles: a BIM coordinator (Lv3, cross-discipline integration) earns about 50–70K, a BIM Lead (Lv4, responsible for the project-wide BEP and three-party communication) earns more, and BIM manager/VDC director (Lv5–6) reaches an annual salary range of NT$900,000–1,200,000. The key turning point is going from “the person who draws the model” to “the person who manages model standards and coordinates clashes.”</p>
+      </details>
+      <details>
+        <summary>
+          <span>How should I bring up salary?</span><span class="faq-icon">+</span>
+        </summary>
+        <p>First ask "roughly what's the total annual cash pay," counting monthly salary, year-end bonus, overtime and allowances together, before discussing any single figure. The advantage of applying through a headhunter is that the consultant can handle salary discussions for you, so you don't have to name a number in the interview, and you can know the reasonable range for the role in advance.</p>
+      </details>
+    </div>
+
+    <div>
+      <h2 id="sec-6">Want to know what your profile is worth?</h2>
+      <p>Add us on LINE to chat with a consultant. We'll give you a realistic salary range based on your current experience, and you can also browse the BIM openings currently available.</p>
+      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">Ask us via our LINE official account</a>
+      <p><a href="/en/jobs/semiconductor-bim-mep-drafting-trainee-hsinchu/">View the Hsinchu BIM opening →</a></p><p><a href="/en/jobs/bim-engineer-houli/">View BIM openings in Houli, Taichung →</a></p><p><a href="/en/construction/">See more construction engineering openings →</a></p>
+    </div>
+  <p>Further reading: <a href="/en/articles/what-is-bim-engineer/">What is a BIM engineer, and how is it different from a drafter?</a> · <a href="/en/articles/how-to-enter-construction-industry/">How to get into the construction industry: a guide for newcomers from other majors</a></p>
+
+      
+<div class="cta">
+        <p>Want to know what you could actually negotiate with your current profile? Add us on LINE and tell us your years of experience and the tools you use.</p>
+          <a class="btn-alt" href="/en/construction/">View BIM engineer openings</a> <a class="btn-line" href="https://lin.ee/XcSWPzM">Ask a consultant on LINE</a>
+      </div>
+    
+<div class="related-jobs-box" style="margin:26px 0;padding:18px 20px;border:1px solid #D9E0E6;border-radius:14px;background:#EAF4FA"><strong style="display:block;margin-bottom:9px;color:#0F5F87;font-size:15px">🔎 Related openings</strong><div style="display:flex;flex-wrap:wrap;gap:8px 14px;font-size:14.5px"><a href="/en/jobs/semiconductor-bim-mep-drafting-trainee-hsinchu/">BIM Engineer (Hsinchu)</a> · <a href="/en/jobs/bim-engineer-houli/">BIM Engineer (Houli, Taichung)</a> · <a href="/en/jobs/">See all openings</a></div></div>
+</article>
+  </div>
+</main>
+
+
+<footer><div class="fw">德仁管理顧問有限公司, 3F, No. 54-7, Sec. 3, Kangning Rd., Neihu Dist., Taipei City</div></footer>
+
+<script>
+// 表格加水平捲動外框，避免手機橫向溢位
+document.querySelectorAll('article table').forEach(function(t){
+  var w=document.createElement('div'); w.className='tw';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
+// 閱讀進度
+var bar=document.getElementById('bar');
+function prog(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',prog,{passive:true}); prog();
+// 目錄跟隨
+var tns=[].slice.call(document.querySelectorAll('.tn'));
+var secs=tns.map(function(a){return document.getElementById(a.dataset.s)}).filter(Boolean);
+if('IntersectionObserver' in window && secs.length){
+  var cur=null;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) cur=e.target.id; });
+    tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  },{rootMargin:'-88px 0px -70% 0px'}).observe && secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===e.target.id)}); }
+      });
+    },{rootMargin:'-88px 0px -70% 0px'}).observe(s);
+  });
+}
+</script>
+
+<style>
+.s1ne-sc{position:fixed;z-index:60;left:0;right:0;bottom:0;display:flex;gap:10px;padding:10px max(14px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));background:rgba(255,255,255,.96);box-shadow:0 -6px 24px rgba(40,30,10,.12);transform:translateY(120%);transition:transform .25s ease}
+.s1ne-sc.on{transform:none}
+.s1ne-sc a{flex:1;display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:999px;font-weight:700;font-size:15px;text-decoration:none;white-space:nowrap}
+.s1ne-sc .p{background:#111827;color:#fff}
+.s1ne-sc .l{background:#fff;color:#111827;border:1.5px solid #d1d5db}
+.s1ne-sc a:focus-visible{outline:3px solid #1f2937;outline-offset:2px}
+@media (min-width:760px){.s1ne-sc{left:auto;right:24px;bottom:24px;border-radius:999px;padding:8px;box-shadow:0 8px 28px rgba(40,30,10,.18)}.s1ne-sc a{flex:none;padding:0 22px}}
+@media (prefers-reduced-motion:reduce){.s1ne-sc{transition:none}}
+body{padding-bottom:84px}
+@media (min-width:760px){body{padding-bottom:0}}
+</style>
+<div class="s1ne-sc" id="s1neSc" role="region" aria-label="Fast action">
+  <a class="l" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">Ask on LINE</a> <a class="p" href="/en/jobs/" data-cta="jobs_cta_click">See current openings</a>
+</div>
+<script>
+(function(){var b=document.getElementById('s1neSc');if(!b)return;
+function t(){b.classList.toggle('on',window.scrollY>380);}
+window.addEventListener('scroll',t,{passive:true});t();
+b.querySelector('.p').addEventListener('click',function(){try{gtag('event',this.getAttribute('data-cta'),{page_path:location.pathname,placement:'sticky'});}catch(e){}});})();
+</script>
+<!-- /s1ne-sticky-cta -->
+
+</body>
+</html>

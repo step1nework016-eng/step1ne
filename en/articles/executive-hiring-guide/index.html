@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  if (!e.target.closest) return;
+  // 2026-08-06：原本只抓 lin.ee。BIM 那群的下一步是「直接應徵」不是加 LINE，
+  // 不一起記的話，等於把那條路做出來卻量不到，實驗就白做了。
+  var a = e.target.closest('a[href*="lin.ee"], a[href^="/apply"]');
+  if (!a) return;
+  var isApply = (a.getAttribute('href') || '').indexOf('/apply') === 0;
+  gtag('event', isApply ? 'apply_click' : 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60),
+    // mid＝這次新加的文章中段；沒有標的就是原本頁首／頁尾那些
+    cta_slot: a.getAttribute('data-cta') || 'legacy'
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Executive search still unfilled after six months? Five bottlenecks and how to fix them｜Step1ne</title>
+<meta name="description" content="When executive roles stay open for a long time, it&#x27;s usually not because there&#x27;s no one in the market but because the process has bottlenecks. Drawing on headhunting practice, this article breaks down the five most common causes (how the JD is written, salary band, decision pace, interview design, confidentiality arrangements) and what companies can adjust.">
+<meta name="keywords" content="executive recruitment,executive search,senior management hiring,headhunter engagement,can&#x27;t fill management role,executive headhunting,corporate hiring">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/en/articles/executive-hiring-guide/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Step1ne Referrals">
+<meta property="og:title" content="Executive Role Still Open After Six Months? Five Bottlenecks and How to Fix Them">
+<meta property="og:description" content="Most senior roles that stay open for long periods aren&#x27;t short of people in the market; the problem is the process. Five bottlenecks from a headhunter&#x27;s practical perspective.">
+<meta property="og:url" content="https://step1ne.com/en/articles/executive-hiring-guide/">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta name="theme-color" content="#F4F6F8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Executive Role Still Open After Six Months? Five Bottlenecks and How to Fix Them",
+  "description": "From the practical perspective of a headhunter handling executive searches, we break down five common reasons senior roles stay unfilled: job descriptions written as lists of requirements rather than problems to solve, salary bands out of step with the market, decision-makers joining the process too late, interview design that doesn't match the level, and inadequate arrangements for confidentiality and internal communication, along with concrete adjustments companies can make.",
+  "datePublished": "2026-07-27",
+  "dateModified": "2026-07-27",
+  "inLanguage": "zh-TW",
+  "author": {
+    "@type": "Organization",
+    "name": "Step1ne 德仁管理顧問有限公司",
+    "url": "https://step1ne.com/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "德仁管理顧問有限公司 (Step1ne)",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://step1ne.com/assets/step1ne-logo.png"
+    }
+  }
+}
+</script>
+
+<style>
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;
+  --wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:17px;line-height:1.95;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.35;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,select,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* 導覽 */
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+/* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
+
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
+.crumb{grid-column:1/-1;padding:22px 0 6px;font-size:13.5px;color:var(--slate-dim)}
+.crumb a{color:var(--slate)}
+.crumb a:hover{color:var(--brand-deep)}
+.crumb span{margin:0 8px;color:var(--rule)}
+
+/* 目錄軌：沿用全站 signature */
+.toc{position:sticky;top:92px;padding:8px 0 40px}
+.toc h2{font-size:13px;font-weight:700;color:var(--slate-dim);letter-spacing:.02em;margin-bottom:16px}
+.tns{position:relative;padding-left:22px}
+.tns::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.14))}
+.tn{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:14px;color:var(--slate);line-height:1.6;position:relative}
+.tn i{position:absolute;left:-22px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--rule);flex:0 0 auto}
+.tn:hover{color:var(--brand-deep)}
+.tn:hover i{border-color:var(--brand)}
+.tn.on{color:var(--ink);font-weight:700}
+.tn.on i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 4px rgba(46,169,223,.2)}
+.mtoc{display:none;margin:20px 0 0;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.mtoc summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15.5px;position:relative}
+.mtoc summary::-webkit-details-marker{display:none}
+.mtoc summary::after{content:"";position:absolute;right:20px;top:24px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.mtoc[open] summary::after{transform:rotate(-135deg)}
+.mtoc div{padding:0 18px 14px}
+.mtoc a{display:block;padding:9px 0;font-size:15px;color:var(--slate);border-top:1px solid var(--rule)}
+
+/* 文章本體 */
+article{padding:14px 0 60px;max-width:70ch}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--brand-deep);background:rgba(22,126,178,.07);border:1px solid rgba(22,126,178,.25);border-radius:5px;padding:4px 11px}
+article h1{margin-top:16px;font-size:clamp(28px,4.2vw,42px);line-height:1.28;letter-spacing:-.02em}
+.by{margin-top:18px;padding-bottom:20px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14px;color:var(--slate-dim)}
+.by a{color:var(--slate);border-bottom:1px solid var(--rule)}
+.by .d{font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+
+/* ★ Signature：直接答案 */
+.ans{margin-top:30px;background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:26px 30px}
+.ans .lab{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:10px}
+.ans p{font-size:19.5px;line-height:1.85;font-weight:500}
+.ans strong{font-weight:900}
+
+article h2{margin:52px 0 16px;font-size:25px;scroll-margin-top:92px}
+article h3{margin:34px 0 10px;font-size:19px}
+article h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-right:12px;border-radius:8px;background:var(--brand);color:#fff;font-family:var(--f-disp);font-size:17px;font-weight:700;vertical-align:2px}
+article p{margin-top:16px}
+article strong{font-weight:700}
+article a:not(.tn){color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.32)}
+article a:not(.tn):hover{border-bottom-color:var(--brand-deep)}
+article ul,article ol{margin:16px 0 0;padding-left:1.4em}
+article li{margin-top:9px}
+article table{width:100%;border-collapse:collapse;margin-top:22px;font-size:15.5px;background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+article th{text-align:left;background:var(--paper);font-weight:700;font-size:14px;color:var(--slate);padding:12px 14px;border-bottom:1px solid var(--rule)}
+article td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.75}
+article tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+article details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+article details summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+article details summary::-webkit-details-marker{display:none}
+article details summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+article details[open] summary::after{transform:rotate(-135deg)}
+article details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid var(--rule);color:var(--slate)}
+
+.foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
+.cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
+.cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
+footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+.fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.note{max-width:var(--wrap);margin:0 auto 46px;padding-inline:var(--gut)}
+.note div{background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid #B45309;border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.note b{color:#5A3D0C}
+
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .mtoc{display:block}
+}
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  body{font-size:16.5px}
+  .ans{padding:22px;border-radius:0 8px 8px 0}
+  .ans p{font-size:18px}
+  article h2{font-size:22px;margin-top:42px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+<!--i18n-hreflang-->
+<link rel="alternate" hreflang="zh-Hant" href="https://step1ne.com/articles/executive-hiring-guide/">
+<link rel="alternate" hreflang="ja" href="https://step1ne.com/ja/articles/executive-hiring-guide/">
+<link rel="alternate" hreflang="en" href="https://step1ne.com/en/articles/executive-hiring-guide/">
+<link rel="alternate" hreflang="x-default" href="https://step1ne.com/articles/executive-hiring-guide/">
+<style>.s1-lang{max-width:1100px;margin:0 auto;padding:10px 16px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.s1-lang a,.s1-lang b{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid #d9dce3;background:#fff;font-size:14px;font-weight:600;color:#4a5060;text-decoration:none}.s1-lang b{background:#23262d;border-color:#23262d;color:#fff}.s1-lang a:hover{color:#23262d;border-color:#9aa0ad}.s1-lang a:focus-visible{outline:3px solid #1880B4;outline-offset:2px}.s1-note{max-width:1100px;margin:10px auto 0;padding:0 16px}.s1-note p{margin:0;padding:12px 14px;border-radius:12px;background:#eef4fb;border:1px solid #c9dcef;color:#1d3a57;font-size:14.5px;line-height:1.7}</style>
+<!--/i18n-hreflang-->
+</head>
+
+<body>
+<div id="bar"></div>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/en/"><img src="/assets/step1ne-logo.png" alt="Step1ne"><b>Step1ne</b></a>
+    <nav class="hd-nav">
+      <a href="/en/commission-recruiting/">For Employers</a><a href="/en/jobs/">Jobs</a><a class="on" href="/en/articles/">Headhunting Insights</a><a href="/en/talent/">Step1ne Referrals</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">Ask on LINE</a>
+    <button class="hd-burger" type="button" aria-label="Open menu" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/en/commission-recruiting/">For Employers</a><a href="/en/jobs/">Jobs</a><a href="/en/articles/">Articles</a><a href="/en/talent/">Step1ne Referrals</a> <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">Contact on LINE</a>
+  </div>
+</header>
+<!--i18n-switch--><nav class="s1-lang" aria-label="Change language"><a href="/articles/executive-hiring-guide/" hreflang="zh-Hant" lang="zh-Hant">中文</a><a href="/ja/articles/executive-hiring-guide/" hreflang="ja" lang="ja">日本語</a><b lang="en" aria-current="true">English</b></nav><!--/i18n-switch-->
+
+
+<main class="shell">
+  <nav class="crumb" aria-label="Breadcrumb"><a href="/en/">Home</a><span>/</span><a href="/en/articles/">Headhunting Column</a><span>/</span>Senior role open for six months and still no hire?</nav>
+
+  <aside class="toc" aria-label="Contents">
+    
+<div style="font-size:14.5px;opacity:.92;margin-bottom:15px;line-height:1.6">Executive search, permanent hiring, staffing: fees only on success, nothing if no one starts, with transparent pricing.</div><a href="/en/commission-recruiting/" style="display:inline-block;background:#fff;color:#0F5F87;font-weight:700;padding:11px 20px;border-radius:10px;text-decoration:none;margin:0 8px 8px 0">See our outsourced recruitment plans →</a><a href="https://lin.ee/XcSWPzM" style="display:inline-block;background:#06C755;color:#fff;font-weight:700;padding:11px 20px;border-radius:10px;text-decoration:none">Ask on LINE</a></div>
+<h2>This article has 9 sections</h2>
+    <div class="tns"><a class="tn" href="#sec-1" data-s="sec-1"><i></i><span>First, rule out one assumption: is there really no one out there?</span></a> <a class="tn" href="#sec-2" data-s="sec-2"><i></i><span>Bottleneck 1: The JD is written as a list of requirements, not as a problem to solve</span></a> <a class="tn" href="#sec-3" data-s="sec-3"><i></i><span>Bottleneck 2: Your salary band lags the market and nobody has noticed</span></a> <a class="tn" href="#sec-4" data-s="sec-4"><i></i><span>Bottleneck 3: Decision-makers join the process too late</span></a> <a class="tn" href="#sec-5" data-s="sec-5"><i></i><span>Bottleneck 4: Interview design isn't adjusted for seniority</span></a> <a class="tn" href="#sec-6" data-s="sec-6"><i></i><span>Bottleneck 5: Confidentiality and internal communication aren't planned</span></a> <a class="tn" href="#sec-7" data-s="sec-7"><i></i><span>When should you engage a headhunter, and when don't you need one?</span></a> <a class="tn" href="#sec-8" data-s="sec-8"><i></i><span>FAQ</span></a> <a class="tn" href="#sec-9" data-s="sec-9"><i></i><span>Senior role stuck? Let's talk first</span></a></div>
+  </aside>
+
+  <div>
+    <details class="mtoc"><summary>Contents (9 sections)</summary><div><a href="#sec-1">First, drop one assumption: is there really no one out there?</a> <a href="#sec-2">Bottleneck 1: The JD is written as “requirements,” not “problems”</a> <a href="#sec-3">Bottleneck 2: The salary band lags the market and no one has noticed</a> <a href="#sec-4">Bottleneck 3: Decision-makers join the process too late</a> <a href="#sec-5">Bottleneck 4: Interview design isn't adjusted for seniority</a> <a href="#sec-6">Bottleneck 5: Confidentiality and internal communication aren't arranged</a> <a href="#sec-7">When to engage a headhunter, and when you don't need one</a> <a href="#sec-8">FAQ</a> <a href="#sec-9">Executive search stalled? Let's talk first</a></div></details>
+    <article>
+      <span class="tag">Employer Guide · A Headhunter's View</span>
+      <h1>A senior opening has been up for six months and still no hire?</h1>
+      <div class="by">
+        <span>By <a href="/en/about/">Step1ne Executive Search Team</a></span> <time class="d" datetime="2026-07-27">Published 2026-07-27</time> <span class="d">About 9 min</span>
+      </div>
+
+      <div class="ans">
+        <div class="lab">Short answer</div>
+        <p>When senior roles stay unfilled for a long time, <strong>more than 80% of the time it isn't that "there's no one in the market"; the process itself is driving people away</strong>. The five most common sticking points: the job description lists requirements instead of the problems to solve, the salary band lags the market, decision-makers join the process too late, the interview design isn't adjusted to the level of the role, and confidentiality and internal communication aren't planned. All five sit on the company's side, which means all five can be fixed.</p>
+<div class="employer-cta" style="margin:24px 0;padding:22px 24px;border-radius:16px;background:linear-gradient(135deg,#167EB2,#0F5F87);color:#fff"><div style="font-size:18px;font-weight:800;margin-bottom:6px">Are you an employer looking to hire?</div><div style="font-size:14.5px;opacity:.92;margin-bottom:15px;line-height:1.6">Executive search, permanent hiring, staffing: fees only on success, nothing if no one starts, with transparent pricing.</div><a href="/en/commission-recruiting/" style="display:inline-block;background:#fff;color:#0F5F87;font-weight:700;padding:11px 20px;border-radius:10px;text-decoration:none;margin:0 8px 8px 0">See our outsourced recruitment plans →</a><a href="https://lin.ee/XcSWPzM" style="display:inline-block;background:#06C755;color:#fff;font-weight:700;padding:11px 20px;border-radius:10px;text-decoration:none">Ask on LINE</a></div>
+
+      </div>
+
+      <h2 id="sec-1">First, drop one assumption: are there really no people out there?</h2>
+    <p>When a senior role has been open for six months, the most common conclusion inside the company is “there just aren't enough people like this on the market.” Sometimes that's true: in some extremely niche areas (say, a project lead who understands both a specific manufacturing process and overseas plant construction), there may be only twenty-some people in all of Taiwan.</p>
+    <p>But more often, that's not the case. When we take on these "searching forever" assignments, our first step is usually a market mapping: listing every person who fits the criteria one by one. <strong>The result is often a list of thirty or forty people, a dozen or so of whom could be approached on reasonable terms.</strong> The people exist; the problem is why they don't come in, or why they leave after joining.</p>
+    <p>So before raising the budget or loosening requirements, it's worth checking these five things.</p>
+
+    <h2 id="sec-2">Sticking point 1: the job description is written as “requirements,” not as “problems to solve”</h2>
+    <p>This is the most common one. Most senior job descriptions look like this: ten-plus years of experience, managed a team of thirty or more, familiar with ERP systems, able to communicate across borders, bachelor's degree or above…</p>
+    <p>These are <strong>screening criteria</strong>, not <strong>what the job actually is</strong>. The problem is that the people who could do this job mostly have good jobs already. They aren't short of positions that match their profile. What they lack is a reason worth moving for.</p>
+    <p>What really gets senior candidates' attention is spelling out three things:</p>
+    <ul>
+      <li><strong>What problem does this position exist to solve</strong>: taking over a department that already runs well, or rebuilding an organization in disarray? These two attract completely different people</li>
+      <li><strong>What success looks like</strong> — what would this person need to have achieved a year from now for the company to feel it hired the right person?</li>
+      <li><strong>What resources and constraints there are</strong>—what the budget is, whether you can build your own team, how many layers above you need convincing. Being honest about constraints won't scare people off; being vague will</li>
+    </ul>
+
+    <div class="insight">
+      <div class="label">A headhunter's view</div>
+      <p>When we take on a senior search, there's one question we usually ask at the first meeting with the hiring team: <strong>"If someone were doing an excellent job in this role today, what would be different about the company a year from now?"</strong></p>
+      <p>Searches where the client can answer this usually produce results in two to three months. Those where they can't, answering "just manage the department well" or "make operations run a bit smoother," tend to drag on, because even internally there's no agreement on what this person should do.</p>
+      <p>When a role stays open for a long time, sometimes the real problem isn't that you can't find anyone; it's that <strong>you haven't yet worked out what you're hiring them to do</strong>. It's not pleasant to hear, but it's the most common root cause we've seen.</p>
+    </div>
+
+    <h2 id="sec-3">Sticking point 2: the salary band lags the market, and nobody has noticed</h2>
+    <p>Salary bands are often set three to five years ago, and the market has moved a long way since. Without an internal benchmark, companies find it hard to notice their numbers are no longer competitive.</p>
+    <p>A public benchmark you can measure against: according to the Taiwan Ministry of Labor's "Occupational Wage Survey for ROC year 114" (published May 2026, valid sample of 9,977 businesses), average annual earnings in ROC year 113 were <strong>highest for managers and supervisors at NT$1.317 million</strong>, followed by professionals at NT$1.062 million. These are overall averages — in other words, if you're after the top tier of an industry, your number has to be clearly above this level to be convincing.</p>
+    <p>One caveat: <strong>not every search is solved by paying more.</strong> Senior candidates often change jobs for reasons other than money — more decision-making authority, a clearer succession path, less internal friction all have real trade value. What matters is knowing what you're competing with. If the pay is only at market level and the stage isn't any bigger, you're really just relying on luck.</p>
+
+    <h2 id="sec-4">Bottleneck 3: Decision-makers join the process too late</h2>
+    <p>Many companies apply the same process as for ordinary roles: HR screening → hiring manager → the level above → the general manager. Going through all of it can take six to eight weeks.</p>
+    <p>This sequence breaks down in executive hiring, for two reasons. First, senior candidates have limited time to invest, and if the early rounds keep asking the same "what have you done" questions, they often drop out midway. Second, <strong>the person who actually makes the decision only appears at the end, so all the earlier evaluation may be wasted</strong>. We have seen a candidate go through four rounds, then get rejected after a 40-minute talk with the general manager because of "a mismatch in style." That call could have been made in the first week.</p>
+    <p>A more effective setup is to <strong>bring the final decision-maker in earlier</strong>: the consultant first does an in-depth check of background and motivation, then immediately arranges a conversation with the decision-maker, and only after confirming you're aligned do you move on to further evaluation. There may not be fewer rounds, but far less of the process is wasted.</p>
+
+    <h2 id="sec-5">Sticking point 4: interview design isn't adjusted to the level of the role</h2>
+    <p>Recruiting senior talent the same way you recruit for general roles leads to two kinds of mismatch:</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Stage</th><th>Common approach (same as for ordinary roles)</th><th>The right approach for executive roles</th></tr></thead>
+        <tbody>
+          <tr><td data-label="環節"><strong>Focus of questions</strong></td><td data-label="常見做法">Confirm skills and tool proficiency</td><td data-label="應該的做法">Ask about decisions: what options there were, why they chose as they did, and how it turned out</td></tr>
+          <tr><td data-label="環節"><strong>Information flow</strong></td><td data-label="常見做法">One-way — the company asks, the candidate answers</td><td data-label="應該的做法">Two-way—let them ask about the organization's current state and challenges too</td></tr>
+          <tr><td data-label="環節"><strong>Assessment tool</strong></td><td data-label="常見做法">Résumé + interview</td><td data-label="應該的做法">Plus a scenario presentation or a 100-day plan discussion</td></tr>
+          <tr><td data-label="環節"><strong>Participants</strong></td><td data-label="常見做法">HR and the direct manager</td><td data-label="應該的做法">Including future peer department heads — fit is usually decided here</td></tr>
+          <tr><td data-label="環節"><strong>Background check</strong></td><td data-label="常見做法">A formality, often skipped</td><td data-label="應該的做法">Done thoroughly with consent, focusing on management style and conflict handling</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>One more caution about case presentations: <strong>asking candidates to present is reasonable, but asking them to hand over a plan you can use directly is not.</strong> The assignment should be designed to reveal how they think, not to get free consulting in disguise. Word of this travels fast in executive circles, and overdoing it can hurt a company's reputation in the market.</p>
+
+    <div class="warn">
+      <div class="label">Practical tips</div>
+      <p>In executive hiring, everything the company does is being evaluated. <strong>Slow replies, late interviewers, the same questions in every round, promised timelines that keep slipping</strong>: for regular roles you might get away with this, but for senior candidates these are clear negative signals. If decisions are this slow and the team this uncoordinated, it will probably be the same once they join.</p>
+      <p>We've seen it more than once: a candidate declines at the final stage, and the reason isn't pay or the role but "the whole process made me doubt how this company operates."</p>
+    </div>
+
+    <h2 id="sec-6">Bottleneck 5: confidentiality and internal communication not planned</h2>
+    <p>Executive hiring almost always involves sensitive situations: the incumbent is still in the seat, someone internally is waiting for that promotion, or the role itself reveals strategic direction. Without advance planning, things can easily go wrong midway:</p>
+    <ul>
+      <li><strong>Word leaks internally</strong>: someone who was waiting for that promotion starts job hunting, the role still isn't filled, and you lose one more person</li>
+      <li><strong>Word gets out to the market</strong>: competitors learn you're replacing someone and use the moment to poach your team</li>
+      <li><strong>A candidate's identity gets exposed</strong>: this does the most damage. It affects the candidate's current job, the search falls through, and your reputation in the market suffers too</li>
+    </ul>
+    <p>In practice, at the time of engagement you define <strong>who is allowed to know about the search</strong> (usually no more than three people), how resumes are passed along (not through ordinary email groups), and when reference checks happen (always last, with the candidate's consent, using contacts they choose). None of this is complicated, but it must be agreed at kickoff; fixing it afterward is very hard.</p>
+
+    <h2 id="sec-7">When should you engage a headhunter, and when don't you need one?</h2>
+    <p>Not every opening needs to be outsourced. Our own rule of thumb is roughly this:</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Scenario</th><th>Recommendation</th></tr></thead>
+        <tbody>
+          <tr><td data-label="情境">Public postings bring enough résumés of usable quality</td><td data-label="建議">In-house hiring is enough; no need to outsource</td></tr>
+          <tr><td data-label="情境">Needs to stay confidential (incumbent still in the role, strategy involved)</td><td data-label="建議"><strong>Suited to an engaged search</strong>: public channels won't work</td></tr>
+          <tr><td data-label="情境">Target candidates are mostly passive and won't apply on their own</td><td data-label="建議"><strong>Suited to an engaged search</strong>: requires proactive outreach</td></tr>
+          <tr><td data-label="情境">Highly niche fields beyond the reach of internal networks</td><td data-label="建議"><strong>Best for a retained search</strong>—what you're paying for is the candidate list and industry knowledge</td></tr>
+          <tr><td data-label="情境">Have searched on your own for three months or more and interviewed, but no one fit</td><td data-label="建議">Review the five bottlenecks above first, then decide whether to outsource</td></tr>
+          <tr><td data-label="情境">A clear gap between the budget and the market rate</td><td data-label="建議">Deal with the budget first; outsourcing won't change that fact</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>The last row deserves emphasis. <strong>A headhunter can speed up the search and reach people that public channels can't, but cannot close a gap between your pay and the market rate.</strong> If a consultant guarantees results before even seeing your budget, that's a reason to be careful. For more on fee structures and how to work together, see <a href="/en/articles/headhunter-fees/">How headhunting fees are calculated</a> and <a href="/en/articles/work-with-headhunters/">How Taiwanese companies work with headhunters</a>.</p>
+
+    <aside data-exp="cta-mid-2026-08-06"><p>For employers</p><h3>For the role you need to fill, we can give you a real number first</h3><p>Tell us the job title, salary band and how long it's been open, and we'll reply directly with roughly what it would cost and how long it would take to fill—and if we think this role shouldn't use a headhunter at all, we'll tell you that too. Quotes are free, and you don't need to sign anything first.</p><form class="s1-lead" novalidate style="display:grid;gap:8px;margin-top:14px;position:relative">
+<input name="company" aria-label="Company name" placeholder="Company name" autocomplete="organization" style="min-height:44px;padding:0 12px;border:1px solid #D9E0E6;border-radius:10px;font-size:15px;background:#fff;color:#0D1B24">
+<input name="job" aria-label="Jobs I&#x27;m looking for" placeholder="What role are you hiring for? (e.g. BIM engineer ×3)" style="min-height:44px;padding:0 12px;border:1px solid #D9E0E6;border-radius:10px;font-size:15px;background:#fff;color:#0D1B24">
+<label style="display:grid;gap:4px;font-size:13.5px;color:#4A5A66">Additional requirements (optional)<textarea name="detail" rows="3" maxlength="1000" placeholder="e.g. the role has been open a long time, we need someone to start next month, they must speak Taiwanese Hokkien / work shifts…" style="min-height:88px;padding:10px 12px;border:1px solid #D9E0E6;border-radius:10px;font-size:15px;font-family:inherit;line-height:1.5;background:#fff;color:#0D1B24;resize:vertical"></textarea></label>
+<input name="contact" aria-label="Email or phone" placeholder="Email or phone" autocomplete="email" style="min-height:44px;padding:0 12px;border:1px solid #D9E0E6;border-radius:10px;font-size:15px;background:#fff;color:#0D1B24">
+<input name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
+<button type="submit" data-cta="mid-client-form" style="min-height:46px;border:0;border-radius:10px;background:#167EB2;color:#fff;font-size:15.5px;font-weight:700;cursor:pointer">Get a free quote and recommendations</button>
+<p class="s1-lead-msg" role="status" aria-live="polite" style="margin:0;font-size:14px"></p>
+<p style="margin:0;font-size:13px;opacity:.85">A consultant will reply within 1 business day, and no contract is needed first. You can also <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-client">ask a consultant on LINE</a></p>
+</form></aside><h2 id="sec-8">FAQ</h2>
+<div><details>
+        <summary><span>After engaging a search for a senior role, how long does it usually take to see results?</span><span class="faq-icon">+</span></summary>
+        <p>From engagement to start date, three to six months is typical. The first one to two months usually go to market mapping and outreach, the middle to interviews and evaluation, and finally there's the handover period at the candidate's current job (often one to three months for senior roles). If a consultant promises candidates within two weeks, it's worth asking whether that comes from an active search or an existing database list — the latter usually fits less well.</p>
+      </details><details>
+        <summary><span>Will engaging several headhunters at once be faster?</span><span class="faq-icon">+</span></summary>
+        <p>Not necessarily, and for senior roles it often backfires. With several firms working at once, the same candidate may be approached two or three times by different consultants, which makes the company look desperate or poorly managed and actually lowers interest. It also invites disputes over who "owns" a candidate. Running firms in parallel can work for mid-level roles and below, but the more senior the role, the more we recommend a single engagement with information and confidentiality managed in one place.</p>
+      </details><details>
+        <summary><span>How much detail do I need to give the consultant?</span><span class="faq-icon">+</span></summary>
+        <p>The more detail, the better the match. Beyond the JD, we suggest telling us: why the position is open, what happened with the previous person, the direct manager's management style, the team's current state and known problems, the salary band and how much flexibility there is, and what results you expect within a year. This directly affects whether the consultant can make a convincing case when approaching candidates. If sensitive information is involved, we can sign an NDA before you share it.</p>
+      </details><details>
+        <summary><span>If an internal candidate is waiting for promotion, do we still need to look outside?</span><span class="faq-icon">+</span></summary>
+        <p>It depends on your goal. If the internal candidate is effectively already chosen and you just want to “benchmark externally,” we recommend not starting at all: it wastes candidates' and consultants' time, and once word gets out it hurts your reputation. If you genuinely haven't decided, an external assessment makes sense, but plan your internal communication in advance: how you'll talk to the internal candidate if they aren't chosen, and whether there's an alternative development path for them. When this isn't handled, you often gain one person and lose another.</p>
+      </details><details>
+        <summary><span>Can you ask for a guarantee period on senior roles?</span><span class="faq-icon">+</span></summary>
+        <p>Yes, it's standard practice. If the candidate leaves during the guarantee period, the consultant usually provides a free replacement or a pro-rated refund. The exact number of days and conditions depend on the contract, so confirm three things before signing: how the guarantee period is calculated (from the start date), the conditions for replacement and refunds, and which situations aren't covered (for example, the position being eliminated due to a company reorganization).</p>
+      </details><details>
+        <summary><span>If the salary band can't change, what other leverage do we have?</span><span class="faq-icon">+</span></summary>
+        <p>Several are often underestimated: decision authority (can they build their own team, what's their budget approval limit), who they report to directly (one fewer reporting layer is often more attractive than a 10% raise), a clear succession or promotion path, flexible work arrangements, and how the performance bonus cap is designed. For senior candidates these often matter more than base salary, and they have a smaller impact on your fixed costs. The key is to decide before you approach anyone what you can offer and how far you can go.</p>
+      </details></div><div>
+      <h2 id="sec-9">Stuck on a senior hire? Let's talk first</h2>
+      <p>If your company has a role that's been open for a while without being filled, we can start with a market scan to confirm whether the people actually exist and where the going rate sits, before you decide whether to formally engage us. This stage is free and requires no contract.</p>
+      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">Talk with a consultant on LINE</a>
+    </div>
+
+    <p>Further reading: <a href="/en/articles/how-to-choose-headhunter/">How to choose a headhunting firm in Taiwan: 7 criteria</a> · <a href="/en/articles/headhunter-fees/">How are headhunting fees calculated?</a> · <a href="/en/articles/executive-job-search/">(For job seekers) Why don't NT$1 million+ management roles show up on job sites?</a></p>
+
+      
+<div class="cta">
+        <p>A role that's been stuck for six months usually isn't short of people; the requirements are set wrong. Show us the JD once and we'll tell you plainly where it's stuck.</p>
+          <a class="btn-alt" href="/en/hiring-assessment/">Take the hiring-model assessment first</a> <a class="btn-line" href="https://lin.ee/XcSWPzM">Ask a consultant on LINE</a>
+      </div>
+    
+<div class="related-jobs-box" style="margin:26px 0;padding:18px 20px;border:1px solid #D9E0E6;border-radius:14px;background:#EAF4FA"><strong style="display:block;margin-bottom:9px;color:#0F5F87;font-size:15px">🔎 Related openings</strong><div style="display:flex;flex-wrap:wrap;gap:8px 14px;font-size:14.5px"><a href="/en/commission-recruiting/">Recruitment Commission Plan for Businesses</a> · <a href="/en/jobs/">View all openings</a></div></div>
+</article>
+  </div>
+</main>
+
+
+<footer><div class="fw">德仁管理顧問有限公司, 3F, No. 54-7, Sec. 3, Kangning Rd., Neihu Dist., Taipei City</div></footer>
+
+<script>
+// 表格加水平捲動外框，避免手機橫向溢位
+document.querySelectorAll('article table').forEach(function(t){
+  var w=document.createElement('div'); w.className='tw';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
+// 閱讀進度
+var bar=document.getElementById('bar');
+function prog(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',prog,{passive:true}); prog();
+// 目錄跟隨
+var tns=[].slice.call(document.querySelectorAll('.tn'));
+var secs=tns.map(function(a){return document.getElementById(a.dataset.s)}).filter(Boolean);
+if('IntersectionObserver' in window && secs.length){
+  var cur=null;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) cur=e.target.id; });
+    tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  },{rootMargin:'-88px 0px -70% 0px'}).observe && secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===e.target.id)}); }
+      });
+    },{rootMargin:'-88px 0px -70% 0px'}).observe(s);
+  });
+}
+</script>
+<script src="/assets/lead-form.js" defer></script>
+
+<style>
+.s1ne-sc{position:fixed;z-index:60;left:0;right:0;bottom:0;display:flex;gap:10px;padding:10px max(14px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));background:rgba(255,255,255,.96);box-shadow:0 -6px 24px rgba(40,30,10,.12);transform:translateY(120%);transition:transform .25s ease}
+.s1ne-sc.on{transform:none}
+.s1ne-sc a{flex:1;display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:999px;font-weight:700;font-size:15px;text-decoration:none;white-space:nowrap}
+.s1ne-sc .p{background:#111827;color:#fff}
+.s1ne-sc .l{background:#fff;color:#111827;border:1.5px solid #d1d5db}
+.s1ne-sc a:focus-visible{outline:3px solid #1f2937;outline-offset:2px}
+@media (min-width:760px){.s1ne-sc{left:auto;right:24px;bottom:24px;border-radius:999px;padding:8px;box-shadow:0 8px 28px rgba(40,30,10,.18)}.s1ne-sc a{flex:none;padding:0 22px}}
+@media (prefers-reduced-motion:reduce){.s1ne-sc{transition:none}}
+body{padding-bottom:84px}
+@media (min-width:760px){body{padding-bottom:0}}
+</style>
+<div class="s1ne-sc" id="s1neSc" role="region" aria-label="Fast action">
+  <a class="l" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">Ask on LINE</a> <a class="p" href="/en/jobs/" data-cta="jobs_cta_click">See current openings</a>
+</div>
+<script>
+(function(){var b=document.getElementById('s1neSc');if(!b)return;
+function t(){b.classList.toggle('on',window.scrollY>380);}
+window.addEventListener('scroll',t,{passive:true});t();
+b.querySelector('.p').addEventListener('click',function(){try{gtag('event',this.getAttribute('data-cta'),{page_path:location.pathname,placement:'sticky'});}catch(e){}});})();
+</script>
+<!-- /s1ne-sticky-cta -->
+
+</body>
+</html>

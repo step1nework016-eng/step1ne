@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href*="lin.ee"]');
+  if (!a) return;
+  gtag('event', 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60)
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How much do admin and sales assistants earn? Where's the ceiling, and why the same title can differ by 10K｜Step1ne</title>
+<meta name="description" content="Administrative assistants earn an average monthly salary of about NT$32,975, and the same titles, sales assistant or admin assistant, range from 28K to 50K. The salary ceiling depends on the industry, how substantive the role is and any specialist value you add; this article breaks down the differences between five types of assistant roles and what to focus on when negotiating pay.">
+<meta name="keywords" content="administrative assistant salary,receptionist salary,executive assistant salary,sales assistant,administrative assistant pay range,assistant monthly salary,admin jobs">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/en/articles/admin-assistant-salary/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Step1ne Referrals">
+<meta property="og:title" content="How much do administrative and sales assistants earn? Where the ceiling is, and why the same title can differ by NT$10,000">
+<meta property="og:description" content="Administrative assistants earn an average monthly salary of about NT$32,975, and the same titles, sales assistant or admin assistant, range from 28K to 50K. The salary ceiling depends on the industry, how substantive the role is and any specialist value you add; this article breaks down the differences between five types of assistant roles and what to focus on when negotiating pay.">
+<meta property="og:url" content="https://step1ne.com/en/articles/admin-assistant-salary/">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta name="theme-color" content="#F4F6F8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Administrative assistant pay: why can the same assistant title differ by NT$10,000?",
+  "description": "Explains where salary differences come from across five roles — administrative assistant, receptionist, sales assistant, project assistant, and executive assistant — including the effects of industry, the weight of the role, added specialized skills, and employment type, plus the specific items to confirm when negotiating pay.",
+  "datePublished": "2026-07-27",
+  "dateModified": "2026-07-27",
+  "inLanguage": "zh-TW",
+  "author": {
+    "@type": "Organization",
+    "name": "Step1ne 德仁管理顧問有限公司",
+    "url": "https://step1ne.com/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "德仁管理顧問有限公司 (Step1ne)",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://step1ne.com/assets/step1ne-logo.png"
+    }
+  }
+}
+</script>
+
+<style>
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;
+  --wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:17px;line-height:1.95;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.35;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,select,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* 導覽 */
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+/* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
+
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
+.crumb{grid-column:1/-1;padding:22px 0 6px;font-size:13.5px;color:var(--slate-dim)}
+.crumb a{color:var(--slate)}
+.crumb a:hover{color:var(--brand-deep)}
+.crumb span{margin:0 8px;color:var(--rule)}
+
+/* 目錄軌：沿用全站 signature */
+.toc{position:sticky;top:92px;padding:8px 0 40px}
+.toc h2{font-size:13px;font-weight:700;color:var(--slate-dim);letter-spacing:.02em;margin-bottom:16px}
+.tns{position:relative;padding-left:22px}
+.tns::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.14))}
+.tn{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:14px;color:var(--slate);line-height:1.6;position:relative}
+.tn i{position:absolute;left:-22px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--rule);flex:0 0 auto}
+.tn:hover{color:var(--brand-deep)}
+.tn:hover i{border-color:var(--brand)}
+.tn.on{color:var(--ink);font-weight:700}
+.tn.on i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 4px rgba(46,169,223,.2)}
+.mtoc{display:none;margin:20px 0 0;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.mtoc summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15.5px;position:relative}
+.mtoc summary::-webkit-details-marker{display:none}
+.mtoc summary::after{content:"";position:absolute;right:20px;top:24px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.mtoc[open] summary::after{transform:rotate(-135deg)}
+.mtoc div{padding:0 18px 14px}
+.mtoc a{display:block;padding:9px 0;font-size:15px;color:var(--slate);border-top:1px solid var(--rule)}
+
+/* 文章本體 */
+article{padding:14px 0 60px;max-width:70ch}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--brand-deep);background:rgba(22,126,178,.07);border:1px solid rgba(22,126,178,.25);border-radius:5px;padding:4px 11px}
+article h1{margin-top:16px;font-size:clamp(28px,4.2vw,42px);line-height:1.28;letter-spacing:-.02em}
+.by{margin-top:18px;padding-bottom:20px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14px;color:var(--slate-dim)}
+.by a{color:var(--slate);border-bottom:1px solid var(--rule)}
+.by .d{font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+
+/* ★ Signature：直接答案 */
+.ans{margin-top:30px;background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:26px 30px}
+.ans .lab{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:10px}
+.ans p{font-size:19.5px;line-height:1.85;font-weight:500}
+.ans strong{font-weight:900}
+
+article h2{margin:52px 0 16px;font-size:25px;scroll-margin-top:92px}
+article h3{margin:34px 0 10px;font-size:19px}
+article h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-right:12px;border-radius:8px;background:var(--brand);color:#fff;font-family:var(--f-disp);font-size:17px;font-weight:700;vertical-align:2px}
+article p{margin-top:16px}
+article strong{font-weight:700}
+article a:not(.tn){color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.32)}
+article a:not(.tn):hover{border-bottom-color:var(--brand-deep)}
+article ul,article ol{margin:16px 0 0;padding-left:1.4em}
+article li{margin-top:9px}
+article table{width:100%;border-collapse:collapse;margin-top:22px;font-size:15.5px;background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+article th{text-align:left;background:var(--paper);font-weight:700;font-size:14px;color:var(--slate);padding:12px 14px;border-bottom:1px solid var(--rule)}
+article td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.75}
+article tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+article details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+article details summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+article details summary::-webkit-details-marker{display:none}
+article details summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+article details[open] summary::after{transform:rotate(-135deg)}
+article details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid var(--rule);color:var(--slate)}
+
+.foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
+.cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
+.cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
+footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+.fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.note{max-width:var(--wrap);margin:0 auto 46px;padding-inline:var(--gut)}
+.note div{background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid #B45309;border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.note b{color:#5A3D0C}
+
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .mtoc{display:block}
+}
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  body{font-size:16.5px}
+  .ans{padding:22px;border-radius:0 8px 8px 0}
+  .ans p{font-size:18px}
+  article h2{font-size:22px;margin-top:42px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+<!--i18n-hreflang-->
+<link rel="alternate" hreflang="zh-Hant" href="https://step1ne.com/articles/admin-assistant-salary/">
+<link rel="alternate" hreflang="ja" href="https://step1ne.com/ja/articles/admin-assistant-salary/">
+<link rel="alternate" hreflang="en" href="https://step1ne.com/en/articles/admin-assistant-salary/">
+<link rel="alternate" hreflang="x-default" href="https://step1ne.com/articles/admin-assistant-salary/">
+<style>.s1-lang{max-width:1100px;margin:0 auto;padding:10px 16px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.s1-lang a,.s1-lang b{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid #d9dce3;background:#fff;font-size:14px;font-weight:600;color:#4a5060;text-decoration:none}.s1-lang b{background:#23262d;border-color:#23262d;color:#fff}.s1-lang a:hover{color:#23262d;border-color:#9aa0ad}.s1-lang a:focus-visible{outline:3px solid #1880B4;outline-offset:2px}.s1-note{max-width:1100px;margin:10px auto 0;padding:0 16px}.s1-note p{margin:0;padding:12px 14px;border-radius:12px;background:#eef4fb;border:1px solid #c9dcef;color:#1d3a57;font-size:14.5px;line-height:1.7}</style>
+<!--/i18n-hreflang-->
+</head>
+
+<body>
+<div id="bar"></div>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/en/"><img src="/assets/step1ne-logo.png" alt="Step1ne"><b>Step1ne</b></a>
+    <nav class="hd-nav">
+      <a href="/en/commission-recruiting/">For Employers</a><a href="/en/jobs/">Jobs</a><a class="on" href="/en/articles/">Headhunting Insights</a><a href="/en/talent/">Step1ne Referrals</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">Ask on LINE</a>
+    <button class="hd-burger" type="button" aria-label="Open menu" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/en/commission-recruiting/">For Employers</a><a href="/en/jobs/">Jobs</a><a href="/en/articles/">Articles</a><a href="/en/talent/">Step1ne Referrals</a> <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">Contact on LINE</a>
+  </div>
+</header>
+<!--i18n-switch--><nav class="s1-lang" aria-label="Change language"><a href="/articles/admin-assistant-salary/" hreflang="zh-Hant" lang="zh-Hant">中文</a><a href="/ja/articles/admin-assistant-salary/" hreflang="ja" lang="ja">日本語</a><b lang="en" aria-current="true">English</b></nav><!--/i18n-switch-->
+
+
+<main class="shell">
+  <nav class="crumb" aria-label="Breadcrumb"><a href="/en/">Home</a><span>/</span><a href="/en/articles/">Headhunting Column</a><span>/</span>Administrative assistant pay: why can the same assistant title differ by NT$10,000?</nav>
+
+  <aside class="toc" aria-label="Contents">
+    <h2>This article has 6 sections</h2>
+    <div class="tns"><a class="tn" href="#sec-1" data-s="sec-1"><i></i><span>Start with the overall market range</span></a> <a class="tn" href="#sec-2" data-s="sec-2"><i></i><span>Where does the gap come from? Three real variables</span></a> <a class="tn" href="#sec-3" data-s="sec-3"><i></i><span>"Hundreds of applicants for a 29K admin assistant job": what does that mean?</span></a> <a class="tn" href="#sec-4" data-s="sec-4"><i></i><span>What should you actually confirm when negotiating pay?</span></a> <a class="tn" href="#sec-5" data-s="sec-5"><i></i><span>FAQ</span></a> <a class="tn" href="#sec-6" data-s="sec-6"><i></i><span>Admin positions are open now</span></a></div>
+  </aside>
+
+  <div>
+    <details class="mtoc"><summary>Contents (6 sections)</summary><div><a href="#sec-1">Start with the overall market range</a> <a href="#sec-2">Where does the gap come from? Three real variables</a> <a href="#sec-3">"Hundreds of applicants for a 29K admin assistant job": what does that mean?</a> <a href="#sec-4">What should you actually confirm when negotiating pay?</a> <a href="#sec-5">FAQ</a> <a href="#sec-6">Admin positions are open now</a></div></details>
+    <article>
+      <span class="tag">Job seeker guide · A headhunter's view</span>
+      <h1>Administrative assistant pay: why can two assistant jobs differ by NT$10,000?</h1>
+      <div class="by">
+        <span>By <a href="/en/about/">the Step1ne executive search consulting team</a></span> <time class="d" datetime="2026-07-27">Published 2026-07-27</time> <span class="d">About 7 min read</span>
+      </div>
+
+      <div class="ans">
+        <div class="lab">Short answer</div>
+        <p>The average monthly salary for administrative assistants in Taiwan is about <strong>NT$32,975</strong> (Indeed, updated April 2026), but the actual range runs from 28K to 50K. The gap isn't about "whether you can do admin work" — it comes down to three things: <strong>the industry, whether the role has a specialized component, and whether the position is pure support or has its own area of responsibility</strong>. Two jobs both called "assistant" can differ by more than NT$10,000 between the IT industry and a traditional trading company.</p>
+      </div>
+
+      <h2 id="sec-1">First see where the overall market sits</h2>
+    <p>Admin salary bands are fairly narrow, but the ceiling varies a lot by job title:</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Role</th><th>Typical monthly salary range</th><th>The keys to higher pay</th></tr></thead>
+        <tbody>
+          <tr><td data-label="職務"><strong>Switchboard / reception</strong></td><td data-label="月薪區間">28,000–42,000</td><td data-label="關鍵">Language skills, company size, and whether admin duties are included</td></tr>
+          <tr><td data-label="職務"><strong>Admin Assistant</strong></td><td data-label="月薪區間">30,000–40,000</td><td data-label="關鍵">Industry, and whether the role includes accounting or HR duties</td></tr>
+          <tr><td data-label="職務"><strong>Sales assistant</strong></td><td data-label="月薪區間">32,000–45,000</td><td data-label="關鍵">Whether it includes order management, quotations or foreign-language clients</td></tr>
+          <tr><td data-label="職務"><strong>Project / product assistant</strong></td><td data-label="月薪區間">38,000–55,000</td><td data-label="關鍵">Industry (tech/finance pay more) and the scope of cross-department coordination</td></tr>
+          <tr><td data-label="職務"><strong>Executive assistant (to senior executives)</strong></td><td data-label="月薪區間">45,000–80,000</td><td data-label="關鍵">Management level, and whether it involves supporting executive decision-making</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">Ranges reflect common market figures; actual pay varies by industry, region, company size, and individual background. New graduates tend to sit at the lower end of each range, and after 1–3 years of experience there's a chance to move up a level.</p>
+
+    <h2 id="sec-2">Where does the gap come from? Three real variables</h2>
+
+    <h3>1. Industry: the biggest factor</h3>
+    <p>This is the harshest point, and the most overlooked. The same duties — handling documents, arranging meetings, processing expense claims — can come with starting pay that differs by NT$10,000 between semiconductors, fintech and traditional manufacturing.</p>
+    <p>It's not that your work is harder—it's that <strong>the whole company's pay structure is different</strong>. High-margin industries have more generous payroll budgets to begin with, and admin roles rise along with them. So if pay matters to you, switching industries usually does more than toughing it out two more years in the same one.</p>
+
+    <h3>2. Whether the role includes “non-administrative” elements</h3>
+    <p>Purely supportive work, such as answering phones, ordering lunches, handling deliveries and filing, has a clear salary ceiling because it's easy to replace. What really widens the pay gap is <strong>when the job mixes in other expertise</strong>:</p>
+    <ul>
+      <li>Also handling <strong>basic bookkeeping</strong> (vouchers, payment requests, reconciliation): usually adds 3–5K</li>
+      <li>Also handling <strong>HR administration</strong> (labor/health insurance changes, attendance management, recruiting contact) — usually 3–6K more</li>
+      <li>Handling <strong>order or purchasing processes</strong> — usually 3–8K more, with more career options</li>
+      <li>Requires <strong>handling real business in a foreign language</strong> (not “some knowledge,” but actually dealing with overseas clients)—usually adds 5–10K</li>
+    </ul>
+
+    <h3>3. Are you "supporting others," or do you "own your own area"?</h3>
+    <p>This is rarely explained clearly, but it's what makes the difference three years from now.</p>
+    <p>If your job is "do whatever the manager hands you," then no matter how many years you put in, what you can write on your résumé stays about the same. If you have a clear area you own — say, vendor management for the whole office, or tracking a department's budget execution — what you accumulate are <strong>quantifiable results</strong>, and you'll have something to talk about when negotiating pay.</p>
+
+    <div class="insight">
+      <div class="label">A headhunter's view</div>
+      <p>When we help companies hire for administrative roles, we ask the hiring manager one question: <strong>"If the person in this role left, what would be the biggest headache?"</strong></p>
+      <p>If the answer is "We'd just bring someone else in and train them for two weeks," it's hard to negotiate a higher salary for that job, because the company itself knows the role is replaceable. If the answer is "He holds all the supplier contacts" or "He knows why each process works the way it does," there's much more room.</p>
+      <p>For job seekers, this means: <strong>proactively making something in your current job "the thing you know best" is the most practical way to prepare for a raise.</strong> It's not about hoarding knowledge; it's about taking on the work nobody wants but that would cause trouble if it were missing.</p>
+    </div>
+
+    <h2 id="sec-3">"Hundreds of applicants for a 29K admin assistant job"—what does that mean?</h2>
+    <p>It's true that competition for admin jobs is fierce. A 29K assistant job receiving over a hundred résumés is nothing new in Taiwan. But this needs to be interpreted correctly.</p>
+    <p>It reflects a <strong>low barrier to entry</strong>, not that <strong>the job has no value</strong>. With no required degree or certificate, career changers, people returning to work and new graduates can all apply, so supply is naturally large. But it also means this: <strong>if you have even one thing others don't, you're no longer one of those hundred people.</strong></p>
+    <p>That "something" could be a foreign language, familiarity with a particular system (ERP, sales and inventory), bookkeeping experience, or even just a résumé written more clearly than everyone else's. The flip side of fierce competition is that most competitors haven't actually prepared.</p>
+
+    <div class="warn">
+      <div class="label">Warning signs</div>
+      <p><strong>For admin openings that say "negotiable" with vague duties, ask one more question.</strong> Salary ranges for admin roles are actually quite transparent, and companies willing to state them clearly usually have more complete HR systems too.</p>
+      <p>Also, if a job description crams administration, sales, accounting, and HR into one role but pays just over NT$30K, that's not “learning a lot”—that's one person doing three jobs. In the interview, be sure to ask: <strong>What share of the work does each part take? How long did the previous person last?</strong></p>
+    </div>
+
+    <h2 id="sec-4">What should you actually confirm when negotiating pay?</h2>
+    <p>Admin roles usually have little room for salary negotiation, but you can widen the gap in total take-home pay through these items:</p>
+    <ol>
+      <li><strong>Whether there's a year-end bonus, and how many months</strong> — this is the biggest variable in admin roles. A 33K monthly salary with a 2-month year-end bonus actually comes out higher than 35K with no bonus</li>
+      <li><strong>How overtime works</strong>: admin roles often have hidden overtime like "it gets busy at month-end." Ask whether it's paid as worked, given as time off in lieu, or just "everyone does it"</li>
+      <li><strong>Whether there are fixed allowances for transport, meals, perfect attendance, etc.</strong>: these usually aren't counted in base salary but do get paid out</li>
+      <li><strong>Whether pay is reduced during probation</strong>—if so, confirm the period and the adjusted figure, and have it written into the offer letter</li>
+      <li><strong>Employment type</strong>: permanent, fixed-term contract, or staffing agency? This affects year-end bonuses, raises, and how your seniority accumulates. If it's agency work, read <a href="/en/articles/dispatch-legal-risks/">the key legal points of staffing</a> to understand your rights first</li>
+    </ol>
+
+    <div class="insight">
+      <div class="label">A headhunter's view</div>
+      <p>The most common mistake admin job seekers make: <strong>never asking about the pay structure in the interview, for fear of seeming petty.</strong></p>
+      <p>In reality, asking clearly about year-end bonuses, allowances and overtime rules comes across to hiring managers as "this person is meticulous," not petty — because admin work itself requires that sensitivity to detail. It's the people who accept without asking anything who make managers worry they'll discover a mismatch after joining and leave within three months.</p>
+    </div>
+
+    <h2 id="sec-5">FAQ</h2>
+<div><details>
+        <summary><span>Can I apply for an administrative assistant role with no relevant experience?</span><span class="faq-icon">+</span></summary>
+        <p>Yes. Administrative work is one of the few job categories in Taiwan with relatively low requirements for degree and experience, and it's an entry point for many people changing careers or returning to work. In practice, companies care more about attention to detail, proficiency with office software, and communication attitude. If you have no experience at all, write out concretely any experience that involved "arranging processes, coordinating multiple parties, or handling documents" on your résumé — even student club or part-time work can be convincing.</p>
+      </details><details>
+        <summary><span>What's the difference between a receptionist/operator and an admin assistant?</span><span class="faq-icon">+</span></summary>
+        <p>A receptionist/switchboard role is all about being "the first point of contact with the outside": transferring calls, greeting visitors, handling mail, and managing meeting rooms, with a fixed post and regular hours. An administrative assistant leans toward internal support, with a broader but more scattered scope. Pay is similar for both, but a receptionist at a sizable company who needs to greet visitors in a foreign language may start higher than general admin staff, while an administrative assistant can more easily pick up extra skills like bookkeeping and HR, so there are usually more paths upward.</p>
+      </details><details>
+        <summary><span>How often do admin assistant salaries get raised?</span><span class="faq-icon">+</span></summary>
+        <p>Most companies give raises once a year, often in the 3–5% range. That's the reality for administrative roles: internal raises rarely keep pace with changing jobs. In practice, pay jumps noticeably when you change companies or industries—especially moving from general industries into higher-paying sectors like tech or finance. To win a bigger raise at the same company, you usually need a real expansion of your responsibilities, not just more years of service.</p>
+      </details><details>
+        <summary><span>Do certifications help admin salaries?</span><span class="faq-icon">+</span></summary>
+        <p>The benefit is limited but real — the key is whether the certificate maps to skills you'll actually use. Language tests like TOEIC genuinely help for roles that involve foreign-language communication, and basic accounting certificates add real value when paired with bookkeeping duties. Certificates unrelated to the work, on the other hand, have almost no effect on pay. Rather than taking more tests, it's usually more effective to list the systems you know well (ERP, inventory and sales systems, HR systems, etc.) specifically on your résumé.</p>
+      </details><details>
+        <summary><span>Is a one-year contract job worth taking?</span><span class="faq-icon">+</span></summary>
+        <p>Look at three things: whether the pay is clearly higher than comparable permanent jobs, whether there are real cases of people being made permanent when the term ends, and what you'll gain in that year. If it's a fixed-term role created for a specific project, the pay is usually higher than typical admin jobs and the work tends to be more specialized, which helps your résumé. But ask clearly in advance what happens when the term ends, and confirm the nature of the contract and your labor and health insurance enrollment.</p>
+      </details><details>
+        <summary><span>Will AI replace administrative assistants?</span><span class="faq-icon">+</span></summary>
+        <p>It will replace part of the work — mainly repetitive paperwork, data organizing, and scheduling. But the parts that require judgment, coordination, and thinking on your feet will be hard to replace in the near term: resolving priority conflicts between departments, handling unexpected situations, greeting visitors in person. The practical advice is to actively use these tools to clear away repetitive work and spend the time saved on coordination and process improvement. That's exactly how you move yourself from "replaceable" to "irreplaceable."</p>
+      </details></div><div>
+      <h2 id="sec-6">Admin openings currently available</h2>
+      <p>We're hiring for both a receptionist (Neihu, five-day work week, monthly 35–42K) and a product assistant (Neihu, monthly 40–50K, new graduates welcome); both pay above the market average for administrative roles. A consultant can check year-end bonus, allowances, and overtime rules for you before you decide whether to apply.</p>
+      <p><a href="/en/jobs/">View all administrative openings →</a></p>
+      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">Talk with a consultant on LINE</a>
+    </div>
+
+    <p>Further reading: <a href="/en/articles/admin-career-path/">Is there a career in administrative work? Five paths that actually work</a> · <a href="/en/jobs/receptionist-neihu/">Receptionist opening</a> · <a href="/jobs/product-assistant-fintech/">Product assistant opening</a></p>
+
+      
+<div class="cta">
+        <p>Want to know what people at your level are actually getting paid right now? Add us on LINE and tell us your years of experience and what you do, and a consultant will give you the market rate directly.</p>
+          <a class="btn-alt" href="/en/jobs/">See current administrative openings</a> <a class="btn-line" href="https://lin.ee/XcSWPzM">Ask a consultant on LINE</a>
+      </div>
+    
+<div class="related-jobs-box" style="margin:26px 0;padding:18px 20px;border:1px solid #D9E0E6;border-radius:14px;background:#EAF4FA"><strong style="display:block;margin-bottom:9px;color:#0F5F87;font-size:15px">🔎 Related openings</strong><div style="display:flex;flex-wrap:wrap;gap:8px 14px;font-size:14.5px"><a href="/jobs/product-assistant-fintech/">Product Assistant</a>  ·  <a href="/en/jobs/executive-assistant-japan-taiwan/">Executive Assistant</a>  ·  <a href="/en/jobs/receptionist-neihu/">Receptionist (Neihu)</a>  ·  <a href="/en/jobs/">View all jobs</a></div></div>
+</article>
+  </div>
+</main>
+
+
+<footer><div class="fw">德仁管理顧問有限公司, 3F, No. 54-7, Sec. 3, Kangning Rd., Neihu Dist., Taipei City</div></footer>
+
+<script>
+// 表格加水平捲動外框，避免手機橫向溢位
+document.querySelectorAll('article table').forEach(function(t){
+  var w=document.createElement('div'); w.className='tw';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
+// 閱讀進度
+var bar=document.getElementById('bar');
+function prog(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',prog,{passive:true}); prog();
+// 目錄跟隨
+var tns=[].slice.call(document.querySelectorAll('.tn'));
+var secs=tns.map(function(a){return document.getElementById(a.dataset.s)}).filter(Boolean);
+if('IntersectionObserver' in window && secs.length){
+  var cur=null;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) cur=e.target.id; });
+    tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  },{rootMargin:'-88px 0px -70% 0px'}).observe && secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===e.target.id)}); }
+      });
+    },{rootMargin:'-88px 0px -70% 0px'}).observe(s);
+  });
+}
+</script>
+
+<style>
+.s1ne-sc{position:fixed;z-index:60;left:0;right:0;bottom:0;display:flex;gap:10px;padding:10px max(14px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));background:rgba(255,255,255,.96);box-shadow:0 -6px 24px rgba(40,30,10,.12);transform:translateY(120%);transition:transform .25s ease}
+.s1ne-sc.on{transform:none}
+.s1ne-sc a{flex:1;display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:999px;font-weight:700;font-size:15px;text-decoration:none;white-space:nowrap}
+.s1ne-sc .p{background:#111827;color:#fff}
+.s1ne-sc .l{background:#fff;color:#111827;border:1.5px solid #d1d5db}
+.s1ne-sc a:focus-visible{outline:3px solid #1f2937;outline-offset:2px}
+@media (min-width:760px){.s1ne-sc{left:auto;right:24px;bottom:24px;border-radius:999px;padding:8px;box-shadow:0 8px 28px rgba(40,30,10,.18)}.s1ne-sc a{flex:none;padding:0 22px}}
+@media (prefers-reduced-motion:reduce){.s1ne-sc{transition:none}}
+body{padding-bottom:84px}
+@media (min-width:760px){body{padding-bottom:0}}
+</style>
+<div class="s1ne-sc" id="s1neSc" role="region" aria-label="Fast action">
+  <a class="l" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">Ask on LINE</a> <a class="p" href="/en/jobs/" data-cta="jobs_cta_click">See current openings</a>
+</div>
+<script>
+(function(){var b=document.getElementById('s1neSc');if(!b)return;
+function t(){b.classList.toggle('on',window.scrollY>380);}
+window.addEventListener('scroll',t,{passive:true});t();
+b.querySelector('.p').addEventListener('click',function(){try{gtag('event',this.getAttribute('data-cta'),{page_path:location.pathname,placement:'sticky'});}catch(e){}});})();
+</script>
+<!-- /s1ne-sticky-cta -->
+
+</body>
+</html>

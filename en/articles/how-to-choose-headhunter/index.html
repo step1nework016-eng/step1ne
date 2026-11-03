@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  if (!e.target.closest) return;
+  // 2026-08-06：原本只抓 lin.ee。BIM 那群的下一步是「直接應徵」不是加 LINE，
+  // 不一起記的話，等於把那條路做出來卻量不到，實驗就白做了。
+  var a = e.target.closest('a[href*="lin.ee"], a[href^="/apply"]');
+  if (!a) return;
+  var isApply = (a.getAttribute('href') || '').indexOf('/apply') === 0;
+  gtag('event', isApply ? 'apply_click' : 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60),
+    // mid＝這次新加的文章中段；沒有標的就是原本頁首／頁尾那些
+    cta_slot: a.getAttribute('data-cta') || 'legacy'
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to choose a headhunting firm in Taiwan: 7 criteria and pitfalls to avoid | Step1ne</title>
+<meta name="description" content="With so many headhunting firms in Taiwan, how do you choose? Seven criteria you can actually verify — from checking legal registration and industry specialization to how they reach talent, fees, and guarantee terms — plus the downsides of using a headhunting firm and the pitfalls to watch for.">
+<meta name="keywords" content="Taiwan headhunting firm recommendations,how to choose a headhunting firm,headhunting firm,executive search firm,headhunting firm comparison,choosing a headhunter,find a headhunter">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/en/articles/how-to-choose-headhunter/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Step1ne Referrals">
+<meta property="og:title" content="How to Choose a Headhunting Firm in Taiwan: 7 Criteria and Pitfalls to Avoid">
+<meta property="og:description" content="From legal verification and industry expertise to fees and guarantee terms: seven criteria you can actually verify, plus three common pitfalls.">
+<meta property="og:url" content="https://step1ne.com/en/articles/how-to-choose-headhunter/">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta name="theme-color" content="#F4F6F8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "How to Choose a Headhunting Firm in Taiwan: 7 Criteria and Pitfalls to Avoid",
+  "description": "How companies should evaluate a headhunter before engaging one: from verifying the employment service license and business registration number, industry specialization, and a concrete explanation of how they reach talent, to negotiation points on fee structure, guarantee period, and exclusivity clauses—plus three common pitfalls.",
+  "datePublished": "2026-07-27",
+  "dateModified": "2026-10-19",
+  "inLanguage": "zh-TW",
+  "author": {
+    "@type": "Organization",
+    "name": "Step1ne 德仁管理顧問有限公司",
+    "url": "https://step1ne.com/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "德仁管理顧問有限公司 (Step1ne)",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://step1ne.com/assets/step1ne-logo.png"
+    }
+  }
+}
+</script>
+
+<style>
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;
+  --wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:17px;line-height:1.95;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.35;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,select,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* 導覽 */
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+/* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
+
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
+.crumb{grid-column:1/-1;padding:22px 0 6px;font-size:13.5px;color:var(--slate-dim)}
+.crumb a{color:var(--slate)}
+.crumb a:hover{color:var(--brand-deep)}
+.crumb span{margin:0 8px;color:var(--rule)}
+
+/* 目錄軌：沿用全站 signature */
+.toc{position:sticky;top:92px;padding:8px 0 40px}
+.toc h2{font-size:13px;font-weight:700;color:var(--slate-dim);letter-spacing:.02em;margin-bottom:16px}
+.tns{position:relative;padding-left:22px}
+.tns::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.14))}
+.tn{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:14px;color:var(--slate);line-height:1.6;position:relative}
+.tn i{position:absolute;left:-22px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--rule);flex:0 0 auto}
+.tn:hover{color:var(--brand-deep)}
+.tn:hover i{border-color:var(--brand)}
+.tn.on{color:var(--ink);font-weight:700}
+.tn.on i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 4px rgba(46,169,223,.2)}
+.mtoc{display:none;margin:20px 0 0;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.mtoc summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15.5px;position:relative}
+.mtoc summary::-webkit-details-marker{display:none}
+.mtoc summary::after{content:"";position:absolute;right:20px;top:24px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.mtoc[open] summary::after{transform:rotate(-135deg)}
+.mtoc div{padding:0 18px 14px}
+.mtoc a{display:block;padding:9px 0;font-size:15px;color:var(--slate);border-top:1px solid var(--rule)}
+
+/* 文章本體 */
+article{padding:14px 0 60px;max-width:70ch}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--brand-deep);background:rgba(22,126,178,.07);border:1px solid rgba(22,126,178,.25);border-radius:5px;padding:4px 11px}
+article h1{margin-top:16px;font-size:clamp(28px,4.2vw,42px);line-height:1.28;letter-spacing:-.02em}
+.by{margin-top:18px;padding-bottom:20px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14px;color:var(--slate-dim)}
+.by a{color:var(--slate);border-bottom:1px solid var(--rule)}
+.by .d{font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+
+/* ★ Signature：直接答案 */
+.ans{margin-top:30px;background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:26px 30px}
+.ans .lab{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:10px}
+.ans p{font-size:19.5px;line-height:1.85;font-weight:500}
+.ans strong{font-weight:900}
+
+article h2{margin:52px 0 16px;font-size:25px;scroll-margin-top:92px}
+article h3{margin:34px 0 10px;font-size:19px}
+article h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-right:12px;border-radius:8px;background:var(--brand);color:#fff;font-family:var(--f-disp);font-size:17px;font-weight:700;vertical-align:2px}
+article p{margin-top:16px}
+article strong{font-weight:700}
+article a:not(.tn){color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.32)}
+article a:not(.tn):hover{border-bottom-color:var(--brand-deep)}
+article ul,article ol{margin:16px 0 0;padding-left:1.4em}
+article li{margin-top:9px}
+article table{width:100%;border-collapse:collapse;margin-top:22px;font-size:15.5px;background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+article th{text-align:left;background:var(--paper);font-weight:700;font-size:14px;color:var(--slate);padding:12px 14px;border-bottom:1px solid var(--rule)}
+article td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.75}
+article tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+article details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+article details summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+article details summary::-webkit-details-marker{display:none}
+article details summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+article details[open] summary::after{transform:rotate(-135deg)}
+article details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid var(--rule);color:var(--slate)}
+
+.foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
+.cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
+.cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
+footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+.fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.note{max-width:var(--wrap);margin:0 auto 46px;padding-inline:var(--gut)}
+.note div{background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid #B45309;border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.note b{color:#5A3D0C}
+
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .mtoc{display:block}
+}
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  body{font-size:16.5px}
+  .ans{padding:22px;border-radius:0 8px 8px 0}
+  .ans p{font-size:18px}
+  article h2{font-size:22px;margin-top:42px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+<!--i18n-hreflang-->
+<link rel="alternate" hreflang="zh-Hant" href="https://step1ne.com/articles/how-to-choose-headhunter/">
+<link rel="alternate" hreflang="ja" href="https://step1ne.com/ja/articles/how-to-choose-headhunter/">
+<link rel="alternate" hreflang="en" href="https://step1ne.com/en/articles/how-to-choose-headhunter/">
+<link rel="alternate" hreflang="x-default" href="https://step1ne.com/articles/how-to-choose-headhunter/">
+<style>.s1-lang{max-width:1100px;margin:0 auto;padding:10px 16px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.s1-lang a,.s1-lang b{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid #d9dce3;background:#fff;font-size:14px;font-weight:600;color:#4a5060;text-decoration:none}.s1-lang b{background:#23262d;border-color:#23262d;color:#fff}.s1-lang a:hover{color:#23262d;border-color:#9aa0ad}.s1-lang a:focus-visible{outline:3px solid #1880B4;outline-offset:2px}.s1-note{max-width:1100px;margin:10px auto 0;padding:0 16px}.s1-note p{margin:0;padding:12px 14px;border-radius:12px;background:#eef4fb;border:1px solid #c9dcef;color:#1d3a57;font-size:14.5px;line-height:1.7}</style>
+<!--/i18n-hreflang-->
+</head>
+
+<body>
+<div id="bar"></div>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/en/"><img src="/assets/step1ne-logo.png" alt="Step1ne"><b>Step1ne</b></a>
+    <nav class="hd-nav">
+      <a href="/en/commission-recruiting/">For Employers</a><a href="/en/jobs/">Jobs</a><a class="on" href="/en/articles/">Headhunting Insights</a><a href="/en/talent/">Step1ne Referrals</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">Ask on LINE</a>
+    <button class="hd-burger" type="button" aria-label="Open menu" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/en/commission-recruiting/">For Employers</a><a href="/en/jobs/">Jobs</a><a href="/en/articles/">Articles</a><a href="/en/talent/">Step1ne Referrals</a> <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">Contact on LINE</a>
+  </div>
+</header>
+<!--i18n-switch--><nav class="s1-lang" aria-label="Change language"><a href="/articles/how-to-choose-headhunter/" hreflang="zh-Hant" lang="zh-Hant">中文</a><a href="/ja/articles/how-to-choose-headhunter/" hreflang="ja" lang="ja">日本語</a><b lang="en" aria-current="true">English</b></nav><!--/i18n-switch-->
+
+
+<main class="shell">
+  <nav class="crumb" aria-label="Breadcrumb"><a href="/en/">Home</a><span>/</span><a href="/en/articles/">Talent Insights</a><span>/</span>How to Choose a Headhunting Firm in Taiwan: 7 Criteria You Can Actually Verify</nav>
+
+  <aside class="toc" aria-label="Contents">
+    
+<div style="font-size:14.5px;opacity:.92;margin-bottom:15px;line-height:1.6">Executive search, permanent hiring, staffing: fees only on success, nothing if no one starts, with transparent pricing.</div><a href="/en/commission-recruiting/" style="display:inline-block;background:#fff;color:#0F5F87;font-weight:700;padding:11px 20px;border-radius:10px;text-decoration:none;margin:0 8px 8px 0">See our outsourced recruitment plans →</a><a href="https://lin.ee/XcSWPzM" style="display:inline-block;background:#06C755;color:#fff;font-weight:700;padding:11px 20px;border-radius:10px;text-decoration:none">Ask on LINE</a></div>
+<h2>This article has 12 sections</h2>
+    <div class="tns"><a class="tn" href="#sec-0" data-s="sec-0"><i></i><span>What is an executive search firm? Five common types in Taiwan</span></a> <a class="tn" href="#sec-1" data-s="sec-1"><i></i><span>Does it hold a valid employment service license?</span></a> <a class="tn" href="#sec-2" data-s="sec-2"><i></i><span>Does it know your industry and function?</span></a> <a class="tn" href="#sec-3" data-s="sec-3"><i></i><span>Can it explain how it finds people?</span></a> <a class="tn" href="#sec-4" data-s="sec-4"><i></i><span>Are fees and guarantee terms put in writing?</span></a> <a class="tn" href="#sec-5" data-s="sec-5"><i></i><span>Does one consultant stay with you start to finish?</span></a> <a class="tn" href="#sec-6" data-s="sec-6"><i></i><span>The first batch of candidates tells you the quality</span></a> <a class="tn" href="#sec-7" data-s="sec-7"><i></i><span>Will it tell you the truth before taking the search?</span></a> <a class="tn" href="#sec-8" data-s="sec-8"><i></i><span>Three common pitfalls</span></a> <a class="tn" href="#sec-cons" data-s="sec-cons"><i></i><span>What are the downsides of using a headhunting firm?</span></a> <a class="tn" href="#sec-9" data-s="sec-9"><i></i><span>FAQ</span></a> <a class="tn" href="#sec-10" data-s="sec-10"><i></i><span>Feel free to test us with these seven questions</span></a></div>
+  </aside>
+
+  <div>
+    <details class="mtoc"><summary>In this article (12 sections)</summary><div><a href="#sec-0">What is a headhunting firm? Five common types in Taiwan</a> <a href="#sec-1">Does it hold a valid employment services license?</a> <a href="#sec-2">Does it know your industry and job functions?</a> <a href="#sec-3">Can it explain how it finds people?</a> <a href="#sec-4">Are fees and guarantee terms put in writing?</a> <a href="#sec-5">Does one consultant stay with you start to finish?</a> <a href="#sec-6">You can judge candidate quality from the first batch</a> <a href="#sec-7">Will it tell you the truth before taking the job?</a> <a href="#sec-8">Three common pitfalls</a> <a href="#sec-cons">What are the downsides of using a headhunting firm?</a> <a href="#sec-9">FAQ</a> <a href="#sec-10">Feel free to ask us these seven questions too</a></div></details>
+    <article>
+      <span class="tag">Executive Search Guide for Companies · A Headhunter's View</span>
+      <h1>How to choose a headhunting firm in Taiwan: 7 criteria you can actually verify</h1>
+      <div class="by">
+        <span>By <a href="/en/about/">the Step1ne executive search consulting team</a></span> <time class="d" datetime="2026-07-27">Published 2026-07-27</time> <span class="d">About 7 min read</span>
+      </div>
+
+      <div class="ans">
+        <div class="lab">Short answer</div>
+        <p>Don't choose a headhunting firm by size or reputation; look at seven things you can verify: whether it holds a valid employment services license, whether it knows your industry, whether it can explain concretely "how it finds people," whether fees and guarantees are written into the contract, whether the same consultant stays with you from start to finish, the quality of its submissions, and whether it is willing to tell you the truth before taking the job. You can get answers to all seven in the first meeting; you don't have to wait until after you've signed.</p>
+<div class="employer-cta" style="margin:24px 0;padding:22px 24px;border-radius:16px;background:linear-gradient(135deg,#167EB2,#0F5F87);color:#fff"><div style="font-size:18px;font-weight:800;margin-bottom:6px">Are you an employer looking to hire?</div><div style="font-size:14.5px;opacity:.92;margin-bottom:15px;line-height:1.6">Executive search, permanent hiring, staffing: fees only on success, nothing if no one starts, with transparent pricing.</div><a href="/en/commission-recruiting/" style="display:inline-block;background:#fff;color:#0F5F87;font-weight:700;padding:11px 20px;border-radius:10px;text-decoration:none;margin:0 8px 8px 0">See our outsourced recruitment plans →</a><a href="https://lin.ee/XcSWPzM" style="display:inline-block;background:#06C755;color:#fff;font-weight:700;padding:11px 20px;border-radius:10px;text-decoration:none">Ask on LINE</a></div>
+
+      </div>
+
+      <p>Many people search for "recommended headhunting firms in Taiwan" hoping someone will just hand them a list. But the quality of headhunting depends heavily on "the consultant actually handling your search," not the company name, so a list doesn't really help. What is more useful is a set of <strong>criteria you can verify yourself</strong>, which work no matter which headhunter you are dealing with.</p>
+
+    
+
+    <div class="insight">
+      <div class="label">Let's be honest up front</div>
+      <p>This article was written by a headhunting firm, so of course you might suspect we're promoting ourselves. That's why we don't list any "recommended firms" here; we only give you <strong>verification methods you can use with any headhunter (including us)</strong>. Ask through these seven points and you'll be able to tell the good from the bad yourself.</p>
+    </div>
+
+    <h2 id="sec-0">What is a headhunting firm? Five common types in Taiwan</h2>
+    <p>An executive search firm (often called a headhunting firm) is <strong>a licensed employment service company that is commissioned by employers to proactively find people for specific roles</strong>. Unlike job sites, which wait for applications, headhunters reach out directly to people who fit but aren't job hunting yet, and most charge only after the candidate starts. The people who actually do the search are the firm's consultants; to see how they work, read <a href="/en/articles/find-headhunter-consultant/">How headhunting consultants find people</a>.</p>
+    <p>Headhunting firms in Taiwan fall roughly into five types. We won't list names, but knowing the types first makes it easier to decide which kind to approach:</p>
+    <table><thead><tr><th>Type</th><th>Features</th><th>Better suited for</th></tr></thead><tbody>
+    <tr><td>International headhunters</td><td>Headquartered overseas, with many international offices</td><td>Foreign companies, multinational roles, and jobs that require English communication</td></tr>
+    <tr><td>Local Taiwanese full-service</td><td>Familiar with Taiwanese corporate culture, covering a wide range of roles</td><td>Mid- to senior-level roles of all kinds at mid-size and large Taiwanese companies</td></tr>
+    <tr><td>Industry specialist</td><td>Focus on just one or two industries, such as semiconductors, healthcare, or finance</td><td>Roles with high technical barriers, a small talent pool, and jargon you need to understand</td></tr>
+    <tr><td>Platform-affiliated</td><td>Headhunting services offered separately by job banks or job platforms</td><td>Companies already using that platform that want to extend into proactive sourcing</td></tr>
+    <tr><td>Solo practice</td><td>Senior consultants working independently, small scale</td><td>Roles where having the same consultant involved throughout matters</td></tr>
+    </tbody></table>
+    <p>For what each firm offers and how they charge, see <a href="/en/articles/taiwan-headhunter-companies/">Headhunting firms in Taiwan: 104 headhunting service, Cake, international vs. local firms compared</a>. Whatever the type, the seven criteria below apply. <strong>The type sets the direction; the consultant determines the results.</strong></p>
+
+    <h2 id="sec-1"><span class="num">1</span>Do they hold a valid employment services license?</h2>
+    <p>This is the only item with a legal threshold, and the one most people skip. Under Taiwan's Employment Service Act, a private employment service agency must apply to the competent authority for a license and obtain it before operating, and the license must be renewed periodically.</p>
+    <p>Verifying is simple: <strong>ask them directly for their unified business number and their employment service license number</strong> (in a format like "北市就服字第 XXXX 號"). Then check the business number against the business registration lookup system of Taiwan's Ministry of Economic Affairs to confirm the company is operating normally. A legitimate company will give you this right away, and may even list it on its website. If they hedge, be careful.</p>
+    <div class="ask"><strong>You can simply ask: </strong>"Could you share your company's business registration number and employment services license number? Our internal process requires us to keep them on file."</div>
+
+    <h2 id="sec-2"><span class="num">2</span>Do they know your industry and function?</h2>
+    <p>"We can take any role" usually means they specialize in nothing. A headhunter's core value is knowing the people in the field, knowing which companies the strong performers are at, and understanding the technical details candidates talk about. There's no shortcut to this—it only comes from having done it.</p>
+    <p>The test isn't asking “Have you worked in this industry?”—no one will say no. Ask for details instead: <strong>have them describe the current market for this role</strong>. Someone who really knows will tell you which kinds of companies the talent is concentrated in, roughly what the pay band is, and which experience level is hardest to find right now; someone who doesn't will just say “our database is huge.”</p>
+    <div class="ask"><strong>You can ask directly: </strong>“In your view, what's the current market salary range for this position? What backgrounds do suitable candidates usually come from?”</div>
+    <p>To use ourselves as an example, our observations on the talent market for construction engineering, BIM, and semiconductor plant construction are collected in our <a href="/en/construction/">Construction Engineering Jobs &amp; Talent column</a> — you can use it to judge how well we know this field.</p>
+
+    <h2 id="sec-3"><span class="num">3</span>Can they explain how they'll find people?</h2>
+    <p>This question best separates a headhunter from a “résumé forwarder.” Some vendors, once they receive your job description, just repost it on a job bank, wait for applications, and pass the résumés on to you—in which case you could post it yourself and skip the headhunting fee.</p>
+    <p>A real headhunter should be able to explain their <strong>proactive outreach methods</strong> specifically: the size and update process of their talent database, how they target passive candidates who are currently employed, which channels they use to reach them, and roughly how soon they can deliver the first shortlist. The answers should be concrete enough that you can tell they have a method, not just adjectives.</p>
+    <div class="ask"><strong>Ask them directly:</strong> "If you started today, which channels would you use to find people? Roughly when would the first candidates reach me?"</div>
+
+    <h2 id="sec-4"><span class="num">4</span>Are fees and guarantee terms clearly stated in writing?</h2>
+    <p>Most headhunting in Taiwan works on a "success fee" basis, with the fee calculated as a percentage of the hire's annual salary. But the devil is in the details — make sure these items are spelled out in the contract:</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Item</th><th>What to confirm</th></tr></thead>
+        <tbody>
+          <tr><td data-label="項目"><strong>Calculation basis</strong></td><td data-label="要確認什麼">Is annual salary base pay only, or does it include year-end bonuses, other bonuses and stock? Different bases can change the total fee by tens of percent</td></tr>
+          <tr><td data-label="項目"><strong>When fees are charged</strong></td><td data-label="要確認什麼">Paid in full at start date, or in installments after the hire starts? Is there an upfront retainer (retained model)?</td></tr>
+          <tr><td data-label="項目"><strong>Guarantee period</strong></td><td data-label="要確認什麼">Within how long after a departure is a free replacement provided? Commonly 30–120 days. How many replacements? Or is it a refund instead, and how much?</td></tr>
+          <tr><td data-label="項目"><strong>Duplicate candidates</strong></td><td data-label="要確認什麼">If your company has also been in touch with that candidate, how is ownership decided? This is the most frequently disputed point</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">For a full explanation of fee structures and what to negotiate, see <a href="/en/articles/headhunter-fees/">How headhunting firms charge: four things to negotiate beyond the rate</a>; Step1ne's own fees for permanent recruiting, executive search and staffing are published on <a href="/en/commission-recruiting/">Commissioned Recruiting for Employers</a>.</p>
+
+    <h2 id="sec-5"><span class="num">5</span>Does one consultant stay with you start to finish?</h2>
+    <p>Some firms work as "sales closes the deal, an assistant does the work": you talk to a senior consultant, but the person actually doing the work is new to the industry. That isn't necessarily bad, but you should know who is actually responsible, how experienced they are, and whom to contact if something goes wrong.</p>
+    <div class="ask"><strong>Ask directly:</strong> "Will you personally be the one searching for and contacting candidates? If not, could I meet the colleague who will be?"</div>
+    <p>Each Step1ne consultant and the industries they cover are listed on our  <a href="/en/team/">Consultant Team</a>  page, so you can see who would handle your search before you engage us.</p>
+
+    <h2 id="sec-6"><span class="num">6</span>You can judge submission quality from the first batch</h2>
+    <p>The real acceptance test after you start working together is the first batch of candidates. Good submissions come with the consultant's assessment: why they recommend this person, where they fit, where the gaps are, and their current motivation and expected pay. Poor ones just forward the résumé as is.</p>
+    <p>If the first batch of candidates clearly doesn't fit the spec, there's no need to give up right away—but give feedback immediately and watch how fast they adjust. <strong>A headhunter who asks you “why wasn't this a fit?” is far more useful than one who silently sends ten more résumés.</strong></p>
+    <h3>Do they run a structured initial screening before recommending candidates?</h3>
+    <p>It should. A good headhunter will have a full conversation with the candidate against your requirements, then have a consultant review it, before sending anyone to you, rather than forwarding résumés that look similar. You can tell whether they've done this from three things:</p>
+    <ul>
+      <li><strong>Initial screening should ask about your qualifications, not generic questions.</strong> For example, if the role requires Japanese, the screening should actually include a conversation in Japanese to confirm it, not just look at certificates.</li>
+      <li><strong>Salary, start date, and work location are confirmed before submission. </strong>These three are what most often derail things after interviews; the earlier they're confirmed, the less of your interview time is wasted.</li>
+      <li><strong>Every candidate comes with an easy-to-read assessment report.</strong> It spells out which criteria they meet and what you still need to confirm in the interview.</li>
+    </ul>
+    <p>Take our own process as an example: before a candidate is recommended, AI first conducts an initial interview based on the job requirements, then a consultant reviews the report before it reaches the company. The AI's job is to ask every candidate the same set of questions; judgment and recommendations remain the consultant's responsibility.</p>
+    <div class="ask"><strong>Just ask directly:</strong> "Before you send a candidate, what do you discuss with them? Can I see what an actual assessment report looks like?"</div>
+
+    <h2 id="sec-7"><span class="num">7</span>Will they tell you the truth before taking the search?</h2>
+    <p>This one is the softest, but often the most accurate.</p>
+    <p>If your job requirements are clearly unrealistic for the market — pay below the going rate, a skill combination that barely exists, a remote location with no support — a responsible headhunter will tell you before taking the job and suggest adjustments. Those who just want to land the assignment and deal with "can't find anyone" later usually end up wasting both sides' time.</p>
+
+    <div class="insight">
+      <div class="label">A headhunter's view</div>
+      <p>When we take on a search ourselves, we always tell the client honestly at the first meeting what makes the role hard. One company was stunned on the spot—because every firm they'd talked to before had said, "No problem, leave it to us."</p>
+      <p>But the value of honesty shows up later: if you know from the start whether the role is stuck on salary band or on location, you have a chance to adjust before investing three months. <strong>Firms that won't tell you the truth before taking the job usually save the hard news for when you no longer have a way out.</strong></p>
+    </div>
+
+    <h2 id="sec-8">Three common pitfalls</h2>
+    <ol>
+      <li><strong>Engaging five firms at once in a pitch-style contest</strong> looks like covering all the bases, but in reality each firm knows it has only a 20% chance, so none of them invests resources, and in the end all five wait for someone else to move. Either work seriously with a small number of firms, or grant exclusivity tied to a clear timeline and exit terms</li>
+      <li><strong>Comparing fee rates but not quality</strong>: If the rate differs by 3% but the quality of candidates is twice as good, what you pay for is interview time and the cost of an empty seat — far more expensive than 3%</li>
+      <li><strong>Not spelling out who can and can't be approached</strong>. If there are companies you don't want approached (partners, companies in the same group), list them in writing as off-limits when you engage. Finding out afterward that someone was poached from your own partner is very hard to handle</li>
+    </ol>
+
+        <h2 id="sec-cons">What are the downsides of using a headhunting firm?</h2>
+    <p>Using a headhunting firm isn't without costs. Knowing these downsides before you commission one makes it easier to judge whether it's worth it, and how to reduce the risks:</p>
+    <table><thead><tr><th>Drawbacks</th><th>What actually happens</th><th>How to reduce it</th></tr></thead><tbody>
+    <tr><td>Costs more than posting ads yourself</td><td>Usually calculated from the candidate's salary; the fee for one hire is typically higher than several months of job postings</td><td>Outsource only hard-to-fill, rare-skill or confidential roles; hire for ordinary roles yourself</td></tr>
+    <tr><td>Takes time to communicate your needs</td><td>If the requirements aren't clear, the consultant searches in the wrong direction, and going back and forth wastes time</td><td>Have the hiring manager join the first requirements interview directly</td></tr>
+    <tr><td>Consultant quality varies widely</td><td>Within the same firm, results can vary a lot between senior and junior consultants</td><td>Ask who will handle your search, and evaluate that consultant against the seven criteria in this article</td></tr>
+    <tr><td>Confidentiality isn't always well handled</td><td>An unprofessional consultant may describe a confidential role in too much detail, and word gets out to competitors</td><td>The contract defines the scope of confidentiality, and any external description gets your approval first</td></tr>
+    <tr><td>Disputes over candidate ownership are common</td><td>When you engage several firms at once, the same candidate may be recommended by two of them</td><td>Agree in the contract that whoever referred first, with a written record, gets credit</td></tr>
+    <tr><td>Not suited to large numbers of frontline roles</td><td>For high-volume roles like retail staff, customer service, and operators, headhunting tends to cost too much</td><td>To switch to job boards, recruitment outsourcing or staffing, see <a href="/en/articles/entry-level-recruitment-outsourcing/">How to choose recruitment outsourcing for entry- and mid-level roles</a></td></tr>
+    </tbody></table>
+    <p>If your role isn't hard to fill, your budget is limited, or your needs aren't clear yet, it's usually more cost-effective not to use a headhunting firm for now.</p>
+
+<aside data-exp="cta-mid-2026-08-06"><p>For employers</p><h3>For the role you need to fill, we can give you a real number first</h3><p>You're welcome to ask us the seven questions above directly. Our employment service license number, rating and unified business number are all publicly verifiable. Who your consultant is, how we find candidates, and how the guarantee works are all explained clearly in the first meeting, so you don't have to wait until after signing to find out.</p><form class="s1-lead" novalidate style="display:grid;gap:8px;margin-top:14px;position:relative">
+<input name="company" aria-label="Company name" placeholder="Company name" autocomplete="organization" style="min-height:44px;padding:0 12px;border:1px solid #D9E0E6;border-radius:10px;font-size:15px;background:#fff;color:#0D1B24">
+<input name="job" aria-label="Jobs I&#x27;m looking for" placeholder="What role are you hiring for? (e.g. BIM engineer ×3)" style="min-height:44px;padding:0 12px;border:1px solid #D9E0E6;border-radius:10px;font-size:15px;background:#fff;color:#0D1B24">
+<label style="display:grid;gap:4px;font-size:13.5px;color:#4A5A66">Additional requirements (optional)<textarea name="detail" rows="3" maxlength="1000" placeholder="e.g. the role has been open a long time, we need someone to start next month, they must speak Taiwanese Hokkien / work shifts…" style="min-height:88px;padding:10px 12px;border:1px solid #D9E0E6;border-radius:10px;font-size:15px;font-family:inherit;line-height:1.5;background:#fff;color:#0D1B24;resize:vertical"></textarea></label>
+<input name="contact" aria-label="Email or phone" placeholder="Email or phone" autocomplete="email" style="min-height:44px;padding:0 12px;border:1px solid #D9E0E6;border-radius:10px;font-size:15px;background:#fff;color:#0D1B24">
+<input name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
+<button type="submit" data-cta="mid-client-form" style="min-height:46px;border:0;border-radius:10px;background:#167EB2;color:#fff;font-size:15.5px;font-weight:700;cursor:pointer">Get a free quote and recommendations</button>
+<p class="s1-lead-msg" role="status" aria-live="polite" style="margin:0;font-size:14px"></p>
+<p style="margin:0;font-size:13px;opacity:.85">A consultant will reply within 1 business day, and no contract is needed first. You can also <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-client">ask a consultant on LINE</a></p>
+</form></aside><h2 id="sec-9">FAQ</h2>
+    <div>
+      <details>
+        <summary>
+          <span>Which headhunting firms are in Taiwan? Why doesn't this article list them?</span><span class="faq-icon">+</span>
+        </summary>
+        <p>Headhunting firms in Taiwan fall into roughly five types: international, local generalist, industry specialist, platform-attached, and solo practices. Since we're a headhunting firm ourselves, any list we made couldn't be fully neutral—and the quality of a partnership mainly depends on the consultant in charge—so this article offers only a way to judge. Decide which type to approach based on the role, then compare firms one by one using the seven criteria here.</p>
+      </details>
+      <details>
+        <summary>
+          <span>Is a big headhunting firm always better?</span><span class="faq-icon">+</span>
+        </summary>
+        <p>Not necessarily. Quality in headhunting depends heavily on “the consultant who actually handles your search,” not the company's brand. Large firms' strengths are database scale and cross-regional resources; small or boutique firms' strengths are consultant seniority and level of commitment. The practical approach is to evaluate the person who will handle your search directly, rather than the company.</p>
+      </details>
+      <details>
+        <summary>
+          <span>Do headhunters charge job seekers?</span><span class="faq-icon">+</span>
+        </summary>
+        <p>Legitimate headhunting services charge the <strong>employer</strong>, not the job seeker. Under Taiwan's relevant regulations, private employment services agencies may not withhold job seekers' property or collect placement deposits, nor charge any fees beyond the prescribed standards. If a provider asks a job seeker to pay before arranging an interview, be on guard — you can check with your local labor authority.</p>
+      </details>
+      <details>
+        <summary>
+          <span>When should you use a headhunter, and when is hiring yourself enough?</span><span class="faq-icon">+</span>
+        </summary>
+        <p>If posting a job publicly gets you candidates, hiring in-house is the most cost-effective. Headhunting truly adds value when the role is confidential and can't be advertised, requires rare specialized skills, needs a large number of people filled in a short time, or you've tried recruiting yourself several times without success — because these situations require proactively reaching passive candidates who "aren't looking at job ads."</p>
+      </details>
+      <details>
+        <summary>
+          <span>Can we start with a small trial?</span><span class="faq-icon">+</span>
+        </summary>
+        <p>Yes, and we recommend it. Especially for mass hiring, start with a first batch of candidates as a market test that checks three things at once: whether the JD matches what the market can actually supply, whether your interview and offer pace keeps people engaged, and whether the salary range is attractive enough. Scaling up after the pilot works is far safer than going all in from the start.</p>
+      </details>
+    </div>
+
+    <div>
+      <h2 id="sec-10">Feel free to ask us these seven questions too</h2>
+      <p>Step1ne (德仁管理顧問有限公司, business ID 85046127, Taipei City employment services license No. 0363) provides executive search, permanent recruitment, and staffing. In our first meeting we'll tell you honestly what makes this role hard before discussing whether to work together.</p>
+      <p><strong>Looking to outsource recruiting?</strong> For the three engagement models, success-based fees, and how guarantees and replacements are arranged, start with <a href="/en/commission-recruiting/">our corporate recruiting plans</a>; to see who would handle your opening, visit <a href="/en/team/">the Step1ne consultant team</a>.</p>
+      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">Talk with a consultant on LINE</a>
+    </div>
+
+    <p>Further reading: <a href="/en/articles/work-with-headhunters/">How do Taiwanese companies work with headhunters? Channels and fee structures explained</a> · <a href="/en/articles/dispatch-legal-risks/">Legal pitfalls of using staffing: Article 17-1 of Taiwan's Labor Standards Act</a></p>
+
+      
+<div class="cta">
+        <p>We hold ourselves to these seven criteria too—our employment service license number, evaluation grade, and business registration number are all public and verifiable.</p>
+          <a class="btn-alt" href="/en/about/">Verify Step1ne's credentials</a> <a class="btn-line" href="https://lin.ee/XcSWPzM">Ask a consultant on LINE</a>
+      </div>
+    
+<div class="related-jobs-box" style="margin:26px 0;padding:18px 20px;border:1px solid #D9E0E6;border-radius:14px;background:#EAF4FA"><strong style="display:block;margin-bottom:9px;color:#0F5F87;font-size:15px">🔎 Related openings</strong><div style="display:flex;flex-wrap:wrap;gap:8px 14px;font-size:14.5px"><a href="/en/commission-recruiting/">Recruitment Commission Plan for Businesses</a> · <a href="/en/jobs/">View all openings</a></div></div>
+</article>
+  </div>
+</main>
+
+
+<footer><div class="fw">德仁管理顧問有限公司, 3F, No. 54-7, Sec. 3, Kangning Rd., Neihu Dist., Taipei City</div></footer>
+
+<script>
+// 表格加水平捲動外框，避免手機橫向溢位
+document.querySelectorAll('article table').forEach(function(t){
+  var w=document.createElement('div'); w.className='tw';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
+// 閱讀進度
+var bar=document.getElementById('bar');
+function prog(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',prog,{passive:true}); prog();
+// 目錄跟隨
+var tns=[].slice.call(document.querySelectorAll('.tn'));
+var secs=tns.map(function(a){return document.getElementById(a.dataset.s)}).filter(Boolean);
+if('IntersectionObserver' in window && secs.length){
+  var cur=null;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) cur=e.target.id; });
+    tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  },{rootMargin:'-88px 0px -70% 0px'}).observe && secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===e.target.id)}); }
+      });
+    },{rootMargin:'-88px 0px -70% 0px'}).observe(s);
+  });
+}
+</script>
+<script src="/assets/lead-form.js" defer></script>
+
+<style>
+.s1ne-sc{position:fixed;z-index:60;left:0;right:0;bottom:0;display:flex;gap:10px;padding:10px max(14px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));background:rgba(255,255,255,.96);box-shadow:0 -6px 24px rgba(40,30,10,.12);transform:translateY(120%);transition:transform .25s ease}
+.s1ne-sc.on{transform:none}
+.s1ne-sc a{flex:1;display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:999px;font-weight:700;font-size:15px;text-decoration:none;white-space:nowrap}
+.s1ne-sc .p{background:#111827;color:#fff}
+.s1ne-sc .l{background:#fff;color:#111827;border:1.5px solid #d1d5db}
+.s1ne-sc a:focus-visible{outline:3px solid #1f2937;outline-offset:2px}
+@media (min-width:760px){.s1ne-sc{left:auto;right:24px;bottom:24px;border-radius:999px;padding:8px;box-shadow:0 8px 28px rgba(40,30,10,.18)}.s1ne-sc a{flex:none;padding:0 22px}}
+@media (prefers-reduced-motion:reduce){.s1ne-sc{transition:none}}
+body{padding-bottom:84px}
+@media (min-width:760px){body{padding-bottom:0}}
+</style>
+<div class="s1ne-sc" id="s1neSc" role="region" aria-label="Fast action">
+  <a class="l" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">Ask on LINE</a> <a class="p" href="/en/jobs/" data-cta="jobs_cta_click">See current openings</a>
+</div>
+<script>
+(function(){var b=document.getElementById('s1neSc');if(!b)return;
+function t(){b.classList.toggle('on',window.scrollY>380);}
+window.addEventListener('scroll',t,{passive:true});t();
+b.querySelector('.p').addEventListener('click',function(){try{gtag('event',this.getAttribute('data-cta'),{page_path:location.pathname,placement:'sticky'});}catch(e){}});})();
+</script>
+<!-- /s1ne-sticky-cta -->
+
+</body>
+</html>

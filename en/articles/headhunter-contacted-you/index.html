@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href*="lin.ee"]');
+  if (!a) return;
+  gtag('event', 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60)
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Headhunter Contacted You: How to Respond? Ask Five Questions Before You Decide | Step1ne</title>
+<meta name="description" content="What should you do when a headhunter contacts you? Verify they&#x27;re real first, reply even if you&#x27;re not looking to move, ask five key questions before replying, and know how to insist on what matters most: keeping your résumé confidential. Explained from the headhunting consultant&#x27;s side.">
+<meta name="keywords" content="headhunter contacted me,headhunter outreach,how to reply to a headhunter,being poached by a headhunter,headhunter résumé confidentiality,applying through a headhunter,headhunter scams">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/en/articles/headhunter-contacted-you/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Step1ne Referrals">
+<meta property="og:title" content="A headhunter contacted you — how should you respond? Ask five questions first, then decide">
+<meta property="og:description" content="Verify they&#x27;re legit first, five questions to ask before replying, and how to request résumé confidentiality—explained by headhunting consultants from our side of the table.">
+<meta property="og:url" content="https://step1ne.com/en/articles/headhunter-contacted-you/">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta name="theme-color" content="#F4F6F8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "A headhunter contacted you — how should you respond? Ask five questions first, then decide",
+  "description": "A complete guide to responding when a headhunter contacts you: how to verify that they're a licensed employment service agency, why it's worth replying even if you're not planning to move, five key questions to confirm before replying, how to request résumé confidentiality and an off-limits list, and the real differences between applying through a headhunter and applying on your own.",
+  "datePublished": "2026-07-27",
+  "dateModified": "2026-07-27",
+  "inLanguage": "zh-TW",
+  "author": {
+    "@type": "Organization",
+    "name": "Step1ne 德仁管理顧問有限公司",
+    "url": "https://step1ne.com/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "德仁管理顧問有限公司 (Step1ne)",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://step1ne.com/assets/step1ne-logo.png"
+    }
+  }
+}
+</script>
+
+<style>
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;
+  --wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:17px;line-height:1.95;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.35;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,select,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* 導覽 */
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+/* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
+
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
+.crumb{grid-column:1/-1;padding:22px 0 6px;font-size:13.5px;color:var(--slate-dim)}
+.crumb a{color:var(--slate)}
+.crumb a:hover{color:var(--brand-deep)}
+.crumb span{margin:0 8px;color:var(--rule)}
+
+/* 目錄軌：沿用全站 signature */
+.toc{position:sticky;top:92px;padding:8px 0 40px}
+.toc h2{font-size:13px;font-weight:700;color:var(--slate-dim);letter-spacing:.02em;margin-bottom:16px}
+.tns{position:relative;padding-left:22px}
+.tns::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.14))}
+.tn{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:14px;color:var(--slate);line-height:1.6;position:relative}
+.tn i{position:absolute;left:-22px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--rule);flex:0 0 auto}
+.tn:hover{color:var(--brand-deep)}
+.tn:hover i{border-color:var(--brand)}
+.tn.on{color:var(--ink);font-weight:700}
+.tn.on i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 4px rgba(46,169,223,.2)}
+.mtoc{display:none;margin:20px 0 0;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.mtoc summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15.5px;position:relative}
+.mtoc summary::-webkit-details-marker{display:none}
+.mtoc summary::after{content:"";position:absolute;right:20px;top:24px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.mtoc[open] summary::after{transform:rotate(-135deg)}
+.mtoc div{padding:0 18px 14px}
+.mtoc a{display:block;padding:9px 0;font-size:15px;color:var(--slate);border-top:1px solid var(--rule)}
+
+/* 文章本體 */
+article{padding:14px 0 60px;max-width:70ch}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--brand-deep);background:rgba(22,126,178,.07);border:1px solid rgba(22,126,178,.25);border-radius:5px;padding:4px 11px}
+article h1{margin-top:16px;font-size:clamp(28px,4.2vw,42px);line-height:1.28;letter-spacing:-.02em}
+.by{margin-top:18px;padding-bottom:20px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14px;color:var(--slate-dim)}
+.by a{color:var(--slate);border-bottom:1px solid var(--rule)}
+.by .d{font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+
+/* ★ Signature：直接答案 */
+.ans{margin-top:30px;background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:26px 30px}
+.ans .lab{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:10px}
+.ans p{font-size:19.5px;line-height:1.85;font-weight:500}
+.ans strong{font-weight:900}
+
+article h2{margin:52px 0 16px;font-size:25px;scroll-margin-top:92px}
+article h3{margin:34px 0 10px;font-size:19px}
+article h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-right:12px;border-radius:8px;background:var(--brand);color:#fff;font-family:var(--f-disp);font-size:17px;font-weight:700;vertical-align:2px}
+article p{margin-top:16px}
+article strong{font-weight:700}
+article a:not(.tn){color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.32)}
+article a:not(.tn):hover{border-bottom-color:var(--brand-deep)}
+article ul,article ol{margin:16px 0 0;padding-left:1.4em}
+article li{margin-top:9px}
+article table{width:100%;border-collapse:collapse;margin-top:22px;font-size:15.5px;background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+article th{text-align:left;background:var(--paper);font-weight:700;font-size:14px;color:var(--slate);padding:12px 14px;border-bottom:1px solid var(--rule)}
+article td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.75}
+article tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+article details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+article details summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+article details summary::-webkit-details-marker{display:none}
+article details summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+article details[open] summary::after{transform:rotate(-135deg)}
+article details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid var(--rule);color:var(--slate)}
+
+.foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
+.cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
+.cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
+footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+.fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.note{max-width:var(--wrap);margin:0 auto 46px;padding-inline:var(--gut)}
+.note div{background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid #B45309;border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.note b{color:#5A3D0C}
+
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .mtoc{display:block}
+}
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  body{font-size:16.5px}
+  .ans{padding:22px;border-radius:0 8px 8px 0}
+  .ans p{font-size:18px}
+  article h2{font-size:22px;margin-top:42px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+<!--i18n-hreflang-->
+<link rel="alternate" hreflang="zh-Hant" href="https://step1ne.com/articles/headhunter-contacted-you/">
+<link rel="alternate" hreflang="ja" href="https://step1ne.com/ja/articles/headhunter-contacted-you/">
+<link rel="alternate" hreflang="en" href="https://step1ne.com/en/articles/headhunter-contacted-you/">
+<link rel="alternate" hreflang="x-default" href="https://step1ne.com/articles/headhunter-contacted-you/">
+<style>.s1-lang{max-width:1100px;margin:0 auto;padding:10px 16px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.s1-lang a,.s1-lang b{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid #d9dce3;background:#fff;font-size:14px;font-weight:600;color:#4a5060;text-decoration:none}.s1-lang b{background:#23262d;border-color:#23262d;color:#fff}.s1-lang a:hover{color:#23262d;border-color:#9aa0ad}.s1-lang a:focus-visible{outline:3px solid #1880B4;outline-offset:2px}.s1-note{max-width:1100px;margin:10px auto 0;padding:0 16px}.s1-note p{margin:0;padding:12px 14px;border-radius:12px;background:#eef4fb;border:1px solid #c9dcef;color:#1d3a57;font-size:14.5px;line-height:1.7}</style>
+<!--/i18n-hreflang-->
+</head>
+
+<body>
+<div id="bar"></div>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/en/"><img src="/assets/step1ne-logo.png" alt="Step1ne"><b>Step1ne</b></a>
+    <nav class="hd-nav">
+      <a href="/en/commission-recruiting/">For Employers</a><a href="/en/jobs/">Jobs</a><a class="on" href="/en/articles/">Headhunting Insights</a><a href="/en/talent/">Step1ne Referrals</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">Ask on LINE</a>
+    <button class="hd-burger" type="button" aria-label="Open menu" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/en/commission-recruiting/">For Employers</a><a href="/en/jobs/">Jobs</a><a href="/en/articles/">Articles</a><a href="/en/talent/">Step1ne Referrals</a> <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">Contact on LINE</a>
+  </div>
+</header>
+<!--i18n-switch--><nav class="s1-lang" aria-label="Change language"><a href="/articles/headhunter-contacted-you/" hreflang="zh-Hant" lang="zh-Hant">中文</a><a href="/ja/articles/headhunter-contacted-you/" hreflang="ja" lang="ja">日本語</a><b lang="en" aria-current="true">English</b></nav><!--/i18n-switch-->
+
+
+<main class="shell">
+  <nav class="crumb" aria-label="Breadcrumb"><a href="/en/">Home</a><span>/</span><a href="/en/articles/">Headhunting Column</a><span>/</span>A headhunter reached out—how should you respond?</nav>
+
+  <aside class="toc" aria-label="Contents">
+    <h2>This article has 7 sections</h2>
+    <div class="tns"><a class="tn" href="#sec-1" data-s="sec-1"><i></i><span>First, check: is this a real headhunter or a scam?</span></a> <a class="tn" href="#sec-2" data-s="sec-2"><i></i><span>Reply even if you are not looking to move right now</span></a> <a class="tn" href="#sec-3" data-s="sec-3"><i></i><span>Five questions to ask before you reply</span></a> <a class="tn" href="#sec-4" data-s="sec-4"><i></i><span>The most important thing: keeping your résumé confidential</span></a> <a class="tn" href="#sec-5" data-s="sec-5"><i></i><span>Applying through a headhunter vs. applying yourself</span></a> <a class="tn" href="#sec-6" data-s="sec-6"><i></i><span>FAQ</span></a> <a class="tn" href="#sec-7" data-s="sec-7"><i></i><span>Want to know your market value first?</span></a></div>
+  </aside>
+
+  <div>
+    <details class="mtoc"><summary>Contents (7 sections)</summary><div><a href="#sec-1">First, check: real headhunter or scam?</a> <a href="#sec-2">Reply even if you're not looking to switch jobs right now</a> <a href="#sec-3">Ask these five questions before replying</a> <a href="#sec-4">The most important thing: résumé confidentiality</a> <a href="#sec-5">Applying through a headhunter vs. applying yourself</a> <a href="#sec-6">FAQ</a> <a href="#sec-7">Want to know your market value first?</a></div></details>
+    <article>
+      <span class="tag">Job seeker guide · A headhunter's view</span>
+      <h1>A headhunter contacted you — how should you respond?</h1>
+      <div class="by">
+        <span>By: <a href="/en/about/">Step1ne Executive Search Consultants</a></span> <time class="d" datetime="2026-07-27">Published 2026-07-27</time> <span class="d">About 5 min</span>
+      </div>
+
+      <div class="ans">
+        <div class="lab">Short answer</div>
+        <p>First verify that they are a legitimate employment services agency (ask for their business registration number and license number, and confirm they won't charge you), then decide whether to talk. <strong>Even if you have no plans to change jobs right now, it's worth sending a short reply</strong> — it's the lowest-cost way to learn your market value. Before going further, ask five things: which company, the salary range, why the role is open, how long the search has been running, and most importantly, that your résumé won't be sent anywhere without your consent.</p>
+      </div>
+
+      <h2 id="sec-1">First, check: is this a real headhunter or a scam?</h2>
+    <p>In recent years there have been many job scams by people posing as headhunters, so the first step isn't replying. It's verifying. Three actions filter out 90% of the problems:</p>
+    <ul>
+      <li><strong>Ask for the business registration number and employment service license number</strong>: in Taiwan, recruitment agencies must by law be licensed by the competent authority to operate. Reputable firms will give these right away, and may even list them on their website</li>
+      <li><strong>Check business status with the registration number</strong>—use the Commercial and Industrial Registration search system of Taiwan's Ministry of Economic Affairs to confirm the company is operating normally</li>
+      <li><strong>Make sure they won't charge you</strong> — legitimate headhunters are paid by the <strong>company</strong>. Anyone who asks job seekers to pay upfront, put down a deposit, or take out a loan to buy a course: block them immediately</li>
+    </ul>
+    <div class="warn">
+      <div class="label">⚠ Stop all contact immediately in these situations</div>
+      <p>If they ask you to pay a fee or deposit first, ask you to hand over original ID documents or your bankbook, hold the interview at a private home or overseas, offer terms clearly above market while pressuring you to "decide today," or run the whole process over messaging apps without providing company information — if any one of these applies, stop all contact. If necessary, report it to your local labor authority or the police.</p>
+    </div>
+
+    <h2 id="sec-2">Even if you don't want to change jobs right now, we recommend replying</h2>
+    <p>Many people leave headhunter messages on read, figuring they aren't planning to move anyway. But from a market perspective, that wastes a free chance to gather information.</p>
+    <p>You can reply with one sentence — low effort, but you get something out of it: "I'm not planning to move right now, but I'd like to learn about this opportunity and its salary range. Could you tell me more?" That way you learn <strong>your current market value</strong>, and you build a line you can use directly when you really do want to move.</p>
+
+    <div class="insight">
+      <div class="label">A headhunter's view</div>
+      <p>From where we sit, <strong>the ideal person to work with often isn't someone "urgently looking to move"</strong>—it's someone willing to stay in touch and chat every six months. Because you can't control when a great opportunity appears, if you only start looking when you really want to change jobs, you can only choose from whatever happens to be open at that moment.</p>
+      <p>Look at it another way: the cost of leaving a message on read isn't this one opportunity—it's that three years from now, when a role that's perfect for you comes up, you won't be on the consultant's mind.</p>
+    </div>
+
+    <h2 id="sec-3">Before you reply, ask these five questions</h2>
+    <p>Before spending time on the JD or setting up a call, use these five questions to quickly judge whether it's worth pursuing:</p>
+    <ol>
+      <li><strong>"Which company is this?"</strong>: even if it's a confidential search and they can't name the company, they should at least be able to describe the industry, size and team. Be wary if they won't tell you anything</li>
+      <li><strong>"What's the salary range?"</strong> — asking for a range isn't rude, it's efficient. If it's way off, there's no need to waste each other's time</li>
+      <li><strong>"Why is this position open?"</strong> — expansion, someone leaving, or a new unit? If it's a replacement, it's worth asking how long the previous person stayed and why they left</li>
+      <li><strong>“How long have you been working on this search?”</strong> — if they're still looking after three months, it usually means the requirements don't match the market, or the hiring manager's bar is especially high</li>
+      <li><strong>"My résumé won't be sent anywhere without my consent, right?"</strong>: always ask this. The reason is explained in the next section</li>
+    </ol>
+
+    <h2 id="sec-4">The most important thing: résumé confidentiality</h2>
+    <p>Job seekers' biggest worry about headhunters is usually “will my résumé get sent around carelessly?” That's a fair concern—especially if it accidentally lands at your current employer or an affiliated company, the consequences can be serious.</p>
+    <p>The proper practice is: <strong>a consultant does not send your résumé to any company before getting your explicit consent</strong>, and should tell you which company before sending it. You can also give them an "off-limits list" naming companies you don't want to be referred to (for example, affiliates of your current employer or its clients), and a professional consultant will record and respect it.</p>
+    <div class="ask"><strong>You can simply say:</strong> "I'm currently employed and would like this kept confidential. Please let me confirm which company it is before sending my résumé, and please don't submit me to the following companies: ..."</div>
+
+    <h2 id="sec-5">How is applying through a headhunter different from applying yourself?</h2>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th></th><th>Applying yourself</th><th>Through a headhunter</th></tr></thead>
+        <tbody>
+          <tr><td data-label=""><strong>Source of openings</strong></td><td data-label="自己投遞">Publicly advertised jobs</td><td data-label="透過獵頭">Includes confidential, unadvertised roles</td></tr>
+          <tr><td data-label=""><strong>Salary negotiation</strong></td><td data-label="自己投遞">Naming your own price, it's easy to undersell or ask too much</td><td data-label="透過獵頭">The consultant knows the role's budget range and can negotiate on your behalf</td></tr>
+          <tr><td data-label=""><strong>Pre-interview information</strong></td><td data-label="自己投遞">Can rely only on public information and what you observe in the interview</td><td data-label="透過獵頭">Consultants usually know the team situation, the manager's style, and the real pain points behind the role</td></tr>
+          <tr><td data-label=""><strong>Feedback when rejected</strong></td><td data-label="自己投遞">Mostly read-and-ignored, or canned replies</td><td data-label="透過獵頭">A consultant can find out the specific reasons, which helps next time</td></tr>
+          <tr><td data-label=""><strong>Cost</strong></td><td data-label="自己投遞">Free</td><td data-label="透過獵頭">Also free for job seekers; the company pays the fee</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="insight">
+      <div class="label">A headhunter's view</div>
+      <p>Salary negotiation is the value job seekers most often underestimate. When negotiating on your own, most people don't know where the budget ceiling for the role is; ask too low and you lose that gap for good, ask too high and you may be out of the running.</p>
+      <p>Your consultant knows the range the company is offering and where your profile sits in the market, so they can push the number to a reasonable level without making things awkward for either side. <strong>And the consultant has an incentive too—most headhunters' fees are calculated on your annual salary.</strong> It's one of the few stages where everyone's interests line up.</p>
+    </div>
+
+    <h2 id="sec-6">FAQ</h2>
+<div><details>
+        <summary><span>Will a headhunter charge me?</span><span class="faq-icon">+</span></summary>
+        <p>No. Legitimate headhunting services charge the company, not the job seeker. Under Taiwan's regulations, private employment service agencies may not hold job seekers' property or collect placement deposits. Be on guard with anyone who asks you to pay before arranging an interview.</p>
+      </details><details>
+        <summary><span>I'm currently employed. Will my company find out?</span><span class="faq-icon">+</span></summary>
+        <p>A professional consultant works confidentially and won't send your résumé without your consent. You can give them a list of companies you don't want to be referred to (including affiliates of your current employer and its clients), and ask to be told which company before each submission. This is a reasonable and common request.</p>
+      </details><details>
+        <summary><span>What if I've already applied to the same job myself?</span><span class="faq-icon">+</span></summary>
+        <p>Tell your consultant up front. Most companies and headhunters have rules for handling duplicate candidates; if you've already applied yourself or been referred through another channel, a duplicate submission can cause disputes and may affect your hiring process. Being honest is the simplest route.</p>
+      </details><details>
+        <summary><span>Does being approached by a headhunter mean I'm in demand?</span><span class="faq-icon">+</span></summary>
+        <p>Not necessarily, but don't sell yourself short either. Headhunters search backward from a role's requirements, so being found usually means your experience matches a specific need, not that the whole market has rated you. The genuinely useful move is to use the opportunity to learn your market value.</p>
+      </details><details>
+        <summary><span>If I don't want to change jobs, can I just say so?</span><span class="faq-icon">+</span></summary>
+        <p>Yes, and we recommend saying so clearly. Rather than leaving the message on read, reply with something like "I'm not planning a move right now, but let's stay in touch." A professional consultant won't pester you; instead, they'll keep a note on you and reach out when a genuinely good opportunity comes up.</p>
+      </details></div><div>
+      <h2 id="sec-7">Want to know your market value first?</h2>
+      <p>You can talk with us even if you aren't planning to change jobs. Tell a consultant your current role and years of experience, and we can explain the market range for that profile and the kinds of opportunities that might fit. Everything is confidential, and we never submit you anywhere on our own.</p>
+      <p><a href="/en/jobs/">See current openings →</a></p>
+      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">Talk with a consultant on LINE</a>
+    </div>
+
+    <p>Further reading: <a href="/en/jobs/">See current openings</a> · <a href="/en/articles/how-to-choose-headhunter/">How to choose a headhunting firm in Taiwan: 7 criteria</a> · <a href="/en/articles/executive-job-search/">Why can't you find NT$1 million-a-year management jobs on job sites?</a></p>
+
+      
+<div class="cta">
+        <p>Want to make sure the headhunter who contacted you is legitimate? Our employment services license number and accreditation rating can both be publicly verified.</p>
+          <a class="btn-alt" href="/en/about/">See Step1ne company details</a> <a class="btn-line" href="https://lin.ee/XcSWPzM">Ask a consultant on LINE</a>
+      </div>
+    </article>
+  </div>
+</main>
+
+
+<footer><div class="fw">德仁管理顧問有限公司, 3F, No. 54-7, Sec. 3, Kangning Rd., Neihu Dist., Taipei City</div></footer>
+
+<script>
+// 表格加水平捲動外框，避免手機橫向溢位
+document.querySelectorAll('article table').forEach(function(t){
+  var w=document.createElement('div'); w.className='tw';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
+// 閱讀進度
+var bar=document.getElementById('bar');
+function prog(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',prog,{passive:true}); prog();
+// 目錄跟隨
+var tns=[].slice.call(document.querySelectorAll('.tn'));
+var secs=tns.map(function(a){return document.getElementById(a.dataset.s)}).filter(Boolean);
+if('IntersectionObserver' in window && secs.length){
+  var cur=null;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) cur=e.target.id; });
+    tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  },{rootMargin:'-88px 0px -70% 0px'}).observe && secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===e.target.id)}); }
+      });
+    },{rootMargin:'-88px 0px -70% 0px'}).observe(s);
+  });
+}
+</script>
+
+<style>
+.s1ne-sc{position:fixed;z-index:60;left:0;right:0;bottom:0;display:flex;gap:10px;padding:10px max(14px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));background:rgba(255,255,255,.96);box-shadow:0 -6px 24px rgba(40,30,10,.12);transform:translateY(120%);transition:transform .25s ease}
+.s1ne-sc.on{transform:none}
+.s1ne-sc a{flex:1;display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:999px;font-weight:700;font-size:15px;text-decoration:none;white-space:nowrap}
+.s1ne-sc .p{background:#111827;color:#fff}
+.s1ne-sc .l{background:#fff;color:#111827;border:1.5px solid #d1d5db}
+.s1ne-sc a:focus-visible{outline:3px solid #1f2937;outline-offset:2px}
+@media (min-width:760px){.s1ne-sc{left:auto;right:24px;bottom:24px;border-radius:999px;padding:8px;box-shadow:0 8px 28px rgba(40,30,10,.18)}.s1ne-sc a{flex:none;padding:0 22px}}
+@media (prefers-reduced-motion:reduce){.s1ne-sc{transition:none}}
+body{padding-bottom:84px}
+@media (min-width:760px){body{padding-bottom:0}}
+</style>
+<div class="s1ne-sc" id="s1neSc" role="region" aria-label="Fast action">
+  <a class="l" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">Ask on LINE</a> <a class="p" href="/en/jobs/" data-cta="jobs_cta_click">See current openings</a>
+</div>
+<script>
+(function(){var b=document.getElementById('s1neSc');if(!b)return;
+function t(){b.classList.toggle('on',window.scrollY>380);}
+window.addEventListener('scroll',t,{passive:true});t();
+b.querySelector('.p').addEventListener('click',function(){try{gtag('event',this.getAttribute('data-cta'),{page_path:location.pathname,placement:'sticky'});}catch(e){}});})();
+</script>
+<!-- /s1ne-sticky-cta -->
+
+</body>
+</html>

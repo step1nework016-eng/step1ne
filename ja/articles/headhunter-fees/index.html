@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  if (!e.target.closest) return;
+  // 2026-08-06：原本只抓 lin.ee。BIM 那群的下一步是「直接應徵」不是加 LINE，
+  // 不一起記的話，等於把那條路做出來卻量不到，實驗就白做了。
+  var a = e.target.closest('a[href*="lin.ee"], a[href^="/apply"]');
+  if (!a) return;
+  var isApply = (a.getAttribute('href') || '').indexOf('/apply') === 0;
+  gtag('event', isApply ? 'apply_click' : 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60),
+    // mid＝這次新加的文章中段；沒有標的就是原本頁首／頁尾那些
+    cta_slot: a.getAttribute('data-cta') || 'legacy'
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ヘッドハンティング会社の料金はどう決まる？料率、最低料金、交渉のポイント｜Step1ne</title>
+<meta name="description" content="台湾のヘッドハンティング料金は年収の約20%〜30%ですが、総額を決めるのは見積書に表れない4つのこと——年収の定義、最低料金、保証条件、候補者の帰属です。ヘッドハンティングのコンサルタントが、実際に交渉できるポイントを解説します。">
+<meta name="keywords" content="ヘッドハンティング会社 料金,ヘッドハンティング 費用,ヘッドハンター 料金,人材探し 費用,ヘッドハンティング 手数料率,ヘッドハンティング 見積もり,ヘッドハンティング 契約">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/ja/articles/headhunter-fees/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Step1ne 紹介プログラム">
+<meta property="og:title" content="ヘッドハンティング会社の料金の仕組み：料率、最低料金、交渉のポイント">
+<meta property="og:description" content="料率は本質ではありません。総額を決めるのは年収の定義、最低手数料、保証条件です。ヘッドハンターが、本当に交渉できる項目を解説します。">
+<meta property="og:url" content="https://step1ne.com/ja/articles/headhunter-fees/">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta name="theme-color" content="#F4F6F8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "ヘッドハンティング会社の料金の仕組み：料率、最低料金、交渉のポイント",
+  "description": "台湾のヘッドハンティングにおける3つの料金モデル（成功報酬型、着手金型、プロジェクト単価型）の違いとリスク配分を説明し、総額に影響する4つの隠れた変数——年収の計算基準、最低保証料、保証期間と代替条件、候補者の帰属の認定——と、実務上本当に交渉余地のある条件を解説します。",
+  "datePublished": "2026-07-27",
+  "dateModified": "2026-07-27",
+  "inLanguage": "zh-TW",
+  "author": {
+    "@type": "Organization",
+    "name": "Step1ne 德仁管理顧問有限公司",
+    "url": "https://step1ne.com/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "德仁管理顧問有限公司（Step1ne）",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://step1ne.com/assets/step1ne-logo.png"
+    }
+  }
+}
+</script>
+
+<style>
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;
+  --wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:17px;line-height:1.95;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.35;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,select,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* 導覽 */
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+/* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
+
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
+.crumb{grid-column:1/-1;padding:22px 0 6px;font-size:13.5px;color:var(--slate-dim)}
+.crumb a{color:var(--slate)}
+.crumb a:hover{color:var(--brand-deep)}
+.crumb span{margin:0 8px;color:var(--rule)}
+
+/* 目錄軌：沿用全站 signature */
+.toc{position:sticky;top:92px;padding:8px 0 40px}
+.toc h2{font-size:13px;font-weight:700;color:var(--slate-dim);letter-spacing:.02em;margin-bottom:16px}
+.tns{position:relative;padding-left:22px}
+.tns::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.14))}
+.tn{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:14px;color:var(--slate);line-height:1.6;position:relative}
+.tn i{position:absolute;left:-22px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--rule);flex:0 0 auto}
+.tn:hover{color:var(--brand-deep)}
+.tn:hover i{border-color:var(--brand)}
+.tn.on{color:var(--ink);font-weight:700}
+.tn.on i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 4px rgba(46,169,223,.2)}
+.mtoc{display:none;margin:20px 0 0;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.mtoc summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15.5px;position:relative}
+.mtoc summary::-webkit-details-marker{display:none}
+.mtoc summary::after{content:"";position:absolute;right:20px;top:24px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.mtoc[open] summary::after{transform:rotate(-135deg)}
+.mtoc div{padding:0 18px 14px}
+.mtoc a{display:block;padding:9px 0;font-size:15px;color:var(--slate);border-top:1px solid var(--rule)}
+
+/* 文章本體 */
+article{padding:14px 0 60px;max-width:70ch}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--brand-deep);background:rgba(22,126,178,.07);border:1px solid rgba(22,126,178,.25);border-radius:5px;padding:4px 11px}
+article h1{margin-top:16px;font-size:clamp(28px,4.2vw,42px);line-height:1.28;letter-spacing:-.02em}
+.by{margin-top:18px;padding-bottom:20px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14px;color:var(--slate-dim)}
+.by a{color:var(--slate);border-bottom:1px solid var(--rule)}
+.by .d{font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+
+/* ★ Signature：直接答案 */
+.ans{margin-top:30px;background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:26px 30px}
+.ans .lab{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:10px}
+.ans p{font-size:19.5px;line-height:1.85;font-weight:500}
+.ans strong{font-weight:900}
+
+article h2{margin:52px 0 16px;font-size:25px;scroll-margin-top:92px}
+article h3{margin:34px 0 10px;font-size:19px}
+article h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-right:12px;border-radius:8px;background:var(--brand);color:#fff;font-family:var(--f-disp);font-size:17px;font-weight:700;vertical-align:2px}
+article p{margin-top:16px}
+article strong{font-weight:700}
+article a:not(.tn){color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.32)}
+article a:not(.tn):hover{border-bottom-color:var(--brand-deep)}
+article ul,article ol{margin:16px 0 0;padding-left:1.4em}
+article li{margin-top:9px}
+article table{width:100%;border-collapse:collapse;margin-top:22px;font-size:15.5px;background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+article th{text-align:left;background:var(--paper);font-weight:700;font-size:14px;color:var(--slate);padding:12px 14px;border-bottom:1px solid var(--rule)}
+article td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.75}
+article tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+article details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+article details summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+article details summary::-webkit-details-marker{display:none}
+article details summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+article details[open] summary::after{transform:rotate(-135deg)}
+article details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid var(--rule);color:var(--slate)}
+
+.foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
+.cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
+.cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
+footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+.fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.note{max-width:var(--wrap);margin:0 auto 46px;padding-inline:var(--gut)}
+.note div{background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid #B45309;border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.note b{color:#5A3D0C}
+
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .mtoc{display:block}
+}
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  body{font-size:16.5px}
+  .ans{padding:22px;border-radius:0 8px 8px 0}
+  .ans p{font-size:18px}
+  article h2{font-size:22px;margin-top:42px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+<!--i18n-hreflang-->
+<link rel="alternate" hreflang="zh-Hant" href="https://step1ne.com/articles/headhunter-fees/">
+<link rel="alternate" hreflang="ja" href="https://step1ne.com/ja/articles/headhunter-fees/">
+<link rel="alternate" hreflang="en" href="https://step1ne.com/en/articles/headhunter-fees/">
+<link rel="alternate" hreflang="x-default" href="https://step1ne.com/articles/headhunter-fees/">
+<style>.s1-lang{max-width:1100px;margin:0 auto;padding:10px 16px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.s1-lang a,.s1-lang b{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid #d9dce3;background:#fff;font-size:14px;font-weight:600;color:#4a5060;text-decoration:none}.s1-lang b{background:#23262d;border-color:#23262d;color:#fff}.s1-lang a:hover{color:#23262d;border-color:#9aa0ad}.s1-lang a:focus-visible{outline:3px solid #1880B4;outline-offset:2px}.s1-note{max-width:1100px;margin:10px auto 0;padding:0 16px}.s1-note p{margin:0;padding:12px 14px;border-radius:12px;background:#eef4fb;border:1px solid #c9dcef;color:#1d3a57;font-size:14.5px;line-height:1.7}</style>
+<!--/i18n-hreflang-->
+</head>
+
+<body>
+<div id="bar"></div>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/ja/"><img src="/assets/step1ne-logo.png" alt="Step1ne"><b>Step1ne</b></a>
+    <nav class="hd-nav">
+      <a href="/ja/commission-recruiting/">企業向けサービス</a><a href="/ja/jobs/">求人一覧</a><a class="on" href="/ja/articles/">ヘッドハンティングコラム</a><a href="/ja/talent/">Step1ne 紹介プログラム</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">LINEで問い合わせ</a>
+    <button class="hd-burger" type="button" aria-label="メニューを開く" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/ja/commission-recruiting/">法人向けサービス</a><a href="/ja/jobs/">求人一覧</a><a href="/ja/articles/">ヘッドハンティングコラム</a><a href="/ja/talent/">Step1ne 紹介プログラム</a> <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINEで問い合わせ</a>
+  </div>
+</header>
+<!--i18n-switch--><nav class="s1-lang" aria-label="言語を切り替える"><a href="/articles/headhunter-fees/" hreflang="zh-Hant" lang="zh-Hant">中文</a><b lang="ja" aria-current="true">日本語</b><a href="/en/articles/headhunter-fees/" hreflang="en" lang="en">English</a></nav><!--/i18n-switch-->
+
+
+<main class="shell">
+  <nav class="crumb" aria-label="パンくずリスト"><a href="/ja/">ホーム</a><span>/</span><a href="/ja/articles/">ヘッドハンティング・コラム</a><span>/</span>ヘッドハンティング会社の料金はどう決まる？料率以外に交渉すべき4つのこと</nav>
+
+  <aside class="toc" aria-label="目次">
+    
+<div style="font-size:14.5px;opacity:.92;margin-bottom:15px;line-height:1.6">幹部ヘッドハンティング・正社員採用・人材派遣。成功報酬制で、入社しなければ費用は発生しません。料金は透明です。</div><a href="/ja/commission-recruiting/" style="display:inline-block;background:#fff;color:#0F5F87;font-weight:700;padding:11px 20px;border-radius:10px;text-decoration:none;margin:0 8px 8px 0">委託採用プランを見る →</a><a href="https://lin.ee/XcSWPzM" style="display:inline-block;background:#06C755;color:#fff;font-weight:700;padding:11px 20px;border-radius:10px;text-decoration:none">LINEで問い合わせ</a></div>
+<h2>本記事は全6セクション</h2>
+    <div class="tns"><a class="tn" href="#sec-1" data-s="sec-1"><i></i><span>まず3つの料金体系を理解する</span></a> <a class="tn" href="#sec-2" data-s="sec-2"><i></i><span>見積書には載らないが総額を左右する4つのこと</span></a> <a class="tn" href="#sec-3" data-s="sec-3"><i></i><span>見積もりが妥当かどうかの判断方法</span></a> <a class="tn" href="#sec-4" data-s="sec-4"><i></i><span>ヘッドハンティングを使うべきでない時は？</span></a> <a class="tn" href="#sec-5" data-s="sec-5"><i></i><span>よくある質問</span></a> <a class="tn" href="#sec-6" data-s="sec-6"><i></i><span>あなたの求人の妥当な見積もりを知りたい方へ</span></a></div>
+  </aside>
+
+  <div>
+    <details class="mtoc"><summary>目次（6セクション）</summary><div><a href="#sec-1">まず3つの料金体系を理解する</a> <a href="#sec-2">見積書には書かれないが総額に影響する4つのこと</a> <a href="#sec-3">見積もりが妥当かどうかの見分け方</a> <a href="#sec-4">ヘッドハンターを使うべきでないのはどんなとき？</a> <a href="#sec-5">よくある質問</a> <a href="#sec-6">自社の求人の妥当な見積額を知りたい方へ</a></div></details>
+    <article>
+      <span class="tag">企業向けヘッドハンティングガイド・ヘッドハンターの視点</span>
+      <h1>ヘッドハンティング会社の手数料はどう計算する？料率以外に交渉すべき4つのこと</h1>
+      <div class="by">
+        <span>著者：<a href="/ja/about/">Step1ne ヘッドハンティング・コンサルタントチーム</a></span> <time class="d" datetime="2026-07-27">2026-07-27 公開</time> <span class="d">約5分</span>
+      </div>
+
+      <div class="ans">
+        <div class="lab">端的な答え</div>
+        <p>台湾のヘッドハンティングは多くが「成功報酬型」で、費用は採用者の年収に対する割合で計算されます。市場でよく見られるのは約20%–30%で、ポジションが上位で希少なほど割合は高くなります。ただし最終的な金額を本当に決めるのはその割合ではなく、見積書には表れない4つの変数です：<strong>年収の定義、最低保証料の有無、保証期間と代替条件、そして候補者の帰属の認定方法</strong>。同じ25%でも、この4項目の取り決め次第で、総費用が十数万台湾ドル変わることもあります。</p>
+<div class="employer-cta" style="margin:24px 0;padding:22px 24px;border-radius:16px;background:linear-gradient(135deg,#167EB2,#0F5F87);color:#fff"><div style="font-size:18px;font-weight:800;margin-bottom:6px">企業の方で、人材をお探しですか？</div><div style="font-size:14.5px;opacity:.92;margin-bottom:15px;line-height:1.6">幹部ヘッドハンティング・正社員採用・人材派遣。成功報酬制で、入社しなければ費用は発生しません。料金は透明です。</div><a href="/ja/commission-recruiting/" style="display:inline-block;background:#fff;color:#0F5F87;font-weight:700;padding:11px 20px;border-radius:10px;text-decoration:none;margin:0 8px 8px 0">委託採用プランを見る →</a><a href="https://lin.ee/XcSWPzM" style="display:inline-block;background:#06C755;color:#fff;font-weight:700;padding:11px 20px;border-radius:10px;text-decoration:none">LINEで問い合わせ</a></div>
+
+      </div>
+
+      <h2 id="sec-1">まず3つの料金体系を理解する</h2>
+    <p>台湾のヘッドハンターの手数料はほぼすべて「採用者の年収に対する割合」が基本ですが、支払い方法は大きく異なり、リスクを誰が負うかも違います：</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>モデル</th><th>支払い方法</th><th>リスクを負うのは誰か</th><th>向いている場面</th></tr></thead>
+        <tbody>
+          <tr><td data-label="模式"><strong>成功報酬型<br>Contingency</strong></td><td data-label="怎麼付">候補者が入社して初めて費用が発生し、成功しなければ費用はかかりません</td><td data-label="風險在誰身上">ヘッドハンティング</td><td data-label="適合什麼情況">台湾の中堅職の多くで主流；企業のリスクが最も低い</td></tr>
+          <tr><td data-label="模式"><strong>着手金型<br>Retained</strong></td><td data-label="怎麼付">契約時に一部を先払い（よくあるのは3段階：契約時／推薦時／入社時）</td><td data-label="風險在誰身上">企業</td><td data-label="適合什麼情況">エグゼクティブ・機密性の高い求人。ヘッドハンターがより多くのリソースを投入し優先的に対応</td></tr>
+          <tr><td data-label="模式"><strong>プロジェクト単位の料金</strong></td><td data-label="怎麼付">人数または月給の倍数で計算。たとえば1人あたり月給の1.5–2か月分</td><td data-label="風險在誰身上">双方で分担</td><td data-label="適合什麼情況">大量採用（一度に10人以上）では、年収の%で計算すると高くなりすぎる</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">市場でよく見られる料率は年収の20%–30%程度で、職位が高く希少な人材ほど割合も高くなる傾向があります。実際の数字は業界、難易度、取引の深さによって異なります。</p>
+
+    <h2 id="sec-2">見積書には載っていないが、総額に影響する4つのこと</h2>
+    <p>2社のヘッドハンターがどちらも「年収の25%」と見積もったのに、最終的な請求額は十数万台湾ドルも違った。その差はたいてい次の4項目から生まれます：</p>
+
+    <h3>1. 年収の定義</h3>
+    <p>これが最も差が出る項目です。「年収」は12か月分の基本給だけなのか、それとも年末賞与、業績賞与、サインオンボーナス、株式を含むのか？月給8万台湾ドル、年末賞与2か月分の例では、<strong>12か月で計算すると96万、14か月で計算すると112万</strong>。同じ25%でも、手数料は4万台湾ドル違ってきます。契約前に必ず計算基準を書面で明記しましょう。</p>
+
+    <h3>2. 最低保証料金があるか</h3>
+    <p>ヘッドハンターによっては最低料金（保証額）を取り決めることがあります。例えば「25%、ただし30万台湾ドルを下回らない」といった形です。中・低位職を採用する場合、保証額のほうが料率で計算した額より高くなることがあります。中堅職を探すなら、この点は必ず確認してください。</p>
+
+    <h3>3. 保証期間と補充条件</h3>
+    <p>保証期間は 30〜120 日が一般的です。ただ本当に確認すべきは日数だけではありません。<strong>無償の代替紹介なのか返金なのか？返金は何パーセントか？代替紹介は何回までか？企業側が解雇した場合も対象か？</strong>「保証 90 日」とだけ書かれた契約では、問題が起きたときに言い分が食い違いがちです。</p>
+
+    <h3>4. 候補者の帰属の判断</h3>
+    <p>ヘッドハンターが推薦した候補者に、自社でも以前接触したことがある、またはすでにデータベースにいる場合、費用はどうなるのでしょうか。妥当なのは「重複候補者」の扱いを取り決めておくことです。たとえば、推薦を受けてから何営業日以内に既存の接触記録を提示すれば費用は発生しない、といった形です。取り決めがないと、これが最も揉めやすい項目になります。</p>
+
+    <div class="insight">
+      <div class="label">ヘッドハンターの視点</div>
+      <p>ほとんどの企業は料率の交渉でパーセンテージを値切ろうとしますが、<strong>パーセンテージは通常、最も融通の利かない項目</strong>です。それは市場相場であり、値切りすぎるとヘッドハンターはリソースを割かなくなり、結局あなたが受け取るのは他社が選び残した候補者になります。</p>
+      <p>本当に交渉しやすく、しかもあなたにとってより価値があるのは別の3点です。<strong>保証期間の延長、支払いの分割を入社後の定着に連動させること、そして推薦のペースを約束してもらうこと</strong>。たとえば「保証を90日から120日に延長」はヘッドハンター側のコスト負担は大きくありませんが、企業の実質的な保障はずっと大きくなります。交渉の力はここに使うほうが、3%値切るより得です。</p>
+    </div>
+
+    <h2 id="sec-3">見積もりが妥当かどうか、どう判断する？</h2>
+    <p>料率の数字だけを比べず、次の3つの観点から逆算する：</p>
+    <ul>
+      <li><strong>「入社者1人あたりの総コスト」に換算する</strong>——サービス料、社内の面接時間、ポジションが空いている間の営業損失をまとめて計算します。重要なポジションを3か月空けておくコストは、料率差の数パーセントをはるかに上回ることが多いのです</li>
+      <li><strong>推薦の数ではなく質を見る</strong>。履歴書を20通送ってきて自分で選ばせるのと、5通すべてが面接する価値のあるものとでは、後者は上司の時間を節約してくれます</li>
+      <li><strong>「誰が実際に担当するのか」をはっきり聞く</strong>——同じ料率でも、ベテランのコンサルタントが自ら動くのと新人に任せるのとでは、結果が大きく違います</li>
+    </ul>
+
+    <h2 id="sec-4">ヘッドハンターを使うべきでないのはどんなとき？</h2>
+    <p>正直に言うと、すべての求人がこの費用を払う価値があるわけではありません。次のような場合は、自社で採用したほうが通常は割安です：</p>
+    <ul>
+      <li>求人を公開すれば、適した人が十分に応募してくる</li>
+      <li>ポジションの代替性が高く、市場の供給が十分</li>
+      <li>給与レンジが明らかに市場相場より低い（ヘッドハンターに頼んでも根本的な問題は解決せず、それを確認するためにお金を使うだけになります）</li>
+    </ul>
+    <p>ヘッドハンティングが本当に割に合うのは、ポジションが機密で公開できない、希少なスキルの組み合わせが必要、短期間で大量の人員を急いで揃える必要がある、または自社採用で何度も失敗している場合です。こうした状況であなたが買っているのは、「求人を見ていない人に能動的にアプローチできる」能力です。</p>
+
+    <aside data-exp="cta-mid-2026-08-06"><p>企業の方はこちら</p><h3>お手元の求人について、まずは実際の金額をお見積もりします</h3><p>このポジションにおおよそいくらかかるか知りたいですか？職種名、給与レンジ、どのくらい空いたままかを教えていただければ、料率と支払いのタイミングを直接お答えします。ヘッドハンティングを使うべきではないと判断した場合も、率直にお伝えします。見積もりは無料です。</p><form class="s1-lead" novalidate style="display:grid;gap:8px;margin-top:14px;position:relative">
+<input name="company" aria-label="会社名" placeholder="会社名" autocomplete="organization" style="min-height:44px;padding:0 12px;border:1px solid #D9E0E6;border-radius:10px;font-size:15px;background:#fff;color:#0D1B24">
+<input name="job" aria-label="探している求人" placeholder="どんな求人をお探しですか？（例：BIMエンジニア 3名）" style="min-height:44px;padding:0 12px;border:1px solid #D9E0E6;border-radius:10px;font-size:15px;background:#fff;color:#0D1B24">
+<label style="display:grid;gap:4px;font-size:13.5px;color:#4A5A66">補足したいご要望（任意）<textarea name="detail" rows="3" maxlength="1000" placeholder="例：長く募集しても採用できない、来月入社してほしい、台湾語が話せる／シフトに対応できる人が必要…" style="min-height:88px;padding:10px 12px;border:1px solid #D9E0E6;border-radius:10px;font-size:15px;font-family:inherit;line-height:1.5;background:#fff;color:#0D1B24;resize:vertical"></textarea></label>
+<input name="contact" aria-label="メールアドレスまたは電話番号" placeholder="メールアドレスまたは電話番号" autocomplete="email" style="min-height:44px;padding:0 12px;border:1px solid #D9E0E6;border-radius:10px;font-size:15px;background:#fff;color:#0D1B24">
+<input name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
+<button type="submit" data-cta="mid-client-form" style="min-height:46px;border:0;border-radius:10px;background:#167EB2;color:#fff;font-size:15.5px;font-weight:700;cursor:pointer">無料でお見積りとご提案を受け取る</button>
+<p class="s1-lead-msg" role="status" aria-live="polite" style="margin:0;font-size:14px"></p>
+<p style="margin:0;font-size:13px;opacity:.85">1営業日以内にコンサルタントがご返信します。事前の契約は不要です。<a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-client">LINEでコンサルタントに相談</a>することもできます</p>
+</form></aside><h2 id="sec-5">よくある質問</h2>
+<div><details>
+        <summary><span>ヘッドハンターの手数料は値引き交渉できる？</span><span class="faq-icon">+</span></summary>
+        <p>料率そのものはあまり動かせません。それが市場相場だからで、低く抑えすぎるとヘッドハンター側が投入するリソースも減り、最終的に推薦の質に影響します。より効果的なのは他の条件を調整することです。保証期間の延長、支払いを入社後の分割にする、推薦のスケジュールと人数を明確に約束する。こうした点は、数パーセント節約するよりも企業にとって実質的な保障が大きいことが多いです。</p>
+      </details><details>
+        <summary><span>人が見つからなかった場合も費用はかかる？</span><span class="faq-icon">+</span></summary>
+        <p>成功報酬型（Contingency）の場合、入社に至らなければ原則として料金はかかりません。委任前払い型（Retained）の場合、契約時の前払い金は通常、成約しなくても返金されません。ヘッドハンターが投入したリソースへの対価だからです。契約前にどちらの方式かを必ず確認してください。</p>
+      </details><details>
+        <summary><span>なぜヘッドハンターによって見積もりがこんなに違うの？</span><span class="faq-icon">+</span></summary>
+        <p>主に3つの変数から生まれます：算定基準（年収に賞与を含むかどうか）、最低保証料金の有無、そしてサービスの深さ（バックグラウンドチェック、オファー交渉、入社後のフォローを含むか）。価格を比べるときは、相手に「同じ前提条件」で総額を試算してもらうことで、本当の差が見えてきます。</p>
+      </details><details>
+        <summary><span>大量採用も年収の%で計算する？</span><span class="faq-icon">+</span></summary>
+        <p>通常はそうではありません。一度に10人以上採用する案件では、年収の割合で計算すると企業にとって高くなりすぎるため、市場ではプロジェクト単価型に切り替えることが多く、たとえば入社者1人あたり月給の1.5–2か月分で計算し、入社のバッチごとに分割請求します。このほうが双方にとって合理的です。</p>
+      </details><details>
+        <summary><span>支払い後に候補者が辞めたらどうなる？</span><span class="faq-icon">+</span></summary>
+        <p>保証条項を確認しましょう。よくある取り決めは、保証期間内の退職に対して1回の無償代替紹介、または費用の一部返金です。大切なのは事前に確認しておくこと。代替紹介の回数、日数、そして保証の対象外となるケース（例：企業側の組織変更や解雇）です。</p>
+      </details></div><div>
+      <h2 id="sec-6">あなたの求人の妥当な見積もり額を知りたいですか？</h2>
+      <p>求人の条件を教えていただければ、コンサルタントがまず難易度と市場の供給を評価し、そのうえで妥当な料金体系とスケジュールをご説明します。合わない案件もはっきりお伝えします。</p>
+      
+      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">LINEでコンサルタントに相談する</a>
+    </div>
+
+    <p>関連記事：<a href="/ja/articles/how-to-choose-headhunter/">台湾のヘッドハンティング会社の選び方：7つの判断基準</a> · <a href="/ja/articles/work-with-headhunters/">台湾企業はヘッドハンターとどう協働するか？</a></p>
+
+      
+<div class="cta">
+        <p>このポジションにどれくらいの費用がかかり、どれくらいで人が見つかるか知りたい方へ。職名、給与レンジ、どれくらい埋まっていないかを教えてください。見積もりは無料で、事前に何かに署名する必要もありません。</p>
+          <a class="btn-alt" href="/ja/hiring-assessment/">まず採用形態の診断をする</a> <a class="btn-line" href="https://lin.ee/XcSWPzM">LINEでコンサルタントに相談</a>
+      </div>
+    
+<div class="related-jobs-box" style="margin:26px 0;padding:18px 20px;border:1px solid #D9E0E6;border-radius:14px;background:#EAF4FA"><strong style="display:block;margin-bottom:9px;color:#0F5F87;font-size:15px">🔎 関連求人</strong><div style="display:flex;flex-wrap:wrap;gap:8px 14px;font-size:14.5px"><a href="/ja/commission-recruiting/">企業向け採用委託プラン</a> · <a href="/ja/jobs/">すべての求人を見る</a></div></div>
+</article>
+  </div>
+</main>
+
+
+<footer><div class="fw">德仁管理顧問有限公司 台北市内湖区康寧路三段54之7号3階</div></footer>
+
+<script>
+// 表格加水平捲動外框，避免手機橫向溢位
+document.querySelectorAll('article table').forEach(function(t){
+  var w=document.createElement('div'); w.className='tw';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
+// 閱讀進度
+var bar=document.getElementById('bar');
+function prog(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',prog,{passive:true}); prog();
+// 目錄跟隨
+var tns=[].slice.call(document.querySelectorAll('.tn'));
+var secs=tns.map(function(a){return document.getElementById(a.dataset.s)}).filter(Boolean);
+if('IntersectionObserver' in window && secs.length){
+  var cur=null;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) cur=e.target.id; });
+    tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  },{rootMargin:'-88px 0px -70% 0px'}).observe && secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===e.target.id)}); }
+      });
+    },{rootMargin:'-88px 0px -70% 0px'}).observe(s);
+  });
+}
+</script>
+<script src="/assets/lead-form.js" defer></script>
+
+<style>
+.s1ne-sc{position:fixed;z-index:60;left:0;right:0;bottom:0;display:flex;gap:10px;padding:10px max(14px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));background:rgba(255,255,255,.96);box-shadow:0 -6px 24px rgba(40,30,10,.12);transform:translateY(120%);transition:transform .25s ease}
+.s1ne-sc.on{transform:none}
+.s1ne-sc a{flex:1;display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:999px;font-weight:700;font-size:15px;text-decoration:none;white-space:nowrap}
+.s1ne-sc .p{background:#111827;color:#fff}
+.s1ne-sc .l{background:#fff;color:#111827;border:1.5px solid #d1d5db}
+.s1ne-sc a:focus-visible{outline:3px solid #1f2937;outline-offset:2px}
+@media (min-width:760px){.s1ne-sc{left:auto;right:24px;bottom:24px;border-radius:999px;padding:8px;box-shadow:0 8px 28px rgba(40,30,10,.18)}.s1ne-sc a{flex:none;padding:0 22px}}
+@media (prefers-reduced-motion:reduce){.s1ne-sc{transition:none}}
+body{padding-bottom:84px}
+@media (min-width:760px){body{padding-bottom:0}}
+</style>
+<div class="s1ne-sc" id="s1neSc" role="region" aria-label="迅速に動く">
+  <a class="l" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">LINEで問い合わせ</a> <a class="p" href="/ja/jobs/" data-cta="jobs_cta_click">現在の求人を見る</a>
+</div>
+<script>
+(function(){var b=document.getElementById('s1neSc');if(!b)return;
+function t(){b.classList.toggle('on',window.scrollY>380);}
+window.addEventListener('scroll',t,{passive:true});t();
+b.querySelector('.p').addEventListener('click',function(){try{gtag('event',this.getAttribute('data-cta'),{page_path:location.pathname,placement:'sticky'});}catch(e){}});})();
+</script>
+<!-- /s1ne-sticky-cta -->
+
+</body>
+</html>

@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href*="lin.ee"]');
+  if (!a) return;
+  gtag('event', 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60)
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What Customer Service Is Really Like: How Four Types of Support Differ, and Who They Suit | Step1ne</title>
+<meta name="description" content="What does customer service actually involve? Game, payment, brand, and technical support roles differ completely in their work and sources of stress. This article covers the real rhythm of a day, what people who last have in common, and five things you must ask before applying.">
+<meta name="keywords" content="customer support job duties,who suits customer support,game customer support,payments customer support,customer support stress,customer support interview,customer support no experience">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/en/articles/customer-service-reality/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Step1ne Referrals">
+<meta property="og:title" content="The Reality of Customer Service Work: Four Types and Who They Suit">
+<meta property="og:description" content="The question you most need to ask before applying, yet almost no one does: what&#x27;s the split between phone and text?">
+<meta property="og:url" content="https://step1ne.com/en/articles/customer-service-reality/">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta name="theme-color" content="#F4F6F8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "The Reality of Customer Service Work: Four Types and Who They Suit",
+  "description": "Explains the real differences between game support, payment support, consumer brand support and technical support in terms of the work, communication style and sources of stress; what a day in customer service looks like; three traits of people who last in the job; and five key questions to confirm before applying.",
+  "datePublished": "2026-07-27",
+  "dateModified": "2026-07-27",
+  "inLanguage": "zh-TW",
+  "author": {
+    "@type": "Organization",
+    "name": "Step1ne 德仁管理顧問有限公司",
+    "url": "https://step1ne.com/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "德仁管理顧問有限公司 (Step1ne)",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://step1ne.com/assets/step1ne-logo.png"
+    }
+  }
+}
+</script>
+
+<style>
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;
+  --wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:17px;line-height:1.95;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.35;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,select,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* 導覽 */
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+/* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
+
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
+.crumb{grid-column:1/-1;padding:22px 0 6px;font-size:13.5px;color:var(--slate-dim)}
+.crumb a{color:var(--slate)}
+.crumb a:hover{color:var(--brand-deep)}
+.crumb span{margin:0 8px;color:var(--rule)}
+
+/* 目錄軌：沿用全站 signature */
+.toc{position:sticky;top:92px;padding:8px 0 40px}
+.toc h2{font-size:13px;font-weight:700;color:var(--slate-dim);letter-spacing:.02em;margin-bottom:16px}
+.tns{position:relative;padding-left:22px}
+.tns::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.14))}
+.tn{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:14px;color:var(--slate);line-height:1.6;position:relative}
+.tn i{position:absolute;left:-22px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--rule);flex:0 0 auto}
+.tn:hover{color:var(--brand-deep)}
+.tn:hover i{border-color:var(--brand)}
+.tn.on{color:var(--ink);font-weight:700}
+.tn.on i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 4px rgba(46,169,223,.2)}
+.mtoc{display:none;margin:20px 0 0;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.mtoc summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15.5px;position:relative}
+.mtoc summary::-webkit-details-marker{display:none}
+.mtoc summary::after{content:"";position:absolute;right:20px;top:24px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.mtoc[open] summary::after{transform:rotate(-135deg)}
+.mtoc div{padding:0 18px 14px}
+.mtoc a{display:block;padding:9px 0;font-size:15px;color:var(--slate);border-top:1px solid var(--rule)}
+
+/* 文章本體 */
+article{padding:14px 0 60px;max-width:70ch}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--brand-deep);background:rgba(22,126,178,.07);border:1px solid rgba(22,126,178,.25);border-radius:5px;padding:4px 11px}
+article h1{margin-top:16px;font-size:clamp(28px,4.2vw,42px);line-height:1.28;letter-spacing:-.02em}
+.by{margin-top:18px;padding-bottom:20px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14px;color:var(--slate-dim)}
+.by a{color:var(--slate);border-bottom:1px solid var(--rule)}
+.by .d{font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+
+/* ★ Signature：直接答案 */
+.ans{margin-top:30px;background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:26px 30px}
+.ans .lab{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:10px}
+.ans p{font-size:19.5px;line-height:1.85;font-weight:500}
+.ans strong{font-weight:900}
+
+article h2{margin:52px 0 16px;font-size:25px;scroll-margin-top:92px}
+article h3{margin:34px 0 10px;font-size:19px}
+article h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-right:12px;border-radius:8px;background:var(--brand);color:#fff;font-family:var(--f-disp);font-size:17px;font-weight:700;vertical-align:2px}
+article p{margin-top:16px}
+article strong{font-weight:700}
+article a:not(.tn){color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.32)}
+article a:not(.tn):hover{border-bottom-color:var(--brand-deep)}
+article ul,article ol{margin:16px 0 0;padding-left:1.4em}
+article li{margin-top:9px}
+article table{width:100%;border-collapse:collapse;margin-top:22px;font-size:15.5px;background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+article th{text-align:left;background:var(--paper);font-weight:700;font-size:14px;color:var(--slate);padding:12px 14px;border-bottom:1px solid var(--rule)}
+article td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.75}
+article tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+article details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+article details summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+article details summary::-webkit-details-marker{display:none}
+article details summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+article details[open] summary::after{transform:rotate(-135deg)}
+article details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid var(--rule);color:var(--slate)}
+
+.foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
+.cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
+.cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
+footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+.fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.note{max-width:var(--wrap);margin:0 auto 46px;padding-inline:var(--gut)}
+.note div{background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid #B45309;border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.note b{color:#5A3D0C}
+
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .mtoc{display:block}
+}
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  body{font-size:16.5px}
+  .ans{padding:22px;border-radius:0 8px 8px 0}
+  .ans p{font-size:18px}
+  article h2{font-size:22px;margin-top:42px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+<!--i18n-hreflang-->
+<link rel="alternate" hreflang="zh-Hant" href="https://step1ne.com/articles/customer-service-reality/">
+<link rel="alternate" hreflang="ja" href="https://step1ne.com/ja/articles/customer-service-reality/">
+<link rel="alternate" hreflang="en" href="https://step1ne.com/en/articles/customer-service-reality/">
+<link rel="alternate" hreflang="x-default" href="https://step1ne.com/articles/customer-service-reality/">
+<style>.s1-lang{max-width:1100px;margin:0 auto;padding:10px 16px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.s1-lang a,.s1-lang b{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid #d9dce3;background:#fff;font-size:14px;font-weight:600;color:#4a5060;text-decoration:none}.s1-lang b{background:#23262d;border-color:#23262d;color:#fff}.s1-lang a:hover{color:#23262d;border-color:#9aa0ad}.s1-lang a:focus-visible{outline:3px solid #1880B4;outline-offset:2px}.s1-note{max-width:1100px;margin:10px auto 0;padding:0 16px}.s1-note p{margin:0;padding:12px 14px;border-radius:12px;background:#eef4fb;border:1px solid #c9dcef;color:#1d3a57;font-size:14.5px;line-height:1.7}</style>
+<!--/i18n-hreflang-->
+</head>
+
+<body>
+<div id="bar"></div>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/en/"><img src="/assets/step1ne-logo.png" alt="Step1ne"><b>Step1ne</b></a>
+    <nav class="hd-nav">
+      <a href="/en/commission-recruiting/">For Employers</a><a href="/en/jobs/">Jobs</a><a class="on" href="/en/articles/">Headhunting Insights</a><a href="/en/talent/">Step1ne Referrals</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">Ask on LINE</a>
+    <button class="hd-burger" type="button" aria-label="Open menu" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/en/commission-recruiting/">For Employers</a><a href="/en/jobs/">Jobs</a><a href="/en/articles/">Articles</a><a href="/en/talent/">Step1ne Referrals</a> <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">Contact on LINE</a>
+  </div>
+</header>
+<!--i18n-switch--><nav class="s1-lang" aria-label="Change language"><a href="/articles/customer-service-reality/" hreflang="zh-Hant" lang="zh-Hant">中文</a><a href="/ja/articles/customer-service-reality/" hreflang="ja" lang="ja">日本語</a><b lang="en" aria-current="true">English</b></nav><!--/i18n-switch-->
+
+
+<main class="shell">
+  <nav class="crumb" aria-label="Breadcrumb"><a href="/en/">Home</a><span>/</span><a href="/en/articles/">Executive Search Column</a><span>/</span>What customer support work is really like: how the four types differ</nav>
+
+  <aside class="toc" aria-label="Contents">
+    <h2>This article has 7 sections</h2>
+    <div class="tns"><a class="tn" href="#sec-1" data-s="sec-1"><i></i><span>Four kinds of customer service, with very different work</span></a> <a class="tn" href="#sec-2" data-s="sec-2"><i></i><span>What does a typical day actually look like?</span></a> <a class="tn" href="#sec-3" data-s="sec-3"><i></i><span>What do people who last have in common?</span></a> <a class="tn" href="#sec-4" data-s="sec-4"><i></i><span>Can you do it without experience?</span></a> <a class="tn" href="#sec-5" data-s="sec-5"><i></i><span>Five things to ask before you apply</span></a> <a class="tn" href="#sec-6" data-s="sec-6"><i></i><span>FAQ</span></a> <a class="tn" href="#sec-7" data-s="sec-7"><i></i><span>Several customer service openings available now</span></a></div>
+  </aside>
+
+  <div>
+    <details class="mtoc"><summary>Contents (7 sections)</summary><div><a href="#sec-1">Four kinds of customer service, with very different work</a> <a href="#sec-2">What does a typical day actually look like?</a> <a href="#sec-3">What do people who last have in common?</a> <a href="#sec-4">Can you do it without experience?</a> <a href="#sec-5">Five things to ask before you apply</a> <a href="#sec-6">FAQ</a> <a href="#sec-7">Several customer service openings available now</a></div></details>
+    <article>
+      <span class="tag">Job seeker guide · A headhunter's view</span>
+      <h1>What customer support work is really like: how the four types differ</h1>
+      <div class="by">
+        <span>By: <a href="/en/about/">Step1ne Executive Search Consultants</a></span> <time class="d" datetime="2026-07-27">Published 2026-07-27</time> <span class="d">About 5 min</span>
+      </div>
+
+      <div class="ans">
+        <div class="lab">Short answer</div>
+        <p>"Customer service" is a very broad label, and the actual jobs differ a lot. <strong>Game support</strong> is mostly text-based, handling account issues and player disputes; <strong>payment support</strong> is almost entirely text, and because money is involved, there is little tolerance for errors; <strong>brand support</strong> is mainly inbound and outbound phone calls; <strong>technical support</strong> requires understanding product details. The one question you should ask before applying, but almost nobody does, is: "What is the split between phone and text?" That question decides whether you will last in the job more than the salary does.</p>
+      </div>
+
+      <h2 id="sec-1">Four kinds of customer service with very different work</h2>
+    <p>"Customer service" is a very broad label. Two jobs both called customer service may involve completely different daily work:</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Type</th><th>Main communication method</th><th>FAQ</th><th>Source of pressure</th></tr></thead>
+        <tbody>
+          <tr><td data-label="類型"><strong>Game customer support</strong></td><td data-label="主要溝通方式">Mostly text, some phone work</td><td data-label="常見問題">Accounts, top-ups, game bugs, player disputes</td><td data-label="壓力來源">Players are highly emotional, and volume spikes during events</td></tr>
+          <tr><td data-label="類型"><strong>Payments support</strong></td><td data-label="主要溝通方式">Almost entirely text</td><td data-label="常見問題">Transaction anomalies, refunds, and billing inquiries</td><td data-label="壓力來源">Involves money, so there's little tolerance for errors</td></tr>
+          <tr><td data-label="類型"><strong>Brand / consumer customer service</strong></td><td data-label="主要溝通方式">Mainly phone-based (including outbound calls)</td><td data-label="常見問題">Orders, returns and exchanges, product inquiries</td><td data-label="壓力來源">High call volume, requires real-time responses</td></tr>
+          <tr><td data-label="類型"><strong>Technical support</strong></td><td data-label="主要溝通方式">Phone + text</td><td data-label="常見問題">Product operation, troubleshooting</td><td data-label="壓力來源">Requires understanding technical details; steep learning curve</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="insight">
+      <div class="label">A headhunter's view</div>
+      <p>Before applying for customer service, <strong>the question you most need to ask but almost nobody does is: "Roughly what share of this role is phone versus text?"</strong></p>
+      <p>The answer to this question matters more than salary in whether you'll last. Some people are fine on the phone but type slowly; others write well but tense up the moment they pick up a call. If either type ends up in the wrong kind of customer service role, they won't make it past three months. And job descriptions often just say "phone, email, live chat," without showing the real mix.</p>
+    </div>
+
+    <h2 id="sec-2">What does a day actually look like?</h2>
+    <p>Taking a role centered on text-based support as an example, a typical day looks roughly like this:</p>
+    <ul>
+      <li><strong>Before going live</strong>: check handover notes, the day's announcements and promotion changes (this part is crucial; miss it and you'll give wrong answers)</li>
+      <li><strong>Most of the working hours</strong>: handling multiple chat windows at once and replying per SOP; transferring or escalating issues beyond your authority</li>
+      <li><strong>Tasks in between</strong>: monitoring systems or social media, replying to comments and DMs, supporting campaigns during promotional periods</li>
+      <li><strong>Before clocking out</strong>: close cases, log unresolved ones and hand them over to the next shift</li>
+    </ul>
+    <p>Phone support has a different rhythm: calls come to you, and when it's busy they come one after another with no breather, but each case usually wraps up faster.</p>
+
+    <h2 id="sec-3">What do people who stay long-term have in common?</h2>
+    <p>From our actual placement experience, the people who stick with customer service and move up aren't necessarily "the most even-tempered" — they're the ones with these three qualities:</p>
+    <ol>
+      <li><strong>Separating emotions from the issue</strong>: the customer is angry at the situation, not at you. People who last aren't unaffected; they can switch off once they hang up</li>
+      <li><strong>Patience with process</strong>—customer service comes with lots of SOPs and record-keeping requirements. People who think “this is a hassle, I'll just handle it myself” usually don't last, because incomplete records eventually come back to bite you</li>
+      <li><strong>Asking instead of bluffing</strong>: escalating or checking with a supervisor when you're unsure is far safer than guessing an answer for the customer</li>
+    </ol>
+
+    <div class="insight">
+      <div class="label">A headhunter's view</div>
+      <p>In customer service interviews, what hiring managers most often screen out isn't "lack of experience" but <strong>answers that don't show steadiness</strong>, such as talking about a previous job and doing nothing but complain about customers or managers.</p>
+      <p>Customer service is heavy emotional labor, so managers want people who "stay steady when things go badly." When asked in an interview how you'd handle a tough complaint, the point isn't how good you are at soothing people but whether you can explain <strong>your decision logic in the moment</strong>: what you handle yourself, what you escalate, and how you document it afterward.</p>
+    </div>
+
+    <h2 id="sec-4">Can I do it without experience?</h2>
+    <p>Yes. Customer service is one of the few job types that's genuinely friendly to people without experience; most contact centers have full training and mentoring programs. What entry-level roles actually require is:</p>
+    <ul>
+      <li>Chinese typing speed (text-based support usually requires 50+ characters per minute)</li>
+      <li>Clear spoken communication (tested in practice for phone-based roles)</li>
+      <li>Able to work shifts and follow company policies</li>
+    </ul>
+    <p>Related industry experience is a plus, not a requirement. For example, in game support, people who've actually played that type of game get up to speed noticeably faster because they understand what players are talking about.</p>
+
+    <h2 id="sec-5">Five things to confirm before you apply</h2>
+    <ol>
+      <li>What's the actual split between phone and text?</li>
+      <li>What's the current turnover like on this shift?</li>
+      <li>Is there a KPI? How is it calculated, and what happens if you miss it?</li>
+      <li>How long is the training, and how is pay calculated during it?</li>
+      <li>What's the escalation process for complaints beyond your authority?</li>
+    </ol>
+    <p>Question 5 is especially important. <strong>On a team with a clear escalation process, the pressure on the front line is much lower</strong>; if instead you have to carry everything yourself, the job will be very hard.</p>
+
+    <h2 id="sec-6">FAQ</h2>
+<div><details>
+        <summary><span>Do customer service reps get yelled at a lot?</span><span class="faq-icon">+</span></summary>
+        <p>You will deal with emotional customers; that's part of the job. But the intensity varies more than most people think. Text-based roles (such as payments and some game support) are noticeably less stressful than inbound phone lines, and in teams with complete SOPs and escalation procedures, the front line has much less to shoulder alone. When applying, be sure to ask about the mix of communication channels and how escalation works.</p>
+      </details><details>
+        <summary><span>Do you need to be good at games to work in game support?</span><span class="faq-icon">+</span></summary>
+        <p>It isn't required, but it's a clear advantage. People who have actually played that type of game understand the situations players describe, judge much faster, and are less likely to misunderstand what's needed. Most job listings treat "enjoys playing games in this genre" as a plus rather than a requirement.</p>
+      </details><details>
+        <summary><span>Is there a career path in customer service?</span><span class="faq-icon">+</span></summary>
+        <p>There are three common paths: go deeper into a specialty (moving into higher-barrier areas like finance or technical support), move into management (shift lead, team lead, customer service manager), or switch sideways (sales, product operations, customer success). The key is whether your first job puts you on a team with clear levels and a real training program.</p>
+      </details><details>
+        <summary><span>Should I take a contract customer service job?</span><span class="faq-icon">+</span></summary>
+        <p>Look at what happens when the contract ends. Six-month or one-year contracts aren't necessarily worse; many are project-based or cover someone on parental leave. The key is to ask upfront: is there an evaluation for renewal or conversion to permanent when the term ends, and roughly what share of people have actually been converted in the past?</p>
+      </details><details>
+        <summary><span>Is typing speed really tested?</span><span class="faq-icon">+</span></summary>
+        <p>Text-based customer service roles usually do test this — a common requirement is 50 characters per minute or more. It's something you can build quickly: practicing with an online typing test for a few days before the interview is usually enough. Phone-based roles more often test spoken communication and how you handle callers instead.</p>
+      </details></div><div>
+      <h2 id="sec-7">Several customer service roles are currently open</h2>
+      <p>We have customer service roles in gaming, payments, and restaurant brands, with morning, afternoon, evening, and overnight shifts to choose from, and some remote options. A consultant can first confirm the actual split between phone and text support before you decide whether to apply.</p>
+      <p><a href="/en/jobs/">See all customer service openings →</a></p>
+      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">Talk with a consultant on LINE</a>
+    </div>
+
+    <p>Further reading: <a href="/en/articles/customer-service-salary/">Customer service salaries: how industry, shift, and allowances affect take-home pay</a> · <a href="/en/jobs/">See current customer service openings</a></p>
+
+      
+<div class="cta">
+        <p>Is one of the four types of customer service roles calling to you? We currently have both temp and permanent customer service openings.</p>
+          <a class="btn-alt" href="/en/jobs/">See current customer service openings</a> <a class="btn-line" href="https://lin.ee/XcSWPzM">Ask a consultant on LINE</a>
+      </div>
+    
+<div class="related-jobs-box" style="margin:26px 0;padding:18px 20px;border:1px solid #D9E0E6;border-radius:14px;background:#EAF4FA"><strong style="display:block;margin-bottom:9px;color:#0F5F87;font-size:15px">🔎 Related openings</strong><div style="display:flex;flex-wrap:wrap;gap:8px 14px;font-size:14.5px"><a href="/jobs/mobile-game-cs-neihu/">Mobile Game Customer Support (Neihu)</a> · <a href="/jobs/fnb-brand-cs-zhonghe/">F&B Brand Customer Support (Zhonghe)</a> · <a href="/en/jobs/">See all jobs</a></div></div>
+</article>
+  </div>
+</main>
+
+
+<footer><div class="fw">德仁管理顧問有限公司, 3F, No. 54-7, Sec. 3, Kangning Rd., Neihu Dist., Taipei City</div></footer>
+
+<script>
+// 表格加水平捲動外框，避免手機橫向溢位
+document.querySelectorAll('article table').forEach(function(t){
+  var w=document.createElement('div'); w.className='tw';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
+// 閱讀進度
+var bar=document.getElementById('bar');
+function prog(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',prog,{passive:true}); prog();
+// 目錄跟隨
+var tns=[].slice.call(document.querySelectorAll('.tn'));
+var secs=tns.map(function(a){return document.getElementById(a.dataset.s)}).filter(Boolean);
+if('IntersectionObserver' in window && secs.length){
+  var cur=null;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) cur=e.target.id; });
+    tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  },{rootMargin:'-88px 0px -70% 0px'}).observe && secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===e.target.id)}); }
+      });
+    },{rootMargin:'-88px 0px -70% 0px'}).observe(s);
+  });
+}
+</script>
+
+<style>
+.s1ne-sc{position:fixed;z-index:60;left:0;right:0;bottom:0;display:flex;gap:10px;padding:10px max(14px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));background:rgba(255,255,255,.96);box-shadow:0 -6px 24px rgba(40,30,10,.12);transform:translateY(120%);transition:transform .25s ease}
+.s1ne-sc.on{transform:none}
+.s1ne-sc a{flex:1;display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:999px;font-weight:700;font-size:15px;text-decoration:none;white-space:nowrap}
+.s1ne-sc .p{background:#111827;color:#fff}
+.s1ne-sc .l{background:#fff;color:#111827;border:1.5px solid #d1d5db}
+.s1ne-sc a:focus-visible{outline:3px solid #1f2937;outline-offset:2px}
+@media (min-width:760px){.s1ne-sc{left:auto;right:24px;bottom:24px;border-radius:999px;padding:8px;box-shadow:0 8px 28px rgba(40,30,10,.18)}.s1ne-sc a{flex:none;padding:0 22px}}
+@media (prefers-reduced-motion:reduce){.s1ne-sc{transition:none}}
+body{padding-bottom:84px}
+@media (min-width:760px){body{padding-bottom:0}}
+</style>
+<div class="s1ne-sc" id="s1neSc" role="region" aria-label="Fast action">
+  <a class="l" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">Ask on LINE</a> <a class="p" href="/en/jobs/" data-cta="jobs_cta_click">See current openings</a>
+</div>
+<script>
+(function(){var b=document.getElementById('s1neSc');if(!b)return;
+function t(){b.classList.toggle('on',window.scrollY>380);}
+window.addEventListener('scroll',t,{passive:true});t();
+b.querySelector('.p').addEventListener('click',function(){try{gtag('event',this.getAttribute('data-cta'),{page_path:location.pathname,placement:'sticky'});}catch(e){}});})();
+</script>
+<!-- /s1ne-sticky-cta -->
+
+</body>
+</html>

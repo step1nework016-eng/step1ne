@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  if (!e.target.closest) return;
+  // 2026-08-06：原本只抓 lin.ee。BIM 那群的下一步是「直接應徵」不是加 LINE，
+  // 不一起記的話，等於把那條路做出來卻量不到，實驗就白做了。
+  var a = e.target.closest('a[href*="lin.ee"], a[href^="/apply"]');
+  if (!a) return;
+  var isApply = (a.getAttribute('href') || '').indexOf('/apply') === 0;
+  gtag('event', isApply ? 'apply_click' : 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60),
+    // mid＝這次新加的文章中段；沒有標的就是原本頁首／頁尾那些
+    cta_slot: a.getAttribute('data-cta') || 'legacy'
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BIM エンジニアとは？製図担当者との違いは？仕事内容をまとめて解説｜Step1ne</title>
+<meta name="description" content="BIMエンジニアは図面を描く仕事ではありません。CADオペレーターが納めるのは図面ですが、BIMエンジニアは各分野のモデルを統合し、着工前に干渉を見つけ出します。この記事では、LODの各レベルの意味、5種類のBIM求人タイプの違い、そして面接前に必ず確認すべき1つのことを解説します。">
+<meta name="keywords" content="BIMエンジニアとは,BIM 仕事内容,BIM 製図担当者 違い,BIMとは,BIMエンジニア 職務,LOD,Revit 仕事,BIMコーディネーター">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/ja/articles/what-is-bim-engineer/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Step1ne 紹介プログラム">
+<meta property="og:title" content="BIMエンジニアとは？製図担当者と何が違う？">
+<meta property="og:description" content="BIMエンジニアの実際の仕事内容、CADオペレーターとの違い、そして同じ「BIMエンジニア」という求人でもなぜ中身が大きく違うことがあるのか。">
+<meta property="og:url" content="https://step1ne.com/ja/articles/what-is-bim-engineer/">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta name="theme-color" content="#F4F6F8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "BIM エンジニアとは？製図担当との違いは？仕事内容をまとめて解説",
+  "description": "BIMエンジニアの実際の仕事内容、CADオペレーターとの本質的な違い、LODレベルの意味、そして台湾市場でよく見られる5種類のBIM求人の形と、求職者がそれをどう見分けるべきかを解説します。",
+  "datePublished": "2026-07-27",
+  "dateModified": "2026-10-24",
+  "inLanguage": "zh-TW",
+  "author": {
+    "@type": "Organization",
+    "name": "Step1ne 德仁管理顧問有限公司",
+    "url": "https://step1ne.com/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "德仁管理顧問有限公司（Step1ne）",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://step1ne.com/assets/step1ne-logo.png"
+    }
+  }
+}
+</script>
+
+<style>
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;
+  --wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:17px;line-height:1.95;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.35;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,select,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* 導覽 */
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+/* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
+
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
+.crumb{grid-column:1/-1;padding:22px 0 6px;font-size:13.5px;color:var(--slate-dim)}
+.crumb a{color:var(--slate)}
+.crumb a:hover{color:var(--brand-deep)}
+.crumb span{margin:0 8px;color:var(--rule)}
+
+/* 目錄軌：沿用全站 signature */
+.toc{position:sticky;top:92px;padding:8px 0 40px}
+.toc h2{font-size:13px;font-weight:700;color:var(--slate-dim);letter-spacing:.02em;margin-bottom:16px}
+.tns{position:relative;padding-left:22px}
+.tns::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.14))}
+.tn{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:14px;color:var(--slate);line-height:1.6;position:relative}
+.tn i{position:absolute;left:-22px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--rule);flex:0 0 auto}
+.tn:hover{color:var(--brand-deep)}
+.tn:hover i{border-color:var(--brand)}
+.tn.on{color:var(--ink);font-weight:700}
+.tn.on i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 4px rgba(46,169,223,.2)}
+.mtoc{display:none;margin:20px 0 0;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.mtoc summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15.5px;position:relative}
+.mtoc summary::-webkit-details-marker{display:none}
+.mtoc summary::after{content:"";position:absolute;right:20px;top:24px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.mtoc[open] summary::after{transform:rotate(-135deg)}
+.mtoc div{padding:0 18px 14px}
+.mtoc a{display:block;padding:9px 0;font-size:15px;color:var(--slate);border-top:1px solid var(--rule)}
+
+/* 文章本體 */
+article{padding:14px 0 60px;max-width:70ch}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--brand-deep);background:rgba(22,126,178,.07);border:1px solid rgba(22,126,178,.25);border-radius:5px;padding:4px 11px}
+article h1{margin-top:16px;font-size:clamp(28px,4.2vw,42px);line-height:1.28;letter-spacing:-.02em}
+.by{margin-top:18px;padding-bottom:20px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14px;color:var(--slate-dim)}
+.by a{color:var(--slate);border-bottom:1px solid var(--rule)}
+.by .d{font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+
+/* ★ Signature：直接答案 */
+.ans{margin-top:30px;background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:26px 30px}
+.ans .lab{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:10px}
+.ans p{font-size:19.5px;line-height:1.85;font-weight:500}
+.ans strong{font-weight:900}
+
+article h2{margin:52px 0 16px;font-size:25px;scroll-margin-top:92px}
+article h3{margin:34px 0 10px;font-size:19px}
+article h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-right:12px;border-radius:8px;background:var(--brand);color:#fff;font-family:var(--f-disp);font-size:17px;font-weight:700;vertical-align:2px}
+article p{margin-top:16px}
+article strong{font-weight:700}
+article a:not(.tn){color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.32)}
+article a:not(.tn):hover{border-bottom-color:var(--brand-deep)}
+article ul,article ol{margin:16px 0 0;padding-left:1.4em}
+article li{margin-top:9px}
+article table{width:100%;border-collapse:collapse;margin-top:22px;font-size:15.5px;background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+article th{text-align:left;background:var(--paper);font-weight:700;font-size:14px;color:var(--slate);padding:12px 14px;border-bottom:1px solid var(--rule)}
+article td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.75}
+article tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+article details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+article details summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+article details summary::-webkit-details-marker{display:none}
+article details summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+article details[open] summary::after{transform:rotate(-135deg)}
+article details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid var(--rule);color:var(--slate)}
+
+.foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
+.cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
+.cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
+footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+.fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.note{max-width:var(--wrap);margin:0 auto 46px;padding-inline:var(--gut)}
+.note div{background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid #B45309;border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.note b{color:#5A3D0C}
+
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .mtoc{display:block}
+}
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  body{font-size:16.5px}
+  .ans{padding:22px;border-radius:0 8px 8px 0}
+  .ans p{font-size:18px}
+  article h2{font-size:22px;margin-top:42px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+<!--i18n-hreflang-->
+<link rel="alternate" hreflang="zh-Hant" href="https://step1ne.com/articles/what-is-bim-engineer/">
+<link rel="alternate" hreflang="ja" href="https://step1ne.com/ja/articles/what-is-bim-engineer/">
+<link rel="alternate" hreflang="en" href="https://step1ne.com/en/articles/what-is-bim-engineer/">
+<link rel="alternate" hreflang="x-default" href="https://step1ne.com/articles/what-is-bim-engineer/">
+<style>.s1-lang{max-width:1100px;margin:0 auto;padding:10px 16px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.s1-lang a,.s1-lang b{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid #d9dce3;background:#fff;font-size:14px;font-weight:600;color:#4a5060;text-decoration:none}.s1-lang b{background:#23262d;border-color:#23262d;color:#fff}.s1-lang a:hover{color:#23262d;border-color:#9aa0ad}.s1-lang a:focus-visible{outline:3px solid #1880B4;outline-offset:2px}.s1-note{max-width:1100px;margin:10px auto 0;padding:0 16px}.s1-note p{margin:0;padding:12px 14px;border-radius:12px;background:#eef4fb;border:1px solid #c9dcef;color:#1d3a57;font-size:14.5px;line-height:1.7}</style>
+<!--/i18n-hreflang-->
+</head>
+
+<body>
+<div id="bar"></div>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/ja/"><img src="/assets/step1ne-logo.png" alt="Step1ne"><b>Step1ne</b></a>
+    <nav class="hd-nav">
+      <a href="/ja/commission-recruiting/">企業向けサービス</a><a href="/ja/jobs/">求人一覧</a><a class="on" href="/ja/articles/">ヘッドハンティングコラム</a><a href="/ja/talent/">Step1ne 紹介プログラム</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">LINEで問い合わせ</a>
+    <button class="hd-burger" type="button" aria-label="メニューを開く" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/ja/commission-recruiting/">法人向けサービス</a><a href="/ja/jobs/">求人一覧</a><a href="/ja/articles/">ヘッドハンティングコラム</a><a href="/ja/talent/">Step1ne 紹介プログラム</a> <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINEで問い合わせ</a>
+  </div>
+</header>
+<!--i18n-switch--><nav class="s1-lang" aria-label="言語を切り替える"><a href="/articles/what-is-bim-engineer/" hreflang="zh-Hant" lang="zh-Hant">中文</a><b lang="ja" aria-current="true">日本語</b><a href="/en/articles/what-is-bim-engineer/" hreflang="en" lang="en">English</a></nav><!--/i18n-switch-->
+
+
+<main class="shell">
+  <nav class="crumb" aria-label="パンくずリスト"><a href="/ja/">ホーム</a><span>/</span><a href="/ja/articles/">ヘッドハンティング・コラム</a><span>/</span>BIM エンジニアとは？製図担当者との違いは？</nav>
+
+  <aside class="toc" aria-label="目次">
+    <h2>本記事は全7セクション</h2>
+    <div class="tns"><a class="tn" href="#sec-1" data-s="sec-1"><i></i><span>BIMの仕事を一言で理解する</span></a> <a class="tn" href="#sec-2" data-s="sec-2"><i></i><span>BIMエンジニアとCADオペレーター：5つの実際の違い</span></a> <a class="tn" href="#sec-3" data-s="sec-3"><i></i><span>では、LODとは何か</span></a> <a class="tn" href="#sec-4" data-s="sec-4"><i></i><span>台湾ではなぜ急にBIM人材がこれほど不足しているのか</span></a> <a class="tn" href="#sec-5" data-s="sec-5"><i></i><span>BIMのキャリアの先には何があるか</span></a> <a class="tn" href="#sec-6" data-s="sec-6"><i></i><span>よくある質問</span></a> <a class="tn" href="#sec-7" data-s="sec-7"><i></i><span>実際のBIM求人を見てみたい方へ</span></a></div>
+  </aside>
+
+  <div>
+    <details class="mtoc"><summary>この記事の目次（7 項目）</summary><div><a href="#sec-1">BIMの仕事をひと言で理解する</a> <a href="#sec-2">BIMエンジニア vs. CADオペレーター：実際の5つの違い</a> <a href="#sec-3">では、LODとは何か？</a> <a href="#sec-4">台湾ではなぜ急にBIM人材が不足しているのか？</a> <a href="#sec-5">BIMのキャリアの先には何がある？</a> <a href="#sec-6">よくある質問</a> <a href="#sec-7">実際のBIM求人を見てみたい方へ</a></div></details>
+    <article>
+      <span class="tag">求職者ガイド・ヘッドハンターの視点</span>
+      <h1>BIMエンジニアとは？製図担当者と何が違う？</h1>
+      <div class="by">
+        <span>著者：<a href="/ja/about/">Step1neヘッドハンティングコンサルタントチーム</a></span> <time class="d" datetime="2026-07-27">公開日 2026-07-27</time> <span class="d">約6分</span>
+      </div>
+
+      <div class="ans">
+        <div class="lab">端的な答え</div>
+        <p>BIMエンジニアは、Revit などのソフトを使って建物や工場を「情報を持った立体モデル」として組み上げ、設計・施工・設備の各関係者が着工前にコンピューター上で干渉を見つけられるようにする仕事です。CAD製図担当者との最も本質的な違いは、製図担当者が作るのは「図面」、BIMエンジニアが作るのは「データベース」だという点です。モデル内のすべての配管、すべての壁が、寸法・材質・仕様など検索や集計ができる情報を持っています。そのためBIMの仕事の中心は描くことだけでなく、<strong>調整</strong>にあります。</p>
+      </div>
+
+      <h2 id="sec-1">一言でわかるBIMの仕事</h2>
+    <p>従来のやり方では、建築士が一式の図面を描き、構造技師がもう一式、設備技師がさらにもう一式を描きます。3つの図面はそれぞれ独立していて、現場で施工して初めて「このダクトがちょうどあの梁を貫通している」と気づく——そして工事を止め、図面を直し、やり直す。時間もお金も消えていきます。</p>
+    <p>BIMのやり方は、3者のモデルを同じ立体空間に重ね、コンピューター上で先に一度ぶつけてみることです。この作業を<strong>干渉チェック（Clash Detection）</strong>と呼び、通常はNavisworksなどのツールで実行し、干渉箇所をリスト化して各専門分野を集めた会議で修正方法を決めます。BIMエンジニアの価値はまさにここにあります。問題を工事現場からオフィスへと前倒しで移すことです。</p>
+
+    <h2 id="sec-2">BIMエンジニア vs. CADオペレーター：5つの実際の違い</h2>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th></th><th>CADオペレーター</th><th>BIM エンジニア</th></tr></thead>
+        <tbody>
+          <tr><td data-label=""><strong>成果物</strong></td><td data-label="CAD 繪圖員">2次元の図面</td><td data-label="BIM 工程師">情報を持つ3次元モデルで、図面はモデルから自動生成される副産物</td></tr>
+          <tr><td data-label=""><strong>ツール</strong></td><td data-label="CAD 繪圖員">AutoCAD中心</td><td data-label="BIM 工程師">Revitが中心で、Navisworksなどの連携ツールも使用</td></tr>
+          <tr><td data-label=""><strong>1か所を修正</strong></td><td data-label="CAD 繪圖員">関連する図面をすべて手作業で直す必要がある</td><td data-label="BIM 工程師">モデルを修正すれば、その箇所を参照するすべての図面が同時に更新される</td></tr>
+          <tr><td data-label=""><strong>分野横断</strong></td><td data-label="CAD 繪圖員">各自が別々に描き、人の目で照合する</td><td data-label="BIM 工程師">モデルを統合し、干渉はシステムが自動で検出する</td></tr>
+          <tr><td data-label=""><strong>能力の重点</strong></td><td data-label="CAD 繪圖員">製図のスピードと正確さ</td><td data-label="BIM 工程師">空間把握、規範の遵守、<strong>分野横断のコミュニケーション</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">実務上、この2つは置き換えの関係ではありません。ほとんどのBIM案件の元図面はまだCADなので、BIMエンジニアは通常両方使えることが求められます。</p>
+
+    <h2 id="sec-3">では、LODとは何？</h2>
+    <p>LOD（Level of Development、詳細度）は「このモデルがどこまで細かく作り込まれているか」を表す等級基準で、求人票に最もよく出てくる用語の一つです：</p>
+    <ul>
+      <li><strong>LOD 100</strong>——概念的なボリュームで、おおよその大きさと位置だけ</li>
+      <li><strong>LOD 200</strong>——おおよその形状。部材にはだいたいの寸法があるが、まだ正確ではない</li>
+      <li><strong>LOD 300</strong>——正確な形状と位置。施工図や専門分野間の調整に使えます</li>
+      <li><strong>LOD 350</strong>：各システム間のインターフェースの詳細を追加</li>
+      <li><strong>LOD 400</strong>——加工やプレキャスト製作の根拠にできるほどの詳細度</li>
+      <li><strong>LOD 500</strong>：竣工モデル。現場の実際の完成状態と照合済み</li>
+    </ul>
+    <p>入門職は通常、LOD 100–300のモデリング作業です。求人に「LOD 350以上の経験が必要」と書かれていれば、その案件ではシステム間の取り合いを扱うことになり、難易度も給与も一段上がります。</p>
+
+    <div class="insight">
+      <div class="label">ヘッドハンターの視点</div>
+      <p><strong>「BIMエンジニア」という肩書きは、台湾の市場では少なくとも5種類のまったく異なる仕事を指しています。</strong>私たちは案件を受けるたびに、まず採用担当の管理職に確認します。同じ職名でも、実際の比重は次のように違うことがあるからです：</p>
+      <ul>
+        <li>モデリングのみ（機電／構造／建築のいずれか）、会議はほぼなし</li>
+        <li>干渉チェックが中心で、大量のレポート作成と修正の追跡</li>
+        <li>現場向け図面出し：工事の進捗に合わせて施工図を作成</li>
+        <li>施工調整。会議に入り浸って各方面の意見の対立をまとめる</li>
+        <li>社内のBIM標準とテンプレートを作る。制度づくり寄りの仕事</li>
+      </ul>
+      <p>この5つは、必要なスキルもキャリアの方向性も大きく異なります。<strong>面接では必ず「このポジションの日常業務で、モデリング、会議、現場回りはそれぞれどのくらいの割合ですか？」と聞きましょう。</strong>この質問をすると、上司にも分かっている人だと思ってもらえます。</p>
+    </div>
+
+    <h2 id="sec-4">台湾ではなぜ急にBIM人材がこれほど不足しているのか？</h2>
+    <p>2つの理由が重なっています。第一に、公共工事や大型建設案件が次々とBIMを納品要件にし、需要が「あれば加点」から「必須」に変わりました。第二に、近年は半導体やテック工場の大型建設プロジェクトが集中して着工しており、こうした工場の設備・配管システムは極めて複雑で、まさにBIMが最も価値を発揮する場面です。そのため大量の人手が必要になっています。</p>
+    <p>しかし学校側の育成スピードが追いつかず、「需要が先に来て、人材が後から補われる」というギャップが生まれています。だからこそ市場には「学科不問・会社が研修を提供」というBIM求人が出てくるのです。企業にとっては、専攻の卒業生を待つより自分たちで育てたほうがよいというわけです。</p>
+
+    <h2 id="sec-5">BIMのキャリアの先には何がある？</h2>
+    <p>BIMは一生モデリングだけの仕事ではなく、はっきりした段階的なキャリアパスがあります。BIMモデラー（単一部材のモデリング）→ BIMエンジニア（単一分野のモデルを主導し、干渉レポートを作成）→ BIMコーディネーター（分野横断の統合、基準策定、メンバーの指導）→ BIM Lead → BIMマネージャー／VDCディレクター。</p>
+    <p>重要な転換点は<strong>「モデルを描く人」から「モデルの基準を管理し、干渉を調整する人」になること</strong>です。各レベルに対応する経験年数、ツール、給与レンジは、こちらで詳しく解説しています： <a href="/ja/articles/bim-engineer-salary/">BIMエンジニアの給与相場：未経験からベテランまで、数字はどう上がる？</a></p>
+
+    <aside data-exp="cta-mid-2026-08-28"><p>STEP1NE 現在募集中</p><h3>新竹、台中・后里で募集中：未経験可、正社員雇用</h3><p>半導体工場の増産プロジェクトのBIMエンジニアを、現在<strong>新竹サイエンスパーク</strong>と<strong>台中・后里</strong>の2拠点で募集しています。<strong>正社員雇用</strong>です（派遣でも契約社員でもありません）。月給は<strong>40,833～50,167台湾ドル</strong>（学歴と学科の関連性により決定）。大卒以上・学科不問、<strong>未経験可</strong>で、会社が充実した研修を用意しており、工場に入ってからは設計PMと設計エンジニアのチームが独り立ちできるまで指導します。勤務時間は08:30–17:30、週休2日。台中・后里は別途、毎月5,000台湾ドルの住宅補助があります。今回のAI需要はメモリ業界の増産を後押ししており、早いうちにこの実戦経験を積むことは、長期的なキャリアプランに組み込める財産になります。まず詳しく聞いてから決めたい場合もどうぞ。先に履歴書を送る必要はありません。</p><div><a href="/apply-quick/?job=semiconductor-bim-mep-drafting-trainee-hsinchu&amp;utm_source=website&amp;utm_medium=article_cta&amp;utm_campaign=mid-bim" data-cta="mid-bim">新竹の求人に応募</a><a href="/apply-quick/?job=bim-engineer-houli&amp;utm_source=website&amp;utm_medium=article_cta&amp;utm_campaign=mid-bim" data-cta="mid-bim">台中・后里の求人に応募</a><a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-bim">まずLINEで質問する</a></div></aside><h2 id="sec-6">よくある質問</h2>
+    <div>
+      <details>
+        <summary>
+          <span>BIMエンジニアは毎日実際に何をしている？</span><span class="faq-icon">+</span>
+        </summary>
+        <p>入門段階では主に、設計図に基づいてRevitでモデルを作成し、規則に沿って命名・レイヤー分けを行い、必要な図面を出力します。経験を積むにつれて、仕事は「モデリング」から「チェックと調整」へと移っていきます。干渉チェックを走らせ、干渉リストを整理し、分野横断の会議に参加するといった業務です。実際の比重は会社によって大きく異なるので、面接で自分から確認しましょう。</p>
+      </details>
+      <details>
+        <summary>
+          <span>BIMエンジニアは工事現場にいる必要がある？</span><span class="faq-icon">+</span>
+        </summary>
+        <p>求人のタイプによります。純粋なモデリング職はほぼオフィス勤務ですが、工場エリア型や施工調整系の求人は、通常プロジェクト現場への出勤が必要で、安全衛生教育や現場の作業規則に従うことになります。通勤や生活スタイルに直結するので、面接では必ず確認してください。</p>
+      </details>
+      <details>
+        <summary>
+          <span>Revitだけできれば十分？</span><span class="faq-icon">+</span>
+        </summary>
+        <p>入門には十分です。Revitに加えてCAD図面が読めれば、多くの初級モデリング職をこなせます。上を目指すならNavisworks（干渉チェック）やクラウドの共同作業プラットフォームの経験が必要で、さらに上の段階でDynamo（自動化）やTekla（鉄骨）を使うようになります。初心者が一度に全部学ぶ必要はありません。</p>
+      </details>
+      <details>
+        <summary>
+          <span>BIMはAIに取って代わられる？</span><span class="faq-icon">+</span>
+        </summary>
+        <p>繰り返しのモデリング作業は確かにどんどん自動化されていて、だからこそモデリングだけの仕事は給与の天井が低めです。しかしBIMの本当の価値は専門分野をまたぐ調整にあります。この干渉は設備側を譲らせるべきか構造側を調整すべきかを判断し、関係者を集めて合意をまとめる——これは専門的な判断とコミュニケーションを伴う仕事です。代替されるリスクを下げたいなら、モデリングのスピードを上げるのではなく、調整と統合の方向へ進むことです。</p>
+      </details>
+    </div>
+
+    <div>
+      <h2 id="sec-7">BIMの求人が実際にどんなものか見てみたい方へ</h2>
+      <p>現在、大型工場建設プロジェクトのBIMエンジニアの求人があります（半導体工場の増産案件で、新竹サイエンスパークと台中・后里の2か所で募集中）。正社員雇用・未経験可で、会社がゼロから充実した研修を用意しており、月給は40,833〜50,167台湾ドルです。</p>
+      <p><a href="/ja/jobs/semiconductor-bim-mep-drafting-trainee-hsinchu/">新竹のBIM求人を見る →</a></p><p><a href="/ja/jobs/bim-engineer-houli/">台中・后里のBIM求人を見る →</a></p><p><a href="/ja/construction/">建設エンジニアリングの求人をもっと見る →</a></p>
+      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">LINEでコンサルタントと話す</a>
+    </div>
+
+    <p>関連記事：<a href="/ja/articles/bim-career-change/">関連学科出身でなくてもBIMエンジニアに転職できる？</a> · <a href="/ja/articles/how-to-enter-construction-industry/">建設業に入るには？専攻外の初心者向け入門ガイド</a></p>
+
+      
+<div class="cta">
+        <p>読んでみてこの仕事を試してみたいと思ったら、未経験可・会社の研修ありのBIM求人が現在あります。</p>
+          <a class="btn-alt" href="/ja/construction/">BIMエンジニアの求人を見る（未経験可）</a> <a class="btn-line" href="https://lin.ee/XcSWPzM">LINEでコンサルタントに質問</a>
+      </div>
+    
+<div class="related-jobs-box" style="margin:26px 0;padding:18px 20px;border:1px solid #D9E0E6;border-radius:14px;background:#EAF4FA"><strong style="display:block;margin-bottom:9px;color:#0F5F87;font-size:15px">🔎 関連求人</strong><div style="display:flex;flex-wrap:wrap;gap:8px 14px;font-size:14.5px"><a href="/ja/jobs/semiconductor-bim-mep-drafting-trainee-hsinchu/">BIMエンジニア（新竹）</a> · <a href="/ja/jobs/bim-engineer-houli/">BIMエンジニア（台中・后里）</a> · <a href="/ja/jobs/">すべての求人を見る</a></div></div>
+</article>
+  </div>
+</main>
+
+
+<footer><div class="fw">德仁管理顧問有限公司 台北市内湖区康寧路三段54之7号3階</div></footer>
+
+<script>
+// 表格加水平捲動外框，避免手機橫向溢位
+document.querySelectorAll('article table').forEach(function(t){
+  var w=document.createElement('div'); w.className='tw';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
+// 閱讀進度
+var bar=document.getElementById('bar');
+function prog(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',prog,{passive:true}); prog();
+// 目錄跟隨
+var tns=[].slice.call(document.querySelectorAll('.tn'));
+var secs=tns.map(function(a){return document.getElementById(a.dataset.s)}).filter(Boolean);
+if('IntersectionObserver' in window && secs.length){
+  var cur=null;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) cur=e.target.id; });
+    tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  },{rootMargin:'-88px 0px -70% 0px'}).observe && secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===e.target.id)}); }
+      });
+    },{rootMargin:'-88px 0px -70% 0px'}).observe(s);
+  });
+}
+</script>
+
+<style>
+.s1ne-sc{position:fixed;z-index:60;left:0;right:0;bottom:0;display:flex;gap:10px;padding:10px max(14px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));background:rgba(255,255,255,.96);box-shadow:0 -6px 24px rgba(40,30,10,.12);transform:translateY(120%);transition:transform .25s ease}
+.s1ne-sc.on{transform:none}
+.s1ne-sc a{flex:1;display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:999px;font-weight:700;font-size:15px;text-decoration:none;white-space:nowrap}
+.s1ne-sc .p{background:#111827;color:#fff}
+.s1ne-sc .l{background:#fff;color:#111827;border:1.5px solid #d1d5db}
+.s1ne-sc a:focus-visible{outline:3px solid #1f2937;outline-offset:2px}
+@media (min-width:760px){.s1ne-sc{left:auto;right:24px;bottom:24px;border-radius:999px;padding:8px;box-shadow:0 8px 28px rgba(40,30,10,.18)}.s1ne-sc a{flex:none;padding:0 22px}}
+@media (prefers-reduced-motion:reduce){.s1ne-sc{transition:none}}
+body{padding-bottom:84px}
+@media (min-width:760px){body{padding-bottom:0}}
+</style>
+<div class="s1ne-sc" id="s1neSc" role="region" aria-label="迅速に動く">
+  <a class="l" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">LINEで問い合わせ</a> <a class="p" href="/ja/jobs/" data-cta="jobs_cta_click">現在の求人を見る</a>
+</div>
+<script>
+(function(){var b=document.getElementById('s1neSc');if(!b)return;
+function t(){b.classList.toggle('on',window.scrollY>380);}
+window.addEventListener('scroll',t,{passive:true});t();
+b.querySelector('.p').addEventListener('click',function(){try{gtag('event',this.getAttribute('data-cta'),{page_path:location.pathname,placement:'sticky'});}catch(e){}});})();
+</script>
+<!-- /s1ne-sticky-cta -->
+
+</body>
+</html>

@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href*="lin.ee"]');
+  if (!a) return;
+  gtag('event', 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60)
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why don't NT$1 million-a-year management jobs show up on job sites? | Step1ne</title>
+<meta name="description" content="Most executive roles aren&#x27;t advertised, not because of secrecy but because advertising them costs too much. This article explains why executive hiring happens behind closed doors, how to rework a management résumé, what you&#x27;ll be asked in interviews, and how to make yourself findable by headhunters.">
+<meta name="keywords" content="NT$1 million salary jobs,executive job openings,management job search,executive headhunting,executive search,passive job seekers,management résumé">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/en/articles/executive-job-search/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Step1ne Referrals">
+<meta property="og:title" content="Why don&#x27;t you see NT$1-million management jobs on job sites?">
+<meta property="og:description" content="Senior roles aren&#x27;t kept quiet out of secrecy; it&#x27;s because advertising them costs too much. A headhunter&#x27;s view of how this market works.">
+<meta property="og:url" content="https://step1ne.com/en/articles/executive-job-search/">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta name="theme-color" content="#F4F6F8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Why don't you see NT$1-million management jobs on job sites?",
+  "description": "Explains why most executive positions aren't advertised publicly, the four practical reasons companies search confidentially, how executive résumés are evaluated differently from regular ones, what executive interviews focus on, and how job seekers can build a career profile that headhunters can find.",
+  "datePublished": "2026-07-27",
+  "dateModified": "2026-07-27",
+  "inLanguage": "zh-TW",
+  "author": {
+    "@type": "Organization",
+    "name": "Step1ne 德仁管理顧問有限公司",
+    "url": "https://step1ne.com/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "德仁管理顧問有限公司 (Step1ne)",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://step1ne.com/assets/step1ne-logo.png"
+    }
+  }
+}
+</script>
+
+<style>
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;
+  --wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:17px;line-height:1.95;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.35;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,select,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* 導覽 */
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+/* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
+
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
+.crumb{grid-column:1/-1;padding:22px 0 6px;font-size:13.5px;color:var(--slate-dim)}
+.crumb a{color:var(--slate)}
+.crumb a:hover{color:var(--brand-deep)}
+.crumb span{margin:0 8px;color:var(--rule)}
+
+/* 目錄軌：沿用全站 signature */
+.toc{position:sticky;top:92px;padding:8px 0 40px}
+.toc h2{font-size:13px;font-weight:700;color:var(--slate-dim);letter-spacing:.02em;margin-bottom:16px}
+.tns{position:relative;padding-left:22px}
+.tns::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.14))}
+.tn{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:14px;color:var(--slate);line-height:1.6;position:relative}
+.tn i{position:absolute;left:-22px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--rule);flex:0 0 auto}
+.tn:hover{color:var(--brand-deep)}
+.tn:hover i{border-color:var(--brand)}
+.tn.on{color:var(--ink);font-weight:700}
+.tn.on i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 4px rgba(46,169,223,.2)}
+.mtoc{display:none;margin:20px 0 0;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.mtoc summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15.5px;position:relative}
+.mtoc summary::-webkit-details-marker{display:none}
+.mtoc summary::after{content:"";position:absolute;right:20px;top:24px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.mtoc[open] summary::after{transform:rotate(-135deg)}
+.mtoc div{padding:0 18px 14px}
+.mtoc a{display:block;padding:9px 0;font-size:15px;color:var(--slate);border-top:1px solid var(--rule)}
+
+/* 文章本體 */
+article{padding:14px 0 60px;max-width:70ch}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--brand-deep);background:rgba(22,126,178,.07);border:1px solid rgba(22,126,178,.25);border-radius:5px;padding:4px 11px}
+article h1{margin-top:16px;font-size:clamp(28px,4.2vw,42px);line-height:1.28;letter-spacing:-.02em}
+.by{margin-top:18px;padding-bottom:20px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14px;color:var(--slate-dim)}
+.by a{color:var(--slate);border-bottom:1px solid var(--rule)}
+.by .d{font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+
+/* ★ Signature：直接答案 */
+.ans{margin-top:30px;background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:26px 30px}
+.ans .lab{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:10px}
+.ans p{font-size:19.5px;line-height:1.85;font-weight:500}
+.ans strong{font-weight:900}
+
+article h2{margin:52px 0 16px;font-size:25px;scroll-margin-top:92px}
+article h3{margin:34px 0 10px;font-size:19px}
+article h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-right:12px;border-radius:8px;background:var(--brand);color:#fff;font-family:var(--f-disp);font-size:17px;font-weight:700;vertical-align:2px}
+article p{margin-top:16px}
+article strong{font-weight:700}
+article a:not(.tn){color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.32)}
+article a:not(.tn):hover{border-bottom-color:var(--brand-deep)}
+article ul,article ol{margin:16px 0 0;padding-left:1.4em}
+article li{margin-top:9px}
+article table{width:100%;border-collapse:collapse;margin-top:22px;font-size:15.5px;background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+article th{text-align:left;background:var(--paper);font-weight:700;font-size:14px;color:var(--slate);padding:12px 14px;border-bottom:1px solid var(--rule)}
+article td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.75}
+article tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+article details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+article details summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+article details summary::-webkit-details-marker{display:none}
+article details summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+article details[open] summary::after{transform:rotate(-135deg)}
+article details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid var(--rule);color:var(--slate)}
+
+.foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
+.cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
+.cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
+footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+.fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.note{max-width:var(--wrap);margin:0 auto 46px;padding-inline:var(--gut)}
+.note div{background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid #B45309;border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.note b{color:#5A3D0C}
+
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .mtoc{display:block}
+}
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  body{font-size:16.5px}
+  .ans{padding:22px;border-radius:0 8px 8px 0}
+  .ans p{font-size:18px}
+  article h2{font-size:22px;margin-top:42px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+<!--i18n-hreflang-->
+<link rel="alternate" hreflang="zh-Hant" href="https://step1ne.com/articles/executive-job-search/">
+<link rel="alternate" hreflang="ja" href="https://step1ne.com/ja/articles/executive-job-search/">
+<link rel="alternate" hreflang="en" href="https://step1ne.com/en/articles/executive-job-search/">
+<link rel="alternate" hreflang="x-default" href="https://step1ne.com/articles/executive-job-search/">
+<style>.s1-lang{max-width:1100px;margin:0 auto;padding:10px 16px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.s1-lang a,.s1-lang b{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid #d9dce3;background:#fff;font-size:14px;font-weight:600;color:#4a5060;text-decoration:none}.s1-lang b{background:#23262d;border-color:#23262d;color:#fff}.s1-lang a:hover{color:#23262d;border-color:#9aa0ad}.s1-lang a:focus-visible{outline:3px solid #1880B4;outline-offset:2px}.s1-note{max-width:1100px;margin:10px auto 0;padding:0 16px}.s1-note p{margin:0;padding:12px 14px;border-radius:12px;background:#eef4fb;border:1px solid #c9dcef;color:#1d3a57;font-size:14.5px;line-height:1.7}</style>
+<!--/i18n-hreflang-->
+</head>
+
+<body>
+<div id="bar"></div>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/en/"><img src="/assets/step1ne-logo.png" alt="Step1ne"><b>Step1ne</b></a>
+    <nav class="hd-nav">
+      <a href="/en/commission-recruiting/">For Employers</a><a href="/en/jobs/">Jobs</a><a class="on" href="/en/articles/">Headhunting Insights</a><a href="/en/talent/">Step1ne Referrals</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">Ask on LINE</a>
+    <button class="hd-burger" type="button" aria-label="Open menu" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/en/commission-recruiting/">For Employers</a><a href="/en/jobs/">Jobs</a><a href="/en/articles/">Articles</a><a href="/en/talent/">Step1ne Referrals</a> <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">Contact on LINE</a>
+  </div>
+</header>
+<!--i18n-switch--><nav class="s1-lang" aria-label="Change language"><a href="/articles/executive-job-search/" hreflang="zh-Hant" lang="zh-Hant">中文</a><a href="/ja/articles/executive-job-search/" hreflang="ja" lang="ja">日本語</a><b lang="en" aria-current="true">English</b></nav><!--/i18n-switch-->
+
+
+<main class="shell">
+  <nav class="crumb" aria-label="Breadcrumb"><a href="/en/">Home</a><span>/</span><a href="/en/articles/">Talent Insights</a><span>/</span>Why don't NT$1 million-a-year management jobs show up on job sites?</nav>
+
+  <aside class="toc" aria-label="Contents">
+    <h2>This article has 8 sections</h2>
+    <div class="tns"><a class="tn" href="#sec-1" data-s="sec-1"><i></i><span>First, a reality check: NT$1 million salaries for managers aren't rare</span></a> <a class="tn" href="#sec-2" data-s="sec-2"><i></i><span>Why senior roles aren't advertised: four practical reasons</span></a> <a class="tn" href="#sec-3" data-s="sec-3"><i></i><span>Management roles are evaluated differently from regular roles</span></a> <a class="tn" href="#sec-4" data-s="sec-4"><i></i><span>What to change in your résumé isn't the format—it's the unit of storytelling</span></a> <a class="tn" href="#sec-5" data-s="sec-5"><i></i><span>What do senior-level interviews actually ask?</span></a> <a class="tn" href="#sec-6" data-s="sec-6"><i></i><span>How to make sure headhunters can find you</span></a> <a class="tn" href="#sec-7" data-s="sec-7"><i></i><span>FAQ</span></a> <a class="tn" href="#sec-8" data-s="sec-8"><i></i><span>Senior management openings available now</span></a></div>
+  </aside>
+
+  <div>
+    <details class="mtoc"><summary>In this article (8 sections)</summary><div><a href="#sec-1">First, a reality check: management roles paying NT$1 million a year are not rare</a> <a href="#sec-2">Why are executive roles not advertised? Four practical reasons</a> <a href="#sec-3">Management roles are evaluated differently from regular roles</a> <a href="#sec-4">What needs to change is not your résumé format but your unit of storytelling</a> <a href="#sec-5">What do executive interviews ask?</a> <a href="#sec-6">How to make yourself findable by headhunters</a> <a href="#sec-7">FAQ</a> <a href="#sec-8">Executive roles currently open</a></div></details>
+    <article>
+      <span class="tag">Job seeker guide · A headhunter's view</span>
+      <h1>Why don't you see NT$1-million management jobs on job sites?</h1>
+      <div class="by">
+        <span>By <a href="/en/about/">Step1ne Executive Search Team</a></span> <time class="d" datetime="2026-07-27">Published 2026-07-27</time> <span class="d">About 9 min</span>
+      </div>
+
+      <div class="ans">
+        <div class="lab">Short answer</div>
+        <p>Most senior executive roles aren't advertised — not because of secrecy, but because <strong>advertising them costs too much</strong>: the incumbent hasn't left yet, competitors would learn your organization is shifting, and you'd get a flood of résumés with very few real fits. So these roles run on "a consultant proactively approaches a specific list," not "post and wait." For job seekers, that means scrolling job listings every day won't find them — what you need to do is get yourself onto that list.</p>
+      </div>
+
+      <h2 id="sec-1">First, a reality check: a NT$1 million annual salary isn't rare for managers</h2>
+    <p>Many people think of "NT$1 million a year" as a distant label, but at the management level it's actually around the market median, not the top.</p>
+    <p>According to Taiwan's Ministry of Labor "ROC Year 114 Occupational Wage Survey" (published May 2026, with valid responses from 9,977 business units), average annual earnings for ROC Year 113 were <strong>highest for managers and supervisors at NT$1.317 million</strong>, followed by professionals at NT$1.062 million. In other words, once you reach a management role, a NT$1 million annual salary is the norm rather than the exception.</p>
+    <p>This number means two things. First, if you're already leading a team but aren't at this level yet, it's worth checking whether it's an industry factor or a matter of your own negotiation. Second — and more important — <strong>once you enter this salary band, the way you look for jobs has to change</strong>.</p>
+
+    <h2 id="sec-2">Why executive positions aren't advertised: four practical reasons</h2>
+    <p>From the senior-level searches we've actually handled, companies choose not to advertise openings for one or a combination of these four reasons:</p>
+
+    <h3>1. The incumbent is still in the role</h3>
+    <p>This is the most common case. The company has already decided to replace a manager, but can't let that person know yet because of handover, project timelines, or legal risk. Such searches never appear in any public channel from start to finish, and no more than three people inside the company know about them.</p>
+
+    <h3>2. Not wanting competitors to read the signals</h3>
+    <p>A public posting for a "Southeast Asia Regional Operations Director" amounts to telling competitors "this company is entering Southeast Asia." For a company laying the groundwork, that information is valuable in itself and won't be given away for free.</p>
+
+    <h3>3. Going public creates internal turmoil</h3>
+    <p>If a company already has several senior managers waiting for promotion and suddenly advertises a role above them, those people will start updating their résumés that same day. Many companies prefer to search quietly and announce only once they've found someone.</p>
+
+    <h3>4. The screening cost of public postings doesn't pay off</h3>
+    <p>Advertise a role paying NT$2 million a year and you may get three or four hundred résumés, of which fewer than five are a real fit. HR spends weeks screening them, and most of those five still aren't the best in the market, because the best people are doing well where they are and aren't even looking at job ads.</p>
+
+    <div class="insight">
+      <div class="label">A headhunter's view</div>
+      <p>This is the single most important point in executive hiring: <strong>the person you're looking for usually isn't looking for a job.</strong></p>
+      <p>When we take on a senior search, the starting point isn't “open the database and pull résumés” but “map out who in this industry has done similar work.” That's usually thirty to fifty names, of whom perhaps only five to eight are willing to talk. Much of that list is built bit by bit from industry interviews, past collaborations, and word of mouth among peers—not from search results.</p>
+      <p>In other words: <strong>whether you get found depends on your visibility among peers, not how well your résumé is written.</strong> A résumé only does its job after you've been found.</p>
+    </div>
+
+    <h2 id="sec-3">Management roles are evaluated differently from regular jobs</h2>
+    <p>Many people apply for management roles with "an upgraded senior engineer résumé," then can't understand why they never hear back. The problem is that the evaluation criteria have changed entirely.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Aspect</th><th>Standard roles</th><th>Senior executive roles</th></tr></thead>
+        <tbody>
+          <tr><td data-label="面向"><strong>Core issue</strong></td><td data-label="一般職缺">Can you do this?</td><td data-label="高階主管職">Can you solve our problem?</td></tr>
+          <tr><td data-label="面向"><strong>Evidence considered</strong></td><td data-label="一般職缺">Skills, tools, years of experience</td><td data-label="高階主管職">Decisions they made and the results they led to</td></tr>
+          <tr><td data-label="面向"><strong>Cost of failure</strong></td><td data-label="一般職缺">A few months, recoverable</td><td data-label="高階主管職">One to two years, and it may drag down the whole department</td></tr>
+          <tr><td data-label="面向"><strong>Decision-maker</strong></td><td data-label="一般職缺">Hiring manager</td><td data-label="高階主管職">The CEO, the board, sometimes shareholders too</td></tr>
+          <tr><td data-label="面向"><strong>Interview rounds</strong></td><td data-label="一般職缺">One to two rounds</td><td data-label="高階主管職">Three to five rounds, possibly including a presentation and background checks</td></tr>
+          <tr><td data-label="面向"><strong>What makes or breaks it</strong></td><td data-label="一般職缺">Skill match</td><td data-label="高階主管職">Fit — with the organization's current state and the boss's style</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>The last row is the one most people underestimate. At this level, few people are rejected for ability; <strong>most rejections come down to "fit"</strong>: the decision-making pace you're used to is too different from this company's, the scale of resources in your last job differs, or the way you communicate with your future boss doesn't click. None of this is about good or bad; it's about whether you match.</p>
+
+    <h2 id="sec-4">What your résumé needs to change isn't the format but the unit of your story</h2>
+    <p>When moving from individual contributor roles to management, there's only one thing your résumé really needs to change: <strong>shift the unit of your story from "what I did" to "what I changed"</strong>.</p>
+    <p>Specifically:</p>
+    <ul>
+      <li><strong>Write about decisions, not duties</strong>. "Responsible for financial statements and tax" is a duty; anyone in that seat would write it. "Restructured approval authority across subsidiaries in three locations, cutting the monthly close from 12 business days to 6" is what you actually did</li>
+      <li><strong>State the scale so they can map it</strong> — how many people you led, how much budget you managed, how much revenue the unit generated. Without scale figures, they can't judge whether your experience translates to their organization</li>
+      <li><strong>Write about trade-offs, not just results</strong>. Senior interviews love to ask, "Were there other options at the time, and why did you choose this one?" A line on your résumé about the trade-off behind a decision is more convincing than numbers alone</li>
+      <li><strong>Be honest about failures</strong> — at this level, nobody's career is all wins. Having shut down a product line or cut a team, and being able to say what you learned, is more credible than a flawless résumé</li>
+    </ul>
+
+    <div class="warn">
+      <div class="label">Common misconceptions</div>
+      <p><strong>Making the résumé as long as possible.</strong> We've seen executive résumés running over ten pages; the content was solid, but decision-makers won't read them.</p>
+      <p>In practice, two pages is a reasonable maximum. The first half page should make clear who you are and what kinds of problems you're good at solving; use three or four concrete achievements for the rest. Save the remaining details for the interview—that's what interviews are for.</p>
+    </div>
+
+    <h2 id="sec-5">What do senior-level interviews ask?</h2>
+    <p>Technical questions and background checks are usually done in the first round. What really decides the outcome are the later rounds, and those questions generally fall into four areas:</p>
+    <ul>
+      <li><strong>How do you see this industry over the next three years?</strong> — what's being tested isn't whether your prediction is right, but whether you think beyond your own seat</li>
+      <li><strong>What's the last tough decision you made?</strong>—this tests ownership. People who can't answer usually haven't really been a decision-maker yet</li>
+      <li><strong>How would you handle a senior team member who's underperforming?</strong> This tests your hands-on management sense. There's no right answer, but dodging the question costs you points</li>
+      <li><strong>Why do you want to leave your current role?</strong> — this tests how genuine your motivation is. Answers like “I want to challenge myself” are seen as unprepared at this level</li>
+    </ul>
+    <p>One more thing many people don't realize: <strong>senior interviews go both ways, and the company expects you to ask questions</strong>. A candidate who never asks about strategy, the state of the team, or why the role is open will be read as "just looking for a job," not "wanting to solve this problem."</p>
+
+    <h2 id="sec-6">How do you get headhunters to find you?</h2>
+    <p>Back to the opening question. If these jobs aren't advertised, what can job seekers actually do? Four things:</p>
+    <ol>
+      <li><strong>Make your professional identity visible within your industry</strong>: public talks, industry communities, professional articles, and a clearly written LinkedIn profile. You don't need to become an influencer, but when someone asks "Who's good in this field?", someone should think of you</li>
+      <li><strong>Keep in touch with consultants who've reached out to you, even if you're not moving now</strong>—this is the most underrated point of all. Most senior placements don't happen on first contact; they happen two years later, when that consultant happens to have a better-fitting role. <a href="/en/articles/headhunter-contacted-you/">How to respond when a headhunter contacts you</a> covers this in more detail</li>
+      <li><strong>Jot down your results as you go</strong>—when a major project ends, spend ten minutes writing down the context, your decisions and the outcome. If you wait until you need a résumé, the details will have faded</li>
+      <li><strong>Get clear on what you want first</strong> — a bigger stage, better pay, a shorter commute, or less office politics? When an opportunity comes, you usually have only a few days to decide, and people who haven't thought it through tend to miss out or choose wrong</li>
+    </ol>
+
+    <div class="insight">
+      <div class="label">A headhunter's view</div>
+      <p>One last, more realistic point: <strong>executive placements take a long time. That's normal, not a sign you're not good enough.</strong></p>
+      <p>An executive search from mandate to start date often takes three to six months. It may pause because the company's strategy changes, or restart because the board changes. If you're being evaluated and hear "no progress yet this month," that's completely normal — it doesn't mean you're out.</p>
+      <p>By the same token, this is why we advise: <strong>don't put everything on hold for a single opportunity</strong>. Keeping up your performance in your current role and continuing to build a track record is the best negotiating leverage at this level.</p>
+    </div>
+
+    <h2 id="sec-7">FAQ</h2>
+<div><details>
+        <summary><span>Is it worth sending your résumé to a headhunter yourself?</span><span class="faq-icon">+</span></summary>
+        <p>It helps, but not in the way most people think. Sending your resume won't make a consultant “start job hunting for you right away”; it puts you on their list so you come to mind when a matching assignment comes in. So the point isn't sending a lot but sending precisely: pick consultants who specialize in your industry or function, and include concrete achievements and the direction you want. That works far better than mass-mailing your resume.</p>
+      </details><details>
+        <summary><span>Do I have to pay to use a headhunter?</span><span class="faq-icon">+</span></summary>
+        <p>Legitimate headhunting services are completely free for job seekers; the hiring company that commissions the search pays the fee. If anyone charges job seekers under labels like “guaranteed matching,” “priority recommendation,” or “profile registration,” be on your guard—that's a problem under Taiwan's employment service rules.</p>
+      </details><details>
+        <summary><span>Will my current employer find out I'm looking?</span><span class="faq-icon">+</span></summary>
+        <p>Proper executive search is built on confidentiality from the start. A consultant won't send out your resume without your consent, and won't disclose your job search to any third party. Reference checks require your consent, are done with contacts you choose, and are usually arranged at the final stage. It's perfectly reasonable, and common, to state your confidentiality requirements clearly at the very first contact.</p>
+      </details><details>
+        <summary><span>Does a manager role paying NT$1 million a year require a top school or big-company background?</span><span class="faq-icon">+</span></summary>
+        <p>Not necessarily, but your background affects how likely you are to be found. Experience at large companies has an edge because decision-makers can easily map the scale and organizational maturity you've handled. If you come from a small or mid-sized company, you can compensate by clearly stating scale figures and actual results. "Built a team of thirty from scratch" is, in many situations, more convincing than "managed ten people in an organization of a thousand."</p>
+      </details><details>
+        <summary><span>When should you bring up salary expectations?</span><span class="faq-icon">+</span></summary>
+        <p>We suggest giving a range the first time you talk with the consultant rather than putting it off until the end. Budgets for senior roles are usually set when the search is commissioned, so aligning early avoids both sides discovering a big gap only after five rounds of interviews. When you give the range, also explain your current breakdown (base salary, bonus, stock, other) so they can compare on the same basis.</p>
+      </details><details>
+        <summary><span>After a headhunter contacts me, how long until there's a result?</span><span class="faq-icon">+</span></summary>
+        <p>For senior roles, three to six months from first contact to start date is typical, and stalls of several weeks in between are completely normal. This usually reflects the company's internal decision-making rhythm (board schedules, annual budgets, reorganizations), not their opinion of you. You can ask the consultant for regular updates, but we don't recommend putting your other plans on hold for a single opportunity.</p>
+      </details></div><div>
+      <h2 id="sec-8">Senior executive openings available now</h2>
+      <p>We are currently hiring for a Head of Operations Development (annual salary NT$1.2–2.5 million), a Group Head of IT (annual salary NT$1–2 million) and a Head of Finance (overseas assignment, annual salary NT$1–2 million). If you'd like to learn about the role's background and the organization before deciding, you can talk with a consultant directly. The process is completely confidential.</p>
+      <p><a href="/en/jobs/">See all mid- to senior-level jobs →</a></p>
+      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">Talk with a consultant on LINE</a>
+    </div>
+
+    <p>Further reading: <a href="/en/articles/headhunter-contacted-you/">A headhunter contacted you: how to respond? Ask five questions first</a> · <a href="/en/articles/executive-hiring-guide/">(For employers) Executive role open for six months and still unfilled?</a> · <a href="/en/jobs/business-operations-manager/">Business Operations Manager opening</a></p>
+
+      
+<div class="cta">
+        <p>Want to be found for these unadvertised opportunities? Send your résumé to a consultant to be added to our files, and we'll contact you directly when something fits.</p>
+          <a class="btn-alt" href="/en/jobs/">Or browse open jobs first</a> <a class="btn-line" href="https://lin.ee/XcSWPzM">Ask a consultant on LINE</a>
+      </div>
+    
+<div class="related-jobs-box" style="margin:26px 0;padding:18px 20px;border:1px solid #D9E0E6;border-radius:14px;background:#EAF4FA"><strong style="display:block;margin-bottom:9px;color:#0F5F87;font-size:15px">🔎 Related openings</strong><div style="display:flex;flex-wrap:wrap;gap:8px 14px;font-size:14.5px"><a href="/en/jobs/group-it-head/">Group IT Head</a>  ·  <a href="/jobs/finance-group-treasury-head-xinyi/">Group Finance Head</a>  ·  <a href="/en/jobs/">View all jobs</a></div></div>
+</article>
+  </div>
+</main>
+
+
+<footer><div class="fw">德仁管理顧問有限公司, 3F, No. 54-7, Sec. 3, Kangning Rd., Neihu Dist., Taipei City</div></footer>
+
+<script>
+// 表格加水平捲動外框，避免手機橫向溢位
+document.querySelectorAll('article table').forEach(function(t){
+  var w=document.createElement('div'); w.className='tw';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
+// 閱讀進度
+var bar=document.getElementById('bar');
+function prog(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',prog,{passive:true}); prog();
+// 目錄跟隨
+var tns=[].slice.call(document.querySelectorAll('.tn'));
+var secs=tns.map(function(a){return document.getElementById(a.dataset.s)}).filter(Boolean);
+if('IntersectionObserver' in window && secs.length){
+  var cur=null;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) cur=e.target.id; });
+    tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  },{rootMargin:'-88px 0px -70% 0px'}).observe && secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===e.target.id)}); }
+      });
+    },{rootMargin:'-88px 0px -70% 0px'}).observe(s);
+  });
+}
+</script>
+
+<style>
+.s1ne-sc{position:fixed;z-index:60;left:0;right:0;bottom:0;display:flex;gap:10px;padding:10px max(14px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));background:rgba(255,255,255,.96);box-shadow:0 -6px 24px rgba(40,30,10,.12);transform:translateY(120%);transition:transform .25s ease}
+.s1ne-sc.on{transform:none}
+.s1ne-sc a{flex:1;display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:999px;font-weight:700;font-size:15px;text-decoration:none;white-space:nowrap}
+.s1ne-sc .p{background:#111827;color:#fff}
+.s1ne-sc .l{background:#fff;color:#111827;border:1.5px solid #d1d5db}
+.s1ne-sc a:focus-visible{outline:3px solid #1f2937;outline-offset:2px}
+@media (min-width:760px){.s1ne-sc{left:auto;right:24px;bottom:24px;border-radius:999px;padding:8px;box-shadow:0 8px 28px rgba(40,30,10,.18)}.s1ne-sc a{flex:none;padding:0 22px}}
+@media (prefers-reduced-motion:reduce){.s1ne-sc{transition:none}}
+body{padding-bottom:84px}
+@media (min-width:760px){body{padding-bottom:0}}
+</style>
+<div class="s1ne-sc" id="s1neSc" role="region" aria-label="Fast action">
+  <a class="l" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">Ask on LINE</a> <a class="p" href="/en/jobs/" data-cta="jobs_cta_click">See current openings</a>
+</div>
+<script>
+(function(){var b=document.getElementById('s1neSc');if(!b)return;
+function t(){b.classList.toggle('on',window.scrollY>380);}
+window.addEventListener('scroll',t,{passive:true});t();
+b.querySelector('.p').addEventListener('click',function(){try{gtag('event',this.getAttribute('data-cta'),{page_path:location.pathname,placement:'sticky'});}catch(e){}});})();
+</script>
+<!-- /s1ne-sticky-cta -->
+
+</body>
+</html>

@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href*="lin.ee"]');
+  if (!a) return;
+  gtag('event', 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60)
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>運用保守エンジニアは何をしている？4つの運用タイプ、給与の差、キャリアアップの道｜Step1ne</title>
+<meta name="description" content="運用エンジニア（システム運用・IT運用）は実際に何をしているのか？4つの運用タイプで仕事内容、給与、キャリアの天井は大きく違います。この記事では求人タイプの見分け方、オンコールの評価方法、運用から上に進む3つのルートを解説します。">
+<meta name="keywords" content="運用エンジニア,DevOps キャリア,SRE,クラウド運用,オンコール,運用から開発へ転身,運用 給与">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/ja/articles/devops-career/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Step1ne 紹介プログラム">
+<meta property="og:title" content="運用保守エンジニアは何をしている？4つの運用タイプ、給与の差、キャリアアップの道">
+<meta property="og:description" content="運用エンジニア（システム運用・IT運用）は実際に何をしているのか？4つの運用タイプで仕事内容、給与、キャリアの天井は大きく違います。この記事では求人タイプの見分け方、オンコールの評価方法、運用から上に進む3つのルートを解説します。">
+<meta property="og:url" content="https://step1ne.com/ja/articles/devops-career/">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta name="theme-color" content="#F4F6F8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "運用エンジニアのキャリア：開発との違いと、どうステップアップするか？",
+  "description": "システム運用、運用サポート、クラウド運用、SREという4つの運用職のタイプについて、仕事内容、スキルの重点、キャリアの天井の違いを解説。JDから実際の職種タイプを見分ける方法、オンコール体制で評価すべき4つの観点、運用からクラウド自動化・開発・アーキテクチャへ進む3つのルートも紹介します。",
+  "datePublished": "2026-07-27",
+  "dateModified": "2026-07-27",
+  "inLanguage": "zh-TW",
+  "author": {
+    "@type": "Organization",
+    "name": "Step1ne 德仁管理顧問有限公司",
+    "url": "https://step1ne.com/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "德仁管理顧問有限公司（Step1ne）",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://step1ne.com/assets/step1ne-logo.png"
+    }
+  }
+}
+</script>
+
+<style>
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;
+  --wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:17px;line-height:1.95;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.35;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,select,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* 導覽 */
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+/* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
+
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
+.crumb{grid-column:1/-1;padding:22px 0 6px;font-size:13.5px;color:var(--slate-dim)}
+.crumb a{color:var(--slate)}
+.crumb a:hover{color:var(--brand-deep)}
+.crumb span{margin:0 8px;color:var(--rule)}
+
+/* 目錄軌：沿用全站 signature */
+.toc{position:sticky;top:92px;padding:8px 0 40px}
+.toc h2{font-size:13px;font-weight:700;color:var(--slate-dim);letter-spacing:.02em;margin-bottom:16px}
+.tns{position:relative;padding-left:22px}
+.tns::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.14))}
+.tn{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:14px;color:var(--slate);line-height:1.6;position:relative}
+.tn i{position:absolute;left:-22px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--rule);flex:0 0 auto}
+.tn:hover{color:var(--brand-deep)}
+.tn:hover i{border-color:var(--brand)}
+.tn.on{color:var(--ink);font-weight:700}
+.tn.on i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 4px rgba(46,169,223,.2)}
+.mtoc{display:none;margin:20px 0 0;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.mtoc summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15.5px;position:relative}
+.mtoc summary::-webkit-details-marker{display:none}
+.mtoc summary::after{content:"";position:absolute;right:20px;top:24px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.mtoc[open] summary::after{transform:rotate(-135deg)}
+.mtoc div{padding:0 18px 14px}
+.mtoc a{display:block;padding:9px 0;font-size:15px;color:var(--slate);border-top:1px solid var(--rule)}
+
+/* 文章本體 */
+article{padding:14px 0 60px;max-width:70ch}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--brand-deep);background:rgba(22,126,178,.07);border:1px solid rgba(22,126,178,.25);border-radius:5px;padding:4px 11px}
+article h1{margin-top:16px;font-size:clamp(28px,4.2vw,42px);line-height:1.28;letter-spacing:-.02em}
+.by{margin-top:18px;padding-bottom:20px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14px;color:var(--slate-dim)}
+.by a{color:var(--slate);border-bottom:1px solid var(--rule)}
+.by .d{font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+
+/* ★ Signature：直接答案 */
+.ans{margin-top:30px;background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:26px 30px}
+.ans .lab{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:10px}
+.ans p{font-size:19.5px;line-height:1.85;font-weight:500}
+.ans strong{font-weight:900}
+
+article h2{margin:52px 0 16px;font-size:25px;scroll-margin-top:92px}
+article h3{margin:34px 0 10px;font-size:19px}
+article h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-right:12px;border-radius:8px;background:var(--brand);color:#fff;font-family:var(--f-disp);font-size:17px;font-weight:700;vertical-align:2px}
+article p{margin-top:16px}
+article strong{font-weight:700}
+article a:not(.tn){color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.32)}
+article a:not(.tn):hover{border-bottom-color:var(--brand-deep)}
+article ul,article ol{margin:16px 0 0;padding-left:1.4em}
+article li{margin-top:9px}
+article table{width:100%;border-collapse:collapse;margin-top:22px;font-size:15.5px;background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+article th{text-align:left;background:var(--paper);font-weight:700;font-size:14px;color:var(--slate);padding:12px 14px;border-bottom:1px solid var(--rule)}
+article td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.75}
+article tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+article details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+article details summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+article details summary::-webkit-details-marker{display:none}
+article details summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+article details[open] summary::after{transform:rotate(-135deg)}
+article details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid var(--rule);color:var(--slate)}
+
+.foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
+.cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
+.cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
+footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+.fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.note{max-width:var(--wrap);margin:0 auto 46px;padding-inline:var(--gut)}
+.note div{background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid #B45309;border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.note b{color:#5A3D0C}
+
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .mtoc{display:block}
+}
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  body{font-size:16.5px}
+  .ans{padding:22px;border-radius:0 8px 8px 0}
+  .ans p{font-size:18px}
+  article h2{font-size:22px;margin-top:42px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+<!--i18n-hreflang-->
+<link rel="alternate" hreflang="zh-Hant" href="https://step1ne.com/articles/devops-career/">
+<link rel="alternate" hreflang="ja" href="https://step1ne.com/ja/articles/devops-career/">
+<link rel="alternate" hreflang="en" href="https://step1ne.com/en/articles/devops-career/">
+<link rel="alternate" hreflang="x-default" href="https://step1ne.com/articles/devops-career/">
+<style>.s1-lang{max-width:1100px;margin:0 auto;padding:10px 16px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.s1-lang a,.s1-lang b{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid #d9dce3;background:#fff;font-size:14px;font-weight:600;color:#4a5060;text-decoration:none}.s1-lang b{background:#23262d;border-color:#23262d;color:#fff}.s1-lang a:hover{color:#23262d;border-color:#9aa0ad}.s1-lang a:focus-visible{outline:3px solid #1880B4;outline-offset:2px}.s1-note{max-width:1100px;margin:10px auto 0;padding:0 16px}.s1-note p{margin:0;padding:12px 14px;border-radius:12px;background:#eef4fb;border:1px solid #c9dcef;color:#1d3a57;font-size:14.5px;line-height:1.7}</style>
+<!--/i18n-hreflang-->
+</head>
+
+<body>
+<div id="bar"></div>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/ja/"><img src="/assets/step1ne-logo.png" alt="Step1ne"><b>Step1ne</b></a>
+    <nav class="hd-nav">
+      <a href="/ja/commission-recruiting/">企業向けサービス</a><a href="/ja/jobs/">求人一覧</a><a class="on" href="/ja/articles/">ヘッドハンティングコラム</a><a href="/ja/talent/">Step1ne 紹介プログラム</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">LINEで問い合わせ</a>
+    <button class="hd-burger" type="button" aria-label="メニューを開く" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/ja/commission-recruiting/">法人向けサービス</a><a href="/ja/jobs/">求人一覧</a><a href="/ja/articles/">ヘッドハンティングコラム</a><a href="/ja/talent/">Step1ne 紹介プログラム</a> <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINEで問い合わせ</a>
+  </div>
+</header>
+<!--i18n-switch--><nav class="s1-lang" aria-label="言語を切り替える"><a href="/articles/devops-career/" hreflang="zh-Hant" lang="zh-Hant">中文</a><b lang="ja" aria-current="true">日本語</b><a href="/en/articles/devops-career/" hreflang="en" lang="en">English</a></nav><!--/i18n-switch-->
+
+
+<main class="shell">
+  <nav class="crumb" aria-label="パンくずリスト"><a href="/ja/">ホーム</a><span>/</span><a href="/ja/articles/">ヘッドハンティングコラム</a><span>/</span>運用エンジニアのキャリア：開発と比べて何が違う？</nav>
+
+  <aside class="toc" aria-label="目次">
+    <h2>本記事は全7セクション</h2>
+    <div class="tns"><a class="tn" href="#sec-1" data-s="sec-1"><i></i><span>運用保守は「開発がダメだった人の行き先」ではない</span></a> <a class="tn" href="#sec-2" data-s="sec-2"><i></i><span>運用保守系求人の4つのタイプ</span></a> <a class="tn" href="#sec-3" data-s="sec-3"><i></i><span>オンコールはどう評価する？</span></a> <a class="tn" href="#sec-4" data-s="sec-4"><i></i><span>運用保守からどうステップアップする？</span></a> <a class="tn" href="#sec-5" data-s="sec-5"><i></i><span>運用保守の面接で上司は何を見ている？</span></a> <a class="tn" href="#sec-6" data-s="sec-6"><i></i><span>よくある質問</span></a> <a class="tn" href="#sec-7" data-s="sec-7"><i></i><span>運用保守系の求人を募集中です</span></a></div>
+  </aside>
+
+  <div>
+    <details class="mtoc"><summary>この記事の目次（7 項目）</summary><div><a href="#sec-1">運用保守は「開発がうまくできない人の仕事」ではない</a> <a href="#sec-2">運用保守系求人の4つのタイプ</a> <a href="#sec-3">オンコールはどう評価する？</a> <a href="#sec-4">運用保守からどうキャリアアップする？</a> <a href="#sec-5">運用保守職の面接で、上司は何を見ている？</a> <a href="#sec-6">よくある質問</a> <a href="#sec-7">現在募集中の運用保守系求人</a></div></details>
+    <article>
+      <span class="tag">求職者ガイド・ヘッドハンターの視点</span>
+      <h1>運用エンジニアのキャリア：開発と比べて何が違う？</h1>
+      <div class="by">
+        <span>著者：<a href="/ja/about/">Step1ne ヘッドハンティング・コンサルタントチーム</a></span> <time class="d" datetime="2026-07-27">2026-07-27 公開</time> <span class="d">約5分</span>
+      </div>
+
+      <div class="ans">
+        <div class="lab">端的な答え</div>
+        <p>運用保守は開発より格下の選択肢ではありませんが、キャリアの天井は確かに大きく違います。カギは、あなたが<strong>「インシデントを処理する人」なのか、「インシデントが起きないようにシステムを設計する人」なのか</strong>です。アラート対応だけの運用保守は低めの給与帯にとどまりがちですが、自動化、クラウドアーキテクチャ、信頼性エンジニアリングの力を持つ人の市場価値は、シニア開発者と同等かそれ以上です。「運用保守エンジニア」という職名を見たら、JDに自動化、CI/CD、IaCといった言葉があるかでどちらのタイプかを判断しましょう。</p>
+      </div>
+
+      <h2 id="sec-1">運用は「開発がうまくできない人がやる仕事」ではない</h2>
+    <p>まず一つの誤解を解いておきます。台湾の技術コミュニティでは長らく、運用は開発より格下の選択肢と見なされてきましたが、そのイメージはある特定の運用の形から来ています。サーバーの再起動、監視ダッシュボードの確認、SOPどおりのアラート対応だけを担当する、というものです。</p>
+    <p>運用職のキャリアの天井を本当に決めるのは、あなたが<strong>「インシデントを処理している」のか「インシデントが起きないようにシステムを設計している」のか</strong>です。前者は確かに低めの給与帯に抑えられがちです。後者（自動化、オブザーバビリティ、アーキテクチャ改善）の市場価値はシニア開発者と同等で、できる人が少ない分、それ以上になることもあります。</p>
+
+    <h2 id="sec-2">運用系職種の4つのタイプ</h2>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>雇用形態</th><th>中核業務</th><th>スキルの重点</th><th>キャリアの天井</th></tr></thead>
+        <tbody>
+          <tr><td data-label="型態"><strong>システム運用</strong></td><td data-label="核心工作">サーバー、ネットワーク、OSの保守</td><td data-label="技能重心">Linux/Windows、ネットワーク、監視ツール</td><td data-label="職涯天花板">中——自動化やクラウドへ広げる必要あり</td></tr>
+          <tr><td data-label="型態"><strong>運用保守サポート</strong></td><td data-label="核心工作">ログ分析、障害対応、バージョン管理</td><td data-label="技能重心">ログツール（ELKなど）、Git、CI/CD</td><td data-label="職涯天花板">中～高——開発に近く、転職の柔軟性が大きい</td></tr>
+          <tr><td data-label="型態"><strong>クラウド運用</strong></td><td data-label="核心工作">クラウドリソース管理、デプロイ、パフォーマンス最適化</td><td data-label="技能重心">AWS/GCP/Azure、IaC、コンテナ</td><td data-label="職涯天花板">高い：市場の需要は伸び続けている</td></tr>
+          <tr><td data-label="型態"><strong>SRE</strong></td><td data-label="核心工作">信頼性エンジニアリング、自動化、キャパシティプランニング</td><td data-label="技能重心">プログラミング力＋システム設計＋可観測性</td><td data-label="職涯天花板">最も高い——シニア開発者と同等かそれ以上</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>この4種類は同じ職名の下に混在していることがよくあります。「運用保守エンジニア」という求人を見ても、タイトルだけではどれに当たるか判断できません。JDに自動化、IaC、CI/CDといったキーワードが出てくるかを見る必要があります。</p>
+
+    <div class="insight">
+      <div class="label">ヘッドハンターの視点</div>
+      <p>運用職に応募するときに最も聞くべきなのは、<strong>「このポジションは、アラート対応と改善業務にそれぞれどれくらいの時間を使っていますか？」</strong>です。</p>
+      <p>答えが「ほとんどアラート対応」なら、それは消耗型のポジションです。忙しくはなりますが、2年後の職務経歴書に書けることがありません。逆に、チームが繰り返しの対応を自動化する時間をくれるなら、その自動化の成果が次の転職での交渉材料になります。</p>
+      <p>私たちは、何年も同じ給与帯で足踏みしている運用保守エンジニアを数多く見てきました。理由はほぼ一つです：<strong>忙しすぎて、自分が忙しくなくなるための仕事をする時間がない</strong>。</p>
+    </div>
+
+    <h2 id="sec-3">オンコールはどう評価する？</h2>
+    <p>運用職には on-call（待機）がつきものです。これは生活の質を左右する重要な点ですが、面接で詳しく聞けない人が多いのが実情です。次の4つははっきり確認しておきましょう：</p>
+    <ol>
+      <li><strong>当番の頻度</strong>——どのくらいの間隔で回ってきて、1回の期間はどれくらい？「1回1週間、6週間に1回」と「2週間に1回」では生活がまったく違います</li>
+      <li><strong>実際に呼び出される頻度</strong>——制度上の待機と、実際に毎晩起こされるのとは別物です。「先月はだいたい何回呼び出されましたか」と直接聞きましょう</li>
+      <li><strong>補償の方法</strong>——待機手当はあるか？呼び出されて対応した時間は残業としてどう計算されるか？翌日に代休を取れるか？</li>
+      <li><strong>エスカレーションの仕組み</strong>——夜中に自分で解決できない問題が起きたとき、頼れる人はいるか？バックアップのないオンコールはプレッシャーがずっと大きくなります</li>
+    </ol>
+    <p>on-call そのものは悪いことではありません。on-call があるということは、通常そのシステムが重要だということであり、重要なシステムでの経験には価値があります。問題は<strong>頻度が不合理で、それに見合った補償もない</strong>場合です。</p>
+
+    <h2 id="sec-4">運用からどうキャリアアップする？</h2>
+    <p>実際に可能な3つのルート：</p>
+    <ul>
+      <li><strong>クラウドと自動化を深める</strong>：繰り返し作業をスクリプト化し、IaCやコンテナオーケストレーションを学んで、クラウド運用やSREを目指します。これが今、市場で最も需要の強い方向です</li>
+      <li><strong>開発への転向</strong>。運用サポート系の職種はもともとコードやCI/CDに触れる機会があり、経験を積んで開発に移るのは珍しくありません。しかも運用が分かる開発者は、システム設計でより現実的です</li>
+      <li><strong>アーキテクチャやマネジメントの道</strong>：運用はシステムが壊れるさまざまなパターンを誰よりも多く見ており、これはアーキテクチャ設計においてとても希少な勘です</li>
+    </ul>
+    <p>共通するカギは、<strong>「何件のインシデントを処理したか」ではなく「どんな改善をしたか」を積み上げること</strong>です。履歴書に「サーバー 200 台を保守」と書くより、「デプロイ手順を自動化し、リリース時間を 2 時間から 15 分に短縮」と書くほうが伝わります。</p>
+
+    <h2 id="sec-5">運用保守の求人の面接で、上司は何を見ている？</h2>
+    <p>実際の採用現場からのフィードバックを見ると、運用保守職の面接の重点は開発職とは少し違います：</p>
+    <ul>
+      <li><strong>障害対応の考え方</strong>——「システムが遅くなったらどう調べるか」と聞かれます。大事なのは正解を言うことではなく、体系立った切り分けの順序を説明できることです</li>
+      <li><strong>リスクに対する感度</strong>。例えば終業前にリリースするかどうかを聞かれたとき、答えそのものは重要ではなく、リスクを評価していることが伝わるかが大事です</li>
+      <li><strong>コミュニケーション能力</strong>。運用保守は開発、セキュリティ、PM、さらには顧客とも調整する必要があり、技術はあっても状況をうまく説明できない人には務まりません</li>
+      <li><strong>学習意欲</strong>——クラウドやツールは変化が速いので、上司は継続的に知識を更新する習慣があるかを確認したがります</li>
+    </ul>
+
+    <h2 id="sec-6">よくある質問</h2>
+<div><details>
+        <summary><span>インフラ・運用エンジニアの給与は開発より低い？</span><span class="faq-icon">+</span></summary>
+        <p>初級の運用保守は確かに初級の開発より低いことが多いですが、この差はスキルの方向性によって広がりも縮まりもします。自動化、クラウドアーキテクチャ、信頼性エンジニアリングのスキルを持つ運用エンジニアは、シニア開発者と同等かそれ以上の給与を得られます。市場でこうした人材のほうが希少だからです。鍵は職種名ではなく、あなたが「インシデントに対処する人」なのか「インシデントが起きないようにシステムを設計する人」なのかにあります。</p>
+      </details><details>
+        <summary><span>クラウドの経験がなくてもクラウド運用に応募できる？</span><span class="faq-icon">+</span></summary>
+        <p>一部の求人では可能です。Linux/Windows の運用基盤、スクリプトを書く力、ネットワークの基礎がしっかりしていれば、働きながらクラウドを学ばせてくれる企業は少なくありません。実務上、この種の求人の必須条件は「OS とネットワークの基礎」であることが多く、クラウド経験は加点要素です。まずクラウドベンダーの入門資格を取っておくと説得力が増します。</p>
+      </details><details>
+        <summary><span>オンコールは大変？</span><span class="faq-icon">+</span></summary>
+        <p>制度の設計次第です。シフトの頻度、実際に呼び出される回数、手当や代休の扱い、深夜のエスカレーション経路があるかを確認しましょう。妥当な体制（例：1回1週間、約6週間に1回の当番で、待機手当あり）なら多くの人が受け入れられますが、補償がなく頻繁に呼び出される場合は慎重に考えるべきです。</p>
+      </details><details>
+        <summary><span>運用保守から開発に移れる？</span><span class="faq-icon">+</span></summary>
+        <p>できますし、珍しくもありません。運用サポート系の職種はもともとコード、CI/CD、問題分析に触れる機会があり、経験を積んで開発に移るのは自然な流れです。運用を理解している開発者は、システムの安定性やデプロイのリスクを実感として知っているため、設計がより現実的になるのが強みです。運用の仕事をしている間に、見せられるプログラム作品を積極的に蓄積しておくことをおすすめします。</p>
+      </details><details>
+        <summary><span>運用職の求人に行く価値があるかどうか、どう判断する？</span><span class="faq-icon">+</span></summary>
+        <p>見るべき点は2つです。1つは、チームが改善に時間を割いているか（すべての時間を火消しに使っていないか）。もう1つは、モダンなツールチェーン（CI/CD、IaC、オブザーバビリティ基盤）を使っているかどうか。この2点で、2年後の履歴書に何を書けるかが決まります。</p>
+      </details></div><div>
+      <h2 id="sec-7">運用保守系の求人を募集中です</h2>
+      <p>運用サポートエンジニア（電子決済）とクラウド運用エンジニア（クラウドサービス）をどちらも募集中です。オンコール体制と実際の負担については、決める前にコンサルタントが採用部門に確認することもできます。</p>
+      <p><a href="/ja/jobs/">エンジニアリング系の求人をすべて見る →</a></p>
+      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">LINEでコンサルタントに相談する</a>
+    </div>
+
+    <p>関連記事：<a href="/ja/articles/software-engineer-salary/">ソフトウェアエンジニアの給与：同じ経験年数でも、業界が違うと2万台湾ドルの差が出るのはなぜ？</a> · <a href="/ja/jobs/">現在募集中のエンジニア求人を見る</a></p>
+
+      
+<div class="cta">
+        <p>運用からステップアップしたい、またはオンコール条件がまっとうな環境に移りたい方は、LINEでお気軽にご相談ください。</p>
+          <a class="btn-alt" href="/ja/jobs/">現在募集中の技術系求人を見る</a> <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE でコンサルタントに相談</a>
+      </div>
+    
+<div class="related-jobs-box" style="margin:26px 0;padding:18px 20px;border:1px solid #D9E0E6;border-radius:14px;background:#EAF4FA"><strong style="display:block;margin-bottom:9px;color:#0F5F87;font-size:15px">🔎 関連求人</strong><div style="display:flex;flex-wrap:wrap;gap:8px 14px;font-size:14.5px"><a href="/ja/jobs/cloud-ops-engineer/">クラウド運用エンジニア</a> · <a href="/jobs/ops-support-engineer-fintech/">システム運用エンジニア</a> · <a href="/ja/jobs/">すべての求人を見る</a></div></div>
+</article>
+  </div>
+</main>
+
+
+<footer><div class="fw">德仁管理顧問有限公司 台北市内湖区康寧路三段54之7号3階</div></footer>
+
+<script>
+// 表格加水平捲動外框，避免手機橫向溢位
+document.querySelectorAll('article table').forEach(function(t){
+  var w=document.createElement('div'); w.className='tw';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
+// 閱讀進度
+var bar=document.getElementById('bar');
+function prog(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',prog,{passive:true}); prog();
+// 目錄跟隨
+var tns=[].slice.call(document.querySelectorAll('.tn'));
+var secs=tns.map(function(a){return document.getElementById(a.dataset.s)}).filter(Boolean);
+if('IntersectionObserver' in window && secs.length){
+  var cur=null;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) cur=e.target.id; });
+    tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  },{rootMargin:'-88px 0px -70% 0px'}).observe && secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===e.target.id)}); }
+      });
+    },{rootMargin:'-88px 0px -70% 0px'}).observe(s);
+  });
+}
+</script>
+
+<style>
+.s1ne-sc{position:fixed;z-index:60;left:0;right:0;bottom:0;display:flex;gap:10px;padding:10px max(14px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));background:rgba(255,255,255,.96);box-shadow:0 -6px 24px rgba(40,30,10,.12);transform:translateY(120%);transition:transform .25s ease}
+.s1ne-sc.on{transform:none}
+.s1ne-sc a{flex:1;display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:999px;font-weight:700;font-size:15px;text-decoration:none;white-space:nowrap}
+.s1ne-sc .p{background:#111827;color:#fff}
+.s1ne-sc .l{background:#fff;color:#111827;border:1.5px solid #d1d5db}
+.s1ne-sc a:focus-visible{outline:3px solid #1f2937;outline-offset:2px}
+@media (min-width:760px){.s1ne-sc{left:auto;right:24px;bottom:24px;border-radius:999px;padding:8px;box-shadow:0 8px 28px rgba(40,30,10,.18)}.s1ne-sc a{flex:none;padding:0 22px}}
+@media (prefers-reduced-motion:reduce){.s1ne-sc{transition:none}}
+body{padding-bottom:84px}
+@media (min-width:760px){body{padding-bottom:0}}
+</style>
+<div class="s1ne-sc" id="s1neSc" role="region" aria-label="迅速に動く">
+  <a class="l" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">LINEで問い合わせ</a> <a class="p" href="/ja/jobs/" data-cta="jobs_cta_click">現在の求人を見る</a>
+</div>
+<script>
+(function(){var b=document.getElementById('s1neSc');if(!b)return;
+function t(){b.classList.toggle('on',window.scrollY>380);}
+window.addEventListener('scroll',t,{passive:true});t();
+b.querySelector('.p').addEventListener('click',function(){try{gtag('event',this.getAttribute('data-cta'),{page_path:location.pathname,placement:'sticky'});}catch(e){}});})();
+</script>
+<!-- /s1ne-sticky-cta -->
+
+</body>
+</html>

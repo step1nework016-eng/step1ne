@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  if (!e.target.closest) return;
+  // 2026-08-06：原本只抓 lin.ee。BIM 那群的下一步是「直接應徵」不是加 LINE，
+  // 不一起記的話，等於把那條路做出來卻量不到，實驗就白做了。
+  var a = e.target.closest('a[href*="lin.ee"], a[href^="/apply"]');
+  if (!a) return;
+  var isApply = (a.getAttribute('href') || '').indexOf('/apply') === 0;
+  gtag('event', isApply ? 'apply_click' : 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60),
+    // mid＝這次新加的文章中段；沒有標的就是原本頁首／頁尾那些
+    cta_slot: a.getAttribute('data-cta') || 'legacy'
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BIMエンジニアの給与相場：未経験からシニアまでどう上がる？ヘッドハンターの実務観察｜Step1ne</title>
+<meta name="description" content="モデラー35-45K、BIMエンジニア38-60K、コーディネーター50-70K、マネージャー年収90-120万台湾ドル。この記事ではLv1モデラーからLv6 VDCディレクターまでの6つの職位ごとに給与レンジを分解し、最も多くの人がつまずく段階で何を補えば次に進めるかを解説します。">
+<meta name="keywords" content="BIMエンジニア 給料,BIMエンジニア 給与,BIMエンジニア 初任給,BIM 給料,Revit 給料,BIMエンジニア 年収,BIMエンジニア 待遇">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/ja/articles/bim-engineer-salary/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Step1ne 紹介プログラム">
+<meta property="og:title" content="BIMエンジニアの給与相場：未経験からベテランまでどう上がる？">
+<meta property="og:description" content="Lv1モデラーからLv6 VDCディレクターまで、6つの職級の月給レンジを完全に分解。そして最も多くの人が止まる一段をどう越えるか。">
+<meta property="og:url" content="https://step1ne.com/ja/articles/bim-engineer-salary/">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta name="theme-color" content="#F4F6F8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "BIMエンジニアの給与相場：未経験からベテランまでどう上がる？ヘッドハンターの実務から",
+  "description": "台湾のBIMエンジニアの給与レベル：Lv1モデラー（35-45K）、Lv2エンジニア（38-60K）、Lv3コーディネーター（50-70K）、Lv4 Lead、Lv5-6マネージャー（年収90-120万台湾ドル）の6段階に分けて解説し、最も多くの人がつまずくLv2からLv3への分岐点をどう越えるかも説明します。",
+  "datePublished": "2026-07-27",
+  "dateModified": "2026-10-24",
+  "inLanguage": "zh-TW",
+  "author": {
+    "@type": "Organization",
+    "name": "Step1ne 德仁管理顧問有限公司",
+    "url": "https://step1ne.com/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "德仁管理顧問有限公司（Step1ne）",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://step1ne.com/assets/step1ne-logo.png"
+    }
+  }
+}
+</script>
+
+<style>
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;
+  --wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:17px;line-height:1.95;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.35;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,select,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* 導覽 */
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+/* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
+
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
+.crumb{grid-column:1/-1;padding:22px 0 6px;font-size:13.5px;color:var(--slate-dim)}
+.crumb a{color:var(--slate)}
+.crumb a:hover{color:var(--brand-deep)}
+.crumb span{margin:0 8px;color:var(--rule)}
+
+/* 目錄軌：沿用全站 signature */
+.toc{position:sticky;top:92px;padding:8px 0 40px}
+.toc h2{font-size:13px;font-weight:700;color:var(--slate-dim);letter-spacing:.02em;margin-bottom:16px}
+.tns{position:relative;padding-left:22px}
+.tns::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.14))}
+.tn{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:14px;color:var(--slate);line-height:1.6;position:relative}
+.tn i{position:absolute;left:-22px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--rule);flex:0 0 auto}
+.tn:hover{color:var(--brand-deep)}
+.tn:hover i{border-color:var(--brand)}
+.tn.on{color:var(--ink);font-weight:700}
+.tn.on i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 4px rgba(46,169,223,.2)}
+.mtoc{display:none;margin:20px 0 0;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.mtoc summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15.5px;position:relative}
+.mtoc summary::-webkit-details-marker{display:none}
+.mtoc summary::after{content:"";position:absolute;right:20px;top:24px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.mtoc[open] summary::after{transform:rotate(-135deg)}
+.mtoc div{padding:0 18px 14px}
+.mtoc a{display:block;padding:9px 0;font-size:15px;color:var(--slate);border-top:1px solid var(--rule)}
+
+/* 文章本體 */
+article{padding:14px 0 60px;max-width:70ch}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--brand-deep);background:rgba(22,126,178,.07);border:1px solid rgba(22,126,178,.25);border-radius:5px;padding:4px 11px}
+article h1{margin-top:16px;font-size:clamp(28px,4.2vw,42px);line-height:1.28;letter-spacing:-.02em}
+.by{margin-top:18px;padding-bottom:20px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14px;color:var(--slate-dim)}
+.by a{color:var(--slate);border-bottom:1px solid var(--rule)}
+.by .d{font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+
+/* ★ Signature：直接答案 */
+.ans{margin-top:30px;background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:26px 30px}
+.ans .lab{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:10px}
+.ans p{font-size:19.5px;line-height:1.85;font-weight:500}
+.ans strong{font-weight:900}
+
+article h2{margin:52px 0 16px;font-size:25px;scroll-margin-top:92px}
+article h3{margin:34px 0 10px;font-size:19px}
+article h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-right:12px;border-radius:8px;background:var(--brand);color:#fff;font-family:var(--f-disp);font-size:17px;font-weight:700;vertical-align:2px}
+article p{margin-top:16px}
+article strong{font-weight:700}
+article a:not(.tn){color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.32)}
+article a:not(.tn):hover{border-bottom-color:var(--brand-deep)}
+article ul,article ol{margin:16px 0 0;padding-left:1.4em}
+article li{margin-top:9px}
+article table{width:100%;border-collapse:collapse;margin-top:22px;font-size:15.5px;background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+article th{text-align:left;background:var(--paper);font-weight:700;font-size:14px;color:var(--slate);padding:12px 14px;border-bottom:1px solid var(--rule)}
+article td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.75}
+article tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+article details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+article details summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+article details summary::-webkit-details-marker{display:none}
+article details summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+article details[open] summary::after{transform:rotate(-135deg)}
+article details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid var(--rule);color:var(--slate)}
+
+.foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
+.cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
+.cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
+footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+.fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.note{max-width:var(--wrap);margin:0 auto 46px;padding-inline:var(--gut)}
+.note div{background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid #B45309;border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.note b{color:#5A3D0C}
+
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .mtoc{display:block}
+}
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  body{font-size:16.5px}
+  .ans{padding:22px;border-radius:0 8px 8px 0}
+  .ans p{font-size:18px}
+  article h2{font-size:22px;margin-top:42px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+<!--i18n-hreflang-->
+<link rel="alternate" hreflang="zh-Hant" href="https://step1ne.com/articles/bim-engineer-salary/">
+<link rel="alternate" hreflang="ja" href="https://step1ne.com/ja/articles/bim-engineer-salary/">
+<link rel="alternate" hreflang="en" href="https://step1ne.com/en/articles/bim-engineer-salary/">
+<link rel="alternate" hreflang="x-default" href="https://step1ne.com/articles/bim-engineer-salary/">
+<style>.s1-lang{max-width:1100px;margin:0 auto;padding:10px 16px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.s1-lang a,.s1-lang b{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid #d9dce3;background:#fff;font-size:14px;font-weight:600;color:#4a5060;text-decoration:none}.s1-lang b{background:#23262d;border-color:#23262d;color:#fff}.s1-lang a:hover{color:#23262d;border-color:#9aa0ad}.s1-lang a:focus-visible{outline:3px solid #1880B4;outline-offset:2px}.s1-note{max-width:1100px;margin:10px auto 0;padding:0 16px}.s1-note p{margin:0;padding:12px 14px;border-radius:12px;background:#eef4fb;border:1px solid #c9dcef;color:#1d3a57;font-size:14.5px;line-height:1.7}</style>
+<!--/i18n-hreflang-->
+</head>
+
+<body>
+<div id="bar"></div>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/ja/"><img src="/assets/step1ne-logo.png" alt="Step1ne"><b>Step1ne</b></a>
+    <nav class="hd-nav">
+      <a href="/ja/commission-recruiting/">企業向けサービス</a><a href="/ja/jobs/">求人一覧</a><a class="on" href="/ja/articles/">ヘッドハンティングコラム</a><a href="/ja/talent/">Step1ne 紹介プログラム</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">LINEで問い合わせ</a>
+    <button class="hd-burger" type="button" aria-label="メニューを開く" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/ja/commission-recruiting/">法人向けサービス</a><a href="/ja/jobs/">求人一覧</a><a href="/ja/articles/">ヘッドハンティングコラム</a><a href="/ja/talent/">Step1ne 紹介プログラム</a> <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINEで問い合わせ</a>
+  </div>
+</header>
+<!--i18n-switch--><nav class="s1-lang" aria-label="言語を切り替える"><a href="/articles/bim-engineer-salary/" hreflang="zh-Hant" lang="zh-Hant">中文</a><b lang="ja" aria-current="true">日本語</b><a href="/en/articles/bim-engineer-salary/" hreflang="en" lang="en">English</a></nav><!--/i18n-switch-->
+
+
+<main class="shell">
+  <nav class="crumb" aria-label="パンくずリスト"><a href="/ja/">ホーム</a><span>/</span><a href="/ja/articles/">ヘッドハンティングコラム</a><span>/</span>BIMエンジニアの給与相場：未経験からシニアまで、数字はどう上がる？</nav>
+
+  <aside class="toc" aria-label="目次">
+    <h2>本記事は全6セクション</h2>
+    <div class="tns"><a class="tn" href="#sec-1" data-s="sec-1"><i></i><span>BIMの6つの職位レベル、給与はこれに沿って上がる</span></a> <a class="tn" href="#sec-2" data-s="sec-2"><i></i><span>同じ「月給4万」でも、手取りが大きく違うのはなぜ？</span></a> <a class="tn" href="#sec-3" data-s="sec-3"><i></i><span>本当に給与に反映される条件は？</span></a> <a class="tn" href="#sec-4" data-s="sec-4"><i></i><span>未経験から業界に入るなら、最初の仕事はどう選ぶ？</span></a> <a class="tn" href="#sec-5" data-s="sec-5"><i></i><span>よくある質問</span></a> <a class="tn" href="#sec-6" data-s="sec-6"><i></i><span>自分の条件の市場価値を知りたい方へ</span></a></div>
+  </aside>
+
+  <div>
+    <details class="mtoc"><summary>目次（6セクション）</summary><div><a href="#sec-1">BIMの6つの職位、給与はこの順に上がる</a> <a href="#sec-2">同じ「月給4万台湾ドル」でも手取りが大きく違うのはなぜ？</a> <a href="#sec-3">本当に給与に反映される条件は？</a> <a href="#sec-4">未経験から業界に入るなら、最初の仕事はどう選ぶ？</a> <a href="#sec-5">よくある質問</a> <a href="#sec-6">自分の条件の市場価値を知りたい方へ</a></div></details>
+    <article>
+      <span class="tag">求職者ガイド・ヘッドハンターの視点</span>
+      <h1>BIMエンジニアの給与相場：未経験からベテランまで、数字はどう上がる？</h1>
+      <div class="by">
+        <span>著者：<a href="/ja/about/">Step1ne ヘッドハンティング・コンサルタントチーム</a></span> <time class="d" datetime="2026-07-27">公開日 2026-07-27</time> <span class="d">約8分</span>
+      </div>
+
+      <div class="ans">
+        <div class="lab">端的な答え</div>
+        <p>台湾のBIMエンジニアの給与は、単純な経験年数ではなく職位で決まります。BIMモデラー（0–2年）は約35–45K、BIMエンジニア（2–4年）は約38–60Kで中央値は48–55K、BIMコーディネーター（4–6年）は約50–70K、さらに上のBIMマネージャー／VDCディレクターになると年収90万～120万台湾ドルのレンジに入ります。同じ「BIMエンジニア」という求人でも、実際の職位がまるまる1段階違うことがあります。</p>
+      </div>
+
+      <h2 id="sec-1">BIMの6つの職位レベル、給与はこのように上がる</h2>
+    <p>多くの給与記事は「3.5万～5.5万台湾ドル」というレンジを示すだけですが、それではキャリア設計の役に立ちません。給与を本当に決めるのは年数ではなく、あなたがどのレベルにいるかです。台湾の業界の BIM 職は、おおむね6段階に分けられます（Autodesk の認定体系と実務慣行に照らして）：</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>レベル</th><th>よくある職種名</th><th>経験年数</th><th>月給帯</th><th>実際にしていること</th></tr></thead>
+        <tbody>
+          <tr><td data-label="級距"><strong>Lv1</strong></td><td data-label="常見職稱">BIM モデラー／製図担当</td><td data-label="年資">0–2年</td><td data-label="月薪帶"><strong>35–45K</strong></td><td data-label="實際在做什麼">単一部材のモデリング（LOD 100–300）、部下なし。ツールはRevitの基礎＋AutoCADが中心</td></tr>
+          <tr><td data-label="級距"><strong>Lv2</strong></td><td data-label="常見職稱">BIM エンジニア</td><td data-label="年資">2–4年</td><td data-label="月薪帶"><strong>38–60K</strong><br>中央値 48–55K</td><td data-label="實際在做什麼">単一分野（設備／建築／構造）のモデルを主導し、干渉チェックのレポートを出し始める。Revit 上級＋Navisworks 基礎が必要</td></tr>
+          <tr><td data-label="級距"><strong>Lv3</strong></td><td data-label="常見職稱">BIM コーディネーター</td><td data-label="年資">4–6年</td><td data-label="月薪帶"><strong>50–70K</strong></td><td data-label="實際在做什麼">専門分野をまたぐ統合・調整、LOD基準の策定、1～2人の指導、干渉チェック会議の進行。BIM 360／ACCでの共同作業経験が必要</td></tr>
+          <tr><td data-label="級距"><strong>Lv4</strong></td><td data-label="常見職稱">BIM Lead／シニアコーディネーター</td><td data-label="年資">6–9年</td><td data-label="月薪帶"><strong>50–70K 以上</strong></td><td data-label="實際在做什麼">案件全体のBEPを作成し、施主／設計／施工の三者間のコミュニケーション窓口となり、3–5人を率いる。Dynamoによる自動化ができれば加点、鉄骨案件ではTeklaが必要</td></tr>
+          <tr><td data-label="級距"><strong>Lv5–6</strong></td><td data-label="常見職稱">BIM マネージャー／VDC ディレクター</td><td data-label="年資">9年以上</td><td data-label="月薪帶"><strong>年収90万〜120万台湾ドル</strong></td><td data-label="實際在做什麼">部門のマネジメント、全社レベルのBIM標準の策定</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">数字は 104、1111、比薪水、GoodJob などの公開給与データと、当社が実際に扱った求人の条件を照らし合わせてまとめたものです。BIM 求人はもともと給与の開示件数が少なく、各社の「BIM エンジニア」の定義にも大きな差があるため、上記はあくまで方向性の参考です。実際は個別のオファーを基準にしてください。</p>
+
+    <div class="insight">
+      <div class="label">ヘッドハンターの視点</div>
+      <p><strong>Lv2からLv3は、この道のりで最も上がり幅が大きく、最も多くの人がつまずく関門です。</strong>違いはRevitで描く速さではなく、「専門分野をまたげるか」にあります。設備、構造、建築の3分野のモデルを重ね合わせ、干渉を見つけ、関係者を集めて会議を開き、争点を決定にまとめられるかどうかです。</p>
+      <p>私たちが実際に推薦する際によく見るのは、候補者に5年の経験があっても、5年間ずっと同じ種類の部材のモデリングをしていたケースです。職務経歴書ではLv3の年数に見えても実力はまだLv2で、給与交渉では非常に不利になります。すでにLv2に2年以上いるなら、求めるべきは昇給ではなく<strong>調整会議に参加する機会</strong>です。それこそが次の転職で一段上に上がる材料になります。</p>
+    </div>
+
+    <h2 id="sec-2">なぜ同じ「月給4万台湾ドル」でも、手取りが大きく違うのか？</h2>
+    <p>BIM の求人は月給の数字だけで判断してはいけません。次の3項目は、年間の手取りへの影響が月給そのものより大きいことがよくあります：</p>
+
+    <h3>1. 年末賞与の月数</h3>
+    <p>建設・工場建設プロジェクト系の求人では、1–2か月分の固定年末賞与がよく見られます。月給4万台湾ドルで計算すると、2か月分の年末賞与は年間で8万台湾ドル増えることになり、月給に換算すると約6,600台湾ドル上乗せされるのと同じです。オファー交渉では「月給4万＋年末賞与2か月」は「月給4.3万・年末賞与なし」より実質的に高くなります。</p>
+
+    <h3>2. 残業はどう計算する？</h3>
+    <p>BIMでは、プロジェクトの追い込み時期の残業は当たり前です。残業代が実際の時間どおりに支払われるのか、代休に振り替えるのか、上限はあるのか。これがこの仕事の実質的な時給を直接決めます。面接では必ずはっきり確認し、制度上の書き方だけでなく「実際にはみんなどう運用しているか」を聞きましょう。</p>
+
+    <h3>3. 交通と住居</h3>
+    <p>工場系のプロジェクトは苗栗、台中、台南などにあることが多く、会社が通勤バスや寮を用意していれば、毎月数千台湾ドルの通勤費や家賃を節約できることになります。地方からの応募者がオファーを比較するときはこの部分も計算に入れないと、実際の待遇を低く見積もってしまいます。</p>
+
+    <div class="insight">
+      <div class="label">ヘッドハンターの視点</div>
+      <p>私たちが実際に推薦してきた経験の中で、最もよくある判断ミスは<strong>月給の数字だけを比べて面談を断ること</strong>です。ある候補者は「月給3.8万台湾ドル＋賞与2か月分＋寮あり」の求人を断り、「月給4.2万台湾ドル、賞与なし、住居は自己負担」の会社を選びましたが、年間の手取りはかえって10万台湾ドル近く少なくなりました——通勤時間のコストはまだ計算に入れていません。</p>
+      <p>オファーを交渉するときは、相手に「年間の現金報酬総額」に換算してもらうよう直接お願いすることをおすすめします。企業は通常この聞き方なら答えてくれますし、2つのオファーを本当に比較できるようになります。</p>
+    </div>
+
+    <h2 id="sec-3">本当に給与に反映される条件は何か？</h2>
+    <p>実際に成約した事例から見ると、数字を押し上げやすいのは以下の4項目で、影響の大きい順に並べています：</p>
+    <ul>
+      <li><strong>モデルを単独で完成させて図面を出せる</strong>こと。そばで見張る人がいなくても仕事ができる——これが「アシスタント」から「エンジニア」へ上がる分かれ目で、昇給幅が最も大きい段階でもあります</li>
+      <li><strong>同種の案件の経験</strong>：工場建設やファシリティ系プロジェクトの経験は、同じく工場建設の求人ではそのまま提示額に反映されます</li>
+      <li><strong>専門分野をまたぐ調整力</strong>：構造、設備、施工の各側と対話し、干渉を収束させる力で、中堅・上位の求人が本当に求めている能力です</li>
+      <li><strong>Revit以外のツール</strong>：Navisworks、Dynamo、その他のコラボレーションプラットフォームは加点要素であり、必須条件ではありません</li>
+    </ul>
+
+    <div class="insight">
+      <div class="label">ヘッドハンターの視点</div>
+      <p>一方で、<strong>BIM職における資格の昇給効果は、多くの人が思っているよりずっと低い</strong>のです。企業側が面談で聞くのはほとんどが「どんな案件をやったか、モデルの規模は、干渉が起きたときどう対処したか」で、資格を交渉材料にする採用担当の上司はほとんどいません。本当に昇給したいなら、これまでの案件をきちんと説明できる作品説明にまとめるほうが、資格をもう1つ取るよりはるかに効果的です。</p>
+    </div>
+
+    <h2 id="sec-4">未経験からこの業界に入るなら、最初の仕事はどう選ぶ？</h2>
+    <p>BIMのバックグラウンドがまったくないなら、最初の仕事で大事なのは初任給の高さではありません。3.5万台湾ドルと3.8万台湾ドルの差は、2年の経験を積めば完全に消えてしまいます。本当に見るべきなのは次の3つです：</p>
+    <ul>
+      <li><strong>正式な研修制度があるか</strong>——指導役や教材があるのか、それとも手探りで覚えるしかないのか</li>
+      <li><strong>プロジェクトの流れにどこまで関われるか</strong>。モデリングだけをするのと、調整・チェック・図面出力まで関われるのとでは、2年後の履歴書がまったく違います</li>
+      <li><strong>プロジェクト期間が長いか</strong>。長期の工場建設プロジェクトなら一連の流れをひととおり経験できます。短期の小案件ばかり渡り歩くと、経験が細切れになります</li>
+    </ul>
+    <p>だからこそ「大型の工場建設プロジェクト＋会社による充実した研修」の求人は、転職者にとって通常よいスタート地点になります。初任給が一番高いとは限らなくても、です。専攻外から業界に入る方法の詳しい説明はこちら：<a href="/ja/articles/bim-career-change/">関連学科を出ていなくてもBIMエンジニアに転職できる？</a></p>
+
+    <div class="callout">
+      <h3>補足：29歳以下で転職したいなら、政府の補助をまず活用できます</h3>
+      <p>台湾の労働部「産業新尖兵計画」は、15–29歳の失業中（求職中）の若者に、訓練費用を最大10万台湾ドル補助します（訓練前に1万台湾ドルを自己負担し、修了後90日以内に就職すれば返還申請が可能）。受講期間中に出席率が基準を満たせば、毎月8,000台湾ドルの学習奨励金が最長12か月支給されます。指定コースにはBIM／Revit関連のクラスも含まれており、ほぼゼロコストでソフトのスキルを身につけてから市場に出られます。実際の開講リストと資格は<a href="https://elite.taiwanjobs.gov.tw/" target="_blank" rel="noopener">産業新尖兵計画の公式サイト</a>の公告をご確認ください。</p>
+    </div>
+
+    <aside data-exp="cta-mid-2026-08-28"><p>STEP1NE 現在募集中</p><h3>新竹、台中・后里で募集中：未経験可、正社員雇用</h3><p>半導体工場の増産プロジェクトのBIMエンジニアを、現在<strong>新竹サイエンスパーク</strong>と<strong>台中・后里</strong>の2拠点で募集しています。<strong>正社員雇用</strong>です（派遣でも契約社員でもありません）。月給は<strong>40,833～50,167台湾ドル</strong>（学歴と学科の関連性により決定）。大卒以上・学科不問、<strong>未経験可</strong>で、会社が充実した研修を用意しており、工場に入ってからは設計PMと設計エンジニアのチームが独り立ちできるまで指導します。勤務時間は08:30–17:30、週休2日。台中・后里は別途、毎月5,000台湾ドルの住宅補助があります。今回のAI需要はメモリ業界の増産を後押ししており、早いうちにこの実戦経験を積むことは、長期的なキャリアプランに組み込める財産になります。まず詳しく聞いてから決めたい場合もどうぞ。先に履歴書を送る必要はありません。</p><div><a href="/apply-quick/?job=semiconductor-bim-mep-drafting-trainee-hsinchu&amp;utm_source=website&amp;utm_medium=article_cta&amp;utm_campaign=mid-bim" data-cta="mid-bim">新竹の求人に応募</a><a href="/apply-quick/?job=bim-engineer-houli&amp;utm_source=website&amp;utm_medium=article_cta&amp;utm_campaign=mid-bim" data-cta="mid-bim">台中・后里の求人に応募</a><a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-bim">まずLINEで質問する</a></div></aside><h2 id="sec-5">よくある質問</h2>
+    <div>
+      <details>
+        <summary>
+          <span>BIMエンジニアの初任給はどのくらい？</span><span class="faq-icon">+</span>
+        </summary>
+        <p>未経験からの転職者の初任給は月給3.5万〜4.5万台湾ドル程度で、実際の金額は学歴や学科の関連性によって段階的に決まるのが一般的です。固定の年末賞与（1–2か月分が一般的）がある求人なら、年間総額は月給だけを見た印象よりかなり高くなります。</p>
+      </details>
+      <details>
+        <summary>
+          <span>関連学科でなくてもBIMエンジニアになれる？</span><span class="faq-icon">+</span>
+        </summary>
+        <p>できます。人員ニーズが大きいため、学科不問で社内研修を用意し、RevitなどのBIMソフトをゼロから教える企業もあります。こうした求人で重視されるのは学ぶ意欲と現場の作業規則に従えることです。関連学科でない場合は初任給がやや低めになることもありますが、入職後の成長は主に実際に手がけた案件で決まります。</p>
+      </details>
+      <details>
+        <summary>
+          <span>BIMエンジニアの給与の天井はどこ？</span><span class="faq-icon">+</span>
+        </summary>
+        <p>モデリング中心の役割（Lv1–Lv2）は、月給の天井がおおむね5万台湾ドル強から6万台湾ドルあたりです。さらに上を目指すには職能を転換する必要があり、BIMコーディネーター（Lv3、分野横断の統合）で約50–70K、BIM Lead（Lv4、全体のBEPと三者間調整を担当）はさらにその上、BIMマネージャー／VDCディレクター（Lv5–6）になると年収90–120万台湾ドルの水準に入ります。重要な転換点は「モデルを描く人」から「モデルの基準を管理し、干渉を調整する人」になることです。</p>
+      </details>
+      <details>
+        <summary>
+          <span>給与の話はどう切り出せばいい？</span><span class="faq-icon">+</span>
+        </summary>
+        <p>まず「年間の現金収入の総額はどのくらいか」を聞き、月給、年末賞与、残業代、手当をまとめて計算してから、個別の数字の話をしましょう。ヘッドハンター経由で応募する利点は、給与の話をコンサルタントが代わりにしてくれるので、面接の場で自分から金額を提示する必要がなく、そのポジションの妥当な範囲も事前に知っておけることです。</p>
+      </details>
+    </div>
+
+    <div>
+      <h2 id="sec-6">自分の条件の市場価値を知りたい？</h2>
+      <p>LINEでコンサルタントと話してみませんか。現在のご経験に合わせて実際の給与レンジをアドバイスするほか、現在募集中のBIM求人もご覧いただけます。</p>
+      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">LINE公式アカウントで相談する</a>
+      <p><a href="/ja/jobs/semiconductor-bim-mep-drafting-trainee-hsinchu/">新竹のBIM求人を見る →</a></p><p><a href="/ja/jobs/bim-engineer-houli/">台中・后里のBIM求人を見る →</a></p><p><a href="/ja/construction/">建設エンジニアリングの求人をもっと見る →</a></p>
+    </div>
+  <p>関連記事：<a href="/ja/articles/what-is-bim-engineer/">BIMエンジニアとは？製図担当との違いは？</a> · <a href="/ja/articles/how-to-enter-construction-industry/">建設業に入るには？専攻外の初心者向け入門ガイド</a></p>
+
+      
+<div class="cta">
+        <p>今の条件で実際にどこまで交渉できるか知りたい方は、LINEに登録して経験年数と使えるツールを教えてください。</p>
+          <a class="btn-alt" href="/ja/construction/">BIMエンジニアの求人を見る</a> <a class="btn-line" href="https://lin.ee/XcSWPzM">LINEでコンサルタントに相談</a>
+      </div>
+    
+<div class="related-jobs-box" style="margin:26px 0;padding:18px 20px;border:1px solid #D9E0E6;border-radius:14px;background:#EAF4FA"><strong style="display:block;margin-bottom:9px;color:#0F5F87;font-size:15px">🔎 関連求人</strong><div style="display:flex;flex-wrap:wrap;gap:8px 14px;font-size:14.5px"><a href="/ja/jobs/semiconductor-bim-mep-drafting-trainee-hsinchu/">BIMエンジニア（新竹）</a> · <a href="/ja/jobs/bim-engineer-houli/">BIMエンジニア（台中・后里）</a> · <a href="/ja/jobs/">すべての求人を見る</a></div></div>
+</article>
+  </div>
+</main>
+
+
+<footer><div class="fw">德仁管理顧問有限公司 台北市内湖区康寧路三段54之7号3階</div></footer>
+
+<script>
+// 表格加水平捲動外框，避免手機橫向溢位
+document.querySelectorAll('article table').forEach(function(t){
+  var w=document.createElement('div'); w.className='tw';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
+// 閱讀進度
+var bar=document.getElementById('bar');
+function prog(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',prog,{passive:true}); prog();
+// 目錄跟隨
+var tns=[].slice.call(document.querySelectorAll('.tn'));
+var secs=tns.map(function(a){return document.getElementById(a.dataset.s)}).filter(Boolean);
+if('IntersectionObserver' in window && secs.length){
+  var cur=null;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) cur=e.target.id; });
+    tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  },{rootMargin:'-88px 0px -70% 0px'}).observe && secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===e.target.id)}); }
+      });
+    },{rootMargin:'-88px 0px -70% 0px'}).observe(s);
+  });
+}
+</script>
+
+<style>
+.s1ne-sc{position:fixed;z-index:60;left:0;right:0;bottom:0;display:flex;gap:10px;padding:10px max(14px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));background:rgba(255,255,255,.96);box-shadow:0 -6px 24px rgba(40,30,10,.12);transform:translateY(120%);transition:transform .25s ease}
+.s1ne-sc.on{transform:none}
+.s1ne-sc a{flex:1;display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:999px;font-weight:700;font-size:15px;text-decoration:none;white-space:nowrap}
+.s1ne-sc .p{background:#111827;color:#fff}
+.s1ne-sc .l{background:#fff;color:#111827;border:1.5px solid #d1d5db}
+.s1ne-sc a:focus-visible{outline:3px solid #1f2937;outline-offset:2px}
+@media (min-width:760px){.s1ne-sc{left:auto;right:24px;bottom:24px;border-radius:999px;padding:8px;box-shadow:0 8px 28px rgba(40,30,10,.18)}.s1ne-sc a{flex:none;padding:0 22px}}
+@media (prefers-reduced-motion:reduce){.s1ne-sc{transition:none}}
+body{padding-bottom:84px}
+@media (min-width:760px){body{padding-bottom:0}}
+</style>
+<div class="s1ne-sc" id="s1neSc" role="region" aria-label="迅速に動く">
+  <a class="l" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">LINEで問い合わせ</a> <a class="p" href="/ja/jobs/" data-cta="jobs_cta_click">現在の求人を見る</a>
+</div>
+<script>
+(function(){var b=document.getElementById('s1neSc');if(!b)return;
+function t(){b.classList.toggle('on',window.scrollY>380);}
+window.addEventListener('scroll',t,{passive:true});t();
+b.querySelector('.p').addEventListener('click',function(){try{gtag('event',this.getAttribute('data-cta'),{page_path:location.pathname,placement:'sticky'});}catch(e){}});})();
+</script>
+<!-- /s1ne-sticky-cta -->
+
+</body>
+</html>

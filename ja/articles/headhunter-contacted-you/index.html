@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href*="lin.ee"]');
+  if (!a) return;
+  gtag('event', 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60)
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ヘッドハンターから声がかかったらどう対応する？まず5つの質問をしてから決める｜Step1ne</title>
+<meta name="description" content="ヘッドハンターから連絡が来たらどうすればいい？まず本物か確認すること、転職する気がなくても返信をおすすめする理由、返信前に聞くべき5つの重要な質問、そして最も大切な履歴書の機密保持の求め方。ヘッドハンティングのコンサルタントの立場から説明します。">
+<meta name="keywords" content="ヘッドハンターから連絡,ヘッドハンター 接触,ヘッドハンター 返信方法,ヘッドハンターに引き抜かれる,ヘッドハンター 履歴書 機密,ヘッドハンター経由で応募,ヘッドハンター 詐欺">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/ja/articles/headhunter-contacted-you/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Step1ne 紹介プログラム">
+<meta property="og:title" content="ヘッドハンターから連絡が来たらどう返事する？まず5つの質問をしてから決めよう">
+<meta property="og:description" content="まず本物かどうかを確認し、返信前に聞くべき5つの質問、履歴書の秘密保持の求め方を、ヘッドハンティングコンサルタント自身の立場から説明します。">
+<meta property="og:url" content="https://step1ne.com/ja/articles/headhunter-contacted-you/">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta name="theme-color" content="#F4F6F8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "ヘッドハンターから連絡が来たらどう返事する？まず5つの質問をしてから決めよう",
+  "description": "求職者がヘッドハンターから連絡を受けたときの対応方法をまとめて解説します。相手が正規の就業サービス機関かどうかの確認方法、転職のつもりがなくても返信をすすめる理由、返信前に確認すべき5つの重要な質問、履歴書の秘密保持とオフリミット（接触禁止）リストの求め方、そしてヘッドハンター経由の応募と自己応募の実際の違いです。",
+  "datePublished": "2026-07-27",
+  "dateModified": "2026-07-27",
+  "inLanguage": "zh-TW",
+  "author": {
+    "@type": "Organization",
+    "name": "Step1ne 德仁管理顧問有限公司",
+    "url": "https://step1ne.com/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "德仁管理顧問有限公司（Step1ne）",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://step1ne.com/assets/step1ne-logo.png"
+    }
+  }
+}
+</script>
+
+<style>
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;
+  --wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:17px;line-height:1.95;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.35;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,select,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* 導覽 */
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+/* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
+
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
+.crumb{grid-column:1/-1;padding:22px 0 6px;font-size:13.5px;color:var(--slate-dim)}
+.crumb a{color:var(--slate)}
+.crumb a:hover{color:var(--brand-deep)}
+.crumb span{margin:0 8px;color:var(--rule)}
+
+/* 目錄軌：沿用全站 signature */
+.toc{position:sticky;top:92px;padding:8px 0 40px}
+.toc h2{font-size:13px;font-weight:700;color:var(--slate-dim);letter-spacing:.02em;margin-bottom:16px}
+.tns{position:relative;padding-left:22px}
+.tns::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.14))}
+.tn{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:14px;color:var(--slate);line-height:1.6;position:relative}
+.tn i{position:absolute;left:-22px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--rule);flex:0 0 auto}
+.tn:hover{color:var(--brand-deep)}
+.tn:hover i{border-color:var(--brand)}
+.tn.on{color:var(--ink);font-weight:700}
+.tn.on i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 4px rgba(46,169,223,.2)}
+.mtoc{display:none;margin:20px 0 0;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.mtoc summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15.5px;position:relative}
+.mtoc summary::-webkit-details-marker{display:none}
+.mtoc summary::after{content:"";position:absolute;right:20px;top:24px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.mtoc[open] summary::after{transform:rotate(-135deg)}
+.mtoc div{padding:0 18px 14px}
+.mtoc a{display:block;padding:9px 0;font-size:15px;color:var(--slate);border-top:1px solid var(--rule)}
+
+/* 文章本體 */
+article{padding:14px 0 60px;max-width:70ch}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--brand-deep);background:rgba(22,126,178,.07);border:1px solid rgba(22,126,178,.25);border-radius:5px;padding:4px 11px}
+article h1{margin-top:16px;font-size:clamp(28px,4.2vw,42px);line-height:1.28;letter-spacing:-.02em}
+.by{margin-top:18px;padding-bottom:20px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14px;color:var(--slate-dim)}
+.by a{color:var(--slate);border-bottom:1px solid var(--rule)}
+.by .d{font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+
+/* ★ Signature：直接答案 */
+.ans{margin-top:30px;background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:26px 30px}
+.ans .lab{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:10px}
+.ans p{font-size:19.5px;line-height:1.85;font-weight:500}
+.ans strong{font-weight:900}
+
+article h2{margin:52px 0 16px;font-size:25px;scroll-margin-top:92px}
+article h3{margin:34px 0 10px;font-size:19px}
+article h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-right:12px;border-radius:8px;background:var(--brand);color:#fff;font-family:var(--f-disp);font-size:17px;font-weight:700;vertical-align:2px}
+article p{margin-top:16px}
+article strong{font-weight:700}
+article a:not(.tn){color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.32)}
+article a:not(.tn):hover{border-bottom-color:var(--brand-deep)}
+article ul,article ol{margin:16px 0 0;padding-left:1.4em}
+article li{margin-top:9px}
+article table{width:100%;border-collapse:collapse;margin-top:22px;font-size:15.5px;background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+article th{text-align:left;background:var(--paper);font-weight:700;font-size:14px;color:var(--slate);padding:12px 14px;border-bottom:1px solid var(--rule)}
+article td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.75}
+article tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+article details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+article details summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+article details summary::-webkit-details-marker{display:none}
+article details summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+article details[open] summary::after{transform:rotate(-135deg)}
+article details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid var(--rule);color:var(--slate)}
+
+.foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
+.cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
+.cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
+footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+.fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.note{max-width:var(--wrap);margin:0 auto 46px;padding-inline:var(--gut)}
+.note div{background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid #B45309;border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.note b{color:#5A3D0C}
+
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .mtoc{display:block}
+}
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  body{font-size:16.5px}
+  .ans{padding:22px;border-radius:0 8px 8px 0}
+  .ans p{font-size:18px}
+  article h2{font-size:22px;margin-top:42px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+<!--i18n-hreflang-->
+<link rel="alternate" hreflang="zh-Hant" href="https://step1ne.com/articles/headhunter-contacted-you/">
+<link rel="alternate" hreflang="ja" href="https://step1ne.com/ja/articles/headhunter-contacted-you/">
+<link rel="alternate" hreflang="en" href="https://step1ne.com/en/articles/headhunter-contacted-you/">
+<link rel="alternate" hreflang="x-default" href="https://step1ne.com/articles/headhunter-contacted-you/">
+<style>.s1-lang{max-width:1100px;margin:0 auto;padding:10px 16px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.s1-lang a,.s1-lang b{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid #d9dce3;background:#fff;font-size:14px;font-weight:600;color:#4a5060;text-decoration:none}.s1-lang b{background:#23262d;border-color:#23262d;color:#fff}.s1-lang a:hover{color:#23262d;border-color:#9aa0ad}.s1-lang a:focus-visible{outline:3px solid #1880B4;outline-offset:2px}.s1-note{max-width:1100px;margin:10px auto 0;padding:0 16px}.s1-note p{margin:0;padding:12px 14px;border-radius:12px;background:#eef4fb;border:1px solid #c9dcef;color:#1d3a57;font-size:14.5px;line-height:1.7}</style>
+<!--/i18n-hreflang-->
+</head>
+
+<body>
+<div id="bar"></div>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/ja/"><img src="/assets/step1ne-logo.png" alt="Step1ne"><b>Step1ne</b></a>
+    <nav class="hd-nav">
+      <a href="/ja/commission-recruiting/">企業向けサービス</a><a href="/ja/jobs/">求人一覧</a><a class="on" href="/ja/articles/">ヘッドハンティングコラム</a><a href="/ja/talent/">Step1ne 紹介プログラム</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">LINEで問い合わせ</a>
+    <button class="hd-burger" type="button" aria-label="メニューを開く" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/ja/commission-recruiting/">法人向けサービス</a><a href="/ja/jobs/">求人一覧</a><a href="/ja/articles/">ヘッドハンティングコラム</a><a href="/ja/talent/">Step1ne 紹介プログラム</a> <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINEで問い合わせ</a>
+  </div>
+</header>
+<!--i18n-switch--><nav class="s1-lang" aria-label="言語を切り替える"><a href="/articles/headhunter-contacted-you/" hreflang="zh-Hant" lang="zh-Hant">中文</a><b lang="ja" aria-current="true">日本語</b><a href="/en/articles/headhunter-contacted-you/" hreflang="en" lang="en">English</a></nav><!--/i18n-switch-->
+
+
+<main class="shell">
+  <nav class="crumb" aria-label="パンくずリスト"><a href="/ja/">ホーム</a><span>/</span><a href="/ja/articles/">ヘッドハンティングコラム</a><span>/</span>ヘッドハンターから連絡が来たら、どう対応すべき？</nav>
+
+  <aside class="toc" aria-label="目次">
+    <h2>本記事は全7セクション</h2>
+    <div class="tns"><a class="tn" href="#sec-1" data-s="sec-1"><i></i><span>まず確認：本物のヘッドハンターか、詐欺か？</span></a> <a class="tn" href="#sec-2" data-s="sec-2"><i></i><span>今は転職する気がなくても、返信はしておこう</span></a> <a class="tn" href="#sec-3" data-s="sec-3"><i></i><span>返信する前に聞くべき5つの質問</span></a> <a class="tn" href="#sec-4" data-s="sec-4"><i></i><span>いちばん大事なこと：履歴書の機密保持</span></a> <a class="tn" href="#sec-5" data-s="sec-5"><i></i><span>ヘッドハンター経由の応募と自己応募の違いは？</span></a> <a class="tn" href="#sec-6" data-s="sec-6"><i></i><span>よくある質問</span></a> <a class="tn" href="#sec-7" data-s="sec-7"><i></i><span>まずは自分の市場価値を知りたい方へ</span></a></div>
+  </aside>
+
+  <div>
+    <details class="mtoc"><summary>この記事の目次（7 項目）</summary><div><a href="#sec-1">まず確認：本物のヘッドハンターか、詐欺か？</a> <a href="#sec-2">今は転職するつもりがなくても、返信をおすすめする理由</a> <a href="#sec-3">返信する前に聞くべき5つの質問</a> <a href="#sec-4">最も大切なこと：履歴書の機密保持</a> <a href="#sec-5">ヘッドハンター経由の応募と自己応募の違いは？</a> <a href="#sec-6">よくある質問</a> <a href="#sec-7">まず自分の市場価値を知りたい方へ</a></div></details>
+    <article>
+      <span class="tag">求職者ガイド・ヘッドハンターの視点</span>
+      <h1>ヘッドハンターから連絡が来たら、どう対応する？</h1>
+      <div class="by">
+        <span>著者：<a href="/ja/about/">Step1ne ヘッドハンティング・コンサルタントチーム</a></span> <time class="d" datetime="2026-07-27">2026-07-27 公開</time> <span class="d">約5分</span>
+      </div>
+
+      <div class="ans">
+        <div class="lab">端的な答え</div>
+        <p>まず相手が合法な就業サービス機関かどうかを確認し（統一番号と許可証番号を聞き、あなたに費用を請求しないことを確かめる）、それから話を進めるか決めましょう。<strong>今は転職するつもりがなくても、一言返信しておくことをおすすめします</strong>。自分の市場価値を知るための、最もコストの低い方法だからです。本格的に話を進める前に、5つのことを確認してください：どの会社か、給与レンジ、なぜこのポジションが空いたのか、案件がどのくらい続いているか、そして最も重要なのが、あなたの同意なしに履歴書を送らないことです。</p>
+      </div>
+
+      <h2 id="sec-1">まず確認：本物のヘッドハンターか、詐欺か？</h2>
+    <p>近年はヘッドハンターを装った求職詐欺が少なくありません。だから最初の一歩は返信ではなく確認です。3つの行動で問題の9割をふるい落とせます：</p>
+    <ul>
+      <li><strong>統一編号（事業者番号）と就業サービス許可証番号を確認する</strong>——台湾の人材仲介は法律上、主管機関の許可を得なければ営業できません。まともな会社はすぐに提示し、公式サイトに載せていることもあります</li>
+      <li><strong>統一番号で営業状況を確認する</strong>——台湾経済部の商工登記公示資料検索システムで、会社が正常に営業しているか照合します</li>
+      <li><strong>あなたからお金を取らないことを確認する</strong>。まっとうなヘッドハンターは<strong>企業</strong>から報酬を受け取ります。求職者に先払いや保証金を求めたり、講座購入のためにローンを組ませたりするところは、すぐにブロックしてください</li>
+    </ul>
+    <div class="warn">
+      <div class="label">⚠ こんな場合はすぐに連絡をやめましょう</div>
+      <p>先に料金や保証金の支払いを求める、身分証明書の原本や通帳を渡すよう求める、面接場所が個人宅や国外、条件が相場より明らかに高いうえ「今日中に決めて」と急かす、あるいは全過程をメッセージアプリだけで済ませて会社情報を出そうとしない——どれか一つでも当てはまれば、やり取りをやめてください。必要に応じて地元の労働主管機関や警察に相談できます。</p>
+    </div>
+
+    <h2 id="sec-2">今は転職するつもりがなくても、返信することをおすすめします</h2>
+    <p>ヘッドハンターからメッセージが来ても、どうせ転職しないからと既読スルーする人は多いものです。しかし市場の観点から見ると、これは無料で情報を得る機会を1回むだにしていることになります。</p>
+    <p>一言で返信するだけで、手間はほとんどかからずに得られるものがあります。「今のところ転職の予定はありませんが、この機会の内容と給与レンジを知りたいです。教えていただけますか？」こうすれば、<strong>自分の今の市場価値</strong>がわかり、本当に動きたくなったときにすぐ使えるパイプもできます。</p>
+
+    <div class="insight">
+      <div class="label">ヘッドハンターの視点</div>
+      <p>私たちから見ると、<strong>最も理想的な相手は「今すぐ転職したい」人とは限りません</strong>。連絡を取り続け、半年に一度話せる人です。良い機会が来るタイミングはコントロールできないので、本当に転職したくなってから探し始めると、選べるのはその時点で空いている求人だけになってしまいます。</p>
+      <p>別の角度から見ると、既読スルーのコストは今回の件ではありません。3年後にあなたにぴったりのポジションが出てきたとき、コンサルタントの頭にあなたがいないことです。</p>
+    </div>
+
+    <h2 id="sec-3">返事をする前に、この5つを聞こう</h2>
+    <p>JD を読んだり通話を設定したりする時間を使う前に、この5つの質問で話を進める価値があるかをすばやく判断しましょう：</p>
+    <ol>
+      <li><strong>「どこの会社ですか？」</strong>：非公開求人で社名を言えない場合でも、少なくとも業界、規模、チームの状況は説明できるはずです。何も話そうとしない場合は注意が必要です</li>
+      <li><strong>「給与レンジはどのくらいですか？」</strong>——レンジを聞くのは失礼ではなく、効率のためです。差が大きすぎるなら、それ以上お互いの時間を使う必要はありません</li>
+      <li><strong>「なぜこのポジションを募集しているのですか？」</strong>——増員か、誰かが辞めたのか、新設部署か？欠員補充なら、前任者がどれくらい在籍し、なぜ辞めたのかも一言聞いておく価値があります</li>
+      <li><strong>「今担当しているこの案件は、どのくらい続いていますか？」</strong>——3か月経ってもまだ探しているなら、たいていは条件と市場にずれがあるか、採用担当の管理職の基準が特に高いことを意味します</li>
+      <li><strong>「私の同意なしに履歴書が送られることはありませんよね？」</strong>——これは必ず聞いてください。理由は次の段落で</li>
+    </ol>
+
+    <h2 id="sec-4">最も大切なこと：履歴書の機密保持</h2>
+    <p>求職者がヘッドハンターに対して抱く最大の懸念は、たいてい「自分の履歴書が勝手にばらまかれないか」です。この心配はもっともで、特にうっかり現在の勤務先や関連会社に送られてしまうと、深刻な結果になります。</p>
+    <p>正しいやり方は、<strong>コンサルタントがあなたの明確な同意を得る前に、履歴書をどの企業にも送らないこと</strong>であり、送る前にはどの会社かを伝えるべきです。また、自分から「推薦NGリスト（off-limits リスト）」を出して、推薦されたくない会社（たとえば現職の関連会社や取引先）をはっきり伝えることもできます。プロのコンサルタントはそれを記録し、守ります。</p>
+    <div class="ask"><strong>そのまま、こう伝えて大丈夫です：</strong>「現在在職中なので、秘密裏に進めたいです。履歴書を出す前に、どの会社なのか確認させてください。また、次の会社には推薦しないでください：⋯⋯」</div>
+
+    <h2 id="sec-5">ヘッドハンター経由の応募と自分での応募は何が違う？</h2>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th></th><th>自分で応募</th><th>ヘッドハンター経由</th></tr></thead>
+        <tbody>
+          <tr><td data-label=""><strong>求人の出どころ</strong></td><td data-label="自己投遞">公開掲載されている求人</td><td data-label="透過獵頭">非公開の機密求人も含む</td></tr>
+          <tr><td data-label=""><strong>給与交渉</strong></td><td data-label="自己投遞">自分で金額を提示すると、低く見積もるか高く言いすぎやすい</td><td data-label="透過獵頭">コンサルタントは求人の予算レンジを知っており、代わりに交渉できる</td></tr>
+          <tr><td data-label=""><strong>面接前の情報</strong></td><td data-label="自己投遞">公開情報と面接時の観察に頼るしかない</td><td data-label="透過獵頭">コンサルタントは通常、チームの状況、上司のスタイル、そのポジションの本当の課題を把握しています</td></tr>
+          <tr><td data-label=""><strong>不採用時のフィードバック</strong></td><td data-label="自己投遞">既読無視や定型文の返信がほとんど</td><td data-label="透過獵頭">コンサルタントなら具体的な理由を聞き出せ、次回に役立つ</td></tr>
+          <tr><td data-label=""><strong>費用</strong></td><td data-label="自己投遞">無料</td><td data-label="透過獵頭">求職者にとっても無料で、費用は企業が負担</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="insight">
+      <div class="label">ヘッドハンターの視点</div>
+      <p>給与交渉は、求職者が最も過小評価しがちな価値です。自分で交渉すると、多くの人はその求人の予算上限がどこにあるか分かりません。低く出せばその差額は永久に失われ、高すぎれば即座に選考から外れることもあります。</p>
+      <p>コンサルタントは企業が提示するレンジも、あなたの条件が市場のどこに位置するかも把握しているので、双方が気まずくならない形で数字を妥当な水準まで引き上げられます。<strong>しかも、これはコンサルタントにとってもインセンティブがあります。ほとんどのヘッドハンターの料金はあなたの年収をもとに計算されるからです。</strong>双方の利害が一致する数少ない場面です。</p>
+    </div>
+
+    <h2 id="sec-6">よくある質問</h2>
+<div><details>
+        <summary><span>ヘッドハンターから費用を請求される？</span><span class="faq-icon">+</span></summary>
+        <p>いいえ。通常のヘッドハンティングサービスは企業から費用を受け取り、求職者からは受け取りません。台湾の関連法規により、民間の就業サービス機関は求職者の財物を留め置いたり、就職紹介の保証金を受け取ったりしてはならないとされています。面接を手配する前に求職者に支払いを求めるような相手には、十分に警戒してください。</p>
+      </details><details>
+        <summary><span>在職中ですが、今の会社に知られることはありますか？</span><span class="faq-icon">+</span></summary>
+        <p>プロのコンサルタントは秘密を守って進め、あなたの同意なしに履歴書を送ることはありません。推薦してほしくない会社のリスト（現職の関連会社や取引先を含む）を自分から伝え、送付のたびに事前にどの会社か知らせるよう求めることもできます。これは合理的でよくある要望です。</p>
+      </details><details>
+        <summary><span>同じ求人に自分でも応募していた場合はどうする？</span><span class="faq-icon">+</span></summary>
+        <p>コンサルタントには自分から伝えてください。多くの企業とヘッドハンターの間には「重複候補者」の判定ルールがあり、すでに自分で応募していたり他のルートで推薦されていたりすると、重複推薦がトラブルの原因になり、選考に影響することもあります。正直に話すのが一番シンプルです。</p>
+      </details><details>
+        <summary><span>ヘッドハンターから声がかかるのは、自分が引く手あまただということ？</span><span class="faq-icon">+</span></summary>
+        <p>必ずしもそうではありませんが、卑下する必要もありません。ヘッドハンターの探索は求人の要件から逆算して行うもので、あなたが見つけられたということは、通常、あなたの経歴がある特定のニーズに合っているということであり、市場全体からの評価というわけではありません。本当に価値のある使い方は、この機会に自分の市場価値を知ることです。</p>
+      </details><details>
+        <summary><span>転職するつもりがないとき、はっきり言ってもいいですか？</span><span class="faq-icon">+</span></summary>
+        <p>できますし、はっきり伝えることをおすすめします。既読スルーするより、「今のところ転職の予定はありませんが、今後もつながっておきましょう」と一言返すほうがよいでしょう。プロのコンサルタントはしつこく付きまとうことはなく、むしろあなたのことを記録しておき、本当に合う機会が出てきたときに連絡してくれます。</p>
+      </details></div><div>
+      <h2 id="sec-7">まずは自分の市場価値を知りたい方へ</h2>
+      <p>転職するつもりがなくても相談できます。現在の職務と経験年数をコンサルタントに伝えていただければ、その条件の市場での相場や考えられる機会の方向性をお伝えします。すべて秘密厳守で、勝手に推薦することはありません。</p>
+      <p><a href="/ja/jobs/">現在募集中の求人を見る →</a></p>
+      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">LINEでコンサルタントに相談する</a>
+    </div>
+
+    <p>関連記事：<a href="/ja/jobs/">現在募集中の求人を見る</a> · <a href="/ja/articles/how-to-choose-headhunter/">台湾のヘッドハンティング会社の選び方：7つの判断基準</a> · <a href="/ja/articles/executive-job-search/">年収100万台湾ドル級の管理職は、なぜ求人サイトで見つからないのか？</a></p>
+
+      
+<div class="cta">
+        <p>連絡してきたのがまっとうなヘッドハンターか確かめたいですか？私たちの就業服務許可番号と評価等級は、どちらも公開情報として確認できます。</p>
+          <a class="btn-alt" href="/ja/about/">Step1ne の会社情報を見る</a> <a class="btn-line" href="https://lin.ee/XcSWPzM">LINEでコンサルタントに質問</a>
+      </div>
+    </article>
+  </div>
+</main>
+
+
+<footer><div class="fw">德仁管理顧問有限公司 台北市内湖区康寧路三段54之7号3階</div></footer>
+
+<script>
+// 表格加水平捲動外框，避免手機橫向溢位
+document.querySelectorAll('article table').forEach(function(t){
+  var w=document.createElement('div'); w.className='tw';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
+// 閱讀進度
+var bar=document.getElementById('bar');
+function prog(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',prog,{passive:true}); prog();
+// 目錄跟隨
+var tns=[].slice.call(document.querySelectorAll('.tn'));
+var secs=tns.map(function(a){return document.getElementById(a.dataset.s)}).filter(Boolean);
+if('IntersectionObserver' in window && secs.length){
+  var cur=null;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) cur=e.target.id; });
+    tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  },{rootMargin:'-88px 0px -70% 0px'}).observe && secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===e.target.id)}); }
+      });
+    },{rootMargin:'-88px 0px -70% 0px'}).observe(s);
+  });
+}
+</script>
+
+<style>
+.s1ne-sc{position:fixed;z-index:60;left:0;right:0;bottom:0;display:flex;gap:10px;padding:10px max(14px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));background:rgba(255,255,255,.96);box-shadow:0 -6px 24px rgba(40,30,10,.12);transform:translateY(120%);transition:transform .25s ease}
+.s1ne-sc.on{transform:none}
+.s1ne-sc a{flex:1;display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:999px;font-weight:700;font-size:15px;text-decoration:none;white-space:nowrap}
+.s1ne-sc .p{background:#111827;color:#fff}
+.s1ne-sc .l{background:#fff;color:#111827;border:1.5px solid #d1d5db}
+.s1ne-sc a:focus-visible{outline:3px solid #1f2937;outline-offset:2px}
+@media (min-width:760px){.s1ne-sc{left:auto;right:24px;bottom:24px;border-radius:999px;padding:8px;box-shadow:0 8px 28px rgba(40,30,10,.18)}.s1ne-sc a{flex:none;padding:0 22px}}
+@media (prefers-reduced-motion:reduce){.s1ne-sc{transition:none}}
+body{padding-bottom:84px}
+@media (min-width:760px){body{padding-bottom:0}}
+</style>
+<div class="s1ne-sc" id="s1neSc" role="region" aria-label="迅速に動く">
+  <a class="l" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">LINEで問い合わせ</a> <a class="p" href="/ja/jobs/" data-cta="jobs_cta_click">現在の求人を見る</a>
+</div>
+<script>
+(function(){var b=document.getElementById('s1neSc');if(!b)return;
+function t(){b.classList.toggle('on',window.scrollY>380);}
+window.addEventListener('scroll',t,{passive:true});t();
+b.querySelector('.p').addEventListener('click',function(){try{gtag('event',this.getAttribute('data-cta'),{page_path:location.pathname,placement:'sticky'});}catch(e){}});})();
+</script>
+<!-- /s1ne-sticky-cta -->
+
+</body>
+</html>

@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  if (!e.target.closest) return;
+  // 2026-08-06：原本只抓 lin.ee。BIM 那群的下一步是「直接應徵」不是加 LINE，
+  // 不一起記的話，等於把那條路做出來卻量不到，實驗就白做了。
+  var a = e.target.closest('a[href*="lin.ee"], a[href^="/apply"]');
+  if (!a) return;
+  var isApply = (a.getAttribute('href') || '').indexOf('/apply') === 0;
+  gtag('event', isApply ? 'apply_click' : 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60),
+    // mid＝這次新加的文章中段；沒有標的就是原本頁首／頁尾那些
+    cta_slot: a.getAttribute('data-cta') || 'legacy'
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>人材派遣費用の計算方法は？2026年版 管理費とコスト構造を徹底解説｜Step1ne</title>
+<meta name="description" content="派遣費用＝従業員の給与＋法定雇用主コスト（給与の約18%）＋管理サービス費。本記事では2026年最新の台湾の労働保険・健康保険料率で実際に試算し、月給3万～5万台湾ドルの派遣にかかる企業の総コストを分解するとともに、管理費の妥当な範囲と見積書の読み方を解説します。">
+<meta name="keywords" content="人材派遣 費用,派遣 費用 計算,人材派遣 管理費,派遣 人件費,派遣会社 料金,派遣 見積もり,人材派遣 費用計算">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/ja/articles/dispatch-cost-breakdown/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Step1ne 紹介プログラム">
+<meta property="og:title" content="人材派遣の費用はどう計算する？管理費とコスト構造を徹底分解（2026）">
+<meta property="og:description" content="2026年の最新料率で、月給3万～5万台湾ドルの派遣を使った場合の企業の総コストを実際に試算し、管理費の妥当な範囲と見積書の読み方を解説します。">
+<meta property="og:url" content="https://step1ne.com/ja/articles/dispatch-cost-breakdown/">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta name="theme-color" content="#F4F6F8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "人材派遣の費用はどう計算する？2026年の管理費とコスト構造を徹底解説",
+  "description": "2026年の最新の労働保険・健康保険料率で、月給3万〜5万台湾ドルの場合の企業の派遣総コストを実際に試算し、法定の雇用主コストと管理サービス料の構成を分解して、見積書の読み方も説明します。",
+  "datePublished": "2026-08-06",
+  "dateModified": "2026-08-06",
+  "inLanguage": "zh-TW",
+  "author": {
+    "@type": "Organization",
+    "name": "Step1ne 德仁管理顧問有限公司",
+    "url": "https://step1ne.com/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "德仁管理顧問有限公司（Step1ne）",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://step1ne.com/assets/step1ne-logo.png"
+    }
+  }
+}
+</script>
+
+<style>
+:root{
+  --paper:#F4F6F8;--white:#FFFFFF;--ink:#0D1B24;--slate:#4A5A66;--slate-dim:#7A8A96;
+  --rule:#D9E0E6;--brand:#167EB2;--brand-deep:#0F5F87;--live:#2EA9DF;--line:#06C755;
+  --wrap:1200px;--gut:clamp(20px,4vw,40px);
+  --f-disp:'Archivo','Noto Sans TC',system-ui,sans-serif;
+  --f-text:'Noto Sans TC',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-text);font-size:17px;line-height:1.95;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:900;line-height:1.35;letter-spacing:-.01em}
+p{margin:0}
+:where(a,button,summary,select,input):focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* 導覽 */
+.hd{position:sticky;top:0;z-index:60;background:rgba(244,246,248,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule)}
+.hd-in{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);height:66px;display:flex;align-items:center;gap:28px}
+.hd-logo{display:flex;align-items:center;gap:12px;margin-right:auto}
+.hd-logo img{height:34px;width:auto}
+.hd-logo b{font-size:13px;font-weight:500;color:var(--slate);border-left:1px solid var(--rule);padding-left:12px}
+.hd-nav{display:flex;align-items:center;gap:22px;font-size:15px}
+.hd-nav a{color:var(--slate);padding:6px 0;border-bottom:2px solid transparent}
+.hd-nav a:hover,.hd-nav a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.btn-line{display:inline-flex;align-items:center;background:var(--line);color:#fff;font-weight:700;font-size:14px;padding:9px 17px;border-radius:6px}
+.hd-burger{display:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--white);cursor:pointer;align-items:center;justify-content:center}
+.hd-burger span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+/* 閱讀進度 */
+.mnav{display:none;border-top:1px solid var(--rule);background:var(--white)}
+.mnav.on{display:block}
+.mnav a{display:block;padding:14px var(--gut);border-bottom:1px solid var(--rule);font-size:16px}
+.mnav a:last-child{border-bottom:0}
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--live);z-index:80}
+
+.shell{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut);display:grid;grid-template-columns:236px minmax(0,1fr);gap:56px;align-items:start}
+.crumb{grid-column:1/-1;padding:22px 0 6px;font-size:13.5px;color:var(--slate-dim)}
+.crumb a{color:var(--slate)}
+.crumb a:hover{color:var(--brand-deep)}
+.crumb span{margin:0 8px;color:var(--rule)}
+
+/* 目錄軌：沿用全站 signature */
+.toc{position:sticky;top:92px;padding:8px 0 40px}
+.toc h2{font-size:13px;font-weight:700;color:var(--slate-dim);letter-spacing:.02em;margin-bottom:16px}
+.tns{position:relative;padding-left:22px}
+.tns::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--brand),rgba(22,126,178,.14))}
+.tn{display:flex;gap:12px;align-items:flex-start;padding:7px 0;font-size:14px;color:var(--slate);line-height:1.6;position:relative}
+.tn i{position:absolute;left:-22px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--rule);flex:0 0 auto}
+.tn:hover{color:var(--brand-deep)}
+.tn:hover i{border-color:var(--brand)}
+.tn.on{color:var(--ink);font-weight:700}
+.tn.on i{background:var(--live);border-color:var(--live);box-shadow:0 0 0 4px rgba(46,169,223,.2)}
+.mtoc{display:none;margin:20px 0 0;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+.mtoc summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;font-size:15.5px;position:relative}
+.mtoc summary::-webkit-details-marker{display:none}
+.mtoc summary::after{content:"";position:absolute;right:20px;top:24px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+.mtoc[open] summary::after{transform:rotate(-135deg)}
+.mtoc div{padding:0 18px 14px}
+.mtoc a{display:block;padding:9px 0;font-size:15px;color:var(--slate);border-top:1px solid var(--rule)}
+
+/* 文章本體 */
+article{padding:14px 0 60px;max-width:70ch}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--brand-deep);background:rgba(22,126,178,.07);border:1px solid rgba(22,126,178,.25);border-radius:5px;padding:4px 11px}
+article h1{margin-top:16px;font-size:clamp(28px,4.2vw,42px);line-height:1.28;letter-spacing:-.02em}
+.by{margin-top:18px;padding-bottom:20px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:14px;color:var(--slate-dim)}
+.by a{color:var(--slate);border-bottom:1px solid var(--rule)}
+.by .d{font-family:var(--f-disp);font-variant-numeric:tabular-nums}
+
+/* ★ Signature：直接答案 */
+.ans{margin-top:30px;background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--brand);border-radius:0 10px 10px 0;padding:26px 30px}
+.ans .lab{font-size:13px;font-weight:700;color:var(--brand-deep);margin-bottom:10px}
+.ans p{font-size:19.5px;line-height:1.85;font-weight:500}
+.ans strong{font-weight:900}
+
+article h2{margin:52px 0 16px;font-size:25px;scroll-margin-top:92px}
+article h3{margin:34px 0 10px;font-size:19px}
+article h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;margin-right:12px;border-radius:8px;background:var(--brand);color:#fff;font-family:var(--f-disp);font-size:17px;font-weight:700;vertical-align:2px}
+article p{margin-top:16px}
+article strong{font-weight:700}
+article a:not(.tn){color:var(--brand-deep);border-bottom:1px solid rgba(15,95,135,.32)}
+article a:not(.tn):hover{border-bottom-color:var(--brand-deep)}
+article ul,article ol{margin:16px 0 0;padding-left:1.4em}
+article li{margin-top:9px}
+article table{width:100%;border-collapse:collapse;margin-top:22px;font-size:15.5px;background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+article th{text-align:left;background:var(--paper);font-weight:700;font-size:14px;color:var(--slate);padding:12px 14px;border-bottom:1px solid var(--rule)}
+article td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.75}
+article tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+article details{margin-top:12px;background:var(--white);border:1px solid var(--rule);border-radius:8px}
+article details summary{cursor:pointer;list-style:none;padding:16px 44px 16px 20px;font-weight:700;font-size:16.5px;position:relative;line-height:1.6}
+article details summary::-webkit-details-marker{display:none}
+article details summary::after{content:"";position:absolute;right:20px;top:26px;width:9px;height:9px;border-right:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(45deg)}
+article details[open] summary::after{transform:rotate(-135deg)}
+article details>*:not(summary){padding:0 20px 18px;font-size:16px;color:var(--slate)}
+article blockquote{margin:22px 0 0;padding:2px 0 2px 20px;border-left:3px solid var(--rule);color:var(--slate)}
+
+.foot-note{margin-top:44px;padding:20px 22px;background:var(--white);border:1px solid var(--rule);border-radius:8px;font-size:13.5px;line-height:1.85;color:var(--slate-dim)}
+.cta{margin-top:34px;padding:26px 28px;background:var(--white);border:1px solid var(--rule);border-radius:10px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.cta .btn-alt{display:inline-flex;align-items:center;font-weight:700;font-size:14.5px;color:var(--brand-deep);background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:11px 18px;white-space:nowrap}
+.cta .btn-alt:hover{border-color:var(--brand);background:#fff}
+.cta p{margin:0;font-size:15.5px;color:var(--slate);max-width:46ch}
+footer{border-top:1px solid var(--rule);padding:28px 0;font-size:14px;color:var(--slate)}
+.fw{max-width:var(--wrap);margin:0 auto;padding-inline:var(--gut)}
+.note{max-width:var(--wrap);margin:0 auto 46px;padding-inline:var(--gut)}
+.note div{background:#FFF8EC;border:1px solid #F0DCB8;border-left:3px solid #B45309;border-radius:8px;padding:18px 22px;font-size:14.5px;line-height:1.85;color:#6B4A12}
+.note b{color:#5A3D0C}
+
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .toc{display:none}
+  .mtoc{display:block}
+}
+@media (max-width:760px){
+  .hd-nav,.hd .btn-line{display:none}
+  .hd-burger{display:flex}
+  body{font-size:16.5px}
+  .ans{padding:22px;border-radius:0 8px 8px 0}
+  .ans p{font-size:18px}
+  article h2{font-size:22px;margin-top:42px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+<!--i18n-hreflang-->
+<link rel="alternate" hreflang="zh-Hant" href="https://step1ne.com/articles/dispatch-cost-breakdown/">
+<link rel="alternate" hreflang="ja" href="https://step1ne.com/ja/articles/dispatch-cost-breakdown/">
+<link rel="alternate" hreflang="en" href="https://step1ne.com/en/articles/dispatch-cost-breakdown/">
+<link rel="alternate" hreflang="x-default" href="https://step1ne.com/articles/dispatch-cost-breakdown/">
+<style>.s1-lang{max-width:1100px;margin:0 auto;padding:10px 16px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.s1-lang a,.s1-lang b{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid #d9dce3;background:#fff;font-size:14px;font-weight:600;color:#4a5060;text-decoration:none}.s1-lang b{background:#23262d;border-color:#23262d;color:#fff}.s1-lang a:hover{color:#23262d;border-color:#9aa0ad}.s1-lang a:focus-visible{outline:3px solid #1880B4;outline-offset:2px}.s1-note{max-width:1100px;margin:10px auto 0;padding:0 16px}.s1-note p{margin:0;padding:12px 14px;border-radius:12px;background:#eef4fb;border:1px solid #c9dcef;color:#1d3a57;font-size:14.5px;line-height:1.7}</style>
+<!--/i18n-hreflang-->
+</head>
+
+<body>
+<div id="bar"></div>
+<header class="hd">
+  <div class="hd-in">
+    <a class="hd-logo" href="/ja/"><img src="/assets/step1ne-logo.png" alt="Step1ne"><b>Step1ne</b></a>
+    <nav class="hd-nav">
+      <a href="/ja/commission-recruiting/">企業向けサービス</a><a href="/ja/jobs/">求人一覧</a><a class="on" href="/ja/articles/">ヘッドハンティングコラム</a><a href="/ja/talent/">Step1ne 紹介プログラム</a>
+    </nav>
+    <a class="btn-line" href="https://lin.ee/XcSWPzM">LINEで問い合わせ</a>
+    <button class="hd-burger" type="button" aria-label="メニューを開く" aria-expanded="false"
+      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
+  </div>
+  <div class="mnav" id="mnav">
+    <a href="/ja/commission-recruiting/">法人向けサービス</a><a href="/ja/jobs/">求人一覧</a><a href="/ja/articles/">ヘッドハンティングコラム</a><a href="/ja/talent/">Step1ne 紹介プログラム</a> <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINEで問い合わせ</a>
+  </div>
+</header>
+<!--i18n-switch--><nav class="s1-lang" aria-label="言語を切り替える"><a href="/articles/dispatch-cost-breakdown/" hreflang="zh-Hant" lang="zh-Hant">中文</a><b lang="ja" aria-current="true">日本語</b><a href="/en/articles/dispatch-cost-breakdown/" hreflang="en" lang="en">English</a></nav><!--/i18n-switch-->
+
+
+<main class="shell">
+  <nav class="crumb" aria-label="パンくずリスト"><a href="/ja/">ホーム</a><span>/</span><a href="/ja/articles/">ヘッドハンティング特集</a><span>/</span>人材派遣費用の計算方法：管理費とコスト構造を徹底解説</nav>
+
+  <aside class="toc" aria-label="目次">
+    
+<div style="font-size:14.5px;opacity:.92;margin-bottom:15px;line-height:1.6">幹部ヘッドハンティング・正社員採用・人材派遣。成功報酬制で、入社しなければ費用は発生しません。料金は透明です。</div><a href="/ja/commission-recruiting/" style="display:inline-block;background:#fff;color:#0F5F87;font-weight:700;padding:11px 20px;border-radius:10px;text-decoration:none;margin:0 8px 8px 0">人材派遣の料金プランを見る →</a><a href="https://lin.ee/XcSWPzM" style="display:inline-block;background:#06C755;color:#fff;font-weight:700;padding:11px 20px;border-radius:10px;text-decoration:none">LINEで問い合わせ</a></div>
+<h2>この記事は全10セクション</h2>
+    <div class="tns"><a class="tn" href="#sec-1" data-s="sec-1"><i></i><span>派遣費用を構成する3つの要素</span></a> <a class="tn" href="#sec-2" data-s="sec-2"><i></i><span>2026年の法定雇用主コストはどう計算する？</span></a> <a class="tn" href="#sec-3" data-s="sec-3"><i></i><span>月給3万〜5万台湾ドルの場合、企業の実負担はいくら？</span></a> <a class="tn" href="#sec-4" data-s="sec-4"><i></i><span>派遣会社の管理費の相場は？</span></a> <a class="tn" href="#sec-5" data-s="sec-5"><i></i><span>派遣と直接雇用、コストの差はどれくらい？</span></a> <a class="tn" href="#sec-6" data-s="sec-6"><i></i><span>派遣の見積書の数字はどう読む？</span></a> <a class="tn" href="#sec-7" data-s="sec-7"><i></i><span>派遣が向いているケース・向いていないケース</span></a> <a class="tn" href="#sec-8" data-s="sec-8"><i></i><span>派遣の法的な枠組み：雇用主は誰で、誰が何に責任を負う？</span></a> <a class="tn" href="#sec-9" data-s="sec-9"><i></i><span>よくある質問</span></a> <a class="tn" href="#sec-10" data-s="sec-10"><i></i><span>具体的な派遣の見積もりが必要ですか？</span></a></div>
+  </aside>
+
+  <div>
+    <details class="mtoc"><summary>この記事の目次（10 項目）</summary><div><a href="#sec-1">派遣費用を構成する3つの要素</a> <a href="#sec-2">2026 年の法定雇用主コストの計算方法</a> <a href="#sec-3">月給 3万〜5万台湾ドルの場合、企業の実負担はいくら？</a> <a href="#sec-4">派遣会社の管理費の相場は？</a> <a href="#sec-5">派遣と直接雇用、コストの差はどれくらい？</a> <a href="#sec-6">派遣見積書の数字の読み方</a> <a href="#sec-7">派遣が向いているケース・向いていないケース</a> <a href="#sec-8">派遣の法的な枠組み：誰が雇用主で、誰が何に責任を負うのか</a> <a href="#sec-9">よくある質問</a> <a href="#sec-10">具体的な派遣の見積もりが必要ですか？</a></div></details>
+    <article>
+      <span class="tag">企業向けヘッドハンティングガイド・派遣の実務</span>
+      <h1>人材派遣の費用はどう計算する？管理費とコスト構造を徹底解説</h1>
+      <div class="by">
+        <span>著者：<a href="/ja/about/">Step1ne ヘッドハンティング・コンサルタントチーム</a></span> <time class="d" datetime="2026-08-06">2026-08-06 公開</time> <span class="d">約9分</span>
+      </div>
+
+      <div class="ans">
+        <div class="lab">端的な答え</div>
+        <p>企業が派遣を使う場合の月額費用 = 従業員の給与 + 法定の雇用主負担（給与の約18%）+ 管理サービス料。月給35,000台湾ドル、管理費20%の場合、企業が毎月実際に支払うのは約<strong>48,300台湾ドル</strong>です。法定コストは固定で、見積もりの差を実際に生むのは管理費です——この項目には法定基準がなく、市場相場で決まります。</p>
+<div class="employer-cta" style="margin:24px 0;padding:22px 24px;border-radius:16px;background:linear-gradient(135deg,#167EB2,#0F5F87);color:#fff"><div style="font-size:18px;font-weight:800;margin-bottom:6px">企業の方で、人材をお探しですか？</div><div style="font-size:14.5px;opacity:.92;margin-bottom:15px;line-height:1.6">幹部ヘッドハンティング・正社員採用・人材派遣。成功報酬制で、入社しなければ費用は発生しません。料金は透明です。</div><a href="/ja/commission-recruiting/" style="display:inline-block;background:#fff;color:#0F5F87;font-weight:700;padding:11px 20px;border-radius:10px;text-decoration:none;margin:0 8px 8px 0">人材派遣の料金プランを見る →</a><a href="https://lin.ee/XcSWPzM" style="display:inline-block;background:#06C755;color:#fff;font-weight:700;padding:11px 20px;border-radius:10px;text-decoration:none">LINEで問い合わせ</a></div>
+
+      </div>
+
+      <h2 id="sec-1">派遣費用を構成する3つの要素</h2>
+    <p>派遣会社が企業に出す見積もりは、分解すると3つの部分しかありません：</p>
+    <ol>
+      <li><strong>従業員の給与</strong>——派遣社員が実際に受け取る月給で、企業と派遣会社の間で取り決めます</li>
+      <li><strong>法定の雇用主負担</strong>：労働保険、健康保険、労働者退職金、労災保険など、法律で雇用主（派遣会社）が負担すべきと定められた部分</li>
+      <li><strong>管理サービス料</strong>：派遣会社のサービス料と利益で、採用、給与支払い、労働保険・健康保険の管理、人事事務、コンプライアンス対応などを含みます</li>
+    </ol>
+    <p>最初の2項目は透明です。給与は自分で決め、法定コストは計算式で算出できます。3項目めこそが、派遣会社ごとの見積もりの差の源です。</p>
+
+    <h2 id="sec-2">2026年の法定雇用主コストはどう計算する？</h2>
+    <p>以下は2026年（民国115年）に適用される料率で、どの項目も派遣の見積もりに影響します：</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>項目</th><th>料率</th><th>雇用主の負担割合</th><th>雇用主の実負担</th><th>法的根拠</th></tr></thead>
+        <tbody>
+          <tr><td data-label="項目"><strong>労働保険（雇用保険を含む）</strong></td><td data-label="費率">12.5%</td><td data-label="雇主負擔比例">70%</td><td data-label="雇主實際負擔"><strong>給与 × 8.75%</strong></td><td data-label="法規依據">労工保険条例</td></tr>
+          <tr><td data-label="項目"><strong>健康保険</strong></td><td data-label="費率">5.17%</td><td data-label="雇主負擔比例">60%</td><td data-label="雇主實際負擔"><strong>給与 × 3.10%</strong></td><td data-label="法規依據">全民健康保険法</td></tr>
+          <tr><td data-label="項目"><strong>労工退職金の積立</strong></td><td data-label="費率">6%（法定下限）</td><td data-label="雇主負擔比例">100%</td><td data-label="雇主實際負擔"><strong>給与 × 6%</strong></td><td data-label="法規依據">台湾の労工退休金条例第14条</td></tr>
+          <tr><td data-label="項目"><strong>労災保険</strong></td><td data-label="費率">0.12%–0.96%</td><td data-label="雇主負擔比例">100%</td><td data-label="雇主實際負擔"><strong>給与 × 0.12%–0.96%</strong></td><td data-label="法規依據">労災保険及び保護法</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">台湾の労工保険の普通事故保険料率11.5% + 就業保険1% = 12.5%で、2025年1月から適用されています。全民健康保険の保険料率5.17%は2021年から据え置かれています。労災保険料率は業種によって異なり、オフィス系は約0.12%、製造業はより高くなります。健康保険の雇用主負担の欄は従業員本人分のみの比率で、従業員に扶養家族が加入している場合、雇用主はその家族分を別途負担する必要があります。</p>
+
+    <p><strong>合計：法定の雇用主負担は従業員の月給の約18%～19%です。</strong>各項目の料率がすべて給与に比例して計算されるため、この割合は給与水準が違ってもほとんど変わりません。</p>
+
+    <div class="law">
+      <strong>2026年の台湾の基本賃金：</strong>月給29,500台湾ドル、時給196台湾ドル（民国115年1月1日から適用）。派遣社員の給与はこの基準を下回ってはなりません。<br> <small>出典：台湾労働部 2026年 労働関連新制度の公告</small>
+    </div>
+
+    <h2 id="sec-3">月給3万～5万台湾ドルの場合、企業が実際に払う額は？</h2>
+    <p>以下では、よくある3つの給与水準で実際に試算します。法定コストは各料率から直接計算し、管理費は20%と仮定しています（試算用であり、実際の料率はケースによって異なります）：</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>項目</th><th>月給29,500<br>（基本賃金）</th><th>月給 35,000台湾ドル</th><th>月給 50,000台湾ドル</th></tr></thead>
+        <tbody>
+          <tr><td data-label="項目"><strong>従業員の月給</strong></td><td data-label="月薪 29,500">29,500</td><td data-label="月薪 35,000">35,000</td><td data-label="月薪 50,000">50,000</td></tr>
+          <tr><td data-label="項目">労工保険・雇用主負担（8.75%）</td><td data-label="月薪 29,500">2,581</td><td data-label="月薪 35,000">3,063</td><td data-label="月薪 50,000">4,375</td></tr>
+          <tr><td data-label="項目">健康保険の雇用主負担（3.10%）</td><td data-label="月薪 29,500">915</td><td data-label="月薪 35,000">1,085</td><td data-label="月薪 50,000">1,550</td></tr>
+          <tr><td data-label="項目">労工退職金の積立（6%）</td><td data-label="月薪 29,500">1,770</td><td data-label="月薪 35,000">2,100</td><td data-label="月薪 50,000">3,000</td></tr>
+          <tr><td data-label="項目">労災保険（0.21%）</td><td data-label="月薪 29,500">62</td><td data-label="月薪 35,000">74</td><td data-label="月薪 50,000">105</td></tr>
+          <tr><td data-label="項目"><strong>法定コスト小計</strong></td><td data-label="月薪 29,500"><strong>5,328</strong></td><td data-label="月薪 35,000"><strong>6,322</strong></td><td data-label="月薪 50,000"><strong>9,030</strong></td></tr>
+          <tr><td data-label="項目">管理サービス料（20%）</td><td data-label="月薪 29,500">5,900</td><td data-label="月薪 35,000">7,000</td><td data-label="月薪 50,000">10,000</td></tr>
+          <tr><td data-label="項目"><strong>企業の月額総支払額</strong></td><td data-label="月薪 29,500"><strong>40,728</strong></td><td data-label="月薪 35,000"><strong>48,322</strong></td><td data-label="月薪 50,000"><strong>69,030</strong></td></tr>
+          <tr><td data-label="項目">月給換算で</td><td data-label="月薪 29,500">1.38倍</td><td data-label="月薪 35,000">1.38倍</td><td data-label="月薪 50,000">1.38倍</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">試算の説明：法定コストは2026年の料率で計算しています。労災保険料率は全業種平均の0.21%（業種別0.14% + 通勤災害0.07%）を採用し、健康保険は従業員本人のみで扶養家族は含みません。管理費20%は試算用の仮定値で、実際の料率は職種、人数規模、派遣期間などの要素により双方で協議して決めます。上記の計算式：労働保険 = 月給 × 12.5% × 70%；健康保険 = 月給 × 5.17% × 60%；労工退職金 = 月給 × 6%。</p>
+
+    <h2 id="sec-4">派遣会社の管理費は通常いくら？</h2>
+    <p>管理費に法的な基準はありません。台湾の現行法は、国内の人材派遣のサービス料に上限も下限も定めておらず、この点は外国人労働者の仲介とは異なります（外国人労働者の仲介には「民間職業紹介機関の手数料項目及び金額基準」による法定上限があります）。国内派遣の管理費は完全に市場相場で、企業と派遣会社の交渉で決まります。</p>
+
+    <p>管理費の高低に影響する要因：</p>
+    <ul>
+      <li><strong>職種</strong>：一般事務や倉庫管理など代替性の高い職種は、管理費が通常低めです。技術職（IT、エンジニアリング）や特定の資格が必要な職種は、料率が高くなります</li>
+      <li><strong>派遣人数</strong>：人数が多ければ通常、交渉の余地があります</li>
+      <li><strong>派遣期間</strong>——長期で安定した契約のほうが、短期の急ぎ案件より料率は低い</li>
+      <li><strong>交代の約束</strong>：何日以内に人を補充するか、適性がなければ無料で交代するかといった条件は、料率に反映されます</li>
+      <li><strong>サービスの範囲</strong>：人員の提供だけか、勤怠管理、業績報告、労使紛争の対応なども含むのか</li>
+    </ul>
+
+    <div class="insight">
+      <div class="label">派遣コンサルタントの視点</div>
+      <p>多くの企業は見積もりを見て、まず「管理費が高すぎる。自分で雇えばこの分は払わなくていい」と考えます。しかし管理費に含まれるのは利益だけではありません。求人広告費、面接・選考の人手、毎月の給与計算と支給、労働保険・健康保険の加入・脱退手続き、労働安全関連法規の遵守、人員交代に備えるバッファーコスト。これらはすべて派遣会社が負担しています。</p>
+      <p><strong>本当に比べるべきなのは「管理費が何%か」ではなく、「こうした隠れたコストを加えた後、自社雇用と派遣のどちらが得か」です。</strong></p>
+    </div>
+
+    <h2 id="sec-5">派遣と自社雇用、コストはどれくらい違う？</h2>
+    <p>帳簿上の数字だけを見れば、管理費がかからない分、直接雇用は必ず派遣より安く見えます。しかし直接雇用には、帳簿に表れないコストがいくつかあります：</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>コスト項目</th><th>派遣を使う</th><th>自社で雇用</th></tr></thead>
+        <tbody>
+          <tr><td data-label="成本項目"><strong>従業員の給与</strong></td><td data-label="用派遣">見積もりに含まれる</td><td data-label="自己聘">自己負担</td></tr>
+          <tr><td data-label="成本項目"><strong>労働保険・健康保険・労工退職金</strong></td><td data-label="用派遣">派遣会社が対応</td><td data-label="自己聘">自社で保険加入し、毎月計算</td></tr>
+          <tr><td data-label="成本項目"><strong>採用コスト</strong></td><td data-label="用派遣">なし（派遣会社が負担）</td><td data-label="自己聘">求人広告 + 人事の選考時間</td></tr>
+          <tr><td data-label="成本項目"><strong>離職コスト</strong></td><td data-label="用派遣">派遣会社による交代</td><td data-label="自己聘">解雇手当＋再採用</td></tr>
+          <tr><td data-label="成本項目"><strong>人事・総務</strong></td><td data-label="用派遣">派遣会社が対応</td><td data-label="自己聘">勤怠管理、休暇、残業代の計算</td></tr>
+          <tr><td data-label="成本項目"><strong>法令遵守のリスク</strong></td><td data-label="用派遣">派遣会社が負担</td><td data-label="自己聘">労働検査や労使紛争に自社で対応</td></tr>
+          <tr><td data-label="成本項目"><strong>柔軟性</strong></td><td data-label="用派遣">契約満了時に更新しなければよい</td><td data-label="自己聘">解雇には法定の事由と手続きが必要</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>結論：短期の需要（6か月以内）、季節的な人員、定員凍結中なのに業務量が増えている、すぐに人を補充する必要がある——こうした場合は派遣の方が自社雇用より割安なことが多いです。</strong>長期的で固定的なコア職務は、自社雇用の方が総コストは低いのが一般的です。</p>
+
+    <h2 id="sec-6">派遣の見積書の数字はどう読む？</h2>
+    <p>見積書を受け取ったら、次の点を確認しましょう：</p>
+    <h3>明記すべき項目</h3>
+    <ul>
+      <li>従業員の月給額</li>
+      <li>法定の雇用主コスト（労働保険、健康保険、退職金積立、労災保険）の計算方法</li>
+      <li>管理サービス料の計算基準——給与に対する割合か、それとも固定額か</li>
+      <li>残業代、祝日出勤の計算方法</li>
+      <li>契約期間と終了条件</li>
+    </ul>
+
+    <h3>追加で確認すべきこと</h3>
+    <ul>
+      <li><strong>管理費の計算ベース</strong>——基本給だけにかかるのか、残業代も含めて計算するのか？実際の金額に影響します</li>
+      <li><strong>不適格な人員への対応</strong>——何日以内に交代するか？交代期間中の費用はどうなるか？</li>
+      <li><strong>人数増減の柔軟性</strong>——急に人を増やす・減らす場合、どれくらい前に通知が必要か？違約金はあるか？</li>
+      <li><strong>派遣から正社員への転換条件</strong>——「転換料」を取る会社もあるため、金額と条件は事前に取り決めておきましょう</li>
+    </ul>
+
+    <div class="warn">
+      <div class="label">見積もりの危険信号</div>
+      <p>見積もりが不自然に安い場合、たとえば管理費が給与の数パーセントしかないなら、従業員の法定の権利を削って捻出していないか注意が必要です。よくある手口は<strong>保険加入の給与を過少申告する</strong>（実際の月給は35,000台湾ドルなのに最低賃金で加入する）、または<strong>退職金積立を従業員に転嫁する</strong>ことです。これは違法であるだけでなく、問題が起きた場合は派遣先も連帯責任を負います。</p>
+      <p><small>台湾の労働基準法第22条の1により、派遣会社が賃金を未払いにした場合、派遣先企業は補充的な支払責任を負います。第63条の1により、労災補償は派遣先企業と派遣会社が連帯して責任を負います。</small></p>
+    </div>
+
+    <h2 id="sec-7">どんなときに派遣が向いている？向いていないのは？</h2>
+    <h3>派遣が向いている</h3>
+    <ul>
+      <li><strong>季節的・プロジェクト的なニーズ</strong>——年末の棚卸し、生産ラインの繁忙、展示会イベントなど、終われば不要になるもの</li>
+      <li><strong>人員枠は凍結されているのに業務量が増えている</strong>——正式な人員枠の承認は下りないが、仕事はすでに積み上がっている</li>
+      <li><strong>すばやく人を補充できる</strong>——ポジションが2週間以上空いたことによる業務上の損失は、管理費より大きいことがよくあります</li>
+      <li><strong>試用評価</strong>——まず派遣で3–6か月様子を見て、合うと確認できてから正社員に切り替える</li>
+    </ul>
+    <h3>派遣が向いていないケース</h3>
+    <ul>
+      <li><strong>中核業務</strong>：専門知識を長期的に育てる必要がある、または機密を扱うポジション</li>
+      <li><strong>しっかりした研修が必要なポジション</strong>——研修コストが高く、人が辞めればまた一からやり直しです</li>
+      <li><strong>長期固定の現場職</strong>——1年以上続く固定的な需要なら、自社雇用のほうが総コストは通常低くなります</li>
+    </ul>
+
+    <aside data-exp="cta-mid-2026-08-06">
+      <p>企業の人事担当者の方はこちら</p>
+      <h3>派遣の見積もりが必要ですか？職務内容を教えていただければ、すぐに計算します</h3>
+      <p>職務の種類、人数、予定の開始・終了日を教えてください。法定コストを含めた見積もりの内訳をすべてお返しします——派遣が向かないケースもはっきりお伝えします。見積もりは無料で、事前に何かに署名する必要もありません。</p>
+      <form class="s1-lead" novalidate style="display:grid;gap:8px;margin-top:14px;position:relative">
+<input name="company" aria-label="会社名" placeholder="会社名" autocomplete="organization" style="min-height:44px;padding:0 12px;border:1px solid #D9E0E6;border-radius:10px;font-size:15px;background:#fff;color:#0D1B24">
+<input name="job" aria-label="探している求人" placeholder="どの職種を何名派遣しますか？（例：倉庫管理5名）" style="min-height:44px;padding:0 12px;border:1px solid #D9E0E6;border-radius:10px;font-size:15px;background:#fff;color:#0D1B24">
+<label style="display:grid;gap:4px;font-size:13.5px;color:#4A5A66">補足したいご要望（任意）<textarea name="detail" rows="3" maxlength="1000" placeholder="例：長く募集しても採用できない、来月入社してほしい、台湾語が話せる／シフトに対応できる人が必要…" style="min-height:88px;padding:10px 12px;border:1px solid #D9E0E6;border-radius:10px;font-size:15px;font-family:inherit;line-height:1.5;background:#fff;color:#0D1B24;resize:vertical"></textarea></label>
+<input name="contact" aria-label="メールアドレスまたは電話番号" placeholder="メールアドレスまたは電話番号" autocomplete="email" style="min-height:44px;padding:0 12px;border:1px solid #D9E0E6;border-radius:10px;font-size:15px;background:#fff;color:#0D1B24">
+<input name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
+<button type="submit" data-cta="mid-dispatch-form" style="min-height:46px;border:0;border-radius:10px;background:#167EB2;color:#fff;font-size:15.5px;font-weight:700;cursor:pointer">無料でお見積りとご提案を受け取る</button>
+<p class="s1-lead-msg" role="status" aria-live="polite" style="margin:0;font-size:14px"></p>
+<p style="margin:0;font-size:13px;opacity:.85">1営業日以内にコンサルタントが返信します。事前の契約は不要です。<a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" data-cta="mid-dispatch">LINEでコンサルタントに相談</a>することもできます</p>
+</form>
+    </aside>
+
+    <h2 id="sec-8">派遣の法的な枠組み：雇用主は誰で、誰が何に責任を負う？</h2>
+    <p>台湾には現在、「派遣法」という単独の法律はありません。2019年に立法院が労働基準法の改正案を可決し、派遣関連の条文を労働基準法に直接盛り込みました。主な規定は次の条文に分散しています：</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>条文</th><th>何を定めているか</th><th>企業にとっての意味</th></tr></thead>
+        <tbody>
+          <tr><td data-label="法條"><strong>台湾の労働基準法第17-1条</strong></td><td data-label="規定什麼">派遣先企業が特定の派遣労働者を面接することは禁止されており、違反した場合、労働者は直接の労働契約の成立を求めることができます</td><td data-label="對企業的意義">派遣人員を企業が面接するのは法的リスクがあり、派遣会社からの推薦によるべき</td></tr>
+          <tr><td data-label="法條"><strong>台湾・労働基準法 第22-1条</strong></td><td data-label="規定什麼">派遣会社が賃金を未払いにした場合、派遣先には補充的な支払い責任がある</td><td data-label="對企業的意義">財務が健全な派遣会社を選ぶことが重要</td></tr>
+          <tr><td data-label="法條"><strong>台湾労働基準法第63条の1</strong></td><td data-label="規定什麼">派遣労働者が労災に遭った場合、派遣先と派遣会社が連帯して責任を負う</td><td data-label="對企業的意義">職場環境の安全は企業自身の責任であり、すべてを派遣会社に押し付けることはできません</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">以上の条文はいずれも民国108年5月20日に追加公布されました。このほか「労働派遣権益指導原則」（台湾の労働部による行政指導で、強制力のある法律ではありません）が、派遣契約で取り決めるべき事項を定めています。</p>
+
+    <p><strong>簡単に言うと：派遣社員の法律上の雇用主は派遣会社です</strong>。労働保険・健康保険・労働者退職金はすべて派遣会社が手続きし負担します。ただし派遣先（受け入れ企業）は、賃金の補充支払いと労災補償について連帯責任を負います。派遣会社に問題が起きたとき、企業は「うちには関係ない」とは言えません。</p>
+
+    <h2 id="sec-9">よくある質問</h2>
+    <div>
+      <details>
+        <summary>
+          <span>派遣会社は従業員の給与から管理費を差し引く？</span> <span class="faq-icon">+</span>
+        </summary>
+        <p>いいえ。管理費は企業が派遣会社に支払うサービス料で、従業員の給与から差し引くものではありません。従業員の月給は見積書に書かれた金額そのもので、全額支払われます。もし派遣会社が従業員の給与から管理費やその他の名目の費用を差し引いているなら、それは台湾の労働基準法の賃金全額払いの原則に違反します。</p>
+      </details>
+      <details>
+        <summary>
+          <span>派遣社員の労働保険・健康保険は誰が負担する？</span> <span class="faq-icon">+</span>
+        </summary>
+        <p>派遣会社です。派遣社員の法定の雇用主は派遣事業者（派遣会社）であり、労働保険、健康保険、雇用保険、労災保険の加入と雇用主負担分、そして退職金の積立は、すべて派遣会社が行います。根拠：台湾の労工保険条例 第 6・10 条、全民健康保険法 第 15 条、労工退休金条例 第 14 条。</p>
+      </details>
+      <details>
+        <summary>
+          <span>派遣から正社員への切り替えに費用はかかる？</span> <span class="faq-icon">+</span>
+        </summary>
+        <p>契約を確認してください。多くの派遣会社は派遣契約の中で「正社員転換料」や「買い取り料」を定めており、金額は月給の1–2か月分が一般的です。または勤務期間に応じて逓減する形もあります（例：派遣1年経過後の正社員転換は無料）。これは法律の規定ではなく商業上の条項なので、契約前に交渉できます。また、企業が台湾の労働基準法第17-1条に違反した場合（派遣労働者を面接で指名した場合）、派遣労働者は派遣会社の同意を得ずに、企業と直接労働契約を結ぶよう求める権利があります。</p>
+      </details>
+      <details>
+        <summary>
+          <span>派遣社員が労働災害にあった場合、責任は誰にある？</span> <span class="faq-icon">+</span>
+        </summary>
+        <p>台湾の労働基準法第63-1条により、派遣先は派遣会社と連帯して労災補償責任を負います。また職業安全衛生法第25条により、派遣先は派遣労働者の労働安全衛生について自社雇用の労働者と同様に扱わなければなりません。簡単に言えば、職場環境の安全は企業の責任であり、派遣社員だからといって放っておくことはできません。</p>
+      </details>
+      <details>
+        <summary>
+          <span>短期派遣と長期派遣で料率は同じですか？</span> <span class="faq-icon">+</span>
+        </summary>
+        <p>通常は異なります。短期（3か月以内）の場合は採用コストを分散しにくく、人員の離職リスクも高いため、管理費率は長期契約より高くなるのが一般的です。長期で安定した契約（1年以上、人数固定）であれば、派遣会社の管理コストが予測しやすく、料率の交渉余地も大きくなります。</p>
+      </details>
+    </div>
+
+    <div>
+      <h2 id="sec-10">具体的な派遣の見積もりが必要ですか？</h2>
+      <p>職務内容、人数、予定期間を教えていただければ、コンサルタントが法定コストの内訳を含む完全な見積もりをご提示します。費用構造は透明で、派遣に向かないケースもはっきりお伝えします。</p>
+      <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">LINEでコンサルタントと話す</a>
+    </div>
+
+    <p>関連記事：<a href="/ja/articles/dispatch-legal-risks/">人材派遣の法的リスクと注意点</a> · <a href="/ja/articles/headhunter-fees/">ヘッドハンティング会社の料金の仕組み</a></p>
+
+      
+<div class="cta">
+        <p>あなたのポジションの実際の派遣見積もりを知りたい場合は、職名、給与レンジ、人数を教えてください。その場で計算してお見せします。</p>
+          <a class="btn-alt" href="/ja/hiring-assessment/">まず採用形態の診断をする</a> <a class="btn-line" href="https://lin.ee/XcSWPzM">LINEでコンサルタントに相談</a>
+      </div>
+    
+<div class="related-jobs-box" style="margin:26px 0;padding:18px 20px;border:1px solid #D9E0E6;border-radius:14px;background:#EAF4FA"><strong style="display:block;margin-bottom:9px;color:#0F5F87;font-size:15px">🔎 関連求人</strong><div style="display:flex;flex-wrap:wrap;gap:8px 14px;font-size:14.5px"><a href="/ja/commission-recruiting/">企業向け採用委託プラン</a> · <a href="/ja/jobs/">すべての求人を見る</a></div></div>
+</article>
+  </div>
+</main>
+
+
+<footer><div class="fw">德仁管理顧問有限公司 台北市内湖区康寧路三段54之7号3階</div></footer>
+
+<script>
+// 表格加水平捲動外框，避免手機橫向溢位
+document.querySelectorAll('article table').forEach(function(t){
+  var w=document.createElement('div'); w.className='tw';
+  t.parentNode.insertBefore(w,t); w.appendChild(t);
+});
+// 閱讀進度
+var bar=document.getElementById('bar');
+function prog(){
+  var h=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(h>0?Math.min(100,scrollY/h*100):0)+'%';
+}
+addEventListener('scroll',prog,{passive:true}); prog();
+// 目錄跟隨
+var tns=[].slice.call(document.querySelectorAll('.tn'));
+var secs=tns.map(function(a){return document.getElementById(a.dataset.s)}).filter(Boolean);
+if('IntersectionObserver' in window && secs.length){
+  var cur=null;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) cur=e.target.id; });
+    tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur)});
+  },{rootMargin:'-88px 0px -70% 0px'}).observe && secs.forEach(function(s){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ tns.forEach(function(a){a.classList.toggle('on',a.dataset.s===e.target.id)}); }
+      });
+    },{rootMargin:'-88px 0px -70% 0px'}).observe(s);
+  });
+}
+</script>
+<script src="/assets/lead-form.js" defer></script>
+
+<style>
+.s1ne-sc{position:fixed;z-index:60;left:0;right:0;bottom:0;display:flex;gap:10px;padding:10px max(14px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));background:rgba(255,255,255,.96);box-shadow:0 -6px 24px rgba(40,30,10,.12);transform:translateY(120%);transition:transform .25s ease}
+.s1ne-sc.on{transform:none}
+.s1ne-sc a{flex:1;display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:999px;font-weight:700;font-size:15px;text-decoration:none;white-space:nowrap}
+.s1ne-sc .p{background:#111827;color:#fff}
+.s1ne-sc .l{background:#fff;color:#111827;border:1.5px solid #d1d5db}
+.s1ne-sc a:focus-visible{outline:3px solid #1f2937;outline-offset:2px}
+@media (min-width:760px){.s1ne-sc{left:auto;right:24px;bottom:24px;border-radius:999px;padding:8px;box-shadow:0 8px 28px rgba(40,30,10,.18)}.s1ne-sc a{flex:none;padding:0 22px}}
+@media (prefers-reduced-motion:reduce){.s1ne-sc{transition:none}}
+body{padding-bottom:84px}
+@media (min-width:760px){body{padding-bottom:0}}
+</style>
+<div class="s1ne-sc" id="s1neSc" role="region" aria-label="迅速に動く">
+  <a class="l" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">LINEで問い合わせ</a> <a class="p" href="/ja/jobs/" data-cta="jobs_cta_click">現在の求人を見る</a>
+</div>
+<script>
+(function(){var b=document.getElementById('s1neSc');if(!b)return;
+function t(){b.classList.toggle('on',window.scrollY>380);}
+window.addEventListener('scroll',t,{passive:true});t();
+b.querySelector('.p').addEventListener('click',function(){try{gtag('event',this.getAttribute('data-cta'),{page_path:location.pathname,placement:'sticky'});}catch(e){}});})();
+</script>
+<!-- /s1ne-sticky-cta -->
+
+</body>
+</html>
