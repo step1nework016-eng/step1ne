@@ -380,7 +380,10 @@ SWITCH_CSS = ('.s1-lang{max-width:1100px;margin:0 auto;padding:10px 16px 0;displ
               '.s1-note{max-width:1100px;margin:10px auto 0;padding:0 16px}'
               '.s1-note p{margin:0;padding:12px 14px;border-radius:12px;background:#eef4fb;border:1px solid #c9dcef;color:#1d3a57;font-size:14.5px;line-height:1.7}'
               # 英文表格字比較寬：文章頁外層是 grid，裡面的欄會被表格撐寬、整頁變成左右滑。讓欄可以縮，表格在自己的框裡滑
-              'html[lang=en] main.shell>*,html[lang=ja] main.shell>*{min-width:0}')
+              'html[lang=en] main.shell>*,html[lang=ja] main.shell>*{min-width:0}'
+              # 中文按鈕設了不換行；英文字長，底部常駐列與文章按鈕會撐出畫面 → 日英版允許換行
+              'html[lang=en] .s1ne-sc a,html[lang=ja] .s1ne-sc a,html[lang=en] .btn-alt,html[lang=ja] .btn-alt'
+              '{white-space:normal;text-align:center;min-width:0;line-height:1.3;padding-left:10px;padding-right:10px}')
 NOTE = {
     'ja': '応募後のAI面接（阿財）と担当コンサルタントとのやり取りは、中国語で行います。',
     'en': 'After you apply, the AI interview (A-Cai) and all contact with our consultants are conducted in Chinese (Mandarin).',
