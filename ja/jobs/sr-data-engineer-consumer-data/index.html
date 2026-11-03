@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href*="lin.ee"]');
+  if (!a) return;
+  gtag('event', 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60)
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sr. Data Engineer シニアデータエンジニア（コンシューマーデータ）｜台湾の有名な金融情報・コンシューマー向けアプリ企業｜新北・板橋｜Step1ne</title>
+<meta name="description" content="台湾の著名な金融情報・コンシューマー向けアプリ企業のコンシューマー事業部門（電子レシート、家計簿、生活系プロダクト）が、シニアデータエンジニアを募集しています。MongoDBなどのデータソースから安定したData Pipelineを構築し、クラウドとオンプレミスが共存するハイブリッド環境を扱います。">
+<meta name="keywords" content="データエンジニア 求人,Data Engineer,Data Pipeline,MongoDB,Python,新北 板橋">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/ja/jobs/sr-data-engineer-consumer-data/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Step1ne 紹介プログラム">
+<meta property="og:title" content="Sr. Data Engineer シニアデータエンジニア（コンシューマーデータ）｜台湾の有名な金融情報・コンシューマー向けアプリ企業｜新北・板橋｜Step1ne">
+<meta property="og:description" content="台湾の著名な金融情報・コンシューマー向けアプリ企業のコンシューマー事業部門（電子レシート、家計簿、生活系プロダクト）が、シニアデータエンジニアを募集しています。MongoDBなどのデータソースから安定したData Pipelineを構築し、クラウドとオンプレミスが共存するハイブリッド環境を扱います。">
+<meta property="og:url" content="https://step1ne.com/ja/jobs/sr-data-engineer-consumer-data/">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta name="theme-color" content="#f4f1ea">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Noto+Sans+TC:wght@300;400;500;700;900&family=Noto+Serif+TC:wght@500;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "JobPosting",
+  "title": "Sr. Data Engineer シニアデータエンジニア（コンシューマーデータ）",
+  "description": "<p>台湾の大手金融情報・コンシューマー向けアプリ企業のコンシューマー事業部門（電子レシート、家計簿、生活系プロダクト）で、シニアデータエンジニアを募集しています。MongoDBなどのデータソースから安定したData Pipelineを構築し、クラウドとオンプレミスが併存するハイブリッド環境に対応していただきます。</p><h3>仕事内容</h3><h4>コンシューマー向けRaw Dataのデータ基盤構築</h4><ul><li>MongoDBなどのSource Systemからデータの抽出・クレンジング・変換・保存を行い、安定的で追跡可能かつ拡張性のあるRaw Data Pipelineを構築し、下流の分析やデータ活用で信頼できるデータを取得できるようにします。</li></ul><h4>Hybrid Data Pipelineの設計・保守</h4><ul><li>データ量、処理の即時性、利用シーンに応じて、CloudとOn-premise間のデータフロー、演算、保存方式を設計し、大量のコンシューマーデータが安定して流通・処理されるようにします。</li></ul><h4>大量データに対応できるData Pipelineとデータアーキテクチャの構築</h4><ul><li>Batchやさまざまな即時性の要件に合わせてデータ処理フロー、データモデル、クエリ構造を設計し、パフォーマンス、安定性、コスト、保守性のバランスを取った技術的判断を行います。</li></ul><h4>データ品質とPipelineの安定性の向上</h4><ul><li>データ検証、異常監視、エラー処理、オブザーバビリティの仕組みを整え、データの欠損・遅延やPipeline Failureの根本原因をすばやく特定し、下流の利用者が正確で安定したデータを得られるようにします。</li></ul><h4>分析・プロダクト・関連チームとのデータ要件定義</h4><ul><li>分析やビジネス活用で本当に必要なデータの粒度、更新頻度、利用方法を理解し、仕様どおりにデータを移すだけでなく、要件を実装可能なData Pipelineとデータアーキテクチャに落とし込みます。</li></ul><h4>データエンジニアリング基盤と開発プロセスの継続的な改善</h4><ul><li>既存のPipeline、Storage、Data Processingにおけるパフォーマンスや保守上の課題を見つけ、データ処理効率、エンジニアリング品質、自動化の度合いを段階的に改善します。</li></ul><h4>ニアリアルタイムのデータ活用を支えるエンジニアリング</h4><ul><li>レコメンド、広告、プッシュ通知などのデータ利用シーンに合わせて、Streaming / Near Real-time Pipelineの設計・構築に参加し、データがSourceから下流のアプリケーションで使えるようになるまでの時間を短縮します。</li></ul><h3>応募条件</h3>必須条件<ul><li>Data Pipelineの構築と運用を実際に担当した経験（Data Analysis／BI／Dashboardのみの経験は対象外）</li><li>Python＋SQLは必須</li><li>SQLとNoSQLの両方について、概念の理解と実務経験</li><li>大規模データ（1億件超）のPipeline／Architecture経験</li><li>Cloud Data Engineeringの実務経験</li><li>Coding Agentを活用したソフトウェア開発の経験</li></ul>歓迎条件<ul><li>Kafkaなどのイベントストリーミング技術の実務経験があり、On-premiseまたはHybrid EnvironmentでStreaming / Near Real-time Data Pipelineを構築・保守した経験</li><li>レコメンドシステム、広告、CRM／プッシュ通知など即時性の高いデータ活用を支援した経験があり、イベント発生からデータ処理、下流のServingまでのデータフロー全体を理解している方</li><li>EC、小売、コンシューマー業界でのData Engineering経験</li></ul>",
+  "datePosted": "2026-10-27",
+  "validThrough": "2026-12-31",
+  "employmentType": [
+    "FULL_TIME"
+  ],
+  "hiringOrganization": {
+    "@type": "Organization",
+    "name": "Step1ne 德仁管理顧問有限公司",
+    "sameAs": "https://step1ne.com/"
+  },
+  "jobLocation": {
+    "@type": "Place",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "板橋区",
+      "addressRegion": "新北市",
+      "addressCountry": "TW"
+    }
+  },
+  "directApply": true,
+  "baseSalary": {
+    "@type": "MonetaryAmount",
+    "currency": "TWD",
+    "value": {
+      "@type": "QuantitativeValue",
+      "unitText": "YEAR",
+      "minValue": 1500000,
+      "maxValue": 1500000
+    }
+  }
+}
+</script>
+
+<style>
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{font-family:'Noto Sans TC',system-ui,sans-serif;color:#23262d;background:#f4f1ea;-webkit-font-smoothing:antialiased;line-height:1.7;}
+a{color:#a67c3d;text-decoration:none;}
+a:hover{color:#8a6531;}
+details summary{cursor:pointer;list-style:none;}
+details summary::-webkit-details-marker{display:none;}
+details summary .faq-icon{transition:transform .3s ease;}
+details[open] summary .faq-icon{transform:rotate(45deg);}
+.wrap{max-width:800px;margin:0 auto;padding:0 24px;}
+.tag{display:inline-block;font-size:12.5px;font-weight:700;color:#8a5a1a;background:#f3e2c2;padding:5px 12px;border-radius:999px;}
+.spec{margin:0;background:#fff;border:1px solid #e6dfd1;border-radius:16px;overflow:hidden;}
+.spec-row{display:grid;grid-template-columns:132px 1fr;gap:18px;padding:16px 22px;border-bottom:1px solid #f0ebe0;}
+.spec-row:last-child{border-bottom:none;}
+.spec-row dt{font-size:14px;font-weight:700;color:#8a8d95;margin:0;}
+.spec-row dd{margin:0;font-size:15px;color:#23262d;}
+.spec-row.highlight{background:#fdfaf3;}
+.spec-row.highlight dd{font-weight:700;color:#8a5a1a;font-size:16.5px;}
+@media (max-width:600px){
+  .spec-row{grid-template-columns:1fr;gap:4px;padding:14px 18px;}
+  .spec-row dt{font-size:12.5px;letter-spacing:0.5px;}
+}
+h2{font-family:'Noto Serif TC',serif;font-size:24px;font-weight:700;color:#1c1f26;margin:44px 0 16px;}
+h3{font-size:16.5px;font-weight:700;color:#1c1f26;margin:22px 0 8px;}
+ul.duties{padding-left:20px;margin:0;color:#3a3d44;font-size:15px;}
+ul.duties li{margin-bottom:10px;}
+@media (max-width:760px){
+  .s1ne-hide-m{display:none !important;}
+  .s1ne-show-m{display:flex !important;}
+  footer a{min-height:44px;display:inline-flex;align-items:center;}
+}
+.s1ne-show-m{display:none;}
+.s1ne-mobile-menu{display:none;flex-direction:column;padding:4px 24px 16px;border-top:1px solid #e6dfd1;background:rgba(244,241,234,0.98);}
+.s1ne-mobile-menu.is-open{display:flex;}
+.s1ne-mobile-menu a{padding:10px 0;color:#4a4d55;font-size:15px;border-bottom:1px solid #e6dfd1;min-height:44px;display:flex;align-items:center;}
+.s1ne-mobile-menu a:last-child{border-bottom:none;}
+.h1-sub{display:block;font-size:0.62em;font-weight:600;color:#6b6e77;margin-top:6px;letter-spacing:0;}
+</style>
+
+<!--i18n-hreflang-->
+<link rel="alternate" hreflang="zh-Hant" href="https://step1ne.com/jobs/sr-data-engineer-consumer-data/">
+<link rel="alternate" hreflang="ja" href="https://step1ne.com/ja/jobs/sr-data-engineer-consumer-data/">
+<link rel="alternate" hreflang="en" href="https://step1ne.com/en/jobs/sr-data-engineer-consumer-data/">
+<link rel="alternate" hreflang="x-default" href="https://step1ne.com/jobs/sr-data-engineer-consumer-data/">
+<style>.s1-lang{max-width:1100px;margin:0 auto;padding:10px 16px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.s1-lang a,.s1-lang b{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid #d9dce3;background:#fff;font-size:14px;font-weight:600;color:#4a5060;text-decoration:none}.s1-lang b{background:#23262d;border-color:#23262d;color:#fff}.s1-lang a:hover{color:#23262d;border-color:#9aa0ad}.s1-lang a:focus-visible{outline:3px solid #1880B4;outline-offset:2px}.s1-note{max-width:1100px;margin:10px auto 0;padding:0 16px}.s1-note p{margin:0;padding:12px 14px;border-radius:12px;background:#eef4fb;border:1px solid #c9dcef;color:#1d3a57;font-size:14.5px;line-height:1.7}</style>
+<!--/i18n-hreflang-->
+</head>
+<body>
+
+<header style="position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:rgba(244,241,234,0.9);border-bottom:1px solid #e6dfd1;">
+  <div class="wrap" style="display:flex;align-items:center;justify-content:space-between;gap:20px;height:68px;max-width:1180px;">
+    <a href="/ja/" style="display:flex;align-items:center;gap:12px;color:#23262d;">
+      <img src="/assets/step1ne-logo.png" alt="Step1ne" style="height:38px;width:auto;">
+    </a>
+    <div class="s1ne-hide-m" style="display:flex;align-items:center;gap:28px;font-size:15px;color:#4a4d55;">
+      <a href="/ja/jobs/" style="color:#4a4d55;">求人一覧</a> <a href="/articles/" style="color:#4a4d55;">ヘッドハンティングコラム</a> <a href="/ja/talent/" style="color:#4a4d55;">Step1ne</a> <a href="/ja/talent/ai-tools/" style="color:#4a4d55;">AI就職ツール</a> <a href="/ja/about/" style="color:#4a4d55;">会社概要</a>
+    </div>
+    <a href="/ja/apply/?job=sr-data-engineer-consumer-data&title=Sr.%20Data%20Engineer%20%E8%B3%87%E6%B7%B1%E8%B3%87%E6%96%99%E5%B7%A5%E7%A8%8B%E5%B8%AB%EF%BC%88%E6%B6%88%E8%B2%BB%E6%95%B8%E6%93%9A%EF%BC%89&utm_source=website&utm_medium=job_page&utm_campaign=sr-data-engineer-consumer-data" class="s1ne-hide-m" style="background:linear-gradient(135deg,#c9a049,#a67c3d);color:#fff;font-weight:700;font-size:13.5px;padding:9px 18px;border-radius:999px;white-space:nowrap;">応募する</a>
+    <button type="button" class="s1ne-show-m" onclick="document.getElementById('s1ne-mmenu').classList.toggle('is-open')" aria-label="メニューを開く" style="align-items:center;justify-content:center;width:40px;height:40px;border:1px solid #e6dfd1;border-radius:10px;background:#fff;flex-shrink:0;">
+      <span style="display:block;width:18px;height:2px;background:#23262d;box-shadow:0 6px 0 #23262d,0 -6px 0 #23262d;"></span>
+    </button>
+  </div>
+  <div id="s1ne-mmenu" class="s1ne-mobile-menu" onclick="if(event.target.closest('a'))this.classList.remove('is-open')">
+    <a href="/ja/">ホーム</a> <a href="/ja/jobs/">求人一覧</a> <a href="/articles/">ヘッドハンティングコラム</a> <a href="/ja/talent/">Step1ne 紹介プログラム</a> <a href="/ja/talent/ai-tools/">AI転職ツール</a> <a href="/ja/about/">会社概要</a> <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="color:#a67c3d;font-weight:700;">LINEで問い合わせ →</a>
+  </div>
+</header>
+<!--i18n-switch--><nav class="s1-lang" aria-label="言語を切り替える"><a href="/jobs/sr-data-engineer-consumer-data/" hreflang="zh-Hant" lang="zh-Hant">中文</a><b lang="ja" aria-current="true">日本語</b><a href="/en/jobs/sr-data-engineer-consumer-data/" hreflang="en" lang="en">English</a></nav><!--/i18n-switch-->
+<!--i18n-note--><div class="s1-note"><p>応募後のAI面接（阿財）と担当コンサルタントとのやり取りは、中国語で行います。</p></div><!--/i18n-note-->
+<main>
+<section style="padding:36px 0 8px;"><div class="wrap">
+<a href="/ja/jobs/" style="font-size:14px;color:#8a8d95;">← 求人一覧に戻る</a>
+<div style="display:flex;flex-wrap:wrap;gap:8px;margin:16px 0;"><span class="tag">正社員</span><span class="tag">新北・板橋</span></div>
+<h1 style="font-family:'Noto Serif TC',serif;font-weight:700;font-size:clamp(27px,4.5vw,40px);
+line-height:1.3;margin:0 0 16px;color:#1c1f26;">Sr. Data Engineer シニアデータエンジニア（消費データ）<span class="h1-sub">金融情報／コンシューマー向けアプリ・消費事業グループ・正社員・新北市板橋</span></h1>
+<p style="font-size:16.5px;color:#3a3d44;margin:0;">台湾の著名な金融情報・コンシューマー向けアプリ企業のコンシューマー事業部門（電子レシート、家計簿、生活系プロダクト）が、シニアデータエンジニアを募集しています。MongoDBなどのデータソースから安定したData Pipelineを構築し、クラウドとオンプレミスが共存するハイブリッド環境を扱います。</p>
+</div></section>
+
+<section style="padding:26px 0;"><div class="wrap">
+<h2>求人条件一覧</h2><dl class="spec"><div class="spec-row highlight"><dt>給与・待遇</dt><dd>年収 約150万（台湾ドル）<span style="display:block;font-weight:400;font-size:14px;color:#55585f;margin-top:4px;">年収 約150万（台湾ドル）、経歴に応じて決定</span></dd></div><div class="spec-row"><dt>職務の性質</dt><dd>正社員</dd></div><div class="spec-row"><dt>勤務地</dt><dd>新北市板橋区<span style="display:block;font-weight:400;font-size:14px;color:#55585f;margin-top:4px;">具体的な場所は面談時にご説明します</span></dd></div></dl>
+<p style="font-size:13.5px;color:#8a8d95;margin-top:10px;">※ 上記の条件は現時点での予定です。実際の待遇と勤務条件は、面接後に双方で確認した内容が優先されます。</p>
+<h2>仕事内容</h2><h3>コンシューマー向けRaw Dataのデータ基盤構築</h3><ul class="duties"><li>MongoDBなどのSource Systemからデータを抽出・クレンジング・変換・保存し、安定的で追跡可能かつ拡張性のあるRaw Data Pipelineを構築して、下流の分析やデータ活用が信頼できるデータを得られるようにします。</li></ul><h3>Hybrid Data Pipelineの設計・保守</h3><ul class="duties"><li>データ量、処理の即時性、利用シーンに応じて、Cloud と On-premise 間のデータフロー、演算、ストレージの方式を設計し、大量の消費データが安定して流通・処理されるようにします。</li></ul><h3>大量データに対応できる Data Pipeline とデータアーキテクチャを構築します</h3><ul class="duties"><li>Batchやさまざまな鮮度要件に合わせてデータ処理フロー、データモデル、クエリ構造を設計し、パフォーマンス、安定性、コスト、保守性の間で合理的な技術的トレードオフを判断できること。</li></ul><h3>データ品質とPipelineの安定性を向上</h3><ul class="duties"><li>データ検証、異常監視、エラー処理とオブザーバビリティの仕組みを構築し、データの欠落・遅延や Pipeline Failure の根本原因をすばやく特定して、下流の利用者が正確で安定したデータを得られるようにする。</li></ul><h3>分析、プロダクト、関連チームとデータ要件を定義する</h3><ul class="duties"><li>分析やビジネス活用で本当に必要なデータの粒度、更新頻度、使い方を理解し、要件を実装可能なData Pipelineとデータアーキテクチャに落とし込みます。仕様どおりにデータを運ぶだけの仕事ではありません。</li></ul><h3>データエンジニアリング基盤と開発プロセスの継続的な改善</h3><ul class="duties"><li>既存のPipeline、Storage、Data Processingにおけるパフォーマンスや保守上の課題を特定し、データ処理の効率、エンジニアリング品質、自動化の度合いを段階的に改善する。</li></ul><h3>ニアリアルタイムのデータ活用に向けたエンジニアリングニーズを支援</h3><ul class="duties"><li>レコメンド、広告、プッシュ通知などのデータ活用シーンに合わせて、Streaming / Near Real-time Pipelineの設計・構築に参加し、データがSourceから下流のアプリケーションで使えるようになるまでの時間を短縮します。</li></ul>
+<h2>応募条件</h2><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;"><div style="padding:24px 22px;border-radius:14px;background:#fff;border:1px solid #e6dfd1;"><div style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.4px;color:#a67c3d;margin-bottom:8px;">必須条件</div><ul class="duties"><li>Data Pipelineの構築と運用を実際に担当した経験が必要です。単なるData Analysis／BI／Dashboardの経験は対象外です</li><li>Python＋SQL は必須条件</li><li>SQL＋NoSQL の両方について理解と実務経験があること</li><li>大規模データ（1億件超）のPipeline／Architecture経験</li><li>Cloud Data Engineeringの実務経験</li><li>Coding Agentを活用したソフトウェア開発の経験</li></ul></div><div style="padding:24px 22px;border-radius:14px;background:#fff;border:1px solid #e6dfd1;"><div style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.4px;color:#a67c3d;margin-bottom:8px;">歓迎条件</div><ul class="duties"><li>Kafkaまたはその他のEvent Streaming技術の実務経験があり、On-premiseまたはHybrid EnvironmentでStreaming / Near Real-time Data Pipelineを構築・保守した経験がある方。</li><li>レコメンドシステム、広告、CRM／プッシュ通知など鮮度が求められるデータ活用を支援した経験があり、イベント発生からデータ処理、下流のServingまでの一連のデータフローを理解している方。</li><li>EC、小売、消費財業界でのData Engineering経験</li></ul></div></div>
+<h2>このチャンスを選ぶ理由</h2><div style="display:flex;flex-direction:column;gap:12px;"><div style="padding:18px 20px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;"><h3 style="font-size:16.5px;font-weight:700;margin:0 0 4px;">ゼロからデータ基盤を築く</h3><p style="color:#6b6e77;font-size:14.5px;margin:0;">中心となるミッションはRaw Dataを使えるデータ基盤に変えることで、SourceからServingまでをあなたが考えます。</p></div><div style="padding:18px 20px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;"><h3 style="font-size:16.5px;font-weight:700;margin:0 0 4px;">リアルタイムデータへ</h3><p style="color:#6b6e77;font-size:14.5px;margin:0;">レコメンド、広告、プッシュ通知などリアルタイム性の求められるニーズが増えており、ストリーミングの経験はこれから解決すべき課題に直結します。</p></div></div>
+<h2>応募の流れ</h2><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;"><div style="padding:18px 20px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;"><div style="font-family:'Space Mono',monospace;color:#a67c3d;font-size:13px;margin-bottom:6px;">01</div><div style="font-weight:700;">AI面接官・阿財（アツァイ）と一次面談</div></div><div style="padding:18px 20px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;"><div style="font-family:'Space Mono',monospace;color:#a67c3d;font-size:13px;margin-bottom:6px;">02</div><div style="font-weight:700;">コンサルタントによる秘密厳守の一次面談</div></div><div style="padding:18px 20px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;"><div style="font-family:'Space Mono',monospace;color:#a67c3d;font-size:13px;margin-bottom:6px;">03</div><div style="font-weight:700;">面接の設定、条件の合意</div></div></div>
+<h2>今すぐ応募</h2>
+<p style="color:#55585f;font-size:15px;margin:0 0 22px;">オンライン入力は約2分。Step1neのコンサルタントからできるだけ早くご連絡します。</p>
+<a href="/ja/apply/?job=sr-data-engineer-consumer-data&title=Sr.%20Data%20Engineer%20%E8%B3%87%E6%B7%B1%E8%B3%87%E6%96%99%E5%B7%A5%E7%A8%8B%E5%B8%AB%EF%BC%88%E6%B6%88%E8%B2%BB%E6%95%B8%E6%93%9A%EF%BC%89&utm_source=website&utm_medium=job_page&utm_campaign=sr-data-engineer-consumer-data" style="display:inline-flex;align-items:center;gap:10px;background:#a67c3d; color:#fff;font-weight:700;font-size:16px;padding:15px 34px;border-radius:999px;">今すぐAI面接官・阿財と面談する</a> <span style="margin-left:14px;"><a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="color:#a67c3d;font-weight:600;">LINEで直接問い合わせる →</a></span>
+<h2>よくある質問</h2><div style="display:flex;flex-direction:column;gap:12px;"><details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;"><summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;"><span>選考の流れは？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span></summary><p style="margin:0;padding:0 20px 18px;color:#55585f;font-size:14.5px;">すべてオンライン：データ分析責任者 約1時間、バックエンド責任者 約1時間、HR による価値観面接 約1時間＋事業責任者 約30分。</p></details><details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;"><summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;"><span>なぜAIの話がたびたび出てくるのですか？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span></summary><p style="margin:0;padding:0 20px 18px;color:#55585f;font-size:14.5px;">採用部門は「生成AI／Coding Agentを実際に業務フローに取り入れた」経験を重視しており、面接でも質問されます。詳しく説明できる実例を一つ準備しておくことをおすすめします。</p></details><details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;"><summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;"><span>どの会社ですか？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span></summary><p style="margin:0;padding:0 20px 18px;color:#55585f;font-size:14.5px;">採用企業は、初期の接触段階では社名を公開しないことを希望しています。初期評価を通過した後、コンサルタントがご連絡の際に会社の背景、製品、チームの状況を詳しくご説明します。</p></details></div>
+</div></section></main>
+
+<footer style="border-top:1px solid #e6dfd1;background:#eee9de;padding:28px 0;">
+  <div class="wrap" style="text-align:center;color:#9a9da5;font-size:13px;">
+    <div data-s1-reviews-badge hidden style="text-align:center;margin:0 0 14px"></div>
+    <a href="/ja/jobs/" style="color:#a67c3d;">← すべての求人</a> | <a href="/ja/" style="color:#a67c3d;">Step1ne ホーム</a> | © 2026 德仁管理顧問有限公司 Step1ne
+  </div>
+</footer>
+
+</body>
+</html>

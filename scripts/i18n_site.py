@@ -40,16 +40,39 @@ OG_LOCALE = {'ja': 'ja_JP', 'en': 'en_US'}
 CJK = re.compile(r'[㐀-鿿豈-﫿]')
 
 # ── 要產日英版的頁面（中文路徑）。職缺頁另外依 JOB_SLUGS 加進來 ──
-# 第 1 批（11/3）：首頁、職缺專區、日本相關職缺、應徵頁。之後的批次往這裡加。
-PAGES = ['index.html', 'jobs/index.html', 'apply/index.html']
-JOB_SLUGS = [
-    'construction-pm-tokyo-bilingual',
-    'construction-project-assistant-hakuba-bilingual',
-    'executive-assistant-japan-taiwan',
-    'executive-driver-assistant-tokyo-hakuba',
-    'hakuba-resort-property-manager',
-    'japan-project-finance-taipei',
-]
+# 第 1 批（11/3）首頁、職缺專區、應徵頁；第 2 批（11/3）固定頁。之後的批次往這裡加。
+# 不做日英版的：/reviews/（評價是人選寫的中文原文）、/appointment/（顧問寄給個人的預約連結）、
+# /apply-quick/（BIM 培訓職缺專用，已有印尼文／越南文版另外產）。
+PAGES = ['index.html', 'jobs/index.html', 'apply/index.html', 'apply-general/index.html',
+         'about/index.html', 'commission-recruiting/index.html', 'talent/index.html', 'talent/ai-tools/index.html',
+         'faq/index.html', 'team/index.html', 'success-stories/index.html', 'construction/index.html',
+         'training/index.html', 'hiring-assessment/index.html']
+# 這幾頁的程式裡有要顯示給人看的中文訊息（送出中…、寄送失敗…），字串也要翻。
+# 其他頁的程式字串一律不碰：可能是拿來比對資料的值，翻了會壞。
+JS_PAGES = {'hiring-assessment/index.html', 'apply-general/index.html', 'articles/index.html'}
+
+CLOSED_API = 'https://step1ne-public-worker.aiagentg888.workers.dev/jobs-closed'
+_JOBS = None
+
+
+def job_slugs():
+    """職缺頁全部都做：中文職缺專區列表上的卡片，扣掉顧問在後台關掉的（跟中文列表頁一樣問後端）。
+    新職缺上架 → 自動多一頁；職缺關閉 → 日英頁自動拿掉。後端問不到就退回只看 sitemap 有沒有收。"""
+    global _JOBS
+    if _JOBS is not None:
+        return _JOBS
+    zh = open(os.path.join(ROOT, 'jobs', 'index.html'), encoding='utf-8').read()
+    cards = re.findall(r'<a class="job" href="/jobs/([^/"]+)/"', zh)
+    try:
+        import urllib.request
+        closed = set(json.load(urllib.request.urlopen(CLOSED_API, timeout=20)).get('closed') or [])
+        ok = lambda x: x not in closed
+    except Exception:
+        sm = open(os.path.join(ROOT, 'sitemap.xml'), encoding='utf-8').read()
+        ok = lambda x: '/jobs/%s/<' % x in sm
+    _JOBS = [x for x in dict.fromkeys(cards) if ok(x) and os.path.exists(os.path.join(ROOT, 'jobs', x, 'index.html'))]
+    return _JOBS
+
 
 INLINE = {'a', 'b', 'strong', 'em', 'i', 'span', 'small', 'br', 'code', 'mark', 'sup', 'sub', 'u', 's',
           'time', 'abbr', 'wbr', 'img', 'q', 'cite', 'label', 'bdi'}
@@ -131,7 +154,26 @@ def tr_jsonld(body, tr):
     return '\n' + json.dumps(walk(d), ensure_ascii=False, indent=2) + '\n'
 
 
-def process(src, tr, option_values=True):
+JS_STR = re.compile(r"//[^\n]*|'((?:[^'\\\n]|\\.)*)'|\"((?:[^\"\\\n]|\\.)*)\"")
+
+
+def tr_js(t, tr):
+    """只翻程式裡含中文的字串（'送出中…' 這種）；註解原樣保留。"""
+    def f(m):
+        if m.group(0).startswith('//'):
+            return m.group(0)
+        q = "'" if m.group(1) is not None else '"'
+        inner = m.group(1) if m.group(1) is not None else m.group(2)
+        if not CJK.search(inner):
+            return m.group(0)
+        out = tr('js', inner)
+        if out == inner:
+            return m.group(0)
+        return q + out.replace('\\', '\\\\').replace(q, '\\' + q) + q
+    return JS_STR.sub(f, t)
+
+
+def process(src, tr, option_values=True, js=False):
     out, run = [], []
 
     def flush():
@@ -165,6 +207,8 @@ def process(src, tr, option_values=True):
                 a = t.index('>') + 1
                 b = t.lower().rindex('</script')
                 out.append(t[:a] + tr_jsonld(t[a:b], tr) + t[b:])
+            elif js and m.group(1).lower() == 'script':
+                out.append(tr_js(t, tr))
             else:
                 out.append(t)
             continue
@@ -220,27 +264,62 @@ def save_tm(tm):
 NUM = re.compile(r'\d[\d,]*(?:\.\d+)?')
 
 
+# 中文有、但日英版刻意不寫的數字（官網不透露規模）：這種段落數字對不上是對的
+NO_NUM_PAT = re.compile(r'個招募中|任用率|成功率|面試率|續約率|台積電')
+
+
+WORDS = {1: ('one', 'single', 'a '), 2: ('two', 'twice', 'both'), 3: ('three',), 4: ('four',), 5: ('five',), 6: ('six',),
+         7: ('seven',), 8: ('eight',), 9: ('nine',), 10: ('ten',), 11: ('eleven',), 12: ('twelve',)}
+MONTHS = ('january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december')
+
+
+def _fmt(v):
+    return ('%f' % v).rstrip('0').rstrip('.')
+
+
 def check_numbers(zh, out, lang):
-    """中文段落裡的每個數字，翻譯裡都要找得到。
-    允許的換寫：「X 萬」「X–Y 萬」→ 乘 10000；「XK」→ 乘 1000；「X 成」→ X0%；日期前面的 0 可省。
+    """中文段落裡的每個數字，翻譯裡都要找得到。允許的換寫：
+    「X 萬」→ X×10000 或 X×10000/百萬（2.7 million）；「3萬5」→ 35000；「4萬833」→ 40833；「XK」→ ×1000；
+    「X 成」→ X0%；1～12 可寫成英文數字詞（one-on-one、eight）或英文月名（8月→August）；日期前面的 0 可省。
     標籤裡的數字（style 顏色、網址）不算。"""
+    if NO_NUM_PAT.search(zh):
+        return None
     zt = re.sub(r'<[^>]+>', ' ', zh)
-    have = set(n.replace(',', '') for n in NUM.findall(re.sub(r'<[^>]+>', ' ', out)))
-    toks = list(re.finditer(r'(\d[\d,]*(?:\.\d+)?)\s*(萬|K|成)?', zt))
+    ot = re.sub(r'<[^>]+>', ' ', out)
+    have = set(n.replace(',', '') for n in NUM.findall(ot))
+    low = ot.lower()
+    # 「3萬5」「4 萬 833」這種組合：先算出整數，兩個數字都算通過
+    combo_ok = set()
+    for m in re.finditer(r'(\d+)\s*萬\s*(\d+)', zt):
+        a, b = int(m.group(1)), m.group(2)
+        v = a * 10000 + (int(b) * 1000 if len(b) == 1 else int(b))
+        if str(v) in have:
+            combo_ok.update({m.group(1), b})
+    toks = list(re.finditer(r'(\d[\d,]*(?:\.\d+)?)\s*(萬|K|成|月)?', zt))
     for i, m in enumerate(toks):
         n = m.group(1).replace(',', '')
         unit = m.group(2)
         if not unit and i + 1 < len(toks) and re.fullmatch(r'\s*[–～~\-－至到]\s*', zt[m.end():toks[i + 1].start()]):
             unit = toks[i + 1].group(2)       # 「500–850 萬」的 500 也是萬
-        if n in have or n.lstrip('0') in have or n.lstrip('0') == '':
+        if n in have or n.lstrip('0') in have or n.lstrip('0') == '' or n in combo_ok:
             continue
         try:
             v = float(n)
         except ValueError:
             return n
-        mult = {'萬': 10000, 'K': 1000, '成': 10}.get(unit)
-        if mult and v * mult == int(v * mult) and str(int(v * mult)) in have:
+        if unit == '萬' and (_fmt(v * 10000) in have or _fmt(v / 100) in have):
             continue
+        if unit == 'K' and _fmt(v * 1000) in have:
+            continue
+        if unit == '成' and _fmt(v * 10) in have:
+            continue
+        if v == int(v) and 1 <= v <= 12:
+            if unit == '月' and MONTHS[int(v) - 1] in low:
+                continue
+            if any(w in low for w in WORDS.get(int(v), ())) or 'one-on-one' in low:
+                continue
+            if lang == 'ja' and ('マンツーマン' in ot or '一' in ot):
+                continue
         return n
     return None
 
@@ -252,7 +331,7 @@ def page_url(rel, lang=None):
 
 
 def all_pages():
-    return PAGES + ['jobs/%s/index.html' % s for s in JOB_SLUGS]
+    return PAGES + ['jobs/%s/index.html' % s for s in job_slugs()]
 
 
 def has_version(path, lang):
@@ -398,7 +477,7 @@ def page_fixups(s, rel, lang):
         s = cut(s, '<div class="jv2-search">', '</div></section>', rel)
         s = cut(s, '<div class="jv2-filterrow">', '<div class="jobs" id="jobs">', rel)
         s = re.sub(r'<div class="empty" id="empty".*?</div>\n?', '', s, flags=re.S)
-        keep = set(JOB_SLUGS)
+        keep = set(job_slugs())
 
         def card(m):
             slug = m.group(1)
@@ -417,7 +496,7 @@ def needs_note(rel):
 def build_page(rel, lang, tr):
     src = open(os.path.join(ROOT, rel), encoding='utf-8').read()
     src = page_fixups(strip_i18n(src), rel, lang)
-    s = process(src, tr, option_values=rel.startswith('apply'))
+    s = process(src, tr, option_values=rel.startswith('apply'), js=rel in JS_PAGES)
     s = set_head(s, rel, lang)
     s = rewrite_links(s, lang)
     if rel == 'jobs/index.html':
@@ -448,9 +527,13 @@ def update_sitemap(pages):
             u = BASE + page_url(rel, l)
             if '<loc>%s</loc>' % u not in s:
                 add.append('  <url>\n    <loc>%s</loc>\n    <changefreq>weekly</changefreq>\n    <priority>0.6</priority>\n  </url>' % u)
-    if not add:
+    # 已經不提供的日英頁從 sitemap 拿掉
+    keep = set(BASE + page_url(r, l) for r in pages for l in LANGS)
+    s2 = re.sub(r'\s*<url>\s*<loc>(%s/(?:ja|en)/[^<]*)</loc>.*?</url>' % re.escape(BASE),
+                lambda m: m.group(0) if m.group(1) in keep else '', s, flags=re.S)
+    if not add and s2 == s:
         return False
-    s = s.replace('</urlset>', '\n'.join(add) + '\n</urlset>', 1)
+    s = s2.replace('</urlset>', '\n'.join(add) + '\n</urlset>', 1) if add else s2
     open(p, 'w', encoding='utf-8').write(s)
     return True
 
@@ -549,8 +632,21 @@ def run(mode, arg=None):
             os.makedirs(os.path.dirname(out), exist_ok=True)
             open(out, 'w', encoding='utf-8').write(s)
             touched.append(os.path.join(l, rel))
+    # 中文頁已經不存在、或職缺已關閉的日英頁 → 一起拿掉
+    want = set(pages)
+    removed = []
+    for l in LANGS:
+        for p in glob.glob(os.path.join(ROOT, l, '**', 'index.html'), recursive=True):
+            rel = os.path.relpath(p, os.path.join(ROOT, l))
+            if rel not in want:
+                removed.append(rel)
+                print('職缺已關閉或中文頁已移除，拿掉 %s/%s' % (l, rel))
+                if mode != 'check':
+                    os.remove(p)
+                    touched.append(os.path.join(l, rel))
+                changed += 1
     # 中文頁：加 hreflang＋語言切換（預覽模式時反過來，確保中文頁上沒有）
-    for rel in pages:
+    for rel in pages + removed:   # 拿掉日英頁的中文頁，也要把切換列收掉
         p = os.path.join(ROOT, rel)
         if not os.path.exists(p):
             continue
@@ -561,16 +657,6 @@ def run(mode, arg=None):
             if mode != 'check':
                 open(p, 'w', encoding='utf-8').write(n)
                 touched.append(rel)
-    # 中文頁已經不存在的日英頁 → 一起拿掉（職缺關閉後中文頁被移除時）
-    for l in LANGS:
-        for p in glob.glob(os.path.join(ROOT, l, '**', 'index.html'), recursive=True):
-            rel = os.path.relpath(p, os.path.join(ROOT, l))
-            if not os.path.exists(os.path.join(ROOT, rel)):
-                print('中文頁已不存在，移除 %s/%s' % (l, rel))
-                if mode != 'check':
-                    os.remove(p)
-                    touched.append(os.path.join(l, rel))
-                changed += 1
     if mode == 'check':
         print('日英版需要更新的檔案：%d' % changed)
         return 1 if changed else 0

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href*="lin.ee"]');
+  if (!a) return;
+  gtag('event', 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60),
+    consultant: a.getAttribute('data-consultant') || ''
+  });
+});
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Consultant Team | Step1ne</title>
+<meta name="description" content="Meet Step1ne&#x27;s headhunting consultants: Jacky, Phoebe, Eileen S, Dan H, Anna, and Elyse Fang, with each one&#x27;s specialty and contact details.">
+<link rel="canonical" href="https://step1ne.com/en/team/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Step1ne Referrals">
+<meta property="og:title" content="Consultant Team | Step1ne">
+<meta property="og:description" content="Meet Step1ne&#x27;s headhunting consultants and their areas of expertise.">
+<meta property="og:url" content="https://step1ne.com/en/team/">
+<meta name="robots" content="index,follow">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta name="theme-color" content="#ffffff">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#14212b;      /* 主文字 */
+  --paper:#f4f7f9;    /* 頁面底，偏冷白 */
+  --card:#ffffff;
+  --teal:#0b6370;     /* 強調，白底對比約 6.6:1 */
+  --mist:#dbe6ec;     /* 線條與標籤底 */
+  --muted:#4b5b67;    /* 次要文字，白底對比約 7:1 */
+  --line:#06c755;     /* LINE 官方綠 */
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{font-family:'Noto Sans TC',system-ui,sans-serif;color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased;line-height:1.75;}
+a{color:var(--teal);}
+:focus-visible{outline:3px solid #0b6370;outline-offset:3px;border-radius:6px;}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px;}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
+/* 頁首：沿用站台導覽 */
+header.top{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.94);backdrop-filter:blur(14px);border-bottom:1px solid var(--mist);}
+.top .bar{display:flex;align-items:center;justify-content:space-between;gap:20px;height:68px;max-width:1180px;margin:0 auto;padding:0 20px;}
+.top .logo img{height:38px;width:auto;display:block;}
+.top nav{display:flex;align-items:center;gap:28px;font-size:15px;}
+.top nav a{color:var(--muted);text-decoration:none;min-height:44px;display:inline-flex;align-items:center;}
+.top nav a:hover{color:var(--teal);}
+.top .pill{background:var(--line);color:#0a1f12;font-weight:700;font-size:13.5px;padding:0 18px;min-height:44px;display:inline-flex;align-items:center;border-radius:999px;text-decoration:none;}
+.menu-btn{display:none;width:44px;height:44px;border:1px solid var(--mist);border-radius:10px;background:#fff;align-items:center;justify-content:center;cursor:pointer;}
+.menu-btn span{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink);}
+.mmenu{display:none;flex-direction:column;padding:4px 20px 16px;border-top:1px solid var(--mist);background:#fff;}
+.mmenu.is-open{display:flex;}
+.mmenu a{padding:10px 0;color:var(--muted);font-size:15px;border-bottom:1px solid var(--mist);min-height:44px;display:flex;align-items:center;text-decoration:none;}
+.mmenu a:last-child{border-bottom:none;color:var(--teal);font-weight:700;}
+@media (max-width:760px){.top nav,.top .pill{display:none;}.menu-btn{display:flex;}}
+/* 標題區 */
+.hero{padding:56px 20px 28px;}
+.eyebrow{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:2px;color:var(--teal);text-transform:uppercase;margin:0 0 14px;}
+h1{font-weight:900;font-size:clamp(30px,5vw,46px);line-height:1.25;margin:0 0 16px;letter-spacing:.5px;}
+.lead{max-width:560px;font-size:17px;color:var(--muted);margin:0;}
+/* 階梯：Step1ne 的第一步，卡片由左往右一階一階升高 */
+.steps{list-style:none;margin:0;padding:12px 0 72px;display:grid;grid-template-columns:1fr;gap:20px;}
+.card{background:var(--card);border:1px solid var(--mist);border-radius:18px;padding:26px 24px 24px;display:flex;flex-direction:column;}
+.ph{width:148px;height:148px;position:relative;margin:0 0 22px 0;}
+.ph::before{content:"";position:absolute;inset:0;transform:translate(9px,9px);border-radius:50%;background:var(--teal);}
+.ph picture,.ph img{display:block;width:100%;height:100%;}
+.ph img{position:relative;border-radius:50%;object-fit:cover;background:var(--mist);border:3px solid #fff;}
+.card h2{font-weight:900;font-size:24px;line-height:1.3;margin:0 0 10px;}
+.lbl{font-family:'Space Mono','Noto Sans TC',monospace;font-size:12px;letter-spacing:1.5px;color:var(--muted);margin:10px 0 6px;}
+.tags{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px;}
+.tags li{background:var(--mist);color:var(--ink);font-size:14px;font-weight:500;line-height:1;padding:8px 12px;border-radius:999px;}
+.ind,.gen{margin:0;font-size:15.5px;color:var(--ink);}
+.gen{color:var(--muted);}
+.acts{margin-top:auto;padding-top:22px;display:flex;flex-direction:column;gap:6px;align-items:flex-start;}
+.line{display:inline-flex;align-items:center;min-height:48px;padding:0 22px;border-radius:999px;background:var(--line);color:#0a1f12;font-weight:700;font-size:15px;text-decoration:none;}
+.line:hover{filter:brightness(.95);}
+.li{display:inline-flex;align-items:center;gap:6px;min-height:44px;font-size:14.5px;font-weight:500;color:var(--teal);text-decoration:underline;text-underline-offset:3px;}
+.ext{width:12px;height:12px;display:inline-block;background:no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230b6370' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5'/%3E%3C/svg%3E");}
+/* 手機：左右滑動輪播 */
+.hint,.dots{display:none;}
+@media (max-width:639px){
+  .wrap.cards{padding:0;}
+  .steps{display:flex;gap:14px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:8px 20px 20px;scroll-padding:0 20px;overscroll-behavior-x:contain;scrollbar-width:none;}
+  .steps::-webkit-scrollbar{display:none;}
+  .steps .card{flex:0 0 84%;max-width:340px;scroll-snap-align:center;min-width:0;overflow-wrap:anywhere;}
+  .steps .card:nth-child(n){margin-top:0;}
+  .hint{display:block;margin:0 20px 6px;font-size:13px;color:var(--muted);}
+  .dots{display:flex;justify-content:center;gap:8px;padding:0 0 56px;}
+  .dots i{width:8px;height:8px;border-radius:50%;background:var(--mist);transition:background .2s,transform .2s;}
+  .dots i.on{background:var(--teal);transform:scale(1.25);}
+}
+@media (min-width:640px){.steps{grid-template-columns:repeat(2,1fr);}}
+@media (min-width:960px){
+  .steps{grid-template-columns:repeat(3,1fr);gap:24px;align-items:stretch;}
+  .card:nth-child(3n+1){margin-top:56px;}
+  .card:nth-child(3n+2){margin-top:28px;}
+  .card:nth-child(3n){margin-top:0;}
+}
+@media (prefers-reduced-motion:no-preference){
+  .card{transition:transform .2s ease,box-shadow .2s ease;}
+  .card:hover{transform:translateY(-3px);box-shadow:0 14px 34px rgba(20,33,43,.10);}
+}
+/* 頁尾 */
+.cta{background:var(--ink);color:#fff;padding:48px 0;text-align:center;}
+.cta h2{font-weight:900;font-size:24px;margin:0 0 10px;}
+.cta p{margin:0 auto 22px;max-width:460px;color:#c9d6de;font-size:15.5px;}
+.cta .line{font-size:16px;}
+footer{background:#0e1820;padding:24px 0;text-align:center;color:#a9b8c2;font-size:13px;}
+footer a{color:#fff;min-height:44px;display:inline-flex;align-items:center;}
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "Step1ne Consultant Team",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "item": {
+        "@type": "Person",
+        "name": "Jacky",
+        "jobTitle": "Headhunting consultant",
+        "worksFor": {
+          "@type": "EmploymentAgency",
+          "name": "Step1ne (德仁管理顧問有限公司)",
+          "url": "https://step1ne.com/"
+        },
+        "knowsAbout": [
+          "Finance leadership hiring",
+          "Construction engineer recruiting",
+          "Executive Driver Hiring",
+          "Manufacturing",
+          "Semiconductors",
+          "Construction"
+        ],
+        "sameAs": [
+          "https://www.linkedin.com/in/jacky-chen-0a8a6416a/"
+        ]
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "item": {
+        "@type": "Person",
+        "name": "Phoebe",
+        "jobTitle": "Headhunting consultant",
+        "worksFor": {
+          "@type": "EmploymentAgency",
+          "name": "Step1ne (德仁管理顧問有限公司)",
+          "url": "https://step1ne.com/"
+        },
+        "knowsAbout": [
+          "Hiring BIM Engineers",
+          "Tech and engineering recruiting",
+          "Semiconductors",
+          "Construction (BIM)"
+        ],
+        "sameAs": [
+          "https://www.linkedin.com/in/phoebe-h-878b68187/"
+        ]
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "item": {
+        "@type": "Person",
+        "name": "Eileen S",
+        "jobTitle": "Headhunting consultant",
+        "worksFor": {
+          "@type": "EmploymentAgency",
+          "name": "Step1ne (德仁管理顧問有限公司)",
+          "url": "https://step1ne.com/"
+        },
+        "knowsAbout": [
+          "Mid-to-senior executive search",
+          "Reaching passive candidates"
+        ],
+        "sameAs": [
+          "https://www.linkedin.com/in/eileen-s-4696b4266/"
+        ]
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 4,
+      "item": {
+        "@type": "Person",
+        "name": "Dan H",
+        "jobTitle": "Headhunting consultant",
+        "worksFor": {
+          "@type": "EmploymentAgency",
+          "name": "Step1ne (德仁管理顧問有限公司)",
+          "url": "https://step1ne.com/"
+        },
+        "knowsAbout": [
+          "Clarifying hiring needs"
+        ],
+        "sameAs": [
+          "https://www.linkedin.com/in/h-dan-7a9267210/"
+        ]
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 5,
+      "item": {
+        "@type": "Person",
+        "name": "Anna",
+        "jobTitle": "Headhunting consultant",
+        "worksFor": {
+          "@type": "EmploymentAgency",
+          "name": "Step1ne (德仁管理顧問有限公司)",
+          "url": "https://step1ne.com/"
+        },
+        "knowsAbout": [
+          "Job requirement analysis"
+        ],
+        "sameAs": [
+          "https://www.linkedin.com/in/anna-wu-58495b244/"
+        ]
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 6,
+      "item": {
+        "@type": "Person",
+        "name": "Elyse Fang",
+        "jobTitle": "Headhunting consultant",
+        "worksFor": {
+          "@type": "EmploymentAgency",
+          "name": "Step1ne (德仁管理顧問有限公司)",
+          "url": "https://step1ne.com/"
+        },
+        "knowsAbout": [
+          "Candidate and employer communication"
+        ],
+        "sameAs": [
+          "https://www.linkedin.com/in/elyse-fang-817385212/"
+        ]
+      }
+    }
+  ]
+}
+</script>
+<meta property="og:locale" content="en_US">
+<!--i18n-hreflang-->
+<link rel="alternate" hreflang="zh-Hant" href="https://step1ne.com/team/">
+<link rel="alternate" hreflang="ja" href="https://step1ne.com/ja/team/">
+<link rel="alternate" hreflang="en" href="https://step1ne.com/en/team/">
+<link rel="alternate" hreflang="x-default" href="https://step1ne.com/team/">
+<style>.s1-lang{max-width:1100px;margin:0 auto;padding:10px 16px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.s1-lang a,.s1-lang b{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid #d9dce3;background:#fff;font-size:14px;font-weight:600;color:#4a5060;text-decoration:none}.s1-lang b{background:#23262d;border-color:#23262d;color:#fff}.s1-lang a:hover{color:#23262d;border-color:#9aa0ad}.s1-lang a:focus-visible{outline:3px solid #1880B4;outline-offset:2px}.s1-note{max-width:1100px;margin:10px auto 0;padding:0 16px}.s1-note p{margin:0;padding:12px 14px;border-radius:12px;background:#eef4fb;border:1px solid #c9dcef;color:#1d3a57;font-size:14.5px;line-height:1.7}</style>
+<!--/i18n-hreflang-->
+</head>
+<body>
+<header class="top">
+  <div class="bar">
+    <a class="logo" href="/en/"><img src="/assets/step1ne-logo.png" alt="Step1ne"></a>
+    <nav aria-label="Main menu">
+      <a href="/en/jobs/">Jobs</a> <a href="/articles/">Articles</a> <a href="/en/talent/">Step1ne Referrals</a> <a href="/en/talent/ai-tools/">AI Job Tools</a> <a href="/en/about/">About Us</a> <a href="/en/team/" aria-current="page">Our Consultants</a>
+    </nav>
+    <a class="pill" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">Ask on LINE</a>
+    <button type="button" class="menu-btn" aria-label="Open menu" aria-controls="mmenu" onclick="document.getElementById('mmenu').classList.toggle('is-open')"><span></span></button>
+  </div>
+  <div id="mmenu" class="mmenu" onclick="if(event.target.closest('a'))this.classList.remove('is-open')">
+    <a href="/en/">Home</a> <a href="/en/jobs/">Jobs</a> <a href="/articles/">Insights</a> <a href="/en/talent/">Step1ne Referrals</a> <a href="/en/talent/ai-tools/">AI Job Search Tools</a> <a href="/en/about/">About Us</a> <a href="/en/team/">Our Consultants</a> <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">Ask on LINE →</a>
+  </div>
+</header>
+<!--i18n-switch--><nav class="s1-lang" aria-label="Change language"><a href="/team/" hreflang="zh-Hant" lang="zh-Hant">中文</a><a href="/ja/team/" hreflang="ja" lang="ja">日本語</a><b lang="en" aria-current="true">English</b></nav><!--/i18n-switch-->
+
+
+<main>
+  <section class="wrap hero">
+    <p class="eyebrow">Step1ne Team</p>
+    <h1>Consultant team</h1>
+    <p class="lead">Step1ne's headhunting consultants help companies find people, and help talent take their next step.</p>
+  </section>
+  <p class="hint">Swipe left or right to see each consultant</p>
+  <div class="wrap cards">
+    <ul class="steps" id="team-steps" tabindex="0" aria-label="Consultant list (swipe left or right)">
+    <li class="card">
+      <div class="ph"><picture><source srcset="/assets/team/jacky.webp" type="image/webp"><img src="/assets/team/jacky.jpg" width="640" height="640" loading="lazy" decoding="async" alt="Photo of Jacky"></picture></div>
+      <h2>Jacky</h2>
+      <p class="lbl">Roles we often fill</p><ul class="tags"><li>Finance Controller</li><li>Project-based construction engineer</li><li>Executive Driver</li></ul><p class="lbl">Industry</p><p class="ind">Manufacturing, semiconductors, construction</p><p class="lbl">Languages / Regions</p><p class="ind">Chinese, English | Taipei, New Taipei</p><p class="gen">A year and a half in headhunting, covering mid- to senior-level management roles in finance, IT, supply chain and operations, as well as a wide range of other positions such as executive drivers. With every new job order, the first thing to pin down is: is this an expansion or a replacement, and why is the role open? From there, AI matches and searches for qualified candidates 24 hours a day while the consultant personally reaches out by phone, running both tracks together to speed up hiring.</p>
+      <div class="acts">
+        <a class="line" data-consultant="jacky" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">Chat with Step1ne on LINE<span class="sr">(via Jacky's introduction)</span></a> <a class="li" href="https://www.linkedin.com/in/jacky-chen-0a8a6416a/" target="_blank" rel="noopener noreferrer">Jacky's LinkedIn<span class="ext" aria-hidden="true"></span></a>
+      </div>
+    </li>
+    <li class="card">
+      <div class="ph"><picture><source srcset="/assets/team/phoebe.webp" type="image/webp"><img src="/assets/team/phoebe.jpg" width="640" height="640" loading="lazy" decoding="async" alt="Photo of Phoebe"></picture></div>
+      <h2>Phoebe</h2>
+      <p class="lbl">Roles we often fill</p><ul class="tags"><li>BIM Engineer</li><li>Tech and engineering roles</li><li>Semiconductor-related roles</li></ul><p class="lbl">Industry</p><p class="ind">Construction (BIM), semiconductors, technology engineering</p><p class="lbl">Languages / Regions</p><p class="ind">Chinese | Taipei</p><p class="gen">3 years and 10 months in recruiting. When a new role comes in, I first confirm the requirements framework with the company, then analyze the candidate profile and draw a talent map so I know where to look. I once helped a BIM team expand: based on the experience and traits the company asked for, I reached out directly to mid- to senior-level candidates through multiple channels and completed the placements within three months. I believe a match only means something when you truly understand the core needs of both the company and the job seeker.</p>
+      <div class="acts">
+        <a class="line" data-consultant="phoebe" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">Chat with Step1ne on LINE<span class="sr"> (via Phoebe's profile)</span></a> <a class="li" href="https://www.linkedin.com/in/phoebe-h-878b68187/" target="_blank" rel="noopener noreferrer">Phoebe's LinkedIn<span class="ext" aria-hidden="true"></span></a>
+      </div>
+    </li>
+    <li class="card">
+      <div class="ph"><picture><source srcset="/assets/team/eileen-s.webp" type="image/webp"><img src="/assets/team/eileen-s.jpg" width="640" height="640" loading="lazy" decoding="async" alt="Profile photo of Eileen S"></picture></div>
+      <h2>Eileen S</h2>
+      <p class="lbl">Areas of expertise</p><ul class="tags"><li>Mid-to-senior executive search jobs</li></ul>
+      <p class="lbl">Strengths</p><ul class="tags"><li>Reaching passive candidates</li><li>Career motivation interview</li><li>Communication before and after interviews</li></ul><p class="lbl">Region</p><p class="ind">Taipei</p><p class="gen">Candidates for mid-to-senior roles are usually not looking for a job. When we reach out, we first listen to what matters to them now, and only then discuss whether the opportunity is a fit. We don't rush or push, so both the candidate and the company have enough time to decide. Before the interview, we help the candidate understand the problems the role needs to solve; afterward, we check in with each side separately so the next step is clearer.</p>
+      <div class="acts">
+        <a class="line" data-consultant="eileen-s" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">Chat with Step1ne on LINE<span class="sr"> (referred by Eileen S)</span></a> <a class="li" href="https://www.linkedin.com/in/eileen-s-4696b4266/" target="_blank" rel="noopener noreferrer">Eileen S on LinkedIn<span class="ext" aria-hidden="true"></span></a>
+      </div>
+    </li>
+    <li class="card">
+      <div class="ph"><picture><source srcset="/assets/team/dan-h.webp" type="image/webp"><img src="/assets/team/dan-h.jpg" width="640" height="640" loading="lazy" decoding="async" alt="Profile photo of Dan H"></picture></div>
+      <h2>Dan H</h2>
+      <p class="gen">Before recommending a candidate, we go through the job duties, work location, and expected compensation with them one by one, and only submit once both sides are clear. Every "we found out it didn't match after the interview" we avoid saves time for both the company and the candidate.</p>
+      <div class="acts">
+        <a class="line" data-consultant="dan-h" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">Chat with Step1ne on LINE<span class="sr"> (referred by Dan H)</span></a> <a class="li" href="https://www.linkedin.com/in/h-dan-7a9267210/" target="_blank" rel="noopener noreferrer">Dan H on LinkedIn<span class="ext" aria-hidden="true"></span></a>
+      </div>
+    </li>
+    <li class="card">
+      <div class="ph"><picture><source srcset="/assets/team/anna.webp" type="image/webp"><img src="/assets/team/anna.jpg" width="640" height="640" loading="lazy" decoding="async" alt="Photo of Anna"></picture></div>
+      <h2>Anna</h2>
+      <p class="gen">We make a habit of splitting job requirements into "must-have" and "nice-to-have" columns and aligning with the company before we start searching. With the requirements clearly separated, the search isn't held back by unnecessary hurdles.</p>
+      <div class="acts">
+        <a class="line" data-consultant="anna" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">Chat with Step1ne on LINE<span class="sr"> (via Anna's profile)</span></a> <a class="li" href="https://www.linkedin.com/in/anna-wu-58495b244/" target="_blank" rel="noopener noreferrer">Anna's LinkedIn<span class="ext" aria-hidden="true"></span></a>
+      </div>
+    </li>
+    <li class="card">
+      <div class="ph"><picture><source srcset="/assets/team/elyse-fang.webp" type="image/webp"><img src="/assets/team/elyse-fang.jpg" width="640" height="640" loading="lazy" decoding="async" alt="Photo of Elyse Fang"></picture></div>
+      <h2>Elyse Fang</h2>
+      <p class="gen">We care about response speed every time: questions from candidates and feedback from employers are passed on the same day whenever possible. When hiring stalls, it is often not because no one can be found, but because messages get stuck between the two sides.</p>
+      <div class="acts">
+        <a class="line" data-consultant="elyse-fang" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">Chat with Step1ne on LINE<span class="sr">(referred by Elyse Fang)</span></a> <a class="li" href="https://www.linkedin.com/in/elyse-fang-817385212/" target="_blank" rel="noopener noreferrer">Elyse Fang on LinkedIn<span class="ext" aria-hidden="true"></span></a>
+      </div>
+    </li>
+    </ul>
+    <div class="dots" id="team-dots" aria-hidden="true"></div>
+  </div>
+  <script>
+  (function(){
+    var s=document.getElementById('team-steps'),d=document.getElementById('team-dots');
+    if(!s||!d)return;
+    var cards=s.querySelectorAll('.card');
+    cards.forEach(function(){d.appendChild(document.createElement('i'));});
+    var dots=d.children;
+    function upd(){
+      var c=s.scrollLeft+s.clientWidth/2,best=0,bd=1e9;
+      cards.forEach(function(el,i){var m=Math.abs(el.offsetLeft+el.offsetWidth/2-c);if(m<bd){bd=m;best=i;}});
+      for(var i=0;i<dots.length;i++)dots[i].className=i===best?'on':'';
+    }
+    s.addEventListener('scroll',function(){window.requestAnimationFrame(upd);},{passive:true});
+    window.addEventListener('resize',upd);upd();
+  })();
+  </script>
+  <section class="cta">
+    <div class="wrap">
+      <h2>Want to talk through your needs first?</h2>
+      <p>Message Step1ne through our LINE Official Account, and we'll reply as soon as possible to set up a conversation.</p>
+      <p>For how commissions and fees work, start with <a href="/en/commission-recruiting/" style="color:#fff;text-decoration:underline">Recruitment services for employers</a>. Working with a headhunter for the first time? Read <a href="/articles/how-to-choose-headhunter/" style="color:#fff;text-decoration:underline">How to choose a headhunting firm in Taiwan</a>.</p>
+      <a class="line" data-consultant="team-footer" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener">Add our LINE Official Account & ask us</a>
+    </div>
+  </section>
+</main>
+<footer>
+  <div class="wrap"><a href="/en/">Back to Step1ne home</a> | © 2026 德仁管理顧問有限公司 Step1ne</div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href*="lin.ee"]');
+  if (!a) return;
+  gtag('event', 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60)
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>バックエンド開発エンジニア（.NET）｜Step1ne</title>
+<meta name="description" content="上場・店頭公開のゲームグループが、公式サイト・オンラインストアのバックエンドチームを増強し、.NETバックエンド開発エンジニアを募集。ゲーム公式サイト、Webストア、外部プラットフォームAPIの開発・保守を担当します。派遣のポジションで、給与は面接により決定、労働保険・健康保険と年次有給休暇は労働基準法に準じます。急募のため、優先的に面接を設定します。">
+<meta name="keywords" content="">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/ja/jobs/backend-engineer-game/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Step1ne 紹介プログラム">
+<meta property="og:title" content="バックエンド開発エンジニア（.NET）｜Step1ne">
+<meta property="og:description" content="上場・店頭公開のゲームグループが、公式サイト・オンラインストアのバックエンドチームを増強し、.NETバックエンド開発エンジニアを募集。ゲーム公式サイト、Webストア、外部プラットフォームAPIの開発・保守を担当します。派遣のポジションで、給与は面接により決定、労働保険・健康保険と年次有給休暇は労働基準法に準じます。急募のため、優先的に面接を設定します。">
+<meta property="og:url" content="https://step1ne.com/ja/jobs/backend-engineer-game/">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta name="theme-color" content="#f4f1ea">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Noto+Sans+TC:wght@300;400;500;700;900&family=Noto+Serif+TC:wght@500;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "JobPosting",
+  "title": "バックエンド開発エンジニア（.NET）",
+  "description": "<p>バックエンド開発エンジニア（.NET）</p><h3>業務内容</h3><h4>Webサイト・ECストア開発</h4><ul><li>ゲーム製品の公式サイトの開発・保守</li><li>ゲーム製品のWebストア機能の開発・保守</li><li>Webシステムのアーキテクチャ分析と機能開発</li></ul><h4>API・データ処理</h4><ul><li>ゲーム製品とサードパーティプラットフォームのAPI連携の構築・保守</li><li>Web APIの開発・運用とバージョン管理</li><li>データベース操作、パフォーマンスチューニング、データ処理</li></ul><h4>運用サポート</h4><ul><li>障害対応とシステム問題の分析を支援</li><li>開発規約に従い、チームと協力してプロジェクトを完遂</li></ul><h3>応募条件</h3>必須条件<ul><li>.NET Core / .NET Frameworkでのシステム開発経験</li><li>MSSQLデータベース操作に精通</li><li>T-SQLとStored Procedureの作成・保守に習熟</li><li>WebService / WebAPIのアーキテクチャと開発に精通</li></ul>歓迎条件<ul><li>Redis / RabbitMQ / Kafkaなどのキャッシュ・メッセージキューの活用経験</li><li>Kubernetes (K8S) / GKEなどクラウドの利用経験</li><li>大規模トラフィックサイトまたは高同時接続システムの開発経験</li><li>システムのパフォーマンス最適化またはSQLチューニングの経験</li><li>マイクロサービス（Microservices）アーキテクチャ設計に精通</li><li>OAuth 2.0 / OpenID Connect / JWT認証の仕組みに精通</li><li>Webサイトの開発とデプロイの経験</li><li>JavaScript、jQuery、AJAX、JSON連携に精通</li><li>CI/CDフローの利用経験</li><li>セキュリティ意識があり、安全な開発規約に従えること</li></ul>",
+  "datePosted": "2026-07-27",
+  "validThrough": "2026-12-31",
+  "employmentType": [
+    "TEMPORARY",
+    "FULL_TIME"
+  ],
+  "hiringOrganization": {
+    "@type": "Organization",
+    "name": "Step1ne 德仁管理顧問有限公司",
+    "sameAs": "https://step1ne.com/"
+  },
+  "jobLocation": {
+    "@type": "Place",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "",
+      "addressRegion": "",
+      "addressCountry": "TW"
+    }
+  },
+  "directApply": true,
+  "jobBenefits": [
+    "派遣期間中はStep1neがあなたと正式な労働契約を結びます",
+    "給与、労働保険・健康保険、年次有給休暇などの権利は、すべて労働基準法に基づき、一般の従業員と同じ扱いです"
+  ],
+  "identifier": {
+    "@type": "PropertyValue",
+    "name": "Step1ne",
+    "value": "backend-engineer-game"
+  }
+}
+</script>
+
+<style>
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{font-family:'Noto Sans TC',system-ui,sans-serif;color:#23262d;background:#f4f1ea;-webkit-font-smoothing:antialiased;line-height:1.7;}
+a{color:#a67c3d;text-decoration:none;}
+a:hover{color:#8a6531;}
+details summary{cursor:pointer;list-style:none;}
+details summary::-webkit-details-marker{display:none;}
+details summary .faq-icon{transition:transform .3s ease;}
+details[open] summary .faq-icon{transform:rotate(45deg);}
+.wrap{max-width:800px;margin:0 auto;padding:0 24px;}
+.tag{display:inline-block;font-size:12.5px;font-weight:700;color:#8a5a1a;background:#f3e2c2;padding:5px 12px;border-radius:999px;}
+.spec{margin:0;background:#fff;border:1px solid #e6dfd1;border-radius:16px;overflow:hidden;}
+.spec-row{display:grid;grid-template-columns:132px 1fr;gap:18px;padding:16px 22px;border-bottom:1px solid #f0ebe0;}
+.spec-row:last-child{border-bottom:none;}
+.spec-row dt{font-size:14px;font-weight:700;color:#8a8d95;margin:0;}
+.spec-row dd{margin:0;font-size:15px;color:#23262d;}
+.spec-row.highlight{background:#fdfaf3;}
+.spec-row.highlight dd{font-weight:700;color:#8a5a1a;font-size:16.5px;}
+@media (max-width:600px){
+  .spec-row{grid-template-columns:1fr;gap:4px;padding:14px 18px;}
+  .spec-row dt{font-size:12.5px;letter-spacing:0.5px;}
+}
+h2{font-family:'Noto Serif TC',serif;font-size:24px;font-weight:700;color:#1c1f26;margin:44px 0 16px;}
+h3{font-size:16.5px;font-weight:700;color:#1c1f26;margin:22px 0 8px;}
+ul.duties{padding-left:20px;margin:0;color:#3a3d44;font-size:15px;}
+ul.duties li{margin-bottom:10px;}
+@media (max-width:760px){
+  .s1ne-hide-m{display:none !important;}
+  .s1ne-show-m{display:flex !important;}
+  footer a{min-height:44px;display:inline-flex;align-items:center;}
+}
+.s1ne-show-m{display:none;}
+.s1ne-mobile-menu{display:none;flex-direction:column;padding:4px 24px 16px;border-top:1px solid #e6dfd1;background:rgba(244,241,234,0.98);}
+.s1ne-mobile-menu.is-open{display:flex;}
+.s1ne-mobile-menu a{padding:10px 0;color:#4a4d55;font-size:15px;border-bottom:1px solid #e6dfd1;min-height:44px;display:flex;align-items:center;}
+.s1ne-mobile-menu a:last-child{border-bottom:none;}
+.h1-sub{display:block;font-size:0.62em;font-weight:600;color:#6b6e77;margin-top:6px;letter-spacing:0;}
+</style>
+
+<!--i18n-hreflang-->
+<link rel="alternate" hreflang="zh-Hant" href="https://step1ne.com/jobs/backend-engineer-game/">
+<link rel="alternate" hreflang="ja" href="https://step1ne.com/ja/jobs/backend-engineer-game/">
+<link rel="alternate" hreflang="en" href="https://step1ne.com/en/jobs/backend-engineer-game/">
+<link rel="alternate" hreflang="x-default" href="https://step1ne.com/jobs/backend-engineer-game/">
+<style>.s1-lang{max-width:1100px;margin:0 auto;padding:10px 16px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.s1-lang a,.s1-lang b{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid #d9dce3;background:#fff;font-size:14px;font-weight:600;color:#4a5060;text-decoration:none}.s1-lang b{background:#23262d;border-color:#23262d;color:#fff}.s1-lang a:hover{color:#23262d;border-color:#9aa0ad}.s1-lang a:focus-visible{outline:3px solid #1880B4;outline-offset:2px}.s1-note{max-width:1100px;margin:10px auto 0;padding:0 16px}.s1-note p{margin:0;padding:12px 14px;border-radius:12px;background:#eef4fb;border:1px solid #c9dcef;color:#1d3a57;font-size:14.5px;line-height:1.7}</style>
+<!--/i18n-hreflang-->
+</head>
+<body>
+
+<header style="position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:rgba(244,241,234,0.9);border-bottom:1px solid #e6dfd1;">
+  <div class="wrap" style="display:flex;align-items:center;justify-content:space-between;gap:20px;height:68px;max-width:1180px;">
+    <a href="/ja/" style="display:flex;align-items:center;gap:12px;color:#23262d;">
+      <img src="/assets/step1ne-logo.png" alt="Step1ne" style="height:38px;width:auto;">
+    </a>
+    <div class="s1ne-hide-m" style="display:flex;align-items:center;gap:28px;font-size:15px;color:#4a4d55;">
+      <a href="/ja/jobs/" style="color:#4a4d55;">求人一覧</a> <a href="/articles/" style="color:#4a4d55;">ヘッドハンティングコラム</a> <a href="/ja/talent/" style="color:#4a4d55;">Step1ne</a> <a href="/ja/talent/ai-tools/" style="color:#4a4d55;">AI就職ツール</a> <a href="/ja/about/" style="color:#4a4d55;">会社概要</a>
+    </div>
+    <a href="/ja/apply/?job=backend-engineer-game&title=%E5%BE%8C%E7%AB%AF%E9%96%8B%E7%99%BC%E5%B7%A5%E7%A8%8B%E5%B8%AB%EF%BC%88.NET%EF%BC%89&utm_source=website&utm_medium=job_page&utm_campaign=backend-engineer-game" class="s1ne-hide-m" style="background:linear-gradient(135deg,#c9a049,#a67c3d);color:#fff;font-weight:700;font-size:13.5px;padding:9px 18px;border-radius:999px;white-space:nowrap;">応募する</a>
+    <button type="button" class="s1ne-show-m" onclick="document.getElementById('s1ne-mmenu').classList.toggle('is-open')" aria-label="メニューを開く" style="align-items:center;justify-content:center;width:40px;height:40px;border:1px solid #e6dfd1;border-radius:10px;background:#fff;flex-shrink:0;">
+      <span style="display:block;width:18px;height:2px;background:#23262d;box-shadow:0 6px 0 #23262d,0 -6px 0 #23262d;"></span>
+    </button>
+  </div>
+  <div id="s1ne-mmenu" class="s1ne-mobile-menu" onclick="if(event.target.closest('a'))this.classList.remove('is-open')">
+    <a href="/ja/">ホーム</a> <a href="/ja/jobs/">求人一覧</a> <a href="/articles/">ヘッドハンティングコラム</a> <a href="/ja/talent/">Step1ne 紹介プログラム</a> <a href="/ja/talent/ai-tools/">AI転職ツール</a> <a href="/ja/about/">会社概要</a> <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="color:#a67c3d;font-weight:700;">LINEで問い合わせ →</a>
+  </div>
+</header>
+<!--i18n-switch--><nav class="s1-lang" aria-label="言語を切り替える"><a href="/jobs/backend-engineer-game/" hreflang="zh-Hant" lang="zh-Hant">中文</a><b lang="ja" aria-current="true">日本語</b><a href="/en/jobs/backend-engineer-game/" hreflang="en" lang="en">English</a></nav><!--/i18n-switch-->
+<!--i18n-note--><div class="s1-note"><p>応募後のAI面接（阿財）と担当コンサルタントとのやり取りは、中国語で行います。</p></div><!--/i18n-note-->
+<main>
+<section style="padding:36px 0 8px;"><div class="wrap">
+<a href="/ja/jobs/" style="font-size:14px;color:#8a8d95;">← 求人一覧に戻る</a>
+<div style="display:flex;flex-wrap:wrap;gap:8px;margin:16px 0;"></div>
+<h1 style="font-family:'Noto Serif TC',serif;font-weight:700;font-size:clamp(27px,4.5vw,40px);
+line-height:1.3;margin:0 0 16px;color:#1c1f26;">バックエンド開発エンジニア（.NET）<span class="h1-sub">上場ゲームグループが公式サイト・ECサイトのバックエンドチームを増員。.NET 開発に精通したあなたと一緒に、公式サイトとECサービスを作り上げます</span></h1>
+<p style="font-size:16.5px;color:#3a3d44;margin:0;">急募・面接を優先的に案内・給与は実力に応じて相談。確かな技術があればより良い待遇も可能</p>
+</div></section>
+
+<section style="padding:26px 0;"><div class="wrap">
+<h2>求人条件一覧</h2><dl class="spec"><div class="spec-row highlight"><dt>給与</dt><dd>応相談（技術力と経験により決定。確かな技術があれば、より競争力のある待遇も可能）</dd></div><div class="spec-row"><dt>勤務地</dt><dd>台湾</dd></div><div class="spec-row"><dt>雇用形態</dt><dd>人材派遣</dd></div><div class="spec-row"><dt>掲載日</dt><dd>2026-07-27</dd></div><div class="spec-row"><dt>応募締切</dt><dd>2026-12-31</dd></div></dl>
+<p style="font-size:13.5px;color:#8a8d95;margin-top:10px;">※ 上記の条件は現時点での予定です。実際の待遇と勤務条件は、面接後に双方で確認した内容が優先されます。</p>
+<h2>仕事内容</h2><h3>Web サイトと EC サイトの開発</h3><ul class="duties"><li>ゲーム製品の公式サイトの開発・保守</li><li>ゲーム製品のWebストア機能の開発・保守</li><li>Webシステムのアーキテクチャ分析と機能開発</li></ul><h3>APIとデータ処理</h3><ul class="duties"><li>ゲームプロダクトとサードパーティプラットフォームのAPI連携の構築・保守</li><li>Web APIの開発・運用とバージョン管理</li><li>データベース操作、パフォーマンスチューニング、データ処理</li></ul><h3>運用サポート</h3><ul class="duties"><li>異常の切り分けとシステム問題の分析をサポート</li><li>開発規約に従い、チームと協力してプロジェクトを完成させる</li></ul>
+<h2>応募条件</h2><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;"><div style="padding:24px 22px;border-radius:14px;background:#fff;border:1px solid #e6dfd1;"><div style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.4px;color:#a67c3d;margin-bottom:8px;">必須条件</div><ul class="duties"><li>.NET Core / .NET Frameworkでのシステム開発経験</li><li>MSSQLデータベースの操作に精通</li><li>T-SQL と Stored Procedure の作成・保守に精通している方</li><li>WebService / WebAPIのアーキテクチャと開発に精通</li></ul></div><div style="padding:24px 22px;border-radius:14px;background:#fff;border:1px solid #e6dfd1;"><div style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.4px;color:#a67c3d;margin-bottom:8px;">歓迎条件</div><p style="color:#6b6e77;font-size:13.5px;margin:0 0 10px;">以下は歓迎条件です。いずれか1つに当てはまれば十分で、すべてを満たす必要はありません。</p><ul class="duties"><li>Redis / RabbitMQ / Kafkaなどのキャッシュやメッセージキューの活用経験</li><li>Kubernetes (K8S) / GKE のクラウド利用経験</li><li>大規模トラフィックのサイトや高同時接続システムの開発経験</li><li>システムのパフォーマンス最適化またはSQLのパフォーマンスチューニングの経験</li><li>マイクロサービス（Microservices）アーキテクチャ設計に精通していること</li><li>OAuth 2.0 / OpenID Connect / JWT認証の仕組みに精通</li><li>Web サイトの開発とデプロイの経験</li><li>JavaScript、jQuery、AJAX、JSON連携に精通している方</li><li>CI/CDフローの使用経験</li><li>セキュリティの概念を持ち、安全な開発の規範を守れる方</li></ul></div></div>
+<h2>このチャンスを選ぶ理由</h2><div style="display:flex;flex-direction:column;gap:12px;"><div style="padding:18px 20px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;"><h3 style="font-size:16.5px;font-weight:700;margin:0 0 4px;">上場ゲームグループで、基幹システム開発に携わるチャンス</h3><p style="color:#6b6e77;font-size:14.5px;margin:0;">配属先は台湾で上場しているゲーム業界グループの製品開発／IT開発部門です。今回は公式サイト兼オンラインショップのバックエンドチーム拡充に伴う募集で、グループのゲーム公式サイトとショップシステムの開発・運用に直接携われます。</p></div><div style="padding:18px 20px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;"><h3 style="font-size:16.5px;font-weight:700;margin:0 0 4px;">給与は能力により応相談、柔軟に対応</h3><p style="color:#6b6e77;font-size:14.5px;margin:0;">雇用主は定型の給与レンジを設けておらず、実際の待遇は技術力と経験に応じて面接後に決定されます。技術がしっかりしている方は、より競争力のある待遇を得られる可能性があります。</p></div><div style="padding:18px 20px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;"><h3 style="font-size:16.5px;font-weight:700;margin:0 0 4px;">派遣期間中の権利は労働基準法に準じ、正社員と変わりません</h3><p style="color:#6b6e77;font-size:14.5px;margin:0;">派遣期間中は Step1ne があなたと正式な労働契約を結び、給与、労工保険・全民健康保険、年次有給休暇などの権利はすべて労働基準法に基づき、一般の被雇用者と同じです。</p></div><div style="padding:18px 20px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;"><h3 style="font-size:16.5px;font-weight:700;margin:0 0 4px;">急募のため優先的に面接を設定し、就職活動をスピードアップ</h3><p style="color:#6b6e77;font-size:14.5px;margin:0;">この求人は急募のため、履歴書送付後に優先的に面接を設定します。より早く選考に進み、より早く結果を知ることができます。</p></div><div style="padding:18px 20px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;"><h3 style="font-size:16.5px;font-weight:700;margin:0 0 4px;">コンサルタントが面接のポイントを一から説明し、一緒に準備します</h3><p style="color:#6b6e77;font-size:14.5px;margin:0;">一次面接と二次面接の2段階があります。Step1neのコンサルタントが面接の前に、出題パートを含む面接のポイントと注意事項をご説明し、自信を持って臨めるようサポートします。</p></div></div>
+<h2>応募の流れ</h2><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;"><div style="padding:18px 20px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;"><div style="font-family:'Space Mono',monospace;color:#a67c3d;font-size:13px;margin-bottom:6px;">01</div><div style="font-weight:700;">AI面接官・阿財（アツァイ）と一次面談</div></div><div style="padding:18px 20px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;"><div style="font-family:'Space Mono',monospace;color:#a67c3d;font-size:13px;margin-bottom:6px;">02</div><div style="font-weight:700;">コンサルタントによる秘密厳守の一次面談</div></div><div style="padding:18px 20px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;"><div style="font-family:'Space Mono',monospace;color:#a67c3d;font-size:13px;margin-bottom:6px;">03</div><div style="font-weight:700;">面接の設定、条件の合意</div></div></div>
+<h2>今すぐ応募</h2>
+<p style="color:#55585f;font-size:15px;margin:0 0 22px;">オンライン入力は約2分。Step1neのコンサルタントからできるだけ早くご連絡します。</p>
+<a href="/ja/apply/?job=backend-engineer-game&title=%E5%BE%8C%E7%AB%AF%E9%96%8B%E7%99%BC%E5%B7%A5%E7%A8%8B%E5%B8%AB%EF%BC%88.NET%EF%BC%89&utm_source=website&utm_medium=job_page&utm_campaign=backend-engineer-game" style="display:inline-flex;align-items:center;gap:10px;background:#a67c3d; color:#fff;font-weight:700;font-size:16px;padding:15px 34px;border-radius:999px;">今すぐAI面接官・阿財（アツァイ）と面談</a> <span style="margin-left:14px;"><a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="color:#a67c3d;font-weight:600;">LINEで直接問い合わせる →</a></span>
+<h2>よくある質問</h2><div style="display:flex;flex-direction:column;gap:12px;"><details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;"><summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;"><span>この求人は派遣ですが、給与や保険の保障は手薄になりませんか？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span></summary><p style="margin:0;padding:0 20px 18px;color:#55585f;font-size:14.5px;">いいえ。派遣期間中はStep1neがあなたと正式な労働契約を結び、給与、労働保険・健康保険、年次有給休暇などの権利はすべて労働基準法に基づいて扱われ、一般の雇用者と同じです。</p></details><details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;"><summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;"><span>普段はStep1neと配属先のどちらで働くのですか？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span></summary><p style="margin:0;padding:0 20px 18px;color:#55585f;font-size:14.5px;">日常業務は派遣先（上場・店頭公開のゲームグループ）の現場で行い、実際の業務内容は現場の責任者が割り当てます。</p></details><details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;"><summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;"><span>面接は何回ありますか？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span></summary><p style="margin:0;padding:0 20px 18px;color:#55585f;font-size:14.5px;">一次選考と二次選考の2段階があり、面接の手配前に Step1ne のコンサルタントが面接のポイントと注意点をご説明します。</p></details><details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;"><summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;"><span>この求人には試験があると聞きましたが、どんな内容ですか？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span></summary><p style="margin:0;padding:0 20px 18px;color:#55585f;font-size:14.5px;">この求人には筆記試験・課題があります。詳しい出題形式と解答時間はまだ確定していないため、面接前にコンサルタントからご説明します。</p></details><details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;"><summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;"><span>Step1ne はどんなコンサルティング会社ですか？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span></summary><p style="margin:0;padding:0 20px 18px;color:#55585f;font-size:14.5px;">Step1neは德仁管理顧問有限公司のブランドで、台北市政府発行の就業服務許可証（北市就服字第0363号）を保有し、エグゼクティブサーチ、正社員採用、人材派遣サービスに特化しています。</p></details></div>
+</div></section></main>
+
+<footer style="border-top:1px solid #e6dfd1;background:#eee9de;padding:28px 0;">
+  <div class="wrap" style="text-align:center;color:#9a9da5;font-size:13px;">
+    <div data-s1-reviews-badge hidden style="text-align:center;margin:0 0 14px"></div>
+    <a href="/ja/jobs/" style="color:#a67c3d;">← すべての求人</a> | <a href="/ja/" style="color:#a67c3d;">Step1ne ホーム</a> | © 2026 德仁管理顧問有限公司 Step1ne
+  </div>
+</footer>
+
+<script>
+// 2026-10-01 加：社群貼文如果直接連到這個職缺頁（網址帶 ?utm_content=q123，
+// 123 是貼文的排隊紀錄 id），原本「立即應徵」按鈕是寫死的連結，這組參數
+// 進了職缺頁就斷在這裡、傳不到應徵表單——顧問問「這個應徵是哪篇貼文來的」
+// 永遠回答不出來，因為表單那邊收到的 utm 永遠是職缺頁自己貼死的
+// utm_source=website&utm_medium=job_page。
+// 作法：讀職缺頁自己網址上的 utm_content，有的話原樣接到每個「立即應徵」
+// 按鈕的連結後面，讓它跟著使用者一路傳到應徵表單。沒有這個參數（例如
+// 直接從 Google 搜尋進來）就完全不動，維持原本行為。
+(function () {
+  try {
+    var uc = new URLSearchParams(location.search).get('utm_content');
+    if (!uc) return;
+    document.querySelectorAll('a[href^="/apply/"]').forEach(function (a) {
+      var u = new URL(a.getAttribute('href'), location.origin);
+      u.searchParams.set('utm_content', uc);
+      a.setAttribute('href', u.pathname + '?' + u.searchParams.toString());
+    });
+  } catch (e) { /* 壞了也不能擋住應徵按鈕本身能不能點 */ }
+})();
+</script>
+</body>
+</html>
