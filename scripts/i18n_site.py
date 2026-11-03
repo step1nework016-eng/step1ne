@@ -366,6 +366,54 @@ def rewrite_links(s, lang):
     return s
 
 
+import site_header
+HDR_A, HDR_B = '<!--s1h-->', '<!--/s1h-->'
+HDR_SLOT = '<!--s1h-slot-->'
+
+
+def _old_header_span(s):
+    """舊頁首的位置：<body> 之後第一個 <header> 或 <nav>（6 種寫法都是這樣；企業服務頁的 <header> 是大標題區，
+    它前面的 <nav class="nav"> 才是頁首）。原始碼沒有 <body> 的頁（/apply/）從頭找。"""
+    b = s.find('<body')
+    b = 0 if b < 0 else b
+    m = re.search(r'<(header|nav)\b', s[b:])
+    if not m:
+        return None
+    i = b + m.start()
+    close = '</%s>' % m.group(1)
+    j = s.find(close, i)
+    return (i, j + len(close)) if j >= 0 else None
+
+
+def path_for_page(rel):
+    def f(code):
+        if code == 'zh':
+            return page_url(rel)
+        if code in LANGS and rel in all_pages():
+            return page_url(rel, code)
+        if os.path.exists(os.path.join(ROOT, code, rel)):
+            return page_url(rel, code)
+        return None
+    return f
+
+
+def apply_header(s, rel, lang):
+    """把頁首換成共用的新頁首（site_header.py）。重複執行結果一樣。"""
+    blk = HDR_A + site_header.header(lang, path_for_page(rel)) + HDR_B
+    if HDR_A in s:
+        s = re.sub(r'\n?' + re.escape(HDR_A) + r'.*?' + re.escape(HDR_B), HDR_SLOT, s, count=1, flags=re.S)
+    elif HDR_SLOT not in s:
+        sp = _old_header_span(s)
+        if sp:
+            s = s[:sp[0]] + HDR_SLOT + s[sp[1]:]
+    # 新頁首一律放在 <body> 一開頭（舊頁首有的包在窄欄裡，例如無經驗應徵頁 480px 的表單欄）
+    m = re.search(r'<body[^>]*>', s)
+    if m:
+        s = s.replace(HDR_SLOT, '', 1)
+        return s[:m.end()] + '\n' + blk + s[m.end():]
+    return s.replace(HDR_SLOT, blk, 1) if HDR_SLOT in s else blk + s
+
+
 HEAD_A, HEAD_B = '<!--i18n-hreflang-->', '<!--/i18n-hreflang-->'
 SW_A, SW_B = '<!--i18n-switch-->', '<!--/i18n-switch-->'
 NOTE_A, NOTE_B = '<!--i18n-note-->', '<!--/i18n-note-->'
@@ -459,7 +507,7 @@ def inject(s, rel, cur):
     if len(avail) < 2:
         return s
     s = add_head(s, head_block(rel, avail))
-    s = insert_after_header(s, switch_block(rel, avail, cur))
+    # 語言切換已經放進頁首（site_header），不再另外插一整排
     return s
 
 
@@ -522,15 +570,13 @@ def needs_note(rel):
 def build_page(rel, lang, tr):
     src = open(os.path.join(ROOT, rel), encoding='utf-8').read()
     src = page_fixups(strip_i18n(src), rel, lang)
+    src = apply_header(src, rel, 'zh')
+    src = re.sub(re.escape(HDR_A) + r'.*?' + re.escape(HDR_B), HDR_SLOT, src, count=1, flags=re.S)
     s = process(src, tr, option_values=rel.startswith('apply'), js=rel in JS_PAGES)
     s = set_head(s, rel, lang)
     s = rewrite_links(s, lang)
-    if rel == 'jobs/index.html':
-        # 還沒翻的職缺照實說在中文頁（第 2 批會補齊）。翻譯之後才加，免得被當成要翻的中文段落
-        more = {'ja': 'その他の求人は<a href="/jobs/" lang="zh-Hant">中国語の求人一覧</a>でご覧いただけます。',
-                'en': 'More openings are listed on our <a href="/jobs/" lang="zh-Hant">Chinese job board</a>.'}[lang]
-        s = s.replace('<div class="jobs" id="jobs">', '<p class="s1-more" style="margin:0 0 14px;font-size:14.5px;color:#55585f">%s</p>\n      <div class="jobs" id="jobs">' % more, 1)
     s = inject(s, rel, lang)
+    s = apply_header(s, rel, lang)
     if PREVIEW:
         s = re.sub(r'<meta name="robots"[^>]*>\n?', '', s)
         s = add_head(s, '<meta name="robots" content="noindex,nofollow">\n')
@@ -682,7 +728,7 @@ def run(mode, arg=None):
         if not os.path.exists(p):
             continue
         s = open(p, encoding='utf-8').read()
-        n = strip_i18n(s) if PREVIEW else inject(s, rel, 'zh-Hant')
+        n = strip_i18n(s) if PREVIEW else apply_header(inject(s, rel, 'zh-Hant'), rel, 'zh')
         if n != s:
             changed += 1
             if mode != 'check':

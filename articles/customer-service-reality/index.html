@@ -205,24 +205,54 @@ html{scroll-behavior:smooth}
 </head>
 
 <body>
-<div id="bar"></div>
-<header class="hd">
-  <div class="hd-in">
-    <a class="hd-logo" href="/"><img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問"><b>Step1ne</b></a>
-    <nav class="hd-nav">
-      <a href="/commission-recruiting/">企業服務</a><a href="/jobs/">職缺專區</a><a class="on" href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
-    </nav>
-    <a class="btn-line" href="https://lin.ee/XcSWPzM">LINE 洽詢</a>
-    <button class="hd-burger" type="button" aria-label="開啟選單" aria-expanded="false"
-      onclick="var m=document.getElementById('mnav');m.classList.toggle('on');this.setAttribute('aria-expanded',m.classList.contains('on'))"><span></span></button>
-  </div>
-  <div class="mnav" id="mnav">
-    <a href="/commission-recruiting/">企業服務</a><a href="/jobs/">職缺專區</a><a href="/articles/">獵才專欄</a><a href="/talent/">全民獵才</a>
-    <a href="https://lin.ee/XcSWPzM" style="color:var(--line);font-weight:700">LINE 洽詢</a>
-  </div>
-</header>
-<!--i18n-switch--><nav class="s1-lang" aria-label="切換語言"><b lang="zh-Hant" aria-current="true">中文</b><a href="/ja/articles/customer-service-reality/" hreflang="ja" lang="ja">日本語</a><a href="/en/articles/customer-service-reality/" hreflang="en" lang="en">English</a></nav><!--/i18n-switch-->
+<!--s1h--><style>
+.s1h{display:block;padding:0;margin:0;gap:0;font-size:16px;font-weight:400;line-height:1.5;text-align:left;--ink:#0F2233;--brand:#1880B4;--line:#DCE3EA;--mut:#5B6B7A;--paper:#fff;--ok:#06C755;font-family:"Noto Sans TC","Noto Sans JP","PingFang TC","Hiragino Sans",system-ui,sans-serif;position:sticky;top:0;z-index:70;background:var(--paper);border-bottom:1px solid var(--line);color:var(--ink)}
+.s1h *{box-sizing:border-box}
+.s1h a{color:inherit;text-decoration:none}
+.s1h a:focus-visible,.s1h button:focus-visible,.s1h summary:focus-visible{outline:3px solid var(--brand);outline-offset:2px;border-radius:6px}
+.s1h-in{max-width:1240px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:20px}
+.s1h-logo{display:flex;align-items:center;flex:none;min-height:44px}
+.s1h-logo img{height:60px;width:60px;margin:-8px -6px;display:block}
+.s1h-nav{display:flex;align-items:center;gap:6px;white-space:nowrap}
+.s1h-nav a,.s1h-more>summary{display:inline-flex;align-items:center;min-height:44px;padding:0 10px;font-size:15px;font-weight:500;color:var(--ink);border-radius:8px;cursor:pointer}
+.s1h-nav a:hover,.s1h-more>summary:hover{color:var(--brand)}
+.s1h-grp{display:flex;align-items:center;gap:2px}
+.s1h-gl{font-size:12px;color:var(--mut);margin-right:2px;white-space:nowrap}
+.s1h-more{position:relative}
+.s1h-more>summary{list-style:none}
+.s1h-more>summary::-webkit-details-marker{display:none}
+.s1h-more>summary::after{content:"";width:7px;height:7px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg) translateY(-2px);margin-left:8px}
+.s1h-more[open]>summary::after{transform:rotate(-135deg) translateY(-1px)}
+.s1h-drop{position:absolute;top:calc(100% + 6px);left:0;min-width:200px;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 30px rgba(15,34,51,.12);padding:6px;display:grid}
+.s1h-drop a{display:flex;align-items:center;min-height:44px;padding:0 12px;border-radius:8px;font-size:15px}
+.s1h-drop a:hover{background:#F1F5F9;color:var(--ink)}
+.s1h-lang{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:3px;flex:none}
+.s1h-lang a,.s1h-lang span{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:38px;padding:0 8px;border-radius:999px;font-size:13.5px;font-weight:600;color:var(--mut)}
+.s1h-lang a:hover{color:var(--ink);background:#F1F5F9}
+.s1h-lang span{background:var(--ink);color:#fff}
+.s1h-cta{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 18px;border-radius:999px;background:var(--ok);color:#fff !important;font-weight:700;font-size:15px;white-space:nowrap;flex:none}
+.s1h-cta:hover{filter:brightness(.95)}
+.s1h-cta svg{width:18px;height:18px;flex:none}
+.s1h-burger{display:none;align-items:center;justify-content:center;width:44px;height:44px;border:1px solid var(--line);border-radius:10px;background:#fff;cursor:pointer;flex:none}
+.s1h-burger i{display:block;width:18px;height:2px;background:var(--ink);box-shadow:0 6px 0 var(--ink),0 -6px 0 var(--ink)}
+.s1h-m{display:none;border-top:1px solid var(--line);background:#fff;padding:12px 16px 18px;max-height:calc(100vh - 64px);overflow:auto}
+.s1h.open .s1h-m{display:block}
+.s1h-m h3{font-size:12px;font-weight:500;color:var(--mut);margin:14px 4px 4px}
+.s1h-m a.it{display:flex;align-items:center;min-height:48px;padding:0 4px;font-size:16px;border-bottom:1px solid #EEF2F6}
+.s1h-m .s1h-lang{margin:4px 0 6px}
+.s1h-m .s1h-cta{margin-top:16px;width:100%;justify-content:center}
+@media (prefers-reduced-motion:no-preference){.s1h-drop{animation:s1hIn .14s ease-out}@keyframes s1hIn{from{opacity:0;transform:translateY(-4px)}}}
 
+.s1h-a .s1h-in{height:68px}
+.s1h-a .s1h-nav{margin-left:8px}
+.s1h-a .s1h-sep{width:1px;height:22px;background:var(--line);margin:0 10px}
+.s1h-a .s1h-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+@media (max-width:1180px){.s1h-a .s1h-gl{display:none}.s1h-a .s1h-sep{margin:0 4px}}
+html[lang=en] .s1h-a .s1h-gl{display:none}
+@media (max-width:980px){.s1h-a .s1h-nav,.s1h-a .s1h-right .s1h-lang{display:none}.s1h-a .s1h-burger{display:inline-flex}.s1h-a .s1h-in{height:64px;padding:0 16px;gap:10px}.s1h-a .s1h-cta{padding:0 14px;font-size:14px}}
+@media (max-width:420px){.s1h-a .s1h-cta span.long{display:none}}
+</style><header class="s1h s1h-a"><div class="s1h-in"><a class="s1h-logo" href="/"><img src="/assets/step1ne-logo.png" alt="Step1ne" width="60" height="60"></a><nav class="s1h-nav" aria-label="選單"><div class="s1h-grp"><span class="s1h-gl">企業</span><a href="/commission-recruiting/">委託招募</a><a href="/hiring-assessment/">招募形式評估</a></div><span class="s1h-sep" aria-hidden="true"></span><div class="s1h-grp"><span class="s1h-gl">求職</span><a href="/jobs/">職缺</a><a href="/talent/">全民獵才</a><a href="/talent/ai-tools/">AI 求職工具</a></div><span class="s1h-sep" aria-hidden="true"></span><details class="s1h-more"><summary>更多</summary><div class="s1h-drop"><a href="/articles/">獵才專欄</a><a href="/reviews/">人選評價</a><a href="/faq/">常見問題</a><a href="/about/">關於我們</a><a href="/team/">顧問團隊</a></div></details></nav><div class="s1h-right"><div class="s1h-lang" role="group" aria-label="切換語言"><span aria-current="true" lang="zh-Hant" title="中文">中</span><a href="/ja/articles/customer-service-reality/" lang="ja" hreflang="ja" title="日本語">日</a><a href="/en/articles/customer-service-reality/" lang="en" hreflang="en" title="English">EN</a></div><a class="s1h-cta" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M12 3C6.5 3 2 6.6 2 11c0 3.9 3.5 7.2 8.3 7.9.3.1.8.2.9.5.1.3.1.7 0 1l-.1.9c0 .3-.2 1 .9.6 1.1-.5 5.9-3.5 8.1-6C21.4 14.3 22 12.7 22 11c0-4.4-4.5-8-10-8z"/></svg><span>LINE 洽詢</span></a><button class="s1h-burger" type="button" aria-controls="s1hM" aria-expanded="false" aria-label="選單" onclick="var h=this.closest('.s1h');h.classList.toggle('open');this.setAttribute('aria-expanded',h.classList.contains('open'))"><i></i></button></div></div><div class="s1h-m" id="s1hM"><div class="s1h-lang" role="group" aria-label="切換語言"><span aria-current="true" lang="zh-Hant" title="中文">中</span><a href="/ja/articles/customer-service-reality/" lang="ja" hreflang="ja" title="日本語">日</a><a href="/en/articles/customer-service-reality/" lang="en" hreflang="en" title="English">EN</a></div><h3>找工作</h3><a class="it" href="/jobs/">職缺</a><a class="it" href="/talent/">全民獵才</a><a class="it" href="/talent/ai-tools/">AI 求職工具</a><h3>找人才</h3><a class="it" href="/commission-recruiting/">委託招募</a><a class="it" href="/hiring-assessment/">招募形式評估</a><h3>更多</h3><a class="it" href="/articles/">獵才專欄</a><a class="it" href="/reviews/">人選評價</a><a class="it" href="/faq/">常見問題</a><a class="it" href="/about/">關於我們</a><a class="it" href="/team/">顧問團隊</a><a class="s1h-cta" href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M12 3C6.5 3 2 6.6 2 11c0 3.9 3.5 7.2 8.3 7.9.3.1.8.2.9.5.1.3.1.7 0 1l-.1.9c0 .3-.2 1 .9.6 1.1-.5 5.9-3.5 8.1-6C21.4 14.3 22 12.7 22 11c0-4.4-4.5-8-10-8z"/></svg>LINE 洽詢</a></div></header><!--/s1h-->
+<div id="bar"></div>
 
 <main class="shell">
   <nav class="crumb" aria-label="麵包屑"><a href="/">首頁</a><span>/</span><a href="/articles/">獵才專欄</a><span>/</span>客服工作的真實樣貌：四種客服差在哪？</nav>
