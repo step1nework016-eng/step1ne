@@ -168,7 +168,13 @@ def client_names():
 #    充滿假的，真的那筆就會被忽略，等於沒有這道檢查。
 COMPANY_PAT = re.compile(
     r'[\u4e00-\u9fffA-Za-z0-9．\.]{2,12}'
-    r'(?:股份有限公司|有限公司|企業社|工程行|實業社|株式會社|有限會社)')
+    r'(?:股份有限公司|有限公司|企業社|工程行|實業社|株式會社|有限會社|合同會社)')
+
+# 2026-11-03 全站加日文／英文版：英文公司行號寫法也要擋（Co., Ltd.／Inc.／K.K.…）。
+# 我們自己在英文版也不寫英文法人名（法人名一律留中文漢字），所以整站出現這種字樣就是可疑。
+EN_COMPANY_PAT = re.compile(
+    r"\b[A-Z][A-Za-z0-9&'.\-]*(?:\s+[A-Z][A-Za-z0-9&'.\-]*){0,5},?\s+"
+    r"(?:Co\.,?\s*Ltd\.?|Co\.,? Limited|Ltd\.|Limited|Inc\.?|Corp\.|Corporation|K\.K\.|LLC|GmbH|Pte\.? Ltd\.?)(?![A-Za-z])")
 
 # 這些是自己人或通用詞，不算
 PAT_ALLOWED = ('德仁管理顧問有限公司', '私人招待所')
@@ -188,7 +194,7 @@ def scan_company_pattern(verbose=False):
             except Exception:
                 continue
             for i, line in enumerate(norm(text).split('\n'), 1):
-                for mt in COMPANY_PAT.finditer(line):
+                for mt in list(COMPANY_PAT.finditer(line)) + list(EN_COMPANY_PAT.finditer(line)):
                     name = mt.group(0)
                     if any(a in name for a in PAT_ALLOWED):
                         continue
@@ -212,11 +218,13 @@ def scan(names, verbose=False):
             except Exception:
                 continue
             for n in names:
-                if n not in text:
+                # 2026-11-03 英文版上線：5 個字母以上的英文名不分大小寫（gamania／GAMANIA 都算）
+                ci = n.isascii() and len(n) >= 5
+                if (n.lower() not in text.lower()) if ci else (n not in text):
                     continue
                 # 純英文簡稱要整個字比對：2026-09-24「MIC」被「SEMICON」誤判，
                 # 擋掉了一次正常部署。中文名照舊用子字串比對（中文沒有字的邊界）。
-                pat = re.compile(r'(?<![A-Za-z])' + re.escape(n) + r'(?![A-Za-z])') if n.isascii() else None
+                pat = re.compile(r'(?<![A-Za-z])' + re.escape(n) + r'(?![A-Za-z])', re.I if ci else 0) if n.isascii() else None
                 for i, line in enumerate(text.split('\n'), 1):
                     if (pat.search(line) if pat else n in line):
                         hits.append((rel, i, n, line.strip()[:120]))

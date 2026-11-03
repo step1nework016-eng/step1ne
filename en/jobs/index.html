@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href*="lin.ee"]');
+  if (!a) return;
+  gtag('event', 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60)
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jobs | Executive Search, Engineering and Overseas Openings | Step1ne</title>
+<meta name="description" content="Step1ne job listings covering senior management, finance, IT, operations and supply chain, construction engineering and overseas assignments, with NT$1,000,000+ salary roles updated regularly. Professional headhunting consultants support your match confidentially.">
+<meta name="keywords" content="jobs,NT$1 million salary jobs,executive jobs,overseas assignment jobs,finance manager jobs,IT manager jobs,operations manager jobs,headhunter jobs,job search">
+<link rel="canonical" href="https://step1ne.com/en/jobs/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Step1ne Referrals">
+<meta property="og:title" content="Jobs | Step1ne">
+<meta property="og:description" content="Permanent and staffing jobs in semiconductors, IT and software, construction, and more, matched by professional headhunting consultants.">
+<meta property="og:url" content="https://step1ne.com/en/jobs/">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta name="theme-color" content="#f4f1ea">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Noto+Sans+TC:wght@300;400;500;700;900&family=Noto+Serif+TC:wght@500;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{font-family:'Noto Sans TC',system-ui,sans-serif;color:#23262d;background:#f4f1ea;-webkit-font-smoothing:antialiased;line-height:1.7;}
+a{color:#a67c3d;text-decoration:none;}
+a:hover{color:#8a6531;}
+.wrap{max-width:900px;margin:0 auto;padding:0 24px;}
+h2{font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;color:#1c1f26;margin:0 0 16px;}
+
+/* 搜尋與篩選 */
+.filters{background:#fff;border:1px solid #e6dfd1;border-radius:18px;padding:20px 22px;margin:0 0 16px;}
+.search-box{position:relative;margin-bottom:20px;}
+.search-box input{width:100%;font-family:inherit;font-size:16px;color:#23262d;background:#faf7f1;border:1px solid #e6dfd1;border-radius:12px;padding:14px 44px 14px 16px;min-height:52px;}
+.search-box input:focus{outline:2px solid rgba(166,124,61,0.5);outline-offset:1px;border-color:#a67c3d;}
+.search-box input::-webkit-search-cancel-button{display:none;}
+.search-box button{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:36px;height:36px;border:none;background:transparent;color:#8a8d95;font-size:22px;cursor:pointer;border-radius:50%;display:none;}
+.search-box.has-value button{display:block;}
+.filter-group{margin-bottom:16px;}
+.filter-group:last-child{margin-bottom:0;}
+.filter-group.is-hidden{display:none;}
+.filter-label{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;color:#a67c3d;text-transform:uppercase;margin-bottom:10px;}
+.chips{display:flex;flex-wrap:wrap;gap:9px;}
+.chip{font-family:inherit;font-size:14px;font-weight:600;color:#6b6e77;background:#faf7f1;border:1px solid #e6dfd1;padding:9px 16px;border-radius:999px;cursor:pointer;min-height:44px;display:inline-flex;align-items:center;}
+.chip:hover{border-color:rgba(166,124,61,0.5);}
+.chip.is-active{background:#1c1f26;border-color:#1c1f26;color:#fff;}
+.result-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 18px;padding:0 4px;font-size:14px;color:#8a8d95;}
+.result-bar button{font-family:inherit;font-size:13.5px;color:#a67c3d;background:none;border:none;cursor:pointer;padding:8px 4px;min-height:40px;text-decoration:underline;}
+.result-bar button.is-hidden{visibility:hidden;}
+
+/* 職缺卡 */
+.jobs{display:flex;flex-direction:column;gap:14px;}
+.job{display:block;padding:24px 24px;background:#fff;border:1px solid #e6dfd1;border-radius:16px;color:#23262d;transition:border-color .25s,box-shadow .25s,transform .25s;}
+.job:hover{border-color:rgba(166,124,61,0.55);box-shadow:0 12px 30px rgba(40,35,25,0.08);transform:translateY(-2px);color:#23262d;}
+.job-industry{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;color:#a67c3d;text-transform:uppercase;margin-bottom:8px;}
+.job-title{font-family:'Noto Serif TC',serif;font-size:21px;font-weight:700;margin:0 0 10px;color:#1c1f26;line-height:1.35;}
+.card-sub{display:block;font-size:0.72em;font-weight:600;color:#6b6e77;margin-top:3px;}
+.job-meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+.job-meta span{font-size:12.5px;color:#55585f;background:#f2ede3;padding:5px 11px;border-radius:999px;}
+.job-meta span.salary{color:#8a5a1a;background:#f3e2c2;font-weight:700;}
+.job-meta span.track{background:#1c1f26;color:#fff;font-weight:700;}
+.job-meta span.track.dispatch{background:#4a6285;}
+.job-desc{color:#6b6e77;font-size:14.5px;margin:0 0 14px;}
+.job-more{color:#a67c3d;font-weight:600;font-size:14.5px;}
+.empty{padding:40px 24px;text-align:center;color:#8a8d95;background:#fff;border:1px dashed #e6dfd1;border-radius:16px;}
+
+@media (max-width:760px){
+  .s1ne-hide-m{display:none !important;}
+  .s1ne-show-m{display:flex !important;}
+  footer a{min-height:44px;display:inline-flex;align-items:center;}
+}
+.s1ne-show-m{display:none;}
+.s1ne-mobile-menu{display:none;flex-direction:column;padding:4px 24px 16px;border-top:1px solid #e6dfd1;background:rgba(244,241,234,0.98);}
+.s1ne-mobile-menu.is-open{display:flex;}
+.s1ne-mobile-menu a{padding:10px 0;color:#4a4d55;font-size:15px;border-bottom:1px solid #e6dfd1;min-height:44px;display:flex;align-items:center;}
+.s1ne-mobile-menu a:last-child{border-bottom:none;}
+
+/* 2026-10-04 職缺專區改版：版面與資訊擺放參考 CareerOS「職缺雷達」，配色用 Step1ne logo 藍 */
+:root{--jv-ink:#0f1b2d;--jv-ink2:#475569;--jv-mut:#64748b;--jv-line:#e2e8f0;--jv-bg:#f6f8fb;--jv-blue:#1880B4;--jv-blue-d:#0f5f88;--jv-tint:#e8f3fa;--jv-green:#0f766e;--jv-green-bg:#e9f7f3;--jv-amber:#a15c07;--jv-amber-bg:#fdf3e2;}
+body{background:var(--jv-bg)!important;}
+body>header{background:rgba(255,255,255,.94)!important;border-bottom-color:var(--jv-line)!important;}
+footer{background:#eef2f7!important;border-top-color:var(--jv-line)!important;}
+.jv2{font-family:'Noto Sans TC',-apple-system,'PingFang TC',sans-serif;color:var(--jv-ink);}
+.jv2 .wrap{max-width:860px;}
+.jv2-top{padding:20px 0 6px;}
+.jv2-seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:#eef2f7;border:1px solid var(--jv-line);border-radius:14px;padding:4px;margin:0 0 22px;}
+.jv2-seg a{display:flex;align-items:center;justify-content:center;min-height:44px;border-radius:11px;font-size:14.5px;font-weight:600;color:var(--jv-ink2);}
+.jv2-seg a.on{background:var(--jv-blue);color:#fff;box-shadow:0 2px 8px rgba(24,128,180,.3);}
+.jv2-eyebrow{font-size:14px;font-weight:700;color:var(--jv-ink);margin:0 0 6px;}
+.jv2 h1{font-family:inherit;font-weight:900;font-size:clamp(30px,6vw,40px);letter-spacing:-.5px;margin:0 0 10px;color:var(--jv-ink);}
+.jv2-lead{font-size:15.5px;color:var(--jv-ink2);margin:0 0 10px;line-height:1.7;}
+.jv2-stats{font-size:14px;color:var(--jv-mut);margin:0 0 18px;line-height:1.8;}
+.jv2-stats b{color:var(--jv-blue);font-size:16px;font-weight:800;}
+.jv2-stats span{font-size:13px;}
+.jv2-search{display:flex;gap:10px;margin:0 0 12px;}
+.jv2 .search-box{flex:1;position:relative;margin:0;display:flex;align-items:center;background:#fff;border:1px solid #cbd5e1;border-radius:12px;padding:0 12px;}
+.jv2 .search-box svg{color:var(--jv-mut);flex-shrink:0;}
+.jv2 .search-box input{border:none!important;background:transparent!important;padding:0 8px!important;min-height:50px;font-size:15.5px;outline:none;box-shadow:none!important;}
+.jv2 .search-box:focus-within{border-color:var(--jv-blue);box-shadow:0 0 0 3px rgba(24,128,180,.15);}
+.jv2-go{flex:0 0 auto;min-height:52px;padding:0 20px;border:none;border-radius:12px;background:var(--jv-ink);color:#fff;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;}
+.jv2-quick{font-size:13.5px;color:var(--jv-mut);margin:0 0 6px;}
+.jv2-quick button{font-family:inherit;font-size:13.5px;color:var(--jv-ink);background:none;border:none;padding:6px 2px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;min-height:36px;}
+.jv2-list{padding:14px 0 64px;}
+.jv2-filterrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 12px;}
+.jv2 .filter-btn{display:inline-flex;align-items:center;gap:6px;font-family:inherit;font-size:14.5px;font-weight:700;color:var(--jv-ink);background:#fff;border:1px solid #cbd5e1;border-radius:12px;padding:0 14px;min-height:44px;cursor:pointer;}
+.jv2 #filterN{display:inline-grid;place-items:center;min-width:20px;height:20px;border-radius:999px;background:var(--jv-ink);color:#fff;font-size:12px;margin-left:2px;}
+.jv2 #filterN:empty{display:none;}
+.jv2 .active-chips{display:contents;}
+.jv2 .active-chips button{font-family:inherit;font-size:13px;font-weight:600;color:var(--jv-ink2);background:#eef2f7;border:1px solid var(--jv-line);border-radius:8px;padding:6px 10px;cursor:pointer;min-height:34px;}
+.jv2 .active-chips .clear-all{background:none;border:none;color:var(--jv-mut);text-decoration:underline;}
+.jv2-resultrow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:6px 0 14px;}
+.jv2-resultrow b{font-size:17px;font-weight:800;color:var(--jv-ink);}
+.jv2-sub{font-size:12.5px;color:var(--jv-mut);margin-left:10px;}
+.jv2 #sortSel{font-family:inherit;font-size:14px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;padding:0 10px;min-height:42px;color:var(--jv-ink);}
+.jv2 .hot-wrap,.jv2 .result-bar{display:none!important;}
+/* 篩選：所有寬度都是彈出選單（手機從底部、電腦置中） */
+.jv2 .filters{position:fixed;z-index:80;background:#fff;margin:0;border:none;padding:0 20px;overflow:auto;box-shadow:0 -10px 40px rgba(15,27,45,.2);transition:transform .25s,opacity .2s;}
+.jv2 .filters:not(.is-open){transform:translateY(105%);pointer-events:none;}
+@media (min-width:761px){.jv2 .filters{left:50%;top:50%;width:560px;max-height:80vh;border-radius:18px;transform:translate(-50%,-50%);}.jv2 .filters:not(.is-open){opacity:0;transform:translate(-50%,-46%);}}
+@media (max-width:760px){.jv2 .filters{left:0;right:0;bottom:0;max-height:84vh;border-radius:18px 18px 0 0;}}
+.jv2 .sheet-head{display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:1;background:#fff;padding:16px 0 12px;border-bottom:1px solid var(--jv-line);margin:0 0 14px;}
+.jv2 .sheet-head button{font-size:24px;background:none;border:none;width:44px;height:44px;cursor:pointer;color:var(--jv-ink2);}
+.jv2 .sheet-head:before{content:'';position:absolute;left:50%;top:6px;width:36px;height:4px;border-radius:4px;background:#cbd5e1;transform:translateX(-50%);}
+.jv2 .filter-label{font-size:13px;font-weight:800;color:var(--jv-ink);letter-spacing:0;text-transform:none;font-family:inherit;margin:0 0 8px;}
+.jv2 .filter-group{margin:0 0 18px;}
+.jv2 .chip{font-size:14px;font-weight:600;color:var(--jv-ink2);background:#fff;border:1px solid #cbd5e1;border-radius:10px;padding:8px 12px;min-height:40px;}
+.jv2 .chip.is-active{background:var(--jv-tint);border-color:var(--jv-blue);color:var(--jv-blue-d);}
+.jv2 .chip small{font-weight:500;color:#94a3b8;margin-left:4px;}
+.jv2 .sheet-foot{display:flex;gap:10px;position:sticky;bottom:0;background:#fff;padding:12px 0 calc(12px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--jv-line);margin-top:6px;}
+.jv2 .sheet-foot button{font-family:inherit;font-size:15px;font-weight:700;min-height:50px;border-radius:12px;cursor:pointer;}
+.jv2 #sheetClear{flex:0 0 30%;background:#fff;border:1px solid #cbd5e1;color:var(--jv-ink2);}
+.jv2 #sheetApply{flex:1;background:var(--jv-ink);border:none;color:#fff;}
+.jv2 .sheet-mask{display:none;position:fixed;inset:0;z-index:79;background:rgba(15,27,45,.45);}
+.jv2 .sheet-mask.is-open{display:block;}
+/* 職缺卡片 */
+.jv2 .jobs{gap:12px;}
+.jv2 a.job{display:block;padding:16px 16px 12px;background:#fff;border:1px solid var(--jv-line);border-radius:14px;color:var(--jv-ink);box-shadow:0 1px 2px rgba(15,27,45,.04);}
+.jv2 a.job:hover{border-color:#94a3b8;box-shadow:0 6px 18px rgba(15,27,45,.08);transform:none;}
+.jc-top{display:flex;gap:12px;align-items:flex-start;}
+.jc-logo{flex:0 0 44px;height:44px;border-radius:10px;border:1px solid var(--jv-line);display:grid;place-items:center;font-weight:900;font-size:15px;}
+.jc-logo.t-senior{color:var(--jv-green);background:var(--jv-green-bg);}
+.jc-logo.t-general{color:var(--jv-blue-d);background:var(--jv-tint);}
+.jc-logo.t-dispatch{color:var(--jv-amber);background:var(--jv-amber-bg);}
+.jc-main{flex:1;min-width:0;}
+.jv2 .job-title{font-family:inherit!important;font-size:17px!important;font-weight:800!important;line-height:1.4!important;margin:0 0 3px!important;color:var(--jv-ink)!important;}
+.jc-sub{font-size:13.5px;color:var(--jv-ink2);}
+.jc-pay{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0 8px;font-size:17px;font-weight:800;}
+.jc-est{font-size:12px;font-weight:700;color:var(--jv-amber);background:var(--jv-amber-bg);border:1px solid #f3d9a8;border-radius:6px;padding:2px 6px;}
+.jc-tags{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px;}
+.jc-tags span{font-size:12.5px;font-weight:600;color:var(--jv-ink2);background:#f1f5f9;border-radius:6px;padding:3px 8px;}
+.jc-tags span.hl{color:var(--jv-green);background:var(--jv-green-bg);border:1px solid #bfe6db;}
+.jv2 .job-desc{font-size:13.5px!important;color:var(--jv-mut)!important;margin:0 0 10px!important;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;}
+.jc-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;border-top:1px solid #f1f5f9;padding-top:10px;font-size:13px;color:var(--jv-mut);}
+.jc-foot b{color:var(--jv-blue);font-weight:700;}
+.jv2 .job-industry,.jv2 .job-more,.jv2 .job-meta{display:none!important;}
+.jv2-help{margin:22px 0 0;padding:18px;background:#fff;border:1px solid var(--jv-line);border-radius:14px;font-size:14px;color:var(--jv-ink2);}
+.jv2-help p{margin:0 0 8px!important;font-size:14px!important;color:var(--jv-ink2)!important;}
+.jv2-help-lead{display:none;}
+@media (max-width:760px){.jv2-go{padding:0 16px;}.jv2-sub{display:block;margin:2px 0 0;}}
+</style>
+<!--i18n-hreflang-->
+<link rel="alternate" hreflang="zh-Hant" href="https://step1ne.com/jobs/">
+<link rel="alternate" hreflang="ja" href="https://step1ne.com/ja/jobs/">
+<link rel="alternate" hreflang="en" href="https://step1ne.com/en/jobs/">
+<link rel="alternate" hreflang="x-default" href="https://step1ne.com/jobs/">
+<style>.s1-lang{max-width:1100px;margin:0 auto;padding:10px 16px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.s1-lang a,.s1-lang b{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid #d9dce3;background:#fff;font-size:14px;font-weight:600;color:#4a5060;text-decoration:none}.s1-lang b{background:#23262d;border-color:#23262d;color:#fff}.s1-lang a:hover{color:#23262d;border-color:#9aa0ad}.s1-lang a:focus-visible{outline:3px solid #1880B4;outline-offset:2px}.s1-note{max-width:1100px;margin:10px auto 0;padding:0 16px}.s1-note p{margin:0;padding:12px 14px;border-radius:12px;background:#eef4fb;border:1px solid #c9dcef;color:#1d3a57;font-size:14.5px;line-height:1.7}</style>
+<!--/i18n-hreflang-->
+<meta name="robots" content="noindex,nofollow">
+</head>
+<body>
+
+<header style="position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:rgba(244,241,234,0.9);border-bottom:1px solid #e6dfd1;">
+  <div class="wrap" style="display:flex;align-items:center;justify-content:space-between;gap:20px;height:68px;max-width:1180px;">
+    <a href="/en/" style="display:flex;align-items:center;gap:12px;color:#23262d;">
+      <img src="/assets/step1ne-logo.png" alt="Step1ne" style="height:38px;width:auto;">
+    </a>
+    <div class="s1ne-hide-m" style="display:flex;align-items:center;gap:28px;font-size:15px;color:#4a4d55;">
+      <a href="/en/jobs/" style="color:#4a4d55;">Jobs</a> <a href="/articles/" style="color:#4a4d55;">Executive Search Insights</a> <a href="/talent/" style="color:#4a4d55;">Step1ne</a> <a href="/talent/ai-tools/" style="color:#4a4d55;">AI Job Search Tools</a> <a href="/about/" style="color:#4a4d55;">About Us</a>
+    </div>
+    <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" class="s1ne-hide-m" style="background:#06c755;color:#fff;font-weight:700;font-size:13.5px;padding:9px 18px;border-radius:999px;white-space:nowrap;">Ask on LINE</a>
+    <button type="button" class="s1ne-show-m" onclick="document.getElementById('s1ne-mmenu').classList.toggle('is-open')" aria-label="Open menu" style="align-items:center;justify-content:center;width:40px;height:40px;border:1px solid #e6dfd1;border-radius:10px;background:#fff;flex-shrink:0;">
+      <span style="display:block;width:18px;height:2px;background:#23262d;box-shadow:0 6px 0 #23262d,0 -6px 0 #23262d;"></span>
+    </button>
+  </div>
+  <div id="s1ne-mmenu" class="s1ne-mobile-menu" onclick="if(event.target.closest('a'))this.classList.remove('is-open')">
+    <a href="/en/">Home</a> <a href="/en/jobs/">Jobs</a> <a href="/articles/">Headhunting Insights</a> <a href="/talent/">Step1ne Referrals</a> <a href="/talent/ai-tools/">AI Job-Search Tools</a> <a href="/about/">About Us</a> <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="color:#a67c3d;font-weight:700;">Contact on LINE →</a>
+  </div>
+</header>
+<!--i18n-switch--><nav class="s1-lang" aria-label="Change language"><a href="/jobs/" hreflang="zh-Hant" lang="zh-Hant">中文</a><a href="/ja/jobs/" hreflang="ja" lang="ja">日本語</a><b lang="en" aria-current="true">English</b></nav><!--/i18n-switch-->
+
+
+<main class="jv2">
+  <section class="jv2-top"><div class="wrap">
+    <nav class="jv2-seg" aria-label="Job-search tools">
+      <a href="/en/jobs/" class="on" aria-current="page">Find Jobs</a> <a href="/talent/">Step1ne Referrals</a> <a href="/talent/ai-tools/">AI Job-Search Tools</a>
+    </nav>
+    <div class="jv2-eyebrow">Jobs</div>
+    <h1>Find jobs</h1>
+    <p class="jv2-lead">Jobs handled directly by Step1ne consultants: executive search, full-time and staffing roles, filterable by type, location and salary in one go.</p>
+    <p class="jv2-stats"><span>Every job is verified by a consultant; currently employed candidates can talk with us confidentially</span></p>
+    </div></section>
+
+  <section class="jv2-list"><div class="wrap">
+    <div class="jobs" id="jobs"><a class="job" href="/en/jobs/executive-driver-assistant-tokyo-hakuba/" data-track="fulltime" data-cat="overseas"> <div class="job-industry">Real estate development · Resort operations</div> <h2 class="job-title">Executive Assistant & Driver to the President (Tokyo / Hakuba)</h2> <div class="job-meta"><span>JPY 4,000,000–7,000,000/year (paid in yen)</span><span>Full-time</span><span>Tokyo, Japan / Hakuba in winter</span><span>Chinese–Japanese bilingual</span><span>Standard driver's license required</span></div> <p class="job-desc">Executive assistant to the president and accompanying driver: the core of the job is executive support, including schedule management, communication between Taiwan and Japan, and ad hoc requests, plus driving the president and senior management. Weekdays are at the office in Kudankita, Tokyo; during the winter peak season, about 60% of the time is spent at the resort base in Hakuba, Nagano. Business-level Japanese and Chinese and the ability to drive are required.</p> <span class="job-more">View job details →</span> </a><a class="job" href="/en/jobs/construction-project-assistant-hakuba-bilingual/" data-track="fulltime" data-cat="overseas"> <div class="job-industry">Architecture & Construction Projects (Japan Base)</div> <h2 class="job-title">Architectural Project Assistant (Tokyo, Japan · Chinese & Japanese)</h2> <div class="job-meta"><span>Full-time</span><span>Tokyo, Japan</span><span>Chinese & Japanese</span><span>Architectural project coordination</span><span>1+ year in architecture</span><span>Salary negotiable</span></div> <p class="job-desc">Construction project assistant in Kudanshita, Tokyo: accompany architects and contractors to meetings as interpreter, check design and construction progress, coordinate with villa furniture and interior design vendors, and translate construction documents, drawings and contracts. Requires at least 1 year of hands-on construction-related experience and business-level Chinese and Japanese; an architect's license is not required.</p> <span class="job-more">View job details →</span> </a><a class="job" href="/en/jobs/construction-pm-tokyo-bilingual/" data-track="executive" data-cat="overseas"> <div class="job-industry">Construction development · Japan projects</div> <h2 class="job-title">Architecture Project Manager (Tokyo, Japan / Chinese–Japanese Interpreting & Translation)</h2> <div class="job-meta"><span>JPY 300,000–350,000/month</span><span>Mid-to-senior search</span><span>Chiyoda, Tokyo, Japan</span><span>Two days off per week</span><span>Chinese–Japanese interpreting & translation</span></div> <p class="job-desc">A construction development project in Japan is hiring an Architecture Project Manager based in Chiyoda, Tokyo. You will coordinate with local architecture firms, interpret at meetings, review translations of drawings and contracts, and check design and construction progress, acting as the bridge between the head office in Taiwan and the team in Japan.</p> <span class="job-more">View job details →</span> </a>
+        <a class="job" href="/en/jobs/hakuba-resort-property-manager/" data-track="senior" data-cat="overseas">
+          <div class="job-industry">Nagano, Japan · Resort operations</div>
+          <h2 class="job-title">Property Manager / Asset Operations Manager, Hakuba Resort, Japan</h2>
+          <div class="job-meta"><span class="salary">JPY 5,000,000–8,500,000 per year</span><span class="track">Mid-to-senior executive search</span><span>Nagano, Japan</span><span>On-site</span><span>Hired locally in Japan</span></div>
+          <p class="job-desc">A resort development group in Hakuba, Nagano is hiring a property manager to run local lodging and villa facilities, schedule on-site staff, and set up operating systems. Hands-on hotel or property management experience and the ability to communicate in Japanese and English are required.</p>
+          <span class="job-more">View job details →</span>
+        </a>
+        <a class="job" href="/en/jobs/executive-assistant-japan-taiwan/" data-track="general" data-cat="overseas">
+          <div class="job-industry">Executive Assistant · Hakuba, Nagano, Japan</div>
+          <h2 class="job-title">Executive Assistant (Tokyo / Hakuba, Nagano, Japan)</h2>
+          <div class="job-meta"><span class="salary">From JPY 350,000/month, negotiable based on experience</span><span class="track direct">Full-time employment</span><span>Hakuba, Nagano, Japan</span><span>One-year contract</span><span>3-month probation</span></div>
+          <p class="job-desc">A well-known Japanese resort group is hiring an Executive Assistant, based full-time at the resort area of Hakuba, Nagano (contract registered under the Tokyo head office). You'll handle interpreting and translation, scheduling, and external communication for the owner and senior executives. Annual salary from JPY 4,200,000.</p>
+          <span class="job-more">View job details →</span>
+        </a>
+        <a class="job" href="/en/jobs/japan-project-finance-taipei/" data-track="general" data-cat="finance">
+          <div class="job-industry">Japan projects · Finance & accounting</div>
+          <h2 class="job-title">Japan Project Finance &amp; Accounting (Finance &amp; Accounting / Project Controller)</h2>
+          <div class="job-meta"><span class="salary">From NT$55,000/month, negotiable by experience</span><span class="track direct">Full-time</span><span>Taipei City</span><span>Based in Taipei</span></div>
+          <p class="job-desc">A Japanese real estate development group is creating a new finance role in Taiwan, handling accounting for its Japan projects and cross-border financial integration. Apply with 2–3 years of finance/accounting experience; no spoken Japanese or Big Four background needed, and the decision is made after a single interview.</p>
+          <span class="job-more">View job details →</span>
+        </a>
+      </div>
+
+      <div class="jv2-help">
+      <p class="jv2-help-lead">Step1ne's current openings include <strong>executive search</strong> (management and specialist roles at the NT$1 million-a-year level, handled confidentially) and <strong>staffing</strong> positions, covering finance, IT, operations and supply chain, construction engineering, overseas assignments and more. Every opening is handled by a dedicated consultant, currently employed candidates can have a confidential first conversation, and we support you all the way from application and interviews to your first day.</p>
+      <p style="font-size:14.5px;color:#8a8d95;margin:0 0 6px;">Don't see the right job? <a href="/en/apply/?utm_source=website&utm_medium=jobs_index&utm_campaign=general">Leave your résumé and chat with A-Cai, our AI interviewer</a>, and a consultant will reach out when a suitable opportunity comes up.</p>
+      <p style="font-size:14.5px;color:#8a8d95;margin:0;">Have a friend looking for a job? Recommend this role to them through <a href="/talent/">Step1ne</a>, and you can earn a referral bonus when they are hired.</p>
+      <p style="font-size:14.5px;color:#8a8d95;margin:6px 0 0;">Hiring for your company? See our <a href="/commission-recruiting/">corporate recruiting plans</a>: executive search, full-time recruitment and staffing, with success-based, transparent fees.</p>
+      <p style="margin:14px 0 0;padding:14px 18px;background:#fdf6e9;border:1px solid #e8d5ab;border-radius:12px;font-size:14.5px;">
+        <a href="/construction/" style="font-weight:700;">📐 Browse BIM engineer / construction jobs →</a> <span style="color:#7a5a22;"> Openings driven by semiconductor and AI-memory capacity expansion, all in one place</span>
+      </p>
+    </div>
+          </div>
+  </section>
+</main>
+
+<footer style="border-top:1px solid #e6dfd1;background:#eee9de;padding:28px 0;">
+  <div data-s1-reviews-badge hidden style="text-align:center;margin:0 0 14px"></div>
+  <div class="wrap" style="text-align:center;color:#9a9da5;font-size:13px;">
+    <a href="/en/" style="color:#a67c3d;">← Back to Step1ne Home</a> | <a href="/articles/work-with-headhunters/" style="color:#a67c3d;">Executive Search Guide for Employers</a> | © 2026 德仁管理顧問有限公司 Step1ne
+  </div>
+</footer>
+
+
+</body>
+</html>
+
