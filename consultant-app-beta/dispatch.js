@@ -3,6 +3,7 @@
 // ⚠️ 這支檔案任何人都下載得到：不准寫客戶名、費率數字；條款一律從登入後的 API 讀。
 import { api } from './core/api.js';
 import { ROUTES } from './config.js';
+import { navigate } from './core/router.js';
 import { $, $$, closeOverlay, closeSubDrawer, drawer, empty, errorState, loading, modal, toast } from './core/ui.js';
 import { escapeHtml, text } from './core/security.js';
 import { fileButtons, wireFileButtons } from './filepreview.js';
@@ -28,9 +29,12 @@ export const modeSwitchHtml = (mode) => `<div class="mode-switch" role="group" a
 
 const head = (title, sub, actions = '') => `<div class="page-head"><div><h1>${title}</h1><p>${sub}</p></div><div class="actions">${actions}</div></div>`;
 const page = (title, sub, actions = '') => head(title, sub, actions) + '<div id="page-data"></div>';
+// 派遣人選兩個分頁：沿用全站 .tabs，手機自動變下拉
+const PEOPLE_TABS = [['recruiting', '招募中'], ['active', '在職人員']];
+const peopleTab = (t) => (PEOPLE_TABS.some(([k]) => k === t) ? t : 'active');
 export const dispatchViews = {
   d_today: () => page('今日待辦', '只列要人處理的事，點一下就到那一頁。'),
-  d_people: () => page('派遣人選', '上面是在職人員名單，點一列開卡片。下面是還在進行中的人。', '<button class="btn primary" data-dsp="find-candidate">加人</button>'),
+  d_people: (tab) => head('派遣人選', '點一列開卡片。', '<button class="btn primary" data-dsp="find-candidate">加人</button>') + `<div class="tabs">${PEOPLE_TABS.map(([k, l]) => `<button class="${peopleTab(tab) === k ? 'active' : ''}" data-tab-scope="d_people" data-tab="${k}">${l}</button>`).join('')}</div><div id="page-data"></div>`,
   d_jobs: () => page('派遣需求', '還在找的在上面，要你決定的在下面。'),
   d_clients: () => page('要派客戶', '每家客戶一份條款，算錢都從這裡來。', '<button class="btn" data-dsp="new-client">新增客戶</button>'),
   d_settlement: () => page('每月結算', '系統算好，核對後按確認。按確認不會寄信，也不會動錢。'),
@@ -64,7 +68,7 @@ async function loadToday(target) {
   const jump = { client: 'd_clients', jobs: 'd_jobs', person: 'd_people', settle: 'd_settlement' };
   const sorted = [...d.todos.filter((x) => x.level === 'bad'), ...d.todos.filter((x) => x.level !== 'bad')];
   target.innerHTML = sorted.length
-    ? `<div class="list">${sorted.map((x) => `<button type="button" class="list-row dsp-todo ${x.level}" data-route="${jump[x.kind] || 'd_today'}"><span><b>${text(x.title)}</b><small>${text(x.detail)}</small></span>${badge(STATE_LABEL[x.level] || '要注意', STATE_BADGE[x.level] || 'warning')}</button>`).join('')}</div>`
+    ? `<div class="list">${sorted.map((x) => `<button type="button" class="list-row dsp-todo ${x.level}" ${x.kind === 'person' && x.ref ? `data-dsp="todo-person" data-id="${esc(x.ref)}" data-tab="${x.tab || 'active'}"` : `data-route="${jump[x.kind] || 'd_today'}"`}><span><b>${text(x.title)}</b><small>${text(x.detail)}</small></span>${badge(STATE_LABEL[x.level] || '要注意', STATE_BADGE[x.level] || 'warning')}</button>`).join('')}</div>`
     : empty('今天沒有要處理的事');
 }
 
@@ -80,22 +84,25 @@ async function loadPeople(target) {
   target.__people = d.people;
   const stageLabel = Object.fromEntries(ui.stages);
   const demoTag = (x) => (x.is_test ? ' ' + badge('示範資料', 'info') : '');
-  const row = (x) => `<article class="list-row dsp-person${x.is_test ? ' demo' : ''}"><span><button type="button" class="dsp-link" data-dsp="open-person" data-id="${esc(x.id)}">${text(personName(x))}</button>${demoTag(x)}<small>${text(stageLabel[x.stage] || x.stage)}・${text(x.company_name || '還沒配客戶')}${x.job_title ? '・' + text(x.job_title) : ''}</small></span><span class="actions-row" style="flex:none;margin:0">${NEXT[x.stage] && x.stage !== 'active' ? `<button type="button" class="btn primary sm" data-dsp="next-step" data-id="${esc(x.id)}">${NEXT[x.stage]}</button>` : ''}</span></article>`;
-  const appRow = (a) => `<article class="list-row dsp-person"><span><button type="button" class="dsp-link" data-dsp="open-card" data-app="${esc(a.id)}">${text(a.name || '（沒有姓名）')}</button><small>應徵派遣職缺・${text(a.company_name || '')}・${text(a.job_title || a.job_slug)}</small></span><span class="actions-row" style="flex:none;margin:0"><button type="button" class="btn primary sm" data-dsp="transfer" data-app="${esc(a.id)}" data-job="${esc(a.job_slug || '')}">記錄同意</button></span></article>`;
   const apps = (d.applicants || []).filter((a) => !a.closed_stage);
   const todo = d.people.filter((x) => !['active', 'ended', 'converted'].includes(x.stage));
   const past = d.people.filter((x) => ['ended', 'converted'].includes(x.stage));
   const n = todo.length + apps.length;
   const payCell = (p) => `<span class="dsp-st-pill ${p.key}">${text(p.label)}${p.ym ? `<small>${text(p.ym)} 月</small>` : ''}</span>`;
   const careCell = (x) => `<span class="dsp-st-pill ${x.care.key}">${text(x.care.label)}</span>`;
-  const realN = r.items.filter((x) => !x.is_test).length;
   const hasDemo = d.people.some((x) => x.is_test);
   const hot = (x) => ['overdue', 'due'].includes(x.care.key) || ['need_in', 'need_out'].includes(x.insurance.key) || x.payroll.key === 'late';
   const rosterRows = r.items.map((x) => `<tr class="${x.is_test ? 'demo' : ''}${hot(x) ? ' care-due' : ''}" data-dsp="open-person" data-id="${esc(x.id)}"><td><button type="button" class="dsp-link" data-dsp="open-person" data-id="${esc(x.id)}">${text(x.name || '（沒有姓名）')}</button>${demoTag(x)}</td><td>${text(x.company_name || '—')}</td><td>${text(x.job_title || '—')}</td><td>${text(x.start_date || '—')}</td><td>${payCell(x.insurance)}</td><td>${payCell(x.payroll)}</td><td>${payCell(x.pay)}</td><td>${x.last_care ? `${text(x.last_care.care_date)}<small>${text(String(x.last_care.content).slice(0, 40))}</small>` : '<small>還沒有紀錄</small>'}</td><td>${careCell(x)}</td></tr>`).join('');
-  target.innerHTML = `<article class="card"><h2>人員名單（在職真實 ${realN} 人）</h2>${r.items.length ? `<div class="dsp-tablewrap"><table class="dsp-table dsp-roster"><thead><tr><th>姓名</th><th>客戶</th><th>職缺</th><th>到職日</th><th>加保</th><th>發薪</th><th>預計客戶付款日</th><th>最近關心</th><th>下次關心</th></tr></thead><tbody>${rosterRows}</tbody></table></div>` : '<p class="muted">系統裡還沒有在職的人。實際有人在上班的話，按右上角「加人」登記。</p>'}</article>
-    <article class="card" style="margin-top:14px"><h2>進行中（${n}）</h2><p class="help">每個人只有一個下一步，做完按它。</p>${n ? `<div class="list">${todo.map(row).join('')}${apps.map(appRow).join('')}</div>` : '<p class="muted">目前沒有。</p>'}</article>
-    ${past.length ? `<details class="card" style="margin-top:14px"><summary><b>已結束（${past.length}）</b></summary><div class="list" style="margin-top:10px">${past.map(row).join('')}</div></details>` : ''}
-    ${hasDemo ? '<p class="help" style="margin-top:12px">示範資料不算人數、不進報表和請款，也不會通知任何人。<button type="button" class="btn ghost sm" data-dsp="demo-delete">刪除全部示範資料</button></p>' : ''}`;
+  const tab = peopleTab(new URLSearchParams(location.search).get('tab'));
+  const pastRow = (x) => `<tr class="${x.is_test ? 'demo' : ''}" data-dsp="open-person" data-id="${esc(x.id)}"><td><button type="button" class="dsp-link" data-dsp="open-person" data-id="${esc(x.id)}">${text(personName(x))}</button>${demoTag(x)}</td><td>${text(x.company_name || '—')}</td><td>${text(x.job_title || '—')}</td><td>${text(x.start_date || '—')}</td><td>${text(x.end_date || '—')}</td><td>${text(stageLabel[x.stage] || x.stage)}</td></tr>`;
+  const recruitRow = (x) => `<tr class="${x.is_test ? 'demo' : ''}" data-dsp="open-person" data-id="${esc(x.id)}"><td><button type="button" class="dsp-link" data-dsp="open-person" data-id="${esc(x.id)}">${text(personName(x))}</button>${demoTag(x)}</td><td>${text(x.company_name || '還沒配客戶')}</td><td>${text(x.job_title || '—')}</td><td>${text(stageLabel[x.stage] || x.stage)}</td><td>${text((CONSENT[x.consent_status] || CONSENT.pending)[0])}</td><td><button type="button" class="btn primary sm" data-dsp="next-step" data-id="${esc(x.id)}">${text(NEXT[x.stage] || '')}</button></td></tr>`;
+  const appRecruitRow = (a) => `<tr data-dsp="open-card" data-app="${esc(a.id)}"><td><button type="button" class="dsp-link" data-dsp="open-card" data-app="${esc(a.id)}">${text(a.name || '（沒有姓名）')}</button></td><td>${text(a.company_name || '—')}</td><td>${text(a.job_title || a.job_slug || '—')}</td><td>應徵派遣職缺</td><td>還沒記錄</td><td><button type="button" class="btn primary sm" data-dsp="transfer" data-app="${esc(a.id)}" data-job="${esc(a.job_slug || '')}">記錄同意</button></td></tr>`;
+  const demoNote = hasDemo ? '<p class="help" style="margin-top:12px">示範資料不算人數、不進報表和請款，也不會通知任何人。<button type="button" class="btn ghost sm" data-dsp="demo-delete">刪除全部示範資料</button></p>' : '';
+  target.innerHTML = tab === 'recruiting'
+    ? `<article class="card"><p class="help">每個人只有一個下一步，做完按它。共 ${n} 人。</p>${n ? `<div class="dsp-tablewrap"><table class="dsp-table dsp-recruit"><thead><tr><th>姓名</th><th>客戶</th><th>職缺</th><th>階段</th><th>派遣同意</th><th>下一步</th></tr></thead><tbody>${todo.map(recruitRow).join('')}${apps.map(appRecruitRow).join('')}</tbody></table></div>` : '<p class="muted">目前沒有。</p>'}</article>${demoNote}`
+    : `<article class="card"><p class="help">在職真實 ${r.items.filter((x) => !x.is_test).length} 人。</p>${r.items.length ? `<div class="dsp-tablewrap"><table class="dsp-table dsp-roster"><thead><tr><th>姓名</th><th>客戶</th><th>職缺</th><th>到職日</th><th>加保</th><th>發薪</th><th>預計客戶付款日</th><th>最近關心</th><th>下次關心</th></tr></thead><tbody>${rosterRows}</tbody></table></div>` : '<p class="muted">系統裡還沒有在職的人。實際有人在上班的話，按右上角「加人」登記。</p>'}</article>
+    ${past.length ? `<details class="card" style="margin-top:14px"><summary><b>已結束（${past.length}）</b></summary><div class="dsp-tablewrap" style="margin-top:10px"><table class="dsp-table dsp-recruit"><thead><tr><th>姓名</th><th>客戶</th><th>職缺</th><th>到職日</th><th>結束日</th><th>階段</th></tr></thead><tbody>${past.map(pastRow).join('')}</tbody></table></div></details>` : ''}${demoNote}`;
+  if (ui.pendingOpen) { const id = ui.pendingOpen; ui.pendingOpen = null; openPerson(id).catch(() => {}); }
 }
 // 人員卡片：打開就看得到現況，關心紀錄直接在這裡加
 async function openPerson(id) {
@@ -491,7 +498,8 @@ document.addEventListener('click', async (e) => {
   const act = btn.getAttribute('data-dsp'); const id = btn.getAttribute('data-id');
   e.preventDefault();
   try {
-    if (act === 'open-person') await openPerson(id);
+    if (act === 'todo-person') { ui.pendingOpen = id; navigate('d_people', btn.getAttribute('data-tab')); }
+    else if (act === 'open-person') await openPerson(id);
     else if (act === 'save-care') await saveCare(id);
     else if (act === 'edit-profile') await editProfile(id);
     else if (act === 'save-profile') await saveProfile(id);
