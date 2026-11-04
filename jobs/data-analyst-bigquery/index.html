@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DNPMMRDEC0"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-DNPMMRDEC0');
+// 全站唯一的 CTA 是 LINE 連結，把點擊送成事件才知道哪一頁真的帶得到人。
+// 用事件委派掛在 document 上，之後新增頁面或改版都不用再動這段。
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href*="lin.ee"]');
+  if (!a) return;
+  gtag('event', 'line_cta_click', {
+    page_path: location.pathname,
+    link_text: (a.textContent || '').trim().slice(0, 60)
+  });
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>數據分析師 Data Analyst（BigQuery・SQL）｜人力派遣｜Step1ne</title>
+<meta name="description" content="上市集團數據團隊徵數據分析師，建置分析資料集與指標模型、定義核心指標、把關數據品質並推廣 AI/BI 自助查詢。需 3 年以上經驗、進階 SQL 與 BigQuery 或同級資料倉儲。人力派遣。">
+<meta name="keywords" content="數據分析師,Data Analyst,BigQuery,SQL,Analytics Engineering,人力派遣">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://step1ne.com/jobs/data-analyst-bigquery/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="全民獵才">
+<meta property="og:title" content="數據分析師 Data Analyst（BigQuery・SQL）｜人力派遣｜Step1ne">
+<meta property="og:description" content="上市集團數據團隊徵數據分析師，建置分析資料集與指標模型、定義核心指標、把關數據品質並推廣 AI/BI 自助查詢。需 3 年以上經驗、進階 SQL 與 BigQuery 或同級資料倉儲。人力派遣。">
+<meta property="og:url" content="https://step1ne.com/jobs/data-analyst-bigquery/">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://step1ne.com/assets/og-image.jpg">
+<meta name="theme-color" content="#f4f1ea">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Noto+Sans+TC:wght@300;400;500;700;900&family=Noto+Serif+TC:wght@500;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "JobPosting",
+  "title": "數據分析師 Data Analyst（BigQuery・SQL）",
+  "description": "<p>這個缺在一間上市集團的數據團隊，需求 1 名。團隊串接旗下多個事業體的數據，把它變成口徑一致、可信賴、可直接用於決策的數據產品；你會是「可分析層」的主要建造者，你定義的指標與資料集，會成為各事業體看板、深度分析與 AI 自助查詢的基礎。</p><h3>工作內容</h3><h4>建資料集、定指標</h4><ul><li>建置分析資料集與指標模型（主責）：在 BigQuery（及導入中的 Lakehouse 平台）把原始資料整理成可複用的 Data Mart，從需求釐清、建模、驗證到上線維護全程負責，並作為資料工程與商業應用之間的橋樑</li><li>定義指標與維護數據字典（主責）：定義集團核心指標（跨服務活躍、會員歸戶、留存等），與各事業體對齊計算口徑與商業邏輯</li></ul><h4>把關品質、推廣使用</h4><ul><li>把關數據品質：與資料工程團隊協作，驗收進入中台的資料，建立異常偵測機制，並追蹤問題到源頭解決</li><li>推廣數據驅動文化：擔任各事業體的數據顧問與窗口，設計與維護商業看板，協助 AI/BI 自助查詢工具的推廣（包含語意設定、回答品質優化與使用者培訓）</li><li>專題分析與治理協作：運用自建資料集，與分群、CDP 同事協作回應營運議題；依個資分級與權限規範使用資料</li></ul><h3>應徵條件</h3>必要條件<ul><li>3 年以上數據分析、Analytics Engineering 或商業分析相關經驗</li><li>具備將 AI 工具（如 Claude、Gemini 等）應用於日常工作流程的實戰經驗，能有效提升工作效率與專案品質</li><li>進階 SQL 與雲端資料倉儲實戰經驗（BigQuery 或同級），能處理大規模資料並具查詢成本意識；具 Python 基礎資料處理能力</li><li>數據建模實務：設計過分析資料集或維度模型（Star Schema），且實際上線、被他人長期使用</li><li>能從模糊的業務需求中定義指標與驗證方式，並與不同單位把定義談清楚</li><li>對數據正確性有高標準：交付前會自行驗證與交叉檢核</li><li>BI 工具（Looker Studio／Tableau／Power BI 擇一）從需求訪談到上線的完整經驗，能獨立界定範圍、安排時程並交付</li><li>能把分析結果與指標限制，清楚說明給非技術背景的主管與營運團隊；樂於教別人使用數據</li></ul>加分條件<ul><li>dbt、Git 等 SQL 版本控制與 Modern Data Stack 經驗</li><li>Lakehouse／資料治理平台（Databricks、Snowflake 等）或語意層（Semantic Layer）經驗</li><li>善用 AI／LLM 工具加速分析與開發，或有 AI/BI 導入經驗</li><li>事件追蹤與埋點設計（GA4、GTM）</li><li>會員經營、CDP、分群貼標或 A/B Testing 實務</li><li>媒體、電商或會員制服務產業經驗；對個資法／GDPR 有基本概念</li><li>專精於統計、應數與資管領域，能獨立進行數據分析與商業解讀</li></ul>",
+  "datePosted": "2026-11-04",
+  "validThrough": "2026-12-31",
+  "employmentType": [
+    "TEMPORARY"
+  ],
+  "hiringOrganization": {
+    "@type": "Organization",
+    "name": "Step1ne 德仁管理顧問有限公司",
+    "sameAs": "https://step1ne.com/"
+  },
+  "jobLocation": {
+    "@type": "Place",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "",
+      "addressRegion": "",
+      "addressCountry": "TW"
+    }
+  },
+  "directApply": true
+}
+</script>
+
+<style>
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{font-family:'Noto Sans TC',system-ui,sans-serif;color:#23262d;background:#f4f1ea;-webkit-font-smoothing:antialiased;line-height:1.7;}
+a{color:#a67c3d;text-decoration:none;}
+a:hover{color:#8a6531;}
+details summary{cursor:pointer;list-style:none;}
+details summary::-webkit-details-marker{display:none;}
+details summary .faq-icon{transition:transform .3s ease;}
+details[open] summary .faq-icon{transform:rotate(45deg);}
+.wrap{max-width:800px;margin:0 auto;padding:0 24px;}
+.tag{display:inline-block;font-size:12.5px;font-weight:700;color:#8a5a1a;background:#f3e2c2;padding:5px 12px;border-radius:999px;}
+.spec{margin:0;background:#fff;border:1px solid #e6dfd1;border-radius:16px;overflow:hidden;}
+.spec-row{display:grid;grid-template-columns:132px 1fr;gap:18px;padding:16px 22px;border-bottom:1px solid #f0ebe0;}
+.spec-row:last-child{border-bottom:none;}
+.spec-row dt{font-size:14px;font-weight:700;color:#8a8d95;margin:0;}
+.spec-row dd{margin:0;font-size:15px;color:#23262d;}
+.spec-row.highlight{background:#fdfaf3;}
+.spec-row.highlight dd{font-weight:700;color:#8a5a1a;font-size:16.5px;}
+@media (max-width:600px){
+  .spec-row{grid-template-columns:1fr;gap:4px;padding:14px 18px;}
+  .spec-row dt{font-size:12.5px;letter-spacing:0.5px;}
+}
+h2{font-family:'Noto Serif TC',serif;font-size:24px;font-weight:700;color:#1c1f26;margin:44px 0 16px;}
+h3{font-size:16.5px;font-weight:700;color:#1c1f26;margin:22px 0 8px;}
+ul.duties{padding-left:20px;margin:0;color:#3a3d44;font-size:15px;}
+ul.duties li{margin-bottom:10px;}
+@media (max-width:760px){
+  .s1ne-hide-m{display:none !important;}
+  .s1ne-show-m{display:flex !important;}
+  footer a{min-height:44px;display:inline-flex;align-items:center;}
+}
+.s1ne-show-m{display:none;}
+.s1ne-mobile-menu{display:none;flex-direction:column;padding:4px 24px 16px;border-top:1px solid #e6dfd1;background:rgba(244,241,234,0.98);}
+.s1ne-mobile-menu.is-open{display:flex;}
+.s1ne-mobile-menu a{padding:10px 0;color:#4a4d55;font-size:15px;border-bottom:1px solid #e6dfd1;min-height:44px;display:flex;align-items:center;}
+.s1ne-mobile-menu a:last-child{border-bottom:none;}
+.h1-sub{display:block;font-size:0.62em;font-weight:600;color:#6b6e77;margin-top:6px;letter-spacing:0;}
+</style>
+<style>html.jv-wait body{opacity:0}</style><script>(function(d){d.classList.add("jv-wait");setTimeout(function(){d.classList.remove("jv-wait")},2500)})(document.documentElement)</script>
+</head>
+<body>
+
+<header style="position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:rgba(244,241,234,0.9);border-bottom:1px solid #e6dfd1;">
+  <div class="wrap" style="display:flex;align-items:center;justify-content:space-between;gap:20px;height:68px;max-width:1180px;">
+    <a href="/" style="display:flex;align-items:center;gap:12px;color:#23262d;">
+      <img src="/assets/step1ne-logo.png" alt="Step1ne 德仁管理顧問" style="height:38px;width:auto;">
+    </a>
+    <div class="s1ne-hide-m" style="display:flex;align-items:center;gap:28px;font-size:15px;color:#4a4d55;">
+      <a href="/jobs/" style="color:#4a4d55;">職缺專區</a>
+      <a href="/articles/" style="color:#4a4d55;">獵才專欄</a>
+      <a href="/talent/" style="color:#4a4d55;">全民獵才</a>
+      <a href="/talent/ai-tools/" style="color:#4a4d55;">AI求職工具</a>
+      <a href="/about/" style="color:#4a4d55;">關於我們</a>
+    </div>
+    <a href="/apply/?job=data-analyst-bigquery&title=%E6%95%B8%E6%93%9A%E5%88%86%E6%9E%90%E5%B8%AB%20Data%20Analyst%EF%BC%88BigQuery%E3%83%BBSQL%EF%BC%89&utm_source=website&utm_medium=job_page&utm_campaign=data-analyst-bigquery" class="s1ne-hide-m" style="background:linear-gradient(135deg,#c9a049,#a67c3d);color:#fff;font-weight:700;font-size:13.5px;padding:9px 18px;border-radius:999px;white-space:nowrap;">我要應徵</a>
+    <button type="button" class="s1ne-show-m" onclick="document.getElementById('s1ne-mmenu').classList.toggle('is-open')" aria-label="開啟選單" style="align-items:center;justify-content:center;width:40px;height:40px;border:1px solid #e6dfd1;border-radius:10px;background:#fff;flex-shrink:0;">
+      <span style="display:block;width:18px;height:2px;background:#23262d;box-shadow:0 6px 0 #23262d,0 -6px 0 #23262d;"></span>
+    </button>
+  </div>
+  <div id="s1ne-mmenu" class="s1ne-mobile-menu" onclick="if(event.target.closest('a'))this.classList.remove('is-open')">
+    <a href="/">首頁</a>
+    <a href="/jobs/">職缺專區</a>
+    <a href="/articles/">獵才專欄</a>
+    <a href="/talent/">全民獵才</a>
+    <a href="/talent/ai-tools/">AI求職工具</a>
+    <a href="/about/">關於我們</a>
+    <a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener" style="color:#a67c3d;font-weight:700;">LINE 洽詢 →</a>
+  </div>
+</header><main>
+<section style="padding:36px 0 8px;"><div class="wrap">
+<a href="/jobs/" style="font-size:14px;color:#8a8d95;">← 返回職缺專區</a>
+<div style="display:flex;flex-wrap:wrap;gap:8px;margin:16px 0;"><span class="tag">人力派遣</span><span class="tag">年資 3 年以上</span><span class="tag">BigQuery</span><span class="tag">進階 SQL</span><span class="tag">需要複試</span></div>
+<h1 style="font-family:'Noto Serif TC',serif;font-weight:700;font-size:clamp(27px,4.5vw,40px);
+line-height:1.3;margin:0 0 16px;color:#1c1f26;">數據分析師 Data Analyst（BigQuery・SQL）<span class="h1-sub"></span></h1>
+<p style="font-size:16.5px;color:#3a3d44;margin:0;">這個缺在一間上市集團的數據團隊，需求 1 名。團隊串接旗下多個事業體的數據，把它變成口徑一致、可信賴、可直接用於決策的數據產品；你會是「可分析層」的主要建造者，你定義的指標與資料集，會成為各事業體看板、深度分析與 AI 自助查詢的基礎。</p>
+</div></section>
+
+<section style="padding:26px 0;"><div class="wrap">
+<h2>職缺條件一覽</h2><dl class="spec"><div class="spec-row highlight"><dt>職務性質</dt><dd>人力派遣<span style="display:block;font-weight:400;font-size:14px;color:#55585f;margin-top:4px;">勞動契約與 Step1ne（德仁管理顧問有限公司）簽訂，日常工作由用人單位主管安排</span></dd></div><div class="spec-row"><dt>工作經驗</dt><dd>3 年以上數據分析、Analytics Engineering 或商業分析相關經驗</dd></div><div class="spec-row"><dt>需求人數</dt><dd>1 名</dd></div><div class="spec-row"><dt>核心技能</dt><dd>進階 SQL、BigQuery 或同級資料倉儲、Python 基礎、數據建模、BI 工具</dd></div><div class="spec-row"><dt>面談方式</dt><dd>初步面談由 AI 進行，用人單位面試需要複試</dd></div></dl>
+<p style="font-size:13.5px;color:#8a8d95;margin-top:10px;">※ 上述條件為目前規劃，實際待遇與工作條件依面試後雙方確認為準。</p>
+<h2>工作內容</h2><h3>建資料集、定指標</h3><ul class="duties"><li>建置分析資料集與指標模型（主責）：在 BigQuery（及導入中的 Lakehouse 平台）把原始資料整理成可複用的 Data Mart，從需求釐清、建模、驗證到上線維護全程負責，並作為資料工程與商業應用之間的橋樑</li><li>定義指標與維護數據字典（主責）：定義集團核心指標（跨服務活躍、會員歸戶、留存等），與各事業體對齊計算口徑與商業邏輯</li></ul><h3>把關品質、推廣使用</h3><ul class="duties"><li>把關數據品質：與資料工程團隊協作，驗收進入中台的資料，建立異常偵測機制，並追蹤問題到源頭解決</li><li>推廣數據驅動文化：擔任各事業體的數據顧問與窗口，設計與維護商業看板，協助 AI/BI 自助查詢工具的推廣（包含語意設定、回答品質優化與使用者培訓）</li><li>專題分析與治理協作：運用自建資料集，與分群、CDP 同事協作回應營運議題；依個資分級與權限規範使用資料</li></ul>
+<h2>應徵條件</h2><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;"><div style="padding:24px 22px;border-radius:14px;background:#fff;border:1px solid #e6dfd1;"><div style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.4px;color:#a67c3d;margin-bottom:8px;">必要條件</div><ul class="duties"><li>3 年以上數據分析、Analytics Engineering 或商業分析相關經驗</li><li>具備將 AI 工具（如 Claude、Gemini 等）應用於日常工作流程的實戰經驗，能有效提升工作效率與專案品質</li><li>進階 SQL 與雲端資料倉儲實戰經驗（BigQuery 或同級），能處理大規模資料並具查詢成本意識；具 Python 基礎資料處理能力</li><li>數據建模實務：設計過分析資料集或維度模型（Star Schema），且實際上線、被他人長期使用</li><li>能從模糊的業務需求中定義指標與驗證方式，並與不同單位把定義談清楚</li><li>對數據正確性有高標準：交付前會自行驗證與交叉檢核</li><li>BI 工具（Looker Studio／Tableau／Power BI 擇一）從需求訪談到上線的完整經驗，能獨立界定範圍、安排時程並交付</li><li>能把分析結果與指標限制，清楚說明給非技術背景的主管與營運團隊；樂於教別人使用數據</li></ul></div><div style="padding:24px 22px;border-radius:14px;background:#fff;border:1px solid #e6dfd1;"><div style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.4px;color:#a67c3d;margin-bottom:8px;">加分條件</div><ul class="duties"><li>dbt、Git 等 SQL 版本控制與 Modern Data Stack 經驗</li><li>Lakehouse／資料治理平台（Databricks、Snowflake 等）或語意層（Semantic Layer）經驗</li><li>善用 AI／LLM 工具加速分析與開發，或有 AI/BI 導入經驗</li><li>事件追蹤與埋點設計（GA4、GTM）</li><li>會員經營、CDP、分群貼標或 A/B Testing 實務</li><li>媒體、電商或會員制服務產業經驗；對個資法／GDPR 有基本概念</li><li>專精於統計、應數與資管領域，能獨立進行數據分析與商業解讀</li></ul></div></div>
+<h2>為什麼選擇這個機會</h2><div style="display:flex;flex-direction:column;gap:12px;"><div style="padding:18px 20px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;"><h3 style="font-size:16.5px;font-weight:700;margin:0 0 4px;">你定義的指標，別人每天在用</h3><p style="color:#6b6e77;font-size:14.5px;margin:0;">這個職位建的是可複用的資料集與指標，會成為各事業體看板、深度分析與 AI 自助查詢的基礎，不是做完就丟的一次性報表。</p></div><div style="padding:18px 20px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;"><h3 style="font-size:16.5px;font-weight:700;margin:0 0 4px;">從需求到上線全程負責</h3><p style="color:#6b6e77;font-size:14.5px;margin:0;">從需求釐清、建模、驗證到上線維護都由你主責，也會站在資料工程與商業應用的中間，把兩邊的語言接起來。</p></div><div style="padding:18px 20px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;"><h3 style="font-size:16.5px;font-weight:700;margin:0 0 4px;">派遣期間的勞動條件照勞基法走</h3><p style="color:#6b6e77;font-size:14.5px;margin:0;">派遣期間你與 Step1ne（德仁管理顧問有限公司）簽訂正式勞動契約，工資、勞健保、特休依勞動基準法辦理。</p></div></div>
+<h2>應徵流程</h2><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;"><div style="padding:18px 20px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;"><div style="font-family:'Space Mono',monospace;color:#a67c3d;font-size:13px;margin-bottom:6px;">01</div><div style="font-weight:700;">跟 AI 阿財初步面談</div></div><div style="padding:18px 20px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;"><div style="font-family:'Space Mono',monospace;color:#a67c3d;font-size:13px;margin-bottom:6px;">02</div><div style="font-weight:700;">顧問保密初談</div></div><div style="padding:18px 20px;background:#fff;border:1px solid #e6dfd1;border-radius:14px;"><div style="font-family:'Space Mono',monospace;color:#a67c3d;font-size:13px;margin-bottom:6px;">03</div><div style="font-weight:700;">安排面試、談定條件</div></div></div>
+<h2>立即應徵</h2>
+<p style="color:#55585f;font-size:15px;margin:0 0 22px;">線上填寫約 2 分鐘，Step1ne 顧問會盡快與你聯繫。</p>
+<a href="/apply/?job=data-analyst-bigquery&title=%E6%95%B8%E6%93%9A%E5%88%86%E6%9E%90%E5%B8%AB%20Data%20Analyst%EF%BC%88BigQuery%E3%83%BBSQL%EF%BC%89&utm_source=website&utm_medium=job_page&utm_campaign=data-analyst-bigquery" style="display:inline-flex;align-items:center;gap:10px;background:#a67c3d;
+color:#fff;font-weight:700;font-size:16px;padding:15px 34px;border-radius:999px;">立即跟 AI 阿財面談</a>
+<span style="margin-left:14px;"><a href="https://lin.ee/XcSWPzM" target="_blank" rel="noopener"
+style="color:#a67c3d;font-weight:600;">或用 LINE 直接洽詢 →</a></span>
+<h2>常見問題</h2><div style="display:flex;flex-direction:column;gap:12px;"><details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;"><summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;"><span>派遣權益跟正職一樣嗎？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span></summary><p style="margin:0;padding:0 20px 18px;color:#55585f;font-size:14.5px;">派遣期間你與 Step1ne（德仁管理顧問有限公司）簽訂正式勞動契約，工資、勞健保、勞工退休金提繳、特別休假、加班費與職業災害補償等權益，一律依勞動基準法及相關法令辦理，與一般受僱者相同。日常工作由用人單位主管安排任務，但雇主責任在 Step1ne，勞動條件有疑問可以直接找你的顧問。</p></details><details style="border:1px solid #e6dfd1;border-radius:14px;background:#fff;overflow:hidden;"><summary style="padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-weight:600;font-size:16px;"><span>頁面上怎麼沒有寫薪資和工作地點？</span><span class="faq-icon" style="font-family:'Space Mono',monospace;font-size:20px;color:#a67c3d;">+</span></summary><p style="margin:0;padding:0 20px 18px;color:#55585f;font-size:14.5px;">這兩項目前還沒有列在頁面上，顧問會在電話初談時跟你說明。</p></details></div>
+</div></section></main>
+
+<footer style="border-top:1px solid #e6dfd1;background:#eee9de;padding:28px 0;">
+  <div class="wrap" style="text-align:center;color:#9a9da5;font-size:13px;">
+    <div data-s1-reviews-badge hidden style="text-align:center;margin:0 0 14px"></div>
+    <a href="/jobs/" style="color:#a67c3d;">← 所有職缺</a>　|　<a href="/" style="color:#a67c3d;">Step1ne 首頁</a>　|　© 2026 德仁管理顧問有限公司 Step1ne
+  </div>
+</footer>
+
+<script src="/assets/reviews.js" defer></script>
+<script src="/assets/job-detail-m.js?v=20261012" defer></script>
+</body>
+</html>
