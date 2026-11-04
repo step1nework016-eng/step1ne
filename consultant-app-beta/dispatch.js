@@ -328,7 +328,7 @@ async function loadSettlement(target) {
   const row = (r) => {
     const x = r.person; const done = r.status === 'confirmed';
     return `<article class="card dsp-settle${x.is_test ? ' demo' : ''}" data-person="${esc(x.id)}"><div class="card-head"><div><h3>${text(personName(x))}${x.is_test ? ' ' + badge('示範資料', 'info') : ''}</h3><p class="help">${text(x.job_title || '')}・${text(CLASS_LABEL[x.job_class] || '沒分類')}・起日 ${text(x.start_date || '')}</p></div>${done ? badge(`已確認（${r.confirmed_by || ''}）`, 'success') : badge(r.status === 'draft' ? '草稿' : '還沒存', 'warning')}</div>
-      ${x.is_test ? '<div class="notice">示範資料：數字只是舉例，不是對外的費率案例，不算進合計、匯出或請款。</div>' : ''}<div data-si-result>${r.result.error ? `<div class="notice">${text(r.result.error)}</div>` : lines(r.result)}</div>
+      ${x.is_test ? '<div class="notice">示範資料：薪資和金額都是舉例，不是客戶給的數字，也不是對外的費率案例；不算進合計、匯出或請款。</div>' : ''}<div data-si-result>${r.result.error ? `<div class="notice">${text(r.result.error)}</div>` : lines(r.result)}</div>
       ${done ? '' : `<details class="dsp-more"><summary>改金額（加班、獎金、保險…）</summary><div class="dsp-inputs">${SETTLE_INPUTS.map(([k, l]) => field(l, `<input data-si="${k}" inputmode="numeric" value="${esc(r.inputs[k] || '')}">`)).join('')}</div><div class="actions-row"><button class="btn" data-dsp="settle-save" data-id="${esc(x.id)}">重算</button></div></details>`}
       <div class="actions-row">${done ? `<button class="btn" data-dsp="settle-undo" data-id="${esc(x.id)}">退回修改</button>` : `<button class="btn primary" data-dsp="settle-confirm" data-id="${esc(x.id)}">核對無誤，確認</button>`}</div></article>`;
   };
