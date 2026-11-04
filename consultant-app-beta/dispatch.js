@@ -72,7 +72,7 @@ async function loadToday(target) {
 function personName(x) { return x.name || '（沒有姓名）'; }
 // 每個階段只有一個下一步
 const NEXT = {
-  consent_pending: '人選同意了', consented: '送客戶技能確認', skill_check: '客戶確認了，簽勞動契約', contract: '開始上工', active: '結束派遣',
+  consent_pending: '人選同意了', consented: '送客戶', skill_check: '客戶確認了，簽勞動契約', contract: '開始上工', active: '結束派遣',
 };
 async function loadPeople(target) {
   const d = await api.get('/admin/dispatch/people');
@@ -165,7 +165,7 @@ async function loadJobs(target) {
   const d = await api.get('/admin/dispatch/jobs');
   // 分類定了就只顯示；沒定才出現選單，選完就收起來
   const classCtl = (j) => (j.job_class ? badge(CLASS_LABEL[j.job_class]) : `<select data-dsp-class="${esc(j.slug)}" aria-label="技術分類"><option value="">選分類</option>${Object.entries(CLASS_LABEL).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select>`);
-  const row = (j, note) => `<article class="dsp-job"><div class="dsp-job-main"><button type="button" class="dsp-link" data-dsp="open-job" data-slug="${esc(j.slug)}">${text(j.title)}</button>${j.urgent ? ' ' + badge('最急', 'danger') : ''}${j.interview_flag ? ' ' + badge('寫著客戶面試', 'warning') : ''}<small>${salaryOf(j)}・應徵 ${text(j.applicants || 0)} 人${note ? '・' + text(note) : ''}</small></div><div class="dsp-job-side">${classCtl(j)}</div></article>`;
+  const row = (j, note) => `<article class="dsp-job"><div class="dsp-job-main"><button type="button" class="dsp-link" data-dsp="open-job" data-slug="${esc(j.slug)}">${text(j.title)}</button>${j.urgent ? ' ' + badge('最急', 'danger') : ''}<small>${salaryOf(j)}・應徵 ${text(j.applicants || 0)} 人${note ? '・' + text(note) : ''}</small></div><div class="dsp-job-side">${classCtl(j)}</div></article>`;
   const needAsk = (j) => ['not_visible', 'other_sheet'].includes(j.sheet_status);
   const hunting = d.items.filter((j) => !needAsk(j)).sort((a, b) => (b.urgent || 0) - (a.urgent || 0));
   const ask = d.items.filter(needAsk);
@@ -202,7 +202,7 @@ async function openTransfer(btn) {
         ${field('人選同意做派遣了嗎？', '<select id="dt-consent"><option value="">請選</option><option value="agreed">已同意</option><option value="pending">還沒問（先放進名單）</option></select>', 'span-2')}
         <label class="field span-2" id="dt-note-wrap" hidden><span>怎麼確認的</span><input id="dt-note" placeholder="例：11/4 電話口頭同意"></label>
         ${field('要配的派遣職缺（可以之後再配）', `<select id="dt-job"><option value="">之後再配</option>${jobs.items.map((j) => `<option value="${esc(j.slug)}"${preJob === j.slug ? ' selected' : ''}>${esc(j.company_name || '')}｜${esc(j.title)}</option>`).join('')}</select>`, 'span-2')}
-      </div><p class="help">派遣不能讓客戶先面試，只做工作說明及技能確認。</p>`,
+      </div>`,
     footer: `<button class="btn" data-close-overlay>取消</button><button class="btn primary" data-dsp="do-transfer" data-app="${esc(app)}" data-src="${esc(src)}">轉到派遣</button>`,
   });
   $('#dt-consent').onchange = (e) => { $('#dt-note-wrap').hidden = e.target.value !== 'agreed'; };
@@ -249,7 +249,7 @@ async function loadClients(target) {
     return `<article class="card dsp-client"><div class="card-head"><div><h2>${text(c.display_name)}</h2><p class="help">合約甲方：${text(c.party_name || '沒填')}</p></div>${c.status === 'confirmed' ? badge(`條款已確認（${c.confirmed_by || ''}）`, 'success') : badge('條款待確認', 'warning')}</div>
       <div class="dsp-contract ${cs.key}"><div><span>合約</span><b>${t.contract_start ? text(t.contract_start) : '起日沒填'}～${t.contract_end ? text(t.contract_end) : '到期日沒填'}</b>${t.auto_renew ? '<small>會自動續約</small>' : '<small>不會自動續約・到期前 60 天提醒</small>'}</div>${badge(cs.label, csTone)}<div class="dsp-contract-files">${(c.contract_files || []).map((f) => fileButtons(`/admin/file/${encodeURIComponent(f.file_id)}`, f.filename || f.title)).join('') || '<button type="button" class="btn sm" data-route="library">合約檔還沒放，到書櫃上傳</button>'}</div></div>
       <div class="dsp-terms"><div><span>招募管理費</span><b>非技術 ${text(t.recruit_rate.nontech)}%／技術 ${text(t.recruit_rate.tech)}%</b></div><div><span>行政管理費</span><b>${text(t.admin_rate)}%</b></div><div><span>免招募費</span><b>${t.recruit_free_after_months == null ? '不免' : '滿 ' + text(t.recruit_free_after_months) + ' 個月'}</b></div><div><span>付款</span><b>${t.payment_days ? text(t.payment_days) + ' 天' : '沒填'}</b></div></div>
-      ${problems.length ? `<h3 style="margin:16px 0 8px">條文上的缺口（${problems.length}）</h3>${healthHtml(problems)}` : '<p class="help" style="margin-top:12px">合約體檢沒有問題。</p>'}
+      ${problems.length ? `<details class="dsp-more" style="margin-top:10px"><summary>條文上的缺口（${problems.length}），談新合約時再看</summary>${healthHtml(problems)}</details>` : ''}
       <div class="actions-row" style="margin-top:14px">${c.status !== 'confirmed' ? `<button type="button" class="btn primary" data-dsp="confirm-terms" data-id="${esc(c.company_id)}">核對過，確認條款</button>` : ''}<button type="button" class="btn" data-dsp="edit-terms" data-id="${esc(c.company_id)}">改條款</button></div></article>`;
   }).join('');
   wireFileButtons(target);
