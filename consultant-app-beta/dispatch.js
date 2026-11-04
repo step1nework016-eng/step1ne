@@ -61,7 +61,7 @@ const reload = () => { const t = $('#page-data'); const k = Object.entries(ROUTE
 // ── 今日待辦 ──
 async function loadToday(target) {
   const d = await api.get('/admin/dispatch/today');
-  const jump = { client: 'd_clients', jobs: 'd_jobs', person: 'd_people' };
+  const jump = { client: 'd_clients', jobs: 'd_jobs', person: 'd_people', settle: 'd_settlement' };
   const sorted = [...d.todos.filter((x) => x.level === 'bad'), ...d.todos.filter((x) => x.level !== 'bad')];
   target.innerHTML = sorted.length
     ? `<div class="list">${sorted.map((x) => `<button type="button" class="list-row dsp-todo ${x.level}" data-route="${jump[x.kind] || 'd_today'}"><span><b>${text(x.title)}</b><small>${text(x.detail)}</small></span>${badge(STATE_LABEL[x.level] || '要注意', STATE_BADGE[x.level] || 'warning')}</button>`).join('')}</div>`
@@ -86,12 +86,13 @@ async function loadPeople(target) {
   const todo = d.people.filter((x) => !['active', 'ended', 'converted'].includes(x.stage));
   const past = d.people.filter((x) => ['ended', 'converted'].includes(x.stage));
   const n = todo.length + apps.length;
-  const payCell = (p) => `<span class="dsp-pay ${p.key}">${text(p.label)}${p.ym ? `<small>${text(p.ym)} 月</small>` : ''}</span>`;
-  const careCell = (x) => `<span class="dsp-care ${x.care.key}">${text(x.care.label)}</span>`;
+  const payCell = (p) => `<span class="dsp-st-pill ${p.key}">${text(p.label)}${p.ym ? `<small>${text(p.ym)} 月</small>` : ''}</span>`;
+  const careCell = (x) => `<span class="dsp-st-pill ${x.care.key}">${text(x.care.label)}</span>`;
   const realN = r.items.filter((x) => !x.is_test).length;
   const hasDemo = d.people.some((x) => x.is_test);
-  const rosterRows = r.items.map((x) => `<tr class="${x.is_test ? 'demo' : ''}${x.care.key === 'overdue' || x.care.key === 'due' ? ' care-due' : ''}" data-dsp="open-person" data-id="${esc(x.id)}"><td><button type="button" class="dsp-link" data-dsp="open-person" data-id="${esc(x.id)}">${text(x.name || '（沒有姓名）')}</button>${demoTag(x)}</td><td>${text(x.company_name || '—')}</td><td>${text(x.job_title || '—')}</td><td>${text(x.start_date || '—')}</td><td>${payCell(x.pay)}</td><td>${x.last_care ? `${text(x.last_care.care_date)}<small>${text(String(x.last_care.content).slice(0, 40))}</small>` : '<small>還沒有紀錄</small>'}</td><td>${careCell(x)}</td></tr>`).join('');
-  target.innerHTML = `<article class="card"><h2>人員名單（在職真實 ${realN} 人）</h2>${r.items.length ? `<div class="dsp-roster-wrap"><table class="dsp-roster"><thead><tr><th>姓名</th><th>要派客戶</th><th>職缺</th><th>到職日</th><th>預計客戶付款日</th><th>最近關心</th><th>下次關心</th></tr></thead><tbody>${rosterRows}</tbody></table></div>` : '<p class="muted">系統裡還沒有在職的人。實際有人在上班的話，按右上角「加人」登記。</p>'}</article>
+  const hot = (x) => ['overdue', 'due'].includes(x.care.key) || ['need_in', 'need_out'].includes(x.insurance.key) || x.payroll.key === 'late';
+  const rosterRows = r.items.map((x) => `<tr class="${x.is_test ? 'demo' : ''}${hot(x) ? ' care-due' : ''}" data-dsp="open-person" data-id="${esc(x.id)}"><td><button type="button" class="dsp-link" data-dsp="open-person" data-id="${esc(x.id)}">${text(x.name || '（沒有姓名）')}</button>${demoTag(x)}</td><td>${text(x.company_name || '—')}</td><td>${text(x.job_title || '—')}</td><td>${text(x.start_date || '—')}</td><td>${payCell(x.insurance)}</td><td>${payCell(x.payroll)}</td><td>${payCell(x.pay)}</td><td>${x.last_care ? `${text(x.last_care.care_date)}<small>${text(String(x.last_care.content).slice(0, 40))}</small>` : '<small>還沒有紀錄</small>'}</td><td>${careCell(x)}</td></tr>`).join('');
+  target.innerHTML = `<article class="card"><h2>人員名單（在職真實 ${realN} 人）</h2>${r.items.length ? `<div class="dsp-tablewrap"><table class="dsp-table dsp-roster"><thead><tr><th>姓名</th><th>客戶</th><th>職缺</th><th>到職日</th><th>加保</th><th>發薪</th><th>預計客戶付款日</th><th>最近關心</th><th>下次關心</th></tr></thead><tbody>${rosterRows}</tbody></table></div>` : '<p class="muted">系統裡還沒有在職的人。實際有人在上班的話，按右上角「加人」登記。</p>'}</article>
     <article class="card" style="margin-top:14px"><h2>進行中（${n}）</h2><p class="help">每個人只有一個下一步，做完按它。</p>${n ? `<div class="list">${todo.map(row).join('')}${apps.map(appRow).join('')}</div>` : '<p class="muted">目前沒有。</p>'}</article>
     ${past.length ? `<details class="card" style="margin-top:14px"><summary><b>已結束（${past.length}）</b></summary><div class="list" style="margin-top:10px">${past.map(row).join('')}</div></details>` : ''}
     ${hasDemo ? '<p class="help" style="margin-top:12px">示範資料不算人數、不進報表和請款，也不會通知任何人。<button type="button" class="btn ghost sm" data-dsp="demo-delete">刪除全部示範資料</button></p>' : ''}`;
@@ -100,28 +101,36 @@ async function loadPeople(target) {
 async function openPerson(id) {
   const d = await api.get(`/admin/dispatch/person-card/${encodeURIComponent(id)}`);
   const x = d.person; const t = d.terms;
+  ui.cardPerson = x; ui.stages = d.stages || ui.stages;
   const stageLabel = Object.fromEntries(d.stages || []);
   const need = d.settlements.find((r) => r.pay.key === 'need_invoice');
   const late = d.settlements.find((r) => r.pay.key === 'overdue');
   const draft = d.settlements.find((r) => r.status === 'draft');
-  const next = x.stage !== 'active' ? (NEXT[x.stage] || '沒有下一步')
+  const noHours = d.settlements.find((r) => r.hours.key === 'none');
+  const next = d.insurance.key === 'need_out' ? '還沒退保，辦好後在下面記退保日'
+    : x.stage !== 'active' ? (NEXT[x.stage] || '沒有下一步')
+    : d.insurance.key === 'need_in' ? '到職了還沒加保，辦好後在下面記加保日'
     : d.care.key === 'overdue' || d.care.key === 'due' ? '該關心了，打個電話，下面記一筆'
     : late ? `${late.ym} 月款項已過預計付款日，確認客戶付款了沒`
     : need ? `補 ${need.ym} 月的發票日`
+    : noHours ? `等 ${noHours.ym} 月客戶工時`
     : draft ? `核對 ${draft.ym} 月結算` : '目前沒有要做的事';
   const last = d.settlements.find((r) => r.status === 'confirmed') || d.settlements[0];
   const payBasis = t.payment_days ? `${t.payment_basis === 'invoice_plus' ? '發票日加' : '月結（發票當月底加）'} ${t.payment_days} 天${t.payment_note ? `，${t.payment_note}` : ''}` : '付款天數沒設定';
   const period = `${x.start_date || '到職日沒填'}～${x.end_date || '還在職'}`;
   const contract = `${t.contract_start || '起日沒填'}～${t.contract_end || (t.renewed ? '新到期日待補' : '到期日沒填')}（${d.contract_status.label}）`;
-  const stRows = d.settlements.map((r) => `<div class="dsp-st"><div><b>${text(r.ym)}</b>${r.total_untaxed != null ? `<span>向客戶收（未稅）${money(r.total_untaxed)}</span>` : ''}<span class="dsp-pay ${r.pay.key}">${text(r.pay.label)}</span></div>${r.status === 'confirmed' ? `<div class="dsp-st-inputs"><label>客戶收到發票日<input type="date" data-pay-inv value="${esc(r.invoice_date || '')}"></label><label>實際收款日<input type="date" data-pay-paid value="${esc(r.paid_date || '')}"></label><button type="button" class="btn sm" data-dsp="save-pay" data-id="${esc(x.id)}" data-ym="${esc(r.ym)}">存</button></div>` : '<small class="muted">到每月結算確認後，才能記發票日。</small>'}</div>`).join('');
+  const stRows = d.settlements.map((r) => `<div class="dsp-st"><div><b>${text(r.ym)}</b>${r.total_untaxed != null ? `<span>向客戶收（未稅）${money(r.total_untaxed)}</span>` : ''}<span class="dsp-st-pill ${r.hours.key}">${text(r.hours.label)}</span><span class="dsp-st-pill ${r.payroll.key}">${text(r.payroll.label)}</span><span class="dsp-pay ${r.pay.key}">${text(r.pay.label)}</span></div>${r.status === 'confirmed' ? `<div class="dsp-st-inputs"><label>客戶收到發票日<input type="date" data-pay-inv value="${esc(r.invoice_date || '')}"></label><label>實際收款日<input type="date" data-pay-paid value="${esc(r.paid_date || '')}"></label><button type="button" class="btn sm" data-dsp="save-pay" data-id="${esc(x.id)}" data-ym="${esc(r.ym)}">存</button></div>` : '<small class="muted">到每月結算確認後，才能記發票日。</small>'}</div>`).join('');
   const careRows = d.cares.map((c) => `<li><b>${text(c.care_date)}</b>${c.created_by ? `<small>${text(c.created_by)}</small>` : ''}<p>${text(c.content)}</p></li>`).join('');
   const today = d.today; const plus30 = new Date(Date.parse(`${today}T00:00:00Z`) + 30 * 864e5).toISOString().slice(0, 10);
   drawer({
     title: personName(x), subtitle: `${x.company_name || '還沒配客戶'}${x.job_title ? '・' + x.job_title : ''}`,
     body: `<div class="drawer-section dsp-pcard">
       ${x.is_test ? '<div class="notice">示範資料：人和金額都是舉例，不算進真實人數、合計或請款，不會通知任何人。</div>' : ''}
-      <div class="dsp-next ${d.care.key === 'overdue' || d.care.key === 'due' || late ? 'hot' : ''}"><span>目前的下一步</span><b>${text(next)}</b></div>
+      <div class="dsp-next ${d.care.key === 'overdue' || d.care.key === 'due' || late || ['need_in', 'need_out'].includes(d.insurance.key) ? 'hot' : ''}"><span>目前的下一步</span><b>${text(next)}</b></div>
       <h3>基本資料</h3><dl class="dsp-dl"><div><dt>階段</dt><dd>${text(stageLabel[x.stage] || x.stage)}</dd></div><div><dt>分類</dt><dd>${text(CLASS_LABEL[x.job_class] || '沒分類')}</dd></div><div><dt>到職日～結束日</dt><dd>${text(period)}</dd></div><div><dt>客戶合約期間</dt><dd>${text(contract)}</dd></div><div><dt>每月經常性薪資</dt><dd>${money(x.regular_salary)}${x.is_test ? '（示範）' : ''}</dd></div><div><dt>最近一筆向客戶收（未稅）</dt><dd>${last && last.total_untaxed != null ? `${money(last.total_untaxed)}（${text(last.ym)}）` : '還沒有結算'}</dd></div></dl>
+      <h3>加保與人員資料</h3><dl class="dsp-dl"><div><dt>加保</dt><dd><span class="dsp-st-pill ${d.insurance.key}">${text(d.insurance.label)}</span></dd></div><div><dt>加保日／退保日</dt><dd>${text(x.insured_date || '沒填')}／${text(x.uninsured_date || '沒填')}</dd></div><div><dt>派遣預計結束日</dt><dd>${text(x.planned_end_date || '沒填')}</dd></div><div><dt>現場主管</dt><dd>${text(x.site_manager || '沒填')}${x.site_contact ? `・${text(x.site_contact)}` : ''}</dd></div><div><dt>緊急聯絡人</dt><dd>${text(x.emergency_contact || '沒填')}</dd></div><div><dt>文件</dt><dd>${d.doc_items.map(([k, l]) => `<span class="dsp-st-pill ${d.docs[k] ? 'in' : 'need_date'}">${d.docs[k] ? '有' : '缺'} ${text(l)}</span>`).join(' ')}</dd></div></dl>
+      <div class="actions-row"><button type="button" class="btn sm" data-dsp="edit-profile" data-id="${esc(x.id)}">改加保與人員資料</button></div>
+      ${d.milestones.length ? `<h3>到職滿期</h3><table class="dsp-lines dsp-miles"><thead><tr><th>滿期</th><th>日期</th><th>客戶轉任費比例</th></tr></thead><tbody>${d.milestones.map((m) => `<tr class="${m.soon ? 'soon' : ''}"><td>${text(m.label)}${m.note ? `<small>${text(m.note)}</small>` : ''}</td><td>${text(m.date)}${m.passed ? '<small>已滿</small>' : m.soon ? '<small>30 天內</small>' : ''}</td><td>${m.percent == null ? '—' : `轉任後月薪 ${text(m.percent)}%`}</td></tr>`).join('')}</tbody></table><p class="help">比例依這家客戶合約的轉任費設定，這裡只顯示，不計算轉任費。</p>` : ''}
       <h3>關心紀錄</h3><div class="dsp-care-form"><label>日期<input type="date" id="dc2-date" value="${esc(today)}"></label><label>下次關心<input type="date" id="dc2-next" value="${esc(plus30)}"></label><label class="wide">這次聊了什麼<textarea id="dc2-text" rows="2" placeholder="例：工作適應，主管反應不錯"></textarea></label><button type="button" class="btn primary" data-dsp="save-care" data-id="${esc(x.id)}">記一筆</button></div>
       <p class="help">${x.application_id ? '會同步寫回人選卡片。' : '這位沒有人選卡，只記在這裡。'}不會通知人選。下次關心：<span class="dsp-care ${d.care.key}">${text(d.care.label)}</span></p>
       ${careRows ? `<ul class="dsp-care-list">${careRows}</ul>` : '<p class="muted">還沒有紀錄。</p>'}
@@ -139,9 +148,30 @@ async function savePay(btn) {
   await api.post('/admin/dispatch/settlement/pay', { by: me(), person_id: btn.getAttribute('data-id'), ym: btn.getAttribute('data-ym'), invoice_date: $('[data-pay-inv]', box).value, paid_date: $('[data-pay-paid]', box).value });
   toast('已存', 'success'); await openPerson(btn.getAttribute('data-id')); refreshBehind();
 }
+async function editProfile(id) {
+  const d = await api.get(`/admin/dispatch/person-card/${encodeURIComponent(id)}`);
+  const x = d.person;
+  modal({
+    title: `${personName(x)}：加保與人員資料`, subtitle: `${x.is_test ? '示範資料。' : ''}不會通知任何人。`,
+    body: `<div class="form-grid">
+      ${field('加保日', `<input id="dq-in" type="date" value="${esc(x.insured_date || '')}">`)}
+      ${field('退保日', `<input id="dq-out" type="date" value="${esc(x.uninsured_date || '')}">`)}
+      ${field('派遣預計結束日', `<input id="dq-end" type="date" value="${esc(x.planned_end_date || '')}">`)}
+      ${field('現場主管', `<input id="dq-mgr" value="${esc(x.site_manager || '')}">`)}
+      ${field('現場主管聯絡方式', `<input id="dq-contact" value="${esc(x.site_contact || '')}">`)}
+      ${field('緊急聯絡人', `<input id="dq-emg" value="${esc(x.emergency_contact || '')}">`)}
+      <div class="field span-2"><span>文件是否齊全</span><div class="dsp-checks">${d.doc_items.map(([k, l]) => `<label><input type="checkbox" data-doc="${k}"${d.docs[k] ? ' checked' : ''}> ${esc(l)}</label>`).join('')}</div></div>
+    </div>`,
+    footer: `<button class="btn" data-dsp="open-person" data-id="${esc(id)}">取消</button><button class="btn primary" data-dsp="save-profile" data-id="${esc(id)}">儲存</button>`,
+  });
+}
+async function saveProfile(id) {
+  await api.post(`/admin/dispatch/person/${encodeURIComponent(id)}/profile`, { by: me(), insured_date: $('#dq-in').value, uninsured_date: $('#dq-out').value, planned_end_date: $('#dq-end').value, site_manager: $('#dq-mgr').value, site_contact: $('#dq-contact').value, emergency_contact: $('#dq-emg').value, docs: Object.fromEntries($$('[data-doc]').map((el) => [el.getAttribute('data-doc'), el.checked])) });
+  toast('已儲存', 'success'); await openPerson(id); refreshBehind();
+}
 // 卡片開著時，後面的名單也跟著更新
 const refreshBehind = () => { const t = $('#page-data'); if (t && location.pathname.includes('/dispatch/people')) loadPeople(t).catch(() => {}); };
-function currentPeople() { return ($('#page-data') || {}).__people || []; }
+function currentPeople() { return [...(($('#page-data') || {}).__people || []), ...(ui.cardPerson ? [ui.cardPerson] : [])]; }
 const jobOptions = (items, cur) => items.map((j) => `<option value="${esc(j.slug)}"${cur === j.slug ? ' selected' : ''}>${esc(j.title)}</option>`).join('');
 // 下一步：只問這一步需要的欄位，不需要就直接做
 async function nextStep(id) {
@@ -323,6 +353,7 @@ function editTerms(id) {
       ${field('行政管理費 %', `<input id="dc-admin" inputmode="decimal" value="${v(t.admin_rate)}">`)}
       ${field('滿幾個月免招募費（空白＝不免）', `<input id="dc-free" inputmode="numeric" value="${v(t.recruit_free_after_months)}">`)}
       <div class="field span-2"><span>管理費要算進基礎的項目（經常性薪資一定算） ${clause('base')}</span><div class="dsp-checks">${Object.entries(BASE_LABEL).map(([k, l]) => `<label><input type="checkbox" data-base="${k}"${t.fee_base[k] ? ' checked' : ''}> ${l}</label>`).join('')}</div></div>
+      ${field('滿一年當月招募費怎麼算', `<select id="dc-ann"><option value=""${!t.anniversary_rule ? ' selected' : ''}>待確認</option><option value="charge"${t.anniversary_rule === 'charge' ? ' selected' : ''}>當月照收，次月起免</option><option value="free"${t.anniversary_rule === 'free' ? ' selected' : ''}>當月就免</option></select>`)}
       ${field(`客戶可扣福利金（千分之幾） ${clause('welfare')}`, `<input id="dc-welfare" inputmode="decimal" value="${v(t.welfare_permille)}">`)}
       ${field(`付款天數 ${clause('payment')}`, `<input id="dc-pay" inputmode="numeric" value="${v(t.payment_days)}">`)}
       ${field('付款怎麼起算', `<select id="dc-basis"><option value="month_end_plus"${t.payment_basis !== 'invoice_plus' ? ' selected' : ''}>月結：發票當月底再加天數</option><option value="invoice_plus"${t.payment_basis === 'invoice_plus' ? ' selected' : ''}>發票日直接加天數</option></select>`)}
@@ -342,7 +373,7 @@ async function saveTerms(id) {
   const val = (s) => $(s).value;
   const terms = {
     ...old, contract_start: val('#dc-start'), contract_end: val('#dc-end'),
-    recruit_rate: { nontech: val('#dc-rn'), tech: val('#dc-rt') }, admin_rate: val('#dc-admin'), recruit_free_after_months: val('#dc-free'),
+    recruit_rate: { nontech: val('#dc-rn'), tech: val('#dc-rt') }, admin_rate: val('#dc-admin'), recruit_free_after_months: val('#dc-free'), anniversary_rule: val('#dc-ann'),
     fee_base: Object.fromEntries($$('[data-base]').map((el) => [el.getAttribute('data-base'), el.checked])),
     welfare_permille: val('#dc-welfare'), payment_days: val('#dc-pay'), payment_basis: val('#dc-basis'), payment_note: val('#dc-paynote'), overdue_interest_monthly: val('#dc-int'), notice_days: val('#dc-notice'),
     law_change_pass_through: $('#dc-law').checked, block_pre_interview: $('#dc-block').checked, auto_renew: $('#dc-renew').checked, renewed: $('#dc-renewed').checked,
@@ -374,23 +405,51 @@ async function loadSettlement(target) {
   const s = await api.get(`/admin/dispatch/settlement?company_id=${encodeURIComponent(ui.company)}&ym=${encodeURIComponent(ui.ym)}`);
   target.__rows = s.rows;
   const real = s.rows.filter((r) => !r.person.is_test);
-  const rowsOk = real.filter((r) => !r.result.error);
-  const total = rowsOk.reduce((a, r) => a + r.result.total_untaxed, 0);
-  const mgmt = rowsOk.reduce((a, r) => a + r.result.management_fee, 0);
+  const demo = s.rows.filter((r) => r.person.is_test);
+  const extra = (r) => (r.result.error ? 0 : ['overtime', 'bonus', 'insurance', 'pension', 'expense', 'other'].reduce((a, k) => a + Number(r.inputs[k] || 0), 0));
+  const sum = (list, f) => list.filter((r) => !r.result.error).reduce((a, r) => a + Number(f(r) || 0), 0);
+  const cell = (st) => `<span class="dsp-st-pill ${st.key}">${text(st.label)}</span>`;
+  const confirmCell = (r) => (r.status === 'confirmed' ? `<span class="dsp-st-pill in">已確認${r.confirmed_by ? `（${text(r.confirmed_by)}）` : ''}</span>` : `<span class="dsp-st-pill need_date">${r.status === 'draft' ? '草稿' : '還沒存'}</span>`);
+  const num = (n) => `<td class="n">${money(n)}</td>`;
   const row = (r) => {
-    const x = r.person; const done = r.status === 'confirmed';
-    return `<article class="card dsp-settle${x.is_test ? ' demo' : ''}" data-person="${esc(x.id)}"><div class="card-head"><div><h3>${text(personName(x))}${x.is_test ? ' ' + badge('示範資料', 'info') : ''}</h3><p class="help">${text(x.job_title || '')}・${text(CLASS_LABEL[x.job_class] || '沒分類')}・起日 ${text(x.start_date || '')}</p></div>${done ? badge(`已確認（${r.confirmed_by || ''}）`, 'success') : badge(r.status === 'draft' ? '草稿' : '還沒存', 'warning')}</div>
-      ${x.is_test ? '<div class="notice">示範資料：薪資和金額都是舉例，不是客戶給的數字，也不是對外的費率案例；不算進合計、匯出或請款。</div>' : ''}<div data-si-result>${r.result.error ? `<div class="notice">${text(r.result.error)}</div>` : lines(r.result)}</div>
-      ${done ? '' : `<details class="dsp-more"><summary>改金額（加班、獎金、保險…）</summary><div class="dsp-inputs">${SETTLE_INPUTS.map(([k, l]) => field(l, `<input data-si="${k}" inputmode="numeric" value="${esc(r.inputs[k] || '')}">`)).join('')}</div><div class="actions-row"><button class="btn" data-dsp="settle-save" data-id="${esc(x.id)}">重算</button></div></details>`}
-      <div class="actions-row">${done ? `<button class="btn" data-dsp="settle-undo" data-id="${esc(x.id)}">退回修改</button>` : `<button class="btn primary" data-dsp="settle-confirm" data-id="${esc(x.id)}">核對無誤，確認</button>`}</div></article>`;
+    const x = r.person;
+    const money5 = r.result.error ? `<td class="n" colspan="5">${text(r.result.error)}</td>` : `${num(r.inputs.regular_salary)}${num(r.result.recruit_fee)}${num(r.result.admin_fee)}${num(extra(r))}${num(r.result.total_untaxed)}`;
+    return `<tr class="${x.is_test ? 'demo' : ''}${r.hours.key === 'none' ? ' care-due' : ''}" data-dsp="open-settle" data-id="${esc(x.id)}"><td><button type="button" class="dsp-link" data-dsp="open-settle" data-id="${esc(x.id)}">${text(personName(x))}</button>${x.is_test ? ' ' + badge('示範資料', 'info') : ''}</td><td>${text(x.company_name || '')}</td><td>${text(x.job_title || '—')}</td><td>${text(CLASS_LABEL[x.job_class] || '沒分類')}</td>${money5}<td>${cell(r.hours)}</td><td>${cell(r.payroll)}</td><td>${confirmCell(r)}</td></tr>`;
   };
+  const totalRow = (label, list, cls) => `<tr class="total ${cls}"><td>${label}</td><td colspan="3">${list.length} 人</td>${num(sum(list, (r) => r.inputs.regular_salary))}${num(sum(list, (r) => r.result.recruit_fee))}${num(sum(list, (r) => r.result.admin_fee))}${num(sum(list, extra))}${num(sum(list, (r) => r.result.total_untaxed))}<td colspan="3">工時未回 ${list.filter((r) => r.hours.key === 'none').length} 人</td></tr>`;
+  const advM = sum(real, (r) => r.advance); const advD = sum(demo, (r) => r.advance);
   target.innerHTML = `<div class="filters"><label class="dsp-inline">客戶 <select id="ds-co">${c.items.map((x) => `<option value="${esc(x.company_id)}"${x.company_id === ui.company ? ' selected' : ''}>${esc(x.display_name)}</option>`).join('')}</select></label><label class="dsp-inline">月份 <input id="ds-ym" type="month" value="${esc(ui.ym)}"></label>${real.length ? '<button class="btn" data-dsp="settle-csv">匯出這個月</button>' : ''}</div>
     ${co.status !== 'confirmed' ? '<div class="notice">這家客戶的條款還沒確認，先到「要派客戶」確認，才能確認結算。</div>' : ''}
-    ${real.length ? `<div class="notice dsp-sum">這個月 ${real.length} 人，已確認 ${real.filter((r) => r.status === 'confirmed').length} 人。向客戶收（未稅）合計 <b>${money(total)}</b>，其中管理費 ${money(mgmt)}。</div>` : ''}${s.rows.length ? `${real.length ? '' : '<p class="help">這個月真實人員 0 人，下面只有示範資料。</p>'}${s.rows.map(row).join('')}`
-      : `<div class="state"><strong>這個月系統裡沒有在職派遣的人</strong><p>實際有人在上班的話，到「派遣人選」按「加人」登記。</p></div>`}
+    <div class="dsp-adv"><div><span>這個月先墊（已發薪、客戶還沒付）</span><b>${money(advM)}</b></div><div><span>目前累計先墊</span><b>${money(s.advance_total)}</b></div>${demo.length ? `<div class="demo"><span>示範資料先墊（不算）</span><b>這個月 ${money(advD)}・累計 ${money(s.advance_total_demo)}</b></div>` : ''}</div>
+    ${s.rows.length ? `<article class="card"><div class="dsp-tablewrap"><table class="dsp-table dsp-settle-table"><thead><tr><th>姓名</th><th>客戶</th><th>職缺</th><th>分類</th><th class="n">月薪</th><th class="n">招募管理費</th><th class="n">行政管理費</th><th class="n">加班與其他</th><th class="n">向客戶收（未稅）</th><th>工時回收</th><th>發薪</th><th>確認狀態</th></tr></thead><tbody>${s.rows.map(row).join('')}</tbody><tfoot>${totalRow('當月合計（真實人員）', real, '')}${demo.length ? totalRow('示範小計（不算進合計）', demo, 'demo') : ''}</tfoot></table></div><p class="help">點一列看細項、改金額、按確認。向客戶收已扣客戶可扣福利金。${demo.length ? '目前表上是示範資料，薪資和金額都是舉例。' : ''}</p></article>`
+      : '<div class="state"><strong>這個月系統裡沒有在職派遣的人</strong><p>實際有人在上班的話，到「派遣人選」按「加人」登記。</p></div>'}
     ${estimateBox(co, !s.rows.length)}`;
   $('#ds-co').onchange = (e) => { ui.company = e.target.value; loadDispatchRoute('d_settlement', target); };
   $('#ds-ym').onchange = (e) => { if (e.target.value) { ui.ym = e.target.value; loadDispatchRoute('d_settlement', target); } };
+}
+// 一列的細項：先看算好的結果，要改才點開
+function openSettleRow(id) {
+  const r = (($('#page-data') || {}).__rows || []).find((x) => x.person.id === id);
+  if (!r) return;
+  const x = r.person; const done = r.status === 'confirmed';
+  const noHours = r.hours.key === 'none';
+  drawer({
+    title: `${personName(x)}・${ui.ym} 結算`, subtitle: `${x.job_title || ''}・${CLASS_LABEL[x.job_class] || '沒分類'}・到職 ${x.start_date || ''}`,
+    body: `<div class="drawer-section dsp-settle" data-person="${esc(x.id)}">
+      ${x.is_test ? '<div class="notice">示範資料：薪資和金額都是舉例，不是客戶給的數字，也不是對外的費率案例；不算進合計、匯出或請款。</div>' : ''}
+      ${r.result.anniversary_pending ? '<div class="notice">這個月是滿一年當月，招募管理費怎麼算待確認。先到「要派客戶」的「改條款」選好才能確認。</div>' : ''}
+      ${r.result.error ? `<div class="notice">${text(r.result.error)}</div>` : lines(r.result)}
+      <h3>工時與發薪</h3><div class="dsp-inputs"><label class="field"><span>客戶工時收到日${noHours ? '（還沒收到）' : ''}</span><input type="date" id="dso-hours" value="${esc(r.hours_received_date || '')}"></label><label class="field"><span>發薪日</span><input type="date" id="dso-payroll" value="${esc(r.payroll_date || '')}"></label><label class="field"><span>實際發薪日</span><input type="date" id="dso-paid" value="${esc(r.salary_paid_date || '')}"></label></div>
+      <div class="actions-row"><button class="btn" data-dsp="save-ops" data-id="${esc(x.id)}">存工時與發薪</button></div><p class="help">只記日期，不會發薪、不會動錢。</p>
+      ${done ? '' : `<details class="dsp-more"><summary>改金額（加班、獎金、保險…）</summary><div class="dsp-inputs">${SETTLE_INPUTS.map(([k, l]) => field(l, `<input data-si="${k}" inputmode="numeric" value="${esc(r.inputs[k] || '')}">`)).join('')}</div><div class="actions-row"><button class="btn" data-dsp="settle-save" data-id="${esc(x.id)}">重算</button></div></details>`}
+      <div class="actions-row" style="margin-top:14px">${done ? `<button class="btn" data-dsp="settle-undo" data-id="${esc(x.id)}">退回修改</button>` : noHours ? '<button class="btn primary" disabled>工時還沒回，先不能確認</button>' : `<button class="btn primary" data-dsp="settle-confirm" data-id="${esc(x.id)}">核對無誤，確認</button>`}<button class="btn ghost" data-dsp="open-person" data-id="${esc(x.id)}">看人員卡片</button></div>
+    </div>`,
+  });
+}
+const reloadSettle = async (id) => { const t = $('#page-data'); await loadDispatchRoute('d_settlement', t); if (id) openSettleRow(id); };
+async function saveOps(id) {
+  await api.post('/admin/dispatch/settlement/ops', { by: me(), person_id: id, ym: ui.ym, hours_received_date: $('#dso-hours').value, payroll_date: $('#dso-payroll').value, salary_paid_date: $('#dso-paid').value });
+  toast('已存', 'success'); await reloadSettle(id);
 }
 function estimateBox(co, open) {
   return `<details class="card dsp-more" style="margin-top:14px"${open ? ' open' : ''}><summary><b>試算一筆</b>（什麼都不會存）</summary><div class="dsp-inputs">
@@ -407,13 +466,13 @@ async function saveSettle(id, confirm) {
   const card = $(`.dsp-settle[data-person="${id}"]`);
   const inputs = Object.fromEntries($$('[data-si]', card).map((el) => [el.getAttribute('data-si'), el.value]));
   await api.post('/admin/dispatch/settlement', { by: me(), person_id: id, ym: ui.ym, inputs, confirm });
-  toast(confirm ? '已確認這筆' : '已存草稿', 'success'); reload();
+  toast(confirm ? '已確認這筆' : '已重算', 'success'); await reloadSettle(id);
 }
 function exportCsv() {
   const rows = ($('#page-data') || {}).__rows || [];
-  const head = ['姓名', '職缺', '分類', '經常性薪資', '加班費', '獎金津貼', '保險費', '提撥金', '工作費用', '其他', '招募管理費', '行政管理費', '客戶可扣福利金', '向客戶收(未稅)', '狀態', '確認人'];
+  const head = ['姓名', '職缺', '分類', '經常性薪資', '加班費', '獎金津貼', '保險費', '提撥金', '工作費用', '其他', '招募管理費', '行政管理費', '客戶可扣福利金', '向客戶收(未稅)', '工時回收', '發薪', '狀態', '確認人'];
   const cell = (v) => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`;
-  const body = rows.filter((r) => !r.result.error && !r.person.is_test).map((r) => [personName(r.person), r.person.job_title, CLASS_LABEL[r.person.job_class], r.inputs.regular_salary, r.inputs.overtime, r.inputs.bonus, r.inputs.insurance, r.inputs.pension, r.inputs.expense, r.inputs.other, r.result.recruit_fee, r.result.admin_fee, r.result.welfare_deduct, r.result.total_untaxed, r.status === 'confirmed' ? '已確認' : '未確認', r.confirmed_by].map(cell).join(','));
+  const body = rows.filter((r) => !r.result.error && !r.person.is_test).map((r) => [personName(r.person), r.person.job_title, CLASS_LABEL[r.person.job_class], r.inputs.regular_salary, r.inputs.overtime, r.inputs.bonus, r.inputs.insurance, r.inputs.pension, r.inputs.expense, r.inputs.other, r.result.recruit_fee, r.result.admin_fee, r.result.welfare_deduct, r.result.total_untaxed, r.hours.label, r.payroll.label, r.status === 'confirmed' ? '已確認' : '未確認', r.confirmed_by].map(cell).join(','));
   const url = URL.createObjectURL(new Blob(['﻿' + [head.map(cell).join(','), ...body].join('\n')], { type: 'text/csv;charset=utf-8' }));
   const a = document.createElement('a'); a.href = url; a.download = `派遣結算_${ui.ym}.csv`; a.click(); URL.revokeObjectURL(url);
 }
@@ -434,6 +493,10 @@ document.addEventListener('click', async (e) => {
   try {
     if (act === 'open-person') await openPerson(id);
     else if (act === 'save-care') await saveCare(id);
+    else if (act === 'edit-profile') await editProfile(id);
+    else if (act === 'save-profile') await saveProfile(id);
+    else if (act === 'open-settle') openSettleRow(id);
+    else if (act === 'save-ops') await saveOps(id);
     else if (act === 'save-pay') await savePay(btn);
     else if (act === 'open-card') hooks.openCandidate(btn.getAttribute('data-app'));
     else if (act === 'open-job') hooks.openJob(btn.getAttribute('data-slug'));
@@ -461,7 +524,7 @@ document.addEventListener('click', async (e) => {
     } else if (act === 'estimate') await runEstimate();
     else if (act === 'settle-save') await saveSettle(id, false);
     else if (act === 'settle-confirm') await saveSettle(id, true);
-    else if (act === 'settle-undo') { await api.post('/admin/dispatch/settlement', { by: me(), person_id: id, ym: ui.ym, unconfirm: true }); toast('已退回修改', 'success'); reload(); }
+    else if (act === 'settle-undo') { await api.post('/admin/dispatch/settlement', { by: me(), person_id: id, ym: ui.ym, unconfirm: true }); toast('已退回修改', 'success'); await reloadSettle(id); }
     else if (act === 'settle-csv') exportCsv();
     else if (act === 'demo-delete') {
       modal({ title: '刪除示範資料', subtitle: '只會刪示範人選和它的結算，真實人選不受影響。刪了就不見了。', body: '<p>確定要刪嗎？</p>', footer: '<button class="btn" data-close-overlay>取消</button><button class="btn danger" data-dsp="demo-delete-go">確定刪除</button>' });
