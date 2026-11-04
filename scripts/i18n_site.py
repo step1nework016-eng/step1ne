@@ -567,6 +567,26 @@ def needs_note(rel):
     return rel.startswith('jobs/') and rel != 'jobs/index.html' or rel.startswith('apply')
 
 
+def banner_fix(s, rel, lang):
+    """首頁橫幅圖左上角烙著中文「德仁管理顧問／IT人才專家｜高階獵才平台」→ 日英版換成去字版
+    （assets/hero-banner-notext.webp），再用該語言的 HTML 文字疊回去。
+    11/4 Jacky：英文首頁看到中文像沒做好。中文版維持原圖。"""
+    if rel != 'index.html':
+        return s
+    tag = {'ja': ('Step1ne', 'IT人材のスペシャリスト｜ヘッドハンティング'),
+           'en': ('Step1ne', 'IT Talent Specialists | Executive Search')}[lang]
+    ov = ('<style>.banner{position:relative}.s1-bn{position:absolute;top:5.2%%;left:8.2%%;color:#fff;'
+          'text-shadow:0 1px 3px rgba(15,40,70,.35);pointer-events:none}'
+          '.s1-bn b{display:block;font-size:clamp(14px,1.95vw,31px);font-weight:800;line-height:1.15;letter-spacing:.5px}'
+          '.s1-bn span{display:block;font-size:clamp(10px,.95vw,15px);font-weight:600;margin-top:.35em;opacity:.95}'
+          '@media (max-width:640px){.s1-bn span{display:none}}</style>'
+          '<div class="s1-bn" aria-hidden="true"><b>%s</b><span>%s</span></div>') % tag
+    s2 = re.sub(r'(<div class="banner">\s*<img src=")/assets/hero-banner\.webp(")', r'\1/assets/hero-banner-notext.webp\2', s, count=1)
+    if s2 == s:
+        raise SystemExit('⛔ index.html：找不到首頁橫幅（中文頁改版了），先更新 i18n_site.py 的 banner_fix')
+    return re.sub(r'(<div class="banner">\s*<img [^>]*>)', lambda m: m.group(1) + ov, s2, count=1)
+
+
 def build_page(rel, lang, tr):
     src = open(os.path.join(ROOT, rel), encoding='utf-8').read()
     src = page_fixups(strip_i18n(src), rel, lang)
@@ -575,6 +595,7 @@ def build_page(rel, lang, tr):
     s = process(src, tr, option_values=rel.startswith('apply'), js=rel in JS_PAGES)
     s = set_head(s, rel, lang)
     s = rewrite_links(s, lang)
+    s = banner_fix(s, rel, lang)
     s = inject(s, rel, lang)
     s = apply_header(s, rel, lang)
     if PREVIEW:
