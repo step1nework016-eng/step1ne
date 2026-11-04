@@ -9,8 +9,8 @@ import { escapeHtml, text } from './core/security.js';
 const esc = escapeHtml;
 const MODE_KEY = 's1ne_work_mode';
 export const DISPATCH_NAV = [
-  ['d_today', '今日待辦', '☑'], ['d_people', '派遣人選', '◉'], ['d_jobs', '派遣需求', '▣'], ['d_progress', '派遣進度', '▥'],
-  ['d_clients', '要派客戶', '♙'], ['d_settlement', '每月結算', '▦'], ['d_billing', '請款收款', '＄'], ['library', '書櫃', '▤'],
+  ['d_today', '今日待辦', '☑'], ['d_people', '派遣人選', '◉'], ['d_jobs', '派遣需求', '▣'],
+  ['d_clients', '要派客戶', '♙'], ['d_settlement', '每月結算', '▦'], ['library', '書櫃', '▤'],
 ];
 const DISPATCH_ONLY = new Set(DISPATCH_NAV.map(([k]) => k).filter((k) => k !== 'library'));
 export const isDispatchRoute = (key) => DISPATCH_ONLY.has(key);
@@ -28,13 +28,11 @@ export const modeSwitchHtml = (mode) => `<div class="mode-switch" role="group" a
 const head = (title, sub, actions = '') => `<div class="page-head"><div><h1>${title}</h1><p>${sub}</p></div><div class="actions">${actions}</div></div>`;
 const page = (title, sub, actions = '') => head(title, sub, actions) + '<div id="page-data"></div>';
 export const dispatchViews = {
-  d_today: () => page('今日待辦', '派遣這邊今天只要人處理的例外。沒列出來的，系統自己顧。'),
-  d_people: () => page('派遣人選', '跟招募同一張人選卡，不複製。沒有人選本人同意，不能往下推薦。', '<button class="btn" data-dsp="find-candidate">從人才庫轉入</button><button class="btn primary" data-dsp="add-active">登記已在職的人</button>'),
-  d_jobs: () => page('派遣需求', '跟「職缺」同一批資料。客戶需求表上看不到的先列出來，關不關由人決定。'),
-  d_progress: () => page('派遣進度', '派遣不走客戶面試：推薦後只做工作說明及技能確認，簽完勞動契約才上工。'),
-  d_clients: () => page('要派客戶', '每家客戶一份自己的條款，算錢都從這裡來。費率不對其他客戶外流。', '<button class="btn primary" data-dsp="new-client">新增要派客戶</button>'),
-  d_settlement: () => page('每月結算', '系統先算好，人核對、按確認才算數。按確認不會寄信也不會動錢。'),
-  d_billing: () => page('請款收款', '第二階段才做。') ,
+  d_today: () => page('今日待辦', '只列要人處理的事，點一下就到那一頁。'),
+  d_people: () => page('派遣人選', '每個人只有一個下一步，做完按它。', '<button class="btn primary" data-dsp="find-candidate">加人</button>'),
+  d_jobs: () => page('派遣需求', '還在找的在上面，要你決定的在下面。'),
+  d_clients: () => page('要派客戶', '每家客戶一份條款，算錢都從這裡來。', '<button class="btn" data-dsp="new-client">新增客戶</button>'),
+  d_settlement: () => page('每月結算', '系統算好，核對後按確認。按確認不會寄信，也不會動錢。'),
 };
 
 const me = () => ($('[data-me-global]') || {}).value || '';
@@ -53,7 +51,7 @@ const ui = { company: '', ym: '', stages: [] };
 export function initDispatch(h) { hooks = { ...hooks, ...h }; }
 
 export async function loadDispatchRoute(route, target) {
-  const loaders = { d_today: loadToday, d_people: loadPeople, d_jobs: loadJobs, d_progress: loadProgress, d_clients: loadClients, d_settlement: loadSettlement, d_billing: loadBilling };
+  const loaders = { d_today: loadToday, d_people: loadPeople, d_jobs: loadJobs, d_clients: loadClients, d_settlement: loadSettlement };
   target.innerHTML = loading();
   try { await loaders[route](target); } catch (e) { console.error(e); target.innerHTML = errorState(e); }
 }
@@ -62,85 +60,84 @@ const reload = () => { const t = $('#page-data'); const k = Object.entries(ROUTE
 // ── 今日待辦 ──
 async function loadToday(target) {
   const d = await api.get('/admin/dispatch/today');
-  const jump = { client: 'd_clients', jobs: 'd_jobs', person: 'd_progress' };
-  const bad = d.todos.filter((x) => x.level === 'bad');
-  const warn = d.todos.filter((x) => x.level !== 'bad');
-  const row = (x) => `<button type="button" class="list-row dsp-todo ${x.level}" data-route="${jump[x.kind] || 'd_today'}"><span><b>${text(x.title)}</b><small>${text(x.detail)}</small></span>${badge(STATE_LABEL[x.level] || '要注意', STATE_BADGE[x.level] || 'warning')}</button>`;
-  target.innerHTML = `<div class="kpi-grid"><article class="kpi"><span>在職派遣人數（系統紀錄）</span><strong>${text(d.active)}</strong><small>實際人數待確認</small></article><article class="kpi"><span>開放中派遣需求</span><strong>${text(d.jobs_open)}</strong></article><article class="kpi ${bad.length ? 'warn' : ''}"><span>要處理</span><strong>${bad.length}</strong></article><article class="kpi"><span>要注意</span><strong>${warn.length}</strong></article></div>
-    ${d.todos.length ? `<div class="list">${[...bad, ...warn].map(row).join('')}</div>` : empty('今天沒有要人處理的例外')}`;
+  const jump = { client: 'd_clients', jobs: 'd_jobs', person: 'd_people' };
+  const sorted = [...d.todos.filter((x) => x.level === 'bad'), ...d.todos.filter((x) => x.level !== 'bad')];
+  target.innerHTML = sorted.length
+    ? `<div class="list">${sorted.map((x) => `<button type="button" class="list-row dsp-todo ${x.level}" data-route="${jump[x.kind] || 'd_today'}"><span><b>${text(x.title)}</b><small>${text(x.detail)}</small></span>${badge(STATE_LABEL[x.level] || '要注意', STATE_BADGE[x.level] || 'warning')}</button>`).join('')}</div>`
+    : empty('今天沒有要處理的事');
 }
 
-// ── 派遣人選 ──
+// ── 派遣人選（進度也在這裡，不另開一頁）──
 function personName(x) { return x.name || '（沒有姓名）'; }
-const openBtn = (x, label) => (x.application_id ? `<button type="button" class="btn sm" data-dsp="open-card" data-app="${esc(x.application_id)}">${label || '看人選卡'}</button>` : '');
+// 每個階段只有一個下一步
+const NEXT = {
+  consent_pending: '人選同意了', consented: '送客戶技能確認', skill_check: '客戶確認了，簽勞動契約', contract: '開始上工', active: '結束派遣',
+};
 async function loadPeople(target) {
   const d = await api.get('/admin/dispatch/people');
   ui.stages = d.stages || [];
+  target.__people = d.people;
   const stageLabel = Object.fromEntries(ui.stages);
-  const rows = d.people.map((x) => `<article class="list-row"><span><b>${text(personName(x))}</b>${x.is_test ? ' ' + badge('測試') : ''}<small>${text(x.company_name || '還沒配客戶')}${x.job_title ? '・' + text(x.job_title) : ''}・${text(stageLabel[x.stage] || x.stage)}</small></span>${badge(...(CONSENT[x.consent_status] || CONSENT.pending))}<span class="actions-row" style="flex:none;margin:0">${openBtn(x)}<button type="button" class="btn sm" data-dsp="edit-person" data-id="${esc(x.id)}">更新</button></span></article>`);
-  const apps = (d.applicants || []).map((a) => `<article class="list-row"><span><b>${text(a.name || '（沒有姓名）')}</b><small>${text(a.company_name || '')}・${text(a.job_title || a.job_slug)}・${text(String(a.created_at || '').slice(0, 10))}</small></span>${a.closed_stage ? badge('已結案') : badge('應徵派遣缺')}<span class="actions-row" style="flex:none;margin:0"><button type="button" class="btn sm" data-dsp="open-card" data-app="${esc(a.id)}">看人選卡</button>${a.closed_stage ? '' : `<button type="button" class="btn sm" data-dsp="transfer" data-app="${esc(a.id)}" data-job="${esc(a.job_slug || '')}">記錄同意</button>`}</span></article>`);
-  target.innerHTML = `<article class="card"><h2>已轉入派遣（${d.people.length}）</h2>${rows.length ? `<div class="list">${rows.join('')}</div>` : '<p class="muted">還沒有。打開任何一張人選卡，總覽最上面就有「轉到派遣」。</p>'}</article>
-    <article class="card" style="margin-top:14px"><h2>直接應徵派遣職缺的人（${apps.length}）</h2><p class="help">他們本來就在這些職缺的流程裡，顯示在這邊方便看；要往派遣走時按「記錄同意」。</p>${apps.length ? `<div class="list">${apps.join('')}</div>` : '<p class="muted">目前沒有。</p>'}</article>`;
-  target.__people = d.people;
-}
-
-// ── 派遣需求 ──
-const salaryOf = (j) => (j.salary_min || j.salary_max ? (j.salary_min && j.salary_max && j.salary_min !== j.salary_max ? `${money(j.salary_min)}～${money(j.salary_max)}` : money(j.salary_max || j.salary_min)) : '薪資沒寫');
-async function loadJobs(target) {
-  const d = await api.get('/admin/dispatch/jobs');
-  const classSel = (j) => `<select data-dsp-class="${esc(j.slug)}" aria-label="技術分類"><option value="">未定</option>${Object.entries(CLASS_LABEL).map(([k, v]) => `<option value="${k}"${j.job_class === k ? ' selected' : ''}>${v}</option>`).join('')}</select>`;
-  const flags = (j) => [
-    j.urgent ? badge('最急', 'danger') : '',
-    j.sheet_status ? badge(...(SHEET[j.sheet_status] || ['', ''])) : '',
-    j.interview_flag ? badge('寫著客戶面試', 'warning') : '',
-    j.service_line_empty ? badge('服務線空白', 'warning') : '',
-  ].join('');
-  const row = (j) => `<article class="dsp-job"><div class="dsp-job-main"><button type="button" class="dsp-link" data-dsp="open-job" data-slug="${esc(j.slug)}">${text(j.title)}</button><div class="dsp-flags">${flags(j)}</div><small>${text(j.company_name || '')}・${salaryOf(j)}・應徵 ${text(j.applicants || 0)} 人</small>${j.sheet_note ? `<small>${text(j.sheet_note)}（${text(j.sheet_checked_at || '')} 查）</small>` : ''}${j.interview_flag ? `<small class="dsp-warn">職缺資料寫：${text(j.interview_flag)}</small>` : ''}${j.class_note ? `<small>分類依據：${text(j.class_note)}</small>` : ''}</div><div class="dsp-job-side">${classSel(j)}</div></article>`;
-  const urgent = d.items.filter((j) => j.urgent);
-  const visible = d.items.filter((j) => !j.urgent && j.sheet_status === 'visible');
-  const gone = d.items.filter((j) => j.sheet_status === 'not_visible');
-  const other = d.items.filter((j) => !j.urgent && !['visible', 'not_visible'].includes(j.sheet_status));
-  const sec = (title, list, help = '') => (list.length ? `<article class="card" style="margin-bottom:14px"><h2>${title}（${list.length}）</h2>${help ? `<p class="help">${help}</p>` : ''}<div class="dsp-jobs">${list.map(row).join('')}</div></article>` : '');
-  const gaps = d.gaps.length ? `<article class="card" style="margin-bottom:14px"><h2>客戶要、系統還沒有（${d.gaps.length}）</h2><div class="list">${d.gaps.map((g) => `<div class="list-row"><span><b>${text(g.title_override)}</b>${g.urgent ? ' ' + badge('最急', 'danger') : ''}<small>${text(g.company_name || '')}・${text(g.sheet_note || '')}</small></span>${badge('系統還沒建', 'danger')}</div>`).join('')}</div></article>` : '';
-  target.innerHTML = gaps + sec('最急', urgent, '客戶 11/2 來信點名的缺。') + sec('客戶表上還有', visible) + sec('客戶表上看不到', gone, '可能客戶已經不找了。系統沒有關，等人確認。') + sec('需要從別的地方確認', other);
-  if (!d.items.length && !d.gaps.length) target.innerHTML = empty('目前沒有開放中的派遣職缺');
-}
-
-// ── 派遣進度 ──
-async function loadProgress(target) {
-  const d = await api.get('/admin/dispatch/people');
-  ui.stages = d.stages || [];
-  target.__people = d.people;
-  target.innerHTML = `<div class="dsp-board">${ui.stages.map(([k, label]) => {
-    const list = d.people.filter((x) => x.stage === k);
-    return `<section class="dsp-col"><h3>${text(label)}<span>${list.length}</span></h3>${list.map((x) => `<button type="button" class="dsp-card" data-dsp="edit-person" data-id="${esc(x.id)}"><b>${text(personName(x))}</b><small>${text(x.company_name || '還沒配客戶')}</small><small>${text(x.job_title || '')}</small></button>`).join('') || '<p class="muted">—</p>'}</section>`;
-  }).join('')}</div>`;
+  const nameBtn = (name, app) => (app ? `<button type="button" class="dsp-link" data-dsp="open-card" data-app="${esc(app)}">${text(name)}</button>` : `<b>${text(name)}</b>`);
+  const row = (x) => `<article class="list-row dsp-person"><span>${nameBtn(personName(x), x.application_id)}<small>${text(stageLabel[x.stage] || x.stage)}・${text(x.company_name || '還沒配客戶')}${x.job_title ? '・' + text(x.job_title) : ''}</small></span><span class="actions-row" style="flex:none;margin:0">${NEXT[x.stage] ? `<button type="button" class="btn ${x.stage === 'active' ? '' : 'primary'} sm" data-dsp="next-step" data-id="${esc(x.id)}">${NEXT[x.stage]}</button>` : ''}<button type="button" class="btn ghost sm" data-dsp="edit-person" data-id="${esc(x.id)}">修改</button></span></article>`;
+  const appRow = (a) => `<article class="list-row dsp-person"><span>${nameBtn(a.name || '（沒有姓名）', a.id)}<small>應徵派遣職缺・${text(a.company_name || '')}・${text(a.job_title || a.job_slug)}</small></span><span class="actions-row" style="flex:none;margin:0"><button type="button" class="btn primary sm" data-dsp="transfer" data-app="${esc(a.id)}" data-job="${esc(a.job_slug || '')}">記錄同意</button></span></article>`;
+  const apps = (d.applicants || []).filter((a) => !a.closed_stage);
+  const todo = d.people.filter((x) => !['active', 'ended', 'converted'].includes(x.stage));
+  const active = d.people.filter((x) => x.stage === 'active');
+  const past = d.people.filter((x) => ['ended', 'converted'].includes(x.stage));
+  const n = todo.length + apps.length;
+  target.innerHTML = `<article class="card"><h2>等你處理（${n}）</h2>${n ? `<div class="list">${todo.map(row).join('')}${apps.map(appRow).join('')}</div>` : '<p class="muted">目前沒有。</p>'}</article>
+    <article class="card" style="margin-top:14px"><h2>在職派遣（${active.length}）</h2>${active.length ? `<div class="list">${active.map(row).join('')}</div>` : '<p class="muted">系統裡還沒有。實際有人在上班的話，按右上角「加人」登記。</p>'}</article>
+    ${past.length ? `<details class="card" style="margin-top:14px"><summary><b>已結束（${past.length}）</b></summary><div class="list" style="margin-top:10px">${past.map(row).join('')}</div></details>` : ''}`;
 }
 function currentPeople() { return ($('#page-data') || {}).__people || []; }
+const jobOptions = (items, cur) => items.map((j) => `<option value="${esc(j.slug)}"${cur === j.slug ? ' selected' : ''}>${esc(j.title)}</option>`).join('');
+// 下一步：只問這一步需要的欄位，不需要就直接做
+async function nextStep(id) {
+  const x = currentPeople().find((p) => p.id === id);
+  if (!x) return;
+  const needJob = !x.job_slug;
+  const jobs = needJob || x.stage === 'contract' ? await api.get('/admin/dispatch/jobs') : { items: [] };
+  const form = {
+    consent_pending: field('怎麼確認同意的', `<input id="dn-note" value="${esc(x.consent_note || '')}" placeholder="例：11/4 電話口頭同意">`),
+    consented: needJob ? field('要送哪個職缺', `<select id="dn-job"><option value="">請選</option>${jobOptions(jobs.items, x.job_slug)}</select>`) : '',
+    contract: `<div class="form-grid">${needJob ? field('派遣職缺', `<select id="dn-job"><option value="">請選</option>${jobOptions(jobs.items, x.job_slug)}</select>`, 'span-2') : ''}${x.job_class ? '' : field('技術分類', `<select id="dn-class">${Object.entries(CLASS_LABEL).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select>`)}${field('每月經常性薪資', `<input id="dn-salary" inputmode="numeric" value="${esc(x.regular_salary || '')}">`)}${field('派遣起日', `<input id="dn-start" type="date" value="${esc(x.start_date || '')}">`)}</div>`,
+    active: field('派遣結束日', `<input id="dn-end" type="date" value="${esc(x.end_date || '')}">`),
+  }[x.stage] || '';
+  if (!form) { await applyNext(id); return; }
+  modal({ title: `${personName(x)}：${NEXT[x.stage]}`, subtitle: '不會通知人選或客戶。', body: form, footer: `<button class="btn" data-close-overlay>取消</button><button class="btn primary" data-dsp="apply-next" data-id="${esc(id)}">確定</button>` });
+}
+async function applyNext(id) {
+  const x = currentPeople().find((p) => p.id === id);
+  const val = (s) => { const el = $(s); return el ? el.value : undefined; };
+  const to = { consent_pending: 'consented', consented: 'skill_check', skill_check: 'contract', contract: 'active', active: 'ended' }[x.stage];
+  const b = { by: me(), stage: to };
+  if (x.stage === 'consent_pending') { b.consent_status = 'agreed'; b.consent_note = val('#dn-note'); }
+  ['job_slug:#dn-job', 'job_class:#dn-class', 'regular_salary:#dn-salary', 'start_date:#dn-start', 'end_date:#dn-end'].forEach((kv) => { const [k, sel] = kv.split(':'); const v = val(sel); if (v !== undefined) b[k] = v; });
+  await api.post(`/admin/dispatch/person/${encodeURIComponent(id)}`, b);
+  closeOverlay(); toast('已更新', 'success'); reload();
+}
 async function editPerson(id) {
   const x = currentPeople().find((p) => p.id === id);
   if (!x) return;
   const jobs = await api.get('/admin/dispatch/jobs').catch(() => ({ items: [] }));
-  if (!ui.stages.length) ui.stages = (await api.get('/admin/dispatch/people')).stages || [];
   modal({
-    title: personName(x), subtitle: `${x.company_name || '還沒配客戶'}${x.job_title ? '・' + x.job_title : ''}`,
+    title: `修改 ${personName(x)}`, subtitle: '填錯才需要改。不會通知人選或客戶。',
     body: `<div class="form-grid">
       ${field('人選對派遣的意願', `<select id="dp-consent"><option value="pending"${x.consent_status === 'pending' ? ' selected' : ''}>還沒問</option><option value="agreed"${x.consent_status === 'agreed' ? ' selected' : ''}>已同意</option><option value="declined"${x.consent_status === 'declined' ? ' selected' : ''}>不同意</option></select>`)}
       ${field('階段', `<select id="dp-stage">${ui.stages.map(([k, v]) => `<option value="${k}"${x.stage === k ? ' selected' : ''}>${esc(v)}</option>`).join('')}</select>`)}
-      ${field('同意怎麼確認的', `<input id="dp-note" value="${esc(x.consent_note || '')}" placeholder="例：11/4 電話口頭同意">`, 'span-2')}
-      ${field('派遣職缺', `<select id="dp-job"><option value="">還沒配</option>${jobs.items.map((j) => `<option value="${esc(j.slug)}"${x.job_slug === j.slug ? ' selected' : ''}>${esc(j.title)}</option>`).join('')}</select>`, 'span-2')}
-      ${field('技術分類', `<select id="dp-class"><option value="">跟職缺</option>${Object.entries(CLASS_LABEL).map(([k, v]) => `<option value="${k}"${x.job_class === k ? ' selected' : ''}>${v}</option>`).join('')}</select>`)}
+      ${field('同意怎麼確認的', `<input id="dp-note" value="${esc(x.consent_note || '')}">`, 'span-2')}
+      ${field('派遣職缺', `<select id="dp-job"><option value="">還沒配</option>${jobOptions(jobs.items, x.job_slug)}</select>`, 'span-2')}
       ${field('每月經常性薪資', `<input id="dp-salary" inputmode="numeric" value="${esc(x.regular_salary || '')}">`)}
       ${field('派遣起日', `<input id="dp-start" type="date" value="${esc(x.start_date || '')}">`)}
-      ${field('派遣結束日', `<input id="dp-end" type="date" value="${esc(x.end_date || '')}">`)}
-    </div><p class="help">改這裡不會通知人選或客戶。</p>`,
+    </div>`,
     footer: `<button class="btn" data-close-overlay>取消</button><button class="btn primary" data-dsp="save-person" data-id="${esc(id)}">儲存</button>`,
   });
 }
 async function savePerson(id) {
   await api.post(`/admin/dispatch/person/${encodeURIComponent(id)}`, {
     by: me(), consent_status: $('#dp-consent').value, stage: $('#dp-stage').value, consent_note: $('#dp-note').value,
-    job_slug: $('#dp-job').value, job_class: $('#dp-class').value, regular_salary: $('#dp-salary').value, start_date: $('#dp-start').value, end_date: $('#dp-end').value,
+    job_slug: $('#dp-job').value, regular_salary: $('#dp-salary').value, start_date: $('#dp-start').value,
   });
   closeOverlay(); toast('已儲存', 'success'); reload();
 }
@@ -148,17 +145,33 @@ async function addActive() {
   const c = await api.get('/admin/dispatch/clients');
   const jobs = await api.get('/admin/dispatch/jobs').catch(() => ({ items: [] }));
   modal({
-    title: '登記已在職的派遣人員', subtitle: '系統沒有卡、但已經在客戶那邊上班的人才用這個。其他人請從人選卡轉入。',
+    title: '登記已在上班的人', subtitle: '系統沒有卡、但已經在客戶那邊上班的人才用這個。',
     body: `<div class="form-grid">
       ${field('姓名', '<input id="da-name">')}
       ${field('要派客戶', `<select id="da-co">${c.items.map((x) => `<option value="${esc(x.company_id)}">${esc(x.display_name)}</option>`).join('')}</select>`)}
-      ${field('職缺（選填）', `<select id="da-job"><option value="">不對應</option>${jobs.items.map((j) => `<option value="${esc(j.slug)}">${esc(j.title)}</option>`).join('')}</select>`, 'span-2')}
+      ${field('職缺（選填）', `<select id="da-job"><option value="">不對應</option>${jobOptions(jobs.items)}</select>`, 'span-2')}
       ${field('技術分類', `<select id="da-class">${Object.entries(CLASS_LABEL).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select>`)}
       ${field('每月經常性薪資', '<input id="da-salary" inputmode="numeric">')}
       ${field('派遣起日', '<input id="da-start" type="date">')}
     </div>`,
     footer: '<button class="btn" data-close-overlay>取消</button><button class="btn primary" data-dsp="save-active">登記</button>',
   });
+}
+
+// ── 派遣需求 ──
+const salaryOf = (j) => (j.salary_min || j.salary_max ? (j.salary_min && j.salary_max && j.salary_min !== j.salary_max ? `${money(j.salary_min)}～${money(j.salary_max)}` : money(j.salary_max || j.salary_min)) : '薪資沒寫');
+async function loadJobs(target) {
+  const d = await api.get('/admin/dispatch/jobs');
+  // 分類定了就只顯示；沒定才出現選單，選完就收起來
+  const classCtl = (j) => (j.job_class ? badge(CLASS_LABEL[j.job_class]) : `<select data-dsp-class="${esc(j.slug)}" aria-label="技術分類"><option value="">選分類</option>${Object.entries(CLASS_LABEL).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select>`);
+  const row = (j, note) => `<article class="dsp-job"><div class="dsp-job-main"><button type="button" class="dsp-link" data-dsp="open-job" data-slug="${esc(j.slug)}">${text(j.title)}</button>${j.urgent ? ' ' + badge('最急', 'danger') : ''}${j.interview_flag ? ' ' + badge('寫著客戶面試', 'warning') : ''}<small>${salaryOf(j)}・應徵 ${text(j.applicants || 0)} 人${note ? '・' + text(note) : ''}</small></div><div class="dsp-job-side">${classCtl(j)}</div></article>`;
+  const hunting = d.items.filter((j) => j.sheet_status === 'visible').sort((a, b) => (b.urgent || 0) - (a.urgent || 0));
+  const ask = d.items.filter((j) => j.sheet_status !== 'visible');
+  const gapRow = (g) => `<article class="dsp-job"><div class="dsp-job-main"><b>${text(g.title_override)}</b>${g.urgent ? ' ' + badge('最急', 'danger') : ''}<small>${text(g.sheet_note || '')}</small></div><div class="dsp-job-side">${badge('要不要建', 'danger')}</div></article>`;
+  const askN = ask.length + d.gaps.length;
+  target.innerHTML = (hunting.length ? `<article class="card" style="margin-bottom:14px"><h2>還在找（${hunting.length}）</h2><div class="dsp-jobs">${hunting.map((j) => row(j)).join('')}</div></article>` : '')
+    + (askN ? `<article class="card"><h2>要你決定（${askN}）</h2><p class="help">系統沒有關任何職缺，等你說。</p><div class="dsp-jobs">${d.gaps.map(gapRow).join('')}${ask.map((j) => row(j, j.sheet_note)).join('')}</div></article>` : '');
+  if (!hunting.length && !askN) target.innerHTML = empty('目前沒有開放中的派遣職缺');
 }
 
 // ── 轉到派遣 ──
@@ -185,11 +198,12 @@ async function openTransfer(btn) {
     body: `${warn.length ? `<div class="notice"><b>先看這 ${warn.length} 點</b><ul style="margin:6px 0 0;padding-left:18px">${warn.map((w) => `<li>${text(w.text)}</li>`).join('')}</ul><label style="display:flex;gap:8px;align-items:center;margin-top:8px;min-height:44px"><input type="checkbox" id="dt-ack"> 我看過了，還是要轉</label></div>` : ''}
       <div class="form-grid">
         ${field('人選同意做派遣了嗎？', '<select id="dt-consent"><option value="">請選</option><option value="agreed">已同意</option><option value="pending">還沒問（先放進名單）</option></select>', 'span-2')}
-        ${field('怎麼確認的（已同意才要寫）', '<input id="dt-note" placeholder="例：11/4 電話口頭同意">', 'span-2')}
+        <label class="field span-2" id="dt-note-wrap" hidden><span>怎麼確認的</span><input id="dt-note" placeholder="例：11/4 電話口頭同意"></label>
         ${field('要配的派遣職缺（可以之後再配）', `<select id="dt-job"><option value="">之後再配</option>${jobs.items.map((j) => `<option value="${esc(j.slug)}"${preJob === j.slug ? ' selected' : ''}>${esc(j.company_name || '')}｜${esc(j.title)}</option>`).join('')}</select>`, 'span-2')}
-      </div><p class="help">派遣不能讓客戶先面試。推薦後只做工作說明及技能確認，簽完勞動契約才上工。</p>`,
+      </div><p class="help">派遣不能讓客戶先面試，只做工作說明及技能確認。</p>`,
     footer: `<button class="btn" data-close-overlay>取消</button><button class="btn primary" data-dsp="do-transfer" data-app="${esc(app)}" data-src="${esc(src)}">轉到派遣</button>`,
   });
+  $('#dt-consent').onchange = (e) => { $('#dt-note-wrap').hidden = e.target.value !== 'agreed'; };
 }
 async function doTransfer(btn) {
   const app = btn.getAttribute('data-app'); const src = btn.getAttribute('data-src');
@@ -202,9 +216,9 @@ async function doTransfer(btn) {
 const isDispatchPage = () => Object.entries(ROUTES).some(([k, p]) => p === location.pathname.replace(/\/?$/, '/') && isDispatchRoute(k));
 function findCandidate() {
   modal({
-    title: '從人才庫轉入', subtitle: '打姓名、電話、Email 或編號。',
+    title: '加人', subtitle: '打姓名、電話、Email 或編號。找到就用同一張卡。',
     body: '<div class="filters"><input id="df-q" style="flex:1" placeholder="搜尋人選"><button class="btn primary" data-dsp="do-find">搜尋</button></div><div id="df-result"></div>',
-    footer: '<button class="btn" data-close-overlay>關閉</button>',
+    footer: '<button class="btn" data-dsp="add-active">系統沒有這個人，直接登記</button><button class="btn" data-close-overlay>關閉</button>',
   });
   $('#df-q').focus();
 }
@@ -227,11 +241,11 @@ async function loadClients(target) {
   if (!d.items.length) { target.innerHTML = empty('還沒有要派客戶', '按右上角新增。'); return; }
   target.innerHTML = d.items.map((c) => {
     const t = c.terms;
-    const bad = c.health.filter((h) => h.state === 'bad').length;
-    return `<article class="card dsp-client"><div class="card-head"><div><h2>${text(c.display_name)}</h2><p class="help">合約甲方：${text(c.party_name || '沒填')}・開放中需求 ${text(c.open_jobs)}・在職 ${text(c.active_people)} 人（系統紀錄）</p></div><div class="actions-row" style="margin:0">${c.status === 'confirmed' ? badge(`條款已確認（${c.confirmed_by || ''}）`, 'success') : badge('條款待確認', 'warning')}${bad ? badge(`${bad} 項要處理`, 'danger') : ''}</div></div>
-      <div class="dsp-terms"><div><span>招募管理費</span><b>非技術 ${text(t.recruit_rate.nontech)}%／技術 ${text(t.recruit_rate.tech)}%</b></div><div><span>行政管理費</span><b>${text(t.admin_rate)}%</b></div><div><span>滿幾個月免招募費</span><b>${t.recruit_free_after_months == null ? '不免' : text(t.recruit_free_after_months) + ' 個月'}</b></div><div><span>付款</span><b>${t.payment_days ? text(t.payment_days) + ' 天' : '沒填'}</b></div></div>
-      <h3 style="margin:16px 0 8px">合約體檢</h3>${healthHtml(c.health)}
-      <div class="actions-row" style="margin-top:14px"><button type="button" class="btn primary" data-dsp="edit-terms" data-id="${esc(c.company_id)}">看／改條款</button>${c.status !== 'confirmed' ? `<button type="button" class="btn" data-dsp="confirm-terms" data-id="${esc(c.company_id)}">我核對過，確認條款</button>` : ''}</div></article>`;
+    const problems = c.health.filter((h) => h.state !== 'ok');
+    return `<article class="card dsp-client"><div class="card-head"><div><h2>${text(c.display_name)}</h2><p class="help">合約甲方：${text(c.party_name || '沒填')}</p></div>${c.status === 'confirmed' ? badge(`條款已確認（${c.confirmed_by || ''}）`, 'success') : badge('條款待確認', 'warning')}</div>
+      <div class="dsp-terms"><div><span>招募管理費</span><b>非技術 ${text(t.recruit_rate.nontech)}%／技術 ${text(t.recruit_rate.tech)}%</b></div><div><span>行政管理費</span><b>${text(t.admin_rate)}%</b></div><div><span>免招募費</span><b>${t.recruit_free_after_months == null ? '不免' : '滿 ' + text(t.recruit_free_after_months) + ' 個月'}</b></div><div><span>付款</span><b>${t.payment_days ? text(t.payment_days) + ' 天' : '沒填'}</b></div></div>
+      ${problems.length ? `<h3 style="margin:16px 0 8px">這份合約的問題（${problems.length}）</h3>${healthHtml(problems)}` : '<p class="help" style="margin-top:12px">合約體檢沒有問題。</p>'}
+      <div class="actions-row" style="margin-top:14px">${c.status !== 'confirmed' ? `<button type="button" class="btn primary" data-dsp="confirm-terms" data-id="${esc(c.company_id)}">核對過，確認條款</button>` : ''}<button type="button" class="btn" data-dsp="edit-terms" data-id="${esc(c.company_id)}">改條款</button></div></article>`;
   }).join('');
 }
 const BASE_LABEL = { statutory: '法定保險與提撥', welfare: '福利費用', overtime: '加班費', bonus: '獎金津貼' };
@@ -307,32 +321,28 @@ async function loadSettlement(target) {
   const row = (r) => {
     const x = r.person; const done = r.status === 'confirmed';
     return `<article class="card dsp-settle" data-person="${esc(x.id)}"><div class="card-head"><div><h3>${text(personName(x))}${x.is_test ? ' ' + badge('測試') : ''}</h3><p class="help">${text(x.job_title || '')}・${text(CLASS_LABEL[x.job_class] || '沒分類')}・起日 ${text(x.start_date || '')}</p></div>${done ? badge(`已確認（${r.confirmed_by || ''}）`, 'success') : badge(r.status === 'draft' ? '草稿' : '還沒存', 'warning')}</div>
-      <div class="dsp-inputs">${SETTLE_INPUTS.map(([k, l]) => field(l, `<input data-si="${k}" inputmode="numeric" value="${esc(r.inputs[k] || '')}"${done ? ' disabled' : ''}>`)).join('')}</div>
       <div data-si-result>${r.result.error ? `<div class="notice">${text(r.result.error)}</div>` : lines(r.result)}</div>
-      <div class="actions-row">${done ? `<button class="btn" data-dsp="settle-undo" data-id="${esc(x.id)}">退回修改</button>` : `<button class="btn" data-dsp="settle-save" data-id="${esc(x.id)}">存草稿並重算</button><button class="btn primary" data-dsp="settle-confirm" data-id="${esc(x.id)}">核對無誤，確認這筆</button>`}</div></article>`;
+      ${done ? '' : `<details class="dsp-more"><summary>改金額（加班、獎金、保險…）</summary><div class="dsp-inputs">${SETTLE_INPUTS.map(([k, l]) => field(l, `<input data-si="${k}" inputmode="numeric" value="${esc(r.inputs[k] || '')}">`)).join('')}</div><div class="actions-row"><button class="btn" data-dsp="settle-save" data-id="${esc(x.id)}">重算</button></div></details>`}
+      <div class="actions-row">${done ? `<button class="btn" data-dsp="settle-undo" data-id="${esc(x.id)}">退回修改</button>` : `<button class="btn primary" data-dsp="settle-confirm" data-id="${esc(x.id)}">核對無誤，確認</button>`}</div></article>`;
   };
   target.innerHTML = `<div class="filters"><label class="dsp-inline">客戶 <select id="ds-co">${c.items.map((x) => `<option value="${esc(x.company_id)}"${x.company_id === ui.company ? ' selected' : ''}>${esc(x.display_name)}</option>`).join('')}</select></label><label class="dsp-inline">月份 <input id="ds-ym" type="month" value="${esc(ui.ym)}"></label>${s.rows.length ? '<button class="btn" data-dsp="settle-csv">匯出這個月</button>' : ''}</div>
-    ${co.status !== 'confirmed' ? '<div class="notice">這家客戶的條款還沒確認，可以試算和存草稿，但不能確認結算。</div>' : ''}
-    ${s.rows.length ? `<div class="kpi-grid"><article class="kpi"><span>這個月人數</span><strong>${s.rows.length}</strong></article><article class="kpi"><span>管理費合計（未稅）</span><strong>${money(mgmt)}</strong></article><article class="kpi"><span>向客戶收合計（未稅）</span><strong>${money(total)}</strong></article><article class="kpi"><span>已確認</span><strong>${s.rows.filter((r) => r.status === 'confirmed').length}</strong></article></div>${s.rows.map(row).join('')}`
-      : `<div class="state"><strong>這個月系統裡沒有在職派遣人員</strong><p>系統沒有這家客戶在職派遣的紀錄。如果實際上有人在上班，到「派遣人選」按「登記已在職的人」。</p></div>`}
-    ${estimateBox(co)}`;
+    ${co.status !== 'confirmed' ? '<div class="notice">這家客戶的條款還沒確認，先到「要派客戶」確認，才能確認結算。</div>' : ''}
+    ${s.rows.length ? `<div class="notice dsp-sum">這個月 ${s.rows.length} 人，已確認 ${s.rows.filter((r) => r.status === 'confirmed').length} 人。向客戶收（未稅）合計 <b>${money(total)}</b>，其中管理費 ${money(mgmt)}。</div>${s.rows.map(row).join('')}`
+      : `<div class="state"><strong>這個月系統裡沒有在職派遣的人</strong><p>實際有人在上班的話，到「派遣人選」按「加人」登記。</p></div>`}
+    ${estimateBox(co, !s.rows.length)}`;
   $('#ds-co').onchange = (e) => { ui.company = e.target.value; loadDispatchRoute('d_settlement', target); };
   $('#ds-ym').onchange = (e) => { if (e.target.value) { ui.ym = e.target.value; loadDispatchRoute('d_settlement', target); } };
 }
-function estimateBox(co) {
-  return `<article class="card" style="margin-top:14px"><h2>試算（什麼都不會存）</h2><p class="help">照 ${text(co.display_name)} 的條款算。派遣起日不填就當新到職。</p><div class="dsp-inputs">
+function estimateBox(co, open) {
+  return `<details class="card dsp-more" style="margin-top:14px"${open ? ' open' : ''}><summary><b>試算一筆</b>（什麼都不會存）</summary><div class="dsp-inputs">
     ${field('每月經常性薪資', '<input id="de-salary" inputmode="numeric" placeholder="例：40000">')}
     ${field('技術分類', `<select id="de-class">${Object.entries(CLASS_LABEL).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select>`)}
-    ${field('派遣起日', '<input id="de-start" type="date">')}
-    ${field('結算月份', `<input id="de-ym" type="month" value="${esc(ui.ym || thisYm())}">`)}
-    ${field('轉任日（選填）', '<input id="de-tdate" type="date">')}
-    ${field('轉任後月薪（選填）', '<input id="de-tsalary" inputmode="numeric">')}
-  </div><div class="actions-row"><button class="btn primary" data-dsp="estimate">算一下</button></div><div id="de-out" style="margin-top:12px"></div></article>`;
+    ${field('派遣起日（不填＝新到職）', '<input id="de-start" type="date">')}
+  </div><div class="actions-row"><button class="btn primary" data-dsp="estimate">算一下</button></div><div id="de-out" style="margin-top:12px"></div></details>`;
 }
 async function runEstimate() {
-  const d = await api.post('/admin/dispatch/estimate', { company_id: ui.company, regular_salary: $('#de-salary').value, job_class: $('#de-class').value, start_date: $('#de-start').value, ym: $('#de-ym').value, transfer_date: $('#de-tdate').value, transfer_salary: $('#de-tsalary').value });
-  const t = d.transfer;
-  $('#de-out').innerHTML = lines(d.result) + (t ? (t.error ? `<div class="notice">${text(t.error)}</div>` : `<table class="dsp-lines"><tbody><tr class="sum"><th>轉任費<small>${text(t.formula)}</small></th><td>${money(t.fee)}</td></tr></tbody></table>`) : '');
+  const d = await api.post('/admin/dispatch/estimate', { company_id: ui.company, regular_salary: $('#de-salary').value, job_class: $('#de-class').value, start_date: $('#de-start').value, ym: ui.ym });
+  $('#de-out').innerHTML = lines(d.result);
 }
 async function saveSettle(id, confirm) {
   const card = $(`.dsp-settle[data-person="${id}"]`);
@@ -349,16 +359,11 @@ function exportCsv() {
   const a = document.createElement('a'); a.href = url; a.download = `派遣結算_${ui.ym}.csv`; a.click(); URL.revokeObjectURL(url);
 }
 
-// ── 請款收款（第二階段）──
-async function loadBilling(target) {
-  target.innerHTML = `<div class="state development"><strong>第二階段才做</strong><p>每月結算確認後，這裡會產請款明細、記發票與收款。現在還沒有動作可以做，也不會寄任何東西。</p><button class="btn" data-route="d_settlement">先去每月結算</button></div>`;
-}
-
 // ── 操作 ──
 document.addEventListener('change', async (e) => {
   const sel = e.target instanceof Element ? e.target.closest('[data-dsp-class]') : null;
   if (!sel) return;
-  try { await api.post(`/admin/dispatch/job/${encodeURIComponent(sel.getAttribute('data-dsp-class'))}`, { by: me(), job_class: sel.value }); toast('已更新分類', 'success'); }
+  try { await api.post(`/admin/dispatch/job/${encodeURIComponent(sel.getAttribute('data-dsp-class'))}`, { by: me(), job_class: sel.value }); toast('已更新分類', 'success'); reload(); }
   catch (err) { toast(err.message || '存不了', 'error'); reload(); }
 });
 document.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target && e.target.id === 'df-q') { e.preventDefault(); doFind().catch((err) => toast(err.message, 'error')); } });
@@ -374,6 +379,8 @@ document.addEventListener('click', async (e) => {
     else if (act === 'do-find') await doFind();
     else if (act === 'transfer') await openTransfer(btn);
     else if (act === 'do-transfer') await doTransfer(btn);
+    else if (act === 'next-step') await nextStep(id);
+    else if (act === 'apply-next') await applyNext(id);
     else if (act === 'edit-person') await editPerson(id);
     else if (act === 'save-person') await savePerson(id);
     else if (act === 'add-active') await addActive();

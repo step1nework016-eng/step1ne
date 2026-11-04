@@ -33,13 +33,13 @@ export const ROUTES = Object.freeze({
   d_today: '/consultant-beta/dispatch/today/',
   d_people: '/consultant-beta/dispatch/people/',
   d_jobs: '/consultant-beta/dispatch/jobs/',
-  d_progress: '/consultant-beta/dispatch/progress/',
   d_clients: '/consultant-beta/dispatch/clients/',
-  d_settlement: '/consultant-beta/dispatch/settlement/',
-  d_billing: '/consultant-beta/dispatch/billing/'
+  d_settlement: '/consultant-beta/dispatch/settlement/'
 });
 
 export const LEGACY_ROUTES = Object.freeze({
+  '/consultant-beta/dispatch/progress/': ['/consultant-beta/dispatch/people/', ''],
+  '/consultant-beta/dispatch/billing/': ['/consultant-beta/dispatch/settlement/', ''],
   '/consultant-beta/overview/': ['/consultant-beta/', ''],
   '/consultant-beta/tracker/': ['/consultant-beta/candidates/', 'workbench'],
   '/consultant-beta/pipeline/': ['/consultant-beta/candidates/', 'workbench'],
