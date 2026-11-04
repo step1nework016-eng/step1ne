@@ -5,6 +5,7 @@ import { api } from './core/api.js';
 import { ROUTES } from './config.js';
 import { $, $$, closeOverlay, closeSubDrawer, empty, errorState, loading, modal, toast } from './core/ui.js';
 import { escapeHtml, text } from './core/security.js';
+import { fileButtons, wireFileButtons } from './filepreview.js';
 
 const esc = escapeHtml;
 const MODE_KEY = 's1ne_work_mode';
@@ -165,8 +166,9 @@ async function loadJobs(target) {
   // 分類定了就只顯示；沒定才出現選單，選完就收起來
   const classCtl = (j) => (j.job_class ? badge(CLASS_LABEL[j.job_class]) : `<select data-dsp-class="${esc(j.slug)}" aria-label="技術分類"><option value="">選分類</option>${Object.entries(CLASS_LABEL).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select>`);
   const row = (j, note) => `<article class="dsp-job"><div class="dsp-job-main"><button type="button" class="dsp-link" data-dsp="open-job" data-slug="${esc(j.slug)}">${text(j.title)}</button>${j.urgent ? ' ' + badge('最急', 'danger') : ''}${j.interview_flag ? ' ' + badge('寫著客戶面試', 'warning') : ''}<small>${salaryOf(j)}・應徵 ${text(j.applicants || 0)} 人${note ? '・' + text(note) : ''}</small></div><div class="dsp-job-side">${classCtl(j)}</div></article>`;
-  const hunting = d.items.filter((j) => j.sheet_status === 'visible').sort((a, b) => (b.urgent || 0) - (a.urgent || 0));
-  const ask = d.items.filter((j) => j.sheet_status !== 'visible');
+  const needAsk = (j) => ['not_visible', 'other_sheet'].includes(j.sheet_status);
+  const hunting = d.items.filter((j) => !needAsk(j)).sort((a, b) => (b.urgent || 0) - (a.urgent || 0));
+  const ask = d.items.filter(needAsk);
   const gapRow = (g) => `<article class="dsp-job"><div class="dsp-job-main"><b>${text(g.title_override)}</b>${g.urgent ? ' ' + badge('最急', 'danger') : ''}<small>${text(g.sheet_note || '')}</small></div><div class="dsp-job-side">${badge('要不要建', 'danger')}</div></article>`;
   const askN = ask.length + d.gaps.length;
   target.innerHTML = (hunting.length ? `<article class="card" style="margin-bottom:14px"><h2>還在找（${hunting.length}）</h2><div class="dsp-jobs">${hunting.map((j) => row(j)).join('')}</div></article>` : '')
@@ -241,12 +243,16 @@ async function loadClients(target) {
   if (!d.items.length) { target.innerHTML = empty('還沒有要派客戶', '按右上角新增。'); return; }
   target.innerHTML = d.items.map((c) => {
     const t = c.terms;
-    const problems = c.health.filter((h) => h.state !== 'ok');
+    const problems = c.health.filter((h) => h.state !== 'ok' && h.key !== 'term');
+    const cs = c.contract_status;
+    const csTone = { expired: 'danger', expiring: 'warning', unknown: 'warning', active: 'success' }[cs.key];
     return `<article class="card dsp-client"><div class="card-head"><div><h2>${text(c.display_name)}</h2><p class="help">合約甲方：${text(c.party_name || '沒填')}</p></div>${c.status === 'confirmed' ? badge(`條款已確認（${c.confirmed_by || ''}）`, 'success') : badge('條款待確認', 'warning')}</div>
+      <div class="dsp-contract ${cs.key}"><div><span>合約</span><b>${t.contract_start ? text(t.contract_start) : '起日沒填'}～${t.contract_end ? text(t.contract_end) : '到期日沒填'}</b>${t.auto_renew ? '<small>會自動續約</small>' : '<small>不會自動續約・到期前 60 天提醒</small>'}</div>${badge(cs.label, csTone)}<div class="dsp-contract-files">${(c.contract_files || []).map((f) => fileButtons(`/admin/file/${encodeURIComponent(f.file_id)}`, f.filename || f.title)).join('') || '<button type="button" class="btn sm" data-route="library">合約檔還沒放，到書櫃上傳</button>'}</div></div>
       <div class="dsp-terms"><div><span>招募管理費</span><b>非技術 ${text(t.recruit_rate.nontech)}%／技術 ${text(t.recruit_rate.tech)}%</b></div><div><span>行政管理費</span><b>${text(t.admin_rate)}%</b></div><div><span>免招募費</span><b>${t.recruit_free_after_months == null ? '不免' : '滿 ' + text(t.recruit_free_after_months) + ' 個月'}</b></div><div><span>付款</span><b>${t.payment_days ? text(t.payment_days) + ' 天' : '沒填'}</b></div></div>
-      ${problems.length ? `<h3 style="margin:16px 0 8px">這份合約的問題（${problems.length}）</h3>${healthHtml(problems)}` : '<p class="help" style="margin-top:12px">合約體檢沒有問題。</p>'}
+      ${problems.length ? `<h3 style="margin:16px 0 8px">條文上的缺口（${problems.length}）</h3>${healthHtml(problems)}` : '<p class="help" style="margin-top:12px">合約體檢沒有問題。</p>'}
       <div class="actions-row" style="margin-top:14px">${c.status !== 'confirmed' ? `<button type="button" class="btn primary" data-dsp="confirm-terms" data-id="${esc(c.company_id)}">核對過，確認條款</button>` : ''}<button type="button" class="btn" data-dsp="edit-terms" data-id="${esc(c.company_id)}">改條款</button></div></article>`;
   }).join('');
+  wireFileButtons(target);
 }
 const BASE_LABEL = { statutory: '法定保險與提撥', welfare: '福利費用', overtime: '加班費', bonus: '獎金津貼' };
 function editTerms(id) {
