@@ -578,7 +578,7 @@ def zh_infographic_fix(s, rel, lang):
     return re.sub(r'<img [^>]*src="[^"]*(?:%s)[^"]*"[^>]*>' % '|'.join(ZH_TEXT_IMAGES), f, s)
 
 
-ZH_TEXT_IMAGES = ('which-job-fits-you', 'bim-career-pyramid')
+ZH_TEXT_IMAGES = ('which-job-fits-you', 'bim-career-pyramid', 'what-is-bim', 'hero-work-scenes', 'talent-map', 'lineapp-promo', 'success-stories-hero')
 
 
 def banner_fix(s, rel, lang):
