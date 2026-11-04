@@ -567,6 +567,20 @@ def needs_note(rel):
     return rel.startswith('jobs/') and rel != 'jobs/index.html' or rel.startswith('apply')
 
 
+def zh_infographic_fix(s, rel, lang):
+    """圖上烙著中文字的資訊圖（營造／培訓專區）在日英版看起來像沒翻好 → 改成顯示已翻好的圖說文字。
+    11/4 Jacky。要新增就把檔名關鍵字加進 ZH_TEXT_IMAGES。"""
+    def f(m):
+        alt = re.search(r'alt="([^"]*)"', m.group(0))
+        txt = alt.group(1) if alt else ''
+        return ('<p class="s1-alt" style="margin:0 0 16px;padding:14px 16px;border-radius:12px;background:#f1f5f9;'
+                'border:1px solid #e2e8f0;font-size:15px;line-height:1.7;color:#1f2937">%s</p>' % txt) if txt else ''
+    return re.sub(r'<img [^>]*src="[^"]*(?:%s)[^"]*"[^>]*>' % '|'.join(ZH_TEXT_IMAGES), f, s)
+
+
+ZH_TEXT_IMAGES = ('which-job-fits-you', 'bim-career-pyramid')
+
+
 def banner_fix(s, rel, lang):
     """首頁橫幅圖左上角烙著中文「德仁管理顧問／IT人才專家｜高階獵才平台」→ 日英版換成去字版
     （assets/hero-banner-notext.webp），再用該語言的 HTML 文字疊回去。
@@ -596,6 +610,7 @@ def build_page(rel, lang, tr):
     s = set_head(s, rel, lang)
     s = rewrite_links(s, lang)
     s = banner_fix(s, rel, lang)
+    s = zh_infographic_fix(s, rel, lang)
     s = inject(s, rel, lang)
     s = apply_header(s, rel, lang)
     if PREVIEW:
