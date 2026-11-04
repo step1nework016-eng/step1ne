@@ -30,10 +30,19 @@ export const ROUTES = Object.freeze({
   roles: '/consultant/agent-roles/',
   paths: '/consultant/candidate-paths/',
   billflow: '/consultant/billing-flow/',
-  system: '/consultant/system/'
+  system: '/consultant/system/',
+  // 2026-11-04 派遣模式
+  d_today: '/consultant/dispatch/today/',
+  d_people: '/consultant/dispatch/people/',
+  d_jobs: '/consultant/dispatch/jobs/',
+  d_clients: '/consultant/dispatch/clients/',
+  d_settlement: '/consultant/dispatch/settlement/',
+  d_guide: '/consultant/dispatch/guide/'
 });
 
 export const LEGACY_ROUTES = Object.freeze({
+  '/consultant/dispatch/progress/': ['/consultant/dispatch/people/', ''],
+  '/consultant/dispatch/billing/': ['/consultant/dispatch/settlement/', ''],
   '/consultant/overview/': ['/consultant/', ''],
   '/consultant/tracker/': ['/consultant/candidates/', 'workbench'],
   '/consultant/pipeline/': ['/consultant/candidates/', 'workbench'],

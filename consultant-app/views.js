@@ -2,6 +2,7 @@ import { DAILY_TABS } from './daily.js';
 import { ROUTES } from './config.js';
 import { escapeHtml, text } from './core/security.js';
 import { statusBadge } from './core/status.js';
+import { DISPATCH_NAV, dispatchViews, modeOf, modeSwitchHtml } from './dispatch.js';
 
 // 阿財分流 A–E 徽章——卡片式與表格式共用。
 const ROUTE_STYLE = {
@@ -255,12 +256,17 @@ export function shell(active, content, collapsed = false) {
   // ⚠️ 收合按鈕不能放進 <a class="brand"> 裡面——瀏覽器不允許互動元素巢狀
   // interactive content，而且全域點擊委派會先比對 [data-route]，按鈕點下去會
   // 連帶觸發外層 <a> 的 data-route="home" 跳轉。改成跟 .brand 平行的兄弟元素。
-  const g = navGroupOf(active);
-  const navHtml = NAV_GROUPS.map((grp) => `<a href="${ROUTES[grp.tabs[0][0]] || ROUTES.daily}" class="${g && g.id === grp.id ? 'active' : ''}" data-route="${grp.tabs[0][0]}" title="${grp.label}"${g && g.id === grp.id ? ' aria-current="page"' : ''}><i aria-hidden="true">${grp.icon}</i>${grp.label}</a>`).join('');
-  return `<div class="app-shell${collapsed ? ' collapsed' : ''}"><aside class="sidebar"><div class="brand-row"><a class="brand" data-route="daily"><span>S</span><div>Step1ne<small>CONSULTANT OS</small></div></a><button type="button" class="sidebar-toggle" data-action="toggle-sidebar" title="${collapsed ? '展開側欄' : '收合側欄'}">${collapsed ? '»' : '«'}</button></div><nav>${navHtml}</nav><footer>Production contract v2</footer></aside><main><header class="topbar"><button class="mobile-menu" data-action="toggle-menu">☰</button><label class="me-global" title="寄信、核准、改設定時，系統記住是誰做的"><span>我是</span><select data-me-global aria-label="我是"><option value="">選擇…</option></select></label><button class="btn ghost" data-action="token">ADMIN TOKEN</button></header><section class="content">${groupTabbar(active)}${content}</section></main></div>`;
+  // 2026-11-04 Jacky：右上角切招募／派遣。派遣時整個左邊選單換成 DISPATCH_NAV，資料共用、只切畫面。
+  const mode = modeOf(active);
+  const g = mode === 'dispatch' ? null : navGroupOf(active);
+  const navHtml = mode === 'dispatch'
+    ? DISPATCH_NAV.map(([k, label, icon]) => `<a href="${ROUTES[k]}" class="${k === active ? 'active' : ''}" data-route="${k}" title="${label}"${k === active ? ' aria-current="page"' : ''}><i aria-hidden="true">${icon}</i>${label}</a>`).join('')
+    : NAV_GROUPS.map((grp) => `<a href="${ROUTES[grp.tabs[0][0]] || ROUTES.daily}" class="${g && g.id === grp.id ? 'active' : ''}" data-route="${grp.tabs[0][0]}" title="${grp.label}"${g && g.id === grp.id ? ' aria-current="page"' : ''}><i aria-hidden="true">${grp.icon}</i>${grp.label}</a>`).join('');
+  return `<div class="app-shell mode-${mode}${collapsed ? ' collapsed' : ''}"><aside class="sidebar"><div class="brand-row"><a class="brand" data-route="${mode === 'dispatch' ? 'd_today' : 'daily'}"><span>S</span><div>Step1ne<small>${mode === 'dispatch' ? 'DISPATCH 派遣' : 'CONSULTANT OS'}</small></div></a><button type="button" class="sidebar-toggle" data-action="toggle-sidebar" title="${collapsed ? '展開側欄' : '收合側欄'}">${collapsed ? '»' : '«'}</button></div><nav>${navHtml}</nav><footer>Production contract v2</footer></aside><main><header class="topbar"><button class="mobile-menu" data-action="toggle-menu">☰</button>${modeSwitchHtml(mode)}<label class="me-global" title="寄信、核准、改設定時，系統記住是誰做的"><span>我是</span><select data-me-global aria-label="我是"><option value="">選擇…</option></select></label><button class="btn ghost" data-action="token">ADMIN TOKEN</button></header><section class="content">${mode === 'dispatch' ? '' : groupTabbar(active)}${content}</section></main></div>`;
 }
 
 export const views = {
+  ...dispatchViews,
   // 2026-10-28：帶案狀況（給 Jim 看的帶案儀表板 pipeline.step1ne.com，原本是左側選單的外部連結↗）。
   // 那邊要通行碼；嵌在下面試著直接看，看不到（空白／被擋）就按按鈕另開分頁，功能完全一樣。
   casestatus: () => pageHead('帶案狀況', '給 Jim 看的帶案儀表板，需要通行碼。下面看不到的話，按右邊按鈕另開分頁。', '<a class="btn primary" href="https://pipeline.step1ne.com/" target="_blank" rel="noopener" style="min-height:44px;display:inline-flex;align-items:center;text-decoration:none">另開分頁看帶案狀況 ↗</a>') + `<div id="page-data"><iframe class="casestatus-frame" src="https://pipeline.step1ne.com/" title="帶案狀況儀表板" loading="lazy" referrerpolicy="no-referrer"></iframe></div>`,

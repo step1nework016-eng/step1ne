@@ -1844,7 +1844,7 @@ svg .rs-val{font-size:15px;font-weight:700;fill:#14232e}svg .rs-lab{font-size:13
 .dsp-health{display:grid;gap:7px}.dsp-h{display:grid;grid-template-columns:72px 1fr;gap:10px;align-items:start;padding:10px 12px;border:1px solid var(--line);border-radius:10px}.dsp-h p{margin:3px 0 0;color:#46536a;font-size:13px;line-height:1.55}.dsp-h.bad{background:#fff6f6;border-color:#f0c6c9}
 .dsp-checks{display:flex;flex-wrap:wrap;gap:6px 16px}.dsp-checks label{display:flex;align-items:center;gap:7px;min-height:44px;font-weight:400;font-size:14px}.dsp-checks input{width:18px;height:18px}
 .dsp-tier{display:grid;grid-template-columns:1fr 90px 20px;gap:8px;align-items:center;margin-top:6px;font-weight:400;font-size:14px}.dsp-tier input{min-height:44px}
-.field small.muted{font-weight:400;display:block;margin-top:2px;font-size:12px}
+body:has(.mode-dispatch) .field small.muted{font-weight:400;display:block;margin-top:2px;font-size:12px}
 .dsp-inline{display:flex;align-items:center;gap:7px;font-size:14px;color:var(--muted)}.dsp-inline select,.dsp-inline input{min-height:44px}
 .dsp-inputs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}.dsp-inputs input,.dsp-inputs select{min-height:44px;width:100%}
 .dsp-settle{margin-bottom:12px}.dsp-settle h3{font-size:16px}.dsp-settle .help{margin:4px 0 0}
@@ -1889,5 +1889,5 @@ svg .rs-val{font-size:15px;font-weight:700;fill:#14232e}svg .rs-lab{font-size:13
 /* 派遣模式手機版：點擊區 44px，只影響派遣模式 */
 @media(max-width:720px){.mode-dispatch .mobile-menu{min-width:44px;min-height:44px}.mode-dispatch .topbar select{min-height:44px}.mode-dispatch .btn.sm{min-height:44px}.mode-dispatch .dsp-link{min-height:44px;display:inline-block}.mode-dispatch .dsp-table .btn{min-height:44px}body:has(.mode-dispatch) #overlay-root .icon-btn{min-width:44px;min-height:44px}body:has(.mode-dispatch) #overlay-root .btn.sm{min-height:44px}.mode-dispatch .dsp-acc-head{min-height:60px}.mode-dispatch #ds-ym,.mode-dispatch #ds-co{min-height:44px}.mode-dispatch .dsp-inline{flex:1 1 100%}}
 /* 派遣模式手機版：書櫃不撐寬整頁，只影響派遣模式 */
-.mode-dispatch .lib-wrap{grid-template-columns:minmax(0,1fr)}
+.mode-dispatch .lib-wrap,.mode-dispatch .lib-shelves{grid-template-columns:minmax(0,1fr)}
 @media(max-width:720px){.mode-dispatch .lib-seg button{min-height:44px}.mode-dispatch .lib-vers button{min-height:44px}.mode-dispatch .lib-acts .btn{min-height:44px}}
