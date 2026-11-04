@@ -80,7 +80,7 @@ async function loadPeople(target) {
   target.__people = d.people;
   const stageLabel = Object.fromEntries(ui.stages);
   const nameBtn = (name, app) => (app ? `<button type="button" class="dsp-link" data-dsp="open-card" data-app="${esc(app)}">${text(name)}</button>` : `<b>${text(name)}</b>`);
-  const row = (x) => `<article class="list-row dsp-person"><span>${nameBtn(personName(x), x.application_id)}<small>${text(stageLabel[x.stage] || x.stage)}・${text(x.company_name || '還沒配客戶')}${x.job_title ? '・' + text(x.job_title) : ''}</small></span><span class="actions-row" style="flex:none;margin:0">${NEXT[x.stage] ? `<button type="button" class="btn ${x.stage === 'active' ? '' : 'primary'} sm" data-dsp="next-step" data-id="${esc(x.id)}">${NEXT[x.stage]}</button>` : ''}<button type="button" class="btn ghost sm" data-dsp="edit-person" data-id="${esc(x.id)}">修改</button></span></article>`;
+  const row = (x) => `<article class="list-row dsp-person${x.is_test ? ' demo' : ''}"><span>${nameBtn(personName(x), x.application_id)}${x.is_test ? ' ' + badge('示範資料', 'info') : ''}<small>${text(stageLabel[x.stage] || x.stage)}・${text(x.company_name || '還沒配客戶')}${x.job_title ? '・' + text(x.job_title) : ''}</small></span><span class="actions-row" style="flex:none;margin:0">${NEXT[x.stage] ? `<button type="button" class="btn ${x.stage === 'active' ? '' : 'primary'} sm" data-dsp="next-step" data-id="${esc(x.id)}">${NEXT[x.stage]}</button>` : ''}<button type="button" class="btn ghost sm" data-dsp="edit-person" data-id="${esc(x.id)}">修改</button>${x.is_test ? '<button type="button" class="btn ghost sm" data-dsp="demo-delete">刪除示範資料</button>' : ''}</span></article>`;
   const appRow = (a) => `<article class="list-row dsp-person"><span>${nameBtn(a.name || '（沒有姓名）', a.id)}<small>應徵派遣職缺・${text(a.company_name || '')}・${text(a.job_title || a.job_slug)}</small></span><span class="actions-row" style="flex:none;margin:0"><button type="button" class="btn primary sm" data-dsp="transfer" data-app="${esc(a.id)}" data-job="${esc(a.job_slug || '')}">記錄同意</button></span></article>`;
   const apps = (d.applicants || []).filter((a) => !a.closed_stage);
   const todo = d.people.filter((x) => !['active', 'ended', 'converted'].includes(x.stage));
@@ -88,7 +88,7 @@ async function loadPeople(target) {
   const past = d.people.filter((x) => ['ended', 'converted'].includes(x.stage));
   const n = todo.length + apps.length;
   target.innerHTML = `<article class="card"><h2>等你處理（${n}）</h2>${n ? `<div class="list">${todo.map(row).join('')}${apps.map(appRow).join('')}</div>` : '<p class="muted">目前沒有。</p>'}</article>
-    <article class="card" style="margin-top:14px"><h2>在職派遣（${active.length}）</h2>${active.length ? `<div class="list">${active.map(row).join('')}</div>` : '<p class="muted">系統裡還沒有。實際有人在上班的話，按右上角「加人」登記。</p>'}</article>
+    <article class="card" style="margin-top:14px"><h2>在職派遣（真實 ${active.filter((x) => !x.is_test).length} 人）</h2>${active.length ? `<div class="list">${active.map(row).join('')}</div>` : '<p class="muted">系統裡還沒有。實際有人在上班的話，按右上角「加人」登記。</p>'}${active.some((x) => x.is_test) ? '<p class="help">示範資料不算人數、不進報表和請款，也不會通知任何人。</p>' : ''}</article>
     ${past.length ? `<details class="card" style="margin-top:14px"><summary><b>已結束（${past.length}）</b></summary><div class="list" style="margin-top:10px">${past.map(row).join('')}</div></details>` : ''}`;
 }
 function currentPeople() { return ($('#page-data') || {}).__people || []; }
@@ -106,7 +106,7 @@ async function nextStep(id) {
     active: field('派遣結束日', `<input id="dn-end" type="date" value="${esc(x.end_date || '')}">`),
   }[x.stage] || '';
   if (!form) { await applyNext(id); return; }
-  modal({ title: `${personName(x)}：${NEXT[x.stage]}`, subtitle: '不會通知人選或客戶。', body: form, footer: `<button class="btn" data-close-overlay>取消</button><button class="btn primary" data-dsp="apply-next" data-id="${esc(id)}">確定</button>` });
+  modal({ title: `${personName(x)}：${NEXT[x.stage]}`, subtitle: x.is_test ? '示範資料。不會通知人選或客戶。' : '不會通知人選或客戶。', body: form, footer: `<button class="btn" data-close-overlay>取消</button><button class="btn primary" data-dsp="apply-next" data-id="${esc(id)}">確定</button>` });
 }
 async function applyNext(id) {
   const x = currentPeople().find((p) => p.id === id);
@@ -123,7 +123,7 @@ async function editPerson(id) {
   if (!x) return;
   const jobs = await api.get('/admin/dispatch/jobs').catch(() => ({ items: [] }));
   modal({
-    title: `修改 ${personName(x)}`, subtitle: '填錯才需要改。不會通知人選或客戶。',
+    title: `修改 ${personName(x)}`, subtitle: `${x.is_test ? '示範資料。' : ''}填錯才需要改。不會通知人選或客戶。`,
     body: `<div class="form-grid">
       ${field('人選對派遣的意願', `<select id="dp-consent"><option value="pending"${x.consent_status === 'pending' ? ' selected' : ''}>還沒問</option><option value="agreed"${x.consent_status === 'agreed' ? ' selected' : ''}>已同意</option><option value="declined"${x.consent_status === 'declined' ? ' selected' : ''}>不同意</option></select>`)}
       ${field('階段', `<select id="dp-stage">${ui.stages.map(([k, v]) => `<option value="${k}"${x.stage === k ? ' selected' : ''}>${esc(v)}</option>`).join('')}</select>`)}
@@ -321,19 +321,20 @@ async function loadSettlement(target) {
   const co = c.items.find((x) => x.company_id === ui.company);
   const s = await api.get(`/admin/dispatch/settlement?company_id=${encodeURIComponent(ui.company)}&ym=${encodeURIComponent(ui.ym)}`);
   target.__rows = s.rows;
-  const rowsOk = s.rows.filter((r) => !r.result.error);
+  const real = s.rows.filter((r) => !r.person.is_test);
+  const rowsOk = real.filter((r) => !r.result.error);
   const total = rowsOk.reduce((a, r) => a + r.result.total_untaxed, 0);
   const mgmt = rowsOk.reduce((a, r) => a + r.result.management_fee, 0);
   const row = (r) => {
     const x = r.person; const done = r.status === 'confirmed';
-    return `<article class="card dsp-settle" data-person="${esc(x.id)}"><div class="card-head"><div><h3>${text(personName(x))}${x.is_test ? ' ' + badge('測試') : ''}</h3><p class="help">${text(x.job_title || '')}・${text(CLASS_LABEL[x.job_class] || '沒分類')}・起日 ${text(x.start_date || '')}</p></div>${done ? badge(`已確認（${r.confirmed_by || ''}）`, 'success') : badge(r.status === 'draft' ? '草稿' : '還沒存', 'warning')}</div>
-      <div data-si-result>${r.result.error ? `<div class="notice">${text(r.result.error)}</div>` : lines(r.result)}</div>
+    return `<article class="card dsp-settle${x.is_test ? ' demo' : ''}" data-person="${esc(x.id)}"><div class="card-head"><div><h3>${text(personName(x))}${x.is_test ? ' ' + badge('示範資料', 'info') : ''}</h3><p class="help">${text(x.job_title || '')}・${text(CLASS_LABEL[x.job_class] || '沒分類')}・起日 ${text(x.start_date || '')}</p></div>${done ? badge(`已確認（${r.confirmed_by || ''}）`, 'success') : badge(r.status === 'draft' ? '草稿' : '還沒存', 'warning')}</div>
+      ${x.is_test ? '<div class="notice">示範資料：數字只是舉例，不是對外的費率案例，不算進合計、匯出或請款。</div>' : ''}<div data-si-result>${r.result.error ? `<div class="notice">${text(r.result.error)}</div>` : lines(r.result)}</div>
       ${done ? '' : `<details class="dsp-more"><summary>改金額（加班、獎金、保險…）</summary><div class="dsp-inputs">${SETTLE_INPUTS.map(([k, l]) => field(l, `<input data-si="${k}" inputmode="numeric" value="${esc(r.inputs[k] || '')}">`)).join('')}</div><div class="actions-row"><button class="btn" data-dsp="settle-save" data-id="${esc(x.id)}">重算</button></div></details>`}
       <div class="actions-row">${done ? `<button class="btn" data-dsp="settle-undo" data-id="${esc(x.id)}">退回修改</button>` : `<button class="btn primary" data-dsp="settle-confirm" data-id="${esc(x.id)}">核對無誤，確認</button>`}</div></article>`;
   };
-  target.innerHTML = `<div class="filters"><label class="dsp-inline">客戶 <select id="ds-co">${c.items.map((x) => `<option value="${esc(x.company_id)}"${x.company_id === ui.company ? ' selected' : ''}>${esc(x.display_name)}</option>`).join('')}</select></label><label class="dsp-inline">月份 <input id="ds-ym" type="month" value="${esc(ui.ym)}"></label>${s.rows.length ? '<button class="btn" data-dsp="settle-csv">匯出這個月</button>' : ''}</div>
+  target.innerHTML = `<div class="filters"><label class="dsp-inline">客戶 <select id="ds-co">${c.items.map((x) => `<option value="${esc(x.company_id)}"${x.company_id === ui.company ? ' selected' : ''}>${esc(x.display_name)}</option>`).join('')}</select></label><label class="dsp-inline">月份 <input id="ds-ym" type="month" value="${esc(ui.ym)}"></label>${real.length ? '<button class="btn" data-dsp="settle-csv">匯出這個月</button>' : ''}</div>
     ${co.status !== 'confirmed' ? '<div class="notice">這家客戶的條款還沒確認，先到「要派客戶」確認，才能確認結算。</div>' : ''}
-    ${s.rows.length ? `<div class="notice dsp-sum">這個月 ${s.rows.length} 人，已確認 ${s.rows.filter((r) => r.status === 'confirmed').length} 人。向客戶收（未稅）合計 <b>${money(total)}</b>，其中管理費 ${money(mgmt)}。</div>${s.rows.map(row).join('')}`
+    ${real.length ? `<div class="notice dsp-sum">這個月 ${real.length} 人，已確認 ${real.filter((r) => r.status === 'confirmed').length} 人。向客戶收（未稅）合計 <b>${money(total)}</b>，其中管理費 ${money(mgmt)}。</div>` : ''}${s.rows.length ? `${real.length ? '' : '<p class="help">這個月真實人員 0 人，下面只有示範資料。</p>'}${s.rows.map(row).join('')}`
       : `<div class="state"><strong>這個月系統裡沒有在職派遣的人</strong><p>實際有人在上班的話，到「派遣人選」按「加人」登記。</p></div>`}
     ${estimateBox(co, !s.rows.length)}`;
   $('#ds-co').onchange = (e) => { ui.company = e.target.value; loadDispatchRoute('d_settlement', target); };
@@ -360,7 +361,7 @@ function exportCsv() {
   const rows = ($('#page-data') || {}).__rows || [];
   const head = ['姓名', '職缺', '分類', '經常性薪資', '加班費', '獎金津貼', '保險費', '提撥金', '工作費用', '其他', '招募管理費', '行政管理費', '客戶可扣福利金', '向客戶收(未稅)', '狀態', '確認人'];
   const cell = (v) => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`;
-  const body = rows.filter((r) => !r.result.error).map((r) => [personName(r.person), r.person.job_title, CLASS_LABEL[r.person.job_class], r.inputs.regular_salary, r.inputs.overtime, r.inputs.bonus, r.inputs.insurance, r.inputs.pension, r.inputs.expense, r.inputs.other, r.result.recruit_fee, r.result.admin_fee, r.result.welfare_deduct, r.result.total_untaxed, r.status === 'confirmed' ? '已確認' : '未確認', r.confirmed_by].map(cell).join(','));
+  const body = rows.filter((r) => !r.result.error && !r.person.is_test).map((r) => [personName(r.person), r.person.job_title, CLASS_LABEL[r.person.job_class], r.inputs.regular_salary, r.inputs.overtime, r.inputs.bonus, r.inputs.insurance, r.inputs.pension, r.inputs.expense, r.inputs.other, r.result.recruit_fee, r.result.admin_fee, r.result.welfare_deduct, r.result.total_untaxed, r.status === 'confirmed' ? '已確認' : '未確認', r.confirmed_by].map(cell).join(','));
   const url = URL.createObjectURL(new Blob(['﻿' + [head.map(cell).join(','), ...body].join('\n')], { type: 'text/csv;charset=utf-8' }));
   const a = document.createElement('a'); a.href = url; a.download = `派遣結算_${ui.ym}.csv`; a.click(); URL.revokeObjectURL(url);
 }
@@ -407,5 +408,11 @@ document.addEventListener('click', async (e) => {
     else if (act === 'settle-confirm') await saveSettle(id, true);
     else if (act === 'settle-undo') { await api.post('/admin/dispatch/settlement', { by: me(), person_id: id, ym: ui.ym, unconfirm: true }); toast('已退回修改', 'success'); reload(); }
     else if (act === 'settle-csv') exportCsv();
+    else if (act === 'demo-delete') {
+      modal({ title: '刪除示範資料', subtitle: '只會刪示範人選和它的結算，真實人選不受影響。刪了就不見了。', body: '<p>確定要刪嗎？</p>', footer: '<button class="btn" data-close-overlay>取消</button><button class="btn danger" data-dsp="demo-delete-go">確定刪除</button>' });
+    } else if (act === 'demo-delete-go') {
+      await api.post('/admin/dispatch/demo-delete', { by: me() });
+      closeOverlay(); toast('示範資料已刪除', 'success'); reload();
+    }
   } catch (err) { toast(err.message || '操作失敗', 'error'); }
 });
