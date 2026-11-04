@@ -245,9 +245,9 @@ async function loadClients(target) {
     const t = c.terms;
     const problems = c.health.filter((h) => h.state !== 'ok' && h.key !== 'term');
     const cs = c.contract_status;
-    const csTone = { expired: 'danger', expiring: 'warning', unknown: 'warning', active: 'success' }[cs.key];
+    const csTone = { expired: 'danger', expiring: 'warning', unknown: 'warning', active: 'success', renewed: 'success' }[cs.key];
     return `<article class="card dsp-client"><div class="card-head"><div><h2>${text(c.display_name)}</h2><p class="help">合約甲方：${text(c.party_name || '沒填')}</p></div>${c.status === 'confirmed' ? badge(`條款已確認（${c.confirmed_by || ''}）`, 'success') : badge('條款待確認', 'warning')}</div>
-      <div class="dsp-contract ${cs.key}"><div><span>合約</span><b>${t.contract_start ? text(t.contract_start) : '起日沒填'}～${t.contract_end ? text(t.contract_end) : '到期日沒填'}</b>${t.auto_renew ? '<small>會自動續約</small>' : '<small>不會自動續約・到期前 60 天提醒</small>'}</div>${badge(cs.label, csTone)}<div class="dsp-contract-files">${(c.contract_files || []).map((f) => fileButtons(`/admin/file/${encodeURIComponent(f.file_id)}`, f.filename || f.title)).join('') || '<button type="button" class="btn sm" data-route="library">合約檔還沒放，到書櫃上傳</button>'}</div></div>
+      <div class="dsp-contract ${cs.key}"><div><span>合約</span><b>${t.contract_start ? text(t.contract_start) : '起日沒填'}～${t.contract_end ? text(t.contract_end) : (t.renewed ? '新到期日待補' : '到期日沒填')}</b>${cs.key === 'renewed' ? '<small>續約文件和新到期日待補，有日期才開始提醒</small>' : t.auto_renew ? '<small>會自動續約</small>' : '<small>不會自動續約・到期前 60 天提醒</small>'}</div>${badge(cs.label, csTone)}<div class="dsp-contract-files">${(c.contract_files || []).map((f) => fileButtons(`/admin/file/${encodeURIComponent(f.file_id)}`, f.filename || f.title)).join('') || '<button type="button" class="btn sm" data-route="library">合約檔還沒放，到書櫃上傳</button>'}</div></div>
       <div class="dsp-terms"><div><span>招募管理費</span><b>非技術 ${text(t.recruit_rate.nontech)}%／技術 ${text(t.recruit_rate.tech)}%</b></div><div><span>行政管理費</span><b>${text(t.admin_rate)}%</b></div><div><span>免招募費</span><b>${t.recruit_free_after_months == null ? '不免' : '滿 ' + text(t.recruit_free_after_months) + ' 個月'}</b></div><div><span>付款</span><b>${t.payment_days ? text(t.payment_days) + ' 天' : '沒填'}</b></div></div>
       ${problems.length ? `<details class="dsp-more" style="margin-top:10px"><summary>條文上的缺口（${problems.length}），談新合約時再看</summary>${healthHtml(problems)}</details>` : ''}
       <div class="actions-row" style="margin-top:14px">${c.status !== 'confirmed' ? `<button type="button" class="btn primary" data-dsp="confirm-terms" data-id="${esc(c.company_id)}">核對過，確認條款</button>` : ''}<button type="button" class="btn" data-dsp="edit-terms" data-id="${esc(c.company_id)}">改條款</button></div></article>`;
@@ -277,7 +277,7 @@ function editTerms(id) {
       ${field(`付款天數 ${clause('payment')}`, `<input id="dc-pay" inputmode="numeric" value="${v(t.payment_days)}">`)}
       ${field(`遲延利息（每月 %，空白＝沒寫）`, `<input id="dc-int" inputmode="decimal" value="${v(t.overdue_interest_monthly)}">`)}
       ${field(`提前通知終止天數（空白＝沒寫） ${clause('notice')}`, `<input id="dc-notice" inputmode="numeric" value="${v(t.notice_days)}">`)}
-      <div class="field span-2"><span>合約有沒有這幾條</span><div class="dsp-checks"><label><input type="checkbox" id="dc-law"${t.law_change_pass_through ? ' checked' : ''}> 法令變動成本由客戶負擔</label><label><input type="checkbox" id="dc-block"${t.block_pre_interview ? ' checked' : ''}> 禁止客戶事前面試或指定人選</label><label><input type="checkbox" id="dc-renew"${t.auto_renew ? ' checked' : ''}> 到期自動續約</label></div></div>
+      <div class="field span-2"><span>合約有沒有這幾條</span><div class="dsp-checks"><label><input type="checkbox" id="dc-law"${t.law_change_pass_through ? ' checked' : ''}> 法令變動成本由客戶負擔</label><label><input type="checkbox" id="dc-block"${t.block_pre_interview ? ' checked' : ''}> 禁止客戶事前面試或指定人選</label><label><input type="checkbox" id="dc-renew"${t.auto_renew ? ' checked' : ''}> 到期自動續約</label><label><input type="checkbox" id="dc-renewed"${t.renewed ? ' checked' : ''}> 已續約（文件待補）</label></div></div>
       <div class="field span-2"><span>轉任費（轉任後月薪的 %） ${clause('transfer')}</span>${tiers}</div>
       ${field('備註', `<textarea id="dc-note" rows="3">${esc(t.note || '')}</textarea>`, 'span-2')}
     </div><p class="help">存檔後這份條款會回到「待確認」：之前確認的是舊數字。已確認的結算不會被改動。</p>`,
@@ -293,7 +293,7 @@ async function saveTerms(id) {
     recruit_rate: { nontech: val('#dc-rn'), tech: val('#dc-rt') }, admin_rate: val('#dc-admin'), recruit_free_after_months: val('#dc-free'),
     fee_base: Object.fromEntries($$('[data-base]').map((el) => [el.getAttribute('data-base'), el.checked])),
     welfare_permille: val('#dc-welfare'), payment_days: val('#dc-pay'), overdue_interest_monthly: val('#dc-int'), notice_days: val('#dc-notice'),
-    law_change_pass_through: $('#dc-law').checked, block_pre_interview: $('#dc-block').checked, auto_renew: $('#dc-renew').checked,
+    law_change_pass_through: $('#dc-law').checked, block_pre_interview: $('#dc-block').checked, auto_renew: $('#dc-renew').checked, renewed: $('#dc-renewed').checked,
     transfer_tiers: $$('[data-tier]').map((el) => ({ under_months: el.getAttribute('data-m'), percent: el.value })), note: val('#dc-note'),
   };
   await api.post(`/admin/dispatch/client/${encodeURIComponent(id)}`, { by: me(), party_name: val('#dc-party'), terms });
