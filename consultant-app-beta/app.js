@@ -19,6 +19,7 @@ import { loadCallList, loadBdCalls } from './calllist.js';
 import { billingV2View, wireBillingV2, billing2Api } from './billing2.js';
 import { initResumeLink, resumeLinkButtons } from './resumelink.js';
 import { loadSpecialCheck } from './special_check.js';
+import { initDispatch, isDispatchRoute, loadDispatchRoute, mountDispatchBox, shouldOpenDispatchHome } from './dispatch.js';
 
 // 2026-09-15 補：使用者反映「不知道要看哪個是自己的」——沒有登入系統，只能靠
 // 這組「切換選擇」記住上次選的是誰，換分頁/重新整理都不用重選（存在瀏覽器
@@ -38,6 +39,7 @@ function render() {
   state.route = route.key;
   state.sub = route.sub;
   if (route.legacy) navigate(route.key, route.sub, true);
+  if (shouldOpenDispatchHome()) { navigate('d_today', '', true); return; }   // 上次停在派遣模式，打開後台就回派遣
   const view = views[route.key] || views.home;
   $('#app').innerHTML = shell(route.key, view(route.sub), state.sidebarCollapsed);
   fillMeGlobal();
@@ -79,6 +81,7 @@ async function loadRoute() {
   if (state.route === 'onboarding') return loadConsultantSetupTab(target);
   if (state.route === 'channels') return loadChannelsTab(target);
   if (state.route === 'library') return loadLibraryTab(target);
+  if (isDispatchRoute(state.route)) return loadDispatchRoute(state.route, target);
 }
 
 // 2026-09-17 加：顧問人選面談室。owner 選單沿用跟人選工作台一樣的
@@ -952,7 +955,9 @@ async function scOpen(id, job) {
   catch (e) { $('#sub-overlay-root .drawer-body').innerHTML = `<div class="notice">${text(e.message || '載入失敗')}</div>`; return; }
   state.sc.card = d;
   state.sc.job = (d.job && d.job.slug) || job || null;
-  $('#sub-overlay-root .drawer-body').innerHTML = views.sourcedCard(d, { me: amUi().me, consultants: state.consultantsCache || [] });
+  const scBody = $('#sub-overlay-root .drawer-body');
+  scBody.innerHTML = `<div data-dsp-box-sc></div>${views.sourcedCard(d, { me: amUi().me, consultants: state.consultantsCache || [] })}`;
+  mountDispatchBox(scBody.querySelector('[data-dsp-box-sc]'), { sourced_id: id });
 }
 async function scPreview(why) {
   const { id, job } = state.sc || {};
@@ -3227,7 +3232,7 @@ async function openCandidate(applicationId, opts = {}) {
     ].filter(Boolean);
     const milestonesHtml = `<ul class="cand-steps">${milestones.map(([t, at]) => `<li><span>${text(t)}</span><small>${text(String(at || '').slice(0, 16))}</small></li>`).join('')}</ul>`;
     // 2026-10-27 Jacky（看測試版後）：基本資料改成小格子一眼看完；按鈕依用途分組；風格測驗併成 DISC 一格，點了才展開
-    const paneOv = `${views.jobMatchTop(report)}<h3>走到哪了</h3>${milestonesHtml}${quickSet}<div id="special-check-box"></div>
+    const paneOv = `<div data-dsp-box></div>${views.jobMatchTop(report)}<h3>走到哪了</h3>${milestonesHtml}${quickSet}<div id="special-check-box"></div>
       <h3>基本資料</h3>${candBasicsBlock(application, applicationId, { channelTag, lineHtml, lineBound: !!lineBinding, disc, styleHtml: stageDetailHtml('style', application, forwards, report, applicationId) })}
       <details class="note-details" style="margin-top:14px"><summary><b>最近歷程</b></summary>${timelineHtml}</details>
       <div data-cand-mail></div>`;
@@ -3256,6 +3261,7 @@ async function openCandidate(applicationId, opts = {}) {
     if (liveScroll) { const dr = document.querySelector('#overlay-root .drawer'); if (dr) dr.scrollTop = liveScroll; }
     wireCandidateDrawer(applicationId, application, forwards, report, { sibs: sibs.filter((x) => x.aiDone), curTab });
     injectMailSection('candidate', applicationId, document.querySelector('#overlay-root [data-cand-mail]'));
+    mountDispatchBox(document.querySelector('[data-dsp-box]'), { application_id: applicationId });
     // 2026-10-23 特殊職缺檢查卡（只有 special_check_jobs 清單內職缺的人選才會出現）
     loadSpecialCheck(applicationId, application.job_slug, () => state.openCandidateId === applicationId);
   } catch (error) {
@@ -3821,6 +3827,7 @@ async function downloadFileGeneric(fileId, path, label = '檔案') {
 const downloadFormSubmission = (id) => downloadFileGeneric(id, `/admin/candidate-form-submissions/${encodeURIComponent(id)}/download`, '表單');
 const downloadBillingProof = (id) => downloadFileGeneric(id, `/admin/billing-installments/${encodeURIComponent(id)}/proof`, '匯款證明');
 
+initDispatch({ openCandidate: (id) => openCandidate(id), openJob: (slug) => openJobManage(slug) });
 async function openJobManage(slug, initialTab = 'manage') {
   drawer({ title: '載入職缺…', body: loading() });
   try {

@@ -28,7 +28,15 @@ export const ROUTES = Object.freeze({
   roles: '/consultant-beta/agent-roles/',
   paths: '/consultant-beta/candidate-paths/',
   billflow: '/consultant-beta/billing-flow/',
-  system: '/consultant-beta/system/'
+  system: '/consultant-beta/system/',
+  // 2026-11-04 派遣模式
+  d_today: '/consultant-beta/dispatch/today/',
+  d_people: '/consultant-beta/dispatch/people/',
+  d_jobs: '/consultant-beta/dispatch/jobs/',
+  d_progress: '/consultant-beta/dispatch/progress/',
+  d_clients: '/consultant-beta/dispatch/clients/',
+  d_settlement: '/consultant-beta/dispatch/settlement/',
+  d_billing: '/consultant-beta/dispatch/billing/'
 });
 
 export const LEGACY_ROUTES = Object.freeze({
