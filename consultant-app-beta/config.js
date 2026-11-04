@@ -34,7 +34,8 @@ export const ROUTES = Object.freeze({
   d_people: '/consultant-beta/dispatch/people/',
   d_jobs: '/consultant-beta/dispatch/jobs/',
   d_clients: '/consultant-beta/dispatch/clients/',
-  d_settlement: '/consultant-beta/dispatch/settlement/'
+  d_settlement: '/consultant-beta/dispatch/settlement/',
+  d_guide: '/consultant-beta/dispatch/guide/'
 });
 
 export const LEGACY_ROUTES = Object.freeze({
