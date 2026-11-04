@@ -30,7 +30,7 @@ const head = (title, sub, actions = '') => `<div class="page-head"><div><h1>${ti
 const page = (title, sub, actions = '') => head(title, sub, actions) + '<div id="page-data"></div>';
 export const dispatchViews = {
   d_today: () => page('今日待辦', '只列要人處理的事，點一下就到那一頁。'),
-  d_people: () => page('派遣人選', '上面是在職人員名單，點名字開卡片。下面是還在進行中的人。', '<button class="btn primary" data-dsp="find-candidate">加人</button>'),
+  d_people: () => page('派遣人選', '上面是在職人員名單，點一列開卡片。下面是還在進行中的人。', '<button class="btn primary" data-dsp="find-candidate">加人</button>'),
   d_jobs: () => page('派遣需求', '還在找的在上面，要你決定的在下面。'),
   d_clients: () => page('要派客戶', '每家客戶一份條款，算錢都從這裡來。', '<button class="btn" data-dsp="new-client">新增客戶</button>'),
   d_settlement: () => page('每月結算', '系統算好，核對後按確認。按確認不會寄信，也不會動錢。'),
@@ -90,7 +90,7 @@ async function loadPeople(target) {
   const careCell = (x) => `<span class="dsp-care ${x.care.key}">${text(x.care.label)}</span>`;
   const realN = r.items.filter((x) => !x.is_test).length;
   const hasDemo = d.people.some((x) => x.is_test);
-  const rosterRows = r.items.map((x) => `<tr class="${x.is_test ? 'demo' : ''}${x.care.key === 'overdue' || x.care.key === 'due' ? ' care-due' : ''}"><td data-l="姓名"><button type="button" class="dsp-link" data-dsp="open-person" data-id="${esc(x.id)}">${text(x.name || '（沒有姓名）')}</button>${demoTag(x)}</td><td data-l="要派客戶">${text(x.company_name || '—')}</td><td data-l="職缺">${text(x.job_title || '—')}</td><td data-l="到職日">${text(x.start_date || '—')}</td><td data-l="預計客戶付款日">${payCell(x.pay)}</td><td data-l="最近關心">${x.last_care ? `${text(x.last_care.care_date)}<small>${text(String(x.last_care.content).slice(0, 40))}</small>` : '<small>還沒有紀錄</small>'}</td><td data-l="下次關心">${careCell(x)}</td></tr>`).join('');
+  const rosterRows = r.items.map((x) => `<tr class="${x.is_test ? 'demo' : ''}${x.care.key === 'overdue' || x.care.key === 'due' ? ' care-due' : ''}" data-dsp="open-person" data-id="${esc(x.id)}"><td><button type="button" class="dsp-link" data-dsp="open-person" data-id="${esc(x.id)}">${text(x.name || '（沒有姓名）')}</button>${demoTag(x)}</td><td>${text(x.company_name || '—')}</td><td>${text(x.job_title || '—')}</td><td>${text(x.start_date || '—')}</td><td>${payCell(x.pay)}</td><td>${x.last_care ? `${text(x.last_care.care_date)}<small>${text(String(x.last_care.content).slice(0, 40))}</small>` : '<small>還沒有紀錄</small>'}</td><td>${careCell(x)}</td></tr>`).join('');
   target.innerHTML = `<article class="card"><h2>人員名單（在職真實 ${realN} 人）</h2>${r.items.length ? `<div class="dsp-roster-wrap"><table class="dsp-roster"><thead><tr><th>姓名</th><th>要派客戶</th><th>職缺</th><th>到職日</th><th>預計客戶付款日</th><th>最近關心</th><th>下次關心</th></tr></thead><tbody>${rosterRows}</tbody></table></div>` : '<p class="muted">系統裡還沒有在職的人。實際有人在上班的話，按右上角「加人」登記。</p>'}</article>
     <article class="card" style="margin-top:14px"><h2>進行中（${n}）</h2><p class="help">每個人只有一個下一步，做完按它。</p>${n ? `<div class="list">${todo.map(row).join('')}${apps.map(appRow).join('')}</div>` : '<p class="muted">目前沒有。</p>'}</article>
     ${past.length ? `<details class="card" style="margin-top:14px"><summary><b>已結束（${past.length}）</b></summary><div class="list" style="margin-top:10px">${past.map(row).join('')}</div></details>` : ''}
