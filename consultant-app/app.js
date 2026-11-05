@@ -3207,7 +3207,7 @@ async function openCandidate(applicationId, opts = {}) {
       <dt>手動階段</dt><dd>${text(application.manual_stage || '—')}${application.manual_stage_note ? '：' + text(application.manual_stage_note) : ''}</dd>
       <dt>面談狀態</dt><dd>${text(application.interview_state || '—')}</dd>
       <dt>負責顧問</dt><dd>${text(application.owner || '未指派')}</dd>
-    </dl></div></div>${resumeBtns.length ? `<div class="actions-row">${resumeBtns.join('')}</div>` : '<p class="muted">沒有履歷檔案或連結</p>'}${(application.resume_files || []).map((f, i) => `<p class="muted" style="margin:6px 0 0">${f.main ? '主要履歷' : `履歷 ${i + 1}`}：${escapeHtml(f.filename || '未命名')}，上傳時間 ${escapeHtml(String(f.uploaded_at || '').slice(0, 16))}</p>`).join('')}${reviewLinkRow(application, applicationId)}`;
+    </dl></div></div>${resumeBtns.length ? `<div class="actions-row">${resumeBtns.join('')}</div>` : '<p class="muted">沒有履歷檔案或連結</p>'}${reviewLinkRow(application, applicationId)}`;
     // <details> 預設收合——電洽紀錄常常是一整篇逐字稿整理，攤平顯示會把整個
     // 抽屜撐得很長，點開才看到內容比較合理。
     const notesHtml = notes.length
@@ -3302,7 +3302,7 @@ async function openCandidate(applicationId, opts = {}) {
       <h3>顧問備註／電洽紀錄</h3><div class="actions-row">${actionBtn('手動記一筆電洽重點', 'application-call-note', ctxId)}${actionBtn('修改電洽摘要', 'application-call-summary', ctxId)}</div>${notesHtml}`;
     const paneFw = `${fwCards}<div style="margin-top:12px"><button type="button" class="btn primary" data-action="open-forward-candidate" data-application-id="${escapeHtml(applicationId)}">＋ 推薦給${forwards.length ? '另一家' : ''}客戶</button></div>`;
     const sibResumes = sibs.filter((x) => x.resumeFileId).map((x) => `<button type="button" class="btn ghost sm" data-download-resume="${escapeHtml(x.applicationId)}">看另一張卡（${text(x.originLabel)}）的履歷</button>`).join('');
-    const paneCv = `<h3>這位人選的履歷</h3>${resumeBtns.length ? `<div class="actions-row">${resumeBtns.join('')}</div>` : '<p class="muted">這張卡沒有履歷檔案或連結</p>'}${sibResumes ? `<div class="actions-row">${sibResumes}</div>` : ''}
+    const paneCv = `<h3>這位人選的履歷</h3>${(application.resume_files || []).map((f, i) => `<p class="muted" style="margin:6px 0 0">${f.main ? '主要履歷' : `履歷 ${i + 1}`}：${escapeHtml(f.filename || '未命名')}，上傳時間 ${escapeHtml(String(f.uploaded_at || '').slice(0, 16))}</p>`).join('')}${resumeBtns.length ? `<div class="actions-row">${resumeBtns.join('')}</div>` : '<p class="muted">這張卡沒有履歷檔案或連結</p>'}${sibResumes ? `<div class="actions-row">${sibResumes}</div>` : ''}
       <h3 style="margin-top:20px">要給別人看的版本</h3>${views.clientResumeBox(applicationId, card.client_formal_reports || [], forwards, card.anon_report)}`;
     const pane = (k, html) => `<section class="cand-pane" data-cand-pane="${k}"${k === curTab ? '' : ' hidden'}>${html}</section>`;
     // 2026-10-19 Jacky：滑到下面會突然跳回最上面。原因是捲動位置在「開始抓資料前」就記下來了，
