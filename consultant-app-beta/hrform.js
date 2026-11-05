@@ -83,6 +83,6 @@ async function load(el) {
   } catch { el.innerHTML = ''; } // 線上版掛了不影響卡片
 }
 
-new MutationObserver(() => {
-  document.querySelectorAll('[data-hrform]:not([data-hr-done])').forEach(load);
-}).observe(document.documentElement, { childList: true, subtree: true });
+const scan = () => document.querySelectorAll('[data-hrform]:not([data-hr-done])').forEach(load);
+new MutationObserver(scan).observe(document.documentElement, { childList: true, subtree: true });
+scan();
