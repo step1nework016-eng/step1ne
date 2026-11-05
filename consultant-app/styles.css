@@ -1951,3 +1951,14 @@ body:has(.mode-dispatch) .field small.muted{font-weight:400;display:block;margin
 .mode-dispatch .lib-wrap,.mode-dispatch .lib-shelves{grid-template-columns:minmax(0,1fr)}
 @media(max-width:720px){.mode-dispatch .lib-seg button{min-height:44px}.mode-dispatch .lib-vers button{min-height:44px}.mode-dispatch .lib-acts .btn{min-height:44px}}
 @media(max-width:720px){.mode-dispatch .dsp-link{min-width:44px}}
+
+/* 2026-11-05 派遣人員卡片：入職進度＋三個分頁 */
+.dsp-steps{display:flex;list-style:none;margin:6px 0 14px;padding:0}
+.dsp-steps li{flex:1;min-width:0;text-align:center;position:relative;font-size:13px;color:var(--muted);padding-top:32px}
+.dsp-steps li::before{content:"";position:absolute;top:13px;left:-50%;width:100%;height:3px;background:var(--line)}
+.dsp-steps li:first-child::before{display:none}
+.dsp-steps li i{position:absolute;top:0;left:50%;transform:translateX(-50%);width:28px;height:28px;border-radius:50%;background:#fff;border:2px solid var(--line);display:grid;place-items:center;font-style:normal;font-size:13px;font-weight:700;z-index:1}
+.dsp-steps li.done{color:#14794c}.dsp-steps li.done::before{background:#14794c}.dsp-steps li.done i{background:#14794c;border-color:#14794c;color:#fff}
+.dsp-steps li.now{color:var(--blue);font-weight:700}.dsp-steps li.now::before{background:var(--blue)}.dsp-steps li.now i{background:var(--blue);border-color:var(--blue);color:#fff}
+.dsp-ptabs{margin:14px 0}.dsp-ptabs button{min-height:44px}
+.dsp-months{width:100%;font-size:14px}
