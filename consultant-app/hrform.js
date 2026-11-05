@@ -34,10 +34,10 @@ async function importForm(el, ids) {
   const d = await (await call('schema')).json();
   const input = (f) => {
     const lab = esc((f.group ? `${f.group}・` : '') + f.label);
-    if (f.type === 'choice') return `<label style="display:block;font-size:13px;margin:4px 0">${lab}<select data-im="${f.k}" style="width:100%;min-height:36px"><option value=""></option>${f.options.map((o) => `<option>${esc(o)}</option>`).join('')}</select></label>`;
-    return `<label style="display:block;font-size:13px;margin:4px 0">${lab}<input data-im="${f.k}" type="${f.type === 'date' ? 'date' : 'text'}" ${f.max ? `maxlength="${f.max}"` : ''} style="width:100%;min-height:36px"></label>`;
+    if (f.type === 'choice' || f.type === 'select') return `<label style="display:block;font-size:13px;margin:4px 0">${lab}<select data-im="${f.k}" style="width:100%;min-height:36px"><option value=""></option>${f.options.map((o) => `<option>${esc(o)}</option>`).join('')}</select></label>`;
+    return `<label style="display:block;font-size:13px;margin:4px 0">${lab}<input data-im="${f.k}" type="${f.type === 'date' ? 'date' : f.type === 'month' ? 'month' : 'text'}" ${f.max ? `maxlength="${f.max}"` : ''} style="width:100%;min-height:36px"></label>`;
   };
-  box.innerHTML = `<p class="muted" style="font-size:13px">看著舊表把內容打進來，看不清楚的留空。打的內容都會標「請確認」給人選核對。希望待遇不用打。</p>${btn('old', '下載舊表對照')}${d.steps.filter((s) => !['consent', 'skills', 'last'].includes(s.key)).map((s) => `<h4 style="margin:10px 0 2px;font-size:14px">${esc(s.title)}</h4>${s.fields.filter((f) => f.type !== 'check').map(input).join('')}`).join('')}${btn('import-go', '產生線上版（不會寄出）', 'primary')}`;
+  box.innerHTML = `<p class="muted" style="font-size:13px">看著舊表把內容打進來，看不清楚的留空。打的內容都會標「請確認」給人選核對。希望待遇不用打。</p>${btn('old', '下載舊表對照')}${d.steps.filter((s) => !['consent', 'skills', 'last'].includes(s.key)).map((s) => `<h4 style="margin:10px 0 2px;font-size:14px">${esc(s.title)}</h4>${s.fields.filter((f) => f.type !== 'check' && f.type !== 'multi').map(input).join('')}`).join('')}${btn('import-go', '產生線上版（不會寄出）', 'primary')}`;
   box.querySelector('[data-hr="old"]').onclick = () => download(`${ids.submission_id}/old-file`, '舊表');
   box.querySelector('[data-hr="import-go"]').onclick = async () => {
     const imported = {};
