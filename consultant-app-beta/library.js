@@ -61,7 +61,7 @@ function render() {
 
 // ── 公司範本 ─────────────────────────────
 function libHtml() {
-  const legend = inDispatch() ? '' : `<div class="lib-legend"><span><b style="background:var(--lib-contract)"></b>合約</span><span><b style="background:var(--lib-profile)"></b>公司簡介</span><span><b style="background:var(--lib-client)"></b>客戶給的範本／客戶專用</span><span><b style="background:var(--lib-old)"></b>舊版（留著查）</span><span><b style="background:var(--lib-ribbon)"></b>書籤＝使用中（系統寄信自動附這本）</span></div>`;
+  const legend = inDispatch() ? '<p class="help">派遣書櫃的文件只存檔，不會自動寄給任何人。</p>' : `<div class="lib-legend"><span><b style="background:var(--lib-contract)"></b>合約</span><span><b style="background:var(--lib-profile)"></b>公司簡介</span><span><b style="background:var(--lib-client)"></b>客戶給的範本／客戶專用</span><span><b style="background:var(--lib-old)"></b>舊版（留著查）</span><span><b style="background:var(--lib-ribbon)"></b>書籤＝使用中（系統寄信自動附這本）</span></div>`;
   return `${legend}
   <div class="lib-shelves">${shownLayers().map((L) => {
     const xs = books.filter((b) => b.layer === L.k);
