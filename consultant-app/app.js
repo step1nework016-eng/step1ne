@@ -3207,7 +3207,7 @@ async function openCandidate(applicationId, opts = {}) {
       <dt>手動階段</dt><dd>${text(application.manual_stage || '—')}${application.manual_stage_note ? '：' + text(application.manual_stage_note) : ''}</dd>
       <dt>面談狀態</dt><dd>${text(application.interview_state || '—')}</dd>
       <dt>負責顧問</dt><dd>${text(application.owner || '未指派')}</dd>
-    </dl></div></div>${resumeBtns.length ? `<div class="actions-row">${resumeBtns.join('')}</div>` : '<p class="muted">沒有履歷檔案或連結</p>'}${reviewLinkRow(application, applicationId)}`;
+    </dl></div></div>${resumeBtns.length ? `<div class="actions-row">${resumeBtns.join('')}</div>` : '<p class="muted">沒有履歷檔案或連結</p>'}${(application.resume_files || []).map((f, i) => `<p class="muted" style="margin:6px 0 0">${f.main ? '主要履歷' : `履歷 ${i + 1}`}：${escapeHtml(f.filename || '未命名')}，上傳時間 ${escapeHtml(String(f.uploaded_at || '').slice(0, 16))}</p>`).join('')}${reviewLinkRow(application, applicationId)}`;
     // <details> 預設收合——電洽紀錄常常是一整篇逐字稿整理，攤平顯示會把整個
     // 抽屜撐得很長，點開才看到內容比較合理。
     const notesHtml = notes.length
