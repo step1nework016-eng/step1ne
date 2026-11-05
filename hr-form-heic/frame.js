@@ -1,0 +1,1 @@
+addEventListener('message',function(e){if(e.origin!==location.origin)return;heic2any({blob:e.data,toType:'image/jpeg',quality:.9}).then(function(r){parent.postMessage({ok:true,blob:Array.isArray(r)?r[0]:r},location.origin)}).catch(function(){parent.postMessage({ok:false},location.origin)})});parent.postMessage({ready:true},location.origin);

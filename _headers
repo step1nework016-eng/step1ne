@@ -24,3 +24,18 @@
 
 /portal-old/*
   X-Robots-Tag: noindex, nofollow
+
+# 2026-11-05 人事資料表線上填寫：含身分證等敏感資料，不被搜尋、不快取、連結不外流
+/hr-form/
+  ! Referrer-Policy
+  ! X-Frame-Options
+  Referrer-Policy: no-referrer
+  X-Frame-Options: DENY
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-store
+  Content-Security-Policy: default-src 'self'; script-src 'self'; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' blob: data: https://step1ne-hrform-worker.aiagentg888.workers.dev; base-uri 'none'; form-action 'none'; frame-src 'self'; frame-ancestors 'none'; object-src 'none'
+
+/hr-form-heic/
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-store
+  Content-Security-Policy: default-src 'none'; script-src 'self' 'unsafe-eval' blob:; worker-src blob:; connect-src blob: data:; img-src blob: data:; frame-ancestors 'self'

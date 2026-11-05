@@ -1,4 +1,5 @@
 import { CONFIG } from './config.js';
+import './hrform.js';
 import { api, ApiError } from './core/api.js';
 import { resolveRoute, navigate } from './core/router.js';
 import { $, $$, boundary, closeOverlay, closeSubDrawer, drawer, errorState, formFields, loading, modal, openSubDrawer, toast } from './core/ui.js';

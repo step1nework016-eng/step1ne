@@ -4663,7 +4663,7 @@ ${tg}
           actionBtn('代為上傳', 'candidate-form-upload', { idParams }),
         ];
       }
-      return `<div class="list-row" style="padding:8px 10px;margin-top:4px"><span style="font-size:13px">${text(f.form_name)} ${statusTag}</span>${rowActions(actions)}</div>`;
+      return `<div class="list-row" style="padding:8px 10px;margin-top:4px"><span style="font-size:13px">${text(f.form_name)} ${statusTag}</span>${rowActions(actions)}</div><div data-hrform data-jf="${text(f.job_form_id)}" data-app="${text(applicationId)}" data-co="${text(companyId)}"></div>`;
     };
     return `<div style="margin-top:6px"><small class="muted">客製表單</small>${list.map(row).join('')}</div>`;
   },

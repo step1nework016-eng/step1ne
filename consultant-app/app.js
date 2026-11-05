@@ -21,6 +21,7 @@ import { billingV2View, wireBillingV2, billing2Api } from './billing2.js';
 import { initResumeLink, resumeLinkButtons } from './resumelink.js';
 import { loadSpecialCheck } from './special_check.js';
 import { fourLightsHtml } from './fourlights.js';
+import './hrform.js';
 import { initDispatch, isDispatchRoute, loadDispatchRoute, mountDispatchBox, shouldOpenDispatchHome } from './dispatch.js';
 
 // 2026-09-15 補：使用者反映「不知道要看哪個是自己的」——沒有登入系統，只能靠
