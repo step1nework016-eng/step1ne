@@ -4180,7 +4180,7 @@ async function openForwardCandidate(applicationId) {
       // 2026-10-24 Jacky：推薦≠客戶要面談。推薦時一律不寄，客戶在後台按「推進」才自動寄；這裡只做提示、不給勾。
       // 2026-10-27 Jacky：加回勾選框，預設不勾；勾了推薦時一起寄（信裡寫「填完先給用人單位看，有意願才約面談」）。
       fRow.hidden = false; fRow.style.display = 'flex'; fBox.checked = false; fBox.disabled = !!$('#fc-not-rec')?.checked; fBox.style.display = '';
-      fTxt.textContent = `勾了才會寄：${forms.map((f) => f.name).join('、')}。信裡會寫「填好先給用人單位看，有意願才約面談」。不勾就不寄。`;
+      fTxt.textContent = forms.some((f) => f.online) ? '勾了：開好線上填寫版，貼確認卡到 TG，按「✅ 寄出」才會寄。沒開線上版的職缺仍寄舊版表單。不勾就不寄。' : `勾了才會寄：${forms.map((f) => f.name).join('、')}。信裡會寫「填好先給用人單位看，有意願才約面談」。不勾就不寄。`;
     }).catch(() => {});
     const list = jobsByCompany[cid] || [];
     if (!cid || !list.length) { jobSelect.innerHTML = '<option value="">（沿用原本應徵的職缺）</option>'; jobSelect.disabled = true; return; }
@@ -4216,6 +4216,7 @@ async function submitForwardCandidate(applicationId) {
       if (button) button.disabled = false;
       return;
     }
+    if (result && result.online_form_note) toast(result.online_form_note);
     if (notRec) {
       // 第二步：標「顧問不推進」。第一步已建好紀錄，這步失敗要講清楚，讓顧問去卡片上補按
       try {
