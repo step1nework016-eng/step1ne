@@ -15,7 +15,8 @@ const LAYERS = [
   { k: 'client_tpl', name: '客戶給的範本', color: 'var(--lib-client)' },
 ];
 // 2026-11-05 Jacky：派遣書櫃跟正職書櫃分開。派遣層不會被開發信自動附件選到（那邊只讀 contract、profile）。
-const DISPATCH_LAYERS = [{ k: 'dispatch', name: '派遣合約與文件', color: 'var(--lib-client)' }];
+const DISPATCH_LAYERS = [{ k: 'dispatch', name: '公司內部文件', color: 'var(--lib-contract)' }, { k: 'dispatch_signed', name: '客戶用印合約', color: 'var(--lib-client)' }];
+const NEEDS_CO = (k) => k === 'client_tpl' || k === 'dispatch_signed';
 const inDispatch = () => { try { return localStorage.getItem('s1ne_work_mode') === 'dispatch'; } catch { return false; } };
 const shownLayers = () => (inDispatch() ? DISPATCH_LAYERS : LAYERS);
 const allLayers = [...LAYERS, ...DISPATCH_LAYERS];
@@ -150,7 +151,7 @@ function openUpload(mode) {
     ${cab ? `<label class="lib-f">哪一家客戶<select name="co">${companies.map((c) => `<option value="${esc(c.id)}" ${c.id === ui.co ? 'selected' : ''}>${esc(c.display_name)}</option>`).join('')}</select></label>
       <div class="lib-f">放在哪一個階段<div class="lib-chips">${STAGES.map((s) => `<button type="button" aria-pressed="${s === ui.stage}" data-chip-stage="${s}">${s}</button>`).join('')}</div></div>`
     : `<div class="lib-f">放在哪一層書架<div class="lib-chips">${shownLayers().map((L) => `<button type="button" aria-pressed="${L.k === layer}" data-chip-layer="${L.k}">${esc(L.name)}</button>`).join('')}</div></div>
-      <label class="lib-f" data-tplco ${layer === 'client_tpl' ? '' : 'hidden'}>哪一家客戶的範本<select name="tplco">${companies.map((c) => `<option value="${esc(c.id)}">${esc(c.display_name)}</option>`).join('')}</select></label>
+      <label class="lib-f" data-tplco ${NEEDS_CO(layer) ? '' : 'hidden'}>哪一家客戶的範本<select name="tplco">${companies.map((c) => `<option value="${esc(c.id)}">${esc(c.display_name)}</option>`).join('')}</select></label>
       <label class="lib-f" data-tplstage ${layer === 'client_tpl' ? '' : 'hidden'}>在客戶文件櫃顯示在哪個階段<select name="stage_hint">${STAGES.map((s) => `<option ${s === '面試前' ? 'selected' : ''}>${s}</option>`).join('')}</select></label>
       <label class="lib-f">書背上的短名（6 字內，例：公版合約）<input name="short" maxlength="6"></label>
       <label class="lib-chk"><input type="checkbox" name="active" checked>${inDispatch() ? '設成「使用中」（舊的自動變舊版，不會自動寄給任何人）' : '設成「使用中」（舊的自動變舊版，系統寄信改附這本）'}</label>`}
@@ -166,7 +167,7 @@ function openUpload(mode) {
   ov.querySelectorAll('[data-chip-stage],[data-chip-layer]').forEach((b) => b.onclick = () => {
     const attr = b.dataset.chipStage ? 'data-chip-stage' : 'data-chip-layer';
     ov.querySelectorAll(`[${attr}]`).forEach((x) => x.setAttribute('aria-pressed', x === b));
-    if (b.dataset.chipLayer) { ov.querySelector('[data-tplco]').hidden = b.dataset.chipLayer !== 'client_tpl'; ov.querySelector('[data-tplstage]').hidden = b.dataset.chipLayer !== 'client_tpl'; }
+    if (b.dataset.chipLayer) { ov.querySelector('[data-tplco]').hidden = !NEEDS_CO(b.dataset.chipLayer); ov.querySelector('[data-tplstage]').hidden = b.dataset.chipLayer !== 'client_tpl'; }
   });
   f.file.onchange = () => { if (!f.title.value && f.file.files[0]) f.title.value = f.file.files[0].name.replace(/\.[^.]+$/, ''); };
   f.file.focus();
@@ -186,7 +187,7 @@ function openUpload(mode) {
       } else {
         const ly = (ov.querySelector('[data-chip-layer][aria-pressed=true]') || {}).dataset?.chipLayer;
         const r = await api.post('/admin/library/upload', { ...base, layer: ly, short: f.short.value.trim(), set_active: f.active.checked,
-          company_id: ly === 'client_tpl' ? f.tplco.value : undefined, stage_hint: ly === 'client_tpl' ? f.stage_hint.value : undefined });
+          company_id: NEEDS_CO(ly) ? f.tplco.value : undefined, stage_hint: ly === 'client_tpl' ? f.stage_hint.value : undefined });
         ui.book = r.id; close(); toast('已放上書架', 'success'); await loadLibraryTab(root);
       }
     } catch (err) { toast(err.message || '上傳失敗', 'error'); btn.disabled = false; btn.textContent = '上傳'; }

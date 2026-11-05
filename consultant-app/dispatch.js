@@ -431,7 +431,7 @@ async function loadClientDetail(id) {
   box.innerHTML = `<p class="help">合約甲方：${text(c.party_name || '沒填')}。${c.status === 'confirmed' ? `條款已確認（${text(c.confirmed_by || '')}）。` : '條款待確認。'}</p>
       ${requestsHtml(c)}
       ${c.missing.length ? `<div class="notice">還沒填，請按「改條款」補：${text(c.missing.join('、'))}。沒填完算不出金額。</div>` : ''}
-      <div class="dsp-contract ${cs.key}"><div><span>合約</span><b>${t.contract_start ? text(t.contract_start) : '起日沒填'}～${t.contract_end ? text(t.contract_end) : (t.renewed ? '新到期日待補' : '到期日沒填')}</b>${cs.key === 'renewed' ? '<small>續約文件和新到期日待補，有日期才開始提醒</small>' : t.auto_renew ? '<small>會自動續約</small>' : '<small>不會自動續約・到期前 60 天提醒</small>'}</div>${badge(cs.label, csTone)}<div class="dsp-contract-files">${c.contract_files.map((f) => fileButtons(`/admin/file/${encodeURIComponent(f.file_id)}`, f.filename || f.title)).join('') || '<button type="button" class="btn sm" data-route="library">合約檔還沒放，到書櫃上傳</button>'}</div></div>
+      <div class="actions-row"><label class="btn sm">補上傳用印合約<input type="file" data-signed-up data-co="${esc(id)}" data-name="${esc(c.display_name || '')}" accept=".pdf,image/*" hidden></label></div><div class="dsp-contract ${cs.key}"><div><span>合約</span><b>${t.contract_start ? text(t.contract_start) : '起日沒填'}～${t.contract_end ? text(t.contract_end) : (t.renewed ? '新到期日待補' : '到期日沒填')}</b>${cs.key === 'renewed' ? '<small>續約文件和新到期日待補，有日期才開始提醒</small>' : t.auto_renew ? '<small>會自動續約</small>' : '<small>不會自動續約・到期前 60 天提醒</small>'}</div>${badge(cs.label, csTone)}<div class="dsp-contract-files">${c.contract_files.map((f) => fileButtons(`/admin/file/${encodeURIComponent(f.file_id)}`, f.filename || f.title)).join('') || '<button type="button" class="btn sm" data-route="library">合約檔還沒放，到書櫃上傳</button>'}</div></div>
       <div class="dsp-terms"><div><span>招募管理費</span><b>非技術 ${pct(t.recruit_rate.nontech)}／技術 ${pct(t.recruit_rate.tech)}</b></div><div><span>行政管理費</span><b>${pct(t.admin_rate)}</b></div><div><span>免招募費</span><b>${t.recruit_free_never ? '不免' : t.recruit_free_after_months == null ? '沒填' : '滿 ' + text(t.recruit_free_after_months) + ' 個月'}</b></div><div><span>付款</span><b>${t.payment_days ? (t.payment_basis === 'invoice_plus' ? `發票日＋${text(t.payment_days)} 天` : t.payment_basis === 'month_end_plus' ? `當月底＋${text(t.payment_days)} 天` : `${text(t.payment_days)} 天，算法待確認`) : '沒填'}</b>${t.payment_note ? `<small>${text(t.payment_note)}</small>` : ''}</div><div><span>客戶合約的發票期限</span><b>${t.invoice_due_day ? `每月 ${text(t.invoice_due_day)} 日前` : '沒填'}</b></div><div><span>發票開給</span><b>${t.invoice_to ? text(t.invoice_to) : '沒填'}</b>${t.invoice_note ? `<small>${text(t.invoice_note)}</small>` : ''}</div>${t.payroll_contact ? `<div><span>薪資窗口</span><b>${text(t.payroll_contact)}</b></div>` : ''}<div><span>福利金扣除</span><b>${t.welfare_permille == null ? '沒填' : '千分之 ' + text(t.welfare_permille)}</b>${t.welfare_note ? `<small>${text(t.welfare_note)}</small>` : ''}</div><div><span>轉任費比例</span><b>${t.transfer_tiers.length ? t.transfer_tiers.map((x) => text(x.percent == null ? '沒填' : `${x.percent}%`)).join('／') : '沒填'}</b></div></div>
       ${problems.length ? `<details class="dsp-more" style="margin-top:10px"><summary>條文上的缺口（${problems.length}），談新合約時再看</summary>${healthHtml(problems)}</details>` : ''}
       <div class="actions-row" style="margin-top:14px">${c.status !== 'confirmed' ? `<button type="button" class="btn primary" data-dsp="confirm-terms" data-id="${esc(id)}"${c.missing.length ? ' disabled' : ''}>核對過，確認條款</button>` : ''}<button type="button" class="btn" data-dsp="edit-terms" data-id="${esc(id)}"${pending ? ' title="這家已有一筆待審"' : ''}>改條款</button></div>
@@ -516,6 +516,16 @@ async function reviewTerms(btn) {
   await api.post(`/admin/dispatch/terms-request/${encodeURIComponent(id)}`, { by: me(), action, note: noteEl ? noteEl.value : '' });
   toast(action === 'approve' ? '已核准' : '已退回', 'success'); reload();
 }
+// 用印合約放書櫃第二層，只存檔，不會寄給任何人。
+async function uploadSigned(company, name, file) {
+  if (file.size > 8 * 1024 * 1024) { toast('檔案超過 8MB，合約沒有上傳，請壓縮後再補', 'error'); return false; }
+  const b64 = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1]); r.onerror = rej; r.readAsDataURL(file); });
+  try {
+    await api.post('/admin/library/upload', { layer: 'dispatch_signed', company_id: company, title: `${name}｜用印合約`, short: String(name).slice(0, 6), set_active: false, by: me(), file_b64: b64, file_name: file.name, file_mime: file.type });
+    toast('用印合約已放到書櫃第二層', 'success');
+    return true;
+  } catch (e) { toast(`用印合約沒有上傳成功：${e.message}`, 'error'); return false; }
+}
 async function newClient() {
   const d = await api.get('/admin/portal/companies');
   const cos = (d.items || d.companies || []).filter((c) => c && c.id && !/測試/.test(c.display_name || ''));
@@ -525,7 +535,7 @@ async function newClient() {
       title: '新增要派客戶', subtitle: '新客戶存好就生效，不用審核。之後再改就要審核。沒填的數字會提醒，也算不出金額；不會帶入別家的數字。',
       body: `${field('客戶', `<select id="dn-co"><option value="">請選</option>${cos.filter((c) => !have.has(c.id)).map((c) => `<option value="${esc(c.id)}"${co === c.id ? ' selected' : ''}>${esc(c.display_name)}</option>`).join('')}</select>`)}
         <div class="actions-row"><button type="button" class="btn sm" data-dsp="fill-template">帶入公司範本（看得到數字，可再改）</button></div>
-        <h3 class="dsp-form-h">這家客戶的數字</h3>${numbersForm(t)}<h3 class="dsp-form-h">其他資料</h3>${otherForm(t, '')}`,
+        <h3 class="dsp-form-h">這家客戶的數字</h3>${numbersForm(t)}<h3 class="dsp-form-h">其他資料</h3>${otherForm(t, '')}<h3 class="dsp-form-h">用印合約</h3>${field('上傳用印好的合約（PDF，8MB 內；還沒有可以之後補）', '<input type="file" id="dn-signed" accept=".pdf,image/*">')}`,
       footer: '<button class="btn" data-close-overlay>取消</button><button class="btn primary" data-dsp="save-new-client">建立</button>',
     });
     $('#overlay-root').__terms = t;
@@ -703,6 +713,10 @@ document.addEventListener('change', (e) => {
   if (sel) navigate('d_people', sel.value);
 });
 document.addEventListener('change', async (e) => {
+  const up = e.target.closest && e.target.closest('[data-signed-up]');
+  if (up && up.files[0]) { await uploadSigned(up.getAttribute('data-co'), up.getAttribute('data-name'), up.files[0]); up.value = ''; }
+});
+document.addEventListener('change', async (e) => {
   const sel = e.target instanceof Element ? e.target.closest('[data-dsp-class]') : null;
   if (!sel) return;
   try { await api.post(`/admin/dispatch/job/${encodeURIComponent(sel.getAttribute('data-dsp-class'))}`, { by: me(), job_class: sel.value }); toast('已更新分類', 'success'); reload(); }
@@ -762,7 +776,11 @@ document.addEventListener('click', async (e) => {
       const co = $('#dn-co').value;
       if (!co) { toast('請選客戶', 'error'); return; }
       await api.post(`/admin/dispatch/client/${encodeURIComponent(co)}`, { by: me(), party_name: $('#dc-party').value, terms: collectTerms($('#overlay-root').__terms) });
-      ui.clientId = co; closeOverlay(); toast('已建立，條款生效', 'success'); reload();
+      const signed = $('#dn-signed').files[0];
+      const coName = $('#dn-co').selectedOptions[0].textContent.trim();
+      ui.clientId = co; closeOverlay(); toast('已建立，條款生效', 'success');
+      if (signed) await uploadSigned(co, coName, signed);
+      reload();
 } else if (act === 'estimate') await runEstimate();
     else if (act === 'settle-save') await saveSettle(id, false);
     else if (act === 'settle-confirm') await saveSettle(id, true);
