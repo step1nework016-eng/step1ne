@@ -14,6 +14,12 @@ const LAYERS = [
   { k: 'profile', name: '公司簡介', color: 'var(--lib-profile)' },
   { k: 'client_tpl', name: '客戶給的範本', color: 'var(--lib-client)' },
 ];
+// 2026-11-05 Jacky：派遣書櫃跟正職書櫃分開。派遣層不會被開發信自動附件選到（那邊只讀 contract、profile）。
+const DISPATCH_LAYERS = [{ k: 'dispatch', name: '派遣合約與文件', color: 'var(--lib-client)' }];
+const inDispatch = () => { try { return localStorage.getItem('s1ne_work_mode') === 'dispatch'; } catch { return false; } };
+const shownLayers = () => (inDispatch() ? DISPATCH_LAYERS : LAYERS);
+const allLayers = [...LAYERS, ...DISPATCH_LAYERS];
+const shownBooks = () => { const ks = shownLayers().map((L) => L.k); return books.filter((b) => ks.includes(b.layer)); };
 const ui = { tab: 'lib', book: null, co: null, stage: null, q: '' };
 let counts = {};
 let books = [];
@@ -34,7 +40,7 @@ export async function loadLibraryTab(target) {
     // 2026-10-30 Jacky：有文件的客戶排上面、沒有的排下面（同樣多照名稱）
     companies = (cos.items || cos.companies || []).filter((c) => c && c.id && !/測試/.test(c.display_name || ''))
       .sort((a, b) => (counts[b.id] || 0) - (counts[a.id] || 0) || String(a.display_name).localeCompare(String(b.display_name), 'zh-Hant'));
-    if (!ui.book && books.length) ui.book = (books.find((b) => b.is_active && b.layer === 'contract') || books[0]).id;
+    { const xs = shownBooks(); if (!xs.some((b) => b.id === ui.book)) ui.book = xs.length ? (xs.find((b) => b.is_active && b.layer === 'contract') || xs[0]).id : null; }
     if (!ui.co && companies.length) ui.co = companies[0].id;
     render();
     if (ui.tab === 'cab') await loadDocs();
@@ -54,8 +60,9 @@ function render() {
 
 // ── 公司範本 ─────────────────────────────
 function libHtml() {
-  return `<div class="lib-legend"><span><b style="background:var(--lib-contract)"></b>合約</span><span><b style="background:var(--lib-profile)"></b>公司簡介</span><span><b style="background:var(--lib-client)"></b>客戶給的範本／客戶專用</span><span><b style="background:var(--lib-old)"></b>舊版（留著查）</span><span><b style="background:var(--lib-ribbon)"></b>書籤＝使用中（系統寄信自動附這本）</span></div>
-  <div class="lib-shelves">${LAYERS.map((L) => {
+  const legend = inDispatch() ? '' : `<div class="lib-legend"><span><b style="background:var(--lib-contract)"></b>合約</span><span><b style="background:var(--lib-profile)"></b>公司簡介</span><span><b style="background:var(--lib-client)"></b>客戶給的範本／客戶專用</span><span><b style="background:var(--lib-old)"></b>舊版（留著查）</span><span><b style="background:var(--lib-ribbon)"></b>書籤＝使用中（系統寄信自動附這本）</span></div>`;
+  return `${legend}
+  <div class="lib-shelves">${shownLayers().map((L) => {
     const xs = books.filter((b) => b.layer === L.k);
     return `<section class="lib-shelf"><h2><i style="background:${L.color}"></i>${esc(L.name)}<span class="lib-pill">${xs.length} 本</span></h2>
       <div class="lib-row">${xs.map((b) => {
@@ -67,7 +74,7 @@ function libHtml() {
   </div>${books.length ? '' : '<p class="muted">書櫃還是空的，按「＋ 新版本」放第一本。</p>'}`;
 }
 function detailHtml(b) {
-  const L = LAYERS.find((x) => x.k === b.layer) || {};
+  const L = allLayers.find((x) => x.k === b.layer) || {};
   const same = books.filter((x) => x.layer === b.layer && (b.layer !== 'client_tpl' || (x.company_id === b.company_id && x.short === b.short)));
   const tag = b.is_active ? '<span class="lib-pill on">📌 使用中</span>' : b.company_id && b.layer !== 'client_tpl' ? '<span class="lib-pill cl">客戶專用</span>' : '<span class="lib-pill">舊版</span>';
   return `<div class="lib-dr"><div class="lib-tags">${tag} <span class="lib-pill">${esc(L.name || '')}</span>${b.company_name ? ` <span class="lib-pill">${esc(b.company_name)}</span>` : ''}</div>
@@ -81,7 +88,7 @@ function openBook(id) {
   if (!b) return;
   ui.book = id;
   root.querySelectorAll('[data-book]').forEach((x) => x.setAttribute('aria-pressed', x.dataset.book === id));
-  drawer({ title: b.title, subtitle: (LAYERS.find((x) => x.k === b.layer) || {}).name || '', body: detailHtml(b) });
+  drawer({ title: b.title, subtitle: (allLayers.find((x) => x.k === b.layer) || {}).name || '', body: detailHtml(b) });
   const box = document.getElementById('overlay-root');
   box.querySelectorAll('[data-book]').forEach((x) => x.onclick = () => openBook(x.dataset.book));
   box.querySelectorAll('[data-lib-activate]').forEach((x) => x.onclick = async () => {
@@ -142,11 +149,11 @@ function openUpload(mode) {
     <label class="lib-f">檔案（PDF、Word、圖片，8MB 內）<input type="file" name="file" required></label>
     ${cab ? `<label class="lib-f">哪一家客戶<select name="co">${companies.map((c) => `<option value="${esc(c.id)}" ${c.id === ui.co ? 'selected' : ''}>${esc(c.display_name)}</option>`).join('')}</select></label>
       <div class="lib-f">放在哪一個階段<div class="lib-chips">${STAGES.map((s) => `<button type="button" aria-pressed="${s === ui.stage}" data-chip-stage="${s}">${s}</button>`).join('')}</div></div>`
-    : `<div class="lib-f">放在哪一層書架<div class="lib-chips">${LAYERS.map((L) => `<button type="button" aria-pressed="${L.k === layer}" data-chip-layer="${L.k}">${esc(L.name)}</button>`).join('')}</div></div>
+    : `<div class="lib-f">放在哪一層書架<div class="lib-chips">${shownLayers().map((L) => `<button type="button" aria-pressed="${L.k === layer}" data-chip-layer="${L.k}">${esc(L.name)}</button>`).join('')}</div></div>
       <label class="lib-f" data-tplco ${layer === 'client_tpl' ? '' : 'hidden'}>哪一家客戶的範本<select name="tplco">${companies.map((c) => `<option value="${esc(c.id)}">${esc(c.display_name)}</option>`).join('')}</select></label>
       <label class="lib-f" data-tplstage ${layer === 'client_tpl' ? '' : 'hidden'}>在客戶文件櫃顯示在哪個階段<select name="stage_hint">${STAGES.map((s) => `<option ${s === '面試前' ? 'selected' : ''}>${s}</option>`).join('')}</select></label>
       <label class="lib-f">書背上的短名（6 字內，例：公版合約）<input name="short" maxlength="6"></label>
-      <label class="lib-chk"><input type="checkbox" name="active" checked>設成「使用中」（舊的自動變舊版，系統寄信改附這本）</label>`}
+      <label class="lib-chk"><input type="checkbox" name="active" checked>${inDispatch() ? '設成「使用中」（舊的自動變舊版，不會自動寄給任何人）' : '設成「使用中」（舊的自動變舊版，系統寄信改附這本）'}</label>`}
     <label class="lib-f">文件名稱<input name="title" required placeholder="${cab ? '例：合約正本（客戶用印回傳）' : '例：招募委任合約書（正職代招）'}"></label>
     <label class="lib-f">備註（選填）<input name="note"></label>
     <div class="lib-acts"><button type="submit" class="btn primary">上傳</button><button type="button" class="btn" data-x>取消</button></div>
