@@ -1,5 +1,5 @@
 import { CONFIG } from './config.js';
-import { api, ApiError } from './core/api.js';
+import { api, ApiError, usageUserHeader } from './core/api.js';
 import { resolveRoute, navigate } from './core/router.js';
 import { $, $$, boundary, closeOverlay, closeSubDrawer, drawer, errorState, formFields, loading, modal, openSubDrawer, toast } from './core/ui.js';
 import { escapeHtml, text } from './core/security.js';
@@ -574,7 +574,7 @@ document.addEventListener('click', async (e) => {
     e.preventDefault();
     const id = pv.getAttribute('data-bdm-preview');
     try {
-      const res = await fetch(`${CONFIG.apiBase}/admin/file/${encodeURIComponent(id)}`, { headers: { authorization: `Bearer ${localStorage.getItem(CONFIG.tokenKey) || ''}` } });
+      const res = await fetch(`${CONFIG.apiBase}/admin/file/${encodeURIComponent(id)}`, { headers: { authorization: `Bearer ${localStorage.getItem(CONFIG.tokenKey) || ''}`, ...usageUserHeader() } });
       if (!res.ok) throw new Error(`預覽失敗 HTTP ${res.status}`);
       const blob = await res.blob();
       window.open(URL.createObjectURL(new Blob([blob], { type: 'application/pdf' })), '_blank');
@@ -3844,7 +3844,7 @@ async function submitAppointment(applicationId) {
 async function downloadResume(applicationId) {
   try {
     const res = await fetch(`${CONFIG.apiBase}/admin/resume/${encodeURIComponent(applicationId)}`, {
-      headers: { authorization: `Bearer ${localStorage.getItem(CONFIG.tokenKey) || ''}` },
+      headers: { authorization: `Bearer ${localStorage.getItem(CONFIG.tokenKey) || ''}`, ...usageUserHeader() },
     });
     if (!res.ok) { const body = await res.json().catch(() => null); throw new Error(body?.error || `下載失敗 HTTP ${res.status}`); }
     const blob = await res.blob();
@@ -3875,7 +3875,7 @@ async function downloadResume(applicationId) {
 async function downloadFileGeneric(fileId, path, label = '檔案') {
   try {
     const res = await fetch(`${CONFIG.apiBase}${path}`, {
-      headers: { authorization: `Bearer ${localStorage.getItem(CONFIG.tokenKey) || ''}` },
+      headers: { authorization: `Bearer ${localStorage.getItem(CONFIG.tokenKey) || ''}`, ...usageUserHeader() },
     });
     if (!res.ok) { const body = await res.json().catch(() => null); throw new Error(body?.error || `下載失敗 HTTP ${res.status}`); }
     const blob = await res.blob();

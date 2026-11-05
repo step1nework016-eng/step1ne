@@ -3,6 +3,7 @@
 //   PDF／圖片：瀏覽器自己顯示；Word（.docx）：mammoth 轉成網頁；Excel（.xlsx/.xls/.csv）：SheetJS 轉成表格；
 //   轉出來的內容放進 sandbox iframe（不准跑任何程式）。舊版 .doc、其他格式：顯示「請下載查看」。
 import { CONFIG } from './config.js';
+import { usageUserHeader } from './core/api.js';
 import { toast } from './core/ui.js';
 import { escapeHtml } from './core/security.js';
 import { previewKind, blobType } from './filekind.js';
@@ -30,7 +31,7 @@ function loadLib(kind) {
 // path：後台 API 路徑（/admin/file/<id> 或 /admin/mail-archive/file/<id>）；headers：額外標頭（例如私人鑰匙）
 export async function fetchFile(path, headers = {}) {
   const res = await fetch(`${CONFIG.apiBase}${path}`, {
-    headers: { authorization: `Bearer ${localStorage.getItem(CONFIG.tokenKey) || ''}`, ...headers },
+    headers: { authorization: `Bearer ${localStorage.getItem(CONFIG.tokenKey) || ''}`, ...usageUserHeader(), ...headers },
   });
   if (!res.ok) {
     const body = await res.json().catch(() => null);

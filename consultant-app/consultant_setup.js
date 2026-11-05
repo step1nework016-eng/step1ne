@@ -5,7 +5,7 @@
 // 2026-10-28 加「社群帳號」區：Threads／LinkedIn 綁定狀態卡＋綁定按鈕（GET …/<id>/oauth/<平台> 拿授權網址）、
 // LINE OA 連結、貼文風格（存 social_accounts.skill_prompt；語氣卡由 social_post_agent.py 自動重抽）。
 import { CONFIG } from './config.js';
-import { api } from './core/api.js';
+import { api, usageUserHeader } from './core/api.js';
 import { $, $$, loading, errorState, toast } from './core/ui.js';
 import { escapeHtml } from './core/security.js';
 
@@ -53,7 +53,7 @@ async function fetchAvatar(fid) {
   avatarUrls.set(fid, '');
   try {
     const tok = localStorage.getItem(CONFIG.tokenKey) || '';
-    const r = await fetch(`${CONFIG.apiBase}/admin/file/${encodeURIComponent(fid)}`, { headers: { Authorization: `Bearer ${tok}` } });
+    const r = await fetch(`${CONFIG.apiBase}/admin/file/${encodeURIComponent(fid)}`, { headers: { Authorization: `Bearer ${tok}`, ...usageUserHeader() } });
     if (!r.ok) throw new Error(String(r.status));
     avatarUrls.set(fid, URL.createObjectURL(await r.blob()));
   } catch { avatarUrls.delete(fid); }

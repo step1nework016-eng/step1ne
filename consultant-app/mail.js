@@ -4,7 +4,7 @@
 // 這是伺服器端擋的，這裡只是把鑰匙存在瀏覽器、每次請求帶上。沒有鑰匙時畫面上就是看不到那些信。
 // 安全：信件內文一律當純文字顯示（escapeHtml），不渲染任何信裡的 HTML。
 import { CONFIG } from './config.js';
-import { request } from './core/api.js';
+import { request, usageUserHeader } from './core/api.js';
 import { $, $$, loading, errorState, empty, openSubDrawer, toast } from './core/ui.js';
 import { escapeHtml, text } from './core/security.js';
 import { fileButtons, wireFileButtons } from './filepreview.js';
@@ -202,7 +202,7 @@ export async function openMail(id) {
 async function downloadMailFile(fileId, name) {
   try {
     const res = await fetch(`${CONFIG.apiBase}/admin/mail-archive/file/${encodeURIComponent(fileId)}`, {
-      headers: { authorization: `Bearer ${localStorage.getItem(CONFIG.tokenKey) || ''}`, ...keyHeaders() },
+      headers: { authorization: `Bearer ${localStorage.getItem(CONFIG.tokenKey) || ''}`, ...usageUserHeader(), ...keyHeaders() },
     });
     if (!res.ok) { const body = await res.json().catch(() => null); throw new Error(body?.error || `下載失敗 HTTP ${res.status}`); }
     const blob = await res.blob();

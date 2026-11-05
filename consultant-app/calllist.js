@@ -7,7 +7,7 @@
 // 每一列三步：①點狀態（只是選取，可改選）②備註可留空 ③按「送出」才真的存。
 // 選了「再約時間」要先選日期時間；送出後另外登記 TG 提醒（/admin/consultant-reminders，跟顧問助理 remind 同一套）。
 // 再送一次＝追加一筆，不覆蓋舊紀錄。選了／打了沒送出就換到別列 → 那列顯示「還沒送出」。
-import { api } from './core/api.js';
+import { api, usageUserHeader } from './core/api.js';
 import { toast } from './core/ui.js';
 import { escapeHtml } from './core/security.js';
 import { CONFIG } from './config.js';
@@ -392,7 +392,7 @@ async function openResume(appId) {
   const w = window.open('', '_blank');   // 先開分頁，避免等下載完才開被瀏覽器擋
   try {
     const res = await fetch(`${CONFIG.apiBase}/admin/resume/${encodeURIComponent(appId)}`, {
-      headers: { authorization: `Bearer ${localStorage.getItem(CONFIG.tokenKey) || ''}` },
+      headers: { authorization: `Bearer ${localStorage.getItem(CONFIG.tokenKey) || ''}`, ...usageUserHeader() },
     });
     if (!res.ok) throw new Error(res.status === 404 ? '這位人選沒有履歷檔' : `打不開履歷（${res.status}）`);
     const blob = await res.blob();

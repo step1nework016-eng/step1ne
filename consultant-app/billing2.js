@@ -2,7 +2,7 @@
 // 後端全部在 /admin/billing2/*（backoffice-worker src/billing_v2.js）。
 // 寄信一律只產生 TG 確認卡，按「確認寄出」才會從 official@ 寄。
 import { CONFIG } from './config.js';
-import { api } from './core/api.js';
+import { api, usageUserHeader } from './core/api.js';
 import { $, $$, closeOverlay, empty, modal, toast } from './core/ui.js';
 import { escapeHtml, text } from './core/security.js';
 
@@ -52,7 +52,7 @@ const readB64 = (f) => new Promise((ok, bad) => { const r = new FileReader(); r.
 
 async function download(path, label) {
   try {
-    const res = await fetch(`${CONFIG.apiBase}${path}`, { headers: { authorization: `Bearer ${localStorage.getItem(CONFIG.tokenKey) || ''}` } });
+    const res = await fetch(`${CONFIG.apiBase}${path}`, { headers: { authorization: `Bearer ${localStorage.getItem(CONFIG.tokenKey) || ''}`, ...usageUserHeader() } });
     if (!res.ok) { const b = await res.json().catch(() => null); throw new Error(b?.error || `下載失敗 HTTP ${res.status}`); }
     const blob = await res.blob();
     const m = (res.headers.get('content-disposition') || '').match(/filename\*=UTF-8''([^;]+)/);
@@ -78,7 +78,7 @@ async function preview(path, title) {
   root.querySelectorAll('[data-bill2-pv-close]').forEach((x) => { x.onclick = close; });
   root.querySelector('.bill2-pv-dl').onclick = (e) => { e.preventDefault(); download(path, title); };
   try {
-    const res = await fetch(`${CONFIG.apiBase}${path}`, { headers: { authorization: `Bearer ${localStorage.getItem(CONFIG.tokenKey) || ''}` } });
+    const res = await fetch(`${CONFIG.apiBase}${path}`, { headers: { authorization: `Bearer ${localStorage.getItem(CONFIG.tokenKey) || ''}`, ...usageUserHeader() } });
     if (!res.ok) { const b = await res.json().catch(() => null); throw new Error(b?.error || `讀取失敗 HTTP ${res.status}`); }
     const blob = await res.blob();
     url = URL.createObjectURL(blob);
