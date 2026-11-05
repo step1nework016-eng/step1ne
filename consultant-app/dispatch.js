@@ -142,6 +142,7 @@ async function openPerson(id) {
       <h3>任用與人員資料</h3><dl class="dsp-dl"><div><dt>加保</dt><dd><span class="dsp-st-pill ${d.insurance.key}">${text(d.insurance.label)}</span></dd></div><div><dt>加保日／退保日</dt><dd>${text(x.insured_date || '沒填')}／${text(x.uninsured_date || '沒填')}</dd></div><div><dt>發薪（任用資料）</dt><dd>${x.payroll_day ? `隔月 ${text(x.payroll_day)} 日前發上月薪資` : '<span class="dsp-st-pill need_date">待填</span>'}</dd></div><div><dt>現場主管</dt><dd>${text(x.site_manager || '沒填')}${x.site_contact ? `・${text(x.site_contact)}` : ''}</dd></div><div><dt>緊急聯絡人</dt><dd>${text(x.emergency_contact || '沒填')}</dd></div><div><dt>文件</dt><dd>${d.doc_items.map(([k, l]) => `<span class="dsp-st-pill ${d.docs[k] ? 'in' : 'need_date'}">${d.docs[k] ? '有' : '缺'} ${text(l)}</span>`).join(' ')}</dd></div></dl>
       <div class="actions-row"><button type="button" class="btn sm" data-dsp="edit-profile" data-id="${esc(x.id)}">改任用與人員資料</button></div>
       ${d.milestones.length ? `<h3>到職滿期</h3><table class="dsp-lines dsp-miles"><thead><tr><th>滿期</th><th>日期</th><th>客戶轉任費比例</th></tr></thead><tbody>${d.milestones.map((m) => `<tr class="${m.soon ? 'soon' : ''}"><td>${text(m.label)}${m.note ? `<small>${text(m.note)}</small>` : ''}</td><td>${text(m.date)}${m.passed ? '<small>已滿</small>' : m.soon ? '<small>30 天內</small>' : ''}</td><td>${m.percent == null ? '—' : `轉任後月薪 ${text(m.percent)}%`}</td></tr>`).join('')}</tbody></table><p class="help">比例依這家客戶合約的轉任費設定，這裡只顯示，不計算轉任費。</p>` : ''}
+      ${x.start_date ? `<h3>轉任費試算</h3><div class="dsp-inputs"><label class="field"><span>轉任日</span><input type="date" id="dt2-date" value="${esc(today)}"></label><label class="field"><span>轉任後月薪</span><input id="dt2-salary" inputmode="numeric" placeholder="例：60000"></label></div><div class="actions-row"><button type="button" class="btn sm" data-dsp="transfer-fee" data-co="${esc(x.company_id || '')}" data-start="${esc(x.start_date)}">算轉任費</button></div><div id="dt2-out" class="help"></div><p class="help">只試算，什麼都不會存，也不會開發票。</p>` : ''}
       <h3>關心紀錄</h3><div class="dsp-care-form"><label>日期<input type="date" id="dc2-date" value="${esc(today)}"></label><label>下次關心<input type="date" id="dc2-next" value="${esc(plus30)}"></label><label class="wide">這次聊了什麼<textarea id="dc2-text" rows="2" placeholder="例：工作適應，主管反應不錯"></textarea></label><button type="button" class="btn primary" data-dsp="save-care" data-id="${esc(x.id)}">記一筆</button></div>
       <p class="help">${x.application_id ? '會同步寫回人選卡片。' : '這位沒有人選卡，只記在這裡。'}不會通知人選。下次關心：<span class="dsp-care ${d.care.key}">${text(d.care.label)}</span></p>
       ${careRows ? `<ul class="dsp-care-list">${careRows}</ul>` : '<p class="muted">還沒有紀錄。</p>'}
@@ -579,8 +580,44 @@ async function openRecv(btn) {
   modal({
     title: `${ym} 收款`, subtitle: `${test ? '示範資料。' : ''}金額（未稅）${money(x.amount)}，${x.people} 人。到期日依這家客戶的付款設定算。`,
     body: `<div class="form-grid">${field('客戶收到發票日', `<input type="date" id="dr-inv" value="${esc(x.invoice_date || '')}">`)}${field('實收日', `<input type="date" id="dr-paid" value="${esc(x.paid_date || '')}">`)}${field('實收金額', `<input inputmode="numeric" id="dr-amt" value="${esc(x.paid_amount == null ? '' : x.paid_amount)}">`)}<div class="field"><span>差額</span><b>${x.shortfall == null ? '填實收金額後算出來' : money(x.shortfall)}</b></div></div><p class="help">到期日：${text(x.due_label || '填發票日後算出來')}。${text(x.basis_label)}。</p><details class="dsp-more"><summary>修改紀錄（${logs.items.length}）</summary>${logList(logs.items)}</details>`,
-    footer: `<button class="btn" data-close-overlay>取消</button><button class="btn primary" data-dsp="save-recv" data-ym="${esc(ym)}" data-test="${test ? 1 : 0}">儲存</button>`,
+    footer: `<button class="btn" data-dsp="invoice-detail" data-ym="${esc(ym)}" data-test="${test ? 1 : 0}">看請款明細</button><button class="btn" data-close-overlay>取消</button><button class="btn primary" data-dsp="save-recv" data-ym="${esc(ym)}" data-test="${test ? 1 : 0}">儲存</button>`,
   });
+}
+// 請款明細：照已確認結算列出，可下載或列印後自己送客戶；系統不寄、不開發票。
+async function openInvoice(btn) {
+  const d = await api.get(`/admin/dispatch/invoice-detail?company_id=${encodeURIComponent(ui.company)}&ym=${encodeURIComponent(btn.getAttribute('data-ym'))}&is_test=${btn.getAttribute('data-test') === '1' ? 1 : 0}`);
+  const t = d.totals;
+  const rows = d.items.map((x) => `<tr><td>${text(x.name)}</td><td>${text(x.job)}</td><td class="n">${money(x.recruit)}</td><td class="n">${money(x.admin)}</td><td class="n">${money(x.passthrough)}</td><td class="n">${x.welfare ? '-' + money(x.welfare) : '—'}</td><td class="n">${money(x.total)}</td></tr>`).join('');
+  const table = `<div class="dsp-tablewrap"><table class="dsp-table"><thead><tr><th>姓名</th><th>職缺</th><th class="n">招募管理費</th><th class="n">行政管理費</th><th class="n">實際代付</th><th class="n">福利金</th><th class="n">未稅小計</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <dl class="dsp-dl"><div><dt>未稅合計</dt><dd><b>${money(t.untaxed)}</b></dd></div><div><dt>營業稅 5%</dt><dd>${money(t.tax)}</dd></div><div><dt>含稅合計</dt><dd><b>${money(t.with_tax)}</b></dd></div></dl>`;
+  ui.invoice = { d, table };
+  modal({
+    title: `${d.ym} 請款明細`, subtitle: `${d.is_test ? '示範資料，不能拿去請款。' : ''}${d.company}${d.invoice_to ? `，開給 ${d.invoice_to}` : ''}`,
+    body: `${d.invoice_note ? `<div class="notice">${text(d.invoice_note)}</div>` : ''}${table}<p class="help">只列已確認的結算。稅額是提醒，開票前請會計確認；逐日工時請另外附上。系統不會寄出，也不會開發票。</p>`,
+    footer: `<button class="btn" data-close-overlay>關閉</button><button class="btn" data-dsp="invoice-csv">下載 Excel 可開的檔</button><button class="btn primary" data-dsp="invoice-print">列印／存 PDF</button>`,
+  });
+}
+function invoiceCsv() {
+  const { d } = ui.invoice;
+  const q = (v) => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`;
+  const t = d.totals;
+  const csv = [['姓名', '職缺', '招募管理費', '行政管理費', '實際代付', '福利金', '未稅小計'], ...d.items.map((x) => [x.name, x.job, x.recruit, x.admin, x.passthrough, -x.welfare, x.total]), [], ['未稅合計', '', '', '', '', '', t.untaxed], ['營業稅 5%', '', '', '', '', '', t.tax], ['含稅合計', '', '', '', '', '', t.with_tax]].map((r) => r.map(q).join(',')).join('\r\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' }));
+  a.download = `請款明細_${d.company}_${d.ym}${d.is_test ? '_示範' : ''}.csv`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+function invoicePrint() {
+  const { d, table } = ui.invoice;
+  const w = window.open('', '_blank');
+  if (!w) { toast('瀏覽器擋了新視窗，請允許後再按一次', 'error'); return; }
+  w.document.write(`<!doctype html><html lang="zh-Hant"><meta charset="utf-8"><title>${esc(d.ym)} 請款明細</title><style>body{font:14px "Noto Sans TC","PingFang TC",sans-serif;color:#111;margin:32px}table{width:100%;border-collapse:collapse;margin:16px 0}th,td{border:1px solid #999;padding:6px 8px;text-align:left}.n{text-align:right}dl{display:flex;gap:32px;justify-content:flex-end}dt{color:#555}dd{margin:0;font-size:16px}</style><h2>${esc(d.ym)} 請款明細</h2><p>${esc(d.company)}${d.invoice_to ? `（開給 ${esc(d.invoice_to)}）` : ''}｜德仁管理顧問有限公司${d.is_test ? '｜示範資料，不能拿去請款' : ''}</p>${table}</html>`);
+  w.document.close(); w.focus(); w.print();
+}
+async function runTransferFee(btn) {
+  const d = await api.post('/admin/dispatch/transfer-fee', { company_id: btn.getAttribute('data-co'), start_date: btn.getAttribute('data-start'), transfer_date: $('#dt2-date').value, transfer_salary: $('#dt2-salary').value });
+  $('#dt2-out').innerHTML = `<b>轉任費 ${money(d.fee)}</b>（${text(d.formula)}，未稅與否依合約）`;
 }
 async function saveRecv(btn) {
   await api.post('/admin/dispatch/receivable', { by: me(), company_id: ui.company, ym: btn.getAttribute('data-ym'), is_test: btn.getAttribute('data-test') === '1', invoice_date: $('#dr-inv').value, paid_date: $('#dr-paid').value, paid_amount: $('#dr-amt').value });
@@ -665,6 +702,10 @@ document.addEventListener('click', async (e) => {
     else if (act === 'add-change') addChange(id);
     else if (act === 'save-change') await saveChange(id);
     else if (act === 'open-recv') await openRecv(btn);
+    else if (act === 'invoice-detail') await openInvoice(btn);
+    else if (act === 'invoice-csv') invoiceCsv();
+    else if (act === 'invoice-print') invoicePrint();
+    else if (act === 'transfer-fee') await runTransferFee(btn);
     else if (act === 'save-recv') await saveRecv(btn);
     else if (act === 'open-card') hooks.openCandidate(btn.getAttribute('data-app'));
     else if (act === 'open-job') hooks.openJob(btn.getAttribute('data-slug'));
