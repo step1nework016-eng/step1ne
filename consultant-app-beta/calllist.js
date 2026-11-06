@@ -646,7 +646,7 @@ function wire(t) {
     if (el.closest('[data-cl-tg]')) { const txt = tgText(tabRows()); navigator.clipboard?.writeText(txt).then(() => toast('TG 戰報已複製', 'success'), () => toast(txt)); return; }
     const row = el.closest('[data-cl-id]');
     // 點卡片（客戶卡片／人選卡片按鈕，或卡片空白處）→ 右欄打開完整卡片
-    if (row && (el.closest('[data-bd-company],[data-application]') || !el.closest('a,button,input,select,textarea,summary,details,label'))) {
+    if (row && (el.closest('[data-bd-company],[data-application]') || (S.cfg !== BD && !el.closest('a,button,input,select,textarea,summary,details,label')))) {
       S.sel = row.dataset.clId;
       document.querySelectorAll('.cl-row.cl-sel').forEach((r) => r.classList.toggle('cl-sel', r === row)); row.classList.add('cl-sel');
       if (!el.closest('[data-bd-company],[data-application]')) row.querySelector('[data-bd-company],[data-application]')?.click();
