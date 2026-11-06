@@ -266,8 +266,7 @@ async function restoreRow(id) {
     it.status_info = { ...st, parked_at: null, parked_reason: null, next_step: null, next_due: null, ...(st.tag === 'NO' ? { tag: null } : {}), ...(badStage ? { stage: '已聯繫' } : {}) };
     it.history = [{ at: nowLocal(), result: BD_RESTORE, note: '放回電話名單', caller: who, kind: 'other', id: r.id }, ...hist(it)];
     toast('已放回名單', 'success');
-    S.acted[id] = { text: '已放回名單' };
-    rerenderRow(id); refreshBdCounts();
+    removeRowEl(id); refreshBdCounts();
   } catch (err) {
     toast(err.message || '放回失敗，請再按一次', 'error');
     if (row) { row.disabled = false; row.textContent = '放回名單'; }
@@ -282,7 +281,8 @@ async function undoRow(id) {
     it.status_info = a.prevStatus;
     delete S.acted[id];
     toast('已復原，那筆紀錄收回了', 'success');
-    rerenderRow(id); refreshBdCounts();
+    if (a.gone) { closeHidBar(); putRowBack(it, a.nextId); refreshBdCounts(); }
+    else { rerenderRow(id); refreshBdCounts(); }
   } catch (err) { toast(err.message || '復原失敗', 'error'); }
 }
 // 只存備註：不算一通電話，也不影響隱藏與排序
@@ -525,6 +525,35 @@ function rerenderRow(id) {
   const it = S.items.find((x) => String(x.id) === id);
   if (el && it) { el.outerHTML = rowHtml(it); }
 }
+// 2026-11-06 Jacky：「未及時隱藏」——列一按就離開畫面，不等切換畫面；只動這一列，其他列不重排
+function removeRowEl(id) {
+  const el = S.target && S.target.querySelector(`[data-cl-id="${CSS.escape(id)}"]`);
+  const list = S.target && S.target.querySelector('.cl-list');
+  const next = el && el.nextElementSibling && el.nextElementSibling.dataset ? el.nextElementSibling.dataset.clId || '' : '';
+  if (el) el.remove();
+  if (list && !list.querySelector('[data-cl-id]')) list.innerHTML = listHtml(visibleRows());
+  return next;
+}
+function closeHidBar() {
+  clearTimeout(S.hidBarTimer);
+  S.target && S.target.querySelector('.cl-hid-bar')?.remove();
+}
+function hideRowNow(id, it) {
+  const a = S.acted[id]; if (!a) return;
+  a.gone = true; a.nextId = removeRowEl(id);
+  closeHidBar();
+  const wrap = S.target.querySelector('.cl-wrap'); if (!wrap) return;
+  wrap.insertAdjacentHTML('beforeend', `<div class="cl-hid-bar" role="status"><span>「${e(it.company)}」已隱藏</span>${a.logId ? `<button type="button" class="cl-undo" data-cl-bar-undo="${e(id)}">復原</button>` : ''}<button type="button" class="cl-hid-bar-x" data-cl-bar-close aria-label="關閉提示">關閉</button></div>`);
+  wrap.querySelector('[data-cl-bar-undo]')?.focus({ preventScroll: true });
+  S.hidBarTimer = setTimeout(closeHidBar, 15000);
+}
+function putRowBack(it, nextId) {
+  const list = S.target && S.target.querySelector('.cl-list'); if (!list) return;
+  const next = nextId && list.querySelector(`[data-cl-id="${CSS.escape(nextId)}"]`);
+  if (!list.querySelector('[data-cl-id]')) list.innerHTML = '';
+  if (next) next.insertAdjacentHTML('beforebegin', rowHtml(it));
+  else list.insertAdjacentHTML('beforeend', rowHtml(it));
+}
 function markUnsentExcept(id) {
   S.active = id;
   Object.keys(S.pending).forEach((k) => {
@@ -577,11 +606,14 @@ async function submitRow(id) {
     toast(`已記錄「${labelOf(it.last_result)}」${remindMsg}`, 'success');
     if (S.cfg.kind === 'bd') {
       it.history = [{ at: it.last_at, result: it.last_result, note: it.last_note, caller: who, kind: 'call' }, ...(it.history || [])];
-      // 公司名單：這一列就地更新，不重排、不跳走；剛按沒意願的留在原位給一個復原的機會，下次切換畫面才離開
+      // 公司名單：這一列就地更新，不重排、不跳走。2026-11-06 Jacky：沒意願要立刻隱藏，復原改放在畫面下方的提示列
       const hiddenNow = !!bdHiddenWhy(it);
       S.acted[id] = { text: hiddenNow ? `已記錄「${labelOf(it.last_result)}」，這家已移到「已隱藏」` : `已記錄「${labelOf(it.last_result)}」`, logId: ['send_info', 'callback'].includes(it.last_result) ? '' : it.last_log_id, ...prevSnap };
-      rerenderRow(id); refreshBdCounts();
-      S.target.querySelector(`[data-cl-id="${CSS.escape(id)}"] .cl-undo, [data-cl-id="${CSS.escape(id)}"] .cl-qb`)?.focus();
+      if (hiddenNow && S.filter !== 'hidden') { hideRowNow(id, it); refreshBdCounts(); }
+      else {
+        rerenderRow(id); refreshBdCounts();
+        S.target.querySelector(`[data-cl-id="${CSS.escape(id)}"] .cl-undo, [data-cl-id="${CSS.escape(id)}"] .cl-qb`)?.focus();
+      }
     } else renderAll();
     // 右欄正開著這一家／這一位：重開一次，剛存的紀錄馬上看得到
     if (S.sel === id) S.target.querySelector(`[data-cl-id="${CSS.escape(id)}"]`)?.querySelector('[data-bd-company],[data-application]')?.click();
@@ -622,6 +654,8 @@ function wire(t) {
     }
     if (row) markUnsentExcept(row.dataset.clId);
     const tab = el.closest('[data-cl-tab]'); if (tab) { S.tab = tab.dataset.clTab; saveUi(); renderAll(); return; }
+    const barUndo = el.closest('[data-cl-bar-undo]'); if (barUndo) { undoRow(barUndo.dataset.clBarUndo); return; }
+    if (el.closest('[data-cl-bar-close]')) { closeHidBar(); return; }
     const f = el.closest('[data-cl-filter]'); if (f) { S.filter = f.dataset.clFilter; saveUi(); renderAll(); return; }
     const cvBtn = el.closest('[data-cl-resume]'); if (cvBtn) { openResume(cvBtn.dataset.clResume); return; }
     const jump = el.closest('[data-cl-jump]'); if (jump) { ev.preventDefault(); const card = S.target.querySelector(`[data-cl-id="${CSS.escape(jump.dataset.clJump)}"]`); if (card) { card.scrollIntoView({ behavior: 'smooth', block: 'start' }); card.classList.add('flash'); setTimeout(() => card.classList.remove('flash'), 1500); } else { S.filter = 'all'; renderAll(); } return; }
