@@ -17,6 +17,16 @@ function parseBody(text) {
   try { return JSON.parse(text); } catch { return { raw: text }; }
 }
 
+// 2026-11-05 功能使用紀錄：把畫面上方「我是」選的名字帶給後台，只用來統計誰在用哪個功能。
+// 名字可能是中文，標頭只能放英數，一定要編碼（沒編碼 fetch 會直接丟例外）。
+// 只有 CONFIG.apiBase 那支後台放行這個標頭，其他 Worker 不要帶（瀏覽器會擋掉整個請求）。
+export function usageUserHeader() {
+  try {
+    const me = JSON.parse(localStorage.getItem('s1ne_aimatch_ui') || '{}')?.me;
+    return me ? { 'X-Usage-User': encodeURIComponent(String(me).slice(0, 40)) } : {};
+  } catch { return {}; }
+}
+
 export async function request(path, options = {}) {
   const { recruit = false, body, headers = {}, signal, ...init } = options;
   const token = localStorage.getItem(CONFIG.tokenKey) || '';
@@ -28,6 +38,7 @@ export async function request(path, options = {}) {
       Accept: 'application/json',
       ...(body === undefined ? {} : { 'Content-Type': 'application/json' }),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(recruit ? {} : usageUserHeader()),
       ...headers
     }
   });

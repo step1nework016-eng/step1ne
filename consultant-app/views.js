@@ -272,7 +272,7 @@ export const views = {
   casestatus: () => pageHead('帶案狀況', '給 Jim 看的帶案儀表板，需要通行碼。下面看不到的話，按右邊按鈕另開分頁。', '<a class="btn primary" href="https://pipeline.step1ne.com/" target="_blank" rel="noopener" style="min-height:44px;display:inline-flex;align-items:center;text-decoration:none">另開分頁看帶案狀況 ↗</a>') + `<div id="page-data"><iframe class="casestatus-frame" src="https://pipeline.step1ne.com/" title="帶案狀況儀表板" loading="lazy" referrerpolicy="no-referrer"></iframe></div>`,
   // 2026-10-27 Jacky：電話名單（畫面與邏輯在 calllist.js）
   calllist: () => pageHead('人選電話名單', '系統每天自動排「今天要打」。每張卡：①點結果 ②備註可留空 ③按「儲存」才存進系統；點卡片，右邊打開完整人選卡片。不會寄任何東西給人選。') + `<div id="page-data"></div>`,
-  bdcalls: () => pageHead('公司開發名單', '系統每天自動排「今天要打」（到期追蹤 → 沒接重打 → 新名單補滿）。每張卡：①點結果 ②備註可留空 ③按「儲存」才存進系統；點卡片，右邊打開完整客戶卡片（紀錄、寄信都在那裡）。') + `<div id="page-data"></div>`,
+  bdcalls: () => pageHead('客戶電話名單', '有意願的排最前面，接著是待聯絡；沒意願的收到「已隱藏」，紀錄都還在。按結果就存好，這週要做什麼直接打字。點客戶名，右邊打開完整客戶卡片。不會寄任何東西給客戶。') + `<div id="page-data"></div>`,
   // 2026-10-12 加：信箱紀錄（畫面與邏輯在 mail.js）
   mail: () => mailPageView(),
   // 2026-10-28 加：顧問上工設定（畫面與邏輯在 consultant_setup.js）
