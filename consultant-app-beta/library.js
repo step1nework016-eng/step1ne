@@ -44,7 +44,7 @@ export async function loadLibraryTab(target) {
   try {
     const [lib, cos, sum] = await Promise.all([api.get('/admin/library'), api.get('/admin/portal/companies'), api.get('/admin/client-docs-summary').catch(() => ({ counts: {} }))]);
     books = lib.books || [];
-    signed = (lib.signed || []).map((x) => ({ ...x, signed: true, title: `${x.company_name || '客戶'}｜${x.filename || '合約'}`, short: String(x.company_name || x.filename || '').replace(/股份有限公司|有限公司/g, '').slice(0, 8) }));
+    signed = (lib.signed || []).map((x) => ({ ...x, signed: true, title: `${x.company_name || '客戶'}｜${x.filename || '合約'}`, short: String(x.company_name || x.filename || '').replace(/(\u80a1\u4efd)?\u6709\u9650\u516c\u53f8/g, '').slice(0, 8) }));
     counts = sum.counts || {};
     // 2026-10-30 Jacky：有文件的客戶排上面、沒有的排下面（同樣多照名稱）
     companies = (cos.items || cos.companies || []).filter((c) => c && c.id && !/測試/.test(c.display_name || ''))
