@@ -1537,6 +1537,7 @@ let CANDIDATES_LOADED = false;
 let CAND_LIST = [];
 let CAND_VIEW = 'table';
 let CAND_FILTER = '全部';
+let CAND_GROUP = 'active';
 let ACTIVE_APP = null;
 let CHAT_POLL_TIMER = null;
 
@@ -1750,21 +1751,35 @@ async function loadFunnels(){
   }).join('');
 }
 
+// 2026-11-06 Jacky：人選分「有推進／不推進」，不推進預設隱藏，要看再按。
+function isNotPushed(c){
+  const confirmS = stepOf(c, 'confirm');
+  return !!c.client_rejected_at || (!!confirmS && confirmS.decision === 'rejected');
+}
+function candGroupList(){ return CAND_LIST.filter(c => (CAND_GROUP === 'rejected') === isNotPushed(c)); }
 function renderChips(){
-  const labels = [...new Set(CAND_LIST.map(c => currentStageOf(c).lb))];
-  const chips = ['全部', ...labels];
-  document.getElementById('dashChips').innerHTML = chips.map(c => {
-    const count = c === '全部' ? CAND_LIST.length : CAND_LIST.filter(x => currentStageOf(x).lb === c).length;
+  const inGroup = candGroupList();
+  const nReject = CAND_LIST.filter(isNotPushed).length;
+  const labels = CAND_GROUP === 'rejected' ? [] : [...new Set(inGroup.map(c => currentStageOf(c).lb))];
+  if (CAND_FILTER !== '全部' && !labels.includes(CAND_FILTER)) CAND_FILTER = '全部';
+  const groupBtns = `<button type="button" class="dash-chip ${CAND_GROUP === 'active' ? 'on' : ''}" data-group="active" aria-pressed="${CAND_GROUP === 'active'}">有推進 ${CAND_LIST.length - nReject}</button><button type="button" class="dash-chip ${CAND_GROUP === 'rejected' ? 'on' : ''}" data-group="rejected" aria-pressed="${CAND_GROUP === 'rejected'}">不推進 ${nReject}</button>`;
+  const stageBtns = labels.length > 1 ? `<span style="display:inline-block;width:1px;height:20px;background:var(--line,#ddd);margin:0 6px;vertical-align:middle"></span>` + ['全部', ...labels].map(c => {
+    const count = c === '全部' ? inGroup.length : inGroup.filter(x => currentStageOf(x).lb === c).length;
     return `<button type="button" class="dash-chip ${CAND_FILTER === c ? 'on' : ''}" data-chip="${esc(c)}">${esc(shortStageLabel(c))} ${count}</button>`;
-  }).join('');
-  document.getElementById('dashChips').querySelectorAll('.dash-chip').forEach(btn => {
+  }).join('') : '';
+  const box = document.getElementById('dashChips');
+  box.innerHTML = groupBtns + stageBtns;
+  box.querySelectorAll('[data-group]').forEach(btn => {
+    btn.addEventListener('click', () => { CAND_GROUP = btn.dataset.group; CAND_FILTER = '全部'; renderChips(); renderTable(); renderCards(); });
+  });
+  box.querySelectorAll('[data-chip]').forEach(btn => {
     btn.addEventListener('click', () => { CAND_FILTER = btn.dataset.chip; renderChips(); renderTable(); renderCards(); });
   });
 }
 
 function filteredCandidates(){
   const q = document.getElementById('dashSearch').value.trim().toLowerCase();
-  return CAND_LIST.filter(c => {
+  return candGroupList().filter(c => {
     if (CAND_FILTER !== '全部' && currentStageOf(c).lb !== CAND_FILTER) return false;
     if (q && !`${c.candidate_name} ${c.line_id_given || ''}`.toLowerCase().includes(q)) return false;
     return true;
