@@ -287,7 +287,7 @@ export const views = {
   // 2026-11-02 加：主力客戶狀態總表（唯一真相，畫面與邏輯在 clientboard.js）
   clientboard: () => pageHead('主力客戶總表', '每家客戶一張卡：合約、窗口、找人中的職缺（客戶確認了沒）、已拿掉／暫停、管道限制、下一步。Jacky、Phoebe、AI 都讀這一份。') + `<div id="page-data"></div>`,
   // 2026-10-30 加：文件書櫃（畫面與邏輯在 library.js）
-  library: () => pageHead('文件書櫃', '公司範本（合約、簡介、客戶給的範本）每一層一本「使用中」，系統寄信自動附那本；客戶文件櫃依合作階段放每家客戶的文件。') + `<div id="page-data"></div>`,
+  library: () => pageHead('文件書櫃', '公司範本（公司文件、客戶合約、客戶其他文件）每一層一本「使用中」，系統寄信自動附那本；客戶文件櫃依合作階段放每家客戶的文件。') + `<div id="page-data"></div>`,
   // 2026-10-15 加：招募管道（畫面與邏輯在 channels.js）
   channels: () => pageHead('招募管道', '請訓練機構、學校等幫忙推人的管道，一家一張卡。拖到別欄＝改狀態；點卡片看聯絡紀錄、推來的人選與成效。左邊紅線＝到了該追的日子。', '<button class="btn primary" data-action="channel-new">＋ 新增管道</button>') + `<div id="page-data"></div>`,
   board: (tab = 'cand') => pageHead('進度看板', '每一欄是一個階段，每張卡是一個人選或一家客戶。左邊有紅線的＝在這關停太久，該追了。')

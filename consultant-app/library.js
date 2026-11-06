@@ -10,9 +10,9 @@ import { fileButtons, wireFileButtons } from './filepreview.js';
 const esc = escapeHtml;
 const STAGES = ['開發', '簽約', '職缺需求', '推薦', '面試前', '錄取到職', '請款'];
 const LAYERS = [
-  { k: 'contract', name: '招募委任合約書', color: 'var(--lib-contract)' },
-  { k: 'profile', name: '公司簡介', color: 'var(--lib-profile)' },
-  { k: 'client_tpl', name: '客戶給的範本', color: 'var(--lib-client)' },
+  { k: 'profile', name: '公司文件', color: 'var(--lib-profile)' },
+  { k: 'contract', name: '客戶合約', color: 'var(--lib-contract)' },
+  { k: 'client_tpl', name: '客戶其他文件', color: 'var(--lib-client)' },
 ];
 // 2026-11-05 Jacky：派遣書櫃跟正職書櫃分開。派遣層不會被開發信自動附件選到（那邊只讀 contract、profile）。
 const DISPATCH_LAYERS = [{ k: 'dispatch', name: '公司內部文件', color: 'var(--lib-contract)' }, { k: 'dispatch_signed', name: '客戶用印合約', color: 'var(--lib-client)' }];
@@ -61,7 +61,7 @@ function render() {
 
 // ── 公司範本 ─────────────────────────────
 function libHtml() {
-  const legend = inDispatch() ? '<p class="help">派遣書櫃的文件只存檔，不會自動寄給任何人。</p>' : `<div class="lib-legend"><span><b style="background:var(--lib-contract)"></b>合約</span><span><b style="background:var(--lib-profile)"></b>公司簡介</span><span><b style="background:var(--lib-client)"></b>客戶給的範本／客戶專用</span><span><b style="background:var(--lib-old)"></b>舊版（留著查）</span><span><b style="background:var(--lib-ribbon)"></b>書籤＝使用中（系統寄信自動附這本）</span></div>`;
+  const legend = inDispatch() ? '<p class="help">派遣書櫃的文件只存檔，不會自動寄給任何人。</p>' : `<div class="lib-legend"><span><b style="background:var(--lib-contract)"></b>客戶合約</span><span><b style="background:var(--lib-profile)"></b>公司文件</span><span><b style="background:var(--lib-client)"></b>客戶其他文件／客戶專用</span><span><b style="background:var(--lib-old)"></b>舊版（留著查）</span><span><b style="background:var(--lib-ribbon)"></b>書籤＝使用中（系統寄信自動附這本）</span></div>`;
   return `${legend}
   <div class="lib-shelves">${shownLayers().map((L) => {
     const xs = books.filter((b) => b.layer === L.k);
