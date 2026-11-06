@@ -14,14 +14,17 @@ function html(d) {
   const r = d.row;
   if (d.need_key) return `<small class="muted">線上版人事資料表</small> ${btn('key', '輸入專用密碼')}`;
   if (!r || !r.online) return `<small class="muted">線上版人事資料表：還沒開</small> ${btn('prep', '開線上版', 'primary')}${r && r.has_old ? btn('import', '開舊表帶入') : ''}<div data-hr-box></div>`;
-  let out = `<small class="muted">線上版</small> <span class="badge">${esc(r.state)}${r.released_at ? '・已放行' : ''}</span> <small class="muted">${esc(r.mode)}｜${r.client_can_see ? '客戶專區看得到' : '客戶專區：等待中'}</small>`;
+  // 2026-11-06 Jacky：放行要直覺。一眼看到客戶現在看到哪一版、下一步按什麼。
+  const seen = r.released_at ? `客戶現在看到：<b>新版</b>（${esc(String(r.released_at).slice(5, 16))} 已放行）` : r.client_can_see ? '客戶現在看到：<b>舊版</b>，還看不到新版' : '客戶現在<b>還看不到</b>這份表';
+  let out = `<small class="muted">線上版</small> <span class="badge">${esc(r.state)}</span> <small class="muted">${esc(r.mode)}</small><div style="font-size:13px;margin-top:2px">${seen}</div>`;
+  if (r.status === 'submitted' && !r.released_at) out += `<div style="font-size:13px;margin-top:4px;padding:6px 8px;border-radius:6px;background:#FEF3C7;color:#78350F"><b>下一步：</b>人選已送出新版。先按「看新版內容」，沒問題再按「放行新版給客戶」。</div>`;
   if (r.status !== 'submitted' && r.status !== 'purged' && r.missing.length) out += `<div class="muted" style="color:#B91C1C;font-size:12.5px">還有 ${r.missing.length} 項${r.to_confirm ? `（其中 ${r.to_confirm} 格等人選確認）` : ''}：${esc(r.missing.join('、'))}</div>`;
   if (r.sign_mode === 'paper' && r.status === 'submitted' && r.missing.length) out += `<div class="muted" style="color:#B91C1C;font-size:12.5px">手寫版：系統沒辦法判斷這些格子有沒有手寫補上，請打開看：${esc(r.missing.join('、'))}</div>`;
   if (r.close_outcome) out += `<div class="muted" style="font-size:12.5px">結案：${r.close_outcome === 'hired' ? '錄取（保存規則待確認，不會排刪除）' : `沒錄取，預計 ${esc(String(r.delete_after || '').slice(0, 10))} 可刪除`}</div>`;
   if (r.delete_due) out += `<div class="muted" style="color:#B91C1C;font-size:12.5px">已滿保存期限，請確認後刪除</div>`;
   if (r.purged_at) return `${out}<div class="muted" style="font-size:12.5px">${esc(r.purged_at)} 由 ${esc(r.purged_by)} 刪除</div>`;
   const acts = [];
-  if (r.status === 'submitted') { acts.push(btn('pdf', '下載文件')); if (!r.released_at) acts.push(btn('release', '放行給客戶專區', 'primary')); acts.push(btn('reopen', '退回補件')); }
+  if (r.status === 'submitted') { acts.push(btn('pdf', r.released_at ? '看內容' : '看新版內容')); if (!r.released_at) acts.push(btn('release', '放行新版給客戶', 'primary')); acts.push(btn('reopen', '退回補件')); }
   else { acts.push(btn('send', r.mail_pending ? '重貼寄信確認卡' : '寄連結（TG 確認卡）', 'primary')); acts.push(btn('reopen', '重新開通')); if (r.state !== '已作廢') acts.push(btn('revoke', '作廢連結')); }
   if (r.code_locked) acts.push(btn('unlock', '解除輸入鎖定'));
   acts.push(r.close_outcome ? btn('unclose', '改回進行中') : `${btn('closeN', '結案：沒錄取')}${btn('closeH', '結案：錄取')}`);
@@ -60,7 +63,7 @@ async function act(el, a, data) {
   if (a === 'import') return importForm(el, { ...ids, submission_id: id });
   if (a === 'pdf') return download(`${id}/pdf`, '人事資料表.pdf');
   if (a === 'send') return run(`${id}/send-card`);
-  if (a === 'release') { if (confirm('按下去會發生：客戶專區可以下載這份表、LINE 帳號也會顯示給客戶。\n不會寄信給客戶或人選。\n確定放行？')) return run(`${id}/release`); return; }
+  if (a === 'release') { if (confirm('放行後，客戶專區會換成這份新版，也會顯示人選的 LINE 帳號。\n不會寄信給客戶或人選；要通知客戶請另外講。\n\n確定放行？')) return run(`${id}/release`); return; }
   if (a === 'reopen') { const n = prompt('舊連結立刻失效，已填的內容留著，48 小時重算。\n要請人選補什麼？（人選打開會看到，可留空；系統不會通知人選）'); if (n !== null) return run(`${id}/reopen`, { note: n }); return; }
   if (a === 'revoke') { if (confirm('作廢後這條連結立刻不能用，確定？')) return run(`${id}/revoke`); return; }
   if (a === 'unlock') return run(`${id}/unlock`);
