@@ -44,7 +44,14 @@ export async function loadLibraryTab(target) {
   try {
     const [lib, cos, sum] = await Promise.all([api.get('/admin/library'), api.get('/admin/portal/companies'), api.get('/admin/client-docs-summary').catch(() => ({ counts: {} }))]);
     books = lib.books || [];
-    signed = (lib.signed || []).map((x) => ({ ...x, signed: true, title: `${x.company_name || '客戶'}｜${x.filename || '合約'}`, short: String(x.company_name || x.filename || '').replace(/(\u80a1\u4efd)?\u6709\u9650\u516c\u53f8/g, '').slice(0, 8) }));
+    // 2026-11-06 Jacky：同一家客戶的合約放同一本，打開再分。
+    { const by = new Map();
+      for (const x of lib.signed || []) {
+        const key = x.company_id || x.filename;
+        if (!by.has(key)) by.set(key, { id: `sg_${key}`, signed: true, company_id: x.company_id, company_name: x.company_name, title: x.company_name || x.filename || '客戶合約', short: String(x.company_name || x.filename || '').replace(/(\u80a1\u4efd)?\u6709\u9650\u516c\u53f8/g, '').slice(0, 8), uploaded_at: x.uploaded_at, files: [] });
+        const g = by.get(key); g.files.push(x); if (String(x.uploaded_at) > String(g.uploaded_at)) g.uploaded_at = x.uploaded_at;
+      }
+      signed = [...by.values()]; }
     counts = sum.counts || {};
     // 2026-10-30 Jacky：有文件的客戶排上面、沒有的排下面（同樣多照名稱）
     companies = (cos.items || cos.companies || []).filter((c) => c && c.id && !/測試/.test(c.display_name || ''))
@@ -74,22 +81,20 @@ function libHtml() {
   <div class="lib-shelves">${(inDispatch() ? DISPATCH_LAYERS.map((L) => ({ ...L, up: L.k, pick: (b) => b.layer === L.k })) : SHELVES).map((L) => {
     const xs = [...books.filter(L.pick), ...(L.k === 'signed' ? signed : [])];
     const colorOf = (b) => { const real = allLayers.find((x) => x.k === b.layer); return b.signed || b.company_id ? 'var(--lib-client)' : (real ? real.color : L.color); };
-    return `<section class="lib-shelf"><h2><i style="background:${L.color}"></i>${esc(L.name)}<span class="lib-pill">${xs.length} 本</span></h2>
+    return `<section class="lib-shelf"><h2 style="display:flex;flex-wrap:wrap;align-items:center;gap:8px"><i style="background:${L.color}"></i>${esc(L.name)}<span class="lib-pill" data-lib-count>${xs.length} 本</span><input type="search" data-lib-q placeholder="搜尋這一層" aria-label="搜尋${esc(L.name)}" style="margin-left:auto;width:min(220px,100%);min-height:36px;font-size:14px;font-weight:400;padding:4px 10px;border:1px solid var(--line,#CBD5E1);border-radius:8px"></h2>
       <div class="lib-row">${xs.map((b) => {
         const color = colorOf(b);
         const old = !b.signed && !b.is_active && !b.company_id;
-        return `<button type="button" class="lib-book${old ? ' old' : ''}" style="background:${color};height:${b.is_active ? 178 : 162}px" aria-pressed="${b.id === ui.book}" data-book="${esc(b.id)}" aria-label="${esc(b.title)}${b.is_active ? '（使用中）' : old ? '（舊版）' : ''}">${b.is_active ? '<i class="rib"></i>' : ''}<span class="t">${esc(b.short || b.title.slice(0, 6))}</span><span class="y">${esc(String(b.uploaded_at || '').slice(5, 10).replace('-', '/'))}</span></button>`;
+        const hay = [b.title, b.short, b.company_name, b.filename, b.note, ...(b.files || []).map((x) => x.filename)].filter(Boolean).join(' ').toLowerCase();
+        return `<button type="button" data-lib-hay="${esc(hay)}" class="lib-book${old ? ' old' : ''}" style="background:${color};height:${b.is_active ? 178 : 162}px" aria-pressed="${b.id === ui.book}" data-book="${esc(b.id)}" aria-label="${esc(b.title)}${b.is_active ? '（使用中）' : old ? '（舊版）' : ''}">${b.is_active ? '<i class="rib"></i>' : ''}<span class="t">${esc(b.short || b.title.slice(0, 6))}</span><span class="y">${esc(String(b.uploaded_at || '').slice(5, 10).replace('-', '/'))}</span></button>`;
       }).join('')}<button type="button" class="lib-book add" data-lib-up="${L.up}" aria-label="上傳到${esc(L.name)}"><span class="t">${L.k === 'signed' ? '＋ 新合約' : '＋ 新版本'}</span></button></div><div class="lib-board"></div></section>`;
   }).join('')}</div>
   </div>${books.length ? '' : '<p class="muted">書櫃還是空的，按「＋ 新版本」放第一本。</p>'}`;
 }
 function detailHtml(b) {
   if (b.signed) {
-    const vers = signed.filter((x) => x.company_id === b.company_id);
-    return `<div class="lib-dr"><div class="lib-tags"><span class="lib-pill cl">客戶合約</span>${b.company_name ? ` <span class="lib-pill">${esc(b.company_name)}</span>` : ''}</div>
-    <p class="muted">${esc(day(b.uploaded_at))}${b.uploaded_by ? `・${esc(b.uploaded_by)} 上傳` : ''}<br>${esc(b.filename || '')}</p>
-    <div class="lib-acts">${fileButtons(fpath(b.file_id), b.filename || `${b.title}.pdf`)}</div>
-    ${vers.length > 1 ? `<div class="lib-vers"><b>這家的其他合約</b>${vers.map((x) => `<button type="button" data-book="${esc(x.id)}" class="${x.id === b.id ? 'cur' : ''}"><span>${esc(day(x.uploaded_at))}</span><span>${esc(x.filename || '')}</span></button>`).join('')}</div>` : ''}</div>`;
+    return `<div class="lib-dr"><div class="lib-tags"><span class="lib-pill cl">客戶合約</span> <span class="lib-pill">${b.files.length} 份</span></div>
+    ${b.files.map((x) => `<div style="padding:10px 0;border-top:1px solid var(--line,#E2E8F0)"><b style="display:block;overflow-wrap:anywhere">${esc(x.filename || '合約')}</b><p class="muted" style="margin:2px 0 6px">${esc(day(x.uploaded_at))}${x.uploaded_by ? `・${esc(x.uploaded_by)} 上傳` : ''}</p><div class="lib-acts">${fileButtons(fpath(x.file_id), x.filename || '合約.pdf')}</div></div>`).join('')}</div>`;
   }
   const L = allLayers.find((x) => x.k === b.layer) || {};
   const same = books.filter((x) => x.layer === b.layer && (b.layer !== 'client_tpl' || (x.company_id === b.company_id && x.short === b.short)));
@@ -213,6 +218,11 @@ function openUpload(mode) {
 function wire() {
   root.querySelectorAll('[data-lib-tab]').forEach((b) => b.onclick = async () => { ui.tab = b.dataset.libTab; render(); if (ui.tab === 'cab') await loadDocs(); });
   root.querySelectorAll('[data-book]').forEach((b) => b.onclick = () => openBook(b.dataset.book));
+  root.querySelectorAll('[data-lib-q]').forEach((inp) => inp.oninput = () => {
+    const sec = inp.closest('.lib-shelf'); const q = inp.value.trim().toLowerCase(); let n = 0;
+    sec.querySelectorAll('[data-lib-hay]').forEach((x) => { const hit = !q || x.dataset.libHay.includes(q); x.style.display = hit ? '' : 'none'; if (hit) n += 1; });
+    const c = sec.querySelector('[data-lib-count]'); if (c) c.textContent = `${n} 本`;
+  });
   root.querySelectorAll('[data-lib-up]').forEach((b) => b.onclick = async () => { if (ui.tab === 'lib' && b.dataset.libUp === 'cab') { ui.tab = 'cab'; ui.stage = '簽約'; render(); await loadDocs(); } openUpload(b.dataset.libUp); });
   root.querySelectorAll('[data-lib-activate]').forEach((b) => b.onclick = async () => {
     b.disabled = true;
