@@ -4466,7 +4466,7 @@ function openAction(actionId, rawCtx) {
     subtitle: action.confirmText || '',
     dangerous: !!action.dangerous,
     body: fields.length ? `<form id="action-form">${formFields(fields, ctx.record || {})}</form>` : (action.confirmText ? '' : '<p>確定要執行此操作？</p>'),
-    footer: `<button class="btn" data-close-overlay>取消</button><button class="btn ${action.dangerous ? 'danger' : 'primary'}" data-action="run-action">${escapeHtml(action.submitLabel || '確認')}</button>`
+    footer: `<button class="btn${action.tallButtons ? ' btn-tall' : ''}" data-close-overlay>取消</button><button class="btn ${action.tallButtons ? 'btn-tall ' : ''}${action.dangerous ? 'danger' : 'primary'}" data-action="run-action">${escapeHtml(action.submitLabel || '確認')}</button>`
   });
 }
 

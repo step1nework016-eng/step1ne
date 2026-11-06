@@ -232,7 +232,7 @@ export const ACTIONS = {
     confirmText: '按存檔才會寫入，存檔後客戶專區會顯示這段。一面日期留白，由客戶人資自己填。',
     fields: [{ name: 'client_note', label: '推薦文字', type: 'textarea', rows: 9 }],
     body: (ctx, values) => ({ ...ctx.idParams, client_note: values.client_note || '' }),
-    submitLabel: '存檔', success: '已存推薦文字',
+    submitLabel: '存檔', tallButtons: true, success: '已存推薦文字',
   },
   // 客製表單：寄送／代為上傳／催填／下載，四個動作對應 index.js 的
   // /admin/candidate-form-submissions/* 四支端點——資料早就在（forms[]，
