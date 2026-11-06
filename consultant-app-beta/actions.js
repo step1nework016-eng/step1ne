@@ -234,6 +234,24 @@ export const ACTIONS = {
     body: (ctx, values) => ({ ...ctx.idParams, client_note: values.client_note || '' }),
     submitLabel: '存檔', tallButtons: true, success: '已存推薦文字',
   },
+  // 2026-11-06 Jacky：AI 草稿放進跟上面同一個編輯框、存到同一個欄位。AI 只負責把字放進來，按存檔才寫入。
+  // 依據和被拿掉的句子只顯示在這裡，不會存（body 只送 client_note）；百分比一定要顧問自己勾確認。
+  'forward-rec-text-ai': {
+    label: 'AI 推薦文字草稿', method: 'post', path: () => '/admin/pipeline/forward-detail',
+    confirmText: '這是 AI 擬的草稿，還沒存。看過、改好再按存檔，存檔後客戶專區才會顯示。一面日期留白，由客戶人資自己填。',
+    fields: (ctx) => {
+      const r = ctx.record || {};
+      return [
+        { name: 'ai_percent_note', type: 'note', label: r.ai_percent ? `AI 建議的百分比：${r.ai_percent}，只是建議，請自己判斷` : 'AI 沒有建議百分比（資料不足），要寫請自己判斷', text: r.ai_basis ? `依據：${r.ai_basis}（這段不會存，對方看不到）` : '' },
+        { name: 'ai_removed_note', type: 'note', label: 'AI 有寫但系統拿掉的句子（含不能給對方看的字，需要的話請自己改寫補回）', text: (r.ai_removed || []).join(' / ') },
+        { name: 'ai_replace_note', type: 'note', label: r.ai_has_saved ? '目前已存的推薦文字還在，按存檔才會被這份取代' : '', text: r.ai_has_saved ? '不想換就按取消。' : '' },
+        { name: 'client_note', label: '推薦文字', type: 'textarea', rows: 12 },
+        { name: 'percent_ok', type: 'checkbox', required: true, label: '百分比我看過了，是我自己確認的數字' },
+      ];
+    },
+    body: (ctx, values) => ({ ...ctx.idParams, client_note: values.client_note || '' }),
+    submitLabel: '存檔', tallButtons: true, success: '已存推薦文字',
+  },
   // 客製表單：寄送／代為上傳／催填／下載，四個動作對應 index.js 的
   // /admin/candidate-form-submissions/* 四支端點——資料早就在（forms[]，
   // 見 /admin/application/:id/card 的查證註解），這裡只補操作介面。

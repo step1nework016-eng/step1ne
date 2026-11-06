@@ -3042,9 +3042,55 @@ const recTextTemplate = (name, jobTitle) => `應徵者：${[name, jobTitle].filt
 function recTextBlock(f, ids, candidateName) {
   const note = String(f.client_note || '').trim();
   return `<div class="fw-rec"><div class="fw-rec-head"><b>推薦文字</b><small>存檔後，客戶專區會顯示這段</small></div>
-    ${note ? `<div class="fw-rec-text" data-fw-rec-text>${escapeHtml(note)}</div>` : '<p class="fw-rec-empty">還沒寫。按「編輯」會帶入範本，按存檔才會寫入。</p>'}
+    ${note ? `<div class="fw-rec-text" data-fw-rec-text>${escapeHtml(note)}</div>` : '<p class="fw-rec-empty">還沒寫。可以按「AI 產草稿」，或按「編輯」自己寫，都要按存檔才會寫入。</p>'}
     <div class="fw-rec-btns"><button type="button" class="btn primary sm" data-fw-rec-copy${note ? '' : ' disabled'}>複製</button>${actionBtn('編輯', 'forward-rec-text', { idParams: ids.idParams, record: { client_note: note || recTextTemplate(candidateName, f.job_title) } })}</div>
+    <div class="fw-rec-ai" data-fw-rec-ai-box="${escapeHtml(recDraftKey(ids.idParams))}" data-has-saved="${note ? '1' : ''}">${recDraftArea(recDraftKey(ids.idParams), ids.idParams)}</div>
   </div>`;
+}
+// 2026-11-06 Jacky：按「AI 產草稿」→ 排工作 → 等結果 → 放進編輯框。這裡完全不寫 client_note，要顧問按存檔。
+// 等待狀態記在記憶體，卡片重畫或切去看別人都不會斷；關掉分頁就沒了（工作本身不寫任何資料）。
+const recDrafts = new Map();
+const recDraftKey = (idParams) => `${idParams.application_id}|${idParams.company_id}`;
+function recDraftArea(key, idParams) {
+  const d = recDrafts.get(key);
+  const attrs = `data-app="${escapeHtml(idParams.application_id)}" data-co="${escapeHtml(idParams.company_id)}"`;
+  if (d?.status === 'running') return `<button type="button" class="btn sm" disabled>AI 整理中…</button><small role="status">約 1～3 分鐘，可以先做別的事，好了會自動打開。</small>`;
+  if (d?.status === 'done') return `<button type="button" class="btn primary sm" data-fw-rec-ai-open="${escapeHtml(key)}">打開 AI 草稿</button><button type="button" class="btn sm" data-fw-rec-ai ${attrs}>重新產一份</button><small role="status">草稿還沒存，按存檔才會寫入。</small>`;
+  return `<button type="button" class="btn sm" data-fw-rec-ai ${attrs}>AI 產草稿</button>${d?.status === 'error' ? `<small class="fw-rec-ai-err" role="alert">${escapeHtml(d.msg || '產生失敗，請再按一次')}</small>` : '<small>依初篩報告和電話內容整理，按了不會存。</small>'}`;
+}
+function paintRecDraft(key, idParams) {
+  document.querySelectorAll('[data-fw-rec-ai-box]').forEach((box) => { if (box.getAttribute('data-fw-rec-ai-box') === key) box.innerHTML = recDraftArea(key, idParams); });
+}
+function openRecDraft(key) {
+  const d = recDrafts.get(key);
+  if (!d?.draft) return;
+  const hasSaved = [...document.querySelectorAll('[data-fw-rec-ai-box]')].some((box) => box.getAttribute('data-fw-rec-ai-box') === key && box.dataset.hasSaved === '1');
+  openAction('forward-rec-text-ai', { idParams: d.idParams, record: { client_note: d.draft.text, ai_percent: d.draft.percent, ai_basis: d.draft.basis, ai_removed: d.draft.removed, ai_has_saved: hasSaved } });
+}
+async function startRecDraft(idParams) {
+  const key = recDraftKey(idParams);
+  if (recDrafts.get(key)?.status === 'running') return;
+  recDrafts.set(key, { status: 'running', idParams });
+  paintRecDraft(key, idParams);
+  const fail = (msg) => { recDrafts.set(key, { status: 'error', msg, idParams }); paintRecDraft(key, idParams); };
+  try {
+    const { job_id: jobId } = await api.post('/admin/pipeline/rec-text-draft', { application_id: idParams.application_id, company_id: idParams.company_id });
+    const t0 = Date.now();
+    while (Date.now() - t0 < 6 * 60 * 1000) {
+      await new Promise((ok) => setTimeout(ok, 3000));
+      const g = await api.get('/admin/pipeline/rec-text-draft?job=' + encodeURIComponent(jobId));
+      if (g.status === 'done' && g.draft) {
+        recDrafts.set(key, { status: 'done', draft: g.draft, idParams });
+        paintRecDraft(key, idParams);
+        // 顧問正在開別的視窗（或已經離開這位人選）就不要搶畫面，留「打開 AI 草稿」讓他自己按
+        if (state.openCandidateId === idParams.application_id && !document.querySelector('#overlay-root .modal')) openRecDraft(key);
+        else toast('AI 草稿好了，回到這位人選的卡片按「打開 AI 草稿」', 'success');
+        return;
+      }
+      if (g.status === 'failed') { fail(g.error || 'AI 這次沒有產出，請再按一次'); return; }
+    }
+    fail('等太久了（背景忙碌中），請晚點再按一次');
+  } catch (err) { fail(err.message || '產生失敗，請再按一次'); }
 }
 // navigator.clipboard 在沒授權時會失敗：先退回舊方法，再不行就選好文字請顧問自己複製，不能按了沒反應。
 async function copyRecText(btn) {
@@ -4511,6 +4557,8 @@ async function submitPendingAction() {
     const res = await api[action.method](path, body, options);
     // 後端改了處理方式時（例：電洽摘要貼的其實是逐字稿→改交 AI 整理）用後端的說明
     toast((res && res.queued && res.message) || action.success || '已完成', 'success');
+    // AI 草稿存檔後就用掉了，卡片回到一般狀態
+    if (action === ACTIONS['forward-rec-text-ai']) recDrafts.delete(recDraftKey(ctx.idParams));
     state.pendingAction = null;
     // 2026-09-29：職缺抽屜「AI 找的人」分頁的記錄聯絡，送出後重開同一個職缺、停在同一個分頁。
     if (action.reopenJobTab && ctx.idParams.job_slug) { openJobManage(ctx.idParams.job_slug, action.reopenJobTab); return; }
@@ -4612,6 +4660,10 @@ document.addEventListener('click', async (event) => {
   if (bdRow && !target.closest('a,button,input,select,label,textarea,summary,[data-action]')) { openBdDetail(bdRow.getAttribute('data-bd-open')); return; }
   const recCopyBtn = target.closest('[data-fw-rec-copy]');
   if (recCopyBtn) { copyRecText(recCopyBtn); return; }
+  const recAiBtn = target.closest('[data-fw-rec-ai]');
+  if (recAiBtn) { startRecDraft({ application_id: recAiBtn.getAttribute('data-app'), company_id: recAiBtn.getAttribute('data-co') }); return; }
+  const recAiOpen = target.closest('[data-fw-rec-ai-open]');
+  if (recAiOpen) { openRecDraft(recAiOpen.getAttribute('data-fw-rec-ai-open')); return; }
   const copyBtn = target.closest('[data-copy-text]');
   if (copyBtn) { navigator.clipboard.writeText(copyBtn.getAttribute('data-copy-text') || '').then(() => toast('已複製連結', 'success')).catch(() => toast('複製失敗，請手動選取', 'error')); return; }
   const resumeDl = target.closest('[data-download-resume]');

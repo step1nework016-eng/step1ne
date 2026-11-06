@@ -66,6 +66,9 @@ export function formFields(fields, values = {}) {
     const val = raw === undefined || raw === null ? (f.value ?? '') : raw;
     const req = f.required ? 'required' : '';
     if (f.type === 'select') return `<label class="field ${f.wide ? 'span-2' : ''}"><span>${escapeHtml(f.label)}</span><select name="${escapeHtml(f.name)}" ${req}>${(f.options || []).map((o) => `<option value="${escapeHtml(o.value)}" ${String(val) === String(o.value) ? 'selected' : ''}>${escapeHtml(o.label)}</option>`).join('')}</select></label>`;
+    // 2026-11-06：note＝只給顧問看的說明（不是輸入欄，不會送出）；checkbox＝要自己勾才能送出的確認
+    if (f.type === 'note') return f.text ? `<div class="field span-2 field-note"><b>${escapeHtml(f.label)}</b><p>${escapeHtml(f.text)}</p></div>` : '';
+    if (f.type === 'checkbox') return `<label class="field span-2 field-check"><input type="checkbox" name="${escapeHtml(f.name)}" value="1" ${req}><span>${escapeHtml(f.label)}</span></label>`;
     if (f.type === 'textarea') return `<label class="field span-2"><span>${escapeHtml(f.label)}</span><textarea name="${escapeHtml(f.name)}" rows="${f.rows || 4}" ${req}>${escapeHtml(val)}</textarea></label>`;
     // 2026-09-17 加：檔案上傳欄位（電洽逐字稿檔案用）——只負責畫 input，實際
     // 讀成 base64 在 app.js 的 submitPendingAction 另外處理，這裡不碰 FileReader。
