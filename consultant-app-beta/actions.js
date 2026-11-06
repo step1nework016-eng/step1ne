@@ -224,6 +224,16 @@ export const ACTIONS = {
     ],
     body: idBody, success: '已更新',
   },
+  // 2026-11-06 Jacky：指定客戶卡片的「推薦文字」。跟 forward-detail-update 同一支後端，只改
+  // client_note；不送 line_id_given，後端沒收到就不會動 LINE ID。整段清空要真的清掉
+  // （formBody 會濾掉空欄位，所以這裡補空字串，不然後端回「沒有要更新的欄位」）。
+  'forward-rec-text': {
+    label: '編輯推薦文字', method: 'post', path: () => '/admin/pipeline/forward-detail',
+    confirmText: '按存檔才會寫入，存檔後客戶專區會顯示這段。一面日期留白，由客戶人資自己填。',
+    fields: [{ name: 'client_note', label: '推薦文字', type: 'textarea', rows: 9 }],
+    body: (ctx, values) => ({ ...ctx.idParams, client_note: values.client_note || '' }),
+    submitLabel: '存檔', success: '已存推薦文字',
+  },
   // 客製表單：寄送／代為上傳／催填／下載，四個動作對應 index.js 的
   // /admin/candidate-form-submissions/* 四支端點——資料早就在（forms[]，
   // 見 /admin/application/:id/card 的查證註解），這裡只補操作介面。

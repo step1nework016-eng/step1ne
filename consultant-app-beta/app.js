@@ -3030,6 +3030,39 @@ function jobOptLabel(j) {
   return loc ? `${j.title}｜${loc}` : j.title;
 }
 
+// 2026-11-06 Jacky：這家客戶要顧問附一段固定格式的推薦文字，人資複製去自己的表。
+// 只有這家客戶有這區；一面日期由對方人資自己填，百分比由顧問自己判斷，系統都不帶。
+const REC_TEXT_COMPANY_ID = 'co_8219a05b';
+const recTextTemplate = (name, jobTitle) => `應徵者：${[name, jobTitle].filter(Boolean).join(' ')}
+一面日期：
+工作型態：
+錄用推薦百分比：
+錄用理由或簡述：
+其他備註：`;
+function recTextBlock(f, ids, candidateName) {
+  const note = String(f.client_note || '').trim();
+  return `<div class="fw-rec"><div class="fw-rec-head"><b>推薦文字</b><small>存檔後，客戶專區會顯示這段</small></div>
+    ${note ? `<div class="fw-rec-text" data-fw-rec-text>${escapeHtml(note)}</div>` : '<p class="fw-rec-empty">還沒寫。按「編輯」會帶入範本，按存檔才會寫入。</p>'}
+    <div class="fw-rec-btns"><button type="button" class="btn primary sm" data-fw-rec-copy${note ? '' : ' disabled'}>複製</button>${actionBtn('編輯', 'forward-rec-text', { idParams: ids.idParams, record: { client_note: note || recTextTemplate(candidateName, f.job_title) } })}</div>
+  </div>`;
+}
+// navigator.clipboard 在沒授權時會失敗：先退回舊方法，再不行就選好文字請顧問自己複製，不能按了沒反應。
+async function copyRecText(btn) {
+  const box = btn.closest('.fw-rec')?.querySelector('[data-fw-rec-text]');
+  const txt = box ? box.textContent : '';
+  if (!txt) { toast('還沒有內容可以複製，先按編輯', 'error'); return; }
+  try { await navigator.clipboard.writeText(txt); toast('已複製推薦文字', 'success'); return; } catch { /* 走下面的退路 */ }
+  const range = document.createRange();
+  range.selectNodeContents(box);
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+  let ok = false;
+  try { ok = document.execCommand('copy'); } catch { ok = false; }
+  if (ok) toast('已複製推薦文字', 'success');
+  else toast('複製失敗，文字已幫你選好，請自己按複製', 'error');
+}
+
 async function openCandidate(applicationId, opts = {}) {
   const sameOpen = state.openCandidateId === applicationId && !!document.querySelector('#overlay-root .drawer [data-cand-card]');
   state.openCandidateId = applicationId;
@@ -3101,11 +3134,12 @@ async function openCandidate(applicationId, opts = {}) {
         actionBtn('編輯 LINE ID／客戶備註', 'forward-detail-update', { idParams: ids.idParams, record: { line_id_given: f.line_id_given || '', client_note: f.client_note || '' } }),
         f.onboard_date && !f.no_show_at ? actionBtn('標記不報到', 'placement-no-show', ids) : '',
       ].filter(Boolean);
-      const meta = [`推薦於 ${text(String(f.forwarded_at || '').slice(0, 10) || '—')}`, f.client_note ? '客戶備註：' + text(f.client_note) : '', f.line_id_given ? 'LINE ID：' + text(f.line_id_given) : ''].filter(Boolean).join('　');
+      const hasRecText = companyId === REC_TEXT_COMPANY_ID;
+      const meta = [`推薦於 ${text(String(f.forwarded_at || '').slice(0, 10) || '—')}`, f.client_note && !hasRecText ? '客戶備註：' + text(f.client_note) : '', f.line_id_given ? 'LINE ID：' + text(f.line_id_given) : ''].filter(Boolean).join('　');
       return `<div class="fw-card cfr-drop" data-cfr-app="${escapeHtml(applicationId)}" data-cfr-co="${escapeHtml(companyId)}" data-cfr-name="${escapeHtml(f.company_name || '')}" data-cfr-has="${cfrDone ? '1' : ''}">
         <div class="fw-title"><b>${text(f.company_name)}</b><span>${text(f.job_title || f.job_slug)}</span></div>
         <small class="muted">${meta}</small>${warn}${steps}
-        ${views.candidateBillingPendingBlock(f.billing_pending)}${cfrRow}${formsRows}
+        ${views.candidateBillingPendingBlock(f.billing_pending)}${cfrRow}${formsRows}${hasRecText ? recTextBlock(f, ids, application.name) : ''}
         <div class="fw-actions"><small>這家客戶這個職缺</small><div class="ag-btns">${more.join('')}<span class="fw-gap"></span>${actionBtn('取消推薦', 'pipeline-unforward-candidate', ids, 'danger')}</div></div>
         <small class="cfr-drop-hint">也可以直接把推薦履歷 PDF 拖進這張卡</small>
       </div>`;
@@ -4432,7 +4466,7 @@ function openAction(actionId, rawCtx) {
     subtitle: action.confirmText || '',
     dangerous: !!action.dangerous,
     body: fields.length ? `<form id="action-form">${formFields(fields, ctx.record || {})}</form>` : (action.confirmText ? '' : '<p>確定要執行此操作？</p>'),
-    footer: `<button class="btn" data-close-overlay>取消</button><button class="btn ${action.dangerous ? 'danger' : 'primary'}" data-action="run-action">確認</button>`
+    footer: `<button class="btn" data-close-overlay>取消</button><button class="btn ${action.dangerous ? 'danger' : 'primary'}" data-action="run-action">${escapeHtml(action.submitLabel || '確認')}</button>`
   });
 }
 
@@ -4576,6 +4610,8 @@ document.addEventListener('click', async (event) => {
   // 2026-10-02 Jacky：點開發進度卡片本身就打開開發引導／時間軸（點到按鈕、勾選、下拉、電話連結不算）
   const bdRow = target.closest('[data-bd-open]');
   if (bdRow && !target.closest('a,button,input,select,label,textarea,summary,[data-action]')) { openBdDetail(bdRow.getAttribute('data-bd-open')); return; }
+  const recCopyBtn = target.closest('[data-fw-rec-copy]');
+  if (recCopyBtn) { copyRecText(recCopyBtn); return; }
   const copyBtn = target.closest('[data-copy-text]');
   if (copyBtn) { navigator.clipboard.writeText(copyBtn.getAttribute('data-copy-text') || '').then(() => toast('已複製連結', 'success')).catch(() => toast('複製失敗，請手動選取', 'error')); return; }
   const resumeDl = target.closest('[data-download-resume]');
